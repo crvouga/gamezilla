@@ -7,29 +7,29 @@ than restating it.
 
 ## Hard Rules
 
-- **We never test manually. Ever.** A green full verification (the `verify:end` on every pull request, which Deploy runs again on the commit it ships) is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing verification, and if no verification can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property-shared` only; `fc.commands` models; `@pkgs/harness-root-shared` systems; Quint models for product subs — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus its own file `libs/tools/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`README.md`](README.md#correctness-machinery).
+- **We never test manually. Ever.** A green full verification (the `verify:end` on every pull request, which Deploy runs again on the commit it ships) is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing verification, and if no verification can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property-shared-ts` only; `fc.commands` models; `@pkgs/harness-root-shared-ts` systems; Quint models for product subs — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus its own file `libs/tools-harness-ts/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`README.md`](README.md#correctness-machinery).
 
 - **Specs are for business readers.** Every line in `specs/` is understood by a non-technical business person (A0 in [`specs/README.md`](specs/README.md)); every behavior test is a spec; each framework package tests through one kitchen-sink example app. Spec text changes only in `spec:` commits; implementers treat it as read-only. What the app should be lives only in `specs/`, with no discrete versions of the app; [`README.md`](README.md) is the implementation briefing and never a second product definition. Step catalogs (`<package>/STEPS_CATALOG.md`, index `docs/STEPS_CATALOG.md`) are generated and gitignored: `bun install` writes them and `bun run spec:catalog` refreshes them. Write specs with [`spec-upsert`](.agents/skills/spec-upsert/SKILL.md), bind them with [`spec-implement`](.agents/skills/spec-implement/SKILL.md), audit them with [`spec-audit`](.agents/skills/spec-audit/SKILL.md).
 
-- **A person recovers without support.** There is no support team. A person-facing change meets the definition of done in [`docs/SELF_SERVICE_READINESS.md`](docs/SELF_SERVICE_READINESS.md) (distinct loading / empty / failure states, work preserved, a next action on every error, safe retries, observable failures) and updates its readiness-matrix row in the same change. Product copy never sends a person to support. CI: `@libs/tools#ci:goals`.
+- **A person recovers without support.** There is no support team. A person-facing change meets the definition of done in [`docs/SELF_SERVICE_READINESS.md`](docs/SELF_SERVICE_READINESS.md) (distinct loading / empty / failure states, work preserved, a next action on every error, safe retries, observable failures) and updates its readiness-matrix row in the same change. Product copy never sends a person to support. CI: `@libs/tools-harness-ts#ci:goals`.
 
 - **Never leave deprecated code.** No `@deprecated` markers, deprecated aliases, shim re-exports, or "kept for migration" optional fields. Delete the old API and update every call site in the same change.
 
 - **Access is decided only by `@libs/permissions`.** Sub gates, usage limits, upsells and "sign in to…" prompts all come from a permission decision: `useCan` / `useDecision` / `usePermissions` on the client, `requireInMutation` / `decideInMutation` in mutation bodies, `requirePermission` in server routes. What a denial unlocks is policy config (`unlockRefs`), rendered by `DenialSurface` or run by `useUnlock` — never a sub's own branch. No product code outside auth, billing and permissions reads `isAnon` / `isSignedIn`, imports `@libs/auth/public/access-facts`, queries `is_anon` / `billing_subscriptions`, or names a role or plan (`@libs/permissions/root/access-model` is for tests and the policy root only). The shell chrome shows identity, never a tier. Account-only actions deny anonymous subjects through a policy restriction (`reason: 'requires_account'`). CI: `import-access-facts.grit`, `import-access-model.grit`, `no-access-state-vocabulary.grit`, `no-tier-vocabulary*.grit`.
 
-- **All nondeterministic I/O is injected.** Product runtime (`apps/*`, `libs/*`, `pkgs/*`, scripts included) never calls bare `Date.now`, zero-arg `new Date()`, `performance.now`, `setTimeout` / `setInterval`, `fetch`, `crypto.randomUUID`, `Math.random` or `crypto.getRandomValues`. Inject `Clock` / `Timers` (`@pkgs/clock`), HTTP (`@pkgs/http-client`) and `createId` / `random` (`@pkgs/uuid`) from composition roots (`createClient(env)` / `createServer(env)` / `createRoomServer(env)` / `createHarness`, wall adapters at process entry), via Solid context (`ClockProvider` / `useClock` / `useTimers` / `useHttpClient` / `useCreateId`) or constructor/param — never a silent wall fallback, never an `Io` bag. `Session` / Runtime are harness-only (`@libs/harness`, `@apps/product`, `-harness` packages, tests); product envs receive unpacked ports. Do not reintroduce `resolveNow` / `resolveTimers` / `resolveCreateId` / `resolveRandom` / `resolveClock`, `cryptoCreateId` or `mathRandom`. Wall implementations only in tests or entry-shaped files marked `// @io-wall-ok` (`no-bare-io.grit`). File content I/O goes through an injected `@pkgs/object-store` (wall `node:fs` only in `@io-wall-ok` adapters); process I/O stays on `@pkgs/os`. SQL never mints time or ids: no `DEFAULT now()`, `gen_random_uuid()`, `randomblob`, `strftime('now')`, `datetime('now')` or bare `now()` in DML. Scenario authoring lives only in `@pkgs/harness-root-shared` (`defineSystem` / `defineAction` / `defineProperty`, run by `system.run` / `system.explore` / `system.replay`; no package-local world openers or DSLs; guide: [`pkgs/harness-root-shared/README.md`](pkgs/harness-root-shared/README.md)); reports go object store → Atlas: CI publishes to the shared reports store, and the standalone Atlas explorer renders it — no reports screen, command, or API in the product app or harness. Gotchas (floats, key order, locale, `hash(state)`, LWW): [`README.md`](README.md#correctness-machinery).
+- **All nondeterministic I/O is injected.** Product runtime (`apps/*`, `libs/*`, `pkgs/*`, scripts included) never calls bare `Date.now`, zero-arg `new Date()`, `performance.now`, `setTimeout` / `setInterval`, `fetch`, `crypto.randomUUID`, `Math.random` or `crypto.getRandomValues`. Inject `Clock` / `Timers` (`@pkgs/clock`), HTTP (`@pkgs/http-client`) and `createId` / `random` (`@pkgs/uuid`) from composition roots (`createClient(env)` / `createServer(env)` / `createRoomServer(env)` / `createHarness`, wall adapters at process entry), via Solid context (`ClockProvider` / `useClock` / `useTimers` / `useHttpClient` / `useCreateId`) or constructor/param — never a silent wall fallback, never an `Io` bag. `Session` / Runtime are harness-only (`@libs/harness-ts`, `@apps/product-ts`, `-harness` packages, tests); product envs receive unpacked ports. Do not reintroduce `resolveNow` / `resolveTimers` / `resolveCreateId` / `resolveRandom` / `resolveClock`, `cryptoCreateId` or `mathRandom`. Wall implementations only in tests or entry-shaped files marked `// @io-wall-ok` (`no-bare-io.grit`). File content I/O goes through an injected `@pkgs/object-store` (wall `node:fs` only in `@io-wall-ok` adapters); process I/O stays on `@pkgs/os`. SQL never mints time or ids: no `DEFAULT now()`, `gen_random_uuid()`, `randomblob`, `strftime('now')`, `datetime('now')` or bare `now()` in DML. Scenario authoring lives only in `@pkgs/harness-root-shared-ts` (`defineSystem` / `defineAction` / `defineProperty`, run by `system.run` / `system.explore` / `system.replay`; no package-local world openers or DSLs; guide: [`pkgs/harness-root-shared-ts/README.md`](pkgs/harness-root-shared-ts/README.md)); reports go object store → Atlas: CI publishes to the shared reports store, and the standalone Atlas explorer renders it — no reports screen, command, or API in the product app or harness. Gotchas (floats, key order, locale, `hash(state)`, LWW): [`README.md`](README.md#correctness-machinery).
 
-- **One naming convention.** Markdown docs are `SCREAMING_SNAKE_CASE.md`; every other file and directory is `lower-kebab-case` with a lowercase extension chain. The repo briefing is `README.md`. A package may keep its own `README.md` and `<pkg>/docs/`. `docs/` at the repo root holds the generated (gitignored) step-catalog index. Tool-mandated names are the only exemptions, listed in `NAMING_EXEMPT` (`libs/tools/naming/naming-rules.ts`). Verify: `bun run lint:naming`; fix: `bun run naming:fix` (dry run) then `--write`, which also rewrites every reference.
+- **One naming convention.** Markdown docs are `SCREAMING_SNAKE_CASE.md`; every other file and directory is `lower-kebab-case` with a lowercase extension chain. The repo briefing is `README.md`. A package may keep its own `README.md` and `<pkg>/docs/`. `docs/` at the repo root holds the generated (gitignored) step-catalog index. Tool-mandated names are the only exemptions, listed in `NAMING_EXEMPT` (`libs/tools-harness-ts/naming/naming-rules.ts`). Verify: `bun run lint:naming`; fix: `bun run naming:fix` (dry run) then `--write`, which also rewrites every reference.
 
-- **Every package declares its language.** `package.json` carries `"language"` (`typescript`, `swift`, or `neutral` for specs, schemas and data) beside `category`, and native packages declare `"platforms"`. A new package's name ends in its language suffix (`@pkgs/clock-shared-swift`, `@libs/<slice>-client-ts`); only the frozen `libs/tools/scripts/legacy-package-names.json` may omit it, and it only shrinks. Implementations in different languages meet only through neutral packages, and native manifests (`Package.swift`, the Xcode project) name exactly the workspace dependencies `package.json` does. Native tools build; Turborepo runs them through the thin wrappers in `libs/tools/scripts/` (`swift-task.ts`, `xcode-task.ts`). Toolchains are pinned in `mise.toml`, and an Apple build that did not happen is never a pass. Guide: [`docs/POLYGLOT.md`](docs/POLYGLOT.md). CI: `@libs/tools#ci:package-names` (names, one pass over every manifest) and `language-boundaries.ts` in every package's `lint` (dependencies, native manifests).
+- **Every package declares its language.** `package.json` carries `"language"` (`typescript`, `swift`, or `neutral` for specs, schemas and data) beside `category`, and native packages declare `"platforms"`. Every package's name ends in its runtime suffix, then its language suffix (`@pkgs/clock-shared-swift`, `@libs/<slice>-client-ts`); apps omit the runtime suffix and neutral packages both. There are no exemptions. Implementations in different languages meet only through neutral packages, and native manifests (`Package.swift`, the Xcode project) name exactly the workspace dependencies `package.json` does. Native tools build; Turborepo runs them through the thin wrappers in `libs/tools-harness-ts/scripts/` (`swift-task.ts`, `xcode-task.ts`). Toolchains are pinned in `mise.toml`, and an Apple build that did not happen is never a pass. Guide: [`docs/POLYGLOT.md`](docs/POLYGLOT.md). CI: `@libs/tools-harness-ts#ci:package-names` (names, one pass over every manifest) and `language-boundaries.ts` in every package's `lint` (dependencies, native manifests).
 
 - **Own every long-lived command.** Use the launch and cleanup entry points in [`README.md`](README.md#laptop). Never start an unmanaged background server, watcher, compiler, database, browser, simulator, or media worker.
 
-- **Turborepo is the only task runner.** Every root script is `turbo run <tasks>` (its own body is the root task `task:<command>`), an alias of one, or a task body declared in `turbo.json`. No script runs another script (`bun run <script>`, `--filter`, `--cwd`, `pre`/`post` hooks) or backgrounds a process (`&`): order is `dependsOn`, side by side is `with`. Every task is `cache: false` or declares `inputs` and `outputs`. `lint` fails on anything else; the rule and its few named exceptions are [`libs/tools/scripts/task-runner-policy.ts`](libs/tools/scripts/task-runner-policy.ts).
+- **Turborepo is the only task runner.** Every root script is `turbo run <tasks>` (its own body is the root task `task:<command>`), an alias of one, or a task body declared in `turbo.json`. No script runs another script (`bun run <script>`, `--filter`, `--cwd`, `pre`/`post` hooks) or backgrounds a process (`&`): order is `dependsOn`, side by side is `with`. Every task is `cache: false` or declares `inputs` and `outputs`. `lint` fails on anything else; the rule and its few named exceptions are [`libs/tools-harness-ts/scripts/task-runner-policy.ts`](libs/tools-harness-ts/scripts/task-runner-policy.ts).
 
 - **Agents use git and pull requests freely.** Agents may create branches and worktrees (`git worktree add`, `git switch -c`, a harness's worktree-isolated subagents), push their branches, and open, label, comment on and update pull requests, so one change is one reviewable PR. Agents sharing one worktree split work by files and commit only their own paths (`git commit -- <paths>`, never `git add -A` over another agent's edits). Never rewrite history someone else pushed: no force-push to a branch you did not create, and never to `main`. Delete a branch and worktree you created once its PR is closed or merged.
 
-- **Concurrent worktrees never share a hot file.** Many agents work at once, so nothing they routinely add to is one shared file. A register is a directory with one file per entry (`libs/tools/goal/known-bugs/<bug-id>.json`); a list of local modules is discovered from the filesystem (`tests/<kind>/index.ts` loads every `*.steps.ts` / `*.binding.ts`); output derived from sources (step catalogs, the compiled Lingui catalog `messages.ts`) is gitignored and written by `bun install` (`postinstall` → `bun run generate`), never committed.
+- **Concurrent worktrees never share a hot file.** Many agents work at once, so nothing they routinely add to is one shared file. A register is a directory with one file per entry (`libs/tools-harness-ts/goal/known-bugs/<bug-id>.json`); a list of local modules is discovered from the filesystem (`tests/<kind>/index.ts` loads every `*.steps.ts` / `*.binding.ts`); output derived from sources (step catalogs, the compiled Lingui catalog `messages.ts`) is gitignored and written by `bun install` (`postinstall` → `bun run generate`), never committed.
 
 - **Atlas is an npm dependency, never a copy.** `@crvouga/atlas` installs from npm through the root `catalog`: no submodule, vendored copy, `git` / `file:` dependency or patch. Import only its documented paths (`@crvouga/atlas`, `/spec`, `/schema`, `/reports/<module>`, …) and run its `atlas` / `atlas-visualizer` commands. A bug or gap in Atlas is an issue at [crvouga/atlas](https://github.com/crvouga/atlas/blob/main/docs/reporting-issues.md), never a fix made from here; a workaround in our code is named in that issue and removed when the release that fixes it lands. Upgrade by raising the catalog entry in a commit of its own. Guide: [dogfooding](https://github.com/crvouga/atlas/blob/main/docs/dogfooding.md).
 
@@ -39,7 +39,7 @@ than restating it.
 
 - **Never patch dependencies.** No `bun patch`, `patch-package`, `pnpm patch`, `patches/` directory, or `patchedDependencies` / `resolutions` field. Work around a third-party bug in our code or accept it.
 
-- **Infrastructure is code, zero-ops, and web scale; environments are cattle, data is never lost by accident.** Every deployed resource is declared in `libs/infra-shared/tofu` (env-agnostic modules and stacks; per-environment values only in `libs/infra-shared/tofu/envs/<env>.tfvars.json`), so any environment rebuilds from its env file alone. Never create, change or delete infrastructure from TypeScript, a script or a console (`no-infra-outside-tofu.grit`). `libs/infra-shared/policy/stateful.rego` allow-lists the only types an ordinary apply may delete (add one only if losing it loses no data); retire a stateful resource with `removed { lifecycle { destroy = false } }`. The one destroy path is `bun run infra:destroy` for a `protection: "standard"` environment; production and the global stateful resources (`prevent_destroy`) can never be torn down. Resources and why: [`README.md`](README.md#infrastructure).
+- **Infrastructure is code, zero-ops, and web scale; environments are cattle, data is never lost by accident.** Every deployed resource is declared in `libs/infra-shared-ts/tofu` (env-agnostic modules and stacks; per-environment values only in `libs/infra-shared-ts/tofu/envs/<env>.tfvars.json`), so any environment rebuilds from its env file alone. Never create, change or delete infrastructure from TypeScript, a script or a console (`no-infra-outside-tofu.grit`). `libs/infra-shared-ts/policy/stateful.rego` allow-lists the only types an ordinary apply may delete (add one only if losing it loses no data); retire a stateful resource with `removed { lifecycle { destroy = false } }`. The one destroy path is `bun run infra:destroy` for a `protection: "standard"` environment; production and the global stateful resources (`prevent_destroy`) can never be torn down. Resources and why: [`README.md`](README.md#infrastructure).
 
 - **Never disable structural size limits.** The Tiger-Style caps in [`biome.json`](biome.json) (`noExcessiveLinesPerFile`, `noExcessiveLinesPerFunction`, `useMaxParams`, `noExcessiveNestedCallbacks`, `noExcessiveCognitiveComplexity`, `noExcessiveClassesPerFile`) are load-bearing: no new `'off'` overrides, no `biome-ignore` for them. Refactor instead — extract components, hooks or pure helpers.
 
@@ -49,11 +49,11 @@ than restating it.
 
 - **Domain rows are soft-delete only.** Removal sets managed `deleted_at`, never `DELETE FROM` a domain table (mutation `tx` rejects it: `NO_HARD_DELETE`). `defineQuery` snapshots include tombstones; UI reads filter `deleted_at IS NULL`. Merge upserts snapshot rows verbatim and rebases pending `sync_engine_mutations` on top — no absence GC. Unsubscribe / denied only clears `sync_engine_scope_meta`. Framework tables (`sync_engine_*`) may hard-delete.
 
-- **Screens compose `@pkgs/ui`; only the design system styles.** Product packages (`libs/*-client`, `apps/client`, `apps/product`, the feedback and harness-console clients) write no DOM elements and no `class` / `classList` / `style`: layout is `Stack*` / `Grid` / `Layer` props, text is `P` / `Text` / `H1`–`H6`, paint is `Surface` or a component variant. Inside `@pkgs/ui-root-client` (and component packages such as the chess board) style with Solid builtins: `class` / `classList` for token utilities, `style` only for dynamic values classes cannot express. Component props are closed (token names and keywords): no `class` / `style` / `contentClass` escape hatch, no `sx` / `frameSx` / `fieldSx`, no class-merge helpers (`joinClass` / `cn` / `clsx` / `twMerge` / `cva`). CI: `design-vocabulary.ts` + `design-composition.ts` (every UI package's `lint`), `no-inline-style-prop.grit`.
+- **Screens compose `@pkgs/ui`; only the design system styles.** Product packages (`libs/*-client`, `apps/client-ts`, `apps/product-ts`, the feedback and harness-console clients) write no DOM elements and no `class` / `classList` / `style`: layout is `Stack*` / `Grid` / `Layer` props, text is `P` / `Text` / `H1`–`H6`, paint is `Surface` or a component variant. Inside `@pkgs/ui-root-client-ts` (and component packages such as the chess board) style with Solid builtins: `class` / `classList` for token utilities, `style` only for dynamic values classes cannot express. Component props are closed (token names and keywords): no `class` / `style` / `contentClass` escape hatch, no `sx` / `frameSx` / `fieldSx`, no class-merge helpers (`joinClass` / `cn` / `clsx` / `twMerge` / `cva`). CI: `design-vocabulary.ts` + `design-composition.ts` (every UI package's `lint`), `no-inline-style-prop.grit`.
 
 - **Three-layer DI.** Only `SqlClient` and the injected ports are long-lived. Use-case classes take `(db, ports)` and open transactions for writes (reads pass `db` as `SqlTx`). Repositories / services / publishers / handlers take `SqlTx` (`Pick` of `query` / `run`) plus ports and are constructed on demand inside the use case. Factory functions `(tx, ports) => …` are the wiring escape hatch; no `*Container` or registry classes (`no-di-container.grit`). `defineMutation` / `defineQuery` handlers and Solid hooks stay as they are.
 
-- **Test layout.** Package tests live in `tests/` (sibling of `src/`); colocate `module.test.ts` only next to public entrypoints. Every test is black-box against the package `exports` — no deep `src/` imports. Harness code lives in a sibling `-harness` package (`@pkgs/room-root-harness`, `@pkgs/auth-root-harness`, …). `bun test` is the only runner (`no-vitest.grit`); Solid / DOM tests run with `--conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload`.
+- **Test layout.** Package tests live in `tests/` (sibling of `src/`); colocate `module.test.ts` only next to public entrypoints. Every test is black-box against the package `exports` — no deep `src/` imports. Harness code lives in a sibling `-harness` package (`@pkgs/room-root-harness-ts`, `@pkgs/auth-root-harness-ts`, …). `bun test` is the only runner (`no-vitest.grit`); Solid / DOM tests run with `--conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload`.
 
 ## Code graph
 
@@ -78,8 +78,8 @@ Serena gives agents language-server navigation and edits over MCP
 Every harness's MCP entry for it (`.mcp.json`, `.codex/config.toml`,
 `.cursor/mcp.json`, `.gemini/settings.json`, `.vscode/mcp.json`,
 `opencode.json`) is generated by `bun run agents:sync` from
-`libs/tools/scripts/sync-agent-mcp.ts`; never edit the Serena entries, and
-`@libs/tools#ci:agent-commands` fails on drift. Windsurf and the Copilot CLI
+`libs/tools-harness-ts/scripts/sync-agent-mcp.ts`; never edit the Serena entries, and
+`@libs/tools-harness-ts#ci:agent-commands` fails on drift. Windsurf and the Copilot CLI
 only read per-user config, so add `mise exec -- serena start-mcp-server`
 there yourself. Use the graph above to find where to look, Serena to read and
 change the symbols it finds. The first start downloads the language server, so
@@ -93,7 +93,7 @@ instead of a regex over source. It is a pinned `mise.toml` tool; its `ast-grep`
 `ast-grep/agent-skill` through `skills-lock.json` into `.agents/skills`, which
 Codex reads and `.claude/skills` links for Claude Code. Update them with
 `bunx skills update`, never by hand. Repo-wide lint rules stay Biome plugins
-(`libs/tools/biome-plugins/*.grit`), not ast-grep rules.
+(`libs/tools-harness-ts/biome-plugins/*.grit`), not ast-grep rules.
 
 ## Debugging
 
@@ -112,12 +112,12 @@ use [`frontend-design`](.agents/skills/frontend-design/SKILL.md), including
 mobile and native app surfaces.
 
 `@pkgs/ui` is the only design-system surface: every component, prop type,
-hook and theme helper is in-house under `pkgs/ui-root-client/src/*`,
+hook and theme helper is in-house under `pkgs/ui-root-client-ts/src/*`,
 re-exported from individual module exports (`import { Button }
-from '@pkgs/ui-root-client/button'`). No adapter layer, no third-party UI library.
+from '@pkgs/ui-root-client-ts/button'`). No adapter layer, no third-party UI library.
 
 **How it looks** is decided once, in
-[`pkgs/ui-root-client/README.md`](pkgs/ui-root-client/README.md): the
+[`pkgs/ui-root-client-ts/README.md`](pkgs/ui-root-client-ts/README.md): the
 palette, the type roles, panels for lists, radius by hierarchy, blue only
 for what is chosen, one activity indicator. Screens are compositions of
 components and set only their props; they never write markup, classes or
@@ -127,7 +127,7 @@ package's `lint`, plus the locked Tailwind theme `src/theme.css`). A need the
 components cannot express becomes a new component or variant, never markup in
 a screen.
 
-**Adding a component:** `pkgs/ui-root-client/src/<name>.tsx`, exported through the
+**Adding a component:** `pkgs/ui-root-client-ts/src/<name>.tsx`, exported through the
 package's `./*` mapping; closed, typed props (token names and variants,
 never `class` / `style`); style with `class` / `classList` / `style`
 internally; set `data-*` on the root via `dataAttrs({ component:
@@ -157,7 +157,7 @@ Components run once; reactivity is tracking, not re-rendering.
 
 Lint: oxlint (`oxlint.config.mts`, eslint-plugin-solid, type-aware via
 oxlint-tsgolint) runs the full Solid set on
-`libs/tools/port/solid-scope.json` `dirs` / `files`; product libs get
+`libs/tools-harness-ts/port/solid-scope.json` `dirs` / `files`; product libs get
 `reactivityDirs` and `noDestructureDirs`. Suppress with
 `oxlint-disable-next-line <rule> -- reason`; unused suppressions fail.
 
@@ -197,7 +197,7 @@ Four workflows, one contract each. Details:
   `bun verify-nightly random`) when a change deserves deeper verification, such
   as a new Quint model, a property, or sync and recovery code. An ordinary
   pull request never waits for a green nightly run.
-- **One set of tests, two profiles.** `libs/tools/scripts/verify-profile.ts` is
+- **One set of tests, two profiles.** `libs/tools-harness-ts/scripts/verify-profile.ts` is
   the only place the two differ: the task list, the depth (`pr` replays the
   fewest drawn traces of each Quint model that take every bound action, at the
   pinned property budget; `nightly` replays every trace at five times the
@@ -217,7 +217,7 @@ Four workflows, one contract each. Details:
   ([`docs/POLYGLOT.md`](docs/POLYGLOT.md#ci)). The ruleset on `main` does not
   require that verification before a push.
 - **Every gate is a package-owned Turbo task.** The task list in
-  `libs/tools/scripts/turbo-ci-run.ts` runs every gate through Turbo. There
+  `libs/tools-harness-ts/scripts/turbo-ci-run.ts` runs every gate through Turbo. There
   are no root `//#verify`, `//#ci:*`, or root lint verifications: each gate has
   explicit inputs and caching, and a new verification goes into the package it is
   about. Bespoke gates such as the Synthetic Population Worker hosting verification
@@ -238,7 +238,7 @@ Four workflows, one contract each. Details:
 
 Each workspace is a git worktree created by an agent orchestrator (Superset,
 super.engineering, …). All of them run the same lifecycle hooks from
-`libs/tools/workspace/`: `run.sh` is the only start script. A cold workspace
+`libs/tools-harness-ts/workspace/`: `run.sh` is the only start script. A cold workspace
 prepares itself once (`mise install`, `bun install`,
 `.cache/secrets`, `apps/*/.env.local`) and writes `.cache/workspace-warm`;
 later runs skip that and start the stack. Preparation never fails the launch.
@@ -248,13 +248,13 @@ The hooks
 derive paths from git, never from a tool's env vars. `bun run workspace:sync` projects them into
 every orchestrator's config (`.superset/config.json`,
 `.super.engineering/config.json`); never edit those, and
-`@libs/tools#ci:workspace-lifecycle` fails on drift. A new orchestrator is one entry in
-`ORCHESTRATORS` in `libs/tools/scripts/sync-workspace-lifecycle.ts`.
+`@libs/tools-harness-ts#ci:workspace-lifecycle` fails on drift. A new orchestrator is one entry in
+`ORCHESTRATORS` in `libs/tools-harness-ts/scripts/sync-workspace-lifecycle.ts`.
 Per-machine extras go in the gitignored `.superset/config.local.json` or
 super.engineering's app project settings.
 
-- **Ports.** `source libs/tools/workspace/port.sh` before booting a sidecar
-  (`@pkgs/postgres-mockingbird-server`); the Run pane does it. EMQX
+- **Ports.** `source libs/tools-harness-ts/workspace/port.sh` before booting a sidecar
+  (`@pkgs/postgres-mockingbird-server-ts`); the Run pane does it. EMQX
   (`1883` / `8083` / `18083`) and the wrangler preview (`8788`) are
   machine-wide: one workspace at a time may bind them.
 - **Iterating.** `bun fmt`, `bunx turbo run tc test --filter=<pkg>` (cached),
@@ -267,7 +267,7 @@ super.engineering's app project settings.
   projects it into every harness (`.claude/commands`, `.cursor/commands`,
   `.opencode/commands`, `.gemini/commands`, `.github/prompts`,
   `.windsurf/workflows`, `.agents/skills`). Never edit the outputs;
-  `@libs/tools#ci:agent-commands` fails on drift.
+  `@libs/tools-harness-ts#ci:agent-commands` fails on drift.
 
 ## Local development
 
@@ -275,21 +275,21 @@ super.engineering's app project settings.
   MQTT, simulated Google, Apple and Stripe, and N Bun API instances running
   the production Worker handler behind a load balancer, with the product web
   app in front (`/`, `/harness`, `/simulator`). `bun run stack` is the same
-  command. Each process is its own Turborepo task (`@apps/product#dev:*`).
+  command. Each process is its own Turborepo task (`@apps/product-ts#dev:*`).
   Tasks, ports and flags: [`README.md`](README.md#laptop).
-- **`bun run dev:client`** — `@apps/client` alone.
+- **`bun run dev:client`** — `@apps/client-ts` alone.
 - **`bun run sims:open`** — pick project simulators and open Simulator.app.
 - **`bun db:migrate`** reconciles `DATABASE_URL` to the declared schemas;
   **`bun run db:wipe:dev`** wipes a non-production database.
 
 Production-likeness comes from port contract suites (mem engines vs live
 Postgres, Kv, ObjectStore, PubSub, billing / TTS / LLM stubs) and
-the live-browser runs `HARNESS_MODE=real` (`bun run --filter @apps/product
-test:max`: sidecars from `@pkgs/postgres-mockingbird-server`, `@pkgs/s3-server`,
-`@pkgs/aedes-server`, `@pkgs/emqx-server`) and `HARNESS_MODE=stack`
+the live-browser runs `HARNESS_MODE=real` (`bun run --filter @apps/product-ts
+test:max`: sidecars from `@pkgs/postgres-mockingbird-server-ts`, `@pkgs/s3-server-ts`,
+`@pkgs/aedes-server-ts`, `@pkgs/emqx-server-ts`) and `HARNESS_MODE=stack`
 (`test:stack`). The harness migrates each composition once into
 `<package>/.cache/harness-seed-<composition>.pgmm.json` and clones it per
-`openHarness` ([`libs/harness/README.md`](libs/harness/README.md)).
+`openHarness` ([`libs/harness-ts/README.md`](libs/harness-ts/README.md)).
 
 ### Auth
 
@@ -319,15 +319,15 @@ test:max`: sidecars from `@pkgs/postgres-mockingbird-server`, `@pkgs/s3-server`,
   provider-verified and neither is an Apple relay; otherwise a pending link
   waits for the person. Settings linking needs a session-bound link ticket.
   The policy is `specs/auth/`; change the spec first, then the reference
-  model in `@pkgs/auth-root-harness`.
+  model in `@pkgs/auth-root-harness-ts`.
 
 ### Database
 
 - Schema changes are reconciliation only. `reconcilePostgres` in
   `@libs/runtime` brings Postgres in line; dialect drivers are
   `reconcilePostgresSchema` / `reconcileSqliteSchema`. There is no migration
-  class. Root `db:migrate` runs `libs/runtime-server/scripts/migrate-cli.ts`. Seed
-  data stays on `@pkgs/db-migrate-shared` seeders.
+  class. Root `db:migrate` runs `libs/runtime-server-ts/scripts/migrate-cli.ts`. Seed
+  data stays on `@pkgs/db-migrate-shared-ts` seeders.
 - Tables are `defineTable` only — domain tables in a sub's
   `shared/schema/` (exported via `public/schema.ts`, registered in
   `@libs/runtime/root/app-schema`), framework tables (sync-engine, outbox, kv,
@@ -368,30 +368,30 @@ Package scripts live in `<pkg>/scripts/` (include `./scripts/**/*.ts` in
 Package type-checking uses `tsconfig.tc.json` (`tsc --noEmit -p
 ./tsconfig.tc.json`), never a package `tsconfig.json` — that would steal files
 from the root project and break cross-package rename (exception:
-`apps/client`).
+`apps/client-ts`).
 
-**Layering is enforced by Biome** (`libs/tools/biome-plugins/import-*.grit`,
-each probed in `libs/tools/scripts/import-boundaries.test.ts`, plus
+**Layering is enforced by Biome** (`libs/tools-harness-ts/biome-plugins/import-*.grit`,
+each probed in `libs/tools-harness-ts/scripts/import-boundaries.test.ts`, plus
 `noImportCycles` and `noUndeclaredDependencies`):
 
 - the tier pyramid above;
 - runtime categories and flat source layout from the repository briefing;
-- `@apps/server` source is isomorphic: platform engines (`pg`, `node:*`) only
+- `@apps/server-ts` source is isomorphic: platform engines (`pg`, `node:*`) only
   behind injected ports and `@api-wall-ok` modules;
 - libs and pkgs never import `@apps/*`.
 
 **Games.** Gamezilla is a game framework with pluggable games
-([`GAME_FRAMEWORK.md`](libs/games-shared/docs/GAME_FRAMEWORK.md)). A game
+([`GAME_FRAMEWORK.md`](libs/games-shared-ts/docs/GAME_FRAMEWORK.md)). A game
 supplies only its rules, board, copy, board gesture and known examples
 (`defineTurnGame`, `defineGameClient`, a `HarnessGame` with `fixtures`); the
 framework owns every shared screen, lifecycle, spec and suite. Follow
-[`ADDING_A_GAME.md`](libs/games-shared/docs/ADDING_A_GAME.md). Games never
+[`ADDING_A_GAME.md`](libs/games-shared-ts/docs/ADDING_A_GAME.md). Games never
 import each other or a registry; only `"gameRegistry"` packages compose
 games, and platform code never spells a game id (`package-boundaries.ts`).
 Behaviour every game shares is specified once in `specs/games/` and runs per
-game; shared code suites live in `libs/games-harness/tests/conformance/<area>/`.
+game; shared code suites live in `libs/games-harness-ts/tests/conformance/<area>/`.
 **Billing providers** each export one `MembershipProviderModule`;
-`@pkgs/billing-providers-server` is the single list composition roots iterate —
+`@pkgs/billing-providers-server-ts` is the single list composition roots iterate —
 never name a provider elsewhere (`import-billing-vendor.grit`).
 **Runtime client config** (EMQX URL, observability backend) is synced
 `@libs/client-config`, not `VITE_*` build env.

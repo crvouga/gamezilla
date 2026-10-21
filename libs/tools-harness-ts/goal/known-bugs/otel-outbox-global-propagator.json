@@ -1,0 +1,4 @@
+{
+  "summary": "Reliable event replay lost W3C correlation when no global trace provider had registered a propagator. Outbox delivery must extract context independently.",
+  "regressionTest": "pkgs/observability-root-server-ts/tests/event-delivery.test.ts"
+}

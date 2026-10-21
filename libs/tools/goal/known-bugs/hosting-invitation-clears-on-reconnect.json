@@ -1,4 +1,0 @@
-{
-  "summary": "After paid access ended offline and a further creation was refused, reconnecting briefly changed permission facts and cleared the hosting invitation. The invitation now remains until ending a space or completing checkout explicitly answers it.",
-  "regressionTest": "libs/friends-harness/tests/quint/hosting-limits.binding.ts"
-}

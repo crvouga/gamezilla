@@ -1,0 +1,4 @@
+{
+  "summary": "Initial product state could be captured before a person finished choosing the screen, while the product continued to change. Capture the starting position after the chooser resolves, and release video immediately if recording is cancelled during context collection.",
+  "regressionTest": "pkgs/feedback-client-ts/tests/recording.contract.test.ts"
+}

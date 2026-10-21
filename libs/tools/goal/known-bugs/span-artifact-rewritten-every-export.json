@@ -1,4 +1,0 @@
-{
-  "summary": "The spec span exporter added to its artifact by reading the whole file, appending, and writing it back on every export. A chess spec part in Verify run 38128423200 recorded 92,222 spans (77 MB) in about 310 exports, so it read and rewrote roughly 12 GB to keep one file. The exporter now writes bounded segments and each test process owns its own.",
-  "regressionTest": "pkgs/observability-root-server/tests/ndjson-exporter.test.ts"
-}

@@ -1,4 +1,0 @@
-{
-  "summary": "Opening multiplayer on a device whose space had ended tapped Back and then waited for chess choices the ended space does not have. An ended or missing space is the screen, so the show stops there.",
-  "regressionTest": "libs/game-matchmaking-harness/tests/finding-an-opponent-arrival.test.ts"
-}

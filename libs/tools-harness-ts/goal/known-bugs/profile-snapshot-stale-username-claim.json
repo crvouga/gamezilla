@@ -1,0 +1,4 @@
+{
+  "summary": "Own-profile, profile-by-id and friendship snapshots omitted the normalized username used by the local uniqueness constraint. A rename could leave the old name reserved on another device and collide when that name was assigned elsewhere. Every profile snapshot now carries the normalized name. The literal alice_old to ALICE_NEW change is pinned through both public profile queries.",
+  "regressionTest": "libs/profile-shared-ts/tests/profile-snapshot.test.ts"
+}

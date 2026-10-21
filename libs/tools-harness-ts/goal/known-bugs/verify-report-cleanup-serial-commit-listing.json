@@ -1,0 +1,4 @@
+{
+  "summary": "Verify run 36975436667 passed every shard but its final job exceeded 10 minutes pruning reports. Commit 075ee6c683761e1b2173d33aa0d0ccfebdb404ea alone contained 56,999 objects under one hash partition. Split large trees into concurrent child listings, but read small subtrees in one page: walking 128 individual snapshot folders otherwise took 387 requests.",
+  "regressionTest": "pkgs/object-store-s3-server-ts/tests/list-keys.test.ts"
+}

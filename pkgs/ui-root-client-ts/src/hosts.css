@@ -1,0 +1,556 @@
+/* Host class resets for design-system HTML (`box`, `text`, `clickable`, …).
+ *
+ * Lives in `@layer components` so Tailwind `@layer utilities` (`flex-row`,
+ * `p-4`, …) can override defaults like `flex-direction: column` / `padding: 0`.
+ * Unlayered rules beat layered utilities in the cascade.
+ *
+ * Import once from the app entry: `import '@pkgs/ui-root-client-ts/hosts.css'`.
+ * `skin.css` is the component paint (buttons, chips, badges) — same layer.
+ */
+
+@import "../skin.css";
+
+@layer components {
+  .card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex-shrink: 0;
+    position: relative;
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--ui-color-border);
+    border-radius: var(--ui-radius-card);
+    background: var(--ui-color-surface);
+  }
+
+  /* A panel groups related rows: a sheet of paper (the surface tone) inside
+     one hairline, the card radius, and hairlines between items inset to the
+     text column. Rows inside never carry their own radius or border; the
+     panel clips their press tint. Lists, menus, settings and game pickers
+     all use it, so every list reads the same. */
+  .panel {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    box-sizing: border-box;
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--ui-color-border);
+    border-radius: var(--ui-radius-card);
+    background: var(--ui-color-surface);
+  }
+
+  .panelItem {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    position: relative;
+    min-width: 0;
+  }
+
+  .panelItem + .panelItem::before {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: var(--ui-panel-inset, var(--ui-space-lg));
+    right: 0;
+    height: 1px;
+    background: var(--ui-color-border);
+    pointer-events: none;
+  }
+
+  .panelPlain > .panelItem + .panelItem::before {
+    display: none;
+  }
+
+  /* A row with a leading icon starts its hairline at the text column
+     (16px inset + 24px leading slot + 12px gap). */
+  .panelItem:has(.panelLeading) {
+    --ui-panel-inset: calc(
+      var(--ui-space-lg) +
+      var(--ui-icon-size-lg) +
+      var(--ui-space-md)
+    );
+  }
+
+  /* The panel clips its rows, so a row's focus ring is drawn inside it. */
+  .panelItem > .clickable:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .divider {
+    width: 100%;
+    border-bottom: 1px solid var(--ui-color-border);
+  }
+
+  .dividerVertical {
+    width: 0;
+    align-self: stretch;
+    border-bottom: 0;
+    border-left: 1px solid var(--ui-color-border);
+  }
+
+  .box {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex-shrink: 0;
+    position: relative;
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0 solid transparent;
+  }
+
+  .text {
+    display: block;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+    white-space: pre-wrap;
+    /* Prefer wrap at spaces; only break mid-word when a single token cannot
+       fit. Headings override to `normal` so tight flex children truncate
+       (line-clamp) instead of letter-wrapping ("P u z z l e"). */
+    overflow-wrap: break-word;
+    word-break: normal;
+    text-decoration: none;
+    font-family: var(--ui-font-sans);
+    font-size: var(--ui-font-size-base);
+    line-height: var(--ui-leading-base);
+    font-weight: var(--ui-font-weight-regular);
+    /* Theme foreground — do not route through `--ui-on-fg` here. That var is
+       set by OnColorProvider for icon/JS consumers; when it was applied to
+       `.text` via fallback, invalid or light-scheme concrete values painted
+       dark labels on dark surfaces after the sx→class migration. */
+    color: var(--ui-color-text);
+  }
+
+  /* Type roles. A screen picks a role, never a size or a weight. One face
+     (the platform system stack) and the fixed scale 12 / 14 / 16 / 20 / 24 /
+     32, so hierarchy comes from size and weight alone: three weights, 400
+     for reading, 600 for labels and emphasis, 700 for titles. Titles never
+     wrap mid-word; long titles clamp instead. */
+
+  .textBody {
+    font-weight: var(--ui-font-weight-regular);
+  }
+
+  .textBodyBold {
+    font-weight: var(--ui-font-weight-semibold);
+  }
+
+  /* A navigation label that is semibold only while current. The box is
+     always as wide as the semibold label (an invisible semibold copy from
+     `data-label` sizes it), so selecting an item never moves its
+     neighbours. The visible label is the inner `.text`. */
+  .text.reserveBold {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+    white-space: nowrap;
+  }
+
+  .text.reserveBold::after {
+    content: attr(data-label);
+    height: 0;
+    overflow: hidden;
+    visibility: hidden;
+    font-weight: var(--ui-font-weight-semibold);
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .textCaption {
+    font-size: var(--ui-font-size-sm);
+    line-height: var(--ui-leading-sm);
+    color: var(--ui-color-text-secondary);
+  }
+
+  .textFootnote {
+    font-size: var(--ui-font-size-xs);
+    line-height: var(--ui-leading-xs);
+    color: var(--ui-color-text-secondary);
+  }
+
+  .textTitle,
+  .textHeading,
+  .textSubtitle,
+  .textNavigationTitle,
+  .textLabel {
+    overflow-wrap: normal;
+  }
+
+  .textTitle {
+    font-size: var(--ui-font-size-2xl);
+    line-height: var(--ui-leading-2xl);
+    font-weight: var(--ui-font-weight-bold);
+    letter-spacing: -0.02em;
+  }
+
+  .textHeading {
+    font-size: var(--ui-font-size-xl);
+    line-height: var(--ui-leading-xl);
+    font-weight: var(--ui-font-weight-bold);
+    letter-spacing: -0.01em;
+  }
+
+  .textSubtitle {
+    font-size: var(--ui-font-size-lg);
+    line-height: var(--ui-leading-lg);
+    font-weight: var(--ui-font-weight-semibold);
+  }
+
+  .textNavigationTitle {
+    font-size: var(--ui-font-size-base);
+    line-height: var(--ui-leading-base);
+    font-weight: var(--ui-font-weight-bold);
+  }
+
+  .textLabel {
+    font-size: var(--ui-font-size-base);
+    line-height: var(--ui-leading-base);
+    font-weight: var(--ui-font-weight-semibold);
+  }
+
+  .textLink {
+    font-weight: var(--ui-font-weight-semibold);
+    color: var(--ui-color-tint);
+    text-decoration: none;
+    transition: color var(--ui-duration-fast) var(--ui-easing-standard);
+  }
+
+  .textLink:hover {
+    color: var(--ui-color-tint-hover);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  /* Ratings, clocks, prices, counts: the scoreboard. A modifier on any
+     role (`text textHeading textNumeral`); alone it keeps the body size. */
+  .textNumeral {
+    font-weight: var(--ui-font-weight-semibold);
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  .textMono {
+    font-family: var(--ui-font-mono);
+    font-size: var(--ui-font-size-sm);
+    line-height: var(--ui-leading-sm);
+  }
+
+  .clickable {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex-shrink: 0;
+    position: relative;
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0 solid transparent;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: inherit;
+    appearance: none;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    outline: none;
+  }
+
+  .clickable:disabled {
+    cursor: default;
+  }
+
+  .clickable:focus-visible {
+    outline: 2px solid var(--ui-color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* The title a screen hands the keyboard to when it replaces another
+     (`screen-focus.tsx`). Focus is there for reading order, not operation,
+     so the browser's ring around the heading is suppressed. */
+  .screenFocusTarget:focus {
+    outline: none;
+  }
+
+  /* Tint feedback: overlay layered above children. */
+  .clickableTint::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: transparent;
+    transition: background-color var(--ui-duration-fast)
+      var(--ui-easing-standard);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .clickableTint:not(:disabled):hover::after {
+      background: var(--ui-color-interactive-hover);
+    }
+  }
+
+  .clickableTint:not(:disabled):active::after {
+    background: var(--ui-color-interactive-press);
+  }
+
+  .clickableOpacity {
+    transition: opacity var(--ui-duration-fast) var(--ui-easing-standard);
+  }
+
+  .clickableOpacity:not(:disabled):active {
+    opacity: var(--ui-opacity-pressed);
+  }
+
+  .scroll {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-gutter: auto;
+  }
+
+  .scrollHorizontal {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .scrollHideBar {
+    scrollbar-width: none;
+  }
+
+  .scrollHideBar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollContent {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    min-width: 0;
+  }
+
+  .scrollContentHorizontal {
+    flex-direction: row;
+  }
+
+  .input {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    appearance: none;
+    outline: none;
+    font: inherit;
+    color: var(--ui-color-text);
+    caret-color: var(--ui-color-text);
+    background: var(--ui-color-background);
+    border: 1px solid var(--ui-color-border);
+    border-radius: var(--ui-radius-control);
+    transition:
+      border-color var(--ui-duration-fast) var(--ui-easing-standard),
+      box-shadow var(--ui-duration-fast) var(--ui-easing-standard);
+  }
+
+  .input:hover:not(:focus-visible):not(:disabled) {
+    border-color: var(--ui-color-outline);
+  }
+
+  .input:disabled {
+    cursor: not-allowed;
+    opacity: var(--ui-opacity-disabled);
+  }
+
+  .input::placeholder {
+    color: var(--ui-color-text-secondary);
+  }
+
+  .input:focus-visible {
+    border-color: var(--ui-color-tint);
+    box-shadow: 0 0 0 1px var(--ui-color-tint);
+  }
+
+  .inputError,
+  .inputError:focus-visible {
+    border-color: var(--ui-color-destructive);
+    box-shadow: 0 0 0 1px var(--ui-color-destructive);
+  }
+
+  .inputTextarea {
+    resize: vertical;
+  }
+
+  /* A button that reads as a field (the `Select` trigger): the `.input`
+     look laid out as a row of value and trailing chevron. */
+  .inputTrigger {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    min-width: 0;
+    text-align: left;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  /* A field with a `<datalist>` gets WebKit's native suggestions arrow. Keep
+     the control (clicking it still opens the list) but paint the design
+     system's chevron-down (Lucide `m6 9 6 6 6-6`) in the icon token. */
+  .input[list]::-webkit-calendar-picker-indicator {
+    width: 20px;
+    height: 20px;
+    margin-left: 8px;
+    cursor: pointer;
+    opacity: 1;
+    background: var(--ui-color-icon);
+    -webkit-mask:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    mask:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+  }
+
+  /* A scrolling surface: a pinned header row over a body that takes the
+     rest and scrolls. Grid, not flex, so the body gets a definite height and
+     its `overflow: auto` engages. */
+  .surfaceScrollShell {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  /* Surface motion: what floats above content (menus, tooltips) fades in
+     and settles 4px; sheets rise from the bottom edge; dialogs fade with a
+     slight scale; scrims fade. 250ms on the standard ease-out curve, and
+     nothing moves under reduced motion. */
+  .surfaceEnter {
+    animation: ui-surface-enter var(--ui-duration-slow)
+      var(--ui-easing-standard) both;
+  }
+
+  .sheetEnter {
+    animation: ui-sheet-enter var(--ui-duration-slow) var(--ui-easing-standard)
+      both;
+  }
+
+  .dialogEnter {
+    animation: ui-dialog-enter var(--ui-duration-slow) var(--ui-easing-standard)
+      both;
+  }
+
+  .scrimEnter {
+    animation: ui-fade-in var(--ui-duration-slow) var(--ui-easing-standard) both;
+  }
+
+  @keyframes ui-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes ui-surface-enter {
+    from {
+      opacity: 0;
+      transform: translateY(calc(var(--ui-space-xs) * -1));
+    }
+  }
+
+  @keyframes ui-sheet-enter {
+    from {
+      transform: translateY(100%);
+    }
+  }
+
+  @keyframes ui-dialog-enter {
+    from {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .surfaceEnter,
+    .sheetEnter,
+    .dialogEnter,
+    .scrimEnter {
+      animation: none;
+    }
+  }
+
+  .switchTrack {
+    transition: background-color var(--ui-duration-normal)
+      var(--ui-easing-standard);
+  }
+
+  .switchThumb {
+    transition: transform var(--ui-duration-normal) var(--ui-easing-standard);
+  }
+
+  /* Safe-area insets (notch / home indicator). Classes because happy-dom and
+     some inline-style sanitizers drop `env()` values. */
+  .safeTop {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .safeBottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* RN `pointerEvents="box-none"`: the layer is transparent to the pointer but
+     its direct children are interactive again. */
+  .boxNone {
+    pointer-events: none;
+  }
+
+  .boxNone > * {
+    pointer-events: auto;
+  }
+}
+
+/* Skeleton (`skeleton.tsx`): a subtle opacity pulse on the `surface-muted`
+   placeholder. 1.2s, the standard curve; reduced motion holds it still. */
+@layer components {
+  .skeleton {
+    animation: ui-skeleton-pulse 1.2s var(--ui-easing-standard) infinite
+      alternate;
+  }
+
+  @keyframes ui-skeleton-pulse {
+    from {
+      opacity: 1;
+    }
+
+    to {
+      opacity: var(--ui-opacity-muted);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton {
+      animation: none;
+    }
+  }
+}

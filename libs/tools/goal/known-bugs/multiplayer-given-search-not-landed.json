@@ -1,4 +1,0 @@
-{
-  "summary": "A Given opponent search returned while its write was still queued, so the next person's timed action also had to wait for setup uploads.",
-  "regressionTest": "libs/runtime-harness/tests/multiplayer-search-loading.test.ts"
-}

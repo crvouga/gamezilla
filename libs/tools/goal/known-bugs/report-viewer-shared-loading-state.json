@@ -1,4 +1,0 @@
-{
-  "summary": "Completing a test timeline mutated a shared loading object to ready; a later viewer for libs-chess--part-0/kv-put claimed readiness while its request was still pending.",
-  "regressionTest": "pkgs/atlas-reports-harness/tests/client/remote-report.test.ts"
-}

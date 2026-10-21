@@ -1,4 +1,0 @@
-{
-  "summary": "A CI migration left the availability reader using the previous provider. Read all GitHub Health run pages and every job attempt, including failed originals and successful reruns.",
-  "regressionTest": "apps/product/tests/openslo/health-job-results.test.ts"
-}

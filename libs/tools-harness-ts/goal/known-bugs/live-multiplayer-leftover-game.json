@@ -1,0 +1,4 @@
+{
+  "summary": "A reused monitor account resumed a failed run game and could not select a new opponent.",
+  "regressionTest": "libs/runtime-harness-ts/tests/multiplayer-search-loading.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "A returning device was reported connected before its authentication refresh and query hydration finished, leaving a legal move refused as offline.",
+  "regressionTest": "libs/games-harness-ts/tests/quint/matched-game.binding.ts"
+}

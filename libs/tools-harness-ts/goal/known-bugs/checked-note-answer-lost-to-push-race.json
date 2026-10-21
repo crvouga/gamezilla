@@ -1,0 +1,4 @@
+{
+  "summary": "A write that waits for the server's answer (`pendingUx: 'pending'`) could stay 'saving' forever: after the upload ack committed, recording the ack's topic push sequences raced the echoed push applying the same topic, the insert hit a UNIQUE conflict, and the ack's table-change notice (which wakes the answer) was never sent. Found porting pending-ux-answers-with-server-verdict to specs/sync-engine/checked-notes.feature. Fixed by recording a push sequence idempotently (ON CONFLICT, then raise).",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/checked-note-storage.contract.test.ts"
+}

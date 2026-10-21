@@ -1,0 +1,4 @@
+{
+  "summary": "Restarting a local stack without keep-data erased the prior server crash journal before it could be investigated.",
+  "regressionTest": "apps/product-ts/scripts/process-observability.contract.test.ts"
+}

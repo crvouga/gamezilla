@@ -1,0 +1,4 @@
+{
+  "summary": "Preparing a Connect Four search hung against the real stack because givenOpponentSearch opened a write transaction before resolving the actor space through the root SQL connection. Resolve the read-only precondition before the transaction, so every operation inside the transaction uses its supplied transaction port.",
+  "regressionTest": "libs/game-matchmaking-harness-ts/tests/opponent-search-transaction.test.ts"
+}

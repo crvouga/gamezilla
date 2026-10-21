@@ -1,4 +1,0 @@
-{
-  "summary": "The loading shell before identity binding had no deadline, so a missing account ID and failed refresh left an endless spinner outside the SQLite watchdog. After ten seconds, show an account recovery message and reload action, and allow late identity binding to continue boot.",
-  "regressionTest": "libs/app-root-client/tests/identity-boot-pending.test.tsx"
-}

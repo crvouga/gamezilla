@@ -1,4 +1,0 @@
-{
-  "summary": "A fresh device opening a leftover hosted space lands on Join, because that device has no open session, and End exists only after joining. The journey looked for End immediately and timed out, so the monitor account stayed at its hosting limit. Fixed: when Join is on screen, join the space, then end it.",
-  "regressionTest": "libs/runtime-harness/tests/critical-journey-host-space.test.ts"
-}

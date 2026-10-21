@@ -1,4 +1,0 @@
-{
-  "summary": "A reconnecting guest retained an active board after cancellation when every host device was offline. Authorized members must receive committed outcomes without waiting for a host.",
-  "regressionTest": "libs/games-harness/tests/quint/custom-game.binding.ts"
-}

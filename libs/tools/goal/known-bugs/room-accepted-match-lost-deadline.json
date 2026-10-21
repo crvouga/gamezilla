@@ -1,4 +1,0 @@
-{
-  "summary": "An accepted timed-match start or move survived in the room log without its timeout effect. Recovery now restores the original absolute deadline from committed match state, including when no player remains connected.",
-  "regressionTest": "pkgs/room-adapter-durable-object-harness/tests/match-recovery.test.ts"
-}

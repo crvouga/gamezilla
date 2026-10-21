@@ -1,4 +1,0 @@
-{
-  "summary": "Pushing the current route incremented the app history depth even though Solid Router added no browser entry. After OAuth, Account back could navigate to the provider instead of an app ancestor.",
-  "regressionTest": "pkgs/ui-root-harness/tests/navigation.test.tsx"
-}

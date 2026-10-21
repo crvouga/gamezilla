@@ -1,4 +1,0 @@
-{
-  "summary": "The capability catalog required assistant-observation, a semantic decision with no permission answer, to own an access capability. Only decisions answering access yes/no belong in that permission catalog; every semantic decision remains bound and checked by its owner.",
-  "regressionTest": "libs/permissions-harness/tests/closed-world.test.ts"
-}

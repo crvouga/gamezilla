@@ -1,4 +1,0 @@
-{
-  "summary": "Mockingbird Postgres 2.3.0 rejects ALTER TABLE example ALTER COLUMN body SET NOT NULL. Upstream: https://github.com/crvouga/mockingbird/issues/318",
-  "regressionTest": "pkgs/postgres-mockingbird-server/tests/ddl-gaps.test.ts"
-}

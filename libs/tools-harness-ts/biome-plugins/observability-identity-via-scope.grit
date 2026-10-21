@@ -1,0 +1,20 @@
+language js
+
+// Who a span is for is bound once per unit of work with `bindIdentity` and
+// stamped on every span by the identity span processor. Stamping `user.id`,
+// `session.id` or `app.device.id` on one span by hand covers that span only,
+// so the spans started after it, and the traces a person is searched by, miss it.
+file($body) where {
+  $body <: includes "setAttribute(",
+  $body <: contains bubble JsCallExpression() as $call where {
+    $call <: or {
+      `$span.setAttribute(ATTR.USER_ID, $value)`,
+      `$span.setAttribute(ATTR.SESSION_ID, $value)`,
+      `$span.setAttribute(ATTR.APP_DEVICE_ID, $value)`,
+      `$span?.setAttribute(ATTR.USER_ID, $value)`,
+      `$span?.setAttribute(ATTR.SESSION_ID, $value)`,
+      `$span?.setAttribute(ATTR.APP_DEVICE_ID, $value)`
+    },
+    register_diagnostic(span=$call, message="Bind identity with bindIdentity() from @pkgs/observability-root-shared-ts/identity-scope instead of stamping one span by hand.", severity="error")
+  }
+}

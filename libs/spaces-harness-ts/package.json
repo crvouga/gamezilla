@@ -1,0 +1,46 @@
+{
+  "name": "@libs/spaces-harness-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests"
+  },
+  "dependencies": {
+    "@libs/billing-shared-ts": "workspace:*",
+    "@libs/harness-ts": "workspace:*",
+    "@libs/permissions-shared-ts": "workspace:*",
+    "@libs/spaces-client-ts": "workspace:*",
+    "@libs/spaces-server-ts": "workspace:*",
+    "@libs/spaces-shared-ts": "workspace:*",
+    "@libs/sub-shared-ts": "workspace:*",
+    "@libs/test-ids-shared-ts": "workspace:*",
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/message-shared-ts": "workspace:*",
+    "@pkgs/outbox-shared-ts": "workspace:*",
+    "@pkgs/room-adapter-memory-shared-ts": "workspace:*",
+    "@pkgs/room-root-server-ts": "workspace:*",
+    "@pkgs/room-root-shared-ts": "workspace:*",
+    "@pkgs/sql-root-shared-ts": "workspace:*"
+  },
+  "devDependencies": {
+    "@pkgs/bun-test-solid-client-ts": "workspace:*",
+    "@pkgs/db-schema-root-shared-ts": "workspace:*",
+    "@pkgs/db-schema-sqlite-shared-ts": "workspace:*",
+    "@pkgs/sql-client-root-shared-ts": "workspace:*",
+    "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",
+    "@pkgs/sync-engine-shared-ts": "workspace:*",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness",
+  "language": "typescript"
+}

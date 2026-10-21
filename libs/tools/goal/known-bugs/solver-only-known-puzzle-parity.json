@@ -1,4 +1,0 @@
-{
-  "summary": "The known-puzzle checker discards the first solver action of a declared solver-only line: solo-count:3w with two,two is rejected because fixed odd indices yield only one solver move.",
-  "regressionTest": "libs/games-harness/tests/probes/solo-puzzle-conformance.test.ts"
-}

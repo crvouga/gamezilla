@@ -1,4 +1,0 @@
-{
-  "summary": "Rated puzzle entitlement conformance still read solved counts after the product promise changed to charge quota when a rated puzzle starts. The decision bindings now consume start counts at the exact day boundary; the failing literal 0 today and 100 earlier input is pinned.",
-  "regressionTest": "libs/permissions-shared/tests/puzzle-start-counts.test.ts"
-}

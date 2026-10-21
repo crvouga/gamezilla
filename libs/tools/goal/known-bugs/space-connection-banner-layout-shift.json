@@ -1,4 +1,0 @@
-{
-  "summary": "Losing the connection inserted a notifications-connection-missing error banner into an active local space and a shell banner above it, shifting the game. Remove the space banner and reserve fixed header slots for connection status.",
-  "regressionTest": "libs/app-root-client/tests/connection-notice.test.tsx"
-}

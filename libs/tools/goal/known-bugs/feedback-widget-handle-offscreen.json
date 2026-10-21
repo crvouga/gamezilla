@@ -1,4 +1,0 @@
-{
-  "summary": "The feedback widget clamp assumed the widget was shorter than the viewport, so a tall resized editor forced y=0 and left its grab handle above the visible area. Fixed by allowing the bottom-anchored widget to translate downward when only its header can fit.",
-  "regressionTest": "pkgs/feedback-client/tests/widget-drag.contract.test.ts"
-}

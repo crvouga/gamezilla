@@ -1,0 +1,4 @@
+{
+  "summary": "Denied persistent browser storage could prevent the reports explorer from opening.",
+  "regressionTest": "pkgs/atlas-reports-harness-ts/tests/client/reliability.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Serving a collected local run by commit could hide other published producers and make their timelines unreadable.",
+  "regressionTest": "pkgs/atlas-reports-harness-ts/tests/reports-explorer.test.ts"
+}

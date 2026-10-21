@@ -1,4 +1,0 @@
-{
-  "summary": "A live scenario's cleanups ran on the host's page without activating it, so a cleanup that followed the peer's last gesture read a parked page and timed out; a cleanup that failed after every step passed also printed no page evidence. Cleanups now run on the activated host page and print the devices when one fails.",
-  "regressionTest": "apps/product/tests/isolated-browser.test.ts"
-}

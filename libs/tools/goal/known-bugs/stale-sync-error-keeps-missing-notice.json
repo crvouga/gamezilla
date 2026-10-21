@@ -1,4 +1,0 @@
-{
-  "summary": "A stale sync error kept the global connection-unavailable banner visible after the physical connection and origin probe were available and push was connected. Base the reachability notice on current network and origin facts; an unheard write remains independently unconfirmed.",
-  "regressionTest": "libs/runtime-harness/tests/quint/connection-continuity.binding.ts"
-}

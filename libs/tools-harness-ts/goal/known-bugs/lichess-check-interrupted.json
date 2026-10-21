@@ -1,0 +1,4 @@
+{
+  "summary": "An interrupted later check does not claim the file is missing.",
+  "regressionTest": "libs/chess-root-harness-ts/tests/quint/lichess-file-preparation.binding.ts"
+}

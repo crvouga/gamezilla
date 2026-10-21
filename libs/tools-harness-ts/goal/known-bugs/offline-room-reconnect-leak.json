@@ -1,0 +1,4 @@
+{
+  "summary": "The offline room wrapper forgot a transport after onClose even though the WebSocket adapter retained its reconnect timer. Keep the owned transport until it is destroyed so going offline cancels reconnects too.",
+  "regressionTest": "libs/app-root-client-ts/tests/offline-network-controller.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "Shared Custom Games did not react to trusted host unavailability, so an outage spent participant clocks and could decide the game.",
-  "regressionTest": "libs/games-harness/tests/quint/custom-game-play.binding.ts"
-}

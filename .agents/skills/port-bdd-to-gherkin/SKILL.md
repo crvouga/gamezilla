@@ -1,6 +1,6 @@
 ---
 name: port-bdd-to-gherkin
-description: Port legacy behavior tests written directly against the bespoke `@pkgs/harness-root-shared` API (`system.run` + `s.apply` / `s.read` / `s.until`, `test.each` seed sweeps, `randomActions` / `explore` walks) into Gherkin features and Quint models, then delete them. Orchestrates spec-upsert, spec-implement, and spec-audit with a parity ledger so no legacy claim is lost. Use when asked to port, migrate, or rewrite harness / spec / behavior tests to Gherkin, `.feature` files, Quint, or specs, for one file, a package (`@pkgs/sync-engine`, `@pkgs/room-root-harness`, `@pkgs/matchmaking-root-harness`, `@pkgs/auth-root-harness`, `@pkgs/db-indexes`, a product lib), or the whole repo.
+description: Port legacy behavior tests written directly against the bespoke `@pkgs/harness-root-shared-ts` API (`system.run` + `s.apply` / `s.read` / `s.until`, `test.each` seed sweeps, `randomActions` / `explore` walks) into Gherkin features and Quint models, then delete them. Orchestrates spec-upsert, spec-implement, and spec-audit with a parity ledger so no legacy claim is lost. Use when asked to port, migrate, or rewrite harness / spec / behavior tests to Gherkin, `.feature` files, Quint, or specs, for one file, a package (`@pkgs/sync-engine`, `@pkgs/room-root-harness-ts`, `@pkgs/matchmaking-root-harness-ts`, `@pkgs/auth-root-harness-ts`, `@pkgs/db-indexes`, a product lib), or the whole repo.
 ---
 
 # Port legacy harness tests to Gherkin + Quint
@@ -31,8 +31,8 @@ top of three role skills. Load each one when its phase starts:
 | Audit the result, and demote non-behavior | `spec-audit` |
 
 The product packages and the framework-level harnesses
-(`pkgs/sync-engine`, `pkgs/room-root-harness`, `pkgs/matchmaking-root-harness`,
-`pkgs/auth-root-harness`, `pkgs/db-indexes`) are ported. Use this skill for any new
+(`pkgs/sync-engine`, `pkgs/room-root-harness-ts`, `pkgs/matchmaking-root-harness-ts`,
+`pkgs/auth-root-harness-ts`, `pkgs/db-indexes`) are ported. Use this skill for any new
 legacy test that turns up.
 
 ## 1. Inventory
@@ -52,7 +52,7 @@ Sort every legacy `test(...)` into exactly one destination:
 | Stateful internals: convergence, exactly-once, idempotent replay, rebase order, fault recovery, fanout caps | **Quint model** in `specs/<domain>/`, over the package's public observables (see step 2) |
 | Standing `defineProperty` verifications on the system | **Stay on `defineSystem`** (they run under every scenario and trace). Mirror them as `val inv<Name>` when a model observes that state |
 | Same-seed-twice determinism of a product harness | **The model's `fingerprint`** in its Quint binding: the runner replays the longest trace twice and compares |
-| Hash canonicality, `@pkgs/harness-root-shared` / `harness-report` / `sql-client-harness` self-tests | **Stay code tests**, as framework contracts |
+| Hash canonicality, `@pkgs/harness-root-shared-ts` / `harness-report` / `sql-client-harness` self-tests | **Stay code tests**, as framework contracts |
 | Storage rows, wire frames, error codes (`NO_HARD_DELETE`, malformed frames) | **Contract test** asserting through the package's reads ([`README.md`](../../../README.md#correctness-machinery)) |
 | A past bug | A scenario tagged `@regression:<id>` if the bug was observable behavior. Otherwise an example regression test |
 
@@ -77,12 +77,12 @@ Every legacy claim lands somewhere, or is dropped with a stated reason.
   wording uses people and devices: "Alice edits a note on her phone",
   "Bob's laptop shows it within 5 seconds". Steps live in the package's own
   `tests/steps/` on `@pkgs/gherkin`. A `pkgs/` package never imports
-  `libs/harness` steps.
+  `libs/harness-ts` steps.
 - **Internal invariants** get a Quint model in `specs/<domain>/<model>.qnt`,
   like every other `.feature` and `.qnt`: no Gherkin or Quint lives outside
   `specs/`. Its names come from the context's glossary, its binding is
   `tests/quint/<model>.binding.ts` in the package, and the package's
-  `test:spec` runs it as it runs `specs/room/*.qnt` for `@pkgs/room-root-harness`.
+  `test:spec` runs it as it runs `specs/room/*.qnt` for `@pkgs/room-root-harness-ts`.
   This is the "model-based property test" the policy asks for. Its variables
   are the package's public observables (a person's notes on a device, a
   room's count, who is matched), not queues or epochs.

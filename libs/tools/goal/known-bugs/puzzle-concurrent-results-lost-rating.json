@@ -1,4 +1,0 @@
-{
-  "summary": "Concurrent results from separate devices could overwrite the running rating with two events based on the same prior value.",
-  "regressionTest": "libs/games-harness/tests/conformance/puzzles/rating-concurrency.contract.test.ts"
-}

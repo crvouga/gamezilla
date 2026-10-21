@@ -1,4 +1,0 @@
-{
-  "summary": "A pending room admission held local state and commands away from the device UI.",
-  "regressionTest": "pkgs/room-root-harness/tests/local-room-open.test.ts"
-}

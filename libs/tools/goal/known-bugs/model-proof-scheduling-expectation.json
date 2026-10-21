@@ -1,4 +1,0 @@
-{
-  "summary": "The custom-game model configuration now explicitly schedules invariant checking before branching, but the exact modelChecks expectation omitted invariantMode: 'before', failing CI deterministically. Assert the scheduling flag alongside the unchanged induction, step count and deadline.",
-  "regressionTest": "libs/tools/scripts/verify-models.test.ts"
-}

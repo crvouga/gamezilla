@@ -1,0 +1,4 @@
+{
+  "summary": "ci:i18n re-extracted and recompiled the committed Lingui catalogs in place, so a tc running beside it could read a half-written messages.ts and fail with \"is not a module\". Fixed: the check regenerates into .cache/ci-i18n and compares.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ci-i18n.test.ts"
+}

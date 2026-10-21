@@ -1,4 +1,0 @@
-{
-  "summary": "Web secure storage kept the account ID in sessionStorage while retaining its bearer in localStorage. A new tab with a saved session lost its account ID and waited forever when refresh could not reach the API. Persist identity with its session, preserve existing tab data, and keep session recovery enabled without an account ID.",
-  "regressionTest": "pkgs/secure-storage-web-client/tests/impl-web.test.ts"
-}

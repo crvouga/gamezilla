@@ -1,4 +1,0 @@
-{
-  "summary": "Check uploaded every individual report snapshot again, including cached suites, incurring millions of paid R2 writes. Publish compressed, bounded chunks and reuse identical chunks on reruns.",
-  "regressionTest": "pkgs/atlas-reports-harness/tests/bundle.test.ts"
-}

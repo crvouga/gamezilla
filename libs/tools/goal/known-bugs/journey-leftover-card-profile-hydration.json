@@ -1,4 +1,0 @@
-{
-  "summary": "Critical journey preparation treated a hosted card whose host-profile query had not hydrated as no leftover and tried creating another space. A positive hosted-space count now requires waiting for its card before cleanup.",
-  "regressionTest": "libs/runtime-harness/tests/critical-journey-host-space.test.ts"
-}

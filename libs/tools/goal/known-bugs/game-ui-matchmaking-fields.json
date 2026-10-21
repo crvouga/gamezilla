@@ -1,4 +1,0 @@
-{
-  "summary": "The arena layout separated match details and the search timer into accessible fields. The harness still assumed one combined text node, failing for a 5+0 search after 40 seconds and a 3+2 match against Bob rated 1620. Read and assert every visible field independently.",
-  "regressionTest": "libs/games-harness/tests/conformance/matchmaking/finding-an-opponent.test.ts"
-}

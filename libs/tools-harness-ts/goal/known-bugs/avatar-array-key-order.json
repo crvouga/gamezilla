@@ -1,0 +1,4 @@
+{
+  "summary": "Avatar config serialization kept object key order inside arrays, so equal configs compared unequal and the editor could report unsaved changes. Fixed by canonicalizing recursively.",
+  "regressionTest": "libs/profile-shared-ts/tests/avatar-config.test.ts"
+}

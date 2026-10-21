@@ -1,0 +1,4 @@
+{
+  "summary": "A statechart traversal that stops at its configuration budget must report incomplete exploration. A three-state Lobby → Board → Won fixture with maxConfigurations=2 must never produce a complete verdict even if its curated journey visits the missing state.",
+  "regressionTest": "libs/tools-harness-ts/scripts/statechart-analysis.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Accented letters slipped past the username filter: NFKC kept `ü` composed and then dropped it as a separator, so `fück` read as `fck`. Fixed by NFKD, which strips the accent and keeps the letter.",
+  "regressionTest": "pkgs/word-filter-shared-ts/tests/match.test.ts"
+}

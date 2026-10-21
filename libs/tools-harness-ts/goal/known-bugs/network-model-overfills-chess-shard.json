@@ -1,0 +1,4 @@
+{
+  "summary": "Adding the shared-clock recovery model overloads the 64-part Chess suite: one part contains 18 traces against its safe 16-trace limit. Non-power-of-two slice counts also give equal weights to unequal trace batches. Keep balanced trace batches, retain every trace, and split the enlarged suite across 72 owned Turbo tasks without raising its time budget.",
+  "regressionTest": "libs/harness-ts/scripts/spec-parts.test.ts"
+}

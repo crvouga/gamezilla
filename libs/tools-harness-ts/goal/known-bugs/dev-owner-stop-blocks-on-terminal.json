@@ -1,0 +1,4 @@
+{
+  "summary": "A stopping boot wrote one line per signalled process to its launch terminal. With nobody reading that terminal the write never returned, so SIGKILL escalation never ran and the admission lock stayed held. A stopping boot now records to the checkout's gc.log and writes nothing to its launch terminal.",
+  "regressionTest": "pkgs/os-server-ts/tests/dev-owner-stop.contract.test.ts"
+}

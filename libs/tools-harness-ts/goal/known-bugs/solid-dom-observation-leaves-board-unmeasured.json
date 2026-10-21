@@ -1,0 +1,4 @@
+{
+  "summary": "A board arriving after asynchronous matchmaking remained unmeasured and disabled in the Solid DOM UI Driver until a gesture occurred. Observations now trigger the existing layout synthesis when the DOM changes.",
+  "regressionTest": "pkgs/ui-testing-solid-dom-client-ts/tests/solid-dom-driver.test.tsx"
+}

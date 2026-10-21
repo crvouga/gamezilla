@@ -1,4 +1,0 @@
-{
-  "summary": "A refunded membership ended at its period end and kept paid access through the 7-day grace. Fixed: a refunded membership ends with no paid time, so no grace applies.",
-  "regressionTest": "pkgs/billing-stripe-harness/tests/refund-mapping.test.ts"
-}

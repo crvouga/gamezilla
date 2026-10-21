@@ -1,0 +1,4 @@
+{
+  "summary": "Battleship's arranging gesture (its game automation) placed each ship of a new fleet over the fleet already on the setup board, so a ship whose new place another ship still covered was refused and kept its old place: changing a private setup from one complete fleet to another left a mix of the two (the private-setup model's trace replay found it). It now takes every placed ship off the board first, as a person rearranging does.",
+  "regressionTest": "libs/battleship-client-ts/tests/automation-rearrange.test.tsx"
+}

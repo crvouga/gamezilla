@@ -1,4 +1,0 @@
-{
-  "summary": "The model draw cache used only the top-level source and omitted imported model changes and the Quint runtime version.",
-  "regressionTest": "pkgs/quint-server/tests/model-source.test.ts"
-}

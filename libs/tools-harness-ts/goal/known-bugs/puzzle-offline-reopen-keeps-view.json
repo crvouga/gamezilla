@@ -1,0 +1,4 @@
+{
+  "summary": "Offline game browsing existed only in a signal. Reopening lost that selection even though the puzzle commands survived. The person and space selection is now durable.",
+  "regressionTest": "libs/chess-root-harness-ts/tests/quint/puzzle-assistant.binding.ts"
+}

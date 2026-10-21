@@ -1,0 +1,4 @@
+{
+  "summary": "Battleship's setup board announced its placing progress as `<testId>-status`, which on the Custom Game screen is `custom-game-setup-status`, the private-setup section's own complete/incomplete status. Two elements shared the id, so whatever read the person's setup status read the board's progress instead. The board now names its progress `<testId>-progress`.",
+  "regressionTest": "libs/battleship-client-ts/tests/setup-board.test.tsx"
+}

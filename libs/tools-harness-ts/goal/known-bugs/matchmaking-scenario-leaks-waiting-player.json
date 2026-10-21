@@ -1,0 +1,4 @@
+{
+  "summary": "In a shared native stack, the incompatible-game scenario left both searches waiting after its devices closed. A later cancellation scenario could match a leftover actor before Stop committed. Cancel only scenario-owned searches through the existing controls and await their mutation acknowledgement before closing devices; preserve assigned games and their records.",
+  "regressionTest": "libs/game-matchmaking-harness-ts/tests/opponent-search-cleanup.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "A model run replays its longest trace twice and requires the same end state. With a replay budget the run chose the longest trace among those it replays, so the budget changed which trace decided determinism: the multiplayer model's obligation moved from trace 1 to trace 7 and failed in Verify runs 38190147513 through 38197118122. Every run now decides it on the longest drawn trace. Trace 7 itself still ends at a different clock time on each replay; that defect in the harness's time is open and is not what this entry guards.",
-  "regressionTest": "pkgs/quint-server/tests/bun-test.test.ts"
-}

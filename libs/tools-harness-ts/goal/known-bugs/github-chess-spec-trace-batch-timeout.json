@@ -1,0 +1,4 @@
+{
+  "summary": "Verify 37515771723 exceeded 600 seconds in multiple chess spec tasks even with one Turbo task. Split the same 256 multiplayer traces into eight-trace batches across 64 parts; preserve every trace and regression fixture.",
+  "regressionTest": "libs/harness-ts/scripts/spec-parts.test.ts"
+}

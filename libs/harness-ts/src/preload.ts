@@ -1,0 +1,115 @@
+// @io-wall-ok — bun:test preload; product harness env, viewport and log noise
+/**
+ * bun:test preload for harness spec suites, after `@pkgs/bun-test-solid-client-ts/preload`
+ * (Solid compile, happy-dom `document` — Solid trees render into it via
+ * `MultiAppSolidDomSession` — and the Lingui pin): harness env, a phone
+ * viewport, and quieter logs.
+ */
+
+import { afterAll, afterEach } from 'bun:test';
+import { AsyncLocalStorage } from 'node:async_hooks';
+import { setDomWindow } from '@pkgs/bun-test-solid-client-ts/register';
+import { wallTimers } from '@pkgs/clock-shared-ts/wall';
+import { setDefaultLogLevel } from '@pkgs/logger-shared-ts/logger';
+import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server-ts/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
+import type { NodeTelemetry } from '@pkgs/observability-root-server-ts/node-node';
+import { createNodeTelemetry } from '@pkgs/observability-root-server-ts/node-node';
+import { ATTR } from '@pkgs/observability-root-shared-ts/attributes';
+import { NdjsonSpanExporter } from '@pkgs/observability-runtime-shared-ts/ndjson-exporter';
+
+// Match the server entry: overlapping requests need native async context.
+const nativeContext = globalThis as typeof globalThis & {
+  AsyncLocalStorage?: typeof AsyncLocalStorage;
+};
+if (typeof nativeContext.AsyncLocalStorage !== 'function')
+  nativeContext.AsyncLocalStorage = AsyncLocalStorage;
+
+process.env['VITE_TEST_HOOKS'] = '1';
+process.env['HARNESS_WITH_DOM'] = process.env['HARNESS_WITH_DOM'] ?? '1';
+
+// Phone viewport — `useLayoutMode` picks the compact tab bar.
+setDomWindow({ width: 390, height: 844, url: 'http://localhost:8081/' });
+
+setDefaultLogLevel('error');
+
+const telemetry = createArtifactTelemetry();
+if (telemetry !== undefined) {
+  afterEach(() => flushWithTimeout(telemetry));
+  afterAll(() => shutdownWithTimeout(telemetry));
+}
+
+const origError = console.error.bind(console);
+console.error = (...args: unknown[]) => {
+  const text = args
+    .map((a) =>
+      typeof a === 'string' ? a : a instanceof Error ? a.message : ''
+    )
+    .join(' ');
+  if (text.includes('Cannot log after tests are done')) return;
+  if (text.includes('Database is closed')) return;
+  if (text.includes('createHarness: server disposed')) return;
+  origError(...args);
+};
+
+function createArtifactTelemetry(): NodeTelemetry | undefined {
+  const rootDir = process.env['OBS_TRACE_ARTIFACT_DIR'];
+  if (rootDir === undefined || rootDir.trim() === '') return undefined;
+  const store = createNodeFsObjectStore({
+    rootDir,
+    fs: wallNodeFs(),
+    layout: 'tree',
+  });
+  return createNodeTelemetry({
+    serviceName: process.env['OBS_TEST_SERVICE'] ?? 'harness-spec',
+    serviceVersion: process.env['GITHUB_SHA'] ?? 'local',
+    environment: process.env['GITHUB_ACTIONS'] === 'true' ? 'ci' : 'test',
+    buildSha: process.env['GITHUB_SHA'] ?? 'local',
+    ...(process.env['OBS_TEST_ID'] === undefined
+      ? {}
+      : {
+          resourceAttributes: {
+            [ATTR.APP_TEST_ID]: process.env['OBS_TEST_ID'],
+          },
+        }),
+    // One artifact per process: parallel workers share this directory, and
+    // each exporter owns the segments it writes.
+    exporter: new NdjsonSpanExporter({
+      store,
+      key: `spans.${String(process.pid)}.ndjson`,
+    }),
+  });
+}
+
+function settleWithin(task: Promise<void>, timeoutMs: number): Promise<void> {
+  return new Promise((resolve) => {
+    let settled = false;
+    const timer = wallTimers.setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      resolve();
+    }, timeoutMs);
+    void task.then(
+      () => {
+        if (settled) return;
+        settled = true;
+        wallTimers.clearTimeout(timer);
+        resolve();
+      },
+      () => {
+        if (settled) return;
+        settled = true;
+        wallTimers.clearTimeout(timer);
+        resolve();
+      }
+    );
+  });
+}
+
+function flushWithTimeout(runtime: NodeTelemetry): Promise<void> {
+  return settleWithin(runtime.forceFlush(), 2_000);
+}
+
+function shutdownWithTimeout(runtime: NodeTelemetry): Promise<void> {
+  return settleWithin(runtime.shutdown(), 2_000);
+}

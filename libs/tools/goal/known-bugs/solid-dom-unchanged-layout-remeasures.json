@@ -1,4 +1,0 @@
-{
-  "summary": "Observing the same 390 by 844 tree twice dispatched element-layout notifications twice. Unchanged geometry repeatedly woke Solid measurement and positioning effects and dirtied the next observation.",
-  "regressionTest": "pkgs/ui-testing-solid-dom-client/tests/layout-notifications.test.ts"
-}

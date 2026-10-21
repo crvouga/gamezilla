@@ -1,0 +1,4 @@
+{
+  "summary": "The warm CI gate began eight-thread model inference before the existing whole-system symbolic check finished, causing its literal two-transition case to exceed the 120-second bound. Run visual inference after product model contracts; keep all correctness and timing budgets intact.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ui-quality-graph.test.ts"
+}

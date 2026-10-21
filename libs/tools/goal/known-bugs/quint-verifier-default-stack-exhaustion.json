@@ -1,4 +1,0 @@
-{
-  "summary": "Forty-two typed calibration values reproduce the proof server's opaque gRPC 13 INTERNAL failure with a 512 KB JVM stack. Verifier workers inherited machine-dependent stack defaults, unlike temporal workers. Use the same fixed 8 MB worker stack for both verification paths.",
-  "regressionTest": "pkgs/quint-server/tests/verify-depth.test.ts"
-}

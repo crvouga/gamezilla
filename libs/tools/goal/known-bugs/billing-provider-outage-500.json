@@ -1,4 +1,0 @@
-{
-  "summary": "When the payment provider was down, startCheckout / openPortal threw uncaught and the billing routes answered a bare 500 the app could not explain. Fixed by catching provider failures in the checkout and portal routes: they answer 503 { code: 'provider_unavailable' } and log 'billing provider unavailable' with the provider, operation and error type only.",
-  "regressionTest": "libs/billing-server/tests/checkout-safeguards.test.ts"
-}

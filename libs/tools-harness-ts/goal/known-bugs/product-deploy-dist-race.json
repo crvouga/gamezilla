@@ -1,0 +1,4 @@
+{
+  "summary": "Deploy ran the product Verify build and live product deployment concurrently even though both use apps/product-ts/dist. Wrangler indexed assets/src-C2k0tIiA.js, then the Verify build emptied dist and replaced the content-hashed file before an upload stream read it. The product deploy now waits for both Verify tasks that build or consume dist, and the Turbo graph test pins that ordering.",
+  "regressionTest": "libs/tools-harness-ts/scripts/turbo-deploy-graph.test.ts"
+}

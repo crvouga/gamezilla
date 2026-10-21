@@ -1,4 +1,0 @@
-{
-  "summary": "An offline host must keep its known local authority until it learns that its space ended on another device.",
-  "regressionTest": "libs/games-harness/tests/quint/custom-game.binding.ts"
-}

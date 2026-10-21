@@ -1,4 +1,0 @@
-{
-  "summary": "The Synthetic Population Worker constructed browser persistence before overriding the object-store port. An isolated in-memory DOM has neither OPFS nor Cache API, so every real application realm failed before authentication.",
-  "regressionTest": "apps/synthetic-population-worker/tests/application-realm.test.ts"
-}

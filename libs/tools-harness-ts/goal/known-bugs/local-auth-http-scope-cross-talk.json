@@ -1,0 +1,4 @@
+{
+  "summary": "The local API listener opened its first scoped HTTP invocation before lazy product bootstrap installed native AsyncLocalStorage. That permanently selected the non-concurrent fallback, so overlapping auth and sync requests could use another request's closed HTTP scope and fail. The server entrypoint now installs native context before the listener can open any invocation.",
+  "regressionTest": "apps/server-ts/tests/local-http-startup.test.ts"
+}

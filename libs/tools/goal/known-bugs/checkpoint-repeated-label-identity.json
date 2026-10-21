@@ -1,4 +1,0 @@
-{
-  "summary": "A real-browser model trace saved two checkpoints with the same label at different times. The binding selected and observed checkpoints by label, so deleting one still appeared available through the other. Track the exact identity returned by each save.",
-  "regressionTest": "apps/product/tests/quint/checkpoints.binding.ts"
-}

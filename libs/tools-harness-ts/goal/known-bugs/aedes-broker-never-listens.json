@@ -1,0 +1,4 @@
+{
+  "summary": "The broker launcher constructed Aedes without initializing its persistence and listeners through listen(). HTTP publishes appeared successful, but real MQTT CONNECT packets never received CONNACK. Initialize the broker before exposing its ports.",
+  "regressionTest": "pkgs/aedes-server-ts/tests/start.test.ts"
+}

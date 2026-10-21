@@ -1,0 +1,4 @@
+{
+  "summary": "Portable Postgres checkpoint restore passed JSON arrays to node-postgres as native SQL arrays, making JSON columns fail with invalid input syntax. Encode restored JSON cells using the declared column type.",
+  "regressionTest": "pkgs/sql-client-root-harness-ts/tests/postgres-json-data.test.ts"
+}

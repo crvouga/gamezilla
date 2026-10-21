@@ -1,0 +1,4 @@
+{
+  "summary": "An EMQX release installed under OWC Express 1M2 failed to boot because its native launcher split the physical installation path and treated Express as an Erlang environment argument. The process wrapper stages a self-contained runtime in a temporary path without whitespace and disposes it after the broker exits.",
+  "regressionTest": "pkgs/emqx-server-ts/tests/emqx-runtime.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "The eight-day billing grace scenario failed when a callback enqueued a task due at 1718409601001 while the duration drain yielded at virtual time 1718409935000. The drain tried to rewind the clock to the overdue deadline. Fire overdue work at the current time and advance only to future deadlines.",
-  "regressionTest": "pkgs/harness-root-shared/tests/scheduler-starvation.test.ts"
-}

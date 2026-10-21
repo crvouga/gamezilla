@@ -1,4 +1,0 @@
-{
-  "summary": "Repeated virtual timeline timestamps must not tie distinct executions; layer ordering uses captured completion time.",
-  "regressionTest": "pkgs/atlas-reports-harness/tests/layer-store.test.ts"
-}

@@ -1,4 +1,0 @@
-{
-  "summary": "A stored checkpoint returned as a JSON string was treated as incompatible and lost its active route. Completed sessions also reused the old elapsed session duration.",
-  "regressionTest": "libs/synthetic-population-shared/tests/policies.test.ts"
-}

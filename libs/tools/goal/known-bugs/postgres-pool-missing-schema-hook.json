@@ -1,4 +1,0 @@
-{
-  "summary": "createPgPool omitted its awaited onConnect schema pin, so pooled sessions resolved gamezilla_test_scope to public when startup options were not forwarded.",
-  "regressionTest": "pkgs/sql-client-postgres-server/tests/postgres.contract.test.ts"
-}

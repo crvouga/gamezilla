@@ -1,0 +1,4 @@
+{
+  "summary": "The chess journey tapped Black's e7-e5 before White's accepted e2-e4 reached that device, so the inactive board ignored it.",
+  "regressionTest": "libs/runtime-harness-ts/tests/multiplayer-journey-move.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "On first paint the billing screen read a membership that had not loaded yet as none, so a Plus member saw \"Free plan · No membership yet.\" and a free-trial button they could press to start a second checkout. The membership hook now reports loading, and until the row is known the screen names no plan and offers neither checkout nor the billing portal.",
-  "regressionTest": "libs/billing-client/tests/billing-screen-states.test.tsx"
-}

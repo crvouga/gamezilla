@@ -1,0 +1,45 @@
+import {
+  createMessageNamespace,
+  isPlainRecord,
+} from '@pkgs/message-shared-ts/message';
+import { Outbox } from '@pkgs/outbox-shared-ts/outbox';
+import type { MutationCtx } from '@pkgs/sync-engine-shared-ts/mutations-types';
+
+export const spaceRoomMembershipChanged = createMessageNamespace(
+  'space',
+  'membership'
+)(
+  'changed',
+  (
+    value
+  ): value is {
+    id: string;
+    spaceId: string;
+    memberId: string;
+    change: 'joined' | 'left' | 'ended';
+  } =>
+    isPlainRecord(value) &&
+    typeof value['id'] === 'string' &&
+    typeof value['spaceId'] === 'string' &&
+    typeof value['memberId'] === 'string' &&
+    ['joined', 'left', 'ended'].includes(String(value['change']))
+);
+
+export async function changeSpaceRoomMembership(
+  ctx: MutationCtx,
+  spaceId: string,
+  change: 'joined' | 'left' | 'ended',
+  memberId: string
+): Promise<string> {
+  const id = ctx.env.createId();
+  await new Outbox(ctx).send({
+    id,
+    message: spaceRoomMembershipChanged({
+      id,
+      spaceId,
+      memberId,
+      change,
+    }),
+  });
+  return id;
+}

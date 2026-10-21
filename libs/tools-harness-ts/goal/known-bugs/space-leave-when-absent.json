@@ -1,0 +1,4 @@
+{
+  "summary": "leaveSpace took no permission decision and requireSpacePermission treated every non-host as a member, so someone not in a space got a silent success instead of being refused. Fixed by deciding the person's place in the space (host, joined, not in it) through the permission layer. Found by the space-roles decision table.",
+  "regressionTest": "libs/spaces-shared-ts/tests/space-leave-when-absent.test.ts"
+}

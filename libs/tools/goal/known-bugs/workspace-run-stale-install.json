@@ -1,4 +1,0 @@
-{
-  "summary": "The workspace Run hook launched dev without checking that the install matched the checkout. After a merge changed package manifests, dev booted against the previous node_modules and died on a missing module with no mention of the merge. Run now reinstalls when the lockfile or any package manifest differs from the last complete install, initializes missing submodule workspaces, and names an unfinished merge before launching.",
-  "regressionTest": "libs/tools/scripts/workspace-run.test.ts"
-}

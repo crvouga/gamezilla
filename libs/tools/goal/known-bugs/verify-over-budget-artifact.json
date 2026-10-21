@@ -1,4 +1,0 @@
-{
-  "summary": "A specification task exited zero after 496 seconds against its 300-second budget. The local artifact publisher reused its cache entry as passing evidence even though the budget gate failed.",
-  "regressionTest": "libs/tools/scripts/verify-artifact-store.test.ts"
-}

@@ -1,4 +1,0 @@
-{
-  "summary": "A game event produced by a genuine player can also name a population bot. Actor provenance alone must not count both participants as customers. Active-use reporting requires trusted synthetic subject exclusions.",
-  "regressionTest": "libs/runtime-shared/tests/business-usage.test.ts"
-}

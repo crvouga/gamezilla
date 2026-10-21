@@ -1,0 +1,4 @@
+{
+  "summary": "Keeping access checks inside the seventh grace day also left the provider inside the free trial, so a modeled paid refund had no payment. Advance the provider to its trial end when seven trial days have elapsed without spending additional access grace.",
+  "regressionTest": "libs/billing-harness-ts/tests/quint/grace-and-refunds.binding.ts"
+}

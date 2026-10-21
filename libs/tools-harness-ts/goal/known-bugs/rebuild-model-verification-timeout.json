@@ -1,0 +1,4 @@
+{
+  "summary": "Apalache's default map encoding and per-transition invariant checks exceeded the rebuild model's existing 120-second CI budget at ten steps. The database contract runners opt into SMT arrays and invariant checks after the full transition choice, preserving every invariant and the same exhaustive bound while reducing solver work. Other models retain the default encoding because arrays do not support all higher-order models.",
+  "regressionTest": "pkgs/db-schema-root-harness-ts/tests/quint/reconciliation-contracts.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "Synthetic Population timelines returned stored JSON diagnostics as encoded strings, hiding acknowledged transitions from typed RPC consumers and recovery checks.",
-  "regressionTest": "apps/synthetic-population-worker/tests/application-realm.test.ts"
-}

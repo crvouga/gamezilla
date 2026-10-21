@@ -1,0 +1,4 @@
+{
+  "summary": "Branch-based pruning erased evidence needed by the combined report. Preserve reports from superseded commits and removed branches.",
+  "regressionTest": "pkgs/atlas-reports-harness-ts/tests/retention.test.ts"
+}

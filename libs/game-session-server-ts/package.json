@@ -1,0 +1,46 @@
+{
+  "name": "@libs/game-session-server-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@libs/app-root-server-ts": "workspace:*",
+    "@libs/app-root-shared-ts": "workspace:*",
+    "@libs/game-matchmaking-shared-ts": "workspace:*",
+    "@libs/game-session-shared-ts": "workspace:*",
+    "@libs/notifications-server-ts": "workspace:*",
+    "@libs/notifications-shared-ts": "workspace:*",
+    "@libs/permissions-server-ts": "workspace:*",
+    "@libs/permissions-shared-ts": "workspace:*",
+    "@libs/profile-shared-ts": "workspace:*",
+    "@libs/spaces-shared-ts": "workspace:*",
+    "@libs/sub-shared-ts": "workspace:*",
+    "@pkgs/assert-root-shared-ts": "workspace:*",
+    "@pkgs/outbox-shared-ts": "workspace:*",
+    "@pkgs/room-root-shared-ts": "workspace:*",
+    "@pkgs/sql-client-root-shared-ts": "workspace:*",
+    "@pkgs/sql-root-shared-ts": "workspace:*",
+    "@pkgs/sync-engine-shared-ts": "workspace:*",
+    "@pkgs/turn-game-shared-ts": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "server",
+  "gameApi": [],
+  "language": "typescript"
+}

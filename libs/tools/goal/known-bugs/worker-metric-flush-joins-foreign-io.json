@@ -1,4 +1,0 @@
-{
-  "summary": "After acknowledging its own metric batch, a Worker flush waited for a shared exporter's I/O from other invocations.",
-  "regressionTest": "pkgs/observability-root-server/tests/worker-export-lifetime.test.ts"
-}

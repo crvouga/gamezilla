@@ -1,4 +1,0 @@
-{
-  "summary": "A solo host could submit a local move through the command port while offline, but the shared board disabled pointer and keyboard input based only on the remote connection. Use the same host-local eligibility as command confirmation.",
-  "regressionTest": "libs/games-harness/tests/conformance/custom-games/offline-solo-board.test.ts"
-}

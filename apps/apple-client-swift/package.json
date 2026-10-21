@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "bun run ../../libs/tools/scripts/xcode-task.ts build",
-    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
-    "test": "bun run ../../libs/tools/scripts/xcode-task.ts test"
+    "build": "bun run ../../libs/tools-harness-ts/scripts/xcode-task.ts build",
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "test": "bun run ../../libs/tools-harness-ts/scripts/xcode-task.ts test"
   },
   "dependencies": {
     "@pkgs/clock-shared-swift": "workspace:*"

@@ -1,0 +1,4 @@
+{
+  "summary": "Mockingbird Postgres 3.4.0 loses bigint arithmetic behavior after decoding a retained snapshot. Local stack restart fails on revision = revision + 1 with SQLSTATE XX000. Upstream: https://github.com/crvouga/mockingbird/issues/352",
+  "regressionTest": "pkgs/postgres-mockingbird-server-ts/tests/bigint-snapshot-regression.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "Moving composed Quint models under specs/system broke the closed-world adapter, which demanded standalone product contexts and bindings. Registered campaigns now retain gated specification-only coverage, including transitive imported-module evidence, without claiming a product trace adapter. Ungated campaigns and missing evidence still fail.",
-  "regressionTest": "libs/tools/scripts/conformance-evidence.test.ts"
-}

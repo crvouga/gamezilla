@@ -1,0 +1,4 @@
+{
+  "summary": "POST /query read and parsed a request body of any size before authorizing it; only the query count was capped.",
+  "regressionTest": "pkgs/sync-engine-server-ts/tests/request-body-cap.test.ts"
+}

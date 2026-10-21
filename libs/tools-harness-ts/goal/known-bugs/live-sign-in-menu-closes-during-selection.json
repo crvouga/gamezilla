@@ -1,0 +1,4 @@
+{
+  "summary": "Post-sign-in hydration closed the account menu after its visible read and before the runner selected Account.",
+  "regressionTest": "libs/runtime-harness-ts/tests/journey-sign-in-menu.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "Both in-process sign-in browsers ignored the immediate HTML Refresh handoff, cancelling HTTPS OAuth sessions or stranding the actor on the callback document.",
-  "regressionTest": "pkgs/auth-inhouse-shared/tests/oauth-navigation.test.ts"
-}

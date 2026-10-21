@@ -1,0 +1,4 @@
+{
+  "summary": "The five new puzzle import and saved-source contracts had no statechart owner and failed the product contract gate.",
+  "regressionTest": "libs/tools-harness-ts/scripts/statechart-contracts.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "A space join returned when its header appeared, before the host availability notice, causing the scenario to attempt an unavailable game.",
+  "regressionTest": "libs/games-harness-ts/tests/quint/custom-game.binding.ts"
+}

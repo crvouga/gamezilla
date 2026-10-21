@@ -1,4 +1,0 @@
-{
-  "summary": "The Bun.WebView driver's `text()` returned any node's `value`, and every `<button>` has one (`\"\"`), so `expect.text` on a button never matched in a real browser: the avatar \"Saved\" critical journey failed in production while the Solid DOM driver passed. Fixed by reading `value` only from `<input>` / `<textarea>`, else visible text, else `aria-label`, like the Solid DOM driver.",
-  "regressionTest": "pkgs/ui-testing-bun-webview-harness/tests/button-text.test.ts"
-}

@@ -76,19 +76,19 @@ This file is the single source of truth. `bun run agents:sync` projects it into 
 
 ## Phase 0 — Orientation (about the first 10% of the run)
 
-1. **Read** the three rulebooks, the spec index ([`README.md`](../../README.md#spec-index)), [`specs/conformance.yaml`](../../specs/conformance.yaml), each context's `ubiquitous-language.yml`, the critical journeys in `specs/journeys/`, [`pkgs/ui-root-client/README.md`](../../pkgs/ui-root-client/README.md) (how the product looks), root `package.json`, and the last ~50 commits on `origin/main`.
+1. **Read** the three rulebooks, the spec index ([`README.md`](../../README.md#spec-index)), [`specs/conformance.yaml`](../../specs/conformance.yaml), each context's `ubiquitous-language.yml`, the critical journeys in `specs/journeys/`, [`pkgs/ui-root-client-ts/README.md`](../../pkgs/ui-root-client-ts/README.md) (how the product looks), root `package.json`, and the last ~50 commits on `origin/main`.
 2. **Collect every real defect signal before inventing any.** These outrank anything an auditor imagines, because they already hurt someone:
    - open feedback reports: `bun feedback --list`, then `bun feedback --inspect <id>` and any `reproduction.json` beside it;
    - production and recent failures: `bun obs last`, `bun obs find <id>`;
    - red runs: the open "Verify Nightly is failing on main" issue, and recent Health and Deploy failures (`gh run list --workflow health.yml --status failure`, then `gh run view <id> --log-failed`);
    - verification gaps: obligations in `specs/conformance.yaml` nothing proves yet, scenarios or model actions without bindings;
-   - the known-bug register `libs/tools/goal/known-bugs/`, recent `fix:` commits, and open PRs (`gh pr list --label overnight`) so nothing is re-reported or duplicated.
+   - the known-bug register `libs/tools-harness-ts/goal/known-bugs/`, recent `fix:` commits, and open PRs (`gh pr list --label overnight`) so nothing is re-reported or duplicated.
 3. **Make the base worktree.** `git fetch origin main`, then `git worktree add --detach "$WT_ROOT/base" origin/main`, where `WT_ROOT="$HOME/.cache/overnight/$(basename "$(git rev-parse --show-toplevel)")/<date>"`. Run `bun install` in it. Every "before" capture and every new branch starts from here.
 4. **Hunt for defects with the machinery that already exists.** In the base worktree, check `uptime`, then run, one at a time:
    - `bun verify-nightly random` (properties on fresh seeds, determinism fuzz, mutants);
    - each context's Quint models on other seeds: `PBT_RANDOM=1 bun run spec specs/<context>/<model>.qnt`.
    Every failure is a reproduced defect with its trace already shrunk. Save the seed, trace and output to `.overnight/<date>/repros/<slug>/`.
-5. **Baseline.** In the base worktree run `bun verify` and record its verdict, duration and any red task in `BASELINE.md`. Read exit codes, never grepped output. Take the median of 3 runs of the bundle treemap (`ANALYZE=1 bun run --filter @apps/client build`) and `bun verify-nightly performance`. Capture baseline screenshots of every critical journey at phone (390×844) and desktop (1440×900) widths from the browser suites, into `.overnight/<date>/baseline/`.
+5. **Baseline.** In the base worktree run `bun verify` and record its verdict, duration and any red task in `BASELINE.md`. Read exit codes, never grepped output. Take the median of 3 runs of the bundle treemap (`ANALYZE=1 bun run --filter @apps/client-ts build`) and `bun verify-nightly performance`. Capture baseline screenshots of every critical journey at phone (390×844) and desktop (1440×900) widths from the browser suites, into `.overnight/<date>/baseline/`.
 6. **Prepare the run's GitHub plumbing** (idempotent; see "Labels" and "Evidence hosting"): create or update every label with `gh label create <name> --color <hex> --description <text> --force`, and make the evidence worktree.
 7. Write `.overnight/<date>/CONTEXT.md`: one page covering the architecture, the bounded contexts and their packages (`specDomains`), how to run one context's specs, the base worktree path, and every defect signal from steps 2–4 with its id. Subagents read this instead of re-deriving it.
 
@@ -169,7 +169,7 @@ Pick the most product-level home that can express the problem ([`specs/README.md
 | Timing, load or bundle size | a **gate script** budget with the measurement |
 | An accessibility failure | a scenario in the context's accessibility feature, or the component's harness test |
 
-Every pinned bug also gets `libs/tools/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). Name `<bug-id>` after the symptom in product words.
+Every pinned bug also gets `libs/tools-harness-ts/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). Name `<bug-id>` after the symptom in product words.
 
 ### Do the item
 

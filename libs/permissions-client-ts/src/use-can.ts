@@ -1,0 +1,71 @@
+import type {
+  AppGrantKey,
+  AppLimit,
+} from '@libs/permissions-shared-ts/permission-catalog';
+import {
+  LIMIT,
+  PERMISSION,
+} from '@libs/permissions-shared-ts/permission-catalog';
+import type { UnfinishedGames } from '@libs/permissions-shared-ts/unfinished-games-permission';
+import { decideUnfinishedGames } from '@libs/permissions-shared-ts/unfinished-games-permission';
+import type { Decision } from '@pkgs/permissions-shared-ts/decision';
+import { decide, decideLimit } from '@pkgs/permissions-shared-ts/decision';
+import { type Accessor, createMemo } from 'solid-js';
+import { usePermissionPolicy } from './use-permission-policy';
+import type { AccessScopeAccessor } from './use-permission-subject';
+import { usePermissionSubject } from './use-permission-subject';
+import { usePrivacyDecision } from './use-privacy-decision';
+
+/** A live decision for holding one more of a consumer's counted resource. */
+export function useLimitDecision(
+  key: AppLimit,
+  used: Accessor<number>
+): Accessor<Decision> {
+  const policy = usePermissionPolicy();
+  const subject = usePermissionSubject();
+  return () => decideLimit(policy(), subject(), key, used());
+}
+
+/**
+ * A live decision for seeking another multiplayer game: the unfinished
+ * multiplayer game limit, then an active Custom Game the caller takes part in.
+ */
+export function useUnfinishedGamesDecision(
+  held: Accessor<UnfinishedGames>
+): Accessor<Decision> {
+  const limit = useLimitDecision(
+    LIMIT.unfinishedMultiplayerGames,
+    () => held().multiplayer
+  );
+  return () => decideUnfinishedGames(limit(), held().customGames);
+}
+
+/**
+ * The caller's live decision for `key` (restrictions applied). `scope` adds
+ * resource roles, e.g. `() => ({ spacePresence: 'host' })` inside a space.
+ */
+export function useDecision(
+  key: AppGrantKey,
+  scope?: AccessScopeAccessor
+): Accessor<Decision> {
+  const policy = usePermissionPolicy();
+  const subject = usePermissionSubject(scope);
+  const privacyDecision =
+    key === PERMISSION.profileDeleteAccount ||
+    key === PERMISSION.profileExportData
+      ? usePrivacyDecision()
+      : null;
+  return () => {
+    const decision = decide(policy(), subject(), key);
+    return privacyDecision === null ? decision : privacyDecision(key, decision);
+  };
+}
+
+/** Whether the caller may `key` right now. */
+export function useCan(
+  key: AppGrantKey,
+  scope?: AccessScopeAccessor
+): Accessor<boolean> {
+  const decision = useDecision(key, scope);
+  return createMemo(() => decision().allowed);
+}

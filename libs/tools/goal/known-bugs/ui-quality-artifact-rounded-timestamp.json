@@ -1,4 +1,0 @@
-{
-  "summary": "The inspected black frame in a literal 60 FPS MP4 had PTS 16.666… ms, reported as 17 ms. Extracting at 17 ms skipped it and emitted the following white frame. Seek before the half-millisecond rounding boundary so diagnostics retain the inspected source frame.",
-  "regressionTest": "pkgs/ui-quality-check-server/tests/native-decoder.test.ts"
-}

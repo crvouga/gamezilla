@@ -1,0 +1,4 @@
+{
+  "summary": "During network restoration the puzzle allowance disappeared between the visibility and text probes. Its missing-element error aborted convergence, leaving the watcher observed as revealed instead of skipped. Treat only that optional-label disappearance as absent and continue observing the unchanged model expectations.",
+  "regressionTest": "libs/games-harness-ts/tests/puzzle-observation.test.ts"
+}

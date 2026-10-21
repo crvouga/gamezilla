@@ -1,4 +1,0 @@
-{
-  "summary": "An over-sharded or misconfigured empty spec part exited successfully and published a passing completion. Fail with a configuration error so the empty task is removed or its scope repaired.",
-  "regressionTest": "libs/harness/scripts/test-spec-empty.test.ts"
-}

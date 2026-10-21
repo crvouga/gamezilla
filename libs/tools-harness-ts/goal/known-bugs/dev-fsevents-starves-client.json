@@ -1,0 +1,4 @@
+{
+  "summary": "The development web server spent a full CPU core dispatching macOS FSEvents to linked-path listeners and stopped responding even to index.html, leaving the client blank. Both browser hosts now use directory-scoped native watchers without following symlinks or watching runtime caches and output.",
+  "regressionTest": "pkgs/vite-workspace-resolver-server-ts/tests/workspace-watch.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "An impossible FEN with the nonmoving king already checked let the chess engine capture a king and crashed tactical analysis. Reject this position for tactical claims.",
-  "regressionTest": "pkgs/chess-rules-shared/tests/tactics.test.ts"
-}

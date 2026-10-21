@@ -1,0 +1,4 @@
+{
+  "summary": "The inbox said 'The connection is missing.' for every failed mark read, mark all read or archive, even when it was connected and the inbox refused the change. Fixed: a missing connection, a refusal and an unexplained failure while connected are each told plainly.",
+  "regressionTest": "libs/notifications-client-ts/tests/inbox-choice-failure.test.ts"
+}

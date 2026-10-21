@@ -1,0 +1,4 @@
+{
+  "summary": "A spec part fingerprint must include the transitive imported model sources, including events files outside its own domain.",
+  "regressionTest": "libs/harness-ts/scripts/spec-inputs.test.ts"
+}

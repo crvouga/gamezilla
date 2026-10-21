@@ -1,15 +1,15 @@
 # CI requirements
 
-Capacity plan for proposed self-hosted pull-request verifications. The current workflow uses GitHub-hosted shards; this document sizes a warm pool and does not provision infrastructure. The measured section is generated from [`libs/tools/scripts/verify-task-costs.json`](../libs/tools/scripts/verify-task-costs.json) and the workspace graph. [`libs/tools/scripts/ci-load.test.ts`](../libs/tools/scripts/ci-load.test.ts) fails when that section drifts, or when the corpus no longer fits the runner below.
+Capacity plan for proposed self-hosted pull-request verifications. The current workflow uses GitHub-hosted shards; this document sizes a warm pool and does not provision infrastructure. The measured section is generated from [`libs/tools-harness-ts/scripts/verify-task-costs.json`](../libs/tools-harness-ts/scripts/verify-task-costs.json) and the workspace graph. [`libs/tools-harness-ts/scripts/ci-load.test.ts`](../libs/tools-harness-ts/scripts/ci-load.test.ts) fails when that section drifts, or when the corpus no longer fits the runner below.
 
 Refresh after a cold Verify harvest:
 
 ```bash
-bun run libs/tools/scripts/verify-task-costs.ts --harvest <run id>
-bun run libs/tools/scripts/ci-load.ts --write
+bun run libs/tools-harness-ts/scripts/verify-task-costs.ts --harvest <run id>
+bun run libs/tools-harness-ts/scripts/ci-load.ts --write
 ```
 
-Commit the cost file and this document together. The budgets live in [`libs/tools/scripts/ci-runner-capacity.ts`](../libs/tools/scripts/ci-runner-capacity.ts). A task that no longer fits is split, or the runner constants change in that same commit with the measurement that justifies them. The five-minute promise stays.
+Commit the cost file and this document together. The budgets live in [`libs/tools-harness-ts/scripts/ci-runner-capacity.ts`](../libs/tools-harness-ts/scripts/ci-runner-capacity.ts). A task that no longer fits is split, or the runner constants change in that same commit with the measurement that justifies them. The five-minute promise stays.
 
 ## Promises
 
@@ -23,7 +23,7 @@ Wall clock is from the push to a posted verdict, on a warm runner that is free w
 
 The proposed pool has six runners: up to three cooperating machines per verification, with capacity reserved for two simultaneous verifications. A small corpus uses fewer machines; the fit calculation chooses the smallest width that meets every deadline. A third concurrent verification waits, and that wait sits outside the promise. A newer push to the same pull request cancels the older run.
 
-Release verification, deploy, health, and the nightly run have their own deadlines. They are not these promises. The nightly run is the `nightly` profile in [`libs/tools/scripts/verify-profile.ts`](../libs/tools/scripts/verify-profile.ts); it never gates a merge.
+Release verification, deploy, health, and the nightly run have their own deadlines. They are not these promises. The nightly run is the `nightly` profile in [`libs/tools-harness-ts/scripts/verify-profile.ts`](../libs/tools-harness-ts/scripts/verify-profile.ts); it never gates a merge.
 
 ## What a pull-request verification runs
 
@@ -31,7 +31,7 @@ The affected Verify gate tasks. A cache hit is not scheduled.
 
 A source change reruns that package and every transitive workspace dependent, because those tasks depend on `^src`. A test-only change stays on the package that holds the test: `src` inputs exclude `*.test.ts`. `mise.toml` and `tsconfig.base.json` are global dependencies, and `bun.lock` is the audit input, so each of those misses the whole corpus. That full miss is still the five-minute promise.
 
-Health, deploy, and `@apps/product#verify:ui-quality` stay on the release path. The population worker's tests run on Bun inside this verification.
+Health, deploy, and `@apps/product-ts#verify:ui-quality` stay on the release path. The population worker's tests run on Bun inside this verification.
 
 ## Hosted load this replaces
 
@@ -82,13 +82,13 @@ A leaf has no workspace dependents, so a change there reruns that package's own 
 
 The measured section identifies the slowest leaf. Every indivisible leaf task must fit within 135 seconds, leaving the same 30-second warm start and 15-second verdict allowance inside the three-minute promise.
 
-A foundational package such as `@pkgs/property-shared` misses almost the whole corpus, because most packages depend on it. The allocated machines and their per-machine slots must keep that cone inside five minutes. Dependents wait on `src`, so the cone's wall clock stays the longest task in it, and the other tasks fill the remaining slots.
+A foundational package such as `@pkgs/property-shared-ts` misses almost the whole corpus, because most packages depend on it. The allocated machines and their per-machine slots must keep that cone inside five minutes. Dependents wait on `src`, so the cone's wall clock stays the longest task in it, and the other tasks fill the remaining slots.
 
 ## Outside this verification
 
 - `//#deploy`, the environment apply, migrations, and worker publish
 - Health and the `@synthetic` probes
-- `@apps/product#verify:ui-quality` and the other nightly suites (Verify Nightly)
+- `@apps/product-ts#verify:ui-quality` and the other nightly suites (Verify Nightly)
 - Test reports, traces and coverage: the pull-request verification keeps none (Verify Nightly owns them)
 - A laptop `bun verify`, which keeps the 10 minute deadline and admits one verification at a time
 
@@ -112,7 +112,7 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | Stale cost keys | 555 |
 | Cold CPU | 18302 s |
 | Spec parts | 10192 s across 272 tasks |
-| Longest task | @libs/games-harness#test:spec:49 213 s |
+| Longest task | @libs/games-harness-ts#test:spec:49 213 s |
 
 ### Families
 
@@ -140,11 +140,11 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 
 | Package | CPU | Longest task |
 | --- | --- | --- |
-| @apps/product | 1049 s | @apps/product#test 132 s |
-| @pkgs/chess-board-root-harness | 192 s | @pkgs/chess-board-root-harness#test:contract 52 s |
-| @apps/synthetic-population-worker | 110 s | @apps/synthetic-population-worker#test 79 s |
-| @pkgs/matchmaking-root-harness | 106 s | @pkgs/matchmaking-root-harness#test:spec:4 33 s |
-| @libs/synthetic-population-harness | 103 s | @libs/synthetic-population-harness#test:spec:0 60 s |
+| @apps/product-ts | 1049 s | @apps/product-ts#test 132 s |
+| @pkgs/chess-board-root-harness-ts | 192 s | @pkgs/chess-board-root-harness-ts#test:contract 52 s |
+| @apps/synthetic-population-worker-ts | 110 s | @apps/synthetic-population-worker-ts#test 79 s |
+| @pkgs/matchmaking-root-harness-ts | 106 s | @pkgs/matchmaking-root-harness-ts#test:spec:4 33 s |
+| @libs/synthetic-population-harness-ts | 103 s | @libs/synthetic-population-harness-ts#test:spec:0 60 s |
 
 ### Widest dependency cones
 
@@ -152,9 +152,9 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared | 267 | 18088 s | @libs/games-harness#test:spec:49 213 s |
-| @pkgs/clock-shared | 233 | 17970 s | @libs/games-harness#test:spec:49 213 s |
-| @pkgs/assert-root-shared | 228 | 17922 s | @libs/games-harness#test:spec:49 213 s |
+| @pkgs/property-shared-ts | 267 | 18088 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/clock-shared-ts | 233 | 17970 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/assert-root-shared-ts | 228 | 17922 s | @libs/games-harness-ts#test:spec:49 213 s |
 
 ### Runner
 

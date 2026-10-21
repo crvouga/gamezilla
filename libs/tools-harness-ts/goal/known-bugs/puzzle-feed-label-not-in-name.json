@@ -1,0 +1,4 @@
+{
+  "summary": "The puzzle feed bar's accessible name left out what it showed (WCAG 2.5.3): its aria-label did not include the visible labels, and the hidden puzzle rating chip still rendered a 0 that sighted people could not see but the name audit counted. The bar now names itself from a visually hidden description followed by its visible labels, and a hidden rating renders only figure spaces.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/rating-chip-label-in-name.test.tsx"
+}

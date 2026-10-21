@@ -1,4 +1,0 @@
-{
-  "summary": "The board's spoken move named the piece standing on the destination after the move, so a promotion was announced as the piece the pawn became (\"Queen to a8, promotes to Queen\") instead of the pawn that moved. Fixed: speakMove names a promoting move as a pawn's (\"Pawn to a8, promotes to Queen\").",
-  "regressionTest": "pkgs/chess-board-root-client/tests/chess-board-announcement.test.tsx"
-}

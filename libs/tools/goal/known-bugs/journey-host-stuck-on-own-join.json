@@ -1,4 +1,0 @@
-{
-  "summary": "Critical journeys left the monitor account on the join screen of its own live space, where End is not shown. Join waited on a query sweep with no deadline, so the button stayed on Joining and the space stayed live for the next run. Deploy and Health then failed the same way every time. Fixed: a host looking at their own live space is taken inside, and the connection check stops waiting after a few seconds.",
-  "regressionTest": "libs/spaces-shared/tests/reopen-lost-host-session.test.ts"
-}

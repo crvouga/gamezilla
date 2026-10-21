@@ -1,0 +1,4 @@
+{
+  "summary": "Alice hosts a space, Bob joins its link, Alice goes offline, and Bob returns to the lobby. The retained card renders without Alice's cached profile, but the harness's host-name selector cannot observe it. Identify the actual lobby card by its space link and verify that ending the space removes it.",
+  "regressionTest": "libs/friends-harness-ts/tests/space-guest-lobby-card.test.ts"
+}

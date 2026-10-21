@@ -1,0 +1,189 @@
+import { expect, test } from 'bun:test';
+import { join } from 'node:path';
+import { runInNewContext } from 'node:vm';
+import {
+  browserNetworkEvidence,
+  readSyncResponseEvidence,
+} from '@apps/product-ts/browser-network-evidence';
+import {
+  EVIDENCE_DIR,
+  emulateOffline,
+  openDevice,
+  waitForCachedShell,
+} from '@apps/product-ts/live-browser';
+import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+
+test('transport evidence keeps protocol failures without copying credentials or query strings', () => {
+  const listeners = new Map<string, (event: { data: unknown }) => void>();
+  const view = {
+    addEventListener: (
+      name: string,
+      listener: (event: { data: unknown }) => void
+    ) => listeners.set(name, listener),
+  } as unknown as Bun.WebView;
+  const evidence = browserNetworkEvidence(view);
+  listeners.get('Network.requestWillBeSent')!({
+    data: {
+      requestId: 'one',
+      request: { url: 'https://api.example/api/health?token=private-token' },
+    },
+  });
+  listeners.get('Network.responseReceived')!({
+    data: {
+      requestId: 'one',
+      response: {
+        status: 200,
+        protocol: 'h2',
+        headers: { 'set-cookie': 'private-cookie' },
+      },
+    },
+  });
+  listeners.get('Network.loadingFailed')!({
+    data: {
+      requestId: 'one',
+      errorText: 'net::ERR_HTTP2_PROTOCOL_ERROR',
+      canceled: false,
+    },
+  });
+  expect(
+    evidence.map((line) => (JSON.parse(line) as { event: string }).event)
+  ).toEqual(['request', 'response', 'failed']);
+  expect(evidence.join('\n')).toContain('ERR_HTTP2_PROTOCOL_ERROR');
+  expect(evidence.join('\n')).not.toContain('private-');
+});
+
+// regression: live-network-evidence-competes-for-cdp
+test('network observation leaves the gesture CDP channel alone until failure collection', async () => {
+  const listeners = new Map<string, (event: { data: unknown }) => void>();
+  let calls = 0;
+  const view = {
+    addEventListener: (
+      name: string,
+      listener: (event: { data: unknown }) => void
+    ) => listeners.set(name, listener),
+    cdp: async () => {
+      calls++;
+      return {
+        body: JSON.stringify({
+          responses: [
+            {
+              status: 'ok',
+              checkpoint: '3',
+              tables: { games: [{ id: 'private-id', deleted_at: null }] },
+            },
+          ],
+        }),
+      };
+    },
+  } as unknown as Bun.WebView;
+  const evidence = browserNetworkEvidence(view);
+  listeners.get('Network.requestWillBeSent')!({
+    data: {
+      requestId: 'query',
+      request: { url: 'https://api.example/api/query' },
+    },
+  });
+  listeners.get('Network.loadingFinished')!({ data: { requestId: 'query' } });
+  expect(calls).toBe(0);
+  const responses = await readSyncResponseEvidence(view, evidence);
+  expect(calls).toBe(1);
+  expect(responses.join('\n')).toContain('games');
+  expect(responses.join('\n')).not.toContain('private-id');
+});
+
+// regression: health-journey-evidence-outside-package
+test('live journey evidence lives in the package directory uploaded by CI', () => {
+  expect(EVIDENCE_DIR).toBe(
+    join(import.meta.dir, '../.cache/critical-journeys')
+  );
+});
+
+// regression: health-macos-offline-network
+// regression: health-offline-existing-room-socket
+// regression: health-profile-deleted-between-devices
+test('a fresh live device can cut its network through Chrome', async () => {
+  const commands: { method: string; params: unknown }[] = [];
+  let closed = false;
+  const device = await openDevice(
+    { webOrigin: 'https://web.example', apiOrigin: 'https://api.example' },
+    (options) => {
+      expect(options.dataStore).toBe('ephemeral');
+      expect(options.backend).toEqual({ type: 'chrome', url: false });
+      const backend =
+        typeof options.backend === 'object'
+          ? options.backend.type
+          : (options.backend ?? 'webkit');
+      return {
+        navigate: async () => {},
+        addEventListener: () => {},
+        evaluate: async () => 'active',
+        cdp: async (method: string, params: unknown) => {
+          if (backend !== 'chrome') throw new Error('WebKit has no CDP');
+          commands.push({ method, params });
+        },
+        close: () => {
+          closed = true;
+        },
+      } as unknown as Bun.WebView;
+    }
+  );
+  try {
+    await emulateOffline(device.view);
+    expect(commands).toEqual([
+      { method: 'Network.enable', params: undefined },
+      {
+        method: 'Storage.clearDataForOrigin',
+        params: { origin: 'https://web.example', storageTypes: 'all' },
+      },
+      {
+        method: 'Storage.clearDataForOrigin',
+        params: { origin: 'https://api.example', storageTypes: 'all' },
+      },
+      {
+        method: 'Network.emulateNetworkConditions',
+        params: {
+          offline: true,
+          latency: 0,
+          downloadThroughput: 0,
+          uploadThroughput: 0,
+        },
+      },
+    ]);
+  } finally {
+    await device.close();
+  }
+  expect(closed).toBe(true);
+});
+
+// regression: health-offline-before-precache-ready
+test('a cold install taking more than twenty seconds stays online until ready', async () => {
+  const { clock, timers } = createHarnessClock();
+  const ready = new Promise((resolve) => {
+    timers.setTimeout(() => resolve({ active: {} }), 25_000);
+  });
+  const view = {
+    evaluate: (script: string) =>
+      runInNewContext(script, {
+        navigator: { serviceWorker: { ready } },
+      }),
+  } as unknown as Bun.WebView;
+  let settled = false;
+  const waiting = waitForCachedShell(view).then(() => {
+    settled = true;
+  });
+  clock.advance(20_000);
+  await Promise.resolve();
+  expect(settled).toBe(false);
+  clock.advance(5_000);
+  await waiting;
+  expect(settled).toBe(true);
+});
+
+test('an unavailable offline shell fails the readiness check', async () => {
+  const view = {
+    evaluate: (script: string) => runInNewContext(script, { navigator: {} }),
+  } as unknown as Bun.WebView;
+  await expect(waitForCachedShell(view)).rejects.toThrow(
+    'no service worker support'
+  );
+});

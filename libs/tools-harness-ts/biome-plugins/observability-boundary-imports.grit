@@ -1,0 +1,17 @@
+language js
+
+// Manual recording is deliberately confined to boundary files
+// (README.md). The plugin include allowlist in
+// biome.json names those files; every other production source file is verified.
+file($body) where {
+  $body <: includes "@pkgs/observability-",
+  $body <: contains bubble or {
+    JsModuleSource() as $src,
+    JsImportCallExpression() as $call where { $call <: `import($src)` },
+    JsCallExpression() as $call where { $call <: `require($src)` }
+  } where {
+    $src <: r"^['\"]@pkgs/observability-root-(?:client|server|shared)-ts/[^'\"]+['\"]$",
+    not $src <: r"^['\"]@pkgs/observability-root-shared-ts/(?:deployment-environment|metric-contract|http-metrics|mutation-metrics|pipeline-metrics|outbox-metrics|billing-metrics|prometheus|prometheus-names|event-contract|business-event|event-outbox|event-analytics|web-vital)['\"]$",
+    register_diagnostic(span=$src, message="Manual observability imports are confined to the ADR boundary-file inventory; instrument a shared boundary instead of sub code.", severity="error")
+  }
+}

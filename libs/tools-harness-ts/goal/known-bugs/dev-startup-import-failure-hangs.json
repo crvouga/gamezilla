@@ -1,0 +1,4 @@
+{
+  "summary": "A rejected development module import was captured by feedback diagnostics while the static startup shell remained mounted, leaving the page on Starting forever. Browser startup now reloads once for a transient Vite invalidation and replaces the spinner with an actionable failure if the retry also fails.",
+  "regressionTest": "libs/app-root-client-ts/tests/start-browser-application.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Profile bootstrap could consume the pending signup handle while the device was still bound to its anonymous identity, leaving the new account with a generated name. Keep the handoff pending until the auth bridge has persisted the verified external identity after account readiness.",
+  "regressionTest": "libs/auth-shared-ts/tests/pending-signup-username.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Deploy health omitted the Connect Four journey bindings and failed with an undefined step.",
+  "regressionTest": "apps/product-ts/scripts/health.test.ts"
+}

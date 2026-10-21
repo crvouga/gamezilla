@@ -1,4 +1,0 @@
-{
-  "summary": "A scheduled Health check and a Deploy ran the same journeys as the same synthetic accounts, and planned the same OpenTofu state, at the same time, so a deploy failed for what the check was doing. A scheduled check now yields to a deploy under way, and a deploy waits out a check already running.",
-  "regressionTest": "libs/tools/scripts/health-objectives-scope.test.ts"
-}

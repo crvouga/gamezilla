@@ -1,0 +1,4 @@
+{
+  "summary": "An upload acknowledgement invalidated an in-flight push refetch for an already painted scope without replacing it, leaving outbox changes such as closed friend requests stale until periodic reconciliation.",
+  "regressionTest": "pkgs/sync-engine-client-ts/tests/subscription-runtime.test.ts"
+}

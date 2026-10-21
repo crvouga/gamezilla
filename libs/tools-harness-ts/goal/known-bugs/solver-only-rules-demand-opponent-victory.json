@@ -1,0 +1,4 @@
+{
+  "summary": "The core conformance laws demand both sides can win from the starting position, even for a puzzle-only consumer with one solver and no second side. solo-count:0w can be won by white; no black participant or position exists.",
+  "regressionTest": "libs/games-harness-ts/tests/probes/solo-puzzle-conformance.test.ts"
+}

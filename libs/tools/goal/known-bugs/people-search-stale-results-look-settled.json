@@ -1,4 +1,0 @@
-{
-  "summary": "People search kept the previous person on screen while a new username was still settling, and the list shell can be in the DOM before any row paints. The harness treated that as a finished search and stopped advancing virtual time, so the next step waited on the wall clock for a button the debounce never painted. Fixed: an in-flight search shows Searching, a search counts only once a row or a real empty, offline, or sign-in answer is painted, the keystroke debounce is advanced before that check, and Add, open, and unblock keep the clock moving until their own control is on screen.",
-  "regressionTest": "libs/search-shared/tests/search-result-phase.test.ts"
-}

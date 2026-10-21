@@ -1,0 +1,4 @@
+{
+  "summary": "The 200-case gameplay property at fast-check seed 629884306 exceeded five seconds by enumerating all verbose legal moves twice per position.",
+  "regressionTest": "libs/chess-rules-shared-ts/tests/automated-move-legality.test.ts"
+}

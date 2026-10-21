@@ -1,4 +1,0 @@
-{
-  "summary": "A merge appended test:spec:6 and test:spec:7 after the package verifications instead of beside the other six spec parts, breaking the exact Verify and Deploy graph contracts. Keep all eight spec leaves together without removing any task.",
-  "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
-}

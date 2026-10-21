@@ -1,4 +1,0 @@
-{
-  "summary": "The verify:verify job in full run 37745241786 spent its 15-minute budget downloading 12 GB of rendered snapshots before reading the tiny shard verdicts. Publish compressed raw evidence and a separate metadata-only results artifact per shard; the verdict downloads only those results.",
-  "regressionTest": "libs/tools/scripts/verify-evidence-pack.test.ts"
-}

@@ -1,0 +1,65 @@
+{
+  "name": "@pkgs/matchmaking-root-harness-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "prepare:spec": "bun run --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client-ts/register ../../libs/harness-ts/scripts/prepare-spec.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --parallel=1 --timeout 120000 tests",
+    "test:spec": "bun run ../../libs/harness-ts/scripts/test-spec.ts",
+    "test:spec:0": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 0/8",
+    "test:spec:1": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 1/8",
+    "test:spec:2": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 2/8",
+    "test:spec:3": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 3/8",
+    "test:spec:4": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 4/8",
+    "test:spec:5": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 5/8",
+    "test:spec:6": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 6/8",
+    "test:spec:7": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 7/8",
+    "verify:models:0": "bun run ../../libs/tools-harness-ts/scripts/verify-models.ts --phase 4/12",
+    "verify:models:1": "bun run ../../libs/tools-harness-ts/scripts/verify-models.ts --phase 0-3,5-11/12"
+  },
+  "dependencies": {
+    "@pkgs/assert-root-shared-ts": "workspace:*",
+    "@pkgs/attribute-shared-ts": "workspace:*",
+    "@pkgs/harness-root-shared-ts": "workspace:*",
+    "@pkgs/matchmaking-root-shared-ts": "workspace:*",
+    "@pkgs/matchmaking-sql-server-ts": "workspace:*",
+    "@pkgs/postgres-mockingbird-server-ts": "workspace:*",
+    "@pkgs/sql-client-postgres-server-ts": "workspace:*",
+    "@pkgs/sql-client-postgres-shared-ts": "workspace:*",
+    "@pkgs/sql-client-root-shared-ts": "workspace:*",
+    "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",
+    "@pkgs/sql-root-shared-ts": "workspace:*",
+    "@pkgs/uuid-shared-ts": "workspace:*",
+    "fast-check": "catalog:",
+    "hono": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/alloy-shared-ts": "workspace:*",
+    "@pkgs/gherkin-shared-ts": "workspace:*",
+    "@pkgs/quint-server-ts": "workspace:*",
+    "@pkgs/quint-shared-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness",
+  "language": "typescript",
+  "proofGroups": [
+    "4",
+    "0-3,5-11"
+  ],
+  "proofParts": 12,
+  "specDomains": [
+    "matchmaking"
+  ],
+  "specParts": 8
+}

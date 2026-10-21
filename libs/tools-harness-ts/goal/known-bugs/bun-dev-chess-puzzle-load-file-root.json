@@ -1,0 +1,4 @@
+{
+  "summary": "The local Postgres seed still rooted its chess puzzle object store at the removed libs/chess package, so bun dev could not read scripts/fixtures/chess-puzzles.load.csv even though the file was committed under libs/chess-puzzle-server-ts. Resolve the root from the load-file module that owns the fixture.",
+  "regressionTest": "apps/server-ts/tests/local-postgres-seed.test.ts"
+}

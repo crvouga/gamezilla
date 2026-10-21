@@ -1,4 +1,0 @@
-{
-  "summary": "The lobby announced spaces-list-ready as soon as server sync finished, before its newly mounted local hosting-count query hydrated. Critical journeys saw no hosting count, skipped ending the monitor's leftover live space, and New space hit the hosting limit. The ready marker now waits for that count to answer, including zero.",
-  "regressionTest": "libs/spaces-client/tests/spaces-hosting-readiness.test.tsx"
-}

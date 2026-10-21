@@ -1,0 +1,4 @@
+{
+  "summary": "The offline journey silently stopped waiting for shell installation after twenty seconds and cut the network while a fresh deployment was still precaching. Await the browser's service-worker readiness event instead; unsupported or inactive shells fail rather than proceeding offline.",
+  "regressionTest": "apps/product-ts/tests/live-browser.test.ts"
+}

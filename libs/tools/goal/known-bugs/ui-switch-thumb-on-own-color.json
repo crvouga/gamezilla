@@ -1,4 +1,0 @@
-{
-  "summary": "The switch put its on-primary thumb on the text tint color when on, and on a dark track when off in dark mode, so the thumb barely showed. Fixed by using the accent fill when on and a secondary-text thumb when off.",
-  "regressionTest": "pkgs/ui-root-harness/tests/hosts.test.tsx"
-}

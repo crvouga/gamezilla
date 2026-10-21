@@ -1,0 +1,4 @@
+{
+  "summary": "Winning Connect Four discs were highlighted visually, but the accessible column descriptions identified only their owner and coordinates. Include winning-disc status in each winning cell description, including read-only completed boards.",
+  "regressionTest": "libs/connect-four-harness-ts/tests/connect-four-winning-description-regression.test.ts"
+}

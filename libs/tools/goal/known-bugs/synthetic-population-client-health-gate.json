@@ -1,4 +1,0 @@
-{
-  "summary": "Copying the wall client environment detached its health-gate lifecycle, parking every same-origin authentication request indefinitely.",
-  "regressionTest": "apps/synthetic-population-worker/tests/application-realm.test.ts"
-}

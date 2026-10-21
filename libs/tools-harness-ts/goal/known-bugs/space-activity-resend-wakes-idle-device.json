@@ -1,0 +1,4 @@
+{
+  "summary": "Each activity resend minted a fresh room time while the host was absent, keeping a quiet guest awake indefinitely. Resends now retain the original device activity time and cannot overwrite later activity.",
+  "regressionTest": "libs/spaces-shared-ts/tests/space-activity.test.ts"
+}

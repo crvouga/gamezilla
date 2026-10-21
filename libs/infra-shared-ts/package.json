@@ -1,0 +1,34 @@
+{
+  "name": "@libs/infra-shared-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "generate:infra-map": "bun run scripts/render-infra-map.ts",
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "retire:workers": "bun run scripts/retire-workers.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/http-client-shared-ts": "workspace:*",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/property-shared-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:",
+    "wrangler": "catalog:"
+  },
+  "category": "isomorphic",
+  "language": "typescript"
+}

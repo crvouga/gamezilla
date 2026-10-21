@@ -1,4 +1,0 @@
-{
-  "summary": "Run skipped system dependency installation in warm workspaces and never loaded the mise environment. A GUI launch or newly pinned tool could leave the app using missing or stale executables. Run now bootstraps mise when absent, installs pinned system tools on every launch and loads their paths before installing or starting the app.",
-  "regressionTest": "libs/tools/scripts/workspace-run.test.ts"
-}

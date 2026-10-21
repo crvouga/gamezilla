@@ -1,0 +1,4 @@
+{
+  "summary": "Offline report CSS combined unhashed module classes: DataTable added 12px inside ChessBoard cells and MarkdownEditor enlarged headings inside ContentEdgePadding. Compile isolated names consistently in the DOM preload and report stylesheet.",
+  "regressionTest": "apps/product-ts/tests/ui-quality-render.contract.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Voluntary offline mode wraps the auth client, and the one-shot signup username was keyed on the unwrapped client. The profile bootstrap asked the wrapper and found nothing, so a new account kept its generated username and nobody could find the person by the name they signed up with. The wrapper now shares the wrapped client's handle.",
+  "regressionTest": "libs/app-root-client-ts/tests/offline-auth-signup-username.test.ts"
+}

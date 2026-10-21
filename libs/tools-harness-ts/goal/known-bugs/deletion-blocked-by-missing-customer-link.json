@@ -1,0 +1,4 @@
+{
+  "summary": "A membership whose account-to-customer link was missing threw inside the deletion withdrawal, so account deletion failed every time with no way forward. Deletion now proceeds: the membership is cancelled, its closure stays pending (the person is told nothing more is needed from them) and the close delivery fails loudly for the team because payments after deletion cannot be checked.",
+  "regressionTest": "libs/billing-server-ts/tests/deleted-missing-customer-link.test.ts"
+}

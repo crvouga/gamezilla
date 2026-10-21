@@ -1,4 +1,0 @@
-{
-  "summary": "People search returned the blocker profile to a blocked actor and relied on a possibly stale client-side filter. The server query now withholds active blockers while preserving discovery in the unblock direction and profile tombstones needed for synchronization. Alice blocking Bob is the literal regression.",
-  "regressionTest": "libs/friends-shared/tests/blocked-search.test.ts"
-}

@@ -1,0 +1,4 @@
+{
+  "summary": "Stopping the localhost stack deleted its only discoverable telemetry source, hiding the evidence needed to diagnose a process crash.",
+  "regressionTest": "apps/product-ts/scripts/start-observability-stack.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "Unavailable puzzle data was described as an illegal solver move. Keep unavailable data distinct from attempted moves.",
-  "regressionTest": "libs/chess-puzzle-shared/tests/grounding.test.ts"
-}

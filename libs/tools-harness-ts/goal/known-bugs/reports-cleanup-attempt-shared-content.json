@@ -1,0 +1,4 @@
+{
+  "summary": "Attempt cleanup must preserve previous recordings and shared content because every run may contribute to report layers.",
+  "regressionTest": "pkgs/atlas-reports-harness-ts/tests/client/retention-attempt.test.ts"
+}

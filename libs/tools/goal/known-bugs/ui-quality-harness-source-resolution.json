@@ -1,4 +1,0 @@
-{
-  "summary": "Fresh type-check and test shards have no built harness export. Map the public ui-quality-check/harness import to package source, like the existing main export, so verification needs no local build output.",
-  "regressionTest": "pkgs/ui-quality-check-server/tests/window-inference.test.ts"
-}

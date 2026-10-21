@@ -1,4 +1,0 @@
-{
-  "summary": "A device detail meta pair set the invalid inline style max-width: 55%px, so the value width cap never applied and long values could crowd out the label.",
-  "regressionTest": "libs/auth-client/tests/account-device-meta-pair.test.tsx"
-}

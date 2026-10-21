@@ -1,0 +1,4 @@
+{
+  "summary": "Publishing the Synthetic Population Worker ran `tofu output` without the variable files, but the foundation S3 backend reads var.env and var.state, so Deploy failed with 'Foundation outputs are unavailable' after the foundation had applied. The output command now passes the same variable files as init and plan.",
+  "regressionTest": "libs/infra-shared-ts/tests/tofu-output-args.test.ts"
+}

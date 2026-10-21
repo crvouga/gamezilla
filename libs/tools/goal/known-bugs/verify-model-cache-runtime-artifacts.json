@@ -1,4 +1,0 @@
-{
-  "summary": "The previous CI provider rejected the model task artifact with HTTP 413 when the report bucket included temporary checker data and linked tool installations. Cache the complete report interface (evidence, bounds, counterexamples and TLC output), leaving private runtime files outside cache outputs.",
-  "regressionTest": "libs/tools/scripts/turbo-cache-integration.test.ts"
-}

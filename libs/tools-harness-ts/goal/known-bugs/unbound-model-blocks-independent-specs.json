@@ -1,0 +1,4 @@
+{
+  "summary": "A missing model replay binding aborted draw preparation and blocked every independent spec in its package.",
+  "regressionTest": "libs/harness-ts/tests/prepare-spec.test.ts"
+}

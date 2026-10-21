@@ -1,0 +1,45 @@
+{
+  "name": "@libs/notifications-client-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests"
+  },
+  "dependencies": {
+    "@libs/auth-client-ts": "workspace:*",
+    "@libs/moderation-client-ts": "workspace:*",
+    "@libs/moderation-shared-ts": "workspace:*",
+    "@libs/notifications-shared-ts": "workspace:*",
+    "@libs/permissions-client-ts": "workspace:*",
+    "@libs/permissions-shared-ts": "workspace:*",
+    "@libs/sub-client-ts": "workspace:*",
+    "@libs/test-ids-shared-ts": "workspace:*",
+    "@lingui/solid": "catalog:",
+    "@pkgs/clock-client-ts": "workspace:*",
+    "@pkgs/http-client-client-ts": "workspace:*",
+    "@pkgs/http-client-shared-ts": "workspace:*",
+    "@pkgs/solid-context-client-ts": "workspace:*",
+    "@pkgs/sounds-client-ts": "workspace:*",
+    "@pkgs/sounds-shared-ts": "workspace:*",
+    "@pkgs/sync-engine-client-ts": "workspace:*",
+    "@pkgs/ui-root-client-ts": "workspace:*",
+    "@pkgs/ui-root-shared-ts": "workspace:*",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/bun-test-solid-client-ts": "workspace:*",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "client",
+  "language": "typescript"
+}

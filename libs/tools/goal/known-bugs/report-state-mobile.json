@@ -1,4 +1,0 @@
-{
-  "summary": "The report replay hid state snapshots on narrow screens, leaving no way to inspect them. The shared inspection workspace exposes every pane on a 320px viewport.",
-  "regressionTest": "pkgs/ui-root-client/tests/inspection-workspace.test.tsx"
-}

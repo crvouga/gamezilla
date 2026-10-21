@@ -1,4 +1,0 @@
-{
-  "summary": "Chess preparation exceeded the 600-second task cap even after draws completed because imported bindings retained active handles. The CLI exits after both bounded workers finish every original draw; a binding with a live interval pins the failure.",
-  "regressionTest": "libs/harness/tests/prepare-spec.test.ts"
-}

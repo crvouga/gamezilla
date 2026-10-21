@@ -1,4 +1,0 @@
-{
-  "summary": "Flattening replaced the observability boundary glob with an existing-file list, letting new shared modules import platform SDKs. Keep the rule on the entire shared source package.",
-  "regressionTest": "libs/tools/scripts/import-boundaries.test.ts"
-}

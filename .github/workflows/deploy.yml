@@ -1,7 +1,7 @@
 name: Deploy
 
 # Run title, identical shape in every workflow (enforced by
-# libs/tools/scripts/workflow-run-names.test.ts):
+# libs/tools-harness-ts/scripts/workflow-run-names.test.ts):
 #   <Workflow> · <trigger>
 run-name: "Deploy · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
 
@@ -62,11 +62,11 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: dev
       - name: Plan fleet without changing infrastructure
-        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @libs/infra-server plan:fleet
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run --filter @libs/infra-server-ts plan:fleet
       - name: Plan dev's foundation without changing infrastructure
-        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @libs/infra-server plan:foundation
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run --filter @libs/infra-server-ts plan:foundation
 
-  # What every environment shares (libs/infra-shared/tofu/stacks/fleet): the
+  # What every environment shares (libs/infra-shared-ts/tofu/stacks/fleet): the
   # shared secrets, the auth relay that forwards to every env, and each env's
   # secrets environment. It runs before any environment deploys.
   deploy-fleet:
@@ -88,15 +88,15 @@ jobs:
           environment: shared
       # The fleet apply reads its state passphrase from shared.
       - name: Reconcile shared secrets
-        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/secrets-server/scripts/secrets-reconcile-shared.ts promote
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/secrets-server-ts/scripts/secrets-reconcile-shared.ts promote
       # The fleet stack binds the relay's hostname, so its Worker must exist.
       - name: Deploy the auth relay
-        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @apps/auth-relay deploy
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run --filter @apps/auth-relay-ts deploy
       - name: Apply the fleet stack
-        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @libs/infra-server apply:fleet
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run --filter @libs/infra-server-ts apply:fleet
       # Every env now imports shared: drop the copies that shadow it.
       - name: Prune secrets that shadow shared ones
-        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/secrets-server/scripts/secrets-reconcile-shared.ts prune
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/secrets-server-ts/scripts/secrets-reconcile-shared.ts prune
 
   deploy-dev:
     name: Deploy development
@@ -149,7 +149,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: critical-journeys-${{ github.run_id }}-${{ env.SECRETS_ENV }}
-          path: apps/product/.cache/critical-journeys/
+          path: apps/product-ts/.cache/critical-journeys/
           if-no-files-found: ignore
           include-hidden-files: true
           retention-days: 14
@@ -158,7 +158,7 @@ jobs:
         env:
           WORKFLOW_JOB: ${{ github.job }}
           WORKFLOW_OUTCOME: ${{ steps.deploy.outcome }}
-        run: bun run libs/tools/scripts/write-workflow-summary.ts
+        run: bun run libs/tools-harness-ts/scripts/write-workflow-summary.ts
 
   deploy-prd:
     name: Deploy production

@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js"
+  },
+  "include": [
+    "../ts-reset/src/index.ts",
+    "../../pkgs/ui-root-client-ts/src/css-modules.d.ts",
+    "../../pkgs/ui-root-client-ts/src/lingui-augmentation.ts",
+    "../app-root-shared-ts/src/vite-env.d.ts",
+    "../notifications/sync/**/*.ts",
+    "./src/**/*.ts",
+    "./src/**/*.tsx"
+  ],
+  "exclude": ["node_modules"]
+}

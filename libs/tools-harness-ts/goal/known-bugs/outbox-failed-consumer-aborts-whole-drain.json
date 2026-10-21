@@ -1,0 +1,4 @@
+{
+  "summary": "In production 1,908 of 2,879 outbox.drain runs in 24h failed with `current transaction is aborted, commands ignored until end of transaction block`. drainOutbox ran every consumer in one Postgres transaction; when a consumer hit `could not serialize access due to concurrent update` the database aborted the transaction, the retry bookkeeping (failDelivery) then failed on the aborted transaction, the whole pass rolled back, and the same delivery failed again on every run while holding up every other one. Each consumer now runs inside a savepoint, a lost race (40001/40P01) is retried without spending an attempt, and each delivery has its own outbox.deliver span naming the consumer.",
+  "regressionTest": "pkgs/outbox-harness-ts/tests/consumer-failure.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "A shared-return stimulus did not refresh the current origin probe after repeated offline reopening, so the app kept reporting a missing connection. Settle each real connectivity transition through the injected origin boundary without advancing the clock or moving the person.",
-  "regressionTest": "libs/runtime-harness/tests/quint/connection-continuity.binding.ts"
-}

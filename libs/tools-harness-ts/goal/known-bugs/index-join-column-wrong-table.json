@@ -1,0 +1,4 @@
+{
+  "summary": "The workload index parser assigned a joined device filter to the deletion receipts table, so localhost startup failed creating an index on a nonexistent device_id column. Columns now resolve through each SELECT's table aliases, including join predicates.",
+  "regressionTest": "pkgs/db-indexes-root-harness-ts/tests/join-column-ownership.test.ts"
+}

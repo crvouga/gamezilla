@@ -1,0 +1,15 @@
+@import "@pkgs/tailwind-shared-ts/tailwind.css";
+@import "@pkgs/ui-root-client-ts/hosts.css";
+@source "../../**/*.{ts,tsx}";
+@source "../../../../ui/src/**/*.{ts,tsx}";
+
+html,
+body {
+  margin: 0;
+  background: white;
+}
+
+#example {
+  width: 640px;
+  transform-origin: top left;
+}

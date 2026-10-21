@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
-    "tc": "bun run ../../libs/tools/scripts/swift-task.ts tc",
-    "test": "bun run ../../libs/tools/scripts/swift-task.ts test"
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "bun run ../../libs/tools-harness-ts/scripts/swift-task.ts tc",
+    "test": "bun run ../../libs/tools-harness-ts/scripts/swift-task.ts test"
   },
   "category": "isomorphic",
   "language": "swift",

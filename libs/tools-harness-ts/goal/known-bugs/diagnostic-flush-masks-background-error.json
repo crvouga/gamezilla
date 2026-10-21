@@ -1,0 +1,4 @@
+{
+  "summary": "A synchronous diagnostic exporter exception replaced the background operation's original result or failure.",
+  "regressionTest": "pkgs/observability-root-server-ts/tests/diagnostic-errors.test.ts"
+}

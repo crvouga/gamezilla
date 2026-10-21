@@ -1,4 +1,0 @@
-{
-  "summary": "A returning guest learned a newer active board while the host was still offline. Keep the last visible active board until the host returns, while delivering a committed cancellation immediately.",
-  "regressionTest": "libs/games-harness/tests/quint/custom-game-control.binding.ts"
-}

@@ -1,0 +1,44 @@
+import '@libs/account-privacy-harness-ts/privacy.steps';
+/**
+ * Steps entry for the `specs/<domain>/` features this package runs
+ * (`specDomains`): registers the world (this package's harness
+ * composition) and every step definition its features may use — the shared
+ * platform steps, this package's own, and the profile, billing and friends
+ * steps it reuses (a second device, a Plus membership, friendship, and
+ * joining a space).
+ */
+
+import '@libs/harness-ts/platform';
+import '@libs/harness-ts/sounds.steps';
+import '@libs/game-matchmaking-harness-ts/matched-game-app.steps';
+import '@libs/profile-harness-ts/profile.steps';
+import '@libs/profile-harness-ts/auth.steps';
+import '@libs/billing-harness-ts/access.steps';
+import '@libs/friends-harness-ts/friends.steps';
+import '@libs/friends-harness-ts/spaces.steps';
+import '@libs/friends-harness-ts/space-offline.steps';
+import '@libs/friends-harness-ts/space-idle.steps';
+import { heldMatchedGame } from '@libs/game-matchmaking-harness-ts/matched-game-world';
+import { setPhoneOfflineHook } from '@libs/harness-ts/platform';
+import { useHarnessWorld } from '@libs/harness-ts/spec-world';
+import { openSpecHarness } from '../open-chess-harness';
+
+setPhoneOfflineHook(async (w, actor) => {
+  const game = await w.s.read(heldMatchedGame, actor);
+  if (game !== null) w.memo.set(`multiplayer:offline-board:${actor}`, game);
+});
+
+// Every `*.steps.ts` under this folder registers itself; a new one
+// needs no edit here.
+const modules = new Bun.Glob('**/*.steps.ts').scanSync(import.meta.dir);
+for (const file of [...modules].sort()) await import(`./${file}`);
+
+useHarnessWorld(openSpecHarness, (w) => ({
+  beforePhoneOffline: (actor: Actor) => rememberOfflineBoard(w, actor),
+}));
+
+import type { Actor } from '@libs/harness-ts/parameter-types';
+
+import './multiplayer-game.steps';
+import './multiplayer-accessibility.steps';
+import { rememberOfflineBoard } from './multiplayer-connection';

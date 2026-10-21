@@ -1,0 +1,4 @@
+{
+  "summary": "Postgres reconciliation swallowed the literal catalog error 'column i.indisvalid does not exist', treated invalid indexes as absent, and issued DDL in an aborted transaction. Workspace startup then reported secondary SQLSTATE 25P02 instead of the first failure.",
+  "regressionTest": "pkgs/db-schema-postgres-shared-ts/tests/catalog-errors.test.ts"
+}

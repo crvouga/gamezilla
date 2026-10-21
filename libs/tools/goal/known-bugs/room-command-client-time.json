@@ -1,4 +1,0 @@
-{
-  "summary": "The room server passed the client timestamp into authorization and module handlers. A modified client could send ts=7 while the server clock was 1000, miscounting active clocks. Stamp every received command with the injected server clock before authorization and handling.",
-  "regressionTest": "pkgs/room-root-harness/tests/room-server-clock.test.ts"
-}

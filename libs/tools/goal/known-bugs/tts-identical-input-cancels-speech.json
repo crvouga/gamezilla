@@ -1,4 +1,0 @@
-{
-  "summary": "An accessor returning a fresh but equivalent observation reran the speech effect, aborted its pending audio, then refused to restart the same utterance. Track text, enabled and context as scalar memos.",
-  "regressionTest": "pkgs/tts-root-client/tests/speak-context.test.tsx"
-}

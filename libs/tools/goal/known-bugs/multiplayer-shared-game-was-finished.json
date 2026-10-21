@@ -1,4 +1,0 @@
-{
-  "summary": "The live matching check accepted the same old completed board on both devices while their next search was still pending.",
-  "regressionTest": "libs/runtime-harness/tests/multiplayer-search-loading.test.ts"
-}

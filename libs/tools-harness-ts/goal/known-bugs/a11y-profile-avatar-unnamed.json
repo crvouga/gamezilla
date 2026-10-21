@@ -1,0 +1,4 @@
+{
+  "summary": "The avatar on a person's own profile was drawn as a decorative image (alt=\"\"), so a listener heard nothing for it (ACT 23a2a8, WCAG 1.1.1). Fixed by ProfileAvatarFigure: one role=img named \"Your avatar\".",
+  "regressionTest": "libs/profile-client-ts/tests/profile-avatar-figure.test.tsx"
+}

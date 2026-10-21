@@ -1,0 +1,4 @@
+{
+  "summary": "The harness clicked the readiness toggle when the requested ready or unready state was already shown, reversing an idempotent command. Send the explicit acknowledged choice when the toggle would perform the opposite operation.",
+  "regressionTest": "libs/games-harness-ts/tests/quint/custom-game.binding.ts"
+}

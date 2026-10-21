@@ -1,4 +1,0 @@
-{
-  "summary": "The Verification planner unioned all real dependency edges, binding 158 independent screenshot-producing spec leaves, builds and final UI consumers into one 168-task group (3111 seconds versus 79–80 on other shards). Move shared builds and fan-in consumers into ordered jobs and duration-balance independent verifications from one immutable plan.",
-  "regressionTest": "libs/tools/scripts/verify-shards.test.ts"
-}

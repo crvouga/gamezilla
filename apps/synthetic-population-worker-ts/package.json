@@ -1,0 +1,67 @@
+{
+  "name": "@apps/synthetic-population-worker-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "benchmark": "bun --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/register tests/benchmark.ts",
+    "deploy": "bun run ../../libs/infra-server-ts/scripts/publish-population.ts",
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "start": "bun --conditions=browser --conditions=development src/main.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --max-concurrency=1 --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests",
+    "verify:synthetic-population-foundation": "bun run scripts/verify-synthetic-population-foundation.ts"
+  },
+  "dependencies": {
+    "@libs/app-root-client-ts": "workspace:*",
+    "@libs/auth-shared-ts": "workspace:*",
+    "@libs/game-catalog-shared-ts": "workspace:*",
+    "@libs/runtime-client-ts": "workspace:*",
+    "@libs/runtime-shared-ts": "workspace:*",
+    "@libs/spaces-client-ts": "workspace:*",
+    "@libs/synthetic-population-server-ts": "workspace:*",
+    "@libs/synthetic-population-shared-ts": "workspace:*",
+    "@opentelemetry/exporter-metrics-otlp-http": "catalog:",
+    "@opentelemetry/resources": "catalog:",
+    "@opentelemetry/sdk-metrics": "catalog:",
+    "@pkgs/bun-test-solid-client-ts": "workspace:*",
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/http-client-shared-ts": "workspace:*",
+    "@pkgs/logger-shared-ts": "workspace:*",
+    "@pkgs/observability-root-server-ts": "workspace:*",
+    "@pkgs/observability-root-shared-ts": "workspace:*",
+    "@pkgs/observability-runtime-shared-ts": "workspace:*",
+    "@pkgs/os-server-ts": "workspace:*",
+    "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",
+    "@pkgs/ui-testing-root-shared-ts": "workspace:*",
+    "@pkgs/ui-testing-solid-dom-client-ts": "workspace:*",
+    "@pkgs/uuid-shared-ts": "workspace:*",
+    "@solidjs/router": "catalog:",
+    "hono": "catalog:",
+    "solid-js": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@libs/harness-ts": "workspace:*",
+    "@libs/pubsub-server-ts": "workspace:*",
+    "@libs/runtime-harness-ts": "workspace:*",
+    "@opentelemetry/api": "catalog:",
+    "@opentelemetry/sdk-trace-base": "catalog:",
+    "@pkgs/aedes-server-ts": "workspace:*",
+    "@pkgs/harness-root-shared-ts": "workspace:*",
+    "@pkgs/sql-root-shared-ts": "workspace:*",
+    "@pkgs/sync-engine-shared-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness",
+  "gameRegistry": true,
+  "language": "typescript"
+}

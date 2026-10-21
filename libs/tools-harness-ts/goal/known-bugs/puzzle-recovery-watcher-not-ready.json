@@ -1,0 +1,4 @@
+{
+  "summary": "The recovery model partitioned its watcher before the current puzzle arrived, so cached stats could not be reached. Initialize the watcher with the same actual rendered puzzle before allowing connection loss.",
+  "regressionTest": "libs/games-harness-ts/tests/quint/puzzle-result-recovery.binding.ts"
+}

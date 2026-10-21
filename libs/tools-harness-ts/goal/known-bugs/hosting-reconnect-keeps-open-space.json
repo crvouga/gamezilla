@@ -1,0 +1,4 @@
+{
+  "summary": "A rejected upload from an offline-created space that the host already ended showed a hosting-limit invitation after reconnecting. Ending that space answers its invitation; rejection history must not bring it back.",
+  "regressionTest": "libs/friends-harness-ts/tests/quint/hosting-limits.binding.ts"
+}

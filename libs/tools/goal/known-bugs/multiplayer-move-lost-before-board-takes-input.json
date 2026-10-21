@@ -1,4 +1,0 @@
-{
-  "summary": "The multiplayer chess journey tapped a move once while the board still ignored input, so over a network with a real round trip Black's reply was lost and the move list never showed it; it fails Deploy's dev health about one run in eight. The move now repeats until the board takes it.",
-  "regressionTest": "libs/runtime-harness/tests/multiplayer-journey-move.test.ts"
-}

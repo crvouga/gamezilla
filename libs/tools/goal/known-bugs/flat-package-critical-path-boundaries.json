@@ -1,4 +1,0 @@
-{
-  "summary": "The shipped client must continue to reject harness-console imports after runtime packages replace nested paths, while allowing eager product code.",
-  "regressionTest": "apps/client/scripts/client-critical-path-imports.test.ts"
-}

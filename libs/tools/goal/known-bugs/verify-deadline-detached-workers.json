@@ -1,4 +1,0 @@
-{
-  "summary": "The 600-second deadline killed only the Turbo process group, leaving detached task group 46346 and Bun worker 46357 running and writing the same report buckets during later verifications. Snapshot the owned descendant tree and stop children before the root, including separate process groups and excluding concurrent verifications.",
-  "regressionTest": "libs/tools/scripts/kill-process-tree.test.ts"
-}

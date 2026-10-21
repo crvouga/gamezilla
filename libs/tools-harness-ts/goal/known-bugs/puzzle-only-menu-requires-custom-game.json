@@ -1,0 +1,4 @@
+{
+  "summary": "Shared space navigation identifies game choices by a custom-game item, so a puzzle-only menu is invisible to it (seed 0x67932, attempt trace 44 step 39).",
+  "regressionTest": "libs/games-harness-ts/tests/probes/solo-puzzle-navigation.test.ts"
+}

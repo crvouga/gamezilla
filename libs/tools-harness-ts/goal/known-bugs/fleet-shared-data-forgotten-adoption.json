@@ -1,0 +1,4 @@
+{
+  "summary": "Deploy 38727630988 forgot twelve shared-data state entries without deleting the live resources. Restoring declarations must import the bucket, existing account token and five secrets; token import cannot recover its one-time value, so retain the matching saved S3 credential and reject mismatches or missing keys.",
+  "regressionTest": "libs/infra-server-ts/tests/fleet-shared-data-adoption.test.ts"
+}

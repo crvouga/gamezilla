@@ -1,4 +1,0 @@
-{
-  "summary": "Expanded examples of a Scenario Outline with a constant title were mistaken for duplicate declarations. Duplicate checks now use the source declaration while preserving each example line.",
-  "regressionTest": "pkgs/gherkin-shared/tests/outline-names.test.ts"
-}

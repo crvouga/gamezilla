@@ -1,4 +1,0 @@
-{
-  "summary": "Report parts written in the same millisecond to one producer key could overwrite a failure with a pass.",
-  "regressionTest": "pkgs/atlas-reports-harness/tests/explorer-storage.test.ts"
-}

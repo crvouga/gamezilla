@@ -1,4 +1,0 @@
-{
-  "summary": "A device that signed out stayed on its old account's devices list: the device row's owner moves with the install and synced rows are never removed. Fixed with a tombstoned account-device record and notifying the account the device left.",
-  "regressionTest": "libs/auth-server/tests/anon-user-service.test.ts"
-}

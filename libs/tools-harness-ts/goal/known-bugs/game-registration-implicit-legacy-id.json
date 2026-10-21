@@ -1,0 +1,4 @@
+{
+  "summary": "Framework registration compared a concrete game id to the durable platform namespace to grant unprefixed clock and puzzle namespaces, coupling framework behavior to Chess identity.",
+  "regressionTest": "libs/game-session-shared-ts/tests/turn-game-contract.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "GitHub Verify 37512663922 placed cold chess, chess-board and room model verifications together. All shared one solver slot and waiting consumed the 600-second task budget. Spread uncached solver groups evenly while preserving dependencies and deterministic task ownership.",
-  "regressionTest": "libs/tools/scripts/verify-shards.test.ts"
-}

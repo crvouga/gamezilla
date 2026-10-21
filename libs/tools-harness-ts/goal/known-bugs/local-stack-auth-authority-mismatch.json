@@ -1,0 +1,4 @@
+{
+  "summary": "The local API used a different signing authority from stack harness session assertions, so successful provider sign-ins were reported as signed out.",
+  "regressionTest": "apps/product-ts/scripts/local-stack-config.test.ts"
+}

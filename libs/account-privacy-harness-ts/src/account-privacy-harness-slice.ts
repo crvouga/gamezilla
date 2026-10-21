@@ -1,0 +1,46 @@
+import { ACCOUNT_PRIVACY_CLIENT } from '@libs/account-privacy-client-ts/sub-client';
+import { createAccountPrivacyServer } from '@libs/account-privacy-server-ts/sub-server';
+import { ACCOUNT_PRIVACY_SUB } from '@libs/account-privacy-shared-ts/sub';
+import type { HarnessSlice } from '@libs/harness-ts/slices';
+import {
+  askForExport,
+  cancelDeletion,
+  completeExport,
+  confirmDeletion,
+  confirmExportReplacement,
+  openExportAddress,
+  openPrivacy,
+  privacyTimePasses,
+  proveAccount,
+  requestExport,
+  reviewDeletion,
+  runPrivacyJobs,
+} from './privacy-actions';
+import {
+  preserveProfileForLegalObligation,
+  releaseLegalObligation,
+} from './retention';
+
+export const ACCOUNT_PRIVACY_HARNESS_SLICE: HarnessSlice = {
+  name: 'account-privacy',
+  sub: ACCOUNT_PRIVACY_SUB,
+  client: ACCOUNT_PRIVACY_CLIENT,
+  actions: [
+    preserveProfileForLegalObligation,
+    releaseLegalObligation,
+    askForExport,
+    cancelDeletion,
+    confirmDeletion,
+    openPrivacy,
+    proveAccount,
+    reviewDeletion,
+    runPrivacyJobs,
+    privacyTimePasses,
+    completeExport,
+    confirmExportReplacement,
+    requestExport,
+    openExportAddress,
+  ],
+  server: (deps) =>
+    createAccountPrivacyServer(deps.app.accountPrivacy, deps.rooms),
+};

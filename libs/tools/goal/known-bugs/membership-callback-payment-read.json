@@ -1,4 +1,0 @@
-{
-  "summary": "Subscription callbacks fetched unrelated payment history, so a valid provider-switch callback could fail before projecting membership. Payment notifications fetch payment evidence; membership notifications only project guarded membership changes.",
-  "regressionTest": "libs/billing-harness/tests/multi-provider.test.ts"
-}

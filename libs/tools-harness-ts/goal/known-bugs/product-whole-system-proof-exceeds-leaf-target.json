@@ -1,0 +1,4 @@
+{
+  "summary": "The whole-system symbolic proof took 139 seconds on Verify run 39473315608, exceeding the 135-second leaf work allowance before startup and verdict. The campaign and verifier both cached value parameters, duplicating LET bindings. Let the verifier prepare them once while retaining every invariant, transition and the two-step exhaustive bound.",
+  "regressionTest": "apps/product-ts/tests/quint/model-checks.test.ts"
+}

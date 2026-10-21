@@ -1,4 +1,0 @@
-{
-  "summary": "Node worker threads share a process ID. Concurrent preload registration used the same temporary owner filename, so one rename removed another worker's file and crashed generation with ENOENT. A two-worker write-before-rename barrier pins the failing interleaving.",
-  "regressionTest": "pkgs/os-server/tests/dev-owner-worker.test.ts"
-}

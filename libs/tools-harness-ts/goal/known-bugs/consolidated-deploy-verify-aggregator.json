@@ -1,0 +1,4 @@
+{
+  "summary": "The consolidated application deployment depended directly on the root Verification aggregator. Turbo bypassed the runner's aggregator flattening and tried to schedule missing root lint/test tasks, failing before any deployment. Keep Verification in the release runner and pin the exact retirement dependency chain as a dry-run regression.",
+  "regressionTest": "libs/tools-harness-ts/scripts/turbo-deploy-graph.test.ts"
+}

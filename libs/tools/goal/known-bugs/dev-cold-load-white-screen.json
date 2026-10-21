@@ -1,4 +1,0 @@
-{
-  "summary": "The development clients served an empty root while Vite transformed a 4,000-plus-module cold graph. The product entry also loaded the harness eagerly and the UI icon boundary expanded the complete Lucide barrel, making startup slow enough to expose transient module-import failures. Both clients now paint an inline startup shell, prewarm expensive transforms, and keep optional modules out of the initial graph.",
-  "regressionTest": "apps/product/tests/dev-startup.test.ts"
-}

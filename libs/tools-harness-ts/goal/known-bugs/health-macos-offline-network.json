@@ -1,0 +1,4 @@
+{
+  "summary": "Live journeys chose WebKit on macOS, which could not cut the network for the offline scenario. Use Chrome explicitly for the live device and its popups, with the same storage isolation and CDP network controls on every host.",
+  "regressionTest": "apps/product-ts/tests/live-browser.test.ts"
+}

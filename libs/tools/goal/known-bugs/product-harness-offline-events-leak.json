@@ -1,4 +1,0 @@
-{
-  "summary": "Partitioned product clients still received in-memory live events, so offline relationship traces used current server knowledge. Events now respect the same reachability gate as HTTP and room connections, drop changes during a cut, and signal reconnect so sync can repair. The literal before/offline/after sequence is pinned.",
-  "regressionTest": "libs/harness/tests/partition-aware-pubsub.test.ts"
-}

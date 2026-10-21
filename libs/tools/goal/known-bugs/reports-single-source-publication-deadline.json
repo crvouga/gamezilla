@@ -1,4 +1,0 @@
-{
-  "summary": "Full Verify run 37751153833 exhausted the 20-minute publication job while most compressed archives held one large report source. A four-source pool could not overlap that source's sequential chunk uploads; sequential spec-body publication also consumed more than two minutes. Bound concurrent chunk uploads and document writes while publishing indexes only after every referenced object is readable.",
-  "regressionTest": "pkgs/atlas-reports-harness/tests/publication-concurrency.test.ts"
-}

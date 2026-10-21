@@ -1,4 +1,0 @@
-{
-  "summary": "Opening a puzzle link while a solver already has a puzzle removes the request before the linked attempt reaches the board.",
-  "regressionTest": "libs/games-harness/tests/quint/puzzle-link.binding.ts"
-}

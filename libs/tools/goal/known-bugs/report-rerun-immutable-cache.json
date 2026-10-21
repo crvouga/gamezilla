@@ -1,4 +1,0 @@
-{
-  "summary": "Completed commit URLs cached a prior attempt forever, even after a newer run replaced the selected report. Resolve the selected attempt on every request to these mutable URLs.",
-  "regressionTest": "pkgs/atlas-reports-harness/tests/reports-route.test.ts"
-}

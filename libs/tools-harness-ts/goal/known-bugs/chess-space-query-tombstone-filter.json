@@ -1,0 +1,4 @@
+{
+  "summary": "The chessMultiplayerSpace snapshot filtered deleted_at in its space and joined player reads. Server query enforcement rejected the snapshot, making POST /api/query return 500 repeatedly. Authorization may filter live presence, but snapshot reads must preserve tombstones, including games joined through a tombstoned player.",
+  "regressionTest": "libs/game-matchmaking-harness-ts/tests/multiplayer-space-query.test.ts"
+}

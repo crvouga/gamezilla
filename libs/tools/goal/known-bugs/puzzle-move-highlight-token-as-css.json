@@ -1,4 +1,0 @@
-{
-  "summary": "The move list passed token names (successSurface, success) as CSS values, so the current move was never highlighted. Fixed by painting with token classes.",
-  "regressionTest": "libs/game-puzzle-client/tests/puzzle-chrome-paint.test.tsx"
-}

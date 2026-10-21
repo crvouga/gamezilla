@@ -1,0 +1,4 @@
+{
+  "summary": "`bun obs errors --since 24h --source prod` printed `No traces matched \"errors\"`: the command filtered an arbitrary 50 traces from the unfiltered `recent` search, so a busy window hid every failure (it was not parsed as a `find` operand). It now asks Tempo for error traces directly, and an empty answer says `No error traces in this range` instead of suggesting an id lookup.",
+  "regressionTest": "pkgs/observability-cli-shared-ts/tests/tempo-errors.test.ts"
+}

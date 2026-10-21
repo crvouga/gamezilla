@@ -1,4 +1,0 @@
-{
-  "summary": "With runtime seed 7221 and checkpoint schema 1, both Synthetic Users were playing and an acknowledgement was present in a checkpoint, but waiting for both acknowledgements in the recent telemetry window did not converge. Setup now requires durable accepted game command receipts for both participants in their selected match before advancing lease time; asynchronous, bounded telemetry is not game authority.",
-  "regressionTest": "apps/synthetic-population-worker/tests/session-handoff.test.ts"
-}

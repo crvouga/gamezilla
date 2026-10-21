@@ -1,0 +1,4 @@
+{
+  "summary": "The extracted FormScreen had no HTML form: Enter and native submit events could not save through the footer mutation lifecycle.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/screen-layout-regression.test.tsx"
+}

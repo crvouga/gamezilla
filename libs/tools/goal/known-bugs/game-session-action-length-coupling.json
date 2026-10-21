@@ -1,4 +1,0 @@
-{
-  "summary": "A reusable session accepted an opaque action but its committed move history still imposed the five-character chess move limit. The literal advance-token action must survive bot play, completion and rematch.",
-  "regressionTest": "libs/game-session-shared/tests/independent-rules.test.ts"
-}

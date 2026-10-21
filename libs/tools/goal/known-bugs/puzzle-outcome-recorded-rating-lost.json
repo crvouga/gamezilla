@@ -1,4 +1,0 @@
-{
-  "summary": "Interruption between appending a puzzle outcome and rating the attempt left a permanent rating gap because retry exited when it saw the outcome. Retrying now offers the first recorded outcome to the idempotent rating mutation. The literal interrupted solved attempt is pinned.",
-  "regressionTest": "libs/game-puzzle-client/tests/interrupted-outcome.test.ts"
-}

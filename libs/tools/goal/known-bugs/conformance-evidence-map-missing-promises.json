@@ -1,4 +1,0 @@
-{
-  "summary": "The evidence map omitted five declared device environments and the privacy and developer-tools public contracts, leaving the conformance manifest without proof mappings.",
-  "regressionTest": "libs/tools/scripts/conformance-evidence.test.ts"
-}

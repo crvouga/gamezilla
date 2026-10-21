@@ -27,7 +27,7 @@ own tools do the specialised work underneath it:
 
 Neither SwiftPM nor Xcode schedules repository work: a native package exposes
 its tasks through a thin `package.json` whose scripts call a wrapper in
-`libs/tools/scripts/`, and Turborepo decides when they run. A future Kotlin
+`libs/tools-harness-ts/scripts/`, and Turborepo decides when they run. A future Kotlin
 package may use Gradle the same way, inside its own task.
 
 ## Every package declares its language
@@ -41,9 +41,9 @@ authoritative and the name is a convention checked against it.
   "name": "@pkgs/clock-shared-swift",
   "private": true,
   "scripts": {
-    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
-    "tc": "bun run ../../libs/tools/scripts/swift-task.ts tc",
-    "test": "bun run ../../libs/tools/scripts/swift-task.ts test"
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "bun run ../../libs/tools-harness-ts/scripts/swift-task.ts tc",
+    "test": "bun run ../../libs/tools-harness-ts/scripts/swift-task.ts test"
   },
   "category": "isomorphic",
   "language": "swift",
@@ -57,8 +57,8 @@ authoritative and the name is a convention checked against it.
 | `language` | `typescript`, `swift`, `neutral` (reserved: `rust`, `kotlin`, `go`) | The implementation language. `neutral` is a specification, schema or data package any implementation reads. |
 | `platforms` | `linux`, `macos`, `ios` | What a native package builds for. Required for native languages; absent for TypeScript, which runs on Bun everywhere. |
 
-The registry is `libs/tools/scripts/languages.ts` (languages, suffixes,
-source extensions) and `libs/tools/scripts/package-hosts.ts` (platforms and
+The registry is `libs/tools-harness-ts/scripts/languages.ts` (languages, suffixes,
+source extensions) and `libs/tools-harness-ts/scripts/package-hosts.ts` (platforms and
 the hosts that build them). They are the only two lists.
 
 ## Names
@@ -76,8 +76,8 @@ suffix comes last.
 | Go | `-go` | |
 | neutral | none | `@pkgs/sync-contracts`, `@libs/game-protocol` |
 
-- An absent suffix never means TypeScript. Every new TypeScript package ends
-  in `-ts`.
+- An absent suffix never means TypeScript. Every TypeScript package ends in
+  `-ts`, with no exemption: tooling is `@libs/tools-harness-ts`.
 - A generator is code in the language it is written in: one written in
   TypeScript that emits Swift is `-ts`.
 - Neutral packages hold portable definitions (YAML, JSON Schema, Protobuf,
@@ -87,25 +87,15 @@ suffix comes last.
   directory: `pkgs/clock-shared-swift` is `@pkgs/clock-shared-swift`. Apps
   name a product surface, so they carry no runtime suffix.
 
-**Enforced by one gate.** `@libs/tools#ci:package-names`
-(`libs/tools/scripts/package-names.ts`) checks every manifest at once: scope,
-directory, kebab-case, runtime suffix, language suffix, unique names and the
-legacy list. It reads nothing but `package.json` files and its rules, so it
+**Enforced by one gate.** `@libs/tools-harness-ts#ci:package-names`
+(`libs/tools-harness-ts/scripts/package-names.ts`) checks every manifest at once: scope,
+directory, kebab-case, runtime suffix, language suffix and unique names. It reads nothing but `package.json` files and its rules, so it
 runs in milliseconds and is a cache hit whenever no manifest changed. Run it
-with `bunx turbo run @libs/tools#ci:package-names`.
-
-**Legacy names.** The 332 TypeScript packages that existed when this rule
-landed keep their names. They are listed once in
-`libs/tools/scripts/legacy-package-names.json`, which can only shrink
-(the gate caps it at `FROZEN_LEGACY_SIZE` and rejects stale entries). To
-migrate one, rename the package and its directory to end in `-ts`, update
-every import and dependency on it in the same change (AGENTS.md "Never leave
-deprecated code"), and delete its line from the list. One package per change
-keeps each rename reviewable.
+with `bunx turbo run @libs/tools-harness-ts#ci:package-names`.
 
 **Files.** Project-owned files and directories stay `lower-kebab-case`
 (`root-view.swift`). Names a native tool mandates are the only exceptions, in
-`NAMING_EXEMPT` (`libs/tools/naming/naming-rules.ts`): `Package.swift`,
+`NAMING_EXEMPT` (`libs/tools-harness-ts/naming/naming-rules.ts`): `Package.swift`,
 `Package.resolved`, `Info.plist`, `Contents.json` inside an asset catalog, and
 bundle directories whose stem stays kebab-case (`apple-client.xcodeproj`,
 `assets.xcassets`).
@@ -144,7 +134,7 @@ All pins are in `mise.toml`:
 | Xcode (macOS) | `[vars] xcode_version` | Installed by you (`mise exec xcodes@latest -- xcodes install <version>` or developer.apple.com). Its Swift must equal the Linux pin. |
 | iOS simulator | `[vars] ios_simulator_runtime`, `ios_simulator_device` | Ships with that Xcode (`xcodebuild -downloadPlatform iOS`). |
 
-`libs/tools/scripts/native-toolchain.ts` finds them: an explicit
+`libs/tools-harness-ts/scripts/native-toolchain.ts` finds them: an explicit
 `DEVELOPER_DIR`, else the active developer directory, else the installed
 `/Applications/Xcode*.app` whose version matches. Anything else is a failure
 with the fix in its message (wrong Xcode, the Command Line Tools selected, a
@@ -301,7 +291,7 @@ Swift. None of it exists yet; when it lands it follows these rules:
    `package-hosts.ts`.
 2. **Pin its toolchain** in `mise.toml` (lazy, if large, and restricted to
    the operating systems that build it).
-3. **Write its thin wrappers** in `libs/tools/scripts/` (`<language>-task.ts`):
+3. **Write its thin wrappers** in `libs/tools-harness-ts/scripts/` (`<language>-task.ts`):
    find the pinned toolchain, refuse an unsupported host, invoke the native
    tool, fail when no test ran. No scheduling, no dependency graph.
 4. **Add the package** with its native manifest and the thin `package.json`

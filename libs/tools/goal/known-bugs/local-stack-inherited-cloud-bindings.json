@@ -1,4 +1,0 @@
-{
-  "summary": "Local stack child processes inherited deployed service bindings and report credentials from the parent environment.",
-  "regressionTest": "apps/product/scripts/local-stack-config.test.ts"
-}

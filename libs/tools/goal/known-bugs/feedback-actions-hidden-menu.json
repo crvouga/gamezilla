@@ -1,4 +1,0 @@
-{
-  "summary": "The issue detail hid its only two actions behind an unnecessary menu.",
-  "regressionTest": "pkgs/feedback-harness/tests/annotations.contract.test.ts"
-}

@@ -1,4 +1,0 @@
-{
-  "summary": "Two pending choices of the same kind for different targets shared one latest-outcome watch, allowing a newer itinerary choice to hide the refusal of the groceries choice. Feedback must retain target scope.",
-  "regressionTest": "pkgs/sync-engine-harness/tests/local-choice-feedback.contract.test.ts"
-}

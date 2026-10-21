@@ -1,0 +1,4 @@
+{
+  "summary": "The permission conformance catalog still named solving a rated puzzle while the specification charges access when the rated puzzle starts.",
+  "regressionTest": "libs/permissions-harness-ts/tests/closed-world.test.ts"
+}

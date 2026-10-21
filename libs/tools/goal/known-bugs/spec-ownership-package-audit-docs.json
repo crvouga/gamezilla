@@ -1,4 +1,0 @@
-{
-  "summary": "The spec-ownership gate rejected e0d7afbda3 because its spec-only change included libs/games-shared/docs/PUZZLE_LAYOUT_SPEC_AUDIT.md. The documented package-owned Markdown docs were not recognized as documentation; source paths and non-Markdown files must remain forbidden beside spec changes.",
-  "regressionTest": "libs/tools/scripts/verify-spec-ownership.test.ts"
-}

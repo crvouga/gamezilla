@@ -1,0 +1,4 @@
+{
+  "summary": "streamParallelIndexed dropped a work unit that rejected with `undefined` — no frame was sent, so the client reported a missing result instead of the error. Fixed with an explicit ok flag.",
+  "regressionTest": "pkgs/ndjson-server-ts/tests/stream-parallel.test.ts"
+}

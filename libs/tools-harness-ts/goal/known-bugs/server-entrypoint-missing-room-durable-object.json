@@ -1,0 +1,4 @@
+{
+  "summary": "The combined server Worker kept the ROOM Durable Object binding but stopped exporting RoomServerDurableObject from its configured entrypoint during the runtime package split, so Wrangler refused to start and deploy:dev timed out waiting for API health. Keep every bound Durable Object class exported from the Worker entrypoint.",
+  "regressionTest": "apps/server-ts/tests/worker-entrypoint.test.ts"
+}

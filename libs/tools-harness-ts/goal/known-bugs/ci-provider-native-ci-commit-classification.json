@@ -1,0 +1,4 @@
+{
+  "summary": "CI configuration changes were classified as chores. Classify GitHub Actions workflow and action paths as CI changes.",
+  "regressionTest": "libs/tools-harness-ts/scripts/git-sync.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "Account identity and connectivity updates rebuilt every floating-menu row during a press, removing the pressed button before its click could activate it. Stable row IDs must preserve focus and the original DOM element while applying the current action.",
-  "regressionTest": "pkgs/ui-root-harness/tests/floating-menu-identity.test.tsx"
-}

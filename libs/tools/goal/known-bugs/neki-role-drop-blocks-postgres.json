@@ -1,4 +1,0 @@
-{
-  "summary": "Deploy 38453758590 failed apply:foundation while retiring Neki. Dropping planetscale_neki_role.migrate returned HTTP 422 because the role is still referenced, and creating planetscale_postgres_branch.standard on the same database returned HTTP 422 because the existing database kind is neki. Foundation forgets the Neki branch and role addresses with destroy=false and creates Postgres as <project>-<suffix>-pg, so the old rows stay and the new branch is not created on the Neki database.",
-  "regressionTest": "libs/infra-server/tests/foundation-bootstrap.test.ts"
-}

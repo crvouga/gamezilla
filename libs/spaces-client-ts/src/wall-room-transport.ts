@@ -1,0 +1,32 @@
+// @io-wall-ok — browser room transport adapter for the wall composition root.
+/**
+ * The spaces answer to the shell's `CreateRoomTransport` port: a real
+ * WebSocket to the room Worker, addressed by space topic.
+ *
+ * The shell declares that a client may need a room transport; only spaces
+ * knows a room is a space and what its URL looks like, so the factory lives
+ * here and the composition root hands it to `wallClientEnv`.
+ */
+
+import type { CreateRoomTransport } from '@libs/app-root-client-ts/client-env';
+import { apiUrlToRoomWebSocketUrl } from '@libs/spaces-shared-ts/space-room-url';
+import { WebSocketRoomTransport } from '@pkgs/room-adapter-web-shared-ts/websocket-transport';
+
+export const wallSpaceRoomTransport: CreateRoomTransport = (args) => {
+  const topic = args.topic;
+  return new WebSocketRoomTransport({
+    timers: args.timers,
+    random: args.random,
+    url: async () => {
+      const token = await Promise.resolve(args.getSessionToken());
+      return apiUrlToRoomWebSocketUrl({
+        apiUrl: args.apiUrl,
+        topic,
+        module: args.module,
+        sessionToken: token,
+        installId: args.installId,
+        clientId: args.clientId,
+      });
+    },
+  });
+};

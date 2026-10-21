@@ -1,19 +1,19 @@
 import { defineConfig } from '@lingui/cli';
 import { formatter } from '@lingui/format-po';
 
-import { LINGUI_CATALOG_SOURCES } from './libs/tools/scripts/lingui-scope';
+import { LINGUI_CATALOG_SOURCES } from './libs/tools-harness-ts/scripts/lingui-scope';
 
 /**
  * Root Lingui config: catalog location + extraction scope.
  *
  * Extraction covers the source trees that use a macro
- * (`libs/tools/scripts/lingui-scope.ts`); each package's `lint` fails if one
+ * (`libs/tools-harness-ts/scripts/lingui-scope.ts`); each package's `lint` fails if one
  * of its files uses a macro outside them, so a new package with `t` /
  * `<Trans>` cannot ship hashed ids just because the list was not updated.
  *
  * Runtime macro output is JSX-runtime specific. This root config emits the
  * Solid shape; `lingui.solid.config.ts` layers the Solid shape on top for
- * Vite and `bun test` (`@pkgs/bun-test-solid-client`).
+ * Vite and `bun test` (`@pkgs/bun-test-solid-client-ts`).
  */
 export const LINGUI_CATALOG_INCLUDE = LINGUI_CATALOG_SOURCES.map(
   (dir) => `<rootDir>/${dir}`
@@ -33,7 +33,7 @@ export default defineConfig({
   },
   catalogs: [
     {
-      path: '<rootDir>/libs/app-root-shared/locales/{locale}/messages',
+      path: '<rootDir>/libs/app-root-shared-ts/locales/{locale}/messages',
       include: [...LINGUI_CATALOG_INCLUDE],
       exclude: [
         '**/node_modules/**',

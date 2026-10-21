@@ -1,0 +1,4 @@
+{
+  "summary": "The product symbolic suite proved eleven Apalache models and two temporal checks in one task. Deploy 38446818279 killed @apps/product-ts#test:contract at its 840s budget on a 2-core runner before the suite finished, and the renderer queued behind it never started. The suite is now one task per model, and the fair-recovery part also runs the two temporal checks. Each part keeps the 420s allowance the combined task already had.",
+  "regressionTest": "libs/tools-harness-ts/scripts/spec-campaigns.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "A puzzle finished as the solver closed the app was not recorded when the solver returned directly to personal stats. The result recorder must observe retained open rooms independently of the visible game screen. The literal failing recovery trace is pinned.",
-  "regressionTest": "libs/games-harness/tests/quint/puzzle-result-recovery.binding.ts"
-}

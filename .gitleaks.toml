@@ -10,8 +10,8 @@ useDefault = true
 # `generic-api-key` rule score it. Only that exact id shape, only in the env
 # files, is allowed; a real secret in these files is still caught.
 [[allowlists]]
-description = "Cloudflare resource ids in libs/infra-shared/tofu env files"
-paths = ['''(?:^|/)libs/infra-shared/tofu/envs/[a-z0-9-]+\.tfvars\.json$''']
+description = "Cloudflare resource ids in libs/infra-shared-ts/tofu env files"
+paths = ['''(?:^|/)libs/infra-shared-ts/tofu/envs/[a-z0-9-]+\.tfvars\.json$''']
 regexes = ['''"[a-z_]+":\s*"[0-9a-f]{32}/[0-9a-f]{32,40}"''']
 regexTarget = "line"
 
@@ -22,6 +22,6 @@ regexTarget = "line"
 description = "Fixed in-memory OAuth handoff signing fixture"
 targetRules = ["generic-api-key"]
 condition = "AND"
-paths = ['''^pkgs/auth-inhouse-server/tests/oauth-cross-origin-handoff\.test\.ts$''']
+paths = ['''^pkgs/auth-inhouse-server-ts/tests/oauth-cross-origin-handoff\.test\.ts$''']
 regexes = ['''^handoff-test-secret-0123456789abcdef$''']
 regexTarget = "secret"

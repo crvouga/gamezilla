@@ -1,0 +1,4 @@
+{
+  "summary": "Check on 263be4043 failed because GitHub transfer regression assertions still expected two github_subject_prefix inputs and a ci-to-github resource move after the shared CI identity module adopted oidc_subject and moved github-to-ci. Verify the immutable subject through the caller and bound_subject input and preserve the exact state move and non-destructive retirement checks.",
+  "regressionTest": "libs/infra-server-ts/tests/github-transfer.test.ts"
+}

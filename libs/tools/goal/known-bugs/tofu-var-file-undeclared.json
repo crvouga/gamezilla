@@ -1,4 +1,0 @@
-{
-  "summary": "Bootstrap plan warned that global.tfvars.json sets reports, which the bootstrap root did not declare. The same file is the first -var-file of every stack, and OpenTofu only warns, so the plan still exits 0. Edge omitted reports too. Every stack now declares each key of the var files it is given, and the stack-variables check fails when a var-file key has no variable block.",
-  "regressionTest": "libs/infra-server/tests/stack-variables.test.ts"
-}

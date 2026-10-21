@@ -1,4 +1,0 @@
-{
-  "summary": "Personal puzzle review initializes its shared cursor to zero, opening a solo review at the supplied position instead of its completed line.",
-  "regressionTest": "libs/games-harness/tests/probes/solo-personal-stats.test.ts"
-}

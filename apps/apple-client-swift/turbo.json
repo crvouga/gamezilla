@@ -16,10 +16,10 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/turbo-host-key.json",
-        "$TURBO_ROOT$/libs/tools/scripts/native-toolchain.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/package-hosts.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/swift-task.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/xcode-task.ts"
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/native-toolchain.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/package-hosts.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/swift-task.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/xcode-task.ts"
       ],
       "env": [],
       "passThroughEnv": ["DEVELOPER_DIR", "HOME"],

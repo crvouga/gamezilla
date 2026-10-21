@@ -1,4 +1,0 @@
-{
-  "summary": "Zero, negative, NaN and infinite board aspect ratios produced invalid puzzle board CSS instead of rejecting the invalid layout input.",
-  "regressionTest": "pkgs/ui-root-harness/tests/puzzle-screen.test.tsx"
-}

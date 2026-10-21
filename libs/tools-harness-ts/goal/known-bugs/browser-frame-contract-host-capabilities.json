@@ -1,0 +1,4 @@
+{
+  "summary": "Verify 37515771723 native capture-frame assertions expected fading on a two-core GitHub runner, where the correct low-end policy keeps the ghost opaque. Inject a known device profile through BoardMotionProvider in the browser example, retain every normal-profile assertion and add the exact en-passant input under a two-core profile. Native browser painting and real reduced-motion subscriptions remain in use.",
+  "regressionTest": "pkgs/chess-board-root-harness-ts/tests/browser/special-frames.contract.test.ts"
+}

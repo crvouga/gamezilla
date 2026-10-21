@@ -1,0 +1,4 @@
+{
+  "summary": "Checking an identical unconfirmed choice, including after its surface has reopened, creates another queued mutation identity. Resume observation of the client's original pending choice, with canonical argument comparison.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/pending-choice-reobservation.contract.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Every ended SQL span opened a collector connection during the Worker foreground path, competing with mutation and room I/O.",
+  "regressionTest": "pkgs/observability-root-server-ts/tests/worker-export-lifetime.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Disposing a visual checker during directory discovery rejected already-started image work, and repeated disposal could resolve before cleanup. Await existing checks and share the cleanup promise.",
+  "regressionTest": "pkgs/ui-quality-check-server-ts/tests/lifecycle.test.ts"
+}

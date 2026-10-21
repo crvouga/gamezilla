@@ -1,4 +1,0 @@
-{
-  "summary": "Shared puzzle judge and playback laws skip the first action and index solo solutions as alternating lines.",
-  "regressionTest": "libs/games-harness/tests/probes/solo-puzzle-conformance.test.ts"
-}

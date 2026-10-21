@@ -1,4 +1,0 @@
-{
-  "summary": "A socket closed while room initialization was pending could register after its close handler ran. Sixty-four canceled openings exhausted the roster during real Connect Four play. Check that the socket still belongs to the host after initialization before registering it.",
-  "regressionTest": "pkgs/room-adapter-bun-harness/tests/closed-opening.test.ts"
-}

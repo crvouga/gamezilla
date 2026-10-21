@@ -1,4 +1,0 @@
-{
-  "summary": "Distinct space membership transitions can share the same mutation timestamp. Clock-derived event identities then collapse legitimate repeated joins or leaves. Reuse the existing durable membership message identity instead.",
-  "regressionTest": "libs/spaces-shared/tests/membership-event-identity.test.ts"
-}

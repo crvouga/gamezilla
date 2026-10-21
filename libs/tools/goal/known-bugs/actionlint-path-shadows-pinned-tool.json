@@ -1,4 +1,0 @@
-{
-  "summary": "Under the verification environment mise exec runs PATH's actionlint 1.7.7 while mise which selects the pinned 1.7.12, falsely rejecting the deployment's supported YAML alias.",
-  "regressionTest": "libs/tools/scripts/verify-actionlint.test.ts"
-}

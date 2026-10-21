@@ -1,4 +1,0 @@
-{
-  "summary": "A restored monitor participation removed Join between its visibility check and tap, stranding cleanup inside an active space.",
-  "regressionTest": "libs/runtime-harness/tests/critical-journey-host-space.test.ts"
-}

@@ -1,0 +1,4 @@
+{
+  "summary": "The workspace Run hook once launched a Mockingbird Postgres version that could not reconcile the application schema. Compatibility is now pinned by the full automated wire reconciliation contract rather than rerunning that contract inside every workspace launch.",
+  "regressionTest": "libs/runtime-server-ts/tests/mockingbird-reconcile.contract.test.ts"
+}

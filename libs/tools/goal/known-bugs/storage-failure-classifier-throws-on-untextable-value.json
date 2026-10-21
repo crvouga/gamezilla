@@ -1,4 +1,0 @@
-{
-  "summary": "Classifying a local storage failure threw a TypeError instead of answering 'unknown' when the thrown value could not be turned into text (shrunk nightly input [{ toString: 0 }], seed 150348601).",
-  "regressionTest": "pkgs/sql-client-root-shared/tests/local-storage-failure.test.ts"
-}

@@ -1,4 +1,0 @@
-{
-  "summary": "With the Grafana instance archived no alert rule existed in production and nothing said so, so no objective could page anyone. The hourly Health objectives job now evaluates the same burn-rate policies against the metrics backend and fails, naming the owner, runbook and the bun obs command, when one fires.",
-  "regressionTest": "pkgs/openslo-server/tests/alert-stub.test.ts"
-}

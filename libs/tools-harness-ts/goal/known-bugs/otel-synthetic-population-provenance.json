@@ -1,0 +1,4 @@
+{
+  "summary": "Population bots use ordinary identity-provider sessions. Treating every non-monitor session as genuine incorrectly includes bot signups and gameplay. Classify their provisioned addresses before account binding and preserve tombstoned provenance.",
+  "regressionTest": "libs/auth-shared-ts/tests/session-telemetry-population.test.ts"
+}

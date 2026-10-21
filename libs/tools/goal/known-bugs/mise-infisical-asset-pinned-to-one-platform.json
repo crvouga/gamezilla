@@ -1,4 +1,0 @@
-{
-  "summary": "The Infisical CLI pin in mise.toml named one release asset, cli_<version>_darwin_arm64.tar.gz, because `mise upgrade --bump` wrote the laptop's resolved platform over the templated pattern. Linux CI installed the macOS binary and Deploy's secrets step failed with ENOEXEC. Each platform now names its own asset.",
-  "regressionTest": "libs/tools/scripts/install-system.test.ts"
-}

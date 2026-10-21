@@ -1,4 +1,0 @@
-{
-  "summary": "A topic the API never granted (system:chess_puzzles) was refused by AWS IoT on every connect. The client restarted its backoff on each TCP connect, so it reconnected about once a second forever and each reconnect dropped the person's other subscriptions, so live updates between two devices never arrived. Backoff now restarts only after the broker accepts every subscription, the platform puzzle sub grants the topic, and the stack's broker enforces the real authorizer so the gate fails on such a topic.",
-  "regressionTest": "pkgs/pubsub-mqtt-harness/tests/mqtt-authorization-refresh.test.ts"
-}

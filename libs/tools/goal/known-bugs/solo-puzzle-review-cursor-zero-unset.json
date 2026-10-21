@@ -1,4 +1,0 @@
-{
-  "summary": "The review controller treats a valid solo cursor at zero as unset and jumps to the end instead of displaying the supplied position.",
-  "regressionTest": "libs/games-harness/tests/probes/solo-review-cursor.test.ts"
-}

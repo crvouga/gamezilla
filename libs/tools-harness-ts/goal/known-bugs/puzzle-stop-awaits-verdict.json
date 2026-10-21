@@ -1,0 +1,4 @@
+{
+  "summary": "The loader displayed Stopped from the optimistic local row while the stop was still awaiting the server verdict. Keep Adding visible until acceptance, while still showing stopping progress.",
+  "regressionTest": "libs/chess-root-harness-ts/tests/quint/puzzle-loading-choices.binding.ts"
+}

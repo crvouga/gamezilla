@@ -1,0 +1,4 @@
+{
+  "summary": "A partition healed before the heartbeat lost offline commands without notifying the room client to resynchronize. A failed send closes the transport so its durable queue is replayed after healing.",
+  "regressionTest": "libs/harness-ts/tests/partition-aware-room-transport.test.ts"
+}

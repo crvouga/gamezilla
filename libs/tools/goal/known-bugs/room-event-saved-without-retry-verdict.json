@@ -1,4 +1,0 @@
-{
-  "summary": "An interrupted room commit saved its events without the first retry verdict; restarting and retrying Alice's one add counted it twice. Room storage now atomically persists the complete event batch and verdict, including batches larger than 128 keys.",
-  "regressionTest": "pkgs/room-adapter-durable-object-harness/tests/interrupted-commit.test.ts"
-}

@@ -1,0 +1,26 @@
+/* Shared Tailwind entry — import from `@pkgs/tailwind-shared-ts/tailwind.css`. */
+@import "tailwindcss";
+
+/* Design-token colors (`bg-surface`, `text-text-secondary`, …). MUST be
+   imported here so the Tailwind compiler sees `@theme` — a separate Vite
+   `import '@pkgs/ui/theme.css'` injects raw `@theme` into the browser (no-op)
+   and never generates the utilities. */
+@import "../../ui-root-client-ts/src/theme.css";
+
+/* Scan every workspace tier. Paths are relative to this stylesheet. */
+@source "../../../apps";
+@source "../../../libs";
+@source "../../../pkgs";
+
+/* Standalone SPAs compile their own stylesheet (`source(none)` + local
+   `@source`), and their built bundles are embedded as `*.generated.ts`
+   strings. Scanning either ships their utilities on the app's critical path. */
+@source not "../../../**/*.generated.ts";
+
+/* Light and dark are one variable swap on `[data-theme]` (`tokens.css`), so
+   a utility is never written twice for a scheme: the lint rejects `dark:`
+   (`libs/tools-harness-ts/scripts/design-vocabulary.ts`). */
+
+@utility color-scheme-system {
+  color-scheme: light dark;
+}

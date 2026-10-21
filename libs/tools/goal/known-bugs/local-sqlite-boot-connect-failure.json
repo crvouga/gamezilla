@@ -1,4 +1,0 @@
-{
-  "summary": "A rejected sync engine connect during boot became the boot error screen, though connect only starts background sync whose failures already show in the engine status. Boot now logs it and opens the app.",
-  "regressionTest": "libs/app-root-client/tests/local-database-boot.test.tsx"
-}

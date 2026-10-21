@@ -1,0 +1,86 @@
+import { APP_QUERIES } from '@libs/runtime-shared-ts/app-queries';
+import type { Clock } from '@pkgs/clock-shared-ts/types';
+import { createPostgresPort } from '@pkgs/db-indexes-postgres-shared-ts/create-postgres-port';
+import {
+  MIGRATE_RECONCILE_CONFIG,
+  resolveConfig,
+} from '@pkgs/db-indexes-root-shared-ts/config';
+import { applyKvStorageOptimizations } from '@pkgs/kv-postgres-shared-ts/postgres-storage-knobs';
+import type { Logger } from '@pkgs/logger-shared-ts/logger';
+import { installPostgresSqliteCompat } from '@pkgs/postgres-sqlite-compat-shared-ts/install';
+import { ensurePostgresSchema } from '@pkgs/sql-client-postgres-shared-ts/ensure-schema';
+import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
+import type { PostgresDbScope } from '@pkgs/sql-client-root-shared-ts/postgres-db-scope';
+import { extractWorkload } from '@pkgs/sync-engine-shared-ts/extract-workload';
+import { APP_AUTH_PROVIDER } from './app-auth-provider';
+
+import { grantObsRead } from './grant-obs-read';
+import { reconcileDeclaredPostgresSchemas } from './reconcile-declared-schemas';
+import { runMigrateIndexReconcile } from './run-migrate-index-reconcile';
+
+export type ReconcilePostgresDeps = {
+  sqlClient: SqlClient;
+  logger: Logger;
+  dbScope: PostgresDbScope;
+  /**
+   * When true, skip `pg_advisory_xact_lock` + outer transaction (mockingbird-postgres /
+   * single-process harnesses cannot nest SET LOCAL with DDL on one adapter pool).
+   */
+  skipAdvisoryLock?: boolean;
+  /**
+   * When true, skip PL/pgSQL sqlite-compat functions.
+   * Use when JSON1 shims are installed at SqlClient open time (mockingbird-postgres).
+   */
+  skipSqliteCompat?: boolean;
+  /**
+   * When true, skip workload index reconcile.
+   * Defaults to true when `skipAdvisoryLock` (harness / mockingbird-postgres).
+   */
+  skipIndexReconcile?: boolean;
+  /** Injected clock for index reconcile deadlines (required unless skipped). */
+  clock?: Clock;
+};
+
+async function reconcileWorkloadIndexes(
+  deps: ReconcilePostgresDeps
+): Promise<void> {
+  if (deps.skipIndexReconcile) return;
+  if (deps.clock === undefined) {
+    throw new Error(
+      'reconcilePostgres: clock required when index reconcile is enabled'
+    );
+  }
+  const migrateConfig = resolveConfig(MIGRATE_RECONCILE_CONFIG);
+  const manifest = await extractWorkload(APP_QUERIES);
+  const db = createPostgresPort(deps.sqlClient, { clock: deps.clock });
+  await runMigrateIndexReconcile({
+    manifest,
+    db,
+    clock: deps.clock,
+    logger: deps.logger,
+    deadlineMs: migrateConfig.defaultDeadlineMs,
+  });
+}
+
+/** Bring the application Postgres database in line with its declared schemas. */
+export async function reconcilePostgres(
+  deps: ReconcilePostgresDeps
+): Promise<void> {
+  const skipIndexReconcile =
+    deps.skipIndexReconcile ?? deps.skipAdvisoryLock ?? false;
+  const resolved = { ...deps, skipIndexReconcile };
+  await ensurePostgresSchema(resolved.sqlClient, resolved.dbScope);
+  if (!resolved.skipSqliteCompat) {
+    await installPostgresSqliteCompat({ sqlClient: resolved.sqlClient });
+  }
+  await reconcileDeclaredPostgresSchemas(resolved);
+  await applyKvStorageOptimizations(resolved.sqlClient, resolved.logger, {
+    allowTemporarilyUnavailableTable: true,
+  });
+  await APP_AUTH_PROVIDER.reconcilePostgres?.({
+    sqlClient: resolved.sqlClient,
+    dbScope: resolved.dbScope,
+  });
+  await grantObsRead(resolved.sqlClient, resolved.logger);
+  await reconcileWorkloadIndexes(resolved);
+}

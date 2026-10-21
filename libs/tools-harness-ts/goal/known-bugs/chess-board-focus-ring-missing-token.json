@@ -1,0 +1,4 @@
+{
+  "summary": "The chess board's keyboard focus ring read var(--ui-color-focusRing, #3a8cff), a token name that does not exist, so it always painted the hard-coded fallback blue and ignored the app's light and dark focus-ring token. It now reads var(--ui-color-focus-ring).",
+  "regressionTest": "pkgs/chess-board-root-client-ts/tests/board-stylesheet-tokens.test.ts"
+}

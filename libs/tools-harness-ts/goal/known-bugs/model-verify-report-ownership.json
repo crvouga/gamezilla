@@ -1,0 +1,4 @@
+{
+  "summary": "An unsplit model verification deleted the entire package model report while the symbolic identity checker was parsing its cached sources, producing missing authRevoke/authErase/authRegister/authValid errors. Every model run must declare its owned models and replace only their evidence.",
+  "regressionTest": "libs/tools-harness-ts/scripts/model-verify-workspace.test.ts"
+}

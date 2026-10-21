@@ -1,4 +1,0 @@
-{
-  "summary": "Closing a commit with no sources represented missing verification evidence as passed.",
-  "regressionTest": "pkgs/atlas-reports-harness/tests/explorer-storage.test.ts"
-}

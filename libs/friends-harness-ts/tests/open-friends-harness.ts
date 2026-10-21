@@ -1,0 +1,49 @@
+import { ACCOUNT_PRIVACY_HARNESS_SLICE } from '@libs/account-privacy-harness-ts/account-privacy-harness-slice';
+import { BILLING_HARNESS_SLICE } from '@libs/billing-harness-ts/billing-harness-slice';
+import { FRIENDS_HARNESS_SLICE } from '@libs/friends-harness-ts/friends-harness-slice';
+import { FRIENDS_BLOCK_RELATION } from '@libs/friends-shared-ts/block-relation';
+import { defineProductSystem } from '@libs/harness-ts/define-product-system';
+import type { OpenHarnessOptions } from '@libs/harness-ts/mode';
+import type { OpenHarness } from '@libs/harness-ts/open-harness';
+import { openHarness as openSystemHarness } from '@libs/harness-ts/open-harness';
+import { composeHarnessSlices } from '@libs/harness-ts/slices';
+import { NOTIFICATIONS_HARNESS_SLICE } from '@libs/notifications-harness-ts/notifications-harness-slice';
+import { PROFILE_HARNESS_SLICE } from '@libs/profile-harness-ts/profile-harness-slice';
+import { SEARCH_HARNESS_SLICE } from '@libs/search-harness-ts/search-harness-slice';
+import { spacesHarnessSlice } from '@libs/spaces-harness-ts/spaces-harness-slice';
+
+/**
+ * Friends and what its flows cross: people search finds a person (friends
+ * fills search's row slot), the inbox delivers the request, profile hosts the
+ * friend count, and the list badges a friend's live space. Billing is in
+ * because permissions reads its `billing_subscriptions` rows directly (see
+ * README.md). No games: a chess change leaves this cached.
+ *
+ * The spaces specs (`space-*.test.tsx`) run here too: spaces' server SQL reads
+ * friends' `friends_friendships` table directly (lobby visibility, join
+ * policy), so a spaces-only composition fails those queries and a second
+ * actor never paints. Friends depends on spaces, so spaces cannot compose
+ * friends; this is the lowest package that composes spaces soundly.
+ */
+const FRIENDS_SYSTEM = defineProductSystem(
+  composeHarnessSlices('friends', [
+    ACCOUNT_PRIVACY_HARNESS_SLICE,
+    PROFILE_HARNESS_SLICE,
+    spacesHarnessSlice({
+      games: [],
+      clients: [],
+      blocks: FRIENDS_BLOCK_RELATION,
+    }),
+    FRIENDS_HARNESS_SLICE,
+    NOTIFICATIONS_HARNESS_SLICE,
+    SEARCH_HARNESS_SLICE,
+    BILLING_HARNESS_SLICE,
+  ])
+);
+
+export function openHarness(
+  testId: string,
+  options?: OpenHarnessOptions
+): Promise<OpenHarness> {
+  return openSystemHarness(FRIENDS_SYSTEM, testId, options);
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "MQTT reported connected and triggered hydration before the broker acknowledged subscriptions. A pairing committed after that snapshot but before SUBACK had no listener, and no later connected signal repaired the waiting screen. Signal readiness after all desired topic acknowledgments, including membership changes.",
+  "regressionTest": "pkgs/pubsub-mqtt-harness-ts/tests/mqtt-subscription-readiness.test.ts"
+}

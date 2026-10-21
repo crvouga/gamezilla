@@ -1,0 +1,4 @@
+{
+  "summary": "The expanded corpus requested 33 cores using the preferred 240-second target, although the existing 32-core runner finishes in 254 seconds and retains startup and verdict slack within the unchanged 300-second deadline. Try the available core allocation while enforcing every existing deadline and memory limit.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ci-load.test.ts"
+}

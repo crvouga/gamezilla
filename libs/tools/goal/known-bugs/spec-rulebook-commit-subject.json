@@ -1,4 +1,0 @@
-{
-  "summary": "A rulebook change used a docs subject instead of spec, violating ownership. Reworded the commit and keyed the ownership gate on the injected full-SHA range so local history changes cannot reuse an earlier verdict.",
-  "regressionTest": "libs/tools/scripts/verify-spec-ownership.test.ts"
-}

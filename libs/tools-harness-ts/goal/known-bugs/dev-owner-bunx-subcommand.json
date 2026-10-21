@@ -1,0 +1,4 @@
+{
+  "summary": "Injecting runtime preload flags before bun x made Bun look for a package script named x. Preserve native CLI subcommands and inject runtime flags only where the installed CLI accepts them.",
+  "regressionTest": "pkgs/os-server-ts/tests/dev-owner.contract.test.ts"
+}

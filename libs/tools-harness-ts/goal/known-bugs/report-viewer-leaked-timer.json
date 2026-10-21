@@ -1,0 +1,4 @@
+{
+  "summary": "Report navigation returned cleanup from createEffect and used global playback timers, leaving listeners and pending work after a viewer closed.",
+  "regressionTest": "pkgs/atlas-reports-harness-ts/tests/client/navigation-lifecycle.test.tsx"
+}

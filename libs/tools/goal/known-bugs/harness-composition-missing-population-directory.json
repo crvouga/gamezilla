@@ -1,4 +1,0 @@
-{
-  "summary": "Auth classifies every signed-in session against the Synthetic Population directory, but a harness composition without that sub had no population_users table. Every sign-in in the billing, chess, friends and profile harnesses failed with a missing relation. Every composition now carries the population tables as a platform slice.",
-  "regressionTest": "libs/harness/tests/slices.test.ts"
-}

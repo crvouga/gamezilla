@@ -1,0 +1,4 @@
+{
+  "summary": "Avatar config serialization silently dropped a `__proto__` option key (assignment set the prototype). Fixed by building the result with Object.fromEntries.",
+  "regressionTest": "libs/profile-shared-ts/tests/avatar-config.test.ts"
+}

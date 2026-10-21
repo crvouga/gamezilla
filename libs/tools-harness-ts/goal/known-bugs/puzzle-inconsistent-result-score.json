@@ -1,0 +1,4 @@
+{
+  "summary": "The rating mutation accepted full credit for a failed result, zero credit for a solve and partial credit for an abandoned attempt. It now rejects outcome and credit combinations that the puzzle rules exclude, before any result is stored. All three literal contradictory combinations are pinned.",
+  "regressionTest": "libs/game-puzzle-shared-ts/tests/rate-puzzle-attempt.test.ts"
+}

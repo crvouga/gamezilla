@@ -1,4 +1,0 @@
-{
-  "summary": "Duplicated workflows had missing authentication coordinates and an untrusted issuer. Keep exactly three workflows using repository variables and the GitHub OIDC issuer.",
-  "regressionTest": "libs/tools/scripts/workflow-run-names.test.ts"
-}

@@ -1,4 +1,0 @@
-{
-  "summary": "Hosting trace 61 (seed 0x67932) leaves Alice\u2019s space while Alice is offline and tries to rejoin when Alice returns. The in-process membership withdrawal removes Bob\u2019s replacement link-preview connection without notifying its transport, so it stays connected to an absent server connection and never receives the returning host\u2019s roster.",
-  "regressionTest": "libs/friends-harness/tests/quint/space-hosting.binding.ts"
-}

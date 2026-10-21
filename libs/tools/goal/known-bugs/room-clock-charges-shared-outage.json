@@ -1,4 +1,0 @@
-{
-  "summary": "A match accepted immediately before shared unavailability charged the interruption against its original wall timestamp. Persist host availability transitions and the remaining banks, then restart the deadline from the retained time on return. Individual player disconnection leaves the shared clock running.",
-  "regressionTest": "pkgs/room-root-harness/tests/shared-clock-recovery.test.ts"
-}

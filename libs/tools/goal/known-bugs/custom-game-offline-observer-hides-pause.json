@@ -1,4 +1,0 @@
-{
-  "summary": "The Custom Game view froze every guest's clock when the creator went offline, hiding committed pause and resume updates from connected readers. The play binding also observed the global clock through the disconnected creator rather than a connected watcher.",
-  "regressionTest": "libs/games-harness/tests/quint/custom-game-play.binding.ts"
-}

@@ -1,4 +1,0 @@
-{
-  "summary": "A requested animation duration of NaN or Infinity left motion enabled without a finite completion, potentially keeping capture remnants indefinitely. Invalid durations settle immediately.",
-  "regressionTest": "pkgs/chess-board-root-shared/tests/board-motion.test.ts"
-}

@@ -1,0 +1,4 @@
+{
+  "summary": "A simulated transaction deadlocks when its callback calls another adapter over the same session, preventing account deletion and recovery from finishing.",
+  "regressionTest": "pkgs/sql-client-contract-harness-ts/tests/postgres-transaction-isolation.test.ts"
+}

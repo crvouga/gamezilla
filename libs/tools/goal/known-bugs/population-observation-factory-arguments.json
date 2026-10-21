@@ -1,4 +1,0 @@
-{
-  "summary": "Population observation called the injected sync broker factory without its required connection arguments. The unified port now accepts observation credentials and retains offline gating instead of constructing an uninjected broker in the UI hook.",
-  "regressionTest": "libs/app-root-client/tests/offline-client-env.test.ts"
-}

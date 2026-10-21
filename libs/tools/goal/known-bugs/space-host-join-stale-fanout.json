@@ -1,4 +1,0 @@
-{
-  "summary": "Joining an unchanged host identity emitted a full stale space row over optimistic fanout. Reconnect repeatedly resurrected an ended space, reopened host sessions and remounted subscriptions. Write host identity only when it actually changes.",
-  "regressionTest": "libs/games-harness/tests/quint/custom-game.binding.ts"
-}

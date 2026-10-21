@@ -1,0 +1,4 @@
+{
+  "summary": "Chess's rules accepted a legal move under a non-canonical spelling (b2b3a, or a7a8 without its promotion piece) because chess.js normalizes its input, so the shared authority could accept and store an action outside the game's legal list. The shared rules laws found it with drawn stranger actions at nightly depth. play now accepts only an action exactly in the position's legal list.",
+  "regressionTest": "libs/chess-rules-shared-ts/tests/canonical-actions.test.ts"
+}

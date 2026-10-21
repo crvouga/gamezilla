@@ -1,0 +1,4 @@
+{
+  "summary": "The offline-boot recovery example omitted the fabric heal port after reconnection began restoring both networks, aborting before it could verify origin recovery. Supply that port and assert that one-device and whole-network recovery heal the matching fabric scope.",
+  "regressionTest": "libs/harness-ts/tests/reconnect-origin-health.test.ts"
+}

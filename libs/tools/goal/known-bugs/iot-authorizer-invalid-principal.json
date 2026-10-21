@@ -1,4 +1,0 @@
-{
-  "summary": "AWS IoT rejected authenticated browser connections because the custom authorizer returned UUID actor IDs containing hyphens as principalId, which accepts only alphanumeric characters. Use a stable SHA-256 principal while preserving the actor's exact topic grants.",
-  "regressionTest": "libs/infra-shared/tests/iot-authorizer-contract.test.ts"
-}

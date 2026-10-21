@@ -1,0 +1,65 @@
+{
+  "name": "@libs/chess-puzzle-server-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "export:puzzles-load": "bun run scripts/export-chess-puzzles-load.ts",
+    "initialize:catalog": "bun run scripts/initialize-puzzle-catalog.ts",
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "seed:puzzles": "bun run scripts/seed-chess-puzzles.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests",
+    "validate:puzzles": "bun run scripts/validate-chess-puzzles.ts"
+  },
+  "dependencies": {
+    "@libs/chess-puzzle-shared-ts": "workspace:*",
+    "@libs/chess-sub-shared-ts": "workspace:*",
+    "@libs/db-shared-ts": "workspace:*",
+    "@libs/game-puzzle-shared-ts": "workspace:*",
+    "@libs/infra-shared-ts": "workspace:*",
+    "@libs/pubsub-server-ts": "workspace:*",
+    "@libs/secrets-server-ts": "workspace:*",
+    "@pkgs/assert-root-shared-ts": "workspace:*",
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/database-url-policy-server-ts": "workspace:*",
+    "@pkgs/db-migrate-shared-ts": "workspace:*",
+    "@pkgs/http-client-shared-ts": "workspace:*",
+    "@pkgs/logger-shared-ts": "workspace:*",
+    "@pkgs/object-store-node-fs-server-ts": "workspace:*",
+    "@pkgs/object-store-root-shared-ts": "workspace:*",
+    "@pkgs/pubsub-root-shared-ts": "workspace:*",
+    "@pkgs/secret-store-shared-ts": "workspace:*",
+    "@pkgs/secrets-config-server-ts": "workspace:*",
+    "@pkgs/sql-client-postgres-server-ts": "workspace:*",
+    "@pkgs/sql-client-root-shared-ts": "workspace:*",
+    "@pkgs/sql-root-shared-ts": "workspace:*",
+    "@pkgs/sync-engine-server-ts": "workspace:*",
+    "@pkgs/sync-engine-shared-ts": "workspace:*",
+    "@pkgs/uuid-shared-ts": "workspace:*",
+    "chess.js": "catalog:",
+    "csv-parse": "catalog:",
+    "fzstd": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/chess-rules-shared-ts": "workspace:*",
+    "@pkgs/db-schema-root-shared-ts": "workspace:*",
+    "@pkgs/db-schema-sqlite-shared-ts": "workspace:*",
+    "@pkgs/property-shared-ts": "workspace:*",
+    "@pkgs/sql-client-sqlite-root-shared-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "server",
+  "game": "chess",
+  "language": "typescript"
+}

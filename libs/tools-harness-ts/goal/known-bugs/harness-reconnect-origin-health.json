@@ -1,0 +1,4 @@
+{
+  "summary": "Puzzle recovery trace 46 at seed 0x67932 reopened Charlie offline, then failed to hydrate the recorded result after reconnection because origin health was still waiting on its 30-second backoff. Network restoration now refreshes health for each open affected actor, waking offline boot without increasing the model's convergence budget.",
+  "regressionTest": "libs/harness-ts/tests/reconnect-origin-health.test.ts"
+}

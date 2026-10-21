@@ -1,4 +1,0 @@
-{
-  "summary": "Signed Paddle transaction.completed events were ignored, preventing payment evidence and post-deletion refund processing. Subscribe to the documented event and route its customer to the shared payment handler.",
-  "regressionTest": "pkgs/billing-paddle-shared/tests/payment-callback.test.ts"
-}

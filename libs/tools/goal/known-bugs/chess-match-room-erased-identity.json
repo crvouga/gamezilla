@@ -1,4 +1,0 @@
-{
-  "summary": "A delayed final room snapshot could restore the identity of an erased multiplayer account",
-  "regressionTest": "libs/game-matchmaking-shared/tests/match-room-protocol.test.ts"
-}

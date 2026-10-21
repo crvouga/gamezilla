@@ -1,0 +1,4 @@
+{
+  "summary": "On wide layouts ScreenBase's default body wrapped content in an Island that padded 16px and set a 16px content edge, so panels, forms and lists on /more, /profile/edit, /profile/avatar and /ui started 16px right of the page title. The wide body is now always the flat canvas, whose left edge is the page header's.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/screen-base.test.tsx"
+}

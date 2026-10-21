@@ -1,4 +1,0 @@
-{
-  "summary": "The application requested push after the client-config broker URL hydrated, but ensurePush kept reading the cold-start null URL. Refresh the URL from local SQLite before attaching so native peers receive match formation and moves.",
-  "regressionTest": "apps/synthetic-population-worker/tests/application-realm.test.ts"
-}

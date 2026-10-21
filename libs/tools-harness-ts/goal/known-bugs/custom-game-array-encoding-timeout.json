@@ -1,0 +1,4 @@
+{
+  "summary": "The unchanged custom-game induction exceeded its 240-second deadline with optional fun-arrays encoding and monolithic inlining. Its literal regression pins the complete _inductive candidate, default encoding, four-step setting and original 240000 ms deadline. Equivalent cached value bindings and grouped preservation cases retain initialization, every transition and every safety implication; negative controls reject violations in late groups. The complete custom-game induction passes within its original deadline.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-models.test.ts"
+}

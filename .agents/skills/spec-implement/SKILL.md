@@ -102,7 +102,7 @@ Then("{actor} has no puzzle on the board", async (w, actor: Actor) => {
 Rules for every definition: expression strings are plain literals
 (the catalog reads them statically; comments go above the call); parameter
 types `{actor}`, `{person}`, `{username}`, `{int}`, `{string}` and friends
-from `@libs/harness/spec/parameter-types` — add a type rather than parse
+from `@libs/harness-ts/spec/parameter-types` — add a type rather than parse
 strings; state lives on the world (`w`, `w.memo`), never at module level;
 steps never call other steps.
 
@@ -117,7 +117,7 @@ steps never call other steps.
 4. A bug you found on the way: an observable one gets a `@regression:<id>`
    scenario (request it from `spec-upsert`); an internal one gets an
    example test marked `// regression: <id>`; both get a
-   `libs/tools/goal/known-bugs/<id>.json`.
+   `libs/tools-harness-ts/goal/known-bugs/<id>.json`.
 
 ### 4. Whole context, then gates
 
@@ -135,7 +135,7 @@ steps never call other steps.
 2. Prove it guards the same thing: break the behavior locally, watch the new
    test fail, restore.
 3. Move ties (P4): `@goal` → a `test` proof in
-   `libs/tools/goal/goal-checks.json`; `@regression` → an example test with
+   `libs/tools-harness-ts/goal/goal-checks.json`; `@regression` → an example test with
    `// regression: <id>` and `regressionTest` in `known-bugs/<id>.json`.
 4. Commit that. Then hand the scenario's removal to `spec-upsert` as a
    `spec:` commit; rebind or delete its steps after.

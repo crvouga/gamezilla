@@ -1,4 +1,0 @@
-{
-  "summary": "Replay used Number directly, so an empty accepted action reconstructed column zero and could pass the retained-position guard. Share strict one-character column parsing between live moves, replay and automated gestures; reject malformed history before play or review without modifying the retained record.",
-  "regressionTest": "libs/connect-four-shared/tests/retained-position.test.ts"
-}

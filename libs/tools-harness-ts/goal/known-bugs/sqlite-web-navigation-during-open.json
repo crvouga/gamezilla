@@ -1,0 +1,4 @@
+{
+  "summary": "Leaving a page while SQLite ownership was opening skipped unloading because the connection was not ready yet. Release its pending owner and broker slot before the next document opens the same database.",
+  "regressionTest": "pkgs/sql-client-sqlite-web-client-ts/tests/shared-worker-transport.test.ts"
+}

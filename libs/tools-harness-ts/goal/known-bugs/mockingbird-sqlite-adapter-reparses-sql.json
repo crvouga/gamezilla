@@ -1,0 +1,4 @@
+{
+  "summary": "The SQLite adapter reparsed SELECT ? AS value for bindings 41 and 42 on every execution. Reusing a prepared statement must keep the changing bind values and follow database replacement after snapshot restore.",
+  "regressionTest": "pkgs/sql-client-sqlite-root-shared-ts/tests/mockingbird-statement-reuse.test.ts"
+}

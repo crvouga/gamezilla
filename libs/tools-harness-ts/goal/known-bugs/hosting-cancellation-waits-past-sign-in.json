@@ -1,0 +1,4 @@
+{
+  "summary": "The hosting limit replay canceled Plus immediately, then unnecessarily waited for the canceled subscription's original trial period and the grace period. Two such cycles crossed the independent sign-in lifetime and prevented the next checkout. The literal trace 5 prefix checks that immediate cancellation waits only for its remaining access grace, followed by a third subscription and a new hosted space.",
+  "regressionTest": "libs/friends-harness-ts/tests/paid-access-repeated-hosting.test.ts"
+}

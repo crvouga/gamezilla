@@ -1,4 +1,0 @@
-{
-  "summary": "Run b4cx3qcgv1 failed access-sync after emitting only the JAVA_TOOL_OPTIONS notice. The checker adapter discarded the child exit signal, leaving the failure undiagnosable. Preserve the signal and include the exact process status in verification errors; the original process failure remains visible and is not retried.",
-  "regressionTest": "pkgs/quint-server/tests/run-quint.test.ts"
-}

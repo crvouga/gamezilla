@@ -1,0 +1,4 @@
+{
+  "summary": "A public space preview kept showing Join after an offline host ended the space and reconnected. The preview has no membership wake topic; refresh its existing SQL query subscriptions when its room closes. The in-process harness also installs native async context before opening concurrent server requests, as the production entry does.",
+  "regressionTest": "libs/friends-harness-ts/tests/quint/adding-people.binding.ts"
+}

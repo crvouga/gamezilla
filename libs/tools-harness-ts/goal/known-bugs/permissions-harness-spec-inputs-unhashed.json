@@ -1,0 +1,4 @@
+{
+  "summary": "@libs/permissions-harness-ts's tests read specs/conformance.yaml and every specs/<domain>/*.dmn, but its test task declared only the package's own files as turbo inputs, so moving daily-puzzle-limit.dmn from specs/chess to specs/games kept replaying a cached pass while the test still opened the old path. The test reads specs/games/daily-puzzle-limit.dmn and the package's turbo.json declares the specs it reads.",
+  "regressionTest": "libs/permissions-harness-ts/tests/spec-inputs.test.ts"
+}

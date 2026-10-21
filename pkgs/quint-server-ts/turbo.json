@@ -1,0 +1,12 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "test": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/pkgs/os-server-ts/src/test-concurrency.ts"
+      ]
+    }
+  }
+}

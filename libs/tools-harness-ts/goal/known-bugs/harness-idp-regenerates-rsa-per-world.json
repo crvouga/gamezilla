@@ -1,0 +1,4 @@
+{
+  "summary": "Two harness worlds at the same fixed clock generated different random provider RSA keys. Every scenario paid key generation again instead of using the simulator's documented seeded-credentials cache; provider keys must replay while account directories stay isolated.",
+  "regressionTest": "libs/harness-ts/tests/idp-signing-keys.test.ts"
+}

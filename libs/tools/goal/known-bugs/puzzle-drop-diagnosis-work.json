@@ -1,4 +1,0 @@
-{
-  "summary": "Wrong puzzle drops synchronously replayed every legal move and calculated lower-priority explanations, blocking piece placement.",
-  "regressionTest": "libs/chess-puzzle-shared/tests/commentary-work.test.ts"
-}

@@ -26,433 +26,505 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "paths": {
-      "@apps/auth-relay/*": ["./apps/auth-relay/src/*"],
-      "@apps/client/*": ["./apps/client/src/*"],
-      "@apps/product/*": ["./apps/product/src/*"],
-      "@apps/product/worker": ["./apps/product/src/worker.ts"],
-      "@apps/server/*": ["./apps/server/src/*"],
-      "@apps/server/worker": ["./apps/server/src/server.ts"],
-      "@libs/account-privacy-client/*": ["./libs/account-privacy-client/src/*"],
-      "@libs/account-privacy-harness/*": [
-        "./libs/account-privacy-harness/src/*"
-      ],
-      "@libs/account-privacy-server/*": ["./libs/account-privacy-server/src/*"],
-      "@libs/account-privacy-shared/*": ["./libs/account-privacy-shared/src/*"],
-      "@libs/app-root-client/*": ["./libs/app-root-client/src/*"],
-      "@libs/app-config-client/*": ["./libs/app-config-client/src/*"],
-      "@libs/app-config-server/*": ["./libs/app-config-server/src/*"],
-      "@libs/app-config-shared/*": ["./libs/app-config-shared/src/*"],
-      "@libs/app-root-server/*": ["./libs/app-root-server/src/*"],
-      "@libs/app-root-shared/*": ["./libs/app-root-shared/src/*"],
-      "@libs/auth-client/*": ["./libs/auth-client/src/*"],
-      "@libs/auth-server/*": ["./libs/auth-server/src/*"],
-      "@libs/auth-shared/*": ["./libs/auth-shared/src/*"],
-      "@libs/billing-client/*": ["./libs/billing-client/src/*"],
-      "@libs/billing-harness/*": ["./libs/billing-harness/src/*"],
-      "@libs/billing-server/*": ["./libs/billing-server/src/*"],
-      "@libs/billing-shared/*": ["./libs/billing-shared/src/*"],
-      "@libs/chess-root-client/*": ["./libs/chess-root-client/src/*"],
-      "@libs/game-session-client/*": ["./libs/game-session-client/src/*"],
-      "@libs/game-puzzle-shared/*": ["./libs/game-puzzle-shared/src/*"],
-      "@libs/game-session-shared/*": ["./libs/game-session-shared/src/*"],
-      "@libs/chess-sub-shared/*": ["./libs/chess-sub-shared/src/*"],
-      "@libs/chess-root-harness/*": ["./libs/chess-root-harness/src/*"],
-      "@libs/game-matchmaking-client/*": [
-        "./libs/game-matchmaking-client/src/*"
-      ],
-      "@libs/game-matchmaking-shared/*": [
-        "./libs/game-matchmaking-shared/src/*"
-      ],
-      "@libs/chess-puzzle-client/*": ["./libs/chess-puzzle-client/src/*"],
-      "@libs/game-puzzle-client/*": ["./libs/game-puzzle-client/src/*"],
-      "@libs/chess-puzzle-harness/*": ["./libs/chess-puzzle-harness/src/*"],
-      "@libs/chess-puzzle-server/*": ["./libs/chess-puzzle-server/src/*"],
-      "@libs/chess-puzzle-shared/*": ["./libs/chess-puzzle-shared/src/*"],
-      "@libs/chess-root-server/*": ["./libs/chess-root-server/src/*"],
-      "@libs/chess-shared-client/*": ["./libs/chess-shared-client/src/*"],
-      "@libs/chess-root-shared/*": ["./libs/chess-root-shared/src/*"],
-      "@libs/db-server/*": ["./libs/db-server/src/*"],
-      "@libs/db-shared/*": ["./libs/db-shared/src/*"],
-      "@libs/sub-client/*": ["./libs/sub-client/src/*"],
-      "@libs/sub-shared/*": ["./libs/sub-shared/src/*"],
-      "@libs/friends-client/*": ["./libs/friends-client/src/*"],
-      "@libs/friends-harness/*": ["./libs/friends-harness/src/*"],
-      "@libs/friends-server/*": ["./libs/friends-server/src/*"],
-      "@libs/friends-shared/*": ["./libs/friends-shared/src/*"],
-      "@libs/games-client/*": ["./libs/games-client/src/*"],
-      "@libs/games-shared/*": ["./libs/games-shared/src/*"],
-      "@libs/harness/*": ["./libs/harness/src/*"],
-      "@libs/infra-shared/*": ["./libs/infra-shared/src/*"],
-      "@libs/notifications-client/*": ["./libs/notifications-client/src/*"],
-      "@libs/notifications-harness/*": ["./libs/notifications-harness/src/*"],
-      "@libs/notifications-server/*": ["./libs/notifications-server/src/*"],
-      "@libs/notifications-shared/*": ["./libs/notifications-shared/src/*"],
-      "@libs/observability-server/*": ["./libs/observability-server/src/*"],
-      "@libs/observability-shared/*": ["./libs/observability-shared/src/*"],
-      "@libs/permissions-client/*": ["./libs/permissions-client/src/*"],
-      "@libs/permissions-harness/*": ["./libs/permissions-harness/src/*"],
-      "@libs/permissions-server/*": ["./libs/permissions-server/src/*"],
-      "@libs/permissions-shared/*": ["./libs/permissions-shared/src/*"],
-      "@libs/profile-client/*": ["./libs/profile-client/src/*"],
-      "@libs/profile-harness/*": ["./libs/profile-harness/src/*"],
-      "@libs/moderation-client/*": ["./libs/moderation-client/src/*"],
-      "@libs/moderation-shared/*": ["./libs/moderation-shared/src/*"],
-      "@libs/profile-shared/*": ["./libs/profile-shared/src/*"],
-      "@libs/pubsub-server/*": ["./libs/pubsub-server/src/*"],
-      "@libs/pubsub-shared/*": ["./libs/pubsub-shared/src/*"],
-      "@libs/room-app-server/*": ["./libs/room-app-server/src/*"],
-      "@libs/room-app-shared/*": ["./libs/room-app-shared/src/*"],
-      "@libs/runtime-client/*": ["./libs/runtime-client/src/*"],
-      "@libs/runtime-harness/*": ["./libs/runtime-harness/src/*"],
-      "@libs/runtime-server/*": ["./libs/runtime-server/src/*"],
-      "@libs/runtime-shared/*": ["./libs/runtime-shared/src/*"],
-      "@libs/search-client/*": ["./libs/search-client/src/*"],
-      "@libs/search-harness/*": ["./libs/search-harness/src/*"],
-      "@libs/search-shared/*": ["./libs/search-shared/src/*"],
-      "@libs/secrets-server/*": ["./libs/secrets-server/src/*"],
-      "@libs/secrets-shared/*": ["./libs/secrets-shared/src/*"],
-      "@libs/spaces-client/*": ["./libs/spaces-client/src/*"],
-      "@libs/spaces-harness/*": ["./libs/spaces-harness/src/*"],
-      "@libs/spaces-server/*": ["./libs/spaces-server/src/*"],
-      "@libs/spaces-shared/*": ["./libs/spaces-shared/src/*"],
-      "@libs/test-ids-shared/*": ["./libs/test-ids-shared/src/*"],
-      "@libs/user-search-client/*": ["./libs/user-search-client/src/*"],
-      "@libs/user-search-shared/*": ["./libs/user-search-shared/src/*"],
-      "@pkgs/a11y-shared/*": ["./pkgs/a11y-shared/src/*"],
-      "@pkgs/aedes-server/*": ["./pkgs/aedes-server/src/*"],
-      "@pkgs/alloy-server/*": ["./pkgs/alloy-server/src/*"],
-      "@pkgs/alloy-shared/*": ["./pkgs/alloy-shared/src/*"],
-      "@pkgs/assert-crash-browser-client/*": [
-        "./pkgs/assert-crash-browser-client/src/*"
-      ],
-      "@pkgs/assert-crash-browser-shared/*": [
-        "./pkgs/assert-crash-browser-shared/src/*"
-      ],
-      "@pkgs/assert-crash-node-shared/*": [
-        "./pkgs/assert-crash-node-shared/src/*"
-      ],
-      "@pkgs/assert-root-shared/*": ["./pkgs/assert-root-shared/src/*"],
-      "@pkgs/assistant-client/*": ["./pkgs/assistant-client/src/*"],
-      "@pkgs/assistant-shared/*": ["./pkgs/assistant-shared/src/*"],
-      "@pkgs/async-root-client/*": ["./pkgs/async-root-client/src/*"],
-      "@pkgs/async-local-shared/*": ["./pkgs/async-local-shared/src/*"],
-      "@pkgs/async-root-shared/*": ["./pkgs/async-root-shared/src/*"],
-      "@pkgs/attribute-shared/*": ["./pkgs/attribute-shared/src/*"],
-      "@pkgs/auth-root-client/*": ["./pkgs/auth-root-client/src/*"],
-      "@pkgs/auth-root-harness/*": ["./pkgs/auth-root-harness/src/*"],
-      "@pkgs/auth-inhouse-client/*": ["./pkgs/auth-inhouse-client/src/*"],
-      "@pkgs/auth-inhouse-server/*": ["./pkgs/auth-inhouse-server/src/*"],
-      "@pkgs/auth-inhouse-shared/*": ["./pkgs/auth-inhouse-shared/src/*"],
-      "@pkgs/auth-root-shared/*": ["./pkgs/auth-root-shared/src/*"],
-      "@pkgs/billing-paddle-harness/*": ["./pkgs/billing-paddle-harness/src/*"],
-      "@pkgs/billing-paddle-shared/*": ["./pkgs/billing-paddle-shared/src/*"],
-      "@pkgs/billing-providers-server/*": [
-        "./pkgs/billing-providers-server/src/*"
-      ],
-      "@pkgs/billing-root-shared/*": ["./pkgs/billing-root-shared/src/*"],
-      "@pkgs/billing-stripe-harness/*": ["./pkgs/billing-stripe-harness/src/*"],
-      "@pkgs/billing-stripe-server/*": ["./pkgs/billing-stripe-server/src/*"],
-      "@pkgs/billing-stripe-shared/*": ["./pkgs/billing-stripe-shared/src/*"],
-      "@pkgs/browser-client/*": ["./pkgs/browser-client/src/*"],
-      "@pkgs/bun-test-solid-client/*": ["./pkgs/bun-test-solid-client/src/*"],
-      "@pkgs/chess-board-root-client/*": [
-        "./pkgs/chess-board-root-client/src/*"
-      ],
-      "@pkgs/chess-board-core-shared/*": [
-        "./pkgs/chess-board-core-shared/src/*"
-      ],
-      "@pkgs/chess-board-root-harness/*": [
-        "./pkgs/chess-board-root-harness/src/*"
-      ],
-      "@pkgs/chess-board-root-shared/*": [
-        "./pkgs/chess-board-root-shared/src/*"
-      ],
-      "@pkgs/chess-rules-shared/*": ["./pkgs/chess-rules-shared/src/*"],
-      "@pkgs/clock-client/*": ["./pkgs/clock-client/src/*"],
-      "@pkgs/clock-shared/*": ["./pkgs/clock-shared/src/*"],
-      "@pkgs/collab-root-shared/*": ["./pkgs/collab-root-shared/src/*"],
-      "@pkgs/collab-ui-client/*": ["./pkgs/collab-ui-client/src/*"],
-      "@pkgs/colors-shared/*": ["./pkgs/colors-shared/src/*"],
-      "@pkgs/conformance-server/*": ["./pkgs/conformance-server/src/*"],
-      "@pkgs/conformance-shared/*": ["./pkgs/conformance-shared/src/*"],
-      "@pkgs/database-url-policy-server/*": [
-        "./pkgs/database-url-policy-server/src/*"
-      ],
-      "@pkgs/database-url-policy-shared/*": [
-        "./pkgs/database-url-policy-shared/src/*"
-      ],
-      "@pkgs/db-indexes-root-harness/*": [
-        "./pkgs/db-indexes-root-harness/src/*"
-      ],
-      "@pkgs/db-indexes-postgres-shared/*": [
-        "./pkgs/db-indexes-postgres-shared/src/*"
-      ],
-      "@pkgs/db-indexes-root-shared/*": ["./pkgs/db-indexes-root-shared/src/*"],
-      "@pkgs/db-indexes-sqlite-shared/*": [
-        "./pkgs/db-indexes-sqlite-shared/src/*"
-      ],
-      "@pkgs/db-migrate-shared/*": ["./pkgs/db-migrate-shared/src/*"],
-      "@pkgs/db-schema-postgres-server/*": [
-        "./pkgs/db-schema-postgres-server/src/*"
-      ],
-      "@pkgs/db-schema-postgres-shared/*": [
-        "./pkgs/db-schema-postgres-shared/src/*"
-      ],
-      "@pkgs/db-schema-root-shared/*": ["./pkgs/db-schema-root-shared/src/*"],
-      "@pkgs/db-schema-sqlite-shared/*": [
-        "./pkgs/db-schema-sqlite-shared/src/*"
-      ],
-      "@pkgs/device-client/*": ["./pkgs/device-client/src/*"],
-      "@pkgs/device-shared/*": ["./pkgs/device-shared/src/*"],
-      "@pkgs/distributed-lock-server/*": [
-        "./pkgs/distributed-lock-server/src/*"
-      ],
-      "@pkgs/distributed-lock-shared/*": [
-        "./pkgs/distributed-lock-shared/src/*"
-      ],
-      "@pkgs/dmn-server/*": ["./pkgs/dmn-server/src/*"],
-      "@pkgs/dmn-shared/*": ["./pkgs/dmn-shared/src/*"],
-      "@pkgs/emqx-server/*": ["./pkgs/emqx-server/src/*"],
-      "@pkgs/emqx-shared/*": ["./pkgs/emqx-shared/src/*"],
-      "@pkgs/entity-store-shared/*": ["./pkgs/entity-store-shared/src/*"],
-      "@pkgs/equal-shared/*": ["./pkgs/equal-shared/src/*"],
-      "@pkgs/feedback-client/*": ["./pkgs/feedback-client/src/*"],
-      "@pkgs/feedback-harness/*": ["./pkgs/feedback-harness/src/*"],
-      "@pkgs/feedback-server/*": ["./pkgs/feedback-server/src/*"],
-      "@pkgs/feedback-shared/*": ["./pkgs/feedback-shared/src/*"],
-      "@pkgs/gherkin-server/*": ["./pkgs/gherkin-server/src/*"],
-      "@pkgs/gherkin-shared/*": ["./pkgs/gherkin-shared/src/*"],
-      "@pkgs/git-shared/*": ["./pkgs/git-shared/src/*"],
-      "@pkgs/glicko2-shared/*": ["./pkgs/glicko2-shared/src/*"],
-      "@pkgs/glob-match-shared/*": ["./pkgs/glob-match-shared/src/*"],
-      "@pkgs/harness-console-client/*": ["./pkgs/harness-console-client/src/*"],
-      "@pkgs/harness-console-shared/*": ["./pkgs/harness-console-shared/src/*"],
-      "@pkgs/harness-root-shared/*": ["./pkgs/harness-root-shared/src/*"],
-      "@pkgs/http-client-client/*": ["./pkgs/http-client-client/src/*"],
-      "@pkgs/http-client-shared/*": ["./pkgs/http-client-shared/src/*"],
-      "@pkgs/i18n-shared/*": ["./pkgs/i18n-shared/src/*"],
-      "@pkgs/invariants-shared/*": ["./pkgs/invariants-shared/src/*"],
-      "@pkgs/jingle-server/*": ["./pkgs/jingle-server/src/*"],
-      "@pkgs/keyword-shared/*": ["./pkgs/keyword-shared/src/*"],
-      "@pkgs/kv-root-client/*": ["./pkgs/kv-root-client/src/*"],
-      "@pkgs/kv-postgres-shared/*": ["./pkgs/kv-postgres-shared/src/*"],
-      "@pkgs/kv-root-shared/*": ["./pkgs/kv-root-shared/src/*"],
-      "@pkgs/kv-web-client/*": ["./pkgs/kv-web-client/src/*"],
-      "@pkgs/llm-root-client/*": ["./pkgs/llm-root-client/src/*"],
-      "@pkgs/llm-openai-server/*": ["./pkgs/llm-openai-server/src/*"],
-      "@pkgs/llm-openai-shared/*": ["./pkgs/llm-openai-shared/src/*"],
-      "@pkgs/llm-root-server/*": ["./pkgs/llm-root-server/src/*"],
-      "@pkgs/llm-root-shared/*": ["./pkgs/llm-root-shared/src/*"],
-      "@pkgs/logger-client/*": ["./pkgs/logger-client/src/*"],
-      "@pkgs/logger-shared/*": ["./pkgs/logger-shared/src/*"],
-      "@pkgs/matchmaking-root-client/*": [
-        "./pkgs/matchmaking-root-client/src/*"
-      ],
-      "@pkgs/matchmaking-root-harness/*": [
-        "./pkgs/matchmaking-root-harness/src/*"
-      ],
-      "@pkgs/matchmaking-root-server/*": [
-        "./pkgs/matchmaking-root-server/src/*"
-      ],
-      "@pkgs/matchmaking-root-shared/*": [
-        "./pkgs/matchmaking-root-shared/src/*"
-      ],
-      "@pkgs/matchmaking-sql-server/*": ["./pkgs/matchmaking-sql-server/src/*"],
-      "@pkgs/matchmaking-sql-shared/*": ["./pkgs/matchmaking-sql-shared/src/*"],
-      "@pkgs/message-shared/*": ["./pkgs/message-shared/src/*"],
-      "@pkgs/ndjson-client/*": ["./pkgs/ndjson-client/src/*"],
-      "@pkgs/ndjson-server/*": ["./pkgs/ndjson-server/src/*"],
-      "@pkgs/ndjson-shared/*": ["./pkgs/ndjson-shared/src/*"],
-      "@pkgs/object-store-root-client/*": [
-        "./pkgs/object-store-root-client/src/*"
-      ],
-      "@pkgs/object-store-node-fs-server/*": [
-        "./pkgs/object-store-node-fs-server/src/*"
-      ],
-      "@pkgs/object-store-node-fs-shared/*": [
-        "./pkgs/object-store-node-fs-shared/src/*"
-      ],
-      "@pkgs/object-store-opfs-shared/*": [
-        "./pkgs/object-store-opfs-shared/src/*"
-      ],
-      "@pkgs/object-store-s3-shared/*": ["./pkgs/object-store-s3-shared/src/*"],
-      "@pkgs/object-store-root-shared/*": [
-        "./pkgs/object-store-root-shared/src/*"
-      ],
-      "@pkgs/observability-cli-server/*": [
-        "./pkgs/observability-cli-server/src/*"
-      ],
-      "@pkgs/observability-cli-shared/*": [
-        "./pkgs/observability-cli-shared/src/*"
-      ],
-      "@pkgs/observability-root-client/*": [
-        "./pkgs/observability-root-client/src/*"
-      ],
-      "@pkgs/observability-mcp-server/*": [
-        "./pkgs/observability-mcp-server/src/*"
-      ],
-      "@pkgs/observability-mcp-shared/*": [
-        "./pkgs/observability-mcp-shared/src/*"
-      ],
-      "@pkgs/observability-root-server/*": [
-        "./pkgs/observability-root-server/src/*"
-      ],
-      "@pkgs/observability-root-shared/*": [
-        "./pkgs/observability-root-shared/src/*"
-      ],
-      "@pkgs/openslo-server/*": ["./pkgs/openslo-server/src/*"],
-      "@pkgs/openslo-shared/*": ["./pkgs/openslo-shared/src/*"],
-      "@pkgs/os-server/*": ["./pkgs/os-server/src/*"],
-      "@pkgs/os-shared/*": ["./pkgs/os-shared/src/*"],
-      "@pkgs/outbox-shared/*": ["./pkgs/outbox-shared/src/*"],
-      "@pkgs/permissions-shared/*": ["./pkgs/permissions-shared/src/*"],
-      "@pkgs/polyfill-shared/*": ["./pkgs/polyfill-shared/src/*"],
-      "@pkgs/postgres-mockingbird-server/*": [
-        "./pkgs/postgres-mockingbird-server/src/*"
-      ],
-      "@pkgs/postgres-local-shared/*": ["./pkgs/postgres-local-shared/src/*"],
-      "@pkgs/postgres-sqlite-compat-shared/*": [
-        "./pkgs/postgres-sqlite-compat-shared/src/*"
-      ],
-      "@pkgs/property-shared/*": ["./pkgs/property-shared/src/*"],
-      "@pkgs/pubsub-aedes-shared/*": ["./pkgs/pubsub-aedes-shared/src/*"],
-      "@pkgs/pubsub-emqx-shared/*": ["./pkgs/pubsub-emqx-shared/src/*"],
-      "@pkgs/pubsub-mqtt-shared/*": ["./pkgs/pubsub-mqtt-shared/src/*"],
-      "@pkgs/pubsub-root-shared/*": ["./pkgs/pubsub-root-shared/src/*"],
-      "@pkgs/quint-server/*": ["./pkgs/quint-server/src/*"],
-      "@pkgs/quint-shared/*": ["./pkgs/quint-shared/src/*"],
-      "@pkgs/room-adapter-bun-server/*": [
-        "./pkgs/room-adapter-bun-server/src/*"
-      ],
-      "@pkgs/room-adapter-durable-object-server/*": [
-        "./pkgs/room-adapter-durable-object-server/src/*"
-      ],
-      "@pkgs/room-adapter-durable-object-shared/*": [
-        "./pkgs/room-adapter-durable-object-shared/src/*"
-      ],
-      "@pkgs/room-adapter-memory-shared/*": [
-        "./pkgs/room-adapter-memory-shared/src/*"
-      ],
-      "@pkgs/room-adapter-web-shared/*": [
-        "./pkgs/room-adapter-web-shared/src/*"
-      ],
-      "@pkgs/room-root-client/*": ["./pkgs/room-root-client/src/*"],
-      "@pkgs/room-root-harness/*": ["./pkgs/room-root-harness/src/*"],
-      "@pkgs/room-root-server/*": ["./pkgs/room-root-server/src/*"],
-      "@pkgs/room-root-shared/*": ["./pkgs/room-root-shared/src/*"],
-      "@pkgs/s3-server/*": ["./pkgs/s3-server/src/*"],
-      "@pkgs/secret-provider-server/*": ["./pkgs/secret-provider-server/src/*"],
-      "@pkgs/secret-provider-shared/*": ["./pkgs/secret-provider-shared/src/*"],
-      "@pkgs/secret-store-shared/*": ["./pkgs/secret-store-shared/src/*"],
-      "@pkgs/secret-string-shared/*": ["./pkgs/secret-string-shared/src/*"],
-      "@pkgs/secrets-config-server/*": ["./pkgs/secrets-config-server/src/*"],
-      "@pkgs/secrets-config-shared/*": ["./pkgs/secrets-config-shared/src/*"],
-      "@pkgs/secure-storage-root-client/*": [
-        "./pkgs/secure-storage-root-client/src/*"
-      ],
-      "@pkgs/secure-storage-root-shared/*": [
-        "./pkgs/secure-storage-root-shared/src/*"
-      ],
-      "@pkgs/secure-storage-web-client/*": [
-        "./pkgs/secure-storage-web-client/src/*"
-      ],
-      "@pkgs/solid-context-client/*": ["./pkgs/solid-context-client/src/*"],
-      "@pkgs/sounds-client/*": ["./pkgs/sounds-client/src/*"],
-      "@pkgs/sounds-shared/*": ["./pkgs/sounds-shared/src/*"],
-      "@pkgs/sql-cli-shared/*": ["./pkgs/sql-cli-shared/src/*"],
-      "@pkgs/sql-client-root-client/*": ["./pkgs/sql-client-root-client/src/*"],
-      "@pkgs/sql-client-root-harness/*": [
-        "./pkgs/sql-client-root-harness/src/*"
-      ],
-      "@pkgs/sql-client-postgres-server/*": [
-        "./pkgs/sql-client-postgres-server/src/*"
-      ],
-      "@pkgs/sql-client-postgres-shared/*": [
-        "./pkgs/sql-client-postgres-shared/src/*"
-      ],
-      "@pkgs/sql-client-root-shared/*": ["./pkgs/sql-client-root-shared/src/*"],
-      "@pkgs/sql-client-sqlite-root-client/*": [
-        "./pkgs/sql-client-sqlite-root-client/src/*"
-      ],
-      "@pkgs/sql-client-sqlite-root-server/*": [
-        "./pkgs/sql-client-sqlite-root-server/src/*"
-      ],
-      "@pkgs/sql-client-sqlite-root-shared/*": [
-        "./pkgs/sql-client-sqlite-root-shared/src/*"
-      ],
-      "@pkgs/sql-client-sqlite-web-client/*": [
-        "./pkgs/sql-client-sqlite-web-client/src/*"
-      ],
-      "@pkgs/sql-client-sqlite-web-server/*": [
-        "./pkgs/sql-client-sqlite-web-server/src/*"
-      ],
-      "@pkgs/sql-client-sqlite-web-shared/*": [
-        "./pkgs/sql-client-sqlite-web-shared/src/*"
-      ],
-      "@pkgs/sql-map-shared/*": ["./pkgs/sql-map-shared/src/*"],
-      "@pkgs/sql-root-shared/*": ["./pkgs/sql-root-shared/src/*"],
-      "@pkgs/static-file-shared/*": ["./pkgs/static-file-shared/src/*"],
-      "@pkgs/sync-engine-client/*": ["./pkgs/sync-engine-client/src/*"],
-      "@pkgs/sync-engine-harness/*": ["./pkgs/sync-engine-harness/src/*"],
-      "@pkgs/sync-engine-server/*": ["./pkgs/sync-engine-server/src/*"],
-      "@pkgs/sync-engine-shared/*": ["./pkgs/sync-engine-shared/src/*"],
-      "@pkgs/tailwind-shared/*": ["./pkgs/tailwind-shared/src/*"],
-      "@pkgs/task-dag-shared/*": ["./pkgs/task-dag-shared/src/*"],
-      "@pkgs/ts-reset-shared/*": ["./pkgs/ts-reset-shared/src/*"],
-      "@pkgs/tts-root-client/*": ["./pkgs/tts-root-client/src/*"],
-      "@pkgs/tts-elevenlabs-server/*": ["./pkgs/tts-elevenlabs-server/src/*"],
-      "@pkgs/tts-elevenlabs-shared/*": ["./pkgs/tts-elevenlabs-shared/src/*"],
-      "@pkgs/tts-root-server/*": ["./pkgs/tts-root-server/src/*"],
-      "@pkgs/tts-root-shared/*": ["./pkgs/tts-root-shared/src/*"],
-      "@pkgs/ui-root-client/*": ["./pkgs/ui-root-client/src/*"],
-      "@pkgs/ui-devtools-client/*": ["./pkgs/ui-devtools-client/src/*"],
-      "@pkgs/ui-devtools-shared/*": ["./pkgs/ui-devtools-shared/src/*"],
-      "@pkgs/ui-quality-check-server/*": [
-        "./pkgs/ui-quality-check-server/src/*"
-      ],
-      "@pkgs/ui-quality-check-shared/*": [
-        "./pkgs/ui-quality-check-shared/src/*"
-      ],
-      "@pkgs/ui-root-shared/*": ["./pkgs/ui-root-shared/src/*"],
-      "@pkgs/ui-testing-bun-webview-server/*": [
-        "./pkgs/ui-testing-bun-webview-server/src/*"
-      ],
-      "@pkgs/ui-testing-bun-webview-shared/*": [
-        "./pkgs/ui-testing-bun-webview-shared/src/*"
-      ],
-      "@pkgs/ui-testing-root-shared/*": ["./pkgs/ui-testing-root-shared/src/*"],
-      "@pkgs/ui-testing-solid-dom-client/*": [
-        "./pkgs/ui-testing-solid-dom-client/src/*"
-      ],
-      "@pkgs/ui-testing-solid-dom-shared/*": [
-        "./pkgs/ui-testing-solid-dom-shared/src/*"
-      ],
-      "@pkgs/uuid-client/*": ["./pkgs/uuid-client/src/*"],
-      "@pkgs/uuid-shared/*": ["./pkgs/uuid-shared/src/*"],
-      "@pkgs/vite-workspace-resolver-server/*": [
-        "./pkgs/vite-workspace-resolver-server/src/*"
-      ],
-      "@pkgs/moderation-shared/*": ["./pkgs/moderation-shared/src/*"],
-      "@pkgs/word-filter-shared/*": ["./pkgs/word-filter-shared/src/*"],
-      "@pkgs/observability-runtime-shared/*": [
-        "./pkgs/observability-runtime-shared/src/*"
-      ],
-      "@pkgs/object-store-opfs-client/*": [
-        "./pkgs/object-store-opfs-client/src/*"
-      ],
-      "@libs/connect-four-shared/*": ["./libs/connect-four-shared/src/*"],
-      "@libs/battleship-shared/*": ["./libs/battleship-shared/src/*"],
-      "@libs/battleship-client/*": ["./libs/battleship-client/src/*"],
-      "@libs/battleship-harness/*": ["./libs/battleship-harness/src/*"],
-      "@libs/connect-four-client/*": ["./libs/connect-four-client/src/*"],
-      "@libs/game-menu-client/*": ["./libs/game-menu-client/src/*"],
-      "@libs/games-harness/*": ["./libs/games-harness/src/*"],
-      "@libs/connect-four-harness/*": ["./libs/connect-four-harness/src/*"],
-      "@libs/game-catalog-shared/*": ["./libs/game-catalog-shared/src/*"],
-      "@libs/chess-rules-shared/*": ["./libs/chess-rules-shared/src/*"],
-      "@pkgs/turn-game-client/*": ["./pkgs/turn-game-client/src/*"],
-      "@pkgs/turn-game-shared/*": ["./pkgs/turn-game-shared/src/*"],
-      "@libs/game-session-server/*": ["./libs/game-session-server/src/*"]
+      "@apps/auth-relay-ts/*": ["./apps/auth-relay-ts/src/*"],
+      "@apps/client-ts/*": ["./apps/client-ts/src/*"],
+      "@apps/product-ts/*": ["./apps/product-ts/src/*"],
+      "@apps/product-ts/worker": ["./apps/product-ts/src/worker.ts"],
+      "@apps/server-ts/*": ["./apps/server-ts/src/*"],
+      "@apps/server-ts/worker": ["./apps/server-ts/src/server.ts"],
+      "@libs/account-privacy-client-ts/*": [
+        "./libs/account-privacy-client-ts/src/*"
+      ],
+      "@libs/account-privacy-harness-ts/*": [
+        "./libs/account-privacy-harness-ts/src/*"
+      ],
+      "@libs/account-privacy-server-ts/*": [
+        "./libs/account-privacy-server-ts/src/*"
+      ],
+      "@libs/account-privacy-shared-ts/*": [
+        "./libs/account-privacy-shared-ts/src/*"
+      ],
+      "@libs/app-root-client-ts/*": ["./libs/app-root-client-ts/src/*"],
+      "@libs/app-config-client-ts/*": ["./libs/app-config-client-ts/src/*"],
+      "@libs/app-config-server-ts/*": ["./libs/app-config-server-ts/src/*"],
+      "@libs/app-config-shared-ts/*": ["./libs/app-config-shared-ts/src/*"],
+      "@libs/app-root-server-ts/*": ["./libs/app-root-server-ts/src/*"],
+      "@libs/app-root-shared-ts/*": ["./libs/app-root-shared-ts/src/*"],
+      "@libs/auth-client-ts/*": ["./libs/auth-client-ts/src/*"],
+      "@libs/auth-server-ts/*": ["./libs/auth-server-ts/src/*"],
+      "@libs/auth-shared-ts/*": ["./libs/auth-shared-ts/src/*"],
+      "@libs/billing-client-ts/*": ["./libs/billing-client-ts/src/*"],
+      "@libs/billing-harness-ts/*": ["./libs/billing-harness-ts/src/*"],
+      "@libs/billing-server-ts/*": ["./libs/billing-server-ts/src/*"],
+      "@libs/billing-shared-ts/*": ["./libs/billing-shared-ts/src/*"],
+      "@libs/chess-root-client-ts/*": ["./libs/chess-root-client-ts/src/*"],
+      "@libs/game-session-client-ts/*": ["./libs/game-session-client-ts/src/*"],
+      "@libs/game-puzzle-shared-ts/*": ["./libs/game-puzzle-shared-ts/src/*"],
+      "@libs/game-session-shared-ts/*": ["./libs/game-session-shared-ts/src/*"],
+      "@libs/chess-sub-shared-ts/*": ["./libs/chess-sub-shared-ts/src/*"],
+      "@libs/chess-root-harness-ts/*": ["./libs/chess-root-harness-ts/src/*"],
+      "@libs/game-matchmaking-client-ts/*": [
+        "./libs/game-matchmaking-client-ts/src/*"
+      ],
+      "@libs/game-matchmaking-shared-ts/*": [
+        "./libs/game-matchmaking-shared-ts/src/*"
+      ],
+      "@libs/chess-puzzle-client-ts/*": ["./libs/chess-puzzle-client-ts/src/*"],
+      "@libs/game-puzzle-client-ts/*": ["./libs/game-puzzle-client-ts/src/*"],
+      "@libs/chess-puzzle-harness-ts/*": [
+        "./libs/chess-puzzle-harness-ts/src/*"
+      ],
+      "@libs/chess-puzzle-server-ts/*": ["./libs/chess-puzzle-server-ts/src/*"],
+      "@libs/chess-puzzle-shared-ts/*": ["./libs/chess-puzzle-shared-ts/src/*"],
+      "@libs/chess-root-server-ts/*": ["./libs/chess-root-server-ts/src/*"],
+      "@libs/chess-shared-client-ts/*": ["./libs/chess-shared-client-ts/src/*"],
+      "@libs/chess-root-shared-ts/*": ["./libs/chess-root-shared-ts/src/*"],
+      "@libs/db-server-ts/*": ["./libs/db-server-ts/src/*"],
+      "@libs/db-shared-ts/*": ["./libs/db-shared-ts/src/*"],
+      "@libs/sub-client-ts/*": ["./libs/sub-client-ts/src/*"],
+      "@libs/sub-shared-ts/*": ["./libs/sub-shared-ts/src/*"],
+      "@libs/friends-client-ts/*": ["./libs/friends-client-ts/src/*"],
+      "@libs/friends-harness-ts/*": ["./libs/friends-harness-ts/src/*"],
+      "@libs/friends-server-ts/*": ["./libs/friends-server-ts/src/*"],
+      "@libs/friends-shared-ts/*": ["./libs/friends-shared-ts/src/*"],
+      "@libs/games-client-ts/*": ["./libs/games-client-ts/src/*"],
+      "@libs/games-shared-ts/*": ["./libs/games-shared-ts/src/*"],
+      "@libs/harness-ts/*": ["./libs/harness-ts/src/*"],
+      "@libs/infra-shared-ts/*": ["./libs/infra-shared-ts/src/*"],
+      "@libs/notifications-client-ts/*": [
+        "./libs/notifications-client-ts/src/*"
+      ],
+      "@libs/notifications-harness-ts/*": [
+        "./libs/notifications-harness-ts/src/*"
+      ],
+      "@libs/notifications-server-ts/*": [
+        "./libs/notifications-server-ts/src/*"
+      ],
+      "@libs/notifications-shared-ts/*": [
+        "./libs/notifications-shared-ts/src/*"
+      ],
+      "@libs/observability-server-ts/*": [
+        "./libs/observability-server-ts/src/*"
+      ],
+      "@libs/observability-shared-ts/*": [
+        "./libs/observability-shared-ts/src/*"
+      ],
+      "@libs/permissions-client-ts/*": ["./libs/permissions-client-ts/src/*"],
+      "@libs/permissions-harness-ts/*": ["./libs/permissions-harness-ts/src/*"],
+      "@libs/permissions-server-ts/*": ["./libs/permissions-server-ts/src/*"],
+      "@libs/permissions-shared-ts/*": ["./libs/permissions-shared-ts/src/*"],
+      "@libs/profile-client-ts/*": ["./libs/profile-client-ts/src/*"],
+      "@libs/profile-harness-ts/*": ["./libs/profile-harness-ts/src/*"],
+      "@libs/moderation-client-ts/*": ["./libs/moderation-client-ts/src/*"],
+      "@libs/moderation-shared-ts/*": ["./libs/moderation-shared-ts/src/*"],
+      "@libs/profile-shared-ts/*": ["./libs/profile-shared-ts/src/*"],
+      "@libs/pubsub-server-ts/*": ["./libs/pubsub-server-ts/src/*"],
+      "@libs/pubsub-shared-ts/*": ["./libs/pubsub-shared-ts/src/*"],
+      "@libs/room-app-server-ts/*": ["./libs/room-app-server-ts/src/*"],
+      "@libs/room-app-shared-ts/*": ["./libs/room-app-shared-ts/src/*"],
+      "@libs/runtime-client-ts/*": ["./libs/runtime-client-ts/src/*"],
+      "@libs/runtime-harness-ts/*": ["./libs/runtime-harness-ts/src/*"],
+      "@libs/runtime-server-ts/*": ["./libs/runtime-server-ts/src/*"],
+      "@libs/runtime-shared-ts/*": ["./libs/runtime-shared-ts/src/*"],
+      "@libs/search-client-ts/*": ["./libs/search-client-ts/src/*"],
+      "@libs/search-harness-ts/*": ["./libs/search-harness-ts/src/*"],
+      "@libs/search-shared-ts/*": ["./libs/search-shared-ts/src/*"],
+      "@libs/secrets-server-ts/*": ["./libs/secrets-server-ts/src/*"],
+      "@libs/secrets-shared-ts/*": ["./libs/secrets-shared-ts/src/*"],
+      "@libs/spaces-client-ts/*": ["./libs/spaces-client-ts/src/*"],
+      "@libs/spaces-harness-ts/*": ["./libs/spaces-harness-ts/src/*"],
+      "@libs/spaces-server-ts/*": ["./libs/spaces-server-ts/src/*"],
+      "@libs/spaces-shared-ts/*": ["./libs/spaces-shared-ts/src/*"],
+      "@libs/test-ids-shared-ts/*": ["./libs/test-ids-shared-ts/src/*"],
+      "@libs/user-search-client-ts/*": ["./libs/user-search-client-ts/src/*"],
+      "@libs/user-search-shared-ts/*": ["./libs/user-search-shared-ts/src/*"],
+      "@pkgs/a11y-shared-ts/*": ["./pkgs/a11y-shared-ts/src/*"],
+      "@pkgs/aedes-server-ts/*": ["./pkgs/aedes-server-ts/src/*"],
+      "@pkgs/alloy-server-ts/*": ["./pkgs/alloy-server-ts/src/*"],
+      "@pkgs/alloy-shared-ts/*": ["./pkgs/alloy-shared-ts/src/*"],
+      "@pkgs/assert-crash-browser-client-ts/*": [
+        "./pkgs/assert-crash-browser-client-ts/src/*"
+      ],
+      "@pkgs/assert-crash-browser-shared-ts/*": [
+        "./pkgs/assert-crash-browser-shared-ts/src/*"
+      ],
+      "@pkgs/assert-crash-node-shared-ts/*": [
+        "./pkgs/assert-crash-node-shared-ts/src/*"
+      ],
+      "@pkgs/assert-root-shared-ts/*": ["./pkgs/assert-root-shared-ts/src/*"],
+      "@pkgs/assistant-client-ts/*": ["./pkgs/assistant-client-ts/src/*"],
+      "@pkgs/assistant-shared-ts/*": ["./pkgs/assistant-shared-ts/src/*"],
+      "@pkgs/async-root-client-ts/*": ["./pkgs/async-root-client-ts/src/*"],
+      "@pkgs/async-local-shared-ts/*": ["./pkgs/async-local-shared-ts/src/*"],
+      "@pkgs/async-root-shared-ts/*": ["./pkgs/async-root-shared-ts/src/*"],
+      "@pkgs/attribute-shared-ts/*": ["./pkgs/attribute-shared-ts/src/*"],
+      "@pkgs/auth-root-client-ts/*": ["./pkgs/auth-root-client-ts/src/*"],
+      "@pkgs/auth-root-harness-ts/*": ["./pkgs/auth-root-harness-ts/src/*"],
+      "@pkgs/auth-inhouse-client-ts/*": ["./pkgs/auth-inhouse-client-ts/src/*"],
+      "@pkgs/auth-inhouse-server-ts/*": ["./pkgs/auth-inhouse-server-ts/src/*"],
+      "@pkgs/auth-inhouse-shared-ts/*": ["./pkgs/auth-inhouse-shared-ts/src/*"],
+      "@pkgs/auth-root-shared-ts/*": ["./pkgs/auth-root-shared-ts/src/*"],
+      "@pkgs/billing-paddle-harness-ts/*": [
+        "./pkgs/billing-paddle-harness-ts/src/*"
+      ],
+      "@pkgs/billing-paddle-shared-ts/*": [
+        "./pkgs/billing-paddle-shared-ts/src/*"
+      ],
+      "@pkgs/billing-providers-server-ts/*": [
+        "./pkgs/billing-providers-server-ts/src/*"
+      ],
+      "@pkgs/billing-root-shared-ts/*": ["./pkgs/billing-root-shared-ts/src/*"],
+      "@pkgs/billing-stripe-harness-ts/*": [
+        "./pkgs/billing-stripe-harness-ts/src/*"
+      ],
+      "@pkgs/billing-stripe-server-ts/*": [
+        "./pkgs/billing-stripe-server-ts/src/*"
+      ],
+      "@pkgs/billing-stripe-shared-ts/*": [
+        "./pkgs/billing-stripe-shared-ts/src/*"
+      ],
+      "@pkgs/browser-client-ts/*": ["./pkgs/browser-client-ts/src/*"],
+      "@pkgs/bun-test-solid-client-ts/*": [
+        "./pkgs/bun-test-solid-client-ts/src/*"
+      ],
+      "@pkgs/chess-board-root-client-ts/*": [
+        "./pkgs/chess-board-root-client-ts/src/*"
+      ],
+      "@pkgs/chess-board-core-shared-ts/*": [
+        "./pkgs/chess-board-core-shared-ts/src/*"
+      ],
+      "@pkgs/chess-board-root-harness-ts/*": [
+        "./pkgs/chess-board-root-harness-ts/src/*"
+      ],
+      "@pkgs/chess-board-root-shared-ts/*": [
+        "./pkgs/chess-board-root-shared-ts/src/*"
+      ],
+      "@pkgs/chess-rules-shared-ts/*": ["./pkgs/chess-rules-shared-ts/src/*"],
+      "@pkgs/clock-client-ts/*": ["./pkgs/clock-client-ts/src/*"],
+      "@pkgs/clock-shared-ts/*": ["./pkgs/clock-shared-ts/src/*"],
+      "@pkgs/collab-root-shared-ts/*": ["./pkgs/collab-root-shared-ts/src/*"],
+      "@pkgs/collab-ui-client-ts/*": ["./pkgs/collab-ui-client-ts/src/*"],
+      "@pkgs/colors-shared-ts/*": ["./pkgs/colors-shared-ts/src/*"],
+      "@pkgs/conformance-server-ts/*": ["./pkgs/conformance-server-ts/src/*"],
+      "@pkgs/conformance-shared-ts/*": ["./pkgs/conformance-shared-ts/src/*"],
+      "@pkgs/database-url-policy-server-ts/*": [
+        "./pkgs/database-url-policy-server-ts/src/*"
+      ],
+      "@pkgs/database-url-policy-shared-ts/*": [
+        "./pkgs/database-url-policy-shared-ts/src/*"
+      ],
+      "@pkgs/db-indexes-root-harness-ts/*": [
+        "./pkgs/db-indexes-root-harness-ts/src/*"
+      ],
+      "@pkgs/db-indexes-postgres-shared-ts/*": [
+        "./pkgs/db-indexes-postgres-shared-ts/src/*"
+      ],
+      "@pkgs/db-indexes-root-shared-ts/*": [
+        "./pkgs/db-indexes-root-shared-ts/src/*"
+      ],
+      "@pkgs/db-indexes-sqlite-shared-ts/*": [
+        "./pkgs/db-indexes-sqlite-shared-ts/src/*"
+      ],
+      "@pkgs/db-migrate-shared-ts/*": ["./pkgs/db-migrate-shared-ts/src/*"],
+      "@pkgs/db-schema-postgres-server-ts/*": [
+        "./pkgs/db-schema-postgres-server-ts/src/*"
+      ],
+      "@pkgs/db-schema-postgres-shared-ts/*": [
+        "./pkgs/db-schema-postgres-shared-ts/src/*"
+      ],
+      "@pkgs/db-schema-root-shared-ts/*": [
+        "./pkgs/db-schema-root-shared-ts/src/*"
+      ],
+      "@pkgs/db-schema-sqlite-shared-ts/*": [
+        "./pkgs/db-schema-sqlite-shared-ts/src/*"
+      ],
+      "@pkgs/device-client-ts/*": ["./pkgs/device-client-ts/src/*"],
+      "@pkgs/device-shared-ts/*": ["./pkgs/device-shared-ts/src/*"],
+      "@pkgs/distributed-lock-server-ts/*": [
+        "./pkgs/distributed-lock-server-ts/src/*"
+      ],
+      "@pkgs/distributed-lock-shared-ts/*": [
+        "./pkgs/distributed-lock-shared-ts/src/*"
+      ],
+      "@pkgs/dmn-server-ts/*": ["./pkgs/dmn-server-ts/src/*"],
+      "@pkgs/dmn-shared-ts/*": ["./pkgs/dmn-shared-ts/src/*"],
+      "@pkgs/emqx-server-ts/*": ["./pkgs/emqx-server-ts/src/*"],
+      "@pkgs/emqx-shared-ts/*": ["./pkgs/emqx-shared-ts/src/*"],
+      "@pkgs/entity-store-shared-ts/*": ["./pkgs/entity-store-shared-ts/src/*"],
+      "@pkgs/equal-shared-ts/*": ["./pkgs/equal-shared-ts/src/*"],
+      "@pkgs/feedback-client-ts/*": ["./pkgs/feedback-client-ts/src/*"],
+      "@pkgs/feedback-harness-ts/*": ["./pkgs/feedback-harness-ts/src/*"],
+      "@pkgs/feedback-server-ts/*": ["./pkgs/feedback-server-ts/src/*"],
+      "@pkgs/feedback-shared-ts/*": ["./pkgs/feedback-shared-ts/src/*"],
+      "@pkgs/gherkin-server-ts/*": ["./pkgs/gherkin-server-ts/src/*"],
+      "@pkgs/gherkin-shared-ts/*": ["./pkgs/gherkin-shared-ts/src/*"],
+      "@pkgs/git-shared-ts/*": ["./pkgs/git-shared-ts/src/*"],
+      "@pkgs/glicko2-shared-ts/*": ["./pkgs/glicko2-shared-ts/src/*"],
+      "@pkgs/glob-match-shared-ts/*": ["./pkgs/glob-match-shared-ts/src/*"],
+      "@pkgs/harness-console-client-ts/*": [
+        "./pkgs/harness-console-client-ts/src/*"
+      ],
+      "@pkgs/harness-console-shared-ts/*": [
+        "./pkgs/harness-console-shared-ts/src/*"
+      ],
+      "@pkgs/harness-root-shared-ts/*": ["./pkgs/harness-root-shared-ts/src/*"],
+      "@pkgs/http-client-client-ts/*": ["./pkgs/http-client-client-ts/src/*"],
+      "@pkgs/http-client-shared-ts/*": ["./pkgs/http-client-shared-ts/src/*"],
+      "@pkgs/i18n-shared-ts/*": ["./pkgs/i18n-shared-ts/src/*"],
+      "@pkgs/invariants-shared-ts/*": ["./pkgs/invariants-shared-ts/src/*"],
+      "@pkgs/jingle-server-ts/*": ["./pkgs/jingle-server-ts/src/*"],
+      "@pkgs/keyword-shared-ts/*": ["./pkgs/keyword-shared-ts/src/*"],
+      "@pkgs/kv-root-client-ts/*": ["./pkgs/kv-root-client-ts/src/*"],
+      "@pkgs/kv-postgres-shared-ts/*": ["./pkgs/kv-postgres-shared-ts/src/*"],
+      "@pkgs/kv-root-shared-ts/*": ["./pkgs/kv-root-shared-ts/src/*"],
+      "@pkgs/kv-web-client-ts/*": ["./pkgs/kv-web-client-ts/src/*"],
+      "@pkgs/llm-root-client-ts/*": ["./pkgs/llm-root-client-ts/src/*"],
+      "@pkgs/llm-openai-server-ts/*": ["./pkgs/llm-openai-server-ts/src/*"],
+      "@pkgs/llm-openai-shared-ts/*": ["./pkgs/llm-openai-shared-ts/src/*"],
+      "@pkgs/llm-root-server-ts/*": ["./pkgs/llm-root-server-ts/src/*"],
+      "@pkgs/llm-root-shared-ts/*": ["./pkgs/llm-root-shared-ts/src/*"],
+      "@pkgs/logger-client-ts/*": ["./pkgs/logger-client-ts/src/*"],
+      "@pkgs/logger-shared-ts/*": ["./pkgs/logger-shared-ts/src/*"],
+      "@pkgs/matchmaking-root-client-ts/*": [
+        "./pkgs/matchmaking-root-client-ts/src/*"
+      ],
+      "@pkgs/matchmaking-root-harness-ts/*": [
+        "./pkgs/matchmaking-root-harness-ts/src/*"
+      ],
+      "@pkgs/matchmaking-root-server-ts/*": [
+        "./pkgs/matchmaking-root-server-ts/src/*"
+      ],
+      "@pkgs/matchmaking-root-shared-ts/*": [
+        "./pkgs/matchmaking-root-shared-ts/src/*"
+      ],
+      "@pkgs/matchmaking-sql-server-ts/*": [
+        "./pkgs/matchmaking-sql-server-ts/src/*"
+      ],
+      "@pkgs/matchmaking-sql-shared-ts/*": [
+        "./pkgs/matchmaking-sql-shared-ts/src/*"
+      ],
+      "@pkgs/message-shared-ts/*": ["./pkgs/message-shared-ts/src/*"],
+      "@pkgs/ndjson-client-ts/*": ["./pkgs/ndjson-client-ts/src/*"],
+      "@pkgs/ndjson-server-ts/*": ["./pkgs/ndjson-server-ts/src/*"],
+      "@pkgs/ndjson-shared-ts/*": ["./pkgs/ndjson-shared-ts/src/*"],
+      "@pkgs/object-store-root-client-ts/*": [
+        "./pkgs/object-store-root-client-ts/src/*"
+      ],
+      "@pkgs/object-store-node-fs-server-ts/*": [
+        "./pkgs/object-store-node-fs-server-ts/src/*"
+      ],
+      "@pkgs/object-store-node-fs-shared-ts/*": [
+        "./pkgs/object-store-node-fs-shared-ts/src/*"
+      ],
+      "@pkgs/object-store-opfs-shared-ts/*": [
+        "./pkgs/object-store-opfs-shared-ts/src/*"
+      ],
+      "@pkgs/object-store-s3-shared-ts/*": [
+        "./pkgs/object-store-s3-shared-ts/src/*"
+      ],
+      "@pkgs/object-store-root-shared-ts/*": [
+        "./pkgs/object-store-root-shared-ts/src/*"
+      ],
+      "@pkgs/observability-cli-server-ts/*": [
+        "./pkgs/observability-cli-server-ts/src/*"
+      ],
+      "@pkgs/observability-cli-shared-ts/*": [
+        "./pkgs/observability-cli-shared-ts/src/*"
+      ],
+      "@pkgs/observability-root-client-ts/*": [
+        "./pkgs/observability-root-client-ts/src/*"
+      ],
+      "@pkgs/observability-mcp-server-ts/*": [
+        "./pkgs/observability-mcp-server-ts/src/*"
+      ],
+      "@pkgs/observability-mcp-shared-ts/*": [
+        "./pkgs/observability-mcp-shared-ts/src/*"
+      ],
+      "@pkgs/observability-root-server-ts/*": [
+        "./pkgs/observability-root-server-ts/src/*"
+      ],
+      "@pkgs/observability-root-shared-ts/*": [
+        "./pkgs/observability-root-shared-ts/src/*"
+      ],
+      "@pkgs/openslo-server-ts/*": ["./pkgs/openslo-server-ts/src/*"],
+      "@pkgs/openslo-shared-ts/*": ["./pkgs/openslo-shared-ts/src/*"],
+      "@pkgs/os-server-ts/*": ["./pkgs/os-server-ts/src/*"],
+      "@pkgs/os-shared-ts/*": ["./pkgs/os-shared-ts/src/*"],
+      "@pkgs/outbox-shared-ts/*": ["./pkgs/outbox-shared-ts/src/*"],
+      "@pkgs/permissions-shared-ts/*": ["./pkgs/permissions-shared-ts/src/*"],
+      "@pkgs/polyfill-shared-ts/*": ["./pkgs/polyfill-shared-ts/src/*"],
+      "@pkgs/postgres-mockingbird-server-ts/*": [
+        "./pkgs/postgres-mockingbird-server-ts/src/*"
+      ],
+      "@pkgs/postgres-local-shared-ts/*": [
+        "./pkgs/postgres-local-shared-ts/src/*"
+      ],
+      "@pkgs/postgres-sqlite-compat-shared-ts/*": [
+        "./pkgs/postgres-sqlite-compat-shared-ts/src/*"
+      ],
+      "@pkgs/property-shared-ts/*": ["./pkgs/property-shared-ts/src/*"],
+      "@pkgs/pubsub-aedes-shared-ts/*": ["./pkgs/pubsub-aedes-shared-ts/src/*"],
+      "@pkgs/pubsub-emqx-shared-ts/*": ["./pkgs/pubsub-emqx-shared-ts/src/*"],
+      "@pkgs/pubsub-mqtt-shared-ts/*": ["./pkgs/pubsub-mqtt-shared-ts/src/*"],
+      "@pkgs/pubsub-root-shared-ts/*": ["./pkgs/pubsub-root-shared-ts/src/*"],
+      "@pkgs/quint-server-ts/*": ["./pkgs/quint-server-ts/src/*"],
+      "@pkgs/quint-shared-ts/*": ["./pkgs/quint-shared-ts/src/*"],
+      "@pkgs/room-adapter-bun-server-ts/*": [
+        "./pkgs/room-adapter-bun-server-ts/src/*"
+      ],
+      "@pkgs/room-adapter-durable-object-server-ts/*": [
+        "./pkgs/room-adapter-durable-object-server-ts/src/*"
+      ],
+      "@pkgs/room-adapter-durable-object-shared-ts/*": [
+        "./pkgs/room-adapter-durable-object-shared-ts/src/*"
+      ],
+      "@pkgs/room-adapter-memory-shared-ts/*": [
+        "./pkgs/room-adapter-memory-shared-ts/src/*"
+      ],
+      "@pkgs/room-adapter-web-shared-ts/*": [
+        "./pkgs/room-adapter-web-shared-ts/src/*"
+      ],
+      "@pkgs/room-root-client-ts/*": ["./pkgs/room-root-client-ts/src/*"],
+      "@pkgs/room-root-harness-ts/*": ["./pkgs/room-root-harness-ts/src/*"],
+      "@pkgs/room-root-server-ts/*": ["./pkgs/room-root-server-ts/src/*"],
+      "@pkgs/room-root-shared-ts/*": ["./pkgs/room-root-shared-ts/src/*"],
+      "@pkgs/s3-server-ts/*": ["./pkgs/s3-server-ts/src/*"],
+      "@pkgs/secret-provider-server-ts/*": [
+        "./pkgs/secret-provider-server-ts/src/*"
+      ],
+      "@pkgs/secret-provider-shared-ts/*": [
+        "./pkgs/secret-provider-shared-ts/src/*"
+      ],
+      "@pkgs/secret-store-shared-ts/*": ["./pkgs/secret-store-shared-ts/src/*"],
+      "@pkgs/secret-string-shared-ts/*": [
+        "./pkgs/secret-string-shared-ts/src/*"
+      ],
+      "@pkgs/secrets-config-server-ts/*": [
+        "./pkgs/secrets-config-server-ts/src/*"
+      ],
+      "@pkgs/secrets-config-shared-ts/*": [
+        "./pkgs/secrets-config-shared-ts/src/*"
+      ],
+      "@pkgs/secure-storage-root-client-ts/*": [
+        "./pkgs/secure-storage-root-client-ts/src/*"
+      ],
+      "@pkgs/secure-storage-root-shared-ts/*": [
+        "./pkgs/secure-storage-root-shared-ts/src/*"
+      ],
+      "@pkgs/secure-storage-web-client-ts/*": [
+        "./pkgs/secure-storage-web-client-ts/src/*"
+      ],
+      "@pkgs/solid-context-client-ts/*": [
+        "./pkgs/solid-context-client-ts/src/*"
+      ],
+      "@pkgs/sounds-client-ts/*": ["./pkgs/sounds-client-ts/src/*"],
+      "@pkgs/sounds-shared-ts/*": ["./pkgs/sounds-shared-ts/src/*"],
+      "@pkgs/sql-cli-shared-ts/*": ["./pkgs/sql-cli-shared-ts/src/*"],
+      "@pkgs/sql-client-root-client-ts/*": [
+        "./pkgs/sql-client-root-client-ts/src/*"
+      ],
+      "@pkgs/sql-client-root-harness-ts/*": [
+        "./pkgs/sql-client-root-harness-ts/src/*"
+      ],
+      "@pkgs/sql-client-postgres-server-ts/*": [
+        "./pkgs/sql-client-postgres-server-ts/src/*"
+      ],
+      "@pkgs/sql-client-postgres-shared-ts/*": [
+        "./pkgs/sql-client-postgres-shared-ts/src/*"
+      ],
+      "@pkgs/sql-client-root-shared-ts/*": [
+        "./pkgs/sql-client-root-shared-ts/src/*"
+      ],
+      "@pkgs/sql-client-sqlite-root-client-ts/*": [
+        "./pkgs/sql-client-sqlite-root-client-ts/src/*"
+      ],
+      "@pkgs/sql-client-sqlite-root-server-ts/*": [
+        "./pkgs/sql-client-sqlite-root-server-ts/src/*"
+      ],
+      "@pkgs/sql-client-sqlite-root-shared-ts/*": [
+        "./pkgs/sql-client-sqlite-root-shared-ts/src/*"
+      ],
+      "@pkgs/sql-client-sqlite-web-client-ts/*": [
+        "./pkgs/sql-client-sqlite-web-client-ts/src/*"
+      ],
+      "@pkgs/sql-client-sqlite-web-server-ts/*": [
+        "./pkgs/sql-client-sqlite-web-server-ts/src/*"
+      ],
+      "@pkgs/sql-client-sqlite-web-shared-ts/*": [
+        "./pkgs/sql-client-sqlite-web-shared-ts/src/*"
+      ],
+      "@pkgs/sql-map-shared-ts/*": ["./pkgs/sql-map-shared-ts/src/*"],
+      "@pkgs/sql-root-shared-ts/*": ["./pkgs/sql-root-shared-ts/src/*"],
+      "@pkgs/static-file-shared-ts/*": ["./pkgs/static-file-shared-ts/src/*"],
+      "@pkgs/sync-engine-client-ts/*": ["./pkgs/sync-engine-client-ts/src/*"],
+      "@pkgs/sync-engine-harness-ts/*": ["./pkgs/sync-engine-harness-ts/src/*"],
+      "@pkgs/sync-engine-server-ts/*": ["./pkgs/sync-engine-server-ts/src/*"],
+      "@pkgs/sync-engine-shared-ts/*": ["./pkgs/sync-engine-shared-ts/src/*"],
+      "@pkgs/tailwind-shared-ts/*": ["./pkgs/tailwind-shared-ts/src/*"],
+      "@pkgs/task-dag-shared-ts/*": ["./pkgs/task-dag-shared-ts/src/*"],
+      "@pkgs/ts-reset-shared-ts/*": ["./pkgs/ts-reset-shared-ts/src/*"],
+      "@pkgs/tts-root-client-ts/*": ["./pkgs/tts-root-client-ts/src/*"],
+      "@pkgs/tts-elevenlabs-server-ts/*": [
+        "./pkgs/tts-elevenlabs-server-ts/src/*"
+      ],
+      "@pkgs/tts-elevenlabs-shared-ts/*": [
+        "./pkgs/tts-elevenlabs-shared-ts/src/*"
+      ],
+      "@pkgs/tts-root-server-ts/*": ["./pkgs/tts-root-server-ts/src/*"],
+      "@pkgs/tts-root-shared-ts/*": ["./pkgs/tts-root-shared-ts/src/*"],
+      "@pkgs/ui-root-client-ts/*": ["./pkgs/ui-root-client-ts/src/*"],
+      "@pkgs/ui-devtools-client-ts/*": ["./pkgs/ui-devtools-client-ts/src/*"],
+      "@pkgs/ui-devtools-shared-ts/*": ["./pkgs/ui-devtools-shared-ts/src/*"],
+      "@pkgs/ui-quality-check-server-ts/*": [
+        "./pkgs/ui-quality-check-server-ts/src/*"
+      ],
+      "@pkgs/ui-quality-check-shared-ts/*": [
+        "./pkgs/ui-quality-check-shared-ts/src/*"
+      ],
+      "@pkgs/ui-root-shared-ts/*": ["./pkgs/ui-root-shared-ts/src/*"],
+      "@pkgs/ui-testing-bun-webview-server-ts/*": [
+        "./pkgs/ui-testing-bun-webview-server-ts/src/*"
+      ],
+      "@pkgs/ui-testing-bun-webview-shared-ts/*": [
+        "./pkgs/ui-testing-bun-webview-shared-ts/src/*"
+      ],
+      "@pkgs/ui-testing-root-shared-ts/*": [
+        "./pkgs/ui-testing-root-shared-ts/src/*"
+      ],
+      "@pkgs/ui-testing-solid-dom-client-ts/*": [
+        "./pkgs/ui-testing-solid-dom-client-ts/src/*"
+      ],
+      "@pkgs/ui-testing-solid-dom-shared-ts/*": [
+        "./pkgs/ui-testing-solid-dom-shared-ts/src/*"
+      ],
+      "@pkgs/uuid-client-ts/*": ["./pkgs/uuid-client-ts/src/*"],
+      "@pkgs/uuid-shared-ts/*": ["./pkgs/uuid-shared-ts/src/*"],
+      "@pkgs/vite-workspace-resolver-server-ts/*": [
+        "./pkgs/vite-workspace-resolver-server-ts/src/*"
+      ],
+      "@pkgs/moderation-shared-ts/*": ["./pkgs/moderation-shared-ts/src/*"],
+      "@pkgs/word-filter-shared-ts/*": ["./pkgs/word-filter-shared-ts/src/*"],
+      "@pkgs/observability-runtime-shared-ts/*": [
+        "./pkgs/observability-runtime-shared-ts/src/*"
+      ],
+      "@pkgs/object-store-opfs-client-ts/*": [
+        "./pkgs/object-store-opfs-client-ts/src/*"
+      ],
+      "@libs/connect-four-shared-ts/*": ["./libs/connect-four-shared-ts/src/*"],
+      "@libs/battleship-shared-ts/*": ["./libs/battleship-shared-ts/src/*"],
+      "@libs/battleship-client-ts/*": ["./libs/battleship-client-ts/src/*"],
+      "@libs/battleship-harness-ts/*": ["./libs/battleship-harness-ts/src/*"],
+      "@libs/connect-four-client-ts/*": ["./libs/connect-four-client-ts/src/*"],
+      "@libs/game-menu-client-ts/*": ["./libs/game-menu-client-ts/src/*"],
+      "@libs/games-harness-ts/*": ["./libs/games-harness-ts/src/*"],
+      "@libs/connect-four-harness-ts/*": [
+        "./libs/connect-four-harness-ts/src/*"
+      ],
+      "@libs/game-catalog-shared-ts/*": ["./libs/game-catalog-shared-ts/src/*"],
+      "@libs/chess-rules-shared-ts/*": ["./libs/chess-rules-shared-ts/src/*"],
+      "@pkgs/turn-game-client-ts/*": ["./pkgs/turn-game-client-ts/src/*"],
+      "@pkgs/turn-game-shared-ts/*": ["./pkgs/turn-game-shared-ts/src/*"],
+      "@libs/game-session-server-ts/*": ["./libs/game-session-server-ts/src/*"]
     }
   }
 }

@@ -1,0 +1,4 @@
+{
+  "summary": "`bun obs last --window 1h --source prod` left out a newer error trace that `last --errors` returned: Tempo's `{ true }` search returns an arbitrary page of 50, and `recent` read nothing else. `recent` now pages the range by time (newest first) and always adds the error search, so `last` shows every error trace and then the newest activity, the same way every time.",
+  "regressionTest": "pkgs/observability-cli-shared-ts/tests/tempo-errors.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "Repeated full-resolution RGB normalization and identity native resizes made the default 40-case window-cache property exceed Bun's 5-second timeout under concurrent Check load, despite an actual passing CI execution.",
-  "regressionTest": "pkgs/ui-quality-check-server/tests/window-inference.test.ts"
-}

@@ -1,4 +1,0 @@
-{
-  "summary": "Railway resolved the Synthetic Population Worker's service to its Dockerfile builder whatever the uploaded railway.json said, and the archive deliberately had no Dockerfile, so the release failed with 'couldn't locate a dockerfile'. The release now generates the Dockerfile from the same build and start commands, pinned to the repository's Bun and Node versions.",
-  "regressionTest": "libs/infra-server/tests/population-release.test.ts"
-}

@@ -1,0 +1,57 @@
+{
+  "name": "@libs/synthetic-population-harness-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "prepare:spec": "bun run --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client-ts/register ../../libs/harness-ts/scripts/prepare-spec.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test:spec": "bun run ../../libs/harness-ts/scripts/test-spec.ts",
+    "test:spec:0": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 0/1",
+    "verify:models": "bun run ../../libs/tools-harness-ts/scripts/verify-models.ts"
+  },
+  "dependencies": {
+    "@libs/app-config-shared-ts": "workspace:*",
+    "@libs/game-catalog-shared-ts": "workspace:*",
+    "@libs/game-matchmaking-harness-ts": "workspace:*",
+    "@libs/game-session-harness-ts": "workspace:*",
+    "@libs/games-harness-ts": "workspace:*",
+    "@libs/harness-ts": "workspace:*",
+    "@libs/permissions-shared-ts": "workspace:*",
+    "@libs/profile-harness-ts": "workspace:*",
+    "@libs/spaces-harness-ts": "workspace:*",
+    "@libs/sub-shared-ts": "workspace:*",
+    "@libs/synthetic-population-client-ts": "workspace:*",
+    "@libs/synthetic-population-server-ts": "workspace:*",
+    "@libs/synthetic-population-shared-ts": "workspace:*",
+    "@libs/test-ids-shared-ts": "workspace:*",
+    "@pkgs/dmn-shared-ts": "workspace:*",
+    "@pkgs/permissions-shared-ts": "workspace:*",
+    "@pkgs/quint-shared-ts": "workspace:*",
+    "@pkgs/sql-root-shared-ts": "workspace:*",
+    "@pkgs/sync-engine-server-ts": "workspace:*",
+    "hono": "catalog:",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@solidjs/testing-library": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness",
+  "gameRegistry": true,
+  "language": "typescript",
+  "specDomains": [
+    "synthetic-population"
+  ],
+  "specParts": 1
+}

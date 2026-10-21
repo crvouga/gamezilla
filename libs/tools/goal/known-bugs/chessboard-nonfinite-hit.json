@@ -1,4 +1,0 @@
-{
-  "summary": "Non-finite dimensions and pointer coordinates can manufacture invalid algebraic squares.",
-  "regressionTest": "pkgs/chess-board-root-client/tests/board-geometry.contract.test.ts"
-}

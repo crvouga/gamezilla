@@ -1,4 +1,0 @@
-{
-  "summary": "Bun fires websocket open during server.upgrade; the local balancer registered its upstream target afterwards and immediately closed every room connection, leaving puzzles waiting for room sync.",
-  "regressionTest": "apps/product/scripts/load-balancer.test.ts"
-}

@@ -1,4 +1,0 @@
-{
-  "summary": "Shared puzzle models with an OPPONENT constant cannot draw or verify an instance; the runner passes an uninitialized constant to Quint.",
-  "regressionTest": "pkgs/quint-server/tests/parameterized-simulate.test.ts"
-}

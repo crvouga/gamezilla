@@ -1,4 +1,0 @@
-{
-  "summary": "The IoT publisher invoked fetch as a property of its request arguments, giving Cloudflare's native fetch an invalid receiver. Synthetic Population heartbeats returned HTTP 500 and the worker never became ready. Call the HTTP transport as a standalone function.",
-  "regressionTest": "pkgs/pubsub-root-shared/tests/iot.test.ts"
-}

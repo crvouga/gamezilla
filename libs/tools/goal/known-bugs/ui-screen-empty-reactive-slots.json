@@ -1,4 +1,0 @@
-{
-  "summary": "False Show branches in sidebar, footer and setup slots were treated as content, reserving an empty rail, wide review measure and footer chrome.",
-  "regressionTest": "pkgs/ui-root-harness/tests/screen-layout-regression.test.tsx"
-}

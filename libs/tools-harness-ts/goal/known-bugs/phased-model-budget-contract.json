@@ -1,0 +1,4 @@
+{
+  "summary": "The model budget contract still queried the retired aggregate task after its proof was split. Validate each registered phase and its unchanged 420-second allowance, including the nightly scale.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-models.test.ts"
+}

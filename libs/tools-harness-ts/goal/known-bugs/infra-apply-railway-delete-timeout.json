@@ -1,0 +1,4 @@
+{
+  "summary": "Deploy production failed applying foundation when the Railway API timed out ('context deadline exceeded') deleting the retired per-environment population service. The apply had no retry, so one slow API call failed the release and left the worker half-replaced. Fixed: an apply that fails with a transient provider error plans again, which refreshes what the failed call finished, and applies the new plan.",
+  "regressionTest": "libs/infra-shared-ts/tests/plan-retry.test.ts"
+}

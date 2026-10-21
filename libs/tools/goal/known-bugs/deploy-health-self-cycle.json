@@ -1,4 +1,0 @@
-{
-  "summary": "`//#health` depended on bare `health`, which the root `health` script resolves back to `//#health`, so turbo refused to plan `//#deploy` (\"//#health depends on itself\") and every deploy failed. Fixed by dropping the one-dep `//#health` aggregator; `//#deploy` depends on `health` directly, and a graph test fails `bun verify` on any root-task cycle.",
-  "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
-}

@@ -1,4 +1,0 @@
-{
-  "summary": "The saved-puzzles scenario could navigate to a new source check and silently skip its requested upload while the availability request was still loading. Wait for the existing saved, offline or upload-ready state before acting.",
-  "regressionTest": "libs/chess-root-harness/tests/puzzle-source-readiness.test.ts"
-}

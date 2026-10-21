@@ -1,4 +1,0 @@
-{
-  "summary": "Report publication labeled captured timeline count as test count. Six passing framework spec suites with no timelines appeared to execute zero tests. Label timelines accurately and preserve their tests.",
-  "regressionTest": "libs/harness/scripts/report-task-publish.test.ts"
-}

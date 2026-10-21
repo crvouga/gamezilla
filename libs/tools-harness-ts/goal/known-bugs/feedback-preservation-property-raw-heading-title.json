@@ -1,0 +1,4 @@
+{
+  "summary": "The feedback preservation properties expected the raw first line as the title for body '#  '. Markdown parsing correctly yields the fallback 'Bug report'; preservation must compare against the original report title.",
+  "regressionTest": "pkgs/feedback-server-ts/tests/report-title-preservation.test.ts"
+}

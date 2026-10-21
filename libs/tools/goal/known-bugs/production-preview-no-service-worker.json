@@ -1,4 +1,0 @@
-{
-  "summary": "Production bundles served from loopback skipped service-worker installation, so automated release previews could never exercise the shipped offline shell.",
-  "regressionTest": "libs/app-root-client/tests/register-service-worker.test.ts"
-}

@@ -1,0 +1,4 @@
+{
+  "summary": "A knight that could be recaptured after capture was treated as hanging. Require a legal capture and absence of legal recapture.",
+  "regressionTest": "pkgs/chess-rules-shared-ts/tests/tactics.test.ts"
+}

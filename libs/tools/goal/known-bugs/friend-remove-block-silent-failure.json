@@ -1,4 +1,0 @@
-{
-  "summary": "A failed Remove friend or Block confirmation failed silently with no progress or error, leaving an unhandled promise instead of a retryable error in the still-open confirmation.",
-  "regressionTest": "libs/friends-client/tests/friend-user-danger-modals.test.tsx"
-}

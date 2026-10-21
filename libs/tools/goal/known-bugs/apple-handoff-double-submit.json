@@ -1,4 +1,0 @@
-{
-  "summary": "The live browser driver clicked Apple's form-post fallback while the provider page submitted automatically, sending the callback twice and ending on invalid_state.",
-  "regressionTest": "libs/harness/tests/provider-handoff.test.ts"
-}

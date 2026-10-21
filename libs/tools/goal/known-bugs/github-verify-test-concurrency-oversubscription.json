@@ -1,4 +1,0 @@
-{
-  "summary": "GitHub Verify 37513527564 ran up to twenty concurrent Quint test processes on a two-core private runner. Product tests timed out and concurrent proof/spec work exhausted CPU and memory. Limit both test and task concurrency to one without changing test coverage or budgets.",
-  "regressionTest": "libs/tools/scripts/workflow-native.test.ts"
-}

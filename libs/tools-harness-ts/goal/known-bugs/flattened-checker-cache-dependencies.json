@@ -1,0 +1,4 @@
+{
+  "summary": "Model proof cache inputs still referenced removed pkgs/quint and pkgs/conformance directories, so changing the split verifier could reuse an obsolete proof. Tools also retained a removed pkgs/assert input.",
+  "regressionTest": "libs/tools-harness-ts/scripts/cache-package-paths.test.ts"
+}

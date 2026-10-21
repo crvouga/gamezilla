@@ -1,0 +1,4 @@
+{
+  "summary": "A repeat of an already-rated puzzle started at the same instant its rated play ended (opening its puzzle link right after solving it) showed the old rating change instead of \"Unrated\": the repeat check needed the rating event to be strictly earlier than the new start.",
+  "regressionTest": "libs/game-puzzle-shared-ts/tests/rating-change.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Patching an already-online sync status with online=true twice published two fresh snapshots and woke every subscribing Solid component although no status field changed. Real changes, the first-sync latch, and identity reset must still publish.",
+  "regressionTest": "pkgs/sync-engine-client-ts/tests/local-sync-status.test.ts"
+}

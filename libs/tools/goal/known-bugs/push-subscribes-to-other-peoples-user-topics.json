@@ -1,4 +1,0 @@
-{
-  "summary": "A person who held another person's rows (a host's profile, a space member) subscribed to that person's user topic, because a row's topic map names every topic its change is published to. The pubsub token grants a person only their own user topic, so AWS IoT refused that one subscription on every connect; the client treats any refusal as a stale token and reconnects, so the session never reached 'connected', never ran the reconcile that repairs missed pushes, and Deploy's Custom Game journey never saw the other player's move. The PR gate waved every refused user: or room: topic through as curable, and the local broker is fast enough to hide the loop. The sync engine now subscribes only to topics the person can be granted, and the gate fails a user or room refusal that no new token cured and the device repeats.",
-  "regressionTest": "apps/product/scripts/broker-denials.test.ts"
-}

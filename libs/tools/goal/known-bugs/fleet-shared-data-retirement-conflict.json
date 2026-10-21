@@ -1,4 +1,0 @@
-{
-  "summary": "Deploy rehearsal 38744482334 rejected four shared-data addresses declared as both managed and removed after merging main. Fleet must manage the existing addresses without simultaneous retirement blocks, retaining storage and credentials.",
-  "regressionTest": "libs/infra-server/tests/fleet-shared-data.test.ts"
-}

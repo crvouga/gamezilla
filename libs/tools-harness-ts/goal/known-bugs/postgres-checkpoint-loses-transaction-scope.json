@@ -1,0 +1,4 @@
+{
+  "summary": "Postgres transactions dropped dbScope, so the portable checkpoint port misidentified their clients as SQLite and queried sqlite_master.",
+  "regressionTest": "libs/harness-ts/tests/postgres-checkpoint.test.ts"
+}

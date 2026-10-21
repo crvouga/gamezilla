@@ -1,0 +1,4 @@
+{
+  "summary": "The code-suite loader represented an unregistered module as an empty enrollment instead of the missing-wrapper state, letting it escape structural detection when no eligible games were present.",
+  "regressionTest": "libs/games-harness-ts/tests/game-suite-planning.contract.test.ts"
+}

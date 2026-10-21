@@ -1,0 +1,4 @@
+{
+  "summary": "The sync-engine harness's invariant check read client databases outside a transaction, saw an upload verdict half-applied, and raised a false permanent-vs-transient failure. Fixed by reading inside a transaction.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/invariant-check-waits-for-in-flight-verdict.test.ts"
+}

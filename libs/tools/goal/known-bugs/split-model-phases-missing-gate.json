@@ -1,4 +1,0 @@
-{
-  "summary": "The shared-game matched-game model declared sixteen phase tasks without a selected parent dependency, so the Verify task list did not reach them. Every split model must gate all declared proof phases through its selected parent task.",
-  "regressionTest": "libs/tools/scripts/model-phase-graph.test.ts"
-}

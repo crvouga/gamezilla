@@ -1,0 +1,4 @@
+{
+  "summary": "A discarded recording finishing asynchronously could dispose and overwrite a newly started video session. Retire the captured session and ignore completions from an old recording generation.",
+  "regressionTest": "pkgs/feedback-client-ts/tests/recording.contract.test.ts"
+}

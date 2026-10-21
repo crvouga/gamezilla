@@ -1,4 +1,0 @@
-{
-  "summary": "EMQX generates an unquoted Erlang crash-dump path under its log directory; a workspace on OWC Express cannot boot the real broker.",
-  "regressionTest": "pkgs/emqx-server/tests/broker-log-directory.test.ts"
-}

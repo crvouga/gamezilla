@@ -1,4 +1,0 @@
-{
-  "summary": "The first schema reconcile on Neki stopped at ALTER COLUMN SET STORAGE with NK013 because Neki cannot preserve that storage setting as shards join. Catching it inside the schema transaction still left the transaction aborted, and after commit the router could briefly return 42P01 for the newly created table. Fixed by committing required schema first, then applying optional storage tuning in autocommit, where explicit unsupported errors are skipped and temporary table visibility defers tuning without hiding unrelated failures.",
-  "regressionTest": "pkgs/kv-postgres-shared/tests/postgres-storage-knobs.test.ts"
-}

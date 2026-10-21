@@ -1,0 +1,4 @@
+{
+  "summary": "Sign-out gestures finished as soon as the success dismiss button was tapped, while the modal could still cover the next sign-in target during its exit. Wait for that surface to be hidden before handing control to the next gesture.",
+  "regressionTest": "libs/synthetic-population-shared-ts/tests/sign-out-modal.test.ts"
+}

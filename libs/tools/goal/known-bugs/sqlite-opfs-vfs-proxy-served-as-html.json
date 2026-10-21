@@ -1,4 +1,0 @@
-{
-  "summary": "The SQLite worker started sqlite-wasm's default `opfs` and `opfs-wl` VFSes, which this app never uses (databases live on the SAH pool). Each loads `sqlite3-opfs-async-proxy.js`, a script that is not shipped, so production answered with `index.html` and the browser logged 'Refused to execute script ... MIME type text/html' plus two sqlite console errors on every load. The worker is now spawned with sqlite-wasm's `opfs-disable` / `opfs-wl-disable` switches, and the service worker ignores them when matching its precache.",
-  "regressionTest": "pkgs/sql-client-sqlite-web-server/tests/worker-url-params.test.ts"
-}

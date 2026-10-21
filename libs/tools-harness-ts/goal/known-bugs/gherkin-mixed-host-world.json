@@ -1,0 +1,4 @@
+{
+  "summary": "Registering the developer-tools harness replaced the live health host in the same entry. World lifecycles can now select their scenarios and an unmatched scenario keeps the default live host.",
+  "regressionTest": "pkgs/gherkin-shared-ts/tests/scoped-world.test.ts"
+}

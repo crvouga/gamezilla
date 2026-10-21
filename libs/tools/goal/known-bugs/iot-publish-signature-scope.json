@@ -1,4 +1,0 @@
-{
-  "summary": "AWS IoT rejected heartbeat notifications with HTTP 403 because the publisher signed for iotdata instead of iotdevicegateway and did not double encode the canonical topic path. Pin the complete authorization header against an AWS SDK reference vector.",
-  "regressionTest": "pkgs/pubsub-root-shared/tests/iot.test.ts"
-}

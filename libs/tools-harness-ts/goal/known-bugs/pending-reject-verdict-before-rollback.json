@@ -1,0 +1,4 @@
+{
+  "summary": "A `pendingUx: 'pending'` mutation reported the server's rejection before the device dropped its optimistic write, so the caller's next action ran against the refused write: a username refused as taken and then saved again at once was refused as 'changed recently'. Found by the username-changes Quint model. Fixed by settling a rejection only after the queries refresh.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/checked-note-storage.contract.test.ts"
+}

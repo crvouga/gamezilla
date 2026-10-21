@@ -1,4 +1,0 @@
-{
-  "summary": "A connected MQTT session silently lost newly authorized room updates after SUBACK or publish rejection.",
-  "regressionTest": "pkgs/pubsub-mqtt-harness/tests/mqtt-authorization-refresh.test.ts"
-}

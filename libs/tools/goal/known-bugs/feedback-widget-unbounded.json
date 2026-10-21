@@ -1,4 +1,0 @@
-{
-  "summary": "The issue list grew with its content and stage changes left keyboard focus on removed controls.",
-  "regressionTest": "pkgs/feedback-harness/tests/annotations.contract.test.ts"
-}

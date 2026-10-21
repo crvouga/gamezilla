@@ -1,4 +1,0 @@
-{
-  "summary": "Expanding Gherkin examples omitted Rule headings and business prose such as 'Waiting has no time limit'. Include the exact complete feature alongside expanded examples so the explorer retains every rule and explanation.",
-  "regressionTest": "libs/tools/scripts/statechart-contracts.test.ts"
-}

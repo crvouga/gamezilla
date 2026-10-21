@@ -1,4 +1,0 @@
-{
-  "summary": "The product browser polyfill imported bare buffer, which Vite treated as Node's built-in module and externalized to a throwing browser stub. Import the declared browser package through its index module so product bootstrap can install Buffer before room and authentication code loads.",
-  "regressionTest": "apps/product/tests/dev-startup.test.ts"
-}

@@ -1,4 +1,0 @@
-{
-  "summary": "A killed launcher its parent had not reaped stayed in the process table, so the watchdog and cleanup counted it alive and kept its boot. Process snapshots now omit zombies.",
-  "regressionTest": "pkgs/os-server/tests/dev-owner-stop.contract.test.ts"
-}

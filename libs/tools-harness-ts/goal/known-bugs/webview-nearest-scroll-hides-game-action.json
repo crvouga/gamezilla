@@ -1,0 +1,4 @@
+{
+  "summary": "Nearest-edge scrolling leaves the center of an offscreen 48px game action under a sticky footer. Native Find clicks fail actionability; the property shrank to a 480px viewport with a 32px footer. Center the control before hit-testing and native input.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-harness-ts/tests/scroll-actionability.test.ts"
+}
