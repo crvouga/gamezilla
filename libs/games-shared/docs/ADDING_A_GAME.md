@@ -187,6 +187,32 @@ packages besides workspace setup (step 4):
 2. `libs/games-client/src/game-plugins.client.ts`: `raceGameClient` in `GAME_CLIENT_DEFINITIONS`.
 3. `libs/games-harness/src/harness-games.ts`: `RACE_HARNESS_GAME` in `HARNESS_GAMES`.
 
+### A game with private setups
+
+When the sides prepare something in secret before play (a hidden fleet),
+supply it in the rules and nowhere else — the platform does the rest
+([semantics](GAME_FRAMEWORK.md#private-setups-gamerulessetup)):
+
+- **Rules** — `setup: { accept, random, resolve }` beside the other rules.
+  Positions stay public: `legal` lists proposals (`e5`), `resolve(position,
+  proposal, setups)` gives the public action the authority records
+  (`e5:hit`), and `play`, `replay` and `moves` take public actions. Bots and
+  automation choose from the public position; they never receive a setup.
+- **Client** — `presentation.SetupBoard` (`GameSetupBoardProps`: the
+  arrangement so far, which may be `''` or incomplete, `locked`, `onChange`,
+  `side`, `testId`); every `Board` receives the viewer's own `setup`, or
+  `null`.
+- **Automation** — `arrange(ui, board, setup)`, the gesture that enters a
+  setup on the setup board.
+- **Fixtures** — `setups: { white, black }`, one complete setup per side as
+  the game stores it; every known line is the proposals people make,
+  resolved against them (Battleship: `libs/battleship-harness`).
+
+The platform then gives the game private readiness in custom games, a setup
+phase with its own deadline in matched games, the private-setup
+specifications and privacy suites, and the test-only consumer secret pick
+as its game-independent twin. Such a game offers no puzzles.
+
 ## 3. Supply the conformance adapter
 
 ```ts
