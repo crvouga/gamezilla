@@ -5,11 +5,13 @@ import { authorizeAppMutation } from '@libs/permissions-shared/authorize-app-mut
 import { HttpPubSubFromSecretStore } from '@libs/pubsub-server/create-http-pubsub-from-secret-store';
 import type { ComposedSubs } from '@libs/sub-shared/compose';
 import { assert } from '@pkgs/assert-root-shared/singleton';
+import { createLogger } from '@pkgs/logger-shared/logger';
 import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
 import { PubSubNotSupportedError } from '@pkgs/pubsub-root-shared/pubsub-not-supported-error';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { createSyncApp as createSyncEngineApp } from '@pkgs/sync-engine-server/create-sync-app';
 import type { MutationAuthorize } from '@pkgs/sync-engine-shared/mutations-types';
+import { countTruncatedQuery } from './query-truncation';
 
 function openRequestSqlClient(): SqlClient {
   const requestStore = apiRequestAsyncLocalStorage.getStore();
@@ -82,5 +84,8 @@ export async function createSyncApp(deps: {
       return `${String(deps.now())}${String(checkpointSeq).padStart(6, '0')}`;
     },
     ...(deps.strictQueryLimits === true ? { strictQueryLimits: true } : {}),
+    onQueryTruncated: countTruncatedQuery(
+      createLogger({ name: 'sync:query', now: deps.now })
+    ),
   });
 }

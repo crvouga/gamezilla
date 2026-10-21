@@ -12,6 +12,8 @@ import { serializeDefaultAvatarConfig } from './avatar-config';
 import {
   canChangeUsername,
   normalizeUsername,
+  USERNAME_MAX_LENGTH,
+  USERNAME_MIN_LENGTH,
   validateUsername,
 } from './username';
 import {
@@ -32,9 +34,15 @@ function usernameFailure(error: ReturnType<typeof validateUsername>): never {
     case 'empty':
       throw new MutationError('USERNAME_EMPTY', 'Username is required.');
     case 'too_short':
-      throw new MutationError('USERNAME_TOO_SHORT', 'Username is too short.');
+      throw new MutationError(
+        'USERNAME_TOO_SHORT',
+        `Username needs at least ${USERNAME_MIN_LENGTH} characters.`
+      );
     case 'too_long':
-      throw new MutationError('USERNAME_TOO_LONG', 'Username is too long.');
+      throw new MutationError(
+        'USERNAME_TOO_LONG',
+        `Username can have at most ${USERNAME_MAX_LENGTH} characters.`
+      );
     case 'invalid_format':
       throw new MutationError(
         'USERNAME_INVALID_FORMAT',

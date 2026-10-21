@@ -17,6 +17,7 @@ import {
   leaveUsernameEditor,
   openAvatarEditor,
   openProfileEdit,
+  openUsernameEditor,
   saveAvatar,
   setAvatarSeed,
   setAvatarStyle,
@@ -28,6 +29,7 @@ import {
   readProfileTabUsername,
   readProfileUsernameShown,
   readSavedAvatar,
+  readUsernameRules,
   readUsernameSaveFace,
   standInNameOf,
   standInNoticeShown,
@@ -149,6 +151,20 @@ When(
     await w.s.apply(openProfileEdit, actor);
     await w.s.apply(typeUsernameDraft, actor, username);
     await w.s.apply(leaveUsernameEditor, actor);
+  }
+);
+
+When('{actor} begins choosing a new username', async (w, actor: Actor) => {
+  await w.s.apply(openUsernameEditor, actor);
+});
+
+Then(
+  '{actor} sees that a username has {int} to {int} letters, numbers or _',
+  async (w, actor: Actor, min: number, max: number) => {
+    const rules = await w.s.read(readUsernameRules, actor);
+    expect(rules).toContain(`${min} to ${max}`);
+    expect(rules).toContain('letters, numbers');
+    expect(rules).toContain('_');
   }
 );
 

@@ -56,7 +56,10 @@ describe('every alert rule', () => {
     expect(ruleIssues(rules())).toEqual([]);
     for (const rule of rules()) {
       expect(['critical', 'warning']).toContain(rule.severity);
-      expect(rule.runbook_url).toBe(RUNBOOK_URL);
+      // A pipeline alert may link its own section of the same README.
+      if (rule.slo !== '') expect(rule.runbook_url).toBe(RUNBOOK_URL);
+      else
+        expect(rule.runbook_url).toStartWith(RUNBOOK_URL.split('#')[0] ?? '');
     }
   });
 
@@ -69,6 +72,9 @@ describe('every alert rule', () => {
       'event-export-failures',
       'schema-rejections',
       'pipeline-absent',
+      'outbox-exhausted',
+      'outbox-drain-failing',
+      'billing-callbacks-refused',
     ]);
     expect(objectives).toHaveLength(12);
     for (const rule of objectives ?? []) {

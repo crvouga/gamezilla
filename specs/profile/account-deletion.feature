@@ -21,6 +21,15 @@ Feature: Permanently delete an account
       Given Alice completed signing in more than 10 minutes ago
       When Alice confirms account deletion
       Then Alice is told to prove the account again before deletion
+      And Alice is told export and deletion need a sign-in from the last 10 minutes
+      And Alice still has the same account
+
+    @regression:deletion-permission-notice-hidden-by-dialog
+    Scenario: Proof that runs out during confirmation is explained where Alice can see it
+      Given Alice has reviewed the consequences of account deletion
+      And Alice has kept the deletion confirmation open for 10 minutes
+      When Alice confirms account deletion
+      Then Alice is told to prove the account again before deletion
       And Alice still has the same account
 
     Scenario: Proof exactly ten minutes old requires signing in again
@@ -72,3 +81,18 @@ Feature: Permanently delete an account
       Then Alice sees that account deletion is permanent and signs out every device
       And Alice sees the personal-data export choice and the retention exceptions
       And Alice sees that hosted spaces and future membership charges will end
+      And Alice sees that Plus ends at once without refunding the remaining paid time or Plus credit
+
+    @regression:deletion-omits-plus-loss
+    Scenario: The final confirmation repeats what a Plus member loses
+      Given Alice has a recently proven account
+      When Alice asks for account deletion
+      Then Alice is asked to confirm that Plus ends at once without refunding the remaining paid time or Plus credit
+
+  Rule: Export and deletion can be found from account settings
+    No counter-example: a guest has no account to delete, and a guest asking for deletion is the first rule's refusal.
+
+    Scenario: Account settings lead a signed-in person to export and deletion
+      Given Alice is signed in
+      When Alice opens account settings
+      Then Alice is offered personal-data export and account deletion there

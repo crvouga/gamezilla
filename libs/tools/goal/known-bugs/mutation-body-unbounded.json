@@ -1,0 +1,4 @@
+{
+  "summary": "POST /mutations read and parsed a request body of any size before authorizing it; only the mutation count was capped.",
+  "regressionTest": "pkgs/sync-engine-server/tests/request-body-cap.test.ts"
+}

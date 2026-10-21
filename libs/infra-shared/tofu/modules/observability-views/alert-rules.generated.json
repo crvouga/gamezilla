@@ -49,6 +49,48 @@
           "burn_threshold": 0
         },
         {
+          "key": "outbox-exhausted",
+          "name": "Outbox deliveries exhausted their retries",
+          "expr": "((sum(increase(outbox_deliveries_exhausted_total{deployment_environment_name=\"__ENVIRONMENT__\"}[1h])) or vector(0)) + (sum(min_over_time(outbox_deliveries_exhausted_total{deployment_environment_name=\"__ENVIRONMENT__\"}[1h]) unless min_over_time(outbox_deliveries_exhausted_total{deployment_environment_name=\"__ENVIRONMENT__\"}[1h] offset 1h)) or vector(0))) > 0",
+          "for": "5m",
+          "severity": "warning",
+          "owner": "runtime",
+          "slo": "",
+          "summary": "Background work gave up after its last attempt and is parked, so its effect (a notice, an erasure, a match step) has not happened. Find the consumer and error in the logs; do not edit or delete the parked rows.",
+          "runbook_url": "https://github.com/crvouga/gamezilla/blob/main/libs/observability-shared/README.md#outbox-deliveries-exhausted-their-retries",
+          "investigate_command": "bun obs last --errors --window 1h --source prod",
+          "budget_spent": "",
+          "burn_threshold": 0
+        },
+        {
+          "key": "outbox-drain-failing",
+          "name": "Scheduled outbox drain keeps failing",
+          "expr": "((sum(increase(outbox_drain_runs_total{deployment_environment_name=\"__ENVIRONMENT__\",app_outcome=\"failure\"}[15m])) or vector(0)) + (sum(min_over_time(outbox_drain_runs_total{deployment_environment_name=\"__ENVIRONMENT__\",app_outcome=\"failure\"}[15m]) unless min_over_time(outbox_drain_runs_total{deployment_environment_name=\"__ENVIRONMENT__\",app_outcome=\"failure\"}[15m] offset 15m)) or vector(0))) >= 3",
+          "for": "5m",
+          "severity": "critical",
+          "owner": "runtime",
+          "slo": "",
+          "summary": "The scheduled drain failed at least three times in fifteen minutes while the schedule still runs, so background work and telemetry export are stalled. Check the drain error, database reachability and the latest deployment.",
+          "runbook_url": "https://github.com/crvouga/gamezilla/blob/main/libs/observability-shared/README.md#scheduled-outbox-drain-keeps-failing",
+          "investigate_command": "bun obs last --errors --window 1h --source prod",
+          "budget_spent": "",
+          "burn_threshold": 0
+        },
+        {
+          "key": "billing-callbacks-refused",
+          "name": "Billing provider callbacks are being refused",
+          "expr": "((sum(increase(billing_callbacks_total{deployment_environment_name=\"__ENVIRONMENT__\",app_outcome=~\"unverified|failed\"}[1h])) or vector(0)) + (sum(min_over_time(billing_callbacks_total{deployment_environment_name=\"__ENVIRONMENT__\",app_outcome=~\"unverified|failed\"}[1h]) unless min_over_time(billing_callbacks_total{deployment_environment_name=\"__ENVIRONMENT__\",app_outcome=~\"unverified|failed\"}[1h] offset 1h)) or vector(0))) >= 3",
+          "for": "5m",
+          "severity": "critical",
+          "owner": "billing",
+          "slo": "",
+          "summary": "At least three provider callbacks in an hour failed their signature check or processing, so payment and membership changes may not reach accounts. Compare the webhook signing secret with the provider and check the latest deployment; the provider retries refused deliveries.",
+          "runbook_url": "https://github.com/crvouga/gamezilla/blob/main/libs/observability-shared/README.md#billing-provider-callbacks-are-being-refused",
+          "investigate_command": "bun obs last --errors --window 1h --source prod",
+          "budget_spent": "",
+          "burn_threshold": 0
+        },
+        {
           "key": "slo-ba5a73c4",
           "name": "The app answers people quickly: fast-burn (page)",
           "expr": "(((1 - sum(increase(http_server_request_duration_seconds_bucket{job=\"gamezilla-server\",le=\"0.5\",app_http_route_group=~\"sync|session|room|billing|app\"}[1h]) * on(job, instance) group_left target_info{deployment_environment_name=\"__ENVIRONMENT__\"}) / sum(increase(http_server_request_duration_seconds_count{job=\"gamezilla-server\",app_http_route_group=~\"sync|session|room|billing|app\"}[1h]) * on(job, instance) group_left target_info{deployment_environment_name=\"__ENVIRONMENT__\"})) / 0.05) >= 14.4) and (((1 - sum(increase(http_server_request_duration_seconds_bucket{job=\"gamezilla-server\",le=\"0.5\",app_http_route_group=~\"sync|session|room|billing|app\"}[5m]) * on(job, instance) group_left target_info{deployment_environment_name=\"__ENVIRONMENT__\"}) / sum(increase(http_server_request_duration_seconds_count{job=\"gamezilla-server\",app_http_route_group=~\"sync|session|room|billing|app\"}[5m]) * on(job, instance) group_left target_info{deployment_environment_name=\"__ENVIRONMENT__\"})) / 0.05) >= 14.4) and (sum(increase(http_server_request_duration_seconds_count{job=\"gamezilla-server\",app_http_route_group=~\"sync|session|room|billing|app\"}[1h]) * on(job, instance) group_left target_info{deployment_environment_name=\"__ENVIRONMENT__\"}) >= 60)",

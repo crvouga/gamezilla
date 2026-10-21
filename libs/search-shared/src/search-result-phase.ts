@@ -8,16 +8,18 @@ export type SearchResultPhase =
  * What people search shows for the current answer.
  * An in-flight search is Searching even when the previous person is still
  * in memory — those rows are not an answer to the username just typed.
+ * Offline, the people this device already has (friends) are an answer;
+ * only a search that found nobody here says it needs a connection.
  */
 export function searchResultPhase(input: {
   readonly searching: boolean;
   readonly needsConnection: boolean;
   readonly resultCount: number;
 }): SearchResultPhase {
-  if (input.needsConnection) return 'needs-connection';
   if (input.searching) return 'searching';
-  if (input.resultCount === 0) return 'empty';
-  return 'results';
+  if (input.resultCount > 0) return 'results';
+  if (input.needsConnection) return 'needs-connection';
+  return 'empty';
 }
 
 /**

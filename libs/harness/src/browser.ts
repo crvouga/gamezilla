@@ -66,6 +66,12 @@ export type HarnessBrowser = {
   readonly close: () => void;
   readonly openAuthSession: OpenAuthSession;
   readonly openExternalUrl: OpenExternalUrl;
+  /**
+   * Called with the app address (path and query) an external page sent the
+   * browser back to — a provider's redirect after paying, say. The web app
+   * loads that address; a harness app opens it.
+   */
+  readonly onReturnToApp: (listener: (path: string) => void) => () => void;
 };
 
 type PendingAuth = {
@@ -185,6 +191,28 @@ function requestInitFor(hop: URL | FormPost): RequestInit {
   };
 }
 
+/** Who hears that an external page sent the browser back into the app. */
+function createAppReturns(): {
+  readonly notify: (hop: URL | FormPost) => void;
+  readonly subscribe: HarnessBrowser['onReturnToApp'];
+} {
+  const listeners = new Set<(path: string) => void>();
+  return {
+    notify: (hop) => {
+      const url = hop instanceof URL ? hop : hop.url;
+      for (const listener of [...listeners]) {
+        listener(`${url.pathname}${url.search}`);
+      }
+    },
+    subscribe: (listener) => {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+  };
+}
+
 export function createHarnessBrowser(args: {
   /** The actor's network: provider origin + load balancer. */
   readonly network: ServerHttp;
@@ -215,28 +243,35 @@ export function createHarnessBrowser(args: {
     pending.resolve(result);
   };
 
-  /** Where one hop lands: done (app / callback), a page, or another hop. */
+  /**
+   * Where one hop lands: back in the app (a sign-in callback, or any app
+   * address), a page, or another hop.
+   */
   const settle = async (
     hop: URL | FormPost
-  ): Promise<HarnessBrowserPage | 'app' | URL | FormPost> => {
+  ): Promise<HarnessBrowserPage | 'signed-in' | 'app' | URL | FormPost> => {
     const url = hop instanceof URL ? hop : hop.url;
     if (pendingAuth !== null && url.href.startsWith(pendingAuth.callbackUrl)) {
       finishAuth({ type: 'success', url: url.href });
-      return 'app';
+      return 'signed-in';
     }
     if (isAppUrl(url, args.appOrigin())) return 'app';
     const response = await fetch(url.href, requestInitFor(hop));
     return await landedOn(hop, response);
   };
 
+  const returns = createAppReturns();
+
   const load = async (start: URL | FormPost): Promise<void> => {
     let hop = start;
     show({ kind: 'loading', url: (hop instanceof URL ? hop : hop.url).href });
     for (let count = 0; count < MAX_HOPS; count += 1) {
       const next = await settle(hop);
-      if (next === 'app') {
+      if (next === 'app' || next === 'signed-in') {
         show(null);
         finishAuth({ type: 'cancel' });
+        // A redirect from an external page, not the app opening itself.
+        if (next === 'app' && count > 0) returns.notify(hop);
         return;
       }
       if (next instanceof URL || 'fields' in next) {
@@ -284,5 +319,6 @@ export function createHarnessBrowser(args: {
       navigate(url);
       return Promise.resolve();
     },
+    onReturnToApp: returns.subscribe,
   };
 }

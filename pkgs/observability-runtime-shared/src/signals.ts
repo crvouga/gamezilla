@@ -21,6 +21,7 @@ import {
   HISTOGRAM_BOUNDARIES,
   METRIC_DIMENSION_KEYS,
   SERIES_BUDGET,
+  setMetricEnvironment,
 } from '@pkgs/observability-root-shared/metric-contract';
 import { FlushLogProcessor } from './flush-log-processor';
 import { FlushMetricReader } from './flush-metric-reader';
@@ -43,7 +44,10 @@ export function createSignals(
   const meter = createMeter(options, resource, worker);
   const logger = createLoggerProvider(options, resource, meter, worker);
   if (options.registerGlobal !== false) {
-    if (meter !== undefined) metrics.setGlobalMeterProvider(meter);
+    if (meter !== undefined) {
+      metrics.setGlobalMeterProvider(meter);
+      setMetricEnvironment(options.environment);
+    }
     if (logger !== undefined) {
       logs.setGlobalLoggerProvider(logger);
       installStructuredLogBridge();

@@ -12,6 +12,16 @@ import {
   openProfileEdit,
 } from './profile-actions';
 
+/** The username rules the editor shows before anything is saved. */
+export async function readUsernameRules(
+  s: ProductHarness,
+  actorId: string
+): Promise<string | null> {
+  const ui = await actorUi(s, actorId);
+  const rules = ui.get('profile-username-rules');
+  return (await rules.isVisible()) ? rules.text() : null;
+}
+
 /** The saved username exposed in its owner's editable field, without saving. */
 export async function readSavedProfileUsername(
   s: ProductHarness,

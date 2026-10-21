@@ -4,6 +4,7 @@ import { ATTR } from './attributes';
 export const METRIC_DIMENSION_KEYS = [
   ATTR.DEPLOYMENT_ENVIRONMENT_NAME,
   'telemetry.outcome',
+  'app.outcome',
   'http.request.method',
   'app.http.status_class',
   'app.http.route_group',
@@ -35,7 +36,28 @@ export type MetricContract = {
   readonly type: 'counter' | 'histogram';
   /** Finite vocabularies only; identifiers can never become metric labels. */
   readonly dimensions: Readonly<Record<string, readonly string[]>>;
+  /**
+   * Stamp every point with the runtime's `deployment.environment.name`, so an
+   * alert selects the environment on the series itself. A Worker isolate's
+   * resource information goes stale shortly after the isolate ends, so a
+   * resource join loses whatever an ended isolate counted.
+   */
+  readonly environmentScoped?: boolean;
 };
+
+const DIMENSION_VALUE = /^[a-zA-Z0-9_][a-zA-Z0-9_.-]{0,63}$/;
+let metricEnvironment = 'local';
+
+/**
+ * The environment `environmentScoped` metrics report. The telemetry runtime
+ * that installs the global meter provider sets it once; a name a label cannot
+ * carry reports as `unknown` rather than failing the runtime's boot.
+ */
+export function setMetricEnvironment(environment: string): void {
+  metricEnvironment = DIMENSION_VALUE.test(environment)
+    ? environment
+    : 'unknown';
+}
 
 export function createMetric(contract: MetricContract) {
   for (const [key, values] of Object.entries(contract.dimensions)) {
@@ -43,9 +65,7 @@ export function createMetric(contract: MetricContract) {
       !METRIC_DIMENSION_KEYS.includes(
         key as (typeof METRIC_DIMENSION_KEYS)[number]
       ) ||
-      values.some(
-        (value) => !/^[a-zA-Z0-9_][a-zA-Z0-9_.-]{0,63}$/.test(value)
-      ) ||
+      values.some((value) => !DIMENSION_VALUE.test(value)) ||
       new Set(values).size !== values.length
     )
       throw new Error(
@@ -73,9 +93,16 @@ export function createMetric(contract: MetricContract) {
       !validDimensions(contract, attributes)
     )
       return false;
+    const stamped =
+      contract.environmentScoped === true
+        ? {
+            ...attributes,
+            [ATTR.DEPLOYMENT_ENVIRONMENT_NAME]: metricEnvironment,
+          }
+        : attributes;
     try {
-      if ('add' in instrument) instrument.add(value, attributes);
-      else instrument.record(value, attributes);
+      if ('add' in instrument) instrument.add(value, stamped);
+      else instrument.record(value, stamped);
       return true;
     } catch {
       return false;

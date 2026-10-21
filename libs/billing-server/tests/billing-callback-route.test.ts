@@ -1,6 +1,12 @@
-import { describe, expect, it } from 'bun:test';
+import { afterEach, describe, expect, it } from 'bun:test';
 import { BillingCallbackRoutes } from '@libs/billing-server/billing-callback-route';
 import type { BillingRouteDeps } from '@libs/billing-shared/billing-route-deps';
+import { context, metrics, propagation, trace } from '@opentelemetry/api';
+import {
+  AggregationTemporality,
+  InMemoryMetricExporter,
+} from '@opentelemetry/sdk-metrics';
+import { InMemorySpanExporter } from '@opentelemetry/sdk-trace-base';
 import type {
   CallbackResult,
   MembershipBilling,
@@ -11,6 +17,7 @@ import type {
 } from '@pkgs/billing-root-shared/membership';
 import { createMembershipProviders } from '@pkgs/billing-root-shared/providers';
 import { createNoopLogger } from '@pkgs/logger-shared/logger';
+import { createWorkerTelemetry } from '@pkgs/observability-root-server/worker-worker';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 
 const NOW = 1_700_000_000_000;
@@ -29,11 +36,19 @@ class StubBilling implements MembershipBilling {
   constructor(private readonly result: CallbackResult) {}
 
   startCheckout(_input: StartCheckoutInput): Promise<StartCheckoutResult> {
-    return Promise.resolve({ customerId: 'cus_new', url: 'https://pay.test' });
+    return Promise.resolve({
+      kind: 'checkout',
+      customerId: 'cus_new',
+      url: 'https://pay.test',
+    });
   }
 
   openPortal(_input: OpenPortalInput): Promise<{ readonly url: string }> {
     return Promise.resolve({ url: 'https://portal.test' });
+  }
+
+  readMembership(): Promise<null> {
+    return Promise.resolve(null);
   }
 
   readCallback(_input: ReadCallbackInput): Promise<CallbackResult> {
@@ -194,5 +209,71 @@ describe('BillingCallbackRoutes', () => {
     expect(notified).toEqual([
       { accountId: 'acc_1', tables: ['billing_subscriptions'] },
     ]);
+  });
+});
+
+describe('BillingCallbackRoutes outcomes', () => {
+  afterEach(() => {
+    metrics.disable();
+    trace.disable();
+    propagation.disable();
+    context.disable();
+  });
+
+  // regression: billing-callback-rejections-uncounted
+  it('counts refused and failed callbacks for the environment', async () => {
+    const exporter = new InMemoryMetricExporter(
+      AggregationTemporality.CUMULATIVE
+    );
+    const runtime = createWorkerTelemetry({
+      serviceName: 'billing-callback-test',
+      serviceVersion: '1',
+      environment: 'staging',
+      buildSha: 'abc',
+      exporter: new InMemorySpanExporter(),
+      metricExporter: exporter,
+    });
+    const refused = new BillingCallbackRoutes(
+      deps({ kind: 'unverified' }, 'acc_1')
+    ).build();
+    expect((await post(refused)).status).toBe(400);
+    expect((await post(refused)).status).toBe(400);
+    const accepted = new BillingCallbackRoutes(deps(CHANGE, 'acc_1')).build();
+    expect((await post(accepted)).status).toBe(200);
+    const crossed = new BillingCallbackRoutes(
+      deps({ ...CHANGE, provider: 'other' }, 'acc_1')
+    ).build();
+    expect((await post(crossed)).status).toBe(500);
+    expect(
+      (
+        await refused.request('/billing/callback/unknown', {
+          method: 'POST',
+          body: '{}',
+        })
+      ).status
+    ).toBe(404);
+
+    await runtime.forceFlush();
+    const points = exporter
+      .getMetrics()
+      .flatMap((r) => r.scopeMetrics.flatMap((m) => m.metrics))
+      .find((m) => m.descriptor.name === 'billing.callbacks')
+      ?.dataPoints.map((p) => [p.attributes['app.outcome'], p.value]);
+    expect(Object.fromEntries(points ?? [])).toEqual({
+      unverified: 2,
+      accepted: 1,
+      failed: 1,
+      unknown_provider: 1,
+    });
+    expect(
+      exporter
+        .getMetrics()
+        .flatMap((r) => r.scopeMetrics.flatMap((m) => m.metrics))
+        .find((m) => m.descriptor.name === 'billing.callbacks')
+        ?.dataPoints.every(
+          (p) => p.attributes['deployment.environment.name'] === 'staging'
+        )
+    ).toBe(true);
+    await runtime.shutdown();
   });
 });

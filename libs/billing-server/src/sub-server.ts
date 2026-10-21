@@ -19,6 +19,7 @@ import { createLogger } from '@pkgs/logger-shared/logger';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { registerBillingPrivacyConsumers } from './account-privacy-consumers';
 import { BillingApp } from './billing-app';
+import { registerMembershipRecheck } from './membership-recheck-consumer';
 
 export function createBillingSubApp(
   billing: MembershipProviders | null,
@@ -70,8 +71,10 @@ export function createBillingServer(billing: MembershipProviders | null) {
   return defineSubServer({
     telemetryEvents: BILLING_TELEMETRY,
     name: 'billing',
-    registerOutbox: (registry) =>
-      registerBillingPrivacyConsumers(registry, billing),
+    registerOutbox: (registry) => {
+      registerBillingPrivacyConsumers(registry, billing);
+      registerMembershipRecheck(registry, billing);
+    },
     routes: (ctx) =>
       createBillingSubApp(billing, () => ctx.clock.now(), ctx.createId),
   });

@@ -13,6 +13,7 @@
 import { AuthModalsProvider } from '@libs/auth-client/auth-modals-provider';
 import { AuthSyncBridge } from '@libs/auth-client/auth-sync-bridge';
 import { MutationClientProvider } from '@libs/auth-client/mutation-client-provider';
+import { SignedOutNoticeBanner } from '@libs/auth-client/signed-out-notice-banner';
 import { SqlClientProvider } from '@pkgs/sql-client-root-client/solid';
 import {
   SyncEnginePaintGateProvider,
@@ -27,6 +28,7 @@ import { AppUiProvider } from './app-ui-provider';
 import type { ReadySyncEngine } from './create-sync-engine-boot-state';
 import { DeviceEntityBootstrap } from './device-bootstrap';
 import { SyncLocalDataActions } from './local-data-actions';
+import { RefusedChangeNotice } from './refused-change-notice';
 import { SyncStatusLiveBridge } from './sync-status-context';
 
 function SyncStatusBridge(props: {
@@ -86,6 +88,8 @@ export default function ReadyEngineTree(
                         stack plus this session chrome (palette / banners). */}
                   <AppUiProvider>
                     <AuthModalsProvider>
+                      <SignedOutNoticeBanner />
+                      <RefusedChangeNotice />
                       <AppClientConfig>
                         <SessionSubProviders>
                           {props.children}

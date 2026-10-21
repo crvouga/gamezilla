@@ -36,6 +36,7 @@ class StubBilling implements MembershipBilling {
   startCheckout(input: StartCheckoutInput): Promise<StartCheckoutResult> {
     this.calls.push(input);
     return Promise.resolve({
+      kind: 'checkout',
       customerId: input.customerId ?? 'cus_new',
       url: this.url,
     });
@@ -43,6 +44,10 @@ class StubBilling implements MembershipBilling {
 
   openPortal(_input: OpenPortalInput): Promise<{ readonly url: string }> {
     return Promise.resolve({ url: 'https://portal.test' });
+  }
+
+  readMembership(): Promise<null> {
+    return Promise.resolve(null);
   }
 
   readCallback(_input: ReadCallbackInput): Promise<CallbackResult> {

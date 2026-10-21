@@ -1,0 +1,4 @@
+{
+  "summary": "Back from paying at checkout, the billing screen said \"No membership yet.\" and offered to subscribe again until the payment provider's news arrived: the in-memory flag was lost across the full-page return. The paid return is now marked (?checkout=paid on the success address only); until the new membership shows the screen says the payment is being confirmed and offers no checkout, and after two minutes says it may have gone through and to check again before paying again.",
+  "regressionTest": "specs/billing/billing-plans.feature"
+}

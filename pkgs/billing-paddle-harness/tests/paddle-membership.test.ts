@@ -141,6 +141,7 @@ describe('PaddleMembershipBilling', () => {
       email: 'one@people.test',
       returnUrl: RETURN_URL,
     });
+    if (result.kind !== 'checkout') throw new Error(result.kind);
     const customer = paddle.customers.get(result.customerId);
     expect(customer?.email).toBe('one@people.test');
     expect(customer?.custom_data).toEqual({ account_id: 'acct-1' });
@@ -162,6 +163,7 @@ describe('PaddleMembershipBilling', () => {
       email: 'one@people.test',
       returnUrl: RETURN_URL,
     });
+    if (result.kind !== 'checkout') throw new Error(result.kind);
     const id = paddle.transactions[0]?.id ?? '';
     expect(result.url).toBe(
       `https://pay.paddle.test/hsc_01abc?locale=en&transaction_id=${id}`
@@ -220,6 +222,7 @@ describe('PaddleMembershipBilling', () => {
       email: 'one@people.test',
       returnUrl: RETURN_URL,
     });
+    if (result.kind !== 'checkout') throw new Error(result.kind);
     expect(result.url.length).toBeGreaterThan(0);
   });
 

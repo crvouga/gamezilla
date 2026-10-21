@@ -2,12 +2,16 @@ import { useConfigService } from '@libs/auth-client/config-service-context';
 import { useClientRequestAuth } from '@libs/auth-client/use-client-request-auth';
 import { clientAuthHeaders } from '@libs/auth-shared/client-request-auth';
 import { useHttpClient } from '@pkgs/http-client-client/solid';
+import { providerUrlFrom } from './billing-request-error';
 
 export type SubscribeArgs = {
   readonly returnUrl: string;
 };
 
-/** Starts a checkout session and returns the provider URL to open. */
+/**
+ * Starts a checkout session and returns the provider URL to open. A refusal
+ * throws a `BillingRequestError` saying why.
+ */
 export function useSubscribe(): (args: SubscribeArgs) => Promise<string> {
   const config = useConfigService();
   const auth = useClientRequestAuth();
@@ -19,13 +23,6 @@ export function useSubscribe(): (args: SubscribeArgs) => Promise<string> {
       headers: clientAuthHeaders(auth, { requireAccountIdForBearer: true }),
       body: JSON.stringify(args),
     });
-    if (!res.ok) {
-      throw new Error(`billing checkout failed (${String(res.status)})`);
-    }
-    const body = (await res.json()) as { url?: unknown };
-    if (typeof body.url !== 'string' || body.url.length === 0) {
-      throw new Error('billing checkout returned no url');
-    }
-    return body.url;
+    return await providerUrlFrom(res, 'checkout');
   };
 }

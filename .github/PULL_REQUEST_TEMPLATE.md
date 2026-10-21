@@ -49,6 +49,7 @@ must decide before merging.
 - [ ] Domain removals are soft deletes (`deleted_at`); no `DELETE FROM` on domain tables.
 - [ ] Client reads/writes go through local SQLite queries and mutations; no new data REST endpoint.
 - [ ] Any new secret is registered in `@libs/secrets` and either seeded for every environment or written by OpenTofu (`libs/infra-shared/tofu/stacks/foundation/secrets.json`).
+- [ ] Person-facing changes meet the definition of done in `docs/SELF_SERVICE_READINESS.md` and update its matrix row; no copy sends a person to support.
 - [ ] Docs updated wherever behavior, conventions, or operations changed.
 - [ ] No long-running local process still holds a machine-wide singleton port (EMQX `1883`/`8083`/`18083`, wrangler `8788`).
 - [ ] Merged by a human only once every verification is green; never `--admin` or merge queue. Merging deploys.

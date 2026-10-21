@@ -34,11 +34,30 @@ describe('resolveSpaceJoinSnapshot', () => {
     const snapshot = resolveSpaceJoinSnapshot(
       input({ ...liveRow, deleted_at: '2026-09-29T23:00:00.000Z' })
     );
-    expect(snapshot).toEqual({ status: 'missing', joinable: false });
+    expect(snapshot).toEqual({ status: 'missing' });
   });
 
   test('a live space is still offered', () => {
     const snapshot = resolveSpaceJoinSnapshot(input(liveRow));
     expect(snapshot.status).toBe('live');
+  });
+
+  // regression: join-disabled-without-reason
+  test('an open space the viewer may not join says so instead of offering Join', () => {
+    const snapshot = resolveSpaceJoinSnapshot({
+      ...input({
+        ...liveRow,
+        host_id: 'alice-device',
+        host_member_id: 'alice',
+        host_account_id: 'alice',
+        visibility: 'private',
+      }),
+      hasSpaceUser: false,
+      isFriendOfHost: false,
+      viewerAccountId: 'bob',
+      viewerMemberId: 'bob',
+      viewerDeviceId: 'bob-device',
+    });
+    expect(snapshot).toEqual({ status: 'unavailable' });
   });
 });

@@ -225,6 +225,10 @@ msgstr "{seconds} seconds"
 msgid "{side} to move. Find the best move."
 msgstr "{side} to move. Find the best move."
 
+#: libs/profile-client/src/profile-handle-screen.tsx
+msgid "{USERNAME_MIN_LENGTH} to {USERNAME_MAX_LENGTH} letters, numbers or _. Saved in lowercase."
+msgstr "{USERNAME_MIN_LENGTH} to {USERNAME_MAX_LENGTH} letters, numbers or _. Saved in lowercase."
+
 #: libs/game-session-client/src/custom-game-status.tsx
 #: libs/game-session-client/src/game-record-label.tsx
 msgid "{winner} wins by {reason}."
@@ -288,6 +292,10 @@ msgstr "1 minute"
 #: libs/game-matchmaking-client/src/multiplayer-time-left.tsx
 msgid "1 second"
 msgstr "1 second"
+
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "A change wasn't saved"
+msgstr "A change wasn't saved"
 
 #: libs/chess-puzzle-client/src/puzzle-source-controls.tsx
 msgid "A connection is needed to check for the saved Lichess file."
@@ -361,9 +369,17 @@ msgstr "account deletion"
 msgid "Account deletion confirmed"
 msgstr "Account deletion confirmed"
 
+#: libs/account-privacy-client/src/use-account-deletion.tsx
+msgid "Account deletion did not go through. Nothing was deleted. Try again."
+msgstr "Account deletion did not go through. Nothing was deleted. Try again."
+
 #: libs/account-privacy-client/src/privacy-explanation.tsx
 msgid "Account deletion is permanent. Every device will be signed out, including offline devices when they reconnect. Signing in later starts a new account."
 msgstr "Account deletion is permanent. Every device will be signed out, including offline devices when they reconnect. Signing in later starts a new account."
+
+#: libs/account-privacy-client/src/use-account-deletion.tsx
+msgid "Account deletion was not confirmed. Nothing was deleted."
+msgstr "Account deletion was not confirmed. Nothing was deleted."
 
 #: libs/auth-client/src/account-devices-card.tsx
 #: libs/synthetic-population-client/src/synthetic-user-details.tsx
@@ -375,6 +391,7 @@ msgid "Account menu"
 msgstr "Account menu"
 
 #: libs/account-privacy-client/src/privacy-screen.tsx
+#: libs/auth-client/src/account-screen.tsx
 #: libs/profile-client/src/profile-edit-screen.tsx
 msgid "Account privacy"
 msgstr "Account privacy"
@@ -388,7 +405,7 @@ msgid "Action required"
 msgstr "Action required"
 
 #. placeholder {0}: date()
-#: libs/billing-client/src/billing-plan-card.tsx
+#: libs/billing-client/src/billing-status-line.tsx
 msgid "Active · renews {0}"
 msgstr "Active · renews {0}"
 
@@ -527,6 +544,10 @@ msgstr "App"
 msgid "App failed to start"
 msgstr "App failed to start"
 
+#: libs/app-root-client/src/more-server-status.tsx
+msgid "App version"
+msgstr "App version"
+
 #: libs/app-root-client/src/app-commands.tsx
 #: libs/app-root-client/src/settings-screen.tsx
 #: libs/app-root-client/src/theme-screen.tsx
@@ -550,9 +571,13 @@ msgstr "Archive"
 msgid "Archived"
 msgstr "Archived"
 
-#: libs/spaces-client/src/space-join-prompt.tsx
-msgid "Ask the host to add you to the allow list, or check the link."
-msgstr "Ask the host to add you to the allow list, or check the link."
+#: libs/account-privacy-client/src/export-choice.tsx
+msgid "Ask for a new export"
+msgstr "Ask for a new export"
+
+#: libs/account-privacy-client/src/export-choice.tsx
+msgid "Asking again replaces the export that is ready now, and it can no longer be downloaded. Download it first if you want to keep it."
+msgstr "Asking again replaces the export that is ready now, and it can no longer be downloaded. Download it first if you want to keep it."
 
 #: libs/app-root-client/src/app-commands.tsx
 msgid "auto"
@@ -601,10 +626,6 @@ msgstr "Avatar"
 #: pkgs/ui-root-client/src/back-icon-button.tsx
 msgid "Back"
 msgstr "Back"
-
-#: libs/spaces-client/src/space-join-prompt.tsx
-msgid "Back to spaces"
-msgstr "Back to spaces"
 
 #: libs/spaces-client/src/space-join-ended-state.tsx
 #: libs/spaces-client/src/space-join-prompt.tsx
@@ -734,6 +755,10 @@ msgstr "By stalemate."
 msgid "By the fifty-move rule."
 msgstr "By the fifty-move rule."
 
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "Can’t reach Gamezilla"
+msgstr "Can’t reach Gamezilla"
+
 #: libs/auth-client/src/sign-in-link-required.tsx
 #: libs/profile-client/src/avatar-editor-screen.tsx
 #: libs/profile-client/src/profile-handle-screen.tsx
@@ -747,9 +772,15 @@ msgid "Cancel game"
 msgstr "Cancel game"
 
 #. placeholder {0}: date()
-#: libs/billing-client/src/billing-plan-card.tsx
-msgid "Canceled · access until {0}"
-msgstr "Canceled · access until {0}"
+#: libs/billing-client/src/billing-status-line.tsx
+msgid "Canceled · ends {0}"
+msgstr "Canceled · ends {0}"
+
+#. placeholder {0}: date()
+#. placeholder {1}: access()
+#: libs/billing-client/src/billing-status-line.tsx
+msgid "Canceled · ends {0} · Plus access until {1}"
+msgstr "Canceled · ends {0} · Plus access until {1}"
 
 #: libs/friends-client/src/friend-action-status-renderers.tsx
 msgid "Cancelled"
@@ -783,6 +814,8 @@ msgstr "Change participant"
 msgid "Change the search or increase the desired synthetic population."
 msgstr "Change the search or increase the desired synthetic population."
 
+#: libs/app-root-client/src/more-server-status.tsx
+#: libs/billing-client/src/billing-plan-actions.tsx
 #: pkgs/ui-root-client/src/mutation-modal-parts.tsx
 msgid "Check again"
 msgstr "Check again"
@@ -802,6 +835,18 @@ msgstr "Check your email"
 #: libs/chess-puzzle-client/src/puzzle-source-controls.tsx
 msgid "Checking for the saved Lichess file…"
 msgstr "Checking for the saved Lichess file…"
+
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "Checking whether Gamezilla can be reached."
+msgstr "Checking whether Gamezilla can be reached."
+
+#: libs/billing-client/src/billing-status-line.tsx
+msgid "Checking your membership…"
+msgstr "Checking your membership…"
+
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "Checking…"
+msgstr "Checking…"
 
 #: libs/chess-root-client/src/chess-game-presentation.tsx
 msgid "checkmate"
@@ -983,6 +1028,10 @@ msgstr "Confirm permanent deletion"
 msgid "Confirmed"
 msgstr "Confirmed"
 
+#: libs/billing-client/src/billing-plan-card.tsx
+msgid "Confirming your payment… Your membership shows here as soon as the payment provider confirms it."
+msgstr "Confirming your payment… Your membership shows here as soon as the payment provider confirms it."
+
 #: libs/friends-client/src/friend-action-pill-buttons.tsx
 msgid "Confirming…"
 msgstr "Confirming…"
@@ -1007,6 +1056,7 @@ msgstr "Connect Four board, seven columns and six rows"
 msgid "Connect your accounts?"
 msgstr "Connect your accounts?"
 
+#: libs/app-root-client/src/connection-copy.tsx
 #: libs/app-root-client/src/sync-screen.tsx
 #: libs/auth-client/src/sign-in-method-row.tsx
 msgid "Connected"
@@ -1024,6 +1074,7 @@ msgstr "Connecting to puzzle status…"
 msgid "Connecting…"
 msgstr "Connecting…"
 
+#: libs/app-root-client/src/more-server-status.tsx
 #: libs/app-root-client/src/settings-screen.tsx
 #: libs/app-root-client/src/sync-screen.tsx
 msgid "Connection"
@@ -1032,10 +1083,6 @@ msgstr "Connection"
 #: libs/game-session-client/src/custom-game-status.tsx
 msgid "Connection needed to change or play this game."
 msgstr "Connection needed to change or play this game."
-
-#: libs/app-root-client/src/connection-notice.tsx
-msgid "Connection unavailable. Saved content and local games remain available. Shared changes will reconnect automatically."
-msgstr "Connection unavailable. Saved content and local games remain available. Shared changes will reconnect automatically."
 
 #: libs/app-root-client/src/app-commands.tsx
 #: libs/app-root-client/src/app-header-global-menu.tsx
@@ -1063,6 +1110,7 @@ msgstr "Continue with Google"
 msgid "Controls in-app sound effects only. Your device volume is not affected."
 msgstr "Controls in-app sound effects only. Your device volume is not affected."
 
+#: libs/app-root-client/src/crash-copy-button.tsx
 #: libs/profile-client/src/avatar-editor-seed-field.tsx
 #: libs/spaces-client/src/space-share-link-section.tsx
 #: pkgs/ui-root-client/src/error-state.tsx
@@ -1077,6 +1125,7 @@ msgstr "Copied to clipboard"
 msgid "Copy"
 msgstr "Copy"
 
+#: libs/app-root-client/src/crash-copy-button.tsx
 #: pkgs/ui-root-client/src/error-state.tsx
 msgid "Copy error"
 msgstr "Copy error"
@@ -1137,6 +1186,10 @@ msgstr "Couldn't copy"
 msgid "Couldn't copy the puzzle link"
 msgstr "Couldn't copy the puzzle link"
 
+#: libs/app-root-client/src/crash-copy-button.tsx
+msgid "Couldn’t copy. Try again, or select the error details."
+msgstr "Couldn’t copy. Try again, or select the error details."
+
 #: libs/friends-client/src/friend-request-decision-modal.tsx
 msgid "Couldn't decline"
 msgstr "Couldn't decline"
@@ -1162,13 +1215,17 @@ msgstr "Couldn't leave space"
 msgid "Couldn't open"
 msgstr "Couldn't open"
 
-#: libs/billing-client/src/billing-plan-card.tsx
+#: libs/billing-client/src/billing-plan-actions.tsx
 msgid "Couldn't open billing"
 msgstr "Couldn't open billing"
 
-#: libs/billing-client/src/billing-plan-card.tsx
+#: libs/billing-client/src/billing-plan-actions.tsx
 msgid "Couldn't open checkout"
 msgstr "Couldn't open checkout"
+
+#: libs/game-matchmaking-client/src/multiplayer-link-screen.tsx
+msgid "Couldn’t open multiplayer"
+msgstr "Couldn’t open multiplayer"
 
 #: libs/auth-client/src/unlink-method-modal.tsx
 msgid "Couldn't remove it"
@@ -1538,6 +1595,18 @@ msgstr "Enter a valid desired synthetic population."
 msgid "Environment"
 msgstr "Environment"
 
+#: libs/app-root-client/src/crash-screen.tsx
+msgid "Error details"
+msgstr "Error details"
+
+#: libs/app-root-client/src/crash-copy-button.tsx
+msgid "Error details copied."
+msgstr "Error details copied."
+
+#: libs/app-root-client/src/crash-screen.tsx
+msgid "Error message"
+msgstr "Error message"
+
 #: pkgs/ui-root-client/src/text-input.example.tsx
 msgid "Error state"
 msgstr "Error state"
@@ -1582,6 +1651,10 @@ msgstr "Everything in the free plan, synced across your devices"
 #: pkgs/ui-devtools-client/src/json-view.tsx
 msgid "Expand all"
 msgstr "Expand all"
+
+#: libs/permissions-client/src/unlock-copy.tsx
+msgid "Export and deletion only happen while you are online, so nothing is saved to send later. Reconnect, then try again."
+msgstr "Export and deletion only happen while you are online, so nothing is saved to send later. Reconnect, then try again."
 
 #: libs/account-privacy-client/src/export-choice.tsx
 msgid "Export requested"
@@ -1681,7 +1754,7 @@ msgstr "Finished"
 msgid "Finished custom games in this space and your recent matched games."
 msgstr "Finished custom games in this space and your recent matched games."
 
-#: libs/billing-client/src/billing-plan-card.tsx
+#: libs/billing-client/src/billing-status-line.tsx
 msgid "Finishing checkout…"
 msgstr "Finishing checkout…"
 
@@ -1731,9 +1804,9 @@ msgstr "Free plan"
 
 #. placeholder {0}: date()
 #. placeholder {1}: days()
-#: libs/billing-client/src/billing-plan-card.tsx
-msgid "Free trial · ends {0} ({1} days left)"
-msgstr "Free trial · ends {0} ({1} days left)"
+#: libs/billing-client/src/billing-status-line.tsx
+msgid "Free trial · ends {0} ({1, plural, one {# day left} other {# days left}})"
+msgstr "Free trial · ends {0} ({1, plural, one {# day left} other {# days left}})"
 
 #: libs/friends-client/src/friend-request-decision-modal.tsx
 msgid "Friend request"
@@ -1805,6 +1878,14 @@ msgstr "Game replay"
 msgid "Games"
 msgstr "Games"
 
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "Gamezilla can be reached. What you do is shared with everyone else."
+msgstr "Gamezilla can be reached. What you do is shared with everyone else."
+
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "Gamezilla can’t be reached right now. This isn’t something you did. What you do here is kept on this device and shared when Gamezilla is back."
+msgstr "Gamezilla can’t be reached right now. This isn’t something you did. What you do here is kept on this device and shared when Gamezilla is back."
+
 #: libs/app-root-client/src/boot-error-screen.tsx
 msgid "Gamezilla is open in another tab"
 msgstr "Gamezilla is open in another tab"
@@ -1827,7 +1908,9 @@ msgstr "Give your space a name"
 msgid "Go to {0}"
 msgstr "Go to {0}"
 
+#: libs/app-root-client/src/crash-screen.tsx
 #: libs/app-root-client/src/route-stub.tsx
+#: libs/game-matchmaking-client/src/multiplayer-link-screen.tsx
 msgid "Go to Spaces"
 msgstr "Go to Spaces"
 
@@ -1901,8 +1984,8 @@ msgid "Host as many spaces as you like at once"
 msgstr "Host as many spaces as you like at once"
 
 #: libs/account-privacy-client/src/privacy-explanation.tsx
-msgid "Hosted spaces will end. Future membership charges will stop. If the payment provider has not confirmed cancellation yet, we will say so. Any membership payment taken after confirmed deletion will be refunded in full."
-msgstr "Hosted spaces will end. Future membership charges will stop. If the payment provider has not confirmed cancellation yet, we will say so. Any membership payment taken after confirmed deletion will be refunded in full."
+msgid "Hosted spaces will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Future membership charges will stop. If the payment provider has not confirmed cancellation yet, we will say so. Any membership payment taken after confirmed deletion will be refunded in full."
+msgstr "Hosted spaces will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Future membership charges will stop. If the payment provider has not confirmed cancellation yet, we will say so. Any membership payment taken after confirmed deletion will be refunded in full."
 
 #: libs/app-root-client/src/app-commands.tsx
 msgid "hud"
@@ -1995,9 +2078,17 @@ msgstr "invites you to play {0}."
 msgid "is away. After a minute away you may claim the win."
 msgstr "is away. After a minute away you may claim the win."
 
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "It could not be saved, so it was undone on this device."
+msgstr "It could not be saved, so it was undone on this device."
+
 #: libs/game-puzzle-client/src/puzzle-link-screen.tsx
 msgid "It was taken out of the puzzles, so its link no longer opens it."
 msgstr "It was taken out of the puzzles, so its link no longer opens it."
+
+#: libs/account-privacy-client/src/export-choice.tsx
+msgid "It will be ready within 24 hours."
+msgstr "It will be ready within 24 hours."
 
 #: pkgs/ui-root-client/src/catalog-detail.tsx
 msgid "Item not found"
@@ -2062,6 +2153,10 @@ msgstr "Knight"
 #: libs/chess-puzzle-client/src/puzzle-import-status.tsx
 msgid "Last activity"
 msgstr "Last activity"
+
+#: libs/app-root-client/src/more-server-status.tsx
+msgid "Last connected"
+msgstr "Last connected"
 
 #: libs/app-root-client/src/sync-screen.tsx
 msgid "Last error"
@@ -2238,7 +2333,7 @@ msgstr "Make your first move"
 msgid "Manage or cancel anytime from the billing portal"
 msgstr "Manage or cancel anytime from the billing portal"
 
-#: libs/billing-client/src/billing-plan-card.tsx
+#: libs/billing-client/src/billing-plan-actions.tsx
 msgid "Manage subscription"
 msgstr "Manage subscription"
 
@@ -2278,13 +2373,23 @@ msgid "Membership cancellation has completed."
 msgstr "Membership cancellation has completed."
 
 #: libs/account-privacy-client/src/privacy-screen.tsx
-msgid "Membership cancellation is still being completed."
-msgstr "Membership cancellation is still being completed."
+msgid "Membership cancellation is still being completed. Nothing more is needed from you."
+msgstr "Membership cancellation is still being completed. Nothing more is needed from you."
+
+#: libs/billing-client/src/billing-status-line.tsx
+msgid "Membership ended"
+msgstr "Membership ended"
 
 #. placeholder {0}: date()
-#: libs/billing-client/src/billing-plan-card.tsx
+#: libs/billing-client/src/billing-status-line.tsx
 msgid "Membership ended {0}"
 msgstr "Membership ended {0}"
+
+#. placeholder {0}: date()
+#. placeholder {1}: access()
+#: libs/billing-client/src/billing-status-line.tsx
+msgid "Membership ended {0} · Plus access until {1}"
+msgstr "Membership ended {0} · Plus access until {1}"
 
 #: libs/billing-client/src/billing-plan-card.tsx
 msgid "Memberships aren't available right now."
@@ -2397,9 +2502,9 @@ msgstr "Neither side can checkmate."
 msgid "network"
 msgstr "network"
 
-#: libs/app-root-client/src/settings-screen.tsx
-msgid "Network reachability and server health"
-msgstr "Network reachability and server health"
+#: libs/account-privacy-client/src/export-choice.tsx
+msgid "New export requested"
+msgstr "New export requested"
 
 #: libs/game-matchmaking-client/src/multiplayer-find-panel.tsx
 #: libs/game-session-client/src/custom-game-screen.tsx
@@ -2519,7 +2624,7 @@ msgstr "No matching styles"
 msgid "No matching themes"
 msgstr "No matching themes"
 
-#: libs/billing-client/src/billing-plan-card.tsx
+#: libs/billing-client/src/billing-status-line.tsx
 msgid "No membership yet."
 msgstr "No membership yet."
 
@@ -2573,7 +2678,7 @@ msgstr "No puzzles played yet."
 msgid "No results"
 msgstr "No results"
 
-#: libs/spaces-client/src/spaces-screen.tsx
+#: libs/spaces-client/src/spaces-lobby.tsx
 msgid "No spaces yet"
 msgstr "No spaces yet"
 
@@ -2622,6 +2727,10 @@ msgstr "Not set"
 #: libs/synthetic-population-client/src/synthetic-user-details.tsx
 msgid "Not started"
 msgstr "Not started"
+
+#: libs/app-root-client/src/more-server-status.tsx
+msgid "Not yet"
+msgstr "Not yet"
 
 #: libs/notifications-client/src/notifications-empty-state.tsx
 msgid "Nothing archived"
@@ -2704,9 +2813,9 @@ msgstr "Only a participant can make this choice."
 msgid "Only the creator can make this choice."
 msgstr "Only the creator can make this choice."
 
-#: libs/spaces-client/src/game-choice-refused-notice.tsx
-msgid "Only the host chooses the game."
-msgstr "Only the host chooses the game."
+#: libs/spaces-client/src/space-join-prompt.tsx
+msgid "Only the host's friends and people the host adds can join it. Ask the host to add you, or check that the link is right."
+msgstr "Only the host's friends and people the host adds can join it. Ask the host to add you, or check that the link is right."
 
 #: libs/game-session-client/src/custom-game-error.tsx
 msgid "Only the other participant can answer a draw offer."
@@ -2748,7 +2857,7 @@ msgstr "Open place"
 msgid "Open space {0}"
 msgstr "Open space {0}"
 
-#: libs/billing-client/src/billing-plan-card.tsx
+#: libs/billing-client/src/billing-plan-actions.tsx
 #: libs/spaces-client/src/spaces-screen.tsx
 msgid "Opening…"
 msgstr "Opening…"
@@ -2816,10 +2925,14 @@ msgstr "Pause"
 msgid "Paused"
 msgstr "Paused"
 
-#. placeholder {0}: date()
-#: libs/billing-client/src/billing-plan-card.tsx
-msgid "Payment failed · access until {0}"
-msgstr "Payment failed · access until {0}"
+#: libs/billing-client/src/billing-status-line.tsx
+msgid "Payment failed"
+msgstr "Payment failed"
+
+#. placeholder {0}: access()
+#: libs/billing-client/src/billing-status-line.tsx
+msgid "Payment failed · Plus access until {0}"
+msgstr "Payment failed · Plus access until {0}"
 
 #: libs/billing-client/src/billing-screen-view.tsx
 msgid "Payments are processed securely by our billing provider. We never see your card details."
@@ -3125,9 +3238,10 @@ msgstr "Reading Synthetic Population…"
 msgid "Ready"
 msgstr "Ready"
 
+#. placeholder {0}: readyBy()
 #: libs/account-privacy-client/src/export-choice.tsx
-msgid "Ready by"
-msgstr "Ready by"
+msgid "Ready by {0}"
+msgstr "Ready by {0}"
 
 #: libs/game-session-client/src/custom-game-configuration.tsx
 #: libs/game-session-client/src/custom-game-status.tsx
@@ -3159,6 +3273,11 @@ msgstr "Red circle"
 msgid "Red circles play first, then Yellow diamonds. Choose a column to drop into its lowest empty place. Four in a row, column, or diagonal wins. A full board without four is a draw."
 msgstr "Red circles play first, then Yellow diamonds. Choose a column to drop into its lowest empty place. Four in a row, column, or diagonal wins. A full board without four is a draw."
 
+#. placeholder {0}: reference()
+#: libs/app-root-client/src/crash-screen.tsx
+msgid "Reference: {0}"
+msgstr "Reference: {0}"
+
 #: libs/synthetic-population-client/src/synthetic-population-screen.tsx
 #: libs/synthetic-population-client/src/synthetic-user-screen.tsx
 msgid "Refresh"
@@ -3181,6 +3300,7 @@ msgid "Reload"
 msgstr "Reload"
 
 #: libs/app-root-client/src/boot-error-screen.tsx
+#: libs/app-root-client/src/crash-screen.tsx
 #: libs/app-root-client/src/identity-boot-pending.tsx
 msgid "Reload app"
 msgstr "Reload app"
@@ -3236,6 +3356,10 @@ msgstr "Rename"
 msgid "Rename space"
 msgstr "Rename space"
 
+#: libs/account-privacy-client/src/export-choice.tsx
+msgid "Replace your ready export?"
+msgstr "Replace your ready export?"
+
 #: libs/synthetic-population-client/src/synthetic-user-replay.tsx
 msgid "Replay completed"
 msgstr "Replay completed"
@@ -3247,6 +3371,10 @@ msgstr "Replay decisions"
 #: libs/synthetic-population-client/src/synthetic-user-replay.tsx
 msgid "Replays recorded choices and random inputs. Application timing and external services are not replayed."
 msgstr "Replays recorded choices and random inputs. Application timing and external services are not replayed."
+
+#: libs/app-root-client/src/about-screen.tsx
+msgid "Report a security problem"
+msgstr "Report a security problem"
 
 #: libs/account-privacy-client/src/export-choice.tsx
 msgid "Request personal-data export"
@@ -3463,6 +3591,7 @@ msgstr "seconds"
 msgid "Seconds added after a move"
 msgstr "Seconds added after a move"
 
+#: libs/app-root-client/src/about-screen.tsx
 #: libs/auth-client/src/account-screen.tsx
 msgid "Security"
 msgstr "Security"
@@ -3515,14 +3644,6 @@ msgstr "Sending…"
 #: libs/friends-client/src/friend-action-status-renderers.tsx
 msgid "Sent"
 msgstr "Sent"
-
-#: libs/app-root-client/src/app-header-global-menu.tsx
-msgid "Server"
-msgstr "Server"
-
-#: libs/app-root-client/src/more-server-status.tsx
-msgid "Server status"
-msgstr "Server status"
 
 #: libs/synthetic-population-client/src/synthetic-population-configuration.tsx
 msgid "Session duration (milliseconds)"
@@ -3607,6 +3728,7 @@ msgstr "Shows a live FPS / INP top banner. Useful for diagnosing jank on low-end
 #: libs/auth-client/src/account-devices-card.tsx
 #: libs/auth-client/src/email-sign-in-form.tsx
 #: libs/auth-client/src/sign-in-modal.tsx
+#: libs/auth-client/src/signed-out-notice-banner.tsx
 #: libs/permissions-client/src/unlock-copy.tsx
 msgid "Sign in"
 msgstr "Sign in"
@@ -3779,6 +3901,7 @@ msgstr "Solve rated puzzles and climb the ladder"
 msgid "Solved"
 msgstr "Solved"
 
+#: libs/app-root-client/src/crash-screen.tsx
 #: pkgs/ui-root-client/src/mutation-modal-parts.tsx
 msgid "Something went wrong"
 msgstr "Something went wrong"
@@ -3819,10 +3942,6 @@ msgstr "Space ended"
 msgid "Space name"
 msgstr "Space name"
 
-#: libs/spaces-client/src/space-join-prompt.tsx
-msgid "Space not available"
-msgstr "Space not available"
-
 #: libs/spaces-client/src/rename-space-modal.tsx
 msgid "Space renamed"
 msgstr "Space renamed"
@@ -3831,6 +3950,7 @@ msgstr "Space renamed"
 #: libs/app-root-client/src/about-screen.tsx
 #: libs/app-root-client/src/client-events.tsx
 #: libs/app-root-client/src/client-sql.tsx
+#: libs/app-root-client/src/more-server-status.tsx
 #: libs/app-root-client/src/performance-screen.tsx
 #: libs/app-root-client/src/settings-screen.tsx
 #: libs/app-root-client/src/sound-screen.tsx
@@ -3865,15 +3985,15 @@ msgid "Start"
 msgstr "Start"
 
 #. placeholder {0}: props.trialDays
-#: libs/billing-client/src/billing-plan-card.tsx
+#: libs/billing-client/src/billing-plan-actions.tsx
 msgid "Start {0}-day free trial"
 msgstr "Start {0}-day free trial"
 
-#: libs/spaces-client/src/spaces-screen.tsx
+#: libs/spaces-client/src/spaces-lobby.tsx
 msgid "Start a space"
 msgstr "Start a space"
 
-#: libs/spaces-client/src/spaces-screen.tsx
+#: libs/spaces-client/src/spaces-lobby.tsx
 msgid "Start a space to play with friends. Spaces you join show up here."
 msgstr "Start a space to play with friends. Spaces you join show up here."
 
@@ -3949,7 +4069,7 @@ msgstr "Streak"
 msgid "Style"
 msgstr "Style"
 
-#: libs/billing-client/src/billing-plan-card.tsx
+#: libs/billing-client/src/billing-plan-actions.tsx
 msgid "Subscribe"
 msgstr "Subscribe"
 
@@ -4029,6 +4149,10 @@ msgstr "system"
 msgid "System"
 msgstr "System"
 
+#: libs/auth-client/src/account-screen.tsx
+msgid "Take a personal-data export or delete your account"
+msgstr "Take a personal-data export or delete your account"
+
 #: libs/profile-client/src/profile-edit-screen.tsx
 msgid "Take an export or permanently delete your account"
 msgstr "Take an export or permanently delete your account"
@@ -4071,6 +4195,22 @@ msgstr "Text to speech"
 msgid "That account already signs in to a different account here. Sign in with it to use that account instead."
 msgstr "That account already signs in to a different account here. Sign in with it to use that account instead."
 
+#: libs/notifications-client/src/notifications-screen.tsx
+msgid "That change wasn't made. The item may no longer be in your inbox."
+msgstr "That change wasn't made. The item may no longer be in your inbox."
+
+#: libs/notifications-client/src/notifications-screen.tsx
+msgid "That change wasn't made. Try again in a moment."
+msgstr "That change wasn't made. Try again in a moment."
+
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "That friend request wasn't declined"
+msgstr "That friend request wasn't declined"
+
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "That friend wasn't removed"
+msgstr "That friend wasn't removed"
+
 #: libs/game-session-client/src/custom-game-error.tsx
 msgid "That invitation is no longer yours to accept or decline."
 msgstr "That invitation is no longer yours to accept or decline."
@@ -4083,6 +4223,22 @@ msgstr "That isn't the account the address matched, so nothing was connected."
 msgid "That move is not legal in this position."
 msgstr "That move is not legal in this position."
 
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "That person wasn't added to the space"
+msgstr "That person wasn't added to the space"
+
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "That person wasn't blocked"
+msgstr "That person wasn't blocked"
+
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "That person wasn't removed from the space"
+msgstr "That person wasn't removed from the space"
+
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "That person wasn't unblocked"
+msgstr "That person wasn't unblocked"
+
 #: libs/game-session-client/src/custom-game-error.tsx
 msgid "That side is no longer open."
 msgstr "That side is no longer open."
@@ -4094,6 +4250,10 @@ msgstr "That side is not available to you."
 #: libs/spaces-client/src/rename-space-modal.tsx
 msgid "That space name is not allowed"
 msgstr "That space name is not allowed"
+
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "That space name is not allowed."
+msgstr "That space name is not allowed."
 
 #: libs/auth-client/src/auth-flow-messages.tsx
 msgid "That took too long. Start again."
@@ -4116,18 +4276,21 @@ msgstr "The board changed. Review the current turn."
 msgid "The board is full. Game drawn."
 msgstr "The board is full. Game drawn."
 
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "The change was undone."
+msgstr "The change was undone."
+
 #: libs/game-session-client/src/custom-game-error.tsx
 msgid "The choice could not be confirmed. Try again."
 msgstr "The choice could not be confirmed. Try again."
 
 #: libs/notifications-client/src/notifications-screen.tsx
-#: libs/spaces-client/src/connection-missing-notice.tsx
 msgid "The connection is missing."
 msgstr "The connection is missing."
 
 #: libs/account-privacy-client/src/export-choice.tsx
-msgid "The export could not be requested."
-msgstr "The export could not be requested."
+msgid "The export could not be requested. Try again."
+msgstr "The export could not be requested. Try again."
 
 #: libs/account-privacy-client/src/export-choice.tsx
 msgid "The export failed. You can ask again. No incomplete export is available."
@@ -4136,6 +4299,10 @@ msgstr "The export failed. You can ask again. No incomplete export is available.
 #: libs/account-privacy-client/src/export-download.tsx
 msgid "The export has expired. Ask for a new one."
 msgstr "The export has expired. Ask for a new one."
+
+#: libs/account-privacy-client/src/export-choice.tsx
+msgid "The export was not requested. Use the choice shown."
+msgstr "The export was not requested. Use the choice shown."
 
 #: libs/game-matchmaking-client/src/multiplayer-status.tsx
 msgid "The first move wasn't made in time."
@@ -4181,6 +4348,14 @@ msgstr "The multiplayer game was aborted."
 #: libs/game-session-client/src/custom-game-error.tsx
 msgid "The other participant may still return. Wait before claiming the win."
 msgstr "The other participant may still return. Wait before claiming the win."
+
+#: libs/billing-client/src/billing-plan-actions.tsx
+msgid "The payment provider can't be reached right now. Nothing changed — try again in a moment."
+msgstr "The payment provider can't be reached right now. Nothing changed — try again in a moment."
+
+#: libs/billing-client/src/billing-plan-actions.tsx
+msgid "The payment provider can't be reached right now. Nothing was charged — try again in a moment."
+msgstr "The payment provider can't be reached right now. Nothing was charged — try again in a moment."
 
 #: libs/auth-client/src/auth-flow-messages.tsx
 msgid "The sign-in provider couldn't finish. Try again in a moment."
@@ -4239,17 +4414,25 @@ msgstr "They will leave this space. They can choose to join again through the sp
 msgid "They won't be able to send you friend requests."
 msgstr "They won't be able to send you friend requests."
 
+#: libs/billing-client/src/billing-plan-actions.tsx
+msgid "This account already has a membership, so nothing was charged. Looking for it now."
+msgstr "This account already has a membership, so nothing was charged. Looking for it now."
+
 #: libs/auth-client/src/auth-flow-messages.tsx
 msgid "This account already has a sign-in method from that provider. Remove it first to use a different one."
 msgstr "This account already has a sign-in method from that provider. Remove it first to use a different one."
+
+#: libs/account-privacy-client/src/use-account-deletion.tsx
+msgid "This account was already deleted. Sign in again to start a new account."
+msgstr "This account was already deleted. Sign in again to start a new account."
 
 #: libs/game-puzzle-client/src/puzzle-result-announcement.tsx
 msgid "This attempt was unrated."
 msgstr "This attempt was unrated."
 
 #: libs/account-privacy-client/src/privacy-screen.tsx
-msgid "This cannot be undone. Every device will be signed out. Your hosted spaces and future membership charges will end. Take an export first if you want a copy of your personal data."
-msgstr "This cannot be undone. Every device will be signed out. Your hosted spaces and future membership charges will end. Take an export first if you want a copy of your personal data."
+msgid "This cannot be undone. Every device will be signed out. Your hosted spaces and future membership charges will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Take an export first if you want a copy of your personal data."
+msgstr "This cannot be undone. Every device will be signed out. Your hosted spaces and future membership charges will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Take an export first if you want a copy of your personal data."
 
 #: libs/permissions-client/src/unlock-copy.tsx
 msgid "This choice needs a connection"
@@ -4258,6 +4441,18 @@ msgstr "This choice needs a connection"
 #: libs/auth-client/src/account-device-current-badge.tsx
 msgid "This device"
 msgstr "This device"
+
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "This device has no internet connection. Check Wi-Fi or mobile data. The app keeps trying on its own."
+msgstr "This device has no internet connection. Check Wi-Fi or mobile data. The app keeps trying on its own."
+
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "This device is offline"
+msgstr "This device is offline"
+
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "This device is online, but Gamezilla can’t be reached right now. This isn’t something you did. The app keeps trying on its own."
+msgstr "This device is online, but Gamezilla can’t be reached right now. This isn’t something you did. The app keeps trying on its own."
 
 #: libs/account-privacy-client/src/export-download.tsx
 msgid "This export belongs to another account and cannot be downloaded."
@@ -4323,6 +4518,10 @@ msgstr "This puzzle is not in your local feed yet. Try again after sync."
 msgid "This screen has not been ported to the web app yet."
 msgstr "This screen has not been ported to the web app yet."
 
+#: libs/app-root-client/src/crash-screen.tsx
+msgid "This screen ran into a problem. Anything already saved on this device is kept. Try again, or go to Spaces."
+msgstr "This screen ran into a problem. Anything already saved on this device is kept. Try again, or go to Spaces."
+
 #: libs/spaces-client/src/space-join-prompt.tsx
 msgid "This space can't be found"
 msgstr "This space can't be found"
@@ -4353,6 +4552,10 @@ msgstr "time"
 msgid "Time control"
 msgstr "Time control"
 
+#: libs/permissions-client/src/unlock-copy.tsx
+msgid "To keep your data safe, export and deletion need a sign-in from the last {PROOF_MINUTES} minutes. Sign in again, then try once more. Nothing has changed yet."
+msgstr "To keep your data safe, export and deletion need a sign-in from the last {PROOF_MINUTES} minutes. Sign in again, then try once more. Nothing has changed yet."
+
 #: libs/chess-shared-client/src/chess-settings-developer-screen.tsx
 msgid "Tools for debugging and exploring the UI."
 msgstr "Tools for debugging and exploring the UI."
@@ -4370,8 +4573,10 @@ msgid "Try a different search term."
 msgstr "Try a different search term."
 
 #: libs/account-privacy-client/src/export-choice.tsx
+#: libs/app-root-client/src/crash-screen.tsx
 #: libs/auth-client/src/sign-in-modal.tsx
 #: libs/auth-client/src/use-email-sign-in.tsx
+#: libs/game-matchmaking-client/src/multiplayer-link-screen.tsx
 #: libs/synthetic-population-client/src/synthetic-user-controls.tsx
 #: libs/synthetic-population-client/src/synthetic-user-dom.tsx
 #: libs/synthetic-population-client/src/synthetic-user-replay.tsx
@@ -4379,6 +4584,10 @@ msgstr "Try a different search term."
 #: pkgs/ui-root-client/src/mutation-modal-parts.tsx
 msgid "Try again"
 msgstr "Try again"
+
+#: libs/billing-client/src/billing-plan-actions.tsx
+msgid "Try again in a moment"
+msgstr "Try again in a moment"
 
 #: libs/friends-client/src/friend-action-status-renderers.tsx
 msgid "Try again later"
@@ -4482,7 +4691,7 @@ msgstr "Untimed"
 msgid "Update"
 msgstr "Update"
 
-#: libs/billing-client/src/billing-plan-card.tsx
+#: libs/billing-client/src/billing-plan-actions.tsx
 msgid "Update payment method"
 msgstr "Update payment method"
 
@@ -4531,10 +4740,6 @@ msgstr "Use light theme"
 msgid "Use system theme"
 msgstr "Use system theme"
 
-#: libs/account-privacy-client/src/export-choice.tsx
-msgid "Use the choice shown below to continue."
-msgstr "Use the choice shown below to continue."
-
 #: libs/game-session-client/src/custom-game-configuration.tsx
 msgid "Use this clock"
 msgstr "Use this clock"
@@ -4549,6 +4754,10 @@ msgid "Username"
 msgstr "Username"
 
 #: libs/profile-client/src/username-error-label.tsx
+msgid "Username can have at most {USERNAME_MAX_LENGTH} characters"
+msgstr "Username can have at most {USERNAME_MAX_LENGTH} characters"
+
+#: libs/profile-client/src/username-error-label.tsx
 msgid "Username can only use letters, numbers, and _"
 msgstr "Username can only use letters, numbers, and _"
 
@@ -4561,12 +4770,8 @@ msgid "Username is taken"
 msgstr "Username is taken"
 
 #: libs/profile-client/src/username-error-label.tsx
-msgid "Username is too long"
-msgstr "Username is too long"
-
-#: libs/profile-client/src/username-error-label.tsx
-msgid "Username is too short"
-msgstr "Username is too short"
+msgid "Username needs at least {USERNAME_MIN_LENGTH} characters"
+msgstr "Username needs at least {USERNAME_MIN_LENGTH} characters"
 
 #: libs/profile-client/src/username-error-label.tsx
 msgid "Username was changed recently"
@@ -4618,6 +4823,10 @@ msgstr "We retain only minimum payment evidence for accounting and disputes for 
 msgid "What Plus includes"
 msgstr "What Plus includes"
 
+#: libs/app-root-client/src/settings-screen.tsx
+msgid "Whether the app is connected, and what works without it"
+msgstr "Whether the app is connected, and what works without it"
+
 #: libs/chess-puzzle-client/src/chess-puzzle-announcement.tsx
 #: libs/chess-root-client/src/chess-game-presentation.tsx
 msgid "White"
@@ -4630,6 +4839,10 @@ msgstr "Wins"
 #: libs/game-session-client/src/custom-game-configuration.tsx
 msgid "Withdraw readiness"
 msgstr "Withdraw readiness"
+
+#: libs/app-root-client/src/more-server-status.tsx
+msgid "Without a connection, your spaces, games on this device and preferences keep working. What you do is kept on this device and shared once the connection is back. Signing in, searching for people and playing someone online need a connection."
+msgstr "Without a connection, your spaces, games on this device and preferences keep working. What you do is kept on this device and shared once the connection is back. Signing in, searching for people and playing someone online need a connection."
 
 #: libs/app-root-client/src/app-commands.tsx
 #: libs/app-root-client/src/settings-screen.tsx
@@ -4648,6 +4861,10 @@ msgstr "Worker Lease"
 #: libs/synthetic-population-client/src/synthetic-population-configuration.tsx
 msgid "Worker Lease duration (milliseconds)"
 msgstr "Worker Lease duration (milliseconds)"
+
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "Working offline"
+msgstr "Working offline"
 
 #: libs/notifications-client/src/notification-card-default.tsx
 #: pkgs/ui-root-client/src/game-action-button.tsx
@@ -4677,6 +4894,10 @@ msgstr "Yes"
 #: libs/spaces-client/src/space-members-list.tsx
 msgid "You"
 msgstr "You"
+
+#: libs/billing-client/src/billing-plan-actions.tsx
+msgid "You already have a membership"
+msgstr "You already have a membership"
 
 #. placeholder {0}: gameSideLabel(props.game.fen, white(props) ? 'white' : 'black')
 #: libs/game-matchmaking-client/src/multiplayer-status.tsx
@@ -4724,6 +4945,18 @@ msgstr "You can rejoin from the invite link if the space is still live."
 msgid "You can take a personal-data export before deleting the account. Your profile, friends, progress and preferences will be erased within 30 days."
 msgstr "You can take a personal-data export before deleting the account. Your profile, friends, progress and preferences will be erased within 30 days."
 
+#: libs/spaces-client/src/space-join-prompt.tsx
+msgid "You can't join this space"
+msgstr "You can't join this space"
+
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "You chose to work offline. Turn off Work offline in Settings to share what you do."
+msgstr "You chose to work offline. Turn off Work offline in Settings to share what you do."
+
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "You didn't leave the space"
+msgstr "You didn't leave the space"
+
 #: libs/game-session-client/src/custom-game-error.tsx
 msgid "You do not control that side."
 msgstr "You do not control that side."
@@ -4760,6 +4993,10 @@ msgstr "You play {0}"
 msgid "You played {0} to {1}."
 msgstr "You played {0} to {1}."
 
+#: libs/auth-client/src/signed-out-notice-banner.tsx
+msgid "You were signed out on this device"
+msgstr "You were signed out on this device"
+
 #: libs/game-matchmaking-client/src/multiplayer-status.tsx
 msgid "You won the multiplayer game."
 msgstr "You won the multiplayer game."
@@ -4783,8 +5020,16 @@ msgid "You're offline"
 msgstr "You're offline"
 
 #: libs/search-client/src/search-screen-view.tsx
+msgid "You're offline, so some people may not show up until you're back online."
+msgstr "You're offline, so some people may not show up until you're back online."
+
+#: libs/search-client/src/search-screen-view.tsx
 msgid "You're offline. Search again once you're back online."
 msgstr "You're offline. Search again once you're back online."
+
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "You’re offline. What you do is kept on this device and shared when you’re back online."
+msgstr "You’re offline. What you do is kept on this device and shared when you’re back online."
 
 #: libs/auth-client/src/sign-in-modal.tsx
 msgid "You're signed in on this device."
@@ -4797,6 +5042,10 @@ msgstr "You're signed out on this device."
 #: libs/spaces-client/src/leave-space-confirm-modal.tsx
 msgid "You're the host, so leaving ends the space for everyone. This cannot be undone."
 msgstr "You're the host, so leaving ends the space for everyone. This cannot be undone."
+
+#: libs/app-root-client/src/connection-copy.tsx
+msgid "You’re working offline. What you do is kept on this device and shared when you work online again."
+msgstr "You’re working offline. What you do is kept on this device and shared when you work online again."
 
 #: libs/game-puzzle-client/src/puzzle-play-screen.tsx
 msgid "You've cleared everything in your feed. Widen the filters and let's keep going."
@@ -4822,17 +5071,31 @@ msgstr "you@example.com"
 msgid "Your account could not be loaded. Check your connection and reload the app."
 msgstr "Your account could not be loaded. Check your connection and reload the app."
 
+#. placeholder {0}: eraseBy()
 #: libs/account-privacy-client/src/privacy-screen.tsx
-msgid "Your account deletion is confirmed. You are signed out. Ordinary personal-data erasure will complete by"
-msgstr "Your account deletion is confirmed. You are signed out. Ordinary personal-data erasure will complete by"
+msgid "Your account deletion is confirmed. You are signed out. Ordinary personal-data erasure will complete by {0}."
+msgstr "Your account deletion is confirmed. You are signed out. Ordinary personal-data erasure will complete by {0}."
 
 #: libs/profile-client/src/profile-avatar-figure.tsx
 msgid "Your avatar"
 msgstr "Your avatar"
 
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "Your avatar change wasn't saved"
+msgstr "Your avatar change wasn't saved"
+
 #: libs/billing-client/src/billing-plan-card.tsx
 msgid "Your checkout hasn't finished. Complete it to start your membership."
 msgstr "Your checkout hasn't finished. Complete it to start your membership."
+
+#: libs/auth-client/src/account-screen.tsx
+msgid "Your data"
+msgstr "Your data"
+
+#. placeholder {0}: readyBy()
+#: libs/account-privacy-client/src/export-choice.tsx
+msgid "Your export is late: it was due by {0}. You can ask again, which starts a new export."
+msgstr "Your export is late: it was due by {0}. You can ask again, which starts a new export."
 
 #: libs/account-privacy-client/src/export-download.tsx
 msgid "Your export is ready. Downloads are private to your recently proven account and expire 7 days after becoming ready."
@@ -4845,6 +5108,10 @@ msgstr "Your friend request could not be shared because the person is unavailabl
 #: libs/friends-client/src/friend-request-error-label.tsx
 msgid "Your friend request could not be shared. Try again."
 msgstr "Your friend request could not be shared. Try again."
+
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "Your friend request wasn't cancelled"
+msgstr "Your friend request wasn't cancelled"
 
 #: libs/friends-client/src/friend-request-feedback.tsx
 msgid "Your friend request will be shared when the connection returns."
@@ -4862,6 +5129,10 @@ msgstr "Your last payment didn't go through. Update your payment method to keep 
 msgid "Your live spaces"
 msgstr "Your live spaces"
 
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "Your new space wasn't created"
+msgstr "Your new space wasn't created"
+
 #: libs/game-matchmaking-client/src/multiplayer-controls.tsx
 msgid "Your opponent will win this game."
 msgstr "Your opponent will win this game."
@@ -4873,6 +5144,10 @@ msgstr "Your opponent won the multiplayer game."
 #: libs/game-matchmaking-client/src/multiplayer-status.tsx
 msgid "Your opponent's turn."
 msgstr "Your opponent's turn."
+
+#: libs/billing-client/src/billing-plan-card.tsx
+msgid "Your payment isn't confirmed yet, but it may have gone through. Check again before paying again."
+msgstr "Your payment isn't confirmed yet, but it may have gone through. Check again before paying again."
 
 #: libs/account-privacy-client/src/export-choice.tsx
 msgid "Your personal-data export is being prepared. It will be ready within 24 hours of asking."
@@ -4889,6 +5164,10 @@ msgstr "Your puzzle rating went down by {down}, to {after}."
 #: libs/game-puzzle-client/src/puzzle-result-announcement.tsx
 msgid "Your puzzle rating went up by {delta}, to {after}."
 msgstr "Your puzzle rating went up by {delta}, to {after}."
+
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "Your puzzle settings weren't saved"
+msgstr "Your puzzle settings weren't saved"
 
 #: libs/game-puzzle-client/src/puzzle-feed-settings-modal.tsx
 msgid "Your rating"
@@ -4907,6 +5186,26 @@ msgstr "Your rating changed by {0}{1}."
 #: libs/game-matchmaking-client/src/multiplayer-ratings.tsx
 msgid "Your ratings"
 msgstr "Your ratings"
+
+#: libs/auth-client/src/signed-out-notice-banner.tsx
+msgid "Your sign-in here ended, from another device or because it ran out. Changes made here that had not been shared yet were not kept."
+msgstr "Your sign-in here ended, from another device or because it ran out. Changes made here that had not been shared yet were not kept."
+
+#: libs/auth-client/src/signed-out-notice-banner.tsx
+msgid "Your sign-in here ended, from another device or because it ran out. Sign in again to carry on."
+msgstr "Your sign-in here ended, from another device or because it ran out. Sign in again to carry on."
+
+#: libs/game-matchmaking-client/src/multiplayer-link-screen.tsx
+msgid "Your space didn’t open this time. Nothing you had is lost. Try again, or go to Spaces."
+msgstr "Your space didn’t open this time. Nothing you had is lost. Try again, or go to Spaces."
+
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "Your space wasn't ended"
+msgstr "Your space wasn't ended"
+
+#: libs/app-root-client/src/refused-change-copy.tsx
+msgid "Your space wasn't renamed"
+msgstr "Your space wasn't renamed"
 
 #: libs/game-puzzle-client/src/puzzle-status-header.tsx
 msgid "Your turn — find the best move for {side}"

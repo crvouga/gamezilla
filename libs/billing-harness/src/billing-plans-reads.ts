@@ -9,7 +9,12 @@ import { accountIdOf } from '@libs/harness/identity';
 import { actorHtml, nodeText, visible } from '@libs/harness/observations';
 import { Handles } from '@libs/test-ids-shared/handles';
 
-import { providerTrialEndMs } from './billing-provider-driver';
+import {
+  providerPeriodEndMs,
+  providerTrialEndMs,
+} from './billing-provider-driver';
+
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** One plan as the billing plans show it. */
 export type PlanShown = {
@@ -113,6 +118,35 @@ export async function freeTrialEndDay(
   if (accountId === null) return null;
   const endMs = await providerTrialEndMs(s, accountId);
   return endMs === null ? null : dayOf(endMs);
+}
+
+/**
+ * The last day of paid access the status line tells, as `YYYY-MM-DD`, or
+ * `null` when it tells none.
+ */
+export async function paidAccessLastDayShown(
+  s: ProductHarness,
+  actorId: string
+): Promise<string | null> {
+  const status = await nodeText(s, actorId, [Handles.billingStatus]);
+  const shown = /Plus access until (.+)$/.exec(status?.trim() ?? '')?.[1];
+  if (shown === undefined) return null;
+  const ms = Date.parse(shown);
+  return Number.isFinite(ms) ? dayOf(ms) : null;
+}
+
+/**
+ * The day `days` days after the provider's period end for the actor's
+ * membership, as `YYYY-MM-DD`.
+ */
+export async function dayAfterPeriodEnd(
+  s: ProductHarness,
+  actorId: string,
+  days: number
+): Promise<string | null> {
+  const accountId = await accountIdOf(s, actorId);
+  if (accountId === null) return null;
+  return dayOf((await providerPeriodEndMs(s, accountId)) + days * DAY_MS);
 }
 
 /** The billing plans offer to pay with a new card in the billing portal. */

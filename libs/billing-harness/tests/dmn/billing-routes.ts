@@ -51,11 +51,13 @@ const stubProvider: MembershipBilling = {
     Promise.reject(new Error('refund is outside this fixture')),
   startCheckout: (input) =>
     Promise.resolve({
+      kind: 'checkout',
       customerId: input.customerId ?? 'customer-new',
       url: 'https://pay.test/checkout',
     }),
   openPortal: () => Promise.resolve({ url: 'https://pay.test/portal' }),
   readCallback: () => Promise.resolve({ kind: 'ignored' }),
+  readMembership: () => Promise.resolve(null),
 };
 
 function providersFor(c: ServerCase): MembershipProviders | null {

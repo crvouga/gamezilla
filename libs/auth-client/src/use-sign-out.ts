@@ -2,6 +2,7 @@ import { SessionCapabilityStore } from '@libs/auth-shared/session-capability';
 import { useLogger } from '@pkgs/logger-client/solid';
 import { useSecureStorageStore } from '@pkgs/secure-storage-root-client/solid';
 import { useAuthClientPort } from './auth-client-provider';
+import { useSignOutIntent } from './sign-out-intent';
 
 /**
  * Signs out via {@link AuthClientPort.signOut} and clears the session capability.
@@ -12,8 +13,10 @@ export function useSignOut(): () => Promise<void> {
   const log = useLogger('auth-sign-out');
   const port = useAuthClientPort();
   const store = useSecureStorageStore();
+  const intent = useSignOutIntent();
 
   return async () => {
+    intent.expect();
     // Drop product session capability first so chrome cannot read a stale
     // signed-in token while the auth-port sign-out / session refetch is in flight.
     try {

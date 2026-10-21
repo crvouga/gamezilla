@@ -18,6 +18,34 @@ export async function privacyText(
   return (await ui.get(testId).isVisible()) ? ui.get(testId).text() : null;
 }
 
+/**
+ * A privacy notice the person can actually read: present, and not covered
+ * by an open confirmation dialog.
+ */
+export async function privacyNotice(
+  s: ProductHarness,
+  actor: string,
+  testId: string
+): Promise<string | null> {
+  const ui = await actorUi(s, actor);
+  for (const dialog of ['privacy-delete-modal', 'privacy-export-replace-modal'])
+    if (await ui.get(dialog).isVisible()) return null;
+  return privacyText(s, actor, testId);
+}
+
+/** The first visible privacy notice among `testIds`. */
+export async function anyPrivacyNotice(
+  s: ProductHarness,
+  actor: string,
+  testIds: readonly string[]
+): Promise<string | null> {
+  for (const testId of testIds) {
+    const text = await privacyNotice(s, actor, testId);
+    if (text !== null) return text;
+  }
+  return null;
+}
+
 export async function privacyStatus(s: ProductHarness, accountId: string) {
   return readPrivacyStatus(
     s.harness.serverSql.sqlClient,

@@ -16,6 +16,12 @@ export const Handles = {
   globalMenuSettings: 'global-menu-settings',
   /** "An update is needed" banner: the product no longer accepts this app. */
   appUpdateRequired: 'app-update-required',
+  /** A change that showed at once was refused and undone (`data-mutation`, `data-code`). */
+  refusedChange: 'refused-change',
+  /** This device was signed out from elsewhere (`data-unshared`: unsent changes not kept). */
+  signedOutNotice: 'signed-out-notice',
+  /** The signed-out notice's way to sign in again. */
+  signedOutNoticeSignIn: 'signed-out-notice-sign-in',
   /** Not-found screen for an address the app does not have (`-action`: Go to Spaces). */
   routeNotFound: 'route-not-found',
   routeNotFoundAction: 'route-not-found-action',
@@ -32,7 +38,15 @@ export const Handles = {
   themeOption: (key: 'light' | 'dark' | 'system') => `theme-option-${key}`,
   soundEffectsSwitch: 'sound-effects-switch',
   /** Version row on the About screen. */
+  aboutSecurityContact: 'about-security-contact',
   aboutVersion: 'about-version',
+  /** "Connection" row in Settings (→ the connection status screen). */
+  settingsConnection: 'settings-server-status',
+  /** Connection status screen: whether the app is connected right now. */
+  connectionState: (state: 'connected' | 'missing' | 'checking') =>
+    `connection-state-${state}`,
+  /** Connection status screen: what still works without a connection. */
+  connectionWithoutConnection: 'connection-without-connection',
   navBack: 'nav-back',
   tabProfile: 'tab-profile',
   tabSearch: 'tab-search',
@@ -93,10 +107,6 @@ export const Handles = {
   spacePresenceIdle: 'space-presence-idle',
   /** Hidden room client id the quiet timer belongs to. */
   spaceQuietClient: 'space-quiet-client',
-  /** The connection is missing, for someone already in a space. */
-  connectionMissing: 'connection-missing',
-  /** A guest tried to choose the space's game. */
-  gameChoiceRefused: 'game-choice-refused',
   /**
    * How many live spaces this device counts, including while a space is open.
    * The lobby paragraph is {@link spacesHostingCount}.
@@ -190,6 +200,10 @@ export const Handles = {
   billingSubscribe: 'billing-subscribe',
   billingManage: 'billing-manage',
   billingUnlock: 'billing-unlock',
+  /** Look again for the membership a paid checkout should have made. */
+  billingCheckAgain: 'billing-check-again',
+  /** Why opening checkout or the billing portal failed, with `data-failure`. */
+  billingActionFailure: 'billing-action-failure',
   billingStatus: 'billing-status',
   /** Plus credit left on the billing screen, with `data-credit-cents`. */
   billingCredit: 'billing-credit',
@@ -283,6 +297,8 @@ export const Handles = {
   searchDenied: 'search-denied',
   /** In place of results for a search made offline: search needs a connection. */
   searchNeedsConnection: 'search-needs-connection',
+  /** Above offline results: more people may show up once back online. */
+  searchOfflineResults: 'search-offline-results',
 
   /** Add Friend pill scoped by peer username (search / friend-user). */
   friendAdd: (username: string) => `friend-add-${username}`,
@@ -312,6 +328,10 @@ export const Handles = {
   notificationsMarkAllRead: 'notifications-mark-all-read',
   /** Said when an inbox choice needed a connection and there was none. */
   notificationsConnectionMissing: 'notifications-connection-missing',
+  /** The inbox said no to a choice (mark read, mark all read, archive). */
+  notificationsChoiceRefused: 'notifications-choice-refused',
+  /** An inbox choice failed while connected, without a reason. */
+  notificationsChoiceFailed: 'notifications-choice-failed',
   /** Notifications Accept for an incoming friend-request modal (fromUsername). */
   notificationsFriendRequestAccept: (fromUsername: string) =>
     `notifications-friend-request-accept-${fromUsername}`,

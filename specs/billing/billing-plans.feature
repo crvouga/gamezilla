@@ -31,3 +31,32 @@ Feature: What the billing plans offer
       And Alice is offline
       When Alice views the billing plans
       Then Alice is told subscribing needs a connection
+
+  Rule: Back from paying at checkout, the billing plans say the payment is still being confirmed until the membership shows, and never offer to subscribe again meanwhile
+
+    @regression:billing-checkout-return-shows-no-membership
+    Scenario: A person back from checkout before the payment is confirmed is told it is still being confirmed
+      Given Alice is signed in with Google
+      And the payment provider is slow to confirm payments
+      When Alice subscribes to Plus
+      Then Alice is told their payment is still being confirmed
+      And Alice is not offered to subscribe
+
+    Scenario: A person whose payment is still not confirmed minutes later is told to check again before paying again
+      Given the payment provider is slow to confirm payments
+      And Alice has subscribed to Plus
+      When 5 minutes pass
+      Then Alice is told to check again before paying again
+
+    Scenario: Once the payment is confirmed, a person back from checkout has paid access
+      Given the payment provider is slow to confirm payments
+      And Alice has subscribed to Plus
+      When the payment provider confirms Alice's payment
+      Then Alice has paid access within 60 seconds
+      And Alice is not told their payment is still being confirmed
+
+    Scenario: Leaving checkout without paying is never told a payment is being confirmed
+      Given Alice is signed in with Google
+      When Alice leaves checkout without paying
+      Then Alice is not told their payment is still being confirmed
+      And Alice is offered to subscribe

@@ -60,6 +60,15 @@ Feature: Every device in a space follows the host
       Then Bob is told only the host chooses the game
       And Bob is shown the game's choices within 15 seconds
 
+    @regression:guest-offline-back-silent
+    Scenario: An offline guest is still told only the host chooses the game
+      Given Alice is hosting a space that Bob joined from the link
+      And Alice has picked the game for the space
+      And Bob is offline
+      When Bob goes back from the game's choices to the game choice
+      Then Bob is told only the host chooses the game
+      And Bob is shown the game's choices within 15 seconds
+
     Scenario: Going back is not offered while the space is on the game choice
       Given Alice is hosting a space that Bob joined from the link
       When Alice goes back from the game's choices to the game choice

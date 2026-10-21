@@ -4,8 +4,12 @@ import { clientAuthHeaders } from '@libs/auth-shared/client-request-auth';
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
 import { useHttpClient } from '@pkgs/http-client-client/solid';
 import { useOpenExternalUrl } from '@pkgs/ui-root-client/external-url';
+import { providerUrlFrom } from './billing-request-error';
 
-/** Opens the provider's hosted portal so the person can manage their plan. */
+/**
+ * Opens the provider's hosted portal so the person can manage their plan. A
+ * refusal throws a `BillingRequestError` saying why.
+ */
 export function useManageSubscription(): () => Promise<void> {
   const config = useConfigService();
   const auth = useClientRequestAuth();
@@ -19,13 +23,6 @@ export function useManageSubscription(): () => Promise<void> {
       headers: clientAuthHeaders(auth, { requireAccountIdForBearer: true }),
       body: JSON.stringify({ returnUrl }),
     });
-    if (!res.ok) {
-      throw new Error(`billing portal failed (${String(res.status)})`);
-    }
-    const body = (await res.json()) as { url?: unknown };
-    if (typeof body.url !== 'string' || body.url.length === 0) {
-      throw new Error('billing portal returned no url');
-    }
-    await openExternalUrl(body.url);
+    await openExternalUrl(await providerUrlFrom(res, 'portal'));
   };
 }

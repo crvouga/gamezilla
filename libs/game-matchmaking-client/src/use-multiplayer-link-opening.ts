@@ -8,7 +8,7 @@ import { useMyId } from '@libs/auth-client/use-current-user';
 import { LINKED_MULTIPLAYER_PARAM } from '@libs/game-matchmaking-shared/multiplayer-link';
 import { spaceGameHref } from '@libs/spaces-client/space-routes';
 import { useCreateSpace } from '@libs/spaces-client/use-create-space';
-import type { Decision } from '@pkgs/permissions-shared/decision';
+import { useTimers } from '@pkgs/clock-client/solid';
 import sql from '@pkgs/sql-root-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
@@ -21,10 +21,11 @@ import {
   onCleanup,
   untrack,
 } from 'solid-js';
-
-export type MultiplayerLinkOpening =
-  | { readonly kind: 'opening' }
-  | { readonly kind: 'spaceLimited'; readonly decision: Decision };
+import {
+  type MultiplayerLinkOpening,
+  type MultiplayerLinkTarget,
+  startMultiplayerLinkAttempt,
+} from './multiplayer-link-attempt';
 
 type SpaceRow = { readonly id: string };
 
@@ -45,43 +46,54 @@ function useHostedSpaceId(myId: Accessor<string>): {
   return { id: () => rows()[0]?.id ?? null, ready: () => !isLoading() };
 }
 
+export type MultiplayerLinkOpeningState = {
+  readonly opening: Accessor<MultiplayerLinkOpening>;
+  /** Start over after a failure; reuses a space a late try did create. */
+  readonly retry: () => void;
+};
+
 export function useMultiplayerLinkOpening(
   gameId: string
-): Accessor<MultiplayerLinkOpening> {
+): MultiplayerLinkOpeningState {
   const myId = useMyId();
   const router = useRouter();
+  const timers = useTimers();
   const createSpace = useCreateSpace();
   const hosted = useHostedSpaceId(myId);
   const [opening, setOpening] = createSignal<MultiplayerLinkOpening>({
     kind: 'opening',
   });
+  const [attempt, setAttempt] = createSignal(0);
 
-  const open = async (live: () => boolean): Promise<void> => {
+  const resolveTarget = async (): Promise<MultiplayerLinkTarget> => {
     const hostedId = untrack(hosted.id);
-    const created = hostedId === null ? await createSpace() : null;
-    if (!live()) return;
-    if (created?.kind === 'limited') {
-      setOpening({ kind: 'spaceLimited', decision: created.decision });
-      return;
-    }
-    const spaceId = hostedId ?? created?.spaceId;
-    if (spaceId === undefined) return;
-    router.replace(
-      spaceGameHref(spaceId, gameId, { [LINKED_MULTIPLAYER_PARAM]: '1' })
-    );
+    if (hostedId !== null) return { kind: 'space', spaceId: hostedId };
+    const created = await createSpace();
+    return created.kind === 'limited'
+      ? { kind: 'spaceLimited', decision: created.decision }
+      : { kind: 'space', spaceId: created.spaceId };
   };
 
   // Latched: a later re-query must not open the link a second time.
   const localReady = createMemo<boolean>((was) => was || hosted.ready(), false);
   createEffect(
-    on(localReady, (ready) => {
-      if (!ready) return;
-      let live = true;
-      onCleanup(() => {
-        live = false;
+    on(attempt, () => {
+      const current = startMultiplayerLinkAttempt({
+        timers,
+        resolveTarget,
+        openSpace: (spaceId) =>
+          router.replace(
+            spaceGameHref(spaceId, gameId, { [LINKED_MULTIPLAYER_PARAM]: '1' })
+          ),
+        settle: setOpening,
       });
-      void open(() => live);
+      onCleanup(current.cancel);
+      createEffect(
+        on(localReady, (ready) => {
+          if (ready) current.ready();
+        })
+      );
     })
   );
-  return opening;
+  return { opening, retry: () => setAttempt((n) => n + 1) };
 }

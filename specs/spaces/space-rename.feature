@@ -102,6 +102,26 @@ Feature: Rename a space
       When the connection comes back
       Then Alice sees the space is named after Alice within 15 seconds
 
+  Rule: An offline rename refused once the connection comes back is undone and the host is told why
+
+    Background:
+      Given Alice is hosting a space that Bob joined from the link
+      And Alice is offline
+
+    @regression:refused-instant-write-silently-undone
+    Scenario: An offline rename to a name the team stopped allowing meanwhile is undone and explained
+      Given the team has stopped allowing the space name "Cheater corner"
+      And Alice has renamed the space to "Cheater corner"
+      When the connection comes back
+      Then Alice is told renaming the space was refused because that space name is not allowed
+      And Alice sees the space is named after Alice within 15 seconds
+
+    Scenario: An offline rename to an allowed name is shared without a refusal
+      Given Alice has renamed the space to "Friday puzzles"
+      When the connection comes back
+      Then Bob sees the space is called "Friday puzzles" within 30 seconds
+      And Alice is not told renaming the space was refused
+
   Rule: A space with no name of its own is named after its host as everyone sees them
     No counter-example: the host's name is theirs to change; nothing done in the space changes it.
 

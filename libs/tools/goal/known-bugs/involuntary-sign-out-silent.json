@@ -1,0 +1,4 @@
+{
+  "summary": "A device whose sign-in ended elsewhere (signed out everywhere, or lapsed) silently turned into a new guest, with only a logged warning, and changes it had not shared were dropped without a word. Fixed: AuthBridge records a durable notice (counting the account's unsent changes first) unless the sign-out was asked for on this device, and SignedOutNoticeBanner says so with a Sign in action.",
+  "regressionTest": "specs/profile/sessions.feature"
+}

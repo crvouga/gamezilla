@@ -20,10 +20,11 @@ export function PrivacyExplanation(): JSX.Element {
       </p>
       <p class="text textBody">
         <Trans>
-          Hosted spaces will end. Future membership charges will stop. If the
-          payment provider has not confirmed cancellation yet, we will say so.
-          Any membership payment taken after confirmed deletion will be refunded
-          in full.
+          Hosted spaces will end. If you have Plus, Plus ends at once: the
+          remaining paid time and Plus credit are not refunded. Future
+          membership charges will stop. If the payment provider has not
+          confirmed cancellation yet, we will say so. Any membership payment
+          taken after confirmed deletion will be refunded in full.
         </Trans>
       </p>
       <div class="box gap-2" data-testid="privacy-retention">

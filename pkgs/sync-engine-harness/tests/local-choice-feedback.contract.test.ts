@@ -126,11 +126,10 @@ test('feedback belongs to its client and dismissing a refusal does not claim acc
   expect(bob.getSnapshot()).toEqual([]);
   await s.apply(mutate, 'alice', localNote, { ...NOTE, body: 'refused' });
   const rejection = await waitFeedback(s, alice, 'rejected');
-  const rejectionId = rejection?.rejectionId;
-  if (rejectionId === null || rejectionId === undefined)
-    throw new Error('No refusal id');
+  if (rejection === null || rejection === undefined)
+    throw new Error('No refusal');
   await s.apply(mutate, 'alice', acknowledgeWriteRejectionMutation, {
-    rejectionId,
+    mutationId: rejection.mutationId,
   });
   await s.until(() => alice.getSnapshot(), {
     pred: (rows) => rows.length === 0,

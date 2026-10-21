@@ -40,6 +40,12 @@ export type DrainOutboxDeps = {
 
 export type DrainOutboxResult = {
   readonly processed: number;
+  /**
+   * Deliveries this pass gave up on: their last attempt failed (or the payload
+   * could never be read), so they are parked and will not run again without
+   * reconciliation. Hosts count these; a log line alone goes unseen.
+   */
+  readonly exhausted: number;
   readonly notifyUserIds: readonly string[];
 };
 
@@ -57,13 +63,13 @@ export async function drainOutbox(
   });
   const notifyUserIds = new Set<string>();
 
-  const processed = await deps.db.transaction(async (tx) => {
+  const { processed, exhausted } = await deps.db.transaction(async (tx) => {
     await ensureDeliveries(tx, deps.registry, deps.clock);
     const claims = await claimDueDeliveries(tx, { ...deps, limit });
     return processClaims({ deps, tx, claims, log, notifyUserIds });
   });
 
-  return { processed, notifyUserIds: [...notifyUserIds].sort() };
+  return { processed, exhausted, notifyUserIds: [...notifyUserIds].sort() };
 }
 
 async function processClaims(args: {
@@ -72,9 +78,10 @@ async function processClaims(args: {
   claims: readonly ClaimRow[];
   log: ReturnType<typeof createLogger>;
   notifyUserIds: Set<string>;
-}): Promise<number> {
+}): Promise<{ processed: number; exhausted: number }> {
   const { deps, tx, claims, log, notifyUserIds } = args;
   let count = 0;
+  let exhausted = 0;
   for (const claim of claims) {
     const consumer = deps.registry.get(claim.consumer_id);
     if (consumer === undefined) {
@@ -111,9 +118,11 @@ async function processClaims(args: {
       for (const id of result.notifyUserIds) {
         if (id.length > 0) notifyUserIds.add(id);
       }
+    } else if (result.parked) {
+      exhausted += 1;
     }
   }
-  return count;
+  return { processed: count, exhausted };
 }
 
 /** Events given a delivery per consumer in one pass. */
@@ -202,6 +211,8 @@ async function loadEvent(
 
 export type DeliveryResult = {
   readonly ok: boolean;
+  /** The delivery spent its last attempt (or can never run) and is parked. */
+  readonly parked: boolean;
   readonly notifyUserIds: readonly string[];
   readonly failure?: string;
 };
@@ -275,34 +286,34 @@ async function runDelivery(args: {
         ? (JSON.parse(event.payload) as unknown)
         : event.payload;
   } catch (error: unknown) {
-    await failDelivery({
-      tx,
-      clock,
-      claim,
-      policy,
-      error: error instanceof Error ? error.message : String(error),
-      log,
-      permanent: true,
-    });
     return {
       ok: false,
+      parked: await failDelivery({
+        tx,
+        clock,
+        claim,
+        policy,
+        error: error instanceof Error ? error.message : String(error),
+        log,
+        permanent: true,
+      }),
       notifyUserIds: [],
       failure: 'payload is not valid JSON',
     };
   }
 
   if (!consumer.on.validatePayload(payload)) {
-    await failDelivery({
-      tx,
-      clock,
-      claim,
-      policy,
-      error: `invalid payload for ${event.type}`,
-      log,
-      permanent: true,
-    });
     return {
       ok: false,
+      parked: await failDelivery({
+        tx,
+        clock,
+        claim,
+        policy,
+        error: `invalid payload for ${event.type}`,
+        log,
+        permanent: true,
+      }),
       notifyUserIds: [],
       failure: `invalid payload for ${event.type}`,
     };
@@ -324,12 +335,13 @@ async function runDelivery(args: {
     await markProcessed(tx, claim, clock);
     return {
       ok: true,
+      parked: false,
       notifyUserIds: result?.notifyUserIds ?? [],
     };
   } catch (error: unknown) {
     await transaction.run(raw(`ROLLBACK TO SAVEPOINT ${DELIVERY_SAVEPOINT}`));
     const message = error instanceof Error ? error.message : String(error);
-    await failDelivery({
+    const parked = await failDelivery({
       tx,
       clock,
       claim,
@@ -339,7 +351,7 @@ async function runDelivery(args: {
       permanent: false,
       conflict: isTransientConflict(error),
     });
-    return { ok: false, notifyUserIds: [], failure: message };
+    return { ok: false, parked, notifyUserIds: [], failure: message };
   }
 }
 
@@ -358,6 +370,7 @@ async function markProcessed(
   `);
 }
 
+/** Schedules a retry, or parks a spent delivery and returns true. */
 async function failDelivery(args: {
   readonly tx: SqlTx;
   readonly clock: Clock;
@@ -368,7 +381,7 @@ async function failDelivery(args: {
   readonly permanent: boolean;
   /** The database aborted this attempt in a race; the work itself is not at fault. */
   readonly conflict?: boolean;
-}): Promise<void> {
+}): Promise<boolean> {
   const { tx, clock, claim, policy, error, log, permanent } = args;
   const conflict = args.conflict === true && !permanent;
   // A lost race costs no attempt: spending the retry budget on contention would
@@ -391,7 +404,7 @@ async function failDelivery(args: {
        WHERE event_id = ${claim.event_id}
          AND consumer_id = ${claim.consumer_id}
     `);
-    return;
+    return true;
   }
   const backoff =
     policy.backoffMs[
@@ -413,4 +426,5 @@ async function failDelivery(args: {
      WHERE event_id = ${claim.event_id}
        AND consumer_id = ${claim.consumer_id}
   `);
+  return false;
 }

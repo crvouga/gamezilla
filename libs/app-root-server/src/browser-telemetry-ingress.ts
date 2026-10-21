@@ -12,6 +12,14 @@ import type { Context, Hono } from 'hono';
 const BROWSER_SERVICE_NAME = 'gamezilla-client';
 
 type IngressContext = Context<ApiHonoEnv<AuthContext>>;
+
+/**
+ * The largest body the shipped browser client sends: a log batch holds at most
+ * 256 records of 32 attributes of 512 characters (the SDK limits), about 4 MiB
+ * before the envelope. The client drops a batch this relay refuses with 413
+ * rather than resending it, so the cap never wedges its queue.
+ */
+const MAX_BROWSER_TELEMETRY_BYTES = 5 * 1024 * 1024;
 type Signal = 'traces' | 'logs' | 'metrics';
 export type BrowserTelemetryEnv = Pick<
   ServerEnv,
@@ -45,7 +53,7 @@ export function mountBrowserTelemetryIngress(
     const denied = preflightDenied(c, env, signal);
     if (denied !== undefined) return denied;
     const contentType = c.req.header('content-type')?.toLowerCase() ?? '';
-    const body = await readBoundedBody(c.req.raw, 5 * 1024 * 1024);
+    const body = await readBoundedBody(c.req.raw, MAX_BROWSER_TELEMETRY_BYTES);
     if (body === null) {
       return c.json({ error: 'observability_payload_too_large' }, 413);
     }

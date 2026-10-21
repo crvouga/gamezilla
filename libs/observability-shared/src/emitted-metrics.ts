@@ -6,9 +6,14 @@
  * silently emptying a graph.
  */
 
+import { BILLING_CALLBACKS_METRIC } from '@pkgs/observability-root-shared/billing-metrics';
 import { httpMetricContracts } from '@pkgs/observability-root-shared/http-metrics';
 import type { MetricContract } from '@pkgs/observability-root-shared/metric-contract';
 import { MUTATION_REPLAYS_METRIC } from '@pkgs/observability-root-shared/mutation-metrics';
+import {
+  OUTBOX_DELIVERIES_EXHAUSTED_METRIC,
+  OUTBOX_DRAIN_RUNS_METRIC,
+} from '@pkgs/observability-root-shared/outbox-metrics';
 import {
   EXPORT_ATTEMPTS_METRIC,
   pipelineHeartbeatContract,
@@ -49,6 +54,9 @@ export const EMITTED_METRICS: readonly EmittedMetric[] = [
   emitted(heartbeat, Object.keys(heartbeat.dimensions)),
   emitted(EXPORT_ATTEMPTS_METRIC),
   emitted(SCHEMA_VIOLATIONS_METRIC),
+  emitted(OUTBOX_DELIVERIES_EXHAUSTED_METRIC),
+  emitted(OUTBOX_DRAIN_RUNS_METRIC),
+  emitted(BILLING_CALLBACKS_METRIC),
 ];
 
 export function emittedMetric(name: string): EmittedMetric {
@@ -83,10 +91,16 @@ export function labelOf(dimension: string): string {
  */
 export const IDENTITY_LABELS: readonly string[] = ['le', 'job', 'instance'];
 
-/** Every label name some emitted series can be selected by. */
+/**
+ * Every label name some emitted series can be selected by. An
+ * environment-scoped metric carries the environment on each point.
+ */
 export function labelsOf(metric: EmittedMetric): ReadonlySet<string> {
   return new Set([
     ...Object.keys(metric.contract.dimensions).map(labelOf),
+    ...(metric.contract.environmentScoped === true
+      ? ['deployment_environment_name']
+      : []),
     ...IDENTITY_LABELS,
   ]);
 }

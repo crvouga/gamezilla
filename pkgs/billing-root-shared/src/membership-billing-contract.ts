@@ -15,7 +15,11 @@ import {
   CONTRACT_PERIOD_END_MS,
   CONTRACT_SITUATIONS,
 } from './contract-fixtures';
-import type { MembershipBilling, ReadCallbackInput } from './membership';
+import type {
+  MembershipBilling,
+  ReadCallbackInput,
+  StartCheckoutResult,
+} from './membership';
 import { isMembershipProviderId } from './providers';
 
 /** One subscription as the harness's provider will report it. */
@@ -99,6 +103,14 @@ async function changeOf(
   return result;
 }
 
+/** The checkout a start opened (or handed back); fails on any other answer. */
+function opened(result: StartCheckoutResult) {
+  if (result.kind !== 'checkout') {
+    throw new Error(`expected a checkout, got ${result.kind}`);
+  }
+  return result;
+}
+
 function describeSessions(
   open: () => Promise<MembershipBillingContractHarness>
 ): void {
@@ -109,7 +121,9 @@ function describeSessions(
 
   test('checkout mints a customer when the account has none', async () => {
     const { billing } = await open();
-    const result = await billing.startCheckout(checkoutInput('acct-1', null));
+    const result = opened(
+      await billing.startCheckout(checkoutInput('acct-1', null))
+    );
     expect(result.customerId.length).toBeGreaterThan(0);
     assertAbsoluteUrl(result.url);
   });
@@ -139,6 +153,65 @@ function describeSessions(
       returnUrl: RETURN_URL,
     });
     assertAbsoluteUrl(portal.url);
+  });
+}
+
+/** A customer has at most one checkout that can take a payment. */
+function describeOneCheckout(
+  open: () => Promise<MembershipBillingContractHarness>
+): void {
+  test('checkout again while one is open hands back that checkout', async () => {
+    const { billing } = await open();
+    const first = opened(
+      await billing.startCheckout(checkoutInput('acct-1', null))
+    );
+    const again = opened(
+      await billing.startCheckout(checkoutInput('acct-1', first.customerId))
+    );
+    expect(again.url).toBe(first.url);
+  });
+
+  test('checkout for a customer with a live membership opens none', async () => {
+    const harness = await open();
+    const first = await harness.billing.startCheckout(
+      checkoutInput('acct-1', null)
+    );
+    harness.setSubscription({
+      ...SUBSCRIPTION,
+      id: 'sub_paid_unconfirmed',
+      customerId: first.customerId,
+      situation: 'trialing',
+    });
+    const again = await harness.billing.startCheckout(
+      checkoutInput('acct-1', first.customerId)
+    );
+    if (again.kind !== 'live_membership') throw new Error(again.kind);
+    expect(again.customerId).toBe(first.customerId);
+    expect(again.change).toMatchObject({
+      provider: harness.billing.provider,
+      customerId: first.customerId,
+      subscriptionId: 'sub_paid_unconfirmed',
+      membership: CONTRACT_EXPECTED.trialing,
+    });
+  });
+
+  test('an ended membership does not stop a new checkout', async () => {
+    const harness = await open();
+    const first = await harness.billing.startCheckout(
+      checkoutInput('acct-1', null)
+    );
+    harness.setSubscription({
+      ...SUBSCRIPTION,
+      id: 'sub_ended',
+      customerId: first.customerId,
+      situation: 'canceled_immediately',
+    });
+    const again = opened(
+      await harness.billing.startCheckout(
+        checkoutInput('acct-1', first.customerId)
+      )
+    );
+    assertAbsoluteUrl(again.url);
   });
 }
 
@@ -334,6 +407,33 @@ function describeDelivery(
   });
 }
 
+function describeRecheck(
+  open: () => Promise<MembershipBillingContractHarness>
+): void {
+  test('a re-check reports what a callback about it reports', async () => {
+    const harness = await open();
+    const change = await changeOf(harness, SUBSCRIPTION);
+    const { kind: _kind, ...reported } = change;
+    expect(await harness.billing.readMembership(SUBSCRIPTION.id)).toEqual(
+      reported
+    );
+  });
+
+  test('a re-check of a subscription the provider does not know is null', async () => {
+    const harness = await open();
+    expect(await harness.billing.readMembership('sub_unknown')).toBeNull();
+  });
+
+  test('a re-check while the provider is unreachable throws', async () => {
+    const harness = await open();
+    harness.setSubscription(SUBSCRIPTION);
+    harness.setUnavailable(true);
+    await expect(
+      harness.billing.readMembership(SUBSCRIPTION.id)
+    ).rejects.toThrow();
+  });
+}
+
 /**
  * Situations a provider's object model cannot express, each with the reason
  * (Paddle creates a subscription only once its first payment settles, so it
@@ -355,9 +455,11 @@ export function describeMembershipBillingContract(
 ): void {
   describe(`${name} satisfies the membership contract`, () => {
     describe('sessions', () => describeSessions(open));
+    describe('one checkout at a time', () => describeOneCheckout(open));
     describe('authenticity', () => describeAuthenticity(open));
     describe('projection', () =>
       describeProjection(open, options.unreachable ?? {}));
     describe('delivery', () => describeDelivery(open));
+    describe('re-check', () => describeRecheck(open));
   });
 }

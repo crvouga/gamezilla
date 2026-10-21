@@ -16,6 +16,7 @@ import type {
   StartCheckoutResult,
 } from '@pkgs/billing-root-shared/membership';
 import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
+import { isMembershipLive } from '@pkgs/billing-root-shared/precedence';
 
 import {
   PADDLE_MEMBERSHIP_CALLBACK_EVENTS,
@@ -261,7 +262,56 @@ export class PaddleMembershipBilling implements MembershipBilling {
     return url.toString();
   }
 
+  /** The subscription Paddle holds for `customerId` that is live, if any. */
+  private async liveSubscription(
+    customerId: string
+  ): Promise<PaddleSubscription | null> {
+    const query = new URLSearchParams({
+      customer_id: customerId,
+      status: 'active,trialing,past_due',
+      per_page: '200',
+    });
+    const live = await this.api.list<PaddleSubscription>(
+      `/subscriptions?${query.toString()}`
+    );
+    return (
+      live.find((subscription) =>
+        isMembershipLive(membershipStatusOf(subscription.status))
+      ) ?? null
+    );
+  }
+
+  /**
+   * The customer's newest checkout that can still take a payment. Paddle's
+   * hosted checkout has no return URL of its own, so any open one will do.
+   */
+  private async openCheckout(
+    customerId: string
+  ): Promise<PaddleTransaction | null> {
+    const query = new URLSearchParams({
+      customer_id: customerId,
+      status: 'ready',
+      per_page: '200',
+    });
+    const ready = await this.api.list<PaddleTransaction>(
+      `/transactions?${query.toString()}`
+    );
+    return ready.at(-1) ?? null;
+  }
+
   async startCheckout(input: StartCheckoutInput): Promise<StartCheckoutResult> {
+    if (input.customerId !== null) {
+      const customerId = input.customerId;
+      const live = await this.liveSubscription(customerId);
+      const change = live === null ? null : this.changeOf(live, false);
+      if (change !== null) {
+        return { kind: 'live_membership', customerId, change };
+      }
+      const open = await this.openCheckout(customerId);
+      if (open !== null) {
+        return { kind: 'checkout', customerId, url: this.checkoutLink(open) };
+      }
+    }
     const customer = input.customerId ?? (await this.mintCustomer(input));
     const { offer } = this.options;
     const spec = offer.prices[offer.defaultPriceKey];
@@ -283,7 +333,11 @@ export class PaddleMembershipBilling implements MembershipBilling {
         custom_data: { [PADDLE_CUSTOM_DATA.accountId]: input.accountId },
       }
     );
-    return { customerId: customer, url: this.checkoutLink(transaction) };
+    return {
+      kind: 'checkout',
+      customerId: customer,
+      url: this.checkoutLink(transaction),
+    };
   }
 
   async openPortal(input: OpenPortalInput): Promise<{ readonly url: string }> {
@@ -365,18 +419,37 @@ export class PaddleMembershipBilling implements MembershipBilling {
     // a cancellation is final, whatever a lagging read still says.
     const subscription = await this.current(id);
     if (subscription === null) return { kind: 'ignored' };
+    const change = this.changeOf(
+      subscription,
+      event.event_type === PADDLE_SUBSCRIPTION_ENDED_EVENT
+    );
+    return change === null
+      ? { kind: 'ignored' }
+      : { kind: 'membership', ...change };
+  }
+
+  async readMembership(subscriptionId: string) {
+    const subscription = await this.current(subscriptionId);
+    return subscription === null ? null : this.changeOf(subscription, false);
+  }
+
+  /**
+   * What a subscription as Paddle reports it now means for the membership —
+   * the one reading every callback, re-check and checkout shares. `null`
+   * when it names no customer.
+   */
+  private changeOf(
+    subscription: PaddleSubscription,
+    ended: boolean
+  ): MembershipChange | null {
     const customerId = readString(subscription.customer_id);
-    if (customerId === null) return { kind: 'ignored' };
-    const change: MembershipChange = {
+    if (customerId === null) return null;
+    return {
       provider: this.provider,
       customerId,
       subscriptionId: subscription.id,
       offerPriceKey: this.offerPriceKey(subscription),
-      membership: toMembership(
-        subscription,
-        event.event_type === PADDLE_SUBSCRIPTION_ENDED_EVENT
-      ),
+      membership: toMembership(subscription, ended),
     };
-    return { kind: 'membership', ...change };
   }
 }

@@ -90,6 +90,7 @@ export function useSyncEngine(): SyncEngineApi {
     mutationFeedback: (mutationName, scope) =>
       engine.mutationFeedback(mutationName, scope),
     listRejections: () => engine.listRejections(),
+    unheardRefusals: () => engine.unheardRefusals(),
     pendingMutationCount: () => engine.pendingMutationCount(),
     wakeUploads: engine.wakeUploads,
     notifyLocalMutation: engine.notifyLocalMutation,
