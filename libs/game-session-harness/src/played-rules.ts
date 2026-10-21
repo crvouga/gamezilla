@@ -113,9 +113,9 @@ export function recordedMove(
 export function recordedLine(
   game: KnownGame,
   proposals: readonly string[]
-): readonly string[] {
+): string[] {
   const rules = game.shared.turnGame.rules;
-  if (rules.setup === undefined) return proposals;
+  if (rules.setup === undefined) return [...proposals];
   let position = rules.initial();
   let history = '';
   const actions: string[] = [];
