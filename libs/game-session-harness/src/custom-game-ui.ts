@@ -145,9 +145,19 @@ export const configureCustomGameChoice = scenarioAction({
   act: configureCustomGame,
 });
 
-/** Send one exact choice (its own game and revision) as a modified device could. */
+/**
+ * Send one exact choice (its own game and revision) as a modified device
+ * could; becoming ready, it carries the actor side's known private setup
+ * as {@link withKnownSetup} gives it, the setup a person readies with.
+ */
 export const attemptCustomGameChoice = scenarioAction({
   name: 'attemptCustomGameChoice',
-  act: (s, actor: string, choice: CustomGameChoice) =>
-    sendCustomGameChoice(s, actor, choice).then(() => undefined),
+  act: async (s, actor: string, choice: CustomGameChoice) => {
+    const { gameId, revision } = choice;
+    await sendCustomGameChoice(s, actor, {
+      ...(await withKnownSetup(s, actor, choice)),
+      gameId,
+      revision,
+    });
+  },
 });

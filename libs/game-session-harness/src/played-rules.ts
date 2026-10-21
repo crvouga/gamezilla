@@ -103,3 +103,32 @@ export function recordedMove(
     throw new Error(`${game.label}: ${proposal} is not a move at ${position}`);
   return action;
 }
+
+/**
+ * How a known line of proposals (`firstSideVictory`, a refused or drawn
+ * line) is recorded in a game whose people readied with the known setups:
+ * each proposal resolved from the position the line had reached, or the
+ * line itself for any other game.
+ */
+export function recordedLine(
+  game: KnownGame,
+  proposals: readonly string[]
+): readonly string[] {
+  const rules = game.shared.turnGame.rules;
+  if (rules.setup === undefined) return proposals;
+  let position = rules.initial();
+  let history = '';
+  const actions: string[] = [];
+  for (const proposal of proposals) {
+    const action = recordedMove(game, position, proposal);
+    const played = rules.play(position, action, history, actions);
+    if (played === null)
+      throw new Error(
+        `${game.label}: ${proposal} is not a move at ${position}`
+      );
+    actions.push(action);
+    position = played.position;
+    history = played.history;
+  }
+  return actions;
+}
