@@ -55,3 +55,30 @@ Feature: What the billing plans tell a person
       When Alice views the billing plans
       Then Alice is not told a payment failed
       And Alice is not offered to pay with a new card
+
+  Rule: The billing plans tell a Plus member whose membership will not renew the last day of their paid access, grace included
+
+    Background:
+      Given Alice has subscribed to Plus
+
+    @regression:billing-access-date-omits-grace
+    Scenario: A Plus member who canceled sees their paid access lasts 7 days past the period end
+      Given Alice has canceled the membership in the billing portal
+      When Alice views the billing plans
+      Then Alice sees their paid access lasts until 7 days after the period end
+
+    Scenario: A Plus member whose payment failed sees their paid access lasts 7 days past the period end
+      Given Alice's payment has failed
+      When Alice views the billing plans
+      Then Alice sees their paid access lasts until 7 days after the period end
+
+    Scenario: A Plus member whose membership ended sees the last day of their paid access
+      Given Alice has canceled the membership in the billing portal
+      And Alice's billing period has ended
+      When Alice views the billing plans
+      Then Alice sees their paid access lasts until 7 days after the period end
+      And Alice has paid access
+
+    Scenario: A Plus member whose membership renews is not told a last day of paid access
+      When Alice views the billing plans
+      Then Alice is not told a last day of paid access

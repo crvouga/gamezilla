@@ -5,7 +5,7 @@
  * model decided, and nothing else.
  */
 import { describe, expect, mock, test } from 'bun:test';
-import type { BillingActions } from '@libs/billing-client/billing-plan-card';
+import type { BillingActions } from '@libs/billing-client/billing-plan-actions';
 import {
   BillingScreenLayout,
   BillingScreenView,
@@ -37,6 +37,7 @@ const NO_ACTIONS: BillingActions = {
   subscribe: () => Promise.resolve(),
   manage: () => Promise.resolve(),
   unlock: () => undefined,
+  checkAgain: () => undefined,
 };
 
 function renderView(view: BillingView, actions: BillingActions = NO_ACTIONS) {

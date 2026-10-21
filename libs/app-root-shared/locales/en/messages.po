@@ -388,7 +388,7 @@ msgid "Action required"
 msgstr "Action required"
 
 #. placeholder {0}: date()
-#: libs/billing-client/src/billing-plan-card.tsx
+#: libs/billing-client/src/billing-status-line.tsx
 msgid "Active · renews {0}"
 msgstr "Active · renews {0}"
 
@@ -747,9 +747,15 @@ msgid "Cancel game"
 msgstr "Cancel game"
 
 #. placeholder {0}: date()
-#: libs/billing-client/src/billing-plan-card.tsx
-msgid "Canceled · access until {0}"
-msgstr "Canceled · access until {0}"
+#: libs/billing-client/src/billing-status-line.tsx
+msgid "Canceled · ends {0}"
+msgstr "Canceled · ends {0}"
+
+#. placeholder {0}: date()
+#. placeholder {1}: access()
+#: libs/billing-client/src/billing-status-line.tsx
+msgid "Canceled · ends {0} · Plus access until {1}"
+msgstr "Canceled · ends {0} · Plus access until {1}"
 
 #: libs/friends-client/src/friend-action-status-renderers.tsx
 msgid "Cancelled"
@@ -783,6 +789,7 @@ msgstr "Change participant"
 msgid "Change the search or increase the desired synthetic population."
 msgstr "Change the search or increase the desired synthetic population."
 
+#: libs/billing-client/src/billing-plan-actions.tsx
 #: pkgs/ui-root-client/src/mutation-modal-parts.tsx
 msgid "Check again"
 msgstr "Check again"
@@ -802,6 +809,10 @@ msgstr "Check your email"
 #: libs/chess-puzzle-client/src/puzzle-source-controls.tsx
 msgid "Checking for the saved Lichess file…"
 msgstr "Checking for the saved Lichess file…"
+
+#: libs/billing-client/src/billing-status-line.tsx
+msgid "Checking your membership…"
+msgstr "Checking your membership…"
 
 #: libs/chess-root-client/src/chess-game-presentation.tsx
 msgid "checkmate"
@@ -983,6 +994,10 @@ msgstr "Confirm permanent deletion"
 msgid "Confirmed"
 msgstr "Confirmed"
 
+#: libs/billing-client/src/billing-plan-card.tsx
+msgid "Confirming your payment… Your membership shows here as soon as the payment provider confirms it."
+msgstr "Confirming your payment… Your membership shows here as soon as the payment provider confirms it."
+
 #: libs/friends-client/src/friend-action-pill-buttons.tsx
 msgid "Confirming…"
 msgstr "Confirming…"
@@ -1162,11 +1177,11 @@ msgstr "Couldn't leave space"
 msgid "Couldn't open"
 msgstr "Couldn't open"
 
-#: libs/billing-client/src/billing-plan-card.tsx
+#: libs/billing-client/src/billing-plan-actions.tsx
 msgid "Couldn't open billing"
 msgstr "Couldn't open billing"
 
-#: libs/billing-client/src/billing-plan-card.tsx
+#: libs/billing-client/src/billing-plan-actions.tsx
 msgid "Couldn't open checkout"
 msgstr "Couldn't open checkout"
 
@@ -1681,7 +1696,7 @@ msgstr "Finished"
 msgid "Finished custom games in this space and your recent matched games."
 msgstr "Finished custom games in this space and your recent matched games."
 
-#: libs/billing-client/src/billing-plan-card.tsx
+#: libs/billing-client/src/billing-status-line.tsx
 msgid "Finishing checkout…"
 msgstr "Finishing checkout…"
 
@@ -1731,9 +1746,9 @@ msgstr "Free plan"
 
 #. placeholder {0}: date()
 #. placeholder {1}: days()
-#: libs/billing-client/src/billing-plan-card.tsx
-msgid "Free trial · ends {0} ({1} days left)"
-msgstr "Free trial · ends {0} ({1} days left)"
+#: libs/billing-client/src/billing-status-line.tsx
+msgid "Free trial · ends {0} ({1, plural, one {# day left} other {# days left}})"
+msgstr "Free trial · ends {0} ({1, plural, one {# day left} other {# days left}})"
 
 #: libs/friends-client/src/friend-request-decision-modal.tsx
 msgid "Friend request"
@@ -2238,7 +2253,7 @@ msgstr "Make your first move"
 msgid "Manage or cancel anytime from the billing portal"
 msgstr "Manage or cancel anytime from the billing portal"
 
-#: libs/billing-client/src/billing-plan-card.tsx
+#: libs/billing-client/src/billing-plan-actions.tsx
 msgid "Manage subscription"
 msgstr "Manage subscription"
 
@@ -2281,10 +2296,20 @@ msgstr "Membership cancellation has completed."
 msgid "Membership cancellation is still being completed."
 msgstr "Membership cancellation is still being completed."
 
+#: libs/billing-client/src/billing-status-line.tsx
+msgid "Membership ended"
+msgstr "Membership ended"
+
 #. placeholder {0}: date()
-#: libs/billing-client/src/billing-plan-card.tsx
+#: libs/billing-client/src/billing-status-line.tsx
 msgid "Membership ended {0}"
 msgstr "Membership ended {0}"
+
+#. placeholder {0}: date()
+#. placeholder {1}: access()
+#: libs/billing-client/src/billing-status-line.tsx
+msgid "Membership ended {0} · Plus access until {1}"
+msgstr "Membership ended {0} · Plus access until {1}"
 
 #: libs/billing-client/src/billing-plan-card.tsx
 msgid "Memberships aren't available right now."
@@ -2519,7 +2544,7 @@ msgstr "No matching styles"
 msgid "No matching themes"
 msgstr "No matching themes"
 
-#: libs/billing-client/src/billing-plan-card.tsx
+#: libs/billing-client/src/billing-status-line.tsx
 msgid "No membership yet."
 msgstr "No membership yet."
 
@@ -2748,7 +2773,7 @@ msgstr "Open place"
 msgid "Open space {0}"
 msgstr "Open space {0}"
 
-#: libs/billing-client/src/billing-plan-card.tsx
+#: libs/billing-client/src/billing-plan-actions.tsx
 #: libs/spaces-client/src/spaces-screen.tsx
 msgid "Opening…"
 msgstr "Opening…"
@@ -2816,10 +2841,14 @@ msgstr "Pause"
 msgid "Paused"
 msgstr "Paused"
 
-#. placeholder {0}: date()
-#: libs/billing-client/src/billing-plan-card.tsx
-msgid "Payment failed · access until {0}"
-msgstr "Payment failed · access until {0}"
+#: libs/billing-client/src/billing-status-line.tsx
+msgid "Payment failed"
+msgstr "Payment failed"
+
+#. placeholder {0}: access()
+#: libs/billing-client/src/billing-status-line.tsx
+msgid "Payment failed · Plus access until {0}"
+msgstr "Payment failed · Plus access until {0}"
 
 #: libs/billing-client/src/billing-screen-view.tsx
 msgid "Payments are processed securely by our billing provider. We never see your card details."
@@ -3865,7 +3894,7 @@ msgid "Start"
 msgstr "Start"
 
 #. placeholder {0}: props.trialDays
-#: libs/billing-client/src/billing-plan-card.tsx
+#: libs/billing-client/src/billing-plan-actions.tsx
 msgid "Start {0}-day free trial"
 msgstr "Start {0}-day free trial"
 
@@ -3949,7 +3978,7 @@ msgstr "Streak"
 msgid "Style"
 msgstr "Style"
 
-#: libs/billing-client/src/billing-plan-card.tsx
+#: libs/billing-client/src/billing-plan-actions.tsx
 msgid "Subscribe"
 msgstr "Subscribe"
 
@@ -4182,6 +4211,14 @@ msgstr "The multiplayer game was aborted."
 msgid "The other participant may still return. Wait before claiming the win."
 msgstr "The other participant may still return. Wait before claiming the win."
 
+#: libs/billing-client/src/billing-plan-actions.tsx
+msgid "The payment provider can't be reached right now. Nothing changed — try again in a moment."
+msgstr "The payment provider can't be reached right now. Nothing changed — try again in a moment."
+
+#: libs/billing-client/src/billing-plan-actions.tsx
+msgid "The payment provider can't be reached right now. Nothing was charged — try again in a moment."
+msgstr "The payment provider can't be reached right now. Nothing was charged — try again in a moment."
+
 #: libs/auth-client/src/auth-flow-messages.tsx
 msgid "The sign-in provider couldn't finish. Try again in a moment."
 msgstr "The sign-in provider couldn't finish. Try again in a moment."
@@ -4238,6 +4275,10 @@ msgstr "They will leave this space. They can choose to join again through the sp
 #: libs/friends-client/src/friend-user-danger-modals.tsx
 msgid "They won't be able to send you friend requests."
 msgstr "They won't be able to send you friend requests."
+
+#: libs/billing-client/src/billing-plan-actions.tsx
+msgid "This account already has a membership, so nothing was charged. Looking for it now."
+msgstr "This account already has a membership, so nothing was charged. Looking for it now."
 
 #: libs/auth-client/src/auth-flow-messages.tsx
 msgid "This account already has a sign-in method from that provider. Remove it first to use a different one."
@@ -4380,6 +4421,10 @@ msgstr "Try a different search term."
 msgid "Try again"
 msgstr "Try again"
 
+#: libs/billing-client/src/billing-plan-actions.tsx
+msgid "Try again in a moment"
+msgstr "Try again in a moment"
+
 #: libs/friends-client/src/friend-action-status-renderers.tsx
 msgid "Try again later"
 msgstr "Try again later"
@@ -4482,7 +4527,7 @@ msgstr "Untimed"
 msgid "Update"
 msgstr "Update"
 
-#: libs/billing-client/src/billing-plan-card.tsx
+#: libs/billing-client/src/billing-plan-actions.tsx
 msgid "Update payment method"
 msgstr "Update payment method"
 
@@ -4677,6 +4722,10 @@ msgstr "Yes"
 #: libs/spaces-client/src/space-members-list.tsx
 msgid "You"
 msgstr "You"
+
+#: libs/billing-client/src/billing-plan-actions.tsx
+msgid "You already have a membership"
+msgstr "You already have a membership"
 
 #. placeholder {0}: gameSideLabel(props.game.fen, white(props) ? 'white' : 'black')
 #: libs/game-matchmaking-client/src/multiplayer-status.tsx
@@ -4873,6 +4922,10 @@ msgstr "Your opponent won the multiplayer game."
 #: libs/game-matchmaking-client/src/multiplayer-status.tsx
 msgid "Your opponent's turn."
 msgstr "Your opponent's turn."
+
+#: libs/billing-client/src/billing-plan-card.tsx
+msgid "Your payment isn't confirmed yet, but it may have gone through. Check again before paying again."
+msgstr "Your payment isn't confirmed yet, but it may have gone through. Check again before paying again."
 
 #: libs/account-privacy-client/src/export-choice.tsx
 msgid "Your personal-data export is being prepared. It will be ready within 24 hours of asking."

@@ -16,12 +16,15 @@ import type {
   OfferPriceSpec,
   PlusMembershipOffer,
 } from '@pkgs/billing-root-shared/offer';
+import { paidAccessEndsAtMs } from '@pkgs/billing-root-shared/precedence';
 
 /** Whether the membership makes the account a member right now. */
 export type BillingTier = 'free' | 'paid';
 
 /** The membership as the person understands it. */
 export type MembershipState =
+  /** The device does not know yet where the membership stands. */
+  | 'loading'
   | 'none'
   | 'incomplete'
   | 'trialing'
@@ -37,7 +40,11 @@ export type BillingNotice =
   | 'delinquent'
   | 'incomplete'
   /** Subscribing is on offer, but the device cannot reach the server. */
-  | 'offline';
+  | 'offline'
+  /** Back from paying at checkout; the new membership has not shown yet. */
+  | 'confirming'
+  /** Still no new membership a while after paying: check before paying again. */
+  | 'unconfirmed';
 
 export type BillingViewInput = {
   /** The live policy grants `billing:view` (denied while billing is off). */
@@ -56,13 +63,22 @@ export type BillingViewInput = {
   readonly confirmedAtMs: number | null;
   /** The device can reach the server right now. */
   readonly online: boolean;
+  /** The row is not known yet (`row: null` does not mean "none"). */
+  readonly loading: boolean;
+  /** When the person came back from paying at checkout, or `null`. */
+  readonly checkoutReturnedAtMs: number | null;
 };
 
 export type BillingView = {
   readonly tier: BillingTier;
   readonly state: MembershipState;
-  /** Trial end, renewal, access end or end — whichever `state` is about. */
+  /** Trial end, renewal or end — whichever `state` is about. */
   readonly periodEndMs: number | null;
+  /**
+   * The last instant of paid access a membership that will not renew leaves
+   * (its period end plus grace), while it is still ahead; else `null`.
+   */
+  readonly accessEndsMs: number | null;
   /** Whole days until `periodEndMs` (never negative), when it is ahead. */
   readonly daysLeft: number | null;
   /** The offer price the membership is on, when known. */
@@ -71,6 +87,8 @@ export type BillingView = {
   /** Label of the `unlock` primary action. */
   readonly unlockLabel: string | null;
   readonly manage: boolean;
+  /** Offer to look again for a membership a paid checkout should have made. */
+  readonly checkAgain: boolean;
   readonly notice: BillingNotice | null;
   /** The offer's prices and benefits (hidden while billing is off). */
   readonly showPricing: boolean;
@@ -79,6 +97,30 @@ export type BillingView = {
 };
 
 const DAY_MS = 86_400_000;
+
+/**
+ * How long after coming back from paying the screen waits for the new
+ * membership before saying it may still have gone through.
+ */
+export const CHECKOUT_CONFIRMING_MS = 2 * 60_000;
+
+/** States whose membership no longer renews at its period end. */
+const NOT_RENEWING: ReadonlySet<MembershipState> = new Set<MembershipState>([
+  'canceling',
+  'delinquent',
+  'ended',
+]);
+
+/** States with no date to show, and with no plan to mark current. */
+const NO_DATE: ReadonlySet<MembershipState> = new Set<MembershipState>([
+  'loading',
+  'none',
+  'incomplete',
+]);
+const NO_PLAN: ReadonlySet<MembershipState> = new Set<MembershipState>([
+  'loading',
+  'none',
+]);
 
 /**
  * An unreadable row — blank or unknown status — is "no membership", the same
@@ -119,12 +161,32 @@ function creditCentsOf(row: MembershipRow | null): number {
   return Math.max(0, Math.trunc(parsed));
 }
 
+/** Where a paid checkout stands while its membership has not shown yet. */
+type CheckoutReturn = 'confirming' | 'unconfirmed' | null;
+
+function checkoutReturnOf(
+  input: BillingViewInput,
+  state: MembershipState
+): CheckoutReturn {
+  const returnedAt = input.checkoutReturnedAtMs;
+  if (returnedAt === null || !input.canView || !input.canManage) return null;
+  // Any membership newer than the checkout ends the wait; an older ended one
+  // is what a returning member subscribes again from.
+  if (state !== 'none' && state !== 'ended') return null;
+  return input.nowMs < returnedAt + CHECKOUT_CONFIRMING_MS
+    ? 'confirming'
+    : 'unconfirmed';
+}
+
 function primaryOf(
   input: BillingViewInput,
   state: MembershipState,
-  tier: BillingTier
+  tier: BillingTier,
+  checkout: CheckoutReturn
 ): BillingPrimaryAction {
-  if (!input.canView) return 'none';
+  if (!input.canView || state === 'loading') return 'none';
+  // Until a paid checkout's membership shows, a second one could charge twice.
+  if (checkout === 'confirming') return 'none';
   // A live or delinquent member manages it in the portal; a second checkout
   // would start a second subscription. An ended membership can start again at
   // once, even while its grace still grants paid access.
@@ -139,44 +201,73 @@ function primaryOf(
 function noticeOf(
   input: BillingViewInput,
   state: MembershipState,
-  primary: BillingPrimaryAction
+  primary: BillingPrimaryAction,
+  checkout: CheckoutReturn
 ): BillingNotice | null {
   if (!input.canView) return 'unavailable';
+  if (checkout === 'confirming') return 'confirming';
   // Checkout happens at the provider: offline, say so before the press.
   if (primary === 'subscribe' && !input.online) return 'offline';
+  if (checkout === 'unconfirmed') return 'unconfirmed';
   if (state === 'delinquent') return 'delinquent';
   if (state === 'incomplete') return 'incomplete';
   return null;
 }
 
+function accessEndsOf(
+  input: BillingViewInput,
+  state: MembershipState,
+  periodEndMs: number | null
+): number | null {
+  if (periodEndMs === null || !NOT_RENEWING.has(state)) return null;
+  const endsMs = paidAccessEndsAtMs(periodEndMs, input.graceMs);
+  return endsMs < input.nowMs ? null : endsMs;
+}
+
+/** When the paid checkout's wait turns into "check again", if still ahead. */
+function confirmingEndsAtMs(input: BillingViewInput): number | null {
+  if (input.checkoutReturnedAtMs === null) return null;
+  const endsAt = input.checkoutReturnedAtMs + CHECKOUT_CONFIRMING_MS;
+  return endsAt > input.nowMs ? endsAt : null;
+}
+
 /** When the view would change with only time passing, or `null`. */
 export function billingViewChangesAtMs(input: BillingViewInput): number | null {
   const row = input.canManage ? input.row : null;
-  return rowMembershipLapsesAtMs(row, input);
+  const lapsesAt = rowMembershipLapsesAtMs(row, input);
+  const confirmingEndsAt = confirmingEndsAtMs(input);
+  if (lapsesAt === null) return confirmingEndsAt;
+  if (confirmingEndsAt === null) return lapsesAt;
+  return Math.min(lapsesAt, confirmingEndsAt);
 }
 
 export function buildBillingView(input: BillingViewInput): BillingView {
   // Membership details belong to whoever may manage billing; a row left on
   // the device says nothing about anyone else.
   const row = input.canManage ? input.row : null;
-  const state = membershipStateOf(row);
+  // Until the row is known, "no membership" would be a guess — and offering
+  // a checkout on it could start a second membership.
+  const loading = input.canManage && input.loading && row === null;
+  const state: MembershipState = loading ? 'loading' : membershipStateOf(row);
   const tier: BillingTier = rowGrantsMembership(row, input) ? 'paid' : 'free';
-  const periodEndMs =
-    state === 'none' || state === 'incomplete' ? null : periodEndOf(row);
-  const primary = primaryOf(input, state, tier);
+  const periodEndMs = NO_DATE.has(state) ? null : periodEndOf(row);
+  const checkout = checkoutReturnOf(input, state);
+  const primary = primaryOf(input, state, tier, checkout);
   return {
     tier,
     state,
     periodEndMs,
+    accessEndsMs: accessEndsOf(input, state, periodEndMs),
     daysLeft:
       periodEndMs === null || periodEndMs < input.nowMs
         ? null
         : Math.ceil((periodEndMs - input.nowMs) / DAY_MS),
-    priceKey: state === 'none' ? null : (row?.price_key ?? null),
+    priceKey: NO_PLAN.has(state) ? null : (row?.price_key ?? null),
     primary,
     unlockLabel: primary === 'unlock' ? input.subscribeUnlockLabel : null,
-    manage: input.canView && input.canManage && input.hasCustomer,
-    notice: noticeOf(input, state, primary),
+    manage: !loading && input.canView && input.canManage && input.hasCustomer,
+    checkAgain: checkout === 'unconfirmed',
+    notice: noticeOf(input, state, primary, checkout),
     showPricing: input.canView,
     creditCents: creditCentsOf(row),
   };
