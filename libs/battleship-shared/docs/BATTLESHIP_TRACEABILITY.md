@@ -13,7 +13,7 @@ Abbreviations:
 - **Rules tests** — `libs/battleship-shared/tests/` (`placement`, `combat`,
   `properties`, `bots`, `game`), written against an independent oracle
   (`battleship-oracle.ts`), never the resolver.
-- **BS features** — `specs/battleship/*.feature` and `battleship-play.qnt`,
+- **BS features** — `specs/battleship/*.feature`, `battleship-fleet-setup.qnt` and `battleship-play.qnt`,
   bound in `libs/battleship-harness/tests/steps` and `tests/quint`.
 - **Shared specs** — `specs/games/*`, bound in `libs/games-harness/tests`.
 - **Laws** — `libs/game-session-harness/src/game-rules-laws.ts` and
@@ -54,8 +54,8 @@ Abbreviations:
 | BS-010…BS-020 board and fleet | Battleship | rules tests (placement, random fleets, canonical fleets); `battleship-fleet-placement.feature` |
 | BS-030, BS-032, BS-043, BS-128, BS-144 setup phase, independent preparation, start | framework | `custom-game-private-setup.feature`, `matched-game-private-setup.feature`, `battleship-start.feature`, `private-setup.qnt` |
 | BS-031, BS-045, BS-105, BS-142 private placement | private-information capability | privacy suites; the setup board's arrangement never leaves the device until ready; `battleship-hidden-fleets.feature` |
-| BS-033…BS-038, BS-221…BS-223 manual and random placement, rotation, refusal | Battleship (board) | `battleship-fleet-placement.feature`, `libs/battleship-client/tests/setup-board.test.tsx` |
-| BS-039, BS-040, BS-041, BS-224 readiness, validation, locking | framework | private-setup features (incomplete refused; ready locks; changes refused while ready; P-026) |
+| BS-033…BS-038, BS-221…BS-223 manual and random placement, rotation, refusal | Battleship (board) | `battleship-fleet-placement.feature`, `battleship-fleet-setup.qnt` (`invFleetLegal`, `invRejection`), `libs/battleship-client/tests/setup-board.test.tsx` |
+| BS-039, BS-040, BS-041, BS-224 readiness, validation, locking | framework | private-setup features (incomplete refused; ready locks; changes refused while ready; P-026); `battleship-fleet-setup.qnt` (`invReadyFleet`, `invOffline`) |
 | BS-042 unready | framework | custom games: withdrawing readiness unlocks; matched games offer no readiness to withdraw (a chosen setup is final) |
 | BS-044, BS-165 first shooter | framework | the first side shoots first (`battleship-start.feature`, `game-turns.feature`); matched colours by the existing balance policy |
 | BS-046, BS-148, BS-240 interruption and reconnection | framework | `custom-game-connection`, `-interruption`, `matched-game-recovery`, `-interruption` features [Battleship]; privacy suites read the catch-up sent to a reconnecting connection |
@@ -98,8 +98,8 @@ Abbreviations:
 | P-021 recovery equivalence | catch-up from the room log; recovery and interruption features |
 | P-022 private-view correctness, P-023 noninterference | privacy suites |
 | P-024 bot fairness | bots receive the public position only; `bots.test.ts` noninterference |
-| P-026 readiness validity | readiness needs a complete setup (`private-setup.qnt` `invPlayNeedsReady`, features) |
+| P-026 readiness validity | readiness needs a complete setup (`private-setup.qnt` `invPlayNeedsReady`, `battleship-fleet-setup.qnt` `invReadyFleet`, features) |
 | P-027 public-result consistency | shared custom-game and matched-game convergence; `battleship-shots.feature` (both see the result) |
 | P-028 information monotonicity | public positions only grow; laws (replay) |
 | P-029 historical authorization | history and review scenarios of the private-setup features |
-| P-030 lifecycle integrity | `private-setup.qnt`, `battleship-play.qnt`, the custom-game and matched-game models |
+| P-030 lifecycle integrity | `private-setup.qnt`, `battleship-fleet-setup.qnt`, `battleship-play.qnt`, the custom-game and matched-game models |
