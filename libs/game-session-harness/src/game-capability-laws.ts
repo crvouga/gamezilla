@@ -8,6 +8,7 @@ import fc from 'fast-check';
 import type { GameLaw } from './game-rules-laws';
 import { law, must, picks, walk } from './game-rules-laws';
 import type { HarnessGame } from './harness-game';
+import { playedRulesOf } from './played-rules';
 
 /**
  * The laws of what the shared screens and records say about a game: its
@@ -25,7 +26,7 @@ const filled = (text: string | undefined): boolean =>
  * rules refuse, never end, or end without a reason is a fault.
  */
 function knownEndings(game: HarnessGame): readonly string[] {
-  const rules = game.shared.turnGame.rules;
+  const rules = playedRulesOf(game);
   const lines = [
     ['known victory', game.fixtures.firstSideVictory],
     ["draw by the game's rules", game.fixtures.drawByRules],
@@ -91,9 +92,7 @@ export function gamePresentationLaws(game: HarnessGame): readonly GameLaw[] {
       assertProperty(
         `${game.label}: endings`,
         fc.property(picks, (drawn) => {
-          const reason = walk(game.shared.turnGame.rules, drawn).steps.at(
-            -1
-          )?.reason;
+          const reason = walk(playedRulesOf(game), drawn).steps.at(-1)?.reason;
           if (reason !== undefined && reason !== null) described(reason);
         })
       );
@@ -174,7 +173,7 @@ export function gameRecordLaws(game: HarnessGame): readonly GameLaw[] {
   const history = game.shared.turnGame.capabilities.history;
   const read = game.readRecord;
   if (history === undefined || read === undefined) return [];
-  const rules = game.shared.turnGame.rules;
+  const rules = playedRulesOf(game);
   // The known victory without its winning move: an unfinished game whose
   // result comes from the metadata (resignation, agreement, time).
   const line = game.fixtures.firstSideVictory.slice(0, -1);

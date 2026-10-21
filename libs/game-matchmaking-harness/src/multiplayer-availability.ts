@@ -5,7 +5,7 @@ import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront } from '@libs/harness/observations';
 import { Handles } from '@libs/test-ids-shared/handles';
-import { multiplayerFixture } from './multiplayer-fixtures';
+import { multiplayerFixture } from './multiplayer-fixtures-core';
 import { multiplayerView } from './multiplayer-reads';
 import { runScheduledSweep } from './multiplayer-time';
 

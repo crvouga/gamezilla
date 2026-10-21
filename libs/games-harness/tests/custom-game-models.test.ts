@@ -48,6 +48,11 @@ test('every game offering custom games shows a victory the models can follow', (
   for (const game of CONFORMANCE_GAMES.filter((candidate) =>
     offersAll(candidate, ['custom-games'])
   ))
+    expect(victoryOf(game).length).toBeGreaterThanOrEqual(VICTORY_MOVES);
+  // The whole-victory models follow exactly the seven moves.
+  for (const game of CONFORMANCE_GAMES.filter((candidate) =>
+    offersAll(candidate, ['custom-games', 'a seven-move victory'])
+  ))
     expect(victoryOf(game)).toHaveLength(VICTORY_MOVES);
 });
 
@@ -62,7 +67,7 @@ test('a victory of another length is refused with what the models need', () => {
     },
   };
   expect(() => victoryOf(shorter)).toThrow(
-    `follow a first-side victory of exactly ${String(VICTORY_MOVES)} moves`
+    `follow a first-side victory of at least ${String(VICTORY_MOVES)} moves`
   );
 });
 

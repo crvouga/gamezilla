@@ -32,7 +32,11 @@ import { secretPickBots, secretPickRules } from './secret-pick';
 const secretPick = defineTurnGame({
   rules: secretPickRules,
   capabilities: { 'custom-games': { bots: secretPickBots } },
-  automation: { choose: () => null, perform: async () => {} },
+  automation: {
+    choose: () => null,
+    perform: async () => {},
+    arrange: async () => {},
+  },
 });
 const race = defineTurnGame({
   rules: raceRules,

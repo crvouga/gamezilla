@@ -6,6 +6,7 @@ import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront } from '@libs/harness/observations';
 import { readCustomGameProbe } from './custom-game-probe';
+import { harnessGameAt, knownSetupAt } from './harness-game-of';
 
 export async function customGameReference(s: ProductHarness, actor: string) {
   const probe = await readCustomGameProbe(s, actor);
@@ -16,12 +17,39 @@ export async function customGameReference(s: ProductHarness, actor: string) {
   };
 }
 
+/** How long a choice in a game played only online waits for the space to sync. */
+const SYNC_WAIT_MS = 2000;
+
+/**
+ * A choice in a custom game with private setups is made only online: give a
+ * device that has just opened the space the moment it takes to sync. A device
+ * that really is offline is still refused, as a person would be.
+ */
+async function awaitOnlineSpace(
+  s: ProductHarness,
+  actor: string
+): Promise<void> {
+  const probe = await readCustomGameProbe(s, actor);
+  if (probe?.current == null || probe.connected) return;
+  if (
+    harnessGameAt(s, probe.current.fen).shared.turnGame.rules.setup ===
+    undefined
+  )
+    return;
+  for (let waited = 0; waited < SYNC_WAIT_MS; waited += 100) {
+    await s.session.advanceTime(100);
+    await s.harness.drainServerFetch();
+    if ((await readCustomGameProbe(s, actor))?.connected === true) return;
+  }
+}
+
 /** A modified device uses the same online-only, acknowledged client operation. */
 export async function sendCustomGameChoice(
   s: ProductHarness,
   actor: string,
   choice: CustomGameChoice
 ): Promise<string> {
+  await awaitOnlineSpace(s, actor);
   const ui = await actorUi(s, actor);
   await bringToFront(s, actor);
   const raw = JSON.stringify(choice);
@@ -41,13 +69,30 @@ export async function sendCustomGameChoice(
   );
 }
 
+/**
+ * `input`, with the actor side's known private setup when they become ready
+ * in a game that has one and the scenario names none: the setup a person
+ * readies with is the game's own known one.
+ */
+export async function withKnownSetup(
+  s: ProductHarness,
+  actor: string,
+  input: CustomGameInput
+): Promise<CustomGameInput> {
+  if (input.operation !== 'ready' || input.setup !== undefined) return input;
+  const probe = await readCustomGameProbe(s, actor);
+  if (probe?.current == null || probe.mySide === null) return input;
+  const setup = knownSetupAt(s, probe.current.fen, probe.mySide);
+  return setup === undefined ? input : { ...input, setup };
+}
+
 export async function chooseCustomGame(
   s: ProductHarness,
   actor: string,
   input: CustomGameInput
 ): Promise<string> {
   return sendCustomGameChoice(s, actor, {
-    ...input,
+    ...(await withKnownSetup(s, actor, input)),
     ...(await customGameReference(s, actor)),
   });
 }

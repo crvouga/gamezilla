@@ -19,6 +19,7 @@ import {
   seekGameOpponent,
 } from '@libs/game-matchmaking-harness/opponent-seeking';
 import type { HarnessGame } from '@libs/game-session-harness/harness-game';
+import { playedRulesOf } from '@libs/game-session-harness/played-rules';
 import type { OpenHarness } from '@libs/harness/open-harness';
 import { openConformanceHarness } from '../../conformance-world';
 import { forEveryGame } from '../game-suite';
@@ -55,7 +56,8 @@ async function agreed(s: OpenHarness) {
 }
 
 forEveryGame(import.meta.path, (game) => {
-  const rules = game.shared.turnGame.rules;
+  // Moves are proposals; the authority plays them with the game's known setups.
+  const rules = playedRulesOf(game);
   const victory = game.fixtures.firstSideVictory;
   const opening = victory[0]!;
 

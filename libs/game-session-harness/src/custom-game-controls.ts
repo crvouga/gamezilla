@@ -4,8 +4,13 @@ import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import type { CustomGameProbe } from './custom-game-probe';
 import { readCustomGameProbe } from './custom-game-probe';
-import { chooseCustomGame, waitCustomGameSettled } from './custom-game-ui';
+import {
+  chooseCustomGame,
+  waitCustomGameSettled,
+  withKnownSetup,
+} from './custom-game-ui';
 import { showCustomGames } from './game-navigation';
+import { harnessGameAt } from './harness-game-of';
 
 /** The custom-game control a person uses for `input`. */
 export function customGameControl(
@@ -123,6 +128,24 @@ async function controlUsable(
 }
 
 /**
+ * Before becoming ready in a game with private setups, arrange the setup on
+ * the game's own setup board with its gesture, as a person does.
+ */
+async function arrangeSetup(
+  s: ProductHarness,
+  actor: string,
+  input: CustomGameInput,
+  probe: CustomGameProbe
+): Promise<void> {
+  if (input.operation !== 'ready' || probe.current === null) return;
+  const ready = await withKnownSetup(s, actor, input);
+  const setup = ready.operation === 'ready' ? ready.setup : undefined;
+  const arrange = harnessGameAt(s, probe.current.fen).shared.automation.arrange;
+  if (setup === undefined || arrange === undefined) return;
+  await arrange(await actorUi(s, actor), 'custom-game-setup', setup);
+}
+
+/**
  * Make one custom-game choice with the screen's own controls where it offers
  * them (confirming a cancel or resignation), otherwise as a modified device
  * would, so a refusal is always the product's. Moves are the game's own
@@ -144,6 +167,7 @@ export async function operateCustomGameControls(
     await chooseCustomGame(s, actor, input);
     return;
   }
+  await arrangeSetup(s, actor, input, probe);
   const ui = await actorUi(s, actor);
   await ui.get(target).tap();
   if (input.operation === 'cancel' || input.operation === 'resign')

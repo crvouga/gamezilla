@@ -86,6 +86,13 @@ Then(
     });
     const moves = seen.current?.moves.map((move) => move.uci) ?? [];
     const rules = gameOf(w).shared.turnGame.rules;
-    expect(rules.legal(positionAfter(w, moves, ply))).toContain(moves[ply]!);
+    expect(
+      rules.play(
+        positionAfter(w, moves, ply),
+        moves[ply]!,
+        '',
+        moves.slice(0, ply)
+      )
+    ).not.toBeNull();
   }
 );

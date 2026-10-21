@@ -6,12 +6,14 @@ import type { ProductHarness } from '@libs/harness/harness';
 import type { HarnessSlice } from '@libs/harness/slices';
 import type { CatalogAction } from '@pkgs/harness-root-shared/effect';
 import type {
+  GameSetups,
   GameSide,
   TurnGameCapabilities,
 } from '@pkgs/turn-game-shared/game-rules';
 import { offeredCapabilities } from '@pkgs/turn-game-shared/game-rules';
 import type { KnownPuzzles, PuzzleFixture } from './known-puzzles';
 import { assertKnownPuzzles, assertMorePuzzles } from './known-puzzles';
+import { playedRulesOf } from './played-rules';
 
 /**
  * Known examples of a game's rules, written by the game's author from the
@@ -55,6 +57,13 @@ type RulesFixtures = {
    * own rules (`matched-game-rules-draw`) needs it.
    */
   readonly drawByRules?: readonly string[];
+  /**
+   * Exactly for a game with private setups: one complete setup for each
+   * side, as the game writes it. Every line above is then the proposals
+   * people make, which the authority resolves against these setups — the
+   * shared suites play them so, and a person readies with their side's.
+   */
+  readonly setups?: GameSetups;
 };
 
 /**
@@ -187,13 +196,15 @@ export function assertHarnessGame<C extends TurnGameCapabilities>(
       `its definitions name different games (defineTurnGame "${game.shared.id}", defineGameClient "${game.client.id}", rules "${rules.id}") — give defineGameClient this game's defineTurnGame value as its shared`
     );
   assertPuzzlesAgree(game, fail);
+  assertKnownSetups(game, fail);
+  const played = playedRulesOf(game);
   const { firstSideVictory, refusedOpenings } = game.fixtures;
   if (firstSideVictory.length < 2)
     fail('the first-side victory needs a move by each side');
   if (refusedOpenings.length === 0)
     fail('name at least one opening its rules refuse');
   for (const action of refusedOpenings)
-    if (rules.play(rules.initial(), action, '', []) !== null)
+    if (played.play(rules.initial(), action, '', []) !== null)
       fail(`the refused opening ${action} is accepted`);
   assertMoveNamesAndRecord(game, fail);
   const cannotWin = game.fixtures.secondSideCannotWin;
@@ -204,20 +215,44 @@ export function assertHarnessGame<C extends TurnGameCapabilities>(
   let history = '';
   const actions: string[] = [];
   for (const [index, action] of firstSideVictory.entries()) {
-    const played = rules.play(position, action, history, actions);
-    if (played === null) fail(`victory move ${action} is refused`);
+    const next = played.play(position, action, history, actions);
+    if (next === null) fail(`victory move ${action} is refused`);
     const last = index === firstSideVictory.length - 1;
-    if (last !== (played?.winner === 'white'))
+    if (last !== (next?.winner === 'white'))
       fail('the victory must be won by its last move, by the first side');
-    if (played?.label !== game.fixtures.firstSideVictoryLabels[index])
+    if (next?.label !== game.fixtures.firstSideVictoryLabels[index])
       fail(
         `victory move ${action} is not written ${String(game.fixtures.firstSideVictoryLabels[index])}`
       );
-    position = played!.position;
-    history = played!.history;
+    position = next!.position;
+    history = next!.history;
     actions.push(action);
   }
   return game;
+}
+
+/**
+ * A game with private setups names one complete setup for each side,
+ * written as the game stores it; no other game names any.
+ */
+function assertKnownSetups(
+  game: HarnessGame,
+  fail: (problem: string) => void
+): void {
+  const setup = game.shared.turnGame.rules.setup;
+  const known = game.fixtures.setups;
+  if ((setup === undefined) !== (known === undefined))
+    fail(
+      setup === undefined
+        ? 'only a game with private setups names known setups'
+        : 'a game with private setups names one known setup for each side (fixtures.setups)'
+    );
+  if (setup === undefined || known === undefined) return;
+  for (const side of ['white', 'black'] as const)
+    if (setup.accept(known[side]) !== known[side])
+      fail(
+        `the known ${side} setup is not one complete setup as the game stores it`
+      );
 }
 
 /**
@@ -300,7 +335,7 @@ function assertCannotWinLine(
   line: readonly string[],
   fail: (problem: string) => void
 ): void {
-  const rules = game.shared.turnGame.rules;
+  const rules = playedRulesOf(game);
   if (line.length % 2 === 0)
     fail(
       'the line where the second side cannot win must end with the first side'
@@ -334,7 +369,7 @@ function assertDrawingLine(
   line: readonly string[],
   fail: (problem: string) => void
 ): void {
-  const rules = game.shared.turnGame.rules;
+  const rules = playedRulesOf(game);
   let position = rules.initial();
   let history = '';
   const actions: string[] = [];

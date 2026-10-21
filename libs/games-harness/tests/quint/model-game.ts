@@ -14,8 +14,11 @@
  *   and `matched-game-shared` and `matched-game-spaces` the first move of
  *   each side, all unfinished games because the victory is longer.
  * Seven is the shortest victory every enrolled game can show (four in a row
- * needs seven moves); a game whose victory takes another number of moves
- * fails here, naming it, before any trace runs.
+ * needs seven moves). The three whole-victory models hold only for a game
+ * whose known victory takes exactly seven (the trait "a seven-move victory");
+ * a game whose every victory is longer (Battleship sinks seventeen cells) is
+ * held to the models that play the start of it. A known victory shorter than
+ * seven fails here, naming it, before any trace runs.
  */
 
 import type { HarnessGame } from '@libs/game-session-harness/harness-game';
@@ -29,9 +32,9 @@ export const VICTORY_MOVES = 7;
 /** `game`'s victory, or a failure saying what the models need of it. */
 export function victoryOf(game: HarnessGame): readonly string[] {
   const victory = game.fixtures.firstSideVictory;
-  if (victory.length !== VICTORY_MOVES)
+  if (victory.length < VICTORY_MOVES)
     throw new Error(
-      `${game.label}: the game models (specs/games/custom-game*.qnt, matched-game*.qnt) follow a first-side victory of exactly ${String(VICTORY_MOVES)} moves, but its firstSideVictory takes ${String(victory.length)} — give it a ${String(VICTORY_MOVES)}-move victory`
+      `${game.label}: the game models (specs/games/custom-game*.qnt, matched-game*.qnt) follow a first-side victory of at least ${String(VICTORY_MOVES)} moves, but its firstSideVictory takes ${String(victory.length)} — give it a victory of ${String(VICTORY_MOVES)} moves or more`
     );
   return victory;
 }

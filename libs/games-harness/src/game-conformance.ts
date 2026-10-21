@@ -40,6 +40,27 @@ export const GAME_TRAITS = {
   /** A line the game's own rules draw (`drawByRules`). */
   "a draw by the game's own rules": (game: HarnessGame) =>
     game.fixtures.drawByRules !== undefined,
+  /**
+   * Private setups each side prepares before play (`rules.setup`), which
+   * only the authority holds together; the rules laws hold such a game to
+   * resolving every proposal and never showing a setup.
+   */
+  'a private setup': (game: HarnessGame) =>
+    game.shared.turnGame.rules.setup !== undefined,
+  /**
+   * Every position public, so a custom game without another person may be
+   * played on the host's device alone; a game with private setups is not.
+   */
+  'every position public': (game: HarnessGame) =>
+    game.shared.turnGame.rules.setup === undefined,
+  /**
+   * A known first-side victory of exactly seven moves (`firstSideVictory`),
+   * which the whole-game models follow (`tests/quint/model-game.ts`). A
+   * game whose every victory is longer (Battleship needs 17 hits) is held to
+   * the models that play only the start of its known victory.
+   */
+  'a seven-move victory': (game: HarnessGame) =>
+    game.fixtures.firstSideVictory.length === 7,
   /** A known puzzle the game's rules let the solver win off its line (`wonAnotherWay`). */
   'a known puzzle won another way': (game: HarnessGame) =>
     game.fixtures.puzzles?.some(
@@ -89,7 +110,10 @@ export const SHARED_SPECIFICATIONS: Readonly<
   'custom-game-cannot-win': ['custom-games', 'a side that cannot win'],
   'custom-game-rematch': ['custom-games'],
   'custom-game-connection': ['custom-games'],
-  'custom-game-offline': ['custom-games'],
+  'custom-game-offline': ['custom-games', 'every position public'],
+  'custom-game-private-setup': ['custom-games', 'a private setup'],
+  'matched-game-private-setup': ['matchmaking', 'a private setup'],
+  'private-setup': ['custom-games', 'matchmaking', 'a private setup'],
   'custom-game-devices': ['custom-games'],
   'custom-game-interruption': ['custom-games'],
   'custom-game-blocking': ['custom-games'],
@@ -129,12 +153,16 @@ export const SHARED_SPECIFICATIONS: Readonly<
   'game-history': ['custom-games', 'history'],
   'custom-game': ['custom-games'],
   'custom-game-play': ['custom-games'],
-  'custom-game-control': ['custom-games'],
-  'custom-game-local': ['custom-games'],
+  'custom-game-control': [
+    'custom-games',
+    'a seven-move victory',
+    'every position public',
+  ],
+  'custom-game-local': ['custom-games', 'every position public'],
   'custom-game-access': ['custom-games'],
   'custom-game-delivery': ['custom-games'],
-  'matched-game': ['matchmaking'],
-  'matched-game-daily': ['matchmaking'],
+  'matched-game': ['matchmaking', 'a seven-move victory'],
+  'matched-game-daily': ['matchmaking', 'a seven-move victory'],
   'matched-game-own-board': ['matchmaking', 'history'],
   'matched-game-shared': ['matchmaking', 'history'],
   'matched-game-spaces': ['matchmaking'],

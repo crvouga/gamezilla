@@ -13,7 +13,7 @@ import { sendMultiplayerCommand } from './multiplayer-commands';
 import {
   multiplayerFixture,
   multiplayerTransaction,
-} from './multiplayer-fixtures';
+} from './multiplayer-fixtures-core';
 import { multiplayerSpaceId } from './multiplayer-spaces';
 
 /**

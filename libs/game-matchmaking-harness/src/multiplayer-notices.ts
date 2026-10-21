@@ -17,7 +17,7 @@ import {
 import { inboxListSql } from '@libs/notifications-shared/notifications-queries';
 import { clientRowToInteraction } from '@libs/notifications-shared/row-mapper';
 import sql from '@pkgs/sql-root-shared/sql';
-import { multiplayerFixture } from './multiplayer-fixtures';
+import { multiplayerFixture } from './multiplayer-fixtures-core';
 
 export type MultiplayerNoticeKind = 'turn' | 'result';
 
