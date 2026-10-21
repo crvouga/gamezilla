@@ -296,16 +296,33 @@ export function spaceNotFoundShown(
   return shows(s, actorId, Handles.spaceNotFound);
 }
 
-/** The actor's app offers the way back to Spaces from a dead link. */
+/** The actor's app offers the way back to Spaces from a dead link or a space it can't reach. */
 export async function backToSpacesOffered(
   s: ProductHarness,
   actorId: string
 ): Promise<boolean> {
   return (
     (await shows(s, actorId, Handles.spaceNotFoundBack)) ||
+    (await shows(s, actorId, Handles.spaceUnreachableBack)) ||
     ((await shows(s, actorId, Handles.spaceJoinPrompt)) &&
       (await shows(s, actorId, Handles.navBack)))
   );
+}
+
+/** The actor's app says the space can't be reached right now. */
+export function spaceUnreachableShown(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  return shows(s, actorId, Handles.spaceUnreachable);
+}
+
+/** The actor's app offers to try reaching the space again. */
+export function spaceRetryOffered(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  return shows(s, actorId, Handles.spaceUnreachableRetry);
 }
 
 /** The name the actor's open space shows, or `null` outside a space. */

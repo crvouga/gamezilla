@@ -59,6 +59,8 @@ export type ErrorStateRetry = {
 export type ErrorStateSecondary = {
   label: JSX.Element;
   onClick: () => void;
+  /** DOM `data-*` identifiers for the button (a test handle). */
+  dataSet?: ComponentDataSet | undefined;
 };
 
 /** Injected clipboard sink (never a bare `navigator.clipboard`). */
@@ -203,6 +205,7 @@ function SecondaryRecovery(props: {
       variant="outline"
       size={props.size}
       onClick={() => props.action.onClick()}
+      dataSet={props.action.dataSet}
     />
   );
 }

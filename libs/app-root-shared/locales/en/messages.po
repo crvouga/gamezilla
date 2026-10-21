@@ -629,6 +629,7 @@ msgstr "Back"
 
 #: libs/spaces-client/src/space-join-ended-state.tsx
 #: libs/spaces-client/src/space-join-prompt.tsx
+#: libs/spaces-client/src/space-reachability.tsx
 msgid "Back to Spaces"
 msgstr "Back to Spaces"
 
@@ -2097,6 +2098,10 @@ msgstr "is away. After a minute away you may claim the win."
 #: libs/auth-client/src/account-device-detail-screen.tsx
 msgid "It may have signed out, or it hasn't synced to this device yet."
 msgstr "It may have signed out, or it hasn't synced to this device yet."
+
+#: libs/spaces-client/src/space-reachability.tsx
+msgid "It may no longer exist. Try again, or go back to Spaces."
+msgstr "It may no longer exist. Try again, or go back to Spaces."
 
 #: libs/game-puzzle-client/src/puzzle-link-screen.tsx
 msgid "It was taken out of the puzzles, so its link no longer opens it."
@@ -4027,6 +4032,7 @@ msgstr "Space renamed"
 #: libs/billing-client/src/billing-screen-view.tsx
 #: libs/spaces-client/src/space-ended-screen.tsx
 #: libs/spaces-client/src/space-join-prompt.tsx
+#: libs/spaces-client/src/space-reachability.tsx
 #: libs/spaces-client/src/spaces-screen.tsx
 #: libs/spaces-client/src/sub-client.tsx
 #: libs/synthetic-population-client/src/synthetic-population-denial.tsx
@@ -4610,6 +4616,10 @@ msgstr "This screen ran into a problem. Anything already saved on this device is
 msgid "This space can't be found"
 msgstr "This space can't be found"
 
+#: libs/spaces-client/src/space-reachability.tsx
+msgid "This space can't be reached right now"
+msgstr "This space can't be reached right now"
+
 #: libs/spaces-client/src/space-join-ended-state.tsx
 msgid "This space has ended"
 msgstr "This space has ended"
@@ -4664,6 +4674,7 @@ msgstr "Try a different search term."
 #: libs/auth-client/src/sign-in-modal.tsx
 #: libs/auth-client/src/use-email-sign-in.tsx
 #: libs/game-matchmaking-client/src/multiplayer-link-screen.tsx
+#: libs/spaces-client/src/space-reachability.tsx
 #: libs/synthetic-population-client/src/synthetic-user-controls.tsx
 #: libs/synthetic-population-client/src/synthetic-user-dom.tsx
 #: libs/synthetic-population-client/src/synthetic-user-replay.tsx

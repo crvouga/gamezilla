@@ -1,0 +1,4 @@
+{
+  "summary": "A host whose device still listed a space the product no longer had (seen after a test environment was rebuilt) returned to it and the puzzle board stayed on a loading spinner forever: the space's own copy on the device opened, its room refused the device, and nothing ever ended the wait. A device with a connection now waits at most 10 seconds for its space, then says it can't be reached right now, with Try again and the way back to Spaces.",
+  "regressionTest": "specs/games/puzzle-attempt-resume.feature"
+}

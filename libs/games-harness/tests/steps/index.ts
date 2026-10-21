@@ -11,6 +11,7 @@ import '@libs/game-matchmaking-harness/matched-game-app.steps';
 import '@libs/friends-harness/spaces.steps';
 import '@libs/friends-harness/space-offline.steps';
 import '@libs/friends-harness/space-idle.steps';
+import '@libs/friends-harness/space-unreachable.steps';
 import '@libs/friends-harness/friends.steps';
 import '@libs/profile-harness/profile.steps';
 import '@libs/profile-harness/auth.steps';
