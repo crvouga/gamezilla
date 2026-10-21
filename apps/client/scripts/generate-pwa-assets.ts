@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { run } from '@pkgs/os-server/command';
+import { COLOR_PALETTE } from '@pkgs/ui-root-shared/color-palette';
 
 const log = createLogger({ name: 'client:pwa-assets', now: wallClock.now });
 
@@ -63,8 +64,8 @@ if (!existsSync(manifestPath)) {
         start_url: '/',
         scope: '/',
         display: 'standalone',
-        background_color: '#000000',
-        theme_color: '#000000',
+        background_color: COLOR_PALETTE.dark.background,
+        theme_color: COLOR_PALETTE.dark.background,
         icons: [],
       },
       null,
@@ -91,7 +92,7 @@ function generatePwaImages(): void {
       '--maskable',
       '--dark-mode',
       '--background',
-      '#FAFAFA',
+      COLOR_PALETTE.light.surface,
       '--type',
       'png',
       '--scrape',
