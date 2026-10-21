@@ -164,6 +164,26 @@ test('readiness needs one complete setup, and a ready setup cannot change', () =
   expect(ownCustomGameSetup(changed, current(changed), 'alice')).toBe('n4');
 });
 
+// regression: custom-game-private-setup-ready-again-refused
+test('becoming ready again with the confirmed setup changes nothing and is not refused', () => {
+  const readied = decide(twoPeople(), 'alice', {
+    operation: 'ready',
+    setup: 'n3',
+  });
+  for (const input of [
+    { operation: 'ready', setup: 'n3' },
+    { operation: 'ready' },
+  ] as const) {
+    for (const module of [ROOM, DEVICE]) {
+      const result = handle(module, readied, 'alice', command(readied, input));
+      expect(reason(result)).toBe('');
+    }
+    const again = decide(readied, 'alice', input);
+    expect(current(again).ready).toEqual(['white']);
+    expect(ownCustomGameSetup(again, current(again), 'alice')).toBe('n3');
+  }
+});
+
 test('a game without private setups refuses a setup', () => {
   const created = decide(space('counting-race'), 'alice', {
     operation: 'create',

@@ -14,6 +14,7 @@ import {
   customGameSetupRules,
   customGameSetupSides,
   customGameSetups,
+  ownCustomGameSetup,
 } from './custom-game-setup';
 import type { CustomGame } from './custom-game-state';
 import {
@@ -56,11 +57,19 @@ function ready(
   setup: PrivateSetupRules,
   choice: Extract<CustomGameChoice, { operation: 'ready' }>
 ): HandleResult {
-  const { game, ctx } = decision;
+  const { game, ctx, state } = decision;
   const side = customGamePersonSide(game, ctx.identity);
   if (side === null) return refuseCustomGame('not a participant');
-  if (game.ready.includes(side))
-    return refuseCustomGame('withdraw readiness to change the setup');
+  if (game.ready.includes(side)) {
+    // Becoming ready again, as in every custom game, keeps the person ready
+    // with the setup they confirmed; only another setup is a change.
+    const confirmed = ownCustomGameSetup(state, game, ctx.identity);
+    const offered =
+      choice.setup === undefined ? confirmed : setup.accept(choice.setup);
+    return offered !== null && offered === confirmed
+      ? changed(decision, configureCustomGame(game, choice, ctx.identity), [])
+      : refuseCustomGame('withdraw readiness to change the setup');
+  }
   if (choice.setup === undefined)
     return refuseCustomGame('choose a setup first');
   const accepted = setup.accept(choice.setup);
