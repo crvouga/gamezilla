@@ -69,7 +69,7 @@ Feature: Take turns shooting in Battleship
       Given Alice has missed H8
       And Alice's phone is offline
       When Bob shoots at A1
-      Then Alice's own board does not show Bob's shot at A1 until the connection comes back
+      Then Alice's own board does not show Bob's shot at A1
 
     Scenario: A returning player's own board shows the shot made while they were offline
       Given Alice has missed H8

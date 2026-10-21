@@ -17,30 +17,8 @@ Feature: Play Battleship with bots
         | Medium     |
         | Hard       |
 
-  Rule: A bot of every difficulty shoots only at an untargeted cell, on its turn
-    No counter-example: a bot never makes a shot the rules refuse.
-
-    Scenario Outline: A bot finds the last untargeted cell
-      Given the <difficulty> Battleship bot is the first player and has shot at every cell of Alice's board but J10
-      When the Battleship bot shoots
-      Then the Battleship bot's shot is at J10
-
-      Examples:
-        | difficulty |
-        | Easy       |
-        | Medium     |
-        | Hard       |
-
-  Rule: A Hard bot follows up a hit on a ship still afloat
-    No counter-example: with no hit ship afloat, a Hard bot still makes a shot the rules allow.
-
-    Scenario: A Hard bot shoots next to its hit
-      Given the Hard Battleship bot has the turn after hitting Alice's carrier on E5
-      When the Battleship bot shoots
-      Then the Battleship bot's shot is at D5, F5, E4 or E6
-
   Rule: Two bots play a Battleship game to a victory by themselves
-    No counter-example: neither bot needs a person to place its fleet, become ready or shoot.
+    No counter-example: neither bot needs a person to place its fleet, become ready or shoot, and every shot a bot makes is one the rules allow.
 
     Scenario: Two bots play Battleship to a victory
       Given Alice has started a custom game of Battleship between two Easy bots

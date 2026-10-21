@@ -15,6 +15,8 @@
 // before the first player's victory.
 // A player whose device has no connection keeps seeing their last boards and
 // cannot become ready, start or shoot; a refused shot does not happen later.
+// Alice hosts the space the game is played in: while she has no connection,
+// Bob cannot become ready or shoot either.
 // Once the connection returns, they see every shot made meanwhile.
 module battleship_play {
   pure val PLAYERS = Set(1, 2)
@@ -148,7 +150,7 @@ module battleship_play {
     else _hold
   /// Confirm a complete fleet, which needs a connection.
   action becomeReady(p: int): bool =
-    if (phase == "setup" and online.get(p) and not(ready.get(p)) and _complete(fleet.get(p)))
+    if (phase == "setup" and online.get(p) and online.get(1) and not(ready.get(p)) and _complete(fleet.get(p)))
       _update(fleet, ready.set(p, true), phase, turn, shots, hits, sunk, winner, online, false)
     else _hold
   /// Alice starts the game once both players are ready, with the first player to shoot.
@@ -158,7 +160,7 @@ module battleship_play {
     else _hold
   /// Shoot at a cell of the other player's board: a hit or a miss, any sinking it makes, and the victory with the 17th hit.
   action shoot(p: int, cell: int): bool =
-    if (online.get(p) and _allowed(phase, turn, shots, p, cell)) {
+    if (online.get(p) and online.get(1) and _allowed(phase, turn, shots, p, cell)) {
       val newShots = shots.set(p, shots.get(p).union(Set(cell)))
       val found = _occupied(fleet.get(_other(p))).contains(cell)
       val newHits = hits.set(p, if (found) hits.get(p) + 1 else hits.get(p))
