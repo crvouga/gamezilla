@@ -78,3 +78,62 @@ export const BLUE_VICTORY_LABELS: readonly string[] = BLUE_SHOTS.flatMap(
     return i < RED_SHOTS.length ? [blue, label(RED_SHOTS[i]!, 'miss')] : [blue];
   }
 );
+
+/** Each ship of Blue's fleet by the cells it covers. */
+export const BLUE_SHIP_CELLS = {
+  carrier: ['a1', 'b1', 'c1', 'd1', 'e1'],
+  battleship: ['a3', 'b3', 'c3', 'd3'],
+  cruiser: ['a5', 'b5', 'c5'],
+  submarine: ['a7', 'b7', 'c7'],
+  destroyer: ['a9', 'b9'],
+} as const;
+/** Each ship of Red's fleet by the cells it covers, in the order Blue sinks it. */
+export const RED_SHIP_CELLS = {
+  carrier: ['f2', 'g2', 'h2', 'i2', 'j2'],
+  battleship: ['f4', 'g4', 'h4', 'i4'],
+  cruiser: ['f6', 'g6', 'h6'],
+  submarine: ['f8', 'g8', 'h8'],
+  destroyer: ['f10', 'g10'],
+} as const;
+
+/**
+ * Red's fleet with its destroyer on C3–C4 and nothing on H8, H9 or the
+ * rest of columns C and H: carrier F2–J2, battleship F4–I4, cruiser F6–H6,
+ * submarine A8–C8, destroyer C3–C4.
+ */
+export const RED_FLEET_DESTROYER_C3 =
+  'fleet:carrier@f2h;battleship@f4h;cruiser@f6h;submarine@a8h;destroyer@c3v';
+
+/** Blue's four ships but its destroyer: a fleet with a ship missing. */
+export const BLUE_FOUR_SHIPS = [
+  { ship: 'carrier', bow: 'a1', orientation: 'h' },
+  { ship: 'battleship', bow: 'a3', orientation: 'h' },
+  { ship: 'cruiser', bow: 'a5', orientation: 'h' },
+  { ship: 'submarine', bow: 'a7', orientation: 'h' },
+] as const;
+
+/**
+ * `shots` by the first fleet, each answered by the second fleet at empty
+ * water of Blue's board, so the first fleet has the turn after them.
+ */
+export function answeredShots(shots: readonly string[]): readonly string[] {
+  if (shots.length > RED_SHOTS.length)
+    throw new Error('More shots than known replies');
+  return shots.flatMap((shot, i) => [shot, RED_SHOTS[i]!]);
+}
+
+/** How the game names each side's fleet. */
+export const SIDE_NAMES = { white: 'Blue fleet', black: 'Red fleet' } as const;
+
+/** Each ship's length, as the rules give it. */
+export const SHIP_LENGTHS = {
+  carrier: 5,
+  battleship: 4,
+  cruiser: 3,
+  submarine: 3,
+  destroyer: 2,
+} as const;
+
+/** Every ship down a column from row 1: carrier J1–J5, battleship H1–H4, cruiser F1–F3, submarine D1–D3, destroyer B1–B2. */
+export const VERTICAL_FLEET =
+  'fleet:carrier@j1v;battleship@h1v;cruiser@f1v;submarine@d1v;destroyer@b1v';

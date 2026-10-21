@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "@pkgs/bun-test-solid-client": "workspace:*",
+    "@pkgs/quint-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",
