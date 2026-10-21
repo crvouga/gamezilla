@@ -3,13 +3,15 @@ import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
 
 import type { AuthErrorBody } from '@pkgs/sync-engine-shared/v2';
+import { MAX_QUERY_BODY_BYTES } from '@pkgs/sync-engine-shared/v2';
 import type { Hono } from 'hono';
 import { isAuthErrorBody } from './auth-error';
+import { syncBodyCap } from './body-cap';
 import type { QueryBatchItem } from './parse-batch-body';
 import { parseQueryBatchBody } from './parse-batch-body';
 import type { SyncSqlVariables } from './resolve-request-sql';
 import { resolveRequestSql } from './resolve-request-sql';
-import { runQuery } from './run-query';
+import { type QueryTruncation, runQuery } from './run-query';
 import type { SyncAppAuth } from './sync-app-auth';
 import { assertSyncProtocol } from './sync-protocol-gate';
 
@@ -19,6 +21,7 @@ type RunQueryDeps = {
   readonly auth: SyncAppAuth & { readonly now: () => Date };
   readonly nextCheckpoint: () => string;
   readonly strictQueryLimits?: boolean;
+  readonly onTruncated?: (clip: QueryTruncation) => void;
 };
 
 async function runOne(deps: RunQueryDeps, body: QueryBatchItem) {
@@ -39,6 +42,7 @@ export type MountQueryRoutesDeps = {
   readonly nextCheckpoint: () => string;
   readonly now: () => number;
   readonly strictQueryLimits?: boolean;
+  readonly onQueryTruncated?: (clip: QueryTruncation) => void;
 };
 
 export function mountQueryRoutes(
@@ -48,7 +52,7 @@ export function mountQueryRoutes(
   // One function per app. People search buckets its rate limit by `env.now`,
   // so harnesses that share a process do not share a budget.
   const now = (): Date => new Date(deps.now());
-  app.post('/query', async (c) => {
+  app.post('/query', syncBodyCap(MAX_QUERY_BODY_BYTES), async (c) => {
     // Capture before awaits — Hono vars are request-pinned; ALS getSql can race
     // under stack ALS when concurrent requests overlap.
     const db = resolveRequestSql(c, deps.getSql);
@@ -68,6 +72,9 @@ export function mountQueryRoutes(
       auth: { ...auth, now },
       nextCheckpoint: deps.nextCheckpoint,
       ...(deps.strictQueryLimits === true ? { strictQueryLimits: true } : {}),
+      ...(deps.onQueryTruncated === undefined
+        ? {}
+        : { onTruncated: deps.onQueryTruncated }),
     };
     const responses = [];
     for (const item of parsed.queries) {

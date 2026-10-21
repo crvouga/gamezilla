@@ -16,6 +16,7 @@ import type { TurnGames } from '@pkgs/turn-game-shared/game-rules';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { Hono } from 'hono';
 import type { SyncSqlVariables } from './resolve-request-sql';
+import type { QueryTruncation } from './run-query';
 import type { SyncAppAuth } from './sync-app-auth';
 import { mountMutationsRoute } from './sync-app-mutations-route';
 import { mountQueryRoutes } from './sync-app-query-routes';
@@ -42,6 +43,8 @@ export type CreateSyncAppDeps = {
    * Product API sets this outside production; harness sets true.
    */
   readonly strictQueryLimits?: boolean;
+  /** Told about each snapshot clipped to its query limit (no row content). */
+  readonly onQueryTruncated?: (clip: QueryTruncation) => void;
   /**
    * Server guard run inside replay before every product mutation body (the
    * framework's own bookkeeping mutations skip it). Throw `MutationError` to
@@ -84,6 +87,9 @@ export function createSyncApp(deps: CreateSyncAppDeps) {
     nextCheckpoint,
     now: deps.now,
     ...(deps.strictQueryLimits === true ? { strictQueryLimits: true } : {}),
+    ...(deps.onQueryTruncated === undefined
+      ? {}
+      : { onQueryTruncated: deps.onQueryTruncated }),
   });
   const topicMap = withFrameworkTopicMap(deps.topicMap);
   mountMutationsRoute(app, {

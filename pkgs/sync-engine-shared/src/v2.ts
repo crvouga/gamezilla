@@ -13,6 +13,15 @@ export const SYNC_PROTOCOL_VERSION = 3 as const;
 /** Max mutation rows accepted per POST /mutations. */
 export const MAX_MUTATIONS_BATCH = 64;
 
+/**
+ * Max bytes of one POST /mutations body: a full batch at 16 KiB per mutation.
+ * Measured product mutations stay under 1 KiB each on the wire; the largest
+ * declared argument (a 4,000-character saved choice) fits one allowance even
+ * when escaped twice. Larger batches are split by the client; a single
+ * mutation over the cap is refused as `payload_too_large`.
+ */
+export const MAX_MUTATIONS_BODY_BYTES = MAX_MUTATIONS_BATCH * 16 * 1024;
+
 /** Max total rows in a push `rows` payload before falling back to wake-only. */
 export const MAX_FANOUT_ROWS = 64;
 
@@ -21,6 +30,16 @@ export const MAX_FANOUT_BYTES = 32 * 1024;
 
 /** Max queries per POST /query batch. */
 export const MAX_QUERY_BATCH = 64;
+
+/**
+ * Max bytes of one POST /query body: a full batch at 4 KiB per query. A query
+ * names itself and its parameters (ids and filters, measured under 300 bytes
+ * each); the client splits a batch that would exceed the cap.
+ */
+export const MAX_QUERY_BODY_BYTES = MAX_QUERY_BATCH * 4 * 1024;
+
+/** The 413 body code for a request over its byte cap. */
+export const PAYLOAD_TOO_LARGE = 'payload_too_large';
 
 /** One domain row on the wire (incl. `deleted_at` when present). */
 export type QueryRow = Record<string, unknown>;

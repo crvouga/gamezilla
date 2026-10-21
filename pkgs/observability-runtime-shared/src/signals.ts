@@ -17,7 +17,10 @@ import {
 } from '@opentelemetry/sdk-metrics';
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
 import { installStructuredLogBridge } from '@pkgs/observability-root-shared/log';
-import { METRIC_DIMENSION_KEYS } from '@pkgs/observability-root-shared/metric-contract';
+import {
+  METRIC_DIMENSION_KEYS,
+  setMetricEnvironment,
+} from '@pkgs/observability-root-shared/metric-contract';
 import { FlushLogProcessor } from './flush-log-processor';
 import { FlushMetricReader } from './flush-metric-reader';
 import { GuardedLogExporter } from './guarded-log-exporter';
@@ -39,7 +42,10 @@ export function createSignals(
   const meter = createMeter(options, resource, worker);
   const logger = createLoggerProvider(options, resource, meter, worker);
   if (options.registerGlobal !== false) {
-    if (meter !== undefined) metrics.setGlobalMeterProvider(meter);
+    if (meter !== undefined) {
+      metrics.setGlobalMeterProvider(meter);
+      setMetricEnvironment(options.environment);
+    }
     if (logger !== undefined) {
       logs.setGlobalLoggerProvider(logger);
       installStructuredLogBridge();

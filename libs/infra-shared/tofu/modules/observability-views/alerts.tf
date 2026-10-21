@@ -1,5 +1,20 @@
 locals {
-  environment_filter = " * on(job, instance) group_left target_info{deployment_environment_name=\"${var.environment}\"}"
+  environment_filter  = " * on(job, instance) group_left target_info{deployment_environment_name=\"${var.environment}\"}"
+  runbooks            = "https://github.com/crvouga/gamezilla/blob/main/libs/observability-shared/README.md"
+  correctness_runbook = "https://github.com/crvouga/gamezilla/blob/main/README.md#correctness-machinery"
+  # Counts in a window, for counters that carry the environment on each point.
+  # A Worker isolate's series starts at its first count, and a short-lived
+  # isolate may report a single sample, which `increase` cannot see. Growth of
+  # series that already existed plus the first value of series that appeared
+  # in the window counts each event once, and one rule raises one alert.
+  counters = {
+    outbox_exhausted         = { selector = "outbox_deliveries_exhausted_total{deployment_environment_name=\"${var.environment}\"}", window = "1h" }
+    outbox_drain_failures    = { selector = "outbox_drain_runs_total{deployment_environment_name=\"${var.environment}\",app_outcome=\"failure\"}", window = "15m" }
+    billing_callback_refused = { selector = "billing_callbacks_total{deployment_environment_name=\"${var.environment}\",app_outcome=~\"unverified|failed\"}", window = "1h" }
+  }
+  windowed_count = {
+    for name, counter in local.counters : name => "((sum(increase(${counter.selector}[${counter.window}])) or vector(0)) + (sum(min_over_time(${counter.selector}[${counter.window}]) unless min_over_time(${counter.selector}[${counter.window}] offset ${counter.window})) or vector(0)))"
+  }
   alert_queries = {
     api_error_burn = {
       name     = "API availability fast burn"
@@ -7,6 +22,7 @@ locals {
       owner    = "runtime"
       severity = "critical"
       summary  = "The API is consuming the provisional 99% availability budget at more than 14.4 times its sustainable rate. Compare the current release, request failures and correlated database/dependency traces."
+      runbook  = local.correctness_runbook
     }
     event_export_failures = {
       name     = "Reliable event exports repeatedly fail"
@@ -14,6 +30,7 @@ locals {
       owner    = "observability"
       severity = "warning"
       summary  = "Check OTLP credential scopes, ingestion responses and pending/exhausted telemetry outbox deliveries. Business operations are committed; preserve event identities when replaying."
+      runbook  = local.correctness_runbook
     }
     schema_rejections = {
       name     = "Telemetry contract violations"
@@ -21,6 +38,7 @@ locals {
       owner    = "observability"
       severity = "warning"
       summary  = "Compare the producing release with its registered event contracts. Investigate undeclared event names, required attributes and incompatible schema versions before replaying."
+      runbook  = local.correctness_runbook
     }
     pipeline_absent = {
       name     = "Telemetry heartbeat is absent"
@@ -28,6 +46,31 @@ locals {
       owner    = "observability"
       severity = "critical"
       summary  = "The scheduled server heartbeat has not reached Grafana for fifteen minutes. Check scheduled Worker execution, OTLP authentication, metrics ingestion and the latest deployment."
+      runbook  = local.correctness_runbook
+    }
+    outbox_exhausted = {
+      name     = "Outbox deliveries exhausted their retries"
+      expr     = "${local.windowed_count.outbox_exhausted} > 0"
+      owner    = "runtime"
+      severity = "warning"
+      summary  = "Background work gave up after its last attempt and is parked, so its effect (a notice, an erasure, a match step) has not happened. Find the consumer and error in the logs; do not edit or delete the parked rows."
+      runbook  = "${local.runbooks}#outbox-deliveries-exhausted-their-retries"
+    }
+    outbox_drain_failing = {
+      name     = "Scheduled outbox drain keeps failing"
+      expr     = "${local.windowed_count.outbox_drain_failures} >= 3"
+      owner    = "runtime"
+      severity = "critical"
+      summary  = "The scheduled drain failed at least three times in fifteen minutes while the schedule still runs, so background work and telemetry export are stalled. Check the drain error, database reachability and the latest deployment."
+      runbook  = "${local.runbooks}#scheduled-outbox-drain-keeps-failing"
+    }
+    billing_callbacks_refused = {
+      name     = "Billing provider callbacks are being refused"
+      expr     = "${local.windowed_count.billing_callback_refused} >= 3"
+      owner    = "billing"
+      severity = "critical"
+      summary  = "At least three provider callbacks in an hour failed their signature check or processing, so payment and membership changes may not reach accounts. Compare the webhook signing secret with the provider and check the latest deployment; the provider retries refused deliveries."
+      runbook  = "${local.runbooks}#billing-provider-callbacks-are-being-refused"
     }
   }
 }
@@ -53,7 +96,7 @@ resource "grafana_rule_group" "this" {
       }
       annotations = {
         summary     = rule.value.summary
-        runbook_url = "https://github.com/crvouga/gamezilla/blob/main/README.md#correctness-machinery"
+        runbook_url = rule.value.runbook
       }
       data {
         ref_id         = "A"

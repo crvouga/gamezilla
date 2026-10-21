@@ -72,11 +72,15 @@ log bodies; product counts require `event_synthetic="false"` and deduplicate eve
 Long windows with many logical IDs can reach Loki query series limits; use bounded
 windows and authoritative reporting rather than interpreting a failed query as zero.
 
-Four owner/severity/runbook-tagged alert rules cover a provisional 99% API availability
+Seven owner/severity/runbook-tagged alert rules cover a provisional 99% API availability
 fast burn (5-minute and 1-hour windows with a traffic floor), repeated reliable export
-failures, contract violations and a missing scheduled heartbeat. Delivery destinations
+failures, contract violations, a missing scheduled heartbeat, and the three in
+[alert runbooks](#alert-runbooks). Delivery destinations
 inherit the stack's existing notification policy; no new contact channel is created.
 Additional business SLOs require owned objectives and compatible existing bindings.
+Each rule is one series per environment, so it raises one alert however many events
+cross its threshold. `sync_query_truncations_total` counts query snapshots clipped to
+their row limit (query name in the warning log, never row content); it has no alert.
 
 OpenTofu foundation manages per-environment writer/read policies, dashboard folders,
 service accounts and alerts. Workers receive ingestion credentials only. Browser exports persist redacted OTLP trace and log batches in the injected local object store before acknowledging the SDK. Delivery uses the injected offline-aware HTTP and timers, retries after outages and reopening, and keeps a complete batch on partial rejection. Pending batches expire after 30 days. Browser persistence is not a guarantee against a hard page termination before the local write finishes. Browser logs
@@ -90,6 +94,59 @@ reconciliation and dashboard structural checks run in existing package gates. Fu
 `bun verify` and the required GitHub Actions infrastructure rehearsal remain release
 evidence; a source declaration does not prove that dashboards are deployed or backend
 queries accepted. Never use manual dashboard inspection as verification.
+
+## Alert runbooks
+
+These counters carry `deployment_environment_name` on each point, because a
+Worker isolate's resource information goes stale soon after the isolate ends.
+Inspect production read-only (`bun obs … --source prod`, `OBS_READONLY_DATABASE_URL`);
+never write to a production database by hand. Each alert clears on its own once
+its window passes with nothing new.
+
+### Outbox deliveries exhausted their retries
+
+`outbox_deliveries_exhausted_total` grew in the last hour. A background delivery
+failed on its last attempt (8 by default, about 16 minutes of backoff) or carried a
+payload its consumer can never read, and is parked. Its effect — a notice, a match
+step, an account erasure, a telemetry export — has not happened and will not happen
+by itself.
+
+1. Find the `outbox delivery exhausted` log (`bun obs last --errors --source prod`):
+   it names the event, the consumer and the error.
+2. Fix the cause and ship the fix through Deploy.
+3. Leave the parked row as it is: it is the only record of the missed effect. There
+   is no replay command; re-running the effect is a reviewed change shipped like any
+   other, not an edit to the row.
+
+### Scheduled outbox drain keeps failing
+
+`outbox_drain_runs_total{app_outcome="failure"}` counted at least three failed
+scheduled drains in fifteen minutes. The telemetry heartbeat is recorded before the
+drain on purpose, so "Telemetry heartbeat is absent" stays quiet: the schedule runs,
+the drain behind it does not. Background work and event export wait; nothing is
+lost, since pending deliveries resume when a drain succeeds.
+
+1. Read the `outbox cron drain failed` error (`bun obs last --errors --source prod`).
+   Usual causes are an unreachable database, a failed application boot
+   (configuration) or a consumer failing outside its own delivery.
+2. If it began with a deployment, ship a fix or a revert through Deploy.
+3. No data repair is needed.
+
+### Billing provider callbacks are being refused
+
+`billing_callbacks_total{app_outcome=~"unverified|failed"}` counted at least three
+refused provider callbacks in an hour. A failed signature answers 400, which the
+availability alert never counts. Payment and membership changes may not reach
+accounts. The provider retries refused deliveries, so they arrive once the cause is
+fixed.
+
+1. Compare outcomes: every callback `unverified` after a deployment or rotation
+   means the deployed signing secret no longer matches the provider's webhook
+   endpoint (kept by `@libs/billing#billing:sync`); `failed` means processing threw,
+   so read its trace.
+2. A few `unverified` callbacks while `accepted` ones still arrive are strangers
+   probing the endpoint; `unknown_provider` is counted and never alerts.
+3. Never turn signature checks off to let callbacks through.
 
 ## Runtime failure investigation
 

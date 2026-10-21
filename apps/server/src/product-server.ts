@@ -13,6 +13,7 @@ import {
 import { createServer } from '@libs/app-root-server/create-server';
 import { createApiObjectStore } from '@libs/app-root-server/object-store';
 import { openRequestDb } from '@libs/app-root-server/open-request-db-postgres';
+import { observeScheduledOutboxDrain } from '@libs/app-root-server/outbox-health';
 import type { ApiWorkerEnv } from '@libs/app-root-shared/env';
 import {
   assertSecretsEnvBinding,
@@ -476,6 +477,9 @@ const workerImplementation = {
     const environment = deploymentTelemetryEnvironment(
       env.DEPLOYMENT_ENVIRONMENT
     );
+    // The heartbeat says only that the schedule fired and telemetry flows, so
+    // it stays ahead of the drain: a broken drain must not read as a broken
+    // pipeline. Whether the drain works is its own count, `outbox.drain.runs`.
     createMetric({
       name: 'telemetry.pipeline.heartbeat',
       description: 'Scheduled server telemetry heartbeat',
@@ -487,17 +491,16 @@ const workerImplementation = {
       await withSpan(
         'outbox.drain',
         async () => {
-          // A scheduled event may be this isolate's first invocation.
-          if ((await ensureApp(env)) === null)
-            throw new ConfigurationError(
-              'Cannot drain outbox: application boot failed'
+          const processed = await observeScheduledOutboxDrain(async () => {
+            // A scheduled event may be this isolate's first invocation.
+            if ((await ensureApp(env)) === null)
+              throw new ConfigurationError(
+                'Cannot drain outbox: application boot failed'
+              );
+            return drainOutboxOnCron(env, workerHttp, wallClock, () =>
+              crypto.randomUUID()
             );
-          const processed = await drainOutboxOnCron(
-            env,
-            workerHttp,
-            wallClock,
-            () => crypto.randomUUID()
-          );
+          });
           if (processed > 0) log.info('outbox cron drained', { processed });
         },
         {
