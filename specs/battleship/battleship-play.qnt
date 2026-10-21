@@ -13,8 +13,9 @@
 // battleship-fleet-setup.qnt.
 // A player whose device has no connection keeps seeing their last boards and
 // cannot shoot; a refused shot does not happen later. Alice hosts the space
-// the game is played in: while she has no connection, Bob cannot shoot either.
-// Once the connection returns, they see every shot made meanwhile.
+// the game is played in: while she has no connection, Bob cannot shoot either
+// and keeps the boards he had. Once both a player and Alice have a
+// connection, the player sees every shot made meanwhile.
 module battleship_play {
   pure val PLAYERS = Set(1, 2)
   pure val SHIPS = Set("carrier", "battleship", "cruiser", "submarine", "destroyer")
@@ -64,6 +65,8 @@ module battleship_play {
   pure def _other(p: int): int = 3 - p
   pure def _sunkShips(p: int, shotAt: Set[int]): Set[str] =
     SHIPS.filter(s => SHIP_CELLS.get(_other(p)).get(s).subseteq(shotAt))
+  /// Whether player p's boards follow the game: p and the host, Alice, both have a connection.
+  pure def _current(p: int, o: int -> bool): bool = o.get(p) and o.get(1)
   /// Player p's shots at the board of player `at`, each marked whether it found a ship.
   pure def _marks(p: int, at: int, shotsNow: int -> Set[int]): Set[(int, bool)] =
     shotsNow.get(p).map(c => (c, OCCUPIED.get(at).contains(c)))
@@ -72,10 +75,10 @@ module battleship_play {
     stage: str, mover: int, s: int -> Set[int], h: int -> int, sk: int -> Set[str], w: int, o: int -> bool, refused: bool,
   ): bool = all {
     phase' = stage, turn' = mover, shots' = s, hits' = h, sunk' = sk, winner' = w, online' = o,
-    targetingBoard' = PLAYERS.mapBy(p => if (o.get(p)) _marks(p, _other(p), s) else targetingBoard.get(p)),
-    ownBoard' = PLAYERS.mapBy(p => if (o.get(p)) _marks(_other(p), p, s) else ownBoard.get(p)),
-    _savedTargetingBoard' = PLAYERS.mapBy(p => if (online.get(p) and not(o.get(p))) targetingBoard.get(p) else _savedTargetingBoard.get(p)),
-    _savedOwnBoard' = PLAYERS.mapBy(p => if (online.get(p) and not(o.get(p))) ownBoard.get(p) else _savedOwnBoard.get(p)),
+    targetingBoard' = PLAYERS.mapBy(p => if (_current(p, o)) _marks(p, _other(p), s) else targetingBoard.get(p)),
+    ownBoard' = PLAYERS.mapBy(p => if (_current(p, o)) _marks(_other(p), p, s) else ownBoard.get(p)),
+    _savedTargetingBoard' = PLAYERS.mapBy(p => if (_current(p, online) and not(_current(p, o))) targetingBoard.get(p) else _savedTargetingBoard.get(p)),
+    _savedOwnBoard' = PLAYERS.mapBy(p => if (_current(p, online) and not(_current(p, o))) ownBoard.get(p) else _savedOwnBoard.get(p)),
     _refused' = refused,
     _before' = (shots, turn, winner, phase),
     _endShots' = if (w != 0 and winner == 0) s else _endShots,
@@ -119,7 +122,7 @@ module battleship_play {
     online.get(p),
     _update(phase, turn, shots, hits, sunk, winner, online.set(p, false), false),
   }
-  /// The connection returns, and both boards show every shot made meanwhile.
+  /// The connection returns; with Alice's too, both boards show every shot made meanwhile.
   action connectionReturns(p: int): bool = all {
     not(online.get(p)),
     _update(phase, turn, shots, hits, sunk, winner, online.set(p, true), false),
@@ -154,14 +157,14 @@ module battleship_play {
   val invFinality = phase == "over" implies shots == _endShots
   /// A refused shot changes no shot, turn, victory or part of the game.
   val invRejection = _refused implies (shots, turn, winner, phase) == _before
-  /// The boards show only shots made, each marked a hit exactly when it found a ship, and are current with a connection.
+  /// The boards show only shots made, each marked a hit exactly when it found a ship, and are current while the player and Alice have a connection.
   val invBoardsShowShots = PLAYERS.forall(p => and {
     targetingBoard.get(p).forall(m => shots.get(p).contains(m._1) and (m._2 iff OCCUPIED.get(_other(p)).contains(m._1))),
     ownBoard.get(p).forall(m => shots.get(_other(p)).contains(m._1) and (m._2 iff OCCUPIED.get(p).contains(m._1))),
-    online.get(p) implies (targetingBoard.get(p) == _marks(p, _other(p), shots) and ownBoard.get(p) == _marks(_other(p), p, shots)),
+    _current(p, online) implies (targetingBoard.get(p) == _marks(p, _other(p), shots) and ownBoard.get(p) == _marks(_other(p), p, shots)),
   })
-  /// With no connection a player keeps their last boards.
-  val invOffline = PLAYERS.forall(p => not(online.get(p)) implies (
+  /// With no connection, or while Alice has none, a player keeps their last boards.
+  val invOffline = PLAYERS.forall(p => not(_current(p, online)) implies (
     targetingBoard.get(p) == _savedTargetingBoard.get(p) and ownBoard.get(p) == _savedOwnBoard.get(p)
   ))
 }
