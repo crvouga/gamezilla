@@ -1,15 +1,16 @@
-/* Compositor-only rotation. Phase is shared across instances through a
-   negative `animation-delay` computed from the injected clock (see
-   `SpinnerProvider`), so sibling loading states never restart at 0°. */
+/* The ring turns in twelve discrete 30° steps per revolution, so the bright
+   petal hops from slot to slot and the opacity steps around the ring; it
+   never rotates smoothly. One second per revolution (`ACTIVITY_REVOLUTION_MS`).
+   Phase is shared across instances through a negative `animation-delay`
+   computed from the injected clock (see `SpinnerProvider`). */
 
-.spin {
-  animation-name: ui-spinner-rotate;
-  animation-duration: 900ms;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
+.petals {
+  display: block;
+  flex-shrink: 0;
+  animation: ui-activity-step 1000ms steps(12, end) infinite;
 }
 
-@keyframes ui-spinner-rotate {
+@keyframes ui-activity-step {
   from {
     transform: rotate(0deg);
   }
@@ -18,22 +19,10 @@
   }
 }
 
-/* Reduced motion: replace the rotation with a slow opacity pulse so the
-   indicator still reads as "busy" without continuous movement. */
+/* Reduced motion: the ring holds still. The fading petals still read as
+   "working", without anything moving. */
 @media (prefers-reduced-motion: reduce) {
-  .spin {
-    animation-name: ui-spinner-pulse;
-    animation-duration: 1600ms;
-    animation-timing-function: ease-in-out;
-  }
-}
-
-@keyframes ui-spinner-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.45;
+  .petals {
+    animation: none;
   }
 }

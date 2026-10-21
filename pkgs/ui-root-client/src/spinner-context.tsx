@@ -4,17 +4,18 @@
  *
  * CSS animations restart from 0° whenever an element mounts, so swapping
  * between sibling loading states (list → detail → list) visibly snaps the
- * arc back. The provider records one origin timestamp from the injected
+ * petals back. The provider records one origin timestamp from the injected
  * `Clock`; every `Spinner` under it starts its animation with a negative
  * `animation-delay` equal to the elapsed phase, so all instances share one
  * virtual timeline. Opt-in: without a provider each spinner starts at 0°.
  */
 
+import { ACTIVITY_REVOLUTION_MS } from '@pkgs/ui-root-shared/activity-indicator';
 import { useClock } from '@pkgs/clock-client/solid';
 import { createContext, type JSX, useContext } from 'solid-js';
 
-/** One full rotation cycle (matches `spinner.module.css`). */
-export const SPIN_DURATION_MS = 900;
+/** One full revolution (matches `spinner.module.css`). */
+export const SPIN_DURATION_MS = ACTIVITY_REVOLUTION_MS;
 
 type SpinnerContextValue = {
   /** Phase offset (ms, 0 ≤ n < SPIN_DURATION_MS) for a spinner mounting now. */

@@ -130,7 +130,7 @@ function LeadingSlot(props: {
         when={props.loading}
         fallback={<BrandIcon name={props.spec.brandIcon} size={ICON_SIZE} />}
       >
-        <Spinner decorative size={ICON_SIZE} color={props.palette.font} />
+        <Spinner decorative size="sm" color="current" />
       </Show>
     </div>
   );

@@ -20,7 +20,7 @@ export function GameSearchState(props: {
       {...dataAttrs({ component: 'GameSearchState' })}
     >
       <div class="box flex-row items-center gap-3">
-        <Spinner size="small" />
+        <Spinner />
         <div class="box min-w-0 flex-1 gap-0.5">
           <h2 class="text textNavigationTitle">{props.title}</h2>
           <div class="text textCaption" role="status" aria-live="polite">

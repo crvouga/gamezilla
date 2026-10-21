@@ -69,7 +69,7 @@ function ComboboxOptions<T extends ComboboxValue>(
   return (
     <Show
       when={!props.loading}
-      fallback={<LoadingState size="small" variant="compact" />}
+      fallback={<LoadingState size="sm" variant="compact" />}
     >
       <div class="box gap-2 flex-1 min-h-0 shrink">
         <Show when={hasError()}>

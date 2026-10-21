@@ -1,41 +1,54 @@
 /** @jsxImportSource solid-js */
-import { cssPx } from '@pkgs/ui-root-shared/css-px';
 /**
- * `Spinner` -- themed loading indicator.
+ * `Spinner` -- the one activity indicator: twelve rounded petals radiating
+ * from the center, the opacity stepping around the ring once a second in
+ * twelve discrete steps (UIActivityIndicatorView). Every loading indicator in
+ * the product is this component: `Button`'s loading face, `LoadingState`,
+ * the FAB, the boot screens (which embed the same markup statically).
  *
- * Draws a partial SVG arc over a faded track ring and rotates it with a CSS
- * keyframe animation (compositor only). Under `prefers-reduced-motion` the
- * rotation becomes a gentle opacity pulse. Exposes `role="status"` so
- * assistive tech announces the busy state.
+ * - `size`: `sm` (16), `md` (24, default), `lg` (40).
+ * - `color`: a text tone; defaults to `secondary`. `current` takes the
+ *   surrounding text color (inside a filled button).
+ * - `label`: the accessible name ("Loading…" when unset). `decorative`
+ *   hides it from assistive tech where the host already says it is busy.
  *
- * Mount under a {@link SpinnerProvider} to keep the rotation phase continuous
- * when sibling loading states swap.
+ * Under `prefers-reduced-motion` the ring holds still. Mount under a
+ * {@link SpinnerProvider} to keep the phase continuous when sibling loading
+ * states swap.
  *
  * @example
  * ```tsx
- * <Spinner size="small" />
- * <Spinner size={32} color="destructive" />
+ * <Spinner />
+ * <Spinner size="lg" label={t`Loading puzzles`} />
+ * <Spinner size="sm" color="current" decorative />
  * ```
  */
 
 import { useLingui } from '@lingui/solid/macro';
+import {
+  ACTIVITY_PETAL_SHAPES,
+  ACTIVITY_VIEWBOX,
+  petalTransform,
+} from '@pkgs/ui-root-shared/activity-indicator';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
-import { resolveColor } from '@pkgs/ui-root-shared/resolve-color';
-import type { JSX } from 'solid-js';
+import type { ColorTone } from '@pkgs/ui-root-shared/token-names';
+import { For, type JSX } from 'solid-js';
+import { spaced } from './layout-classes';
 import styles from './spinner.module.css';
 import { useSharedSpinnerDelay } from './spinner-context';
-import { useThemeTokens } from './theme-context';
+import { toneClass } from './text-classes';
 
-export type SpinnerSize = 'small' | 'medium' | 'large' | number;
+export type SpinnerSize = 'sm' | 'md' | 'lg';
+
+/** A text tone, or `current` for the surrounding text color. */
+export type SpinnerColor = Exclude<ColorTone, 'inherit'> | 'current';
 
 export type SpinnerProps = {
-  /** Color token name or raw color. Defaults to `"tint"`. */
-  color?: string | undefined;
-  /** Diameter in pixels, or one of the size presets. Defaults to `"medium"`. */
+  /** Default `md` (24px). */
   size?: SpinnerSize | undefined;
-  /** Stroke width in pixels. Derived from `size` if omitted. */
-  strokeWidth?: number | undefined;
+  /** Default `secondary`. */
+  color?: SpinnerColor | undefined;
   /** Accessible name. Defaults to a localized "Loading…". */
   label?: string | undefined;
   /**
@@ -47,59 +60,38 @@ export type SpinnerProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-const SIZE_PRESETS = {
-  small: 24,
-  medium: 36,
-  large: 48,
-} as const satisfies Record<'small' | 'medium' | 'large', number>;
-
-/** Visible arc covers 25% of the circle perimeter. */
-const ARC_FRACTION = 0.25;
-/** Faded base ring rendered behind the moving arc. */
-const TRACK_OPACITY = 0.25;
-
-export function resolveSpinnerSize(size: SpinnerSize): number {
-  return typeof size === 'number' ? size : SIZE_PRESETS[size];
-}
-
-type ArcGeometry = {
-  diameter: number;
-  strokeWidth: number;
-  radius: number;
-  dash: number;
-  gap: number;
+const SIZE: Readonly<Record<SpinnerSize, string>> = {
+  sm: 'size-4',
+  md: 'size-6',
+  lg: 'size-10',
 };
 
-function arcGeometry(
-  size: SpinnerSize,
-  strokeWidth: number | undefined
-): ArcGeometry {
-  const diameter = resolveSpinnerSize(size);
-  const sw = strokeWidth ?? Math.max(2, Math.round(diameter * 0.1));
-  const radius = (diameter - sw) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const dash = circumference * ARC_FRACTION;
-  return { diameter, strokeWidth: sw, radius, dash, gap: circumference - dash };
+/** Pixel edge of each size, for hosts that reserve the same box. */
+export const SPINNER_PX: Readonly<Record<SpinnerSize, number>> = {
+  sm: 16,
+  md: 24,
+  lg: 40,
+};
+
+function colorClass(color: SpinnerColor): string {
+  return color === 'current' ? '' : toneClass(color);
 }
 
 export function Spinner(props: SpinnerProps): JSX.Element {
-  const tokens = useThemeTokens();
   const { t } = useLingui();
   const delay = useSharedSpinnerDelay();
-  const geo = (): ArcGeometry =>
-    arcGeometry(props.size ?? 'medium', props.strokeWidth);
-  const stroke = (): string =>
-    resolveColor(props.color ?? 'tint', tokens.colors) ?? tokens.colors.tint;
   return (
-    <div
-      class={styles['spin']}
-      {...dataAttrs({ component: 'Spinner', ...props.dataSet })}
-      style={{
-        color: stroke(),
-        ...(delay !== undefined ? { 'animation-delay': delay } : {}),
-        width: cssPx(geo().diameter),
-        height: cssPx(geo().diameter),
-      }}
+    <span
+      class={spaced([
+        'box items-center justify-center',
+        SIZE[props.size ?? 'md'],
+        colorClass(props.color ?? 'secondary'),
+      ])}
+      {...dataAttrs({
+        component: 'Spinner',
+        size: props.size ?? 'md',
+        ...props.dataSet,
+      })}
       role={props.decorative === true ? undefined : 'status'}
       aria-label={
         props.decorative === true ? undefined : (props.label ?? t`Loading…`)
@@ -108,31 +100,26 @@ export function Spinner(props: SpinnerProps): JSX.Element {
       aria-hidden={props.decorative === true ? true : undefined}
     >
       <svg
-        width={geo().diameter}
-        height={geo().diameter}
-        viewBox={`0 0 ${geo().diameter} ${geo().diameter}`}
+        class={`${styles['petals']} size-full`}
+        viewBox={ACTIVITY_VIEWBOX}
+        fill="currentColor"
         aria-hidden="true"
+        style={delay === undefined ? undefined : { 'animation-delay': delay }}
       >
-        <circle
-          cx={geo().diameter / 2}
-          cy={geo().diameter / 2}
-          r={geo().radius}
-          stroke="currentColor"
-          stroke-width={geo().strokeWidth}
-          fill="none"
-          opacity={TRACK_OPACITY}
-        />
-        <circle
-          cx={geo().diameter / 2}
-          cy={geo().diameter / 2}
-          r={geo().radius}
-          stroke="currentColor"
-          stroke-width={geo().strokeWidth}
-          stroke-linecap="round"
-          stroke-dasharray={`${geo().dash} ${geo().gap}`}
-          fill="none"
-        />
+        <For each={ACTIVITY_PETAL_SHAPES}>
+          {(petal) => (
+            <rect
+              x={petal.x}
+              y={petal.y}
+              width={petal.width}
+              height={petal.height}
+              rx={petal.radius}
+              transform={petalTransform(petal)}
+              opacity={petal.opacity}
+            />
+          )}
+        </For>
       </svg>
-    </div>
+    </span>
   );
 }

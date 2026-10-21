@@ -12,7 +12,7 @@ export default function LoadingStateExample(): JSX.Element {
       </label>
       <SchemePreview>
         <div class="box h-60">
-          <LoadingState size="large" />
+          <LoadingState size="lg" />
         </div>
       </SchemePreview>
 

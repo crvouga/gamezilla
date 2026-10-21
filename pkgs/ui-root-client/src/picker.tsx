@@ -74,7 +74,7 @@ function PickerSurfaceBody<T extends PickerValue>(
   return (
     <Show
       when={!props.loading}
-      fallback={<LoadingState size="small" variant="compact" />}
+      fallback={<LoadingState size="sm" variant="compact" />}
     >
       <div class="box gap-2">
         <Show when={searchable()}>

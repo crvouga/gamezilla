@@ -49,7 +49,7 @@ function statusGlyph(
 ): JSX.Element {
   switch (kind) {
     case 'loading':
-      return <Spinner size="small" />;
+      return <Spinner size="sm" />;
     case 'empty':
     case 'limited':
       return <SearchIcon size={SIZE - 4} color="textSecondary" />;

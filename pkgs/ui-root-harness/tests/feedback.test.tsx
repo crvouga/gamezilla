@@ -13,7 +13,6 @@ import { MutationError } from '@pkgs/ui-root-client/mutation-modal-parts';
 import { ProgressBar } from '@pkgs/ui-root-client/progress-bar';
 import { Skeleton } from '@pkgs/ui-root-client/skeleton';
 import { Spinner } from '@pkgs/ui-root-client/spinner';
-import { SpinnerBox } from '@pkgs/ui-root-client/spinner-box';
 import {
   SPIN_DURATION_MS,
   SpinnerProvider,
@@ -154,13 +153,35 @@ function mustParent(el: Element): HTMLElement {
 }
 
 describe('Spinner', () => {
-  test('renders role=status with a live label and sized svg', () => {
-    renderUi(() => <Spinner size="small" data-testid="s" />);
+  test('renders role=status with a live label and twelve petals', () => {
+    renderUi(() => <Spinner size="sm" />);
     const el = screen.getByRole('status');
     expect(el).toHaveAttribute('aria-live', 'polite');
     expect(el).toHaveAttribute('aria-label', 'Loading…');
-    expect(el.querySelector('svg')).not.toBeNull();
-    expect(cssOf(el)).toContain('width:24px');
+    expect(el).toHaveAttribute('data-size', 'sm');
+    expect(el.classList.contains('size-4')).toBe(true);
+    const petals = [...el.querySelectorAll('rect')];
+    expect(petals).toHaveLength(12);
+    const opacities = petals.map((petal) =>
+      Number(petal.getAttribute('opacity'))
+    );
+    expect(opacities[0]).toBe(1);
+    expect(opacities).toEqual([...opacities].sort((a, b) => b - a));
+  });
+
+  test('defaults to md in the secondary text tone, and labels itself', () => {
+    renderUi(() => <Spinner label="Loading puzzles" />);
+    const el = screen.getByRole('status', { name: 'Loading puzzles' });
+    expect(el.classList.contains('size-6')).toBe(true);
+    expect(el.classList.contains('text-text-secondary')).toBe(true);
+  });
+
+  test('a decorative spinner is hidden from assistive tech', () => {
+    renderUi(() => <Spinner decorative color="current" size="lg" />);
+    expect(screen.queryByRole('status')).toBeNull();
+    const el = mustQuery('[data-component="Spinner"]');
+    expect(el).toHaveAttribute('aria-hidden', 'true');
+    expect(el.classList.contains('size-10')).toBe(true);
   });
 
   test('shares rotation phase through SpinnerProvider via animation-delay', () => {
@@ -179,18 +200,11 @@ describe('Spinner', () => {
     });
     clock.advance(300);
     fireEvent.click(screen.getByText('add'));
-    const el = screen.getByRole('status');
-    expect(cssOf(el)).toContain(`animation-delay:-${300 % SPIN_DURATION_MS}ms`);
-  });
-
-  test('SpinnerBox centers a spinner with optional caption', () => {
-    renderUi(() => (
-      <SpinnerBox dataSet={{ testid: 'box' }}>
-        <span>Loading entity…</span>
-      </SpinnerBox>
-    ));
-    expect(screen.getByRole('status')).toBeInTheDocument();
-    expect(screen.getByText('Loading entity…')).toBeInTheDocument();
+    const svg = screen.getByRole('status').querySelector('svg');
+    if (svg === null) throw new Error('spinner has no svg');
+    expect(cssOf(svg)).toContain(
+      `animation-delay:-${300 % SPIN_DURATION_MS}ms`
+    );
   });
 });
 

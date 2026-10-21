@@ -17,7 +17,7 @@ export function PuzzleBoardLoadingState(
       class="box self-center bg-surface items-center justify-center"
       style={dimensionSx}
     >
-      <Spinner size="large" />
+      <Spinner size="lg" />
     </div>
   );
 }

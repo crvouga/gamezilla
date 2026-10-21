@@ -49,7 +49,7 @@ function RowTrailing(props: {
   shortcut: string | undefined;
 }): JSX.Element {
   return (
-    <Show when={!props.running} fallback={<Spinner size="small" />}>
+    <Show when={!props.running} fallback={<Spinner size="sm" />}>
       <Show when={props.shortcut}>
         {(shortcut) => <CommandPaletteKbd shortcut={shortcut()} />}
       </Show>

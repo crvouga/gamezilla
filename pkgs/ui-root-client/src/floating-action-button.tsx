@@ -79,7 +79,7 @@ function FabContent(props: {
     <>
       <Switch>
         <Match when={props.phase === 'loading'}>
-          <Spinner decorative color="currentColor" size={FAB_ICON_SIZE} />
+          <Spinner decorative color="current" />
         </Match>
         <Match when={props.phase === 'success' || props.phase === 'error'}>
           <Dynamic

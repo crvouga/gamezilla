@@ -218,7 +218,7 @@ function StatusGlyph(props: {
         />
       }
     >
-      <Spinner decorative color="currentColor" size={props.size.iconSize} />
+      <Spinner decorative color="current" size="sm" />
     </Show>
   );
 }
