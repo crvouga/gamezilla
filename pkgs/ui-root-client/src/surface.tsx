@@ -11,7 +11,6 @@
  *   it is a landmark element.
  * - `MenuSection` / `MenuList` / `List` for rows: one panel, hairlines
  *   between items. Never stack surfaces to make a list.
- * - `Island` is not painted at all: a titled section of the wide shell.
  *
  * Elevation is a tone, not a shadow: `tone="elevated"` for a raised sheet,
  * `tone="overlay"` for what floats above content.

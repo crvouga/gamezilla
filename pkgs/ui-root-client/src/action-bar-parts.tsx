@@ -15,7 +15,7 @@ import type {
   ActionBarItem,
   ActionBarTextAction,
 } from './action-bar-logic';
-import { isActionBarAvatarItem } from './action-bar-logic';
+import { actionBarGlyphSize, isActionBarAvatarItem } from './action-bar-logic';
 import { Button } from './button';
 import { IconButton } from './icon-button';
 import { MenuIcon } from './icons';
@@ -85,7 +85,7 @@ export function ActionBarOverflowTrigger(props: {
   const { t } = useLingui();
   const moreLabel = (): string => t`More`;
   const slotWidth = (): number => props.slotWidth ?? props.buttonSize;
-  const iconSize = (): number => Math.round(props.buttonSize * 0.55);
+  const iconSize = (): number => actionBarGlyphSize(props.buttonSize);
   const menuIcon = (): JSX.Element => (
     <MenuIcon size={iconSize()} color="icon" />
   );
@@ -176,23 +176,29 @@ function ActionBarInlineItem(props: {
   );
 }
 
+/** Reports a rendered inline element's box to the bar's width budget. */
+export type ActionBarTrack = (id: string, el: HTMLElement) => void;
+
 export function ActionBarIconItems(props: {
   items: readonly ActionBarItem[];
   buttonSize: number;
   showInlineLabels?: boolean | undefined;
   slotWidth?: number | undefined;
+  track: ActionBarTrack;
 }): JSX.Element {
   const showInlineLabels = (): boolean => props.showInlineLabels === true;
   const slotWidth = (): number => props.slotWidth ?? props.buttonSize;
   return (
     <For each={props.items}>
       {(item) => (
-        <ActionBarInlineItem
-          item={item}
-          buttonSize={props.buttonSize}
-          showInlineLabel={showInlineLabels()}
-          slotWidth={slotWidth()}
-        />
+        <div class="box" ref={(el) => props.track(item.id, el)}>
+          <ActionBarInlineItem
+            item={item}
+            buttonSize={props.buttonSize}
+            showInlineLabel={showInlineLabels()}
+            slotWidth={slotWidth()}
+          />
+        </div>
       )}
     </For>
   );
@@ -200,19 +206,22 @@ export function ActionBarIconItems(props: {
 
 export function ActionBarTextItems(props: {
   actions: readonly ActionBarTextAction[];
+  track: ActionBarTrack;
 }): JSX.Element {
   return (
     <For each={props.actions}>
       {(action) => (
-        <Button
-          title={action.label}
-          onClick={action.onClick}
-          intent={action.intent ?? 'neutral'}
-          size="sm"
-          loading={action.loading ?? false}
-          disabled={action.disabled ?? false}
-          dataSet={action.dataSet}
-        />
+        <div class="box" ref={(el) => props.track(action.id, el)}>
+          <Button
+            title={action.label}
+            onClick={action.onClick}
+            intent={action.intent ?? 'neutral'}
+            size="sm"
+            loading={action.loading ?? false}
+            disabled={action.disabled ?? false}
+            dataSet={action.dataSet}
+          />
+        </div>
       )}
     </For>
   );

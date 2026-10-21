@@ -34,22 +34,22 @@ function HeaderTrailing(props: ScreenBaseHeaderProps): JSX.Element {
   const partition = createMemo(() =>
     partitionScreenBaseActions(props.actions ?? [])
   );
+  // Row items of the TopBar itself, so the ActionBar gives up room against
+  // the title rather than inside a content-sized wrapper.
   return (
-    <div class="box flex-row items-center gap-1">
+    <>
       <Show when={hasScreenBaseActions(partition())}>
         <ActionBar
           items={partition().iconItems}
           textActions={partition().textActions}
           buttonSize={chrome().buttonSize}
           gap={chrome().gap}
-          slotWidth={chrome().slotWidth}
-          showInlineLabels={chrome().showInlineLabels}
           renderMenu={props.renderActionsMenu}
           overflowDataSet={{ testid: 'header-overflow-menu' }}
         />
       </Show>
       {props.globalTrailing}
-    </div>
+    </>
   );
 }
 
@@ -95,7 +95,6 @@ export function ScreenBaseHeader(props: ScreenBaseHeaderProps): JSX.Element {
   return (
     <TopBar
       centerAlign="start"
-      trailingSize={(props.actions?.length ?? 0) > 0 ? 'fill' : 'fit'}
       dataSet={{ component: 'ScreenBaseHeader' }}
       leading={
         props.leading !== undefined || layout().showBack ? (

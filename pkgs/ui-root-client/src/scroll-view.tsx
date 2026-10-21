@@ -5,7 +5,7 @@
  * The scroller takes the layout item props (`grow`, `self`, `width`,
  * `height`, `maxWidth`, `minHeight`), a `maxHeight` cap and a surface `tone`;
  * the content takes the spacing props (`gap`, `padding*`), `align` and
- * `fill`, and a screen `measure`. Inside a padded shell the scroller bleeds under the shell's edge
+ * `fill`, and a leading-edge screen `measure`. Inside a padded shell the scroller bleeds under the shell's edge
  * padding (`flushEdge`) so the scrollbar sits flush with the frame.
  */
 
@@ -29,7 +29,10 @@ export type ScrollViewProps = ScrollFrameProps &
     align?: Align | undefined;
     /** Grow the content to at least the scroller height (pins a footer). */
     fill?: boolean | undefined;
-    /** Center the content in a screen measure (`reading` / `stage`). */
+    /**
+     * Cap the content at a screen measure (`reading` / `stage`), on the
+     * leading edge so it lines up with the header above it.
+     */
     measure?: ScreenMeasure | undefined;
     /** Scroll along the x axis instead. */
     horizontal?: boolean | undefined;
@@ -56,7 +59,7 @@ export function ScrollView(props: ScrollViewProps): JSX.Element {
       spacingClass(props),
       flexContainerClass({ align: props.align }),
       props.fill === true ? 'grow' : undefined,
-      props.measure === undefined ? undefined : 'self-center w-full',
+      props.measure === undefined ? undefined : 'self-start w-full',
     ]);
   // The measure is a pixel width, not a token: a dynamic value.
   const contentStyle = (): JSX.CSSProperties | undefined =>

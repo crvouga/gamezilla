@@ -70,8 +70,6 @@ export default function ActionBarExample(): JSX.Element {
           items={BASE_ITEMS}
           buttonSize={chrome().buttonSize}
           gap={chrome().gap}
-          slotWidth={chrome().slotWidth}
-          showInlineLabels={chrome().showInlineLabels}
         />
       </div>
       <p class="text textCaption">{`Width: ${width()}px`}</p>

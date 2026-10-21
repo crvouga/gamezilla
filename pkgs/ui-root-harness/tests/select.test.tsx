@@ -121,6 +121,20 @@ describe('Select', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
+  // regression: select-trigger-heavy-fill
+  test('trigger reads as a field: the TextInput host, body value, icon chevron', () => {
+    renderUi(() => <Harness />);
+    const trigger = screen.getByRole('button', { name: 'Fruit' });
+    expect(trigger.className).toMatch(/\binput\b/);
+    expect(trigger.className).toMatch(/\bmin-h-11\b/);
+    expect(trigger.className).not.toMatch(/bg-surface-muted|border-outline/);
+    const value = screen.getByText('Banana');
+    expect(value.className).toMatch(/\btextBody\b/);
+    expect(value.className).not.toMatch(/textLabel|textBodyBold/);
+    const chevron = trigger.querySelector('svg');
+    expect(chevron).toHaveAttribute('width', '20');
+  });
+
   test('opens a dialog with a listbox, marks the current option and picks on click', () => {
     const onChange = mock();
     renderUi(() => <Harness onChange={onChange} />, { width: 1200 });
@@ -228,6 +242,9 @@ describe('Select', () => {
     const trigger = screen.getByRole('button', { name: 'Fruit' });
     expect(trigger).toBeDisabled();
     expect(trigger).toHaveTextContent('Choose a fruit');
+    expect(screen.getByText('Choose a fruit').className).toMatch(
+      /text-text-secondary/
+    );
     fireEvent.click(trigger);
     expect(screen.queryByRole('dialog')).toBeNull();
   });

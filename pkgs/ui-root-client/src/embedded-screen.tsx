@@ -10,7 +10,10 @@
  *
  * Every in-host template composes this one, so they share the same edge
  * padding, width and title treatment: `MainMenuScreen` (a menu of
- * destinations) and `GameScreen` (a game).
+ * destinations) and `GameScreen` (a game). The body starts at the host
+ * header's left content edge: 16px in from the screen edge in a compact
+ * host (the `TopBar` inset), flush with the frame in a wide one (the wide
+ * header has no inset of its own).
  *
  * @example
  * ```tsx
@@ -27,6 +30,7 @@ import { useScreenFocus } from './screen-focus';
 import { ScreenIntro } from './screen-intro';
 import type { ScreenMeasure } from './screen-measure';
 import { ScrollView } from './scroll-view';
+import { useLayoutMode } from './use-layout-mode';
 
 export type EmbeddedScreenProps = {
   /** Stable screen identifier rendered as `data-screen` (spec / dev tooling). */
@@ -56,6 +60,8 @@ export type EmbeddedScreenProps = {
 };
 
 export function EmbeddedScreen(props: EmbeddedScreenProps): JSX.Element {
+  const mode = useLayoutMode();
+  const inset = (): boolean => mode() !== 'wide';
   let root: HTMLDivElement | undefined;
   useScreenFocus(
     () => root,
@@ -71,9 +77,10 @@ export function EmbeddedScreen(props: EmbeddedScreenProps): JSX.Element {
           }}
           class={
             props.fill === true
-              ? 'box flex-1 min-h-0 self-stretch min-w-0 gap-ui-lg px-ui-lg pt-ui-sm'
+              ? 'box flex-1 min-h-0 self-stretch min-w-0 gap-ui-lg pt-ui-sm'
               : 'box self-stretch min-w-0 gap-4'
           }
+          classList={{ 'px-ui-lg': props.fill === true && inset() }}
           {...dataAttrs({
             component: 'EmbeddedScreen',
             ...props.dataSet,
@@ -87,6 +94,7 @@ export function EmbeddedScreen(props: EmbeddedScreenProps): JSX.Element {
     >
       <ScrolledEmbeddedScreen
         {...props}
+        inset={inset()}
         setRoot={(el) => {
           root = el;
         }}
@@ -96,7 +104,10 @@ export function EmbeddedScreen(props: EmbeddedScreenProps): JSX.Element {
 }
 
 function ScrolledEmbeddedScreen(
-  props: EmbeddedScreenProps & { setRoot: (el: HTMLDivElement) => void }
+  props: EmbeddedScreenProps & {
+    inset: boolean;
+    setRoot: (el: HTMLDivElement) => void;
+  }
 ): JSX.Element {
   return (
     <ScrollView
@@ -111,7 +122,7 @@ function ScrolledEmbeddedScreen(
         ...props.dataSet,
         screen: props.screenId,
       }}
-      paddingX="lg"
+      paddingX={props.inset ? 'lg' : undefined}
       paddingTop="sm"
       paddingBottom="2xl"
       gap="lg"

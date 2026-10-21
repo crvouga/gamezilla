@@ -39,7 +39,6 @@ export function ProfileScreenLayout(
       breadcrumbs={props.breadcrumbs}
       actions={props.actions}
       dataSet={{ component: 'ProfileScreenLayout', ...props.dataSet }}
-      surface="canvas"
     >
       <ProfileIdentity
         identity={props.identity}

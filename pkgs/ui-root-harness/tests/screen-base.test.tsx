@@ -5,6 +5,7 @@ import { AppFrame } from '@pkgs/ui-root-client/app-frame';
 import { AppFrameChromeProvider } from '@pkgs/ui-root-client/app-frame-chrome';
 import type { AppRouter } from '@pkgs/ui-root-client/app-router';
 import { StaticAppRouterProvider } from '@pkgs/ui-root-client/app-router';
+import { useContentEdgePaddingStep } from '@pkgs/ui-root-client/content-edge-padding';
 import { SettingsIcon } from '@pkgs/ui-root-client/icons';
 import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import type { ScreenBaseProps } from '@pkgs/ui-root-client/screen-base-types';
@@ -14,7 +15,7 @@ import { hrefToPath } from '@pkgs/ui-root-shared/href';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { type JSX, splitProps } from 'solid-js';
-import { mustQuery, renderUi } from './render';
+import { cssOf, mustQuery, renderUi } from './render';
 
 const COMPACT = { width: 390, height: 800 };
 const WIDE = { width: 1280, height: 900 };
@@ -65,28 +66,21 @@ describe('ScreenBase compact', () => {
     expect(title.className).toMatch(/\btextNavigationTitle\b/);
   });
 
-  test('trailing chrome alone sizes to fit, so a long title is not cut in half', () => {
+  test('trailing chrome sits in the row itself, so a long title keeps the room', () => {
     renderUi(
       () => (
-        <>
-          <TopBar
-            center={<p class="text">{'Account privacy'}</p>}
-            trailing={<p class="text">{'fit'}</p>}
-            trailingSize="fit"
-          />
-          <TopBar
-            center={<p class="text">{'Space'}</p>}
-            trailing={<p class="text">{'fill'}</p>}
-          />
-        </>
+        <TopBar
+          center={<p class="text">{'Account privacy'}</p>}
+          trailing={<p class="text">{'avatar'}</p>}
+        />
       ),
       COMPACT
     );
-    const fit = screen.getByText('fit').parentElement;
-    const fill = screen.getByText('fill').parentElement;
-    expect(fit?.className).toMatch(/\bshrink-0\b/);
-    expect(fit?.className).not.toMatch(/\bflex-1\b/);
-    expect(fill?.className).toMatch(/\bflex-1\b/);
+    const trailing = screen.getByText('avatar');
+    const center = screen.getByText('Account privacy').parentElement;
+    expect(trailing.parentElement).toBe(center?.parentElement ?? null);
+    expect(center?.className).toMatch(/\bgrow\b/);
+    expect(center?.className).toMatch(/\bbasis-24\b/);
   });
 
   test('renders data-screen, TopBar h1 title, back button and body', async () => {
@@ -264,7 +258,7 @@ describe('ScreenBase compact', () => {
     expect((wrapper ?? list).className.length).toBeGreaterThan(0);
   });
 
-  test('wide island virtual list keeps a flex height chain for flush-edge', () => {
+  test('wide virtual list keeps a flex height chain for flush-edge', () => {
     const items = Array.from({ length: 30 }, (_, i) => `row-${i}`);
     renderUi(
       () => (
@@ -297,14 +291,12 @@ describe('ScreenBase compact', () => {
     expect(flush?.className).toMatch(/flex-1/);
     expect(flush?.className).toMatch(/min-h-0/);
     expect(screen.getByText('row-0')).toBeInTheDocument();
-    // Flush wrapper must sit outside the Island padding column, not inside it.
-    const island = mustQuery('[data-component="Island"]');
-    expect(island.contains(list)).toBe(true);
+    expect(mustQuery('[data-screen="demo"]').contains(list)).toBe(true);
   });
 });
 
 describe('ScreenBase wide', () => {
-  test('renders breadcrumb trail with h1 title, link crumbs, actions and island body', async () => {
+  test('renders breadcrumb trail with h1 title, link crumbs, actions and body', async () => {
     const user = userEvent.setup();
     const home = mock();
     const save = mock();
@@ -330,23 +322,40 @@ describe('ScreenBase wide', () => {
     await user.click(screen.getByRole('button', { name: 'Save' }));
     expect(save).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole('button', { name: 'Back' })).toBeNull();
-    const island = mustQuery('[data-component="Island"]');
-    expect(island.tagName).toBe('SECTION');
-    expect(island.contains(screen.getByText('body'))).toBe(true);
+    expect(root.contains(screen.getByText('body'))).toBe(true);
   });
 
-  test('canvas surface leaves the body unwrapped; footer gets a divider', () => {
+  // regression: wide-screen-body-island-inset
+  test('wide body starts at the page title edge: no inset, edge step 0', () => {
+    function EdgeProbe(): JSX.Element {
+      return (
+        <p class="text" data-testid="edge">
+          {String(useContentEdgePaddingStep())}
+        </p>
+      );
+    }
+    for (const scroll of [false, true]) {
+      const { unmount } = renderUi(
+        () => <Screen scroll={scroll} body={<EdgeProbe />} />,
+        WIDE
+      );
+      const root = mustQuery('[data-screen="demo"]');
+      expect(screen.getByTestId('edge')).toHaveTextContent('0');
+      let el: Element | null = screen.getByTestId('content');
+      while (el !== null && el !== root) {
+        expect(cssOf(el)).not.toMatch(/padding(-left)?:[1-9]/);
+        expect(el.className).not.toMatch(/\b(p|px|pl)-[1-9]/);
+        el = el.parentElement;
+      }
+      unmount();
+    }
+  });
+
+  test('scrolling wide body scrolls as one; footer gets no divider', () => {
     renderUi(
-      () => (
-        <Screen
-          surface="canvas"
-          scroll
-          footer={<p class="text">{'footer'}</p>}
-        />
-      ),
+      () => <Screen scroll footer={<p class="text">{'footer'}</p>} />,
       WIDE
     );
-    expect(document.querySelector('[data-component="Island"]')).toBeNull();
     const footer = mustQuery('[data-component="ScreenFooter"]');
     expect(footer.className).not.toMatch(/border-t/);
     expect(mustQuery('[data-component="ScreenBodyScroll"]')).toBeTruthy();

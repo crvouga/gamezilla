@@ -23,7 +23,7 @@ export function ScreenBodyVirtualList<ItemT>(
 ): JSX.Element {
   return (
     // `.box` so a flush-edge VirtualList wrapper is a flex child and inherits
-    // a definite height (otherwise the scrollport collapses on wide Island).
+    // a definite height (otherwise the scrollport collapses on the wide canvas).
     <div class="box flex-1 min-h-0">
       <VirtualList
         {...props}

@@ -1,9 +1,9 @@
 /** @jsxImportSource solid-js */
 /**
  * Wide `ScreenBase`: page header row (breadcrumb trail + `ActionBar` +
- * primary `Button`, at least 52px) and either one `Island` card body or a
- * canvas for screen-composed islands, 8px apart on the wide backdrop. Lives
- * inside `AppFrame`, which owns the global header island.
+ * primary `Button`, at least 52px) and a flat canvas body whose left edge is
+ * the page header's, so content lines up under the title. Lives inside
+ * `AppFrame`, which owns the global header island.
  */
 
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
@@ -11,7 +11,6 @@ import { createMemo, type JSX, Show } from 'solid-js';
 import { ActionBar } from './action-bar';
 import { useActionBarChrome } from './action-bar-chrome';
 import { ContentEdgePaddingProvider } from './content-edge-padding';
-import { Island } from './island';
 import {
   buildBodyContentProps,
   hasScreenBaseActions,
@@ -96,37 +95,6 @@ function WideBodyContent(props: BodyProps): JSX.Element {
   );
 }
 
-function WideIslandBody(props: BodyProps): JSX.Element {
-  return (
-    <Show
-      when={props.scroll}
-      fallback={
-        <Island grow>
-          <div class="box flex-1 min-h-0">
-            <WideBodyContent {...props} />
-          </div>
-        </Island>
-      }
-    >
-      <Island grow>
-        <ScrollView
-          // The scroller must not cancel the island's edge step. No side
-          // padding: the body's left edge is the page header's, so content
-          // lines up under the title.
-          flushEdge={false}
-          grow
-          fill
-          paddingTop="md"
-          paddingBottom="xl"
-          dataSet={{ component: 'ScreenBodyScroll' }}
-        >
-          <WideBodyContent {...props} />
-        </ScrollView>
-      </Island>
-    </Show>
-  );
-}
-
 function WideCanvasBody(props: BodyProps): JSX.Element {
   const inner = (
     <ContentEdgePaddingProvider step={0}>
@@ -156,24 +124,12 @@ function WideShell(
   }
 ): JSX.Element {
   const body = (): JSX.Element => (
-    <Show
-      when={(props.surface ?? 'island') === 'canvas'}
-      fallback={
-        <WideIslandBody
-          scroll={props.scroll === true}
-          content={props.content}
-          footer={props.footer}
-          bottomBar={props.bottomBar}
-        />
-      }
-    >
-      <WideCanvasBody
-        scroll={props.scroll === true}
-        content={props.content}
-        footer={props.footer}
-        bottomBar={props.bottomBar}
-      />
-    </Show>
+    <WideCanvasBody
+      scroll={props.scroll === true}
+      content={props.content}
+      footer={props.footer}
+      bottomBar={props.bottomBar}
+    />
   );
   let root: HTMLDivElement | undefined;
   useScreenFocus(

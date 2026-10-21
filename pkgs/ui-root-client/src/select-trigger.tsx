@@ -1,8 +1,9 @@
 /** @jsxImportSource solid-js */
 /**
  * Trigger row for {@link Select}: preview swatch, current label (or
- * placeholder), and a disclosure chevron. Renders a real `<button>` with
- * `aria-haspopup="listbox"` / `aria-expanded`.
+ * placeholder), and a disclosure chevron, painted as a field (the
+ * `TextInput` host: surface fill, hairline, control radius, 44px). Renders a
+ * real `<button>` with `aria-haspopup="listbox"` / `aria-expanded`.
  */
 
 import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
@@ -34,10 +35,8 @@ export function SelectLabel(props: { label: JSX.Element }): JSX.Element {
 
 function triggerClass(compact: boolean): string {
   return [
-    'clickable clickableTint flex-row items-center min-w-0 w-full text-left',
-    'rounded-control border border-solid border-outline bg-surface-muted',
-    'disabled:opacity-disabled',
-    compact ? 'h-8 gap-2 px-2' : 'min-h-11 gap-3 px-3 py-2',
+    'input inputTrigger',
+    compact ? 'min-h-8 gap-2 px-3 py-1' : 'min-h-11 gap-2 px-4 py-2',
   ].join(' ');
 }
 
@@ -64,14 +63,14 @@ export function SelectTrigger<T extends SelectValue>(
         class="text line-clamp-1 flex-1 min-w-0 shrink"
         classList={{
           textFootnote: compact(),
-          textLabel: !compact(),
+          textBody: !compact(),
           'text-text': hasSelection(),
           'text-text-secondary': !hasSelection(),
         }}
       >
         {props.selected?.label ?? props.placeholder}
       </p>
-      <ChevronDownIcon size={compact() ? 14 : 18} color="textSecondary" />
+      <ChevronDownIcon size={compact() ? 16 : 20} color="icon" />
     </button>
   );
 }

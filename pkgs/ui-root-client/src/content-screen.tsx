@@ -11,7 +11,6 @@ export type ContentScreenProps = Pick<
   | 'breadcrumbs'
   | 'actions'
   | 'leading'
-  | 'surface'
   | 'dataSet'
   | 'footer'
   | 'renderActionsMenu'
@@ -29,7 +28,6 @@ export function ContentScreen(props: ContentScreenProps): JSX.Element {
       breadcrumbs={props.breadcrumbs}
       actions={props.actions}
       leading={props.leading}
-      surface={props.surface}
       renderActionsMenu={props.renderActionsMenu}
       footer={
         footer.present() ? (

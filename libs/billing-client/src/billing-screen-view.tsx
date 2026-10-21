@@ -81,7 +81,6 @@ export function BillingScreenLayout(
   return (
     <ContentScreen
       screenId="billing"
-      surface="canvas"
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, href: '/' },
         { name: <Trans>Settings</Trans>, href: '/more' },

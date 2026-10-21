@@ -3,8 +3,8 @@ import type { ActionBarItem } from '@pkgs/ui-root-client/action-bar-logic';
 import {
   actionBarBudgetWidth,
   actionBarHasContent,
+  actionBarRowWidth,
   isActionBarAvatarItem,
-  maxIconSlots,
   partitionActionBarItems,
   partitionTextActions,
   resolveCombinedOverflow,
@@ -26,12 +26,11 @@ function ids(items: readonly ActionBarItem[]): string[] {
 }
 
 describe('action-bar budget math', () => {
-  test('budget never goes negative and slots floor by stride', () => {
+  test('budget never goes negative; a row is its widths plus the gaps between', () => {
     expect(actionBarBudgetWidth(300, 80)).toBe(220);
     expect(actionBarBudgetWidth(50, 80)).toBe(0);
-    expect(maxIconSlots(220, 36, 8)).toBe(5);
-    expect(maxIconSlots(43, 36, 8)).toBe(0);
-    expect(maxIconSlots(100, 0, 0)).toBe(0);
+    expect(actionBarRowWidth([44, 44, 44], 8)).toBe(148);
+    expect(actionBarRowWidth([], 8)).toBe(0);
   });
 });
 
@@ -87,6 +86,78 @@ describe('partitionActionBarItems', () => {
     expect(ids(p.overflow)).toEqual(['low', 'hidden']);
   });
 
+  test('a budget too small for any item leaves only the More trigger', () => {
+    for (const containerWidth of [1, 20, 43, 44, 60]) {
+      const p = partitionActionBarItems(
+        [item('a', { overflow: 'never' }), item('b', { overflow: 'never' })],
+        { containerWidth, buttonSize: 40, slotWidth: 44 }
+      );
+      expect(p.visible).toEqual([]);
+      expect(ids(p.overflow)).toEqual(['a', 'b']);
+    }
+  });
+
+  test('a lone item that does not fit collapses rather than spilling', () => {
+    const p = partitionActionBarItems([item('a')], {
+      containerWidth: 30,
+      buttonSize: 40,
+      slotWidth: 44,
+    });
+    expect(p.visible).toEqual([]);
+    expect(ids(p.overflow)).toEqual(['a']);
+  });
+
+  test('measured widths, not slot counts, decide what fits', () => {
+    const widths: Record<string, number> = { people: 100, end: 44 };
+    const layout = {
+      buttonSize: 40,
+      slotWidth: 44,
+      itemWidth: (i: ActionBarItem) => widths[i.id],
+    };
+    const items = [
+      item('people', { overflow: 'never', priority: 90 }),
+      item('end', { overflow: 'never', priority: 95 }),
+      item('share', { overflow: 'always' }),
+      item('leave', { overflow: 'always' }),
+    ];
+    // people 100 + end 44 + More 44 + gaps 16 = 204.
+    expect(
+      ids(
+        partitionActionBarItems(items, { ...layout, containerWidth: 204 })
+          .visible
+      )
+    ).toEqual(['people', 'end']);
+    // One px short: End no longer fits beside the 100px pill and More.
+    const short = partitionActionBarItems(items, {
+      ...layout,
+      containerWidth: 203,
+    });
+    expect(ids(short.visible)).toEqual(['people']);
+    expect(ids(short.overflow)).toEqual(['end', 'share', 'leave']);
+    // Too narrow for the pill beside More: More alone.
+    const tiny = partitionActionBarItems(items, {
+      ...layout,
+      containerWidth: 151,
+    });
+    expect(tiny.visible).toEqual([]);
+  });
+
+  test('every inline row fits its budget, More included', () => {
+    const many = Array.from({ length: 6 }, (_, i) =>
+      item(`i${i}`, { priority: i })
+    );
+    for (let width = 1; width <= 400; width += 1) {
+      const p = partitionActionBarItems(many, {
+        containerWidth: width,
+        buttonSize: 40,
+        slotWidth: 44,
+      });
+      const slots = p.visible.length + (p.overflow.length > 0 ? 1 : 0);
+      const row = actionBarRowWidth(new Array(slots).fill(44), 8);
+      expect(p.visible.length === 0 || row <= width).toBe(true);
+    }
+  });
+
   test('empty input is a no-op', () => {
     expect(
       partitionActionBarItems([], { containerWidth: 100, buttonSize: 36 })
@@ -111,14 +182,14 @@ describe('text actions + combined overflow', () => {
     expect(partitionTextActions(actions, 'never').overflow).toEqual([]);
   });
 
-  test('a lone overflow item is pulled back inline', () => {
+  test('a lone text action is pulled back inline; icon overflow is kept', () => {
     const icons = { visible: [item('a')], overflow: [item('b')] };
     const combined = resolveCombinedOverflow(icons, {
       inline: [],
       overflow: [],
     });
-    expect(ids(combined.partition.visible)).toEqual(['a', 'b']);
-    expect(combined.partition.overflow).toEqual([]);
+    expect(ids(combined.partition.visible)).toEqual(['a']);
+    expect(ids(combined.partition.overflow)).toEqual(['b']);
 
     const text = resolveCombinedOverflow(
       { visible: [], overflow: [] },

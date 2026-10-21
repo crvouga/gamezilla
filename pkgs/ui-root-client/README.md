@@ -134,7 +134,7 @@ protocol. Import each from its matching kebab-case module export.
 
 `ScreenColumn` gives routed reading bodies and form footers the same width
 and section rhythm. It follows the header's left edge. Embedded templates
-retain their host's centered reading or stage measure. `GameLayout` stacks
+keep their reading or stage measure on the host header's left edge too. `GameLayout` stacks
 the stage before the rail on phones and places the rail beside it on wide
 screens; without a rail, the stage uses the full width. Toggling the rail
 does not remount the play surface.

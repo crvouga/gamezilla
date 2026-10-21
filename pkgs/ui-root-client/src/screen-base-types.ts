@@ -64,9 +64,6 @@ export type ScreenBasePrimaryAction = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-/** Wide-layout body surface: one card vs screen-composed islands. */
-export type ScreenBaseSurface = 'island' | 'canvas';
-
 export type ScreenBaseProps = {
   /** Stable screen identifier for DOM `data-screen` (spec / dev tooling). */
   screenId: string;
@@ -79,12 +76,6 @@ export type ScreenBaseProps = {
   breadcrumbs: readonly ScreenBaseBreadcrumb[];
   actions?: readonly ScreenBaseAction[] | undefined;
   content: (p: BodyContentProps) => JSX.Element;
-  /**
-   * Wide-only body surface. `'island'` (default) wraps content in one flat
-   * section. `'canvas'` leaves content unwrapped so the screen composes
-   * `Island` / `IslandGrid`. Ignored on compact.
-   */
-  surface?: ScreenBaseSurface | undefined;
   /**
    * When true, the body scrolls as a whole with padding inside the scroller
    * (scrollbar flush with the screen edge). When false (default), the body

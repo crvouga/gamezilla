@@ -36,22 +36,21 @@ function SpaceChromeTitle(props: {
 }
 
 /**
- * Space ActionBar owns a real width budget (a content-sized slot collapses
- * every action into a lone More menu), then the global avatar menu sits at
- * the far edge — same on wide header trailing and compact TopBar trailing.
+ * Space actions, the host status, then the global avatar menu at the far
+ * edge — same on wide header trailing and compact TopBar trailing. They are
+ * the bar's own row items (no wrapper), so the ActionBar sizes itself
+ * against the title and collapses into its More menu when the row is short.
  */
 function SpaceTrailingWithGlobal(props: {
   readonly hostOffline: boolean;
 }): JSX.Element {
   const globalTrailing = useAppFrameGlobalTrailing();
   return (
-    <StackHorizontal grow align="center" gap="sm">
-      <StackVertical grow>
-        <SpaceChromeTrailingActionBar />
-      </StackVertical>
+    <>
+      <SpaceChromeTrailingActionBar />
       <SpaceHostConnectionStatus offline={props.hostOffline} />
       {globalTrailing()}
-    </StackHorizontal>
+    </>
   );
 }
 

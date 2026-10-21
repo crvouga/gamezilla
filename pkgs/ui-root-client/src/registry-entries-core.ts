@@ -23,8 +23,6 @@ import FloatingActionButtonExample from './floating-action-button.example';
 import FormActionsFooterExample from './form-actions-footer.example';
 import IconButtonExample from './icon-button.example';
 import IconLinkExample from './icon-link.example';
-import IslandExample from './island.example';
-import IslandGridExample from './island-grid.example';
 import MarkdownEditorExample from './markdown-editor.example';
 import MultiSelectSwatchGridExample from './multi-select-swatch-grid.example';
 import NumberStepperExample from './number-stepper.example';
@@ -58,9 +56,7 @@ export const CORE_ENTRIES: readonly ComponentEntry[] = [
   entry('app-frame', 'AppFrame', LAYOUT, AppFrameExample),
   entry('app-header-island', 'AppHeaderIsland', LAYOUT, AppHeaderIslandExample),
   entry('tab-bar', 'TabBar', LAYOUT, TabBarExample),
-  entry('island', 'Island', LAYOUT, IslandExample),
   entry('card', 'Card', LAYOUT, CardExample),
-  entry('island-grid', 'IslandGrid', LAYOUT, IslandGridExample),
   entry('catalog', 'Catalog', LAYOUT, CatalogExample),
 
   entry('brand-icon', 'BrandIcon', 'Icons', BrandIconExample),

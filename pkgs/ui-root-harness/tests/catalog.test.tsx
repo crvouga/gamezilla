@@ -10,12 +10,6 @@ import { fireEvent, screen } from '@solidjs/testing-library';
 import { createSignal } from 'solid-js';
 import { cssOf, renderUi } from './render';
 
-function nth<T>(list: readonly T[], index: number): T {
-  const item = list[index];
-  if (item === undefined) throw new Error(`missing item ${index}`);
-  return item;
-}
-
 const ITEMS: readonly CatalogItem[] = [
   { id: 'btn', label: 'Button', category: 'Inputs' },
   { id: 'chk', label: 'Checkbox', category: 'Inputs' },
@@ -24,22 +18,33 @@ const ITEMS: readonly CatalogItem[] = [
 ];
 
 describe('CatalogList', () => {
-  test('renders grouped rows as buttons and selects by id', () => {
+  // regression: ui-explorer-list-without-panels
+  test('renders each group as a menu section panel of rows and selects by id', () => {
     const onSelect = mock();
     renderUi(() => <CatalogList items={ITEMS} onSelect={onSelect} />);
-    expect(screen.getByRole('heading', { name: 'Inputs' })).toBeInTheDocument();
+    const inputs = screen.getByRole('heading', { name: 'Inputs' });
+    expect(inputs.className).toMatch(/\btextCaption\b/);
     expect(
       screen.getByRole('heading', { name: 'Data display' })
     ).toBeInTheDocument();
-    const rows = screen.getAllByRole('button');
-    expect(rows.map((r) => r.textContent.replace('›', ''))).toEqual([
+    const sections = document.querySelectorAll(
+      '[data-component="MenuSection"]'
+    );
+    expect(sections).toHaveLength(3);
+    const panels = document.querySelectorAll('[data-component="MenuList"]');
+    expect(panels).toHaveLength(3);
+    const rows = screen.getAllByRole('menuitem');
+    expect(rows.map((r) => r.textContent)).toEqual([
       'Button',
       'Checkbox',
       'Badge',
       'Misc thing',
     ]);
-    expect(nth(rows, 0).className).toMatch(/min-h-11/);
-    fireEvent.click(screen.getByRole('button', { name: /Badge/ }));
+    for (const row of rows) {
+      expect(row).toHaveAttribute('data-component', 'MenuRow');
+      expect(row.closest('[data-component="MenuList"]')).not.toBeNull();
+    }
+    fireEvent.click(screen.getByRole('menuitem', { name: /Badge/ }));
     expect(onSelect).toHaveBeenCalledWith('badge');
   });
 
@@ -47,12 +52,12 @@ describe('CatalogList', () => {
     renderUi(() => <CatalogList items={ITEMS} onSelect={() => {}} />);
     const input = screen.getByRole('searchbox', { name: 'Search…' });
     fireEvent.input(input, { target: { value: 'check' } });
-    expect(screen.getAllByRole('button')).toHaveLength(1);
+    expect(screen.getAllByRole('menuitem')).toHaveLength(1);
     expect(
-      screen.getByRole('button', { name: /Checkbox/ })
+      screen.getByRole('menuitem', { name: /Checkbox/ })
     ).toBeInTheDocument();
     fireEvent.input(input, { target: { value: 'zzz' } });
-    expect(screen.queryAllByRole('button')).toHaveLength(0);
+    expect(screen.queryAllByRole('menuitem')).toHaveLength(0);
     expect(screen.getByText('No matching items')).toBeInTheDocument();
   });
 });
