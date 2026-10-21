@@ -1,6 +1,7 @@
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
 import { awaitingSetups } from '@libs/game-matchmaking-shared/game-state';
 import { Trans } from '@lingui/solid/macro';
+import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import { useGamePresentation } from '@pkgs/turn-game-client/turn-games-context';
 import { Badge } from '@pkgs/ui-root-client/badge';
 import { GameActionButton } from '@pkgs/ui-root-client/game-action-button';
@@ -22,6 +23,9 @@ export function MultiplayerPrivateSetupPanel(props: {
   readonly onChoose: (setup: string) => Promise<void>;
 }): JSX.Element {
   const presentation = useGamePresentation();
+  // With no connection the setup holds still: the game may have moved on.
+  const sync = useSyncEngine();
+  const offline = () => !sync.status().online;
   const side = () => props.setup.side() ?? 'white';
   const other = () => (side() === 'white' ? 'black' : 'white');
   return (
@@ -41,7 +45,7 @@ export function MultiplayerPrivateSetupPanel(props: {
                 component={Board()}
                 setup={props.setup.draft()}
                 side={side()}
-                locked={false}
+                locked={offline()}
                 onChange={(next: string) => props.setup.arrange(next)}
                 testId="multiplayer-setup"
               />
@@ -51,6 +55,7 @@ export function MultiplayerPrivateSetupPanel(props: {
             <GameActionButton
               title={<Trans>Random setup</Trans>}
               dataSet={{ testid: 'multiplayer-setup-random' }}
+              disabled={offline()}
               operation={async () => props.setup.random()}
             />
             <GameActionButton

@@ -39,7 +39,7 @@ export function CustomGamePrivateSetup(props: {
                 component={Board()}
                 setup={setup().draft()}
                 side={side() ?? 'white'}
-                locked={ready()}
+                locked={ready() || !props.model.connected()}
                 onChange={(next: string) => setup().arrange(next)}
                 testId="custom-game-setup"
               />
@@ -61,7 +61,7 @@ export function CustomGamePrivateSetup(props: {
             <GameActionButton
               title={<Trans>Random setup</Trans>}
               dataSet={{ testid: 'custom-game-setup-random' }}
-              disabled={ready()}
+              disabled={ready() || !props.model.connected()}
               operation={async () => setup().random()}
             />
           </GameActions>

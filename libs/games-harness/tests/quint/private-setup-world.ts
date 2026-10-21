@@ -40,8 +40,8 @@ import type { HarnessGame } from '@libs/game-session-harness/harness-game';
 import {
   changeMatchedPrivateSetup,
   chooseMatchedPrivateSetup,
+  matchedSetupBoardTakes,
 } from '@libs/game-session-harness/matched-game-private-setup';
-import { matchedSetupBoardShown } from '@libs/game-session-harness/matched-setup-board';
 import { playedRules } from '@libs/game-session-harness/played-rules';
 import type { CustomGameInput } from '@libs/game-session-shared/custom-game-choice';
 import { partition, restoreActorConnection } from '@libs/harness/actions';
@@ -357,7 +357,7 @@ export async function changeSetup(
   }
   // A watcher has no matched game of their own and no setup board to change.
   if ((await ownMatchedGame(w, actor)) === null || setup === undefined) return;
-  const onBoard = await w.s.read(matchedSetupBoardShown, actor);
+  const onBoard = await w.s.read(matchedSetupBoardTakes, actor);
   await w.s.apply(changeMatchedPrivateSetup, actor, setup);
   if (onBoard) {
     const arranged =

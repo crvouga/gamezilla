@@ -109,15 +109,39 @@ export const chooseMatchedPrivateSetup = scenarioAction({
   },
 });
 
+const RANDOM = 'multiplayer-setup-random';
+
+/**
+ * Whether `actor`'s setup board takes a new arrangement now: it is shown
+ * while they are still choosing, and holds still (its random setup control
+ * disabled with it) while their device has no connection.
+ */
+export async function matchedSetupBoardTakes(
+  s: ProductHarness,
+  actor: string
+): Promise<boolean> {
+  const ui = await actorUi(s, actor);
+  await bringToFront(s, actor);
+  const random = ui.get(RANDOM);
+  return (
+    (await ui.get(MATCHED_GAME_SETUP_BOARD).isVisible()) &&
+    (await random.isVisible()) &&
+    controlIsEnabled(
+      await random.attribute('disabled'),
+      await random.attribute('aria-disabled')
+    )
+  );
+}
+
 /**
  * `actor` changes their private setup to `setup`: on the setup board while
- * they are still choosing, otherwise as the choice a modified device sends.
+ * it takes one, otherwise as the choice a modified device sends.
  */
 export const changeMatchedPrivateSetup = scenarioAction({
   name: 'changeMatchedPrivateSetup',
   act: async (s, actor: string, setup: string) => {
-    const { game, ui } = await matchedGameShown(s, actor);
-    if (await ui.get(MATCHED_GAME_SETUP_BOARD).isVisible()) {
+    const { game } = await matchedGameShown(s, actor);
+    if (await matchedSetupBoardTakes(s, actor)) {
       await arrangeOnBoard(s, actor, setup);
       return;
     }

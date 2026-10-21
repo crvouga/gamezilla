@@ -2,26 +2,8 @@
   "custom-game": {
     "seed": "0x67932",
     "traces": 256,
-    "cover": [
-      38,
-      55,
-      63,
-      122,
-      123,
-      125,
-      211,
-      250
-    ],
-    "replayed": [
-      38,
-      55,
-      63,
-      122,
-      123,
-      125,
-      211,
-      250
-    ],
+    "cover": [38, 55, 63, 122, 123, 125, 211, 250],
+    "replayed": [38, 55, 63, 122, 123, 125, 211, 250],
     "regressions": 12,
     "determinism": false,
     "variants": 3
@@ -29,12 +11,8 @@
   "custom-game-control": {
     "seed": "0x67932",
     "traces": 64,
-    "cover": [
-      2
-    ],
-    "replayed": [
-      2
-    ],
+    "cover": [2],
+    "replayed": [2],
     "regressions": 4,
     "determinism": false,
     "variants": 3
@@ -42,14 +20,8 @@
   "custom-game-local": {
     "seed": "0x67932",
     "traces": 32,
-    "cover": [
-      2,
-      21
-    ],
-    "replayed": [
-      2,
-      21
-    ],
+    "cover": [2, 21],
+    "replayed": [2, 21],
     "regressions": 0,
     "determinism": false,
     "variants": 3
@@ -57,14 +29,8 @@
   "custom-game-play": {
     "seed": "0x67932",
     "traces": 32,
-    "cover": [
-      2,
-      4
-    ],
-    "replayed": [
-      2,
-      4
-    ],
+    "cover": [2, 4],
+    "replayed": [2, 4],
     "regressions": 6,
     "determinism": false,
     "variants": 5
@@ -72,14 +38,8 @@
   "matched-game": {
     "seed": "0x67932",
     "traces": 80,
-    "cover": [
-      13,
-      32
-    ],
-    "replayed": [
-      13,
-      32
-    ],
+    "cover": [13, 32],
+    "replayed": [13, 32],
     "regressions": 2,
     "determinism": true,
     "variants": 3
@@ -87,12 +47,8 @@
   "matched-game-clock-recovery": {
     "seed": "0x67932",
     "traces": 32,
-    "cover": [
-      7
-    ],
-    "replayed": [
-      7
-    ],
+    "cover": [7],
+    "replayed": [7],
     "regressions": 1,
     "determinism": false,
     "variants": 4
@@ -100,14 +56,8 @@
   "matched-game-daily": {
     "seed": "0x67932",
     "traces": 16,
-    "cover": [
-      2,
-      13
-    ],
-    "replayed": [
-      2,
-      13
-    ],
+    "cover": [2, 13],
+    "replayed": [2, 13],
     "regressions": 0,
     "determinism": false,
     "variants": 3
@@ -115,12 +65,8 @@
   "matched-game-own-board": {
     "seed": "0x67932",
     "traces": 48,
-    "cover": [
-      12
-    ],
-    "replayed": [
-      12
-    ],
+    "cover": [12],
+    "replayed": [12],
     "regressions": 0,
     "determinism": false,
     "variants": 4
@@ -128,12 +74,8 @@
   "matched-game-shared": {
     "seed": "0x67932",
     "traces": 96,
-    "cover": [
-      52
-    ],
-    "replayed": [
-      52
-    ],
+    "cover": [52],
+    "replayed": [52],
     "regressions": 5,
     "determinism": false,
     "variants": 4
@@ -141,12 +83,8 @@
   "matched-game-spaces": {
     "seed": "0x67932",
     "traces": 32,
-    "cover": [
-      0
-    ],
-    "replayed": [
-      0
-    ],
+    "cover": [0],
+    "replayed": [0],
     "regressions": 1,
     "determinism": false,
     "variants": 4
@@ -154,12 +92,8 @@
   "private-setup": {
     "seed": "0x67932",
     "traces": 63,
-    "cover": [
-      0
-    ],
-    "replayed": [
-      0
-    ],
+    "cover": [0],
+    "replayed": [0],
     "regressions": 0,
     "determinism": false,
     "variants": 2
@@ -174,16 +108,8 @@
         "plan": {
           "seed": "0x67932",
           "traces": 64,
-          "cover": [
-            21,
-            38,
-            43
-          ],
-          "replayed": [
-            21,
-            38,
-            43
-          ],
+          "cover": [21, 38, 43],
+          "replayed": [21, 38, 43],
           "regressions": 0,
           "determinism": false,
           "variants": 1
@@ -196,16 +122,8 @@
         "plan": {
           "seed": "0x67932",
           "traces": 64,
-          "cover": [
-            0,
-            8,
-            31
-          ],
-          "replayed": [
-            0,
-            8,
-            31
-          ],
+          "cover": [0, 8, 31],
+          "replayed": [0, 8, 31],
           "regressions": 0,
           "determinism": false,
           "variants": 2
@@ -216,12 +134,8 @@
   "puzzle-feed": {
     "seed": "0x67932",
     "traces": 24,
-    "cover": [
-      0
-    ],
-    "replayed": [
-      0
-    ],
+    "cover": [0],
+    "replayed": [0],
     "regressions": 1,
     "determinism": false,
     "variants": 3
@@ -229,12 +143,8 @@
   "puzzle-link": {
     "seed": "0x67932",
     "traces": 16,
-    "cover": [
-      2
-    ],
-    "replayed": [
-      2
-    ],
+    "cover": [2],
+    "replayed": [2],
     "regressions": 2,
     "determinism": false,
     "variants": 3
@@ -242,16 +152,8 @@
   "puzzle-result-recovery": {
     "seed": "0x67932",
     "traces": 64,
-    "cover": [
-      1,
-      8,
-      17
-    ],
-    "replayed": [
-      1,
-      8,
-      17
-    ],
+    "cover": [1, 8, 17],
+    "replayed": [1, 8, 17],
     "regressions": 4,
     "determinism": false,
     "variants": 3
@@ -266,14 +168,8 @@
         "plan": {
           "seed": "0x67932",
           "traces": 24,
-          "cover": [
-            0,
-            6
-          ],
-          "replayed": [
-            0,
-            6
-          ],
+          "cover": [0, 6],
+          "replayed": [0, 6],
           "regressions": 0,
           "determinism": false,
           "variants": 1
@@ -286,14 +182,8 @@
         "plan": {
           "seed": "0x67932",
           "traces": 24,
-          "cover": [
-            0,
-            6
-          ],
-          "replayed": [
-            0,
-            6
-          ],
+          "cover": [0, 6],
+          "replayed": [0, 6],
           "regressions": 0,
           "determinism": false,
           "variants": 2
@@ -304,12 +194,8 @@
   "space-follow": {
     "seed": "0x67932",
     "traces": 16,
-    "cover": [
-      0
-    ],
-    "replayed": [
-      0
-    ],
+    "cover": [0],
+    "replayed": [0],
     "regressions": 0,
     "determinism": false,
     "variants": 5

@@ -42,7 +42,11 @@ async function screenOf(s: ProductHarness, actor: string) {
   return { probe, game: harnessGameAt(s, probe.current.fen) };
 }
 
-/** Whether `actor`'s setup board takes a new arrangement now. */
+/**
+ * Whether `actor`'s setup board takes a new arrangement now: not while they
+ * are ready, the game is no longer being set up, or their device has no
+ * connection (the board holds still).
+ */
 async function boardTakesSetup(
   s: ProductHarness,
   actor: string
@@ -51,6 +55,7 @@ async function boardTakesSetup(
   const game = probe.current;
   return (
     game !== null &&
+    probe.connected &&
     game.status === 'configuring' &&
     probe.mySide !== null &&
     !game.ready.includes(probe.mySide) &&
