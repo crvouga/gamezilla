@@ -35,7 +35,7 @@ import {
   scopedBiomeConfig,
   workspaceDeps,
 } from './biome-scope';
-import { designVocabularyViolations } from './design-vocabulary';
+import { designProfile, designVocabularyViolations } from './design-vocabulary';
 import { macrosOutsideCatalog } from './lingui-scope';
 import { packageBoundaryViolations } from './package-boundaries';
 import { spawnedCliViolations } from './spawned-clis';
@@ -51,8 +51,6 @@ import { unusedWorkspaceDependencies } from './unused-dependencies';
 
 const REPO_ROOT = resolve(import.meta.dir, '../../..');
 const PACKAGE_TIER = /^(apps|libs|pkgs)\//;
-/** Product UI packages: they compose `@pkgs/ui-root-client`, never paint. */
-const PRODUCT_CLIENT = /^libs\/[a-z0-9-]+-client$/;
 
 type SolidScope = {
   readonly dirs: readonly string[];
@@ -158,15 +156,21 @@ function wordsOk(pkg: string, paths: readonly string[]): boolean {
   );
 }
 
-/** Product UI packages paint only through `@pkgs/ui-root-client`. */
+/**
+ * UI packages paint only through `@pkgs/ui-root-client`, and product screens
+ * only compose it. A `pkgs/*-client` package with no markup or stylesheet
+ * is not UI.
+ */
 function designVocabularyOk(
   pkg: string,
   sources: readonly { path: string; text: string }[]
 ): boolean {
+  const profile = designProfile(pkg);
+  const ui = sources.some((source) => /\.(tsx|css)$/.test(source.path));
   return clean(
     pkg,
-    'product screens use the design vocabulary — type roles, surfaces and color tokens come from @pkgs/ui-root-client (libs/tools/scripts/design-vocabulary.ts)',
-    PRODUCT_CLIENT.test(pkg) ? designVocabularyViolations(sources) : []
+    'UI speaks the design vocabulary — screens compose @pkgs/ui-root-client components, and every type role, surface, step and color is a token (libs/tools/scripts/design-vocabulary.ts)',
+    profile === null || !ui ? [] : designVocabularyViolations(sources, profile)
   );
 }
 
@@ -277,12 +281,12 @@ async function lintPackage(pkg: string): Promise<boolean> {
   const files = listFiles(['--', pkg]);
   const tools = externalTools(pkg);
   const pkgFiles = (files ?? []).map((path) => path.slice(pkg.length + 1));
-  const sources = pkgFiles
-    .filter((path) => /\.tsx?$/.test(path))
-    .map((path) => ({
-      path,
-      text: readFileSync(join(REPO_ROOT, pkg, path), 'utf8'),
-    }));
+  const read = (path: string) => ({
+    path,
+    text: readFileSync(join(REPO_ROOT, pkg, path), 'utf8'),
+  });
+  const sources = pkgFiles.filter((path) => /\.tsx?$/.test(path)).map(read);
+  const stylesheets = pkgFiles.filter((path) => /\.css$/.test(path)).map(read);
   const manifest = readJson<{
     scripts?: Record<string, string>;
     dependencies?: Record<string, string>;
@@ -327,7 +331,7 @@ async function lintPackage(pkg: string): Promise<boolean> {
         specDomains: manifest.specDomains ?? [],
       })
     ),
-    designVocabularyOk(pkg, sources),
+    designVocabularyOk(pkg, [...sources, ...stylesheets]),
     clean(
       pkg,
       'behavior tests are specs, and a package has one example app (README.md)',
