@@ -734,11 +734,15 @@
       "Opens game choices": "user",
       "Chooses Chess": "user",
       "Chooses Connect Four": "user",
+      "Chooses Battleship": "user",
       "Changes the selected game as a watcher": "user",
       "Opens a Connect Four custom game": "user",
       "Finds a Connect Four opponent": "user",
+      "Opens a Battleship custom game": "user",
+      "Finds a Battleship opponent": "user",
       "Reviews a chess game": "user",
       "Reviews a Connect Four game": "user",
+      "Reviews a Battleship game": "user",
       "Returns to the game choice": "user",
       "Leaves adding puzzles": "user",
       "Team access is allowed": "system",
@@ -4702,7 +4706,7 @@
                   "id": "App: Games",
                   "meta": {
                     "description": "The host chooses a registered game; participants play or watch according to their permission.",
-                    "snapshot": "The space offers Chess and Connect Four.",
+                    "snapshot": "The space offers Chess, Connect Four and Battleship.",
                     "confidence": "assumed",
                     "source": [
                       "specs/games/space-follow.qnt",
@@ -4786,6 +4790,9 @@
                         "Chooses Connect Four": {
                           "target": "#Games: Connect Four choices"
                         },
+                        "Chooses Battleship": {
+                          "target": "#Games: Battleship choices"
+                        },
                         "Changes the selected game as a watcher": {
                           "target": "#Games: Game choice refused"
                         }
@@ -4832,6 +4839,58 @@
                           "target": "#App: Multiplayer"
                         },
                         "Reviews a Connect Four game": {
+                          "target": "#Custom Game: Reviewing"
+                        },
+                        "Returns to the game choice": {
+                          "target": "#Games: Choose a game"
+                        }
+                      }
+                    },
+                    "Games: Battleship choices": {
+                      "id": "Games: Battleship choices",
+                      "meta": {
+                        "description": "Battleship offers custom games, opponents, instructions, history and replay, as every game does, each player first choosing a private fleet.",
+                        "snapshot": "Battleship offers custom games, opponents, instructions, history and replay, as every game does, each player first choosing a private fleet.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/battleship/battleship-accessibility.feature",
+                          "specs/battleship/battleship-bots.feature",
+                          "specs/battleship/battleship-fleet-placement.feature",
+                          "specs/battleship/battleship-health.feature",
+                          "specs/battleship/battleship-hidden-fleets.feature",
+                          "specs/battleship/battleship-play.qnt",
+                          "specs/battleship/battleship-shots.feature",
+                          "specs/battleship/battleship-sinking.feature",
+                          "specs/battleship/battleship-start.feature",
+                          "specs/battleship/ubiquitous-language.yml",
+                          "specs/journeys/battleship-game.feature",
+                          "specs/games/custom-game-private-setup.feature",
+                          "specs/games/matched-game-private-setup.feature",
+                          "specs/games/private-setup.qnt",
+                          "specs/games/game-history.feature",
+                          "specs/games/custom-games.feature",
+                          "specs/games/custom-game-creation.feature",
+                          "specs/games/custom-game-readiness.feature",
+                          "specs/games/custom-game-sides.feature",
+                          "specs/games/finding-an-opponent.feature",
+                          "specs/games/game-choices.feature",
+                          "specs/games/game-turns.feature",
+                          "specs/games/matched-game-abort.feature",
+                          "specs/games/matched-game-over.feature",
+                          "specs/games/matched-game-rematch.feature",
+                          "specs/games/matched-game-turns.feature",
+                          "specs/games/ubiquitous-language.yml"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Opens a Battleship custom game": {
+                          "target": "#App: Custom game"
+                        },
+                        "Finds a Battleship opponent": {
+                          "target": "#App: Multiplayer"
+                        },
+                        "Reviews a Battleship game": {
                           "target": "#Custom Game: Reviewing"
                         },
                         "Returns to the game choice": {
