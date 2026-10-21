@@ -27,6 +27,7 @@ const game: MultiplayerGame = {
   black_rating: null,
   white_rating_diff: null,
   black_rating_diff: null,
+  setup_ready: null,
 };
 
 test.each(['5+0', 'connect-four/5+0'])(

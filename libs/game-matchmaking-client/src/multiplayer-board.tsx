@@ -1,5 +1,7 @@
-import type { MultiplayerGame } from '@libs/game-matchmaking-shared/game-state';
-import type { MultiplayerSide } from '@libs/game-matchmaking-shared/multiplayer-clock';
+import type {
+  MultiplayerGame,
+  MultiplayerSide,
+} from '@libs/game-matchmaking-shared/game-state';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
 import { useGamePresentation } from '@pkgs/turn-game-client/turn-games-context';
 import { GameBoardStage } from '@pkgs/ui-root-client/game-board-stage';

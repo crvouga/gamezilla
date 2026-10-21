@@ -72,6 +72,9 @@ function withRoom(
     ...(room.black_rating_diff !== undefined
       ? { black_rating_diff: room.black_rating_diff }
       : {}),
+    ...(room.setup_ready !== undefined
+      ? { setup_ready: room.setup_ready }
+      : {}),
   };
 }
 

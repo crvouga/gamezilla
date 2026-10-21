@@ -1,6 +1,7 @@
 import { requireInMutation } from '@libs/permissions-shared/mutation-permission';
 import type { AppGrantKey } from '@libs/permissions-shared/permission-catalog';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
+import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import type { MutationCtx } from '@pkgs/sync-engine-shared/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { requireTurnGames } from '@pkgs/turn-game-shared/game-rules';
@@ -18,11 +19,16 @@ export const gameCommandArgs = z.object({
 
 export type GameCommandArgs = z.infer<typeof gameCommandArgs>;
 
+/**
+ * The game after one person's command, decided under both people's owner
+ * lock; it may read or write within the command's transaction (`tx`).
+ */
 export type GameDecision = (
   game: MultiplayerGame,
   actorId: string,
-  nowMs: number
-) => MultiplayerGame;
+  nowMs: number,
+  tx: SqlTx
+) => MultiplayerGame | Promise<MultiplayerGame>;
 
 /**
  * One person's command on their game, decided on the server against the
@@ -57,7 +63,8 @@ export async function runGameCommand(
       'Multiplayer game is temporarily unavailable.'
     );
   const game = settleMultiplayerClock(stored, nowMs, requireTurnGames(ctx.env));
-  await repository.save(stored, decide(game, ctx.env.actorId, nowMs), nowMs, {
+  const decided = await decide(game, ctx.env.actorId, nowMs, ctx.tx);
+  await repository.save(stored, decided, nowMs, {
     server: true,
     publish: ctx.env,
   });

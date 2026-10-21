@@ -7,6 +7,7 @@ import { insertOutboxEvent } from '@pkgs/outbox-shared/outbox';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import { GAME_PLATFORM_NAMESPACE } from './durable-names';
 import type { MultiplayerGame } from './game-state';
+import { awaitingSetups } from './game-state';
 import { lowOnTimeAtMs } from './multiplayer-clock';
 import { isDailyTimeControl } from './time-control';
 
@@ -77,7 +78,7 @@ export type MultiplayerNoticePerson = {
 
 type NoticeFields = Pick<
   MultiplayerGame,
-  'white_id' | 'black_id' | 'turn' | 'outcome' | 'time_control'
+  'white_id' | 'black_id' | 'turn' | 'outcome' | 'time_control' | 'setup_ready'
 >;
 
 function resultFor(
@@ -107,7 +108,11 @@ export function multiplayerNotices(
   ): MultiplayerNoticePerson => ({
     userId,
     opponentId,
-    turn: game.outcome === 'ongoing' && game.turn === userId,
+    // Nobody's turn comes while a private setup is still being chosen.
+    turn:
+      game.outcome === 'ongoing' &&
+      !awaitingSetups(game) &&
+      game.turn === userId,
     result: resultFor(game, side),
   });
   return [
@@ -158,11 +163,13 @@ export async function scheduleMultiplayerNotices(
   if (
     before !== null &&
     before.turn === after.turn &&
-    before.outcome === after.outcome
+    before.outcome === after.outcome &&
+    before.setup_ready === after.setup_ready
   )
     return;
+  const state = [after.id, after.revision, after.outcome];
   await insertOutboxEvent(tx, {
-    id: `chess.multiplayer-notices:${JSON.stringify([after.id, after.revision, after.outcome])}`,
+    id: `chess.multiplayer-notices:${JSON.stringify(after.setup_ready === null ? state : [...state, after.setup_ready])}`,
     message: MultiplayerNoticesDue({ gameId: after.id }),
     nowIso: new Date(nowMs).toISOString(),
   });

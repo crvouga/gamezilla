@@ -101,4 +101,8 @@ export async function eraseMultiplayer(ctx: MutationCtx): Promise<void> {
   await ctx.tx.run(
     sql`UPDATE chess_multiplayer_commands SET owner_id = ${null}, request_id = ${null}, game_id = ${null}, kind = ${null} WHERE owner_id = ${ctx.env.actorId}`
   );
+  // A private setup is the person's own: nothing of it outlives the account.
+  await ctx.tx.run(
+    sql`UPDATE chess_multiplayer_setups SET owner_id = ${null}, setup = ${''} WHERE owner_id = ${ctx.env.actorId}`
+  );
 }

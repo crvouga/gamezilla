@@ -38,6 +38,7 @@ function whiteToMove(
     black_rating: null,
     white_rating_diff: null,
     black_rating_diff: null,
+    setup_ready: null,
     ...patch,
   };
 }

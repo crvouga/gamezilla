@@ -24,6 +24,12 @@ export const MULTIPLAYER_TOPIC_MAP = {
       return [`user:${String(row['owner_id'] ?? ctx.actorId)}`];
     },
   },
+  /** A private setup reaches only its owner's devices. */
+  chess_multiplayer_setups: {
+    topics(row, ctx) {
+      return [`user:${String(row['owner_id'] ?? ctx.actorId)}`];
+    },
+  },
   chess_multiplayer_commands: {
     topics(row, ctx) {
       return [`user:${String(row['owner_id'] ?? ctx.actorId)}`];
