@@ -25,7 +25,15 @@
     "test:spec:7": "bun run ../../libs/harness/scripts/test-spec.ts --part 7/10",
     "test:spec:8": "bun run ../../libs/harness/scripts/test-spec.ts --part 8/10",
     "test:spec:9": "bun run ../../libs/harness/scripts/test-spec.ts --part 9/10",
-    "verify:models": "bun run ../../libs/tools/scripts/verify-models.ts"
+    "verify:models:0": "bun run ../../libs/tools/scripts/verify-models.ts --part 0/2",
+    "verify:models:1:0": "bun run ../../libs/tools/scripts/verify-models.ts --part 1/2 --phase 0/8",
+    "verify:models:1:1": "bun run ../../libs/tools/scripts/verify-models.ts --part 1/2 --phase 1/8",
+    "verify:models:1:2": "bun run ../../libs/tools/scripts/verify-models.ts --part 1/2 --phase 2/8",
+    "verify:models:1:3": "bun run ../../libs/tools/scripts/verify-models.ts --part 1/2 --phase 3/8",
+    "verify:models:1:4": "bun run ../../libs/tools/scripts/verify-models.ts --part 1/2 --phase 4/8",
+    "verify:models:1:5": "bun run ../../libs/tools/scripts/verify-models.ts --part 1/2 --phase 5/8",
+    "verify:models:1:6": "bun run ../../libs/tools/scripts/verify-models.ts --part 1/2 --phase 6/8",
+    "verify:models:1:7": "bun run ../../libs/tools/scripts/verify-models.ts --part 1/2 --phase 7/8"
   },
   "dependencies": {
     "@libs/battleship-client": "workspace:*",
@@ -47,5 +55,9 @@
   "specDomains": [
     "battleship"
   ],
+  "modelParts": 2,
+  "phaseParts": {
+    "1": 8
+  },
   "specParts": 10
 }

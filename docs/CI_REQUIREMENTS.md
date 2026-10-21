@@ -106,11 +106,11 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | | |
 | --- | --- |
 | Packages | 331 |
-| Verify scripts | 1289 |
+| Verify scripts | 1297 |
 | Measured scripts | 947 |
-| Estimated scripts | 342 |
+| Estimated scripts | 350 |
 | Stale cost keys | 554 |
-| Cold CPU | 17808 s |
+| Cold CPU | 18288 s |
 | Spec parts | 10192 s across 272 tasks |
 | Longest task | @libs/games-harness#test:spec:49 213 s |
 
@@ -152,9 +152,9 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared | 267 | 17605 s | @libs/games-harness#test:spec:49 213 s |
-| @pkgs/clock-shared | 233 | 17487 s | @libs/games-harness#test:spec:49 213 s |
-| @pkgs/assert-root-shared | 228 | 17439 s | @libs/games-harness#test:spec:49 213 s |
+| @pkgs/property-shared | 267 | 18085 s | @libs/games-harness#test:spec:49 213 s |
+| @pkgs/clock-shared | 233 | 17967 s | @libs/games-harness#test:spec:49 213 s |
+| @pkgs/assert-root-shared | 228 | 17919 s | @libs/games-harness#test:spec:49 213 s |
 
 ### Runner
 
@@ -164,10 +164,10 @@ Slot allocation target 240 s. Warm start 30 s. Verdict slack 15 s. Spec workers 
 | --- | --- |
 | Runners per verification | 3 |
 | Spec slots per runner | 15 |
-| Other slots per runner | 11 |
-| Cores required per runner | 28 |
+| Other slots per runner | 12 |
+| Cores required per runner | 29 |
 | Memory required per runner | 38 GiB |
-| Estimated makespan | 231 s |
+| Estimated makespan | 227 s |
 | Provision | 6 × 32 vCPU, 64 GB, Linux x64 |
 | Fits | yes |
 <!-- ci-load:end -->

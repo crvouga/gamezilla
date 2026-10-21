@@ -2,7 +2,44 @@
   "$schema": "https://turborepo.com/schema.json",
   "extends": ["//"],
   "tasks": {
-    "verify:models": {
+    "verify:models:0": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/battleship/*.qnt"]
+    },
+    "verify:models:1": {
+      "dependsOn": [
+        "verify:models:1:0",
+        "verify:models:1:1",
+        "verify:models:1:2",
+        "verify:models:1:3",
+        "verify:models:1:4",
+        "verify:models:1:5",
+        "verify:models:1:6",
+        "verify:models:1:7"
+      ],
+      "cache": false
+    },
+    "verify:models:1:0": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/battleship/*.qnt"]
+    },
+    "verify:models:1:1": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/battleship/*.qnt"]
+    },
+    "verify:models:1:2": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/battleship/*.qnt"]
+    },
+    "verify:models:1:3": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/battleship/*.qnt"]
+    },
+    "verify:models:1:4": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/battleship/*.qnt"]
+    },
+    "verify:models:1:5": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/battleship/*.qnt"]
+    },
+    "verify:models:1:6": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/battleship/*.qnt"]
+    },
+    "verify:models:1:7": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/battleship/*.qnt"]
     },
     "test:spec:0": {
