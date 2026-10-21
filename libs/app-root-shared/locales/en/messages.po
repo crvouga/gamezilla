@@ -4324,8 +4324,8 @@ msgid "That space name is not allowed"
 msgstr "That space name is not allowed"
 
 #: libs/app-root-client/src/refused-change-copy.tsx
-msgid "That space name is not allowed."
-msgstr "That space name is not allowed."
+msgid "That space name is not allowed. The change was undone."
+msgstr "That space name is not allowed. The change was undone."
 
 #: libs/auth-client/src/auth-flow-messages.tsx
 msgid "That took too long. Start again."
@@ -4347,10 +4347,6 @@ msgstr "The board changed. Review the current turn."
 #: libs/connect-four-client/src/connect-four-presentation.tsx
 msgid "The board is full. Game drawn."
 msgstr "The board is full. Game drawn."
-
-#: libs/app-root-client/src/refused-change-copy.tsx
-msgid "The change was undone."
-msgstr "The change was undone."
 
 #: libs/game-session-client/src/custom-game-error.tsx
 msgid "The choice could not be confirmed. Try again."

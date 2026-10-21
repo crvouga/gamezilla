@@ -55,6 +55,9 @@ function createToastStore() {
       if (!entries().some((entry) => entry.id === id)) return;
       if (leaving().has(id)) return;
       setLeavingId(id, true);
+      entries()
+        .find((entry) => entry.id === id)
+        ?.options.onClose?.();
       const handle = timers.setTimeout(() => {
         pending.delete(handle);
         setEntries((list) => removeToast(list, id));

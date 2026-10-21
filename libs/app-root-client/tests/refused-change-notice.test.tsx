@@ -10,9 +10,13 @@ import { SyncEngineProvider } from '@pkgs/sync-engine-client/sync-engine-context
 import type { SyncEngine } from '@pkgs/sync-engine-client/sync-engine-port';
 import type { WriteRefusal } from '@pkgs/sync-engine-client/write-outcome-reads';
 import { acknowledgeWriteRejectionMutation } from '@pkgs/sync-engine-shared/acknowledge-write-rejection';
-import { DismissibleBannerPortalProvider } from '@pkgs/ui-root-client/dismissible-top-banner';
 import { ThemeProvider } from '@pkgs/ui-root-client/theme-context';
-import { cleanup, fireEvent, screen } from '@solidjs/testing-library';
+import { ToastProvider } from '@pkgs/ui-root-client/toast-provider';
+import {
+  TOAST_DEFAULT_DURATION_MS,
+  TOAST_EXIT_MS,
+} from '@pkgs/ui-root-shared/toast-queue';
+import { cleanup } from '@solidjs/testing-library';
 
 afterEach(cleanup);
 
@@ -61,42 +65,58 @@ function renderNotice(engine: SyncEngine) {
         colorScheme="light"
         fixedLayout={{ width: 390, height: 844 }}
       >
-        <DismissibleBannerPortalProvider>
+        <ToastProvider>
           <SyncEngineProvider value={engine}>
             <MutationClientContext.Provider value={client}>
               <RefusedChangeNotice />
             </MutationClientContext.Provider>
           </SyncEngineProvider>
-        </DismissibleBannerPortalProvider>
+        </ToastProvider>
       </ThemeProvider>
     </ClockProvider>
   ));
-  return mutate;
+  return { mutate, time };
 }
 
-function notice(): HTMLElement | null {
-  return document.querySelector(`[data-testid="${Handles.refusedChange}"]`);
+function notices(): readonly HTMLElement[] {
+  return [
+    ...document.querySelectorAll<HTMLElement>(
+      `[data-testid="${Handles.refusedChange}"]`
+    ),
+  ];
 }
 
-test('a refused rename says what was not saved and why, and dismissing acknowledges it', () => {
+test('a refused change is told once in a toast that says what and why, and leaving acknowledges it', () => {
   // regression: refused-instant-write-silently-undone
-  const { engine, set } = refusalsEngine([RENAME_REFUSED, UNKNOWN_REFUSED]);
-  const mutate = renderNotice(engine);
-  expect(notice()?.textContent).toContain("Your space wasn't renamed");
-  expect(notice()?.textContent).toContain('That space name is not allowed.');
-  expect(notice()?.textContent).toContain('The change was undone.');
-  expect(notice()?.getAttribute('data-mutation')).toBe('renameSpace');
-  fireEvent.click(screen.getByLabelText('Dismiss'));
+  const { engine, set } = refusalsEngine([RENAME_REFUSED]);
+  const { mutate, time } = renderNotice(engine);
+  const [rename] = notices();
+  expect(rename?.textContent).toContain("Your space wasn't renamed");
+  expect(rename?.textContent).toContain('That space name is not allowed.');
+  expect(rename?.textContent).toContain('The change was undone.');
+  expect(rename?.getAttribute('data-mutation')).toBe('renameSpace');
+  expect(rename?.getAttribute('data-code')).toBe('SPACE_TITLE_NOT_ALLOWED');
+  expect(
+    document.querySelector('[data-component="DismissibleBanner"]')
+  ).toBeNull();
+  time.clock.advance(TOAST_DEFAULT_DURATION_MS);
+  time.clock.advance(TOAST_EXIT_MS);
   expect(mutate).toHaveBeenCalledWith(acknowledgeWriteRejectionMutation, {
     mutationId: RENAME_REFUSED.mutationId,
   });
-  set([UNKNOWN_REFUSED]);
-  expect(notice()?.textContent).toContain("A change wasn't saved");
-  expect(notice()?.textContent).toContain(
-    'It could not be saved, so it was undone on this device.'
+  set([RENAME_REFUSED, UNKNOWN_REFUSED]);
+  const texts = notices().map((node) => node.textContent ?? '');
+  expect(texts.filter((text) => text.includes("wasn't renamed"))).toHaveLength(
+    0
   );
+  expect(texts.some((text) => text.includes("A change wasn't saved"))).toBe(
+    true
+  );
+  expect(
+    texts.some((text) =>
+      text.includes('It could not be saved, so it was undone on this device.')
+    )
+  ).toBe(true);
   // The server's own words are never shown.
-  expect(notice()?.textContent).not.toContain('policy denied');
-  set([]);
-  expect(notice()).toBeNull();
+  expect(texts.join(' ')).not.toContain('policy denied');
 });

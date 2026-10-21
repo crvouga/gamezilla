@@ -1,6 +1,6 @@
 /**
- * Notices the app shell shows above every screen: a change that was refused
- * and undone, and a device signed out from elsewhere.
+ * Notices the app shell shows over every screen: a change that was refused
+ * and undone (a toast), and a device signed out from elsewhere.
  */
 
 import { Handles } from '@libs/test-ids-shared/handles';

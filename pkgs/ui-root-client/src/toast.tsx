@@ -26,7 +26,8 @@
  */
 
 import { useClock, useTimers } from '@pkgs/clock-client/solid';
-import { componentId } from '@pkgs/ui-root-shared/component-id';
+import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
+import { componentId, dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { TOAST_DEFAULT_DURATION_MS } from '@pkgs/ui-root-shared/toast-queue';
 import {
   createContext,
@@ -64,6 +65,10 @@ export type ToastOptions = {
   readonly id?: string | undefined;
   /** Rendered as `data-testid`. */
   readonly testId?: string | undefined;
+  /** Further `data-*` identifiers on the toast (`data-mutation`, …). */
+  readonly dataSet?: ComponentDataSet | undefined;
+  /** Runs once when the toast leaves, by its timer or its action. */
+  readonly onClose?: (() => void) | undefined;
 };
 
 export type ToastApi = {
@@ -150,7 +155,7 @@ export function ToastCard(props: ToastCardProps): JSX.Element {
         props.leaving ? styles['leaving'] : undefined,
       ])}
       data-testid={props.options.testId}
-      data-component={componentId('Toast')}
+      {...dataAttrs({ component: 'Toast', ...props.options.dataSet })}
       data-tone={tone()}
       data-state={props.leaving ? 'leaving' : 'open'}
       role={tone() === 'destructive' ? 'alert' : 'status'}

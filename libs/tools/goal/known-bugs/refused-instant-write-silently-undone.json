@@ -1,4 +1,4 @@
 {
-  "summary": "A change that shows at once on the device (renaming a space, ending or leaving one, blocking someone, removing a friend, a new avatar…) and is refused once it reaches everyone else was quietly undone: only 'pending' writes surfaced the refusal, so a host who renamed a space offline to a name the team had stopped allowing just saw the old name come back. Fixed with SyncEngine.unheardRefusals / useUnheardRefusals and a shell notice (RefusedChangeNotice) that says what was not saved and why, until dismissed.",
+  "summary": "A change that shows at once on the device (renaming a space, ending or leaving one, blocking someone, removing a friend, a new avatar…) and is refused once it reaches everyone else was quietly undone: only 'pending' writes surfaced the refusal, so a host who renamed a space offline to a name the team had stopped allowing just saw the old name come back. Fixed with SyncEngine.unheardRefusals / useUnheardRefusals and RefusedChangeNotice, which tells each refusal once in a toast that says what was not saved and why, and acknowledges it when the toast leaves.",
   "regressionTest": "specs/spaces/space-rename.feature"
 }
