@@ -9,12 +9,18 @@ import { assertValidTopic } from '@pkgs/pubsub-root-shared/topic';
 import mqtt, { type IClientOptions, type MqttClient } from 'mqtt';
 import { rememberMqttClientId } from './mqtt-client-id';
 import { fullJitterDelayMs } from './reconnect-backoff';
+import { TopicGrants } from './topic-grants';
 
 type Handler = (data: unknown) => void;
 
 export type MqttAuthFn = () => Promise<{
   username: string;
   password: string;
+  /**
+   * The topics these credentials grant. When given, only those are
+   * subscribed, so one topic the broker would refuse never ends the session.
+   */
+  topics?: readonly Topic[] | undefined;
 }>;
 
 export type MqttConnectFn = (url: string, opts: IClientOptions) => MqttClient;
@@ -75,6 +81,7 @@ class MqttPubSub implements PubSub {
   private reconnectTimer: unknown | null = null;
   private readonly topics = new Map<Topic, Set<Handler>>();
   private readonly pendingSubscriptions = new Map<Topic, number>();
+  private readonly grants = new TopicGrants();
   private subscriptionSerial = 0;
   private readonly statusListeners = new Set<(s: PubSubStatus) => void>();
   private connectWaiters = new Set<() => void>();
@@ -121,7 +128,7 @@ class MqttPubSub implements PubSub {
     }
     set.add(handler);
     if (isFirst && this.client?.connected) {
-      this.subscribeTopics(this.client, [topic]);
+      this.subscribeWanted(this.client, topic);
     }
     return () => this.unsubscribeHandler(topic, handler);
   }
@@ -163,6 +170,7 @@ class MqttPubSub implements PubSub {
     if (set.size > 0) return;
     this.topics.delete(topic);
     this.pendingSubscriptions.delete(topic);
+    this.grants.forget(topic);
     if (this.client?.connected) {
       this.client.unsubscribe(this.toWireTopic(topic));
       this.markSubscriptionReady(this.client);
@@ -173,8 +181,10 @@ class MqttPubSub implements PubSub {
     if (this.closed) return;
     this.setStatus('connecting');
     try {
+      const wantedAtFetch = [...this.topics.keys()];
       const creds = await this.auth();
       if (this.closed) return;
+      this.grants.afterAuthorization(creds.topics, wantedAtFetch);
       const clientOptions: IClientOptions = {
         clientId: this.clientId,
         username: creds.username,
@@ -205,7 +215,7 @@ class MqttPubSub implements PubSub {
     client.on('connect', () => {
       if (this.closed || this.client !== client) return;
       this.pendingSubscriptions.clear();
-      this.subscribeTopics(client, [...this.topics.keys()]);
+      this.subscribeGranted(client);
     });
     client.on('close', () => {
       if (this.closed || this.client !== client) return;
@@ -222,6 +232,37 @@ class MqttPubSub implements PubSub {
     client.on('error', (err) => {
       this.logger.warn('mqtt error', { error: String(err) });
     });
+  }
+
+  /**
+   * On connect: every wanted topic the credentials grant. A topic they were
+   * asked about and refused is left out (said once); one wanted since they
+   * were fetched asks for fresh credentials.
+   */
+  private subscribeGranted(client: MqttClient): void {
+    const wanted = [...this.topics.keys()];
+    const withheld = this.grants.withheld(wanted);
+    if (withheld.length > 0) {
+      this.logger.debug('topics not granted; left out of the session', {
+        topics: withheld,
+      });
+    }
+    this.subscribeTopics(client, this.grants.subscribable(wanted));
+    if (this.grants.unasked(wanted).length > 0) this.scheduleReconnect();
+  }
+
+  /** A topic first wanted while connected. */
+  private subscribeWanted(client: MqttClient, topic: Topic): void {
+    const decision = this.grants.decide(topic);
+    if (decision === 'subscribe') {
+      this.subscribeTopics(client, [topic]);
+    } else if (decision === 'reauthorize') {
+      this.scheduleReconnect();
+    } else {
+      this.logger.debug('topics not granted; left out of the session', {
+        topics: [topic],
+      });
+    }
   }
 
   private subscribeTopics(client: MqttClient, topics: readonly Topic[]): void {

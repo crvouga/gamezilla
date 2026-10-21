@@ -11,7 +11,7 @@ describe('mintPubSubToken', () => {
   test('embeds subscribe+publish ACL for the actor and whatever subs granted', async () => {
     const secret = 'test-secret';
     const { clock } = createHarnessClock({ startMs: START_MS });
-    const { token, expiresAt } = await mintPubSubToken({
+    const { token, expiresAt, topics } = await mintPubSubToken({
       secret,
       actorId: 'actor1',
       featureTopics: ['room:space_a', 'room:space_b'],
@@ -48,5 +48,12 @@ describe('mintPubSubToken', () => {
       { permission: 'allow', action: 'subscribe', topic: 'room:space_b' },
       { permission: 'allow', action: 'publish', topic: 'room:space_b' },
     ]);
+    // regression: one-refused-room-ends-realtime
+    // The client subscribes only to what the token says it grants.
+    expect(topics).toEqual(
+      acl
+        .filter((rule) => rule.action === 'subscribe')
+        .map((rule) => rule.topic)
+    );
   });
 });

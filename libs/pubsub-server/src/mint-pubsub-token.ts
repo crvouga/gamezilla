@@ -48,7 +48,12 @@ export async function mintPubSubToken(args: {
   readonly featureTopics: readonly Topic[];
   /** Epoch ms — callers pass env.clock.now or a harness clock. */
   readonly now: () => number;
-}): Promise<{ readonly token: string; readonly expiresAt: number }> {
+}): Promise<{
+  readonly token: string;
+  readonly expiresAt: number;
+  /** Every topic the token grants, so a client asks for nothing else. */
+  readonly topics: readonly Topic[];
+}> {
   const nowMs = args.now();
   const issuedAt = Math.floor(nowMs / 1000);
   const expiresAt = issuedAt + TOKEN_TTL_SEC;
@@ -62,5 +67,5 @@ export async function mintPubSubToken(args: {
     .setIssuedAt(issuedAt)
     .setExpirationTime(expiresAt)
     .sign(new TextEncoder().encode(args.secret));
-  return { token, expiresAt };
+  return { token, expiresAt, topics };
 }
