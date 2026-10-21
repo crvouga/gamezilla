@@ -6384,6 +6384,17 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/ui-codegen-server": {
+      "name": "@pkgs/ui-codegen-server",
+      "version": "0.0.0",
+      "dependencies": {
+        "typescript": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+      },
+    },
     "pkgs/ui-devtools-client": {
       "name": "@pkgs/ui-devtools-client",
       "version": "0.0.0",
@@ -8253,6 +8264,8 @@
     "@pkgs/turn-game-client": ["@pkgs/turn-game-client@workspace:pkgs/turn-game-client"],
 
     "@pkgs/turn-game-shared": ["@pkgs/turn-game-shared@workspace:pkgs/turn-game-shared"],
+
+    "@pkgs/ui-codegen-server": ["@pkgs/ui-codegen-server@workspace:pkgs/ui-codegen-server"],
 
     "@pkgs/ui-devtools-client": ["@pkgs/ui-devtools-client@workspace:pkgs/ui-devtools-client"],
 
