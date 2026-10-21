@@ -8,6 +8,7 @@ import { ErrorState } from '@pkgs/ui-root-client/error-state';
 import { FormActionsFooter } from '@pkgs/ui-root-client/form-actions-footer';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { createResource, type JSX, Show } from 'solid-js';
+import { resourceValue } from './resource-value';
 import { useSyntheticPopulationApi } from './synthetic-population-api';
 import {
   SyntheticPopulationConfiguration,
@@ -32,7 +33,7 @@ function SyntheticPopulationContent(): JSX.Element {
     draft.initialize(result.config);
     return result;
   });
-  const candidate = () => draft.candidate(overview()?.config);
+  const candidate = () => draft.candidate(resourceValue(overview)?.config);
   useSyntheticPopulationUpdates(() => refetch());
   const save = async () => {
     const value = candidate();
@@ -45,6 +46,7 @@ function SyntheticPopulationContent(): JSX.Element {
     <ContentScreen
       screenId="synthetic-population"
       breadcrumbs={[
+        { name: <Trans>Spaces</Trans>, href: '/' },
         { name: <Trans>Settings</Trans>, href: '/more' },
         { name: <Trans>Bot Observatory</Trans> },
       ]}
@@ -83,7 +85,7 @@ function SyntheticPopulationContent(): JSX.Element {
           void refetch();
         }}
       />
-      <Show when={overview()} keyed>
+      <Show when={resourceValue(overview)} keyed>
         {(value) => (
           <>
             <SyntheticPopulationSummary overview={value} />

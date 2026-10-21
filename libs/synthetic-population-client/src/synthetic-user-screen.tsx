@@ -7,6 +7,7 @@ import { ErrorState } from '@pkgs/ui-root-client/error-state';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { useParams } from '@solidjs/router';
 import { type JSX, Show } from 'solid-js';
+import { resourceValue } from './resource-value';
 import { SyntheticPopulationDenial } from './synthetic-population-denial';
 import { SyntheticPopulationEventTimeline } from './synthetic-population-event-timeline';
 import { SyntheticUserControls } from './synthetic-user-controls';
@@ -24,6 +25,8 @@ function SyntheticUserContent(): JSX.Element {
     <ContentScreen
       screenId="synthetic-user"
       breadcrumbs={[
+        { name: <Trans>Spaces</Trans>, href: '/' },
+        { name: <Trans>Settings</Trans>, href: '/more' },
         {
           name: <Trans>Bot Observatory</Trans>,
           href: '/admin/synthetic-population',
@@ -49,7 +52,7 @@ function SyntheticUserContent(): JSX.Element {
           void inspector.refetch();
         }}
       />
-      <Show when={inspector.record()}>
+      <Show when={resourceValue(inspector.record)}>
         {(value) => (
           <>
             <SyntheticUserDetails user={value().user} />

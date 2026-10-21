@@ -13,7 +13,11 @@ export function SyntheticPopulationDenial(props: {
   return (
     <ContentScreen
       screenId="synthetic-population-permission"
-      breadcrumbs={[{ name: <Trans>Bot Observatory</Trans> }]}
+      breadcrumbs={[
+        { name: <Trans>Spaces</Trans>, href: '/' },
+        { name: <Trans>Settings</Trans>, href: '/more' },
+        { name: <Trans>Bot Observatory</Trans> },
+      ]}
     >
       <DenialSurface decision={decision()} testId={props.testId} />
     </ContentScreen>

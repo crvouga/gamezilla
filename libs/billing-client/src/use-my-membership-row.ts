@@ -5,12 +5,19 @@ import sql from '@pkgs/sql-root-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
 
+export type MyMembership = {
+  /** The governing row, `null` when there is none. */
+  readonly row: Accessor<MembershipRow | null>;
+  /** True until the local read has answered once. */
+  readonly isLoading: Accessor<boolean>;
+};
+
 /**
  * The caller's governing membership row from local SQLite — the one granting
  * the most, at whichever provider — offline, and updated as the providers'
- * changes sync in. `null` when there is none.
+ * changes sync in.
  */
-export function useMyMembershipRow(): Accessor<MembershipRow | null> {
+export function useMyMembershipRow(): MyMembership {
   const myId = useMyId();
   const query = createQuery(
     () => sql<MembershipRow>`
@@ -22,5 +29,8 @@ export function useMyMembershipRow(): Accessor<MembershipRow | null> {
     LIMIT 50
   `
   );
-  return createMemo(() => governingRow(query.rows()));
+  return {
+    row: createMemo(() => governingRow(query.rows())),
+    isLoading: query.isLoading,
+  };
 }

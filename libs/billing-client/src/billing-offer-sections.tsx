@@ -9,6 +9,9 @@
 
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
+import { MenuRow } from '@pkgs/ui-root-client/menu-row';
+import { MenuSection } from '@pkgs/ui-root-client/menu-section';
+import { Text } from '@pkgs/ui-root-client/text';
 import { For, type JSX, Match, Show, Switch } from 'solid-js';
 import type { PriceSummary } from './billing-view-model';
 import { formatMinorUnits } from './billing-view-model';
@@ -64,45 +67,34 @@ function PriceRow(props: {
       props.locale
     );
   return (
-    <div
-      class="panelItem"
-      classList={{ 'bg-tint-active': props.current }}
-      data-testid={Handles.billingPrice(props.price.key)}
-      aria-current={props.current ? 'true' : undefined}
-    >
-      <div class="box flex-row items-center gap-3 p-4">
-        <div class="box min-w-0 flex-1 gap-1">
-          <p
-            class="text textLabel"
-            classList={{ 'text-on-primary': props.current }}
-          >
-            <PriceInterval interval={props.price.interval} />
-          </p>
-          <p
-            class="text textCaption"
-            classList={{ 'text-on-primary': props.current }}
-            data-testid={Handles.billingPriceTerms}
-          >
-            <PriceTerms price={props.price} perMonth={perMonth()} />
-            <Show when={props.price.savingsPercent}>
-              {(percent) => (
-                <span data-testid={Handles.billingPriceSaving}>
-                  {' '}
-                  <Trans>Save {percent()}%</Trans>
-                </span>
-              )}
-            </Show>
-          </p>
-        </div>
-        <p
-          class="text textBodyBold textNumeral shrink-0"
-          classList={{ 'text-on-primary': props.current }}
-          data-testid={Handles.billingPriceAmount}
-        >
+    <MenuRow
+      title={<PriceInterval interval={props.price.interval} />}
+      caption={
+        <Text variant="inherit" testId={Handles.billingPriceTerms}>
+          <PriceTerms price={props.price} perMonth={perMonth()} />
+          <Show when={props.price.savingsPercent}>
+            {(percent) => (
+              <Text
+                variant="inherit"
+                tone="success"
+                testId={Handles.billingPriceSaving}
+              >
+                {' '}
+                <Trans>Save {percent()}%</Trans>
+              </Text>
+            )}
+          </Show>
+        </Text>
+      }
+      trailing={
+        <Text variant="bodyBold" numeral testId={Handles.billingPriceAmount}>
           {amount()}
-        </p>
-      </div>
-    </div>
+        </Text>
+      }
+      selected={props.current}
+      current={props.current}
+      dataSet={{ testid: Handles.billingPrice(props.price.key) }}
+    />
   );
 }
 
@@ -113,61 +105,49 @@ export function BillingPricing(props: {
   readonly trialDays: number;
 }): JSX.Element {
   return (
-    <section class="box gap-3" data-testid={Handles.billingPricing}>
-      <h2 class="text textSubtitle">
-        <Trans>Pricing</Trans>
-      </h2>
-      <div class="panel">
-        <For each={props.prices}>
-          {(price) => (
-            <PriceRow
-              price={price}
-              locale={props.locale}
-              current={price.key === props.currentPriceKey}
-            />
-          )}
-        </For>
-      </div>
-      <Show when={props.trialDays > 0}>
-        <p class="text textCaption">
+    <MenuSection
+      title={<Trans>Pricing</Trans>}
+      role="group"
+      footer={
+        props.trialDays > 0 ? (
           <Trans>
             Every plan starts with a {props.trialDays}-day free trial. Switch
             between monthly and yearly or cancel anytime.
           </Trans>
-        </p>
-      </Show>
-    </section>
-  );
-}
-
-function Benefit(props: { readonly children: JSX.Element }): JSX.Element {
-  return (
-    <li class="panelItem">
-      <p class="text textBody p-4">{props.children}</p>
-    </li>
+        ) : undefined
+      }
+      dataSet={{ testid: Handles.billingPricing }}
+    >
+      <For each={props.prices}>
+        {(price) => (
+          <PriceRow
+            price={price}
+            locale={props.locale}
+            current={price.key === props.currentPriceKey}
+          />
+        )}
+      </For>
+    </MenuSection>
   );
 }
 
 export function BillingBenefits(): JSX.Element {
   return (
-    <section class="box gap-3" data-testid={Handles.billingBenefits}>
-      <h2 class="text textSubtitle">
-        <Trans>What Plus includes</Trans>
-      </h2>
-      <ul class="panel">
-        <Benefit>
-          <Trans>Unlimited access to Gamezilla servers</Trans>
-        </Benefit>
-        <Benefit>
-          <Trans>Host as many spaces as you like at once</Trans>
-        </Benefit>
-        <Benefit>
+    <MenuSection
+      title={<Trans>What Plus includes</Trans>}
+      role="group"
+      dataSet={{ testid: Handles.billingBenefits }}
+    >
+      <MenuRow title={<Trans>Unlimited access to Gamezilla servers</Trans>} />
+      <MenuRow title={<Trans>Host as many spaces as you like at once</Trans>} />
+      <MenuRow
+        title={
           <Trans>Everything in the free plan, synced across your devices</Trans>
-        </Benefit>
-        <Benefit>
-          <Trans>Manage or cancel anytime from the billing portal</Trans>
-        </Benefit>
-      </ul>
-    </section>
+        }
+      />
+      <MenuRow
+        title={<Trans>Manage or cancel anytime from the billing portal</Trans>}
+      />
+    </MenuSection>
   );
 }

@@ -1,8 +1,10 @@
 import { behaviorStatechart } from '@libs/synthetic-population-shared/behavior-statechart';
 import type { Inspection } from '@libs/synthetic-population-shared/inspection';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { Divider } from '@pkgs/ui-root-client/divider';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client/menu-section';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
 import { createMemo, For, type JSX, Show } from 'solid-js';
 
 type BehaviorNode = typeof behaviorStatechart.root;
@@ -31,11 +33,14 @@ function BehaviorState(props: {
         }}
       />
       <Show when={Object.keys(props.node.states).length > 0}>
-        <div class="box pl-3 border-l border-border">
-          <For each={Object.values(props.node.states)}>
-            {(node) => <BehaviorState node={node} active={props.active} />}
-          </For>
-        </div>
+        <StackHorizontal gap="md">
+          <Divider orientation="vertical" />
+          <StackVertical grow>
+            <For each={Object.values(props.node.states)}>
+              {(node) => <BehaviorState node={node} active={props.active} />}
+            </For>
+          </StackVertical>
+        </StackHorizontal>
       </Show>
     </>
   );

@@ -18,7 +18,7 @@ import { MenuScreen } from '@pkgs/ui-root-client/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client/menu-section';
 import type { ThemePreference } from '@pkgs/ui-root-client/theme-preference';
 import { useThemePreference } from '@pkgs/ui-root-client/theme-preference';
-import { type Accessor, For, type JSX, Show } from 'solid-js';
+import { type Accessor, For, type JSX } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 
 const ROW_ICON_SIZE = 20;
@@ -73,12 +73,11 @@ function ThemeOptionRow(props: {
         />
       }
       trailing={
-        <Show
-          when={props.selected}
-          fallback={<div class="box" style={{ width: `${CHECK_SIZE}px` }} />}
-        >
-          <CheckIcon size={CHECK_SIZE} color="tint" />
-        </Show>
+        // The check keeps its room on every row, so selecting never reflows.
+        <CheckIcon
+          size={CHECK_SIZE}
+          color={props.selected ? 'tint' : 'transparent'}
+        />
       }
       onClick={() => props.onSelect(props.option.key)}
       dataSet={{ testid: Handles.themeOption(props.option.key) }}

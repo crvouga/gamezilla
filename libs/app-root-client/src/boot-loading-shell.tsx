@@ -1,7 +1,9 @@
 /** @jsxImportSource solid-js */
 
 import { Handles } from '@libs/test-ids-shared/handles';
+import { Layer } from '@pkgs/ui-root-client/layer';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
+import { Surface } from '@pkgs/ui-root-client/surface';
 import type { JSX } from 'solid-js';
 
 /**
@@ -13,14 +15,10 @@ import type { JSX } from 'solid-js';
  */
 export function BootLoadingShell(): JSX.Element {
   return (
-    <div
-      class="box flex-1 min-h-0 bg-background"
-      data-component="BootLoadingShell"
-      data-testid={Handles.bootLoading}
-    >
-      <div class="box fixed inset-0 items-center justify-center pointer-events-none">
-        <LoadingState size="lg" />
-      </div>
-    </div>
+    <Surface tone="background" grow testId={Handles.bootLoading}>
+      <Layer inset="viewport" align="center" justify="center" passThrough>
+        <LoadingState size="lg" dataSet={{ component: 'BootLoadingShell' }} />
+      </Layer>
+    </Surface>
   );
 }

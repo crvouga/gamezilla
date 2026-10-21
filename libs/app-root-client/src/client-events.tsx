@@ -2,6 +2,7 @@
 
 import { Trans } from '@lingui/solid/macro';
 import { ContentScreen } from '@pkgs/ui-root-client/content-screen';
+import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import type { JSX } from 'solid-js';
 
 export default function ClientEventsRoute(): JSX.Element {
@@ -14,13 +15,14 @@ export default function ClientEventsRoute(): JSX.Element {
         { name: <Trans>Client events</Trans> },
       ]}
     >
-      <p class="text textBody">
-        {
+      <EmptyState
+        title={<Trans>Not available in this app</Trans>}
+        body={
           <Trans>
             Client events are available in the embedded product-harness.
           </Trans>
         }
-      </p>
+      />
     </ContentScreen>
   );
 }

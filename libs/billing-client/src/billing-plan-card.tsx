@@ -9,8 +9,12 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import type { BadgeIntent } from '@pkgs/ui-root-client/badge';
 import { Badge } from '@pkgs/ui-root-client/badge';
 import { Button } from '@pkgs/ui-root-client/button';
+import { Card } from '@pkgs/ui-root-client/card';
+import { H2 } from '@pkgs/ui-root-client/heading';
 import { CreditCardIcon, KeyRoundIcon } from '@pkgs/ui-root-client/icons';
 import { Notice } from '@pkgs/ui-root-client/notice';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client/stack';
+import { P, Text } from '@pkgs/ui-root-client/text';
 import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 
@@ -47,7 +51,11 @@ function TierChip(props: { readonly tier: BillingTier }): JSX.Element {
       intent={TIER_INTENT[props.tier]}
       tone={props.tier === 'paid' ? 'solid' : 'subtle'}
       dataSet={{ testid: Handles.billingTier }}
-      label={<span class="capitalize">{props.tier}</span>}
+      label={
+        <Text variant="inherit" capitalize>
+          {props.tier}
+        </Text>
+      }
     />
   );
 }
@@ -75,17 +83,15 @@ function StatusLine(props: {
       ? ''
       : props.formatDate(props.view.periodEndMs);
   const days = (): number => props.view.daysLeft ?? 0;
+  const marks = (): Record<string, string> =>
+    props.view.periodEndMs === null
+      ? { state: props.view.state }
+      : {
+          state: props.view.state,
+          'period-end': new Date(props.view.periodEndMs).toISOString(),
+        };
   return (
-    <p
-      class="text textBody text-text-secondary"
-      data-testid={Handles.billingStatus}
-      data-state={props.view.state}
-      data-period-end={
-        props.view.periodEndMs === null
-          ? undefined
-          : new Date(props.view.periodEndMs).toISOString()
-      }
-    >
+    <P tone="secondary" testId={Handles.billingStatus} dataSet={marks()}>
       <Switch>
         <Match when={props.view.state === 'trialing'}>
           <Trans>
@@ -111,7 +117,7 @@ function StatusLine(props: {
           <Trans>No membership yet.</Trans>
         </Match>
       </Switch>
-    </p>
+    </P>
   );
 }
 
@@ -122,13 +128,13 @@ function CreditLine(props: {
 }): JSX.Element {
   const amount = (): string => props.amount;
   return (
-    <p
-      class="text textBody text-text-secondary"
-      data-testid={Handles.billingCredit}
-      data-credit-cents={String(props.cents)}
+    <P
+      tone="secondary"
+      testId={Handles.billingCredit}
+      dataSet={{ 'credit-cents': String(props.cents) }}
     >
       <Trans>Plus credit · {amount()} left from your yearly plan</Trans>
-    </p>
+    </P>
   );
 }
 
@@ -205,7 +211,7 @@ function PlanActions(props: {
     },
   });
   return (
-    <div class="box gap-2">
+    <StackVertical gap="sm">
       <Show when={props.view.primary === 'subscribe'}>
         <Button
           {...subscribe.buttonProps}
@@ -234,19 +240,21 @@ function PlanActions(props: {
           dataSet={{ testid: Handles.billingManage }}
         />
       </Show>
-    </div>
+    </StackVertical>
   );
 }
 
 export function BillingPlanCard(props: PlanCardProps): JSX.Element {
   return (
-    <section class="panel gap-4 p-5">
-      <div class="box flex-row items-start gap-3">
-        <h2 class="text textHeading min-w-0 flex-1">
-          <PlanTitle tier={props.view.tier} />
-        </h2>
+    <Card>
+      <StackHorizontal align="start" gap="md">
+        <StackVertical grow>
+          <H2 size="heading">
+            <PlanTitle tier={props.view.tier} />
+          </H2>
+        </StackVertical>
         <TierChip tier={props.view.tier} />
-      </div>
+      </StackHorizontal>
       <StatusLine view={props.view} formatDate={props.formatDate} />
       <Show when={props.creditAmount}>
         {(amount) => (
@@ -259,6 +267,6 @@ export function BillingPlanCard(props: PlanCardProps): JSX.Element {
         trialDays={props.trialDays}
         actions={props.actions}
       />
-    </section>
+    </Card>
   );
 }

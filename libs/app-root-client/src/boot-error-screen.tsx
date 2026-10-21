@@ -7,6 +7,7 @@ import { useLogger } from '@pkgs/logger-client/solid';
 import { runWebOpfsRecoveryAndReload } from '@pkgs/sql-client-sqlite-web-client/recover-in-process';
 import { isLeaderLostError } from '@pkgs/sql-client-sqlite-web-shared/rpc';
 import { ErrorState } from '@pkgs/ui-root-client/error-state';
+import { Surface } from '@pkgs/ui-root-client/surface';
 import type { JSX } from 'solid-js';
 
 /** Synthetic error when open hangs past the UI watchdog (stale worker / SW). */
@@ -67,11 +68,9 @@ export function LocalDatabaseBootErrorScreen(props: {
   };
 
   return (
-    <div
-      class="box items-center justify-center flex-1 bg-background"
-      data-component="LocalDatabaseBootErrorScreen"
-    >
+    <Surface tone="background" grow align="center" justify="center">
       <ErrorState
+        dataSet={{ component: 'LocalDatabaseBootErrorScreen' }}
         title={
           canResetLocalData() ? (
             <Trans>Gamezilla is open in another tab</Trans>
@@ -89,6 +88,6 @@ export function LocalDatabaseBootErrorScreen(props: {
           onClick: onRetry,
         }}
       />
-    </div>
+    </Surface>
   );
 }

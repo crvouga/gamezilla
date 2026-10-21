@@ -9,6 +9,7 @@
 
 import { useClientConfig } from '@libs/app-config-client/use-client-config';
 import { useCurrentUser } from '@libs/auth-client/use-current-user';
+import type { MembershipRow } from '@libs/billing-shared/membership-row';
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
 import { useUnlock } from '@libs/permissions-client/unlock';
 import { useCan, useDecision } from '@libs/permissions-client/use-can';
@@ -33,8 +34,10 @@ import { useManageSubscription } from './use-manage-subscription';
 import { useMyMembershipRow } from './use-my-membership-row';
 import { useSubscribe } from './use-subscribe';
 
-function useBillingView(subscribe: Accessor<Decision>): Accessor<BillingView> {
-  const row = useMyMembershipRow();
+function useBillingView(
+  subscribe: Accessor<Decision>,
+  row: Accessor<MembershipRow | null>
+): Accessor<BillingView> {
   const currentUser = useCurrentUser();
   const { config } = useClientConfig();
   const engine = useSyncEngine();
@@ -61,7 +64,8 @@ function useBillingView(subscribe: Accessor<Decision>): Accessor<BillingView> {
 
 export function BillingScreen(): JSX.Element {
   const subscribeDecision = useDecision(PERMISSION.billingSubscribe);
-  const view = useBillingView(subscribeDecision);
+  const membership = useMyMembershipRow();
+  const view = useBillingView(subscribeDecision, membership.row);
   const { i18n } = useLinguiRuntime();
   const subscribe = useSubscribe();
   const manage = useManageSubscription();
@@ -93,6 +97,7 @@ export function BillingScreen(): JSX.Element {
 
   return (
     <BillingScreenLayout
+      loading={membership.isLoading()}
       view={view()}
       offer={PLUS_MEMBERSHIP_OFFER}
       locale={i18n().locale}

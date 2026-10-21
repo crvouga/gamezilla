@@ -8,6 +8,9 @@ import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
 import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
 import { ContentScreen } from '@pkgs/ui-root-client/content-screen';
+import { LoadingState } from '@pkgs/ui-root-client/loading-state';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import { createMemo, type JSX, Show } from 'solid-js';
 
 import { BillingBenefits, BillingPricing } from './billing-offer-sections';
@@ -35,10 +38,7 @@ export function BillingScreenView(props: BillingScreenViewProps): JSX.Element {
     return formatMinorUnits(props.view.creditCents, currency, props.locale);
   };
   return (
-    <div
-      class="box w-full max-w-160 gap-8 py-2"
-      data-testid={Handles.billingScreen}
-    >
+    <StackVertical gap="2xl" testId={Handles.billingScreen}>
       <BillingPlanCard
         view={props.view}
         trialDays={trialDays()}
@@ -55,34 +55,48 @@ export function BillingScreenView(props: BillingScreenViewProps): JSX.Element {
         />
         <BillingBenefits />
       </Show>
-      <p class="text textCaption">
+      <P variant="caption">
         <Trans>
           Payments are processed securely by our billing provider. We never see
           your card details.
         </Trans>
-      </p>
-    </div>
+      </P>
+    </StackVertical>
   );
 }
 
+export type BillingScreenLayoutProps = BillingScreenViewProps & {
+  /** The membership row has not been read yet. */
+  readonly loading?: boolean | undefined;
+};
+
 /**
- * The billing screen's shell around its body: the Settings breadcrumb and a
- * whole-body scroll, so the plan, pricing and benefits never clip on a short
- * phone.
+ * The billing screen's shell around its body: the Settings breadcrumb, the
+ * loading state until the membership row is read, and a whole-body scroll,
+ * so the plan, pricing and benefits never clip on a short phone.
  */
 export function BillingScreenLayout(
-  props: BillingScreenViewProps
+  props: BillingScreenLayoutProps
 ): JSX.Element {
   return (
     <ContentScreen
       screenId="billing"
       surface="canvas"
       breadcrumbs={[
+        { name: <Trans>Spaces</Trans>, href: '/' },
         { name: <Trans>Settings</Trans>, href: '/more' },
         { name: <Trans>Billing</Trans> },
       ]}
     >
-      <BillingScreenView {...props} />
+      <Show when={props.loading !== true} fallback={<LoadingState size="lg" />}>
+        <BillingScreenView
+          view={props.view}
+          offer={props.offer}
+          locale={props.locale}
+          formatDate={props.formatDate}
+          actions={props.actions}
+        />
+      </Show>
     </ContentScreen>
   );
 }

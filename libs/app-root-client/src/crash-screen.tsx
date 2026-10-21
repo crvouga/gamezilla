@@ -2,9 +2,16 @@ import { reportSolidBoundaryError } from './browser-boundaries';
 /** @jsxImportSource solid-js */
 
 import { reloadApp } from '@libs/app-root-shared/reload-app';
+import { CodeBlock } from '@pkgs/ui-root-client/code-block';
+import { Collapsible } from '@pkgs/ui-root-client/collapsible';
+import { Divider } from '@pkgs/ui-root-client/divider';
 import { ErrorState } from '@pkgs/ui-root-client/error-state';
 import { CircleAlertIcon } from '@pkgs/ui-root-client/icons';
+import { Main } from '@pkgs/ui-root-client/landmarks';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { Surface } from '@pkgs/ui-root-client/surface';
+import { P } from '@pkgs/ui-root-client/text';
 import {
   createSignal,
   type JSX,
@@ -28,31 +35,31 @@ function CrashDetails(props: {
   readonly traceId: string | undefined;
 }): JSX.Element {
   return (
-    <details class="w-full min-w-0 border-t border-border pt-5">
-      <summary class="text textBodyBold cursor-pointer rounded-sm focus-visible:outline-2 focus-visible:outline-focus-ring">
-        Error details
-      </summary>
-      <div class="box gap-3 mt-3 p-4 rounded-xl bg-surface-sunken">
-        <ScrollView
-          maxHeight="sm"
-          flushEdge={false}
-          role="region"
-          tabIndex={0}
-          aria-label="Error message"
-        >
-          <pre class="text textMono m-0 break-words select-text">
-            {props.message}
-          </pre>
-        </ScrollView>
-        <Show when={props.traceId}>
-          {(traceId) => (
-            <p class="text textCaption break-all select-text">
-              Trace: {traceId()}
-            </p>
-          )}
-        </Show>
-      </div>
-    </details>
+    <StackVertical width="full" gap="lg">
+      <Divider />
+      <Collapsible title="Error details">
+        <Surface tone="muted" radius="card" padding="lg" gap="md">
+          <ScrollView
+            maxHeight="sm"
+            flushEdge={false}
+            role="region"
+            tabIndex={0}
+            aria-label="Error message"
+          >
+            <CodeBlock wrap framed={false}>
+              {props.message}
+            </CodeBlock>
+          </ScrollView>
+          <Show when={props.traceId}>
+            {(traceId) => (
+              <P variant="caption" wrap="break" selectable>
+                Trace: {traceId()}
+              </P>
+            )}
+          </Show>
+        </Surface>
+      </Collapsible>
+    </StackVertical>
   );
 }
 
@@ -88,23 +95,27 @@ export function CrashScreen(props: CrashScreenProps): JSX.Element {
       .filter(Boolean)
       .join('\n\n');
   return (
-    <main
-      class="box flex-1 min-h-0 overflow-auto bg-background"
-      data-component="RootErrorBoundary"
-    >
-      <ErrorState
-        icon={CircleAlertIcon}
-        title={CRASH_TITLE}
-        body="We couldn’t load this screen. Try again, or reload the app if the problem continues."
-        retry={{ label: 'Try again', onClick: () => props.reset() }}
-        secondary={{ label: 'Reload app', onClick: reloadApp }}
-        details={
-          <>
-            <CrashDetails message={message()} traceId={traceId()} />
-            <CrashCopyButton text={copyText()} copy={props.copyError} />
-          </>
-        }
-      />
-    </main>
+    <Main>
+      <ScrollView
+        grow
+        tone="background"
+        flushEdge={false}
+        dataSet={{ component: 'RootErrorBoundary' }}
+      >
+        <ErrorState
+          icon={CircleAlertIcon}
+          title={CRASH_TITLE}
+          body="We couldn’t load this screen. Try again, or reload the app if the problem continues."
+          retry={{ label: 'Try again', onClick: () => props.reset() }}
+          secondary={{ label: 'Reload app', onClick: reloadApp }}
+          details={
+            <>
+              <CrashDetails message={message()} traceId={traceId()} />
+              <CrashCopyButton text={copyText()} copy={props.copyError} />
+            </>
+          }
+        />
+      </ScrollView>
+    </Main>
   );
 }

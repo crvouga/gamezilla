@@ -3,7 +3,8 @@ import { Handles } from '@libs/test-ids-shared/handles';
 import { useLingui } from '@lingui/solid/macro';
 import { createOriginAvailabilitySnapshot } from '@pkgs/http-client-client/solid';
 import { WifiOffIcon } from '@pkgs/ui-root-client/icons';
-import { type JSX, Show } from 'solid-js';
+import { StatusIconSlot } from '@pkgs/ui-root-client/status-icon-slot';
+import type { JSX } from 'solid-js';
 import { useOfflinePreference } from './offline-preference';
 import { createNetworkOnline } from './use-connectivity';
 
@@ -24,21 +25,11 @@ export function ConnectionStatusIndicator(props: {
   const label = () =>
     t`Connection unavailable. Saved content and local games remain available. Shared changes will reconnect automatically.`;
   return (
-    <div
-      class="box h-8 w-8 shrink-0 items-center justify-center"
-      data-component="ConnectionStatus"
-    >
-      <Show when={props.missing}>
-        <span
-          role="status"
-          aria-live="polite"
-          title={label()}
-          data-testid={Handles.statusConnectionMissing}
-        >
-          <WifiOffIcon size={20} color="icon" />
-          <span class="sr-only">{label()}</span>
-        </span>
-      </Show>
-    </div>
+    <StatusIconSlot
+      shown={props.missing}
+      icon={WifiOffIcon}
+      label={label()}
+      testId={Handles.statusConnectionMissing}
+    />
   );
 }

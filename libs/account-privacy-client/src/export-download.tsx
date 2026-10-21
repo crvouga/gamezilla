@@ -6,6 +6,10 @@ import { decidePrivacyExportOwner } from '@libs/permissions-shared/privacy-permi
 import { Trans } from '@lingui/solid/macro';
 import { useClock } from '@pkgs/clock-client/solid';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
+import { Notice } from '@pkgs/ui-root-client/notice';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
+import { TextLink } from '@pkgs/ui-root-client/text-link';
 import { createEffect, createMemo, type JSX, onCleanup, Show } from 'solid-js';
 import type { AccountPrivacyRow } from './use-account-privacy';
 
@@ -39,11 +43,14 @@ export function ExportDownload(props: {
     <Show
       when={decision().reason !== 'restricted'}
       fallback={
-        <p class="text textBody" data-testid="privacy-export-owner-denial">
+        <Notice
+          tone="warning"
+          dataSet={{ testid: 'privacy-export-owner-denial' }}
+        >
           <Trans>
             This export belongs to another account and cannot be downloaded.
           </Trans>
-        </p>
+        </Notice>
       }
     >
       <Show
@@ -55,9 +62,9 @@ export function ExportDownload(props: {
         <Show
           when={fresh()}
           fallback={
-            <p class="text textBody" data-testid="privacy-export-expired">
+            <P tone="secondary" testId="privacy-export-expired">
               <Trans>The export has expired. Ask for a new one.</Trans>
-            </p>
+            </P>
           }
         >
           <Show
@@ -70,30 +77,30 @@ export function ExportDownload(props: {
             }
           >
             <Show when={props.row?.export_detail && props.row?.export_summary}>
-              <div class="box gap-3" data-testid="privacy-export-ready">
-                <p class="text textBody">
+              <StackVertical gap="sm" testId="privacy-export-ready">
+                <P>
                   <Trans>
                     Your export is ready. Downloads are private to your recently
                     proven account and expire 7 days after becoming ready.
                   </Trans>
-                </p>
-                <a
-                  class="text textBody"
-                  data-testid="privacy-export-summary"
+                </P>
+                <TextLink
+                  variant="standalone"
+                  testId="privacy-export-summary"
                   download="personal-data-summary.txt"
                   href={`data:text/plain;charset=utf-8,${encodeURIComponent(props.row?.export_summary ?? '')}`}
                 >
                   <Trans>Download readable summary</Trans>
-                </a>
-                <a
-                  class="text textBody"
-                  data-testid="privacy-export-detail"
+                </TextLink>
+                <TextLink
+                  variant="standalone"
+                  testId="privacy-export-detail"
                   download="personal-data.json"
                   href={`data:application/json;charset=utf-8,${encodeURIComponent(props.row?.export_detail ?? '')}`}
                 >
                   <Trans>Download reusable detail</Trans>
-                </a>
-              </div>
+                </TextLink>
+              </StackVertical>
             </Show>
           </Show>
         </Show>

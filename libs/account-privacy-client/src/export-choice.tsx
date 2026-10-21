@@ -6,6 +6,8 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import type { Decision } from '@pkgs/permissions-shared/decision';
 import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 import { Button } from '@pkgs/ui-root-client/button';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import { createSignal, type JSX, Show } from 'solid-js';
 import type { AccountPrivacyRow } from './use-account-privacy';
@@ -37,7 +39,7 @@ export function ExportChoice(props: {
     },
   });
   return (
-    <div class="box gap-3">
+    <StackVertical gap="md">
       <Button
         {...request.buttonProps}
         dataSet={{ testid: 'privacy-export-request' }}
@@ -48,29 +50,29 @@ export function ExportChoice(props: {
         )}
       </Show>
       <Show when={props.row?.export_status === 'Preparing'}>
-        <p class="text textBody" data-testid="privacy-export-preparing">
+        <P testId="privacy-export-preparing">
           <Trans>
             Your personal-data export is being prepared. It will be ready within
             24 hours of asking.
           </Trans>
-        </p>
+        </P>
       </Show>
       <Show when={props.row?.requested_at}>
-        <p class="text textBody" data-testid="privacy-export-deadline">
+        <P tone="secondary" testId="privacy-export-deadline">
           <Trans>Ready by</Trans>{' '}
           {new Date(
             Date.parse(props.row?.requested_at ?? '') + 86_400_000
           ).toISOString()}
-        </p>
+        </P>
       </Show>
       <Show when={props.row?.export_status === 'ExportFailed'}>
-        <p class="text textBody" data-testid="privacy-export-failed">
+        <P tone="destructive" testId="privacy-export-failed">
           <Trans>
             The export failed. You can ask again. No incomplete export is
             available.
           </Trans>
-        </p>
+        </P>
       </Show>
-    </div>
+    </StackVertical>
   );
 }

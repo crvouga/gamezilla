@@ -2,6 +2,8 @@
 import { useTimers } from '@pkgs/clock-client/solid';
 import { Button } from '@pkgs/ui-root-client/button';
 import { CopyIcon } from '@pkgs/ui-root-client/icons';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { P } from '@pkgs/ui-root-client/text';
 import {
   createEffect,
   createSignal,
@@ -37,7 +39,7 @@ export function CrashCopyButton(props: {
     }
   };
   return (
-    <div class="box items-start gap-2" data-component="CrashCopyButton">
+    <StackVertical align="start" gap="sm">
       <Button
         title={phase() === 'copied' ? 'Copied' : 'Copy error'}
         icon={CopyIcon}
@@ -48,12 +50,12 @@ export function CrashCopyButton(props: {
           void copy();
         }}
       />
-      <p class="text textCaption" role="status" aria-live="polite">
+      <P variant="caption" role="status" aria-live="polite">
         <Show when={phase() === 'error'}>
           Couldn’t copy. Try again, or select the error details.
         </Show>
         <Show when={phase() === 'copied'}>Error details copied.</Show>
-      </p>
-    </div>
+      </P>
+    </StackVertical>
   );
 }

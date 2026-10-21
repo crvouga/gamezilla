@@ -70,9 +70,13 @@ test.each(['light', 'dark'] as const)(
     expect(
       screen.getByRole('heading', { name: 'Something went wrong' })
     ).toBeTruthy();
-    const details = screen.getByText('Error details').closest('details');
-    expect(details?.open).toBe(false);
-    expect(details?.textContent).toContain(FAILURE);
+    const disclosure = screen.getByRole('button', { name: 'Error details' });
+    expect(disclosure.getAttribute('aria-expanded')).toBe('false');
+    expect(screen.queryByRole('region', { name: 'Error message' })).toBeNull();
+    fireEvent.click(disclosure);
+    expect(
+      screen.getByRole('region', { name: 'Error message' }).textContent
+    ).toContain(FAILURE);
     expect(screen.getByRole('button', { name: 'Reload app' })).toBeTruthy();
     expect(screen.queryByText(/^Trace:/)).toBeNull();
     view.setBroken(false);

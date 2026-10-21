@@ -8,6 +8,7 @@ import { Trans } from '@lingui/solid/macro';
 import { useClock } from '@pkgs/clock-client/solid';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
+import { Surface } from '@pkgs/ui-root-client/surface';
 import type { JSX } from 'solid-js';
 import { onMount } from 'solid-js';
 
@@ -26,8 +27,8 @@ export default function SsoCallbackRoute(): JSX.Element {
   });
 
   return (
-    <div class="box items-center justify-center flex-1 bg-background">
+    <Surface tone="background" grow align="center" justify="center">
       <LoadingState size="lg" caption={<Trans>Signing in…</Trans>} />
-    </div>
+    </Surface>
   );
 }

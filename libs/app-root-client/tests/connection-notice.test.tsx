@@ -19,13 +19,13 @@ test('connection loss changes only the contents of a reserved header slot', () =
       <ConnectionStatusIndicator missing={missing()} />
     </ThemeProvider>
   ));
-  const slot = container.querySelector('[data-component="ConnectionStatus"]');
+  const slot = container.querySelector('[data-component="StatusIconSlot"]');
   expect(slot?.classList.contains('h-8')).toBe(true);
   expect(slot?.classList.contains('w-8')).toBe(true);
   expect(slot?.classList.contains('shrink-0')).toBe(true);
   expect(slot?.children.length).toBe(0);
   setMissing(true);
-  expect(container.querySelector('[data-component="ConnectionStatus"]')).toBe(
+  expect(container.querySelector('[data-component="StatusIconSlot"]')).toBe(
     slot
   );
   expect(
@@ -36,7 +36,7 @@ test('connection loss changes only the contents of a reserved header slot', () =
   expect(container.querySelector('[role="alert"]')).toBeNull();
   expect(container.querySelector('[data-component="Notice"]')).toBeNull();
   setMissing(false);
-  expect(container.querySelector('[data-component="ConnectionStatus"]')).toBe(
+  expect(container.querySelector('[data-component="StatusIconSlot"]')).toBe(
     slot
   );
   expect(slot?.children.length).toBe(0);

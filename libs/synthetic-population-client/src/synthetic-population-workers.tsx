@@ -1,14 +1,16 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client/menu-section';
-import { For, type JSX } from 'solid-js';
+import { StackVertical } from '@pkgs/ui-root-client/stack';
+import { For, type JSX, Show } from 'solid-js';
 import type { SyntheticPopulationOverview } from './synthetic-population-api';
 
 export function SyntheticPopulationWorkers(props: {
   overview: SyntheticPopulationOverview;
 }): JSX.Element {
   return (
-    <div class="box gap-3">
+    <StackVertical gap="md">
       <For each={props.overview.workers}>
         {(worker) => (
           <SyntheticPopulationWorkerDetails
@@ -18,12 +20,21 @@ export function SyntheticPopulationWorkers(props: {
         )}
       </For>
       <MenuSection title={<Trans>Synthetic Population Workers</Trans>}>
+        <Show when={props.overview.workers.length === 0}>
+          <EmptyState
+            variant="compact"
+            title={<Trans>No Synthetic Population Workers</Trans>}
+            body={
+              <Trans>Workers appear here once they report a heartbeat.</Trans>
+            }
+          />
+        </Show>
         <MenuRow
           title={<Trans>Admission limit per worker</Trans>}
           value={String(props.overview.config.capacityPerWorker)}
         />
       </MenuSection>
-    </div>
+    </StackVertical>
   );
 }
 
