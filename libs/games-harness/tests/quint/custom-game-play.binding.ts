@@ -20,6 +20,7 @@ import observationTrace from './fixtures/custom-game-observation-spends-time.itf
 import offlineObserver from './fixtures/custom-game-offline-observer-hides-pause.itf.json';
 import partitionTrace from './fixtures/custom-game-partition-spends-time.itf.json';
 import absencePause from './fixtures/custom-game-pause-counts-as-absence.itf.json';
+import returningGuest from './fixtures/custom-game-returning-guest-keeps-board-while-host-away.itf.json';
 import sharedPause from './fixtures/custom-game-shared-pause-spends-clock.itf.json';
 import { modelSide, productSide } from './model-game';
 
@@ -34,6 +35,14 @@ bindQuintModel<QuintHarnessWorld>({
   maxSteps: 16,
   timeoutMs: 180_000,
   regressions: [
+    {
+      // regression: custom-game-returning-guest-keeps-board-while-host-away
+      id: 'custom-game-returning-guest-keeps-board-while-host-away',
+      title:
+        'A guest who returns while the host is offline keeps the board they had',
+      seed: '0x67932',
+      itf: returningGuest,
+    },
     {
       // regression: custom-game-pause-counts-as-absence
       id: 'custom-game-pause-counts-as-absence',
