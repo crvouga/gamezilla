@@ -16,6 +16,12 @@ export const Handles = {
   globalMenuSettings: 'global-menu-settings',
   /** "An update is needed" banner: the product no longer accepts this app. */
   appUpdateRequired: 'app-update-required',
+  /** A change that showed at once was refused and undone (`data-mutation`, `data-code`). */
+  refusedChange: 'refused-change',
+  /** This device was signed out from elsewhere (`data-unshared`: unsent changes not kept). */
+  signedOutNotice: 'signed-out-notice',
+  /** The signed-out notice's way to sign in again. */
+  signedOutNoticeSignIn: 'signed-out-notice-sign-in',
   /** Not-found screen for an address the app does not have (`-action`: Go to Spaces). */
   routeNotFound: 'route-not-found',
   routeNotFoundAction: 'route-not-found-action',

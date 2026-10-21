@@ -9,15 +9,10 @@ import type {
 } from '@pkgs/sync-engine-shared/mutations-types';
 import type { QueryResponse } from '@pkgs/sync-engine-shared/v2';
 import { withFrameworkMutations } from '@pkgs/sync-engine-shared/with-framework-mutations';
-import { watchMutationFeedback } from './mutation-feedback';
-import {
-  listUnackedWriteRejections,
-  mutationStatus,
-  pendingMutationCount,
-} from './mutation-status';
 import type { ScheduleNotify } from './sql-watch';
 import { createSqlWatch } from './sql-watch';
 import { createTableChangeBus } from './table-change-bus';
+import { writeOutcomeReads } from './write-outcome-reads';
 import '@pkgs/sync-engine-shared/tiger-invariants';
 import type { Timers } from '@pkgs/clock-shared/types';
 import type { AppLifecycle } from '@pkgs/sync-engine-shared/app-lifecycle';
@@ -465,19 +460,12 @@ function toEngine(state: LocalEngineState): SyncEngine {
     subscribeQuery,
     subscribeQueries: createSubscribeQueries(subscribeQuery),
     status: state.status.status,
-    mutationOutcome: (mutationId) =>
-      mutationStatus(state.options.db, mutationId),
-    mutationFeedback: (mutationName, scope) =>
-      watchMutationFeedback(
-        (query) => state.watches.watch(query),
-        state.options.getClientId(),
-        mutationName,
-        scope
-      ),
-    listRejections: () =>
-      listUnackedWriteRejections(state.options.db, state.options.getClientId()),
-    pendingMutationCount: () =>
-      pendingMutationCount(state.options.db, state.options.getClientId()),
+    ...writeOutcomeReads({
+      db: state.options.db,
+      watch: (query) => state.watches.watch(query),
+      clientId: state.options.getClientId,
+      registry: state.options.mutationRegistry,
+    }),
     wakeUploads: () => state.uploadQueue.wake(),
     notifyLocalMutation: (mutation, args, capture) =>
       notifyLocalMutation(state, mutation, args, capture),

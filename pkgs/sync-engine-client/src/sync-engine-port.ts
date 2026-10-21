@@ -17,6 +17,7 @@ import type {
 } from './subscribe-queries-types';
 import type { QuerySubscription } from './subscription-runtime';
 import type { SyncStatusSubscription } from './sync-status';
+import type { WriteRefusal } from './write-outcome-reads';
 
 /**
  * A subscription handle for observing changes in a watched query.
@@ -115,6 +116,12 @@ export type SyncEngine = {
   ) => WatchSubscription<readonly MutationFeedback[]>;
   /** Unacknowledged write rejections for this engine's client id. */
   readonly listRejections: () => Promise<readonly UnackedWriteRejection[]>;
+  /**
+   * Live, unacknowledged refusals of writes whose caller never hears the
+   * server's verdict (`instant` ones): undone locally, they need telling.
+   * Acknowledge each with `acknowledgeWriteRejection` once shown.
+   */
+  readonly unheardRefusals: () => WatchSubscription<readonly WriteRefusal[]>;
   /** Count of local mutations still waiting to upload. */
   readonly pendingMutationCount: () => Promise<number>;
   /** @internal MutationClientProvider / test seam — wake upload drain. */

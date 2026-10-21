@@ -15,6 +15,7 @@ import type { WatchSqlHandle } from '@pkgs/sync-engine-client/shared-watch-regis
 import { createSharedWatchRegistry } from '@pkgs/sync-engine-client/shared-watch-registry';
 import { createSubscribeQueries } from '@pkgs/sync-engine-client/subscribe-queries';
 import type { SyncEngine } from '@pkgs/sync-engine-client/sync-engine-port';
+import type { WriteRefusal } from '@pkgs/sync-engine-client/write-outcome-reads';
 import type {
   SyncEngineStatus,
   SyncStatusSubscription,
@@ -232,6 +233,10 @@ export async function createInMemorySyncEngine(
         sql<MutationFeedback>`SELECT NULL AS "mutationId" WHERE false`
       ),
     listRejections: async () => [],
+    unheardRefusals: () =>
+      watchRegistry.watch(
+        sql<WriteRefusal>`SELECT NULL AS "mutationId" WHERE false`
+      ),
     pendingMutationCount: async () => 0,
     wakeUploads: () => undefined,
     notifyLocalMutation: () => undefined,
