@@ -9,7 +9,6 @@
  */
 
 @import "../skin.css";
-@import "../../ui-root-shared/src/fonts.css";
 
 @layer components {
   .card {
@@ -24,14 +23,15 @@
     margin: 0;
     padding: 0;
     border: 1px solid var(--ui-color-border);
-    border-radius: var(--ui-radius-lg);
-    background: var(--ui-color-surface);
+    border-radius: var(--ui-radius-card);
+    background: var(--ui-color-background);
   }
 
-  /* A panel groups related rows: one surface, the panel radius, hairlines
-     between items inset to the text column. Rows inside never carry their
-     own radius or border; the panel clips their press tint. Lists, menus,
-     settings and game pickers all use it, so every list reads the same. */
+  /* A panel groups related rows: the canvas fill inside one hairline, the
+     card radius, and hairlines between items inset to the text column. Rows
+     inside never carry their own radius or border; the panel clips their
+     press tint. Lists, menus, settings and game pickers all use it, so every
+     list reads the same. */
   .panel {
     display: flex;
     flex-direction: column;
@@ -40,8 +40,8 @@
     min-width: 0;
     overflow: hidden;
     border: 1px solid var(--ui-color-border);
-    border-radius: var(--ui-radius-lg);
-    background: var(--ui-color-surface);
+    border-radius: var(--ui-radius-card);
+    background: var(--ui-color-background);
   }
 
   .panelItem {
@@ -79,6 +79,13 @@
     border-bottom: 1px solid var(--ui-color-border);
   }
 
+  .dividerVertical {
+    width: 0;
+    align-self: stretch;
+    border-bottom: 0;
+    border-left: 1px solid var(--ui-color-border);
+  }
+
   .box {
     display: flex;
     flex-direction: column;
@@ -109,7 +116,7 @@
     font-family: var(--ui-font-sans);
     font-size: var(--ui-font-size-base);
     line-height: var(--ui-leading-base);
-    font-weight: 400;
+    font-weight: var(--ui-font-weight-regular);
     /* Theme foreground — do not route through `--ui-on-fg` here. That var is
        set by OnColorProvider for icon/JS consumers; when it was applied to
        `.text` via fallback, invalid or light-scheme concrete values painted
@@ -117,17 +124,18 @@
     color: var(--ui-color-text);
   }
 
-  /* Type roles. A screen picks a role, never a size or a weight: the role
-     picks the face (display = Bricolage Grotesque, body = the platform
-     face), the step on the classic scale, the weight and the tracking.
-     Display roles never wrap mid-word; long titles clamp instead. */
+  /* Type roles. A screen picks a role, never a size or a weight. One face
+     (the platform system stack) and the fixed scale 12 / 14 / 16 / 20 / 24 /
+     32, so hierarchy comes from size and weight alone: three weights, 400
+     for reading, 600 for labels and emphasis, 700 for titles. Titles never
+     wrap mid-word; long titles clamp instead. */
 
   .textBody {
-    font-weight: 400;
+    font-weight: var(--ui-font-weight-regular);
   }
 
   .textBodyBold {
-    font-weight: 600;
+    font-weight: var(--ui-font-weight-semibold);
   }
 
   .textCaption {
@@ -139,7 +147,6 @@
   .textFootnote {
     font-size: var(--ui-font-size-xs);
     line-height: var(--ui-leading-xs);
-    font-weight: 500;
     color: var(--ui-color-text-secondary);
   }
 
@@ -147,52 +154,51 @@
   .textHeading,
   .textSubtitle,
   .textNavigationTitle,
-  .textLabel,
-  .textLink,
-  .textNumeral {
-    font-family: var(--ui-font-display);
+  .textLabel {
     overflow-wrap: normal;
-    font-feature-settings: "kern" 1;
   }
 
   .textTitle {
-    font-size: var(--ui-font-size-3xl);
-    line-height: var(--ui-leading-3xl);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-  }
-
-  .textHeading {
     font-size: var(--ui-font-size-2xl);
     line-height: var(--ui-leading-2xl);
-    font-weight: 750;
+    font-weight: var(--ui-font-weight-bold);
     letter-spacing: -0.02em;
   }
 
-  .textSubtitle {
+  .textHeading {
     font-size: var(--ui-font-size-xl);
     line-height: var(--ui-leading-xl);
-    font-weight: 700;
-    letter-spacing: -0.015em;
+    font-weight: var(--ui-font-weight-bold);
+    letter-spacing: -0.01em;
+  }
+
+  .textSubtitle {
+    font-size: var(--ui-font-size-lg);
+    line-height: var(--ui-leading-lg);
+    font-weight: var(--ui-font-weight-semibold);
   }
 
   .textNavigationTitle {
-    font-size: var(--ui-font-size-lg);
-    line-height: var(--ui-leading-lg);
-    font-weight: 700;
-    letter-spacing: -0.01em;
+    font-size: var(--ui-font-size-base);
+    line-height: var(--ui-leading-base);
+    font-weight: var(--ui-font-weight-bold);
   }
 
   .textLabel {
     font-size: var(--ui-font-size-base);
     line-height: var(--ui-leading-base);
-    font-weight: 600;
-    letter-spacing: -0.005em;
+    font-weight: var(--ui-font-weight-semibold);
   }
 
   .textLink {
-    font-weight: 600;
+    font-weight: var(--ui-font-weight-semibold);
     color: var(--ui-color-tint);
+    text-decoration: none;
+    transition: color var(--ui-duration-fast) var(--ui-easing-standard);
+  }
+
+  .textLink:hover {
+    color: var(--ui-color-tint-hover);
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.2em;
@@ -201,9 +207,8 @@
   /* Ratings, clocks, prices, counts: the scoreboard. A modifier on any
      role (`text textHeading textNumeral`); alone it keeps the body size. */
   .textNumeral {
-    font-weight: 700;
+    font-weight: var(--ui-font-weight-semibold);
     font-variant-numeric: tabular-nums lining-nums;
-    letter-spacing: -0.01em;
   }
 
   .textMono {
@@ -260,7 +265,8 @@
     border-radius: inherit;
     pointer-events: none;
     background: transparent;
-    transition: background-color 0ms;
+    transition: background-color var(--ui-duration-fast)
+      var(--ui-easing-standard);
   }
 
   @media (hover: hover) and (pointer: fine) {
@@ -274,11 +280,11 @@
   }
 
   .clickableOpacity {
-    transition: opacity 0ms;
+    transition: opacity var(--ui-duration-fast) var(--ui-easing-standard);
   }
 
   .clickableOpacity:not(:disabled):active {
-    opacity: 0.7;
+    opacity: var(--ui-opacity-pressed);
   }
 
   .scroll {
@@ -329,10 +335,21 @@
     font: inherit;
     color: var(--ui-color-text);
     caret-color: var(--ui-color-text);
-    background: var(--ui-color-surface-muted);
+    background: var(--ui-color-surface);
     border: 1px solid var(--ui-color-border);
-    border-radius: var(--ui-radius-md);
-    transition: border-color 0ms;
+    border-radius: var(--ui-radius-control);
+    transition:
+      border-color var(--ui-duration-fast) var(--ui-easing-standard),
+      box-shadow var(--ui-duration-fast) var(--ui-easing-standard);
+  }
+
+  .input:hover:not(:focus-visible):not(:disabled) {
+    border-color: var(--ui-color-outline);
+  }
+
+  .input:disabled {
+    cursor: not-allowed;
+    opacity: var(--ui-opacity-disabled);
   }
 
   .input::placeholder {
@@ -373,11 +390,12 @@
   }
 
   .switchTrack {
-    transition: background-color 0ms;
+    transition: background-color var(--ui-duration-normal)
+      var(--ui-easing-standard);
   }
 
   .switchThumb {
-    transition: transform 0ms;
+    transition: transform var(--ui-duration-normal) var(--ui-easing-standard);
   }
 
   /* Safe-area insets (notch / home indicator). Classes because happy-dom and

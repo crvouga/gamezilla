@@ -1,13 +1,16 @@
-/* Component paint. One class + data-face / data-status. Colors are tokens.
+/* Component paint. One class + data-face / data-status. Every value is a
+ * token (`--ui-*`).
  *
  * Rules, so every screen agrees without trying:
  * - Blue (`tint-active` fill, white `on-primary` label) means "the thing to
  *   do" or "the thing chosen": primary buttons, the FAB, selected chips,
  *   checked controls. Never decoration.
- * - Controls share `--ui-radius-md`. Pills are only for round things.
- * - No shadows and no gradients: surfaces step up in tone instead, which is
- *   also what a low-end phone can paint at 60fps.
- * - Press feedback is a tone shift plus a small scale, never a bounce. */
+ * - Controls share `--ui-radius-control` (8). Pills are only for round
+ *   things.
+ * - Flat: hairline borders, no gradients, and one soft shadow
+ *   (`--ui-shadow-float`) only for what floats above content.
+ * - Press feedback is a tone shift plus a small scale, never a bounce.
+ *   Hover and press fade in 150ms; reduced motion turns it off. */
 
 @layer components {
   .themeHost {
@@ -26,14 +29,13 @@
   }
 
   ::selection {
-    background: var(--ui-color-tint-muted);
+    background: var(--ui-color-tint-subtle);
     color: var(--ui-color-text);
   }
 
   .text.appLogo {
-    font-family: var(--ui-font-display);
-    font-weight: 800;
-    letter-spacing: -0.035em;
+    font-weight: var(--ui-font-weight-bold);
+    letter-spacing: -0.03em;
     color: var(--ui-color-text);
   }
 
@@ -46,13 +48,15 @@
     border-color: transparent;
     background: transparent;
     color: var(--ui-color-tint);
-    font-family: var(--ui-font-display);
-    font-weight: 650;
-    letter-spacing: -0.005em;
+    font-family: var(--ui-font-sans);
+    font-weight: var(--ui-font-weight-semibold);
     --ui-on-fg: var(--ui-color-tint);
     --ui-on-fg-muted: var(--ui-color-tint);
     --ui-on-icon: var(--ui-color-tint);
-    transition: transform var(--ui-duration-fast) var(--ui-easing-standard);
+    transition:
+      transform var(--ui-duration-fast) var(--ui-easing-standard),
+      background-color var(--ui-duration-fast) var(--ui-easing-standard),
+      border-color var(--ui-duration-fast) var(--ui-easing-standard);
   }
 
   .btn:not(:disabled):active,
@@ -70,41 +74,41 @@
   }
 
   .btn[data-size="sm"] {
-    min-height: 36px;
-    padding: 6px 14px;
-    border-radius: var(--ui-radius-md);
-    font-size: 15px;
-    line-height: 20px;
+    min-height: var(--ui-control-size-sm);
+    padding: 0 var(--ui-space-md);
+    border-radius: var(--ui-radius-control);
+    font-size: var(--ui-font-size-sm);
+    line-height: var(--ui-leading-sm);
   }
 
   .btn[data-size="md"] {
-    min-height: 48px;
-    padding: 12px 20px;
-    border-radius: var(--ui-radius-md);
-    font-size: 16px;
-    line-height: 22px;
+    min-height: var(--ui-control-size-md);
+    padding: 0 var(--ui-space-lg);
+    border-radius: var(--ui-radius-control);
+    font-size: var(--ui-font-size-sm);
+    line-height: var(--ui-leading-sm);
   }
 
   .btn[data-size="lg"] {
-    min-height: 56px;
-    padding: 14px 24px;
-    border-radius: var(--ui-radius-md);
-    font-size: 17px;
-    line-height: 24px;
-    font-weight: 700;
+    min-height: var(--ui-control-size-lg);
+    padding: 0 var(--ui-space-xl);
+    border-radius: var(--ui-radius-control);
+    font-size: var(--ui-font-size-base);
+    line-height: var(--ui-leading-base);
   }
 
   .fab {
-    height: 56px;
-    min-height: 56px;
+    height: var(--ui-control-size-lg);
+    min-height: var(--ui-control-size-lg);
     border-radius: var(--ui-radius-full);
-    font-size: 16px;
-    line-height: 22px;
+    font-size: var(--ui-font-size-base);
+    line-height: var(--ui-leading-base);
+    box-shadow: var(--ui-shadow-float);
   }
 
   .fab[data-extended="true"] {
-    padding-left: 20px;
-    padding-right: 24px;
+    padding-left: var(--ui-space-lg);
+    padding-right: var(--ui-space-xl);
   }
 
   .btn[data-face="primary"],
@@ -148,6 +152,13 @@
     --ui-on-icon: var(--ui-color-icon);
   }
 
+  @media (hover: hover) and (pointer: fine) {
+    .btn[data-face="primary"]:not(:disabled):hover,
+    .fab[data-face="primary"]:not(:disabled):hover {
+      background: var(--ui-color-tint-hover);
+    }
+  }
+
   .btn[data-face="primary-outline"] {
     border-color: var(--ui-color-tint);
     color: var(--ui-color-tint);
@@ -170,7 +181,7 @@
   }
 
   .btn[data-face="neutral-outline"] {
-    border-color: var(--ui-color-outline);
+    border-color: var(--ui-color-border);
     color: var(--ui-color-text);
     --ui-on-fg: var(--ui-color-text);
     --ui-on-icon: var(--ui-color-icon);
@@ -248,18 +259,21 @@
      (`padding: 0`, `border: 0`, `font: inherit`, later in this layer) must
      not win over the chip's own pill. */
   .clickable.chip {
-    height: 36px;
-    min-width: 48px;
-    padding-left: 14px;
-    padding-right: 14px;
+    height: var(--ui-control-size-sm);
+    min-width: var(--ui-control-size-md);
+    padding-left: var(--ui-space-md);
+    padding-right: var(--ui-space-md);
     border-radius: var(--ui-radius-full);
-    border: 1px solid var(--ui-color-outline);
+    border: 1px solid var(--ui-color-border);
     background: transparent;
     color: var(--ui-color-text);
-    font-family: var(--ui-font-display);
+    font-family: var(--ui-font-sans);
     font-size: var(--ui-font-size-sm);
-    font-weight: 600;
+    font-weight: var(--ui-font-weight-semibold);
     line-height: var(--ui-leading-sm);
+    transition:
+      background-color var(--ui-duration-fast) var(--ui-easing-standard),
+      border-color var(--ui-duration-fast) var(--ui-easing-standard);
   }
 
   .clickable.chip[aria-pressed="true"],
@@ -272,27 +286,28 @@
   }
 
   .chip:disabled {
-    opacity: 0.5;
+    opacity: var(--ui-opacity-disabled);
   }
 
   .badge {
+    min-height: var(--ui-space-xl);
+    padding: 0 var(--ui-space-sm);
     border-radius: var(--ui-radius-full);
-    padding: 2px 8px;
     background: var(--ui-color-tint-subtle);
     color: var(--ui-color-tint);
-    font-family: var(--ui-font-display);
+    font-family: var(--ui-font-sans);
     font-size: var(--ui-font-size-xs);
-    font-weight: 700;
+    font-weight: var(--ui-font-weight-semibold);
     line-height: var(--ui-leading-xs);
     font-variant-numeric: tabular-nums lining-nums;
   }
 
   .badge[data-size="sm"] {
-    padding: 1px 6px;
-    min-width: 18px;
-    min-height: 18px;
+    min-width: var(--ui-space-lg);
+    min-height: var(--ui-space-lg);
+    padding: 0 var(--ui-space-xs);
     font-size: var(--ui-font-size-xs);
-    line-height: 16px;
+    line-height: var(--ui-leading-xs);
   }
 
   .badge[data-intent="neutral"][data-tone="subtle"] {

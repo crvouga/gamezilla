@@ -83,7 +83,7 @@ function ScrollExample(): JSX.Element {
                     tone={index() === selected() ? 'success' : 'muted'}
                     radius="sm"
                     paddingX="sm"
-                    paddingY="2xs"
+                    paddingY="xs"
                   >
                     <Text variant="label" numeral>
                       {move}

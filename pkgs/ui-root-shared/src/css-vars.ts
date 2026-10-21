@@ -16,6 +16,7 @@ import { COLOR_PALETTE } from './color-palette';
 import type { ColorScheme, ColorTokenName, ColorTokens } from './colors-types';
 import { fonts } from './fonts';
 import { layer } from './layers';
+import { shadowCss } from './shadows';
 import { duration, easing } from './motion';
 import type { ElevationLevel, ElevationStyle } from './scale';
 import {
@@ -83,6 +84,11 @@ function schemeBlock(scheme: ColorScheme): string {
   }
   for (const level of ELEVATION_LEVELS) {
     lines.push(`  --color-elevation-${level}: var(--ui-elevation-${level});`);
+  }
+  // The shadow names `--ui-color-shadow-color`, so it is bound on the scheme
+  // host too: a nested theme recomputes it with its own shadow color.
+  for (const [name, value] of Object.entries(shadowCss)) {
+    lines.push(`  --ui-shadow-${name}: ${value};`);
   }
   // Default on-color cascade for icons/text outside an OnColorProvider.
   lines.push('  --ui-on-fg: var(--ui-color-text);');

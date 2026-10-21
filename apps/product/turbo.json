@@ -622,7 +622,6 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/pkgs/ui-root-client/src/**/*.css",
-        "$TURBO_ROOT$/pkgs/ui-root-shared/src/bricolage-latin.woff2",
         "$TURBO_ROOT$/pkgs/*/src/**/*.module.css",
         "$TURBO_ROOT$/libs/harness/src/wall-frame-css.ts",
         "$TURBO_ROOT$/pkgs/tailwind-shared/src/**"

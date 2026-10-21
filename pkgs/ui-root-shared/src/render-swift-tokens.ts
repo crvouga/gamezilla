@@ -92,6 +92,14 @@ const TYPES = `    public struct ColorValue: Equatable, Sendable {
         public let y1: Double
         public let x2: Double
         public let y2: Double
+    }
+
+    public struct Shadow: Equatable, Sendable {
+        public let color: ColorValue
+        public let offsetX: Quantity
+        public let offsetY: Quantity
+        public let blur: Quantity
+        public let spread: Quantity
     }`;
 
 /** A token or group name Swift can use as an identifier. */
@@ -212,6 +220,17 @@ function renderNumber(value: unknown): string {
   return num(value);
 }
 
+function renderShadow(root: TokenTree, value: unknown): string {
+  if (!isTokenTree(value)) {
+    throw new Error(`expected a shadow, got ${JSON.stringify(value)}`);
+  }
+  const color = renderColor(resolveTokenValue(root, value['color']));
+  const parts = ['offsetX', 'offsetY', 'blur', 'spread'].map(
+    (key) => `${key}: ${renderQuantity(value[key])}`
+  );
+  return `Shadow(color: ${color}, ${parts.join(', ')})`;
+}
+
 function renderValue(type: string, value: unknown): string {
   if (type === 'color') return renderColor(value);
   if (type === 'dimension' || type === 'duration') return renderQuantity(value);
@@ -227,6 +246,9 @@ function renderToken(
   type: string | undefined
 ): string {
   if (type === undefined) throw new Error('a token has no $type');
+  if (type === 'shadow') {
+    return renderShadow(root, resolveTokenValue(root, token['$value']));
+  }
   return renderValue(type, resolveTokenValue(root, token['$value']));
 }
 

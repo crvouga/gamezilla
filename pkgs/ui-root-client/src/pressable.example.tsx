@@ -157,7 +157,7 @@ function Layout(): JSX.Element {
       </ExampleSection>
       <ExampleSection title="vertical, grow, tabStop false, aria-label">
         <StackHorizontal gap="sm">
-          <Pressable grow gap="2xs" padding="md" radius="control">
+          <Pressable grow gap="xs" padding="md" radius="control">
             <P variant="label">{'Vertical'}</P>
             <P variant="caption">{'Two lines, one target'}</P>
           </Pressable>

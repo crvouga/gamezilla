@@ -31,7 +31,6 @@ const COLOR_GROUPS: readonly ColorGroup[] = [
     tokens: [
       'background',
       'surface',
-      'surfaceSunken',
       'surfaceMuted',
       'surfaceElevated',
       'surfaceOverlay',
@@ -40,14 +39,7 @@ const COLOR_GROUPS: readonly ColorGroup[] = [
   { title: 'Foreground', tokens: ['text', 'textSecondary', 'icon'] },
   {
     title: 'Brand / interactive',
-    tokens: [
-      'tint',
-      'tintHover',
-      'tintActive',
-      'tintSubtle',
-      'tintMuted',
-      'tintHighlight',
-    ],
+    tokens: ['tint', 'tintHover', 'tintActive', 'tintSubtle'],
   },
   {
     title: 'On-color foregrounds',
@@ -72,7 +64,6 @@ const COLOR_GROUPS: readonly ColorGroup[] = [
     ],
   },
   { title: 'States / shadow', tokens: ['disabled', 'shadowColor'] },
-  { title: 'Tabs', tokens: ['tabIconDefault', 'tabIconSelected'] },
 ];
 
 const ELEVATION_LEVELS: readonly ElevationLevel[] = [0, 1, 2, 3, 4, 5];

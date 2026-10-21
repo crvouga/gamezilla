@@ -1,5 +1,4 @@
 // @io-wall-ok — artifact producer collects cached suite outputs before the local gate.
-import { readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { compileFrameCss } from '@libs/harness/wall-frame-css';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
@@ -33,16 +32,7 @@ export async function prepareInputs(): Promise<void> {
     output,
     createSnapshotFingerprint(stylesheet)
   );
-  const font = await readFile(
-    join(ROOT, 'pkgs/ui-root-shared/src/bricolage-latin.woff2')
-  );
-  const fontCss = (
-    await readFile(join(ROOT, 'pkgs/ui-root-shared/src/fonts.css'), 'utf8')
-  ).replace(
-    './bricolage-latin.woff2',
-    `data:font/woff2;base64,${font.toString('base64')}`
-  );
-  await writeUtf8(output, 'frame.css', `${fontCss}\n${stylesheet}`, 'text/css');
+  await writeUtf8(output, 'frame.css', stylesheet, 'text/css');
   console.log(
     `[ui-quality] ${manifest.reports} report(s), ${manifest.references} references, ${manifest.artifacts.length} unique visual inputs.`
   );

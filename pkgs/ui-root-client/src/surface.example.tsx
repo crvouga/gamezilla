@@ -63,7 +63,7 @@ function Recipes(): JSX.Element {
             align="center"
             gap="xs"
             paddingX="sm"
-            paddingY="2xs"
+            paddingY="xs"
           >
             <Text variant="footnote">{'Rated'}</Text>
           </Surface>
@@ -73,7 +73,7 @@ function Recipes(): JSX.Element {
             direction="horizontal"
             align="center"
             paddingX="sm"
-            paddingY="2xs"
+            paddingY="xs"
           >
             <Text variant="footnote" tone="success">
               {'Online'}

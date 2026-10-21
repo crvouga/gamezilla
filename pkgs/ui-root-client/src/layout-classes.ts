@@ -80,7 +80,6 @@ const SURFACE: Readonly<Record<SurfaceTone, string>> = {
   background: 'bg-background',
   surface: 'bg-surface',
   muted: 'bg-surface-muted',
-  sunken: 'bg-surface-sunken',
   elevated: 'bg-surface-elevated',
   overlay: 'bg-surface-overlay',
   'tint-subtle': 'bg-tint-subtle',
