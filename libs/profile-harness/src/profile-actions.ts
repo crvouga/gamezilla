@@ -203,6 +203,17 @@ export const typeUsernameDraft = scenarioAction({
   },
 });
 
+/** Open the username screen from Edit profile, before typing anything. */
+export const openUsernameEditor = scenarioAction({
+  name: 'openUsernameEditor',
+  act: async (s, actorId: string) => {
+    await Promise.resolve(openProfileEdit.act(s, actorId));
+    const ui = await actorUi(s, actorId);
+    await ui.get(Handles.profileEditUsername).tap();
+    await ui.get(Handles.profileUsernameInput).expect.visible();
+  },
+});
+
 /** Cancel out of the username screen, then back out of Edit profile. */
 export const leaveUsernameEditor = scenarioAction({
   name: 'leaveUsernameEditor',
@@ -221,6 +232,7 @@ export const PROFILE_HARNESS_ACTIONS = [
   setUsername,
   submitUsername,
   typeUsernameDraft,
+  openUsernameEditor,
   cancelAvatarEdits,
   leaveUsernameEditor,
   openAvatarEditor,

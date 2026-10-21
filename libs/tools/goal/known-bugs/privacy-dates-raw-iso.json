@@ -1,0 +1,4 @@
+{
+  "summary": "The export \"Ready by\" time and the deletion erase-by date were printed as stored timestamps (2024-06-02T00:00:00.100Z). They are now formatted for the person's locale, and \"Ready by\" shows only while the export is being prepared.",
+  "regressionTest": "specs/profile/personal-data-export.feature"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "When the sign-in proof ran out while the deletion confirmation was open, confirming failed with hard-coded English pointing at a permission notice that sat behind the still-open dialog. The confirmation now closes on a refusal and the translated notice with its way forward shows on the screen.",
+  "regressionTest": "specs/profile/account-deletion.feature"
+}

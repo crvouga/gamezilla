@@ -225,6 +225,10 @@ msgstr "{seconds} seconds"
 msgid "{side} to move. Find the best move."
 msgstr "{side} to move. Find the best move."
 
+#: libs/profile-client/src/profile-handle-screen.tsx
+msgid "{USERNAME_MIN_LENGTH} to {USERNAME_MAX_LENGTH} letters, numbers or _. Saved in lowercase."
+msgstr "{USERNAME_MIN_LENGTH} to {USERNAME_MAX_LENGTH} letters, numbers or _. Saved in lowercase."
+
 #: libs/game-session-client/src/custom-game-status.tsx
 #: libs/game-session-client/src/game-record-label.tsx
 msgid "{winner} wins by {reason}."
@@ -361,9 +365,17 @@ msgstr "account deletion"
 msgid "Account deletion confirmed"
 msgstr "Account deletion confirmed"
 
+#: libs/account-privacy-client/src/use-account-deletion.tsx
+msgid "Account deletion did not go through. Nothing was deleted. Try again."
+msgstr "Account deletion did not go through. Nothing was deleted. Try again."
+
 #: libs/account-privacy-client/src/privacy-explanation.tsx
 msgid "Account deletion is permanent. Every device will be signed out, including offline devices when they reconnect. Signing in later starts a new account."
 msgstr "Account deletion is permanent. Every device will be signed out, including offline devices when they reconnect. Signing in later starts a new account."
+
+#: libs/account-privacy-client/src/use-account-deletion.tsx
+msgid "Account deletion was not confirmed. Nothing was deleted."
+msgstr "Account deletion was not confirmed. Nothing was deleted."
 
 #: libs/auth-client/src/account-devices-card.tsx
 #: libs/synthetic-population-client/src/synthetic-user-details.tsx
@@ -375,6 +387,7 @@ msgid "Account menu"
 msgstr "Account menu"
 
 #: libs/account-privacy-client/src/privacy-screen.tsx
+#: libs/auth-client/src/account-screen.tsx
 #: libs/profile-client/src/profile-edit-screen.tsx
 msgid "Account privacy"
 msgstr "Account privacy"
@@ -550,9 +563,17 @@ msgstr "Archive"
 msgid "Archived"
 msgstr "Archived"
 
+#: libs/account-privacy-client/src/export-choice.tsx
+msgid "Ask for a new export"
+msgstr "Ask for a new export"
+
 #: libs/spaces-client/src/space-join-prompt.tsx
 msgid "Ask the host to add you to the allow list, or check the link."
 msgstr "Ask the host to add you to the allow list, or check the link."
+
+#: libs/account-privacy-client/src/export-choice.tsx
+msgid "Asking again replaces the export that is ready now, and it can no longer be downloaded. Download it first if you want to keep it."
+msgstr "Asking again replaces the export that is ready now, and it can no longer be downloaded. Download it first if you want to keep it."
 
 #: libs/app-root-client/src/app-commands.tsx
 msgid "auto"
@@ -1583,6 +1604,10 @@ msgstr "Everything in the free plan, synced across your devices"
 msgid "Expand all"
 msgstr "Expand all"
 
+#: libs/permissions-client/src/unlock-copy.tsx
+msgid "Export and deletion only happen while you are online, so nothing is saved to send later. Reconnect, then try again."
+msgstr "Export and deletion only happen while you are online, so nothing is saved to send later. Reconnect, then try again."
+
 #: libs/account-privacy-client/src/export-choice.tsx
 msgid "Export requested"
 msgstr "Export requested"
@@ -1901,8 +1926,8 @@ msgid "Host as many spaces as you like at once"
 msgstr "Host as many spaces as you like at once"
 
 #: libs/account-privacy-client/src/privacy-explanation.tsx
-msgid "Hosted spaces will end. Future membership charges will stop. If the payment provider has not confirmed cancellation yet, we will say so. Any membership payment taken after confirmed deletion will be refunded in full."
-msgstr "Hosted spaces will end. Future membership charges will stop. If the payment provider has not confirmed cancellation yet, we will say so. Any membership payment taken after confirmed deletion will be refunded in full."
+msgid "Hosted spaces will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Future membership charges will stop. If the payment provider has not confirmed cancellation yet, we will say so. Any membership payment taken after confirmed deletion will be refunded in full."
+msgstr "Hosted spaces will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Future membership charges will stop. If the payment provider has not confirmed cancellation yet, we will say so. Any membership payment taken after confirmed deletion will be refunded in full."
 
 #: libs/app-root-client/src/app-commands.tsx
 msgid "hud"
@@ -1998,6 +2023,10 @@ msgstr "is away. After a minute away you may claim the win."
 #: libs/game-puzzle-client/src/puzzle-link-screen.tsx
 msgid "It was taken out of the puzzles, so its link no longer opens it."
 msgstr "It was taken out of the puzzles, so its link no longer opens it."
+
+#: libs/account-privacy-client/src/export-choice.tsx
+msgid "It will be ready within 24 hours."
+msgstr "It will be ready within 24 hours."
 
 #: pkgs/ui-root-client/src/catalog-detail.tsx
 msgid "Item not found"
@@ -2278,8 +2307,8 @@ msgid "Membership cancellation has completed."
 msgstr "Membership cancellation has completed."
 
 #: libs/account-privacy-client/src/privacy-screen.tsx
-msgid "Membership cancellation is still being completed."
-msgstr "Membership cancellation is still being completed."
+msgid "Membership cancellation is still being completed. Nothing more is needed from you."
+msgstr "Membership cancellation is still being completed. Nothing more is needed from you."
 
 #. placeholder {0}: date()
 #: libs/billing-client/src/billing-plan-card.tsx
@@ -2400,6 +2429,10 @@ msgstr "network"
 #: libs/app-root-client/src/settings-screen.tsx
 msgid "Network reachability and server health"
 msgstr "Network reachability and server health"
+
+#: libs/account-privacy-client/src/export-choice.tsx
+msgid "New export requested"
+msgstr "New export requested"
 
 #: libs/game-matchmaking-client/src/multiplayer-find-panel.tsx
 #: libs/game-session-client/src/custom-game-screen.tsx
@@ -3125,9 +3158,10 @@ msgstr "Reading Synthetic Population…"
 msgid "Ready"
 msgstr "Ready"
 
+#. placeholder {0}: readyBy()
 #: libs/account-privacy-client/src/export-choice.tsx
-msgid "Ready by"
-msgstr "Ready by"
+msgid "Ready by {0}"
+msgstr "Ready by {0}"
 
 #: libs/game-session-client/src/custom-game-configuration.tsx
 #: libs/game-session-client/src/custom-game-status.tsx
@@ -3235,6 +3269,10 @@ msgstr "Rename"
 #: libs/spaces-client/src/rename-space-modal.tsx
 msgid "Rename space"
 msgstr "Rename space"
+
+#: libs/account-privacy-client/src/export-choice.tsx
+msgid "Replace your ready export?"
+msgstr "Replace your ready export?"
 
 #: libs/synthetic-population-client/src/synthetic-user-replay.tsx
 msgid "Replay completed"
@@ -4029,6 +4067,10 @@ msgstr "system"
 msgid "System"
 msgstr "System"
 
+#: libs/auth-client/src/account-screen.tsx
+msgid "Take a personal-data export or delete your account"
+msgstr "Take a personal-data export or delete your account"
+
 #: libs/profile-client/src/profile-edit-screen.tsx
 msgid "Take an export or permanently delete your account"
 msgstr "Take an export or permanently delete your account"
@@ -4126,8 +4168,8 @@ msgid "The connection is missing."
 msgstr "The connection is missing."
 
 #: libs/account-privacy-client/src/export-choice.tsx
-msgid "The export could not be requested."
-msgstr "The export could not be requested."
+msgid "The export could not be requested. Try again."
+msgstr "The export could not be requested. Try again."
 
 #: libs/account-privacy-client/src/export-choice.tsx
 msgid "The export failed. You can ask again. No incomplete export is available."
@@ -4136,6 +4178,10 @@ msgstr "The export failed. You can ask again. No incomplete export is available.
 #: libs/account-privacy-client/src/export-download.tsx
 msgid "The export has expired. Ask for a new one."
 msgstr "The export has expired. Ask for a new one."
+
+#: libs/account-privacy-client/src/export-choice.tsx
+msgid "The export was not requested. Use the choice shown."
+msgstr "The export was not requested. Use the choice shown."
 
 #: libs/game-matchmaking-client/src/multiplayer-status.tsx
 msgid "The first move wasn't made in time."
@@ -4243,13 +4289,17 @@ msgstr "They won't be able to send you friend requests."
 msgid "This account already has a sign-in method from that provider. Remove it first to use a different one."
 msgstr "This account already has a sign-in method from that provider. Remove it first to use a different one."
 
+#: libs/account-privacy-client/src/use-account-deletion.tsx
+msgid "This account was already deleted. Sign in again to start a new account."
+msgstr "This account was already deleted. Sign in again to start a new account."
+
 #: libs/game-puzzle-client/src/puzzle-result-announcement.tsx
 msgid "This attempt was unrated."
 msgstr "This attempt was unrated."
 
 #: libs/account-privacy-client/src/privacy-screen.tsx
-msgid "This cannot be undone. Every device will be signed out. Your hosted spaces and future membership charges will end. Take an export first if you want a copy of your personal data."
-msgstr "This cannot be undone. Every device will be signed out. Your hosted spaces and future membership charges will end. Take an export first if you want a copy of your personal data."
+msgid "This cannot be undone. Every device will be signed out. Your hosted spaces and future membership charges will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Take an export first if you want a copy of your personal data."
+msgstr "This cannot be undone. Every device will be signed out. Your hosted spaces and future membership charges will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Take an export first if you want a copy of your personal data."
 
 #: libs/permissions-client/src/unlock-copy.tsx
 msgid "This choice needs a connection"
@@ -4352,6 +4402,10 @@ msgstr "time"
 #: libs/game-matchmaking-client/src/multiplayer-find-panel.tsx
 msgid "Time control"
 msgstr "Time control"
+
+#: libs/permissions-client/src/unlock-copy.tsx
+msgid "To keep your data safe, export and deletion need a sign-in from the last {PROOF_MINUTES} minutes. Sign in again, then try once more. Nothing has changed yet."
+msgstr "To keep your data safe, export and deletion need a sign-in from the last {PROOF_MINUTES} minutes. Sign in again, then try once more. Nothing has changed yet."
 
 #: libs/chess-shared-client/src/chess-settings-developer-screen.tsx
 msgid "Tools for debugging and exploring the UI."
@@ -4531,10 +4585,6 @@ msgstr "Use light theme"
 msgid "Use system theme"
 msgstr "Use system theme"
 
-#: libs/account-privacy-client/src/export-choice.tsx
-msgid "Use the choice shown below to continue."
-msgstr "Use the choice shown below to continue."
-
 #: libs/game-session-client/src/custom-game-configuration.tsx
 msgid "Use this clock"
 msgstr "Use this clock"
@@ -4549,6 +4599,10 @@ msgid "Username"
 msgstr "Username"
 
 #: libs/profile-client/src/username-error-label.tsx
+msgid "Username can have at most {USERNAME_MAX_LENGTH} characters"
+msgstr "Username can have at most {USERNAME_MAX_LENGTH} characters"
+
+#: libs/profile-client/src/username-error-label.tsx
 msgid "Username can only use letters, numbers, and _"
 msgstr "Username can only use letters, numbers, and _"
 
@@ -4561,12 +4615,8 @@ msgid "Username is taken"
 msgstr "Username is taken"
 
 #: libs/profile-client/src/username-error-label.tsx
-msgid "Username is too long"
-msgstr "Username is too long"
-
-#: libs/profile-client/src/username-error-label.tsx
-msgid "Username is too short"
-msgstr "Username is too short"
+msgid "Username needs at least {USERNAME_MIN_LENGTH} characters"
+msgstr "Username needs at least {USERNAME_MIN_LENGTH} characters"
 
 #: libs/profile-client/src/username-error-label.tsx
 msgid "Username was changed recently"
@@ -4822,9 +4872,10 @@ msgstr "you@example.com"
 msgid "Your account could not be loaded. Check your connection and reload the app."
 msgstr "Your account could not be loaded. Check your connection and reload the app."
 
+#. placeholder {0}: eraseBy()
 #: libs/account-privacy-client/src/privacy-screen.tsx
-msgid "Your account deletion is confirmed. You are signed out. Ordinary personal-data erasure will complete by"
-msgstr "Your account deletion is confirmed. You are signed out. Ordinary personal-data erasure will complete by"
+msgid "Your account deletion is confirmed. You are signed out. Ordinary personal-data erasure will complete by {0}."
+msgstr "Your account deletion is confirmed. You are signed out. Ordinary personal-data erasure will complete by {0}."
 
 #: libs/profile-client/src/profile-avatar-figure.tsx
 msgid "Your avatar"
@@ -4833,6 +4884,15 @@ msgstr "Your avatar"
 #: libs/billing-client/src/billing-plan-card.tsx
 msgid "Your checkout hasn't finished. Complete it to start your membership."
 msgstr "Your checkout hasn't finished. Complete it to start your membership."
+
+#: libs/auth-client/src/account-screen.tsx
+msgid "Your data"
+msgstr "Your data"
+
+#. placeholder {0}: readyBy()
+#: libs/account-privacy-client/src/export-choice.tsx
+msgid "Your export is late: it was due by {0}. You can ask again, which starts a new export."
+msgstr "Your export is late: it was due by {0}. You can ask again, which starts a new export."
 
 #: libs/account-privacy-client/src/export-download.tsx
 msgid "Your export is ready. Downloads are private to your recently proven account and expire 7 days after becoming ready."

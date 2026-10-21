@@ -1,5 +1,8 @@
+import { ACCOUNT_PROOF_MAX_AGE_MS } from '@libs/permissions-shared/privacy-permission';
 import { t } from '@lingui/core/macro';
 import type { DenialReason } from '@pkgs/permissions-shared/policy';
+
+const PROOF_MINUTES = ACCOUNT_PROOF_MAX_AGE_MS / 60_000;
 
 /**
  * The only registry of unlock / upsell copy (§22.5): policy config names copy
@@ -13,6 +16,11 @@ const COPY: Readonly<Record<string, () => string>> = {
     t`Finish your current multiplayer game first`,
   'unlock.custom-game.finish.title': () => t`Finish your Custom Game first`,
   'unlock.privacy.proof.title': () => t`Prove the account again to continue`,
+  'unlock.privacy.proof.body': () =>
+    t`To keep your data safe, export and deletion need a sign-in from the last ${PROOF_MINUTES} minutes. Sign in again, then try once more. Nothing has changed yet.`,
+  'unlock.privacy.connection.title': () => t`This choice needs a connection`,
+  'unlock.privacy.connection.body': () =>
+    t`Export and deletion only happen while you are online, so nothing is saved to send later. Reconnect, then try again.`,
   'unlock.rated.limit.title': () => t`You've hit today's puzzle limit`,
   'unlock.rated.limit.body': () =>
     t`Sign in free for unlimited puzzles, or come back tomorrow.`,

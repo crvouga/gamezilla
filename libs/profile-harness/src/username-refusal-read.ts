@@ -5,8 +5,9 @@ import {
 } from './profile-ui-reads';
 
 const REFUSAL_FACES: Readonly<Record<string, string>> = {
-  'it is too short': 'Username is too short',
-  'it is too long': 'Username is too long',
+  // regression: username-limits-not-stated
+  'it is shorter than 3 characters': 'Username needs at least 3 characters',
+  'it is longer than 32 characters': 'Username can have at most 32 characters',
   'it contains characters other than letters, numbers and _':
     'Username can only use letters, numbers, and _',
   'the name is not allowed': 'That username is not allowed',

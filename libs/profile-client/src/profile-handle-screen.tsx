@@ -1,6 +1,10 @@
 import { useModeration } from '@libs/moderation-client/moderation-context';
 import { claimUsernameMutation } from '@libs/profile-shared/claim-username-mutation';
 import type { ProfileRow } from '@libs/profile-shared/profile-row-sql';
+import {
+  USERNAME_MAX_LENGTH,
+  USERNAME_MIN_LENGTH,
+} from '@libs/profile-shared/username';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
@@ -88,6 +92,12 @@ function ProfileHandleScreenBody(props: {
         autocorrect="off"
         dataSet={{ testid: Handles.profileUsernameInput }}
       />
+      <p class="text textCaption" data-testid="profile-username-rules">
+        <Trans>
+          {USERNAME_MIN_LENGTH} to {USERNAME_MAX_LENGTH} letters, numbers or _.
+          Saved in lowercase.
+        </Trans>
+      </p>
       <UsernameChangeFeedback />
     </div>
   );

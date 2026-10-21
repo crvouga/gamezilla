@@ -7,6 +7,7 @@ import { recall, remember, signedInAccountKey } from '@libs/harness/spec-world';
 import {
   askForExport,
   completeExport,
+  confirmExportReplacement,
   openExportAddress,
   openPrivacy,
   privacyTimePasses,
@@ -15,6 +16,8 @@ import {
 import {
   downloadedExport,
   exportCategories,
+  privacyNotice,
+  privacyStatus,
   privacyText,
 } from './privacy-reads';
 
@@ -35,6 +38,57 @@ async function ready(w: HarnessWorld, actor: Actor) {
 }
 
 Given('{actor} has asked for a personal-data export', request);
+Given(
+  "{actor}'s personal-data export is still being prepared {int} hours later",
+  async (w, actor: Actor, hours: number) => {
+    await w.s.apply(privacyTimePasses, hours * 3_600_000, false);
+    const state = await w.s.read(
+      privacyStatus,
+      String(recall(w, signedInAccountKey(actor)))
+    );
+    expect(state.exportStage).toBe('Preparing');
+  }
+);
+When('{actor} checks on the personal-data export', async (w, actor: Actor) => {
+  await w.s.apply(openPrivacy, actor);
+});
+Then(
+  '{actor} is told the export is late and can ask again',
+  async (w, actor: Actor) => {
+    // regression: export-overdue-unexplained
+    expect(
+      await w.s.read(privacyNotice, actor, 'privacy-export-overdue')
+    ).toContain('ask again');
+    expect(
+      await w.s.read(privacyNotice, actor, 'privacy-export-request')
+    ).not.toBeNull();
+  }
+);
+Given(
+  '{actor} has been warned that asking again replaces her ready export',
+  async (w, actor: Actor) => {
+    await ready(w, actor);
+    await w.s.apply(askForExport, actor);
+    expect(
+      await w.s.read(privacyText, actor, 'privacy-export-replace-modal')
+    ).not.toBeNull();
+  }
+);
+Then(
+  '{actor} is warned that asking again replaces her ready export',
+  async (w, actor: Actor) => {
+    // regression: export-reask-replaces-ready-silently
+    expect(
+      await w.s.read(privacyText, actor, 'privacy-export-replace-modal')
+    ).toContain('replaces');
+  }
+);
+When(
+  '{actor} confirms asking for a new personal-data export',
+  async (w, actor: Actor) => {
+    await w.s.apply(confirmExportReplacement, actor);
+  }
+);
 Given("{actor}'s personal-data export is ready", ready);
 Given(
   '{actor} and {actor} have separate accounts with personal data',

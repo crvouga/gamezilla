@@ -106,7 +106,7 @@ export const SPEC_PARAMETER_TYPES: readonly ParameterTypeSpec[] = [
   {
     name: 'usernameRefusal',
     regexp:
-      /it is too short|it is too long|it contains characters other than letters, numbers and _|the name is not allowed|their username was changed recently|their device is offline|another person already has that name/,
+      /it is shorter than 3 characters|it is longer than 32 characters|it contains characters other than letters, numbers and _|the name is not allowed|their username was changed recently|their device is offline|another person already has that name/,
     transformer: (text: string) => text,
   },
   {

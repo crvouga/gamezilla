@@ -1,0 +1,4 @@
+{
+  "summary": "Asking for a personal-data export while one was ready replaced and withdrew the ready export without warning. Asking again now opens a confirmation that explains the ready export will be replaced.",
+  "regressionTest": "specs/profile/personal-data-export.feature"
+}

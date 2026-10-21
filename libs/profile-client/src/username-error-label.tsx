@@ -1,3 +1,7 @@
+import {
+  USERNAME_MAX_LENGTH,
+  USERNAME_MIN_LENGTH,
+} from '@libs/profile-shared/username';
 import { Trans } from '@lingui/solid/macro';
 import type { JSX } from 'solid-js';
 
@@ -13,9 +17,15 @@ export function usernameErrorLabel(
     case 'USERNAME_COOLDOWN':
       return <Trans>Username was changed recently</Trans>;
     case 'USERNAME_TOO_SHORT':
-      return <Trans>Username is too short</Trans>;
+      return (
+        <Trans>Username needs at least {USERNAME_MIN_LENGTH} characters</Trans>
+      );
     case 'USERNAME_TOO_LONG':
-      return <Trans>Username is too long</Trans>;
+      return (
+        <Trans>
+          Username can have at most {USERNAME_MAX_LENGTH} characters
+        </Trans>
+      );
     case 'USERNAME_INVALID_FORMAT':
       return <Trans>Username can only use letters, numbers, and _</Trans>;
     case 'USERNAME_EMPTY':
