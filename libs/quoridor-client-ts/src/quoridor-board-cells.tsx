@@ -33,7 +33,7 @@ export function quoridorWallMessage(
     outside: t`Walls must fit between four squares. Choose an anchor from a1 to h8.`,
     overlap: t`This wall overlaps another wall. Choose a different anchor.`,
     crossing: t`This wall crosses another wall. Choose a different anchor or orientation.`,
-    'no-walls': t`You have no walls left. Move your pawn.`,
+    'no-walls': t`You have no walls left. Move your pawn, or choose Pass turn when no move is available.`,
     'blocks-path': t`This wall would close a player's last path to the goal. Choose another anchor.`,
     finished: t`This game has finished. Choose a rematch to play again.`,
   };

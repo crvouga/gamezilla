@@ -1,0 +1,4 @@
+{
+  "summary": "An exhausted Hill player's wall refusal instructed them to move even when the only available action was a forced pass.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-pass-recovery.test.tsx"
+}

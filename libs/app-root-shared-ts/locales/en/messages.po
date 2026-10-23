@@ -152,6 +152,11 @@ msgstr "{0}, latest shot"
 msgid "{0}'s space"
 msgstr "{0}'s space"
 
+#. placeholder {0}: turnName()
+#: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
+msgid "{0}'s turn."
+msgstr "{0}'s turn."
+
 #. placeholder {0}: parts.days
 #: libs/game-matchmaking-client-ts/src/multiplayer-clocks.tsx
 msgid "{0}d"
@@ -423,6 +428,12 @@ msgstr "A draw has been offered."
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "A draw needs every participant to be a person."
 msgstr "A draw needs every participant to be a person."
+
+#. placeholder {0}: count()
+#. placeholder {1}: timeControlText(props.game.time_control)
+#: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
+msgid "A multiplayer game for {0} players at {1}."
+msgstr "A multiplayer game for {0} players at {1}."
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "A person can have only one side."
@@ -4803,6 +4814,10 @@ msgstr "The payment provider can't be reached right now. Nothing was charged —
 msgid "The players are choosing their private setups."
 msgstr "The players are choosing their private setups."
 
+#: libs/game-matchmaking-client-ts/src/multiplayer-controls.tsx
+msgid "The round will end in a draw for all players."
+msgstr "The round will end in a draw for all players."
+
 #: libs/auth-client-ts/src/auth-flow-messages.tsx
 msgid "The sign-in provider couldn't finish. Try again in a moment."
 msgstr "The sign-in provider couldn't finish. Try again in a moment."
@@ -5508,8 +5523,8 @@ msgid "You have no failed puzzles yet. Puzzles you fail show here to try again."
 msgstr "You have no failed puzzles yet. Puzzles you fail show here to try again."
 
 #: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
-msgid "You have no walls left. Move your pawn."
-msgstr "You have no walls left. Move your pawn."
+msgid "You have no walls left. Move your pawn, or choose Pass turn when no move is available."
+msgstr "You have no walls left. Move your pawn, or choose Pass turn when no move is available."
 
 #: libs/game-puzzle-client-ts/src/puzzle-empty-pool-state.tsx
 msgid "You have played every puzzle that matches your history and theme filters. Include played puzzles or adjust the feed."
