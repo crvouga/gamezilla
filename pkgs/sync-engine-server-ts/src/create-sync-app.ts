@@ -12,6 +12,7 @@ import type { QueryRegistry } from '@pkgs/sync-engine-shared-ts/queries-types';
 import type { TopicMap } from '@pkgs/sync-engine-shared-ts/topic-map';
 import type { AuthErrorBody } from '@pkgs/sync-engine-shared-ts/v2';
 import { withFrameworkMutations } from '@pkgs/sync-engine-shared-ts/with-framework-mutations';
+import type { WriteCaptureSnapshot } from '@pkgs/sync-engine-shared-ts/write-capture';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
 import { Hono } from 'hono';
@@ -57,6 +58,10 @@ export type CreateSyncAppDeps = {
    */
   readonly turnGames?: TurnGames;
   readonly contentRulesAt?: (atMs: number) => ContentRules;
+  /** Host work after committed writes and their first invalidation publish. */
+  readonly onCommitted?: (
+    captures: readonly WriteCaptureSnapshot[]
+  ) => Promise<void>;
 };
 
 const FRAMEWORK_MUTATION_NAMES: ReadonlySet<string> = new Set(
@@ -109,6 +114,9 @@ export function createSyncApp(deps: CreateSyncAppDeps) {
     ...(deps.contentRulesAt !== undefined
       ? { contentRulesAt: deps.contentRulesAt }
       : {}),
+    ...(deps.onCommitted === undefined
+      ? {}
+      : { onCommitted: deps.onCommitted }),
   });
   return app;
 }

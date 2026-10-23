@@ -12,6 +12,7 @@ import {
   drainOutbox,
   type ObserveDelivery,
 } from '@pkgs/outbox-shared-ts/drain';
+import { OUTBOX_EVENTS_TABLE } from '@pkgs/outbox-shared-ts/tables';
 import type { PubSub } from '@pkgs/pubsub-root-shared-ts/interface';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import { notifyChannels } from '@pkgs/sync-engine-server-ts/notify-channels';
@@ -112,6 +113,9 @@ export async function drainAndNotifyOutbox(
   args: DrainAndNotifyArgs
 ): Promise<number> {
   const consumers = args.consumerRegistry ?? getOutboxConsumerRegistry();
+  const eventIds =
+    args.eventIds === undefined ? undefined : new Set(args.eventIds);
+  if (eventIds?.size === 0) return 0;
   let processed = 0;
   for (let pass = 0; pass < (args.maxPasses ?? 8); pass++) {
     const captures: ReturnType<typeof wrapMutationDb>[] = [];
@@ -123,7 +127,7 @@ export async function drainAndNotifyOutbox(
       objectStore: args.objectStore,
       observeDelivery: observeOutboxDelivery,
       ...(args.limit === undefined ? {} : { limit: args.limit }),
-      ...(args.eventIds === undefined ? {} : { eventIds: args.eventIds }),
+      ...(eventIds === undefined ? {} : { eventIds: [...eventIds] }),
       wrapConsumerTx: (tx) => {
         const wrapped = wrapMutationDb(tx, accountMutationEnv('', args));
         captures.push(wrapped);
@@ -132,6 +136,9 @@ export async function drainAndNotifyOutbox(
     });
     processed += result.processed;
     countExhaustedOutboxDeliveries(result.exhausted);
+    for (const capture of captures)
+      for (const id of capture.getCapture().ids[OUTBOX_EVENTS_TABLE] ?? [])
+        eventIds?.add(id);
     // This pass has committed. Publish it before following deliveries can wait.
     await notifyCommittedPass(args, consumers, captures, result.notifyUserIds);
     if (result.processed === 0) break;

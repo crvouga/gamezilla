@@ -21,7 +21,10 @@ const Step = createMessageNamespace('notification-chain')(
     isPlainRecord(value) && typeof value['n'] === 'number'
 );
 
-async function notificationOrder(length: number): Promise<string[]> {
+async function notificationOrder(
+  length: number,
+  scoped = false
+): Promise<string[]> {
   const db = SqlClientImplBunSqlite.open(':memory:');
   await db.connect();
   try {
@@ -55,6 +58,11 @@ async function notificationOrder(length: number): Promise<string[]> {
       onStatus: () => () => {},
       close: () => {},
     };
+    if (scoped)
+      await new Outbox({ tx: db, env }).send({
+        id: 'foreign',
+        message: Step({ n: 99 }),
+      });
     await new Outbox({ tx: db, env }).send({
       id: '1',
       message: Step({ n: 1 }),
@@ -64,6 +72,7 @@ async function notificationOrder(length: number): Promise<string[]> {
       clock,
       createId: env.createId,
       consumerRegistry,
+      ...(scoped ? { eventIds: ['1'] } : {}),
       pubsub,
       objectStore: new ObjectStoreImplInMemory(),
     });
@@ -86,13 +95,27 @@ test('the first committed result is pushed before the following delivery runs', 
 test('each committed pass is published before the next pass in any bounded chain', async () => {
   await assertProperty(
     'outbox pass notification order',
-    fc.asyncProperty(fc.integer({ min: 1, max: 5 }), async (length) => {
-      expect(await notificationOrder(length)).toEqual(
-        Array.from({ length }, (_, index) => [
-          `deliver:${index + 1}`,
-          `push:${index + 1}`,
-        ]).flat()
-      );
-    })
+    fc.asyncProperty(
+      fc.integer({ min: 1, max: 5 }),
+      fc.boolean(),
+      async (length, scoped) => {
+        expect(await notificationOrder(length, scoped)).toEqual(
+          Array.from({ length }, (_, index) => [
+            `deliver:${index + 1}`,
+            `push:${index + 1}`,
+          ]).flat()
+        );
+      }
+    )
   );
+});
+
+// regression: mutation-drains-unrelated-outbox-backlog
+test('a request follows its causal chain without delivering unrelated backlog', async () => {
+  expect(await notificationOrder(2, true)).toEqual([
+    'deliver:1',
+    'push:1',
+    'deliver:2',
+    'push:2',
+  ]);
 });

@@ -1,0 +1,4 @@
+{
+  "summary": "The sync mount did not expose committed write captures to host work, so the product drained unrelated outbox events after every request. Publish mutation invalidations, then pass only applied captures to the host.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/mixed-batch-rollback.test.ts"
+}
