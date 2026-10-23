@@ -185,6 +185,7 @@ describe('this repository', () => {
   });
 
   // regression: generated-source-tracked
+  // regression: generated-source-script-typecheck
   test('generated source is ignored and rebuilt at install', () => {
     const ignored = readFileSync(join(REPO_ROOT, '.gitignore'), 'utf8').split(
       '\n'
@@ -204,7 +205,7 @@ describe('this repository', () => {
     ).toBe('');
     for (const output of outputs) expect(ignored).toContain(output);
     for (const id of ['//#task:tokens:generate', '//#task:sounds:generate']) {
-      expect(scripts['generate'].split(' ')).toContain(id);
+      expect(scripts['generate']?.split(' ')).toContain(id);
       for (const output of tasks[id]?.outputs ?? []) {
         expect(ignored).toContain(output);
       }
