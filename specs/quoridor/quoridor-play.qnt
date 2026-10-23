@@ -177,7 +177,6 @@ module quoridor_play {
     else _update(pawns, walls, remaining, _roundTurn(mode, turn + 1), winner, false)
   action step = any {
     { nondet player = _players(mode).oneOf() nondet square = CELLS.oneOf() movePawn(player, square) },
-    { nondet player = Set(turn).oneOf() nondet square = _nearby(pawns.get(turn)).filter(c => _pawnMove(mode, pawns, walls, turn, c)).union(Set(40)).oneOf() movePawn(player, square) },
     { nondet player = _players(mode).oneOf() nondet column = (-1).to(8).oneOf() nondet row = (-1).to(8).oneOf() nondet direction = Set(0, 1).oneOf() placeWall(player, column, row, direction) },
     { nondet player = _players(mode).oneOf() passTurn(player) },
   }
