@@ -139,6 +139,15 @@ module quoridor_play {
     placed.exists(other => _conflict(w, other)),
     _someBlocked(m, positions, placed.union(Set(w))),
   }
+  // With at most two walls, a central wall fits without cutting any existing path.
+  pure def _hasLegalWall(m: str, positions: int -> int, placed: Set[(int, int, int)]): bool = or {
+    placed.size() >= 3 and WALLS.exists(w => _wallAllowed(m, positions, placed, w)),
+    placed.size() < 3 and _allPaths(m, positions, placed),
+  }
+  pure def _noLegalWall(m: str, positions: int -> int, placed: Set[(int, int, int)]): bool = or {
+    placed.size() >= 3 and WALLS.forall(w => _wallRefused(m, positions, placed, w)),
+    placed.size() < 3 and _someBlocked(m, positions, placed),
+  }
   action _update(positions: int -> int, placed: Set[(int, int, int)], stock: int -> int, mover: int, won: int, refused: bool): bool = all {
     mode' = mode, pawns' = positions, walls' = placed, remaining' = stock, turn' = mover, winner' = won,
     _plies' = if (refused) _plies else _plies + 1,
@@ -186,9 +195,9 @@ module quoridor_play {
     else if (remaining.get(player) == 0)
       _update(pawns, walls, remaining, _roundTurn(mode, turn + 1), winner, false)
     else any {
-      all { WALLS.exists(w => _wallAllowed(mode, pawns, walls, w)), _hold },
+      all { _hasLegalWall(mode, pawns, walls), _hold },
       all {
-        WALLS.forall(w => _wallRefused(mode, pawns, walls, w)),
+        _noLegalWall(mode, pawns, walls),
         _update(pawns, walls, remaining, _roundTurn(mode, turn + 1), winner, false),
       },
     }
