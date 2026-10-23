@@ -19,7 +19,7 @@ bindQuintModel<QuintHarnessWorld>({
   verifySteps: 2,
   inferPolymorphicTypes: false,
   encoding: 'fun-arrays',
-  invariantMode: 'before',
+  invariantMode: 'after',
   shortCircuit: true,
   regressions: [
     {
