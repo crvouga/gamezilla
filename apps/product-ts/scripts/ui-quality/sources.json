@@ -42,7 +42,7 @@
   {
     "package": "@libs/quoridor-harness-ts",
     "directory": "libs/quoridor-harness-ts",
-    "parts": 2
+    "parts": 3
   },
   {
     "package": "@libs/runtime-harness-ts",
