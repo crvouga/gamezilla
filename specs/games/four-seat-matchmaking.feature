@@ -34,6 +34,7 @@ Feature: Find four participants and agree to another game
 
     Scenario: Account deletion before any first move draws the matched game
       Given Alice, Bob, Carol and Dave have a new four-player matched game at 5+0
+      And Alice has reviewed the consequences of account deletion
       When Alice confirms account deletion
       Then Bob, Carol and Dave see the matched game is drawn because a participant withdrew
 
