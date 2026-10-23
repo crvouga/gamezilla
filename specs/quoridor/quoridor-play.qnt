@@ -180,13 +180,18 @@ module quoridor_play {
   /// Place one wall while leaving every player a path to their goal, or keep the board and every wall when refused.
   action placeWall(player: int, column: int, row: int, direction: int): bool = {
     val wall = (column, row, direction)
-    if (winner == -1 and _PLAYERS.contains(player) and turn == player and remaining.get(player) > 0) any {
+    if (winner == -1 and _PLAYERS.contains(player) and turn == player and remaining.get(player) > 0) {
+      nondet _wallAccepted = Set(false, true).oneOf()
       all {
-        _wallAllowed(pawns, walls, wall),
-        _update(pawns, walls.union(Set(wall)), remaining.set(player, remaining.get(player) - 1),
-          _roundTurn(turn + 1), -1, false),
-      },
-      all { _wallRefused(pawns, walls, wall), _hold },
+        or {
+          _wallAccepted and _wallAllowed(pawns, walls, wall),
+          not(_wallAccepted) and _wallRefused(pawns, walls, wall),
+        },
+        if (_wallAccepted)
+          _update(pawns, walls.union(Set(wall)), remaining.set(player, remaining.get(player) - 1),
+            _roundTurn(turn + 1), -1, false)
+        else _hold,
+      }
     }
     else _hold
   }
@@ -196,12 +201,16 @@ module quoridor_play {
     else if (_nearby(pawns.get(player)).exists(c => _pawnMove(pawns, walls, player, c))) _hold
     else if (remaining.get(player) == 0)
       _update(pawns, walls, remaining, _roundTurn(turn + 1), winner, false)
-    else any {
-      all { _hasLegalWall(pawns, walls), _hold },
+    else {
+      nondet _wallAvailable = Set(false, true).oneOf()
       all {
-        _noLegalWall(pawns, walls),
-        _update(pawns, walls, remaining, _roundTurn(turn + 1), winner, false),
-      },
+        or {
+          _wallAvailable and _hasLegalWall(pawns, walls),
+          not(_wallAvailable) and _noLegalWall(pawns, walls),
+        },
+        if (_wallAvailable) _hold
+        else _update(pawns, walls, remaining, _roundTurn(turn + 1), winner, false),
+      }
     }
   action step = any {
     { nondet player = _PLAYERS.oneOf() nondet square = CELLS.oneOf() movePawn(player, square) },
