@@ -359,6 +359,10 @@ msgid "↑ ↓ navigate · ↵ run · Esc close · Tab next"
 msgstr "↑ ↓ navigate · ↵ run · Esc close · Tab next"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-game-actions.tsx
+msgid "<0>Find </0>New players"
+msgstr "<0>Find </0>New players"
+
+#: libs/game-matchmaking-client-ts/src/multiplayer-game-actions.tsx
 msgid "<0>Find a </0>New opponent"
 msgstr "<0>Find a </0>New opponent"
 
@@ -428,6 +432,12 @@ msgstr "A draw has been offered."
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "A draw needs every participant to be a person."
 msgstr "A draw needs every participant to be a person."
+
+#. placeholder {0}: count()
+#. placeholder {1}: count() - 1
+#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
+msgid "A game needs {0} players including you. Find {1} other players at the same clock choice."
+msgstr "A game needs {0} players including you. Find {1} other players at the same clock choice."
 
 #. placeholder {0}: count()
 #. placeholder {1}: timeControlText(props.game.time_control)
@@ -1959,6 +1969,11 @@ msgstr "Find items"
 msgid "Find people"
 msgstr "Find people"
 
+#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
+#: libs/game-menu-client-ts/src/game-menu-choices.tsx
+msgid "Find players"
+msgstr "Find players"
+
 #: libs/synthetic-population-client-ts/src/synthetic-population-users.tsx
 msgid "Find Synthetic Users"
 msgstr "Find Synthetic Users"
@@ -1966,6 +1981,10 @@ msgstr "Find Synthetic Users"
 #: libs/game-matchmaking-client-ts/src/multiplayer-waiting.tsx
 msgid "Finding an opponent"
 msgstr "Finding an opponent"
+
+#: libs/game-matchmaking-client-ts/src/multiplayer-waiting.tsx
+msgid "Finding players"
+msgstr "Finding players"
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Finish a game before asking for a rematch."
@@ -2629,8 +2648,16 @@ msgstr "Local database did not become ready. Reload the app. If this keeps happe
 msgid "Long tasks"
 msgstr "Long tasks"
 
+#. placeholder {0}: props.count - 1
+#. placeholder {1}: props.gameName
+#. placeholder {2}: timeControlText(props.search.time_control)
+#. placeholder {3}: props.count
+#: libs/game-matchmaking-client-ts/src/multiplayer-waiting.tsx
+msgid "Looking for {0} other players for {1} at {2}. A game needs {3} players including you."
+msgstr "Looking for {0} other players for {1} at {2}. A game needs {3} players including you."
+
 #. placeholder {0}: timeControlText(props.search.time_control)
-#. placeholder {1}: gameName()
+#. placeholder {1}: props.gameName
 #: libs/game-matchmaking-client-ts/src/multiplayer-waiting.tsx
 msgid "Looking for a {0} {1} opponent."
 msgstr "Looking for a {0} {1} opponent."
@@ -2678,13 +2705,14 @@ msgstr "Matchmaking"
 msgid "Medium"
 msgstr "Medium"
 
+#. placeholder {0}: playerCount - 1
+#: libs/game-menu-client-ts/src/game-menu-choices.tsx
+msgid "Meet {0} other {name} players"
+msgstr "Meet {0} other {name} players"
+
 #: libs/game-menu-client-ts/src/game-menu-choices.tsx
 msgid "Meet another {name} player"
 msgstr "Meet another {name} player"
-
-#: libs/game-menu-client-ts/src/game-menu-choices.tsx
-msgid "Meet three other {name} players"
-msgstr "Meet three other {name} players"
 
 #: libs/account-privacy-client-ts/src/privacy-screen.tsx
 msgid "Membership cancellation has completed."
@@ -3385,6 +3413,11 @@ msgstr "Play history"
 #: libs/game-puzzle-client-ts/src/puzzle-stats-cards.tsx
 msgid "Played"
 msgstr "Played"
+
+#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
+#: libs/game-matchmaking-client-ts/src/multiplayer-game-actions.tsx
+msgid "Player search accepted"
+msgstr "Player search accepted"
 
 #: libs/game-session-client-ts/src/custom-game-side.tsx
 msgid "Players"
@@ -4485,6 +4518,10 @@ msgstr "Stop saving the Lichess file?"
 #: libs/game-matchmaking-client-ts/src/multiplayer-waiting.tsx
 msgid "Stop<0> finding an opponent</0>"
 msgstr "Stop<0> finding an opponent</0>"
+
+#: libs/game-matchmaking-client-ts/src/multiplayer-waiting.tsx
+msgid "Stop<0> finding players</0>"
+msgstr "Stop<0> finding players</0>"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-import-status.tsx
 msgid "Stopped"

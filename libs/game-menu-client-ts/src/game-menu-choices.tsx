@@ -111,10 +111,17 @@ function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
       ? [
           {
             screen: SHARED_GAME_SCREEN.matchmaking,
-            title: () => <Trans>Find an opponent</Trans>,
+            title: () =>
+              playerCount > 2 ? (
+                <Trans>Find players</Trans>
+              ) : (
+                <Trans>Find an opponent</Trans>
+              ),
             caption: () =>
               playerCount > 2 ? (
-                <Trans>Meet three other {name} players</Trans>
+                <Trans>
+                  Meet {playerCount - 1} other {name} players
+                </Trans>
               ) : (
                 <Trans>Meet another {name} player</Trans>
               ),

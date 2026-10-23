@@ -60,7 +60,10 @@ function MultiplayerNextGame(props: {
         )}
       </Match>
       <Match when={mayFind()}>
-        <MultiplayerFindPanel controls={props.controls} />
+        <MultiplayerFindPanel
+          controls={props.controls}
+          gameId={props.data.gameId()}
+        />
       </Match>
     </Switch>
   );

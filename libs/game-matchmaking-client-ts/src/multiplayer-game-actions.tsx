@@ -182,12 +182,28 @@ export function MultiplayerGameActions(props: {
           <GameActionButton
             operation={props.controls.newOpponent}
             title={
-              <Trans>
-                <VisuallyHidden>Find a </VisuallyHidden>New opponent
-              </Trans>
+              <Show
+                when={multiplayerPeople(props.game).length > 2}
+                fallback={
+                  <Trans>
+                    <VisuallyHidden>Find a </VisuallyHidden>New opponent
+                  </Trans>
+                }
+              >
+                <Trans>
+                  <VisuallyHidden>Find </VisuallyHidden>New players
+                </Trans>
+              </Show>
             }
             variant="solid"
-            successLabel={<Trans>Opponent search accepted</Trans>}
+            successLabel={
+              <Show
+                when={multiplayerPeople(props.game).length > 2}
+                fallback={<Trans>Opponent search accepted</Trans>}
+              >
+                <Trans>Player search accepted</Trans>
+              </Show>
+            }
             dataSet={{ testid: 'multiplayer-new-opponent' }}
           />
           <Show when={isFinished(props.game.outcome)}>

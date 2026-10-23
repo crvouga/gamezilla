@@ -1,7 +1,12 @@
 import { expect, test } from 'bun:test';
 import { pressControlWithKeyboard } from '@libs/game-matchmaking-harness-ts/multiplayer-keyboard';
 import { shownMultiplayerText } from '@libs/game-matchmaking-harness-ts/multiplayer-reads';
-import { openFindingAnOpponent } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
+import {
+  givenGameSpace,
+  openFindingAnOpponent,
+  opponentSearchView,
+} from '@libs/game-matchmaking-harness-ts/opponent-seeking';
+import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import { actorHtml } from '@libs/harness-ts/observations';
 import type { OpenHarness } from '@libs/harness-ts/open-harness';
 import { nameEveryoneSeesOf } from '@libs/profile-harness-ts/profile-ui-reads';
@@ -61,6 +66,9 @@ test('a four-seat listener hears the active person and the actual winner', async
         text?.includes(`${name} won the multiplayer game.`) === true,
     }
   );
+  expect(
+    await s.read(shownMultiplayerText, listener, 'multiplayer-new-opponent')
+  ).toContain('New players');
 }, 180_000);
 
 // regression: multiseat-resign-confirmation
@@ -87,4 +95,39 @@ test('four-seat resign confirmation explains the draw that all players receive',
   );
   const finished = await agreed(s, people, (game) => game.outcome === 'draw');
   expect(finished.reason).toBe('participant withdrew');
+}, 180_000);
+
+// regression: multiseat-matchmaking-count
+test('a four-seat search states its required group size before and while waiting', async () => {
+  await using s = await openConformanceHarness('four-seat-matchmaking-count');
+  await s.apply(signInWithGoogle, 'alice');
+  await s.apply(givenGameSpace, 'alice');
+  await s.apply(openFindingAnOpponent, 'alice', GAME.shared.id);
+  expect(
+    await s.read(shownMultiplayerText, 'alice', 'multiplayer-find')
+  ).toContain('Find players');
+  expect(await s.read(actorHtml, 'alice')).toContain('4 players including you');
+  await s.apply(
+    pressControlWithKeyboard,
+    'alice',
+    GAME.shared.id,
+    'multiplayer-find'
+  );
+  const queued = await s.until((world) => opponentSearchView(world, 'alice'), {
+    pred: (view) => view.search?.standing === 'waiting',
+  });
+  expect(queued.game).toBeNull();
+  const waiting = await s.read(
+    shownMultiplayerText,
+    'alice',
+    'multiplayer-waiting'
+  );
+  expect(waiting).toContain('3 other players');
+  expect(waiting).toContain('4 players including you');
+  await s.apply(
+    pressControlWithKeyboard,
+    'alice',
+    GAME.shared.id,
+    'multiplayer-stop'
+  );
 }, 180_000);
