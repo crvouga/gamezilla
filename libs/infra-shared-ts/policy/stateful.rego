@@ -60,6 +60,11 @@ deletable := {
 # an address with a key), so that instance is named here. Drop an entry once
 # every environment has applied without it.
 retired := {
+	# The reports bucket was deleted; retire its read/write credentials. They
+	# account for most Cloudflare tokens, so exclude this intended removal
+	# from the production mass-delete brake. The app's S3 token stays managed.
+	"module.report_access.cloudflare_account_token.read",
+	"module.report_access.cloudflare_account_token.write",
 	# The old per-environment projects held only disposable population workers,
 	# with no volumes. Recreate those workers in fleet's shared project, then
 	# remove the old projects. Shared projects and environments stay protected.

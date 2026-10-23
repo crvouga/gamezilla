@@ -26,16 +26,6 @@ module "object_store" {
   token_name  = module.names.s3_token
 }
 
-# This environment's credentials for the one spec reports bucket every
-# environment shares (the fleet stack owns it): the API reads it, CI writes.
-module "report_access" {
-  source           = "../../modules/report-access"
-  account_id       = var.reports.account_id
-  bucket_name      = var.reports.bucket
-  read_token_name  = module.names.reports_read_token
-  write_token_name = module.names.reports_write_token
-}
-
 module "observability" {
   source            = "../../modules/observability"
   stack_slug        = var.grafana.stack_slug
@@ -54,39 +44,33 @@ module "secrets" {
   placeholders  = local.secret_names.placeholders
   derived_names = local.secret_names.derived
   derived = {
-    DATABASE_URL                    = module.database.database_url
-    HYPERDRIVE_ID                   = module.database.hyperdrive_id
-    API_URL                         = "https://${var.hosts.api}"
-    VITE_API_URL                    = "https://${var.hosts.api}"
-    S3_BUCKET                       = module.object_store.bucket
-    S3_ENDPOINT                     = module.object_store.endpoint
-    S3_REGION                       = module.object_store.region
-    S3_ACCESS_KEY_ID                = module.object_store.access_key_id
-    S3_SECRET_ACCESS_KEY            = module.object_store.secret_access_key
-    REPORTS_BUCKET                  = module.report_access.bucket
-    REPORTS_ENDPOINT                = module.report_access.endpoint
-    REPORTS_ACCESS_KEY_ID           = module.report_access.read_access_key_id
-    REPORTS_SECRET_ACCESS_KEY       = module.report_access.read_secret_access_key
-    REPORTS_WRITE_ACCESS_KEY_ID     = module.report_access.write_access_key_id
-    REPORTS_WRITE_SECRET_ACCESS_KEY = module.report_access.write_secret_access_key
-    EMQX_WSS_URL                    = module.pubsub.wss_url
-    IOT_DATA_ENDPOINT               = module.pubsub.data_endpoint
-    IOT_ACCESS_KEY_ID               = module.pubsub.publisher_access_key_id
-    IOT_SECRET_ACCESS_KEY           = module.pubsub.publisher_secret_access_key
-    IOT_REGION                      = module.pubsub.region
-    OBSERVABILITY_COLLECTOR_URL     = module.observability.collector_url
-    OBSERVABILITY_LOGS_URL          = module.observability.logs_url
-    OBSERVABILITY_METRICS_URL       = module.observability.metrics_collector_url
-    OBSERVABILITY_COLLECTOR_USER    = module.observability.collector_user
-    OBSERVABILITY_COLLECTOR_TOKEN   = module.observability.collector_token
-    OBS_TEMPO_URL                   = module.observability.tempo_url
-    OBS_TEMPO_USER                  = module.observability.tempo_user
-    OBS_TEMPO_TOKEN                 = module.observability.tempo_token
-    OBS_LOKI_URL                    = module.observability.loki_url
-    OBS_LOKI_USER                   = module.observability.loki_user
-    OBS_PROMETHEUS_URL              = module.observability.prometheus_url
-    OBS_PROMETHEUS_USER             = module.observability.prometheus_user
-    OBS_READONLY_DATABASE_URL       = module.database.obs_readonly_database_url
+    DATABASE_URL                  = module.database.database_url
+    HYPERDRIVE_ID                 = module.database.hyperdrive_id
+    API_URL                       = "https://${var.hosts.api}"
+    VITE_API_URL                  = "https://${var.hosts.api}"
+    S3_BUCKET                     = module.object_store.bucket
+    S3_ENDPOINT                   = module.object_store.endpoint
+    S3_REGION                     = module.object_store.region
+    S3_ACCESS_KEY_ID              = module.object_store.access_key_id
+    S3_SECRET_ACCESS_KEY          = module.object_store.secret_access_key
+    EMQX_WSS_URL                  = module.pubsub.wss_url
+    IOT_DATA_ENDPOINT             = module.pubsub.data_endpoint
+    IOT_ACCESS_KEY_ID             = module.pubsub.publisher_access_key_id
+    IOT_SECRET_ACCESS_KEY         = module.pubsub.publisher_secret_access_key
+    IOT_REGION                    = module.pubsub.region
+    OBSERVABILITY_COLLECTOR_URL   = module.observability.collector_url
+    OBSERVABILITY_LOGS_URL        = module.observability.logs_url
+    OBSERVABILITY_METRICS_URL     = module.observability.metrics_collector_url
+    OBSERVABILITY_COLLECTOR_USER  = module.observability.collector_user
+    OBSERVABILITY_COLLECTOR_TOKEN = module.observability.collector_token
+    OBS_TEMPO_URL                 = module.observability.tempo_url
+    OBS_TEMPO_USER                = module.observability.tempo_user
+    OBS_TEMPO_TOKEN               = module.observability.tempo_token
+    OBS_LOKI_URL                  = module.observability.loki_url
+    OBS_LOKI_USER                 = module.observability.loki_user
+    OBS_PROMETHEUS_URL            = module.observability.prometheus_url
+    OBS_PROMETHEUS_USER           = module.observability.prometheus_user
+    OBS_READONLY_DATABASE_URL     = module.database.obs_readonly_database_url
   }
 }
 

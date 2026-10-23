@@ -60,7 +60,7 @@ export const CF = 'https://dash.cloudflare.com';
 export const accountOf = (c: LinkContext): string | null =>
   text(c.attrs, 'account_id') ??
   text(c.vars, 'cloudflare', 'account_id') ??
-  text(c.vars, 'reports', 'account_id');
+  text(c.vars, 'state', 'account_id');
 
 export const cf = (c: LinkContext, path: string): string | null => {
   const account = accountOf(c);

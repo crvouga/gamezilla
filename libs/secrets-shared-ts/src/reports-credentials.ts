@@ -1,19 +1,18 @@
 /**
- * Credentials for the one spec reports bucket every environment shares
- * (`libs/infra-shared-ts/tofu/modules/report-access`). The read pair stays available to standalone
- * Atlas tooling; the write pair stays in the secrets
- * store for the Verify workflow's `report-publish.ts`.
+ * Optional credentials for an externally configured spec reports store.
+ * Standalone Atlas tooling reads; verification publishes with the write pair.
+ * OpenTofu does not provision a reports bucket or these credentials.
  */
 
 import { requireHttpsUrl, requireNonEmpty, Secret } from './secret';
 
 export const REPORTS_BUCKET = new Secret({
   name: 'REPORTS_BUCKET',
-  hint: 'The shared spec reports bucket (global.tfvars.json `reports.bucket`)',
+  hint: 'The optional shared spec reports bucket',
   validate: async (input) => {
     requireNonEmpty(input.secretValue, 'REPORTS_BUCKET');
   },
-  managedBy: 'tofu',
+  optional: true,
 });
 
 export const REPORTS_ENDPOINT = new Secret({
@@ -22,7 +21,7 @@ export const REPORTS_ENDPOINT = new Secret({
   validate: async (input) => {
     requireHttpsUrl(input.secretValue, 'REPORTS_ENDPOINT');
   },
-  managedBy: 'tofu',
+  optional: true,
 });
 
 export const REPORTS_ACCESS_KEY_ID = new Secret({
@@ -31,7 +30,7 @@ export const REPORTS_ACCESS_KEY_ID = new Secret({
   validate: async (input) => {
     requireNonEmpty(input.secretValue, 'REPORTS_ACCESS_KEY_ID');
   },
-  managedBy: 'tofu',
+  optional: true,
 });
 
 export const REPORTS_SECRET_ACCESS_KEY = new Secret({
@@ -40,7 +39,7 @@ export const REPORTS_SECRET_ACCESS_KEY = new Secret({
   validate: async (input) => {
     requireNonEmpty(input.secretValue, 'REPORTS_SECRET_ACCESS_KEY');
   },
-  managedBy: 'tofu',
+  optional: true,
 });
 
 export const REPORTS_WRITE_ACCESS_KEY_ID = new Secret({
@@ -49,7 +48,7 @@ export const REPORTS_WRITE_ACCESS_KEY_ID = new Secret({
   validate: async (input) => {
     requireNonEmpty(input.secretValue, 'REPORTS_WRITE_ACCESS_KEY_ID');
   },
-  managedBy: 'tofu',
+  optional: true,
 });
 
 export const REPORTS_WRITE_SECRET_ACCESS_KEY = new Secret({
@@ -58,7 +57,7 @@ export const REPORTS_WRITE_SECRET_ACCESS_KEY = new Secret({
   validate: async (input) => {
     requireNonEmpty(input.secretValue, 'REPORTS_WRITE_SECRET_ACCESS_KEY');
   },
-  managedBy: 'tofu',
+  optional: true,
 });
 
 export const REPORTS_SECRETS: readonly Secret[] = [
