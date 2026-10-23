@@ -12,6 +12,7 @@ import {
   ordinaryAttemptTitles,
   ordinaryCompletionTitles,
 } from '@libs/game-puzzle-harness-ts/attempt-observations';
+import { playTwoStepsThroughScreen } from '@libs/game-puzzle-harness-ts/attempt-screen-actions';
 import {
   contentDiscoverable,
   contentNotice,
@@ -74,10 +75,7 @@ When('Bob redoes that puzzle action', async (w) => {
 });
 
 When('Bob plays a different puzzle action', async (w) => {
-  await w.run.apply(changeContentAttempt, 'bob:phone', {
-    kind: 'play',
-    action: 'step2',
-  });
+  await w.run.apply(playTwoStepsThroughScreen, 'bob:phone');
 });
 
 When('Bob restarts that puzzle', async (w) => {

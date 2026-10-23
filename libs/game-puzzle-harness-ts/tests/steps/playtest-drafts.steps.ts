@@ -1,10 +1,10 @@
 import { expect } from 'bun:test';
 import { playtestContentDraft } from '@libs/game-puzzle-harness-ts/attempt-actions';
-import { finishContentAttempt } from '@libs/game-puzzle-harness-ts/attempt-fixtures';
 import {
   currentAttemptView,
   ordinaryCompletionTitles,
 } from '@libs/game-puzzle-harness-ts/attempt-observations';
+import { playTwoStepsThroughScreen } from '@libs/game-puzzle-harness-ts/attempt-screen-actions';
 import { arrangeContentDraft } from '@libs/game-puzzle-harness-ts/content-actions';
 import { completionRecordCount } from '@libs/game-puzzle-harness-ts/offline-observations';
 import { Given, Then, When } from './world';
@@ -21,7 +21,7 @@ Given(
 );
 
 When('Alice completes that playtest', async (w) => {
-  await w.run.apply(finishContentAttempt, 'alice:phone');
+  await w.run.apply(playTwoStepsThroughScreen, 'alice:phone');
 });
 
 When('Alice playtests her puzzle draft', async (w) => {

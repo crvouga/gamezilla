@@ -12,7 +12,6 @@ import {
   publishEarlierContent,
   publishOtherContentDraft,
   reviseContentDraft,
-  validateContent,
   withdrawContent,
 } from '@libs/game-puzzle-harness-ts/content-publication-actions';
 import {
@@ -21,6 +20,10 @@ import {
   contentValidationIssues,
   contentValidationStatus,
 } from '@libs/game-puzzle-harness-ts/content-publication-observations';
+import {
+  publishThroughScreen,
+  validateThroughScreen,
+} from '@libs/game-puzzle-harness-ts/publication-screen-actions';
 import { Given, Then, When } from './world';
 
 Given('Alice owns a valid puzzle draft with no title', async (w) => {
@@ -51,7 +54,7 @@ Given(
 );
 
 When('Alice publishes her puzzle draft', async (w) => {
-  await w.run.apply(publishContentDraft, 'alice:phone');
+  await w.run.apply(publishThroughScreen);
 });
 
 When(
@@ -81,7 +84,7 @@ When("Bob withdraws Alice's puzzle {string}", async (w, title: string) => {
 });
 
 When('Alice validates her puzzle draft', async (w) => {
-  await w.run.apply(validateContent);
+  await w.run.apply(validateThroughScreen);
 });
 
 Then(

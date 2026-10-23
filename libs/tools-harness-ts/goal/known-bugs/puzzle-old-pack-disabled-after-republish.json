@@ -1,0 +1,4 @@
+{
+  "summary": "The shared edition screen disabled starting puzzles from an earlier pack edition after the author published a later edition.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-availability.test.ts"
+}

@@ -1,3 +1,4 @@
+import { AUTH_TABLES } from '@libs/auth-shared-ts/tables';
 import { BILLING_TABLES } from '@libs/billing-shared-ts/tables';
 import { createContentMutations } from '@libs/game-puzzle-shared-ts/content-mutations';
 import { CONTENT_TABLES } from '@libs/game-puzzle-shared-ts/content-tables';
@@ -21,7 +22,11 @@ export const exampleContentCatalog = createPuzzleContentCatalog([
 const mutations = mutationRegistry(
   createContentMutations(exampleContentCatalog)
 );
-const tables = uniqueTables([...CONTENT_TABLES, ...BILLING_TABLES]);
+const tables = uniqueTables([
+  ...CONTENT_TABLES,
+  ...BILLING_TABLES,
+  ...AUTH_TABLES,
+]);
 
 export const contentExampleApp: SyncApp = {
   pack: {

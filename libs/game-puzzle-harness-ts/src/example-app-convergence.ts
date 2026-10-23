@@ -3,6 +3,7 @@ import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import sql, { raw, type Sql } from '@pkgs/sql-root-shared-ts/sql';
 import type { InvariantViolation } from '@pkgs/sync-engine-harness-ts/invariant-tracker';
 import type { QueryRow } from '@pkgs/sync-engine-shared-ts/v2';
+import { contentActorId } from './content-identity';
 import { exampleContentSnapshot } from './example-app-query';
 
 function canonical(rows: readonly QueryRow[]): string {
@@ -35,7 +36,7 @@ export async function contentClientsConverged(args: {
       db: { query: (query) => args.serverDb.query(query as Sql<QueryRow>) },
       env: {
         ...identityFor('guest'),
-        actorId: client.label.split(':')[0]!,
+        actorId: contentActorId(client.label.split(':')[0] ?? ''),
         deviceId: client.label,
         now: () => new Date(0),
       },

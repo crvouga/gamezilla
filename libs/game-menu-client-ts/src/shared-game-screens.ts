@@ -3,6 +3,7 @@ import { GAME_CHOICES_SCREEN } from '@libs/spaces-shared-ts/games';
 
 /** The screens the platform owns, by the capability that offers each. */
 export const SHARED_GAME_SCREEN = {
+  content: 'puzzle-library',
   puzzle: PUZZLE_SCREEN.puzzle,
   puzzleStats: PUZZLE_SCREEN.stats,
   puzzleReview: PUZZLE_SCREEN.review,

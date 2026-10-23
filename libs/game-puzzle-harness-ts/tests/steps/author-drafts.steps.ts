@@ -4,11 +4,9 @@ import {
   changeContentMetadata,
   chooseContentGame,
   copyContentEditorToTablet,
-  createContentDraft,
   openContentDraft,
   renameContentDraft,
   renameOtherContentDraft,
-  saveContentDraft,
 } from '@libs/game-puzzle-harness-ts/content-actions';
 import {
   conflictingContentCopies,
@@ -20,6 +18,8 @@ import {
   currentSavedContentDraft,
   savedContentCopyTitles,
 } from '@libs/game-puzzle-harness-ts/content-observations';
+import { createContentThroughScreen } from '@libs/game-puzzle-harness-ts/content-screen-actions';
+import { saveMetadataThroughScreen } from '@libs/game-puzzle-harness-ts/metadata-screen-actions';
 import { Given, Then, When } from './world';
 
 Given('Alice has chosen a game offering puzzle creation', async (w) => {
@@ -76,7 +76,7 @@ Given(
 );
 
 When('Alice creates the puzzle draft {string}', async (w, title: string) => {
-  await w.run.apply(createContentDraft, 'alice:phone', title);
+  await w.run.apply(createContentThroughScreen, 'alice:phone', title);
 });
 
 When("Bob opens Alice's puzzle draft {string}", async (w, title: string) => {
@@ -84,7 +84,7 @@ When("Bob opens Alice's puzzle draft {string}", async (w, title: string) => {
 });
 
 When('Alice saves the puzzle draft', async (w) => {
-  await w.run.apply(saveContentDraft, 'alice:phone');
+  await w.run.apply(saveMetadataThroughScreen, 'alice:phone');
 });
 
 When('Alice renames the puzzle draft to {string}', async (w, title: string) => {

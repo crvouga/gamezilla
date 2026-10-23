@@ -57,6 +57,11 @@ unfinished work; it is not a second product definition.
   The shared domain path passes the reference app's scenarios; delivery
   through the real application is still required.
 - [ ] Shared discovery, authoring shell, pack editor and player shell.
+  Shared screens now compose the real mutation, query, identity and permission
+  hooks. Creation, metadata autosave, validation, publication and completion
+  scenarios drive them in the counting reference app. Normal Numberlink
+  enrollment, bounded hydration, server-refusal recovery and assembled app
+  journeys remain open.
 - [ ] Numberlink visual builder, player and previews; pointer, touch, keyboard,
   accessible labels and responsive design-system components.
   Game components and automated input contracts are implemented; assembling
@@ -89,8 +94,9 @@ inferred from this ledger or from a narrow test run.
   the same capability beside its multiplayer capabilities. A test-only
   Sokoban corridor exercises push-based opaque states through the contract.
   Client registration also accepts standalone puzzle rendering and the same
-  capability beside a turn game. Main registry enrollment and shared authoring
-  screens remain unfinished.
+  capability beside a turn game. Main registry enrollment remains unfinished.
+  The shared authoring and player screens are implemented and exercised in the
+  reference app.
 - The first full `bun verify` stopped after 100 successful tasks on
   `@libs/battleship-harness-ts#verify:models:1:4`: the bounded `invFinality`
   proof returned no verdict within 240 seconds. It found no counterexample.
@@ -152,3 +158,20 @@ inferred from this ledger or from a narrow test run.
   The updated decision binding also covers choosing a kept draft. Its
   typecheck/lint rerun, the standard spec gate and ownership gate pass;
   the strict gate still reports only the existing external wording pairs.
+- Shared discovery, edition details, pack overview and preview, authoring,
+  metadata autosave, kept-copy selection, validation, publishing, playtests,
+  history controls, restart and saved-attempt screens use the normal game
+  capability boundary and design system. They contain no Numberlink-specific
+  branches. Existing creation, metadata, validation, publication and completion
+  scenarios now drive the real shared screens over the counting reference
+  app's SQLite store and sync engine. All 75 shared checks pass, as do nine
+  focused typecheck, lint and code-test tasks and the i18n, package and readiness
+  gates. The screens are not yet offered by a registered app game.
+- The metadata scenario exposed an editor-lifetime defect: the document watch
+  could deliver a new head before the draft watch delivered its row. Keeping
+  the workspace mounted preserves consecutive description and difficulty
+  inputs. The failure is recorded at 2026-10-23T15:55:49.145Z in the shared
+  harness report's test trace. A literal regression now passes. A second
+  regression keeps an earlier available pack edition startable after a later
+  edition is published. Restoring each faulty condition makes its own test
+  fail; the corrected code tests pass.

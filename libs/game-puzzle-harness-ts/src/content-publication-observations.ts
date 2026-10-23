@@ -46,8 +46,6 @@ export async function contentValidationIssues(
 ): Promise<boolean> {
   const draft = await currentSavedContentDraft(s, 'alice:phone');
   return (
-    draft !== null &&
-    draft.validation_status === 'invalid' &&
-    draft.validation_issues !== '[]'
+    draft?.validation_status === 'invalid' && draft.validation_issues !== '[]'
   );
 }

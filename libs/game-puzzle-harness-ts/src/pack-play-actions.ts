@@ -68,7 +68,9 @@ export const continuePublishedPack = defineAction({
     await openPackFor(s, clientId, title);
     const content = await readContentLibrary(contentClient(s, clientId).db);
     const play = await readAttemptLibrary(contentClient(s, clientId).db);
-    const packRevisionId = s.packViews.get(clientId)!;
+    const packRevisionId = s.packViews.get(clientId);
+    if (packRevisionId === undefined)
+      throw new Error('Open a published pack before continuing it');
     const next = packProgress({ content, play, packRevisionId })?.next;
     if (next == null) return;
     const attempt = play.attempts.find((entry) => entry.id === next.attemptId);

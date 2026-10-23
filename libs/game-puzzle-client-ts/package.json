@@ -26,6 +26,7 @@
     "@libs/test-ids-shared-ts": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
+    "@pkgs/async-root-client-ts": "workspace:*",
     "@pkgs/clock-client-ts": "workspace:*",
     "@pkgs/collab-root-shared-ts": "workspace:*",
     "@pkgs/device-client-ts": "workspace:*",

@@ -9,15 +9,23 @@ import type { SyncHarness } from '@pkgs/sync-engine-harness-ts/scenario-system';
 import type { MutateResult } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { ATTEMPT_ACTIONS } from './attempt-actions';
 import { ATTEMPT_FIXTURES } from './attempt-fixtures';
+import { playTwoStepsThroughScreen } from './attempt-screen-actions';
 import { CONTENT_ACTIONS } from './content-actions';
+import { contentActorId } from './content-identity';
 import { PUBLICATION_ACTIONS } from './content-publication-actions';
+import { createContentThroughScreen } from './content-screen-actions';
 import { DRAFT_CHOICE_ACTIONS } from './draft-choice-actions';
 import { contentExampleApp } from './example-app';
+import { saveMetadataThroughScreen } from './metadata-screen-actions';
 import { NAMED_PACK_ACTIONS } from './named-pack-actions';
 import { OFFLINE_ACTIONS } from './offline-actions';
 import { OFFLINE_FIXTURES } from './offline-fixtures';
 import { PACK_ACTIONS } from './pack-actions';
 import { PACK_PLAY_ACTIONS } from './pack-play-actions';
+import {
+  publishThroughScreen,
+  validateThroughScreen,
+} from './publication-screen-actions';
 
 export type ContentEditor = {
   readonly documentId: string;
@@ -52,6 +60,11 @@ export type ContentHarness = SyncHarness & {
 export const contentSystem = defineSystem<ContentHarness>({
   name: 'puzzle-content',
   actions: [
+    createContentThroughScreen,
+    playTwoStepsThroughScreen,
+    publishThroughScreen,
+    validateThroughScreen,
+    saveMetadataThroughScreen,
     ...CONTENT_ACTIONS,
     ...DRAFT_CHOICE_ACTIONS,
     ...PUBLICATION_ACTIONS,
@@ -78,7 +91,10 @@ export const contentSystem = defineSystem<ContentHarness>({
       bufferOutboundLive: false,
     });
     for (const id of ['alice:phone', 'alice:tablet', 'bob:phone', 'bob:tablet'])
-      await sync.addClient({ id, actorId: id.split(':')[0]! });
+      await sync.addClient({
+        id,
+        actorId: contentActorId(id.split(':')[0] ?? ''),
+      });
     return {
       ...sync,
       documents: new Map(),
