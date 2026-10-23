@@ -48,8 +48,8 @@ unfinished work; it is not a second product definition.
   composable with existing turn games, with a structurally different consumer.
 - [ ] Shared content persistence, permission policy, mutation validation,
   publication transactions, idempotence and conflict handling.
-  The shared storage and sync path is implemented; choosing a retained draft
-  as the publication head still needs its explicit action and coverage.
+  The shared storage and sync path includes choosing a kept draft as a fresh
+  working copy, stale-choice refusal and duplicate-choice protection.
 - [ ] Pack authoring, immutable pack revisions, independent puzzle access,
   withdrawal behavior and stable old revision access.
 - [ ] Attempts, automatic persistence, undo/redo, restart, replay history,
@@ -63,6 +63,9 @@ unfinished work; it is not a second product definition.
   them into the shared saved-content workflows remains open.
 - [ ] Real app registry, navigation, runtime/sub composition, sync, identity,
   observability, feedback and self-service readiness integration.
+- [ ] Bound discovery and retained-history subscriptions before offering them
+  in the normal app, so a device does not hydrate the entire public catalog
+  or every saved copy at once.
 - [ ] Executable Gherkin, Quint, properties and app integration coverage,
   including offline/reconnect, conflicts, duplicate/partial operations,
   unauthorized publication and existing multiplayer regression coverage.
@@ -140,3 +143,12 @@ inferred from this ledger or from a narrow test run.
   the standard spec gate pass. Client and server decisions share one
   resource-role resolver. A pinned client regression fails with the old
   space-only role resolution and passes with ownership facts included.
+- Kept draft copies can become a fresh working copy without changing either
+  source or an existing edition. A stale choice refuses without writing,
+  and a repeated old choice cannot undo a later edit. The two new examples
+  were undefined before binding and now pass through the sync engine. All
+  68 shared scenarios plus seven access-table checks pass, along with 12
+  focused code/type/lint tasks. App screens and lifecycle models remain open.
+  The updated decision binding also covers choosing a kept draft. Its
+  typecheck/lint rerun, the standard spec gate and ownership gate pass;
+  the strict gate still reports only the existing external wording pairs.

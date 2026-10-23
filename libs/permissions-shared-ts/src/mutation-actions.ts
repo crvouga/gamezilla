@@ -54,6 +54,7 @@ export const MUTATION_ACTIONS: Readonly<
   createPuzzleContent: PERMISSION.puzzlesCreateContent,
   // Author-only decisions read the target's ownership inside the mutation body.
   savePuzzleContentDraft: 'public',
+  choosePuzzleContentDraft: 'public',
   editPuzzlePack: 'public',
   createPuzzleFromPack: 'public',
   startPuzzleAttempt: PERMISSION.puzzlesPlay,

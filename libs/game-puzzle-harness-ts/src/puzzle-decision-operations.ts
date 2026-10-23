@@ -1,4 +1,5 @@
 import { changePuzzleAttemptMutation } from '@libs/game-puzzle-shared-ts/change-attempt-mutation';
+import { choosePuzzleContentDraftMutation } from '@libs/game-puzzle-shared-ts/choose-content-draft-mutation';
 import { puzzleContentOwned } from '@libs/game-puzzle-shared-ts/content-queries';
 import { createPuzzleContentMutation } from '@libs/game-puzzle-shared-ts/create-content-mutation';
 import { editPuzzlePackMutation } from '@libs/game-puzzle-shared-ts/edit-pack-mutation';
@@ -58,6 +59,12 @@ const edit = allOperations([
     parentId: 'decision-pack-draft',
     draftId: 'edited-pack-draft',
     edit: { kind: 'remove', puzzleId: 'available-puzzle' },
+  })),
+  replayOperation(choosePuzzleContentDraftMutation, () => ({
+    documentId: DECISION_PUZZLE,
+    chosenDraftId: DECISION_DRAFT,
+    expectedDraftId: 'edited-draft',
+    draftId: 'chosen-draft',
   })),
 ]);
 

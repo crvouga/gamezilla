@@ -1,9 +1,8 @@
 # Shared puzzle specification audit
 
 Date: 2026-10-23. Context: Puzzles (`specs/puzzles/`).
-Verdict: INCOMPLETE. The original 66 lifecycle scenarios have executable
-bindings; two kept-copy examples await binding. Critical aggregate models
-and their coverage maps remain required. The strict gate
+Verdict: INCOMPLETE. All 68 lifecycle scenarios have executable bindings.
+Critical aggregate models and their coverage maps remain required. The strict gate
 additionally reports existing near-duplicate wording in other contexts.
 This is not a release or completion claim.
 
@@ -81,7 +80,7 @@ the existing published kinds of person are borrowed from Profile and Billing.
 
 All 36 cases agree through policy resolution, real server replay and private
 queries, and mounted client decisions. A server refusal must preserve every
-stored row; the private query checks every returned owner. The 66 lifecycle
+stored row; the private query checks every returned owner. The 68 lifecycle
 scenarios and seven decision-table checks pass together, and the standard
 spec gate passes. The strict gate still reports the existing wording
 duplicates outside Puzzles. Critical aggregate models remain open, so the
@@ -97,6 +96,13 @@ sources remain available. Identity reuse, an intervening newer draft and a
 repeated old choice are transaction/model checks, rather than new product
 prose. The new command still needs the publication aggregate's lifecycle
 model and coverage map. This does not close the context audit.
+
+Both new examples pass through the actual sync engines. Choosing creates
+a new working copy and preserves the source branches and published bytes.
+Transaction checks refuse a stale expected head or reused copy identity;
+repeating an earlier accepted choice cannot restore an old head after a
+later edit. Twelve focused typecheck, lint and test tasks passed. The full
+Puzzles run passes 75 checks (68 scenarios and seven decision-table checks).
 
 ## Wording correction audit
 

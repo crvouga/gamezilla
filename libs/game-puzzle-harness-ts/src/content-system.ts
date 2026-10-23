@@ -11,6 +11,7 @@ import { ATTEMPT_ACTIONS } from './attempt-actions';
 import { ATTEMPT_FIXTURES } from './attempt-fixtures';
 import { CONTENT_ACTIONS } from './content-actions';
 import { PUBLICATION_ACTIONS } from './content-publication-actions';
+import { DRAFT_CHOICE_ACTIONS } from './draft-choice-actions';
 import { contentExampleApp } from './example-app';
 import { NAMED_PACK_ACTIONS } from './named-pack-actions';
 import { OFFLINE_ACTIONS } from './offline-actions';
@@ -52,6 +53,7 @@ export const contentSystem = defineSystem<ContentHarness>({
   name: 'puzzle-content',
   actions: [
     ...CONTENT_ACTIONS,
+    ...DRAFT_CHOICE_ACTIONS,
     ...PUBLICATION_ACTIONS,
     ...PACK_ACTIONS,
     ...NAMED_PACK_ACTIONS,
