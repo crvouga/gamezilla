@@ -1,0 +1,4 @@
+{
+  "summary": "The product chart omitted request-speed and request-success objectives and unreachable-space feature/model contracts. Link each existing contract to its owning runtime or spaces chart boundary.",
+  "regressionTest": "libs/tools-harness-ts/scripts/statechart-contracts.test.ts"
+}
