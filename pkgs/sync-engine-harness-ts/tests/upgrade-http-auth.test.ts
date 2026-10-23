@@ -11,6 +11,7 @@ async function refusedRequest(reason: string, token = 'stored-token') {
   const { clock, timers } = createHarnessClock();
   let requests = 0;
   let refreshes = 0;
+  const refusals: Response[] = [];
   const client = createSyncHttpClient({
     getBaseUrl: () => 'https://product.test',
     auth: {
@@ -24,9 +25,12 @@ async function refusedRequest(reason: string, token = 'stored-token') {
     },
     fetchFn: async () => {
       requests += 1;
-      return requests === 1 || reason === 'upgrade_required'
-        ? Response.json({ reason }, { status: 401 })
-        : Response.json({ verdicts: [], topics: [] });
+      const response =
+        requests === 1 || reason === 'upgrade_required'
+          ? Response.json({ reason }, { status: 401 })
+          : Response.json({ verdicts: [], topics: [] });
+      if (response.status === 401) refusals.push(response);
+      return response;
     },
     now: clock.now,
     timers,
@@ -35,7 +39,12 @@ async function refusedRequest(reason: string, token = 'stored-token') {
     () => null,
     (cause: unknown) => cause
   );
-  return { requests, refreshes, error };
+  return {
+    requests,
+    refreshes,
+    error,
+    unreadRefusals: refusals.filter((response) => !response.bodyUsed).length,
+  };
 }
 
 // regression: sync-upgrade-response-refreshes-session
@@ -45,6 +54,14 @@ test('an outdated app keeps its session and reports the required update immediat
   expect(result.error).toMatchObject({ reason: 'upgrade_required' });
   expect(result.requests).toBe(1);
   expect(result.refreshes).toBe(0);
+});
+
+// regression: auth-refresh-leaves-cloned-refusal-open
+test('a revoked session consumes its refusal before refreshing authentication', async () => {
+  const result = await refusedRequest('revoked');
+  expect(result.error).toBeNull();
+  expect(result.refreshes).toBe(1);
+  expect(result.unreadRefusals).toBe(0);
 });
 
 test('only session failures refresh authentication, for every opaque bearer', async () => {
@@ -58,6 +75,7 @@ test('only session failures refresh authentication, for every opaque bearer', as
         const upgrade = reason === 'upgrade_required';
         expect(result.requests).toBe(upgrade ? 1 : 2);
         expect(result.refreshes).toBe(upgrade ? 0 : 1);
+        expect(result.unreadRefusals).toBe(0);
         if (upgrade) expect(result.error).toMatchObject({ reason });
         else expect(result.error).toBeNull();
       }
