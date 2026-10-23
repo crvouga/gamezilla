@@ -356,3 +356,11 @@ terms:
   # Borrowed from Billing.
   - term: Plus
     from: billing
+
+  - term: edition
+    definition: >-
+      The particular app put out by a release after its release check.
+
+  - term: progress
+    definition: >-
+      The work and play a person has already kept in the app.

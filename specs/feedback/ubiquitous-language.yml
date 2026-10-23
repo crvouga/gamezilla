@@ -64,3 +64,11 @@ terms:
     from: profile
   - term: Settings
     from: runtime
+
+  - term: author
+    definition: >-
+      The person who wrote the feedback or its draft.
+
+  - term: progress
+    definition: >-
+      How far the person has written their unfinished feedback.

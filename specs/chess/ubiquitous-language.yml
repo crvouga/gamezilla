@@ -1186,3 +1186,22 @@ terms:
       The first solved, failed or abandoned outcome recorded for a solver's
       puzzle. If devices act apart, the outcome counted first is kept, and
       every device of the account shows it.
+
+  - term: progress
+    definition: >-
+      How far a puzzle addition or a file save has advanced; accepted puzzles and completed writing remain available.
+
+  - term: publish a file
+    definition: >-
+      Make the completed saved puzzle file available to be used.
+    forms: [publishes]
+
+  - term: resume a chess puzzle
+    definition: >-
+      Return to a chess puzzle at its kept position.
+    forms: [resumed]
+
+  - term: continue a puzzle addition
+    definition: >-
+      Keep adding puzzles until the addition finishes or is stopped.
+    forms: [continues]

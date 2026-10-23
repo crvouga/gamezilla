@@ -1437,3 +1437,16 @@ terms:
   - term: connection
     from: kernel
     model: [loseConnection, comeBackOnline, connectionReturns]
+
+  - term: progress
+    definition: >-
+      The puzzle play and results a person has already kept.
+
+  - term: continue
+    definition: >-
+      Carry on with the same custom game or puzzle attempt.
+    forms: [continues]
+
+  - term: unplayed
+    definition: >-
+      A puzzle the person has not yet started.

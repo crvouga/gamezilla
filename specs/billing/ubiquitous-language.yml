@@ -345,3 +345,8 @@ terms:
 
   - term: retention
     from: profile
+
+  - term: continue checkout
+    definition: >-
+      Return to the same unfinished checkout after leaving it.
+    forms: [continues]

@@ -92,3 +92,8 @@ terms:
   - term: control
     definition: Permission to pause, resume or restart a Synthetic User's autonomous activity.
     forms: [controls, controlling]
+
+  - term: continue a multiplayer game
+    definition: >-
+      Carry on with the same multiplayer game rather than starting another.
+    forms: [continues]

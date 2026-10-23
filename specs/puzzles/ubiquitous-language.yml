@@ -26,6 +26,7 @@ terms:
   - term: author
     definition: The person who created a puzzle or pack and alone may change its drafts or publication.
     forms: [authors, author's, ownership]
+    published: true
   - term: draft
     definition: >-
       A puzzle or pack its author is working on privately. Saving keeps
@@ -61,6 +62,7 @@ terms:
       its published puzzle. A playtest never counts toward ordinary
       attempts, completion or pack progress.
     forms: [playtests, playtesting, playtested]
+    published: true
   - term: publish
     definition: >-
       Make a validated draft a stable public edition. Publishing the same
@@ -68,12 +70,14 @@ terms:
       publication or withdrawal. Publication follows the author's chosen
       draft, never someone else's private content.
     forms: [publishes, publishing, publication, published, republishes]
+    published: true
   - term: edition
     definition: >-
       The complete content made public by one publication. It never
       changes afterward. A new publication makes a new edition current;
       existing attempts and published packs keep the edition they chose.
     forms: [editions, current edition, earlier edition, published edition, published editions]
+    published: true
   - term: withdraw
     definition: >-
       Remove a puzzle or pack from public discovery without deleting
@@ -104,12 +108,14 @@ terms:
       two devices continue the same earlier position differently, both
       continuations remain available rather than overwriting each other.
     forms: [attempts, saved attempt, saved attempts]
+    published: true
   - term: start a puzzle
     definition: Begin an attempt at an available edition, independently or through a pack.
     forms: [starts the puzzle, starts a puzzle, started the puzzle]
   - term: resume
     definition: Return to a saved attempt at its kept position and edition, even after closing the app or a later publication.
     forms: [resumes, resumed, resuming, continues]
+    published: true
   - term: undo
     definition: Return to the preceding kept position when the game offers history, without erasing an earlier completion.
     forms: [undoes, undoing]
@@ -133,3 +139,4 @@ terms:
       puzzle at most once. Continuing offers the last active unfinished
       puzzle, or another unfinished puzzle when that one is completed.
     forms: [progress, progression, unplayed, in progress, next puzzle, last active puzzle]
+    published: true

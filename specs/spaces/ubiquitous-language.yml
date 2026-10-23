@@ -339,3 +339,8 @@ terms:
   - term: start allowing
     from: profile
     model: [startAllowing]
+
+  - term: attempt to join
+    definition: >-
+      A person asking to join a space, whether or not that request is allowed.
+    forms: [attempts to join]
