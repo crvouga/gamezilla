@@ -52,7 +52,7 @@ Feature: Draw Numberlink paths
 
     Scenario: A path cannot cross another path between endpoints
       Given Alice has the Numberlink puzzle "Crossing"
-      And Numberlink pair "1" has the path "A2 B2 C2"
+      And Alice has drawn Numberlink pair "1" through "A2 B2 C2"
       When Alice draws Numberlink pair "2" through "B1 B2 B3"
       Then Alice is told Numberlink paths cannot cross or overlap
       And the Numberlink paths are unchanged

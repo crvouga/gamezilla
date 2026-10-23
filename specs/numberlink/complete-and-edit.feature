@@ -6,19 +6,19 @@ Feature: Complete and edit Numberlink drawings
 
     Scenario: Connecting the last pair completes a covered board
       Given Alice has the Numberlink puzzle "Two rows"
-      And Numberlink pair "1" has the path "A1 B1 C1"
+      And Alice has drawn Numberlink pair "1" through "A1 B1 C1"
       When Alice draws Numberlink pair "2" through "A2 B2 C2"
       Then Numberlink is complete
 
     Scenario: Uncovered cells keep connected pairs unfinished
       Given Alice has the Numberlink puzzle "Room below"
-      And Numberlink pair "1" has the path "A1 B1 C1"
+      And Alice has drawn Numberlink pair "1" through "A1 B1 C1"
       When Alice draws Numberlink pair "2" through "A2 B2 C2"
       Then Numberlink is unfinished because cells remain uncovered
 
     Scenario: An incomplete pair keeps a covered drawing unfinished
       Given Alice has the Numberlink puzzle "Two rows"
-      And Numberlink pair "1" has the path "A1 B1 C1"
+      And Alice has drawn Numberlink pair "1" through "A1 B1 C1"
       When Alice draws Numberlink pair "2" through "A2 B2"
       Then Numberlink is unfinished
 
@@ -26,13 +26,13 @@ Feature: Complete and edit Numberlink drawings
 
     Scenario: Connecting all pairs completes endpoint-only coverage
       Given Alice has the Numberlink puzzle "Endpoints only"
-      And Numberlink pair "1" has the path "A1 B1 C1"
+      And Alice has drawn Numberlink pair "1" through "A1 B1 C1"
       When Alice draws Numberlink pair "2" through "A2 B2 C2"
       Then Numberlink is complete
 
     Scenario: Endpoint-only coverage still requires the last matching endpoint
       Given Alice has the Numberlink puzzle "Endpoints only"
-      And Numberlink pair "1" has the path "A1 B1 C1"
+      And Alice has drawn Numberlink pair "1" through "A1 B1 C1"
       When Alice draws Numberlink pair "2" through "A2 B2"
       Then Numberlink is unfinished
 
@@ -41,8 +41,8 @@ Feature: Complete and edit Numberlink drawings
 
     Background:
       Given Alice has the Numberlink puzzle "Two rows"
-      And Numberlink pair "1" has the path "A1 B1 C1"
-      And Numberlink pair "2" has the path "A2 B2 C2"
+      And Alice has drawn Numberlink pair "1" through "A1 B1 C1"
+      And Alice has drawn Numberlink pair "2" through "A2 B2 C2"
 
     Scenario: Redrawing a connected pair replaces only its path
       When Alice draws Numberlink pair "1" through "C1 B1"
@@ -60,7 +60,7 @@ Feature: Complete and edit Numberlink drawings
 
     Scenario: A cleared drawing is ready for another solution
       Given Alice has the Numberlink puzzle "Two rows"
-      And Numberlink pair "1" has the path "A1 B1 C1"
+      And Alice has drawn Numberlink pair "1" through "A1 B1 C1"
       When Alice clears the Numberlink board
       Then every Numberlink path is removed
       And the Numberlink endpoints and coverage are unchanged
