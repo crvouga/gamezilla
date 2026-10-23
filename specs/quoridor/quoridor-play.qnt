@@ -153,6 +153,21 @@ module quoridor_play {
     placed.size() >= 3 and WALLS.forall(w => _wallRefused(positions, placed, w)),
     placed.size() < 3 and _someBlocked(positions, placed),
   }
+  // Before three walls are placed, every hill player still has a wall and a central wall fits.
+  def _passAllowed(player: int): bool = and {
+    walls.size() >= 3,
+    HILL, winner == -1, player == turn,
+    not(_nearby(pawns.get(player)).exists(c => _pawnMove(pawns, walls, player, c))),
+    remaining.get(player) == 0 or _noLegalWall(pawns, walls),
+  }
+  def _passRefused(player: int): bool = or {
+    walls.size() < 3,
+    walls.size() >= 3 and or {
+      not(HILL), winner != -1, player != turn,
+      _nearby(pawns.get(player)).exists(c => _pawnMove(pawns, walls, player, c)),
+      remaining.get(player) != 0 and _hasLegalWall(pawns, walls),
+    },
+  }
   action _update(positions: int -> int, placed: Set[(int, int, int)], stock: int -> int, mover: int, won: int, refused: bool): bool = all {
     mode' = mode, pawns' = positions, walls' = placed, remaining' = stock, turn' = mover, winner' = won,
     _plies' = if (refused) _plies else _plies + 1,
@@ -201,18 +216,15 @@ module quoridor_play {
   /// In King of the Hill, pass only when no pawn move or wall placement is possible. The player stays in the game.
   action passTurn(player: int): bool =
     if (not(HILL) or winner != -1 or player != turn) _hold
-    else if (_nearby(pawns.get(player)).exists(c => _pawnMove(pawns, walls, player, c))) _hold
-    else if (remaining.get(player) == 0)
-      _update(pawns, walls, remaining, _roundTurn(turn + 1), winner, false)
     else {
-      nondet _wallAvailable = Set(false, true).oneOf()
+      nondet _passAccepted = Set(false, true).oneOf()
       all {
         or {
-          _wallAvailable and _hasLegalWall(pawns, walls),
-          not(_wallAvailable) and _noLegalWall(pawns, walls),
+          _passAccepted and _passAllowed(player),
+          not(_passAccepted) and _passRefused(player),
         },
-        if (_wallAvailable) _hold
-        else _update(pawns, walls, remaining, _roundTurn(turn + 1), winner, false),
+        if (_passAccepted) _update(pawns, walls, remaining, _roundTurn(turn + 1), winner, false)
+        else _hold,
       }
     }
   action step = any {
@@ -226,8 +238,15 @@ module quoridor_play {
   val invWalls = walls.forall(w => 0.to(7).contains(w._1) and 0.to(7).contains(w._2) and Set(0, 1).contains(w._3) and walls.exclude(Set(w)).forall(other => not(_conflict(w, other))))
   /// Every player has a path to the selected goal, considering the walls alone.
   val invPaths = not(_someBlocked(pawns, walls))
-  /// Every wall is either on the board or still available to its player, and no inventory is negative.
-  val invInventory = _PLAYERS.forall(p => remaining.get(p) >= 0) and _PLAYERS.fold(0, (total, p) => total + remaining.get(p)) + walls.size() == 20
+  /// Every wall is on the board or still available. No inventory is negative, and a player has spent no more walls than are on the board.
+  val invInventory = {
+    val placed = walls.size()
+    val initial = if (HILL) 5 else 10
+    and {
+      _PLAYERS.forall(p => remaining.get(p) >= 0 and remaining.get(p) >= initial - placed),
+      _PLAYERS.fold(0, (total, p) => total + remaining.get(p)) + placed == 20,
+    }
+  }
   /// The game keeps its selected mode. Allowed choices advance the clockwise turn once, while refusals keep it.
   val invTurns = mode == (if (HILL) "hill" else "classic") and turn == _roundTurn(_plies)
   /// A player wins exactly when their pawn reaches the goal, and at most one player has done so.
