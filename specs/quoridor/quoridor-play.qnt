@@ -79,17 +79,21 @@ module quoridor_play {
       else _expandReachable(seen, connections))
     reachable.exists(c => _goal(m, player, c))
   }
-  pure def _reachable(m: str, player: int, start: int, placed: Set[(int, int, int)], connections: int -> Set[int]): bool =
+  pure def _pathVerdict(wantReachable: bool, m: str, player: int, start: int, placed: Set[(int, int, int)], connections: int -> Set[int]): bool =
     // One wall removes only two parallel boundaries; every square can still go around it.
-    if (_atMostOneWall(placed)) CELLS.contains(start)
+    if (_atMostOneWall(placed)) CELLS.contains(start) == wantReachable
     // Two walls can separate only a corner rectangle no more than two squares wide and high.
     else or {
-      placed.size() >= 3 and _fullReachable(m, player, start, connections),
-      placed.size() < 3 and _smallReachable(m, player, start, placed),
+      placed.size() >= 3 and (_fullReachable(m, player, start, connections) == wantReachable),
+      placed.size() < 3 and (_smallReachable(m, player, start, placed) == wantReachable),
     }
   pure def _allPaths(m: str, positions: int -> int, placed: Set[(int, int, int)]): bool = {
     val connections = _connections(placed)
-    _players(m).forall(player => _reachable(m, player, positions.get(player), placed, connections))
+    _players(m).forall(player => _pathVerdict(true, m, player, positions.get(player), placed, connections))
+  }
+  pure def _someBlocked(m: str, positions: int -> int, placed: Set[(int, int, int)]): bool = {
+    val connections = _connections(placed)
+    _players(m).exists(player => _pathVerdict(false, m, player, positions.get(player), placed, connections))
   }
   pure def _clear(m: str, positions: int -> int, square: int): bool =
     CELLS.contains(square) and _players(m).forall(p => positions.get(p) != square)
@@ -182,7 +186,7 @@ module quoridor_play {
   /// Walls stay inside the board without crossing or overlapping.
   val invWalls = walls.forall(w => 0.to(7).contains(w._1) and 0.to(7).contains(w._2) and Set(0, 1).contains(w._3) and walls.exclude(Set(w)).forall(other => not(_conflict(w, other))))
   /// Every player has a path to the selected goal, considering the walls alone.
-  val invPaths = _allPaths(mode, pawns, walls)
+  val invPaths = not(_someBlocked(mode, pawns, walls))
   /// Every wall is either on the board or still available to its player, and no inventory is negative.
   val invInventory = _players(mode).forall(p => remaining.get(p) >= 0) and _players(mode).fold(0, (total, p) => total + remaining.get(p)) + walls.size() == 20
   /// Allowed choices advance the clockwise turn once, while refusals keep it.
