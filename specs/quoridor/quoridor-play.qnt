@@ -15,6 +15,12 @@ module quoridor_play {
   pure val CLASSIC_PLAYERS = Set(0, 1)
   pure val HILL_PLAYERS = Set(0, 1, 2, 3)
   pure val WALLS = 0.to(127).map(n => (n % 8, (n / 8) % 8, n / 64))
+  pure val _CORNER_REGIONS = Set(
+    Set(0), Set(0, 1), Set(0, 9), Set(0, 1, 9, 10),
+    Set(8), Set(7, 8), Set(8, 17), Set(7, 8, 16, 17),
+    Set(72), Set(72, 73), Set(63, 72), Set(63, 64, 72, 73),
+    Set(80), Set(79, 80), Set(71, 80), Set(70, 71, 79, 80),
+  )
   /// The selected mode, "classic" or "hill".
   var mode: str
   /// Each player's pawn square: a1 is 0, b1 is 1, and i9 is 80.
@@ -60,9 +66,20 @@ module quoridor_play {
       _neighbors(square).exists(other => seen.contains(other) and not(_blocked(square, other, placed))))
   pure def _atMostOneWall(placed: Set[(int, int, int)]): bool =
     placed.forall(first => placed.forall(second => first == second))
+  pure def _atMostTwoWalls(placed: Set[(int, int, int)]): bool =
+    placed.forall(first => placed.forall(second => placed.forall(third =>
+      first == second or first == third or second == third)))
+  pure def _boxed(region: Set[int], placed: Set[(int, int, int)]): bool =
+    region.forall(square => _neighbors(square).exclude(region).forall(other => _blocked(square, other, placed)))
+  pure def _smallReachable(m: str, player: int, start: int, placed: Set[(int, int, int)]): bool =
+    CELLS.contains(start) and not(_CORNER_REGIONS.exists(region =>
+      region.contains(start) and not(region.exists(square => _goal(m, player, square))) and _boxed(region, placed)))
   pure def _reachable(m: str, player: int, start: int, placed: Set[(int, int, int)]): bool =
     // One wall removes only two parallel boundaries; every square can still go around it.
-    if (_atMostOneWall(placed)) CELLS.contains(start) else {
+    if (_atMostOneWall(placed)) CELLS.contains(start)
+    // Two walls can separate only a corner rectangle no more than two squares wide and high.
+    else if (_atMostTwoWalls(placed)) _smallReachable(m, player, start, placed)
+    else {
     val reachable = 0.to(80).fold(Set(start), (seen, _) =>
       if (seen.exists(c => _goal(m, player, c))) seen
       else _expandReachable(seen, placed))
