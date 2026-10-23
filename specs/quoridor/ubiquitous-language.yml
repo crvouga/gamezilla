@@ -29,7 +29,7 @@ terms:
   - term: mode
     definition: Either Classic Quoridor or Four-Player King of the Hill.
     forms: [modes]
-    model: [mode]
+    model: [mode, HILL]
   - term: board
     definition: >-
       The playing area of 81 squares. Columns a to i run from left to
