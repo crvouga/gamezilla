@@ -62,7 +62,7 @@ terms:
     definition: >-
       Move one's own pawn to an empty square one step horizontally or
       vertically, without passing through a wall, or jump as allowed.
-    forms: [moves her pawn, moves his pawn, moves the pawn, moving a pawn, pawn move, pawn moves, moves a pawn]
+    forms: [moves her pawn, moves his pawn, moves its pawn, moves the pawn, moving a pawn, pawn move, pawn moves, moves a pawn]
     model: [movePawn]
   - term: jump
     definition: >-
