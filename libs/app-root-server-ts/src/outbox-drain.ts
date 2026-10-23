@@ -23,7 +23,7 @@ import {
 import { wrapMutationDb } from '@pkgs/sync-engine-shared-ts/wrap-mutation-db';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
 import { countExhaustedOutboxDeliveries } from './outbox-health';
-import { outboxNotificationTopics } from './outbox-notification-topics';
+import { outboxNotificationPlan } from './outbox-notification-plan';
 
 /**
  * One span per delivery: a consumer that fails is retried rather than thrown,
@@ -153,7 +153,7 @@ async function notifyCommittedPass(
   notifyUserIds: readonly string[]
 ): Promise<void> {
   const store = apiRequestAsyncLocalStorage.getStore();
-  const topics = await outboxNotificationTopics({
+  const plan = await outboxNotificationPlan({
     topicMap: args.topicMap ?? topicMaps.get(consumers),
     captures: captures.map((capture) => capture.getCapture()),
     notifyUserIds,
@@ -162,7 +162,7 @@ async function notifyCommittedPass(
       accountMutationEnv(notifyUserIds[0] ?? 'system', args)
     ),
   });
-  if (topics.length === 0) return;
+  if (plan.topics.length === 0) return;
   const pubsub =
     args.pubsub ??
     (store === undefined
@@ -178,7 +178,10 @@ async function notifyCommittedPass(
   await notifyChannels({
     pubsub,
     sql: args.db,
-    topics,
+    topics: plan.topics,
+    ...(plan.rowsByTopic === undefined
+      ? {}
+      : { rowsByTopic: plan.rowsByTopic }),
     tables: [
       ...new Set(captures.flatMap((capture) => capture.getCapture().tables)),
     ].sort(),
