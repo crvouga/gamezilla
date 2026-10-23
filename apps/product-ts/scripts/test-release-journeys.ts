@@ -136,6 +136,9 @@ function brokerExitCode(booted: {
   return verdict.ok ? 0 : 1;
 }
 
+// Retain bounded statement profiles so a failed release check identifies the
+// expensive work after connection setup, rather than only its first queries.
+process.env['STACK_DATABASE_PROFILE'] = '1';
 const stack = await bootLocalhostStack(options, true, 'isolated');
 let server: ReturnType<typeof serveRelease> | undefined;
 try {
