@@ -69,9 +69,9 @@ Feature: Move and jump with Quoridor pawns
       And North has the Quoridor turn
 
     Scenario: The board edge behind the adjacent pawn permits a diagonal move
-      Given Alice has the Quoridor position with South on d1 and North on e1
-      When Alice moves her Quoridor pawn to e2
-      Then South's Quoridor pawn is on e2
+      Given Alice has the Quoridor position with South on h5 and North on i5
+      When Alice moves her Quoridor pawn to i4
+      Then South's Quoridor pawn is on i4
       And North has the Quoridor turn
 
     Scenario: A wall beside the adjacent pawn prevents that diagonal move

@@ -100,10 +100,10 @@ module quoridor_play {
   action _hold = _update(pawns, walls, remaining, turn, winner, true)
   action init = {
     nondet selected = Set("classic", "hill").oneOf()
-    nondet beginning = Set("start", "one step from goal").oneOf()
+    nondet beginning = Set("start", "near goal").oneOf()
     val positions = if (selected == "classic")
       Map(0 -> (if (beginning == "start") 4 else 66), 1 -> 76)
-      else Map(0 -> (if (beginning == "start") 4 else 31), 1 -> 36, 2 -> 76, 3 -> 44)
+      else Map(0 -> (if (beginning == "start") 4 else 22), 1 -> 36, 2 -> 76, 3 -> 44)
     val stock = _players(selected).mapBy(_ => if (selected == "classic") 10 else 5)
     all {
       mode' = selected, pawns' = positions, walls' = Set(), remaining' = stock,
