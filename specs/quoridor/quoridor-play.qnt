@@ -61,9 +61,11 @@ module quoridor_play {
   pure def _edge(a: int, b: int, placed: Set[(int, int, int)]): bool = _adjacent(a, b) and not(_blocked(a, b, placed))
   pure def _neighbors(square: int): Set[int] =
     Set(square - 9, square + 9, square - 1, square + 1).filter(other => _adjacent(square, other))
-  pure def _expandReachable(seen: Set[int], placed: Set[(int, int, int)]): Set[int] =
+  pure def _connections(placed: Set[(int, int, int)]): int -> Set[int] =
+    CELLS.mapBy(square => _neighbors(square).filter(other => not(_blocked(square, other, placed))))
+  pure def _expandReachable(seen: Set[int], connections: int -> Set[int]): Set[int] =
     CELLS.filter(square => seen.contains(square) or
-      _neighbors(square).exists(other => seen.contains(other) and not(_blocked(square, other, placed))))
+      connections.get(square).exists(other => seen.contains(other)))
   pure def _atMostOneWall(placed: Set[(int, int, int)]): bool =
     placed.forall(first => placed.forall(second => first == second))
   pure def _atMostTwoWalls(placed: Set[(int, int, int)]): bool =
@@ -74,7 +76,7 @@ module quoridor_play {
   pure def _smallReachable(m: str, player: int, start: int, placed: Set[(int, int, int)]): bool =
     CELLS.contains(start) and not(_CORNER_REGIONS.exists(region =>
       region.contains(start) and not(region.exists(square => _goal(m, player, square))) and _boxed(region, placed)))
-  pure def _reachable(m: str, player: int, start: int, placed: Set[(int, int, int)]): bool =
+  pure def _reachable(m: str, player: int, start: int, placed: Set[(int, int, int)], connections: int -> Set[int]): bool =
     // One wall removes only two parallel boundaries; every square can still go around it.
     if (_atMostOneWall(placed)) CELLS.contains(start)
     // Two walls can separate only a corner rectangle no more than two squares wide and high.
@@ -82,8 +84,12 @@ module quoridor_play {
     else {
     val reachable = 0.to(80).fold(Set(start), (seen, _) =>
       if (seen.exists(c => _goal(m, player, c))) seen
-      else _expandReachable(seen, placed))
+      else _expandReachable(seen, connections))
     reachable.exists(c => _goal(m, player, c))
+  }
+  pure def _allPaths(m: str, positions: int -> int, placed: Set[(int, int, int)]): bool = {
+    val connections = _connections(placed)
+    _players(m).forall(player => _reachable(m, player, positions.get(player), placed, connections))
   }
   pure def _clear(m: str, positions: int -> int, square: int): bool =
     CELLS.contains(square) and _players(m).forall(p => positions.get(p) != square)
@@ -120,7 +126,7 @@ module quoridor_play {
   pure def _wallAllowed(m: str, positions: int -> int, placed: Set[(int, int, int)], w: (int, int, int)): bool = and {
     0.to(7).contains(w._1), 0.to(7).contains(w._2), Set(0, 1).contains(w._3),
     placed.forall(other => not(_conflict(w, other))),
-    _players(m).forall(p => _reachable(m, p, positions.get(p), placed.union(Set(w)))),
+    _allPaths(m, positions, placed.union(Set(w))),
   }
   action _update(positions: int -> int, placed: Set[(int, int, int)], stock: int -> int, mover: int, won: int, refused: bool): bool = all {
     mode' = mode, pawns' = positions, walls' = placed, remaining' = stock, turn' = mover, winner' = won,
@@ -176,7 +182,7 @@ module quoridor_play {
   /// Walls stay inside the board without crossing or overlapping.
   val invWalls = walls.forall(w => 0.to(7).contains(w._1) and 0.to(7).contains(w._2) and Set(0, 1).contains(w._3) and walls.exclude(Set(w)).forall(other => not(_conflict(w, other))))
   /// Every player has a path to the selected goal, considering the walls alone.
-  val invPaths = _players(mode).forall(p => _reachable(mode, p, pawns.get(p), walls))
+  val invPaths = _allPaths(mode, pawns, walls)
   /// Every wall is either on the board or still available to its player, and no inventory is negative.
   val invInventory = _players(mode).forall(p => remaining.get(p) >= 0) and _players(mode).fold(0, (total, p) => total + remaining.get(p)) + walls.size() == 20
   /// Allowed choices advance the clockwise turn once, while refusals keep it.
