@@ -1,0 +1,4 @@
+{
+  "summary": "The reference app omitted the pack-item table when its catalogue was empty, so its first pack publication changed a resolved query's hydration keys and prevented later snapshots from applying.",
+  "regressionTest": "libs/game-puzzle-harness-ts/tests/pack-query-hydration.test.ts"
+}

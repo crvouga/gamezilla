@@ -9,6 +9,10 @@ import type { SyncHarness } from '@pkgs/sync-engine-harness-ts/scenario-system';
 import type { MutateResult } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { ATTEMPT_ACTIONS } from './attempt-actions';
 import { ATTEMPT_FIXTURES } from './attempt-fixtures';
+import {
+  loadEarlierAttemptsThroughScreen,
+  seedEqualTimeAttempts,
+} from './attempt-page-actions';
 import { playTwoStepsThroughScreen } from './attempt-screen-actions';
 import { CONTENT_ACTIONS } from './content-actions';
 import { contentActorId } from './content-identity';
@@ -16,6 +20,7 @@ import { PUBLICATION_ACTIONS } from './content-publication-actions';
 import { createContentThroughScreen } from './content-screen-actions';
 import { DRAFT_CHOICE_ACTIONS } from './draft-choice-actions';
 import { contentExampleApp } from './example-app';
+import { exampleContentBootstrapQuery } from './example-app-query';
 import { saveMetadataThroughScreen } from './metadata-screen-actions';
 import { NAMED_PACK_ACTIONS } from './named-pack-actions';
 import { OFFLINE_ACTIONS } from './offline-actions';
@@ -26,6 +31,7 @@ import {
   publishThroughScreen,
   validateThroughScreen,
 } from './publication-screen-actions';
+import { startPublishedThroughScreen } from './start-screen-actions';
 
 export type ContentEditor = {
   readonly documentId: string;
@@ -57,14 +63,21 @@ export type ContentHarness = SyncHarness & {
   >;
 };
 
-export const contentSystem = defineSystem<ContentHarness>({
+export const contentSystem = defineSystem<
+  ContentHarness,
+  { initialContent: boolean }
+>({
   name: 'puzzle-content',
+  args: { initialContent: true },
   actions: [
     createContentThroughScreen,
     playTwoStepsThroughScreen,
     publishThroughScreen,
     validateThroughScreen,
     saveMetadataThroughScreen,
+    startPublishedThroughScreen,
+    seedEqualTimeAttempts,
+    loadEarlierAttemptsThroughScreen,
     ...CONTENT_ACTIONS,
     ...DRAFT_CHOICE_ACTIONS,
     ...PUBLICATION_ACTIONS,
@@ -83,8 +96,20 @@ export const contentSystem = defineSystem<ContentHarness>({
       create: () => syncVirtual(),
     }),
   ],
-  async create(session) {
-    const sync = await createSyncHarness(session, contentExampleApp, {
+  async create(session, args) {
+    const app = args.initialContent
+      ? contentExampleApp
+      : {
+          ...contentExampleApp,
+          pack: {
+            ...contentExampleApp.pack,
+            sessionQuery: {
+              name: exampleContentBootstrapQuery.name,
+              params: {},
+            },
+          },
+        };
+    const sync = await createSyncHarness(session, app, {
       clientCount: 0,
       rowImageFanout: false,
       liveResendOnReconnect: false,

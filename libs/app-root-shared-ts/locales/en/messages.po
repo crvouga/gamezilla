@@ -999,13 +999,9 @@ msgstr "Change participant"
 msgid "Change the search or increase the desired synthetic population."
 msgstr "Change the search or increase the desired synthetic population."
 
-#: libs/game-puzzle-client-ts/src/content-experience.tsx
+#: libs/game-puzzle-client-ts/src/content-connection-status.tsx
 msgid "Changes have not reached your other devices"
 msgstr "Changes have not reached your other devices"
-
-#: libs/game-puzzle-client-ts/src/content-kept-positions.tsx
-msgid "Changes made from different positions stay separate. Choose which one to continue."
-msgstr "Changes made from different positions stay separate. Choose which one to continue."
 
 #: libs/app-root-client-ts/src/more-server-status.tsx
 #: libs/billing-client-ts/src/billing-plan-actions.tsx
@@ -1089,6 +1085,10 @@ msgstr "Choose a person"
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Choose a position from the moves actually played."
 msgstr "Choose a position from the moves actually played."
+
+#: libs/game-puzzle-client-ts/src/content-kept-positions.tsx
+msgid "Choose a saved position to continue. Your other positions stay kept."
+msgstr "Choose a saved position to continue. Your other positions stay kept."
 
 #: libs/auth-client-ts/src/sign-in-modal-body.tsx
 msgid "Choose a sign-in method"
@@ -1366,11 +1366,6 @@ msgstr "Connection needed to change or play this game."
 #: libs/app-root-client-ts/src/app-header-global-menu.tsx
 msgid "Connectivity"
 msgstr "Connectivity"
-
-#. placeholder {0}: index() + 1
-#: libs/game-puzzle-client-ts/src/content-kept-positions.tsx
-msgid "Continuation {0}"
-msgstr "Continuation {0}"
 
 #: libs/game-puzzle-client-ts/src/content-kept-positions.tsx
 msgid "Continuation chosen"
@@ -2594,10 +2589,6 @@ msgstr "Keep the current changes before publishing. Try saving again."
 msgid "Kept"
 msgstr "Kept"
 
-#: libs/game-puzzle-client-ts/src/content-kept-positions.tsx
-msgid "Kept continuations"
-msgstr "Kept continuations"
-
 #: libs/game-puzzle-client-ts/src/content-kept-copies.tsx
 msgid "Kept copies"
 msgstr "Kept copies"
@@ -2722,6 +2713,10 @@ msgstr "LLM"
 msgid "Load chess puzzles"
 msgstr "Load chess puzzles"
 
+#: libs/game-puzzle-client-ts/src/content-library-screen.tsx
+msgid "Load earlier attempts"
+msgstr "Load earlier attempts"
+
 #: libs/chess-puzzle-client-ts/src/puzzle-management-settings.tsx
 msgid "Load Lichess CSV and follow progress"
 msgstr "Load Lichess CSV and follow progress"
@@ -2729,6 +2724,22 @@ msgstr "Load Lichess CSV and follow progress"
 #: libs/chess-shared-client-ts/src/chess-settings-developer-screen.tsx
 msgid "Load Lichess CSV, follow progress, and stop loading."
 msgstr "Load Lichess CSV, follow progress, and stop loading."
+
+#: libs/game-puzzle-client-ts/src/content-kept-copies.tsx
+msgid "Load more kept copies"
+msgstr "Load more kept copies"
+
+#: libs/game-puzzle-client-ts/src/content-library-screen.tsx
+msgid "Load more of your drafts and publications"
+msgstr "Load more of your drafts and publications"
+
+#: libs/game-puzzle-client-ts/src/content-library-screen.tsx
+msgid "Load more published puzzles and packs"
+msgstr "Load more published puzzles and packs"
+
+#: libs/game-puzzle-client-ts/src/content-kept-positions.tsx
+msgid "Load more saved positions"
+msgstr "Load more saved positions"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-management-screen.tsx
 msgid "Load started"
@@ -2761,6 +2772,10 @@ msgstr "Loading games…"
 #: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
 msgid "Loading puzzle…"
 msgstr "Loading puzzle…"
+
+#: libs/game-puzzle-client-ts/src/content-connection-status.tsx
+msgid "Loading requested puzzles…"
+msgstr "Loading requested puzzles…"
 
 #: libs/auth-client-ts/src/sign-in-methods-section.tsx
 #: libs/auth-client-ts/src/sign-in-modal-body.tsx
@@ -3172,8 +3187,8 @@ msgid "No people found for “{0}”"
 msgstr "No people found for “{0}”"
 
 #: libs/game-puzzle-client-ts/src/content-library-screen.tsx
-msgid "No published puzzles yet"
-msgstr "No published puzzles yet"
+msgid "No published puzzles loaded"
+msgstr "No published puzzles loaded"
 
 #: libs/game-puzzle-client-ts/src/puzzle-review-screen.tsx
 msgid "No puzzle selected"
@@ -3979,7 +3994,7 @@ msgstr "Recent"
 msgid "Recent failure"
 msgstr "Recent failure"
 
-#: libs/game-puzzle-client-ts/src/content-experience.tsx
+#: libs/game-puzzle-client-ts/src/content-connection-status.tsx
 msgid "Reconnect"
 msgstr "Reconnect"
 
@@ -4356,6 +4371,15 @@ msgstr "Saved Lichess file"
 #: libs/game-puzzle-client-ts/src/content-author-status.tsx
 msgid "Saved on this device. Changes share when connected."
 msgstr "Saved on this device. Changes share when connected."
+
+#. placeholder {0}: index() + 1
+#: libs/game-puzzle-client-ts/src/content-kept-positions.tsx
+msgid "Saved position {0}"
+msgstr "Saved position {0}"
+
+#: libs/game-puzzle-client-ts/src/content-kept-positions.tsx
+msgid "Saved positions"
+msgstr "Saved positions"
 
 #: libs/game-puzzle-client-ts/src/content-saved-attempts.tsx
 msgid "Saved puzzle"
@@ -5337,7 +5361,7 @@ msgstr "The Synthetic Population Worker will recover this application."
 msgid "The unfinished file will not become available. You can save the chosen file again."
 msgstr "The unfinished file will not become available. You can save the chosen file again."
 
-#: libs/game-puzzle-client-ts/src/content-kept-copies.tsx
+#: libs/game-puzzle-client-ts/src/use-content-copy-choice.tsx
 msgid "The working draft changed. Open the kept copies and choose again."
 msgstr "The working draft changed. Open the kept copies and choose again."
 
@@ -6060,7 +6084,7 @@ msgstr "You are {0}."
 msgid "You are already friends with this person."
 msgstr "You are already friends with this person."
 
-#: libs/game-puzzle-client-ts/src/content-experience.tsx
+#: libs/game-puzzle-client-ts/src/content-connection-status.tsx
 msgid "You are offline. Available puzzles and your saved work stay on this device. Changes share when connected."
 msgstr "You are offline. Available puzzles and your saved work stay on this device. Changes share when connected."
 

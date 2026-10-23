@@ -15,7 +15,12 @@ test('a puzzle-only registration mounts shared persistence and injects its rules
   expect(app.turnGames.games).toEqual([]);
   expect(app.puzzleContents.byId('pile')).toBe(puzzleContent);
   expect(app.tableNames).toContain('puzzle_content_attempts');
-  expect(app.sessionQueries).toContain('puzzleContentPublished');
+  expect(Object.values(app.queries).map((query) => query.name)).toContain(
+    'puzzleContentPublished'
+  );
+  expect(app.sessionQueries).not.toContain('puzzleContentPublished');
+  expect(app.sessionQueries).not.toContain('puzzleContentOwned');
+  expect(app.sessionQueries).not.toContain('puzzleContentAttemptsOwned');
   expect(gamePuzzleServers(games)).toEqual([GAME_PUZZLE_SERVER]);
   expect(gamePuzzleSubs([{ id: 'plain' }])).toEqual([]);
   expect(gamePuzzleServers([{ id: 'plain' }])).toEqual([]);

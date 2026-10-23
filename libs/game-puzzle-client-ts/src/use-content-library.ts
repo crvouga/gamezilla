@@ -19,7 +19,7 @@ export function useContentLibrary(gameId: Accessor<string>) {
   const engine = useSyncEngine();
   const documents = createQuery(
     () =>
-      sql<ContentDocument>`SELECT * FROM puzzle_content_documents WHERE game_id = ${gameId()} AND deleted_at IS NULL`
+      sql<ContentDocument>`SELECT * FROM puzzle_content_documents WHERE game_id = ${gameId()}`
   );
   const drafts = createQuery(
     () =>

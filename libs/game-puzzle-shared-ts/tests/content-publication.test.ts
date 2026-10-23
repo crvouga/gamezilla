@@ -183,13 +183,17 @@ test('public hydration never includes draft bodies and another actor receives no
       db: { query: (q: Sql<unknown>) => db.query(q as Sql<QueryRow>) },
       env: { ...env, actorId: 'bob', deviceId: 'bob-phone' },
     };
-    expect(await puzzleContentOwned.run(bobCtx, {})).toEqual({
+    expect(
+      await puzzleContentOwned.run(bobCtx, { gameId: 'pile', afterId: '' })
+    ).toEqual({
       puzzle_content_documents: [],
       puzzle_content_drafts: [],
       puzzle_content_revisions: [],
-      puzzle_content_pack_items: [],
     });
-    const publicRows = await puzzleContentPublished.run(bobCtx, {});
+    const publicRows = await puzzleContentPublished.run(bobCtx, {
+      gameId: 'pile',
+      afterId: '',
+    });
     expect(publicRows['puzzle_content_drafts']).toBeUndefined();
     expect(publicRows['puzzle_content_documents']).toHaveLength(1);
     expect(publicRows['puzzle_content_revisions']).toHaveLength(1);

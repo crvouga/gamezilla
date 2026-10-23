@@ -17,7 +17,7 @@ export function useContentAttempts(gameId: Accessor<string>) {
   const engine = useSyncEngine();
   const attempts = createQuery(
     () =>
-      sql<ContentAttempt>`SELECT * FROM puzzle_content_attempts WHERE game_id = ${gameId()} AND owner_id = ${myId()} AND deleted_at IS NULL ORDER BY updated_at DESC, id`
+      sql<ContentAttempt>`SELECT * FROM puzzle_content_attempts WHERE game_id = ${gameId()} AND owner_id = ${myId()} AND deleted_at IS NULL ORDER BY updated_at DESC, id DESC`
   );
   const positions = createQuery(
     () =>

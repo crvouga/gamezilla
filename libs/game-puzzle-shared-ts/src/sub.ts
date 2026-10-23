@@ -3,10 +3,9 @@ import type { SubManifest } from '@libs/sub-shared-ts/manifest';
 import { defineSub } from '@libs/sub-shared-ts/manifest';
 import { createPuzzleContentCatalog } from '@pkgs/turn-game-shared-ts/puzzle-content-catalog';
 import { appendPuzzleInteractionMutation } from './append-puzzle-interaction-mutation';
-import { puzzleContentAttemptsOwned } from './attempt-query';
 import { chessPuzzleById } from './by-id-query';
 import { createContentMutations } from './content-mutations';
-import { puzzleContentOwned, puzzleContentPublished } from './content-queries';
+import { CONTENT_QUERIES } from './content-query-registry';
 import { chessPuzzleFeedSettings } from './feed-settings-query';
 import { chessPuzzleInteractions } from './interactions-query';
 import { chessPuzzleNearest, chessPuzzlePool } from './pool-query';
@@ -20,9 +19,7 @@ import { savePuzzleFeedSettingsMutation } from './save-puzzle-feed-settings-muta
 
 /** The puzzle catalogue and every person's puzzle progress, read by any game. */
 export const PUZZLE_QUERIES = [
-  puzzleContentAttemptsOwned,
-  puzzleContentOwned,
-  puzzleContentPublished,
+  ...CONTENT_QUERIES,
   chessPuzzleProfile,
   chessPuzzleFeedSettings,
   chessPuzzleInteractions,
@@ -54,9 +51,6 @@ export const GAME_PUZZLE_SUB = defineSub({
   // Held open for the whole session: what keeps a person's puzzle
   // progress warm in the local database.
   sessionQueries: [
-    'puzzleContentAttemptsOwned',
-    'puzzleContentOwned',
-    'puzzleContentPublished',
     'chessPuzzleProfile',
     'chessPuzzleFeedSettings',
     'chessPuzzleInteractions',

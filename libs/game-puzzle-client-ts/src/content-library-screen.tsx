@@ -15,53 +15,73 @@ import { createMemo, For, type JSX, Show } from 'solid-js';
 import { ContentCreateControls } from './content-create-controls';
 import { useContentGame } from './content-game-context';
 import { useContentLibraryState } from './content-library-context';
+import { ContentLoadMore } from './content-load-more';
 import { ContentSavedAttempts } from './content-saved-attempts';
+import { byContentId } from './use-content-pages';
 
 function PublishedContent(): JSX.Element {
   const { t } = useLingui();
   const game = useContentGame();
   const data = useContentLibraryState();
-  const entries = createMemo(() => discoverContent(data.content(), game.id));
+  const entries = createMemo(() =>
+    discoverContent(
+      {
+        ...data.content(),
+        documents: data
+          .content()
+          .documents.filter((doc) => doc.published_revision_id !== null)
+          .toSorted(byContentId)
+          .slice(0, data.pages.published.limit()),
+      },
+      game.id
+    )
+  );
   const ids = createMemo(() => entries().map((entry) => entry.id));
   return (
-    <Show
-      when={ids().length > 0}
-      fallback={
-        <EmptyState
-          variant="compact"
-          title={t`No published puzzles yet`}
-          body={t`Create a private draft above, or come back for new puzzles and packs.`}
-        />
-      }
-    >
-      <MenuSection title={<Trans>Published puzzles and packs</Trans>}>
-        <For each={ids()}>
-          {(id) => {
-            const entry = () =>
-              entries().find((revision) => revision.id === id);
-            return (
-              <MenuRow
-                title={entry()?.title}
-                caption={entry()?.description}
-                value={
-                  entry()?.kind === 'pack'
-                    ? t`Pack`
-                    : (entry()?.difficulty ?? '') || t`Puzzle`
-                }
-                onClick={() =>
-                  game.open({
-                    kind: 'edition',
-                    revisionId: id,
-                    packRevisionId: null,
-                  })
-                }
-                dataSet={{ testid: `content-published-${id}` }}
-              />
-            );
-          }}
-        </For>
-      </MenuSection>
-    </Show>
+    <>
+      <Show
+        when={ids().length > 0}
+        fallback={
+          <EmptyState
+            variant="compact"
+            title={t`No published puzzles loaded`}
+            body={t`Create a private draft above, or come back for new puzzles and packs.`}
+          />
+        }
+      >
+        <MenuSection title={<Trans>Published puzzles and packs</Trans>}>
+          <For each={ids()}>
+            {(id) => {
+              const entry = () =>
+                entries().find((revision) => revision.id === id);
+              return (
+                <MenuRow
+                  title={entry()?.title}
+                  caption={entry()?.description}
+                  value={
+                    entry()?.kind === 'pack'
+                      ? t`Pack`
+                      : (entry()?.difficulty ?? '') || t`Puzzle`
+                  }
+                  onClick={() =>
+                    game.open({
+                      kind: 'edition',
+                      revisionId: id,
+                      packRevisionId: null,
+                    })
+                  }
+                  dataSet={{ testid: `content-published-${id}` }}
+                />
+              );
+            }}
+          </For>
+        </MenuSection>
+      </Show>
+      <ContentLoadMore
+        page={data.pages.published}
+        label={t`Load more published puzzles and packs`}
+      />
+    </>
   );
 }
 
@@ -75,6 +95,9 @@ function PersonalContent(): JSX.Element {
     data
       .content()
       .documents.filter((doc) => doc.owner_id === myId())
+      .toSorted(byContentId)
+      .slice(0, data.pages.owned.limit())
+      .filter((doc) => doc.deleted_at === null)
       .map((doc) => doc.id)
   );
   return (
@@ -108,9 +131,17 @@ function PersonalContent(): JSX.Element {
             </For>
           </MenuSection>
         </Show>
+        <ContentLoadMore
+          page={data.pages.owned}
+          label={t`Load more of your drafts and publications`}
+        />
       </Show>
       <ContentSavedAttempts mode="ordinary" />
       <ContentSavedAttempts mode="playtest" />
+      <ContentLoadMore
+        page={data.pages.attempts}
+        label={t`Load earlier attempts`}
+      />
     </>
   );
 }

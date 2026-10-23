@@ -13,7 +13,10 @@ export function ContentSavedAttempts(props: {
   const game = useContentGame();
   const data = useContentLibraryState();
   const attempts = createMemo(() =>
-    data.play().attempts.filter((attempt) => attempt.mode === props.mode)
+    data
+      .play()
+      .attempts.slice(0, data.pages.attempts.limit())
+      .filter((attempt) => attempt.mode === props.mode)
   );
   return (
     <Show when={attempts().length > 0}>

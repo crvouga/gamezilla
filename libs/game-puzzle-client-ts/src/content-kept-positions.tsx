@@ -1,4 +1,3 @@
-import { attemptContinuations } from '@libs/game-puzzle-shared-ts/attempt-library';
 import type { ContentAttempt } from '@libs/game-puzzle-shared-ts/attempt-types';
 import { choosePuzzleContinuationMutation } from '@libs/game-puzzle-shared-ts/choose-attempt-position-mutation';
 import { Trans, useLingui } from '@lingui/solid/macro';
@@ -8,6 +7,8 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 import { useContentLibraryState } from './content-library-context';
+import { ContentLoadMore } from './content-load-more';
+import { byContentId } from './use-content-pages';
 
 export function ContentKeptPositions(props: {
   attempt: ContentAttempt;
@@ -17,7 +18,11 @@ export function ContentKeptPositions(props: {
   const data = useContentLibraryState();
   const mutations = useMutationClient();
   const positions = createMemo(() =>
-    attemptContinuations(data.play(), props.attempt.id)
+    data
+      .play()
+      .positions.filter((position) => position.attempt_id === props.attempt.id)
+      .toSorted(byContentId)
+      .slice(0, data.pages.positions.limit())
   );
   const [choice, setChoice] = createSignal<{
     positionId: string;
@@ -39,18 +44,17 @@ export function ContentKeptPositions(props: {
   return (
     <Show when={positions().length > 1}>
       <MenuSection
-        title={<Trans>Kept continuations</Trans>}
+        title={<Trans>Saved positions</Trans>}
         footer={
           <Trans>
-            Changes made from different positions stay separate. Choose which
-            one to continue.
+            Choose a saved position to continue. Your other positions stay kept.
           </Trans>
         }
       >
         <For each={positions().map((position) => position.id)}>
           {(id, index) => (
             <MenuRow
-              title={t`Continuation ${index() + 1}`}
+              title={t`Saved position ${index() + 1}`}
               value={
                 id === props.attempt.current_position_id ? t`Current` : t`Kept`
               }
@@ -68,6 +72,11 @@ export function ContentKeptPositions(props: {
           )}
         </For>
       </MenuSection>
+      <ContentLoadMore
+        page={data.pages.positions}
+        label={t`Load more saved positions`}
+        disabled={props.disabled}
+      />
       <MutationModal
         visible={choice() !== null}
         onClose={() => setChoice(null)}

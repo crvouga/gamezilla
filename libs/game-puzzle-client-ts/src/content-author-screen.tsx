@@ -138,7 +138,11 @@ export function ContentAuthorScreen(props: {
   const game = useContentGame();
   const data = useContentLibraryState();
   const document = createMemo(() =>
-    data.content().documents.find((entry) => entry.id === props.documentId)
+    data
+      .content()
+      .documents.find(
+        (entry) => entry.id === props.documentId && entry.deleted_at === null
+      )
   );
   const draft = createMemo(() =>
     data

@@ -38,7 +38,7 @@ const readOwn: ServerOperation = async (c) => {
       },
       env: c.env,
     },
-    {}
+    { gameId: 'counting', afterId: '' }
   );
   for (const table of Object.values(rows))
     for (const row of table) {

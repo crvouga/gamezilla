@@ -1,13 +1,11 @@
 import { DefineBackButton } from '@libs/spaces-client-ts/spaces-nav-context';
-import { useLingui } from '@lingui/solid/macro';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import type { PuzzleContent } from '@pkgs/turn-game-shared-ts/puzzle-content';
 import { createPuzzleContentCatalog } from '@pkgs/turn-game-shared-ts/puzzle-content-catalog';
-import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { useConfirmNavigation } from '@pkgs/ui-root-client-ts/pending-navigation';
 import {
+  createEffect,
   createMemo,
   createSignal,
   type JSX,
@@ -17,13 +15,17 @@ import {
 } from 'solid-js';
 import { ContentAttemptScreen } from './content-attempt-screen';
 import { ContentAuthorScreen } from './content-author-screen';
+import { ContentConnectionStatus } from './content-connection-status';
 import { ContentEditionScreen } from './content-edition-screen';
 import { ContentGameProvider, type ContentView } from './content-game-context';
 import { ContentLibraryProvider } from './content-library-context';
 import { ContentLibraryScreen } from './content-library-screen';
+import { contentSubscriptionPlan } from './content-subscription-plan';
 import type { PuzzleContentClient } from './puzzle-content-client';
 import { useContentAttempts } from './use-content-attempts';
 import { useContentLibrary } from './use-content-library';
+import { useContentPages } from './use-content-pages';
+import { useContentSubscriptions } from './use-content-subscriptions';
 
 function ContentScreen(props: { view: ContentView }): JSX.Element {
   const edit = () => (props.view.kind === 'edit' ? props.view : null);
@@ -57,11 +59,33 @@ export function ContentExperience(props: {
   client: PuzzleContentClient;
   onBack: () => void;
 }): JSX.Element {
-  const { t } = useLingui();
   const engine = useSyncEngine();
   const content = useContentLibrary(() => props.gameId);
   const play = useContentAttempts(() => props.gameId);
   const [view, setView] = createSignal<ContentView>({ kind: 'library' });
+  const pages = useContentPages(content.library, play.library, view);
+  const ready = useContentSubscriptions(() =>
+    contentSubscriptionPlan({
+      gameId: props.gameId,
+      view: view(),
+      content: content.library(),
+      play: play.library(),
+      pages,
+    })
+  );
+  const [started, setStarted] = createSignal(false);
+  const fetching = () =>
+    !ready() && engine.status().online && engine.status().lastError === null;
+  createEffect(() => {
+    if (
+      ready() ||
+      content.library().documents.length > 0 ||
+      play.library().attempts.length > 0 ||
+      !engine.status().online ||
+      engine.status().lastError !== null
+    )
+      setStarted(true);
+  });
   const confirm = useConfirmNavigation();
   const open = (next: ContentView): void => confirm(() => setView(next));
   const back = (): void => {
@@ -106,29 +130,14 @@ export function ContentExperience(props: {
           content: content.library,
           play: play.library,
           isLoading: () => content.isLoading() || play.isLoading(),
+          isFetching: fetching,
+          pages,
         }}
       >
         <DefineBackButton onPress={back} />
-        <Show when={engine.status().lastError}>
-          {(error) => (
-            <ErrorState
-              variant="compact"
-              title={t`Changes have not reached your other devices`}
-              body={error()}
-              retry={{
-                label: t`Reconnect`,
-                onClick: () => {
-                  void engine.connect();
-                },
-              }}
-            />
-          )}
-        </Show>
-        <Show when={!engine.status().online}>
-          <Notice>{t`You are offline. Available puzzles and your saved work stay on this device. Changes share when connected.`}</Notice>
-        </Show>
+        <ContentConnectionStatus loading={started() && fetching()} />
         <Show
-          when={!content.isLoading() && !play.isLoading()}
+          when={started() && !content.isLoading() && !play.isLoading()}
           fallback={<LoadingState />}
         >
           <ContentScreen view={view()} />

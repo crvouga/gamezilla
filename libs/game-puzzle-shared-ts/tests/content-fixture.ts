@@ -1,7 +1,12 @@
 import { CONTENT_TABLES } from '@libs/game-puzzle-shared-ts/content-tables';
 import { createPuzzleContentMutation } from '@libs/game-puzzle-shared-ts/create-content-mutation';
 import { publishPuzzleContentMutation } from '@libs/game-puzzle-shared-ts/publish-content-mutation';
-import { openConformanceDb } from '@libs/permissions-shared-ts/world';
+import {
+  openConformanceDb,
+  uniqueTables,
+} from '@libs/permissions-shared-ts/world';
+import { registerTables } from '@pkgs/db-schema-root-shared-ts/register-tables';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared-ts/reconcile-sqlite-schema';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import type { MutationEnv } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import type { PuzzleContentCatalog } from '@pkgs/turn-game-shared-ts/puzzle-content-catalog';
@@ -65,10 +70,19 @@ export async function publishContentFixture(
 }
 
 export async function withContentFixture(
-  run: (fixture: ContentFixture) => Promise<void>
+  run: (fixture: ContentFixture) => Promise<void>,
+  database?: SqlClient
 ): Promise<void> {
-  const db = await openConformanceDb(CONTENT_TABLES);
+  const db = database ?? (await openConformanceDb(CONTENT_TABLES));
   try {
+    if (database !== undefined) {
+      await db.connect();
+      await reconcileSqliteSchema(
+        db,
+        registerTables(uniqueTables(CONTENT_TABLES)),
+        { ownership: 'declared-only' }
+      );
+    }
     await run({
       db,
       puzzleContents: createPuzzleContentCatalog([

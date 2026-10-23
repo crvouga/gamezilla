@@ -1,6 +1,7 @@
 import { AUTH_TABLES } from '@libs/auth-shared-ts/tables';
 import { BILLING_TABLES } from '@libs/billing-shared-ts/tables';
 import { createContentMutations } from '@libs/game-puzzle-shared-ts/content-mutations';
+import { CONTENT_QUERIES } from '@libs/game-puzzle-shared-ts/content-query-registry';
 import { CONTENT_TABLES } from '@libs/game-puzzle-shared-ts/content-tables';
 import { CONTENT_TOPIC_MAP } from '@libs/game-puzzle-shared-ts/content-topic-map';
 import { uniqueTables } from '@libs/permissions-shared-ts/world';
@@ -11,7 +12,10 @@ import { queryRegistry } from '@pkgs/sync-engine-shared-ts/queries-registry';
 import { createPuzzleContentCatalog } from '@pkgs/turn-game-shared-ts/puzzle-content-catalog';
 import fc from 'fast-check';
 import { contentClientsConverged } from './example-app-convergence';
-import { exampleContentQuery } from './example-app-query';
+import {
+  exampleContentBootstrapQuery,
+  exampleContentQuery,
+} from './example-app-query';
 import { examplePuzzleContent } from './example-app-rules';
 
 export const exampleContentCatalog = createPuzzleContentCatalog([
@@ -35,7 +39,11 @@ export const contentExampleApp: SyncApp = {
       cacheTableNames: tables.map((table) => table.name),
     },
     mutationRegistry: mutations,
-    queryRegistry: queryRegistry([exampleContentQuery]),
+    queryRegistry: queryRegistry([
+      exampleContentQuery,
+      exampleContentBootstrapQuery,
+      ...CONTENT_QUERIES,
+    ]),
     sessionQuery: { name: exampleContentQuery.name, params: {} },
     topicMap: CONTENT_TOPIC_MAP,
     checkAllInSync: contentClientsConverged,

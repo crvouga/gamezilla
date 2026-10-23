@@ -2,61 +2,69 @@ import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { queryRequires } from '@libs/permissions-shared-ts/query-permission';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { defineQuery } from '@pkgs/sync-engine-shared-ts/define-query';
+import {
+  CONTENT_PAGE_SIZE,
+  contentIds,
+  contentPageCondition,
+  contentPageParams,
+} from './content-query-scope';
 import { puzzleContentTopic } from './content-topic-map';
 
-/** Own working copies and edition history, including tombstones for reconciliation. */
+/** Only the selected private documents, their current bodies and current public editions. */
 export const puzzleContentOwned = defineQuery({
   name: 'puzzleContentOwned',
+  params: contentPageParams,
+  sampleParams: { gameId: 'game', afterId: '' },
+  limit: CONTENT_PAGE_SIZE * 3,
   authorize: queryRequires(PERMISSION.puzzlesReadOwnContent),
-  async run(ctx) {
-    const actor = ctx.env.actorId;
-    const documents = await ctx.db.query(
-      sql`SELECT * FROM puzzle_content_documents WHERE owner_id = ${actor}`
-    );
-    const drafts = await ctx.db.query(
-      sql`SELECT * FROM puzzle_content_drafts WHERE owner_id = ${actor}`
-    );
-    const revisions = await ctx.db.query(
-      sql`SELECT * FROM puzzle_content_revisions WHERE owner_id = ${actor}`
-    );
-    const items = await ctx.db.query(
-      sql`SELECT * FROM puzzle_content_pack_items WHERE owner_id = ${actor}`
+  async run(ctx, params) {
+    const documents = (
+      await ctx.db.query(sql`
+      SELECT * FROM puzzle_content_documents
+      WHERE owner_id = ${ctx.env.actorId} AND game_id = ${params.gameId}
+        AND ${contentPageCondition(params)} ORDER BY id
+    `)
+    ).slice(0, CONTENT_PAGE_SIZE);
+    const heads = documents.map((row) => String(row['working_draft_id']));
+    const editions = documents.flatMap((row) =>
+      typeof row['published_revision_id'] === 'string'
+        ? [row['published_revision_id']]
+        : []
     );
     return {
       puzzle_content_documents: documents,
-      puzzle_content_drafts: drafts,
-      puzzle_content_revisions: revisions,
-      puzzle_content_pack_items: items,
+      puzzle_content_drafts: await ctx.db.query(
+        sql`SELECT * FROM puzzle_content_drafts WHERE owner_id = ${ctx.env.actorId} AND id IN (${contentIds(heads)}) ORDER BY id`
+      ),
+      puzzle_content_revisions: await ctx.db.query(
+        sql`SELECT * FROM puzzle_content_revisions WHERE owner_id = ${ctx.env.actorId} AND id IN (${contentIds(editions)}) ORDER BY id`
+      ),
     };
   },
 });
 
-/**
- * Once published, editions remain stable public content. Withdrawal changes
- * discovery, not an edition already used by a pack or a saved attempt. Drafts
- * are never part of this query. Withdrawn document rows still propagate so
- * an already-held catalogue hides them without absence-based garbage collection.
- */
+/** Withdrawal and tombstones remain in the same stable page and update discovery. */
 export const puzzleContentPublished = defineQuery({
   name: 'puzzleContentPublished',
+  params: contentPageParams,
+  sampleParams: { gameId: 'game', afterId: '' },
+  limit: CONTENT_PAGE_SIZE * 2,
   authorize: queryRequires(PERMISSION.puzzlesPlay),
   entryChannel: () => [puzzleContentTopic],
-  async run(ctx) {
-    const documents = await ctx.db.query(sql`
-      SELECT * FROM puzzle_content_documents WHERE published_revision_id IS NOT NULL
-    `);
-    const revisions = await ctx.db.query(sql`
-      SELECT r.* FROM puzzle_content_revisions r
-      INNER JOIN puzzle_content_documents d ON d.id = r.document_id
-      WHERE d.published_revision_id IS NOT NULL
-    `);
-    const items = await ctx.db.query(
-      sql`SELECT * FROM puzzle_content_pack_items`
-    );
+  async run(ctx, params) {
+    const documents = (
+      await ctx.db.query(sql`
+      SELECT * FROM puzzle_content_documents
+      WHERE game_id = ${params.gameId} AND published_revision_id IS NOT NULL
+        AND ${contentPageCondition(params)} ORDER BY id
+    `)
+    ).slice(0, CONTENT_PAGE_SIZE);
+    const ids = documents.map((row) => String(row['published_revision_id']));
     return {
       puzzle_content_documents: documents,
-      puzzle_content_revisions: revisions,
-      puzzle_content_pack_items: items,
+      puzzle_content_revisions: await ctx.db.query(
+        sql`SELECT * FROM puzzle_content_revisions WHERE id IN (${contentIds(ids)}) ORDER BY id`
+      ),
     };
   },
 });

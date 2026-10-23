@@ -68,9 +68,13 @@ unfinished work; it is not a second product definition.
   them into the shared saved-content workflows remains open.
 - [ ] Real app registry, navigation, runtime/sub composition, sync, identity,
   observability, feedback and self-service readiness integration.
-- [ ] Bound discovery and retained-history subscriptions before offering them
+- [x] Bound discovery and retained-history subscriptions before offering them
   in the normal app, so a device does not hydrate the entire public catalog
   or every saved copy at once.
+  Selected content uses explicit edition, pack, document and personal-history
+  subscriptions; catalogue and history pages contain at most 32 entries.
+- [ ] Review public wake fanout and private working-head metadata as part of
+  the remaining sync and application integration audit.
 - [ ] Executable Gherkin, Quint, properties and app integration coverage,
   including offline/reconnect, conflicts, duplicate/partial operations,
   unauthorized publication and existing multiplayer regression coverage.
@@ -175,3 +179,24 @@ inferred from this ledger or from a narrow test run.
   regression keeps an earlier available pack edition startable after a later
   edition is published. Restoring each faulty condition makes its own test
   fail; the corrected code tests pass.
+- The normal puzzle sub no longer holds content-wide session queries. Shared
+  screens subscribe to the current game, requested pages, selected immutable
+  editions, pack references and the person's current attempt. The wire-level
+  budget check seeds 1,025 puzzles plus their editions and 1,025 additional
+  draft copies, then reads bounded pages without clipping. It uses the same
+  pile example data with the native in-process SQLite port for a fast large
+  fixture; the sync/reference scenarios keep their existing SQL ports.
+- Cold entry is exercised with the counting reference app's session configured
+  to load no puzzle content. The shared screen discovers, starts, reopens and
+  completes a real saved attempt through its own subscriptions. The empty
+  offline library can still create a private draft. Eighteen focused typecheck,
+  lint and test tasks and all 75 lifecycle/access checks pass. Normal Numberlink
+  enrollment, refused-write recovery, critical models and the release gate
+  remain open.
+- A pinned 35-attempt input gives every attempt the same timestamp. Restoring
+  ascending local identity order makes loading the next descending server page
+  lose entries; matching the server's cursor order makes the screen load all
+  35. The reference snapshot also keeps its table keys stable when its first
+  pack appears. Restoring that fault or ignoring injected offline events makes
+  the corresponding regression fail. Connectivity status is fixed separately
+  in `cfe664ddc`.

@@ -1,0 +1,4 @@
+{
+  "summary": "Opening puzzle content hydrated the entire public catalogue and private draft history. A catalogue with 1,025 puzzles and their editions exceeded the default 2,000-row snapshot budget.",
+  "regressionTest": "libs/game-puzzle-shared-ts/tests/content-query-limits.test.ts"
+}
