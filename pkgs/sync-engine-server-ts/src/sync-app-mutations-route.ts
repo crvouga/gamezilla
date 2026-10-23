@@ -33,6 +33,7 @@ import type { Hono } from 'hono';
 import { allocateTopicPushSeqs } from './allocate-topic-push-seq';
 import { isAuthErrorBody } from './auth-error';
 import { syncBodyCap } from './body-cap';
+import type { MutationLifecycle } from './mutation-lifecycle';
 import { mutationSavepointClient } from './mutation-savepoint-client';
 import { publishPushMessages } from './notify-channels';
 import { parseMutationsBatchBody } from './parse-batch-body';
@@ -149,6 +150,9 @@ async function prepareMutationNotify(
       now: deps.now,
       createId: deps.createId,
       ...(deps.authorize !== undefined ? { authorize: deps.authorize } : {}),
+      ...(deps.wrapMutationTx === undefined
+        ? {}
+        : { wrapMutationTx: deps.wrapMutationTx }),
       ...(deps.turnGames === undefined ? {} : { turnGames: deps.turnGames }),
       ...(deps.contentRulesAt !== undefined
         ? { contentRulesAt: deps.contentRulesAt }
@@ -233,7 +237,7 @@ async function publishMutationPushes(
   });
 }
 
-export type MountMutationsRouteDeps = {
+export type MountMutationsRouteDeps = MutationLifecycle & {
   readonly resolveAuth: (
     request: Request
   ) => Promise<SyncAppAuth | AuthErrorBody>;
@@ -293,24 +297,23 @@ export function mountMutationsRoute(
     const { result, checkpoints } = prepared;
     if (deps.pubsub !== undefined && result.applied.length > 0) {
       await publishMutationPushes(deps, prepared);
-      return c.json(
-        {
-          ok: result.ok,
-          serverTimeMs: deps.now(),
-          verdicts: result.verdicts,
-          ackSeq: result.ackSeq,
-          topicPushSeqs: Object.fromEntries(checkpoints),
-          protocol: SYNC_PROTOCOL_VERSION,
-        },
-        200
-      );
     }
+    await deps.onCommittedMutations?.({
+      db,
+      auth,
+      mutationIds: result.verdicts
+        .filter((verdict) => verdict.status === 'applied')
+        .map((verdict) => verdict.mutationId),
+    });
     return c.json(
       {
         ok: result.ok,
         serverTimeMs: deps.now(),
         verdicts: result.verdicts,
         ackSeq: result.ackSeq,
+        ...(deps.pubsub !== undefined && result.applied.length > 0
+          ? { topicPushSeqs: Object.fromEntries(checkpoints) }
+          : {}),
         protocol: SYNC_PROTOCOL_VERSION,
       },
       200

@@ -108,10 +108,12 @@ export async function drainAndNotifyOutbox(args: {
   readonly objectStore: ObjectStore;
   readonly consumerRegistry?: OutboxConsumerRegistry;
   readonly eventIds?: readonly string[];
+  readonly causationIds?: readonly string[];
   readonly topicMap?: TopicMap;
   readonly maxPasses?: number;
   readonly limit?: number;
 }): Promise<number> {
+  if (args.causationIds?.length === 0) return 0;
   const captures: ReturnType<typeof wrapMutationDb>[] = [];
   const consumers = args.consumerRegistry ?? getOutboxConsumerRegistry();
   const result = await drainDueOutbox(
@@ -124,6 +126,9 @@ export async function drainAndNotifyOutbox(args: {
       observeDelivery: observeOutboxDelivery,
       ...(args.limit === undefined ? {} : { limit: args.limit }),
       ...(args.eventIds === undefined ? {} : { eventIds: args.eventIds }),
+      ...(args.causationIds === undefined
+        ? {}
+        : { causationIds: args.causationIds }),
       wrapConsumerTx: (tx) => {
         const wrapped = wrapMutationDb(tx, accountMutationEnv('', args));
         captures.push(wrapped);

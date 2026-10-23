@@ -15,13 +15,14 @@ import { withFrameworkMutations } from '@pkgs/sync-engine-shared-ts/with-framewo
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
 import { Hono } from 'hono';
+import type { MutationLifecycle } from './mutation-lifecycle';
 import type { SyncSqlVariables } from './resolve-request-sql';
 import type { QueryTruncation } from './run-query';
 import type { SyncAppAuth } from './sync-app-auth';
 import { mountMutationsRoute } from './sync-app-mutations-route';
 import { mountQueryRoutes } from './sync-app-query-routes';
 
-export type CreateSyncAppDeps = {
+export type CreateSyncAppDeps = MutationLifecycle & {
   readonly resolveAuth: (
     request: Request
   ) => Promise<SyncAppAuth | AuthErrorBody>;
@@ -109,6 +110,12 @@ export function createSyncApp(deps: CreateSyncAppDeps) {
     ...(deps.contentRulesAt !== undefined
       ? { contentRulesAt: deps.contentRulesAt }
       : {}),
+    ...(deps.wrapMutationTx === undefined
+      ? {}
+      : { wrapMutationTx: deps.wrapMutationTx }),
+    ...(deps.onCommittedMutations === undefined
+      ? {}
+      : { onCommittedMutations: deps.onCommittedMutations }),
   });
   return app;
 }

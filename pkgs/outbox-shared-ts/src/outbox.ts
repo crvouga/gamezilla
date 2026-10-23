@@ -1,6 +1,7 @@
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import sql from '@pkgs/sql-root-shared-ts/sql';
+import { outboxCausation } from './causation';
 
 import type { OutboxSendCtx, OutboxSendInput } from './types';
 
@@ -19,7 +20,7 @@ export class Outbox {
     const availableIso = input.availableAt?.toISOString() ?? nowIso;
     await this.ctx.tx.run(sql`
       INSERT INTO outbox_events (
-        id, type, payload, created_at, updated_at, deleted_at, available_at
+        id, type, payload, created_at, updated_at, deleted_at, available_at, causation_id
       )
       VALUES (
         ${input.id},
@@ -28,7 +29,8 @@ export class Outbox {
         ${nowIso},
         ${nowIso},
         ${null},
-        ${availableIso}
+        ${availableIso},
+        ${outboxCausation(this.ctx.tx)}
       )
       ON CONFLICT (id) DO NOTHING
     `);

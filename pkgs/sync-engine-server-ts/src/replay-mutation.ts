@@ -35,6 +35,7 @@ import type { WriteCaptureSnapshot } from '@pkgs/sync-engine-shared-ts/write-cap
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
 import { mapConstraintError } from './map-constraint-error';
+import type { MutationTxWrapper } from './mutation-lifecycle';
 import { storedReplayVerdict } from './stored-replay-verdict';
 
 export type MutationRow = {
@@ -68,6 +69,7 @@ export type ReplayMutationDeps = {
   readonly createId: CreateId;
   /** Host guard run before every mutation body (server replay only). */
   readonly authorize?: MutationAuthorize;
+  readonly wrapMutationTx?: MutationTxWrapper;
   /**
    * The app's content rules at the time selected by the mutation,
    * handed to its body as `env.contentRules`.
@@ -177,16 +179,22 @@ async function applyReplayMutationInTxn(args: {
   };
 
   const wrapped = wrapMutationDb(txc, env);
+  const tx =
+    deps.wrapMutationTx?.({
+      tx: wrapped.tx,
+      auth: deps.auth,
+      mutationId: m.id,
+    }) ?? wrapped.tx;
   // Permanent failures propagate through the replay transaction's rollback
   // before a separate transaction records their durable rejection.
   await deps.authorize?.({
     name: m.name,
     args: parsedValue,
-    tx: wrapped.tx,
+    tx,
     env,
     serverNow: () => new Date(deps.now()),
   });
-  await mutation.run({ tx: wrapped.tx, env }, parsedValue);
+  await mutation.run({ tx, env }, parsedValue);
   await appendObservabilityEvent({
     txc,
     deps,

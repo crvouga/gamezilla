@@ -9,6 +9,7 @@ import type {
 import type { WriteCaptureSnapshot } from '@pkgs/sync-engine-shared-ts/write-capture';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
+import type { MutationTxWrapper } from './mutation-lifecycle';
 import type { MutationRow, ReplayAuth, ReplayOutcome } from './replay-mutation';
 import { replayMutation } from './replay-mutation';
 
@@ -43,6 +44,7 @@ export type ProcessMutationsBatchDeps = {
   readonly now: () => number;
   readonly createId: CreateId;
   readonly authorize?: MutationAuthorize;
+  readonly wrapMutationTx?: MutationTxWrapper;
   /**
    * The app's content rules as they stood at a write's time (its
    * `created_at`), handed to the mutation body as `env.contentRules`.
@@ -82,6 +84,9 @@ export async function processMutationsBatch(
         now: deps.now,
         createId: deps.createId,
         ...(deps.authorize !== undefined ? { authorize: deps.authorize } : {}),
+        ...(deps.wrapMutationTx === undefined
+          ? {}
+          : { wrapMutationTx: deps.wrapMutationTx }),
         ...(deps.turnGames === undefined ? {} : { turnGames: deps.turnGames }),
         ...(deps.contentRulesAt !== undefined
           ? { contentRulesAt: deps.contentRulesAt }

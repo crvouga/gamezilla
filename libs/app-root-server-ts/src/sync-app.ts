@@ -10,7 +10,9 @@ import type { PubSub } from '@pkgs/pubsub-root-shared-ts/interface';
 import { PubSubNotSupportedError } from '@pkgs/pubsub-root-shared-ts/pubsub-not-supported-error';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import { createSyncApp as createSyncEngineApp } from '@pkgs/sync-engine-server-ts/create-sync-app';
+import type { CommittedMutationListener } from '@pkgs/sync-engine-server-ts/mutation-lifecycle';
 import type { MutationAuthorize } from '@pkgs/sync-engine-shared-ts/mutations-types';
+import { scopeMutationOutbox } from './mutation-outbox';
 import { countTruncatedQuery } from './query-truncation';
 
 function openRequestSqlClient(): SqlClient {
@@ -59,6 +61,7 @@ export async function createSyncApp(deps: {
   readonly moderation: ModerationRules;
   /** Enables dev-only query limit strictness (on unless `ServerEnv.protection` is `production`). */
   readonly strictQueryLimits?: boolean;
+  readonly onCommittedMutations?: CommittedMutationListener;
 }) {
   let checkpointSeq = 0;
   const mutations = await deps.app.mutations();
@@ -67,6 +70,10 @@ export async function createSyncApp(deps: {
     getSql: openRequestSqlClient,
     queries: deps.app.queries,
     mutations,
+    wrapMutationTx: scopeMutationOutbox,
+    ...(deps.onCommittedMutations === undefined
+      ? {}
+      : { onCommittedMutations: deps.onCommittedMutations }),
     authorizeMutation: async (ctx) => {
       await authorizeAppMutation(ctx);
       await deps.app.authorizeMutation(ctx);

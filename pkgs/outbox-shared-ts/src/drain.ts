@@ -9,6 +9,7 @@ import { isTransientConflict } from '@pkgs/sql-client-root-shared-ts/transient-c
 import sql, { join, raw } from '@pkgs/sql-root-shared-ts/sql';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
 
+import { withOutboxCausation } from './causation';
 import type { OutboxConsumerRegistry } from './define-consumer';
 import { resolveRetryPolicy } from './define-consumer';
 import type { OutboxConsumerDef } from './types';
@@ -18,6 +19,7 @@ type PendingEventRow = {
   readonly type: string;
   /** Text on SQLite; often already-parsed object on Postgres json. */
   readonly payload: unknown;
+  readonly causation_id: string | null;
 };
 
 type ClaimRow = {
@@ -34,6 +36,8 @@ export type DrainOutboxDeps = {
   readonly limit?: number;
   /** Optional queue partition selected by the worker. */
   readonly eventIds?: readonly string[];
+  /** Exact durable causal families; omitted for the owned all-backlog drain. */
+  readonly causationIds?: readonly string[];
   /** Records each delivery; absent in hosts that keep no telemetry. */
   readonly observeDelivery?: ObserveDelivery;
   /** Host capture / managed-row wrapper for consumer domain writes. */
@@ -59,6 +63,8 @@ export type DrainOutboxResult = {
 export async function drainOutbox(
   deps: DrainOutboxDeps
 ): Promise<DrainOutboxResult> {
+  if (deps.causationIds?.length === 0)
+    return { processed: 0, exhausted: 0, notifyUserIds: [] };
   const limit = deps.limit ?? 50;
   const log = createLogger({
     name: 'outbox-drain',
@@ -67,7 +73,7 @@ export async function drainOutbox(
   const notifyUserIds = new Set<string>();
 
   const { processed, exhausted } = await deps.db.transaction(async (tx) => {
-    await ensureDeliveries(tx, deps.registry, deps.clock);
+    await ensureDeliveries(tx, deps);
     const claims = await claimDueDeliveries(tx, { ...deps, limit });
     return processClaims({ deps, tx, claims, log, notifyUserIds });
   });
@@ -139,9 +145,9 @@ const DELIVERIES_PER_CONSUMER_PER_PASS = 200;
  */
 async function ensureDeliveries(
   tx: SqlTx,
-  registry: OutboxConsumerRegistry,
-  clock: Clock
+  deps: Pick<DrainOutboxDeps, 'registry' | 'clock' | 'causationIds'>
 ): Promise<void> {
+  const { registry, clock, causationIds } = deps;
   const consumers = registry.all();
   if (consumers.length === 0) return;
   const nowIso = new Date(clock.now()).toISOString();
@@ -163,6 +169,7 @@ async function ensureDeliveries(
       FROM outbox_events e
       JOIN (${subscriptions}) s ON s.type = e.type
      WHERE e.deleted_at IS NULL
+       ${causationIds === undefined ? sql`` : sql`AND e.causation_id IN (${join(causationIds)})`}
        AND NOT EXISTS (
          SELECT 1
            FROM outbox_deliveries d
@@ -179,7 +186,7 @@ async function claimDueDeliveries(
   tx: SqlTx,
   options: DrainOutboxDeps & { limit: number }
 ): Promise<readonly ClaimRow[]> {
-  const { clock, limit, registry, eventIds } = options;
+  const { clock, limit, registry, eventIds, causationIds } = options;
   const nowIso = new Date(clock.now()).toISOString();
   const consumers = registry.all().map((consumer) => consumer.id);
   if (consumers.length === 0 || eventIds?.length === 0) return [];
@@ -192,6 +199,7 @@ async function claimDueDeliveries(
        AND available_at <= ${nowIso}
        AND consumer_id IN (${join(consumers)})
        ${eventIds === undefined ? sql`` : sql`AND event_id IN (${join(eventIds)})`}
+       ${causationIds === undefined ? sql`` : sql`AND event_id IN (SELECT id FROM outbox_events WHERE causation_id IN (${join(causationIds)}))`}
      ORDER BY available_at ASC
      LIMIT ${limit}
   `);
@@ -203,7 +211,7 @@ async function loadEvent(
   eventId: string
 ): Promise<PendingEventRow | null> {
   const rows = await tx.query(sql<PendingEventRow>`
-    SELECT id, type, payload
+    SELECT id, type, payload, causation_id
       FROM outbox_events
      WHERE id = ${eventId}
        AND deleted_at IS NULL
@@ -326,7 +334,7 @@ async function runDelivery(args: {
   try {
     const result = await consumer.handler(
       {
-        tx,
+        tx: withOutboxCausation(tx, event.causation_id),
         clock,
         createId,
         ...(args.objectStore === undefined
