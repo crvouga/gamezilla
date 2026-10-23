@@ -33,6 +33,7 @@ module quoridor_play {
   var _finished: (int -> int, Set[(int, int, int)], int -> int, int, int)
 
   pure def _players(m: str): Set[int] = if (m == "classic") CLASSIC_PLAYERS else HILL_PLAYERS
+  pure def _roundTurn(m: str, moves: int): int = if (m == "classic") moves % 2 else moves % 4
   pure def _x(square: int): int = square % 9
   pure def _y(square: int): int = square / 9
   pure def _abs(n: int): int = if (n < 0) -n else n
@@ -86,7 +87,7 @@ module quoridor_play {
             _edge(from, adjacent, placed),
             if (straight) destination == behind else and {
               _edge(adjacent, destination, placed),
-              (_x(destination) - _x(adjacent)) * dx + (_y(destination) - _y(adjacent)) * dy == 0,
+              if (dx == 0) _y(destination) == _y(adjacent) else _x(destination) == _x(adjacent),
             },
           }
         }),
@@ -126,7 +127,7 @@ module quoridor_play {
   /// Move one's pawn to an allowed square, or keep the whole board when refused.
   action movePawn(player: int, square: int): bool =
     if (winner == -1 and _players(mode).contains(player) and turn == player and _pawnMove(mode, pawns, walls, player, square))
-      _update(pawns.set(player, square), walls, remaining, (turn + 1) % _players(mode).size(),
+      _update(pawns.set(player, square), walls, remaining, _roundTurn(mode, turn + 1),
         if (_goal(mode, player, square)) player else -1, false)
     else _hold
   /// Place one wall while leaving every player a path to their goal, or keep the board and every wall when refused.
@@ -134,7 +135,7 @@ module quoridor_play {
     val wall = (column, row, direction)
     if (winner == -1 and _players(mode).contains(player) and turn == player and remaining.get(player) > 0 and _wallAllowed(mode, pawns, walls, wall))
       _update(pawns, walls.union(Set(wall)), remaining.set(player, remaining.get(player) - 1),
-        (turn + 1) % _players(mode).size(), -1, false)
+        _roundTurn(mode, turn + 1), -1, false)
     else _hold
   }
   /// In King of the Hill, pass only when no pawn move or wall placement is possible. The player stays in the game.
@@ -142,9 +143,9 @@ module quoridor_play {
     if (mode != "hill" or winner != -1 or player != turn) _hold
     else if (CELLS.exists(c => _pawnMove(mode, pawns, walls, player, c))) _hold
     else if (remaining.get(player) == 0)
-      _update(pawns, walls, remaining, (turn + 1) % _players(mode).size(), winner, false)
+      _update(pawns, walls, remaining, _roundTurn(mode, turn + 1), winner, false)
     else if (WALLS.exists(w => _wallAllowed(mode, pawns, walls, w))) _hold
-    else _update(pawns, walls, remaining, (turn + 1) % _players(mode).size(), winner, false)
+    else _update(pawns, walls, remaining, _roundTurn(mode, turn + 1), winner, false)
   action step = any {
     { nondet player = _players(mode).oneOf() nondet square = CELLS.oneOf() movePawn(player, square) },
     { nondet player = Set(turn).oneOf() nondet square = CELLS.filter(c => _pawnMove(mode, pawns, walls, turn, c)).union(Set(40)).oneOf() movePawn(player, square) },
@@ -160,7 +161,7 @@ module quoridor_play {
   /// Every wall is either on the board or still available to its player, and no inventory is negative.
   val invInventory = _players(mode).forall(p => remaining.get(p) >= 0) and _players(mode).fold(0, (total, p) => total + remaining.get(p)) + walls.size() == 20
   /// Allowed choices advance the clockwise turn once, while refusals keep it.
-  val invTurns = turn == _plies % _players(mode).size()
+  val invTurns = turn == _roundTurn(mode, _plies)
   /// A player wins exactly when their pawn reaches the goal, and at most one player has done so.
   val invVictory = and {
     _players(mode).forall(p => (winner == p) iff _goal(mode, p, pawns.get(p))),
