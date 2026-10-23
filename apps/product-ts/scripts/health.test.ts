@@ -104,7 +104,8 @@ test('the live entry binds the literal Connect Four journey steps', () => {
   expect(result.status, result.stdout + result.stderr).toBe(0);
 });
 
-test('the live entry binds the Battleship journey and health steps', () => {
+// regression: live-quoridor-journey-unbound
+test('the live entry binds the Battleship and Quoridor journey and health steps', () => {
   const result = spawnSync(
     process.execPath,
     [
@@ -117,7 +118,15 @@ test('the live entry binds the Battleship journey and health steps', () => {
       'Alice and Bob see the same completed Battleship game',
       'the team checks Battleship in this environment',
       'two people can find each other and play Battleship to a victory they both see',
-      "neither person saw the other's fleet beyond what their shots showed"
+      "neither person saw the other's fleet beyond what their shots showed",
+      'Alice and Bob play Classic Quoridor from fresh devices',
+      'Alice and Bob see the same completed Classic Quoridor game',
+      'Alice and Bob play Four-Player King of the Hill with two bots from fresh devices',
+      'Alice and Bob see the same completed Four-Player King of the Hill game',
+      'the team checks Classic Quoridor in this environment',
+      'two people can find each other and complete Classic Quoridor with the same result',
+      'the team checks Four-Player King of the Hill in this environment',
+      'two people and two bots can complete Four-Player King of the Hill with the same result'
     ]) {
       if (matchStep(text).kind !== 'match') throw new Error('unbound: ' + text);
     }

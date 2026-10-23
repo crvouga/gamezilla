@@ -629,6 +629,8 @@
         "@libs/profile-harness-ts#test:spec:19",
         "@libs/profile-harness-ts#test:spec:20",
         "@libs/profile-harness-ts#test:spec:21",
+        "@libs/quoridor-harness-ts#test:spec:0",
+        "@libs/quoridor-harness-ts#test:spec:1",
         "@libs/runtime-harness-ts#test:spec:0",
         "@libs/runtime-harness-ts#test:spec:1",
         "@libs/runtime-harness-ts#test:spec:2",

@@ -1,0 +1,4 @@
+{
+  "summary": "The deployed-health step entry registered Quoridor health checks but omitted both Quoridor critical journeys, so the release rehearsal reported undefined steps.",
+  "regressionTest": "apps/product-ts/scripts/health.test.ts"
+}

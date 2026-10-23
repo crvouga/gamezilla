@@ -105,27 +105,27 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 
 | | |
 | --- | --- |
-| Packages | 334 |
-| Verify scripts | 1308 |
+| Packages | 337 |
+| Verify scripts | 1319 |
 | Measured scripts | 947 |
-| Estimated scripts | 361 |
+| Estimated scripts | 372 |
 | Stale cost keys | 555 |
-| Cold CPU | 18302 s |
-| Spec parts | 10192 s across 272 tasks |
+| Cold CPU | 18364 s |
+| Spec parts | 10230 s across 274 tasks |
 | Longest task | @libs/games-harness-ts#test:spec:49 213 s |
 
 ### Families
 
 | Family | Tasks | CPU |
 | --- | --- | --- |
-| test:spec | 272 | 10192 s |
+| test:spec | 274 | 10230 s |
 | verify:models:9 | 16 | 1914 s |
-| lint | 333 | 1223 s |
+| lint | 336 | 1229 s |
 | test:contract | 26 | 1019 s |
-| test | 241 | 902 s |
+| test | 243 | 904 s |
 | verify:models:2 | 11 | 660 s |
-| verify:models | 38 | 644 s |
-| tc | 332 | 516 s |
+| verify:models | 39 | 657 s |
+| tc | 335 | 519 s |
 
 ### Leaves
 
@@ -152,9 +152,9 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared-ts | 267 | 18088 s | @libs/games-harness-ts#test:spec:49 213 s |
-| @pkgs/clock-shared-ts | 233 | 17970 s | @libs/games-harness-ts#test:spec:49 213 s |
-| @pkgs/assert-root-shared-ts | 228 | 17922 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/property-shared-ts | 270 | 18150 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/clock-shared-ts | 236 | 18032 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/assert-root-shared-ts | 231 | 17984 s | @libs/games-harness-ts#test:spec:49 213 s |
 
 ### Runner
 
@@ -167,7 +167,7 @@ Slot allocation target 240 s. Warm start 30 s. Verdict slack 15 s. Spec workers 
 | Other slots per runner | 12 |
 | Cores required per runner | 29 |
 | Memory required per runner | 38 GiB |
-| Estimated makespan | 227 s |
+| Estimated makespan | 228 s |
 | Provision | 6 × 32 vCPU, 64 GB, Linux x64 |
 | Fits | yes |
 <!-- ci-load:end -->

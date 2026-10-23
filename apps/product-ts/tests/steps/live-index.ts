@@ -1,5 +1,6 @@
 /** Live health binds the deployed environment without loading the local DOM harness. */
 import '@libs/runtime-harness-ts/journeys.steps';
+import '@libs/runtime-harness-ts/quoridor-journey.steps';
 import './api.steps';
 import './battleship.steps';
 import './billing.steps';

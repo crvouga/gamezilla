@@ -1,0 +1,4 @@
+{
+  "summary": "Non-browser verification shards omitted the host fingerprint written while planning, changing root lint's task hash before execution.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-plan-context.test.ts"
+}

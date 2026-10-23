@@ -98,6 +98,7 @@ function hashes(root: string): Map<string, string> {
       '--filter=./pkgs/*',
       '--dry=json',
       '--framework-inference=false',
+      '--cache=local:rw',
     ],
     {
       cwd: root,
@@ -122,6 +123,7 @@ function changed(
     .sort();
 }
 
+// regression: native-cache-key-remote-lookup
 test('a native library change reruns its app, a test change does not, and other packages stay cached', () => {
   const root = fixture();
   try {

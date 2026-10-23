@@ -44,6 +44,7 @@
   "devDependencies": {
     "@pkgs/bun-test-solid-client-ts": "workspace:*",
     "@pkgs/quint-shared-ts": "workspace:*",
+    "@pkgs/turn-game-shared-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",
