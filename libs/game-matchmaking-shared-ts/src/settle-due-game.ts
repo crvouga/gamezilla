@@ -1,7 +1,10 @@
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { MultiplayerGameRepository } from './game-repository';
-import { settleMultiplayerClock } from './multiplayer-clock';
+import {
+  multiplayerDeadlineMs,
+  settleMultiplayerClock,
+} from './multiplayer-clock';
 
 /**
  * The scheduled sweep's half of a deadline: applies a missed first move or a
@@ -21,6 +24,9 @@ export async function settleDueGame(
   const repository = new MultiplayerGameRepository(tx);
   const found = await repository.byId(gameId);
   if (found === null) return [];
+  const due = multiplayerDeadlineMs(found);
+  // Old move deadlines remain durable, but cannot settle this newer state.
+  if (due === null || due > nowMs) return [];
   const stored = await repository.owned(gameId, found.white_id, nowMs);
   const settled = settleMultiplayerClock(stored, nowMs, rules);
   if (settled === stored) return [];
