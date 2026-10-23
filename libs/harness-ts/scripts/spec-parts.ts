@@ -209,7 +209,15 @@ export function partOf(
   units: readonly SpecUnit[],
   part: Part
 ): readonly SpecUnit[] {
-  const loads: PartLoad[] = Array.from({ length: part.count }, (_, index) => ({
+  return splitSpecUnits(units, part.count)[part.index] ?? [];
+}
+
+/** Compute every part once when preparing a complete suite's manifests. */
+export function splitSpecUnits(
+  units: readonly SpecUnit[],
+  count: number
+): readonly (readonly SpecUnit[])[] {
+  const loads: PartLoad[] = Array.from({ length: count }, (_, index) => ({
     load: index === 0 ? 1 : 0,
     units: [],
   }));
@@ -221,12 +229,37 @@ export function partOf(
   }
   placeOnLightest(loads, models);
   for (const unit of rest) {
-    const index = specOwner(unit.path, part.count, unit.slice?.index ?? 0);
+    const index = specOwner(unit.path, count, unit.slice?.index ?? 0);
     loads[index]!.units.push(unit);
   }
-  return (loads[part.index]?.units ?? []).sort((a, b) =>
-    unitKey(a).localeCompare(unitKey(b))
+  fillEmptyParts(loads);
+  return loads.map((part) =>
+    part.units.sort((a, b) => unitKey(a).localeCompare(unitKey(b)))
   );
+}
+
+/** Fill sparse path-hash gaps without increasing an existing part's load. */
+function fillEmptyParts(loads: readonly PartLoad[]): void {
+  for (const empty of loads) {
+    if (empty.units.length > 0) continue;
+    const donor = [...loads]
+      .filter(
+        (candidate) =>
+          candidate.units.length > 1 &&
+          candidate.units.some((unit) => unit.path.endsWith('.qnt'))
+      )
+      .sort((a, b) => b.load - a.load)[0];
+    if (donor === undefined) continue;
+    const index = donor.units.findLastIndex((unit) =>
+      unit.path.endsWith('.qnt')
+    );
+    const [unit] = donor.units.splice(index, 1);
+    if (unit !== undefined) {
+      donor.load -= unit.weight;
+      empty.units.push(unit);
+      empty.load += unit.weight;
+    }
+  }
 }
 
 /** Feature edits cannot move unrelated features or the bounded model batches. */

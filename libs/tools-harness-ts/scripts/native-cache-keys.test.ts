@@ -88,6 +88,7 @@ function fixture(): string {
 }
 
 function hashes(root: string): Map<string, string> {
+  // regression: native-cache-fixture-remote-lookups
   const json = execFileSync(
     join(ROOT, 'node_modules/.bin/turbo'),
     [
@@ -98,6 +99,8 @@ function hashes(root: string): Map<string, string> {
       '--filter=./pkgs/*',
       '--dry=json',
       '--framework-inference=false',
+      '--cache=local:rw',
+      '--no-daemon',
     ],
     {
       cwd: root,

@@ -1,0 +1,4 @@
+{
+  "summary": "The 95-part shared-game suite left parts 88 and 89 empty because stable path hashing overlapped the model allocation. Move model units into empty parts while preserving every unit and load cap.",
+  "regressionTest": "libs/harness-ts/scripts/spec-parts.test.ts"
+}
