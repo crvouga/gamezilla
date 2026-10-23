@@ -1,4 +1,5 @@
 import { exposeLocalSqlForTests } from '@libs/app-root-shared-ts/test-local-sql';
+import { useGetFreshAuthToken } from '@libs/auth-client-ts/use-fresh-auth-token';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { useLogger } from '@pkgs/logger-client-ts/solid';
 import type { SyncClientAuth } from '@pkgs/sync-engine-client-ts/sync-http-client';
@@ -34,6 +35,7 @@ function useSyncBootPromise(args: {
   const loadApp = useAppData();
   const pool = useSyncEnginePool();
   const identity = useLocalIdentity();
+  const getFreshAuthToken = useGetFreshAuthToken();
   const log = useLogger('sync-engine-boot');
   const fetchFn: SyncApiFetch = env.server;
   const availability = originAvailabilityFor(env);
@@ -68,7 +70,7 @@ function useSyncBootPromise(args: {
       createId: env.createId,
       random: env.random,
       moderation: env.moderation,
-      getFreshAuthToken: () => Promise.resolve(identity.sessionToken()),
+      getFreshAuthToken,
       databaseName: databaseName(),
       userId: args.userId(),
       ...(availability.kind === 'health'
