@@ -1,0 +1,4 @@
+{
+  "summary": "The first-move deadline aborted four-seat games before their normal timeout policy applied. Expiry must complete a retained draw at every active-game ply while two-seat first-move expiry remains aborted.",
+  "regressionTest": "libs/game-matchmaking-shared-ts/tests/multiseat-early-expiry.test.ts"
+}

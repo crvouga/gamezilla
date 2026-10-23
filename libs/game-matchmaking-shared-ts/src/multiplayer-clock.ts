@@ -20,8 +20,8 @@ import {
 } from './time-control';
 
 /**
- * White has this long from the start, Black this long from White's first
- * move. A daily game gives each the time control's days instead.
+ * Each participant has this long for their first move. A daily game gives
+ * each the time control's days instead.
  */
 export const FIRST_MOVE_MS = 30_000;
 
@@ -182,9 +182,9 @@ export function lowOnTimeAtMs(game: ClockFields): number | null {
 }
 
 /**
- * The game as it stands at `nowMs`: a missed first move aborts it, and a
- * clock at zero loses for the side to move, or draws when the other side
- * cannot win under the registered rules. Pure, so every reader decides alike.
+ * Expiry draws a group. In a pair, a missed first move aborts the game;
+ * later expiry loses for the side to move, or draws when the other side
+ * cannot win. Pure, so every reader decides alike.
  */
 export function settleMultiplayerClock(
   game: MultiplayerGame,
@@ -193,14 +193,18 @@ export function settleMultiplayerClock(
 ): MultiplayerGame {
   const deadline = multiplayerDeadlineMs(game);
   if (deadline === null || nowMs < deadline) return game;
+  const group = multiplayerSides(game).length > 2;
   if (awaitingSetups(game))
-    return endMultiplayerGame(game, 'aborted', 'setup missed');
+    return endMultiplayerGame(game, group ? 'draw' : 'aborted', 'setup missed');
   if (!bothHaveMoved(game))
-    return endMultiplayerGame(game, 'aborted', 'first move missed');
+    return endMultiplayerGame(
+      group ? withMultiplayerClock(game, sideToMove(game), 0) : game,
+      group ? 'draw' : 'aborted',
+      'first move missed'
+    );
   const flagged = sideToMove(game);
   const out = withMultiplayerClock(game, flagged, 0);
-  if (multiplayerSides(game).length > 2)
-    return endMultiplayerGame(out, 'draw', 'timeout');
+  if (group) return endMultiplayerGame(out, 'draw', 'timeout');
   if (
     !rules
       .forPosition(game.fen)

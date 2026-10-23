@@ -10,20 +10,20 @@ import { multiplayerSides } from './multiplayer-roster';
 import { publishMatchGame } from './publish-match-game';
 import { projectOpponentSearch } from './search-projection';
 
-/** Before both people have moved the game is aborted; afterwards it is given up. */
+/** A group withdrawal completes a draw; a pair retains its early-abort rule. */
 function withdrawnGame(
   game: MultiplayerGame,
   actorId: string
 ): MultiplayerGame {
+  if (multiplayerSides(game).length > 2)
+    return endMultiplayerGame(game, 'draw', 'participant withdrew');
   if (!bothHaveMoved(game))
     return endMultiplayerGame(game, 'aborted', 'account deletion');
-  return multiplayerSides(game).length > 2
-    ? endMultiplayerGame(game, 'draw', 'participant withdrew')
-    : endMultiplayerGame(
-        game,
-        game.white_id === actorId ? 'black' : 'white',
-        'account deletion'
-      );
+  return endMultiplayerGame(
+    game,
+    game.white_id === actorId ? 'black' : 'white',
+    'account deletion'
+  );
 }
 
 /** Account withdrawal and the opponent's lasting result share one transaction. */

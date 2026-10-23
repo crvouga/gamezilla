@@ -23,6 +23,46 @@ import { readyPeople, timeControlFor } from './matched-game';
 const PEOPLE = ['alice', 'bob', 'carol', 'dave'] as const;
 
 Given(
+  'Alice, Bob, Carol and Dave have a new four-player matched game at 5+0',
+  async (w) => {
+    await groupMatchedGame(w, {
+      people: readyPeople,
+      participants: PEOPLE,
+      timeControl: timeControlFor(w, '5+0'),
+    });
+    expect((await matchedGameOf(w)).revision).toBe(0);
+  }
+);
+
+Then(
+  'Bob, Carol and Dave see the matched game is drawn because a participant withdrew',
+  async (w) => {
+    const game = await groupBoards(
+      w,
+      PEOPLE.slice(1),
+      (current) => current.outcome === 'draw'
+    );
+    expect(game.reason).toBe('participant withdrew');
+    expect(game.revision).toBe(0);
+    expect(multiplayerPeople(game)).toHaveLength(4);
+  }
+);
+
+Then(
+  'all four people see the matched game is drawn because the first side missed the first move',
+  async (w) => {
+    const game = await groupBoards(
+      w,
+      PEOPLE,
+      (current) => current.outcome === 'draw'
+    );
+    expect(game.reason).toBe('first move missed');
+    expect(game.revision).toBe(0);
+    expect(multiplayerPeople(game)).toHaveLength(4);
+  }
+);
+
+Given(
   'Alice, Bob and Carol are seeking the same four-player game at 5+0',
   async (w) => {
     await readyPeople(w, PEOPLE);
