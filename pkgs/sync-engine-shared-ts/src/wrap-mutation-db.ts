@@ -93,8 +93,8 @@ export function wrapMutationDb(
         return tx.run(query);
       }
       if (classified.kind === 'write') {
-        await execWrite(query, classified.table, classified.op);
-        return { changes: 0, lastInsertRowid: 0 };
+        const rows = await execWrite(query, classified.table, classified.op);
+        return { changes: rows.length, lastInsertRowid: 0 };
       }
       if (
         classified.kind === 'other' &&
