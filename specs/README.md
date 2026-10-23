@@ -1161,7 +1161,7 @@ Chess    ──► Journeys (a game of chess, a puzzle, multiplayer chess, a Cus
 Battleship ──► Journeys (Battleship)
 Quoridor ──► Journeys (Quoridor, Classic Quoridor, Four-Player King of the Hill)
 Games    ──► Connect Four (game), Battleship (game, custom game)
-Games    ──► Quoridor (game, custom game)
+Games    ──► Quoridor (game, custom game, ready, start)
 Games    ──► Journeys (bot)
 App      ──► Quoridor (keyboard, control)
 Room, Sync engine: stand alone; Matchmaking publishes complete matches to Chess (Sync engine's "shared space" is not a Spaces space)
@@ -1177,7 +1177,7 @@ Published language:
 | Spaces (`spaces`) | space, host, join, leave, create a space, end a space, open space, return to a space, lobby, space link, hosting limit, idle | `SpaceEvent`: `SpaceOpened`, `PersonJoined`, `PersonLeft`, `SpaceEnded` |
 | Friends (`friends`) | friend, friends list, people search, block someone, inbox | `FriendshipEvent`: `BecameFriends`, `FriendshipEnded` |
 | Chess (`chess`) | game, chess, board, puzzle, solve, multiplayer chess, multiplayer result, Custom Game, Custom Game move list | — |
-| Games (`games`) | game, the game's choices, custom game, bot | — |
+| Games (`games`) | game, the game's choices, custom game, bot, ready, start | — |
 | Connect Four (`connect-four`) | Connect Four | — |
 | Battleship (`battleship`) | Battleship | — |
 | Quoridor (`quoridor`) | Quoridor, Classic Quoridor, Four-Player King of the Hill | — |

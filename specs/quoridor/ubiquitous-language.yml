@@ -148,6 +148,10 @@ terms:
     from: games
   - term: custom game
     from: games
+  - term: ready
+    from: games
+  - term: start
+    from: games
   - term: space
     from: spaces
   - term: host

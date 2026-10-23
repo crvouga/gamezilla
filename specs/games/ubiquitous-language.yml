@@ -71,6 +71,7 @@ terms:
     model: [SettingUp]
 
   - term: ready
+    published: true
     definition: >-
       A person in a custom game agreeing to its current set-up before it
       starts. Any change to the sides or the clock choice leaves every
@@ -166,13 +167,14 @@ terms:
 
   - term: start
     definition: >-
-      Begin a custom game once both sides have a participant and every
+      Begin a custom game once every declared side has a participant and every
       person in it is ready, which only its creator does. It starts from the
       game's starting position with the first side to move, and it starts
       once however often the creator asks; a start for an earlier set-up is
       refused.
     forms: [starts, started, starting, startable, can start, cannot start]
     model: [startGame, started, startsShown]
+    published: true
 
   - term: under way
     definition: >-
