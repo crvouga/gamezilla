@@ -8,6 +8,7 @@ import {
   actOnLiveDevice,
   type LiveDevices,
   openGuestDevice,
+  openPrimaryDevice,
   requireDevice,
   runLiveCleanups,
 } from '@apps/product-ts/live-journey-devices';
@@ -24,7 +25,6 @@ import type { Device, LiveTarget } from '@apps/product-ts/live-browser';
 import {
   emulateOffline,
   journeyBrowser,
-  openDevice,
   readLocation,
   saveEvidence,
 } from '@apps/product-ts/live-browser';
@@ -118,9 +118,7 @@ async function openLiveDevice(
   devices: LiveDevices,
   access: JourneyAccess
 ): Promise<void> {
-  const opened = await openDevice(target);
-  devices.host = opened;
-  devices.shown = opened;
+  const opened = await openPrimaryDevice(target, devices);
   // `launch()` only waits for document navigation. Let the initial lazy
   // tab route settle before leaving for the hosted-auth callback.
   await prepareCriticalJourneyAccess({

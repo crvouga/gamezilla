@@ -448,8 +448,8 @@ export function healthTestArguments(
     'test',
     '--timeout',
     String(SCENARIO_TIMEOUT_MS),
-    // Live journeys share one monitor account and Chrome storage. A second
-    // scenario must not clear the first device or compete for its host slot.
+    // Live journeys share one monitor account. A second scenario must not
+    // change the first account while its journey or cleanup is still running.
     '--max-concurrency',
     '1',
     ...cli.bunArgs,

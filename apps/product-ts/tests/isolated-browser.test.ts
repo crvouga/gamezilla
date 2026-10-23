@@ -4,6 +4,7 @@ import {
   actOnLiveDevice,
   type LiveDevices,
   openGuestDevice,
+  openPrimaryDevice,
   runLiveCleanups,
 } from '@apps/product-ts/live-journey-devices';
 import type { BrowserCall } from '@apps/product-ts/remote-browser-driver';
@@ -255,4 +256,33 @@ test('cleanups after the peer acted last run on the activated host page', async 
     await host.close();
     await peer.close();
   }
+});
+
+// regression: live-primary-browser-profile-reused
+test('a fresh primary after another journey owns its own browser process', async () => {
+  const workers = [controlled(), controlled()];
+  const target = {
+    webOrigin: 'https://web.example',
+    apiOrigin: 'https://api.example',
+    oauthCallbackOrigin: 'https://api.example',
+    http: { fetch: async () => new Response() },
+  };
+  let next = 0;
+  const open = () => openIsolatedDevice(target, () => workers[next++]!.process);
+  const devices: LiveDevices = { host: null, guest: null, shown: null };
+  const first = await openPrimaryDevice(target, devices, open);
+  await first.close();
+  const second = await openPrimaryDevice(target, devices, open);
+  try {
+    expect(devices.host).toBe(second);
+    expect(devices.shown).toBe(second);
+    expect(workers[0]!.terminated()).toBe(true);
+    expect(workers[1]!.terminated()).toBe(false);
+    expect(await second.driver.get('multiplayer-game').text()).toBe(
+      'A real disc'
+    );
+  } finally {
+    await second.close();
+  }
+  expect(workers[1]!.terminated()).toBe(true);
 });
