@@ -1,0 +1,4 @@
+{
+  "summary": "Generated design-token and sound source files were tracked instead of being ignored and rebuilt during installation.",
+  "regressionTest": "libs/tools-harness-ts/scripts/task-runner-policy.test.ts"
+}

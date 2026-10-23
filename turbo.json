@@ -1472,6 +1472,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/turbo.json",
+        "$TURBO_ROOT$/.gitignore",
         "$TURBO_ROOT$/package.json",
         "$TURBO_ROOT$/biome.json",
         "$TURBO_ROOT$/libs/*/package.json",
@@ -3031,6 +3032,31 @@
         "apps/*/STEPS_CATALOG.md",
         "libs/*/STEPS_CATALOG.md",
         "pkgs/*/STEPS_CATALOG.md"
+      ]
+    },
+    "//#task:tokens:generate": {
+      "inputs": [
+        "pkgs/ui-root-client-ts/scripts/generate-tokens-css.ts",
+        "pkgs/ui-root-shared-ts/src/**",
+        "!pkgs/ui-root-shared-ts/src/token-names.ts"
+      ],
+      "outputs": [
+        "pkgs/ui-root-client-ts/src/tokens.css",
+        "pkgs/ui-root-shared-ts/src/token-names.ts"
+      ]
+    },
+    "//#task:sounds:generate": {
+      "inputs": [
+        "pkgs/sounds-server-ts/scripts/generate-manifest.ts",
+        "pkgs/sounds-server-ts/scripts/curate-mapping.ts",
+        "pkgs/sounds-shared-ts/src/manifest.json",
+        "pkgs/clock-shared-ts/src/**",
+        "pkgs/logger-shared-ts/src/**"
+      ],
+      "outputs": [
+        "pkgs/sounds-shared-ts/src/sound-id.ts",
+        "pkgs/sounds-shared-ts/src/sound-urls.ts",
+        "pkgs/sounds-shared-ts/src/sound-volumes.ts"
       ]
     },
     "@pkgs/object-store-s3-server-ts#generate:browser": {
