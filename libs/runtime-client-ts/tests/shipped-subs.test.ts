@@ -46,6 +46,7 @@ const TABLE_NAMES = [
   'chess_multiplayer_games',
   'chess_multiplayer_players',
   'chess_multiplayer_ratings',
+  'chess_multiplayer_setups',
   'chess_opponent_searches',
   'chess_puzzle_feed_settings',
   'chess_puzzle_interactions',
@@ -118,6 +119,7 @@ const MUTATION_NAMES = [
   'applyEnsuredUsername',
   'blockUser',
   'cancelFriendRequest',
+  'chooseMultiplayerSetup',
   'claimUsername',
   'closeEndedOpenSessions',
   'confirmAccountDeletion',
@@ -168,6 +170,7 @@ describe('shipped subs', () => {
     expectDepthOne(APP_SUBS);
   });
 
+  // regression: shipped-sub-private-setup-inventory
   test('the data fold still yields the shipped tables, queries, and mutations', async () => {
     expect(APP.tableNames).toEqual([...TABLE_NAMES]);
     expect(Object.keys(APP.queries).sort()).toEqual([...QUERY_NAMES]);

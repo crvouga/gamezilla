@@ -1,8 +1,9 @@
 import { expect } from 'bun:test';
+import { operateCustomGame } from '@libs/game-session-harness-ts/custom-game-controls';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import {
+  establishQuoridor,
   preferQuoridorReducedMotion,
-  type QuoridorSetup,
 } from '@libs/quoridor-harness-ts/quoridor-actions';
 import {
   QUORIDOR_HILL_PLAYABLE,
@@ -10,16 +11,15 @@ import {
 } from '@libs/quoridor-harness-ts/quoridor-playable';
 import { setupQuoridor, viewQuoridor } from './quoridor-world';
 
-Given('{actor} has chosen Classic Quoridor', (w) => {
-  w.memo.set('quoridor-mode', 'classic');
-});
-Given('{actor} has chosen Four-Player King of the Hill', (w) => {
-  w.memo.set('quoridor-mode', 'hill');
-});
-When('{actor} creates a Quoridor custom game', (w) =>
-  setupQuoridor(w, {
-    mode: w.memo.get('quoridor-mode') as NonNullable<QuoridorSetup['mode']>,
-  })
+Given('{actor} has chosen Classic Quoridor with two ready players', (w) =>
+  w.s.apply(establishQuoridor, { mode: 'classic', active: false })
+);
+Given(
+  '{actor} has chosen Four-Player King of the Hill with four ready players',
+  (w) => w.s.apply(establishQuoridor, { mode: 'hill', active: false })
+);
+When('{actor} starts the Quoridor custom game', (w, actor: string) =>
+  w.s.apply(operateCustomGame, actor, { operation: 'start' })
 );
 Given('{actor} has a Classic Quoridor game South has won', (w) =>
   setupQuoridor(w, { moves: QUORIDOR_PLAYABLE.fixtures.firstSideVictory })

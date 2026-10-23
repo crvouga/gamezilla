@@ -4,6 +4,7 @@ import type { ProductHarness } from '@libs/harness-ts/harness';
 
 // regression: connect-four-highlight-counts-stylesheet
 // regression: connect-four-highlight-overlaps-browser-reads
+// regression: connect-four-highlight-full-seat-projection
 test('the winning alignment read counts highlighted cells without counting CSS', async () => {
   const winning = new Set([0, 7, 14, 21]);
   let reading = false;
@@ -18,9 +19,14 @@ test('the winning alignment read counts highlighted cells without counting CSS',
             status: 'completed',
             white: { kind: 'person', person: 'alice' },
             black: { kind: 'bot', person: '' },
+            red: { kind: 'closed', person: '' },
+            blue: { kind: 'closed', person: '' },
+            sides: ['white', 'black'],
             ready: [],
             turn: 'black',
             outcome: 'white wins',
+            outcomeReason: '',
+            drawAcceptedBy: [],
             moves: [],
           },
           displayFen: 'c4:1:0101010',

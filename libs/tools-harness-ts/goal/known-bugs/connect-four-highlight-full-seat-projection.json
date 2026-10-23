@@ -1,0 +1,4 @@
+{
+  "summary": "The winning-alignment browser-read regression fixture omitted closed red and blue seats, declared sides and draw fields required by the complete custom-game projection, so it failed before reading the highlighted cells.",
+  "regressionTest": "libs/connect-four-harness-ts/tests/connect-four-highlight-read.test.ts"
+}
