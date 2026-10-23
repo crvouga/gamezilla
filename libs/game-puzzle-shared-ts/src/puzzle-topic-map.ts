@@ -1,4 +1,5 @@
 import type { TopicMap } from '@pkgs/sync-engine-shared-ts/topic-map';
+import { CONTENT_TOPIC_MAP } from './content-topic-map';
 import { puzzleCatalogueTopic } from './puzzle-catalogue';
 
 /**
@@ -6,6 +7,7 @@ import { puzzleCatalogueTopic } from './puzzle-catalogue';
  * wake only their own devices, and the catalogue wakes everyone holding it.
  */
 export const PUZZLE_TOPIC_MAP = {
+  ...CONTENT_TOPIC_MAP,
   chess_puzzle_profiles: {
     topics(_row, ctx) {
       return [`user:${ctx.actorId}`];

@@ -1,5 +1,6 @@
 import { GAME_PLATFORM_NAMESPACE } from '@libs/game-matchmaking-shared-ts/durable-names';
 import { defineTable } from '@pkgs/db-schema-root-shared-ts/define-table';
+import { CONTENT_TABLES } from './content-tables';
 
 export const chessPuzzles = defineTable({
   domain: GAME_PLATFORM_NAMESPACE,
@@ -108,6 +109,7 @@ export const chessPuzzleFeedSettings = defineTable({
 });
 
 export const PUZZLE_TABLES = [
+  ...CONTENT_TABLES,
   chessPuzzles,
   chessPuzzleProfiles,
   chessPuzzleFeedSettings,

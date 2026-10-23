@@ -7,6 +7,7 @@
 import type { PuzzleGame } from '@libs/game-puzzle-shared-ts/puzzle-setup';
 import type { PuzzlesCapability } from '@pkgs/turn-game-shared-ts/game-puzzles';
 import type { GameRules, GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
+import type { PuzzleContent } from '@pkgs/turn-game-shared-ts/puzzle-content';
 
 const other = (side: GameSide): GameSide =>
   side === 'white' ? 'black' : 'white';
@@ -68,3 +69,43 @@ export const PILE_GAME: PuzzleGame = {
   rules: pileRules('pile'),
   puzzles: pilePuzzles('pile/'),
 };
+
+/** The same reference game also supplies independently authorable content. */
+export function pileContent(id = 'pile'): PuzzleContent {
+  const rules = pileRules(id);
+  const valid = (value: string): boolean =>
+    rules.recognizes(value) && parse(value).stones <= 9;
+  const invalid = [
+    {
+      code: 'PILE_DETAILS_INVALID',
+      message: 'Choose a pile of at most nine stones.',
+    },
+  ];
+  return {
+    history: 'snapshots',
+    rules: {
+      validateDefinition: (definition) =>
+        valid(definition) ? { valid: true } : { valid: false, issues: invalid },
+      initial: (definition) =>
+        valid(definition)
+          ? { accepted: true, state: definition }
+          : { accepted: false, issues: invalid },
+      validateState: (definition, state) =>
+        valid(definition) &&
+        valid(state) &&
+        parse(state).stones <= parse(definition).stones
+          ? { valid: true }
+          : { valid: false, issues: invalid },
+      apply: (definition, state, action) => {
+        if (!valid(definition) || !valid(state))
+          return { accepted: false, issues: invalid };
+        const played = rules.play(state, action, '', []);
+        return played === null
+          ? { accepted: false, issues: invalid }
+          : { accepted: true, state: played.position };
+      },
+      complete: (definition, state) =>
+        valid(definition) && valid(state) && parse(state).stones === 0,
+    },
+  };
+}

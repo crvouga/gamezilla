@@ -1,0 +1,4 @@
+{
+  "summary": "The content harness awaited a pollable sync verdict without polling it, so a confirmed upload could time out during draft setup.",
+  "regressionTest": "libs/game-puzzle-harness-ts/tests/verdict-interop.test.ts"
+}

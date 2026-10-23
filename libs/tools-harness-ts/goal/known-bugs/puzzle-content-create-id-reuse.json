@@ -1,0 +1,4 @@
+{
+  "summary": "Reusing a content document identity for different initial work returned success without keeping the new draft.",
+  "regressionTest": "libs/game-puzzle-shared-ts/tests/content-transactions.test.ts"
+}

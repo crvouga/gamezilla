@@ -60,6 +60,7 @@
       "@libs/chess-root-client-ts/*": ["./libs/chess-root-client-ts/src/*"],
       "@libs/game-session-client-ts/*": ["./libs/game-session-client-ts/src/*"],
       "@libs/game-puzzle-shared-ts/*": ["./libs/game-puzzle-shared-ts/src/*"],
+      "@libs/game-puzzle-harness-ts/*": ["./libs/game-puzzle-harness-ts/src/*"],
       "@libs/game-session-shared-ts/*": ["./libs/game-session-shared-ts/src/*"],
       "@libs/chess-sub-shared-ts/*": ["./libs/chess-sub-shared-ts/src/*"],
       "@libs/chess-root-harness-ts/*": ["./libs/chess-root-harness-ts/src/*"],

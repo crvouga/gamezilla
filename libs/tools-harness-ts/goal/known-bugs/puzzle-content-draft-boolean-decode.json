@@ -1,0 +1,4 @@
+{
+  "summary": "Draft reads returned SQLite's numeric conflict flag despite promising a boolean, making exact conflict checks disagree across database adapters.",
+  "regressionTest": "libs/game-puzzle-shared-ts/tests/content-transactions.test.ts"
+}

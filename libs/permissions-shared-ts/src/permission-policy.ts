@@ -9,7 +9,7 @@ import type {
 import { ACTION, LIMIT, PERMISSION, ROLE } from './permission-catalog';
 
 /** Published id of the shipped policy; carried on every decision. */
-export const PERMISSION_POLICY_VERSION = '2026-10-20.1';
+export const PERMISSION_POLICY_VERSION = '2026-10-23.1';
 
 const UNLIMITED: QuotaGrant = { limit: null, window: 'day' };
 
@@ -120,7 +120,11 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
   roles: {
     [ROLE.baseline]: {
       when: 'always',
-      permissions: [PERMISSION.billingView],
+      permissions: [
+        PERMISSION.billingView,
+        PERMISSION.puzzlesCreateContent,
+        PERMISSION.puzzlesReadOwnContent,
+      ],
     },
     [ROLE.planGuest]: {
       when: { auth: 'anonymous' },
@@ -156,6 +160,16 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
     [ROLE.puzzleManager]: {
       when: { accountId: [] },
       permissions: [PERMISSION.puzzlesManage],
+    },
+    [ROLE.puzzleAuthor]: {
+      permissions: [
+        PERMISSION.puzzlesEditContent,
+        PERMISSION.puzzlesPublishContent,
+        PERMISSION.puzzlesPlaytestContent,
+      ],
+    },
+    [ROLE.puzzlePlayer]: {
+      permissions: [PERMISSION.puzzlesEditAttempt],
     },
     [ROLE.syntheticPopulationOperator]: {
       when: { accountId: [] },

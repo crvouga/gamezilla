@@ -2,7 +2,10 @@ import type { SubManifest } from '@libs/sub-shared-ts/manifest';
 import { defineSub } from '@libs/sub-shared-ts/manifest';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { appendPuzzleInteractionMutation } from './append-puzzle-interaction-mutation';
+import { puzzleContentAttemptsOwned } from './attempt-query';
 import { chessPuzzleById } from './by-id-query';
+import { CONTENT_MUTATIONS } from './content-mutations';
+import { puzzleContentOwned, puzzleContentPublished } from './content-queries';
 import { chessPuzzleFeedSettings } from './feed-settings-query';
 import { chessPuzzleInteractions } from './interactions-query';
 import { chessPuzzleNearest, chessPuzzlePool } from './pool-query';
@@ -16,6 +19,9 @@ import { savePuzzleFeedSettingsMutation } from './save-puzzle-feed-settings-muta
 
 /** The puzzle catalogue and every person's puzzle progress, read by any game. */
 export const PUZZLE_QUERIES = [
+  puzzleContentAttemptsOwned,
+  puzzleContentOwned,
+  puzzleContentPublished,
   chessPuzzleProfile,
   chessPuzzleFeedSettings,
   chessPuzzleInteractions,
@@ -27,6 +33,7 @@ export const PUZZLE_QUERIES = [
 
 /** A person's puzzle attempts, ratings and feed choices, for any game. */
 export const PUZZLE_MUTATIONS = [
+  ...CONTENT_MUTATIONS,
   appendPuzzleInteractionMutation,
   ratePuzzleAttemptMutation,
   savePuzzleFeedSettingsMutation,
@@ -47,6 +54,9 @@ export const GAME_PUZZLE_SUB = defineSub({
   // Held open for the whole session: what keeps a person's puzzle
   // progress warm in the local database.
   sessionQueries: [
+    'puzzleContentAttemptsOwned',
+    'puzzleContentOwned',
+    'puzzleContentPublished',
     'chessPuzzleProfile',
     'chessPuzzleFeedSettings',
     'chessPuzzleInteractions',

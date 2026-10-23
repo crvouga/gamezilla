@@ -1,0 +1,48 @@
+{
+  "name": "@libs/game-puzzle-harness-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests",
+    "test:spec": "bun run ../../libs/harness-ts/scripts/test-spec.ts",
+    "test:spec:0": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 0/4",
+    "test:spec:1": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 1/4",
+    "test:spec:2": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 2/4",
+    "test:spec:3": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 3/4"
+  },
+  "dependencies": {
+    "@libs/game-puzzle-shared-ts": "workspace:*",
+    "@pkgs/gherkin-shared-ts": "workspace:*",
+    "@pkgs/harness-root-shared-ts": "workspace:*",
+    "@libs/billing-shared-ts": "workspace:*",
+    "@libs/permissions-shared-ts": "workspace:*",
+    "@pkgs/db-schema-root-shared-ts": "workspace:*",
+    "@pkgs/sql-client-root-shared-ts": "workspace:*",
+    "@pkgs/sql-root-shared-ts": "workspace:*",
+    "@pkgs/sync-engine-harness-ts": "workspace:*",
+    "@pkgs/sync-engine-shared-ts": "workspace:*",
+    "@pkgs/turn-game-shared-ts": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:",
+    "fast-check": "catalog:"
+  },
+  "category": "harness",
+  "language": "typescript",
+  "specDomains": [
+    "puzzles"
+  ],
+  "specParts": 4
+}

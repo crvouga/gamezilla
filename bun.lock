@@ -1721,6 +1721,30 @@
         "typescript": "catalog:",
       },
     },
+    "libs/game-puzzle-harness-ts": {
+      "name": "@libs/game-puzzle-harness-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/billing-shared-ts": "workspace:*",
+        "@libs/game-puzzle-shared-ts": "workspace:*",
+        "@libs/permissions-shared-ts": "workspace:*",
+        "@pkgs/db-schema-root-shared-ts": "workspace:*",
+        "@pkgs/gherkin-shared-ts": "workspace:*",
+        "@pkgs/harness-root-shared-ts": "workspace:*",
+        "@pkgs/sql-client-root-shared-ts": "workspace:*",
+        "@pkgs/sql-root-shared-ts": "workspace:*",
+        "@pkgs/sync-engine-harness-ts": "workspace:*",
+        "@pkgs/sync-engine-shared-ts": "workspace:*",
+        "@pkgs/turn-game-shared-ts": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "libs/game-puzzle-shared-ts": {
       "name": "@libs/game-puzzle-shared-ts",
       "version": "0.0.0",
@@ -7642,6 +7666,8 @@
     "@libs/game-menu-client-ts": ["@libs/game-menu-client-ts@workspace:libs/game-menu-client-ts"],
 
     "@libs/game-puzzle-client-ts": ["@libs/game-puzzle-client-ts@workspace:libs/game-puzzle-client-ts"],
+
+    "@libs/game-puzzle-harness-ts": ["@libs/game-puzzle-harness-ts@workspace:libs/game-puzzle-harness-ts"],
 
     "@libs/game-puzzle-shared-ts": ["@libs/game-puzzle-shared-ts@workspace:libs/game-puzzle-shared-ts"],
 

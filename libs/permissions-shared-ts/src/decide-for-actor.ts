@@ -8,6 +8,7 @@ import type {
   AppLimit,
   SpacePresenceRole,
 } from './permission-catalog';
+import { ROLE } from './permission-catalog';
 import type { AccessIdentity, AccessReader } from './read-access';
 import { readAccess } from './read-access';
 import { resolveSpaceRoles } from './space-roles';
@@ -16,6 +17,9 @@ import { resolveSpaceRoles } from './space-roles';
 export type AccessScope = {
   /** The actor's presence in the space the action targets. */
   readonly spacePresence?: SpacePresenceRole | null;
+  /** Ownership read from the target document inside the same transaction. */
+  readonly puzzleOwnerId?: string;
+  readonly puzzlePlayerId?: string;
 };
 
 /**
@@ -35,11 +39,15 @@ export async function decideForActor(
 ): Promise<Decision> {
   const access = await readAccess(db, args.identity, args.nowMs);
   const policy = policyAt(access.policy, args.clientAtMs);
-  const subject = resolveSubject(
-    policy,
-    access.facts,
-    resolveSpaceRoles(args.scope?.spacePresence ?? null)
-  );
+  const subject = resolveSubject(policy, access.facts, [
+    ...resolveSpaceRoles(args.scope?.spacePresence ?? null),
+    ...(args.scope?.puzzleOwnerId === args.identity.actorId
+      ? [ROLE.puzzleAuthor]
+      : []),
+    ...(args.scope?.puzzlePlayerId === args.identity.actorId
+      ? [ROLE.puzzlePlayer]
+      : []),
+  ]);
   return decide(policy, subject, args.key);
 }
 

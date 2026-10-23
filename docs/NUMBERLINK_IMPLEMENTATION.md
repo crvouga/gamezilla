@@ -48,10 +48,14 @@ unfinished work; it is not a second product definition.
   composable with existing turn games, with a structurally different consumer.
 - [ ] Shared content persistence, permission policy, mutation validation,
   publication transactions, idempotence and conflict handling.
+  The shared storage and sync path is implemented; choosing a retained draft
+  as the publication head still needs its explicit action and coverage.
 - [ ] Pack authoring, immutable pack revisions, independent puzzle access,
   withdrawal behavior and stable old revision access.
 - [ ] Attempts, automatic persistence, undo/redo, restart, replay history,
   completions, next puzzle and cross-device pack progression.
+  The shared domain path passes the reference app's scenarios; delivery
+  through the real application is still required.
 - [ ] Shared discovery, authoring shell, pack editor and player shell.
 - [ ] Numberlink visual builder, player and previews; pointer, touch, keyboard,
   accessible labels and responsive design-system components.
@@ -86,3 +90,20 @@ inferred from this ledger or from a narrow test run.
   Diagnostics were archived under the runner's `verify-run-BqTzmB` directory.
   The observability lookup found no matching model trace. This gate still
   needs a successful verdict before completion.
+- All 66 shared Puzzles scenarios passed through actual sync engines,
+  SQLite stores, server replay, queries and virtual network ports, using
+  the structurally different counting reference app. They cover drafts,
+  stable publication, ordered packs, private playtests, attempts, history,
+  restart, progression, offline reopening, reconnect and divergent work.
+- Eighteen Turbo typecheck, lint and code-test tasks passed across the
+  shared puzzle, harness, permissions, turn-game and sync packages.
+  Properties check opaque history codecs, persistent history values and
+  undo/redo reversibility. The spec ownership gate passed.
+- Integration found and pinned two sync defects: successful writes returned
+  zero affected rows, and offline mutation requests delayed reconnection.
+  The wrapper now reports actual affected rows; the uploader follows the
+  injected lifecycle and cancels stale in-flight waits when going offline.
+- The spec vocabulary correction is committed separately. All 66 scenarios
+  pass after rebinding, and the standard repository spec gate passes.
+  Critical Quint models, complete coverage audits, actual app integration
+  and full verification remain open.

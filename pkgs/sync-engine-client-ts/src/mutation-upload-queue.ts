@@ -8,6 +8,7 @@ import { events } from '@pkgs/observability-root-shared-ts/events';
 import { withSpan } from '@pkgs/observability-root-shared-ts/span';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import sql, { join } from '@pkgs/sql-root-shared-ts/sql';
+import type { AppLifecycle } from '@pkgs/sync-engine-shared-ts/app-lifecycle';
 import { MAX_MUTATIONS_BATCH } from '@pkgs/sync-engine-shared-ts/bounds';
 import { mutationOriginLink } from '@pkgs/sync-engine-shared-ts/mutation-observability';
 import { recordPushApplied } from '@pkgs/sync-engine-shared-ts/push-applied';
@@ -67,6 +68,7 @@ export type MutationUploadQueueOptions = {
   /** Refetch after refused optimistic writes leave the replay queue. */
   readonly onRejected?: (() => Promise<void>) | undefined;
   readonly timers: Timers;
+  readonly lifecycle?: AppLifecycle | undefined;
   readonly now: () => number;
   readonly random?: () => number;
   readonly waitUntilAvailable?: (signal?: AbortSignal | null) => Promise<void>;
@@ -288,6 +290,8 @@ export class MutationUploadQueue {
   private pendingWake = false;
   private availabilityAbort: AbortController | null = null;
   private errorAttempts = 0;
+  private online = true;
+  private disposeLifecycle: (() => void) | null = null;
   /** Lowered when the server refuses a batch as too large; reset on success. */
   private batchLimit = BATCH_LIMIT;
   private readonly timers: Timers;
@@ -304,11 +308,19 @@ export class MutationUploadQueue {
     if (this.running) return;
     this.running = true;
     this.availabilityAbort = new AbortController();
+    this.online = this.options.lifecycle?.isOnline() ?? true;
+    this.disposeLifecycle =
+      this.options.lifecycle?.subscribe((event) => {
+        if (event === 'online' || event === 'offline')
+          this.setOnline(event === 'online');
+      }) ?? null;
     this.loopPromise = this.runLoop();
   }
 
   async stop(): Promise<void> {
     this.running = false;
+    this.disposeLifecycle?.();
+    this.disposeLifecycle = null;
     this.pendingWake = true;
     this.availabilityAbort?.abort();
     this.wakeWaiter?.();
@@ -319,6 +331,28 @@ export class MutationUploadQueue {
   wake(): void {
     this.pendingWake = true;
     this.wakeWaiter?.();
+  }
+
+  private setOnline(value: boolean): void {
+    if (this.online === value) return;
+    this.online = value;
+    this.errorAttempts = 0;
+    if (!value) {
+      this.availabilityAbort?.abort();
+      this.availabilityAbort = new AbortController();
+    }
+    this.wake();
+  }
+
+  private async waitForOnline(): Promise<void> {
+    while (this.running && !this.online) {
+      await new Promise<void>((resolve) => {
+        this.wakeWaiter = () => {
+          this.wakeWaiter = null;
+          resolve();
+        };
+      });
+    }
   }
 
   private consumePendingWake(): boolean {
@@ -379,6 +413,7 @@ export class MutationUploadQueue {
   }
 
   private async drainOnce(): Promise<boolean> {
+    const signal = this.availabilityAbort?.signal ?? null;
     const queued = await readPending(
       this.options.db,
       this.options.clientId(),
@@ -392,8 +427,8 @@ export class MutationUploadQueue {
     const wire = fitUploadBatch(queued.map(toWireRow));
     if (wire.length === 0) return this.refuseTooLarge(queued.slice(0, 1));
     const pending = queued.slice(0, wire.length);
-    await this.options.waitUntilAvailable?.(this.availabilityAbort?.signal);
-    if (!this.running) return false;
+    await this.options.waitUntilAvailable?.(signal);
+    if (!this.running || !this.online || signal?.aborted === true) return false;
     const links = pending.flatMap((row) => {
       if (row.origin_traceparent === null) return [];
       const link = mutationOriginLink(
@@ -409,7 +444,7 @@ export class MutationUploadQueue {
         for (const row of pending) events.mutationSent(span, row.id);
         const result = await raceUntilAborted(
           this.options.postBatch(wire),
-          this.availabilityAbort?.signal ?? null
+          signal
         ).catch((error: unknown) => {
           if (error instanceof SyncHttpPayloadTooLargeError)
             return 'too_large' as const;
@@ -436,6 +471,10 @@ export class MutationUploadQueue {
     // Event loop: terminates when `stop()` clears `running`.
     while (this.running) {
       assert.ok(this.running, 'upload queue event loop');
+      if (!this.online) {
+        await this.waitForOnline();
+        continue;
+      }
       try {
         // Consume the wake that started this attempt so a pre-drain wake
         // cannot skip the error backoff after a failed postBatch.
@@ -448,18 +487,7 @@ export class MutationUploadQueue {
         }
         await this.wait(IDLE_DELAY_MS);
       } catch (error) {
-        if (!this.running) return;
-        this.options.onError(error);
-        this.pendingWake = false;
-        if (
-          error instanceof HttpNetworkError &&
-          this.options.waitUntilAvailable !== undefined
-        ) {
-          if (!(await this.waitForOriginRecovery())) return;
-          continue;
-        }
-        this.errorAttempts += 1;
-        await this.wait(this.errorBackoffMs(error));
+        if (!(await this.recoverUploadError(error))) return;
       }
     }
   }
@@ -470,8 +498,23 @@ export class MutationUploadQueue {
       return this.running;
     } catch (error) {
       // The availability owner stops before the engine drains during disposal.
-      if (isHttpAbortError(error)) return false;
+      if (isHttpAbortError(error)) return this.running;
       throw error;
     }
+  }
+
+  private async recoverUploadError(error: unknown): Promise<boolean> {
+    if (!this.running) return false;
+    if (!this.online) return true;
+    this.options.onError(error);
+    this.pendingWake = false;
+    if (
+      error instanceof HttpNetworkError &&
+      this.options.waitUntilAvailable !== undefined
+    )
+      return this.waitForOriginRecovery();
+    this.errorAttempts += 1;
+    await this.wait(this.errorBackoffMs(error));
+    return this.running;
   }
 }
