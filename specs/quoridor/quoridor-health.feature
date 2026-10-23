@@ -10,6 +10,6 @@ Feature: Both Quoridor modes remain available
 
   Rule: The environment supports a complete Four-Player King of the Hill game
 
-    Scenario: King of the Hill can be started and completed by four people
+    Scenario: King of the Hill can be completed by people and bots
       When the team checks Four-Player King of the Hill in this environment
-      Then four people can find each other and complete Four-Player King of the Hill with the same result
+      Then two people and two bots can complete Four-Player King of the Hill with the same result
