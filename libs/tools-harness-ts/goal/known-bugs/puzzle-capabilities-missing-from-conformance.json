@@ -1,0 +1,4 @@
+{
+  "summary": "The puzzle content permission keys and mutation declarations were absent from the closed capability manifest, leaving their access decisions outside conformance.",
+  "regressionTest": "libs/permissions-harness-ts/tests/closed-world.test.ts"
+}

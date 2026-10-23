@@ -78,12 +78,13 @@ The three rules partition that space without overlap. Each denial names the
 reason: the work belongs to someone else. No new product term is introduced;
 the existing published kinds of person are borrowed from Profile and Billing.
 
-The standard gate reports the expected missing decision bindings for this
-new table. The strict gate additionally reports the existing wording
-duplicates outside Puzzles. Implementation must bind all 36 cases through
-policy resolution, server enforcement, client decisions and resulting
-persistence. Critical aggregate models remain open, so the context's verdict
-remains INCOMPLETE.
+All 36 cases agree through policy resolution, real server replay and private
+queries, and mounted client decisions. A server refusal must preserve every
+stored row; the private query checks every returned owner. The 66 lifecycle
+scenarios and seven decision-table checks pass together, and the standard
+spec gate passes. The strict gate still reports the existing wording
+duplicates outside Puzzles. Critical aggregate models remain open, so the
+context's verdict remains INCOMPLETE.
 
 ## Wording correction audit
 

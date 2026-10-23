@@ -1726,10 +1726,14 @@
       "dependencies": {
         "@libs/billing-shared-ts": "workspace:*",
         "@libs/game-puzzle-shared-ts": "workspace:*",
+        "@libs/permissions-client-ts": "workspace:*",
+        "@libs/permissions-harness-ts": "workspace:*",
         "@libs/permissions-shared-ts": "workspace:*",
         "@pkgs/db-schema-root-shared-ts": "workspace:*",
+        "@pkgs/dmn-shared-ts": "workspace:*",
         "@pkgs/gherkin-shared-ts": "workspace:*",
         "@pkgs/harness-root-shared-ts": "workspace:*",
+        "@pkgs/permissions-shared-ts": "workspace:*",
         "@pkgs/sql-client-root-shared-ts": "workspace:*",
         "@pkgs/sql-root-shared-ts": "workspace:*",
         "@pkgs/sync-engine-harness-ts": "workspace:*",
@@ -1737,6 +1741,7 @@
         "@pkgs/turn-game-shared-ts": "workspace:*",
       },
       "devDependencies": {
+        "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",

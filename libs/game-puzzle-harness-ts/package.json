@@ -12,7 +12,8 @@
   "scripts": {
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test tests",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests",
+    "prepare:spec": "bun run --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client-ts/register ../../libs/harness-ts/scripts/prepare-spec.ts",
     "test:spec": "bun run ../../libs/harness-ts/scripts/test-spec.ts",
     "test:spec:0": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 0/4",
     "test:spec:1": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 1/4",
@@ -25,6 +26,10 @@
     "@pkgs/harness-root-shared-ts": "workspace:*",
     "@libs/billing-shared-ts": "workspace:*",
     "@libs/permissions-shared-ts": "workspace:*",
+    "@libs/permissions-client-ts": "workspace:*",
+    "@libs/permissions-harness-ts": "workspace:*",
+    "@pkgs/dmn-shared-ts": "workspace:*",
+    "@pkgs/permissions-shared-ts": "workspace:*",
     "@pkgs/db-schema-root-shared-ts": "workspace:*",
     "@pkgs/sql-client-root-shared-ts": "workspace:*",
     "@pkgs/sql-root-shared-ts": "workspace:*",
@@ -33,6 +38,7 @@
     "@pkgs/turn-game-shared-ts": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/bun-test-solid-client-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",

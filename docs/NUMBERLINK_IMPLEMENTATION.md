@@ -133,3 +133,10 @@ inferred from this ledger or from a narrow test run.
   faulty handlers makes both tests fail. The corrected 17-task run passes,
   as do the i18n and package-registration gates.
   These components are not yet enrolled in the app's shared content screens.
+- Private-work access is declared as six conformance capabilities and a
+  complete 36-case decision table. It passes policy, replay/private-query,
+  and mounted-client checks alongside all 66 shared lifecycle scenarios
+  (73 checks together). Thirteen permission and shared-harness tasks and
+  the standard spec gate pass. Client and server decisions share one
+  resource-role resolver. A pinned client regression fails with the old
+  space-only role resolution and passes with ownership facts included.
