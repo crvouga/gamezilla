@@ -785,7 +785,15 @@
       "Dismisses the stop outcome": "user",
       "Tries to start or stop without a connection": "user",
       "Returns to settings": "user",
-      "Signs in with permitted team access": "user"
+      "Signs in with permitted team access": "user",
+      "Chooses Classic Quoridor": "user",
+      "Chooses Four-Player King of the Hill": "user",
+      "Opens a Classic Quoridor custom game": "user",
+      "Finds Classic Quoridor opponents": "user",
+      "Reviews a Classic Quoridor game": "user",
+      "Opens a King of the Hill custom game": "user",
+      "Finds King of the Hill opponents": "user",
+      "Reviews a King of the Hill game": "user"
     }
   },
   "states": {
@@ -1059,7 +1067,9 @@
                       "specs/spaces/spaces.als",
                       "specs/spaces/spaces.feature",
                       "specs/spaces/ubiquitous-language.yml",
-                      "specs/ubiquitous-language.yml"
+                      "specs/ubiquitous-language.yml",
+                      "specs/spaces/space-unreachable.feature",
+                      "specs/spaces/space-unreachable.qnt"
                     ],
                     "events": []
                   },
@@ -9830,7 +9840,9 @@
                               "specs/runtime/reaching-the-app.feature",
                               "specs/runtime/request-records.feature",
                               "specs/runtime/serving-people.feature",
-                              "specs/runtime/stored-files.feature"
+                              "specs/runtime/stored-files.feature",
+                              "specs/runtime/request-speed.openslo.yaml",
+                              "specs/runtime/request-success.openslo.yaml"
                             ],
                             "events": []
                           },
