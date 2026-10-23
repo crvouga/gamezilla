@@ -49,6 +49,7 @@ import {
   instancesReplayPlan,
 } from './model-instances';
 import { modelParameterId } from './model-parameters';
+import { bindingForParameters } from './regression-parameters';
 import { registerRegressionTraces } from './regression-tests';
 import type { SimulateResult } from './simulate';
 import type { ReplayPlan, TraceRun, TraceSlice } from './trace-runs';
@@ -177,7 +178,7 @@ function registerInstances(input: {
         options,
         model,
         ...instance,
-        binding,
+        binding: bindingForParameters(binding, instance.parameters),
         slice,
         record: (obligation) =>
           record({

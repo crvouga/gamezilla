@@ -36,6 +36,8 @@ import { replayCover } from '@pkgs/quint-shared-ts/replay-budget';
 import lockedDoorTrace from './fixtures/door-locked.itf.json';
 import { registerParameterizedReplays } from './parameterized-replay';
 
+// regression: quint-parameter-scoped-history
+
 type Door = {
   state: string;
   lastBy: string;

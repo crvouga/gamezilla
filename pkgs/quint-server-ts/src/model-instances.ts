@@ -14,6 +14,10 @@ import {
   modelParameterNames,
 } from './model-parameters';
 import { quintModuleName } from './model-source';
+import {
+  bindingForParameters,
+  validateRegressionScopes,
+} from './regression-parameters';
 import { type SimulateResult, simulate } from './simulate';
 import {
   ONCE,
@@ -85,7 +89,12 @@ export function drawModelInstances(input: {
   readonly binding: QuintBinding<unknown>;
   readonly outDir: string;
 }): readonly DrawnInstance[] {
-  return modelInstances(input).map((instance) => {
+  const instances = modelInstances(input);
+  validateRegressionScopes(
+    input.binding.regressions,
+    instances.map((instance) => instance.parameters)
+  );
+  return instances.map((instance) => {
     const id = modelParameterId(instance.parameters);
     const outDir = id === '' ? input.outDir : join(input.outDir, id);
     return {
@@ -110,12 +119,20 @@ export function instancesReplayPlan(
   const first = instances[0];
   if (first === undefined) throw new Error('Cannot plan an empty model matrix');
   if (instances.length === 1 && modelParameterId(first.parameters) === '')
-    return replayPlanOf(first.drawn, binding, first.runs);
+    return replayPlanOf(
+      first.drawn,
+      bindingForParameters(binding, first.parameters),
+      first.runs
+    );
   return {
     seed: first.drawn.seed,
     instances: instances.map((instance) => ({
       parameters: instance.parameters,
-      plan: replayPlanOf(instance.drawn, binding, instance.runs),
+      plan: replayPlanOf(
+        instance.drawn,
+        bindingForParameters(binding, instance.parameters),
+        instance.runs
+      ),
     })),
   };
 }

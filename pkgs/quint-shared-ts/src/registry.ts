@@ -140,6 +140,8 @@ export type QuintBinding<W> = {
     readonly id: string;
     readonly title: string;
     readonly seed: string;
+    /** Replay only for this complete supported model-input assignment. */
+    readonly parameters?: ModelParameters;
     /** The original ITF input, decoded by the runner. */
     readonly itf: unknown;
   }[];
