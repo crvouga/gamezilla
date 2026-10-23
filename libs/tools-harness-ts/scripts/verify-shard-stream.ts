@@ -8,9 +8,35 @@ const TAIL_LINES = 40;
 const EXITED =
   /command finished with error|command .*exited|error: script .*exited with code [1-9]/;
 const FAILURE = new RegExp(`${EXITED.source}|^\\(fail\\)`);
+type TaskFailure = Omit<StreamSnapshot['failed'][number], 'taskId'>;
 
 function tailOf(output: string): string {
   return output.trimEnd().split('\n').slice(-TAIL_LINES).join('\n');
+}
+
+/** Turbo reports binary-script failures on its own source, outside the task's output. */
+function failedTaskIds(
+  text: string,
+  tasks: readonly VerifyTask[]
+): readonly string[] {
+  const listed = /^\s*Failed:\s+(.+)$/.exec(text)?.[1];
+  if (listed !== undefined) return listed.split(/,\s*/);
+  const exit = /^command \((.+)\) .+ run (\S+) exited \(([1-9]\d*)\)$/.exec(
+    text
+  );
+  if (exit === null) return [];
+  const directory = exit[1]!.replaceAll('\\', '/');
+  return tasks
+    .filter((task) => {
+      const relative = task.directory
+        .replaceAll('\\', '/')
+        .replace(/^\.\//, '');
+      return (
+        task.taskId.endsWith(`#${exit[2]}`) &&
+        (directory === relative || directory.endsWith(`/${relative}`))
+      );
+    })
+    .map((task) => task.taskId);
 }
 
 export function taskStream(
@@ -22,10 +48,18 @@ export function taskStream(
   const logs = new Map<string, string>();
   const started = new Map<string, number>();
   const finished = new Map<string, number>();
-  const failed = new Map<
-    string,
-    { seconds: number; detail: string; tail: string }
-  >();
+  const failed = new Map<string, TaskFailure>();
+  const reportFailure = (id: string, detail: string): void => {
+    const task = byId.get(id);
+    if (task === undefined) return;
+    const seconds = (ports.now() - (started.get(id) ?? ports.now())) / 1000;
+    log(
+      `FAILED ${id}; command: ${task.command}; elapsed: ${seconds.toFixed(3)}s; ${detail}`
+    );
+    const output = logs.get(id) ?? '';
+    log(output);
+    failed.set(id, { seconds, detail, tail: tailOf(output) });
+  };
   const line = (line: string): void => {
     let event: { source: string; text: string; level: string };
     try {
@@ -40,6 +74,10 @@ export function taskStream(
     }
     const task = byId.get(event.source);
     if (!task) {
+      for (const id of failedTaskIds(event.text, tasks)) {
+        if (!failed.has(id)) reportFailure(id, event.text);
+        started.delete(id);
+      }
       if (event.text.includes('command finished with error, but continuing'))
         return;
       log(event.text);
@@ -58,20 +96,10 @@ export function taskStream(
       `${logs.get(event.source) ?? ''}${event.text}\n`.slice(-65536)
     );
     if (event.level === 'error' || FAILURE.test(event.text)) {
-      const milliseconds =
-        ports.now() - (started.get(event.source) ?? ports.now());
+      reportFailure(event.source, event.text);
       // The task is over once its script exits non-zero: it must not linger as
       // "running" until its time budget and then be reported as a timeout.
       if (EXITED.test(event.text)) started.delete(event.source);
-      log(
-        `FAILED ${event.source}; command: ${task.command}; elapsed: ${(milliseconds / 1000).toFixed(3)}s; ${event.text}`
-      );
-      log(logs.get(event.source)!);
-      failed.set(event.source, {
-        seconds: milliseconds / 1000,
-        detail: event.text,
-        tail: tailOf(logs.get(event.source) ?? ''),
-      });
     }
   };
   function tick(): string[] {
@@ -108,7 +136,7 @@ function streamSnapshot(
   now: number,
   started: ReadonlyMap<string, number>,
   finished: ReadonlyMap<string, number>,
-  failed: ReadonlyMap<string, { seconds: number; detail: string; tail: string }>
+  failed: ReadonlyMap<string, TaskFailure>
 ): StreamSnapshot {
   const running = [...started].map(([taskId, start]) => ({
     taskId,
