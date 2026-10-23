@@ -11,6 +11,7 @@ import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces-client-ts/use-space-room-selector';
+import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { type Accessor, createMemo } from 'solid-js';
 import { usePuzzleGame } from './puzzle-game-context';
 import { usePuzzleOpponentMoveStage } from './use-puzzle-opponent-move-stage';
@@ -59,7 +60,7 @@ export function usePuzzleSolver(args: { puzzleId: Accessor<string> }): {
   boardPosition: Accessor<string | null>;
   layoutKey: Accessor<number>;
   status: Accessor<SolveStatus>;
-  orientation: Accessor<'white' | 'black'>;
+  orientation: Accessor<GameSide>;
   onMove: (action: string) => void;
   solveIdx: Accessor<number>;
   furthestSolveIdx: Accessor<number>;

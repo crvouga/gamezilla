@@ -1,7 +1,7 @@
+import type { BattleshipSide } from '@libs/battleship-shared-ts/battleship-position';
 import { battleshipRules } from '@libs/battleship-shared-ts/battleship-rules';
 import type {
   GameSetups,
-  GameSide,
   PlayedPosition,
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import { createSeededRng } from '@pkgs/uuid-shared-ts/seeded-rng';
@@ -65,17 +65,20 @@ export function transformFleet(setup: string, transform: Transform): string {
     ships.set(ship, [...(ships.get(ship) ?? []), transform(point(cell))]);
   return spellFleet(ships);
 }
-export const other = (side: GameSide): GameSide =>
+export const other = (side: BattleshipSide): BattleshipSide =>
   side === 'white' ? 'black' : 'white';
 
 export type Step = {
-  readonly mover: GameSide;
+  readonly mover: BattleshipSide;
   readonly proposal: string;
   readonly action: string;
   readonly before: string;
   readonly played: PlayedPosition;
 };
-export type Chooser = (position: string, mover: GameSide) => string | null;
+export type Chooser = (
+  position: string,
+  mover: BattleshipSide
+) => string | null;
 /** Two random fleets drawn from `seed`. */
 export function seededFleets(seed: string): GameSetups {
   const rng = createSeededRng(`battleship-fleets-${seed}`);
@@ -90,7 +93,7 @@ export function playOut(fleets: GameSetups, choose: Chooser, plies = 200) {
   const actions: string[] = [];
   const steps: Step[] = [];
   for (let ply = 0; ply < plies; ply++) {
-    const mover: GameSide = ply % 2 === 0 ? 'white' : 'black';
+    const mover: BattleshipSide = ply % 2 === 0 ? 'white' : 'black';
     const proposal = choose(position, mover);
     if (proposal === null) break;
     const action = setupRules.resolve(position, proposal, fleets);

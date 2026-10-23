@@ -13,9 +13,22 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: libs/quoridor-client-ts/src/quoridor-board.tsx
+msgid " — to move"
+msgstr " — to move"
+
 #: pkgs/ui-root-client-ts/src/catalog-detail-nav.tsx
 msgid "— of {total}"
 msgstr "— of {total}"
+
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+msgid ", legal move"
+msgstr ", legal move"
+
+#. placeholder {0}: edges.join(', ')
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+msgid ", wall boundaries: {0}"
+msgstr ", wall boundaries: {0}"
 
 #. js-lingui-explicit-id
 #: libs/game-puzzle-client-ts/src/puzzle-status-icons.tsx
@@ -67,8 +80,7 @@ msgstr "{0} active, expires {latestExpires}"
 msgid "{0} added"
 msgstr "{0} added"
 
-#. placeholder {0}: gameSideLabel(props.game.fen, 'black')
-#. placeholder {0}: gameSideLabel(props.game.fen, 'white')
+#. placeholder {0}: gameSideLabel(props.game.fen, low().side)
 #. placeholder {1}: timeLeftWords(low().leftMs)
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
 msgid "{0} is low on time, with {1} left."
@@ -90,12 +102,12 @@ msgstr "{0} matching · {1} local puzzles"
 msgid "{0} no longer signs in to this account."
 msgstr "{0} no longer signs in to this account."
 
-#. placeholder {0}: props.viewer.opponentName
+#. placeholder {0}: drawName()
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
 msgid "{0} offered you a multiplayer draw."
 msgstr "{0} offered you a multiplayer draw."
 
-#. placeholder {0}: props.viewer.opponentName
+#. placeholder {0}: rematchName()
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
 msgid "{0} offered you a multiplayer rematch."
 msgstr "{0} offered you a multiplayer rematch."
@@ -177,10 +189,6 @@ msgstr "{days} days per move"
 #: pkgs/ui-root-client-ts/src/relative-time.tsx
 msgid "{days}d ago"
 msgstr "{days}d ago"
-
-#: libs/game-session-client-ts/src/custom-game-status.tsx
-msgid "{first}: {white}. {second}: {black}."
-msgstr "{first}: {white}. {second}: {black}."
 
 #: libs/chess-root-client-ts/src/chess-game-presentation.tsx
 msgid "{flagged} ran out of time, but the other side cannot checkmate."
@@ -271,6 +279,10 @@ msgstr "{mins}m ago"
 #: libs/game-matchmaking-client-ts/src/multiplayer-time-left.tsx
 msgid "{minutes} minutes"
 msgstr "{minutes} minutes"
+
+#: libs/quoridor-client-ts/src/quoridor-game-client.tsx
+msgid "{name} ran out of time. Game drawn."
+msgstr "{name} ran out of time. Game drawn."
 
 #: libs/battleship-client-ts/src/battleship-copy.tsx
 msgid "{name} sank the whole fleet."
@@ -409,8 +421,16 @@ msgid "A draw has been offered."
 msgstr "A draw has been offered."
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
+msgid "A draw needs every participant to be a person."
+msgstr "A draw needs every participant to be a person."
+
+#: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "A person can have only one side."
 msgstr "A person can have only one side."
+
+#: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
+msgid "A player left the round."
+msgstr "A player left the round."
 
 #: libs/account-privacy-client-ts/src/privacy-explanation.tsx
 msgid "A specific legal preservation obligation may retain only the information it covers until that obligation ends. Preserved information cannot restore a profile or be used to promote the product. Any applicable obligation and its end condition will be disclosed here."
@@ -610,6 +630,10 @@ msgstr "All"
 msgid "All five ships placed. Your fleet is ready."
 msgstr "All five ships placed. Your fleet is ready."
 
+#: libs/game-matchmaking-client-ts/src/multiplayer-private-setup.tsx
+msgid "All players are ready."
+msgstr "All players are ready."
+
 #: libs/game-puzzle-client-ts/src/puzzle-feed-bar.tsx
 msgid "All themes"
 msgstr "All themes"
@@ -681,6 +705,10 @@ msgstr "Archive"
 #: libs/notifications-client-ts/src/notifications-filter-bar.tsx
 msgid "Archived"
 msgstr "Archived"
+
+#: libs/quoridor-client-ts/src/quoridor-board.tsx
+msgid "Arrow keys move focus. Enter or Space chooses a square. For a wall, choose its lower-left anchor."
+msgstr "Arrow keys move focus. Enter or Space chooses a square. For a wall, choose its lower-left anchor."
 
 #: libs/account-privacy-client-ts/src/export-choice.tsx
 msgid "Ask for a new export"
@@ -824,14 +852,6 @@ msgstr "Bot Observatory could not be loaded."
 msgid "Both players are ready."
 msgstr "Both players are ready."
 
-#: libs/game-session-client-ts/src/custom-game-error.tsx
-msgid "Both sides have moved. Resign instead of cancelling."
-msgstr "Both sides have moved. Resign instead of cancelling."
-
-#: libs/game-session-client-ts/src/custom-game-configuration.tsx
-msgid "Both sides must be filled and every person ready."
-msgstr "Both sides must be filled and every person ready."
-
 #: pkgs/ui-root-client-ts/src/screen-breadcrumb-trail.tsx
 msgid "Breadcrumb"
 msgstr "Breadcrumb"
@@ -939,6 +959,10 @@ msgstr "Capture requested"
 msgid "Carrier"
 msgstr "Carrier"
 
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+msgid "Central hill"
+msgstr "Central hill"
+
 #: libs/game-session-client-ts/src/custom-game-side.tsx
 msgid "Change participant"
 msgstr "Change participant"
@@ -1028,6 +1052,10 @@ msgstr "Choose a username"
 msgid "Choose how you want to play."
 msgstr "Choose how you want to play."
 
+#: libs/game-menu-client-ts/src/game-menu-choices.tsx
+msgid "Choose people or bots for each of the {playerCount} places"
+msgstr "Choose people or bots for each of the {playerCount} places"
+
 #: libs/battleship-client-ts/src/battleship-setup-controller.tsx
 msgid "Choose the bow cell for the {name}: {length} cells, {direction}. Press R to rotate."
 msgstr "Choose the bow cell for the {name}: {length} cells, {direction}. Press R to rotate."
@@ -1055,6 +1083,10 @@ msgstr "Claim the win"
 #: libs/game-session-client-ts/src/custom-game-side.tsx
 msgid "Claim this side"
 msgstr "Claim this side"
+
+#: libs/quoridor-client-ts/src/quoridor-game-client.tsx
+msgid "Classic Quoridor"
+msgstr "Classic Quoridor"
 
 #: libs/game-matchmaking-client-ts/src/speed-name.tsx
 msgid "Classical"
@@ -1708,6 +1740,11 @@ msgstr "Each side hides five ships on its own ten by ten waters: a Carrier of fi
 msgid "Earlier game {0}"
 msgstr "Earlier game {0}"
 
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+#: libs/quoridor-client-ts/src/quoridor-game-client.tsx
+msgid "East black square"
+msgstr "East black square"
+
 #: libs/game-session-client-ts/src/custom-game-difficulty.tsx
 msgid "Easy"
 msgstr "Easy"
@@ -1732,6 +1769,7 @@ msgid "Email me a link"
 msgstr "Email me a link"
 
 #: libs/connect-four-client-ts/src/connect-four-board.tsx
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
 msgid "Empty"
 msgstr "Empty"
 
@@ -1804,8 +1842,16 @@ msgid "Every install signed into your account shows up here."
 msgstr "Every install signed into your account shows up here."
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
+msgid "Every participant has moved. Resign instead of cancelling."
+msgstr "Every participant has moved. Resign instead of cancelling."
+
+#: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Every person must be ready before starting."
 msgstr "Every person must be ready before starting."
+
+#: libs/game-session-client-ts/src/custom-game-configuration.tsx
+msgid "Every place must be filled and every person ready."
+msgstr "Every place must be filled and every person ready."
 
 #. placeholder {0}: props.trialDays
 #: libs/billing-client-ts/src/billing-offer-sections.tsx
@@ -1861,8 +1907,8 @@ msgid "Features"
 msgstr "Features"
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
-msgid "Fill both sides before starting."
-msgstr "Fill both sides before starting."
+msgid "Fill every place before starting."
+msgstr "Fill every place before starting."
 
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 msgid "Filter by puzzles you have never seen, already seen, or failed."
@@ -1954,6 +2000,10 @@ msgstr "First page"
 msgid "First seen"
 msgstr "First seen"
 
+#: libs/quoridor-client-ts/src/quoridor-board.tsx
+msgid "First to e5 wins immediately. Everyone keeps a path to the hill."
+msgstr "First to e5 wins immediately. Everyone keeps a path to the hill."
+
 #: libs/battleship-client-ts/src/battleship-presentation.tsx
 msgid "fleet sunk"
 msgstr "fleet sunk"
@@ -1981,6 +2031,10 @@ msgstr "four in a row"
 #: libs/connect-four-client-ts/src/connect-four-presentation.tsx
 msgid "Four in a row."
 msgstr "Four in a row."
+
+#: libs/quoridor-client-ts/src/quoridor-game-client.tsx
+msgid "Four sides. One hill. First to e5 wins immediately."
+msgstr "Four sides. One hill. First to e5 wins immediately."
 
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "fps"
@@ -2038,12 +2092,26 @@ msgstr "Game choices are fixed after the start."
 
 #: libs/game-session-client-ts/src/custom-game-status.tsx
 #: libs/game-session-client-ts/src/game-record-label.tsx
+msgid "Game drawn because a participant ran out of time."
+msgstr "Game drawn because a participant ran out of time."
+
+#: libs/game-session-client-ts/src/custom-game-status.tsx
+#: libs/game-session-client-ts/src/game-record-label.tsx
+msgid "Game drawn because a participant withdrew."
+msgstr "Game drawn because a participant withdrew."
+
+#: libs/game-session-client-ts/src/custom-game-status.tsx
+#: libs/game-session-client-ts/src/game-record-label.tsx
 msgid "Game drawn."
 msgstr "Game drawn."
 
 #: libs/game-session-client-ts/src/custom-game-confirm.tsx
 msgid "Game finished"
 msgstr "Game finished"
+
+#: libs/quoridor-client-ts/src/quoridor-board.tsx
+msgid "Game finished. Use the game controls to review earlier moves."
+msgstr "Game finished. Use the game controls to review earlier moves."
 
 #: libs/game-puzzle-client-ts/src/puzzle-game-log.tsx
 msgid "Game log"
@@ -2149,6 +2217,10 @@ msgstr "Hide performance monitor"
 msgid "Hide your fleet. Call your shots. Sink theirs first."
 msgstr "Hide your fleet. Call your shots. Sink theirs first."
 
+#: libs/quoridor-client-ts/src/quoridor-game-client.tsx
+msgid "hill reached"
+msgstr "hill reached"
+
 #: libs/game-puzzle-client-ts/src/puzzle-action-bar-items.tsx
 msgid "Hint"
 msgstr "Hint"
@@ -2163,6 +2235,10 @@ msgstr "Hint: move the {side} {piece} on {0}."
 #: libs/game-session-client-ts/src/game-history.tsx
 msgid "History and stats"
 msgstr "History and stats"
+
+#: libs/quoridor-client-ts/src/quoridor-board.tsx
+msgid "Horizontal wall"
+msgstr "Horizontal wall"
 
 #: libs/spaces-client-ts/src/space-members-list-modal.tsx
 #: libs/spaces-client-ts/src/space-share-people-list.tsx
@@ -2267,6 +2343,10 @@ msgstr "invites you to play {0}."
 #: libs/game-session-client-ts/src/custom-game-active.tsx
 msgid "is away. After a minute away you may claim the win."
 msgstr "is away. After a minute away you may claim the win."
+
+#: libs/game-session-client-ts/src/custom-game-active.tsx
+msgid "is away. Their turn stays reserved until they return."
+msgstr "is away. Their turn stays reserved until they return."
 
 #: libs/auth-client-ts/src/account-device-detail-screen.tsx
 msgid "It may have signed out, or it hasn't synced to this device yet."
@@ -2419,6 +2499,10 @@ msgstr "Leave while work is in progress?"
 #: libs/spaces-client-ts/src/leave-space-confirm-modal.tsx
 msgid "Leaving…"
 msgstr "Leaving…"
+
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+msgid "Legal wall. Choose this anchor to place it."
+msgstr "Legal wall. Choose this anchor to place it."
 
 #: libs/chess-puzzle-client-ts/src/puzzle-source-controls.tsx
 msgid "Lichess file uploaded"
@@ -2587,6 +2671,10 @@ msgstr "Medium"
 msgid "Meet another {name} player"
 msgstr "Meet another {name} player"
 
+#: libs/game-menu-client-ts/src/game-menu-choices.tsx
+msgid "Meet three other {name} players"
+msgstr "Meet three other {name} players"
+
 #: libs/account-privacy-client-ts/src/privacy-screen.tsx
 msgid "Membership cancellation has completed."
 msgstr "Membership cancellation has completed."
@@ -2648,6 +2736,10 @@ msgstr "Move number to review"
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 msgid "Move on to the next puzzle by itself after a solve."
 msgstr "Move on to the next puzzle by itself after a solve."
+
+#: libs/quoridor-client-ts/src/quoridor-board.tsx
+msgid "Move pawn"
+msgstr "Move pawn"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
 msgid "Moves"
@@ -2816,6 +2908,10 @@ msgstr "No example registered for \"{id}\"."
 msgid "No friends yet"
 msgstr "No friends yet"
 
+#: libs/quoridor-client-ts/src/quoridor-board.tsx
+msgid "No legal move or wall — pass turn"
+msgstr "No legal move or wall — pass turn"
+
 #: libs/chess-puzzle-client-ts/src/puzzle-source-controls.tsx
 msgid "No Lichess file is in the shared bucket. Choose a .csv or .csv.zst file to upload. Once uploaded, start loading to add its puzzles to this environment."
 msgstr "No Lichess file is in the shared bucket. Choose a .csv or .csv.zst file to upload. Once uploaded, start loading to add its puzzles to this environment."
@@ -2910,6 +3006,16 @@ msgstr "No Synthetic Users found"
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "None"
 msgstr "None"
+
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+#: libs/quoridor-client-ts/src/quoridor-game-client.tsx
+msgid "North gold diamond"
+msgstr "North gold diamond"
+
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+#: libs/quoridor-client-ts/src/quoridor-game-client.tsx
+msgid "North green triangle"
+msgstr "North green triangle"
 
 #: libs/permissions-client-ts/src/unlock-copy.tsx
 msgid "Not available"
@@ -3041,16 +3147,16 @@ msgid "Only a participant can make this choice."
 msgstr "Only a participant can make this choice."
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
+msgid "Only another participant can answer a draw offer."
+msgstr "Only another participant can answer a draw offer."
+
+#: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Only the creator can make this choice."
 msgstr "Only the creator can make this choice."
 
 #: libs/spaces-client-ts/src/space-join-prompt.tsx
 msgid "Only the host's friends and people the host adds can join it. Ask the host to add you, or check that the link is right."
 msgstr "Only the host's friends and people the host adds can join it. Ask the host to add you, or check that the link is right."
-
-#: libs/game-session-client-ts/src/custom-game-error.tsx
-msgid "Only the other participant can answer a draw offer."
-msgstr "Only the other participant can answer a draw offer."
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Only the participant whose turn it is can move."
@@ -3112,6 +3218,10 @@ msgstr "opponent staying away"
 #: libs/chess-puzzle-client-ts/src/chess-puzzle-announcement.tsx
 msgid "Opponent's reply: {side} played {0} to {1}."
 msgstr "Opponent's reply: {side} played {0} to {1}."
+
+#: libs/quoridor-client-ts/src/quoridor-game-client.tsx
+msgid "opposite row reached"
+msgstr "opposite row reached"
 
 #: libs/account-privacy-client-ts/src/privacy-screen.tsx
 msgid "Ordinary personal data will be erased within 30 days."
@@ -3253,9 +3363,9 @@ msgstr "Platform"
 msgid "Play a bot"
 msgstr "Play a bot"
 
-#: libs/game-menu-client-ts/src/game-menu-choices.tsx
-msgid "Play a person, choose a bot, or watch two bots"
-msgstr "Play a person, choose a bot, or watch two bots"
+#: libs/game-session-client-ts/src/custom-game-actions.tsx
+msgid "Play against bots"
+msgstr "Play against bots"
 
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 msgid "Play history"
@@ -3449,6 +3559,18 @@ msgstr "Puzzles processed"
 msgid "Queen"
 msgstr "Queen"
 
+#: libs/quoridor-client-ts/src/quoridor-board.tsx
+msgid "Quoridor board, nine columns and nine rows"
+msgstr "Quoridor board, nine columns and nine rows"
+
+#: libs/quoridor-client-ts/src/quoridor-game-client.tsx
+msgid "Quoridor: King of the Hill"
+msgstr "Quoridor: King of the Hill"
+
+#: libs/quoridor-client-ts/src/quoridor-game-client.tsx
+msgid "Race your pawn across the board. Shape the path with walls."
+msgstr "Race your pawn across the board. Shape the path with walls."
+
 #: libs/profile-client-ts/src/avatar-editor-pickers.tsx
 #: pkgs/ui-root-client-ts/src/multi-select-swatch-grid.tsx
 msgid "Random"
@@ -3475,6 +3597,10 @@ msgstr "Rating after each puzzle"
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 msgid "Rating offset"
 msgstr "Rating offset"
+
+#: libs/quoridor-client-ts/src/quoridor-board.tsx
+msgid "Reach the opposite home row first. South heads to row 9; North heads to row 1."
+msgstr "Reach the opposite home row first. South heads to row 9; North heads to row 1."
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-screen.tsx
 msgid "Reading activity…"
@@ -4210,6 +4336,11 @@ msgstr "Sound on"
 msgid "Source"
 msgstr "Source"
 
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+#: libs/quoridor-client-ts/src/quoridor-game-client.tsx
+msgid "South red circle"
+msgstr "South red circle"
+
 #: libs/spaces-client-ts/src/use-space-display-title.tsx
 msgid "Space"
 msgstr "Space"
@@ -4583,6 +4714,10 @@ msgstr "The board changed. Review the current turn."
 msgid "The board is full. Game drawn."
 msgstr "The board is full. Game drawn."
 
+#: libs/quoridor-client-ts/src/quoridor-game-client.tsx
+msgid "The central hill was reached. Game won."
+msgstr "The central hill was reached. Game won."
+
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "The choice could not be confirmed. Try again."
 msgstr "The choice could not be confirmed. Try again."
@@ -4647,6 +4782,10 @@ msgstr "The multiplayer game is drawn."
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
 msgid "The multiplayer game was aborted."
 msgstr "The multiplayer game was aborted."
+
+#: libs/quoridor-client-ts/src/quoridor-game-client.tsx
+msgid "The opposite home row was reached. Game won."
+msgstr "The opposite home row was reached. Game won."
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "The other participant may still return. Wait before claiming the win."
@@ -4737,6 +4876,10 @@ msgstr "This account was already deleted. Sign in again to start a new account."
 msgid "This attempt was unrated."
 msgstr "This attempt was unrated."
 
+#: libs/quoridor-client-ts/src/quoridor-board.tsx
+msgid "This board is read-only. Follow the game or review earlier moves."
+msgstr "This board is read-only. Follow the game or review earlier moves."
+
 #: libs/account-privacy-client-ts/src/privacy-screen.tsx
 msgid "This cannot be undone. Every device will be signed out. Your hosted spaces and future membership charges will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Take an export first if you want a copy of your personal data."
 msgstr "This cannot be undone. Every device will be signed out. Your hosted spaces and future membership charges will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Take an export first if you want a copy of your personal data."
@@ -4777,6 +4920,10 @@ msgstr "This finishes the current game. Its record remains available."
 msgid "This friend could not be removed. Try again."
 msgstr "This friend could not be removed. Try again."
 
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+msgid "This game has finished. Choose a rematch to play again."
+msgstr "This game has finished. Choose a rematch to play again."
+
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "This game is available to people in its space."
 msgstr "This game is available to people in its space."
@@ -4792,6 +4939,10 @@ msgstr "This game is finished."
 #: libs/game-matchmaking-client-ts/src/multiplayer-link-client.tsx
 msgid "This game is unavailable."
 msgstr "This game is unavailable."
+
+#: libs/quoridor-client-ts/src/quoridor-game-client.tsx
+msgid "This hill variant uses a nine-by-nine board and five walls per player. South starts at e1, West at a5, North at e9 and East at i5. Turns run in that clockwise order. Move or place a wall; jump one pawn, never a chain. A blocked landing allows a side-step. Walls must keep everyone's path to e5 open. Reaching e5 wins immediately; no holding period. A withdrawal or expired clock ends the round as a draw. If no pawn move or wall is legal, pass when offered; you cannot pass otherwise."
+msgstr "This hill variant uses a nine-by-nine board and five walls per player. South starts at e1, West at a5, North at e9 and East at i5. Turns run in that clockwise order. Move or place a wall; jump one pawn, never a chain. A blocked landing allows a side-step. Walls must keep everyone's path to e5 open. Reaching e5 wins immediately; no holding period. A withdrawal or expired clock ends the round as a draw. If no pawn move or wall is legal, pass when offered; you cannot pass otherwise."
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-dom.tsx
 msgid "This is a sanitized DOM snapshot of the selected application instance. It is not a screenshot."
@@ -4873,6 +5024,18 @@ msgstr "This username change could not be shared. Choose another username."
 msgid "This version of the app is out of date. Update it to keep playing with others — everything you did is kept."
 msgstr "This version of the app is out of date. Update it to keep playing with others — everything you did is kept."
 
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+msgid "This wall crosses another wall. Choose a different anchor or orientation."
+msgstr "This wall crosses another wall. Choose a different anchor or orientation."
+
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+msgid "This wall overlaps another wall. Choose a different anchor."
+msgstr "This wall overlaps another wall. Choose a different anchor."
+
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+msgid "This wall would close a player's last path to the goal. Choose another anchor."
+msgstr "This wall would close a player's last path to the goal. Choose another anchor."
+
 #: libs/game-session-client-ts/src/custom-game-status.tsx
 #: libs/game-session-client-ts/src/game-record-label.tsx
 msgid "time"
@@ -4935,6 +5098,10 @@ msgstr "Try loading again"
 #: libs/chess-puzzle-client-ts/src/puzzle-source-controls.tsx
 msgid "Try uploading again"
 msgstr "Try uploading again"
+
+#: libs/quoridor-client-ts/src/quoridor-game-client.tsx
+msgid "Two players start on e1 and e9 with ten walls each. South moves first. Move one square or place one wall each turn. Jump one adjacent pawn; if the landing is blocked, move to its side. Walls span two boundaries and cannot cross, overlap or close anyone's last path. The first to reach the opposite home row wins."
+msgstr "Two players start on e1 and e9 with ten walls each. South moves first. Move one square or place one wall each turn. Jump one adjacent pawn; if the landing is blocked, move to its side. Walls span two boundaries and cannot cross, overlap or close anyone's last path. The first to reach the opposite home row wins."
 
 #: pkgs/ui-root-client-ts/src/command-palette-input.tsx
 msgid "Type a command or search…"
@@ -5117,6 +5284,10 @@ msgstr "Version"
 msgid "Version accepting new assignments"
 msgstr "Version accepting new assignments"
 
+#: libs/quoridor-client-ts/src/quoridor-board.tsx
+msgid "Vertical wall"
+msgstr "Vertical wall"
+
 #: libs/friends-client-ts/src/friend-request-decision-modal.tsx
 msgid "View profile"
 msgstr "View profile"
@@ -5142,6 +5313,18 @@ msgstr "Waiting for the host"
 msgid "Waiting for the host to start a puzzle."
 msgstr "Waiting for the host to start a puzzle."
 
+#: libs/quoridor-client-ts/src/quoridor-board.tsx
+msgid "wall"
+msgstr "wall"
+
+#: libs/quoridor-client-ts/src/quoridor-board.tsx
+msgid "walls"
+msgstr "walls"
+
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+msgid "Walls must fit between four squares. Choose an anchor from a1 to h8."
+msgstr "Walls must fit between four squares. Choose an anchor from a1 to h8."
+
 #. placeholder {0}: presentation(props.game.fen).name()
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
 msgid "Watching multiplayer {0}."
@@ -5154,6 +5337,11 @@ msgstr "We couldn't reach the server. Search again once you're back online."
 #: libs/account-privacy-client-ts/src/privacy-explanation.tsx
 msgid "We retain only minimum payment evidence for accounting and disputes for 7 years after payment. It cannot restore your account or membership."
 msgstr "We retain only minimum payment evidence for accounting and disputes for 7 years after payment. It cannot restore your account or membership."
+
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+#: libs/quoridor-client-ts/src/quoridor-game-client.tsx
+msgid "West gold diamond"
+msgstr "West gold diamond"
 
 #: libs/billing-client-ts/src/billing-offer-sections.tsx
 msgid "What Plus includes"
@@ -5237,7 +5425,7 @@ msgstr "You"
 msgid "You already have a membership"
 msgstr "You already have a membership"
 
-#. placeholder {0}: gameSideLabel(props.game.fen, white(props) ? 'white' : 'black')
+#. placeholder {0}: gameSideLabel(props.game.fen, ownSide(props))
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
 msgid "You are {0}."
 msgstr "You are {0}."
@@ -5318,6 +5506,10 @@ msgstr "You fired at {cell} and sank the {ship}."
 #: libs/game-puzzle-client-ts/src/puzzle-empty-pool-state.tsx
 msgid "You have no failed puzzles yet. Puzzles you fail show here to try again."
 msgstr "You have no failed puzzles yet. Puzzles you fail show here to try again."
+
+#: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
+msgid "You have no walls left. Move your pawn."
+msgstr "You have no walls left. Move your pawn."
 
 #: libs/game-puzzle-client-ts/src/puzzle-empty-pool-state.tsx
 msgid "You have played every puzzle that matches your history and theme filters. Include played puzzles or adjust the feed."

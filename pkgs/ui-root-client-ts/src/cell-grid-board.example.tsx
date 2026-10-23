@@ -30,6 +30,12 @@ function cells(marks: readonly number[]): readonly CellGridCell[] {
       tone: look.tone,
       enabled: true,
       label: `${id}: ${look.word}`,
+      identity:
+        mark === 0
+          ? undefined
+          : (['one', 'two', 'three', 'four'] as const)[mark - 1],
+      edges: index === 3 || index === 8 ? ['right'] : [],
+      previewEdges: index === 12 ? ['bottom'] : [],
     };
   });
 }

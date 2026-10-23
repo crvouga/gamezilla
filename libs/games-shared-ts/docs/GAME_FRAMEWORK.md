@@ -38,6 +38,20 @@ composition roots (registries, runtime, apps)
 
 ## Who owns what
 
+`GameRules.sides` declares the ordered seats a mode uses; `gameSides` supplies
+the two-seat default for existing registrations. Seat tokens are opaque
+identities (`white`, `black`, `red`, `blue`); presentation supplies their visible
+names. Custom-game readiness, per-seat clocks, bot scheduling, authoritative
+ownership, matchmaking group size, synchronization, results and records consume
+that declaration. The retained first two stored columns keep existing records
+readable; additional seats have their own participants and clocks.
+
+Modes with different seat counts register separate definitions and share their
+game's implementation. Each definition has its own id, position recognition
+and matchmaking namespace. Every declared seat participates in the shared
+roster conformance suite; bilateral specifications apply only to two-seat games,
+and the multi-seat specifications cover the wider lifecycle.
+
 | Package | Owns |
 | --- | --- |
 | `@pkgs/turn-game-shared-ts` | The contracts: `GameRules`, `TurnGameCapabilities` and their parts (`GameBots`, `MatchmakingCapability`, `HistoryCapability`, `PuzzlesCapability`), `TurnGames` (lookup by id, position and clock), `GamePresentation`, `GameAutomation`. |
@@ -180,12 +194,12 @@ values the world returns but never imports their stored type.
 
 ## Contracts
 
-`GameRules` is what every lifecycle needs from a two-sided turn game: `id`,
+`GameRules` is what every lifecycle needs from an ordered turn game: `id`,
 `recognizes` (exactly this game's positions), `initial`, `play` (the next
 position, or `null` when refused), `replay`, `legal`, `canWin` (a flag fall
 against a side that cannot be beaten is a draw) and `moves` (the accepted
 actions, labelled). The sides take turns: the first side moves first and
-every action passes the turn to the other (`PlayedPosition.turn`), as
+every action passes the turn to the next declared seat (`PlayedPosition.turn`), as
 `specs/games/game-turns.feature` says of every game; a rules law holds
 each game to it. The rules name the result (`PlayedPosition.winner`), which
 need not be the side that moved.
@@ -895,8 +909,10 @@ position and action already stored.
 
 ## Fit for future games
 
-The shared lifecycles serve **two-sided, alternating-turn,
-perfect-information** games whose state is one opaque position. Each
+The shared lifecycles serve **two- or four-seat, ordered-turn,
+perfect-information** games whose state is one opaque position. Private setup
+and puzzle capabilities currently require two seats; registration refuses
+unsupported combinations. Each
 claim beyond that is an executable probe in
 [`libs/games-harness-ts/tests/probes/`](../../games-harness-ts/tests/probes/):
 the smallest game that asks the question, written as a game is (its
@@ -920,11 +936,11 @@ relying on its planned enrollment alone.
 | --- | --- | --- | --- | --- | --- |
 | [Puzzle-first](../../games-harness-ts/tests/probes/puzzle-only.test.ts) (puzzles only: no custom games, opponent or history) | Executable: supported | `defineTurnGame({ capabilities: { puzzles } })`, `defineGameClient({ puzzles })`, `HarnessGame` with known puzzles | None | A space offers exactly Puzzle and Puzzle stats; a known puzzle is solved on the shared puzzle screen; every `specs/games` specification needing only `puzzles`, and the `rules` and `puzzles` code suites | — |
 | [Puzzle without an opponent](../../games-harness-ts/tests/probes/puzzle-only.test.ts) (`solo-count`) | Executable: enrolled; broader verification in progress | `PuzzlesCapability.lineMode: 'solver-only'`, the existing definitions and checked harness adapter | Shared layout, navigation, fixture checks and model input binding | Every applicable rules and puzzle suite is automatically enrolled; both attempt and sound models have passing solo replays | A test-only one-person consumer; it advertises no custom games, matchmaking or history. Full verification evidence is tracked in the audit |
-| [Turns that do not alternate](../../games-harness-ts/tests/probes/turn-order.test.ts) (`double-turn`) | Executable: limitation | `PlayedPosition.turn` already names the side to move, and the custom-game engine seats each move by it | Would need one | — | Alternation is the platform's contract, not chess's: `specs/games/game-turns.feature` ("A participant's move passes the turn"), the custom-game and matched-game models, `bothHaveMoved` (two moves close a matched game's abort window and start its clock), move-list numbering in pairs (`multiplayer-format`) and puzzle lines by parity. The rules law "the first side moves first and every action passes the turn to the other side" refuses such a game, by name, alone. Simultaneous actions (design-only) also need a position with no single side to move |
+| [Turns that do not alternate](../../games-harness-ts/tests/probes/turn-order.test.ts) (`double-turn`) | Executable: limitation | `PlayedPosition.turn` already names the side to move, and the custom-game engine seats each move by it | Would need one | — | Alternation is the platform's contract, not chess's: `specs/games/game-turns.feature` ("A participant's move passes the turn"), the custom-game and matched-game models, `bothHaveMoved` (two moves close a matched game's abort window and start its clock), move-list numbering in pairs (`multiplayer-format`) and puzzle lines by parity. The rules law "the first side moves first and every action passes the turn to the next declared side" refuses such a game, by name, alone. Simultaneous actions (design-only) also need a position with no single side to move |
 | [Setup phase](../../games-harness-ts/tests/probes/setup-phase.test.ts) (`setup-race`: each side picks a stride, then races) | Executable: supported as ordinary turns | `GameRules` actions and positions | None | Every custom-game specification and suite; setup actions replay, list and are refused before play like any move | As ordinary actions a setup starts and spends clocks, is numbered as moves and closes a matched game's abort window. A simultaneous, hidden setup is the private-setup phase instead (`GameRules.setup`, below): prepared before the first action, with readiness and a setup deadline of its own, never a move |
 | [Result the mover does not win](../../games-harness-ts/tests/probes/results.test.ts) (`misere-tally`) | Executable: supported | `PlayedPosition.winner` | One, made: custom games credited the mover (`custom-game-mover-credited-win`) | Every custom-game specification and suite | A margin or score is only the ending's reason text (`endingDescription(reason)`) |
 | [Results beyond one winner](../../games-harness-ts/tests/probes/results.test.ts) (shared win, ranking, score) | Executable (type-level): limitation | — | Would need one | — | `PlayedPosition.winner: GameSide \| 'draw' \| null`, `GameRecordMetadata.outcome: GameSide \| 'draw'`; stored custom and matched outcomes, Glicko-2 ratings on win/draw/loss and history's wins, losses and draws |
-| [More than two participants](../../games-harness-ts/tests/probes/participants.test.ts) | Executable (type-level and by law): limitation; a multi-seat session is design-only | `GameOwnRoom` and a game's own `screens` only, beside the shared lifecycles | A new shared module and capability | None of the turn-game lifecycles | `GameSide` is two seats, `GameRecordMetadata.participants` a pair, and the turn law passes the turn to "the other"; behind them a custom game's two seats and clocks, a matched game's `white_id` / `black_id` and pairing |
+| [More than two participants](../../games-harness-ts/tests/probes/participants.test.ts) | Executable: two or four declared seats | `GameRules.sides`, `gameSides`, `GameRecordMetadata.participants` | Shared rosters, clocks, group matching, consent, records and synchronization | [Roster conformance](../../games-harness-ts/tests/conformance/custom-games/declared-roster.test.ts), `specs/games/multi-seat-games.feature`, `four-seat-matchmaking.feature`, `multi-seat-recovery.feature` | A single winner or draw; private setups and puzzles remain two-seat capabilities |
 | [Participant-private state](../../games-harness-ts/tests/probes/private-state.test.ts) | Executable: supported as private setups; per-viewer positions a limitation | `GameRules.setup`, `GamePresentation.SetupBoard`, `GameAutomation.arrange`, `fixtures.setups` | Made: private room events, authority-only resolution, owner-only setups in matched games, the viewer's own setup on every board | Every shared specification and suite for what it offers, plus the private-setup ones; secret pick and Battleship | A position that differs per viewer as play goes on (cards drawn during play) is still one public string: `GameBoardProps` takes no per-viewer position and the rules decide with no actor |
 | [A surface unlike a chessboard](../../games-harness-ts/tests/probes/play-surface.test.ts) | Executable: supported | `GamePresentation.Board`, `GamePuzzlesClient.Board`, `PuzzleMarks` | None | The reference game's board is a row of buttons and its cells counts; it runs every shared specification and suite it offers | Puzzles mark cells (`PuzzleMarks.to`, `isCell`), the board faces a side (`orientation`), and automation is one pointer gesture (see Known limits) |
 

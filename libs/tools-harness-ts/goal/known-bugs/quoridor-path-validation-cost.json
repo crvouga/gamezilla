@@ -1,0 +1,4 @@
+{
+  "summary": "Quoridor bot matches exceeded the test budget because every path edge reparsed every placed wall. Canonical blocked-edge sets are reused for immutable wall lists.",
+  "regressionTest": "libs/quoridor-shared-ts/tests/quoridor-integrity.test.ts"
+}

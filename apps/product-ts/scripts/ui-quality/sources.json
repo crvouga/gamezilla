@@ -40,6 +40,11 @@
     "parts": 22
   },
   {
+    "package": "@libs/quoridor-harness-ts",
+    "directory": "libs/quoridor-harness-ts",
+    "parts": 2
+  },
+  {
     "package": "@libs/runtime-harness-ts",
     "directory": "libs/runtime-harness-ts",
     "parts": 15

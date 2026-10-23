@@ -1,4 +1,5 @@
-import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
+export type BattleshipSide = 'white' | 'black';
+
 import {
   CELLS,
   cellLabel,
@@ -31,10 +32,10 @@ export type Shot = {
 export type BattleshipPosition = {
   readonly actions: readonly string[];
   /** Each side's shots at the other side's board, in the order fired. */
-  readonly shots: Readonly<Record<GameSide, readonly Shot[]>>;
+  readonly shots: Readonly<Record<BattleshipSide, readonly Shot[]>>;
   /** The side to move (white when the number of shots is even). */
-  readonly turn: GameSide;
-  readonly winner: GameSide | null;
+  readonly turn: BattleshipSide;
+  readonly winner: BattleshipSide | null;
 };
 /** What one side's shots have established so far. */
 type Volley = {
@@ -45,7 +46,7 @@ type Volley = {
   sunkLength: number;
 };
 
-export function otherSide(side: GameSide): GameSide {
+export function otherSide(side: BattleshipSide): BattleshipSide {
   return side === 'white' ? 'black' : 'white';
 }
 /** The shot one public action records, or `null` unless it is one. */
@@ -107,16 +108,16 @@ function record(volley: Volley, shot: Shot): void {
   volley.sunkLength += shipLength(shot.ship);
 }
 type Replayed = {
-  readonly volleys: Readonly<Record<GameSide, Volley>>;
-  readonly winner: GameSide | null;
+  readonly volleys: Readonly<Record<BattleshipSide, Volley>>;
+  readonly winner: BattleshipSide | null;
 };
 function replayVolleys(actions: readonly string[]): Replayed | null {
   if (actions.length > MAX_ACTIONS) return null;
   const volleys = { white: emptyVolley(), black: emptyVolley() };
-  let winner: GameSide | null = null;
+  let winner: BattleshipSide | null = null;
   for (const [ply, action] of actions.entries()) {
     const shot = parseShotAction(action);
-    const attacker: GameSide = ply % 2 === 0 ? 'white' : 'black';
+    const attacker: BattleshipSide = ply % 2 === 0 ? 'white' : 'black';
     const volley = volleys[attacker];
     if (winner !== null || shot === null || !consistent(volley, shot))
       return null;

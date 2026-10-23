@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
+import type { BattleshipSide } from '@libs/battleship-shared-ts/battleship-position';
 import { decodeBattleshipPosition } from '@libs/battleship-shared-ts/battleship-position';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
-import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import fc from 'fast-check';
 import {
   occupancy,
@@ -29,7 +29,10 @@ function drawnGame(drawn: { readonly seed: number; readonly plies: number }) {
 }
 const cellOf = (action: string) => action.split(':')[0]!;
 /** The cells each attacker has hit after each step, by an independent tally. */
-function hitTally(steps: readonly Step[], fleets: Record<GameSide, string>) {
+function hitTally(
+  steps: readonly Step[],
+  fleets: Record<BattleshipSide, string>
+) {
   const hit = { white: new Set<string>(), black: new Set<string>() };
   return steps.map((step) => {
     if (occupancy(fleets[other(step.mover)]).has(step.proposal))

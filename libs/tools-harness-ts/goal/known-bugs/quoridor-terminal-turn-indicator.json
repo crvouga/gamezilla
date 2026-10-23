@@ -1,0 +1,4 @@
+{
+  "summary": "The hill board named the next seat to move after an immediate victory because the rules advance the stored turn. Finished boards must not announce another turn.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-board-regressions.test.tsx"
+}

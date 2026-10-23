@@ -510,6 +510,9 @@
       "@pkgs/object-store-opfs-client-ts/*": [
         "./pkgs/object-store-opfs-client-ts/src/*"
       ],
+      "@libs/quoridor-shared-ts/*": ["./libs/quoridor-shared-ts/src/*"],
+      "@libs/quoridor-client-ts/*": ["./libs/quoridor-client-ts/src/*"],
+      "@libs/quoridor-harness-ts/*": ["./libs/quoridor-harness-ts/src/*"],
       "@libs/connect-four-shared-ts/*": ["./libs/connect-four-shared-ts/src/*"],
       "@libs/battleship-shared-ts/*": ["./libs/battleship-shared-ts/src/*"],
       "@libs/battleship-client-ts/*": ["./libs/battleship-client-ts/src/*"],

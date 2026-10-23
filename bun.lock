@@ -26,13 +26,6 @@
         "typescript": "catalog:",
       },
     },
-    "apps/client-swift": {
-      "name": "@apps/client-swift",
-      "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/clock-shared-swift": "workspace:*",
-      },
-    },
     "apps/auth-relay-ts": {
       "name": "@apps/auth-relay-ts",
       "version": "0.0.0",
@@ -47,6 +40,13 @@
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
         "wrangler": "catalog:",
+      },
+    },
+    "apps/client-swift": {
+      "name": "@apps/client-swift",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/clock-shared-swift": "workspace:*",
       },
     },
     "apps/client-ts": {
@@ -160,6 +160,7 @@
         "@libs/observability-shared-ts": "workspace:*",
         "@libs/permissions-shared-ts": "workspace:*",
         "@libs/pubsub-shared-ts": "workspace:*",
+        "@libs/quoridor-harness-ts": "workspace:*",
         "@libs/secrets-server-ts": "workspace:*",
         "@libs/secrets-shared-ts": "workspace:*",
         "@libs/synthetic-population-server-ts": "workspace:*",
@@ -976,6 +977,7 @@
         "@pkgs/sounds-shared-ts": "workspace:*",
         "@pkgs/sql-root-shared-ts": "workspace:*",
         "@pkgs/sync-engine-client-ts": "workspace:*",
+        "@pkgs/turn-game-shared-ts": "workspace:*",
         "@pkgs/ui-root-client-ts": "workspace:*",
         "@pkgs/uuid-client-ts": "workspace:*",
         "fzstd": "catalog:",
@@ -1910,6 +1912,7 @@
         "@libs/connect-four-client-ts": "workspace:*",
         "@libs/game-menu-client-ts": "workspace:*",
         "@libs/games-shared-ts": "workspace:*",
+        "@libs/quoridor-client-ts": "workspace:*",
         "@libs/spaces-shared-ts": "workspace:*",
       },
       "devDependencies": {
@@ -1927,6 +1930,7 @@
         "@libs/connect-four-harness-ts": "workspace:*",
         "@libs/game-session-harness-ts": "workspace:*",
         "@libs/games-shared-ts": "workspace:*",
+        "@libs/quoridor-harness-ts": "workspace:*",
       },
       "devDependencies": {
         "@libs/account-privacy-harness-ts": "workspace:*",
@@ -2003,6 +2007,7 @@
         "@libs/chess-sub-shared-ts": "workspace:*",
         "@libs/connect-four-shared-ts": "workspace:*",
         "@libs/game-session-shared-ts": "workspace:*",
+        "@libs/quoridor-shared-ts": "workspace:*",
         "@libs/spaces-shared-ts": "workspace:*",
       },
       "devDependencies": {
@@ -2530,6 +2535,64 @@
         "typescript": "catalog:",
       },
     },
+    "libs/quoridor-client-ts": {
+      "name": "@libs/quoridor-client-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/game-menu-client-ts": "workspace:*",
+        "@libs/quoridor-shared-ts": "workspace:*",
+        "@lingui/core": "catalog:",
+        "@lingui/solid": "catalog:",
+        "@pkgs/turn-game-shared-ts": "workspace:*",
+        "@pkgs/ui-root-client-ts": "workspace:*",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/bun-test-solid-client-ts": "workspace:*",
+        "@pkgs/clock-client-ts": "workspace:*",
+        "@pkgs/clock-shared-ts": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/quoridor-harness-ts": {
+      "name": "@libs/quoridor-harness-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/game-session-harness-ts": "workspace:*",
+        "@libs/harness-ts": "workspace:*",
+        "@libs/quoridor-client-ts": "workspace:*",
+        "@libs/quoridor-shared-ts": "workspace:*",
+      },
+      "devDependencies": {
+        "@pkgs/bun-test-solid-client-ts": "workspace:*",
+        "@pkgs/quint-shared-ts": "workspace:*",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/quoridor-shared-ts": {
+      "name": "@libs/quoridor-shared-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/game-session-shared-ts": "workspace:*",
+        "@pkgs/turn-game-shared-ts": "workspace:*",
+      },
+      "devDependencies": {
+        "@pkgs/property-shared-ts": "workspace:*",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "libs/room-app-server-ts": {
       "name": "@libs/room-app-server-ts",
       "version": "0.0.0",
@@ -2626,6 +2689,7 @@
         "@libs/games-shared-ts": "workspace:*",
         "@libs/harness-ts": "workspace:*",
         "@libs/profile-harness-ts": "workspace:*",
+        "@libs/quoridor-harness-ts": "workspace:*",
         "@libs/runtime-client-ts": "workspace:*",
         "@libs/runtime-server-ts": "workspace:*",
         "@libs/runtime-shared-ts": "workspace:*",
@@ -2635,6 +2699,7 @@
         "@pkgs/chess-board-core-shared-ts": "workspace:*",
         "@pkgs/gherkin-shared-ts": "workspace:*",
         "@pkgs/sql-root-shared-ts": "workspace:*",
+        "@pkgs/turn-game-shared-ts": "workspace:*",
         "@pkgs/ui-testing-root-shared-ts": "workspace:*",
         "chess.js": "catalog:",
       },
@@ -6935,9 +7000,9 @@
 
     "@apideck/better-ajv-errors": ["@apideck/better-ajv-errors@0.3.7", "", { "dependencies": { "jsonpointer": "^5.0.1", "leven": "^3.1.0" }, "peerDependencies": { "ajv": ">=8" } }, "sha512-TajUJwGWbDwkCx/CZi7tRE8PVB7simCvKJfHUsSdvps+aTM/PDPP4gkLmKnc+x3CE//y9i/nj74GqdL/hwk7Iw=="],
 
-    "@apps/client-swift": ["@apps/client-swift@workspace:apps/client-swift"],
-
     "@apps/auth-relay-ts": ["@apps/auth-relay-ts@workspace:apps/auth-relay-ts"],
+
+    "@apps/client-swift": ["@apps/client-swift@workspace:apps/client-swift"],
 
     "@apps/client-ts": ["@apps/client-ts@workspace:apps/client-ts"],
 
@@ -7666,6 +7731,12 @@
     "@libs/pubsub-server-ts": ["@libs/pubsub-server-ts@workspace:libs/pubsub-server-ts"],
 
     "@libs/pubsub-shared-ts": ["@libs/pubsub-shared-ts@workspace:libs/pubsub-shared-ts"],
+
+    "@libs/quoridor-client-ts": ["@libs/quoridor-client-ts@workspace:libs/quoridor-client-ts"],
+
+    "@libs/quoridor-harness-ts": ["@libs/quoridor-harness-ts@workspace:libs/quoridor-harness-ts"],
+
+    "@libs/quoridor-shared-ts": ["@libs/quoridor-shared-ts@workspace:libs/quoridor-shared-ts"],
 
     "@libs/room-app-server-ts": ["@libs/room-app-server-ts@workspace:libs/room-app-server-ts"],
 

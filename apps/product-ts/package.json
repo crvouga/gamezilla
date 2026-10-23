@@ -141,6 +141,7 @@
     "@libs/observability-shared-ts": "workspace:*",
     "@libs/permissions-shared-ts": "workspace:*",
     "@libs/pubsub-shared-ts": "workspace:*",
+    "@libs/quoridor-harness-ts": "workspace:*",
     "@libs/secrets-server-ts": "workspace:*",
     "@libs/secrets-shared-ts": "workspace:*",
     "@libs/synthetic-population-server-ts": "workspace:*",

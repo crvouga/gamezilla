@@ -46,6 +46,7 @@
     "@libs/games-shared-ts": "workspace:*",
     "@libs/harness-ts": "workspace:*",
     "@libs/profile-harness-ts": "workspace:*",
+    "@libs/quoridor-harness-ts": "workspace:*",
     "@libs/runtime-client-ts": "workspace:*",
     "@libs/runtime-server-ts": "workspace:*",
     "@libs/runtime-shared-ts": "workspace:*",
@@ -55,6 +56,7 @@
     "@pkgs/chess-board-core-shared-ts": "workspace:*",
     "@pkgs/gherkin-shared-ts": "workspace:*",
     "@pkgs/sql-root-shared-ts": "workspace:*",
+    "@pkgs/turn-game-shared-ts": "workspace:*",
     "@pkgs/ui-testing-root-shared-ts": "workspace:*",
     "chess.js": "catalog:"
   },

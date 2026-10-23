@@ -1,0 +1,4 @@
+{
+  "summary": "In a four-player corridor, pawns can temporarily prevent every pawn move while wall placements remain legal. Bots must place a wall rather than returning no action and stalling the turn.",
+  "regressionTest": "libs/quoridor-shared-ts/tests/quoridor-bot-blocked-pawn.test.ts"
+}

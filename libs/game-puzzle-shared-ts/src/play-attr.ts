@@ -1,6 +1,7 @@
 import { GAME_PLATFORM_NAMESPACE } from '@libs/game-matchmaking-shared-ts/durable-names';
 import { createAttrNamespace } from '@pkgs/attribute-shared-ts/attribute';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
+import { GAME_SIDES } from '@pkgs/turn-game-shared-ts/game-rules';
 import { parseRecommendations } from './recommendations';
 
 /**
@@ -57,7 +58,7 @@ function readNonNegativeInteger(v: unknown): number {
 }
 
 function readSolverSide(v: unknown): GameSide {
-  return v === 'black' ? 'black' : 'white';
+  return isSide(v) ? v : 'white';
 }
 
 function readNullableNonNegativeInteger(v: unknown): number | null {
@@ -125,11 +126,7 @@ export const PuzzlePlayAttr = {
   /** The position currently on the board (after applied moves). */
   displayPosition: playNs.textOrNull('display-fen', readNullableNonEmptyString),
   /** The side the host solves as (`PlayedPosition.turn` after setup); fixed for the session. */
-  solverSide: playNs.enum(
-    'orientation',
-    ['white', 'black'] as const,
-    readSolverSide
-  ),
+  solverSide: playNs.enum('orientation', GAME_SIDES, readSolverSide),
   /** Bumps on every wrong-move / reset so the board can force a remount when the position is unchanged. */
   layoutKey: playNs.integer('layout-key', readNonNegativeInteger),
   /** The wrong action the host played, shown until a retry. */
@@ -174,7 +171,7 @@ export function isNullOrNonNegativeInteger(v: unknown): v is number | null {
 }
 
 export function isSide(v: unknown): v is GameSide {
-  return v === 'white' || v === 'black';
+  return GAME_SIDES.some((side) => side === v);
 }
 
 export function isStatus(v: unknown): v is PuzzlePlayStatus {

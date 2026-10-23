@@ -1,0 +1,4 @@
+{
+  "summary": "Focusing a disabled outside wall anchor painted a partial wall preview. Only valid two-boundary wall geometry may be previewed.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-board-regressions.test.tsx"
+}
