@@ -52,11 +52,13 @@ module quoridor_play {
   pure def _edge(a: int, b: int, placed: Set[(int, int, int)]): bool = _adjacent(a, b) and not(_blocked(a, b, placed))
   pure def _neighbors(square: int): Set[int] =
     Set(square - 9, square + 9, square - 1, square + 1).filter(other => _adjacent(square, other))
+  pure def _expandReachable(seen: Set[int], placed: Set[(int, int, int)]): Set[int] =
+    CELLS.filter(square => seen.contains(square) or
+      _neighbors(square).exists(other => seen.contains(other) and not(_blocked(square, other, placed))))
   pure def _reachable(m: str, player: int, start: int, placed: Set[(int, int, int)]): bool = {
     val reachable = 0.to(80).fold(Set(start), (seen, _) =>
       if (seen.exists(c => _goal(m, player, c))) seen
-      else seen.fold(seen, (expanded, square) =>
-        expanded.union(_neighbors(square).filter(other => not(_blocked(square, other, placed))))))
+      else _expandReachable(seen, placed))
     reachable.exists(c => _goal(m, player, c))
   }
   pure def _clear(m: str, positions: int -> int, square: int): bool =
@@ -133,11 +135,12 @@ module quoridor_play {
   }
   /// In King of the Hill, pass only when no pawn move or wall placement is possible. The player stays in the game.
   action passTurn(player: int): bool =
-    if (mode == "hill" and winner == -1 and player == turn and
-      not(CELLS.exists(c => _pawnMove(mode, pawns, walls, player, c))) and
-      (remaining.get(player) == 0 or not(WALLS.exists(w => _wallAllowed(mode, pawns, walls, w)))))
+    if (mode != "hill" or winner != -1 or player != turn) _hold
+    else if (CELLS.exists(c => _pawnMove(mode, pawns, walls, player, c))) _hold
+    else if (remaining.get(player) == 0)
       _update(pawns, walls, remaining, (turn + 1) % _players(mode).size(), winner, false)
-    else _hold
+    else if (WALLS.exists(w => _wallAllowed(mode, pawns, walls, w))) _hold
+    else _update(pawns, walls, remaining, (turn + 1) % _players(mode).size(), winner, false)
   action step = any {
     { nondet player = _players(mode).oneOf() nondet square = CELLS.oneOf() movePawn(player, square) },
     { nondet player = Set(turn).oneOf() nondet square = CELLS.filter(c => _pawnMove(mode, pawns, walls, turn, c)).union(Set(40)).oneOf() movePawn(player, square) },
