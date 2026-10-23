@@ -12,6 +12,7 @@ import { reconcileOutbox } from '@pkgs/outbox-shared-ts/reconcile';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import type { PubSub } from '@pkgs/pubsub-root-shared-ts/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server-ts/impl-bun-sqlite';
+import sql from '@pkgs/sql-root-shared-ts/sql';
 import { syncEngineServerSchema } from '@pkgs/sync-engine-shared-ts/tables';
 import fc from 'fast-check';
 
@@ -76,6 +77,14 @@ async function notificationOrder(
       pubsub,
       objectStore: new ObjectStoreImplInMemory(),
     });
+    if (scoped)
+      expect(
+        await db.query(
+          sql<{
+            event_id: string;
+          }>`SELECT event_id FROM outbox_deliveries WHERE event_id = ${'foreign'}`
+        )
+      ).toEqual([]);
     return order;
   } finally {
     await db.disconnect();
@@ -111,7 +120,8 @@ test('each committed pass is published before the next pass in any bounded chain
 });
 
 // regression: mutation-drains-unrelated-outbox-backlog
-test('a request follows its causal chain without delivering unrelated backlog', async () => {
+// regression: request-outbox-registration-scans-backlog
+test('a request follows its causal chain without registering or delivering unrelated backlog', async () => {
   expect(await notificationOrder(2, true)).toEqual([
     'deliver:1',
     'push:1',

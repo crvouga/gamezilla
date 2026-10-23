@@ -67,7 +67,7 @@ export async function drainOutbox(
   const notifyUserIds = new Set<string>();
 
   const { processed, exhausted } = await deps.db.transaction(async (tx) => {
-    await ensureDeliveries(tx, deps.registry, deps.clock);
+    await ensureDeliveries(tx, deps);
     const claims = await claimDueDeliveries(tx, { ...deps, limit });
     return processClaims({ deps, tx, claims, log, notifyUserIds });
   });
@@ -139,12 +139,11 @@ const DELIVERIES_PER_CONSUMER_PER_PASS = 200;
  */
 async function ensureDeliveries(
   tx: SqlTx,
-  registry: OutboxConsumerRegistry,
-  clock: Clock
+  deps: DrainOutboxDeps
 ): Promise<void> {
-  const consumers = registry.all();
+  const consumers = deps.registry.all();
   if (consumers.length === 0) return;
-  const nowIso = new Date(clock.now()).toISOString();
+  const nowIso = new Date(deps.clock.now()).toISOString();
   const subscriptions = join(
     consumers.map(
       (consumer) =>
@@ -163,6 +162,7 @@ async function ensureDeliveries(
       FROM outbox_events e
       JOIN (${subscriptions}) s ON s.type = e.type
      WHERE e.deleted_at IS NULL
+       ${deps.eventIds !== undefined && deps.eventIds.length > 0 ? sql`AND e.id IN (${join(deps.eventIds)})` : sql``}
        AND NOT EXISTS (
          SELECT 1
            FROM outbox_deliveries d
