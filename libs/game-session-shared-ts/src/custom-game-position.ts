@@ -1,10 +1,17 @@
-import type { GameBots, TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  type GameBots,
+  gameSides,
+  type TurnGames,
+} from '@pkgs/turn-game-shared-ts/game-rules';
 import type { CustomGame } from './custom-game-state';
 /** A retained position must describe exactly the accepted action sequence. */
 export function assertCustomGamePosition(
   game: CustomGame,
   rules: TurnGames
 ): void {
+  const expected = gameSides(rules.forPosition(game.fen));
+  if (JSON.stringify(game.sides) !== JSON.stringify(expected))
+    throw new Error('The retained game roster does not match its rules');
   const actions = game.moves.map((move) => move.uci);
   if (rules.forPosition(game.fen).replay(actions, actions.length) !== game.fen)
     throw new Error(

@@ -1,6 +1,10 @@
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
 import {
+  multiplayerOwner,
+  multiplayerSides,
+} from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
+import {
   CustomGameSetupsAttr,
   ownCustomGameSetup,
 } from '@libs/game-session-shared-ts/custom-game-setup';
@@ -14,16 +18,18 @@ import { createQuery } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
 import type {
   GameRules,
+  GameSide,
   RecordedMove,
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import { createMemo } from 'solid-js';
 export type GameHistoryRecord = {
   readonly id: string;
   readonly position: string;
-  readonly first: string;
-  readonly second: string;
-  readonly firstBot: boolean;
-  readonly secondBot: boolean;
+  readonly participants: readonly {
+    readonly side: GameSide;
+    readonly person: string;
+    readonly bot: boolean;
+  }[];
   readonly outcome: string;
   readonly reason: string;
   readonly moves: readonly RecordedMove[];
@@ -45,7 +51,7 @@ export function useGameRecords(gameId: () => string) {
   );
   const matches = createQuery(
     () => sql<MultiplayerGame>`SELECT * FROM chess_multiplayer_games
-    WHERE (white_id = ${myId()} OR black_id = ${myId()}) AND deleted_at IS NULL
+    WHERE (white_id = ${myId()} OR black_id = ${myId()} OR red_id = ${myId()} OR blue_id = ${myId()}) AND deleted_at IS NULL
     ORDER BY created_at DESC LIMIT 100`
   );
   const records = createMemo(() => {
@@ -61,10 +67,11 @@ export function useGameRecords(gameId: () => string) {
       .map((g) => ({
         id: g.id,
         position: g.fen,
-        first: g.white_id,
-        second: g.black_id,
-        firstBot: false,
-        secondBot: false,
+        participants: multiplayerSides(g).map((side) => ({
+          side,
+          person: multiplayerOwner(g, side),
+          bot: false,
+        })),
         outcome: g.outcome,
         reason: g.reason ?? '',
         moves: gameRules.moves(g.fen, g.pgn, []),
@@ -101,19 +108,18 @@ function customRecords(
     .map((g) => ({
       id: g.id,
       position: g.fen,
-      first: g.white.person,
-      second: g.black.person,
-      firstBot: g.white.kind === 'bot',
-      secondBot: g.black.kind === 'bot',
+      participants: g.sides.map((side) => ({
+        side,
+        person: g[side].person,
+        bot: g[side].kind === 'bot',
+      })),
       outcome:
         g.outcome === 'draw'
           ? 'draw'
           : g.status === 'cancelled'
             ? 'aborted'
-            : g.outcome.startsWith('white')
-              ? 'white'
-              : 'black',
-      reason: g.outcome,
+            : (g.sides.find((side) => g.outcome.startsWith(side)) ?? 'draw'),
+      reason: g.outcomeReason || g.outcome,
       moves: context.gameRules.moves(
         g.fen,
         '',
@@ -133,7 +139,8 @@ function countResults(records: readonly GameHistoryRecord[], myId: string) {
   let draws = 0;
   for (const game of records) {
     const side =
-      game.first === myId ? 'white' : game.second === myId ? 'black' : null;
+      game.participants.find((participant) => participant.person === myId)
+        ?.side ?? null;
     if (side === null || game.outcome === 'aborted') continue;
     if (game.outcome === 'draw') draws++;
     else if (game.outcome === side) wins++;

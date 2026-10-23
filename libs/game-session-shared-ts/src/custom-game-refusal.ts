@@ -4,11 +4,9 @@ import type {
 } from './custom-game-choice';
 import type { CustomGame } from './custom-game-state';
 import {
-  CUSTOM_GAME_SIDES,
   customGamePersonSide,
   customGameStartable,
   customGameTerminal,
-  otherCustomGameSide,
 } from './custom-game-state';
 
 /** How long the other participant must stay away before a claim, in ms. */
@@ -80,7 +78,7 @@ function lifecycleRefusal(
 }
 
 function reservedFor(game: CustomGame, person: string): boolean {
-  return CUSTOM_GAME_SIDES.some((side) => game[side].person === person);
+  return game.sides.some((side) => game[side].person === person);
 }
 
 function claimRefusal(
@@ -160,11 +158,13 @@ function relationshipRefusal(
 function startRefusal(game: CustomGame, choice: CustomGameChoice): string {
   if (choice.operation !== 'start' || game.status !== 'configuring') return '';
   if (
-    !CUSTOM_GAME_SIDES.every(
+    !game.sides.every(
       (side) => game[side].kind === 'person' || game[side].kind === 'bot'
     )
   )
-    return 'both sides need participants';
+    return game.sides.length === 2
+      ? 'both sides need participants'
+      : 'every side needs a participant';
   return customGameStartable(game) ? '' : 'every person must be ready';
 }
 
@@ -176,11 +176,10 @@ export function customGameCancelRefusal(
   if (game.creator === actor) return '';
   if (
     game.status !== 'active' ||
-    game.white.kind !== 'person' ||
-    game.black.kind !== 'person'
+    !game.sides.every((side) => game[side].kind === 'person')
   )
     return 'only the creator';
-  return game.moves.length >= CUSTOM_GAME_SIDES.length ? 'resign instead' : '';
+  return game.moves.length >= game.sides.length ? 'resign instead' : '';
 }
 
 /** The win is claimed only once the other participant has stayed away long enough. */
@@ -191,11 +190,30 @@ function claimWinRefusal(
 ): string {
   const side = customGamePersonSide(game, actor);
   if (side === null) return 'not a participant';
-  const other = game[otherCustomGameSide(side)];
-  const since = other.kind === 'person' ? room.awaySince(other.person) : null;
-  return since !== null && room.now - since >= CUSTOM_GAME_AWAY_CLAIM_MS
+  if (game.sides.length > 2) return 'may still return';
+  return game.sides
+    .filter((other) => other !== side)
+    .some((other) => {
+      const participant = game[other];
+      const since =
+        participant.kind === 'person'
+          ? room.awaySince(participant.person)
+          : null;
+      return since !== null && room.now - since >= CUSTOM_GAME_AWAY_CLAIM_MS;
+    })
     ? ''
     : 'may still return';
+}
+
+function drawOfferRefusal(game: CustomGame, choice: CustomGameChoice): string {
+  if (
+    choice.operation !== 'offer' ||
+    game.sides.every((side) => game[side].kind === 'person')
+  )
+    return '';
+  return game.sides.length === 2
+    ? 'draw agreement needs two people'
+    : 'draw agreement needs every participant to be a person';
 }
 
 function playRefusal(
@@ -211,11 +229,8 @@ function playRefusal(
     game.status !== 'active'
   )
     return 'not started';
-  if (
-    choice.operation === 'offer' &&
-    (game.white.kind !== 'person' || game.black.kind !== 'person')
-  )
-    return 'draw agreement needs two people';
+  const draw = drawOfferRefusal(game, choice);
+  if (draw !== '') return draw;
   if (choice.operation === 'offer' && game.declinedOffers.includes(actor))
     return 'offer again after moving';
   if (choice.operation === 'cancel')
@@ -278,6 +293,8 @@ export function customGameRefusal(
     choice.revision !== game.revision
   )
     return 'choices changed';
+  if ('side' in choice && !game.sides.includes(choice.side))
+    return 'side not available';
   const relationship = relationshipRefusal(game, choice, actor, room);
   if (relationship !== '') return relationship;
   if (

@@ -25,7 +25,7 @@ import { sharedSpecifications } from '../conformance-world';
 
 /** The turn order promised by the current head-to-head specifications. */
 export const TAKES_TURNS_LAW =
-  'the first side moves first and every action passes the turn to the other side';
+  'the first side moves first and every action passes the turn to the next declared side';
 
 /** The shared specifications `game` is held to, by what it offers. */
 export function inheritedSpecifications(game: HarnessGame): readonly string[] {

@@ -140,5 +140,5 @@ forEveryGame(
       expect(seen[1]).toBe(seen[0]);
     }, 240_000);
   },
-  ['a private setup']
+  ['a private setup', 'two seats']
 );

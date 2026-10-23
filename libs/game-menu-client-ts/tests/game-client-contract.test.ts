@@ -19,7 +19,7 @@ import {
 import type { GamePuzzlesClient } from '@libs/game-puzzle-client-ts/puzzle-client';
 import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
 import type { PuzzlesCapability } from '@pkgs/turn-game-shared-ts/game-puzzles';
-import type { GameRules } from '@pkgs/turn-game-shared-ts/game-rules';
+import type { GameRules, GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 
 /** Count to seven: `step` adds one, and whoever reaches seven wins. */
 const rules: GameRules = {
@@ -71,8 +71,7 @@ const parts = {
     canFlip: false,
     name: () => 'Race',
     Board: () => null,
-    sideLabel: (side: 'white' | 'black') =>
-      side === 'white' ? 'Hare' : 'Tortoise',
+    sideLabel: (side: GameSide) => (side === 'white' ? 'Hare' : 'Tortoise'),
     endingDescription: () => undefined,
     timeoutDrawDescription: () => 'Drawn on time.',
     endingLabel: () => 'finish line',

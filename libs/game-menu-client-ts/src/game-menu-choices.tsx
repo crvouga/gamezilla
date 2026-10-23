@@ -6,7 +6,10 @@ import { CustomGameScreen } from '@libs/game-session-client-ts/custom-game-scree
 import { GameHistory } from '@libs/game-session-client-ts/game-history';
 import type { GameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { Trans } from '@lingui/solid/macro';
-import type { GameCapability } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  type GameCapability,
+  gameSides,
+} from '@pkgs/turn-game-shared-ts/game-rules';
 import type { GameChoice, GameClient, GameOwnScreen } from './game-client';
 import { SHARED_GAME_SCREEN } from './shared-game-screens';
 
@@ -88,6 +91,7 @@ const PUZZLE_CHOICES: readonly GameChoiceItem[] = [
 
 function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
   const name = game.title;
+  const playerCount = gameSides(game.shared.turnGame.rules).length;
   return [
     ...(game.puzzles === undefined ? [] : PUZZLE_CHOICES),
     ...(offers('custom-games')
@@ -96,7 +100,9 @@ function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
             screen: SHARED_GAME_SCREEN.customGames,
             title: () => <Trans>Custom games</Trans>,
             caption: () => (
-              <Trans>Play a person, choose a bot, or watch two bots</Trans>
+              <Trans>
+                Choose people or bots for each of the {playerCount} places
+              </Trans>
             ),
           },
         ]
@@ -106,7 +112,12 @@ function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
           {
             screen: SHARED_GAME_SCREEN.matchmaking,
             title: () => <Trans>Find an opponent</Trans>,
-            caption: () => <Trans>Meet another {name} player</Trans>,
+            caption: () =>
+              playerCount > 2 ? (
+                <Trans>Meet three other {name} players</Trans>
+              ) : (
+                <Trans>Meet another {name} player</Trans>
+              ),
           },
         ]
       : []),

@@ -13,13 +13,20 @@ export const playCustomGameHistory = scenarioAction({
       spaceId: string;
       white: string;
       black: string;
+      red?: string;
+      blue?: string;
       moves: readonly string[];
     }
   ) => {
-    const devices = {
-      white: await s.harness.client(args.white),
-      black: await s.harness.client(args.black),
-    };
+    const devices = new Map<
+      string,
+      Awaited<ReturnType<typeof s.harness.client>>
+    >();
+    for (const side of ['white', 'black', 'red', 'blue'] as const) {
+      const person = args[side];
+      if (person !== undefined)
+        devices.set(side, await s.harness.client(person));
+    }
     for (const uci of args.moves) {
       const state = s.harness.roomNode.inspect(
         `space:${args.spaceId}`
@@ -32,7 +39,9 @@ export const playCustomGameHistory = scenarioAction({
         game[game.turn].kind !== 'person'
       )
         throw new Error('history needs an active game with people');
-      const env = devices[game.turn];
+      const env = devices.get(game.turn);
+      if (env === undefined)
+        throw new Error('history has no device for the active seat');
       const installId = env.secureStorage.getValue(DEVICE_ID_KEY);
       if (installId === null) throw new Error('history device has no identity');
       const answer = await answerOfRoomCommand(s.harness.roomNode, {

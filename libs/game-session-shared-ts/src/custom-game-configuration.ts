@@ -8,10 +8,10 @@ import type {
 import {
   BOT_CUSTOM_GAME_SIDE,
   CLOSED_CUSTOM_GAME_SIDE,
-  CUSTOM_GAME_SIDES,
   customGamePersonSide,
   newCustomGame,
   OPEN_CUSTOM_GAME_SIDE,
+  rotatedCustomGameSide,
 } from './custom-game-state';
 
 export function replaceCustomGameSide(
@@ -50,7 +50,7 @@ function setCustomGameReady(
   const side = customGamePersonSide(game, actor);
   if (side === null) return game;
   const next = ready
-    ? CUSTOM_GAME_SIDES.filter((s) => s === side || game.ready.includes(s))
+    ? game.sides.filter((s) => s === side || game.ready.includes(s))
     : game.ready.filter((s) => s !== side);
   return { ...game, ready: next };
 }
@@ -93,17 +93,18 @@ export function configureCustomGame(
       return setCustomGameReady(game, actor, true);
     case 'unready':
       return setCustomGameReady(game, actor, false);
-    case 'swap':
-      return game.white.kind === game.black.kind &&
-        game.white.person === game.black.person
+    case 'swap': {
+      const rotated = { ...game, ready: [], revision: game.revision + 1 };
+      for (const side of game.sides)
+        rotated[side] = game[rotatedCustomGameSide(game, side)];
+      return game.sides.every(
+        (side) =>
+          rotated[side].kind === game[side].kind &&
+          rotated[side].person === game[side].person
+      )
         ? game
-        : {
-            ...game,
-            white: game.black,
-            black: game.white,
-            ready: [],
-            revision: game.revision + 1,
-          };
+        : rotated;
+    }
     case 'clock':
       return setCustomGameClock(game, choice.minutes, choice.increment);
     case 'untimed':
@@ -129,12 +130,16 @@ export function rematchCustomGame(
   members: readonly string[],
   rules: TurnGames
 ): CustomGame {
-  return {
-    ...newCustomGame(id, game.creator, rules.forPosition(game.fen).initial()),
-    white: inheritSide(game.black, members),
-    black: inheritSide(game.white, members),
-    difficulty: { white: game.difficulty.black, black: game.difficulty.white },
-    minutes: game.minutes,
-    increment: game.increment,
-  };
+  const next = newCustomGame(
+    id,
+    game.creator,
+    rules.forPosition(game.fen).initial(),
+    game.sides
+  );
+  for (const side of game.sides) {
+    const previous = rotatedCustomGameSide(game, side);
+    next[side] = inheritSide(game[previous], members);
+    next.difficulty[side] = game.difficulty[previous];
+  }
+  return { ...next, minutes: game.minutes, increment: game.increment };
 }

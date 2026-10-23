@@ -12,6 +12,7 @@ import {
   reopenSpaceLink,
 } from '@libs/spaces-harness-ts/space-actions';
 import { readSpaceLink } from '@libs/spaces-harness-ts/spaces-ui-reads';
+import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import { readCustomGameProbe } from './custom-game-probe';
 import { configureCustomGame } from './custom-game-ui';
 import { showCustomGames } from './game-navigation';
@@ -25,6 +26,8 @@ export type CustomGameLineup = {
   readonly host?: string;
   readonly first?: CustomGameSeat;
   readonly second?: CustomGameSeat;
+  readonly third?: CustomGameSeat;
+  readonly fourth?: CustomGameSeat;
   readonly watchers?: readonly string[];
   /** The clock choice the creator makes before anyone agrees (default: untimed). */
   readonly clock?: { readonly minutes: number; readonly increment: number };
@@ -37,8 +40,6 @@ export type CustomGameLineup = {
   /** A side's private setup other than the game's known one, for a game with private setups. */
   readonly setups?: Partial<Record<CustomGameSide, string>>;
 };
-
-const SIDES: readonly CustomGameSide[] = ['white', 'black'];
 
 function isPerson(seat: CustomGameSeat): boolean {
   return seat !== 'bot' && seat !== 'open';
@@ -69,14 +70,17 @@ async function seat(
 export async function playCustomGameMoves(
   s: ProductHarness,
   observer: string,
-  seats: Readonly<Record<CustomGameSide, CustomGameSeat>>,
+  seats: Readonly<
+    Record<'white' | 'black', CustomGameSeat> &
+      Partial<Record<'red' | 'blue', CustomGameSeat>>
+  >,
   moves: readonly string[]
 ): Promise<void> {
   for (const move of moves) {
     const game = (await readCustomGameProbe(s, observer))?.current;
     if (game === null || game === undefined) throw new Error('No game');
     const mover = seats[game.turn];
-    if (!isPerson(mover))
+    if (mover === undefined || !isPerson(mover))
       throw new Error(`The ${game.turn} side has no person to play ${move}`);
     await configureCustomGame(s, mover, {
       operation: 'move',
@@ -163,7 +167,10 @@ async function readyEveryPerson(
   seats: Record<CustomGameSide, CustomGameSeat>,
   lineup: CustomGameLineup
 ): Promise<void> {
-  for (const side of SIDES) {
+  const current = (await readCustomGameProbe(s, lineup.host ?? 'alice'))
+    ?.current;
+  if (current === null || current === undefined) throw new Error('No game');
+  for (const side of current.sides) {
     if (!isPerson(seats[side])) continue;
     const setup = lineup.setups?.[side];
     await configureCustomGame(s, seats[side], {
@@ -182,9 +189,16 @@ export const establishCustomGame = scenarioAction({
     const seats = {
       white: lineup.first ?? 'alice',
       black: lineup.second ?? 'bob',
+      red: lineup.third ?? 'carol',
+      blue: lineup.fourth ?? 'dave',
     };
+    const sides = gameSides(game.shared.turnGame.rules);
     const people = [
-      ...new Set([host, seats.white, seats.black, ...(lineup.watchers ?? [])]),
+      ...new Set([
+        host,
+        ...sides.map((side) => seats[side]),
+        ...(lineup.watchers ?? []),
+      ]),
     ].filter(isPerson);
     for (const person of people) await signIn(s, person);
     // A host already hosting a space plays in it.
@@ -204,7 +218,7 @@ export const establishCustomGame = scenarioAction({
       game: game.shared.id,
     });
     await configureCustomGame(s, host, { operation: 'open', side: 'white' });
-    for (const side of SIDES) await seat(s, host, side, seats[side]);
+    for (const side of sides) await seat(s, host, side, seats[side]);
     if (lineup.clock !== undefined)
       await configureCustomGame(s, host, {
         operation: 'clock',

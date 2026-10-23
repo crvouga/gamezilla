@@ -134,7 +134,7 @@ test('a bot choosing an action the rules do not offer is refused', () => {
   });
   expectRefusedBy(
     reckless,
-    'two bots play only legal actions until the game finishes',
+    'bots in every declared seat play only legal actions until the game finishes',
     'a bot chose retreat'
   );
 });

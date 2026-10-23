@@ -51,5 +51,5 @@ forEveryGame(
     }, 120_000);
   },
   // A game with private setups is never played on the host's device alone.
-  ['every position public']
+  ['every position public', 'two seats']
 );

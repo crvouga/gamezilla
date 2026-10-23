@@ -11,6 +11,10 @@ import type {
   GameSide,
   PlayedPosition,
 } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  requireTwoPlayerSide,
+  type TwoPlayerSide,
+} from '@pkgs/turn-game-shared-ts/game-rules';
 
 export type CountGame = {
   readonly id: string;
@@ -28,8 +32,8 @@ export type CountGame = {
   };
 };
 
-export const otherSide = (side: GameSide): GameSide =>
-  side === 'white' ? 'black' : 'white';
+export const otherSide = (side: GameSide): TwoPlayerSide =>
+  requireTwoPlayerSide(side) === 'white' ? 'black' : 'white';
 
 export function countRules(game: CountGame): GameRules {
   const pattern = new RegExp(`^${game.id}:(\\d+)([wb])$`);

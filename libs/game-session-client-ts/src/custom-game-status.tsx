@@ -3,6 +3,7 @@ import type {
   CustomGameSide,
 } from '@libs/game-session-shared-ts/custom-game-state';
 import {
+  CUSTOM_GAME_SIDES,
   customGameStartable,
   customGameTimeLeft,
 } from '@libs/game-session-shared-ts/custom-game-state';
@@ -57,15 +58,23 @@ function participantName(
   }
 }
 
+function drawnDescription(reason: string): string {
+  if (reason === 'timeout')
+    return t`Game drawn because a participant ran out of time.`;
+  if (reason === 'participant withdrew')
+    return t`Game drawn because a participant withdrew.`;
+  return t`Game drawn.`;
+}
+
 function gameStateDescription(
   game: CustomGame,
   presentation: GamePresentation
 ): string {
   if (game.status === 'cancelled') return t`Game cancelled.`;
   if (game.status === 'completed') {
-    if (game.outcome === 'draw') return t`Game drawn.`;
+    if (game.outcome === 'draw') return drawnDescription(game.outcomeReason);
     const winner = presentation.sideLabel(
-      game.outcome.startsWith('white') ? 'white' : 'black'
+      game.sides.find((side) => game.outcome.startsWith(side)) ?? 'white'
     );
     const reason = game.outcome.includes('resignation')
       ? t`resignation`
@@ -151,29 +160,33 @@ function statusTone(
 }
 
 /** Who holds each side, as a listener hears it before the game's state. */
+function useSeatName(
+  model: CustomGameScreenModel,
+  side: CustomGameSide
+): () => string {
+  const person = () => model.current()?.[side].person ?? '';
+  const name = useProfileColumn(person, 'username');
+  const moderation = useModeration();
+  return () => {
+    const game = model.current();
+    return game === null
+      ? ''
+      : participantName(game, side, shownName(moderation(), name(), person()));
+  };
+}
+
 function useLineupDescription(model: CustomGameScreenModel): () => string {
   const gameSideLabel = useGameSideLabel();
-  const whiteId = () => model.current()?.white.person ?? '';
-  const blackId = () => model.current()?.black.person ?? '';
-  const whiteName = useProfileColumn(whiteId, 'username');
-  const blackName = useProfileColumn(blackId, 'username');
-  const moderation = useModeration();
+  const names = Object.fromEntries(
+    CUSTOM_GAME_SIDES.map((side) => [side, useSeatName(model, side)])
+  ) as Record<CustomGameSide, () => string>;
   return createMemo(() => {
     const game = model.current();
-    if (game === null) return '';
-    const white = participantName(
-      game,
-      'white',
-      shownName(moderation(), whiteName(), whiteId())
-    );
-    const black = participantName(
-      game,
-      'black',
-      shownName(moderation(), blackName(), blackId())
-    );
-    const first = gameSideLabel(game.fen, 'white');
-    const second = gameSideLabel(game.fen, 'black');
-    return t`${first}: ${white}. ${second}: ${black}.`;
+    return game === null
+      ? ''
+      : game.sides
+          .map((side) => `${gameSideLabel(game.fen, side)}: ${names[side]()}.`)
+          .join(' ');
   });
 }
 

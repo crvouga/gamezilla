@@ -7,8 +7,11 @@
 import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { packageFamilyProblems } from '@libs/games-harness-ts/conformance-enrollment';
+import { enrollmentProblems } from '@libs/games-harness-ts/game-conformance';
 import { HARNESS_GAMES } from '@libs/games-harness-ts/harness-games';
 import { GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
+import { gameFamily } from '@pkgs/turn-game-shared-ts/game-rules';
 import { CONFORMANCE_GAMES } from './conformance-world';
 
 test('every registered game is enrolled in the shared suites, in registry order', () => {
@@ -53,7 +56,63 @@ test('every game a package implements is registered, and every registered game h
       ) as { game?: string };
       if (game !== undefined) declared.add(game);
     }
-  expect([...declared].sort()).toEqual(
-    GAME_DEFINITIONS.map((game) => game.id).sort()
+  expect(
+    packageFamilyProblems(
+      GAME_DEFINITIONS.map((mode) => mode.turnGame.rules),
+      [...declared]
+    )
+  ).toEqual([]);
+});
+
+test('a game family owns several modes without duplicating its packages', () => {
+  expect(
+    packageFamilyProblems(
+      [
+        { id: 'race', family: 'counting' },
+        { id: 'race-four', family: 'counting' },
+      ],
+      ['counting']
+    )
+  ).toEqual([]);
+});
+
+test('an unknown family cannot hide a mode without owning packages', () => {
+  expect(
+    packageFamilyProblems(
+      [{ id: 'race-four', family: 'missing' }],
+      ['counting']
+    )
+  ).toContain('race-four: game family missing has no package');
+});
+
+test('every mode of a shared family still needs its own conformance adapter', () => {
+  const variants = GAME_DEFINITIONS.filter((mode) =>
+    GAME_DEFINITIONS.some(
+      (other) =>
+        other.id !== mode.id &&
+        gameFamily(other.turnGame.rules) === gameFamily(mode.turnGame.rules)
+    )
   );
+  expect(variants.length).toBeGreaterThan(1);
+  for (const mode of variants) {
+    const unregistered = GAME_DEFINITIONS.filter(
+      (other) => other.id !== mode.id
+    );
+    expect(
+      enrollmentProblems(unregistered, HARNESS_GAMES).some(
+        (problem) =>
+          problem.includes(`"${mode.id}"`) &&
+          problem.includes('but not GAME_DEFINITIONS')
+      )
+    ).toBe(true);
+
+    const omitted = HARNESS_GAMES.filter((game) => game.shared.id !== mode.id);
+    expect(
+      enrollmentProblems(GAME_DEFINITIONS, omitted).some((problem) =>
+        problem.includes(
+          `"${mode.id}" is in GAME_DEFINITIONS but not HARNESS_GAMES`
+        )
+      )
+    ).toBe(true);
+  }
 });

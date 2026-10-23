@@ -1,3 +1,8 @@
+import {
+  type GameRules,
+  gameFamily,
+} from '@pkgs/turn-game-shared-ts/game-rules';
+
 /** Execution must contain each enrolled definition once, with unique identities. */
 export function executionGameProblems(
   harness: readonly { readonly shared: { readonly id: string } }[],
@@ -58,4 +63,22 @@ export function suiteCaseProblems(
         `${suite.id} [${id}]: unexpected case — evidence belongs only to an eligible execution game`
       );
   return problems;
+}
+
+/** Every mode has an owning game package; one family's packages may implement several modes. */
+export function packageFamilyProblems(
+  registered: readonly Pick<GameRules, 'id' | 'family'>[],
+  declared: readonly string[]
+): readonly string[] {
+  const families = new Set(registered.map(gameFamily));
+  return [
+    ...registered
+      .filter((mode) => !declared.includes(gameFamily(mode)))
+      .map(
+        (mode) => `${mode.id}: game family ${gameFamily(mode)} has no package`
+      ),
+    ...declared
+      .filter((family) => !families.has(family))
+      .map((family) => `${family}: game packages have no registered mode`),
+  ];
 }

@@ -34,9 +34,9 @@ function RecordReview(props: {
   // A game with a private setup faces the viewer's side, showing only their
   // own setup; every other game's review faces the first side as before.
   const side = () =>
-    props.record.setup !== null && props.record.second === myId()
-      ? 'black'
-      : 'white';
+    props.record.participants.find(
+      (participant) => participant.person === myId()
+    )?.side ?? 'white';
   const position = () =>
     ply() === 0
       ? (props.record.moves[0]?.before ?? props.record.position)
@@ -108,15 +108,17 @@ function GameHistoryRecords(props: {
                   key: record.id,
                   title: (
                     <>
-                      <GameHistoryParticipant
-                        id={record.first}
-                        bot={record.firstBot}
-                      />{' '}
-                      /{' '}
-                      <GameHistoryParticipant
-                        id={record.second}
-                        bot={record.secondBot}
-                      />
+                      <For each={record.participants}>
+                        {(participant, index) => (
+                          <>
+                            <Show when={index() > 0}> / </Show>
+                            <GameHistoryParticipant
+                              id={participant.person}
+                              bot={participant.bot}
+                            />
+                          </>
+                        )}
+                      </For>
                     </>
                   ),
                   caption: recordLabel(record),

@@ -83,7 +83,7 @@ export function CustomGameConfiguration(props: {
         <Show
           when={startable()}
           fallback={
-            <Trans>Both sides must be filled and every person ready.</Trans>
+            <Trans>Every place must be filled and every person ready.</Trans>
           }
         >
           <Trans>Ready to start.</Trans>

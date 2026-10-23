@@ -55,158 +55,162 @@ async function agreed(s: OpenHarness) {
   return first;
 }
 
-forEveryGame(import.meta.path, (game) => {
-  // Moves are proposals; the authority plays them with the game's known setups.
-  const rules = playedRulesOf(game);
-  const victory = game.fixtures.firstSideVictory;
-  const opening = victory[0]!;
+forEveryGame(
+  import.meta.path,
+  (game) => {
+    // Moves are proposals; the authority plays them with the game's known setups.
+    const rules = playedRulesOf(game);
+    const victory = game.fixtures.firstSideVictory;
+    const opening = victory[0]!;
 
-  test('the authority refuses the wrong, repeated, stale and late moves, and a rematch keeps the result', async () => {
-    await using s = await openConformanceHarness(
-      `${game.shared.id}-match-authority`
-    );
-    let match = await paired(s, game);
-    const id = match.id;
-    expect(
-      await command(s, 'bob', {
-        gameId: id,
-        revision: 0,
-        uci: opening,
-        requestId: 'wrong-turn',
-      })
-    ).toBe(false);
-    const first = {
-      gameId: id,
-      revision: 0,
-      uci: opening,
-      requestId: 'first',
-    };
-    expect(await command(s, 'alice', first)).toBe(true);
-    expect(await command(s, 'alice', first)).toBe(true);
-    match = await agreed(s);
-    expect(match.revision).toBe(1);
-    expect(
-      await command(s, 'bob', {
-        gameId: id,
-        revision: 0,
-        uci: victory[1],
-        requestId: 'stale',
-      })
-    ).toBe(false);
-    for (const move of victory.slice(1)) {
-      match = await agreed(s);
+    test('the authority refuses the wrong, repeated, stale and late moves, and a rematch keeps the result', async () => {
+      await using s = await openConformanceHarness(
+        `${game.shared.id}-match-authority`
+      );
+      let match = await paired(s, game);
+      const id = match.id;
       expect(
-        await command(s, match.revision % 2 === 0 ? 'alice' : 'bob', {
+        await command(s, 'bob', {
           gameId: id,
-          revision: match.revision,
-          uci: move,
-          requestId: `move-${match.revision}`,
-        })
-      ).toBe(true);
-    }
-    const finished = await agreed(s);
-    expect(finished.outcome).toBe('white');
-    expect(
-      await command(s, 'bob', {
-        gameId: id,
-        revision: finished.revision,
-        uci: opening,
-        requestId: 'after-victory',
-      })
-    ).toBe(false);
-    await command(
-      s,
-      'alice',
-      { gameId: id, requestId: 'offer' },
-      'offerMultiplayerRematch'
-    );
-    await command(
-      s,
-      'bob',
-      { gameId: id, requestId: 'accept' },
-      'acceptMultiplayerRematch'
-    );
-    const rematch = await agreed(s);
-    expect(rematch.id).not.toBe(id);
-    expect(rematch.fen).toBe(rules.initial());
-    expect(rematch.white_id).toBe(finished.black_id);
-  }, 180_000);
-
-  test("a refused action changes neither player's game", async () => {
-    await using s = await openConformanceHarness(
-      `${game.shared.id}-match-refused`
-    );
-    const match = await paired(s, game);
-    for (const [index, refused] of game.fixtures.refusedOpenings.entries())
-      expect(
-        await command(s, 'alice', {
-          gameId: match.id,
           revision: 0,
-          uci: refused,
-          requestId: `refused-${String(index)}`,
+          uci: opening,
+          requestId: 'wrong-turn',
         })
       ).toBe(false);
-    const unchanged = await agreed(s);
-    expect(unchanged.revision).toBe(0);
-    expect(unchanged.fen).toBe(rules.initial());
-  }, 180_000);
+      const first = {
+        gameId: id,
+        revision: 0,
+        uci: opening,
+        requestId: 'first',
+      };
+      expect(await command(s, 'alice', first)).toBe(true);
+      expect(await command(s, 'alice', first)).toBe(true);
+      match = await agreed(s);
+      expect(match.revision).toBe(1);
+      expect(
+        await command(s, 'bob', {
+          gameId: id,
+          revision: 0,
+          uci: victory[1],
+          requestId: 'stale',
+        })
+      ).toBe(false);
+      for (const move of victory.slice(1)) {
+        match = await agreed(s);
+        expect(
+          await command(s, match.revision % 2 === 0 ? 'alice' : 'bob', {
+            gameId: id,
+            revision: match.revision,
+            uci: move,
+            requestId: `move-${match.revision}`,
+          })
+        ).toBe(true);
+      }
+      const finished = await agreed(s);
+      expect(finished.outcome).toBe('white');
+      expect(
+        await command(s, 'bob', {
+          gameId: id,
+          revision: finished.revision,
+          uci: opening,
+          requestId: 'after-victory',
+        })
+      ).toBe(false);
+      await command(
+        s,
+        'alice',
+        { gameId: id, requestId: 'offer' },
+        'offerMultiplayerRematch'
+      );
+      await command(
+        s,
+        'bob',
+        { gameId: id, requestId: 'accept' },
+        'acceptMultiplayerRematch'
+      );
+      const rematch = await agreed(s);
+      expect(rematch.id).not.toBe(id);
+      expect(rematch.fen).toBe(rules.initial());
+      expect(rematch.white_id).toBe(finished.black_id);
+    }, 180_000);
 
-  test("a reconnecting player receives the opponent's accepted move in the same match", async () => {
-    await using s = await openConformanceHarness(
-      `${game.shared.id}-match-reconnect`
-    );
-    const match = await paired(s, game);
-    const [mine, theirs] = victory;
-    await command(s, 'alice', {
-      gameId: match.id,
-      revision: 0,
-      uci: mine,
-      requestId: 'first',
-    });
-    await agreed(s);
-    await s.apply(setMultiplayerConnection, 'alice', false);
-    await command(s, 'bob', {
-      gameId: match.id,
-      revision: 1,
-      uci: theirs,
-      requestId: 'away',
-    });
-    await s.apply(setMultiplayerConnection, 'alice', true);
-    await s.until((world) => opponentSearchView(world, 'alice'), {
-      pred: (view) => view.game?.revision === 2,
-    });
-    const restored = await agreed(s);
-    expect(restored.id).toBe(match.id);
-    expect(restored.fen).toBe(rules.replay([mine!, theirs!], 2));
-  }, 180_000);
-
-  test('concurrent requests consume a single turn', async () => {
-    await using s = await openConformanceHarness(
-      `${game.shared.id}-concurrent-turn`
-    );
-    const match = await paired(s, game);
-    // Two different moves when the game offers them, else one sent twice.
-    const choices = [
-      opening,
-      rules.legal(rules.initial()).find((uci) => uci !== opening) ?? opening,
-    ];
-    await Promise.all(
-      choices.map((uci, index) =>
-        s.apply(sendMultiplayerCommand, 'alice', {
-          name: 'playMultiplayerMove',
-          args: {
+    test("a refused action changes neither player's game", async () => {
+      await using s = await openConformanceHarness(
+        `${game.shared.id}-match-refused`
+      );
+      const match = await paired(s, game);
+      for (const [index, refused] of game.fixtures.refusedOpenings.entries())
+        expect(
+          await command(s, 'alice', {
             gameId: match.id,
             revision: 0,
-            uci,
-            requestId: `concurrent-${String(index)}`,
-          },
-        })
-      )
-    );
-    const accepted = await agreed(s);
-    expect(accepted.revision).toBe(1);
-    expect(choices.map((uci) => rules.replay([uci], 1))).toContain(
-      accepted.fen
-    );
-  }, 180_000);
-});
+            uci: refused,
+            requestId: `refused-${String(index)}`,
+          })
+        ).toBe(false);
+      const unchanged = await agreed(s);
+      expect(unchanged.revision).toBe(0);
+      expect(unchanged.fen).toBe(rules.initial());
+    }, 180_000);
+
+    test("a reconnecting player receives the opponent's accepted move in the same match", async () => {
+      await using s = await openConformanceHarness(
+        `${game.shared.id}-match-reconnect`
+      );
+      const match = await paired(s, game);
+      const [mine, theirs] = victory;
+      await command(s, 'alice', {
+        gameId: match.id,
+        revision: 0,
+        uci: mine,
+        requestId: 'first',
+      });
+      await agreed(s);
+      await s.apply(setMultiplayerConnection, 'alice', false);
+      await command(s, 'bob', {
+        gameId: match.id,
+        revision: 1,
+        uci: theirs,
+        requestId: 'away',
+      });
+      await s.apply(setMultiplayerConnection, 'alice', true);
+      await s.until((world) => opponentSearchView(world, 'alice'), {
+        pred: (view) => view.game?.revision === 2,
+      });
+      const restored = await agreed(s);
+      expect(restored.id).toBe(match.id);
+      expect(restored.fen).toBe(rules.replay([mine!, theirs!], 2));
+    }, 180_000);
+
+    test('concurrent requests consume a single turn', async () => {
+      await using s = await openConformanceHarness(
+        `${game.shared.id}-concurrent-turn`
+      );
+      const match = await paired(s, game);
+      // Two different moves when the game offers them, else one sent twice.
+      const choices = [
+        opening,
+        rules.legal(rules.initial()).find((uci) => uci !== opening) ?? opening,
+      ];
+      await Promise.all(
+        choices.map((uci, index) =>
+          s.apply(sendMultiplayerCommand, 'alice', {
+            name: 'playMultiplayerMove',
+            args: {
+              gameId: match.id,
+              revision: 0,
+              uci,
+              requestId: `concurrent-${String(index)}`,
+            },
+          })
+        )
+      );
+      const accepted = await agreed(s);
+      expect(accepted.revision).toBe(1);
+      expect(choices.map((uci) => rules.replay([uci], 1))).toContain(
+        accepted.fen
+      );
+    }, 180_000);
+  },
+  ['two seats']
+);

@@ -14,7 +14,7 @@ import {
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { BotIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import { For, type JSX, Match, Show, Switch } from 'solid-js';
 import { CustomGamePerson } from './custom-game-person';
 import {
   CustomGameInvitation,
@@ -115,9 +115,16 @@ export function CustomGameSeats(props: {
 }): JSX.Element {
   return (
     <GameSection title={<Trans>Players</Trans>}>
-      <CustomGameSeat model={props.model} side="white" />
-      <Divider />
-      <CustomGameSeat model={props.model} side="black" />
+      <For each={props.model.current()?.sides ?? []}>
+        {(side, index) => (
+          <>
+            <Show when={index() > 0}>
+              <Divider />
+            </Show>
+            <CustomGameSeat model={props.model} side={side} />
+          </>
+        )}
+      </For>
     </GameSection>
   );
 }

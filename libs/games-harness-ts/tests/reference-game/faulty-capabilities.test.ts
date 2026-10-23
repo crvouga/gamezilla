@@ -62,7 +62,7 @@ test('a game whose sides share one name is refused', () => {
   expectRefusedBy(
     nameless,
     'the game and each of its sides have a name of their own',
-    'both sides are called "Runner"'
+    'seated sides share a name'
   );
 });
 
@@ -105,8 +105,8 @@ const soundRecord: HistoryCapability['record'] = (
   metadata
 ) =>
   JSON.stringify({
-    first: metadata.participants[0].name,
-    second: metadata.participants[1].name,
+    first: metadata.participants[0]!.name,
+    second: metadata.participants[1]!.name,
     result: metadata.outcome,
     clock: clockOf(metadata),
     moves: COUNTING_RACE_RULES.moves(position, history, []).map(
@@ -132,7 +132,7 @@ function read(record: string): ReadGameRecord {
 
 const notice = {
   timeoutDraw: () => 'Drawn on time.',
-  side: (side: 'white' | 'black') => (side === 'white' ? 'Hare' : 'Tortoise'),
+  side: (side: string) => (side === 'white' ? 'Hare' : 'Tortoise'),
   ending: () => undefined,
 };
 
@@ -164,7 +164,7 @@ test('a record naming the people on the wrong sides is refused', () => {
   const swapped = matched((position, history, metadata) =>
     soundRecord(position, history, {
       ...metadata,
-      participants: [metadata.participants[1], metadata.participants[0]],
+      participants: [metadata.participants[1]!, metadata.participants[0]!],
     })
   );
   expectRefusedBy(swapped, RECORD_LAW, 'the record names');

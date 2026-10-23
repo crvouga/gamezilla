@@ -9,6 +9,8 @@ const STATES = {
   aborted: 'aborted',
   white: 'won',
   black: 'won',
+  red: 'won',
+  blue: 'won',
 } as const;
 
 /**

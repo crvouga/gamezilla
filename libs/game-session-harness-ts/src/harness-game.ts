@@ -10,7 +10,10 @@ import type {
   GameSide,
   TurnGameCapabilities,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { offeredCapabilities } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  gameSides,
+  offeredCapabilities,
+} from '@pkgs/turn-game-shared-ts/game-rules';
 import type { KnownPuzzles, PuzzleFixture } from './known-puzzles';
 import { assertKnownPuzzles, assertMorePuzzles } from './known-puzzles';
 import { playedRulesOf } from './played-rules';
@@ -103,6 +106,8 @@ export type GameFixtures<
 export type ReadGameRecord = {
   readonly firstSide: string | null;
   readonly secondSide: string | null;
+  /** All names in declared seat order; required by the laws of games with more than two seats. */
+  readonly participants?: readonly string[];
   readonly result: GameSide | 'draw' | null;
   /** As finding an opponent writes it, without the game's namespace: `5+0`, `3d`. */
   readonly clockChoice: string | null;
@@ -199,7 +204,7 @@ export function assertHarnessGame<C extends TurnGameCapabilities>(
   assertKnownSetups(game, fail);
   const played = playedRulesOf(game);
   const { firstSideVictory, refusedOpenings } = game.fixtures;
-  if (firstSideVictory.length < 2)
+  if (firstSideVictory.length < gameSides(rules).length)
     fail('the first-side victory needs a move by each side');
   if (refusedOpenings.length === 0)
     fail('name at least one opening its rules refuse');
@@ -248,8 +253,8 @@ function assertKnownSetups(
         : 'a game with private setups names one known setup for each side (fixtures.setups)'
     );
   if (setup === undefined || known === undefined) return;
-  for (const side of ['white', 'black'] as const)
-    if (setup.accept(known[side]) !== known[side])
+  for (const side of gameSides(game.shared.turnGame.rules))
+    if (known[side] === undefined || setup.accept(known[side]!) !== known[side])
       fail(
         `the known ${side} setup is not one complete setup as the game stores it`
       );
@@ -336,7 +341,7 @@ function assertCannotWinLine(
   fail: (problem: string) => void
 ): void {
   const rules = playedRulesOf(game);
-  if (line.length % 2 === 0)
+  if ((line.length - 1) % gameSides(rules).length !== 0)
     fail(
       'the line where the second side cannot win must end with the first side'
     );

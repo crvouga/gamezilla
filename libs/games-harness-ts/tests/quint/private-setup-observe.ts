@@ -40,7 +40,7 @@ import {
 const INCOMPLETE = 'Your private setup is incomplete.';
 const SETUP_SECONDS = 120;
 const FIRST_MOVE_SECONDS = 30;
-const SIDES: readonly CustomGameSide[] = ['white', 'black'];
+const SIDES = ['white', 'black'] as const;
 
 type Observation = Record<string, QuintValue>;
 

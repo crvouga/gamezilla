@@ -25,10 +25,11 @@ export async function snapshotCustomGames(
       ...retained.filter(
         (game) =>
           game.creator === ctx.env.actorId ||
-          (game.white.kind === 'person' &&
-            game.white.person === ctx.env.actorId) ||
-          (game.black.kind === 'person' &&
-            game.black.person === ctx.env.actorId)
+          game.sides.some(
+            (side) =>
+              game[side].kind === 'person' &&
+              game[side].person === ctx.env.actorId
+          )
       )
     );
   }

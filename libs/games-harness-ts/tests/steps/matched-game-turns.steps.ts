@@ -10,6 +10,7 @@ import {
   shownMoveCount,
 } from '@libs/game-matchmaking-harness-ts/multiplayer-reads';
 import { openFindingAnOpponent } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
+import { makeCustomGameMove } from '@libs/game-session-harness-ts/custom-game-moves';
 import { Then, When } from '@libs/harness-ts/define';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import { refusedCustomGameMove } from './custom-game-play-world';
@@ -48,6 +49,8 @@ async function bothSeeMoves(w: HarnessWorld, count: number) {
 }
 
 When('{actor} makes his/her first move', async (w, actor: string) => {
+  if (!inMatchedGame(w))
+    return w.s.apply(makeCustomGameMove, actor, gameOf(w).shared.id);
   await move(w, actor, firstMoveOf(w, actor));
 });
 When(

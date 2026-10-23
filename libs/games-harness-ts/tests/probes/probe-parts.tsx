@@ -54,7 +54,7 @@ export function probeAutomation(rules: GameRules): TurnGame['automation'] {
 /** What the shared screens say of a probe game. */
 export type ProbeCopy = {
   readonly name: string;
-  readonly sides: Readonly<Record<GameSide, string>>;
+  readonly sides: Readonly<Partial<Record<GameSide, string>>>;
   /** Each ending reason its rules give, described. */
   readonly endings: Readonly<Record<string, string>>;
 };
@@ -67,7 +67,11 @@ export function probePresentation(
     name: () => copy.name,
     canFlip: false,
     Board: buttonBoard(rules),
-    sideLabel: (side) => copy.sides[side],
+    sideLabel: (side) => {
+      const label = copy.sides[side];
+      if (label === undefined) throw new Error(`The probe has no ${side} side`);
+      return label;
+    },
     endingDescription: (reason) =>
       Object.hasOwn(copy.endings, reason) ? copy.endings[reason] : undefined,
     endingLabel: (reason) => reason,
