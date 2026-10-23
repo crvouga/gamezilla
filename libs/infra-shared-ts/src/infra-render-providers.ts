@@ -36,7 +36,6 @@ const CARDS: readonly Facts[] = [
       ['Account', pick(v, 'state', 'account_id')],
       ['Zone', pick(v, 'auth_relay', 'zone_name')],
       ['State bucket', pick(v, 'state', 'bucket')],
-      ['Reports bucket', pick(v, 'reports', 'bucket')],
     ],
     links: (v) => {
       const account = pick(v, 'state', 'account_id');

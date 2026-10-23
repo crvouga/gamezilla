@@ -81,10 +81,12 @@ const PROTECTED: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Generated secrets retired on purpose (policy `retired`): the one instance a
- * plan may delete although its type is protected.
+ * Resources retired on purpose (policy `retired`): these addresses are
+ * excluded from deletion protection and the production mass-delete brake.
  */
 const RETIRED: ReadonlySet<string> = new Set([
+  'module.report_access.cloudflare_account_token.read',
+  'module.report_access.cloudflare_account_token.write',
   'module.population_service.railway_project.worker',
   'module.secrets.random_password.generated_value["POPULATION_CREDENTIAL_SECRET"]',
 ]);

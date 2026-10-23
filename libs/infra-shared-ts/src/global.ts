@@ -2,9 +2,8 @@
  * `tofu/global.tfvars.json`: what is the same for every environment — the
  * project slug, where state lives, the secrets project, the repository and
  * the one OAuth callback relay every environment signs in through, the
- * bucket that serves every commit's spec report, the PlanetScale
- * organization every environment's database lives in, and the AWS region
- * of the invalidation broker.
+ * PlanetScale organization every environment's database lives in, and the
+ * AWS region of the invalidation broker.
  * Every stack reads it as its first `-var-file`.
  */
 import { z } from 'zod';
@@ -83,18 +82,6 @@ export const globalFileSchema = z
         zone_name: hostname,
         hostname,
         worker: slug,
-      })
-      .strict(),
-    /**
-     * The one private bucket holding every commit's spec reports (fleet
-     * stack; `bun verify`): CI writes with, and each environment's
-     * API reads with, that environment's own credential (foundation stack).
-     * CI retains the latest report per existing branch.
-     */
-    reports: z
-      .object({
-        account_id: id,
-        bucket: z.string().regex(/^[a-z0-9][a-z0-9-]{2,62}$/),
       })
       .strict(),
     global_imports: z

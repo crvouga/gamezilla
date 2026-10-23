@@ -52,23 +52,3 @@ module "auth_relay_edge" {
     auth = { hostname = var.auth_relay.hostname, service = var.auth_relay.worker }
   }
 }
-
-# The spec reports of every commit (`bun verify` publishes; layout in
-# `@crvouga/atlas/reports`): CI writes `spec-reports/commits/<sha>/…`, and every
-# Atlas host reads it with its configured credential (the foundation stack's
-# `report_access`). Private: no public
-# hostname, nothing reads it but those credentials. Reports are build output,
-# not user data. CI keeps only the latest report of each existing branch.
-resource "cloudflare_r2_bucket" "reports" {
-  account_id = var.reports.account_id
-  name       = var.reports.bucket
-}
-
-resource "cloudflare_r2_bucket_lifecycle" "reports" {
-  account_id  = var.reports.account_id
-  bucket_name = cloudflare_r2_bucket.reports.name
-
-  # Age-based expiry can delete a branch's current report. Cleanup is driven
-  # by GitHub branch state in Verify, Deploy and scheduled Health instead.
-  rules = []
-}

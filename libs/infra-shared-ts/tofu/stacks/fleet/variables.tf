@@ -49,14 +49,6 @@ variable "auth_relay" {
   })
 }
 
-variable "reports" {
-  type = object({
-    account_id = string
-    bucket     = string
-  })
-  description = "The private bucket every environment's API reads the per-commit spec reports from."
-}
-
 variable "global_imports" {
   type = object({
     infisical_environments = optional(map(string), {})

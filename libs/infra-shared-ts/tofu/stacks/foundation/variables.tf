@@ -69,14 +69,6 @@ variable "aws_session_token" {
   description = "AWS session token when aws_access_key_id is a temporary OIDC or SSO credential. Empty for long-lived keys."
 }
 
-variable "reports" {
-  type = object({
-    account_id = string
-    bucket     = string
-  })
-  description = "The one spec reports bucket every environment shares (owned by the fleet stack); each environment gets its own read and write credentials for it."
-}
-
 variable "global_imports" {
   type    = any
   default = {}

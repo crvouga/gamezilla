@@ -22,3 +22,19 @@ removed {
     destroy = false
   }
 }
+
+# The reports bucket was deleted outside OpenTofu. Forget both addresses so
+# the next apply neither recreates the bucket nor updates its lifecycle.
+removed {
+  from = cloudflare_r2_bucket.reports
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = cloudflare_r2_bucket_lifecycle.reports
+  lifecycle {
+    destroy = false
+  }
+}
