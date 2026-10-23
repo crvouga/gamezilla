@@ -66,6 +66,25 @@ Each model needs its own C1–C6 coverage map and implementation replay before
 this audit can pass. Shared behavior will be tested through a single reusable
 harness composition, with the real Numberlink app workflows covered as well.
 
+## Access decision table
+
+`puzzle-content-access.dmn` makes the existing private-work rules explicit
+for the six capabilities recorded in `conformance.yaml`. Its finite space is
+three kinds of person, six choices and whether the target is their work:
+36 cases. Creation and reading one's own collection allow either target
+answer because neither acts on someone else's chosen draft. Editing,
+playtesting, publication and continuing an attempt allow only one's own work.
+The three rules partition that space without overlap. Each denial names the
+reason: the work belongs to someone else. No new product term is introduced;
+the existing published kinds of person are borrowed from Profile and Billing.
+
+The standard gate reports the expected missing decision bindings for this
+new table. The strict gate additionally reports the existing wording
+duplicates outside Puzzles. Implementation must bind all 36 cases through
+policy resolution, server enforcement, client decisions and resulting
+persistence. Critical aggregate models remain open, so the context's verdict
+remains INCOMPLETE.
+
 ## Wording correction audit
 
 - A4: completion, attempt and edition remain local, avoiding false ownership

@@ -5,6 +5,12 @@ purpose: >-
   attempts and completion across devices. A game supplies its own puzzle
   details and rules; none of these shared experiences requires an opponent.
 terms:
+  - term: guest
+    from: profile
+  - term: free account
+    from: billing
+  - term: Plus member
+    from: billing
   - term: game
     from: games
   - term: control

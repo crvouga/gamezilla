@@ -23,7 +23,9 @@ product:
     - friends
     - journeys
     - matchmaking
+    - numberlink
     - profile
+    - puzzles
     - synthetic-population
     - room
     - runtime
@@ -64,6 +66,12 @@ product:
     - { id: customize the puzzle feed, context: chess, decided by: access }
     - { id: start a rated puzzle, context: chess, decided by: daily-puzzle-limit }
     - { id: add puzzles, context: chess, decided by: puzzle-management-access }
+    - { id: create a puzzle or pack draft, context: puzzles, decided by: puzzle-content-access }
+    - { id: read their puzzle drafts, context: puzzles, decided by: puzzle-content-access }
+    - { id: edit a puzzle or pack draft, context: puzzles, decided by: puzzle-content-access }
+    - { id: playtest a puzzle draft, context: puzzles, decided by: puzzle-content-access }
+    - { id: publish a puzzle or pack, context: puzzles, decided by: puzzle-content-access }
+    - { id: continue a puzzle attempt, context: puzzles, decided by: puzzle-content-access }
     - { id: create a custom game, context: games, decided by: custom-game-access }
     - { id: configure a custom game, context: games, decided by: custom-game-access }
     - { id: invite a custom game participant, context: games, decided by: custom-game-access }

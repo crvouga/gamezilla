@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="puzzle-content-access-decisions" name="Private puzzle work" namespace="https://gamezilla.dev/decisions">
+  <decision id="puzzle-content-access" name="May this person work on this puzzle, pack or attempt?">
+    <description>Anyone may create a puzzle or pack and read their own drafts. Only the author may edit, playtest or publish a draft. Only the person playing an attempt may continue it. These choices are available to every kind of person.</description>
+    <decisionTable id="puzzle-content-access-table" hitPolicy="UNIQUE">
+      <input id="person" label="who is asking">
+        <inputExpression id="person-expression" typeRef="string"><text>who is asking</text></inputExpression>
+        <inputValues id="person-values"><text>"guest","free account","Plus member"</text></inputValues>
+      </input>
+      <input id="choice" label="what they want to do">
+        <inputExpression id="choice-expression" typeRef="string"><text>what they want to do</text></inputExpression>
+        <inputValues id="choice-values"><text>"create a puzzle or pack draft","read their puzzle drafts","edit a puzzle or pack draft","playtest a puzzle draft","publish a puzzle or pack","continue a puzzle attempt"</text></inputValues>
+      </input>
+      <input id="own-work" label="is it their work">
+        <inputExpression id="own-work-expression" typeRef="string"><text>is it their work</text></inputExpression>
+        <inputValues id="own-work-values"><text>"yes","no"</text></inputValues>
+      </input>
+      <output id="answer" name="answer" typeRef="string">
+        <outputValues id="answer-values"><text>"yes","no"</text></outputValues>
+      </output>
+      <output id="reason" name="reason" typeRef="string">
+        <outputValues id="reason-values"><text>"none","belongs to someone else"</text></outputValues>
+      </output>
+      <rule id="begin-or-read-own-drafts">
+        <description>Anyone may begin a private draft or read the drafts they own.</description>
+        <inputEntry id="begin-in-1"><text>-</text></inputEntry>
+        <inputEntry id="begin-in-2"><text>"create a puzzle or pack draft","read their puzzle drafts"</text></inputEntry>
+        <inputEntry id="begin-in-3"><text>-</text></inputEntry>
+        <outputEntry id="begin-out-1"><text>"yes"</text></outputEntry>
+        <outputEntry id="begin-out-2"><text>"none"</text></outputEntry>
+      </rule>
+      <rule id="continue-own-work">
+        <description>An author may edit, playtest or publish their draft; a person may continue their own attempt.</description>
+        <inputEntry id="own-in-1"><text>-</text></inputEntry>
+        <inputEntry id="own-in-2"><text>"edit a puzzle or pack draft","playtest a puzzle draft","publish a puzzle or pack","continue a puzzle attempt"</text></inputEntry>
+        <inputEntry id="own-in-3"><text>"yes"</text></inputEntry>
+        <outputEntry id="own-out-1"><text>"yes"</text></outputEntry>
+        <outputEntry id="own-out-2"><text>"none"</text></outputEntry>
+      </rule>
+      <rule id="other-peoples-work-stays-private">
+        <description>Another person's draft or attempt stays theirs alone.</description>
+        <inputEntry id="other-in-1"><text>-</text></inputEntry>
+        <inputEntry id="other-in-2"><text>"edit a puzzle or pack draft","playtest a puzzle draft","publish a puzzle or pack","continue a puzzle attempt"</text></inputEntry>
+        <inputEntry id="other-in-3"><text>"no"</text></inputEntry>
+        <outputEntry id="other-out-1"><text>"no"</text></outputEntry>
+        <outputEntry id="other-out-2"><text>"belongs to someone else"</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>
