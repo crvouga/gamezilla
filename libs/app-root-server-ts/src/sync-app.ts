@@ -7,13 +7,13 @@ import type { ComposedSubs } from '@libs/sub-shared-ts/compose';
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import { createLogger } from '@pkgs/logger-shared-ts/logger';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared-ts/define-consumer';
-import { OUTBOX_EVENTS_TABLE } from '@pkgs/outbox-shared-ts/tables';
 import type { PubSub } from '@pkgs/pubsub-root-shared-ts/interface';
 import { PubSubNotSupportedError } from '@pkgs/pubsub-root-shared-ts/pubsub-not-supported-error';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import { createSyncApp as createSyncEngineApp } from '@pkgs/sync-engine-server-ts/create-sync-app';
 import type { MutationAuthorize } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { drainAndNotifyOutbox, requestOutboxRegistry } from './outbox-drain';
+import { capturedOutboxScope } from './outbox-event-scope';
 import { countTruncatedQuery } from './query-truncation';
 
 function openRequestSqlClient(): SqlClient {
@@ -97,13 +97,7 @@ export async function createSyncApp(deps: {
         db: store.sqlClient,
         clock: store.clock,
         createId: store.createId,
-        eventIds: [
-          ...new Set(
-            captures.flatMap(
-              (capture) => capture.ids[OUTBOX_EVENTS_TABLE] ?? []
-            )
-          ),
-        ],
+        ...capturedOutboxScope(captures),
       });
     },
     nextCheckpoint,

@@ -12,7 +12,6 @@ import {
   drainOutbox,
   type ObserveDelivery,
 } from '@pkgs/outbox-shared-ts/drain';
-import { OUTBOX_EVENTS_TABLE } from '@pkgs/outbox-shared-ts/tables';
 import type { PubSub } from '@pkgs/pubsub-root-shared-ts/interface';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import { notifyChannels } from '@pkgs/sync-engine-server-ts/notify-channels';
@@ -22,6 +21,11 @@ import {
 } from '@pkgs/sync-engine-shared-ts/topic-map';
 import { wrapMutationDb } from '@pkgs/sync-engine-shared-ts/wrap-mutation-db';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
+import {
+  capturedOutboxScope,
+  consumersForEvents,
+  extendEventTypes,
+} from './outbox-event-scope';
 import { countExhaustedOutboxDeliveries } from './outbox-health';
 import { outboxNotificationPlan } from './outbox-notification-plan';
 
@@ -103,6 +107,8 @@ type DrainAndNotifyArgs = {
   readonly objectStore: ObjectStore;
   readonly consumerRegistry?: OutboxConsumerRegistry;
   readonly eventIds?: readonly string[];
+  /** Complete types of the scoped input events, expanded with captured children. */
+  readonly eventTypes?: readonly string[];
   readonly topicMap?: TopicMap;
   readonly nextCheckpoint?: () => string;
   readonly maxPasses?: number;
@@ -117,6 +123,8 @@ export async function drainAndNotifyOutbox(
   const eventIds =
     args.eventIds === undefined ? undefined : new Set(args.eventIds);
   if (eventIds?.size === 0) return 0;
+  let eventTypes =
+    args.eventTypes === undefined ? undefined : new Set(args.eventTypes);
   let processed = 0;
   for (let pass = 0; pass < (args.maxPasses ?? 8); pass++) {
     const captures: ReturnType<typeof wrapMutationDb>[] = [];
@@ -124,7 +132,10 @@ export async function drainAndNotifyOutbox(
       db: args.db,
       clock: args.clock,
       createId: args.createId,
-      registry: consumers,
+      registry:
+        eventTypes === undefined
+          ? consumers
+          : consumersForEvents(consumers, eventTypes),
       objectStore: args.objectStore,
       observeDelivery: observeOutboxDelivery,
       ...(args.limit === undefined ? {} : { limit: args.limit }),
@@ -137,9 +148,11 @@ export async function drainAndNotifyOutbox(
     });
     processed += result.processed;
     countExhaustedOutboxDeliveries(result.exhausted);
-    for (const capture of captures)
-      for (const id of capture.getCapture().ids[OUTBOX_EVENTS_TABLE] ?? [])
-        eventIds?.add(id);
+    const captured = capturedOutboxScope(
+      captures.map((capture) => capture.getCapture())
+    );
+    for (const id of captured.eventIds) eventIds?.add(id);
+    eventTypes = extendEventTypes(eventTypes, captured.eventTypes);
     // This pass has committed. Publish it before following deliveries can wait.
     await notifyCommittedPass(args, consumers, captures, result.notifyUserIds);
     if (result.processed === 0) break;
