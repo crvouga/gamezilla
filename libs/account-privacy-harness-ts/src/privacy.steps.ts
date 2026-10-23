@@ -53,7 +53,7 @@ export type PrivacySetupWorld = HarnessWorld & {
   readonly beforePhoneOffline?: (actor: Actor) => Promise<void>;
 };
 
-async function confirmedAccount(
+export async function confirmedAccount(
   w: PrivacySetupWorld,
   actor: Actor,
   completion: 'confirmed' | 'completed' = 'confirmed'
