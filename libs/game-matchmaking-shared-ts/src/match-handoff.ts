@@ -20,7 +20,7 @@ import {
   OPPONENT_TIME_CONTROL_KEY,
   opponentPool,
 } from './search-config';
-import { projectOpponentSearch } from './search-projection';
+import { projectFormedOpponentSearches } from './search-projection';
 import { offeredTimeControls } from './time-control';
 
 /**
@@ -101,8 +101,12 @@ export async function acceptGameMatch(
     },
     rules
   );
-  for (const person of fact.participants)
-    await projectOpponentSearch(tx, person.ownerId, ports.nowMs);
+  await projectFormedOpponentSearches(tx, {
+    ownerIds: fact.participants.map((person) => person.ownerId),
+    matchId: fact.matchId,
+    timeControl: timeControlOf(fact),
+    nowMs: ports.nowMs,
+  });
 }
 
 /**

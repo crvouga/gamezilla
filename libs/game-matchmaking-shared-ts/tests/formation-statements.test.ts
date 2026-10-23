@@ -116,4 +116,14 @@ test('accepting a pair reads its histories once and inserts both player pointers
       query.includes('INSERT INTO chess_multiplayer_players')
     )
   ).toHaveLength(1);
+  expect(
+    pass.statements.filter((query) =>
+      query.includes('INSERT INTO chess_opponent_searches')
+    )
+  ).toHaveLength(1);
+  expect(
+    pass.statements.filter((query) =>
+      query.includes('SELECT w.id, w.data, w.metadata')
+    )
+  ).toHaveLength(0);
 });
