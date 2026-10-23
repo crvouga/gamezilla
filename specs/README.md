@@ -1159,7 +1159,8 @@ Matchmaking ──► Chess (a complete matchmaking match), Games (pair people u
 Chess    ──► Journeys (a game of chess, a puzzle, multiplayer chess, a Custom Game)
 Battleship ──► Journeys (Battleship)
 Games    ──► Connect Four (game), Battleship (game, custom game)
-Games    ──► Pong (game)
+Games    ──► Pong (game, custom game, under way, bot)
+Games    ──► Journeys (bot)
 Room, Sync engine: stand alone; Matchmaking publishes complete matches to Chess (Sync engine's "shared space" is not a Spaces space)
 Database indexing: stands alone; publishes no product terms or events
 ```

@@ -21,6 +21,7 @@ terms:
       paddle is on the left and the other is on the right, and each stays
       within the court.
     forms: [paddles, left paddle, right paddle]
+    model: [controlledPaddles]
 
   - term: ball
     definition: >-
@@ -66,15 +67,31 @@ terms:
       Reaching the target score finishes Pong with that person as its winner.
       A finished Pong game keeps its score and the ball stays still.
     forms: [wins, won, winner, finished, finish, finishes]
-    model: [winner]
+    model: [winner, finishLocalPong]
 
   - term: local play
     definition: >-
-      Playing Pong on one device with another person. It needs no
-      connection, and closing and reopening the app keeps its score.
-    forms: [on one device]
+      Playing Pong on one device with another person or a bot. It needs no
+      connection, and closing and reopening the app keeps its score. Local
+      Pong may be ready to start, under way, or finished.
+    forms: [on one device, local Pong, ready to start]
+    model: [gameShown, localStage, localOpponent]
+
+  - term: local Pong start
+    definition: Beginning local Pong's countdown for its first serve on this device.
+    forms: [starts local Pong]
+    model: [startLocalPong]
+
+  - term: under way
+    from: games
+
+  - term: bot
+    from: games
 
   - term: game
+    from: games
+
+  - term: custom game
     from: games
 
   - term: seconds pass
@@ -88,3 +105,4 @@ terms:
 
   - term: connection
     from: kernel
+    model: [loseConnection, connectionReturns]

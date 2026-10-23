@@ -32,7 +32,7 @@ terms:
   - term: custom game
     definition: >-
       One game of the game whose creator chooses a person or a bot for each
-      side and the clock, before every person in it is ready and it starts.
+      side and any clock choice the game offers, before every person in it is ready and it starts.
       A finished custom game keeps its participants, moves and result.
     forms:
       - custom games
@@ -168,7 +168,7 @@ terms:
     definition: >-
       Begin a custom game once both sides have a participant and every
       person in it is ready, which only its creator does. It starts from the
-      game's starting position with the first side to move, and it starts
+      game's starting position, with the first side to move when it plays in turns, and it starts
       once however often the creator asks; a start for an earlier set-up is
       refused.
     forms: [starts, started, starting, startable, can start, cannot start]
@@ -181,6 +181,7 @@ terms:
       side.
     forms: [remains under way]
     model: [UnderWay]
+    published: true
 
   - term: cancelled
     definition: >-
@@ -283,9 +284,12 @@ terms:
       - swapSides
 
   - term: bot
-    definition: An automated participant that makes legal moves at its turn.
+    definition: >-
+      An automated participant that follows the game's own rules, taking
+      turns or guiding play as the game allows.
     forms: [bots, the bots]
     model: [botPlays, BotSide]
+    published: true
 
   - term: move
     definition: >-

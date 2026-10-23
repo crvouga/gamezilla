@@ -88,3 +88,6 @@ terms:
 
   - term: Battleship
     from: battleship
+
+  - term: bot
+    from: games
