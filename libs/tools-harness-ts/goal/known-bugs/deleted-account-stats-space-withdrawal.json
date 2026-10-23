@@ -1,0 +1,4 @@
+{
+  "summary": "Account deletion tombstoned puzzle progress on the server, but sync's refresh callback only reread the revoked bearer instead of refreshing through the auth port, leaving the other device's old cache visible. Opening stats in a withdrawn space additionally hid recovery. Refresh the actual session and read personal stats outside spaces; retain the 30-second erased-rating, empty-log and zero-played assertions.",
+  "regressionTest": "specs/games/deleted-account-progress.feature"
+}

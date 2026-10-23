@@ -1,4 +1,5 @@
 import { exposeLocalSqlForTests } from '@libs/app-root-shared-ts/test-local-sql';
+import { useGetFreshAuthToken } from '@libs/auth-client-ts/use-fresh-auth-token';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { useLogger } from '@pkgs/logger-client-ts/solid';
 import type { SyncClientAuth } from '@pkgs/sync-engine-client-ts/sync-http-client';
@@ -34,6 +35,7 @@ function useSyncBootPromise(args: {
   const loadApp = useAppData();
   const pool = useSyncEnginePool();
   const identity = useLocalIdentity();
+  const refreshAuthToken = useGetFreshAuthToken();
   const log = useLogger('sync-engine-boot');
   const fetchFn: SyncApiFetch = env.server;
   const availability = originAvailabilityFor(env);
@@ -68,7 +70,12 @@ function useSyncBootPromise(args: {
       createId: env.createId,
       random: env.random,
       moderation: env.moderation,
-      getFreshAuthToken: () => Promise.resolve(identity.sessionToken()),
+      // regression: deleted-account-stats-space-withdrawal
+      // Refresh rejected sessions; requests still use AuthBridge's bound token.
+      getFreshAuthToken: async (options) => {
+        if (options?.skipCache === true) await refreshAuthToken(options);
+        return identity.sessionToken();
+      },
       databaseName: databaseName(),
       userId: args.userId(),
       ...(availability.kind === 'health'

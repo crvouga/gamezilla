@@ -23,7 +23,7 @@ import {
   readStatsFigures,
   readStatsPuzzleRating,
   readStatsRatingLabel,
-  showGamePuzzleStats,
+  showPersonalPuzzleStats,
 } from '@libs/game-session-harness-ts/puzzle-records';
 import { Given, Then } from '@libs/harness-ts/define';
 import { localAccountIdOf } from '@libs/harness-ts/identity';
@@ -109,7 +109,9 @@ Then(
   async (w, actor: Actor, seconds: number) => {
     const device = otherDevice(actor);
     await w.s.apply(focusActor, device);
-    await w.s.apply(showGamePuzzleStats, device, puzzleGameId(w));
+    // regression: deleted-account-stats-space-withdrawal
+    // Deletion ends the account's spaces; personal stats remain outside them.
+    await w.s.apply(showPersonalPuzzleStats, device, puzzleGameId(w));
     // A new solver's stats: no rating earned, no attempt logged or counted.
     await w.s.until(
       async (surf) => ({
