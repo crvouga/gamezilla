@@ -4,11 +4,11 @@ import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import sql, { join } from '@pkgs/sql-root-shared-ts/sql';
 import { OPPONENT_TIME_CONTROL_KEY } from './search-config';
 
-/** Both accepted searches come from the rows formation already locked and matched. */
+/** Project the accepted pairing from its fact and the searches it names. */
 export async function projectFormedOpponentSearches(
   tx: SqlTx,
   args: {
-    readonly ownerIds: readonly string[];
+    readonly participantIds: readonly string[];
     readonly matchId: string;
     readonly timeControl: string;
     readonly nowMs: number;
@@ -17,11 +17,10 @@ export async function projectFormedOpponentSearches(
   const iso = new Date(args.nowMs).toISOString();
   await tx.run(sql`INSERT INTO chess_opponent_searches
     (id, owner_id, search_id, standing, match_id, joined_at_ms, observed_at_ms, formulas, time_control, created_at, updated_at, deleted_at)
-    SELECT w.owner_id, w.owner_id, w.id, ${'matched'}, m.match_id, w.joined_at,
+    SELECT w.owner_id, w.owner_id, w.id, ${'matched'}, ${args.matchId}, w.joined_at,
       w.ended_at, w.formulas, ${args.timeControl}, ${iso}, ${iso}, ${null}
     FROM matchmaking_waiting w JOIN matchmaking_owners o ON o.id = w.owner_id AND o.current_id = w.id
-    JOIN matchmaking_matched m ON m.id = w.id AND m.match_id = ${args.matchId} AND m.deleted_at IS NULL
-    WHERE w.owner_id IN (${join(args.ownerIds)})
+    WHERE w.id IN (${join(args.participantIds)})
     ON CONFLICT (id) DO UPDATE SET search_id = excluded.search_id, standing = excluded.standing,
       match_id = excluded.match_id, joined_at_ms = excluded.joined_at_ms,
       observed_at_ms = excluded.observed_at_ms, formulas = excluded.formulas,

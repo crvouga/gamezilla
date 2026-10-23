@@ -102,7 +102,7 @@ export async function acceptGameMatch(
     rules
   );
   await projectFormedOpponentSearches(tx, {
-    ownerIds: fact.participants.map((person) => person.ownerId),
+    participantIds: fact.participants.map((person) => person.id),
     matchId: fact.matchId,
     timeControl: timeControlOf(fact),
     nowMs: ports.nowMs,
