@@ -132,6 +132,11 @@ module quoridor_play {
     placed.forall(other => not(_conflict(w, other))),
     _allPaths(m, positions, placed.union(Set(w))),
   }
+  pure def _wallRefused(m: str, positions: int -> int, placed: Set[(int, int, int)], w: (int, int, int)): bool = or {
+    not(0.to(7).contains(w._1)), not(0.to(7).contains(w._2)), not(Set(0, 1).contains(w._3)),
+    placed.exists(other => _conflict(w, other)),
+    _someBlocked(m, positions, placed.union(Set(w))),
+  }
   action _update(positions: int -> int, placed: Set[(int, int, int)], stock: int -> int, mover: int, won: int, refused: bool): bool = all {
     mode' = mode, pawns' = positions, walls' = placed, remaining' = stock, turn' = mover, winner' = won,
     _plies' = if (refused) _plies else _plies + 1,
@@ -162,9 +167,14 @@ module quoridor_play {
   /// Place one wall while leaving every player a path to their goal, or keep the board and every wall when refused.
   action placeWall(player: int, column: int, row: int, direction: int): bool = {
     val wall = (column, row, direction)
-    if (winner == -1 and _players(mode).contains(player) and turn == player and remaining.get(player) > 0 and _wallAllowed(mode, pawns, walls, wall))
-      _update(pawns, walls.union(Set(wall)), remaining.set(player, remaining.get(player) - 1),
-        _roundTurn(mode, turn + 1), -1, false)
+    if (winner == -1 and _players(mode).contains(player) and turn == player and remaining.get(player) > 0) any {
+      all {
+        _wallAllowed(mode, pawns, walls, wall),
+        _update(pawns, walls.union(Set(wall)), remaining.set(player, remaining.get(player) - 1),
+          _roundTurn(mode, turn + 1), -1, false),
+      },
+      all { _wallRefused(mode, pawns, walls, wall), _hold },
+    }
     else _hold
   }
   /// In King of the Hill, pass only when no pawn move or wall placement is possible. The player stays in the game.
@@ -173,8 +183,13 @@ module quoridor_play {
     else if (_nearby(pawns.get(player)).exists(c => _pawnMove(mode, pawns, walls, player, c))) _hold
     else if (remaining.get(player) == 0)
       _update(pawns, walls, remaining, _roundTurn(mode, turn + 1), winner, false)
-    else if (WALLS.exists(w => _wallAllowed(mode, pawns, walls, w))) _hold
-    else _update(pawns, walls, remaining, _roundTurn(mode, turn + 1), winner, false)
+    else any {
+      all { WALLS.exists(w => _wallAllowed(mode, pawns, walls, w)), _hold },
+      all {
+        WALLS.forall(w => _wallRefused(mode, pawns, walls, w)),
+        _update(pawns, walls, remaining, _roundTurn(mode, turn + 1), winner, false),
+      },
+    }
   action step = any {
     { nondet player = _players(mode).oneOf() nondet square = CELLS.oneOf() movePawn(player, square) },
     { nondet player = _players(mode).oneOf() nondet column = (-1).to(8).oneOf() nondet row = (-1).to(8).oneOf() nondet direction = Set(0, 1).oneOf() placeWall(player, column, row, direction) },
