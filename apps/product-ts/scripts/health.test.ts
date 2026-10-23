@@ -105,15 +105,28 @@ test('the live entry binds the literal Connect Four journey steps', () => {
 });
 
 // regression: live-quoridor-journey-unbound
-test('the live entry binds the Battleship and Quoridor journey and health steps', () => {
-  const result = spawnSync(
-    process.execPath,
-    [
-      '-e',
-      `
-    await import('./tests/steps/live-index.ts');
+test.each(['live', 'release'])(
+  'the %s entry binds the Battleship and Quoridor journey and health steps',
+  (entry) => {
+    const dir = mkdtempSync(join(tmpdir(), 'release-step-registration-'));
+    const manifest = join(dir, 'manifest.json');
+    writeFileSync(
+      manifest,
+      JSON.stringify({
+        webOrigin: 'https://web.example.invalid',
+        apiOrigin: 'https://api.example.invalid',
+      })
+    );
+    try {
+      const result = spawnSync(
+        process.execPath,
+        [
+          '-e',
+          `
+    await import('./tests/steps/${entry}-index.ts');
+    if (typeof document !== 'undefined') throw new Error('local DOM harness loaded');
     const { matchStep } = await import('@pkgs/gherkin-shared-ts/registry');
-    for (const text of [
+    const missing = [
       'Alice and Bob play Battleship from fresh devices',
       'Alice and Bob see the same completed Battleship game',
       'the team checks Battleship in this environment',
@@ -127,15 +140,22 @@ test('the live entry binds the Battleship and Quoridor journey and health steps'
       'two people can find each other and complete Classic Quoridor with the same result',
       'the team checks Four-Player King of the Hill in this environment',
       'two people and two bots can complete Four-Player King of the Hill with the same result'
-    ]) {
-      if (matchStep(text).kind !== 'match') throw new Error('unbound: ' + text);
-    }
+    ].filter((text) => matchStep(text).kind !== 'match');
+    if (missing.length > 0) throw new Error('unbound: ' + missing.join('\\n'));
   `,
-    ],
-    { cwd: resolve(import.meta.dir, '..'), encoding: 'utf8' }
-  );
-  expect(result.status, result.stdout + result.stderr).toBe(0);
-});
+        ],
+        {
+          cwd: resolve(import.meta.dir, '..'),
+          encoding: 'utf8',
+          env: { ...process.env, LOCALHOST_STACK_MANIFEST: manifest },
+        }
+      );
+      expect(result.status, result.stdout + result.stderr).toBe(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }
+);
 
 // regression: deploy-health-stale-foundation-secrets
 test('health uses the post-foundation database and monitor credentials', () => {

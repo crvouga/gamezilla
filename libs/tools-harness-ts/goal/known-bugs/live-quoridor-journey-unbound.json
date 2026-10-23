@@ -1,4 +1,4 @@
 {
-  "summary": "The deployed-health step entry registered Quoridor health checks but omitted both Quoridor critical journeys, so the release rehearsal reported undefined steps.",
+  "summary": "The live-health entry omitted the Quoridor critical journeys, and the release entry omitted both Quoridor journey and health definitions, so selected production scenarios failed with undefined steps.",
   "regressionTest": "apps/product-ts/scripts/health.test.ts"
 }
