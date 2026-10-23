@@ -20,11 +20,11 @@ bindQuintModel<QuintHarnessWorld>({
   inferPolymorphicTypes: false,
   encoding: 'fun-arrays',
   invariantMode: 'before',
-  // regression: quoridor-spatial-proof-expansion
   shortCircuit: true,
   regressions: [
     {
-      id: 'quoridor-classic-positive-actions',
+      // regression: quoridor-spatial-proof-expansion
+      id: 'quoridor-spatial-proof-expansion',
       title: 'Preserve sampled classic pawn moves and an accepted wall',
       seed: '0x67932',
       itf: acceptedClassic,

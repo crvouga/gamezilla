@@ -19,7 +19,6 @@ import {
 /** Every game the table holds for. */
 const GAMES = gamesHeldTo('specs/games/custom-game-access.dmn');
 
-// regression: custom-game-access-fixture-readiness
 bindDecisions({
   spec: 'custom-game-access',
   layers: {
