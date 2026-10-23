@@ -157,6 +157,20 @@ msgstr "{0}d {1}h"
 msgid "{0}h {1}m"
 msgstr "{0}h {1}m"
 
+#: libs/numberlink-client-ts/src/numberlink-board.tsx
+msgid "{coordinate}: empty"
+msgstr "{coordinate}: empty"
+
+#. placeholder {0}: pair.label
+#: libs/numberlink-client-ts/src/numberlink-board.tsx
+msgid "{coordinate}: endpoint {0}, {status}"
+msgstr "{coordinate}: endpoint {0}, {status}"
+
+#. placeholder {0}: pair.label
+#: libs/numberlink-client-ts/src/numberlink-board.tsx
+msgid "{coordinate}: path {0}, {status}"
+msgstr "{coordinate}: path {0}, {status}"
+
 #: libs/spaces-client-ts/src/space-guest-count-text.tsx
 msgid "{count} guests"
 msgstr "{count} guests"
@@ -553,6 +567,10 @@ msgstr "Add Friend"
 msgid "Add hex (6 chars, no #)"
 msgstr "Add hex (6 chars, no #)"
 
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Add pair"
+msgstr "Add pair"
+
 #: libs/spaces-client-ts/src/space-share-add-people.tsx
 msgid "Add people"
 msgstr "Add people"
@@ -789,6 +807,10 @@ msgstr "Block"
 msgid "Block this user?"
 msgstr "Block this user?"
 
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Blue"
+msgstr "Blue"
+
 #: libs/battleship-client-ts/src/battleship-copy.tsx
 msgid "Blue fleet"
 msgstr "Blue fleet"
@@ -1008,6 +1030,10 @@ msgstr "Choose"
 msgid "Choose a bot difficulty offered by this game."
 msgstr "Choose a bot difficulty offered by this game."
 
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Choose a pair and which endpoint to move, then choose an empty cell. Every pair has a label as well as a color."
+msgstr "Choose a pair and which endpoint to move, then choose an empty cell. Every pair has a label as well as a color."
+
 #: libs/game-session-client-ts/src/custom-game-side-choices.tsx
 msgid "Choose a person"
 msgstr "Choose a person"
@@ -1064,6 +1090,14 @@ msgstr "Classical"
 #: pkgs/ui-root-client-ts/src/combobox-trigger.tsx
 msgid "Clear"
 msgstr "Clear"
+
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Clear endpoints"
+msgstr "Clear endpoints"
+
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Clear every endpoint?"
+msgstr "Clear every endpoint?"
 
 #: libs/game-puzzle-client-ts/src/puzzle-recommendation-legend.tsx
 msgid "Clear my suggestion"
@@ -1135,6 +1169,10 @@ msgstr "Column {0}, row {1}: {identity}"
 msgid "Column {0}, row {1}: {identity}, winning disc"
 msgstr "Column {0}, row {1}: {identity}, winning disc"
 
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Columns"
+msgstr "Columns"
+
 #: pkgs/ui-root-client-ts/src/command-palette.tsx
 msgid "Command palette"
 msgstr "Command palette"
@@ -1195,6 +1233,10 @@ msgstr "connect"
 msgid "Connect"
 msgstr "Connect"
 
+#: libs/numberlink-client-ts/src/numberlink-game-client.tsx
+msgid "Connect each matching pair and fill the board."
+msgstr "Connect each matching pair and fill the board."
+
 #: libs/connect-four-client-ts/src/connect-four-presentation.tsx
 msgid "Connect Four"
 msgstr "Connect Four"
@@ -1203,9 +1245,17 @@ msgstr "Connect Four"
 msgid "Connect Four board, seven columns and six rows"
 msgstr "Connect Four board, seven columns and six rows"
 
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Connect pairs only"
+msgstr "Connect pairs only"
+
 #: libs/auth-client-ts/src/sign-in-link-required.tsx
 msgid "Connect your accounts?"
 msgstr "Connect your accounts?"
+
+#: libs/numberlink-client-ts/src/numberlink-board.tsx
+msgid "connected"
+msgstr "connected"
 
 #: libs/app-root-client-ts/src/connection-copy.tsx
 #: libs/app-root-client-ts/src/sync-screen.tsx
@@ -1414,6 +1464,14 @@ msgstr "Couldn't sign out everywhere"
 #: libs/friends-client-ts/src/friend-action-status-renderers.tsx
 msgid "Couldn't unblock"
 msgstr "Couldn't unblock"
+
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Cover every cell"
+msgstr "Cover every cell"
+
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Coverage"
+msgstr "Coverage"
 
 #: libs/game-session-client-ts/src/custom-game-actions.tsx
 msgid "Create game"
@@ -1670,6 +1728,14 @@ msgstr "draw"
 msgid "Draw agreement is available between two people."
 msgstr "Draw agreement is available between two people."
 
+#: libs/numberlink-client-ts/src/numberlink-player.tsx
+msgid "Draw from an endpoint to its match. With a keyboard, press Enter to start, use arrow keys to draw, then Enter to finish. Escape cancels; Delete removes a path."
+msgstr "Draw from an endpoint to its match. With a keyboard, press Enter to start, use arrow keys to draw, then Enter to finish. Escape cancels; Delete removes a path."
+
+#: libs/numberlink-client-ts/src/create-numberlink-drawing.tsx
+msgid "Draw the path again."
+msgstr "Draw the path again."
+
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
 msgid "Drawn by agreement."
 msgstr "Drawn by agreement."
@@ -1766,6 +1832,10 @@ msgstr "Ended"
 #: libs/spaces-client-ts/src/leave-space-confirm-modal.tsx
 msgid "Ending space…"
 msgstr "Ending space…"
+
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Endpoints removed"
+msgstr "Endpoints removed"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-screen.tsx
 msgid "Enter a valid desired synthetic population."
@@ -2112,6 +2182,10 @@ msgstr "Go to Spaces"
 msgid "Google"
 msgstr "Google"
 
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Green"
+msgstr "Green"
+
 #: libs/game-session-client-ts/src/custom-game-difficulty.tsx
 msgid "Hard"
 msgstr "Hard"
@@ -2299,6 +2373,10 @@ msgstr "jank"
 #: pkgs/ui-root-client-ts/src/text-input.example.tsx
 msgid "John Doe"
 msgstr "John Doe"
+
+#: libs/numberlink-client-ts/src/numberlink-game-client.tsx
+msgid "Join matching endpoints with paths that move horizontally or vertically. Paths never cross or overlap. Cover every cell unless the puzzle explicitly uses pairs-only coverage."
+msgstr "Join matching endpoints with paths that move horizontally or vertically. Paths never cross or overlap. Cover every cell unless the puzzle explicitly uses pairs-only coverage."
 
 #: libs/spaces-client-ts/src/space-join-button.tsx
 msgid "Join space"
@@ -2641,6 +2719,14 @@ msgstr "More"
 msgid "Move {0} of {1}. {2}"
 msgstr "Move {0} of {1}. {2}"
 
+#: libs/numberlink-client-ts/src/use-numberlink-editor.tsx
+msgid "Move endpoints inside the smaller board before resizing it."
+msgstr "Move endpoints inside the smaller board before resizing it."
+
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Move first endpoint"
+msgstr "Move first endpoint"
+
 #: libs/game-session-client-ts/src/custom-game-board.tsx
 msgid "Move number to review"
 msgstr "Move number to review"
@@ -2648,6 +2734,10 @@ msgstr "Move number to review"
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 msgid "Move on to the next puzzle by itself after a solve."
 msgstr "Move on to the next puzzle by itself after a solve."
+
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Move second endpoint"
+msgstr "Move second endpoint"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
 msgid "Moves"
@@ -2981,6 +3071,10 @@ msgstr "Notifications"
 msgid "Notifications you archive are kept here."
 msgstr "Notifications you archive are kept here."
 
+#: libs/numberlink-client-ts/src/numberlink-board.tsx
+msgid "Numberlink board"
+msgstr "Numberlink board"
+
 #: libs/synthetic-population-client-ts/src/synthetic-population-settings.tsx
 msgid "Observe and control the Synthetic Population"
 msgstr "Observe and control the Synthetic Population"
@@ -3113,6 +3207,10 @@ msgstr "opponent staying away"
 msgid "Opponent's reply: {side} played {0} to {1}."
 msgstr "Opponent's reply: {side} played {0} to {1}."
 
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Orange"
+msgstr "Orange"
+
 #: libs/account-privacy-client-ts/src/privacy-screen.tsx
 msgid "Ordinary personal data will be erased within 30 days."
 msgstr "Ordinary personal data will be erased within 30 days."
@@ -3149,6 +3247,18 @@ msgstr "Page not found"
 #: pkgs/ui-root-client-ts/src/pagination-controls.tsx
 msgid "Pagination"
 msgstr "Pagination"
+
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Pair"
+msgstr "Pair"
+
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Pair color"
+msgstr "Pair color"
+
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Pair label"
+msgstr "Pair label"
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 msgid "Pause"
@@ -3342,6 +3452,10 @@ msgstr "Profile unavailable"
 msgid "Prove the account again to continue"
 msgstr "Prove the account again to continue"
 
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Purple"
+msgstr "Purple"
+
 #: libs/game-menu-client-ts/src/game-menu-choices.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-link-screen.tsx
 msgid "Puzzle"
@@ -3526,6 +3640,10 @@ msgstr "Recorded activity appears here as it happens."
 msgid "Recovering"
 msgstr "Recovering"
 
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Red"
+msgstr "Red"
+
 #: libs/connect-four-client-ts/src/connect-four-board.tsx
 #: libs/connect-four-client-ts/src/connect-four-presentation.tsx
 msgid "Red circle"
@@ -3594,6 +3712,10 @@ msgstr "Remove {0} sign-in?"
 msgid "Remove {0}?"
 msgstr "Remove {0}?"
 
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Remove endpoints"
+msgstr "Remove endpoints"
+
 #: libs/friends-client-ts/src/use-friend-user-overflow-menu.tsx
 msgid "Remove friend"
 msgstr "Remove friend"
@@ -3602,9 +3724,17 @@ msgstr "Remove friend"
 msgid "Remove friend?"
 msgstr "Remove friend?"
 
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Remove pair"
+msgstr "Remove pair"
+
 #: libs/spaces-client-ts/src/remove-space-person-modal.tsx
 msgid "Remove person"
 msgstr "Remove person"
+
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Remove this pair?"
+msgstr "Remove this pair?"
 
 #: libs/auth-client-ts/src/unlink-method-modal.tsx
 msgid "Removed"
@@ -3758,6 +3888,10 @@ msgstr "Rook"
 #: libs/battleship-client-ts/src/battleship-setup-board.tsx
 msgid "Rotate: {0}"
 msgstr "Rotate: {0}"
+
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Rows"
+msgstr "Rows"
 
 #: libs/app-root-client-ts/src/performance-screen.tsx
 msgid "Sampled from this tab while the monitor is on."
@@ -4284,6 +4418,10 @@ msgstr "Start a space"
 msgid "Start a space to play with friends. Spaces you join show up here."
 msgstr "Start a space to play with friends. Spaces you join show up here."
 
+#: libs/numberlink-client-ts/src/create-numberlink-drawing.tsx
+msgid "Start at a matching endpoint or an existing path."
+msgstr "Start at a matching endpoint or an existing path."
+
 #: libs/game-session-client-ts/src/custom-game-configuration.tsx
 msgid "Start game"
 msgstr "Start game"
@@ -4689,6 +4827,10 @@ msgstr "Theme"
 msgid "Themes"
 msgstr "Themes"
 
+#: libs/numberlink-client-ts/src/use-numberlink-editor.tsx
+msgid "There are no two open cells. Enlarge the board or remove a pair first."
+msgstr "There are no two open cells. Enlarge the board or remove a pair first."
+
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "There is no invitation for that side."
 msgstr "There is no invitation for that side."
@@ -4741,6 +4883,14 @@ msgstr "This attempt was unrated."
 msgid "This cannot be undone. Every device will be signed out. Your hosted spaces and future membership charges will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Take an export first if you want a copy of your personal data."
 msgstr "This cannot be undone. Every device will be signed out. Your hosted spaces and future membership charges will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Take an export first if you want a copy of your personal data."
 
+#: libs/numberlink-client-ts/src/use-numberlink-editor.tsx
+msgid "This cell already has an endpoint. Choose an empty cell."
+msgstr "This cell already has an endpoint. Choose an empty cell."
+
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "This changes your working draft. Published editions keep their endpoints."
+msgstr "This changes your working draft. Published editions keep their endpoints."
+
 #: libs/permissions-client-ts/src/unlock-copy.tsx
 msgid "This choice needs a connection"
 msgstr "This choice needs a connection"
@@ -4760,6 +4910,10 @@ msgstr "This device is offline"
 #: libs/app-root-client-ts/src/connection-copy.tsx
 msgid "This device is online, but Gamezilla can’t be reached right now. This isn’t something you did. The app keeps trying on its own."
 msgstr "This device is online, but Gamezilla can’t be reached right now. This isn’t something you did. The app keeps trying on its own."
+
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "This drawing cannot be opened. Choose an earlier saved draft to continue editing."
+msgstr "This drawing cannot be opened. Choose an earlier saved draft to continue editing."
 
 #: libs/account-privacy-client-ts/src/export-download.tsx
 msgid "This export belongs to another account and cannot be downloaded."
@@ -4820,6 +4974,10 @@ msgstr "This profile could not be loaded"
 #: libs/friends-client-ts/src/friend-user-screen-content.tsx
 msgid "This profile is no longer available because the account was deleted."
 msgstr "This profile is no longer available because the account was deleted."
+
+#: libs/numberlink-client-ts/src/numberlink-player.tsx
+msgid "This puzzle cannot be opened. Return to its overview and choose a saved edition."
+msgstr "This puzzle cannot be opened. Return to its overview and choose a saved edition."
 
 #: libs/game-puzzle-client-ts/src/puzzle-link-screen.tsx
 msgid "This puzzle is no longer available"
@@ -4982,6 +5140,10 @@ msgstr "Unblocked"
 #: libs/friends-client-ts/src/friend-action-status-renderers.tsx
 msgid "Unblocking…"
 msgstr "Unblocking…"
+
+#: libs/numberlink-client-ts/src/numberlink-board.tsx
+msgid "unfinished"
+msgstr "unfinished"
 
 #: libs/profile-client-ts/src/profile-edit-screen.tsx
 msgid "Unique handle for search and invites"
@@ -5219,6 +5381,10 @@ msgstr "Wrong move. That is not the solution."
 #: libs/billing-client-ts/src/billing-offer-sections.tsx
 msgid "Yearly"
 msgstr "Yearly"
+
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Yellow"
+msgstr "Yellow"
 
 #: libs/connect-four-client-ts/src/connect-four-board.tsx
 #: libs/connect-four-client-ts/src/connect-four-presentation.tsx

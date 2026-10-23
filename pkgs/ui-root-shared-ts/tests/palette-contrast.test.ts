@@ -24,6 +24,16 @@ type Pair = readonly [fg: ColorTokenName, bg: ColorTokenName, minimum: number];
 const PAIRS: readonly Pair[] = [
   ...(
     [
+      'pathRed',
+      'pathOrange',
+      'pathYellow',
+      'pathGreen',
+      'pathBlue',
+      'pathPurple',
+    ] as const
+  ).map((fg): Pair => [fg, 'background', GLYPH]),
+  ...(
+    [
       'background',
       'surface',
       'surfaceMuted',

@@ -72,6 +72,7 @@
       ],
       "@libs/chess-puzzle-client-ts/*": ["./libs/chess-puzzle-client-ts/src/*"],
       "@libs/game-puzzle-client-ts/*": ["./libs/game-puzzle-client-ts/src/*"],
+      "@libs/numberlink-client-ts/*": ["./libs/numberlink-client-ts/src/*"],
       "@libs/chess-puzzle-harness-ts/*": [
         "./libs/chess-puzzle-harness-ts/src/*"
       ],

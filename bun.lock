@@ -2294,6 +2294,26 @@
         "typescript": "catalog:",
       },
     },
+    "libs/numberlink-client-ts": {
+      "name": "@libs/numberlink-client-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/game-menu-client-ts": "workspace:*",
+        "@libs/game-puzzle-client-ts": "workspace:*",
+        "@libs/numberlink-shared-ts": "workspace:*",
+        "@lingui/core": "catalog:",
+        "@lingui/solid": "catalog:",
+        "@pkgs/ui-root-client-ts": "workspace:*",
+        "@pkgs/uuid-client-ts": "workspace:*",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "libs/numberlink-harness-ts": {
       "name": "@libs/numberlink-harness-ts",
       "version": "0.0.0",
@@ -2303,9 +2323,17 @@
         "@pkgs/harness-root-shared-ts": "workspace:*",
       },
       "devDependencies": {
+        "@libs/numberlink-client-ts": "workspace:*",
+        "@pkgs/bun-test-solid-client-ts": "workspace:*",
+        "@pkgs/clock-client-ts": "workspace:*",
+        "@pkgs/clock-shared-ts": "workspace:*",
+        "@pkgs/ui-root-client-ts": "workspace:*",
+        "@pkgs/uuid-client-ts": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
+        "solid-js": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -7703,6 +7731,8 @@
     "@libs/notifications-server-ts": ["@libs/notifications-server-ts@workspace:libs/notifications-server-ts"],
 
     "@libs/notifications-shared-ts": ["@libs/notifications-shared-ts@workspace:libs/notifications-shared-ts"],
+
+    "@libs/numberlink-client-ts": ["@libs/numberlink-client-ts@workspace:libs/numberlink-client-ts"],
 
     "@libs/numberlink-harness-ts": ["@libs/numberlink-harness-ts@workspace:libs/numberlink-harness-ts"],
 

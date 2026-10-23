@@ -1,0 +1,4 @@
+{
+  "summary": "A refused placement switched which endpoint the editor would move next, so choosing an empty cell then moved the wrong endpoint.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-input.contract.test.tsx"
+}

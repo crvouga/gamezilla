@@ -30,6 +30,32 @@ export const numberlinkDefinitionSchema = z
   })
   .strict();
 
+/** Editable content may be unfinished; publication uses the complete definition validator. */
+export const numberlinkDraftSchema = numberlinkDefinitionSchema.extend({
+  pairs: z.array(pairSchema.extend({ label: z.string().max(8) })).max(200),
+});
+
+export function decodeNumberlinkDraft(
+  text: string
+): Validation<NumberlinkDefinition> {
+  try {
+    const parsed = numberlinkDraftSchema.safeParse(JSON.parse(text));
+    if (parsed.success) return { valid: true, value: parsed.data };
+  } catch {
+    /* The saved draft stays untouched when it cannot be read. */
+  }
+  return {
+    valid: false,
+    issues: [
+      {
+        code: 'invalid_draft',
+        message:
+          'This drawing cannot be read. Open a saved draft to continue editing.',
+      },
+    ],
+  };
+}
+
 function endpointIssues(definition: NumberlinkDefinition): NumberlinkIssue[] {
   const issues: NumberlinkIssue[] = [];
   const ids = new Set<string>();

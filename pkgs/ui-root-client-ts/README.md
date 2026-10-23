@@ -198,6 +198,16 @@ reactive-prop and invalid-ratio regressions. These are DOM composition and
 interaction checks; rendering both layout modes alone is not pixel geometry
 or overflow evidence.
 
+`PathGridBoard` is the rectangular path surface for game-owned players and
+editors. Its six closed path colors come from the shared tokens and meet the
+glyph contrast threshold against the canvas in both themes. They identify
+game pieces, never application actions. Labels identify every endpoint;
+unfinished paths are dashed and connected endpoints have a double outline.
+The consumer supplies rules, accessible cell names and callbacks. The surface
+owns pointer capture, crossed-cell sampling and stable keyboard cell buttons.
+Its explorer example shows every color, connected and unfinished paths, and
+disabled controls; the UI harness checks input and focus contracts.
+
 Patterns follow the open spec for that control: the HTML button, the
 fieldset and radio group, the WAI-ARIA switch, checkbox, dialog and
 disclosure, and CSS custom properties for every token. Contrast is WCAG 2.2

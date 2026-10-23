@@ -1,0 +1,4 @@
+{
+  "summary": "An endpoint removal confirmation followed the current selection after incoming content changed it, removing a different pair from the one the person confirmed.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-input.contract.test.tsx"
+}

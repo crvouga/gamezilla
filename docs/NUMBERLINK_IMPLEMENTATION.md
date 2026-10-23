@@ -59,6 +59,8 @@ unfinished work; it is not a second product definition.
 - [ ] Shared discovery, authoring shell, pack editor and player shell.
 - [ ] Numberlink visual builder, player and previews; pointer, touch, keyboard,
   accessible labels and responsive design-system components.
+  Game components and automated input contracts are implemented; assembling
+  them into the shared saved-content workflows remains open.
 - [ ] Real app registry, navigation, runtime/sub composition, sync, identity,
   observability, feedback and self-service readiness integration.
 - [ ] Executable Gherkin, Quint, properties and app integration coverage,
@@ -121,3 +123,13 @@ inferred from this ledger or from a narrow test run.
   Apple clock typecheck was scheduled. It returned no complete gate verdict;
   diagnostics are in the runner's `verify-run-SfIazX` archive. Neither full
   verification attempt is a pass.
+- Numberlink's player, editor and preview compose the design system. The
+  shared `PathGridBoard` handles capture, crossed-cell sampling, stable cell
+  buttons and keyboard focus. Numberlink owns provisional drawing and uses
+  its rules for both preview and committed actions. The editor preserves
+  endpoints on refused resizing and retains unfinished editable definitions.
+  Seventeen focused checks and all 19 Numberlink rule scenarios pass. Two
+  endpoint-editing regressions have pinned literal inputs; restoring the
+  faulty handlers makes both tests fail. The corrected 17-task run passes,
+  as do the i18n and package-registration gates.
+  These components are not yet enrolled in the app's shared content screens.

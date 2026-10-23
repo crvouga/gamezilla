@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
 import {
   decodeNumberlinkDefinition,
+  decodeNumberlinkDraft,
   encodeNumberlinkDefinition,
   validateNumberlinkDefinition,
 } from '@libs/numberlink-shared-ts/numberlink-definition';
@@ -70,7 +71,28 @@ test('arbitrary external data never escapes either decoder as an exception', () 
       expect(() =>
         decodeNumberlinkDefinition(JSON.stringify(input))
       ).not.toThrow();
+      expect(() => decodeNumberlinkDraft(JSON.stringify(input))).not.toThrow();
     })
   );
   expect(decodeNumberlinkDefinition('{')).toMatchObject({ valid: false });
+});
+
+test('unfinished authoring content is readable without being accepted for play', () => {
+  const empty = { ...TWO_ROWS, pairs: [] };
+  expect(decodeNumberlinkDraft(JSON.stringify(empty))).toEqual({
+    valid: true,
+    value: empty,
+  });
+  expect(decodeNumberlinkDefinition(JSON.stringify(empty)).valid).toBe(false);
+  const unfinished = {
+    ...TWO_ROWS,
+    pairs: TWO_ROWS.pairs.map((pair) => ({ ...pair, label: '' })),
+  };
+  expect(decodeNumberlinkDraft(JSON.stringify(unfinished))).toEqual({
+    valid: true,
+    value: unfinished,
+  });
+  expect(decodeNumberlinkDefinition(JSON.stringify(unfinished)).valid).toBe(
+    false
+  );
 });
