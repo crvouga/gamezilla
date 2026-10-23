@@ -73,7 +73,7 @@ Feature: Place Quoridor walls without closing a goal
       Then Alice is told the Quoridor wall would block a player's last path to the goal
       And the Quoridor board, remaining walls and turn are unchanged
 
-  Rule: A player with no remaining walls must move their pawn
+  Rule: Only a player with a remaining wall may place one
 
     Scenario: The last wall can still be placed
       Given Alice has a Classic Quoridor game with one remaining wall
