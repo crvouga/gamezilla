@@ -65,6 +65,10 @@ export async function createSyncApp(deps: {
   readonly strictQueryLimits?: boolean;
 }) {
   let checkpointSeq = 0;
+  const nextCheckpoint = (): string => {
+    checkpointSeq += 1;
+    return `${String(deps.now())}${String(checkpointSeq).padStart(6, '0')}`;
+  };
   const mutations = await deps.app.mutations();
   return createSyncEngineApp({
     resolveAuth: resolveSessionReplayAuth,
@@ -88,6 +92,7 @@ export async function createSyncApp(deps: {
       assert.defined(store, 'sync outbox: request store missing');
       await drainAndNotifyOutbox({
         consumerRegistry: requestOutboxRegistry(deps.outboxConsumers),
+        nextCheckpoint,
         objectStore: store.objectStore,
         db: store.sqlClient,
         clock: store.clock,
@@ -101,10 +106,7 @@ export async function createSyncApp(deps: {
         ],
       });
     },
-    nextCheckpoint: () => {
-      checkpointSeq += 1;
-      return `${String(deps.now())}${String(checkpointSeq).padStart(6, '0')}`;
-    },
+    nextCheckpoint,
     ...(deps.strictQueryLimits === true ? { strictQueryLimits: true } : {}),
     onQueryTruncated: countTruncatedQuery(
       createLogger({ name: 'sync:query', now: deps.now })

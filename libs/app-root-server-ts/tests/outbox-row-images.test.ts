@@ -30,7 +30,8 @@ const Ready = createMessageNamespace('outbox-images')(
 
 async function publishRows(
   forbidImages: boolean,
-  owners: readonly string[] = ['alice', 'bob']
+  owners: readonly string[] = ['alice', 'bob'],
+  fenced = true
 ): Promise<Map<string, PushMessage>> {
   const db = SqlClientImplBunSqlite.open(':memory:');
   await db.connect();
@@ -64,6 +65,7 @@ async function publishRows(
     await new Outbox({ tx: db, env }).send({ id: 'ready', message: Ready({}) });
     await drainAndNotifyOutbox({
       db,
+      ...(fenced ? { nextCheckpoint: () => '2' } : {}),
       clock: { now: () => 0 },
       createId: env.createId,
       objectStore: new ObjectStoreImplInMemory(),
@@ -83,8 +85,13 @@ async function publishRows(
 }
 
 // regression: outbox-results-require-extra-snapshot
+// regression: outbox-row-images-lack-snapshot-fence
 test('committed outbox rows reach only their own topic without another snapshot', async () => {
   const frames = await publishRows(false);
+  expect([...frames.values()].map((frame) => frame.checkpoint)).toEqual([
+    '2',
+    '2',
+  ]);
   expect(
     frames.get('user:alice')?.rows?.['notes']?.map((row) => row['body'])
   ).toEqual(['alice-only']);
@@ -92,6 +99,14 @@ test('committed outbox rows reach only their own topic without another snapshot'
     frames.get('user:bob')?.rows?.['notes']?.map((row) => row['body'])
   ).toEqual(['bob-only']);
   expect(JSON.stringify(frames.get('user:alice'))).not.toContain('bob-only');
+});
+
+test('a host without a query checkpoint sends invalidations instead of unfenced rows', async () => {
+  const frames = await publishRows(false, ['alice', 'bob'], false);
+  expect([...frames.keys()].sort()).toEqual(['user:alice', 'user:bob']);
+  expect([...frames.values()].every((frame) => frame.rows === undefined)).toBe(
+    true
+  );
 });
 
 test('a publication veto sends invalidations without any row images', async () => {
@@ -118,6 +133,7 @@ test('row images respect topic ownership and publication vetoes for every recipi
         );
         for (const owner of owners) {
           const frame = frames.get(`user:${owner}`);
+          expect(frame?.checkpoint).toBe('2');
           if (forbid) expect(frame?.rows).toBeUndefined();
           else
             expect(frame?.rows?.['notes']?.map((row) => row['body'])).toEqual([

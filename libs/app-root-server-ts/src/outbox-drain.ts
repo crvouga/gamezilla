@@ -104,6 +104,7 @@ type DrainAndNotifyArgs = {
   readonly consumerRegistry?: OutboxConsumerRegistry;
   readonly eventIds?: readonly string[];
   readonly topicMap?: TopicMap;
+  readonly nextCheckpoint?: () => string;
   readonly maxPasses?: number;
   readonly limit?: number;
 };
@@ -179,9 +180,14 @@ async function notifyCommittedPass(
     pubsub,
     sql: args.db,
     topics: plan.topics,
-    ...(plan.rowsByTopic === undefined
+    // Row images require the same ordering fence as query snapshots. Hosts
+    // without that clock keep invalidation-only pushes.
+    ...(plan.rowsByTopic === undefined || args.nextCheckpoint === undefined
       ? {}
       : { rowsByTopic: plan.rowsByTopic }),
+    ...(args.nextCheckpoint === undefined
+      ? {}
+      : { checkpoint: args.nextCheckpoint() }),
     tables: [
       ...new Set(captures.flatMap((capture) => capture.getCapture().tables)),
     ].sort(),

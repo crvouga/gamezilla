@@ -22,6 +22,8 @@ export type NotifyChannelsOptions = {
   /** Included in warn logs when publish fails. */
   readonly label?: string;
   readonly now: () => number;
+  /** Shared with query snapshots; minted after the domain write committed. */
+  readonly checkpoint?: string;
 };
 
 /**
@@ -50,6 +52,9 @@ export async function notifyChannels(
       ...(options.rowsByTopic === undefined
         ? {}
         : { rowsByTopic: options.rowsByTopic }),
+      ...(options.checkpoint === undefined
+        ? {}
+        : { checkpoint: options.checkpoint }),
       label,
     });
   } catch (error: unknown) {
