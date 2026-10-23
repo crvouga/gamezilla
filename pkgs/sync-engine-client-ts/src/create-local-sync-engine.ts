@@ -22,6 +22,7 @@ import type { WriteCaptureSnapshot } from '@pkgs/sync-engine-shared-ts/write-cap
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
 import type { SyncEnginePushOptions } from './attach-configured-push';
 import { attachPushIfConfigured } from './attach-configured-push';
+import { bindSyncConnectivity } from './bind-sync-connectivity';
 import { readLastSyncedAtMs } from './last-synced';
 import type {
   LocalDomainSchema,
@@ -136,6 +137,7 @@ type LocalEngineState = {
   /** Remake entryChannel / held-row topics after identity switch wake. */
   refreshTopics: (() => void) | null;
   disposeExternalDbChanged: (() => void) | null;
+  disposeConnectivity: (() => void) | null;
   pushPubSub: PubSub | null;
   /** In-flight local mutation work (MutationClientProvider / harness clients). */
   readonly mutationDrains: Set<() => Promise<void>>;
@@ -234,6 +236,7 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
   const bus = createTableChangeBus();
   const appDb = createTableChangeSqlClient(options.db, bus);
   const status = createLocalSyncStatusStore();
+  status.patch({ online: options.lifecycle?.isOnline() ?? true });
   const stateRef: LocalEngineStateRef = { current: null };
   const runtime = new SubscriptionRuntime({
     db: options.db,
@@ -253,7 +256,7 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     onSynced: () =>
       status.patch({
         connection: 'connected',
-        online: true,
+        online: options.lifecycle?.isOnline() ?? true,
         hasSynced: true,
         lastSyncedAtMs: options.now(),
         lastError: null,
@@ -295,6 +298,7 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     refreshTopics: null,
     pushPubSub: null,
     disposeExternalDbChanged,
+    disposeConnectivity: null,
   };
   stateRef.current = state;
   return state;
@@ -359,6 +363,10 @@ async function seedLastSyncedAt(state: LocalEngineState): Promise<void> {
 }
 
 async function connectState(state: LocalEngineState): Promise<void> {
+  state.disposeConnectivity ??= bindSyncConnectivity(
+    state.options.lifecycle,
+    state.status
+  );
   if (state.connected) {
     state.uploadQueue.wake();
     // Identity may have switched while this engine stayed open (product-harness
@@ -370,7 +378,7 @@ async function connectState(state: LocalEngineState): Promise<void> {
   state.connected = true;
   state.status.patch({
     connection: 'connecting',
-    online: true,
+    online: state.options.lifecycle?.isOnline() ?? true,
     lastError: null,
   });
   await seedLastSyncedAt(state);
@@ -387,6 +395,8 @@ async function drainMutationClients(state: LocalEngineState): Promise<void> {
 }
 
 async function disconnectState(state: LocalEngineState): Promise<void> {
+  state.disposeConnectivity?.();
+  state.disposeConnectivity = null;
   state.connected = false;
   detachPush(state);
   // Local mutations outlive their component tree (bootstrap effects), so their
@@ -399,6 +409,8 @@ async function disconnectState(state: LocalEngineState): Promise<void> {
 }
 
 async function revokeDatabase(state: LocalEngineState): Promise<void> {
+  state.disposeConnectivity?.();
+  state.disposeConnectivity = null;
   state.connected = false;
   state.disposeExternalDbChanged?.();
   state.disposeExternalDbChanged = null;
