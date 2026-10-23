@@ -92,6 +92,14 @@ terms:
     definition: The number of walls a player has not yet placed.
     forms: [wall inventory, inventory]
     model: [remaining]
+  - term: pass
+    definition: >-
+      In King of the Hill only, take no pawn move or wall placement and
+      pass the turn to the next player when neither kind of action is
+      possible. The pawn and all walls stay where they are. Passing when
+      any pawn move or wall placement is possible is refused.
+    forms: [passes, passing, passed]
+    model: [passTurn]
   - term: home row
     definition: The edge on which a player's pawn begins.
     forms: [home rows, starting edge, starting edges]

@@ -14,6 +14,7 @@ module quoridor_play {
   pure val CELLS = 0.to(80)
   pure val CLASSIC_PLAYERS = Set(0, 1)
   pure val HILL_PLAYERS = Set(0, 1, 2, 3)
+  pure val WALLS = 0.to(127).map(n => (n % 8, (n / 8) % 8, n / 64))
   /// The selected mode, "classic" or "hill".
   var mode: str
   /// Each player's pawn square: a1 is 0, b1 is 1, and i9 is 80.
@@ -126,10 +127,18 @@ module quoridor_play {
         (turn + 1) % _players(mode).size(), -1, false)
     else _hold
   }
+  /// In King of the Hill, pass only when no pawn move or wall placement is possible. The player stays in the game.
+  action passTurn(player: int): bool =
+    if (mode == "hill" and winner == -1 and player == turn and
+      not(CELLS.exists(c => _pawnMove(mode, pawns, walls, player, c))) and
+      (remaining.get(player) == 0 or not(WALLS.exists(w => _wallAllowed(mode, pawns, walls, w)))))
+      _update(pawns, walls, remaining, (turn + 1) % _players(mode).size(), winner, false)
+    else _hold
   action step = any {
     { nondet player = _players(mode).oneOf() nondet square = CELLS.oneOf() movePawn(player, square) },
     { nondet player = Set(turn).oneOf() nondet square = CELLS.filter(c => _pawnMove(mode, pawns, walls, turn, c)).union(Set(40)).oneOf() movePawn(player, square) },
     { nondet player = _players(mode).oneOf() nondet column = (-1).to(8).oneOf() nondet row = (-1).to(8).oneOf() nondet direction = Set(0, 1).oneOf() placeWall(player, column, row, direction) },
+    { nondet player = _players(mode).oneOf() passTurn(player) },
   }
   /// Every pawn is on the board, and two pawns never share a square.
   val invPawns = _players(mode).forall(p => CELLS.contains(pawns.get(p)) and _players(mode).exclude(Set(p)).forall(q => pawns.get(p) != pawns.get(q)))

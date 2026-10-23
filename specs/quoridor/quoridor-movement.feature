@@ -105,3 +105,18 @@ Feature: Move and jump with Quoridor pawns
       When Bob moves his Quoridor pawn to e8
       Then Bob is told it is South's Quoridor turn
       And the Quoridor board, remaining walls and turn are unchanged
+
+  Rule: A hill player passes only when no pawn move or wall placement is possible
+
+    Scenario: An exhausted player blocked by two pawns passes without leaving the game
+      Given Alice has a King of the Hill game with South on e2, West on e3 and North on e4
+      And South has no remaining walls and walls prevent a move left, right or backwards
+      When Alice passes her Quoridor turn
+      Then West has the Quoridor turn
+      And the Quoridor pawns and walls are unchanged
+
+    Scenario: A player with an available move cannot pass
+      Given Alice has a new Classic Quoridor game
+      When Alice passes her Quoridor turn
+      Then Alice is told the Quoridor pawn move is not allowed
+      And the Quoridor board, remaining walls and turn are unchanged
