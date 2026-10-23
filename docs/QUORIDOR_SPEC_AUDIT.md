@@ -1,5 +1,10 @@
 # Quoridor specification audit
 
+Verdict: **INCOMPLETE**. The board-rule bindings, focused execution checks
+and normal wording gate pass. The strict audit reports thirteen existing
+near-duplicate pairs outside the touched scope. The current bounded proof,
+statechart check and final whole-repository gate remain pending.
+
 The rules source is [Gigamic's published rulebook](https://export.gigamic.com/wp-content/uploads/2021/01/INS-RULES-QUORIDOR_10-2016.pdf).
 The two-player rules are canonical. Four-Player King of the Hill is the
 explicit house variant in the Quoridor glossary: four clockwise players,
@@ -18,9 +23,15 @@ and refusals with reasons. All scenarios sit under rules. No scenario has
 more than five steps. Positive and negative examples cover every rule
 unless its first description states why there is no counter-example.
 The new language passed the vocabulary and wording checks in
-`bun run spec:verify` on 2026-10-23. The new domain's undefined steps and
-unbound model are the implementation handoff, with the new harness still
-being built.
+`bun run spec:verify` on 2026-10-23. Every Quoridor board-rule step and model
+action now has a binding. The final review corrected the exhausted-wall
+rule to forbid another wall, rather than require a pawn move when the hill
+rules require a forced pass. The late shared four-player examples for
+account deletion and missing the first move now pass through their actual
+workflow. Their literal unit/property failures preceded the product fix;
+the new feature bindings' first invocation was green. No earlier
+feature-level red is claimed. The goal explicitly permits specifications
+before or alongside implementation.
 
 | Feature | A0–A6, B1–B17 review | Coverage |
 | --- | --- | --- |
@@ -33,7 +44,8 @@ being built.
 | `quoridor-health.feature` | Standing checks through the established live runner | Two-person Classic and two-person/two-bot King of the Hill |
 | `journeys/quoridor-game.feature` | Fresh-device journeys use published mode and bot terms | Completed, agreed results in both modes |
 | `games/multi-seat-games.feature` | Shared game language; no named concrete game | Full lineup, all-person readiness, disconnect without skipped turn, unanimous draw, withdrawal and timeout |
-| `games/four-seat-matchmaking.feature` | Shared game and clock choices; no game-specific matching path | Full compatible group, incompatible clock, unanimous rematch and rotated sides |
+| `games/four-seat-matchmaking.feature` | Shared game and clock choices; no game-specific matching path | Full compatible group, incompatible clock, unanimous rematch, rotated sides, and withdrawal or missed first move before play |
+| `games/multi-seat-recovery.feature` | A returning person sees the board, turns and result | Third-player reconnect, legal replies from three bots offline, and the finished offline result kept on return |
 
 ## Quoridor model coverage
 
@@ -71,18 +83,24 @@ their legal-action conformance belongs to the shared bot contract.
 - A Rust Quint run with all eight invariants, one sample, three steps and
   seed 12345 passed in 2.5 seconds. This is a smoke check; the normal model
   campaign remains required during implementation.
-- `bun run spec:verify` reached the new domain's undefined steps and
-  unbound model. Remaining scaffolding findings name the new harness's
-  `specParts` script and missing step/model indexes and model task inputs.
+- The current normal `ci:specs` gate passed in 10.02 seconds after the
+  shared early-withdrawal bindings and scoped vocabulary repair.
 - `bunx turbo run ci:specs --filter=@libs/tools-harness-ts -- --strict-duplicates`
-  ran the strict check. It also reports pre-existing near-duplicate step
-  wording between Chess, Battleship, Runtime and the shared Games harness.
+  ran the current strict check. It failed only on thirteen existing
+  near-duplicate pairs between Chess, Battleship, Friends, Runtime and the
+  shared Games harness. None names a Quoridor or new four-player step.
 
-Verdict: **INCOMPLETE** until the implementation supplies the bindings and
-the full gate clears. The strict duplicate findings outside this change
-are evidence of the current gate result, not a claim that the new specs
-have passed a clean full-tree audit. No implementation steps existed in
-the new domain at this authoring handoff, so D2–D6 await implementation.
+These strict duplicate findings do not establish a clean full-tree pass.
+D2–D6 review finds one package registration, thin steps
+over exported harness actions and reads, and model bindings using the
+model's actual action names and public variables. Selectors and board
+gestures remain in exported harness actions, not step definitions.
+
+The newly published bare words “start” and “ready” initially claimed
+ordinary English in unrelated contexts, which caused CI wording failures.
+They now publish only scoped custom-game phrases; Quoridor borrows those
+phrases. The definitions and model mappings retain their meaning, and the
+normal wording gate confirms that unrelated contexts need no new borrows.
 
 ## Implementation verification
 
@@ -102,6 +120,21 @@ keyboard controls, all four pawn shapes, wall-path refusals and forced pass.
 Package type checking and linting also passed. Later wording and equivalent
 model-expression changes require a current-tree final rerun.
 
+After the mode-start wording changed, the scenarios first failed on the
+new undefined Given. Their completed bindings then passed both examples,
+with nine assertions. The Given establishes ready players; the When uses
+only the actual start control. Harness type checking and linting passed
+again. The two affected existing runtime and Connect Four test packages
+also passed after their literal schema/projection fixtures were completed;
+their exact inventory and winning-cell assertions remain intact.
+
+The four-player matching feature passed all six examples with 30 assertions,
+including account deletion and missing the first move before anyone has
+played. Earlier literal failures returned an aborted game instead of a
+draw; the clock property also pinned `[0, '3+2', 0]` at seed 424242. These
+are the actual red-first regression evidence, separate from the later
+green business illustrations.
+
 The declared two-part Turbo run reached a **240-second timeout**, with no
 assertion mismatch, in the 32-action opposite-row hill setup while both
 parts and model checking ran together. That same example passed in the full
@@ -109,16 +142,30 @@ package run. No timeout or retry policy was changed. An isolated final gate
 remains required.
 
 The model keeps the full 9×9 board, both goals, all 128 wall anchors and
-the complete 81-round connectivity fallback. Equivalent expressions avoid
-dynamic symbolic-set growth, and the zero/single-wall connected-board case
-has an explicit fast path. The ordinary and array-encoded bounded checks
-previously returned no verdict at their unchanged four-minute deadline;
-the final solver check remains outstanding. This is distinct from the
-successful executable trace replay.
+the complete 81-round connectivity fallback. Its equivalent small-wall
+formula is checked independently against full board connectivity for every
+wall pair, every pawn square and all three goal kinds. Cached adjacency,
+constant turn divisors and direct allowed/refused path predicates avoid
+repeating equivalent symbolic work. Removing a duplicate pawn-sampling
+branch preserves every labeled transition because the retained branch
+already chooses every player and every board square. All eight invariants,
+the two-step bounded proof and its four-minute deadline remain unchanged.
 
-The most recent wording gate reached only the new live-health and journey
-steps still being bound by the shared runtime harness. The new Quoridor
-wording, domain vocabulary and part allocation were accepted. The final
-whole-repository strict gate and readiness verdict remain the integrator's
-completion audit, and this report remains **INCOMPLETE** until those exact
-current-tree checks succeed.
+The latest completed proof passed the first successor state's accepted and
+refused pawn and wall cases, then timed out compiling the remaining pass
+refusal. Direct refusal predicates avoided the earlier full-flood expansion.
+The wall boundary comparisons now use equivalent scalar equalities for
+arbitrary integer endpoints instead of constructing two-element sets.
+The updated model typechecks, and its full bounded proof is pending.
+Successful executable trace replay is separate evidence from this proof.
+
+The product chart now links both mode choices into the existing custom,
+matched and review lifecycle and owns every new Quoridor, journey and
+four-player contract. Its first check found only four previously unowned
+request-quality and missing-space contracts. Those references now attach
+to the existing measured-request and space-recovery owners; a fresh
+statechart check remains required.
+
+The final whole-repository strict gate and readiness verdict remain the
+completion audit. This report remains **INCOMPLETE** until those exact
+current-tree checks and the outstanding model proof succeed.
