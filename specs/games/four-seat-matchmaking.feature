@@ -28,3 +28,16 @@ Feature: Find four participants and agree to another game
       And Alice has offered a rematch accepted by Bob
       When Carol accepts the rematch
       Then the finished matched game is still awaiting Dave's rematch agreement
+
+  Rule: Withdrawal or an expired clock draws a four-player matched game even before the first moves
+    No counter-example: after withdrawal or an expired clock there is no rule that chooses one of three remaining players as the winner.
+
+    Scenario: Account deletion before any first move draws the matched game
+      Given Alice, Bob, Carol and Dave have a new four-player matched game at 5+0
+      When Alice confirms account deletion
+      Then Bob, Carol and Dave see the matched game is drawn because a participant withdrew
+
+    Scenario: Missing the first move draws the four-player matched game
+      Given Alice, Bob, Carol and Dave have a new four-player matched game at 5+0
+      When 30 seconds pass
+      Then all four people see the matched game is drawn because the first side missed the first move
