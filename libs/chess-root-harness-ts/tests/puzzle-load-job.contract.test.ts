@@ -135,6 +135,7 @@ test('permission decisions guard starting, stopping and status, and concurrent s
 }, 30_000);
 
 // regression: outbox-results-require-extra-snapshot
+// regression: outbox-row-images-lack-snapshot-fence
 test('background puzzle writes wake the shared catalog and the manager status', async () => {
   // regression: outbox-catalog-topic-invalidation
   await using host = await openPuzzleImportHost();
@@ -149,6 +150,7 @@ test('background puzzle writes wake the shared catalog and the manager status', 
     (item) => item.topic === 'system:chess_puzzles'
   )?.data;
   expect(catalog).toMatchObject({
+    checkpoint: '1',
     tables: ['chess_puzzles'],
     rows: { chess_puzzles: [{ id: 'one', rating: 1275 }] },
   });
