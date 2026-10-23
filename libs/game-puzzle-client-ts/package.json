@@ -61,6 +61,7 @@
   },
   "category": "client",
   "gameApi": [
+    "puzzle-content-client",
     "puzzle-client"
   ],
   "language": "typescript"

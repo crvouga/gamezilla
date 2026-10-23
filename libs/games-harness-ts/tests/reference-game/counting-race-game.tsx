@@ -409,7 +409,7 @@ export const COUNTING_RACE_SHARED = defineTurnGame(COUNTING_RACE_TURN_GAME);
 /** The themes a race's feed can be limited to. */
 const RACE_THEMES = ['short', 'long'] as const satisfies readonly string[];
 
-export const COUNTING_RACE_CLIENT: GameClient<typeof CAPABILITIES> = {
+export const COUNTING_RACE_CLIENT: GameClient<typeof COUNTING_RACE_SHARED> = {
   shared: COUNTING_RACE_SHARED,
   title: 'Counting race',
   caption: 'Count to seven first',

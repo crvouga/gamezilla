@@ -1,12 +1,11 @@
 import { BILLING_TABLES } from '@libs/billing-shared-ts/tables';
-import { CONTENT_MUTATIONS } from '@libs/game-puzzle-shared-ts/content-mutations';
+import { createContentMutations } from '@libs/game-puzzle-shared-ts/content-mutations';
 import { CONTENT_TABLES } from '@libs/game-puzzle-shared-ts/content-tables';
 import { CONTENT_TOPIC_MAP } from '@libs/game-puzzle-shared-ts/content-topic-map';
 import { uniqueTables } from '@libs/permissions-shared-ts/world';
 import { registerTables } from '@pkgs/db-schema-root-shared-ts/register-tables';
 import type { SyncApp } from '@pkgs/sync-engine-harness-ts/scenario-app';
 import { mutationRegistry } from '@pkgs/sync-engine-shared-ts/mutations-registry';
-import type { Mutation } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { queryRegistry } from '@pkgs/sync-engine-shared-ts/queries-registry';
 import { createPuzzleContentCatalog } from '@pkgs/turn-game-shared-ts/puzzle-content-catalog';
 import fc from 'fast-check';
@@ -19,21 +18,8 @@ export const exampleContentCatalog = createPuzzleContentCatalog([
   { id: 'other-counting', puzzleContent: examplePuzzleContent },
 ]);
 
-const definitions: readonly Mutation<unknown>[] = CONTENT_MUTATIONS;
 const mutations = mutationRegistry(
-  definitions.map(
-    (definition): Mutation<unknown> => ({
-      ...definition,
-      run: (ctx, args) =>
-        definition.run(
-          {
-            ...ctx,
-            env: { ...ctx.env, puzzleContents: exampleContentCatalog },
-          },
-          args
-        ),
-    })
-  )
+  createContentMutations(exampleContentCatalog)
 );
 const tables = uniqueTables([...CONTENT_TABLES, ...BILLING_TABLES]);
 

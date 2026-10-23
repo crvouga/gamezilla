@@ -4,10 +4,10 @@ import sql from '@pkgs/sql-root-shared-ts/sql';
 import type {
   MutationCtx,
   MutationDb,
-  MutationEnv,
 } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import type { PuzzleContent } from '@pkgs/turn-game-shared-ts/puzzle-content';
+import type { PuzzleContentCatalog } from '@pkgs/turn-game-shared-ts/puzzle-content-catalog';
 import type {
   ContentDocument,
   ContentDraft,
@@ -16,12 +16,15 @@ import type {
 } from './content-types';
 import { contentDraftOf } from './content-types';
 
-export function contentGame(env: MutationEnv, id: string): PuzzleContent {
-  if (env.puzzleContents === undefined)
-    throw new Error(
-      'The composition root must inject puzzle content capabilities'
-    );
-  const game = env.puzzleContents.byId(id);
+export type ContentMutationCtx = MutationCtx & {
+  readonly puzzleContents: PuzzleContentCatalog;
+};
+
+export function contentGame(
+  catalog: PuzzleContentCatalog,
+  id: string
+): PuzzleContent {
+  const game = catalog.byId(id);
   if (game === undefined)
     throw new MutationError(
       'PUZZLE_GAME_UNAVAILABLE',

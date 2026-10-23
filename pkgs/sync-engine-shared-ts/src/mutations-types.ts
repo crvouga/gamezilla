@@ -1,6 +1,5 @@
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
-import type { PuzzleContentCatalog } from '@pkgs/turn-game-shared-ts/puzzle-content-catalog';
 import type { StandardSchemaV1 } from '@standard-schema/spec';
 
 /** What a mutation body sees: the transaction-scoped SqlClient, reads + writes. */
@@ -8,7 +7,6 @@ export type MutationDb = Pick<SqlClient, 'query' | 'run'>;
 
 export type MutationEnv = {
   readonly turnGames?: TurnGames;
-  readonly puzzleContents?: PuzzleContentCatalog;
   /** Host-verified provenance; absent means unknown. Never read from mutation args. */
   readonly synthetic?: boolean;
   readonly actorId: string;

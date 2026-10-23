@@ -30,7 +30,7 @@ test('the publication transaction rechecks title, game details and ownership bef
     });
     await expect(
       db.transaction((tx) =>
-        publish.run(
+        publish(fixture.puzzleContents).run(
           { tx, env },
           { documentId: 'river', draftId: 'river-first' }
         )
@@ -45,7 +45,7 @@ test('the publication transaction rechecks title, game details and ownership bef
     const bob = { ...env, actorId: 'bob', deviceId: 'bob-phone' };
     await expect(
       db.transaction((tx) =>
-        publish.run(
+        publish(fixture.puzzleContents).run(
           { tx, env: bob },
           { documentId: 'valley', draftId: 'valley-first' }
         )
@@ -55,7 +55,7 @@ test('the publication transaction rechecks title, game details and ownership bef
     await createContentFixture(fixture, { id: 'untitled', title: '' });
     await expect(
       db.transaction((tx) =>
-        publish.run(
+        publish(fixture.puzzleContents).run(
           { tx, env },
           { documentId: 'untitled', draftId: 'untitled-first' }
         )
@@ -97,7 +97,10 @@ test('a pack stores its ordered edition references independently of later puzzle
       )
     );
     await db.transaction((tx) =>
-      publish.run({ tx, env }, { documentId: 'river', draftId: 'river-next' })
+      publish(fixture.puzzleContents).run(
+        { tx, env },
+        { documentId: 'river', draftId: 'river-next' }
+      )
     );
     await db.transaction((tx) =>
       withdraw.run({ tx, env }, { documentId: 'river' })
@@ -124,7 +127,10 @@ test('a valid flag or an incomplete witness cannot authorize invalid publication
     const { db, env } = fixture;
     await createContentFixture(fixture, { id: 'river', title: 'River' });
     await db.transaction((tx) =>
-      validate.run({ tx, env }, { documentId: 'river', draftId: 'river-first' })
+      validate(fixture.puzzleContents).run(
+        { tx, env },
+        { documentId: 'river', draftId: 'river-first' }
+      )
     );
     await db.transaction((tx) =>
       save.run(
@@ -139,7 +145,7 @@ test('a valid flag or an incomplete witness cannot authorize invalid publication
     );
     await expect(
       db.transaction((tx) =>
-        publish.run(
+        publish(fixture.puzzleContents).run(
           { tx, env },
           { documentId: 'river', draftId: 'invalid-draft' }
         )
@@ -148,7 +154,7 @@ test('a valid flag or an incomplete witness cannot authorize invalid publication
     await createContentFixture(fixture, { id: 'valley', title: 'Valley' });
     await expect(
       db.transaction((tx) =>
-        publish.run(
+        publish(fixture.puzzleContents).run(
           { tx, env },
           {
             documentId: 'valley',

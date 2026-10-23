@@ -18,7 +18,10 @@ import {
   gameRulesLaws,
 } from '@libs/game-session-harness-ts/game-rules-laws';
 import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
-import type { TurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import type {
+  TurnGame,
+  TurnGameDefinition,
+} from '@libs/game-session-shared-ts/turn-game-definition';
 import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
 import { SETUP_RACE_GAME } from '../probes/setup-race-game';
 import { SOLO_COUNT_GAME } from '../probes/solo-count-game';
@@ -32,7 +35,7 @@ import {
 /** The reference game with parts of its definition, client or adapter replaced. */
 export function definedWith(
   turnGame: Partial<TurnGame>,
-  client: Partial<GameClient> = {},
+  client: Partial<GameClient<TurnGameDefinition>> = {},
   adapter: Partial<Pick<HarnessGame, 'readRecord' | 'fixtures'>> = {}
 ): HarnessGame {
   const shared = defineTurnGame({ ...COUNTING_RACE_TURN_GAME, ...turnGame });

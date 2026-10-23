@@ -14,6 +14,19 @@ function dummyGame(id: string): GameDefinition {
 }
 
 describe('game plugin contract', () => {
+  test('the two registries agree on independent puzzle rendering', () => {
+    const shared = { id: 'a', puzzleContent: {} };
+    const part = { Player: () => null };
+    expect(() =>
+      assertMatchingGameIds([shared], [{ id: 'a', puzzleContent: part }])
+    ).not.toThrow();
+    expect(() => assertMatchingGameIds([shared], [{ id: 'a' }])).toThrow(
+      'has no puzzleContent part'
+    );
+    expect(() =>
+      assertMatchingGameIds([{ id: 'a' }], [{ id: 'a', puzzleContent: part }])
+    ).toThrow('offers no puzzle content');
+  });
   test('composition reserves legacy namespaces for its one designated definition', () => {
     const owner = {
       id: 'legacy',
@@ -71,7 +84,7 @@ describe('game plugin contract', () => {
     expect(() =>
       assertMatchingGameIds([dummyGame('a')], [dummyGame('a'), dummyGame('c')])
     ).toThrow(
-      'game registry: client "c" has no turn game — register its defineTurnGame(...) value in GAME_DEFINITIONS, or give its defineGameClient the shared definition of the game it shows'
+      'game registry: client "c" has no shared game — register its defineGame(...) or defineTurnGame(...) value in GAME_DEFINITIONS, or give its defineGameClient the shared definition of the game it shows'
     );
     expect(() =>
       assertMatchingGameIds(

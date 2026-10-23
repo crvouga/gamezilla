@@ -117,6 +117,15 @@ export type TurnGame<C extends TurnGameCapabilities = TurnGameCapabilities> =
  * offers exactly the capabilities the game declares.
  */
 export function defineTurnGame<C extends TurnGameCapabilities>(
+  game: TurnGame<C> & { readonly puzzleContent: PuzzleContent }
+): TurnGameDefinition<C> & { readonly puzzleContent: PuzzleContent };
+export function defineTurnGame<C extends TurnGameCapabilities>(
+  game: TurnGame<C> & { readonly puzzleContent?: never }
+): TurnGameDefinition<C> & { readonly puzzleContent?: never };
+export function defineTurnGame<C extends TurnGameCapabilities>(
+  game: TurnGame<C>
+): TurnGameDefinition<C>;
+export function defineTurnGame<C extends TurnGameCapabilities>(
   game: TurnGame<C>
 ): TurnGameDefinition<C> {
   const id = game.rules.id;

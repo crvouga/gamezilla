@@ -1,0 +1,4 @@
+{
+  "summary": "Puzzle rules injected only by the harness were absent from normal local changes and server replay. The Puzzles sub must bind its rules into the same mutation factories on both sides.",
+  "regressionTest": "libs/game-puzzle-harness-ts/tests/verdict-interop.test.ts"
+}

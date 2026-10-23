@@ -8,7 +8,6 @@ import type { GameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useSpaceCan } from '@libs/spaces-client-ts/use-space-can';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useLocalSearchParams } from '@pkgs/ui-root-client-ts/app-router';
 import { FadeSwitch } from '@pkgs/ui-root-client-ts/fade-switch';
 import type { MainMenuItem } from '@pkgs/ui-root-client-ts/main-menu-item-row';
@@ -118,9 +117,8 @@ export function GameMenu(props: {
   onBackToGames: () => void;
 }): JSX.Element {
   const navigation = useGameScreen();
-  const rules = useTurnGames();
   const offers: Offers = (capability) =>
-    rules.offers(props.game.shared.id, capability);
+    props.game.shared.turnGame?.capabilities[capability] !== undefined;
   useOpenLinkedMultiplayer(navigation, () => offers('matchmaking'));
   const screens = createMemo(
     () =>

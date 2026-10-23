@@ -6,6 +6,8 @@ import {
   type MutationCtx,
   MutationError,
 } from '@pkgs/sync-engine-shared-ts/mutations-types';
+import type { PuzzleContentCatalog } from '@pkgs/turn-game-shared-ts/puzzle-content-catalog';
+import type { ContentMutationCtx } from './content-store';
 import { readContentDocument, readContentRevision } from './content-store';
 import { contentId } from './content-types';
 import { attemptStartSchema, createContentAttempt } from './create-attempt';
@@ -34,37 +36,41 @@ async function requirePackChoice(
     );
 }
 
-export const startPuzzleAttemptMutation = defineMutation({
-  name: 'startPuzzleAttempt',
-  args: attemptStartSchema
-    .extend({ revisionId: contentId, packRevisionId: contentId.nullable() })
-    .strict(),
-  async run(ctx, args) {
-    await requireInMutation(ctx, PERMISSION.puzzlesPlay);
-    const revision = await readContentRevision(ctx.tx, args.revisionId);
-    const doc =
-      revision === null
-        ? null
-        : await readContentDocument(ctx.tx, revision.document_id);
-    if (revision?.kind !== 'puzzle' || doc === null)
-      throw new MutationError(
-        'PUZZLE_UNAVAILABLE',
-        'This puzzle is not available. Choose an available puzzle.'
-      );
-    if (args.packRevisionId !== null)
-      await requirePackChoice(ctx, args.packRevisionId, revision.id);
-    else if (doc.status !== 'published')
-      throw new MutationError(
-        'PUZZLE_UNAVAILABLE',
-        'This puzzle is not available. Choose an available puzzle.'
-      );
-    await createContentAttempt(ctx, args, {
-      puzzleId: doc.id,
-      sourceId: revision.id,
-      gameId: revision.game_id,
-      definition: revision.definition,
-      mode: 'ordinary',
-      packRevisionId: args.packRevisionId,
-    });
-  },
-});
+export const startPuzzleAttemptMutation = (
+  puzzleContents: PuzzleContentCatalog
+) =>
+  defineMutation({
+    name: 'startPuzzleAttempt',
+    args: attemptStartSchema
+      .extend({ revisionId: contentId, packRevisionId: contentId.nullable() })
+      .strict(),
+    async run(baseCtx, args) {
+      const ctx: ContentMutationCtx = { ...baseCtx, puzzleContents };
+      await requireInMutation(ctx, PERMISSION.puzzlesPlay);
+      const revision = await readContentRevision(ctx.tx, args.revisionId);
+      const doc =
+        revision === null
+          ? null
+          : await readContentDocument(ctx.tx, revision.document_id);
+      if (revision?.kind !== 'puzzle' || doc === null)
+        throw new MutationError(
+          'PUZZLE_UNAVAILABLE',
+          'This puzzle is not available. Choose an available puzzle.'
+        );
+      if (args.packRevisionId !== null)
+        await requirePackChoice(ctx, args.packRevisionId, revision.id);
+      else if (doc.status !== 'published')
+        throw new MutationError(
+          'PUZZLE_UNAVAILABLE',
+          'This puzzle is not available. Choose an available puzzle.'
+        );
+      await createContentAttempt(ctx, args, {
+        puzzleId: doc.id,
+        sourceId: revision.id,
+        gameId: revision.game_id,
+        definition: revision.definition,
+        mode: 'ordinary',
+        packRevisionId: args.packRevisionId,
+      });
+    },
+  });

@@ -4,6 +4,7 @@ import { publishPuzzleContentMutation } from '@libs/game-puzzle-shared-ts/publis
 import { openConformanceDb } from '@libs/permissions-shared-ts/world';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import type { MutationEnv } from '@pkgs/sync-engine-shared-ts/mutations-types';
+import type { PuzzleContentCatalog } from '@pkgs/turn-game-shared-ts/puzzle-content-catalog';
 import { createPuzzleContentCatalog } from '@pkgs/turn-game-shared-ts/puzzle-content-catalog';
 import { pileContent } from './pile-game';
 
@@ -17,6 +18,7 @@ export const CONTENT_BODY = {
 export type ContentFixture = {
   readonly db: SqlClient;
   readonly env: MutationEnv;
+  readonly puzzleContents: PuzzleContentCatalog;
 };
 
 export async function createContentFixture(
@@ -30,7 +32,7 @@ export async function createContentFixture(
   }
 ): Promise<void> {
   await fixture.db.transaction((tx) =>
-    createPuzzleContentMutation.run(
+    createPuzzleContentMutation(fixture.puzzleContents).run(
       { tx, env: fixture.env },
       {
         documentId: args.id,
@@ -52,7 +54,7 @@ export async function publishContentFixture(
   id: string
 ): Promise<void> {
   await fixture.db.transaction((tx) =>
-    publishPuzzleContentMutation.run(
+    publishPuzzleContentMutation(fixture.puzzleContents).run(
       { tx, env: fixture.env },
       {
         documentId: id,
@@ -69,6 +71,10 @@ export async function withContentFixture(
   try {
     await run({
       db,
+      puzzleContents: createPuzzleContentCatalog([
+        { id: 'pile', puzzleContent: pileContent() },
+        { id: 'other-pile', puzzleContent: pileContent('other-pile') },
+      ]),
       env: {
         actorId: 'alice',
         deviceId: 'alice-phone',
@@ -76,10 +82,6 @@ export async function withContentFixture(
         isAnon: true,
         now: () => new Date(0),
         createId: () => 'unused',
-        puzzleContents: createPuzzleContentCatalog([
-          { id: 'pile', puzzleContent: pileContent() },
-          { id: 'other-pile', puzzleContent: pileContent('other-pile') },
-        ]),
       },
     });
   } finally {

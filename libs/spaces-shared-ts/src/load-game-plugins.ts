@@ -24,20 +24,43 @@ export function assertGameRegistry(
   }
 }
 
-/** What the client registry checks of a turn game: its id and what it offers. */
+/** What the client registry checks of a game: its id and what it offers. */
 type RegisteredShared = {
   readonly id: string;
+  readonly puzzleContent?: unknown;
   readonly turnGame?: { readonly capabilities: { readonly puzzles?: unknown } };
 };
 
+type RegisteredClient = {
+  readonly id: string;
+  readonly puzzles?: unknown;
+  readonly puzzleContent?: unknown;
+};
+
+function assertContentAgreement(
+  game: RegisteredShared,
+  shown: RegisteredClient,
+  index: number
+): void {
+  const offered = game.puzzleContent !== undefined;
+  if (offered && shown.puzzleContent === undefined)
+    throw new Error(
+      `game registry: "${game.id}" offers puzzle content but GAME_CLIENT_DEFINITIONS[${index}] has no puzzleContent part`
+    );
+  if (!offered && shown.puzzleContent !== undefined)
+    throw new Error(
+      `game registry: GAME_CLIENT_DEFINITIONS[${index}] ("${game.id}") renders puzzle content but its shared game offers no puzzle content`
+    );
+}
+
 /**
- * Keep the client registry in step with the turn games: one client per
+ * Keep the client registry in step with the games: one client per
  * game, the same id, the same order, and a puzzles part exactly for a game
  * offering puzzles. Each failure says which entry to fix.
  */
 export function assertMatchingGameIds(
   shared: readonly RegisteredShared[],
-  client: readonly { readonly id: string; readonly puzzles?: unknown }[]
+  client: readonly RegisteredClient[]
 ): void {
   const clientIds = new Set(client.map((c) => c.id));
   const sharedIds = new Set(shared.map((s) => s.id));
@@ -49,7 +72,7 @@ export function assertMatchingGameIds(
   for (const game of client)
     if (!sharedIds.has(game.id))
       throw new Error(
-        `game registry: client "${game.id}" has no turn game — register its defineTurnGame(...) value in GAME_DEFINITIONS, or give its defineGameClient the shared definition of the game it shows`
+        `game registry: client "${game.id}" has no shared game — register its defineGame(...) or defineTurnGame(...) value in GAME_DEFINITIONS, or give its defineGameClient the shared definition of the game it shows`
       );
   for (const [index, game] of shared.entries()) {
     const shown = client[index];
@@ -58,6 +81,7 @@ export function assertMatchingGameIds(
         `game registry: GAME_CLIENT_DEFINITIONS[${String(index)}] is "${shown.id}" but GAME_DEFINITIONS[${String(index)}] is "${game.id}" — list the clients in the order of GAME_DEFINITIONS`
       );
     if (shown === undefined) continue;
+    assertContentAgreement(game, shown, index);
     const offered = game.turnGame?.capabilities.puzzles !== undefined;
     if (offered && shown.puzzles === undefined)
       throw new Error(

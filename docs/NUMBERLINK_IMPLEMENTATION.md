@@ -83,7 +83,9 @@ inferred from this ledger or from a narrow test run.
   accept a standalone Numberlink definition. `defineTurnGame` can also supply
   the same capability beside its multiplayer capabilities. A test-only
   Sokoban corridor exercises push-based opaque states through the contract.
-  Main registries, client registration and shared authoring remain unfinished.
+  Client registration also accepts standalone puzzle rendering and the same
+  capability beside a turn game. Main registry enrollment and shared authoring
+  screens remain unfinished.
 - The first full `bun verify` stopped after 100 successful tasks on
   `@libs/battleship-harness-ts#verify:models:1:4`: the bounded `invFinality`
   proof returned no verdict within 240 seconds. It found no counterexample.
@@ -107,3 +109,15 @@ inferred from this ledger or from a narrow test run.
   pass after rebinding, and the standard repository spec gate passes.
   Critical Quint models, complete coverage audits, actual app integration
   and full verification remain open.
+- Rules are bound into the Puzzles sub's mutation factories for local changes
+  and server replay, keeping the sync engine independent of game vocabulary.
+  Standalone capability composition and missing client-part refusals are
+  covered. Twenty-four focused typecheck, lint and test tasks passed; five
+  assembled registry/runtime typechecks passed. All 66 lifecycle scenarios
+  pass with these same factories, without special harness environment wiring.
+  The five registry/runtime lints and full sync-engine harness code-test task
+  also pass, including its domain-vocabulary guard and refusal-isolation test.
+- A second full `bun verify` reached its 600-second global deadline while the
+  Apple clock typecheck was scheduled. It returned no complete gate verdict;
+  diagnostics are in the runner's `verify-run-SfIazX` archive. Neither full
+  verification attempt is a pass.

@@ -110,7 +110,7 @@ export const SECRET_PICK_TURN_GAME: TurnGame<typeof CAPABILITIES> = {
 
 export const SECRET_PICK_SHARED = defineTurnGame(SECRET_PICK_TURN_GAME);
 
-export const SECRET_PICK_CLIENT: GameClient<typeof CAPABILITIES> = {
+export const SECRET_PICK_CLIENT: GameClient<typeof SECRET_PICK_SHARED> = {
   shared: SECRET_PICK_SHARED,
   title: 'Secret pick',
   caption: 'Find the hidden number first',

@@ -1,6 +1,7 @@
 import { TURN_GAMES } from '@libs/game-catalog-shared-ts/turn-games';
 import { gamePuzzleSubs } from '@libs/game-puzzle-shared-ts/sub';
 import { createGameSessionSub } from '@libs/game-session-shared-ts/sub';
+import { GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
 /**
  * The composition root's sub list, and the single fold over it.
  *
@@ -34,7 +35,7 @@ export const APP_SUBS: readonly SubManifest[] = [
   SPACES_SUB,
   FRIENDS_SUB,
   NOTIFICATIONS_SUB,
-  ...gamePuzzleSubs(TURN_GAMES),
+  ...gamePuzzleSubs(GAME_DEFINITIONS),
   CHESS_SUB,
   createGameSessionSub(TURN_GAMES.games),
   BILLING_SUB,

@@ -1,12 +1,10 @@
 import sql from '@pkgs/sql-root-shared-ts/sql';
-import {
-  type MutationCtx,
-  MutationError,
-} from '@pkgs/sync-engine-shared-ts/mutations-types';
+import { MutationError } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { z } from 'zod';
 import { recordAttemptCompletion } from './attempt-completion';
 import { readAttemptPosition, readContentAttempt } from './attempt-store';
 import type { ContentAttempt } from './attempt-types';
+import type { ContentMutationCtx } from './content-store';
 import { contentGame } from './content-store';
 import { contentId } from './content-types';
 
@@ -25,7 +23,7 @@ export type AttemptSource = {
 };
 
 export async function createContentAttempt(
-  ctx: MutationCtx,
+  ctx: ContentMutationCtx,
   args: AttemptStart,
   source: AttemptSource
 ): Promise<void> {
@@ -50,7 +48,7 @@ export async function createContentAttempt(
       );
     return;
   }
-  const game = contentGame(ctx.env, source.gameId);
+  const game = contentGame(ctx.puzzleContents, source.gameId);
   const initial = game.rules.initial(source.definition);
   if (!initial.accepted)
     throw new MutationError(

@@ -4,6 +4,7 @@ import { contentSystem } from '@libs/game-puzzle-harness-ts/content-system';
 import { outcome } from '@pkgs/sync-engine-harness-ts/sync-observations';
 
 // regression: puzzle-content-harness-unpolled-verdict
+// regression: puzzle-content-ports-lost-on-replay
 test('the content adapter drives a pollable upload verdict to confirmation', async () => {
   await using run = await contentSystem.run({
     seed: 'pollable-content-verdict',

@@ -1,3 +1,5 @@
+import type { PuzzleContentCatalog } from '@pkgs/turn-game-shared-ts/puzzle-content-catalog';
+import { createAttemptMutations } from './attempt-mutations';
 import { createPuzzleContentMutation } from './create-content-mutation';
 import { createPuzzleFromPackMutation } from './create-pack-puzzle-mutation';
 import { editPuzzlePackMutation } from './edit-pack-mutation';
@@ -6,15 +8,15 @@ import { savePuzzleContentDraftMutation } from './save-content-draft-mutation';
 import { validatePuzzleContentDraftMutation } from './validate-content-mutation';
 import { withdrawPuzzleContentMutation } from './withdraw-content-mutation';
 
-export const CONTENT_MUTATIONS = [
-  ...ATTEMPT_MUTATIONS,
-  createPuzzleContentMutation,
-  editPuzzlePackMutation,
-  createPuzzleFromPackMutation,
-  savePuzzleContentDraftMutation,
-  validatePuzzleContentDraftMutation,
-  publishPuzzleContentMutation,
-  withdrawPuzzleContentMutation,
-] as const;
-
-import { ATTEMPT_MUTATIONS } from './attempt-mutations';
+export function createContentMutations(catalog: PuzzleContentCatalog) {
+  return [
+    ...createAttemptMutations(catalog),
+    createPuzzleContentMutation(catalog),
+    editPuzzlePackMutation,
+    createPuzzleFromPackMutation(catalog),
+    savePuzzleContentDraftMutation,
+    validatePuzzleContentDraftMutation(catalog),
+    publishPuzzleContentMutation(catalog),
+    withdrawPuzzleContentMutation,
+  ] as const;
+}

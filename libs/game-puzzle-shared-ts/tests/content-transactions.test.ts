@@ -12,9 +12,9 @@ import { CONTENT_BODY, withContentFixture } from './content-fixture';
 
 // regression: puzzle-content-create-id-reuse
 test('a reused creation identity cannot discard a different initial draft', async () => {
-  await withContentFixture(async ({ db, env }) => {
+  await withContentFixture(async ({ db, env, puzzleContents }) => {
     await db.transaction((tx) =>
-      create.run(
+      create(puzzleContents).run(
         { tx, env },
         {
           documentId: 'river',
@@ -27,7 +27,7 @@ test('a reused creation identity cannot discard a different initial draft', asyn
     );
     await expect(
       db.transaction((tx) =>
-        create.run(
+        create(puzzleContents).run(
           { tx, env },
           {
             documentId: 'river',
@@ -44,9 +44,9 @@ test('a reused creation identity cannot discard a different initial draft', asyn
 
 // regression: puzzle-content-draft-boolean-decode
 test('stale draft writes retain both bodies and do not replace the selected head', async () => {
-  await withContentFixture(async ({ db, env }) => {
+  await withContentFixture(async ({ db, env, puzzleContents }) => {
     await db.transaction((tx) =>
-      create.run(
+      create(puzzleContents).run(
         { tx, env },
         {
           documentId: 'river',
@@ -94,9 +94,9 @@ test('stale draft writes retain both bodies and do not replace the selected head
 });
 
 test('published bytes stay unchanged across saves, duplicate publication and withdrawal', async () => {
-  await withContentFixture(async ({ db, env }) => {
+  await withContentFixture(async ({ db, env, puzzleContents }) => {
     await db.transaction((tx) =>
-      create.run(
+      create(puzzleContents).run(
         { tx, env },
         {
           documentId: 'river',
@@ -108,7 +108,10 @@ test('published bytes stay unchanged across saves, duplicate publication and wit
       )
     );
     await db.transaction((tx) =>
-      publish.run({ tx, env }, { documentId: 'river', draftId: 'first' })
+      publish(puzzleContents).run(
+        { tx, env },
+        { documentId: 'river', draftId: 'first' }
+      )
     );
     const original = await readContentRevision(db, 'first');
     await db.transaction((tx) =>
@@ -123,10 +126,16 @@ test('published bytes stay unchanged across saves, duplicate publication and wit
       )
     );
     await db.transaction((tx) =>
-      publish.run({ tx, env }, { documentId: 'river', draftId: 'next' })
+      publish(puzzleContents).run(
+        { tx, env },
+        { documentId: 'river', draftId: 'next' }
+      )
     );
     await db.transaction((tx) =>
-      publish.run({ tx, env }, { documentId: 'river', draftId: 'first' })
+      publish(puzzleContents).run(
+        { tx, env },
+        { documentId: 'river', draftId: 'first' }
+      )
     );
     expect(
       (await readContentDocument(db, 'river'))?.published_revision_id
@@ -135,7 +144,10 @@ test('published bytes stay unchanged across saves, duplicate publication and wit
       withdraw.run({ tx, env }, { documentId: 'river' })
     );
     await db.transaction((tx) =>
-      publish.run({ tx, env }, { documentId: 'river', draftId: 'first' })
+      publish(puzzleContents).run(
+        { tx, env },
+        { documentId: 'river', draftId: 'first' }
+      )
     );
     expect(await readContentDocument(db, 'river')).toMatchObject({
       status: 'withdrawn',
