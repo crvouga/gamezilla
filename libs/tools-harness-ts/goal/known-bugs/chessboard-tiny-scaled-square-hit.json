@@ -1,0 +1,4 @@
+{
+  "summary": "The fractional-resize property shrank to [[8,8,8],\"white\",2]: tapping the actual rendered square centers on an eight-pixel chess board at twice scale missed the logical squares.",
+  "regressionTest": "pkgs/chess-board-root-harness-ts/tests/browser/resize.contract.test.ts"
+}

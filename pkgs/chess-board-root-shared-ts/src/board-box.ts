@@ -23,16 +23,21 @@ export type BoardPoint = {
 };
 
 /**
- * One layout read per press: the border box from `getBoundingClientRect`,
- * the border widths from `clientLeft` / `clientTop` (no `getComputedStyle`
- * — no style object to build on a slow phone).
+ * Measure at the start of a press. CSS width stays current before a queued
+ * ResizeObserver delivery and preserves the fractional border-box width;
+ * an observer's previous measurement cannot determine the current scale.
+ * The press cache keeps style and layout reads out of pointer movement.
  */
 export function measureBoardBox(
   node: HTMLElement,
   fallbackPx: number
 ): BoardBox {
   const rect = node.getBoundingClientRect();
-  const scale = fallbackPx > 0 ? rect.width / fallbackPx : 1;
+  const cssWidth = Number.parseFloat(
+    node.ownerDocument.defaultView?.getComputedStyle(node).width ?? ''
+  );
+  const width = cssWidth > 0 ? cssWidth : fallbackPx;
+  const scale = width > 0 ? rect.width / width : 1;
   const borderX = node.clientLeft * scale;
   const borderY = node.clientTop * scale;
   const inner = rect.width - 2 * borderX;
