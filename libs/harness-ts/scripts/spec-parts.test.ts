@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { ReplayPlan } from '@pkgs/quint-server-ts/trace-runs';
 import { sliceReplays } from '@pkgs/quint-server-ts/trace-runs';
-import { packageSpecUnits, readReplayPlans } from './replay-plans';
+import { packageSpecInventory, readReplayPlans } from './replay-plans';
 import type { SpecUnit } from './spec-parts';
 import {
   MODEL_FILE_REPLAYS,
@@ -15,6 +15,7 @@ import {
   PART_REPLAYS,
   partLoad,
   partOf,
+  partsOf,
   plannedModelUnits,
   SLICE_SCENARIOS,
   specUnits,
@@ -301,8 +302,8 @@ describe('partOf', () => {
       // regression: chess-spec-trace-batches — 32 parts put 20 traces in one task.
       // regression: chess-spec-slice-weight
       // regression: network-model-overfills-chess-shard
-      const { plans, specParts } = plannedSuite(dir);
-      const parts = suiteParts(dir, specParts);
+      const { plans, specParts, inventory } = plannedSuite(dir);
+      const parts = partsOf(inventory(specParts), specParts);
       const models = Object.keys(plans);
       expect(models.length).toBeGreaterThan(0);
       for (const model of models) {
@@ -322,9 +323,10 @@ describe('partOf', () => {
     '%s runs in the fewest parts its caps allow',
     (dir) => {
       // regression: games-spec-parts-exceed-capacity-pole
-      const { specParts } = plannedSuite(dir);
+      // regression: spec-parts-repeats-suite-planning
+      const { specParts, inventory } = plannedSuite(dir);
       for (let count = 1; count < specParts; count++)
-        expect(suiteParts(dir, count).every(withinCaps)).toBe(false);
+        expect(partsOf(inventory(count), count).every(withinCaps)).toBe(false);
     }
   );
 });
@@ -343,28 +345,20 @@ function withinCaps(part: readonly SpecUnit[]): boolean {
 const REPO_ROOT = join(import.meta.dir, '../../..');
 
 function plannedSuite(dir: string) {
-  const plans = readReplayPlans(join(REPO_ROOT, dir));
+  const packageDir = join(REPO_ROOT, dir);
+  const plans = readReplayPlans(packageDir);
   if (plans === null) throw new Error(`${dir} plans no replays`);
   const manifest = JSON.parse(
-    readFileSync(join(REPO_ROOT, dir, 'package.json'), 'utf8')
+    readFileSync(join(packageDir, 'package.json'), 'utf8')
   ) as { specParts: number };
-  return { plans, specParts: manifest.specParts };
-}
-
-/** A package's assignment at `count` parts, as its spec runner computes it. */
-function suiteParts(
-  dir: string,
-  count: number
-): readonly (readonly SpecUnit[])[] {
-  const packageDir = join(REPO_ROOT, dir);
-  const units = packageSpecUnits(
-    packageDir,
-    packageSpecs(packageDir, REPO_ROOT),
-    count
-  );
-  return Array.from({ length: count }, (_, index) =>
-    partOf(units, { index, count })
-  );
+  return {
+    plans,
+    specParts: manifest.specParts,
+    inventory: packageSpecInventory(
+      packageDir,
+      packageSpecs(packageDir, REPO_ROOT)
+    ),
+  };
 }
 
 // regression: chess-model-preparation-timeout

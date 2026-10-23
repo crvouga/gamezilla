@@ -209,7 +209,15 @@ export function partOf(
   units: readonly SpecUnit[],
   part: Part
 ): readonly SpecUnit[] {
-  const loads: PartLoad[] = Array.from({ length: part.count }, (_, index) => ({
+  return partsOf(units, part.count)[part.index] ?? [];
+}
+
+/** Compute the complete immutable assignment once, in part-index order. */
+export function partsOf(
+  units: readonly SpecUnit[],
+  count: number
+): readonly (readonly SpecUnit[])[] {
+  const loads: PartLoad[] = Array.from({ length: count }, (_, index) => ({
     load: index === 0 ? 1 : 0,
     units: [],
   }));
@@ -221,11 +229,15 @@ export function partOf(
   }
   placeOnLightest(loads, models);
   for (const unit of rest) {
-    const index = specOwner(unit.path, part.count, unit.slice?.index ?? 0);
+    const index = specOwner(unit.path, count, unit.slice?.index ?? 0);
     loads[index]!.units.push(unit);
   }
-  return (loads[part.index]?.units ?? []).sort((a, b) =>
-    unitKey(a).localeCompare(unitKey(b))
+  return Object.freeze(
+    loads.map((part) =>
+      Object.freeze(
+        part.units.sort((a, b) => unitKey(a).localeCompare(unitKey(b)))
+      )
+    )
   );
 }
 

@@ -1,0 +1,4 @@
+{
+  "summary": "The shared-game minimum-part verification took 18.137 seconds against its unchanged five-second budget because each candidate rebuilt the package inventory and each part recomputed the complete assignment. Snapshot source and replay units once, then compute one immutable assignment per candidate while checking every count and preserving all replay and load caps.",
+  "regressionTest": "libs/harness-ts/scripts/spec-parts-batch.test.ts"
+}
