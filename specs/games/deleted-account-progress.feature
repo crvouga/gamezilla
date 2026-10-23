@@ -7,6 +7,7 @@ Feature: Erase a deleted account's puzzle progress
   Rule: Account deletion erases the puzzle rating, game log, stats and saved feed choices on every device
     No counter-example: once account deletion has been confirmed, nothing keeps the account's puzzle progress.
 
+    @regression:deleted-account-stats-space-withdrawal
     Scenario: Account deletion erases puzzle progress on the person's other device
       Given Alice is signed in
       And Alice is also signed in on another device
