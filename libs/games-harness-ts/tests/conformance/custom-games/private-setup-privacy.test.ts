@@ -121,6 +121,7 @@ forEveryGame(
     }, 240_000);
 
     test("what a person receives does not change when only the other side's hidden setup does", async () => {
+      // regression: space-join-announcement-optimistic-race
       const seen: string[] = [];
       for (const black of [
         setups().black,
