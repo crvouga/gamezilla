@@ -1,10 +1,12 @@
 import { join } from 'node:path';
 import { HARNESS_AUTH_SECRET } from '@libs/sub-shared-ts/harness-constants';
+import type { Snapshot } from '@pkgs/db-schema-root-shared-ts/types';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server-ts/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
 import { readUtf8 } from '@pkgs/object-store-root-shared-ts/helpers';
 
 import type { HarnessComposition } from './composition';
+import { harnessPostgresSchemas } from './postgres-schemas';
 
 /** Repo-relative sources a seed is built from, read off disk by path. */
 const HARNESS_MIGRATE = {
@@ -34,7 +36,7 @@ async function readSource(
 
 /**
  * Inputs hashed into a composition's postgres seed fingerprint: its domain
- * schema, the migrate that applied it, and the IdP tables. A change to any of
+ * and framework schemas, the migrate that applied them, and the IdP tables. A change to any of
  * them rebuilds the dump instead of opening a stale one. Seed rows
  * (`seedServer`) are inserted live per harness, not dumped.
  */
@@ -46,13 +48,31 @@ export async function harnessPostgresSeedFingerprintSource(
     composition.migratePostgres === undefined
       ? await readSource(repoRoot, HARNESS_MIGRATE)
       : (composition.migrateFingerprint ?? '');
+  return harnessPostgresSeedSource({
+    name: composition.name,
+    schemas: harnessPostgresSchemas(composition.app).map((entry) =>
+      entry.schema.snapshot()
+    ),
+    migrate,
+    authSecret: HARNESS_AUTH_SECRET,
+    authSource: await readSource(repoRoot, AUTH_SCHEMA),
+  });
+}
+
+export function harnessPostgresSeedSource(args: {
+  readonly name: string;
+  readonly schemas: readonly Snapshot[];
+  readonly migrate: string;
+  readonly authSecret: string;
+  readonly authSource: string;
+}): Buffer {
   return Buffer.from(
     [
-      composition.name,
-      JSON.stringify(composition.app.schema.snapshot()),
-      migrate,
-      HARNESS_AUTH_SECRET,
-      await readSource(repoRoot, AUTH_SCHEMA),
+      args.name,
+      JSON.stringify(args.schemas),
+      args.migrate,
+      args.authSecret,
+      args.authSource,
     ].join('\n---\n')
   );
 }

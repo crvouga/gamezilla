@@ -112,6 +112,7 @@
     "@pkgs/dmn-server-ts": "workspace:*",
     "@pkgs/dmn-shared-ts": "workspace:*",
     "@pkgs/gherkin-server-ts": "workspace:*",
+    "@pkgs/message-shared-ts": "workspace:*",
     "@pkgs/openslo-server-ts": "workspace:*",
     "@pkgs/openslo-shared-ts": "workspace:*",
     "@types/bun": "catalog:",

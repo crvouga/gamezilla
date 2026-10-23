@@ -1,0 +1,4 @@
+{
+  "summary": "Warm PostgreSQL seeds were fingerprinted from the domain schema and migration source while omitting framework declarations. Adding indexed outbox causation left an old seed apparently current, and every scenario failed on missing e.causation_id before provider sign-in. Fingerprint the exact framework and domain registries used by migration, then rebuild stale generated seeds through canonical migration.",
+  "regressionTest": "libs/harness-ts/tests/postgres-seed-framework.test.ts"
+}
