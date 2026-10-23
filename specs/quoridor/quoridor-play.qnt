@@ -49,13 +49,15 @@ module quoridor_play {
     CELLS.contains(a) and CELLS.contains(b) and _abs(_x(a) - _x(b)) + _abs(_y(a) - _y(b)) == 1
   pure def _goal(m: str, player: int, square: int): bool =
     if (m == "hill") square == 40 else _y(square) == (if (player == 0) 8 else 0)
+  pure def _spans(first: int, second: int, anchor: int): bool =
+    (first == anchor and second == anchor + 1) or (second == anchor and first == anchor + 1)
   pure def _blocked(a: int, b: int, placed: Set[(int, int, int)]): bool = placed.exists(w =>
     if (w._3 == 0) and {
-      _x(a) == _x(b), Set(w._1, w._1 + 1).contains(_x(a)),
-      Set(_y(a), _y(b)) == Set(w._2, w._2 + 1),
+      _x(a) == _x(b), _x(a) == w._1 or _x(a) == w._1 + 1,
+      _spans(_y(a), _y(b), w._2),
     } else and {
-      _y(a) == _y(b), Set(w._2, w._2 + 1).contains(_y(a)),
-      Set(_x(a), _x(b)) == Set(w._1, w._1 + 1),
+      _y(a) == _y(b), _y(a) == w._2 or _y(a) == w._2 + 1,
+      _spans(_x(a), _x(b), w._1),
     }
   )
   pure def _edge(a: int, b: int, placed: Set[(int, int, int)]): bool = _adjacent(a, b) and not(_blocked(a, b, placed))
