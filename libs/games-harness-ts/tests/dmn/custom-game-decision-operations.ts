@@ -34,7 +34,12 @@ import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import type { Timers } from '@pkgs/clock-shared-ts/types';
 import type { Message } from '@pkgs/message-shared-ts/message';
 import sql from '@pkgs/sql-root-shared-ts/sql';
-import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  createTurnGames,
+  GAME_SIDES,
+  type GameSide,
+  gameSides,
+} from '@pkgs/turn-game-shared-ts/game-rules';
 
 const OTHER_HOST = 'someone-else';
 const PEER = 'another-participant';
@@ -97,6 +102,32 @@ async function choice(
     })
   );
 }
+
+async function ready(w: RoomWorld, identity: string, side: GameSide) {
+  const setup = w.game.fixtures.setups?.[side];
+  await choice(w, identity, {
+    operation: 'ready',
+    ...(setup === undefined ? {} : { setup }),
+  });
+}
+
+function peerForSide(side: GameSide) {
+  return side === 'black' ? PEER : `${PEER}-${side}`;
+}
+
+async function fillExtraSides(w: RoomWorld) {
+  for (const side of gameSides(w.game.shared.turnGame.rules).slice(2)) {
+    const person = peerForSide(side);
+    await w.node.services.send(
+      `space:${SPACE_ID}`,
+      w.nextId(),
+      ApplySpaceMembership({ memberId: person, change: 'joined' })
+    );
+    await choice(w, person, { operation: 'claim', side });
+    await ready(w, person, side);
+  }
+}
+
 async function prepare(w: RoomWorld, capability: string): Promise<void> {
   const join = (memberId: string) =>
     w.node.services.send(
@@ -113,17 +144,20 @@ async function prepare(w: RoomWorld, capability: string): Promise<void> {
   if (capability === 'join a custom game' && actor === w.host)
     await choice(w, w.host, { operation: 'release', side: 'white' });
   if (capability === 'start a custom game') {
-    await choice(w, w.host, { operation: 'bot', side: 'black' });
-    await choice(w, w.host, { operation: 'ready' });
+    for (const side of gameSides(w.game.shared.turnGame.rules).slice(1))
+      await choice(w, w.host, { operation: 'bot', side });
+    await ready(w, w.host, 'white');
+    return;
   }
   if (
     capability === 'cancel a custom game' &&
     spacePresenceOf(w.c.input) === 'guest'
   ) {
-    // A participant cancels only a custom game between two people, before each side moved.
+    // A participant cancels only a game between people, before each side moved.
     await choice(w, actor, { operation: 'claim', side: 'black' });
-    await choice(w, actor, { operation: 'ready' });
-    await choice(w, w.host, { operation: 'ready' });
+    await fillExtraSides(w);
+    await ready(w, actor, 'black');
+    await ready(w, w.host, 'white');
     await choice(w, w.host, { operation: 'start' });
     return;
   }
@@ -133,10 +167,13 @@ async function prepare(w: RoomWorld, capability: string): Promise<void> {
     await choice(w, actor, { operation: 'claim', side: 'white' });
   }
   await choice(w, PEER, { operation: 'claim', side: 'black' });
-  await choice(w, PEER, { operation: 'ready' });
-  await choice(w, spacePresenceOf(w.c.input) === 'guest' ? actor : w.host, {
-    operation: 'ready',
-  });
+  await fillExtraSides(w);
+  await ready(w, PEER, 'black');
+  await ready(
+    w,
+    spacePresenceOf(w.c.input) === 'guest' ? actor : w.host,
+    'white'
+  );
   await choice(w, w.host, { operation: 'start' });
 }
 function inputFor(
@@ -173,9 +210,12 @@ function inputFor(
 export async function seedCustomGameDecision(c: ServerCase): Promise<void> {
   await seedPlaceInSpace(c);
   const at = new Date(c.nowMs).toISOString();
-  await c.db.run(
-    sql`INSERT INTO spaces_users (id, space_id, user_id, created_at, updated_at, joined, participation_revision) VALUES (${spaceUserEntityId(SPACE_ID, PEER)}, ${SPACE_ID}, ${PEER}, ${at}, ${at}, ${true}, ${0})`
-  );
+  for (const side of GAME_SIDES.slice(1)) {
+    const person = peerForSide(side);
+    await c.db.run(
+      sql`INSERT INTO spaces_users (id, space_id, user_id, created_at, updated_at, joined, participation_revision) VALUES (${spaceUserEntityId(SPACE_ID, person)}, ${SPACE_ID}, ${person}, ${at}, ${at}, ${true}, ${0})`
+    );
+  }
 }
 async function performFor(game: HarnessGame, c: ServerCase): Promise<void> {
   const { clock, timers } = createHarnessClock({ startMs: c.nowMs });

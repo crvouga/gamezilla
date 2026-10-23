@@ -1,0 +1,4 @@
+{
+  "summary": "The custom-game access matrix tried to ready Battleship without a private fleet and start four-seat games with only two participants. Prepare each declared seat and supply each person's known private setup before probing the capability, including the literal guest-host start case that returned room.error/conflict.",
+  "regressionTest": "libs/games-harness-ts/tests/dmn/custom-game-access.binding.ts"
+}
