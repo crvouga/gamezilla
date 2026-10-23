@@ -293,6 +293,7 @@ terms:
     definition: An automated participant that makes legal moves at its turn.
     forms: [bots, the bots]
     model: [botPlays, BotSide]
+    published: true
 
   - term: player
     definition: A person or bot occupying one of the game's declared sides.

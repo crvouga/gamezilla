@@ -95,3 +95,5 @@ terms:
     from: quoridor
   - term: Four-Player King of the Hill
     from: quoridor
+  - term: bot
+    from: games
