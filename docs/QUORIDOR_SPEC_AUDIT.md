@@ -1,9 +1,10 @@
 # Quoridor specification audit
 
 Verdict: **INCOMPLETE**. The board-rule bindings, focused execution checks
-and normal wording gate pass. The strict audit reports thirteen existing
-near-duplicate pairs outside the touched scope. The current bounded proof,
-statechart check and final whole-repository gate remain pending.
+and normal wording gate pass. Both modes passed the complete bounded proof,
+and the product statechart passed. The strict audit reports thirteen existing
+near-duplicate pairs outside the touched scope; the final whole-repository
+gate remains pending.
 
 The rules source is [Gigamic's published rulebook](https://export.gigamic.com/wp-content/uploads/2021/01/INS-RULES-QUORIDOR_10-2016.pdf).
 The two-player rules are canonical. Four-Player King of the Hill is the
@@ -63,7 +64,7 @@ choices, permission decisions, cancellation and rematches.
 | Invariant | `invWalls` | Walls: boundary, overlap and crossing refusals | Covered |
 | Invariant | `invPaths` | Walls: closing North, South or East's final path | Covered |
 | Invariant | `invInventory` | Walls: last wall permitted, exhausted inventory refused | Covered |
-| Invariant | `invTurns` | Movement: wrong-player refusal and fourth-player turn wrap | Covered |
+| Invariant | `invTurns` | Modes: selected mode; Movement: wrong-player refusal and fourth-player turn wrap | Covered |
 | Invariant | `invVictory` | Objectives: reaching correct goal versus reaching wrong goal | Covered |
 | Invariant | `invRefusal` | Movement and walls: board, inventory and turn unchanged | Covered |
 | Invariant | `invFinality` | Objectives: moves and wall placement refused after victory | Covered |
@@ -80,11 +81,14 @@ their legal-action conformance belongs to the shared bot contract.
 ## Verification evidence and verdict
 
 - `pkgs/quint-server-ts/node_modules/.bin/quint typecheck specs/quoridor/quoridor-play.qnt` passed.
-- A Rust Quint run with all eight invariants, one sample, three steps and
-  seed 12345 passed in 2.5 seconds. This is a smoke check; the normal model
-  campaign remains required during implementation.
-- The current normal `ci:specs` gate passed in 10.02 seconds after the
+- The current normal `ci:specs` gate passed in 7.09 seconds after the
   shared early-withdrawal bindings and scoped vocabulary repair.
+- The complete product statechart check passed in 14.09 seconds.
+- The full bounded proof passed both fixed mode cases and all eight
+  invariants through two steps in **88.308 seconds**, within the unchanged
+  combined 240-second deadline. Its source commit is `3f72c063a`, model
+  blob `52b88f86ed1062d3bb71c3cf9a5ff96602dd12d5`, and Turbo verification
+  key `3a2ff0573f2e8e67`.
 - `bunx turbo run ci:specs --filter=@libs/tools-harness-ts -- --strict-duplicates`
   ran the current strict check. It failed only on thirteen existing
   near-duplicate pairs between Chess, Battleship, Friends, Runtime and the
@@ -135,11 +139,19 @@ draw; the clock property also pinned `[0, '3+2', 0]` at seed 424242. These
 are the actual red-first regression evidence, separate from the later
 green business illustrations.
 
-The declared two-part Turbo run reached a **240-second timeout**, with no
-assertion mismatch, in the 32-action opposite-row hill setup while both
-parts and model checking ran together. That same example passed in the full
-package run. No timeout or retry policy was changed. An isolated final gate
-remains required.
+An earlier two-part run timed out under concurrent model work. The final
+official plan retains four drawn traces per mode, one action-cover trace
+and one correctly scoped historical pin per mode. Its two-part load would
+exceed the existing 30-unit cap, so the complete suite now has three parts
+at 17.83, 18.33 and 18.83 units. No timeout, sample count or retry policy
+was relaxed. The final whole-repository gate must execute those parts.
+
+The current model and movement preflight passed **29 tests and 51
+assertions in 55.17 seconds**. It checked both draws, every bound action,
+both correctly labeled historical pins, all movement examples and the
+canonical exhausted-player pass. Earlier preflights caught an unconstrained
+mode field and private helper labels; the final model explicitly constrains
+its mode and keeps its public action labels without decoder workarounds.
 
 The model keeps the full 9×9 board, both goals, all 128 wall anchors and
 the complete 81-round connectivity fallback. Its equivalent small-wall
@@ -148,24 +160,29 @@ wall pair, every pawn square and all three goal kinds. Cached adjacency,
 constant turn divisors and direct allowed/refused path predicates avoid
 repeating equivalent symbolic work. Removing a duplicate pawn-sampling
 branch preserves every labeled transition because the retained branch
-already chooses every player and every board square. All eight invariants,
-the two-step bounded proof and its four-minute deadline remain unchanged.
+already chooses every player and every board square. Both Boolean mode
+assignments retain the full union of Classic and hill histories and both
+initial situations. Public mode consistency and the per-player resource
+bound strengthen the existing invariants; all eight targets remain.
 
-The latest completed proof passed the first successor state's accepted and
-refused pawn and wall cases, then timed out compiling the remaining pass
-refusal. Direct refusal predicates avoided the earlier full-flood expansion.
-The wall boundary comparisons now use equivalent scalar equalities for
-arbitrary integer endpoints instead of constructing two-element sets.
-The updated model typechecks, and its full bounded proof is pending.
-Successful executable trace replay is separate evidence from this proof.
+The central-wall theorem has 75,467 independent assertions across every
+zero-, one- and two-wall layout. A player cannot have exhausted five walls
+while at most two are placed, and a central candidate preserves every
+component, so an early hill pass must be refused. For three or more walls,
+the original complete pawn, inventory and 128-wall checks remain. The
+general connection map is constructed only inside that branch. These
+equivalent computations made the full proof finish without reducing its
+board, goals, histories, bound or deadline. Executable trace replay and
+the exhaustive bounded proof are separate passing checks.
 
 The product chart now links both mode choices into the existing custom,
 matched and review lifecycle and owns every new Quoridor, journey and
 four-player contract. Its first check found only four previously unowned
 request-quality and missing-space contracts. Those references now attach
-to the existing measured-request and space-recovery owners; a fresh
-statechart check remains required.
+to the existing measured-request and space-recovery owners. The final
+complete chart check passed with all these contracts owned.
 
 The final whole-repository strict gate and readiness verdict remain the
-completion audit. This report remains **INCOMPLETE** until those exact
-current-tree checks and the outstanding model proof succeed.
+completion audit. This report remains **INCOMPLETE** because the strict
+duplicate findings remain outside scope and the final full gate has not
+yet supplied its verdict. No clean full-tree audit or release is claimed.
