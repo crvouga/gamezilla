@@ -13,7 +13,7 @@ Feature: Place Quoridor walls without closing a goal
     Scenario: A vertical wall spans two rows
       Given Alice has a new Classic Quoridor game
       When Alice places a vertical Quoridor wall at d4
-      Then the Quoridor wall blocks d4 to e4 and d5 to e5
+      Then the vertical Quoridor wall separates columns d and e on rows 4 and 5
       And South has nine remaining walls and North has the Quoridor turn
 
     Scenario: A wall cannot extend beyond the board edge

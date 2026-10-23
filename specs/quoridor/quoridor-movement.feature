@@ -108,9 +108,9 @@ Feature: Move and jump with Quoridor pawns
 
   Rule: A hill player passes only when no pawn move or wall placement is possible
 
-    Scenario: An exhausted player blocked by two pawns passes without leaving the game
+    Scenario: An exhausted player blocked by two pawns passes while keeping her pawn in play
       Given Alice has a King of the Hill game with South on e2, West on e3 and North on e4
-      And South has no remaining walls and walls prevent a move left, right or backwards
+      And South has no remaining walls and walls prevent a move towards column d, column f or row 1
       When Alice passes her Quoridor turn
       Then West has the Quoridor turn
       And the Quoridor pawns and walls are unchanged
