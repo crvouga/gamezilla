@@ -1,0 +1,4 @@
+{
+  "summary": "A captured membership payment was treated as settled after a fixed two seconds, before its real charge.succeeded delivery persisted evidence. A 3.5-second provider-to-server interruption with an older recorded charge pins the missing new evidence. Await the exact newly captured charge under the existing billing budget.",
+  "regressionTest": "libs/billing-harness-ts/tests/payment-evidence-settlement.test.ts"
+}
