@@ -83,21 +83,24 @@ module quoridor_play {
       else _expandReachable(seen, connections))
     reachable.exists(c => _goal(player, c))
   }
-  pure def _pathVerdict(wantReachable: bool, player: int, start: int, placed: Set[(int, int, int)], connections: int -> Set[int]): bool =
+  pure def _smallPathVerdict(wantReachable: bool, player: int, start: int, placed: Set[(int, int, int)]): bool =
     // One wall removes only two parallel boundaries; every square can still go around it.
     if (_atMostOneWall(placed)) CELLS.contains(start) == wantReachable
     // Two walls can separate only a corner rectangle no more than two squares wide and high.
-    else or {
-      placed.size() >= 3 and (_fullReachable(player, start, connections) == wantReachable),
-      placed.size() < 3 and (_smallReachable(player, start, placed) == wantReachable),
-    }
-  pure def _allPaths(positions: int -> int, placed: Set[(int, int, int)]): bool = {
-    val connections = _connections(placed)
-    _PLAYERS.forall(player => _pathVerdict(true, player, positions.get(player), placed, connections))
+    else _smallReachable(player, start, placed) == wantReachable
+  pure def _allPaths(positions: int -> int, placed: Set[(int, int, int)]): bool = or {
+    placed.size() >= 3 and {
+      val connections = _connections(placed)
+      _PLAYERS.forall(player => _fullReachable(player, positions.get(player), connections))
+    },
+    placed.size() < 3 and _PLAYERS.forall(player => _smallPathVerdict(true, player, positions.get(player), placed)),
   }
-  pure def _someBlocked(positions: int -> int, placed: Set[(int, int, int)]): bool = {
-    val connections = _connections(placed)
-    _PLAYERS.exists(player => _pathVerdict(false, player, positions.get(player), placed, connections))
+  pure def _someBlocked(positions: int -> int, placed: Set[(int, int, int)]): bool = or {
+    placed.size() >= 3 and {
+      val connections = _connections(placed)
+      _PLAYERS.exists(player => not(_fullReachable(player, positions.get(player), connections)))
+    },
+    placed.size() < 3 and _PLAYERS.exists(player => _smallPathVerdict(false, player, positions.get(player), placed)),
   }
   pure def _clear(positions: int -> int, square: int): bool =
     CELLS.contains(square) and _PLAYERS.forall(p => positions.get(p) != square)
