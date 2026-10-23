@@ -1,0 +1,4 @@
+{
+  "summary": "A presence-only preview before the first participant invoked room presence with an unchanged empty roster and created a spurious away transition; observe only changes to the participating identity set.",
+  "regressionTest": "pkgs/room-root-harness-ts/tests/presence-roster-churn.test.ts"
+}
