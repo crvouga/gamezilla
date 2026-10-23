@@ -1,0 +1,4 @@
+{
+  "summary": "A fatal PostgreSQL connection error was emitted without a listener, terminating API processes and turning subsequent sign-ins into gateway failures.",
+  "regressionTest": "pkgs/sql-client-postgres-server-ts/tests/pg-client-session.test.ts"
+}

@@ -119,7 +119,7 @@ function databaseExitCode(booted: {
   console.log(
     `database link: ${String(summary.connections)} requests, at most ${String(summary.peakSessions)} pooled sessions at once; costliest:\n  ${verdict.costliest.join('\n  ')}`
   );
-  if (process.env['STACK_DATABASE_PROFILE'] === '1')
+  if (!verdict.ok || process.env['STACK_DATABASE_PROFILE'] === '1')
     console.log(`database link profile:\n${profileOf(summary)}`);
   for (const violation of verdict.violations)
     console.error(`database link: ${violation}`);
