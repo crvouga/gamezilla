@@ -2,12 +2,8 @@
   "quoridor-play": {
     "seed": "0x67932",
     "traces": 4,
-    "cover": [
-      0
-    ],
-    "replayed": [
-      0
-    ],
+    "cover": [0],
+    "replayed": [0],
     "regressions": 0,
     "determinism": false,
     "variants": 1
