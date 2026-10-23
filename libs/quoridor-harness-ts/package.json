@@ -1,0 +1,43 @@
+{
+  "name": "@libs/quoridor-harness-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "prepare:spec": "bun run --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client-ts/register ../../libs/harness-ts/scripts/prepare-spec.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test:spec": "bun run ../../libs/harness-ts/scripts/test-spec.ts",
+    "verify:models": "bun run ../../libs/tools-harness-ts/scripts/verify-models.ts",
+    "test:spec:0": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 0/2",
+    "test:spec:1": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 1/2"
+  },
+  "dependencies": {
+    "@libs/quoridor-client-ts": "workspace:*",
+    "@libs/quoridor-shared-ts": "workspace:*",
+    "@libs/game-session-harness-ts": "workspace:*",
+    "@libs/harness-ts": "workspace:*"
+  },
+  "devDependencies": {
+    "@pkgs/bun-test-solid-client-ts": "workspace:*",
+    "@pkgs/quint-shared-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness",
+  "game": "quoridor",
+  "language": "typescript",
+  "specDomains": [
+    "quoridor"
+  ],
+  "specParts": 2
+}
