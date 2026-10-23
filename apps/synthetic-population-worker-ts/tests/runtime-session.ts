@@ -18,7 +18,7 @@ export async function runtimeSession(
   if (assignment === null)
     throw new Error('An application instance was not assigned');
   const realm = createIsolatedWorker(
-    new URL('../src/session-entry.ts', import.meta.url),
+    new URL('./runtime-session-entry.ts', import.meta.url),
     ['@pkgs/bun-test-solid-client-ts/register'],
     { VITE_TEST_HOOKS: '0' }
   );

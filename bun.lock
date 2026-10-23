@@ -307,6 +307,7 @@
         "@pkgs/observability-runtime-shared-ts": "workspace:*",
         "@pkgs/os-server-ts": "workspace:*",
         "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",
+        "@pkgs/turn-game-shared-ts": "workspace:*",
         "@pkgs/ui-testing-root-shared-ts": "workspace:*",
         "@pkgs/ui-testing-solid-dom-client-ts": "workspace:*",
         "@pkgs/uuid-shared-ts": "workspace:*",
@@ -316,6 +317,7 @@
         "zod": "catalog:",
       },
       "devDependencies": {
+        "@libs/games-shared-ts": "workspace:*",
         "@libs/harness-ts": "workspace:*",
         "@libs/pubsub-server-ts": "workspace:*",
         "@libs/runtime-harness-ts": "workspace:*",
