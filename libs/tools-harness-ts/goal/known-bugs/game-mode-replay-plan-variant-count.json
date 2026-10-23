@@ -1,0 +1,4 @@
+{
+  "summary": "Adding a game mode left replay variant counts stale, producing empty parts 88 and 89 of the 95-part games suite and omitting the new mode from its replay allocation.",
+  "regressionTest": "libs/games-harness-ts/tests/game-replay-plan.test.ts"
+}
