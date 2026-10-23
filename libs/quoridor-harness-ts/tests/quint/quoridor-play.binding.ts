@@ -8,6 +8,8 @@ import {
   quoridorModelState,
 } from '@libs/quoridor-harness-ts/quoridor-model';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
+import acceptedClassic from './cases/accepted-classic-actions.itf.json';
+import acceptedHill from './cases/accepted-hill-actions.itf.json';
 
 bindQuintModel<QuintHarnessWorld>({
   model: 'quoridor-play',
@@ -20,6 +22,20 @@ bindQuintModel<QuintHarnessWorld>({
   invariantMode: 'before',
   // regression: quoridor-spatial-proof-expansion
   shortCircuit: true,
+  regressions: [
+    {
+      id: 'quoridor-classic-positive-actions',
+      title: 'Preserve sampled classic pawn moves and an accepted wall',
+      seed: '0x67932',
+      itf: acceptedClassic,
+    },
+    {
+      id: 'quoridor-hill-positive-actions',
+      title: 'Preserve a sampled hill pawn move and refused actions',
+      seed: '0x67932',
+      itf: acceptedHill,
+    },
+  ],
   actions: {
     init: (w, picks) =>
       w.s.apply(
