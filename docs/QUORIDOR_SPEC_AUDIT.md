@@ -1,10 +1,12 @@
 # Quoridor specification audit
 
-Verdict: **INCOMPLETE**. The board-rule bindings, focused execution checks
-and normal wording gate pass. Both modes passed the complete bounded proof,
-and the product statechart passed. The strict audit reports thirteen existing
-near-duplicate pairs outside the touched scope; the final whole-repository
-gate remains pending.
+Verdict: **Changed scope passes; full-repository verification is incomplete.**
+All 58 current Quoridor tests, the board-rule bindings and the normal wording
+gate pass. Both modes passed the complete bounded proof, and the product
+statechart passed. The strict audit retains thirteen existing near-duplicate
+pairs outside the touched scope. The full local gate reached its fixed
+deadline; CI reproduces an existing account-deletion recovery failure.
+The completed live release attempt also has an unresolved gateway failure.
 
 The rules source is [Gigamic's published rulebook](https://export.gigamic.com/wp-content/uploads/2021/01/INS-RULES-QUORIDOR_10-2016.pdf).
 The two-player rules are canonical. Four-Player King of the Hill is the
@@ -86,9 +88,9 @@ their legal-action conformance belongs to the shared bot contract.
 - The complete product statechart check passed in 14.09 seconds.
 - The full bounded proof passed both fixed mode cases and all eight
   invariants through two steps in **88.308 seconds**, within the unchanged
-  combined 240-second deadline. Its source commit is `3f72c063a`, model
-  blob `52b88f86ed1062d3bb71c3cf9a5ff96602dd12d5`, and Turbo verification
-  key `3a2ff0573f2e8e67`.
+  combined 240-second deadline. Verified model blob
+  `52b88f86ed1062d3bb71c3cf9a5ff96602dd12d5` is unchanged in code head
+  `51aed800a`; the Turbo verification key is `3a2ff0573f2e8e67`.
 - `bunx turbo run ci:specs --filter=@libs/tools-harness-ts -- --strict-duplicates`
   ran the current strict check. It failed only on thirteen existing
   near-duplicate pairs between Chess, Battleship, Friends, Runtime and the
@@ -117,12 +119,14 @@ acknowledged command path, while wall previews expose the board's actual
 reason. The shared adapters enroll both modes in the existing conformance
 registry and read all participants from their exported game records.
 
-The full package command `bun run spec --package @libs/quoridor-harness-ts`
-completed with **53 passing tests, zero failures and 127 assertions**. That
-run included the pinned model trace, real bot victories for both goals,
-keyboard controls, all four pawn shapes, wall-path refusals and forced pass.
-Package type checking and linting also passed. Later wording and equivalent
-model-expression changes require a current-tree final rerun.
+The earlier full package command
+`bun run spec --package @libs/quoridor-harness-ts` completed with 53 passing
+tests. The final current-tree run executed all three official
+`test:spec:0`, `test:spec:1` and `test:spec:2` Turbo tasks serially:
+**58 passing tests, zero failures and 127 assertions**. It includes both
+fixed mode cases, their scoped historical pins, real bot victories for both
+goals, keyboard controls, all four pawn shapes, wall-path refusals and forced
+pass. Package type checking and linting also passed.
 
 After the mode-start wording changed, the scenarios first failed on the
 new undefined Given. Their completed bindings then passed both examples,
@@ -182,7 +186,53 @@ request-quality and missing-space contracts. Those references now attach
 to the existing measured-request and space-recovery owners. The final
 complete chart check passed with all these contracts owned.
 
-The final whole-repository strict gate and readiness verdict remain the
-completion audit. This report remains **INCOMPLETE** because the strict
-duplicate findings remain outside scope and the final full gate has not
-yet supplied its verdict. No clean full-tree audit or release is claimed.
+## Final repository and release limits
+
+`bun fmt` passed. The final `bun verify` on code head `51aed800a` acquired
+the machine-wide slot and ran in its own snapshot. Generation passed all
+seven tasks. Verification completed 110 tasks successfully, then reached
+the unchanged 600-second deadline during
+`@pkgs/matchmaking-root-harness-ts#verify:models:1` and exited **124**.
+No task failure preceded that deadline. The unfinished Quoridor parts were
+then executed serially and all passed, as recorded above. This is not a
+green full gate; neither its deadline nor any test budget was raised.
+
+Final review also pinned a four-person, zero-move game where a noncreator's
+cancel command incorrectly succeeded. The existing cancellation contract
+limits that noncreator path to two people. The public command regression
+failed first, then passed with the shared predicate corrected; the same
+predicate controls the rendered affordance. Creator cancellation,
+two-person cancellation and four-person resignation remain covered. The
+affected package's 40 tests and both shared/client type checks and lint
+passed. The registry entry is `four-seat-noncreator-cancel`.
+
+The latest [PR verification on code head 51aed800a](https://github.com/crvouga/gamezilla/actions/runs/39974256820)
+has reproduced the deleted-account puzzle-statistics failure:
+the other device still reads
+`{"label":null,"played":null,"empty":false}` after 30 seconds of virtual
+time. The exact scenario and value also failed on
+[main f6cd59198](https://github.com/crvouga/gamezilla/actions/runs/39944125420/job/120390082092).
+The other PR shards were still running when this evidence was recorded.
+The earlier main run also failed the independent Chess geometry property
+and synthetic-population runtime tests; those are not claimed as passing.
+
+The completed [live release attempt](https://github.com/crvouga/gamezilla/actions/runs/39967949971/job/120466042594)
+recognized all new step bindings, but both new journeys and both health
+checks stopped at shared synthetic-monitor sign-in, before a game action:
+`POST /auth/synthetic-monitor/code` returned an empty HTTP 502. The unchanged
+load balancer returns that response when its upstream request throws.
+Main had the same two legacy Chess journey failures and database-pool
+refusals, but the exact 502 was not observed there. Shared capacity is only
+a possible explanation; the 502's cause remains unresolved. The focused
+in-process Classic and four-person hill journeys both passed. No deployed
+availability or clean live release is claimed.
+
+The dispatched [nightly random run](https://github.com/crvouga/gamezilla/actions/runs/39968140362)
+had not completed. An earlier attempt failed four Battleship properties at
+the existing five-second limit; [main's nightly run](https://github.com/crvouga/gamezilla/actions/runs/39962505694)
+had those same four failures. Read-only preview planning was also blocked
+by a Railway project authorization denial; no infrastructure apply occurred.
+
+The PR remains a draft. CI and person-facing release-readiness attestations
+remain unchecked. The thirteen strict duplicate findings, full-gate timeout
+and live sign-in failure prevent a clean full-tree or release verdict.
