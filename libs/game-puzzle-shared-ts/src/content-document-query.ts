@@ -19,8 +19,14 @@ export const puzzleContentDocumentsById = defineQuery({
   entryChannel: (_params, ctx) => [`user:${ctx.actorId}`, puzzleContentTopic],
   async run(ctx, { ids }) {
     const actor = ctx.env.actorId;
-    const documents = await ctx.db.query(
-      sql`SELECT * FROM puzzle_content_documents WHERE id IN (${contentIds(ids)}) AND (owner_id = ${actor} OR published_revision_id IS NOT NULL) ORDER BY id`
+    const documents = (
+      await ctx.db.query(
+        sql`SELECT * FROM puzzle_content_documents WHERE id IN (${contentIds(ids)}) ORDER BY id`
+      )
+    ).filter(
+      (row) =>
+        row['owner_id'] === actor ||
+        typeof row['published_revision_id'] === 'string'
     );
     const heads = documents
       .filter((row) => row['owner_id'] === actor)

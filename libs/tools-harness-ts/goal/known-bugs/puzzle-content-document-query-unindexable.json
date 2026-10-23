@@ -1,0 +1,4 @@
+{
+  "summary": "The document-by-identity puzzle query combined an identity batch with an owner/public OR, producing an unindexable access path in the assembled query workload. Select the bounded identity batch through its primary key, then retain only the actor's private documents and published documents before returning any rows or bodies.",
+  "regressionTest": "libs/runtime-shared-ts/tests/app-queries.test.ts"
+}

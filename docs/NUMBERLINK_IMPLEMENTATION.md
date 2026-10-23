@@ -46,6 +46,9 @@ unfinished work; it is not a second product definition.
 - [x] Numberlink definitions, path rules, codecs, bounded solver and properties.
 - [ ] Independent puzzle capabilities in shared game and client registration;
   composable with existing turn games, with a structurally different consumer.
+  Numberlink now enters both normal registries as a standalone puzzle game.
+  Turn catalogs, automation and conformance enrollment derive only the games
+  that actually offer a turn engine; no multiplayer capability is invented.
 - [ ] Shared content persistence, permission policy, mutation validation,
   publication transactions, idempotence and conflict handling.
   The shared storage and sync path includes choosing a kept draft as a fresh
@@ -60,12 +63,13 @@ unfinished work; it is not a second product definition.
   Shared screens now compose the real mutation, query, identity and permission
   hooks. Creation, metadata autosave, validation, publication and completion
   scenarios drive them in the counting reference app. Normal Numberlink
-  enrollment, bounded hydration, server-refusal recovery and assembled app
-  journeys remain open.
+  server-refusal recovery and assembled app journeys remain open. Bounded
+  hydration and normal Numberlink registry enrollment are implemented.
 - [ ] Numberlink visual builder, player and previews; pointer, touch, keyboard,
   accessible labels and responsive design-system components.
   Game components and automated input contracts are implemented; assembling
-  them into the shared saved-content workflows remains open.
+  the registered Numberlink client supplies them to the shared saved-content
+  workflows. The full app journeys still need executable bindings.
 - [ ] Real app registry, navigation, runtime/sub composition, sync, identity,
   observability, feedback and self-service readiness integration.
 - [x] Bound discovery and retained-history subscriptions before offering them
@@ -200,3 +204,17 @@ inferred from this ledger or from a narrow test run.
   pack appears. Restoring that fault or ignoring injected offline events makes
   the corresponding regression fail. Connectivity status is fixed separately
   in `cfe664ddc`.
+- Numberlink is enrolled in the production shared and client registries.
+  The same registry still feeds the room host and app sub composition, while
+  a derived turn-only registry feeds multiplayer rules, automation and
+  conformance enrollment. The registration test was red before enrollment.
+  All 25 focused typecheck, lint and test tasks pass across nine registry,
+  runtime and puzzle packages, including the existing turn conformance suites.
+  The shared puzzle lifecycle and access run still passes all 75 checks.
+- Assembled query indexability found that the bounded document lookup's
+  owner/public disjunction produced an unindexable workload path. Reading its
+  bounded identity batch through the primary key, then filtering private
+  documents before returning rows or bodies, preserves access and passes the
+  full app query check. A named regression records that failure. The app's
+  explicit composition test includes the new puzzle tables, queries and
+  mutations as well as the existing multiplayer setup table and mutation.

@@ -422,23 +422,23 @@ export function enrollmentProblems(
   for (const game of registered)
     if (!harnessIds.has(game.id))
       out.push(
-        `"${game.id}" is in GAME_DEFINITIONS but not HARNESS_GAMES — add its HarnessGame to HARNESS_GAMES (@libs/games-harness-ts/harness-games) so the shared suites hold it`
+        `"${game.id}" is in TURN_GAME_DEFINITIONS but not HARNESS_GAMES — add its HarnessGame to HARNESS_GAMES (@libs/games-harness-ts/harness-games) so the shared suites hold it`
       );
   for (const game of harness)
     if (!registeredIds.has(game.shared.id))
       out.push(
-        `"${game.shared.id}" (${game.label}) is in HARNESS_GAMES but not GAME_DEFINITIONS — register its defineTurnGame value, or list a test-only game beside the reference game (tests/conformance-world.ts)`
+        `"${game.shared.id}" (${game.label}) is in HARNESS_GAMES but not TURN_GAME_DEFINITIONS — register its defineTurnGame value, or list a test-only game beside the reference game (tests/conformance-world.ts)`
       );
   if (out.length > 0) return out;
   for (const [index, game] of harness.entries()) {
     const definition = registered[index];
     if (definition?.id !== game.shared.id)
       out.push(
-        `HARNESS_GAMES[${String(index)}] is "${game.shared.id}" but GAME_DEFINITIONS[${String(index)}] is "${String(definition?.id)}" — list the harness games in registry order`
+        `HARNESS_GAMES[${String(index)}] is "${game.shared.id}" but TURN_GAME_DEFINITIONS[${String(index)}] is "${String(definition?.id)}" — list the harness games in registry order`
       );
     else if (definition !== game.shared)
       out.push(
-        `"${game.shared.id}": HARNESS_GAMES holds another definition than GAME_DEFINITIONS registers — use the registered defineTurnGame value itself`
+        `"${game.shared.id}": HARNESS_GAMES holds another definition than TURN_GAME_DEFINITIONS registers — use the registered defineTurnGame value itself`
       );
   }
   return out;
@@ -517,7 +517,7 @@ export function missingEvidenceProblems(
 
 /** Everything the conformance plan is derived from. */
 export type ConformancePlan = {
-  /** `GAME_DEFINITIONS`. */
+  /** `TURN_GAME_DEFINITIONS`. */
   readonly registered: readonly { readonly id: string }[];
   /** `HARNESS_GAMES`. */
   readonly harness: readonly HarnessGame[];

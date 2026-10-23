@@ -1952,6 +1952,7 @@
         "@libs/connect-four-client-ts": "workspace:*",
         "@libs/game-menu-client-ts": "workspace:*",
         "@libs/games-shared-ts": "workspace:*",
+        "@libs/numberlink-client-ts": "workspace:*",
         "@libs/spaces-shared-ts": "workspace:*",
       },
       "devDependencies": {
@@ -2045,6 +2046,7 @@
         "@libs/chess-sub-shared-ts": "workspace:*",
         "@libs/connect-four-shared-ts": "workspace:*",
         "@libs/game-session-shared-ts": "workspace:*",
+        "@libs/numberlink-shared-ts": "workspace:*",
         "@libs/spaces-shared-ts": "workspace:*",
       },
       "devDependencies": {
