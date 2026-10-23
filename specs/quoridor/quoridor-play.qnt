@@ -37,6 +37,8 @@ module quoridor_play {
   pure def _x(square: int): int = square % 9
   pure def _y(square: int): int = square / 9
   pure def _abs(n: int): int = if (n < 0) -n else n
+  pure def _nearby(square: int): Set[int] =
+    Set(-18, -10, -9, -8, -2, -1, 1, 2, 8, 9, 10, 18).map(offset => square + offset)
   pure def _adjacent(a: int, b: int): bool =
     CELLS.contains(a) and CELLS.contains(b) and _abs(_x(a) - _x(b)) + _abs(_y(a) - _y(b)) == 1
   pure def _goal(m: str, player: int, square: int): bool =
@@ -141,14 +143,14 @@ module quoridor_play {
   /// In King of the Hill, pass only when no pawn move or wall placement is possible. The player stays in the game.
   action passTurn(player: int): bool =
     if (mode != "hill" or winner != -1 or player != turn) _hold
-    else if (CELLS.exists(c => _pawnMove(mode, pawns, walls, player, c))) _hold
+    else if (_nearby(pawns.get(player)).exists(c => _pawnMove(mode, pawns, walls, player, c))) _hold
     else if (remaining.get(player) == 0)
       _update(pawns, walls, remaining, _roundTurn(mode, turn + 1), winner, false)
     else if (WALLS.exists(w => _wallAllowed(mode, pawns, walls, w))) _hold
     else _update(pawns, walls, remaining, _roundTurn(mode, turn + 1), winner, false)
   action step = any {
     { nondet player = _players(mode).oneOf() nondet square = CELLS.oneOf() movePawn(player, square) },
-    { nondet player = Set(turn).oneOf() nondet square = CELLS.filter(c => _pawnMove(mode, pawns, walls, turn, c)).union(Set(40)).oneOf() movePawn(player, square) },
+    { nondet player = Set(turn).oneOf() nondet square = _nearby(pawns.get(turn)).filter(c => _pawnMove(mode, pawns, walls, turn, c)).union(Set(40)).oneOf() movePawn(player, square) },
     { nondet player = _players(mode).oneOf() nondet column = (-1).to(8).oneOf() nondet row = (-1).to(8).oneOf() nondet direction = Set(0, 1).oneOf() placeWall(player, column, row, direction) },
     { nondet player = _players(mode).oneOf() passTurn(player) },
   }
