@@ -69,6 +69,8 @@ test('a failed session reports callback queries without an unhandled rejection',
     reported.push(error);
   });
   expect(result).toBeUndefined();
+  expect(reported).toEqual([]);
+  await Promise.resolve();
   expect(reported).toEqual([failure]);
   expect(connection.queries()).toBe(0);
   await expect(connection.session.end()).rejects.toBe(failure);

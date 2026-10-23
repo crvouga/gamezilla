@@ -19,7 +19,7 @@ export function createPgClientSession(connection: PgClientConnection): Client {
       if (failure !== undefined) {
         const callback = args.at(-1);
         if (typeof callback === 'function') {
-          callback(failure, undefined);
+          queueMicrotask(() => callback(failure, undefined));
           return undefined;
         }
         return Promise.reject(failure);
