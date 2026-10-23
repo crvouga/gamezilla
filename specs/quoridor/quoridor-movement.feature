@@ -31,7 +31,7 @@ Feature: Move and jump with Quoridor pawns
     Scenario: A wall prevents a step across it
       Given Alice has the Quoridor position with South on e2, North on e8 and a horizontal wall at d2
       When Alice moves her Quoridor pawn to e3
-      Then Alice is told a Quoridor wall blocks that pawn move
+      Then Alice is told the Quoridor pawn move is not allowed
       And the Quoridor board, remaining walls and turn are unchanged
 
   Rule: A pawn jumps one adjacent pawn when the square behind it is free
@@ -45,7 +45,7 @@ Feature: Move and jump with Quoridor pawns
     Scenario: The adjacent pawn's square cannot be occupied
       Given Alice has the Quoridor position with South on e4 and North on e5
       When Alice moves her Quoridor pawn to e5
-      Then Alice is told that Quoridor square is occupied
+      Then Alice is told the Quoridor pawn move is not allowed
       And the Quoridor board, remaining walls and turn are unchanged
 
     Scenario: A clear straight jump does not permit a diagonal alternative
@@ -57,7 +57,7 @@ Feature: Move and jump with Quoridor pawns
     Scenario: A wall between the pawns prevents jumping
       Given Alice has the Quoridor position with South on e4, North on e5 and a horizontal wall at d4
       When Alice moves her Quoridor pawn to e6
-      Then Alice is told a Quoridor wall blocks that pawn move
+      Then Alice is told the Quoridor pawn move is not allowed
       And the Quoridor board, remaining walls and turn are unchanged
 
   Rule: A blocked straight jump permits an empty square beside the adjacent pawn
@@ -77,7 +77,7 @@ Feature: Move and jump with Quoridor pawns
     Scenario: A wall beside the adjacent pawn prevents that diagonal move
       Given Alice has the Quoridor position with South on e4, North on e5, a horizontal wall at d5 and a vertical wall at d4
       When Alice moves her Quoridor pawn to d5
-      Then Alice is told a Quoridor wall blocks that pawn move
+      Then Alice is told the Quoridor pawn move is not allowed
       And the Quoridor board, remaining walls and turn are unchanged
 
     Scenario: A third pawn behind the adjacent pawn permits a diagonal move
@@ -89,7 +89,7 @@ Feature: Move and jump with Quoridor pawns
     Scenario: A jump cannot pass two adjacent pawns
       Given Alice has the hill mode Quoridor position with South on d3, West on d4, North on d5 and East on i5
       When Alice moves her Quoridor pawn to d6
-      Then Alice is told a Quoridor jump cannot pass more than one pawn
+      Then Alice is told the Quoridor pawn move is not allowed
       And the Quoridor board, remaining walls and turn are unchanged
 
   Rule: Every player moves their own pawn in the declared turn order

@@ -29,7 +29,7 @@ Feature: Play a game with four sides
 
     Scenario: An offline participant is not skipped
       Given Alice, Bob, Carol and Dave have a four-player custom game with Bob to move
-      When Bob's phone loses its connection
+      When Bob's phone loses the connection
       Then Bob keeps the custom game turn
       And Carol cannot make a custom game move before Bob
 

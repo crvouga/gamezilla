@@ -56,20 +56,20 @@ Feature: Place Quoridor walls without closing a goal
       Then the Quoridor wall is on the board and every player has a path to the opposite home row
 
     Scenario: A wall cannot close the opposing pawn's last path
-      Given Alice has a Classic Quoridor position where a horizontal wall at h8 would close North's last path
-      When Alice places a horizontal Quoridor wall at h8
+      Given Alice has a Classic Quoridor position where a vertical wall at e8 would close North's last path
+      When Alice places a vertical Quoridor wall at e8
       Then Alice is told the Quoridor wall would block a player's last path to the goal
       And the Quoridor board, remaining walls and turn are unchanged
 
     Scenario: A wall cannot close the placing player's own last path
-      Given Alice has a Classic Quoridor position where a vertical wall at h1 would close South's last path
-      When Alice places a vertical Quoridor wall at h1
+      Given Alice has a Classic Quoridor position where a vertical wall at e1 would close South's last path
+      When Alice places a vertical Quoridor wall at e1
       Then Alice is told the Quoridor wall would block a player's last path to the goal
       And the Quoridor board, remaining walls and turn are unchanged
 
     Scenario: A hill wall cannot close any of the four players' last paths to the center
-      Given Alice has a hill mode Quoridor position where a horizontal wall at d5 would close East's last path to the hill
-      When Alice places a horizontal Quoridor wall at d5
+      Given Alice has a hill mode Quoridor position where a vertical wall at e4 would close East's last path to the hill
+      When Alice places a vertical Quoridor wall at e4
       Then Alice is told the Quoridor wall would block a player's last path to the goal
       And the Quoridor board, remaining walls and turn are unchanged
 
