@@ -1,9 +1,45 @@
 import { expect, test } from 'bun:test';
+import { customGameCancelRefusal } from '@libs/game-session-shared-ts/custom-game-refusal';
 import {
   CustomGamesAttr,
   customGameStartable,
+  newCustomGame,
 } from '@libs/game-session-shared-ts/custom-game-state';
 import { fourSeatRoom, PEOPLE } from './four-seat-room';
+
+// regression: four-seat-noncreator-cancel
+test('a noncreator cannot cancel a four-seat round before its first move and may resign to a draw', () => {
+  const room = fourSeatRoom();
+  room.fill();
+  room.send('alice', { operation: 'start' });
+  const before = room.current();
+  expect(before.moves).toEqual([]);
+  expect(room.send('bob', { operation: 'cancel' }).ok).toBe(false);
+  expect(room.current()).toEqual(before);
+  // The rendered cancel affordance uses this same public permission predicate.
+  expect(customGameCancelRefusal(before, 'bob')).toBe('only the creator');
+  expect(room.send('bob', { operation: 'resign' }).ok).toBe(true);
+  expect(room.current()).toMatchObject({
+    status: 'completed',
+    outcome: 'draw',
+    outcomeReason: 'participant withdrew',
+  });
+});
+
+test('the creator retains cancellation and a two-person participant retains early cancellation', () => {
+  const room = fourSeatRoom();
+  room.fill();
+  room.send('alice', { operation: 'start' });
+  expect(customGameCancelRefusal(room.current(), 'alice')).toBe('');
+  expect(room.send('alice', { operation: 'cancel' }).ok).toBe(true);
+  expect(room.current().status).toBe('cancelled');
+  const pair = {
+    ...newCustomGame('pair', 'alice', 'pair:0'),
+    status: 'active' as const,
+    black: { kind: 'person' as const, person: 'bob' },
+  };
+  expect(customGameCancelRefusal(pair, 'bob')).toBe('');
+});
 
 test('a declared roster needs every participant and readiness before activation', () => {
   const room = fourSeatRoom();

@@ -176,6 +176,7 @@ export function customGameCancelRefusal(
   if (game.creator === actor) return '';
   if (
     game.status !== 'active' ||
+    game.sides.length !== 2 ||
     !game.sides.every((side) => game[side].kind === 'person')
   )
     return 'only the creator';
