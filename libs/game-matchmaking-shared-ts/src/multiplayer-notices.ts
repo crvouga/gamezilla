@@ -5,10 +5,16 @@ import {
 } from '@pkgs/message-shared-ts/message';
 import { insertOutboxEvent } from '@pkgs/outbox-shared-ts/outbox';
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
+import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { GAME_PLATFORM_NAMESPACE } from './durable-names';
 import type { MultiplayerGame } from './game-state';
 import { awaitingSetups } from './game-state';
 import { lowOnTimeAtMs } from './multiplayer-clock';
+import {
+  multiplayerOwner,
+  multiplayerPeople,
+  multiplayerSides,
+} from './multiplayer-roster';
 import { isDailyTimeControl } from './time-control';
 
 const messages = createMessageNamespace(GAME_PLATFORM_NAMESPACE, 'outbox');
@@ -78,12 +84,19 @@ export type MultiplayerNoticePerson = {
 
 type NoticeFields = Pick<
   MultiplayerGame,
-  'white_id' | 'black_id' | 'turn' | 'outcome' | 'time_control' | 'setup_ready'
+  | 'white_id'
+  | 'black_id'
+  | 'red_id'
+  | 'blue_id'
+  | 'turn'
+  | 'outcome'
+  | 'time_control'
+  | 'setup_ready'
 >;
 
 function resultFor(
   game: NoticeFields,
-  side: 'white' | 'black'
+  side: GameSide
 ): MultiplayerNoticeResult | null {
   if (game.outcome === 'ongoing') return null;
   if (game.outcome === 'aborted') return 'aborted';
@@ -102,7 +115,7 @@ export function multiplayerNotices(
 ): readonly MultiplayerNoticePerson[] {
   if (!isDailyTimeControl(game.time_control)) return [];
   const person = (
-    side: 'white' | 'black',
+    side: GameSide,
     userId: string,
     opponentId: string
   ): MultiplayerNoticePerson => ({
@@ -115,10 +128,14 @@ export function multiplayerNotices(
       game.turn === userId,
     result: resultFor(game, side),
   });
-  return [
-    person('white', game.white_id, game.black_id),
-    person('black', game.black_id, game.white_id),
-  ];
+  return multiplayerSides(game).map((side) => {
+    const owner = multiplayerOwner(game, side);
+    return person(
+      side,
+      owner,
+      multiplayerPeople(game).find((id) => id !== owner) ?? ''
+    );
+  });
 }
 
 /**

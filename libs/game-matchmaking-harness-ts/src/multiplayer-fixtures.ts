@@ -2,6 +2,7 @@ import { findOpponentMutation } from '@libs/game-matchmaking-shared-ts/find-oppo
 import { MultiplayerGameRepository } from '@libs/game-matchmaking-shared-ts/game-repository';
 import { formGameMatches } from '@libs/game-matchmaking-shared-ts/match-handoff';
 import { scheduleMultiplayerDeadline } from '@libs/game-matchmaking-shared-ts/multiplayer-deadline';
+import { multiplayerPeople } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
 import { publishMatchGame } from '@libs/game-matchmaking-shared-ts/publish-match-game';
 import { MultiplayerRatingRepository } from '@libs/game-matchmaking-shared-ts/rating-repository';
 import { OPPONENT_SEARCH_RADIUS } from '@libs/game-matchmaking-shared-ts/search-config';
@@ -102,15 +103,15 @@ export const awaitGameMatchChoosingSetups = scenarioAction<
 
 async function formMatchOf(
   s: ProductHarness,
-  pair: readonly [string, string],
+  pair: readonly string[],
   firstIsWhite?: boolean
 ): Promise<void> {
-  const [first, second] = pair;
+  const first = pair[0];
+  if (first === undefined) throw new Error('A group requires participants');
   {
-    const people = [
-      await signedInAccountOf(s, first),
-      await signedInAccountOf(s, second),
-    ];
+    const people = await Promise.all(
+      pair.map((person) => signedInAccountOf(s, person))
+    );
     for (let waited = 0; waited <= LONGEST_RANGE_WAIT_MS; waited += 1000) {
       let formed: readonly string[] = [];
       await multiplayerFixture(s, first, async (tx) => {
@@ -130,9 +131,18 @@ async function formMatchOf(
       if (people.every((id) => id !== null && formed.includes(id))) return;
       await s.session.advanceTime(1000);
     }
-    throw new Error(`No game match formed for ${first} and ${second}`);
+    throw new Error(`No game match formed for ${pair.join(', ')}`);
   }
 }
+
+/** Forms a complete declared group through the same production matching pass. */
+export const awaitGameGroup = scenarioAction<[people: readonly string[]]>({
+  name: 'awaitGameGroup',
+  act: async (s, people) => {
+    await formMatchOf(s, people);
+    await Promise.resolve(chooseKnownSetups.act(s, people));
+  },
+});
 
 /** Deliver a fixture's accepted board and clocks through the production outbox. */
 export async function publishMultiplayerFixture(
@@ -144,7 +154,7 @@ export async function publishMultiplayerFixture(
   if (game === null) throw new Error(`No multiplayer game ${gameId}`);
   await publishMatchGame({ tx, env }, game);
   await scheduleMultiplayerDeadline(tx, game, env.now().getTime());
-  return [game.white_id, game.black_id];
+  return multiplayerPeople(game);
 }
 
 /** A multiplayer rating at one speed, with this many rated games behind it. */

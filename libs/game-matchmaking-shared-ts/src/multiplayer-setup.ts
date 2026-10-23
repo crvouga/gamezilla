@@ -7,6 +7,7 @@ import type {
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { MultiplayerGame, MultiplayerSide } from './game-state';
 import { requireUnfinished, setupReadySides } from './game-state';
+import { multiplayerSideOf, multiplayerSides } from './multiplayer-roster';
 
 /**
  * Private setups in a matched game. Each person chooses theirs once, after
@@ -17,7 +18,13 @@ import { requireUnfinished, setupReadySides } from './game-state';
 
 /** The side `actorId` plays in `game`. */
 function sideOf(game: MultiplayerGame, actorId: string): MultiplayerSide {
-  return game.white_id === actorId ? 'white' : 'black';
+  const side = multiplayerSideOf(game, actorId);
+  if (side === null)
+    throw new MutationError(
+      'CHESS_MATCHED_ONLY',
+      'Only the matched people can choose a setup.'
+    );
+  return side;
 }
 
 /** The setup readiness a new game of `rules` starts with. */
@@ -61,7 +68,7 @@ export function chooseSetup(
       'CHESS_SETUP_INCOMPLETE',
       'That setup is not complete.'
     );
-  const sides = (['white', 'black'] as const).filter(
+  const sides = multiplayerSides(game).filter(
     (s) => s === side || ready.includes(s)
   );
   return {
@@ -70,7 +77,10 @@ export function chooseSetup(
       ...game,
       setup_ready: sides.join(','),
       // Both ready: the first side's first-move wait starts now.
-      clock_at_ms: sides.length === 2 ? input.nowMs : game.clock_at_ms,
+      clock_at_ms:
+        sides.length === multiplayerSides(game).length
+          ? input.nowMs
+          : game.clock_at_ms,
     },
   };
 }
@@ -102,5 +112,14 @@ export async function readMultiplayerSetups(
     WHERE game_id = ${gameId} AND deleted_at IS NULL`);
   const white = rows.find((row) => row.side === 'white')?.setup;
   const black = rows.find((row) => row.side === 'black')?.setup;
-  return white === undefined || black === undefined ? null : { white, black };
+  const red = rows.find((row) => row.side === 'red')?.setup;
+  const blue = rows.find((row) => row.side === 'blue')?.setup;
+  return white === undefined || black === undefined
+    ? null
+    : {
+        white,
+        black,
+        ...(red === undefined ? {} : { red }),
+        ...(blue === undefined ? {} : { blue }),
+      };
 }

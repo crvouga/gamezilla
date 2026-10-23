@@ -4,7 +4,9 @@ export const MULTIPLAYER_TOPIC_MAP = {
   chess_multiplayer_games: {
     topics(row, _ctx, db) {
       return multiplayerTopics(
-        [String(row['white_id'] ?? ''), String(row['black_id'] ?? '')],
+        ['white_id', 'black_id', 'red_id', 'blue_id'].map((key) =>
+          String(row[key] ?? '')
+        ),
         db
       );
     },

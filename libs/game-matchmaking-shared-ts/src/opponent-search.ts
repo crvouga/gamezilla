@@ -13,6 +13,7 @@ import sql from '@pkgs/sql-root-shared-ts/sql';
 import type { MutationCtx } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import {
+  gameSides,
   requireTurnGames,
   type TurnGames,
 } from '@pkgs/turn-game-shared-ts/game-rules';
@@ -131,7 +132,8 @@ export async function beginOpponentSearch(
       'opponent search'
     ),
     formulas: OPPONENT_SEARCH_FORMULAS,
-    groupSize: 2,
+    groupSize: gameSides(requireTurnGames(ctx.env).forControl(control.id))
+      .length,
   });
   if (result.outcome === 'unavailable')
     throw new MutationError(

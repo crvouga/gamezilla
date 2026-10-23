@@ -5,11 +5,14 @@ import {
 import { defineEvent } from '@pkgs/observability-root-shared-ts/event-contract';
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import type { MultiplayerGame } from './game-state';
+import { bothHaveMoved } from './game-state';
 
 const attributes = {
   'game.time_control': { type: 'string' },
   'participant.white.id': { type: 'string', required: true },
   'participant.black.id': { type: 'string', required: true },
+  'participant.red.id': { type: 'string' },
+  'participant.blue.id': { type: 'string' },
   'game.id': { type: 'string', required: true },
   'game.mode': { type: 'string', required: true, values: ['multiplayer'] },
 } as const;
@@ -45,7 +48,7 @@ export const gameCompletedEvent = createDomainEvent(
       'game.outcome': {
         type: 'string',
         required: true,
-        values: ['white', 'black', 'draw'],
+        values: ['white', 'black', 'red', 'blue', 'draw'],
       },
     },
   })
@@ -113,6 +116,20 @@ export async function recordGameTransition(
   const attributes = {
     'participant.white.id': telemetrySubjectId(`subject.id:${after.white_id}`),
     'participant.black.id': telemetrySubjectId(`subject.id:${after.black_id}`),
+    ...(after.red_id
+      ? {
+          'participant.red.id': telemetrySubjectId(
+            `subject.id:${after.red_id}`
+          ),
+        }
+      : {}),
+    ...(after.blue_id
+      ? {
+          'participant.blue.id': telemetrySubjectId(
+            `subject.id:${after.blue_id}`
+          ),
+        }
+      : {}),
     'game.id': after.id,
     'game.mode': 'multiplayer',
     ...(after.time_control === null
@@ -125,7 +142,7 @@ export async function recordGameTransition(
       envelope: { ...envelope, id: `${after.id}:${ready}` },
       attributes: { ...attributes, 'game.setup_ready': ready },
     });
-  if (before.revision < 2 && after.revision >= 2)
+  if (!bothHaveMoved(before) && bothHaveMoved(after))
     await gameStartedEvent.outbox.enqueue(ctx, { envelope, attributes });
   if (before.outcome !== 'ongoing' || after.outcome === 'ongoing') return;
   if (after.outcome === 'aborted')

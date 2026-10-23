@@ -5,6 +5,12 @@ import {
   bothHaveMoved,
   endMultiplayerGame,
 } from './game-state';
+import {
+  multiplayerSideOf,
+  multiplayerSides,
+  multiplayerStoredClock,
+  withMultiplayerClock,
+} from './multiplayer-roster';
 import type { ClockSpeed } from './time-control';
 import {
   incrementMs,
@@ -30,20 +36,27 @@ type ClockFields = Pick<
   | 'turn'
   | 'white_id'
   | 'black_id'
+  | 'red_id'
+  | 'blue_id'
   | 'outcome'
   | 'revision'
   | 'time_control'
   | 'white_ms'
   | 'black_ms'
+  | 'red_ms'
+  | 'blue_ms'
   | 'clock_at_ms'
   | 'paused_at_ms'
   | 'setup_ready'
 >;
 
 export function sideToMove(
-  game: Pick<MultiplayerGame, 'turn' | 'white_id' | 'black_id'>
+  game: Pick<
+    MultiplayerGame,
+    'turn' | 'white_id' | 'black_id' | 'red_id' | 'blue_id'
+  >
 ): MultiplayerSide {
-  return game.turn === game.black_id ? 'black' : 'white';
+  return multiplayerSideOf(game, game.turn) ?? 'white';
 }
 
 function timed(game: ClockFields): boolean {
@@ -89,7 +102,7 @@ export function clockLeftMs(
   side: MultiplayerSide,
   nowMs: number
 ): number {
-  const stored = (side === 'white' ? game.white_ms : game.black_ms) ?? 0;
+  const stored = multiplayerStoredClock(game, side);
   if (
     game.outcome !== 'ongoing' ||
     !timed(game) ||
@@ -113,7 +126,7 @@ export function multiplayerDeadlineMs(game: ClockFields): number | null {
   if (awaitingSetups(game)) return startedAt + setupMs(game);
   if (!bothHaveMoved(game)) return startedAt + firstMoveMs(game);
   const side = sideToMove(game);
-  return startedAt + ((side === 'white' ? game.white_ms : game.black_ms) ?? 0);
+  return startedAt + multiplayerStoredClock(game, side);
 }
 
 const HOUR_MS = 3_600_000;
@@ -185,10 +198,9 @@ export function settleMultiplayerClock(
   if (!bothHaveMoved(game))
     return endMultiplayerGame(game, 'aborted', 'first move missed');
   const flagged = sideToMove(game);
-  const out = {
-    ...game,
-    ...(flagged === 'white' ? { white_ms: 0 } : { black_ms: 0 }),
-  };
+  const out = withMultiplayerClock(game, flagged, 0);
+  if (multiplayerSides(game).length > 2)
+    return endMultiplayerGame(out, 'draw', 'timeout');
   if (
     !rules
       .forPosition(game.fen)
@@ -222,12 +234,9 @@ export function stopMultiplayerClock(
     return after;
   if (after.revision !== before.revision) return after;
   const side = sideToMove(before);
-  const stored = (side === 'white' ? after.white_ms : after.black_ms) ?? 0;
+  const stored = multiplayerStoredClock(after, side);
   const left = Math.min(stored, clockLeftMs(before, side, nowMs));
-  return {
-    ...after,
-    ...(side === 'white' ? { white_ms: left } : { black_ms: left }),
-  };
+  return withMultiplayerClock(after, side, left);
 }
 
 /**
@@ -242,14 +251,17 @@ export function spendMultiplayerClock(
   if (!timed(game)) return game;
   if (daily(game)) {
     const full = startingMs(game.time_control);
-    return { ...game, white_ms: full, black_ms: full, clock_at_ms: nowMs };
+    const reset = multiplayerSides(game).reduce(
+      (current, side) => withMultiplayerClock(current, side, full),
+      game
+    );
+    return { ...reset, clock_at_ms: nowMs };
   }
   if (!bothHaveMoved(game)) return { ...game, clock_at_ms: nowMs };
   const side = sideToMove(game);
   const left = clockLeftMs(game, side, nowMs) + incrementMs(game.time_control);
   return {
-    ...game,
-    ...(side === 'white' ? { white_ms: left } : { black_ms: left }),
+    ...withMultiplayerClock(game, side, left),
     clock_at_ms: nowMs,
   };
 }

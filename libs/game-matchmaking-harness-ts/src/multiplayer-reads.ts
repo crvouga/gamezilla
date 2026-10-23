@@ -44,7 +44,7 @@ export async function multiplayerView(
     FROM chess_multiplayer_games AS g
     JOIN chess_multiplayer_players AS p ON p.game_id = g.id
     WHERE p.owner_id = ${owner} AND p.deleted_at IS NULL AND g.deleted_at IS NULL
-      AND (g.white_id = ${owner} OR g.black_id = ${owner})`);
+      AND (g.white_id = ${owner} OR g.black_id = ${owner} OR g.red_id = ${owner} OR g.blue_id = ${owner})`);
   const searches = await db.query(sql<MultiplayerSearchView>`
     SELECT search_id, standing, match_id, time_control, joined_at_ms FROM chess_opponent_searches
     WHERE owner_id = ${owner} AND deleted_at IS NULL`);

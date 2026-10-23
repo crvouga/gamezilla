@@ -1,3 +1,4 @@
+import { MULTIPLAYER_GAME_COLUMNS } from '@libs/game-matchmaking-shared-ts/game-state';
 import {
   MATCH_ROOM_MODULE,
   MultiplayerGameChanged,
@@ -10,7 +11,7 @@ import { storedSpacePresence } from '@libs/spaces-shared-ts/stored-space-presenc
 import type { RoomGrantsCtx } from '@libs/sub-shared-ts/server';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared-ts/define-consumer';
 import type { RoomServicePort } from '@pkgs/room-root-shared-ts/room-service';
-import sql from '@pkgs/sql-root-shared-ts/sql';
+import sql, { raw } from '@pkgs/sql-root-shared-ts/sql';
 
 /** Membership in either host's open space permits watching the same match. */
 export async function multiplayerRoomGrants(
@@ -52,9 +53,7 @@ export function registerMatchRoomConsumers(
       // an earlier board, result or erased identity.
       const rows = await ctx.tx.query(sql<
         typeof game
-      >`SELECT id, white_id, black_id, fen, pgn, revision, turn, outcome, reason,
-        time_control, white_ms, black_ms, clock_at_ms, paused_at_ms, draw_offer_by, rematch_offer_by,
-        rematch_of, white_rating, black_rating, white_rating_diff, black_rating_diff, setup_ready
+      >`SELECT ${raw(MULTIPLAYER_GAME_COLUMNS.join(', '))}
         FROM chess_multiplayer_games WHERE id = ${game.id} AND deleted_at IS NULL`);
       const current = rows[0];
       if (current !== undefined)

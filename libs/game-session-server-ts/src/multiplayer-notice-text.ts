@@ -1,21 +1,30 @@
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
 import type { MultiplayerNoticeResult } from '@libs/game-matchmaking-shared-ts/multiplayer-notices';
-import type { GameNoticeText } from '@pkgs/turn-game-shared-ts/game-rules';
+import type {
+  GameNoticeText,
+  GameSide,
+} from '@pkgs/turn-game-shared-ts/game-rules';
 
-type EndedGame = Pick<MultiplayerGame, 'reason' | 'white_ms'>;
+type EndedGame = Pick<MultiplayerGame, 'reason' | 'white_ms'> &
+  Partial<Pick<MultiplayerGame, 'black_ms' | 'red_ms' | 'blue_ms'>>;
 
 /** The side whose clock ran out, for the reasons that name it. */
-export function flaggedSide(game: EndedGame): 'white' | 'black' | null {
+export function flaggedSide(game: EndedGame): GameSide | null {
   if (
     game.reason !== 'timeout' &&
     game.reason !== 'timeout vs insufficient material'
   )
     return null;
-  return game.white_ms === 0 ? 'white' : 'black';
+  return (
+    (['white', 'black', 'red', 'blue'] as const).find(
+      (side) => game[`${side}_ms`] === 0
+    ) ?? 'black'
+  );
 }
 
 const REASONS: Readonly<Record<string, string>> = {
   resignation: 'By resignation.',
+  'participant withdrew': 'A player left the round.',
   agreement: 'Drawn by agreement.',
   'first move missed': "The first move wasn't made in time.",
   'account deletion': 'An account was deleted.',

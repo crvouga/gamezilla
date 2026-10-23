@@ -10,6 +10,7 @@ import { MULTIPLAYER_GAME_COLUMNS } from './game-state';
 import { stopMultiplayerClock } from './multiplayer-clock';
 import { scheduleMultiplayerDeadline } from './multiplayer-deadline';
 import { scheduleMultiplayerNotices } from './multiplayer-notices';
+import { multiplayerPeople } from './multiplayer-roster';
 import { publishMatchGame } from './publish-match-game';
 import { rateFinishedGame } from './rate-finished-game';
 import { recordGameTransition } from './telemetry';
@@ -23,7 +24,7 @@ export class MultiplayerGameRepository {
     const rows = await this.tx.query(sql<{
       id: string;
     }>`SELECT id FROM chess_multiplayer_games
-      WHERE (white_id = ${ownerId} OR black_id = ${ownerId}) AND outcome = 'ongoing' AND deleted_at IS NULL`);
+      WHERE (white_id = ${ownerId} OR black_id = ${ownerId} OR red_id = ${ownerId} OR blue_id = ${ownerId}) AND outcome = 'ongoing' AND deleted_at IS NULL`);
     return rows.length;
   }
 
@@ -31,11 +32,14 @@ export class MultiplayerGameRepository {
   async colourBalance(ownerId: string): Promise<number> {
     const rows = await this.tx.query(sql<{
       white_id: string;
-    }>`SELECT white_id FROM chess_multiplayer_games
-      WHERE (white_id = ${ownerId} OR black_id = ${ownerId})
+      black_id: string;
+    }>`SELECT white_id, black_id FROM chess_multiplayer_games
+      WHERE (white_id = ${ownerId} OR black_id = ${ownerId} OR red_id = ${ownerId} OR blue_id = ${ownerId})
         AND outcome IN (${join(['white', 'black', 'draw'])}) AND deleted_at IS NULL`);
     return rows.reduce(
-      (balance, row) => balance + (row.white_id === ownerId ? 1 : -1),
+      (balance, row) =>
+        balance +
+        (row.white_id === ownerId ? 1 : row.black_id === ownerId ? -1 : 0),
       0
     );
   }
@@ -49,7 +53,7 @@ export class MultiplayerGameRepository {
     if (lockAt !== undefined) {
       await lockOwners(
         this.tx,
-        [game.white_id, game.black_id],
+        multiplayerPeople(game),
         new Date(lockAt).toISOString()
       );
       game = await this.readOwned(gameId, ownerId);
@@ -69,7 +73,7 @@ export class MultiplayerGameRepository {
   ): Promise<MultiplayerGame> {
     const rows = await this.tx.query(sql<MultiplayerGame>`SELECT ${COLUMNS}
       FROM chess_multiplayer_games
-      WHERE id = ${gameId} AND (white_id = ${ownerId} OR black_id = ${ownerId}) AND deleted_at IS NULL`);
+      WHERE id = ${gameId} AND (white_id = ${ownerId} OR black_id = ${ownerId} OR red_id = ${ownerId} OR blue_id = ${ownerId}) AND deleted_at IS NULL`);
     const game = rows[0];
     if (game === undefined)
       throw new MutationError(
@@ -108,6 +112,9 @@ export class MultiplayerGameRepository {
       white_ms = ${game.white_ms}, black_ms = ${game.black_ms}, clock_at_ms = ${game.clock_at_ms}, paused_at_ms = ${game.paused_at_ms},
       draw_offer_by = ${game.draw_offer_by}, rematch_offer_by = ${game.rematch_offer_by},
       white_rating_diff = ${game.white_rating_diff}, black_rating_diff = ${game.black_rating_diff},
+      red_ms = ${game.red_ms ?? null}, blue_ms = ${game.blue_ms ?? null},
+      red_rating_diff = ${game.red_rating_diff ?? null}, blue_rating_diff = ${game.blue_rating_diff ?? null},
+      draw_votes = ${game.draw_votes ?? null}, rematch_votes = ${game.rematch_votes ?? null},
       setup_ready = ${game.setup_ready}, updated_at = ${new Date(nowMs).toISOString()} WHERE id = ${game.id}`);
     if (server && publish !== undefined)
       await publishMatchGame(
@@ -127,7 +134,7 @@ export class MultiplayerGameRepository {
         : { synthetic: publish.synthetic }),
     });
     if (ended)
-      for (const ownerId of [game.white_id, game.black_id])
+      for (const ownerId of multiplayerPeople(game))
         await changeAvailability(this.tx, { ownerId, available: true, nowMs });
     await scheduleMultiplayerDeadline(this.tx, game, nowMs);
     await scheduleMultiplayerNotices(this.tx, { before, after: game }, nowMs);

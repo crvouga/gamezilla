@@ -3,11 +3,16 @@ import type {
   MultiplayerSide,
 } from '@libs/game-matchmaking-shared-ts/game-state';
 import { awaitingSetups } from '@libs/game-matchmaking-shared-ts/game-state';
+import {
+  multiplayerOwner,
+  multiplayerSideOf,
+  multiplayerSides,
+} from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
 import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import type { JSX } from 'solid-js';
+import { For, type JSX } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { MultiplayerReviewing } from './multiplayer-reviewing';
 import type { MultiplayerViewer } from './multiplayer-seat';
@@ -53,13 +58,23 @@ function BoardStage(
   return (
     <GameBoardStage
       top={
-        <MultiplayerSeat
-          game={props.game}
-          side={otherSide(nearSide())}
-          own={nearSide() !== props.ownSide}
-          near={false}
-          viewer={props.viewer}
-        />
+        <StackVertical gap="sm">
+          <For
+            each={multiplayerSides(props.game).filter(
+              (side) => side !== nearSide()
+            )}
+          >
+            {(side) => (
+              <MultiplayerSeat
+                game={props.game}
+                side={side}
+                own={side === props.ownSide}
+                near={false}
+                viewer={props.viewer}
+              />
+            )}
+          </For>
+        </StackVertical>
       }
       bottom={
         <MultiplayerSeat
@@ -95,8 +110,8 @@ export function MultiplayerBoard(props: BoardProps): JSX.Element {
     myId: () => props.myId,
     low: lowOnTime,
   });
-  const participant = () =>
-    props.game.white_id === props.myId || props.game.black_id === props.myId;
+  const ownSide = () => multiplayerSideOf(props.game, props.myId) ?? 'white';
+  const participant = () => multiplayerSideOf(props.game, props.myId) !== null;
   const canMove = () =>
     participant() &&
     props.connected &&
@@ -106,19 +121,21 @@ export function MultiplayerBoard(props: BoardProps): JSX.Element {
     !awaitingSetups(props.game) &&
     props.game.turn === props.myId;
   // A watcher sees the board from White's side.
-  const white = () => props.game.white_id === props.myId || !participant();
+  const other = () =>
+    multiplayerSides(props.game).find((side) => side !== ownSide()) ?? 'black';
   const opponentName = useShownName(() =>
-    white() ? props.game.black_id : props.game.white_id
+    multiplayerOwner(props.game, other())
   );
   const winnerName = useShownName(() =>
-    props.game.outcome === 'black' ? props.game.black_id : props.game.white_id
+    multiplayerSides(props.game).includes(props.game.outcome as MultiplayerSide)
+      ? multiplayerOwner(props.game, props.game.outcome as MultiplayerSide)
+      : ''
   );
   const viewer = (): MultiplayerViewer => ({
     myId: props.myId,
     participant: participant(),
     opponentName: opponentName(),
-    opponentRating:
-      (white() ? props.game.black_rating : props.game.white_rating) ?? '',
+    opponentRating: props.game[`${other()}_rating`] ?? '',
   });
   return (
     <StackVertical
@@ -138,7 +155,7 @@ export function MultiplayerBoard(props: BoardProps): JSX.Element {
       <BoardStage
         {...props}
         viewer={viewer()}
-        ownSide={white() ? 'white' : 'black'}
+        ownSide={ownSide()}
         canMove={canMove()}
       />
       <MultiplayerReviewing view={props.view} />

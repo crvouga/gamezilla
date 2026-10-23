@@ -13,6 +13,7 @@ import {
   settleMultiplayerClock,
   spendMultiplayerClock,
 } from './multiplayer-clock';
+import { multiplayerOwner, multiplayerSideOf } from './multiplayer-roster';
 
 /**
  * The public action a proposal is recorded as: for a game with private
@@ -66,6 +67,11 @@ export function playMultiplayerMove(
       'CHESS_NOT_YOUR_TURN',
       'It is not your multiplayer turn.'
     );
+  if (multiplayerSideOf(game, input.actorId) === null)
+    throw new MutationError(
+      'CHESS_MATCHED_ONLY',
+      'Only matched people can play.'
+    );
   const action = recordedAction(game, input.uci, input.setups ?? null, rules);
   const played = rules
     .forPosition(game.fen)
@@ -83,7 +89,9 @@ export function playMultiplayerMove(
     pgn: played.history,
     revision: game.revision + 1,
     draw_offer_by: game.draw_offer_by === input.actorId ? input.actorId : '',
-    turn: played.turn === 'white' ? game.white_id : game.black_id,
+    draw_votes:
+      game.draw_offer_by === input.actorId ? (game.draw_votes ?? null) : null,
+    turn: multiplayerOwner(game, played.turn),
   };
   return moved.outcome === 'ongoing'
     ? moved

@@ -2,8 +2,11 @@ import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-stat
 import {
   bothHaveMoved,
   isFinished,
-  otherPerson,
 } from '@libs/game-matchmaking-shared-ts/game-state';
+import {
+  multiplayerPeople,
+  multiplayerSideOf,
+} from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
 import { Trans } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
@@ -21,7 +24,11 @@ function DrawActions(props: {
   readonly controls: MultiplayerControlsModel;
 }): JSX.Element {
   const offered = () =>
-    props.game.draw_offer_by === otherPerson(props.game, props.myId);
+    Boolean(
+      props.game.draw_offer_by &&
+        props.game.draw_offer_by !== props.myId &&
+        multiplayerPeople(props.game).includes(props.game.draw_offer_by)
+    );
   return (
     <Show
       when={offered()}
@@ -67,7 +74,11 @@ function RematchActions(props: {
   readonly controls: MultiplayerControlsModel;
 }): JSX.Element {
   const offered = () =>
-    props.game.rematch_offer_by === otherPerson(props.game, props.myId);
+    Boolean(
+      props.game.rematch_offer_by &&
+        props.game.rematch_offer_by !== props.myId &&
+        multiplayerPeople(props.game).includes(props.game.rematch_offer_by)
+    );
   return (
     <Show
       when={offered()}
@@ -152,8 +163,7 @@ export function MultiplayerGameActions(props: {
   readonly looking: boolean;
   readonly onConfirm: (kind: 'abort' | 'resign') => void;
 }): JSX.Element {
-  const playing = () =>
-    props.game.white_id === props.myId || props.game.black_id === props.myId;
+  const playing = () => multiplayerSideOf(props.game, props.myId) !== null;
   const ongoing = () => playing() && props.game.outcome === 'ongoing';
   const over = () =>
     playing() && props.game.outcome !== 'ongoing' && !props.looking;

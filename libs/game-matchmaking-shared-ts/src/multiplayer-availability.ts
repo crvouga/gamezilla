@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { GAME_PLATFORM_NAMESPACE } from './durable-names';
 import { MultiplayerGameRepository } from './game-repository';
 import { settleMultiplayerClock } from './multiplayer-clock';
+import { multiplayerPeople } from './multiplayer-roster';
 
 const availabilitySchema = z
   .object({ gameId: z.string().min(1), available: z.boolean() })
@@ -69,7 +70,7 @@ export async function changeMultiplayerAvailability(
         server: true,
         publish: input,
       });
-    return [game.white_id, game.black_id];
+    return multiplayerPeople(game);
   }
   const resumed = input.available && game.paused_at_ms !== null;
   await repository.save(
@@ -85,5 +86,5 @@ export async function changeMultiplayerAvailability(
     input.nowMs,
     { server: true, publish: input }
   );
-  return [game.white_id, game.black_id];
+  return multiplayerPeople(game);
 }

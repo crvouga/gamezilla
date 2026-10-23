@@ -2,6 +2,7 @@ import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
 import { MULTIPLAYER_GAME_COLUMNS } from '@libs/game-matchmaking-shared-ts/game-state';
 import type { MatchRoomGame } from '@libs/game-matchmaking-shared-ts/match-room';
+import { multiplayerSideOf } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
 import { useSpaceRoomSessionId } from '@libs/spaces-client-ts/space-room-context';
 import sql, { raw } from '@pkgs/sql-root-shared-ts/sql';
 import {
@@ -34,48 +35,11 @@ function withRoom(
 ): MultiplayerGame {
   if (room === null || room.id !== row.id || room.revision < row.revision)
     return row;
-  return {
-    ...row,
-    white_id: room.white_id,
-    black_id: room.black_id,
-    fen: room.fen,
-    pgn: room.pgn,
-    revision: room.revision,
-    turn: room.turn,
-    outcome: room.outcome,
-    reason: room.reason,
-    paused_at_ms: room.paused_at_ms,
-    ...(room.time_control !== undefined
-      ? { time_control: room.time_control }
-      : {}),
-    ...(room.white_ms !== undefined ? { white_ms: room.white_ms } : {}),
-    ...(room.black_ms !== undefined ? { black_ms: room.black_ms } : {}),
-    ...(room.clock_at_ms !== undefined
-      ? { clock_at_ms: room.clock_at_ms }
-      : {}),
-    ...(room.draw_offer_by !== undefined
-      ? { draw_offer_by: room.draw_offer_by }
-      : {}),
-    ...(room.rematch_offer_by !== undefined
-      ? { rematch_offer_by: room.rematch_offer_by }
-      : {}),
-    ...(room.rematch_of !== undefined ? { rematch_of: room.rematch_of } : {}),
-    ...(room.white_rating !== undefined
-      ? { white_rating: room.white_rating }
-      : {}),
-    ...(room.black_rating !== undefined
-      ? { black_rating: room.black_rating }
-      : {}),
-    ...(room.white_rating_diff !== undefined
-      ? { white_rating_diff: room.white_rating_diff }
-      : {}),
-    ...(room.black_rating_diff !== undefined
-      ? { black_rating_diff: room.black_rating_diff }
-      : {}),
-    ...(room.setup_ready !== undefined
-      ? { setup_ready: room.setup_ready }
-      : {}),
-  };
+  // A room delivery may omit untimed fields; explicit nulls remain authoritative.
+  const defined = Object.fromEntries(
+    Object.entries(room).filter(([, value]) => value !== undefined)
+  );
+  return { ...row, ...defined };
 }
 
 /**
@@ -132,10 +96,7 @@ export function useMultiplayerData(gameId: () => string) {
     ratings: ratings.rows,
     participant: () => {
       const current = game();
-      return (
-        current !== null &&
-        (current.white_id === myId() || current.black_id === myId())
-      );
+      return current !== null && multiplayerSideOf(current, myId()) !== null;
     },
     loading: games.isLoading,
   };

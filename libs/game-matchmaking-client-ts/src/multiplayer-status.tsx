@@ -1,9 +1,10 @@
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
-import {
-  bothHaveMoved,
-  otherPerson,
-} from '@libs/game-matchmaking-shared-ts/game-state';
+import { bothHaveMoved } from '@libs/game-matchmaking-shared-ts/game-state';
 import { multiplayerDeadlineMs } from '@libs/game-matchmaking-shared-ts/multiplayer-clock';
+import {
+  multiplayerSideOf,
+  multiplayerSides,
+} from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
 import { isDailyTimeControl } from '@libs/game-matchmaking-shared-ts/time-control';
 import { Trans } from '@lingui/solid/macro';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
@@ -20,6 +21,7 @@ import { timeLeftWords } from './multiplayer-time-left';
 import { timeControlText } from './time-control-name';
 import type { LowOnTime } from './use-low-on-time';
 import { useOfflineSince } from './use-offline-since';
+import { useShownName } from './use-shown-name';
 
 type StatusProps = {
   readonly game: MultiplayerGame;
@@ -30,12 +32,12 @@ type StatusProps = {
   readonly lowOnTime: LowOnTime | null;
 };
 
-const white = (props: StatusProps): boolean =>
-  props.game.white_id === props.viewer.myId;
+const ownSide = (props: StatusProps) =>
+  multiplayerSideOf(props.game, props.viewer.myId) ?? 'white';
 
 /** How a finished game reads to a person who played it. */
 function PlayerResult(props: StatusProps): JSX.Element {
-  const won = () => (props.game.outcome === 'white') === white(props);
+  const won = () => props.game.outcome === ownSide(props);
   return (
     <Switch>
       <Match when={props.game.outcome === 'aborted'}>
@@ -72,8 +74,7 @@ function PlayerHeadline(props: StatusProps): JSX.Element {
           {timeControlText(props.game.time_control)}.
         </Trans>{' '}
         <Trans>
-          You are{' '}
-          {gameSideLabel(props.game.fen, white(props) ? 'white' : 'black')}.
+          You are {gameSideLabel(props.game.fen, ownSide(props))}.
         </Trans>{' '}
       </VisuallyHidden>
       <Show
@@ -92,7 +93,9 @@ function WatcherHeadline(props: StatusProps): JSX.Element {
     <>
       <Trans>Watching multiplayer {presentation(props.game.fen).name()}.</Trans>
       <Show
-        when={props.game.outcome === 'white' || props.game.outcome === 'black'}
+        when={multiplayerSides(props.game).includes(
+          props.game.outcome as ReturnType<typeof ownSide>
+        )}
       >
         {' '}
         <Trans>{props.winnerName} won the multiplayer game.</Trans>
@@ -116,20 +119,10 @@ function LowOnTimeWords(props: StatusProps): JSX.Element {
       {(low) => (
         <VisuallyHidden>
           {' '}
-          <Show
-            when={low().side === 'white'}
-            fallback={
-              <Trans>
-                {gameSideLabel(props.game.fen, 'black')} is low on time, with{' '}
-                {timeLeftWords(low().leftMs)} left.
-              </Trans>
-            }
-          >
-            <Trans>
-              {gameSideLabel(props.game.fen, 'white')} is low on time, with{' '}
-              {timeLeftWords(low().leftMs)} left.
-            </Trans>
-          </Show>
+          <Trans>
+            {gameSideLabel(props.game.fen, low().side)} is low on time, with{' '}
+            {timeLeftWords(low().leftMs)} left.
+          </Trans>
         </VisuallyHidden>
       )}
     </Show>
@@ -143,10 +136,15 @@ function Reason(props: { readonly game: MultiplayerGame }): JSX.Element {
   const flagged = () =>
     gameSideLabel(
       props.game.fen,
-      props.game.white_ms === 0 ? 'white' : 'black'
+      multiplayerSides(props.game).find(
+        (side) => props.game[`${side}_ms`] === 0
+      ) ?? 'white'
     );
   return (
     <Switch>
+      <Match when={props.game.reason === 'participant withdrew'}>
+        <Trans>A player left the round.</Trans>
+      </Match>
       <Match when={props.game.reason === 'resignation'}>
         <Trans>By resignation.</Trans>
       </Match>
@@ -155,7 +153,9 @@ function Reason(props: { readonly game: MultiplayerGame }): JSX.Element {
       </Match>
       <Match when={props.game.reason === 'timeout vs insufficient material'}>
         {presentation(props.game.fen).timeoutDrawDescription(
-          props.game.white_ms === 0 ? 'white' : 'black'
+          multiplayerSides(props.game).find(
+            (side) => props.game[`${side}_ms`] === 0
+          ) ?? 'white'
         )}
       </Match>
       <Match when={props.game.reason === 'agreement'}>
@@ -179,8 +179,7 @@ function Reason(props: { readonly game: MultiplayerGame }): JSX.Element {
 /** A draw the position itself made. */
 
 function RatingChange(props: StatusProps): JSX.Element {
-  const diff = () =>
-    white(props) ? props.game.white_rating_diff : props.game.black_rating_diff;
+  const diff = () => props.game[`${ownSide(props)}_rating_diff`] ?? null;
   return (
     <Show when={props.viewer.participant && diff() !== null}>
       <Text variant="inherit" testId="multiplayer-rating-change">
@@ -194,20 +193,22 @@ function RatingChange(props: StatusProps): JSX.Element {
 }
 
 function Offers(props: StatusProps): JSX.Element {
+  const drawName = useShownName(() => props.game.draw_offer_by ?? '');
+  const rematchName = useShownName(() => props.game.rematch_offer_by ?? '');
   const offeredToMe = (by: string | null) =>
     props.viewer.participant &&
-    by === otherPerson(props.game, props.viewer.myId);
+    Boolean(
+      by &&
+        by !== props.viewer.myId &&
+        multiplayerSideOf(props.game, by) !== null
+    );
   return (
     <>
       <Show when={offeredToMe(props.game.draw_offer_by)}>
-        <Trans>
-          {props.viewer.opponentName} offered you a multiplayer draw.
-        </Trans>{' '}
+        <Trans>{drawName()} offered you a multiplayer draw.</Trans>{' '}
       </Show>
       <Show when={offeredToMe(props.game.rematch_offer_by)}>
-        <Trans>
-          {props.viewer.opponentName} offered you a multiplayer rematch.
-        </Trans>{' '}
+        <Trans>{rematchName()} offered you a multiplayer rematch.</Trans>{' '}
       </Show>
     </>
   );
@@ -229,11 +230,14 @@ function hasDetail(props: StatusProps): boolean {
   const game = props.game;
   if (game.outcome !== 'ongoing' && game.reason !== 'abort') return true;
   if (!props.viewer.participant) return false;
-  const other = otherPerson(game, props.viewer.myId);
+  const offered = (by: string | null) =>
+    Boolean(
+      by && by !== props.viewer.myId && multiplayerSideOf(game, by) !== null
+    );
   return (
-    game.draw_offer_by === other ||
-    game.rematch_offer_by === other ||
-    (white(props) ? game.white_rating_diff : game.black_rating_diff) !== null
+    offered(game.draw_offer_by) ||
+    offered(game.rematch_offer_by) ||
+    game[`${ownSide(props)}_rating_diff`] != null
   );
 }
 
@@ -241,18 +245,15 @@ function hasDetail(props: StatusProps): boolean {
 const ownClockLow = (props: StatusProps): boolean =>
   props.lowOnTime !== null &&
   props.viewer.participant &&
-  (props.lowOnTime.side === 'white') === white(props);
+  props.lowOnTime.side === ownSide(props);
 
 function tone(props: StatusProps): GameStatusTone {
   const game = props.game;
   if (ownClockLow(props)) return 'warning';
   if (game.outcome === 'ongoing')
     return game.turn === props.viewer.myId ? 'active' : 'neutral';
-  const won =
-    props.viewer.participant && (game.outcome === 'white') === white(props);
-  return won && game.outcome !== 'draw' && game.outcome !== 'aborted'
-    ? 'success'
-    : 'neutral';
+  const won = props.viewer.participant && game.outcome === ownSide(props);
+  return won ? 'success' : 'neutral';
 }
 
 /** The first-move deadline, while one of the two has yet to move. */

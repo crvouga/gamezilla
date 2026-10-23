@@ -9,7 +9,10 @@ import { formMatches } from '@pkgs/matchmaking-sql-shared-ts/match-pass';
 import { waitingPartitions } from '@pkgs/matchmaking-sql-shared-ts/waiting-partitions';
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import sql from '@pkgs/sql-root-shared-ts/sql';
-import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  gameSides,
+  type TurnGames,
+} from '@pkgs/turn-game-shared-ts/game-rules';
 import { createMultiplayerGame } from './game-creation';
 import { MultiplayerGameRepository } from './game-repository';
 import {
@@ -65,7 +68,11 @@ export async function acceptGameMatch(
   },
   rules: TurnGames
 ): Promise<void> {
-  assert.ok(fact.participants.length === 2, 'a game match has two people');
+  const seats = gameSides(rules.forControl(timeControlOf(fact)));
+  assert.ok(
+    fact.participants.length === seats.length,
+    'a game match fills every declared seat'
+  );
   const prior = await tx.query(
     sql<{
       id: string;
@@ -78,17 +85,24 @@ export async function acceptGameMatch(
       (await games.unfinishedCount(person.ownerId)) === 0,
       'an unfinished game makes its person unavailable'
     );
-  const [whiteId, blackId] = await colours(
-    tx,
-    fact.participants,
-    ports.tieBreak
-  );
+  const [whiteId, blackId] =
+    seats.length === 2
+      ? await colours(tx, fact.participants, ports.tieBreak)
+      : [fact.participants[0]!.ownerId, fact.participants[1]!.ownerId];
+  const extra =
+    seats.length > 2
+      ? {
+          redId: fact.participants[seats.indexOf('red')]!.ownerId,
+          blueId: fact.participants[seats.indexOf('blue')]!.ownerId,
+        }
+      : {};
   await createMultiplayerGame(
     tx,
     {
       id: fact.matchId,
       whiteId,
       blackId,
+      ...extra,
       timeControl: timeControlOf(fact),
       rematchOf: null,
       nowMs: ports.nowMs,
@@ -115,7 +129,14 @@ export async function formGameMatches(
   rules: TurnGames
 ): Promise<readonly string[]> {
   const owners: string[] = [];
-  const waiting = await waitingPartitions(tx, 2);
+  const sizes = [
+    ...new Set(
+      rules.games
+        .filter((game) => game.capabilities.matchmaking !== undefined)
+        .map((game) => gameSides(game.rules).length)
+    ),
+  ];
+  const waiting = await waitingPartitions(tx, sizes);
   for (const control of offeredTimeControls(rules)) {
     const pool = opponentPool(control.id, rules);
     if (!waiting.has(pool)) continue;
@@ -123,7 +144,7 @@ export async function formGameMatches(
       nowMs: ports.nowMs,
       createId: ports.createId,
       partitionSignature: pool,
-      groupSize: 2,
+      groupSize: gameSides(rules.forControl(control.id)).length,
       maxPairsPerPass: 500,
       radius: OPPONENT_SEARCH_RADIUS,
       restrictionsFor: opponentRestrictions,

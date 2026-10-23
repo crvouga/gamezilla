@@ -1,0 +1,4 @@
+{
+  "summary": "Four-seat matched games numbered and announced moves in pairs instead of preserving each participant's place in the round.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-daily-clock-format.test.ts"
+}

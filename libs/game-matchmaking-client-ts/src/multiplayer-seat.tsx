@@ -2,6 +2,7 @@ import type {
   MultiplayerGame,
   MultiplayerSide,
 } from '@libs/game-matchmaking-shared-ts/game-state';
+import { multiplayerOwner } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
 import { AccountAutomationLabel } from '@libs/profile-client-ts/account-automation-label';
 import { UserProfileAvatar } from '@libs/profile-client-ts/user-profile-avatar';
 import { UserUsername } from '@libs/profile-client-ts/user-username';
@@ -36,10 +37,11 @@ function SeatName(props: {
   readonly profileId: string;
   readonly own: boolean;
   readonly viewer: MultiplayerViewer;
+  readonly multiple?: boolean;
 }): JSX.Element {
   return (
     <Show
-      when={!props.own}
+      when={!props.own && !props.multiple}
       fallback={<UserUsername profileId={props.profileId} withAt={false} />}
     >
       <Text variant="inherit" testId="multiplayer-opponent">
@@ -100,8 +102,7 @@ export function MultiplayerSeat(props: {
   readonly near: boolean;
   readonly viewer: MultiplayerViewer;
 }): JSX.Element {
-  const profileId = () =>
-    props.side === 'white' ? props.game.white_id : props.game.black_id;
+  const profileId = () => multiplayerOwner(props.game, props.side);
   return (
     <GamePlayerBar
       active={
@@ -117,6 +118,7 @@ export function MultiplayerSeat(props: {
         <SeatName
           profileId={profileId()}
           own={props.own}
+          multiple={Boolean(props.game.red_id)}
           viewer={props.viewer}
         />
       }
@@ -131,7 +133,11 @@ export function MultiplayerSeat(props: {
       }
       trailing={<MultiplayerClock game={props.game} side={props.side} />}
       dataSet={{
-        testid: props.near ? 'multiplayer-seat-near' : 'multiplayer-seat-far',
+        testid: props.game.red_id
+          ? `multiplayer-seat-${props.side}`
+          : props.near
+            ? 'multiplayer-seat-near'
+            : 'multiplayer-seat-far',
       }}
     />
   );

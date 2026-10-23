@@ -5,11 +5,20 @@ import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import type { MutationCtx } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared-ts/mutations-types';
-import { requireTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  gameSides,
+  requireTurnGames,
+} from '@pkgs/turn-game-shared-ts/game-rules';
 import { createMultiplayerGame } from './game-creation';
 import { MultiplayerGameRepository } from './game-repository';
 import type { MultiplayerGame } from './game-state';
 import { isFinished, otherPerson } from './game-state';
+import {
+  multiplayerOwner,
+  multiplayerPeople,
+  multiplayerSides,
+  multiplayerVotes,
+} from './multiplayer-roster';
 
 export type RematchAnswer = 'offer' | 'accept' | 'decline';
 
@@ -43,7 +52,10 @@ function requireWaitingOffer(game: MultiplayerGame, actorId: string): void {
       'CHESS_OWN_REMATCH_OFFER',
       'Only your multiplayer opponent may answer your multiplayer rematch offer.'
     );
-  if (game.rematch_offer_by !== otherPerson(game, actorId))
+  if (
+    !game.rematch_offer_by ||
+    !multiplayerPeople(game).includes(game.rematch_offer_by)
+  )
     refuse('CHESS_REMATCH_ENDED', 'The multiplayer rematch offer has ended.');
 }
 
@@ -53,21 +65,26 @@ async function requireBothFree(
   game: MultiplayerGame,
   people: { readonly actorId: string; readonly nowMs: number }
 ): Promise<void> {
-  const other = otherPerson(game, people.actorId);
-  if (await looking(tx, people.actorId, people.nowMs))
-    refuse('CHESS_ALREADY_LOOKING', 'You are already looking for an opponent.');
-  if ((await currentGameOf(tx, other)) !== game.id)
-    refuse(
-      'CHESS_OPPONENT_PLAYING',
-      'Your multiplayer opponent is already playing another multiplayer game.'
-    );
-  if (await looking(tx, other, people.nowMs))
-    refuse(
-      'CHESS_OPPONENT_LOOKING',
-      'Your multiplayer opponent is already looking for an opponent.'
-    );
-  if ((await currentGameOf(tx, people.actorId)) !== game.id)
-    refuse('CHESS_REMATCH_ENDED', 'The multiplayer rematch offer has ended.');
+  for (const person of multiplayerPeople(game)) {
+    if (await looking(tx, person, people.nowMs))
+      refuse(
+        person === people.actorId
+          ? 'CHESS_ALREADY_LOOKING'
+          : 'CHESS_OPPONENT_LOOKING',
+        person === people.actorId
+          ? 'You are already looking for an opponent.'
+          : 'Your multiplayer opponent is already looking for an opponent.'
+      );
+    if ((await currentGameOf(tx, person)) !== game.id)
+      refuse(
+        person === people.actorId
+          ? 'CHESS_REMATCH_ENDED'
+          : 'CHESS_OPPONENT_PLAYING',
+        person === people.actorId
+          ? 'The multiplayer rematch offer has ended.'
+          : 'Your multiplayer opponent is already playing another multiplayer game.'
+      );
+  }
 }
 
 /** The same two people at the same time control, colours swapped, no search. */
@@ -82,12 +99,22 @@ async function startRematch(
       'CHESS_TIME_CONTROL_NOT_OFFERED',
       'The game no longer offers finding an opponent.'
     );
+  const seats = gameSides(rules.forPosition(game.fen));
+  const rotated = Object.fromEntries(
+    seats.map((side, index) => [
+      side,
+      multiplayerOwner(game, seats[(index + seats.length - 1) % seats.length]!),
+    ])
+  );
   await createMultiplayerGame(
     ctx.tx,
     {
       id: `rematch:${game.id}`,
-      whiteId: game.black_id,
-      blackId: game.white_id,
+      whiteId: rotated['white']!,
+      blackId: rotated['black']!,
+      ...(rotated['red']
+        ? { redId: rotated['red'], blueId: rotated['blue']! }
+        : {}),
       timeControl: game.time_control ?? '',
       rematchOf: game.id,
       nowMs,
@@ -95,7 +122,7 @@ async function startRematch(
     },
     rules
   );
-  return { ...game, rematch_offer_by: '' };
+  return { ...game, rematch_offer_by: '', rematch_votes: null };
 }
 
 async function decideRematch(
@@ -108,8 +135,22 @@ async function decideRematch(
   if (answer === 'offer') requireOver(game);
   else if (!isFinished(game.outcome)) requireOver(game);
   else requireWaitingOffer(game, actorId);
-  if (answer === 'decline') return { ...game, rematch_offer_by: '' };
+  if (answer === 'decline')
+    return { ...game, rematch_offer_by: '', rematch_votes: null };
   await requireBothFree(ctx.tx, game, { actorId, nowMs });
+  if (multiplayerSides(game).length > 2) {
+    const prior = game.rematch_offer_by
+      ? multiplayerVotes(game, game.rematch_votes)
+      : [];
+    const votes = [...new Set([...prior, actorId])];
+    if (multiplayerPeople(game).every((person) => votes.includes(person)))
+      return startRematch(ctx, game, nowMs);
+    return {
+      ...game,
+      rematch_offer_by: game.rematch_offer_by || actorId,
+      rematch_votes: JSON.stringify(votes),
+    };
+  }
   if (
     answer === 'accept' ||
     game.rematch_offer_by === otherPerson(game, actorId)

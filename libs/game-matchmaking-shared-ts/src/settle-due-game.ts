@@ -2,6 +2,7 @@ import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { MultiplayerGameRepository } from './game-repository';
 import { settleMultiplayerClock } from './multiplayer-clock';
+import { multiplayerPeople } from './multiplayer-roster';
 
 /**
  * The scheduled sweep's half of a deadline: applies a missed first move or a
@@ -28,5 +29,5 @@ export async function settleDueGame(
     server: true,
     publish: { createId },
   });
-  return [stored.white_id, stored.black_id];
+  return multiplayerPeople(stored);
 }
