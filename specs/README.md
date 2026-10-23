@@ -1177,7 +1177,7 @@ Published language:
 | Spaces (`spaces`) | space, host, join, leave, create a space, end a space, open space, return to a space, lobby, space link, hosting limit, idle | `SpaceEvent`: `SpaceOpened`, `PersonJoined`, `PersonLeft`, `SpaceEnded` |
 | Friends (`friends`) | friend, friends list, people search, block someone, inbox | `FriendshipEvent`: `BecameFriends`, `FriendshipEnded` |
 | Chess (`chess`) | game, chess, board, puzzle, solve, multiplayer chess, multiplayer result, Custom Game, Custom Game move list | — |
-| Games (`games`) | game, the game's choices, custom game, bot, ready, start | — |
+| Games (`games`) | game, the game's choices, custom game, bot, custom game readiness, start a custom game | — |
 | Connect Four (`connect-four`) | Connect Four | — |
 | Battleship (`battleship`) | Battleship | — |
 | Quoridor (`quoridor`) | Quoridor, Classic Quoridor, Four-Player King of the Hill | — |
