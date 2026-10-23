@@ -9,7 +9,6 @@ import { ATTR } from '@pkgs/observability-root-shared-ts/attributes';
 import { withSpan } from '@pkgs/observability-root-shared-ts/span';
 import { OutboxConsumerRegistry } from '@pkgs/outbox-shared-ts/define-consumer';
 import {
-  type DrainOutboxDeps,
   drainOutbox,
   type ObserveDelivery,
 } from '@pkgs/outbox-shared-ts/drain';
@@ -95,12 +94,7 @@ export function getOutboxConsumerRegistry(): OutboxConsumerRegistry {
   return registry;
 }
 
-/**
- * Drain due outbox deliveries and push notification topics.
- * Publishes synchronously (like mutation fanout) so DST harness timers need not
- * advance for recipients to see rows.
- */
-export async function drainAndNotifyOutbox(args: {
+type DrainAndNotifyArgs = {
   readonly db: SqlClient;
   readonly clock: Clock;
   readonly createId: CreateId;
@@ -111,11 +105,17 @@ export async function drainAndNotifyOutbox(args: {
   readonly topicMap?: TopicMap;
   readonly maxPasses?: number;
   readonly limit?: number;
-}): Promise<number> {
-  const captures: ReturnType<typeof wrapMutationDb>[] = [];
+};
+
+/** Drain bounded causal passes, publishing each committed result before the next pass. */
+export async function drainAndNotifyOutbox(
+  args: DrainAndNotifyArgs
+): Promise<number> {
   const consumers = args.consumerRegistry ?? getOutboxConsumerRegistry();
-  const result = await drainDueOutbox(
-    {
+  let processed = 0;
+  for (let pass = 0; pass < (args.maxPasses ?? 8); pass++) {
+    const captures: ReturnType<typeof wrapMutationDb>[] = [];
+    const result = await drainOutbox({
       db: args.db,
       clock: args.clock,
       createId: args.createId,
@@ -129,22 +129,33 @@ export async function drainAndNotifyOutbox(args: {
         captures.push(wrapped);
         return wrapped.tx;
       },
-    },
-    args.maxPasses
-  );
-  countExhaustedOutboxDeliveries(result.exhausted);
+    });
+    processed += result.processed;
+    countExhaustedOutboxDeliveries(result.exhausted);
+    // This pass has committed. Publish it before following deliveries can wait.
+    await notifyCommittedPass(args, consumers, captures, result.notifyUserIds);
+    if (result.processed === 0) break;
+  }
+  return processed;
+}
 
+async function notifyCommittedPass(
+  args: DrainAndNotifyArgs,
+  consumers: OutboxConsumerRegistry,
+  captures: readonly ReturnType<typeof wrapMutationDb>[],
+  notifyUserIds: readonly string[]
+): Promise<void> {
   const store = apiRequestAsyncLocalStorage.getStore();
   const topics = await outboxNotificationTopics({
     topicMap: args.topicMap ?? topicMaps.get(consumers),
     captures: captures.map((capture) => capture.getCapture()),
-    notifyUserIds: result.notifyUserIds,
+    notifyUserIds,
     db: args.db,
     ctx: topicMapCtxFromEnv(
-      accountMutationEnv(result.notifyUserIds[0] ?? 'system', args)
+      accountMutationEnv(notifyUserIds[0] ?? 'system', args)
     ),
   });
-  if (topics.length === 0) return result.processed;
+  if (topics.length === 0) return;
   const pubsub =
     args.pubsub ??
     (store === undefined
@@ -155,7 +166,7 @@ export async function drainAndNotifyOutbox(args: {
           store.http
         ).get());
   if (pubsub == null) {
-    return result.processed;
+    return;
   }
   await notifyChannels({
     pubsub,
@@ -167,22 +178,4 @@ export async function drainAndNotifyOutbox(args: {
     label: 'outbox-drain',
     now: args.clock.now,
   });
-  return result.processed;
-}
-
-/** Each pass commits before following events are delivered. In particular, a
- * match formed by one consumer is durable before its room receives the board.
- * Bound the causal work so a request cannot drain an endless event chain. */
-async function drainDueOutbox(deps: DrainOutboxDeps, maxPasses = 8) {
-  const notifyUserIds = new Set<string>();
-  let processed = 0;
-  let exhausted = 0;
-  for (let pass = 0; pass < maxPasses; pass++) {
-    const result = await drainOutbox(deps);
-    processed += result.processed;
-    exhausted += result.exhausted;
-    for (const id of result.notifyUserIds) notifyUserIds.add(id);
-    if (result.processed === 0) break;
-  }
-  return { processed, exhausted, notifyUserIds: [...notifyUserIds] };
 }
