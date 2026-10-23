@@ -57,7 +57,7 @@ module quoridor_play {
       _neighbors(square).exists(other => seen.contains(other) and not(_blocked(square, other, placed))))
   pure def _reachable(m: str, player: int, start: int, placed: Set[(int, int, int)]): bool =
     // One wall removes only two parallel boundaries; every square can still go around it.
-    if (CELLS.contains(start) and placed.size() <= 1) true else {
+    if (placed.size() <= 1) CELLS.contains(start) else {
     val reachable = 0.to(80).fold(Set(start), (seen, _) =>
       if (seen.exists(c => _goal(m, player, c))) seen
       else _expandReachable(seen, placed))
