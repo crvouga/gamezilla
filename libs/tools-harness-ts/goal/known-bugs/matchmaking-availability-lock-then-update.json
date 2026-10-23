@@ -1,0 +1,4 @@
+{
+  "summary": "Availability changes locked an owner with an upsert and then updated that same owner in a second statement. Use one atomic upsert that preserves its current search and original creation time, followed by the existing wait cancellation when unavailable.",
+  "regressionTest": "libs/game-matchmaking-shared-ts/tests/availability-statements.test.ts"
+}
