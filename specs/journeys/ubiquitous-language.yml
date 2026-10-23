@@ -78,9 +78,9 @@ terms:
     from: chess
   - term: multiplayer result
     from: chess
-  - term: Custom Game
+  - term: custom game
     from: chess
-  - term: Custom Game move list
+  - term: custom game move list
     from: chess
 
   - term: Connect Four

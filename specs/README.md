@@ -1128,6 +1128,7 @@ terms:
 | Games | `games` | what every game in a space offers alike: the game's choices, custom games with people and bots, private setups, turns, finding an opponent, matched games (aborting, resigning, draw offers and rematches), puzzles for every game offering them (playing them as a feed, solving, hints, retries, showing the solution, resuming an attempt, the puzzle clock, reviewing a puzzle's line, the feed and its settings, choosing the next puzzle, puzzle ratings, stats and game logs, refused puzzle actions, the daily puzzle limit, guests' puzzles, erasing a deleted account's puzzle progress, playing offline, results across devices, watching, puzzle links, sounds, the keyboard and listening, winning a puzzle another way, and other play leaving puzzles alone), history, review and statistics | core |
 | Connect Four | `connect-four` | Connect Four's own board, drops, winning alignments, draws and bots | supporting |
 | Battleship | `battleship` | Battleship's own boards, fleets, placing ships, shots, hits, misses, sinkings, victory and bots | supporting |
+| Pong | `pong` | Pong's court, paddles, ball, points, score, serves and victory | supporting |
 | Auth | `auth` | how outside accounts at Google and Apple, and sign-in links sent to an email address, get people into accounts: matching and confirming accounts, connecting and removing sign-in methods, asking for and opening a sign-in link, stolen sign-ins, how long a sign-in lasts, Google or Apple having trouble | generic (Google, Apple and the mailbox say who is signing in) |
 | Room | `room` | the room framework's example game room: a tally friends keep together, owning the room and turning someone away, a timed match, who is present | supporting |
 | Matchmaking | `matchmaking` | waiting for a match, one wait at a time, rating ranges, pairing people up, being matched, stopping a wait | supporting |
@@ -1158,6 +1159,7 @@ Matchmaking ──► Chess (a complete matchmaking match), Games (pair people u
 Chess    ──► Journeys (a game of chess, a puzzle, multiplayer chess, a Custom Game)
 Battleship ──► Journeys (Battleship)
 Games    ──► Connect Four (game), Battleship (game, custom game)
+Games    ──► Pong (game)
 Room, Sync engine: stand alone; Matchmaking publishes complete matches to Chess (Sync engine's "shared space" is not a Spaces space)
 Database indexing: stands alone; publishes no product terms or events
 ```
@@ -1174,6 +1176,7 @@ Published language:
 | Games (`games`) | game, the game's choices, custom game | — |
 | Connect Four (`connect-four`) | Connect Four | — |
 | Battleship (`battleship`) | Battleship | — |
+| Pong (`pong`) | Pong | — |
 | App (`runtime`) | Settings, tabs, address, version of the app, trail, run into trouble, keyboard, control, place in the app | — |
 | Developer tools (`developer-tools`) | the testing tool | — |
 | Matchmaking (`matchmaking`) | matchmaking match, pair people up | `MatchmakingEvent`: `MatchFormed` |

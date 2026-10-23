@@ -1,10 +1,10 @@
 # The ubiquitous language of the Chess context: chess puzzles played in a
-# space, and Custom Games. Chess rules are cited from the FIDE Laws of Chess, not redefined.
+# space, and custom games. Chess rules are cited from the FIDE Laws of Chess, not redefined.
 # Terms other contexts own are borrowed (from: <domain>) with the spelling the
 # context map publishes.
 context: Chess
 purpose: >-
-  Custom Games with configurable White and Black, and an endless feed of chess puzzles a person solves in their space, with
+  custom games with configurable White and Black, and an endless feed of chess puzzles a person solves in their space, with
   friends watching, that keeps an honest puzzle rating and a game log of every
   puzzle played, online or offline.
 
@@ -508,8 +508,8 @@ terms:
 
   - term: watcher
     definition: >-
-      Someone in a space watching its Custom Game, multiplayer game or the host's puzzle.
-      In a Custom Game they have no accepted side and cannot move pieces. Their board agrees with
+      Someone in a space watching its custom game, multiplayer game or the host's puzzle.
+      In a custom game they have no accepted side and cannot move pieces. Their board agrees with
       the host's, even after arriving mid-puzzle or losing the connection. A
       watcher may make a suggestion but never drives the puzzle and is never
       rated for it. In a multiplayer game a watcher may flip the board or
@@ -725,7 +725,7 @@ terms:
       with someone who chose the same time control, by their multiplayer
       ratings for its speed, with the rating range growing as matchmaking
       defines it. Blocking in either direction prevents a new pairing. A
-      participant of an active Custom Game finishes it before finding a
+      participant of an active custom game finishes it before finding a
       chess opponent. While looking, a person sees their time control and
       how long they have been looking. Signing out on one device leaves an
       accepted search available on the person's other devices.
@@ -951,9 +951,9 @@ terms:
     forms: [flips the board, flipped the board, flipping the board, flipping, flipped]
     avoid: [rotate, switch sides]
 
-  # --- Custom Games --------------------------------------------------------
+  # --- custom games --------------------------------------------------------
 
-  - term: Custom Game
+  - term: custom game
     definition: One unrated standard game of chess in a space, with White and Black each
       chosen as a person, a bot, an invitation, an open place or a closed side before start.
       The host is its creator and need not participate. The usual starting position is used;
@@ -962,11 +962,11 @@ terms:
       a side or invitation. Choices involving another person need a connection.
       Agreed choices and moves remain available on return.
     forms:
-    - Custom Games
-    - Custom Game's
+    - custom games
+    - custom game's
     published: true
   - term: side
-    definition: White or Black in a Custom Game or a multiplayer game. In a Custom Game each
+    definition: White or Black in a custom game or a multiplayer game. In a custom game each
       has one choice of participant, and one person cannot be accepted or invited on both sides.
     forms:
     - sides
@@ -1036,8 +1036,8 @@ terms:
     - swaps
     - swapped
     - swapping
-  - term: Custom Game status
-    definition: Whether a Custom Game is configuring, active, completed or cancelled. A new
+  - term: custom game status
+    definition: Whether a custom game is configuring, active, completed or cancelled. A new
       game follows a terminal game without reviving it.
     forms:
     - configuring
@@ -1047,7 +1047,7 @@ terms:
     - started
     - finished
     - startable
-  - term: Custom Game choices
+  - term: custom game choices
     definition: The sides and time choice agreed before start. Start requires two participants
       and every person ready. Starting freezes these choices. Choices that have since changed
       cannot be replaced by an earlier attempt.
@@ -1061,7 +1061,7 @@ terms:
     forms:
     - untimed
     - timed
-  - term: Custom Game outcome
+  - term: custom game outcome
     definition: 'The final result: White wins, Black wins, a draw or cancellation with no
       winner. Wins say checkmate, resignation, time, or the other participant staying away.
       Every game is unrated and never changes puzzle progress. A finished result cannot be
@@ -1083,13 +1083,13 @@ terms:
     - accepts the draw
     - declines the draw
   - term: rematch
-    definition: A separate configuring Custom Game after completion or cancellation, with
+    definition: A separate configuring custom game after completion or cancellation, with
       accepted participants swapped and the same time choice. Invitations are not inherited
       and absent people become open places. People must agree again; the earlier game keeps
       its outcome and move list.
     forms:
     - rematches
-  - term: Custom Game refusal
+  - term: custom game refusal
     definition: 'Why a person''s choice cannot take effect: authority, lifecycle, participant
       relationship, a block, readiness, time choice, a draw offer just declined, an opponent
       who may still return, changed choices or no connection. A refusal caused by a block
@@ -1097,7 +1097,7 @@ terms:
       later on its own.'
     forms:
     - refusal
-  - term: Custom Game move list
+  - term: custom game move list
     definition: The moves of one game in algebraic notation, kept with its final outcome.
       Reviewing a played move shows that position without moving the live game; a move that
       was never played cannot be reviewed.
@@ -1106,7 +1106,7 @@ terms:
     published: true
 
   - term: side control
-    definition: Who may move for a side in a Custom Game, exclusively its accepted person
+    definition: Who may move for a side in a custom game, exclusively its accepted person
       or chosen bot.
     forms:
     - control
@@ -1116,25 +1116,25 @@ terms:
     from: runtime
   - term: repetition
     definition: The same position with the same side to move and the same rights appearing
-      again. The third appearance completes a Custom Game as a draw.
+      again. The third appearance completes a custom game as a draw.
     forms:
     - repeated
     - second repetition
     - third repetition
   - term: stalemate
-    definition: The side to move is not in check but has no legal move. The Custom Game ends
+    definition: The side to move is not in check but has no legal move. The custom game ends
       as a draw.
   - term: mating material
     definition: Pieces remaining that can produce checkmate, including help from the other
       side's pieces. A bare king has none. Without it, running out of time cannot award a
-      win; in a Custom Game, resignation cannot either.
+      win; in a custom game, resignation cannot either.
     forms:
     - insufficient mating material
     - remaining material
     - bare king
     - bare kings
   - term: fifty moves
-    definition: Fifty moves by each side without a pawn move or capture end a Custom Game
+    definition: Fifty moves by each side without a pawn move or capture end a custom game
       as a draw. A legal mating move completes checkmate before this draw.
     forms:
     - fiftieth

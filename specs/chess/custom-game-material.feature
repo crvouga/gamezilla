@@ -6,13 +6,13 @@ Feature: A win on time needs mating material
     No counter-example: the remaining material decides the result, and nobody can choose a win it cannot give.
 
     Scenario: Running out against a bare king draws
-      Given Alice has a timed Custom Game with a queen against Bob's bare king
-      And White has one second left in the Custom Game
+      Given Alice has a timed custom game with a queen against Bob's bare king
+      And White has one second left in the custom game
       When 1 second passes
-      Then The Custom Game is completed as a draw
+      Then The custom game is completed as a draw
 
     Scenario: A queen can win on time
-      Given Alice has a timed Custom Game with a queen against Bob's bare king
-      And Black has one second left in the Custom Game
+      Given Alice has a timed custom game with a queen against Bob's bare king
+      And Black has one second left in the custom game
       When 1 second passes
-      Then Alice wins the Custom Game on time
+      Then Alice wins the custom game on time
