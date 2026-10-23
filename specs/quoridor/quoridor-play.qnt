@@ -50,9 +50,13 @@ module quoridor_play {
     }
   )
   pure def _edge(a: int, b: int, placed: Set[(int, int, int)]): bool = _adjacent(a, b) and not(_blocked(a, b, placed))
+  pure def _neighbors(square: int): Set[int] =
+    Set(square - 9, square + 9, square - 1, square + 1).filter(other => _adjacent(square, other))
   pure def _reachable(m: str, player: int, start: int, placed: Set[(int, int, int)]): bool = {
     val reachable = 0.to(80).fold(Set(start), (seen, _) =>
-      seen.union(CELLS.filter(c => seen.exists(n => _edge(n, c, placed)))))
+      if (seen.exists(c => _goal(m, player, c))) seen
+      else seen.fold(seen, (expanded, square) =>
+        expanded.union(_neighbors(square).filter(other => not(_blocked(square, other, placed))))))
     reachable.exists(c => _goal(m, player, c))
   }
   pure def _clear(m: str, positions: int -> int, square: int): bool =
