@@ -14,18 +14,6 @@ export function requireDevice(device: Device | null, who: string): Device {
   return device;
 }
 
-/** Every fresh primary device owns a fresh Chrome process and profile. */
-export async function openPrimaryDevice(
-  target: LiveTarget,
-  devices: LiveDevices,
-  open: typeof openIsolatedDevice = openIsolatedDevice
-): Promise<Device> {
-  const host = await open(target);
-  devices.host = host;
-  devices.shown = host;
-  return host;
-}
-
 /** A second person must never clear the first person's Chrome storage. */
 export async function openGuestDevice(
   target: LiveTarget,

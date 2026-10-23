@@ -598,7 +598,7 @@ Leave a check untagged until it can run on a dedicated synthetic identity, clean
 
 While iterating, prefer `bunx turbo run tc test --filter=<pkg>` before a full verification; an unchanged package is a cache hit.
 
-Live Health scenarios run serially so each scenario finishes its cleanup before the next opens a device. Every participant, including the primary device, owns an isolated browser process and fresh Chrome storage.
+Live Health scenarios run serially: the primary Chrome storage is shared, so each scenario must finish its cleanup before the next opens a device. Other participants use isolated browser processes.
 
 Health authenticates AWS with its read-only role on a named branch. Use `gh workflow run health.yml --repo gamezilla-org/gamezilla --ref <branch>` for infrastructure health evidence. This does not grant a branch deployment access.
 

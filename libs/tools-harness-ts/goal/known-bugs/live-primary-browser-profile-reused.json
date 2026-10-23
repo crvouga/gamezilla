@@ -1,4 +1,0 @@
-{
-  "summary": "A primary live-journey browser reused the runner process profile across scenarios. On Linux it stopped returning page values while the fresh peer still answered, so both multiplayer journeys timed out. Give each fresh primary an owned isolated browser process, as peers already have.",
-  "regressionTest": "apps/product-ts/tests/isolated-browser.test.ts"
-}
