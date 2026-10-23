@@ -1,0 +1,4 @@
+{
+  "summary": "The shared-space model names Alice as White, but its fixture left equal colour balances to matchmaking chance. Trace 30 with seed 0x67932 assigned Bob White and diverged before the first action. Inject the model's stated colours into the pairing fixture.",
+  "regressionTest": "libs/games-harness-ts/tests/quint/matched-game-spaces.binding.ts"
+}

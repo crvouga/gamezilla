@@ -1,4 +1,0 @@
-{
-  "summary": "An effect whose bytes could not be decoded (a server answering a sound URL with something that is not audio) raised an unhandled rejection, 'EncodingError: Decoding failed', once per sound on boot: decodeAudioData reports a failure through its error callback and, in current engines, through a returned promise too, and only the callback was handled. Fixed: the returned promise is handled as well; the effect just stays silent.",
-  "regressionTest": "pkgs/sounds-shared/tests/web-audio-playback-port.test.ts"
-}

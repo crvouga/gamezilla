@@ -1,0 +1,72 @@
+{
+  "name": "@libs/spaces-client-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests"
+  },
+  "dependencies": {
+    "@libs/app-root-client-ts": "workspace:*",
+    "@libs/auth-client-ts": "workspace:*",
+    "@libs/auth-shared-ts": "workspace:*",
+    "@libs/moderation-client-ts": "workspace:*",
+    "@libs/moderation-shared-ts": "workspace:*",
+    "@libs/permissions-client-ts": "workspace:*",
+    "@libs/permissions-shared-ts": "workspace:*",
+    "@libs/profile-client-ts": "workspace:*",
+    "@libs/spaces-shared-ts": "workspace:*",
+    "@libs/sub-client-ts": "workspace:*",
+    "@libs/test-ids-shared-ts": "workspace:*",
+    "@libs/user-search-client-ts": "workspace:*",
+    "@lingui/solid": "catalog:",
+    "@pkgs/async-root-client-ts": "workspace:*",
+    "@pkgs/clock-client-ts": "workspace:*",
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/collab-root-shared-ts": "workspace:*",
+    "@pkgs/collab-ui-client-ts": "workspace:*",
+    "@pkgs/kv-root-client-ts": "workspace:*",
+    "@pkgs/kv-root-shared-ts": "workspace:*",
+    "@pkgs/logger-client-ts": "workspace:*",
+    "@pkgs/logger-shared-ts": "workspace:*",
+    "@pkgs/permissions-shared-ts": "workspace:*",
+    "@pkgs/room-adapter-web-shared-ts": "workspace:*",
+    "@pkgs/room-root-client-ts": "workspace:*",
+    "@pkgs/room-root-shared-ts": "workspace:*",
+    "@pkgs/solid-context-client-ts": "workspace:*",
+    "@pkgs/sounds-client-ts": "workspace:*",
+    "@pkgs/sounds-shared-ts": "workspace:*",
+    "@pkgs/sql-root-shared-ts": "workspace:*",
+    "@pkgs/sync-engine-client-ts": "workspace:*",
+    "@pkgs/turn-game-client-ts": "workspace:*",
+    "@pkgs/turn-game-shared-ts": "workspace:*",
+    "@pkgs/ui-root-client-ts": "workspace:*",
+    "@pkgs/ui-root-shared-ts": "workspace:*",
+    "@pkgs/uuid-client-ts": "workspace:*",
+    "@pkgs/uuid-shared-ts": "workspace:*",
+    "@solidjs/router": "catalog:",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@lingui/core": "catalog:",
+    "@pkgs/bun-test-solid-client-ts": "workspace:*",
+    "@pkgs/keyword-shared-ts": "workspace:*",
+    "@pkgs/property-shared-ts": "workspace:*",
+    "@pkgs/secure-storage-root-client-ts": "workspace:*",
+    "@pkgs/secure-storage-root-shared-ts": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "client",
+  "language": "typescript"
+}

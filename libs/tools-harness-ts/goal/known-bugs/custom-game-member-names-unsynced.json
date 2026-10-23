@@ -1,0 +1,4 @@
+{
+  "summary": "The Custom Game screen named people with UserUsername but never synced the profiles of the other people in the space, so a guest invited from the link saw an invitation without the host's name (and blank names on the sides and in the invite list). The screen now keeps the members' and participants' profiles synced while it is shown.",
+  "regressionTest": "libs/games-harness-ts/tests/conformance/custom-games/invitation-names.test.ts"
+}

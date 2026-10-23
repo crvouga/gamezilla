@@ -1,4 +1,0 @@
-{
-  "summary": "Splitting opponent-only puzzle behavior into its shared feature left that contract outside the product guide's source ownership.",
-  "regressionTest": "libs/tools/scripts/statechart-contracts.test.ts"
-}

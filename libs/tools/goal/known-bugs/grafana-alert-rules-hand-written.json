@@ -1,4 +1,0 @@
-{
-  "summary": "The only alert on API availability was a hand-written rule with a hard-coded 99% objective and 14.4x threshold over every request, machine traffic included, beside three other hand-typed expressions no test tied to the metrics the server emits. All rules are now generated from the objective files and the indicator catalog, and every expression is checked against the emitted metrics.",
-  "regressionTest": "libs/observability-shared/tests/slo-artifacts.test.ts"
-}

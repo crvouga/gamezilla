@@ -1,0 +1,34 @@
+{
+  "name": "@libs/chess-sub-shared-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@libs/chess-puzzle-shared-ts": "workspace:*",
+    "@libs/chess-root-shared-ts": "workspace:*",
+    "@libs/chess-rules-shared-ts": "workspace:*",
+    "@libs/game-session-shared-ts": "workspace:*",
+    "@libs/sub-shared-ts": "workspace:*",
+    "@pkgs/chess-board-core-shared-ts": "workspace:*",
+    "@pkgs/turn-game-shared-ts": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "isomorphic",
+  "game": "chess",
+  "language": "typescript"
+}

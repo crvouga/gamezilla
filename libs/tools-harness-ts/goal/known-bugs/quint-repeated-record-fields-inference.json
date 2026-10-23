@@ -1,0 +1,4 @@
+{
+  "summary": "Repeated projections of a large typed record kept rebuilding the record constraints during type inference even after the value argument was cached. Symbolic whole-product checks exceeded their existing deadline in Snowcat before completing their unchanged safety obligations.",
+  "regressionTest": "pkgs/quint-server-ts/tests/cache-value-parameters.test.ts"
+}

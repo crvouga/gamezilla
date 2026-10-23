@@ -1,0 +1,428 @@
+/**
+ * Playing a puzzle: getting one on the board, moving, retrying, hints,
+ * showing the solution, skipping, moving on, and what the board and the
+ * attempt say afterwards.
+ */
+
+import { expect } from 'bun:test';
+import {
+  castlePuzzleKing,
+  choosePuzzlePromotion,
+  pickUpPuzzlePiece,
+  playPuzzleMove,
+  playUntilSolved,
+  playWrongPuzzleMove,
+} from '@libs/chess-puzzle-harness-ts/chess-actions';
+import {
+  readPuzzleBoardDestinations,
+  readPuzzleBoardPieceAt,
+  readPuzzleBoardProbe,
+} from '@libs/chess-puzzle-harness-ts/chess-puzzle-solve-ui';
+import { NAMED_PUZZLES } from '@libs/chess-puzzle-harness-ts/puzzle-fixtures';
+import {
+  readShownChessBoard,
+  readShownChessPromotion,
+} from '@libs/chess-root-harness-ts/chess-board-reads';
+import { CHESS_GAME_ID } from '@libs/chess-root-harness-ts/chess-playable';
+import {
+  isPuzzleSolved,
+  leavePuzzleForGameChoices,
+  moveOnToNextPuzzle,
+  openGamePuzzlesNoWait,
+  readPuzzleHelp,
+  readPuzzleProbe,
+  readPuzzlePrompt,
+  readPuzzleState,
+  readPuzzleWatch,
+  retryGamePuzzle,
+  showPuzzleSolution,
+  skipGamePuzzle,
+  takePuzzleHint,
+} from '@libs/game-session-harness-ts/puzzle-screen';
+import { Given, Then, When } from '@libs/harness-ts/define';
+import type { Actor } from '@libs/harness-ts/parameter-types';
+import { focusActor } from '@libs/harness-ts/shell-actions';
+import type { HarnessWorld } from '@libs/harness-ts/spec-world';
+import { remember } from '@libs/harness-ts/spec-world';
+import type { Square } from '@pkgs/chess-board-core-shared-ts/types';
+import { markPuzzleSoundBoundary } from './puzzle-sound-evidence';
+import {
+  boardBefore,
+  ensureOnPuzzle,
+  enterNamedPuzzle,
+  enterPuzzles,
+  lastMoveKey,
+  promotionPiece,
+  recalled,
+  rememberBoard,
+  required,
+  SECOND_MS,
+  SETTLE_MS,
+  sideOf,
+  trackPuzzle,
+  uciOf,
+  waitSolverToMove,
+} from './puzzle-world';
+
+const solvedClockKey = (actor: Actor) => `clockAtSolve:${actor}`;
+
+async function boardProbe(w: HarnessWorld, actor: Actor) {
+  return required(
+    await w.s.read(readShownChessBoard, actor),
+    `${actor}'s board`
+  );
+}
+
+/** Move once the solver may, remembering the position the move started from. */
+async function playMove(
+  w: HarnessWorld,
+  actor: Actor,
+  move: string
+): Promise<void> {
+  const uci = uciOf(move);
+  await waitSolverToMove(w, actor);
+  await rememberBoard(w, actor);
+  await markPuzzleSoundBoundary(w, actor);
+  remember(w, lastMoveKey(actor), uci);
+  await w.s.apply(playPuzzleMove, actor, uci);
+}
+
+// ------------------------------------------------------------ on the board
+
+Given('{actor} is playing puzzles in their space', async (w, actor: Actor) => {
+  await enterPuzzles(w, actor);
+});
+
+When('{actor} opens puzzles in their space', async (w, actor: Actor) => {
+  // The board may not come (offline, empty): the Then steps wait for it.
+  await w.s.apply(openGamePuzzlesNoWait, actor, CHESS_GAME_ID);
+});
+
+Given(
+  '{actor} is solving the four-move mate-in-two puzzle',
+  async (w, actor: Actor) => {
+    await enterNamedPuzzle(w, actor, NAMED_PUZZLES.fourMoveMateInTwo);
+  }
+);
+
+Given(
+  '{actor} is solving the underpromotion puzzle',
+  async (w, actor: Actor) => {
+    await enterNamedPuzzle(w, actor, NAMED_PUZZLES.underpromotion);
+  }
+);
+
+Given(
+  '{actor} is solving the capture-promotion puzzle',
+  async (w, actor: Actor) => {
+    await enterNamedPuzzle(w, actor, NAMED_PUZZLES.capturePromotion);
+  }
+);
+
+Given('{actor} is solving the en passant puzzle', async (w, actor: Actor) => {
+  await enterNamedPuzzle(w, actor, NAMED_PUZZLES.enPassant);
+});
+
+Given('{actor} is solving the castling puzzle', async (w, actor: Actor) => {
+  await enterNamedPuzzle(w, actor, NAMED_PUZZLES.castling);
+});
+
+Given(
+  '{actor} is solving the puzzle with more than one mate on the final move',
+  async (w, actor: Actor) => {
+    await enterNamedPuzzle(w, actor, NAMED_PUZZLES.moreThanOneMate);
+  }
+);
+
+Given('{actor} is solving the hook-mate puzzle', async (w, actor: Actor) => {
+  await enterNamedPuzzle(w, actor, NAMED_PUZZLES.hookMate);
+});
+
+Given(
+  '{actor} is solving the two-rook clearance puzzle',
+  async (w, actor: Actor) => {
+    await enterNamedPuzzle(w, actor, NAMED_PUZZLES.twoRookClearance);
+  }
+);
+
+Given(
+  '{actor} is solving the puzzle Black solves by promoting',
+  async (w, actor: Actor) => {
+    await enterNamedPuzzle(w, actor, NAMED_PUZZLES.blackPromotes);
+  }
+);
+
+Given(
+  '{actor} is solving the puzzle that starts with White in check',
+  async (w, actor: Actor) => {
+    await enterNamedPuzzle(w, actor, NAMED_PUZZLES.whiteInCheck);
+  }
+);
+
+// ------------------------------------------------------------------ solving
+
+/** Solve the puzzle, noting the clock at the solve for later steps. */
+async function solve(w: HarnessWorld, actor: Actor): Promise<void> {
+  await w.s.apply(focusActor, actor);
+  await w.s.apply(playUntilSolved, actor);
+  const probe = await w.s.read(readPuzzleWatch, actor);
+  remember(w, solvedClockKey(actor), probe?.clockMs ?? null);
+}
+
+Given('{actor} has solved the puzzle', async (w, actor: Actor) => {
+  await ensureOnPuzzle(w, actor);
+  await solve(w, actor);
+});
+
+Then(
+  "{actor}'s puzzle is solved within {int} seconds",
+  async (w, actor: Actor, seconds: number) => {
+    await w.s.until((surf) => isPuzzleSolved(surf, actor), {
+      maxMs: seconds * SECOND_MS,
+    });
+  }
+);
+
+When('{actor} plays a wrong move', async (w, actor: Actor) => {
+  await markPuzzleSoundBoundary(w, actor);
+  await w.s.apply(playWrongPuzzleMove, actor);
+});
+
+Given('{actor} has played a wrong move', async (w, actor: Actor) => {
+  await w.s.apply(playWrongPuzzleMove, actor);
+});
+
+Given(
+  '{actor} has played a wrong move and retried',
+  async (w, actor: Actor) => {
+    await w.s.apply(playWrongPuzzleMove, actor);
+    await w.s.apply(retryGamePuzzle, actor);
+    await waitSolverToMove(w, actor);
+  }
+);
+
+Then('{actor} is told the move was wrong', async (w, actor: Actor) => {
+  expect(await w.s.read(readPuzzleState, actor)).toBe('wrong');
+});
+
+Then(
+  '{actor} is told the move was wrong within {int} seconds',
+  async (w, actor: Actor, seconds: number) => {
+    await w.s.until(async (surf) => readPuzzleState(surf, actor), {
+      maxMs: seconds * SECOND_MS,
+      pred: (status) => status === 'wrong',
+    });
+  }
+);
+
+When('{actor} retries the puzzle', async (w, actor: Actor) => {
+  await w.s.apply(retryGamePuzzle, actor);
+  await waitSolverToMove(w, actor);
+});
+
+Then(
+  '{actor} is (still )asked to find the next move',
+  async (w, actor: Actor) => {
+    await w.s.apply(focusActor, actor);
+    expect(await w.s.read(readPuzzleState, actor)).toBe('solving');
+  }
+);
+
+// -------------------------------------------------------------------- hints
+
+When('{actor} asks for a hint', async (w, actor: Actor) => {
+  await w.s.apply(takePuzzleHint, actor);
+});
+
+Then("{actor}'s hint highlights the piece to move", async (w, actor: Actor) => {
+  expect(await w.s.read(readPuzzleHelp, actor)).toBe('highlight');
+});
+
+When('{actor} shows the solution', async (w, actor: Actor) => {
+  await w.s.apply(showPuzzleSolution, actor);
+});
+
+Given('{actor} has shown the solution', async (w, actor: Actor) => {
+  await w.s.apply(showPuzzleSolution, actor);
+  await w.s.until(async (surf) => readPuzzleProbe(surf, actor), {
+    maxMs: SETTLE_MS,
+    pred: (debug) => debug?.status === 'revealed',
+  });
+});
+
+Then(
+  "{actor}'s board is at move {int} of the line within {int} seconds",
+  async (w, actor: Actor, move: number, seconds: number) => {
+    await w.s.until(async (surf) => readPuzzleProbe(surf, actor), {
+      maxMs: seconds * SECOND_MS,
+      pred: (debug) => debug?.solveIdx === move,
+    });
+  }
+);
+
+Then(
+  "{actor}'s board reaches checkmate at move {int} of the line within {int} seconds",
+  async (w, actor: Actor, move: number, seconds: number) => {
+    await w.s.until(
+      async (surf) => ({
+        debug: await readPuzzleProbe(surf, actor),
+        probe: await readPuzzleBoardProbe(surf, actor),
+      }),
+      {
+        maxMs: seconds * SECOND_MS,
+        pred: ({ debug, probe }) =>
+          debug?.solveIdx === move && probe?.status === 'checkmate',
+      }
+    );
+  }
+);
+
+// ------------------------------------------------------------------- moves
+
+// regression: merge-puzzle-move-wording — Alice plays a1-a5
+When(
+  '{actor} plays (the move ){word}',
+  async (w, actor: Actor, move: string) => {
+    await playMove(w, actor, move);
+  }
+);
+Given('{actor} has played {word}', async (w, actor: Actor, move: string) => {
+  await playMove(w, actor, move);
+});
+
+When(
+  '{actor} plays (the move ){word} and promotes to a {word}',
+  async (w, actor: Actor, move: string, piece: string) => {
+    await playMove(w, actor, move);
+    await w.s.apply(choosePuzzlePromotion, actor, promotionPiece(piece));
+  }
+);
+
+When(
+  '{actor} tries the illegal move {word}',
+  async (w, actor: Actor, move: string) => {
+    await playMove(w, actor, move);
+  }
+);
+
+When(
+  '{actor} picks up the rook on {word}',
+  async (w, actor: Actor, square: string) => {
+    await waitSolverToMove(w, actor);
+    await w.s.apply(pickUpPuzzlePiece, actor, square as Square);
+  }
+);
+
+Then(
+  "{actor}'s board shows the rook on {word} can go to {squares}",
+  async (w, actor: Actor, square: string, squares: readonly Square[]) => {
+    expect(
+      await w.s.read(readPuzzleBoardPieceAt, actor, square as Square)
+    ).toBe('wr');
+    expect(await w.s.read(readPuzzleBoardDestinations, actor)).toEqual(squares);
+  }
+);
+
+When(
+  '{actor} castles by moving the king onto its own rook',
+  async (w, actor: Actor) => {
+    await w.s.apply(castlePuzzleKing, actor, 'ontoRook');
+  }
+);
+
+When(
+  '{actor} castles by moving the king two squares',
+  async (w, actor: Actor) => {
+    await w.s.apply(castlePuzzleKing, actor, 'twoSquares');
+  }
+);
+
+Then(
+  '{actor} is asked which piece White promotes to on {word}',
+  async (w, actor: Actor, square: string) => {
+    const from = recalled<string>(w, lastMoveKey(actor)).slice(0, 2);
+    expect(await w.s.read(readShownChessPromotion, actor)).toMatchObject({
+      from,
+      to: square,
+      color: 'w',
+    });
+  }
+);
+
+Then(
+  '{actor} is asked which piece Black promotes to',
+  async (w, actor: Actor) => {
+    const uci = recalled<string>(w, lastMoveKey(actor));
+    expect(await w.s.read(readShownChessPromotion, actor)).toMatchObject({
+      from: uci.slice(0, 2),
+      to: uci.slice(2, 4),
+      color: 'b',
+    });
+  }
+);
+
+Then("{actor}'s board faces {word}", async (w, actor: Actor, side: string) => {
+  const orientation = sideOf(side) === 'w' ? 'white' : 'black';
+  expect((await boardProbe(w, actor)).orientation).toBe(orientation);
+});
+
+Then(
+  "it is {word}'s move on {actor}'s board",
+  async (w, side: string, actor: Actor) => {
+    expect((await boardProbe(w, actor)).turn).toBe(sideOf(side));
+  }
+);
+
+Then(
+  "{word} is in check and to move on {actor}'s board",
+  async (w, side: string, actor: Actor) => {
+    expect(await boardProbe(w, actor)).toMatchObject({
+      inCheck: true,
+      turn: sideOf(side),
+    });
+  }
+);
+
+Then(
+  '{actor} is prompted to find the next move for {word}',
+  async (w, actor: Actor, side: string) => {
+    const prompt = required(
+      await w.s.read(readPuzzlePrompt, actor),
+      'move prompt'
+    );
+    expect(prompt).toContain(side);
+    expect(prompt.toLowerCase()).toContain('move');
+  }
+);
+
+Then("{actor}'s board is unchanged", async (w, actor: Actor) => {
+  expect((await boardProbe(w, actor)).fen).toBe(boardBefore(w, actor));
+});
+
+// ------------------------------------------------------ skipping and clock
+
+Given('{actor} has skipped the puzzle', async (w, actor: Actor) => {
+  await w.s.apply(skipGamePuzzle, actor);
+});
+
+When('{int} second(s) pass(es)', async (w, seconds: number) => {
+  await w.s.advanceTime(seconds * SECOND_MS);
+});
+
+// ------------------------------------------------------------- moving on
+
+When('{actor} moves on to the next puzzle', async (w, actor: Actor) => {
+  await w.s.apply(moveOnToNextPuzzle, actor);
+  await trackPuzzle(w, actor);
+});
+
+// ------------------------------------------------ leaving and coming back
+
+When(
+  '{actor} leaves the puzzle for the chess choices',
+  async (w, actor: Actor) => {
+    await w.s.apply(leavePuzzleForGameChoices, actor);
+  }
+);
+
+// ------------------------------------------------------------------ account

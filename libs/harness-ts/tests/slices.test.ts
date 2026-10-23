@@ -1,0 +1,106 @@
+import { describe, expect, test } from 'bun:test';
+import type { HarnessSlice } from '@libs/harness-ts/slices';
+import {
+  composeHarnessSlices,
+  PLATFORM_HARNESS_SLICES,
+} from '@libs/harness-ts/slices';
+import type { SubClient } from '@libs/sub-client-ts/client';
+import type { SubServer } from '@libs/sub-shared-ts/server';
+
+function client(name: string): SubClient {
+  return { name, routes: [] };
+}
+
+function server(name: string): SubServer {
+  return { name } as unknown as SubServer;
+}
+
+const PROFILE: HarnessSlice = { name: 'profile', client: client('profile') };
+const NOTIFICATIONS: HarnessSlice = {
+  name: 'notifications',
+  client: client('notifications'),
+  server: () => server('notifications'),
+};
+const FRIENDS: HarnessSlice = {
+  name: 'friends',
+  client: client('friends'),
+  server: () => server('friends'),
+};
+
+async function unexpectedRoomService(): Promise<never> {
+  throw new Error('slice composition must not call room services');
+}
+
+const rooms = {
+  setAvailability: unexpectedRoomService,
+  read: unexpectedRoomService,
+  send: unexpectedRoomService,
+  disconnect: unexpectedRoomService,
+  eraseIdentity: unexpectedRoomService,
+};
+
+describe('composeHarnessSlices', () => {
+  test('folds in production order, whatever order the suite lists', () => {
+    const composition = composeHarnessSlices('probe', [
+      NOTIFICATIONS,
+      FRIENDS,
+      PROFILE,
+    ]);
+    // Friends mounts above the inbox it registers a source into. Nothing in
+    // this composition owns `/`, so the harness's bare home mounts first.
+    expect(composition.clients.map((c) => c.name)).toEqual([
+      'harness-home',
+      'profile',
+      'friends',
+      'notifications',
+    ]);
+    expect(
+      composition.servers({ billing: null, rooms }).map((s) => s.name as string)
+    ).toEqual(['friends', 'notifications']);
+  });
+
+  test('always includes the platform subs', () => {
+    const composition = composeHarnessSlices('probe', []);
+    expect([...composition.app.subNames].sort()).toEqual(
+      PLATFORM_HARNESS_SLICES.map((s) => s.sub?.name ?? '').sort()
+    );
+  });
+
+  // regression: harness-identity-population-table-missing
+  test('identity finds the population table in a composition that lists no slices', () => {
+    // Literal failing input: `composeHarnessSlices('profile', [...])` without
+    // the population slice; every session then failed on
+    // `SELECT id FROM population_users WHERE email = ?`.
+    expect(composeHarnessSlices('probe', []).app.tableNames).toContain(
+      'population_users'
+    );
+  });
+
+  // regression: harness-composition-missing-population-directory
+  test('keeps the tables auth classifies sessions against in every composition', () => {
+    const composition = composeHarnessSlices('probe', [PROFILE]);
+    expect([...composition.app.subNames]).toContain('synthetic-population');
+  });
+
+  test("a suite's slice replaces the platform's slice for the same sub", () => {
+    const population: HarnessSlice = {
+      name: 'synthetic-population',
+      server: () => server('synthetic-population'),
+    };
+    const composition = composeHarnessSlices('probe', [population]);
+    expect(
+      composition.servers({ billing: null, rooms }).map((s) => s.name as string)
+    ).toEqual(['synthetic-population']);
+  });
+
+  test('rejects a slice listed twice', () => {
+    expect(() => composeHarnessSlices('probe', [FRIENDS, FRIENDS])).toThrow(
+      /duplicate slice 'friends'/
+    );
+  });
+
+  test('a composition without rooms declares no room node', () => {
+    const composition = composeHarnessSlices('probe', [PROFILE]);
+    expect(composition.roomNode).toBeUndefined();
+  });
+});

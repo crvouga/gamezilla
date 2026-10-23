@@ -1,0 +1,4 @@
+{
+  "summary": "After infrastructure was split by runtime, the deploy wrapper still resolved the fleet stack and stateful policy below libs/infra-server-ts. OpenTofu therefore failed before init because libs/infra-server-ts/tofu/stacks/fleet did not exist. Resolve shared declarations from libs/infra-shared-ts while keeping execution caches in libs/infra-server-ts.",
+  "regressionTest": "libs/infra-server-ts/tests/tofu-layout.test.ts"
+}

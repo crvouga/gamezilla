@@ -1,0 +1,4 @@
+{
+  "summary": "The Custom Game board omitted an explicit sound choice, failing the public board contract and ignoring the app sound preference. Bind board sounds to the injected preference so muting applies to Custom Games.",
+  "regressionTest": "libs/tools-harness-ts/scripts/board-sound-contract.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "A native request could finish reading its body after cleanup disposed the harness, crashing the load balancer after successful CI assertions. Drain admitted HTTP before harness disposal, then drain admitted invalidations before stopping the broker.",
-  "regressionTest": "apps/synthetic-population-worker/tests/backend-teardown.test.ts"
-}

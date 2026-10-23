@@ -1,0 +1,4 @@
+{
+  "summary": "Verify run 36974271617 shard 2 failed when identity-machine's 200-sample, 80-step safety exploration wrote identity-machine-last.itf.json into a missing .cache/harness-report/models directory. The evidence recorder creates that directory only after the run completes. Create the trace output directory before invoking Quint, including on fresh CI checkouts.",
+  "regressionTest": "apps/product-ts/tests/quint/campaign-tools.test.ts"
+}

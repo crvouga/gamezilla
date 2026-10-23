@@ -1,4 +1,0 @@
-{
-  "summary": "The offline graph reader required separate harness and report chunks that no longer exist when all application surfaces are imported eagerly.",
-  "regressionTest": "apps/product/scripts/sw-policy.test.ts"
-}

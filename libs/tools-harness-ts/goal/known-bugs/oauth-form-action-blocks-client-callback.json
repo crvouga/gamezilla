@@ -1,0 +1,4 @@
+{
+  "summary": "OAuth returns to the API origin and then redirects to http://127.0.0.1:5428/sso-callback. The provider's form-action policy can block that cross-origin redirect chain. Load an isolated, non-cacheable callback document before the app navigation, without weakening the provider policy.",
+  "regressionTest": "pkgs/auth-inhouse-server-ts/tests/oauth-cross-origin-handoff.test.ts"
+}

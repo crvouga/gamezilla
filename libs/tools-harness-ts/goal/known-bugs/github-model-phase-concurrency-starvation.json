@@ -1,0 +1,4 @@
+{
+  "summary": "Verify 37515771723 exhausted the 480-second matchmaking preservation budget while running independent proof phases serially. Restore the existing two-phase ceiling under one machine-wide model admission and one Turbo task, with 2GB JVM heaps so both phases fit the private runner. No proof target or timeout is changed.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-native.test.ts"
+}

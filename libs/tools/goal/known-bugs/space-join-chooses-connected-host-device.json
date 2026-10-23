@@ -1,4 +1,0 @@
-{
-  "summary": "The device model joined the primary host's offline-created space even when the host's other device had a connected, shareable space.",
-  "regressionTest": "libs/friends-harness/tests/quint/space-devices.binding.ts"
-}

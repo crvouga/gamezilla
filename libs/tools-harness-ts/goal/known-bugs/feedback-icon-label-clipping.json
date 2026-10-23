@@ -1,0 +1,4 @@
+{
+  "summary": "Evidence controls had pointer-only labels clipped by the editor frame.",
+  "regressionTest": "pkgs/feedback-harness-ts/tests/annotations.contract.test.ts"
+}

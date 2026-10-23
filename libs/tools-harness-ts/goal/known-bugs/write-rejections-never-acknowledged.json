@@ -1,0 +1,4 @@
+{
+  "summary": "Acknowledging a write refusal never reached the server's copy: the device keyed its rejection row 'local:<mutationId>' while the server minted its own id, and acknowledgeWriteRejection matched by row id, so the server's row stayed unacknowledged and was never pruned (nothing called it from the product either). Fixed by acknowledging by the refused mutation's id on both sides, and dismissing the shell notice acknowledges.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/write-refusal-acknowledgement.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "Model and release checks could accept safety evidence while declared temporal properties were never checked. TLC now checks finite graphs and the conformance verdict requires every declared temporal obligation. A safe model with permanently unreachable completion is pinned as the regression.",
-  "regressionTest": "pkgs/quint-server/tests/temporal.test.ts"
-}

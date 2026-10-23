@@ -1,0 +1,4 @@
+{
+  "summary": "The regression registry rejected a literal Quint history even though the standard model runner replayed it as an example test. Recognize canonical bindings only with a matching registered regression, imported literal trace and executable action history.",
+  "regressionTest": "libs/tools-harness-ts/scripts/quint-regression-proof.test.ts"
+}

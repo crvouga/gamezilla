@@ -1,0 +1,4 @@
+{
+  "summary": "The Report workflow never succeeded: every suite passed, then report:publish died with \"Could not find an existing 'wrangler' binary to run\". The job runs `report-publish.ts` from the repo root, where the isolated linker links no wrangler bin (only packages that declare it get one), and a laptop's global wrangler hid it. Fixed by running wrangler from @libs/tools-harness-ts, which declares it. The wrangler upload is gone (reports now reach the shared store over S3); the guard covers the publish step's other linked tool, the Tailwind CLI that builds the snapshot stylesheet.",
+  "regressionTest": "libs/harness-ts/scripts/report-publish.test.ts"
+}

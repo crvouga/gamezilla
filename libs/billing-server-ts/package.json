@@ -1,0 +1,59 @@
+{
+  "name": "@libs/billing-server-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "billing:sync": "bun run scripts/sync-billing-offer.ts",
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@hono/zod-validator": "catalog:",
+    "@libs/app-root-server-ts": "workspace:*",
+    "@libs/app-root-shared-ts": "workspace:*",
+    "@libs/auth-shared-ts": "workspace:*",
+    "@libs/billing-shared-ts": "workspace:*",
+    "@libs/observability-shared-ts": "workspace:*",
+    "@libs/permissions-shared-ts": "workspace:*",
+    "@libs/sub-shared-ts": "workspace:*",
+    "@pkgs/assert-root-shared-ts": "workspace:*",
+    "@pkgs/billing-root-shared-ts": "workspace:*",
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/logger-shared-ts": "workspace:*",
+    "@pkgs/observability-root-shared-ts": "workspace:*",
+    "@pkgs/outbox-shared-ts": "workspace:*",
+    "@pkgs/sql-client-root-shared-ts": "workspace:*",
+    "@pkgs/sql-root-shared-ts": "workspace:*",
+    "@pkgs/uuid-shared-ts": "workspace:*",
+    "hono": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@libs/infra-shared-ts": "workspace:*",
+    "@opentelemetry/api": "catalog:",
+    "@opentelemetry/sdk-metrics": "catalog:",
+    "@opentelemetry/sdk-trace-base": "catalog:",
+    "@pkgs/billing-providers-server-ts": "workspace:*",
+    "@pkgs/db-schema-root-shared-ts": "workspace:*",
+    "@pkgs/db-schema-sqlite-shared-ts": "workspace:*",
+    "@pkgs/http-client-shared-ts": "workspace:*",
+    "@pkgs/object-store-node-fs-server-ts": "workspace:*",
+    "@pkgs/observability-root-server-ts": "workspace:*",
+    "@pkgs/secret-provider-server-ts": "workspace:*",
+    "@pkgs/secret-store-shared-ts": "workspace:*",
+    "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "server",
+  "language": "typescript"
+}

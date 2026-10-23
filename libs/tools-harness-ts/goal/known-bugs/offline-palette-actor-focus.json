@@ -1,0 +1,4 @@
+{
+  "summary": "Parked harness clients received another client's command-palette shortcut, so app-platform trace 6 closed Carol's already-open palette. Scope shortcuts to the focused client and wait for the palette before typing.",
+  "regressionTest": "libs/runtime-harness-ts/tests/quint/app-platform.binding.ts"
+}

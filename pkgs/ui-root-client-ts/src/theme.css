@@ -1,0 +1,168 @@
+/* Design tokens → Tailwind v4 `@theme`. The only utilities that exist are the
+ * ones named here, and every one reads a `--ui-*` variable from `tokens.css`
+ * (generated from `pkgs/ui-root-shared-ts/src/design-tokens.json`).
+ *
+ * Pulled in from `@pkgs/tailwind-shared-ts/tailwind.css` via `@import` so the
+ * Tailwind compiler emits utilities. Do not import this file alone from app
+ * entries: Vite would inject raw `@theme` into the browser and skip
+ * generation.
+ *
+ * Nested ThemeProviders: `:root` aliases alone compute against the document
+ * scheme. `tokens.css` re-binds every `--color-*` inside each `[data-theme]`
+ * block so utilities follow the nearest theme host. Light and dark are that
+ * variable swap; no utility is ever written twice for a scheme.
+ */
+
+@theme {
+  /* Locked vocabulary. Tailwind's stock palette, type scale, weights,
+     leading, tracking, radii, shadows, easings, animations, measures and
+     breakpoints are cleared, so `text-red-500`, `font-black`, `rounded-3xl`,
+     `shadow-lg`, `ease-in-out`, `animate-spin` and `2xl:` do not exist and
+     cannot drift a screen. Arbitrary values (`text-[13px]`) and off-grid
+     steps (`gap-1.5`) are rejected by the lint (`design-vocabulary.ts`). */
+  --color-*: initial;
+  --text-*: initial;
+  --font-*: initial;
+  --font-weight-*: initial;
+  --leading-*: initial;
+  --tracking-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+  --text-shadow-*: initial;
+  --blur-*: initial;
+  --ease-*: initial;
+  --animate-*: initial;
+  --container-*: initial;
+  --breakpoint-*: initial;
+  --perspective-*: initial;
+  --aspect-*: initial;
+
+  /* One face: the platform system stack. Mono is for code only. */
+  --font-sans: var(--ui-font-sans);
+  --font-mono: var(--ui-font-mono);
+  --default-font-family: var(--ui-font-sans);
+  --default-mono-font-family: var(--ui-font-mono);
+
+  /* The fixed scale: 12, 14, 16, 20, 24, 32, each with its leading. */
+  --text-xs: var(--ui-font-size-xs);
+  --text-xs--line-height: var(--ui-leading-xs);
+  --text-sm: var(--ui-font-size-sm);
+  --text-sm--line-height: var(--ui-leading-sm);
+  --text-base: var(--ui-font-size-base);
+  --text-base--line-height: var(--ui-leading-base);
+  --text-lg: var(--ui-font-size-lg);
+  --text-lg--line-height: var(--ui-leading-lg);
+  --text-xl: var(--ui-font-size-xl);
+  --text-xl--line-height: var(--ui-leading-xl);
+  --text-2xl: var(--ui-font-size-2xl);
+  --text-2xl--line-height: var(--ui-leading-2xl);
+  --font-weight-normal: var(--ui-font-weight-regular);
+  --font-weight-semibold: var(--ui-font-weight-semibold);
+  --font-weight-bold: var(--ui-font-weight-bold);
+  --leading-none: 1;
+  --leading-tight: var(--ui-line-height-tight);
+  --leading-normal: var(--ui-line-height-normal);
+  --leading-relaxed: var(--ui-line-height-relaxed);
+
+  /* Radius by hierarchy: 4, 8, 12, round. */
+  --radius-sm: var(--ui-radius-sm);
+  --radius-md: var(--ui-radius-md);
+  --radius-lg: var(--ui-radius-lg);
+  --radius-full: var(--ui-radius-full);
+  --radius-control: var(--ui-radius-control);
+  --radius-card: var(--ui-radius-card);
+  --radius-sheet: var(--ui-radius-sheet);
+
+  /* Flat, with one soft shadow for what floats above content. */
+  --shadow-float: var(--ui-shadow-float);
+
+  /* Motion: 150–250ms, one ease-out curve. */
+  --ease-out: var(--ui-easing-standard);
+  --default-transition-duration: var(--ui-duration-fast);
+  --default-transition-timing-function: var(--ui-easing-standard);
+
+  /* The one set of breakpoints. Media queries cannot read custom properties,
+     so the values are written out; `theme-artifacts.test.ts` holds them to
+     `design-tokens.json`. */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+
+  /* Token-named layout steps for the closed primitives (`gap-ui-sm`,
+     `px-ui-lg`, `max-w-ui-prose`, `min-h-ui-control-md`): each utility reads
+     the token variable, so a retune in design-tokens.json reaches every
+     `gap` / `padding` / `maxWidth` / `minHeight` prop. */
+  --spacing-ui-none: var(--ui-space-none);
+  --spacing-ui-xs: var(--ui-space-xs);
+  --spacing-ui-sm: var(--ui-space-sm);
+  --spacing-ui-md: var(--ui-space-md);
+  --spacing-ui-lg: var(--ui-space-lg);
+  --spacing-ui-xl: var(--ui-space-xl);
+  --spacing-ui-2xl: var(--ui-space-2xl);
+  --spacing-ui-3xl: var(--ui-space-3xl);
+  --spacing-ui-control-sm: var(--ui-control-size-sm);
+  --spacing-ui-control-md: var(--ui-control-size-md);
+  --spacing-ui-control-lg: var(--ui-control-size-lg);
+  --spacing-ui-icon-xs: var(--ui-icon-size-xs);
+  --spacing-ui-icon-sm: var(--ui-icon-size-sm);
+  --spacing-ui-icon-md: var(--ui-icon-size-md);
+  --spacing-ui-icon-lg: var(--ui-icon-size-lg);
+  --spacing-ui-icon-xl: var(--ui-icon-size-xl);
+  --spacing-ui-icon-2xl: var(--ui-icon-size-2xl);
+  --container-ui-prose: var(--ui-max-width-prose);
+  --container-ui-form: var(--ui-max-width-form);
+  --container-ui-content: var(--ui-max-width-content);
+  --container-ui-wide: var(--ui-max-width-wide);
+  --opacity-muted: var(--ui-opacity-muted);
+  --opacity-disabled: var(--ui-opacity-disabled);
+  --z-index-harness-browser: var(--ui-layer-harness-browser);
+
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-inherit: inherit;
+  --color-system-canvas: Canvas;
+  --color-system-text: CanvasText;
+  --color-background: var(--ui-color-background);
+  --color-surface: var(--ui-color-surface);
+  --color-surface-muted: var(--ui-color-surface-muted);
+  --color-surface-elevated: var(--ui-color-surface-elevated);
+  --color-surface-overlay: var(--ui-color-surface-overlay);
+  --color-text: var(--ui-color-text);
+  --color-text-secondary: var(--ui-color-text-secondary);
+  --color-icon: var(--ui-color-icon);
+  --color-tint: var(--ui-color-tint);
+  --color-tint-hover: var(--ui-color-tint-hover);
+  --color-tint-active: var(--ui-color-tint-active);
+  --color-tint-subtle: var(--ui-color-tint-subtle);
+  --color-on-primary: var(--ui-color-on-primary);
+  --color-on-destructive: var(--ui-color-on-destructive);
+  --color-on-success: var(--ui-color-on-success);
+  --color-on-warning: var(--ui-color-on-warning);
+  --color-on-info: var(--ui-color-on-info);
+  --color-on-tint-scrim: var(--ui-color-on-tint-scrim);
+  --color-interactive-hover: var(--ui-color-interactive-hover);
+  --color-interactive-press: var(--ui-color-interactive-press);
+  --color-border: var(--ui-color-border);
+  --color-outline: var(--ui-color-outline);
+  --color-focus-ring: var(--ui-color-focus-ring);
+  --color-destructive: var(--ui-color-destructive);
+  --color-destructive-active: var(--ui-color-destructive-active);
+  --color-destructive-surface: var(--ui-color-destructive-surface);
+  --color-success: var(--ui-color-success);
+  --color-success-surface: var(--ui-color-success-surface);
+  --color-warning: var(--ui-color-warning);
+  --color-warning-surface: var(--ui-color-warning-surface);
+  --color-info: var(--ui-color-info);
+  --color-info-surface: var(--ui-color-info-surface);
+  --color-disabled: var(--ui-color-disabled);
+  --color-scrim: var(--ui-color-scrim);
+  --color-shadow-color: var(--ui-color-shadow-color);
+  --color-elevation-1: var(--ui-elevation-1);
+  --color-elevation-2: var(--ui-elevation-2);
+  --color-elevation-3: var(--ui-elevation-3);
+  --color-elevation-4: var(--ui-elevation-4);
+  --color-elevation-5: var(--ui-elevation-5);
+}

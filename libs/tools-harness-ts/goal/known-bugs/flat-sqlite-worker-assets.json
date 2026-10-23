@@ -1,0 +1,4 @@
+{
+  "summary": "SQLite web asset builds must bundle the flat client worker entrypoints after package partitioning.",
+  "regressionTest": "pkgs/sql-client-sqlite-web-server-ts/tests/sqlite-web-assets.test.ts"
+}

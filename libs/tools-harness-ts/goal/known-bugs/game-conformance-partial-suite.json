@@ -1,0 +1,4 @@
+{
+  "summary": "A shared code suite could omit an eligible game's cases while other passing suites hid the missing coverage for that capability.",
+  "regressionTest": "libs/games-harness-ts/tests/game-conformance-plan.test.ts"
+}

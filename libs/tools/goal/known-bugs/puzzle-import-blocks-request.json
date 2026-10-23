@@ -1,4 +1,0 @@
-{
-  "summary": "Draining puzzle imports on the mutation request finished both CSV parts before the app could follow or stop the load. Import consumers belong to background delivery.",
-  "regressionTest": "libs/chess-root-harness/tests/puzzle-import-navigation.test.ts"
-}

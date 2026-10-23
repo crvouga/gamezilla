@@ -1,0 +1,4 @@
+{
+  "summary": "One bounded solver phase for the twelve multiplayer invariants exceeded the model package's 300-second budget. Opt-in invariant groups preserve every target and the original two-step search, share the existing total deadline, and use the existing bounded phase worker pool.",
+  "regressionTest": "pkgs/quint-server-ts/tests/verify-phases.test.ts"
+}

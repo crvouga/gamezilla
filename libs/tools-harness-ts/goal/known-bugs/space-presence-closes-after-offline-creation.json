@@ -1,0 +1,4 @@
+{
+  "summary": "Reconnecting after creating a space offline closed its presence view.",
+  "regressionTest": "libs/friends-harness-ts/tests/quint/space-hosting.binding.ts"
+}

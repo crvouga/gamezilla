@@ -1,0 +1,4 @@
+{
+  "summary": "Moving reports out of the product server dropped the CORS headers required by separately hosted Atlas viewers.",
+  "regressionTest": "pkgs/atlas-reports-harness-ts/tests/reports-route.test.ts"
+}

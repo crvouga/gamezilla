@@ -1,0 +1,4 @@
+{
+  "summary": "A public-link observer could send participant commands without joining the space.",
+  "regressionTest": "libs/spaces-harness-ts/tests/space-game-choice.test.ts"
+}

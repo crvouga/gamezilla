@@ -1,0 +1,4 @@
+{
+  "summary": "The /ui component explorer showed group titles as large secondary labels over loose filled rows, unlike Settings. Each group is now a MenuSection (caption title) with a MenuList panel of MenuRows.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/catalog.test.tsx"
+}

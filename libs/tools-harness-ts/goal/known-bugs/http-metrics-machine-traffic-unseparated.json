@@ -1,0 +1,4 @@
+{
+  "summary": "Request counts and durations had no route dimension, so the synthetic population worker's claims and heartbeats (about 65% of production requests), health probes and telemetry uploads were mixed into every availability and latency figure. Each request now carries its route group, derived from the Hono route, with machine traffic apart and an unnamed route counted as people's.",
+  "regressionTest": "libs/app-root-server-ts/tests/request-metrics.test.ts"
+}

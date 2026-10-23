@@ -1,0 +1,4 @@
+{
+  "summary": "Speech synthesis loading hid the already available observation; long messages were also clamped and their live region recreated. Keep the complete words visible in a persistent live region.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/speaking-avatar-accessibility.test.tsx"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Cold symbolic verification of identity-machine wrote its bound receipt before the models directory existed, causing ENOENT. Create the directory explicitly; independent verifier completion never supplies setup.",
+  "regressionTest": "apps/product-ts/tests/quint/campaign-tools.test.ts"
+}

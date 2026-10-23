@@ -1,0 +1,113 @@
+import { describe, expect, test } from 'bun:test';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared-ts/impl-mockingbird-sqlite';
+import sql from '@pkgs/sql-root-shared-ts/sql';
+import { migrateLocalSchema } from '@pkgs/sync-engine-client-ts/local-schema-migrate';
+import { exampleLocalSchema } from '@pkgs/sync-engine-harness-ts/local-schema';
+import { defineMutation } from '@pkgs/sync-engine-shared-ts/define-mutation';
+import type { MutationError } from '@pkgs/sync-engine-shared-ts/mutations-types';
+import {
+  LIVE_ROW_SQL,
+  softDeleteById,
+} from '@pkgs/sync-engine-shared-ts/soft-delete';
+import { wrapMutationDb } from '@pkgs/sync-engine-shared-ts/wrap-mutation-db';
+import { z } from 'zod';
+
+function testEnv() {
+  let n = 0;
+  return {
+    actorId: 'actor',
+    deviceId: 'device',
+    accountId: 'acct',
+    isAnon: false,
+    now: () => new Date('2020-01-01T00:00:00.000Z'),
+    createId: () => `id-${++n}`,
+  };
+}
+
+const setNoteBody = defineMutation({
+  name: 'publicApiSetNote',
+  args: z.object({ id: z.string(), body: z.string() }),
+  async run({ tx, env: e }, { id, body }) {
+    await tx.run(sql`
+        INSERT INTO notes (id, folder_id, title, body, owner_id)
+        VALUES (${id}, ${null}, ${''}, ${body}, ${e.actorId})
+        ON CONFLICT (id) DO UPDATE SET
+          body = excluded.body,
+          owner_id = excluded.owner_id,
+          deleted_at = NULL
+      `);
+  },
+});
+
+describe('public API: defineMutation + wrapMutationDb', () => {
+  test('managed-column inject + RETURNING capture on upsert', async () => {
+    const db = SqlClientImplMockingbirdSqlite.open();
+    await db.connect();
+    await migrateLocalSchema(db, exampleLocalSchema);
+    const env = testEnv();
+
+    const wrapped = wrapMutationDb(db, env);
+    await setNoteBody.run({ tx: wrapped.tx, env }, { id: 'n1', body: 'hello' });
+    const capture = wrapped.getCapture();
+    expect(capture.tables).toContain('notes');
+    expect(capture.images['notes']?.[0]?.['id']).toBe('n1');
+    expect(capture.images['notes']?.[0]?.['created_at']).toBeTruthy();
+    expect(capture.images['notes']?.[0]?.['updated_at']).toBeTruthy();
+
+    const rows = await db.query(sql<{ body: string }>`
+      SELECT body FROM notes WHERE id = ${'n1'} AND ${LIVE_ROW_SQL}
+    `);
+    expect(rows[0]?.body).toBe('hello');
+  });
+
+  test('softDeleteById tombstones; LIVE_ROW_SQL excludes it', async () => {
+    const db = SqlClientImplMockingbirdSqlite.open();
+    await db.connect();
+    await migrateLocalSchema(db, exampleLocalSchema);
+    const env = testEnv();
+    const now = env.now().toISOString();
+
+    await db.run(sql`
+      INSERT INTO notes (
+        id, folder_id, title, body, owner_id, created_at, updated_at
+      )
+      VALUES (
+        ${'n1'}, ${null}, ${''}, ${'x'}, ${'actor'}, ${now}, ${now}
+      )
+    `);
+
+    const wrapped = wrapMutationDb(db, env);
+    await softDeleteById(wrapped.tx, 'notes', 'n1', now);
+
+    const live = await db.query(sql<{ id: string }>`
+      SELECT id FROM notes WHERE ${LIVE_ROW_SQL}
+    `);
+    expect(live).toEqual([]);
+    const tomb = await db.query(sql<{ deleted_at: string | null }>`
+      SELECT deleted_at FROM notes WHERE id = ${'n1'}
+    `);
+    expect(tomb[0]?.deleted_at).toBe(now);
+  });
+
+  test('domain hard DELETE throws NO_HARD_DELETE and the row stays live', async () => {
+    const db = SqlClientImplMockingbirdSqlite.open();
+    await db.connect();
+    await migrateLocalSchema(db, exampleLocalSchema);
+    const env = testEnv();
+    const wrapped = wrapMutationDb(db, env);
+    await setNoteBody.run(
+      { tx: wrapped.tx, env },
+      { id: 'n1', body: 'keep-me' }
+    );
+
+    await expect(
+      wrapped.tx.run(sql`DELETE FROM notes WHERE id = ${'n1'}`)
+    ).rejects.toMatchObject({
+      code: 'NO_HARD_DELETE',
+    } satisfies Partial<MutationError>);
+    const live = await db.query(sql<{ body: string }>`
+      SELECT body FROM notes WHERE id = ${'n1'} AND deleted_at IS NULL
+    `);
+    expect(live).toEqual([{ body: 'keep-me' }]);
+  });
+});

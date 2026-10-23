@@ -1,0 +1,32 @@
+{
+  "name": "@pkgs/billing-stripe-harness-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@crvouga/mockingbird-service-stripe": "catalog:",
+    "@pkgs/billing-stripe-server-ts": "workspace:*",
+    "stripe": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/billing-root-shared-ts": "workspace:*",
+    "@pkgs/billing-stripe-shared-ts": "workspace:*",
+    "@pkgs/logger-shared-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness",
+  "language": "typescript"
+}

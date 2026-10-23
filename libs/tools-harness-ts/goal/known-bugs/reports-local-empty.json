@@ -1,0 +1,4 @@
+{
+  "summary": "Local reports silently displayed an empty catalog when the stack API had no reports read credential, hiding committed specs.",
+  "regressionTest": "pkgs/atlas-reports-harness-ts/tests/reports-explorer.test.ts"
+}

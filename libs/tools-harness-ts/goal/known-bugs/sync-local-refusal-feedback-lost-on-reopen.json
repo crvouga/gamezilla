@@ -1,0 +1,4 @@
+{
+  "summary": "A choice refused by known local rules returned a transient failure without saving its outcome, so reopening lost the refusal. The literal locally-refused note rolls back all domain writes and must retain scoped feedback across reopening without uploading the refused choice.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/local-refusal-feedback.contract.test.ts"
+}

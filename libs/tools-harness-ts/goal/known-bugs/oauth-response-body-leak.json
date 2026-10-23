@@ -1,0 +1,4 @@
+{
+  "summary": "The response ownership guard caught an unread Apple revocation acknowledgement when a connected sign-in method was removed. Google revocation and refused OAuth/key requests also retained bodies. Every ignored response is now canceled before returning or throwing.",
+  "regressionTest": "pkgs/auth-inhouse-server-ts/tests/response-bodies.test.ts"
+}

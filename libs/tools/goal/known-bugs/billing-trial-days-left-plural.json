@@ -1,4 +1,0 @@
-{
-  "summary": "The free-trial status line printed \"(1 days left)\" on a trial's last day. It now pluralizes through Lingui: \"(1 day left)\", \"(10 days left)\".",
-  "regressionTest": "libs/billing-client/tests/billing-screen-states.test.tsx"
-}

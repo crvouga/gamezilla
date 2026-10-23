@@ -1,0 +1,4 @@
+{
+  "summary": "After repeated reconnection the hosting model stopped counting Bob when he returned to the lobby, although Alice was viewing Bob\u2019s open space. A connected host continues to count.",
+  "regressionTest": "libs/friends-harness-ts/tests/quint/space-hosting.binding.ts"
+}

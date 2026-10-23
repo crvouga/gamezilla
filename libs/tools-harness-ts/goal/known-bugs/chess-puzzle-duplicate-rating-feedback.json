@@ -1,0 +1,4 @@
+{
+  "summary": "Equivalent completion updates repeat the rating-gain cue because the reactive trigger returns a fresh tuple for unchanged result values.",
+  "regressionTest": "libs/games-harness-ts/tests/conformance/puzzles/rating-feedback.test.ts"
+}

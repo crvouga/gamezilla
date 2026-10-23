@@ -1,4 +1,0 @@
-{
-  "summary": "Spreading SDK log records loses getter-backed event names, severity, timestamps and correlation during privacy filtering.",
-  "regressionTest": "pkgs/observability-root-harness/tests/business-signals.test.ts"
-}

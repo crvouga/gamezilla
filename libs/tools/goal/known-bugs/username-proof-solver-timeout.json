@@ -1,4 +1,0 @@
-{
-  "summary": "The username model's eleven invariants exceeded the unchanged four-step proof deadline when grouped in one task. Independently cached one-invariant phases preserve every target, the original bound and each check's 240-second deadline; the aggregate gates all eleven phases.",
-  "regressionTest": "libs/profile-harness/tests/username-proof-strategy.test.ts"
-}

@@ -1,0 +1,4 @@
+{
+  "summary": "Verify artifact cleanup deleted from its paginated collection before enumeration finished; a truncated JSON listing could leave partially deleted transfer artifacts and fail an otherwise passing gate.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-artifact-cleanup.test.ts"
+}

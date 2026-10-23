@@ -1,4 +1,0 @@
-{
-  "summary": "A private Verify snapshot copied a submodule's linked-worktree .git pointer, so Git commands inside the snapshot followed missing source-worktree metadata and spec reporting could not identify the revision. Snapshot submodule contents without nested Git control files.",
-  "regressionTest": "libs/tools/scripts/verify-snapshot.test.ts"
-}

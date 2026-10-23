@@ -1,4 +1,0 @@
-{
-  "summary": "`bun obs person` searched by `user.id` only, so a client crash before sign-in, `client.error` spans and websocket frames of the same session or device were never joined to the person. It now follows every session.id and app.device.id seen on the account's traces, range-bounded, and leaves out traces that name another account.",
-  "regressionTest": "pkgs/observability-root-shared/tests/person-report.test.ts"
-}

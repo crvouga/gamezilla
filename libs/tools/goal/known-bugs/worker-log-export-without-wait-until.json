@@ -1,4 +1,0 @@
-{
-  "summary": "The Worker log processor exported on a full batch or SDK timer instead of the invocation's explicit waitUntil flush.",
-  "regressionTest": "pkgs/observability-root-server/tests/worker-export-lifetime.test.ts"
-}

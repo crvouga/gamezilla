@@ -1,0 +1,4 @@
+{
+  "summary": "Production Workers canceled stalled HTTP responses: the SDK telemetry fetch transport, telemetry ingress and room commands retained unread response bodies. Worker telemetry now reads bounded acknowledgements, ignored bodies are canceled, and local/harness invocation scopes fail on unread or partially consumed bodies.",
+  "regressionTest": "pkgs/observability-runtime-shared-ts/tests/worker-http-export.test.ts"
+}

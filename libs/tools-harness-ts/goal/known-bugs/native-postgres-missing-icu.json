@@ -1,0 +1,4 @@
+{
+  "summary": "The darwin-arm64 embedded-postgres 18.4.0-beta.17 initdb aborts because libicudata.77.dylib is missing. Local/test Postgres must start with the Mockingbird wire server without loading native Postgres.",
+  "regressionTest": "pkgs/postgres-mockingbird-server-ts/tests/start.test.ts"
+}

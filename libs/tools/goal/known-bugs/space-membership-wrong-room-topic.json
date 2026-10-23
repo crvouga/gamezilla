@@ -1,4 +1,0 @@
-{
-  "summary": "A createSpace delivery for f724f291-a735-477a-b014-e07c4d070f8c updated room:<id>, the pubsub topic, instead of the authoritative space:<id> room. Devices saw no seats and rejected a valid creator as not in the space. Send membership updates and disconnects to the authoritative room topic.",
-  "regressionTest": "libs/spaces-harness/tests/space-membership-delivery.test.ts"
-}

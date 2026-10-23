@@ -1,4 +1,0 @@
-{
-  "summary": "`TraceStore.findBySession` and `findByDevice` ignored the asked time and searched a fixed 72 hours back from now, so they could neither reach an old incident nor stay inside a narrow one. Both now take the window, in every store (Tempo, NDJSON, indexed, Local Explorer).",
-  "regressionTest": "pkgs/observability-root-shared/tests/window-search.test.ts"
-}

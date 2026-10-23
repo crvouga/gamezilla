@@ -1,4 +1,0 @@
-{
-  "summary": "Arrow geometry was computed once per arrow, so parent-supplied arrows kept pointing the old way after the board flipped. Fixed by deriving geometry from the orientation.",
-  "regressionTest": "pkgs/chess-board-root-client/tests/chess-board-input.test.tsx"
-}

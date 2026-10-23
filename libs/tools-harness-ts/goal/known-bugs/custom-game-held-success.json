@@ -1,0 +1,4 @@
+{
+  "summary": "A repeated Custom Game choice at the same virtual instant clicked a control still displaying success, so the mutation lifecycle suppressed it and the harness never settled. Detect the button's success phase independently of its translated label and use the explicit acknowledged command while the success display holds.",
+  "regressionTest": "libs/games-harness-ts/tests/quint/custom-game.binding.ts"
+}

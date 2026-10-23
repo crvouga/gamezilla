@@ -1,4 +1,0 @@
-{
-  "summary": "A host could count a person who joined by link, but their presence row had no name because the participant's profile was absent locally. Counting connected people did not prove that the host could identify who was there.",
-  "regressionTest": "libs/friends-harness/tests/space-link-member-profile.test.ts"
-}

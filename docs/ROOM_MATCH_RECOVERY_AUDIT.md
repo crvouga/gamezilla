@@ -39,4 +39,4 @@ the eight affected room, adapter and application harness packages. The literal
 four-second-bank/two-second-outage regression is also exercised through the
 private Bun host boundary. Shared work is fenced explicitly before stopping;
 individual client disconnection never invokes that boundary. The host signal's
-scope and limits are documented in `pkgs/room-root-server/README.md`.
+scope and limits are documented in `pkgs/room-root-server-ts/README.md`.

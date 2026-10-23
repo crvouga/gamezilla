@@ -2,7 +2,7 @@ You are refactoring the Gamezilla design system so that the specification is the
 
 ## Goal
 
-Today the design system exists only as SolidJS + TypeScript code in @pkgs/ui (tokens, theme, 122 components registered in @pkgs/ui-root-client/src/registry-entries-*.ts). Turn it into:
+Today the design system exists only as SolidJS + TypeScript code in @pkgs/ui (tokens, theme, 122 components registered in @pkgs/ui-root-client-ts/src/registry-entries-*.ts). Turn it into:
 
 1. specs/design-system/ — pure, implementation-agnostic specs in open formats that fully describe the system.
 2. A visualizer that renders the specs directly (no implementation needed to look at the system).
@@ -33,7 +33,7 @@ Nothing about the shipped product may change: the app must look and behave ident
 
 ## Visualizer
 
-- Build a spec-driven explorer in @pkgs/ui-root-client (or a sibling, per package-boundaries rules) that renders tokens, type scale, spacing, and each component's contract (anatomy, props table, states grid, a11y map) from the YAML/JSON directly, with both themes side by side. It must not import @pkgs/ui components to render spec pages; it may embed the generated Solid implementation in a separate "live" tab for comparison.
+- Build a spec-driven explorer in @pkgs/ui-root-client-ts (or a sibling, per package-boundaries rules) that renders tokens, type scale, spacing, and each component's contract (anatomy, props table, states grid, a11y map) from the YAML/JSON directly, with both themes side by side. It must not import @pkgs/ui components to render spec pages; it may embed the generated Solid implementation in a separate "live" tab for comparison.
 - `bun ds:viz` opens it; `bun ds:build` validates and builds it. Follow the existing Atlas/explorer conventions where they exist.
 
 ## Codegen
@@ -48,7 +48,7 @@ Nothing about the shipped product may change: the app must look and behave ident
 
 - Tokens: a snapshot test per target resolves the compiled tokens into a flat map and asserts equality with the spec's resolved map for every theme.
 - Contracts: TypeScript — generated `.d.ts` compared with the real exports (type-level test); Swift — compile-time conformance to the generated protocols.
-- Behavior: every `.feature` runs in the Solid harness (@libs/harness via @pkgs/gherkin) and in an XCTest target that parses the same files with the same step vocabulary. An unbound step reports UNKNOWN and fails.
+- Behavior: every `.feature` runs in the Solid harness (@libs/harness-ts via @pkgs/gherkin) and in an XCTest target that parses the same files with the same step vocabulary. An unbound step reports UNKNOWN and fails.
 - Accessibility: axe on every component state in Solid; XCTest performAccessibilityAudit in Swift; the contrast matrix check on tokens in CI.
 - Visual: screenshots per component state per theme per breakpoint; the Solid build is the reference; Swift compares within a stated tolerance; results publish to the reports bucket like other spec kinds.
 - Vocabulary lint over catalogs, prop names, component names, test ids.

@@ -1,0 +1,4 @@
+{
+  "summary": "Advancing two quiet minutes drained in-process HTTP only after virtual request deadlines fired, falsely reconnecting healthy devices and resetting their idle activity.",
+  "regressionTest": "libs/harness-ts/tests/wait-pump-deadline.test.ts"
+}

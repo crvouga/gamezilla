@@ -1,0 +1,4 @@
+{
+  "summary": "The pre-commit spec ownership gate rejected a resolved merge from main because already committed account deletion specs appeared beside implementation changes in the index. Audit only specs changed against both merge parents; inherited specs retain their original commits and newly authored mixed resolutions remain refused.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-spec-ownership.test.ts"
+}

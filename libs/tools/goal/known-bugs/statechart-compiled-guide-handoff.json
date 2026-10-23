@@ -1,4 +1,0 @@
-{
-  "summary": "Inlining an invoked child's final state retains the hand-off transition but loses its automatic event relationship when reloaded as a single chart. The literal Alpha completion fixture automatically enters Beta in the authored model but cannot handle Inspect in the compiled model. Reject this replay drift before publishing a guide.",
-  "regressionTest": "libs/tools/scripts/statechart-integrity.test.ts"
-}

@@ -1,0 +1,40 @@
+{
+  "name": "@pkgs/harness-console-client-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@pkgs/clock-client-ts": "workspace:*",
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/harness-console-shared-ts": "workspace:*",
+    "@pkgs/i18n-shared-ts": "workspace:*",
+    "@pkgs/object-store-root-shared-ts": "workspace:*",
+    "@pkgs/sql-client-root-shared-ts": "workspace:*",
+    "@pkgs/sql-root-shared-ts": "workspace:*",
+    "@pkgs/ui-devtools-client-ts": "workspace:*",
+    "@pkgs/ui-devtools-shared-ts": "workspace:*",
+    "@pkgs/ui-root-client-ts": "workspace:*",
+    "@pkgs/ui-root-shared-ts": "workspace:*",
+    "@pkgs/uuid-client-ts": "workspace:*",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/sql-client-sqlite-root-shared-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "client",
+  "language": "typescript"
+}

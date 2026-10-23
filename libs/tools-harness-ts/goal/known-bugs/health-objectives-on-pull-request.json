@@ -1,0 +1,4 @@
+{
+  "summary": "Health dispatched on refs/heads/fix/health-objectives-host-space attached a failed historical availability objective to PR #149 even though both live environment probes passed. Measure the unchanged 28-day objective on main while retaining branch live probes.",
+  "regressionTest": "libs/tools-harness-ts/scripts/health-objectives-scope.test.ts"
+}

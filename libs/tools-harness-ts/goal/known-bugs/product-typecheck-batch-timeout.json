@@ -1,0 +1,4 @@
+{
+  "summary": "Verify run 36977052636 shard 1 exhausted a shared 120,000ms test deadline while type-checking twelve composed product roots, reporting adversarial-examples.qnt as failed without a CLI diagnostic. Give each root and its transitive imports one independent test under the same deadline, and retain the reachability check that rejects unchecked import cycles.",
+  "regressionTest": "apps/product-ts/tests/quint/simulation.test.ts"
+}

@@ -1,0 +1,51 @@
+{
+  "name": "@libs/profile-client-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests"
+  },
+  "dependencies": {
+    "@libs/app-root-client-ts": "workspace:*",
+    "@libs/auth-client-ts": "workspace:*",
+    "@libs/auth-shared-ts": "workspace:*",
+    "@libs/moderation-client-ts": "workspace:*",
+    "@libs/moderation-shared-ts": "workspace:*",
+    "@libs/profile-shared-ts": "workspace:*",
+    "@libs/sub-client-ts": "workspace:*",
+    "@libs/test-ids-shared-ts": "workspace:*",
+    "@lingui/core": "catalog:",
+    "@lingui/solid": "catalog:",
+    "@pkgs/clock-client-ts": "workspace:*",
+    "@pkgs/i18n-shared-ts": "workspace:*",
+    "@pkgs/secure-storage-root-client-ts": "workspace:*",
+    "@pkgs/solid-context-client-ts": "workspace:*",
+    "@pkgs/sync-engine-client-ts": "workspace:*",
+    "@pkgs/ui-root-client-ts": "workspace:*",
+    "@pkgs/ui-root-shared-ts": "workspace:*",
+    "@pkgs/uuid-client-ts": "workspace:*",
+    "@pkgs/uuid-shared-ts": "workspace:*",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/a11y-shared-ts": "workspace:*",
+    "@pkgs/bun-test-solid-client-ts": "workspace:*",
+    "@pkgs/property-shared-ts": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "client",
+  "language": "typescript"
+}

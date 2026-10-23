@@ -1,0 +1,4 @@
+{
+  "summary": "The local server startup test passed URL.pathname to Bun. A fixture such as file:///tmp/server%20startup%20path/startup%20fixture.ts was treated as a literal encoded filename and failed with Module not found. Launch the decoded filesystem path, and always run the existing cold-start isolation check through a fixture path containing spaces.",
+  "regressionTest": "apps/server-ts/tests/local-http-startup.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "csv-parse 6.2.1 treats the literal __proto__ CSV header as a prototype setter, losing the cell value attacker (property shrink: a) instead of preserving it as an own field. Upgrade to 7.0.3 and pin both inputs through the puzzle row iterator, with arbitrary cell coverage.",
-  "regressionTest": "libs/chess-puzzle-server/tests/csv-record-security.test.ts"
-}

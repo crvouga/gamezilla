@@ -1,4 +1,0 @@
-{
-  "summary": "The wording gate collapsed different actor/device parameter types, pending/completed saves and immediate/once-only visibility into aliases. It now retains these substantive distinctions while detecting true filler aliases. All three literal false-alias pairs are pinned.",
-  "regressionTest": "pkgs/gherkin-shared/tests/distinct-state-wording.test.ts"
-}

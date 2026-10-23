@@ -1,0 +1,4 @@
+{
+  "summary": "Native Synthetic Population realms use production MQTT clients but their integration backend published only to an in-memory bus, leaving the other player's board and matchmaking state stale. The literal two-realm lost-acknowledgement test timed out before observing a retried move. The fixture now connects the API publisher and realm subscribers through one isolated Aedes broker, without accelerated polling or weakened waits.",
+  "regressionTest": "apps/synthetic-population-worker-ts/tests/lost-acknowledgement.test.ts"
+}

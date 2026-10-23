@@ -1,0 +1,4 @@
+{
+  "summary": "The billing screen body did not scroll, so on a short phone the plan, pricing and benefits were cut off below the fold. Fixed by giving the billing layout a whole-body scroll.",
+  "regressionTest": "libs/billing-client-ts/tests/billing-screen-view.test.tsx"
+}

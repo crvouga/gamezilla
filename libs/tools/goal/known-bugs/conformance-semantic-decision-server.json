@@ -1,4 +1,0 @@
-{
-  "summary": "The permission-enforcement report required a server authorization agreement from the grounded assistant semantic decision, despite its having no access capability. Require server enforcement for exactly the decision specs referenced by the capability manifest, while still checking implementation agreement for every semantic decision.",
-  "regressionTest": "libs/tools/scripts/conformance-report.test.ts"
-}

@@ -1,0 +1,4 @@
+{
+  "summary": "createUuidV7 copied upper-case entropy verbatim, minting mixed-case ids whose string order disagreed with the canonical lower-case form. Fixed by lower-casing the entropy.",
+  "regressionTest": "pkgs/uuid-shared-ts/tests/uuid-v7.test.ts"
+}

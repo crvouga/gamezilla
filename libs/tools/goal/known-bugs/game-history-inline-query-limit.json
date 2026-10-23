@@ -1,4 +1,0 @@
-{
-  "summary": "An inline limit in the shared game-history query made the entire sync sweep fail, preventing space joins.",
-  "regressionTest": "libs/games-harness/tests/session-queries-regression.test.ts"
-}

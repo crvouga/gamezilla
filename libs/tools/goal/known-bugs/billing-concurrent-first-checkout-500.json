@@ -1,4 +1,0 @@
-{
-  "summary": "Two first checkouts at once each minted a provider customer; the second link insert hit the unique (user_id, provider) index, which ON CONFLICT (provider, external_id) did not cover, so the request failed with a 500 and left an orphaned customer. Fixed by inserting the link with ON CONFLICT DO NOTHING and reading back who holds what: the loser starts again under the winner's customer and both get the same checkout.",
-  "regressionTest": "libs/billing-server/tests/checkout-safeguards.test.ts"
-}

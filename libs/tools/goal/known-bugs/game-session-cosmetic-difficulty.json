@@ -1,4 +1,0 @@
-{
-  "summary": "The generic bot UI offered three strengths even when a game's adapter implemented only one. Each rules adapter must advertise its actual choices; the shared UI and canonical configuration reject unsupported difficulties.",
-  "regressionTest": "libs/game-session-shared/tests/independent-rules.test.ts"
-}

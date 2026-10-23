@@ -1,0 +1,4 @@
+{
+  "summary": "The puzzle-link replay seeds nineteen rated starts but the open board still shows three because the quota fixture never publishes its server write.",
+  "regressionTest": "libs/games-harness-ts/tests/quint/puzzle-link.binding.ts"
+}

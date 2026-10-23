@@ -1,0 +1,4 @@
+{
+  "summary": "Development Worker requests joined waitUntil exporters before returning their foreground response. Deploy 38810999586 then timed out browser requests, including cheap health probes. Foreground responses must return while monitored background completion retains HTTP body-ownership and failure checks.",
+  "regressionTest": "apps/server-ts/tests/worker-http-background.test.ts"
+}

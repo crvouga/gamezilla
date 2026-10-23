@@ -1,4 +1,0 @@
-{
-  "summary": "Repeated letters slipped past the username filter: runs of 3+ collapsed to one letter and doubles were never collapsed, so `faggggot` and `fuuck` were accepted. Fixed by matching each letter run in a term as that many or more.",
-  "regressionTest": "pkgs/word-filter-shared/tests/match.test.ts"
-}

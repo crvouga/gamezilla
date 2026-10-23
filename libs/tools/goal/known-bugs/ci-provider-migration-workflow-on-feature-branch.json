@@ -1,4 +1,0 @@
-{
-  "summary": "A temporary migration workflow unexpectedly ran on feature branches. Keep only Verify, Deploy and Health in the committed workflow directory.",
-  "regressionTest": "libs/tools/scripts/workflow-run-names.test.ts"
-}

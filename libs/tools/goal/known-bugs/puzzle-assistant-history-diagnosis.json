@@ -1,4 +1,0 @@
-{
-  "summary": "Scrubbing to an earlier board retained a wrong-move diagnosis and hints belonging to the frontier. Give review guidance and replace the speech context.",
-  "regressionTest": "libs/chess-puzzle-shared/tests/grounding.test.ts"
-}

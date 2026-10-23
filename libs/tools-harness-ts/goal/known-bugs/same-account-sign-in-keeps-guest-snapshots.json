@@ -1,0 +1,4 @@
+{
+  "summary": "Signing in can upgrade the guest's existing account without remounting its sync engine. Session queries then retain guest snapshots and omit the newly mirrored sign-in methods. Refresh active queries when the session capability changes.",
+  "regressionTest": "libs/profile-harness-ts/tests/same-account-sign-in-sync.test.ts"
+}

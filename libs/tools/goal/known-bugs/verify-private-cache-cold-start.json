@@ -1,4 +1,0 @@
-{
-  "summary": "Run isolation discarded the local task cache on every invocation, repeating remote lookups and downloads. Runs now atomically publish only immutable artifacts whose task hashes have passed verdicts in their own Turbo summary, which future runs copy into independent private caches without sharing writable files or outputs.",
-  "regressionTest": "libs/tools/scripts/verify-artifact-store.test.ts"
-}

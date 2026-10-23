@@ -1,0 +1,4 @@
+{
+  "summary": "Profile bootstrap replaced the chosen signup username with an OAuth subject such as bob-gmail-com. Provider identifiers are not usernames: retain the account’s validated choice and deny anonymous or unknown account bootstrap claims.",
+  "regressionTest": "libs/auth-server-ts/tests/replay-signup-username.test.ts"
+}

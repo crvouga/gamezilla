@@ -1,4 +1,0 @@
-{
-  "summary": "The route verifier rejects the common client-array factory used to register every puzzle game's personal stats, assuming all client spreads are literal arrays.",
-  "regressionTest": "libs/tools/scripts/statechart-routes.test.ts"
-}

@@ -1,0 +1,4 @@
+{
+  "summary": "The public recursive Atlas schema returns explicit undefined optional fields, but its handwritten StateNodeConfig type rejected them under exactOptionalPropertyTypes, preventing a strict consumer from validating viewer metadata. The literal public-schema fixture pins that representation and rejects malformed hints.",
+  "regressionTest": "libs/tools-harness-ts/scripts/statechart-contracts.test.ts"
+}

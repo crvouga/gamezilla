@@ -1,0 +1,4 @@
+{
+  "summary": "The Workers' compatibility_date (2026-09-22) ran ahead of the pinned wrangler 4.87's workerd (supports up to 2026-05-07), so verify:api's local preview refused to boot and every deploy failed while bun verify stayed green. Fixed by bumping wrangler and holding the date at or below workerd's in verify:worker-bundle.",
+  "regressionTest": "libs/tools-harness-ts/scripts/worker-compat-date.test.ts"
+}

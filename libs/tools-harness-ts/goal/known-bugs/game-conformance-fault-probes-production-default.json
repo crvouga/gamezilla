@@ -1,0 +1,4 @@
+{
+  "summary": "Verifier sensitivity tests assumed Chess supplied foreign positions and puzzles; removing production plugins caused false failures or made a permissive puzzle validator pass vacuously.",
+  "regressionTest": "libs/games-harness-ts/tests/reference-game/faulty-games.test.ts"
+}

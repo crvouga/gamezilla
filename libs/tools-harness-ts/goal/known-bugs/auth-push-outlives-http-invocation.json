@@ -1,0 +1,4 @@
+{
+  "summary": "Auth domain writes scheduled notification HTTP requests without awaiting transport acceptance. The local API closed the invocation with unfinished requests, returning 500 and leaving subsequent pushes on a closed scope. Push publication is now awaited before auth, configuration and mutation requests finish; timer-based deferred publication has been removed.",
+  "regressionTest": "pkgs/sync-engine-server-ts/tests/push-lifetime.test.ts"
+}

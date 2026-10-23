@@ -1,4 +1,0 @@
-{
-  "summary": "The isolated setup/counting/solo code suites plus custom-games and game-turns features exceed one 150-second child lifetime: the passing run is killed with exit 137 near the last game-turns examples.",
-  "regressionTest": "libs/games-harness/tests/framework-independence.contract.test.ts"
-}

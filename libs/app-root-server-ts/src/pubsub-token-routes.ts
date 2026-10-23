@@ -1,0 +1,57 @@
+import { resolveSessionReplayAuth } from '@libs/app-root-shared-ts/query-auth';
+import { apiRequestAsyncLocalStorage } from '@libs/app-root-shared-ts/request-scope';
+import { mintPubSubToken } from '@libs/pubsub-server-ts/mint-pubsub-token';
+import { PubsubSecretName } from '@libs/pubsub-shared-ts/secret-names';
+import type { ComposedSubServers } from '@libs/sub-shared-ts/compose-server';
+import { assert } from '@pkgs/assert-root-shared-ts/singleton';
+import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
+import { isAuthErrorBody } from '@pkgs/sync-engine-server-ts/auth-error';
+import { Hono } from 'hono';
+
+function openRequestSqlClient(): SqlClient {
+  const requestStore = apiRequestAsyncLocalStorage.getStore();
+  assert.defined(requestStore, 'pubsub token sql: request store missing');
+  return requestStore.sqlClient;
+}
+
+/**
+ * `POST /api/pubsub/token` — session-authed short-lived MQTT JWT
+ * (username `jwt`, password = token). ACL allows subscribe + publish on the
+ * actor's user/room/system topics (mutation fanout + push subscribe), and
+ * `topics` lists them so the client never asks the broker for another.
+ */
+export function createPubSubTokenRoutes(servers: ComposedSubServers) {
+  return new Hono().post('/pubsub/token', async (c) => {
+    const auth = await resolveSessionReplayAuth(c.req.raw);
+    if (isAuthErrorBody(auth)) {
+      return c.json(auth, 401);
+    }
+    const store = apiRequestAsyncLocalStorage.getStore();
+    assert.defined(store, 'pubsub token: request store missing');
+    const secret = (
+      await store.secretStore.getOptional(PubsubSecretName.jwtSecret)
+    )?.readSecretValue();
+    if (typeof secret !== 'string' || secret.trim().length === 0) {
+      return c.json({ error: 'pubsub_unavailable' }, 503);
+    }
+    const featureTopics = await servers.pubsubTopics({
+      actorId: auth.actorId,
+      db: openRequestSqlClient(),
+    });
+    const { token, expiresAt, topics } = await mintPubSubToken({
+      secret: secret.trim(),
+      actorId: auth.actorId,
+      featureTopics,
+      now: store.clock.now,
+    });
+    return c.json(
+      {
+        username: 'jwt',
+        password: token,
+        expiresAt,
+        topics,
+      },
+      200
+    );
+  });
+}

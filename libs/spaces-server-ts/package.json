@@ -1,0 +1,35 @@
+{
+  "name": "@libs/spaces-server-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@libs/auth-shared-ts": "workspace:*",
+    "@libs/permissions-server-ts": "workspace:*",
+    "@libs/permissions-shared-ts": "workspace:*",
+    "@libs/spaces-shared-ts": "workspace:*",
+    "@libs/sub-shared-ts": "workspace:*",
+    "@pkgs/attribute-shared-ts": "workspace:*",
+    "@pkgs/message-shared-ts": "workspace:*",
+    "@pkgs/outbox-shared-ts": "workspace:*",
+    "@pkgs/room-root-shared-ts": "workspace:*",
+    "@pkgs/sql-client-root-shared-ts": "workspace:*",
+    "@pkgs/sql-root-shared-ts": "workspace:*"
+  },
+  "devDependencies": {
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "server",
+  "language": "typescript"
+}

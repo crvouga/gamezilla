@@ -1,0 +1,4 @@
+{
+  "summary": "Workspace Run started the dev stack with Turborepo's streaming log. The install step exported TURBO_UI=false, and that value (or a parent TURBO_UI=stream) disables the terminal UI. The install now sets TURBO_UI=false only on its own commands, and Run exports TURBO_UI=true before starting dev.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workspace-run.test.ts"
+}

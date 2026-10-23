@@ -1,0 +1,4 @@
+{
+  "summary": "Custom Game listening checks found four space chrome icon buttons with empty names: IconButton only recognized a string label, while Lingui Trans supplies a reactive JSX value. Resolve the label before deriving the accessible name.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/button.test.tsx"
+}

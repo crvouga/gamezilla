@@ -148,7 +148,7 @@ Use the text after `/optimize`, open files, or the recent change set. If an
 explicit scope is given, stay confined to it. Default hot spots when scope
 is broad:
 
-- Shell chrome / tabs / miniplayer — `apps/client`, `libs/spaces`
+- Shell chrome / tabs / miniplayer — `apps/client-ts`, `libs/spaces`
 - Tooltips, floating menus, modals, sheets, banners — `@pkgs/ui`
 - Chess board, move validation/engine calls, celebration motion —
   `@pkgs/chess-board`, `@libs/chess`

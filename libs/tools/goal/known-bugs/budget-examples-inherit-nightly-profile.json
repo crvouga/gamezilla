@@ -1,4 +1,0 @@
-{
-  "summary": "VERIFY_PROFILE=nightly makes PR budget examples inherit the nightly multiplier and fail the coverage suite. Budget calculations now accept the profile environment explicitly.",
-  "regressionTest": "libs/tools/scripts/verify-budget.test.ts"
-}

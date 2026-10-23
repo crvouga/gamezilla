@@ -1,4 +1,0 @@
-{
-  "summary": "The workspace Run hook executed the full Mockingbird reconciliation contract before launching dev, so an incomplete install was misreported as schema incompatibility and the measured 12.4-second contract hit Bun's five-second default. Run now delegates directly to dev; automated verification keeps both full wire reconciliations under an explicit 30-second test deadline.",
-  "regressionTest": "libs/tools/scripts/workspace-run.test.ts"
-}

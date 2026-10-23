@@ -1,0 +1,4 @@
+{
+  "summary": "Splitting the chess package moved the checked-in 2,000-row puzzle load file into the harness package while the deploy seeder continued resolving scripts/fixtures/chess-puzzles.load.csv from the server package. Deploy now keeps the catalog beside the seeder and the resolver targets that package root.",
+  "regressionTest": "libs/chess-puzzle-server-ts/tests/load-file.test.ts"
+}

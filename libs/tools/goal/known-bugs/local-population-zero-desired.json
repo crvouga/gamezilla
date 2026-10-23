@@ -1,4 +1,0 @@
-{
-  "summary": "The local stack started a Synthetic Population Worker but left desired population at zero, so no opponent could be assigned.",
-  "regressionTest": "apps/product/scripts/local-stack-config.test.ts"
-}

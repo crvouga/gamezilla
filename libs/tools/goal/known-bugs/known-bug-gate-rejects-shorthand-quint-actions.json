@@ -1,4 +1,0 @@
-{
-  "summary": "The regression registry rejected a canonical Quint binding whose actions used shorthand properties (`{ playMove }`), so a registered pinned history read as missing. A shorthand field registers the action under its own name; spreads stay unreadable.",
-  "regressionTest": "libs/tools/scripts/quint-regression-proof.test.ts"
-}

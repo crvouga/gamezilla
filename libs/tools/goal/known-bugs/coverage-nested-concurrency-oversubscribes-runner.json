@@ -1,4 +1,0 @@
-{
-  "summary": "Coverage ran four package workers on two cores, each able to start twenty concurrent tests. Nested model compilers exhausted per-test deadlines. Workers now share the available CPU ceiling and default package parallelism leaves a core for the runner.",
-  "regressionTest": "libs/tools/scripts/verify-coverage.test.ts"
-}

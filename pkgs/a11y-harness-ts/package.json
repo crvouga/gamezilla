@@ -1,0 +1,23 @@
+{
+  "name": "@pkgs/a11y-harness-ts",
+  "version": "0.0.0",
+  "private": true,
+  "sideEffects": false,
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@pkgs/a11y-shared-ts": "workspace:*",
+    "@pkgs/property-shared-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "happy-dom": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness",
+  "language": "typescript"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "The Bun.WebView driver read a button's text with innerText, which includes the invisible (aria-hidden, opacity-0) idle label that keeps a feedback button's width, so the avatar button read \"Save Saved\" and the production \"Saved\" critical journey never passed while the Solid DOM driver, which skips aria-hidden branches, did. Fixed: the WebView driver skips the same hidden branches.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-harness-ts/tests/button-text.test.ts"
+}

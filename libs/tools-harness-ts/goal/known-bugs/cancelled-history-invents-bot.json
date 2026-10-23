@@ -1,0 +1,4 @@
+{
+  "summary": "Cancelling a custom game before its second place was filled showed that empty place as a bot in shared history. Retain whether each recorded participant was a bot, and distinguish an unassigned place without counting cancellation as a competitive result.",
+  "regressionTest": "libs/games-harness-ts/tests/conformance/history/cancelled-game.test.ts"
+}

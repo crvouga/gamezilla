@@ -1,4 +1,0 @@
-{
-  "summary": "For seed key harness-seed, releasing the first directory lock while a second builder started made the waiter unlink the changing owner directory and fail with EPERM. The rebuild lease must not delete another holder's lock.",
-  "regressionTest": "libs/harness/tests/seed-rebuild-lock.contract.test.ts"
-}

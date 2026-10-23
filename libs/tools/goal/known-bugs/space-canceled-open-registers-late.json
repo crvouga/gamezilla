@@ -1,4 +1,0 @@
-{
-  "summary": "The in-process room admission adapter could finish registering a connection after it had been destroyed, creating a ghost connection or taking over a newer open. Admission now honors cancellation before registration. Destroy-before-admission-completes is pinned.",
-  "regressionTest": "libs/spaces-harness/tests/canceled-room-open.test.ts"
-}

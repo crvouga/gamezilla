@@ -1,4 +1,0 @@
-{
-  "summary": "The production specification preview imported sqlite-web-headers.d.ts instead of runtime JavaScript, so browser specifications could not start.",
-  "regressionTest": "apps/client/scripts/preview-server.test.ts"
-}

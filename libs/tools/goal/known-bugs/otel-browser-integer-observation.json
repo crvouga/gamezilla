@@ -1,4 +1,0 @@
-{
-  "summary": "The OTLP serializer encodes integer-valued Web Vitals as intValue. The browser scrubber previously accepted only doubles and rejected legitimate observations such as LCP 321 ms.",
-  "regressionTest": "pkgs/observability-root-shared/tests/browser-otlp.test.ts"
-}

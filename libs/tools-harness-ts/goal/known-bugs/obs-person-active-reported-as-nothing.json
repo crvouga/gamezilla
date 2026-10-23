@@ -1,0 +1,4 @@
+{
+  "summary": "`bun obs person` answered `Nothing happened for <name> at that time` for an account that was active but had no error span, and showed only the first error otherwise. It now reports the account's requests, mutations and navigation as a timeline, says explicitly when no error was recorded, and lists every problem.",
+  "regressionTest": "pkgs/observability-root-shared-ts/tests/person-report.test.ts"
+}

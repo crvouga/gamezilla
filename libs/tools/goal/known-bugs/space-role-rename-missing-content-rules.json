@@ -1,4 +1,0 @@
-{
-  "summary": "The space-role permission replay host omitted content rules, so a guest, free account or Plus member hosting the space could not rename it to Renamed. Conformance mutation environments now supply the shipped moderation policy.",
-  "regressionTest": "libs/friends-harness/tests/space-role-rename-moderation.test.ts"
-}

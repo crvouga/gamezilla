@@ -1,4 +1,0 @@
-{
-  "summary": "The Vite process exited with code 143, but Turbo's --continue policy left the other persistent services and supervisor running. A later Run reused that boot lock despite the web service being gone. Development now cancels all tasks on a service failure, allowing ownership cleanup to release the boot for the next Run.",
-  "regressionTest": "apps/product/scripts/dev-tasks.test.ts"
-}

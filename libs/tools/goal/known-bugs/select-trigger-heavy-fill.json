@@ -1,4 +1,0 @@
-{
-  "summary": "The Select trigger painted a dark muted fill with an outline border and a bold label, so it read as a button rather than a field next to TextInput. It now uses the TextInput host (surface fill, hairline, control radius, 44px), the value in the body role, the placeholder in secondary and a 20px chevron in the icon tone.",
-  "regressionTest": "pkgs/ui-root-harness/tests/select.test.tsx"
-}

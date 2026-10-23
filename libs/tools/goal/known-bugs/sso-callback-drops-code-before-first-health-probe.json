@@ -1,4 +1,0 @@
-{
-  "summary": "The sign-in callback screen asked the offline-gated auth client to exchange the person's one-time code the moment it mounted, before the first health probe had answered. The gate refused with 'needs a connection', the screen swallowed the error, and the person landed back signed out with no message. Deploy's Connect Four health journey (a synthetic-monitor sign-in through the same callback) failed on this in about one run in four locally and in every Deploy run on a real network. The callback now waits for the server's first answer (bounded), then exchanges the code.",
-  "regressionTest": "libs/app-root-client/tests/offline-auth-signup-username.test.ts"
-}

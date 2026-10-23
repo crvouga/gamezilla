@@ -1,4 +1,0 @@
-{
-  "summary": "The product shell mounted an inactive Lingui provider, which intentionally rendered null and left only an empty ThemeProvider host. The shell now imports the activated shared locale directly before its I18nProvider mounts.",
-  "regressionTest": "libs/app-root-client/tests/app-shell-i18n.test.ts"
-}

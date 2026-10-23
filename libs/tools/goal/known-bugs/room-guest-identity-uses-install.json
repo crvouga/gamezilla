@@ -1,4 +1,0 @@
-{
-  "summary": "The live room gateway admitted guests with their install ID while space mutations and membership events used their bound user ID, so Custom Games rejected their own host as not in the space. Resolve room identities through the same session auth port as sync, retaining rejection of unauthenticated signed-in accounts.",
-  "regressionTest": "libs/app-root-server/tests/room-gateway-grants.test.ts"
-}

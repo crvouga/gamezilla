@@ -1,0 +1,4 @@
+{
+  "summary": "The PR production bundle gate omitted multiplayer and Connect Four journeys that Deploy health ran.",
+  "regressionTest": "apps/product-ts/scripts/health.test.ts"
+}

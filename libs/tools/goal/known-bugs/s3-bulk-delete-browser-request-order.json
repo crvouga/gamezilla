@@ -1,4 +1,0 @@
-{
-  "summary": "The 1,001-key bulk delete regression assumed the 1,000-key HTTP request arrives before the one-key request. Browser SigV4 signing can finish in reverse order because delete batches run concurrently. Assert both exact key batches independently of request arrival order.",
-  "regressionTest": "pkgs/object-store-s3-server/tests/bulk-delete.test.ts"
-}

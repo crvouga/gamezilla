@@ -1,4 +1,0 @@
-{
-  "summary": "With native runtime seed 7221 and snapshot schema 99, cold authentication and game setup outlasted a lease because the fixture omitted the real Worker's periodic renewal. Native session fixtures now renew every five seconds during authentication and activity, cancel renewal on close, and explicitly stop renewal before simulating an expired ownership handoff.",
-  "regressionTest": "apps/synthetic-population-worker/tests/session-handoff.test.ts"
-}

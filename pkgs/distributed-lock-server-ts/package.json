@@ -1,0 +1,30 @@
+{
+  "name": "@pkgs/distributed-lock-server-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@pkgs/distributed-lock-shared-ts": "workspace:*",
+    "@pkgs/uuid-shared-ts": "workspace:*"
+  },
+  "devDependencies": {
+    "@pkgs/keyword-shared-ts": "workspace:*",
+    "@pkgs/kv-root-shared-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "server",
+  "language": "typescript"
+}

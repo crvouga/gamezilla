@@ -1,0 +1,4 @@
+{
+  "summary": "Owned process spawning restored parent service bindings removed from an explicitly isolated local environment.",
+  "regressionTest": "pkgs/os-server-ts/tests/dev-owner-env.test.ts"
+}

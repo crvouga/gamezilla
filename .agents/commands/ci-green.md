@@ -71,10 +71,10 @@ Fix the root cause the repo's way (see `AGENTS.md`):
 
 - **Every bug gets a verification.** A failure that `bun verify` did not catch means a verification is
   missing. Add the example test (`// regression: <bug-id>`), add
-  `libs/tools/goal/known-bugs/<bug-id>.json`, or add a lint rule, so that the next occurrence fails
+  `libs/tools-harness-ts/goal/known-bugs/<bug-id>.json`, or add a lint rule, so that the next occurrence fails
   Verification instead of Deploy or Health.
 - **Configuration drift** (a revoked key, a stale secret, GitHub settings) is fixed by the
-  config-as-code that owns it: `libs/infra-shared/tofu` (infrastructure), the `libs/secrets` registry; repository settings are the OpenTofu bootstrap stack.
+  config-as-code that owns it: `libs/infra-shared-ts/tofu` (infrastructure), the `libs/secrets` registry; repository settings are the OpenTofu bootstrap stack.
   Never fix it with a hand edit in a vendor dashboard. If a fix needs a human, such as a
   credential only they hold, a dashboard with no API, or approval for a destructive or
   production action, stop and ask for exactly that one thing. Keep working the rest of the

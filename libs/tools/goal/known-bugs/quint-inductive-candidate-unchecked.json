@@ -1,4 +1,0 @@
-{
-  "summary": "A requested inductive candidate was ignored by the model verifier, allowing ordinary safety evidence to stand in for an unbounded proof. The verifier now requires initialization, transition preservation, and implication; a candidate broken by opening a safe door is pinned.",
-  "regressionTest": "pkgs/quint-server/tests/verify.test.ts"
-}

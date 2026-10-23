@@ -1,0 +1,4 @@
+{
+  "summary": "Development cleanup targeted ports and machine-wide command patterns while detached descendants survived supervisor death. Collect inherited checkout stamps, snapshot descendants, and escalate shutdown independently of supervisor handlers.",
+  "regressionTest": "pkgs/os-server-ts/tests/dev-owner.contract.test.ts"
+}

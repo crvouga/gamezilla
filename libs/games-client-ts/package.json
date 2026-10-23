@@ -1,0 +1,33 @@
+{
+  "name": "@libs/games-client-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@libs/battleship-client-ts": "workspace:*",
+    "@libs/chess-root-client-ts": "workspace:*",
+    "@libs/connect-four-client-ts": "workspace:*",
+    "@libs/game-menu-client-ts": "workspace:*",
+    "@libs/games-shared-ts": "workspace:*",
+    "@libs/spaces-shared-ts": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "client",
+  "gameApi": [],
+  "gameRegistry": true,
+  "language": "typescript"
+}

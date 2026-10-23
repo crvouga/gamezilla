@@ -1,0 +1,4 @@
+{
+  "summary": "The UI mutation provider omitted the injected game rules, so finding an opponent failed before the request could be queued.",
+  "regressionTest": "libs/games-harness-ts/tests/conformance/matchmaking/finding-an-opponent.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "The build tools pulled in braces 3.0.3, whose recursive compilation can overflow the stack on 12000 nested braces. Use bounded Picomatch compilation for source exclusions, catalog capture and watcher patterns, removing braces from the dependency graph.",
+  "regressionTest": "pkgs/glob-match-shared-ts/tests/glob-match.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "An interrupted checkpoint save retained an earlier restore failure because the failure was cleared only after successful save.",
-  "regressionTest": "apps/product/tests/quint/checkpoints.binding.ts"
-}

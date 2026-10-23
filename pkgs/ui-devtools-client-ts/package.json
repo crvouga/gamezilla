@@ -1,0 +1,41 @@
+{
+  "name": "@pkgs/ui-devtools-client-ts",
+  "version": "0.0.0",
+  "private": true,
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "type": "module",
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests"
+  },
+  "dependencies": {
+    "@lingui/core": "catalog:",
+    "@lingui/solid": "catalog:",
+    "@pkgs/async-root-client-ts": "workspace:*",
+    "@pkgs/ui-devtools-shared-ts": "workspace:*",
+    "@pkgs/ui-root-client-ts": "workspace:*",
+    "@pkgs/ui-root-shared-ts": "workspace:*",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/bun-test-solid-client-ts": "workspace:*",
+    "@pkgs/clock-client-ts": "workspace:*",
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "client",
+  "language": "typescript"
+}

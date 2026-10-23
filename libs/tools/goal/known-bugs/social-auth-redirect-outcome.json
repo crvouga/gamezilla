@@ -1,4 +1,0 @@
-{
-  "summary": "The same-tab OAuth callback discarded provider errors and pending account-link prompts, leaving resumed sign-in without its result. Publish every callback failure to the auth session for the existing modal.",
-  "regressionTest": "pkgs/auth-inhouse-client/tests/hosted-auth-redirect.test.ts"
-}

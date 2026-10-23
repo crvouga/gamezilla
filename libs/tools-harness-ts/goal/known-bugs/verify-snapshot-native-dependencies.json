@@ -1,0 +1,4 @@
+{
+  "summary": "Reinstalling snapshot dependencies without lifecycle scripts omitted embedded Postgres libicudata.77.dylib and broke local contract tests. Copy the prepared dependency tree with private files while preserving its installed native library links.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-snapshot.test.ts"
+}

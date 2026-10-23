@@ -1,0 +1,4 @@
+{
+  "summary": "Losing the storage acknowledgement after a room commit left the live engine and storage tip stale; the next legitimate change failed with expected sequence 1, got 2. Reload committed state and invalidate the storage tip after an ambiguous commit failure.",
+  "regressionTest": "pkgs/room-adapter-durable-object-harness-ts/tests/interrupted-commit.test.ts"
+}

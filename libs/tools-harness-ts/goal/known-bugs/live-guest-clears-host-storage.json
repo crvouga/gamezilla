@@ -1,0 +1,4 @@
+{
+  "summary": "Opening a link guest in the host Chrome process cleared the host cookies and local storage.",
+  "regressionTest": "apps/product-ts/tests/isolated-browser.test.ts"
+}

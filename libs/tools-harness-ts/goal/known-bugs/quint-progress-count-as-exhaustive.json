@@ -1,0 +1,4 @@
+{
+  "summary": "The TLC evidence reader took the first progress count instead of the completed graph, reporting a varying partial size as exhaustive evidence. It now requires successful graph completion, an empty final queue, and the final count and search depth. The literal 13,084-to-19,000 output is pinned.",
+  "regressionTest": "pkgs/quint-shared-ts/tests/tlc-state-space.test.ts"
+}

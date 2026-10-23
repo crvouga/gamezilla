@@ -1,0 +1,4 @@
+{
+  "summary": "After a shared request was declined, Alice asked again using the known decline rules. The immediate refusal disappeared when Alice reopened. Actual model trace 6 pins asking, declining, going offline, asking twice, Bob blocking, reconnecting and reopening without changing any observations.",
+  "regressionTest": "libs/friends-harness-ts/tests/quint/offline-friend-requests.binding.ts"
+}

@@ -1,12 +1,12 @@
 name: Health
 
 # Run title, identical shape in every workflow (enforced by
-# libs/tools/scripts/workflow-run-names.test.ts):
+# libs/tools-harness-ts/scripts/workflow-run-names.test.ts):
 #   <Workflow> · <trigger>
 run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manual' }}"
 
 # Health: is the deployment good? `bun health` dispatches this workflow.
-# Each job runs `bun run health:local` (`@apps/product#health`, turbo
+# Each job runs `bun run health:local` (`@apps/product-ts#health`, turbo
 # `health` with `--only`, so nothing is deployed):
 # every Gherkin scenario in specs/health/ and specs/journeys/ against
 # the resources a secrets env points at — Postgres, R2, EMQX, Grafana Cloud,
@@ -16,15 +16,15 @@ run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manua
 # probes as its last step (`//#deploy` → `health`); this schedule catches drift in
 # between (expired tokens, revoked keys, a dead Railway service).
 #
-# One job per environment in libs/infra-shared/tofu/envs/<env>.tfvars.json
-# (health:matrix reads them — libs/infra-shared/scripts/workflow-env-matrix.ts — from
+# One job per environment in libs/infra-shared-ts/tofu/envs/<env>.tfvars.json
+# (health:matrix reads them — libs/infra-shared-ts/scripts/workflow-env-matrix.ts — from
 # a job with no secrets); adding an env file needs no edit here. Envs with
 # `protection: "production"` run in the GitHub `production` environment and
 # keep their critical-journey evidence on failure. Scenarios only production
-# can run (`HOST_LIMITS` in apps/product/scripts/health.ts) skip elsewhere.
+# can run (`HOST_LIMITS` in apps/product-ts/scripts/health.ts) skip elsewhere.
 #
 # On main, health:objectives checks each environment's service level objectives
-# (the `# live` files in specs/, `health:objectives` in @apps/product): that the
+# (the `# live` files in specs/, `health:objectives` in @apps/product-ts): that the
 # team's checks find the app answering, read back from the GitHub Actions API,
 # and that the requests people really make succeed and are answered quickly,
 # counted by the server's own metrics (Grafana Cloud's Prometheus API, opened
@@ -32,7 +32,7 @@ run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manua
 # 28 days and by its burn-rate alert policies; a policy that fires fails this
 # job with the owner, runbook and `bun obs` command in the log, which is how an
 # alert reaches people while no Grafana instance is active
-# (libs/observability-shared/README.md, "Service level objectives"). Objectives
+# (libs/observability-shared-ts/README.md, "Service level objectives"). Objectives
 # never run inside `health`, which gates every deploy: a bad month must not
 # block a fix. Branch Health runs verify current probes without attaching that
 # historical deficit to the fix's PR. Scheduled and manual main runs retain the
@@ -94,7 +94,7 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: ${{ matrix.env }}
       - name: Remove unused branches and stale reports
-        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/harness/scripts/report-cleanup.ts --apply --branches
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/harness-ts/scripts/report-cleanup.ts --apply --branches
 
   health-matrix:
     name: health:matrix
@@ -112,7 +112,7 @@ jobs:
 
       - name: envs
         id: envs
-        run: bun run libs/infra-shared/scripts/workflow-env-matrix.ts >> "$GITHUB_OUTPUT"
+        run: bun run libs/infra-shared-ts/scripts/workflow-env-matrix.ts >> "$GITHUB_OUTPUT"
 
       # Deploy and Health run the same journeys, as the same synthetic
       # accounts, against the same environment, and both plan the same
@@ -168,20 +168,20 @@ jobs:
           environment: ${{ matrix.env }}
 
       - name: health:${{ matrix.env }}
-        # Above `CI_RUN_DEADLINE_SECONDS` (libs/tools/scripts/verify-budget.ts)
+        # Above `CI_RUN_DEADLINE_SECONDS` (libs/tools-harness-ts/scripts/verify-budget.ts)
         # on purpose: turbo-ci-run hits its own deadline first and names the
         # probe that hung, instead of GitHub cancelling the job silently.
         timeout-minutes: 25
         run: bun run health:local
 
-      # Critical journeys (specs/journeys/, apps/product/tests/steps/live-world.ts)
+      # Critical journeys (specs/journeys/, apps/product-ts/tests/steps/live-world.ts)
       # save a screenshot, the page HTML and the browser console per failure.
       - name: Upload critical journey evidence
         if: failure()
         uses: actions/upload-artifact@v6
         with:
           name: critical-journeys-${{ github.run_id }}-${{ matrix.env }}
-          path: apps/product/.cache/critical-journeys/
+          path: apps/product-ts/.cache/critical-journeys/
           if-no-files-found: ignore
           include-hidden-files: true
           retention-days: 14
@@ -215,6 +215,6 @@ jobs:
         run: |
           status=0
           for env in $(jq -r '.[]' <<< "$ENVS"); do
-            SECRETS_ENV="$env" bun run --filter @apps/product health:objectives || status=1
+            SECRETS_ENV="$env" bun run --filter @apps/product-ts health:objectives || status=1
           done
           exit "$status"

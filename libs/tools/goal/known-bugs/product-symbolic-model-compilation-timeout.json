@@ -1,4 +1,0 @@
-{
-  "summary": "Repeated record arguments and pre-state field projections expanded during symbolic compilation, timing out the unchanged three-client offline-replication, whole-system and recovery checks. Equivalent cached value and record-field bindings preserve every bound, transition and invariant, including shadowed parameters and violating transitions. All 13 whole-product formal checks pass within their original deadlines against a stable source digest.",
-  "regressionTest": "apps/product/tests/quint/model-checks.test.ts"
-}

@@ -1,0 +1,4 @@
+{
+  "summary": "The isolated release stack did not configure a monitor credential for signed-in journeys.",
+  "regressionTest": "apps/product-ts/scripts/local-stack-config.test.ts"
+}

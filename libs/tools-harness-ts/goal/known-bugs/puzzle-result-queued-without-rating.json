@@ -1,0 +1,4 @@
+{
+  "summary": "Result finalization queued an outcome and its rating as separate mutations. Failure before the second write stranded a completed outcome without a rating. One mutation now records the outcome, first rating and upload together. Literal interruption before the write and during profile persistence proves rollback and exact-once recovery.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/interrupted-outcome.test.ts"
+}

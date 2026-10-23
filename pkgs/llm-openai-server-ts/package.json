@@ -1,0 +1,31 @@
+{
+  "name": "@pkgs/llm-openai-server-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@pkgs/http-client-shared-ts": "workspace:*",
+    "@pkgs/llm-openai-shared-ts": "workspace:*",
+    "@pkgs/llm-root-server-ts": "workspace:*",
+    "@pkgs/llm-root-shared-ts": "workspace:*",
+    "@pkgs/secret-store-shared-ts": "workspace:*",
+    "hono": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "server",
+  "language": "typescript"
+}

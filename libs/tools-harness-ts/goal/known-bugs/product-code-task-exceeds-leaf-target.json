@@ -1,0 +1,4 @@
+{
+  "summary": "The product code-test task took 201 seconds on Verify run 39467547837, exceeding the unchanged three-minute leaf target before startup. All files must remain covered across the separately gated code-test shards.",
+  "regressionTest": "libs/tools-harness-ts/scripts/turbo-deploy-graph.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "The grace model kept a seven-day trial open after eight offline days, then incorrectly canceled the trial instead of the paid period. Elapsed trial age now survives reconnection.",
-  "regressionTest": "libs/billing-harness/tests/quint/grace-and-refunds.binding.ts"
-}

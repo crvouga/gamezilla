@@ -1,4 +1,0 @@
-{
-  "summary": "A native pointer selected 2+1 while the live journey requested 5+0, leaving the two participants in different pools and falsely blaming delivery latency. Select the native radio by keyboard and refuse Find unless the requested choice is visibly selected.",
-  "regressionTest": "libs/runtime-harness/tests/multiplayer-search-loading.test.ts"
-}

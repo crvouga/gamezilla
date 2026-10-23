@@ -1,0 +1,4 @@
+{
+  "summary": "The shared multiplayer subscription tracked fresh game-query rows rather than the unchanged room address and controller identity. Updates repeatedly destroyed and reopened the same socket. Compare connection-key values before notifying the subscription; retain reconnection when the room, person, device or endpoint changes.",
+  "regressionTest": "pkgs/room-root-client-ts/tests/room-connection-key.test.ts"
+}

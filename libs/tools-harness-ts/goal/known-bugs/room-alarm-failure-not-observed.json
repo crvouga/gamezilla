@@ -1,0 +1,4 @@
+{
+  "summary": "Room alarm failures bypassed tracing and invocation flushing, so a clock or scheduled room failure had no investigation trail.",
+  "regressionTest": "pkgs/room-adapter-durable-object-harness-ts/tests/observability.test.ts"
+}

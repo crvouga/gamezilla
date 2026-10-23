@@ -1,0 +1,4 @@
+{
+  "summary": "`bun obs` reads traces, and only an error log became one (`runtime.error`); a warning outside an active span reached the log signal alone, which the CLI does not query, so a production warning flood could not be found. A warning now also records a finished `runtime.warning` span.",
+  "regressionTest": "pkgs/observability-root-server-ts/tests/diagnostic-errors.test.ts"
+}

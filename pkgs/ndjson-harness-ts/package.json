@@ -1,0 +1,23 @@
+{
+  "name": "@pkgs/ndjson-harness-ts",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@pkgs/ndjson-client-ts": "workspace:*",
+    "@pkgs/ndjson-server-ts": "workspace:*",
+    "@pkgs/ndjson-shared-ts": "workspace:*",
+    "@pkgs/property-shared-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness",
+  "language": "typescript"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "A replay of a queued write was visible only as a span, so no metric could say what share of replays the server failed (Postgres serialization failures) against decided or refused for good. Every replay is now counted by outcome: applied, duplicate, rejected or failed.",
-  "regressionTest": "pkgs/sync-engine-server/tests/mutation-replay-metrics.test.ts"
-}

@@ -1,0 +1,4 @@
+{
+  "summary": "Switching offline aborted HTTP only until headers arrived, allowing a streaming response body to keep receiving data. Keep cancellation attached until the response body finishes.",
+  "regressionTest": "libs/app-root-client-ts/tests/offline-network-controller.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "The recovery journey's untimed Given reused the separate five-second matchmaking assertion, failing during setup before recovery could be exercised.",
-  "regressionTest": "libs/runtime-harness/tests/multiplayer-search-loading.test.ts"
-}

@@ -1,0 +1,4 @@
+{
+  "summary": "A room opened without a connection failed its first connect, and the voluntary-offline room wrapper destroyed the adapter together with its reconnect loop. When the connection returned the host never rejoined their own space, so everyone else kept seeing the host as offline. A failed attempt now leaves the adapter in place.",
+  "regressionTest": "libs/app-root-client-ts/tests/offline-room-failed-connect.test.ts"
+}

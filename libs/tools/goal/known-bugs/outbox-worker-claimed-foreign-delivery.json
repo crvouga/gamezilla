@@ -1,4 +1,0 @@
-{
-  "summary": "A worker claimed deliveries for absent consumers and other event partitions, consuming attempts without running the owner.",
-  "regressionTest": "pkgs/outbox-harness/tests/worker-partition.test.ts"
-}

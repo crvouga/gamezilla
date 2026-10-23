@@ -1,0 +1,4 @@
+{
+  "summary": "The hosting model omitted a connected host from presence after stepping into the lobby, contradicting the approved hosting behavior and multi-device contract.",
+  "regressionTest": "libs/friends-harness-ts/tests/quint/space-hosting.binding.ts"
+}

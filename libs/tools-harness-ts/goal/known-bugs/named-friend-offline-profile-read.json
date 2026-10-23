@@ -1,0 +1,4 @@
+{
+  "summary": "Preparing a named friend read the profile handle while the spaces tab was open, mistook the absent control for an unset username, and attempted a forbidden rename of an offline recipient. Read the existing name from the profile tab before deciding whether setup needs a rename.",
+  "regressionTest": "libs/friends-harness-ts/tests/named-friend-preparation.test.ts"
+}

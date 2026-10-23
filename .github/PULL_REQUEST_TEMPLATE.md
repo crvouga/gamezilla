@@ -42,13 +42,13 @@ must decide before merging.
 
 - [ ] CI (`verify:end`) is green on this PR.
 - [ ] No verification was weakened: no deleted or skipped tests, no loosened assertion, no `@ts-ignore`, no disabled lint rule.
-- [ ] Changed behavior is covered by a property- or model-based test; every bug fixed has an example regression test (`// regression: <id>`) registered as `libs/tools/goal/known-bugs/<id>.json`. Nothing was verified by hand.
+- [ ] Changed behavior is covered by a property- or model-based test; every bug fixed has an example regression test (`// regression: <id>`) registered as `libs/tools-harness-ts/goal/known-bugs/<id>.json`. Nothing was verified by hand.
 - [ ] No deprecated code left behind: replaced APIs are deleted and every call site migrated here.
 - [ ] Nondeterministic I/O stays injected (Clock/Timers/http/createId/random); no bare `Date.now`, `setTimeout`, `fetch`, or `crypto.randomUUID` in product code.
 - [ ] Schema changes use `defineTable` + a registered migration; no raw `CREATE TABLE` and no new `.sql` schema files.
 - [ ] Domain removals are soft deletes (`deleted_at`); no `DELETE FROM` on domain tables.
 - [ ] Client reads/writes go through local SQLite queries and mutations; no new data REST endpoint.
-- [ ] Any new secret is registered in `@libs/secrets` and either seeded for every environment or written by OpenTofu (`libs/infra-shared/tofu/stacks/foundation/secrets.json`).
+- [ ] Any new secret is registered in `@libs/secrets` and either seeded for every environment or written by OpenTofu (`libs/infra-shared-ts/tofu/stacks/foundation/secrets.json`).
 - [ ] Person-facing changes meet the definition of done in `docs/SELF_SERVICE_READINESS.md` and update its matrix row; no copy sends a person to support.
 - [ ] Docs updated wherever behavior, conventions, or operations changed.
 - [ ] No long-running local process still holds a machine-wide singleton port (EMQX `1883`/`8083`/`18083`, wrangler `8788`).

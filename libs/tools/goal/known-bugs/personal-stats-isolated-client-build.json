@@ -1,4 +1,0 @@
-{
-  "summary": "The zero-game production-toolchain bundle exercises shared in-space screens but omits the common personal-stats registration and account review screen.",
-  "regressionTest": "apps/client/tests/framework-build.test.ts"
-}

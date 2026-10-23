@@ -1,0 +1,188 @@
+import { apiRequestAsyncLocalStorage } from '@libs/app-root-shared-ts/request-scope';
+import { accountMutationEnv } from '@libs/auth-shared-ts/account-mutation-env';
+import { HttpPubSubFromSecretStore } from '@libs/pubsub-server-ts/create-http-pubsub-from-secret-store';
+import { SpanStatusCode } from '@opentelemetry/api';
+import { assert } from '@pkgs/assert-root-shared-ts/singleton';
+import type { Clock } from '@pkgs/clock-shared-ts/types';
+import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
+import { ATTR } from '@pkgs/observability-root-shared-ts/attributes';
+import { withSpan } from '@pkgs/observability-root-shared-ts/span';
+import { OutboxConsumerRegistry } from '@pkgs/outbox-shared-ts/define-consumer';
+import {
+  type DrainOutboxDeps,
+  drainOutbox,
+  type ObserveDelivery,
+} from '@pkgs/outbox-shared-ts/drain';
+import type { PubSub } from '@pkgs/pubsub-root-shared-ts/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
+import { notifyChannels } from '@pkgs/sync-engine-server-ts/notify-channels';
+import {
+  type TopicMap,
+  topicMapCtxFromEnv,
+} from '@pkgs/sync-engine-shared-ts/topic-map';
+import { wrapMutationDb } from '@pkgs/sync-engine-shared-ts/wrap-mutation-db';
+import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
+import { countExhaustedOutboxDeliveries } from './outbox-health';
+import { outboxNotificationTopics } from './outbox-notification-topics';
+
+/**
+ * One span per delivery: a consumer that fails is retried rather than thrown,
+ * so without this a failing consumer leaves no trace of which one it was.
+ */
+const observeOutboxDelivery: ObserveDelivery = (info, run) =>
+  withSpan(
+    'outbox.deliver',
+    async (span) => {
+      const result = await run();
+      if (!result.ok) {
+        span.setStatus({
+          code: SpanStatusCode.ERROR,
+          message: result.failure ?? 'delivery failed',
+        });
+      }
+      return result;
+    },
+    {
+      [ATTR.APP_OUTBOX_CONSUMER]: info.consumerId,
+      [ATTR.APP_OUTBOX_EVENT_TYPE]: info.eventType,
+      [ATTR.APP_OUTBOX_EVENT_ID]: info.eventId,
+      [ATTR.APP_OUTBOX_ATTEMPT]: info.attempt,
+      [ATTR.CODE_FILE_PATH]: 'libs/app-root-server-ts/src/outbox-drain.ts',
+      [ATTR.CODE_FUNCTION_NAME]: 'observeOutboxDelivery',
+    }
+  );
+
+let registry: OutboxConsumerRegistry | null = null;
+const topicMaps = new WeakMap<OutboxConsumerRegistry, TopicMap>();
+
+/** Telemetry delivery belongs to the background drain, never gameplay latency. */
+export function requestOutboxRegistry(
+  all: OutboxConsumerRegistry
+): OutboxConsumerRegistry {
+  const requests = new OutboxConsumerRegistry();
+  requests.registerAll(
+    all
+      .all()
+      .filter(
+        (consumer) =>
+          consumer.delivery !== 'background' &&
+          !consumer.id.startsWith('telemetry:')
+      )
+  );
+  const topicMap = topicMaps.get(all);
+  if (topicMap !== undefined) topicMaps.set(requests, topicMap);
+  return requests;
+}
+
+/**
+ * The consumers the composed subs registered. Set once while the server
+ * is built, because a delivery can be drained from any request and the
+ * request has no idea which subs this app runs.
+ */
+export function setOutboxConsumerRegistry(
+  next: OutboxConsumerRegistry,
+  topicMap: TopicMap
+): void {
+  registry = next;
+  topicMaps.set(next, topicMap);
+}
+
+export function getOutboxConsumerRegistry(): OutboxConsumerRegistry {
+  assert.defined(
+    registry,
+    'outbox registry: not composed — createServer sets it from the sub fold'
+  );
+  return registry;
+}
+
+/**
+ * Drain due outbox deliveries and push notification topics.
+ * Publishes synchronously (like mutation fanout) so DST harness timers need not
+ * advance for recipients to see rows.
+ */
+export async function drainAndNotifyOutbox(args: {
+  readonly db: SqlClient;
+  readonly clock: Clock;
+  readonly createId: CreateId;
+  readonly pubsub?: PubSub | null;
+  readonly objectStore: ObjectStore;
+  readonly consumerRegistry?: OutboxConsumerRegistry;
+  readonly eventIds?: readonly string[];
+  readonly topicMap?: TopicMap;
+  readonly maxPasses?: number;
+  readonly limit?: number;
+}): Promise<number> {
+  const captures: ReturnType<typeof wrapMutationDb>[] = [];
+  const consumers = args.consumerRegistry ?? getOutboxConsumerRegistry();
+  const result = await drainDueOutbox(
+    {
+      db: args.db,
+      clock: args.clock,
+      createId: args.createId,
+      registry: consumers,
+      objectStore: args.objectStore,
+      observeDelivery: observeOutboxDelivery,
+      ...(args.limit === undefined ? {} : { limit: args.limit }),
+      ...(args.eventIds === undefined ? {} : { eventIds: args.eventIds }),
+      wrapConsumerTx: (tx) => {
+        const wrapped = wrapMutationDb(tx, accountMutationEnv('', args));
+        captures.push(wrapped);
+        return wrapped.tx;
+      },
+    },
+    args.maxPasses
+  );
+  countExhaustedOutboxDeliveries(result.exhausted);
+
+  const store = apiRequestAsyncLocalStorage.getStore();
+  const topics = await outboxNotificationTopics({
+    topicMap: args.topicMap ?? topicMaps.get(consumers),
+    captures: captures.map((capture) => capture.getCapture()),
+    notifyUserIds: result.notifyUserIds,
+    db: args.db,
+    ctx: topicMapCtxFromEnv(
+      accountMutationEnv(result.notifyUserIds[0] ?? 'system', args)
+    ),
+  });
+  if (topics.length === 0) return result.processed;
+  const pubsub =
+    args.pubsub ??
+    (store === undefined
+      ? undefined
+      : await new HttpPubSubFromSecretStore(
+          store.secretStore,
+          args.clock.now,
+          store.http
+        ).get());
+  if (pubsub == null) {
+    return result.processed;
+  }
+  await notifyChannels({
+    pubsub,
+    sql: args.db,
+    topics,
+    tables: [
+      ...new Set(captures.flatMap((capture) => capture.getCapture().tables)),
+    ].sort(),
+    label: 'outbox-drain',
+    now: args.clock.now,
+  });
+  return result.processed;
+}
+
+/** Each pass commits before following events are delivered. In particular, a
+ * match formed by one consumer is durable before its room receives the board.
+ * Bound the causal work so a request cannot drain an endless event chain. */
+async function drainDueOutbox(deps: DrainOutboxDeps, maxPasses = 8) {
+  const notifyUserIds = new Set<string>();
+  let processed = 0;
+  let exhausted = 0;
+  for (let pass = 0; pass < maxPasses; pass++) {
+    const result = await drainOutbox(deps);
+    processed += result.processed;
+    exhausted += result.exhausted;
+    for (const id of result.notifyUserIds) notifyUserIds.add(id);
+    if (result.processed === 0) break;
+  }
+  return { processed, exhausted, notifyUserIds: [...notifyUserIds] };
+}

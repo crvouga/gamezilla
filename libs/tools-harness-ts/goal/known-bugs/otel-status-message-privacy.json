@@ -1,0 +1,4 @@
+{
+  "summary": "Span status descriptions copied exception messages outside attribute redaction and could export credentials or email addresses.",
+  "regressionTest": "pkgs/observability-root-server-ts/tests/core.test.ts"
+}

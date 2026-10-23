@@ -1,4 +1,0 @@
-{
-  "summary": "Model budget and shard timeout tests asserted PR limits while inheriting the deeper nightly profile.",
-  "regressionTest": "libs/tools/scripts/verify-shards.test.ts"
-}

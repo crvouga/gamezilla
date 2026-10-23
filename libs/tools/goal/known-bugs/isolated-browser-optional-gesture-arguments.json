@@ -1,4 +1,0 @@
-{
-  "summary": "JSON process delivery changes trailing undefined gesture options to null. Omit absent trailing arguments so isolated browser gestures use the driver's normal optional defaults.",
-  "regressionTest": "apps/product/tests/isolated-browser.test.ts"
-}

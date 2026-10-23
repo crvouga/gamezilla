@@ -1,0 +1,4 @@
+{
+  "summary": "GitHub artifact listing can include two attempts with the same artifact name (IDs 11 and 12). Downloading both by name selects the same archive twice. Paginate the run's artifact list and download every archive by its own ID, into a separate directory.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-artifacts.test.ts"
+}

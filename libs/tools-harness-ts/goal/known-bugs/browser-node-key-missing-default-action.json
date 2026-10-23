@@ -1,0 +1,4 @@
+{
+  "summary": "Untrusted keyboard events omitted button defaults, while Bun named-key presses only ran editing commands and omitted handlers. Deliver cancelable key events and default activation, using native editing only for unhandled text keys.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-harness-ts/tests/button-text.test.ts"
+}

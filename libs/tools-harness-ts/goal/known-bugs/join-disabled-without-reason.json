@@ -1,0 +1,4 @@
+{
+  "summary": "An open space the person may not join showed a disabled Join button with no reason, beside copy inviting them to join. Fixed: such a space says the person can't join it, who can, and to ask the host, with the way back to Spaces.",
+  "regressionTest": "libs/spaces-shared-ts/tests/resolve-space-join-snapshot.test.ts"
+}

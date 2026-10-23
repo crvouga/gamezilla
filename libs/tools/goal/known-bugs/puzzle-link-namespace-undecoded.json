@@ -1,4 +1,0 @@
-{
-  "summary": "A puzzle link to a puzzle of a game with a namespace (counting-race/…) left its route parameter encoded, so the link screen read no namespace and opened the puzzle as chess's, never putting it on the board. Fixed by decoding the route's puzzle id (puzzleIdOfRouteParam) before finding the link's game.",
-  "regressionTest": "libs/game-puzzle-shared/tests/puzzle-link.test.ts"
-}

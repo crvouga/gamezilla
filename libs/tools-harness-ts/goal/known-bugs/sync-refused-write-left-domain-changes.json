@@ -1,0 +1,4 @@
+{
+  "summary": "A permanent refusal after earlier domain writes committed those writes instead of rolling them back.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/checked-note-storage.contract.test.ts"
+}

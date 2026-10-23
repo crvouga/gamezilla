@@ -1,0 +1,4 @@
+{
+  "summary": "After offline account switches and signing out everywhere, signing in with another provider linked that method on the server and signing-in device but left the online peer stale. Auth wake publication was deferred beyond the request; await transport acceptance within the existing notification path.",
+  "regressionTest": "libs/profile-harness-ts/tests/quint/account-sign-in.binding.ts"
+}

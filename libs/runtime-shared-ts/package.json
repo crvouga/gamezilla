@@ -1,0 +1,47 @@
+{
+  "name": "@libs/runtime-shared-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@libs/account-privacy-shared-ts": "workspace:*",
+    "@libs/app-config-shared-ts": "workspace:*",
+    "@libs/auth-shared-ts": "workspace:*",
+    "@libs/billing-shared-ts": "workspace:*",
+    "@libs/chess-sub-shared-ts": "workspace:*",
+    "@libs/friends-shared-ts": "workspace:*",
+    "@libs/game-catalog-shared-ts": "workspace:*",
+    "@libs/game-matchmaking-shared-ts": "workspace:*",
+    "@libs/game-puzzle-shared-ts": "workspace:*",
+    "@libs/game-session-shared-ts": "workspace:*",
+    "@libs/notifications-shared-ts": "workspace:*",
+    "@libs/permissions-shared-ts": "workspace:*",
+    "@libs/profile-shared-ts": "workspace:*",
+    "@libs/spaces-shared-ts": "workspace:*",
+    "@libs/sub-shared-ts": "workspace:*",
+    "@libs/synthetic-population-shared-ts": "workspace:*",
+    "@pkgs/db-indexes-root-shared-ts": "workspace:*",
+    "@pkgs/db-schema-root-shared-ts": "workspace:*",
+    "@pkgs/observability-root-shared-ts": "workspace:*",
+    "@pkgs/sync-engine-shared-ts": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "isomorphic",
+  "gameRegistry": true,
+  "language": "typescript"
+}

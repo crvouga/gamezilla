@@ -1,0 +1,4 @@
+{
+  "summary": "The production host-space journey tapped the lazy Profile tab and read its username immediately, so a normal route render delay raised ElementNotFoundError even though the username appeared in the failure evidence moments later. Wait for the profile username to become visible before reading it.",
+  "regressionTest": "libs/runtime-harness-ts/tests/critical-journey-host-space.test.ts"
+}

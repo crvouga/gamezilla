@@ -1,0 +1,4 @@
+{
+  "summary": "Adding entry: 'external-action' to a compiled guide passed selective topology and SCXML signatures because unsupported fields were omitted. Validate the compiled chart's pure schema before constructing or traversing its graph.",
+  "regressionTest": "libs/tools-harness-ts/scripts/statechart-integrity.test.ts"
+}

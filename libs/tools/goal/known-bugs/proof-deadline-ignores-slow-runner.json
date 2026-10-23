@@ -1,4 +1,0 @@
-{
-  "summary": "A proof's deadline is declared for a developer laptop, and the Verify shards doubled every task's budget for their 2-core runners but left proof deadlines alone. Verify run 38190147513 had no verdict for matching.qnt within 480 s (330 s on a laptop), username-changes.qnt within 240 s (133 s) and whole-system within 120 s, where sibling proofs took 95 to 110 s. A shard now applies the same runner correction to a proof's deadline; the proof and its local deadline are unchanged.",
-  "regressionTest": "pkgs/quint-shared/tests/verify-deadline.test.ts"
-}

@@ -1,6 +1,6 @@
 /**
  * oxlint lints the Solid scope (Biome covers everything else). The scope
- * ratchets outward per port phase via `libs/tools/port/solid-scope.json`, the
+ * ratchets outward per port phase via `libs/tools-harness-ts/port/solid-scope.json`, the
  * single source of truth `lint-package.ts` also reads to pick its targets.
  *
  * Three tiers, as overrides keyed off that file:
@@ -13,10 +13,12 @@
  *
  * The one ESLint rule oxlint cannot express — `no-restricted-syntax` banning a
  * JS `switch` inside a PascalCase component — lives in the Biome Grit plugin
- * `libs/tools/biome-plugins/no-switch-in-component.grit`.
+ * `libs/tools-harness-ts/biome-plugins/no-switch-in-component.grit`.
  */
 import { defineConfig } from 'oxlint';
-import scope from './libs/tools/port/solid-scope.json' with { type: 'json' };
+import scope from './libs/tools-harness-ts/port/solid-scope.json' with {
+  type: 'json',
+};
 
 type SolidScope = {
   readonly dirs: readonly string[];
@@ -246,7 +248,7 @@ export default defineConfig({
   settings: {
     shadcn: {
       componentImports: ['^@pkgs/ui$'],
-      note: 'Use the Tailwind theme in pkgs/tailwind-shared/src/tailwind.css and the components exported by @pkgs/ui.',
+      note: 'Use the Tailwind theme in pkgs/tailwind-shared-ts/src/tailwind.css and the components exported by @pkgs/ui.',
     },
   },
   rules: {
@@ -301,7 +303,7 @@ export default defineConfig({
     {
       // Provider logos must retain their official brand colors rather than
       // adapting to the product theme.
-      files: ['pkgs/ui-root-client/src/brand-logos.tsx'],
+      files: ['pkgs/ui-root-client-ts/src/brand-logos.tsx'],
       rules: { 'shadcn/no-raw-colors': 'off' },
     },
   ],

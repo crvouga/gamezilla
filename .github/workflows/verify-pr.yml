@@ -5,10 +5,18 @@ run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{
 # lint, architecture boundaries, typecheck, unit tests, Gherkin specs, contract
 # suites, Quint models, schema evolution, bundles, security scans.
 #
-# Three jobs. `verify:start` plans the shards, `verify:shards (N)` run them with
-# fail-fast off, and `verify:end` has the ending word: one verdict that names
-# every failure. The jobs keep the `verify:` prefix wherever the gate runs, so
-# `verify:end` is the one required status and its name never moves.
+# Four jobs. `verify:start` plans the shards, `verify:shards (N)` run them with
+# fail-fast off, `verify:apple` runs the Apple-only gate on macOS, and
+# `verify:end` has the ending word: one verdict that names every failure. The
+# jobs keep the `verify:` prefix wherever the gate runs, so `verify:end` is
+# the one required status and its name never moves.
+#
+# Packages declare the platforms they build for (docs/POLYGLOT.md). The Linux
+# shards verify every package but the Apple-only ones; `verify:apple` verifies
+# every package that builds for an Apple platform, on the runner image that
+# ships the pinned Xcode. `verify:start` predicts that job's cache: when every
+# Apple task already passed on these exact inputs, no macOS runner starts, and
+# the verdict accepts its absence only because the plan said so.
 #
 # Only uncached work starts a runner. `verify:start` asks the remote cache about
 # every task, packs the misses into as many shards as their measured durations
@@ -21,7 +29,7 @@ run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{
 # ships, and from Verify Nightly at the nightly profile's depth. `bun verify`
 # runs the same gate locally.
 #
-# The `pr` profile (`libs/tools/scripts/verify-profile.ts`) is bounded and never
+# The `pr` profile (`libs/tools-harness-ts/scripts/verify-profile.ts`) is bounded and never
 # explores: each Quint model replays the fewest drawn traces that take every
 # bound action, the same ones every run. It keeps no test report: no JUnit
 # file, no trace, snapshot or coverage upload, no publication. A failure is
@@ -121,6 +129,7 @@ jobs:
     # output that contains a masked secret, and one dev secret is the digit 1.
     outputs:
       shards: ${{ steps.plan.outputs.shards }}
+      apple: ${{ steps.plan.outputs.apple }}
     steps:
       - name: Validate release branch
         if: ${{ inputs.require-main }}
@@ -158,9 +167,9 @@ jobs:
           restore-keys: verify-task-costs-v1-${{ inputs.profile == 'nightly' && 'nightly' || 'gate' }}-
       - name: Plan all owners once
         id: plan
-        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/verify-plan.ts
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/verify-plan.ts
       - name: Export immutable plan
-        run: bun run libs/tools/scripts/verify-plan-transfer.ts --export
+        run: bun run libs/tools-harness-ts/scripts/verify-plan-transfer.ts --export
       # Transfer artifacts carry state between this run's jobs and are not
       # reports: `verify:end` deletes them, and one day bounds a cancelled run.
       # The nightly profile keeps them, failed reports included.
@@ -200,7 +209,7 @@ jobs:
       # other failure.
       - name: Build shared prerequisites and warm their cache
         continue-on-error: true
-        run: bun run libs/secrets-server/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools/scripts/verify-shard-run.ts "$VERIFY_SHARDS"
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-shard-run.ts "$VERIFY_SHARDS"
       - name: Transfer prerequisite outputs
         if: always() && !cancelled()
         uses: actions/upload-artifact@v6
@@ -255,17 +264,17 @@ jobs:
           name: verify-plan
           path: .cache/verify-ci
       - name: Restore immutable plan and required prerequisites
-        run: bun run libs/tools/scripts/verify-stage-transfer.ts
+        run: bun run libs/tools-harness-ts/scripts/verify-stage-transfer.ts
       - name: Select browser tasks
         id: browser
-        run: bun run libs/tools/scripts/verify-browser-tasks.ts
+        run: bun run libs/tools-harness-ts/scripts/verify-browser-tasks.ts
       - name: Install renderer for browser tasks
         if: steps.browser.outputs.needed == 'true'
         timeout-minutes: 2
         uses: ./.github/actions/visual-renderer
       - name: verify
         timeout-minutes: ${{ inputs.profile == 'nightly' && 60 || 25 }}
-        run: bun run libs/secrets-server/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools/scripts/verify-shard-run.ts "$VERIFY_SHARD"
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-shard-run.ts "$VERIFY_SHARD"
       # Reports are the nightly profile's; the `pr` profile keeps none.
       - name: Upload queryable trace artifacts
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
@@ -314,15 +323,43 @@ jobs:
           compression-level: 0
           retention-days: ${{ inputs.profile == 'nightly' && 14 || 1 }}
 
+  # The Apple-only gate (`turbo-ci-run.ts verify:macos`): Swift packages on
+  # macOS and the iOS app's build, launch and smoke test in a simulator. It
+  # starts unless the plan answered `apple=false`; on the runner, Turbo runs
+  # only the tasks whose inputs changed. The `xcode-27` image ships the Xcode
+  # `mise.toml` pins (`[vars] xcode_version`); the task wrappers find it there
+  # and refuse any other.
+  verify-apple:
+    name: verify:apple
+    needs: [verify-start]
+    if: needs.verify-start.outputs.apple != 'false'
+    runs-on: xcode-27
+    timeout-minutes: ${{ inputs.profile == 'nightly' && 70 || 40 }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup
+        with:
+          tools: bun
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+      - name: verify
+        timeout-minutes: ${{ inputs.profile == 'nightly' && 60 || 30 }}
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify:macos
+
   # The ending word, and the only required status on a pull request; Deploy
   # consumes this verdict. It runs after red shards too: the fan-in suites
   # report their own failures, then one verdict names every suite and every
   # failing task. A missing, failed or cancelled job fails it; skipped shards
-  # pass only when the plan scheduled none. The nightly profile's reports are
-  # published last and never decide it.
+  # and a skipped `verify:apple` pass only when the plan scheduled none. The
+  # nightly profile's reports are published last and never decide it.
   verify-end:
     name: verify:end
-    needs: [verify-start, verify-shards]
+    needs: [verify-start, verify-shards, verify-apple]
     if: always() && !cancelled()
     runs-on: ubuntu-24.04
     timeout-minutes: ${{ inputs.profile == 'nightly' && 110 || 50 }}
@@ -346,7 +383,7 @@ jobs:
       # Does nothing when the plan left the fan-in stage nothing to execute.
       - name: Run fan-in consumers
         timeout-minutes: ${{ inputs.profile == 'nightly' && 60 || 25 }}
-        run: bun run libs/secrets-server/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools/scripts/verify-consumers.ts
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-consumers.ts
       # What Deploy would apply, planned against the real state for this merge
       # result. Some configuration errors only a plan finds (a `removed` block
       # whose resource is still in state, a project the provider cannot find);
@@ -357,7 +394,7 @@ jobs:
       - name: Plan the fleet stack
         if: always() && !cancelled() && github.event_name == 'pull_request'
         timeout-minutes: 15
-        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @libs/infra-server plan:fleet
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run --filter @libs/infra-server-ts plan:fleet
       # Foundation also reads AWS. Bootstrap sets the variable in the same
       # apply that lets the read-only role trust a pull request.
       - name: Plan dev's foundation stack
@@ -365,7 +402,7 @@ jobs:
         timeout-minutes: 15
         env:
           AWS_ROLE_ARN: ${{ vars.AWS_HEALTH_ROLE_ARN }}
-        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @libs/infra-server plan:foundation
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run --filter @libs/infra-server-ts plan:foundation
       - name: Upload queryable trace artifacts
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
         uses: actions/upload-artifact@v6
@@ -401,13 +438,15 @@ jobs:
       # Only the small verdicts: the evidence is gigabytes of snapshots.
       - name: Transfer shard verdicts
         if: always() && !cancelled()
-        run: bun run libs/tools/scripts/verify-artifact-download.ts verify-results- .cache/verify-ci/transfers verdict || echo "::warning::No shard verdicts to aggregate"
+        run: bun run libs/tools-harness-ts/scripts/verify-artifact-download.ts verify-results- .cache/verify-ci/transfers verdict || echo "::warning::No shard verdicts to aggregate"
       - name: Summarize every suite
         if: always() && !cancelled()
         env:
           START_RESULT: ${{ needs.verify-start.result }}
           SHARD_RESULT: ${{ needs.verify-shards.result }}
-        run: bun run libs/tools/scripts/verify-verdict.ts
+          APPLE_RESULT: ${{ needs.verify-apple.result }}
+          APPLE_SCHEDULED: ${{ needs.verify-start.outputs.apple }}
+        run: bun run libs/tools-harness-ts/scripts/verify-verdict.ts
       # A red run still measured every task that passed.
       - name: Save measured task durations
         if: always() && !cancelled() && hashFiles('.cache/verify-ci/measured-costs.json') != ''
@@ -435,7 +474,7 @@ jobs:
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
         continue-on-error: true
         timeout-minutes: 40
-        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/verify-reports.ts
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/verify-reports.ts
       - name: Retain sanitized planning and timing details
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
         uses: actions/upload-artifact@v6

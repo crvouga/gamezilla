@@ -1,4 +1,0 @@
-{
-  "summary": "`bun obs person --name \"<display name>\"` and email lookups returned idp_users.id, the identity provider's id, while every span carries the app account id (profile.id / auth_external_accounts.user_id), so no signed-in person could ever be found by name or email: 86 of 86 provider users in production map to an app account with a different id, and the name search reported \"Nothing happened\" for an account that was active that evening. Name and email lookups now end in auth_external_accounts and return the app account.",
-  "regressionTest": "pkgs/observability-cli-shared/tests/person-directory.test.ts"
-}

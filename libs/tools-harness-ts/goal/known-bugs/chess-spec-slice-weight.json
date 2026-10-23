@@ -1,0 +1,4 @@
+{
+  "summary": "With seventeen models, uniformly weighted uneven model slices packed eighteen traces into a part. Weighting actual trace counts keeps all traces within the unchanged sixteen-trace cap with seventy-two parts.",
+  "regressionTest": "libs/harness-ts/scripts/spec-parts.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "Deploy run 38220681509 failed AWS STS AssumeRoleWithWebIdentity because the deploy and health roles still trusted the previous repository owner. The bootstrap apply that corrects them was refused by policy/stateful.rego: the previous CI provider's AWS OIDC issuer was dropped from the configuration together with its `removed` block while still in remote state, so the plan deleted it. Keep the `removed { lifecycle { destroy = false } }` block until the state has forgotten the address.",
-  "regressionTest": "libs/infra-server/tests/github-oidc.test.ts"
-}

@@ -1,4 +1,0 @@
-{
-  "summary": "Synthetic Users reached matchmaking but recovered repeatedly in production because gameplay observation required a development-only board probe. Native application realms now run with test hooks disabled and read the existing production board attributes.",
-  "regressionTest": "apps/synthetic-population-worker/tests/application-realm.test.ts"
-}

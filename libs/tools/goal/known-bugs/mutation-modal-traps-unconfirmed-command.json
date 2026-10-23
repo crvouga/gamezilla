@@ -1,4 +1,0 @@
-{
-  "summary": "A pending multiplayer command trapped the person in an unclosable Working modal when the service stopped answering.",
-  "regressionTest": "pkgs/ui-root-harness/tests/mutation-modal.test.tsx"
-}

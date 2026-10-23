@@ -1,4 +1,0 @@
-{
-  "summary": "A temporary permission-loading denial returned from the search gesture before pressing Find, leaving authenticated people unqueued.",
-  "regressionTest": "libs/runtime-harness/tests/multiplayer-search-loading.test.ts"
-}

@@ -1,0 +1,40 @@
+{
+  "name": "@libs/db-server-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@libs/db-shared-ts": "workspace:*",
+    "@pkgs/database-url-policy-server-ts": "workspace:*",
+    "@pkgs/distributed-lock-server-ts": "workspace:*",
+    "@pkgs/distributed-lock-shared-ts": "workspace:*",
+    "@pkgs/http-client-shared-ts": "workspace:*",
+    "@pkgs/keyword-shared-ts": "workspace:*",
+    "@pkgs/kv-postgres-shared-ts": "workspace:*",
+    "@pkgs/logger-shared-ts": "workspace:*",
+    "@pkgs/object-store-node-fs-server-ts": "workspace:*",
+    "@pkgs/secret-provider-server-ts": "workspace:*",
+    "@pkgs/secret-store-shared-ts": "workspace:*",
+    "@pkgs/sql-client-postgres-server-ts": "workspace:*",
+    "@pkgs/sql-root-shared-ts": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/node": "catalog:",
+    "@types/pg": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "server",
+  "language": "typescript"
+}

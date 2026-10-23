@@ -1,4 +1,0 @@
-{
-  "summary": "HTTP pubsub publishers left successful acknowledgement bodies unread. Local synthetic worker heartbeats published through the broker, then failed the HTTP response-scope guard with a 500, preventing the population service and workspace stack from becoming ready. EMQX and IoT publishers now await cancellation of successful response bodies before returning.",
-  "regressionTest": "pkgs/pubsub-emqx-harness/tests/http-response-bodies.test.ts"
-}

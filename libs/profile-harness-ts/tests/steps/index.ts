@@ -1,0 +1,18 @@
+/** Profile acceptance steps and shared platform setup. */
+
+import '@libs/harness-ts/platform';
+import { useHarnessWorld } from '@libs/harness-ts/spec-world';
+import { openHarness } from '../open-profile-harness';
+import '@libs/account-privacy-harness-ts/privacy.steps';
+import '@libs/account-privacy-harness-ts/exports.steps';
+
+// Every `*.steps.ts` under this folder registers itself; a new one
+// needs no edit here.
+const modules = new Bun.Glob('**/*.steps.ts').scanSync(import.meta.dir);
+for (const file of [...modules].sort()) await import(`./${file}`);
+
+// Exported steps belong to this package and register alongside its private steps.
+const exported = new Bun.Glob('../../src/*.steps.ts').scanSync(import.meta.dir);
+for (const file of [...exported].sort()) await import(`./${file}`);
+
+useHarnessWorld(openHarness);

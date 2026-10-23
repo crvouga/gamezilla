@@ -1,0 +1,4 @@
+{
+  "summary": "Real-time harness sessions retained the startup timestamp until a harness timer fired, preventing native application tests from exercising lease expiry and ongoing game clocks.",
+  "regressionTest": "pkgs/harness-root-shared-ts/tests/wall-clock.contract.test.ts"
+}

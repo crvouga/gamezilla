@@ -1,0 +1,4 @@
+{
+  "summary": "A device holding a space's room the server no longer grants (a space it never learned had ended, or a server whose data was reset) subscribed to it on every connection. The broker refused it and ended the whole session, so the client refreshed its token and reconnected forever: no live updates reached the device, and screens waiting on them spun. The token response now lists the topics it grants and the client subscribes only to those; a refused topic is asked about once and then left out.",
+  "regressionTest": "pkgs/pubsub-mqtt-harness-ts/tests/mqtt-topic-grants.test.ts"
+}

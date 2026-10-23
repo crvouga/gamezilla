@@ -1,0 +1,4 @@
+{
+  "summary": "Space room session identities were kept in a process-wide map, so independent app roots with the same install and space keys reused one root’s room identity. The store now belongs to the app provider, preserving its own identity across detail remounts and clearing closed memberships even after stepping out. Two roots with distinct id ports and identical keys are pinned.",
+  "regressionTest": "libs/spaces-shared-ts/tests/independent-space-sessions.test.ts"
+}

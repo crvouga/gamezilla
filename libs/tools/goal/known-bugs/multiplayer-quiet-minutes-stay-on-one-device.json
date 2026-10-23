@@ -1,4 +1,0 @@
-{
-  "summary": "Two devices each waiting one minute incorrectly marked other devices idle because the wait advanced their quiet time as well.",
-  "regressionTest": "libs/games-harness/tests/quint/matched-game-shared.binding.ts"
-}

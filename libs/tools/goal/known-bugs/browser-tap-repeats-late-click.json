@@ -1,4 +1,0 @@
-{
-  "summary": "The native driver reset its click baseline on every acknowledgement poll. A click arriving between polls was forgotten and one tap sent two presses, potentially activating a replacement control. Retain the original acknowledgement baseline and await a delivered complete press's pending click before considering another press.",
-  "regressionTest": "pkgs/ui-testing-bun-webview-shared/tests/bun-webview-driver.test.ts"
-}

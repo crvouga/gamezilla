@@ -1,0 +1,4 @@
+{
+  "summary": "A task whose script exited non-zero stayed 'running' in the shard's task stream, so the shard waited out its whole 600-second task budget and then reported a TIMEOUT for a task that had failed in under a second. The log named neither the real failure nor the cause of the red shard.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-shards.test.ts"
+}

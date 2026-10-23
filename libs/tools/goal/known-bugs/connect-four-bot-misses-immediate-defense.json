@@ -1,4 +1,0 @@
-{
-  "summary": "The nightly tactics property reduced a Hard bot's missed vertical block to [4,6,0,6,2,3,4,6] (seed 2139501908, path 49:31). An exhausted search allowance could favor column five over the necessary block in column seven. Resolve immediate wins and safe replies through canonical rules before bounded planning.",
-  "regressionTest": "libs/connect-four-shared/tests/bot-tactics-regression.test.ts"
-}

@@ -1,0 +1,4 @@
+{
+  "summary": "Guests had no hosting limit and nothing enforced the free account limit of one hosted space. Fixed: guest and free are capped at 1 through the permissions evaluation on device and server; Plus is unlimited.",
+  "regressionTest": "libs/permissions-shared-ts/tests/hosting-limit.test.ts"
+}

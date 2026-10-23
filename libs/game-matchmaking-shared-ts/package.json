@@ -1,0 +1,51 @@
+{
+  "name": "@libs/game-matchmaking-shared-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@libs/friends-shared-ts": "workspace:*",
+    "@libs/notifications-shared-ts": "workspace:*",
+    "@libs/observability-shared-ts": "workspace:*",
+    "@libs/permissions-shared-ts": "workspace:*",
+    "@libs/profile-shared-ts": "workspace:*",
+    "@libs/spaces-shared-ts": "workspace:*",
+    "@pkgs/assert-root-shared-ts": "workspace:*",
+    "@pkgs/db-schema-root-shared-ts": "workspace:*",
+    "@pkgs/glicko2-shared-ts": "workspace:*",
+    "@pkgs/keyword-shared-ts": "workspace:*",
+    "@pkgs/matchmaking-root-shared-ts": "workspace:*",
+    "@pkgs/matchmaking-sql-shared-ts": "workspace:*",
+    "@pkgs/message-shared-ts": "workspace:*",
+    "@pkgs/observability-root-shared-ts": "workspace:*",
+    "@pkgs/outbox-shared-ts": "workspace:*",
+    "@pkgs/pubsub-root-shared-ts": "workspace:*",
+    "@pkgs/room-root-shared-ts": "workspace:*",
+    "@pkgs/sql-client-root-shared-ts": "workspace:*",
+    "@pkgs/sql-root-shared-ts": "workspace:*",
+    "@pkgs/sync-engine-shared-ts": "workspace:*",
+    "@pkgs/turn-game-shared-ts": "workspace:*",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "isomorphic",
+  "gameApi": [],
+  "language": "typescript"
+}

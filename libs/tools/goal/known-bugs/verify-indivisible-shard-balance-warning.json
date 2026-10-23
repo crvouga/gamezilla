@@ -1,4 +1,0 @@
-{
-  "summary": "Verification warned about a 333-second maximum versus a 129.9-second average and 104-second minimum even though the slow runner owned indivisible work. Balance diagnostics now exclude heavier dedicated dependency groups and zero-cost cache hits while keeping the lightest runners in the comparison to detect underfilled shards and avoidable packing imbalance.",
-  "regressionTest": "libs/tools/scripts/verify-shard-warnings.test.ts"
-}

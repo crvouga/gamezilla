@@ -1,4 +1,0 @@
-{
-  "summary": "A revoked token from a deleted account fell back to a new anonymous owner on mutation replay; deletion history is checked after fresh bearer verification and before anonymous mutation fallback.",
-  "regressionTest": "libs/auth-server/tests/deleted-device-bearer.test.ts"
-}

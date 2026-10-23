@@ -2,7 +2,7 @@ import { defineConfig } from '@lingui/solid/config';
 import rootConfig, { LINGUI_JSX_MACRO_PACKAGES } from './lingui.config';
 
 /**
- * Solid-flavoured Lingui config for Vite builds and `bun test` (`@pkgs/bun-test-solid-client`).
+ * Solid-flavoured Lingui config for Vite builds and `bun test` (`@pkgs/bun-test-solid-client-ts`).
  *
  * Same catalogs as the root config; only the macro output differs
  * (`jsxRuntime: 'solid'` wraps `<Trans>` element children as components and

@@ -1,0 +1,4 @@
+{
+  "summary": "A preferred checkmate with trailing source moves was accepted as a nonterminal line match; legal checkmate must end the attempt before source-line validation.",
+  "regressionTest": "libs/games-harness-ts/tests/conformance/puzzles/terminal-objective.test.ts"
+}

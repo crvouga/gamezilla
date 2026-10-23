@@ -1,8 +1,0 @@
-import { expect, test } from 'bun:test';
-import { join } from 'node:path';
-import { startupShellIssues } from '@pkgs/ui-root-shared/startup-shell-check';
-
-test('the boot screen paints design tokens and the activity indicator', async () => {
-  const html = await Bun.file(join(import.meta.dir, '..', 'index.html')).text();
-  expect(startupShellIssues(html)).toEqual([]);
-});

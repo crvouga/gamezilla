@@ -1,4 +1,0 @@
-{
-  "summary": "Injecting SQLite selected a 500 ms query reconciliation interval, flooding long virtual-time model replays with snapshots instead of using the production cadence.",
-  "regressionTest": "libs/app-root-client/tests/local-database-failure.test.ts"
-}

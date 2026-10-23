@@ -1,4 +1,0 @@
-{
-  "summary": "The pull-request gate ran the shipped journeys over an instant loopback network and left Connect Four health out, so timing races passed the gate and failed Deploy's dev health.",
-  "regressionTest": "apps/product/scripts/health.test.ts"
-}

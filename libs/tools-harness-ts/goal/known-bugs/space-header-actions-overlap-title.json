@@ -1,0 +1,4 @@
+{
+  "summary": "In an active space on a phone, the compact header's trailing ActionBar got a 0px box once its hit areas grew to 44px, and an unmeasured (0px) bar kept every action inline, so People, End and More painted leftwards over the space title. On tablets and desktops the space chrome used labeled controls taller than the 52px header, clipped by its hairline. The ActionBar now budgets measured item widths, never shows more than fits its box (a tiny box shows only More), asks for its full row but gives it up 1000x faster than the title, and header actions are icon-only at every width.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/action-bar.test.tsx"
+}

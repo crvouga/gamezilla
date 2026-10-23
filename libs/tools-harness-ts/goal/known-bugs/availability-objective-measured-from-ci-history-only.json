@@ -1,0 +1,4 @@
+{
+  "summary": "The only availability objective counted the pass rate of hourly CI health jobs, which fail for unrelated reasons and say nothing about whether real requests succeed or how fast they were answered. Objectives now read people's requests from the server's own metrics: availability, speed, and changes saved.",
+  "regressionTest": "libs/observability-shared-ts/tests/slo-live.test.ts"
+}

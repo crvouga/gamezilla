@@ -1,0 +1,4 @@
+{
+  "summary": "Switch put its test id on a wrapper around the toggle, so activating it by id changed nothing. Fixed by moving the identifiers onto the toggle button.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/hosts.test.tsx"
+}

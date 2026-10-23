@@ -1,0 +1,38 @@
+{
+  "name": "@pkgs/ui-testing-solid-dom-client-ts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests"
+  },
+  "dependencies": {
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/ui-testing-root-shared-ts": "workspace:*",
+    "@pkgs/ui-testing-solid-dom-shared-ts": "workspace:*",
+    "@testing-library/user-event": "catalog:",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@lingui/core": "catalog:",
+    "@lingui/solid": "catalog:",
+    "@pkgs/bun-test-solid-client-ts": "workspace:*",
+    "@pkgs/clock-client-ts": "workspace:*",
+    "@pkgs/ui-root-client-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "happy-dom": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "client",
+  "language": "typescript"
+}

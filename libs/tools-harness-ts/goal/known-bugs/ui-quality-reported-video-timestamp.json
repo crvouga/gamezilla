@@ -1,0 +1,4 @@
+{
+  "summary": "Video CLI diagnostics must print the decoder timestamp of the worst inspected frame, not the original scenario reference timestamp. Pin a 7433 ms failure from an artifact with a 0 ms origin.",
+  "regressionTest": "apps/product-ts/tests/ui-quality.test.ts"
+}

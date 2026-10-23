@@ -1,0 +1,4 @@
+{
+  "summary": "In a custom game with private setups, a ready person who became ready again was refused with 'withdraw readiness to change the setup', even with the very setup they had confirmed (or none), while in every other custom game becoming ready again keeps the person ready (specs/games/custom-game.qnt `becomeReady`). Only another setup is a change; becoming ready again with the confirmed one is now accepted and changes nothing.",
+  "regressionTest": "libs/game-session-shared-ts/tests/private-setup.test.ts"
+}

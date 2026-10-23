@@ -1,0 +1,4 @@
+{
+  "summary": "An API child process could crash with its exception visible only in the terminal, leaving no searchable diagnostic after the collector stopped.",
+  "regressionTest": "apps/product-ts/scripts/process-observability.contract.test.ts"
+}

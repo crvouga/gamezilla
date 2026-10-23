@@ -1,0 +1,4 @@
+{
+  "summary": "The core rules suite imposes a two-player alternation law on a puzzle-only consumer: solo-count:0w followed by one legitimately leaves the same solver to move.",
+  "regressionTest": "libs/games-harness-ts/tests/probes/solo-puzzle-conformance.test.ts"
+}

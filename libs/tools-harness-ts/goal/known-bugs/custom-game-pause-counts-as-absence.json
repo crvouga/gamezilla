@@ -1,0 +1,4 @@
+{
+  "summary": "A shared pause was counted as an absent participant staying away, permitting an immediate away win after play returned. Preserve the absence allowance across the shared interruption.",
+  "regressionTest": "libs/games-harness-ts/tests/quint/custom-game-play.binding.ts"
+}

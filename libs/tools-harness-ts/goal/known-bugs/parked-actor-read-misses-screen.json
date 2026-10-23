@@ -1,0 +1,4 @@
+{
+  "summary": "A solid-dom read of a parked actor queried the detached tree and reported the screen as missing. Text, visibility, attribute, and HTML reads focus that actor first, so a parked device's billing tier and subscribe button stay readable after a checkpoint parks it.",
+  "regressionTest": "pkgs/ui-testing-solid-dom-client-ts/tests/multi-app-session.test.tsx"
+}

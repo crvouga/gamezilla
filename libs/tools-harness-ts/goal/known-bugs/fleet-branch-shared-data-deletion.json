@@ -1,0 +1,4 @@
+{
+  "summary": "Deploy run 38723618679 planned twelve shared-data deletions when declarations were absent from main. Fleet must retain all twelve original resource addresses when declarations return, without simultaneous retirement blocks, and keep the bucket protected from destruction.",
+  "regressionTest": "libs/infra-server-ts/tests/fleet-shared-data.test.ts"
+}

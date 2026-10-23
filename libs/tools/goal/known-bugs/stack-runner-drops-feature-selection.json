@@ -1,4 +1,0 @@
-{
-  "summary": "The stack test entrypoint discarded .feature paths and scenario flags, running every spec package instead of the requested scenario.",
-  "regressionTest": "apps/product/scripts/local-stack-config.test.ts"
-}

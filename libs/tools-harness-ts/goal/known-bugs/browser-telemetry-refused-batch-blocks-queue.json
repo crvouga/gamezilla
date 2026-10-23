@@ -1,0 +1,4 @@
+{
+  "summary": "A browser telemetry batch the relay refused as too large or malformed was retried every five seconds for thirty days, blocking every later batch.",
+  "regressionTest": "pkgs/observability-root-server-ts/tests/telemetry-outbox.test.ts"
+}

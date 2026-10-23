@@ -1,4 +1,0 @@
-{
-  "summary": "Two Verify runs of the same SHA wrote the same report source and completion record, so a late failed earlier attempt could overwrite the currently displayed result. Scope commit records, stylesheet, sources and receipts by run/attempt while sharing only immutable successful content.",
-  "regressionTest": "pkgs/atlas-reports-harness/tests/publication-attempt.test.ts"
-}

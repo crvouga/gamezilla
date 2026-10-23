@@ -1,0 +1,4 @@
+{
+  "summary": "The shard width divided all uncached seconds by the shard target, so a task longer than the target counted as several runners and the surplus started for a few seconds of work each (Verify run 38198242466: 15 s, 9 s and 2 s shards behind 133 s and 97 s tasks). A group of a target or more now counts as one runner of its own and only the smaller groups are divided by the target.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-shards.test.ts"
+}

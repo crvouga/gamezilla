@@ -1,0 +1,4 @@
+{
+  "summary": "The real-stack browser run could not start because EMQX accepted a publish with a JSON response body that the shared publisher left unread. The HTTP request scope then rejected the heartbeat as a response-body leak. Release successful response bodies before completing publish.",
+  "regressionTest": "pkgs/pubsub-emqx-shared-ts/tests/http-publish-body-regression.test.ts"
+}

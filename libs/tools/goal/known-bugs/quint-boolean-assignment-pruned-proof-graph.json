@@ -1,4 +1,0 @@
-{
-  "summary": "An unparenthesized Boolean assignment compiled into an additional action guard, silently omitting accepted writes from the proof graph.",
-  "regressionTest": "pkgs/quint-shared/tests/assignment-shape.test.ts"
-}

@@ -1,0 +1,4 @@
+{
+  "summary": "A checkmating move that was also the hundredth half-move without a capture or pawn move (6k1/5ppp/8/8/8/8/8/R5K1 w - - 99 80, Ra8#) left the board's game status both checkmated and drawn, because the fifty-move count was read without regard to the mate. Checkmate ends the game first (FIDE 9.6.2). Fixed: the board status reports no draw once the position is checkmate.",
+  "regressionTest": "pkgs/chess-board-core-shared-ts/tests/game-status.test.ts"
+}

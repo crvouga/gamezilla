@@ -1,0 +1,4 @@
+{
+  "summary": "Anonymous session recovery reused a proposed deleted account ID and repeatedly failed authentication. Deleted account IDs now mint a fresh anonymous identity.",
+  "regressionTest": "libs/auth-server-ts/tests/anon-user-service.test.ts"
+}

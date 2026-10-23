@@ -1,0 +1,4 @@
+{
+  "summary": "Killing a Verification consumer at its unchanged deadline left no Turbo summary, so the shard discarded its failed task identity and report publication fetched an absent successful cache artifact. Preserve missing verdicts as explicit failures and retain a termination report alongside partial evidence.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-shard-results.test.ts"
+}

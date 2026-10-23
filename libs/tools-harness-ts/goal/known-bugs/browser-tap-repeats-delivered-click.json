@@ -1,0 +1,4 @@
+{
+  "summary": "A normal WebKit button tap could deliver its trusted click while a physical mouse chord suppressed pointerup. The UI Driver repeated the already successful click, closing the account menu or activating another control twice.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-shared-ts/tests/bun-webview-driver.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "Registration accepted history without record and matchmaking without notices, while custom games without bots threw a property-access error instead of naming the required implementation.",
-  "regressionTest": "libs/game-session-shared/tests/turn-game-contract.test.ts"
-}

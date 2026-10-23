@@ -1,0 +1,4 @@
+{
+  "summary": "The product published no way to report a security problem: no /.well-known/security.txt and no contact in the app. The contact now ships as an RFC 9116 security.txt in the product assets and on the About screen, from one constant.",
+  "regressionTest": "apps/product-ts/tests/wrangler-config.test.ts"
+}

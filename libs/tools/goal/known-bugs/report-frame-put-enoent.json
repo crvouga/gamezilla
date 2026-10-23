@@ -1,4 +1,0 @@
-{
-  "summary": "Persisting a report frame failed ENOENT when the frames directory disappeared between mkdir and the temp-file open, after hundreds of frames of the same trace had already been written. The filesystem put recreates that directory and retries the write.",
-  "regressionTest": "pkgs/object-store-node-fs-server/tests/put-enoent.test.ts"
-}

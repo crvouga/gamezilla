@@ -1,0 +1,46 @@
+{
+  "name": "@libs/secrets-server-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "catalog:",
+    "@libs/infra-shared-ts": "workspace:*",
+    "@libs/observability-shared-ts": "workspace:*",
+    "@libs/secrets-shared-ts": "workspace:*",
+    "@pkgs/assert-root-shared-ts": "workspace:*",
+    "@pkgs/billing-providers-server-ts": "workspace:*",
+    "@pkgs/billing-root-shared-ts": "workspace:*",
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/database-url-policy-shared-ts": "workspace:*",
+    "@pkgs/logger-shared-ts": "workspace:*",
+    "@pkgs/object-store-node-fs-server-ts": "workspace:*",
+    "@pkgs/observability-cli-server-ts": "workspace:*",
+    "@pkgs/os-server-ts": "workspace:*",
+    "@pkgs/secret-provider-server-ts": "workspace:*",
+    "@pkgs/secret-provider-shared-ts": "workspace:*",
+    "@pkgs/secret-store-shared-ts": "workspace:*",
+    "@pkgs/secrets-config-server-ts": "workspace:*",
+    "@pkgs/sql-client-postgres-server-ts": "workspace:*",
+    "picocolors": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/node": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "server",
+  "language": "typescript"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "The custom-game model and the rematch, devices and privacy steps compared a custom game's recorded moves with the known victory's proposals. A game with private setups records each move resolved by the room (Battleship's a1 as a1:miss), so the model thought the game had left the victory and the steps saw other moves. They now compare against the victory as the game records it (recordedLine, @libs/game-session-harness-ts/played-rules).",
+  "regressionTest": "libs/games-harness-ts/tests/custom-game-models.test.ts"
+}

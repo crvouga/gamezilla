@@ -1,0 +1,4 @@
+{
+  "summary": "Secrets authentication omitted the trusted OIDC audience. Supply the repository-owner audience and normalize queryless token URLs before the pinned action appends its audience.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-oidc.test.ts"
+}

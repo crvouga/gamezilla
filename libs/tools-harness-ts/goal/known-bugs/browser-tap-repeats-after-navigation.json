@@ -1,0 +1,4 @@
+{
+  "summary": "A provider account click navigated to a new document and reset the pointer counters, causing the driver to click again at obsolete coordinates.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-shared-ts/tests/bun-webview-driver.test.ts"
+}

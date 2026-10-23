@@ -1,4 +1,0 @@
-{
-  "summary": "The SQL adapter reparsed SELECT $1::int4 AS value for bindings 41 and 42 instead of reusing a prepared statement. Repeated harness queries paid the parsing cost on every execution.",
-  "regressionTest": "pkgs/sql-client-postgres-server/tests/mockingbird-statement-reuse.test.ts"
-}

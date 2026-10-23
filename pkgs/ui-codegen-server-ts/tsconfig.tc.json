@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "../ts-reset-shared-ts/src/ts-reset.ts",
+    "./src/**/*.ts",
+    "./tests/**/*.ts",
+    "./scripts/**/*.ts"
+  ],
+  "exclude": ["node_modules"]
+}

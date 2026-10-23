@@ -1,0 +1,4 @@
+{
+  "summary": "The shipped workspace startup warning changed to system tool setup is incomplete, but the release policy probe still looked for mise install failed and rejected both the failed-preparation scenario and its model trace.",
+  "regressionTest": "libs/runtime-harness-ts/tests/environment-release-policy.test.ts"
+}

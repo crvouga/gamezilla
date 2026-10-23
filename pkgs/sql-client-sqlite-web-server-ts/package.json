@@ -1,0 +1,35 @@
+{
+  "name": "@pkgs/sql-client-sqlite-web-server-ts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ],
+    "./sqlite-web-assets": "./scripts/sqlite-web-assets.ts"
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@pkgs/sql-client-root-shared-ts": "workspace:*",
+    "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",
+    "@pkgs/sql-client-sqlite-web-shared-ts": "workspace:*",
+    "@sqlite.org/sqlite-wasm": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/sql-client-sqlite-web-client-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "esbuild": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  },
+  "category": "server",
+  "language": "typescript"
+}

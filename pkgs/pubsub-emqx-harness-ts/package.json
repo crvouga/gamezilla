@@ -1,0 +1,27 @@
+{
+  "name": "@pkgs/pubsub-emqx-harness-ts",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --path-ignore-patterns='**/*.contract.test.ts' tests",
+    "test:contract": "bun test --timeout 60000 tests/emqx.contract.test.ts"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/emqx-server-ts": "workspace:*",
+    "@pkgs/emqx-shared-ts": "workspace:*",
+    "@pkgs/http-client-shared-ts": "workspace:*",
+    "@pkgs/logger-shared-ts": "workspace:*",
+    "@pkgs/pubsub-emqx-shared-ts": "workspace:*",
+    "@pkgs/pubsub-root-shared-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "mqtt": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness",
+  "language": "typescript"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "The daily-limit scenarios gave a guest their day of puzzles from the feed, which could serve the game's known puzzle (one in three for Solo count), so the puzzle link to it later opened a puzzle already played: unrated, no start used, and 'never played it' failed. The guest's first puzzle of the day now opens from its link to another known puzzle (startUnnamedPuzzle).",
+  "regressionTest": "libs/games-harness-ts/tests/puzzle-link-guest-day.test.ts"
+}

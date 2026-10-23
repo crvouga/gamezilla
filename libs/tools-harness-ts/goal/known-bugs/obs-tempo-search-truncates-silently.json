@@ -1,0 +1,4 @@
+{
+  "summary": "`TempoTraceStore.search` asked Tempo for 50 traces and hydrated whatever came back, so a busy person or a wide window was silently cut. A range that returns a full page is now split in two and each half read again until it is complete or a stated limit is hit, and every search that stopped early reports it (a WARNING truncated line, `truncations` in --json).",
+  "regressionTest": "pkgs/observability-root-shared-ts/tests/tempo-search.test.ts"
+}

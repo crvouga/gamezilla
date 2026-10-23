@@ -1,4 +1,0 @@
-{
-  "summary": "Branch deployment rehearsals selected the main-only deployment role, so their read-only foundation plans failed AWS OIDC authorization.",
-  "regressionTest": "libs/tools/scripts/workflow-rehearsal.test.ts"
-}

@@ -1,4 +1,0 @@
-{
-  "summary": "FormActionsFooter captured the initial submit and cancel objects, so replacing action props left stale labels, disabled state and callbacks.",
-  "regressionTest": "pkgs/ui-root-harness/tests/screen-layout-regression.test.tsx"
-}

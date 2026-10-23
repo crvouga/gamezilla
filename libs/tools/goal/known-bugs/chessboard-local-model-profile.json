@@ -1,4 +1,0 @@
-{
-  "summary": "Local board models are rejected for having no connection dependent operation.",
-  "regressionTest": "pkgs/quint-shared/tests/shape.test.ts"
-}

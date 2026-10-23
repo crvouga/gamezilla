@@ -1,4 +1,0 @@
-{
-  "summary": "A passing shard could become failed solely because tar packing or actions/upload-artifact failed. The required gate then depended on nonessential evidence. Preserve the validated verify verdict; make only the evidence step nonessential. The injected invalid/name artifact failure exercises this separation.",
-  "regressionTest": "libs/tools/scripts/verify-workflow-cancel.test.ts"
-}

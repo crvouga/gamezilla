@@ -1,4 +1,0 @@
-{
-  "summary": "The IoT authorizer emitted disconnect and refresh lifetimes below AWS's 300-second minimum for nearly expired tokens. The pinned one-second token is denied rather than granting time beyond its expiry.",
-  "regressionTest": "libs/infra-shared/tests/iot-authorizer-contract.test.ts"
-}

@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly shared-game trace loses or invents idle status when another device reconnects; quiet time belongs to each connected device.",
+  "regressionTest": "libs/games-harness-ts/tests/quint/matched-game-shared.binding.ts"
+}

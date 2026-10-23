@@ -1,0 +1,30 @@
+{
+  "name": "@pkgs/room-adapter-bun-server-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/room-adapter-memory-shared-ts": "workspace:*",
+    "@pkgs/room-root-server-ts": "workspace:*",
+    "@pkgs/room-root-shared-ts": "workspace:*",
+    "@pkgs/uuid-shared-ts": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "server",
+  "language": "typescript"
+}

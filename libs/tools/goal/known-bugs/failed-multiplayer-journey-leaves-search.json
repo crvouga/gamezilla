@@ -1,4 +1,0 @@
-{
-  "summary": "A failed live multiplayer scenario ended its space without stopping the account's search; that leftover account then consumed a match intended for the next scenario's fresh pair.",
-  "regressionTest": "libs/runtime-harness/tests/multiplayer-search-loading.test.ts"
-}

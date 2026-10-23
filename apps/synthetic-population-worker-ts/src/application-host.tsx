@@ -1,0 +1,70 @@
+// @io-wall-ok — isolated application composition root.
+import { createClient } from '@libs/app-root-client-ts/create-client';
+import { createInMemoryClientPorts } from '@libs/app-root-client-ts/in-memory-client-ports';
+import { wallClientEnv } from '@libs/app-root-client-ts/wall-client-env';
+import { wallOfflineNetworkController } from '@libs/app-root-client-ts/wall-offline-network';
+import { DEVICE_ID_KEY } from '@libs/auth-shared-ts/auth-storage-keys';
+import { APP_SUB_CLIENTS } from '@libs/runtime-client-ts/app-sub-clients';
+import { APP } from '@libs/runtime-shared-ts/app-subs';
+import { wallSpaceRoomTransport } from '@libs/spaces-client-ts/wall-room-transport';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server-ts/impl-bun-sqlite';
+import { createSolidDomDriver } from '@pkgs/ui-testing-solid-dom-client-ts/solid-dom-driver';
+import { createMemoryHistory } from '@solidjs/router';
+import { type RecordingInput, recordedUi } from './recorded-ui';
+
+export async function createApplicationHost(
+  input: RecordingInput & {
+    origin: string;
+    deviceId: string;
+  }
+) {
+  localStorage.clear();
+  sessionStorage.clear();
+  const devicePorts = createInMemoryClientPorts();
+  const offline = wallOfflineNetworkController();
+  await offline.ready();
+  const wall = wallClientEnv({
+    serverUrl: input.origin,
+    room: wallSpaceRoomTransport,
+    objectStore: devicePorts.objectStore,
+    offline,
+  });
+  // The ordinary HTTP health gate is registered against this environment identity.
+  const env = Object.assign(wall, devicePorts, {
+    openSqlClient: async () => {
+      const db = SqlClientImplBunSqlite.openMemory();
+      await db.connect();
+      return db;
+    },
+    // A Synthetic User's host is the one place the app offers email sign-in.
+    emailSignIn: true,
+  });
+  await env.secureStorage.write(DEVICE_ID_KEY, input.deviceId);
+  const client = createClient(env, {
+    subs: APP_SUB_CLIENTS,
+    loadApp: async () => APP,
+    offlineController: offline,
+  });
+  const history = createMemoryHistory();
+  const raw = createSolidDomDriver({
+    clock: env.clock,
+    document,
+    pump: () =>
+      new Promise<void>((resolve) => env.timers.setTimeout(resolve, 1)),
+    defaultTimeoutMs: 15_000,
+    harness: {
+      createRoot: () => () => <client.App embedded history={history} />,
+    },
+  });
+  const driver = recordedUi(raw, env.clock, input);
+  return {
+    driver,
+    client,
+    env,
+    history,
+    async close() {
+      await driver.close();
+      await client.close();
+    },
+  };
+}

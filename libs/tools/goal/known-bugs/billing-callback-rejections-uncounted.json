@@ -1,4 +1,0 @@
-{
-  "summary": "Billing provider callbacks refused at the signature check answered 400 and were never counted, so the server-error burn could not notice payment changes stop arriving.",
-  "regressionTest": "libs/billing-server/tests/billing-callback-route.test.ts"
-}

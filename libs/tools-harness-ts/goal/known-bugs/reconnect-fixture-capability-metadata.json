@@ -1,0 +1,4 @@
+{
+  "summary": "The reconnection activity fixture omitted its virtual-network capability, so backend-aware shared connection actions could not select its virtual transport. Supply the declared capability and preserve every timing assertion.",
+  "regressionTest": "libs/spaces-harness-ts/tests/space-reconnect-activity.test.ts"
+}

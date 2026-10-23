@@ -1,0 +1,4 @@
+{
+  "summary": "Every pointer action queues an already-active presence mark, filling the 256-command offline queue and stalling ten solo puzzles per day over three days.",
+  "regressionTest": "libs/games-harness-ts/tests/probes/solo-puzzle-finish.test.ts"
+}

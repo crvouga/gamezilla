@@ -1,4 +1,0 @@
-{
-  "summary": "The repository model-shape test omitted the registered system campaign and treated every imported helper as a standalone aggregate. Require explicit campaign discovery at every call; unregistered modules still fail aggregate checks, while campaign checks remain separately required.",
-  "regressionTest": "libs/tools/scripts/model-shape.test.ts"
-}

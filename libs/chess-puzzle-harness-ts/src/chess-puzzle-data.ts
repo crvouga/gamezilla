@@ -1,0 +1,128 @@
+import { GAME_PUZZLE_SUB } from '@libs/game-puzzle-shared-ts/sub';
+/**
+ * Puzzle-content stimuli and reads for the §4 / §23 ingest scenarios: ingest
+ * a CSV into the harness server through the real load-file seeder (validation +
+ * dedupe), read stored / synced puzzle rows, and read the board orientation
+ * the play screen renders.
+ */
+
+import { ChessPuzzleLoadFileSeeder } from '@libs/chess-puzzle-server-ts/chess-puzzle-load-file-seeder';
+import { scenarioAction } from '@libs/harness-ts/actor-ui';
+import type { ProductHarness } from '@libs/harness-ts/harness';
+import { actorLocalSql } from '@libs/harness-ts/identity';
+import { writeServerFixture } from '@libs/harness-ts/write-server-fixture';
+import { createLogger } from '@pkgs/logger-shared-ts/logger';
+import { writeUtf8 } from '@pkgs/object-store-root-shared-ts/helpers';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
+import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
+import sql from '@pkgs/sql-root-shared-ts/sql';
+
+const INGEST_KEY = 'ingest.csv';
+
+export type StoredPuzzleRow = {
+  readonly id: string;
+  readonly fen: string;
+  readonly moves: string;
+  readonly rating: number;
+  readonly rating_deviation: number;
+  readonly popularity: number;
+  readonly nb_plays: number;
+  readonly themes: unknown;
+  readonly game_url: string | null;
+  readonly opening_tags: unknown;
+};
+
+/** Seeds `csv` (Lichess or load-file shape) into the server database. */
+export const ingestChessPuzzleCsv = scenarioAction({
+  name: 'ingestChessPuzzleCsv',
+  act: async (s, csv: string) => {
+    const store = new ObjectStoreImplInMemory();
+    await writeUtf8(store, INGEST_KEY, csv, 'text/csv');
+    const now = () => s.harness.clock.now();
+    const seeder = new ChessPuzzleLoadFileSeeder({
+      loadFileStore: store,
+      loadFileKey: INGEST_KEY,
+      createId: s.harness.server.createId,
+      now,
+    });
+    await writeServerFixture(s, GAME_PUZZLE_SUB.topicMap, (sqlClient) =>
+      seeder.seed({
+        sqlClient,
+        logger: createLogger({ name: 'harness:ingest', level: 'silent', now }),
+      })
+    );
+  },
+});
+
+function selectPuzzles(db: Pick<SqlTx, 'query'>): Promise<StoredPuzzleRow[]> {
+  return db.query(sql<StoredPuzzleRow>`
+    SELECT id, fen, moves, rating, rating_deviation, popularity, nb_plays,
+      themes, game_url, opening_tags
+    FROM chess_puzzles
+    WHERE deleted_at IS NULL
+    ORDER BY id ASC
+  `);
+}
+
+/** Every live puzzle row on the server. */
+export function readServerPuzzles(
+  s: ProductHarness
+): Promise<StoredPuzzleRow[]> {
+  return selectPuzzles(s.harness.serverSql.sqlClient);
+}
+
+/** Every live puzzle row synced into the actor's local database. */
+export async function readLocalPuzzles(
+  s: ProductHarness,
+  actorId: string
+): Promise<StoredPuzzleRow[]> {
+  const db = actorLocalSql(s, actorId);
+  return db === null ? [] : selectPuzzles(db);
+}
+
+/** §34 "puzzle edited after being prefetched": the catalog rating moves. */
+export const editChessPuzzleRating = scenarioAction({
+  name: 'editChessPuzzleRating',
+  act: async (s, puzzleId: string, rating: number) => {
+    await writeServerFixture(s, GAME_PUZZLE_SUB.topicMap, async (db) => {
+      await db.run(sql`
+      UPDATE chess_puzzles
+      SET rating = ${rating}
+      WHERE id = ${puzzleId}
+      `);
+    });
+  },
+});
+
+export type LocalPuzzleRow = {
+  readonly fen: string;
+  readonly moves: string;
+  readonly deleted: boolean;
+};
+
+/** The actor's own local copy of one puzzle row, tombstones included. */
+export async function readLocalPuzzleRow(
+  s: ProductHarness,
+  actorId: string,
+  puzzleId: string
+): Promise<LocalPuzzleRow | null> {
+  const db = actorLocalSql(s, actorId);
+  if (db === null) return null;
+  const rows = await db.query(sql<{
+    readonly fen: string;
+    readonly moves: string;
+    readonly deleted_at: string | null;
+  }>`
+    SELECT fen, moves, deleted_at
+    FROM chess_puzzles
+    WHERE id = ${puzzleId}
+    LIMIT 1
+  `);
+  const row = rows[0];
+  if (row === undefined) return null;
+  return {
+    fen: row.fen,
+    moves: row.moves,
+    deleted: row.deleted_at !== null,
+  };
+}

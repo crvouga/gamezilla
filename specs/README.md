@@ -993,7 +993,7 @@ Change a rule here, and only here.
 | [`spec-upsert`](../.agents/skills/spec-upsert/SKILL.md) | spec writer | discovering and writing new or changed behavior, with a coverage map of the aggregate it touches |
 | [`spec-implement`](../.agents/skills/spec-implement/SKILL.md) | implementer | red first, then thin step definitions and model bindings over the harness, then the product change; demotions to code tests |
 | [`spec-audit`](../.agents/skills/spec-audit/SKILL.md) | spec auditor | checking specs and steps against this standard: findings with evidence, coverage maps, a verdict, safe mechanical fixes |
-| [`port-bdd-to-gherkin`](../.agents/skills/port-bdd-to-gherkin/SKILL.md) | porter | moving legacy `@pkgs/harness-root-shared` tests into features and Quint models with a parity ledger, then deleting them |
+| [`port-bdd-to-gherkin`](../.agents/skills/port-bdd-to-gherkin/SKILL.md) | porter | moving legacy `@pkgs/harness-root-shared-ts` tests into features and Quint models with a parity ledger, then deleting them |
 
 Every rule has an ID, a **severity**, and a one-line **why**. Before deleting
 or softening a rule, answer its why.
@@ -1357,7 +1357,7 @@ verdict. No samples in the window is a failure, never a pass.
 | `production readiness` | the evidence classes a release needs; `fail on` | each with an automated source; `manual testing allowed: false`; `fail on` lists every non-pass state |
 | `release gates` | evidence about how the product is built | each an existing, gating check |
 
-What proves each entry is binding-side knowledge (`libs/tools/conformance/`),
+What proves each entry is binding-side knowledge (`libs/tools-harness-ts/conformance/`),
 never named here (D1). `bun run conformance` prints the verdict per layer
 from the evidence the runners recorded (`.cache/harness-report/*/evidence/`):
 the spec text's hash, the package, and every obligation's `pass` or `fail`.
@@ -1370,7 +1370,7 @@ run on the harness. `@libs/runtime` runs the journeys against the simulated
 app in `bun check`. A `@synthetic` feature is a standing promise about a live
 environment, written in the context that owns it
 ([`README.md`](../README.md#correctness-machinery)). The harness does not run it.
-`@apps/product` runs the journeys plus every `@synthetic` feature in its
+`@apps/product-ts` runs the journeys plus every `@synthetic` feature in its
 `health` task, and only the `@synthetic` features in its `synthetic` task
 ([`README.md`](../README.md#correctness-machinery)). Which resource keeps
 a promise is the step definitions' business. A domain is run by at most one
@@ -1378,7 +1378,7 @@ package through `specDomains` and at most one through `liveDomains`.
 `liveDomains` stays `journeys`: a synthetic feature is not a second owner of
 its context. Which environment can run a live scenario (production only, the
 relay, observability on) is binding-side knowledge: `HOST_LIMITS` in
-`apps/product/scripts/health.ts`, keyed by feature and scenario name. Specs
+`apps/product-ts/scripts/health.ts`, keyed by feature and scenario name. Specs
 carry no host tags (B15, D1).
 
 ### Terms this standard uses
@@ -1745,14 +1745,14 @@ and the statechart gate rejects a missing address.
 A step definition or Quint binding for a harness domain (`specDomains`,
 `tests/steps/**` and `tests/quint/**`) calls only exported
 actions and reads of a package's `harness/` (`@libs/<pkg>/harness/…`,
-`@pkgs/<pkg>/harness…`, `@pkgs/<name>-harness`), the harness (`@libs/harness…`,
-`@pkgs/harness-root-shared`, `@pkgs/gherkin…`), the package's own step helpers, another
+`@pkgs/<pkg>/harness…`, `@pkgs/<name>-harness-ts`), the harness (`@libs/harness-ts…`,
+`@pkgs/harness-root-shared-ts`, `@pkgs/gherkin…`), the package's own step helpers, another
 package's exported `steps/`, and types and decided constants from a package's
 public entry point (`@libs/<pkg>/public/…`, a `@pkgs/<pkg>` root,
 `/shared` or `/interface` export). No selectors, test IDs,
 DOM, HTTP, SQL or storage clients (a binding's `observe` reads what a
 person sees through harness reads, not stored rows), and no `src/`, `server/`,
-`client/` or `use-cases/` imports. Live domains bind through `apps/product/tests/steps/`
+`client/` or `use-cases/` imports. Live domains bind through `apps/product-ts/tests/steps/`
 (the live world), marked `// @io-wall-ok`.
 *Why: the harness is the one place that knows the UI and wiring; steps above it
 stay true when either changes, and the same wording runs against a live
@@ -1824,12 +1824,12 @@ checks the rest. It fails on:
 - a scenario with no `Then`, or a `Given` after it has acted
 - a file in `specs/` of a kind nothing runs, a nested folder, or a spec file
   without exactly one binding or a registered Quint campaign runner
-  (`libs/tools/scripts/spec-packages.ts`)
+  (`libs/tools-harness-ts/scripts/spec-packages.ts`)
 - a `.feature` or product Quint interpretation outside `specs/`, or a `.qnt`
   outside `specs/` that is not test-only machinery marked `@spec-meta`
 - TypeScript, JavaScript, or a Quint model marked `@spec-meta` or
   `@spec-interpretation` inside an unregistered campaign domain in `specs/`
-- code in product prose (D1, `libs/tools/scripts/spec-decoupling.ts`; every
+- code in product prose (D1, `libs/tools-harness-ts/scripts/spec-decoupling.ts`; every
   file but this rulebook, excluding the product map's declared traceability
   fields): a
   `@pkgs/`/`@libs/`/`@apps/` name, a repo path, a source file name, or a tag
@@ -1840,13 +1840,13 @@ checks the rest. It fails on:
   acting after a `Then` outside `specs/journeys/`, a step naming architecture,
   a feature with no description
 - a Quint aggregate whose shape cannot be checked (`@pkgs/quint/shape`,
-  `libs/tools/scripts/model-shape.ts`): no invariant, an invariant that is
+  `libs/tools-harness-ts/scripts/model-shape.ts`): no invariant, an invariant that is
   literally true or false or names no state, an action `step` never reaches,
   a variable `init` never sets, a variable a person can observe that no
   invariant mentions, or no way for one device to lose its connection and
   come back while that changes what that device can do (`events.qnt` is the
   published language and is not an aggregate)
-- the glossary (`libs/tools/scripts/spec-glossary.ts`, `@pkgs/gherkin/glossary`):
+- the glossary (`libs/tools-harness-ts/scripts/spec-glossary.ts`, `@pkgs/gherkin/glossary`):
   a context without `ubiquitous-language.yml`; a term with no definition,
   source or lender, defined twice, redefining a kernel term, or borrowing
   what its lender does not publish; feature prose (not example tables,
@@ -1881,7 +1881,7 @@ or used in another sense, is the auditor's to catch (A1, A3).
 4. **Gate**: `bun run spec:ownership`, then `bun check`.
 
 `@regression:<bug-id>` scenarios have a
-`libs/tools/goal/known-bugs/<bug-id>.json` pointing at the feature.
+`libs/tools-harness-ts/goal/known-bugs/<bug-id>.json` pointing at the feature.
 
 ```sh
 bun run spec --tags '@domain:friends'

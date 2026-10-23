@@ -1,0 +1,4 @@
+{
+  "summary": "Resuming an unfinished puzzle freezes completion feedback at the preliminary unrated result and omits the gain cue when its rating ledger arrives.",
+  "regressionTest": "libs/games-harness-ts/tests/conformance/puzzles/rating-feedback.test.ts"
+}

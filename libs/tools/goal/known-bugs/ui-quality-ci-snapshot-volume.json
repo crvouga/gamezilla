@@ -1,4 +1,0 @@
-{
-  "summary": "The visual gate replayed 30,355 HTML files for 101,035 test references and exceeded its deadline. Preparation also exceeded the unchanged 600-second local deadline while rebuilding the same stylesheet analysis per frame. Reuse that analysis; preserve the pinned original frame fingerprint, all painting references, visible changes and origins. The complete visual gate remains the performance guard.",
-  "regressionTest": "apps/product/tests/ui-quality-fingerprint.test.ts"
-}

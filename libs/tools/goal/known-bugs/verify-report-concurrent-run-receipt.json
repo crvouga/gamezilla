@@ -1,4 +1,0 @@
-{
-  "summary": "PR and manual Verify runs for the same commit overwrote each other's publication receipts, so finalization could reject a fully published report. Receipts now belong to the workflow run and attempt.",
-  "regressionTest": "libs/harness/scripts/report-task-publish.test.ts"
-}

@@ -1,4 +1,0 @@
-{
-  "summary": "A production query snapshot clipped to its row limit was served without any signal, and a single-table clip could not even be detected because reads stopped exactly at the limit.",
-  "regressionTest": "pkgs/sync-engine-server/tests/query-truncation.test.ts"
-}

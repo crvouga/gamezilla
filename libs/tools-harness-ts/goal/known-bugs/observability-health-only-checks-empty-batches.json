@@ -1,0 +1,4 @@
+{
+  "summary": "The live observability check accepted empty OTLP batches and query credentials without proving that any real app request produced a readable trace.",
+  "regressionTest": "libs/observability-server-ts/tests/app-trace-probe.test.ts"
+}

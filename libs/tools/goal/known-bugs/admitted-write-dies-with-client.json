@@ -1,4 +1,0 @@
-{
-  "summary": "The fault port could hold only a request that had not reached the server. Closing a client always erased it, so connection recovery models could not exercise a fully admitted write completing with an unheard answer. Add a separate admitted-body mode, retaining the original before-admission abort contract and explicit teardown cancellation.",
-  "regressionTest": "libs/harness/tests/http-response-faults.test.ts"
-}

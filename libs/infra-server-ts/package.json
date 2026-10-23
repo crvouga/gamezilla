@@ -1,0 +1,44 @@
+{
+  "name": "@libs/infra-server-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "apply:bootstrap": "bun run scripts/tofu.ts apply --stack bootstrap",
+    "apply:edge": "bun run scripts/tofu.ts apply --stack edge",
+    "apply:fleet": "bun run scripts/tofu.ts apply --stack fleet",
+    "apply:foundation": "bun run scripts/tofu.ts apply --stack foundation",
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "plan:bootstrap": "bun run scripts/tofu.ts plan --stack bootstrap",
+    "plan:edge": "bun run scripts/tofu.ts plan --stack edge",
+    "plan:fleet": "bun run scripts/tofu.ts plan --stack fleet",
+    "plan:foundation": "bun run scripts/tofu.ts plan --stack foundation",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "catalog:"
+  },
+  "devDependencies": {
+    "@libs/infra-shared-ts": "workspace:*",
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/emqx-shared-ts": "workspace:*",
+    "@pkgs/object-store-node-fs-server-ts": "workspace:*",
+    "@pkgs/os-server-ts": "workspace:*",
+    "@pkgs/property-shared-ts": "workspace:*",
+    "@pkgs/secret-provider-server-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:",
+    "wrangler": "catalog:"
+  },
+  "category": "server",
+  "language": "typescript"
+}

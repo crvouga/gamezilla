@@ -1,4 +1,0 @@
-{
-  "summary": "The synthetic population browser composition omitted its required offline network controller, so client startup failed while subscribing to offline state.",
-  "regressionTest": "apps/synthetic-population-worker/tests/application-realm.test.ts"
-}

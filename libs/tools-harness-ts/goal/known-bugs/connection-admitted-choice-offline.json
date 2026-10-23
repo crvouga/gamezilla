@@ -1,0 +1,4 @@
+{
+  "summary": "The recovery binding could report an unheard accepted choice without proving the server ever accepted it. Holding after backend admission preserves the issued write across client closure and path loss; the world action now waits for the actual committed membership while the UI remains unconfirmed.",
+  "regressionTest": "libs/runtime-harness-ts/tests/quint/connection-continuity.binding.ts"
+}

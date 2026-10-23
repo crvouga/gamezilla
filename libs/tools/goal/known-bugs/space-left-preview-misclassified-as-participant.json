@@ -1,4 +1,0 @@
-{
-  "summary": "The UI observer classified a person who already left as a disconnected participant solely because the Join preview showed a host-offline notice. The literal hosting trace 54 distinguishes the preview from participation.",
-  "regressionTest": "libs/friends-harness/tests/quint/space-hosting.binding.ts"
-}

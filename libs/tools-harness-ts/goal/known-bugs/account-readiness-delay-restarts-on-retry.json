@@ -1,0 +1,4 @@
+{
+  "summary": "A ten-second simulated account setup hit the HTTP deadline and restarted on every retry or device reopening, so sign-in never reached the ready account.",
+  "regressionTest": "libs/harness-ts/tests/account-ready-delay.test.ts"
+}

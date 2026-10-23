@@ -1,0 +1,4 @@
+{
+  "summary": "The first correct action of a solver-only puzzle is silent because the feedback tracker treats index zero as uninitialized.",
+  "regressionTest": "libs/games-harness-ts/tests/probes/solo-puzzle-feedback.test.ts"
+}

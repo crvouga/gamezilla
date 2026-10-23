@@ -1,4 +1,0 @@
-{
-  "summary": "A browser menu tap returned after pointerdown while WebKit had not delivered pointerup, leaving the account screen closed. Ordinary taps now use the existing whole-press delivery check, like positioned taps.",
-  "regressionTest": "pkgs/ui-testing-bun-webview-shared/tests/bun-webview-driver.test.ts"
-}

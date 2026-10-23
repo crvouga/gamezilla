@@ -1,0 +1,4 @@
+{
+  "summary": "Development preparation resolved one directory above the repository and failed to remove the actual readiness manifest, letting Vite attach to stale service addresses.",
+  "regressionTest": "apps/product-ts/scripts/dev-repo-root.test.ts"
+}

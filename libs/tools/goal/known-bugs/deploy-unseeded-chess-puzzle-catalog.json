@@ -1,4 +1,0 @@
-{
-  "summary": "Deploy pdsdl4jm7q reconciled an empty chess_puzzles table but never initialized its reference catalog. Production returned zero rows in the 800–1199, 1200–1599 and 1600–1999 bands, and the critical journey timed out on the empty-feed screen. Initialize a never-populated catalog with the validated committed load file after migration and before shipping; preserve existing rows and tombstones and notify subscribed devices.",
-  "regressionTest": "libs/chess-puzzle-server/tests/initialize-puzzle-catalog.test.ts"
-}

@@ -1,4 +1,0 @@
-{
-  "summary": "The repeated seed 7221 authentication, browsing and hosting interruption cases reuse device and external identity identifiers across independent databases. The global account cache returns an account from the previous database, causing a valid session to be rejected. Scope account lookup caches to their injected SQL client.",
-  "regressionTest": "apps/synthetic-population-worker/tests/lifecycle-interruption.test.ts"
-}

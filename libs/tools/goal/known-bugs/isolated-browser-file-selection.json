@@ -1,4 +1,0 @@
-{
-  "summary": "The shared browser driver added file selection, but the isolated browser adapter did not forward that method. Delegate the same in-memory name and bytes through its existing scoped RPC path, preserving the complete driver contract.",
-  "regressionTest": "apps/product/tests/isolated-browser.test.ts"
-}

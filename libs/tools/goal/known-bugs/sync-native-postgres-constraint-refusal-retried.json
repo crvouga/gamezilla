@@ -1,4 +1,0 @@
-{
-  "summary": "Bun exposes the PostgreSQL SQLSTATE as errno, so mapped permanent constraint refusals were treated as retryable failures.",
-  "regressionTest": "pkgs/sync-engine-harness/tests/constraint-batch-rollback.test.ts"
-}

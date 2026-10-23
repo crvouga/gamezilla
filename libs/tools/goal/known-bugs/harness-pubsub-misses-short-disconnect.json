@@ -1,4 +1,0 @@
-{
-  "summary": "A device disconnected and reconnected before the event adapter heartbeat never emitted recovery, leaving queries asleep and hiding the outdated-app update prompt. Subscribe to network changes as well as the heartbeat.",
-  "regressionTest": "libs/harness/tests/partition-aware-pubsub.test.ts"
-}

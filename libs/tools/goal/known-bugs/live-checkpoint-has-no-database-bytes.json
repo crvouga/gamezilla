@@ -1,4 +1,0 @@
-{
-  "summary": "A stack checkpoint had an empty server export and no browser database bytes, so the saved checkpoint was pruned as invalid before restore.",
-  "regressionTest": "libs/harness/tests/client-checkpoint.test.ts"
-}

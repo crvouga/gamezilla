@@ -1,0 +1,4 @@
+{
+  "summary": "The crash screen offered only Try again (same screen) and Reload (same address), so a screen that crashes on render crashed again with no way out; the diagnostic reference hid in collapsed details, the copied text carried the stack, and copy-button strings bypassed Lingui. It now offers Go to Spaces (a fresh page at Spaces), says what is saved on the device is kept, shows the reference visibly, and copies title, message, reference and version only.",
+  "regressionTest": "libs/app-root-client-ts/tests/root-error-boundary.test.tsx"
+}

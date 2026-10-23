@@ -1,0 +1,59 @@
+{
+  "name": "@libs/game-matchmaking-client-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests",
+    "verify:board-contract": "bun run ../tools-harness-ts/scripts/verify-board-contract.ts"
+  },
+  "dependencies": {
+    "@libs/auth-client-ts": "workspace:*",
+    "@libs/game-matchmaking-shared-ts": "workspace:*",
+    "@libs/game-session-shared-ts": "workspace:*",
+    "@libs/moderation-client-ts": "workspace:*",
+    "@libs/moderation-shared-ts": "workspace:*",
+    "@libs/permissions-client-ts": "workspace:*",
+    "@libs/permissions-shared-ts": "workspace:*",
+    "@libs/profile-client-ts": "workspace:*",
+    "@libs/spaces-client-ts": "workspace:*",
+    "@libs/sub-client-ts": "workspace:*",
+    "@lingui/core": "catalog:",
+    "@lingui/solid": "catalog:",
+    "@pkgs/clock-client-ts": "workspace:*",
+    "@pkgs/device-client-ts": "workspace:*",
+    "@pkgs/keyword-shared-ts": "workspace:*",
+    "@pkgs/kv-root-client-ts": "workspace:*",
+    "@pkgs/kv-root-shared-ts": "workspace:*",
+    "@pkgs/message-shared-ts": "workspace:*",
+    "@pkgs/permissions-shared-ts": "workspace:*",
+    "@pkgs/room-root-client-ts": "workspace:*",
+    "@pkgs/room-root-shared-ts": "workspace:*",
+    "@pkgs/sounds-client-ts": "workspace:*",
+    "@pkgs/sql-root-shared-ts": "workspace:*",
+    "@pkgs/sync-engine-client-ts": "workspace:*",
+    "@pkgs/sync-engine-shared-ts": "workspace:*",
+    "@pkgs/turn-game-client-ts": "workspace:*",
+    "@pkgs/turn-game-shared-ts": "workspace:*",
+    "@pkgs/ui-root-client-ts": "workspace:*",
+    "@pkgs/uuid-client-ts": "workspace:*",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "client",
+  "gameApi": [],
+  "language": "typescript"
+}

@@ -1,7 +1,7 @@
 name: Verify Nightly
 
 # Run title, identical shape in every workflow (enforced by
-# libs/tools/scripts/workflow-run-names.test.ts):
+# libs/tools-harness-ts/scripts/workflow-run-names.test.ts):
 #   <Workflow> · <trigger>
 run-name: "Verify Nightly · ${{ github.event_name == 'schedule' && 'schedule' || inputs.group && inputs.group != 'all' && format('diagnostic {0}', inputs.group) || 'manual' }}"
 
@@ -12,7 +12,7 @@ run-name: "Verify Nightly · ${{ github.event_name == 'schedule' && 'schedule' |
 #
 # One profile decides what differs from Verify PR — the tasks, their depth,
 # their budgets and whether reports are kept
-# (`libs/tools/scripts/verify-profile.ts`). No test exists only here: a suite
+# (`libs/tools-harness-ts/scripts/verify-profile.ts`). No test exists only here: a suite
 # below is an existing task, and whatever it finds is pinned as a regression
 # in the suite that found it, which puts it in the merge gate.
 #
@@ -96,17 +96,17 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: dev
       # The log holds every seed drawn and the replay command of a failure;
-      # `apps/product/.cache/randomized/` keeps the seeds as files.
+      # `apps/product-ts/.cache/randomized/` keeps the seeds as files.
       - name: verify-nightly:random
         timeout-minutes: 170
-        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts verify-nightly:random
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:random
       - name: Retain seeds and the run summary
         if: always() && !cancelled()
         uses: actions/upload-artifact@v6
         with:
           name: verify-nightly-random-${{ github.run_id }}
           path: |
-            apps/product/.cache/randomized/
+            apps/product-ts/.cache/randomized/
             .turbo/runs/*.json
           if-no-files-found: ignore
           include-hidden-files: true
@@ -134,7 +134,7 @@ jobs:
           environment: dev
       - name: verify-nightly:browser
         timeout-minutes: 320
-        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts verify-nightly:browser
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:browser
       # Step timelines, screenshots, recordings and traces of every scenario.
       - name: Retain browser reports and traces
         if: always() && !cancelled()
@@ -176,10 +176,10 @@ jobs:
       # The pinned model is larger than the remote cache's artifact limit.
       - name: Prepare the visual model
         timeout-minutes: 20
-        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts @apps/product#prepare:ui-quality-model
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts @apps/product-ts#prepare:ui-quality-model
       - name: verify-nightly:visual
         timeout-minutes: 150
-        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts verify-nightly:visual
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:visual
       # Scores, failing screenshots and context clips.
       - name: Retain the visual report
         if: always() && !cancelled()
@@ -188,8 +188,8 @@ jobs:
           name: verify-nightly-visual-${{ github.run_id }}
           path: |
             .turbo/runs/*.json
-            apps/product/.cache/ui-quality/
-            apps/product/.cache/harness-report/ui-quality/
+            apps/product-ts/.cache/ui-quality/
+            apps/product-ts/.cache/harness-report/ui-quality/
           if-no-files-found: ignore
           include-hidden-files: true
           retention-days: 14
@@ -214,7 +214,7 @@ jobs:
           environment: dev
       - name: verify-nightly:coverage
         timeout-minutes: 110
-        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts verify-nightly:coverage
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:coverage
       - name: Retain the coverage report
         if: always() && !cancelled()
         uses: actions/upload-artifact@v6
@@ -254,7 +254,7 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p .cache/verify-nightly
-          bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts verify-nightly:performance 2>&1 | tee .cache/verify-nightly/performance.log
+          bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:performance 2>&1 | tee .cache/verify-nightly/performance.log
       - name: Retain the benchmark results
         if: always() && !cancelled()
         uses: actions/upload-artifact@v6
@@ -294,4 +294,4 @@ jobs:
         with:
           tools: bun gh
       - name: verify-nightly:end
-        run: bun run libs/tools/scripts/verify-nightly-verdict.ts
+        run: bun run libs/tools-harness-ts/scripts/verify-nightly-verdict.ts

@@ -1,0 +1,4 @@
+{
+  "summary": "Every browser sign-in on the deployed web app failed silently: apiCors set its headers with c.header() before next(), and Hono drops those when a handler returns a raw Response, which the auth service's handler.fetch does. POST /api/auth/session therefore reached www without Access-Control-Allow-Origin, the code exchange was blocked, and the Health workflow's signed-in journeys never passed. The harness is same-origin, so bun verify could not see it. Fixed by writing the CORS headers onto the final response after next().",
+  "regressionTest": "libs/app-root-server-ts/tests/cors.test.ts"
+}

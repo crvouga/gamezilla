@@ -1,4 +1,0 @@
-{
-  "summary": "The real-stack server opened its first HTTP ownership scope before lazy product boot installed native async context. That scope permanently chose the stack fallback, so overlapping requests finishing out of order exposed closed scopes to later authentication and telemetry work. Install native async context at the outer Worker entrypoint before the first invocation.",
-  "regressionTest": "apps/server/tests/cold-http-scope-regression.test.ts"
-}

@@ -1,4 +1,0 @@
-{
-  "summary": "The chess package verified its fourteen models in one task: 788 s of proof time on a 12-core laptop that runs four at once. A Verification runner runs one proof at a time and about twice as slowly, so the task hit its 600 s budget in every run that executed it (Verify runs 38187450396 through 38198242466) and passed only from an earlier cache. The models verification now splits into one task per model, which the sharded Verification spreads over runners.",
-  "regressionTest": "libs/tools/scripts/verify-models.test.ts"
-}

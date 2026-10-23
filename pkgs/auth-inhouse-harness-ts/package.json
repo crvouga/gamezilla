@@ -1,0 +1,29 @@
+{
+  "name": "@pkgs/auth-inhouse-harness-ts",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests"
+  },
+  "dependencies": {
+    "hono": "catalog:"
+  },
+  "devDependencies": {
+    "@crvouga/mockingbird-service-oauth": "catalog:",
+    "@pkgs/auth-inhouse-client-ts": "workspace:*",
+    "@pkgs/auth-inhouse-server-ts": "workspace:*",
+    "@pkgs/auth-inhouse-shared-ts": "workspace:*",
+    "@pkgs/bun-test-solid-client-ts": "workspace:*",
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/sql-client-postgres-server-ts": "workspace:*",
+    "@pkgs/sql-client-root-shared-ts": "workspace:*",
+    "@pkgs/sql-client-sqlite-root-shared-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness",
+  "language": "typescript"
+}

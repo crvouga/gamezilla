@@ -1,4 +1,0 @@
-{
-  "summary": "Deployed IoT pubsub publishing fails with Illegal invocation when a captured Cloudflare fetch is called with the wrong receiver.",
-  "regressionTest": "libs/pubsub-server/tests/http-pubsub-from-secret-store.test.ts"
-}

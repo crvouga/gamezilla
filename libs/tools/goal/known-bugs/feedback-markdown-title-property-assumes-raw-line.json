@@ -1,4 +1,0 @@
-{
-  "summary": "Feedback preservation properties expected a raw Markdown heading instead of the originally recorded fallback title; the shrunk input was body # followed by two spaces with a throwing provider.",
-  "regressionTest": "pkgs/feedback-server/tests/markdown-heading-regression.test.ts"
-}

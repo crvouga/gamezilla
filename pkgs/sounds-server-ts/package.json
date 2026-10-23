@@ -1,0 +1,22 @@
+{
+  "name": "@pkgs/sounds-server-ts",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "fetch:assets": "bun run scripts/fetch-kenney-packs.ts && bun run scripts/curate-sounds.ts && bun run scripts/generate-manifest.ts",
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "verify:licenses": "bun run scripts/verify-licenses.ts"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/logger-shared-ts": "workspace:*",
+    "@pkgs/sounds-shared-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "server",
+  "language": "typescript"
+}

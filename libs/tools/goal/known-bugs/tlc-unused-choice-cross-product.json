@@ -1,4 +1,0 @@
-{
-  "summary": "Outer nonempty nondeterministic draws multiply every TLC alternative, even those using no draw. Distribute choices and retain draws only where referenced, preserving the complete reachable graph and all progress and safety obligations.",
-  "regressionTest": "pkgs/quint-server/tests/temporal.test.ts"
-}

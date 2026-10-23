@@ -1,0 +1,33 @@
+{
+  "name": "@pkgs/kv-postgres-shared-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test:contract": "bun test tests/postgres-storage-knobs.test.ts"
+  },
+  "dependencies": {
+    "@pkgs/assert-root-shared-ts": "workspace:*",
+    "@pkgs/db-schema-postgres-shared-ts": "workspace:*",
+    "@pkgs/keyword-shared-ts": "workspace:*",
+    "@pkgs/kv-root-shared-ts": "workspace:*",
+    "@pkgs/logger-shared-ts": "workspace:*",
+    "@pkgs/sql-client-root-shared-ts": "workspace:*",
+    "@pkgs/sql-root-shared-ts": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "isomorphic",
+  "language": "typescript"
+}

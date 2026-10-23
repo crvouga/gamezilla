@@ -1,4 +1,0 @@
-{
-  "summary": "Production replay did not supply the authoritative server clock to time-sensitive mutation bodies.",
-  "regressionTest": "pkgs/sync-engine-server/tests/server-authorize-mutation.test.ts"
-}

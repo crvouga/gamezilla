@@ -1,4 +1,0 @@
-{
-  "summary": "Clearing a space's name never finished: the rename announced itself into the space before saving, and the announcement refused an empty name, so the dialog failed. It also announced names the save then refused. The space now announces only a saved, non-empty name, after the save.",
-  "regressionTest": "libs/friends-harness/tests/space-rename-clear-name.test.ts"
-}

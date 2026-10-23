@@ -1,0 +1,4 @@
+{
+  "summary": "Tempo search responses do not contain errorCount; treating it as zero silently removed live failures from bun obs last --errors.",
+  "regressionTest": "pkgs/observability-cli-shared-ts/tests/tempo-errors.test.ts"
+}

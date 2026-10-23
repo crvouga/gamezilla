@@ -1,0 +1,4 @@
+{
+  "summary": "The 56,999-object S3 listing concurrency regression measured zero-latency HTTP overlap using two microtask yields. Browser SigV4 signing completes asynchronously, so concurrent child listings could report peak 1. Hold the first child request until the second arrives to verify actual overlap independently of signing speed.",
+  "regressionTest": "pkgs/object-store-s3-server-ts/tests/list-keys.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "The Worker OTLP deadline finished export before aborted HTTP transport settled, leaving an unfinished request at the invocation boundary and turning successful OAuth launches into HTTP 500. Wait for cancellation before reporting the timeout.",
-  "regressionTest": "pkgs/observability-runtime-shared/tests/worker-http-export.test.ts"
-}

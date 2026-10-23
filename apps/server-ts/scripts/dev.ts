@@ -1,0 +1,81 @@
+// @io-wall-ok
+
+import { type ChildProcess, spawn } from 'node:child_process';
+import { join } from 'node:path';
+import { migratePostgresApp } from '@libs/runtime-server-ts/migrate';
+import { wallTimers } from '@pkgs/clock-shared-ts/wall';
+
+/**
+ * Foreground entry for `@apps/server-ts dev`. Runs migrate → wrangler under one
+ * Node process so turbo SIGINT/SIGTERM tear down the whole tree instead of
+ * leaving a shell background job alive. Client config materializes on the
+ * first non-health API request from Worker secrets.
+ */
+
+const API_DIR = join(import.meta.dirname, '..');
+const API_PORT = 8788;
+/** `0` = OS-assigned free port. Fixed 9229/9231 hit EADDRNOTAVAIL on some hosts. */
+const INSPECTOR_PORT = 0;
+
+const children: ChildProcess[] = [];
+let shuttingDown = false;
+
+function killChild(child: ChildProcess, signal: NodeJS.Signals): void {
+  if (child.exitCode !== null || child.killed) return;
+  try {
+    child.kill(signal);
+  } catch {
+    // process may have exited
+  }
+}
+
+function killChildren(): void {
+  for (const child of children) {
+    killChild(child, 'SIGTERM');
+  }
+  wallTimers.setTimeout(() => {
+    for (const child of children) {
+      killChild(child, 'SIGKILL');
+    }
+  }, 2_000);
+}
+
+function shutdown(exitCode: number): void {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  killChildren();
+  process.exit(exitCode);
+}
+
+for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) {
+  process.on(sig, () => {
+    const codes: Record<string, number> = {
+      SIGHUP: 129,
+      SIGINT: 130,
+      SIGTERM: 143,
+    };
+    shutdown(codes[sig] ?? 1);
+  });
+}
+
+await migratePostgresApp({ wait: true });
+
+const wrangler = spawn(
+  'wrangler',
+  [
+    'dev',
+    '--port',
+    String(API_PORT),
+    '--inspector-port',
+    String(INSPECTOR_PORT),
+  ],
+  { cwd: API_DIR, stdio: 'inherit' }
+);
+children.push(wrangler);
+
+const exitCode = await new Promise<number>((resolve) => {
+  wrangler.on('exit', (code) => resolve(code ?? 1));
+});
+
+killChildren();
+process.exit(exitCode);

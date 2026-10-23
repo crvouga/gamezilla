@@ -1,0 +1,50 @@
+{
+  "name": "@libs/billing-client-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests"
+  },
+  "dependencies": {
+    "@libs/app-config-client-ts": "workspace:*",
+    "@libs/auth-client-ts": "workspace:*",
+    "@libs/auth-shared-ts": "workspace:*",
+    "@libs/billing-shared-ts": "workspace:*",
+    "@libs/permissions-client-ts": "workspace:*",
+    "@libs/permissions-shared-ts": "workspace:*",
+    "@libs/spaces-client-ts": "workspace:*",
+    "@libs/sub-client-ts": "workspace:*",
+    "@libs/test-ids-shared-ts": "workspace:*",
+    "@lingui/solid": "catalog:",
+    "@pkgs/billing-root-shared-ts": "workspace:*",
+    "@pkgs/clock-client-ts": "workspace:*",
+    "@pkgs/http-client-client-ts": "workspace:*",
+    "@pkgs/permissions-shared-ts": "workspace:*",
+    "@pkgs/sql-root-shared-ts": "workspace:*",
+    "@pkgs/sync-engine-client-ts": "workspace:*",
+    "@pkgs/ui-root-client-ts": "workspace:*",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@lingui/core": "catalog:",
+    "@pkgs/bun-test-solid-client-ts": "workspace:*",
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/property-shared-ts": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "client",
+  "language": "typescript"
+}

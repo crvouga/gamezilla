@@ -1,0 +1,71 @@
+{
+  "name": "@libs/app-root-server-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@libs/app-config-server-ts": "workspace:*",
+    "@libs/app-config-shared-ts": "workspace:*",
+    "@libs/app-root-shared-ts": "workspace:*",
+    "@libs/auth-server-ts": "workspace:*",
+    "@libs/auth-shared-ts": "workspace:*",
+    "@libs/db-shared-ts": "workspace:*",
+    "@libs/moderation-shared-ts": "workspace:*",
+    "@libs/observability-shared-ts": "workspace:*",
+    "@libs/permissions-shared-ts": "workspace:*",
+    "@libs/pubsub-server-ts": "workspace:*",
+    "@libs/pubsub-shared-ts": "workspace:*",
+    "@libs/secrets-shared-ts": "workspace:*",
+    "@libs/sub-shared-ts": "workspace:*",
+    "@opentelemetry/api": "catalog:",
+    "@pkgs/assert-root-shared-ts": "workspace:*",
+    "@pkgs/auth-root-shared-ts": "workspace:*",
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/http-client-shared-ts": "workspace:*",
+    "@pkgs/kv-postgres-shared-ts": "workspace:*",
+    "@pkgs/llm-openai-server-ts": "workspace:*",
+    "@pkgs/logger-shared-ts": "workspace:*",
+    "@pkgs/object-store-root-shared-ts": "workspace:*",
+    "@pkgs/object-store-s3-server-ts": "workspace:*",
+    "@pkgs/object-store-s3-shared-ts": "workspace:*",
+    "@pkgs/observability-root-server-ts": "workspace:*",
+    "@pkgs/observability-root-shared-ts": "workspace:*",
+    "@pkgs/outbox-shared-ts": "workspace:*",
+    "@pkgs/pubsub-root-shared-ts": "workspace:*",
+    "@pkgs/secret-store-shared-ts": "workspace:*",
+    "@pkgs/sql-client-postgres-server-ts": "workspace:*",
+    "@pkgs/sql-client-root-shared-ts": "workspace:*",
+    "@pkgs/sql-root-shared-ts": "workspace:*",
+    "@pkgs/sync-engine-server-ts": "workspace:*",
+    "@pkgs/sync-engine-shared-ts": "workspace:*",
+    "@pkgs/tts-elevenlabs-server-ts": "workspace:*",
+    "@pkgs/uuid-shared-ts": "workspace:*",
+    "hono": "catalog:"
+  },
+  "devDependencies": {
+    "@opentelemetry/sdk-metrics": "catalog:",
+    "@opentelemetry/sdk-trace-base": "catalog:",
+    "@pkgs/db-schema-root-shared-ts": "workspace:*",
+    "@pkgs/db-schema-sqlite-shared-ts": "workspace:*",
+    "@pkgs/message-shared-ts": "workspace:*",
+    "@pkgs/property-shared-ts": "workspace:*",
+    "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "server",
+  "language": "typescript"
+}

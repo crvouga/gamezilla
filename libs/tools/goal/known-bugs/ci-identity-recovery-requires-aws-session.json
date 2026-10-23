@@ -1,4 +1,0 @@
-{
-  "summary": "Verify run 37509759839 was blocked by Infisical trust for the previous repository owner. Restoring the declared CI identity through bootstrap also required an unrelated AWS SSO session, which had expired. Scoped CI identity recovery must use the existing encrypted remote state and normal deletion policy, permit only in-place CI identity updates, and require no AWS account credentials.",
-  "regressionTest": "libs/infra-shared/tests/ci-identity-recovery.test.ts"
-}

@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "../../libs/app-root-shared-ts/src/cloudflare.d.ts",
+    "./src/**/*.ts",
+    "./src/**/*.d.ts",
+    "./tests/**/*.ts",
+    "./scripts/**/*.ts"
+  ]
+}

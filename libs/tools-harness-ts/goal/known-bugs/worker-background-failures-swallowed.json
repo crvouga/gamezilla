@@ -1,0 +1,4 @@
+{
+  "summary": "The localhost waitUntil adapter discarded rejected background work, and request-boundary flushing missed errors raised after the response.",
+  "regressionTest": "pkgs/observability-root-server-ts/tests/diagnostic-errors.test.ts"
+}

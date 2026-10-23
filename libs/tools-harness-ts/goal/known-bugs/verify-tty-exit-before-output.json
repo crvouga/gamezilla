@@ -1,0 +1,4 @@
+{
+  "summary": "A cold 32-vCPU run observed READY followed by a successful child exit before the PTY delivered DONE. The tty assertion raced process-exit notification and the fixture waited an arbitrary 800ms. Both ends now handshake on exact scroll input and actual READY/DONE output events, retaining all no-echo assertions.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-remote.test.ts"
+}

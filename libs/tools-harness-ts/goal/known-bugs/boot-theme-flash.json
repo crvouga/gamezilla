@@ -1,0 +1,4 @@
+{
+  "summary": "The startup shell in index.html was always black and nothing set the theme until the app mounted, so anyone on a light theme watched boot flip from dark to light. An inline script now sets the stored or system theme on the document before first paint, and the shell paints both schemes.",
+  "regressionTest": "apps/product-ts/tests/dev-startup.test.ts"
+}

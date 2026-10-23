@@ -1,4 +1,0 @@
-{
-  "summary": "The Infisical token refresh appended &audience to an OIDC request URL without a query, treating the audience as part of the path. Set the URL search parameter and derive the audience from the new repository owner.",
-  "regressionTest": "pkgs/secret-provider-server/tests/oidc-access-token.test.ts"
-}

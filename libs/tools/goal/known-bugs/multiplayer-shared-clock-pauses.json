@@ -1,4 +1,0 @@
-{
-  "summary": "Trusted shared interruption had no multiplayer pause path: the deadline kept running and moves and resignations could decide the result. A committed pause now retains elapsed time and first-move allowances, fences commands, and resumes the same game through the normal server outbox.",
-  "regressionTest": "libs/games-harness/tests/quint/matched-game-clock-recovery.binding.ts"
-}

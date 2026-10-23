@@ -1,0 +1,39 @@
+{
+  "name": "@libs/synthetic-population-shared-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@libs/sub-shared-ts": "workspace:*",
+    "@libs/test-ids-shared-ts": "workspace:*",
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/db-schema-root-shared-ts": "workspace:*",
+    "@pkgs/sql-client-root-shared-ts": "workspace:*",
+    "@pkgs/sql-root-shared-ts": "workspace:*",
+    "@pkgs/turn-game-shared-ts": "workspace:*",
+    "@pkgs/ui-testing-root-shared-ts": "workspace:*",
+    "@pkgs/uuid-shared-ts": "workspace:*",
+    "xstate": "5.33.2",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/property-shared-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "isomorphic",
+  "language": "typescript"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "A provider callback could revive a subscription if deletion committed after the callback read the linked account. Guard the projection with the durable closure journal in the INSERT statement; closed accounts settle payments without projecting membership.",
+  "regressionTest": "libs/billing-server-ts/tests/deleted-callback-race.test.ts"
+}

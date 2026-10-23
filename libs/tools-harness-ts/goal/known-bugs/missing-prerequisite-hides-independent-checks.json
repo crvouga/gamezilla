@@ -1,0 +1,4 @@
+{
+  "summary": "Verify PR 38666299486 placed independent unit checks and cached actionlint beside chess specs whose recovery draw was missing. Prerequisite preparation threw before any shard verdict was written, hiding independent checks as missing. Shards now run independent tasks, retain cached verdicts and fail every dependent task without rerunning its prerequisite.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-stage-cache.test.ts"
+}

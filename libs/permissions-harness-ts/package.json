@@ -1,0 +1,46 @@
+{
+  "name": "@libs/permissions-harness-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests"
+  },
+  "dependencies": {
+    "@libs/auth-client-ts": "workspace:*",
+    "@libs/auth-shared-ts": "workspace:*",
+    "@libs/permissions-client-ts": "workspace:*",
+    "@libs/permissions-shared-ts": "workspace:*",
+    "@pkgs/auth-root-shared-ts": "workspace:*",
+    "@pkgs/clock-client-ts": "workspace:*",
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/db-schema-root-shared-ts": "workspace:*",
+    "@pkgs/dmn-shared-ts": "workspace:*",
+    "@pkgs/secure-storage-root-client-ts": "workspace:*",
+    "@pkgs/secure-storage-root-shared-ts": "workspace:*",
+    "@pkgs/sql-root-shared-ts": "workspace:*",
+    "@pkgs/sync-engine-client-ts": "workspace:*",
+    "@pkgs/sync-engine-harness-ts": "workspace:*",
+    "@pkgs/sync-engine-shared-ts": "workspace:*",
+    "@pkgs/uuid-client-ts": "workspace:*",
+    "@pkgs/uuid-shared-ts": "workspace:*",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/bun-test-solid-client-ts": "workspace:*",
+    "@pkgs/permissions-shared-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness",
+  "language": "typescript"
+}

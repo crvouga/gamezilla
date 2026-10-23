@@ -1,0 +1,4 @@
+{
+  "summary": "Editing one spec changed the greedy allocation and invalidated unrelated part verdicts. Stable ownership and exact generated source fingerprints retain unrelated results.",
+  "regressionTest": "libs/harness-ts/scripts/spec-inputs.test.ts"
+}

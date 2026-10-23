@@ -1,0 +1,82 @@
+{
+  "name": "@libs/runtime-harness-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "prepare:spec": "bun run --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client-ts/register ../../libs/harness-ts/scripts/prepare-spec.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests",
+    "test:spec": "bun run ../../libs/harness-ts/scripts/test-spec.ts",
+    "test:spec:0": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 0/15",
+    "test:spec:1": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 1/15",
+    "test:spec:10": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 10/15",
+    "test:spec:11": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 11/15",
+    "test:spec:12": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 12/15",
+    "test:spec:13": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 13/15",
+    "test:spec:14": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 14/15",
+    "test:spec:2": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 2/15",
+    "test:spec:3": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 3/15",
+    "test:spec:4": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 4/15",
+    "test:spec:5": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 5/15",
+    "test:spec:6": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 6/15",
+    "test:spec:7": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 7/15",
+    "test:spec:8": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 8/15",
+    "test:spec:9": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 9/15",
+    "verify:models": "bun run ../../libs/tools-harness-ts/scripts/verify-models.ts"
+  },
+  "dependencies": {
+    "@libs/account-privacy-harness-ts": "workspace:*",
+    "@libs/app-root-shared-ts": "workspace:*",
+    "@libs/battleship-harness-ts": "workspace:*",
+    "@libs/billing-harness-ts": "workspace:*",
+    "@libs/billing-shared-ts": "workspace:*",
+    "@libs/chess-puzzle-harness-ts": "workspace:*",
+    "@libs/connect-four-harness-ts": "workspace:*",
+    "@libs/friends-harness-ts": "workspace:*",
+    "@libs/game-catalog-shared-ts": "workspace:*",
+    "@libs/game-session-harness-ts": "workspace:*",
+    "@libs/games-shared-ts": "workspace:*",
+    "@libs/harness-ts": "workspace:*",
+    "@libs/profile-harness-ts": "workspace:*",
+    "@libs/runtime-client-ts": "workspace:*",
+    "@libs/runtime-server-ts": "workspace:*",
+    "@libs/runtime-shared-ts": "workspace:*",
+    "@libs/search-harness-ts": "workspace:*",
+    "@libs/spaces-harness-ts": "workspace:*",
+    "@libs/test-ids-shared-ts": "workspace:*",
+    "@pkgs/chess-board-core-shared-ts": "workspace:*",
+    "@pkgs/gherkin-shared-ts": "workspace:*",
+    "@pkgs/sql-root-shared-ts": "workspace:*",
+    "@pkgs/ui-testing-root-shared-ts": "workspace:*",
+    "chess.js": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/a11y-shared-ts": "workspace:*",
+    "@pkgs/bun-test-solid-client-ts": "workspace:*",
+    "@pkgs/db-indexes-root-harness-ts": "workspace:*",
+    "@pkgs/db-indexes-root-shared-ts": "workspace:*",
+    "@pkgs/db-schema-root-shared-ts": "workspace:*",
+    "@pkgs/logger-shared-ts": "workspace:*",
+    "@pkgs/quint-shared-ts": "workspace:*",
+    "@pkgs/sync-engine-shared-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness",
+  "gameRegistry": true,
+  "language": "typescript",
+  "specDomains": [
+    "runtime",
+    "journeys"
+  ],
+  "specParts": 15
+}

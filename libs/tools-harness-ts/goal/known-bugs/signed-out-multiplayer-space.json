@@ -1,0 +1,4 @@
+{
+  "summary": "Finding a chess opponent on a signed-out phone threw before the sign-in invitation, because the space lookup required a live account. A signed-out device uses the space it is already standing in, so the invitation can show and the account's game stays hidden.",
+  "regressionTest": "libs/game-matchmaking-harness-ts/tests/multiplayer-space-id.test.ts"
+}

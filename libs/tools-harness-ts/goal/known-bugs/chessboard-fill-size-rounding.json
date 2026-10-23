@@ -1,0 +1,4 @@
+{
+  "summary": "Fill-width measurement rounds to eight device pixels while CSS keeps the full fractional parent width.",
+  "regressionTest": "pkgs/chess-board-root-client-ts/tests/board-geometry.contract.test.ts"
+}

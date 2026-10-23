@@ -79,11 +79,11 @@
       "persistent": true,
       "cache": false
     },
-    "@apps/product#dev:prepare": {
+    "@apps/product-ts#dev:prepare": {
       "dependsOn": ["//#workspace:install", "//#workspace:merge"],
       "cache": false
     },
-    "@apps/product#dev": {
+    "@apps/product-ts#dev": {
       "dependsOn": ["dev:prepare"],
       "with": [
         "dev:postgres",
@@ -100,52 +100,52 @@
       "persistent": true,
       "cache": false
     },
-    "@apps/product#dev:postgres": {
+    "@apps/product-ts#dev:postgres": {
       "dependsOn": ["dev:prepare"],
       "persistent": true,
       "cache": false
     },
-    "@apps/product#dev:openai": {
+    "@apps/product-ts#dev:openai": {
       "dependsOn": ["dev:prepare"],
       "persistent": true,
       "cache": false
     },
-    "@apps/product#dev:s3": {
+    "@apps/product-ts#dev:s3": {
       "dependsOn": ["dev:prepare"],
       "persistent": true,
       "cache": false
     },
-    "@apps/product#dev:mqtt": {
+    "@apps/product-ts#dev:mqtt": {
       "dependsOn": ["dev:prepare"],
       "persistent": true,
       "cache": false
     },
-    "@apps/product#dev:observability": {
+    "@apps/product-ts#dev:observability": {
       "dependsOn": ["dev:prepare"],
       "persistent": true,
       "cache": false
     },
-    "@apps/product#dev:idp": {
+    "@apps/product-ts#dev:idp": {
       "dependsOn": ["dev:prepare"],
       "persistent": true,
       "cache": false
     },
-    "@apps/product#dev:billing": {
+    "@apps/product-ts#dev:billing": {
       "dependsOn": ["dev:prepare"],
       "persistent": true,
       "cache": false
     },
-    "@apps/product#dev:server": {
+    "@apps/product-ts#dev:server": {
       "dependsOn": ["dev:prepare"],
       "persistent": true,
       "cache": false
     },
-    "@apps/product#dev:population": {
+    "@apps/product-ts#dev:population": {
       "dependsOn": ["dev:prepare"],
       "persistent": true,
       "cache": false
     },
-    "@apps/product#dev:web": {
+    "@apps/product-ts#dev:web": {
       "dependsOn": ["dev:prepare"],
       "persistent": true,
       "cache": false
@@ -168,6 +168,10 @@
     "//#fmt:package-json": {
       "cache": false
     },
+    "//#fmt:swift": {
+      "cache": false,
+      "passThroughEnv": ["DEVELOPER_DIR", "HOME"]
+    },
     "kill": {
       "cache": false
     },
@@ -178,7 +182,7 @@
         "!**/*.md",
         "!**/*.test.ts",
         "!**/*.test.tsx",
-        "$TURBO_ROOT$/pkgs/ts-reset-shared/src/**"
+        "$TURBO_ROOT$/pkgs/ts-reset-shared-ts/src/**"
       ],
       "outputLogs": "errors-only",
       "outputs": []
@@ -188,7 +192,7 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/pkgs/ts-reset-shared/src/**"
+        "$TURBO_ROOT$/pkgs/ts-reset-shared-ts/src/**"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/tc.tsbuildinfo"]
@@ -198,26 +202,33 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/biome.json",
-        "$TURBO_ROOT$/libs/tools/biome-plugins/**",
+        "$TURBO_ROOT$/libs/tools-harness-ts/biome-plugins/**",
         "$TURBO_ROOT$/oxlint.config.mts",
         "$TURBO_ROOT$/components.json",
-        "$TURBO_ROOT$/pkgs/tailwind-shared/src/lint.css",
-        "$TURBO_ROOT$/pkgs/tailwind-shared/src/tailwind.css",
-        "$TURBO_ROOT$/pkgs/ui-root-client/src/theme.css",
-        "$TURBO_ROOT$/pkgs/ui-root-client/src/hosts.css",
-        "$TURBO_ROOT$/libs/tools/port/*.json",
-        "$TURBO_ROOT$/libs/tools/scripts/lint-package.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/design-vocabulary.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/design-composition.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/banned-words.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/biome-scope.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/package-boundaries.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/task-runner-policy.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/tc-scope.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/test-scripts.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/unused-dependencies.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/lingui-scope.ts",
-        "$TURBO_ROOT$/libs/tools/naming/**"
+        "$TURBO_ROOT$/pkgs/tailwind-shared-ts/src/lint.css",
+        "$TURBO_ROOT$/pkgs/tailwind-shared-ts/src/tailwind.css",
+        "$TURBO_ROOT$/pkgs/ui-root-client-ts/src/theme.css",
+        "$TURBO_ROOT$/pkgs/ui-root-client-ts/src/hosts.css",
+        "$TURBO_ROOT$/libs/tools-harness-ts/port/*.json",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/lint-package.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/design-vocabulary.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/design-composition.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/banned-words.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/biome-scope.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/package-boundaries.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/task-runner-policy.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/tc-scope.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/test-scripts.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/unused-dependencies.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/lingui-scope.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/languages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/language-boundaries.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/package-names.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/package-hosts.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/swift-format.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/native-toolchain.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/swift-task.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/naming/**"
       ],
       "outputLogs": "errors-only",
       "outputs": []
@@ -233,7 +244,7 @@
       "outputLogs": "errors-only",
       "outputs": []
     },
-    "@apps/client#test": {
+    "@apps/client-ts#test": {
       "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -247,20 +258,20 @@
       "outputLogs": "errors-only",
       "outputs": []
     },
-    "@libs/game-session-shared#test": {
+    "@libs/game-session-shared-ts#test": {
       "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/turbo-platform-key.json",
-        "$TURBO_ROOT$/libs/games-shared/package.json",
-        "$TURBO_ROOT$/libs/games-shared/src/game-plugins.ts"
+        "$TURBO_ROOT$/libs/games-shared-ts/package.json",
+        "$TURBO_ROOT$/libs/games-shared-ts/src/game-plugins.ts"
       ],
       "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
       "outputLogs": "errors-only",
       "outputs": []
     },
-    "@libs/games-harness#test": {
+    "@libs/games-harness-ts#test": {
       "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -275,7 +286,7 @@
       "outputLogs": "errors-only",
       "outputs": []
     },
-    "@libs/games-harness#test:contract": {
+    "@libs/games-harness-ts#test:contract": {
       "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -438,8 +449,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-0.json"
       ],
       "env": [
@@ -459,8 +470,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-1.json"
       ],
       "env": [
@@ -480,8 +491,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-2.json"
       ],
       "env": [
@@ -501,8 +512,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-3.json"
       ],
       "env": [
@@ -522,8 +533,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-4.json"
       ],
       "env": [
@@ -543,8 +554,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-5.json"
       ],
       "env": [
@@ -564,13 +575,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -581,10 +592,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:0": {
@@ -592,13 +603,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -609,10 +620,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:1": {
@@ -620,13 +631,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -637,10 +648,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:2": {
@@ -648,13 +659,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -665,10 +676,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:3": {
@@ -676,13 +687,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -693,10 +704,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:4": {
@@ -704,13 +715,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -721,10 +732,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:5": {
@@ -732,13 +743,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -749,10 +760,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:6": {
@@ -760,13 +771,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -777,10 +788,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:7": {
@@ -788,13 +799,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -805,10 +816,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:8": {
@@ -816,13 +827,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -833,10 +844,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:9": {
@@ -844,13 +855,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -861,10 +872,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:10": {
@@ -872,13 +883,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -889,10 +900,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:11": {
@@ -900,13 +911,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -917,10 +928,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:12": {
@@ -928,13 +939,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -945,10 +956,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:13": {
@@ -956,13 +967,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -973,10 +984,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:14": {
@@ -984,13 +995,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -1001,10 +1012,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:15": {
@@ -1012,13 +1023,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -1029,10 +1040,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "build": {
@@ -1077,70 +1088,70 @@
       "persistent": true,
       "cache": false
     },
-    "@libs/tools#ci:syncpack": {
+    "@libs/tools-harness-ts#ci:syncpack": {
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/package.json",
         "$TURBO_ROOT$/apps/*/package.json",
         "$TURBO_ROOT$/libs/*/package.json",
         "$TURBO_ROOT$/pkgs/*/package.json",
-        "$TURBO_ROOT$/libs/tools/package.json",
+        "$TURBO_ROOT$/libs/tools-harness-ts/package.json",
         "$TURBO_ROOT$/.syncpackrc.cjs"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "@libs/tools#ci:audit": {
+    "@libs/tools-harness-ts#ci:audit": {
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/bun.lock",
-        "$TURBO_ROOT$/libs/tools/scripts/ci-audit.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/ci-audit.ts",
         "$TURBO_ROOT$/package.json",
-        "$TURBO_ROOT$/libs/tools/scripts/audit-snapshot.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/audit-snapshot.ts",
         "$TURBO_ROOT$/.cache/verify-ci/audit.json"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "@libs/tools#ci:i18n": {
+    "@libs/tools-harness-ts#ci:i18n": {
       "inputs": [
         "$TURBO_DEFAULT$",
-        "$TURBO_ROOT$/libs/account-privacy-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/libs/app-root-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/libs/app-config-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/libs/auth-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/libs/billing-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/libs/chess-root-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/libs/connect-four-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/libs/battleship-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/libs/game-menu-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/libs/game-session-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/libs/game-matchmaking-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/libs/chess-puzzle-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/libs/game-puzzle-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/libs/chess-shared-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/libs/friends-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/libs/notifications-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/libs/permissions-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/libs/profile-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/libs/synthetic-population-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/libs/search-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/libs/spaces-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/pkgs/chess-board-root-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/pkgs/ui-root-client/src/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/pkgs/ui-devtools-client/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/account-privacy-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/app-root-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/app-config-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/auth-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/billing-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/chess-root-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/connect-four-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/battleship-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/game-menu-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/game-session-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/game-matchmaking-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/chess-puzzle-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/game-puzzle-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/chess-shared-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/friends-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/notifications-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/permissions-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/profile-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/synthetic-population-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/search-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/spaces-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/pkgs/chess-board-root-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/pkgs/ui-root-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/pkgs/ui-devtools-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/lingui.config.ts",
         "$TURBO_ROOT$/lingui.solid.config.ts",
-        "$TURBO_ROOT$/libs/app-root-shared/locales/**",
-        "$TURBO_ROOT$/apps/client/babel.config.js",
-        "$TURBO_ROOT$/pkgs/bun-test-solid-client/src/babel.config.cjs",
-        "$TURBO_ROOT$/libs/tools/scripts/ci-i18n.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/lingui-scope.ts"
+        "$TURBO_ROOT$/libs/app-root-shared-ts/locales/**",
+        "$TURBO_ROOT$/apps/client-ts/babel.config.js",
+        "$TURBO_ROOT$/pkgs/bun-test-solid-client-ts/src/babel.config.cjs",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/ci-i18n.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/lingui-scope.ts"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "@libs/tools#ci:agent-commands": {
+    "@libs/tools-harness-ts#ci:agent-commands": {
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/.agents/**",
@@ -1156,32 +1167,44 @@
         "$TURBO_ROOT$/.gemini/settings.json",
         "$TURBO_ROOT$/.vscode/mcp.json",
         "$TURBO_ROOT$/opencode.json",
-        "$TURBO_ROOT$/libs/tools/scripts/sync-agent-commands.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/sync-agent-mcp.ts"
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/sync-agent-commands.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/sync-agent-mcp.ts"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "@libs/tools#ci:workspace-lifecycle": {
+    "@libs/tools-harness-ts#ci:package-names": {
+      "inputs": [
+        "$TURBO_ROOT$/apps/*/package.json",
+        "$TURBO_ROOT$/libs/*/package.json",
+        "$TURBO_ROOT$/pkgs/*/package.json",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-package-names.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/package-names.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/languages.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "@libs/tools-harness-ts#ci:workspace-lifecycle": {
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/.superset/config.json",
         "$TURBO_ROOT$/.super.engineering/config.json",
-        "$TURBO_ROOT$/libs/tools/workspace/*.sh",
-        "$TURBO_ROOT$/libs/tools/scripts/sync-workspace-lifecycle.ts"
+        "$TURBO_ROOT$/libs/tools-harness-ts/workspace/*.sh",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/sync-workspace-lifecycle.ts"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "@libs/tools#ci:goals": {
-      "dependsOn": ["@libs/tools#src"],
+    "@libs/tools-harness-ts#ci:goals": {
+      "dependsOn": ["@libs/tools-harness-ts#src"],
       "inputs": [
         "$TURBO_DEFAULT$",
-        "$TURBO_ROOT$/libs/tools/goal/**",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-goals.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/goal/**",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-goals.ts",
         "$TURBO_ROOT$/docs/SELF_SERVICE_READINESS.md",
         "$TURBO_ROOT$/AGENTS.md",
-        "$TURBO_ROOT$/libs/app-root-shared/locales/en/messages.po",
+        "$TURBO_ROOT$/libs/app-root-shared-ts/locales/en/messages.po",
         "$TURBO_ROOT$/.github/workflows/**",
         "$TURBO_ROOT$/{apps,libs,pkgs}/*/README.md",
         "$TURBO_ROOT$/{apps,libs,pkgs}/**/*.test.{ts,tsx}",
@@ -1194,13 +1217,13 @@
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "@libs/tools#ci:specs": {
+    "@libs/tools-harness-ts#ci:specs": {
       "dependsOn": [
-        "@libs/tools#src",
-        "@pkgs/gherkin-server#src",
-        "@pkgs/gherkin-shared#src",
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src"
+        "@libs/tools-harness-ts#src",
+        "@pkgs/gherkin-server-ts#src",
+        "@pkgs/gherkin-shared-ts#src",
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -1236,36 +1259,36 @@
         "$TURBO_ROOT$/apps/*/tests/dmn/**",
         "$TURBO_ROOT$/apps/*/tests/alloy/**",
         "$TURBO_ROOT$/apps/*/tests/openslo/**",
-        "$TURBO_ROOT$/libs/harness/src/spec/**",
-        "$TURBO_ROOT$/pkgs/gherkin-server/src/**",
-        "$TURBO_ROOT$/pkgs/gherkin-shared/src/**",
-        "$TURBO_ROOT$/pkgs/quint-shared/src/names.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-specs.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-alloy-names.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-decoupling.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-glossary.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-location.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/goal/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/spec/**",
+        "$TURBO_ROOT$/pkgs/gherkin-server-ts/src/**",
+        "$TURBO_ROOT$/pkgs/gherkin-shared-ts/src/**",
+        "$TURBO_ROOT$/pkgs/quint-shared-ts/src/names.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-specs.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-alloy-names.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-decoupling.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-glossary.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-location.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/goal/**",
         "$TURBO_ROOT$/apps/*/.cache/spec-inputs/**",
         "$TURBO_ROOT$/libs/*/.cache/spec-inputs/**",
         "$TURBO_ROOT$/pkgs/*/.cache/spec-inputs/**",
-        "$TURBO_ROOT$/libs/harness/scripts/spec-inputs.ts",
-        "$TURBO_ROOT$/libs/harness/scripts/spec-sources.ts",
-        "$TURBO_ROOT$/libs/harness/scripts/spec-parts.ts",
-        "$TURBO_ROOT$/libs/harness/scripts/spec-verify-kinds.ts"
+        "$TURBO_ROOT$/libs/harness-ts/scripts/spec-inputs.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/spec-sources.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/spec-parts.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/spec-verify-kinds.ts"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "@libs/tools#ci:conformance": {
+    "@libs/tools-harness-ts#ci:conformance": {
       "dependsOn": [
-        "@libs/tools#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src",
-        "@pkgs/dmn-shared#src",
-        "@pkgs/openslo-shared#src"
+        "@libs/tools-harness-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src",
+        "@pkgs/dmn-shared-ts#src",
+        "@pkgs/openslo-shared-ts#src"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -1293,24 +1316,24 @@
         "$TURBO_ROOT$/apps/*/tests/openslo/**",
         "$TURBO_ROOT$/libs/*/tests/openslo/**",
         "$TURBO_ROOT$/pkgs/*/tests/openslo/**",
-        "$TURBO_ROOT$/pkgs/conformance-server/src/**",
-        "$TURBO_ROOT$/pkgs/conformance-shared/src/**",
-        "$TURBO_ROOT$/pkgs/dmn-shared/src/**",
-        "$TURBO_ROOT$/pkgs/openslo-shared/src/**",
-        "$TURBO_ROOT$/pkgs/gherkin-shared/src/**",
-        "$TURBO_ROOT$/libs/tools/conformance/**",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-conformance.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts"
+        "$TURBO_ROOT$/pkgs/conformance-server-ts/src/**",
+        "$TURBO_ROOT$/pkgs/conformance-shared-ts/src/**",
+        "$TURBO_ROOT$/pkgs/dmn-shared-ts/src/**",
+        "$TURBO_ROOT$/pkgs/openslo-shared-ts/src/**",
+        "$TURBO_ROOT$/pkgs/gherkin-shared-ts/src/**",
+        "$TURBO_ROOT$/libs/tools-harness-ts/conformance/**",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-conformance.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "@libs/tools#ci:spec-ownership": {
+    "@libs/tools-harness-ts#ci:spec-ownership": {
       "env": ["PR_BASE", "PR_HEAD", "VERIFY_SECRETS_RANGE"],
       "inputs": [
         "$TURBO_DEFAULT$",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-spec-ownership.ts"
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-spec-ownership.ts"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
@@ -1320,14 +1343,14 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-worker-bundle.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/worker-compat-date.ts"
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-worker-bundle.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/worker-compat-date.ts"
       ],
       "outputLogs": "errors-only",
       "outputs": []
     },
-    "@apps/product#verify:offline-shell": {
-      "dependsOn": ["@apps/product#build"],
+    "@apps/product-ts#verify:offline-shell": {
+      "dependsOn": ["@apps/product-ts#build"],
       "inputs": [
         "scripts/verify-offline-shell.ts",
         "scripts/dist-graph.ts",
@@ -1336,14 +1359,14 @@
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "@libs/runtime-server#verify:schema-evolution": {
+    "@libs/runtime-server-ts#verify:schema-evolution": {
       "dependsOn": ["^src"],
       "env": ["PR_BASE"],
       "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "@libs/tools#verify:actionlint": {
+    "@libs/tools-harness-ts#verify:actionlint": {
       "inputs": [
         "$TURBO_DEFAULT$",
         "scripts/verify-actionlint.ts",
@@ -1354,7 +1377,7 @@
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "@libs/tools#verify:secrets": {
+    "@libs/tools-harness-ts#verify:secrets": {
       "env": ["VERIFY_SECRETS_RANGE"],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -1366,8 +1389,8 @@
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "@libs/tools#verify:root-lint": {
-      "dependsOn": ["@libs/tools#src"],
+    "@libs/tools-harness-ts#verify:root-lint": {
+      "dependsOn": ["@libs/tools-harness-ts#src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/**",
@@ -1384,66 +1407,66 @@
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "@libs/tools#install:cli": {
+    "@libs/tools-harness-ts#install:cli": {
       "cache": false,
       "outputLogs": "errors-only"
     },
-    "@apps/server#verify:api": {
+    "@apps/server-ts#verify:api": {
       "cache": false,
       "outputLogs": "errors-only"
     },
-    "@libs/infra-server#apply:foundation": {
+    "@libs/infra-server-ts#apply:foundation": {
       "cache": false,
-      "dependsOn": ["@libs/tools#install:cli"]
+      "dependsOn": ["@libs/tools-harness-ts#install:cli"]
     },
-    "@libs/runtime-server#migrate": {
+    "@libs/runtime-server-ts#migrate": {
       "cache": false,
-      "dependsOn": ["@libs/infra-server#apply:foundation"]
+      "dependsOn": ["@libs/infra-server-ts#apply:foundation"]
     },
-    "@libs/chess-puzzle-server#initialize:catalog": {
+    "@libs/chess-puzzle-server-ts#initialize:catalog": {
       "cache": false,
-      "dependsOn": ["@libs/runtime-server#migrate"]
+      "dependsOn": ["@libs/runtime-server-ts#migrate"]
     },
-    "@apps/product#deploy": {
+    "@apps/product-ts#deploy": {
       "cache": false,
       "dependsOn": [
-        "@libs/runtime-server#migrate",
-        "@libs/chess-puzzle-server#initialize:catalog",
-        "@apps/server#verify:api",
-        "@apps/product#verify:offline-shell",
-        "@apps/product#verify:worker-bundle",
-        "@apps/product#verify:rendered-worker"
+        "@libs/runtime-server-ts#migrate",
+        "@libs/chess-puzzle-server-ts#initialize:catalog",
+        "@apps/server-ts#verify:api",
+        "@apps/product-ts#verify:offline-shell",
+        "@apps/product-ts#verify:worker-bundle",
+        "@apps/product-ts#verify:rendered-worker"
       ]
     },
-    "@libs/infra-server#apply:edge": {
+    "@libs/infra-server-ts#apply:edge": {
       "cache": false,
-      "dependsOn": ["@apps/product#deploy"]
+      "dependsOn": ["@apps/product-ts#deploy"]
     },
-    "@libs/billing-server#billing:sync": {
+    "@libs/billing-server-ts#billing:sync": {
       "cache": false,
-      "dependsOn": ["@libs/infra-server#apply:edge"]
+      "dependsOn": ["@libs/infra-server-ts#apply:edge"]
     },
     "health": {
       "cache": false,
       "passThroughEnv": ["HEALTH_SPEC"],
       "dependsOn": [
-        "@libs/infra-server#apply:edge",
-        "@libs/billing-server#billing:sync",
-        "@apps/synthetic-population-worker#deploy"
+        "@libs/infra-server-ts#apply:edge",
+        "@libs/billing-server-ts#billing:sync",
+        "@apps/synthetic-population-worker-ts#deploy"
       ],
       "outputLogs": "errors-only"
     },
     "//#deploy": {
       "cache": false,
       "dependsOn": [
-        "@apps/server#verify:api",
+        "@apps/server-ts#verify:api",
         "health",
-        "@libs/infra-shared#retire:workers"
+        "@libs/infra-shared-ts#retire:workers"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "@libs/tools#test": {
+    "@libs/tools-harness-ts#test": {
       "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -1459,67 +1482,67 @@
       "outputLogs": "errors-only",
       "outputs": []
     },
-    "@libs/infra-shared#lint": {
+    "@libs/infra-shared-ts#lint": {
       "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/biome.json",
-        "$TURBO_ROOT$/libs/tools/biome-plugins/**",
+        "$TURBO_ROOT$/libs/tools-harness-ts/biome-plugins/**",
         "$TURBO_ROOT$/oxlint.config.mts",
         "$TURBO_ROOT$/components.json",
-        "$TURBO_ROOT$/pkgs/tailwind-shared/src/lint.css",
-        "$TURBO_ROOT$/pkgs/tailwind-shared/src/tailwind.css",
-        "$TURBO_ROOT$/pkgs/ui-root-client/src/theme.css",
-        "$TURBO_ROOT$/pkgs/ui-root-client/src/hosts.css",
-        "$TURBO_ROOT$/libs/tools/port/*.json",
-        "$TURBO_ROOT$/libs/tools/scripts/lint-package.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/design-vocabulary.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/design-composition.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/biome-scope.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/package-boundaries.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/tc-scope.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/test-scripts.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/unused-dependencies.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/lingui-scope.ts",
-        "$TURBO_ROOT$/libs/tools/naming/**",
-        "$TURBO_ROOT$/libs/tools/goal/**",
+        "$TURBO_ROOT$/pkgs/tailwind-shared-ts/src/lint.css",
+        "$TURBO_ROOT$/pkgs/tailwind-shared-ts/src/tailwind.css",
+        "$TURBO_ROOT$/pkgs/ui-root-client-ts/src/theme.css",
+        "$TURBO_ROOT$/pkgs/ui-root-client-ts/src/hosts.css",
+        "$TURBO_ROOT$/libs/tools-harness-ts/port/*.json",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/lint-package.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/design-vocabulary.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/design-composition.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/biome-scope.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/package-boundaries.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/tc-scope.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/test-scripts.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/unused-dependencies.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/lingui-scope.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/naming/**",
+        "$TURBO_ROOT$/libs/tools-harness-ts/goal/**",
         "$TURBO_ROOT$/mise.toml"
       ],
       "outputLogs": "errors-only",
       "outputs": []
     },
-    "@libs/infra-server#lint": {
+    "@libs/infra-server-ts#lint": {
       "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/biome.json",
-        "$TURBO_ROOT$/libs/tools/biome-plugins/**",
+        "$TURBO_ROOT$/libs/tools-harness-ts/biome-plugins/**",
         "$TURBO_ROOT$/oxlint.config.mts",
         "$TURBO_ROOT$/components.json",
-        "$TURBO_ROOT$/pkgs/tailwind-shared/src/lint.css",
-        "$TURBO_ROOT$/pkgs/tailwind-shared/src/tailwind.css",
-        "$TURBO_ROOT$/pkgs/ui-root-client/src/theme.css",
-        "$TURBO_ROOT$/pkgs/ui-root-client/src/hosts.css",
-        "$TURBO_ROOT$/libs/tools/port/*.json",
-        "$TURBO_ROOT$/libs/tools/scripts/lint-package.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/design-vocabulary.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/design-composition.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/biome-scope.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/package-boundaries.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/tc-scope.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/test-scripts.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/unused-dependencies.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/lingui-scope.ts",
-        "$TURBO_ROOT$/libs/tools/naming/**",
-        "$TURBO_ROOT$/libs/tools/goal/**",
+        "$TURBO_ROOT$/pkgs/tailwind-shared-ts/src/lint.css",
+        "$TURBO_ROOT$/pkgs/tailwind-shared-ts/src/tailwind.css",
+        "$TURBO_ROOT$/pkgs/ui-root-client-ts/src/theme.css",
+        "$TURBO_ROOT$/pkgs/ui-root-client-ts/src/hosts.css",
+        "$TURBO_ROOT$/libs/tools-harness-ts/port/*.json",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/lint-package.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/design-vocabulary.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/design-composition.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/biome-scope.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/package-boundaries.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/tc-scope.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/test-scripts.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/unused-dependencies.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/lingui-scope.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/naming/**",
+        "$TURBO_ROOT$/libs/tools-harness-ts/goal/**",
         "$TURBO_ROOT$/mise.toml"
       ],
       "outputLogs": "errors-only",
       "outputs": []
     },
-    "@libs/infra-shared#test": {
+    "@libs/infra-shared-ts#test": {
       "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -1531,14 +1554,14 @@
       "outputLogs": "errors-only",
       "outputs": []
     },
-    "@libs/infra-server#test": {
+    "@libs/infra-server-ts#test": {
       "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/infra-shared/tofu/**",
-        "$TURBO_ROOT$/libs/infra-shared/policy/**",
+        "$TURBO_ROOT$/libs/infra-shared-ts/tofu/**",
+        "$TURBO_ROOT$/libs/infra-shared-ts/policy/**",
         "$TURBO_ROOT$/.github/workflows/**"
       ],
       "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
@@ -1740,8 +1763,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-16.json"
       ],
       "env": [
@@ -1761,8 +1784,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-17.json"
       ],
       "env": [
@@ -1782,8 +1805,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-18.json"
       ],
       "env": [
@@ -1803,8 +1826,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-19.json"
       ],
       "env": [
@@ -1824,8 +1847,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-20.json"
       ],
       "env": [
@@ -1845,8 +1868,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-21.json"
       ],
       "env": [
@@ -1866,8 +1889,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-22.json"
       ],
       "env": [
@@ -1887,8 +1910,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-23.json"
       ],
       "env": [
@@ -1908,8 +1931,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-24.json"
       ],
       "env": [
@@ -1929,8 +1952,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-25.json"
       ],
       "env": [
@@ -1950,8 +1973,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-26.json"
       ],
       "env": [
@@ -1971,8 +1994,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-27.json"
       ],
       "env": [
@@ -1992,8 +2015,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-28.json"
       ],
       "env": [
@@ -2013,8 +2036,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-29.json"
       ],
       "env": [
@@ -2034,8 +2057,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-30.json"
       ],
       "env": [
@@ -2055,8 +2078,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-31.json"
       ],
       "env": [
@@ -2076,8 +2099,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-32.json"
       ],
       "env": [
@@ -2097,8 +2120,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-33.json"
       ],
       "env": [
@@ -2118,8 +2141,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-34.json"
       ],
       "env": [
@@ -2139,8 +2162,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-35.json"
       ],
       "env": [
@@ -2160,8 +2183,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-36.json"
       ],
       "env": [
@@ -2181,8 +2204,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-37.json"
       ],
       "env": [
@@ -2202,8 +2225,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-38.json"
       ],
       "env": [
@@ -2223,8 +2246,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-39.json"
       ],
       "env": [
@@ -2244,8 +2267,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-40.json"
       ],
       "env": [
@@ -2265,8 +2288,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-41.json"
       ],
       "env": [
@@ -2286,8 +2309,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-42.json"
       ],
       "env": [
@@ -2307,8 +2330,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-43.json"
       ],
       "env": [
@@ -2328,8 +2351,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-44.json"
       ],
       "env": [
@@ -2349,8 +2372,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-45.json"
       ],
       "env": [
@@ -2370,8 +2393,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-46.json"
       ],
       "env": [
@@ -2391,8 +2414,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-47.json"
       ],
       "env": [
@@ -2412,8 +2435,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-48.json"
       ],
       "env": [
@@ -2433,8 +2456,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-49.json"
       ],
       "env": [
@@ -2454,8 +2477,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-50.json"
       ],
       "env": [
@@ -2475,8 +2498,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-51.json"
       ],
       "env": [
@@ -2496,8 +2519,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-52.json"
       ],
       "env": [
@@ -2517,8 +2540,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-53.json"
       ],
       "env": [
@@ -2538,8 +2561,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-54.json"
       ],
       "env": [
@@ -2559,8 +2582,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-55.json"
       ],
       "env": [
@@ -2580,8 +2603,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-56.json"
       ],
       "env": [
@@ -2601,8 +2624,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-57.json"
       ],
       "env": [
@@ -2622,8 +2645,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-58.json"
       ],
       "env": [
@@ -2643,8 +2666,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-59.json"
       ],
       "env": [
@@ -2664,8 +2687,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-60.json"
       ],
       "env": [
@@ -2685,8 +2708,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-61.json"
       ],
       "env": [
@@ -2706,8 +2729,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-62.json"
       ],
       "env": [
@@ -2727,8 +2750,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-63.json"
       ],
       "env": [
@@ -2743,28 +2766,28 @@
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-63/**"]
     },
-    "@libs/infra-shared#retire:workers": {
+    "@libs/infra-shared-ts#retire:workers": {
       "cache": false,
-      "dependsOn": ["@apps/product#health"]
+      "dependsOn": ["@apps/product-ts#health"]
     },
-    "@apps/product#verify:worker-bundle": {
+    "@apps/product-ts#verify:worker-bundle": {
       "dependsOn": ["^src", "build"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-worker-bundle.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/worker-compat-date.ts"
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-worker-bundle.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/worker-compat-date.ts"
       ],
       "outputLogs": "errors-only",
       "outputs": []
     },
-    "@apps/product#verify:rendered-worker": {
+    "@apps/product-ts#verify:rendered-worker": {
       "dependsOn": ["^src", "build"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/infra-shared/tofu/global.tfvars.json",
-        "$TURBO_ROOT$/libs/infra-shared/tofu/envs/*.tfvars.json"
+        "$TURBO_ROOT$/libs/infra-shared-ts/tofu/global.tfvars.json",
+        "$TURBO_ROOT$/libs/infra-shared-ts/tofu/envs/*.tfvars.json"
       ],
       "outputLogs": "errors-only",
       "outputs": []
@@ -2773,33 +2796,33 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-board-contract.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/board-sound-contract.ts"
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-board-contract.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/board-sound-contract.ts"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "@apps/synthetic-population-worker#deploy": {
+    "@apps/synthetic-population-worker-ts#deploy": {
       "cache": false,
-      "dependsOn": ["@libs/infra-server#apply:edge"]
+      "dependsOn": ["@libs/infra-server-ts#apply:edge"]
     },
-    "@libs/tools#ci:statecharts": {
-      "dependsOn": ["@libs/tools#src"],
+    "@libs/tools-harness-ts#ci:statecharts": {
+      "dependsOn": ["@libs/tools-harness-ts#src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/docs/statecharts/**",
         "$TURBO_ROOT$/specs/**",
         "$TURBO_ROOT$/package.json",
-        "$TURBO_ROOT$/libs/app-root-client/src/route-table.ts",
-        "$TURBO_ROOT$/libs/runtime-client/src/app-sub-clients.ts",
-        "$TURBO_ROOT$/libs/*-client/src/sub-client.{ts,tsx}",
-        "$TURBO_ROOT$/libs/chess-puzzle-client/src/personal-chess-stats-client.tsx",
-        "$TURBO_ROOT$/libs/game-puzzle-client/src/puzzle-link-client.ts",
-        "$TURBO_ROOT$/libs/game-puzzle-shared/src/puzzle-link.ts",
-        "$TURBO_ROOT$/libs/game-matchmaking-client/src/multiplayer-link-client.tsx",
-        "$TURBO_ROOT$/libs/game-matchmaking-shared/src/multiplayer-link.ts",
-        "$TURBO_ROOT$/apps/product/src/main.tsx",
-        "$TURBO_ROOT$/apps/product/src/console-nav-real.ts"
+        "$TURBO_ROOT$/libs/app-root-client-ts/src/route-table.ts",
+        "$TURBO_ROOT$/libs/runtime-client-ts/src/app-sub-clients.ts",
+        "$TURBO_ROOT$/libs/*-client-ts/src/sub-client.{ts,tsx}",
+        "$TURBO_ROOT$/libs/chess-puzzle-client-ts/src/personal-chess-stats-client.tsx",
+        "$TURBO_ROOT$/libs/game-puzzle-client-ts/src/puzzle-link-client.ts",
+        "$TURBO_ROOT$/libs/game-puzzle-shared-ts/src/puzzle-link.ts",
+        "$TURBO_ROOT$/libs/game-matchmaking-client-ts/src/multiplayer-link-client.tsx",
+        "$TURBO_ROOT$/libs/game-matchmaking-shared-ts/src/multiplayer-link.ts",
+        "$TURBO_ROOT$/apps/product-ts/src/main.tsx",
+        "$TURBO_ROOT$/apps/product-ts/src/console-nav-real.ts"
       ],
       "outputs": [".cache/product-statechart/**"],
       "outputLogs": "errors-only"
@@ -2940,21 +2963,21 @@
     },
     "//#task:i18n:compile": {
       "inputs": [
-        "libs/app-root-shared/locales/**/*.po",
+        "libs/app-root-shared-ts/locales/**/*.po",
         "lingui.config.ts",
-        "libs/tools/scripts/lingui-scope.ts",
-        "libs/tools/scripts/ensure-trailing-newline.ts",
+        "libs/tools-harness-ts/scripts/lingui-scope.ts",
+        "libs/tools-harness-ts/scripts/ensure-trailing-newline.ts",
         "package.json"
       ],
-      "outputs": ["libs/app-root-shared/locales/*/messages.ts"]
+      "outputs": ["libs/app-root-shared-ts/locales/*/messages.ts"]
     },
     "//#task:spec:catalog": {
       "dependsOn": [
-        "@libs/tools#src",
-        "@pkgs/gherkin-server#src",
-        "@pkgs/gherkin-shared#src",
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src"
+        "@libs/tools-harness-ts#src",
+        "@pkgs/gherkin-server-ts#src",
+        "@pkgs/gherkin-shared-ts#src",
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -2989,19 +3012,19 @@
         "apps/*/tests/dmn/**",
         "apps/*/tests/alloy/**",
         "apps/*/tests/openslo/**",
-        "libs/harness/src/spec/**",
+        "libs/harness-ts/src/spec/**",
         "pkgs/gherkin/src/**",
-        "pkgs/quint-shared/src/names.ts",
-        "libs/tools/scripts/verify-specs.ts",
-        "libs/tools/scripts/spec-alloy-names.ts",
-        "libs/tools/scripts/spec-decoupling.ts",
-        "libs/tools/scripts/spec-glossary.ts",
-        "libs/tools/scripts/spec-kinds.ts",
-        "libs/tools/scripts/spec-location.ts",
-        "libs/tools/scripts/spec-packages.ts",
-        "libs/tools/goal/**",
-        "libs/tools/scripts/spec-catalog.ts",
-        "pkgs/gherkin-shared/src/**"
+        "pkgs/quint-shared-ts/src/names.ts",
+        "libs/tools-harness-ts/scripts/verify-specs.ts",
+        "libs/tools-harness-ts/scripts/spec-alloy-names.ts",
+        "libs/tools-harness-ts/scripts/spec-decoupling.ts",
+        "libs/tools-harness-ts/scripts/spec-glossary.ts",
+        "libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "libs/tools-harness-ts/scripts/spec-location.ts",
+        "libs/tools-harness-ts/scripts/spec-packages.ts",
+        "libs/tools-harness-ts/goal/**",
+        "libs/tools-harness-ts/scripts/spec-catalog.ts",
+        "pkgs/gherkin-shared-ts/src/**"
       ],
       "outputs": [
         "docs/STEPS_CATALOG.md",
@@ -3010,7 +3033,7 @@
         "pkgs/*/STEPS_CATALOG.md"
       ]
     },
-    "@pkgs/object-store-s3-server#generate:browser": {
+    "@pkgs/object-store-s3-server-ts#generate:browser": {
       "inputs": [
         "src/**",
         "scripts/generate-browser.ts",
@@ -3019,7 +3042,7 @@
       ],
       "outputs": [".cache/browser/**"]
     },
-    "@libs/infra-shared#generate:infra-map": {
+    "@libs/infra-shared-ts#generate:infra-map": {
       "inputs": [
         "src/**",
         "scripts/render-infra-map.ts",
@@ -3029,35 +3052,35 @@
       ],
       "outputs": [".cache/infra-map.html"]
     },
-    "@libs/chess-puzzle-server#export:puzzles-load": {
+    "@libs/chess-puzzle-server-ts#export:puzzles-load": {
       "cache": false,
       "passThroughEnv": ["*"]
     },
-    "@libs/chess-puzzle-server#seed:puzzles": {
+    "@libs/chess-puzzle-server-ts#seed:puzzles": {
       "cache": false,
       "passThroughEnv": ["*"]
     },
-    "@libs/runtime-server#db:wipe:dev": {
+    "@libs/runtime-server-ts#db:wipe:dev": {
       "cache": false,
       "passThroughEnv": ["*"]
     },
-    "@libs/infra-server#apply:bootstrap": {
+    "@libs/infra-server-ts#apply:bootstrap": {
       "cache": false,
       "passThroughEnv": ["*"]
     },
-    "@apps/product#synthetic": {
+    "@apps/product-ts#synthetic": {
       "cache": false,
       "passThroughEnv": ["*"]
     },
-    "@apps/product#test:fuzz": {
+    "@apps/product-ts#test:fuzz": {
       "cache": false,
       "passThroughEnv": ["*"]
     },
-    "@apps/product#test:stack": {
+    "@apps/product-ts#test:stack": {
       "cache": false,
       "passThroughEnv": ["*"]
     },
-    "@apps/product#test:release-journeys": {
+    "@apps/product-ts#test:release-journeys": {
       "dependsOn": ["^src", "//#task:i18n:compile"],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -3069,34 +3092,34 @@
       "outputs": [".cache/release-report/**"],
       "passThroughEnv": ["*"]
     },
-    "@pkgs/db-indexes-root-shared#mutants": {
+    "@pkgs/db-indexes-root-shared-ts#mutants": {
       "cache": false,
       "passThroughEnv": ["*"]
     },
-    "@pkgs/room-root-harness#bench": {
+    "@pkgs/room-root-harness-ts#bench": {
       "cache": false,
       "passThroughEnv": ["*"]
     },
-    "@pkgs/sql-root-shared#perf": {
+    "@pkgs/sql-root-shared-ts#perf": {
       "cache": false,
       "passThroughEnv": ["*"]
     },
-    "@apps/auth-relay#deploy": {
+    "@apps/auth-relay-ts#deploy": {
       "cache": false,
       "passThroughEnv": ["*"]
     },
-    "@libs/infra-server#apply:fleet": {
-      "dependsOn": ["@apps/auth-relay#deploy"],
+    "@libs/infra-server-ts#apply:fleet": {
+      "dependsOn": ["@apps/auth-relay-ts#deploy"],
       "cache": false,
       "passThroughEnv": ["*"]
     },
-    "@apps/client#dev": {
+    "@apps/client-ts#dev": {
       "dependsOn": ["setup"],
       "persistent": true,
       "cache": false,
       "passThroughEnv": ["*"]
     },
-    "@apps/client#setup": {
+    "@apps/client-ts#setup": {
       "dependsOn": ["//#task:i18n:compile"],
       "cache": false,
       "passThroughEnv": ["*"]
@@ -3107,29 +3130,29 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         ".cache/spec-inputs/models.json",
-        "$TURBO_ROOT$/libs/harness/scripts/prepare-spec.ts",
-        "$TURBO_ROOT$/libs/harness/scripts/spec-sources.ts"
+        "$TURBO_ROOT$/libs/harness-ts/scripts/prepare-spec.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/spec-sources.ts"
       ],
       "env": ["FC_SEED", "PBT_RANDOM"],
       "outputs": [".cache/quint-draws/**"]
     },
     "//#task:spec:inputs": {
       "dependsOn": [
-        "@pkgs/quint-shared#src",
-        "@pkgs/gherkin-shared#src",
-        "@pkgs/openslo-shared#src",
-        "@pkgs/alloy-shared#src",
-        "@pkgs/dmn-shared#src"
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/gherkin-shared-ts#src",
+        "@pkgs/openslo-shared-ts#src",
+        "@pkgs/alloy-shared-ts#src",
+        "@pkgs/dmn-shared-ts#src"
       ],
       "inputs": [
         "specs/**",
         "apps/*/package.json",
         "libs/*/package.json",
         "pkgs/*/package.json",
-        "libs/harness/scripts/spec-inputs.ts",
-        "libs/harness/scripts/spec-sources.ts",
-        "libs/harness/scripts/spec-parts.ts",
-        "libs/harness/scripts/spec-verify-kinds.ts"
+        "libs/harness-ts/scripts/spec-inputs.ts",
+        "libs/harness-ts/scripts/spec-sources.ts",
+        "libs/harness-ts/scripts/spec-parts.ts",
+        "libs/harness-ts/scripts/spec-verify-kinds.ts"
       ],
       "outputs": [
         "apps/*/.cache/spec-inputs/**",
@@ -3142,8 +3165,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-64.json"
       ],
       "env": [
@@ -3163,8 +3186,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-65.json"
       ],
       "env": [
@@ -3184,8 +3207,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-66.json"
       ],
       "env": [
@@ -3205,8 +3228,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-67.json"
       ],
       "env": [
@@ -3226,8 +3249,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-68.json"
       ],
       "env": [
@@ -3247,8 +3270,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-69.json"
       ],
       "env": [
@@ -3268,8 +3291,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-70.json"
       ],
       "env": [
@@ -3289,8 +3312,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-71.json"
       ],
       "env": [
@@ -3310,13 +3333,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -3327,10 +3350,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:17": {
@@ -3338,13 +3361,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -3355,10 +3378,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:18": {
@@ -3366,13 +3389,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -3383,10 +3406,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:19": {
@@ -3394,13 +3417,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -3411,13 +3434,13 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
-    "@libs/runtime-server#schema:snapshot": {
+    "@libs/runtime-server-ts#schema:snapshot": {
       "cache": false
     },
     "verify:models:20": {
@@ -3425,13 +3448,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -3442,10 +3465,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "test:spec:72": {
@@ -3453,8 +3476,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-72.json"
       ],
       "env": [
@@ -3474,8 +3497,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-73.json"
       ],
       "env": [
@@ -3495,8 +3518,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-74.json"
       ],
       "env": [
@@ -3516,8 +3539,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-75.json"
       ],
       "env": [
@@ -3537,8 +3560,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-76.json"
       ],
       "env": [
@@ -3558,8 +3581,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-77.json"
       ],
       "env": [
@@ -3579,8 +3602,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-84.json"
       ],
       "env": [
@@ -3600,8 +3623,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-85.json"
       ],
       "env": [
@@ -3621,8 +3644,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-86.json"
       ],
       "env": [
@@ -3642,8 +3665,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-87.json"
       ],
       "env": [
@@ -3663,8 +3686,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-88.json"
       ],
       "env": [
@@ -3684,8 +3707,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-89.json"
       ],
       "env": [
@@ -3705,8 +3728,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-90.json"
       ],
       "env": [
@@ -3726,8 +3749,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-91.json"
       ],
       "env": [
@@ -3747,8 +3770,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-92.json"
       ],
       "env": [
@@ -3768,8 +3791,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-93.json"
       ],
       "env": [
@@ -3789,8 +3812,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-94.json"
       ],
       "env": [
@@ -3810,8 +3833,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-78.json"
       ],
       "env": [
@@ -3831,8 +3854,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-79.json"
       ],
       "env": [
@@ -3852,8 +3875,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-80.json"
       ],
       "env": [
@@ -3873,8 +3896,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-81.json"
       ],
       "env": [
@@ -3894,8 +3917,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-82.json"
       ],
       "env": [
@@ -3915,8 +3938,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/report-ready.ts",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-83.json"
       ],
       "env": [
@@ -3936,13 +3959,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -3953,10 +3976,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:9:0": {
@@ -3964,13 +3987,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -3981,10 +4004,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:9:1": {
@@ -3992,13 +4015,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -4009,10 +4032,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:9:2": {
@@ -4020,13 +4043,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -4037,10 +4060,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:9:3": {
@@ -4048,13 +4071,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -4065,10 +4088,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:9:4": {
@@ -4076,13 +4099,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -4093,10 +4116,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:9:5": {
@@ -4104,13 +4127,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -4121,10 +4144,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:9:6": {
@@ -4132,13 +4155,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -4149,10 +4172,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:9:7": {
@@ -4160,13 +4183,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -4177,10 +4200,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:9:8": {
@@ -4188,13 +4211,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -4205,10 +4228,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:9:9": {
@@ -4216,13 +4239,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -4233,10 +4256,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:9:10": {
@@ -4244,13 +4267,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -4261,10 +4284,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:9:11": {
@@ -4272,13 +4295,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -4289,10 +4312,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:9:12": {
@@ -4300,13 +4323,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -4317,10 +4340,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:9:13": {
@@ -4328,13 +4351,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -4345,10 +4368,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:9:14": {
@@ -4356,13 +4379,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -4373,10 +4396,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:9:15": {
@@ -4384,13 +4407,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -4401,10 +4424,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "test:unit:1": {
@@ -4434,13 +4457,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -4451,10 +4474,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:3:1": {
@@ -4462,13 +4485,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -4479,10 +4502,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:3:2": {
@@ -4490,13 +4513,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -4507,10 +4530,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:3:3": {
@@ -4518,13 +4541,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -4535,10 +4558,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:3:4": {
@@ -4546,13 +4569,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -4563,10 +4586,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     },
     "verify:models:3:5": {
@@ -4574,13 +4597,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -4591,10 +4614,10 @@
       ],
       "outputLogs": "errors-only",
       "dependsOn": [
-        "@pkgs/quint-server#src",
-        "@pkgs/quint-shared#src",
-        "@pkgs/conformance-server#src",
-        "@pkgs/conformance-shared#src"
+        "@pkgs/quint-server-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src"
       ]
     }
   }

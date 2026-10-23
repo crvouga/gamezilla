@@ -1,4 +1,0 @@
-{
-  "summary": "A retained position and its separate accepted-action list could disagree while gameplay silently continued from one and replay used the other. Reject that state through the injected replay contract before playing or reviewing it.",
-  "regressionTest": "libs/games-harness/tests/conformance/custom-games/retained-history.test.ts"
-}

@@ -1,4 +1,0 @@
-{
-  "summary": "Mockingbird Postgres accepts current_schema()::regnamespace but rejects the oid = regnamespace operator, so the KV relpersistence lookup failed during reconcile.",
-  "regressionTest": "libs/runtime-server/tests/mockingbird-reconcile.contract.test.ts"
-}

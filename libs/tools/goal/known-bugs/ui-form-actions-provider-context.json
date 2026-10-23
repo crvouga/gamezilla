@@ -1,4 +1,0 @@
-{
-  "summary": "Reading JSX action props in native submit and cancel handlers recreates translated labels outside their Solid provider and prevents saves.",
-  "regressionTest": "pkgs/ui-root-harness/tests/form-screen.test.tsx"
-}

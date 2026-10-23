@@ -1,4 +1,0 @@
-{
-  "summary": "The release screenshot contract launched headed Chrome on a runner without a display. Chrome closed its pipe before painting the 390 by 844 report frame. Run the snapshot renderer and its direct stylesheet probe in explicit headless mode.",
-  "regressionTest": "apps/product/tests/ui-quality-render.contract.test.ts"
-}

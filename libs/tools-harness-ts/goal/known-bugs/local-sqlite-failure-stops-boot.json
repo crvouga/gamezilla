@@ -1,0 +1,4 @@
+{
+  "summary": "The local SQLite cache could stop the app. Only a failed open fell back to a disposable database: a database that opened and then failed (corrupt or unreadable file, full disk, quota, a dead worker, a lost owner tab, a call that never returned) failed the schema migration, the engine connect or the next query, which ended on the boot error screen or went unanswered, and an open that hung showed the stuck-boot error after 15s. Every local database call now fails over once to a disposable database and the engine refetches into it; an open that outlasts 8s is abandoned for the disposable database.",
+  "regressionTest": "libs/app-root-client-ts/tests/local-database-failure.test.ts"
+}

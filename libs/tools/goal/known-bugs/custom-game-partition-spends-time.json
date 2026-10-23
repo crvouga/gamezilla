@@ -1,4 +1,0 @@
-{
-  "summary": "Losing a room connection reached the loopback transport only after a heartbeat; settling the offline view consumed time and let timed games or bots advance. Fabric network changes now notify live room sockets immediately.",
-  "regressionTest": "libs/games-harness/tests/quint/custom-game-play.binding.ts"
-}

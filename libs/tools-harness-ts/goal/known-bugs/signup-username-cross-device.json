@@ -1,0 +1,4 @@
+{
+  "summary": "Concurrent devices shared a process-global signup handle, causing one profile bootstrap to consume another device’s chosen name. Scope pending handles to the owning auth client.",
+  "regressionTest": "libs/auth-shared-ts/tests/pending-signup-username.test.ts"
+}

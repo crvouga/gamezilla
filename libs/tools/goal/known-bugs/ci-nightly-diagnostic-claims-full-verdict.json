@@ -1,4 +1,0 @@
-{
-  "summary": "A scoped Nightly diagnostic printed that every nightly group passed. Both logs and reports must identify the selected diagnostic scope.",
-  "regressionTest": "libs/tools/scripts/verify-profile.test.ts"
-}

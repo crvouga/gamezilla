@@ -1,0 +1,4 @@
+{
+  "summary": "Fuzz seed 1946865972 observed a 4900ms remaining formation retry after the normal Find action consumed 100ms awaiting acceptance. The committed retry was still exactly 5000ms after the search joined. Assert that unchanged absolute deadline rather than assuming fixture observation consumes no time.",
+  "regressionTest": "libs/games-harness-ts/tests/conformance/matchmaking/finding-an-opponent.test.ts"
+}

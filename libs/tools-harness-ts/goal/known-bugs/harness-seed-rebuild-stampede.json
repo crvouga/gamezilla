@@ -1,0 +1,4 @@
+{
+  "summary": "Several spec workers rebuilt the same harness database at once. A torn dump came back missing tables, so actor boot failed before the scenario could run. One worker rebuilds; the others wait and open that dump.",
+  "regressionTest": "pkgs/sql-client-root-harness-ts/tests/seed-rebuild-single-flight.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "The native Connect Four journey timed out waiting for enabled while its captured button had no disabled attribute and aria-disabled=false. Keep both nullable flags in one page evaluation and return a boolean readiness result instead of concurrent attribute round trips.",
-  "regressionTest": "pkgs/ui-testing-bun-webview-shared/tests/bun-webview-driver.test.ts"
-}

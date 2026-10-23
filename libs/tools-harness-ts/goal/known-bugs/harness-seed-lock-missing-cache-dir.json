@@ -1,0 +1,4 @@
+{
+  "summary": "The seed rebuild lock was created inside the package cache directory, which a fresh checkout does not have yet. The first harness to boot there failed before any scenario ran. The lock now creates its cache directory first.",
+  "regressionTest": "libs/harness-ts/tests/seed-rebuild-lock.contract.test.ts"
+}

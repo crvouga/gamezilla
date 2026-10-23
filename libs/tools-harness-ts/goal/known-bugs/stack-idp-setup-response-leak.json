@@ -1,0 +1,4 @@
+{
+  "summary": "Successful simulated sign-in account setup left each HTTP response body open. Release the unused body after each accepted setup request so repeated browser scenarios do not retain transport resources.",
+  "regressionTest": "libs/harness-ts/tests/stack-idp-response-lifecycle.test.ts"
+}

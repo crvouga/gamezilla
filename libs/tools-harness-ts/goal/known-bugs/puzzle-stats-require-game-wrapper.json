@@ -1,0 +1,4 @@
+{
+  "summary": "A new puzzle consumer lacks personal stats unless it copies a game-specific settings and route wrapper; recovery trace 2 cannot find settings-solo-count-stats.",
+  "regressionTest": "libs/games-harness-ts/tests/probes/solo-personal-stats.test.ts"
+}

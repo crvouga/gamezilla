@@ -1,4 +1,0 @@
-{
-  "summary": "On the two-core GitHub runner @apps/product#test took 358s of the 360s PR-gate deadline, so any change that invalidated it timed out. The Quint campaign typechecked every root and then simulated or tested the same roots, which typecheck again and fail on type errors. Each root is now compiled once, with the same coverage.",
-  "regressionTest": "apps/product/tests/quint/simulation.test.ts"
-}

@@ -1,4 +1,0 @@
-{
-  "summary": "SchemePreview labelled its panes LIGHT and DARK in all caps. They now read Light and Dark in sentence case in the footnote role.",
-  "regressionTest": "pkgs/ui-root-harness/tests/explorer.test.tsx"
-}

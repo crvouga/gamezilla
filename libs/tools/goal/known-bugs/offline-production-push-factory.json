@@ -1,4 +1,0 @@
-{
-  "summary": "The offline wrapper replaced production MQTT with an in-memory bus. Preserve the injected broker factory and its connection arguments while closing it offline.",
-  "regressionTest": "libs/app-root-client/tests/offline-client-env.test.ts"
-}

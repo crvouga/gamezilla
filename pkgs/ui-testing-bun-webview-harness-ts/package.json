@@ -1,0 +1,23 @@
+{
+  "name": "@pkgs/ui-testing-bun-webview-harness-ts",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@happy-dom/global-registrator": "catalog:",
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/property-shared-ts": "workspace:*",
+    "@pkgs/ui-testing-bun-webview-shared-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness",
+  "language": "typescript"
+}

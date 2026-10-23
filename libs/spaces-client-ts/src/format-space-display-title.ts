@@ -1,0 +1,25 @@
+import { resolveSpaceFallbackTitleParts } from '@libs/spaces-shared-ts/resolve-space-fallback-title-parts';
+
+type Translate = (
+  strings: TemplateStringsArray,
+  ...values: unknown[]
+) => string;
+
+/**
+ * Pure formatter for tests / non-UI callers.
+ * Prefer {@link useSpaceDisplayTitle} in UI so Lingui macros extract strings.
+ */
+export function formatSpaceDisplayTitle(
+  customTitle: string | null,
+  hostUsername: string | null | undefined,
+  t: Translate
+): string {
+  if (customTitle !== null && customTitle.length > 0) {
+    return customTitle;
+  }
+  const parts = resolveSpaceFallbackTitleParts(hostUsername);
+  if (parts.kind === 'host') {
+    return t`${parts.hostName}'s space`;
+  }
+  return t`Space`;
+}

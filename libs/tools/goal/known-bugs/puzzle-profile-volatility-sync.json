@@ -1,4 +1,0 @@
-{
-  "summary": "The profile snapshot omitted Glicko volatility, leaving another device with incomplete rating state. Fixed by syncing volatility_micros and comparing complete profiles after guest sign-in.",
-  "regressionTest": "libs/game-puzzle-shared/tests/puzzle-profile-query.test.ts"
-}

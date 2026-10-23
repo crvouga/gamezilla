@@ -1,4 +1,0 @@
-{
-  "summary": "Client boot awaited the background sync connection after local SQLite was ready. A pending connect kept the app behind the loading shell. Start sync without awaiting it so the local app opens immediately.",
-  "regressionTest": "libs/app-root-client/tests/local-database-boot.test.tsx"
-}

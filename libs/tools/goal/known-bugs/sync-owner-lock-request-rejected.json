@@ -1,4 +1,0 @@
-{
-  "summary": "A browser that rejected the Web Locks request (a sandboxed frame, a storage policy) left the sync owner lease pending forever, so an engine opening its own database never finished booting. Latent in the browser build, which injects its opener and so skips the lease; the lease now falls back to owning alone.",
-  "regressionTest": "libs/app-root-shared/tests/sync-owner-lock.test.ts"
-}

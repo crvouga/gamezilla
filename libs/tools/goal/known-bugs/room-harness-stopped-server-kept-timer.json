@@ -1,4 +1,0 @@
-{
-  "summary": "The room-crash fault disconnected players but left the old authoritative timer running, concealing missing schedule recovery. A stopped server now disposes its timer before advancing virtual time.",
-  "regressionTest": "pkgs/room-root-harness/tests/room-restart.test.ts"
-}

@@ -1,4 +1,0 @@
-{
-  "summary": "A newer push cancelled Verification's shards, but publish, close, and the verdict use if: always(), so they kept running and held the verification-<pr> concurrency group. The required verification on the new commit stayed queued and the PR stayed blocked. Fixed by skipping those jobs when the run is cancelled; a red shard is not a cancellation, so the report and the verdict still run.",
-  "regressionTest": "libs/tools/scripts/verify-workflow-cancel.test.ts"
-}

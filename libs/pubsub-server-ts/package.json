@@ -1,0 +1,35 @@
+{
+  "name": "@libs/pubsub-server-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@libs/app-config-shared-ts": "workspace:*",
+    "@libs/pubsub-shared-ts": "workspace:*",
+    "@libs/sub-shared-ts": "workspace:*",
+    "@pkgs/http-client-shared-ts": "workspace:*",
+    "@pkgs/pubsub-emqx-shared-ts": "workspace:*",
+    "@pkgs/pubsub-root-shared-ts": "workspace:*",
+    "@pkgs/secret-store-shared-ts": "workspace:*",
+    "jose": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "server",
+  "language": "typescript"
+}

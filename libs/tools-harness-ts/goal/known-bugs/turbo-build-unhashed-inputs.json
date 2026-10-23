@@ -1,0 +1,4 @@
+{
+  "summary": "Builds omitted baked-in commit hash/date, ANALYZE, toolchain pins and shared Lingui config from hashes. Offline-shell verification also hashed generated dist before its build dependency restored it. Hash source inputs and rely on the build dependency for generated output identity.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-cache.test.ts"
+}

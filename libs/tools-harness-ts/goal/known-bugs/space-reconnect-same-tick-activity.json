@@ -1,0 +1,4 @@
+{
+  "summary": "The space reconnection gesture required activity strictly newer than its previous stamp. Disconnecting and reconnecting at time 1000 with an already-current stamp of 1000 timed out despite successful recovery. Recovery must accept a stamp at the connection-return time while still waiting for older stamps to update.",
+  "regressionTest": "libs/spaces-harness-ts/tests/space-reconnect-activity.test.ts"
+}

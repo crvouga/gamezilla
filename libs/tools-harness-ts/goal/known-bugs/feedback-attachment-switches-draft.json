@@ -1,0 +1,4 @@
+{
+  "summary": "An attachment finishing after a new draft was selected could persist in the newly selected draft. Capture the initiating document and commit evidence only to that document.",
+  "regressionTest": "pkgs/feedback-harness-ts/tests/workspace-storage.contract.test.ts"
+}

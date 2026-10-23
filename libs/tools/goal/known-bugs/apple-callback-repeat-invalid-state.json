@@ -1,4 +1,0 @@
-{
-  "summary": "A second Sign in with Apple form post, after the callback had already minted an exchange code, could not find the state and answered invalid_state, so the browser never reached the app.",
-  "regressionTest": "pkgs/auth-inhouse-harness/tests/apple-callback-repeat.test.ts"
-}

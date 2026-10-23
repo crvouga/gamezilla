@@ -27,7 +27,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "bun run --filter @apps/client dev"
+args = "bun run --filter @apps/client-ts dev"
 waitForPort = 5173
 
 [workflows.workflow.metadata]
@@ -35,5 +35,5 @@ outputType = "webview"
 
 [deployment]
 deploymentTarget = "static"
-build = ["bun", "run", "--filter", "@apps/client", "build"]
-publicDir = "apps/client/dist"
+build = ["bun", "run", "--filter", "@apps/client-ts", "build"]
+publicDir = "apps/client-ts/dist"

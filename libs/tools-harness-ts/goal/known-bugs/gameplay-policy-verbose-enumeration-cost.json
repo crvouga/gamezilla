@@ -1,0 +1,4 @@
+{
+  "summary": "The pinned 200-case gameplay property (seed 629884306) took 5.288 seconds under concurrent type-checking and exceeded its unchanged five-second budget. Verbose chess move enumeration regenerated legal moves and position snapshots for every candidate. Score SAN candidates first and build snapshots only for the winning moves, preserving random consumption and LAN tie-breaking.",
+  "regressionTest": "libs/chess-rules-shared-ts/tests/automated-move-legality.test.ts"
+}

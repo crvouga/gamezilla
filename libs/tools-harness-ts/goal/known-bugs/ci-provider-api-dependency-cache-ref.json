@@ -1,0 +1,4 @@
+{
+  "summary": "Dependency caching assumed a branch ref that an earlier CI event omitted. The frozen dependency install runs whether or not a cache answers, and the dependency cache is an exact key over content alone, never a ref.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-cache.test.ts"
+}

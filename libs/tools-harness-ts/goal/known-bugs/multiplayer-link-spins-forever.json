@@ -1,0 +1,4 @@
+{
+  "summary": "Opening the multiplayer link spun forever when creating the person's space threw (e.g. 'This space already belongs to another account.'), when it produced no space id, or when the local space query never answered: the rejection was unhandled and nothing bounded the wait. Each try now ends within a 10 s deadline in the space, at the hosting limit, or in an error with Try again and Go to Spaces.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-link-attempt.test.ts"
+}

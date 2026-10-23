@@ -1,4 +1,0 @@
-{
-  "summary": "Live Custom Game journeys clicked Create game or Play a bot while a fresh space was still connecting, then timed out after the product correctly refused the choice. Wait for the visible connection notice to clear before the first online choice; preserve the disconnected start attempt in the offline scenario.",
-  "regressionTest": "libs/runtime-harness/tests/custom-game-journey-connection.test.ts"
-}

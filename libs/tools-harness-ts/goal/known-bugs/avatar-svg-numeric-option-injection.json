@@ -1,0 +1,4 @@
+{
+  "summary": "DiceBear initials 9.4.2 interpolates a numeric option string containing an image with an onerror handler into inline profile SVG. Upgrade the collection to 9.4.3 and pin the literal font-size/font-weight payload, with arbitrary attribute-prefix coverage.",
+  "regressionTest": "libs/profile-shared-ts/tests/avatar-svg-security.test.ts"
+}

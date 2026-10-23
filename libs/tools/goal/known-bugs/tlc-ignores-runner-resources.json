@@ -1,4 +1,0 @@
-{
-  "summary": "The complete Custom Game graph exceeded its unchanged 480-second CI deadline while TLC ran with one worker, a 512 MB heap and the default collector. Quint launches TLC directly, so the workflow's Apalache JVM_GC_ARGS never reached it. Temporal checks now use two workers, a 2 GB heap and the throughput collector; the regression checks the real verifier's resource banner and warning.",
-  "regressionTest": "pkgs/quint-server/tests/temporal.test.ts"
-}

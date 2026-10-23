@@ -1,0 +1,4 @@
+{
+  "summary": "Making Apalache's array map encoding the default caused assertion failures in the outside-accounts, membership-lifecycle and note-replication models. Keep the established default settings and make the alternative encoding an explicit opt-in for supported database contract models.",
+  "regressionTest": "pkgs/auth-root-harness-ts/tests/default-model-encoding.test.ts"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "Applying browser resolution conditions to the live Health server process made the AWS S3 client warning export a Symbol and prevented transport construction. Select the live world using Node conditions, while in-process browser specs retain their documented Solid preload.",
-  "regressionTest": "apps/product/scripts/health.test.ts"
-}

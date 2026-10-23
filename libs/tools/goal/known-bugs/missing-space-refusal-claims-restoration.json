@@ -1,4 +1,0 @@
-{
-  "summary": "An endSpace request rejected with SPACE_NOT_FOUND claimed the space was not ended and was restored on this device, contradicting its absence from the lobby. Missing-space refusals now explain the missing target and next action; generic refusals no longer promise restoration.",
-  "regressionTest": "libs/app-root-client/tests/refused-change-notice.test.tsx"
-}

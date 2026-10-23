@@ -1,0 +1,22 @@
+{
+  "name": "@pkgs/db-schema-root-harness-ts",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@pkgs/db-schema-root-shared-ts": "workspace:*",
+    "@pkgs/gherkin-shared-ts": "workspace:*",
+    "@pkgs/quint-server-ts": "workspace:*",
+    "@pkgs/quint-shared-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness",
+  "language": "typescript"
+}

@@ -1,4 +1,0 @@
-{
-  "summary": "The 200-case mate property at seed 424242 exhausted the coverage budget by rebuilding the same oracle board for every candidate move.",
-  "regressionTest": "libs/games-harness/tests/chess-puzzles/mate-objective-nightly.test.ts"
-}
