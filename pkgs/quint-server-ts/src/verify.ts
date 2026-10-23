@@ -60,6 +60,8 @@ export type VerifyOptions = {
   readonly encoding?: 'fun-arrays';
   /** Solver scheduling only; both modes check every reachable successor. */
   readonly invariantMode?: 'before' | 'after';
+  /** Translate Boolean conjunctions/disjunctions lazily; preserve their meaning. */
+  readonly shortCircuit?: boolean;
   /** Use concrete inference for models that have no polymorphic operators. */
   readonly inferPolymorphicTypes?: boolean;
   /** Run these phases of a split proof. The count must match the model. */
@@ -277,6 +279,9 @@ function verifyConfig(options: VerifyOptions, phase: VerifyPhase): string {
         phase.name === 'preservation'
           ? 'after'
           : 'before'),
+      ...(options.shortCircuit === undefined
+        ? {}
+        : { 'rewriter.shortCircuit': options.shortCircuit }),
       // Initialization already proved the candidate. Its reflexive check
       // under that same assumption adds no obligation to preservation.
       ...(phase.name === 'preservation'

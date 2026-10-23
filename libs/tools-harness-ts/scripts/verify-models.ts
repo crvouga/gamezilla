@@ -73,6 +73,7 @@ const SEPARATE_INDUCTION = /\bseparateInduction:\s*true\b/;
 const INDUCTION_CASE_GROUP_SIZE = /\binductionCaseGroupSize:\s*(\d+)/;
 const BOUNDED_INVARIANT_GROUP_SIZE = /\bboundedInvariantGroupSize:\s*(\d+)/;
 const CONCRETE_TYPES = /\binferPolymorphicTypes:\s*false\b/;
+const SHORT_CIRCUIT = /\bshortCircuit:\s*true\b/;
 const VERIFY_TIMEOUT_MS = /\bverifyTimeoutMs:\s*([\d_]+)/;
 
 export type ModelVerify = {
@@ -86,6 +87,7 @@ export type ModelVerify = {
   readonly inductionCaseGroupSize?: number;
   readonly boundedInvariantGroupSize?: number;
   readonly inferPolymorphicTypes?: false;
+  readonly shortCircuit?: true;
   /** A timeout is a failed obligation; improve the abstraction or proof strategy. */
   readonly timeoutMs: number;
 };
@@ -172,6 +174,9 @@ export function modelVerificationsFromBindings(
           : { boundedInvariantGroupSize: Number(boundedGroupSize) }),
         ...(binding !== null && CONCRETE_TYPES.test(binding)
           ? { inferPolymorphicTypes: false as const }
+          : {}),
+        ...(binding !== null && SHORT_CIRCUIT.test(binding)
+          ? { shortCircuit: true as const }
           : {}),
         ...(binding !== null && SEPARATE_INDUCTION.test(binding)
           ? { separateInduction: true as const }
@@ -300,29 +305,7 @@ async function verifyModel(
             specPath,
             invariants,
             maxSteps: verify.steps,
-            ...(verify.encoding === undefined
-              ? {}
-              : { encoding: verify.encoding }),
-            ...(verify.invariantMode === undefined
-              ? {}
-              : { invariantMode: verify.invariantMode }),
-            ...(verify.separateInduction === true
-              ? { separateInduction: true }
-              : {}),
-            ...(verify.inductionCaseGroupSize === undefined
-              ? {}
-              : { inductionCaseGroupSize: verify.inductionCaseGroupSize }),
-            ...(verify.boundedInvariantGroupSize === undefined
-              ? {}
-              : {
-                  boundedInvariantGroupSize: verify.boundedInvariantGroupSize,
-                }),
-            ...(verify.inferPolymorphicTypes === undefined
-              ? {}
-              : { inferPolymorphicTypes: verify.inferPolymorphicTypes }),
-            ...(verify.inductiveInvariant === null
-              ? {}
-              : { inductiveInvariant: verify.inductiveInvariant }),
+            ...solverStrategy(verify),
             ...(run.phase === null ? {} : { phase: run.phase }),
             outDir: join(run.reportDir, 'apalache', outName),
             timeoutMs: verify.timeoutMs,
@@ -356,6 +339,31 @@ async function verifyModel(
     `${result.ok ? 'ok  ' : 'FAIL'} ${verify.specUri} · ${strategy}${states}${took}`
   );
   return { verify, ok: result.ok, detail };
+}
+
+function solverStrategy(verify: ModelVerify) {
+  return {
+    ...(verify.encoding === undefined ? {} : { encoding: verify.encoding }),
+    ...(verify.invariantMode === undefined
+      ? {}
+      : { invariantMode: verify.invariantMode }),
+    ...(verify.shortCircuit === undefined
+      ? {}
+      : { shortCircuit: verify.shortCircuit }),
+    ...(verify.separateInduction === true ? { separateInduction: true } : {}),
+    ...(verify.inductionCaseGroupSize === undefined
+      ? {}
+      : { inductionCaseGroupSize: verify.inductionCaseGroupSize }),
+    ...(verify.boundedInvariantGroupSize === undefined
+      ? {}
+      : { boundedInvariantGroupSize: verify.boundedInvariantGroupSize }),
+    ...(verify.inferPolymorphicTypes === undefined
+      ? {}
+      : { inferPolymorphicTypes: verify.inferPolymorphicTypes }),
+    ...(verify.inductiveInvariant === null
+      ? {}
+      : { inductiveInvariant: verify.inductiveInvariant }),
+  };
 }
 
 function modelStrategy(

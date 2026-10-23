@@ -49,6 +49,28 @@ describe('verifyTimeoutOf', () => {
 });
 
 describe('modelVerifications', () => {
+  test('only an opted-in binding enables Boolean short-circuit translation', () => {
+    const verifications = modelVerificationsFromBindings(
+      ['specs/example/first.qnt', 'specs/example/second.qnt'],
+      new Map([
+        ['first', "model: 'first', verifySteps: 2, shortCircuit: true"],
+        ['second', "model: 'second', verifySteps: 2"],
+      ])
+    );
+    expect(verifications[0]).toEqual({
+      specUri: 'specs/example/first.qnt',
+      steps: 2,
+      timeoutMs: 240_000,
+      inductiveInvariant: null,
+      shortCircuit: true,
+    });
+    expect(verifications[1]).toEqual({
+      specUri: 'specs/example/second.qnt',
+      steps: 2,
+      timeoutMs: 240_000,
+      inductiveInvariant: null,
+    });
+  });
   test('username solver mode retains the original bound and deadline', () => {
     // regression: username-proof-solver-timeout
     const [verify] = modelVerificationsFromBindings(

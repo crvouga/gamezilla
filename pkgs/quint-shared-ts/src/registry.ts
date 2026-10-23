@@ -125,6 +125,8 @@ export type QuintBinding<W> = {
   readonly encoding?: 'fun-arrays';
   /** Check each enabled transition separately, or their combined successor. */
   readonly invariantMode?: 'before' | 'after';
+  /** Opt into equivalent lazy Boolean translation; retain every proof obligation. */
+  readonly shortCircuit?: boolean;
   /**
    * How far the world's clock moves between re-checks while it settles.
    * Default: the world's. A model whose state is a count of seconds keeps it

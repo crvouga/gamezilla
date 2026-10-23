@@ -18,6 +18,8 @@ bindQuintModel<QuintHarnessWorld>({
   inferPolymorphicTypes: false,
   encoding: 'fun-arrays',
   invariantMode: 'before',
+  // regression: quoridor-spatial-proof-expansion
+  shortCircuit: true,
   actions: {
     init: (w, picks) =>
       w.s.apply(
