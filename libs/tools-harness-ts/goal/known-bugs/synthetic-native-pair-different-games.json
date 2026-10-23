@@ -1,4 +1,4 @@
 {
   "summary": "Native two-user matchmaking fixtures independently chose Connect Four and chess, then waited forever to meet. Give fresh fixture peers the same seeded policy while preserving recovered checkpoints and production game diversity.",
-  "regressionTest": "apps/synthetic-population-worker-ts/tests/runtime-session.ts"
+  "regressionTest": "apps/synthetic-population-worker-ts/tests/session-handoff.test.ts"
 }

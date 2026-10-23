@@ -1,4 +1,4 @@
 {
   "summary": "Custom-game access decisions readied private-setup games without their required setup, so Battleship returned conflicts before access could be checked. Ready each participant with their known side's setup.",
-  "regressionTest": "libs/games-harness-ts/tests/dmn/custom-game-decision-operations.ts"
+  "regressionTest": "libs/games-harness-ts/tests/custom-game-decision-private-setup.test.ts"
 }
