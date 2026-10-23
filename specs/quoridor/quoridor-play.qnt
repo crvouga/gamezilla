@@ -216,8 +216,8 @@ module quoridor_play {
   val invPaths = not(_someBlocked(pawns, walls))
   /// Every wall is either on the board or still available to its player, and no inventory is negative.
   val invInventory = _PLAYERS.forall(p => remaining.get(p) >= 0) and _PLAYERS.fold(0, (total, p) => total + remaining.get(p)) + walls.size() == 20
-  /// Allowed choices advance the clockwise turn once, while refusals keep it.
-  val invTurns = turn == _roundTurn(_plies)
+  /// The game keeps its selected mode. Allowed choices advance the clockwise turn once, while refusals keep it.
+  val invTurns = mode == (if (HILL) "hill" else "classic") and turn == _roundTurn(_plies)
   /// A player wins exactly when their pawn reaches the goal, and at most one player has done so.
   val invVictory = and {
     _PLAYERS.forall(p => (winner == p) iff _goal(p, pawns.get(p))),
