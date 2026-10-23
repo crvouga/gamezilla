@@ -43,7 +43,7 @@ Feature: Publish stable puzzle editions
 
     Scenario: Repeated publication does not create another edition
       Given Alice has published the puzzle "River"
-      When Alice publishes that same saved draft again
+      When Alice publishes her puzzle draft
       Then Alice sees one published edition of "River"
 
     Scenario: An earlier publication cannot replace a later one
@@ -62,11 +62,11 @@ Feature: Publish stable puzzle editions
     Scenario: Another person cannot publish a private draft
       Given Alice owns a valid puzzle draft "River"
       When Bob publishes Alice's puzzle draft
-      Then Bob is told only the author may publish that puzzle
+      Then Bob is told only the author may change that puzzle
       And Bob cannot discover the puzzle "River"
 
     Scenario: Another person cannot withdraw a public puzzle
       Given Alice has published the puzzle "River"
       When Bob withdraws Alice's puzzle "River"
-      Then Bob is told only the author may withdraw that puzzle
+      Then Bob is told only the author may change that puzzle
       And Bob can discover the published puzzle "River"

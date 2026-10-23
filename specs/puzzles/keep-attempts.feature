@@ -74,13 +74,13 @@ Feature: Keep personal puzzle attempts
 
     Scenario: A saved attempt keeps its earlier edition after another publication
       Given Bob has made progress in the published puzzle "River"
-      And Alice has a valid working puzzle draft titled "Valley"
+      And Alice has a valid working draft titled "Valley"
       When Alice publishes her puzzle draft
       Then Bob can resume the same position at the earlier edition "River"
       And Bob can start the current puzzle edition "Valley" separately
 
     Scenario: A saved attempt remains playable after withdrawal
-      Given Bob has made progress in Alice's published puzzle "River"
+      Given Bob has made progress in the published puzzle "River"
       When Alice withdraws the puzzle "River"
       Then Bob can resume the same position at the earlier edition "River"
       And Bob cannot discover the puzzle "River"

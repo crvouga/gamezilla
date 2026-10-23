@@ -5,7 +5,7 @@ Feature: Publish packs with stable puzzle editions
   Rule: Every published pack contains available published puzzles of one game
 
     Scenario: A valid pack becomes discoverable with its ordered puzzles
-      Given Alice owns a valid pack draft "Rivers" containing "River, Valley"
+      Given Alice owns the pack draft "Rivers" containing "River, Valley"
       When Alice publishes her pack draft
       Then Bob can discover the pack "Rivers" with "River, Valley" in that order
 
@@ -31,26 +31,26 @@ Feature: Publish packs with stable puzzle editions
     No counter-example: updating a pack's chosen edition requires publishing a new pack edition.
 
     Scenario: An earlier pack stays unchanged when its puzzle is revised
-      Given Alice has published the pack "Rivers" choosing the puzzle edition "River"
-      And Alice has a valid working puzzle draft titled "Valley"
+      Given Alice has published the pack "Rivers" containing "River"
+      And Alice has a valid working draft titled "Valley"
       When Alice publishes her puzzle draft
       Then Bob's published pack still offers the puzzle edition "River"
-      And Bob can discover the standalone puzzle "Valley"
+      And Bob can discover the published puzzle "Valley"
 
     Scenario: Withdrawing a puzzle keeps its earlier published pack playable
-      Given Alice has published the pack "Rivers" choosing the puzzle edition "River"
+      Given Alice has published the pack "Rivers" containing "River"
       When Alice withdraws the puzzle "River"
       Then Bob's published pack still offers the puzzle edition "River"
-      And Bob cannot discover the standalone puzzle "River"
+      And Bob cannot discover the puzzle "River"
 
   Rule: A published pack's draft can be changed independently
     No counter-example: keeping the public order is the purpose of a working draft.
 
     Scenario: The published pack stays unchanged when its working draft is reordered
       Given Alice has published the pack "Rivers" containing "River, Valley"
-      When Alice moves "Valley" before "River" in its working pack draft
+      When Alice moves "Valley" before "River" in the pack draft
       Then Bob's published pack contains "River, Valley" in that order
-      And Alice's working pack draft contains "Valley, River" in that order
+      And the pack draft contains "Valley, River" in that order
 
     Scenario: Republishing the pack makes the new order current
       Given Alice has published the pack "Rivers" containing "River, Valley"

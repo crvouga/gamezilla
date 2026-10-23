@@ -44,7 +44,7 @@ terms:
       at an endpoint. It may be unfinished. Drawing a path for a pair
       replaces that pair's earlier path, while keeping other paths intact.
       A refused drawing keeps the whole board as it was.
-    forms: [paths, draws, drawing, redraws, removes, removal]
+    forms: [paths, draws, drawn, drawing, redraws, removes, removal]
   - term: join
     definition: Connect two horizontally or vertically neighboring cells of a path.
     forms: [joins, joining]

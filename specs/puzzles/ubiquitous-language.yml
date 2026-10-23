@@ -68,7 +68,6 @@ terms:
       changes afterward. A new publication makes a new edition current;
       existing attempts and published packs keep the edition they chose.
     forms: [editions, current edition, earlier edition, published edition, published editions]
-    published: true
   - term: withdraw
     definition: >-
       Remove a puzzle or pack from public discovery without deleting
@@ -99,7 +98,6 @@ terms:
       two devices continue the same earlier position differently, both
       continuations remain available rather than overwriting each other.
     forms: [attempts, saved attempt, saved attempts]
-    published: true
   - term: start a puzzle
     definition: Begin an attempt at an available edition, independently or through a pack.
     forms: [starts the puzzle, starts a puzzle, started the puzzle]
@@ -122,7 +120,6 @@ terms:
       attempts finish it. Undoing, restarting, withdrawal and later
       publications never erase it. Playtests do not count.
     forms: [complete, completed, completes, unfinished]
-    published: true
   - term: pack progress
     definition: >-
       Which of a pack edition's chosen puzzle editions are unplayed,

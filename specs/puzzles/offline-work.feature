@@ -18,7 +18,7 @@ Feature: Keep puzzle work without a connection
     Scenario: A pack's changed order remains after reopening offline
       Given Alice has saved the pack order "Valley, River" on her offline phone
       When Alice reopens the app
-      Then Alice's pack draft contains "Valley, River" in that order
+      Then the pack draft contains "Valley, River" in that order
 
   Rule: Previously available play remains usable offline
 

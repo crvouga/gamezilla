@@ -16,8 +16,9 @@ Feature: Continue and complete puzzle packs
       And Bob is offered "Valley" as the next puzzle
 
     Scenario: Repeating a completed puzzle never increases its completion count
-      Given Bob has already completed "River" in the published pack "Rivers" containing "River, Valley"
-      When Bob completes another attempt at "River"
+      Given Bob has completed "River" in the published pack "Rivers" containing "River, Valley"
+      And Bob has restarted the puzzle "River"
+      When Bob completes that puzzle
       Then Bob sees one completed puzzle out of two in "Rivers"
 
   Rule: Continuing returns to the last active unfinished puzzle

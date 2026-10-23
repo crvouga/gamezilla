@@ -1,9 +1,9 @@
 # Shared puzzle specification audit
 
 Date: 2026-10-23. Context: Puzzles (`specs/puzzles/`).
-Verdict: INCOMPLETE. New steps are undefined for the implementation handoff;
-critical aggregate models and their coverage maps remain required. The strict
-gate additionally reports existing near-duplicate wording in other contexts.
+Verdict: INCOMPLETE. All 66 scenarios have executable bindings; critical
+aggregate models and their coverage maps remain required. The strict gate
+additionally reports existing near-duplicate wording in other contexts.
 This is not a release or completion claim.
 
 ## Example map
@@ -48,6 +48,13 @@ and control terms. No new product boundary value is invented here.
 
 ## Aggregate coverage still required
 
+The terminology audit keeps generic completion, attempt and edition words
+local to Puzzles: they do not redefine unrelated contexts' ordinary uses.
+Repeated setup and observation phrases reuse the existing catalog wording.
+The repeated-completion example states that a new attempt has already started
+before its single completion action. Numberlink's `drawn` form belongs to a
+path, rather than to Chess's tied result.
+
 | Aggregate | Commands and transitions to model | Required invariants |
 | --- | --- | --- |
 | Puzzle publication | Create, edit, validate, publish, repeat publication, withdraw, reconnect | Valid editions; immutable earlier content; owner-only publication; no extra edition from a repeated publication |
@@ -58,3 +65,17 @@ and control terms. No new product boundary value is invented here.
 Each model needs its own C1–C6 coverage map and implementation replay before
 this audit can pass. Shared behavior will be tested through a single reusable
 harness composition, with the real Numberlink app workflows covered as well.
+
+## Wording correction audit
+
+- A4: completion, attempt and edition remain local, avoiding false ownership
+  of generic prose in other contexts. Numberlink declares the existing path
+  word's `drawn` inflection. No term or behavior has been added.
+- B7: repeating a completed puzzle now states the restarted attempt in a
+  Given; the When only completes it.
+- B14: shared pack setup, puzzle discovery, draft-order observations and
+  owner refusals reuse existing phrases. No outcome was removed.
+- D4 handoff: delete the superseded step definitions and bind the new
+  restarted-attempt Given. Re-run the 66 scenarios after rebinding.
+- C6: all eight capability features remain unmodelled pending the four
+  critical aggregate models above. This is still an incomplete audit.
