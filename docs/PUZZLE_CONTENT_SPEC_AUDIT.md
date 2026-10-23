@@ -1,8 +1,9 @@
 # Shared puzzle specification audit
 
 Date: 2026-10-23. Context: Puzzles (`specs/puzzles/`).
-Verdict: INCOMPLETE. All 66 scenarios have executable bindings; critical
-aggregate models and their coverage maps remain required. The strict gate
+Verdict: INCOMPLETE. The original 66 lifecycle scenarios have executable
+bindings; two kept-copy examples await binding. Critical aggregate models
+and their coverage maps remain required. The strict gate
 additionally reports existing near-duplicate wording in other contexts.
 This is not a release or completion claim.
 
@@ -85,6 +86,17 @@ scenarios and seven decision-table checks pass together, and the standard
 spec gate passes. The strict gate still reports the existing wording
 duplicates outside Puzzles. Critical aggregate models remain open, so the
 context's verdict remains INCOMPLETE.
+
+## Choosing kept work
+
+The authoring feature adds a successful choice of a kept copy and a refusal
+when someone else chooses it. Existing title and kept-copy observations are
+reused. One new setup fact describes two kept copies; the two new commands
+name who chooses one. The author can continue the chosen content while both
+sources remain available. Identity reuse, an intervening newer draft and a
+repeated old choice are transaction/model checks, rather than new product
+prose. The new command still needs the publication aggregate's lifecycle
+model and coverage map. This does not close the context audit.
 
 ## Wording correction audit
 

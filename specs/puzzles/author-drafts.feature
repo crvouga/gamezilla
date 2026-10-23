@@ -43,6 +43,12 @@ Feature: Author private puzzle drafts
       Then Bob is told only the author may change that puzzle
       And Alice's puzzle draft is still titled "River"
 
+    Scenario: Another person cannot choose the author's kept copy
+      Given Alice owns the puzzle draft "River"
+      When Bob chooses Alice's draft copy "River"
+      Then Bob is told only the author may change that puzzle
+      And Alice's puzzle draft is still titled "River"
+
   Rule: Different edits made from an earlier draft both remain recoverable
     No counter-example: agreeing edits may share one result, but neither person's different work may disappear.
 
@@ -52,3 +58,9 @@ Feature: Author private puzzle drafts
       When Alice saves the title "Harbor" from her tablet's earlier draft
       Then Alice can choose the draft copy "Valley" or "Harbor"
       And Alice is told both draft copies were kept
+
+    Scenario: Choosing a kept copy makes it the working draft
+      Given Alice has kept the draft copies "Valley" and "Harbor"
+      When Alice chooses the draft copy "Harbor"
+      Then Alice has a private puzzle draft titled "Harbor"
+      And Alice can choose the draft copy "Valley" or "Harbor"
