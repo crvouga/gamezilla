@@ -56,7 +56,6 @@
   },
   "devDependencies": {
     "@libs/app-config-shared-ts": "workspace:*",
-    "@libs/auth-shared-ts": "workspace:*",
     "@libs/chess-puzzle-server-ts": "workspace:*",
     "@libs/db-server-ts": "workspace:*",
     "@libs/games-shared-ts": "workspace:*",
