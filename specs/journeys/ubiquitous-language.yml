@@ -88,3 +88,10 @@ terms:
 
   - term: Battleship
     from: battleship
+
+  - term: Quoridor
+    from: quoridor
+  - term: Classic Quoridor
+    from: quoridor
+  - term: Four-Player King of the Hill
+    from: quoridor

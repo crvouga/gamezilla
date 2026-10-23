@@ -16,6 +16,7 @@ terms:
       with ten walls each. South plays first. The first pawn on the row
       opposite its home row wins immediately.
     forms: [Classic]
+    published: true
   - term: Four-Player King of the Hill
     definition: >-
       The app's Quoridor variant for four players, South, West, North and
@@ -24,6 +25,7 @@ terms:
       e5. The first pawn to reach it wins immediately, without waiting
       there. Every wall must leave every player a path to e5.
     forms: [King of the Hill, hill mode]
+    published: true
   - term: mode
     definition: Either Classic Quoridor or Four-Player King of the Hill.
     forms: [modes]

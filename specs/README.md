@@ -1159,6 +1159,7 @@ Friends, Spaces ──► Developer tools (friend, space)
 Matchmaking ──► Chess (a complete matchmaking match), Games (pair people up)
 Chess    ──► Journeys (a game of chess, a puzzle, multiplayer chess, a Custom Game)
 Battleship ──► Journeys (Battleship)
+Quoridor ──► Journeys (Quoridor, Classic Quoridor, Four-Player King of the Hill)
 Games    ──► Connect Four (game), Battleship (game, custom game)
 Games    ──► Quoridor (game, custom game)
 App      ──► Quoridor (keyboard, control)
@@ -1178,7 +1179,7 @@ Published language:
 | Games (`games`) | game, the game's choices, custom game | — |
 | Connect Four (`connect-four`) | Connect Four | — |
 | Battleship (`battleship`) | Battleship | — |
-| Quoridor (`quoridor`) | Quoridor | — |
+| Quoridor (`quoridor`) | Quoridor, Classic Quoridor, Four-Player King of the Hill | — |
 | App (`runtime`) | Settings, tabs, address, version of the app, trail, run into trouble, keyboard, control, place in the app | — |
 | Developer tools (`developer-tools`) | the testing tool | — |
 | Matchmaking (`matchmaking`) | matchmaking match, pair people up | `MatchmakingEvent`: `MatchFormed` |
