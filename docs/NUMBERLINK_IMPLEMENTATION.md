@@ -80,5 +80,9 @@ inferred from this ledger or from a narrow test run.
   the same capability beside its multiplayer capabilities. A test-only
   Sokoban corridor exercises push-based opaque states through the contract.
   Main registries, client registration and shared authoring remain unfinished.
-- A full `bun verify` is running in an isolated snapshot. Its result has not
-  been established; do not infer a full pass from the targeted checks.
+- The first full `bun verify` stopped after 100 successful tasks on
+  `@libs/battleship-harness-ts#verify:models:1:4`: the bounded `invFinality`
+  proof returned no verdict within 240 seconds. It found no counterexample.
+  Diagnostics were archived under the runner's `verify-run-BqTzmB` directory.
+  The observability lookup found no matching model trace. This gate still
+  needs a successful verdict before completion.
