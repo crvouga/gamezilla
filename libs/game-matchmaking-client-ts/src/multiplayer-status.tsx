@@ -26,7 +26,7 @@ import { useShownName } from './use-shown-name';
 type StatusProps = {
   readonly game: MultiplayerGame;
   readonly viewer: MultiplayerViewer;
-  /** The winner's name, for a watcher. */
+  /** The winner's name, for a watcher or another participant. */
   readonly winnerName: string;
   /** The clock that is low on time, if one is. */
   readonly lowOnTime: LowOnTime | null;
@@ -49,6 +49,9 @@ function PlayerResult(props: StatusProps): JSX.Element {
       <Match when={won()}>
         <Trans>You won the multiplayer game.</Trans>
       </Match>
+      <Match when={multiplayerSides(props.game).length > 2}>
+        <Trans>{props.winnerName} won the multiplayer game.</Trans>
+      </Match>
       <Match when={!won()}>
         <Trans>Your opponent won the multiplayer game.</Trans>
       </Match>
@@ -62,24 +65,43 @@ function PlayerResult(props: StatusProps): JSX.Element {
  */
 function PlayerHeadline(props: StatusProps): JSX.Element {
   const gameSideLabel = useGameSideLabel();
+  const turnName = useShownName(() => props.game.turn);
+  const count = () => multiplayerSides(props.game).length;
   return (
     <Show
       when={props.game.outcome === 'ongoing'}
       fallback={<PlayerResult {...props} />}
     >
       <VisuallyHidden>
-        <Trans>
-          Matched with {props.viewer.opponentName}, rated{' '}
-          {props.viewer.opponentRating}, at{' '}
-          {timeControlText(props.game.time_control)}.
-        </Trans>{' '}
+        <Show
+          when={count() > 2}
+          fallback={
+            <Trans>
+              Matched with {props.viewer.opponentName}, rated{' '}
+              {props.viewer.opponentRating}, at{' '}
+              {timeControlText(props.game.time_control)}.
+            </Trans>
+          }
+        >
+          <Trans>
+            A multiplayer game for {count()} players at{' '}
+            {timeControlText(props.game.time_control)}.
+          </Trans>
+        </Show>{' '}
         <Trans>
           You are {gameSideLabel(props.game.fen, ownSide(props))}.
         </Trans>{' '}
       </VisuallyHidden>
       <Show
         when={props.game.turn === props.viewer.myId}
-        fallback={<Trans>Your opponent's turn.</Trans>}
+        fallback={
+          <Show
+            when={count() > 2}
+            fallback={<Trans>Your opponent's turn.</Trans>}
+          >
+            <Trans>{turnName()}'s turn.</Trans>
+          </Show>
+        }
       >
         <Trans>Your turn.</Trans>
       </Show>
@@ -89,9 +111,19 @@ function PlayerHeadline(props: StatusProps): JSX.Element {
 
 function WatcherHeadline(props: StatusProps): JSX.Element {
   const presentation = useGamePresentation();
+  const turnName = useShownName(() => props.game.turn);
   return (
     <>
       <Trans>Watching multiplayer {presentation(props.game.fen).name()}.</Trans>
+      <Show
+        when={
+          props.game.outcome === 'ongoing' &&
+          multiplayerSides(props.game).length > 2
+        }
+      >
+        {' '}
+        <Trans>{turnName()}'s turn.</Trans>
+      </Show>
       <Show
         when={multiplayerSides(props.game).includes(
           props.game.outcome as ReturnType<typeof ownSide>

@@ -1,0 +1,4 @@
+{
+  "summary": "A four-seat participant heard only a single opponent's turn or victory, so a listener could not identify the active person or actual winner. Announce the corresponding participant's visible name while preserving the two-seat wording.",
+  "regressionTest": "libs/games-harness-ts/tests/multiseat-feedback.test.ts"
+}
