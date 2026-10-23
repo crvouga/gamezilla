@@ -35,7 +35,7 @@ Before changing code:
 
 ### Verification and reporting
 
-Follow the existing Gherkin/BDD, Quint, property-based testing, deterministic simulation, integration, and E2E conventions. Keep specifications in the repository's established domain-oriented `specs/` layout. Use the real implementation beneath test drivers; do not replace the framework or sync engine with a simplified test-only implementation.
+Follow the existing Gherkin/BDD, Quint, property-based testing, deterministic simulation, integration, and harness conventions. Keep specifications in the repository's established domain-oriented `specs/` layout. Use the real implementation beneath test drivers; do not replace the framework or sync engine with a simplified test-only implementation.
 
 Use Quint for finite abstractions of the relevant lifecycle and protocol. State exploration bounds and fairness/network assumptions. Connect meaningful model actions and observations to implementation tests where supported. Model checking a specification is not proof that the TypeScript implementation is correct; do not describe it that way.
 
@@ -167,7 +167,7 @@ Profile editor and player behavior at documented board/resource limits. Keep sol
 2. **Puzzle framework refinement.** Implement/migrate shared definition, editor/player, validation/evidence, and revision contracts where required. Exit: Numberlink regressions and shared contract tests pass; no game-specific fork is introduced.
 3. **Sokoban vertical slice.** Build deterministic rules, renderer, input, undo/redo, local attempts, and the editor/playtest adapter. Exit: create and solve a local draft through the real shared UI.
 4. **Publishing and packs.** Integrate verified witnesses, immutable revisions, pack building, discovery, navigation, and original starter content. Exit: one author publishes a pack and a second user plays it end to end.
-5. **Offline, conflicts, and hardening.** Complete sync/recovery, permissions, bounded models, BDD/PBT/DST/E2E, and performance checks. Exit: durable progress and drafts survive restart, disconnect, retry, and content revision without silent data loss.
+5. **Offline, conflicts, and hardening.** Complete sync/recovery, permissions, bounded models, BDD/PBT/DST/integration harness, and performance checks. Exit: durable progress and drafts survive restart, disconnect, retry, and content revision without silent data loss.
 
 ## 9. Definition of done
 

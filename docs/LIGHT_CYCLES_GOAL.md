@@ -35,7 +35,7 @@ Before changing code:
 
 ### Verification and reporting
 
-Follow the existing Gherkin/BDD, Quint, property-based testing, deterministic simulation, integration, and E2E conventions. Keep specifications in the repository's established domain-oriented `specs/` layout. Use the real implementation beneath test drivers; do not replace the framework or sync engine with a simplified test-only implementation.
+Follow the existing Gherkin/BDD, Quint, property-based testing, deterministic simulation, integration, and harness conventions. Keep specifications in the repository's established domain-oriented `specs/` layout. Use the real implementation beneath test drivers; do not replace the framework or sync engine with a simplified test-only implementation.
 
 Use Quint for finite abstractions of the relevant lifecycle and protocol. State exploration bounds and fairness/network assumptions. Connect meaningful model actions and observations to implementation tests where supported. Model checking a specification is not proof that the TypeScript implementation is correct; do not describe it that way.
 
@@ -165,7 +165,7 @@ Add resource-lifecycle tests that repeatedly create, play, rematch, and dispose 
 2. **Shared real-time refinement.** Support variable participants, game-appropriate input semantics, round epochs, spectator state, and lifecycle cleanup where missing. Migrate Pong where applicable. Exit: shared contracts and existing consumers pass without Light Cycles special cases.
 3. **Deterministic local slice.** Implement integer-cell rules, bots, rendering, controls, and complete local rounds/matches. Exit: simultaneous-collision and iteration-order properties pass through the real execution host.
 4. **Four-player online slice.** Integrate custom rooms, matchmaking, state delivery, spectators, reconnects, and visible handoffs. Exit: a four-client match and late spectator work end to end under normal network conditions.
-5. **Fault and load hardening.** Run DST/model/PBT/BDD/E2E, instrument scheduling/bandwidth, verify cleanup and rematches, and remove redundant infrastructure. Exit: failures replay deterministically and bounded resource behavior is measured.
+5. **Fault and load hardening.** Run DST/model/PBT/BDD/integration harness, instrument scheduling/bandwidth, verify cleanup and rematches, and remove redundant infrastructure. Exit: failures replay deterministically and bounded resource behavior is measured.
 
 ## 8. Definition of done
 

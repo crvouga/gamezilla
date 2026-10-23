@@ -35,7 +35,7 @@ Before changing code:
 
 ### Verification and reporting
 
-Follow the existing Gherkin/BDD, Quint, property-based testing, deterministic simulation, integration, and E2E conventions. Keep specifications in the repository's established domain-oriented `specs/` layout. Use the real implementation beneath test drivers; do not replace the framework or sync engine with a simplified test-only implementation.
+Follow the existing Gherkin/BDD, Quint, property-based testing, deterministic simulation, integration, and harness conventions. Keep specifications in the repository's established domain-oriented `specs/` layout. Use the real implementation beneath test drivers; do not replace the framework or sync engine with a simplified test-only implementation.
 
 Use Quint for finite abstractions of the relevant lifecycle and protocol. State exploration bounds and fairness/network assumptions. Connect meaningful model actions and observations to implementation tests where supported. Model checking a specification is not proof that the TypeScript implementation is correct; do not describe it that way.
 
@@ -138,7 +138,7 @@ Model seating/control, private commit barriers, phase progression, and result id
 2. **Shared multiplayer hardening.** Implement only the necessary seat, observation, phase, controller, and result changes; migrate affected consumers. Exit: existing two-player games still pass and four-seat/private-view contract tests pass.
 3. **Hearts vertical slice.** Implement rules, bots, table UI, and a complete offline match using the real shared lifecycle. Exit: all deal/passing/scoring paths execute deterministically through the application.
 4. **Online integration.** Add real custom tables, existing matchmaking, scoped delivery, spectators, reconnects, and controller handoffs. Exit: four-client end-to-end play works without private-data leakage or stalled abandoned seats.
-5. **Hardening and cleanup.** Run BDD, PBT, DST, bounded models, integration/E2E, and regressions. Remove superseded code and document the next-game extension points. Exit: the evidence below is present.
+5. **Hardening and cleanup.** Run BDD, PBT, DST, bounded models, integration harness, and regressions. Remove superseded code and document the next-game extension points. Exit: the evidence below is present.
 
 ## 7. Definition of done
 
