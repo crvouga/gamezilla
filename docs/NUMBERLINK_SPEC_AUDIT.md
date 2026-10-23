@@ -3,9 +3,9 @@
 Date: 2026-10-23.
 Scope: `specs/numberlink/` and its rule-harness bindings.
 Verdict: INCOMPLETE. The strict whole-repository gate reports existing
-near-duplicate steps in other domains. Numberlink's new steps were initially
-undefined, as required for the implementation handoff. No scope-complete
-verification or release claim is made here.
+near-duplicate steps in other domains. The Numberlink context is still
+unmodelled (warning). All 19 new rule scenarios now pass after their initial
+undefined-step run. No assembled-app verification or release claim is made here.
 
 ## Example map
 
@@ -41,6 +41,14 @@ meanings, distinct from entering or closing a space.
   exhaustive solver agreement and serialization remain property/code tests.
 - P3: both features ran through the repository runner before bindings existed:
   19 failed, zero passed, each on an undefined step; no compile/setup failure.
+- D2–D5: bindings call exported deterministic harness actions and reads. Setup
+  facts have separate wording from assertions. Steps contain no SQL, transport,
+  selectors or rule computations. The world records actions through one
+  `defineSystem` with virtual time.
+
+Current rule evidence: the context has 19 passing scenarios and no failures;
+its harness and rule packages pass typechecking and lint. The changed core
+framework packages' existing tests pass as part of 15 successful Turbo tasks.
 
 ## Coverage still required
 

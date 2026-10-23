@@ -43,7 +43,7 @@ unfinished work; it is not a second product definition.
   ownership, offline/recovery, Numberlink rules, and complete app journeys.
 - [ ] Quint lifecycle models with implementation replay and invariants for
   publication, stable references, attempts and progression.
-- [ ] Numberlink definitions, path rules, codecs, bounded solver and properties.
+- [x] Numberlink definitions, path rules, codecs, bounded solver and properties.
 - [ ] Independent puzzle capabilities in shared game and client registration;
   composable with existing turn games, with a structurally different consumer.
 - [ ] Shared content persistence, permission policy, mutation validation,
@@ -65,3 +65,20 @@ unfinished work; it is not a second product definition.
 
 Completion must be audited against every section of the request, rather than
 inferred from this ledger or from a narrow test run.
+
+## Current evidence
+
+- Numberlink's 19 path and completion scenarios were undefined before binding
+  and now pass through the repository's Gherkin runner and deterministic
+  rule harness. These are domain-rule checks, not assembled-app checks.
+- Changed framework packages passed 15 Turbo tasks covering typechecking,
+  lint, code tests and the Numberlink spec part. Properties cover malformed
+  external data, state/definition codecs, conserved cells, atomic gestures,
+  solver witnesses and comparison with independent small-board enumeration.
+- The opaque `PuzzleContent` contract and branded `defineGame` registration
+  accept a standalone Numberlink definition. `defineTurnGame` can also supply
+  the same capability beside its multiplayer capabilities. A test-only
+  Sokoban corridor exercises push-based opaque states through the contract.
+  Main registries, client registration and shared authoring remain unfinished.
+- A full `bun verify` is running in an isolated snapshot. Its result has not
+  been established; do not infer a full pass from the targeted checks.

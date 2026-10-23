@@ -16,6 +16,7 @@ import type {
   RegisteredTurnGame,
   TurnGames,
 } from '@pkgs/turn-game-shared-ts/game-rules';
+import type { PuzzleContent } from '@pkgs/turn-game-shared-ts/puzzle-content';
 import type { Random } from '@pkgs/uuid-shared-ts/create-id';
 import type { JSX } from 'solid-js';
 
@@ -136,6 +137,8 @@ export type GameDefinition = GameOwnRoom & {
   readonly id: string;
   readonly automation?: GameAutomation<never>;
   readonly turnGame?: RegisteredTurnGame;
+  /** Authorable puzzles, independently of turn games and their rated feeds. */
+  readonly puzzleContent?: PuzzleContent;
   /** Shared modules the game is played through, installed once per space. */
   readonly sharedModules?: readonly SharedGameModule[];
   /** Independent rooms shared by spaces playing a matched game. */
