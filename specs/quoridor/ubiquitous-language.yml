@@ -148,9 +148,9 @@ terms:
     from: games
   - term: custom game
     from: games
-  - term: ready
+  - term: custom game readiness
     from: games
-  - term: start
+  - term: start a custom game
     from: games
   - term: space
     from: spaces

@@ -70,11 +70,11 @@ terms:
     forms: [sets up, setting up, being set up, set-up]
     model: [SettingUp]
 
-  - term: ready
+  - term: custom game readiness
     published: true
     definition: >-
-      A person in a custom game agreeing to its current set-up before it
-      starts. Any change to the sides or the clock choice leaves every
+      Agreement to a custom game's current set-up by a person playing in it
+      before it starts. Any change to the sides or the clock choice leaves every
       person not ready; a bot needs no agreement. A person may withdraw
       readiness until the custom game starts. In a game with a private
       setup, becoming ready also needs a complete private setup and confirms
@@ -82,12 +82,10 @@ terms:
       readiness lets them change it again. In a matched game of such a game,
       a person is ready once they choose their private setup.
     forms:
-      - readiness
-      - not ready
-      - no longer ready
-      - becomes ready
-      - become ready
-      - withdraws readiness
+      - game readiness
+      - ready for a custom game
+      - ready for the custom game
+      - ready players
     model: [ready, readyShown, becomeReady, becomeUnready]
 
   - term: private setup
@@ -165,14 +163,14 @@ terms:
       of the private setup; a refused move reveals nothing.
     forms: [reveals, revealed, what play revealed]
 
-  - term: start
+  - term: start a custom game
     definition: >-
       Begin a custom game once every declared side has a participant and every
       person in it is ready, which only its creator does. It starts from the
       game's starting position with the first side to move, and it starts
       once however often the creator asks; a start for an earlier set-up is
       refused.
-    forms: [starts, started, starting, startable, can start, cannot start]
+    forms: [starts the custom game, starts a custom game, starting a custom game, starting the custom game]
     model: [startGame, started, startsShown]
     published: true
 
