@@ -68,25 +68,25 @@ module quoridor_play {
       connections.get(square).exists(other => seen.contains(other)))
   pure def _atMostOneWall(placed: Set[(int, int, int)]): bool =
     placed.forall(first => placed.forall(second => first == second))
-  pure def _atMostTwoWalls(placed: Set[(int, int, int)]): bool =
-    placed.forall(first => placed.forall(second => placed.forall(third =>
-      first == second or first == third or second == third)))
   pure def _boxed(region: Set[int], placed: Set[(int, int, int)]): bool =
     region.forall(square => _neighbors(square).exclude(region).forall(other => _blocked(square, other, placed)))
   pure def _smallReachable(m: str, player: int, start: int, placed: Set[(int, int, int)]): bool =
     CELLS.contains(start) and not(_CORNER_REGIONS.exists(region =>
       region.contains(start) and not(region.exists(square => _goal(m, player, square))) and _boxed(region, placed)))
-  pure def _reachable(m: str, player: int, start: int, placed: Set[(int, int, int)], connections: int -> Set[int]): bool =
-    // One wall removes only two parallel boundaries; every square can still go around it.
-    if (_atMostOneWall(placed)) CELLS.contains(start)
-    // Two walls can separate only a corner rectangle no more than two squares wide and high.
-    else if (_atMostTwoWalls(placed)) _smallReachable(m, player, start, placed)
-    else {
+  pure def _fullReachable(m: str, player: int, start: int, connections: int -> Set[int]): bool = {
     val reachable = 0.to(80).fold(Set(start), (seen, _) =>
       if (seen.exists(c => _goal(m, player, c))) seen
       else _expandReachable(seen, connections))
     reachable.exists(c => _goal(m, player, c))
   }
+  pure def _reachable(m: str, player: int, start: int, placed: Set[(int, int, int)], connections: int -> Set[int]): bool =
+    // One wall removes only two parallel boundaries; every square can still go around it.
+    if (_atMostOneWall(placed)) CELLS.contains(start)
+    // Two walls can separate only a corner rectangle no more than two squares wide and high.
+    else or {
+      placed.size() >= 3 and _fullReachable(m, player, start, connections),
+      placed.size() < 3 and _smallReachable(m, player, start, placed),
+    }
   pure def _allPaths(m: str, positions: int -> int, placed: Set[(int, int, int)]): bool = {
     val connections = _connections(placed)
     _players(m).forall(player => _reachable(m, player, positions.get(player), placed, connections))
