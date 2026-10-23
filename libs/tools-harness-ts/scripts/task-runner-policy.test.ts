@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
@@ -183,11 +184,40 @@ describe('this repository', () => {
     expect(violations).toEqual([]);
   });
 
+  // regression: generated-source-tracked
+  test('generated source is ignored and rebuilt at install', () => {
+    const ignored = readFileSync(join(REPO_ROOT, '.gitignore'), 'utf8').split(
+      '\n'
+    );
+    const outputs = [
+      'pkgs/ui-root-client-ts/src/tokens.css',
+      'pkgs/ui-root-shared-ts/src/token-names.ts',
+      'pkgs/sounds-shared-ts/src/sound-id.ts',
+      'pkgs/sounds-shared-ts/src/sound-urls.ts',
+      'pkgs/sounds-shared-ts/src/sound-volumes.ts',
+    ];
+    expect(
+      execFileSync('git', ['ls-files', '--', ...outputs], {
+        cwd: REPO_ROOT,
+        encoding: 'utf8',
+      })
+    ).toBe('');
+    for (const output of outputs) expect(ignored).toContain(output);
+    for (const id of ['//#task:tokens:generate', '//#task:sounds:generate']) {
+      expect(scripts['generate'].split(' ')).toContain(id);
+      for (const output of tasks[id]?.outputs ?? []) {
+        expect(ignored).toContain(output);
+      }
+    }
+  });
+
   test('files generated at install are cached by what they are made from', () => {
     expect(scripts['generate']).toBe(
-      'turbo run @pkgs/object-store-s3-server-ts#generate:browser @libs/infra-shared-ts#generate:infra-map //#task:i18n:compile //#task:spec:catalog //#task:spec:inputs'
+      'turbo run //#task:tokens:generate //#task:sounds:generate @pkgs/object-store-s3-server-ts#generate:browser @libs/infra-shared-ts#generate:infra-map //#task:i18n:compile //#task:spec:catalog //#task:spec:inputs'
     );
     for (const id of [
+      '//#task:tokens:generate',
+      '//#task:sounds:generate',
       '@pkgs/object-store-s3-server-ts#generate:browser',
       '@libs/infra-shared-ts#generate:infra-map',
       '//#task:i18n:compile',
