@@ -3,9 +3,9 @@
 Verdict: **Implementation and focused checks pass; release verification remains open.**
 All 58 PR-profile Quoridor tests and both full bounded mode proofs have passed.
 The tests comprise 47 feature scenarios, seven model checks and four model replays.
-The latest full local gate stopped at the enforced dependency audit. The
-remaining advisory is Atlas's transitive Zod 3 dependency, reproduced with
-the latest Atlas release and reported in [Atlas issue 16](https://github.com/crvouga/atlas/issues/16).
+The enforced dependency audit now passes after the isolated Atlas 0.10.1
+upgrade, which resolves [Atlas issue 16](https://github.com/crvouga/atlas/issues/16).
+The full local rerun and live pairing verdict remain open.
 The current full CI and live journey verdicts belong to [PR 226](https://github.com/crvouga/gamezilla/pull/226).
 This report does not claim deployed availability or a green release gate.
 
@@ -278,25 +278,35 @@ a 2,000-character cap for the complete run. Controlled examples verify
 event-only and link-only matches, later unrelated actions, selected-detail
 timestamps, redaction and the cap without recovering or inventing CI spans.
 
+CI run 40088244003 still missed the Chess pairing deadline. Its selected
+Find spent 2.31 seconds between mutation minting and client upload start,
+161 milliseconds between upload start and server entry, and 3.55 seconds
+in the server request. The acknowledgment arrived 1.10 seconds after the
+failed observation ended. No mutation-origin link was recorded, so the
+pre-upload interval cannot be split into remaining local work, queue or
+availability waiting. These are recorded phase boundaries, not a claim
+that one optimization resolved the deadline. The full release task took
+441.267 seconds within its unchanged 600-second budget.
+
 The full release-journey task in the current PR remains the authoritative
 result. None of these focused successes establishes a green full release.
 
 ## Repository and upstream limits
 
-The latest `bun verify`, on code head `24b21be39`, ran the unchanged full gate
-and exited 1 at `@libs/tools-harness-ts#ci:audit` (36.8 seconds in the task
-runner). Fresh registry evidence identified new
-advisories. Patched Happy DOM/registrator 21.0.4, Undici 7.30.1 and
+The full `bun verify` on code head `24b21be39` exited 1 at
+`@libs/tools-harness-ts#ci:audit` (36.8 seconds in the task runner), before
+the upstream Atlas upgrade was installed. Patched Happy DOM/registrator 21.0.4, Undici 7.30.1 and
 serialize-javascript 7.1.3 are installed; their focused checks pass.
 
-A fresh enforced audit now reports only Atlas's Zod dependency. Atlas
-0.10.0 still installs Zod 3.25.76; a clean latest-only installation
-reproduces the finding. The direct application Zod 4.6.7 is already fixed.
-[Atlas issue 16](https://github.com/crvouga/atlas/issues/16) records the
-reproduction and release condition: a published Atlas dependency graph
-using a supported patched Zod version, followed here by an isolated Atlas
-upgrade and a passing enforced audit. There is no forced major-version
-override, dependency patch, ignored advisory or relaxed gate.
+The installed Atlas 0.1.0 used Zod 3.25.76, and a latest-only Atlas 0.10.0
+installation reproduced the advisory. Upstream published 0.10.1 with Zod
+4.6.7 and Vite 7.3.7 and closed [issue 16](https://github.com/crvouga/atlas/issues/16).
+The isolated catalog/lockfile upgrade is commit `6c3925cd5`; it removes the
+obsolete Atlas Vite override. The fresh enforced audit passes, and all seven
+consumer test, type and statechart tasks pass. All 43 imported paths and
+existing CLI commands remain available. The new full local gate is queued
+for the shared machine verification slot. No dependency patch, ignored
+advisory or relaxed gate is used.
 
 Earlier full local attempts reached their fixed 600-second deadline during
 existing matchmaking proofs. Their partial successes are not green full
