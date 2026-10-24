@@ -2,6 +2,7 @@ import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-l
 import { configureCustomGame } from '@libs/game-session-harness-ts/custom-game-ui';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import { pongGuidance } from './pong-guidance';
 import { PONG_BOARD, type PongPaddle, pongView } from './pong-view';
 
 /** Alice and the second local person share one device; no second account is invented. */
@@ -33,11 +34,16 @@ export const beginLocalPong = scenarioAction({
   act: begin,
 });
 
-/** Let the displayed countdown finish on the injected clock. */
+/** Prepare both paddles for the next serve through their ordinary controls. */
 async function countdown(s: ProductHarness): Promise<void> {
   await pollUntil(
     s,
-    async () => ((await pongView(s)).stage === 'playing' ? true : null),
+    async () => {
+      const stage = (await pongView(s)).stage;
+      if (stage === 'playing') return true;
+      if (stage === 'countdown') await positionPaddles(s, 500, 500);
+      return null;
+    },
     {
       maxMs: 5000,
       stepMs: 25,
@@ -51,33 +57,30 @@ export const finishPongCountdown = scenarioAction({
   act: countdown,
 });
 
-/** A simple human input strategy: follow the visible ball, while the other paddle moves away. */
-async function guidePaddles(
+async function positionPaddles(
   s: ProductHarness,
-  winner: PongPaddle
+  left: number,
+  right: number
 ): Promise<void> {
-  const view = await pongView(s);
   const ui = await actorUi(s, 'alice');
-  const following = Math.round((view.ball.y / view.height) * 1000);
-  const avoiding = view.ball.y < view.height / 2 ? 1000 : 0;
-  await ui
-    .get(`${PONG_BOARD}-white-control`)
-    .input(String(winner === 'left' ? following : avoiding));
-  await ui
-    .get(`${PONG_BOARD}-black-control`)
-    .input(String(winner === 'right' ? following : avoiding));
+  await ui.get(`${PONG_BOARD}-white-control`).input(String(left));
+  await ui.get(`${PONG_BOARD}-black-control`).input(String(right));
 }
 
 /** Play until the next actual point. The score oracle is the scenario/model, not this strategy. */
 async function winPoint(s: ProductHarness, paddle: PongPaddle): Promise<void> {
-  const before = (await pongView(s)).score;
+  const initial = await pongView(s);
+  const before = initial.score;
+  let previous = initial.ball;
   await pollUntil(
     s,
     async () => {
       const next = await pongView(s);
       if (next.score.left !== before.left || next.score.right !== before.right)
         return true;
-      await guidePaddles(s, paddle);
+      const targets = pongGuidance(next, previous, paddle);
+      await positionPaddles(s, targets.left, targets.right);
+      previous = next.ball;
       return null;
     },
     { maxMs: 30_000, stepMs: 50, description: `a Pong point for ${paddle}` }

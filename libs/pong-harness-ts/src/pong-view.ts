@@ -43,6 +43,7 @@ export async function readPongCourt(ui: Driver, board: string) {
             ? 'paused'
             : 'reconnecting';
   const ball = ui.get(`${board}-ball`);
+  const radius = Number(await ball.attribute('width')) / 2;
   const bounds = (await ui.get(`${board}-drawing`).attribute('viewBox'))
     ?.split(' ')
     .map(Number);
@@ -57,15 +58,31 @@ export async function readPongCourt(ui: Driver, board: string) {
     stage,
     winner,
     ball: {
-      x:
-        Number(await ball.attribute('x')) +
-        Number(await ball.attribute('width')) / 2,
+      x: Number(await ball.attribute('x')) + radius,
       y:
         Number(await ball.attribute('y')) +
         Number(await ball.attribute('height')) / 2,
     },
     height: bounds[3]!,
+    radius,
+    faces: {
+      left: await paddleFace(ui, board, 'first', radius),
+      right: await paddleFace(ui, board, 'second', radius),
+    },
   };
+}
+
+async function paddleFace(
+  ui: Driver,
+  board: string,
+  side: 'first' | 'second',
+  radius: number
+): Promise<number> {
+  const paddle = ui.get(`${board}-${side}-paddle`);
+  const x = Number(await paddle.attribute('x'));
+  return side === 'first'
+    ? x + Number(await paddle.attribute('width')) + radius
+    : x - radius;
 }
 
 /** The people named in this one-device lineup are Alice on Left and Bob on Right. */

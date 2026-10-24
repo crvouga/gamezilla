@@ -8,11 +8,31 @@ import {
 import { pongMoveListOffered } from '@libs/pong-harness-ts/pong-controls-view';
 import { type PongPaddle, pongView } from '@libs/pong-harness-ts/pong-view';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
+import scoringAfterLongRally from './fixtures/pong-scoring-after-long-rally.itf.json';
+import scoringAfterReopen from './fixtures/pong-scoring-after-repeated-reopen.itf.json';
 
 bindQuintModel<QuintHarnessWorld>({
   model: 'pong-scoring',
   traces: 16,
   maxSteps: 12,
+  regressions: [
+    {
+      // regression: pong-scoring-after-long-rally
+      id: 'pong-scoring-after-long-rally',
+      title:
+        'The scoring driver guides paddles toward the visible ball landing',
+      seed: '0x67932',
+      itf: scoringAfterLongRally,
+    },
+    {
+      // regression: pong-scoring-after-repeated-reopen
+      id: 'pong-scoring-after-repeated-reopen',
+      title:
+        'Either paddle can win after repeatedly reopening the ongoing game',
+      seed: '0x67932',
+      itf: scoringAfterReopen,
+    },
+  ],
   actions: {
     init: (w, picks) =>
       w.s.apply(establishLocalPong, true, Number(picks['target'])),
