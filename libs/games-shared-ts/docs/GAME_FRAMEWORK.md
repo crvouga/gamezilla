@@ -12,6 +12,14 @@ still open are in
 The independent follow-up and its remaining acceptance work are tracked in
 [`FINAL_HARDENING_AUDIT.md`](FINAL_HARDENING_AUDIT.md).
 
+Games can also supply independent `puzzleContent` capabilities through
+`defineGame`, or alongside a turn engine through `defineTurnGame`. Shared
+authoring, publication, packs, attempts and progression live in the existing
+game-puzzle packages; a game supplies opaque rules and its editor, player and
+preview. Their integration is
+[`ADDING_A_PUZZLE_GAME.md`](ADDING_A_PUZZLE_GAME.md). The turn-game and rated
+line-feed mechanisms below remain available independently.
+
 ## Dependency direction
 
 ```text
@@ -40,10 +48,10 @@ composition roots (registries, runtime, apps)
 
 | Package | Owns |
 | --- | --- |
-| `@pkgs/turn-game-shared-ts` | The contracts: `GameRules`, `TurnGameCapabilities` and their parts (`GameBots`, `MatchmakingCapability`, `HistoryCapability`, `PuzzlesCapability`), `TurnGames` (lookup by id, position and clock), `GamePresentation`, `GameAutomation`. |
+| `@pkgs/turn-game-shared-ts` | The contracts: opaque `PuzzleContent` rules and optional computations; `GameRules`, `TurnGameCapabilities` and their parts (`GameBots`, `MatchmakingCapability`, `HistoryCapability`, `PuzzlesCapability`), `TurnGames` (lookup by id, position and clock), `GamePresentation`, `GameAutomation`. |
 | `@pkgs/turn-game-client-ts` | `TurnGamesProvider` and `useGamePresentation`: the shared screens find a position's presentation. |
 | `@libs/spaces-shared-ts` | `GameDefinition` and `GameClientDefinition` (what a space can play), `GameOwnRoom` (a game's own room behaviour), `SharedGameModule`, and the space room that composes them. |
-| `@libs/game-session-shared-ts` | `defineTurnGame`, custom games (sides, people, bots, readiness, clocks, resignation, draws, rematches, offline solo play) and the shared session module installed once per space. |
+| `@libs/game-session-shared-ts` | `defineGame` for standalone puzzle content; `defineTurnGame`, custom games (sides, people, bots, readiness, clocks, resignation, draws, rematches, offline solo play) and the shared session module installed once per space. |
 | `@libs/game-session-client-ts` / `-server` | The custom-game, history and review screens; the matched-game notice, reminder and availability consumers. |
 | `@libs/game-matchmaking-shared-ts` / `-client` | Opponent searches, matched games, ratings per speed, rematches, the multiplayer screen and link. |
 | `@libs/game-puzzle-shared-ts` | Puzzles over any game's rules: setting a puzzle up, replaying, staging and judging its line (`puzzle-setup`, `opponent-stage`, `solve-projection`, `move-history`, `puzzle-judge`), the space's puzzle session (`PUZZLE_SESSIONS`: its room state, messages, router and handlers, and the puzzle the space reviews), puzzle ratings, completion, statistics, the feed and its settings, choosing the next puzzle, the catalogue and its namespaces (`puzzle-catalogue`, `puzzle-namespace`), the puzzle sub (`GAME_PUZZLE_SUB`: its tables, queries, mutations and erasure) and its server half, and the puzzle link. |
