@@ -35,6 +35,8 @@ export type MergeFullInput = {
   readonly checkpoint: string;
   readonly hash: string;
   readonly tables: Readonly<Record<string, readonly QueryRow[]>>;
+  /** Rechecked after the merge and database queues grant this response its turn. */
+  readonly isCurrent?: () => boolean;
 };
 
 export type MergeApplierDeps = {
@@ -208,9 +210,11 @@ async function runMerge(
   let applied = false;
   const changed = new Set<string>();
   await deps.db.transaction(async (tx) => {
+    if (input.isCurrent?.() === false) return;
     if (await isStale(tx, input.scopeHash, input.checkpoint)) {
       return;
     }
+    if (input.isCurrent?.() === false) return;
     for (const [table, rows] of Object.entries(input.tables)) {
       const ok = await mergeTable({
         tx,

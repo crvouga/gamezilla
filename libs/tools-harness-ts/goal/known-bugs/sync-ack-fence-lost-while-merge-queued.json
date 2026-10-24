@@ -1,0 +1,4 @@
+{
+  "summary": "A query response checked its generation before waiting for a merge turn. A mutation acknowledgement could then invalidate the response and remove pending replay protection while that stale snapshot still waited, allowing it to replace newer saved state. Recheck the captured generation inside the acquired merge transaction, including full responses obtained after a not-modified repair.",
+  "regressionTest": "pkgs/sync-engine-client-ts/tests/subscription-merge-fence.test.ts"
+}
