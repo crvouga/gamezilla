@@ -1,4 +1,0 @@
-{
-  "summary": "Puzzle discovery, owned content, kept drafts, attempts and saved positions loaded every matching database row before slicing a response page. A literal catalogue of 1,025 items now verifies that each underlying database read returns at most one page of rows for materialization.",
-  "regressionTest": "libs/game-puzzle-shared-ts/tests/query-database-page-bound.test.ts"
-}

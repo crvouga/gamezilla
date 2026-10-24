@@ -403,13 +403,19 @@ inferred from this ledger or from a narrow test run.
   the missing device profiles. The Apple application test then passed on the
   pinned iOS 27.0 / iPhone 17 configuration, without changing those pins. The
   entire gate still needs its current run.
-- Five literal large-data regressions now distinguish a bounded response from
-  bounded row materialization. Discovery, owned drafts, kept copies, attempts
-  and saved positions previously loaded all matching rows before slicing the
-  response. Their queries now apply the same 32-entry limit inside SQL. All
-  272 shared package tests, typecheck and lint pass; the seven-model deeper
-  profile passes all 168 drawn histories and five pinned histories again.
-  This proves the row transfer bound, not a database execution-plan benchmark.
+- Correction to the initial paging diagnosis: the sync server already adds
+  each declared query budget plus one overflow row before reading from the
+  database. The original probes returned 65, 129, 33, 161 and 33 rows, rather
+  than the entire 1,025-item catalogue. Requiring exactly 32 materialized rows
+  was an incorrect new test boundary. The unnecessary inline limits are
+  reverted, and the incorrectly registered bug is removed. Five large-data
+  contract checks now assert the actual declared budget plus one overflow
+  row, while the existing wire checks continue to require 32-entry pages.
+- That investigation found a separate parser defect: replacing bound values
+  with NULL made valid LIMIT/OFFSET syntax unclassifiable. A literal query
+  failed before analysis switched to the SQL port's native parameter markers.
+  Values remain bound and analysis remains independent of them. The normal
+  prohibition on inline limits stays enforced; the framework owns the budget.
 - [Draft PR 228](https://github.com/crvouga/gamezilla/pull/228) is synced with
   `main`; incoming fixes and both readiness rows are retained. The earlier
   empty Games part failure is addressed by main's registered regression.

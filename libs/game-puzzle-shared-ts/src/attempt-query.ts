@@ -54,10 +54,12 @@ export const puzzleContentAttemptsOwned = defineQuery({
     const unfinished = params.unfinishedOnly
       ? sql`NOT EXISTS (SELECT c.id FROM puzzle_content_completions c WHERE c.owner_id = ${actor} AND c.puzzle_revision_id = puzzle_content_attempts.source_id)`
       : sql`1 = 1`;
-    const attempts = await ctx.db.query(sql`
+    const attempts = (
+      await ctx.db.query(sql`
       SELECT * FROM puzzle_content_attempts WHERE owner_id = ${actor} AND game_id = ${params.gameId}
-        AND ${selected} AND ${source} AND ${pack} AND ${unfinished} ORDER BY activity_order DESC, updated_at DESC, id DESC LIMIT ${CONTENT_PAGE_SIZE}
-    `);
+        AND ${selected} AND ${source} AND ${pack} AND ${unfinished} ORDER BY activity_order DESC, updated_at DESC, id DESC
+    `)
+    ).slice(0, CONTENT_PAGE_SIZE);
     const positions = attempts.map((row) => String(row['current_position_id']));
     const editions = attempts.flatMap((row) =>
       row['mode'] === 'ordinary' ? [String(row['source_id'])] : []
@@ -98,10 +100,12 @@ export const puzzleContentPositionsOwned = defineQuery({
   authorize: queryRequires(PERMISSION.puzzlesPlay),
   async run(ctx, { attemptId, afterId }) {
     return {
-      puzzle_content_positions: await ctx.db.query(sql`
+      puzzle_content_positions: (
+        await ctx.db.query(sql`
       SELECT * FROM puzzle_content_positions WHERE owner_id = ${ctx.env.actorId}
-        AND attempt_id = ${attemptId} AND id > ${afterId} ORDER BY id LIMIT ${CONTENT_PAGE_SIZE}
-    `),
+        AND attempt_id = ${attemptId} AND id > ${afterId} ORDER BY id
+    `)
+      ).slice(0, CONTENT_PAGE_SIZE),
     };
   },
 });
