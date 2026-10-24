@@ -58,7 +58,12 @@ export async function sendContentMutation(
       network: s.session.network,
     },
     outcome
-  );
+  ).catch((cause: unknown) => {
+    throw new Error(
+      `Content write ${name} (${result.mutationId}) did not settle: ${client.lastError() ?? client.connection()}`,
+      { cause }
+    );
+  });
   if ((await outcome) === 'rejected') {
     const rejected = (await client.rejections()).find(
       (entry) => entry.mutationId === result.mutationId

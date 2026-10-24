@@ -12,6 +12,7 @@ import type {
   ContentDocument,
   ContentDraft,
   ContentDraftRow,
+  ContentPublication,
   ContentRevision,
 } from './content-types';
 import { contentDraftOf } from './content-types';
@@ -40,7 +41,13 @@ export async function readContentDocument(
   const rows = await tx.query(
     sql<ContentDocument>`SELECT * FROM puzzle_content_documents WHERE id = ${id} AND deleted_at IS NULL`
   );
-  return rows[0] ?? null;
+  if (rows[0] !== undefined) return rows[0];
+  const publications = await tx.query(
+    sql<ContentPublication>`SELECT * FROM puzzle_content_publications WHERE id = ${id} AND deleted_at IS NULL`
+  );
+  return publications[0] === undefined
+    ? null
+    : { ...publications[0], working_draft_id: null };
 }
 
 export async function requireContentAuthor(
@@ -50,7 +57,7 @@ export async function requireContentAuthor(
     | typeof PERMISSION.puzzlesEditContent
     | typeof PERMISSION.puzzlesPublishContent
     | typeof PERMISSION.puzzlesPlaytestContent = PERMISSION.puzzlesEditContent
-): Promise<ContentDocument> {
+): Promise<ContentDocument & { readonly working_draft_id: string }> {
   const doc = await readContentDocument(ctx.tx, id);
   await requireInMutation(ctx, permission, {
     puzzleOwnerId: doc?.owner_id ?? '',
@@ -60,7 +67,12 @@ export async function requireContentAuthor(
       'PUZZLE_CONTENT_UNAVAILABLE',
       'This puzzle or pack is unavailable. Return to your drafts.'
     );
-  return doc;
+  if (doc.working_draft_id === null)
+    throw new MutationError(
+      'PUZZLE_DRAFT_UNAVAILABLE',
+      'Reconnect and open one of your saved draft copies.'
+    );
+  return { ...doc, working_draft_id: doc.working_draft_id };
 }
 
 export async function readContentDraft(

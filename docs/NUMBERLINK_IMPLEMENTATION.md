@@ -85,8 +85,10 @@ unfinished work; it is not a second product definition.
   or every saved copy at once.
   Selected content uses explicit edition, pack, document and personal-history
   subscriptions; catalogue and history pages contain at most 32 entries.
-- [ ] Review public wake fanout and private working-head metadata as part of
-  the remaining sync and application integration audit.
+- [x] Keep public publication records separate from private working documents.
+  Discovery, edition loading and pack pickers expose no private working head
+  or edit timestamp. Private editing wakes only the author's devices;
+  publication and withdrawal wake discovery through captured SQL writes.
 - [ ] Executable Gherkin, Quint, properties and app integration coverage,
   including offline/reconnect, conflicts, duplicate/partial operations,
   unauthorized publication and existing multiplayer regression coverage.
@@ -367,3 +369,22 @@ inferred from this ledger or from a narrow test run.
   PR profile. The recovery audit remains INCOMPLETE because the strict gate
   reports thirteen wording pairs outside Puzzles; the context's C6 gaps,
   production-bundle verification and full release gate remain open.
+- Private/public isolation now has three literal wire regressions: discovery,
+  selected editions and pack pickers all exposed a private draft identity
+  before the fix. Publication availability now has its own declared table,
+  updated atomically with publication or withdrawal. Private documents keep
+  their working heads, and the shared local projection composes both sources.
+  The existing page and detail bounds remain explicit. A further assertion
+  uses actual SQL capture to prove that private saves wake only the author
+  and a publication wakes discovery. The full context still passes 127
+  checks; all 120 drawn histories and four pinned histories pass again, as
+  do fifteen typecheck, lint and code-test tasks across the five affected
+  puzzle and sync packages.
+- That isolation exposed an uploader liveness defect: a read refresh after
+  refusal held a fresh corrected write behind it. A literal deferred-read
+  regression failed before the uploader stopped awaiting that refresh. The
+  query runtime continues to own and drain it; refresh errors remain observed.
+  All eleven recovery examples pass without increasing their time budgets.
+  Full Verify then caught the recovery copy's stale Lingui catalog. The
+  source catalog was regenerated in a separate commit, and its normal gate
+  passes. Full Verify must be rerun with the current privacy changes.

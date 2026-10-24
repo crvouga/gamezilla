@@ -18,5 +18,9 @@ export const withdrawPuzzleContentMutation = defineMutation({
       UPDATE puzzle_content_documents SET status = ${'withdrawn'}
       WHERE id = ${doc.id} AND deleted_at IS NULL
     `);
+    await ctx.tx.run(sql`
+      UPDATE puzzle_content_publications SET status = ${'withdrawn'}
+      WHERE id = ${doc.id} AND deleted_at IS NULL
+    `);
   },
 });

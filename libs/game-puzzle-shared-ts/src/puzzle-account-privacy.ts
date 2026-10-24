@@ -47,6 +47,10 @@ export const PUZZLE_PRIVACY: AccountPrivacyContribution = {
       WHERE owner_id = ${env.actorId}
     `);
     await tx.run(sql`
+      UPDATE puzzle_content_publications SET owner_id = ${null}, status = ${'withdrawn'}
+      WHERE owner_id = ${env.actorId}
+    `);
+    await tx.run(sql`
       UPDATE puzzle_content_drafts
       SET owner_id = ${null}, title = ${null}, description = ${null}, difficulty = ${null},
           definition = ${null}, validation_solution = ${null}, validation_issues = ${'[]'}, validation_status = ${'invalid'}

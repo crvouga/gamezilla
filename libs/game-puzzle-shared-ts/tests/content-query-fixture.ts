@@ -46,6 +46,14 @@ export async function seedLargeContentCatalogue(
   );
   await insertRows(
     fixture,
+    sql`INSERT INTO puzzle_content_publications (id, owner_id, game_id, kind, published_revision_id, publication_count, status, created_at, updated_at, deleted_at)`,
+    ids.map(
+      (id) =>
+        sql`(${id}, ${'alice'}, ${'pile'}, ${'puzzle'}, ${`${id}-edition`}, ${1}, ${'published'}, ${stamp}, ${stamp}, ${null})`
+    )
+  );
+  await insertRows(
+    fixture,
     sql`INSERT INTO puzzle_content_revisions (id, document_id, owner_id, game_id, kind, edition, title, description, difficulty, definition, created_at, updated_at, deleted_at)`,
     ids.map(
       (id) =>

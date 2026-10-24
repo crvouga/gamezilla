@@ -1,9 +1,11 @@
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import type { MutationDb } from '@pkgs/sync-engine-shared-ts/mutations-types';
+import { contentDocuments } from './content-publication';
 import type {
   ContentDocument,
   ContentDraft,
   ContentDraftRow,
+  ContentPublication,
   ContentRevision,
 } from './content-types';
 import { contentDraftOf } from './content-types';
@@ -24,10 +26,17 @@ export async function readContentLibrary(
   const drafts = await db.query(
     sql<ContentDraftRow>`SELECT * FROM puzzle_content_drafts WHERE deleted_at IS NULL`
   );
+  const publications = await db.query(
+    sql<ContentPublication>`SELECT * FROM puzzle_content_publications WHERE deleted_at IS NULL`
+  );
   const revisions = await db.query(
     sql<ContentRevision>`SELECT * FROM puzzle_content_revisions WHERE deleted_at IS NULL`
   );
-  return { documents, drafts: drafts.map(contentDraftOf), revisions };
+  return {
+    documents: contentDocuments(documents, publications),
+    drafts: drafts.map(contentDraftOf),
+    revisions,
+  };
 }
 
 export function discoverContent(

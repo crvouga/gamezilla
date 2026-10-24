@@ -34,6 +34,9 @@ test.each(['rivers-first', 'rivers-corrected'])(
           sql`UPDATE puzzle_content_revisions SET deleted_at = ${'1970-01-01T00:00:01.000Z'} WHERE document_id = ${'rivers'}`
         );
         await tx.run(
+          sql`UPDATE puzzle_content_publications SET deleted_at = ${'1970-01-01T00:00:01.000Z'} WHERE id = ${'rivers'}`
+        );
+        await tx.run(
           sql`UPDATE puzzle_content_pack_items SET deleted_at = ${'1970-01-01T00:00:01.000Z'} WHERE pack_revision_id = ${'rivers-first'}`
         );
         await tx.run(

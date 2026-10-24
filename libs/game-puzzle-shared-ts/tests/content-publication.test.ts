@@ -187,6 +187,7 @@ test('public hydration never includes draft bodies and another actor receives no
       await puzzleContentOwned.run(bobCtx, { gameId: 'pile', afterId: '' })
     ).toEqual({
       puzzle_content_documents: [],
+      puzzle_content_publications: [],
       puzzle_content_drafts: [],
       puzzle_content_revisions: [],
     });
@@ -195,7 +196,7 @@ test('public hydration never includes draft bodies and another actor receives no
       afterId: '',
     });
     expect(publicRows['puzzle_content_drafts']).toBeUndefined();
-    expect(publicRows['puzzle_content_documents']).toHaveLength(1);
+    expect(publicRows['puzzle_content_publications']).toHaveLength(1);
     expect(publicRows['puzzle_content_revisions']).toHaveLength(1);
     expect(publicRows['puzzle_content_revisions']?.[0]?.['title']).toBe(
       'Public valley'

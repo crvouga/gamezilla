@@ -14,30 +14,26 @@ export const puzzleContentDocumentsById = defineQuery({
   name: 'puzzleContentDocumentsById',
   params: contentEditionParams,
   sampleParams: { ids: ['document'] },
-  limit: CONTENT_PAGE_SIZE * 3,
+  limit: CONTENT_PAGE_SIZE * 4,
   authorize: queryRequires(PERMISSION.puzzlesReadOwnContent),
   entryChannel: (_params, ctx) => [`user:${ctx.actorId}`, puzzleContentTopic],
   async run(ctx, { ids }) {
     const actor = ctx.env.actorId;
-    const documents = (
-      await ctx.db.query(
-        sql`SELECT * FROM puzzle_content_documents WHERE id IN (${contentIds(ids)}) ORDER BY id`
-      )
-    ).filter(
-      (row) =>
-        row['owner_id'] === actor ||
-        typeof row['published_revision_id'] === 'string'
+    const documents = await ctx.db.query(
+      sql`SELECT * FROM puzzle_content_documents WHERE owner_id = ${actor} AND id IN (${contentIds(ids)}) ORDER BY id`
     );
-    const heads = documents
-      .filter((row) => row['owner_id'] === actor)
-      .map((row) => String(row['working_draft_id']));
-    const editions = documents.flatMap((row) =>
+    const publications = await ctx.db.query(
+      sql`SELECT * FROM puzzle_content_publications WHERE id IN (${contentIds(ids)}) ORDER BY id`
+    );
+    const heads = documents.map((row) => String(row['working_draft_id']));
+    const editions = [...documents, ...publications].flatMap((row) =>
       typeof row['published_revision_id'] === 'string'
         ? [row['published_revision_id']]
         : []
     );
     return {
       puzzle_content_documents: documents,
+      puzzle_content_publications: publications,
       puzzle_content_drafts: await ctx.db.query(
         sql`SELECT * FROM puzzle_content_drafts WHERE owner_id = ${actor} AND id IN (${contentIds(heads)}) ORDER BY id`
       ),

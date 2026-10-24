@@ -5,6 +5,7 @@ import { MutationError } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import type { PuzzleContentCatalog } from '@pkgs/turn-game-shared-ts/puzzle-content-catalog';
 import { z } from 'zod';
 import { resolvePackDraft, writePackReferences } from './content-pack';
+import { writeContentPublication } from './content-publication';
 import type { ContentMutationCtx } from './content-store';
 import {
   readContentDraft,
@@ -98,5 +99,15 @@ export const publishPuzzleContentMutation = (
   `);
       if (doc.kind === 'pack')
         await writePackReferences(ctx.tx, doc, definition);
+      await writeContentPublication(ctx.tx, {
+        id: doc.id,
+        owner_id: doc.owner_id,
+        game_id: doc.game_id,
+        kind: doc.kind,
+        published_revision_id: draft.id,
+        publication_count: edition,
+        status: 'published',
+        deleted_at: null,
+      });
     },
   });

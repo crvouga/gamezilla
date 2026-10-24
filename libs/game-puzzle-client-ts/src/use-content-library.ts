@@ -1,8 +1,10 @@
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import type { ContentLibrary } from '@libs/game-puzzle-shared-ts/content-library';
+import { contentDocuments } from '@libs/game-puzzle-shared-ts/content-publication';
 import {
   type ContentDocument,
   type ContentDraftRow,
+  type ContentPublication,
   type ContentRevision,
   contentDraftOf,
 } from '@libs/game-puzzle-shared-ts/content-types';
@@ -19,7 +21,11 @@ export function useContentLibrary(gameId: Accessor<string>) {
   const engine = useSyncEngine();
   const documents = createQuery(
     () =>
-      sql<ContentDocument>`SELECT * FROM puzzle_content_documents WHERE game_id = ${gameId()}`
+      sql<ContentDocument>`SELECT * FROM puzzle_content_documents WHERE game_id = ${gameId()} AND owner_id = ${myId()}`
+  );
+  const publications = createQuery(
+    () =>
+      sql<ContentPublication>`SELECT * FROM puzzle_content_publications WHERE game_id = ${gameId()}`
   );
   const drafts = createQuery(
     () =>
@@ -32,7 +38,7 @@ export function useContentLibrary(gameId: Accessor<string>) {
   const library = createMemo<ContentLibrary>(() =>
     engine.paintReady()
       ? {
-          documents: documents.rows(),
+          documents: contentDocuments(documents.rows(), publications.rows()),
           drafts: drafts.rows().map(contentDraftOf),
           revisions: revisions.rows(),
         }
@@ -42,6 +48,7 @@ export function useContentLibrary(gameId: Accessor<string>) {
     () =>
       !engine.paintReady() ||
       documents.isLoading() ||
+      publications.isLoading() ||
       drafts.isLoading() ||
       revisions.isLoading()
   );

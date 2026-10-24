@@ -15,7 +15,7 @@ export const puzzleContentOwned = defineQuery({
   name: 'puzzleContentOwned',
   params: contentPageParams,
   sampleParams: { gameId: 'game', afterId: '' },
-  limit: CONTENT_PAGE_SIZE * 3,
+  limit: CONTENT_PAGE_SIZE * 4,
   authorize: queryRequires(PERMISSION.puzzlesReadOwnContent),
   async run(ctx, params) {
     const documents = (
@@ -33,6 +33,9 @@ export const puzzleContentOwned = defineQuery({
     );
     return {
       puzzle_content_documents: documents,
+      puzzle_content_publications: await ctx.db.query(
+        sql`SELECT * FROM puzzle_content_publications WHERE owner_id = ${ctx.env.actorId} AND id IN (${contentIds(documents.map((row) => String(row['id'])))}) ORDER BY id`
+      ),
       puzzle_content_drafts: await ctx.db.query(
         sql`SELECT * FROM puzzle_content_drafts WHERE owner_id = ${ctx.env.actorId} AND id IN (${contentIds(heads)}) ORDER BY id`
       ),
@@ -54,14 +57,14 @@ export const puzzleContentPublished = defineQuery({
   async run(ctx, params) {
     const documents = (
       await ctx.db.query(sql`
-      SELECT * FROM puzzle_content_documents
+      SELECT * FROM puzzle_content_publications
       WHERE game_id = ${params.gameId} AND published_revision_id IS NOT NULL
         AND ${contentPageCondition(params)} ORDER BY id
     `)
     ).slice(0, CONTENT_PAGE_SIZE);
     const ids = documents.map((row) => String(row['published_revision_id']));
     return {
-      puzzle_content_documents: documents,
+      puzzle_content_publications: documents,
       puzzle_content_revisions: await ctx.db.query(
         sql`SELECT * FROM puzzle_content_revisions WHERE id IN (${contentIds(ids)}) ORDER BY id`
       ),

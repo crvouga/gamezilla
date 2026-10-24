@@ -19,11 +19,20 @@ export type ContentDocument = {
   readonly owner_id: string;
   readonly game_id: string;
   readonly kind: ContentKind;
-  readonly working_draft_id: string;
+  readonly working_draft_id: string | null;
   readonly published_revision_id: string | null;
   readonly publication_count: number;
   readonly status: 'draft' | 'published' | 'withdrawn';
   readonly deleted_at: string | null;
+};
+
+/** The public head carries no working-copy identity or private edit timestamp. */
+export type ContentPublication = Omit<
+  ContentDocument,
+  'working_draft_id' | 'published_revision_id' | 'status'
+> & {
+  readonly published_revision_id: string;
+  readonly status: 'published' | 'withdrawn';
 };
 
 export type ContentDraft = {

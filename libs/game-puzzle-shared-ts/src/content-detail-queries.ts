@@ -23,14 +23,14 @@ export const puzzleContentEditions = defineQuery({
   async run(ctx, { ids }) {
     const revisions = await ctx.db.query(sql`
       SELECT r.* FROM puzzle_content_revisions r
-      INNER JOIN puzzle_content_documents d ON d.id = r.document_id
+      INNER JOIN puzzle_content_publications d ON d.id = r.document_id
       WHERE r.id IN (${contentIds(ids)}) AND d.published_revision_id IS NOT NULL ORDER BY r.id
     `);
     const documents = revisions.map((row) => String(row['document_id']));
     return {
       puzzle_content_revisions: revisions,
-      puzzle_content_documents: await ctx.db.query(
-        sql`SELECT * FROM puzzle_content_documents WHERE id IN (${contentIds(documents)}) ORDER BY id`
+      puzzle_content_publications: await ctx.db.query(
+        sql`SELECT * FROM puzzle_content_publications WHERE id IN (${contentIds(documents)}) ORDER BY id`
       ),
     };
   },
@@ -67,7 +67,7 @@ export const puzzleContentPackItems = defineQuery({
       puzzle_content_pack_items: await ctx.db.query(sql`
       SELECT i.* FROM puzzle_content_pack_items i
       INNER JOIN puzzle_content_revisions r ON r.id = i.pack_revision_id
-      INNER JOIN puzzle_content_documents d ON d.id = r.document_id
+      INNER JOIN puzzle_content_publications d ON d.id = r.document_id
       WHERE r.id = ${revisionId} AND d.published_revision_id IS NOT NULL ORDER BY i.position, i.id
     `),
     };

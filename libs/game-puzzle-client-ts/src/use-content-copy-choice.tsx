@@ -20,15 +20,16 @@ export function useContentCopyChoice(props: {
   const createId = useCreateId();
   const [choice, setChoice] = createSignal<Choice | null>(null);
   const select = (id: string): void => {
+    const expected = props.document.working_draft_id;
     const source = data
       .content()
       .drafts.find(
         (draft) => draft.id === id && draft.document_id === props.document.id
       );
-    if (source !== undefined)
+    if (source !== undefined && expected !== null)
       setChoice({
         source,
-        expected: props.document.working_draft_id,
+        expected,
         draftId: createId(),
       });
   };

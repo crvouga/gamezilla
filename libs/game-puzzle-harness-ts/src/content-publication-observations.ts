@@ -1,6 +1,7 @@
 import { readContentLibrary } from '@libs/game-puzzle-shared-ts/content-library';
 import { contentClient } from './content-actions';
 import { currentSavedContentDraft } from './content-observations';
+import { waitForContent } from './content-sync';
 import type { ContentHarness } from './content-system';
 
 export async function contentIssue(
@@ -13,6 +14,13 @@ export async function contentIssue(
   const editor = s.editors.get(clientId);
   const choice = s.publicationResults.get(editor?.documentId ?? '');
   if (choice?.ok === true) {
+    await waitForContent(
+      s,
+      async () =>
+        (await contentClient(s, clientId).engine.mutationOutcome(
+          choice.mutationId
+        )) !== 'pending'
+    );
     const rejection = (
       await contentClient(s, clientId).engine.listRejections()
     ).find((entry) => entry.mutationId === choice.mutationId);

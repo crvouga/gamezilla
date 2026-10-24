@@ -16,6 +16,21 @@ export const puzzleContentDocuments = defineTable({
   indexes: ['owner_id', ['game_id', 'status']],
 });
 
+/** Written only when publication or withdrawal changes public availability. */
+export const puzzleContentPublications = defineTable({
+  domain: 'puzzle_content',
+  name: 'puzzle_content_publications',
+  columns: {
+    owner_id: 'text',
+    game_id: 'text',
+    kind: 'text',
+    published_revision_id: 'text',
+    publication_count: 'integer',
+    status: 'text',
+  },
+  indexes: ['owner_id', ['game_id', 'status']],
+});
+
 /** Saved working copies form branches rather than overwriting a stale device's work. */
 export const puzzleContentDrafts = defineTable({
   domain: 'puzzle_content',
@@ -77,6 +92,7 @@ export const puzzleContentPackItems = defineTable({
 export const CONTENT_TABLES = [
   ...ATTEMPT_TABLES,
   puzzleContentDocuments,
+  puzzleContentPublications,
   puzzleContentDrafts,
   puzzleContentRevisions,
   puzzleContentPackItems,

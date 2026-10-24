@@ -215,7 +215,10 @@ async function applyUploadResult(
   }
   options.bus.emit(['sync_engine_mutations', 'sync_engine_write_rejections']);
   if (result.verdicts.some((verdict) => verdict.status === 'rejected')) {
-    await options.onRejected?.();
+    // Refetch repairs the local view; a pending read must not hold later writes.
+    void Promise.resolve()
+      .then(() => options.onRejected?.())
+      .catch(options.onError);
   }
 
   for (const verdict of result.verdicts) {
