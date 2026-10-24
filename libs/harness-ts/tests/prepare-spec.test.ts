@@ -19,6 +19,7 @@ const RUNNER = Bun.resolveSync(
 
 // regression: unbound-model-blocks-independent-specs
 // regression: chess-model-preparation-timeout
+// regression: quint-preparation-repeated-source-compilation
 test('unbound models do not block preparation and still fail their own checks', async () => {
   const root = mkdtempSync(join(tmpdir(), 'prepare-spec-'));
   const store = createNodeFsObjectStore({

@@ -28,7 +28,8 @@ import {
   resolveApalache,
   verifyEnv,
 } from './apalache';
-import { cachedVerifyInput, instantiatedModelInput } from './model-input';
+import { cachedVerifyInput } from './cached-verify-input';
+import { instantiatedModelInput } from './model-input';
 import { modelParameterCases, modelParameterId } from './model-parameters';
 import { quintModuleName } from './model-source';
 import { runQuint } from './run-quint';

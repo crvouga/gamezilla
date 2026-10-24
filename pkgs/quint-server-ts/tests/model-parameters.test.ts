@@ -51,3 +51,24 @@ test('missing, unknown and non-boolean inputs fail before a draw can be cached',
     modelParameterCases('module example { const N: int }', 'example')
   ).toThrow('N must be bool');
 });
+
+test('declaration reuse keeps exact source and main-module boundaries', () => {
+  const changed = SOURCE.replace(
+    'const B: bool',
+    '// shift the spans\n  const C: bool'
+  );
+  expect(modelParameterNames(SOURCE, 'example')).toEqual(['A', 'B']);
+  expect(modelParameterNames(changed, 'example')).toEqual(['A', 'C']);
+  expect(instantiateModel(changed, 'example', { A: false, C: true })).toBe(
+    changed
+      .replace('const C: bool', 'pure val C: bool = true')
+      .replace('const A: bool', 'pure val A: bool = false')
+  );
+  expect(modelParameterNames(changed, 'imported')).toEqual(['A']);
+  expect(() => modelParameterNames('module example {', 'example')).toThrow(
+    'invalid Quint model'
+  );
+  expect(instantiateModel(SOURCE, 'example', { A: true, B: false })).toContain(
+    'pure val B: bool = false'
+  );
+});

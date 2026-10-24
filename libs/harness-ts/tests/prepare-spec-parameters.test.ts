@@ -54,6 +54,7 @@ function initialState(dir: string) {
 }
 
 // regression: quint-preparation-unbound-constants
+// regression: quint-preparation-repeated-source-compilation
 test.each(['puzzle-attempt', 'puzzle-sound'])(
   'CI preparation closes both OPPONENT assignments of %s',
   async (model) => {
