@@ -231,7 +231,8 @@
     "libs/game-puzzle-client-ts/src/use-content-pages.ts",
     "libs/game-puzzle-client-ts/src/content-load-more.tsx",
     "libs/game-puzzle-client-ts/src/content-connection-status.tsx",
-    "libs/game-puzzle-client-ts/src/use-content-copy-choice.tsx"
+    "libs/game-puzzle-client-ts/src/use-content-copy-choice.tsx",
+    "libs/game-puzzle-client-ts/src/use-content-author-workspace.tsx"
   ],
   "reactivityDirs": [
     "libs/friends-client-ts/src",

@@ -7,25 +7,25 @@ import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import { createMemo, For, type JSX, Show, untrack } from 'solid-js';
 import { useContentGame } from './content-game-context';
 import { useContentLibraryState } from './content-library-context';
 import { ContentPackItems } from './content-pack-items';
 import type { useContentDraftSave } from './use-content-draft-save';
-import { useContentPackEdit } from './use-content-pack-edit';
+import type { useContentPackEdit } from './use-content-pack-edit';
 
 type PackEditorProps = {
-  documentId: string;
   writer: ReturnType<typeof useContentDraftSave>;
   disabled: boolean;
-  onSaved: (id: string) => void;
+  tools: ReturnType<typeof useContentPackEdit>;
 };
 
 export function ContentPackEditor(props: PackEditorProps): JSX.Element {
   const { t } = useLingui();
   const game = useContentGame();
   const data = useContentLibraryState();
-  const tools = useContentPackEdit(props);
+  // One operations object belongs to the parent workspace for this editor's lifetime.
+  const tools = untrack(() => props.tools);
   const pack = createMemo(() =>
     decodePackDefinition(props.writer.body().definition)
   );
@@ -63,6 +63,7 @@ export function ContentPackEditor(props: PackEditorProps): JSX.Element {
               available().find((revision) => revision.id === id);
             return (
               <MenuRow
+                dataSet={{ testid: `content-add-puzzle-${id}` }}
                 title={entry()?.title}
                 caption={entry()?.difficulty}
                 disabled={props.disabled || tools.change.loading()}

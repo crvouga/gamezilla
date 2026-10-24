@@ -76,6 +76,7 @@ export function ContentPackItem(props: {
             aria-label={t`Move ${title()} up`}
             disabled={props.disabled || props.first}
             onClick={() => props.onUp()}
+            dataSet={{ testid: 'content-pack-up' }}
           >
             <ChevronUpIcon size={20} color="icon" />
           </IconButton>
@@ -86,6 +87,7 @@ export function ContentPackItem(props: {
             aria-label={t`Move ${title()} down`}
             disabled={props.disabled || props.last}
             onClick={() => props.onDown()}
+            dataSet={{ testid: 'content-pack-down' }}
           >
             <ChevronDownIcon size={20} color="icon" />
           </IconButton>
@@ -96,6 +98,7 @@ export function ContentPackItem(props: {
             aria-label={t`Remove ${title()} from pack`}
             disabled={props.disabled}
             onClick={() => props.onRemove()}
+            dataSet={{ testid: 'content-pack-remove' }}
           >
             <Trash2Icon size={20} color="icon" />
           </IconButton>

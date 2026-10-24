@@ -27,6 +27,7 @@ import { OFFLINE_ACTIONS } from './offline-actions';
 import { OFFLINE_FIXTURES } from './offline-fixtures';
 import { PACK_ACTIONS } from './pack-actions';
 import { PACK_PLAY_ACTIONS } from './pack-play-actions';
+import { previewDuringPackReorder } from './pack-workspace-actions';
 import {
   publishThroughScreen,
   validateThroughScreen,
@@ -71,6 +72,7 @@ export const contentSystem = defineSystem<
   args: { initialContent: true },
   actions: [
     createContentThroughScreen,
+    previewDuringPackReorder,
     playTwoStepsThroughScreen,
     publishThroughScreen,
     validateThroughScreen,

@@ -12,13 +12,7 @@ import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  type JSX,
-  Show,
-} from 'solid-js';
+import { createMemo, type JSX, Show } from 'solid-js';
 import { ContentAuthorStage } from './content-author-stage';
 import { ContentAuthorStatus } from './content-author-status';
 import { ContentDraftMetadata } from './content-draft-metadata';
@@ -29,32 +23,30 @@ import { useContentLibraryState } from './content-library-context';
 import { ContentPackEditor } from './content-pack-editor';
 import { ContentPackPreview } from './content-pack-preview';
 import { ContentPublicationControls } from './content-publication-controls';
-import { useContentDraftSave } from './use-content-draft-save';
+import { useContentAuthorWorkspace } from './use-content-author-workspace';
 
 function AuthorBody(props: {
   document: ContentDocument;
   initial: ContentDraft;
 }): JSX.Element {
   const { t } = useLingui();
-  const data = useContentLibraryState();
-  const writer = useContentDraftSave(() => props.initial);
-  const [preview, setPreview] = createSignal(false);
-  const [adopting, setAdopting] = createSignal<string | null>(null);
-  createEffect(() => {
-    const draft = data
-      .content()
-      .drafts.find((entry) => entry.id === adopting());
-    if (draft !== undefined) {
-      writer.adopt(draft);
-      setAdopting(null);
-    }
-  });
-  const disabled = () => writer.saving() || adopting() !== null;
-  const conflicted = () =>
-    !writer.saving() && props.document.working_draft_id !== writer.draftId();
+  const {
+    writer,
+    preview,
+    setPreview,
+    adopting,
+    packTools,
+    packPending,
+    disabled,
+    conflicted,
+  } = useContentAuthorWorkspace(
+    () => props.document,
+    () => props.initial
+  );
   return (
     <GameScreen
       screenId="puzzle-content-author"
+      dataSet={{ testid: 'content-author', documentid: props.document.id }}
       title={writer.body().title || t`Untitled draft`}
       subtitle={
         props.document.kind === 'pack' ? t`Pack builder` : t`Puzzle builder`
@@ -68,7 +60,7 @@ function AuthorBody(props: {
           <StackVertical gap="lg">
             <ContentDraftMetadata
               body={writer.body()}
-              disabled={adopting() !== null}
+              disabled={adopting() !== null || packPending()}
               onChange={writer.change}
             />
             <ContentPublicationControls
@@ -85,6 +77,8 @@ function AuthorBody(props: {
               intent="neutral"
               variant="outline"
               onClick={() => setPreview((value) => !value)}
+              disabled={disabled()}
+              dataSet={{ testid: 'content-preview' }}
             />
             <Show when={props.document.kind === 'puzzle'}>
               <ContentDraftPlaytest
@@ -113,10 +107,9 @@ function AuthorBody(props: {
             }
           >
             <ContentPackEditor
-              documentId={props.document.id}
               writer={writer}
               disabled={disabled()}
-              onSaved={setAdopting}
+              tools={packTools}
             />
           </Show>
         </Show>
