@@ -230,16 +230,8 @@ function routeToOwner(
     });
     return;
   }
-  if (ownerId === fromPortId) {
-    post(state, fromPortId, {
-      id: request.id,
-      ok: false,
-      error: serializeError(
-        new Error('Owner should execute SQL locally, not via broker')
-      ),
-    });
-    return;
-  }
+  // A request sent as a proxy may arrive after this same port was promoted.
+  // Forward it through the granted owner's open fence, like any queued RPC.
   post(state, ownerId, { ...request, from: fromPortId });
 }
 
@@ -414,7 +406,7 @@ function handleRpcRequest(
     return;
   }
   const ownerId = state.slots.get(message.dbName)?.ownerPortId ?? null;
-  if (ownerId !== null && ownerId !== portId) {
+  if (ownerId !== null) {
     // Request counters belong to a tab, not to this shared broker.
     const forwardedId = JSON.stringify([portId, message.id]);
     state.pendingRoutes.set(forwardedId, {

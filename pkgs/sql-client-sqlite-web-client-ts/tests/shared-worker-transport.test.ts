@@ -157,6 +157,40 @@ describe('shared-worker transport across page loads', () => {
     page.leaveOnUnload();
   });
 
+  // regression: sqlite-proxy-request-arrives-after-promotion
+  test('a request sent as a proxy completes after that page becomes the owner', async () => {
+    installSharedWorker();
+    const page = () =>
+      createSharedWorkerTransport({
+        dbName: 'app',
+        timers: parkedTimers,
+        workerUrl: '/db-host-shared-worker.js',
+        createOwnerRuntimeFn: ({ dbName }) => ({
+          ...stubOwnerRuntime(dbName, () => undefined),
+          handleRequest: async (request) => ({
+            id: request.id,
+            ok: true,
+            result: [{ kept: 1 }],
+          }),
+        }),
+      });
+    const first = page();
+    const next = page();
+    try {
+      expect((await first.connect()).role).toBe('owner');
+      expect((await next.connect()).role).toBe('proxy');
+      // Disconnect and the queued query reach the broker before its promotion
+      // message reaches the new owner page.
+      first.leaveOnUnload();
+      expect(
+        await next.request('query', { sql: 'SELECT 1 AS kept', values: [] })
+      ).toEqual([{ kept: 1 }]);
+    } finally {
+      next.leaveOnUnload();
+      first.leaveOnUnload();
+    }
+  });
+
   // regression: sqlite-promoted-owner-drops-requests-during-open
   test('requests during owner promotion wait for the opening database', async () => {
     installSharedWorker();
