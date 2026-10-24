@@ -52,7 +52,15 @@ export function browserProcessChannel(process: IsolatedWorker) {
         },
         reject: (error) => {
           wallTimers.clearTimeout(timer);
-          reject(error);
+          const call = payload.call;
+          reject(
+            call === undefined
+              ? error
+              : new Error(
+                  `${call.target} ${call.path.join('/').slice(0, 240)} ${call.method.slice(0, 80)}: ${error.message}`,
+                  { cause: error }
+                )
+          );
         },
       });
       process.post({

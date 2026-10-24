@@ -2,6 +2,7 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { chessBoardSquareTestId } from '@pkgs/chess-board-core-shared-ts/probe';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import { Chess } from 'chess.js';
+import { expectBlackAccepted } from './custom-game-readiness-wait';
 import { check, expectVisible, JOURNEY_WAIT_MS, tap } from './journey-gestures';
 
 async function openConnectedCustomGame(ui: Driver): Promise<void> {
@@ -190,7 +191,7 @@ export function expectInvitationToBlack(
 
 export async function acceptBlack(ui: Driver): Promise<void> {
   await tap(ui, 'custom-game-black-accept');
-  await expectVisible(ui, 'custom-game-black-release');
+  await expectBlackAccepted(ui);
 }
 
 /** The person holds Black: theirs to release, and named on Black's side. */

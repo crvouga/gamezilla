@@ -44,7 +44,10 @@ test('a link guest uses an isolated process and keeps it across navigations', as
   }
 });
 
-function controlled(focus?: { activate(): void; interact(): void }) {
+function controlled(
+  focus?: { activate(): void; interact(): void },
+  refusal?: (call: BrowserCall) => string | undefined
+) {
   let reply: (value: unknown) => void = () => {};
   let error: (message: string) => void = () => {};
   const calls: BrowserCall[] = [];
@@ -62,7 +65,10 @@ function controlled(focus?: { activate(): void; interact(): void }) {
         )
           focus?.activate();
       }
-      if (
+      const refused =
+        request.call === undefined ? undefined : refusal?.(request.call);
+      if (refused !== undefined) reply({ id: request.id, error: refused });
+      else if (
         request.call?.method === 'evaluate' &&
         request.call.args[0] === 'fail'
       )
@@ -99,6 +105,34 @@ function controlled(focus?: { activate(): void; interact(): void }) {
     disconnected: () => disconnected,
   };
 }
+
+// regression: isolated-browser-failure-loses-gesture
+test('journey diagnostics retain a remote failure’s method and control without arguments', async () => {
+  const worker = controlled(undefined, (call) =>
+    call.method === 'expect.text' ? 'Timed out waiting for text' : undefined
+  );
+  const device = await openIsolatedDevice(
+    { webOrigin: 'https://web.example', apiOrigin: 'https://api.example' },
+    () => worker.process
+  );
+  try {
+    const message = String(
+      await device.driver
+        .get('custom-game')
+        .get('custom-game-black-release')
+        .expect.text('private argument', { timeoutMs: 20000 })
+        .catch(String)
+    );
+    expect(message).toContain(
+      'node custom-game/custom-game-black-release expect.text'
+    );
+    expect(message).toContain('Timed out waiting for text');
+    expect(message).not.toContain('private argument');
+    expect(message).not.toContain('20000');
+  } finally {
+    await device.close();
+  }
+});
 // regression: isolated-browser-optional-gesture-arguments
 test('isolated devices preserve scoped gestures and release their process on close', async () => {
   const worker = controlled();
