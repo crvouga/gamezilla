@@ -6,6 +6,7 @@ import type { Message } from '@pkgs/message-shared-ts/message';
 import { ROOM_SERVICE_GRANT } from '@pkgs/room-root-shared-ts/service-identity';
 import {
   RequestSimulationSnapshot,
+  SimulationStateChanged,
   SubmitSimulationInput,
 } from './simulation-messages';
 import {
@@ -28,6 +29,11 @@ export function simulationCommandPermission(
       reason: 'only the creator records a game on this device',
     };
   const matched = topic.startsWith(`${MATCH_ROOM_MODULE}:`);
+  if (SimulationStateChanged.is(message))
+    return {
+      key: matched ? ROOM_SERVICE_GRANT : PERMISSION.gameCustomCreate,
+      reason: 'only the creator shares a game running on this device',
+    };
   if (SubmitSimulationInput.is(message))
     return {
       key: matched ? PERMISSION.gameMultiplayerPlay : PERMISSION.gameCustomPlay,

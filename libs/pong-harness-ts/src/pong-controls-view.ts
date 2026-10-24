@@ -4,6 +4,12 @@ import { PONG_BOARD, type PongPaddle } from './pong-view';
 
 export const PONG_MATCH_BOARD = 'multiplayer-board';
 
+export async function pongBoardId(s: ProductHarness, actor: string) {
+  return (await (await actorUi(s, actor)).get(PONG_MATCH_BOARD).isVisible())
+    ? PONG_MATCH_BOARD
+    : PONG_BOARD;
+}
+
 /** Enabled controls are the paddles this device can actually guide. */
 export async function pongControlledPaddles(
   s: ProductHarness,
@@ -11,11 +17,7 @@ export async function pongControlledPaddles(
   boardId?: string
 ): Promise<PongPaddle[]> {
   const ui = await actorUi(s, actor);
-  const board =
-    boardId ??
-    ((await ui.get(PONG_MATCH_BOARD).isVisible())
-      ? PONG_MATCH_BOARD
-      : PONG_BOARD);
+  const board = boardId ?? (await pongBoardId(s, actor));
   const paddles: PongPaddle[] = [];
   for (const [seat, paddle] of [
     ['white', 'left'],

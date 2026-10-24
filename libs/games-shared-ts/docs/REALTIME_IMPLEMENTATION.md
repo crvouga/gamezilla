@@ -661,9 +661,9 @@ The following remain required before the brief is complete:
 2. Complete capability-aware shared behavior coverage and continuous counterparts
    of the offered lifecycle policies. The registries and common/turn/simulation
    suite planning are now wired; never give Pong fake turn fixtures.
-3. Recovery of the latest published tick after authority loss; local snapshot
-   streaming for spectators; duplicate-owner/device behavior; full hybrid
-   discrete/simulation rebasing.
+3. Recovery of the latest published tick after authority loss; duplicate-owner
+   and device behavior; complete hybrid capability conformance. Custom, matched
+   and local command rebasing and local spectator delivery have current probes.
 4. Product Gherkin, Quint and glossary, audited spec-only commits, deterministic
    adverse-network campaigns and full local/online end-to-end journeys.
 5. Finish telemetry for input latency, round-trip latency and prediction error;
@@ -744,3 +744,47 @@ The JUnit fixture's overlapping upstream/branch fields were reconciled to the
 upstream typed fixture. Resolution paths pass whitespace checking. Generated
 SQLite assets inherited from main are byte-identical to that parent and were
 not patched. No new spec text was authored in this merge.
+
+### Local court forwarding and close recovery
+
+The existing custom room now forwards local play from its creator. A bounded
+relay retains one current court and allocates no engine, timer or transport.
+It validates the creator, input epoch, codec, command-owned fields and progress;
+viewers cannot publish courts or send player inputs. Late viewers receive the
+current court, missing connections preserve it, and return refreshes it through
+the same room signal channel. Shared competitive play keeps its room authority.
+
+The expanded local model exposed closing a controller without recording its
+current pose. Waiting for that lost pose after reopening let the bot finish.
+Local closure now records current progress once through the ordinary room queue
+before releasing the controller. The literal trace is in the PR profile as
+`pong-local-reopen-after-paddle-guidance`; the isolated kitchen-sink example
+preserves tick three rather than restoring tick zero.
+
+Evidence in `.cache/pong/`: `local-watch-product-second.log` passes all eight
+viewing examples; `local-viewing-all-traces-fixed.log` passes all sixteen drawn
+twelve-step traces, four model checks and that pinned regression;
+`local-viewing-recovery-final-quality.log` passes eight affected type/lint/unit
+tasks; `local-viewing-final-policy-gates.log` passes all three policy gates.
+The full context before the close fix passes sixty checks in
+`pong-after-local-viewing.log`. The current audit is
+`@libs/pong-harness-ts/docs/PONG_LOCAL_WATCH_SPEC_AUDIT.md`.
+
+### First Actions verdict
+
+Verify PR run `40103944542` on merge checkpoint `93053b228` failed. Jobs that ran
+exposed turn/clock specification entries selecting real Pong, including invented
+`pong/5+0` and `pong/3d` choices. The existing capability traits now express those
+contracts' genuine requirements. Common and continuous obligations remain
+enrolled; complete continuous counterparts are still required. See
+`@libs/games-harness-ts/docs/SIMULATION_SPECIFICATION_ENROLLMENT.md`.
+
+The five affected turn/clock feature families ran 248 checks: 244 passed and
+four old listener assertions expected a former sentence layout. The corrected
+listener observer retains opponent, rating, actual clock and side checks; all
+four eligible registrations pass in `matched-accessibility-listener-clock-green.log`.
+
+Other Actions jobs never started. Their check-run annotation is exactly:
+“The job was not started because an Actions budget is preventing further use.”
+`ci-budget-annotation.json` records it. This external limit is separate from the
+executable failures. No full CI pass, merge readiness or budget change is claimed.

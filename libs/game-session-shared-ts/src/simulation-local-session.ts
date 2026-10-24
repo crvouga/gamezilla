@@ -8,7 +8,10 @@ import {
   projectCustomSimulation,
   selectCustomSimulation,
 } from './simulation-custom-selection';
-import { chooseLocalSimulation } from './simulation-local-choice';
+import {
+  checkpointLocalProgress,
+  chooseLocalSimulation,
+} from './simulation-local-choice';
 import { SessionSimulation } from './simulation-session-runtime';
 import { CheckpointLocalSimulation } from './simulation-session-state';
 import { simulationFailed, simulationMeasures } from './simulation-telemetry';
@@ -137,8 +140,18 @@ export class LocalSimulationSession {
   }
 
   dispose(): void {
+    if (this.disposed) return;
     this.disposed = true;
     this.unsubscribe();
+    try {
+      checkpointLocalProgress({
+        room: this.options.room,
+        projected: this.session.project(this.options.room.getSnapshot()),
+        clock: this.options.clock,
+      });
+    } catch (error) {
+      this.options.onError(error);
+    }
     this.session.dispose();
     this.listeners.clear();
   }

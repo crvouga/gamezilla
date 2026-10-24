@@ -142,3 +142,43 @@ test('two seats on one device have independent input sequences and never acquire
     rig.dispose();
   }
 });
+
+// regression: pong-local-reopen-after-paddle-guidance
+test('closing a local controller saves its latest tick before the next controller opens', async () => {
+  const rig = await liveSessionRoom('players');
+  const alice = await rig.connect('alice');
+  const errors: unknown[] = [];
+  let next = 0;
+  const options = {
+    room: alice,
+    owner: 'alice',
+    rules: createTurnGames([continuousRaceGame.registration]),
+    ...rig,
+    createId: () => `local-${++next}`,
+    onError: (error: unknown) => errors.push(error),
+  };
+  let local = new LocalSimulationSession(options);
+  try {
+    await local.flush();
+    rig.clock.advance(50);
+    await local.flush();
+    local.dispose();
+    await alice.flushIo();
+    local = new LocalSimulationSession(options);
+    await local.flush();
+    const snapshots: ReturnType<typeof SimulationStateChanged>['payload'][] =
+      [];
+    local.subscribe((message) => {
+      if (SimulationStateChanged.is(message)) snapshots.push(message.payload);
+    });
+    local.send(RequestSimulationSnapshot({ version: 1 }));
+    expect(snapshots.at(-1)).toMatchObject({ tick: 3 });
+    expect(
+      JSON.parse(snapshots.at(-1)!.state.slice('race-live:'.length))
+    ).toMatchObject({ distance: 50 });
+    expect(errors).toEqual([]);
+  } finally {
+    local.dispose();
+    rig.dispose();
+  }
+});

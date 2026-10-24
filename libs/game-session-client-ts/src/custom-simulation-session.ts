@@ -11,6 +11,7 @@ import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
 import { RoomMetaAttr } from '@pkgs/room-root-client-ts/room-meta';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
+import { forwardLocalSimulation } from './local-simulation-forwarding';
 import { connectSimulationPresentation } from './simulation-presentation-session';
 
 export function connectCustomSimulation(options: {
@@ -42,6 +43,8 @@ export function connectCustomSimulation(options: {
           onError: options.failed,
         })
       : null;
+  const stopForwarding =
+    local === null ? () => {} : forwardLocalSimulation(local, room);
   const connection = connectSimulationPresentation({
     simulation: definition,
     clock,
@@ -70,6 +73,7 @@ export function connectCustomSimulation(options: {
     replica: connection.replica,
     chooseLocal: (choice: CustomGameChoice) => local?.choose(choice) ?? null,
     dispose: () => {
+      stopForwarding();
       connection.dispose();
       local?.dispose();
     },

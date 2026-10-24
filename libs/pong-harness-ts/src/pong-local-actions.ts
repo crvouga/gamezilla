@@ -11,6 +11,14 @@ import { PONG_BOARD } from './pong-view';
 
 async function start(s: ProductHarness, actor = 'alice'): Promise<void> {
   await operateCustomGameControls(s, actor, { operation: 'start' });
+  await pollUntil(
+    s,
+    async () =>
+      (await pongLocalView(s, actor)).controlledPaddles.length > 0
+        ? true
+        : null,
+    { maxMs: 5000, stepMs: 25, description: 'local Pong controls ready' }
+  );
 }
 
 export const startLocalPong = scenarioAction({
@@ -60,7 +68,7 @@ export const establishPongLocalStage = scenarioAction({
         guests: true,
         ready: true,
         active: false,
-        configuration: '1',
+        configuration: '3',
       })
     );
     if (setup.stage !== 'ready') await start(s, actor);

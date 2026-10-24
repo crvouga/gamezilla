@@ -1,8 +1,9 @@
 # Local Pong viewing contract
 
-Authoring verdict: **PASS**. Implementation and current binding verification
-are pending. This report supplements `PONG_LOCAL_PLAY_SPEC_AUDIT.md`; its older
-execution evidence predates this model expansion.
+Verdict: **PASS for local viewing**. All eight viewing examples and all sixteen
+drawn model traces pass, along with the pinned reopen regression. This report
+supplements `PONG_LOCAL_PLAY_SPEC_AUDIT.md`; its older execution evidence
+predates this model expansion. Full-goal verification remains incomplete.
 
 Scope: `pong-local-watch.feature`, the complete `pong-local-play.qnt` aggregate,
 and the existing Pong glossary's model references. No new term was introduced.
@@ -57,7 +58,37 @@ guide. All original local availability and completed-game obligations remain.
 
 `local-watch-author-gate-current.log` passes the strict spec gate. The owning
 package's pure model proof is `local-watch-model-author-proof.log`. Existing
-bindings still describe the previous local model; they must be updated in
-implementation mode. The new viewing examples and every expanded model action
-must reach the real product flow before an implementation PASS is reported.
-D2–D6 are deferred for those new bindings, never claimed as already verified.
+model corrections pass `local-watch-model-author-corrected.log` and
+`local-watch-author-corrected-gate.log`. The specs were committed separately.
+
+The binding now names every expanded public action and observes actual local
+stage, visible court, enabled controls and Alice's left paddle on both devices.
+Initialization prepares Carol's actual app before observations; joining uses
+the existing space link. No observation changes connectivity, state or play.
+Thin bindings call public harness entries with predetermined parameters; the
+same package entry discovers them. There are no selectors, SQL, product rules,
+wall timers, skips or retries in the binding (D2–D6).
+
+Evidence under `.cache/pong/`:
+
+- `local-relay-late-viewer-red.log`: the late viewer receives no snapshot.
+- `local-watch-product-second.log`: all eight viewing examples pass.
+- `pong-after-local-viewing.log`: the whole context passes sixty checks before
+  the deeper reopen finding.
+- `local-viewing-all-traces-current.log`: deeper replay finds traces four/nine
+  losing the live paddle after reopening; the literal first trace is pinned.
+- `local-controller-reopen-red.log`: closing/reopening restores tick zero.
+- `local-controller-reopen-green.log`: current tick three is kept.
+- `local-reopen-pinned-green.log`: the literal product trace passes.
+- `local-viewing-all-traces-fixed.log`: all sixteen twelve-step traces, four
+  model checks and the pinned regression pass (twenty-one checks).
+- `local-viewing-recovery-final-quality.log`: eight affected type/lint/unit tasks
+  pass, including forged viewer controls, malformed/stale courts and reconnects.
+- `local-viewing-final-policy-gates.log`: strict specs, ownership and regression
+  registration all pass.
+
+The relay forwards only the creator's valid current epoch through the existing
+room; it allocates no simulation or timer and retains one current court.
+Graceful local closure records progress through the existing durable queue.
+Unclean authority-loss durability and broader duplicate-device behavior remain
+open; these scoped results do not establish the complete implementation brief.

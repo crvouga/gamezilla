@@ -2,7 +2,7 @@ import { pairGamePlayers } from '@libs/game-matchmaking-harness-ts/matched-game-
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import { joinViaLink } from '@libs/spaces-harness-ts/space-actions';
 import { readSpaceLink } from '@libs/spaces-harness-ts/spaces-ui-reads';
-import { PONG_MATCH_BOARD } from './pong-controls-view';
+import { pongBoardId } from './pong-controls-view';
 import { type PongPlace, pongSharedView } from './pong-shared-view';
 import type { PongPaddle } from './pong-view';
 
@@ -28,8 +28,9 @@ export const joinSharedPong = scenarioAction({
 export const guideSharedPong = scenarioAction({
   name: 'guideSharedPong',
   act: async (s, actor: string, paddle: PongPaddle, place: PongPlace) => {
+    const board = await pongBoardId(s, actor);
     const control = (await actorUi(s, actor)).get(
-      `${PONG_MATCH_BOARD}-${paddle === 'left' ? 'white' : 'black'}-control`
+      `${board}-${paddle === 'left' ? 'white' : 'black'}-control`
     );
     if (
       (await control.isVisible()) &&
@@ -41,8 +42,8 @@ export const guideSharedPong = scenarioAction({
         'lower edge': '1000',
       };
       await control.input(targets[place]);
+      await s.session.advanceTime(1000);
     }
-    await s.session.advanceTime(1000);
   },
 });
 

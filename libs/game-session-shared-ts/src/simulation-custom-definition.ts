@@ -12,19 +12,14 @@ import {
   expireCustomSimulation,
   simulationCustomEffects,
 } from './simulation-custom-checkpoint';
-import {
-  projectCustomSimulation,
-  selectCustomSimulation,
-} from './simulation-custom-selection';
+import { createCustomSimulationRuntime } from './simulation-custom-runtime';
 import { checkpointLocalSimulation } from './simulation-local-checkpoint';
-import { SessionSimulation } from './simulation-session-runtime';
 import {
   CheckpointLocalSimulation,
   CheckpointSimulation,
   ExpireSimulation,
   simulationSessionCmdNs,
 } from './simulation-session-state';
-import { simulationFailed, simulationMeasures } from './simulation-telemetry';
 
 /** Installs live execution only when some registered game supplies it. */
 export function withSimulationCustomGames(
@@ -60,28 +55,6 @@ export function withSimulationCustomGames(
       simulationCommandPermission(message, topic) ??
       game.permissionForCommand?.(message, topic) ??
       null,
-    createLive: (ports) =>
-      new SessionSimulation(
-        {
-          clock: ports.clock,
-          get timers() {
-            return ports.timers;
-          },
-          publish: ports.publish,
-          commit: ports.commit,
-          enqueue: ports.enqueue,
-          onError: (error) => {
-            simulationFailed('custom');
-            ports.onError(error);
-          },
-        },
-        {
-          project: projectCustomSimulation,
-          select: (state) => selectCustomSimulation(state, rules, null),
-          checkpoint: (view, position, change) =>
-            CheckpointSimulation({ gameId: view.id, position, ...change }),
-          measure: simulationMeasures('custom'),
-        }
-      ),
+    createLive: (ports) => createCustomSimulationRuntime(ports, rules),
   };
 }

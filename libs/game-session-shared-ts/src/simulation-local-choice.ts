@@ -17,6 +17,35 @@ function dispatch(room: LocalSimulationRoom, message: Message): void {
     throw new Error(notice.reason);
 }
 
+/** A closing screen records its current pose once, through the same durable queue. */
+export function checkpointLocalProgress(options: {
+  readonly room: LocalSimulationRoom;
+  readonly projected: RoomState;
+  readonly clock: Clock;
+}): void {
+  const before = CustomGamesAttr.from(options.room.getSnapshot()).current;
+  const current = CustomGamesAttr.from(options.projected).current;
+  if (
+    before?.status !== 'active' ||
+    current?.execution === undefined ||
+    current.id !== before.id ||
+    (current.fen === before.fen &&
+      current.execution.tick === before.execution?.tick &&
+      current.execution.epoch === before.execution?.epoch)
+  )
+    return;
+  dispatch(
+    options.room,
+    CheckpointLocalSimulation({
+      gameId: current.id,
+      position: current.fen,
+      execution: current.execution,
+      previousEpoch: current.execution.epoch,
+      at: Math.floor(options.clock.now()),
+    })
+  );
+}
+
 /** Both records enter the existing offline queue before another step can run. */
 export function chooseLocalSimulation(options: {
   readonly room: LocalSimulationRoom;

@@ -1,7 +1,11 @@
 import { actorUi } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
-import { PONG_MATCH_BOARD, pongControlledPaddles } from './pong-controls-view';
+import {
+  PONG_MATCH_BOARD,
+  pongBoardId,
+  pongControlledPaddles,
+} from './pong-controls-view';
 import type { PongPaddle } from './pong-view';
 
 export type PongPlace = 'middle' | 'upper edge' | 'lower edge';
@@ -9,12 +13,13 @@ export type PongPlace = 'middle' | 'upper edge' | 'lower edge';
 async function placeShown(
   s: ProductHarness,
   actor: string,
-  paddle: PongPaddle
+  paddle: PongPaddle,
+  board: string
 ): Promise<string> {
   const ui = await actorUi(s, actor);
-  const drawing = ui.get(`${PONG_MATCH_BOARD}-drawing`);
+  const drawing = ui.get(`${board}-drawing`);
   const rect = ui.get(
-    `${PONG_MATCH_BOARD}-${paddle === 'left' ? 'first' : 'second'}-paddle`
+    `${board}-${paddle === 'left' ? 'first' : 'second'}-paddle`
   );
   const courtHeight = Number(
     (await drawing.attribute('viewBox'))?.split(' ')[3]
@@ -30,13 +35,14 @@ async function placeShown(
 export async function pongSharedView(s: ProductHarness, actor = 'alice') {
   await bringToFront(s, actor);
   const ui = await actorUi(s, actor);
-  const gameShown = await ui.get(PONG_MATCH_BOARD).isVisible();
+  const board = await pongBoardId(s, actor);
+  const gameShown = await ui.get(board).isVisible();
   const paddlePlace = new Map<string, string>();
   const owners = new Map<string, string>();
   if (gameShown) {
     for (const paddle of ['left', 'right'] as const)
-      paddlePlace.set(paddle, await placeShown(s, actor, paddle));
-    for (const position of ['near', 'far']) {
+      paddlePlace.set(paddle, await placeShown(s, actor, paddle, board));
+    for (const position of board === PONG_MATCH_BOARD ? ['near', 'far'] : []) {
       const seat = ui.get(`multiplayer-seat-${position}`);
       const side = await seat.attribute('data-side');
       owners.set(
@@ -49,7 +55,7 @@ export async function pongSharedView(s: ProductHarness, actor = 'alice') {
     gameShown,
     paddlePlace,
     owners,
-    controlledPaddles: await pongControlledPaddles(s, actor, PONG_MATCH_BOARD),
+    controlledPaddles: await pongControlledPaddles(s, actor, board),
   };
 }
 
