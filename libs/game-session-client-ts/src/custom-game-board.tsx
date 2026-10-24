@@ -21,7 +21,6 @@ import { CustomGameError } from './custom-game-error';
 import { CustomGameSeat } from './custom-game-side';
 import type { CustomGameReview } from './use-custom-game-review';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
-import { useCustomSimulation } from './use-custom-simulation';
 
 type BoardProps = { model: CustomGameScreenModel; review: CustomGameReview };
 
@@ -176,11 +175,7 @@ export function CustomGameBoard(props: BoardProps): JSX.Element {
   const interactive = (): boolean =>
     customGameCanMove(props.model, props.review);
   const presentation = useGamePresentation();
-  const simulation = useCustomSimulation(
-    props.model.current,
-    props.model.myId,
-    () => props.model.canPlay() && props.review.live()
-  );
+  const simulation = props.model.simulation;
   const position = () =>
     props.review.live() && simulation.active()
       ? (simulation.position() ?? props.review.fen())

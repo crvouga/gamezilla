@@ -559,8 +559,8 @@ are `hybrid-simulation-overwrites-discrete-command`,
   registration pass after all hybrid changes.
 
 Matched turns now use the authoritative mutation/receipt path described below.
-Local hybrid commands still need the equivalent projection. These probes do
-not establish complete hybrid support.
+Local hybrid command projection was added after the matched probe below; its
+evidence is recorded in the local-command section.
 
 ### Matched hybrid commands
 
@@ -597,8 +597,8 @@ is fabricated to exercise simulation. Evidence under `.cache/pong/`:
 
 The registered regressions are `hybrid-match-checkpoint-erases-turn`,
 `hybrid-match-move-bypasses-live-authority` and
-`hybrid-matched-checkpoint-rolls-back-command`. Local hybrid command projection
-and the broader recovery/observability/visual work below remain required.
+`hybrid-matched-checkpoint-rolls-back-command`. Local projection now has its own
+probe below. Broader recovery, observability and visual work remain required.
 
 ### Upstream audit fix and release enrollment
 
@@ -683,8 +683,38 @@ retaining its discrete turn commands. Optional simulation must compose with
 the existing capabilities; registering a simulation must not replace the
 game's other capabilities or create a second game identity. Registration accepts
 that composition under one game identity. The mechanics-owned command capability
-and custom/matched probes above implement its shared execution paths. Local
-command projection remains required before hybrid support is complete.
+and custom/matched/local probes implement its shared execution paths. Broader
+capability conformance and adverse-network verification remain required.
+
+### Local hybrid commands
+
+The custom-game screen now owns one simulation connection for both its board
+and its commands. A local choice enters that controller's serial queue. The
+controller records current live progress, then the ordinary local choice, in
+the existing offline room queue. Only the revision caused by that checkpoint
+is advanced; stale choices keep their original revision. No second transport,
+local registry or simulation engine was added. Integer timestamps are derived
+from the injected clock.
+
+The literal counting-race regression advances seven 60 Hz ticks before an
+offline turn. Previously, the saved distance stayed at zero; it now preserves
+116.66666666666667, the accepted token, execution tick and original epoch.
+A queued tick-ten input is still acknowledged and applied after the choice.
+On reconnect, the server replays the checkpoint and choice to the same state.
+
+Evidence under `.cache/pong/`:
+
+- `hybrid-local-choice-red.log`: the fractional local-choice timestamp fails
+  the existing payload schema.
+- `hybrid-local-progress-red.log`: the saved distance is zero after seven ticks.
+- `hybrid-local-final-quality.log`: all seven affected type/lint/test tasks pass.
+- `pong-after-hybrid-local.log`: the whole Pong context passes all 52 checks.
+- `hybrid-local-policy-gates.log`: all three strict spec, ownership and regression
+  registration tasks pass.
+
+The regressions are `hybrid-local-choice-loses-live-progress` and
+`local-custom-choice-fractional-timestamp`. This does not establish the still
+outstanding spectator relay, authority-loss recovery or complete hybrid suite.
 
 
 ### Draft checkpoint and trunk synchronization

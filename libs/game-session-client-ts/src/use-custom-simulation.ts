@@ -1,6 +1,6 @@
+import type { CustomGameChoice } from '@libs/game-session-shared-ts/custom-game-choice';
 import { soloCustomGame } from '@libs/game-session-shared-ts/custom-game-local';
 import type { CustomGame } from '@libs/game-session-shared-ts/custom-game-state';
-import type { SimulationReplica } from '@libs/game-session-shared-ts/simulation-replica';
 import { useSpaceOpenRoomEntry } from '@libs/spaces-client-ts/space-open-rooms-store';
 import { useSpaceRoomSessionId } from '@libs/spaces-client-ts/space-room-context';
 import { useClock, useTimers } from '@pkgs/clock-client-ts/solid';
@@ -17,7 +17,7 @@ import {
 } from 'solid-js';
 import { connectCustomSimulation } from './custom-simulation-session';
 
-/** A rendered board subscribes to its existing room, or the same controller on the host's device. */
+/** The screen owns one controller for its board and its choices. */
 export function useCustomSimulation(
   current: Accessor<CustomGame | null>,
   myId: Accessor<string>,
@@ -33,7 +33,7 @@ export function useCustomSimulation(
   const [paused, setPaused] = createSignal(true);
   const [stale, setStale] = createSignal(true);
   const [error, setError] = createSignal(false);
-  let replica: SimulationReplica | null = null;
+  let connection: ReturnType<typeof connectCustomSimulation> | null = null;
   const key = createMemo(() => {
     const game = current();
     return game?.status === 'active' &&
@@ -47,7 +47,7 @@ export function useCustomSimulation(
     setPosition(null);
     setError(false);
     if (room === undefined || id === '') return;
-    const connection = connectCustomSimulation({
+    const next = connectCustomSimulation({
       room,
       game: untrack(current)!,
       owner: untrack(myId),
@@ -62,10 +62,10 @@ export function useCustomSimulation(
       },
       failed: () => setError(true),
     });
-    replica = connection.replica;
+    connection = next;
     onCleanup(() => {
-      connection.dispose();
-      if (replica === connection.replica) replica = null;
+      next.dispose();
+      if (connection === next) connection = null;
     });
   });
   const sides = createMemo(() => {
@@ -83,9 +83,16 @@ export function useCustomSimulation(
     stale: stale(),
     sides: sides(),
     onInput: (side, input) => {
-      if (sides().includes(side)) replica?.control(side, input);
+      if (sides().includes(side)) connection?.replica.control(side, input);
     },
-    onRelease: () => replica?.release(),
+    onRelease: () => connection?.replica.release(),
   }));
-  return { position, controls, error, active: () => key() !== '' };
+  return {
+    position,
+    controls,
+    error,
+    active: () => key() !== '',
+    chooseLocal: (choice: CustomGameChoice) =>
+      connection?.chooseLocal(choice) ?? null,
+  };
 }

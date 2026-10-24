@@ -1,3 +1,4 @@
+import type { CustomGameChoice } from '@libs/game-session-shared-ts/custom-game-choice';
 import { soloCustomGame } from '@libs/game-session-shared-ts/custom-game-local';
 import {
   type CustomGame,
@@ -67,6 +68,7 @@ export function connectCustomSimulation(options: {
   else local.flush().then(connection.refresh, options.failed);
   return {
     replica: connection.replica,
+    chooseLocal: (choice: CustomGameChoice) => local?.choose(choice) ?? null,
     dispose: () => {
       connection.dispose();
       local?.dispose();

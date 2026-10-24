@@ -3,7 +3,12 @@ import type { Message } from '@pkgs/message-shared-ts/message';
 import type { RoomState } from '@pkgs/room-root-shared-ts/types';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
-import { selectCustomSimulation } from './simulation-custom-selection';
+import type { CustomGameChoice } from './custom-game-choice';
+import {
+  projectCustomSimulation,
+  selectCustomSimulation,
+} from './simulation-custom-selection';
+import { chooseLocalSimulation } from './simulation-local-choice';
 import { SessionSimulation } from './simulation-session-runtime';
 import { CheckpointLocalSimulation } from './simulation-session-state';
 import { simulationFailed, simulationMeasures } from './simulation-telemetry';
@@ -60,6 +65,7 @@ export class LocalSimulationSession {
         },
       },
       {
+        project: projectCustomSimulation,
         select: (state) =>
           selectCustomSimulation(state, options.rules, options.owner),
         checkpoint: (view, position, change) =>
@@ -95,6 +101,22 @@ export class LocalSimulationSession {
     );
     if (error !== null) this.options.onError(error);
     return error === null ? id : null;
+  }
+
+  choose(choice: CustomGameChoice): Promise<void> {
+    if (this.disposed)
+      return Promise.reject(
+        new Error('the game closed; reopen it to try again')
+      );
+    return this.enqueue(async () => {
+      chooseLocalSimulation({
+        room: this.options.room,
+        choice,
+        projected: this.session.project(this.options.room.getSnapshot()),
+        clock: this.options.clock,
+      });
+      await this.options.room.flushIo();
+    });
   }
 
   private enqueue(work: () => Promise<void>): Promise<void> {
