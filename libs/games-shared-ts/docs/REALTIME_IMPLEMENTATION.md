@@ -1378,3 +1378,22 @@ OpenSLO tests with the actual failing seed and `PBT_NUM_RUNS=200`, plus types an
 lint. `alert-oracle-policy.log` passes goals, spec ownership and package naming.
 The older frozen nightly run still contains its original code and cannot prove
 this fix; a fresh exact-commit verdict remains required.
+
+That frozen nightly group ultimately exited 1 after 656.9 seconds: mutants
+passed, while fresh-seed properties and determinism fuzz failed. The fuzz
+failure was seed `1615826050` in the Bun host availability contract, where
+`StartMatch({ whiteMs: 4000, blackMs: 4000 })` expected the old empty 204 send
+response. The shared service returns a 200 `RoomServiceReceipt`; its availability,
+disconnect and erase operations still return 204. The sibling socket/dedup
+contract also retained the stale send expectation.
+
+`room-host-service-tests-stale-send-status` pins that literal command. Both
+contracts now assert 200, the accepted receipt and its authoritative clock/tally
+state. The retry still must return tally one; the original pause/resume,
+socket fanout, erasure and 204 control-operation assertions remain.
+`bun-host-availability-red.log` reproduces the old send-status assertion.
+`bun-host-receipt-green.log` passes all three Bun-host tests with the actual fuzz
+seed, plus types and lint; `bun-host-receipt-policy.log` passes the three policy
+tasks. No service implementation or response contract was changed to clear the
+failure. The complete nightly diagnostics are retained in
+`.cache/pong/verify-nightly-random-network-playback-diagnostics.tar.gz`.
