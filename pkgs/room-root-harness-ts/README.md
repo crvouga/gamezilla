@@ -301,8 +301,8 @@ replays are idempotent.
 | Port | Role |
 |------|------|
 | `ClientTransport` | connect / sendJson / subscribe / lifecycle handlers |
-| `ClientRoomStorage` | `loadCommitted` / `appendCommitted` / `resetCommitted` + `loadQueued` / `saveQueued` (queue snapshot). Every call is O(what changed); adapters use `createSegmentedCommittedLog` over a `CommittedLogBlobs` port |
-| `RoomStorage` | append/load log, lastSeq, command dedup |
+| `ClientRoomStorage` | `loadCommitted` / `appendCommitted` / `resetCommitted`, `loadQueued` / `saveQueued`, and bounded `loadLiveCheckpoint` / `replaceLiveCheckpoint`. Calls stay on one persistence chain; live frames replace a value instead of growing either journal. Adapters use `createSegmentedCommittedLog` for history |
+| `RoomStorage` | append/load log, lastSeq, command dedup and one bounded live checkpoint |
 | `RoomAuth` | upgrade auth; optional per-command `authorize` (handed the connection's grants) |
 | `RoomEffectHandler[]` | post-ok side effects (Schedule, custom) |
 | `clock` / `timers` / `createId` | all nondeterministic I/O, injected |

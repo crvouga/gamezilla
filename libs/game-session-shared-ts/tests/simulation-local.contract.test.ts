@@ -41,6 +41,7 @@ test('an offline creator uses the shared execution controller and keeps a comple
     expect(
       local.send(RequestSimulationSnapshot({ version: 1 }))
     ).not.toBeNull();
+    await local.flush();
     expect(tick).toBe(0);
     expect(
       local.send(
@@ -105,6 +106,7 @@ test('two seats on one device have independent input sequences and never acquire
       if (SimulationStateChanged.is(message)) snapshot = message.payload;
     });
     local.send(RequestSimulationSnapshot({ version: 1 }));
+    await local.flush();
     const current = () => {
       if (snapshot === null) throw new Error('snapshot missing');
       return snapshot;
@@ -128,6 +130,7 @@ test('two seats on one device have independent input sequences and never acquire
     rig.clock.advance(50);
     await local.flush();
     local.send(RequestSimulationSnapshot({ version: 1 }));
+    await local.flush();
     expect(current().tick).toBe(3);
     expect(current().acknowledged).toEqual({ black: 1, white: 1 });
     expect(current().state).toContain('1:white:1:3');
@@ -172,6 +175,7 @@ test('closing a local controller saves its latest tick before the next controlle
       if (SimulationStateChanged.is(message)) snapshots.push(message.payload);
     });
     local.send(RequestSimulationSnapshot({ version: 1 }));
+    await local.flush();
     expect(snapshots.at(-1)).toMatchObject({ tick: 3 });
     expect(
       JSON.parse(snapshots.at(-1)!.state.slice('race-live:'.length))

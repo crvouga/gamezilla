@@ -144,8 +144,10 @@ game by forfeit when one side stays away, or cancellation when both stay away.
 Reconnection restores the current tick and state with a new control generation,
 without changing the logical random seed. A recreated authority receives a new
 execution generation. Persistent authorities restore their latest published
-court through the bounded [recovery value](#authority-recovery). Local unclean
-process-loss durability and a live Durable Object rehearsal remain open.
+court through the bounded [recovery value](#authority-recovery). Local execution
+now has the same publication guarantee through its client store; see
+[local authority recovery](#local-authority-recovery). Browser and hosted
+Durable Object recovery rehearsals remain open.
 
 `LocalSimulationSession` uses the same controller on the creator's device and
 checkpoints through the existing offline custom-game queue. Only the creator of
@@ -665,11 +667,11 @@ The following remain required before the brief is complete:
 2. Complete capability-aware shared behavior coverage and continuous counterparts
    of the offered lifecycle policies. The registries and common/turn/simulation
    suite planning are now wired; never give Pong fake turn fixtures.
-3. Local recovery of the latest published tick after unclean process loss and a
-   live Durable Object rehearsal of server recovery; duplicate-owner and device
-   behavior; complete hybrid capability conformance. Custom and matched server
-   recovery now have bounded-storage contracts and repeated-crash properties.
-   Local command rebasing and spectator delivery also have current probes.
+3. Production-like browser recovery and a hosted Durable Object rehearsal;
+   duplicate-owner/device behavior and complete hybrid capability conformance.
+   Custom, matched and local latest-published-state recovery now have bounded
+   storage contracts and repeated-crash properties. Local command rebasing and
+   spectator delivery also have current probes.
 4. Product Gherkin, Quint and glossary, audited spec-only commits, deterministic
    adverse-network campaigns and full local/online end-to-end journeys.
 5. Finish telemetry for authoritative input processing, transport round-trip
@@ -992,3 +994,88 @@ This server recovery work does not establish local durability after an unclean
 browser-process loss, duplicate-owner behavior, adverse-network campaigns,
 performance budgets or a hosted recovery rehearsal. The full current Verify
 gate is still required, along with the other open items above.
+
+
+## Local authority recovery
+
+Local execution now saves its published court through `ClientRoomStorage` and
+the existing `RoomClient` persistence chain. Memory, web storage and the injected
+KV adapter implement the same bounded live-value contract. Physics frames do
+not become queued commands or committed log entries. The store compares the
+durable tip, validates the same byte cap as server recovery and returns copies.
+Resetting committed cache storage clears its live value without changing the
+storage adapter’s queued choices; the existing room invalidation policy still
+decides which choices may be replayed. No new storage service, transport, wall I/O or compatibility path was
+introduced; every execution host now supplies persistent publication.
+
+Startup reads recovery before launching the controller and applies it through
+the existing creator-authorized local checkpoint command. The source anchor
+must still match the restored optimistic choices. A later accepted hybrid choice
+wins over older live bytes. Restart retains tick, court and seeded continuation,
+creates a new execution generation, and drops old pending inputs/acknowledgments.
+Graceful close still records current progress through the ordinary choice queue.
+
+A slow local write holds the next wake on the controller's serial chain. It does
+not expose an unsaved frame or accumulate a frame per waiting tick. A transient
+recovery-read error starts no engine and preserves queued choices. Reopening can
+retry the read without creating a choice; successful reads cannot clear failed
+queue/log writes or allow a new live frame past unsaved choices. A blocked-write
+regression also exposed publishing the earlier hybrid token after its choice
+was accepted. Publication now revalidates the full source anchor before emitting
+the saved frame; `simulation-published-frame-reverts-accepted-choice` pins the
+literal `[0, 1, 1]` rollback. Presentation also waits for the first durable
+publication before requesting snapshots from a restored local input epoch;
+`local-simulation-refresh-before-recovery-ready` pins the earlier ready-before-
+restore ordering. The generic
+failure copy now directs the person to reopen, which is available both before
+restoration and after a stopped game; rematch remains the normal ended-game
+policy.
+
+`local-simulation-process-loss-rewinds-court` copies actual serialized web-storage
+bytes before cleanup, reproducing published tick six restoring as zero for both
+a local bot and two seats. The frozen copy now restores six, retains an applied
+input, drops a future old-generation input and continues with exactly the
+uninterrupted RNG/state. A property varies mode and tick partitions across
+repeated losses. Additional contracts cover stale hybrid recovery, pending-store
+backpressure, failed-read retry, and all three client storage adapters. The
+separate literal `client-live-recovery-read-error-blocks-retry` fixes a latched
+read failure while retaining the unsaved-write fence.
+
+The red evidence is `local-process-loss-red.log` (98 pass, two literal failures)
+and `local-recovery-read-retry-red.log`. Current `local-recovery-retry-contracts.log`
+passes both game-session and room-harness tasks (104 and 95 checks).
+`local-recovery-choice-publication-red.log` records the later publication race;
+`local-recovery-choice-publication-fixed.log` passes all 105 game-session checks.
+`local-recovery-readiness-red.log` records readiness being true while recovery
+is held; `local-recovery-readiness-fixed.log` passes the added readiness contract. Storage and
+runtime tasks pass together in `local-recovery-storage-and-runtime.log`.
+All logs are under `.cache/pong/`. The copy's mechanical detector returned no
+findings in `local-recovery-ui-detect.json`; the message catalog was extracted
+and compiled through the existing tasks. This is automated contract evidence,
+not a browser-process-kill or hosted recovery verdict.
+
+Full verification waits in an owned detached checkout at
+`~/.cache/gamezilla/pong-verification-2b59d5985`, initially prepared from the
+server-recovery checkpoint. Its Verify and nightly-random commands use the
+normal machine-wide queue. A checkpoint refresh stops only owned queued workers
+before changing that checkout, then installs and queues the complete new
+checkpoint. Other worktrees' workers and lease are unchanged. Results belong
+only to the exact checked-out commit; earlier checkpoints cannot establish a
+full verdict for later changes.
+
+
+Current local-recovery checkpoint evidence in `.cache/pong/`:
+
+- `local-recovery-deeper-units.log`: all five affected test tasks pass at
+  `PBT_NUM_RUNS=200`, including 106 game-session and 95 room-harness checks.
+- `pong-after-local-durable-recovery.log`: all 108 whole-context checks pass,
+  including every drawn trace and the existing pinned regressions.
+- `local-recovery-dependent-types-final.log`: all 115 dependent type tasks pass.
+- `local-recovery-lint-final.log`: all eight affected lint tasks pass.
+- `local-recovery-policy-gates-final.log`: all five policy/catalog tasks pass.
+- `local-recovery-ui-final-detect.json`: no mechanical findings for the two
+  changed client modules. This is not responsive visual evidence.
+
+The complete current Verify gate, hosted/browser recovery, duplicate-owner and
+adverse-network work, full shared policy/journey coverage, telemetry and measured
+performance/visual evidence remain required as listed above.

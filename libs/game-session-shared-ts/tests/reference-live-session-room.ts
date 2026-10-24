@@ -22,6 +22,7 @@ import { LoopbackRoomTransport } from '@pkgs/room-adapter-memory-shared-ts/loopb
 import { InMemoryRoomStorage } from '@pkgs/room-adapter-memory-shared-ts/room-storage';
 import { RoomClient } from '@pkgs/room-root-client-ts/room-client';
 import { RoomServer } from '@pkgs/room-root-server-ts/room-server';
+import type { ClientRoomStorage } from '@pkgs/room-root-shared-ts/core-storage';
 import { createTimerScheduleStack } from '@pkgs/room-root-shared-ts/timer-schedule-stack';
 import {
   assertRoomModuleName,
@@ -116,7 +117,10 @@ export async function liveSessionRoom(
     RoomClient<RoomState, Message, Message, string>
   >();
   const transports = new Map<string, LoopbackRoomTransport>();
-  const connect = async (identity: string) => {
+  const connect = async (
+    identity: string,
+    clientStorage: ClientRoomStorage = new InMemoryClientStorage()
+  ) => {
     const grants = [
       PERMISSION.spacesLeave,
       ...CUSTOM_GAME_GRANT_KEYS,
@@ -144,7 +148,7 @@ export async function liveSessionRoom(
       topic,
       module,
       identity,
-      storage: new InMemoryClientStorage(),
+      storage: clientStorage,
       transport,
       ...time,
       createId: () => `client-${++next}`,

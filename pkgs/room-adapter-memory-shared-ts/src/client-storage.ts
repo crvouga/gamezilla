@@ -1,7 +1,13 @@
+import type { Message } from '@pkgs/message-shared-ts/message';
 import type {
   ClientRoomStorage,
   QueuedCommand,
 } from '@pkgs/room-root-shared-ts/core-storage';
+import {
+  parseRoomLiveCheckpoint,
+  type RoomLiveCheckpoint,
+  roomLiveCheckpoint,
+} from '@pkgs/room-root-shared-ts/live-checkpoint';
 import type { LogEntry } from '@pkgs/room-root-shared-ts/types';
 
 /**
@@ -14,6 +20,7 @@ import type { LogEntry } from '@pkgs/room-root-shared-ts/types';
 export class InMemoryClientStorage implements ClientRoomStorage {
   private entries: LogEntry[] = [];
   private queue: readonly QueuedCommand[] = [];
+  private liveCheckpoint: RoomLiveCheckpoint | null = null;
 
   async loadCommitted(): Promise<{ lastSeq: number; entries: LogEntry[] }> {
     const n = this.entries.length;
@@ -29,6 +36,7 @@ export class InMemoryClientStorage implements ClientRoomStorage {
 
   async resetCommitted(): Promise<void> {
     this.entries = [];
+    this.liveCheckpoint = null;
   }
 
   async loadQueued(): Promise<QueuedCommand[]> {
@@ -37,5 +45,19 @@ export class InMemoryClientStorage implements ClientRoomStorage {
 
   async saveQueued(queue: readonly QueuedCommand[]): Promise<void> {
     this.queue = queue.slice();
+  }
+
+  async loadLiveCheckpoint(): Promise<RoomLiveCheckpoint | null> {
+    return parseRoomLiveCheckpoint(this.liveCheckpoint);
+  }
+
+  async replaceLiveCheckpoint(
+    expectedSeq: number,
+    payload: Message | null
+  ): Promise<boolean> {
+    if ((this.entries.at(-1)?.seq ?? 0) !== expectedSeq) return false;
+    this.liveCheckpoint =
+      payload === null ? null : roomLiveCheckpoint(expectedSeq, payload);
+    return true;
   }
 }

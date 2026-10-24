@@ -17,6 +17,7 @@
   "dependencies": {
     "@pkgs/assert-root-shared-ts": "workspace:*",
     "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/message-shared-ts": "workspace:*",
     "@pkgs/room-root-shared-ts": "workspace:*",
     "@pkgs/uuid-shared-ts": "workspace:*"
   },

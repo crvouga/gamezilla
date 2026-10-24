@@ -4738,8 +4738,8 @@ msgid "The game ends with no result and no rating change."
 msgstr "The game ends with no result and no rating change."
 
 #: libs/game-session-client-ts/src/custom-game-board.tsx
-msgid "The game stopped. Its last score is kept in the record. Start a rematch to play again."
-msgstr "The game stopped. Its last score is kept in the record. Start a rematch to play again."
+msgid "The game stopped. Your last saved score is kept. Reopen the game to try again."
+msgstr "The game stopped. Your last saved score is kept. Reopen the game to try again."
 
 #: libs/game-puzzle-client-ts/src/puzzle-empty-pool-state.tsx
 msgid "The host hasn't started a puzzle yet."

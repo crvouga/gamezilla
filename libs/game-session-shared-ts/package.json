@@ -41,6 +41,7 @@
     "@pkgs/outbox-shared-ts": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",
     "@pkgs/room-adapter-memory-shared-ts": "workspace:*",
+    "@pkgs/room-adapter-web-shared-ts": "workspace:*",
     "@pkgs/room-root-client-ts": "workspace:*",
     "@pkgs/room-root-server-ts": "workspace:*",
     "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",

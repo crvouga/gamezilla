@@ -1,0 +1,4 @@
+{
+  "summary": "An offline local controller publishes tick six after a paddle input, but copying its actual persisted bytes before cleanup and reopening restores tick zero. Persist one bounded live value through existing client room storage before publication; recover it through the normal local checkpoint path with a fresh control generation.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-local-restart.contract.test.ts"
+}

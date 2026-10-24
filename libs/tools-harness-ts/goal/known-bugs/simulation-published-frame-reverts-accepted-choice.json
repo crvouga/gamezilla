@@ -1,0 +1,4 @@
+{
+  "summary": "Hold a local live write at tick nine, queue the hybrid advance-token choice, then release storage. The old token-zero frame could publish after the choice had been accepted because publication checked only the execution epoch. Revalidate the complete durable anchor before emitting any saved frame; a newer choice supersedes it.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-local-publication.contract.test.ts"
+}

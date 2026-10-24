@@ -42,8 +42,8 @@ export type SimulationSessionView = {
   readonly execution: SimulationExecution | undefined;
 };
 export type SimulationSessionBinding = {
-  /** Provided by persistent room hosts; offline execution has its own local journal. */
-  readonly persist?: RoomLivePorts<Message>['checkpoint'];
+  /** Every server or local authority saves its published court through its existing room store. */
+  readonly persist: RoomLivePorts<Message>['checkpoint'];
   readonly project?: (
     state: RoomState,
     position: string,
@@ -343,10 +343,10 @@ export class SessionSimulation implements RoomLiveSession<RoomState, string> {
             this.execution?.epoch === epoch
           ) {
             if (
-              recovery !== null &&
-              recoverSimulation(this.view, RecoverSimulation(recovery)) !== null
+              recoverSimulation(this.view, RecoverSimulation(recovery)) === null
             )
-              this.recovery = recovery;
+              return;
+            this.recovery = recovery;
             this.ports.publish(message, audience);
           }
         },

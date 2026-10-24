@@ -1,5 +1,6 @@
 import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
 import type { Message } from '@pkgs/message-shared-ts/message';
+import type { RoomLiveCheckpoint } from '@pkgs/room-root-shared-ts/live-checkpoint';
 import type { RoomState } from '@pkgs/room-root-shared-ts/types';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
@@ -11,6 +12,7 @@ import {
 import {
   checkpointLocalProgress,
   chooseLocalSimulation,
+  dispatchLocalSimulation,
 } from './simulation-local-choice';
 import { SessionSimulation } from './simulation-session-runtime';
 import { CheckpointLocalSimulation } from './simulation-session-state';
@@ -21,15 +23,19 @@ export type LocalSimulationRoom = {
   readonly getSnapshot: () => RoomState;
   readonly subscribe: (listener: () => void) => () => void;
   readonly flushIo: () => Promise<void>;
+  readonly loadLiveCheckpoint: () => Promise<RoomLiveCheckpoint | null>;
+  readonly saveLiveCheckpoint: (message: Message) => Promise<boolean>;
 };
 
-/** Offline execution uses the same controller and the existing durable local-choice queue. */
+/** Offline execution uses the shared controller, local-choice queue and bounded live checkpoint. */
 export class LocalSimulationSession {
   private readonly session: SessionSimulation;
   private readonly unsubscribe: () => void;
   private readonly listeners = new Set<(message: Message) => void>();
   private chain: Promise<void> = Promise.resolve();
   private disposed = false;
+  private ready = false;
+  private receiving = false;
 
   constructor(
     private readonly options: {
@@ -47,6 +53,7 @@ export class LocalSimulationSession {
         clock: options.clock,
         timers: options.timers,
         publish: (message) => {
+          this.receiving = true;
           for (const listener of this.listeners) listener(message);
         },
         commit: (_id, message) =>
@@ -63,11 +70,13 @@ export class LocalSimulationSession {
           }).catch(options.onError);
         },
         onError: (error) => {
+          this.receiving = false;
           simulationFailed('local');
           options.onError(error);
         },
       },
       {
+        persist: (message) => this.persist(message),
         project: projectCustomSimulation,
         select: (state) =>
           selectCustomSimulation(state, options.rules, options.owner),
@@ -82,10 +91,34 @@ export class LocalSimulationSession {
       }
     );
     this.session.presence([{ id: options.owner, clientId: 'local' }]);
-    this.unsubscribe = options.room.subscribe(() =>
-      this.session.update(options.room.getSnapshot())
-    );
-    this.session.update(options.room.getSnapshot());
+    this.unsubscribe = options.room.subscribe(() => {
+      if (this.ready) this.session.update(options.room.getSnapshot());
+    });
+    this.enqueue(() => this.restore()).catch(options.onError);
+  }
+
+  private async restore(): Promise<void> {
+    const room = this.options.room;
+    const saved = await room.loadLiveCheckpoint();
+    if (this.disposed) return;
+    const command =
+      saved === null
+        ? null
+        : this.session.recover(room.getSnapshot(), saved.payload);
+    if (command !== null) {
+      dispatchLocalSimulation(room, command);
+      await room.flushIo();
+    }
+    this.ready = true;
+    this.session.update(room.getSnapshot());
+  }
+
+  /** A slow store holds the next wake behind one write instead of accumulating tick frames. */
+  private persist(message: Message): Promise<boolean> {
+    let saved = false;
+    return this.enqueue(async () => {
+      saved = await this.options.room.saveLiveCheckpoint(message);
+    }).then(() => saved);
   }
 
   subscribe(listener: (message: Message) => void): () => void {
@@ -93,6 +126,10 @@ export class LocalSimulationSession {
     return () => {
       this.listeners.delete(listener);
     };
+  }
+
+  isReady(): boolean {
+    return this.receiving && !this.disposed;
   }
 
   send(message: Message): string | null {
@@ -136,6 +173,7 @@ export class LocalSimulationSession {
     do {
       chain = this.chain;
       await chain;
+      await this.options.room.flushIo();
     } while (chain !== this.chain);
   }
 

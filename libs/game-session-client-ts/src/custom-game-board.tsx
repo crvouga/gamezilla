@@ -238,7 +238,7 @@ export function CustomGameBoard(props: BoardProps): JSX.Element {
       <CustomGameError
         reason={
           simulation.error()
-            ? t`The game stopped. Its last score is kept in the record. Start a rematch to play again.`
+            ? t`The game stopped. Your last saved score is kept. Reopen the game to try again.`
             : ''
         }
       />

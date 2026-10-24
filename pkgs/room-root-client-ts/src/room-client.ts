@@ -246,9 +246,31 @@ export class RoomClient<
     return this.core.lastSeq;
   }
 
-  /** Await durable-queue + committed-log persistence (tests). */
+  /** Await all scheduled room persistence, including client-owned live execution. */
   flushIo(): Promise<void> {
     return this.persist.flush();
+  }
+
+  loadLiveCheckpoint() {
+    return this.persist.run(async () => {
+      const saved = await this.storage.loadLiveCheckpoint();
+      return saved !== null && saved.atSeq <= this.core.lastSeq ? saved : null;
+    }, 'read');
+  }
+
+  /** A changed optimistic state supersedes a frame waiting behind durable choices. */
+  saveLiveCheckpoint(payload: RoomCommandPayload): Promise<boolean> {
+    const display = this.core.display;
+    const atSeq = this.core.lastSeq;
+    return this.persist.run(async () => {
+      if (
+        this.destroyed ||
+        display !== this.core.display ||
+        atSeq !== this.core.lastSeq
+      )
+        return false;
+      return this.storage.replaceLiveCheckpoint(atSeq, payload);
+    }, 'write');
   }
 
   private captureSnapshotInputs(): void {

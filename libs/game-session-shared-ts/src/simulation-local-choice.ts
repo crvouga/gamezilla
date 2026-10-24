@@ -8,7 +8,10 @@ import { CustomGamesAttr } from './custom-game-state';
 import type { LocalSimulationRoom } from './simulation-local-session';
 import { CheckpointLocalSimulation } from './simulation-session-state';
 
-function dispatch(room: LocalSimulationRoom, message: Message): void {
+export function dispatchLocalSimulation(
+  room: LocalSimulationRoom,
+  message: Message
+): void {
   const id = room.dispatch(message);
   if (id === null)
     throw new Error('the game could not be saved; reopen it to try again');
@@ -34,7 +37,7 @@ export function checkpointLocalProgress(options: {
       current.execution.epoch === before.execution?.epoch)
   )
     return;
-  dispatch(
+  dispatchLocalSimulation(
     options.room,
     CheckpointLocalSimulation({
       gameId: current.id,
@@ -64,7 +67,7 @@ export function chooseLocalSimulation(options: {
     current.id === choice.gameId &&
     before.revision === choice.revision
   ) {
-    dispatch(
+    dispatchLocalSimulation(
       room,
       CheckpointLocalSimulation({
         gameId: current.id,
@@ -76,7 +79,7 @@ export function chooseLocalSimulation(options: {
     );
     revision = CustomGamesAttr.from(room.getSnapshot()).current!.revision;
   }
-  dispatch(
+  dispatchLocalSimulation(
     room,
     ChangeLocalCustomGame({ choice: { ...choice, revision }, at })
   );

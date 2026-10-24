@@ -28,12 +28,13 @@ async function localHybrid() {
   return { rig, alice, local, errors };
 }
 
-function snapshot(local: LocalSimulationSession) {
+async function snapshot(local: LocalSimulationSession) {
   const values: ReturnType<typeof SimulationStateChanged>['payload'][] = [];
   const unsubscribe = local.subscribe((message) => {
     if (SimulationStateChanged.is(message)) values.push(message.payload);
   });
   local.send(RequestSimulationSnapshot({ version: 1 }));
+  await local.flush();
   unsubscribe();
   const value = values.at(-1);
   if (value === undefined) throw new Error('local snapshot missing');
@@ -50,7 +51,7 @@ test('an offline turn saves current live progress before its choice and replays 
       rig.clock.advance(1000 / 60);
       await local.flush();
     }
-    const before = snapshot(local);
+    const before = await snapshot(local);
     local.send(
       SubmitSimulationInput({
         version: 1,
@@ -79,7 +80,7 @@ test('an offline turn saves current live progress before its choice and replays 
       rig.clock.advance(1000 / 60);
       await local.flush();
     }
-    const after = snapshot(local);
+    const after = await snapshot(local);
     expect(after).toMatchObject({
       epoch: before.epoch,
       tick: 11,

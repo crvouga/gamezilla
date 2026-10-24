@@ -57,7 +57,9 @@ export function connectCustomSimulation(options: {
         : `${execution.epoch}:${execution.inputGeneration}`;
     },
     isReady: () =>
-      local !== null || RoomMetaAttr.isSynced.from(room.getSnapshot()),
+      local === null
+        ? RoomMetaAttr.isSynced.from(room.getSnapshot())
+        : local.isReady(),
     send: local === null ? room.sendSignal.bind(room) : local.send.bind(local),
     subscribeSignal:
       local === null

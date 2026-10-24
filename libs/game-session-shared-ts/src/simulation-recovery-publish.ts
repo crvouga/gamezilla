@@ -18,13 +18,9 @@ export function publishRecoverableSimulation(args: {
   readonly execution: SimulationExecution;
   readonly phase: SimulationExecution['phase'];
   readonly persist: SimulationSessionBinding['persist'];
-  readonly publish: (recovery: SimulationRecovery | null) => void;
+  readonly publish: (recovery: SimulationRecovery) => void;
   readonly onError: (error: unknown) => void;
 }): void {
-  if (args.persist === undefined) {
-    args.publish(null);
-    return;
-  }
   if (!SimulationStateChanged.is(args.message)) return;
   const snapshot = args.message.payload;
   const execution = {
