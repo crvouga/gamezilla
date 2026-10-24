@@ -59,7 +59,11 @@ type BrokerState = {
   readonly connectChains: Map<string, Promise<DbSlot>>;
   readonly pendingRoutes: Map<
     string,
-    { readonly fromPortId: string; readonly ownerPortId: string }
+    {
+      readonly fromPortId: string;
+      readonly ownerPortId: string;
+      readonly requestId: string;
+    }
   >;
   forceReleaseWait: ForceReleaseWait | null;
   readonly timers: BrokerTimers;
@@ -281,7 +285,7 @@ function routeOwnerResponse(
   const route = state.pendingRoutes.get(response.id);
   if (route === undefined || route.ownerPortId !== portId) return;
   state.pendingRoutes.delete(response.id);
-  post(state, route.fromPortId, response);
+  post(state, route.fromPortId, { ...response, id: route.requestId });
 }
 
 function isForceReleaseAllMessage(
@@ -411,10 +415,15 @@ function handleRpcRequest(
   }
   const ownerId = state.slots.get(message.dbName)?.ownerPortId ?? null;
   if (ownerId !== null && ownerId !== portId) {
-    state.pendingRoutes.set(message.id, {
+    // Request counters belong to a tab, not to this shared broker.
+    const forwardedId = JSON.stringify([portId, message.id]);
+    state.pendingRoutes.set(forwardedId, {
       fromPortId: portId,
       ownerPortId: ownerId,
+      requestId: message.id,
     });
+    routeToOwner(state, portId, { ...message, id: forwardedId });
+    return;
   }
   routeToOwner(state, portId, message);
 }
@@ -464,7 +473,7 @@ function rejectPendingRoutes(
     state.pendingRoutes.delete(id);
     if (ownerDead && !fromDead) {
       post(state, route.fromPortId, {
-        id,
+        id: route.requestId,
         ok: false,
         error,
       });
