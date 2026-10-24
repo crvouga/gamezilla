@@ -1,14 +1,16 @@
 # Quoridor specification audit
 
-Verdict: **Implementation and focused checks pass; CI is blocked by the Actions budget.**
+Verdict: **Implementation, focused checks and all model proofs pass; full local verification remains incomplete.**
 All 58 PR-profile Quoridor tests and both full bounded mode proofs have passed.
 The tests comprise 47 feature scenarios, seven model checks and four model replays.
 The enforced dependency audit and unchanged strict export tests pass with
 Atlas 0.10.2, which includes the upstream fixes for
 [issue 16](https://github.com/crvouga/atlas/issues/16) and
 [issue 18](https://github.com/crvouga/atlas/issues/18).
-The full gate and live journey verdicts remain open: GitHub refused to start
-the release job because an Actions budget prevents further use.
+The full local gate and release journeys are being rerun after a confirmed
+local-stack interruption; the replacement run is currently queued.
+CI remains unverified because GitHub refused to start its jobs under the
+Actions budget.
 The current full CI and live journey verdicts belong to [PR 226](https://github.com/crvouga/gamezilla/pull/226).
 This report does not claim deployed availability or a green release gate.
 
@@ -450,3 +452,40 @@ verdict for this local check is claimed, and its deadline was retained.
 was rejected before its first job started with the same Actions-budget
 annotation. Full verification therefore remains incomplete even though
 the implementation's focused checks pass.
+
+At the user's request, local verification now runs without computation
+cutoffs. The local launcher selects `VERIFY_TIME_LIMITS=off`; bounded
+verification remains available with `VERIFY_TIME_LIMITS=on`, and the CI
+entrypoints retain their bounded default. The mode participates in Turbo's
+cache key, so an unlimited local pass cannot satisfy a bounded CI check.
+Run, task and model computation cutoffs are removed locally; assertions,
+product timing requirements, exploration depth and model bounds are unchanged.
+
+The first full local run in this mode completed 1,253 tasks successfully,
+including all 80 model-proof tasks. The unchanged custom-game graph
+completed its 811,080 states, twelve safety invariants and both temporal
+properties. Quoridor's eight invariants passed at the unchanged two-step
+bound, and all 58 Quoridor spec checks passed. These are partial results,
+not a green full gate.
+
+The release journey task was interrupted when the person stopped or
+restarted the local stack, which they confirmed. Its parent received
+SIGTERM; subsequent browser failures reported disconnected clients and
+refused connections. The full runner ultimately exited 137, with that
+task failed and 90 tasks unfinished. The diagnostics and task summary
+were preserved, and two verified orphan API workers were stopped so the
+interrupted task could close its output.
+
+A separate owned package run is checking the 82 game slices left unfinished
+by that interruption, using the official PR profile and one worker. At
+2026-10-24 22:58 UTC, 39 slices had passing results, covering 1,764 tests,
+with no reported failures. These partial results warm the cache for the
+queued full gate; they do not establish its verdict.
+
+A four-worker full local rerun is queued through normal host-wide admission.
+No CI workflow was manually dispatched following the local-only request.
+Local checks use
+the working tree, including pre-existing auth edits; they are not evidence
+of verification on the exact PR head. Full verification, person-facing
+readiness and the CI attestation remain unproved until supported by the
+appropriate completed runs.
