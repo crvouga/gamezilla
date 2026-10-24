@@ -1,8 +1,9 @@
 # Numberlink implementation
 
-Scope: [the requested implementation](GAMEZILLA_NUMBERLINK_PROMPT.md), including
-the reusable puzzle framework, real authoring and playing workflows, local-first
-storage, publishing, progression, and executable verification. This ledger tracks
+Scope: the requested Numberlink implementation, including the reusable puzzle
+framework, real authoring and playing workflows, local-first storage, publishing,
+progression, and executable verification. Product contracts live in
+[Numberlink](../specs/numberlink/) and [Puzzles](../specs/puzzles/). This ledger tracks
 unfinished work; it is not a second product definition.
 
 ## Architecture
