@@ -21,6 +21,7 @@
     "test:spec:3": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 3/4"
   },
   "dependencies": {
+    "@libs/auth-client-ts": "workspace:*",
     "@libs/auth-shared-ts": "workspace:*",
     "@libs/billing-shared-ts": "workspace:*",
     "@libs/game-puzzle-client-ts": "workspace:*",
@@ -29,11 +30,14 @@
     "@libs/permissions-harness-ts": "workspace:*",
     "@libs/permissions-shared-ts": "workspace:*",
     "@libs/spaces-client-ts": "workspace:*",
+    "@pkgs/auth-root-shared-ts": "workspace:*",
     "@pkgs/clock-client-ts": "workspace:*",
     "@pkgs/db-schema-root-shared-ts": "workspace:*",
     "@pkgs/dmn-shared-ts": "workspace:*",
     "@pkgs/gherkin-shared-ts": "workspace:*",
     "@pkgs/harness-root-shared-ts": "workspace:*",
+    "@pkgs/logger-client-ts": "workspace:*",
+    "@pkgs/logger-shared-ts": "workspace:*",
     "@pkgs/permissions-shared-ts": "workspace:*",
     "@pkgs/secure-storage-root-client-ts": "workspace:*",
     "@pkgs/secure-storage-root-shared-ts": "workspace:*",
@@ -46,6 +50,7 @@
     "@pkgs/ui-root-client-ts": "workspace:*",
     "@pkgs/ui-testing-root-shared-ts": "workspace:*",
     "@pkgs/uuid-client-ts": "workspace:*",
+    "@solidjs/router": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

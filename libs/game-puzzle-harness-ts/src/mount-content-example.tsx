@@ -15,6 +15,7 @@ import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { IdProvider } from '@pkgs/uuid-client-ts/solid';
 import { contentClient } from './content-actions';
 import { ContentExampleClient } from './content-example-client';
+import { ContentExampleHost } from './content-example-host';
 import type { ContentHarness } from './content-system';
 
 /** Mount the counting reference app over its real SQLite, mutation queue and sync engine. */
@@ -44,7 +45,9 @@ export async function mountContentExample(s: ContentHarness, clientId: string) {
                 fixedLayout={{ width: 390, height: 844 }}
               >
                 <SurfaceStackProvider>
-                  <ContentExampleClient />
+                  <ContentExampleHost>
+                    <ContentExampleClient />
+                  </ContentExampleHost>
                 </SurfaceStackProvider>
               </ThemeProvider>
             </MutationClientContext.Provider>
