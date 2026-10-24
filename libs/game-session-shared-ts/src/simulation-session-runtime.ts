@@ -20,6 +20,12 @@ import { SimulationAuthority } from './simulation-authority';
 import { withSimulationBots } from './simulation-bots';
 import { rebaseSimulationCommand } from './simulation-command-state';
 import { FixedStepSimulation } from './simulation-engine';
+import {
+  RecoverSimulation,
+  recoverSimulation,
+  type SimulationRecovery,
+} from './simulation-recovery';
+import { publishRecoverableSimulation } from './simulation-recovery-publish';
 import { SIMULATION_DISCONNECT_MS } from './simulation-session-state';
 
 export type SimulationSessionView = {
@@ -36,6 +42,8 @@ export type SimulationSessionView = {
   readonly execution: SimulationExecution | undefined;
 };
 export type SimulationSessionBinding = {
+  /** Provided by persistent room hosts; offline execution has its own local journal. */
+  readonly persist?: RoomLivePorts<Message>['checkpoint'];
   readonly project?: (
     state: RoomState,
     position: string,
@@ -60,6 +68,7 @@ export type SimulationSessionBinding = {
 /** Shared execution attached to an existing custom or matched session. */
 export class SessionSimulation implements RoomLiveSession<RoomState, string> {
   private view: SimulationSessionView | null = null;
+  private recovery: SimulationRecovery | null = null;
   private engine: FixedStepSimulation<unknown, unknown> | null = null;
   private authority: SimulationAuthority<unknown, unknown> | null = null;
   private execution: SimulationExecution | null = null;
@@ -71,9 +80,20 @@ export class SessionSimulation implements RoomLiveSession<RoomState, string> {
   private disposed = false;
 
   constructor(
-    private readonly ports: RoomLivePorts<Message>,
+    private readonly ports: Omit<RoomLivePorts<Message>, 'checkpoint'>,
     private readonly binding: SimulationSessionBinding
   ) {}
+
+  recover(state: RoomState, payload: Message): Message | null {
+    const view = this.binding.select(state);
+    const saved = recoverSimulation(view, payload);
+    return view === null || saved === null
+      ? null
+      : this.binding.checkpoint(view, saved.position, {
+          execution: saved.execution,
+          previousEpoch: saved.previousEpoch,
+        });
+  }
 
   update(state: RoomState): void {
     if (this.disposed) return;
@@ -308,7 +328,30 @@ export class SessionSimulation implements RoomLiveSession<RoomState, string> {
       return;
     if (this.saving) return;
     if (this.key() === this.savedKey) {
-      this.ports.publish(message, audience);
+      const view = this.view;
+      const epoch = this.execution.epoch;
+      publishRecoverableSimulation({
+        message,
+        view,
+        execution: this.execution,
+        phase: this.phase(),
+        persist: this.binding.persist,
+        publish: (recovery) => {
+          if (
+            !this.disposed &&
+            this.view?.id === view.id &&
+            this.execution?.epoch === epoch
+          ) {
+            if (
+              recovery !== null &&
+              recoverSimulation(this.view, RecoverSimulation(recovery)) !== null
+            )
+              this.recovery = recovery;
+            this.ports.publish(message, audience);
+          }
+        },
+        onError: (error) => this.fail(error, view.id),
+      });
       return;
     }
     const view = this.view;
@@ -338,9 +381,7 @@ export class SessionSimulation implements RoomLiveSession<RoomState, string> {
             this.view?.id === view.id &&
             this.view.execution?.epoch === execution.epoch
           ) {
-            if (this.authority !== null && this.key() !== this.savedKey)
-              this.authority.publish();
-            else this.ports.publish(message);
+            this.authority?.publish();
           }
         },
         (error: unknown) => this.fail(error, view.id)
@@ -356,6 +397,7 @@ export class SessionSimulation implements RoomLiveSession<RoomState, string> {
     this.authority?.dispose();
     this.authority = null;
     this.engine = null;
+    this.recovery = null;
     this.execution = null;
     this.pendingEpoch = null;
     this.savedKey = '';
@@ -371,7 +413,12 @@ export class SessionSimulation implements RoomLiveSession<RoomState, string> {
     )
       return;
     const view = this.view;
-    const execution = view.execution;
+    const recovered =
+      this.recovery === null
+        ? null
+        : recoverSimulation(view, RecoverSimulation(this.recovery));
+    const execution = recovered?.execution ?? view.execution;
+    const position = recovered?.position ?? view.position;
     this.stop();
     this.ports.onError(error);
     if (execution === undefined) return;
@@ -381,7 +428,7 @@ export class SessionSimulation implements RoomLiveSession<RoomState, string> {
       missing: [],
       expiresAt: null,
     };
-    const command = this.binding.checkpoint(view, view.position, {
+    const command = this.binding.checkpoint(view, position, {
       execution: abandoned,
       previousEpoch: execution.epoch,
     });

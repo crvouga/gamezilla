@@ -9,7 +9,7 @@ export const SIMULATION_DISCONNECT_SCHEDULE = 'game-simulation:disconnect';
 export const simulationSessionCmdNs = createMessageNamespace(
   'game-simulation-session'
 );
-const checkpointSchema = z
+export const simulationCheckpointSchema = z
   .object({
     gameId: z.string().min(1),
     position: z.string().min(1).max(65_536),
@@ -17,14 +17,16 @@ const checkpointSchema = z
     execution: simulationExecutionSchema,
   })
   .strict();
-export type SimulationCheckpoint = z.infer<typeof checkpointSchema>;
+export type SimulationCheckpoint = z.infer<typeof simulationCheckpointSchema>;
 export const CheckpointSimulation =
   simulationSessionCmdNs<SimulationCheckpoint>(
     'checkpoint',
     (value): value is SimulationCheckpoint =>
-      checkpointSchema.safeParse(value).success
+      simulationCheckpointSchema.safeParse(value).success
   );
-const localCheckpointSchema = checkpointSchema.extend({ at: integer });
+const localCheckpointSchema = simulationCheckpointSchema.extend({
+  at: integer,
+});
 export type LocalSimulationCheckpoint = z.infer<typeof localCheckpointSchema>;
 export const CheckpointLocalSimulation =
   simulationSessionCmdNs<LocalSimulationCheckpoint>(

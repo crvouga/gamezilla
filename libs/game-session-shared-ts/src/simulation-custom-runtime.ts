@@ -35,6 +35,7 @@ export function createCustomSimulationRuntime(
       },
     },
     {
+      persist: ports.checkpoint,
       project: projectCustomSimulation,
       select: (state) => selectCustomSimulation(state, rules, null),
       checkpoint: (view, position, change) =>
@@ -43,6 +44,7 @@ export function createCustomSimulationRuntime(
     }
   );
   return {
+    recover: (state, payload) => shared.recover(state, payload),
     project: (state) => shared.project(state),
     receive: (command, identity, actor) =>
       relay.active

@@ -30,7 +30,8 @@ The durable log currently retains every event and every command verdict.
 Recording 60 game-state events per second would make storage and reconnect
 cost grow with match duration. The transient signal path described below
 addresses this for live state. Custom and matched sessions checkpoint lifecycle
-and score boundaries; latest-published-state recovery remains required.
+and score boundaries. Persistent authorities now also replace one bounded
+recovery value before publishing a court; see [authority recovery](#authority-recovery).
 
 Rendering is a game-owned board inside framework screens. Product screens
 compose the design system. Solid context supplies clocks, timers, input,
@@ -142,9 +143,9 @@ The physics timer is suspended. A persisted 30-second absence deadline ends the
 game by forfeit when one side stays away, or cancellation when both stay away.
 Reconnection restores the current tick and state with a new control generation,
 without changing the logical random seed. A recreated authority receives a new
-execution generation. The current implementation restores its last durable
-boundary; preservation of the latest published tick across process loss still
-needs a bounded durable snapshot design and verification.
+execution generation. Persistent authorities restore their latest published
+court through the bounded [recovery value](#authority-recovery). Local unclean
+process-loss durability and a live Durable Object rehearsal remain open.
 
 `LocalSimulationSession` uses the same controller on the creator's device and
 checkpoints through the existing offline custom-game queue. Only the creator of
@@ -664,9 +665,11 @@ The following remain required before the brief is complete:
 2. Complete capability-aware shared behavior coverage and continuous counterparts
    of the offered lifecycle policies. The registries and common/turn/simulation
    suite planning are now wired; never give Pong fake turn fixtures.
-3. Recovery of the latest published tick after authority loss; duplicate-owner
-   and device behavior; complete hybrid capability conformance. Custom, matched
-   and local command rebasing and local spectator delivery have current probes.
+3. Local recovery of the latest published tick after unclean process loss and a
+   live Durable Object rehearsal of server recovery; duplicate-owner and device
+   behavior; complete hybrid capability conformance. Custom and matched server
+   recovery now have bounded-storage contracts and repeated-crash properties.
+   Local command rebasing and spectator delivery also have current probes.
 4. Product Gherkin, Quint and glossary, audited spec-only commits, deterministic
    adverse-network campaigns and full local/online end-to-end journeys.
 5. Finish telemetry for authoritative input processing, transport round-trip
@@ -918,3 +921,74 @@ seeded-opening helper and record-control cleanup.
 Actions run `40108754500` on that same pushed commit could not start its first
 job. `ci-current-budget-annotation.json` records the exact Actions-budget
 annotation quoted above. No manual rerun or resource-budget change was made.
+
+
+## Authority recovery
+
+Persistent custom and matched execution now saves each published court in one
+replaceable `RoomStorage` value. It does not append physics ticks or snapshot
+requests to the event/deduplication journals. The value is capped at one MiB
+of UTF-8 JSON; a replacement compares the durable event tip transactionally.
+Its exact durable anchor includes the game, command-owned position, execution
+and controllers. A committed choice or changed round supersedes an older value.
+Both the memory adapter and the existing Durable Object storage adapter implement
+the port, and harness snapshots preserve the recovery bytes.
+
+Hydration applies a validated recovery value through the existing trusted
+checkpoint command before starting execution or recovering deadline effects.
+Restart retains the tick, court and seeded random continuation, creates a new
+execution generation, and drops queued controls and acknowledgments from the
+old generation. A failed replacement publishes no unsaved court and terminates
+from the last successfully published one. Custom and matched terminal behavior
+continues through their existing policies.
+
+The new one-MiB cap is below the SQLite-backed Durable Object combined key/value
+limit documented by [Cloudflare](https://developers.cloudflare.com/durable-objects/platform/limits/).
+The existing storage transaction API is documented in the
+[Durable Object KV API](https://developers.cloudflare.com/durable-objects/api/legacy-kv-storage-api/).
+No resource, binding, storage engine or infrastructure configuration changed.
+An actual hosted rehearsal remains unverified while Actions cannot start jobs.
+
+Literal red-first regressions restore published tick six instead of tick zero
+in both custom and matched rooms. A second pair pins storage failure at tick
+nine and retains the previously visible tick six instead of rewinding to zero.
+The repeated-crash property varies the room mode and tick partitions. Additional
+contracts preserve an accepted hybrid choice over a stale recovery value;
+compare uninterrupted and restarted RNG continuation; reject stale writes;
+retain prior bytes on oversized or interrupted writes; isolate snapshot aliases;
+and apply identity erasure to the recovery value in the same transaction.
+
+Evidence in `.cache/pong/`: `live-recovery-restart-red.log` and
+`live-recovery-failed-publication-red.log` record the two failures before fixes.
+`live-recovery-property-current.log` passes all 98 game-session checks;
+`live-recovery-foundation-final.log` passes all four foundation test tasks;
+`live-recovery-quality-final.log` passes eighteen affected type/lint tasks.
+The broader dependent type pass exposed three remaining call sites, corrected
+in `live-recovery-callsites-types.log` (three tasks pass).
+
+The deeper Pong run also exposed a scoring-driver precondition: after a point,
+the helper left the losing paddle at the far edge. Reopening repeatedly used
+part of the next serve's travel time, and following the displayed ball no
+longer caught it. The helper now guides both paddles to the middle during the
+countdown through their actual sliders. It changes no physics, score, model or
+winner oracle. The literal `pong-scoring-after-repeated-reopen` trace is pinned
+in the PR profile; `pong-scoring-reopen-pin-red.log` reproduces it and
+`pong-scoring-reopen-prepared.log` passes all six scoring checks. The next
+whole-context run reached 106 passing checks and a second scoring-driver
+failure on trace eight: following the delayed ball and avoiding its current
+y could accidentally return later wall rebounds. The helper now projects
+the landing from consecutive visible ball positions and drawn court bounds.
+The literal `pong-scoring-after-long-rally` trace is also pinned; both regressions
+and all seven bounded scoring checks pass in `pong-scoring-visible-landing.log`.
+Neither change alters the model, its oracle or the game mechanics.
+`pong-live-recovery-full-context.log` passes all 108 whole-context checks,
+including every drawn trace and both new pins.
+`live-recovery-current-units.log` passes all seven affected package test tasks;
+`live-recovery-policy-gates.log` passes all four policy tasks;
+`live-recovery-dependent-types-final.log` passes all 117 dependent type tasks;
+`live-recovery-current-lint.log` passes all thirteen affected lint tasks.
+
+This server recovery work does not establish local durability after an unclean
+browser-process loss, duplicate-owner behavior, adverse-network campaigns,
+performance budgets or a hosted recovery rehearsal. The full current Verify
+gate is still required, along with the other open items above.

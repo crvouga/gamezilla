@@ -1,3 +1,9 @@
+import type { Message } from '@pkgs/message-shared-ts/message';
+import {
+  parseRoomLiveCheckpoint,
+  type RoomLiveCheckpoint,
+  roomLiveCheckpoint,
+} from '@pkgs/room-root-shared-ts/live-checkpoint';
 import type { RoomIdentityErasure } from '@pkgs/room-root-shared-ts/room-service';
 import { eraseRoomIdentity } from '@pkgs/room-root-shared-ts/room-service';
 import type {
@@ -9,9 +15,11 @@ import type { LogEntry } from '@pkgs/room-root-shared-ts/types';
 type TopicState = {
   entries: LogEntry[];
   dedup: Map<string, CommandDedupOutcome>;
+  liveCheckpoint: RoomLiveCheckpoint | null;
 };
 
 export type RoomStorageTopicSnapshot = {
+  readonly liveCheckpoint: RoomLiveCheckpoint | null;
   readonly lastSeq: number;
   readonly entries: readonly LogEntry[];
   readonly dedupSize: number;
@@ -20,6 +28,7 @@ export type RoomStorageTopicSnapshot = {
 };
 
 export type RoomStorageTopicReplace = {
+  readonly liveCheckpoint: RoomLiveCheckpoint | null;
   readonly entries: readonly LogEntry[];
   readonly dedup: Readonly<Record<string, CommandDedupOutcome>>;
 };
@@ -41,10 +50,12 @@ export class InMemoryRoomStorage implements RoomStorage {
       dedupSize: 0,
       entries: [],
       dedup: {},
+      liveCheckpoint: null,
     };
     if (current.dedup?.[invalidation.commandId] !== undefined) return;
     const next = eraseRoomIdentity(
       {
+        liveCheckpoint: current.liveCheckpoint,
         entries: [...current.entries, invalidation.entry],
         dedup: {
           ...current.dedup,
@@ -62,7 +73,7 @@ export class InMemoryRoomStorage implements RoomStorage {
   private getOrCreate(topic: string): TopicState {
     let s = this.topics.get(topic);
     if (s === undefined) {
-      s = { entries: [], dedup: new Map() };
+      s = { entries: [], dedup: new Map(), liveCheckpoint: null };
       this.topics.set(topic, s);
     }
     return s;
@@ -79,6 +90,7 @@ export class InMemoryRoomStorage implements RoomStorage {
     const lastSeq =
       s.entries.length === 0 ? 0 : s.entries[s.entries.length - 1]!.seq;
     return {
+      liveCheckpoint: structuredClone(s.liveCheckpoint),
       lastSeq,
       entries: [...s.entries],
       dedupSize: s.dedup.size,
@@ -94,6 +106,7 @@ export class InMemoryRoomStorage implements RoomStorage {
     const dedup: Record<string, CommandDedupOutcome> = {};
     for (const [k, v] of s.dedup) dedup[k] = v;
     return {
+      liveCheckpoint: structuredClone(s.liveCheckpoint),
       lastSeq,
       entries: [...s.entries],
       dedupSize: s.dedup.size,
@@ -108,6 +121,7 @@ export class InMemoryRoomStorage implements RoomStorage {
       dedup.set(k, v);
     }
     this.topics.set(topic, {
+      liveCheckpoint: structuredClone(next.liveCheckpoint),
       entries: [...next.entries],
       dedup,
     });
@@ -115,6 +129,22 @@ export class InMemoryRoomStorage implements RoomStorage {
 
   clearTopic(topic: string): void {
     this.topics.delete(topic);
+  }
+
+  async loadLiveCheckpoint(topic: string): Promise<RoomLiveCheckpoint | null> {
+    return parseRoomLiveCheckpoint(this.topics.get(topic)?.liveCheckpoint);
+  }
+
+  async replaceLiveCheckpoint(
+    topic: string,
+    expectedSeq: number,
+    payload: Message | null
+  ): Promise<boolean> {
+    const current = this.getOrCreate(topic);
+    if ((current.entries.at(-1)?.seq ?? 0) !== expectedSeq) return false;
+    current.liveCheckpoint =
+      payload === null ? null : roomLiveCheckpoint(expectedSeq, payload);
+    return true;
   }
 
   async loadEventsAfter(topic: string, afterSeq: number): Promise<LogEntry[]> {

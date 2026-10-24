@@ -1,9 +1,17 @@
-import { Assert } from '@pkgs/assert-root-shared-ts/assert';
 import type { Clock } from '@pkgs/clock-shared-ts/types';
 import { ROOM_PRESENCE_IDENTITY } from '@pkgs/room-root-shared-ts/builtin';
 import { RoomCacheInvalidated } from '@pkgs/room-root-shared-ts/cache-invalidation';
-import type { RoomEffectHandler } from '@pkgs/room-root-shared-ts/handler';
-import { applyRoomEffects } from '@pkgs/room-root-shared-ts/handler';
+import type {
+  CommandFrame,
+  CommitArgs,
+  RoomConnection,
+  RoomConnectionOptions,
+  RoomServerConfig,
+} from '@pkgs/room-root-shared-ts/room-server-types';
+import {
+  NO_GRANTS,
+  rejectedFrame,
+} from '@pkgs/room-root-shared-ts/room-server-types';
 import type {
   RoomIdentityErasure,
   RoomServiceReceipt,
@@ -17,18 +25,13 @@ import type {
   RoomActor,
   RoomCommand,
   RoomCommandPayload,
-  RoomEffect,
   RoomError,
   RoomEvent,
   RoomModule,
   RoomState,
 } from '@pkgs/room-root-shared-ts/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared-ts/types';
-import {
-  parseClientToServerWire,
-  ROOM_WIRE_KIND,
-  WIRE_VERSION,
-} from '@pkgs/room-root-shared-ts/wire';
+import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-root-shared-ts/wire';
 import { processRoomCommand } from './room-server-command';
 import {
   addRoomConnection,
@@ -38,6 +41,7 @@ import {
   participatingRoster,
   readsHistory,
 } from './room-server-connections';
+import { createRoomEffectDelivery } from './room-server-effects';
 import { committedRoomEntries } from './room-server-entries';
 import { eraseRoomIdentity } from './room-server-erasure';
 import {
@@ -49,22 +53,9 @@ import {
 import { loadRoomSnapshot } from './room-server-hydrate';
 import { processInjectedCommand } from './room-server-inject';
 import { RoomServerLive, roomLivePorts } from './room-server-live';
+import { routeRoomMessage } from './room-server-message';
+import { restoreRoomLiveCheckpoint } from './room-server-recovery';
 import { publishRoomSignal, receiveRoomSignal } from './room-server-signals';
-
-const crash: Assert = Assert.crash();
-
-import type {
-  CommandFrame,
-  CommitArgs,
-  RoomConnection,
-  RoomConnectionOptions,
-  RoomServerConfig,
-} from '@pkgs/room-root-shared-ts/room-server-types';
-import {
-  NO_GRANTS,
-  PONG_FRAME,
-  rejectedFrame,
-} from '@pkgs/room-root-shared-ts/room-server-types';
 
 /**
  * Single-threaded authoritative room (run inside one DO or one test harness).
@@ -86,7 +77,7 @@ export class RoomServer<
   private readonly storage: RoomStorage;
   private readonly authorize?: RoomServerConfig<S, C, E, Identity>['authorize'];
   private readonly clock: Clock;
-  private readonly effectHandlers: readonly RoomEffectHandler[];
+  private readonly applyCommittedEffects;
   private readonly live: RoomServerLive<S, C, E, Identity>;
   private readonly connections = new Map<string, RoomConnection>();
   private authorityAvailable = false;
@@ -103,7 +94,17 @@ export class RoomServer<
     this.storage = config.storage;
     this.authorize = config.authorize;
     this.clock = config.clock;
-    this.effectHandlers = config.effectHandlers ?? [];
+    this.applyCommittedEffects = createRoomEffectDelivery({
+      handlers: config.effectHandlers ?? [],
+      topic: this.topic,
+      clock: this.clock,
+      injectCommand: (args) =>
+        this.injectCommand({
+          id: args.id,
+          payload: args.payload as C,
+          identity: args.identity as Identity,
+        }),
+    });
     this.live = new RoomServerLive(
       config,
       roomLivePorts({
@@ -111,6 +112,9 @@ export class RoomServer<
         topic: this.topic,
         publish: (payload, audience) => this.publishSignal(payload, audience),
         enqueue: (work) => this.enqueue(work),
+        tip: () => this.lastSeq,
+        acceptsCheckpoint: (payload) =>
+          this.live.recover(this.committedState, payload) !== null,
         inject: async (id, payload) => {
           const receipt = await this.injectSerial(
             { id, payload, identity: ROOM_SERVICE_IDENTITY as Identity },
@@ -171,6 +175,7 @@ export class RoomServer<
   }
 
   async hydrateFromStorage(): Promise<void> {
+    this.live.reset();
     const snapshot = await loadRoomSnapshot(
       this.module,
       this.storage,
@@ -179,11 +184,27 @@ export class RoomServer<
     this.committedState = snapshot.state;
     this.lastSeq = snapshot.lastSeq;
     this.tipKnown = true;
+    if (this.module.createLive !== undefined)
+      await restoreRoomLiveCheckpoint({
+        storage: this.storage,
+        topic: this.topic,
+        state: this.committedState,
+        lastSeq: this.lastSeq,
+        recover: (state, payload) => this.live.recover(state, payload),
+        inject: async (id, payload) => {
+          const receipt = await this.injectSerial(
+            { id, payload, identity: ROOM_SERVICE_IDENTITY as Identity },
+            [ROOM_SERVICE_GRANT]
+          );
+          if (!receipt.ok)
+            throw new Error('live recovery checkpoint was refused');
+        },
+      });
     await this.applyCommittedEffects(
-      this.module.recoverEffects(snapshot.state)
+      this.module.recoverEffects(this.committedState)
     );
     await this.availabilitySerial(true);
-    this.live.update(this.committedState);
+    this.live.start(this.committedState);
   }
 
   setAvailability(available: boolean): Promise<void> {
@@ -408,28 +429,6 @@ export class RoomServer<
     await this.applyCommittedEffects(args.effects);
   }
 
-  private async applyCommittedEffects(
-    effects: readonly RoomEffect[]
-  ): Promise<void> {
-    if (effects.length === 0) return;
-    crash.ok(
-      this.effectHandlers.length > 0,
-      'Tiger: handle produced effects but RoomServer has no effectHandlers',
-      { count: effects.length }
-    );
-    await applyRoomEffects(effects, this.effectHandlers, {
-      topic: this.topic,
-      clock: this.clock,
-      now: this.clock.now(),
-      injectCommand: (a) =>
-        this.injectCommand({
-          id: a.id,
-          payload: a.payload as C,
-          identity: a.identity as Identity,
-        }),
-    });
-  }
-
   /** Socket-less command (scheduler wake / host-injected); same dedup + authz + commit path. */
   injectCommand(args: {
     readonly id: string;
@@ -515,18 +514,11 @@ export class RoomServer<
   ): Promise<void> {
     const conn = this.connections.get(connectionId);
     if (conn === undefined) return Promise.resolve();
-    const parsed = parseClientToServerWire(raw);
-    if (parsed === null) return Promise.resolve();
-    switch (parsed.kind) {
-      case ROOM_WIRE_KIND.ping:
-        conn.send(PONG_FRAME);
-        return Promise.resolve();
-      case ROOM_WIRE_KIND.sync:
-        return this.enqueue(() =>
-          this.sendWelcomeSerial(connectionId, parsed.fromSeq)
-        );
-      case ROOM_WIRE_KIND.signal:
-        return this.enqueue(() =>
+    return routeRoomMessage(conn, raw, {
+      sync: (fromSeq) =>
+        this.enqueue(() => this.sendWelcomeSerial(connectionId, fromSeq)),
+      signal: (parsed) =>
+        this.enqueue(() =>
           receiveRoomSignal({
             connections: this.connections,
             connection: conn,
@@ -542,12 +534,10 @@ export class RoomServer<
             handler: (command, actorIdentity, actor) =>
               this.live.receive(command, actorIdentity, actor),
           })
-        );
-      default:
-        return this.enqueue(() =>
-          this.commandSerial(connectionId, identity, parsed)
-        );
-    }
+        ),
+      command: (parsed) =>
+        this.enqueue(() => this.commandSerial(connectionId, identity, parsed)),
+    });
   }
 }
 

@@ -43,6 +43,7 @@ async function expectAgrees(m: Model, r: Real, topic: string): Promise<void> {
     return;
   }
   expect(snap).toEqual({
+    liveCheckpoint: null,
     lastSeq: lastSeqOf(m, topic),
     entries: t.entries,
     dedupSize: t.dedup.size,
@@ -151,6 +152,7 @@ function copyTopic(from: string, to: string): Cmd {
       }
       expect(exported?.dedup).toEqual(Object.fromEntries(src.dedup));
       r.replaceTopic(to, {
+        liveCheckpoint: exported!.liveCheckpoint,
         entries: exported!.entries,
         dedup: exported!.dedup!,
       });

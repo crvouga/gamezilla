@@ -1,3 +1,5 @@
+import type { Message } from '@pkgs/message-shared-ts/message';
+import type { RoomLiveCheckpoint } from './live-checkpoint';
 import type { RoomIdentityErasure } from './room-service';
 import type { LogEntry, RoomError } from './types';
 
@@ -13,6 +15,14 @@ export type CommandDedupOutcome =
  * engine never knows where bytes actually live.
  */
 export interface RoomStorage {
+  /** The latest replaceable live recovery value; it never enters the event/dedup journal. */
+  loadLiveCheckpoint(topic: string): Promise<RoomLiveCheckpoint | null>;
+  /** Replace only while the durable log still has the captured tip. */
+  replaceLiveCheckpoint(
+    topic: string,
+    expectedSeq: number,
+    payload: Message | null
+  ): Promise<boolean>;
   /** Atomically erase identity from the event log and retry outcomes. */
   eraseIdentity(
     topic: string,

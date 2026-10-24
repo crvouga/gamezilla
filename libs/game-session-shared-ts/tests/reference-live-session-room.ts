@@ -32,9 +32,11 @@ import { continuousRaceGame } from './reference-continuous-game';
 export async function liveSessionRoom(
   local: boolean | 'players' = false,
   definition: GameRegistration = continuousRaceGame,
-  matched = false
+  matched = false,
+  restored?: { readonly storage: InMemoryRoomStorage; readonly at: number }
 ) {
   const time = createHarnessClock();
+  time.clock.advance(restored?.at ?? 0);
   const custom = createSpaceModule(
     assertRoomModuleName('race-live'),
     [definition],
@@ -90,7 +92,7 @@ export async function liveSessionRoom(
       ...CustomGamesAttr({ current: game, history: [] }),
     }),
   };
-  const storage = new InMemoryRoomStorage();
+  const storage = restored?.storage ?? new InMemoryRoomStorage();
   const errors: unknown[] = [];
   let next = 0;
   const schedules = createTimerScheduleStack({

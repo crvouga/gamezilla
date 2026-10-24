@@ -194,6 +194,7 @@ function createLiveMatchSession(
       },
     },
     {
+      persist: ports.checkpoint,
       select: (state) => selectMatchSimulation(state, rules),
       checkpoint: (view, position, change) =>
         CheckpointSimulation({ gameId: view.id, position, ...change }),

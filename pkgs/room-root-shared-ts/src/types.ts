@@ -135,7 +135,7 @@ export type RoomModule<
   connectionView?(grants: readonly string[]): RoomConnectionView;
   initialState(): S;
   /** Instantiated only by an authoritative host with explicitly injected scheduling ports. */
-  createLive?(ports: RoomLivePorts<C>): RoomLiveSession<S, Identity>;
+  createLive?(ports: RoomLivePorts<C>): RoomLiveSession<S, Identity, C>;
   handle(
     state: S,
     command: RoomCommand<C>,

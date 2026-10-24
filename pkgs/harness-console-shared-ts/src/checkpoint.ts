@@ -13,6 +13,7 @@ export type HarnessCheckpointSqlFormat =
   | 'mixed-pgmm-sqlm';
 
 export type HarnessCheckpointRoomDump = {
+  readonly liveCheckpoint: unknown;
   readonly entries: readonly unknown[];
   readonly dedup: Readonly<Record<string, unknown>>;
 };

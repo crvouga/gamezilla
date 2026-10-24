@@ -19,11 +19,21 @@ export function roomLivePorts<C extends RoomCommandPayload>(args: {
   readonly storage: RoomStorage;
   readonly topic: string;
   readonly publish: RoomLivePorts<C>['publish'];
-  readonly enqueue: (work: () => Promise<void>) => Promise<void>;
+  readonly enqueue: <T>(work: () => Promise<T>) => Promise<T>;
+  readonly tip: () => number;
+  readonly acceptsCheckpoint: (payload: RoomCommandPayload) => boolean;
   readonly inject: (id: string, payload: C) => Promise<void>;
   readonly onError: (error: unknown) => void;
-}): Pick<RoomLivePorts<C>, 'publish' | 'commit' | 'enqueue'> {
+}): Pick<RoomLivePorts<C>, 'publish' | 'commit' | 'enqueue' | 'checkpoint'> {
   return {
+    checkpoint: (payload) => {
+      const atSeq = args.tip();
+      return args.enqueue(async () => {
+        if (args.tip() !== atSeq || !args.acceptsCheckpoint(payload))
+          return false;
+        return args.storage.replaceLiveCheckpoint(args.topic, atSeq, payload);
+      });
+    },
     publish: args.publish,
     commit: (id, payload) =>
       args.enqueue(async () => {
@@ -53,7 +63,8 @@ export class RoomServerLive<
   E extends RoomEvent,
   Identity,
 > {
-  private session: RoomLiveSession<S, Identity> | null = null;
+  private session: RoomLiveSession<S, Identity, C> | null = null;
+  private ready = false;
   private disposed = false;
   private actors: readonly RoomActor[] = [];
 
@@ -61,11 +72,11 @@ export class RoomServerLive<
     private readonly config: RoomServerConfig<S, C, E, Identity>,
     private readonly ports: Pick<
       RoomLivePorts<C>,
-      'publish' | 'commit' | 'enqueue'
+      'publish' | 'commit' | 'enqueue' | 'checkpoint'
     >
   ) {}
 
-  update(state: S): void {
+  private createSession(): void {
     if (this.disposed) return;
     const create = this.config.module.createLive;
     if (this.session === null && create !== undefined) {
@@ -85,6 +96,27 @@ export class RoomServerLive<
       });
       this.session.presence(this.actors);
     }
+  }
+
+  recover(state: S, payload: RoomCommandPayload): C | null {
+    this.createSession();
+    return this.session?.recover?.(state, payload) ?? null;
+  }
+
+  reset(): void {
+    this.session?.dispose();
+    this.session = null;
+    this.ready = false;
+  }
+
+  start(state: S): void {
+    this.ready = true;
+    this.update(state);
+  }
+
+  update(state: S): void {
+    if (!this.ready || this.disposed) return;
+    this.createSession();
     this.session?.update(state);
   }
 

@@ -8,7 +8,13 @@ import type {
 } from './types';
 
 /** Optional execution hosted by this room; no second connection or transport lifecycle. */
-export type RoomLiveSession<S extends RoomState, Identity> = {
+export type RoomLiveSession<
+  S extends RoomState,
+  Identity,
+  C extends RoomCommandPayload = RoomCommandPayload,
+> = {
+  /** Validate a recovery value and turn it into an ordinary trusted command. */
+  recover?(state: S, payload: RoomCommandPayload): C | null;
   /** On the room serial chain, include live progress in a durable command's decision. */
   project?(state: S): S;
   receive(
@@ -22,6 +28,8 @@ export type RoomLiveSession<S extends RoomState, Identity> = {
 };
 
 export type RoomLivePorts<C extends RoomCommandPayload> = {
+  /** Persist one bounded recovery value before it becomes visible to clients. */
+  readonly checkpoint: (payload: RoomCommandPayload) => Promise<boolean>;
   readonly clock: Clock;
   readonly timers: Timers;
   readonly publish: (
