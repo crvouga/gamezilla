@@ -1,0 +1,4 @@
+{
+  "summary": "A sync HTTP 401 with reason upgrade_required unnecessarily refreshed the session and retried the same incompatible protocol. A real auth refresh can trigger reactive recovery repeatedly instead of surfacing the app-update refusal. Preserve the first protocol refusal and keep expired-session refresh behavior.",
+  "regressionTest": "pkgs/sync-engine-client-ts/tests/sync-http-upgrade.test.ts"
+}
