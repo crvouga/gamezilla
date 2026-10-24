@@ -32,7 +32,9 @@ export function renderNumberlink(ui: () => JSX.Element) {
 
 export function playerFixture() {
   const definition = initialNumberlinkDefinition();
-  const [state, setState] = createSignal('{"paths":[]}');
+  const [snapshot, setSnapshot] = createSignal({ state: '{"paths":[]}' });
+  const state = () => snapshot().state;
+  const setState = (value: string) => setSnapshot({ state: value });
   const [disabled, setDisabled] = createSignal(false);
   const actions: string[] = [];
   const view = renderNumberlink(() => (
@@ -89,6 +91,7 @@ export function playerFixture() {
     actions,
     setDisabled,
     definition,
+    refreshState: () => setState(state()),
   };
 }
 

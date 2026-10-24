@@ -57,10 +57,14 @@ function Drawing(props: {
 }
 
 export function NumberlinkPlayer(props: PuzzlePlayerProps): JSX.Element {
+  // SQL watches can deliver new row objects without changing either input.
+  // Keep parsing behind primitive equality so that delivery preserves a gesture.
+  const definition = createMemo(() => props.definition);
+  const serializedState = createMemo(() => props.state);
   const input = createMemo(() => {
-    const board = decodeNumberlinkDefinition(props.definition);
+    const board = decodeNumberlinkDefinition(definition());
     if (!board.valid) return null;
-    const state = decodeNumberlinkState(board.value, props.state);
+    const state = decodeNumberlinkState(board.value, serializedState());
     return state.valid ? { definition: board.value, state: state.value } : null;
   });
   return (
