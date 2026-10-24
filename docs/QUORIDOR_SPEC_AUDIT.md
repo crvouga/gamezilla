@@ -1,13 +1,14 @@
 # Quoridor specification audit
 
-Verdict: **Implementation and focused checks pass; release verification remains open.**
+Verdict: **Implementation and focused checks pass; CI is blocked by the Actions budget.**
 All 58 PR-profile Quoridor tests and both full bounded mode proofs have passed.
 The tests comprise 47 feature scenarios, seven model checks and four model replays.
 The enforced dependency audit and unchanged strict export tests pass with
 Atlas 0.10.2, which includes the upstream fixes for
 [issue 16](https://github.com/crvouga/atlas/issues/16) and
 [issue 18](https://github.com/crvouga/atlas/issues/18).
-The full gate and live journey verdicts remain open.
+The full gate and live journey verdicts remain open: GitHub refused to start
+the release job because an Actions budget prevents further use.
 The current full CI and live journey verdicts belong to [PR 226](https://github.com/crvouga/gamezilla/pull/226).
 This report does not claim deployed availability or a green release gate.
 
@@ -133,7 +134,7 @@ fabricated winner is installed.
 | Nightly Quoridor profile, all three parts | 64 tests, 127 assertions, no failures or skips; all ten model replays executed |
 | Nightly focused properties | Five affected packages, 155 tests and 143,859 assertions pass at the official 200-run budget |
 | Final permission and matching nightly checks | 152 tests, 14,049 assertions pass at 200 runs per property; fresh seed 1057416651 |
-| Quoridor bounded proof | Both modes, eight invariants, two steps; fresh CI task passes in 155.1s |
+| Quoridor bounded proof | Both modes, eight invariants, two steps; fresh CI task passes in 155.1s and the latest fresh local proof in 172.6s |
 | Full framework-independence contract | Eight outer checks, 105 assertions; main process runs 281 checks; independent consumer features pass |
 | Runtime harness package | 59 tests, 257 assertions after integration with main; type checking and lint pass, including reviewed-board recovery and bounded failure context |
 | Runtime scenario part 13 | All 14 cases in six files pass in 4.84s after the upgrade-refusal fix |
@@ -387,13 +388,12 @@ The PR remains a draft while required verification is incomplete. CI and
 person-facing readiness claims stay unchecked until supported by the
 current full and live results. No deployed availability is claimed.
 
-The latest local full gate on `9dfa2b115` exited 124 at its unchanged
-600-second run deadline (650.5 seconds including planning and cleanup).
-Games model part 11 had run for only 64 seconds when the aggregate deadline
-stopped it; this is not a failed individual proof. The invocation completed
-generation and began 777 uncached tasks, and no complete local pass is
-claimed. The clean-commit [CI run 40100970426](https://github.com/crvouga/gamezilla/actions/runs/40100970426)
-checks that preceding head separately.
+The local full gate on `749044829` exited 124 at its unchanged 600-second
+run deadline (645.4 seconds including planning and cleanup). It completed
+37 tasks; profile model part 1 had run for only eight seconds when stopped.
+The Quoridor proof completed uncached with exit zero in 173.2 seconds
+(172.6 seconds in the model runner). This is not a failed individual proof;
+no complete local pass is claimed.
 
 Integration with current main includes the independently verified fixes from
 [PR 225](https://github.com/crvouga/gamezilla/pull/225), including per-pass
@@ -418,3 +418,20 @@ environment was checked for each suite. Goals and the enforced audit pass.
 The complete tooling suite passes 871 tests; its unchanged five-second
 graph check took 481 milliseconds in the isolated run. All twelve Quoridor
 package tasks pass, including the 58 PR-profile spec checks.
+
+[CI run 40103814439](https://github.com/crvouga/gamezilla/actions/runs/40103814439)
+completed 22 verification shards successfully. One executed shard exposed
+five hosted-space reads where the existing Find contract permits at most
+three. The per-pass row-image path had bypassed the batched resolver.
+Batch resolution now returns destinations for each input row, preserving
+repeated ids, earlier and later owners, publication vetoes and fresh room
+ownership. The original four-board and three-read assertions pass; the full
+games suite passes 192 tests and 9,352 assertions. Both shared packages'
+200-run properties pass at fresh seed 375035574, and the full framework
+privacy contract passes unchanged.
+
+The other 42 failed jobs never received a runner, including the release
+journey job and final gate. GitHub's annotation is: "The job was not started
+because an Actions budget is preventing further use." They produced no
+test results. A funded CI run is still required; no spending limit, runner
+policy, verification assertion or deadline was changed.
