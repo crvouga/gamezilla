@@ -3,7 +3,8 @@
 // stays available at every stage without a connection. Carol can join the
 // space to watch but cannot guide a paddle. A missing connection keeps the
 // court last shown to Carol while Alice can keep playing. Returning shows
-// the current court. Scoring belongs to Pong's scoring model.
+// Alice's current left paddle during play. A finished court has no guidance
+// to follow. The bot guides its own paddle; scoring belongs to Pong's scoring model.
 module pong_local_play {
   pure val _PEOPLE = Set("alice", "carol")
   pure val _PADDLES = Set("left", "right")
@@ -12,23 +13,25 @@ module pong_local_play {
   var localStage: str
   var gameShown: str -> bool
   var controlledPaddles: str -> Set[str]
-  var paddlePlace: str -> (str -> str)
+  /// Where each person sees Alice's left paddle while play is under way.
+  var paddlePlace: str -> str
   var _online: bool
   var _viewer: { online: bool, joined: bool }
-  var _positions: str -> str
-  var _lastCourt: str -> str
-  var _beforePositions: str -> str
+  var _positions: str
+  var _lastCourt: str
+  var _beforePositions: str
   var _refused: bool
 
   pure def _paddles(phase: str, opponent: str): Set[str] =
     if (phase == "playing") (if (opponent == "person") _PADDLES else Set("left")) else Set()
 
-  action _show(phase: str, online: bool, viewer: { online: bool, joined: bool }, positions: str -> str): bool = all {
+  action _show(phase: str, online: bool, viewer: { online: bool, joined: bool }, positions: str): bool = all {
     localOpponent' = localOpponent, localStage' = phase,
     gameShown' = Map("alice" -> true, "carol" -> viewer.joined),
     controlledPaddles' = Map("alice" -> _paddles(phase, localOpponent), "carol" -> Set()),
-    paddlePlace' = Map("alice" -> positions, "carol" ->
-      (if (viewer.joined and viewer.online and online) positions else paddlePlace.get("carol"))),
+    paddlePlace' = Map("alice" -> (if (phase == "playing") positions else "not playing"), "carol" ->
+      (if (viewer.joined and viewer.online and online)
+        (if (phase == "playing") positions else "not playing") else paddlePlace.get("carol"))),
     _lastCourt' = if (_viewer.joined and _viewer.online and _online and not(viewer.online and online))
       paddlePlace.get("carol") else _lastCourt,
     _positions' = positions, _beforePositions' = _positions,
@@ -41,14 +44,14 @@ module pong_local_play {
 
   action init = {
     nondet opponent = Set("person", "bot").oneOf()
-    val middle = _PADDLES.mapBy(_ => "middle")
+    val middle = "middle"
     all {
       localOpponent' = opponent, localStage' = "ready",
       gameShown' = Map("alice" -> true, "carol" -> false),
       controlledPaddles' = _PEOPLE.mapBy(_ => Set()),
-      paddlePlace' = _PEOPLE.mapBy(_ => middle),
+      paddlePlace' = _PEOPLE.mapBy(_ => "not playing"),
       _online' = true, _viewer' = { online: true, joined: false },
-      _positions' = middle, _lastCourt' = middle, _beforePositions' = middle,
+      _positions' = middle, _lastCourt' = "not playing", _beforePositions' = middle,
       _refused' = false,
     }
   }
@@ -67,7 +70,7 @@ module pong_local_play {
     val allowed = person == "alice" and _paddles(localStage, localOpponent).contains(paddle)
     all {
       person == "alice" or _viewer.joined,
-      _show(localStage, _online, _viewer, if (allowed) _positions.set(paddle, place) else _positions),
+      _show(localStage, _online, _viewer, if (allowed and paddle == "left") place else _positions),
       _refused' = not(allowed),
     }
   }
@@ -116,7 +119,7 @@ module pong_local_play {
   /// Carol never gains control of either paddle by watching local play.
   val invViewerPaddles = controlledPaddles.get("carol") == Set()
   /// Connected Carol sees the current local court whenever Alice also has a connection.
-  val invSharedCourt = _viewer.joined and _viewer.online and _online implies paddlePlace.get("carol") == _positions
+  val invSharedCourt = _viewer.joined and _viewer.online and _online implies paddlePlace.get("carol") == paddlePlace.get("alice")
   /// A missing connection keeps the court last shown to Carol.
   val invOfflineCourt = _viewer.joined and not(_viewer.online and _online) implies paddlePlace.get("carol") == _lastCourt
   /// Refused paddle guidance changes neither paddle.

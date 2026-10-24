@@ -18,7 +18,7 @@ Feature: Watch Pong played on one device
         | a Pong bot |
 
     Scenario Outline: Carol cannot take over a paddle in local play
-      Given Alice has local Pong under way against a Pong bot
+      Given Alice has local Pong under way against Bob
       And Carol is in Alice's space with no Pong paddle
       When Carol tries to guide Pong's <paddle> paddle to the lower edge
       Then Carol cannot guide either paddle because neither belongs to her

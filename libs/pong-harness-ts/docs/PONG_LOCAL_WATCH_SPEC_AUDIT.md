@@ -47,6 +47,12 @@ The model adds Carol's visible court and controls to the existing local-play
 aggregate rather than a second game identity. Physical ticks, codecs, sender
 fences, stream ordering and delivery errors remain code contracts.
 
+The location observation follows Alice's left paddle during play. A bot's
+independent right-paddle movement is outside this model; the two takeover
+examples use Bob on Alice's device so their unchanged paddle has one cause.
+Ready and finished games expose their lifecycle rather than a location to
+guide. All original local availability and completed-game obligations remain.
+
 ## Handoff and evidence
 
 `local-watch-author-gate-current.log` passes the strict spec gate. The owning
