@@ -101,6 +101,19 @@ unfinished work; it is not a second product definition.
 Completion must be audited against every section of the request, rather than
 inferred from this ledger or from a narrow test run.
 
+## Request review
+
+| Prompt sections | Implementation and proof | Remaining verification |
+| --- | --- | --- |
+| 1, 3, 10, 12: framework boundaries and registration | [Opaque content capabilities](../pkgs/turn-game-shared-ts/src/puzzle-content.ts), the normal game/client registries, a non-grid reference app, and a [box-pushing rules consumer](../pkgs/turn-game-shared-ts/tests/warehouse-puzzle.ts). Shared content and screen packages contain no Numberlink or Sokoban branches. | Full existing-game regression gate. |
+| 2, 7, 9: stored content, publication and recovery | Shared [content mutations](../libs/game-puzzle-shared-ts/src/), permission decisions and sync queries; seven [lifecycle models](../specs/puzzles/). Deeper replay passes, including retained concurrent work and stable references. | Full Verify on the final implementation. |
+| 4, 5: Numberlink and authoring | [Rules and solver](../libs/numberlink-shared-ts/src/), [editor/player](../libs/numberlink-client-ts/src/), and shared authoring screens. Rule properties, input contracts and production authoring/playtest flows pass. | Automated UI-quality gate. |
+| 6, 8: reusable packs and player screens | Shared library, authoring, edition and attempt screens in [game-puzzle-client](../libs/game-puzzle-client-ts/src/). Production journeys cover creation within a pack, ordering, preview, publication, completion and continuation. | Automated UI-quality gate and full Verify. |
+| 11: executable specifications | [Numberlink](../specs/numberlink/), [Puzzles](../specs/puzzles/) and [journeys](../specs/journeys/numberlink-packs.feature), connected to implementation replay and literal regressions. | The strict audit still reports thirteen external wording pairs; see [audit](PUZZLE_AUTHORING_SPEC_AUDIT.md). |
+| 13: complete person-facing workflows | All four journeys pass together in the compiled production bundle, including offline reopening, synchronization, another signed-in device and earlier editions. | Full release gate. |
+| 14: completion criteria | Feature-specific proof is recorded below; the [draft PR](https://github.com/crvouga/gamezilla/pull/228) remains reviewable without claiming release readiness. | Full Verify, UI-quality evidence and `verify:end`; GitHub refuses jobs because of its Actions budget. |
+| 15: execution and documentation | Implementation, integration, regression records, specification audits and the self-service readiness row are committed. | This task is not marked complete while the required verification is outstanding. |
+
 ## Current evidence
 
 - Numberlink's 19 path and completion scenarios were undefined before binding
