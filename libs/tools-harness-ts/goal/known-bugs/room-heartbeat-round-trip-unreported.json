@@ -1,0 +1,4 @@
+{
+  "summary": "A foreground room heartbeat sent at client time seven and answered at time thirty-two records no twenty-five-millisecond round-trip duration. Measure the existing ping/pong with one injected client clock, one outstanding ping and connection-generation cleanup; do not include simulation processing or snapshot wait.",
+  "regressionTest": "pkgs/room-adapter-web-shared-ts/tests/websocket-round-trip.test.ts"
+}

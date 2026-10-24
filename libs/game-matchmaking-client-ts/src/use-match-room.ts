@@ -70,6 +70,7 @@ export function useMatchRoom(gameId: Accessor<string | undefined>) {
         installId,
         clientId: createId(),
         getSessionToken: getToken,
+        clock,
         timers,
         random,
       });

@@ -5,7 +5,7 @@
  */
 
 import type { HarnessRoomNode } from '@libs/harness-ts/composition';
-import type { Timers } from '@pkgs/clock-shared-ts/types';
+import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
 import type { Message } from '@pkgs/message-shared-ts/message';
 import type { ClientTransport } from '@pkgs/room-root-shared-ts/transport';
 import type { RoomError } from '@pkgs/room-root-shared-ts/types';
@@ -43,6 +43,7 @@ export async function answerOfRoomCommand(
     readonly payload: Message;
     readonly commandId: string;
     readonly nowMs: number;
+    readonly clock: Clock;
     readonly timers: Timers;
     /** An already owned connection, kept open between a scenario's choices. */
     readonly transport?: ClientTransport;
@@ -61,6 +62,7 @@ export async function answerOfRoomCommand(
       installId: args.installId,
       clientId: `${commandId}-probe`,
       getSessionToken: () => null,
+      clock: args.clock,
       timers: args.timers,
       random: () => 0.5,
     });

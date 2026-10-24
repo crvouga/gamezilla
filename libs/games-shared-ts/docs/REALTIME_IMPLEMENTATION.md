@@ -674,8 +674,8 @@ The following remain required before the brief is complete:
    spectator delivery also have current probes.
 4. Product Gherkin, Quint and glossary, audited spec-only commits, deterministic
    adverse-network campaigns and full local/online end-to-end journeys.
-5. Finish transport round-trip latency and prediction-error telemetry; client
-   acknowledgment and authoritative input-processing duration are now recorded.
+5. Finish prediction-error telemetry; client acknowledgment, authoritative
+   input-processing and room heartbeat round-trip duration are now recorded.
    Produce reproducible production failure artifacts and measure performance
    and bandwidth.
 6. Readiness evidence, automated responsive visual verification, the full current
@@ -1111,7 +1111,45 @@ contract also checks committed state, failure atomicity and unsubscription.
 `input-processing-dependent-types.log` passes all 35 dependent type tasks.
 `input-processing-policy.log` passes goals, spec ownership and package naming.
 
-This adds authority processing evidence; transport RTT, prediction error,
+This adds authority processing evidence; prediction error,
 production failure artifacts and measured performance remain open. Full Verify
 and nightly-random runs from the preceding local-recovery checkpoint remain in
 the normal machine-wide queue; they cannot establish a verdict for this change.
+
+## Room heartbeat round-trip timing
+
+The existing browser room transport now reports application-heartbeat round-trip
+duration through its composition's metric adapter. Its clock and observer are
+required ports, and every production and harness factory caller is migrated.
+The contract, measurement boundary and bounded label policy are documented with
+the [room adapters](../../../pkgs/room-root-harness-ts/README.md#entrypoints).
+The ping/pong wire and heartbeat cadence stay the existing room protocol.
+
+`room-heartbeat-round-trip-unreported` pins a foreground ping at 7 ms and its
+pong at 32 ms. `room-round-trip-red.log` records the missing 25 ms sample.
+`room-heartbeat-probe-postpones-timeout` pins a further probe at 4006 ms that used
+to postpone the unanswered ping's 8007 ms deadline; its old implementation is
+reproduced in `room-heartbeat-deadline-red.log`. Periodic and foreground probes
+now share one outstanding ping, preserving both its timestamp and deadline.
+Reconnect, close, disposal, malformed traffic, failed send and invalid clocks
+have explicit transport contracts, including callbacks retained from an old
+socket while a new connection is waiting for its own reply.
+
+`room-round-trip-deeper-properties.log` passes all 15 adapter checks at
+`PBT_NUM_RUNS=200`. Its two properties vary clock offset and partitions of
+foreground probes: replies retain the original elapsed time, and missing replies
+retire the original socket at its original deadline. All five affected test
+tasks pass in `room-round-trip-affected-tests.log`. All 60 dependent type tasks
+and eight affected lint tasks pass in `room-round-trip-dependent-types-final.log`
+and `room-round-trip-lint-complete.log`; the later property module and manifest
+also pass package types/lint in `room-round-trip-property-static.log`. Goals,
+spec ownership and package naming pass in `room-round-trip-policy.log`.
+
+The bounded whole-Pong run passes 63 checks in
+`pong-after-authority-and-rtt.log`. The all-trace run is recorded separately in
+`pong-after-authority-and-rtt-all-traces.log`: all 108 checks pass, including
+every drawn trace and the pinned scoring regressions (88.26 s test body,
+101.429 s task). These remain automated contract
+and product-harness evidence, without a hosted network measurement, browser
+performance result or full Verify verdict. The readiness matrix records the
+heartbeat deadline regression; the broader Pong readiness gaps stay open.

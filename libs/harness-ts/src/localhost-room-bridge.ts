@@ -38,6 +38,7 @@ export function localhostRoomBridge(harness: Harness) {
               request.headers.get('x-actor-client-id') ??
               harness.server.createId(),
             getSessionToken: () => url.searchParams.get('token'),
+            clock: harness.server.clock,
             timers: harness.server.timers,
             random: harness.server.random,
           });

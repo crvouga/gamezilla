@@ -44,6 +44,7 @@ function connection(w: Context, identity: string): Connection {
     installId: identity === w.actor ? w.actorDevice : `${identity}-device`,
     clientId: w.nextId(),
     apiUrl: '',
+    clock: w.clock,
     timers: w.timers,
     random: () => 0.5,
     getSessionToken: () => null,

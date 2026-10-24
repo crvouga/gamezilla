@@ -85,6 +85,7 @@ export function decisionConnection(
       identity === memberIdOf(w.c) ? w.c.env.deviceId : `${identity}-device`,
     clientId: w.nextId(),
     apiUrl: '',
+    clock: w.clock,
     timers: w.timers,
     random: () => 0.5,
     getSessionToken: () => null,
@@ -113,6 +114,7 @@ async function send(
     payload,
     commandId: w.nextId(),
     nowMs: w.c.nowMs,
+    clock: w.clock,
     timers: w.timers,
     transport: decisionConnection(w, identity),
     beforeSend: async () => {

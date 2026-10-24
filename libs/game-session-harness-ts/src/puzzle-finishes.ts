@@ -183,6 +183,7 @@ export const finishGamePuzzleAsAppCloses = scenarioAction({
       installId: `${actor}-finish`,
       clientId: `${actor}-finish`,
       getSessionToken: () => null,
+      clock: env.clock,
       timers: env.timers,
       random: env.random,
     });
