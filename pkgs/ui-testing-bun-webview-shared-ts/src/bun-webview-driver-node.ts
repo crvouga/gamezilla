@@ -32,6 +32,7 @@ import { UiTestError } from '@pkgs/ui-testing-root-shared-ts/ui-test-error';
 import { waitUntil } from '@pkgs/ui-testing-root-shared-ts/wait';
 import { pressBrowserKey } from './browser-key';
 import type { BunWebView, BunWebviewHost } from './bun-webview-host';
+import { visibilityScript } from './visibility-script';
 
 /**
  * Page-side predicate: `el` is an `<input>` / `<textarea>`. Not `'value' in
@@ -351,6 +352,16 @@ export class BunWebviewDriverNode implements DriverNode {
     try {
       await waitUntil(
         async () => {
+          if (state === 'visible' && options?.visibleOr !== undefined) {
+            const parent = this.path.slice(0, -1);
+            const paths = [
+              this.path,
+              ...options.visibleOr.map((id) => [...parent, id]),
+            ];
+            const selectors = paths.map(cssPath);
+            const view = await this.host.resolveView(selectors.join(', '));
+            return (await view.evaluate(visibilityScript(selectors))) === true;
+          }
           if (isWaitTextCondition(state)) {
             const text = await this.text().catch(() => null);
             if (text === null) return false;
@@ -383,7 +394,7 @@ export class BunWebviewDriverNode implements DriverNode {
 
   async isVisible(): Promise<boolean> {
     const result = await (await this.view()).evaluate(
-      `(function(){ const el = document.querySelector(${JSON.stringify(cssPath(this.path))}); if (!el) return false; const s = getComputedStyle(el); if (s.display === 'none' || s.visibility === 'hidden') return false; if (s.opacity !== '0') return true; return el instanceof HTMLInputElement && (el.type === 'radio' || el.type === 'checkbox') && Array.from(el.labels ?? []).some(label => { const style = getComputedStyle(label); return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0'; }); })()`
+      visibilityScript([cssPath(this.path)])
     );
     return result === true;
   }

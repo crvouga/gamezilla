@@ -4,6 +4,14 @@ import { JOURNEY_WAIT_MS, tap } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
 
 export async function openNumberlinkLibrary(ui: Driver): Promise<void> {
+  await ui.get('content-create-puzzle').wait('visible', {
+    timeoutMs: JOURNEY_WAIT_MS,
+    description: 'Numberlink library or game choice after space navigation',
+    visibleOr: [
+      Handles.gameMenu('numberlink'),
+      Handles.gameChoice('puzzle-library'),
+    ],
+  });
   if (await ui.get('content-create-puzzle').isVisible()) return;
   if (!(await ui.get(Handles.gameChoice('puzzle-library')).isVisible()))
     await tap(ui, Handles.gameMenu('numberlink'));

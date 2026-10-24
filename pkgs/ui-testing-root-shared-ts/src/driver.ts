@@ -21,10 +21,15 @@ export type WaitTextCondition = {
 export type DriverWaitOptions = {
   readonly timeoutMs?: number;
   readonly description?: string;
+  /** For a visible wait, accept another control in the same locator scope. */
+  readonly visibleOr?: readonly string[];
 };
 
 /** Alias for assert options — same slim surface as {@link DriverWaitOptions}. */
-export type AssertionOptions = DriverWaitOptions;
+export type AssertionOptions = Pick<
+  DriverWaitOptions,
+  'timeoutMs' | 'description'
+>;
 
 export type UiWaitOptions = { readonly timeoutMs?: number };
 

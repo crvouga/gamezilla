@@ -45,6 +45,37 @@ function driver(): BunWebviewDriver {
   });
 }
 
+test('one browser wait accepts a visible alternate in the same locator scope', async () => {
+  document.body.innerHTML =
+    '<button data-testid="library">Other screen</button><section data-testid="panel"><button data-testid="library">Restored library</button></section>';
+  let visibilityChecks = 0;
+  let active = 0;
+  let peakActive = 0;
+  const view = domView();
+  const evaluate = view.evaluate.bind(view);
+  view.evaluate = async (script) => {
+    active++;
+    peakActive = Math.max(peakActive, active);
+    if (script.includes('getComputedStyle')) visibilityChecks++;
+    try {
+      return await evaluate(script);
+    } finally {
+      active--;
+    }
+  };
+  const ui = new BunWebviewDriver({
+    view,
+    timers: createHarnessClock().timers,
+  });
+  await ui
+    .get('panel')
+    .get('game-menu')
+    .wait('visible', { visibleOr: ['library'] });
+  expect(visibilityChecks).toBe(1);
+  expect(peakActive).toBe(1);
+  expect(await ui.get('panel').get('game-menu').isVisible()).toBe(false);
+});
+
 describe('BunWebviewDriver text of non-field nodes', () => {
   test('a button reads as its label, not its empty value', async () => {
     document.body.innerHTML =

@@ -1,0 +1,4 @@
+{
+  "summary": "A reopened Numberlink library could hydrate after an immediate visibility sample. The journey then waited for the Games menu while the library was already visible. A single driver wait now accepts either real landing screen, without concurrent browser evaluations.",
+  "regressionTest": "libs/runtime-harness-ts/tests/numberlink-journey-navigation.test.ts"
+}

@@ -7,7 +7,8 @@ import type {
 } from '@pkgs/ui-testing-root-shared-ts/driver';
 
 // regression: numberlink-journey-saved-space-opens-game-menu
-test.each(['games', 'numberlink', 'library'])(
+// regression: numberlink-journey-checks-before-library-hydration
+test.each(['games', 'numberlink', 'library', 'loading-library'])(
   'a reopened space landing on %s reaches the Numberlink library',
   async (landing) => {
     let screen = 'previous-attempt';
@@ -39,7 +40,11 @@ test.each(['games', 'numberlink', 'library'])(
         clear: unused,
         key: unused,
         scroll: unused,
-        wait: async () => visible(id),
+        wait: async (state, options) => {
+          if (screen === 'loading-library') screen = 'library';
+          if (state === 'visible' && options?.visibleOr?.some(shown)) return;
+          visible(id);
+        },
         isVisible: async () => shown(id),
         text: unused,
         tap: async () => {
