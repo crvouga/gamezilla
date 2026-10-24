@@ -50,6 +50,8 @@ export type Oo1SqlClientArgs = {
    * previous handle's filename and must return a freshly opened handle.
    */
   readonly reopenFromBytes: (bytes: Uint8Array) => Promise<WasmDatabase>;
+  /** Release backing-store handles once the SQLite connection is closed. */
+  readonly onDisconnect?: () => void;
 };
 
 /**
@@ -58,6 +60,7 @@ export type Oo1SqlClientArgs = {
  * boundary already serializes access so there is no contention to amortize.
  */
 export class Oo1SqlClient implements SqliteWorkerDatabase {
+  private readonly onDisconnect: (() => void) | undefined;
   private db: WasmDatabase;
   private readonly sqlite3: Sqlite3Static;
   private readonly reopenFromBytes: (
@@ -68,6 +71,7 @@ export class Oo1SqlClient implements SqliteWorkerDatabase {
     this.sqlite3 = args.sqlite3;
     this.db = args.db;
     this.reopenFromBytes = args.reopenFromBytes;
+    this.onDisconnect = args.onDisconnect;
   }
 
   connect(): Promise<void> {
@@ -77,6 +81,7 @@ export class Oo1SqlClient implements SqliteWorkerDatabase {
 
   disconnect(): Promise<void> {
     if (this.db.isOpen()) this.db.close();
+    this.onDisconnect?.();
     return Promise.resolve();
   }
 

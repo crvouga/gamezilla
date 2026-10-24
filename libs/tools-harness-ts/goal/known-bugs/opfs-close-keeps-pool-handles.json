@@ -1,0 +1,4 @@
+{
+  "summary": "Closing the SQLite connection left the SAH pool's access handles open until worker termination. WebKit could retain those locks across navigation, making the next offline page fall back to an empty database. Close now pauses the pool and reopen reacquires it explicitly.",
+  "regressionTest": "pkgs/sql-client-sqlite-web-client-ts/tests/opfs-close.test.ts"
+}
