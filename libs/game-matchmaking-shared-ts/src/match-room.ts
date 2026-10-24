@@ -9,8 +9,9 @@ import {
   ROOM_ERROR_TYPE,
 } from '@pkgs/room-root-shared-ts/types';
 import { z } from 'zod';
+import { simulationExecutionSchema } from './simulation-execution';
 
-const MATCH_GAME_KEY = asKeyword('chess-match/game');
+export const MATCH_GAME_KEY = asKeyword('chess-match/game');
 
 export const MATCH_ROOM_MODULE = 'chess-match';
 export const matchRoomTopic = (gameId: string): string =>
@@ -38,6 +39,7 @@ const gameSchema = z.object({
   white_rating_diff: z.number().nullable().optional(),
   black_rating_diff: z.number().nullable().optional(),
   setup_ready: z.string().nullable().optional(),
+  execution: simulationExecutionSchema.optional(),
 });
 /** The accepted game a match room shares. Clock fields travel with a timed game. */
 export type MatchRoomGame = z.infer<typeof gameSchema>;

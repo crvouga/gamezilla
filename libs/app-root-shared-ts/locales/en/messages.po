@@ -1024,6 +1024,10 @@ msgstr "Choose a sign-in method"
 msgid "Choose a username"
 msgstr "Choose a username"
 
+#: libs/pong-client-ts/src/pong-options.tsx
+msgid "Choose a whole number from 1 to 99. Changing it asks both players to get ready again."
+msgstr "Choose a whole number from 1 to 99. Changing it asks both players to get ready again."
+
 #: libs/chess-root-client-ts/src/chess-game-client.tsx
 msgid "Choose how you want to play."
 msgstr "Choose how you want to play."
@@ -1902,6 +1906,10 @@ msgstr "Find items"
 msgid "Find people"
 msgstr "Find people"
 
+#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
+msgid "Find someone to play with."
+msgstr "Find someone to play with."
+
 #: libs/synthetic-population-client-ts/src/synthetic-population-users.tsx
 msgid "Find Synthetic Users"
 msgstr "Find Synthetic Users"
@@ -1954,6 +1962,11 @@ msgstr "First page"
 msgid "First seen"
 msgstr "First seen"
 
+#. placeholder {0}: props.state.targetScore
+#: libs/pong-client-ts/src/pong-board.tsx
+msgid "First to {0}"
+msgstr "First to {0}"
+
 #: libs/battleship-client-ts/src/battleship-presentation.tsx
 msgid "fleet sunk"
 msgstr "fleet sunk"
@@ -1961,6 +1974,10 @@ msgstr "fleet sunk"
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
 msgid "Flip board"
 msgstr "Flip board"
+
+#: libs/pong-client-ts/src/pong-board.tsx
+msgid "Focus the court to play. Use W and S for Left, or the arrow keys for your paddle. With two players on this device, the arrow keys control Right. Drag on your side of the court, or use the paddle sliders below."
+msgstr "Focus the court to play. Use W and S for Left, or the arrow keys for your paddle. With two players on this device, the arrow keys control Right. Drag on your side of the court, or use the paddle sliders below."
 
 #: libs/app-root-client-ts/src/theme-screen.tsx
 msgid "Follows your device appearance"
@@ -2045,6 +2062,11 @@ msgstr "Game drawn."
 msgid "Game finished"
 msgstr "Game finished"
 
+#: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
+#: libs/game-session-client-ts/src/custom-game-status.tsx
+msgid "Game in progress."
+msgstr "Game in progress."
+
 #: libs/game-puzzle-client-ts/src/puzzle-game-log.tsx
 msgid "Game log"
 msgstr "Game log"
@@ -2052,6 +2074,10 @@ msgstr "Game log"
 #: libs/game-session-client-ts/src/custom-game-configuration.tsx
 msgid "Game options"
 msgstr "Game options"
+
+#: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
+msgid "Game rating"
+msgstr "Game rating"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-game-record.tsx
 #: libs/game-session-client-ts/src/custom-game-board.tsx
@@ -2340,6 +2366,10 @@ msgstr "just now"
 msgid "Keep a separate account"
 msgstr "Keep a separate account"
 
+#: libs/pong-client-ts/src/pong-board.tsx
+msgid "Keep the ball in play."
+msgstr "Keep the ball in play."
+
 #: pkgs/chess-board-root-client-ts/src/chess-board-promotion.tsx
 msgid "Knight"
 msgstr "Knight"
@@ -2419,6 +2449,23 @@ msgstr "Leave while work is in progress?"
 #: libs/spaces-client-ts/src/leave-space-confirm-modal.tsx
 msgid "Leaving…"
 msgstr "Leaving…"
+
+#: libs/pong-client-ts/src/pong-game-client.tsx
+msgid "Left"
+msgstr "Left"
+
+#. placeholder {0}: props.state.score.left
+#: libs/pong-client-ts/src/pong-board.tsx
+msgid "Left {0}"
+msgstr "Left {0}"
+
+#: libs/pong-client-ts/src/pong-board.tsx
+msgid "Left paddle"
+msgstr "Left paddle"
+
+#: libs/pong-client-ts/src/pong-board.tsx
+msgid "Left wins."
+msgstr "Left wins."
 
 #: libs/chess-puzzle-client-ts/src/puzzle-source-controls.tsx
 msgid "Lichess file uploaded"
@@ -2540,6 +2587,11 @@ msgstr "Long tasks"
 msgid "Looking for a {0} {1} opponent."
 msgstr "Looking for a {0} {1} opponent."
 
+#. placeholder {0}: gameName()
+#: libs/game-matchmaking-client-ts/src/multiplayer-waiting.tsx
+msgid "Looking for a {0} opponent."
+msgstr "Looking for a {0} opponent."
+
 #: libs/game-session-client-ts/src/game-history.tsx
 msgid "Losses"
 msgstr "Losses"
@@ -2570,10 +2622,9 @@ msgstr "Match puzzles to your profile rating ({profileCaption}), plus an optiona
 
 #. placeholder {0}: props.viewer.opponentName
 #. placeholder {1}: props.viewer.opponentRating
-#. placeholder {2}: timeControlText(props.game.time_control)
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
-msgid "Matched with {0}, rated {1}, at {2}."
-msgstr "Matched with {0}, rated {1}, at {2}."
+msgid "Matched with {0}, rated {1}."
+msgstr "Matched with {0}, rated {1}."
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-summary.tsx
 msgid "Matchmaking"
@@ -2649,6 +2700,10 @@ msgstr "Move number to review"
 msgid "Move on to the next puzzle by itself after a solve."
 msgstr "Move on to the next puzzle by itself after a solve."
 
+#: libs/pong-client-ts/src/pong-game-client.tsx
+msgid "Move your paddle to return the ball. A ball past the other paddle scores a point. Reach the chosen score to win. Play with a bot, share a device, invite someone, or find an opponent."
+msgstr "Move your paddle to return the ball. A ball past the other paddle scores a point. Reach the chosen score to win. Play with a bot, share a device, invite someone, or find an opponent."
+
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
 msgid "Moves"
 msgstr "Moves"
@@ -2685,6 +2740,10 @@ msgstr "Multiplayer commands need a connection. Your accepted game stays here."
 #: libs/game-matchmaking-client-ts/src/multiplayer-game-actions.tsx
 msgid "Multiplayer draw offered"
 msgstr "Multiplayer draw offered"
+
+#: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
+msgid "Multiplayer game is paused."
+msgstr "Multiplayer game is paused."
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-game-actions.tsx
 msgid "Multiplayer rematch offered"
@@ -3160,6 +3219,11 @@ msgstr "Pause"
 msgid "Paused"
 msgstr "Paused"
 
+#: libs/game-session-client-ts/src/custom-game-status.tsx
+#: libs/pong-client-ts/src/pong-board.tsx
+msgid "Paused while a player returns."
+msgstr "Paused while a player returns."
+
 #: libs/billing-client-ts/src/billing-status-line.tsx
 msgid "Payment failed"
 msgstr "Payment failed"
@@ -3265,6 +3329,13 @@ msgstr "Play history"
 msgid "Played"
 msgstr "Played"
 
+#: libs/game-session-client-ts/src/custom-game-person.tsx
+#: libs/game-session-client-ts/src/custom-game-side-choices.tsx
+#: libs/game-session-client-ts/src/custom-game-status.tsx
+#: libs/game-session-client-ts/src/game-history-participant.tsx
+msgid "Player on this device"
+msgstr "Player on this device"
+
 #: libs/game-session-client-ts/src/custom-game-side.tsx
 msgid "Players"
 msgstr "Players"
@@ -3283,9 +3354,25 @@ msgstr "Plus"
 msgid "Plus credit · {0} left from your yearly plan"
 msgstr "Plus credit · {0} left from your yearly plan"
 
+#: libs/pong-client-ts/src/pong-options.tsx
+msgid "Points to win"
+msgstr "Points to win"
+
 #: libs/synthetic-population-client-ts/src/synthetic-user-replay.tsx
 msgid "Policy changed"
 msgstr "Policy changed"
+
+#: libs/pong-client-ts/src/pong-game-client.tsx
+msgid "Pong"
+msgstr "Pong"
+
+#: libs/pong-client-ts/src/pong-board.tsx
+msgid "Pong could not be opened. Return to the game choices and open it again."
+msgstr "Pong could not be opened. Return to the game choices and open it again."
+
+#: libs/pong-client-ts/src/pong-board.tsx
+msgid "Pong court"
+msgstr "Pong court"
 
 #: libs/app-root-client-ts/src/settings-screen.tsx
 msgid "Preferences"
@@ -3517,6 +3604,10 @@ msgstr "Recent failure"
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Reconnect before changing or playing the game."
 msgstr "Reconnect before changing or playing the game."
+
+#: libs/pong-client-ts/src/pong-board.tsx
+msgid "Reconnecting. Controls resume when the game returns."
+msgstr "Reconnecting. Controls resume when the game returns."
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-event-timeline.tsx
 msgid "Recorded activity appears here as it happens."
@@ -3750,6 +3841,23 @@ msgstr "Review your games, wins and draws"
 msgid "Revoke invitation"
 msgstr "Revoke invitation"
 
+#: libs/pong-client-ts/src/pong-game-client.tsx
+msgid "Right"
+msgstr "Right"
+
+#. placeholder {0}: props.state.score.right
+#: libs/pong-client-ts/src/pong-board.tsx
+msgid "Right {0}"
+msgstr "Right {0}"
+
+#: libs/pong-client-ts/src/pong-board.tsx
+msgid "Right paddle"
+msgstr "Right paddle"
+
+#: libs/pong-client-ts/src/pong-board.tsx
+msgid "Right wins."
+msgstr "Right wins."
+
 #: pkgs/chess-board-root-client-ts/src/chess-board-promotion.tsx
 msgid "Rook"
 msgstr "Rook"
@@ -3802,6 +3910,10 @@ msgstr "Saving stopped"
 #: libs/synthetic-population-client-ts/src/synthetic-population-screen.tsx
 msgid "Saving…"
 msgstr "Saving…"
+
+#: libs/pong-client-ts/src/pong-game-client.tsx
+msgid "score target"
+msgstr "score target"
 
 #: libs/search-client-ts/src/search-screen-view.tsx
 #: libs/search-client-ts/src/sub-client.tsx
@@ -3920,6 +4032,11 @@ msgstr "Sending…"
 #: libs/friends-client-ts/src/friend-action-status-renderers.tsx
 msgid "Sent"
 msgstr "Sent"
+
+#. placeholder {0}: Math.ceil(state.countdown / config.tickRate)
+#: libs/pong-client-ts/src/pong-board.tsx
+msgid "Serve in {0}."
+msgstr "Serve in {0}."
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-configuration.tsx
 msgid "Session duration (milliseconds)"
@@ -4619,6 +4736,10 @@ msgstr "The game choices changed. Review them and try again."
 msgid "The game ends with no result and no rating change."
 msgstr "The game ends with no result and no rating change."
 
+#: libs/game-session-client-ts/src/custom-game-board.tsx
+msgid "The game stopped. Its last score is kept in the record. Start a rematch to play again."
+msgstr "The game stopped. Its last score is kept in the record. Start a rematch to play again."
+
 #: libs/game-puzzle-client-ts/src/puzzle-empty-pool-state.tsx
 msgid "The host hasn't started a puzzle yet."
 msgstr "The host hasn't started a puzzle yet."
@@ -4663,6 +4784,10 @@ msgstr "The payment provider can't be reached right now. Nothing was charged —
 #: libs/game-matchmaking-client-ts/src/multiplayer-private-setup.tsx
 msgid "The players are choosing their private setups."
 msgstr "The players are choosing their private setups."
+
+#: libs/pong-client-ts/src/pong-game-client.tsx
+msgid "The score target was reached."
+msgstr "The score target was reached."
 
 #: libs/auth-client-ts/src/auth-flow-messages.tsx
 msgid "The sign-in provider couldn't finish. Try again in a moment."
@@ -4882,6 +5007,11 @@ msgstr "time"
 msgid "Time control"
 msgstr "Time control"
 
+#. placeholder {0}: timeControlText(props.game.time_control)
+#: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
+msgid "Time control: {0}."
+msgstr "Time control: {0}."
+
 #: libs/permissions-client-ts/src/unlock-copy.tsx
 msgid "To keep your data safe, export and deletion need a sign-in from the last {PROOF_MINUTES} minutes. Sign in again, then try once more. Nothing has changed yet."
 msgstr "To keep your data safe, export and deletion need a sign-in from the last {PROOF_MINUTES} minutes. Sign in again, then try once more. Nothing has changed yet."
@@ -4935,6 +5065,10 @@ msgstr "Try loading again"
 #: libs/chess-puzzle-client-ts/src/puzzle-source-controls.tsx
 msgid "Try uploading again"
 msgstr "Try uploading again"
+
+#: libs/pong-client-ts/src/pong-game-client.tsx
+msgid "Two paddles. One ball. Every return counts."
+msgstr "Two paddles. One ball. Every return counts."
 
 #: pkgs/ui-root-client-ts/src/command-palette-input.tsx
 msgid "Type a command or search…"
@@ -5075,6 +5209,10 @@ msgstr "Use system theme"
 #: libs/game-session-client-ts/src/custom-game-configuration.tsx
 msgid "Use this clock"
 msgstr "Use this clock"
+
+#: libs/pong-client-ts/src/pong-options.tsx
+msgid "Use this score"
+msgstr "Use this score"
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "User ID"

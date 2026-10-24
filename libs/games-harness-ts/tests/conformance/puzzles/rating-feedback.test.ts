@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import { usePuzzleRatingFeedback } from '@libs/game-puzzle-client-ts/use-puzzle-rating-feedback';
 import type { PuzzleCompletion } from '@libs/game-puzzle-shared-ts/completion';
 import { createRoot, createSignal } from 'solid-js';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 import { puzzleCase } from './puzzle-room';
 
 function feedback(initial: PuzzleCompletion) {
@@ -22,7 +22,7 @@ function feedback(initial: PuzzleCompletion) {
   return { ...root, cues, displayed };
 }
 
-forEveryGame(import.meta.path, (game) => {
+forEveryTurnGame(import.meta.path, (game) => {
   const puzzleRating = puzzleCase(game).known[0].record.rating;
   const rated: PuzzleCompletion = {
     outcome: 'solved',

@@ -27,7 +27,7 @@ import {
 import { privateSetupsReaching } from '@libs/game-session-harness-ts/private-setup-reach';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
-import { gameOf } from './game-world';
+import { turnGameOf } from './game-world';
 import {
   arrangeKnownSetup,
   INCOMPLETE,
@@ -77,7 +77,7 @@ Given("{actor}'s private setup is incomplete", async (w, actor: string) =>
 // The change is to a complete setup other than every one the game knows.
 When('{actor} changes his/her private setup', async (w, actor: string) => {
   w.memo.set(BEFORE_CHANGE, await ownShown(w, actor));
-  const setup = anotherCompleteSetup(gameOf(w), [
+  const setup = anotherCompleteSetup(turnGameOf(w), [
     await setupOf(w, actor),
     ...Object.values(knownSetups(w)),
   ]);

@@ -1,6 +1,7 @@
 import { bindIdentity } from '@pkgs/observability-root-shared-ts/identity-scope';
 import type { PubSub } from '@pkgs/pubsub-root-shared-ts/interface';
 import type { Topic } from '@pkgs/pubsub-root-shared-ts/topic';
+import type { RoomServicePort } from '@pkgs/room-root-shared-ts/room-service';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import type {
   ContentRules,
@@ -150,6 +151,7 @@ async function prepareMutationNotify(
       createId: deps.createId,
       ...(deps.authorize !== undefined ? { authorize: deps.authorize } : {}),
       ...(deps.turnGames === undefined ? {} : { turnGames: deps.turnGames }),
+      ...(deps.rooms === undefined ? {} : { rooms: deps.rooms }),
       ...(deps.contentRulesAt !== undefined
         ? { contentRulesAt: deps.contentRulesAt }
         : {}),
@@ -253,6 +255,7 @@ export type MountMutationsRouteDeps = {
    * `created_at`), handed to the mutation body as `env.contentRules`.
    */
   readonly turnGames?: TurnGames;
+  readonly rooms?: RoomServicePort;
   readonly contentRulesAt?: (atMs: number) => ContentRules;
 };
 

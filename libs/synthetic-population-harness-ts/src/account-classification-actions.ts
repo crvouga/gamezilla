@@ -1,6 +1,7 @@
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { signedInAccountOf } from '@libs/harness-ts/identity';
+import { connectionMissing } from '@libs/harness-ts/network-notices';
 import { bringToFront } from '@libs/harness-ts/observations';
 import { openSyntheticGame } from './synthetic-game-actions';
 
@@ -22,4 +23,12 @@ export async function accountAutomationShown(
   return (await actorUi(s, observer))
     .get(`account-automation-${accountId}`)
     .isVisible();
+}
+
+export async function observeSyntheticIdentification(s: ProductHarness) {
+  return {
+    syntheticIdentified: await accountAutomationShown(s, 'bob', 'cedar'),
+    personIdentified: await accountAutomationShown(s, 'bob', 'bob'),
+    connectionAvailable: !(await connectionMissing(s, 'bob')),
+  };
 }

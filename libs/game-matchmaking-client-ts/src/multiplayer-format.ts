@@ -65,17 +65,16 @@ export function multiplayerMoves(
   game: Pick<MultiplayerGame, 'fen' | 'pgn'>,
   rules: TurnGames
 ): readonly MultiplayerMove[] {
-  return rules
-    .forPosition(game.fen)
-    .moves(game.fen, game.pgn, [])
-    .map((move, index) => ({
-      ply: index + 1,
-      san: move.label,
-      numbering: index % 2 === 0 ? `${Math.floor(index / 2) + 1}.` : '',
-      name: `${Math.floor(index / 2) + 1}${index % 2 === 0 ? '.' : '...'} ${move.label}`,
-      before: move.before,
-      after: move.after,
-    }));
+  return (
+    rules.turnsForPosition(game.fen)?.moves(game.fen, game.pgn, []) ?? []
+  ).map((move, index) => ({
+    ply: index + 1,
+    san: move.label,
+    numbering: index % 2 === 0 ? `${Math.floor(index / 2) + 1}.` : '',
+    name: `${Math.floor(index / 2) + 1}${index % 2 === 0 ? '.' : '...'} ${move.label}`,
+    before: move.before,
+    after: move.after,
+  }));
 }
 
 /**

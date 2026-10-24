@@ -133,7 +133,6 @@ export class InMemoryRoomStorage implements RoomStorage {
     commandId: string,
     newEntries: LogEntry[]
   ): Promise<void> {
-    if (newEntries.length === 0) return;
     const s = this.getOrCreate(topic);
     if (s.dedup.has(commandId)) return;
     const last = s.entries[s.entries.length - 1]?.seq ?? 0;

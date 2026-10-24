@@ -607,6 +607,11 @@
         "@libs/games-harness-ts#test:spec:92",
         "@libs/games-harness-ts#test:spec:93",
         "@libs/games-harness-ts#test:spec:94",
+        "@libs/games-harness-ts#test:spec:95",
+        "@libs/games-harness-ts#test:spec:96",
+        "@libs/games-harness-ts#test:spec:97",
+        "@libs/games-harness-ts#test:spec:98",
+        "@libs/pong-harness-ts#test:spec:0",
         "@libs/profile-harness-ts#test:spec:0",
         "@libs/profile-harness-ts#test:spec:1",
         "@libs/profile-harness-ts#test:spec:2",
@@ -651,7 +656,8 @@
         "$TURBO_ROOT$/pkgs/ui-root-client-ts/src/**/*.css",
         "$TURBO_ROOT$/pkgs/*/src/**/*.module.css",
         "$TURBO_ROOT$/libs/harness-ts/src/wall-frame-css.ts",
-        "$TURBO_ROOT$/pkgs/tailwind-shared-ts/src/**"
+        "$TURBO_ROOT$/pkgs/tailwind-shared-ts/src/**",
+        "scripts/ui-quality/sources.json"
       ],
       "outputs": [".cache/ui-quality-inputs/**"],
       "outputLogs": "errors-only"

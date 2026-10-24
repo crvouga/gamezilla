@@ -7,16 +7,17 @@ import {
   requireUnfinished,
 } from './game-state';
 
-/** Once both people have moved, either may give up the game, whoever's turn it is. */
+/** Once play begins, either may give up the game, whoever's turn it is. */
 export function resignGame(
   game: MultiplayerGame,
-  actorId: string
+  actorId: string,
+  started = bothHaveMoved(game)
 ): MultiplayerGame {
   requireUnfinished(game);
-  if (!bothHaveMoved(game))
+  if (!started)
     throw new MutationError(
       'CHESS_ABORT_INSTEAD',
-      'Abort the multiplayer game instead: resigning waits until both people have moved.'
+      'Abort the multiplayer game instead: resigning waits until play begins.'
     );
   return endMultiplayerGame(
     game,
@@ -25,10 +26,13 @@ export function resignGame(
   );
 }
 
-/** Until both people have moved, either may end the game with no result. */
-export function abortGame(game: MultiplayerGame): MultiplayerGame {
+/** Before play begins, either may end the game with no result. */
+export function abortGame(
+  game: MultiplayerGame,
+  started = bothHaveMoved(game)
+): MultiplayerGame {
   requireUnfinished(game);
-  if (bothHaveMoved(game))
+  if (started)
     throw new MutationError(
       'CHESS_ABORT_TOO_LATE',
       'The multiplayer game can no longer be aborted.'

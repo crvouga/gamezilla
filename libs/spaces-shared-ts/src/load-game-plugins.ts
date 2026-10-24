@@ -24,14 +24,16 @@ export function assertGameRegistry(
   }
 }
 
-/** What the client registry checks of a turn game: its id and what it offers. */
+/** What the client registry checks of a game: its id and what it offers. */
 type RegisteredShared = {
   readonly id: string;
-  readonly turnGame?: { readonly capabilities: { readonly puzzles?: unknown } };
+  readonly registration?: {
+    readonly capabilities: { readonly puzzles?: unknown };
+  };
 };
 
 /**
- * Keep the client registry in step with the turn games: one client per
+ * Keep the client registry in step with the games: one client per
  * game, the same id, the same order, and a puzzles part exactly for a game
  * offering puzzles. Each failure says which entry to fix.
  */
@@ -49,7 +51,7 @@ export function assertMatchingGameIds(
   for (const game of client)
     if (!sharedIds.has(game.id))
       throw new Error(
-        `game registry: client "${game.id}" has no turn game — register its defineTurnGame(...) value in GAME_DEFINITIONS, or give its defineGameClient the shared definition of the game it shows`
+        `game registry: client "${game.id}" has no game — register its defineGame(...) value in GAME_DEFINITIONS, or give its defineGameClient the shared definition of the game it shows`
       );
   for (const [index, game] of shared.entries()) {
     const shown = client[index];
@@ -58,7 +60,7 @@ export function assertMatchingGameIds(
         `game registry: GAME_CLIENT_DEFINITIONS[${String(index)}] is "${shown.id}" but GAME_DEFINITIONS[${String(index)}] is "${game.id}" — list the clients in the order of GAME_DEFINITIONS`
       );
     if (shown === undefined) continue;
-    const offered = game.turnGame?.capabilities.puzzles !== undefined;
+    const offered = game.registration?.capabilities.puzzles !== undefined;
     if (offered && shown.puzzles === undefined)
       throw new Error(
         `game registry: "${game.id}" offers puzzles but GAME_CLIENT_DEFINITIONS[${String(index)}] has no puzzles part — give its defineGameClient a puzzles part (its board), made with this definition as its shared`

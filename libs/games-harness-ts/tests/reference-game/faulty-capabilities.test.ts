@@ -7,8 +7,8 @@
 
 import { expect, test } from 'bun:test';
 import type {
-  HarnessGame,
   ReadGameRecord,
+  TurnHarnessGame,
 } from '@libs/game-session-harness-ts/harness-game';
 import type {
   GameRecordMetadata,
@@ -21,7 +21,7 @@ import {
 } from './counting-race-game';
 import { definedWith, lawNames, refusals } from './faulty-game';
 
-function expectRefusedBy(game: HarnessGame, law: string, reason: string) {
+function expectRefusedBy(game: TurnHarnessGame, law: string, reason: string) {
   const refused = refusals(game);
   expect([...refused.keys()]).toEqual([law]);
   expect(refused.get(law)).toContain(reason);
@@ -137,12 +137,16 @@ const notice = {
 };
 
 /** The reference game finding opponents, its matched games recorded by `record`. */
-function matched(record: HistoryCapability['record']): HarnessGame {
+function matched(record: HistoryCapability['record']): TurnHarnessGame {
   return definedWith(
     {
       capabilities: {
         ...COUNTING_RACE_TURN_GAME.capabilities,
-        matchmaking: { clockNamespace: 'counting-race/', notice },
+        matchmaking: {
+          clockChoices: true as const,
+          namespace: 'counting-race/',
+          notice,
+        },
         history: { record },
       },
     },

@@ -1,7 +1,7 @@
 # Spec audit — Synthetic Users playing Pong — 2026-10-24
 
-Verdict: INCOMPLETE (new steps and model intentionally unbound). Author review
-finds zero blocking language or coverage findings, with two warnings.
+Verdict: PASS (zero blocking findings, two warnings). The final strict spec
+gate passes; the whole context and all drawn traces of the new model pass.
 
 Scope: `specs/synthetic-population/playing-pong.feature`, `playing-pong.qnt`,
 their glossary mappings and published-language metadata. Existing chooser,
@@ -40,7 +40,7 @@ worker scheduling are code contracts, not additional product vocabulary.
 | B12–B13 | No outline; Cedar/Pong are concrete product data | none |
 | B14 | Existing ongoing-game Given, offline/return kernel wording and same-game Then reused; new continue-activity event and result observation; executable gate reports only undefined steps/unbound model | none |
 | B15–B17 | Domain tag only; scenarios have 4, 5 and 6 steps; no internal assertions | B16 warning: return setup plus explicit identity/result observations require six steps |
-| D2–D6 | No new implementation in this authoring change | binding audit pending |
+| D2–D6 | Thin steps call public harness actions/reads; model observes the account, original game and rendered outcome; connection helpers use the shared kernel; no selectors, SQL or decision logic in bindings | none |
 | P1–P2 | Spec-only commit required; implementation remains frozen during authoring | none |
 
 ## Coverage
@@ -60,7 +60,7 @@ worker scheduling are code contracts, not additional product vocabulary.
 
 C1–C6: no missing row within this aggregate. Existing unrelated Observatory
 commands are outside this aggregate; this change makes no completeness claim
-for those commands. Final executable verdict and D2–D6 review follow binding.
+for those commands. D2–D6 and the executable gate now pass.
 
 ## Handoff
 
@@ -77,3 +77,21 @@ undefined steps and unbound model. Each example ran separately before binding:
 reaches the undefined When after its real fresh-Pong Given succeeds; the latter
 two currently reach the undefined Cedar kernel-actor wording. Bind that actor
 to the existing kernel actions; do not add duplicate connection steps.
+
+## Implementation evidence
+
+- `9eb0031cb` contains only the behavior and this author report. Specs remained
+  unchanged during binding and implementation.
+- `.cache/pong/synthetic-context-stable.log`: all 47 context checks pass. The
+  three new examples use a fresh real Pong match, normal client controls and
+  a natural result. The result observer explicitly rejects an aborted game.
+- `.cache/pong/synthetic-pong-model-final-deep.log`: all two drawn six-step
+  traces and four model checks pass with all-trace selection. This is scoped
+  model evidence, not a full nightly verdict.
+- `.cache/pong/synthetic-pong-formal-final.log`: the package-owned bounded
+  model proof passes at its existing four-step depth.
+- `.cache/pong/synthetic-final-spec-gate.log`: strict spec verification passes.
+- `.cache/pong/synthetic-final-policy-gates.log`: ownership and registered
+  regression verifications pass.
+- The native worker suite separately proves actual Pong inputs through the
+  normal WebSocket room path. Driver mocks are not used for that contract.

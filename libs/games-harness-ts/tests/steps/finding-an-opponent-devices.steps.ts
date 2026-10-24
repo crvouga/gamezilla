@@ -26,9 +26,9 @@ function searchDevice(w: HarnessWorld, actor: string): string {
 }
 
 Given(
-  '{actor} is hosting a space and seeking an opponent for the game at {word}',
-  async (w, actor: string, clock: string) => {
-    await seeking(w, actor, clock);
+  '{actor} is hosting a space and seeking an opponent for the game',
+  async (w, actor: string) => {
+    await seeking(w, actor);
     expect(await w.s.read(multiplayerSpaceId, actor)).not.toBeNull();
   }
 );

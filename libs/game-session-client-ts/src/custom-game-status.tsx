@@ -50,6 +50,8 @@ function participantName(
       return t`Invited person: ${name ?? t`Person`}`;
     case 'bot':
       return t`Bot`;
+    case 'local':
+      return t`Player on this device`;
     case 'open':
       return t`Open place`;
     case 'closed':
@@ -64,19 +66,13 @@ function gameStateDescription(
   if (game.status === 'cancelled') return t`Game cancelled.`;
   if (game.status === 'completed') {
     if (game.outcome === 'draw') return t`Game drawn.`;
-    const winner = presentation.sideLabel(
-      game.outcome.startsWith('white') ? 'white' : 'black'
-    );
-    const reason = game.outcome.includes('resignation')
-      ? t`resignation`
-      : game.outcome.includes('time')
-        ? t`time`
-        : game.outcome.includes('stayed away')
-          ? t`opponent staying away`
-          : presentation.endingLabel(game.outcome.split(' wins by ')[1] ?? '');
-    return t`${winner} wins by ${reason}.`;
+    return completedGameDescription(game, presentation);
   }
   if (game.status === 'active') {
+    if (game.execution !== undefined)
+      return game.execution.phase === 'paused'
+        ? t`Paused while a player returns.`
+        : t`Game in progress.`;
     const player = presentation.sideLabel(game.turn);
     return t`${player} to move.`;
   }
@@ -262,4 +258,21 @@ export function CustomGameConnectionNotice(props: {
       </Notice>
     </Show>
   );
+}
+
+function completedGameDescription(
+  game: CustomGame,
+  presentation: GamePresentation
+): string {
+  const winner = presentation.sideLabel(
+    game.outcome.startsWith('white') ? 'white' : 'black'
+  );
+  const reason = game.outcome.includes('resignation')
+    ? t`resignation`
+    : game.outcome.includes('time')
+      ? t`time`
+      : game.outcome.includes('stayed away')
+        ? t`opponent staying away`
+        : presentation.endingLabel(game.outcome.split(' wins by ')[1] ?? '');
+  return t`${winner} wins by ${reason}.`;
 }

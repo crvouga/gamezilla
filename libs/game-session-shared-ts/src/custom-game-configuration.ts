@@ -10,6 +10,7 @@ import {
   CLOSED_CUSTOM_GAME_SIDE,
   CUSTOM_GAME_SIDES,
   customGamePersonSide,
+  LOCAL_CUSTOM_GAME_SIDE,
   newCustomGame,
   OPEN_CUSTOM_GAME_SIDE,
 } from './custom-game-state';
@@ -77,6 +78,8 @@ export function configureCustomGame(
       });
     case 'bot':
       return replaceCustomGameSide(game, choice.side, BOT_CUSTOM_GAME_SIDE);
+    case 'local':
+      return replaceCustomGameSide(game, choice.side, LOCAL_CUSTOM_GAME_SIDE);
     case 'open':
     case 'revoke':
     case 'decline':
@@ -118,6 +121,7 @@ function inheritSide(
   members: readonly string[]
 ): CustomGameParticipant {
   return participant.kind === 'bot' ||
+    participant.kind === 'local' ||
     (participant.kind === 'person' && members.includes(participant.person))
     ? participant
     : OPEN_CUSTOM_GAME_SIDE;
@@ -130,7 +134,12 @@ export function rematchCustomGame(
   rules: TurnGames
 ): CustomGame {
   return {
-    ...newCustomGame(id, game.creator, rules.forPosition(game.fen).initial()),
+    ...newCustomGame(
+      id,
+      game.creator,
+      rules.forPosition(game.fen).configuration?.restart(game.fen) ??
+        rules.forPosition(game.fen).initial()
+    ),
     white: inheritSide(game.black, members),
     black: inheritSide(game.white, members),
     difficulty: { white: game.difficulty.black, black: game.difficulty.white },

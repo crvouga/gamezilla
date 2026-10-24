@@ -1,0 +1,4 @@
+{
+  "summary": "The shared custom-game access probe omitted Battleship's independently authored private setups and disconnected participants between choices, so authorized start/play cases failed for invalid setup rather than permissions.",
+  "regressionTest": "libs/games-harness-ts/tests/custom-game-access-probe.test.ts"
+}

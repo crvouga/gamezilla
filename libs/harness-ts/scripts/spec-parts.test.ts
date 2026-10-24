@@ -3,7 +3,11 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { ReplayPlan } from '@pkgs/quint-server-ts/trace-runs';
 import { sliceReplays } from '@pkgs/quint-server-ts/trace-runs';
-import { packageSpecUnits, readReplayPlans } from './replay-plans';
+import {
+  packageSpecUnits,
+  preparePackageSpecUnits,
+  readReplayPlans,
+} from './replay-plans';
 import type { SpecUnit } from './spec-parts';
 import {
   MODEL_FILE_REPLAYS,
@@ -19,6 +23,7 @@ import {
   SLICE_SCENARIOS,
   specUnits,
   specWeight,
+  splitSpecParts,
   TRACE_WEIGHT,
   VERIFY_WEIGHT,
 } from './spec-parts';
@@ -322,9 +327,17 @@ describe('partOf', () => {
     '%s runs in the fewest parts its caps allow',
     (dir) => {
       // regression: games-spec-parts-exceed-capacity-pole
+      // regression: games-spec-part-allocation-timeout
       const { specParts } = plannedSuite(dir);
+      const packageDir = join(REPO_ROOT, dir);
+      const unitsFor = preparePackageSpecUnits(
+        packageDir,
+        packageSpecs(packageDir, REPO_ROOT)
+      );
       for (let count = 1; count < specParts; count++)
-        expect(suiteParts(dir, count).every(withinCaps)).toBe(false);
+        expect(splitSpecParts(unitsFor(count), count).every(withinCaps)).toBe(
+          false
+        );
     }
   );
 });
@@ -362,9 +375,7 @@ function suiteParts(
     packageSpecs(packageDir, REPO_ROOT),
     count
   );
-  return Array.from({ length: count }, (_, index) =>
-    partOf(units, { index, count })
-  );
+  return splitSpecParts(units, count);
 }
 
 // regression: chess-model-preparation-timeout

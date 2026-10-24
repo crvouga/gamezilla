@@ -2,11 +2,11 @@ import { expect, test } from 'bun:test';
 import { puzzleOwnerKey } from '@libs/game-puzzle-shared-ts/puzzle-namespace';
 import { CONCURRENT_DRIVERS } from '@pkgs/sql-client-root-harness-ts/open-concurrent-postgres';
 import sql from '@pkgs/sql-root-shared-ts/sql';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 import { puzzleCase } from './puzzle-room';
 import { openConcurrentHost } from './rating-concurrency-host';
 
-forEveryGame(import.meta.path, (game) => {
+forEveryTurnGame(import.meta.path, (game) => {
   const namespace = puzzleCase(game).puzzles.namespace;
   const profileId = puzzleOwnerKey(namespace, 'alice');
   test.each([...CONCURRENT_DRIVERS])(

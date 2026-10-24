@@ -61,10 +61,10 @@ export async function multiplayerView(
 export async function multiplayerRatingAt(
   s: ProductHarness,
   actor: string,
-  clockNamespace: string,
+  namespace: string,
   speed: ClockSpeed
 ): Promise<MultiplayerRatingView | null> {
-  const wanted = gameSpeed(clockNamespace, speed);
+  const wanted = gameSpeed(namespace, speed);
   return (
     (await multiplayerView(s, actor)).ratings.find(
       (rating) => rating.speed === wanted

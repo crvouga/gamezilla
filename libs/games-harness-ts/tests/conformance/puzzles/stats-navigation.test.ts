@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import { showGamePuzzleStats } from '@libs/game-session-harness-ts/puzzle-records';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 
 /**
  * A game's puzzle stats from outside its space, as the host's automatic
@@ -59,7 +59,7 @@ function statsSurface(entryScreen: string, gameId: string) {
   return { harness, taps, statsVisible: () => visible(Handles.chessStatsElo) };
 }
 
-forEveryGame(import.meta.path, (game) => {
+forEveryTurnGame(import.meta.path, (game) => {
   // regression: chess-stats-host-auto-entry
   test.each(['games', 'loading', 'join'])(
     'stats navigation when host entry initially shows %s',

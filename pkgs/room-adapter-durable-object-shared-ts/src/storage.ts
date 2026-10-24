@@ -104,7 +104,6 @@ export class DurableObjectRoomStorage implements RoomStorage {
     commandId: string,
     newEntries: LogEntry[]
   ): Promise<void> {
-    if (newEntries.length === 0) return;
     await this.ensureV3();
     if ((await this.getDedupOutcome(_topic, commandId)) !== null) return;
     const prevLast = await this.readLastSeq();
@@ -119,7 +118,7 @@ export class DurableObjectRoomStorage implements RoomStorage {
       batch[eventKey(this.ns, e.seq)] = e;
       expect++;
     }
-    const lastSeq = newEntries[newEntries.length - 1]!.seq;
+    const lastSeq = newEntries.at(-1)?.seq ?? prevLast;
     batch[this.ns.meta] = { lastSeq } satisfies RoomDoMeta;
     batch[dedupKey(this.ns, commandId)] = {
       kind: 'committed',

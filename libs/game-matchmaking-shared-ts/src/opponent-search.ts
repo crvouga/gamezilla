@@ -17,9 +17,12 @@ import {
   type TurnGames,
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import { MultiplayerGameRepository } from './game-repository';
+import type { MatchChoice } from './match-choice';
+import { offeredMatchChoices } from './match-choice';
 import { requireMultiplayerSpace } from './multiplayer-space-access';
 import { OpponentRequested } from './opponent-requested';
 import { MultiplayerRatingRepository } from './rating-repository';
+import { reconcileLiveGames } from './reconcile-live-games';
 import {
   OPPONENT_POOL_KEY,
   OPPONENT_RATING_KEY,
@@ -29,15 +32,13 @@ import {
   opponentPool,
 } from './search-config';
 import { projectOpponentSearch } from './search-projection';
-import type { TimeControl } from './time-control';
-import { offeredTimeControls } from './time-control';
 
-export function requireOfferedTimeControl(
+export function requireOfferedMatchChoice(
   id: string,
   rules: TurnGames
-): TimeControl {
+): MatchChoice {
   const control =
-    offeredTimeControls(rules).find((offered) => offered.id === id) ?? null;
+    offeredMatchChoices(rules).find((offered) => offered.id === id) ?? null;
   if (control === null)
     throw new MutationError(
       'CHESS_TIME_CONTROL_NOT_OFFERED',
@@ -90,10 +91,11 @@ export async function beginOpponentSearch(
   const scope = await requireMultiplayerSpace(ctx, input.spaceId);
   await refuseWhenAlreadyLooking(ctx);
   await requireInMutation(ctx, PERMISSION.spacesSelectGame, scope);
-  const control = requireOfferedTimeControl(
+  const control = requireOfferedMatchChoice(
     input.timeControl,
     requireTurnGames(ctx.env)
   );
+  await reconcileLiveGames(ctx, input.requestId);
   const checkLimit = async () =>
     requireLimitInMutation(
       ctx,
@@ -110,7 +112,7 @@ export async function beginOpponentSearch(
   const now = () => serverNow().getTime();
   const rating = await new MultiplayerRatingRepository(ctx.tx).read(
     ctx.env.actorId,
-    control.speed
+    control.ratingPool
   );
   const result = await new SearchCommands(ctx.tx, {
     now,

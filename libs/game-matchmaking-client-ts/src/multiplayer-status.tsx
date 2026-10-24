@@ -4,7 +4,10 @@ import {
   otherPerson,
 } from '@libs/game-matchmaking-shared-ts/game-state';
 import { multiplayerDeadlineMs } from '@libs/game-matchmaking-shared-ts/multiplayer-clock';
-import { isDailyTimeControl } from '@libs/game-matchmaking-shared-ts/time-control';
+import {
+  isDailyTimeControl,
+  timeControlOf,
+} from '@libs/game-matchmaking-shared-ts/time-control';
 import { Trans } from '@lingui/solid/macro';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useGameSideLabel } from '@pkgs/turn-game-client-ts/use-game-side-label';
@@ -68,19 +71,28 @@ function PlayerHeadline(props: StatusProps): JSX.Element {
       <VisuallyHidden>
         <Trans>
           Matched with {props.viewer.opponentName}, rated{' '}
-          {props.viewer.opponentRating}, at{' '}
-          {timeControlText(props.game.time_control)}.
+          {props.viewer.opponentRating}.
         </Trans>{' '}
+        <Show when={timeControlOf(props.game.time_control) !== null}>
+          <Trans>
+            Time control: {timeControlText(props.game.time_control)}.
+          </Trans>{' '}
+        </Show>
         <Trans>
           You are{' '}
           {gameSideLabel(props.game.fen, white(props) ? 'white' : 'black')}.
         </Trans>{' '}
       </VisuallyHidden>
       <Show
-        when={props.game.turn === props.viewer.myId}
-        fallback={<Trans>Your opponent's turn.</Trans>}
+        when={props.game.turn !== ''}
+        fallback={<Trans>Game in progress.</Trans>}
       >
-        <Trans>Your turn.</Trans>
+        <Show
+          when={props.game.turn === props.viewer.myId}
+          fallback={<Trans>Your opponent's turn.</Trans>}
+        >
+          <Trans>Your turn.</Trans>
+        </Show>
       </Show>
     </Show>
   );
@@ -154,7 +166,7 @@ function Reason(props: { readonly game: MultiplayerGame }): JSX.Element {
         <Trans>{flagged()} ran out of time.</Trans>
       </Match>
       <Match when={props.game.reason === 'timeout vs insufficient material'}>
-        {presentation(props.game.fen).timeoutDrawDescription(
+        {presentation(props.game.fen).timeoutDrawDescription?.(
           props.game.white_ms === 0 ? 'white' : 'black'
         )}
       </Match>
@@ -278,6 +290,7 @@ function FirstMoveCountdown(props: StatusProps): JSX.Element {
 /** A daily game's first move is timed by its own clock, in days. */
 const awaitingFirstMoves = (props: StatusProps): boolean =>
   props.game.outcome === 'ongoing' &&
+  props.game.clock_at_ms !== null &&
   props.game.paused_at_ms === null &&
   !bothHaveMoved(props.game) &&
   !isDailyTimeControl(props.game.time_control);
@@ -302,7 +315,12 @@ export function MultiplayerStatus(props: StatusProps): JSX.Element {
             }
           >
             <Text variant="inherit" testId="multiplayer-paused">
-              <Trans>Multiplayer clocks are paused.</Trans>{' '}
+              <Show
+                when={timeControlOf(props.game.time_control) !== null}
+                fallback={<Trans>Multiplayer game is paused.</Trans>}
+              >
+                <Trans>Multiplayer clocks are paused.</Trans>
+              </Show>{' '}
             </Text>
           </Show>
           <Show
@@ -321,14 +339,16 @@ export function MultiplayerStatus(props: StatusProps): JSX.Element {
         ) : undefined
       }
       trailing={
-        <Badge
-          intent="neutral"
-          label={
-            <Text variant="inherit" testId="multiplayer-time-control">
-              {timeControlText(props.game.time_control)}
-            </Text>
-          }
-        />
+        <Show when={timeControlOf(props.game.time_control) !== null}>
+          <Badge
+            intent="neutral"
+            label={
+              <Text variant="inherit" testId="multiplayer-time-control">
+                {timeControlText(props.game.time_control)}
+              </Text>
+            }
+          />
+        </Show>
       }
     />
   );

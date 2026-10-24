@@ -6,7 +6,7 @@ import {
   chessGameRecord,
   chessRules,
 } from '@libs/chess-rules-shared-ts/chess-rules';
-import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { chessAutomation } from './chess-automation';
 
@@ -15,16 +15,20 @@ import { chessAutomation } from './chess-automation';
  * puzzle namespaces are the unprefixed one, the established identity of
  * every stored chess search, rating, game and puzzle.
  */
-export const chessGameShared = defineTurnGame({
+export const chessGameShared = defineGame({
   rules: chessRules,
   unprefixedNamespace: true,
   capabilities: {
     'custom-games': { bots: chessBots },
-    matchmaking: { clockNamespace: '', notice: chessNoticeText },
+    matchmaking: {
+      clockChoices: true as const,
+      namespace: '',
+      notice: chessNoticeText,
+    },
     history: { record: chessGameRecord },
     puzzles: chessPuzzles,
   },
-  automation: chessAutomation,
+  turnAutomation: chessAutomation,
   own: chessScreensRoom,
 });
 

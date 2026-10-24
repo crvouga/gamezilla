@@ -1,3 +1,4 @@
+import { timeControlOf } from '@libs/game-matchmaking-shared-ts/time-control';
 import { Trans } from '@lingui/solid/macro';
 import { createTimedValue } from '@pkgs/clock-client-ts/solid';
 import {
@@ -8,7 +9,7 @@ import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameSearchState } from '@pkgs/ui-root-client-ts/game-search-state';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 import { timeControlText } from './time-control-name';
 import type { MultiplayerSearchRow } from './use-multiplayer-data';
 import { useOfflineSince } from './use-offline-since';
@@ -43,10 +44,15 @@ export function MultiplayerWaiting(props: {
       title={<Trans>Finding an opponent</Trans>}
       description={
         <P variant="inherit" testId="multiplayer-waiting">
-          <Trans>
-            Looking for a {timeControlText(props.search.time_control)}{' '}
-            {gameName()} opponent.
-          </Trans>
+          <Show
+            when={timeControlOf(props.search.time_control) !== null}
+            fallback={<Trans>Looking for a {gameName()} opponent.</Trans>}
+          >
+            <Trans>
+              Looking for a {timeControlText(props.search.time_control)}{' '}
+              {gameName()} opponent.
+            </Trans>
+          </Show>
         </P>
       }
       elapsed={

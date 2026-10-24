@@ -27,7 +27,7 @@ import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { customGameBotRoomNode } from './custom-game-bots';
 import { GAME_SESSION_HARNESS_ACTIONS } from './game-session-actions';
 import type { HarnessGame } from './harness-game';
-import { assertHarnessGame } from './harness-game';
+import { assertHarnessGame, isTurnHarnessGame } from './harness-game';
 import { registerHarnessGames } from './harness-game-of';
 import { seedKnownPuzzles } from './known-puzzle-catalogue';
 
@@ -57,7 +57,9 @@ export function gameSystem(
   options: GameSystemOptions = {}
 ) {
   for (const game of games) assertHarnessGame(game);
-  const turnGames = createTurnGames(games.map((game) => game.shared.turnGame));
+  const turnGames = createTurnGames(
+    games.map((game) => game.shared.registration)
+  );
   const spaces = spacesHarnessSlice({
     games: games.map((game) => game.shared),
     clients: games.map((game) => game.client),
@@ -108,7 +110,11 @@ export function gameSystem(
         ...(options.knownPuzzles === true
           ? {
               seedServer: (sqlClient) =>
-                seedKnownPuzzles(sqlClient, turnGames, games),
+                seedKnownPuzzles(
+                  sqlClient,
+                  turnGames,
+                  games.filter(isTurnHarnessGame)
+                ),
             }
           : {}),
       })
@@ -120,7 +126,9 @@ export function gameSystem(
   registerKnownSetups(
     composition,
     (position, side) =>
-      games.find((game) => game.shared.turnGame.rules.recognizes(position))
+      games
+        .filter(isTurnHarnessGame)
+        .find((game) => game.shared.registration.rules.recognizes(position))
         ?.fixtures.setups?.[side]
   );
   return defineProductSystem(composition, options.product);

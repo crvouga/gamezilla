@@ -31,7 +31,7 @@ export function resultReasonText(
     const side = text?.side(flagged) ?? 'A player';
     return game.reason === 'timeout'
       ? `${side} ran out of time.`
-      : (text?.timeoutDraw(flagged) ??
+      : (text?.timeoutDraw?.(flagged) ??
           `${side} ran out of time, but the other side cannot win.`);
   }
   return game.reason === null

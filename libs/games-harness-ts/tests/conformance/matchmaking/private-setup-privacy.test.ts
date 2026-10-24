@@ -16,9 +16,9 @@ import {
 } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
 import { deviceRowsOf } from '@libs/game-session-harness-ts/private-setup-observation';
 import { openConformanceHarness } from '../../conformance-world';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 
-forEveryGame(
+forEveryTurnGame(
   import.meta.path,
   (game) => {
     test("each person's device holds their own setup and never the opponent's", async () => {

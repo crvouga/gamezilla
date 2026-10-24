@@ -1,0 +1,4 @@
+{
+  "summary": "Paused-opponent checks manufactured the game result and sign-out in Then steps instead of observing the autonomous consequence of pausing.",
+  "regressionTest": "specs/synthetic-population/observatory.feature"
+}

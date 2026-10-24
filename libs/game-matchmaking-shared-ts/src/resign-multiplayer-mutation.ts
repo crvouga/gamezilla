@@ -12,7 +12,7 @@ export const resignMultiplayerMutation = defineMutation({
     runGameCommand(
       ctx,
       { ...args, kind: 'resign' },
-      resignGame,
+      (game, actorId) => resignGame(game, actorId),
       PERMISSION.gameMultiplayerResign
     ),
 });

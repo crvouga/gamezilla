@@ -1,4 +1,3 @@
-import { GAME_AUTOMATIONS } from '@libs/game-catalog-shared-ts/game-automations';
 import { BEHAVIOR_EVENTS } from '@libs/synthetic-population-shared-ts/behavior-statechart';
 import {
   type Checkpoint,
@@ -12,13 +11,19 @@ import {
 import { readPersonality } from '@libs/synthetic-population-shared-ts/personality';
 import { SyntheticUserApplication } from '@libs/synthetic-population-shared-ts/synthetic-user-application';
 import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
+import type { GameAutomation } from '@pkgs/turn-game-shared-ts/game-automation';
+import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import { createHarnessIds } from '@pkgs/uuid-shared-ts/seeded-create-id';
-import { createApplicationInstance } from './application-instance';
+import type { createApplicationInstance } from './application-instance';
 import type { SessionInput, SessionOutput } from './session-messages';
 import { SignInLinkMailbox } from './sign-in-link-mailbox';
+import { UiActionSampling } from './ui-action-sampling';
 import type { WorkerAssignment, WorkerRenewal } from './worker-rpc';
 
-type Instance = Awaited<ReturnType<typeof createApplicationInstance>>;
+type Instance = Pick<
+  Awaited<ReturnType<typeof createApplicationInstance>>,
+  'driver' | 'token' | 'activate' | 'route' | 'close'
+>;
 export class SessionRuntime {
   private instance: Instance | null = null;
   private behavior: SyntheticUserApplication | null = null;
@@ -34,7 +39,9 @@ export class SessionRuntime {
   private restoring: Promise<void> | null = null;
   private actions: Inspection['actions'] = [];
   private readonly uiStarted = new Map<string, number>();
+  private readonly uiSampling = new UiActionSampling();
   private restorationPending = false;
+  private nextActionAt = 0;
   private readonly signInLinks = new SignInLinkMailbox();
   constructor(
     private readonly assignment: WorkerAssignment,
@@ -42,6 +49,10 @@ export class SessionRuntime {
     private readonly ports: {
       clock: Clock;
       timers: Timers;
+      games: readonly GameAutomation<Driver>[];
+      openApplication: (
+        input: Parameters<typeof createApplicationInstance>[0]
+      ) => Promise<Instance>;
       send: (value: SessionOutput) => void;
     }
   ) {
@@ -95,7 +106,7 @@ export class SessionRuntime {
   }
   private async restore(): Promise<void> {
     this.activated = false;
-    const instance = await createApplicationInstance({
+    const instance = await this.ports.openApplication({
       email: this.assignment.email,
       username: this.assignment.username,
       deviceId: this.assignment.deviceId,
@@ -119,6 +130,8 @@ export class SessionRuntime {
         if (action.outcome === 'started')
           this.uiStarted.set(action.action, action.atMs);
         else this.uiStarted.delete(action.action);
+        const sampledCount = this.uiSampling.record(action);
+        if (sampledCount === null) return;
         this.ports.send({
           type: 'event',
           event: {
@@ -127,6 +140,7 @@ export class SessionRuntime {
             action: action.action,
             context: {
               outcome: action.outcome,
+              sampledCount,
               ...(action.outcome === 'started' || startedAt === undefined
                 ? {}
                 : { durationMs: Math.max(0, action.atMs - startedAt) }),
@@ -143,7 +157,7 @@ export class SessionRuntime {
     const random = createHarnessIds(this.checkpoint.policySeed).random;
     for (let index = 0; index < this.checkpoint.decisions; index += 1) random();
     this.behavior = new SyntheticUserApplication(this.instance.driver, {
-      games: GAME_AUTOMATIONS,
+      games: this.ports.games,
       clock: this.ports.clock,
       username: this.assignment.username,
       restoreGame: this.checkpoint.matchId !== null,
@@ -162,10 +176,20 @@ export class SessionRuntime {
   }
   private schedule(): void {
     if (this.stopped) return;
+    const policyInterval =
+      this.renewal?.config.actionIntervalMs ??
+      this.assignment.config.actionIntervalMs;
+    const controlInterval = this.behavior?.continuousIntervalMs() ?? null;
+    const delay =
+      controlInterval === null
+        ? policyInterval
+        : Math.min(
+            controlInterval,
+            Math.max(1, this.nextActionAt - this.ports.clock.now())
+          );
     this.timer = this.ports.timers.setTimeout(() => {
       void this.tick();
-    }, this.renewal?.config.actionIntervalMs ??
-      this.assignment.config.actionIntervalMs);
+    }, delay);
   }
   private async tick(): Promise<void> {
     try {
@@ -180,6 +204,13 @@ export class SessionRuntime {
         return;
       }
       await this.instance.activate();
+      if (
+        this.ports.clock.now() < this.nextActionAt &&
+        this.behavior.continuousIntervalMs() !== null
+      ) {
+        await this.behavior.continueCurrentGame();
+        return;
+      }
       const active = await this.behavior.tick({
         paused: renewal?.paused ?? false,
         draining: this.draining,
@@ -189,6 +220,10 @@ export class SessionRuntime {
         hostingWeight: readPersonality(this.assignment.personality)
           .hostingWeight,
       });
+      this.nextActionAt =
+        this.ports.clock.now() +
+        (renewal?.config.actionIntervalMs ??
+          this.assignment.config.actionIntervalMs);
       this.checkpoint = {
         ...this.checkpoint,
         activity: this.behavior.activity(),

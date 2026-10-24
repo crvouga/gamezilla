@@ -4,6 +4,7 @@ import type {
   MessageNamespace,
 } from '@pkgs/message-shared-ts/message';
 import type { MessageRouter } from '@pkgs/message-shared-ts/router';
+import type { ROOM_SERVICE_GRANT } from '@pkgs/room-root-shared-ts/service-identity';
 import type {
   HandleResult,
   RoomEffect,
@@ -13,6 +14,7 @@ import type {
 import type { GameAutomation } from '@pkgs/turn-game-shared-ts/game-automation';
 import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type {
+  RegisteredGame,
   RegisteredTurnGame,
   TurnGames,
 } from '@pkgs/turn-game-shared-ts/game-rules';
@@ -103,7 +105,7 @@ export type GameCommandContext = {
  * A module the platform installs once in every space, whichever games use
  * it, bound to the rules of every registered turn game (the shared custom
  * games and match rooms). Games never name one: their registration
- * (`defineTurnGame`) declares it, and the space installs it once.
+ * (`defineGame`) declares it, and the space installs it once.
  */
 export type SharedGameModule = {
   readonly id: string;
@@ -128,7 +130,7 @@ export type GameOwnRoom = {
  * in game packages and are listed by the game registry (`GAME_DEFINITIONS`),
  * composed into the space room at the composition roots — `@libs/spaces`
  * itself never imports a specific game. A turn game is defined with
- * `defineTurnGame`; the optional room hooks below are what shared modules
+ * `defineGame`; the optional room hooks below are what shared modules
  * supply, never a game.
  */
 export type GameDefinition = GameOwnRoom & {
@@ -136,6 +138,15 @@ export type GameDefinition = GameOwnRoom & {
   readonly id: string;
   readonly automation?: GameAutomation<never>;
   readonly turnGame?: RegisteredTurnGame;
+  /** Position, execution and offered product capabilities, shared by all game kinds. */
+  readonly registration?: RegisteredGame;
+  /** Shared framework execution on the room's existing authoritative connection. */
+  readonly createLive?: RoomModule<
+    RoomState,
+    Message,
+    Message,
+    string
+  >['createLive'];
   /** Shared modules the game is played through, installed once per space. */
   readonly sharedModules?: readonly SharedGameModule[];
   /** Independent rooms shared by spaces playing a matched game. */
@@ -176,8 +187,12 @@ export type GameDefinition = GameOwnRoom & {
   ) => HandleResult | null;
   /** Capability decision made for an incoming game command. */
   readonly permissionForCommand?: (
-    command: Message
-  ) => { readonly key: AppGrantKey; readonly reason: string } | null;
+    command: Message,
+    topic: string
+  ) => {
+    readonly key: AppGrantKey | typeof ROOM_SERVICE_GRANT;
+    readonly reason: string;
+  } | null;
 };
 
 export type GameClientMenuProps = {

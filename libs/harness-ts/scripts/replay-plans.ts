@@ -46,13 +46,22 @@ export function packageSpecUnits(
   specs: readonly string[],
   partCount = 1
 ): readonly SpecUnit[] {
+  return preparePackageSpecUnits(packageDir, specs)(partCount);
+}
+
+/** Read and weigh once when comparing several possible allocations of one suite. */
+export function preparePackageSpecUnits(
+  packageDir: string,
+  specs: readonly string[]
+): (partCount: number) => readonly SpecUnit[] {
   const plans = readReplayPlans(packageDir);
-  return specs.flatMap((path) =>
-    specUnits(
-      path,
-      readFileSync(path, 'utf8'),
-      partCount,
-      path.endsWith('.qnt') ? replayPlanFor(plans, path) : undefined
-    )
-  );
+  const readers = specs.map((path) => {
+    const source = readFileSync(path, 'utf8');
+    const plan = path.endsWith('.qnt') ? replayPlanFor(plans, path) : undefined;
+    if (path.endsWith('.qnt') && plan == null)
+      return (partCount: number) => specUnits(path, source, partCount, plan);
+    const fixed = specUnits(path, source, 1, plan);
+    return () => fixed;
+  });
+  return (partCount) => readers.flatMap((read) => read(partCount));
 }

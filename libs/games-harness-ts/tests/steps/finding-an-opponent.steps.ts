@@ -7,6 +7,7 @@ import {
 } from '@libs/billing-harness-ts/billing-actions';
 import { billingTier } from '@libs/billing-harness-ts/billing-reads';
 import {
+  drawnByAgreement,
   matchedGameOf,
   sameBoards,
   searchFor,
@@ -17,6 +18,7 @@ import {
 } from '@libs/game-matchmaking-harness-ts/multiplayer-commands';
 import { setMultiplayerConnection } from '@libs/game-matchmaking-harness-ts/multiplayer-connection';
 import { pairGameOpponents } from '@libs/game-matchmaking-harness-ts/multiplayer-fixtures';
+import { opponentSearchPresentation } from '@libs/game-matchmaking-harness-ts/multiplayer-presentation';
 import {
   multiplayerText,
   multiplayerView,
@@ -43,6 +45,7 @@ import {
   actingDevice,
   actOnOtherDevice,
   otherDevice,
+  pairedAt,
   readyPeople,
   timeControlFor,
   told,
@@ -72,10 +75,11 @@ Given(
   }
 );
 Given(
-  '{actor} and {actor} are seeking an opponent for the game at the same clock choice',
+  '{actor} and {actor} are seeking an opponent for the game',
   async (w, a: string, b: string) => {
-    await w.s.apply(seekGameOpponent, a, gameOf(w).shared.id);
-    await w.s.apply(seekGameOpponent, b, gameOf(w).shared.id);
+    await seeking(w, a);
+    await w.s.advanceTime(1);
+    await seeking(w, b);
   }
 );
 Given(
@@ -108,7 +112,14 @@ Given(
 Given(
   '{actor} is seeking an opponent for the game',
   async (w, actor: string) => {
-    await w.s.apply(seekGameOpponent, actor, gameOf(w).shared.id);
+    await seeking(w, actor);
+  }
+);
+Given(
+  "{actor}'s matched game with {actor} is finished",
+  async (w, first: string, second: string) => {
+    await pairedAt(w, first, second);
+    await drawnByAgreement(w);
   }
 );
 Given(
@@ -127,12 +138,12 @@ Given(
   }
 );
 Given(
-  "{actor}'s paid access ended while she was seeking an opponent for the game at {word}",
-  async (w, actor: string, clock: string) => {
+  "{actor}'s paid access ended while she was seeking an opponent for the game",
+  async (w, actor: string) => {
     await readyPeople(w, [actor]);
     await w.s.apply(openBilling, actor);
     await w.s.apply(subscribeToPlus, actor);
-    await searchFor(w, actor, timeControlFor(w, clock));
+    await searchFor(w, actor, timeControlFor(w));
     await w.s.apply(observeMembership, actor, 'period_end');
     await w.s.apply(providerEvent, actor, 'refund');
     await w.s.apply(openBilling, actor);
@@ -142,6 +153,9 @@ Given(
   }
 );
 
+When('{actor} seeks an opponent for the game', (w, actor: string) =>
+  seek(w, actor)
+);
 When(
   '{actor} seeks an opponent for the game at {word}',
   (w, actor: string, clock: string) => seek(w, actor, clock)
@@ -151,11 +165,11 @@ When(
   (w, actor: string, days: number) => seek(w, actor, daily(days))
 );
 When(
-  '{actor} seeks an opponent for the game at {word} on another device',
-  async (w, actor: string, clock: string) => {
+  '{actor} seeks an opponent for the game on another device',
+  async (w, actor: string) => {
     const device = await otherDevice(w, actor);
     actOnOtherDevice(w, actor, device);
-    await seek(w, actor, clock, device);
+    await seek(w, actor, undefined, device);
   }
 );
 When('they are paired', (w) => pairUp(w));
@@ -166,6 +180,18 @@ When('{actor} stops seeking an opponent', async (w, actor: string) => {
   await w.s.apply(stopSeekingOpponent, actor);
 });
 
+Then('{actor} can stop seeking an opponent', async (w, actor: string) => {
+  expect(
+    await w.s.until(
+      (s) => opponentSearchPresentation(s, actingDevice(w, actor)),
+      {
+        pred: (view) => view.stopOffered,
+      }
+    )
+  ).toMatchObject({ stopOffered: true });
+});
+
+// regression: matched-game-seeded-initial-position
 Then(
   '{actor} and {actor} receive the same new game on opposite sides',
   async (w, a: string, b: string) => {
@@ -181,13 +207,13 @@ Then(
     const [first, second] = seen;
     expect(first!.game).toEqual(second!.game);
     expect(first!.game!.white_id).not.toBe(first!.game!.black_id);
-    expect(first!.game!.fen).toBe(gameOf(w).shared.turnGame.rules.initial());
   }
 );
 Then('the first side has the first turn', async (w) => {
   const game = await matchedGameOf(w, 'alice');
   expect(game.turn).toBe(game.white_id);
   expect(game.revision).toBe(0);
+  expect(game.fen).toBe(gameOf(w).shared.registration.rules.initial());
 });
 Then(
   '{actor} and {actor} are not paired together',
@@ -238,12 +264,10 @@ Then(
     expect(
       await w.s.read(multiplayerText, device, 'multiplayer-offline')
     ).toContain('need a connection');
-    // A screen that took the request tells it there; a stale one is refused.
-    if ((await w.s.read(multiplayerCommandReply, device)) === null)
-      expect(
-        await w.s.read(multiplayerText, device, 'multiplayer-error')
-      ).toContain('needs a connection');
-    else await told(w, actor, 'OFFLINE');
+    // Losing the connection alone shows the banner. A command that was
+    // attempted from that device must also have an offline refusal.
+    if ((await w.s.read(multiplayerCommandReply, device)) !== null)
+      await told(w, actor, 'OFFLINE');
   }
 );
 Then(

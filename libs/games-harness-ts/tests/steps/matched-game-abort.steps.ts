@@ -37,7 +37,7 @@ Given(
 Then(
   "neither person's {word} rating has changed",
   async (w, speed: Parameters<typeof multiplayerRatingAt>[3]) => {
-    const namespace = gameOf(w).shared.turnGame.capabilities.matchmaking!;
+    const namespace = gameOf(w).shared.registration.capabilities.matchmaking!;
     for (const person of pairOf(w)) {
       const viewer = viewerOf(w, person);
       const game = (await w.s.read(multiplayerView, viewer)).game;
@@ -46,7 +46,7 @@ Then(
       const rating = await w.s.read(
         multiplayerRatingAt,
         viewer,
-        namespace.clockNamespace,
+        namespace.namespace,
         speed
       );
       expect(rating?.games ?? 0).toBe(0);

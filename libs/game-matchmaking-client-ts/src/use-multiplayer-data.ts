@@ -120,7 +120,7 @@ export function useMultiplayerData(gameId: () => string) {
   const roomGame = useMatchRoom(() => games.rows()[0]?.id);
   const game = () => {
     const row = games.rows()[0] ?? null;
-    return row === null ? null : withRoom(row, roomGame());
+    return row === null ? null : withRoom(row, roomGame.game());
   };
   return {
     gameId,
@@ -128,6 +128,8 @@ export function useMultiplayerData(gameId: () => string) {
     spaceId,
     hostId,
     game,
+    room: roomGame.room,
+    execution: () => roomGame.game()?.execution,
     search: () => searches.rows()[0] ?? null,
     ratings: ratings.rows,
     participant: () => {

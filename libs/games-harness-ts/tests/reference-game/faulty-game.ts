@@ -1,6 +1,6 @@
 /**
  * Deliberately faulty copies of the reference game, each defined through
- * the same public constructors as any game (`defineTurnGame`,
+ * the same public constructors as any game (`defineGame`,
  * `defineGameClient`), and the shared laws' verdict on them: which laws
  * refuse a game, and why.
  */
@@ -17,9 +17,9 @@ import {
   gameBotLaws,
   gameRulesLaws,
 } from '@libs/game-session-harness-ts/game-rules-laws';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
-import type { TurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
-import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnGame } from '@libs/game-session-shared-ts/game-definition';
+import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import { SETUP_RACE_GAME } from '../probes/setup-race-game';
 import { SOLO_COUNT_GAME } from '../probes/solo-count-game';
 import {
@@ -33,9 +33,9 @@ import {
 export function definedWith(
   turnGame: Partial<TurnGame>,
   client: Partial<GameClient> = {},
-  adapter: Partial<Pick<HarnessGame, 'readRecord' | 'fixtures'>> = {}
-): HarnessGame {
-  const shared = defineTurnGame({ ...COUNTING_RACE_TURN_GAME, ...turnGame });
+  adapter: Partial<Pick<TurnHarnessGame, 'readRecord' | 'fixtures'>> = {}
+): TurnHarnessGame {
+  const shared = defineGame({ ...COUNTING_RACE_TURN_GAME, ...turnGame });
   // A copy offering no puzzles has no puzzles part and names no puzzle.
   const offersPuzzles = shared.turnGame.capabilities.puzzles !== undefined;
   const { puzzles, ...withoutPuzzles } = COUNTING_RACE_CLIENT;
@@ -67,7 +67,7 @@ export function definedWith(
 const FOREIGN_INPUTS = [SETUP_RACE_GAME, SOLO_COUNT_GAME];
 
 /** Every shared law a game is held to, against independent foreign inputs. */
-function lawsOf(game: HarnessGame): readonly GameLaw[] {
+function lawsOf(game: TurnHarnessGame): readonly GameLaw[] {
   const others = FOREIGN_INPUTS.filter(
     (other) => other.shared.id !== game.shared.id
   );
@@ -89,7 +89,7 @@ function reasonOf(error: unknown): string {
 }
 
 /** Each law `game` breaks, with why: law name → the refusal's reason. */
-export function refusals(game: HarnessGame): ReadonlyMap<string, string> {
+export function refusals(game: TurnHarnessGame): ReadonlyMap<string, string> {
   const out = new Map<string, string>();
   for (const law of lawsOf(game))
     try {
@@ -101,6 +101,6 @@ export function refusals(game: HarnessGame): ReadonlyMap<string, string> {
 }
 
 /** The names of the laws `game` is held to (each runs once per game). */
-export function lawNames(game: HarnessGame): readonly string[] {
+export function lawNames(game: TurnHarnessGame): readonly string[] {
   return lawsOf(game).map((law) => law.name);
 }

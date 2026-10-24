@@ -18,7 +18,7 @@ import { showCustomGames } from './game-navigation';
 import { harnessGameOf } from './harness-game-of';
 
 /** Who takes each side: a person by name, a bot, or nobody yet. */
-export type CustomGameSeat = string | 'bot' | 'open';
+export type CustomGameSeat = string | 'bot' | 'local' | 'open';
 
 /** A custom game of any game, reached through ordinary choices only. */
 export type CustomGameLineup = {
@@ -32,6 +32,10 @@ export type CustomGameLineup = {
   readonly ready?: boolean;
   /** It is started (default). */
   readonly active?: boolean;
+  /** People may establish the game as guests, without creating accounts. */
+  readonly guests?: boolean;
+  /** The game's own configuration, chosen before readiness. */
+  readonly configuration?: string;
   /** Moves played from the start, alternating sides. */
   readonly moves?: readonly string[];
   /** A side's private setup other than the game's known one, for a game with private setups. */
@@ -41,7 +45,7 @@ export type CustomGameLineup = {
 const SIDES: readonly CustomGameSide[] = ['white', 'black'];
 
 function isPerson(seat: CustomGameSeat): boolean {
-  return seat !== 'bot' && seat !== 'open';
+  return seat !== 'bot' && seat !== 'local' && seat !== 'open';
 }
 
 async function seat(
@@ -51,6 +55,10 @@ async function seat(
   person: CustomGameSeat
 ): Promise<void> {
   if (person === 'open') return;
+  if (person === 'local') {
+    await configureCustomGame(s, host, { operation: 'local', side });
+    return;
+  }
   if (person === 'bot') {
     await configureCustomGame(s, host, { operation: 'bot', side });
     return;
@@ -91,6 +99,17 @@ async function signIn(s: ProductHarness, person: string): Promise<void> {
   if ((await signedInAccountOf(s, person)) === null)
     await Promise.resolve(signInWithGoogle.act(s, person));
   await Promise.resolve(backToTabs.act(s, person));
+}
+
+async function preparePeople(
+  s: ProductHarness,
+  people: readonly string[],
+  guests: boolean
+): Promise<void> {
+  for (const person of people) {
+    if (guests) await actorUi(s, person);
+    else await signIn(s, person);
+  }
 }
 
 /** `person` comes into `link`'s space at the game's custom games. */
@@ -186,7 +205,7 @@ export const establishCustomGame = scenarioAction({
     const people = [
       ...new Set([host, seats.white, seats.black, ...(lineup.watchers ?? [])]),
     ].filter(isPerson);
-    for (const person of people) await signIn(s, person);
+    await preparePeople(s, people, lineup.guests === true);
     // A host already hosting a space plays in it.
     const hosted = await hostedSpaceId(s, host);
     if (hosted === null) await Promise.resolve(createSpace.act(s, host));
@@ -209,6 +228,11 @@ export const establishCustomGame = scenarioAction({
       await configureCustomGame(s, host, {
         operation: 'clock',
         ...lineup.clock,
+      });
+    if (lineup.configuration !== undefined)
+      await configureCustomGame(s, host, {
+        operation: 'rules',
+        choice: lineup.configuration,
       });
     // Changing either side withdraws all readiness, so agree to the final lineup.
     if (lineup.ready !== false) await readyEveryPerson(s, seats, lineup);

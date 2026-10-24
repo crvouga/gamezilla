@@ -7,7 +7,7 @@
  * open device shows.
  */
 
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import {
   finishGamePuzzleAsAppCloses,
   finishGamePuzzleBy,
@@ -41,7 +41,7 @@ import type { QuintValue } from '@pkgs/quint-shared-ts/itf';
 import { variant } from '@pkgs/quint-shared-ts/itf';
 import type { Picks } from '@pkgs/quint-shared-ts/registry';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
-import { conformanceGameOf } from '../conformance-world';
+import { turnConformanceGameOf } from '../conformance-world';
 import competingRatingTrace from './fixtures/puzzle-competing-equal-rating.itf.json';
 import unrecordedResultTrace from './fixtures/puzzle-recovery-before-next.itf.json';
 import watcherReadyTrace from './fixtures/puzzle-recovery-watcher-not-ready.itf.json';
@@ -68,7 +68,10 @@ function finish(picks: Picks, key = 'result') {
 const DEVICES = ['alice', 'bob', 'charlie'] as const;
 
 function gameId(w: QuintHarnessWorld): string {
-  const game: HarnessGame = conformanceGameOf(w.ctx.variant, w.ctx.title);
+  const game: TurnHarnessGame = turnConformanceGameOf(
+    w.ctx.variant,
+    w.ctx.title
+  );
   return game.shared.id;
 }
 

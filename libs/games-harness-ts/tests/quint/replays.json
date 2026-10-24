@@ -62,6 +62,15 @@
     "determinism": false,
     "variants": 3
   },
+  "matched-game-ending": {
+    "seed": "0x67932",
+    "traces": 16,
+    "cover": [1],
+    "replayed": [1],
+    "regressions": 2,
+    "determinism": false,
+    "variants": 1
+  },
   "matched-game-own-board": {
     "seed": "0x67932",
     "traces": 48,
@@ -88,6 +97,15 @@
     "regressions": 1,
     "determinism": false,
     "variants": 4
+  },
+  "opponent-search": {
+    "seed": "0x67932",
+    "traces": 16,
+    "cover": [0, 3],
+    "replayed": [0, 3],
+    "regressions": 0,
+    "determinism": false,
+    "variants": 1
   },
   "private-setup": {
     "seed": "0x67932",
@@ -198,6 +216,6 @@
     "replayed": [0],
     "regressions": 0,
     "determinism": false,
-    "variants": 5
+    "variants": 6
   }
 }

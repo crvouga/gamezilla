@@ -67,9 +67,9 @@ function append(topic: string, id: string, count: number, skew: number): Cmd {
         () => 'ok',
         () => 'rejected'
       );
-      if (m.get(topic)?.dedup.has(id) || count === 0) {
+      if (m.get(topic)?.dedup.has(id)) {
         expect(outcome).toBe('ok');
-      } else if (skew !== 0) {
+      } else if (skew !== 0 && count > 0) {
         expect(outcome).toBe('rejected');
         // A rejected append still registers the topic but writes nothing.
         touch(m, topic);

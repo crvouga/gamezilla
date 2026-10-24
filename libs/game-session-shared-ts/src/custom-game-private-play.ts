@@ -128,7 +128,7 @@ function move(
   choice: Extract<CustomGameChoice, { operation: 'move' }>
 ): HandleResult {
   const { game, ctx, rules, state } = decision;
-  const legal = rules.forPosition(game.fen).legal(game.fen);
+  const legal = rules.turnsForPosition(game.fen)?.legal(game.fen) ?? [];
   if (game.status !== 'active' || !legal.includes(choice.uci))
     return refuseCustomGame('move is illegal');
   // A device's prediction: the move goes to the room, the board waits.

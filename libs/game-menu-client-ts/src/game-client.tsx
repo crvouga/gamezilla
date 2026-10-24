@@ -1,6 +1,6 @@
 import type { GamePuzzlesClient } from '@libs/game-puzzle-client-ts/puzzle-client';
 import { PuzzleSessionEffects } from '@libs/game-puzzle-client-ts/puzzle-frame';
-import type { TurnGameDefinition } from '@libs/game-session-shared-ts/turn-game-definition';
+import type { GameRegistration } from '@libs/game-session-shared-ts/game-definition';
 import type { GameClientDefinition } from '@libs/spaces-shared-ts/game';
 import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { TurnGameCapabilities } from '@pkgs/turn-game-shared-ts/game-rules';
@@ -45,8 +45,8 @@ export type GameClientPuzzles<C> = 'puzzles' extends keyof C
  */
 export type GameClient<C extends TurnGameCapabilities = TurnGameCapabilities> =
   GameClientParts & {
-    /** The game's shared registration (`defineTurnGame`): its id and what it offers. */
-    readonly shared: TurnGameDefinition<C>;
+    /** The game's shared registration (`defineGame`): its id and what it offers. */
+    readonly shared: GameRegistration<C>;
   } & GameClientPuzzles<C>;
 
 type GameClientParts = {
@@ -123,14 +123,14 @@ export type GameClientRegistration = DefinedGameClient;
  */
 function assertPuzzlesPart(game: GameClient): void {
   const id = game.shared.id;
-  const offered = game.shared.turnGame.capabilities.puzzles !== undefined;
+  const offered = game.shared.capabilities.puzzles !== undefined;
   if (offered && game.puzzles === undefined)
     throw new Error(
       `${id}: the game offers puzzles (capabilities.puzzles) but its client has no puzzles part — give defineGameClient puzzles: { Board, … }`
     );
   if (!offered && game.puzzles !== undefined)
     throw new Error(
-      `${id}: the client has a puzzles part but the game offers no puzzles — add capabilities.puzzles to its defineTurnGame, or leave the part out`
+      `${id}: the client has a puzzles part but the game offers no puzzles — add capabilities.puzzles to its defineGame, or leave the part out`
     );
   if (game.puzzles !== undefined && typeof game.puzzles.Board !== 'function')
     throw new Error(
@@ -141,7 +141,7 @@ function assertPuzzlesPart(game: GameClient): void {
 /** A game with private setups shows its own setup board; no other game has one. */
 function assertSetupBoard(game: GameClient): void {
   const id = game.shared.id;
-  const setups = game.shared.turnGame.rules.setup !== undefined;
+  const setups = game.shared.registration.rules.setup !== undefined;
   const board = game.presentation.SetupBoard;
   if (setups && typeof board !== 'function')
     throw new Error(
@@ -159,6 +159,13 @@ export function defineGameClient<C extends TurnGameCapabilities>(
 ): GameClientRegistration {
   assertPuzzlesPart(game);
   assertSetupBoard(game);
+  if (
+    game.shared.capabilities.matchmaking?.clockChoices === true &&
+    typeof game.presentation.timeoutDrawDescription !== 'function'
+  )
+    throw new Error(
+      `${game.shared.id}: clock choices need presentation.timeoutDrawDescription`
+    );
   assertGameScreens(game.shared.id, [
     ...(game.choices ?? []).map((choice) => choice.screen),
     ...(game.screens ?? []).map((screen) => screen.screen),

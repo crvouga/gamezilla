@@ -9,7 +9,7 @@
  */
 
 import { expect, test } from 'bun:test';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import type {
   ConformancePlan,
   PlannedCodeSuite,
@@ -131,7 +131,7 @@ test('a harness game that is not registered fails, naming where it belongs', () 
   expect(
     enrollmentProblems(GAME_DEFINITIONS, [...HARNESS_GAMES, RACE])
   ).toEqual([
-    `"counting-race" (counting race) is in HARNESS_GAMES but not GAME_DEFINITIONS — register its defineTurnGame value, or list a test-only game beside the reference game (tests/conformance-world.ts)`,
+    `"counting-race" (counting race) is in HARNESS_GAMES but not GAME_DEFINITIONS — register its defineGame value, or list a test-only game beside the reference game (tests/conformance-world.ts)`,
   ]);
 });
 
@@ -141,10 +141,10 @@ test('harness games out of registry order, or holding another definition, fail',
   ).toContain(
     `HARNESS_GAMES[0] is "${GAME_DEFINITIONS.at(-1)!.id}" but GAME_DEFINITIONS[0] is "${GAME_DEFINITIONS[0].id}" — list the harness games in registry order`
   );
-  const copy: HarnessGame = { ...RACE };
+  const copy: TurnHarnessGame = { ...RACE };
   expect(enrollmentProblems([RACE.shared], [copy])).toEqual([]);
   expect(enrollmentProblems([{ id: 'counting-race' }], [RACE])).toEqual([
-    '"counting-race": HARNESS_GAMES holds another definition than GAME_DEFINITIONS registers — use the registered defineTurnGame value itself',
+    '"counting-race": HARNESS_GAMES holds another definition than GAME_DEFINITIONS registers — use the registered defineGame value itself',
   ]);
 });
 
@@ -205,7 +205,7 @@ test('a specification table listing an unknown capability, nothing, or only a tr
       uris
     )
   ).toEqual([
-    'SHARED_SPECIFICATIONS["a"] lists "tournaments", which is neither a capability (custom-games, matchmaking, history, puzzles) nor a trait (a puzzle opponent, a side that cannot win, a draw by the game\'s own rules, a private setup, every position public, a seven-move victory, a known puzzle won another way)',
+    'SHARED_SPECIFICATIONS["a"] lists "tournaments", which is neither a capability (custom-games, matchmaking, history, puzzles) nor a trait (clock choices, no clock choices, turns, no turns, simulation, a puzzle opponent, a side that cannot win, a draw by the game\'s own rules, a private setup, every position public, a seven-move victory, a known puzzle won another way)',
     'SHARED_SPECIFICATIONS["b"] lists nothing — list the capabilities it shows',
     'SHARED_SPECIFICATIONS["c"] lists no capability — a specification counts toward the capabilities it shows',
   ]);

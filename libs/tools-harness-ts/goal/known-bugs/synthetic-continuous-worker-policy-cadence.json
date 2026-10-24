@@ -1,0 +1,4 @@
+{
+  "summary": "The Synthetic User worker sampled continuous controls only at the slow activity-policy cadence, leaving real-time paddles without timely inputs.",
+  "regressionTest": "apps/synthetic-population-worker-ts/tests/runtime-scheduling.test.tsx"
+}

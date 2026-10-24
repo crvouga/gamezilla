@@ -1,19 +1,19 @@
 import { Assert } from '@pkgs/assert-root-shared-ts/assert';
 import type { Clock } from '@pkgs/clock-shared-ts/types';
-import { isMessageEnvelope } from '@pkgs/message-shared-ts/message';
-import { MAX_ROSTER_SIZE } from '@pkgs/room-root-shared-ts/bounds';
 import { ROOM_PRESENCE_IDENTITY } from '@pkgs/room-root-shared-ts/builtin';
 import { RoomCacheInvalidated } from '@pkgs/room-root-shared-ts/cache-invalidation';
 import type { RoomEffectHandler } from '@pkgs/room-root-shared-ts/handler';
 import { applyRoomEffects } from '@pkgs/room-root-shared-ts/handler';
-import type { RoomIdentityErasure } from '@pkgs/room-root-shared-ts/room-service';
+import type {
+  RoomIdentityErasure,
+  RoomServiceReceipt,
+} from '@pkgs/room-root-shared-ts/room-service';
 import type { RoomStorage } from '@pkgs/room-root-shared-ts/server-core-storage';
 import {
   ROOM_SERVICE_GRANT,
   ROOM_SERVICE_IDENTITY,
 } from '@pkgs/room-root-shared-ts/service-identity';
 import type {
-  LogEntry,
   RoomActor,
   RoomCommand,
   RoomCommandPayload,
@@ -29,21 +29,25 @@ import {
   ROOM_WIRE_KIND,
   WIRE_VERSION,
 } from '@pkgs/room-root-shared-ts/wire';
+import { processRoomCommand } from './room-server-command';
 import {
+  addRoomConnection,
   hasAuthority,
   participatingRoster,
   readsHistory,
-  refuseConnectionCommand,
 } from './room-server-connections';
+import { committedRoomEntries } from './room-server-entries';
+import { eraseRoomIdentity } from './room-server-erasure';
 import {
   broadcastToConnections,
   sendCommitted,
   sendConnectionWelcome,
-  sendDedupReplay,
   viewOf,
 } from './room-server-fanout';
 import { loadRoomSnapshot } from './room-server-hydrate';
-import { sessionDenial } from './session-grant';
+import { processInjectedCommand } from './room-server-inject';
+import { RoomServerLive, roomLivePorts } from './room-server-live';
+import { publishRoomSignal, receiveRoomSignal } from './room-server-signals';
 
 const crash: Assert = Assert.crash();
 
@@ -81,6 +85,7 @@ export class RoomServer<
   private readonly authorize?: RoomServerConfig<S, C, E, Identity>['authorize'];
   private readonly clock: Clock;
   private readonly effectHandlers: readonly RoomEffectHandler[];
+  private readonly live: RoomServerLive<S, C, E, Identity>;
   private readonly connections = new Map<string, RoomConnection>();
   private authorityAvailable = false;
   private chain: Promise<void> = Promise.resolve();
@@ -96,11 +101,41 @@ export class RoomServer<
     this.authorize = config.authorize;
     this.clock = config.clock;
     this.effectHandlers = config.effectHandlers ?? [];
+    this.live = new RoomServerLive(
+      config,
+      roomLivePorts({
+        storage: this.storage,
+        topic: this.topic,
+        publish: (payload, audience) => this.publishSignal(payload, audience),
+        enqueue: (work) => this.enqueue(work),
+        inject: async (id, payload) => {
+          const receipt = await this.injectSerial(
+            { id, payload, identity: ROOM_SERVICE_IDENTITY as Identity },
+            [ROOM_SERVICE_GRANT]
+          );
+          if (!receipt.ok) throw new Error(JSON.stringify(receipt.error));
+        },
+        onError: (error) => this.live.report(error),
+      })
+    );
     this.committedState = config.module.initialState();
   }
 
   getCommittedState(): S {
     return this.committedState;
+  }
+
+  /** Live state is published on this room, without becoming permanent history. */
+  publishSignal(
+    payload: RoomCommandPayload,
+    audience?: readonly string[]
+  ): void {
+    publishRoomSignal({
+      connections: this.connections,
+      payload,
+      now: this.clock.now(),
+      audience,
+    });
   }
 
   async readCommittedState(): Promise<S> {
@@ -112,31 +147,24 @@ export class RoomServer<
   }
 
   eraseIdentity(erasure: RoomIdentityErasure): Promise<void> {
-    return this.enqueue(async () => {
-      const commandId = `erasure:${erasure.replacement}`;
-      if ((await this.storage.getDedupOutcome(this.topic, commandId)) !== null)
-        return;
-      const entry: LogEntry = {
-        seq: (await this.tip()) + 1,
-        event: RoomCacheInvalidated({}),
-        ts: this.clock.now(),
-        actor: { id: ROOM_SERVICE_IDENTITY, clientId: 'service' },
-      };
-      await this.storage.eraseIdentity(this.topic, erasure, {
-        commandId,
-        entry,
-      });
-      await this.hydrateFromStorage();
-      this.broadcast({
-        v: WIRE_VERSION,
-        kind: ROOM_WIRE_KIND.committed,
-        entries: [entry],
-      });
-      for (const conn of this.connections.values())
-        if (conn.actor.id === erasure.identity)
-          this.connections.delete(conn.id);
-      this.broadcastRoster();
-    });
+    return this.enqueue(() =>
+      eraseRoomIdentity({
+        storage: this.storage,
+        topic: this.topic,
+        erasure,
+        now: this.clock.now(),
+        tip: () => this.tip(),
+        committed: async (entry) => {
+          await this.hydrateFromStorage();
+          this.broadcast({
+            v: WIRE_VERSION,
+            kind: ROOM_WIRE_KIND.committed,
+            entries: [entry],
+          });
+          this.disconnectActor(erasure.identity);
+        },
+      })
+    );
   }
 
   async hydrateFromStorage(): Promise<void> {
@@ -152,6 +180,7 @@ export class RoomServer<
       this.module.recoverEffects(snapshot.state)
     );
     await this.availabilitySerial(true);
+    this.live.update(this.committedState);
   }
 
   setAvailability(available: boolean): Promise<void> {
@@ -179,19 +208,7 @@ export class RoomServer<
     actor: RoomActor,
     options?: RoomConnectionOptions
   ): void {
-    crash.ok(!this.connections.has(id), 'duplicate connection id', { id });
-    crash.ok(actor.id.length > 0, 'RoomActor.id must be non-empty', { actor });
-    crash.ok(
-      actor.clientId.length > 0,
-      'RoomActor.clientId must be non-empty',
-      { actor }
-    );
-    if (this.connections.size >= MAX_ROSTER_SIZE) {
-      throw new Error(
-        `Tiger: roster full (MAX_ROSTER_SIZE=${String(MAX_ROSTER_SIZE)})`
-      );
-    }
-    this.connections.set(id, {
+    addRoomConnection(this.connections, {
       id,
       send,
       actor,
@@ -208,13 +225,11 @@ export class RoomServer<
   }
 
   connectionIdsForActor(actorId: string, clientId: string): readonly string[] {
-    const out: string[] = [];
-    for (const conn of this.connections.values()) {
-      if (conn.actor.id === actorId && conn.actor.clientId === clientId) {
-        out.push(conn.id);
-      }
-    }
-    return out;
+    return [...this.connections.values()]
+      .filter(
+        (conn) => conn.actor.id === actorId && conn.actor.clientId === clientId
+      )
+      .map((conn) => conn.id);
   }
 
   unregisterConnection(id: string): void {
@@ -233,6 +248,11 @@ export class RoomServer<
     return participatingRoster(this.connections);
   }
 
+  dispose(): void {
+    this.live.dispose();
+    this.connections.clear();
+  }
+
   broadcastRoster(): void {
     const authority = hasAuthority(this.connections);
     const returned = authority && !this.authorityAvailable;
@@ -243,6 +263,10 @@ export class RoomServer<
       clients: this.getRoster(),
     });
     this.notePresence();
+    const actors = this.getRoster();
+    this.enqueue(async () => {
+      this.live.presence(actors);
+    }).catch((error: unknown) => this.live.report(error));
     if (returned) this.enqueue(() => this.resumeDependents()).catch(noop);
   }
 
@@ -288,7 +312,7 @@ export class RoomServer<
   }
 
   /** Serialize storage-touching work; the returned promise carries the work's outcome. */
-  private enqueue(work: () => Promise<void>): Promise<void> {
+  private enqueue<T>(work: () => Promise<T>): Promise<T> {
     const run = this.chain.then(work);
     this.chain = run.then(noop, noop);
     return run;
@@ -344,25 +368,13 @@ export class RoomServer<
   }
 
   private async commit(args: CommitArgs<E>): Promise<void> {
-    crash.ok(args.events.length > 0, 'handle must produce events on success');
-    for (const event of args.events) {
-      crash.ok(
-        isMessageEnvelope(event),
-        'Tiger: room events must be Message envelopes with wire-valid type',
-        { event }
-      );
-    }
-    const ts = this.clock.now();
     const base = this.tipKnown ? this.lastSeq : await this.tip();
-    const entries = new Array<LogEntry<E>>(args.events.length);
-    for (let i = 0; i < args.events.length; i++) {
-      entries[i] = {
-        seq: base + i + 1,
-        event: args.events[i]!,
-        actor: args.actor,
-        ts,
-      };
-    }
+    const entries = committedRoomEntries({
+      events: args.events,
+      base,
+      actor: args.actor,
+      ts: this.clock.now(),
+    });
     let state = this.committedState;
     for (let i = 0; i < entries.length; i++) {
       if (!RoomCacheInvalidated.is(entries[i]!.event))
@@ -378,6 +390,7 @@ export class RoomServer<
     }
     this.lastSeq = base + entries.length;
     this.committedState = state;
+    this.live.update(state);
     sendCommitted({
       connections: this.connections,
       module: this.module,
@@ -416,7 +429,9 @@ export class RoomServer<
     readonly payload: C;
     readonly identity: Identity;
   }): Promise<void> {
-    return this.enqueue(() => this.injectSerial(args, NO_GRANTS));
+    return this.enqueue(async () => {
+      await this.injectSerial(args, NO_GRANTS);
+    });
   }
 
   /** Only a host service port calls this; socket commands never receive its grant. */
@@ -424,7 +439,7 @@ export class RoomServer<
     readonly id: string;
     readonly payload: C;
     readonly identity: Identity;
-  }): Promise<void> {
+  }): Promise<RoomServiceReceipt> {
     return this.enqueue(() => this.injectSerial(args, [ROOM_SERVICE_GRANT]));
   }
 
@@ -435,86 +450,49 @@ export class RoomServer<
       readonly identity: Identity;
     },
     grants: readonly string[]
-  ): Promise<void> {
-    const commandId = args.id;
-    const prior = await this.storage.getDedupOutcome(this.topic, commandId);
-    if (prior !== null) return;
-    if (!isMessageEnvelope(args.payload)) return;
-    const command: RoomCommand<C> = {
-      id: commandId,
-      ts: this.clock.now(),
-      payload: args.payload,
-    };
-    const denied = await this.authorizeOrNull(args.identity, command, grants);
-    if (denied !== null) {
-      await this.reject(commandId, denied, null);
-      return;
-    }
-    const result = this.module.handle(
-      this.committedState,
-      command,
-      args.identity
-    );
-    if (!result.ok) {
-      await this.reject(commandId, result.error, null);
-      return;
-    }
-    await this.commit({
-      actor: { id: String(args.identity), clientId: 'scheduler' },
-      commandId,
-      events: result.events,
-      effects: result.effects ?? [],
+  ): Promise<RoomServiceReceipt> {
+    return processInjectedCommand({
+      command: args,
+      storage: this.storage,
+      topic: this.topic,
+      now: this.clock.now,
+      state: () => structuredClone(this.committedState),
+      authorize: (command) =>
+        this.authorizeOrNull(args.identity, command, grants),
+      handle: (command) =>
+        this.module.handle(
+          this.live.commandState(this.committedState),
+          command,
+          args.identity
+        ),
+      reject: (id, error) => this.reject(id, error, null),
+      commit: (commit) => this.commit(commit),
     });
   }
 
-  private async commandSerial(
+  private commandSerial(
     connectionId: string,
     identity: Identity,
     parsed: CommandFrame
   ): Promise<void> {
-    const conn = this.connections.get(connectionId);
-    if (conn === undefined) return;
-    const send = conn.send;
-    const commandId = parsed.id;
-    if (refuseConnectionCommand(conn, this.connections, commandId)) return;
-    const prior = await this.storage.getDedupOutcome(this.topic, commandId);
-    if (prior !== null) {
-      sendDedupReplay(send, commandId, prior, viewOf(this.module, conn));
-      return;
-    }
-    if (!isMessageEnvelope(parsed.payload)) {
-      await this.reject(
-        commandId,
-        {
-          type: ROOM_ERROR_TYPE.invalidCommand,
-          reason: 'not a valid message envelope',
-        },
-        send
-      );
-      return;
-    }
-    const command: RoomCommand<C> = {
-      id: commandId,
-      ts: this.clock.now(),
-      payload: parsed.payload as C,
-    };
-    const denied = await this.authorizeOrNull(identity, command, conn.grants);
-    if (refuseConnectionCommand(conn, this.connections, commandId)) return;
-    const refusal = sessionDenial(denied, conn.grants, this.clock.now());
-    if (refusal !== null) {
-      await this.reject(commandId, refusal, send);
-      return;
-    }
-    const result = this.module.handle(this.committedState, command, identity);
-    if (!result.ok) {
-      await this.reject(commandId, result.error, send);
-      return;
-    }
-    await this.commit({
-      actor: conn.actor,
-      commandId,
-      events: result.events,
-      effects: result.effects ?? [],
+    return processRoomCommand({
+      connection: this.connections.get(connectionId),
+      connections: this.connections,
+      storage: this.storage,
+      topic: this.topic,
+      parsed,
+      now: this.clock.now,
+      view: (conn) => viewOf(this.module, conn),
+      authorize: (command, grants) =>
+        this.authorizeOrNull(identity, command as RoomCommand<C>, grants),
+      handle: (command) =>
+        this.module.handle(
+          this.live.commandState(this.committedState),
+          command as RoomCommand<C>,
+          identity
+        ),
+      reject: (id, error, send) => this.reject(id, error, send),
+      commit: (args) => this.commit(args as CommitArgs<E>),
     });
   }
 
@@ -539,6 +517,24 @@ export class RoomServer<
       case ROOM_WIRE_KIND.sync:
         return this.enqueue(() =>
           this.sendWelcomeSerial(connectionId, parsed.fromSeq)
+        );
+      case ROOM_WIRE_KIND.signal:
+        return this.enqueue(() =>
+          receiveRoomSignal({
+            connections: this.connections,
+            connection: conn,
+            command: {
+              id: parsed.id,
+              ts: this.clock.now(),
+              payload: parsed.payload,
+            },
+            identity,
+            now: this.clock.now,
+            authorize: (command, grants) =>
+              this.authorizeOrNull(identity, command as RoomCommand<C>, grants),
+            handler: (command, actorIdentity, actor) =>
+              this.live.receive(command, actorIdentity, actor),
+          })
         );
       default:
         return this.enqueue(() =>

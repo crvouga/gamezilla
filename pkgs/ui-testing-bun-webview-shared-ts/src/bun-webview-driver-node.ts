@@ -303,7 +303,7 @@ export class BunWebviewDriverNode implements DriverNode {
     const sel = JSON.stringify(cssPath(this.path));
     const value = JSON.stringify(text);
     await (await this.view()).evaluate(
-      `(function(){ const el = ${textFieldExpr(sel)}; if (!el) return; el.focus(); el.value = el.value + ${value}; el.dispatchEvent(new Event('input', { bubbles: true })); })()`
+      `(function(){ const el = ${textFieldExpr(sel)}; if (!el) return; el.focus(); el.value = el.type === 'range' ? ${value} : el.value + ${value}; el.dispatchEvent(new Event('input', { bubbles: true })); })()`
     );
   }
 

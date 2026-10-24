@@ -28,7 +28,10 @@ export const SPACE_ROOM_GRANT_KEYS = [
   PERMISSION.spacesRename,
 ] as const;
 type Verdict = { ok: true } | { ok: false; reason: string };
-type RequiredGrant = { readonly key: AppGrantKey; readonly reason: string };
+type RequiredGrant = {
+  readonly key: AppGrantKey | typeof ROOM_SERVICE_GRANT;
+  readonly reason: string;
+};
 
 function spaceCommandGrant(msg: Message): RequiredGrant | null {
   if (msg.type === SelectGame.type)
@@ -54,12 +57,16 @@ export function createSpaceRoomAuthorizer(
   grants: readonly string[]
 ) => Promise<Verdict> {
   const modules = gameModules(games);
-  return (identity, _topic, command, grants) => {
+  const matchRooms = new Set<string>(
+    modules.flatMap((game) => game.matchRooms?.map((room) => room.name) ?? [])
+  );
+  return (identity, topic, command, grants) => {
     if (
       identity !== ROOM_SERVICE_IDENTITY &&
       identity !== ROOM_PRESENCE_IDENTITY &&
       identity !== ROOM_SCHEDULER_IDENTITY &&
-      !grants.includes(PERMISSION.spacesLeave)
+      !grants.includes(PERMISSION.spacesLeave) &&
+      !matchRooms.has(topic.split(':')[0]!)
     ) {
       return Promise.resolve({
         ok: false,
@@ -79,7 +86,7 @@ export function createSpaceRoomAuthorizer(
       );
     let required = spaceCommandGrant(msg);
     for (const game of modules)
-      required ??= game.permissionForCommand?.(msg) ?? null;
+      required ??= game.permissionForCommand?.(msg, topic) ?? null;
     return Promise.resolve(
       required === null || grants.includes(required.key)
         ? { ok: true }

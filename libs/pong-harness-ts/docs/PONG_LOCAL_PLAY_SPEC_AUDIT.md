@@ -1,8 +1,8 @@
 # Pong local-play spec audit
 
-Verdict: **PASS as a new-spec handoff**. No wording or coverage finding remains.
-The ten expanded examples fail on undefined steps through the actual Pong
-opener. The model is intentionally unbound. Neither is implementation evidence.
+Verdict: **PASS for local play**. No wording, coverage or binding finding remains.
+The ten expanded examples and all sixteen model traces pass through the actual
+Pong opener. This is local-play evidence, not a completed online integration.
 
 Scope: `pong-local-play.feature`, `pong-local-play.qnt`, their Pong glossary
 entries, the Games publications they borrow and the context-map relationships.
@@ -56,8 +56,8 @@ has its locally assigned paddles, and a finished one accepts no more guidance.
 ## Steps and process
 
 `/tmp/pong-local-red.log`: all ten examples fail on the undefined local-Pong
-precondition, without composition, import, fixture or setup failures. No local
-step bodies or binding have been written.
+precondition, without composition, import, fixture or setup failures. This was
+observed before local step bodies or the binding were written.
 
 `/tmp/pong-local-model-gate.log`: the owning package's model verification passes.
 `/tmp/pong-local-spec-gate.log`: the strict gate reports only the undefined
@@ -65,10 +65,23 @@ local-play steps and the missing new binding, the allowed implementation handoff
 Spec input manifests were regenerated. There are no remaining wording,
 ownership, glossary or cross-context findings in that gate.
 
-The spec-only commit contains these contracts and this report. `spec-implement`
-must bind all five actions plus init through the existing product harness, read
-the visible stages and enabled controls, run the whole Pong context and replay
-the model before claiming implementation success. D2–D6 remain that handoff.
+The contract was committed separately as `891995898`. The subsequent binding
+names all five public actions plus init and reads the visible game stage,
+opponent kind, court availability and enabled paddle controls. Its actions use
+the shared custom-game flow, native start control and actual human paddle
+inputs. It never injects a winner or gives Alice control of the bot's paddle.
+Steps contain only public harness calls, predetermined parameter translations,
+virtual time and assertions. Each package entry discovers its modules. There
+are no selectors, SQL, stored-state reads, skips, retries or wall timers in the
+steps or binding (D2–D6).
+
+The whole Pong context passes twenty-eight checks, including eighteen expanded
+scenarios and both product model replays: `/tmp/pong-complete-context.log`.
+Every one of the local-play model's sixteen traces also passes:
+`/tmp/pong-local-all-traces.log`. Latest type and lint checks pass in
+`/tmp/pong-local-quality.log`. The bound strict gate is green in
+`/tmp/pong-local-bound-spec-gate.log`; ownership is green in
+`/tmp/pong-current-ownership.log`. No full `bun verify` verdict is claimed.
 
 This covers local play only. Shared custom play, matchmaking, spectators,
 reconnection authority and the remaining Pong mechanics still need their full

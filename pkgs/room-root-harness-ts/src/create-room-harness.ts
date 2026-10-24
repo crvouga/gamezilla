@@ -84,6 +84,7 @@ function createKitServer<
   readonly module: RoomKernel<S, C, E>['module'];
   readonly storage: RoomKernel<S, C, E>['storage'];
   readonly clock: RoomKernel<S, C, E>['clock'];
+  readonly timers: RoomKernel<S, C, E>['timers'];
   readonly handler: BoundSchedule['handler'];
 }): RoomServer<S, C, E, string> {
   return new RoomServer<S, C, E, string>({
@@ -91,6 +92,7 @@ function createKitServer<
     module: args.module,
     storage: args.storage,
     clock: args.clock,
+    timers: args.timers,
     effectHandlers: [args.handler],
   });
 }
@@ -168,6 +170,7 @@ async function createRoomKernel<
     storage,
     clock: deps.clock,
     handler: schedule.handler,
+    timers: deps.timers,
   });
   const bindScheduleInject = bindScheduleInjectFor<S, C, E>(schedule);
   bindScheduleInject(server);
@@ -261,6 +264,7 @@ async function serverCrashImpl<
   if (k.serverCrashed) return;
   await k.server.setAvailability(false);
   k.scheduleDispose();
+  k.server.dispose();
   for (const slot of k.slots.values()) {
     if (slot.connectionId.length > 0) {
       try {
@@ -301,6 +305,7 @@ async function recreateKitServer<
     storage: k.storage,
     clock: k.clock,
     handler: schedule.handler,
+    timers: k.timers,
   });
   k.bindScheduleInject = bindScheduleInjectFor(schedule);
   k.bindScheduleInject(server);
@@ -357,6 +362,7 @@ function makeKitDispose<
     k.slots.clear();
     k.handles.clear();
     k.scheduleDispose();
+    k.server.dispose();
   };
 }
 

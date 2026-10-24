@@ -1,0 +1,921 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
+    "source": "/Users/chrisvouga/.super.engineering/worktrees/gamezilla/sc-flux-niobium-aa8e/specs/pong/pong-shared-control.qnt",
+    "status": "ok",
+    "description": "Created by Quint on Sat Oct 24 2026 02:14:04 GMT-0700 (Mountain Standard Time)",
+    "timestamp": 1792833244069
+  },
+  "vars": [
+    "paddlePlace",
+    "controlledPaddles",
+    "gameShown",
+    "_positions",
+    "_offline",
+    "_lastCourt",
+    "_beforePositions",
+    "_refused",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": {
+        "index": 0
+      },
+      "_beforePositions": {
+        "#map": [["left", "middle"], ["right", "middle"]]
+      },
+      "_lastCourt": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ]
+        ]
+      },
+      "_offline": {
+        "#set": []
+      },
+      "_positions": {
+        "#map": [["left", "middle"], ["right", "middle"]]
+      },
+      "_refused": false,
+      "controlledPaddles": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#set": ["left"]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#set": ["right"]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "gameShown": {
+        "#map": [["alice", true], ["bob", true], ["carol", true]]
+      },
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "paddle": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "person": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "place": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "paddlePlace": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 1
+      },
+      "_beforePositions": {
+        "#map": [["left", "middle"], ["right", "middle"]]
+      },
+      "_lastCourt": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ]
+        ]
+      },
+      "_offline": {
+        "#set": ["carol"]
+      },
+      "_positions": {
+        "#map": [["left", "middle"], ["right", "middle"]]
+      },
+      "_refused": false,
+      "controlledPaddles": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#set": ["left"]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#set": ["right"]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "gameShown": {
+        "#map": [["alice", true], ["bob", true], ["carol", true]]
+      },
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "paddle": {
+          "tag": "Some",
+          "value": "left"
+        },
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "place": {
+          "tag": "Some",
+          "value": "upper edge"
+        }
+      },
+      "paddlePlace": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 2
+      },
+      "_beforePositions": {
+        "#map": [["left", "middle"], ["right", "middle"]]
+      },
+      "_lastCourt": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ]
+        ]
+      },
+      "_offline": {
+        "#set": ["carol"]
+      },
+      "_positions": {
+        "#map": [["left", "middle"], ["right", "middle"]]
+      },
+      "_refused": true,
+      "controlledPaddles": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#set": ["left"]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#set": ["right"]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "gameShown": {
+        "#map": [["alice", true], ["bob", true], ["carol", true]]
+      },
+      "mbt::actionTaken": "guidePaddle",
+      "mbt::nondetPicks": {
+        "paddle": {
+          "tag": "Some",
+          "value": "left"
+        },
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "place": {
+          "tag": "Some",
+          "value": "upper edge"
+        }
+      },
+      "paddlePlace": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 3
+      },
+      "_beforePositions": {
+        "#map": [["left", "middle"], ["right", "middle"]]
+      },
+      "_lastCourt": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ]
+        ]
+      },
+      "_offline": {
+        "#set": ["carol"]
+      },
+      "_positions": {
+        "#map": [["left", "upper edge"], ["right", "middle"]]
+      },
+      "_refused": false,
+      "controlledPaddles": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#set": ["left"]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#set": ["right"]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "gameShown": {
+        "#map": [["alice", true], ["bob", true], ["carol", true]]
+      },
+      "mbt::actionTaken": "guidePaddle",
+      "mbt::nondetPicks": {
+        "paddle": {
+          "tag": "Some",
+          "value": "left"
+        },
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "place": {
+          "tag": "Some",
+          "value": "upper edge"
+        }
+      },
+      "paddlePlace": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 4
+      },
+      "_beforePositions": {
+        "#map": [["left", "upper edge"], ["right", "middle"]]
+      },
+      "_lastCourt": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ]
+        ]
+      },
+      "_offline": {
+        "#set": ["bob", "carol"]
+      },
+      "_positions": {
+        "#map": [["left", "upper edge"], ["right", "middle"]]
+      },
+      "_refused": false,
+      "controlledPaddles": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#set": []
+            }
+          ],
+          [
+            "bob",
+            {
+              "#set": []
+            }
+          ],
+          [
+            "carol",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "gameShown": {
+        "#map": [["alice", true], ["bob", true], ["carol", true]]
+      },
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "paddle": {
+          "tag": "Some",
+          "value": "right"
+        },
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "place": {
+          "tag": "Some",
+          "value": "lower edge"
+        }
+      },
+      "paddlePlace": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 5
+      },
+      "_beforePositions": {
+        "#map": [["left", "upper edge"], ["right", "middle"]]
+      },
+      "_lastCourt": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ]
+        ]
+      },
+      "_offline": {
+        "#set": ["bob"]
+      },
+      "_positions": {
+        "#map": [["left", "upper edge"], ["right", "middle"]]
+      },
+      "_refused": false,
+      "controlledPaddles": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#set": []
+            }
+          ],
+          [
+            "bob",
+            {
+              "#set": []
+            }
+          ],
+          [
+            "carol",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "gameShown": {
+        "#map": [["alice", true], ["bob", true], ["carol", true]]
+      },
+      "mbt::actionTaken": "connectionReturns",
+      "mbt::nondetPicks": {
+        "paddle": {
+          "tag": "Some",
+          "value": "left"
+        },
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "place": {
+          "tag": "Some",
+          "value": "middle"
+        }
+      },
+      "paddlePlace": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 6
+      },
+      "_beforePositions": {
+        "#map": [["left", "upper edge"], ["right", "middle"]]
+      },
+      "_lastCourt": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ]
+        ]
+      },
+      "_offline": {
+        "#set": ["bob"]
+      },
+      "_positions": {
+        "#map": [["left", "upper edge"], ["right", "middle"]]
+      },
+      "_refused": true,
+      "controlledPaddles": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#set": []
+            }
+          ],
+          [
+            "bob",
+            {
+              "#set": []
+            }
+          ],
+          [
+            "carol",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "gameShown": {
+        "#map": [["alice", true], ["bob", true], ["carol", true]]
+      },
+      "mbt::actionTaken": "guidePaddle",
+      "mbt::nondetPicks": {
+        "paddle": {
+          "tag": "Some",
+          "value": "right"
+        },
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "place": {
+          "tag": "Some",
+          "value": "middle"
+        }
+      },
+      "paddlePlace": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 7
+      },
+      "_beforePositions": {
+        "#map": [["left", "upper edge"], ["right", "middle"]]
+      },
+      "_lastCourt": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#map": [["left", "middle"], ["right", "middle"]]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ]
+        ]
+      },
+      "_offline": {
+        "#set": ["bob", "carol"]
+      },
+      "_positions": {
+        "#map": [["left", "upper edge"], ["right", "middle"]]
+      },
+      "_refused": false,
+      "controlledPaddles": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#set": []
+            }
+          ],
+          [
+            "bob",
+            {
+              "#set": []
+            }
+          ],
+          [
+            "carol",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "gameShown": {
+        "#map": [["alice", true], ["bob", true], ["carol", true]]
+      },
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "paddle": {
+          "tag": "Some",
+          "value": "left"
+        },
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "place": {
+          "tag": "Some",
+          "value": "lower edge"
+        }
+      },
+      "paddlePlace": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 8
+      },
+      "_beforePositions": {
+        "#map": [["left", "upper edge"], ["right", "middle"]]
+      },
+      "_lastCourt": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ]
+        ]
+      },
+      "_offline": {
+        "#set": ["alice", "bob", "carol"]
+      },
+      "_positions": {
+        "#map": [["left", "upper edge"], ["right", "middle"]]
+      },
+      "_refused": false,
+      "controlledPaddles": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#set": []
+            }
+          ],
+          [
+            "bob",
+            {
+              "#set": []
+            }
+          ],
+          [
+            "carol",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "gameShown": {
+        "#map": [["alice", true], ["bob", true], ["carol", true]]
+      },
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "paddle": {
+          "tag": "Some",
+          "value": "left"
+        },
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "place": {
+          "tag": "Some",
+          "value": "upper edge"
+        }
+      },
+      "paddlePlace": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#map": [["left", "upper edge"], ["right", "middle"]]
+            }
+          ]
+        ]
+      }
+    }
+  ]
+}

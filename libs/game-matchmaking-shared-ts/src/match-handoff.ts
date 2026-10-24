@@ -12,13 +12,13 @@ import sql from '@pkgs/sql-root-shared-ts/sql';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { createMultiplayerGame } from './game-creation';
 import { MultiplayerGameRepository } from './game-repository';
+import { offeredMatchChoices } from './match-choice';
 import {
   OPPONENT_SEARCH_RADIUS,
   OPPONENT_TIME_CONTROL_KEY,
   opponentPool,
 } from './search-config';
 import { projectOpponentSearch } from './search-projection';
-import { offeredTimeControls } from './time-control';
 
 /**
  * Settles equal colour balances. Callers inject the chance: the formation
@@ -116,7 +116,7 @@ export async function formGameMatches(
 ): Promise<readonly string[]> {
   const owners: string[] = [];
   const waiting = await waitingPartitions(tx, 2);
-  for (const control of offeredTimeControls(rules)) {
+  for (const control of offeredMatchChoices(rules)) {
     const pool = opponentPool(control.id, rules);
     if (!waiting.has(pool)) continue;
     await formMatches(tx, {

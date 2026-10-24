@@ -112,3 +112,22 @@ the client. Existing turn-based examples must also pass after implementation.
 Refresh the replay plan and part allocation through their generators, keep
 all bound actions reachable, and replay every drawn trace when checking
 connection recovery.
+
+## Implementation evidence — 2026-10-24
+
+The feature, model and glossary remained frozen after the spec commit. All
+36 new examples failed undefined before bodies were added. The running
+choice already passed; the model's initial observable then exposed the
+actual defect: both people were offered resignation during the initial wait.
+That literal trace was pinned before the execution-marker correction.
+
+The combined ending run now passes 119 checks, including every new example,
+every drawn trace and both pinned regressions, plus the sixty applicable
+unchanged turn-based abort examples. The six invariants hold at four bounded
+steps. Public harness actions drive elapsed play and client commands; the
+new model reads rendered ending choices and results. Complete confirmation
+modal and natural finish/rematch journeys are not claimed by this evidence.
+
+The original two B16 warnings remain for the stated connection setup. The
+full release gate remains failed on the upstream audit issue. Evidence paths
+and the remaining integration work are in `REALTIME_IMPLEMENTATION.md`.

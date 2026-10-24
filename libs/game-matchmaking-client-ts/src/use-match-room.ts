@@ -26,6 +26,8 @@ import {
   onCleanup,
 } from 'solid-js';
 
+export type MatchRoomClient = RoomClient<RoomState, Message, Message, string>;
+
 export function useMatchRoom(gameId: Accessor<string | undefined>) {
   const config = useConfigService();
   const myId = useMyId();
@@ -98,5 +100,5 @@ export function useMatchRoom(gameId: Accessor<string | undefined>) {
     })
   );
   const state = createRoomSnapshot(room);
-  return () => matchRoomGame(state());
+  return { game: () => matchRoomGame(state()), room };
 }

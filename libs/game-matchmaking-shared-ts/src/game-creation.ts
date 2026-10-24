@@ -4,6 +4,7 @@ import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { MultiplayerGame } from './game-state';
+import { matchChoiceOf } from './match-choice';
 import { scheduleMultiplayerDeadline } from './multiplayer-deadline';
 import { scheduleMultiplayerNotices } from './multiplayer-notices';
 import { formatMultiplayerRating } from './multiplayer-rating';
@@ -21,6 +22,7 @@ export type NewMultiplayerGame = {
   readonly rematchOf: string | null;
   readonly nowMs: number;
   readonly createId?: () => string;
+  readonly initialPosition?: string;
 };
 
 async function shownRating(
@@ -28,11 +30,57 @@ async function shownRating(
   ownerId: string,
   timeControl: string
 ): Promise<string> {
-  const control = timeControlOf(timeControl);
+  const control = matchChoiceOf(timeControl);
   if (control === null) return '';
   return formatMultiplayerRating(
-    await new MultiplayerRatingRepository(tx).read(ownerId, control.speed)
+    await new MultiplayerRatingRepository(tx).read(ownerId, control.ratingPool)
   );
+}
+
+async function initialMultiplayerGame(
+  tx: SqlTx,
+  input: NewMultiplayerGame,
+  rules: TurnGames
+): Promise<MultiplayerGame> {
+  const gameRules = rules.forControl(input.timeControl);
+  const simulation = rules.simulation(gameRules.id);
+  const turns = rules.turnsForPosition(gameRules.initial()) !== undefined;
+  const timed = turns && timeControlOf(input.timeControl) !== null;
+  const ms = timed ? startingMs(input.timeControl) : null;
+  const position =
+    input.initialPosition ??
+    (simulation === undefined
+      ? gameRules.initial()
+      : simulation.codec.encode(simulation.initialize(input.id)));
+  if (
+    !gameRules.recognizes(position) ||
+    (simulation !== undefined && simulation.codec.decode(position) === null)
+  )
+    throw new Error('invalid initial multiplayer position');
+  return {
+    id: input.id,
+    white_id: input.whiteId,
+    black_id: input.blackId,
+    fen: position,
+    pgn: '',
+    revision: 0,
+    turn: turns ? input.whiteId : '',
+    outcome: 'ongoing',
+    reason: null,
+    time_control: input.timeControl,
+    white_ms: ms,
+    black_ms: ms,
+    clock_at_ms: timed ? input.nowMs : null,
+    paused_at_ms: null,
+    draw_offer_by: '',
+    rematch_offer_by: '',
+    rematch_of: input.rematchOf,
+    white_rating: await shownRating(tx, input.whiteId, input.timeControl),
+    black_rating: await shownRating(tx, input.blackId, input.timeControl),
+    white_rating_diff: null,
+    black_rating_diff: null,
+    setup_ready: initialSetupReady(rules, input.timeControl),
+  };
 }
 
 /**
@@ -46,31 +94,7 @@ export async function createMultiplayerGame(
   rules: TurnGames
 ): Promise<void> {
   const iso = new Date(input.nowMs).toISOString();
-  const ms = startingMs(input.timeControl);
-  const game: MultiplayerGame = {
-    id: input.id,
-    white_id: input.whiteId,
-    black_id: input.blackId,
-    fen: rules.forControl(input.timeControl).initial(),
-    pgn: '',
-    revision: 0,
-    turn: input.whiteId,
-    outcome: 'ongoing',
-    reason: null,
-    time_control: input.timeControl,
-    white_ms: ms,
-    black_ms: ms,
-    clock_at_ms: input.nowMs,
-    paused_at_ms: null,
-    draw_offer_by: '',
-    rematch_offer_by: '',
-    rematch_of: input.rematchOf,
-    white_rating: await shownRating(tx, input.whiteId, input.timeControl),
-    black_rating: await shownRating(tx, input.blackId, input.timeControl),
-    white_rating_diff: null,
-    black_rating_diff: null,
-    setup_ready: initialSetupReady(rules, input.timeControl),
-  };
+  const game = await initialMultiplayerGame(tx, input, rules);
   await tx.run(sql`INSERT INTO chess_multiplayer_games
     (id, match_id, white_id, black_id, fen, pgn, revision, turn, outcome, reason, time_control,
       white_ms, black_ms, clock_at_ms, paused_at_ms, draw_offer_by, rematch_offer_by, rematch_of, white_rating,

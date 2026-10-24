@@ -101,31 +101,31 @@ The longest shared-game part took 213 seconds. Device agreement fell from 267 to
 The generated sizing model totals 17,071 task-seconds, including 9,493 spec-seconds, using the harvested timings, retained history and family estimates. The five-minute, three-minute leaf and ninety-second percentile targets, the 16-worker cap, and each machine's 32 vCPU / 64 GB shape stay fixed. This is a sizing forecast; the hosted run remains the evidence of actual execution. The proposed pool changes no deployed infrastructure.
 
 <!-- ci-load:start -->
-Unmeasured scripts follow `estimateTask`: the family median when that family has a sample, otherwise 60 seconds. 555 cost keys name tasks outside the current graph and stay out of the cold total. The unit-test median is one second, the recorder floor. A family with no sample, such as an unmeasured `verify:board-contract`, reserves 60 seconds until a cold Verification is harvested.
+Unmeasured scripts follow `estimateTask`: the family median when that family has a sample, otherwise 60 seconds. 572 cost keys name tasks outside the current graph and stay out of the cold total. The unit-test median is one second, the recorder floor. A family with no sample, such as an unmeasured `verify:board-contract`, reserves 60 seconds until a cold Verification is harvested.
 
 | | |
 | --- | --- |
-| Packages | 334 |
-| Verify scripts | 1308 |
-| Measured scripts | 947 |
-| Estimated scripts | 361 |
-| Stale cost keys | 555 |
-| Cold CPU | 18302 s |
-| Spec parts | 10192 s across 272 tasks |
+| Packages | 337 |
+| Verify scripts | 1326 |
+| Measured scripts | 930 |
+| Estimated scripts | 396 |
+| Stale cost keys | 572 |
+| Cold CPU | 17495 s |
+| Spec parts | 10287 s across 277 tasks |
 | Longest task | @libs/games-harness-ts#test:spec:49 213 s |
 
 ### Families
 
 | Family | Tasks | CPU |
 | --- | --- | --- |
-| test:spec | 272 | 10192 s |
-| verify:models:9 | 16 | 1914 s |
-| lint | 333 | 1223 s |
+| test:spec | 277 | 10287 s |
+| lint | 336 | 1229 s |
 | test:contract | 26 | 1019 s |
-| test | 241 | 902 s |
+| verify:models:10 | 16 | 960 s |
+| test | 245 | 906 s |
+| verify:models | 41 | 683 s |
 | verify:models:2 | 11 | 660 s |
-| verify:models | 38 | 644 s |
-| tc | 332 | 516 s |
+| tc | 335 | 519 s |
 
 ### Leaves
 
@@ -152,9 +152,9 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared-ts | 267 | 18088 s | @libs/games-harness-ts#test:spec:49 213 s |
-| @pkgs/clock-shared-ts | 233 | 17970 s | @libs/games-harness-ts#test:spec:49 213 s |
-| @pkgs/assert-root-shared-ts | 228 | 17922 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/property-shared-ts | 272 | 17288 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/clock-shared-ts | 238 | 17170 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/assert-root-shared-ts | 233 | 17122 s | @libs/games-harness-ts#test:spec:49 213 s |
 
 ### Runner
 
@@ -164,10 +164,10 @@ Slot allocation target 240 s. Warm start 30 s. Verdict slack 15 s. Spec workers 
 | --- | --- |
 | Runners per verification | 3 |
 | Spec slots per runner | 15 |
-| Other slots per runner | 12 |
-| Cores required per runner | 29 |
+| Other slots per runner | 11 |
+| Cores required per runner | 28 |
 | Memory required per runner | 38 GiB |
-| Estimated makespan | 227 s |
+| Estimated makespan | 229 s |
 | Provision | 6 × 32 vCPU, 64 GB, Linux x64 |
 | Fits | yes |
 <!-- ci-load:end -->

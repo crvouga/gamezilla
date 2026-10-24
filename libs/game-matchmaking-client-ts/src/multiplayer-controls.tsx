@@ -50,7 +50,10 @@ function MultiplayerNextGame(props: {
         )}
       </Match>
       <Match when={mayFind()}>
-        <MultiplayerFindPanel controls={props.controls} />
+        <MultiplayerFindPanel
+          gameId={props.data.gameId()}
+          controls={props.controls}
+        />
       </Match>
     </Switch>
   );
@@ -73,6 +76,7 @@ export function MultiplayerControls(props: {
         {(game) => (
           <MultiplayerGameActions
             game={game()}
+            execution={props.data.execution()}
             myId={props.data.myId()}
             controls={props.controls}
             looking={looking()}

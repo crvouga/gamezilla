@@ -13,9 +13,9 @@ import { playCustomGameMove } from '@libs/game-session-shared-ts/custom-game-pla
 import { customGamePositionAt } from '@libs/game-session-shared-ts/custom-game-position';
 import { newCustomGame } from '@libs/game-session-shared-ts/custom-game-state';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 
-forEveryGame(import.meta.path, (game) => {
+forEveryTurnGame(import.meta.path, (game) => {
   // regression: game-session-inconsistent-retained-history
   test('a retained first move cannot be silently paired with an empty action history', () => {
     const rules = createTurnGames([game.shared.turnGame]);
@@ -42,7 +42,7 @@ forEveryGame(import.meta.path, (game) => {
         ...newCustomGame(
           'retained-match',
           'alice',
-          game.shared.turnGame.rules.initial()
+          game.shared.registration.rules.initial()
         ),
         status: 'active' as const,
         turn: 'black' as const,

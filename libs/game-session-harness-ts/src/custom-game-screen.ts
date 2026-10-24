@@ -21,7 +21,7 @@ export type CustomGameAction = CustomGameInput;
 
 /** One side of a Custom Game: who sits there (a member identity), if anyone. */
 export type CustomGameSeatShown = {
-  readonly kind: 'person' | 'bot' | 'invitation' | 'open' | 'closed';
+  readonly kind: 'person' | 'bot' | 'local' | 'invitation' | 'open' | 'closed';
   /** The member identity of the person seated or invited; '' otherwise. */
   readonly person: string;
 };

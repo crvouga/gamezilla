@@ -8,6 +8,7 @@ import type {
 } from '@pkgs/room-root-shared-ts/core-storage';
 import type { RoomEffectHandler } from '@pkgs/room-root-shared-ts/handler';
 import { newCommandId } from '@pkgs/room-root-shared-ts/ids';
+import type { RoomSignalListener } from '@pkgs/room-root-shared-ts/signals';
 import type { ClientTransport } from '@pkgs/room-root-shared-ts/transport';
 import type {
   LogEntry,
@@ -46,6 +47,7 @@ import {
   applyWelcome,
 } from './room-client-wire';
 import { OptimisticEffectSession } from './room-optimistic-effects';
+import { RoomSignalSubscriptions } from './room-signal-subscriptions';
 
 export type RoomClientConfig<
   S extends RoomState,
@@ -173,6 +175,7 @@ export class RoomClient<
   private readonly createId: CreateId;
   private readonly snapshot: SnapshotCache<S>;
   private readonly subscribers = new Set<() => void>();
+  private readonly signals = new RoomSignalSubscriptions();
   private readonly commandSubscribers = new Set<
     (result: RoomCommandResult) => void
   >();
@@ -345,6 +348,9 @@ export class RoomClient<
     switch (msg.kind) {
       case ROOM_WIRE_KIND.pong:
         return;
+      case ROOM_WIRE_KIND.signal:
+        if (this.core.synced) this.signals.publish(msg.payload);
+        return;
       case ROOM_WIRE_KIND.roster:
         this.roster = msg.clients;
         this.hasRoster = true;
@@ -408,6 +414,27 @@ export class RoomClient<
     };
   }
 
+  /** Transient input is refused while disconnected or catching up; it is never replayed offline. */
+  sendSignal(payload: RoomCommandPayload): string | null {
+    if (this.destroyed || !this.transport.isConnected || !this.core.synced)
+      return null;
+    if (!isMessageEnvelope(payload))
+      throw new Error('room signal must be a Message envelope');
+    const id = `signal:${newCommandId(this.createId)}`;
+    this.transport.sendJson({
+      v: WIRE_VERSION,
+      kind: ROOM_WIRE_KIND.signal,
+      id,
+      ts: this.clock.now(),
+      payload,
+    });
+    return id;
+  }
+
+  subscribeSignal(listener: RoomSignalListener): () => void {
+    return this.signals.subscribe(listener);
+  }
+
   /** Server results identify their command, even when other choices overlap. */
   subscribeCommandResult(
     listener: (result: RoomCommandResult) => void
@@ -448,6 +475,7 @@ export class RoomClient<
     this.unsubHandlers = null;
     this.subscribers.clear();
     this.commandSubscribers.clear();
+    this.signals.clear();
     this.transport.destroy();
   }
 }

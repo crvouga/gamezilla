@@ -1,0 +1,4 @@
+{
+  "summary": "The client game bootstrap built its catalog only from discrete turn capabilities, so a simulation-only game displayed its menu without custom-game, matchmaking or history choices.",
+  "regressionTest": "libs/pong-harness-ts/tests/pong-menu.test.ts"
+}

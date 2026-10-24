@@ -1,5 +1,6 @@
 import { ManagedSession } from '@apps/synthetic-population-worker-ts/managed-session';
 import type { SessionInput } from '@apps/synthetic-population-worker-ts/session-messages';
+import { reconcileCheckpoint } from '@libs/synthetic-population-shared-ts/config';
 import { createNoopLogger } from '@pkgs/logger-shared-ts/logger';
 import {
   createIsolatedWorker,
@@ -11,12 +12,20 @@ type Backend = Awaited<ReturnType<typeof runtimeBackend>>;
 export async function runtimeSession(
   backend: Backend,
   workerId: string,
-  version = 'realm-test'
+  version = 'realm-test',
+  policySeed = 'native-chess-pair'
 ) {
   const response = await backend.rpc.claim.$post({ json: { workerId } });
-  const { assignment } = await response.json();
-  if (assignment === null)
+  const { assignment: claimed } = await response.json();
+  if (claimed === null)
     throw new Error('An application instance was not assigned');
+  // A pairing contract chooses one shared activity, instead of relying on two independent policy draws to coincide.
+  const assignment = {
+    ...claimed,
+    checkpoint:
+      claimed.checkpoint ??
+      reconcileCheckpoint(null, backend.wall.clock.now(), policySeed),
+  };
   const realm = createIsolatedWorker(
     new URL('../src/session-entry.ts', import.meta.url),
     ['@pkgs/bun-test-solid-client-ts/register'],

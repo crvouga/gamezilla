@@ -1,4 +1,5 @@
 import { GAME_PLATFORM_NAMESPACE } from '@libs/game-matchmaking-shared-ts/durable-names';
+import { simulationExecutionSchema } from '@libs/game-matchmaking-shared-ts/simulation-execution';
 import { createAttrNamespace } from '@pkgs/attribute-shared-ts/attribute';
 import type { BotDifficulty } from '@pkgs/turn-game-shared-ts/game-rules';
 import { z } from 'zod';
@@ -8,7 +9,7 @@ export type CustomGameSide = (typeof CUSTOM_GAME_SIDES)[number];
 export const customGameSideSchema = z.enum(CUSTOM_GAME_SIDES);
 export const customGameParticipantSchema = z
   .object({
-    kind: z.enum(['person', 'bot', 'invitation', 'open', 'closed']),
+    kind: z.enum(['person', 'bot', 'local', 'invitation', 'open', 'closed']),
     person: z.string(),
   })
   .strict()
@@ -23,6 +24,10 @@ export const OPEN_CUSTOM_GAME_SIDE: CustomGameParticipant = {
 };
 export const BOT_CUSTOM_GAME_SIDE: CustomGameParticipant = {
   kind: 'bot',
+  person: '',
+};
+export const LOCAL_CUSTOM_GAME_SIDE: CustomGameParticipant = {
+  kind: 'local',
   person: '',
 };
 export const CLOSED_CUSTOM_GAME_SIDE: CustomGameParticipant = {
@@ -47,6 +52,8 @@ export const customGameSchema = z
       })
       .default({ white: 'medium', black: 'medium' }),
     revision: z.number().int().nonnegative(),
+    /** Present only for a game with fixed-step execution; ticks are not a move log. */
+    execution: simulationExecutionSchema.optional(),
     startedAt: z.number().int().nonnegative().nullable(),
     endedAt: z.number().int().nonnegative().nullable(),
     turnStartedAt: z.number().int().nonnegative().nullable(),
@@ -159,6 +166,7 @@ export function customGameStartable(game: CustomGame): boolean {
     CUSTOM_GAME_SIDES.every(
       (side) =>
         game[side].kind === 'bot' ||
+        game[side].kind === 'local' ||
         (game[side].kind === 'person' && game.ready.includes(side))
     )
   );

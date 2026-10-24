@@ -11,23 +11,23 @@
 import { expect, test } from 'bun:test';
 import { hostedSpaceId } from '@libs/game-matchmaking-harness-ts/multiplayer-spaces';
 import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-lineup';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import {
   deviceRowsOf,
   roomHistorySentTo,
 } from '@libs/game-session-harness-ts/private-setup-observation';
 import type { OpenHarness } from '@libs/harness-ts/open-harness';
 import { openConformanceHarness } from '../../conformance-world';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 
-function knownSetups(game: HarnessGame) {
+function knownSetups(game: TurnHarnessGame) {
   const setups = game.fixtures.setups;
   if (setups === undefined) throw new Error(`${game.label} names no setups`);
   return setups;
 }
 
 /** A complete setup of the game's own drawing, other than `than`. */
-function anotherSetup(game: HarnessGame, than: string): string {
+function anotherSetup(game: TurnHarnessGame, than: string): string {
   const setup = game.shared.turnGame.rules.setup;
   if (setup === undefined) throw new Error(`${game.label} has no setups`);
   for (let draw = 0; draw < 64; draw += 1) {
@@ -63,7 +63,7 @@ async function sentTo(s: OpenHarness, actor: string): Promise<string> {
   return s.read(roomHistorySentTo, actor, spaceId);
 }
 
-forEveryGame(
+forEveryTurnGame(
   import.meta.path,
   (game) => {
     const setups = () => knownSetups(game);

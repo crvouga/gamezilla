@@ -18,13 +18,13 @@ import {
   opponentSearchView,
   seekGameOpponent,
 } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { playedRulesOf } from '@libs/game-session-harness-ts/played-rules';
 import type { OpenHarness } from '@libs/harness-ts/open-harness';
 import { openConformanceHarness } from '../../conformance-world';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 
-async function paired(s: OpenHarness, game: HarnessGame) {
+async function paired(s: OpenHarness, game: TurnHarnessGame) {
   await s.apply(seekGameOpponent, 'alice', game.shared.id);
   await s.apply(seekGameOpponent, 'bob', game.shared.id);
   await s.apply(pairGameOpponents, 'alice', true);
@@ -55,7 +55,7 @@ async function agreed(s: OpenHarness) {
   return first;
 }
 
-forEveryGame(import.meta.path, (game) => {
+forEveryTurnGame(import.meta.path, (game) => {
   // Moves are proposals; the authority plays them with the game's known setups.
   const rules = playedRulesOf(game);
   const victory = game.fixtures.firstSideVictory;

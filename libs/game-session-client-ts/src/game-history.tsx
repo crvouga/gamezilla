@@ -111,11 +111,13 @@ function GameHistoryRecords(props: {
                       <GameHistoryParticipant
                         id={record.first}
                         bot={record.firstBot}
+                        local={record.firstLocal}
                       />{' '}
                       /{' '}
                       <GameHistoryParticipant
                         id={record.second}
                         bot={record.secondBot}
+                        local={record.secondLocal}
                       />
                     </>
                   ),

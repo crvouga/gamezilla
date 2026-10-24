@@ -23,6 +23,7 @@ export function createRoomServerDurableObject<WorkerEnv>(
     // Grants arrive with each connection from the API room gateway.
     authorize: createSpaceRoomAuthorizer(GAME_DEFINITIONS),
     clock: env.clock,
+    timers: env.timers,
     createId: env.createId,
     telemetry,
     serviceIdentity: ROOM_SERVICE_IDENTITY,

@@ -1,33 +1,34 @@
 import { expect, test } from 'bun:test';
+import { offeredMatchChoices } from '@libs/game-matchmaking-shared-ts/match-choice';
 import { formGameMatches } from '@libs/game-matchmaking-shared-ts/match-handoff';
 import { opponentPool } from '@libs/game-matchmaking-shared-ts/search-config';
-import { offeredTimeControls } from '@libs/game-matchmaking-shared-ts/time-control';
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import {
   createTurnGames,
   type RegisteredTurnGame,
 } from '@pkgs/turn-game-shared-ts/game-rules';
+import { countingRules } from './counting-rules';
 
 /**
  * Two games offering finding an opponent: the platform's durable game, whose
  * clock choices are unprefixed, and another in its own `<id>/` namespace.
- * Formation reads only their clock namespaces, so their rules only tell
- * their own starting positions apart.
+ * Their finite counting rules have separate positions and clock namespaces.
  */
 function game(id: string, unprefixed: boolean): RegisteredTurnGame {
   return {
-    rules: {
-      id,
-      initial: () => `${id}:start`,
-      recognizes: (position: string) => position.startsWith(`${id}:`),
-    } as never,
+    rules: countingRules(id),
     capabilities: {
       matchmaking: {
-        clockNamespace: unprefixed ? '' : `${id}/`,
-        notice: {} as never,
+        clockChoices: true as const,
+        namespace: unprefixed ? '' : `${id}/`,
+        notice: {
+          side: (side) => side,
+          ending: () => undefined,
+          timeoutDraw: () => 'drawn on time',
+        },
       },
       history: { record: () => '' },
-    } as never,
+    },
     ...(unprefixed ? { unprefixedNamespace: true as const } : {}),
   };
 }
@@ -66,7 +67,7 @@ const ports = {
 
 // regression: matchmaking-formation-pass-per-time-control
 test('a formation pass costs nothing for time controls nobody is waiting in', async () => {
-  expect(offeredTimeControls(rules).length).toBeGreaterThanOrEqual(20);
+  expect(offeredMatchChoices(rules).length).toBeGreaterThanOrEqual(20);
   const idle = recordingTx([]);
   await formGameMatches(idle.tx, ports, rules);
   expect(idle.passes()).toBe(0);

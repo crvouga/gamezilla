@@ -14,15 +14,15 @@ import {
 } from '@libs/game-matchmaking-harness-ts/matched-game-world';
 import type { CustomGameSide } from '@libs/game-session-shared-ts/custom-game-state';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
-import { gameOf } from './game-world';
+import { turnGameOf } from './game-world';
 import { pairedAt } from './matched-game';
 
 /** The game's known line to a position where the second side cannot win. */
 export function cannotWinLine(w: HarnessWorld): readonly string[] {
-  const line = gameOf(w).fixtures.secondSideCannotWin;
+  const line = turnGameOf(w).fixtures.secondSideCannotWin;
   if (line === undefined)
     throw new Error(
-      `${gameOf(w).label} names no position its second side cannot win`
+      `${turnGameOf(w).label} names no position its second side cannot win`
     );
   return line;
 }

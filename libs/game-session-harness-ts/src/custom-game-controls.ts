@@ -11,6 +11,7 @@ import {
   withKnownSetup,
 } from './custom-game-ui';
 import { showCustomGames } from './game-navigation';
+import { isTurnHarnessGame } from './harness-game';
 import { harnessGameAt } from './harness-game-of';
 import { keepsOwnPrivateSetup } from './own-private-setups';
 
@@ -45,7 +46,9 @@ async function revealControl(
   const ui = await actorUi(s, actor);
   if (
     'side' in input &&
-    ['take', 'bot', 'open', 'close', 'invite'].includes(input.operation)
+    ['take', 'bot', 'local', 'open', 'close', 'invite'].includes(
+      input.operation
+    )
   ) {
     const toggle = `custom-game-${input.side}-choices`;
     if (
@@ -155,7 +158,10 @@ async function arrangeSetup(
     return;
   const ready = await withKnownSetup(s, actor, input);
   const setup = ready.operation === 'ready' ? ready.setup : undefined;
-  const arrange = harnessGameAt(s, probe.current.fen).shared.automation.arrange;
+  const game = harnessGameAt(s, probe.current.fen);
+  const arrange = isTurnHarnessGame(game)
+    ? game.shared.automation.turns.arrange
+    : undefined;
   if (setup === undefined || arrange === undefined) return;
   await arrange(await actorUi(s, actor), 'custom-game-setup', setup);
 }

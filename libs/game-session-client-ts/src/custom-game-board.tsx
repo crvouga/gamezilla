@@ -21,6 +21,7 @@ import { CustomGameError } from './custom-game-error';
 import { CustomGameSeat } from './custom-game-side';
 import type { CustomGameReview } from './use-custom-game-review';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
+import { useCustomSimulation } from './use-custom-simulation';
 
 type BoardProps = { model: CustomGameScreenModel; review: CustomGameReview };
 
@@ -175,6 +176,15 @@ export function CustomGameBoard(props: BoardProps): JSX.Element {
   const interactive = (): boolean =>
     customGameCanMove(props.model, props.review);
   const presentation = useGamePresentation();
+  const simulation = useCustomSimulation(
+    props.model.current,
+    props.model.myId,
+    () => props.model.canPlay() && props.review.live()
+  );
+  const position = () =>
+    props.review.live() && simulation.active()
+      ? (simulation.position() ?? props.review.fen())
+      : props.review.fen();
   const move = async (action: string): Promise<void> => {
     try {
       await props.model.choose({
@@ -205,8 +215,13 @@ export function CustomGameBoard(props: BoardProps): JSX.Element {
       }
     >
       <Dynamic
-        component={presentation(props.review.fen()).Board}
-        position={props.review.fen()}
+        component={presentation(position()).Board}
+        position={position()}
+        simulation={
+          props.review.live() && simulation.active()
+            ? simulation.controls()
+            : undefined
+        }
         orientation={near()}
         interactive={interactive()}
         sound={!sounds.muted()}
@@ -216,6 +231,13 @@ export function CustomGameBoard(props: BoardProps): JSX.Element {
         onAction={(action: string) => {
           void move(action);
         }}
+      />
+      <CustomGameError
+        reason={
+          simulation.error()
+            ? t`The game stopped. Its last score is kept in the record. Start a rematch to play again.`
+            : ''
+        }
       />
     </GameBoardStage>
   );

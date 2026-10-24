@@ -162,6 +162,15 @@ function writeFieldText(
   field.dispatchEvent(new Event('input', { bubbles: true }));
 }
 
+function inputField(element: Element, text: string): void {
+  const field = findTextField(element);
+  focusInto(field);
+  writeFieldText(
+    field,
+    field.type === 'range' ? text : `${field.value}${text}`
+  );
+}
+
 export function createSolidDomRenderedApp(
   scope: SolidDomAppScope
 ): SolidDomRenderedApp {
@@ -218,9 +227,7 @@ export function createSolidDomRenderedApp(
       return Promise.resolve(ensureElementLayout(asElement(element), provider));
     },
     typeText: (element, text) => {
-      const field = findTextField(asElement(element));
-      focusInto(field);
-      writeFieldText(field, `${field.value}${text}`);
+      inputField(asElement(element), text);
       return Promise.resolve();
     },
     clearText: (element) => {

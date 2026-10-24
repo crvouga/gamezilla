@@ -98,3 +98,23 @@ before adding bodies, then obtain a failing observable check before wiring
 the live matched presenter. Run all Pong specs and relevant common Games
 contracts after implementation. Refresh replay plans and prove all bound
 actions reachable; do not trim traces or time budgets to make the model pass.
+
+## Implementation evidence — 2026-10-24
+
+The authoring verdict above remains its original handoff. The subsequent
+implementation keeps the feature, model and glossary unchanged. D2–D6 now
+pass through public harness actions and rendered court/assignment reads;
+connection bindings use the kernel connection actions, and the shared pairing
+fixture lives in the framework's existing game-facing public module.
+
+All sixteen examples were undefined before binding. The first legal guidance
+then failed on the visible court with no live controls before the matched
+presenter was connected. The whole Pong context now passes 97 checks with
+every drawn trace replayed, including three literal regression traces. All
+three Pong models pass their existing four-step bounded proofs. Strict specs,
+ownership and registered regressions also pass; evidence paths and the
+remaining full integration work are in `REALTIME_IMPLEMENTATION.md`.
+
+There are no additional blocking D findings. The original B16 warning and
+its one-recovery-promise rationale remain. The failed full verification is
+still failed; this evidence is not a release verdict.

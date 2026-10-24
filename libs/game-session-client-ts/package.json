@@ -39,6 +39,7 @@
     "@pkgs/turn-game-shared-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
     "@pkgs/uuid-client-ts": "workspace:*",
+    "@pkgs/uuid-shared-ts": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {

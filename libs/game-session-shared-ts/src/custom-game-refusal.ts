@@ -30,6 +30,8 @@ export const CUSTOM_GAME_CREATOR_OPERATIONS: readonly CustomGameOperation[] = [
   'take',
   'bot',
   'difficulty',
+  'local',
+  'rules',
   'open',
   'close',
   'invite',
@@ -41,6 +43,8 @@ export const CUSTOM_GAME_CREATOR_OPERATIONS: readonly CustomGameOperation[] = [
   'cancel',
 ];
 export const CUSTOM_GAME_SETTING_OPERATIONS: readonly CustomGameOperation[] = [
+  'local',
+  'rules',
   'take',
   'bot',
   'difficulty',
@@ -161,7 +165,10 @@ function startRefusal(game: CustomGame, choice: CustomGameChoice): string {
   if (choice.operation !== 'start' || game.status !== 'configuring') return '';
   if (
     !CUSTOM_GAME_SIDES.every(
-      (side) => game[side].kind === 'person' || game[side].kind === 'bot'
+      (side) =>
+        game[side].kind === 'person' ||
+        game[side].kind === 'bot' ||
+        game[side].kind === 'local'
     )
   )
     return 'both sides need participants';

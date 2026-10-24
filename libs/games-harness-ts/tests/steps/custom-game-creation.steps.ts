@@ -33,7 +33,7 @@ Then(
     const game = await current(w);
     expect(game.status).toBe('active');
     expect(game.moves).toEqual([]);
-    expect(game.fen).toBe(gameOf(w).shared.turnGame.rules.initial());
+    expect(game.fen).toBe(gameOf(w).shared.registration.rules.initial());
   }
 );
 Then('the custom game is unrated and untimed', async (w) => {

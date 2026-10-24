@@ -12,12 +12,12 @@ import type { GameClient } from '@libs/game-menu-client-ts/game-client';
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
 import type {
   GameFixtures,
-  HarnessGame,
   ReadGameRecord,
+  TurnHarnessGame,
 } from '@libs/game-session-harness-ts/harness-game';
 import { assertHarnessGame } from '@libs/game-session-harness-ts/harness-game';
-import type { TurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
-import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import type { TurnGame } from '@libs/game-session-shared-ts/game-definition';
+import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import type {
   GameBoardProps,
   GameSetupBoardProps,
@@ -89,14 +89,18 @@ const notice = {
 
 const CAPABILITIES = {
   'custom-games': { bots: SECRET_PICK_BOTS },
-  matchmaking: { clockNamespace: 'secret-pick/', notice },
+  matchmaking: {
+    clockChoices: true as const,
+    namespace: 'secret-pick/',
+    notice,
+  },
   history: { record: secretPickRecord },
 } satisfies TurnGameCapabilities;
 
 export const SECRET_PICK_TURN_GAME: TurnGame<typeof CAPABILITIES> = {
   rules: SECRET_PICK_RULES,
   capabilities: CAPABILITIES,
-  automation: {
+  turnAutomation: {
     choose: (position, random) =>
       SECRET_PICK_BOTS.choose(position, 'medium', random),
     async perform(ui, board, action) {
@@ -108,7 +112,7 @@ export const SECRET_PICK_TURN_GAME: TurnGame<typeof CAPABILITIES> = {
   },
 };
 
-export const SECRET_PICK_SHARED = defineTurnGame(SECRET_PICK_TURN_GAME);
+export const SECRET_PICK_SHARED = defineGame(SECRET_PICK_TURN_GAME);
 
 export const SECRET_PICK_CLIENT: GameClient<typeof CAPABILITIES> = {
   shared: SECRET_PICK_SHARED,
@@ -184,7 +188,7 @@ export const SECRET_PICK_FIXTURES: GameFixtures<typeof CAPABILITIES> = {
   refusedOpenings: ['g0', 'g1:found', 'n7'],
 };
 
-export const SECRET_PICK_GAME: HarnessGame = assertHarnessGame({
+export const SECRET_PICK_GAME: TurnHarnessGame = assertHarnessGame({
   label: 'secret pick',
   shared: SECRET_PICK_SHARED,
   client: defineGameClient(SECRET_PICK_CLIENT),

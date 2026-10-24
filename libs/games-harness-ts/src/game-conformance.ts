@@ -1,4 +1,5 @@
 import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { puzzleLineLayout } from '@pkgs/turn-game-shared-ts/game-puzzles';
 import type { GameCapability } from '@pkgs/turn-game-shared-ts/game-rules';
 import {
@@ -9,6 +10,7 @@ import {
   executionGameProblems,
   suiteCaseProblems,
 } from './conformance-enrollment';
+import { loadSpecificationNeeds } from './load-specification-needs';
 
 /**
  * What the shared conformance suites are organised by: `rules`, which every
@@ -17,7 +19,11 @@ import {
  * (`tests/conformance/<area>/`); a shared specification's areas are listed
  * in {@link SHARED_SPECIFICATIONS}.
  */
-export const CONFORMANCE_AREAS = ['rules', ...GAME_CAPABILITIES] as const;
+export const CONFORMANCE_AREAS = [
+  'rules',
+  'simulation',
+  ...GAME_CAPABILITIES,
+] as const;
 export type ConformanceArea = (typeof CONFORMANCE_AREAS)[number];
 
 /**
@@ -29,30 +35,41 @@ export type ConformanceArea = (typeof CONFORMANCE_AREAS)[number];
  * needing it holds for exactly the games whose rules have it.
  */
 export const GAME_TRAITS = {
+  'clock choices': (game: HarnessGame) =>
+    game.shared.capabilities.matchmaking?.clockChoices === true,
+  'no clock choices': (game: HarnessGame) =>
+    game.shared.capabilities.matchmaking !== undefined &&
+    game.shared.capabilities.matchmaking.clockChoices === undefined,
+  /** A genuine discrete-turn capability; simulations never invent one. */
+  turns: (game: HarnessGame) => game.shared.turnGame !== undefined,
+  'no turns': (game: HarnessGame) => game.shared.turnGame === undefined,
+  /** Simulation and turns may both be present on one registration. */
+  simulation: (game: HarnessGame) =>
+    game.shared.registration.simulation !== undefined,
   /** A puzzle line whose opponent supplies setup and automatic replies. */
   'a puzzle opponent': (game: HarnessGame) => {
-    const puzzles = game.shared.turnGame.capabilities.puzzles;
+    const puzzles = game.shared.registration.capabilities.puzzles;
     return puzzles !== undefined && puzzleLineLayout(puzzles).solverStep === 2;
   },
   /** A position where the second side cannot win (`secondSideCannotWin`). */
   'a side that cannot win': (game: HarnessGame) =>
-    game.fixtures.secondSideCannotWin !== undefined,
+    isTurnHarnessGame(game) && game.fixtures.secondSideCannotWin !== undefined,
   /** A line the game's own rules draw (`drawByRules`). */
   "a draw by the game's own rules": (game: HarnessGame) =>
-    game.fixtures.drawByRules !== undefined,
+    isTurnHarnessGame(game) && game.fixtures.drawByRules !== undefined,
   /**
    * Private setups each side prepares before play (`rules.setup`), which
    * only the authority holds together; the rules laws hold such a game to
    * resolving every proposal and never showing a setup.
    */
   'a private setup': (game: HarnessGame) =>
-    game.shared.turnGame.rules.setup !== undefined,
+    game.shared.registration.rules.setup !== undefined,
   /**
    * Every position public, so a custom game without another person may be
    * played on the host's device alone; a game with private setups is not.
    */
   'every position public': (game: HarnessGame) =>
-    game.shared.turnGame.rules.setup === undefined,
+    game.shared.registration.rules.setup === undefined,
   /**
    * A known first-side victory of exactly seven moves (`firstSideVictory`),
    * which the whole-game models follow (`tests/quint/model-game.ts`). A
@@ -60,9 +77,10 @@ export const GAME_TRAITS = {
    * the models that play only the start of its known victory.
    */
   'a seven-move victory': (game: HarnessGame) =>
-    game.fixtures.firstSideVictory.length === 7,
+    isTurnHarnessGame(game) && game.fixtures.firstSideVictory.length === 7,
   /** A known puzzle the game's rules let the solver win off its line (`wonAnotherWay`). */
   'a known puzzle won another way': (game: HarnessGame) =>
+    isTurnHarnessGame(game) &&
     game.fixtures.puzzles?.some(
       (fixture) => fixture.wonAnotherWay !== undefined
     ) === true,
@@ -95,129 +113,7 @@ export function capabilitiesOf(
  */
 export const SHARED_SPECIFICATIONS: Readonly<
   Record<string, readonly ConformanceNeed[]>
-> = {
-  'game-choices': ['custom-games', 'matchmaking', 'history'],
-  'custom-games': ['custom-games'],
-  'custom-game-creation': ['custom-games'],
-  'custom-game-invitations': ['custom-games'],
-  'custom-game-open-places': ['custom-games'],
-  'custom-game-readiness': ['custom-games'],
-  'custom-game-sides': ['custom-games'],
-  'custom-game-clock': ['custom-games'],
-  'custom-game-away': ['custom-games'],
-  'custom-game-completion': ['custom-games'],
-  'custom-game-draw-offers': ['custom-games'],
-  'custom-game-cannot-win': ['custom-games', 'a side that cannot win'],
-  'custom-game-rematch': ['custom-games'],
-  'custom-game-connection': ['custom-games'],
-  'custom-game-offline': ['custom-games', 'every position public'],
-  'custom-game-private-setup': ['custom-games', 'a private setup'],
-  'matched-game-private-setup': ['matchmaking', 'a private setup'],
-  'private-setup': ['custom-games', 'matchmaking', 'a private setup'],
-  'custom-game-devices': ['custom-games'],
-  'custom-game-interruption': ['custom-games'],
-  'custom-game-blocking': ['custom-games'],
-  'custom-game-identity': ['custom-games'],
-  'custom-game-privacy': ['custom-games'],
-  'custom-game-accessibility': ['custom-games'],
-  'game-turns': ['custom-games'],
-  'finding-an-opponent': ['matchmaking'],
-  'finding-an-opponent-devices': ['matchmaking'],
-  'finding-an-opponent-clock-choices': ['matchmaking'],
-  'finding-an-opponent-after-a-custom-game': ['matchmaking', 'custom-games'],
-  'matched-game-sides': ['matchmaking'],
-  'matched-game-clock': ['matchmaking'],
-  'matched-game-cannot-win': ['matchmaking', 'a side that cannot win'],
-  'matched-game-daily-clock': ['matchmaking'],
-  'matched-game-low-on-time': ['matchmaking'],
-  'matched-game-ratings': ['matchmaking'],
-  'matched-game-blocking': ['matchmaking'],
-  'matched-game-results': ['matchmaking'],
-  'matched-game-rules-draw': ['matchmaking', "a draw by the game's own rules"],
-  'matched-game-abort': ['matchmaking'],
-  'matched-game-draw-offers': ['matchmaking'],
-  'matched-game-over': ['matchmaking'],
-  'matched-game-rematch': ['matchmaking'],
-  'matched-game-turns': ['matchmaking'],
-  'matched-game-turn-notices': ['matchmaking'],
-  'matched-game-turn-reminders': ['matchmaking'],
-  'matched-game-result-notices': ['matchmaking'],
-  'matched-game-offline': ['matchmaking'],
-  'matched-game-recovery': ['matchmaking'],
-  'matched-game-ownership': ['matchmaking'],
-  'matched-game-watchers': ['matchmaking'],
-  'matched-game-review': ['matchmaking'],
-  'matched-game-record': ['matchmaking', 'history'],
-  'matched-game-accessibility': ['matchmaking'],
-  'matched-game-interruption': ['matchmaking', 'history'],
-  'game-history': ['custom-games', 'history'],
-  // The model's host makes choices alone with no connection: a game played
-  // on the host's device alone. A game with a private setup is held to the
-  // same lifecycle by the custom-game features and private-setup.qnt.
-  'custom-game': ['custom-games', 'every position public'],
-  'custom-game-play': ['custom-games'],
-  'custom-game-control': [
-    'custom-games',
-    'a seven-move victory',
-    'every position public',
-  ],
-  'custom-game-local': ['custom-games', 'every position public'],
-  'custom-game-access': ['custom-games'],
-  'custom-game-delivery': ['custom-games'],
-  'matched-game': ['matchmaking', 'a seven-move victory'],
-  'matched-game-daily': ['matchmaking', 'a seven-move victory'],
-  'matched-game-own-board': ['matchmaking', 'history'],
-  'matched-game-shared': ['matchmaking', 'history'],
-  'matched-game-spaces': ['matchmaking'],
-  'matched-game-clock-recovery': ['matchmaking', 'history'],
-  'space-follow': ['custom-games'],
-  'space-follows-the-host': ['custom-games'],
-  'matched-games': ['matchmaking'],
-  'matched-game-watch-access': ['matchmaking'],
-  'unfinished-game-limit': ['matchmaking', 'custom-games'],
-  'matched-game-ready': ['matchmaking'],
-  'puzzle-play': ['puzzles'],
-  'puzzle-opponent': ['puzzles', 'a puzzle opponent'],
-  'solve-flow': ['puzzles'],
-  'solve-move-rules': ['puzzles'],
-  'solve-show-solution': ['puzzles'],
-  'puzzle-controls': ['puzzles'],
-  'puzzle-attempt-resume': ['puzzles'],
-  'puzzle-review': ['puzzles'],
-  'puzzle-skip-clock': ['puzzles'],
-  'puzzle-attempt': ['puzzles'],
-  'puzzle-feed': ['puzzles'],
-  'puzzle-feed-gates': ['puzzles'],
-  'puzzle-feed-sticks': ['puzzles'],
-  'puzzle-exhaust': ['puzzles'],
-  'puzzle-selection': ['puzzles'],
-  'puzzle-rating': ['puzzles'],
-  'puzzle-stats': ['puzzles'],
-  'puzzle-stats-summary': ['puzzles'],
-  'puzzle-ready': ['puzzles'],
-  'puzzle-quota': ['puzzles'],
-  'puzzle-limits-by-kind': ['puzzles'],
-  'puzzle-limit-upgrade': ['puzzles'],
-  'puzzle-guest-play': ['puzzles'],
-  'puzzle-guest-carryover': ['puzzles'],
-  'puzzle-refusals': ['puzzles'],
-  'deleted-account-progress': ['puzzles'],
-  'daily-puzzle-limit': ['puzzles'],
-  'puzzle-progress': ['puzzles'],
-  'puzzle-offline': ['puzzles'],
-  'puzzle-offline-days': ['puzzles'],
-  'puzzle-outcome-sync': ['puzzles'],
-  'puzzle-interruption-recovery': ['puzzles'],
-  'puzzle-result-recovery': ['puzzles'],
-  'puzzle-spectator': ['puzzles'],
-  'puzzle-late-watcher': ['puzzles'],
-  'puzzle-link': ['puzzles'],
-  'puzzle-sound': ['puzzles'],
-  'puzzle-accessibility': ['puzzles'],
-  'puzzle-objective': ['puzzles', 'a known puzzle won another way'],
-  'puzzle-matched-play': ['puzzles', 'matchmaking'],
-  'puzzle-custom-play': ['puzzles', 'custom-games'],
-};
+> = await loadSpecificationNeeds();
 
 /** The file endings of the specifications a game is held to. */
 export const SHARED_SPECIFICATION_KINDS = [
@@ -256,7 +152,7 @@ export function offersAll(
   game: HarnessGame,
   needs: readonly (ConformanceNeed | 'rules')[]
 ): boolean {
-  const offered = offeredCapabilities(game.shared.turnGame);
+  const offered = offeredCapabilities(game.shared.registration);
   return needs.every((need) =>
     need === 'rules'
       ? true
@@ -388,10 +284,8 @@ export function conformanceMatrix(
   suites: readonly ConformanceSuite[]
 ): readonly ConformanceRow[] {
   return games.map((game) => {
-    const offered = offeredCapabilities(game.shared.turnGame);
     const cell = (area: ConformanceArea): ConformanceCell => {
-      if (area !== 'rules' && !offered.includes(area))
-        return { status: 'unsupported' };
+      if (!offersAll(game, [area])) return { status: 'unsupported' };
       const bound = suites
         .filter((suite) => suite.area === area && suite.binds(game))
         .map((suite) => suite.id);
@@ -427,7 +321,7 @@ export function enrollmentProblems(
   for (const game of harness)
     if (!registeredIds.has(game.shared.id))
       out.push(
-        `"${game.shared.id}" (${game.label}) is in HARNESS_GAMES but not GAME_DEFINITIONS — register its defineTurnGame value, or list a test-only game beside the reference game (tests/conformance-world.ts)`
+        `"${game.shared.id}" (${game.label}) is in HARNESS_GAMES but not GAME_DEFINITIONS — register its defineGame value, or list a test-only game beside the reference game (tests/conformance-world.ts)`
       );
   if (out.length > 0) return out;
   for (const [index, game] of harness.entries()) {
@@ -438,7 +332,7 @@ export function enrollmentProblems(
       );
     else if (definition !== game.shared)
       out.push(
-        `"${game.shared.id}": HARNESS_GAMES holds another definition than GAME_DEFINITIONS registers — use the registered defineTurnGame value itself`
+        `"${game.shared.id}": HARNESS_GAMES holds another definition than GAME_DEFINITIONS registers — use the registered defineGame value itself`
       );
   }
   return out;

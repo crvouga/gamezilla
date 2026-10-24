@@ -39,6 +39,7 @@
     "@pkgs/observability-runtime-shared-ts": "workspace:*",
     "@pkgs/os-server-ts": "workspace:*",
     "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",
+    "@pkgs/turn-game-shared-ts": "workspace:*",
     "@pkgs/ui-testing-root-shared-ts": "workspace:*",
     "@pkgs/ui-testing-solid-dom-client-ts": "workspace:*",
     "@pkgs/uuid-shared-ts": "workspace:*",
@@ -48,7 +49,9 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@libs/game-matchmaking-shared-ts": "workspace:*",
     "@libs/harness-ts": "workspace:*",
+    "@libs/pong-shared-ts": "workspace:*",
     "@libs/pubsub-server-ts": "workspace:*",
     "@libs/runtime-harness-ts": "workspace:*",
     "@opentelemetry/api": "catalog:",
@@ -56,6 +59,7 @@
     "@pkgs/aedes-server-ts": "workspace:*",
     "@pkgs/harness-root-shared-ts": "workspace:*",
     "@pkgs/sql-root-shared-ts": "workspace:*",
+    "@pkgs/room-root-shared-ts": "workspace:*",
     "@pkgs/sync-engine-shared-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

@@ -247,11 +247,12 @@ async function buildDesiredClientConfig(args: {
 function createSyncAppMount(
   env: ServerEnv,
   app: ComposedSubs,
-  servers: ComposedSubServers
+  args: CreateServerArgs
 ) {
   return createSyncApp({
     app,
-    authorizeServerMutation: servers.authorizeMutation,
+    authorizeServerMutation: args.servers.authorizeMutation,
+    ...(args.rooms === undefined ? {} : { rooms: args.rooms }),
     now: () => env.clock.now(),
     createId: env.createId,
     moderation: env.moderation,
@@ -353,6 +354,7 @@ function createServerRouter(args: {
 }
 
 export type CreateServerArgs = {
+  readonly rooms?: import('@pkgs/room-root-shared-ts/room-service').RoomServicePort;
   /** The folded sub set sync serves: schema, queries, topics, mutations. */
   readonly app: ComposedSubs;
   /** The same subs' server halves: routes, outbox consumers, topics. */
@@ -409,7 +411,7 @@ export async function createServer(env: ServerEnv, args: CreateServerArgs) {
     }),
     createTtsAppForServer(env),
     createLlmAppForServer(env),
-    createSyncAppMount(env, args.app, args.servers),
+    createSyncAppMount(env, args.app, args),
   ]);
 
   registerAccountDeletionConsumers(args.servers.outboxConsumers, auth.server);

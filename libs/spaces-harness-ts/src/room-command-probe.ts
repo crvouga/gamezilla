@@ -7,6 +7,7 @@
 import type { HarnessRoomNode } from '@libs/harness-ts/composition';
 import type { Timers } from '@pkgs/clock-shared-ts/types';
 import type { Message } from '@pkgs/message-shared-ts/message';
+import type { ClientTransport } from '@pkgs/room-root-shared-ts/transport';
 import type { RoomError } from '@pkgs/room-root-shared-ts/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared-ts/types';
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-root-shared-ts/wire';
@@ -43,27 +44,32 @@ export async function answerOfRoomCommand(
     readonly commandId: string;
     readonly nowMs: number;
     readonly timers: Timers;
+    /** An already owned connection, kept open between a scenario's choices. */
+    readonly transport?: ClientTransport;
+    readonly beforeSend?: () => Promise<void>;
   }
 ): Promise<RoomAnswer> {
   const commandId = args.commandId;
   const frames: Frame[] = [];
-  const transport = node.createTransport({
-    topic: `space:${args.spaceId}`,
-    module: 'space',
-    apiUrl: '',
-    identity: args.identity,
-    installId: args.installId,
-    clientId: `${commandId}-probe`,
-    getSessionToken: () => null,
-    timers: args.timers,
-    random: () => 0.5,
-  });
-  transport.subscribe((raw) => {
+  const transport =
+    args.transport ??
+    node.createTransport({
+      topic: `space:${args.spaceId}`,
+      module: 'space',
+      apiUrl: '',
+      identity: args.identity,
+      installId: args.installId,
+      clientId: `${commandId}-probe`,
+      getSessionToken: () => null,
+      timers: args.timers,
+      random: () => 0.5,
+    });
+  const unsubscribe = transport.subscribe((raw) => {
     frames.push((typeof raw === 'string' ? JSON.parse(raw) : raw) as Frame);
   });
   try {
     try {
-      await transport.connect();
+      if (!transport.isConnected) await transport.connect();
     } catch (cause) {
       if (!(cause instanceof Error) || cause.message !== 'not in the space')
         throw cause;
@@ -72,6 +78,7 @@ export async function answerOfRoomCommand(
         error: { type: ROOM_ERROR_TYPE.unauthorized, reason: cause.message },
       };
     }
+    await args.beforeSend?.();
     transport.sendJson({
       v: WIRE_VERSION,
       kind: ROOM_WIRE_KIND.command,
@@ -86,6 +93,7 @@ export async function answerOfRoomCommand(
     }
     throw new Error('the space room never answered the command');
   } finally {
-    transport.destroy();
+    unsubscribe();
+    if (args.transport === undefined) transport.destroy();
   }
 }

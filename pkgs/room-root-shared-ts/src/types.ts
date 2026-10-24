@@ -6,6 +6,7 @@
 import type { Keyword } from '@pkgs/keyword-shared-ts/keyword';
 import { asKeyword } from '@pkgs/keyword-shared-ts/keyword';
 import type { Message } from '@pkgs/message-shared-ts/message';
+import type { RoomLivePorts, RoomLiveSession } from './live';
 
 /**
  * Serializable room state (module-owned flat map).
@@ -79,7 +80,7 @@ export const ROOM_ERROR_TYPES: ReadonlySet<Keyword> = new Set<Keyword>([
 export type RoomError =
   | { type: typeof ROOM_ERROR_TYPE.invalidCommand; reason: string }
   | { type: typeof ROOM_ERROR_TYPE.unauthorized; reason: string }
-  | { type: typeof ROOM_ERROR_TYPE.conflict; reason: string }
+  | { type: typeof ROOM_ERROR_TYPE.conflict; reason: string; code?: string }
   | { type: typeof ROOM_ERROR_TYPE.rateLimited }
   | { type: typeof ROOM_ERROR_TYPE.internal; reason?: string };
 
@@ -133,6 +134,8 @@ export type RoomModule<
   /** Dependent readers keep authorized history while participation waits for authority. */
   connectionView?(grants: readonly string[]): RoomConnectionView;
   initialState(): S;
+  /** Instantiated only by an authoritative host with explicitly injected scheduling ports. */
+  createLive?(ports: RoomLivePorts<C>): RoomLiveSession<S, Identity>;
   handle(
     state: S,
     command: RoomCommand<C>,

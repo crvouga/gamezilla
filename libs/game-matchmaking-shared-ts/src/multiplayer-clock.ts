@@ -178,22 +178,21 @@ export function settleMultiplayerClock(
   nowMs: number,
   rules: TurnGames
 ): MultiplayerGame {
+  if (game.turn === '') return game;
   const deadline = multiplayerDeadlineMs(game);
   if (deadline === null || nowMs < deadline) return game;
   if (awaitingSetups(game))
     return endMultiplayerGame(game, 'aborted', 'setup missed');
   if (!bothHaveMoved(game))
     return endMultiplayerGame(game, 'aborted', 'first move missed');
+  const turns = rules.turnsForPosition(game.fen);
+  if (turns === undefined) return game;
   const flagged = sideToMove(game);
   const out = {
     ...game,
     ...(flagged === 'white' ? { white_ms: 0 } : { black_ms: 0 }),
   };
-  if (
-    !rules
-      .forPosition(game.fen)
-      .canWin(game.fen, flagged === 'white' ? 'black' : 'white')
-  )
+  if (!turns.canWin(game.fen, flagged === 'white' ? 'black' : 'white'))
     return endMultiplayerGame(out, 'draw', 'timeout vs insufficient material');
   return endMultiplayerGame(
     out,

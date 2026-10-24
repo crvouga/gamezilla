@@ -52,7 +52,7 @@ import {
   activeSpaceVisible,
   readSpaceLink,
 } from '@libs/spaces-harness-ts/spaces-ui-reads';
-import { gameOf } from './game-world';
+import { turnGameOf } from './game-world';
 
 export const SECOND_MS = 1_000;
 /** How long a puzzle screen may take to settle when a step names no time. */
@@ -64,7 +64,7 @@ export const puzzlePositionBeforeReviewKey = (actor: string): string =>
 
 /** The run's game's id, as its puzzles and choices are found by. */
 export function puzzleGameId(w: HarnessWorld): string {
-  return gameOf(w).shared.id;
+  return turnGameOf(w).shared.id;
 }
 
 /** Someone with puzzle progress of their own has an account: sign in if not yet. */
@@ -139,7 +139,7 @@ export function previousPuzzle(w: HarnessWorld, actor: string): string {
 
 /** The known puzzle `actor` is on, as its author wrote it. */
 export function puzzleOn(w: HarnessWorld, actor: string): PuzzleFixture {
-  return knownPuzzle(gameOf(w), currentPuzzle(w, actor));
+  return knownPuzzle(turnGameOf(w), currentPuzzle(w, actor));
 }
 
 /**
@@ -150,12 +150,12 @@ export function lineOf(
   w: HarnessWorld,
   fixture: PuzzleFixture
 ): readonly string[] {
-  return rulesTrail(gameOf(w).shared.turnGame.rules, fixture.record);
+  return rulesTrail(turnGameOf(w).shared.turnGame.rules, fixture.record);
 }
 
 /** How the game writes the line move `label` in its default notation. */
 export function writtenAs(w: HarnessWorld, label: string): string {
-  const notation = gameOf(w).client.puzzles?.notation;
+  const notation = turnGameOf(w).client.puzzles?.notation;
   const first = notation?.choices[0];
   return notation === undefined || first === undefined
     ? label
@@ -227,9 +227,9 @@ export async function enterKnownPuzzle(
   w: HarnessWorld,
   actor: string
 ): Promise<PuzzleFixture> {
-  const known = theKnownPuzzle(gameOf(w));
+  const known = theKnownPuzzle(turnGameOf(w));
   if (!w.memo.has(KNOWN_ONLY)) {
-    for (const other of knownPuzzlesOf(gameOf(w)))
+    for (const other of knownPuzzlesOf(turnGameOf(w)))
       if (other.record.id !== known.record.id)
         await w.s.apply(retireCataloguePuzzle, other.record.id);
     w.memo.set(KNOWN_ONLY, true);
@@ -339,7 +339,7 @@ export const failedPuzzlesKey = (actor: string) => `puzzle-failed:${actor}`;
 
 /** "A theme of the game's known puzzle", as the feed can be limited to it. */
 export function feedTheme(w: HarnessWorld): string {
-  return chosenFeedTheme(gameOf(w));
+  return chosenFeedTheme(turnGameOf(w));
 }
 
 /** The run's game's pool is exactly `pool`, made of its known puzzles. */
@@ -352,7 +352,7 @@ export async function writePool(
 
 /** The ids of every puzzle in the run's game's pool. */
 export async function poolIds(w: HarnessWorld): Promise<readonly string[]> {
-  return w.s.read(readCataloguePuzzles, puzzleNamespaceOfGame(gameOf(w)));
+  return w.s.read(readCataloguePuzzles, puzzleNamespaceOfGame(turnGameOf(w)));
 }
 
 /** `themes` with `theme`, or without it. */
@@ -389,7 +389,7 @@ export async function enterKnownPuzzleRated(
   actor: string,
   rating: number
 ): Promise<void> {
-  const known = theKnownPuzzle(gameOf(w));
+  const known = theKnownPuzzle(turnGameOf(w));
   await writePool(w, [{ id: known.record.id, rating }]);
   const id = await enterPuzzles(w, actor);
   // Precondition guard: the feed served it.

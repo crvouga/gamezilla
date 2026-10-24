@@ -1,8 +1,9 @@
 # Spec audit — Pong bot choice, disclosure and recovery
 
 Author review: zero blocking language/coverage findings; two B11 warnings.
-Executable verdict: INCOMPLETE pending the new disclosure binding and the
-existing finished-result observer repair. No implementation completion claimed.
+Executable verdict: PASS for the three enrollment aggregates below. The new
+disclosure binding and finished-result observer are implemented. This does not
+claim completion of Observatory policy, the full Pong brief or the full gate.
 
 Scope: choose-a-game, recognizing-synthetic-users and synthetic-user-continuity
 features and models. Observatory policy is a separate aggregate and is unchanged
@@ -44,7 +45,7 @@ contracts; no technical details enter these specifications.
 | C5 | Pong/Battleship names are borrowed and published; Games owns the game; identity remains account-based | none |
 | C6 | New disclosure model names openMultiplayer; existing choice/reopening commands remain unchanged | none |
 | D1 | Product words and model data only | none |
-| D2–D6 | Existing public harness bindings reused; new model binding intentionally pending | implementer handoff |
+| D2–D6 | Public account-identification and connection-notice reads; actions use the normal multiplayer and connection harness paths | none |
 | P1–P3 | Spec-only commit; existing bindings run before additional implementation | evidence below |
 
 The strict author gate reports only the new unbound disclosure model:
@@ -69,12 +70,25 @@ metadata accompanies this behavior-only commit in the implementation worktree.
 The offline disclosure example is run separately before binding. Its evidence
 is `.cache/pong/bot-policy-offline-disclosure-first.log`.
 
-## Handoff
+## Implementation evidence
 
-Bind disclosure to the same public identification reads as the feature, and
-read the actual connection notice. Preserve account-based identification across
-opening and connection loss; do not copy the model's expected flags.
+The disclosure binding reads the actual account-based identification for Cedar
+and Bob, and Bob's rendered missing-connection notice. The result observer reads
+the original game, actual outcome/reason and final game position. It rejects an
+aborted game as a completed result. It does not compare incidental rating copy.
 
-Repair the result observer without weakening permanent-result checks: compare
-original game, actual outcome/reason and final game position. Then run the entire
-context, all drawn model traces, bounded proofs and strict/ownership gates.
+Evidence under `.cache/pong/`:
+
+- `bot-policy-context-current.log`: the entire context passes all 59 checks.
+- `bot-policy-enrollment-all-traces.log`: all eighteen drawn six-step traces
+  across choice, disclosure and continuity pass, plus twelve model checks.
+- `bot-policy-enrollment-model-proofs.log`: the package's bounded model proofs
+  pass at their declared four-step depths.
+- `bot-policy-binding-quality.log`: the harness type and lint tasks pass.
+- `bot-policy-pong-result-semantic.log`: the previously failing finished-Pong
+  example passes with the stronger result observation.
+- `bot-policy-pause-tag-author-gate.log`: strict spec validation passes.
+
+The broader Bot Observatory aggregate still needs model coverage. Pong's pause
+example is not enrolled yet. The failed full gate remains a separate blocker;
+these scoped results do not establish release readiness.

@@ -8,6 +8,7 @@ import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import { createLogger } from '@pkgs/logger-shared-ts/logger';
 import type { PubSub } from '@pkgs/pubsub-root-shared-ts/interface';
 import { PubSubNotSupportedError } from '@pkgs/pubsub-root-shared-ts/pubsub-not-supported-error';
+import type { RoomServicePort } from '@pkgs/room-root-shared-ts/room-service';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import { createSyncApp as createSyncEngineApp } from '@pkgs/sync-engine-server-ts/create-sync-app';
 import type { MutationAuthorize } from '@pkgs/sync-engine-shared-ts/mutations-types';
@@ -53,6 +54,7 @@ export async function createSyncApp(deps: {
   readonly app: ComposedSubs;
   /** The subs' server-only mutation checks (rooms they read); none by default. */
   readonly authorizeServerMutation?: MutationAuthorize;
+  readonly rooms?: RoomServicePort;
   readonly now: () => number;
   readonly createId: () => string;
   /** Rules supplied at each mutation's selected replay judgment time. */
@@ -75,6 +77,7 @@ export async function createSyncApp(deps: {
     now: deps.now,
     createId: deps.createId,
     turnGames: deps.app.turnGames,
+    ...(deps.rooms === undefined ? {} : { rooms: deps.rooms }),
     contentRulesAt: (atMs) => deps.moderation.at(atMs),
     pubsub: createRequestScopedPubSub(),
     rowImageFanout: true,

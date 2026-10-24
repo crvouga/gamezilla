@@ -1,0 +1,4 @@
+{
+  "summary": "Clearing queued controls during interruption did not fence delayed pre-interruption frames: a tick-five sequence-one control could arrive after reconnect and move a paddle later. Persist and advance a separate input generation on interruption changes, publish its fresh fence, and reject controls from the previous fence without changing the simulation tick or RNG stream.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-session.contract.test.ts"
+}

@@ -51,7 +51,7 @@ export const TASK_BUDGET_SECONDS: Readonly<Record<string, number>> = {
   // Verify each property separately, retaining the existing 420-second allowance.
   ...Object.fromEntries(
     Array.from({ length: 16 }, (_, index) => [
-      `@libs/games-harness-ts#verify:models:9:${String(index)}`,
+      `@libs/games-harness-ts#verify:models:10:${String(index)}`,
       420,
     ])
   ),

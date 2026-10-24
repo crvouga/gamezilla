@@ -129,9 +129,17 @@ export function MultiplayerSeat(props: {
           viewer={props.viewer}
         />
       }
-      trailing={<MultiplayerClock game={props.game} side={props.side} />}
+      trailing={
+        <Show
+          when={props.game.white_ms !== null && props.game.black_ms !== null}
+        >
+          <MultiplayerClock game={props.game} side={props.side} />
+        </Show>
+      }
       dataSet={{
         testid: props.near ? 'multiplayer-seat-near' : 'multiplayer-seat-far',
+        side: props.side,
+        'profile-id': profileId(),
       }}
     />
   );

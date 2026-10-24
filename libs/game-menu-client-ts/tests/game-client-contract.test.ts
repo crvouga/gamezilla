@@ -17,7 +17,7 @@ import {
   defineGameClient,
 } from '@libs/game-menu-client-ts/game-client';
 import type { GamePuzzlesClient } from '@libs/game-puzzle-client-ts/puzzle-client';
-import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import type { PuzzlesCapability } from '@pkgs/turn-game-shared-ts/game-puzzles';
 import type { GameRules } from '@pkgs/turn-game-shared-ts/game-rules';
 
@@ -55,8 +55,8 @@ const puzzles: PuzzlesCapability = {
   marks: (_position, action) => ({ from: null, to: action }),
   isCell: (cell) => cell.length > 0,
 };
-const plain = defineTurnGame({ rules, capabilities: { history }, automation });
-const withPuzzles = defineTurnGame({
+const plain = defineGame({ rules, capabilities: { history }, automation });
+const withPuzzles = defineGame({
   rules,
   capabilities: { history, puzzles },
   automation,
@@ -79,6 +79,38 @@ const parts = {
   },
 };
 const client: GameClient = { ...parts, shared: plain };
+
+test('a timed matchmaking presentation needs its timeout description', () => {
+  const { timeoutDrawDescription: _dropped, ...presentation } =
+    parts.presentation;
+  const shared = defineGame({
+    rules,
+    automation,
+    capabilities: {
+      history,
+      matchmaking: {
+        namespace: 'race/',
+        clockChoices: true,
+        notice: {
+          side: (side) => side,
+          ending: () => undefined,
+          timeoutDraw: () => 'Drawn on time.',
+        },
+      },
+    },
+  });
+  expect(() =>
+    defineGameClient({ ...parts, shared, presentation } as GameClient)
+  ).toThrow('clock choices need presentation.timeoutDrawDescription');
+});
+
+test('a presentation without turn clocks has no timeout-copy obligation', () => {
+  const { timeoutDrawDescription: _dropped, ...presentation } =
+    parts.presentation;
+  expect(() =>
+    defineGameClient({ ...parts, shared: plain, presentation })
+  ).not.toThrow();
+});
 
 test('a presentation without its ending copy is refused at type checking', () => {
   const { endingDescription: _dropped, ...partial } = client.presentation;
@@ -135,7 +167,7 @@ test('a game offering no puzzles has no puzzles part, at type checking and when 
     // @ts-expect-error: the platform offers no puzzle screens for this game.
     defineGameClient({ ...parts, shared: plain, puzzles: puzzlesPart });
   expect(extra).toThrow(
-    'race: the client has a puzzles part but the game offers no puzzles — add capabilities.puzzles to its defineTurnGame, or leave the part out'
+    'race: the client has a puzzles part but the game offers no puzzles — add capabilities.puzzles to its defineGame, or leave the part out'
   );
   expect(defineGameClient({ ...parts, shared: plain }).puzzles).toBeUndefined();
 });

@@ -1,5 +1,9 @@
 import { customGameStartable } from '@libs/game-session-shared-ts/custom-game-state';
 import { Trans } from '@lingui/solid/macro';
+import {
+  useGamePresentation,
+  useTurnGames,
+} from '@pkgs/turn-game-client-ts/turn-games-context';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameDisclosure } from '@pkgs/ui-root-client-ts/game-disclosure';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
@@ -7,6 +11,7 @@ import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { createSignal, type JSX, Show } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
 function CustomGameTimeChoices(props: {
@@ -58,6 +63,30 @@ function CustomGameTimeChoices(props: {
         />
       </GameActions>
     </StackVertical>
+  );
+}
+
+function CustomGameRuleChoices(props: {
+  model: CustomGameScreenModel;
+}): JSX.Element {
+  const presentation = useGamePresentation();
+  const rules = useTurnGames();
+  const position = () => props.model.current()!.fen;
+  return (
+    <Show
+      when={rules.turnsForPosition(position()) !== undefined}
+      fallback={
+        <Dynamic
+          component={presentation(position()).Configuration}
+          position={position()}
+          onChoice={(choice: string) =>
+            props.model.choose({ operation: 'rules', choice })
+          }
+        />
+      }
+    >
+      <CustomGameTimeChoices model={props.model} />
+    </Show>
   );
 }
 
@@ -126,7 +155,7 @@ export function CustomGameConfiguration(props: {
           title={<Trans>Game options</Trans>}
           dataSet={{ testid: 'custom-game-options' }}
         >
-          <CustomGameTimeChoices model={props.model} />
+          <CustomGameRuleChoices model={props.model} />
         </GameDisclosure>
       </Show>
     </GameSection>

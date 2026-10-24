@@ -1,9 +1,9 @@
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import type { MultiplayerGame } from './game-state';
 import { isFinished } from './game-state';
+import { matchChoiceOf } from './match-choice';
 import { rateMultiplayerGame } from './multiplayer-rating';
 import { MultiplayerRatingRepository } from './rating-repository';
-import { timeControlOf } from './time-control';
 
 /**
  * A game that just finished with a win or a draw moves both people's rating
@@ -15,11 +15,11 @@ export async function rateFinishedGame(
   game: MultiplayerGame,
   nowMs: number
 ): Promise<MultiplayerGame> {
-  const control = timeControlOf(game.time_control);
+  const control = matchChoiceOf(game.time_control);
   if (control === null || !isFinished(game.outcome)) return game;
   const ratings = new MultiplayerRatingRepository(tx);
-  const white = await ratings.read(game.white_id, control.speed);
-  const black = await ratings.read(game.black_id, control.speed);
+  const white = await ratings.read(game.white_id, control.ratingPool);
+  const black = await ratings.read(game.black_id, control.ratingPool);
   const whiteScore =
     game.outcome === 'white' ? 1 : game.outcome === 'draw' ? 0.5 : 0;
   const nextWhite = rateMultiplayerGame(white, black, whiteScore);
@@ -28,8 +28,8 @@ export async function rateFinishedGame(
     white,
     (1 - whiteScore) as 0 | 0.5 | 1
   );
-  await ratings.write(game.white_id, control.speed, nextWhite, nowMs);
-  await ratings.write(game.black_id, control.speed, nextBlack, nowMs);
+  await ratings.write(game.white_id, control.ratingPool, nextWhite, nowMs);
+  await ratings.write(game.black_id, control.ratingPool, nextBlack, nowMs);
   return {
     ...game,
     white_rating_diff: nextWhite.rating - white.rating,

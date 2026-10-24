@@ -1,9 +1,9 @@
-import type { TurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import type { TurnGame } from '@libs/game-session-shared-ts/game-definition';
 import { isCell, SHIPS } from './battleship-board';
 import { battleshipBots } from './battleship-bot';
 import { parseFleet } from './battleship-fleet';
 
-export const battleshipAutomation: TurnGame['automation'] = {
+export const battleshipAutomation: TurnGame['turnAutomation'] = {
   choose: (position, random) =>
     battleshipBots.choose(position, 'medium', random),
   async perform(ui, board, action) {

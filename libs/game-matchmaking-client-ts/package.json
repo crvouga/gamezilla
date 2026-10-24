@@ -18,6 +18,7 @@
   "dependencies": {
     "@libs/auth-client-ts": "workspace:*",
     "@libs/game-matchmaking-shared-ts": "workspace:*",
+    "@libs/game-session-client-ts": "workspace:*",
     "@libs/game-session-shared-ts": "workspace:*",
     "@libs/moderation-client-ts": "workspace:*",
     "@libs/moderation-shared-ts": "workspace:*",

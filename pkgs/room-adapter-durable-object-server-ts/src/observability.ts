@@ -17,6 +17,26 @@ type UpgradeDetails = {
   readonly topic: string;
 };
 
+/** Rare execution failures use the room's existing root trace/export path. */
+export function observeRoomLiveError(
+  error: unknown,
+  moduleName: string
+): Promise<void> {
+  return withSpan(
+    'room.live.failure',
+    async (span) => {
+      const exception =
+        error instanceof Error ? error : new Error(String(error));
+      span.recordException(exception);
+      span.setStatus({
+        code: SpanStatusCode.ERROR,
+        message: exception.message,
+      });
+    },
+    { [ATTR.APP_ROOM_MODULE]: moduleName }
+  );
+}
+
 export async function observeRoomUpgrade(
   request: Request,
   details: UpgradeDetails,

@@ -165,6 +165,7 @@ describe('this repository', () => {
   ).scripts;
 
   test('every root command goes through Turborepo', () => {
+    // regression: ui-quality-generator-missing-root-task
     expect(rootScriptViolations({ scripts, tasks })).toEqual([]);
     expect(taskCachingViolations(tasks)).toEqual([]);
   });
@@ -195,6 +196,7 @@ describe('this repository', () => {
       'pkgs/sounds-shared-ts/src/sound-id.ts',
       'pkgs/sounds-shared-ts/src/sound-urls.ts',
       'pkgs/sounds-shared-ts/src/sound-volumes.ts',
+      'apps/product-ts/scripts/ui-quality/sources.json',
     ];
     expect(
       execFileSync('git', ['ls-files', '--', ...outputs], {
@@ -203,8 +205,12 @@ describe('this repository', () => {
       })
     ).toBe('');
     for (const output of outputs) expect(ignored).toContain(output);
-    for (const id of ['//#task:tokens:generate', '//#task:sounds:generate']) {
-      expect(scripts['generate'].split(' ')).toContain(id);
+    for (const id of [
+      '//#task:tokens:generate',
+      '//#task:sounds:generate',
+      '@libs/tools-harness-ts#generate:ui-quality-sources',
+    ]) {
+      expect(scripts['generate']?.split(' ')).toContain(id);
       for (const output of tasks[id]?.outputs ?? []) {
         expect(ignored).toContain(output);
       }
@@ -213,7 +219,7 @@ describe('this repository', () => {
 
   test('files generated at install are cached by what they are made from', () => {
     expect(scripts['generate']).toBe(
-      'turbo run //#task:tokens:generate //#task:sounds:generate @pkgs/object-store-s3-server-ts#generate:browser @libs/infra-shared-ts#generate:infra-map //#task:i18n:compile //#task:spec:catalog //#task:spec:inputs'
+      'turbo run //#task:tokens:generate //#task:sounds:generate @pkgs/object-store-s3-server-ts#generate:browser @libs/infra-shared-ts#generate:infra-map //#task:i18n:compile //#task:spec:catalog //#task:spec:inputs @libs/tools-harness-ts#generate:ui-quality-sources'
     );
     for (const id of [
       '//#task:tokens:generate',
