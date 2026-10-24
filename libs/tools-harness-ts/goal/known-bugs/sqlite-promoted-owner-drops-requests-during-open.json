@@ -1,0 +1,4 @@
+{
+  "summary": "A SharedWorker-promoted SQLite owner installed its role and change listener only after asynchronous open, dropping forwarded requests or their first notification. The role and listener are installed before opening, so requests wait on the runtime's existing open fence and retain their notifications.",
+  "regressionTest": "pkgs/sql-client-sqlite-web-client-ts/tests/shared-worker-transport.test.ts"
+}

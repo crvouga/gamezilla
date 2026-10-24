@@ -89,18 +89,20 @@ class SharedWorkerTransport implements WebSqlTransport {
       timers: this.timers,
     });
     const runtime = this.ownerRuntime;
+    // The broker already routes requests here. The runtime waits for open;
+    // keeping the old proxy role would silently discard those requests.
+    this.role = 'owner';
     try {
-      await runtime.open();
-      if (generation !== this.generation) {
-        runtime.release();
-        throw new Error('SQLite page released');
-      }
       this.unsubOwnerChanged?.();
       this.unsubOwnerChanged = runtime.onChanged((notify) => {
         this.post(notify);
         for (const listener of this.changeListeners) listener(notify);
       });
-      this.role = 'owner';
+      await runtime.open();
+      if (generation !== this.generation) {
+        runtime.release();
+        throw new Error('SQLite page released');
+      }
     } catch (error: unknown) {
       if (generation === this.generation) await this.dropOwnership();
       throw error;
