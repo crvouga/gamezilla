@@ -7,7 +7,7 @@ export async function multiplayerTopics(
   owners: readonly string[],
   db?: MutationDb
 ): Promise<readonly Topic[]> {
-  const ids = owners.filter((id) => id.length > 0);
+  const ids = [...new Set(owners.filter((id) => id.length > 0))];
   const topics: Topic[] = ids.map((id) => `user:${id}`);
   if (db !== undefined && ids.length > 0) {
     const spaces = await db.query(

@@ -1972,6 +1972,7 @@
         "@pkgs/dmn-shared-ts": "workspace:*",
         "@pkgs/gherkin-server-ts": "workspace:*",
         "@pkgs/gherkin-shared-ts": "workspace:*",
+        "@pkgs/harness-root-shared-ts": "workspace:*",
         "@pkgs/matchmaking-sql-shared-ts": "workspace:*",
         "@pkgs/message-shared-ts": "workspace:*",
         "@pkgs/openslo-shared-ts": "workspace:*",

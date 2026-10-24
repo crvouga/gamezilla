@@ -39,6 +39,16 @@ export type TopicMapEntry = {
     db?: MutationDb
   ) => readonly Topic[] | Promise<readonly Topic[]>;
   /**
+   * Resolve every captured post-image of one table together. Must return the
+   * same topic union as `topics` for those rows, including earlier owners.
+   * Allows database-backed projections to share a lookup within this capture.
+   */
+  readonly topicsForRows?: (
+    rows: readonly QueryRow[],
+    ctx: TopicMapCtx,
+    db?: MutationDb
+  ) => readonly Topic[] | Promise<readonly Topic[]>;
+  /**
    * Opt-in subscribe projection for held-row topic sync.
    * When defined, local writes to this table resync subscriptions and each
    * live row is projected. When omitted, the table never drives subscriptions
@@ -106,9 +116,11 @@ export async function topicsFromWriteCapture(args: {
     if (entry === undefined) continue;
     const images = args.capture.images[table] ?? [];
     if (images.length > 0) {
-      for (const row of images) {
-        add(await Promise.resolve(entry.topics(row, args.ctx, args.db)));
-      }
+      if (entry.topicsForRows !== undefined)
+        add(await entry.topicsForRows(images, args.ctx, args.db));
+      else
+        for (const row of images)
+          add(await entry.topics(row, args.ctx, args.db));
       continue;
     }
     if (entry.fallbackTopics !== undefined) {
