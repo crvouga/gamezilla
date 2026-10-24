@@ -40,6 +40,7 @@ export type LeaderTransport = {
 
 class LeaderTransportImpl implements LeaderTransport {
   private generation = 0;
+  private pageReleased = false;
   private readonly dbName: string;
   private readonly timers: Timers;
   private readonly tabId: string;
@@ -169,6 +170,7 @@ class LeaderTransportImpl implements LeaderTransport {
   }
 
   async connect(): Promise<ConnectResult> {
+    if (this.pageReleased) throw new Error('SQLite page released');
     if (this.connected && this.role !== null) return { role: this.role };
     const generation = this.generation;
     this.ensureChannels();
@@ -187,7 +189,7 @@ class LeaderTransportImpl implements LeaderTransport {
 
   async disconnect(): Promise<void> {
     if (!this.connected) {
-      this.leaveOnUnload();
+      this.cancelConnection();
       return;
     }
     this.connected = false;
@@ -252,6 +254,7 @@ class LeaderTransportImpl implements LeaderTransport {
     payload: RpcRequest<O>['payload'],
     opts?: { timeoutMs?: number }
   ): Promise<RpcResponse<O> extends { ok: true; result: infer R } ? R : never> {
+    if (this.pageReleased) throw new Error('SQLite page released');
     const generation = this.generation;
     try {
       return (await this.requestOnce(op, payload, opts)) as never;
@@ -280,6 +283,11 @@ class LeaderTransportImpl implements LeaderTransport {
   }
 
   leaveOnUnload(): void {
+    this.pageReleased = true;
+    this.cancelConnection();
+  }
+
+  private cancelConnection(): void {
     this.generation += 1;
     this.connected = false;
     if (this.heartbeatTimer !== null) {

@@ -120,6 +120,43 @@ describe('shared-worker transport across page loads', () => {
     delete (globalThis as { SharedWorker?: unknown }).SharedWorker;
   });
 
+  // regression: sqlite-released-page-starts-new-owner
+  test('a released page cannot reconnect or issue another database request', async () => {
+    installSharedWorker();
+    let created = 0;
+    const page = createSharedWorkerTransport({
+      dbName: 'app',
+      timers: parkedTimers,
+      workerUrl: '/db-host-shared-worker.js',
+      createOwnerRuntimeFn: ({ dbName }) => {
+        created++;
+        return stubOwnerRuntime(dbName, () => undefined);
+      },
+    });
+    await page.connect();
+    page.leaveOnUnload();
+    await expect(page.connect()).rejects.toThrow('SQLite page released');
+    await expect(
+      page.request('query', { sql: 'SELECT 1', values: [] })
+    ).rejects.toThrow('SQLite page released');
+    expect(created).toBe(1);
+  });
+
+  test('an ordinary disconnect still permits an explicit reconnect', async () => {
+    installSharedWorker();
+    const page = createSharedWorkerTransport({
+      dbName: 'app',
+      timers: parkedTimers,
+      workerUrl: '/db-host-shared-worker.js',
+      createOwnerRuntimeFn: ({ dbName }) =>
+        stubOwnerRuntime(dbName, () => undefined),
+    });
+    await page.connect();
+    await page.disconnect();
+    expect((await page.connect()).role).toBe('owner');
+    page.leaveOnUnload();
+  });
+
   // regression: sqlite-promoted-owner-drops-requests-during-open
   test('requests during owner promotion wait for the opening database', async () => {
     installSharedWorker();

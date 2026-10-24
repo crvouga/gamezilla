@@ -46,6 +46,7 @@ export type WebSqlTransport = {
 
 class SharedWorkerTransport implements WebSqlTransport {
   private generation = 0;
+  private pageReleased = false;
   private readonly dbName: string;
   private readonly timers: Timers;
   private readonly workerUrl: string;
@@ -175,6 +176,7 @@ class SharedWorkerTransport implements WebSqlTransport {
   }
 
   async connect(): Promise<ConnectResult> {
+    if (this.pageReleased) throw new Error('SQLite page released');
     if (this.connected && this.role !== null) return { role: this.role };
     const generation = this.generation;
     this.worker = new SharedWorker(this.workerUrl, {
@@ -221,7 +223,7 @@ class SharedWorkerTransport implements WebSqlTransport {
 
   async disconnect(): Promise<void> {
     if (!this.connected) {
-      this.leaveOnUnload();
+      this.cancelConnection();
       return;
     }
     this.connected = false;
@@ -262,6 +264,11 @@ class SharedWorkerTransport implements WebSqlTransport {
   }
 
   leaveOnUnload(): void {
+    this.pageReleased = true;
+    this.cancelConnection();
+  }
+
+  private cancelConnection(): void {
     this.generation += 1;
     this.connected = false;
     this.rejectAllPending(new Error('SQLite page released'));
@@ -290,6 +297,7 @@ class SharedWorkerTransport implements WebSqlTransport {
     payload: RpcRequest<O>['payload'],
     opts?: { timeoutMs?: number }
   ): Promise<unknown> {
+    if (this.pageReleased) throw new Error('SQLite page released');
     if (this.role === 'owner' && this.ownerRuntime !== null) {
       const response = await this.ownerRuntime.handleRequest({
         id: this.nextId(),

@@ -3,6 +3,7 @@ import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { createLeaderTransport } from '@pkgs/sql-client-sqlite-web-client-ts/db-host-leader';
 
 // regression: sqlite-leader-lock-arrives-after-page-unload
+// regression: sqlite-released-page-starts-new-owner
 test('a Web Lock granted after unload cannot create a leader or retain the lock', async () => {
   const previousNavigator = Object.getOwnPropertyDescriptor(
     globalThis,
@@ -11,6 +12,7 @@ test('a Web Lock granted after unload cannot create a leader or retain the lock'
   const previousChannel = globalThis.BroadcastChannel;
   let grant: ((lock: Lock) => Promise<void> | undefined) | undefined;
   let created = 0;
+  let requests = 0;
   let released = false;
   const locks = {
     request: (
@@ -18,6 +20,7 @@ test('a Web Lock granted after unload cannot create a leader or retain the lock'
       _options: unknown,
       callback: (lock: Lock) => Promise<void> | undefined
     ) => {
+      requests++;
       grant = callback;
       return Promise.resolve();
     },
@@ -55,6 +58,12 @@ test('a Web Lock granted after unload cannot create a leader or retain the lock'
     expect(created).toBe(0);
     expect(released).toBe(true);
     expect(transport.isOwner()).toBe(false);
+    const again = transport.connect().then(
+      () => null,
+      (error) => error
+    );
+    expect(requests).toBe(1);
+    expect(await again).toBeInstanceOf(Error);
   } finally {
     transport.leaveOnUnload();
     Reflect.set(globalThis, 'BroadcastChannel', previousChannel);
