@@ -177,11 +177,14 @@ terms:
 
   - term: under way
     definition: >-
-      A custom game that has started and is not finished yet. Its sides and
-      clock choice can no longer change, and nobody may take or give up a
-      side.
-    forms: [remains under way]
-    model: [UnderWay]
+      A custom game that has started and is not finished yet, or a matched
+      game whose play has begun and which is not over. A matched game with
+      turns is under way once both people have made their first move; in a
+      game without turns, the game's own beginning of play decides. A custom
+      game's sides and clock choice can no longer change, and nobody may
+      take or give up a side.
+    forms: [remains under way, gets under way]
+    model: [UnderWay, playBegins]
     published: true
 
   - term: cancelled
@@ -387,15 +390,15 @@ terms:
   - term: resign
     definition: >-
       Give up a game under way, which gives the opponent the victory. In a
-      matched game, resigning is refused until both people have made their
-      first move, and the person is told to abort instead; from then on
-      either person may resign, whoever's turn it is, and resigning again
-      keeps the result. Leaving the space resigns a participant's side of a
+      matched game, resigning is refused before it is under way, and the
+      person is told to abort instead. Once it is under way either person
+      may resign, whoever's turn it is when there are turns, and resigning
+      again keeps the result. Leaving the space resigns a participant's side of a
       custom game under way, and a finished custom game takes no
       resignation.
     forms: [resigns, resigned, resigning, resignation]
     avoid: [forfeit, concede, quit]
-    model: [resignGame, resignCustomGame]
+    model: [resignGame, resignCustomGame, resignOffered]
 
   - term: matched game
     definition: >-
@@ -410,13 +413,13 @@ terms:
 
   - term: abort
     definition: >-
-      Stop a matched game before both people have made their first move.
-      Either person may abort until then. An aborted matched game is over
+      Stop a matched game before it is under way. Either person may abort
+      until then. An aborted matched game is over
       with no result, changes nobody's rating, has no rematch, and frees both
       people to seek an opponent again; aborting it again changes nothing.
     forms: [aborts, aborted, aborting, can no longer be aborted]
     avoid: [void]
-    model: [abortGame, AbortedPlay, AbortedGame]
+    model: [abortGame, AbortedPlay, AbortedGame, abortOffered]
 
   - term: miss the first move
     definition: >-
