@@ -674,8 +674,9 @@ The following remain required before the brief is complete:
    spectator delivery also have current probes.
 4. Product Gherkin, Quint and glossary, audited spec-only commits, deterministic
    adverse-network campaigns and full local/online end-to-end journeys.
-5. Produce reproducible production failure artifacts and measure performance
-   and bandwidth.
+5. Measure performance and bandwidth. Bounded deterministic failure records now
+   travel through the existing root error traces; see
+   [failure reproduction](#failure-reproduction).
 6. Readiness evidence, automated responsive visual verification, the full current
    `bun verify` gate and appropriate deeper verification, and a reviewable PR.
 
@@ -1202,3 +1203,50 @@ and `prediction-error-policy.log` passes goals, spec ownership and package namin
 `pong-after-prediction-error-all-traces.log` passes all 108 whole-context checks
 with `QUINT_REPLAY_TRACES=all` (51.93 s test body, 61.021 s task). Full current
 Verify and hosted/browser evidence remain required.
+
+## Failure reproduction
+
+`SimulationFailure` now carries the `simulation-step.v1` replay record through
+the existing root error infrastructure. It contains execution options and seed,
+the last committed tick/state/acknowledgments, and the literal queued human
+inputs. A session also supplies a recognized position identifying its registered
+mechanics and the bot sides/difficulties. This host context matters because bot
+inputs are generated inside the step, after the human-input mailbox is captured.
+Replay restores `before`, selects the recorded build's registered mechanics,
+wraps its step with the saved bot recipe, enqueues the saved inputs and advances
+one tick. The per-tick seeded stream reproduces both bot choices and mechanics
+randomness without a journal of prior ticks.
+
+The root [replay contract](../../../pkgs/observability-root-shared-ts/README.md#reproducible-failures)
+bounds and validates the data before attaching it to an existing error trace.
+It adds no per-tick span, report store or product API. Plain logger JSON does
+not include the replay data; the trace does. Existing browser, room-authority,
+`withSpan` and root diagnostic boundaries retain ordinary exception recording.
+Local execution now forwards its original exception through the injected logger,
+while preserving its recovery flag and saved game even if the logger throws.
+
+Three literal regressions are pinned in the known-bug directory:
+`simulation-failure-reproduction-lost-in-telemetry` (tick one, input four),
+`simulation-failure-reproduction-loses-bot-context` (a medium bot on tick two),
+and `local-simulation-failure-not-observed` (the original saved-game read error
+`saved race temporarily unreadable`). Their red logs are
+`failure-reproduction-red.log`, `failure-reproduction-bots-red.log` and
+`framework-local-failure-red.log` under `.cache/pong/`.
+
+`failure-reproduction-framework-final-tests.log` passes all eight affected test
+tasks at `PBT_NUM_RUNS=200`. The real injected HTTP OTLP exporter preserves and
+replays both one input and a full 256-input queue, including a record larger than
+16 KiB. The bot regression reconstructs the registered step and reproduces the
+same second-tick exception. Contract properties cover UTF8 limits and round trips;
+examples cover sensitive fields, unsupported values, original causes, ordinary
+logs, existing browser/authority boundaries and a throwing local diagnostic sink.
+The client hook uses the framework's counting-race example, keeping private
+framework APIs outside Pong. `failure-reproduction-framework-final-types.log`
+passes all 114 dependent type tasks, and
+`failure-reproduction-framework-final-lint.log` passes all ten affected lint tasks.
+Goals, spec ownership and package naming pass in
+`failure-reproduction-framework-final-policy.log`.
+`pong-after-failure-reproduction-all-traces.log` passes all 108 whole-context
+checks with `QUINT_REPLAY_TRACES=all` (57.08 s test body, 67.095 s task).
+These automated in-process and exporter checks do not establish a hosted
+production ingestion or full Verify verdict.

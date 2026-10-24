@@ -1,0 +1,4 @@
+{
+  "summary": "A local counting-race saved-game read fails with the original error 'saved race temporarily unreadable'. The shared board hook sets its failure flag but discards that exception, so the root logger and trace boundary never receive it. Forward the original exception through the injected logger while preserving the stopped-game state, saved choices and cleanup.",
+  "regressionTest": "libs/game-session-client-ts/tests/local-failure.test.tsx"
+}

@@ -8,7 +8,10 @@ import {
 import { extractRequestContext } from '@pkgs/observability-root-server-ts/worker-worker';
 import { ATTR } from '@pkgs/observability-root-shared-ts/attributes';
 import { linkFromTraceparent } from '@pkgs/observability-root-shared-ts/correlation';
-import { withSpan } from '@pkgs/observability-root-shared-ts/span';
+import {
+  recordException,
+  withSpan,
+} from '@pkgs/observability-root-shared-ts/span';
 
 import type { WsMeta } from './hibernation-restore';
 
@@ -27,7 +30,7 @@ export function observeRoomLiveError(
     async (span) => {
       const exception =
         error instanceof Error ? error : new Error(String(error));
-      span.recordException(exception);
+      recordException(span, exception);
       span.setStatus({
         code: SpanStatusCode.ERROR,
         message: exception.message,
@@ -93,7 +96,7 @@ export async function observeRoomError<Identity>(
       (span) => {
         const exception =
           error instanceof Error ? error : new Error(String(error));
-        span.recordException(exception);
+        recordException(span, exception);
         span.setStatus({
           code: SpanStatusCode.ERROR,
           message: exception.message,

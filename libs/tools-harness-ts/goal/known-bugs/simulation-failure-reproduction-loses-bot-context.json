@@ -1,0 +1,4 @@
+{
+  "summary": "A counting-race bot fails on tick two after choosing a seeded medium-difficulty input. Its engine input queue is empty because bot controls are generated inside the wrapped step, and the failure omits the game's registration and bot recipe. Include a valid game position for identifying mechanics plus bot seats and difficulty, then replay from the actual tick-one checkpoint with the same tick-local random draws.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-failure-bots.test.ts"
+}

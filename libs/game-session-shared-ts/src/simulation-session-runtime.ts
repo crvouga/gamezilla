@@ -20,6 +20,7 @@ import { SimulationAuthority } from './simulation-authority';
 import { withSimulationBots } from './simulation-bots';
 import { rebaseSimulationCommand } from './simulation-command-state';
 import { FixedStepSimulation } from './simulation-engine';
+import { SimulationFailure } from './simulation-failure';
 import {
   RecoverSimulation,
   recoverSimulation,
@@ -422,7 +423,11 @@ export class SessionSimulation implements RoomLiveSession<RoomState, string> {
     const execution = recovered?.execution ?? view.execution;
     const position = recovered?.position ?? view.position;
     this.stop();
-    this.ports.onError(error);
+    this.ports.onError(
+      error instanceof SimulationFailure
+        ? error.withSession({ position: view.position, bots: view.bots })
+        : error
+    );
     if (execution === undefined) return;
     const abandoned: SimulationExecution = {
       ...execution,

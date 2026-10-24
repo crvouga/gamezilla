@@ -4,6 +4,7 @@ import type { CustomGame } from '@libs/game-session-shared-ts/custom-game-state'
 import { useSpaceOpenRoomEntry } from '@libs/spaces-client-ts/space-open-rooms-store';
 import { useSpaceRoomSessionId } from '@libs/spaces-client-ts/space-room-context';
 import { useClock, useTimers } from '@pkgs/clock-client-ts/solid';
+import { useLogger } from '@pkgs/logger-client-ts/solid';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
 import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
@@ -29,6 +30,7 @@ export function useCustomSimulation(
   const clock = useClock();
   const timers = useTimers();
   const createId = useCreateId();
+  const logger = useLogger('local-simulation');
   const [position, setPosition] = createSignal<string | null>(null);
   const [paused, setPaused] = createSignal(true);
   const [stale, setStale] = createSignal(true);
@@ -60,7 +62,14 @@ export function useCustomSimulation(
         setPaused(next.paused);
         setStale(next.stale);
       },
-      failed: () => setError(true),
+      failed: (error) => {
+        setError(true);
+        try {
+          logger.error('The local simulation stopped', { error });
+        } catch {
+          // Recovery remains available when the diagnostic sink fails.
+        }
+      },
     });
     connection = next;
     onCleanup(() => {

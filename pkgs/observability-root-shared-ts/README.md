@@ -81,6 +81,38 @@ implement an identity-link graph, consent storage, cohorts or an event store.
 
 ## Runtime and privacy limits
 
+### Reproducible failures
+
+An operation can extend `ReproducibleError` from `reproducible-error` and supply
+an explicit `{ format, value }` replay record alongside its original cause.
+This is a pure typed contract: constructing it records no span or log. Existing
+root `withSpan`, diagnostic-log, browser and room-authority boundaries attach
+its diagnostic to their error span. A boundary recording an exception directly
+uses `recordException` from `span`. Domain code still does not import recording
+APIs. Diagnostic fields are nonenumerable so ordinary error serialization does
+not accidentally copy replay bytes into logs.
+
+`app.error.reproduction` contains complete JSON only when
+`app.error.reproduction.status` is `available`; the accompanying
+`app.error.reproduction.format` identifies its schema. The record is bounded to
+65,536 UTF8 bytes, 4,096 visited values and depth 32. Only plain JSON values are
+accepted. Accessors, cycles, holes, nonfinite numbers and coercions such as
+`Date` or `Map` are refused. Credential-named fields or text that the diagnostic
+redactor would alter omit the entire record. Omission leaves an explicit
+`too_large`, `unsupported` or `redacted` status and preserves the normal
+exception; no truncated or altered record is presented as replayable.
+
+Replay data travels on traces, whose approved attribute limit permits this
+bounded record. The independent log signal retains its existing 512-character
+limit and carries ordinary exception details without replay bytes. Read the
+full trace with `bun obs trace <trace-id> --source prod --json` and inspect its
+error span's attributes. Replay against the recorded build and the format's
+own mechanics. Telemetry remains best effort: absence of an exported trace is
+not proof that execution succeeded. The contract stores no per-tick history
+and adds no report store or product reporting surface.
+
+### Signal delivery
+
 Browser and Node signals batch through the official SDK. Workers use injected
 HTTP and timers for bounded OTLP acknowledgements and flush metrics at
 invocation boundaries instead of scheduling an interval. `flushWith` hands all

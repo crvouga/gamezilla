@@ -33,12 +33,14 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@opentelemetry/api": "catalog:",
     "@libs/app-config-shared-ts": "workspace:*",
     "@libs/billing-shared-ts": "workspace:*",
     "@pkgs/db-schema-root-shared-ts": "workspace:*",
     "@pkgs/db-schema-sqlite-shared-ts": "workspace:*",
     "@pkgs/matchmaking-sql-shared-ts": "workspace:*",
     "@pkgs/outbox-shared-ts": "workspace:*",
+    "@pkgs/observability-root-server-ts": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",
     "@pkgs/room-adapter-memory-shared-ts": "workspace:*",
     "@pkgs/room-adapter-web-shared-ts": "workspace:*",
