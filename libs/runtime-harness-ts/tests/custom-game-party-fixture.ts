@@ -10,10 +10,12 @@ const game = QUORIDOR_HILL_PLAYABLE;
 const rules = game.shared.turnGame.rules;
 
 /** The peer sees both bot replies before its previous move reaches the host. */
-export function delayedPartyHost() {
+export function delayedPartyHost(
+  mode: 'ordinary' | 'reviewed' | 'rebased' = 'ordinary'
+) {
   const moves: string[] = [];
   const players: string[] = [];
-  let view: PublicCustomGame = {
+  let view: Omit<PublicCustomGame, 'canMove'> = {
     position: rules.initial(),
     status: 'active',
     turn: 'white',
@@ -21,6 +23,41 @@ export function delayedPartyHost() {
     ply: 0,
   };
   let hostView = view;
+  let reviewing: number | null = null;
+  let reviewed = false;
+  let returnsLive = 0;
+  let rebased = false;
+  let ready = true;
+  const read = (actor: 'white' | 'black'): string => {
+    const shown = actor === 'white' ? hostView : view;
+    if (mode === 'reviewed' && !reviewed && shown.ply === 16) {
+      reviewed = true;
+      reviewing = 15;
+    }
+    const snapshot = JSON.stringify({
+      ...shown,
+      position:
+        reviewing === null ? shown.position : rules.replay(moves, reviewing),
+      canMove:
+        ready &&
+        shown.status === 'active' &&
+        reviewing === null &&
+        shown.turn === actor,
+    });
+    if (mode === 'rebased' && !rebased && shown.ply === 16) {
+      const prefix = moves.slice(0, 15);
+      const position = rules.replay(prefix, prefix.length);
+      const action = game.shared.automation.choose(position, () => 0.75);
+      const next = rules.play(position, action!, prefix.join(','), prefix);
+      if (next === null)
+        throw new Error('The authoritative bot move is illegal');
+      moves[15] = action!;
+      view = { ...view, position: next.position };
+      hostView = view;
+      rebased = true;
+    }
+    return snapshot;
+  };
   const accept = (action: string): void => {
     const next = rules.play(view.position, action, moves.join(','), moves);
     if (next === null) throw new Error(`Illegal party move ${action}`);
@@ -38,11 +75,22 @@ export function delayedPartyHost() {
     players.push(actor);
     accept(action);
     while (view.status === 'active' && ['red', 'blue'].includes(view.turn)) {
-      const bot = game.shared.automation.choose(view.position, () => 0.25);
+      const bot = game.shared.automation.choose(view.position, () =>
+        mode === 'reviewed' && view.ply === 15 ? 0.75 : 0.25
+      );
       if (bot === null) throw new Error('Bot has no action');
       accept(bot);
     }
     if (actor === 'white') hostView = view;
+  };
+  const waitFor = (actor: 'white' | 'black', id: string): void => {
+    if (view.turn !== actor) throw new Error(`It is ${view.turn}'s turn`);
+    if (!ready) throw new Error('The board is not ready for input');
+    if (reviewing !== null) throw new Error('The reviewed board is read-only');
+    if (!id.startsWith('custom-game-board-action-')) return;
+    const action = id.slice('custom-game-board-action-'.length);
+    if (!rules.legal(view.position).includes(action))
+      throw new Error(`${action} is disabled on the current board`);
   };
   const driver = (actor: 'white' | 'black'): Driver => ({
     kind: 'delayed-party',
@@ -52,10 +100,13 @@ export function delayedPartyHost() {
     snapshotHtml: unused,
     get: (id) =>
       partyNode(id, {
-        read: () => JSON.stringify(actor === 'white' ? hostView : view),
-        wait: () => {
-          if (view.turn !== actor) throw new Error(`It is ${view.turn}'s turn`);
+        read: () => read(actor),
+        tap: () => {
+          if (id !== 'custom-game-review-live') return unused();
+          reviewing = null;
+          returnsLive++;
         },
+        wait: () => waitFor(actor, id),
         key: () => {
           if (id.startsWith('custom-game-board-action-'))
             play(actor, id.slice('custom-game-board-action-'.length));
@@ -72,7 +123,20 @@ export function delayedPartyHost() {
     act: async (_name, gestures) => gestures(driver('white')),
     actAsGuest: async (_name, gestures) => gestures(driver('black')),
   };
-  return { host, players, moves };
+  return {
+    host,
+    players,
+    moves,
+    returnsLive: () => returnsLive,
+    rebased: () => rebased,
+    setReady: (value: boolean) => {
+      ready = value;
+    },
+    externalMove: (action: string) => {
+      accept(action);
+      hostView = view;
+    },
+  };
 }
 
 function unused(): never {
@@ -83,6 +147,7 @@ function partyNode(
   id: string,
   actions: {
     read(): string;
+    tap(): void;
     wait(): void;
     key(): void;
     visible(): void;
@@ -94,7 +159,7 @@ function partyNode(
       if (id !== 'custom-game-public') return unused();
       return actions.read();
     },
-    tap: unused,
+    tap: async () => actions.tap(),
     tapAt: unused,
     drag: unused,
     layout: unused,

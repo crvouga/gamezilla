@@ -1,0 +1,4 @@
+{
+  "summary": "The party journey retained the observer's position across acting-device activation. After the exact recorded 15-move Hill prefix, bot draw 0.25 chooses g6 and draw 0.75 chooses f5. South chooses f5 from provisional g6, but that square is occupied after the authoritative f5 rebase. Re-read the acting device's ready current position before choosing, without replaying a stale gesture.",
+  "regressionTest": "libs/runtime-harness-ts/tests/custom-game-party-journey.test.ts"
+}

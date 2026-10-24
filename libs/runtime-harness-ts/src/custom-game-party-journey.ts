@@ -3,6 +3,10 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { type GameSide, gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import {
+  playCustomGamePartyTurn,
+  readPublicCustomGame,
+} from './custom-game-party-turn';
+import {
   check,
   endActiveSpace,
   hostSpace,
@@ -18,23 +22,8 @@ export type PublicCustomGame = {
   readonly turn: GameSide;
   readonly outcome: string;
   readonly ply: number;
+  readonly canMove: boolean;
 };
-
-/** One rendered snapshot, so consecutive bot turns cannot tear the observation. */
-async function publicGame(ui: Driver): Promise<PublicCustomGame> {
-  const raw = await ui.get('custom-game-public').attribute('data-state');
-  check(raw !== null, 'The custom game has no public board state');
-  const value = JSON.parse(raw) as PublicCustomGame;
-  check(
-    typeof value.position === 'string' &&
-      typeof value.status === 'string' &&
-      typeof value.turn === 'string' &&
-      typeof value.outcome === 'string' &&
-      Number.isInteger(value.ply),
-    'The public custom game is incomplete'
-  );
-  return value;
-}
 
 async function createParty(ui: Driver, game: PlayableGame): Promise<void> {
   await tap(ui, Handles.gameMenu(game.shared.id));
@@ -87,6 +76,7 @@ export async function completeCustomGameParty(
   game: PlayableGame
 ): Promise<PublicCustomGame> {
   const sides = gameSides(game.shared.turnGame.rules);
+  const progress = { returnedLiveAt: null as number | null };
   let acceptedPly = 0;
   for (let step = 0; step < 400; step++) {
     let view: PublicCustomGame | undefined;
@@ -95,7 +85,7 @@ export async function completeCustomGameParty(
         await ui
           .get(`custom-game-review-move-${acceptedPly}`)
           .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
-      view = await publicGame(ui);
+      view = await readPublicCustomGame(ui);
     });
     check(view !== undefined, 'The party game did not open');
     const current: PublicCustomGame = view;
@@ -114,24 +104,8 @@ export async function completeCustomGameParty(
     }
     const act = seat === 0 ? host.act : host.actAsGuest;
     await act('playPartyMove', async (ui) => {
-      if (current.ply > 0)
-        await ui
-          .get(`custom-game-review-move-${current.ply}`)
-          .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
-      const action = game.shared.automation.choose(
-        current.position,
-        () => 0.25
-      );
-      check(
-        action !== null,
-        'The active participant has no automated legal action'
-      );
-      await game.shared.automation.perform(ui, 'custom-game-board', action);
-      await ui
-        .get(`custom-game-review-move-${current.ply + 1}`)
-        .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+      acceptedPly = await playCustomGamePartyTurn(ui, game, current, progress);
     });
-    acceptedPly = current.ply + 1;
   }
   throw new Error('The party game did not finish within 400 accepted turns');
 }
@@ -165,7 +139,7 @@ export async function observeCustomGamePartyJourney(
     await ui
       .get(`custom-game-review-move-${finished.ply}`)
       .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
-    const view = await publicGame(ui);
+    const view = await readPublicCustomGame(ui);
     check(
       view.status === 'completed' &&
         view.position === finished.position &&

@@ -1,0 +1,4 @@
+{
+  "summary": "The party journey chose from a reviewed position while its turn and move count described the live game. At review 15/live 16 it chose a bot's move on South's read-only board. Activate the acting device, return its reviewed board to the current position, and read its ready state before deciding. This pins a real harness hazard; the available CI failure did not retain enough metadata to prove that it had entered review.",
+  "regressionTest": "libs/runtime-harness-ts/tests/party-journey-review-contract.test.ts"
+}
