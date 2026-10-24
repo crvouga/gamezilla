@@ -45,6 +45,21 @@ function gate(source: string, fixture: string | null = history) {
 }
 
 describe('canonical Quint regression proof', () => {
+  test('nested Quint world types retain a literal regression registration', () => {
+    // regression: known-bug-gate-rejects-nested-quint-world
+    expect(
+      gate(
+        binding.replace('bindQuintModel<World>(', 'bindQuintModel<Run<World>>(')
+      )
+    ).toEqual([]);
+  });
+  test('an unclosed nested world type cannot satisfy a literal registration', () => {
+    expect(
+      gate(
+        binding.replace('bindQuintModel<World>(', 'bindQuintModel<Run<World>(')
+      )
+    ).not.toEqual([]);
+  });
   test('a registered literal history guards the concrete failing input', () => {
     // regression: known-bug-gate-rejects-pinned-quint
     expect(gate(binding)).toEqual([]);
