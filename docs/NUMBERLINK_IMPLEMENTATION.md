@@ -426,3 +426,30 @@ inferred from this ledger or from a narrow test run.
   CI and person-facing readiness attestations remain unchecked. Local full
   Verify has reached its overall deadline while caching completed tasks and
   must still finish; no deadline or assertion was relaxed.
+- After restoring the declared query budgets and fixing bound-parameter
+  analysis, all five targeted nightly-profile tasks passed again: seven
+  models, 168 drawn histories and five pinned histories. That result precedes
+  the subsequent uploader change described below.
+- The compiled production bundle reached the complete authoring workflows.
+  It exposed two journey navigation defects: reopening a space can start at
+  Games rather than the Numberlink library, and publication cleanup reloaded
+  an already open library before sampling its controls. Saved-work navigation
+  now selects Numberlink when needed; cleanup keeps its current location.
+  Literal control-plane regressions cover both, and cleanup failures capture
+  the failing screen before later cleanups navigate away.
+- Production database profiling also found requests with up to 237 statements
+  and a 233-statement uninterrupted transaction, beyond the existing 180/100
+  limits. The uploader now drains at most four ordered mutations per request
+  instead of using the protocol's 64-mutation acceptance bound as its target.
+  The eight-write backlog regression failed with one eight-write request and
+  passes with short batches, preserving every write and its order. No database
+  budget, protocol acceptance bound or mutation atomicity was changed.
+- Twelve affected package tasks passed after these fixes. The complete
+  production discovery scenario, including publication cleanup, then passed.
+  Full Verify's startup cleanup interrupted the standalone runs before the
+  other three current production journeys completed; those runs are not a
+  passing suite or database-budget verdict. The newest cleanup example passes
+  with typecheck and lint; its package's nested multiplayer runner exceeded
+  its existing 60-second limit during concurrent verification. Renewed full
+  Verify, complete journey suites and the post-uploader deeper profile remain
+  required. The current full run uses a frozen checkout and unchanged limits.
