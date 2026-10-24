@@ -28,6 +28,7 @@ import type { PostgresSqlClient } from '@pkgs/sql-client-root-shared-ts/interfac
 import type { PostgresDbScope } from '@pkgs/sql-client-root-shared-ts/postgres-db-scope';
 import { quotePgIdent } from '@pkgs/sql-client-root-shared-ts/postgres-db-scope';
 import { Client as PgClient, Pool as PgPool } from 'pg';
+import { createPgClientSession } from './pg-client-session';
 
 /** Extra `pg.Client` knobs that standalone tools occasionally need. */
 export type PgClientOptions = {
@@ -83,10 +84,12 @@ export async function openPgClient(
   const pinSearchPathEachQuery = postgresRejectsStartupSearchPathOption(
     args.connectionString
   );
-  const client = new PgClient({
-    connectionString: sanitizePostgresUrlForNodePg(args.connectionString),
-    ...args.clientOptions,
-  });
+  const client = createPgClientSession(
+    new PgClient({
+      connectionString: sanitizePostgresUrlForNodePg(args.connectionString),
+      ...args.clientOptions,
+    })
+  );
   await client.connect();
   if (args.ensureSchema === true && args.dbScope.schema !== 'public') {
     await client.query(

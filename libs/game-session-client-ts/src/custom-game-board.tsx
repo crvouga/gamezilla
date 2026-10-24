@@ -162,6 +162,19 @@ export function CustomGameRecord(props: BoardProps): JSX.Element {
   );
 }
 
+/** One public render snapshot, so automated observers never combine different turns. */
+function publicBoardState(props: BoardProps, canMove: boolean): string {
+  const current = props.model.current();
+  return JSON.stringify({
+    position: props.review.fen(),
+    status: current?.status ?? '',
+    turn: current?.turn ?? '',
+    outcome: current?.outcome ?? '',
+    ply: current?.moves.length ?? 0,
+    canMove,
+  });
+}
+
 /**
  * The board. Once the game is under way the two seats sit around it, the
  * person's own side nearest them; while it is set up the seats are in the
@@ -188,12 +201,29 @@ export function CustomGameBoard(props: BoardProps): JSX.Element {
   };
   return (
     <GameBoardStage
+      dataSet={{
+        testid: 'custom-game-public',
+        state: publicBoardState(props, interactive()),
+        fen: props.review.fen(),
+        status: props.model.current()?.status ?? '',
+        turn: props.model.current()?.turn ?? '',
+        outcome: props.model.current()?.outcome ?? '',
+        ply: String(props.model.current()?.moves.length ?? 0),
+        canmove: String(interactive()),
+      }}
       top={
         seated() ? (
-          <CustomGameSeat
-            model={props.model}
-            side={near() === 'white' ? 'black' : 'white'}
-          />
+          <StackVertical gap="sm">
+            <For
+              each={
+                props.model
+                  .current()
+                  ?.sides.filter((side) => side !== near()) ?? []
+              }
+            >
+              {(side) => <CustomGameSeat model={props.model} side={side} />}
+            </For>
+          </StackVertical>
         ) : undefined
       }
       bottom={

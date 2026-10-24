@@ -17,6 +17,8 @@ import {
   type TraceVariant,
 } from '@pkgs/quint-shared-ts/registry';
 import { DEFAULT_REPLAY_TRACES } from '@pkgs/quint-shared-ts/wall';
+import lockedHistory from './fixtures/parameterized-locked.itf.json';
+import unlockedHistory from './fixtures/parameterized-unlocked.itf.json';
 
 type Door = { locked: boolean; online: boolean };
 const MODEL = 'parameterized-door';
@@ -35,6 +37,22 @@ export function registerParameterizedReplays(host: {
     model: MODEL,
     traces: 16,
     maxSteps: 12,
+    regressions: [
+      {
+        id: 'unlocked-input',
+        title: 'A history from the unlocked input',
+        seed: '0x67932',
+        parameters: { LOCKED: false },
+        itf: unlockedHistory,
+      },
+      {
+        id: 'locked-input',
+        title: 'A history from the locked input',
+        seed: '0x67932',
+        parameters: { LOCKED: true },
+        itf: lockedHistory,
+      },
+    ],
     actions: {
       init: async () => {},
       toggle: async (door) => {
@@ -109,6 +127,7 @@ function registerChecks(input: {
     );
     expect(planned).toBeGreaterThanOrEqual(9);
   });
+  registerScopeChecks(input, instances);
   test('missing parameters and duplicate subjects cannot silently share another verdict', () => {
     try {
       host.setVariants([{ id: 'missing', label: 'missing' }]);
@@ -119,6 +138,50 @@ function registerChecks(input: {
       expect(() =>
         modelInstances({ specPath: FIXTURE, specUri: SPEC_URI, model: MODEL })
       ).toThrow('duplicate model variant');
+    } finally {
+      host.setVariants(host.variants);
+    }
+  });
+}
+
+function registerScopeChecks(
+  input: Parameters<typeof registerChecks>[0],
+  instances: ReturnType<typeof drawModelInstances>
+): void {
+  const { host, out, binding } = input;
+  test('each scoped history runs only for its matching input and contributes to its plan', () => {
+    const ids = new Set(
+      readEvidence(out).records.flatMap((record) =>
+        record.obligations.map((item) => item.id)
+      )
+    );
+    for (const variant of host.variants) {
+      const selected = variant.parameters?.['LOCKED']
+        ? 'locked-input'
+        : 'unlocked-input';
+      const other =
+        selected === 'locked-input' ? 'unlocked-input' : 'locked-input';
+      expect(ids.has(`regression:${selected} [${variant.id}]`)).toBe(true);
+      expect(ids.has(`regression:${other} [${variant.id}]`)).toBe(false);
+    }
+    const plan = instancesReplayPlan(instances, binding);
+    if (!('instances' in plan)) throw new Error('Missing parameter instances');
+    expect(plan.instances.map((instance) => instance.plan.regressions)).toEqual(
+      [1, 1]
+    );
+  });
+  test('unsupported scopes fail before drawing any histories', () => {
+    try {
+      host.setVariants([host.variants[0]!]);
+      expect(() =>
+        drawModelInstances({
+          specPath: FIXTURE,
+          specUri: SPEC_URI,
+          model: MODEL,
+          binding,
+          outDir: join(out, 'unsupported'),
+        })
+      ).toThrow('no registered model case');
     } finally {
       host.setVariants(host.variants);
     }

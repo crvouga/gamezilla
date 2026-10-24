@@ -1,4 +1,3 @@
-import { matchmakingSchema } from '@pkgs/matchmaking-sql-shared-ts/tables';
 /**
  * Reconcile a fresh harness database for exactly the subs a composition runs.
  *
@@ -8,22 +7,16 @@ import { matchmakingSchema } from '@pkgs/matchmaking-sql-shared-ts/tables';
 
 import { appPostgresDbScope } from '@libs/db-shared-ts/scope';
 import type { ComposedSubs } from '@libs/sub-shared-ts/compose';
-import { assert } from '@pkgs/assert-root-shared-ts/singleton';
-import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse-server-ts/inhouse-auth-provider';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared-ts/reconcile-postgres-schema';
-import { reconcileEntityStorePostgres } from '@pkgs/entity-store-shared-ts/reconcile-postgres';
 import { reconcileEntityStoreSqlite } from '@pkgs/entity-store-shared-ts/reconcile-sqlite';
-import { reconcileKvPostgres } from '@pkgs/kv-postgres-shared-ts/reconcile-postgres';
 import { reconcileKvSqlite } from '@pkgs/kv-root-shared-ts/reconcile-sqlite';
-import { createLogger } from '@pkgs/logger-shared-ts/logger';
-import { reconcileOutboxPostgres } from '@pkgs/outbox-shared-ts/reconcile';
 import { ensurePostgresSchema } from '@pkgs/sql-client-postgres-shared-ts/ensure-schema';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import type { PostgresDbScope } from '@pkgs/sql-client-root-shared-ts/postgres-db-scope';
 import { migrateLocalSchema } from '@pkgs/sync-engine-client-ts/local-schema-migrate';
-import { reconcileSyncEnginePostgres } from '@pkgs/sync-engine-shared-ts/reconcile-sync-engine-postgres';
 
 import type { HarnessComposition, MigrateHarnessPostgres } from './composition';
+import { harnessPostgresSchemas } from './postgres-schemas';
 
 const HARNESS_RECONCILE = {
   skipAdvisoryLock: true,
@@ -36,31 +29,17 @@ async function reconcileHarnessSchemas(
   now: () => number
 ): Promise<void> {
   const dbScope: PostgresDbScope = appPostgresDbScope();
-  const options = { dbScope, ...HARNESS_RECONCILE };
   await ensurePostgresSchema(sqlClient, dbScope);
-  await reconcileSyncEnginePostgres(sqlClient, options);
-  await reconcileOutboxPostgres(sqlClient, options);
-  await reconcilePostgresSchema(sqlClient, matchmakingSchema, dbScope, {
-    ...HARNESS_RECONCILE,
-    indexPhase: 'inline',
-  });
-  await reconcilePostgresSchema(sqlClient, app.schema, dbScope, {
-    ...HARNESS_RECONCILE,
-    indexPhase: 'inline',
-  });
-  await reconcileKvPostgres(
-    sqlClient,
-    createLogger({
-      name: 'harness:reconcile-postgres',
-      level: 'silent',
-      now,
-    }),
-    options
-  );
-  await reconcileEntityStorePostgres(sqlClient, options);
-  const reconcileIdp = INHOUSE_AUTH_PROVIDER.reconcilePostgres;
-  assert.defined(reconcileIdp, 'in-house IdP declares its Postgres schema');
-  await reconcileIdp({ sqlClient, dbScope });
+  for (const entry of harnessPostgresSchemas(app)) {
+    if (entry.reconcile !== undefined) {
+      await entry.reconcile({ sqlClient, dbScope, now });
+    } else {
+      await reconcilePostgresSchema(sqlClient, entry.schema, dbScope, {
+        ...HARNESS_RECONCILE,
+        indexPhase: 'inline',
+      });
+    }
+  }
 }
 
 /** Server Postgres: framework + the composition's domain schema + kv/entity + IdP. */

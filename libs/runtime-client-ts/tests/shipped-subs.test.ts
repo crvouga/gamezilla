@@ -200,6 +200,7 @@ describe('shipped subs', () => {
     expectDepthOne(APP_SUBS);
   });
 
+  // regression: shipped-sub-private-setup-inventory
   test('the data fold still yields the shipped tables, queries, and mutations', async () => {
     // regression: puzzle-publication-table-unlisted-in-shipped-contract
     expect(APP.tableNames).toEqual([...TABLE_NAMES]);

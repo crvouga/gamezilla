@@ -6,6 +6,10 @@ import { assertGameClientDefinitions } from '@libs/game-menu-client-ts/game-clie
 import { GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
 import { numberlinkGameClient } from '@libs/numberlink-client-ts/numberlink-game-client';
 import {
+  quoridorGameClient,
+  quoridorHillGameClient,
+} from '@libs/quoridor-client-ts/quoridor-game-client';
+import {
   assertGameRegistry,
   assertMatchingGameIds,
 } from '@libs/spaces-shared-ts/load-game-plugins';
@@ -19,6 +23,8 @@ export const GAME_CLIENT_DEFINITIONS = [
   connectFourGameClient,
   battleshipGameClient,
   numberlinkGameClient,
+  quoridorGameClient,
+  quoridorHillGameClient,
 ] as const satisfies readonly GameClientRegistration[];
 
 assertGameRegistry(GAME_CLIENT_DEFINITIONS);

@@ -1,0 +1,4 @@
+{
+  "summary": "Both TCP legs of the release database proxy retained Nagle buffering in addition to its declared three-millisecond round trip. Disable that unmodeled buffering while preserving session limits and statement bills. The unchanged two-account 5+0 pairing scenario pins the observed five-second release boundary; whether this configuration gap caused its CI failure remains for the release verdict to establish.",
+  "regressionTest": "specs/journeys/multiplayer-game.feature"
+}

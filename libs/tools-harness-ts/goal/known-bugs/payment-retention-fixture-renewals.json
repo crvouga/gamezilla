@@ -1,0 +1,4 @@
+{
+  "summary": "The seven-year-old payment fixture advanced the provider clock while leaving membership renewals active. Stripe then created seven years of fresh captured payments, so the unchanged expired-payment erasure assertion correctly failed. Cancel actual provider subscriptions before aging existing payment evidence; never replace real payments with inserted fixture rows.",
+  "regressionTest": "specs/billing/deleted-account-payments.feature"
+}

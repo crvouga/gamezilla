@@ -1,0 +1,162 @@
+context: Quoridor
+purpose: >-
+  Quoridor's board, pawns, walls and goals in Classic Quoridor and
+  Four-Player King of the Hill. Shared game choices, people, readiness,
+  clocks, interruptions and rematches belong to Games.
+terms:
+  - term: Quoridor
+    definition: >-
+      A game on a board of nine columns and nine rows. Each player takes
+      a turn moving their pawn or placing one of their walls. Every wall
+      must leave every player a path to their goal.
+    published: true
+  - term: Classic Quoridor
+    definition: >-
+      Quoridor for two players, South and North, beginning at e1 and e9
+      with ten walls each. South plays first. The first pawn on the row
+      opposite its home row wins immediately.
+    forms: [Classic]
+    published: true
+  - term: Four-Player King of the Hill
+    definition: >-
+      The app's Quoridor variant for four players, South, West, North and
+      East, beginning at e1, a5, e9 and i5 with five walls each. They take
+      turns in that clockwise order. The hill is the single central square
+      e5. The first pawn to reach it wins immediately, without waiting
+      there. Every wall must leave every player a path to e5.
+    forms: [King of the Hill, hill mode]
+    published: true
+  - term: mode
+    definition: Either Classic Quoridor or Four-Player King of the Hill.
+    forms: [modes]
+    model: [mode, HILL]
+  - term: board
+    definition: >-
+      The playing area of 81 squares. Columns a to i run from left to
+      right; rows 1 to 9 run from bottom to top. These names stay the same
+      for everyone, whichever side they play.
+    forms: [boards, column, columns, row, rows, board edge]
+    model: [CELLS]
+  - term: square
+    definition: A place on the board named by its column and row, such as e5.
+    forms: [squares, occupied square, empty square]
+  - term: player
+    definition: >-
+      One person or bot playing a side. South, West, North and East name
+      the player's starting edge. Classic has South and North only.
+    forms: [players, player's, South, West, North, East, first player, next player]
+    model: [CLASSIC_PLAYERS, HILL_PLAYERS]
+  - term: pawn
+    definition: >-
+      A player's piece. Each player has exactly one pawn, and two pawns
+      never occupy the same square. Every pawn has a different color,
+      shape and side name.
+    forms: [pawns, pawn's]
+    model: [pawns]
+  - term: turn
+    definition: >-
+      The player allowed to move a pawn or place a wall next. One allowed
+      action passes the turn to the next player; a refused action keeps
+      the turn. Nobody takes a turn after a victory.
+    forms: [turns, turn order]
+    model: [turn]
+  - term: move a pawn
+    definition: >-
+      Move one's own pawn to an empty square one step horizontally or
+      vertically, without passing through a wall, or jump as allowed.
+    forms: [moves her pawn, moves his pawn, moves its pawn, moves the pawn, moving a pawn, pawn move, pawn moves, moves a pawn]
+    model: [movePawn]
+  - term: jump
+    definition: >-
+      Move past one adjacent pawn, with no wall between, to the empty
+      square directly behind it. If that square is beyond the board,
+      behind a wall or occupied by another pawn, the move may instead end
+      on either empty square beside the adjacent pawn, without passing
+      through a wall. A jump never passes more than one pawn.
+    forms: [jumps, jumping, jumped, diagonal move, diagonal moves]
+  - term: wall
+    definition: >-
+      A permanent barrier spanning two adjacent square boundaries. A wall
+      named a1 horizontal blocks a1 to a2 and b1 to b2; a1 vertical blocks
+      a1 to b1 and a2 to b2. Its named square is the bottom-left square of
+      the four it touches. It lies entirely inside the board, and cannot
+      overlap or cross another wall. Walls may meet at their ends.
+    forms: [walls, wall's, horizontal, vertical, overlap, overlaps, overlapping, cross, crosses, crossing, wall anchor]
+    model: [walls]
+  - term: place a wall
+    definition: >-
+      Spend one remaining wall to put it on the board instead of moving a
+      pawn. The wall must fit, avoid every overlap and crossing, and leave
+      a path to each player's goal. A refused placement spends nothing.
+    forms: [places a wall, places her wall, places his wall, places the wall, wall placement, placing a wall]
+    model: [placeWall]
+  - term: remaining walls
+    definition: The number of walls a player has not yet placed.
+    forms: [wall inventory, inventory]
+    model: [remaining]
+  - term: pass
+    definition: >-
+      In King of the Hill only, take no pawn move or wall placement and
+      pass the turn to the next player when neither kind of action is
+      possible. The pawn and all walls stay where they are. Passing when
+      any pawn move or wall placement is possible is refused.
+    forms: [passes, passing, passed]
+    model: [passTurn]
+  - term: home row
+    definition: The edge on which a player's pawn begins.
+    forms: [home rows, starting edge, starting edges]
+  - term: goal
+    definition: >-
+      A player's destination: any square of the opposite home row in
+      Classic, or the hill in King of the Hill.
+    forms: [goals, goal row]
+  - term: hill
+    definition: >-
+      The single central square e5 in King of the Hill. Reaching it wins
+      immediately. Reaching any other square, including the opposite home
+      row, does not win that mode.
+  - term: path
+    definition: >-
+      A route from a pawn to its goal using horizontal and vertical steps
+      around walls. Other pawns do not remove a path when considering
+      whether a wall is allowed. Every player's path must remain open.
+    forms: [paths, reachable, unreachable]
+  - term: victory
+    definition: >-
+      The result when a player reaches their goal. That move finishes the
+      game immediately, so only one player can win and no later move or
+      wall placement is possible.
+    forms: [victories, wins, winner, won, winning, victory move]
+    model: [winner]
+  - term: bot
+    definition: >-
+      An automated player that follows the same movement and wall rules as
+      a person. It pursues the selected mode's goal and stops when the
+      game is finished.
+    forms: [bots]
+  - term: preview
+    definition: >-
+      A proposed wall shown before it is placed, with whether the wall is
+      allowed and the reason when it is not. A preview spends no wall and
+      passes no turn.
+    forms: [previews]
+  - term: reduced motion
+    definition: >-
+      A person's preference to avoid decorative movement while keeping
+      every pawn move and wall placement available.
+  - term: game
+    from: games
+  - term: custom game
+    from: games
+  - term: custom game readiness
+    from: games
+  - term: start a custom game
+    from: games
+  - term: space
+    from: spaces
+  - term: host
+    from: spaces
+  - term: keyboard
+    from: runtime
+  - term: control
+    from: runtime

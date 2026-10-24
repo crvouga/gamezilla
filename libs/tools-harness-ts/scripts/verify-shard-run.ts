@@ -272,7 +272,7 @@ export function applyPlanContext(env: NodeJS.ProcessEnv, root: string): void {
   if (env['BUN_CHROME_PATH']) {
     writePlatformCacheKey();
     if (
-      readFileSync(join(ROOT, 'turbo-platform-key.json'), 'utf8') !==
+      readFileSync(join(root, 'turbo-platform-key.json'), 'utf8') !==
       context.platformKey
     )
       throw new Error(

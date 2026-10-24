@@ -4,6 +4,7 @@ import type {
   GameRules,
   GameSide,
 } from '@pkgs/turn-game-shared-ts/game-rules';
+import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import fc from 'fast-check';
 import type { GameLaw } from './game-rules-laws';
 import { law, must, picks, walk } from './game-rules-laws';
@@ -72,10 +73,11 @@ export function gamePresentationLaws(game: HarnessGame): readonly GameLaw[] {
     law(game, 'the game and each of its sides have a name of their own', () => {
       must(presentation !== undefined, 'the game supplies no presentation');
       must(filled(presentation.name()), 'the game has no name');
-      const first = presentation.sideLabel('white');
-      const second = presentation.sideLabel('black');
-      must(filled(first) && filled(second), 'a side has no name');
-      must(first !== second, `both sides are called "${first}"`);
+      const names = gameSides(game.shared.turnGame.rules).map((side) =>
+        presentation.sideLabel(side)
+      );
+      must(names.every(filled), 'a side has no name');
+      must(new Set(names).size === names.length, 'seated sides share a name');
     }),
     law(game, 'every ending its rules reach is described and labelled', () => {
       const described = (reason: string) => {
@@ -118,7 +120,7 @@ export function gamePresentationLaws(game: HarnessGame): readonly GameLaw[] {
       );
     }),
     law(game, 'a draw on time is described whichever side ran out', () => {
-      for (const side of SIDES)
+      for (const side of gameSides(game.shared.turnGame.rules))
         must(
           filled(presentation.timeoutDrawDescription(side)),
           `a draw on time against the ${sideName(side)} side has no description`
@@ -160,7 +162,6 @@ const CLOCKS = [
 ] as const;
 
 const username = fc.stringMatching(/^[a-z][a-z0-9]{2,11}$/);
-const outcomes: readonly (GameSide | 'draw')[] = ['white', 'black', 'draw'];
 
 /**
  * The laws of a game's record, for a game whose matched games offer one
@@ -186,18 +187,17 @@ export function gameRecordLaws(game: HarnessGame): readonly GameLaw[] {
         assertProperty(
           `${game.label}: game record`,
           fc.property(
-            fc
-              .tuple(username, username)
-              .filter(([first, second]) => first !== second),
-            fc.constantFrom(...outcomes),
+            fc.uniqueArray(username, {
+              minLength: gameSides(rules).length,
+              maxLength: gameSides(rules).length,
+            }),
+            fc.constantFrom(...gameSides(rules), 'draw' as const),
             fc.constantFrom(...CLOCKS),
-            ([first, second], outcome, clock) => {
+            (people, outcome, clock) => {
+              const [first, second] = people;
               const played = walkLine(rules, line);
               const metadata: GameRecordMetadata = {
-                participants: [
-                  { name: first, rating: null },
-                  { name: second, rating: null },
-                ],
+                participants: people.map((name) => ({ name, rating: null })),
                 outcome,
                 reason: outcome === 'draw' ? 'agreement' : 'resignation',
                 timeControl: clock.timeControl,
@@ -209,6 +209,11 @@ export function gameRecordLaws(game: HarnessGame): readonly GameLaw[] {
                 got.firstSide === first && got.secondSide === second,
                 `the record names ${String(got.firstSide)} and ${String(got.secondSide)}, not ${first} and ${second}`
               );
+              if (people.length > 2)
+                must(
+                  JSON.stringify(got.participants) === JSON.stringify(people),
+                  'the record omits a declared participant'
+                );
               must(
                 got.result === outcome,
                 `the record gives ${String(got.result)}, not ${outcome}`

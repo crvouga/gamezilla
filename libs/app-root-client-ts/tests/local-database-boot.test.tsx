@@ -17,9 +17,11 @@ import { AuthClientProvider } from '@libs/auth-client-ts/auth-client-provider';
 import {
   DEVICE_ID_KEY,
   LAST_LOCAL_ACCOUNT_ID_KEY,
+  SESSION_TOKEN_KEY,
 } from '@libs/auth-shared-ts/auth-storage-keys';
 import { shippedModerationRules } from '@libs/moderation-shared-ts/moderation-rules';
 import { composeSubs } from '@libs/sub-shared-ts/compose';
+import { createInhouseAuthClient } from '@pkgs/auth-inhouse-client-ts/create-inhouse-auth-client';
 import type { AuthClientPort } from '@pkgs/auth-root-shared-ts/auth-client-port';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { KvImplInMemory } from '@pkgs/kv-root-shared-ts/impl-in-memory';
@@ -80,11 +82,15 @@ async function boot(options: {
   readonly openSqlClient: ClientEnv['openSqlClient'];
   readonly loadApp?: () => Promise<typeof app>;
   readonly pool?: (real: AppSyncEnginePool) => AppSyncEnginePool;
+  readonly freshToken?: AuthClientPort['getFreshToken'];
+  readonly sessionToken?: string;
 }): Promise<Boot> {
   const clock = createHarnessClock();
   const storage = createInMemorySecureStorage();
   await storage.setItem(LAST_LOCAL_ACCOUNT_ID_KEY, 'alice');
   await storage.setItem(DEVICE_ID_KEY, 'device-1');
+  if (options.sessionToken !== undefined)
+    await storage.setItem(SESSION_TOKEN_KEY, options.sessionToken);
   const store = createSecureStorageStore(storage);
   let ids = 0;
   const env = {
@@ -111,6 +117,13 @@ async function boot(options: {
     moderation: shippedModerationRules(),
     openExternalUrl: () => Promise.resolve(),
   } as unknown as ClientEnv;
+  const port = createInhouseAuthClient({
+    baseURL: env.serverUrl,
+    clock: env.clock,
+    timers: env.timers,
+    fetch: env.server,
+  });
+  if (options.freshToken !== undefined) port.getFreshToken = options.freshToken;
   const real = createAppSyncEnginePool({
     loadMutations: () => app.mutations(),
   });
@@ -126,11 +139,7 @@ async function boot(options: {
           }}
         >
           <SecureStorageStoreProvider value={store}>
-            <AuthClientProvider
-              port={
-                { getFreshToken: () => Promise.resolve(null) } as AuthClientPort
-              }
-            >
+            <AuthClientProvider port={port}>
               <LocalIdentityProvider>
                 <Probe onState={(state) => (latest = state)} />
               </LocalIdentityProvider>
@@ -148,6 +157,39 @@ async function until(done: () => boolean): Promise<void> {
 }
 
 describe('booting the app', () => {
+  // regression: deleted-account-stats-space-withdrawal
+  test('a rejected bearer exposes the auth port’s ordinary and forced token refresh', async () => {
+    const refreshes: unknown[] = [];
+    let refresh: AuthClientPort['getFreshToken'] | undefined;
+    const b = await boot({
+      openSqlClient: openMockingbird,
+      sessionToken: 'bound-account-session',
+      freshToken: async (options) => {
+        refreshes.push(options);
+        return 'provider-session-not-yet-bound';
+      },
+      pool: (real) => ({
+        ...real,
+        getOrCreate: (args) => {
+          refresh = args.getFreshAuthToken;
+          return real.getOrCreate(args);
+        },
+      }),
+    });
+    try {
+      await until(() => b.state() === 'ready');
+      expect(b.state()).toBe('ready');
+      expect(await refresh?.()).toBe('provider-session-not-yet-bound');
+      expect(refreshes).toEqual([undefined]);
+      expect(await refresh?.({ skipCache: true })).toBe(
+        'provider-session-not-yet-bound'
+      );
+      expect(refreshes).toEqual([undefined, { skipCache: true }]);
+    } finally {
+      b.unmount();
+    }
+  });
+
   test('opens on a healthy database', async () => {
     const b = await boot({ openSqlClient: openMockingbird });
     await until(() => b.state() === 'ready');

@@ -13,7 +13,12 @@ import {
 } from '@libs/battleship-harness-ts/battleship-boards-shown';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
-import { check, JOURNEY_WAIT_MS } from './journey-gestures';
+import {
+  publicJourneyCaption,
+  publicJourneyText,
+  publicJourneyVisible,
+} from './journey-failure-context';
+import { JOURNEY_WAIT_MS } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
 
 type ScreenShown = {
@@ -25,17 +30,33 @@ async function screenShown(ui: Driver): Promise<ScreenShown> {
   await ui
     .get(Handles.multiplayerBoard)
     .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
-  const html = (await ui.snapshotHtml()) ?? '';
-  const boards = boardsShownIn(html, Handles.multiplayerBoard);
-  const fleet = fleetShown(boards.own);
-  const ownCells = Object.keys(boards.own).length;
-  const fleetCells = [...fleet.values()].flat().length;
+  const html = await ui.snapshotHtml();
+  const boards = boardsShownIn(html ?? '', Handles.multiplayerBoard);
   // Without the person's own fleet on screen there is nothing to compare.
-  check(
-    wholeFleetShown(boards.own),
-    `A Battleship screen does not show its own whole fleet (ownCells=${ownCells}, ships=${fleet.size}, fleetCells=${fleetCells}, htmlChars=${html.length})`
-  );
-  return { html, boards };
+  if (!wholeFleetShown(boards.own)) {
+    const fleet = fleetShown(boards.own);
+    const context = {
+      boardPresent: await publicJourneyVisible(ui, Handles.multiplayerBoard),
+      snapshotPresent: typeof html === 'string',
+      htmlChars: html?.length ?? 0,
+      ownCells: Object.keys(boards.own).length,
+      targetCells: Object.keys(boards.target).length,
+      ownShips: fleet.size,
+      ownShipCells: [...fleet.values()].reduce(
+        (count, cells) => count + cells.length,
+        0
+      ),
+      caption: await publicJourneyCaption(
+        ui,
+        `${Handles.multiplayerBoard}-own-grid`
+      ),
+      status: await publicJourneyText(ui, `${Handles.multiplayerBoard}-status`),
+    };
+    throw new Error(
+      `A Battleship screen does not show its own whole fleet; ${JSON.stringify(context)}`
+    );
+  }
+  return { html: html ?? '', boards };
 }
 
 /**
@@ -44,7 +65,7 @@ async function screenShown(ui: Driver): Promise<ScreenShown> {
  * only, so a failure writes no cell of anyone's fleet to a log.
  */
 export async function battleshipFleetsSeenBeyondShots(
-  host: JourneyHost
+  host: Pick<JourneyHost, 'act' | 'actAsGuest'>
 ): Promise<{ readonly host: number; readonly guest: number }> {
   const read = new Map<'host' | 'guest', ScreenShown>();
   await host.act('readBattleshipScreen', async (ui) => {

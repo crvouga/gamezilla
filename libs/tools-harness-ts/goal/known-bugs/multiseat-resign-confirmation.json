@@ -1,0 +1,4 @@
+{
+  "summary": "Resigning a four-seat matched game said an opponent would win even though every participant receives a draw. The confirmation now describes the actual round result, verified against the accepted outcome on all four devices.",
+  "regressionTest": "libs/games-harness-ts/tests/multiseat-feedback.test.ts"
+}

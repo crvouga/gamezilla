@@ -48,6 +48,7 @@ import type { Actor, PuzzleFinishName } from '@libs/harness-ts/parameter-types';
 import { focusActor } from '@libs/harness-ts/shell-actions';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import { returnToOwnSpace } from '@libs/spaces-harness-ts/space-actions';
+import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { gameOf } from './game-world';
 import {
   boardBefore,
@@ -117,7 +118,7 @@ When("{actor} opens the game's known puzzle", async (w, actor: Actor) => {
 Then("{actor}'s board faces the solver's side", async (w, actor: Actor) => {
   await focusPuzzle(w, actor);
   expect(await w.s.read(readPuzzleBoardFacing, actor)).toBe(
-    puzzleOn(w, actor).solverSide
+    requireTwoPlayerSide(puzzleOn(w, actor).solverSide)
   );
 });
 
@@ -141,7 +142,7 @@ Then(
   async (w, actor: Actor) => {
     await focusPuzzle(w, actor);
     const side = gameOf(w).client.presentation.sideLabel(
-      puzzleOn(w, actor).solverSide
+      requireTwoPlayerSide(puzzleOn(w, actor).solverSide)
     );
     const prompt = await w.s.read(readPuzzlePrompt, actor);
     expect(prompt).toContain(side);

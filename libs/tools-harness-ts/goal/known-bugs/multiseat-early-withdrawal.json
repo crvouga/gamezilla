@@ -1,0 +1,4 @@
+{
+  "summary": "Withdrawing an account before every four-seat participant first moved incorrectly aborted the round. Every active four-seat withdrawal must complete a retained draw, including revision zero and any of the four people.",
+  "regressionTest": "libs/game-matchmaking-shared-ts/tests/multiseat-early-withdrawal.test.ts"
+}

@@ -3,6 +3,7 @@ import type { GameClientPresentation } from '@libs/game-menu-client-ts/game-clie
 import { t } from '@lingui/core/macro';
 import { ChessBoard } from '@pkgs/chess-board-root-client-ts/chess-board';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
+import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { JSX } from 'solid-js';
 
 function ChessGameBoard(props: GameBoardProps): JSX.Element {
@@ -11,7 +12,7 @@ function ChessGameBoard(props: GameBoardProps): JSX.Element {
       theme={BOARD_THEME}
       fen={props.position}
       fenSyncKey={props.syncKey}
-      orientation={props.orientation}
+      orientation={requireTwoPlayerSide(props.orientation)}
       interactive={props.interactive}
       sound={props.sound}
       premoves={false}

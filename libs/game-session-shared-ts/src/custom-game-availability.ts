@@ -11,7 +11,7 @@ import {
 import { customGameEffects } from './custom-game-effects';
 import { soloCustomGame } from './custom-game-local';
 import { expireCustomGame } from './custom-game-play';
-import { CustomGamesAttr, customGameTimeLeft } from './custom-game-state';
+import { CustomGamesAttr, customGameRemaining } from './custom-game-state';
 
 const ns = createAttrNamespace(GAME_PLATFORM_NAMESPACE, 'custom');
 export const CustomGameAvailableAttr = ns.boolean(
@@ -38,10 +38,7 @@ export function createCustomGameAvailabilityChange(
       if (game.status === 'active')
         game = {
           ...game,
-          remaining: {
-            white: customGameTimeLeft(game, 'white', now),
-            black: customGameTimeLeft(game, 'black', now),
-          },
+          remaining: customGameRemaining(game, now),
           turnStartedAt: available ? now : null,
         };
     }

@@ -24,6 +24,10 @@
 import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import type { CustomGameSide } from '@libs/game-session-shared-ts/custom-game-state';
 import type { QuintHarnessWorld } from '@libs/harness-ts/quint-world';
+import {
+  requireTwoPlayerSide,
+  type TwoPlayerSide,
+} from '@pkgs/turn-game-shared-ts/game-rules';
 import { conformanceGameOf } from '../conformance-world';
 
 /** The moves of the victory the game models follow. */
@@ -66,14 +70,14 @@ export function refusedMoveOf(w: QuintHarnessWorld): string {
   return refused;
 }
 
-const MODEL_SIDE: Readonly<Record<CustomGameSide, string>> = {
+const MODEL_SIDE: Readonly<Record<TwoPlayerSide, string>> = {
   white: 'first',
   black: 'second',
 };
 
 /** The model's name for the product's side. */
 export function modelSide(side: CustomGameSide): string {
-  return MODEL_SIDE[side];
+  return MODEL_SIDE[requireTwoPlayerSide(side)];
 }
 
 /** The product's side the model names. */

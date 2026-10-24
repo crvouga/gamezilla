@@ -40,12 +40,12 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/property-shared-ts": "workspace:*",
     "@pkgs/bun-test-solid-client-ts": "workspace:*",
     "@pkgs/db-schema-postgres-shared-ts": "workspace:*",
     "@pkgs/gherkin-shared-ts": "workspace:*",
     "@pkgs/openslo-shared-ts": "workspace:*",
     "@pkgs/postgres-mockingbird-server-ts": "workspace:*",
+    "@pkgs/property-shared-ts": "workspace:*",
     "@pkgs/quint-shared-ts": "workspace:*",
     "@pkgs/sql-client-postgres-server-ts": "workspace:*",
     "@pkgs/sql-client-sqlite-root-shared-ts": "workspace:*",

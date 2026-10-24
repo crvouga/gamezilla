@@ -26,7 +26,7 @@ export const GAME_SESSION_PRIVACY: AccountPrivacyContribution = {
     rows['chess_multiplayer_games'] = await ctx.tx.query(
       sql<
         Record<string, unknown>
-      >`SELECT * FROM chess_multiplayer_games WHERE white_id = ${ctx.env.actorId} OR black_id = ${ctx.env.actorId}`
+      >`SELECT * FROM chess_multiplayer_games WHERE white_id = ${ctx.env.actorId} OR black_id = ${ctx.env.actorId} OR red_id = ${ctx.env.actorId} OR blue_id = ${ctx.env.actorId}`
     );
     rows['customGames'] = await snapshotCustomGames(ctx, rooms);
     return rows;

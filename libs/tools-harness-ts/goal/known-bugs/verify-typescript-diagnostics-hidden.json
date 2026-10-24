@@ -1,0 +1,4 @@
+{
+  "summary": "Compiler diagnostics emitted as ordinary Turbo task stdout or stderr stayed buffered when only Turbo's top-level exit or final failure summary identified the failed task, hiding the cause and leaving a finished type check marked as running.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-shard-stream.test.ts"
+}

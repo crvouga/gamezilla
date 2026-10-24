@@ -1,7 +1,7 @@
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import type { OwnerRequest } from '@pkgs/matchmaking-root-shared-ts/identity';
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
-import sql from '@pkgs/sql-root-shared-ts/sql';
+import sql, { join } from '@pkgs/sql-root-shared-ts/sql';
 import { parseJsonValue } from './matchmaker-internals';
 
 export type OwnerRow = {
@@ -83,6 +83,26 @@ export async function changeAvailability(
   if (args.available) return;
   await tx.run(sql<void>`UPDATE matchmaking_waiting SET deleted_at = ${iso}, updated_at = ${iso}, ended_at = ${args.nowMs}
     WHERE owner_id = ${args.ownerId} AND deleted_at IS NULL`);
+}
+
+/** Change a complete roster while acquiring the same owner locks in sorted order. */
+export async function changeAvailabilities(
+  tx: SqlTx,
+  args: {
+    readonly ownerIds: readonly string[];
+    readonly available: boolean;
+    readonly nowMs: number;
+  }
+): Promise<void> {
+  const owners = [...new Set(args.ownerIds)].sort();
+  if (owners.length === 0) return;
+  const iso = new Date(args.nowMs).toISOString();
+  await lockOwners(tx, owners, iso);
+  await tx.run(sql<void>`UPDATE matchmaking_owners SET available = ${args.available}, updated_at = ${iso}
+    WHERE id IN (${join(owners)})`);
+  if (args.available) return;
+  await tx.run(sql<void>`UPDATE matchmaking_waiting SET deleted_at = ${iso}, updated_at = ${iso}, ended_at = ${args.nowMs}
+    WHERE owner_id IN (${join(owners)}) AND deleted_at IS NULL`);
 }
 
 export async function changeRestriction(

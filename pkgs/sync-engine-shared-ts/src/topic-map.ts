@@ -39,6 +39,17 @@ export type TopicMapEntry = {
     db?: MutationDb
   ) => readonly Topic[] | Promise<readonly Topic[]>;
   /**
+   * Resolve one table's rows together, returning one topic list per input row
+   * in the same order. Each list must equal that row's `topics` destinations.
+   * Repeated ids remain separate inputs, including earlier and later owners.
+   * Database-backed projections share a fresh lookup within this call only.
+   */
+  readonly topicsByRow?: (
+    rows: readonly QueryRow[],
+    ctx: TopicMapCtx,
+    db?: MutationDb
+  ) => readonly (readonly Topic[])[] | Promise<readonly (readonly Topic[])[]>;
+  /**
    * Opt-in subscribe projection for held-row topic sync.
    * When defined, local writes to this table resync subscriptions and each
    * live row is projected. When omitted, the table never drives subscriptions
@@ -81,6 +92,26 @@ export function topicMapCtxFromEnv(env: MutationEnv): TopicMapCtx {
   };
 }
 
+/** Preserve per-row ownership when resolving an image batch or its wake union. */
+export async function resolveTopicsByRow(args: {
+  readonly entry: TopicMapEntry;
+  readonly rows: readonly QueryRow[];
+  readonly ctx: TopicMapCtx;
+  readonly db?: MutationDb;
+}): Promise<readonly (readonly Topic[])[]> {
+  if (args.rows.length === 0) return [];
+  if (args.entry.topicsByRow !== undefined) {
+    const topics = await args.entry.topicsByRow(args.rows, args.ctx, args.db);
+    if (topics.length !== args.rows.length)
+      throw new Error('topic-map: batch destinations must match the row count');
+    return topics;
+  }
+  const topics: (readonly Topic[])[] = [];
+  for (const row of args.rows)
+    topics.push(await args.entry.topics(row, args.ctx, args.db));
+  return topics;
+}
+
 /**
  * Feed captured post-images (and fallbacks for touch-only tables) through the
  * topic map. Topics are sorted for determinism.
@@ -106,9 +137,13 @@ export async function topicsFromWriteCapture(args: {
     if (entry === undefined) continue;
     const images = args.capture.images[table] ?? [];
     if (images.length > 0) {
-      for (const row of images) {
-        add(await Promise.resolve(entry.topics(row, args.ctx, args.db)));
-      }
+      for (const topics of await resolveTopicsByRow({
+        entry,
+        rows: images,
+        ctx: args.ctx,
+        ...(args.db === undefined ? {} : { db: args.db }),
+      }))
+        add(topics);
       continue;
     }
     if (entry.fallbackTopics !== undefined) {

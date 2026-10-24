@@ -1,7 +1,8 @@
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import type { MultiplayerGame } from './game-state';
 import { isFinished } from './game-state';
-import { rateMultiplayerGame } from './multiplayer-rating';
+import { rateMultiplayerRound } from './multiplayer-rating';
+import { multiplayerOwner, multiplayerSides } from './multiplayer-roster';
 import { MultiplayerRatingRepository } from './rating-repository';
 import { timeControlOf } from './time-control';
 
@@ -18,21 +19,37 @@ export async function rateFinishedGame(
   const control = timeControlOf(game.time_control);
   if (control === null || !isFinished(game.outcome)) return game;
   const ratings = new MultiplayerRatingRepository(tx);
-  const white = await ratings.read(game.white_id, control.speed);
-  const black = await ratings.read(game.black_id, control.speed);
-  const whiteScore =
-    game.outcome === 'white' ? 1 : game.outcome === 'draw' ? 0.5 : 0;
-  const nextWhite = rateMultiplayerGame(white, black, whiteScore);
-  const nextBlack = rateMultiplayerGame(
-    black,
-    white,
-    (1 - whiteScore) as 0 | 0.5 | 1
+  const sides = multiplayerSides(game);
+  const prior = await Promise.all(
+    sides.map((side) =>
+      ratings.read(multiplayerOwner(game, side), control.speed)
+    )
   );
-  await ratings.write(game.white_id, control.speed, nextWhite, nowMs);
-  await ratings.write(game.black_id, control.speed, nextBlack, nowMs);
-  return {
-    ...game,
-    white_rating_diff: nextWhite.rating - white.rating,
-    black_rating_diff: nextBlack.rating - black.rating,
-  };
+  const deltas: Partial<MultiplayerGame> = {};
+  for (const [index, side] of sides.entries()) {
+    const player = prior[index]!;
+    const results = sides.flatMap((opponent, other) => {
+      if (other === index) return [];
+      const score =
+        game.outcome === 'draw'
+          ? 0.5
+          : game.outcome === side
+            ? 1
+            : game.outcome === opponent
+              ? 0
+              : 0.5;
+      return [{ opponent: prior[other]!, score: score as 0 | 0.5 | 1 }];
+    });
+    const next = rateMultiplayerRound(player, results);
+    await ratings.write(
+      multiplayerOwner(game, side),
+      control.speed,
+      next,
+      nowMs
+    );
+    Object.assign(deltas, {
+      [`${side}_rating_diff`]: next.rating - player.rating,
+    });
+  }
+  return { ...game, ...deltas };
 }

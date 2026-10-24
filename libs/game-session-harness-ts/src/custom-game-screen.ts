@@ -33,6 +33,11 @@ export type CustomGameShown = {
   readonly status: 'configuring' | 'active' | 'completed' | 'cancelled';
   readonly white: CustomGameSeatShown;
   readonly black: CustomGameSeatShown;
+  readonly red: CustomGameSeatShown;
+  readonly blue: CustomGameSeatShown;
+  readonly sides: readonly GameSide[];
+  readonly outcomeReason: string;
+  readonly drawAcceptedBy: readonly string[];
   /** The sides whose people said they are ready. */
   readonly ready: readonly GameSide[];
   /** The side to move. */
@@ -76,6 +81,11 @@ function shown(probe: CustomGameProbe): CustomGameScreen {
             status: game.status,
             white: { kind: game.white.kind, person: game.white.person },
             black: { kind: game.black.kind, person: game.black.person },
+            red: { kind: game.red.kind, person: game.red.person },
+            blue: { kind: game.blue.kind, person: game.blue.person },
+            sides: [...game.sides],
+            outcomeReason: game.outcomeReason,
+            drawAcceptedBy: [...game.drawAcceptedBy],
             ready: [...game.ready],
             turn: game.turn,
             outcome: game.outcome,

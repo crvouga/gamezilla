@@ -4,7 +4,6 @@ import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import type { MutationUploadResult } from '@pkgs/sync-engine-client-ts/mutation-upload-queue';
 import type { QueryRequest } from '@pkgs/sync-engine-client-ts/subscription-runtime';
 import { allocateTopicPushSeqs } from '@pkgs/sync-engine-server-ts/allocate-topic-push-seq';
-import { mutationSavepointClient } from '@pkgs/sync-engine-server-ts/mutation-savepoint-client';
 import { publishPushMessages } from '@pkgs/sync-engine-server-ts/notify-channels';
 import { processMutationsBatch } from '@pkgs/sync-engine-server-ts/process-mutations-batch';
 import type { MutationRow } from '@pkgs/sync-engine-server-ts/replay-mutation';
@@ -213,7 +212,7 @@ export function createHandleMutations(
     const failAfter = opts?.failInsideTxnAfter;
     const result = await ctx.db.transaction(async (tx) =>
       processMutationsBatch({
-        serverDb: mutationSavepointClient(tx),
+        transaction: tx,
         registry: ctx.mutations,
         auth: stickyAuth,
         mutations: mutationRows,

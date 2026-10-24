@@ -1,5 +1,6 @@
 import type { HarnessComposition } from '@libs/harness-ts/composition';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { HarnessGame } from './harness-game';
 
 const registered = new WeakMap<HarnessComposition, readonly HarnessGame[]>();
@@ -32,7 +33,7 @@ export function harnessGameAt(
 export function knownSetupAt(
   s: ProductHarness,
   position: string,
-  side: 'white' | 'black'
+  side: GameSide
 ): string | undefined {
   return harnessGameAt(s, position).fixtures.setups?.[side];
 }

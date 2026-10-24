@@ -1,0 +1,4 @@
+{
+  "summary": "A four-seat matchmaking choice and queued search still asked for one opponent, hiding the required group size. Show four players including the person searching and three other players, without implying live queue progress.",
+  "regressionTest": "libs/games-harness-ts/tests/multiseat-feedback.test.ts"
+}

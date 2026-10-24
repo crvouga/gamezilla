@@ -785,7 +785,15 @@
       "Dismisses the stop outcome": "user",
       "Tries to start or stop without a connection": "user",
       "Returns to settings": "user",
-      "Signs in with permitted team access": "user"
+      "Signs in with permitted team access": "user",
+      "Chooses Classic Quoridor": "user",
+      "Chooses Four-Player King of the Hill": "user",
+      "Opens a Classic Quoridor custom game": "user",
+      "Finds Classic Quoridor opponents": "user",
+      "Reviews a Classic Quoridor game": "user",
+      "Opens a King of the Hill custom game": "user",
+      "Finds King of the Hill opponents": "user",
+      "Reviews a King of the Hill game": "user"
     }
   },
   "states": {
@@ -4708,7 +4716,7 @@
                   "id": "App: Games",
                   "meta": {
                     "description": "The host chooses a registered game; participants play or watch according to their permission.",
-                    "snapshot": "The space offers Chess, Connect Four and Battleship.",
+                    "snapshot": "The space offers Chess, Connect Four, Battleship, Classic Quoridor and Four-Player King of the Hill.",
                     "confidence": "assumed",
                     "source": [
                       "specs/games/space-follow.qnt",
@@ -4797,6 +4805,12 @@
                         },
                         "Changes the selected game as a watcher": {
                           "target": "#Games: Game choice refused"
+                        },
+                        "Chooses Classic Quoridor": {
+                          "target": "#Games: Classic Quoridor choices"
+                        },
+                        "Chooses Four-Player King of the Hill": {
+                          "target": "#Games: King of the Hill choices"
                         }
                       }
                     },
@@ -4894,6 +4908,84 @@
                           "target": "#App: Multiplayer"
                         },
                         "Reviews a Battleship game": {
+                          "target": "#Custom Game: Reviewing"
+                        },
+                        "Returns to the game choice": {
+                          "target": "#Games: Choose a game"
+                        }
+                      }
+                    },
+                    "Games: Classic Quoridor choices": {
+                      "id": "Games: Classic Quoridor choices",
+                      "meta": {
+                        "description": "Classic Quoridor offers two players custom games, opponents, instructions, history and replay. Each player races to the opposite home row.",
+                        "snapshot": "Classic Quoridor offers two players custom games, opponents, instructions, history and replay. Each player races to the opposite home row.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/quoridor/quoridor-accessibility.feature",
+                          "specs/quoridor/quoridor-bots.feature",
+                          "specs/quoridor/quoridor-health.feature",
+                          "specs/quoridor/quoridor-modes.feature",
+                          "specs/quoridor/quoridor-movement.feature",
+                          "specs/quoridor/quoridor-objectives.feature",
+                          "specs/quoridor/quoridor-play.qnt",
+                          "specs/quoridor/quoridor-walls.feature",
+                          "specs/quoridor/ubiquitous-language.yml",
+                          "specs/journeys/quoridor-game.feature",
+                          "specs/games/game-choices.feature",
+                          "specs/games/game-history.feature",
+                          "specs/games/game-turns.feature",
+                          "specs/games/ubiquitous-language.yml"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Opens a Classic Quoridor custom game": {
+                          "target": "#App: Custom game"
+                        },
+                        "Finds Classic Quoridor opponents": {
+                          "target": "#App: Multiplayer"
+                        },
+                        "Reviews a Classic Quoridor game": {
+                          "target": "#Custom Game: Reviewing"
+                        },
+                        "Returns to the game choice": {
+                          "target": "#Games: Choose a game"
+                        }
+                      }
+                    },
+                    "Games: King of the Hill choices": {
+                      "id": "Games: King of the Hill choices",
+                      "meta": {
+                        "description": "Four-Player King of the Hill offers four players custom games, opponents, instructions, history and replay. The first player to reach the hill wins.",
+                        "snapshot": "Four-Player King of the Hill offers four players custom games, opponents, instructions, history and replay. The first player to reach the hill wins.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/quoridor/quoridor-accessibility.feature",
+                          "specs/quoridor/quoridor-bots.feature",
+                          "specs/quoridor/quoridor-health.feature",
+                          "specs/quoridor/quoridor-modes.feature",
+                          "specs/quoridor/quoridor-movement.feature",
+                          "specs/quoridor/quoridor-objectives.feature",
+                          "specs/quoridor/quoridor-play.qnt",
+                          "specs/quoridor/quoridor-walls.feature",
+                          "specs/quoridor/ubiquitous-language.yml",
+                          "specs/journeys/quoridor-game.feature",
+                          "specs/games/game-choices.feature",
+                          "specs/games/game-history.feature",
+                          "specs/games/game-turns.feature",
+                          "specs/games/ubiquitous-language.yml"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Opens a King of the Hill custom game": {
+                          "target": "#App: Custom game"
+                        },
+                        "Finds King of the Hill opponents": {
+                          "target": "#App: Multiplayer"
+                        },
+                        "Reviews a King of the Hill game": {
                           "target": "#Custom Game: Reviewing"
                         },
                         "Returns to the game choice": {
@@ -6509,7 +6601,8 @@
                       "specs/games/matched-game-interruption.feature",
                       "specs/chess/ubiquitous-language.yml",
                       "specs/games/unfinished-game-limit.dmn",
-                      "specs/ubiquitous-language.yml"
+                      "specs/ubiquitous-language.yml",
+                      "specs/games/four-seat-matchmaking.feature"
                     ],
                     "events": []
                   },
@@ -7430,7 +7523,9 @@
                       "specs/games/custom-games.als",
                       "specs/chess/ubiquitous-language.yml",
                       "specs/ubiquitous-language.yml",
-                      "specs/games/custom-games.feature"
+                      "specs/games/custom-games.feature",
+                      "specs/games/multi-seat-games.feature",
+                      "specs/games/multi-seat-recovery.feature"
                     ],
                     "events": []
                   },
@@ -9747,7 +9842,9 @@
                               "specs/runtime/reaching-the-app.feature",
                               "specs/runtime/request-records.feature",
                               "specs/runtime/serving-people.feature",
-                              "specs/runtime/stored-files.feature"
+                              "specs/runtime/stored-files.feature",
+                              "specs/runtime/request-speed.openslo.yaml",
+                              "specs/runtime/request-success.openslo.yaml"
                             ],
                             "events": []
                           },

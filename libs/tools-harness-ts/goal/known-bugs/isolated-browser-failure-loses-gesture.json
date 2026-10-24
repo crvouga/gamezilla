@@ -1,0 +1,4 @@
+{
+  "summary": "An isolated browser returned a visibility timeout without the failed control or method. Preserve that call identity in the thrown error while omitting gesture arguments and retaining the original error.",
+  "regressionTest": "apps/product-ts/tests/isolated-browser.test.ts"
+}

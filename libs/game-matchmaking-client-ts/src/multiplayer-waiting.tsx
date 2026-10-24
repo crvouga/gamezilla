@@ -4,14 +4,67 @@ import {
   useGamePresentation,
   useTurnGames,
 } from '@pkgs/turn-game-client-ts/turn-games-context';
+import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameSearchState } from '@pkgs/ui-root-client-ts/game-search-state';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 import { timeControlText } from './time-control-name';
 import type { MultiplayerSearchRow } from './use-multiplayer-data';
 import { useOfflineSince } from './use-offline-since';
+
+function WaitingDescription(props: {
+  readonly search: MultiplayerSearchRow;
+  readonly count: number;
+  readonly gameName: string;
+}): JSX.Element {
+  return (
+    <P variant="inherit" testId="multiplayer-waiting">
+      <Show
+        when={props.count > 2}
+        fallback={
+          <Trans>
+            Looking for a {timeControlText(props.search.time_control)}{' '}
+            {props.gameName} opponent.
+          </Trans>
+        }
+      >
+        <Trans>
+          Looking for {props.count - 1} other players for {props.gameName} at{' '}
+          {timeControlText(props.search.time_control)}. A game needs{' '}
+          {props.count} players including you.
+        </Trans>
+      </Show>
+    </P>
+  );
+}
+
+function StopSearch(props: {
+  readonly multiple: boolean;
+  readonly onStop: () => Promise<void>;
+}): JSX.Element {
+  return (
+    <GameActionButton
+      title={
+        <Show
+          when={props.multiple}
+          fallback={
+            <Trans>
+              Stop<VisuallyHidden> finding an opponent</VisuallyHidden>
+            </Trans>
+          }
+        >
+          <Trans>
+            Stop<VisuallyHidden> finding players</VisuallyHidden>
+          </Trans>
+        </Show>
+      }
+      operation={() => props.onStop()}
+      dataSet={{ testid: 'multiplayer-stop' }}
+    />
+  );
+}
 
 /** A waiting search shows its time control and how long it has been looking. */
 export function MultiplayerWaiting(props: {
@@ -21,6 +74,8 @@ export function MultiplayerWaiting(props: {
   const offlineSince = useOfflineSince();
   const rules = useTurnGames();
   const presentation = useGamePresentation();
+  const count = () =>
+    gameSides(rules.forControl(props.search.time_control ?? '')).length;
   const gameName = () =>
     presentation(
       rules.forControl(props.search.time_control ?? '').initial()
@@ -40,14 +95,17 @@ export function MultiplayerWaiting(props: {
   );
   return (
     <GameSearchState
-      title={<Trans>Finding an opponent</Trans>}
+      title={
+        <Show when={count() > 2} fallback={<Trans>Finding an opponent</Trans>}>
+          <Trans>Finding players</Trans>
+        </Show>
+      }
       description={
-        <P variant="inherit" testId="multiplayer-waiting">
-          <Trans>
-            Looking for a {timeControlText(props.search.time_control)}{' '}
-            {gameName()} opponent.
-          </Trans>
-        </P>
+        <WaitingDescription
+          search={props.search}
+          count={count()}
+          gameName={gameName()}
+        />
       }
       elapsed={
         <>
@@ -57,17 +115,7 @@ export function MultiplayerWaiting(props: {
           <Trans>seconds</Trans>
         </>
       }
-      actions={
-        <GameActionButton
-          title={
-            <Trans>
-              Stop<VisuallyHidden> finding an opponent</VisuallyHidden>
-            </Trans>
-          }
-          operation={() => props.onStop()}
-          dataSet={{ testid: 'multiplayer-stop' }}
-        />
-      }
+      actions={<StopSearch multiple={count() > 2} onStop={props.onStop} />}
     />
   );
 }

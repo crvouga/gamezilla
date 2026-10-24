@@ -20,8 +20,8 @@ export function soloCustomGame(
   return (
     game === null ||
     (rules.forPosition(game.fen).setup === undefined &&
-      [game.white, game.black].every(
-        (side) => side.person === '' || side.person === game.creator
+      game.sides.every(
+        (side) => game[side].person === '' || game[side].person === game.creator
       ))
   );
 }

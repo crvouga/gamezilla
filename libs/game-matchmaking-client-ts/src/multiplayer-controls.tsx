@@ -1,3 +1,5 @@
+import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
+import { multiplayerSides } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
 import { Trans } from '@lingui/solid/macro';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { createSignal, type JSX, Match, Show, Switch } from 'solid-js';
@@ -19,11 +21,19 @@ function ConfirmTitle(props: { readonly kind: Confirm | null }): JSX.Element {
   );
 }
 
-function ConfirmMessage(props: { readonly kind: Confirm | null }): JSX.Element {
+function ConfirmMessage(props: {
+  readonly kind: Confirm | null;
+  readonly game: MultiplayerGame | null;
+}): JSX.Element {
   return (
     <Switch fallback={<Trans>Your opponent will win this game.</Trans>}>
       <Match when={props.kind === 'abort'}>
         <Trans>The game ends with no result and no rating change.</Trans>
+      </Match>
+      <Match
+        when={props.game !== null && multiplayerSides(props.game).length > 2}
+      >
+        <Trans>The round will end in a draw for all players.</Trans>
       </Match>
     </Switch>
   );
@@ -50,7 +60,10 @@ function MultiplayerNextGame(props: {
         )}
       </Match>
       <Match when={mayFind()}>
-        <MultiplayerFindPanel controls={props.controls} />
+        <MultiplayerFindPanel
+          controls={props.controls}
+          gameId={props.data.gameId()}
+        />
       </Match>
     </Switch>
   );
@@ -85,7 +98,7 @@ export function MultiplayerControls(props: {
         visible={confirm() !== null}
         onClose={() => setConfirm(null)}
         title={<ConfirmTitle kind={confirm()} />}
-        message={<ConfirmMessage kind={confirm()} />}
+        message={<ConfirmMessage kind={confirm()} game={props.data.game()} />}
         operation={operation}
         submitLabel={<Trans>Confirm</Trans>}
         successTitle={<Trans>Multiplayer command accepted</Trans>}

@@ -1,0 +1,4 @@
+{
+  "summary": "A Battleship fleet assertion and a Custom Game acceptance timeout omitted the current public board counts, snapshot availability, visible refusal and role. Include only bounded public screen context in their thrown failures; never log fleet cells or stored setups.",
+  "regressionTest": "libs/runtime-harness-ts/tests/journey-diagnostics.test.ts"
+}

@@ -29,6 +29,75 @@ function example() {
 const at = (testId: string) =>
   document.querySelector<HTMLElement>(`[data-testid="${testId}"]`);
 
+test('barriers and previews update without remounting the focused pawn cell', () => {
+  const [cells, setCells] = createSignal<readonly CellGridCell[]>([
+    {
+      id: 'a1',
+      glyph: '●',
+      label: 'A1: circle, wall above',
+      tone: 'occupied',
+      enabled: true,
+      identity: 'one',
+      edges: ['top'],
+    },
+    {
+      id: 'b1',
+      glyph: '◆',
+      label: 'B1: diamond',
+      tone: 'occupied',
+      enabled: false,
+      identity: 'two',
+    },
+    {
+      id: 'a2',
+      glyph: '▲',
+      label: 'A2: triangle',
+      tone: 'occupied',
+      enabled: false,
+      identity: 'three',
+    },
+    {
+      id: 'b2',
+      glyph: '■',
+      label: 'B2: square',
+      tone: 'occupied',
+      enabled: false,
+      identity: 'four',
+    },
+  ]);
+  const view = render(() => (
+    <CellGridBoard
+      label="Barrier grid"
+      testId="barriers"
+      columnLabels={['A', 'B']}
+      rowLabels={['1', '2']}
+      cells={cells()}
+    />
+  ));
+  const first = view.getByRole('button', { name: 'A1: circle, wall above' });
+  first.focus();
+  setCells((current) =>
+    current.map((cell) =>
+      cell.id === 'a1'
+        ? { ...cell, previewEdges: ['right'], enabled: false }
+        : cell
+    )
+  );
+  expect(document.activeElement).toBe(first);
+  expect(first.getAttribute('aria-disabled')).toBe('true');
+  expect(first.getAttribute('data-edge-top')).toBe('true');
+  expect(first.getAttribute('data-preview-edge-right')).toBe('true');
+  expect(first.getAttribute('data-edge-right')).toBe('false');
+  expect(
+    [
+      ...view
+        .getByRole('group', { name: 'Barrier grid' })
+        .querySelectorAll('[data-identity]'),
+    ].map((cell) => cell.getAttribute('data-identity'))
+  ).toEqual(['one', 'two', 'three', 'four']);
+  view.unmount();
+});
+
 test('navigation keys move within the grid and stop at its edges', () => {
   const size = { columns: 5, rows: 4 };
   const key = (name: string, corner = false) => ({

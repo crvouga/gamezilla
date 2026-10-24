@@ -5,6 +5,7 @@ import type {
   GameRules,
   GameSide,
 } from '@pkgs/turn-game-shared-ts/game-rules';
+import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import fc from 'fast-check';
 import type { HarnessGame } from './harness-game';
 import { playedRules, playedRulesOf } from './played-rules';
@@ -175,7 +176,9 @@ function takesTurns(game: HarnessGame): void {
       for (const [ply, step] of played.steps.entries()) {
         // A finished game has no side to move.
         if (step.winner !== null) return;
-        const other: GameSide = mover === 'white' ? 'black' : 'white';
+        const sides = gameSides(rules);
+        const other: GameSide =
+          sides[(sides.indexOf(mover) + 1) % sides.length]!;
         must(
           step.turn === other,
           `after ${mover}'s ${String(played.actions[ply])} at ply ${String(ply + 1)} it is ${String(step.turn)}'s turn, not ${other}'s`
@@ -197,7 +200,7 @@ function duelRulesLaws(game: HarnessGame): readonly GameLaw[] {
   return [
     law(
       game,
-      'the first side moves first and every action passes the turn to the other side',
+      'the first side moves first and every action passes the turn to the next declared side',
       () => takesTurns(game)
     ),
     law(game, 'a side cannot win only where the game names a line to it', () =>
@@ -215,7 +218,7 @@ function duelRulesLaws(game: HarnessGame): readonly GameLaw[] {
 function cannotWinOnlyWhereKnown(game: HarnessGame): void {
   const rules = playedRulesOf(game);
   const both = (position: string) =>
-    rules.canWin(position, 'white') && rules.canWin(position, 'black');
+    gameSides(rules).every((side) => rules.canWin(position, side));
   must(both(rules.initial()), 'a side cannot win from the starting position');
   const line = game.fixtures.secondSideCannotWin;
   if (line !== undefined) {
@@ -547,43 +550,51 @@ export function gameBotLaws(game: HarnessGame): readonly GameLaw[] {
         'a strength is offered twice'
       )
     ),
-    law(game, 'two bots play only legal actions until the game finishes', () =>
-      assertProperty(
-        `${game.label}: bots`,
-        fc.property(
-          fc.constantFrom(...strengths),
-          fc.constantFrom(...strengths),
-          fc.array(draw, { minLength: 1, maxLength: 8 }),
-          (first, second, draws) => {
-            let position = rules.initial();
-            let history = '';
-            const actions: string[] = [];
-            for (let ply = 0; ply < BOT_PLIES; ply++) {
-              const legal = rules.legal(position);
-              const chosen = bots.choose(
-                position,
-                ply % 2 === 0 ? first : second,
-                () => draws[ply % draws.length]!
-              );
-              if (legal.length === 0) {
-                must(chosen === null, 'a bot moved in a finished game');
-                return;
+    law(
+      game,
+      'bots in every declared seat play only legal actions until the game finishes',
+      () =>
+        assertProperty(
+          `${game.label}: bots`,
+          fc.property(
+            fc.array(fc.constantFrom(...strengths), {
+              minLength: gameSides(rules).length,
+              maxLength: gameSides(rules).length,
+            }),
+            fc.array(draw, { minLength: 1, maxLength: 8 }),
+            (difficulties, draws) => {
+              let position = rules.initial();
+              let history = '';
+              const actions: string[] = [];
+              for (let ply = 0; ply < BOT_PLIES; ply++) {
+                const legal = rules.legal(position);
+                const chosen = bots.choose(
+                  position,
+                  difficulties[ply % difficulties.length]!,
+                  () => draws[ply % draws.length]!
+                );
+                if (legal.length === 0) {
+                  must(chosen === null, 'a bot moved in a finished game');
+                  return;
+                }
+                must(
+                  chosen !== null && legal.includes(chosen),
+                  `a bot chose ${String(chosen)} at ${position}`
+                );
+                const played = rules.play(position, chosen!, history, actions);
+                must(
+                  played !== null,
+                  `the bot's ${String(chosen)} was refused`
+                );
+                actions.push(chosen!);
+                position = played!.position;
+                history = played!.history;
+                // The platform never asks a bot to move in a finished game.
+                if (played!.winner !== null) return;
               }
-              must(
-                chosen !== null && legal.includes(chosen),
-                `a bot chose ${String(chosen)} at ${position}`
-              );
-              const played = rules.play(position, chosen!, history, actions);
-              must(played !== null, `the bot's ${String(chosen)} was refused`);
-              actions.push(chosen!);
-              position = played!.position;
-              history = played!.history;
-              // The platform never asks a bot to move in a finished game.
-              if (played!.winner !== null) return;
             }
-          }
+          )
         )
-      )
     ),
   ];
 }

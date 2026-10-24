@@ -1,0 +1,4 @@
+{
+  "summary": "A finished round played in an extra seat counted as a second-seat game when balancing future seat assignments.",
+  "regressionTest": "libs/game-matchmaking-shared-ts/tests/multiseat-colour-balance.test.ts"
+}

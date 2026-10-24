@@ -23,9 +23,10 @@ export type BoardPoint = {
 };
 
 /**
- * One layout read per press: the border box from `getBoundingClientRect`,
- * the border widths from `clientLeft` / `clientTop`. A resize can precede
- * its observer, so read the current CSS width rather than a stale signal.
+ * Measure at the start of a press. CSS width stays current before a queued
+ * ResizeObserver delivery and preserves the fractional border-box width;
+ * an observer's previous measurement cannot determine the current scale.
+ * The press cache keeps style and layout reads out of pointer movement.
  */
 export function measureBoardBox(
   node: HTMLElement,

@@ -1,0 +1,4 @@
+{
+  "summary": "After a legal wall was accepted, the focused preview evaluated the same anchor against the new board and misleadingly reported an overlap. Accepted actions clear their preview.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-board-regressions.test.tsx"
+}

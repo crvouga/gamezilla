@@ -1,5 +1,8 @@
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
-import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  gameSides,
+  type TurnGames,
+} from '@pkgs/turn-game-shared-ts/game-rules';
 
 /** A clock as people read it: whole seconds left, rounded up, as m:ss. */
 export function clockLabel(ms: number): string {
@@ -51,9 +54,9 @@ export type MultiplayerMove = {
   readonly ply: number;
   /** The move in algebraic notation: `Nf3`. */
   readonly san: string;
-  /** What the move list writes before it: `1.`, `1...`, or nothing. */
+  /** Round numbering for two seats; round and seat ordinals for larger rosters. */
   readonly numbering: string;
-  /** The move named by itself: `1. e4`, `1... e5`. */
+  /** The move named by itself: `1. e4`, `1... e5`, or `1.3. e8`. */
   readonly name: string;
   /** The position before it and the position after it. */
   readonly before: string;
@@ -65,17 +68,24 @@ export function multiplayerMoves(
   game: Pick<MultiplayerGame, 'fen' | 'pgn'>,
   rules: TurnGames
 ): readonly MultiplayerMove[] {
-  return rules
-    .forPosition(game.fen)
-    .moves(game.fen, game.pgn, [])
-    .map((move, index) => ({
+  const gameRules = rules.forPosition(game.fen);
+  const seats = gameSides(gameRules).length;
+  return gameRules.moves(game.fen, game.pgn, []).map((move, index) => {
+    const round = Math.floor(index / seats) + 1;
+    const seat = index % seats;
+    const ordinal =
+      seats === 2
+        ? `${round}${seat === 0 ? '.' : '...'}`
+        : `${round}.${seat + 1}.`;
+    return {
       ply: index + 1,
       san: move.label,
-      numbering: index % 2 === 0 ? `${Math.floor(index / 2) + 1}.` : '',
-      name: `${Math.floor(index / 2) + 1}${index % 2 === 0 ? '.' : '...'} ${move.label}`,
+      numbering: seats === 2 && seat !== 0 ? '' : ordinal,
+      name: `${ordinal} ${move.label}`,
       before: move.before,
       after: move.after,
-    }));
+    };
+  });
 }
 
 /**

@@ -7,6 +7,7 @@ import { repeatCustomGameAcknowledgement } from './custom-game-acknowledgement';
 import { redeliverCustomGameBotWake } from './custom-game-bot-wakes';
 import {
   chooseCustomGameBotMove,
+  finishCustomGameAgainstBots,
   playCustomGameBots,
 } from './custom-game-bots';
 import { attemptCustomGameBoundary } from './custom-game-boundary';
@@ -59,6 +60,7 @@ export const GAME_SESSION_HARNESS_ACTIONS = [
   reviewCustomGameMove,
   openGameHistory,
   chooseCustomGameBotMove,
+  finishCustomGameAgainstBots,
   playCustomGameBots,
   playCustomGameHistory,
   attemptCustomGameBoundary,

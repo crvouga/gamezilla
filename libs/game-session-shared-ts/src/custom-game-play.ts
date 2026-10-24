@@ -4,6 +4,7 @@ import { assertCustomGamePosition } from './custom-game-position';
 import type { CustomGame, CustomGameSide } from './custom-game-state';
 import {
   customGamePersonSide,
+  customGameRemaining,
   customGameTimeLeft,
   otherCustomGameSide,
 } from './custom-game-state';
@@ -11,24 +12,30 @@ import {
 export function finishCustomGame(
   game: CustomGame,
   outcome: CustomGame['outcome'],
-  now: number
+  now: number,
+  reason = ''
 ): CustomGame {
   return {
     ...game,
     status: outcome === 'cancelled' ? 'cancelled' : 'completed',
     outcome,
+    outcomeReason: reason,
+    drawAcceptedBy: [],
     endedAt: now,
     drawOfferedBy: '',
     declinedOffers: [],
-    remaining: {
-      white: customGameTimeLeft(game, 'white', now),
-      black: customGameTimeLeft(game, 'black', now),
-    },
+    remaining: customGameRemaining(game, now),
     ready: outcome === 'cancelled' ? [] : game.ready,
     white:
       game.white.kind === 'invitation'
         ? { kind: 'open', person: '' }
         : game.white,
+    red:
+      game.red.kind === 'invitation' ? { kind: 'open', person: '' } : game.red,
+    blue:
+      game.blue.kind === 'invitation'
+        ? { kind: 'open', person: '' }
+        : game.blue,
     black:
       game.black.kind === 'invitation'
         ? { kind: 'open', person: '' }
@@ -63,11 +70,18 @@ export function expireCustomGame(
     customGameTimeLeft(game, game.turn, now) > 0
   )
     return game;
-  return finishCustomGame(
-    game,
-    customGameWinOrDraw(game, otherCustomGameSide(game.turn), 'time', rules),
-    now
-  );
+  return game.sides.length > 2
+    ? finishCustomGame(game, 'draw', now, 'timeout')
+    : finishCustomGame(
+        game,
+        customGameWinOrDraw(
+          game,
+          otherCustomGameSide(game.turn),
+          'time',
+          rules
+        ),
+        now
+      );
 }
 
 export function playCustomGameMove(
@@ -91,6 +105,7 @@ export function playCustomGameMove(
     turn: move.turn,
     moves: [...game.moves, { uci, san: move.label }],
     drawOfferedBy: '',
+    drawAcceptedBy: [],
     declinedOffers: game.declinedOffers.filter(
       (person) => person !== game[game.turn].person
     ),
@@ -134,6 +149,8 @@ export function playCustomGameChoice(
             remaining: {
               white: game.minutes * 60_000,
               black: game.minutes * 60_000,
+              red: game.minutes * 60_000,
+              blue: game.minutes * 60_000,
             },
           };
     case 'cancel':
@@ -142,28 +159,39 @@ export function playCustomGameChoice(
       const side = customGamePersonSide(game, actor);
       return side === null
         ? game
-        : finishCustomGame(
-            game,
-            customGameWinOrDraw(
+        : game.sides.length > 2
+          ? finishCustomGame(game, 'draw', now, 'participant withdrew')
+          : finishCustomGame(
               game,
-              otherCustomGameSide(side),
-              'resignation',
-              rules
-            ),
-            now
-          );
+              customGameWinOrDraw(
+                game,
+                otherCustomGameSide(side),
+                'resignation',
+                rules
+              ),
+              now
+            );
     }
     case 'offer':
-      return { ...game, drawOfferedBy: actor };
-    case 'agree':
-      return finishCustomGame(game, 'draw', now);
+      return { ...game, drawOfferedBy: actor, drawAcceptedBy: [actor] };
+    case 'agree': {
+      const accepted = [
+        ...new Set([game.drawOfferedBy, ...game.drawAcceptedBy, actor]),
+      ];
+      return game.sides.every((side) => accepted.includes(game[side].person))
+        ? finishCustomGame(game, 'draw', now, 'agreement')
+        : { ...game, drawAcceptedBy: accepted };
+    }
     case 'reject':
       return {
         ...game,
         drawOfferedBy: '',
+        drawAcceptedBy: [],
         declinedOffers: [...game.declinedOffers, game.drawOfferedBy],
       };
     case 'claimWin': {
+      if (game.sides.length > 2)
+        return finishCustomGame(game, 'draw', now, 'participant withdrew');
       const side = customGamePersonSide(game, actor);
       return side === null
         ? game

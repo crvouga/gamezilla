@@ -88,10 +88,12 @@ export function gameSystem(
       client: createMultiplayerLinkClient(turnGames),
       server: (deps) => createGameSessionServer(deps.rooms, turnGames),
       actions: [
-        ...GAME_SESSION_HARNESS_ACTIONS,
-        ...OPPONENT_SEEKING_ACTIONS,
-        ...MATCHED_GAME_HARNESS_ACTIONS,
-        ...games.flatMap((game) => game.actions ?? []),
+        ...new Set([
+          ...GAME_SESSION_HARNESS_ACTIONS,
+          ...OPPONENT_SEEKING_ACTIONS,
+          ...MATCHED_GAME_HARNESS_ACTIONS,
+          ...games.flatMap((game) => game.actions ?? []),
+        ]),
       ],
     },
     ...gamePuzzleSubs(games.map((game) => game.shared)).map(

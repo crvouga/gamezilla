@@ -49,6 +49,28 @@ describe('verifyTimeoutOf', () => {
 });
 
 describe('modelVerifications', () => {
+  test('only an opted-in binding enables Boolean short-circuit translation', () => {
+    const verifications = modelVerificationsFromBindings(
+      ['specs/example/first.qnt', 'specs/example/second.qnt'],
+      new Map([
+        ['first', "model: 'first', verifySteps: 2, shortCircuit: true"],
+        ['second', "model: 'second', verifySteps: 2"],
+      ])
+    );
+    expect(verifications[0]).toEqual({
+      specUri: 'specs/example/first.qnt',
+      steps: 2,
+      timeoutMs: 240_000,
+      inductiveInvariant: null,
+      shortCircuit: true,
+    });
+    expect(verifications[1]).toEqual({
+      specUri: 'specs/example/second.qnt',
+      steps: 2,
+      timeoutMs: 240_000,
+      inductiveInvariant: null,
+    });
+  });
   test('username solver mode retains the original bound and deadline', () => {
     // regression: username-proof-solver-timeout
     const [verify] = modelVerificationsFromBindings(
@@ -258,13 +280,15 @@ describe('model parts', () => {
       expect(
         taskBudgetSeconds(
           '@pkgs/matchmaking-root-harness-ts#verify:models:0',
-          false
+          false,
+          { ...process.env, VERIFY_TIME_LIMITS: 'on' }
         )
       ).toBe(profileBudgetSeconds(480));
       expect(
         taskBudgetSeconds(
           '@pkgs/matchmaking-root-harness-ts#verify:models:1',
-          false
+          false,
+          { ...process.env, VERIFY_TIME_LIMITS: 'on' }
         )
       ).toBe(profileBudgetSeconds(480));
     },
@@ -344,9 +368,12 @@ describe('model parts', () => {
         expect(manifest.scripts[task]).toContain(
           `--phase ${String(index)}/${String(phases)}`
         );
-        expect(taskBudgetSeconds(`${name}#${task}`, false)).toBe(
-          profileBudgetSeconds(420)
-        );
+        expect(
+          taskBudgetSeconds(`${name}#${task}`, false, {
+            ...process.env,
+            VERIFY_TIME_LIMITS: 'on',
+          })
+        ).toBe(profileBudgetSeconds(420));
       }
     }
   );

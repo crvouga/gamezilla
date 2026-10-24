@@ -1,0 +1,4 @@
+{
+  "summary": "Per-pass row-image publication bypassed batched matchmaking topic lookup: one game, two player pointers and two search rows performed five hosted-space reads instead of at most three.",
+  "regressionTest": "libs/games-harness-ts/tests/matchmaking-fanout-cost.test.ts"
+}

@@ -6,10 +6,15 @@ import {
   type GameRegistration,
 } from '@libs/game-session-shared-ts/game-definition';
 import {
+  assertTurnGameDefinitions,
   isTurnGameDefinition,
   type TurnGameDefinition,
 } from '@libs/game-session-shared-ts/turn-game-definition';
 import { numberlinkGameShared } from '@libs/numberlink-shared-ts/numberlink-game';
+import {
+  quoridorGameShared,
+  quoridorHillGameShared,
+} from '@libs/quoridor-shared-ts/quoridor-game';
 import { assertGameRegistry } from '@libs/spaces-shared-ts/load-game-plugins';
 import { assertGameNamespaceOwner } from './game-namespace-owner';
 
@@ -24,6 +29,8 @@ export const GAME_DEFINITIONS = [
   connectFourGameShared,
   battleshipGameShared,
   numberlinkGameShared,
+  quoridorGameShared,
+  quoridorHillGameShared,
 ] as const satisfies readonly GameRegistration[];
 
 /** Only games offering a turn engine enter multiplayer catalogs and suites. */
@@ -34,4 +41,5 @@ export const TURN_GAME_DEFINITIONS: readonly TurnGameDefinition[] =
 
 assertGameRegistry(GAME_DEFINITIONS);
 assertGameDefinitions('GAME_DEFINITIONS', GAME_DEFINITIONS);
+assertTurnGameDefinitions('TURN_GAME_DEFINITIONS', TURN_GAME_DEFINITIONS);
 assertGameNamespaceOwner(TURN_GAME_DEFINITIONS, chessGameShared);

@@ -11,8 +11,9 @@ export const outboxEvents = defineTable({
     type: 'text',
     payload: 'json',
     available_at: 'timestamp',
+    causation_id: 'text',
   },
-  indexes: ['type', 'available_at'],
+  indexes: ['type', 'available_at', 'causation_id'],
 });
 
 export const outboxDeliveries = defineTable({

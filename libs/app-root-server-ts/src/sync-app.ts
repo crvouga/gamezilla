@@ -12,8 +12,11 @@ import { PubSubNotSupportedError } from '@pkgs/pubsub-root-shared-ts/pubsub-not-
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import { createSyncApp as createSyncEngineApp } from '@pkgs/sync-engine-server-ts/create-sync-app';
 import type { MutationAuthorize } from '@pkgs/sync-engine-shared-ts/mutations-types';
-import { drainAndNotifyOutbox, requestOutboxRegistry } from './outbox-drain';
-import { capturedOutboxScope } from './outbox-event-scope';
+import {
+  drainCommittedMutationOutbox,
+  scopeMutationOutbox,
+} from './mutation-outbox';
+import { requestOutboxRegistry } from './outbox-drain';
 import { countTruncatedQuery } from './query-truncation';
 
 function openRequestSqlClient(): SqlClient {
@@ -75,6 +78,7 @@ export async function createSyncApp(deps: {
     getSql: openRequestSqlClient,
     queries: deps.app.queries,
     mutations,
+    wrapMutationTx: scopeMutationOutbox,
     authorizeMutation: async (ctx) => {
       await authorizeAppMutation(ctx);
       await deps.app.authorizeMutation(ctx);
@@ -87,17 +91,16 @@ export async function createSyncApp(deps: {
     pubsub: createRequestScopedPubSub(),
     rowImageFanout: true,
     topicMap: deps.app.topicMap,
-    onCommitted: async (captures) => {
+    onCommittedMutations: async (batch) => {
       const store = apiRequestAsyncLocalStorage.getStore();
       assert.defined(store, 'sync outbox: request store missing');
-      await drainAndNotifyOutbox({
+      await drainCommittedMutationOutbox({
+        batch,
         consumerRegistry: requestOutboxRegistry(deps.outboxConsumers),
         nextCheckpoint,
         objectStore: store.objectStore,
-        db: store.sqlClient,
         clock: store.clock,
         createId: store.createId,
-        ...capturedOutboxScope(captures),
       });
     },
     nextCheckpoint,

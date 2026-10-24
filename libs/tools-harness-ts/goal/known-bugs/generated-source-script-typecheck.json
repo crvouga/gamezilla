@@ -1,0 +1,4 @@
+{
+  "summary": "The generated-source regression indexed the optional generate script without checking for absence, breaking the tools package type check.",
+  "regressionTest": "libs/tools-harness-ts/scripts/task-runner-policy.test.ts"
+}

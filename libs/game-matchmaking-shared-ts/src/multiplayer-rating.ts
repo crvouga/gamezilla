@@ -59,19 +59,28 @@ export function rateMultiplayerGame(
   opponent: MultiplayerRating,
   score: 0 | 0.5 | 1
 ): MultiplayerRating {
+  return rateMultiplayerRound(player, [{ opponent, score }]);
+}
+
+/** One rating period against every other participant, using their pre-round ratings. */
+export function rateMultiplayerRound(
+  player: MultiplayerRating,
+  results: readonly {
+    readonly opponent: MultiplayerRating;
+    readonly score: 0 | 0.5 | 1;
+  }[]
+): MultiplayerRating {
   const next = glicko2Update(
     {
       rating: player.rating,
       rd: player.ratingDeviation,
       volatility: player.volatilityMicros / VOLATILITY_SCALE,
     },
-    [
-      {
-        opponentRating: opponent.rating,
-        opponentRd: opponent.ratingDeviation,
-        score,
-      },
-    ],
+    results.map(({ opponent, score }) => ({
+      opponentRating: opponent.rating,
+      opponentRd: opponent.ratingDeviation,
+      score,
+    })),
     { tau: GLICKO2_DEFAULT_TAU, minRd: RD_MIN, maxRd: GLICKO2_DEFAULT_RD }
   );
   return {

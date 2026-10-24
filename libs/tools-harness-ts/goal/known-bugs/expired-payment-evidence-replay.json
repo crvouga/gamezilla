@@ -1,0 +1,4 @@
+{
+  "summary": "Replaying a real Stripe charge.succeeded after seven-year payment erasure attempted to insert the erased charge again and returned a primary-key error. Preserve redacted tombstones, ignore expired ordinary evidence, and reconcile refunds on legally held evidence. Actual signed callback replay pins redaction and idempotent acknowledgment; a payment first settled by the captured cancellation consumer also pins its retention event and telemetry, using returned rows rather than unsupported affected counts.",
+  "regressionTest": "libs/billing-harness-ts/tests/payment-evidence-settlement.test.ts"
+}

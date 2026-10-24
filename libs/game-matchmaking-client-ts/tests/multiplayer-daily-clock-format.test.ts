@@ -2,7 +2,14 @@ import { describe, expect, test } from 'bun:test';
 import {
   dailyClockParts,
   dailyClockStepMs,
+  moveListText,
+  multiplayerMoves,
+  positionAfter,
 } from '@libs/game-matchmaking-client-ts/multiplayer-format';
+import {
+  createTurnGames,
+  type GameSide,
+} from '@pkgs/turn-game-shared-ts/game-rules';
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
@@ -72,5 +79,92 @@ describe("a daily game's clock in the units people plan by", () => {
     expect(dailyClockStepMs(2 * DAY + 30 * MINUTE)).toBe(30 * MINUTE);
     expect(dailyClockStepMs(5 * HOUR + 30_000)).toBe(30_000);
     expect(dailyClockStepMs(90_500)).toBe(500);
+  });
+});
+
+const MOVE_LABELS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const;
+const RECORDED_GAME = { fen: 'reference:8', pgn: '' };
+
+function recordedRules(sides: readonly GameSide[]) {
+  return createTurnGames([
+    {
+      rules: {
+        id: 'reference',
+        sides,
+        initial: () => 'reference:0',
+        recognizes: (position) => position.startsWith('reference:'),
+        legal: () => [],
+        play: () => null,
+        replay: (_actions, ply) => `reference:${ply}`,
+        canWin: () => true,
+        moves: () =>
+          MOVE_LABELS.map((label, index) => ({
+            label,
+            before: `reference:${index}`,
+            after: `reference:${index + 1}`,
+          })),
+      },
+      capabilities: {},
+    },
+  ]);
+}
+
+describe('move numbering follows the declared seats', () => {
+  // regression: multiseat-move-numbering
+  test('four seats each have an unambiguous round and seat ordinal', () => {
+    const rules = recordedRules(['white', 'black', 'red', 'blue']);
+    const moves = multiplayerMoves(RECORDED_GAME, rules);
+    expect(moves.map((move) => move.numbering)).toEqual([
+      '1.1.',
+      '1.2.',
+      '1.3.',
+      '1.4.',
+      '2.1.',
+      '2.2.',
+      '2.3.',
+      '2.4.',
+    ]);
+    expect(moves.map((move) => move.name)).toEqual([
+      '1.1. a',
+      '1.2. b',
+      '1.3. c',
+      '1.4. d',
+      '2.1. e',
+      '2.2. f',
+      '2.3. g',
+      '2.4. h',
+    ]);
+    expect(moveListText(RECORDED_GAME, rules)).toBe(
+      '1.1. a 1.2. b 1.3. c 1.4. d 2.1. e 2.2. f 2.3. g 2.4. h'
+    );
+    expect(positionAfter(moves, 4)).toBe('reference:4');
+  });
+
+  test('two seats retain their existing displayed and spoken notation', () => {
+    const rules = recordedRules(['white', 'black']);
+    const moves = multiplayerMoves(RECORDED_GAME, rules);
+    expect(moves.map((move) => move.numbering)).toEqual([
+      '1.',
+      '',
+      '2.',
+      '',
+      '3.',
+      '',
+      '4.',
+      '',
+    ]);
+    expect(moves.map((move) => move.name)).toEqual([
+      '1. a',
+      '1... b',
+      '2. c',
+      '2... d',
+      '3. e',
+      '3... f',
+      '4. g',
+      '4... h',
+    ]);
+    expect(moveListText(RECORDED_GAME, rules)).toBe(
+      '1. a b 2. c d 3. e f 4. g h'
+    );
   });
 });

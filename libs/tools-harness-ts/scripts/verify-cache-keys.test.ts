@@ -15,6 +15,7 @@ type DryTask = { taskId: string; hash: string; inputs: Record<string, string> };
 const config = JSON.parse(
   readFileSync(join(import.meta.dirname, '../../../turbo.json'), 'utf8')
 ) as {
+  globalEnv: string[];
   globalPassThroughEnv: string[];
   tasks: Record<string, { inputs: string[]; outputs: string[]; env: string[] }>;
 };
@@ -37,6 +38,7 @@ function fixture(): string {
   writeFileSync(
     join(root, 'turbo.json'),
     JSON.stringify({
+      globalEnv: config.globalEnv,
       globalPassThroughEnv: config.globalPassThroughEnv,
       tasks: {
         build: {
@@ -82,6 +84,25 @@ function dry(
   );
   return (JSON.parse(stdout) as { tasks: DryTask[] }).tasks;
 }
+
+// regression: local-verify-time-limits-stop-complete-proofs
+test('unlimited local results cannot satisfy a bounded runner cache key', () => {
+  const root = fixture();
+  try {
+    const bounded = dry(root, ['build', 'independent'], {
+      VERIFY_TIME_LIMITS: 'on',
+    });
+    const unlimited = dry(root, ['build', 'independent'], {
+      VERIFY_TIME_LIMITS: 'off',
+    });
+    for (const task of bounded)
+      expect(
+        unlimited.find((other) => other.taskId === task.taskId)?.hash
+      ).not.toBe(task.hash);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
 
 test('explicit spec fingerprints remain hashed even though their cache directory is ignored', () => {
   const root = fixture();

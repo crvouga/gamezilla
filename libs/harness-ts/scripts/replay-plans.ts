@@ -46,13 +46,24 @@ export function packageSpecUnits(
   specs: readonly string[],
   partCount = 1
 ): readonly SpecUnit[] {
+  return packageSpecInventory(packageDir, specs)(partCount);
+}
+
+/** Snapshot sources and planned replay units once for independent candidate splits. */
+export function packageSpecInventory(
+  packageDir: string,
+  specs: readonly string[]
+): (partCount?: number) => readonly SpecUnit[] {
   const plans = readReplayPlans(packageDir);
-  return specs.flatMap((path) =>
-    specUnits(
-      path,
-      readFileSync(path, 'utf8'),
-      partCount,
-      path.endsWith('.qnt') ? replayPlanFor(plans, path) : undefined
-    )
-  );
+  const inventories = specs.map((path) => {
+    const source = readFileSync(path, 'utf8');
+    const plan = path.endsWith('.qnt') ? replayPlanFor(plans, path) : undefined;
+    // An unplanned model's slice count depends on the candidate part count.
+    if (path.endsWith('.qnt') && plan == null)
+      return (count: number) => specUnits(path, source, count, plan);
+    const units = specUnits(path, source, 1, plan);
+    return () => units;
+  });
+  return (partCount = 1) =>
+    inventories.flatMap((inventory) => inventory(partCount));
 }

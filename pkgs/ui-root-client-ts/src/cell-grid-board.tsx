@@ -14,6 +14,7 @@ export type CellGridEmphasis =
   | 'pending'
   | 'preview'
   | 'refused';
+export type CellGridEdge = 'top' | 'right' | 'bottom' | 'left';
 export type CellGridCell = {
   readonly id: string;
   /** Shown in the cell; hidden from assistive technology (the label says it). */
@@ -26,6 +27,11 @@ export type CellGridCell = {
   readonly outlined?: boolean | undefined;
   /** Whether activating it does anything. */
   readonly enabled: boolean;
+  /** Boundaries between cells; consecutive edges form a continuous barrier. */
+  readonly edges?: readonly CellGridEdge[] | undefined;
+  readonly previewEdges?: readonly CellGridEdge[] | undefined;
+  /** Four visual identities, also named by the cell's label and glyph. */
+  readonly identity?: 'one' | 'two' | 'three' | 'four' | undefined;
 };
 export type CellGridBoardProps = {
   readonly label: string;
@@ -92,6 +98,23 @@ function GridCell(props: {
       data-tone={cell()?.tone ?? 'open'}
       data-emphasis={cell()?.emphasis ?? 'none'}
       data-outlined={String(cell()?.outlined === true)}
+      data-identity={cell()?.identity}
+      data-edge-top={String(cell()?.edges?.includes('top') === true)}
+      data-edge-right={String(cell()?.edges?.includes('right') === true)}
+      data-edge-bottom={String(cell()?.edges?.includes('bottom') === true)}
+      data-edge-left={String(cell()?.edges?.includes('left') === true)}
+      data-preview-edge-top={String(
+        cell()?.previewEdges?.includes('top') === true
+      )}
+      data-preview-edge-right={String(
+        cell()?.previewEdges?.includes('right') === true
+      )}
+      data-preview-edge-bottom={String(
+        cell()?.previewEdges?.includes('bottom') === true
+      )}
+      data-preview-edge-left={String(
+        cell()?.previewEdges?.includes('left') === true
+      )}
       aria-label={cell()?.label}
       aria-disabled={cell()?.enabled !== true}
       tabIndex={props.focusable ? 0 : -1}

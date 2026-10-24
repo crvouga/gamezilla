@@ -67,21 +67,25 @@ export function deleteWaitingIdsQuery(args: {
        AND deleted_at IS NULL`;
 }
 
-export function insertMatchedRowQuery(args: {
-  readonly id: string;
-  readonly matchId: string;
-  readonly ownerId: string;
-  readonly joinedAt: number;
-  readonly matchedAt: number;
-  readonly dataJson: string;
-  readonly metadataJson: string | null;
-  readonly nowIso: string;
-}): SqlFragment {
+export function insertMatchedRowsQuery(
+  rows: readonly {
+    readonly id: string;
+    readonly matchId: string;
+    readonly ownerId: string;
+    readonly joinedAt: number;
+    readonly matchedAt: number;
+    readonly dataJson: string;
+    readonly metadataJson: string | null;
+    readonly nowIso: string;
+  }[]
+): SqlFragment {
   return sql<void>`
     INSERT INTO matchmaking_matched (
       id, owner_id, match_id, joined_at, matched_at, data, metadata,
       created_at, updated_at, deleted_at
-    ) VALUES (
+    ) VALUES ${join(
+      rows.map(
+        (args) => sql`(
       ${args.id},
       ${args.ownerId},
       ${args.matchId},
@@ -92,5 +96,7 @@ export function insertMatchedRowQuery(args: {
       ${args.nowIso},
       ${args.nowIso},
       ${null}
-    )`;
+    )`
+      )
+    )}`;
 }

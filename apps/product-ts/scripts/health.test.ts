@@ -104,29 +104,58 @@ test('the live entry binds the literal Connect Four journey steps', () => {
   expect(result.status, result.stdout + result.stderr).toBe(0);
 });
 
-test('the live entry binds the Battleship journey and health steps', () => {
-  const result = spawnSync(
-    process.execPath,
-    [
-      '-e',
-      `
-    await import('./tests/steps/live-index.ts');
+// regression: live-quoridor-journey-unbound
+test.each(['live', 'release'])(
+  'the %s entry binds the Battleship and Quoridor journey and health steps',
+  (entry) => {
+    const dir = mkdtempSync(join(tmpdir(), 'release-step-registration-'));
+    const manifest = join(dir, 'manifest.json');
+    writeFileSync(
+      manifest,
+      JSON.stringify({
+        webOrigin: 'https://web.example.invalid',
+        apiOrigin: 'https://api.example.invalid',
+      })
+    );
+    try {
+      const result = spawnSync(
+        process.execPath,
+        [
+          '-e',
+          `
+    await import('./tests/steps/${entry}-index.ts');
+    if (typeof document !== 'undefined') throw new Error('local DOM harness loaded');
     const { matchStep } = await import('@pkgs/gherkin-shared-ts/registry');
-    for (const text of [
+    const missing = [
       'Alice and Bob play Battleship from fresh devices',
       'Alice and Bob see the same completed Battleship game',
       'the team checks Battleship in this environment',
       'two people can find each other and play Battleship to a victory they both see',
-      "neither person saw the other's fleet beyond what their shots showed"
-    ]) {
-      if (matchStep(text).kind !== 'match') throw new Error('unbound: ' + text);
-    }
+      "neither person saw the other's fleet beyond what their shots showed",
+      'Alice and Bob play Classic Quoridor from fresh devices',
+      'Alice and Bob see the same completed Classic Quoridor game',
+      'Alice and Bob play Four-Player King of the Hill with two bots from fresh devices',
+      'Alice and Bob see the same completed Four-Player King of the Hill game',
+      'the team checks Classic Quoridor in this environment',
+      'two people can find each other and complete Classic Quoridor with the same result',
+      'the team checks Four-Player King of the Hill in this environment',
+      'two people and two bots can complete Four-Player King of the Hill with the same result'
+    ].filter((text) => matchStep(text).kind !== 'match');
+    if (missing.length > 0) throw new Error('unbound: ' + missing.join('\\n'));
   `,
-    ],
-    { cwd: resolve(import.meta.dir, '..'), encoding: 'utf8' }
-  );
-  expect(result.status, result.stdout + result.stderr).toBe(0);
-});
+        ],
+        {
+          cwd: resolve(import.meta.dir, '..'),
+          encoding: 'utf8',
+          env: { ...process.env, LOCALHOST_STACK_MANIFEST: manifest },
+        }
+      );
+      expect(result.status, result.stdout + result.stderr).toBe(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }
+);
 
 // regression: deploy-health-stale-foundation-secrets
 test('health uses the post-foundation database and monitor credentials', () => {
@@ -183,6 +212,36 @@ test('health generates feature and objective stubs with resolvable declared brid
       );
       expect(manifest.devDependencies[packageName]).toBe('workspace:*');
     }
+  } finally {
+    rmSync(stubDir, { recursive: true, force: true });
+  }
+});
+
+// regression: release-journey-erases-server-trace-evidence
+test('release timelines are opt-in while ordinary health keeps verdict-only reports', () => {
+  const stubDir = mkdtempSync(join(tmpdir(), 'release-timeline-bridge-'));
+  const dirs = { stubDir, reportDir: join(stubDir, 'report') };
+  const features = [join(REPO_ROOT, 'specs/journeys/multiplayer-game.feature')];
+  const sourceOf = (files: readonly string[]) =>
+    readFileSync(resolve(import.meta.dir, '..', files[0]!), 'utf8');
+  try {
+    expect(sourceOf(writeFeatureStubs(STANDARD, features, dirs))).not.toContain(
+      'wallFeatureReport'
+    );
+    const release = sourceOf(
+      writeFeatureStubs(STANDARD, features, { ...dirs, timelineReports: true })
+    );
+    expect(release).toContain(
+      JSON.stringify(
+        Bun.resolveSync(
+          '@pkgs/gherkin-server-ts/wall-reports-env',
+          import.meta.dir
+        )
+      )
+    );
+    expect(release).toContain(
+      `report: wallFeatureReport(${JSON.stringify(dirs.reportDir)})`
+    );
   } finally {
     rmSync(stubDir, { recursive: true, force: true });
   }

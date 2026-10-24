@@ -39,6 +39,7 @@ export async function withLocalVerifySlot<T>(
 export function localVerifyEnv(source: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
   return {
     ...source,
+    VERIFY_TIME_LIMITS: source['VERIFY_TIME_LIMITS']?.trim() || 'off',
     TURBO_CONCURRENCY: source['TURBO_CONCURRENCY']?.trim() || '1',
     VERIFY_CACHE_CONCURRENCY: source['VERIFY_CACHE_CONCURRENCY']?.trim() || '1',
     VERIFY_TEST_CONCURRENCY: source['VERIFY_TEST_CONCURRENCY']?.trim() || '1',

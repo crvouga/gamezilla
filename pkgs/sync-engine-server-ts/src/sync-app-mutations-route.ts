@@ -33,7 +33,7 @@ import type { Hono } from 'hono';
 import { allocateTopicPushSeqs } from './allocate-topic-push-seq';
 import { isAuthErrorBody } from './auth-error';
 import { syncBodyCap } from './body-cap';
-import { mutationSavepointClient } from './mutation-savepoint-client';
+import type { MutationLifecycle } from './mutation-lifecycle';
 import { publishPushMessages } from './notify-channels';
 import { parseMutationsBatchBody } from './parse-batch-body';
 import { processMutationsBatch } from './process-mutations-batch';
@@ -140,15 +140,17 @@ async function prepareMutationNotify(
   db: SqlClient
 ): Promise<PreparedMutationNotify> {
   return db.transaction(async (tx) => {
-    const nested = mutationSavepointClient(tx);
     const result = await processMutationsBatch({
-      serverDb: nested,
+      transaction: tx,
       registry: deps.mutations,
       auth,
       mutations: mutationRows,
       now: deps.now,
       createId: deps.createId,
       ...(deps.authorize !== undefined ? { authorize: deps.authorize } : {}),
+      ...(deps.wrapMutationTx === undefined
+        ? {}
+        : { wrapMutationTx: deps.wrapMutationTx }),
       ...(deps.turnGames === undefined ? {} : { turnGames: deps.turnGames }),
       ...(deps.contentRulesAt !== undefined
         ? { contentRulesAt: deps.contentRulesAt }
@@ -177,7 +179,7 @@ async function prepareMutationNotify(
       topicMap: deps.topicMap,
       auth,
       captures,
-      db: nested,
+      db: tx,
       now: deps.now,
       createId: deps.createId,
     });
@@ -186,7 +188,7 @@ async function prepareMutationNotify(
     // sends none at all: every reader is woken and reads again through its
     // own authorized queries, so no such row ever leaves in a push.
     const built = await buildFanoutRows({
-      db: nested,
+      db: tx,
       capture: merged,
       rowImageFanout: deps.rowImageFanout === true,
     });
@@ -202,10 +204,10 @@ async function prepareMutationNotify(
             topicMap: deps.topicMap,
             ctx: topicMapCtxFromEnv(env),
             rows,
-            db: nested,
+            db: tx,
           })
         : undefined;
-    const checkpoints = await allocateTopicPushSeqs(nested, topics, deps.now);
+    const checkpoints = await allocateTopicPushSeqs(tx, topics, deps.now);
     return { result, tables, rows, rowsByTopic, checkpoints };
   });
 }
@@ -233,7 +235,7 @@ async function publishMutationPushes(
   });
 }
 
-export type MountMutationsRouteDeps = {
+export type MountMutationsRouteDeps = MutationLifecycle & {
   readonly resolveAuth: (
     request: Request
   ) => Promise<SyncAppAuth | AuthErrorBody>;
@@ -299,6 +301,13 @@ export function mountMutationsRoute(
     }
     if (result.applied.length > 0)
       await deps.onCommitted?.(result.applied.map((item) => item.capture));
+    await deps.onCommittedMutations?.({
+      db,
+      auth,
+      mutationIds: result.verdicts
+        .filter((verdict) => verdict.status === 'applied')
+        .map((verdict) => verdict.mutationId),
+    });
     return c.json(
       {
         ok: result.ok,

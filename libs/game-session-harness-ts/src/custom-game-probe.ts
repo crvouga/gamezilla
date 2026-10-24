@@ -5,14 +5,16 @@
  * framework's own view of its stored state — never part of the game API;
  * a game's harness reads `custom-game-screen`.
  */
+
 import type { CustomGames } from '@libs/game-session-shared-ts/custom-game-state';
 import { actorUi } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
+import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 
 export type CustomGameProbe = CustomGames & {
   readonly myId: string;
-  readonly mySide: 'white' | 'black' | null;
+  readonly mySide: GameSide | null;
   /** A move made with no connection waits for it, showing no result. */
   readonly waiting: boolean;
   /**

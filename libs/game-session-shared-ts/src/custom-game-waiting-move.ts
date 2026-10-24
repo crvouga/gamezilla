@@ -19,6 +19,6 @@ export function customGameChoiceWaits(
     game !== null &&
     game.status === 'active' &&
     rules.forPosition(game.fen).setup !== undefined &&
-    [game.white, game.black].some((side) => side.kind === 'bot')
+    game.sides.some((side) => game[side].kind === 'bot')
   );
 }

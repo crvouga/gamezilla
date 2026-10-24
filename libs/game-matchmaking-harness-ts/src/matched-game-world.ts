@@ -14,7 +14,11 @@ import {
   multiplayerCommandReply,
   sendMultiplayerCommand,
 } from './multiplayer-commands';
-import { awaitGameMatch, givenOpponentSearch } from './multiplayer-fixtures';
+import {
+  awaitGameGroup,
+  awaitGameMatch,
+  givenOpponentSearch,
+} from './multiplayer-fixtures';
 import { multiplayerView } from './multiplayer-reads';
 
 /** Each named person has an account and a space to play in. */
@@ -63,6 +67,50 @@ export async function pairMatchedGame(w: HarnessWorld, pairing: Pairing) {
   w.memo.set('multiplayer:game', game);
   w.memo.set('multiplayer:pair', [first, second]);
   return game;
+}
+
+/** A complete declared group, through the same searches, formation and synchronized boards. */
+export async function groupMatchedGame(
+  w: HarnessWorld,
+  input: {
+    readonly people: ReadyPeople;
+    readonly participants: readonly string[];
+    readonly timeControl: string;
+  }
+) {
+  await input.people(w, input.participants);
+  for (const person of input.participants) {
+    await w.s.apply(givenOpponentSearch, person, input.timeControl);
+    await w.s.advanceTime(1);
+  }
+  await w.s.apply(awaitGameGroup, input.participants);
+  const game = await groupBoards(w, input.participants);
+  w.memo.set('multiplayer:game', game);
+  w.memo.set('multiplayer:pair', input.participants.slice(0, 2));
+  w.memo.set('multiplayer:group', input.participants);
+  return game;
+}
+
+/** Every participant's device agrees on the accepted game, including result and clocks. */
+export async function groupBoards(
+  w: HarnessWorld,
+  participants: readonly string[],
+  predicate: (game: MultiplayerGame) => boolean = () => true
+): Promise<MultiplayerGame> {
+  await w.s.until(async (s) => {
+    const games = await Promise.all(
+      participants.map(
+        async (person) => (await multiplayerView(s, person)).game
+      )
+    );
+    const first = games[0];
+    return (
+      first != null &&
+      predicate(first) &&
+      games.every((game) => JSON.stringify(game) === JSON.stringify(first))
+    );
+  });
+  return matchedGameOf(w, participants[0]);
 }
 
 /** The two people of the scenario's matched game, the first side first. */

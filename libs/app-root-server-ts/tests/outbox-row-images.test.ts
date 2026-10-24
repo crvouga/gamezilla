@@ -31,7 +31,8 @@ const Ready = createMessageNamespace('outbox-images')(
 async function publishRows(
   forbidImages: boolean,
   owners: readonly string[] = ['alice', 'bob'],
-  fenced = true
+  fenced = true,
+  failAfterWrite = false
 ): Promise<Map<string, PushMessage>> {
   const db = SqlClientImplBunSqlite.open(':memory:');
   await db.connect();
@@ -48,6 +49,8 @@ async function publishRows(
           await tx.run(
             sql`INSERT INTO notes (id, owner_id, body) VALUES (${owner}, ${owner}, ${owner + '-only'})`
           );
+        if (failAfterWrite)
+          throw new Error('Delivery refused after captured writes');
         return { notifyUserIds: owners };
       },
     });
@@ -78,6 +81,10 @@ async function publishRows(
         },
       },
     });
+    if (failAfterWrite)
+      expect(await db.query(sql<{ id: string }>`SELECT id FROM notes`)).toEqual(
+        []
+      );
     return frames;
   } finally {
     await db.disconnect();
@@ -117,6 +124,12 @@ test('a publication veto sends invalidations without any row images', async () =
   );
 });
 
+// regression: outbox-rollback-publishes-captured-images
+test('a failed consumer never publishes rows rolled back to its savepoint', async () => {
+  const frames = await publishRows(false, ['alice'], true, true);
+  expect([...frames]).toEqual([]);
+});
+
 test('row images respect topic ownership and publication vetoes for every recipient set', async () => {
   await assertProperty(
     'outbox row-image privacy',
@@ -126,8 +139,13 @@ test('row images respect topic ownership and publication vetoes for every recipi
         maxLength: 3,
       }),
       fc.boolean(),
-      async (owners, forbid) => {
-        const frames = await publishRows(forbid, owners);
+      fc.boolean(),
+      async (owners, forbid, fail) => {
+        const frames = await publishRows(forbid, owners, true, fail);
+        if (fail) {
+          expect([...frames]).toEqual([]);
+          return;
+        }
         expect([...frames.keys()].sort()).toEqual(
           owners.map((owner) => `user:${owner}`).sort()
         );

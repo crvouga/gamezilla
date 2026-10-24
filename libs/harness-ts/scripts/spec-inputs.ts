@@ -12,7 +12,7 @@ import {
 import { dirname, join, relative, resolve } from 'node:path';
 import { quintImportPaths } from '@pkgs/quint-shared-ts/imports';
 import { packageSpecUnits } from './replay-plans';
-import { type SpecUnit, splitSpecUnits } from './spec-parts';
+import { partsOf, type SpecUnit } from './spec-parts';
 import { packageSpecs, type SpecManifest } from './spec-sources';
 
 /** Imported models participate even when they live outside the owning domain. */
@@ -94,10 +94,10 @@ function packageInputValues(dir: string, root: string): Record<string, string> {
   if (!count) return {};
   const paths = packageSpecs(dir, root);
   const units = packageSpecUnits(dir, paths, count);
+  const parts = partsOf(units, count);
   const values: Record<string, string> = {};
-  const parts = splitSpecUnits(units, count);
   for (let index = 0; index < count; index++)
-    values[`part-${index}.json`] = specInputManifest(parts[index] ?? [], root);
+    values[`part-${index}.json`] = specInputManifest(parts[index]!, root);
   values['models.json'] = specInputManifest(
     units.filter(
       (unit) => unit.path.endsWith('.qnt') && (unit.slice?.index ?? 0) === 0

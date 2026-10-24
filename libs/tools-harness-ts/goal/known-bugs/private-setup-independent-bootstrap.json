@@ -1,0 +1,4 @@
+{
+  "summary": "The private-setup noninterference fixture compared two independently bootstrapped room histories. CI legitimately recorded a creator away at t+2 then available at t+100 in one history, producing 29 versus 27 entries before either hidden setup. Fork independent actual room/gateway branches from one complete pre-choice checkpoint, preserve that literal presence sequence in both inputs, and compare complete live and catch-up wire without filtering any fields or entries.",
+  "regressionTest": "libs/games-harness-ts/tests/conformance/custom-games/private-setup-privacy.test.ts"
+}

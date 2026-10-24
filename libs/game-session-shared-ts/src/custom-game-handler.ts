@@ -6,7 +6,10 @@ import {
 } from '@libs/spaces-shared-ts/space-members-messages';
 import { ROOM_SCHEDULER_IDENTITY } from '@pkgs/room-root-shared-ts/builtin';
 import type { HandleResult, RoomState } from '@pkgs/room-root-shared-ts/types';
-import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  gameSides,
+  type TurnGames,
+} from '@pkgs/turn-game-shared-ts/game-rules';
 import { customGameAwaySince } from './custom-game-absence';
 import { CustomGameAvailableAttr } from './custom-game-availability';
 import type { CustomGameChoice } from './custom-game-choice';
@@ -57,7 +60,12 @@ function createdCustomGame(
   if (!rules.offers(id, 'custom-games')) return null;
   if (choice.operation === 'rematch' && game !== null)
     return rematchCustomGame(game, ctx.commandId, members, rules);
-  return newCustomGame(ctx.commandId, ctx.identity, rules.byId(id).initial());
+  return newCustomGame(
+    ctx.commandId,
+    ctx.identity,
+    rules.byId(id).initial(),
+    gameSides(rules.byId(id))
+  );
 }
 
 export function handleCustomGameChoice(

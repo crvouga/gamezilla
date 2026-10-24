@@ -32,11 +32,27 @@ export async function recordPaymentEvidence(
   const { payments, nowMs } = input;
   const now = new Date(nowMs).toISOString();
   for (const payment of payments) {
-    await tx.run(sql`
+    const eraseBy = paymentEraseBy(payment.paidAtMs);
+    // regression: expired-payment-evidence-replay
+    // A provider reread includes old charges after their evidence was erased.
+    if (Date.parse(eraseBy) <= nowMs) {
+      const retained = await tx.query(sql<{ id: string }>`
+        UPDATE billing_payment_evidence SET refunded_minor = ${payment.refundedMinor}, updated_at = ${now}
+        WHERE id = ${`${provider}:${payment.id}`} AND deleted_at IS NULL AND legal_purpose IS NOT NULL
+        RETURNING *
+      `);
+      if (retained.length > 0)
+        await recordPaymentTelemetry(tx, provider, payment, nowMs);
+      continue;
+    }
+    const recorded = await tx.query(sql<{ id: string }>`
       INSERT INTO billing_payment_evidence (id, created_at, updated_at, account_id, provider, payment_id, paid_at, amount_minor, currency, refunded_minor, erase_by)
-      VALUES (${`${provider}:${payment.id}`}, ${now}, ${now}, ${accountId}, ${provider}, ${payment.id}, ${new Date(payment.paidAtMs).toISOString()}, ${payment.amountMinor}, ${payment.currency}, ${payment.refundedMinor}, ${paymentEraseBy(payment.paidAtMs)})
-      ON CONFLICT (provider, payment_id) DO UPDATE SET refunded_minor = ${payment.refundedMinor}, updated_at = ${now}
+      VALUES (${`${provider}:${payment.id}`}, ${now}, ${now}, ${accountId}, ${provider}, ${payment.id}, ${new Date(payment.paidAtMs).toISOString()}, ${payment.amountMinor}, ${payment.currency}, ${payment.refundedMinor}, ${eraseBy})
+      ON CONFLICT (id) DO UPDATE SET refunded_minor = ${payment.refundedMinor}, updated_at = ${now}
+      WHERE billing_payment_evidence.deleted_at IS NULL
+      RETURNING *
     `);
+    if (recorded.length === 0) continue;
     const eventId = `billing-payment-retention:${provider}:${payment.id}`;
     await new Outbox({
       tx,
@@ -46,7 +62,7 @@ export async function recordPaymentEvidence(
       message: paymentRetentionEnded({ paymentId: payment.id }),
     });
     await tx.run(
-      sql`UPDATE outbox_events SET available_at = ${paymentEraseBy(payment.paidAtMs)} WHERE id = ${eventId}`
+      sql`UPDATE outbox_events SET available_at = ${eraseBy} WHERE id = ${eventId}`
     );
     await recordPaymentTelemetry(tx, provider, payment, nowMs);
   }

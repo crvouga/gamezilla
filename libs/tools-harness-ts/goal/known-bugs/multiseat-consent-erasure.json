@@ -1,0 +1,4 @@
+{
+  "summary": "A withdrawn or erased participant's account ID survived inside a finished round's draw and rematch consent lists.",
+  "regressionTest": "libs/game-matchmaking-shared-ts/tests/multiseat-consent-erasure.test.ts"
+}

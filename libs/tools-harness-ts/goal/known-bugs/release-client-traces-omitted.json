@@ -1,0 +1,4 @@
+{
+  "summary": "Release journey failure output selected only server mutation traces even though the shipped browser exports into the same native collector journal. Existing client upload spans carry exact mutation IDs in events and origin links, but were omitted, leaving the observed mutation-mint-to-server interval unattributed. Failure-only narration now indexes those existing normalized client records once, follows exact IDs and origin span pointers, explicitly reports absent exports, and bounds additional client evidence to 2000 characters per run without runtime instrumentation or broader time matching. Controlled OTLP examples cover this diagnostic gap; they are not recovered CI client records.",
+  "regressionTest": "apps/product-ts/scripts/release-failure-traces.test.ts"
+}

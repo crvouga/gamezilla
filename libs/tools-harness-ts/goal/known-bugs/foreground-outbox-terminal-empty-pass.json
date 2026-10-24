@@ -1,0 +1,4 @@
+{
+  "summary": "A successful causal root-to-child HTTP upload always opened a third outbox transaction just to materialize and claim no further work before its aggregate wake and acknowledgement. A fresh scoped due-work witness replaces that terminal two-statement empty transaction with one read, while event writes retain the original continuation path and prior pending, retry, deferred and unmaterialized work remain eligible.",
+  "regressionTest": "libs/app-root-server-ts/tests/foreground-outbox.test.ts"
+}

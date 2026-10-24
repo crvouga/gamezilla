@@ -39,6 +39,7 @@ Feature: Stop charging a deleted account
       Then Alice has free access
       And Alice's payment record cannot restore the deleted account's membership
 
+    @regression:payment-retention-fixture-renewals
     Scenario: Ordinary payment retention expires after seven years
       Given Alice's payment record is 7 years old
       And no specific legal preservation obligation applies to it

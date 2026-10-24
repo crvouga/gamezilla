@@ -19,24 +19,42 @@ const gameSchema = z.object({
   id: z.string().min(1),
   white_id: z.string(),
   black_id: z.string(),
+  red_id: z.string().nullable().optional(),
+  blue_id: z.string().nullable().optional(),
   fen: z.string(),
   pgn: z.string(),
   revision: z.number().int().nonnegative(),
   turn: z.string(),
-  outcome: z.enum(['ongoing', 'white', 'black', 'draw', 'aborted']),
+  outcome: z.enum([
+    'ongoing',
+    'white',
+    'black',
+    'red',
+    'blue',
+    'draw',
+    'aborted',
+  ]),
   reason: z.string().nullable(),
   time_control: z.string().nullable().optional(),
   white_ms: z.number().nullable().optional(),
   black_ms: z.number().nullable().optional(),
+  red_ms: z.number().nullable().optional(),
+  blue_ms: z.number().nullable().optional(),
   clock_at_ms: z.number().nullable().optional(),
   paused_at_ms: z.number().nullable(),
   draw_offer_by: z.string().nullable().optional(),
   rematch_offer_by: z.string().nullable().optional(),
+  draw_votes: z.string().nullable().optional(),
+  rematch_votes: z.string().nullable().optional(),
   rematch_of: z.string().nullable().optional(),
   white_rating: z.string().nullable().optional(),
   black_rating: z.string().nullable().optional(),
+  red_rating: z.string().nullable().optional(),
+  blue_rating: z.string().nullable().optional(),
   white_rating_diff: z.number().nullable().optional(),
   black_rating_diff: z.number().nullable().optional(),
+  red_rating_diff: z.number().nullable().optional(),
+  blue_rating_diff: z.number().nullable().optional(),
   setup_ready: z.string().nullable().optional(),
 });
 /** The accepted game a match room shares. Clock fields travel with a timed game. */
@@ -98,6 +116,12 @@ export const matchRoomModule: RoomModule<RoomState, Message, Message, string> =
               white_id: current.white_id.startsWith('deleted:')
                 ? current.white_id
                 : game.white_id,
+              ...(current.red_id?.startsWith('deleted:')
+                ? { red_id: current.red_id }
+                : {}),
+              ...(current.blue_id?.startsWith('deleted:')
+                ? { blue_id: current.blue_id }
+                : {}),
               black_id: current.black_id.startsWith('deleted:')
                 ? current.black_id
                 : game.black_id,

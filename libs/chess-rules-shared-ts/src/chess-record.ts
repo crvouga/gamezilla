@@ -16,14 +16,28 @@ export function chessRecord(
   board: Chess,
   metadata: GameRecordMetadata
 ): string {
+  const white = metadata.participants[0];
+  const black = metadata.participants[1];
+  if (
+    metadata.participants.length !== 2 ||
+    white === undefined ||
+    black === undefined
+  )
+    throw new Error('A chess record requires exactly two participants');
+  if (
+    metadata.outcome !== 'white' &&
+    metadata.outcome !== 'black' &&
+    metadata.outcome !== 'draw'
+  )
+    throw new Error('A chess record requires a chess side or a draw');
   const tags = {
     Event: 'Multiplayer chess',
-    White: safeTag(metadata.participants[0].name),
-    Black: safeTag(metadata.participants[1].name),
+    White: safeTag(white.name),
+    Black: safeTag(black.name),
     Result: RESULTS[metadata.outcome],
     TimeControl: timeControl(metadata.timeControl),
-    WhiteElo: rating(metadata.participants[0].rating),
-    BlackElo: rating(metadata.participants[1].rating),
+    WhiteElo: rating(white.rating),
+    BlackElo: rating(black.rating),
     Termination: metadata.reason?.startsWith('timeout')
       ? 'time forfeit'
       : 'normal',

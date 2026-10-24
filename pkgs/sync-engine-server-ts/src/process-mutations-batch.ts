@@ -1,5 +1,6 @@
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
+import { raw } from '@pkgs/sql-root-shared-ts/sql';
 import { MAX_MUTATIONS_BATCH } from '@pkgs/sync-engine-shared-ts/bounds';
 import type {
   ContentRules,
@@ -9,6 +10,7 @@ import type {
 import type { WriteCaptureSnapshot } from '@pkgs/sync-engine-shared-ts/write-capture';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
+import type { MutationTxWrapper } from './mutation-lifecycle';
 import type { MutationRow, ReplayAuth, ReplayOutcome } from './replay-mutation';
 import { replayMutation } from './replay-mutation';
 
@@ -36,13 +38,15 @@ export type ProcessMutationsBatchResult = {
 };
 
 export type ProcessMutationsBatchDeps = {
-  readonly serverDb: SqlClient;
+  /** The caller owns this enclosing transaction, including late fanout work. */
+  readonly transaction: SqlClient;
   readonly registry: MutationRegistry;
   readonly auth: ReplayAuth;
   readonly mutations: readonly MutationRow[];
   readonly now: () => number;
   readonly createId: CreateId;
   readonly authorize?: MutationAuthorize;
+  readonly wrapMutationTx?: MutationTxWrapper;
   /**
    * The app's content rules as they stood at a write's time (its
    * `created_at`), handed to the mutation body as `env.contentRules`.
@@ -76,12 +80,18 @@ export async function processMutationsBatch(
     const row = sorted[index]!;
     const outcome: ReplayOutcome = await replayMutation(
       {
-        serverDb: deps.serverDb,
+        serverDb: replaySavepoint(
+          deps.transaction,
+          index === sorted.length - 1
+        ),
         registry: deps.registry,
         auth: deps.auth,
         now: deps.now,
         createId: deps.createId,
         ...(deps.authorize !== undefined ? { authorize: deps.authorize } : {}),
+        ...(deps.wrapMutationTx === undefined
+          ? {}
+          : { wrapMutationTx: deps.wrapMutationTx }),
         ...(deps.turnGames === undefined ? {} : { turnGames: deps.turnGames }),
         ...(deps.contentRulesAt !== undefined
           ? { contentRulesAt: deps.contentRulesAt }
@@ -116,4 +126,35 @@ export async function processMutationsBatch(
   assert.equals(verdicts.length, sorted.length, 'mutation verdict count');
 
   return { ok: true, verdicts, applied, ackSeq };
+}
+
+/** Only the last applied replay may leave its savepoint to the outer commit.
+ * Rejection bookkeeping also uses transaction(), but returns void, so it and
+ * every duplicate or rejected result still release normally. */
+function replaySavepoint(tx: SqlClient, finalRecord: boolean): SqlClient {
+  return {
+    connect: () => tx.connect(),
+    disconnect: () => Promise.resolve(),
+    query: (q) => tx.query(q),
+    run: (q) => tx.run(q),
+    prepare: (q) => tx.prepare(q),
+    transaction: async (body) => {
+      await tx.run(raw('SAVEPOINT sync_engine_mutation'));
+      try {
+        const result = await body(tx);
+        const applied =
+          typeof result === 'object' &&
+          result !== null &&
+          'status' in result &&
+          result.status === 'applied';
+        if (!finalRecord || !applied)
+          await tx.run(raw('RELEASE SAVEPOINT sync_engine_mutation'));
+        return result;
+      } catch (error) {
+        await tx.run(raw('ROLLBACK TO SAVEPOINT sync_engine_mutation'));
+        await tx.run(raw('RELEASE SAVEPOINT sync_engine_mutation'));
+        throw error;
+      }
+    },
+  };
 }

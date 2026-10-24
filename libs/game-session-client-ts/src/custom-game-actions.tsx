@@ -36,7 +36,14 @@ export function CustomGameStarter(props: ModelProps): JSX.Element {
             operation={() => props.model.choose({ operation: 'create' })}
           />
           <GameActionButton
-            title={<Trans>Play a bot</Trans>}
+            title={
+              <Show
+                when={props.model.playerCount() > 2}
+                fallback={<Trans>Play a bot</Trans>}
+              >
+                <Trans>Play against bots</Trans>
+              </Show>
+            }
             dataSet={{ testid: 'custom-game-play-bot' }}
             operation={props.model.playBot}
           />

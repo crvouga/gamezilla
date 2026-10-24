@@ -65,7 +65,9 @@ async function actorSpaceLink(
   return spaceLinkFromLocation(await actor.currentPath());
 }
 
-export function harnessJourneyHost(w: HarnessWorld): JourneyHost {
+export function harnessJourneyHost(
+  w: Pick<HarnessWorld, 's'>
+): JourneyHost {
   let guestId = GUEST;
   const act = async (name: string, gestures: JourneyGestures) => {
     // The guest's last gesture parks Alice. An instant visibility check then

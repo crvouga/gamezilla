@@ -1,0 +1,4 @@
+{
+  "summary": "The live-health entry omitted the Quoridor critical journeys, and the release entry omitted both Quoridor journey and health definitions, so selected production scenarios failed with undefined steps.",
+  "regressionTest": "apps/product-ts/scripts/health.test.ts"
+}

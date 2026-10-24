@@ -12,7 +12,10 @@ import { playedRulesOf } from '@libs/game-session-harness-ts/played-rules';
 import { playCustomGameMove } from '@libs/game-session-shared-ts/custom-game-play';
 import { customGamePositionAt } from '@libs/game-session-shared-ts/custom-game-position';
 import { newCustomGame } from '@libs/game-session-shared-ts/custom-game-state';
-import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  createTurnGames,
+  gameSides,
+} from '@pkgs/turn-game-shared-ts/game-rules';
 import { forEveryGame } from '../game-suite';
 
 forEveryGame(import.meta.path, (game) => {
@@ -22,7 +25,12 @@ forEveryGame(import.meta.path, (game) => {
     const [opening, reply] = game.fixtures.firstSideVictory;
     const afterOpening = playedRulesOf(game).replay([opening!], 1);
     const retained = {
-      ...newCustomGame('retained-match', 'alice', afterOpening),
+      ...newCustomGame(
+        'retained-match',
+        'alice',
+        afterOpening,
+        gameSides(game.shared.turnGame.rules)
+      ),
       status: 'active' as const,
     };
     const before = JSON.stringify(retained);
@@ -42,7 +50,8 @@ forEveryGame(import.meta.path, (game) => {
         ...newCustomGame(
           'retained-match',
           'alice',
-          game.shared.turnGame.rules.initial()
+          game.shared.turnGame.rules.initial(),
+          gameSides(game.shared.turnGame.rules)
         ),
         status: 'active' as const,
         turn: 'black' as const,

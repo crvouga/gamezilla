@@ -3,6 +3,7 @@ import { execFileSync, spawn } from 'node:child_process';
 import { mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Denial } from '@pkgs/aedes-server-ts/start';
+import { wallClock } from '@pkgs/clock-shared-ts/wall';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server-ts/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
 import { build } from 'vite';
@@ -16,9 +17,10 @@ import {
   writeFeatureStubs,
 } from './health';
 import { LOCAL_MONITOR_TOKEN } from './local-api-env';
-import { removeManifest } from './manifest';
+import { removeManifest, type StackManifest } from './manifest';
 import { databaseVerdict, profileOf } from './production-database';
 import { printReleasePairingEvidence } from './release-failure-diagnostics';
+import { releaseFailureTraces } from './release-failure-traces';
 import { printReleaseQueryEvidence } from './release-query-diagnostics';
 import { RELEASE_ENVIRONMENT, releaseSpecs } from './release-selection';
 import { specProcessExit } from './spec-process';
@@ -100,6 +102,7 @@ function journeyStubs(): readonly string[] {
   const dirs = {
     stubDir: join(PACKAGE_DIR, '.cache/spec-release'),
     reportDir: join(PACKAGE_DIR, '.cache/release-report'),
+    timelineReports: true,
   };
   rmSync(dirs.stubDir, { recursive: true, force: true });
   mkdirSync(dirs.stubDir, { recursive: true });
@@ -121,7 +124,7 @@ function databaseExitCode(booted: {
   console.log(
     `database link: ${String(summary.connections)} requests, at most ${String(summary.peakSessions)} pooled sessions at once; costliest:\n  ${verdict.costliest.join('\n  ')}`
   );
-  if (process.env['STACK_DATABASE_PROFILE'] === '1')
+  if (!verdict.ok || process.env['STACK_DATABASE_PROFILE'] === '1')
     console.log(`database link profile:\n${profileOf(summary)}`);
   for (const violation of verdict.violations)
     console.error(`database link: ${violation}`);
@@ -138,6 +141,33 @@ function brokerExitCode(booted: {
   return verdict.ok ? 0 : 1;
 }
 
+/** Narrate collected server work before the failed run's temporary files go away. */
+async function printFailureTraces(manifest: StackManifest): Promise<void> {
+  if (manifest.observabilityTraceDir === null) {
+    console.error('Release failure traces unavailable: tracing was disabled.');
+    return;
+  }
+  const store = (rootDir: string) =>
+    createNodeFsObjectStore({ rootDir, fs: wallNodeFs(), layout: 'tree' });
+  try {
+    console.error(
+      await releaseFailureTraces({
+        reports: store(join(PACKAGE_DIR, '.cache/release-report')),
+        telemetry: store(manifest.observabilityTraceDir),
+        run: { startMs: manifest.startedAtMs, endMs: wallClock.now() },
+        mutationNames: ['findChessOpponent', 'createSpace'],
+      })
+    );
+  } catch {
+    console.error(
+      'Release failure trace narration unavailable: collected data could not be read.'
+    );
+  }
+}
+
+// Retain bounded statement profiles so a failed release check identifies the
+// expensive work after connection setup, rather than only its first queries.
+process.env['STACK_DATABASE_PROFILE'] = '1';
 const stack = await bootLocalhostStack(options, true, 'isolated');
 let server: ReturnType<typeof serveRelease> | undefined;
 try {
@@ -172,6 +202,8 @@ try {
 } finally {
   await server?.stop(true);
   await stack.stop();
+  if (process.exitCode !== undefined && process.exitCode !== 0)
+    await printFailureTraces(stack.manifest);
   removeManifest(REPO_ROOT, options.instanceId);
   if (!options.keepData)
     rmSync(stack.manifest.dataDir, { recursive: true, force: true });

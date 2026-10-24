@@ -1,0 +1,4 @@
+{
+  "summary": "An explicitly empty event partition still materialized deliveries for unrelated events even though it claimed none. Return before materialization for an empty partition; fixtures that intentionally register all consumers without processing use the unscoped zero-claim limit.",
+  "regressionTest": "pkgs/outbox-harness-ts/tests/worker-partition.test.ts"
+}

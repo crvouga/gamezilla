@@ -109,3 +109,11 @@ terms:
     from: puzzles
   - term: pack progress
     from: puzzles
+  - term: Quoridor
+    from: quoridor
+  - term: Classic Quoridor
+    from: quoridor
+  - term: Four-Player King of the Hill
+    from: quoridor
+  - term: bot
+    from: games

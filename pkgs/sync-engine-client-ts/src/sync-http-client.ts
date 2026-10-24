@@ -260,11 +260,15 @@ async function postAuthedJson(
     deviceId,
   });
   if (response.status === 401 && options.getFreshAuthToken !== undefined) {
-    const refusal = (await response.json().catch(() => ({}))) as {
-      readonly reason?: unknown;
-    };
-    // A protocol cut cannot be repaired by refreshing the person's session.
-    if (refusal.reason === 'upgrade_required')
+    // regression: sync-upgrade-required-refreshes-session
+    // A protocol refusal cannot be repaired by changing the person's session.
+    const refusal: unknown = await response.json().catch(() => null);
+    if (
+      typeof refusal === 'object' &&
+      refusal !== null &&
+      'reason' in refusal &&
+      refusal.reason === 'upgrade_required'
+    )
       throw new SyncApiAuthError('upgrade_required');
     const previous = bearer;
     bearer = await resolveBearerToken(

@@ -322,11 +322,11 @@ test('dedicated solver runners are not a pack imbalance', () => {
 });
 
 // regression: verify-cold-corpus-overfills-forty-shards
-test('a cold corpus still finishes after every solver takes a runner', () => {
+test('a cold corpus stays bounded at both forty and sixty-four runners', () => {
   // Verify run 38328597240: 27 solver runners inside a cap of 40 packed the
   // other 5034 estimated seconds into shards of 376s, which were still
-  // running at the 1200s deadline. The same corpus at 64 stays under a
-  // quarter of that deadline, so a four-times slip still finishes.
+  // running at the 1200s deadline. Sharing spare proof capacity now keeps
+  // both caps under a quarter of that deadline, with every task retained.
   const solvers = [
     task('@apps/product-ts#test:contract', 86),
     ...Array.from({ length: 26 }, (_, index) =>
@@ -337,11 +337,15 @@ test('a cold corpus still finishes after every solver takes a runner', () => {
     task(`pkg-${index}#test`, 6)
   );
   const heaviest = (count: number) => {
-    const bins = balanceShards(
-      [...solvers, ...packed],
-      count,
-      60
-    ).shards.filter(
+    const tasks = [...solvers, ...packed];
+    const plan = balanceShards(tasks, count, 60);
+    validatePlan(plan);
+    expect(
+      plan.shards
+        .flatMap((shard) => shard.tasks.map((item) => item.taskId))
+        .sort()
+    ).toEqual(tasks.map((item) => item.taskId).sort());
+    const bins = plan.shards.filter(
       (shard) =>
         shard.stage === 'verifications' &&
         executes(shard) &&
@@ -349,7 +353,7 @@ test('a cold corpus still finishes after every solver takes a runner', () => {
     );
     return Math.max(...bins.map((shard) => shard.seconds));
   };
-  expect(heaviest(40)).toBeGreaterThan(CI_RUN_DEADLINE_SECONDS / 4);
+  expect(heaviest(40) * 4).toBeLessThanOrEqual(CI_RUN_DEADLINE_SECONDS);
   expect(heaviest(64) * 4).toBeLessThanOrEqual(CI_RUN_DEADLINE_SECONDS);
 });
 
@@ -378,6 +382,7 @@ test('progress and live timeouts use virtual time and completed artifacts, never
   const stream = taskStream([task('slow')], (line) => logs.push(line), {
     now: () => now,
     completed: () => completed,
+    env: { ...process.env, VERIFY_TIME_LIMITS: 'on' },
   });
   stream(
     JSON.stringify({
@@ -392,7 +397,13 @@ test('progress and live timeouts use virtual time and completed artifacts, never
   expect(logs.join(' ')).toContain('slow 30s');
   expect(stream.tick()).toEqual([]);
   // regression: randomized-budget-tests-inherit-nightly
-  now = taskBudgetSeconds('slow', true) * 1000 + 1;
+  now =
+    taskBudgetSeconds('slow', true, {
+      ...process.env,
+      VERIFY_TIME_LIMITS: 'on',
+    }) *
+      1000 +
+    1;
   expect(stream.tick()).toEqual(['slow']);
   expect(logs.join(' ')).toContain('TIMEOUT slow');
   completed = true;

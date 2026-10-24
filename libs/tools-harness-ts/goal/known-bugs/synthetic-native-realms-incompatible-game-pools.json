@@ -1,0 +1,4 @@
+{
+  "summary": "The two-person native application, handoff and acknowledgement fixtures let their isolated realms independently choose different game pools, so neither could form the authoritative match that the fixture required. Seed 7221 selected Connect Four and Battleship and left both realms waiting without an error.",
+  "regressionTest": "apps/synthetic-population-worker-ts/tests/session-handoff.test.ts"
+}

@@ -15,6 +15,7 @@ test.each([1, 99])(
     // regression: synthetic-native-pair-different-games
     // regression: synthetic-population-incompatible-snapshot-loses-match
     // regression: synthetic-population-native-fixture-expiry
+    // regression: synthetic-native-realms-incompatible-game-pools
     const backend = await runtimeBackend(2);
     const sessions: ManagedSession[] = [];
     try {

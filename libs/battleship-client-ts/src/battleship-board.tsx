@@ -12,6 +12,7 @@ import {
 import { t } from '@lingui/core/macro';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
+import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import {
   CellGridBoard,
@@ -132,7 +133,7 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
     props.setup === null ? null : parseFleet(props.setup)
   );
   const viewer = () => (props.setup === null ? null : props.orientation);
-  const rival = () => otherSide(props.orientation);
+  const rival = () => otherSide(requireTwoPlayerSide(props.orientation));
   const interactive = () => props.interactive && battle().winner === null;
   const aim = createAim(props);
   const [view, setView] = createSignal<BoardView>('own');
@@ -142,7 +143,8 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
     })
   );
   const incoming = () => battle().shots[rival()];
-  const outgoing = () => battle().shots[props.orientation];
+  const outgoing = () =>
+    battle().shots[requireTwoPlayerSide(props.orientation)];
   const labels = createMemo(() => {
     if (viewer() !== null) return { own: t`Your fleet`, target: t`Targeting` };
     const own = sideName(props.orientation);

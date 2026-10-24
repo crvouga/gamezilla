@@ -11,6 +11,7 @@ import {
   multiplayerResultNoticeSource,
   multiplayerTurnNoticeSource,
 } from '@libs/game-matchmaking-shared-ts/multiplayer-notices';
+import { multiplayerPeople } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
 import { Notifications } from '@libs/notifications-server-ts/notifications-service';
 import { registerNotificationActionHandler } from '@libs/notifications-shared-ts/action-registry';
 import { NotificationsError } from '@libs/notifications-shared-ts/notifications-errors';
@@ -107,7 +108,7 @@ export function createMultiplayerNoticesConsumer(rules: TurnGames) {
         await reconcileTurnNotice(reconcile);
         await reconcileResultNotice(reconcile);
       }
-      return { notifyUserIds: [game.white_id, game.black_id] };
+      return { notifyUserIds: multiplayerPeople(game) };
     },
   });
 }

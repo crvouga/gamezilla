@@ -351,8 +351,13 @@ export async function startDatabaseLink(
   const pool = createSessionPool(options.sessions);
   const connections: LinkConnection[] = [];
   const sockets = new Set<net.Socket>();
-  const server = net.createServer((client) => {
-    const upstream = net.connect(upstreamPort, upstreamUrl.hostname);
+  // The configured round trip owns latency; neither proxy leg adds Nagle buffering.
+  const server = net.createServer({ noDelay: true }, (client) => {
+    const upstream = net.connect({
+      port: upstreamPort,
+      host: upstreamUrl.hostname,
+      noDelay: true,
+    });
     for (const socket of [client, upstream]) {
       sockets.add(socket);
       socket.once('close', () => sockets.delete(socket));

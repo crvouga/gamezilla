@@ -3,9 +3,11 @@ import {
   awaitingSetups,
   setupReadySides,
 } from '@libs/game-matchmaking-shared-ts/game-state';
+import { multiplayerSideOf } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { createQuery } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
+import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { useRandom } from '@pkgs/uuid-client-ts/solid';
 import { type Accessor, createMemo, createSignal } from 'solid-js';
 
@@ -31,8 +33,7 @@ export function useMultiplayerPrivateSetup(
   const side = createMemo(() => {
     const current = game();
     if (current === null) return null;
-    if (current.white_id === myId()) return 'white' as const;
-    return current.black_id === myId() ? ('black' as const) : null;
+    return multiplayerSideOf(current, myId());
   });
   const [arranged, setArranged] = createSignal<{
     readonly gameId: string;
@@ -59,7 +60,7 @@ export function useMultiplayerPrivateSetup(
         !setupReadySides(current).includes(mine)
       );
     },
-    ready: (which: 'white' | 'black'): boolean => {
+    ready: (which: GameSide): boolean => {
       const current = game();
       return current !== null && setupReadySides(current).includes(which);
     },

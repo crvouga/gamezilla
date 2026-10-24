@@ -1,5 +1,6 @@
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
 import { awaitingSetups } from '@libs/game-matchmaking-shared-ts/game-state';
+import { multiplayerSides } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
 import { Trans } from '@lingui/solid/macro';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
@@ -11,8 +12,6 @@ import { P } from '@pkgs/ui-root-client-ts/text';
 import { For, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import type { MultiplayerPrivateSetup } from './use-multiplayer-private-setup';
-
-const SIDES = ['white', 'black'] as const;
 
 /**
  * While a matched game waits for private setups: the person's own setup
@@ -29,7 +28,8 @@ export function MultiplayerPrivateSetupPanel(props: {
   const sync = useSyncEngine();
   const offline = () => !sync.status().online;
   const side = () => props.setup.side() ?? 'white';
-  const other = () => (side() === 'white' ? 'black' : 'white');
+  const allReady = () =>
+    multiplayerSides(props.game).every((which) => props.setup.ready(which));
   return (
     <Show when={props.setup.has() && awaitingSetups(props.game)}>
       <GameSection
@@ -92,12 +92,17 @@ export function MultiplayerPrivateSetupPanel(props: {
               }
             >
               <Show
-                when={props.setup.ready(other())}
+                when={allReady()}
                 fallback={
                   <Trans>You are ready. Waiting for the other player.</Trans>
                 }
               >
-                <Trans>Both players are ready.</Trans>
+                <Show
+                  when={multiplayerSides(props.game).length === 2}
+                  fallback={<Trans>All players are ready.</Trans>}
+                >
+                  <Trans>Both players are ready.</Trans>
+                </Show>
               </Show>
             </Show>
           </Show>
@@ -121,7 +126,7 @@ function MultiplayerSetupReadiness(props: {
       role="list"
       dataSet={{ testid: 'multiplayer-setup-readiness' }}
     >
-      <For each={SIDES}>
+      <For each={multiplayerSides(props.game)}>
         {(which) => (
           <StackHorizontal
             align="center"

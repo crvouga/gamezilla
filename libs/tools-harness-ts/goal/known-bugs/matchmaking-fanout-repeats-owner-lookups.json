@@ -1,0 +1,4 @@
+{
+  "summary": "A final Find accepted the match and delivered both hosted rooms, but resolving its game, two player rows and two search rows repeated five owner-space SQL lookups. Batch each table's complete captured post-images to retain all destinations with at most three lookups. This is measured duplicate work, not proof of the release journey's latency cause.",
+  "regressionTest": "libs/games-harness-ts/tests/matchmaking-fanout-cost.test.ts"
+}

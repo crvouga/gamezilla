@@ -1130,6 +1130,7 @@ terms:
 | Numberlink | `numberlink` | Numberlink's rectangular board, matching endpoints, paths, coverage and completion | supporting |
 | Puzzles | `puzzles` | author-created puzzle and pack drafts, validation, playtests, stable published editions, personal attempts and pack progression for any game offering puzzle content | core |
 | Battleship | `battleship` | Battleship's own boards, fleets, placing ships, shots, hits, misses, sinkings, victory and bots | supporting |
+| Quoridor | `quoridor` | Classic Quoridor and Four-Player King of the Hill: the board, pawns, movement, jumps, walls, paths and goals | supporting |
 | Auth | `auth` | how outside accounts at Google and Apple, and sign-in links sent to an email address, get people into accounts: matching and confirming accounts, connecting and removing sign-in methods, asking for and opening a sign-in link, stolen sign-ins, how long a sign-in lasts, Google or Apple having trouble | generic (Google, Apple and the mailbox say who is signing in) |
 | Room | `room` | the room framework's example game room: a tally friends keep together, owning the room and turning someone away, a timed match, who is present | supporting |
 | Matchmaking | `matchmaking` | waiting for a match, one wait at a time, rating ranges, pairing people up, being matched, stopping a wait | supporting |
@@ -1150,6 +1151,7 @@ Identity ──► Friends (no longer allowed, stand-in name, stop allowing), Sp
 Identity ──► Games (guest, sign in, sign out, account, Google, recently proven account, username, rename themselves, account deletion, personal data, personal-data export)
 Billing  ──► Spaces (the hosting limit), Chess (the daily puzzle limit), Games (free account, paid access, Plus member), Journeys
 Spaces   ──► Friends (a friend's open space), Chess (a space plays a puzzle), Games (a space plays a game, create a space, leave, end a space), Connect Four (a space plays Connect Four), Battleship (a space plays Battleship), App, Journeys
+Spaces   ──► Quoridor (a space plays Quoridor)
 Friends  ──► Spaces (a friend's space in the lobby), Chess (friends watch, turn notices and result notices in the inbox), Games (block someone), App (people search), Journeys
 App      ──► Identity (trail, run into trouble), Games (keyboard, listen to the app, sounds), Journeys (tabs)
 App      ──► Developer tools (address, version of the app, keyboard, control, place in the app)
@@ -1159,7 +1161,11 @@ Friends, Spaces ──► Developer tools (friend, space)
 Matchmaking ──► Chess (a complete matchmaking match), Games (pair people up)
 Chess    ──► Journeys (a game of chess, a puzzle, multiplayer chess, a Custom Game)
 Battleship ──► Journeys (Battleship)
+Quoridor ──► Journeys (Quoridor, Classic Quoridor, Four-Player King of the Hill)
 Games    ──► Connect Four (game), Battleship (game, custom game)
+Games    ──► Quoridor (game, custom game, ready, start)
+Games    ──► Journeys (bot)
+App      ──► Quoridor (keyboard, control)
 Room, Sync engine: stand alone; Matchmaking publishes complete matches to Chess (Sync engine's "shared space" is not a Spaces space)
 Database indexing: stands alone; publishes no product terms or events
 ```
@@ -1173,9 +1179,10 @@ Published language:
 | Spaces (`spaces`) | space, host, join, leave, create a space, end a space, open space, return to a space, lobby, space link, hosting limit, idle | `SpaceEvent`: `SpaceOpened`, `PersonJoined`, `PersonLeft`, `SpaceEnded` |
 | Friends (`friends`) | friend, friends list, people search, block someone, inbox | `FriendshipEvent`: `BecameFriends`, `FriendshipEnded` |
 | Chess (`chess`) | game, chess, board, puzzle, solve, multiplayer chess, multiplayer result, Custom Game, Custom Game move list | — |
-| Games (`games`) | game, the game's choices, custom game | — |
+| Games (`games`) | game, the game's choices, custom game, bot, custom game readiness, start a custom game | — |
 | Connect Four (`connect-four`) | Connect Four | — |
 | Battleship (`battleship`) | Battleship | — |
+| Quoridor (`quoridor`) | Quoridor, Classic Quoridor, Four-Player King of the Hill | — |
 | App (`runtime`) | Settings, tabs, address, version of the app, trail, run into trouble, keyboard, control, place in the app | — |
 | Developer tools (`developer-tools`) | the testing tool | — |
 | Matchmaking (`matchmaking`) | matchmaking match, pair people up | `MatchmakingEvent`: `MatchFormed` |

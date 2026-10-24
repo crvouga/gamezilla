@@ -1,0 +1,4 @@
+{
+  "summary": "Full harness verification exhausted the existing 5-second preparation subprocess limit for the runtime preference/privacy fixture and the 30-second limit for both OPPONENT assignments of puzzle-attempt. Cold profiling showed the launcher loading the draw compiler and repeated AST parsing of identical source during parameter discovery, validation, import copying and instantiation. Keep all official draws, cases and limits while reusing exact-source declaration spans and copying imports without recompilation.",
+  "regressionTest": "libs/harness-ts/tests/prepare-spec.test.ts"
+}

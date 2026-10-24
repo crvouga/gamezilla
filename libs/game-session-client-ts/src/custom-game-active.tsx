@@ -1,4 +1,3 @@
-import { otherCustomGameSide } from '@libs/game-session-shared-ts/custom-game-state';
 import { UserUsername } from '@libs/profile-client-ts/user-username';
 import { Trans } from '@lingui/solid/macro';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
@@ -13,10 +12,15 @@ function awayOpponent(model: CustomGameScreenModel): string | null {
   const game = model.current();
   const side = model.mySide();
   if (game === null || side === null) return null;
-  const other = game[otherCustomGameSide(side)];
-  return other.kind === 'person' && model.awaySince(other.person) !== null
-    ? other.person
-    : null;
+  const other = game.sides
+    .filter((candidate) => candidate !== side)
+    .map((candidate) => game[candidate])
+    .find(
+      (participant) =>
+        participant.kind === 'person' &&
+        model.awaySince(participant.person) !== null
+    );
+  return other?.person ?? null;
 }
 
 function CustomGameAway(props: { model: CustomGameScreenModel }): JSX.Element {
@@ -27,10 +31,25 @@ function CustomGameAway(props: { model: CustomGameScreenModel }): JSX.Element {
           <Notice>
             <Text variant="inherit" role="status">
               <UserUsername profileId={person()} withAt={false} />{' '}
-              <Trans>is away. After a minute away you may claim the win.</Trans>
+              <Show
+                when={props.model.current()?.sides.length === 2}
+                fallback={
+                  <Trans>
+                    is away. Their turn stays reserved until they return.
+                  </Trans>
+                }
+              >
+                <Trans>
+                  is away. After a minute away you may claim the win.
+                </Trans>
+              </Show>
             </Text>
           </Notice>
-          <Show when={props.model.canPlay()}>
+          <Show
+            when={
+              props.model.canPlay() && props.model.current()?.sides.length === 2
+            }
+          >
             <GameActionButton
               title={<Trans>Claim the win</Trans>}
               variant="solid"
@@ -48,9 +67,12 @@ type ActiveProps = { model: CustomGameScreenModel };
 
 const drawOffer = (model: CustomGameScreenModel): string =>
   model.current()?.drawOfferedBy ?? '';
-const twoPeople = (model: CustomGameScreenModel): boolean =>
-  model.current()?.white.kind === 'person' &&
-  model.current()?.black.kind === 'person';
+const allPeople = (model: CustomGameScreenModel): boolean => {
+  const game = model.current();
+  return (
+    game !== null && game.sides.every((side) => game[side].kind === 'person')
+  );
+};
 const declinedDraw = (model: CustomGameScreenModel): boolean =>
   model.current()?.declinedOffers.includes(model.myId()) === true;
 const playing = (model: CustomGameScreenModel): boolean =>
@@ -71,7 +93,7 @@ export function CustomGameActiveNotices(props: ActiveProps): JSX.Element {
       <Show
         when={
           playing(props.model) &&
-          twoPeople(props.model) &&
+          allPeople(props.model) &&
           drawOffer(props.model) === '' &&
           declinedDraw(props.model)
         }
@@ -91,7 +113,7 @@ export function CustomGameDrawActions(props: ActiveProps): JSX.Element {
     <Show when={playing(props.model)}>
       <Show
         when={
-          twoPeople(props.model) && offer() === '' && !declinedDraw(props.model)
+          allPeople(props.model) && offer() === '' && !declinedDraw(props.model)
         }
       >
         <GameActionButton
@@ -100,7 +122,13 @@ export function CustomGameDrawActions(props: ActiveProps): JSX.Element {
           operation={() => props.model.choose({ operation: 'offer' })}
         />
       </Show>
-      <Show when={offer() !== '' && offer() !== props.model.myId()}>
+      <Show
+        when={
+          offer() !== '' &&
+          offer() !== props.model.myId() &&
+          !props.model.current()?.drawAcceptedBy.includes(props.model.myId())
+        }
+      >
         <GameActionButton
           title={<Trans>Agree draw</Trans>}
           variant="solid"

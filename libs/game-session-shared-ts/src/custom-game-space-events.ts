@@ -13,7 +13,6 @@ import {
 import { changedCustomGames } from './custom-game-result';
 import type { CustomGame } from './custom-game-state';
 import {
-  CUSTOM_GAME_SIDES,
   CustomGamesAttr,
   customGamePersonSide,
   customGameTerminal,
@@ -28,9 +27,15 @@ function departingCustomGame(
   rules: TurnGames
 ): CustomGame {
   if (customGameTerminal(game)) return game;
+  if (
+    game.status === 'active' &&
+    game.sides.length > 2 &&
+    customGamePersonSide(game, person) !== null
+  )
+    return finishCustomGame(game, 'draw', now, 'participant withdrew');
   if (game.creator === person) return finishCustomGame(game, 'cancelled', now);
   if (game.status === 'configuring')
-    return CUSTOM_GAME_SIDES.reduce(
+    return game.sides.reduce(
       (g, side) =>
         g[side].person === person
           ? replaceCustomGameSide(g, side, OPEN_CUSTOM_GAME_SIDE)

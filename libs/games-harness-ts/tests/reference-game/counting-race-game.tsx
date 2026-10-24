@@ -48,6 +48,7 @@ import type {
   PlayedPosition,
   TurnGameCapabilities,
 } from '@pkgs/turn-game-shared-ts/game-rules';
+import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { createEffect, For, type JSX, on } from 'solid-js';
 
 /**
@@ -377,8 +378,8 @@ function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
   );
 }
 
-const sideLabel = (side: 'white' | 'black') =>
-  side === 'white' ? 'Hare' : 'Tortoise';
+const sideLabel = (side: GameSide) =>
+  requireTwoPlayerSide(side) === 'white' ? 'Hare' : 'Tortoise';
 /** A side as a count named for it writes it: `hare`, `tortoise`. */
 const sideName = (side: GameSide) => sideLabel(side).toLowerCase();
 

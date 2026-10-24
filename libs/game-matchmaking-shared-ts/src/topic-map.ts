@@ -1,24 +1,47 @@
-import type { TopicMap } from '@pkgs/sync-engine-shared-ts/topic-map';
-import { multiplayerTopics } from './multiplayer-topics';
+import type {
+  TopicMap,
+  TopicMapEntry,
+} from '@pkgs/sync-engine-shared-ts/topic-map';
+import {
+  multiplayerTopics,
+  multiplayerTopicsByRow,
+} from './multiplayer-topics';
+
+const ownedRows: TopicMapEntry = {
+  topics(row, ctx, db) {
+    return multiplayerTopics([String(row['owner_id'] ?? ctx.actorId)], db);
+  },
+  topicsByRow(rows, ctx, db) {
+    return multiplayerTopicsByRow(
+      rows.map((row) => [String(row['owner_id'] ?? ctx.actorId)]),
+      db
+    );
+  },
+};
+
 export const MULTIPLAYER_TOPIC_MAP = {
   chess_multiplayer_games: {
     topics(row, _ctx, db) {
       return multiplayerTopics(
-        [String(row['white_id'] ?? ''), String(row['black_id'] ?? '')],
+        ['white_id', 'black_id', 'red_id', 'blue_id'].map((key) =>
+          String(row[key] ?? '')
+        ),
+        db
+      );
+    },
+    topicsByRow(rows, _ctx, db) {
+      return multiplayerTopicsByRow(
+        rows.map((row) =>
+          ['white_id', 'black_id', 'red_id', 'blue_id'].map((key) =>
+            String(row[key] ?? '')
+          )
+        ),
         db
       );
     },
   },
-  chess_multiplayer_players: {
-    topics(row, ctx, db) {
-      return multiplayerTopics([String(row['owner_id'] ?? ctx.actorId)], db);
-    },
-  },
-  chess_opponent_searches: {
-    topics(row, ctx, db) {
-      return multiplayerTopics([String(row['owner_id'] ?? ctx.actorId)], db);
-    },
-  },
+  chess_multiplayer_players: ownedRows,
+  chess_opponent_searches: ownedRows,
   chess_multiplayer_ratings: {
     topics(row, ctx) {
       return [`user:${String(row['owner_id'] ?? ctx.actorId)}`];

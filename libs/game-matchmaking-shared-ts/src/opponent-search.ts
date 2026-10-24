@@ -1,7 +1,8 @@
+import { requireLimitInMutation } from '@libs/permissions-shared-ts/mutation-permission';
 import {
-  requireInMutation,
-  requireLimitInMutation,
-} from '@libs/permissions-shared-ts/mutation-permission';
+  readMutationPermissionSnapshot,
+  requireInMutationSnapshot,
+} from '@libs/permissions-shared-ts/mutation-permission-snapshot';
 import {
   LIMIT,
   PERMISSION,
@@ -13,6 +14,7 @@ import sql from '@pkgs/sql-root-shared-ts/sql';
 import type { MutationCtx } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import {
+  gameSides,
   requireTurnGames,
   type TurnGames,
 } from '@pkgs/turn-game-shared-ts/game-rules';
@@ -85,11 +87,11 @@ export async function beginOpponentSearch(
     readonly spaceId: string;
   }
 ): Promise<void> {
-  await requireInMutation(ctx, PERMISSION.matchmakingUse);
+  const permissions = await readMutationPermissionSnapshot(ctx);
+  requireInMutationSnapshot(permissions, PERMISSION.matchmakingUse);
   await refuseWhenAlreadyLooking(ctx);
-  const scope = await requireMultiplayerSpace(ctx, input.spaceId);
-  await refuseWhenAlreadyLooking(ctx);
-  await requireInMutation(ctx, PERMISSION.spacesSelectGame, scope);
+  const scope = await requireMultiplayerSpace(ctx, input.spaceId, permissions);
+  requireInMutationSnapshot(permissions, PERMISSION.spacesSelectGame, scope);
   const control = requireOfferedTimeControl(
     input.timeControl,
     requireTurnGames(ctx.env)
@@ -131,7 +133,8 @@ export async function beginOpponentSearch(
       'opponent search'
     ),
     formulas: OPPONENT_SEARCH_FORMULAS,
-    groupSize: 2,
+    groupSize: gameSides(requireTurnGames(ctx.env).forControl(control.id))
+      .length,
   });
   if (result.outcome === 'unavailable')
     throw new MutationError(

@@ -1,9 +1,15 @@
 import { GAME_PLATFORM_NAMESPACE } from '@libs/game-matchmaking-shared-ts/durable-names';
 import { createAttrNamespace } from '@pkgs/attribute-shared-ts/attribute';
-import type { BotDifficulty } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  assertGameSides,
+  type BotDifficulty,
+  GAME_SIDES,
+  type GameSide,
+  requireTwoPlayerSide,
+} from '@pkgs/turn-game-shared-ts/game-rules';
 import { z } from 'zod';
 
-export const CUSTOM_GAME_SIDES = ['white', 'black'] as const;
+export const CUSTOM_GAME_SIDES = GAME_SIDES;
 export type CustomGameSide = (typeof CUSTOM_GAME_SIDES)[number];
 export const customGameSideSchema = z.enum(CUSTOM_GAME_SIDES);
 export const customGameParticipantSchema = z
@@ -37,6 +43,18 @@ export const customGameSchema = z
     status: z.enum(['configuring', 'active', 'completed', 'cancelled']),
     white: customGameParticipantSchema,
     black: customGameParticipantSchema,
+    red: customGameParticipantSchema.default(CLOSED_CUSTOM_GAME_SIDE),
+    blue: customGameParticipantSchema.default(CLOSED_CUSTOM_GAME_SIDE),
+    sides: z
+      .array(customGameSideSchema)
+      .refine(
+        (sides) =>
+          (sides.length === 2 || sides.length === 4) &&
+          sides[0] === 'white' &&
+          sides[1] === 'black' &&
+          new Set(sides).size === sides.length
+      )
+      .default(['white', 'black']),
     ready: z.array(customGameSideSchema),
     minutes: z.number().int().min(0).max(180),
     increment: z.number().int().min(0).max(60),
@@ -44,8 +62,15 @@ export const customGameSchema = z
       .object({
         white: z.enum(['easy', 'medium', 'hard']),
         black: z.enum(['easy', 'medium', 'hard']),
+        red: z.enum(['easy', 'medium', 'hard']).default('medium'),
+        blue: z.enum(['easy', 'medium', 'hard']).default('medium'),
       })
-      .default({ white: 'medium', black: 'medium' }),
+      .default({
+        white: 'medium',
+        black: 'medium',
+        red: 'medium',
+        blue: 'medium',
+      }),
     revision: z.number().int().nonnegative(),
     startedAt: z.number().int().nonnegative().nullable(),
     endedAt: z.number().int().nonnegative().nullable(),
@@ -54,6 +79,8 @@ export const customGameSchema = z
       .object({
         white: z.number().nonnegative(),
         black: z.number().nonnegative(),
+        red: z.number().nonnegative().default(0),
+        blue: z.number().nonnegative().default(0),
       })
       .strict(),
     turn: customGameSideSchema,
@@ -64,11 +91,23 @@ export const customGameSchema = z
         .strict()
     ),
     outcome: z.string(),
+    outcomeReason: z.string().default(''),
+    drawAcceptedBy: z.array(z.string()).default([]),
     drawOfferedBy: z.string(),
     /** People whose draw offer was declined and who have not moved since. */
     declinedOffers: z.array(z.string()).default([]),
   })
-  .strict();
+  .strict()
+  .refine(
+    (game) =>
+      game.sides.includes(game.turn) &&
+      game.ready.every((side) => game.sides.includes(side))
+  )
+  .refine((game) =>
+    CUSTOM_GAME_SIDES.every(
+      (side) => game.sides.includes(side) || game[side].kind === 'closed'
+    )
+  );
 export type CustomGame = z.infer<typeof customGameSchema>;
 export const customGamesSchema = z
   .object({
@@ -92,37 +131,50 @@ export const DEFAULT_BOT_DIFFICULTY = 'medium' satisfies BotDifficulty;
 export function newCustomGame(
   id: string,
   creator: string,
-  position: string
+  position: string,
+  sides: readonly GameSide[] = ['white', 'black']
 ): CustomGame {
+  assertGameSides({ id: 'custom-game', sides });
   return {
     id,
     creator,
     status: 'configuring',
     white: { kind: 'person', person: creator },
     black: OPEN_CUSTOM_GAME_SIDE,
+    red: sides.includes('red')
+      ? OPEN_CUSTOM_GAME_SIDE
+      : CLOSED_CUSTOM_GAME_SIDE,
+    blue: sides.includes('blue')
+      ? OPEN_CUSTOM_GAME_SIDE
+      : CLOSED_CUSTOM_GAME_SIDE,
+    sides: [...sides],
     ready: [],
     minutes: 0,
     increment: 0,
     difficulty: {
       white: DEFAULT_BOT_DIFFICULTY,
       black: DEFAULT_BOT_DIFFICULTY,
+      red: DEFAULT_BOT_DIFFICULTY,
+      blue: DEFAULT_BOT_DIFFICULTY,
     },
     revision: 0,
     startedAt: null,
     endedAt: null,
     turnStartedAt: null,
-    remaining: { white: 0, black: 0 },
+    remaining: { white: 0, black: 0, red: 0, blue: 0 },
     turn: 'white',
     fen: position,
     moves: [],
     outcome: '',
+    outcomeReason: '',
+    drawAcceptedBy: [],
     drawOfferedBy: '',
     declinedOffers: [],
   };
 }
 
 export function otherCustomGameSide(side: CustomGameSide): CustomGameSide {
-  return side === 'white' ? 'black' : 'white';
+  return requireTwoPlayerSide(side) === 'white' ? 'black' : 'white';
 }
 
 export function customGamePersonSide(
@@ -130,7 +182,7 @@ export function customGamePersonSide(
   person: string
 ): CustomGameSide | null {
   return (
-    CUSTOM_GAME_SIDES.find(
+    game.sides.find(
       (side) => game[side].kind === 'person' && game[side].person === person
     ) ?? null
   );
@@ -156,7 +208,7 @@ export function customGameTerminal(game: CustomGame): boolean {
 export function customGameStartable(game: CustomGame): boolean {
   return (
     game.status === 'configuring' &&
-    CUSTOM_GAME_SIDES.every(
+    game.sides.every(
       (side) =>
         game[side].kind === 'bot' ||
         (game[side].kind === 'person' && game.ready.includes(side))
@@ -176,4 +228,27 @@ export function customGameTimeLeft(
       ? Math.max(0, now - game.turnStartedAt)
       : 0;
   return Math.max(0, game.remaining[side] - elapsed);
+}
+
+/** All clocks frozen at the same instant, including currently inactive seats. */
+export function customGameRemaining(
+  game: CustomGame,
+  now: number
+): CustomGame['remaining'] {
+  return {
+    white: customGameTimeLeft(game, 'white', now),
+    black: customGameTimeLeft(game, 'black', now),
+    red: customGameTimeLeft(game, 'red', now),
+    blue: customGameTimeLeft(game, 'blue', now),
+  };
+}
+
+/** Rotate seats in their declared turn order for a swap or rematch. */
+export function rotatedCustomGameSide(
+  game: CustomGame,
+  side: CustomGameSide
+): CustomGameSide {
+  return game.sides[
+    (game.sides.indexOf(side) + game.sides.length - 1) % game.sides.length
+  ]!;
 }

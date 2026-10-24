@@ -162,6 +162,7 @@ test('local verifications default to one task and solver without changing the ca
   const source = { TMPDIR: '/private/run/tmp', CI: 'true' };
   expect(localVerifyEnv(source)).toEqual({
     ...source,
+    VERIFY_TIME_LIMITS: 'off',
     TURBO_CONCURRENCY: '1',
     VERIFY_CACHE_CONCURRENCY: '1',
     VERIFY_TEST_CONCURRENCY: '1',

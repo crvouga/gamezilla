@@ -3,9 +3,12 @@ import type { PuzzlesCapability } from '@pkgs/turn-game-shared-ts/game-puzzles';
 import {
   createTurnGames,
   type GameRules,
+  gameFamily,
+  gameSides,
   offeredCapabilities,
   type RegisteredTurnGame,
   requireTurnGames,
+  requireTwoPlayerSide,
   type TurnGameCapabilities,
 } from '@pkgs/turn-game-shared-ts/game-rules';
 
@@ -144,4 +147,73 @@ test('only the game granted it keeps the unprefixed puzzle namespace, and no two
   expect(() =>
     createTurnGames([unprefixed(game), unprefixed(rulesOf('second'))])
   ).toThrow('second: puzzle namespace "" is taken');
+});
+
+test('game rosters preserve the two-seat default and validate declared four-seat order', () => {
+  expect(gameSides(game)).toEqual(['white', 'black']);
+  const four: GameRules = { ...game, sides: ['white', 'black', 'red', 'blue'] };
+  expect(
+    gameSides(createTurnGames([registration({}, four)]).byId('counter'))
+  ).toEqual(['white', 'black', 'red', 'blue']);
+  for (const sides of [
+    [],
+    ['white'],
+    ['white', 'black', 'red'],
+    ['white', 'white'],
+    ['black', 'white'],
+  ] as const)
+    expect(() =>
+      createTurnGames([registration({}, { ...game, sides })])
+    ).toThrow('ordered seats');
+});
+
+test('a two-seat adapter refuses extra seats instead of substituting a participant', () => {
+  expect(requireTwoPlayerSide('white')).toBe('white');
+  expect(requireTwoPlayerSide('black')).toBe('black');
+  expect(() => requireTwoPlayerSide('red')).toThrow('does not include red');
+  expect(() => requireTwoPlayerSide('blue')).toThrow('does not include blue');
+});
+
+test('unsupported multi-seat private setups or puzzle capabilities fail at registration', () => {
+  const four: GameRules = { ...game, sides: ['white', 'black', 'red', 'blue'] };
+  expect(() =>
+    createTurnGames([registration({ puzzles: puzzles('counter/') }, four)])
+  ).toThrow('require two declared seats');
+  expect(() =>
+    createTurnGames([
+      registration(
+        {},
+        {
+          ...four,
+          setup: {
+            accept: String,
+            random: () => 'hidden',
+            resolve: () => null,
+          },
+        }
+      ),
+    ])
+  ).toThrow('require two declared seats');
+});
+
+test('modes have distinct registrations and may share one declared game family', () => {
+  const classic = { ...rulesOf('counter'), family: 'counting' };
+  const four = {
+    ...rulesOf('counter-four'),
+    family: 'counting',
+    sides: ['white', 'black', 'red', 'blue'] as const,
+  };
+  const games = createTurnGames([
+    registration({}, classic),
+    registration({}, four),
+  ]);
+  expect(games.games.map((game) => gameFamily(game.rules))).toEqual([
+    'counting',
+    'counting',
+  ]);
+  expect(games.byId('counter-four')).toBe(four);
+  expect(gameFamily(game)).toBe('counter');
+  expect(() =>
+    createTurnGames([registration({}, { ...game, family: 'not a slug' })])
+  ).toThrow('family must be a lowercase slug');
 });

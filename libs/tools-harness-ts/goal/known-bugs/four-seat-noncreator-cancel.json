@@ -1,0 +1,4 @@
+{
+  "summary": "A noncreator participant could cancel a four-seat custom game before all four first moves, bypassing the shared rule that only two-person participants may cancel early and that a four-seat resignation finishes as a draw.",
+  "regressionTest": "libs/game-session-shared-ts/tests/four-seat-contract.test.ts"
+}

@@ -78,6 +78,24 @@ test('scaled border regression maps the rendered far file', () => {
   expect(measureBoardBox(node, 320)).toEqual({ left: 4, top: 4, size: 632 });
 });
 
+test('a resize awaiting observation uses the current scaled content box', () => {
+  // regression: chessboard-tiny-scaled-square-hit
+  const node = document.createElement('div');
+  node.style.width = '8px';
+  node.style.boxSizing = 'border-box';
+  Object.defineProperties(node, {
+    clientLeft: { value: 2 },
+    clientTop: { value: 2 },
+  });
+  node.getBoundingClientRect = () => new DOMRect(0, 0, 16, 16);
+  document.body.append(node);
+  try {
+    expect(measureBoardBox(node, 640)).toEqual({ left: 4, top: 4, size: 8 });
+  } finally {
+    node.remove();
+  }
+});
+
 test('available fractional dimensions are preserved without rounding cells', () => {
   // regression: chessboard-fill-size-rounding
   expect(normalizeBoardSize(319.5)).toBe(319.5);

@@ -2,12 +2,6 @@
 import { readFileSync, rmSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
 import {
-  modelParameterCases,
-  modelParameterId,
-} from '@pkgs/quint-server-ts/model-parameters';
-import { quintModuleName } from '@pkgs/quint-server-ts/model-source';
-import { simulate } from '@pkgs/quint-server-ts/simulate';
-import {
   DEFAULT_MAX_STEPS,
   DEFAULT_TRACES,
   findQuintBinding,
@@ -74,7 +68,16 @@ async function main(): Promise<void> {
   }
 }
 
-function drawBatch(draws: readonly ModelDraw[]): void {
+async function drawBatch(draws: readonly ModelDraw[]): Promise<void> {
+  const [
+    { modelParameterCases, modelParameterId },
+    { quintModuleName },
+    { simulate },
+  ] = await Promise.all([
+    import('@pkgs/quint-server-ts/model-parameters'),
+    import('@pkgs/quint-server-ts/model-source'),
+    import('@pkgs/quint-server-ts/simulate'),
+  ]);
   const output = join(process.cwd(), '.cache/prepared-spec-traces');
   for (const draw of draws) {
     const source = readFileSync(draw.path, 'utf8');
@@ -97,7 +100,7 @@ function drawBatch(draws: readonly ModelDraw[]): void {
 
 if (import.meta.main) {
   if (process.argv[2] === '--draw')
-    drawBatch(JSON.parse(process.argv[3]!) as ModelDraw[]);
+    await drawBatch(JSON.parse(process.argv[3]!) as ModelDraw[]);
   else await main();
   // Binding imports may own harness handles; all admitted draws finished above.
   process.exit(0);

@@ -185,6 +185,7 @@ describe('this repository', () => {
   });
 
   // regression: generated-source-tracked
+  // regression: generated-source-script-typecheck
   test('generated source is ignored and rebuilt at install', () => {
     const ignored = readFileSync(join(REPO_ROOT, '.gitignore'), 'utf8').split(
       '\n'

@@ -1,0 +1,4 @@
+{
+  "summary": "A pinned Quint history must replay only under its declared complete model parameters; planning and runtime must count the same selected histories.",
+  "regressionTest": "pkgs/quint-server-ts/tests/variants.test.ts"
+}

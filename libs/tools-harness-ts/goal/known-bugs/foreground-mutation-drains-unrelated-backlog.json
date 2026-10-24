@@ -1,0 +1,4 @@
+{
+  "summary": "Every successful mutation drained the complete foreground outbox backlog. Unrelated initialization and duplicate uploads could pay hundreds of SQL statements and hold a pooled database session while older requests' work ran. Foreground delivery must follow exact durable actor-and-mutation causation, retain child events across interrupted acknowledgements, and leave unrelated work to the owned background drain.",
+  "regressionTest": "libs/app-root-server-ts/tests/foreground-outbox.test.ts"
+}

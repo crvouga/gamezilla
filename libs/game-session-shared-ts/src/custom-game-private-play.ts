@@ -17,11 +17,7 @@ import {
   ownCustomGameSetup,
 } from './custom-game-setup';
 import type { CustomGame } from './custom-game-state';
-import {
-  CUSTOM_GAME_SIDES,
-  CustomGamesAttr,
-  customGamePersonSide,
-} from './custom-game-state';
+import { CustomGamesAttr, customGamePersonSide } from './custom-game-state';
 
 /**
  * A custom game whose sides prepare private setups. Readiness carries the
@@ -96,7 +92,7 @@ function start(
   if (started === null) return null;
   const held = customGameSetupSides(state, game);
   if (
-    !CUSTOM_GAME_SIDES.every(
+    !game.sides.every(
       (side) => game[side].kind === 'bot' || held.includes(side)
     )
   )
@@ -104,9 +100,11 @@ function start(
   return changed(
     decision,
     started,
-    CUSTOM_GAME_SIDES.filter((side) => game[side].kind === 'bot').map((side) =>
-      customGameSetupChosen(game, side, setup.random(ctx.random))
-    )
+    game.sides
+      .filter((side) => game[side].kind === 'bot')
+      .map((side) =>
+        customGameSetupChosen(game, side, setup.random(ctx.random))
+      )
   );
 }
 

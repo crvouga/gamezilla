@@ -1,7 +1,17 @@
 import type { PuzzlesCapability } from './game-puzzles';
 
 /** Stable opaque seat tokens retained for durable records; visual identity comes from presentation. */
-export type GameSide = 'white' | 'black';
+export const GAME_SIDES = ['white', 'black', 'red', 'blue'] as const;
+export type GameSide = (typeof GAME_SIDES)[number];
+export const TWO_PLAYER_SIDES = ['white', 'black'] as const;
+export type TwoPlayerSide = (typeof TWO_PLAYER_SIDES)[number];
+
+/** Narrow at the boundary of a board or rule set that only accepts two seats. */
+export function requireTwoPlayerSide(side: GameSide): TwoPlayerSide {
+  if (side !== 'white' && side !== 'black')
+    throw new Error(`The two-seat game does not include ${side}`);
+  return side;
+}
 export type BotDifficulty = 'easy' | 'medium' | 'hard';
 export const BOT_DIFFICULTIES = ['easy', 'medium', 'hard'] as const;
 export type PlayedPosition = {
@@ -19,10 +29,10 @@ export type RecordedMove = {
 };
 /** Game-independent data passed to each game's export codec. */
 export type GameRecordMetadata = {
-  readonly participants: readonly [
-    { readonly name: string; readonly rating: string | null },
-    { readonly name: string; readonly rating: string | null },
-  ];
+  readonly participants: readonly {
+    readonly name: string;
+    readonly rating: string | null;
+  }[];
   readonly outcome: GameSide | 'draw';
   readonly reason: string | null;
   readonly timeControl: {
@@ -32,7 +42,9 @@ export type GameRecordMetadata = {
   } | null;
 };
 /** Both sides' private setups, as only the authority holds them together. */
-export type GameSetups = Readonly<Record<GameSide, string>>;
+export type GameSetups = Readonly<
+  Record<'white' | 'black', string> & Partial<Record<'red' | 'blue', string>>
+>;
 /**
  * Private setups: before the first action each side prepares a setup only
  * that side and the authority may know (a hidden fleet). Every position
@@ -57,12 +69,16 @@ export type PrivateSetupRules = {
   ) => string | null;
 };
 /**
- * A two-sided turn game's mechanics: what every shared lifecycle needs to
+ * A turn game's mechanics: what every shared lifecycle needs to
  * hold, check and show a game. Positions and actions are opaque strings the
  * platform never parses; `recognizes` must accept only this game's
  * positions, so a position always names exactly one game.
  */
 export type GameRules = {
+  /** Package ownership shared by modes of one game; omitted when it is this rule set's id. */
+  readonly family?: string;
+  /** Ordered seats; omitted by games using the standard two seats. */
+  readonly sides?: readonly GameSide[];
   /**
    * Present for a game whose sides prepare private setups before play; its
    * `legal` actions are proposals and the rest take resolved public actions.
@@ -96,6 +112,36 @@ export type GameRules = {
     actions: readonly string[]
   ) => readonly RecordedMove[];
 };
+/** Modes may share game packages while retaining distinct ids and conformance evidence. */
+export function gameFamily(rules: Pick<GameRules, 'id' | 'family'>): string {
+  const family = rules.family ?? rules.id;
+  if (!/^[a-z][a-z0-9-]{0,31}$/.test(family))
+    throw new Error(`${rules.id}: game family must be a lowercase slug`);
+  return family;
+}
+
+/** The ordered seats a game requires, including its compatibility default. */
+export function gameSides(
+  rules: Pick<GameRules, 'sides'>
+): readonly GameSide[] {
+  return rules.sides ?? TWO_PLAYER_SIDES;
+}
+
+/** Validate a roster before its rules enter any shared lifecycle. */
+export function assertGameSides(rules: Pick<GameRules, 'id' | 'sides'>): void {
+  const sides = gameSides(rules);
+  if (
+    (sides.length !== 2 && sides.length !== 4) ||
+    sides[0] !== 'white' ||
+    sides[1] !== 'black' ||
+    new Set(sides).size !== sides.length ||
+    sides.some((side) => !GAME_SIDES.includes(side))
+  )
+    throw new Error(
+      `${rules.id}: declare two or four distinct ordered seats, starting white, black`
+    );
+}
+
 export type GameNoticeText = {
   readonly timeoutDraw: (flagged: GameSide) => string;
   readonly side: (side: GameSide) => string;
@@ -224,6 +270,13 @@ export function publicAction(
 
 /** Fail when a game offers a capability without what it needs beside it. */
 function assertRequirements(game: RegisteredTurnGame): void {
+  if (
+    gameSides(game.rules).length > 2 &&
+    (game.rules.setup !== undefined || game.capabilities.puzzles !== undefined)
+  )
+    throw new Error(
+      `${game.rules.id}: private setups and puzzles require two declared seats`
+    );
   if (game.rules.setup !== undefined && game.capabilities.puzzles !== undefined)
     throw new Error(
       `${game.rules.id}: a puzzle shows its whole position to the solver, so a game with private setups offers no puzzles — remove capabilities.puzzles`
@@ -271,7 +324,11 @@ function assertNamespace(
 function assertDistinct(games: readonly RegisteredTurnGame[]): void {
   if (new Set(games.map((g) => g.rules.id)).size !== games.length)
     throw new Error('Duplicate game rules');
-  for (const game of games) assertRequirements(game);
+  for (const game of games) {
+    gameFamily(game.rules);
+    assertGameSides(game.rules);
+    assertRequirements(game);
+  }
   for (const { of, read } of NAMESPACES) {
     const namespaces = new Set<string>();
     for (const game of games) {

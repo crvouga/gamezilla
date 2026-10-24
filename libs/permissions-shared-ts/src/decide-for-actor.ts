@@ -1,13 +1,35 @@
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { decide, decideLimit } from '@pkgs/permissions-shared-ts/decision';
+import type { Facts } from '@pkgs/permissions-shared-ts/facts';
+import type { PolicyVersion } from '@pkgs/permissions-shared-ts/policy';
 import { policyAt } from '@pkgs/permissions-shared-ts/policy';
 import { resolveSubject } from '@pkgs/permissions-shared-ts/resolve';
 
 import type { AccessScope } from './access-scope';
-import type { AppGrantKey, AppLimit } from './permission-catalog';
+import type {
+  AppGrantKey,
+  AppLimit,
+  AppPolicyKey,
+} from './permission-catalog';
 import type { AccessIdentity, AccessReader } from './read-access';
 import { readAccess } from './read-access';
 import { resolveResourceRoles } from './resource-roles';
+
+/** Evaluate one grant from selected policy and facts, without further reads. */
+export function decideGrant(args: {
+  readonly actorId: string;
+  readonly policy: PolicyVersion<AppPolicyKey, AppLimit>;
+  readonly facts: Facts;
+  readonly key: AppGrantKey;
+  readonly scope?: AccessScope | undefined;
+}): Decision {
+  const subject = resolveSubject(
+    args.policy,
+    args.facts,
+    resolveResourceRoles(args.actorId, args.scope)
+  );
+  return decide(args.policy, subject, args.key);
+}
 
 /**
  * One grant decision for `identity`, read from synced rows: the policy
@@ -26,12 +48,13 @@ export async function decideForActor(
 ): Promise<Decision> {
   const access = await readAccess(db, args.identity, args.nowMs);
   const policy = policyAt(access.policy, args.clientAtMs);
-  const subject = resolveSubject(
+  return decideGrant({
+    actorId: args.identity.actorId,
     policy,
-    access.facts,
-    resolveResourceRoles(args.identity.actorId, args.scope)
-  );
-  return decide(policy, subject, args.key);
+    facts: access.facts,
+    key: args.key,
+    scope: args.scope,
+  });
 }
 
 /**

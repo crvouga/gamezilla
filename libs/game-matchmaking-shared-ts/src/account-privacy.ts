@@ -6,14 +6,17 @@ import { MultiplayerGameRepository } from './game-repository';
 import type { MultiplayerGame } from './game-state';
 import { bothHaveMoved, endMultiplayerGame } from './game-state';
 import { settleMultiplayerClock } from './multiplayer-clock';
+import { multiplayerSides } from './multiplayer-roster';
 import { publishMatchGame } from './publish-match-game';
 import { projectOpponentSearch } from './search-projection';
 
-/** Before both people have moved the game is aborted; afterwards it is given up. */
+/** A group withdrawal completes a draw; a pair retains its early-abort rule. */
 function withdrawnGame(
   game: MultiplayerGame,
   actorId: string
 ): MultiplayerGame {
+  if (multiplayerSides(game).length > 2)
+    return endMultiplayerGame(game, 'draw', 'participant withdrew');
   if (!bothHaveMoved(game))
     return endMultiplayerGame(game, 'aborted', 'account deletion');
   return endMultiplayerGame(
@@ -29,7 +32,7 @@ export async function withdrawMultiplayer(ctx: MutationCtx): Promise<void> {
   const games = await ctx.tx.query(sql<{
     id: string;
   }>`SELECT id FROM chess_multiplayer_games
-    WHERE (white_id = ${ctx.env.actorId} OR black_id = ${ctx.env.actorId}) AND outcome = 'ongoing' AND deleted_at IS NULL`);
+    WHERE (white_id = ${ctx.env.actorId} OR black_id = ${ctx.env.actorId} OR red_id = ${ctx.env.actorId} OR blue_id = ${ctx.env.actorId}) AND outcome = 'ongoing' AND deleted_at IS NULL`);
   const repository = new MultiplayerGameRepository(ctx.tx);
   for (const row of games) {
     const stored = await repository.owned(
@@ -58,8 +61,7 @@ export async function withdrawMultiplayer(ctx: MutationCtx): Promise<void> {
     await projectOpponentSearch(ctx.tx, ctx.env.actorId, nowMs);
   }
   const iso = new Date(nowMs).toISOString();
-  await ctx.tx.run(sql`UPDATE chess_multiplayer_games SET rematch_offer_by = ${''}, updated_at = ${iso}
-    WHERE (white_id = ${ctx.env.actorId} OR black_id = ${ctx.env.actorId}) AND rematch_offer_by <> ${''}`);
+  await clearAgreements(ctx, iso);
   await ctx.tx.run(sql`UPDATE chess_opponent_searches SET standing = 'ended', deleted_at = ${iso}
     WHERE owner_id = ${ctx.env.actorId}`);
   await ctx.tx.run(
@@ -67,18 +69,41 @@ export async function withdrawMultiplayer(ctx: MutationCtx): Promise<void> {
   );
 }
 
+/** Losing a participant ends every pending agreement, including consent given to another person's offer. */
+async function clearAgreements(ctx: MutationCtx, iso: string): Promise<void> {
+  const affected = await ctx.tx.query(sql<{
+    id: string;
+  }>`SELECT id FROM chess_multiplayer_games
+    WHERE (white_id = ${ctx.env.actorId} OR black_id = ${ctx.env.actorId} OR red_id = ${ctx.env.actorId} OR blue_id = ${ctx.env.actorId})
+      AND (draw_offer_by <> ${''} OR rematch_offer_by <> ${''} OR draw_votes IS NOT NULL OR rematch_votes IS NOT NULL)`);
+  await ctx.tx.run(sql`UPDATE chess_multiplayer_games
+    SET draw_offer_by = ${''}, rematch_offer_by = ${''}, draw_votes = ${null}, rematch_votes = ${null}, updated_at = ${iso}
+    WHERE white_id = ${ctx.env.actorId} OR black_id = ${ctx.env.actorId} OR red_id = ${ctx.env.actorId} OR blue_id = ${ctx.env.actorId}`);
+  if (ctx.env.serverNow === undefined) return;
+  const games = new MultiplayerGameRepository(ctx.tx);
+  for (const row of affected) {
+    const game = await games.byId(row.id);
+    if (game !== null) await publishMatchGame(ctx, game);
+  }
+}
+
 export async function eraseMultiplayer(ctx: MutationCtx): Promise<void> {
   const games = await ctx.tx.query(sql<{
     id: string;
     white_id: string;
     black_id: string;
-  }>`SELECT id, white_id, black_id
-    FROM chess_multiplayer_games WHERE white_id = ${ctx.env.actorId} OR black_id = ${ctx.env.actorId}`);
+    red_id: string | null;
+    blue_id: string | null;
+  }>`SELECT id, white_id, black_id, red_id, blue_id
+    FROM chess_multiplayer_games WHERE white_id = ${ctx.env.actorId} OR black_id = ${ctx.env.actorId} OR red_id = ${ctx.env.actorId} OR blue_id = ${ctx.env.actorId}`);
   const repository = new MultiplayerGameRepository(ctx.tx);
   for (const game of games) {
     await ctx.tx.run(sql`UPDATE chess_multiplayer_games
     SET white_id = ${game.white_id === ctx.env.actorId ? `deleted:${game.id}:white` : game.white_id},
-      black_id = ${game.black_id === ctx.env.actorId ? `deleted:${game.id}:black` : game.black_id}
+      black_id = ${game.black_id === ctx.env.actorId ? `deleted:${game.id}:black` : game.black_id},
+      red_id = ${game.red_id === ctx.env.actorId ? `deleted:${game.id}:red` : game.red_id},
+      blue_id = ${game.blue_id === ctx.env.actorId ? `deleted:${game.id}:blue` : game.blue_id},
+      draw_offer_by = ${''}, rematch_offer_by = ${''}, draw_votes = ${null}, rematch_votes = ${null}
     WHERE id = ${game.id}`);
     if (ctx.env.serverNow !== undefined) {
       const updated = await repository.byId(game.id);
@@ -95,7 +120,7 @@ export async function eraseMultiplayer(ctx: MutationCtx): Promise<void> {
     sql`UPDATE chess_multiplayer_ratings SET owner_id = ${null} WHERE owner_id = ${ctx.env.actorId}`
   );
   await ctx.tx.run(
-    sql`UPDATE chess_multiplayer_games SET draw_offer_by = ${''}, rematch_offer_by = ${''}
+    sql`UPDATE chess_multiplayer_games SET draw_offer_by = ${''}, rematch_offer_by = ${''}, draw_votes = ${null}, rematch_votes = ${null}
     WHERE draw_offer_by = ${ctx.env.actorId} OR rematch_offer_by = ${ctx.env.actorId}`
   );
   await ctx.tx.run(

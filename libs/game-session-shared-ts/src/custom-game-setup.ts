@@ -43,7 +43,15 @@ export const CustomGameSetupChosen = customGameEvtNs(
 
 const setupsSchema = z.record(
   z.string(),
-  z.object({ white: setupSchema, black: setupSchema }).partial().strict()
+  z
+    .object({
+      white: setupSchema,
+      black: setupSchema,
+      red: setupSchema,
+      blue: setupSchema,
+    })
+    .partial()
+    .strict()
 );
 type CustomGameSetups = z.infer<typeof setupsSchema>;
 const ns = createAttrNamespace(GAME_PLATFORM_NAMESPACE, 'custom');
@@ -107,7 +115,14 @@ export function customGameSetups(
   const setup = CustomGameSetupsAttr.from(state)[game.id];
   return setup?.white === undefined || setup.black === undefined
     ? null
-    : { white: setup.white, black: setup.black };
+    : game.sides.some((side) => setup[side] === undefined)
+      ? null
+      : {
+          white: setup.white,
+          black: setup.black,
+          ...(setup.red === undefined ? {} : { red: setup.red }),
+          ...(setup.blue === undefined ? {} : { blue: setup.blue }),
+        };
 }
 
 /** The sides of `game` whose setup this copy of the space holds. */
@@ -116,7 +131,7 @@ export function customGameSetupSides(
   game: CustomGame
 ): readonly CustomGameSide[] {
   const setup = CustomGameSetupsAttr.from(state)[game.id] ?? {};
-  return CUSTOM_GAME_SIDES.filter((side) => setup[side] !== undefined);
+  return game.sides.filter((side) => setup[side] !== undefined);
 }
 
 /** `person`'s own setup for `game`, as their copy of the space holds it. */

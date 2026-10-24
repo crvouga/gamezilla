@@ -29,7 +29,7 @@ function gamePlayers(
   images: Readonly<Record<string, readonly Record<string, unknown>[]>>
 ): string[] {
   return (images['chess_multiplayer_games'] ?? []).flatMap((row) =>
-    [row['white_id'], row['black_id']].filter(
+    [row['white_id'], row['black_id'], row['red_id'], row['blue_id']].filter(
       (id): id is string => typeof id === 'string' && id.length > 0
     )
   );

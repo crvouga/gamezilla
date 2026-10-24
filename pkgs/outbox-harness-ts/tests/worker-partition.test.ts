@@ -39,7 +39,17 @@ test('a worker leaves another consumer and event partition unclaimed', async () 
     });
     await outbox.send({ id: 'alice', message: ping({ n: 1 }) });
     await outbox.send({ id: 'bob', message: ping({ n: 2 }) });
-    await drainOutbox({ db, clock, createId, registry: all, eventIds: [] });
+    // regression: outbox-empty-partition-materializes-foreign-deliveries
+    expect(
+      (await drainOutbox({ db, clock, createId, registry: all, eventIds: [] }))
+        .processed
+    ).toBe(0);
+    expect(
+      await db.query(
+        sql<{ event_id: string }>`SELECT event_id FROM outbox_deliveries`
+      )
+    ).toEqual([]);
+    await drainOutbox({ db, clock, createId, registry: all, limit: 0 });
     const worker = new OutboxConsumerRegistry();
     worker.register(all.get('export')!);
     expect(

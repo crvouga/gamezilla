@@ -22,8 +22,14 @@ export function MultiplayerGameRecord(props: {
   const clipboard = useClipboard();
   const white = useShownName(() => props.game.white_id);
   const black = useShownName(() => props.game.black_id);
+  const red = useShownName(() => props.game.red_id ?? '');
+  const blue = useShownName(() => props.game.blue_id ?? '');
   const record = () =>
-    gameRecord(props.game, { white: white(), black: black() }, rules);
+    gameRecord(
+      props.game,
+      { white: white(), black: black(), red: red(), blue: blue() },
+      rules
+    );
   return (
     <Show when={record()}>
       {(text) => (

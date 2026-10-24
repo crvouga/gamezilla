@@ -66,19 +66,21 @@ test('fractional square edges remain adjacent at a 128.49999237060547px width an
   );
 });
 
-test('an eight-pixel board maps every square after shrinking at twice scale', async () => {
+test('an eight-pixel board maps every square after repeated resizes at twice scale', async () => {
+  // regression: chessboard-tiny-scaled-square-hit
   // regression: chessboard-resize-before-observer
+  const [widths, orientation, scale] = [[8, 8, 8], 'white', 2] as const;
   await browser.view.evaluate(
-    `window.boardExample.reset({size:undefined,interactive:false,orientation:'white'})`
+    `window.boardExample.reset({size:undefined,interactive:false,orientation:"${orientation}"})`
   );
-  for (const width of [8, 8, 8]) {
+  for (const width of widths) {
     await browser.view.evaluate(
-      `(() => {window.boardExample.parent(${width},2); return window.boardExample.paint();})()`
+      `(() => {window.boardExample.parent(${width},${scale}); return window.boardExample.paint();})()`
     );
     assertGeometry(
       await browser.view.evaluate<BoardGeometry>(geometryRead),
       width,
-      2
+      scale
     );
   }
 });

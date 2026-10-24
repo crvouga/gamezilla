@@ -12,6 +12,7 @@ import {
 } from '@libs/battleship-shared-ts/battleship-board';
 import type { Orientation } from '@libs/battleship-shared-ts/battleship-fleet';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
+import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
 
 export type BattleshipWorld = Pick<HarnessWorld, 's' | 'memo'>;
 
@@ -92,5 +93,5 @@ export function orientationNamed(text: string): Orientation {
 export async function sideOf(w: BattleshipWorld, actor: string) {
   const side = (await sees(w, actor)).screen.mySide;
   if (side === null) throw new Error(`${actor} plays no side`);
-  return side;
+  return requireTwoPlayerSide(side);
 }

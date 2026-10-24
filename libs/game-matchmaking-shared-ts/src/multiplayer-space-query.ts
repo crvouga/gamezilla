@@ -50,7 +50,12 @@ export const multiplayerSpaceQuery = defineQuery({
       sql`SELECT * FROM chess_opponent_searches WHERE owner_id = ${hostId}`
     );
     const ids = games
-      .flatMap((game) => [game['white_id'], game['black_id']])
+      .flatMap((game) => [
+        game['white_id'],
+        game['black_id'],
+        game['red_id'],
+        game['blue_id'],
+      ])
       .filter((id): id is string => typeof id === 'string' && id.length > 0);
     const profiles = await profilesByIds.run(ctx, {
       ids: ids.length > 0 ? ids : ['__no_match_profile__'],

@@ -22,6 +22,7 @@ import {
 } from '@libs/spaces-shared-ts/space-members-messages';
 import { RoomMetaAttr } from '@pkgs/room-root-client-ts/room-meta';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
+import { type GameSide, gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import { type Accessor, createMemo } from 'solid-js';
 import { useCustomGameCommand } from './use-custom-game-command';
 import { useCustomGamePrivateSetup } from './use-custom-game-private-setup';
@@ -61,7 +62,8 @@ function useAwayParticipants() {
 /** Becoming ready, with the person's private setup for a game that has one. */
 function readyChoices(
   choose: (input: CustomGameInput) => Promise<void>,
-  privateSetup: ReturnType<typeof useCustomGamePrivateSetup>
+  privateSetup: ReturnType<typeof useCustomGamePrivateSetup>,
+  sides: Accessor<readonly GameSide[]>
 ) {
   const ready = (): Promise<void> =>
     choose(
@@ -71,7 +73,8 @@ function readyChoices(
     );
   const playBot = async (): Promise<void> => {
     await choose({ operation: 'create' });
-    await choose({ operation: 'bot', side: 'black' });
+    for (const side of sides().slice(1))
+      await choose({ operation: 'bot', side });
     if (privateSetup.has() && !privateSetup.complete()) privateSetup.random();
     await ready();
     await choose({ operation: 'start' });
@@ -90,6 +93,23 @@ function useMovesWait(
       !connected() &&
       customGameChoiceWaits(current(), { operation: 'move' }, rules)
   );
+}
+
+/** Name the members and everyone occupying one of the declared seats. */
+function useCustomGameProfiles(
+  current: Accessor<CustomGame | null>,
+  members: Accessor<readonly string[]>
+): void {
+  useSyncedProfiles(() => {
+    const game = current();
+    return game === null
+      ? members()
+      : [
+          ...members(),
+          game.creator,
+          ...game.sides.map((side) => game[side].person),
+        ];
+  });
 }
 
 export type CustomGameScreenModel = ReturnType<typeof useCustomGameScreen>;
@@ -113,13 +133,7 @@ export function useCustomGameScreen(
   const connected = useSpaceRoomSelector(
     (s) => RoomMetaAttr.isConnected.from(s) && RoomMetaAttr.isSynced.from(s)
   );
-  // Name everyone the screen shows: the members, and whoever holds a side.
-  useSyncedProfiles(() => {
-    const game = current();
-    return game === null
-      ? members()
-      : [...members(), game.creator, game.white.person, game.black.person];
-  });
+  useCustomGameProfiles(current, members);
   const canCreate = useSpaceCan(scope, PERMISSION.gameCustomCreate);
   const canSubmit = createMemo(
     () =>
@@ -137,9 +151,12 @@ export function useCustomGameScreen(
       revision: visible().current?.revision ?? 0,
     });
   const privateSetup = useCustomGamePrivateSetup(current, myId);
-  const { ready, playBot } = readyChoices(choose, privateSetup);
+  const { ready, playBot } = readyChoices(choose, privateSetup, () =>
+    gameSides(rules.byId(gameId()))
+  );
   return {
     myId,
+    playerCount: () => gameSides(rules.byId(gameId())).length,
     games,
     current,
     members,

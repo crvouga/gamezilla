@@ -5,6 +5,7 @@ Feature: A matchmaking pair play a lasting multiplayer game
 
   Rule: Finding an opponent leads into the matched multiplayer game
 
+    @regression:database-link-unmodeled-tcp-buffering
     Scenario: Two accounts are matched and can finish their multiplayer game
       Given Alice and Bob have accounts on fresh devices
       And Alice is finding a 5+0 multiplayer chess opponent

@@ -1,8 +1,8 @@
 /**
- * Hard time limits for the `bun verify` / `bun deploy:local` gate.
+ * Time limits for bounded verification and deployment runs.
  *
  * Two limits, both enforced by `turbo-ci-run.ts` so every surface that runs
- * the gate (`bun verify`, the Verify workflow, the Deploy workflow) gets them:
+ * the gate gets them unless it explicitly selects `VERIFY_TIME_LIMITS=off`:
  *
  * 1. A wall-clock **deadline** on the whole turbo run. Before it, one wedged
  *    task took the run with it — `@apps/product-ts#test` once ran 2104s as a
@@ -19,6 +19,7 @@
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { verificationTimeLimitsEnabled } from '@pkgs/quint-shared-ts/wall';
 import {
   profileBudgetSeconds,
   profileDeadlineSeconds,
@@ -125,6 +126,7 @@ export function taskBudgetSeconds(
   slowRunner: boolean,
   env: NodeJS.ProcessEnv = process.env
 ): number {
+  if (!verificationTimeLimitsEnabled(env)) return Number.POSITIVE_INFINITY;
   const suite = suiteTaskBudgetSeconds(taskId);
   if (suite !== null) return suite;
   const base = Object.hasOwn(TASK_BUDGET_SECONDS, taskId)
@@ -153,6 +155,7 @@ export function resolveRunDeadlineSeconds(
   env: NodeJS.ProcessEnv,
   options: RunDeadlineOptions
 ): number {
+  if (!verificationTimeLimitsEnabled(env)) return Number.POSITIVE_INFINITY;
   const override = Number.parseInt(env[RUN_DEADLINE_ENV]?.trim() ?? '', 10);
   if (Number.isInteger(override) && override > 0) return override;
   if (options.isDeploy) return DEPLOY_RUN_DEADLINE_SECONDS;

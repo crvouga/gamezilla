@@ -63,5 +63,5 @@ forEveryGame(
       ]);
     }, 240_000);
   },
-  ['a private setup']
+  ['a private setup', 'two seats']
 );

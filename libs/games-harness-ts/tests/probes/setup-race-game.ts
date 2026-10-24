@@ -14,9 +14,9 @@ import { assertHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
 import type {
   GameRules,
-  GameSide,
   PlayedPosition,
   TurnGameCapabilities,
+  TwoPlayerSide,
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import { otherSide } from './count-rules';
 import { probeAutomation, probePresentation } from './probe-parts';
@@ -26,9 +26,9 @@ const POSITION = /^setup-race:([_12])([_12]):([0-3])([0-3])([wb])$/;
 const INITIAL = 'setup-race:__:00w';
 
 type Race = {
-  readonly stride: Record<GameSide, number | null>;
-  readonly count: Record<GameSide, number>;
-  readonly mover: GameSide;
+  readonly stride: Record<TwoPlayerSide, number | null>;
+  readonly count: Record<TwoPlayerSide, number>;
+  readonly mover: TwoPlayerSide;
 };
 
 function parse(position: string): Race | null {

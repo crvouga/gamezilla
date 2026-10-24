@@ -69,9 +69,9 @@ export function CustomGameSideChoices(props: SideProps): JSX.Element {
   const [person, setPerson] = createSignal('');
   const invitations = createMemo(() =>
     props.model.members().map((id) => {
+      const game = props.model.current();
       const disabled =
-        id === props.model.current()?.white.person ||
-        id === props.model.current()?.black.person;
+        game?.sides.some((side) => game[side].person === id) ?? false;
       return {
         value: id,
         label: <UserUsername profileId={id} withAt={false} />,

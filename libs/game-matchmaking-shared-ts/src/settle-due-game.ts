@@ -5,6 +5,7 @@ import {
   multiplayerDeadlineMs,
   settleMultiplayerClock,
 } from './multiplayer-clock';
+import { multiplayerPeople } from './multiplayer-roster';
 
 /**
  * The scheduled sweep's half of a deadline: applies a missed first move or a
@@ -34,5 +35,5 @@ export async function settleDueGame(
     server: true,
     publish: { createId },
   });
-  return [stored.white_id, stored.black_id];
+  return multiplayerPeople(stored);
 }

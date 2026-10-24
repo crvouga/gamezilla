@@ -17,7 +17,7 @@ import {
 } from './matchmaker-internals';
 import {
   deleteWaitingIdsQuery,
-  insertMatchedRowQuery,
+  insertMatchedRowsQuery,
 } from './matchmaker-queries';
 import { lockOwners } from './owner-repository';
 import { lockPartition } from './partition-lock';
@@ -111,9 +111,9 @@ async function commitGroup(
 ): Promise<void> {
   const matchId = args.createId();
   const nowIso = new Date(args.nowMs).toISOString();
-  for (const member of group) {
-    await tx.run(
-      insertMatchedRowQuery({
+  await tx.run(
+    insertMatchedRowsQuery(
+      group.map((member) => ({
         id: member.id,
         ownerId: member.ownerId,
         matchId,
@@ -123,9 +123,9 @@ async function commitGroup(
         metadataJson:
           member.metadata === null ? null : JSON.stringify(member.metadata),
         nowIso,
-      })
-    );
-  }
+      }))
+    )
+  );
   await tx.run(
     deleteWaitingIdsQuery({
       ids: group.map((p) => p.id),

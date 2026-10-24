@@ -159,7 +159,8 @@
     "@libs/chess-root-harness-ts": "workspace:*",
     "@libs/connect-four-harness-ts": "workspace:*",
     "@libs/game-session-harness-ts": "workspace:*",
-    "@libs/games-shared-ts": "workspace:*"
+    "@libs/games-shared-ts": "workspace:*",
+    "@libs/quoridor-harness-ts": "workspace:*"
   },
   "devDependencies": {
     "@libs/account-privacy-harness-ts": "workspace:*",
@@ -197,6 +198,7 @@
     "@pkgs/dmn-shared-ts": "workspace:*",
     "@pkgs/gherkin-server-ts": "workspace:*",
     "@pkgs/gherkin-shared-ts": "workspace:*",
+    "@pkgs/harness-root-shared-ts": "workspace:*",
     "@pkgs/matchmaking-sql-shared-ts": "workspace:*",
     "@pkgs/message-shared-ts": "workspace:*",
     "@pkgs/openslo-shared-ts": "workspace:*",

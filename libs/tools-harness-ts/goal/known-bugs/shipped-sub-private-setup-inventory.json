@@ -1,0 +1,4 @@
+{
+  "summary": "The shipped data composition inventory omitted the declared chess_multiplayer_setups table and chooseMultiplayerSetup mutation, so its exact schema assertion failed before validating the whole fold.",
+  "regressionTest": "libs/runtime-client-ts/tests/shipped-subs.test.ts"
+}

@@ -1,0 +1,755 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
+    "source": "/Users/chrisvouga/.super.engineering/worktrees/gamezilla/sc-charged-yttrium-a70b/specs/quoridor/quoridor-play.qnt",
+    "status": "ok",
+    "description": "Created by Quint on Fri Oct 23 2026 04:31:49 GMT-0700 (Mountain Standard Time)",
+    "timestamp": 1792755109838
+  },
+  "vars": [
+    "_plies",
+    "walls",
+    "mode",
+    "_refused",
+    "remaining",
+    "pawns",
+    "_before",
+    "turn",
+    "winner",
+    "_finished",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": { "index": 0 },
+      "_before": {
+        "#tup": [
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
+            ]
+          },
+          { "#set": [] },
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
+            ]
+          },
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
+        ]
+      },
+      "_finished": {
+        "#tup": [
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
+            ]
+          },
+          { "#set": [] },
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
+            ]
+          },
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
+        ]
+      },
+      "_plies": { "#bigint": "0" },
+      "_refused": false,
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "beginning": { "tag": "Some", "value": "start" },
+        "column": { "tag": "None", "value": { "#tup": [] } },
+        "direction": { "tag": "None", "value": { "#tup": [] } },
+        "player": { "tag": "None", "value": { "#tup": [] } },
+        "row": { "tag": "None", "value": { "#tup": [] } },
+        "selected": { "tag": "Some", "value": "hill" },
+        "square": { "tag": "None", "value": { "#tup": [] } }
+      },
+      "mode": "hill",
+      "pawns": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "4" }],
+          [{ "#bigint": "1" }, { "#bigint": "36" }],
+          [{ "#bigint": "2" }, { "#bigint": "76" }],
+          [{ "#bigint": "3" }, { "#bigint": "44" }]
+        ]
+      },
+      "remaining": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "5" }],
+          [{ "#bigint": "1" }, { "#bigint": "5" }],
+          [{ "#bigint": "2" }, { "#bigint": "5" }],
+          [{ "#bigint": "3" }, { "#bigint": "5" }]
+        ]
+      },
+      "turn": { "#bigint": "0" },
+      "walls": { "#set": [] },
+      "winner": { "#bigint": "-1" }
+    },
+    {
+      "#meta": { "index": 1 },
+      "_before": {
+        "#tup": [
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
+            ]
+          },
+          { "#set": [] },
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
+            ]
+          },
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
+        ]
+      },
+      "_finished": {
+        "#tup": [
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
+            ]
+          },
+          { "#set": [] },
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
+            ]
+          },
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
+        ]
+      },
+      "_plies": { "#bigint": "0" },
+      "_refused": true,
+      "mbt::actionTaken": "passTurn",
+      "mbt::nondetPicks": {
+        "beginning": { "tag": "None", "value": { "#tup": [] } },
+        "column": { "tag": "None", "value": { "#tup": [] } },
+        "direction": { "tag": "None", "value": { "#tup": [] } },
+        "player": { "tag": "Some", "value": { "#bigint": "0" } },
+        "row": { "tag": "None", "value": { "#tup": [] } },
+        "selected": { "tag": "None", "value": { "#tup": [] } },
+        "square": { "tag": "None", "value": { "#tup": [] } }
+      },
+      "mode": "hill",
+      "pawns": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "4" }],
+          [{ "#bigint": "1" }, { "#bigint": "36" }],
+          [{ "#bigint": "2" }, { "#bigint": "76" }],
+          [{ "#bigint": "3" }, { "#bigint": "44" }]
+        ]
+      },
+      "remaining": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "5" }],
+          [{ "#bigint": "1" }, { "#bigint": "5" }],
+          [{ "#bigint": "2" }, { "#bigint": "5" }],
+          [{ "#bigint": "3" }, { "#bigint": "5" }]
+        ]
+      },
+      "turn": { "#bigint": "0" },
+      "walls": { "#set": [] },
+      "winner": { "#bigint": "-1" }
+    },
+    {
+      "#meta": { "index": 2 },
+      "_before": {
+        "#tup": [
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
+            ]
+          },
+          { "#set": [] },
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
+            ]
+          },
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
+        ]
+      },
+      "_finished": {
+        "#tup": [
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
+            ]
+          },
+          { "#set": [] },
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
+            ]
+          },
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
+        ]
+      },
+      "_plies": { "#bigint": "0" },
+      "_refused": true,
+      "mbt::actionTaken": "placeWall",
+      "mbt::nondetPicks": {
+        "beginning": { "tag": "None", "value": { "#tup": [] } },
+        "column": { "tag": "Some", "value": { "#bigint": "8" } },
+        "direction": { "tag": "Some", "value": { "#bigint": "0" } },
+        "player": { "tag": "Some", "value": { "#bigint": "1" } },
+        "row": { "tag": "Some", "value": { "#bigint": "6" } },
+        "selected": { "tag": "None", "value": { "#tup": [] } },
+        "square": { "tag": "None", "value": { "#tup": [] } }
+      },
+      "mode": "hill",
+      "pawns": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "4" }],
+          [{ "#bigint": "1" }, { "#bigint": "36" }],
+          [{ "#bigint": "2" }, { "#bigint": "76" }],
+          [{ "#bigint": "3" }, { "#bigint": "44" }]
+        ]
+      },
+      "remaining": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "5" }],
+          [{ "#bigint": "1" }, { "#bigint": "5" }],
+          [{ "#bigint": "2" }, { "#bigint": "5" }],
+          [{ "#bigint": "3" }, { "#bigint": "5" }]
+        ]
+      },
+      "turn": { "#bigint": "0" },
+      "walls": { "#set": [] },
+      "winner": { "#bigint": "-1" }
+    },
+    {
+      "#meta": { "index": 3 },
+      "_before": {
+        "#tup": [
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
+            ]
+          },
+          { "#set": [] },
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
+            ]
+          },
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
+        ]
+      },
+      "_finished": {
+        "#tup": [
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
+            ]
+          },
+          { "#set": [] },
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
+            ]
+          },
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
+        ]
+      },
+      "_plies": { "#bigint": "0" },
+      "_refused": true,
+      "mbt::actionTaken": "placeWall",
+      "mbt::nondetPicks": {
+        "beginning": { "tag": "None", "value": { "#tup": [] } },
+        "column": { "tag": "Some", "value": { "#bigint": "7" } },
+        "direction": { "tag": "Some", "value": { "#bigint": "0" } },
+        "player": { "tag": "Some", "value": { "#bigint": "0" } },
+        "row": { "tag": "Some", "value": { "#bigint": "8" } },
+        "selected": { "tag": "None", "value": { "#tup": [] } },
+        "square": { "tag": "None", "value": { "#tup": [] } }
+      },
+      "mode": "hill",
+      "pawns": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "4" }],
+          [{ "#bigint": "1" }, { "#bigint": "36" }],
+          [{ "#bigint": "2" }, { "#bigint": "76" }],
+          [{ "#bigint": "3" }, { "#bigint": "44" }]
+        ]
+      },
+      "remaining": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "5" }],
+          [{ "#bigint": "1" }, { "#bigint": "5" }],
+          [{ "#bigint": "2" }, { "#bigint": "5" }],
+          [{ "#bigint": "3" }, { "#bigint": "5" }]
+        ]
+      },
+      "turn": { "#bigint": "0" },
+      "walls": { "#set": [] },
+      "winner": { "#bigint": "-1" }
+    },
+    {
+      "#meta": { "index": 4 },
+      "_before": {
+        "#tup": [
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
+            ]
+          },
+          { "#set": [] },
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
+            ]
+          },
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
+        ]
+      },
+      "_finished": {
+        "#tup": [
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
+            ]
+          },
+          { "#set": [] },
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
+            ]
+          },
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
+        ]
+      },
+      "_plies": { "#bigint": "0" },
+      "_refused": true,
+      "mbt::actionTaken": "movePawn",
+      "mbt::nondetPicks": {
+        "beginning": { "tag": "None", "value": { "#tup": [] } },
+        "column": { "tag": "None", "value": { "#tup": [] } },
+        "direction": { "tag": "None", "value": { "#tup": [] } },
+        "player": { "tag": "Some", "value": { "#bigint": "3" } },
+        "row": { "tag": "None", "value": { "#tup": [] } },
+        "selected": { "tag": "None", "value": { "#tup": [] } },
+        "square": { "tag": "Some", "value": { "#bigint": "18" } }
+      },
+      "mode": "hill",
+      "pawns": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "4" }],
+          [{ "#bigint": "1" }, { "#bigint": "36" }],
+          [{ "#bigint": "2" }, { "#bigint": "76" }],
+          [{ "#bigint": "3" }, { "#bigint": "44" }]
+        ]
+      },
+      "remaining": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "5" }],
+          [{ "#bigint": "1" }, { "#bigint": "5" }],
+          [{ "#bigint": "2" }, { "#bigint": "5" }],
+          [{ "#bigint": "3" }, { "#bigint": "5" }]
+        ]
+      },
+      "turn": { "#bigint": "0" },
+      "walls": { "#set": [] },
+      "winner": { "#bigint": "-1" }
+    },
+    {
+      "#meta": { "index": 5 },
+      "_before": {
+        "#tup": [
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
+            ]
+          },
+          { "#set": [] },
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
+            ]
+          },
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
+        ]
+      },
+      "_finished": {
+        "#tup": [
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
+            ]
+          },
+          { "#set": [] },
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
+            ]
+          },
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
+        ]
+      },
+      "_plies": { "#bigint": "0" },
+      "_refused": true,
+      "mbt::actionTaken": "passTurn",
+      "mbt::nondetPicks": {
+        "beginning": { "tag": "None", "value": { "#tup": [] } },
+        "column": { "tag": "None", "value": { "#tup": [] } },
+        "direction": { "tag": "None", "value": { "#tup": [] } },
+        "player": { "tag": "Some", "value": { "#bigint": "3" } },
+        "row": { "tag": "None", "value": { "#tup": [] } },
+        "selected": { "tag": "None", "value": { "#tup": [] } },
+        "square": { "tag": "None", "value": { "#tup": [] } }
+      },
+      "mode": "hill",
+      "pawns": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "4" }],
+          [{ "#bigint": "1" }, { "#bigint": "36" }],
+          [{ "#bigint": "2" }, { "#bigint": "76" }],
+          [{ "#bigint": "3" }, { "#bigint": "44" }]
+        ]
+      },
+      "remaining": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "5" }],
+          [{ "#bigint": "1" }, { "#bigint": "5" }],
+          [{ "#bigint": "2" }, { "#bigint": "5" }],
+          [{ "#bigint": "3" }, { "#bigint": "5" }]
+        ]
+      },
+      "turn": { "#bigint": "0" },
+      "walls": { "#set": [] },
+      "winner": { "#bigint": "-1" }
+    },
+    {
+      "#meta": { "index": 6 },
+      "_before": {
+        "#tup": [
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
+            ]
+          },
+          { "#set": [] },
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
+            ]
+          },
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
+        ]
+      },
+      "_finished": {
+        "#tup": [
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
+            ]
+          },
+          { "#set": [] },
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
+            ]
+          },
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
+        ]
+      },
+      "_plies": { "#bigint": "1" },
+      "_refused": false,
+      "mbt::actionTaken": "movePawn",
+      "mbt::nondetPicks": {
+        "beginning": { "tag": "None", "value": { "#tup": [] } },
+        "column": { "tag": "None", "value": { "#tup": [] } },
+        "direction": { "tag": "None", "value": { "#tup": [] } },
+        "player": { "tag": "Some", "value": { "#bigint": "0" } },
+        "row": { "tag": "None", "value": { "#tup": [] } },
+        "selected": { "tag": "None", "value": { "#tup": [] } },
+        "square": { "tag": "Some", "value": { "#bigint": "5" } }
+      },
+      "mode": "hill",
+      "pawns": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "5" }],
+          [{ "#bigint": "1" }, { "#bigint": "36" }],
+          [{ "#bigint": "2" }, { "#bigint": "76" }],
+          [{ "#bigint": "3" }, { "#bigint": "44" }]
+        ]
+      },
+      "remaining": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "5" }],
+          [{ "#bigint": "1" }, { "#bigint": "5" }],
+          [{ "#bigint": "2" }, { "#bigint": "5" }],
+          [{ "#bigint": "3" }, { "#bigint": "5" }]
+        ]
+      },
+      "turn": { "#bigint": "1" },
+      "walls": { "#set": [] },
+      "winner": { "#bigint": "-1" }
+    },
+    {
+      "#meta": { "index": 7 },
+      "_before": {
+        "#tup": [
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
+            ]
+          },
+          { "#set": [] },
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
+            ]
+          },
+          { "#bigint": "1" },
+          { "#bigint": "-1" }
+        ]
+      },
+      "_finished": {
+        "#tup": [
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
+            ]
+          },
+          { "#set": [] },
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
+            ]
+          },
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
+        ]
+      },
+      "_plies": { "#bigint": "1" },
+      "_refused": true,
+      "mbt::actionTaken": "movePawn",
+      "mbt::nondetPicks": {
+        "beginning": { "tag": "None", "value": { "#tup": [] } },
+        "column": { "tag": "None", "value": { "#tup": [] } },
+        "direction": { "tag": "None", "value": { "#tup": [] } },
+        "player": { "tag": "Some", "value": { "#bigint": "2" } },
+        "row": { "tag": "None", "value": { "#tup": [] } },
+        "selected": { "tag": "None", "value": { "#tup": [] } },
+        "square": { "tag": "Some", "value": { "#bigint": "3" } }
+      },
+      "mode": "hill",
+      "pawns": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "5" }],
+          [{ "#bigint": "1" }, { "#bigint": "36" }],
+          [{ "#bigint": "2" }, { "#bigint": "76" }],
+          [{ "#bigint": "3" }, { "#bigint": "44" }]
+        ]
+      },
+      "remaining": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "5" }],
+          [{ "#bigint": "1" }, { "#bigint": "5" }],
+          [{ "#bigint": "2" }, { "#bigint": "5" }],
+          [{ "#bigint": "3" }, { "#bigint": "5" }]
+        ]
+      },
+      "turn": { "#bigint": "1" },
+      "walls": { "#set": [] },
+      "winner": { "#bigint": "-1" }
+    },
+    {
+      "#meta": { "index": 8 },
+      "_before": {
+        "#tup": [
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
+            ]
+          },
+          { "#set": [] },
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
+            ]
+          },
+          { "#bigint": "1" },
+          { "#bigint": "-1" }
+        ]
+      },
+      "_finished": {
+        "#tup": [
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
+            ]
+          },
+          { "#set": [] },
+          {
+            "#map": [
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
+            ]
+          },
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
+        ]
+      },
+      "_plies": { "#bigint": "1" },
+      "_refused": true,
+      "mbt::actionTaken": "passTurn",
+      "mbt::nondetPicks": {
+        "beginning": { "tag": "None", "value": { "#tup": [] } },
+        "column": { "tag": "None", "value": { "#tup": [] } },
+        "direction": { "tag": "None", "value": { "#tup": [] } },
+        "player": { "tag": "Some", "value": { "#bigint": "1" } },
+        "row": { "tag": "None", "value": { "#tup": [] } },
+        "selected": { "tag": "None", "value": { "#tup": [] } },
+        "square": { "tag": "None", "value": { "#tup": [] } }
+      },
+      "mode": "hill",
+      "pawns": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "5" }],
+          [{ "#bigint": "1" }, { "#bigint": "36" }],
+          [{ "#bigint": "2" }, { "#bigint": "76" }],
+          [{ "#bigint": "3" }, { "#bigint": "44" }]
+        ]
+      },
+      "remaining": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "5" }],
+          [{ "#bigint": "1" }, { "#bigint": "5" }],
+          [{ "#bigint": "2" }, { "#bigint": "5" }],
+          [{ "#bigint": "3" }, { "#bigint": "5" }]
+        ]
+      },
+      "turn": { "#bigint": "1" },
+      "walls": { "#set": [] },
+      "winner": { "#bigint": "-1" }
+    }
+  ]
+}

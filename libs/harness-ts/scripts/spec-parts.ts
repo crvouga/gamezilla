@@ -201,19 +201,19 @@ function unitKey(unit: SpecUnit): string {
 type PartLoad = { load: number; units: SpecUnit[] };
 
 /**
- * Quint batches keep their bounded, balanced allocation. Other specs have
- * stable path ownership: editing one feature never moves another feature or
- * a model batch. Part 0 also owns `tests/harness`.
+ * Quint batches keep their bounded, balanced allocation and fill otherwise
+ * empty hashed parts. Other specs keep stable path ownership when another
+ * feature changes. Part 0 also owns `tests/harness`.
  */
 export function partOf(
   units: readonly SpecUnit[],
   part: Part
 ): readonly SpecUnit[] {
-  return splitSpecUnits(units, part.count)[part.index] ?? [];
+  return partsOf(units, part.count)[part.index] ?? [];
 }
 
-/** Compute every part once when preparing a complete suite's manifests. */
-export function splitSpecUnits(
+/** Compute the complete immutable assignment once, in part-index order. */
+export function partsOf(
   units: readonly SpecUnit[],
   count: number
 ): readonly (readonly SpecUnit[])[] {
@@ -233,8 +233,12 @@ export function splitSpecUnits(
     loads[index]!.units.push(unit);
   }
   fillEmptyParts(loads);
-  return loads.map((part) =>
-    part.units.sort((a, b) => unitKey(a).localeCompare(unitKey(b)))
+  return Object.freeze(
+    loads.map((part) =>
+      Object.freeze(
+        part.units.sort((a, b) => unitKey(a).localeCompare(unitKey(b)))
+      )
+    )
   );
 }
 
@@ -262,7 +266,7 @@ function fillEmptyParts(loads: readonly PartLoad[]): void {
   }
 }
 
-/** Feature edits cannot move unrelated features or the bounded model batches. */
+/** Feature paths keep their owner when another feature changes. */
 export function specOwner(path: string, count: number, slice = 0): number {
   const key = path.replaceAll('\\', '/').replace(/^(?:.*\/)?specs\//, '');
   let hash = 2166136261;

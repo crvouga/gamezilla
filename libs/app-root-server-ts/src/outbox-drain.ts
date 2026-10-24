@@ -9,9 +9,11 @@ import { ATTR } from '@pkgs/observability-root-shared-ts/attributes';
 import { withSpan } from '@pkgs/observability-root-shared-ts/span';
 import { OutboxConsumerRegistry } from '@pkgs/outbox-shared-ts/define-consumer';
 import {
+  type DrainOutboxDeps,
   drainOutbox,
   type ObserveDelivery,
 } from '@pkgs/outbox-shared-ts/drain';
+import { hasDueOutboxWork } from '@pkgs/outbox-shared-ts/due-work';
 import type { PubSub } from '@pkgs/pubsub-root-shared-ts/interface';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import { notifyChannels } from '@pkgs/sync-engine-server-ts/notify-channels';
@@ -107,6 +109,8 @@ type DrainAndNotifyArgs = {
   readonly objectStore: ObjectStore;
   readonly consumerRegistry?: OutboxConsumerRegistry;
   readonly eventIds?: readonly string[];
+  /** Durable authenticated mutation families, including pending descendants. */
+  readonly causationIds?: readonly string[];
   /** Complete types of the scoped input events, expanded with captured children. */
   readonly eventTypes?: readonly string[];
   readonly topicMap?: TopicMap;
@@ -119,45 +123,84 @@ type DrainAndNotifyArgs = {
 export async function drainAndNotifyOutbox(
   args: DrainAndNotifyArgs
 ): Promise<number> {
+  if (args.causationIds?.length === 0) return 0;
   const consumers = args.consumerRegistry ?? getOutboxConsumerRegistry();
   const eventIds =
     args.eventIds === undefined ? undefined : new Set(args.eventIds);
   if (eventIds?.size === 0) return 0;
   let eventTypes =
     args.eventTypes === undefined ? undefined : new Set(args.eventTypes);
+  const maxPasses = args.maxPasses ?? 8;
   let processed = 0;
-  for (let pass = 0; pass < (args.maxPasses ?? 8); pass++) {
-    const captures: ReturnType<typeof wrapMutationDb>[] = [];
-    const result = await drainOutbox({
-      db: args.db,
-      clock: args.clock,
-      createId: args.createId,
-      registry:
-        eventTypes === undefined
-          ? consumers
-          : consumersForEvents(consumers, eventTypes),
-      objectStore: args.objectStore,
-      observeDelivery: observeOutboxDelivery,
-      ...(args.limit === undefined ? {} : { limit: args.limit }),
-      ...(eventIds === undefined ? {} : { eventIds: [...eventIds] }),
-      wrapConsumerTx: (tx) => {
-        const wrapped = wrapMutationDb(tx, accountMutationEnv('', args));
-        captures.push(wrapped);
-        return wrapped.tx;
-      },
-    });
+  for (let pass = 0; pass < maxPasses; pass++) {
+    const capture = capturedPass(
+      args,
+      eventTypes === undefined
+        ? consumers
+        : consumersForEvents(consumers, eventTypes),
+      eventIds === undefined ? undefined : [...eventIds]
+    );
+    const result = await drainOutbox(capture.deps);
     processed += result.processed;
     countExhaustedOutboxDeliveries(result.exhausted);
     const captured = capturedOutboxScope(
-      captures.map((capture) => capture.getCapture())
+      capture.committed.map((part) => part.getCapture())
     );
     for (const id of captured.eventIds) eventIds?.add(id);
     eventTypes = extendEventTypes(eventTypes, captured.eventTypes);
     // This pass has committed. Publish it before following deliveries can wait.
-    await notifyCommittedPass(args, consumers, captures, result.notifyUserIds);
+    await notifyCommittedPass(
+      args,
+      consumers,
+      capture.committed,
+      result.notifyUserIds
+    );
     if (result.processed === 0) break;
+    if (pass + 1 >= maxPasses) break;
+    // Captured appends retain the next pass, even if their savepoint rolled back.
+    const eventWrites = capture.attempted.some((part) =>
+      part.getCapture().tables.includes('outbox_events')
+    );
+    if (!eventWrites && !(await hasDueOutboxWork(capture.deps))) break;
   }
   return processed;
+}
+
+/** Only successful handlers' images survive their savepoints and may be published. */
+function capturedPass(
+  args: DrainAndNotifyArgs,
+  registry: OutboxConsumerRegistry,
+  eventIds: readonly string[] | undefined
+) {
+  const attempted: ReturnType<typeof wrapMutationDb>[] = [];
+  const committed: ReturnType<typeof wrapMutationDb>[] = [];
+  const deps: DrainOutboxDeps = {
+    db: args.db,
+    clock: args.clock,
+    createId: args.createId,
+    registry,
+    objectStore: args.objectStore,
+    observeDelivery: (info, run) => {
+      // The drain constructs this handler's wrapper immediately before observing it.
+      const capture = attempted.at(-1);
+      return observeOutboxDelivery(info, async () => {
+        const result = await run();
+        if (result.ok && capture !== undefined) committed.push(capture);
+        return result;
+      });
+    },
+    ...(args.limit === undefined ? {} : { limit: args.limit }),
+    ...(eventIds === undefined ? {} : { eventIds }),
+    ...(args.causationIds === undefined
+      ? {}
+      : { causationIds: args.causationIds }),
+    wrapConsumerTx: (tx) => {
+      const wrapped = wrapMutationDb(tx, accountMutationEnv('', args));
+      attempted.push(wrapped);
+      return wrapped.tx;
+    },
+  };
+  return { deps, attempted, committed };
 }
 
 async function notifyCommittedPass(

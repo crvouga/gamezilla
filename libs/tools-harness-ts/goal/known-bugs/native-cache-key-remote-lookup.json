@@ -1,0 +1,4 @@
+{
+  "summary": "Native cache-key tests queried the remote cache inherited from verification, exhausting their deadline before checking local input hashes.",
+  "regressionTest": "libs/tools-harness-ts/scripts/native-cache-keys.test.ts"
+}

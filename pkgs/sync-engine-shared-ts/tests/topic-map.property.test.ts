@@ -49,12 +49,14 @@ type EntrySpec = {
   readonly fallback: readonly string[] | null;
   readonly subscribe: boolean;
   readonly publishGuard: boolean;
+  readonly batch: boolean;
 };
 
 const arbEntrySpec: fc.Arbitrary<EntrySpec> = fc.record({
   fallback: fc.option(arbTopics, { nil: null }),
   subscribe: fc.boolean(),
   publishGuard: fc.boolean(),
+  batch: fc.boolean(),
 });
 
 const arbSpecs = fc.dictionary(fc.constantFrom(...TABLES), arbEntrySpec, {
@@ -64,6 +66,12 @@ const arbSpecs = fc.dictionary(fc.constantFrom(...TABLES), arbEntrySpec, {
 function buildEntry(spec: EntrySpec): TopicMapEntry {
   return {
     topics: (row) => rowTopics(row, 't'),
+    ...(spec.batch
+      ? {
+          topicsByRow: (rows: readonly Row[]) =>
+            rows.map((row) => rowTopics(row, 't')),
+        }
+      : {}),
     ...(spec.fallback === null
       ? {}
       : { fallbackTopics: () => spec.fallback ?? [] }),
@@ -132,6 +140,41 @@ function reversedCapture(capture: Capture): Capture {
 }
 
 describe('topicsFromWriteCapture', () => {
+  test('a batch retains both owners of repeated row ids and the touch-only fallback', async () => {
+    let calls = 0;
+    const previous = { id: 'note', owner: 'alice' };
+    const next = { id: 'note', owner: 'bob' };
+    const topicMap = defineTopicMap({
+      notes: {
+        topics: (row) => [`user:${String(row['owner'])}`],
+        topicsByRow: (rows, ctx) => {
+          calls += 1;
+          expect(rows).toEqual([previous, next]);
+          expect(ctx).toBe(CTX);
+          return rows.map((row) => [`user:${String(row['owner'])}`]);
+        },
+      },
+      folders: {
+        topics: () => ['unused'],
+        topicsByRow: () => {
+          throw new Error('A touch-only capture must use its fallback');
+        },
+        fallbackTopics: () => ['room:folder'],
+      },
+    });
+    const topics = await topicsFromWriteCapture({
+      topicMap,
+      capture: {
+        tables: ['notes', 'folders'],
+        ids: {},
+        images: { notes: [previous, next] },
+      },
+      ctx: CTX,
+    });
+    expect(topics).toEqual(['room:folder', 'user:alice', 'user:bob']);
+    expect(calls).toBe(1);
+  });
+
   test('equals the sorted set-union oracle, order-independent and idempotent', async () => {
     await assertProperty(
       'topicsFromWriteCapture oracle',

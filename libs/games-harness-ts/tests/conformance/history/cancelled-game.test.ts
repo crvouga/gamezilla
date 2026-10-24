@@ -34,5 +34,5 @@ forEveryGame(
       expect([history.wins, history.losses, history.draws]).toEqual([0, 0, 0]);
     }, 120_000);
   },
-  ['custom-games']
+  ['custom-games', 'two seats']
 );

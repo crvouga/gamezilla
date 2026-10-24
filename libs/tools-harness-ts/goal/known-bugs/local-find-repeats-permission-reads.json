@@ -1,0 +1,4 @@
+{
+  "summary": "A signed-in host's optimistic Find replay issued twelve SQL statements: each of its three pre-write grant checks and final unfinished-game limit re-read permission configuration and subscription facts, and the same already-looking query ran twice without intervening writes. Use one explicit immutable permission snapshot for the consecutive grant checks, retain the fresh limit evaluation under the server owner lock, and read already-looking once. The literal public mutation regression pins seven local statements and the same first-refusal order.",
+  "regressionTest": "libs/game-matchmaking-shared-ts/tests/find-local-cost.test.ts"
+}

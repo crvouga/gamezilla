@@ -14,6 +14,7 @@ import {
 } from '@libs/game-matchmaking-harness-ts/matched-game-world';
 import type { CustomGameSide } from '@libs/game-session-shared-ts/custom-game-state';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
+import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { gameOf } from './game-world';
 import { pairedAt } from './matched-game';
 
@@ -51,7 +52,7 @@ export async function matchedTimeLeft(
   const game = await matchedGameOf(w, pairOf(w)[0]);
   await w.s.apply(givenMultiplayerClock, pairOf(w)[0], {
     gameId: game.id,
-    side,
+    side: requireTwoPlayerSide(side),
     ms,
   });
   await bothBoards(

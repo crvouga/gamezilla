@@ -1,4 +1,3 @@
-import { GAME_AUTOMATIONS } from '@libs/game-catalog-shared-ts/game-automations';
 import { BEHAVIOR_EVENTS } from '@libs/synthetic-population-shared-ts/behavior-statechart';
 import {
   type Checkpoint,
@@ -12,6 +11,8 @@ import {
 import { readPersonality } from '@libs/synthetic-population-shared-ts/personality';
 import { SyntheticUserApplication } from '@libs/synthetic-population-shared-ts/synthetic-user-application';
 import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
+import type { GameAutomation } from '@pkgs/turn-game-shared-ts/game-automation';
+import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import { createHarnessIds } from '@pkgs/uuid-shared-ts/seeded-create-id';
 import { createApplicationInstance } from './application-instance';
 import type { SessionInput, SessionOutput } from './session-messages';
@@ -40,6 +41,7 @@ export class SessionRuntime {
     private readonly assignment: WorkerAssignment,
     private readonly origin: string,
     private readonly ports: {
+      games: readonly GameAutomation<Driver>[];
       clock: Clock;
       timers: Timers;
       send: (value: SessionOutput) => void;
@@ -143,7 +145,7 @@ export class SessionRuntime {
     const random = createHarnessIds(this.checkpoint.policySeed).random;
     for (let index = 0; index < this.checkpoint.decisions; index += 1) random();
     this.behavior = new SyntheticUserApplication(this.instance.driver, {
-      games: GAME_AUTOMATIONS,
+      games: this.ports.games,
       clock: this.ports.clock,
       username: this.assignment.username,
       restoreGame: this.checkpoint.matchId !== null,

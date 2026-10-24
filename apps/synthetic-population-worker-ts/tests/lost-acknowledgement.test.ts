@@ -9,6 +9,7 @@ import {
 
 test('a lost move acknowledgement retries the ordinary upload with one effective game action', async () => {
   // regression: synthetic-realms-miss-peer-invalidation
+  // regression: synthetic-native-realms-incompatible-game-pools
   const backend = await runtimeBackend(2);
   const sessions: ManagedSession[] = [];
   try {

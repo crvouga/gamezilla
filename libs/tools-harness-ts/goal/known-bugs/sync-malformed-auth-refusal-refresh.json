@@ -1,0 +1,4 @@
+{
+  "summary": "Reading a 401 JSON null body as an object before the session-renewal path throws instead of allowing the existing refresh and retry. Treat null, empty and malformed refusal bodies as ordinary authentication failures while recognizing only a validated upgrade_required reason as a protocol refusal.",
+  "regressionTest": "pkgs/sync-engine-client-ts/tests/sync-http-upgrade.test.ts"
+}

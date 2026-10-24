@@ -5,7 +5,9 @@ import type {
   HarnessRoomNode,
 } from '@libs/harness-ts/composition';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import { makeCustomGameMove } from './custom-game-moves';
 import { readCustomGameProbe } from './custom-game-probe';
+import { harnessGameAt } from './harness-game-of';
 
 const choices = new WeakMap<HarnessRoomNode, { next: number | null }>();
 
@@ -59,5 +61,29 @@ export const playCustomGameBots = scenarioAction<
       if (game?.status !== 'active') return;
       await s.session.advanceTime(1000);
     }
+  },
+});
+
+/** Finish a solo game: the person follows the game's automation and every bot takes its own turn. */
+export const finishCustomGameAgainstBots = scenarioAction({
+  name: 'finishCustomGameAgainstBots',
+  act: async (s, observer: string) => {
+    for (let turn = 0; turn < 600; turn++) {
+      const probe = await readCustomGameProbe(s, observer);
+      const current = probe?.current;
+      if (probe === null || current === null || current === undefined)
+        throw new Error('No custom game');
+      if (current.status !== 'active') return;
+      if (current.turn === probe.mySide) {
+        const game = harnessGameAt(s, current.fen);
+        const action = game.shared.automation.choose(current.fen, () => 0);
+        if (action === null) throw new Error('Active game offers no action');
+        await Promise.resolve(
+          makeCustomGameMove.act(s, observer, game.shared.id, action)
+        );
+      }
+      await s.session.advanceTime(1000);
+    }
+    throw new Error('The game did not finish within its bounded play');
   },
 });

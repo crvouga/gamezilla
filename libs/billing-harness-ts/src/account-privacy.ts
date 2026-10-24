@@ -1,8 +1,13 @@
 import { runPrivacyJobs } from '@libs/account-privacy-harness-ts/privacy-actions';
-import { scenarioAction } from '@libs/harness-ts/actor-ui';
+import { pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import sql from '@pkgs/sql-root-shared-ts/sql';
-import { billingProviders, customerOf } from './billing-provider-driver';
+import { BILLING_WAIT_MS } from './billing-gestures';
+import {
+  billingProviders,
+  customerOf,
+  subscriptionsEverywhere,
+} from './billing-provider-driver';
 
 export async function membershipCannotRenew(
   s: ProductHarness,
@@ -137,6 +142,17 @@ export async function newestPaymentRefund(
 export const agePaymentRetention = scenarioAction({
   name: 'agePaymentRetention',
   act: async (s, accountId: string) => {
+    // regression: payment-retention-fixture-renewals
+    // Age existing evidence without creating seven years of new renewals.
+    for (const { provider, subscriptions } of await subscriptionsEverywhere(
+      s,
+      accountId
+    )) {
+      for (const subscription of subscriptions) {
+        if (subscription.status !== 'canceled')
+          await provider.stripe.subscriptions.cancel(subscription.id);
+      }
+    }
     const rows = await s.harness.serverSql.sqlClient.query(
       sql<{
         erase_by: string;
@@ -168,14 +184,33 @@ export const makeMembershipPayment = scenarioAction({
   act: async (s, accountId: string) => {
     const provider = billingProviders(s).checkout();
     const customer = await customerOf(s, accountId, provider);
-    await provider.stripe.paymentIntents.create({
+    const payment = await provider.stripe.paymentIntents.create({
       customer,
       amount: 500,
       currency: 'usd',
       payment_method: 'pm_card_visa',
       confirm: true,
     });
-    await s.session.advanceTime(2_000);
-    await s.session.waitForIdle();
+    const chargeId =
+      typeof payment.latest_charge === 'string'
+        ? payment.latest_charge
+        : payment.latest_charge?.id;
+    if (chargeId === undefined)
+      throw new Error('The provider did not capture a membership payment');
+    // regression: membership-payment-evidence-settlement
+    // A previous renewal's evidence cannot settle this newly captured charge.
+    await pollUntil(
+      s,
+      async () =>
+        (await minimumPayments(s, accountId)).some(
+          (row) => row.provider === provider.id && row.payment_id === chargeId
+        )
+          ? true
+          : null,
+      {
+        maxMs: BILLING_WAIT_MS,
+        description: `durable evidence for captured payment ${chargeId}`,
+      }
+    );
   },
 });

@@ -70,10 +70,11 @@ terms:
     forms: [sets up, setting up, being set up, set-up]
     model: [SettingUp]
 
-  - term: ready
+  - term: custom game readiness
+    published: true
     definition: >-
-      A person in a custom game agreeing to its current set-up before it
-      starts. Any change to the sides or the clock choice leaves every
+      Agreement to a custom game's current set-up by a person playing in it
+      before it starts. Any change to the sides or the clock choice leaves every
       person not ready; a bot needs no agreement. A person may withdraw
       readiness until the custom game starts. In a game with a private
       setup, becoming ready also needs a complete private setup and confirms
@@ -81,12 +82,10 @@ terms:
       readiness lets them change it again. In a matched game of such a game,
       a person is ready once they choose their private setup.
     forms:
-      - readiness
-      - not ready
-      - no longer ready
-      - becomes ready
-      - become ready
-      - withdraws readiness
+      - game readiness
+      - ready for a custom game
+      - ready for the custom game
+      - ready players
     model: [ready, readyShown, becomeReady, becomeUnready]
 
   - term: private setup
@@ -164,15 +163,16 @@ terms:
       of the private setup; a refused move reveals nothing.
     forms: [reveals, revealed, what play revealed]
 
-  - term: start
+  - term: start a custom game
     definition: >-
-      Begin a custom game once both sides have a participant and every
+      Begin a custom game once every declared side has a participant and every
       person in it is ready, which only its creator does. It starts from the
       game's starting position with the first side to move, and it starts
       once however often the creator asks; a start for an earlier set-up is
       refused.
-    forms: [starts, started, starting, startable, can start, cannot start]
+    forms: [starts the custom game, starts a custom game, starting a custom game, starting the custom game]
     model: [startGame, started, startsShown]
+    published: true
 
   - term: under way
     definition: >-
@@ -261,12 +261,19 @@ terms:
 
   - term: side
     definition: >-
-      One of a game's two places to play from. The first side moves first;
-      a side is open until a person or a bot takes it.
+      One of a game's declared places to play from. A game has two or four
+      sides in a fixed turn order. The first side moves first; a side is
+      open until a person or a bot takes it. Every declared side needs a
+      participant before play begins.
     forms:
       - sides
       - first side
       - second side
+      - third side
+      - fourth side
+      - four-player game
+      - four-player custom game
+      - four-player matched game
       - open side
       - both sides
       - sides swapped
@@ -286,6 +293,11 @@ terms:
     definition: An automated participant that makes legal moves at its turn.
     forms: [bots, the bots]
     model: [botPlays, BotSide]
+    published: true
+
+  - term: player
+    definition: A person or bot occupying one of the game's declared sides.
+    forms: [players, player's]
 
   - term: move
     definition: >-
@@ -374,39 +386,45 @@ terms:
       accepted is drawn by agreement; so is a custom game. A move after
       which the game's own rules allow nobody a victory draws the game by
       those rules at once: it is the drawing move, and both people see the
-      same draw.
+      same draw. A game with more than two sides also finishes as a draw
+      when a participant withdraws or runs out of time; no remaining
+      participant is chosen as a sole winner. Account deletion or an
+      expired first-move allowance draws such a matched game even before
+      anyone has made a first move.
     forms: [draws, drawn, drawn by agreement, drawn by the game's own rules, drawing move]
     model: [drawByAgreement]
 
   - term: resign
     definition: >-
-      Give up a game under way, which gives the opponent the victory. In a
-      matched game, resigning is refused until both people have made their
-      first move, and the person is told to abort instead; from then on
-      either person may resign, whoever's turn it is, and resigning again
-      keeps the result. Leaving the space resigns a participant's side of a
-      custom game under way, and a finished custom game takes no
-      resignation.
+      Give up a game under way. In a two-sided game the opponent wins; a
+      game with more than two sides finishes as a draw because a participant
+      withdrew. In a matched game, resigning is refused until every person
+      has made their first move, and the person is told to abort instead;
+      from then on any participant may resign, whoever's turn it is, and
+      resigning again keeps the result. Leaving the space resigns a
+      participant's side of a custom game under way, and a finished custom
+      game takes no resignation.
     forms: [resigns, resigned, resigning, resignation]
     avoid: [forfeit, concede, quit]
     model: [resignGame, resignCustomGame]
 
   - term: matched game
     definition: >-
-      A game of the game between two people who were paired as opponents at
-      the clock choice they both chose. Each is given a side, both see the
-      same board, moves and result, and only those two people may move,
-      resign, abort it or offer a draw. A person has at most one unfinished
-      matched game.
+      A game between the exact number of people its rules require, brought
+      together at the same game and clock choice. Each is given a side,
+      everyone sees the same board, moves and result, and only those
+      people may move, resign, abort it or offer a draw. A person has at
+      most one unfinished matched game. Different games and clock choices
+      never fill the same matched game.
     forms: [matched games, matched game's]
     avoid: [multiplayer game, online game, found-opponent game]
     model: [PlayGame, PlayWorld, playNumber, playSide]
 
   - term: abort
     definition: >-
-      Stop a matched game before both people have made their first move.
-      Either person may abort until then. An aborted matched game is over
-      with no result, changes nobody's rating, has no rematch, and frees both
+      Stop a matched game before every person has made their first move.
+      Any participant may abort until then. An aborted matched game is over
+      with no result, changes nobody's rating, has no rematch, and frees all
       people to seek an opponent again; aborting it again changes nothing.
     forms: [aborts, aborted, aborting, can no longer be aborted]
     avoid: [void]
@@ -415,10 +433,11 @@ terms:
   - term: miss the first move
     definition: >-
       Not make one's first move in a matched game in time: the first side
-      within 30 seconds of the matched game's start, the second side within
-      30 seconds of the first side's first move. Missing it aborts the
-      matched game, so nobody loses a game they never began, even when they
-      were paired while offline. A clock choice that gives days for each
+      within 30 seconds of the matched game's start, each later side within
+      30 seconds of the preceding side's first move. Missing it aborts a
+      two-sided matched game, so nobody loses a game they never began,
+      even when they were paired while offline. A matched game with more
+      than two sides instead finishes as a draw. A clock choice that gives days for each
       move gives those days instead of the 30 seconds. In a game with a
       private setup, the first side's 30 seconds begin once both people have
       chosen their private setups, not at pairing.
@@ -428,15 +447,18 @@ terms:
   - term: draw offer
     definition: >-
       One person in an unfinished matched game, or a participant in a
-      custom game under way between two people, asking the other to agree
-      to a draw. Only the other person may accept or decline it. Accepting
-      draws the game by agreement; declining lets the game go on. In a
+      custom game under way with people on every side, asking everyone else
+      to agree to a draw. Only another participant may accept or decline
+      it. The game is drawn by agreement once every participant agrees;
+      declining lets the game go on. In a two-sided
       matched game, offering a draw back accepts it, a move by the person
       offered declines it, a move by the person who made the draw offer
       keeps it, offering again keeps one draw offer, and a matched game that
       is over takes no draw offer. In a custom game, a bot is never offered
       a draw, any move clears it, and after a declined draw offer the person
-      who offered may offer again only after their next move.
+      who offered may offer again only after their next move. In any game
+      with more than two sides, a move clears the draw offer and all
+      agreements already given to it.
     forms:
       - draw offers
       - offer a draw
@@ -464,12 +486,14 @@ terms:
 
   - term: rematch
     definition: >-
-      A new game between the same two people with the sides swapped, after
-      their game is finished. A custom game's rematch keeps the earlier one
+      A new game between the same participants after their game is finished.
+      Each moves to the next side in turn order, with the last side moving
+      to the first, so two sides swap. A custom game's rematch keeps the earlier one
       in the history. After a finished matched game either person may offer
-      a rematch: a new matched game at the same clock choice, without
-      seeking an opponent again. Offering one back accepts it. It is refused
-      while either person plays another unfinished matched game or seeks an
+      a rematch: a new matched game at the same clock choice once every
+      participant agrees, without seeking an opponent again. Offering one
+      back accepts it. It is refused while any participant plays another
+      unfinished matched game or seeks an
       opponent, and an aborted matched game has none. The offer ends when
       either person declines it or finds a new opponent.
     forms:
@@ -553,7 +577,7 @@ terms:
       spends it, and the clock choice's seconds are added to it by that
       side's move, never by a move out of turn. It keeps running while a
       participant is away or without a connection. Outside a daily game,
-      neither clock of a matched game runs until both people have made their
+      none of a matched game's clocks run until every person has made their
       first move.
     forms: [clocks]
     model: [clockLeft, clocksPaused, firstSideClock, secondSideClock, timeLeft]
@@ -561,9 +585,10 @@ terms:
   - term: run out of time
     definition: >-
       A side's clock reaching nothing left, which finishes the custom game
-      or matched game with a victory on time for the other side, or a draw
+      or matched game. A game with more than two sides finishes as a draw.
+      A two-sided game gives the other side a victory on time, or a draw
       when that side cannot win. A move arriving at that moment is too late.
-      In a daily game this holds once both people have made their first
+      In a daily game this holds once every person has made their first
       move; before that, running out is missing the first move.
     forms: [runs out of time, has run out of time, running out of time, on time]
 

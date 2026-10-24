@@ -3,6 +3,7 @@
   "ui": "tui",
   "concurrency": "100%",
   "globalDependencies": ["tsconfig.base.json", "mise.toml"],
+  "globalEnv": ["VERIFY_TIME_LIMITS"],
   "globalPassThroughEnv": [
     "GITHUB_*",
     "GH_TOKEN",
@@ -1123,6 +1124,7 @@
         "$TURBO_ROOT$/libs/billing-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/chess-root-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/connect-four-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/quoridor-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/battleship-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/numberlink-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/game-menu-client-ts/src/**/*.{ts,tsx}",

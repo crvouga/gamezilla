@@ -67,6 +67,20 @@ bots.
 
 ## 2. Register the game
 
+When several mode ids share one implementation, declare `GameRules.family`
+as the `"game"` value their packages carry. It defaults to the mode's id for
+a single-mode game. Every mode still needs its own entry in each registry
+and its own conformance adapter.
+
+Declare a mode's ordered seats on its `GameRules.sides`. Omitting it selects
+`['white', 'black']`; a four-seat mode declares all four stable tokens in its
+turn order. The declaration determines lobby readiness, bot seats and
+matchmaking group size. Modes register separately in the three registries and
+share their game's rule and board primitives. A record reader for more than
+two seats supplies its complete `participants` list, in declared order, for
+the shared record laws. Validate narrower board identities with
+`requireTwoPlayerSide` when adapting a two-player board.
+
 ```ts
 // libs/race-shared-ts/src/race-game.ts
 import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
