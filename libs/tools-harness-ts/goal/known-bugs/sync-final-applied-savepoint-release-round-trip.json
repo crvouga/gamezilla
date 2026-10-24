@@ -1,0 +1,4 @@
+{
+  "summary": "Every applied HTTP mutation issued RELEASE SAVEPOINT even when it was the final record and its enclosing batch was about to commit. The final applied replay now leaves that one savepoint to the mandatory outer transaction. Earlier records, duplicates, rejected and void bookkeeping outcomes retain releases, and late errors still roll back the entire batch.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/final-savepoint.test.ts"
+}

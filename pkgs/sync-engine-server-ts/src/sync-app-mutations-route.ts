@@ -34,7 +34,6 @@ import { allocateTopicPushSeqs } from './allocate-topic-push-seq';
 import { isAuthErrorBody } from './auth-error';
 import { syncBodyCap } from './body-cap';
 import type { MutationLifecycle } from './mutation-lifecycle';
-import { mutationSavepointClient } from './mutation-savepoint-client';
 import { publishPushMessages } from './notify-channels';
 import { parseMutationsBatchBody } from './parse-batch-body';
 import { processMutationsBatch } from './process-mutations-batch';
@@ -141,9 +140,8 @@ async function prepareMutationNotify(
   db: SqlClient
 ): Promise<PreparedMutationNotify> {
   return db.transaction(async (tx) => {
-    const nested = mutationSavepointClient(tx);
     const result = await processMutationsBatch({
-      serverDb: nested,
+      transaction: tx,
       registry: deps.mutations,
       auth,
       mutations: mutationRows,
@@ -181,7 +179,7 @@ async function prepareMutationNotify(
       topicMap: deps.topicMap,
       auth,
       captures,
-      db: nested,
+      db: tx,
       now: deps.now,
       createId: deps.createId,
     });
@@ -190,7 +188,7 @@ async function prepareMutationNotify(
     // sends none at all: every reader is woken and reads again through its
     // own authorized queries, so no such row ever leaves in a push.
     const built = await buildFanoutRows({
-      db: nested,
+      db: tx,
       capture: merged,
       rowImageFanout: deps.rowImageFanout === true,
     });
@@ -206,10 +204,10 @@ async function prepareMutationNotify(
             topicMap: deps.topicMap,
             ctx: topicMapCtxFromEnv(env),
             rows,
-            db: nested,
+            db: tx,
           })
         : undefined;
-    const checkpoints = await allocateTopicPushSeqs(nested, topics, deps.now);
+    const checkpoints = await allocateTopicPushSeqs(tx, topics, deps.now);
     return { result, tables, rows, rowsByTopic, checkpoints };
   });
 }
