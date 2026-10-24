@@ -1,6 +1,6 @@
 # Numberlink specification audit
 
-Date: 2026-10-23.
+Date: 2026-10-24.
 Scope: `specs/numberlink/` and its rule-harness bindings.
 Verdict: INCOMPLETE. The strict whole-repository gate reports existing
 near-duplicate steps in other domains. The Numberlink context is still
@@ -50,14 +50,19 @@ Current rule evidence: the context has 19 passing scenarios and no failures;
 its harness and rule packages pass typechecking and lint. The changed core
 framework packages' existing tests pass as part of 15 successful Turbo tasks.
 
-## Coverage still required
+## Verification boundaries
 
-The Numberlink rules context has no aggregate model yet (unmodelled warning).
-The shared publication, pack, attempt and progression state machines and their
-implementation bindings remain required by the request. These rule features
-do not claim app navigation, persistence, publication, editing tools or
-cross-device behavior. Those need their own shared contracts and assembled-app
-verification before the goal can be complete.
+The Numberlink rules context has no aggregate model (unmodelled warning).
+The shared publication, pack, attempt and progression state machines now have
+seven models, implementation bindings and passing deeper replay; their coverage
+is recorded in the [Puzzles audit](PUZZLE_AUTHORING_SPEC_AUDIT.md).
+These Numberlink rule features do not prove app navigation, persistence,
+publication, editing tools or cross-device behavior. The separate
+[journey audit](NUMBERLINK_JOURNEY_SPEC_AUDIT.md) records all four assembled-app
+journeys passing together in the product harness and compiled production bundle.
 
-After binding, rerun the context, catalogs, strict audit and full verification.
-Update this report with current evidence; an initial red run is not a pass.
+The most recent strict audit still reports thirteen wording pairs outside
+Puzzles and Numberlink. Full Verify and automated UI-quality verification remain
+pending, and GitHub refuses the release-gate jobs because of its Actions budget.
+The [implementation ledger](NUMBERLINK_IMPLEMENTATION.md) records the current
+receipts and remaining delivery gates. No whole-repository pass is claimed.
