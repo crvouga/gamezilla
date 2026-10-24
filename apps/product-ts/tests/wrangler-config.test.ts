@@ -67,6 +67,9 @@ describe('wrangler.toml', () => {
         expect(vars['WEB_CLIENT_ORIGIN']).toBe(
           `https://web-${label}.example.test`
         );
+        expect(vars['WEB_CLIENT_APEX_ORIGIN']).toBe(
+          `https://${label}.example.test`
+        );
         expect(vars['EMQX_WSS_URL']).toBe(
           `wss://broker-${label}.example.test/mqtt`
         );
