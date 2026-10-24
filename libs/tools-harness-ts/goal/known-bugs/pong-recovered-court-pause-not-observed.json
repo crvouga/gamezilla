@@ -1,0 +1,4 @@
+{
+  "summary": "With seed 1, reliable delivery, no held viewer frames and Bob returning, the authority pauses but Alice retains a fresh running snapshot from an older input generation. The presentation only refreshed stale replicas, so it missed a snapshot that arrived before its room metadata or while the room was unsynced. Refresh on generation changes and restored synchronization, reset obsolete controls and retain the last painted court until a current snapshot arrives. The literal Pong integration retains its 250 virtual millisecond convergence bound; the counting-race adapter contract also pins both delivery windows.",
+  "regressionTest": "libs/pong-harness-ts/tests/pong-network-regression.test.ts"
+}
