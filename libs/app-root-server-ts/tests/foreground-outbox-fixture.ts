@@ -24,6 +24,7 @@ import {
   SYNC_PROTOCOL_HEADER,
   SYNC_PROTOCOL_VERSION,
 } from '@pkgs/sync-engine-shared-ts/v2';
+import { observeForegroundSql } from './foreground-outbox-sql';
 
 const Ping = createMessageNamespace('foreground', 'recovery')(
   'ping',
@@ -87,11 +88,18 @@ function recordedMutations() {
         bodies += 1;
         if (name === 'noop') return;
         await new Outbox(ctx).send({ id: 'root', message: Ping({ n: 1 }) });
+        if (name === 'makeSibling')
+          await new Outbox(ctx).send({
+            id: 'sibling',
+            message: Ping({ n: 2 }),
+          });
         if (name === 'reject') throw new MutationError('REFUSED', 'Refused');
       },
     });
   return {
-    mutations: mutationRegistry(['make', 'noop', 'reject'].map(make)),
+    mutations: mutationRegistry(
+      ['make', 'makeSibling', 'noop', 'reject'].map(make)
+    ),
     bodies: () => bodies,
   };
 }
@@ -125,7 +133,9 @@ function upload(
 }
 
 export async function openForegroundOutbox() {
-  const db = SqlClientImplBunSqlite.open(':memory:');
+  const { db, statements } = observeForegroundSql(
+    SqlClientImplBunSqlite.open(':memory:')
+  );
   await db.connect();
   await reconcileSqliteSchema(db, syncEngineServerSchema, {
     ownership: 'declared-only',
@@ -163,6 +173,7 @@ export async function openForegroundOutbox() {
   );
   return {
     db,
+    statements,
     seen,
     publications,
     drain,

@@ -13,6 +13,7 @@ import {
   drainOutbox,
   type ObserveDelivery,
 } from '@pkgs/outbox-shared-ts/drain';
+import { hasDueOutboxWork } from '@pkgs/outbox-shared-ts/due-work';
 import type { PubSub } from '@pkgs/pubsub-root-shared-ts/interface';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import { notifyChannels } from '@pkgs/sync-engine-server-ts/notify-channels';
@@ -135,6 +136,7 @@ export async function drainAndNotifyOutbox(args: {
         return wrapped.tx;
       },
     },
+    captures,
     args.maxPasses
   );
   countExhaustedOutboxDeliveries(result.exhausted);
@@ -178,16 +180,29 @@ export async function drainAndNotifyOutbox(args: {
 /** Each pass commits before following events are delivered. In particular, a
  * match formed by one consumer is durable before its room receives the board.
  * Bound the causal work so a request cannot drain an endless event chain. */
-async function drainDueOutbox(deps: DrainOutboxDeps, maxPasses = 8) {
+async function drainDueOutbox(
+  deps: DrainOutboxDeps,
+  captures: readonly ReturnType<typeof wrapMutationDb>[],
+  maxPasses = 8
+) {
   const notifyUserIds = new Set<string>();
   let processed = 0;
   let exhausted = 0;
   for (let pass = 0; pass < maxPasses; pass++) {
+    const captureStart = captures.length;
     const result = await drainOutbox(deps);
     processed += result.processed;
     exhausted += result.exhausted;
     for (const id of result.notifyUserIds) notifyUserIds.add(id);
     if (result.processed === 0) break;
+    if (pass + 1 >= maxPasses) break;
+    // A captured append, including one later rolled back to a savepoint,
+    // conservatively retains the original next-pass path. Otherwise a fresh
+    // scoped read can replace materializing and claiming an empty transaction.
+    const eventWrites = captures
+      .slice(captureStart)
+      .some((capture) => capture.getCapture().tables.includes('outbox_events'));
+    if (!eventWrites && !(await hasDueOutboxWork(deps))) break;
   }
   return { processed, exhausted, notifyUserIds: [...notifyUserIds] };
 }

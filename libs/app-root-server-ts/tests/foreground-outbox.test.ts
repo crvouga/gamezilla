@@ -60,15 +60,31 @@ test('a mutation with no causal work leaves the pending backlog to its owned dra
 });
 
 test('a committed mutation publishes its root and chained child before acknowledgement', async () => {
+  // regression: foreground-outbox-terminal-empty-pass
   const host = await openForegroundOutbox();
   try {
     await host.seed();
+    const start = host.statements.length;
     expect((await host.send()).status).toBe(200);
     expect(host.seen).toEqual([1, 2]);
     expect(host.publications.map((publication) => publication.topic)).toEqual([
       'example:mutation',
       'user:alice',
     ]);
+    const statements = host.statements.slice(start);
+    expect(
+      statements.filter((text) =>
+        text.includes('INSERT INTO outbox_deliveries')
+      )
+    ).toHaveLength(2);
+    expect(
+      statements.filter((text) =>
+        text.includes('SELECT event_id, consumer_id, attempts')
+      )
+    ).toHaveLength(2);
+    expect(
+      statements.filter((text) => text.includes('SELECT 1 AS due_work'))
+    ).toHaveLength(1);
     expect(
       await host.db.query(
         sql<{
@@ -81,6 +97,57 @@ test('a committed mutation publishes its root and chained child before acknowled
     ]);
     expect(await host.all()).toBe(1);
     expect(host.seen).toEqual([1, 2, 99]);
+  } finally {
+    await host.db.disconnect();
+  }
+});
+
+test('a capped root-to-child upload does not probe after its final allowed pass', async () => {
+  // regression: foreground-outbox-terminal-empty-pass
+  const host = await openForegroundOutbox();
+  try {
+    await host.seed();
+    host.onCommitted((batch) => host.drain(batch, 2));
+    const start = host.statements.length;
+    expect((await host.send()).status).toBe(200);
+    expect(host.seen).toEqual([1, 2]);
+    expect(host.publications.map((publication) => publication.topic)).toEqual([
+      'example:mutation',
+      'user:alice',
+    ]);
+    expect(
+      host.statements
+        .slice(start)
+        .filter((text) => text.includes('SELECT 1 AS due_work'))
+    ).toEqual([]);
+  } finally {
+    await host.db.disconnect();
+  }
+});
+
+test('a rolled-back append retains the next pass after its sibling succeeds', async () => {
+  // regression: foreground-outbox-terminal-empty-pass
+  const host = await openForegroundOutbox();
+  try {
+    host.failRoot();
+    const start = host.statements.length;
+    expect((await host.send('makeSibling')).status).toBe(200);
+    expect(host.seen).toEqual([2]);
+    expect(
+      await host.db.query(
+        sql<{ id: string }>`SELECT id FROM outbox_events WHERE id = ${'child'}`
+      )
+    ).toEqual([]);
+    const statements = host.statements.slice(start);
+    expect(
+      statements.filter((text) =>
+        text.includes('INSERT INTO outbox_deliveries')
+      )
+    ).toHaveLength(2);
+    expect(
+      statements.filter((text) => text.includes('SELECT 1 AS due_work'))
+    ).toEqual([]);
+    expect((await host.pending()).map((event) => event.id)).toEqual(['root']);
   } finally {
     await host.db.disconnect();
   }
