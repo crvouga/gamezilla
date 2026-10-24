@@ -2,6 +2,7 @@ import { Trans } from '@lingui/solid/macro';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
+import { P } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
@@ -45,10 +46,10 @@ export function CustomGamePrivateSetup(props: {
               />
             )}
           </Show>
-          <p
-            class="text textBodyBold"
+          <P
+            variant="bodyBold"
             role="status"
-            data-testid="custom-game-setup-status"
+            dataSet={{ testid: 'custom-game-setup-status' }}
           >
             <Show
               when={setup().complete()}
@@ -56,7 +57,7 @@ export function CustomGamePrivateSetup(props: {
             >
               <Trans>Your private setup is complete.</Trans>
             </Show>
-          </p>
+          </P>
           <GameActions>
             <GameActionButton
               title={<Trans>Random setup</Trans>}

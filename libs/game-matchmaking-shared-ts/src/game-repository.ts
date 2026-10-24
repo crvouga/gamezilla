@@ -16,6 +16,11 @@ import { recordGameTransition } from './telemetry';
 
 const COLUMNS = raw(MULTIPLAYER_GAME_COLUMNS.join(', '));
 
+export type MultiplayerOwnerFacts = {
+  readonly unfinished: number;
+  readonly colourBalance: number;
+};
+
 export class MultiplayerGameRepository {
   constructor(private readonly tx: SqlTx) {}
 
@@ -27,17 +32,30 @@ export class MultiplayerGameRepository {
     return rows.length;
   }
 
-  /** Finished games as White minus finished games as Black; aborted games do not count. */
-  async colourBalance(ownerId: string): Promise<number> {
+  /** Read both candidate histories together while their owner locks are held. */
+  async matchmakingFacts(
+    ownerIds: readonly string[]
+  ): Promise<ReadonlyMap<string, MultiplayerOwnerFacts>> {
+    const facts = new Map(
+      ownerIds.map((id) => [id, { unfinished: 0, colourBalance: 0 }])
+    );
+    if (facts.size === 0) return facts;
     const rows = await this.tx.query(sql<{
       white_id: string;
-    }>`SELECT white_id FROM chess_multiplayer_games
-      WHERE (white_id = ${ownerId} OR black_id = ${ownerId})
-        AND outcome IN (${join(['white', 'black', 'draw'])}) AND deleted_at IS NULL`);
-    return rows.reduce(
-      (balance, row) => balance + (row.white_id === ownerId ? 1 : -1),
-      0
-    );
+      black_id: string;
+      outcome: string;
+    }>`
+      SELECT white_id, black_id, outcome FROM chess_multiplayer_games
+      WHERE (white_id IN (${join(ownerIds)}) OR black_id IN (${join(ownerIds)})) AND deleted_at IS NULL`);
+    for (const row of rows) {
+      for (const [ownerId, fact] of facts) {
+        if (row.white_id !== ownerId && row.black_id !== ownerId) continue;
+        if (row.outcome === 'ongoing') fact.unfinished += 1;
+        if (['white', 'black', 'draw'].includes(row.outcome))
+          fact.colourBalance += row.white_id === ownerId ? 1 : -1;
+      }
+    }
+    return facts;
   }
 
   async owned(

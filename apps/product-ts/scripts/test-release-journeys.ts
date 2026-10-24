@@ -18,6 +18,8 @@ import {
 import { LOCAL_MONITOR_TOKEN } from './local-api-env';
 import { removeManifest } from './manifest';
 import { databaseVerdict, profileOf } from './production-database';
+import { printReleasePairingEvidence } from './release-failure-diagnostics';
+import { printReleaseQueryEvidence } from './release-query-diagnostics';
 import { RELEASE_ENVIRONMENT, releaseSpecs } from './release-selection';
 import { specProcessExit } from './spec-process';
 import { parseStackOptions } from './stack-options';
@@ -156,6 +158,16 @@ try {
   );
   const databaseCode = databaseExitCode(stack);
   const brokerCode = brokerExitCode(stack);
+  if (code !== 0) {
+    await printReleaseQueryEvidence(stack.manifest.observabilityTraceDir).catch(
+      (error: unknown) =>
+        console.error(`release query evidence failed: ${String(error)}`)
+    );
+    await printReleasePairingEvidence(stack.manifest.databaseUrl).catch(
+      (error: unknown) =>
+        console.error(`release pairing evidence failed: ${String(error)}`)
+    );
+  }
   process.exitCode = code === 0 ? databaseCode || brokerCode : code;
 } finally {
   await server?.stop(true);

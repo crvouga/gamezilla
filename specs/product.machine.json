@@ -1059,7 +1059,9 @@
                       "specs/spaces/spaces.als",
                       "specs/spaces/spaces.feature",
                       "specs/spaces/ubiquitous-language.yml",
-                      "specs/ubiquitous-language.yml"
+                      "specs/ubiquitous-language.yml",
+                      "specs/spaces/space-unreachable.feature",
+                      "specs/spaces/space-unreachable.qnt"
                     ],
                     "events": []
                   },
@@ -9612,7 +9614,9 @@
                           "specs/ubiquitous-language.yml",
                           "specs/runtime/environment-release.feature",
                           "specs/runtime/environment-release.qnt",
-                          "specs/runtime/privacy-recovery.qnt"
+                          "specs/runtime/privacy-recovery.qnt",
+                          "specs/runtime/request-speed.openslo.yaml",
+                          "specs/runtime/request-success.openslo.yaml"
                         ],
                         "events": []
                       },

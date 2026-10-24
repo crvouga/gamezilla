@@ -66,6 +66,23 @@ test('fractional square edges remain adjacent at a 128.49999237060547px width an
   );
 });
 
+test('an eight-pixel board maps every square after shrinking at twice scale', async () => {
+  // regression: chessboard-resize-before-observer
+  await browser.view.evaluate(
+    `window.boardExample.reset({size:undefined,interactive:false,orientation:'white'})`
+  );
+  for (const width of [8, 8, 8]) {
+    await browser.view.evaluate(
+      `(() => {window.boardExample.parent(${width},2); return window.boardExample.paint();})()`
+    );
+    assertGeometry(
+      await browser.view.evaluate<BoardGeometry>(geometryRead),
+      width,
+      2
+    );
+  }
+});
+
 test('generated fractional resize sequences preserve square tiling, centered pieces and actual input mapping', async () => {
   await assertProperty(
     'browser-fractional-resize',

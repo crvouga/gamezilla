@@ -204,7 +204,7 @@ describe('this repository', () => {
     ).toBe('');
     for (const output of outputs) expect(ignored).toContain(output);
     for (const id of ['//#task:tokens:generate', '//#task:sounds:generate']) {
-      expect(scripts['generate'].split(' ')).toContain(id);
+      expect(scripts['generate']?.split(' ')).toContain(id);
       for (const output of tasks[id]?.outputs ?? []) {
         expect(ignored).toContain(output);
       }

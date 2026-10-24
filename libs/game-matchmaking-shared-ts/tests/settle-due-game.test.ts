@@ -94,3 +94,34 @@ test('a game resigned while the sweep waited for its lock is not ended, rated or
   expect(writes).toEqual([]);
   expect(game.reason).toBe('resignation');
 });
+
+// regression: obsolete-multiplayer-deadline-takes-owner-locks
+test.each([
+  { label: 'finished', game: { ...DUE, outcome: 'black' as const } },
+  { label: 'moved to a later deadline', game: { ...DUE, white_ms: 2_000 } },
+  { label: 'paused', game: { ...DUE, paused_at_ms: 500 } },
+])(
+  'an obsolete deadline for a game that is $label does not lock either player',
+  async ({ game }) => {
+    let reads = 0;
+    const writes: string[] = [];
+    const tx = {
+      query: async () => {
+        reads++;
+        return [game];
+      },
+      run: async (query: Sql<unknown>) => {
+        writes.push(query.strings.join('?'));
+      },
+    } as unknown as SqlTx;
+    expect(
+      await settleDueGame(
+        tx,
+        { gameId: 'game-1', nowMs: 1_000, createId: () => 'id' },
+        GAMES
+      )
+    ).toEqual([]);
+    expect(reads).toBe(1);
+    expect(writes).toEqual([]);
+  }
+);

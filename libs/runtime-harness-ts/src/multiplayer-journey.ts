@@ -1,4 +1,5 @@
 import { TURN_GAMES } from '@libs/game-catalog-shared-ts/turn-games';
+import { pressBackUntilVisible } from '@libs/harness-ts/driver-gestures';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import {
   atTabShell,
@@ -39,8 +40,11 @@ export async function openMultiplayerJourney(ui: Driver): Promise<void> {
     await hostSpace(ui);
     await tap(ui, 'game-menu-chess');
   }
-  if (await ui.get('game-choice-multiplayer').isVisible())
+  if (await ui.get('game-choice-multiplayer').isVisible()) {
+    await pressBackUntilVisible(ui, 'game-menu-chess', JOURNEY_WAIT_MS);
+    await tap(ui, 'game-menu-chess');
     await tap(ui, 'game-choice-multiplayer');
+  }
 }
 
 const SURFACE_POLLS = 10;

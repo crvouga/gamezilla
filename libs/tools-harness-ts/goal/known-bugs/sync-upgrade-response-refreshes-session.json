@@ -1,0 +1,4 @@
+{
+  "summary": "The sync HTTP client refreshed authentication for upgrade_required responses. Once the real auth refresh port was wired, an outdated device could churn its session instead of showing its update prompt. Report the protocol cut immediately without refreshing or retrying the session.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/upgrade-http-auth.test.ts"
+}

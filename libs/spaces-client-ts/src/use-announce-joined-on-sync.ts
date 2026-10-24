@@ -48,6 +48,8 @@ export function useAnnounceJoinedOnSync(spaceId: string): void {
       .mutate(markSpaceJoinAnnouncedMutation, { spaceId })
       .then((result) => {
         if (!result.ok) return;
+        // The optimistic row can trigger the effect before upload resolves.
+        if (announcedSpaceRef.current === spaceId) return;
         announcedSpaceRef.current = spaceId;
         dispatchJoinAnnounce(dispatch, myId());
       })

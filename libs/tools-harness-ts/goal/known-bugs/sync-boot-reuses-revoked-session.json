@@ -1,0 +1,4 @@
+{
+  "summary": "Sync boot ignored forced token refresh after a 401 and returned the revoked stored bearer again, retaining deleted-account progress on another device. Wire the auth port's token refresher and observe personal stats outside the closed space.",
+  "regressionTest": "libs/games-harness-ts/tests/deleted-account-progress-regression.test.ts"
+}

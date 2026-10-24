@@ -1,0 +1,4 @@
+{
+  "summary": "Classifying an authentication refusal through a cloned response left the original response body unread when refresh replaced it. Consume the refusal once before refreshing or reporting an app update, without leaving an unused tee branch.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/upgrade-http-auth.test.ts"
+}

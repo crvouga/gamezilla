@@ -1,0 +1,4 @@
+{
+  "summary": "Request-time outbox claims were scoped to their causal event ids, but delivery registration still scanned and registered unrelated backlog on every pass. Restrict registration to the same event set; scheduled unscoped sweeps still register all pending events.",
+  "regressionTest": "libs/app-root-server-ts/tests/outbox-pass-notification.test.ts"
+}
