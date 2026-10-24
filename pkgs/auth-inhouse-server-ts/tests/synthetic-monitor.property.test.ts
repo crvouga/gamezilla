@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { isSyntheticMonitor } from '@pkgs/auth-inhouse-server-ts/synthetic-monitor';
 import {
-  requestSyntheticMonitorRedirect,
+  requestSyntheticMonitorSignIn,
   SYNTHETIC_MONITOR_CODE_PATH,
 } from '@pkgs/auth-inhouse-shared-ts/synthetic-monitor';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
@@ -77,22 +77,26 @@ describe('synthetic-monitor sign-in', () => {
           const booted = await boot(TOKEN);
           const users = new Set<string>();
           for (let i = 0; i < signIns; i += 1) {
-            const redirectUrl = await requestSyntheticMonitorRedirect({
+            const signIn = await requestSyntheticMonitorSignIn({
               http: booted.http,
               apiOrigin: API,
               apiPathPrefix: PREFIX,
               token: TOKEN,
               callbackUrl: CALLBACK,
             });
-            expect(redirectUrl.startsWith(`${CALLBACK}?code=`)).toBe(true);
-            const first = await exchange(booted, redirectUrl);
+            expect(signIn.redirectUrl.startsWith(`${CALLBACK}?code=`)).toBe(
+              true
+            );
+            const first = await exchange(booted, signIn.redirectUrl);
             expect(first.status).toBe(200);
             const session = (await first.json()) as {
               readonly user: { readonly id: string };
             };
             expect(isSyntheticMonitor(session.user.id)).toBe(true);
             users.add(session.user.id);
-            expect((await exchange(booted, redirectUrl)).status).toBe(400);
+            expect((await exchange(booted, signIn.redirectUrl)).status).toBe(
+              400
+            );
           }
           expect(users.size).toBe(signIns);
           expect(await monitorUserRows(booted)).toBe(signIns);
@@ -106,7 +110,7 @@ describe('synthetic-monitor sign-in', () => {
 test('independent monitor participants cannot select an arbitrary person', async () => {
   const booted = await boot(TOKEN);
   for (const peer of [false, true]) {
-    const redirect = await requestSyntheticMonitorRedirect({
+    const signIn = await requestSyntheticMonitorSignIn({
       http: booted.http,
       apiOrigin: API,
       apiPathPrefix: PREFIX,
@@ -114,7 +118,7 @@ test('independent monitor participants cannot select an arbitrary person', async
       callbackUrl: CALLBACK,
       peer,
     });
-    const response = await exchange(booted, redirect);
+    const response = await exchange(booted, signIn.redirectUrl);
     expect(response.status).toBe(200);
     const body = (await response.json()) as { user: { id: string } };
     expect(body.user.id).not.toBe('someone-else');

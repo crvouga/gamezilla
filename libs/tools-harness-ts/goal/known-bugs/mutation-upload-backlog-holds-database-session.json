@@ -1,0 +1,4 @@
+{
+  "summary": "A burst of puzzle edits could fill a single upload with enough mutations to exceed the production database's statement and transaction-hold budgets. The uploader now sends at most four ordered mutations per request while retaining the protocol's larger acceptance bound.",
+  "regressionTest": "pkgs/sync-engine-client-ts/tests/mutation-upload-size.test.ts"
+}

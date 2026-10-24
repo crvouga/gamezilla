@@ -1,0 +1,70 @@
+context: Numberlink
+purpose: >-
+  Numberlink's rectangular board, matching endpoints, paths and completion.
+  Authoring, publication, packs and a person's saved attempts are shared
+  across puzzle games.
+terms:
+  - term: Numberlink
+    definition: >-
+      A puzzle game in which a person joins each matching pair of endpoints
+      with a continuous path. Paths join neighboring cells horizontally or
+      vertically, never overlap or cross, and stop at their matching endpoint.
+      The usual rule requires every cell to be covered. An author may
+      explicitly choose endpoint-only coverage instead.
+    published: true
+  - term: puzzle
+    definition: >-
+      One Numberlink challenge: a rectangular board, its endpoint pairs and
+      its coverage rule. It does not prescribe one particular solution.
+    forms: [puzzles, puzzle's]
+  - term: board
+    definition: >-
+      The rectangular arrangement of cells on which paths are drawn.
+      Columns are named A through T from left to right, and rows are
+      numbered from one at the top. A1 is the top-left cell.
+    forms: [boards, Numberlink board]
+  - term: cell
+    definition: One place on the board, occupied by at most one path or endpoint.
+    forms: [cells, uncovered cells, occupied cells]
+  - term: endpoint
+    definition: >-
+      One of exactly two distinct cells belonging to a pair. A path starts
+      at either endpoint and finishes at the other. Endpoints never share
+      a cell, and a path may never pass through another pair's endpoint.
+    forms: [endpoints, matching endpoint, matching endpoints]
+  - term: pair
+    definition: >-
+      Two matching endpoints identified by a distinct label and a color.
+      The label identifies them without relying on color. A pair has at
+      most one path and is connected when that path joins both endpoints.
+    forms: [pairs, endpoint pair, endpoint pairs, connected, matching pair]
+  - term: path
+    definition: >-
+      An ordered continuous line of distinct neighboring cells starting
+      at an endpoint. It may be unfinished. Drawing a path for a pair
+      replaces that pair's earlier path, while keeping other paths intact.
+      A refused drawing keeps the whole board as it was.
+    forms: [paths, draws, drawn, drawing, redraws, removes, removal]
+  - term: join
+    definition: Connect two horizontally or vertically neighboring cells of a path.
+    forms: [joins, joining]
+  - term: end
+    definition: Stop a path at its matching endpoint.
+    forms: [ends, ending]
+  - term: coverage
+    definition: >-
+      Whether completing the puzzle requires every cell to be covered or
+      only every pair to be connected. Full-board coverage is the default;
+      endpoint-only coverage must be chosen explicitly.
+    forms: [full-board coverage, endpoint-only coverage, coverage rule]
+  - term: complete
+    definition: >-
+      All pairs are connected and the coverage rule is met. Until then
+      Numberlink is unfinished. A completed drawing may be edited again.
+    forms: [completed, completion, unfinished]
+  - term: clear the board
+    definition: Remove every path while keeping the puzzle's endpoints and coverage rule.
+    forms: [clears the Numberlink board, cleared board]
+  - term: solution
+    definition: A complete drawing that connects every pair and meets the chosen coverage rule.
+    forms: [solutions]

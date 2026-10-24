@@ -26,6 +26,10 @@
       "cache": false,
       "outputs": []
     },
+    "test:stack": {
+      "cache": false,
+      "outputs": []
+    },
     "test:contract:0": {
       "dependsOn": [
         "@pkgs/quint-server-ts#src",
@@ -512,6 +516,10 @@
         "@libs/friends-harness-ts#test:spec:61",
         "@libs/friends-harness-ts#test:spec:62",
         "@libs/friends-harness-ts#test:spec:63",
+        "@libs/game-puzzle-harness-ts#test:spec:0",
+        "@libs/game-puzzle-harness-ts#test:spec:1",
+        "@libs/game-puzzle-harness-ts#test:spec:2",
+        "@libs/game-puzzle-harness-ts#test:spec:3",
         "@libs/games-harness-ts#test:spec:0",
         "@libs/games-harness-ts#test:spec:1",
         "@libs/games-harness-ts#test:spec:2",
@@ -607,6 +615,7 @@
         "@libs/games-harness-ts#test:spec:92",
         "@libs/games-harness-ts#test:spec:93",
         "@libs/games-harness-ts#test:spec:94",
+        "@libs/numberlink-harness-ts#test:spec:0",
         "@libs/profile-harness-ts#test:spec:0",
         "@libs/profile-harness-ts#test:spec:1",
         "@libs/profile-harness-ts#test:spec:2",

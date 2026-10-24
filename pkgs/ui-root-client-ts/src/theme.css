@@ -157,6 +157,12 @@
   --color-warning-surface: var(--ui-color-warning-surface);
   --color-info: var(--ui-color-info);
   --color-info-surface: var(--ui-color-info-surface);
+  --color-path-red: var(--ui-color-path-red);
+  --color-path-orange: var(--ui-color-path-orange);
+  --color-path-yellow: var(--ui-color-path-yellow);
+  --color-path-green: var(--ui-color-path-green);
+  --color-path-blue: var(--ui-color-path-blue);
+  --color-path-purple: var(--ui-color-path-purple);
   --color-disabled: var(--ui-color-disabled);
   --color-scrim: var(--ui-color-scrim);
   --color-shadow-color: var(--ui-color-shadow-color);

@@ -49,6 +49,36 @@ export function queryWithinTestId(
   return parent.querySelector(testIdSelector(testId));
 }
 
+/** Keep every named ancestor so a layout remount cannot erase locator scope. */
+export function elementTestIdPath(
+  element: Element,
+  container: Element | null
+): readonly string[] {
+  const path: string[] = [];
+  let current: Element | null = element;
+  while (current !== null && current !== container) {
+    const id = current.getAttribute('data-testid');
+    if (id !== null && id !== '') path.unshift(id);
+    current = current.parentElement;
+  }
+  return path;
+}
+
+export function queryActorTestIdPath(
+  document: Document,
+  container: Element | null,
+  path: readonly string[]
+): Element | null {
+  const first = path[0];
+  if (first === undefined) return null;
+  let current = queryActorTestId(document, container, first);
+  for (const id of path.slice(1)) {
+    if (current === null) return null;
+    current = queryWithinTestId(current, id);
+  }
+  return current;
+}
+
 export function asElement(node: unknown): Element {
   if (node instanceof Element) return node;
   throw new TypeError('solid-dom: host node is not a DOM Element');

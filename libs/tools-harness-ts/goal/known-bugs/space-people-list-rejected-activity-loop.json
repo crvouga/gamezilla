@@ -1,0 +1,4 @@
+{
+  "summary": "The people dialog's opening effect also tracked quiet room state through its activity command. A rejected activity command rolled that state back and triggered another command, creating an endless synchronous replay loop. The effect now tracks only dialog visibility. Nightly matched-game-shared histories 74 and 38 (seed 0x67932) are retained verbatim as regressions.",
+  "regressionTest": "libs/games-harness-ts/tests/quint/matched-game-shared.binding.ts"
+}

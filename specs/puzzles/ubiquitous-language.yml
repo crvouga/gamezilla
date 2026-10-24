@@ -1,0 +1,164 @@
+context: Puzzles
+purpose: >-
+  Author-created challenges for any game offering them: private drafts,
+  validation, playtesting, stable publication, ordered packs, personal
+  attempts and completion across devices. A game supplies its own puzzle
+  details and rules; none of these shared experiences requires an opponent.
+terms:
+  - term: guest
+    from: profile
+  - term: free account
+    from: billing
+  - term: Plus member
+    from: billing
+  - term: game
+    from: games
+  - term: control
+    from: runtime
+  - term: puzzle
+    definition: >-
+      A standalone challenge belonging to one game. It has a title,
+      description, optional difficulty and the details that game needs to
+      play it. Its author owns its draft; other people play a published
+      edition. A puzzle need not have a board, moves or one unique solution.
+    forms: [puzzles, puzzle's]
+    published: true
+    model: [advanceAttempt, publishPackPuzzle, withdrawPackPuzzle, puzzleEditions, availablePuzzles]
+  - term: author
+    definition: The person who created a puzzle or pack and alone may change its drafts or publication.
+    forms: [authors, author's, ownership]
+    published: true
+  - term: draft
+    definition: >-
+      A puzzle or pack its author is working on privately. Saving keeps
+      incomplete work too. Editing something already published changes
+      its draft without changing what other people play. If two devices
+      changed an earlier draft differently, both copies remain available
+      for the author to choose from.
+    forms: [drafts, draft copy, draft copies, working draft]
+    published: true
+    model: [Draft, EditingDraft, draft, drafts, workingDraft, otherDraft, keptCopies, choosePuzzleDraft, draftKept, inspectPuzzleDraft, otherCanRead]
+  - term: title
+    definition: The name an author gives a puzzle or pack. Publishing requires a nonempty title.
+    forms: [titles, titled]
+    model: [title]
+  - term: description
+    definition: Optional writing by the author that explains a puzzle or pack.
+    forms: [descriptions]
+    model: [description]
+  - term: difficulty
+    definition: An optional description of how challenging the author considers a puzzle.
+  - term: create
+    definition: Begin a privately owned puzzle or pack draft for a chosen game.
+    forms: [creates, creating, creation, created]
+    model: [createPuzzleDraft, createPackDraft, createPackPuzzle, createdPuzzle]
+  - term: save
+    definition: Keep the author's current draft so it remains after leaving or closing the app, including offline.
+    forms: [saves, saved, saving]
+    model: [savePuzzleDraft, savePackDraft, saveAuthoringDraft, saveEarlierPuzzleDraft, saveEarlierPackDraft]
+  - term: validate
+    definition: >-
+      Check that required puzzle details follow the game's rules and show
+      what must be corrected. Where a game checks for a solution, either
+      that check or a completed playtest must establish one before publication.
+    forms: [validates, validated, validation, valid, invalid]
+    model: [validateDraft]
+  - term: playtest
+    definition: >-
+      Play an author's private draft with the same rules and controls as
+      its published puzzle. A playtest never counts toward ordinary
+      attempts, completion or pack progress.
+    forms: [playtests, playtesting, playtested]
+    published: true
+    model: [Playtest, playtest, beginPlaytest, completePlaytest, ordinaryAttempts, ordinaryCompletions]
+  - term: publish
+    definition: >-
+      Make a validated draft a stable public edition. Publishing the same
+      saved draft again creates no extra edition and cannot undo a later
+      publication or withdrawal. Publication follows the author's chosen
+      draft, never someone else's private content.
+    forms: [publishes, publishing, publication, published, republishes]
+    published: true
+    model: [publishPuzzle, publishPack, publishPuzzleEdition, publication, republishChosenPuzzle]
+  - term: edition
+    definition: >-
+      The complete content made public by one publication. It never
+      changes afterward. A new publication makes a new edition current;
+      existing attempts and published packs keep the edition they chose.
+    forms: [editions, current edition, earlier edition, published edition, published editions]
+    published: true
+    model: [Edition, Reference, editions, currentEdition, discoveredEdition]
+  - term: withdraw
+    definition: >-
+      Remove a puzzle or pack from public discovery without deleting
+      saved attempts or completion. A puzzle edition already chosen by a
+      published pack remains playable through that pack. A withdrawn
+      puzzle cannot be added to a newly published pack.
+    forms: [withdraws, withdrawn, withdrawal, unpublishing]
+    model: [withdrawPuzzle, withdrawPack, withdrawChosenPuzzle]
+  - term: discover
+    definition: Browse a game's available published puzzles and packs.
+    forms: [discovers, discovery, browses, browse, available]
+    model: [available, puzzleAvailable, availableOnPhone, discoverable]
+  - term: pack
+    definition: >-
+      An ordered collection of puzzles of one game with its own title,
+      description, draft and publication. A published pack chooses a
+      particular published edition of each puzzle. Its order and chosen
+      editions stay fixed until another pack edition is published.
+      People may play its puzzles in any order.
+    forms: [packs, pack's, puzzle pack, puzzle packs, ordered pack]
+    published: true
+    model: [openPack, startPackPuzzle]
+  - term: pack contents
+    definition: The ordered puzzles in a pack, each appearing at most once and belonging to the pack's game.
+    forms: [contents, pack order, reorders, adds, removes]
+    model: [addPackPuzzle, removePackPuzzle, reorderPackPuzzle]
+  - term: attempt
+    definition: >-
+      One person's saved play of one puzzle edition, including the game's
+      progress and its allowed history. Other people cannot read it.
+      Restarting begins another attempt and retains earlier play. When
+      two devices continue the same earlier position differently, both
+      continuations remain available rather than overwriting each other.
+    forms: [attempts, saved attempt, saved attempts]
+    published: true
+    model: [Attempt, attempts, activeAttempt]
+  - term: start a puzzle
+    definition: Begin an attempt at an available edition, independently or through a pack.
+    forms: [starts the puzzle, starts a puzzle, started the puzzle]
+    model: [startPuzzle]
+  - term: resume
+    definition: Return to a saved attempt at its kept position and edition, even after closing the app or a later publication.
+    forms: [resumes, resumed, resuming, continues]
+    published: true
+    model: [resumeAttempt, continueEarlierAttempt, keptContinuations]
+  - term: undo
+    definition: Return to the preceding draft edit without deleting draft copies, or to the preceding kept puzzle position when the game offers history without erasing an earlier completion.
+    forms: [undoes, undoing]
+    model: [undoAttempt, undoDraftEdit, undoOffered]
+  - term: redo
+    definition: Restore an undone draft edit or puzzle position when no different edit or action has replaced that choice.
+    forms: [redoes, redoing]
+    model: [redoAttempt, redoDraftEdit, redoOffered]
+  - term: restart
+    definition: Begin a new attempt at the same edition with no play yet, keeping the earlier attempt available.
+    forms: [restarts, restarting]
+    model: [restartPuzzle, restartPackPuzzle]
+  - term: completion
+    definition: >-
+      An attempt that satisfies its game's completion rules. Ordinary
+      completion counts once for that puzzle edition however many
+      attempts finish it. Undoing, restarting, withdrawal and later
+      publications never erase it. Playtests do not count.
+    forms: [complete, completed, completes, unfinished]
+    model: [completions, otherCompletions, completePackPuzzle]
+  - term: pack progress
+    definition: >-
+      Which of a pack edition's chosen puzzle editions are unplayed,
+      in progress or completed. Its completion count includes each chosen
+      puzzle at most once. Continuing offers the last active unfinished
+      puzzle, or another unfinished puzzle when that one is completed.
+    forms: [progress, progression, unplayed, in progress, next puzzle, last active puzzle]
+    published: true
+    model: [started, completed, activePuzzle, offeredPuzzle, progress, otherProgress, completionCount, packComplete, continuePack]

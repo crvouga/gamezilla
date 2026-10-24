@@ -1,0 +1,4 @@
+{
+  "summary": "Moving Valley before River and immediately opening preview could unmount the pack mutation hook before its new draft was adopted. Publication then kept the earlier River, Valley order. The author workspace must own the pending pack operation and gate preview and publication until the chosen order is saved and adopted.",
+  "regressionTest": "libs/game-puzzle-harness-ts/tests/pack-workspace-lifetime.test.ts"
+}

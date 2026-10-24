@@ -97,6 +97,7 @@ test('a refused instant write stays unheard until acknowledged; a refused pendin
       mutationName: instantNote.name,
       code: 'REFUSED',
       message: 'The server refuses this body.',
+      meta: null,
     },
   ]);
   await s.apply(mutate, 'alice', acknowledgeWriteRejectionMutation, {

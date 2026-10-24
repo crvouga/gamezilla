@@ -76,7 +76,7 @@
     "traces": 96,
     "cover": [52],
     "replayed": [52],
-    "regressions": 5,
+    "regressions": 7,
     "determinism": false,
     "variants": 4
   },

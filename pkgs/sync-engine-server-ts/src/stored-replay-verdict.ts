@@ -13,8 +13,9 @@ export async function storedReplayVerdict(
     status: string;
     code: string | null;
     message: string | null;
+    meta: string | null;
   }>(sql`
-    SELECT a.status, r.code, r.message
+    SELECT a.status, r.code, r.message, r.meta
     FROM sync_engine_mutations_applied a
     LEFT JOIN sync_engine_write_rejections r ON r.mutation_id = a.mutation_id
     WHERE a.id = ${mutationAppliedId(mutationId)}
@@ -27,5 +28,13 @@ export async function storedReplayVerdict(
     row.code !== null && row.message !== null,
     'rejected mutation must retain its refusal'
   );
-  return { status: 'rejected', code: row.code, message: row.message };
+  const meta: unknown = row.meta === null ? undefined : JSON.parse(row.meta);
+  if (meta !== undefined)
+    assert.record(meta, 'stored refusal details must be an object');
+  return {
+    status: 'rejected',
+    code: row.code,
+    message: row.message,
+    ...(meta === undefined ? {} : { meta }),
+  };
 }

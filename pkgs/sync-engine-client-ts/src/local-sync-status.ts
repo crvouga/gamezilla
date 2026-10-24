@@ -20,7 +20,9 @@ export function createLocalSyncStatusStore(): LocalSyncStatusStore {
     )
       return;
     snapshot = next;
-    for (const listener of listeners) listener(snapshot);
+    for (const listener of [...listeners]) {
+      if (listeners.has(listener)) listener(snapshot);
+    }
   };
 
   return {

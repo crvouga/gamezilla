@@ -257,6 +257,54 @@
           "components": [0, 0, 0],
           "alpha": 0.12
         }
+      },
+      "pathRed": {
+        "$description": "Labeled game paths and endpoint outlines, never application chrome.",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [0, 76, 40],
+          "alpha": 1
+        }
+      },
+      "pathOrange": {
+        "$description": "Labeled game paths and endpoint outlines, never application chrome.",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [24, 92, 34],
+          "alpha": 1
+        }
+      },
+      "pathYellow": {
+        "$description": "Labeled game paths and endpoint outlines, never application chrome.",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [48, 94, 28],
+          "alpha": 1
+        }
+      },
+      "pathGreen": {
+        "$description": "Labeled game paths and endpoint outlines, never application chrome.",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [145, 68, 30],
+          "alpha": 1
+        }
+      },
+      "pathBlue": {
+        "$description": "Labeled game paths and endpoint outlines, never application chrome.",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [214, 84, 42],
+          "alpha": 1
+        }
+      },
+      "pathPurple": {
+        "$description": "Labeled game paths and endpoint outlines, never application chrome.",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [282, 64, 42],
+          "alpha": 1
+        }
       }
     },
     "dark": {
@@ -512,6 +560,54 @@
           "colorSpace": "hsl",
           "components": [0, 0, 0],
           "alpha": 0.6
+        }
+      },
+      "pathRed": {
+        "$description": "Labeled game paths and endpoint outlines, never application chrome.",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [0, 82, 68],
+          "alpha": 1
+        }
+      },
+      "pathOrange": {
+        "$description": "Labeled game paths and endpoint outlines, never application chrome.",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [24, 95, 64],
+          "alpha": 1
+        }
+      },
+      "pathYellow": {
+        "$description": "Labeled game paths and endpoint outlines, never application chrome.",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [48, 96, 62],
+          "alpha": 1
+        }
+      },
+      "pathGreen": {
+        "$description": "Labeled game paths and endpoint outlines, never application chrome.",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [145, 65, 56],
+          "alpha": 1
+        }
+      },
+      "pathBlue": {
+        "$description": "Labeled game paths and endpoint outlines, never application chrome.",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [214, 94, 72],
+          "alpha": 1
+        }
+      },
+      "pathPurple": {
+        "$description": "Labeled game paths and endpoint outlines, never application chrome.",
+        "$value": {
+          "colorSpace": "hsl",
+          "components": [282, 90, 76],
+          "alpha": 1
         }
       }
     }

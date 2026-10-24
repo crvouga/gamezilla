@@ -6,6 +6,7 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
+import { useRefusedPublicationCopy } from './refused-publication-copy';
 
 /**
  * The changes told where they live (the space, the lobby, friends, the
@@ -26,6 +27,7 @@ export const REFUSED_CHANGES_TOLD_IN_CONTEXT = [
   'declineFriendRequest',
   'patchAvatar',
   'savePuzzleFeedSettings',
+  'publishPuzzleContent',
 ] as const;
 
 export type RefusedChangeToldInContext =
@@ -46,11 +48,12 @@ export type RefusedChangeCopy = {
   /** The headline: which change did not go through. */
   readonly title: (mutationName: string | null, code: string) => string;
   /** The refusal reason and next action, without promising a restored row. */
-  readonly detail: (code: string) => string;
+  readonly detail: (code: string, meta: string | null) => string;
 };
 
 export function useRefusedChangeCopy(): RefusedChangeCopy {
   const { t } = useLingui();
+  const publicationDetail = useRefusedPublicationCopy();
   const whatWasNotSaved = (name: string): string | undefined => {
     const copy: Readonly<Record<RefusedChangeToldInContext, () => string>> = {
       renameSpace: () => t`Your space wasn't renamed`,
@@ -66,6 +69,7 @@ export function useRefusedChangeCopy(): RefusedChangeCopy {
       declineFriendRequest: () => t`That friend request wasn't declined`,
       patchAvatar: () => t`Your avatar change wasn't saved`,
       savePuzzleFeedSettings: () => t`Your puzzle settings weren't saved`,
+      publishPuzzleContent: () => t`Publication did not go ahead`,
     };
     return isRefusedChangeToldInContext(name) ? copy[name]() : undefined;
   };
@@ -76,11 +80,12 @@ export function useRefusedChangeCopy(): RefusedChangeCopy {
         : ((mutationName === null
             ? undefined
             : whatWasNotSaved(mutationName)) ?? t`A change wasn't saved`),
-    detail: (code) =>
-      code === 'SPACE_NOT_FOUND'
+    detail: (code, meta) =>
+      publicationDetail(code, meta) ??
+      (code === 'SPACE_NOT_FOUND'
         ? t`This request could not be applied. Dismiss this notice and choose another space from the lobby.`
         : code === 'SPACE_TITLE_NOT_ALLOWED'
           ? t`That space name is not allowed. The change was undone.`
-          : t`This request was not saved. Check the current details before trying again.`,
+          : t`This request was not saved. Check the current details before trying again.`),
   };
 }

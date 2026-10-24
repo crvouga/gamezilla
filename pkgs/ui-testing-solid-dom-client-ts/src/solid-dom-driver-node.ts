@@ -144,7 +144,15 @@ export class SolidDomDriverNode implements DriverNode {
     const description =
       options?.description ?? `${state} ${formatTestIdPath(this.path)}`;
     await this.waitUntil(
-      () => this.matchesState(state),
+      () =>
+        this.matchesState(state) ||
+        (state === 'visible' &&
+          (options?.visibleOr ?? []).some((id) =>
+            new SolidDomDriverNode(this.host, [
+              ...this.path.slice(0, -1),
+              id,
+            ]).visibleNow()
+          )),
       description,
       options?.timeoutMs
     );

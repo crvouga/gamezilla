@@ -36,7 +36,11 @@ export async function storeMutationChoice(
 export async function storeLocalRefusal(
   tx: SqlClient,
   choice: StoredMutationChoice,
-  failure: { readonly code: string; readonly message: string }
+  failure: {
+    readonly code: string;
+    readonly message: string;
+    readonly meta: Readonly<Record<string, unknown>> | undefined;
+  }
 ): Promise<void> {
   await storeMutationChoice(tx, choice);
   await tx.run(sql`
@@ -45,7 +49,7 @@ export async function storeLocalRefusal(
       created_at, updated_at, deleted_at, acknowledged
     ) VALUES (
       ${`local:${choice.id}`}, ${choice.id}, ${choice.clientId},
-      ${failure.code}, ${failure.message}, ${null},
+      ${failure.code}, ${failure.message}, ${failure.meta === undefined ? null : JSON.stringify(failure.meta)},
       ${choice.createdAt}, ${choice.createdAt}, ${null}, ${0}
     )
   `);

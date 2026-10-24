@@ -96,33 +96,44 @@ async function handleSweepResponse(
   response: QueryResponse,
   capturedGen: number
 ): Promise<boolean> {
-  if (capturedGen !== entry.generation) return false;
+  const isCurrent = () =>
+    capturedGen === entry.generation && ctx.isRunning() && !entry.stopped;
+  if (!isCurrent()) return false;
   if (response.status === 'denied') {
     await detachScope(ctx.getMergeDeps(), entry.scope);
     // A denial clears its cache position, not the subscription. Identity or
     // policy may change while it is held; the next event must reauthorize it.
-    markSweepFirst(entry);
+    if (isCurrent()) markSweepFirst(entry);
     return false;
   }
   if (response.status === 'not_modified') {
-    const healed = await healNotModifiedIfDrifted(ctx, entry, response);
+    const healed = await healNotModifiedIfDrifted(
+      ctx,
+      entry,
+      response,
+      isCurrent
+    );
     if (healed) return true;
+    if (!isCurrent()) return false;
     await stampScopeConfirmed(
       ctx.db,
       entry.scope,
       ctx.getMergeDeps().env.now()
     );
+    if (!isCurrent()) return false;
     markSweepFirst(entry);
     ctx.onSynced();
     return true;
   }
-  if (capturedGen !== entry.generation) return false;
+  if (!isCurrent()) return false;
   await applyFullMerge(ctx.getMergeDeps(), {
     scopeHash: entry.scope,
     checkpoint: response.checkpoint,
     hash: response.hash,
     tables: response.tables,
+    isCurrent,
   });
+  if (!isCurrent()) return false;
   markSweepFirst(entry);
   ctx.onSynced();
   return true;
@@ -131,7 +142,8 @@ async function handleSweepResponse(
 async function healNotModifiedIfDrifted(
   ctx: SubscriptionSweepContext,
   entry: SweepEntry,
-  response: QueryResponse
+  response: QueryResponse,
+  isCurrent: () => boolean
 ): Promise<boolean> {
   if (response.status !== 'not_modified') return false;
   const basis = await loadScopeBasis(ctx.db, entry.scope);
@@ -147,19 +159,21 @@ async function healNotModifiedIfDrifted(
     params: entry.spec.params,
     env: mergeDeps.env,
   });
-  if (localHash === basis.last_hash) return false;
+  if (localHash === basis.last_hash || !isCurrent()) return false;
 
   const [full] = await postQueryBatch(ctx.postQueries, [
     { name: entry.spec.name, params: entry.spec.params },
   ]);
-  if (full === undefined || full.status !== 'ok') return false;
+  if (full === undefined || full.status !== 'ok' || !isCurrent()) return false;
 
   await applyFullMerge(mergeDeps, {
     scopeHash: entry.scope,
     checkpoint: full.checkpoint,
     hash: full.hash,
     tables: full.tables,
+    isCurrent,
   });
+  if (!isCurrent()) return false;
   markSweepFirst(entry);
   ctx.onSynced();
   return true;

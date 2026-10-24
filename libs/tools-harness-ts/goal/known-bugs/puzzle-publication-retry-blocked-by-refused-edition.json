@@ -1,0 +1,4 @@
+{
+  "summary": "After an offline pack publication was refused, a fresh publication of its kept draft collided with the tombstoned optimistic edition and pack references.",
+  "regressionTest": "specs/puzzles/publication-recovery.feature"
+}

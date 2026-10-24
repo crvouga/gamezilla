@@ -31,6 +31,7 @@
     "@libs/game-catalog-shared-ts": "workspace:*",
     "@libs/game-puzzle-shared-ts": "workspace:*",
     "@libs/game-session-server-ts": "workspace:*",
+    "@libs/games-shared-ts": "workspace:*",
     "@libs/infra-shared-ts": "workspace:*",
     "@libs/notifications-server-ts": "workspace:*",
     "@libs/runtime-shared-ts": "workspace:*",

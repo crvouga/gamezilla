@@ -2,6 +2,10 @@ import {
   createTurnGames,
   type TurnGames,
 } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  createPuzzleContentCatalog,
+  type PuzzleContentCatalog,
+} from '@pkgs/turn-game-shared-ts/puzzle-content-catalog';
 /**
  * The fold. One implementation turns a tree of {@link SubManifest}s into
  * the registries an app needs — production and every test harness use this
@@ -42,6 +46,7 @@ import type { SubManifest } from './manifest';
 
 export type ComposedSubs = {
   readonly turnGames: TurnGames;
+  readonly puzzleContents: PuzzleContentCatalog;
   /** Sub names, in walk order. */
   readonly subNames: readonly string[];
   /** Every declared domain table, in walk order. */
@@ -156,6 +161,9 @@ export function composeSubs(roots: readonly SubManifest[]): ComposedSubs {
   );
   return {
     turnGames: createTurnGames(subs.flatMap((sub) => sub.turnGames ?? [])),
+    puzzleContents: createPuzzleContentCatalog(
+      subs.flatMap((sub) => sub.puzzleContents ?? [])
+    ),
     subNames: subs.map((sub) => sub.name),
     accountPrivacy,
     authorizeMutation: async (ctx) => {

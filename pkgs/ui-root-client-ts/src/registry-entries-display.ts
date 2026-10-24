@@ -30,6 +30,7 @@ import ModalExample from './modal.example';
 import MutationModalExample from './mutation-modal.example';
 import NoticeExample from './notice.example';
 import PaginationControlsExample from './pagination-controls.example';
+import PathGridBoardExample from './path-grid-board.example';
 import ProgressBarExample from './progress-bar.example';
 import ResponsiveSurfaceExample from './responsive-surface.example';
 import SkeletonExample from './skeleton.example';
@@ -47,6 +48,7 @@ const OVERLAY = 'Overlay';
 export const DISPLAY_ENTRIES: readonly ComponentEntry[] = [
   entry('game-arena', 'Game Arena', 'Games', GameArenaExample),
   entry('cell-grid-board', 'CellGridBoard', 'Games', CellGridBoardExample),
+  entry('path-grid-board', 'PathGridBoard', 'Games', PathGridBoardExample),
   entry('range-control', 'RangeControl', DATA_DISPLAY, RangeControlExample),
   entry('document-panel', 'DocumentPanel', DATA_DISPLAY, DocumentPanelExample),
   entry(

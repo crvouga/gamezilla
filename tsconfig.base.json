@@ -60,6 +60,7 @@
       "@libs/chess-root-client-ts/*": ["./libs/chess-root-client-ts/src/*"],
       "@libs/game-session-client-ts/*": ["./libs/game-session-client-ts/src/*"],
       "@libs/game-puzzle-shared-ts/*": ["./libs/game-puzzle-shared-ts/src/*"],
+      "@libs/game-puzzle-harness-ts/*": ["./libs/game-puzzle-harness-ts/src/*"],
       "@libs/game-session-shared-ts/*": ["./libs/game-session-shared-ts/src/*"],
       "@libs/chess-sub-shared-ts/*": ["./libs/chess-sub-shared-ts/src/*"],
       "@libs/chess-root-harness-ts/*": ["./libs/chess-root-harness-ts/src/*"],
@@ -71,6 +72,7 @@
       ],
       "@libs/chess-puzzle-client-ts/*": ["./libs/chess-puzzle-client-ts/src/*"],
       "@libs/game-puzzle-client-ts/*": ["./libs/game-puzzle-client-ts/src/*"],
+      "@libs/numberlink-client-ts/*": ["./libs/numberlink-client-ts/src/*"],
       "@libs/chess-puzzle-harness-ts/*": [
         "./libs/chess-puzzle-harness-ts/src/*"
       ],
@@ -511,6 +513,8 @@
         "./pkgs/object-store-opfs-client-ts/src/*"
       ],
       "@libs/connect-four-shared-ts/*": ["./libs/connect-four-shared-ts/src/*"],
+      "@libs/numberlink-shared-ts/*": ["./libs/numberlink-shared-ts/src/*"],
+      "@libs/numberlink-harness-ts/*": ["./libs/numberlink-harness-ts/src/*"],
       "@libs/battleship-shared-ts/*": ["./libs/battleship-shared-ts/src/*"],
       "@libs/battleship-client-ts/*": ["./libs/battleship-client-ts/src/*"],
       "@libs/battleship-harness-ts/*": ["./libs/battleship-harness-ts/src/*"],

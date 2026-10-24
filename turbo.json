@@ -1124,6 +1124,7 @@
         "$TURBO_ROOT$/libs/chess-root-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/connect-four-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/battleship-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/numberlink-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/game-menu-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/game-session-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/game-matchmaking-client-ts/src/**/*.{ts,tsx}",

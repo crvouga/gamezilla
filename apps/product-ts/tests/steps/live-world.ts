@@ -3,7 +3,6 @@ import {
   browserFailureSummary,
 } from '@apps/product-ts/browser-failure-summary';
 import { readSyncResponseEvidence } from '@apps/product-ts/browser-network-evidence';
-import { openIsolatedDevice } from '@apps/product-ts/isolated-browser';
 import {
   actOnLiveDevice,
   type LiveDevices,
@@ -44,12 +43,13 @@ import type {
   JourneyWorld,
 } from '@libs/runtime-harness-ts/journey-types';
 import { spaceLinkFromLocation } from '@libs/runtime-harness-ts/journey-types';
-import { requestSyntheticMonitorRedirect } from '@pkgs/auth-inhouse-shared-ts/synthetic-monitor';
+import { requestSyntheticMonitorSignIn } from '@pkgs/auth-inhouse-shared-ts/synthetic-monitor';
 import { wallClock } from '@pkgs/clock-shared-ts/wall';
 import type { ScenarioContext } from '@pkgs/gherkin-shared-ts/registry';
 import { setWorld } from '@pkgs/gherkin-shared-ts/registry';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared-ts/global';
 import type { HttpClient } from '@pkgs/http-client-shared-ts/types';
+import { liveJourneyPeerDevice } from './live-peer-device';
 
 const API_PATH_PREFIX = '/api';
 const SSO_CALLBACK_PATH = '/sso-callback';
@@ -79,17 +79,17 @@ export function requireSecret(name: string): string {
 async function signIn(
   device: Device,
   target: LiveTarget,
-  peer = false
-): Promise<void> {
-  const redirectUrl = await requestSyntheticMonitorRedirect({
+  options: { peer?: boolean; continuationToken?: string } = {}
+): Promise<string> {
+  const issued = await requestSyntheticMonitorSignIn({
     http: target.http,
     apiOrigin: target.apiOrigin,
     apiPathPrefix: API_PATH_PREFIX,
     token: requireSecret('SYNTHETIC_MONITOR_TOKEN'),
-    peer,
+    ...options,
     callbackUrl: `${target.webOrigin}${SSO_CALLBACK_PATH}`,
   });
-  await device.view.navigate(redirectUrl);
+  await device.view.navigate(issued.redirectUrl);
   // The header (and its account menu) shows before the lazy callback route
   // reads `?code=` from the URL. Leaving first drops the code, so wait for
   // the callback to finish and move on by itself.
@@ -98,6 +98,7 @@ async function signIn(
     JOURNEY_WAIT_MS
   );
   await confirmSignedIn(device.driver);
+  return issued.continuationToken;
 }
 
 type Browsing = {
@@ -127,7 +128,9 @@ async function openLiveDevice(
     access,
     launch: () => opened.driver.launch(),
     waitForTabShell: () => atTabShell(opened.driver),
-    signIn: () => signIn(opened, target),
+    signIn: async () => {
+      await signIn(opened, target);
+    },
   });
 }
 
@@ -144,6 +147,15 @@ function liveJourneyHost(
   devices: LiveDevices,
   cleanups: Map<string, JourneyGestures>
 ): JourneyHost {
+  const peer = liveJourneyPeerDevice(
+    target,
+    devices,
+    (device, continuationToken) =>
+      signIn(device, target, {
+        peer: true,
+        ...(continuationToken === undefined ? {} : { continuationToken }),
+      })
+  );
   return {
     runId: RUN_ID,
     now: () => Promise.resolve(wallClock.now()),
@@ -155,29 +167,23 @@ function liveJourneyHost(
     // The deployed bundle is a production build: no puzzle answers on the page.
     showsPuzzleAnswers: false,
     open: (access) => openLiveDevice(target, devices, access),
-    openPeer: async (access) => {
-      if (devices.guest !== null)
-        throw new Error('The second device is already open');
-      devices.guest = await openIsolatedDevice(target);
-      devices.shown = devices.guest;
-      await prepareCriticalJourneyAccess({
-        access,
-        launch: () => devices.guest!.driver.launch(),
-        waitForTabShell: () => atTabShell(devices.guest!.driver),
-        signIn: () => signIn(devices.guest!, target, true),
-      });
-    },
-    act: async (_name, gestures) => {
+    peerDevice: peer,
+    openPeer: peer.open,
+    act: async (name, gestures) => {
       const current = await ensureHost(target, devices);
-      await actOnLiveDevice(devices, current, gestures);
+      await actOnLiveDevice(devices, current, gestures, name);
     },
-    actAsGuest: async (_name, gestures) => {
+    actAsGuest: async (name, gestures) => {
       const current = requireDevice(devices.guest, 'guest');
-      await actOnLiveDevice(devices, current, gestures);
+      await actOnLiveDevice(devices, current, gestures, name);
     },
     spaceLink: async () =>
       spaceLinkFromLocation(
         await readLocation(requireDevice(devices.host, 'device').view)
+      ),
+    openLink: (link) =>
+      requireDevice(devices.host, 'device').view.navigate(
+        new URL(link, target.webOrigin).href
       ),
     openGuest: (link) => openGuestDevice(target, devices, link),
     offline: async () => {
@@ -212,6 +218,9 @@ async function printBrowserState(devices: LiveDevices): Promise<void> {
   for (const [name, current] of [
     ['host', devices.host],
     ['peer', devices.guest],
+    ...devices.previousPeers.map(
+      (device, index) => [`earlier peer ${index + 1}`, device] as const
+    ),
   ] as const) {
     const layout = await current?.view
       .evaluate(BROWSER_FAILURE_LAYOUT)
@@ -257,17 +266,21 @@ async function closeBrowsing(
   try {
     const host = devices.host;
     if (host !== null) {
-      failure = await runLiveCleanups(devices, cleanups, (key, error) => {
+      failure = await runLiveCleanups(devices, cleanups, async (key, error) => {
         console.error(`cleanup ${key} failed: ${String(error)}`);
+        // Later cleanups navigate and can conceal the failing screen.
+        if (!failureFlag.failed)
+          await printBrowserState(devices).catch(() => undefined);
       });
-      // A cleanup that fails after every step passed has no step failure to
-      // print the devices; they close next.
-      if (failure !== null && !failureFlag.failed)
-        await printBrowserState(devices).catch(() => undefined);
       await host.close();
     }
   } finally {
-    if (devices.guest !== null) await devices.guest.close();
+    const peers = [...devices.previousPeers, devices.guest];
+    const closed = await Promise.allSettled(
+      peers.map((device) => device?.close())
+    );
+    for (const result of closed)
+      if (result.status === 'rejected') failure ??= result.reason;
   }
   if (failure === null) return;
   if (!failureFlag.failed) throw failure;
@@ -277,7 +290,12 @@ async function closeBrowsing(
 }
 
 function browsing(target: LiveTarget): Browsing {
-  const devices: LiveDevices = { host: null, guest: null, shown: null };
+  const devices: LiveDevices = {
+    host: null,
+    guest: null,
+    shown: null,
+    previousPeers: [],
+  };
   const cleanups = new Map<string, JourneyGestures>();
   const failureFlag: FailureFlag = { failed: false };
   return {

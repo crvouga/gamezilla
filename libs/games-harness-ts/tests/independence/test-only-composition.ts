@@ -9,7 +9,7 @@ const REGISTRIES: Readonly<Record<string, string>> = {
   'libs/games-harness-ts/src/harness-games.ts':
     'export const HARNESS_GAMES = [SETUP_RACE_GAME];',
   'libs/games-shared-ts/src/game-plugins.ts':
-    'export const GAME_DEFINITIONS = [SETUP_RACE_GAME.shared];',
+    'export const GAME_DEFINITIONS = [SETUP_RACE_GAME.shared];\nexport const TURN_GAME_DEFINITIONS = GAME_DEFINITIONS;',
   'libs/games-client-ts/src/game-plugins.client.ts':
     'export const GAME_CLIENT_DEFINITIONS = [SETUP_RACE_GAME.client];',
 };

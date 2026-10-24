@@ -88,3 +88,24 @@ terms:
 
   - term: Battleship
     from: battleship
+
+  - term: Numberlink
+    from: numberlink
+  - term: author
+    from: puzzles
+  - term: draft
+    from: puzzles
+  - term: playtest
+    from: puzzles
+  - term: publish
+    from: puzzles
+  - term: edition
+    from: puzzles
+  - term: pack
+    from: puzzles
+  - term: attempt
+    from: puzzles
+  - term: resume
+    from: puzzles
+  - term: pack progress
+    from: puzzles

@@ -81,3 +81,7 @@ terms:
   - term: indexing fixture
     definition: A configured database and workload state at the start of an executable example.
     forms: [fixture, fixtures]
+
+  - term: ownership
+    definition: >-
+      Which indexes automatic maintenance is responsible for and may change.

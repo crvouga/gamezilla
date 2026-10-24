@@ -376,3 +376,12 @@ terms:
   - term: the team
     from: kernel
     model: [teamEdit, teamAddsNote, teamTidiesUp]
+
+  - term: author
+    definition: >-
+      The person who made an edit to a note.
+
+  - term: continue sharing
+    definition: >-
+      Keep sharing the same notes when the person returns to an earlier app version.
+    forms: [continues]

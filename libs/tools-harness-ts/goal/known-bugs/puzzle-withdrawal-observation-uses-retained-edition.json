@@ -1,0 +1,4 @@
+{
+  "summary": "The puzzle lifecycle harness called a withdrawn document's retained edition publicly current, even though product discovery correctly hid it.",
+  "regressionTest": "libs/game-puzzle-harness-ts/tests/quint/pack-publication.binding.ts"
+}

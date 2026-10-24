@@ -1,0 +1,4 @@
+{
+  "summary": "A server snapshot can replace the current attempt head while retaining a pending immutable position; replay returned early and lost the pending move's head.",
+  "regressionTest": "libs/game-puzzle-shared-ts/tests/attempt-replay.test.ts"
+}

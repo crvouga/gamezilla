@@ -1,0 +1,4 @@
+{
+  "summary": "A sync-status listener that replaced its subscription during notification was revisited by live Set iteration, potentially looping forever during a reactive UI update. Each publication now visits only its initial listeners and skips listeners removed before their turn.",
+  "regressionTest": "pkgs/sync-engine-client-ts/tests/local-sync-status.test.ts"
+}

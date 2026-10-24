@@ -25,7 +25,12 @@ test('a link guest uses an isolated process and keeps it across navigations', as
     },
   };
   let opened = 0;
-  const devices: LiveDevices = { host: null, guest: null, shown: null };
+  const devices: LiveDevices = {
+    host: null,
+    guest: null,
+    shown: null,
+    previousPeers: [],
+  };
   const open = async () => {
     opened++;
     return openIsolatedDevice(target, () => worker.process);
@@ -175,7 +180,12 @@ async function switchDevices(order: readonly boolean[]): Promise<number> {
   };
   const host = await openIsolatedDevice(target, () => workers[0]!.process);
   const peer = await openIsolatedDevice(target, () => workers[1]!.process);
-  const devices: LiveDevices = { host, guest: peer, shown: peer };
+  const devices: LiveDevices = {
+    host,
+    guest: peer,
+    shown: peer,
+    previousPeers: [],
+  };
   try {
     for (const second of order)
       await actOnLiveDevice(devices, second ? peer : host, async (ui) => {
@@ -226,7 +236,12 @@ test('cleanups after the peer acted last run on the activated host page', async 
   };
   const host = await openIsolatedDevice(target, () => workers[0]!.process);
   const peer = await openIsolatedDevice(target, () => workers[1]!.process);
-  const devices: LiveDevices = { host, guest: peer, shown: peer };
+  const devices: LiveDevices = {
+    host,
+    guest: peer,
+    shown: peer,
+    previousPeers: [],
+  };
   const failures: string[] = [];
   try {
     const failure = await runLiveCleanups(
@@ -246,7 +261,9 @@ test('cleanups after the peer acted last run on the activated host page', async 
           },
         ],
       ]),
-      (key) => failures.push(key)
+      (key) => {
+        failures.push(key);
+      }
     );
     expect(reads).toBe(2);
     expect(failures).toEqual(['first']);

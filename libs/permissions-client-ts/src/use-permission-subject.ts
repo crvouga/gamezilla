@@ -1,5 +1,6 @@
-import type { AccessScope } from '@libs/permissions-shared-ts/decide-for-actor';
-import { resolveSpaceRoles } from '@libs/permissions-shared-ts/space-roles';
+import { useMyId } from '@libs/auth-client-ts/use-current-user';
+import type { AccessScope } from '@libs/permissions-shared-ts/access-scope';
+import { resolveResourceRoles } from '@libs/permissions-shared-ts/resource-roles';
 import { resolveSubject } from '@pkgs/permissions-shared-ts/resolve';
 import type { Subject } from '@pkgs/permissions-shared-ts/subject';
 import { type Accessor, createMemo } from 'solid-js';
@@ -18,11 +19,8 @@ export function usePermissionSubject(
 ): Accessor<Subject> {
   const policy = usePermissionPolicy();
   const facts = useAccessFacts();
+  const myId = useMyId();
   return createMemo(() =>
-    resolveSubject(
-      policy(),
-      facts(),
-      resolveSpaceRoles(scope?.()?.spacePresence ?? null)
-    )
+    resolveSubject(policy(), facts(), resolveResourceRoles(myId(), scope?.()))
   );
 }

@@ -1,0 +1,4 @@
+{
+  "summary": "Sync status remained online after the injected lifecycle went offline, until a request failed. An empty puzzle library then waited for remote scopes and hid the offline builder.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/connectivity-status.test.ts"
+}

@@ -1,9 +1,11 @@
 import type { GamePuzzlesClient } from '@libs/game-puzzle-client-ts/puzzle-client';
+import type { PuzzleContentClient } from '@libs/game-puzzle-client-ts/puzzle-content-client';
 import { PuzzleSessionEffects } from '@libs/game-puzzle-client-ts/puzzle-frame';
+import type { GameRegistration } from '@libs/game-session-shared-ts/game-definition';
+import { assertGameDefinitions } from '@libs/game-session-shared-ts/game-definition';
 import type { TurnGameDefinition } from '@libs/game-session-shared-ts/turn-game-definition';
 import type { GameClientDefinition } from '@libs/spaces-shared-ts/game';
 import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentation';
-import type { TurnGameCapabilities } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { JSX } from 'solid-js';
 import { GameMenu } from './game-menu';
 import { assertGameScreens } from './shared-game-screens';
@@ -43,11 +45,24 @@ export type GameClientPuzzles<C> = 'puzzles' extends keyof C
  * registration declares (`shared`), and a capability whose screens show
  * the game's own board asks for that part here (`puzzles`).
  */
-export type GameClient<C extends TurnGameCapabilities = TurnGameCapabilities> =
-  GameClientParts & {
-    /** The game's shared registration (`defineTurnGame`): its id and what it offers. */
-    readonly shared: TurnGameDefinition<C>;
-  } & GameClientPuzzles<C>;
+export type GameClientContent<G extends GameRegistration> =
+  NonNullable<G['puzzleContent']> extends never
+    ? { readonly puzzleContent?: never }
+    : undefined extends G['puzzleContent']
+      ? { readonly puzzleContent?: PuzzleContentClient }
+      : { readonly puzzleContent: PuzzleContentClient };
+
+export type GameClient<G extends GameRegistration = GameRegistration> =
+  G extends GameRegistration
+    ? GameClientParts & { readonly shared: G } & (G extends TurnGameDefinition<
+          infer C
+        >
+          ? {
+              readonly presentation: GameClientPresentation;
+            } & GameClientPuzzles<C>
+          : { readonly presentation?: never; readonly puzzles?: never }) &
+        GameClientContent<G>
+    : never;
 
 type GameClientParts = {
   /** The game's name, in the game choice and above its own choices. */
@@ -58,7 +73,6 @@ type GameClientParts = {
   readonly subtitle: () => JSX.Element;
   /** How to play, under the game's choices. */
   readonly instructions?: () => JSX.Element;
-  readonly presentation: GameClientPresentation;
   /** The game's own choices, offered before the shared ones. */
   readonly choices?: readonly GameChoice[];
   /** The game's settings, offered last under the shared name. */
@@ -81,7 +95,8 @@ class DefinedGameClient implements GameClientDefinition {
   readonly id: string;
   readonly title: string;
   readonly caption: string;
-  readonly presentation: GamePresentation<JSX.Element>;
+  declare readonly presentation?: GamePresentation<JSX.Element>;
+  declare readonly puzzleContent?: PuzzleContentClient;
   readonly MainMenu: GameClientDefinition['MainMenu'];
   /** The game's puzzles part, when it offers puzzles. */
   declare readonly puzzles?: GamePuzzlesClient;
@@ -92,7 +107,10 @@ class DefinedGameClient implements GameClientDefinition {
     this.id = id;
     this.title = game.title;
     this.caption = game.caption;
-    this.presentation = { ...game.presentation, id };
+    if (game.presentation !== undefined)
+      this.presentation = { ...game.presentation, id };
+    if (game.puzzleContent !== undefined)
+      this.puzzleContent = game.puzzleContent;
     this.MainMenu = (props) => (
       <GameMenu game={game} onBackToGames={props.onBackToGames} />
     );
@@ -115,7 +133,13 @@ class DefinedGameClient implements GameClientDefinition {
   }
 }
 
-export type GameClientRegistration = DefinedGameClient;
+export type GameClientRegistration<
+  G extends GameRegistration = GameRegistration,
+> = DefinedGameClient &
+  GameClientContent<G> &
+  (G extends TurnGameDefinition
+    ? { readonly presentation: GamePresentation<JSX.Element> }
+    : unknown);
 
 /**
  * The puzzles part agrees with the shared registration: present exactly
@@ -123,7 +147,7 @@ export type GameClientRegistration = DefinedGameClient;
  */
 function assertPuzzlesPart(game: GameClient): void {
   const id = game.shared.id;
-  const offered = game.shared.turnGame.capabilities.puzzles !== undefined;
+  const offered = game.shared.turnGame?.capabilities.puzzles !== undefined;
   if (offered && game.puzzles === undefined)
     throw new Error(
       `${id}: the game offers puzzles (capabilities.puzzles) but its client has no puzzles part — give defineGameClient puzzles: { Board, … }`
@@ -141,8 +165,8 @@ function assertPuzzlesPart(game: GameClient): void {
 /** A game with private setups shows its own setup board; no other game has one. */
 function assertSetupBoard(game: GameClient): void {
   const id = game.shared.id;
-  const setups = game.shared.turnGame.rules.setup !== undefined;
-  const board = game.presentation.SetupBoard;
+  const setups = game.shared.turnGame?.rules.setup !== undefined;
+  const board = game.presentation?.SetupBoard;
   if (setups && typeof board !== 'function')
     throw new Error(
       `${id}: its sides prepare private setups (rules.setup) but its presentation has no SetupBoard — the shared screens show the game's own setup board`
@@ -154,16 +178,45 @@ function assertSetupBoard(game: GameClient): void {
 }
 
 /** The one way a game joins the space's game choice. */
-export function defineGameClient<C extends TurnGameCapabilities>(
-  game: GameClient<C>
-): GameClientRegistration {
+export function defineGameClient<G extends GameRegistration>(
+  game: GameClient<G> & { readonly shared: G }
+): GameClientRegistration<G> {
+  assertGameDefinitions('defineGameClient.shared', [game.shared]);
+  assertContentPart(game);
   assertPuzzlesPart(game);
   assertSetupBoard(game);
   assertGameScreens(game.shared.id, [
     ...(game.choices ?? []).map((choice) => choice.screen),
     ...(game.screens ?? []).map((screen) => screen.screen),
   ]);
-  return new DefinedGameClient(game);
+  return new DefinedGameClient(game) as GameClientRegistration<G>;
+}
+
+function assertContentPart(game: GameClient): void {
+  const content = game.puzzleContent;
+  if (game.shared.puzzleContent === undefined && content !== undefined)
+    throw new Error(
+      `${game.shared.id}: the client offers puzzle rendering but the game offers no puzzle content`
+    );
+  if (
+    game.shared.puzzleContent !== undefined &&
+    typeof content?.Player !== 'function'
+  )
+    throw new Error(
+      `${game.shared.id}: puzzleContent.Player is required for its puzzle rules`
+    );
+  if (
+    content?.authoring !== undefined &&
+    (typeof content.authoring.Editor !== 'function' ||
+      typeof content.authoring.initialDefinition !== 'function')
+  )
+    throw new Error(
+      `${game.shared.id}: puzzle authoring requires its Editor and initialDefinition`
+    );
+  if (content?.Preview !== undefined && typeof content.Preview !== 'function')
+    throw new Error(
+      `${game.shared.id}: puzzleContent.Preview must be a component`
+    );
 }
 
 /**

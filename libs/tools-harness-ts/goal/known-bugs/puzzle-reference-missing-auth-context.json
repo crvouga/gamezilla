@@ -1,0 +1,4 @@
+{
+  "summary": "The counting reference app omitted the auth port, modal and router providers required by the central permission denial surface. Isolated SQL delivery briefly rendered a denial during cold creation and threw instead of allowing the draft to arrive. Its composition root now supplies the complete host.",
+  "regressionTest": "libs/game-puzzle-harness-ts/tests/reference-auth-context.test.ts"
+}

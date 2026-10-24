@@ -97,6 +97,7 @@ describe('closed world: manifest ↔ permission catalog', () => {
   });
 
   test('every catalog key is exactly one capability, and every capability one key', () => {
+    // regression: puzzle-capabilities-missing-from-conformance
     const mapped = Object.values(CAPABILITY_KEYS);
     expect(new Set(mapped).size).toBe(mapped.length);
     expect(sorted(mapped)).toEqual(sorted(catalogKeys()));

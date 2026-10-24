@@ -24,6 +24,7 @@ const RENAME_REFUSED: WriteRefusal = {
   mutationName: 'renameSpace',
   code: 'SPACE_TITLE_NOT_ALLOWED',
   message: 'That space name is not allowed.',
+  meta: null,
 };
 
 const UNKNOWN_REFUSED: WriteRefusal = {
@@ -31,6 +32,7 @@ const UNKNOWN_REFUSED: WriteRefusal = {
   mutationName: 'somethingNew',
   code: 'FORBIDDEN',
   message: 'policy denied: rule spaces.rename at depth 3',
+  meta: null,
 };
 
 /** The engine's live refusals, driven by the test. */
@@ -59,6 +61,7 @@ const RENAME_AGAIN_REFUSED: WriteRefusal = {
   mutationName: 'renameSpace',
   code: 'FORBIDDEN',
   message: 'policy denied',
+  meta: null,
 };
 
 const AVATAR_REFUSED: WriteRefusal = {
@@ -66,6 +69,7 @@ const AVATAR_REFUSED: WriteRefusal = {
   mutationName: 'patchAvatar',
   code: 'FORBIDDEN',
   message: 'policy denied',
+  meta: null,
 };
 
 /** The space's notice and the Sync screen's list, side by side. */
@@ -83,7 +87,12 @@ function renderNotices(engine: SyncEngine) {
           <MutationClientContext.Provider value={client}>
             <StackVertical testId="place-space">
               <RefusedChangeNotice
-                mutations={['renameSpace', 'endSpace', 'leaveSpace']}
+                mutations={[
+                  'renameSpace',
+                  'endSpace',
+                  'leaveSpace',
+                  'publishPuzzleContent',
+                ]}
               />
             </StackVertical>
             <StackVertical testId="place-sync">
@@ -171,6 +180,7 @@ test.each(['endSpace', 'leaveSpace', 'renameSpace'])(
         mutationName,
         code: 'SPACE_NOT_FOUND',
         message: 'Space not found.',
+        meta: null,
       },
     ]);
     const { mutate } = renderNotices(engine);
@@ -190,3 +200,28 @@ test.each(['endSpace', 'leaveSpace', 'renameSpace'])(
     });
   }
 );
+
+test('publication refusal details select safe local guidance without rendering remote text', () => {
+  // regression: puzzle-publication-refusal-details-lost
+  const { engine } = refusalsEngine([
+    {
+      mutationId: 'pack-publication-after-River-withdrawal',
+      mutationName: 'publishPuzzleContent',
+      code: 'PUZZLE_PUBLICATION_INVALID',
+      message: 'private SQL diagnostic from server',
+      meta: JSON.stringify({
+        issues: [
+          { code: 'PACK_PUZZLE_UNAVAILABLE', message: 'untrusted issue text' },
+        ],
+      }),
+    },
+  ]);
+  renderNotices(engine);
+  const [notice] = noticesIn('space');
+  expect(notice?.textContent).toContain('no longer available');
+  expect(notice?.textContent).toContain('Your pack draft is kept.');
+  expect(notice?.textContent).toContain('then choose Publish');
+  expect(notice?.textContent).not.toContain('private SQL');
+  expect(notice?.textContent).not.toContain('untrusted issue text');
+  expect(noticesIn('sync')).toHaveLength(0);
+});

@@ -1,8 +1,11 @@
+import type { GameDefinition } from '@libs/spaces-shared-ts/game';
 import type { SubManifest } from '@libs/sub-shared-ts/manifest';
 import { defineSub } from '@libs/sub-shared-ts/manifest';
-import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
+import { createPuzzleContentCatalog } from '@pkgs/turn-game-shared-ts/puzzle-content-catalog';
 import { appendPuzzleInteractionMutation } from './append-puzzle-interaction-mutation';
 import { chessPuzzleById } from './by-id-query';
+import { createContentMutations } from './content-mutations';
+import { CONTENT_QUERIES } from './content-query-registry';
 import { chessPuzzleFeedSettings } from './feed-settings-query';
 import { chessPuzzleInteractions } from './interactions-query';
 import { chessPuzzleNearest, chessPuzzlePool } from './pool-query';
@@ -16,6 +19,7 @@ import { savePuzzleFeedSettingsMutation } from './save-puzzle-feed-settings-muta
 
 /** The puzzle catalogue and every person's puzzle progress, read by any game. */
 export const PUZZLE_QUERIES = [
+  ...CONTENT_QUERIES,
   chessPuzzleProfile,
   chessPuzzleFeedSettings,
   chessPuzzleInteractions,
@@ -60,13 +64,38 @@ export const GAME_PUZZLE_SUB = defineSub({
  * The puzzle sub exactly when a registered game offers puzzles: a product
  * whose games offer none has no puzzle tables, reads or writes.
  */
-export function gamePuzzleSubs(turnGames: TurnGames): readonly SubManifest[] {
-  return offersPuzzles(turnGames) ? [GAME_PUZZLE_SUB] : [];
+export type PuzzleGameOffering = Pick<
+  GameDefinition,
+  'id' | 'turnGame' | 'puzzleContent'
+>;
+
+export function gamePuzzleSubs(
+  games: readonly PuzzleGameOffering[]
+): readonly SubManifest[] {
+  if (!offersPuzzles(games)) return [];
+  const puzzleContents = games.flatMap((game) =>
+    game.puzzleContent === undefined
+      ? []
+      : [{ id: game.id, puzzleContent: game.puzzleContent }]
+  );
+  const catalog = createPuzzleContentCatalog(puzzleContents);
+  return [
+    defineSub({
+      ...GAME_PUZZLE_SUB,
+      puzzleContents,
+      mutations: async () => [
+        ...PUZZLE_MUTATIONS,
+        ...createContentMutations(catalog),
+      ],
+    }),
+  ];
 }
 
 /** Whether any registered game offers puzzles. */
-export function offersPuzzles(turnGames: TurnGames): boolean {
-  return turnGames.games.some(
-    (game) => game.capabilities.puzzles !== undefined
+export function offersPuzzles(games: readonly PuzzleGameOffering[]): boolean {
+  return games.some(
+    (game) =>
+      game.puzzleContent !== undefined ||
+      game.turnGame?.capabilities.puzzles !== undefined
   );
 }

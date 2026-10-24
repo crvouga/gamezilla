@@ -51,16 +51,6 @@ export function createHarnessHttpRpc(
   };
 }
 
-export function rejectAllPending(
-  pending: HarnessHttpPending,
-  message: string
-): void {
-  for (const [, w] of pending) {
-    w.reject(new Error(message));
-  }
-  pending.clear();
-}
-
 /** Fail in-flight RPCs as a network drop so disconnect can drain without the scheduler. */
 export function abortAllPending(
   pending: HarnessHttpPending,

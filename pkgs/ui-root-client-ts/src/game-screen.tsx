@@ -1,3 +1,4 @@
+import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { type JSX, Show } from 'solid-js';
 import { EmbeddedScreen } from './embedded-screen';
@@ -13,6 +14,7 @@ export function GameScreen(props: {
   screenId: string;
   title: JSX.Element;
   subtitle?: JSX.Element | undefined;
+  dataSet?: ComponentDataSet | undefined;
   children: JSX.Element;
 }): JSX.Element {
   return (
@@ -21,7 +23,7 @@ export function GameScreen(props: {
       title={props.title}
       subtitle={props.subtitle}
       width="full"
-      dataSet={{ component: 'GameScreen' }}
+      dataSet={{ ...props.dataSet, component: 'GameScreen' }}
     >
       {props.children}
     </EmbeddedScreen>

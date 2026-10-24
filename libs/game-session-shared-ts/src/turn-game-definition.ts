@@ -13,7 +13,12 @@ import type {
   TurnGameCapabilities,
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  assertPuzzleContent,
+  type PuzzleContent,
+} from '@pkgs/turn-game-shared-ts/puzzle-content';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
+import { assertGameId } from './assert-game-id';
 import { withCustomGames } from './custom-game-definition';
 import { assertTurnGameCapabilities } from './turn-game-capabilities';
 
@@ -52,6 +57,7 @@ class DefinedTurnGame<C extends TurnGameCapabilities = TurnGameCapabilities>
   /** What the game offers, as declared: its client's parts follow it. */
   readonly capabilities: C;
   readonly turnGame: RegisteredTurnGame;
+  declare readonly puzzleContent?: PuzzleContent;
   readonly automation: GameAutomation<Driver>;
   readonly sharedModules: readonly SharedGameModule[];
   readonly commandRouters: GameOwnRoom['commandRouters'];
@@ -63,6 +69,8 @@ class DefinedTurnGame<C extends TurnGameCapabilities = TurnGameCapabilities>
     this.id = game.rules.id;
     this.capabilities = game.capabilities;
     this.turnGame = turnGame;
+    if (game.puzzleContent !== undefined)
+      this.puzzleContent = game.puzzleContent;
     this.automation = { rules: game.rules, ...game.automation };
     // Puzzles are offered through the one puzzle session every space installs.
     this.sharedModules =
@@ -92,6 +100,8 @@ export type TurnGame<C extends TurnGameCapabilities = TurnGameCapabilities> =
     readonly rules: GameRules;
     /** What the platform offers for the game, each with what it needs. */
     readonly capabilities: C;
+    /** Authored content may coexist with multiplayer and the rated puzzle feed. */
+    readonly puzzleContent?: PuzzleContent;
     /**
      * How a synthetic user and every shared suite choose an action and play it
      * on the game's board (`perform(ui, board, action)`).
@@ -107,11 +117,21 @@ export type TurnGame<C extends TurnGameCapabilities = TurnGameCapabilities> =
  * offers exactly the capabilities the game declares.
  */
 export function defineTurnGame<C extends TurnGameCapabilities>(
+  game: TurnGame<C> & { readonly puzzleContent: PuzzleContent }
+): TurnGameDefinition<C> & { readonly puzzleContent: PuzzleContent };
+export function defineTurnGame<C extends TurnGameCapabilities>(
+  game: TurnGame<C> & { readonly puzzleContent?: never }
+): TurnGameDefinition<C> & { readonly puzzleContent?: never };
+export function defineTurnGame<C extends TurnGameCapabilities>(
+  game: TurnGame<C>
+): TurnGameDefinition<C>;
+export function defineTurnGame<C extends TurnGameCapabilities>(
   game: TurnGame<C>
 ): TurnGameDefinition<C> {
   const id = game.rules.id;
-  if (!/^[a-z][a-z0-9-]{0,31}$/.test(id))
-    throw new Error(`game id "${id}" is not a lowercase slug`);
+  assertGameId(id);
+  if (game.puzzleContent !== undefined)
+    assertPuzzleContent(id, game.puzzleContent);
   assertTurnGameCapabilities(id, game.capabilities);
   const setups = game.rules.setup !== undefined;
   if (setups !== (game.automation.arrange !== undefined))
@@ -153,4 +173,10 @@ export function assertTurnGameDefinitions(
       `${registry}[${String(index)}] (${id}) was not made by defineTurnGame — register the game's defineTurnGame(...) value itself, never a copy or a hand-built definition`
     );
   }
+}
+
+export function isTurnGameDefinition(
+  value: unknown
+): value is TurnGameDefinition {
+  return DefinedTurnGame.made(value);
 }

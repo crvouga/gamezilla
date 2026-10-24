@@ -453,3 +453,7 @@ terms:
     from: billing
   - term: Plus credit
     from: billing
+
+  - term: progress
+    definition: >-
+      The play and results kept as part of a person’s account data.

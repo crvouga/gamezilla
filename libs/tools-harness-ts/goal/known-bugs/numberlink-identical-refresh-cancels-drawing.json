@@ -1,0 +1,4 @@
+{
+  "summary": "Receiving a fresh snapshot object with identical serialized Numberlink state recreated the parsed input and cancelled an in-progress gesture.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/drawing-refresh.test.tsx"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "The live product runner imported the shared journey entry, which registered Numberlink through a relative step-module import. The static spec checker examined only direct exported imports and falsely reported all Numberlink journey steps as undefined. Follow nested step imports once per module.",
+  "regressionTest": "libs/tools-harness-ts/scripts/spec-packages.test.ts"
+}

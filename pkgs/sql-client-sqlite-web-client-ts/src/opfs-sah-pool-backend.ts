@@ -48,11 +48,16 @@ export class OpfsSahPoolBackend implements SqliteWorkerBackend {
 
   private async pool(dbName: string): Promise<SahPoolUtil> {
     const existing = this.pools.get(dbName);
-    if (existing !== undefined) return existing;
+    if (existing !== undefined) {
+      await existing.unpauseVfs();
+      return existing;
+    }
     const util = await this.sqlite3.installOpfsSAHPoolVfs({
       directory: opfsSahPoolDirectory(dbName),
       name: opfsSahPoolVfsName(dbName),
       initialCapacity: INITIAL_POOL_CAPACITY,
+      clearOnInit: false,
+      preserveOnInitFailure: true,
     });
     this.pools.set(dbName, util);
     return util;
@@ -65,6 +70,9 @@ export class OpfsSahPoolBackend implements SqliteWorkerBackend {
     const db = new Oo1SqlClient({
       sqlite3: this.sqlite3,
       db: openDb(),
+      onDisconnect: () => {
+        util.pauseVfs();
+      },
       reopenFromBytes: async (bytes) => {
         await util.importDb(filename, bytes);
         return openDb();
@@ -75,7 +83,11 @@ export class OpfsSahPoolBackend implements SqliteWorkerBackend {
 
   async wipe(dbName: string): Promise<void> {
     const util = await this.pool(dbName);
-    await util.wipeFiles();
+    try {
+      await util.wipeFiles();
+    } finally {
+      util.pauseVfs();
+    }
   }
 }
 

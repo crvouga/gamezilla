@@ -205,9 +205,9 @@ export async function buildHarnessClient(
     pubsubRemakeCount: args.pubsubRemakeCount,
     subscribedTopics: args.subscribedTopics,
     dispose: async (opts?: { readonly keepDb?: boolean }) => {
-      http.abortPending();
-      await engine.disconnect();
+      // Retire the transport before yielding to mutation/sweep draining.
       http.dispose();
+      await engine.disconnect();
       if (opts?.keepDb === true) return;
       await rawDb.disconnect();
     },

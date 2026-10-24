@@ -75,6 +75,13 @@ const EXPECTED: ReadonlyArray<readonly [string, string, string, string]> = [
   [PERMISSION.puzzlesCustomizeFeed, 'deny', 'allow', 'allow'],
   // Environment configuration, never a plan, grants management.
   [PERMISSION.puzzlesManage, 'deny', 'deny', 'deny'],
+  [PERMISSION.puzzlesCreateContent, 'allow', 'allow', 'allow'],
+  [PERMISSION.puzzlesReadOwnContent, 'allow', 'allow', 'allow'],
+  // Resource ownership, never a plan, grants authorship.
+  [PERMISSION.puzzlesEditContent, 'deny', 'deny', 'deny'],
+  [PERMISSION.puzzlesEditAttempt, 'deny', 'deny', 'deny'],
+  [PERMISSION.puzzlesPublishContent, 'deny', 'deny', 'deny'],
+  [PERMISSION.puzzlesPlaytestContent, 'deny', 'deny', 'deny'],
   [PERMISSION.spacesCreate, 'allow', 'allow', 'allow'],
   [PERMISSION.spacesJoin, 'allow', 'allow', 'allow'],
   // Space roles grant these by presence, never a plan.

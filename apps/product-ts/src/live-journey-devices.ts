@@ -6,6 +6,7 @@ export type LiveDevices = {
   host: Device | null;
   guest: Device | null;
   shown: Device | null;
+  readonly previousPeers: Device[];
 };
 
 export function requireDevice(device: Device | null, who: string): Device {
@@ -31,11 +32,17 @@ export async function openGuestDevice(
 export async function actOnLiveDevice(
   devices: LiveDevices,
   device: Device,
-  gestures: (ui: Driver) => Promise<void>
+  gestures: (ui: Driver) => Promise<void>,
+  name?: string
 ): Promise<void> {
   devices.shown = device;
   await device.view.cdp('Page.bringToFront', {});
-  await gestures(device.driver);
+  try {
+    await gestures(device.driver);
+  } catch (error) {
+    if (name === undefined) throw error;
+    throw new Error(`${name}: ${String(error)}`, { cause: error });
+  }
 }
 
 /**
@@ -47,7 +54,7 @@ export async function actOnLiveDevice(
 export async function runLiveCleanups(
   devices: LiveDevices,
   cleanups: ReadonlyMap<string, (ui: Driver) => Promise<void>>,
-  report: (key: string, error: unknown) => void
+  report: (key: string, error: unknown) => void | Promise<void>
 ): Promise<unknown> {
   const host = devices.host;
   if (host === null) return null;
@@ -56,7 +63,7 @@ export async function runLiveCleanups(
     try {
       await actOnLiveDevice(devices, host, cleanup);
     } catch (error) {
-      report(key, error);
+      await report(key, error);
       failure ??= error;
     }
   }

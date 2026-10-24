@@ -59,7 +59,11 @@ type BrokerState = {
   readonly connectChains: Map<string, Promise<DbSlot>>;
   readonly pendingRoutes: Map<
     string,
-    { readonly fromPortId: string; readonly ownerPortId: string }
+    {
+      readonly fromPortId: string;
+      readonly ownerPortId: string;
+      readonly requestId: string;
+    }
   >;
   forceReleaseWait: ForceReleaseWait | null;
   readonly timers: BrokerTimers;
@@ -187,6 +191,30 @@ async function handleConnect(
   await next;
 }
 
+function handleDisconnect(
+  state: BrokerState,
+  portId: string,
+  request: RpcRequest<'disconnect'>
+): void {
+  const release = () => {
+    releasePortFromDb(state, portId, request.dbName);
+    post(state, portId, { id: request.id, ok: true, result: null });
+  };
+  const chain = state.connectChains.get(request.dbName);
+  if (
+    chain === undefined ||
+    state.slots.get(request.dbName)?.portIds.has(portId)
+  ) {
+    release();
+    return;
+  }
+  const next = chain.then((slot) => {
+    release();
+    return slot;
+  });
+  state.connectChains.set(request.dbName, next);
+}
+
 function routeToOwner(
   state: BrokerState,
   fromPortId: string,
@@ -202,16 +230,8 @@ function routeToOwner(
     });
     return;
   }
-  if (ownerId === fromPortId) {
-    post(state, fromPortId, {
-      id: request.id,
-      ok: false,
-      error: serializeError(
-        new Error('Owner should execute SQL locally, not via broker')
-      ),
-    });
-    return;
-  }
+  // A request sent as a proxy may arrive after this same port was promoted.
+  // Forward it through the granted owner's open fence, like any queued RPC.
   post(state, ownerId, { ...request, from: fromPortId });
 }
 
@@ -257,7 +277,7 @@ function routeOwnerResponse(
   const route = state.pendingRoutes.get(response.id);
   if (route === undefined || route.ownerPortId !== portId) return;
   state.pendingRoutes.delete(response.id);
-  post(state, route.fromPortId, response);
+  post(state, route.fromPortId, { ...response, id: route.requestId });
 }
 
 function isForceReleaseAllMessage(
@@ -382,16 +402,20 @@ function handleRpcRequest(
     return;
   }
   if (message.op === 'disconnect') {
-    releasePortFromDb(state, portId, message.dbName);
-    post(state, portId, { id: message.id, ok: true, result: null });
+    handleDisconnect(state, portId, message as RpcRequest<'disconnect'>);
     return;
   }
   const ownerId = state.slots.get(message.dbName)?.ownerPortId ?? null;
-  if (ownerId !== null && ownerId !== portId) {
-    state.pendingRoutes.set(message.id, {
+  if (ownerId !== null) {
+    // Request counters belong to a tab, not to this shared broker.
+    const forwardedId = JSON.stringify([portId, message.id]);
+    state.pendingRoutes.set(forwardedId, {
       fromPortId: portId,
       ownerPortId: ownerId,
+      requestId: message.id,
     });
+    routeToOwner(state, portId, { ...message, id: forwardedId });
+    return;
   }
   routeToOwner(state, portId, message);
 }
@@ -441,7 +465,7 @@ function rejectPendingRoutes(
     state.pendingRoutes.delete(id);
     if (ownerDead && !fromDead) {
       post(state, route.fromPortId, {
-        id,
+        id: route.requestId,
         ok: false,
         error,
       });

@@ -45,6 +45,8 @@ export type WebSqlTransport = {
 };
 
 class SharedWorkerTransport implements WebSqlTransport {
+  private generation = 0;
+  private pageReleased = false;
   private readonly dbName: string;
   private readonly timers: Timers;
   private readonly workerUrl: string;
@@ -82,25 +84,28 @@ class SharedWorkerTransport implements WebSqlTransport {
   }
 
   private async takeOwnership(): Promise<void> {
-    if (this.ownerRuntime !== null) {
-      this.role = 'owner';
-      // Prior attempt may have left a closed/failed runtime — ensure open.
-      await this.ownerRuntime.open();
-      return;
-    }
-    this.ownerRuntime = this.createOwnerRuntimeFn({
+    const generation = this.generation;
+    this.ownerRuntime ??= this.createOwnerRuntimeFn({
       dbName: this.dbName,
       timers: this.timers,
     });
+    const runtime = this.ownerRuntime;
+    // The broker already routes requests here. The runtime waits for open;
+    // keeping the old proxy role would silently discard those requests.
+    this.role = 'owner';
     try {
-      await this.ownerRuntime.open();
-      this.unsubOwnerChanged = this.ownerRuntime.onChanged((notify) => {
+      this.unsubOwnerChanged?.();
+      this.unsubOwnerChanged = runtime.onChanged((notify) => {
         this.post(notify);
         for (const listener of this.changeListeners) listener(notify);
       });
-      this.role = 'owner';
+      await runtime.open();
+      if (generation !== this.generation) {
+        runtime.release();
+        throw new Error('SQLite page released');
+      }
     } catch (error: unknown) {
-      await this.dropOwnership();
+      if (generation === this.generation) await this.dropOwnership();
       throw error;
     }
   }
@@ -171,7 +176,9 @@ class SharedWorkerTransport implements WebSqlTransport {
   }
 
   async connect(): Promise<ConnectResult> {
+    if (this.pageReleased) throw new Error('SQLite page released');
     if (this.connected && this.role !== null) return { role: this.role };
+    const generation = this.generation;
     this.worker = new SharedWorker(this.workerUrl, {
       name: sqlDbHostSharedWorkerName(this.protocolVersion),
       type: 'module',
@@ -181,7 +188,7 @@ class SharedWorkerTransport implements WebSqlTransport {
     };
     this.port = this.worker.port;
     this.port.onmessage = (event: MessageEvent<BrokerToTabMessage>) => {
-      void this.onMessage(event.data);
+      if (generation === this.generation) void this.onMessage(event.data);
     };
     this.port.start();
     const id = this.nextId();
@@ -195,8 +202,10 @@ class SharedWorkerTransport implements WebSqlTransport {
         this.post({ id, dbName: this.dbName, op: 'connect', payload: {} });
       },
     })) as ConnectResult;
+    if (generation !== this.generation) throw new Error('SQLite page released');
     this.role = result.role;
     if (result.role === 'owner') await this.takeOwnership();
+    if (generation !== this.generation) throw new Error('SQLite page released');
     this.connected = true;
     const beat = () => {
       const hid = this.nextId();
@@ -213,7 +222,10 @@ class SharedWorkerTransport implements WebSqlTransport {
   }
 
   async disconnect(): Promise<void> {
-    if (!this.connected) return;
+    if (!this.connected) {
+      this.cancelConnection();
+      return;
+    }
     this.connected = false;
     if (this.heartbeatTimer !== null) {
       this.timers.clearTimeout(this.heartbeatTimer);
@@ -252,6 +264,18 @@ class SharedWorkerTransport implements WebSqlTransport {
   }
 
   leaveOnUnload(): void {
+    this.pageReleased = true;
+    this.cancelConnection();
+  }
+
+  private cancelConnection(): void {
+    this.generation += 1;
+    this.connected = false;
+    this.rejectAllPending(new Error('SQLite page released'));
+    if (this.heartbeatTimer !== null) {
+      this.timers.clearTimeout(this.heartbeatTimer);
+      this.heartbeatTimer = null;
+    }
     // Ownership starts before open() settles. Navigation during that open
     // must release the worker and broker slot as well.
     if (this.port === null) return;
@@ -273,6 +297,7 @@ class SharedWorkerTransport implements WebSqlTransport {
     payload: RpcRequest<O>['payload'],
     opts?: { timeoutMs?: number }
   ): Promise<unknown> {
+    if (this.pageReleased) throw new Error('SQLite page released');
     if (this.role === 'owner' && this.ownerRuntime !== null) {
       const response = await this.ownerRuntime.handleRequest({
         id: this.nextId(),

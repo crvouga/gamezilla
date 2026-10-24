@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { isSyntheticMonitor } from '@pkgs/auth-inhouse-server-ts/synthetic-monitor';
-import { requestSyntheticMonitorRedirect } from '@pkgs/auth-inhouse-shared-ts/synthetic-monitor';
+import { requestSyntheticMonitorSignIn } from '@pkgs/auth-inhouse-shared-ts/synthetic-monitor';
 import {
   API,
   boot,
@@ -16,7 +16,7 @@ test('consecutive multiplayer journeys get disjoint pairs of monitoring accounts
   const booted = await boot(TOKEN);
   const ids = new Set<string>();
   for (const peer of [false, true, false, true]) {
-    const redirect = await requestSyntheticMonitorRedirect({
+    const signIn = await requestSyntheticMonitorSignIn({
       http: booted.http,
       apiOrigin: API,
       apiPathPrefix: PREFIX,
@@ -24,7 +24,7 @@ test('consecutive multiplayer journeys get disjoint pairs of monitoring accounts
       callbackUrl: CALLBACK,
       peer,
     });
-    const response = await exchange(booted, redirect);
+    const response = await exchange(booted, signIn.redirectUrl);
     expect(response.status).toBe(200);
     const body = (await response.json()) as { user: { id: string } };
     expect(isSyntheticMonitor(body.user.id)).toBe(true);

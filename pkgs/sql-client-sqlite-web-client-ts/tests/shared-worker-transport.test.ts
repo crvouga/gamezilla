@@ -4,7 +4,10 @@ import type { OwnerRuntime } from '@pkgs/sql-client-sqlite-web-client-ts/owner-r
 import { createSharedWorkerTransport } from '@pkgs/sql-client-sqlite-web-client-ts/shared-worker-transport';
 import { releaseOnPageHide } from '@pkgs/sql-client-sqlite-web-client-ts/web-sql-client';
 import { createBrokerCore } from '@pkgs/sql-client-sqlite-web-shared-ts/broker-core';
-import type { ConnectResult } from '@pkgs/sql-client-sqlite-web-shared-ts/rpc';
+import type {
+  ConnectResult,
+  DbChangedNotify,
+} from '@pkgs/sql-client-sqlite-web-shared-ts/rpc';
 
 /** Timers that never fire: heartbeats and RPC timeouts stay parked. */
 const parkedTimers: Timers = {
@@ -117,6 +120,146 @@ describe('shared-worker transport across page loads', () => {
     delete (globalThis as { SharedWorker?: unknown }).SharedWorker;
   });
 
+  // regression: sqlite-released-page-starts-new-owner
+  test('a released page cannot reconnect or issue another database request', async () => {
+    installSharedWorker();
+    let created = 0;
+    const page = createSharedWorkerTransport({
+      dbName: 'app',
+      timers: parkedTimers,
+      workerUrl: '/db-host-shared-worker.js',
+      createOwnerRuntimeFn: ({ dbName }) => {
+        created++;
+        return stubOwnerRuntime(dbName, () => undefined);
+      },
+    });
+    await page.connect();
+    page.leaveOnUnload();
+    await expect(page.connect()).rejects.toThrow('SQLite page released');
+    await expect(
+      page.request('query', { sql: 'SELECT 1', values: [] })
+    ).rejects.toThrow('SQLite page released');
+    expect(created).toBe(1);
+  });
+
+  test('an ordinary disconnect still permits an explicit reconnect', async () => {
+    installSharedWorker();
+    const page = createSharedWorkerTransport({
+      dbName: 'app',
+      timers: parkedTimers,
+      workerUrl: '/db-host-shared-worker.js',
+      createOwnerRuntimeFn: ({ dbName }) =>
+        stubOwnerRuntime(dbName, () => undefined),
+    });
+    await page.connect();
+    await page.disconnect();
+    expect((await page.connect()).role).toBe('owner');
+    page.leaveOnUnload();
+  });
+
+  // regression: sqlite-proxy-request-arrives-after-promotion
+  test('a request sent as a proxy completes after that page becomes the owner', async () => {
+    installSharedWorker();
+    const page = () =>
+      createSharedWorkerTransport({
+        dbName: 'app',
+        timers: parkedTimers,
+        workerUrl: '/db-host-shared-worker.js',
+        createOwnerRuntimeFn: ({ dbName }) => ({
+          ...stubOwnerRuntime(dbName, () => undefined),
+          handleRequest: async (request) => ({
+            id: request.id,
+            ok: true,
+            result: [{ kept: 1 }],
+          }),
+        }),
+      });
+    const first = page();
+    const next = page();
+    try {
+      expect((await first.connect()).role).toBe('owner');
+      expect((await next.connect()).role).toBe('proxy');
+      // Disconnect and the queued query reach the broker before its promotion
+      // message reaches the new owner page.
+      first.leaveOnUnload();
+      expect(
+        await next.request('query', { sql: 'SELECT 1 AS kept', values: [] })
+      ).toEqual([{ kept: 1 }]);
+    } finally {
+      next.leaveOnUnload();
+      first.leaveOnUnload();
+    }
+  });
+
+  // regression: sqlite-promoted-owner-drops-requests-during-open
+  test('requests during owner promotion wait for the opening database', async () => {
+    installSharedWorker();
+    const opening = Promise.withResolvers<void>();
+    const entered = Promise.withResolvers<void>();
+    const page = (promoted = false) =>
+      createSharedWorkerTransport({
+        dbName: 'app',
+        timers: parkedTimers,
+        workerUrl: '/db-host-shared-worker.js',
+        createOwnerRuntimeFn: ({ dbName }) => {
+          let changed: (notify: DbChangedNotify) => void = () => undefined;
+          return {
+            ...stubOwnerRuntime(dbName, () => undefined),
+            open: async () => {
+              if (!promoted) return;
+              entered.resolve();
+              await opening.promise;
+            },
+            handleRequest: async (request) => {
+              if (promoted) await opening.promise;
+              changed({ type: 'db-changed', dbName });
+              return { id: request.id, ok: true, result: [{ kept: 1 }] };
+            },
+            onChanged: (listener) => {
+              changed = listener;
+              return () => undefined;
+            },
+          };
+        },
+      });
+    const first = page();
+    const next = page(true);
+    const reader = page();
+    const errors: unknown[] = [];
+    const notifications: string[] = [];
+    reader.onChanged((notify) => notifications.push(notify.dbName));
+    let result: unknown = 'unanswered';
+    try {
+      expect((await first.connect()).role).toBe('owner');
+      expect((await next.connect()).role).toBe('proxy');
+      expect((await reader.connect()).role).toBe('proxy');
+      first.leaveOnUnload();
+      await entered.promise;
+      void reader
+        .request('query', { sql: 'SELECT 1 AS kept', values: [] })
+        .then(
+          (value) => {
+            result = value;
+          },
+          (error) => {
+            errors.push(error);
+          }
+        );
+      for (let turn = 0; turn < 50; turn++) await Promise.resolve();
+      expect(result).toBe('unanswered');
+      opening.resolve();
+      for (let turn = 0; turn < 50; turn++) await Promise.resolve();
+      expect(errors).toEqual([]);
+      expect(result).toEqual([{ kept: 1 }]);
+      expect(notifications).toEqual(['app']);
+    } finally {
+      opening.resolve();
+      reader.leaveOnUnload();
+      next.leaveOnUnload();
+      first.leaveOnUnload();
+    }
+  });
+
   test('leaving while the database opens releases the pending owner', async () => {
     // regression: sqlite-web-navigation-during-open
     installSharedWorker();
@@ -141,6 +284,27 @@ describe('shared-worker transport across page loads', () => {
     await entered.promise;
     first.leaveOnUnload();
     expect(released).toBe(true);
+    expect((await openPage().connect()).role).toBe('owner');
+  });
+
+  // regression: sqlite-broker-connect-outlives-disconnect
+  test('a broker response arriving after unload cannot start an owner', async () => {
+    installSharedWorker();
+    let created = 0;
+    const first = createSharedWorkerTransport({
+      dbName: 'app',
+      timers: parkedTimers,
+      workerUrl: '/db-host-shared-worker.js',
+      createOwnerRuntimeFn: ({ dbName }) => {
+        created += 1;
+        return stubOwnerRuntime(dbName, () => undefined);
+      },
+    });
+    const opening = first.connect().catch(() => undefined);
+    first.leaveOnUnload();
+    await opening;
+    expect(created).toBe(0);
+    expect(first.isOwner()).toBe(false);
     expect((await openPage().connect()).role).toBe('owner');
   });
 

@@ -1659,7 +1659,6 @@
         "@libs/sub-client-ts": "workspace:*",
         "@libs/test-ids-shared-ts": "workspace:*",
         "@lingui/solid": "catalog:",
-        "@pkgs/turn-game-client-ts": "workspace:*",
         "@pkgs/turn-game-shared-ts": "workspace:*",
         "@pkgs/ui-root-client-ts": "workspace:*",
         "solid-js": "catalog:",
@@ -1686,6 +1685,7 @@
         "@libs/test-ids-shared-ts": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
+        "@pkgs/async-root-client-ts": "workspace:*",
         "@pkgs/clock-client-ts": "workspace:*",
         "@pkgs/collab-root-shared-ts": "workspace:*",
         "@pkgs/device-client-ts": "workspace:*",
@@ -1720,6 +1720,54 @@
         "typescript": "catalog:",
       },
     },
+    "libs/game-puzzle-harness-ts": {
+      "name": "@libs/game-puzzle-harness-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/auth-client-ts": "workspace:*",
+        "@libs/auth-shared-ts": "workspace:*",
+        "@libs/billing-shared-ts": "workspace:*",
+        "@libs/game-puzzle-client-ts": "workspace:*",
+        "@libs/game-puzzle-shared-ts": "workspace:*",
+        "@libs/permissions-client-ts": "workspace:*",
+        "@libs/permissions-harness-ts": "workspace:*",
+        "@libs/permissions-shared-ts": "workspace:*",
+        "@libs/spaces-client-ts": "workspace:*",
+        "@libs/test-ids-shared-ts": "workspace:*",
+        "@pkgs/auth-root-shared-ts": "workspace:*",
+        "@pkgs/clock-client-ts": "workspace:*",
+        "@pkgs/db-schema-root-shared-ts": "workspace:*",
+        "@pkgs/dmn-shared-ts": "workspace:*",
+        "@pkgs/gherkin-shared-ts": "workspace:*",
+        "@pkgs/harness-root-shared-ts": "workspace:*",
+        "@pkgs/logger-client-ts": "workspace:*",
+        "@pkgs/logger-shared-ts": "workspace:*",
+        "@pkgs/permissions-shared-ts": "workspace:*",
+        "@pkgs/quint-shared-ts": "workspace:*",
+        "@pkgs/secure-storage-root-client-ts": "workspace:*",
+        "@pkgs/secure-storage-root-shared-ts": "workspace:*",
+        "@pkgs/sql-client-root-shared-ts": "workspace:*",
+        "@pkgs/sql-root-shared-ts": "workspace:*",
+        "@pkgs/sync-engine-client-ts": "workspace:*",
+        "@pkgs/sync-engine-harness-ts": "workspace:*",
+        "@pkgs/sync-engine-shared-ts": "workspace:*",
+        "@pkgs/turn-game-shared-ts": "workspace:*",
+        "@pkgs/ui-root-client-ts": "workspace:*",
+        "@pkgs/ui-testing-root-shared-ts": "workspace:*",
+        "@pkgs/uuid-client-ts": "workspace:*",
+        "@solidjs/router": "catalog:",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/bun-test-solid-client-ts": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "libs/game-puzzle-shared-ts": {
       "name": "@libs/game-puzzle-shared-ts",
       "version": "0.0.0",
@@ -1751,7 +1799,9 @@
         "@pkgs/db-schema-root-shared-ts": "workspace:*",
         "@pkgs/db-schema-sqlite-shared-ts": "workspace:*",
         "@pkgs/property-shared-ts": "workspace:*",
+        "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",
         "@pkgs/sql-client-sqlite-root-shared-ts": "workspace:*",
+        "@pkgs/sync-engine-server-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
@@ -1909,6 +1959,7 @@
         "@libs/connect-four-client-ts": "workspace:*",
         "@libs/game-menu-client-ts": "workspace:*",
         "@libs/games-shared-ts": "workspace:*",
+        "@libs/numberlink-client-ts": "workspace:*",
         "@libs/spaces-shared-ts": "workspace:*",
       },
       "devDependencies": {
@@ -2002,6 +2053,7 @@
         "@libs/chess-sub-shared-ts": "workspace:*",
         "@libs/connect-four-shared-ts": "workspace:*",
         "@libs/game-session-shared-ts": "workspace:*",
+        "@libs/numberlink-shared-ts": "workspace:*",
         "@libs/spaces-shared-ts": "workspace:*",
       },
       "devDependencies": {
@@ -2267,6 +2319,67 @@
       },
       "devDependencies": {
         "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/numberlink-client-ts": {
+      "name": "@libs/numberlink-client-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/game-menu-client-ts": "workspace:*",
+        "@libs/game-puzzle-client-ts": "workspace:*",
+        "@libs/numberlink-shared-ts": "workspace:*",
+        "@lingui/core": "catalog:",
+        "@lingui/solid": "catalog:",
+        "@pkgs/ui-root-client-ts": "workspace:*",
+        "@pkgs/uuid-client-ts": "workspace:*",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/numberlink-harness-ts": {
+      "name": "@libs/numberlink-harness-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/game-puzzle-harness-ts": "workspace:*",
+        "@libs/numberlink-shared-ts": "workspace:*",
+        "@pkgs/gherkin-shared-ts": "workspace:*",
+        "@pkgs/harness-root-shared-ts": "workspace:*",
+      },
+      "devDependencies": {
+        "@libs/numberlink-client-ts": "workspace:*",
+        "@pkgs/bun-test-solid-client-ts": "workspace:*",
+        "@pkgs/clock-client-ts": "workspace:*",
+        "@pkgs/clock-shared-ts": "workspace:*",
+        "@pkgs/ui-root-client-ts": "workspace:*",
+        "@pkgs/uuid-client-ts": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "solid-js": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/numberlink-shared-ts": {
+      "name": "@libs/numberlink-shared-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/game-session-shared-ts": "workspace:*",
+        "@pkgs/turn-game-shared-ts": "workspace:*",
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/property-shared-ts": "workspace:*",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -2621,9 +2734,11 @@
         "@libs/connect-four-harness-ts": "workspace:*",
         "@libs/friends-harness-ts": "workspace:*",
         "@libs/game-catalog-shared-ts": "workspace:*",
+        "@libs/game-puzzle-harness-ts": "workspace:*",
         "@libs/game-session-harness-ts": "workspace:*",
         "@libs/games-shared-ts": "workspace:*",
         "@libs/harness-ts": "workspace:*",
+        "@libs/numberlink-harness-ts": "workspace:*",
         "@libs/profile-harness-ts": "workspace:*",
         "@libs/runtime-client-ts": "workspace:*",
         "@libs/runtime-server-ts": "workspace:*",
@@ -2666,6 +2781,7 @@
         "@libs/game-catalog-shared-ts": "workspace:*",
         "@libs/game-puzzle-shared-ts": "workspace:*",
         "@libs/game-session-server-ts": "workspace:*",
+        "@libs/games-shared-ts": "workspace:*",
         "@libs/infra-shared-ts": "workspace:*",
         "@libs/notifications-server-ts": "workspace:*",
         "@libs/runtime-shared-ts": "workspace:*",
@@ -2721,6 +2837,7 @@
         "@libs/game-matchmaking-shared-ts": "workspace:*",
         "@libs/game-puzzle-shared-ts": "workspace:*",
         "@libs/game-session-shared-ts": "workspace:*",
+        "@libs/games-shared-ts": "workspace:*",
         "@libs/notifications-shared-ts": "workspace:*",
         "@libs/permissions-shared-ts": "workspace:*",
         "@libs/profile-shared-ts": "workspace:*",
@@ -6782,7 +6899,7 @@
     "micromatch": "file:./pkgs/glob-match-shared-ts",
     "minimatch": "10.2.5",
     "nanoid": "3.3.18",
-    "serialize-javascript": "7.1.3",
+    "serialize-javascript": "7.1.4",
     "seroval": "1.6.8",
     "sharp": "^0.35.4",
     "shell-quote": "^1.10.0",
@@ -6844,7 +6961,7 @@
     "@opentelemetry/semantic-conventions": "^1.43.0",
     "@solidjs/router": "^1.0.0",
     "@solidjs/testing-library": "^0.8.10",
-    "@sqlite.org/sqlite-wasm": "3.53.0-build1",
+    "@sqlite.org/sqlite-wasm": "3.54.1-build1",
     "@standard-schema/spec": "^1.1.0",
     "@tailwindcss/cli": "^4.3.3",
     "@tailwindcss/vite": "^4.3.3",
@@ -7608,6 +7725,8 @@
 
     "@libs/game-puzzle-client-ts": ["@libs/game-puzzle-client-ts@workspace:libs/game-puzzle-client-ts"],
 
+    "@libs/game-puzzle-harness-ts": ["@libs/game-puzzle-harness-ts@workspace:libs/game-puzzle-harness-ts"],
+
     "@libs/game-puzzle-shared-ts": ["@libs/game-puzzle-shared-ts@workspace:libs/game-puzzle-shared-ts"],
 
     "@libs/game-session-client-ts": ["@libs/game-session-client-ts@workspace:libs/game-session-client-ts"],
@@ -7641,6 +7760,12 @@
     "@libs/notifications-server-ts": ["@libs/notifications-server-ts@workspace:libs/notifications-server-ts"],
 
     "@libs/notifications-shared-ts": ["@libs/notifications-shared-ts@workspace:libs/notifications-shared-ts"],
+
+    "@libs/numberlink-client-ts": ["@libs/numberlink-client-ts@workspace:libs/numberlink-client-ts"],
+
+    "@libs/numberlink-harness-ts": ["@libs/numberlink-harness-ts@workspace:libs/numberlink-harness-ts"],
+
+    "@libs/numberlink-shared-ts": ["@libs/numberlink-shared-ts@workspace:libs/numberlink-shared-ts"],
 
     "@libs/observability-server-ts": ["@libs/observability-server-ts@workspace:libs/observability-server-ts"],
 
@@ -8598,7 +8723,7 @@
 
     "@speed-highlight/core": ["@speed-highlight/core@1.2.24", "", {}, "sha512-qeW2e1l78afw8VhRPfPQ1Gjj+KU5XFQ/OFV5ti6eTa9bruO7mJyZtA4vw0ofqmA3tKCkROE9xLk3VZoeRc98nw=="],
 
-    "@sqlite.org/sqlite-wasm": ["@sqlite.org/sqlite-wasm@3.53.0-build1", "", {}, "sha512-PfWPWN2n+/37doa8oh2/oUXk4OOsRYZsxc1W1sDXIGb/Pu5Yrb+f2eyYpgQMGITVX7HVgxhs9P18Rc6I97ym/g=="],
+    "@sqlite.org/sqlite-wasm": ["@sqlite.org/sqlite-wasm@3.54.1-build1", "", {}, "sha512-foW427VBLJ3G87bsnvQTZCc9zYe0Fq1wH0pz1I6BlKLKXcArIAyTkHtq0iT2llmhcMQt9T/p6l5PpQQh+6O8uQ=="],
 
     "@standard-schema/spec": ["@standard-schema/spec@1.1.0", "", {}, "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w=="],
 
@@ -9760,7 +9885,7 @@
 
     "serialize-error": ["serialize-error@8.1.0", "", { "dependencies": { "type-fest": "^0.20.2" } }, "sha512-3NnuWfM6vBYoy5gZFvHiYsVbafvI9vZv/+jlIigFn4oP4zjNPK3LhcY0xSCgeb1a5L8jO71Mit9LlNoi2UfDDQ=="],
 
-    "serialize-javascript": ["serialize-javascript@7.1.3", "", {}, "sha512-kYEnegpAxWFjUw3dSYdSM9zVlTrsxDbsSkq/qd3B7VanqyJ+JdDy6qVyuqVGBhSfuD/rLZQEKuXsO5KZFCrVYQ=="],
+    "serialize-javascript": ["serialize-javascript@7.1.4", "", {}, "sha512-FqlEuoTq/zRmA4Lg6aOqyH3lCHbUtCB0bmHCeFniX2GBdDqMJM3FwdvEhlE5Pim1dlt2FfBdVPmUNNiGhhKqpw=="],
 
     "seroval": ["seroval@1.6.8", "", {}, "sha512-HlSgSAkTk4EqHcje1ptJjfZi1YDv5KbhVJ/d3P7T/nAXua2VmDu+AKDX5VTdFfZf48nDkWB2TKYt0DrCSa+3wg=="],
 

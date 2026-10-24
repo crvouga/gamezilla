@@ -65,16 +65,23 @@ export function extractSteps(source: string, file: string): Extraction {
   return { steps, problems };
 }
 
-/** Bare specifiers of other packages' step modules a steps entry imports. */
+function isStepImport(specifier: string): boolean {
+  return (
+    specifier.startsWith('@') ||
+    (specifier.startsWith('.') && specifier.endsWith('.steps'))
+  );
+}
+
+/** Package and relative step-module specifiers a registration module imports. */
 export function extractStepImports(source: string): readonly string[] {
   const out: string[] = [];
   for (const match of source.matchAll(/from\s+['"]([^'"]+)['"]/g)) {
     const specifier = match[1] ?? '';
-    if (specifier.startsWith('@')) out.push(specifier);
+    if (isStepImport(specifier)) out.push(specifier);
   }
   for (const match of source.matchAll(/^\s*import\s+['"]([^'"]+)['"]/gm)) {
     const specifier = match[1] ?? '';
-    if (specifier.startsWith('@')) out.push(specifier);
+    if (isStepImport(specifier)) out.push(specifier);
   }
   return out;
 }

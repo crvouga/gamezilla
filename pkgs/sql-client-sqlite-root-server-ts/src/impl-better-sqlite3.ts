@@ -25,10 +25,22 @@ function toBetterSqliteBinds(values: readonly Value[]): unknown[] {
   });
 }
 
-import { createTransactionChain } from '@pkgs/sql-client-sqlite-root-shared-ts/transaction-chain';
+import { createSerializedSqliteClient } from '@pkgs/sql-client-sqlite-root-shared-ts/serialized-sqlite-client';
 
 export class SqlClientImplBetterSqlite implements SqlClient {
-  private readonly enqueueTxn = createTransactionChain();
+  private readonly connection: SqlClient = {
+    connect: () => this.connect(),
+    disconnect: () => this.disconnect(),
+    query: (query) => this.queryInConnection(query),
+    run: (query) => this.runInConnection(query),
+    prepare: (query) => this.prepareInConnection(query),
+    transaction: (fn) => this.execTransaction(fn),
+  };
+  private readonly serialized = createSerializedSqliteClient(this.connection);
+  query = this.serialized.query;
+  run = this.serialized.run;
+  prepare = this.serialized.prepare;
+  transaction = this.serialized.transaction;
 
   constructor(private db: BetterSqlite3.Database) {}
 
@@ -75,14 +87,16 @@ export class SqlClientImplBetterSqlite implements SqlClient {
     }
   }
 
-  query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {
+  private queryInConnection<T extends Record<string, unknown>>(
+    query: Sql<T>
+  ): Promise<T[]> {
     const rows = this.db
       .prepare(query.sql)
       .all(...toBetterSqliteBinds(query.values)) as T[];
     return Promise.resolve(rows);
   }
 
-  run(query: Sql<unknown>): Promise<RunResult> {
+  private runInConnection(query: Sql<unknown>): Promise<RunResult> {
     const result = this.db
       .prepare(query.sql)
       .run(...toBetterSqliteBinds(query.values));
@@ -92,7 +106,7 @@ export class SqlClientImplBetterSqlite implements SqlClient {
     });
   }
 
-  prepare<T extends Record<string, unknown>>(
+  private prepareInConnection<T extends Record<string, unknown>>(
     query: Sql<T>
   ): PreparedStatement<T> {
     const stmt = this.db.prepare(query.sql);
@@ -112,16 +126,12 @@ export class SqlClientImplBetterSqlite implements SqlClient {
     };
   }
 
-  transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
-    return this.enqueueTxn(() => this.execTransaction(fn));
-  }
-
   private async execTransaction<T>(
     fn: (tx: SqlClient) => Promise<T>
   ): Promise<T> {
     this.db.exec('BEGIN');
     try {
-      const result = await fn(this);
+      const result = await fn(this.connection);
       this.db.exec('COMMIT');
       return result;
     } catch (e) {

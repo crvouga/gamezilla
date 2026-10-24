@@ -1,0 +1,4 @@
+{
+  "summary": "A publication refused after reconnection lost its validation issue details before reaching the device, preventing specific recovery guidance in the editor.",
+  "regressionTest": "libs/app-root-client-ts/tests/refused-change-notice.test.tsx"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "A retired harness HTTP client still accepted new requests. A request beginning between the initial abort and engine draining could leave reopening waiting on a virtual scheduler that was not running. Disposal now fences new requests before draining the engine.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/retired-http-client.test.ts"
+}

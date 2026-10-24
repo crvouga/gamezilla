@@ -1,0 +1,4 @@
+{
+  "summary": "Solid DOM taps re-resolved the clicked element globally after layout, discarding Driver.get(parent).get(child) scope. Repeated child identifiers therefore clicked the first sibling's control. Preserve the ancestor identifier path when resolving the target after layout.",
+  "regressionTest": "pkgs/ui-testing-solid-dom-client-ts/tests/solid-dom-driver.test.tsx"
+}

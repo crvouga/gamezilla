@@ -1,0 +1,4 @@
+{
+  "summary": "Releasing a page's SQLite owner did not cancel a pending locked-open retry. Its later retry could create another worker after the page relinquished ownership, retaining the OPFS handles needed by the next page.",
+  "regressionTest": "pkgs/sql-client-sqlite-web-client-ts/tests/owner-open-unload.test.ts"
+}

@@ -1,6 +1,6 @@
 # Gamezilla
 
-Local-first multiplayer game platform. A person opens the app on a phone, tablet, or computer, gets a profile immediately, hosts a live space, and solves chess puzzles there with friends watching. The app works with no connection. What needs other people waits, then catches up on its own.
+Local-first game platform. A person opens the app on a phone, tablet, or computer, gets a profile immediately, hosts a live space, and solves chess puzzles there with friends watching. The app works with no connection. What needs other people waits, then catches up on its own.
 
 This file is the one briefing a fresh session should load: product, stack, and how the repo is worked. Executable product truth lives in [`specs/`](specs/). How to write a spec lives in [`specs/README.md`](specs/README.md). The injected agent contract is [`AGENTS.md`](AGENTS.md); it points here and does not restate this file. When this file and a spec disagree, the spec wins. Change product behavior by changing `specs/` first, in a `spec:` commit, then the code.
 
@@ -28,7 +28,8 @@ Scenarios name people (Alice, Bob) or a role (a guest, a member). The shared ker
 | username | `@name`, unique ignoring case, stored lowercase. |
 | free account, Plus, Plus member, paid access, free access | billing. Plus is what a signed-in person pays for. |
 | space, host, join, leave, end a space, open space, lobby, space link | a live place. The host created it. The host leaving ends it. Disconnecting is not leaving. |
-| puzzle, puzzle feed, puzzle rating, solve | chess, played inside a space. |
+| puzzle, draft, edition, pack, attempt, progression | shared content; vocabulary and behavior in [`specs/puzzles/`](specs/puzzles/). |
+| puzzle feed, puzzle rating | the rated line-based feed; distinct from author-created puzzle content. |
 | friend, friend request, block, people search, inbox, notice | social. Friends require an account and a connection. |
 | note | the sync-engine's worked example of a shared row. People do not have a notes product. |
 
@@ -61,6 +62,8 @@ Bounded contexts in `specs/`. Each folder is one context. The file extension say
 | Games | `@libs/game-menu`, `@libs/game-session`, `@libs/game-matchmaking`, registries `@libs/games` (`specs/games/`) | What every game offers alike: the game's choices, custom games with people and bots, turns, finding an opponent, matched games (aborts, draws, rematches, results), history and review, shown to the whole space. Each scenario runs once per registered game offering it. Framework: [`GAME_FRAMEWORK.md`](libs/games-shared-ts/docs/GAME_FRAMEWORK.md); adding a game: [`ADDING_A_GAME.md`](libs/games-shared-ts/docs/ADDING_A_GAME.md). |
 | Connect Four | `@libs/connect-four` (`specs/connect-four/`) | Seven columns, gravity, four in a row, the full-board draw, Hard bots. Everything else is the shared game platform's. |
 | Chess | `@libs/chess`, board in `@pkgs/chess-board` | A registered game (`GAME_DEFINITIONS` in `libs/games-shared-ts/src/game-plugins.ts`) with puzzles beside the shared game choices. An endless puzzle feed inside the host's space. Friends watch the same line. Rating, accuracy, and a game log stay honest online and offline. Hint, retry, skip, solution, clock. Feed settings (themes, rating window) require an account and sync across devices. Guest progress carries into the account on sign-in. The pool rejects puzzles that cannot be solved. |
+| Puzzles | `@libs/game-puzzle` (`specs/puzzles/`) | Shared content storage, mutation replay, scoped queries, authoring and player screens. Integration: [`ADDING_A_PUZZLE_GAME.md`](libs/games-shared-ts/docs/ADDING_A_PUZZLE_GAME.md). |
+| Numberlink | `@libs/numberlink` (`specs/numberlink/`) | Registered puzzle-content rules, renderer and visual editor using the shared Puzzles lifecycle. App flows: [`numberlink-packs.feature`](specs/journeys/numberlink-packs.feature). |
 | Friends | `@libs/friends`, search UI `@libs/search`, inbox `@libs/notifications` | Ask, accept, decline, cancel, remove, block, unblock. People search. Profile changes reach other people. An open space a friend is in shows up. Needs an account and a connection. |
 | Billing | `@libs/billing`, providers `@pkgs/billing-stripe` and `@pkgs/billing-paddle` via `@pkgs/billing-providers-server-ts` | See the plans, subscribe, trial, renew, switch monthly/yearly, switch provider, portal, cancel, resubscribe, failed card, expired card, refund, Plus credit when switching plans. Membership is managed by the person. |
 | Sync | `@pkgs/sync-engine` (`specs/sync-engine/`) | Shared rows (spec'd as notes) show at once, survive crash, offline, and app update, and count once. Leave a shared place and rejoin to catch up. Some actions are online-only and do not fire later. Server arrival order wins. |
@@ -102,7 +105,7 @@ Opening, Google sign-in with a way back, sign out, host then end a space, a puzz
 
 Two data planes.
 
-**Sync** is the system of record for durable rows (profile, friends, billing facts, puzzle history, space membership). The device reads and writes local SQLite. A write is a mutation: applied locally in the same transaction, queued, uploaded. The server replays it in one Postgres transaction as the signed-in person and pushes the change to subscribed devices. Conflicts resolve in server arrival order (last write wins). Domain rows are removed by setting `deleted_at`. UI reads filter `deleted_at IS NULL`. Merge upserts snapshot rows and rebases pending mutations on top. Wire protocol is v3 (`x-sync-protocol: 3`); an older client gets `upgrade_required` and its local database is kept. Hydration is `POST /api/query` on connect plus pubsub pushes. Mutations drain through `POST /api/mutations`. MQTT (AWS IoT Core in production) is an invalidation signal. A missed message is recovered by refetching from Postgres.
+**Sync** is the system of record for durable rows (profile, friends, billing facts, puzzle history, space membership). The device reads and writes local SQLite. A write is a mutation: applied locally in the same transaction, queued, uploaded. The server replays it in one Postgres transaction as the signed-in person and pushes the change to subscribed devices. Mutation definitions decide conflicts: ordinary rows use server arrival order; puzzle drafts, pack order and attempt continuations use expected-head checks and retained copies ([implementation](libs/games-shared-ts/docs/ADDING_A_PUZZLE_GAME.md#reuse-the-shared-lifecycle)). Domain rows are removed by setting `deleted_at`. UI reads filter `deleted_at IS NULL`. Merge upserts snapshot rows and rebases pending mutations on top. Wire protocol is v3 (`x-sync-protocol: 3`); an older client gets `upgrade_required` and its local database is kept. Hydration is `POST /api/query` on connect plus pubsub pushes. Mutations drain through `POST /api/mutations`. MQTT (AWS IoT Core in production) is an invalidation signal. A missed message is recovered by refetching from Postgres.
 
 **Room** is the live session for one topic, usually `space:<id>`. `@pkgs/room` keeps one authoritative event log. The client runs the same `RoomModule` for instant feedback; the server validates and orders. Optimistic commands queue and flush. Durable Objects host rooms in production. Time-sensitive rules (clocks, deadlines) are schedules the server wakes. Room state is not the SQL sync log.
 
@@ -157,7 +160,7 @@ Bun workspaces: `apps/*`, `libs/*`, `pkgs/*`.
 | `@libs/infra` | OpenTofu. The only place infrastructure is declared. |
 | `@libs/harness-ts` | Product spec runner. |
 | `@libs/tools-harness-ts` | Lint, CI, git-sync, naming, spec verifications. |
-| `@libs/games` | The game registries (`GAME_DEFINITIONS`, `GAME_CLIENT_DEFINITIONS`, `HARNESS_GAMES`, and the derived `TURN_GAMES` / `GAME_AUTOMATIONS`): Chess and Connect Four. With the runtime, the only packages that compose games (`"gameRegistry": true`); `@libs/games-harness-ts` also holds the game × capability conformance matrix. |
+| `@libs/games` | The game registries (`GAME_DEFINITIONS`, `GAME_CLIENT_DEFINITIONS`, `HARNESS_GAMES`, and the derived `TURN_GAME_DEFINITIONS` / `TURN_GAMES` / `GAME_AUTOMATIONS`): Chess, Connect Four, Battleship and Numberlink. Turn-only registries and conformance enroll only games with a turn engine. With the runtime, the only packages that compose games (`"gameRegistry": true`); `@libs/games-harness-ts` also holds the game × capability conformance matrix. |
 | `@libs/observability` | Product telemetry wiring. |
 
 Packages split by vertical slice first, then by runtime. Both `libs/` and
@@ -597,6 +600,12 @@ Leave a check untagged until it can run on a dedicated synthetic identity, clean
 `specs/journeys/` runs in `bun verify` against the full composition and, on Health, in a real browser against the deployment, one fresh device per scenario. Signed-in journeys trade `SYNTHETIC_MONITOR_TOKEN` at `POST /api/auth/synthetic-monitor/code` for fresh dedicated accounts; ratings and unfinished games never carry into another scenario. A live failure saves a screenshot under `apps/product-ts/.cache/critical-journeys/<scenario>/`. Liveness is `GET /api/health`. Readiness is `GET /api/health/ready` (`503` when `SELECT 1` fails within 3 s). UI tests in Check use happy-dom. `HARNESS_MODE=real` and `stack` use the same `Driver` on `Bun.WebView`.
 
 While iterating, prefer `bunx turbo run tc test --filter=<pkg>` before a full verification; an unchanged package is a cache hit.
+
+A journey that opens another signed-in device keeps a server-issued monitoring
+continuation in its runner. It lasts ten minutes, is bound to the callback and
+the deployment's secrets, and grants another normal single-use sign-in code for
+that same monitoring account. It never reaches the browser. Omitting it starts
+a fresh account, so separate journeys still share no personal state.
 
 Live Health scenarios run serially: the primary Chrome storage is shared, so each scenario must finish its cleanup before the next opens a device. Other participants use isolated browser processes.
 

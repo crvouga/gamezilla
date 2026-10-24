@@ -1,0 +1,4 @@
+{
+  "summary": "Two SQLite proxy tabs can generate the same local RPC id. The broker keyed pending routes by that id alone, overwriting one route and losing or misdelivering a reply. Forwarding now scopes ids by source port and restores each caller's original id on success or owner loss.",
+  "regressionTest": "pkgs/sql-client-sqlite-web-shared-ts/tests/broker-repeated-request-id.test.ts"
+}

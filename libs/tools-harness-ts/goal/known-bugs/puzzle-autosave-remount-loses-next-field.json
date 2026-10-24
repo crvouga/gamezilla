@@ -1,0 +1,4 @@
+{
+  "summary": "The new document head could reach its SQL watch before the matching draft row. The builder briefly unmounted its workspace and lost the next metadata edit while autosave was pending.",
+  "regressionTest": "libs/game-puzzle-harness-ts/tests/draft-workspace-lifetime.test.ts"
+}

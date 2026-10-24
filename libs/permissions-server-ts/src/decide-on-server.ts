@@ -1,4 +1,4 @@
-import type { AccessScope } from '@libs/permissions-shared-ts/decide-for-actor';
+import type { AccessScope } from '@libs/permissions-shared-ts/access-scope';
 import { decideForActor } from '@libs/permissions-shared-ts/decide-for-actor';
 import type { AppGrantKey } from '@libs/permissions-shared-ts/permission-catalog';
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';

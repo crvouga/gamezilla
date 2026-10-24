@@ -1,0 +1,4 @@
+{
+  "summary": "Discovery, edition loading and pack pickers exposed the next private working draft identity and changed their public snapshot when its author privately edited a published puzzle. Public publication records now carry only public availability, independently of private documents.",
+  "regressionTest": "libs/game-puzzle-shared-ts/tests/content-public-projection.test.ts"
+}

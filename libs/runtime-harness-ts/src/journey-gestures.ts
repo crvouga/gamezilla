@@ -50,13 +50,28 @@ export async function expectVisible(ui: Driver, testId: string): Promise<void> {
 
 /**
  * The runner's sign-in took: the account screen offers "Sign out" (not
- * "Sign in"). Ends back on the tab shell, where every journey starts.
+ * "Sign in"). Close that screen without unwinding the caller's game.
  */
 export async function confirmSignedIn(ui: Driver): Promise<void> {
   await atTabShell(ui);
   await chooseGlobalMenuItem(ui, Handles.globalMenuAccount, JOURNEY_WAIT_MS);
   await expectVisible(ui, Handles.accountSignOut);
-  await pressBackUntilVisible(ui, Handles.tabProfile, JOURNEY_WAIT_MS);
+  await closeAccount(ui);
+}
+
+async function closeAccount(ui: Driver): Promise<void> {
+  const account = ui.get(Handles.accountSignOut);
+  for (let press = 0; press < 3; press++) {
+    if (!(await account.isVisible())) return;
+    await tap(ui, Handles.navBack);
+    try {
+      await account.expect.hidden({ timeoutMs: 2_000 });
+      return;
+    } catch {
+      // A back press delivered during a route transition may not leave it.
+    }
+  }
+  await account.expect.hidden({ timeoutMs: JOURNEY_WAIT_MS });
 }
 
 /** Open a bottom tab, backing out of a pushed screen first if needed. */

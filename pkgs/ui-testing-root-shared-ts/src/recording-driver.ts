@@ -32,10 +32,15 @@ export type RecordingDriverOptions = {
 
 type Ctx = RecordingDriverOptions & { readonly path: readonly string[] };
 
-function describeWait(state: WaitState | WaitTextCondition): string {
+function describeWait(
+  state: WaitState | WaitTextCondition,
+  options?: DriverWaitOptions
+): string {
   if (isWaitTextCondition(state)) {
     return `${state.exact === false ? 'contains' : 'text'} ${JSON.stringify(state.text)}`;
   }
+  if (state === 'visible' && options?.visibleOr !== undefined)
+    return `visible or ${JSON.stringify(options.visibleOr)}`;
   return state;
 }
 
@@ -177,7 +182,7 @@ function recordingNode(node: DriverNode, ctx: Ctx): DriverNode {
         node.scroll(direction, amount)
       ),
     wait: (state: WaitState | WaitTextCondition, options?: DriverWaitOptions) =>
-      stepExpect(ctx, check(`wait ${describeWait(state)}`), () =>
+      stepExpect(ctx, check(`wait ${describeWait(state, options)}`), () =>
         node.wait(state, options)
       ),
     expect: recordingExpect(node, ctx),

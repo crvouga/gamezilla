@@ -24,6 +24,7 @@ export type WriteRefusal = {
   readonly mutationName: string | null;
   readonly code: string;
   readonly message: string;
+  readonly meta: string | null;
 };
 
 type Watch = <T extends Record<string, unknown>>(
@@ -59,7 +60,7 @@ export function watchUnheardRefusals(
       : sql`(m.name IS NULL OR m.name NOT IN (${join(told.map((name) => sql`${name}`))}))`;
   return watch(sql<WriteRefusal>`
     SELECT r.mutation_id AS "mutationId", m.name AS "mutationName",
-      r.code AS code, r.message AS message
+      r.code AS code, r.message AS message, r.meta AS meta
     FROM sync_engine_write_rejections AS r
     LEFT JOIN sync_engine_mutations AS m
       ON m.id = r.mutation_id AND m.client_id = r.client_id

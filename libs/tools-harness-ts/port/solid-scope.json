@@ -1,6 +1,7 @@
 {
   "$comment": "Solid lint scope, read by oxlint.config.mts and lint-package.ts. dirs/files: full Solid oxlint (solid + a11y + type-aware). reactivityDirs: product libs get core reactivity rules. noDestructureDirs: spaces/chess get solid/no-destructure only (Accessor-passing ratchet is a follow-up).",
   "dirs": [
+    "libs/game-puzzle-harness-ts/src",
     "pkgs/chess-board-root-client-ts/src",
     "pkgs/chess-board-root-shared-ts/src",
     "pkgs/chess-board-root-harness-ts/src",
@@ -32,6 +33,7 @@
     "pkgs/feedback-server-ts/src",
     "libs/connect-four-client-ts/src",
     "libs/battleship-client-ts/src",
+    "libs/numberlink-client-ts/src",
     "libs/game-menu-client-ts/src"
   ],
   "files": [
@@ -188,7 +190,49 @@
     "pkgs/sync-engine-client-ts/src/sync-engine-context.tsx",
     "pkgs/sync-engine-client-ts/tests/solid-bindings.test.tsx",
     "pkgs/tts-root-client-ts/src/solid.tsx",
-    "pkgs/uuid-client-ts/src/solid.tsx"
+    "pkgs/uuid-client-ts/src/solid.tsx",
+    "libs/game-puzzle-client-ts/src/content-attempt-controls.tsx",
+    "libs/game-puzzle-client-ts/src/content-attempt-next.tsx",
+    "libs/game-puzzle-client-ts/src/content-attempt-notices.tsx",
+    "libs/game-puzzle-client-ts/src/content-attempt-restart.tsx",
+    "libs/game-puzzle-client-ts/src/content-attempt-screen.tsx",
+    "libs/game-puzzle-client-ts/src/content-author-screen.tsx",
+    "libs/game-puzzle-client-ts/src/content-author-stage.tsx",
+    "libs/game-puzzle-client-ts/src/content-author-status.tsx",
+    "libs/game-puzzle-client-ts/src/content-create-controls.tsx",
+    "libs/game-puzzle-client-ts/src/content-draft-metadata.tsx",
+    "libs/game-puzzle-client-ts/src/content-draft-playtest.tsx",
+    "libs/game-puzzle-client-ts/src/content-edition-screen.tsx",
+    "libs/game-puzzle-client-ts/src/content-experience.tsx",
+    "libs/game-puzzle-client-ts/src/content-game-context.ts",
+    "libs/game-puzzle-client-ts/src/content-kept-copies.tsx",
+    "libs/game-puzzle-client-ts/src/content-kept-positions.tsx",
+    "libs/game-puzzle-client-ts/src/content-library-context.ts",
+    "libs/game-puzzle-client-ts/src/content-library-screen.tsx",
+    "libs/game-puzzle-client-ts/src/content-pack-editor.tsx",
+    "libs/game-puzzle-client-ts/src/content-pack-item.tsx",
+    "libs/game-puzzle-client-ts/src/content-pack-items.tsx",
+    "libs/game-puzzle-client-ts/src/content-pack-overview.tsx",
+    "libs/game-puzzle-client-ts/src/content-playtest-proof.ts",
+    "libs/game-puzzle-client-ts/src/content-preview.tsx",
+    "libs/game-puzzle-client-ts/src/content-publication-controls.tsx",
+    "libs/game-puzzle-client-ts/src/content-start-attempt.tsx",
+    "libs/game-puzzle-client-ts/src/content-withdraw.tsx",
+    "libs/game-puzzle-client-ts/src/use-content-attempt-change.tsx",
+    "libs/game-puzzle-client-ts/src/use-content-attempts.ts",
+    "libs/game-puzzle-client-ts/src/use-content-draft-save.tsx",
+    "libs/game-puzzle-client-ts/src/use-content-library.ts",
+    "libs/game-puzzle-client-ts/src/use-content-pack-edit.tsx",
+    "libs/game-puzzle-client-ts/src/use-content-publication.tsx",
+    "libs/game-puzzle-client-ts/src/content-saved-attempts.tsx",
+    "libs/game-puzzle-client-ts/src/content-pack-preview.tsx",
+    "libs/game-puzzle-client-ts/src/content-subscription-plan.ts",
+    "libs/game-puzzle-client-ts/src/use-content-subscriptions.ts",
+    "libs/game-puzzle-client-ts/src/use-content-pages.ts",
+    "libs/game-puzzle-client-ts/src/content-load-more.tsx",
+    "libs/game-puzzle-client-ts/src/content-connection-status.tsx",
+    "libs/game-puzzle-client-ts/src/use-content-copy-choice.tsx",
+    "libs/game-puzzle-client-ts/src/use-content-author-workspace.tsx"
   ],
   "reactivityDirs": [
     "libs/friends-client-ts/src",
@@ -217,6 +261,7 @@
     "libs/permissions-server-ts/src",
     "libs/connect-four-client-ts/src",
     "libs/battleship-client-ts/src",
+    "libs/numberlink-client-ts/src",
     "libs/game-menu-client-ts/src"
   ],
   "noDestructureDirs": [
@@ -241,6 +286,7 @@
     "libs/game-puzzle-client-ts",
     "libs/connect-four-client-ts/src",
     "libs/battleship-client-ts/src",
+    "libs/numberlink-client-ts/src",
     "libs/game-menu-client-ts/src"
   ]
 }

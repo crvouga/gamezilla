@@ -1,0 +1,4 @@
+{
+  "summary": "Checking the previous device's signed-in account before opening another device backed through its game history toward the tab shell, then timed out at the game menu. Account confirmation now closes only the account screen and preserves the caller's place.",
+  "regressionTest": "libs/runtime-harness-ts/tests/journey-sign-in-menu.test.ts"
+}

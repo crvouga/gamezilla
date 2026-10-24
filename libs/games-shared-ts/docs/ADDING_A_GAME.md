@@ -6,6 +6,11 @@ tests are held to. The framework owns everything around them and holds the
 game to every shared specification and suite for what it offers. How the
 framework is built: [`GAME_FRAMEWORK.md`](GAME_FRAMEWORK.md).
 
+For standalone puzzles or author-created content alongside a turn game, use
+[`ADDING_A_PUZZLE_GAME.md`](ADDING_A_PUZZLE_GAME.md). The turn-game examples and
+rated puzzle feed below do not require a puzzle-content game to invent turns
+or an opponent.
+
 The complete, working example of everything below is the test-only
 reference game,
 [`counting-race-game.tsx`](../../games-harness-ts/tests/reference-game/counting-race-game.tsx).
@@ -39,11 +44,11 @@ in source, tests and steps alike (the full map and the reasons are in
 
 | From | A game imports |
 | --- | --- |
-| `@pkgs/turn-game-shared-ts` | `game-rules`, `game-presentation`, `game-automation`, `game-puzzles` |
-| `@libs/game-session-shared-ts` | `turn-game-definition` |
+| `@pkgs/turn-game-shared-ts` | `game-rules`, `game-presentation`, `game-automation`, `game-puzzles`, `puzzle-content`, `puzzle-content-catalog` |
+| `@libs/game-session-shared-ts` | `game-definition`, `turn-game-definition` |
 | `@libs/game-menu-client-ts` | `game-client` |
 | `@libs/game-puzzle-shared-ts` (a game offering puzzles) | `puzzle-catalogue`, `sub`, `puzzle-link`, `completion`, `hint-stage`, `solve-status` |
-| `@libs/game-puzzle-client-ts` (a game offering puzzles) | `puzzle-client` |
+| `@libs/game-puzzle-client-ts` (a game offering puzzles) | `puzzle-client`, `puzzle-content-client` |
 | `@libs/spaces-shared-ts` | `game` (only for a game with its own room behaviour) |
 | `@libs/game-session-harness-ts` (its `-harness`) | `harness-game`, `known-puzzles`, `game-system`, `game-navigation`, `space-game-choice`, `custom-game-ui`, `custom-game-controls`, `custom-game-lineup`, `custom-game-moves`, `custom-game-screen`, `custom-game-reads`, `custom-game-history`, `puzzle-session-probe`, `puzzle-fixtures`, `puzzle-screen`, `puzzle-records`, `puzzle-moves`, `puzzle-room-probe`, `puzzle-link`, `puzzle-finishes`, `puzzle-result-recovery`, `puzzle-listening`, `puzzle-sounds` |
 | `@libs/game-matchmaking-harness-ts` (its `-harness`) | `matched-game-world`, `matched-game-app.steps`, `opponent-seeking`, `multiplayer-board`, `multiplayer-review`, `multiplayer-game-record`, `multiplayer-time`, `matched-game-fixtures` |
@@ -104,7 +109,7 @@ export const raceGameClient = defineGameClient({
 });
 ```
 
-### Offering puzzles
+### Offering a rated puzzle feed
 
 Puzzles are offered by a part on each side, and nothing else changes:
 

@@ -1,4 +1,5 @@
 import MultiplayerScreen from '@libs/game-matchmaking-client-ts/multiplayer-screen';
+import { ContentExperience } from '@libs/game-puzzle-client-ts/content-experience';
 import { PuzzlePlayScreen } from '@libs/game-puzzle-client-ts/puzzle-play-screen';
 import { PuzzleReviewScreen } from '@libs/game-puzzle-client-ts/puzzle-review-screen';
 import { PuzzleStatsScreen } from '@libs/game-puzzle-client-ts/puzzle-stats-screen';
@@ -25,10 +26,28 @@ export function sharedScreens(
 ): readonly GameOwnScreen[] {
   const back = navigation.showChoices;
   const id = game.shared.id;
+  const content = game.shared.puzzleContent;
+  const contentClient = game.puzzleContent;
   const history = offers('history')
     ? { onHistory: () => navigation.show(SHARED_GAME_SCREEN.history) }
     : {};
   return [
+    ...(contentClient === undefined || content === undefined
+      ? []
+      : [
+          {
+            screen: SHARED_GAME_SCREEN.content,
+            Screen: () => (
+              <ContentExperience
+                gameId={id}
+                title={game.title}
+                content={content}
+                client={contentClient}
+                onBack={back}
+              />
+            ),
+          },
+        ]),
     ...(game.puzzles === undefined ? [] : PUZZLE_SCREENS),
     ...(offers('custom-games')
       ? [
@@ -89,6 +108,17 @@ const PUZZLE_CHOICES: readonly GameChoiceItem[] = [
 function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
   const name = game.title;
   return [
+    ...(game.puzzleContent === undefined
+      ? []
+      : [
+          {
+            screen: SHARED_GAME_SCREEN.content,
+            title: () => <Trans>Puzzles and packs</Trans>,
+            caption: () => (
+              <Trans>Play, continue saved attempts, or create your own</Trans>
+            ),
+          },
+        ]),
     ...(game.puzzles === undefined ? [] : PUZZLE_CHOICES),
     ...(offers('custom-games')
       ? [

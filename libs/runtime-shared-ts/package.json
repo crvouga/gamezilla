@@ -25,6 +25,7 @@
     "@libs/game-matchmaking-shared-ts": "workspace:*",
     "@libs/game-puzzle-shared-ts": "workspace:*",
     "@libs/game-session-shared-ts": "workspace:*",
+    "@libs/games-shared-ts": "workspace:*",
     "@libs/notifications-shared-ts": "workspace:*",
     "@libs/permissions-shared-ts": "workspace:*",
     "@libs/profile-shared-ts": "workspace:*",

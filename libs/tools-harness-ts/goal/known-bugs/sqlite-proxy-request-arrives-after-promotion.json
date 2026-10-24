@@ -1,0 +1,4 @@
+{
+  "summary": "A query sent by a proxy could reach the broker after the previous owner left but before the promotion message reached that proxy. The broker rejected it as an owner sending SQL through itself. It now forwards that in-flight query to the newly granted owner and routes its reply back to the original request.",
+  "regressionTest": "pkgs/sql-client-sqlite-web-client-ts/tests/shared-worker-transport.test.ts"
+}

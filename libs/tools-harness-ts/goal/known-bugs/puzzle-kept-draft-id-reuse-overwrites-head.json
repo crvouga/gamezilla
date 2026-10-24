@@ -1,0 +1,4 @@
+{
+  "summary": "Reusing a kept-draft choice identity with a changed expected head could move the author back from a later edit. A choice now records the head it replaces as its immutable parent, so changing that expectation is refused as identity reuse.",
+  "regressionTest": "libs/game-puzzle-shared-ts/tests/draft-choice-id-reuse.test.ts"
+}

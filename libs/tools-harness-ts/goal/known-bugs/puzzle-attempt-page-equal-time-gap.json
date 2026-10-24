@@ -1,0 +1,4 @@
+{
+  "summary": "Local attempts sorted equal timestamps by ascending identity while server pages used descending identity. Loading earlier attempts then repeated rows and concealed older attempts with the same timestamp.",
+  "regressionTest": "libs/game-puzzle-harness-ts/tests/attempt-page-order.test.ts"
+}

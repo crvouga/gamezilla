@@ -1,0 +1,4 @@
+{
+  "summary": "The known-bug gate stopped at the first closing type bracket and rejected a valid literal Quint regression using a nested world type.",
+  "regressionTest": "libs/tools-harness-ts/scripts/quint-regression-proof.test.ts"
+}

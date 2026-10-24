@@ -1,0 +1,4 @@
+{
+  "summary": "The uploader awaited the broad read refresh after a refusal, holding a fresh corrected mutation behind that read even after the refusal was durably recorded. The query runtime retains ownership of the refresh while later writes can upload.",
+  "regressionTest": "pkgs/sync-engine-client-ts/tests/mutation-refusal-refresh.test.ts"
+}

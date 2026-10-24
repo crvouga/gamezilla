@@ -3,20 +3,11 @@ import { decide, decideLimit } from '@pkgs/permissions-shared-ts/decision';
 import { policyAt } from '@pkgs/permissions-shared-ts/policy';
 import { resolveSubject } from '@pkgs/permissions-shared-ts/resolve';
 
-import type {
-  AppGrantKey,
-  AppLimit,
-  SpacePresenceRole,
-} from './permission-catalog';
+import type { AccessScope } from './access-scope';
+import type { AppGrantKey, AppLimit } from './permission-catalog';
 import type { AccessIdentity, AccessReader } from './read-access';
 import { readAccess } from './read-access';
-import { resolveSpaceRoles } from './space-roles';
-
-/** Resource-scoped roles a decision adds on top of the actor's own. */
-export type AccessScope = {
-  /** The actor's presence in the space the action targets. */
-  readonly spacePresence?: SpacePresenceRole | null;
-};
+import { resolveResourceRoles } from './resource-roles';
 
 /**
  * One grant decision for `identity`, read from synced rows: the policy
@@ -38,7 +29,7 @@ export async function decideForActor(
   const subject = resolveSubject(
     policy,
     access.facts,
-    resolveSpaceRoles(args.scope?.spacePresence ?? null)
+    resolveResourceRoles(args.identity.actorId, args.scope)
   );
   return decide(policy, subject, args.key);
 }

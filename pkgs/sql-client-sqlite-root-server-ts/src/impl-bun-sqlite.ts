@@ -6,11 +6,23 @@ import type {
   SqlClient,
 } from '@pkgs/sql-client-root-shared-ts/interface';
 import { applySqliteConnectionPragmas } from '@pkgs/sql-client-sqlite-root-shared-ts/connection-pragmas';
-import { createTransactionChain } from '@pkgs/sql-client-sqlite-root-shared-ts/transaction-chain';
+import { createSerializedSqliteClient } from '@pkgs/sql-client-sqlite-root-shared-ts/serialized-sqlite-client';
 import type { Sql, Value } from '@pkgs/sql-root-shared-ts/sql';
 
 export class SqlClientImplBunSqlite implements SqlClient {
-  private readonly enqueueTxn = createTransactionChain();
+  private readonly connection: SqlClient = {
+    connect: () => this.connect(),
+    disconnect: () => this.disconnect(),
+    query: (query) => this.queryInConnection(query),
+    run: (query) => this.runInConnection(query),
+    prepare: (query) => this.prepareInConnection(query),
+    transaction: (fn) => this.execTransaction(fn),
+  };
+  private readonly serialized = createSerializedSqliteClient(this.connection);
+  query = this.serialized.query;
+  run = this.serialized.run;
+  prepare = this.serialized.prepare;
+  transaction = this.serialized.transaction;
 
   constructor(private db: Database) {}
 
@@ -58,13 +70,15 @@ export class SqlClientImplBunSqlite implements SqlClient {
     }
   }
 
-  query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {
+  private queryInConnection<T extends Record<string, unknown>>(
+    query: Sql<T>
+  ): Promise<T[]> {
     const bindings = query.values as SQLQueryBindings[];
     const rows = this.db.query(query.sql).all(...bindings) as T[];
     return Promise.resolve(rows);
   }
 
-  async run(query: Sql<unknown>): Promise<RunResult> {
+  private async runInConnection(query: Sql<unknown>): Promise<RunResult> {
     const bindings = query.values as SQLQueryBindings[];
     const result = this.db.query(query.sql).run(...bindings);
     return {
@@ -73,7 +87,7 @@ export class SqlClientImplBunSqlite implements SqlClient {
     };
   }
 
-  prepare<T extends Record<string, unknown>>(
+  private prepareInConnection<T extends Record<string, unknown>>(
     query: Sql<T>
   ): PreparedStatement<T> {
     const stmt = this.db.query(query.sql);
@@ -93,16 +107,12 @@ export class SqlClientImplBunSqlite implements SqlClient {
     };
   }
 
-  transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
-    return this.enqueueTxn(() => this.execTransaction(fn));
-  }
-
   private async execTransaction<T>(
     fn: (tx: SqlClient) => Promise<T>
   ): Promise<T> {
     this.db.run('BEGIN');
     try {
-      const result = await fn(this);
+      const result = await fn(this.connection);
       this.db.run('COMMIT');
       return result;
     } catch (e) {

@@ -1,4 +1,5 @@
 import type { RegisteredTurnGame } from '@pkgs/turn-game-shared-ts/game-rules';
+import type { PuzzleContent } from '@pkgs/turn-game-shared-ts/puzzle-content';
 /**
  * A sub manifest is the one thing a bounded context exports about itself.
  * It names the slice of every layer the sub owns — domain tables, synced
@@ -71,6 +72,10 @@ export type SubManifest<
    * which of its reads are session-scoped rather than the shell guessing.
    */
   readonly turnGames?: readonly RegisteredTurnGame[];
+  readonly puzzleContents?: readonly {
+    readonly id: string;
+    readonly puzzleContent: PuzzleContent;
+  }[];
   readonly sessionQueries?: readonly string[];
   /** Writes composed asynchronously from eagerly imported definitions. */
   readonly mutations: LoadMutations;

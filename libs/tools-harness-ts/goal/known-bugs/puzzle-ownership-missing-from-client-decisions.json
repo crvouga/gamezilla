@@ -1,0 +1,4 @@
+{
+  "summary": "Server decisions recognized puzzle ownership, but client decisions added only space roles and denied the owner's editing controls. Both decisions must resolve the same target facts reactively.",
+  "regressionTest": "libs/permissions-harness-ts/tests/puzzle-scope-client.test.ts"
+}

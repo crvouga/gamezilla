@@ -1,7 +1,10 @@
 import { createAuthApp } from '@pkgs/auth-inhouse-server-ts/create-auth-app';
 import { reconcileIdpSqlite } from '@pkgs/auth-inhouse-server-ts/reconcile-idp-sqlite';
 import { SYNTHETIC_MONITOR_CODE_PATH } from '@pkgs/auth-inhouse-shared-ts/synthetic-monitor';
-import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import {
+  createHarnessClock,
+  type HarnessClock,
+} from '@pkgs/clock-shared-ts/harness-clock';
 import type { HttpClient } from '@pkgs/http-client-shared-ts/types';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared-ts/impl-mockingbird-sqlite';
 import sql from '@pkgs/sql-root-shared-ts/sql';
@@ -19,6 +22,7 @@ const START_MS = 1_767_225_600_000;
 type Booted = {
   readonly http: HttpClient;
   readonly sql: SqlClientImplMockingbirdSqlite;
+  readonly clock: HarnessClock;
 };
 
 export async function boot(token: string | null): Promise<Booted> {
@@ -41,6 +45,7 @@ export async function boot(token: string | null): Promise<Booted> {
   const app = new Hono().route(PREFIX, authApp);
   return {
     sql,
+    clock,
     http: { fetch: async (input, init) => app.request(input as string, init) },
   };
 }

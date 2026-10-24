@@ -6,7 +6,7 @@ import type {
 } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared-ts/mutations-types';
 
-import type { AccessScope } from './decide-for-actor';
+import type { AccessScope } from './access-scope';
 import { decideForActor, decideLimitForActor } from './decide-for-actor';
 import { evaluateQuota } from './evaluate-quota';
 import type { AppGrantKey, AppLimit, AppQuota } from './permission-catalog';

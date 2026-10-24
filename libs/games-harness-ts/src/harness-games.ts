@@ -4,8 +4,8 @@ import { CONNECT_FOUR_HARNESS_GAME } from '@libs/connect-four-harness-ts/connect
 import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
 
 /**
- * Every registered game as the shared suites exercise it, in registry
- * order. The test composition root, beside `GAME_DEFINITIONS`: a game added
+ * Every registered turn game as the turn suites exercise it, in registry
+ * order. The test composition root, beside `TURN_GAME_DEFINITIONS`: a game added
  * there without its harness game here fails the enrollment test, so every
  * game is held to every shared scenario and contract it offers.
  */

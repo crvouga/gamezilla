@@ -8,6 +8,7 @@
 import './custom-game-journey.steps';
 import './game-journey.steps';
 import './multiplayer-journey.steps';
+import './numberlink-journey.steps';
 
 import { hostLimit, stepsFor } from '@pkgs/gherkin-shared-ts/registry';
 import {

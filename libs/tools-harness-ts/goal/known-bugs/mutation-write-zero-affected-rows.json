@@ -1,0 +1,4 @@
+{
+  "summary": "The mutation SQL wrapper reported zero affected rows for successful writes, causing valid compare-and-swap updates to be treated as conflicts.",
+  "regressionTest": "pkgs/sync-engine-shared-ts/tests/mutation-affected-rows.test.ts"
+}

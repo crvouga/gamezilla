@@ -48,9 +48,9 @@ function quoteReservedIdents(sqlText: string): string {
   });
 }
 
-/** Parseable text: bound params → NULL so AST does not depend on values. */
+/** Native PostgreSQL markers preserve bound syntax without interpolating values. */
 export function sqlTextForAst(query: Sql<unknown>): string {
-  return quoteReservedIdents(query.sql.replace(/\?/g, 'NULL'));
+  return quoteReservedIdents(query.text);
 }
 
 function asArray<T>(v: T | T[]): T[] {
@@ -243,7 +243,7 @@ function touchCache(text: string, node: AstNode): void {
 
 /**
  * Parse mutation/query SQL to an AST node. Cached by {@link sqlTextForAst}
- * (bound params replaced with NULL) so repeated templates hit once.
+ * (native parameter markers) so repeated templates hit once.
  */
 export function parseSqlAst(query: Sql<unknown>): AstNode | undefined {
   const text = sqlTextForAst(query);

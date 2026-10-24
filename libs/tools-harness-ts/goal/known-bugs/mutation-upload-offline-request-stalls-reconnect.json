@@ -1,0 +1,4 @@
+{
+  "summary": "The mutation uploader began requests while the injected lifecycle was offline; a reconnect then waited for the stale request timeout and backoff before replaying kept work.",
+  "regressionTest": "libs/game-puzzle-harness-ts/tests/offline-verdict-interop.test.ts"
+}

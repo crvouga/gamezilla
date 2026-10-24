@@ -95,6 +95,7 @@ export async function processMutationsBatch(
         status: 'rejected',
         code: outcome.code,
         message: outcome.message,
+        ...(outcome.meta === undefined ? {} : { meta: outcome.meta }),
       });
     } else {
       // applied + duplicate both ack as applied (idempotent retry).

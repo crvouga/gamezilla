@@ -90,10 +90,22 @@ function bindValues(
   stmt.bind(values as unknown as Parameters<typeof stmt.bind>[0]);
 }
 
-import { createTransactionChain } from '@pkgs/sql-client-sqlite-root-shared-ts/transaction-chain';
+import { createSerializedSqliteClient } from '@pkgs/sql-client-sqlite-root-shared-ts/serialized-sqlite-client';
 
 export class SqlClientImplSqliteWasm implements SqlClient {
-  private readonly enqueueTxn = createTransactionChain();
+  private readonly connection: SqlClient = {
+    connect: () => this.connect(),
+    disconnect: () => this.disconnect(),
+    query: (query) => this.queryInConnection(query),
+    run: (query) => this.runInConnection(query),
+    prepare: (query) => this.prepareInConnection(query),
+    transaction: (fn) => this.execTransaction(fn),
+  };
+  private readonly serialized = createSerializedSqliteClient(this.connection);
+  query = this.serialized.query;
+  run = this.serialized.run;
+  prepare = this.serialized.prepare;
+  transaction = this.serialized.transaction;
 
   private constructor(
     private readonly sqlite3: Sqlite3Static,
@@ -132,7 +144,9 @@ export class SqlClientImplSqliteWasm implements SqlClient {
     this.db = openDb(this.sqlite3, bytes);
   }
 
-  query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {
+  private queryInConnection<T extends Record<string, unknown>>(
+    query: Sql<T>
+  ): Promise<T[]> {
     const stmt = this.db.prepare(query.sql);
     try {
       bindValues(stmt, query.values);
@@ -146,7 +160,7 @@ export class SqlClientImplSqliteWasm implements SqlClient {
     }
   }
 
-  run(query: Sql<unknown>): Promise<RunResult> {
+  private runInConnection(query: Sql<unknown>): Promise<RunResult> {
     const stmt = this.db.prepare(query.sql);
     try {
       bindValues(stmt, query.values);
@@ -162,7 +176,7 @@ export class SqlClientImplSqliteWasm implements SqlClient {
     }
   }
 
-  prepare<T extends Record<string, unknown>>(
+  private prepareInConnection<T extends Record<string, unknown>>(
     query: Sql<T>
   ): PreparedStatement<T> {
     const sqlText = query.sql;
@@ -198,16 +212,12 @@ export class SqlClientImplSqliteWasm implements SqlClient {
     };
   }
 
-  transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
-    return this.enqueueTxn(() => this.execTransaction(fn));
-  }
-
   private async execTransaction<T>(
     fn: (tx: SqlClient) => Promise<T>
   ): Promise<T> {
     this.db.exec('BEGIN');
     try {
-      const result = await fn(this);
+      const result = await fn(this.connection);
       this.db.exec('COMMIT');
       return result;
     } catch (e) {

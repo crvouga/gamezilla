@@ -1,0 +1,4 @@
+{
+  "summary": "The shipped runtime inventory omitted the declared public publication table introduced by the private/public projection split. Its exact composition assertion now includes that table alongside the private content tables.",
+  "regressionTest": "libs/runtime-client-ts/tests/shipped-subs.test.ts"
+}

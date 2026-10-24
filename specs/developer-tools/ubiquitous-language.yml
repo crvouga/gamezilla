@@ -103,3 +103,11 @@ terms:
     from: friends
   - term: space
     from: spaces
+
+  - term: edition
+    definition: >-
+      The particular app the team is checking for release, with the evidence belonging to that same app.
+
+  - term: progress
+    definition: >-
+      How far a person has reached in the app on their own test device.

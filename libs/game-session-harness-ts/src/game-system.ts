@@ -94,7 +94,7 @@ export function gameSystem(
         ...games.flatMap((game) => game.actions ?? []),
       ],
     },
-    ...gamePuzzleSubs(turnGames).map(
+    ...gamePuzzleSubs(games.map((game) => game.shared)).map(
       (sub): HarnessSlice => ({
         name: 'game-puzzle',
         sub,

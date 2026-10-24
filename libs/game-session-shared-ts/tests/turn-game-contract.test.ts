@@ -8,6 +8,11 @@
 
 import { expect, test } from 'bun:test';
 import { GAME_PLATFORM_NAMESPACE } from '@libs/game-matchmaking-shared-ts/durable-names';
+import {
+  assertGameDefinitions,
+  defineGame,
+  type GameRegistration,
+} from '@libs/game-session-shared-ts/game-definition';
 import type {
   TurnGame,
   TurnGameDefinition,
@@ -21,6 +26,7 @@ import type {
   GameRules,
   TurnGameCapabilities,
 } from '@pkgs/turn-game-shared-ts/game-rules';
+import type { PuzzleContent } from '@pkgs/turn-game-shared-ts/puzzle-content';
 
 const rulesOf = (id: string): GameRules => ({
   id,
@@ -51,6 +57,53 @@ const game = (capabilities: TurnGameCapabilities, id = 'race'): TurnGame => ({
 /** `capabilities` as JavaScript or a cast hands them over, unchecked. */
 const unchecked = (capabilities: object) =>
   capabilities as TurnGameCapabilities;
+
+const content: PuzzleContent = {
+  rules: {
+    validateDefinition: () => ({ valid: true }),
+    initial: () => ({ accepted: true, state: 'start' }),
+    validateState: () => ({ valid: true }),
+    apply: () => ({ accepted: true, state: 'end' }),
+    complete: (_definition, state) => state === 'end',
+  },
+};
+
+test('one registry accepts standalone puzzles and a turn game offering authored puzzles', () => {
+  const solo = defineGame({ id: 'solo', puzzleContent: content });
+  const combined = defineTurnGame({
+    ...game({ history }),
+    puzzleContent: content,
+  });
+  expect(() => assertGameDefinitions('games', [solo, combined])).not.toThrow();
+  expect('turnGame' in solo).toBe(false);
+  expect('automation' in solo).toBe(false);
+  expect(solo.puzzleContent).toBe(content);
+  expect(combined.puzzleContent).toBe(content);
+  expect(combined.sharedModules.map((module) => module.id)).toEqual([
+    'turn-game-session',
+  ]);
+  // @ts-expect-error: copying a definition loses its registration brand.
+  const copy: GameRegistration = { ...solo };
+  expect(() => assertGameDefinitions('games', [copy])).toThrow(
+    'was not made by'
+  );
+});
+
+test('both constructors refuse incomplete advertised puzzle capabilities', () => {
+  const invalid = {
+    ...content,
+    rules: { ...content.rules, apply: undefined },
+  } as unknown as PuzzleContent;
+  expect(() => defineGame({ id: 'solo', puzzleContent: invalid })).toThrow(
+    'rules.apply'
+  );
+  expect(() =>
+    defineTurnGame({ ...game({ history }), puzzleContent: invalid })
+  ).toThrow('rules.apply');
+  expect(() =>
+    defineGame({ id: 'Not a slug', puzzleContent: content })
+  ).toThrow('lowercase slug');
+});
 
 // regression: game-registration-implicit-legacy-id
 test('legacy namespace authority is explicit and independent of a concrete game id', () => {

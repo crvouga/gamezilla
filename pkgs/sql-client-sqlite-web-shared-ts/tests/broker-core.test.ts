@@ -132,14 +132,14 @@ describe('broker-core', () => {
       op: 'query',
       payload: { sql: 'SELECT 1', values: [] },
     });
-    const forwarded = ownerInbox.find((m) => 'op' in m && m.id === 'q1') as {
+    const forwarded = ownerInbox.find((m) => 'op' in m && m.op === 'query') as {
       id: string;
       from?: string;
     };
     expect(forwarded.from).toBe('proxy');
 
     broker.handleMessage('owner', {
-      id: 'q1',
+      id: forwarded.id,
       ok: true,
       result: [{ n: 1 }],
     });

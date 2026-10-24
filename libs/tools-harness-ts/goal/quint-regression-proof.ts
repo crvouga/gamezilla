@@ -60,11 +60,25 @@ function objectFields(tokens: readonly string[]): Fields | null {
   return fields;
 }
 
+function afterTypeArguments(
+  tokens: readonly string[],
+  opening: number
+): number {
+  let depth = 1;
+  for (let at = opening + 1; at < tokens.length; at++) {
+    if (tokens[at] === '<') depth++;
+    else if (tokens[at] === '>' && tokens[at - 1] !== '=') {
+      depth--;
+      if (depth === 0) return at + 1;
+    }
+  }
+  return tokens.length;
+}
+
 function callObject(tokens: readonly string[], at: number): Fields | null {
   let opening = at + 1;
   if (tokens[opening] === '<') {
-    while (opening < tokens.length && tokens[opening] !== '>') opening++;
-    opening++;
+    opening = afterTypeArguments(tokens, opening);
   }
   if (tokens[opening] !== '(' || tokens[opening + 1] !== '{') return null;
   let depth = 0;

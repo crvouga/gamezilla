@@ -1,0 +1,4 @@
+{
+  "summary": "SQL classification replaced every bound parameter with NULL, which the PostgreSQL grammar rejected in LIMIT and OFFSET. Valid bounded reads then stopped startup workload extraction. Analysis now uses the SQL port's native parameter markers without interpolating values.",
+  "regressionTest": "pkgs/sync-engine-shared-ts/tests/bound-page-classification.test.ts"
+}

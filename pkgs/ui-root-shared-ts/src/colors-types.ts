@@ -68,6 +68,14 @@ export type ColorTokens = {
   info: string;
   infoSurface: string;
 
+  // Labeled game paths and endpoints; never application chrome.
+  pathRed: string;
+  pathOrange: string;
+  pathYellow: string;
+  pathGreen: string;
+  pathBlue: string;
+  pathPurple: string;
+
   // States
   disabled: string;
 

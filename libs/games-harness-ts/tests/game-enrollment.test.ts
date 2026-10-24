@@ -8,36 +8,44 @@ import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { HARNESS_GAMES } from '@libs/games-harness-ts/harness-games';
-import { GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
+import {
+  GAME_DEFINITIONS,
+  TURN_GAME_DEFINITIONS,
+} from '@libs/games-shared-ts/game-plugins';
 import { CONFORMANCE_GAMES } from './conformance-world';
 
-test('every registered game is enrolled in the shared suites, in registry order', () => {
+test('every registered turn game is enrolled in the turn suites, in registry order', () => {
   expect(HARNESS_GAMES.map((game) => game.shared.id)).toEqual(
-    GAME_DEFINITIONS.map((game) => game.id)
+    TURN_GAME_DEFINITIONS.map((game) => game.id)
   );
 });
 
 test('each enrolled game is the very definition production registers', () => {
   for (const [index, game] of HARNESS_GAMES.entries())
-    expect(game.shared).toBe(GAME_DEFINITIONS[index]!);
+    expect(game.shared).toBe(TURN_GAME_DEFINITIONS[index]!);
 });
 
 test('each enrolled game shows the very client production registers', async () => {
   const { GAME_CLIENT_DEFINITIONS } = await import(
     '@libs/games-client-ts/game-plugins.client'
   );
-  for (const [index, game] of HARNESS_GAMES.entries())
-    expect(game.client).toBe(GAME_CLIENT_DEFINITIONS[index]!);
+  for (const game of HARNESS_GAMES)
+    expect(
+      game.client ===
+        GAME_CLIENT_DEFINITIONS.find((client) => client.id === game.shared.id)
+    ).toBe(true);
 });
 
 test('the shared suites run every registered game and only test-only games beside them', () => {
-  const registered = new Set<unknown>(GAME_DEFINITIONS);
+  const registered = new Set<unknown>(TURN_GAME_DEFINITIONS);
   expect(
     CONFORMANCE_GAMES.filter((game) => registered.has(game.shared))
   ).toEqual([...HARNESS_GAMES]);
   for (const game of CONFORMANCE_GAMES)
     expect(
-      GAME_DEFINITIONS.some((definition) => definition.id === game.shared.id)
+      TURN_GAME_DEFINITIONS.some(
+        (definition) => definition.id === game.shared.id
+      )
     ).toBe(registered.has(game.shared));
 });
 

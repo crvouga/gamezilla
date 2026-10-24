@@ -154,7 +154,7 @@ export const HEARD_PUZZLE_SOUNDS: readonly PuzzleSoundKind[] = [
 export type HarnessGame<C extends TurnGameCapabilities = TurnGameCapabilities> =
   PlayableGame<C> & {
     /** The same client definition production registers. */
-    readonly client: GameClientRegistration;
+    readonly client: GameClientRegistration<TurnGameDefinition>;
     /** The sub only this game's screens need, beside the shared ones. */
     readonly slice?: HarnessSlice;
     /** This game's own testing-tool actions. */

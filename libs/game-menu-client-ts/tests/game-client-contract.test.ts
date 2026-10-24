@@ -17,9 +17,11 @@ import {
   defineGameClient,
 } from '@libs/game-menu-client-ts/game-client';
 import type { GamePuzzlesClient } from '@libs/game-puzzle-client-ts/puzzle-client';
+import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
 import type { PuzzlesCapability } from '@pkgs/turn-game-shared-ts/game-puzzles';
 import type { GameRules } from '@pkgs/turn-game-shared-ts/game-rules';
+import type { PuzzleContent } from '@pkgs/turn-game-shared-ts/puzzle-content';
 
 /** Count to seven: `step` adds one, and whoever reaches seven wins. */
 const rules: GameRules = {
@@ -79,6 +81,70 @@ const parts = {
   },
 };
 const client: GameClient = { ...parts, shared: plain };
+
+const content: PuzzleContent = {
+  rules: {
+    validateDefinition: () => ({ valid: true }),
+    initial: () => ({ accepted: true, state: rules.initial() }),
+    validateState: (_definition, state) =>
+      rules.recognizes(state) ? { valid: true } : { valid: false, issues: [] },
+    apply: (_definition, state, action) => {
+      const change = rules.play(state, action, '', []);
+      return change === null
+        ? { accepted: false, issues: [] }
+        : { accepted: true, state: change.position };
+    },
+    complete: (_definition, state) => state === 'race:7',
+  },
+};
+
+test('a puzzle-only client needs its player and no turn-game presentation', () => {
+  const shared = defineGame({ id: 'race-puzzle', puzzleContent: content });
+  const Player = () => null;
+  const defined = defineGameClient({
+    shared,
+    title: 'Race puzzle',
+    caption: 'Reach seven',
+    subtitle: () => 'Count on.',
+    puzzleContent: { Player },
+  });
+  expect(defined.presentation).toBeUndefined();
+  expect(defined.puzzles).toBeUndefined();
+  expect(defined.puzzleContent?.Player).toBe(Player);
+  expect(typeof defined.MainMenu).toBe('function');
+});
+
+test('puzzle rendering agrees with standalone and combined registrations', () => {
+  const standalone = defineGame({ id: 'race-puzzle', puzzleContent: content });
+  expect(() =>
+    // @ts-expect-error: a puzzle game always supplies its player.
+    defineGameClient({
+      shared: standalone,
+      title: 'Race puzzle',
+      caption: '',
+      subtitle: () => '',
+    })
+  ).toThrow('puzzleContent.Player');
+  const combined = defineTurnGame({
+    rules,
+    capabilities: { history },
+    automation,
+    puzzleContent: content,
+  });
+  // @ts-expect-error: combined games supply their puzzle player too.
+  expect(() => defineGameClient({ ...parts, shared: combined })).toThrow(
+    'puzzleContent.Player'
+  );
+  const Player = () => null;
+  expect(
+    defineGameClient({ ...parts, shared: combined, puzzleContent: { Player } })
+      .puzzleContent?.Player
+  ).toBe(Player);
+  expect(() =>
+    // @ts-expect-error: a game without puzzle content cannot render its player.
+    defineGameClient({ ...parts, shared: plain, puzzleContent: { Player } })
+  ).toThrow('offers no puzzle content');
+});
 
 test('a presentation without its ending copy is refused at type checking', () => {
   const { endingDescription: _dropped, ...partial } = client.presentation;
