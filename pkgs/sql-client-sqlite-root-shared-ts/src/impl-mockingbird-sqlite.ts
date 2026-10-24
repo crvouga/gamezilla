@@ -163,12 +163,24 @@ function applyImportedMockingbirdSqlitePragmas(
   db.prepare('PRAGMA user_version = ?').run(userVersion);
 }
 
-import { createTransactionChain } from './transaction-chain';
+import { createSerializedSqliteClient } from './serialized-sqlite-client';
 
 export class SqlClientImplMockingbirdSqlite implements SqlClient {
   private db: Database | null;
   private readonly openOptions: MockingbirdSqliteOpenOptions | undefined;
-  private readonly enqueueTxn = createTransactionChain();
+  private readonly connection: SqlClient = {
+    connect: () => this.connect(),
+    disconnect: () => this.disconnect(),
+    query: (query) => this.queryInConnection(query),
+    run: (query) => this.runInConnection(query),
+    prepare: (query) => this.prepareInConnection(query),
+    transaction: (fn) => this.execTransaction(fn),
+  };
+  private readonly serialized = createSerializedSqliteClient(this.connection);
+  query = this.serialized.query;
+  run = this.serialized.run;
+  prepare = this.serialized.prepare;
+  transaction = this.serialized.transaction;
 
   private constructor(
     db: Database,
@@ -239,7 +251,9 @@ export class SqlClientImplMockingbirdSqlite implements SqlClient {
     applyImportedMockingbirdSqlitePragmas(next, userVersion);
   }
 
-  query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {
+  private queryInConnection<T extends Record<string, unknown>>(
+    query: Sql<T>
+  ): Promise<T[]> {
     const sqlText = adaptSql(query.sql);
     const rows = mockingbirdStatement(this.requireDb(), sqlText).all<T>(
       ...toBinds(query.values)
@@ -247,7 +261,7 @@ export class SqlClientImplMockingbirdSqlite implements SqlClient {
     return Promise.resolve(patchTableInfoRows(sqlText, rows));
   }
 
-  run(query: Sql<unknown>): Promise<RunResult> {
+  private runInConnection(query: Sql<unknown>): Promise<RunResult> {
     const result = mockingbirdStatement(
       this.requireDb(),
       adaptSql(query.sql)
@@ -255,7 +269,7 @@ export class SqlClientImplMockingbirdSqlite implements SqlClient {
     return Promise.resolve(toRunResult(result));
   }
 
-  prepare<T extends Record<string, unknown>>(
+  private prepareInConnection<T extends Record<string, unknown>>(
     query: Sql<T>
   ): PreparedStatement<T> {
     const sqlText = adaptSql(query.sql);
@@ -271,17 +285,13 @@ export class SqlClientImplMockingbirdSqlite implements SqlClient {
     };
   }
 
-  async transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
-    return this.enqueueTxn(() => this.execTransaction(fn));
-  }
-
   private async execTransaction<T>(
     fn: (tx: SqlClient) => Promise<T>
   ): Promise<T> {
     const db = this.requireDb();
     db.exec('BEGIN');
     try {
-      const result = await fn(this);
+      const result = await fn(this.connection);
       db.exec('COMMIT');
       return result;
     } catch (e) {

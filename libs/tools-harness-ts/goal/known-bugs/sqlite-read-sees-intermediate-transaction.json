@@ -1,0 +1,4 @@
+{
+  "summary": "SQLite clients serialized transactions but let independent reads run during their awaited steps. SQL watches could therefore expose an earlier attempt head while snapshot merge was rebasing a saved position, making the next gesture branch from stale play. Serialize outside operations with the complete transaction while its provided handle retains read-your-writes access.",
+  "regressionTest": "pkgs/sql-client-contract-harness-ts/tests/sqlite-read-isolation.test.ts"
+}

@@ -3,6 +3,8 @@ import type {
   RunResult,
   SqlClient,
 } from '@pkgs/sql-client-root-shared-ts/interface';
+import { createSerializedSqliteClient } from '@pkgs/sql-client-sqlite-root-shared-ts/serialized-sqlite-client';
+import { createTransactionChain } from '@pkgs/sql-client-sqlite-root-shared-ts/transaction-chain';
 import type { Sql, Value } from '@pkgs/sql-root-shared-ts/sql';
 import type {
   SqliteWorkerOp,
@@ -124,5 +126,12 @@ export function createSqliteWorkerSqlClient(args: {
       await rpc.request('importBytes', { bytes });
     },
   };
-  return client;
+  const enqueue = createTransactionChain();
+  return {
+    ...createSerializedSqliteClient(client, enqueue),
+    exportDatabaseBytesAsync: () =>
+      enqueue(() => client.exportDatabaseBytesAsync()),
+    importDatabaseBytesAsync: (bytes) =>
+      enqueue(() => client.importDatabaseBytesAsync(bytes)),
+  };
 }
