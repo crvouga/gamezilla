@@ -10,6 +10,7 @@ Feature: Keep a pack when publication cannot go ahead
       Then Bob can discover the pack "Rivers" with "River, Valley" in that order
       And the pack draft contains "River, Valley" in that order
 
+    @regression:puzzle-publication-refusal-details-lost
     Scenario: A chosen puzzle's withdrawal refuses publication without losing the pack
       Given Alice has chosen to publish the pack "Rivers" containing "River, Valley" on her offline phone
       And Alice has withdrawn the pack's puzzle "River" on her tablet
@@ -43,6 +44,7 @@ Feature: Keep a pack when publication cannot go ahead
       And the pack draft contains "River, Valley" in that order
       And Bob cannot discover the pack "Rivers"
 
+    @regression:puzzle-publication-waiting-hidden-after-reopen
     Scenario: Reopening offline retains the publication choice and its draft
       Given Alice has chosen to publish the pack "Rivers" containing "River, Valley" on her offline phone
       When Alice reopens the app
@@ -61,6 +63,7 @@ Feature: Keep a pack when publication cannot go ahead
 
   Rule: A refused publication needs available puzzles and another publication choice
 
+    @regression:puzzle-publication-retry-blocked-by-refused-edition
     Scenario: An author can publish again after the chosen puzzle becomes available
       Given Alice's publication of the pack "Rivers" containing "River, Valley" was refused after "River" was withdrawn
       And the chosen puzzle "River" is published again

@@ -84,6 +84,15 @@ pack-reference and publication-after-withdrawal contracts. The final audit
 must check these citations against the implemented bindings and the complete
 context map. There is no new domain event or upstream policy in this aggregate.
 
+## Regression handback
+
+The implementer's first complete recovery run exposed three defects using
+the literal Rivers pack containing River and Valley. The existing examples
+are tagged to retain those inputs: publication refusal details were lost,
+the waiting choice was hidden after offline reopening, and a fresh choice
+after River became available could not complete. This handback changes tags
+only; every rule, model transition and scenario sentence stays the same.
+
 Run each new example before binding it. Use the real reference app screens
 and ordinary local mutations, with the other device changing the chosen
 puzzle through those same definitions. Keep fault controls and data access
