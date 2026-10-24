@@ -5,6 +5,7 @@ import { MULTIPLAYER_TABLES } from '@libs/game-matchmaking-shared-ts/multiplayer
 import { MultiplayerRatingRepository } from '@libs/game-matchmaking-shared-ts/rating-repository';
 import { openConformanceDb } from '@libs/permissions-shared-ts/world';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
+import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import sql, { join } from '@pkgs/sql-root-shared-ts/sql';
 import fc from 'fast-check';
 
@@ -31,52 +32,87 @@ const history = fc.array(
   { maxLength: 12 }
 );
 
+type HistoryRow = {
+  readonly people: readonly string[];
+  readonly outcome: string;
+  readonly deleted: boolean;
+};
+
+async function assertHistory(db: SqlClient, rows: readonly HistoryRow[]) {
+  if (rows.length > 0)
+    await db.run(sql`INSERT INTO chess_multiplayer_games
+      (id, white_id, black_id, red_id, blue_id, outcome, deleted_at)
+      VALUES ${join(
+        rows.map(
+          (row, index) => sql`(${`history-${index}`},
+          ${row.people[0]}, ${row.people[1]}, ${row.people[2] ?? null}, ${row.people[3] ?? null},
+          ${row.outcome}, ${row.deleted ? 'deleted-fixture' : null})`
+        )
+      )}`);
+  const games = new MultiplayerGameRepository(db);
+  const owners = ['dave', 'bob', 'nobody', 'alice', 'carol', 'dave'];
+  const grouped = await games.formationState(owners);
+  expect(grouped.size).toBe(5);
+  for (const owner of owners) {
+    const finished = rows.filter(
+      (row) => !row.deleted && ['white', 'black', 'draw'].includes(row.outcome)
+    );
+    expect(grouped.get(owner)).toEqual({
+      unfinishedCount: await games.unfinishedCount(owner),
+      colourBalance: finished.reduce(
+        (balance, row) =>
+          balance +
+          (row.people[0] === owner ? 1 : row.people[1] === owner ? -1 : 0),
+        0
+      ),
+    });
+  }
+  expect(await games.formationState([])).toEqual(new Map());
+}
+
+async function checkHistory(db: SqlClient, rows: readonly HistoryRow[]) {
+  const discard = new Error('Discard generated formation history');
+  try {
+    await db.transaction(async (tx) => {
+      await assertHistory(tx, rows);
+      throw discard;
+    });
+  } catch (error) {
+    if (error !== discard) throw error;
+  }
+}
+
 test('batched formation facts preserve eligibility and colour balance for two- and four-seat histories', async () => {
   const db = await openConformanceDb(MULTIPLAYER_TABLES);
-  let sequence = 0;
   try {
     await assertProperty(
       'formation roster facts equal accepted history',
-      fc.asyncProperty(history, async (rows) => {
-        await db.run(
-          sql`UPDATE chess_multiplayer_games SET deleted_at = ${'old-fixture'}`
-        );
-        if (rows.length > 0)
-          await db.run(sql`INSERT INTO chess_multiplayer_games
-          (id, white_id, black_id, red_id, blue_id, outcome, deleted_at)
-          VALUES ${join(
-            rows.map(
-              (row) => sql`(${`history-${sequence++}`},
-            ${row.people[0]}, ${row.people[1]}, ${row.people[2] ?? null}, ${row.people[3] ?? null},
-            ${row.outcome}, ${row.deleted ? 'deleted-fixture' : null})`
-            )
-          )}`);
-        const games = new MultiplayerGameRepository(db);
-        const owners = ['dave', 'bob', 'nobody', 'alice', 'carol', 'dave'];
-        const grouped = await games.formationState(owners);
-        expect(grouped.size).toBe(5);
-        for (const owner of owners) {
-          const finished = rows.filter(
-            (row) =>
-              !row.deleted && ['white', 'black', 'draw'].includes(row.outcome)
-          );
-          expect(grouped.get(owner)).toEqual({
-            unfinishedCount: await games.unfinishedCount(owner),
-            colourBalance: finished.reduce(
-              (balance, row) =>
-                balance +
-                (row.people[0] === owner
-                  ? 1
-                  : row.people[1] === owner
-                    ? -1
-                    : 0),
-              0
-            ),
-          });
-        }
-        expect(await games.formationState([])).toEqual(new Map());
-      })
+      fc.asyncProperty(history, (rows) => checkHistory(db, rows))
     );
+  } finally {
+    await db.disconnect();
+  }
+});
+
+test('consecutive formation examples leave no retained fixture history', async () => {
+  // regression: formation-property-retains-history
+  // Nightly seed 2076662651 / 200 cases took 29.3s as old rows accumulated.
+  const db = await openConformanceDb(MULTIPLAYER_TABLES);
+  try {
+    await checkHistory(db, [
+      { people: ['alice', 'bob'], outcome: 'ongoing', deleted: false },
+      {
+        people: ['dave', 'carol', 'alice', 'bob'],
+        outcome: 'draw',
+        deleted: false,
+      },
+    ]);
+    await checkHistory(db, []);
+    expect(
+      await db.query(
+        sql<{ id: string }>`SELECT id FROM chess_multiplayer_games`
+      )
+    ).toEqual([]);
   } finally {
     await db.disconnect();
   }

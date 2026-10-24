@@ -1,0 +1,4 @@
+{
+  "summary": "The formation roster property soft-deleted and retained every earlier generated history, then rewrote all retained rows for each next example. Nightly seed 2076662651 at 200 cases took 29.3 seconds and exceeded the unchanged five-second test budget. Each independent generated example now rolls back its fixture; a literal nonempty-then-empty sequence checks that no history is retained.",
+  "regressionTest": "libs/game-matchmaking-shared-ts/tests/formation-roster.test.ts"
+}
