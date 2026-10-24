@@ -196,7 +196,7 @@
     "@babel/runtime": "^7.29.7",
     "@biomejs/biome": "2.5.7",
     "@clack/prompts": "^1.8.1",
-    "@crvouga/atlas": "^0.1.0",
+    "@crvouga/atlas": "^0.10.2",
     "@crvouga/mockingbird-service-oauth": "^3.9.0",
     "@crvouga/mockingbird-service-openai": "^1.8.0",
     "@crvouga/mockingbird-service-paddle": "^2.9.0",
