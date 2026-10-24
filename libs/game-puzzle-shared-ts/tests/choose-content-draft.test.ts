@@ -68,7 +68,7 @@ test('a kept branch becomes a new head without changing either source or the pub
     await f.db.transaction((tx) => choose.run({ tx, env: f.env }, CHOICE));
     expect(await readContentDraft(f.db, CHOICE.draftId)).toMatchObject({
       title: 'Harbor',
-      parent_id: 'tablet',
+      parent_id: 'phone',
       conflicted: false,
     });
     expect(await readContentDocument(f.db, 'river')).toMatchObject({

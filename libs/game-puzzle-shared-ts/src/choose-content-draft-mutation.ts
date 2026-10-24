@@ -29,7 +29,7 @@ export const choosePuzzleContentDraftMutation = defineMutation({
     if (existing !== null) {
       if (
         existing.document_id !== doc.id ||
-        existing.parent_id !== chosen.id ||
+        existing.parent_id !== args.expectedDraftId ||
         existing.conflicted ||
         JSON.stringify(contentBody(existing)) !==
           JSON.stringify(contentBody(chosen))
@@ -53,7 +53,7 @@ export const choosePuzzleContentDraftMutation = defineMutation({
       INSERT INTO puzzle_content_drafts
         (id, document_id, owner_id, parent_id, title, description, difficulty, definition, conflicted,
           validation_status, validation_issues, validation_solution)
-      VALUES (${args.draftId}, ${doc.id}, ${doc.owner_id}, ${chosen.id},
+      VALUES (${args.draftId}, ${doc.id}, ${doc.owner_id}, ${args.expectedDraftId},
         ${chosen.title}, ${chosen.description}, ${chosen.difficulty}, ${chosen.definition}, ${false},
         ${chosen.validation_status}, ${chosen.validation_issues}, ${chosen.validation_solution})
     `);
