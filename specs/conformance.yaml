@@ -23,6 +23,7 @@ product:
     - friends
     - journeys
     - matchmaking
+    - pong
     - profile
     - synthetic-population
     - room
