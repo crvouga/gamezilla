@@ -131,7 +131,7 @@ fabricated winner is installed.
 | Full framework-independence contract | Eight outer checks, 105 assertions; main process runs 281 checks; independent consumer features pass |
 | Runtime harness package | 47 tests, 202 assertions; type checking and lint pass |
 | Runtime scenario part 13 | All 14 cases in six files pass in 4.84s after the upgrade-refusal fix |
-| Sync HTTP client | 25 tests, 89 assertions; type checking and lint pass |
+| Sync HTTP client | 27 tests, 757 assertions, including two public HTTP properties; type checking and lint pass |
 | Harness preparation package | 106 tests, 786 assertions; type checking and lint pass |
 | Room checkpoint package | 22 tests, 29 assertions; type checking and lint pass |
 | Deleted-account recovery | All 15 affected scenarios pass through actual device recovery |
@@ -195,8 +195,40 @@ The later verification failures exposed additional shared defects:
   spin indefinitely. They now surface the update request immediately;
   expired-session and malformed-response recovery remain covered.
 
-These fixes do not establish that every live journey has passed. The full
-release-journey task in the current PR remains the authoritative result.
+The fresh live runs on heads `101e4df7b` and `83776eb9e` passed the
+Quoridor cases but still failed the older Chess five-second pairing case.
+The latter run also exposed an avoidable cold-plan capacity problem:
+49 separate proof lanes left fifteen lanes with 1,261–1,262 estimated
+seconds each, already beyond the fixed 1,200-second shard deadline.
+The corrected planner preserves every task, dependency group and stage
+across the same 64 runners. Replaying that captured plan reduces its
+heaviest estimated lane to 360 seconds. All 870 tooling tests, type checks,
+lint and goal checks pass; no budget or concurrency changed.
+
+The database wire proxy also left Nagle buffering enabled on both TCP
+legs, in addition to its declared round-trip model. Both legs now request
+`TCP_NODELAY`; the configured three-millisecond delay, pool and request
+counts are unchanged. All five real-wire contracts and their 72-test
+owning unit shard pass. The existing exact 5+0, five-second journey is
+pinned without changing its prose or deadline. The next live result must
+establish whether this configuration correction resolves that deadline.
+
+Matchmaking notification lookups are now batched per captured table,
+retaining every old and new owner image. The actual Find regression drops
+from five lookups to at most three while preserving delivery to both
+players and both hosted-space observers. This measured saving alone did
+not resolve the Chess deadline and is not presented as its cause.
+
+Failure-only release diagnostics now use the existing canonical scenario
+reporter and native collector journal. Their timestamps select the failed
+scenario's request traces, retain later completed children, and exclude
+later successful matches. Output is bounded and redacted; absent roots
+are explicitly incomplete. Temporary PR reports are still removed. All
+258 product unit tests, type checks and lint pass. No extra runtime logs,
+artifact retention, waits or test budgets were introduced.
+
+The full release-journey task in the current PR remains the authoritative
+result. None of these focused successes establishes a green full release.
 
 ## Repository and upstream limits
 
