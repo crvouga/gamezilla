@@ -1,0 +1,4 @@
+{
+  "summary": "Release Hill journey read the host's stale ply-1 West turn after the peer had accepted b5 and both bots had played e8/h5. It tried another peer move on the current South turn and timed out. Each observation must include the last move the journey already saw accepted.",
+  "regressionTest": "libs/runtime-harness-ts/tests/custom-game-party-journey.test.ts"
+}

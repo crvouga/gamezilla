@@ -82,14 +82,19 @@ async function readyParty(host: JourneyHost): Promise<void> {
   });
 }
 
-async function completeParty(
-  host: JourneyHost,
+export async function completeCustomGameParty(
+  host: Pick<JourneyHost, 'act' | 'actAsGuest'>,
   game: PlayableGame
 ): Promise<PublicCustomGame> {
   const sides = gameSides(game.shared.turnGame.rules);
+  let acceptedPly = 0;
   for (let step = 0; step < 400; step++) {
     let view: PublicCustomGame | undefined;
     await host.act('readPartyBoard', async (ui) => {
+      if (acceptedPly > 0)
+        await ui
+          .get(`custom-game-review-move-${acceptedPly}`)
+          .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
       view = await publicGame(ui);
     });
     check(view !== undefined, 'The party game did not open');
@@ -104,6 +109,7 @@ async function completeParty(
           .get(`custom-game-review-move-${current.ply + 1}`)
           .expect.visible({ timeoutMs: JOURNEY_WAIT_MS })
       );
+      acceptedPly = current.ply + 1;
       continue;
     }
     const act = seat === 0 ? host.act : host.actAsGuest;
@@ -125,6 +131,7 @@ async function completeParty(
         .get(`custom-game-review-move-${current.ply + 1}`)
         .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
     });
+    acceptedPly = current.ply + 1;
   }
   throw new Error('The party game did not finish within 400 accepted turns');
 }
@@ -146,7 +153,7 @@ export async function playCustomGamePartyJourney(
   await host.actAsGuest('joinPartySpace', joinFromLink);
   await host.act('createPartyGame', (ui) => createParty(ui, game));
   await readyParty(host);
-  return completeParty(host, game);
+  return completeCustomGameParty(host, game);
 }
 
 /** Both people observe exactly the same accepted board and terminal outcome. */
