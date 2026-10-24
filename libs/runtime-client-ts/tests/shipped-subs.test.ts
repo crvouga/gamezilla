@@ -76,6 +76,7 @@ const TABLE_NAMES = [
   'puzzle_content_drafts',
   'puzzle_content_pack_items',
   'puzzle_content_positions',
+  'puzzle_content_publications',
   'puzzle_content_revisions',
   'spaces',
   'spaces_open_sessions',
@@ -200,6 +201,7 @@ describe('shipped subs', () => {
   });
 
   test('the data fold still yields the shipped tables, queries, and mutations', async () => {
+    // regression: puzzle-publication-table-unlisted-in-shipped-contract
     expect(APP.tableNames).toEqual([...TABLE_NAMES]);
     expect(Object.keys(APP.queries).sort()).toEqual([...QUERY_NAMES]);
     expect(Object.keys(await APP.mutations()).sort()).toEqual([
