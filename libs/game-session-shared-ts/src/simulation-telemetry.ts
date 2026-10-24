@@ -29,6 +29,14 @@ const failed = createMetric({
   type: 'counter',
   dimensions,
 });
+const inputAcknowledgment = createMetric({
+  name: 'game.simulation.input.ack.duration',
+  description:
+    'Client submission to authoritative acknowledgment, including snapshot cadence',
+  unit: 's',
+  type: 'histogram',
+  dimensions,
+});
 const snapshotAge = createMetric({
   name: 'game.simulation.snapshot.age',
   description: 'Age since the latest valid snapshot was received',
@@ -59,7 +67,10 @@ export function simulationReplicaMeasures(
     snapshotAgeMs: number;
     pendingInputs: number;
     reconciled: boolean;
+    acknowledgmentMs: readonly number[];
   }): void => {
+    for (const milliseconds of sample.acknowledgmentMs)
+      inputAcknowledgment(milliseconds / 1000, attributes);
     snapshotAge(sample.snapshotAgeMs / 1000, attributes);
     pendingInputs(sample.pendingInputs, attributes);
     if (sample.reconciled) reconciliations(1, attributes);

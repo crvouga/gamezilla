@@ -2,6 +2,7 @@ import type { Clock } from '@pkgs/clock-shared-ts/types';
 import type { Message } from '@pkgs/message-shared-ts/message';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { RegisteredSimulation } from '@pkgs/turn-game-shared-ts/game-simulation';
+import { SimulationInputTiming } from './simulation-input-timing';
 import { SnapshotInterpolation } from './simulation-interpolation';
 import {
   type SimulationSnapshotPayload,
@@ -23,6 +24,7 @@ export class SimulationReplica {
   private receivedAt = 0;
   private lastSentAt = -Infinity;
   private measuredAt = -Infinity;
+  private readonly inputTiming;
   private readonly interpolation;
   private readonly controls = new Map<GameSide, LocalControl>();
   private readonly held = new Map<GameSide, unknown>();
@@ -36,9 +38,13 @@ export class SimulationReplica {
         snapshotAgeMs: number;
         pendingInputs: number;
         reconciled: boolean;
+        acknowledgmentMs: readonly number[];
       }) => void;
     }
   ) {
+    this.inputTiming = new SimulationInputTiming(
+      Math.min(64, options.simulation.timing.maxQueuedInputs)
+    );
     this.interpolation = new SnapshotInterpolation<unknown>(
       options.simulation.presentation?.interpolate ??
         ((_before, after) => after),
@@ -66,13 +72,22 @@ export class SimulationReplica {
       previous.paused !== snapshot.paused
     ) {
       this.controls.clear();
+      this.inputTiming.clear();
       this.held.clear();
       this.interpolation.reset();
     }
     this.latest = snapshot;
     this.receivedAt = this.options.clock.now();
     this.interpolation.push({ tick: snapshot.tick, state });
+    const acknowledgmentMs: number[] = [];
     for (const [side, control] of this.controls) {
+      acknowledgmentMs.push(
+        ...this.inputTiming.acknowledge(
+          side,
+          snapshot.acknowledged[side] ?? 0,
+          this.receivedAt
+        )
+      );
       const progress = {
         epoch: snapshot.epoch,
         tick: snapshot.tick,
@@ -85,7 +100,7 @@ export class SimulationReplica {
       )
         control.prediction.reset(progress);
     }
-    this.measure(previous !== null);
+    this.measure(previous !== null, acknowledgmentMs);
     return true;
   }
 
@@ -152,6 +167,7 @@ export class SimulationReplica {
     if (input === null) return;
     control.tick = tick;
     control.value = value;
+    this.inputTiming.record(side, input.sequence, this.options.clock.now());
     const sent = this.options.send(
       SubmitSimulationInput({
         version: 1,
@@ -200,11 +216,15 @@ export class SimulationReplica {
   reset(): void {
     this.latest = null;
     this.controls.clear();
+    this.inputTiming.clear();
     this.held.clear();
     this.interpolation.reset();
   }
 
-  private measure(reconciled: boolean): void {
+  private measure(
+    reconciled: boolean,
+    acknowledgmentMs: readonly number[] = []
+  ): void {
     this.options.measure({
       snapshotAgeMs: Math.max(0, this.options.clock.now() - this.receivedAt),
       pendingInputs: [...this.controls.values()].reduce(
@@ -212,6 +232,7 @@ export class SimulationReplica {
         0
       ),
       reconciled,
+      acknowledgmentMs,
     });
   }
 }

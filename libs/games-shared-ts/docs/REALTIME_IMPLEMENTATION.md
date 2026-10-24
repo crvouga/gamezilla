@@ -669,8 +669,10 @@ The following remain required before the brief is complete:
    and local command rebasing and local spectator delivery have current probes.
 4. Product Gherkin, Quint and glossary, audited spec-only commits, deterministic
    adverse-network campaigns and full local/online end-to-end journeys.
-5. Finish telemetry for input latency, round-trip latency and prediction error;
-   reproducible production failure artifacts; measure performance and bandwidth.
+5. Finish telemetry for authoritative input processing, transport round-trip
+   latency and prediction error; client acknowledgment duration is now recorded.
+   Produce reproducible production failure artifacts and measure performance
+   and bandwidth.
 6. Readiness evidence, automated responsive visual verification, the full current
    `bun verify` gate and appropriate deeper verification, and a reviewable PR.
 
@@ -720,6 +722,41 @@ including the existing turn-game journeys and the new Pong flow.
 `pong-after-journey-reader.log` records all 61 Pong checks passing with the
 shared court reader. Both runs completed without assertion failures; no
 verification budget or replay depth changed.
+
+## Input acknowledgment timing
+
+The replica records submission-to-authoritative-acknowledgment durations on its
+own injected client clock. `game.simulation.input.ack.duration` aggregates those
+durations in seconds with only the existing finite game-mode dimension. It
+includes delivery, authoritative processing and snapshot cadence; it is not
+pure network RTT or server processing duration. No timestamp is sent over the
+wire or subtracted from a different machine's clock.
+
+Retention is bounded to the prediction capacity for each controlled side.
+Cumulative acknowledgments release and measure each tracked input once; unknown
+acknowledgments do not fabricate samples. Reset, epoch change and pause discard
+old timing. Invalid or backward clock readings never emit negative durations.
+The public timing contract checks translation of the client clock, cumulative
+delivery, independent sides and bounded retention through the existing property
+runner. The actual Pong replica pins the literal 37 → 100 ms input/acknowledgment
+case and checks all three lifecycle fences.
+
+`input-ack-timing-red.log` records the missing 63 ms sample.
+`input-ack-framework-quality.log` records three passing framework tasks;
+`input-ack-client-static.log` records six passing consumer type/lint tasks.
+`input-ack-timing-quality.log` includes all new replica checks passing, but an
+existing replay property exceeded its unchanged five-second limit during the
+combined test/lint run. In the subsequent separate test run,
+`input-ack-pong-serial.log`, all 16 Pong code checks pass; the same replay
+property takes 2.35 seconds. No input budget, assertion, retry configuration or
+time limit changed. Full verification remains required.
+
+The queued full run for the preceding matched-journey checkpoint was cancelled
+cleanly before admission (exit 130) so it could not snapshot changing source.
+`verify-after-matched-pong-journey.log` is a queue/cancellation record, not a
+full verdict. Another worktree's machine-wide verification lease was untouched.
+Actions run `40115052693` on `0a5e588c2` also started no jobs because of the
+Actions budget; its exact annotation is retained under `.cache/pong/`.
 
 ## Future-game checks
 
