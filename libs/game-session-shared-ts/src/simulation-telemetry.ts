@@ -59,6 +59,14 @@ const pendingInputs = createMetric({
   type: 'histogram',
   dimensions,
 });
+const predictionError = createMetric({
+  name: 'game.simulation.prediction.error',
+  description:
+    'Normalized local projection error at the acknowledged logical tick',
+  unit: '1',
+  type: 'histogram',
+  dimensions,
+});
 const reconciliations = createMetric({
   name: 'game.simulation.reconciliations',
   description: 'Authoritative updates reconciled by a replica',
@@ -76,9 +84,12 @@ export function simulationReplicaMeasures(
     pendingInputs: number;
     reconciled: boolean;
     acknowledgmentMs: readonly number[];
+    predictionErrors: readonly number[];
   }): void => {
     for (const milliseconds of sample.acknowledgmentMs)
       inputAcknowledgment(milliseconds / 1000, attributes);
+    for (const error of sample.predictionErrors)
+      predictionError(error, attributes);
     snapshotAge(sample.snapshotAgeMs / 1000, attributes);
     pendingInputs(sample.pendingInputs, attributes);
     if (sample.reconciled) reconciliations(1, attributes);

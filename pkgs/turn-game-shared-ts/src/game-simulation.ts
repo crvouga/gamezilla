@@ -53,6 +53,12 @@ export type SimulationPresentation<S, I> = {
     input: I,
     deltaMs: number
   ) => S;
+  /** Chosen local entity's normalized distance [0, 1] at one tick; null if incomparable. */
+  readonly predictionError?: (
+    predicted: S,
+    authoritative: S,
+    player: GameSide
+  ) => number | null;
 };
 
 /** State stays typed inside the game; only this validated registration erases it for composition. */
@@ -170,6 +176,20 @@ function erasedPresentation<S, I>(
               input: unknown,
               deltaMs: number
             ) => presentation.predict!(state as S, player, input as I, deltaMs),
+          }),
+      ...(presentation.predictionError === undefined
+        ? {}
+        : {
+            predictionError: (
+              predicted: unknown,
+              authoritative: unknown,
+              player: GameSide
+            ) =>
+              presentation.predictionError!(
+                predicted as S,
+                authoritative as S,
+                player
+              ),
           }),
     },
   };

@@ -58,3 +58,23 @@ export function createPongPrediction(config: PongConfig) {
     };
   };
 }
+
+/** Compare only the controlled paddle across an uninterrupted point and phase. */
+export function createPongPredictionError(config: PongConfig) {
+  return (
+    predicted: PongState,
+    authoritative: PongState,
+    side: GameSide
+  ): number | null => {
+    if (
+      predicted.phase !== authoritative.phase ||
+      predicted.feedback.points !== authoritative.feedback.points
+    )
+      return null;
+    const paddle = side === 'white' ? 'left' : 'right';
+    return (
+      Math.abs(predicted.paddles[paddle].y - authoritative.paddles[paddle].y) /
+      config.height
+    );
+  };
+}

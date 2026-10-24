@@ -10,6 +10,8 @@ import {
 } from '@libs/pong-shared-ts/pong-game';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import type { Message } from '@pkgs/message-shared-ts/message';
+import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
+import fc from 'fast-check';
 
 function replica() {
   const time = createHarnessClock();
@@ -45,6 +47,7 @@ function replica() {
 }
 
 test('selective prediction responds before a snapshot while the ball, score and opponent remain authoritative', () => {
+  // regression: simulation-prediction-error-unreported
   const rig = replica();
   expect(rig.client.receive(rig.initial, 'game:1:0')).toBe(true);
   const before = rig.sample();
@@ -73,6 +76,7 @@ test('selective prediction responds before a snapshot while the ball, score and 
   ).toBe(true);
   expect(rig.sample().paddles.left.y).toBe(410);
   expect(rig.sample().ball).toEqual(before.ball);
+  expect(rig.measures.at(-1)).toMatchObject({ predictionErrors: [0.025] });
 });
 
 test('stale delivery and a reconnect fence cannot rewind presentation or resend held old controls', () => {
@@ -145,5 +149,154 @@ test.each(['reset', 'epoch', 'pause'] as const)(
       epoch
     );
     expect(rig.measures.at(-1)).toMatchObject({ acknowledgmentMs: [] });
+    expect(rig.measures.at(-1)).toMatchObject({ predictionErrors: [] });
   }
 );
+
+test('rebasing a future control projects only the ticks still ahead of the received court', () => {
+  // regression: simulation-prediction-rebase-repeats-elapsed-movement
+  const rig = replica();
+  rig.client.receive(rig.initial, 'game:1:0');
+  rig.client.control('white', { kind: 'direction', direction: 1 });
+  rig.client.pump();
+  rig.clock.advance(34);
+  rig.client.pump();
+  const input = rig.sent[1]!;
+  expect(SubmitSimulationInput.is(input) && input.payload.tick).toBe(16);
+  const before = pongPositionCodec.decode(rig.initial.payload.state)!;
+  const authoritative = {
+    ...before,
+    paddles: { ...before.paddles, left: { ...before.paddles.left, y: 410 } },
+  };
+  rig.client.receive(
+    SimulationStateChanged({
+      ...rig.initial.payload,
+      revision: 2,
+      tick: 14,
+      state: pongPositionCodec.encode(authoritative),
+      acknowledged: { white: 1 },
+    }),
+    'game:1:0'
+  );
+  // Only ticks fifteen and sixteen remain: 2 × 10 court units, not 3 × 10.
+  expect(rig.sample().paddles.left.y).toBeCloseTo(430, 10);
+  expect(rig.measures.at(-1)).toMatchObject({ predictionErrors: [] });
+});
+
+test('same-tick error ignores future movement and future projections rebase before their own acknowledgment', () => {
+  const rig = replica();
+  rig.client.receive(rig.initial, 'game:1:0');
+  rig.client.control('white', { kind: 'direction', direction: 1 });
+  rig.client.pump();
+  rig.clock.advance(34);
+  rig.client.pump();
+  expect(rig.sample().paddles.left.y).toBe(460);
+  const before = pongPositionCodec.decode(rig.initial.payload.state)!;
+  for (const [revision, tick, sequence, y, error] of [
+    [2, 13, 1, 410, 0.025],
+    [3, 16, 2, 440, 0],
+  ] as const) {
+    const state = {
+      ...before,
+      paddles: { ...before.paddles, left: { ...before.paddles.left, y } },
+    };
+    expect(
+      rig.client.receive(
+        SimulationStateChanged({
+          ...rig.initial.payload,
+          revision,
+          tick,
+          state: pongPositionCodec.encode(state),
+          acknowledged: { white: sequence },
+        }),
+        'game:1:0'
+      )
+    ).toBe(true);
+    expect(rig.measures.at(-1)).toMatchObject({ predictionErrors: [error] });
+  }
+});
+
+test.each(['phase', 'point'] as const)(
+  '%s boundaries are not comparable prediction samples',
+  (boundary) => {
+    const rig = replica();
+    rig.client.receive(rig.initial, 'game:1:0');
+    rig.client.control('white', { kind: 'direction', direction: 1 });
+    rig.client.pump();
+    const before = pongPositionCodec.decode(rig.initial.payload.state)!;
+    const state =
+      boundary === 'phase'
+        ? {
+            ...before,
+            phase: 'playing' as const,
+            countdown: 0,
+            ball: { ...before.ball, vx: 480 },
+          }
+        : {
+            ...before,
+            score: { ...before.score, left: 1 },
+            feedback: { ...before.feedback, points: 1 },
+          };
+    expect(
+      rig.client.receive(
+        SimulationStateChanged({
+          ...rig.initial.payload,
+          revision: 2,
+          tick: 13,
+          state: pongPositionCodec.encode(state),
+          acknowledged: { white: 1 },
+        }),
+        'game:1:0'
+      )
+    ).toBe(true);
+    expect(rig.measures.at(-1)).toMatchObject({ predictionErrors: [] });
+  }
+);
+
+test('normalized error depends only on the chosen paddle at the same tick, independently of future input', () => {
+  assertProperty(
+    'pong same-tick selective prediction error',
+    fc.property(
+      fc.constantFrom('white' as const, 'black' as const),
+      fc.integer({ min: 72, max: 728 }),
+      fc.integer({ min: 72, max: 728 }),
+      fc.boolean(),
+      (side, own, other, future) => {
+        const rig = replica();
+        rig.client.receive(rig.initial, 'game:1:0');
+        rig.client.control(side, { kind: 'direction', direction: 1 });
+        rig.client.pump();
+        if (future) {
+          rig.clock.advance(34);
+          rig.client.pump();
+        }
+        const before = pongPositionCodec.decode(rig.initial.payload.state)!;
+        const state = {
+          ...before,
+          paddles: {
+            left: { ...before.paddles.left, y: side === 'white' ? own : other },
+            right: {
+              ...before.paddles.right,
+              y: side === 'black' ? own : other,
+            },
+          },
+        };
+        expect(
+          rig.client.receive(
+            SimulationStateChanged({
+              ...rig.initial.payload,
+              revision: 2,
+              tick: 13,
+              state: pongPositionCodec.encode(state),
+              acknowledged: { [side]: 1 },
+            }),
+            'game:1:0'
+          )
+        ).toBe(true);
+        expect(rig.measures.at(-1)).toMatchObject({
+          predictionErrors: [Math.abs(430 - own) / 800],
+        });
+      }
+    )
+  );
+});

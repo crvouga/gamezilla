@@ -16,7 +16,9 @@ export type PredictionSnapshot<S> = {
 
 export type PredictionProjection<S, I> = (
   state: S,
-  input: PredictedInput<I>
+  input: PredictedInput<I>,
+  /** Logical origin after the latest authority update or preceding queued input. */
+  fromTick: number
 ) => S;
 
 /**
@@ -29,6 +31,10 @@ export class InputPrediction<S, I> {
   private pending: PredictedInput<I>[] = [];
   private sequence: number;
   private predicted: S;
+  private projections = new Map<
+    number,
+    { readonly tick: number; readonly state: S }
+  >();
 
   constructor(
     snapshot: PredictionSnapshot<S>,
@@ -51,6 +57,15 @@ export class InputPrediction<S, I> {
     return this.pending.length;
   }
 
+  /** A projection at this exact acknowledged tick, never the current future pose. */
+  projectedStateAt(
+    snapshot: Pick<PredictionSnapshot<S>, 'epoch' | 'tick' | 'acknowledged'>
+  ): S | null {
+    if (snapshot.epoch !== this.authoritative.epoch) return null;
+    const projection = this.projections.get(snapshot.acknowledged);
+    return projection?.tick === snapshot.tick ? projection.state : null;
+  }
+
   /** A full history refuses more input; silently dropping unacknowledged input is unsafe. */
   submit(value: I, tick: number): PredictedInput<I> | null {
     const previousTick = this.pending.at(-1)?.tick ?? this.authoritative.tick;
@@ -65,10 +80,11 @@ export class InputPrediction<S, I> {
       tick,
       value: structuredClone(value),
     };
-    const predicted = this.project(this.predicted, input);
+    const predicted = this.project(this.predicted, input, previousTick);
     this.sequence = input.sequence;
     this.pending.push(input);
     this.predicted = predicted;
+    this.projections.set(input.sequence, { tick, state: predicted });
     return input;
   }
 
@@ -85,10 +101,21 @@ export class InputPrediction<S, I> {
       (input) =>
         input.sequence > snapshot.acknowledged && input.tick > snapshot.tick
     );
-    const predicted = pending.reduce(this.project, snapshot.state);
+    let predicted = snapshot.state;
+    let fromTick = snapshot.tick;
+    const projections = new Map<
+      number,
+      { readonly tick: number; readonly state: S }
+    >();
+    for (const input of pending) {
+      predicted = this.project(predicted, input, fromTick);
+      projections.set(input.sequence, { tick: input.tick, state: predicted });
+      fromTick = input.tick;
+    }
     this.authoritative = snapshot;
     this.pending = pending;
     this.predicted = predicted;
+    this.projections = projections;
     return true;
   }
 
@@ -99,6 +126,7 @@ export class InputPrediction<S, I> {
     this.sequence = snapshot.acknowledged;
     this.predicted = snapshot.state;
     this.pending = [];
+    this.projections.clear();
   }
 
   private assertSnapshot(snapshot: PredictionSnapshot<S>): void {

@@ -674,9 +674,7 @@ The following remain required before the brief is complete:
    spectator delivery also have current probes.
 4. Product Gherkin, Quint and glossary, audited spec-only commits, deterministic
    adverse-network campaigns and full local/online end-to-end journeys.
-5. Finish prediction-error telemetry; client acknowledgment, authoritative
-   input-processing and room heartbeat round-trip duration are now recorded.
-   Produce reproducible production failure artifacts and measure performance
+5. Produce reproducible production failure artifacts and measure performance
    and bandwidth.
 6. Readiness evidence, automated responsive visual verification, the full current
    `bun verify` gate and appropriate deeper verification, and a reviewable PR.
@@ -1111,8 +1109,8 @@ contract also checks committed state, failure atomicity and unsubscription.
 `input-processing-dependent-types.log` passes all 35 dependent type tasks.
 `input-processing-policy.log` passes goals, spec ownership and package naming.
 
-This adds authority processing evidence; prediction error,
-production failure artifacts and measured performance remain open. Full Verify
+This adds authority processing evidence; production failure artifacts and
+measured performance remain open. Full Verify
 and nightly-random runs from the preceding local-recovery checkpoint remain in
 the normal machine-wide queue; they cannot establish a verdict for this change.
 
@@ -1153,3 +1151,54 @@ every drawn trace and the pinned scoring regressions (88.26 s test body,
 and product-harness evidence, without a hosted network measurement, browser
 performance result or full Verify verdict. The readiness matrix records the
 heartbeat deadline regression; the broader Pong readiness gaps stay open.
+
+## Prediction-error timing and replay
+
+`game.simulation.prediction.error` records the chosen entity's normalized
+distance from authoritative state at the same acknowledged input tick. Games
+optionally supply `presentation.predictionError`; a game without prediction or
+without that comparator emits no error sample. Pong compares only the chosen
+paddle's center, divided by court height, and excludes a phase or point boundary.
+The framework accepts only finite distances in `[0, 1]` and retains the existing
+finite `game.mode` dimension. A perfect prediction records zero.
+
+`InputPrediction` retains at most its existing input capacity of projected states,
+keyed by input sequence and logical tick within the current epoch. Future
+projections are refreshed when reconciliation rebases them. A sample needs an
+accepted snapshot matching both its input acknowledgment and its tick; unmatched
+ticks, expired controls, repeated acknowledgments and replaced epochs cannot
+produce a sample. This deliberately leaves incomparable updates unmeasured rather
+than comparing a future local paddle with an earlier authoritative paddle.
+
+The implementation also fixes replay counting already elapsed movement twice.
+`PredictionProjection` receives its logical `fromTick`; submission starts at the
+preceding input, and replay starts at the new authoritative tick and then the
+preceding remaining input. The replica computes the remaining duration from
+those ticks, retaining its existing 100 ms displacement bound. There is no
+stored duration from the older snapshot to replay again.
+
+`simulation-prediction-error-unreported` pins a projection at center 430 and
+authority at 410 at input tick 13: the error is `20 / 800 = 0.025`.
+`prediction-error-red.log` records the missing sample (15 passes, one failure).
+`simulation-prediction-rebase-repeats-elapsed-movement` pins authority tick 14,
+center 410 and the future tick-16 input: only two ten-unit ticks remain, so the
+projection must be 430. `prediction-rebase-elapsed-red.log` records the earlier
+440 result (16 passes, one failure).
+
+`prediction-error-deeper-contracts.log` passes 129 game-session checks and 21 Pong
+checks at `PBT_NUM_RUNS=200`. The properties vary authority checkpoint partitions,
+projection capacity, chosen paddle, authoritative positions and future input.
+They verify that rebasing preserves the future logical position, expired/fenced
+projections are unavailable, and future movement or the other paddle does not
+inflate error. Contracts also cover normalization, absent optional capabilities,
+zero error after a future projection rebases, and phase/point boundaries. The
+readiness matrix includes the literal movement regression and its coverage.
+
+`prediction-error-dependent-types.log` passes all 105 dependent type tasks;
+`prediction-error-lint.log` passes the three affected lint tasks.
+`prediction-error-turn-game-tests.log` passes all nine registration checks,
+`prediction-error-client-tests.log` passes the available Pong client test task,
+and `prediction-error-policy.log` passes goals, spec ownership and package naming.
+`pong-after-prediction-error-all-traces.log` passes all 108 whole-context checks
+with `QUINT_REPLAY_TRACES=all` (51.93 s test body, 61.021 s task). Full current
+Verify and hosted/browser evidence remain required.

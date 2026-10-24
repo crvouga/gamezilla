@@ -11,10 +11,8 @@ import {
 } from './simulation-messages';
 import { InputPrediction } from './simulation-prediction';
 
-type Projection = { readonly value: unknown; readonly deltaMs: number };
 type LocalControl = {
-  prediction: InputPrediction<unknown, Projection>;
-  value: unknown;
+  prediction: InputPrediction<unknown, unknown>;
   tick: number;
 };
 
@@ -39,6 +37,7 @@ export class SimulationReplica {
         pendingInputs: number;
         reconciled: boolean;
         acknowledgmentMs: readonly number[];
+        predictionErrors: readonly number[];
       }) => void;
     }
   ) {
@@ -79,7 +78,22 @@ export class SimulationReplica {
     this.latest = snapshot;
     this.receivedAt = this.options.clock.now();
     this.interpolation.push({ tick: snapshot.tick, state });
+    const measures = this.reconcile(snapshot, state, previous?.tick ?? -1);
+    this.measure(
+      previous !== null,
+      measures.acknowledgmentMs,
+      measures.predictionErrors
+    );
+    return true;
+  }
+
+  private reconcile(
+    snapshot: SimulationSnapshotPayload,
+    state: unknown,
+    previousTick: number
+  ) {
     const acknowledgmentMs: number[] = [];
+    const predictionErrors: number[] = [];
     for (const [side, control] of this.controls) {
       acknowledgmentMs.push(
         ...this.inputTiming.acknowledge(
@@ -94,14 +108,33 @@ export class SimulationReplica {
         acknowledged: snapshot.acknowledged[side] ?? 0,
         state,
       };
-      if (
-        !control.prediction.reconcile(progress) &&
-        snapshot.tick > (previous?.tick ?? -1)
-      )
+      const projected = control.prediction.projectedStateAt(progress);
+      const accepted = control.prediction.reconcile(progress);
+      if (!accepted && snapshot.tick > previousTick)
         control.prediction.reset(progress);
+      if (accepted && projected !== null) {
+        const error = this.predictionError(projected, state, side);
+        if (error !== null) predictionErrors.push(error);
+      }
     }
-    this.measure(previous !== null, acknowledgmentMs);
-    return true;
+    return { acknowledgmentMs, predictionErrors };
+  }
+
+  private predictionError(
+    predicted: unknown,
+    authoritative: unknown,
+    side: GameSide
+  ): number | null {
+    const presentation = this.options.simulation.presentation;
+    if (
+      presentation?.predict === undefined ||
+      presentation.predictionError === undefined
+    )
+      return null;
+    const error = presentation.predictionError(predicted, authoritative, side);
+    return error !== null && Number.isFinite(error) && error >= 0 && error <= 1
+      ? error
+      : null;
   }
 
   control(side: GameSide, input: unknown): boolean {
@@ -141,32 +174,33 @@ export class SimulationReplica {
       const state = this.options.simulation.codec.decode(snapshot.state)!;
       control = {
         tick: snapshot.tick,
-        value,
-        prediction: new InputPrediction<unknown, Projection>(
+        prediction: new InputPrediction<unknown, unknown>(
           {
             epoch: snapshot.epoch,
             tick: snapshot.tick,
             acknowledged: snapshot.acknowledged[side] ?? 0,
             state,
           },
-          (previous, input) =>
-            project?.(previous, side, input.value.value, input.value.deltaMs) ??
-            previous,
+          (previous, input, fromTick) =>
+            project?.(
+              previous,
+              side,
+              input.value,
+              Math.min(
+                100,
+                ((input.tick - fromTick) * 1000) /
+                  this.options.simulation.timing.tickRate
+              )
+            ) ?? previous,
           Math.min(64, this.options.simulation.timing.maxQueuedInputs)
         ),
       };
       this.controls.set(side, control);
     }
     if (tick <= control.tick) return;
-    const deltaMs = Math.min(
-      100,
-      ((tick - Math.max(snapshot.tick, control.tick)) * 1000) /
-        this.options.simulation.timing.tickRate
-    );
-    const input = control.prediction.submit({ value, deltaMs }, tick);
+    const input = control.prediction.submit(value, tick);
     if (input === null) return;
     control.tick = tick;
-    control.value = value;
     this.inputTiming.record(side, input.sequence, this.options.clock.now());
     const sent = this.options.send(
       SubmitSimulationInput({
@@ -223,7 +257,8 @@ export class SimulationReplica {
 
   private measure(
     reconciled: boolean,
-    acknowledgmentMs: readonly number[] = []
+    acknowledgmentMs: readonly number[] = [],
+    predictionErrors: readonly number[] = []
   ): void {
     this.options.measure({
       snapshotAgeMs: Math.max(0, this.options.clock.now() - this.receivedAt),
@@ -233,6 +268,7 @@ export class SimulationReplica {
       ),
       reconciled,
       acknowledgmentMs,
+      predictionErrors,
     });
   }
 }

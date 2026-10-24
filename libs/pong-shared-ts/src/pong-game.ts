@@ -8,7 +8,11 @@ import { pongAutomation } from './pong-automation';
 import { pongBot } from './pong-bot';
 import { pongCodec } from './pong-codec';
 import { pongConfig } from './pong-config';
-import { createPongPrediction, interpolatePong } from './pong-presentation';
+import {
+  createPongPrediction,
+  createPongPredictionError,
+  interpolatePong,
+} from './pong-presentation';
 import {
   initialPongState,
   PONG_NEUTRAL_INPUT,
@@ -110,6 +114,7 @@ const simulation = defineSimulation(
     presentation: {
       interpolate: interpolatePong,
       predict: createPongPrediction(config),
+      predictionError: createPongPredictionError(config),
       mergeLocal: (state, predicted, side) => {
         const paddle = side === 'white' ? 'left' : 'right';
         return {
