@@ -676,8 +676,10 @@ The following remain required before the brief is complete:
    spectator delivery also have current probes.
 4. Product Gherkin, Quint and glossary, audited spec-only commits, deterministic
    product-level adverse-network campaigns and full local/online end-to-end journeys.
-5. Measure performance and bandwidth. Bounded deterministic failure records now
-   travel through the existing root error traces; see
+5. Validate performance across target hosts and devices, including socket,
+   storage and rendering costs. The [in-process performance profile](#in-process-performance-profile)
+   now measures simulation CPU and room JSON traffic. Bounded deterministic
+   failure records travel through the existing root error traces; see
    [failure reproduction](#failure-reproduction).
 6. Readiness evidence, automated responsive visual verification, the full current
    `bun verify` gate and appropriate deeper verification, and a reviewable PR.
@@ -1293,3 +1295,62 @@ naming. `pong-after-network-playback-all-traces.log` passes all 108 Pong checks
 with `QUINT_REPLAY_TRACES=all` (46.54 s test body, 60.56 s task).
 Product-level adverse-network journeys, physical Pong presentation measurements,
 socket fidelity, hosted recovery and the full current gate remain required.
+
+## In-process performance profile
+
+`@libs/pong-harness-ts#bench` now joins the existing nightly performance group.
+Its standalone `pong-profile.v1` JSON reports the registered engine with two
+medium bots, a saturated 256-input mailbox, and actual custom-room wire traffic
+with 0, 2 and 20 spectators. The admitted-session fixture is shared with the
+counting-race network campaign; no framework imports Pong. Method, command and
+limits are defined once in the [Pong harness README](../../../libs/pong-harness-ts/README.md#performance-profile).
+
+`pong-profile-artifact-measurement.log` and the standalone
+`pong-profile-artifact-measurement.json` under `.cache/pong/` record the completed
+entry on Bun 1.4.3, macOS arm64, an M2 Max with 12 physical cores and 32 GiB RAM.
+`pong-profile-machine-context.log` records that machine/load context; concurrent
+verification was active. The final batch-mean timings, in microseconds per
+operation, were:
+
+| Workload | Median | p95 | p99 |
+| --- | ---: | ---: | ---: |
+| Engine tick, two medium bots, result check | 1.635 | 4.491 | 95.337 |
+| Restore, 256 enqueues, one tick | 394.021 | 1804.333 | 4863.729 |
+
+These are quantiles of 200 batch means, not individual-operation tail latency.
+The preceding measurements' bot-tick medians were 1.266 and 2.590 µs; these local elapsed
+timings vary with JIT/GC/load and are not deployment capacity claims.
+
+Each ten-second virtual room window published 600 further ticks, delivered
+20 snapshots per second to every peer, processed about 30 controls per second
+per player, added seven durable lifecycle events and ended with a 1,850-byte
+live recovery value. Measured JSON bytes per virtual second were:
+
+| Spectators | Room uplink | Room downlink | Snapshot bytes per recipient |
+| ---: | ---: | ---: | ---: |
+| 0 | 18,041 | 31,115 | 14,516 |
+| 2 | 18,041 | 62,230 | 14,516 |
+| 20 | 18,041 | 342,285 | 14,517 |
+
+The largest observed input and snapshot envelopes were 301 and 748 UTF8 bytes.
+Room execution plus virtual scheduling and JSON accounting took 46.127, 46.032, 94.848 ms elapsed for those windows. The report retains process CPU separately;
+it includes all process threads. No machine-dependent threshold gates a release.
+Socket/TLS framing, remote persistence latency, rendering and target-device or
+hosted limits remain unmeasured by this task.
+
+`pong-profile-contracts-final.log` passes both affected test tasks at
+`PBT_NUM_RUNS=200`, including the original seeded network regression after the
+fixture extraction. `pong-profile-integrity-final.log` passes the Pong
+test/type/lint tasks. The new contracts check UTF8 envelopes, repeated deliveries,
+reset boundaries, actual input/tick progress and identical mechanics across
+fanouts. Each broadcast's recorded bytes multiply by its recipient count;
+independent rooms can differ by revision-number width. The profile refuses a
+game that ends before the measurement window completes.
+
+`pong-profile-complete-static.log` passes six affected type/lint tasks;
+`pong-profile-dependent-types.log` passes all 11 dependent type tasks, and
+`pong-profile-policy.log` passes goals, spec ownership and package naming.
+`pong-profile-nightly-policy-tests.log` passes existing nightly/profile policy
+checks. `pong-profile-artifact-static.log` passes the entry's final type/lint
+checks, and the benchmark writes its standalone JSON through the existing
+object-store adapter in the package's `.cache/performance/`. These measurements and contracts do not establish the full current gate.

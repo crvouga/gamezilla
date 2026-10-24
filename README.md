@@ -562,7 +562,7 @@ Verify Nightly (`.github/workflows/verify-nightly.yml`, `SECRETS_ENV=dev`) runs 
 | `verify-nightly:browser` | `@apps/product-ts#test:stack`: every spec suite in real browsers against a booted localhost stack. | Step timelines, screenshots, recordings and traces of every scenario. |
 | `verify-nightly:visual` | `@apps/product-ts#verify:ui-quality` on the corpus the gate group recorded. | Scores, failing screenshots and context clips. |
 | `verify-nightly:coverage` | `verify:coverage`. | `lcov.info` and `summary.json`. |
-| `verify-nightly:performance` | `@pkgs/room-root-harness-ts#bench`, `@pkgs/sql-root-shared-ts#perf`. | Each benchmark's output. |
+| `verify-nightly:performance` | `@pkgs/room-root-harness-ts#bench`, `@libs/pong-harness-ts#bench`, `@pkgs/sql-root-shared-ts#perf`. | Each benchmark's output; [Pong profile scope](libs/pong-harness-ts/README.md#performance-profile). |
 
 Manual debugging can select a group with `gh workflow run verify-nightly.yml --ref <branch> -f group=random` (or `gate`, `browser`, `visual`, `coverage`, `performance`). These runs report `verify-nightly:diagnostic`, verify only the requested scope (`visual` also runs its gate prerequisite), and never open or close the full Nightly issue. The scheduled run and the default `group=all` still run every group. While fixing a failure, use its narrow group and batch related changes before pushing; run the complete verification once the fix is ready. Superseded diagnostics cancel only another diagnostic of the same group and ref; complete runs retain their queue.
 

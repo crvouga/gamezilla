@@ -16,22 +16,32 @@
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload --preload @libs/harness-ts/preload tests",
     "test:spec": "bun run ../../libs/harness-ts/scripts/test-spec.ts",
     "test:spec:0": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 0/1",
-    "verify:models": "bun run ../../libs/tools-harness-ts/scripts/verify-models.ts"
+    "verify:models": "bun run ../../libs/tools-harness-ts/scripts/verify-models.ts",
+    "bench": "bun scripts/pong.bench.ts"
   },
   "dependencies": {
     "@libs/game-matchmaking-harness-ts": "workspace:*",
     "@libs/game-session-harness-ts": "workspace:*",
+    "@libs/game-session-shared-ts": "workspace:*",
     "@libs/harness-ts": "workspace:*",
     "@libs/pong-client-ts": "workspace:*",
     "@libs/pong-shared-ts": "workspace:*",
     "@libs/spaces-harness-ts": "workspace:*",
+    "@pkgs/harness-root-shared-ts": "workspace:*",
+    "@pkgs/room-root-harness-ts": "workspace:*",
+    "@pkgs/room-root-shared-ts": "workspace:*",
     "@pkgs/ui-testing-root-shared-ts": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/bun-test-solid-client-ts": "workspace:*",
+    "@pkgs/object-store-node-fs-server-ts": "workspace:*",
+    "@pkgs/object-store-root-shared-ts": "workspace:*",
+    "@pkgs/os-server-ts": "workspace:*",
+    "@pkgs/property-shared-ts": "workspace:*",
     "@pkgs/quint-shared-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
     "typescript": "catalog:"
   },
   "category": "harness",

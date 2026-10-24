@@ -1,65 +1,24 @@
 import { connectCustomSimulation } from '@libs/game-session-client-ts/custom-simulation-session';
-import {
-  CustomGamesAttr,
-  newCustomGame,
-} from '@libs/game-session-shared-ts/custom-game-state';
+import { simulationRoomFixture } from '@libs/game-session-harness-ts/simulation-room-fixture';
+import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
 import { RequestSimulationSnapshot } from '@libs/game-session-shared-ts/simulation-messages';
-import { GamesRoomAttr } from '@libs/spaces-shared-ts/games';
-import { SpaceMembersRoomAttr } from '@libs/spaces-shared-ts/space-members-messages';
-import { createSpaceModule } from '@libs/spaces-shared-ts/space-module';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { defineSystem } from '@pkgs/harness-root-shared-ts/define-system';
 import type { Session } from '@pkgs/harness-root-shared-ts/runtime-types';
 import { ROOM_VIRTUAL_RUNTIME } from '@pkgs/room-root-harness-ts/boot';
 import { createRoomHarnessRuntime } from '@pkgs/room-root-harness-ts/create-room-harness';
 import type { RoomFaultProfile } from '@pkgs/room-root-harness-ts/network';
-import { assertRoomModuleName } from '@pkgs/room-root-shared-ts/types';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { decode, networkRace } from './network-race';
-
-function raceModule(session: Session) {
-  const base = createSpaceModule(
-    assertRoomModuleName('counting-race'),
-    [networkRace],
-    {
-      now: session.ports.clock.now,
-      random: session.ports.random,
-      authority: true,
-    }
-  );
-  const game = {
-    ...newCustomGame(
-      'race-1',
-      'alice',
-      networkRace.registration.rules.initial()
-    ),
-    black: { kind: 'person' as const, person: 'bob' },
-    ready: ['white', 'black'] as ('white' | 'black')[],
-    status: 'active' as const,
-    startedAt: 0,
-    turnStartedAt: 0,
-  };
-  return {
-    ...base,
-    // Admission has its own policy suites; this campaign exercises seat enforcement after admission.
-    connectionView: () => ({ mode: 'full' as const }),
-    initialState: () => ({
-      ...base.initialState(),
-      ...GamesRoomAttr.selected(networkRace.id),
-      ...SpaceMembersRoomAttr.seats({
-        alice: { joinedAt: '2026-10-24' },
-        bob: { joinedAt: '2026-10-24' },
-        eve: { joinedAt: '2026-10-24' },
-      }),
-      ...CustomGamesAttr({ current: game, history: [] }),
-    }),
-  };
-}
 
 async function createNetworkSurface(session: Session) {
   const kit = await createRoomHarnessRuntime({
     session,
-    module: raceModule(session),
+    module: simulationRoomFixture(
+      { game: networkRace, id: 'race-1', viewers: ['eve'] },
+      session.ports.clock,
+      session.ports.random
+    ),
     topic: 'space:race',
   });
   (session as { waitForIdle: () => Promise<void> }).waitForIdle = kit.drain;

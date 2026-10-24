@@ -3130,6 +3130,10 @@
       "cache": false,
       "passThroughEnv": ["*"]
     },
+    "@libs/pong-harness-ts#bench": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
     "@pkgs/sql-root-shared-ts#perf": {
       "cache": false,
       "passThroughEnv": ["*"]
