@@ -1,0 +1,4 @@
+{
+  "summary": "OAuth launch rejected the dev apex web callback because only the www web host was passed to the auth provider.",
+  "regressionTest": "libs/app-root-shared-ts/tests/auth-callback-origins.test.ts"
+}

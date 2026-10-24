@@ -67,6 +67,9 @@ describe('wrangler.toml', () => {
         expect(vars['WEB_CLIENT_ORIGIN']).toBe(
           `https://web-${label}.example.test`
         );
+        expect(vars['WEB_CLIENT_APEX_ORIGIN']).toBe(
+          `https://${label}.example.test`
+        );
         expect(vars['EMQX_WSS_URL']).toBe(
           `wss://broker-${label}.example.test/mqtt`
         );
@@ -97,6 +100,7 @@ describe('wrangler.toml', () => {
       expect(vars['API_URL']).toBe(envOrigins(env).api);
       expect(vars['EMQX_WSS_URL']).toBe(`wss://${env.hosts.broker}/mqtt`);
       expect(vars['WEB_CLIENT_ORIGIN']).toBe(envOrigins(env).web);
+      expect(vars['WEB_CLIENT_APEX_ORIGIN']).toBe(envOrigins(env).apex);
       expect(secrets['API_URL']).toBeUndefined();
       expect(secrets['EMQX_WSS_URL']).toBeUndefined();
       expect(secrets['SECRETS_ENV']).toBe(env.env);
@@ -192,6 +196,7 @@ describe('wrangler.toml', () => {
     expect(deletedDurableObjectClasses(base)).toEqual([]);
   });
 
+  // regression: production-cron-registration-stalled
   test("renders for every environment under that environment's Worker name", () => {
     for (const env of Object.values(ENV_FILES)) {
       const rendered = renderWranglerConfig(base, env);
@@ -203,7 +208,7 @@ describe('wrangler.toml', () => {
         not_found_handling: 'single-page-application',
         run_worker_first: ['/api', '/api/*'],
       });
-      expect(rendered['triggers']).toEqual({ crons: ['*/1 * * * *'] });
+      expect(rendered['triggers']).toEqual({ crons: ['* * * * *'] });
       expect(rendered['durable_objects']).toEqual({
         bindings: [
           {

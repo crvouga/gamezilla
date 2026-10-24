@@ -17,6 +17,9 @@ export const API_PATH_PREFIX = '/api';
 /** Binding for the web origin sign-in redirects return to (rendered per env by `@libs/infra`; the localhost stack sets its own). */
 export const WEB_CLIENT_ORIGIN_BINDING = 'WEB_CLIENT_ORIGIN';
 
+/** The environment's second public web host, when it serves the app. */
+export const WEB_CLIENT_APEX_ORIGIN_BINDING = 'WEB_CLIENT_APEX_ORIGIN';
+
 async function readOptional(
   secretStore: SecretStore,
   name: string
@@ -62,12 +65,19 @@ export async function createAuthProvider(args: {
   const webClientOrigin =
     (await readOptional(secretStore, WEB_CLIENT_ORIGIN_BINDING)) ??
     resolveWebClientOrigin(apiOrigin);
+  const apexOrigin = await readOptional(
+    secretStore,
+    WEB_CLIENT_APEX_ORIGIN_BINDING
+  );
   const auth: AuthProvider = await args.module.create({
     readSecret: (name) => readOptional(secretStore, name),
     isProduction: args.protection === 'production',
     apiOrigin,
     apiPathPrefix: API_PATH_PREFIX,
-    clientOrigins: [webClientOrigin],
+    clientOrigins: [
+      webClientOrigin,
+      ...(apexOrigin === null ? [] : [apexOrigin]),
+    ],
     clock: args.clock,
     createId: args.createId,
     http: args.http,
