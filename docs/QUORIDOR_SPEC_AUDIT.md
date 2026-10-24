@@ -1,7 +1,8 @@
 # Quoridor specification audit
 
 Verdict: **Implementation and focused checks pass; release verification remains open.**
-All 58 Quoridor examples and both full bounded mode proofs have passed.
+All 58 PR-profile Quoridor tests and both full bounded mode proofs have passed.
+The tests comprise 47 feature scenarios, seven model checks and four model replays.
 The latest full local gate stopped at the enforced dependency audit. The
 remaining advisory is Atlas's transitive Zod 3 dependency, reproduced with
 the latest Atlas release and reported in [Atlas issue 16](https://github.com/crvouga/atlas/issues/16).
@@ -126,9 +127,10 @@ fabricated winner is installed.
 
 | Automated check | Recorded result |
 | --- | --- |
-| Official Quoridor `test:spec:0`, `:1`, `:2` | All three parts pass; 58 examples in the current suite |
+| Official Quoridor `test:spec:0`, `:1`, `:2` | All three parts pass; 47 feature scenarios, seven model checks and four model replays |
 | Nightly Quoridor profile, all three parts | 64 tests, 127 assertions, no failures or skips; all ten model replays executed |
 | Nightly focused properties | Five affected packages, 155 tests and 143,859 assertions pass at the official 200-run budget |
+| Final permission and matching nightly checks | 152 tests, 14,049 assertions pass at 200 runs per property; fresh seed 1057416651 |
 | Quoridor bounded proof | Both modes, eight invariants, two steps; fresh CI task passes in 155.1s |
 | Full framework-independence contract | Eight outer checks, 105 assertions; main process runs 281 checks; independent consumer features pass |
 | Runtime harness package | 47 tests, 202 assertions; type checking and lint pass |
@@ -233,28 +235,57 @@ retaining delivery to both players and both hosted-space observers. All
 six eligible games pass the complete authority contract (24 tests, 434
 assertions); owning properties, history/rating checks and downstream static
 checks pass. An independent review found no authority or capture regression.
-This statement reduction requires a fresh live result before any deadline
-claim can be made.
+CI run 40085206806 still failed the five-second Chess pairing case after
+this reduction. Its selected request took 5.83 seconds, including 3.17
+seconds in formation. The complete run failed only release journeys and
+dependency audit; all other verification tasks passed. These two observed
+requests are not a controlled benchmark or proof of a resolved deadline.
+
+The local Find mutation body also repeated permission facts and its search-state
+read. An explicit permission snapshot now serves the consecutive pre-write
+grant checks through the same evaluator and refusal formatter as ordinary
+checks. It retains no database reader. The unfinished limit still reads fresh
+facts after the owner lock; the authoritative waiting-state reread remains.
+The literal local body drops from twelve SQL statements to seven, preserving
+five first-refusal cases and a competing-Find refusal under the lock. Both
+owning packages pass type checking, lint and all 152 tests. The fresh nightly
+run above exercises the new snapshot properties with the official budget.
+
+Additional matching checks at fresh seed 2076662651 passed 2,000 generated
+cases across ten properties, including all six games' record laws, plus the
+26 generic SQL matching contracts. This run found a fixture that accumulated
+old history across generated examples. Independent examples now roll back,
+and a pinned nonempty-then-empty sequence confirms that no history remains.
+At the identical seed and 200 cases, its property dropped from 29.3 seconds
+to 394 milliseconds under the unchanged five-second limit.
 
 Failure-only release diagnostics now use the existing canonical scenario
 reporter and native collector journal. Their timestamps select the failed
 scenario's request traces, retain later completed children, and exclude
 later successful matches. Output is bounded and redacted; absent roots
 are explicitly incomplete. Temporary PR reports are still removed. All
-258 product unit tests, type checks and lint pass. No extra runtime logs,
+264 product unit tests (2,019 assertions), type checks and lint pass. No extra runtime logs,
 artifact retention, waits or test budgets were introduced.
 Repeated request resource and identity attributes are emitted once, while
 changed child context remains visible. A literal regression confirms that
 the bounded summary retains terminal database work instead of truncating
 it behind repeated context; the owning unit, type and lint tasks pass.
+Client upload and originating interaction excerpts now follow the selected
+mutation's exact recorded identifiers and links in the same native journal.
+Missing exports are stated explicitly, with no inferred phase duration.
+The index reuses already-normalized records, and all client excerpts share
+a 2,000-character cap for the complete run. Controlled examples verify
+event-only and link-only matches, later unrelated actions, selected-detail
+timestamps, redaction and the cap without recovering or inventing CI spans.
 
 The full release-journey task in the current PR remains the authoritative
 result. None of these focused successes establishes a green full release.
 
 ## Repository and upstream limits
 
-The latest `bun verify` ran the unchanged full gate and exited 1 at
-`@libs/tools-harness-ts#ci:audit`. Fresh registry evidence identified new
+The latest `bun verify`, on code head `24b21be39`, ran the unchanged full gate
+and exited 1 at `@libs/tools-harness-ts#ci:audit` (36.8 seconds in the task
+runner). Fresh registry evidence identified new
 advisories. Patched Happy DOM/registrator 21.0.4, Undici 7.30.1 and
 serialize-javascript 7.1.3 are installed; their focused checks pass.
 
