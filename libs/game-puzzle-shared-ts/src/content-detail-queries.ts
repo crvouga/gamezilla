@@ -44,12 +44,10 @@ export const puzzleContentDraftCopies = defineQuery({
   authorize: queryRequires(PERMISSION.puzzlesReadOwnContent),
   async run(ctx, { documentId, afterId }) {
     return {
-      puzzle_content_drafts: (
-        await ctx.db.query(sql`
+      puzzle_content_drafts: await ctx.db.query(sql`
       SELECT * FROM puzzle_content_drafts WHERE document_id = ${documentId}
-        AND owner_id = ${ctx.env.actorId} AND id > ${afterId} ORDER BY id
-    `)
-      ).slice(0, CONTENT_PAGE_SIZE),
+        AND owner_id = ${ctx.env.actorId} AND id > ${afterId} ORDER BY id LIMIT ${CONTENT_PAGE_SIZE}
+    `),
     };
   },
 });

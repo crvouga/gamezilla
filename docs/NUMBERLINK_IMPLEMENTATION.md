@@ -403,3 +403,20 @@ inferred from this ledger or from a narrow test run.
   the missing device profiles. The Apple application test then passed on the
   pinned iOS 27.0 / iPhone 17 configuration, without changing those pins. The
   entire gate still needs its current run.
+- Five literal large-data regressions now distinguish a bounded response from
+  bounded row materialization. Discovery, owned drafts, kept copies, attempts
+  and saved positions previously loaded all matching rows before slicing the
+  response. Their queries now apply the same 32-entry limit inside SQL. All
+  272 shared package tests, typecheck and lint pass; the seven-model deeper
+  profile passes all 168 drawn histories and five pinned histories again.
+  This proves the row transfer bound, not a database execution-plan benchmark.
+- [Draft PR 228](https://github.com/crvouga/gamezilla/pull/228) is synced with
+  `main`; incoming fixes and both readiness rows are retained. The earlier
+  empty Games part failure is addressed by main's registered regression.
+  The runtime table inventory now explicitly includes public publication
+  records, and all eighteen affected package tasks pass after that correction.
+  [Verify PR](https://github.com/crvouga/gamezilla/actions/runs/40104516942)
+  refused to start its jobs because an Actions budget prevents further use.
+  CI and person-facing readiness attestations remain unchecked. Local full
+  Verify has reached its overall deadline while caching completed tasks and
+  must still finish; no deadline or assertion was relaxed.

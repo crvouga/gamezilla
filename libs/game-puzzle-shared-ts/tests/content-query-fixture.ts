@@ -18,7 +18,7 @@ const stamp = '2026-10-23T00:00:00.000Z';
 export const contentQueryId = (index: number): string =>
   `p${String(index).padStart(4, '0')}`;
 
-async function insertRows(
+export async function insertRows(
   fixture: ContentFixture,
   statement: Sql<unknown>,
   rows: readonly Sql<unknown>[]
@@ -78,6 +78,13 @@ export async function seedLargeContentCatalogue(
 
 export function contentQueryRunner(fixture: ContentFixture) {
   const truncations: QueryTruncation[] = [];
+  const reads: number[] = [];
+  const query = fixture.db.query.bind(fixture.db);
+  fixture.db.query = async (statement) => {
+    const rows = await query(statement);
+    reads.push(rows.length);
+    return rows;
+  };
   let checkpoint = 0;
   const run = (name: string, params: unknown) =>
     runQuery(
@@ -91,5 +98,5 @@ export function contentQueryRunner(fixture: ContentFixture) {
       },
       { name, params }
     );
-  return { run, truncations };
+  return { run, truncations, reads };
 }
