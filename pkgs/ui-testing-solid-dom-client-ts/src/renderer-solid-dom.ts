@@ -17,7 +17,9 @@ import { ensureElementLayout, synthesizeLayout } from './dom-layout';
 import {
   ACTOR_ATTR,
   asElement,
+  elementTestIdPath,
   queryActorTestId,
+  queryActorTestIdPath,
   queryWithinTestId,
 } from './dom-query';
 import { fieldOf, isTextField, readDomText } from './dom-text';
@@ -184,15 +186,14 @@ export function createSolidDomRenderedApp(
     getText: (element) => readDomText(asElement(element)),
     getAttribute: (element, name) => asElement(element).getAttribute(name),
     tap: async (element) => {
-      syncLayout();
       const resolved = asElement(element);
-      const testId = resolved.getAttribute('data-testid');
+      const path = elementTestIdPath(resolved, scope.container());
+      syncLayout();
       // Layout can remount a portaled row. Click the node that is on screen
-      // now, not the one resolved before that pass.
+      // now, preserving the full parent/child path resolved by the driver.
       const live =
-        testId !== null && testId !== ''
-          ? (queryTestId(testId) ?? resolved)
-          : resolved;
+        queryActorTestIdPath(scope.document, scope.container(), path) ??
+        resolved;
       const node = asElement(live);
       ensureElementLayout(node, provider);
       // user-event's PointerEvent click does not reach a portaled option.

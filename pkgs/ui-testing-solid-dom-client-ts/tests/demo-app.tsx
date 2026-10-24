@@ -72,6 +72,20 @@ function HelpDialog(props: {
   );
 }
 
+function ScopedCounter(props: { id: string }): JSX.Element {
+  const [count, setCount] = createSignal(0);
+  return (
+    <div data-testid={props.id}>
+      <span data-testid="counter-value">{count()}</span>
+      <Button
+        title="Increment this counter"
+        onClick={() => setCount((value) => value + 1)}
+        dataSet={{ testid: 'counter-increment' }}
+      />
+    </div>
+  );
+}
+
 function LoginScreen(props: { onLogin: (email: string) => void }): JSX.Element {
   const [email, setEmail] = createSignal('');
   const [password, setPassword] = createSignal('');
@@ -123,6 +137,8 @@ function LoginScreen(props: { onLogin: (email: string) => void }): JSX.Element {
             <p class="text">{'never shown'}</p>
           </div>
           <HelpDialog open={help()} onClose={() => setHelp(false)} />
+          <ScopedCounter id="counter-one" />
+          <ScopedCounter id="counter-two" />
         </div>
       )}
     />

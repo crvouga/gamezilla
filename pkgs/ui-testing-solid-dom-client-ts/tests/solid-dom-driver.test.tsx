@@ -49,6 +49,19 @@ describe('SolidDomDriver', () => {
     driver = undefined;
   });
 
+  test('a scoped tap keeps the selected counter when child identifiers repeat', async () => {
+    // regression: scoped-dom-tap-retargets-first-child
+    driver = demoDriver();
+    await driver.launch();
+    await driver.get('counter-two').get('counter-increment').tap();
+    expect(await driver.get('counter-one').get('counter-value').text()).toBe(
+      '0'
+    );
+    expect(await driver.get('counter-two').get('counter-value').text()).toBe(
+      '1'
+    );
+  });
+
   test('chooses a file and delivers its UTF-8 bytes through the native change event', async () => {
     const selected: { current: File | null } = { current: null };
     driver = customDriver(() => (
