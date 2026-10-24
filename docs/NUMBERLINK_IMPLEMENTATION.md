@@ -43,10 +43,10 @@ unfinished work; it is not a second product definition.
   ownership, offline/recovery, Numberlink rules, and complete app journeys.
 - [ ] Quint lifecycle models with implementation replay and invariants for
   publication, stable references, attempts and progression.
-  Those four critical models and publication recovery now pass replay and
-  bounded checking at four steps, including every drawn history in the deeper
-  profile. Authoring, playtest and concurrent-choice model coverage and the
-  complete context audit remain open.
+  All seven models now pass replay and bounded checking at four steps,
+  including every drawn history in the deeper profile. Authoring, playtest and
+  concurrent choices have explicit commands. The strict context audit remains
+  incomplete because of thirteen external wording pairs.
 - [x] Numberlink definitions, path rules, codecs, bounded solver and properties.
 - [ ] Independent puzzle capabilities in shared game and client registration;
   composable with existing turn games, with a structurally different consumer.
@@ -388,3 +388,17 @@ inferred from this ledger or from a narrow test run.
   Full Verify then caught the recovery copy's stale Lingui catalog. The
   source catalog was regenerated in a separate commit, and its normal gate
   passes. Full Verify must be rerun with the current privacy changes.
+
+- Private authoring and pack editing now have their own shared models, with
+  explicit stale-device draft saves and attempt continuations in the existing
+  models. All 138 Puzzles PR checks pass, and bounded verification checks all
+  49 invariants within four steps. The official deeper profile passes all
+  168 drawn histories and five pinned histories. A new literal history guards
+  the observer's normal convergence wait after a tablet saves another copy.
+  The normal spec, ownership and known-bug gates pass; the strict audit still
+  has thirteen external wording pairs, documented in the authoring audit.
+- Full Verify at the preceding privacy revision stopped at Apple simulator
+  setup after 178 completed tasks. Xcode's first-launch installation supplied
+  the missing device profiles. The Apple application test then passed on the
+  pinned iOS 27.0 / iPhone 17 configuration, without changing those pins. The
+  entire gate still needs its current run.

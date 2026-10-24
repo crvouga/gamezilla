@@ -15,6 +15,7 @@ import {
   contentDeviceOnline,
   reopenContentDevice,
 } from '@libs/game-puzzle-harness-ts/offline-actions';
+import { continueEarlierLifecycleAttempt } from '@libs/game-puzzle-harness-ts/stale-editor-actions';
 import type { Run } from '@pkgs/harness-root-shared-ts/run-types';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
 
@@ -24,6 +25,7 @@ bindQuintModel<Run<ContentHarness>>({
   maxSteps: 32,
   actions: {
     init: (run) => run.apply(setupAttemptLifecycle),
+    continueEarlierAttempt: (run) => run.apply(continueEarlierLifecycleAttempt),
     startPuzzle: (run) => run.apply(startLifecycleAttempt),
     advanceAttempt: (run) => run.apply(advanceLifecycleAttempt),
     undoAttempt: (run) =>

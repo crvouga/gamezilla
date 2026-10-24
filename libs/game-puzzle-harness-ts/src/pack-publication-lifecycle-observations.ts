@@ -33,10 +33,9 @@ export async function packPublicationState(s: ContentHarness) {
   ]);
   const document = owner.documents.find((doc) => doc.id === id);
   const otherDocument = tablet.documents.find((doc) => doc.id === id);
-  const drafts = s.lifecycleDrafts.map((choice) => {
+  const drafts = s.lifecycleDrafts.flatMap((choice) => {
     const draft = owner.drafts.find((copy) => copy.id === choice);
-    if (draft === undefined) throw new Error('A saved pack draft disappeared');
-    return references(s, owner, draft.definition);
+    return draft === undefined ? [] : [references(s, owner, draft.definition)];
   });
   const editions = new Map(
     owner.revisions

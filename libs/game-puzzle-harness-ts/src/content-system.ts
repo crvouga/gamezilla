@@ -15,6 +15,7 @@ import {
   seedEqualTimeAttempts,
 } from './attempt-page-actions';
 import { playTwoStepsThroughScreen } from './attempt-screen-actions';
+import { AUTHORING_LIFECYCLE_ACTIONS } from './authoring-lifecycle-actions';
 import { CONTENT_ACTIONS } from './content-actions';
 import { contentActorId } from './content-identity';
 import { PUBLICATION_ACTIONS } from './content-publication-actions';
@@ -27,6 +28,7 @@ import { NAMED_PACK_ACTIONS } from './named-pack-actions';
 import { OFFLINE_ACTIONS } from './offline-actions';
 import { OFFLINE_FIXTURES } from './offline-fixtures';
 import { PACK_ACTIONS } from './pack-actions';
+import { PACK_AUTHORING_LIFECYCLE_ACTIONS } from './pack-authoring-lifecycle-actions';
 import { PACK_PLAY_ACTIONS } from './pack-play-actions';
 import { PACK_PUBLICATION_LIFECYCLE_ACTIONS } from './pack-publication-lifecycle-actions';
 import { previewDuringPackReorder } from './pack-workspace-actions';
@@ -38,6 +40,7 @@ import {
   validateThroughScreen,
 } from './publication-screen-actions';
 import { RETAINED_CONTENT_ACTIONS } from './retained-content-actions';
+import { STALE_EDITOR_ACTIONS } from './stale-editor-actions';
 import { startPublishedThroughScreen } from './start-screen-actions';
 
 export type ContentEditor = {
@@ -104,6 +107,9 @@ export const contentSystem = defineSystem<
     ...PUBLICATION_LIFECYCLE_ACTIONS,
     ...PACK_PUBLICATION_LIFECYCLE_ACTIONS,
     ...ATTEMPT_LIFECYCLE_ACTIONS,
+    ...AUTHORING_LIFECYCLE_ACTIONS,
+    ...PACK_AUTHORING_LIFECYCLE_ACTIONS,
+    ...STALE_EDITOR_ACTIONS,
     ...PROGRESSION_LIFECYCLE_ACTIONS,
     ...PUBLICATION_RECOVERY_ACTIONS,
   ],

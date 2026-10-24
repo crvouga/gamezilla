@@ -1,0 +1,4 @@
+{
+  "summary": "A model observer threw before its normal convergence wait when a new stale-tablet draft had not reached the phone yet. It now reports the currently available copies, so the unchanged comparison waits for the missing copy or fails with the real difference.",
+  "regressionTest": "libs/game-puzzle-harness-ts/tests/quint/puzzle-publication.binding.ts"
+}

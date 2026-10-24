@@ -16,15 +16,16 @@ export async function puzzlePublicationState(s: ContentHarness) {
   ]);
   const document = owner.documents.find((doc) => doc.id === id);
   const otherDocument = tablet.documents.find((doc) => doc.id === id);
-  const drafts = s.lifecycleDrafts.map((choice) => {
+  const drafts = s.lifecycleDrafts.flatMap((choice) => {
     const draft = owner.drafts.find((copy) => copy.id === choice);
-    if (draft === undefined)
-      throw new Error('A saved publication draft disappeared');
-    return {
-      title: draft.title,
-      valid: examplePuzzleContent.rules.validateDefinition(draft.definition)
-        .valid,
-    };
+    if (draft === undefined) return [];
+    return [
+      {
+        title: draft.title,
+        valid: examplePuzzleContent.rules.validateDefinition(draft.definition)
+          .valid,
+      },
+    ];
   });
   const editions = new Map(
     owner.revisions

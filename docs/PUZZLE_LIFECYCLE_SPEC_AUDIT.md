@@ -2,10 +2,12 @@
 
 Date: 2026-10-24. Scope: the four new Puzzles lifecycle models and the
 publication, saved-attempt and progression examples they touch.
-Verdict: FAIL (C6 remains open). All four critical models pass product replay
-and bounded checking at four steps. The complete context passes 108 checks.
-Creation, validation, playtest and concurrent-edit commands still need their
-own model coverage. The strict gate reports thirteen wording pairs outside
+Current verdict: INCOMPLETE (strict B14 findings outside Puzzles). The
+[authoring audit](PUZZLE_AUTHORING_SPEC_AUDIT.md) closes the initial C6 gaps
+with two more models and explicit stale-editor actions. The seven-model
+context passes 138 PR checks, all 49 invariants within four steps, and all
+168 drawn histories plus five pinned histories in the targeted deeper profile.
+The following four-model coverage map records the earlier checkpoint. The strict gate reports thirteen wording pairs outside
 Puzzles, with no remaining Puzzles gate error. This checkpoint does not close
 the context audit or the full release gate.
 

@@ -1,10 +1,11 @@
 # Puzzle authoring model audit
 
-Date: 2026-10-24. Verdict: INCOMPLETE. The remaining Puzzles C6 commands
-now have explicit models, but two new product bindings and three new bound
-actions are not implemented yet. The strict gate also retains thirteen B14
-wording pairs outside Puzzles. This report does not claim product conformance
-or a green release gate.
+Date: 2026-10-24. Verdict: INCOMPLETE (thirteen strict B14 wording pairs
+outside Puzzles). The remaining C6 commands now have explicit models and
+passing product bindings. All seven models pass bounded verification within
+four steps; the full context passes 138 PR checks. The deeper profile passes
+all 168 drawn histories plus five pinned histories. The full release gate
+remains open.
 
 ## Mapping and writer review
 
@@ -105,7 +106,7 @@ pack creation/add/remove/reorder/create-from-pack, stale draft saves and stale
 attempt continuation are now named commands, rather than aliases of save.
 The other commands retain the lifecycle/recovery coverage maps.
 
-## Execution and handoff
+## Initial execution and handoff
 
 All five touched models typecheck with pinned Quint 0.32.0. Each independently
 simulated 50 seeded histories of up to 40 steps with every invariant enabled,
@@ -120,3 +121,34 @@ Commit the models separately as `spec:` before implementation. The implementer
 must bind both new models and the three explicit stale-editor commands,
 observe real public state, preserve literal regression histories, and run
 product replay and bounded verification without editing this contract.
+
+## Implementation evidence
+
+Both new bindings and all three stale-editor actions call exported harness
+actions only. The harness uses the existing create, save, pack edit, playtest
+and attempt mutations. Stale commands use a real earlier draft or starting
+position from the other device; they do not synthesize a desired result.
+Observers read the product's library, edition, history and continuation
+projections. Existing literal regression histories remain intact.
+
+The initial full context run failed at the missing authoring bindings. After
+binding, publication trace 3 failed at its fifteenth step: the tablet's new
+copy had not reached the phone and the observer threw before normal settling.
+The exact 32-step history is now pinned under
+`puzzle-new-copy-observation-aborts-convergence`. The observer reports the
+currently available copies, leaving the unchanged 15-second comparison to
+wait for convergence or report a missing copy. Neither product behavior nor
+the model was changed to satisfy that failure.
+
+All 138 PR checks pass: existing examples and decision checks plus seven
+models' metadata, action coverage and selected replays. The separate model
+gate verifies all 49 invariants in every reachable state within four steps.
+The official nightly profile passes all four context parts, replaying all
+168 drawn histories of up to 32 steps and five pinned histories with the
+existing deeper property budget. This is a targeted profile result, not a
+full nightly verdict. Typecheck, lint, nine code tests, the normal spec gate,
+ownership and the known-bug gate pass. Generated catalogs are refreshed.
+
+The current strict gate retains only the thirteen external wording pairs;
+there is no remaining Puzzles C6 or binding finding. Full Verify and the
+assembled production-bundle journeys remain required.

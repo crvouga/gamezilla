@@ -1,4 +1,5 @@
 import {
+  attemptContinuations,
   projectAttemptPosition,
   readAttemptLibrary,
 } from '@libs/game-puzzle-shared-ts/attempt-library';
@@ -59,6 +60,11 @@ export async function attemptLifecycleState(s: ContentHarness) {
   });
   return {
     attempts,
+    keptContinuations: new Set(
+      s.lifecycleAttempts.flatMap((id, index) =>
+        attemptContinuations(play, id).length > 1 ? [index] : []
+      )
+    ),
     activeAttempt: s.lifecycleAttempts.indexOf(
       s.playSelections.get('bob:phone')?.attemptId ?? ''
     ),

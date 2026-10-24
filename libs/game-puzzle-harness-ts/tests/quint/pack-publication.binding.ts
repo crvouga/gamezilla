@@ -15,6 +15,7 @@ import {
   publishSavedContentDraft,
   withdrawPublication,
 } from '@libs/game-puzzle-harness-ts/publication-lifecycle-actions';
+import { saveEarlierPackPublicationDraft } from '@libs/game-puzzle-harness-ts/stale-editor-actions';
 import type { Run } from '@pkgs/harness-root-shared-ts/run-types';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
 import withdrawalTrace from './fixtures/pack-withdrawal-observation.itf.json';
@@ -42,6 +43,8 @@ bindQuintModel<Run<ContentHarness>>({
   ],
   actions: {
     init: (run) => run.apply(setupPackPublication),
+    saveEarlierPackDraft: (run, picks) =>
+      run.apply(saveEarlierPackPublicationDraft, picks['order'] as number[]),
     savePackDraft: (run, picks) =>
       run.apply(savePackPublicationDraft, picks['order'] as number[]),
     publishPack: (run, picks) =>
