@@ -1166,6 +1166,7 @@ Spaces   ──► Pong (space, join)
 Games    ──► Journeys (bot)
 Games    ──► Synthetic Population (game)
 Pong     ──► Synthetic Population (Pong)
+Battleship ──► Synthetic Population (Battleship)
 Room, Sync engine: stand alone; Matchmaking publishes complete matches to Chess (Sync engine's "shared space" is not a Spaces space)
 Database indexing: stands alone; publishes no product terms or events
 ```
