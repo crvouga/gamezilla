@@ -3,6 +3,7 @@ import { MULTIPLAYER_TOPIC_MAP } from '@libs/game-matchmaking-shared-ts/topic-ma
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server-ts/impl-bun-sqlite';
 import sql from '@pkgs/sql-root-shared-ts/sql';
+import { partitionFanoutRowsByTopic } from '@pkgs/sync-engine-shared-ts/partition-fanout-rows';
 import type { TopicMapCtx } from '@pkgs/sync-engine-shared-ts/topic-map';
 import { topicsFromWriteCapture } from '@pkgs/sync-engine-shared-ts/topic-map';
 import fc from 'fast-check';
@@ -53,13 +54,16 @@ test('batched multiplayer routing preserves every row destination and filters cl
         async (table, rows, online) => {
           const source = online ? db : undefined;
           const expected = new Set<string>();
-          for (const row of rows)
-            for (const topic of await MULTIPLAYER_TOPIC_MAP[table].topics(
+          const perRow: (readonly string[])[] = [];
+          for (const row of rows) {
+            const topics = await MULTIPLAYER_TOPIC_MAP[table].topics(
               row,
               CTX,
               source
-            ))
-              expected.add(topic);
+            );
+            perRow.push(topics);
+            for (const topic of topics) expected.add(topic);
+          }
           const actual = await topicsFromWriteCapture({
             topicMap: MULTIPLAYER_TOPIC_MAP,
             capture: { tables: [table], ids: {}, images: { [table]: rows } },
@@ -69,9 +73,71 @@ test('batched multiplayer routing preserves every row destination and filters cl
           expect(actual).toEqual([...expected].sort());
           expect(actual).not.toContain('room:ended-room');
           expect(actual).not.toContain('room:deleted-room');
+          const partition = await partitionFanoutRowsByTopic({
+            topicMap: MULTIPLAYER_TOPIC_MAP,
+            rows: { [table]: rows },
+            ctx: CTX,
+            ...(source === undefined ? {} : { db: source }),
+          });
+          expect([...partition.keys()].sort()).toEqual([...expected].sort());
+          for (const topic of expected)
+            expect(partition.get(topic)).toEqual({
+              [table]: rows.filter((_row, index) =>
+                perRow[index]!.includes(topic)
+              ),
+            });
         }
       )
     );
+  } finally {
+    await db.disconnect();
+  }
+});
+
+test('hosted-space routing reads fresh ownership and closure state on every call', async () => {
+  // regression: multiplayer-row-fanout-repeats-owner-lookups
+  const db = SqlClientImplBunSqlite.openMemory();
+  try {
+    await db.run(sql`CREATE TABLE spaces (
+      id TEXT PRIMARY KEY, host_member_id TEXT, ended_at TEXT, deleted_at TEXT)`);
+    await db.run(sql`INSERT INTO spaces VALUES ('room', 'alice', NULL, NULL)`);
+    const rows = {
+      chess_multiplayer_players: [
+        { id: 'same', owner_id: 'alice' },
+        { id: 'same', owner_id: 'bob', deleted_at: '2026-10-24' },
+      ],
+    };
+    const before = await partitionFanoutRowsByTopic({
+      topicMap: MULTIPLAYER_TOPIC_MAP,
+      rows,
+      ctx: CTX,
+      db,
+    });
+    expect(before.get('room:room')).toEqual({
+      chess_multiplayer_players: [rows.chess_multiplayer_players[0]!],
+    });
+    await db.run(
+      sql`UPDATE spaces SET host_member_id = 'bob' WHERE id = 'room'`
+    );
+    const moved = await partitionFanoutRowsByTopic({
+      topicMap: MULTIPLAYER_TOPIC_MAP,
+      rows,
+      ctx: CTX,
+      db,
+    });
+    expect(moved.get('room:room')).toEqual({
+      chess_multiplayer_players: [rows.chess_multiplayer_players[1]!],
+    });
+    await db.run(
+      sql`UPDATE spaces SET ended_at = '2026-10-24' WHERE id = 'room'`
+    );
+    const ended = await partitionFanoutRowsByTopic({
+      topicMap: MULTIPLAYER_TOPIC_MAP,
+      rows,
+      ctx: CTX,
+      db,
+    });
+    expect(ended.has('room:room')).toBe(false);
   } finally {
     await db.disconnect();
   }

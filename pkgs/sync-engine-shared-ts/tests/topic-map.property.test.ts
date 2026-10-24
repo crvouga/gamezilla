@@ -68,8 +68,8 @@ function buildEntry(spec: EntrySpec): TopicMapEntry {
     topics: (row) => rowTopics(row, 't'),
     ...(spec.batch
       ? {
-          topicsForRows: (rows: readonly Row[]) =>
-            rows.flatMap((row) => rowTopics(row, 't')),
+          topicsByRow: (rows: readonly Row[]) =>
+            rows.map((row) => rowTopics(row, 't')),
         }
       : {}),
     ...(spec.fallback === null
@@ -147,16 +147,16 @@ describe('topicsFromWriteCapture', () => {
     const topicMap = defineTopicMap({
       notes: {
         topics: (row) => [`user:${String(row['owner'])}`],
-        topicsForRows: (rows, ctx) => {
+        topicsByRow: (rows, ctx) => {
           calls += 1;
           expect(rows).toEqual([previous, next]);
           expect(ctx).toBe(CTX);
-          return rows.map((row) => `user:${String(row['owner'])}`);
+          return rows.map((row) => [`user:${String(row['owner'])}`]);
         },
       },
       folders: {
         topics: () => ['unused'],
-        topicsForRows: () => {
+        topicsByRow: () => {
           throw new Error('A touch-only capture must use its fallback');
         },
         fallbackTopics: () => ['room:folder'],

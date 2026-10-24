@@ -2,15 +2,18 @@ import type {
   TopicMap,
   TopicMapEntry,
 } from '@pkgs/sync-engine-shared-ts/topic-map';
-import { multiplayerTopics } from './multiplayer-topics';
+import {
+  multiplayerTopics,
+  multiplayerTopicsByRow,
+} from './multiplayer-topics';
 
 const ownedRows: TopicMapEntry = {
   topics(row, ctx, db) {
     return multiplayerTopics([String(row['owner_id'] ?? ctx.actorId)], db);
   },
-  topicsForRows(rows, ctx, db) {
-    return multiplayerTopics(
-      rows.map((row) => String(row['owner_id'] ?? ctx.actorId)),
+  topicsByRow(rows, ctx, db) {
+    return multiplayerTopicsByRow(
+      rows.map((row) => [String(row['owner_id'] ?? ctx.actorId)]),
       db
     );
   },
@@ -26,9 +29,9 @@ export const MULTIPLAYER_TOPIC_MAP = {
         db
       );
     },
-    topicsForRows(rows, _ctx, db) {
-      return multiplayerTopics(
-        rows.flatMap((row) =>
+    topicsByRow(rows, _ctx, db) {
+      return multiplayerTopicsByRow(
+        rows.map((row) =>
           ['white_id', 'black_id', 'red_id', 'blue_id'].map((key) =>
             String(row[key] ?? '')
           )

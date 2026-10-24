@@ -2,6 +2,7 @@ import type { Topic } from '@pkgs/pubsub-root-shared-ts/topic';
 
 import type { MutationDb } from './mutations-types';
 import type { TopicMap, TopicMapCtx } from './topic-map';
+import { resolveTopicsByRow } from './topic-map';
 import type { QueryRow } from './v2';
 
 type TopicRowBag = Map<Topic, Record<string, QueryRow[]>>;
@@ -54,12 +55,14 @@ export async function partitionFanoutRowsByTopic(args: {
   for (const [table, tableRows] of Object.entries(args.rows)) {
     const entry = args.topicMap[table];
     if (entry === undefined) continue;
-    for (const row of tableRows) {
-      const topics = await Promise.resolve(
-        entry.topics(row, args.ctx, args.db)
-      );
-      addRowToTopics(out, table, row, topics);
-    }
+    const topics = await resolveTopicsByRow({
+      entry,
+      rows: tableRows,
+      ctx: args.ctx,
+      ...(args.db === undefined ? {} : { db: args.db }),
+    });
+    for (const [index, row] of tableRows.entries())
+      addRowToTopics(out, table, row, topics[index]!);
   }
   return out;
 }

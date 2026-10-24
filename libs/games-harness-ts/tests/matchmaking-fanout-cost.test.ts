@@ -45,7 +45,7 @@ test(
     const lookups = statements
       .slice(formedAt + 1)
       .filter((statement) =>
-        /SELECT id FROM spaces WHERE host_member_id IN/i.test(statement.text)
+        /\bFROM spaces WHERE host_member_id IN/i.test(statement.text)
       );
     const boards = await s.until(
       async (world) => {
@@ -64,7 +64,8 @@ test(
     expect(boards.map((board) => board.gameId)).toEqual(
       Array.from({ length: 4 }, () => boards[0]!.gameId)
     );
-    // One owner-pair lookup and one lookup for each distinct owner suffice.
+    // regression: multiplayer-row-fanout-repeats-owner-lookups
+    // One fresh batch per captured table preserves each row's destinations.
     expect(lookups.length).toBeLessThanOrEqual(3);
     const formationAt = statements.findIndex((statement) =>
       /SELECT DISTINCT w\.partition_signature/i.test(statement.text)
