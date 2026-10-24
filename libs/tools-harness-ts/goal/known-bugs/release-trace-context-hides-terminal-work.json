@@ -1,0 +1,4 @@
+{
+  "summary": "The first collected live Find traces repeated identical request resource attributes on each span, exhausting the narration line cap before selected terminal database work was printed. A bounded trace summary must keep terminal work and changed identities while stating shared request context once.",
+  "regressionTest": "apps/product-ts/scripts/release-failure-traces.test.ts"
+}

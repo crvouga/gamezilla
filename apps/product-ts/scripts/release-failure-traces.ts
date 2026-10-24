@@ -21,6 +21,15 @@ const MAX_FAILURES = 3;
 const MAX_TRACES = 2;
 const MAX_DETAIL_SPANS = 24;
 const REQUEST_SPANS = ['worker.fetch', 'http.server.request'];
+const REQUEST_CONTEXT = [
+  ATTR.SERVICE_NAME,
+  ATTR.SERVICE_INSTANCE_ID,
+  ATTR.SERVICE_VERSION,
+  ATTR.DEPLOYMENT_ENVIRONMENT_NAME,
+  ATTR.APP_BUILD_SHA,
+  ATTR.APP_DEVICE_ID,
+  ATTR.USER_ID,
+];
 
 type FailureWindow = TimeRange & { readonly testId: string };
 type Candidate = { readonly traceId: string; readonly startMs: number };
@@ -119,6 +128,21 @@ function criticalSpans(spans: readonly NarrateSpan[]): NarrateSpan[] {
   return [...chosen.values()];
 }
 
+/** Keep shared context once; retain a child's changed service or identity. */
+function requestContextOnce(spans: readonly NarrateSpan[]): NarrateSpan[] {
+  const root =
+    spans.find((span) => REQUEST_SPANS.includes(span.name)) ?? spans[0];
+  if (root === undefined) return [];
+  return spans.map((span) => {
+    if (span.spanId === root.spanId) return span;
+    const attributes = { ...span.attributes };
+    for (const key of REQUEST_CONTEXT)
+      if (Object.is(attributes[key], root.attributes[key]))
+        delete attributes[key];
+    return { ...span, attributes };
+  });
+}
+
 function traceEvidence(trace: Trace, candidate: Candidate): string {
   const details = criticalSpans(trace.spans);
   const missing = REQUEST_SPANS.filter(
@@ -132,7 +156,7 @@ function traceEvidence(trace: Trace, candidate: Candidate): string {
       : [
           `Incomplete request trace: no collected ${missing.join(', ')} span; no unfinished duration is inferred.`,
         ]),
-    narrate(details, { maxLines: 120, maxChars: 10_000 }),
+    narrate(requestContextOnce(details), { maxLines: 120, maxChars: 10_000 }),
   ].join('\n');
 }
 

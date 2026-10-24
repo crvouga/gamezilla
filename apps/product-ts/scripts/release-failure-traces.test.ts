@@ -181,6 +181,59 @@ test('child-only traces report missing request roots and bound redacted critical
   expect(text.length).toBeLessThan(11_000);
 });
 
+// regression: release-trace-context-hides-terminal-work
+test('repeated request context leaves room for terminal database work', async () => {
+  const context = {
+    [ATTR.SERVICE_NAME]: 'gamezilla-server',
+    [ATTR.SERVICE_INSTANCE_ID]: 'release-instance',
+    [ATTR.SERVICE_VERSION]: 'development',
+    [ATTR.DEPLOYMENT_ENVIRONMENT_NAME]: 'dev',
+    [ATTR.APP_BUILD_SHA]: 'recorded-build',
+    [ATTR.APP_DEVICE_ID]: 'alice-device',
+    [ATTR.USER_ID]: 'alice',
+    [ATTR.CODE_FILE_PATH]: 'libs/app-root-shared-ts/src/wrap-sql-client.ts',
+    [ATTR.CODE_FUNCTION_NAME]: 'runObservedSql',
+  };
+  const request = span(7, 500, {
+    name: 'http.server.request',
+    durationMs: 45_000,
+    attributes: context,
+  });
+  const replay = span(7, 1_000, {
+    name: 'mutation.replay',
+    parentSpanId: request.spanId,
+    attributes: { ...context, ...findAttributes },
+  });
+  const deliveries = Array.from({ length: 6 }, (_, index) =>
+    span(7, index + 1_250, {
+      name: 'outbox.deliver',
+      parentSpanId: replay.spanId,
+      durationMs: 15_000 + index,
+      attributes: context,
+    })
+  );
+  const children = Array.from({ length: 100 }, (_, index) =>
+    span(7, index + 2_000, {
+      parentSpanId: replay.spanId,
+      attributes: {
+        ...context,
+        [ATTR.USER_ID]: index === 99 ? 'bob' : 'alice',
+        [ATTR.DB_QUERY_TEXT]: `SELECT completed_${index}`,
+      },
+    })
+  );
+  const text = await releaseFailureTraces({
+    reports: await reportsForFailure(),
+    telemetry: await telemetryOf([request, replay, ...deliveries, ...children]),
+    run: RUN,
+    mutationNames: ['findChessOpponent'],
+  });
+  expect(text).toContain('SELECT completed_99');
+  expect(text).toContain('user.id=bob');
+  expect(text.match(/service.instance.id=release-instance/g)).toHaveLength(1);
+  expect(text.length).toBeLessThan(11_000);
+});
+
 test('no failed timeline produces no broad fallback to a successful Find', async () => {
   const text = await releaseFailureTraces({
     reports: new ObjectStoreImplInMemory(),
