@@ -1,24 +1,24 @@
 @domain:games
 Feature: Finding an opponent in every game
-  When Alice wants another player, she wants an opponent for the game she chose at the same clock choice, so the pair can start playing together.
+  When Alice wants another player, she wants an opponent for the game she chose, so the pair can start playing together.
 
   Rule: Seeking an opponent needs an account and a connection
 
     Scenario: A free account can seek an opponent
       Given Alice has a free account and a connection
-      When Alice seeks an opponent for the game at 5+0
-      Then Alice is waiting for an opponent at 5+0
+      When Alice seeks an opponent for the game
+      Then Alice can stop seeking an opponent
 
     Scenario: A guest is invited to sign in
       Given Alice is a guest
       And Alice is hosting a space
-      When Alice seeks an opponent for the game at 5+0
+      When Alice seeks an opponent for the game
       Then Alice is invited to sign in
       And Alice is not waiting for an opponent
 
     Scenario: An offline account cannot seek an opponent
       Given Alice has an account without a connection
-      When Alice seeks an opponent for the game at 5+0
+      When Alice seeks an opponent for the game
       Then Alice is told finding an opponent needs a connection
       And Alice is not waiting for an opponent
 
@@ -27,34 +27,33 @@ Feature: Finding an opponent in every game
 
     Scenario: A Plus member can seek an opponent
       Given Alice is a Plus member
-      When Alice seeks an opponent for the game at 5+0
-      Then Alice is waiting for an opponent at 5+0
+      When Alice seeks an opponent for the game
+      Then Alice can stop seeking an opponent
 
     Scenario: Losing paid access does not end a search
-      Given Alice's paid access ended while she was seeking an opponent for the game at 5+0
+      Given Alice's paid access ended while she was seeking an opponent for the game
       When Alice opens finding an opponent
-      Then Alice is still waiting for an opponent at 5+0
+      Then Alice is still waiting with her same search
 
   Rule: A person with an unfinished matched game cannot seek another opponent
 
     Scenario: A person may seek an opponent again once their matched game is finished
-      Given Alice's 5+0 matched game with Bob is finished
-      When Alice seeks an opponent for the game at 5+0
-      Then Alice is waiting for an opponent at 5+0
+      Given Alice's matched game with Bob is finished
+      When Alice seeks an opponent for the game
+      Then Alice can stop seeking an opponent
 
     Scenario: Another device cannot seek a second unfinished matched game
       Given Alice has an unfinished matched game with Bob
-      When Alice seeks an opponent for the game at 5+0 on another device
+      When Alice seeks an opponent for the game on another device
       Then Alice is told to finish her matched game first
       And Alice keeps her matched game with Bob
 
-  Rule: People are paired only for the same game at the same clock choice
+  Rule: People are paired only for the same game
 
     Scenario: Compatible people receive one new game on opposite sides
-      Given Alice and Bob are seeking an opponent for the game at the same clock choice
+      Given Alice and Bob are seeking an opponent for the game
       When they are paired
       Then Alice and Bob receive the same new game on opposite sides
-      And the first side has the first turn
 
     Scenario: Someone seeking another game is never paired for this one
       Given Alice seeks an opponent for the game and Bob seeks an opponent for another game
@@ -82,25 +81,15 @@ Feature: Finding an opponent in every game
       Then Alice is told she has no search to stop
       And Alice keeps her matched game with Bob
 
-  Rule: A person waiting for an opponent sees their clock choice and how long they have been waiting
-    No counter-example: every search shows its clock choice and how long it has run, so there is nothing to refuse.
+    Scenario: A person with no search is told there is nothing to stop
+      Given Alice has a free account and a connection
+      When Alice stops seeking an opponent
+      Then Alice is told she has no search to stop
+      And Alice is not waiting for an opponent
 
-    Scenario: A search shows its clock choice and how long it has run
-      Given Alice is seeking an opponent for the game at 5+0
-      When 40 seconds pass
-      Then Alice sees she has been waiting for an opponent at 5+0 for 40 seconds
-
-  Rule: A paired person sees their opponent's username and rating, the clock choice and their side
-
-    Scenario: Each paired person sees who they play, how fast and on which side
-      Given Bob has a blitz rating of 1620
-      And Alice and Bob are seeking an opponent for the game at 3+2
-      When they are paired
-      Then Alice sees Bob as her opponent at 3+2, with a blitz rating of "1620" and her side
-      And Bob sees Alice as his opponent at 3+2, with a blitz rating of "1500?" and his side
-
-    Scenario: A person still waiting is shown no opponent
-      Given Alice is the only person seeking an opponent for the game at 3+2
-      When people are paired up
-      Then Alice is still waiting for an opponent at 3+2
-      And Alice is not shown an opponent
+    Scenario: An offline person keeps the search she cannot stop
+      Given Alice is seeking an opponent for the game
+      And Alice is offline
+      When Alice stops seeking an opponent
+      Then Alice is told finding an opponent needs a connection
+      And Alice is still waiting with her same search

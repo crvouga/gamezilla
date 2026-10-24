@@ -6,7 +6,7 @@ Feature: One search and one matched game across a person's devices and spaces
     No counter-example: another device shows the person's search or matched game; opening it starts neither.
 
     Scenario: Another device shows the person's search
-      Given Alice is seeking an opponent for the game at 5+0
+      Given Alice is seeking an opponent for the game
       When Alice opens finding an opponent on another device
       Then Alice sees her same search on that device
 
@@ -18,11 +18,11 @@ Feature: One search and one matched game across a person's devices and spaces
   Rule: Another device in a different space does not start a second search
 
     Background:
-      Given Alice is hosting a space and seeking an opponent for the game at 5+0
+      Given Alice is hosting a space and seeking an opponent for the game
 
     Scenario: Seeking an opponent from the other space is refused
       Given Alice's other device is in Bob's space
-      When Alice seeks an opponent for the game at 5+0 on another device
+      When Alice seeks an opponent for the game on another device
       Then Alice is told she is already seeking an opponent
       And Bob is not waiting for an opponent
 
@@ -34,7 +34,7 @@ Feature: One search and one matched game across a person's devices and spaces
 
     Scenario: An offline device cannot start another search
       Given Alice is offline
-      When Alice seeks an opponent for the game at 5+0
+      When Alice seeks an opponent for the game
       Then Alice is told finding an opponent needs a connection
       And Alice is still waiting with her same search
 

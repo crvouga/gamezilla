@@ -10,8 +10,9 @@ terms:
       Something a space plays together, chosen by its host, such as chess or
       Connect Four. Shared experiences such as custom games, turns,
       opponents, puzzles, history and review work the same way whenever a
-      game offers them; its rules decide which moves are possible and how
-      it finishes. "The game" in a
+      game offers them; its rules decide how people play and how it finishes.
+      It offers only the clock choices its play uses, which may be none.
+      "The game" in a
       scenario is each game in turn; "another game" is any other one.
     forms: [games, another game, the game's]
     published: true
@@ -262,8 +263,8 @@ terms:
 
   - term: side
     definition: >-
-      One of a game's two places to play from. The first side moves first;
-      a side is open until a person or a bot takes it.
+      One of a game's two places to play from. When the game uses turns,
+      the first side moves first; a side is open until a person or a bot takes it.
     forms:
       - sides
       - first side
@@ -282,6 +283,7 @@ terms:
       - firstSideShown
       - secondSideShown
       - swapSides
+      - oppositeSides
 
   - term: bot
     definition: >-
@@ -397,9 +399,9 @@ terms:
 
   - term: matched game
     definition: >-
-      A game of the game between two people who were paired as opponents at
-      the clock choice they both chose. Each is given a side, both see the
-      same board, moves and result, and only those two people may move,
+      A game of the game between two people who were paired as opponents,
+      at the clock choice they both chose when the game offers one. Each is
+      given a side, both see the same board, play and result, and only those two people may play,
       resign, abort it or offer a draw. A person has at most one unfinished
       matched game.
     forms: [matched games, matched game's]
@@ -503,8 +505,8 @@ terms:
 
   - term: opponent
     definition: >-
-      The other participant. One found for a person seeks the same game at
-      the same clock choice. In a puzzle with an opponent, the side the
+      The other participant. One found for a person seeks the same game,
+      at the same clock choice when the game offers one. In a puzzle with an opponent, the side the
       solver plays against: its setup move and replies play by themselves.
       A puzzle without an opponent has neither of those moves.
     forms: [opponents, the opponent's side]
@@ -519,7 +521,8 @@ terms:
 
   - term: seek an opponent
     definition: >-
-      Wait to be paired with an opponent for the game at a clock choice. A
+      Wait to be paired with an opponent for the game, choosing a clock only
+      when the game offers clock choices. A
       person seeks for one game at a time and may stop seeking. Someone
       seeking an opponent cannot offer a rematch.
     forms: [seeking, seeks, stops seeking, waiting for an opponent, began seeking]
@@ -527,20 +530,23 @@ terms:
 
   - term: search
     definition: >-
-      A person's wait for an opponent for the game at one clock choice,
-      showing that clock choice and how long it has run. A person has at
+      A person's wait for an opponent for the game, showing how long it has
+      run and the clock choice when there is one. A person has at
       most one search, whichever game it is for, and it follows them to
       every device and space; another device cannot start a second one. It
       ends when they are paired, which turns it into their matched game, or
       when they stop seeking; once paired there is no search left to stop.
     forms: [searches]
+    model: [LastKnownSearch]
 
   - term: clock choice
     definition: >-
       How much time each participant has to play, written as the minutes
       each side starts with plus the seconds each move adds, such as 5+0. A
-      matched game's clock choice belongs to one speed. Finding an opponent
-      offers 1+0 and 2+1 (bullet); 3+0, 3+2, 5+0 and 5+3 (blitz); 10+0, 10+5
+      matched game's clock choice belongs to one speed. A game may offer no
+      clock choice: seeking, waiting and being paired then show no clock
+      choice, and the matched game has no clock. When a game offers clock
+      choices, finding an opponent offers 1+0 and 2+1 (bullet); 3+0, 3+2, 5+0 and 5+3 (blitz); 10+0, 10+5
       and 15+10 (rapid); 30+0 and 30+20 (classical); and 1 day, 3 days or 7
       days per move (daily); any other is not offered. A custom game may
       instead be untimed, which it is until its creator chooses a clock; a
@@ -548,7 +554,7 @@ terms:
       seconds a move, and any other is not offered. Its creator may change
       it only before the custom game starts.
     forms: [clock choices, played at, untimed, timed, offered clock choice, daily clock choice, daily clock choices]
-    model: [chooseClock, minutesShown, incrementShown, ClockChoice, clockChoice]
+    model: [chooseClock, minutesShown, incrementShown, ClockChoice, clockChoice, clockChoiceShown]
 
   - term: clock
     definition: >-
@@ -625,16 +631,18 @@ terms:
 
   - term: rating
     definition: >-
-      A person's strength at one speed of the game. Each starts at 1500 and
+      A person's strength at one speed of the game, or at the game itself
+      when it offers no clock choice. Each starts at 1500 and
       is shown with a "?" until it settles. Finding an opponent pairs people
-      up by their rating for the chosen clock choice's speed, and each
+      up by their rating for the chosen clock choice's speed, or for the game
+      itself when there is no clock choice, and each
       paired person sees their opponent's. A finished matched game is a
-      rated matched game: it changes both people's rating for its speed
+      rated matched game: it changes both people's rating for that speed or game
       exactly once, however often it is resigned, and never the rating of
       another speed; an aborted matched game changes none. A custom game is
       unrated: it changes nobody's rating.
     forms: [ratings, bullet rating, blitz rating, rapid rating, classical rating, daily rating, unrated, rated matched game, rated matched games]
-    model: [ratedGames]
+    model: [ratedGames, opponentRating]
 
   - term: settle
     definition: >-
@@ -662,8 +670,8 @@ terms:
 
   - term: pairing
     definition: >-
-      Two people seeking an opponent for the same game at the same clock
-      choice whom matchmaking paired up. Each pairing gives them exactly one
+      Two people seeking an opponent for the same game, at the same clock
+      choice when it offers one, whom matchmaking paired up. Each pairing gives them exactly one
       matched game, however often the game is told about it.
     forms: [pairings]
     model: [Pairing, pairedPeople, fromPairing]
@@ -1293,6 +1301,9 @@ terms:
       the solution or reviewing is unavailable now, and why: the puzzle is
       over, a retry is needed, the first hint is needed or already taken,
       they are reviewing an earlier position, or the puzzle was skipped. A
+      person seeking an opponent is told when a connection or account is
+      needed, they are already seeking, they must finish their matched game
+      first, or there is no search to stop. A
       refused choice changes nothing and never happens later on its own.
     forms: [refusals]
     model: [refusal]
