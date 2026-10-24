@@ -1,6 +1,7 @@
 import { expect } from 'bun:test';
 import { createCustomGameIn } from '@libs/game-session-harness-ts/custom-game-controls';
 import { customGameShownUnrated } from '@libs/game-session-harness-ts/custom-game-reads';
+import { initialHarnessPosition } from '@libs/game-session-harness-ts/simulation-fixtures';
 import { Then, When } from '@libs/harness-ts/define';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import { current, identityOf, toldOf } from './custom-game-set-up-world';
@@ -33,7 +34,7 @@ Then(
     const game = await current(w);
     expect(game.status).toBe('active');
     expect(game.moves).toEqual([]);
-    expect(game.fen).toBe(gameOf(w).shared.registration.rules.initial());
+    expect(game.fen).toBe(initialHarnessPosition(gameOf(w).shared, game.id));
   }
 );
 Then('the custom game is unrated and untimed', async (w) => {

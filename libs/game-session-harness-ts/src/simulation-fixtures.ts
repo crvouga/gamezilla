@@ -1,3 +1,4 @@
+import type { GameRegistration } from '@libs/game-session-shared-ts/game-definition';
 import { FixedStepSimulation } from '@libs/game-session-shared-ts/simulation-engine';
 import type { RegisteredSimulation } from '@pkgs/turn-game-shared-ts/game-simulation';
 import type { SimulationInput } from '@pkgs/turn-game-shared-ts/simulation';
@@ -13,6 +14,17 @@ export type SimulationHarnessFixtures = {
     readonly expectedPosition: string;
   }[];
 };
+
+/** A game's declared opening, with the real session seed for seeded mechanics. */
+export function initialHarnessPosition(
+  game: GameRegistration,
+  seed: string
+): string {
+  const simulation = game.registration.simulation;
+  return simulation === undefined
+    ? game.registration.rules.initial()
+    : simulation.codec.encode(simulation.initialize(seed));
+}
 
 export function assertSimulationFixtures(
   simulation: RegisteredSimulation,
