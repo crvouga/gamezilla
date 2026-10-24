@@ -37,7 +37,7 @@ terms:
       for the author to choose from.
     forms: [drafts, draft copy, draft copies, working draft]
     published: true
-    model: [Draft, drafts, workingDraft, otherDraft, choosePuzzleDraft]
+    model: [Draft, drafts, workingDraft, otherDraft, choosePuzzleDraft, draftKept]
   - term: title
     definition: The name an author gives a puzzle or pack. Publishing requires a nonempty title.
     forms: [titles, titled]
@@ -74,7 +74,7 @@ terms:
       draft, never someone else's private content.
     forms: [publishes, publishing, publication, published, republishes]
     published: true
-    model: [publishPuzzle, publishPack, publishPuzzleEdition]
+    model: [publishPuzzle, publishPack, publishPuzzleEdition, publication, republishChosenPuzzle]
   - term: edition
     definition: >-
       The complete content made public by one publication. It never
@@ -90,11 +90,11 @@ terms:
       published pack remains playable through that pack. A withdrawn
       puzzle cannot be added to a newly published pack.
     forms: [withdraws, withdrawn, withdrawal, unpublishing]
-    model: [withdrawPuzzle, withdrawPack]
+    model: [withdrawPuzzle, withdrawPack, withdrawChosenPuzzle]
   - term: discover
     definition: Browse a game's available published puzzles and packs.
     forms: [discovers, discovery, browses, browse, available]
-    model: [available]
+    model: [available, puzzleAvailable, availableOnPhone, discoverable]
   - term: pack
     definition: >-
       An ordered collection of puzzles of one game with its own title,
