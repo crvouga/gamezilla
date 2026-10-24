@@ -97,6 +97,7 @@ describe('wrangler.toml', () => {
       expect(vars['API_URL']).toBe(envOrigins(env).api);
       expect(vars['EMQX_WSS_URL']).toBe(`wss://${env.hosts.broker}/mqtt`);
       expect(vars['WEB_CLIENT_ORIGIN']).toBe(envOrigins(env).web);
+      expect(vars['WEB_CLIENT_APEX_ORIGIN']).toBe(envOrigins(env).apex);
       expect(secrets['API_URL']).toBeUndefined();
       expect(secrets['EMQX_WSS_URL']).toBeUndefined();
       expect(secrets['SECRETS_ENV']).toBe(env.env);

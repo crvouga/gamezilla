@@ -22,8 +22,9 @@ import { ALICE_EMAIL, simulatedGoogle } from './simulated-google';
 
 const RELAY_ORIGIN = 'https://auth.example.test';
 const PRD_API = 'https://api.example.test';
-const DEV_API = 'https://api-dev.example.test';
-const DEV_WEB = 'https://www-dev.example.test';
+const DEV_API = 'https://api-dev.gamezilla.app';
+const DEV_WEB = 'https://www-dev.gamezilla.app';
+const DEV_APEX = 'https://dev.gamezilla.app';
 const IDP_URL = 'https://accounts.idp.test';
 const PREFIX = '/api';
 const SECRET = 'auth-system-secret-0123456789abcdef';
@@ -77,7 +78,7 @@ async function bootDeployment(
       secret: SECRET,
       baseURL: deployment.origin,
       publicPathPrefix: PREFIX,
-      trustedOrigins: [deployment.origin, DEV_WEB],
+      trustedOrigins: [deployment.origin, DEV_WEB, DEV_APEX],
       providers: {
         google: {
           clientId: CLIENT_ID,
@@ -135,36 +136,42 @@ function launchUrl(api: string, callbackUrl: string): string {
 }
 
 describe('oauth callback relay (black-box)', () => {
-  test('a deployment signs in through the one registered callback', async () => {
-    const { wire } = await bootFleet();
-    const callbackUrl = oauthClientCallbackUrl(DEV_WEB);
-    const launch = await wire(launchUrl(DEV_API, callbackUrl), {
-      redirect: 'manual',
-    });
-    expect(launch.status).toBe(302);
-    const authorize = new URL(launch.headers.get('location') ?? '');
-    expect(authorize.searchParams.get('redirect_uri')).toBe(
-      REGISTERED_CALLBACK
-    );
-    expect(authorize.searchParams.get('state')?.startsWith('dev.')).toBe(true);
+  // regression: dev-apex-oauth-callback-rejected
+  test.each([DEV_WEB, DEV_APEX])(
+    'a deployment signs in from %s through the one registered callback',
+    async (webOrigin) => {
+      const { wire } = await bootFleet();
+      const callbackUrl = oauthClientCallbackUrl(webOrigin);
+      const launch = await wire(launchUrl(DEV_API, callbackUrl), {
+        redirect: 'manual',
+      });
+      expect(launch.status).toBe(302);
+      const authorize = new URL(launch.headers.get('location') ?? '');
+      expect(authorize.searchParams.get('redirect_uri')).toBe(
+        REGISTERED_CALLBACK
+      );
+      expect(authorize.searchParams.get('state')?.startsWith('dev.')).toBe(
+        true
+      );
 
-    const result = await createInProcessOpenAuthSession({
-      fetch: wire,
-      account: ACCOUNT,
-    })(launchUrl(DEV_API, callbackUrl), callbackUrl);
-    expect(result.type).toBe('success');
-    const appUrl = result.type === 'success' ? (result.url ?? '') : '';
-    const code = new URL(appUrl).searchParams.get('code') ?? '';
-    expect(code.length).toBeGreaterThan(0);
+      const result = await createInProcessOpenAuthSession({
+        fetch: wire,
+        account: ACCOUNT,
+      })(launchUrl(DEV_API, callbackUrl), callbackUrl);
+      expect(result.type).toBe('success');
+      const appUrl = result.type === 'success' ? (result.url ?? '') : '';
+      const code = new URL(appUrl).searchParams.get('code') ?? '';
+      expect(code.length).toBeGreaterThan(0);
 
-    // The exchange code belongs to the launching deployment.
-    const session = await wire(`${DEV_API}${PREFIX}/auth/session`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ code }),
-    });
-    expect(session.ok).toBe(true);
-  });
+      // The exchange code belongs to the launching deployment.
+      const session = await wire(`${DEV_API}${PREFIX}/auth/session`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ code }),
+      });
+      expect(session.ok).toBe(true);
+    }
+  );
 
   test('the relay forwards a tagged callback verbatim', async () => {
     const { wire } = await bootFleet();
