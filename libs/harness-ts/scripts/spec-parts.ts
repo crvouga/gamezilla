@@ -201,9 +201,9 @@ function unitKey(unit: SpecUnit): string {
 type PartLoad = { load: number; units: SpecUnit[] };
 
 /**
- * Quint batches keep their bounded, balanced allocation. Other specs have
- * stable path ownership: editing one feature never moves another feature or
- * a model batch. Part 0 also owns `tests/harness`.
+ * Quint batches keep their bounded, balanced allocation and fill otherwise
+ * empty hashed parts. Other specs keep stable path ownership when another
+ * feature changes. Part 0 also owns `tests/harness`.
  */
 export function partOf(
   units: readonly SpecUnit[],
@@ -232,6 +232,7 @@ export function partsOf(
     const index = specOwner(unit.path, count, unit.slice?.index ?? 0);
     loads[index]!.units.push(unit);
   }
+  fillEmptyParts(loads);
   return Object.freeze(
     loads.map((part) =>
       Object.freeze(
@@ -241,7 +242,31 @@ export function partsOf(
   );
 }
 
-/** Feature edits cannot move unrelated features or the bounded model batches. */
+/** Fill sparse path-hash gaps without increasing an existing part's load. */
+function fillEmptyParts(loads: readonly PartLoad[]): void {
+  for (const empty of loads) {
+    if (empty.units.length > 0) continue;
+    const donor = [...loads]
+      .filter(
+        (candidate) =>
+          candidate.units.length > 1 &&
+          candidate.units.some((unit) => unit.path.endsWith('.qnt'))
+      )
+      .sort((a, b) => b.load - a.load)[0];
+    if (donor === undefined) continue;
+    const index = donor.units.findLastIndex((unit) =>
+      unit.path.endsWith('.qnt')
+    );
+    const [unit] = donor.units.splice(index, 1);
+    if (unit !== undefined) {
+      donor.load -= unit.weight;
+      empty.units.push(unit);
+      empty.load += unit.weight;
+    }
+  }
+}
+
+/** Feature paths keep their owner when another feature changes. */
 export function specOwner(path: string, count: number, slice = 0): number {
   const key = path.replaceAll('\\', '/').replace(/^(?:.*\/)?specs\//, '');
   let hash = 2166136261;

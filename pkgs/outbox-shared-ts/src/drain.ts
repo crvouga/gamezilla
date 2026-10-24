@@ -63,7 +63,7 @@ export type DrainOutboxResult = {
 export async function drainOutbox(
   deps: DrainOutboxDeps
 ): Promise<DrainOutboxResult> {
-  if (deps.causationIds?.length === 0)
+  if (deps.causationIds?.length === 0 || deps.eventIds?.length === 0)
     return { processed: 0, exhausted: 0, notifyUserIds: [] };
   const limit = deps.limit ?? 50;
   const log = createLogger({
@@ -145,12 +145,11 @@ const DELIVERIES_PER_CONSUMER_PER_PASS = 200;
  */
 async function ensureDeliveries(
   tx: SqlTx,
-  deps: Pick<DrainOutboxDeps, 'registry' | 'clock' | 'causationIds'>
+  deps: DrainOutboxDeps
 ): Promise<void> {
-  const { registry, clock, causationIds } = deps;
-  const consumers = registry.all();
+  const consumers = deps.registry.all();
   if (consumers.length === 0) return;
-  const nowIso = new Date(clock.now()).toISOString();
+  const nowIso = new Date(deps.clock.now()).toISOString();
   const subscriptions = join(
     consumers.map(
       (consumer) =>
@@ -169,7 +168,8 @@ async function ensureDeliveries(
       FROM outbox_events e
       JOIN (${subscriptions}) s ON s.type = e.type
      WHERE e.deleted_at IS NULL
-       ${causationIds === undefined ? sql`` : sql`AND e.causation_id IN (${join(causationIds)})`}
+       ${deps.eventIds !== undefined && deps.eventIds.length > 0 ? sql`AND e.id IN (${join(deps.eventIds)})` : sql``}
+       ${deps.causationIds === undefined ? sql`` : sql`AND e.causation_id IN (${join(deps.causationIds)})`}
        AND NOT EXISTS (
          SELECT 1
            FROM outbox_deliveries d

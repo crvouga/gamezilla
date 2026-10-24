@@ -68,6 +68,7 @@ test('fractional square edges remain adjacent at a 128.49999237060547px width an
 
 test('an eight-pixel board maps every square after repeated resizes at twice scale', async () => {
   // regression: chessboard-tiny-scaled-square-hit
+  // regression: chessboard-resize-before-observer
   const [widths, orientation, scale] = [[8, 8, 8], 'white', 2] as const;
   await browser.view.evaluate(
     `window.boardExample.reset({size:undefined,interactive:false,orientation:"${orientation}"})`

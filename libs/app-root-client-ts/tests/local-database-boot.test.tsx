@@ -139,11 +139,11 @@ async function boot(options: {
           }}
         >
           <SecureStorageStoreProvider value={store}>
-            <LocalIdentityProvider>
-              <AuthClientProvider port={port}>
+            <AuthClientProvider port={port}>
+              <LocalIdentityProvider>
                 <Probe onState={(state) => (latest = state)} />
-              </AuthClientProvider>
-            </LocalIdentityProvider>
+              </LocalIdentityProvider>
+            </AuthClientProvider>
           </SecureStorageStoreProvider>
         </AppCompositionProvider>
       </ClientEnvProvider>
@@ -158,7 +158,7 @@ async function until(done: () => boolean): Promise<void> {
 
 describe('booting the app', () => {
   // regression: deleted-account-stats-space-withdrawal
-  test('a rejected bearer revalidates auth while requests retain the bound account capability', async () => {
+  test('a rejected bearer exposes the auth port’s ordinary and forced token refresh', async () => {
     const refreshes: unknown[] = [];
     let refresh: AuthClientPort['getFreshToken'] | undefined;
     const b = await boot({
@@ -179,12 +179,12 @@ describe('booting the app', () => {
     try {
       await until(() => b.state() === 'ready');
       expect(b.state()).toBe('ready');
-      expect(await refresh?.()).toBe('bound-account-session');
-      expect(refreshes).toEqual([]);
+      expect(await refresh?.()).toBe('provider-session-not-yet-bound');
+      expect(refreshes).toEqual([undefined]);
       expect(await refresh?.({ skipCache: true })).toBe(
-        'bound-account-session'
+        'provider-session-not-yet-bound'
       );
-      expect(refreshes).toEqual([{ skipCache: true }]);
+      expect(refreshes).toEqual([undefined, { skipCache: true }]);
     } finally {
       b.unmount();
     }

@@ -35,7 +35,7 @@ function useSyncBootPromise(args: {
   const loadApp = useAppData();
   const pool = useSyncEnginePool();
   const identity = useLocalIdentity();
-  const refreshAuthToken = useGetFreshAuthToken();
+  const getFreshAuthToken = useGetFreshAuthToken();
   const log = useLogger('sync-engine-boot');
   const fetchFn: SyncApiFetch = env.server;
   const availability = originAvailabilityFor(env);
@@ -70,12 +70,7 @@ function useSyncBootPromise(args: {
       createId: env.createId,
       random: env.random,
       moderation: env.moderation,
-      // regression: deleted-account-stats-space-withdrawal
-      // Refresh rejected sessions; requests still use AuthBridge's bound token.
-      getFreshAuthToken: async (options) => {
-        if (options?.skipCache === true) await refreshAuthToken(options);
-        return identity.sessionToken();
-      },
+      getFreshAuthToken,
       databaseName: databaseName(),
       userId: args.userId(),
       ...(availability.kind === 'health'

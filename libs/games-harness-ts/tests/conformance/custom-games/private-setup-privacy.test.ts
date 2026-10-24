@@ -145,6 +145,7 @@ forEveryGame(
 
     test("what a person receives does not change when only the other side's hidden setup does", async () => {
       // regression: private-setup-independent-bootstrap
+      // regression: space-join-announcement-optimistic-race
       await using s = await openConformanceHarness(
         `${game.shared.id}-private-setup-noninterference`
       );

@@ -1,0 +1,4 @@
+{
+  "summary": "Consecutive frames on one topic handled their applied sequence concurrently. The second frame saw the predecessor's old sequence and fell back to an extra snapshot, keeping the earlier row visible. Process frames serially per topic so contiguous row images apply in delivery order.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/push-delivery-order.test.ts"
+}

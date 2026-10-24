@@ -15,15 +15,15 @@ import {
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import { createMultiplayerGame } from './game-creation';
 import {
-  type FormationPlayerState,
   MultiplayerGameRepository,
+  type MultiplayerOwnerFacts,
 } from './game-repository';
 import {
   OPPONENT_SEARCH_RADIUS,
   OPPONENT_TIME_CONTROL_KEY,
   opponentPool,
 } from './search-config';
-import { projectOpponentSearch } from './search-projection';
+import { projectFormedOpponentSearches } from './search-projection';
 import { offeredTimeControls } from './time-control';
 
 /**
@@ -49,7 +49,7 @@ function timeControlOf(fact: MatchFormation): string {
 /** The person with the greater colour balance plays Black. */
 function colours(
   people: readonly FormedParticipant[],
-  players: ReadonlyMap<string, FormationPlayerState>,
+  players: ReadonlyMap<string, MultiplayerOwnerFacts>,
   tieBreak: ColourTieBreak
 ): readonly [string, string] {
   const [first, second] = [people[0]!.ownerId, people[1]!.ownerId];
@@ -82,12 +82,12 @@ export async function acceptGameMatch(
   );
   if (prior.length > 0) return;
   const games = new MultiplayerGameRepository(tx);
-  const players = await games.formationState(
+  const players = await games.matchmakingFacts(
     fact.participants.map((person) => person.ownerId)
   );
   for (const person of fact.participants)
     assert.ok(
-      players.get(person.ownerId)?.unfinishedCount === 0,
+      players.get(person.ownerId)?.unfinished === 0,
       'an unfinished game makes its person unavailable'
     );
   const [whiteId, blackId] =
@@ -115,8 +115,12 @@ export async function acceptGameMatch(
     },
     rules
   );
-  for (const person of fact.participants)
-    await projectOpponentSearch(tx, person.ownerId, ports.nowMs);
+  await projectFormedOpponentSearches(tx, {
+    participantIds: fact.participants.map((person) => person.id),
+    matchId: fact.matchId,
+    timeControl: timeControlOf(fact),
+    nowMs: ports.nowMs,
+  });
 }
 
 /**

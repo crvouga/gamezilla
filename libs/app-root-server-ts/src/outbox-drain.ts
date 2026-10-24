@@ -23,8 +23,13 @@ import {
 } from '@pkgs/sync-engine-shared-ts/topic-map';
 import { wrapMutationDb } from '@pkgs/sync-engine-shared-ts/wrap-mutation-db';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
+import {
+  capturedOutboxScope,
+  consumersForEvents,
+  extendEventTypes,
+} from './outbox-event-scope';
 import { countExhaustedOutboxDeliveries } from './outbox-health';
-import { outboxNotificationTopics } from './outbox-notification-topics';
+import { outboxNotificationPlan } from './outbox-notification-plan';
 
 /**
  * One span per delivery: a consumer that fails is retried rather than thrown,
@@ -96,12 +101,7 @@ export function getOutboxConsumerRegistry(): OutboxConsumerRegistry {
   return registry;
 }
 
-/**
- * Drain due outbox deliveries and push notification topics.
- * Publishes synchronously (like mutation fanout) so DST harness timers need not
- * advance for recipients to see rows.
- */
-export async function drainAndNotifyOutbox(args: {
+type DrainAndNotifyArgs = {
   readonly db: SqlClient;
   readonly clock: Clock;
   readonly createId: CreateId;
@@ -109,49 +109,117 @@ export async function drainAndNotifyOutbox(args: {
   readonly objectStore: ObjectStore;
   readonly consumerRegistry?: OutboxConsumerRegistry;
   readonly eventIds?: readonly string[];
+  /** Durable authenticated mutation families, including pending descendants. */
   readonly causationIds?: readonly string[];
+  /** Complete types of the scoped input events, expanded with captured children. */
+  readonly eventTypes?: readonly string[];
   readonly topicMap?: TopicMap;
+  readonly nextCheckpoint?: () => string;
   readonly maxPasses?: number;
   readonly limit?: number;
-}): Promise<number> {
-  if (args.causationIds?.length === 0) return 0;
-  const captures: ReturnType<typeof wrapMutationDb>[] = [];
-  const consumers = args.consumerRegistry ?? getOutboxConsumerRegistry();
-  const result = await drainDueOutbox(
-    {
-      db: args.db,
-      clock: args.clock,
-      createId: args.createId,
-      registry: consumers,
-      objectStore: args.objectStore,
-      observeDelivery: observeOutboxDelivery,
-      ...(args.limit === undefined ? {} : { limit: args.limit }),
-      ...(args.eventIds === undefined ? {} : { eventIds: args.eventIds }),
-      ...(args.causationIds === undefined
-        ? {}
-        : { causationIds: args.causationIds }),
-      wrapConsumerTx: (tx) => {
-        const wrapped = wrapMutationDb(tx, accountMutationEnv('', args));
-        captures.push(wrapped);
-        return wrapped.tx;
-      },
-    },
-    captures,
-    args.maxPasses
-  );
-  countExhaustedOutboxDeliveries(result.exhausted);
+};
 
+/** Drain bounded causal passes, publishing each committed result before the next pass. */
+export async function drainAndNotifyOutbox(
+  args: DrainAndNotifyArgs
+): Promise<number> {
+  if (args.causationIds?.length === 0) return 0;
+  const consumers = args.consumerRegistry ?? getOutboxConsumerRegistry();
+  const eventIds =
+    args.eventIds === undefined ? undefined : new Set(args.eventIds);
+  if (eventIds?.size === 0) return 0;
+  let eventTypes =
+    args.eventTypes === undefined ? undefined : new Set(args.eventTypes);
+  const maxPasses = args.maxPasses ?? 8;
+  let processed = 0;
+  for (let pass = 0; pass < maxPasses; pass++) {
+    const capture = capturedPass(
+      args,
+      eventTypes === undefined
+        ? consumers
+        : consumersForEvents(consumers, eventTypes),
+      eventIds === undefined ? undefined : [...eventIds]
+    );
+    const result = await drainOutbox(capture.deps);
+    processed += result.processed;
+    countExhaustedOutboxDeliveries(result.exhausted);
+    const captured = capturedOutboxScope(
+      capture.committed.map((part) => part.getCapture())
+    );
+    for (const id of captured.eventIds) eventIds?.add(id);
+    eventTypes = extendEventTypes(eventTypes, captured.eventTypes);
+    // This pass has committed. Publish it before following deliveries can wait.
+    await notifyCommittedPass(
+      args,
+      consumers,
+      capture.committed,
+      result.notifyUserIds
+    );
+    if (result.processed === 0) break;
+    if (pass + 1 >= maxPasses) break;
+    // Captured appends retain the next pass, even if their savepoint rolled back.
+    const eventWrites = capture.attempted.some((part) =>
+      part.getCapture().tables.includes('outbox_events')
+    );
+    if (!eventWrites && !(await hasDueOutboxWork(capture.deps))) break;
+  }
+  return processed;
+}
+
+/** Only successful handlers' images survive their savepoints and may be published. */
+function capturedPass(
+  args: DrainAndNotifyArgs,
+  registry: OutboxConsumerRegistry,
+  eventIds: readonly string[] | undefined
+) {
+  const attempted: ReturnType<typeof wrapMutationDb>[] = [];
+  const committed: ReturnType<typeof wrapMutationDb>[] = [];
+  const deps: DrainOutboxDeps = {
+    db: args.db,
+    clock: args.clock,
+    createId: args.createId,
+    registry,
+    objectStore: args.objectStore,
+    observeDelivery: (info, run) => {
+      // The drain constructs this handler's wrapper immediately before observing it.
+      const capture = attempted.at(-1);
+      return observeOutboxDelivery(info, async () => {
+        const result = await run();
+        if (result.ok && capture !== undefined) committed.push(capture);
+        return result;
+      });
+    },
+    ...(args.limit === undefined ? {} : { limit: args.limit }),
+    ...(eventIds === undefined ? {} : { eventIds }),
+    ...(args.causationIds === undefined
+      ? {}
+      : { causationIds: args.causationIds }),
+    wrapConsumerTx: (tx) => {
+      const wrapped = wrapMutationDb(tx, accountMutationEnv('', args));
+      attempted.push(wrapped);
+      return wrapped.tx;
+    },
+  };
+  return { deps, attempted, committed };
+}
+
+async function notifyCommittedPass(
+  args: DrainAndNotifyArgs,
+  consumers: OutboxConsumerRegistry,
+  captures: readonly ReturnType<typeof wrapMutationDb>[],
+  notifyUserIds: readonly string[]
+): Promise<void> {
   const store = apiRequestAsyncLocalStorage.getStore();
-  const topics = await outboxNotificationTopics({
+  const plan = await outboxNotificationPlan({
     topicMap: args.topicMap ?? topicMaps.get(consumers),
     captures: captures.map((capture) => capture.getCapture()),
-    notifyUserIds: result.notifyUserIds,
+    notifyUserIds,
     db: args.db,
     ctx: topicMapCtxFromEnv(
-      accountMutationEnv(result.notifyUserIds[0] ?? 'system', args)
+      accountMutationEnv(notifyUserIds[0] ?? 'system', args)
     ),
   });
-  if (topics.length === 0) return result.processed;
+  if (plan.topics.length === 0) return;
   const pubsub =
     args.pubsub ??
     (store === undefined
@@ -162,47 +230,24 @@ export async function drainAndNotifyOutbox(args: {
           store.http
         ).get());
   if (pubsub == null) {
-    return result.processed;
+    return;
   }
   await notifyChannels({
     pubsub,
     sql: args.db,
-    topics,
+    topics: plan.topics,
+    // Row images require the same ordering fence as query snapshots. Hosts
+    // without that clock keep invalidation-only pushes.
+    ...(plan.rowsByTopic === undefined || args.nextCheckpoint === undefined
+      ? {}
+      : { rowsByTopic: plan.rowsByTopic }),
+    ...(args.nextCheckpoint === undefined
+      ? {}
+      : { checkpoint: args.nextCheckpoint() }),
     tables: [
       ...new Set(captures.flatMap((capture) => capture.getCapture().tables)),
     ].sort(),
     label: 'outbox-drain',
     now: args.clock.now,
   });
-  return result.processed;
-}
-
-/** Each pass commits before following events are delivered. In particular, a
- * match formed by one consumer is durable before its room receives the board.
- * Bound the causal work so a request cannot drain an endless event chain. */
-async function drainDueOutbox(
-  deps: DrainOutboxDeps,
-  captures: readonly ReturnType<typeof wrapMutationDb>[],
-  maxPasses = 8
-) {
-  const notifyUserIds = new Set<string>();
-  let processed = 0;
-  let exhausted = 0;
-  for (let pass = 0; pass < maxPasses; pass++) {
-    const captureStart = captures.length;
-    const result = await drainOutbox(deps);
-    processed += result.processed;
-    exhausted += result.exhausted;
-    for (const id of result.notifyUserIds) notifyUserIds.add(id);
-    if (result.processed === 0) break;
-    if (pass + 1 >= maxPasses) break;
-    // A captured append, including one later rolled back to a savepoint,
-    // conservatively retains the original next-pass path. Otherwise a fresh
-    // scoped read can replace materializing and claiming an empty transaction.
-    const eventWrites = captures
-      .slice(captureStart)
-      .some((capture) => capture.getCapture().tables.includes('outbox_events'));
-    if (!eventWrites && !(await hasDueOutboxWork(deps))) break;
-  }
-  return { processed, exhausted, notifyUserIds: [...notifyUserIds] };
 }

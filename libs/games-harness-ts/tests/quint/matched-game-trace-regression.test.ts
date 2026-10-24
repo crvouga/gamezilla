@@ -12,6 +12,7 @@ describe.each(gamesHeldTo(SPEC_URI).map((game) => [game.label, game] as const))(
   '%s',
   (_label, game) => {
     // regression: chess-deletion-refreshes-connected-devices
+    // regression: formed-search-projection-requires-upstream-storage
     test('Carol’s third-device deletion clears her devices while Alice’s offline computer keeps its board', async () => {
       const binding = quintBinding('matched-game');
       const result = await replayTrace({

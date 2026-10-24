@@ -134,6 +134,8 @@ test('permission decisions guard starting, stopping and status, and concurrent s
   );
 }, 30_000);
 
+// regression: outbox-results-require-extra-snapshot
+// regression: outbox-row-images-lack-snapshot-fence
 test('background puzzle writes wake the shared catalog and the manager status', async () => {
   // regression: outbox-catalog-topic-invalidation
   await using host = await openPuzzleImportHost();
@@ -144,11 +146,22 @@ test('background puzzle writes wake the shared catalog and the manager status', 
     'system:chess_puzzles'
   );
   expect(host.published.map((item) => item.topic)).toContain('user:manager');
-  expect(
-    host.published.find((item) => item.topic === 'system:chess_puzzles')?.data
-  ).toMatchObject({
-    tables: expect.arrayContaining(['chess_puzzles', 'chess_puzzle_load']),
+  const catalog = host.published.find(
+    (item) => item.topic === 'system:chess_puzzles'
+  )?.data;
+  expect(catalog).toMatchObject({
+    checkpoint: '1',
+    tables: ['chess_puzzles'],
+    rows: { chess_puzzles: [{ id: 'one', rating: 1275 }] },
   });
+  expect(catalog).not.toHaveProperty('rows.chess_puzzle_load');
+  for (const manager of ['manager', 'other-manager'])
+    expect(
+      host.published.find((item) => item.topic === `user:${manager}`)?.data
+    ).toMatchObject({
+      tables: ['chess_puzzle_load'],
+      rows: { chess_puzzle_load: [{ status: 'finished', inserted_rows: 1 }] },
+    });
 }, 30_000);
 
 // regression: puzzle-import-status-public-fanout

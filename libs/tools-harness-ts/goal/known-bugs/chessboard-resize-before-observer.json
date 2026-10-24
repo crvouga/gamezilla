@@ -1,0 +1,4 @@
+{
+  "summary": "After resizing to widths [8,8,8] at scale 2, hit testing used the previous observed width to scale the border and targeted wrong squares. Measure the current CSS width at the press.",
+  "regressionTest": "pkgs/chess-board-root-harness-ts/tests/browser/resize.contract.test.ts"
+}

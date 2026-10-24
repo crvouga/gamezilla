@@ -97,6 +97,14 @@ async function choice(
     identity,
     ChangeCustomGame({
       ...input,
+      ...(input.operation === 'ready' && w.game.fixtures.setups !== undefined
+        ? {
+            setup:
+              w.game.fixtures.setups[
+                game?.black.person === identity ? 'black' : 'white'
+              ],
+          }
+        : {}),
       gameId: game?.id ?? null,
       revision: game?.revision ?? 0,
     })
@@ -129,6 +137,7 @@ async function fillExtraSides(w: RoomWorld) {
 }
 
 async function prepare(w: RoomWorld, capability: string): Promise<void> {
+  // regression: custom-game-decision-private-setup
   const join = (memberId: string) =>
     w.node.services.send(
       `space:${SPACE_ID}`,

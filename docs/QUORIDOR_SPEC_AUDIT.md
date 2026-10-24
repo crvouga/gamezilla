@@ -135,7 +135,7 @@ fabricated winner is installed.
 | Final permission and matching nightly checks | 152 tests, 14,049 assertions pass at 200 runs per property; fresh seed 1057416651 |
 | Quoridor bounded proof | Both modes, eight invariants, two steps; fresh CI task passes in 155.1s |
 | Full framework-independence contract | Eight outer checks, 105 assertions; main process runs 281 checks; independent consumer features pass |
-| Runtime harness package | 58 tests, 256 assertions; type checking and lint pass, including reviewed-board recovery and bounded failure context |
+| Runtime harness package | 59 tests, 257 assertions after integration with main; type checking and lint pass, including reviewed-board recovery and bounded failure context |
 | Runtime scenario part 13 | All 14 cases in six files pass in 4.84s after the upgrade-refusal fix |
 | Sync HTTP client | 27 tests, 757 assertions, including two public HTTP properties; type checking and lint pass |
 | Harness preparation package | 106 tests, 786 assertions; type checking and lint pass |
@@ -298,8 +298,9 @@ a fresh scoped due-work read. It covers both pending registered deliveries
 and due events not yet routed, including retries, deleted or missing events
 and registration changes. Any captured event write conservatively retains
 the original next pass, including a write rolled back to a savepoint. The
-pass limit, one aggregate publication, room delivery and acknowledgment
-ordering are unchanged. The HTTP root-to-child regression changes three
+pass limit, room delivery and acknowledgment ordering are retained. The
+integrated loop publishes each committed pass before following descendants.
+The HTTP root-to-child regression changes three
 materialize/claim passes to two passes and one read with all prior outcomes
 still asserted. The official 200-run property (seed 466084113), full outbox
 contracts, actual PostgreSQL contract, type checks, lint and goal checks
@@ -385,3 +386,35 @@ Railway project authorization denial; no infrastructure apply occurred.
 The PR remains a draft while required verification is incomplete. CI and
 person-facing readiness claims stay unchecked until supported by the
 current full and live results. No deployed availability is claimed.
+
+The latest local full gate on `9dfa2b115` exited 124 at its unchanged
+600-second run deadline (650.5 seconds including planning and cleanup).
+Games model part 11 had run for only 64 seconds when the aggregate deadline
+stopped it; this is not a failed individual proof. The invocation completed
+generation and began 777 uncached tasks, and no complete local pass is
+claimed. The clean-commit [CI run 40100970426](https://github.com/crvouga/gamezilla/actions/runs/40100970426)
+checks that preceding head separately.
+
+Integration with current main includes the independently verified fixes from
+[PR 225](https://github.com/crvouga/gamezilla/pull/225), including per-pass
+delivery notifications, fenced row images, ordered push application and
+further matching improvements. Integration retains the arbitrary-seat
+contracts, durable causal recovery, scoped due-work witness and final
+savepoint optimization. Fresh checks of the combined change determine its
+verdict; the upstream green gate does not substitute for them.
+
+Integration also pins two literal failures: a consumer's rolled-back row
+was still included in a push, and an explicitly empty event scope registered
+other deliveries. Only successful handler captures now supply published
+images and child scopes; attempted writes still retain the conservative
+next-pass check. Empty scopes return without registering or claiming work.
+The 20 affected package tasks pass, covering 288 tests and 3,467 assertions.
+The exact authority contract passes all 24 cases across six games; the
+complete wire-privacy contract passes all eight outer checks and 281 main
+checks. Fresh 200-run matching properties pass at seed 1271971665.
+The four affected recovery suites also pass at the official 200-run depth
+with fresh seed 998553586: 138 tests and 11,494 assertions. The actual Turbo
+environment was checked for each suite. Goals and the enforced audit pass.
+The complete tooling suite passes 871 tests; its unchanged five-second
+graph check took 481 milliseconds in the isolated run. All twelve Quoridor
+package tasks pass, including the 58 PR-profile spec checks.

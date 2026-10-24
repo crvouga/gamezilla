@@ -7,12 +7,8 @@ import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-contex
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
-import {
-  ListEntry,
-  UnorderedList,
-} from '@pkgs/ui-root-client-ts/semantic-list';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import { Text } from '@pkgs/ui-root-client-ts/text';
+import { P } from '@pkgs/ui-root-client-ts/text';
 import { For, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import type { MultiplayerPrivateSetup } from './use-multiplayer-private-setup';
@@ -73,10 +69,10 @@ export function MultiplayerPrivateSetupPanel(props: {
             />
           </GameActions>
         </Show>
-        <Text
+        <P
           variant="bodyBold"
           role="status"
-          testId="multiplayer-setup-status"
+          dataSet={{ testid: 'multiplayer-setup-status' }}
         >
           <Show
             when={props.setup.side() !== null}
@@ -110,35 +106,49 @@ export function MultiplayerPrivateSetupPanel(props: {
               </Show>
             </Show>
           </Show>
-        </Text>
-        <StackHorizontal gap="sm" wrap>
-          <UnorderedList testId="multiplayer-setup-readiness">
-            <For each={multiplayerSides(props.game)}>
-              {(which) => (
-                <ListEntry testId={`multiplayer-setup-readiness-${which}`}>
-                  <StackHorizontal gap="xs">
-                    <Badge
-                      intent="neutral"
-                      label={presentation(props.game.fen).sideLabel(which)}
-                    />
-                    <Show
-                      when={props.setup.ready(which)}
-                      fallback={
-                        <Badge
-                          intent="neutral"
-                          label={<Trans>Getting ready</Trans>}
-                        />
-                      }
-                    >
-                      <Badge intent="success" label={<Trans>Ready</Trans>} />
-                    </Show>
-                  </StackHorizontal>
-                </ListEntry>
-              )}
-            </For>
-          </UnorderedList>
-        </StackHorizontal>
+        </P>
+        <MultiplayerSetupReadiness game={props.game} setup={props.setup} />
       </GameSection>
     </Show>
+  );
+}
+
+function MultiplayerSetupReadiness(props: {
+  readonly game: MultiplayerGame;
+  readonly setup: MultiplayerPrivateSetup;
+}): JSX.Element {
+  const presentation = useGamePresentation();
+  return (
+    <StackHorizontal
+      wrap
+      align="center"
+      gap="sm"
+      role="list"
+      dataSet={{ testid: 'multiplayer-setup-readiness' }}
+    >
+      <For each={multiplayerSides(props.game)}>
+        {(which) => (
+          <StackHorizontal
+            align="center"
+            gap="xs"
+            role="listitem"
+            dataSet={{ testid: `multiplayer-setup-readiness-${which}` }}
+          >
+            <Badge
+              intent="neutral"
+              label={presentation(props.game.fen).sideLabel(which)}
+            />
+            <Show
+              when={props.setup.ready(which)}
+              fallback={
+                <Badge intent="neutral" label={<Trans>Getting ready</Trans>} />
+              }
+            >
+              <Badge intent="success" label={<Trans>Ready</Trans>} />
+            </Show>
+          </StackHorizontal>
+        )}
+      </For>
+    </StackHorizontal>
   );
 }

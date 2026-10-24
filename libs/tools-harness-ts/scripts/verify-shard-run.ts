@@ -54,7 +54,7 @@ export async function runShard(index: number): Promise<number> {
   const shard = plan.shards[index];
   if (!shard) throw new Error(`Unknown shard ${index}`);
   const env = turboChildEnv();
-  applyPlanContext(env);
+  applyPlanContext(env, ROOT);
   // A shard runs on the 2-core runner: a proof gets the same correction to
   // its deadline that every task gets to its budget.
   env[VERIFY_TIME_SCALE_ENV] ??= String(SLOW_RUNNER_MULTIPLIER);
@@ -251,7 +251,7 @@ function preserveFailedReports(results: readonly Result[]): void {
 
 if (import.meta.main) process.exit(await runShard(Number(process.argv[2])));
 
-export function applyPlanContext(env: NodeJS.ProcessEnv, root = ROOT): void {
+export function applyPlanContext(env: NodeJS.ProcessEnv, root: string): void {
   const context = JSON.parse(
     readFileSync(join(root, '.cache/verify-ci/context.json'), 'utf8')
   ) as { secretsRange: string; platformKey: string };

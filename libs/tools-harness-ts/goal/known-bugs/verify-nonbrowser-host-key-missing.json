@@ -1,0 +1,4 @@
+{
+  "summary": "A non-browser shard omitted turbo-host-key.json, changing the root lint hash after planning. Restore the host fingerprint on every shard.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-plan-context.test.ts"
+}

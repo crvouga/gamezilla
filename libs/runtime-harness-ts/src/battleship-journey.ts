@@ -38,6 +38,7 @@ async function screenShown(ui: Driver): Promise<ScreenShown> {
     const context = {
       boardPresent: await publicJourneyVisible(ui, Handles.multiplayerBoard),
       snapshotPresent: typeof html === 'string',
+      htmlChars: html?.length ?? 0,
       ownCells: Object.keys(boards.own).length,
       targetCells: Object.keys(boards.target).length,
       ownShips: fleet.size,

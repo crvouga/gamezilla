@@ -256,6 +256,9 @@ export type MountMutationsRouteDeps = MutationLifecycle & {
    */
   readonly turnGames?: TurnGames;
   readonly contentRulesAt?: (atMs: number) => ContentRules;
+  readonly onCommitted?: (
+    captures: readonly WriteCaptureSnapshot[]
+  ) => Promise<void>;
 };
 
 export function mountMutationsRoute(
@@ -296,6 +299,8 @@ export function mountMutationsRoute(
     if (deps.pubsub !== undefined && result.applied.length > 0) {
       await publishMutationPushes(deps, prepared);
     }
+    if (result.applied.length > 0)
+      await deps.onCommitted?.(result.applied.map((item) => item.capture));
     await deps.onCommittedMutations?.({
       db,
       auth,

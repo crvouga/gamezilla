@@ -36,7 +36,8 @@ export function measureBoardBox(
   const cssWidth = Number.parseFloat(
     node.ownerDocument.defaultView?.getComputedStyle(node).width ?? ''
   );
-  const width = cssWidth > 0 ? cssWidth : fallbackPx;
+  const width =
+    Number.isFinite(cssWidth) && cssWidth > 0 ? cssWidth : fallbackPx;
   const scale = width > 0 ? rect.width / width : 1;
   const borderX = node.clientLeft * scale;
   const borderY = node.clientTop * scale;

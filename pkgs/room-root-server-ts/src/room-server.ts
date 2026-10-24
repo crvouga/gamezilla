@@ -30,6 +30,8 @@ import {
   WIRE_VERSION,
 } from '@pkgs/room-root-shared-ts/wire';
 import {
+  changedPresence,
+  connectionIdsForActor,
   hasAuthority,
   participatingRoster,
   readsHistory,
@@ -88,6 +90,7 @@ export class RoomServer<
   private lastSeq = 0;
   private tipKnown = false;
   private presenceSeq = 0;
+  private presenceKey = '[]';
 
   constructor(config: RoomServerConfig<S, C, E, Identity>) {
     this.topic = config.topic;
@@ -208,13 +211,7 @@ export class RoomServer<
   }
 
   connectionIdsForActor(actorId: string, clientId: string): readonly string[] {
-    const out: string[] = [];
-    for (const conn of this.connections.values()) {
-      if (conn.actor.id === actorId && conn.actor.clientId === clientId) {
-        out.push(conn.id);
-      }
-    }
-    return out;
+    return connectionIdsForActor(this.connections, actorId, clientId);
   }
 
   unregisterConnection(id: string): void {
@@ -262,9 +259,16 @@ export class RoomServer<
   }
 
   private async presenceSerial(): Promise<void> {
-    const present = [...new Set(this.getRoster().map((actor) => actor.id))];
-    const payload = this.module.presenceCommand?.(this.committedState, present);
-    if (payload === null || payload === undefined) return;
+    const change = changedPresence(this.presenceKey, this.getRoster());
+    if (change === null) return;
+    const payload = this.module.presenceCommand?.(
+      this.committedState,
+      change.present
+    );
+    if (payload === null || payload === undefined) {
+      this.presenceKey = change.key;
+      return;
+    }
     this.presenceSeq += 1;
     await this.injectSerial(
       {
@@ -274,6 +278,7 @@ export class RoomServer<
       },
       NO_GRANTS
     );
+    this.presenceKey = change.key;
   }
 
   private broadcast(frame: unknown): void {

@@ -70,6 +70,7 @@ test('a committed mutation publishes its root and chained child before acknowled
     expect(host.publications.map((publication) => publication.topic)).toEqual([
       'example:mutation',
       'user:alice',
+      'user:alice',
     ]);
     const statements = host.statements.slice(start);
     expect(
@@ -113,6 +114,7 @@ test('a capped root-to-child upload does not probe after its final allowed pass'
     expect(host.seen).toEqual([1, 2]);
     expect(host.publications.map((publication) => publication.topic)).toEqual([
       'example:mutation',
+      'user:alice',
       'user:alice',
     ]);
     expect(

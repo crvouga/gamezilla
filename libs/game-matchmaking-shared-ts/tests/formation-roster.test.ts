@@ -51,14 +51,14 @@ async function assertHistory(db: SqlClient, rows: readonly HistoryRow[]) {
       )}`);
   const games = new MultiplayerGameRepository(db);
   const owners = ['dave', 'bob', 'nobody', 'alice', 'carol', 'dave'];
-  const grouped = await games.formationState(owners);
+  const grouped = await games.matchmakingFacts(owners);
   expect(grouped.size).toBe(5);
   for (const owner of owners) {
     const finished = rows.filter(
       (row) => !row.deleted && ['white', 'black', 'draw'].includes(row.outcome)
     );
     expect(grouped.get(owner)).toEqual({
-      unfinishedCount: await games.unfinishedCount(owner),
+      unfinished: await games.unfinishedCount(owner),
       colourBalance: finished.reduce(
         (balance, row) =>
           balance +
@@ -67,7 +67,7 @@ async function assertHistory(db: SqlClient, rows: readonly HistoryRow[]) {
       ),
     });
   }
-  expect(await games.formationState([])).toEqual(new Map());
+  expect(await games.matchmakingFacts([])).toEqual(new Map());
 }
 
 async function checkHistory(db: SqlClient, rows: readonly HistoryRow[]) {

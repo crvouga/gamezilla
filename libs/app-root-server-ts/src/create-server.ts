@@ -39,12 +39,8 @@ import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { mountBrowserTelemetryIngress } from './browser-telemetry-ingress';
 import { createHealthApp } from './health-route';
-import { drainCommittedMutationOutbox } from './mutation-outbox';
 import { notifyUserChannels } from './notify-user-channels';
-import {
-  requestOutboxRegistry,
-  setOutboxConsumerRegistry,
-} from './outbox-drain';
+import { setOutboxConsumerRegistry } from './outbox-drain';
 import { createPubSubTokenRoutes } from './pubsub-token-routes';
 import { createRequestDbMiddleware } from './request-db-middleware';
 import {
@@ -251,18 +247,11 @@ function createSyncAppMount(
 ) {
   return createSyncApp({
     app,
+    outboxConsumers: servers.outboxConsumers,
     authorizeServerMutation: servers.authorizeMutation,
     now: () => env.clock.now(),
     createId: env.createId,
     moderation: env.moderation,
-    onCommittedMutations: (batch) =>
-      drainCommittedMutationOutbox({
-        batch,
-        consumerRegistry: requestOutboxRegistry(servers.outboxConsumers),
-        objectStore: env.blob,
-        clock: env.clock,
-        createId: env.createId,
-      }),
     ...(env.protection === 'production' ? {} : { strictQueryLimits: true }),
   });
 }

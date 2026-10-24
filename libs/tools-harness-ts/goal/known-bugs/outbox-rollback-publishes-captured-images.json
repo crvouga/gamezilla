@@ -1,0 +1,4 @@
+{
+  "summary": "A consumer's RETURNING row images remained in its write capture after a savepoint rollback. Outbox publication used those images and sent a domain row that never committed. Publish captures only after successful delivery while retaining attempted captures for conservative next-pass detection.",
+  "regressionTest": "libs/app-root-server-ts/tests/outbox-row-images.test.ts"
+}

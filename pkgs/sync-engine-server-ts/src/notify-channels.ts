@@ -14,9 +14,16 @@ export type NotifyChannelsOptions = {
   readonly tables?: readonly string[];
   /** Post-replay row images (lossy fanout optimization). */
   readonly rows?: Readonly<Record<string, readonly QueryRow[]>>;
+  /** Row images already partitioned by the authoritative topic map. */
+  readonly rowsByTopic?: ReadonlyMap<
+    Topic,
+    Readonly<Record<string, readonly QueryRow[]>>
+  >;
   /** Included in warn logs when publish fails. */
   readonly label?: string;
   readonly now: () => number;
+  /** Shared with query snapshots; minted after the domain write committed. */
+  readonly checkpoint?: string;
 };
 
 /**
@@ -42,6 +49,12 @@ export async function notifyChannels(
       pushSeqs,
       ...(options.tables !== undefined ? { tables: options.tables } : {}),
       ...(options.rows !== undefined ? { rows: options.rows } : {}),
+      ...(options.rowsByTopic === undefined
+        ? {}
+        : { rowsByTopic: options.rowsByTopic }),
+      ...(options.checkpoint === undefined
+        ? {}
+        : { checkpoint: options.checkpoint }),
       label,
     });
   } catch (error: unknown) {

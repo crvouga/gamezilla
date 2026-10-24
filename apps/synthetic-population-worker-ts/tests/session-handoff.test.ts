@@ -12,6 +12,7 @@ test.each([1, 99])(
   'replacement realms resume authoritative matches and fence expired owners with snapshot version %i',
   async (schemaVersion) => {
     // regression: synthetic-population-recovery-waits-outside-game
+    // regression: synthetic-native-pair-different-games
     // regression: synthetic-population-incompatible-snapshot-loses-match
     // regression: synthetic-population-native-fixture-expiry
     // regression: synthetic-native-realms-incompatible-game-pools

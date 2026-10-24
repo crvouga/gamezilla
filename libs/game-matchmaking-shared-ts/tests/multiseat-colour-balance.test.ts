@@ -22,7 +22,7 @@ test('playing an extra seat does not count as playing the second seat', async ()
       },
     ],
   } as unknown as SqlTx;
-  const people = await new MultiplayerGameRepository(tx).formationState([
+  const people = await new MultiplayerGameRepository(tx).matchmakingFacts([
     'carol',
   ]);
   expect(people.get('carol')?.colourBalance).toBe(0);

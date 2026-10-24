@@ -155,6 +155,16 @@ describe('a planned model', () => {
 });
 
 describe('partOf', () => {
+  test('the 95 shared-game parts all hold runnable units', () => {
+    // regression: games-spec-empty-hash-parts
+    const parts = suiteParts('libs/games-harness-ts', 95);
+    for (const part of parts) expect(part.length).toBeGreaterThan(0);
+    const all = parts.flat();
+    expect(
+      new Set(all.map((unit) => `${unit.path}#${unit.slice?.index ?? 0}`)).size
+    ).toBe(all.length);
+  });
+
   const unit = (path: string, weight: number): SpecUnit => ({ path, weight });
   const units = [unit('a', 10), unit('b', 6), unit('c', 5), unit('d', 1)];
   const paths = (list: readonly SpecUnit[]) => list.map((u) => u.path);
@@ -359,6 +369,19 @@ function plannedSuite(dir: string) {
       packageSpecs(packageDir, REPO_ROOT)
     ),
   };
+}
+
+/** A package's assignment at `count` parts, as its spec runner computes it. */
+function suiteParts(
+  dir: string,
+  count: number
+): readonly (readonly SpecUnit[])[] {
+  const packageDir = join(REPO_ROOT, dir);
+  const inventory = packageSpecInventory(
+    packageDir,
+    packageSpecs(packageDir, REPO_ROOT)
+  );
+  return partsOf(inventory(count), count);
 }
 
 // regression: chess-model-preparation-timeout

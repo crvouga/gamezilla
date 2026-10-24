@@ -22,6 +22,7 @@ function rootLintHash(root: string): string {
       'lint',
       '--framework-inference=false',
       '--cache=local:rw',
+      '--no-daemon',
       '--dry=json',
     ],
     { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }
@@ -84,6 +85,40 @@ test('a non-browser shard restores the host fingerprint used by root lint', () =
       process.platform
     );
     expect(env['VERIFY_SECRETS_RANGE']).toBe('base..head');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('a shard without a browser restores both planned platform fingerprints', () => {
+  // regression: verify-nonbrowser-host-key-missing
+  const root = mkdtempSync(join(tmpdir(), 'verify-plan-context-'));
+  try {
+    const directory = join(root, '.cache/verify-ci');
+    mkdirSync(directory, { recursive: true });
+    const platformKey = JSON.stringify({
+      platform: process.platform,
+      arch: process.arch,
+      bun: Bun.version,
+      chrome: '154.0.8037.92',
+    });
+    writeFileSync(
+      join(directory, 'context.json'),
+      JSON.stringify({
+        secretsRange: 'base..head',
+        platformKey,
+      })
+    );
+    applyPlanContext({}, root);
+    expect(
+      JSON.parse(readFileSync(join(root, 'turbo-host-key.json'), 'utf8'))
+    ).toEqual({
+      platform: process.platform,
+      arch: process.arch,
+    });
+    expect(readFileSync(join(root, 'turbo-platform-key.json'), 'utf8')).toBe(
+      platformKey
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

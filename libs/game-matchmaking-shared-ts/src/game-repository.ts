@@ -17,59 +17,20 @@ import { recordGameTransition } from './telemetry';
 
 const COLUMNS = raw(MULTIPLAYER_GAME_COLUMNS.join(', '));
 
-export type FormationPlayerState = {
-  readonly unfinishedCount: number;
+export type MultiplayerOwnerFacts = {
+  readonly unfinished: number;
   readonly colourBalance: number;
 };
 
+function pairColourBalance(
+  row: Pick<MultiplayerGame, 'white_id' | 'black_id'>,
+  ownerId: string
+): number {
+  return row.white_id === ownerId ? 1 : row.black_id === ownerId ? -1 : 0;
+}
+
 export class MultiplayerGameRepository {
   constructor(private readonly tx: SqlTx) {}
-
-  /** Eligibility and colour history for the complete, already-locked roster. */
-  async formationState(
-    ownerIds: readonly string[]
-  ): Promise<ReadonlyMap<string, FormationPlayerState>> {
-    const owners = [...new Set(ownerIds)];
-    if (owners.length === 0) return new Map();
-    const rows = await this.tx.query(sql<{
-      white_id: string;
-      black_id: string;
-      red_id: string | null;
-      blue_id: string | null;
-      outcome: string;
-    }>`SELECT white_id, black_id, red_id, blue_id, outcome FROM chess_multiplayer_games
-      WHERE (white_id IN (${join(owners)}) OR black_id IN (${join(owners)})
-        OR red_id IN (${join(owners)}) OR blue_id IN (${join(owners)}))
-        AND outcome IN (${join(['ongoing', 'white', 'black', 'draw'])}) AND deleted_at IS NULL`);
-    return new Map(
-      owners.map((ownerId) => {
-        const games = rows.filter((row) =>
-          [row.white_id, row.black_id, row.red_id, row.blue_id].includes(
-            ownerId
-          )
-        );
-        return [
-          ownerId,
-          {
-            unfinishedCount: games.filter((row) => row.outcome === 'ongoing')
-              .length,
-            colourBalance: games.reduce(
-              (balance, row) =>
-                balance +
-                (row.outcome === 'ongoing'
-                  ? 0
-                  : row.white_id === ownerId
-                    ? 1
-                    : row.black_id === ownerId
-                      ? -1
-                      : 0),
-              0
-            ),
-          },
-        ];
-      })
-    );
-  }
 
   async unfinishedCount(ownerId: string): Promise<number> {
     const rows = await this.tx.query(sql<{
@@ -77,6 +38,41 @@ export class MultiplayerGameRepository {
     }>`SELECT id FROM chess_multiplayer_games
       WHERE (white_id = ${ownerId} OR black_id = ${ownerId} OR red_id = ${ownerId} OR blue_id = ${ownerId}) AND outcome = 'ongoing' AND deleted_at IS NULL`);
     return rows.length;
+  }
+
+  /** Read the complete candidate roster's history while its owner locks are held. */
+  async matchmakingFacts(
+    ownerIds: readonly string[]
+  ): Promise<ReadonlyMap<string, MultiplayerOwnerFacts>> {
+    const facts = new Map(
+      ownerIds.map((id) => [id, { unfinished: 0, colourBalance: 0 }])
+    );
+    if (facts.size === 0) return facts;
+    const owners = [...facts.keys()];
+    const rows = await this.tx.query(sql<{
+      white_id: string;
+      black_id: string;
+      red_id: string | null;
+      blue_id: string | null;
+      outcome: string;
+    }>`
+      SELECT white_id, black_id, red_id, blue_id, outcome FROM chess_multiplayer_games
+      WHERE (white_id IN (${join(owners)}) OR black_id IN (${join(owners)})
+        OR red_id IN (${join(owners)}) OR blue_id IN (${join(owners)})) AND deleted_at IS NULL`);
+    for (const row of rows) {
+      for (const [ownerId, fact] of facts) {
+        if (
+          ![row.white_id, row.black_id, row.red_id, row.blue_id].includes(
+            ownerId
+          )
+        )
+          continue;
+        if (row.outcome === 'ongoing') fact.unfinished += 1;
+        if (['white', 'black', 'draw'].includes(row.outcome))
+          fact.colourBalance += pairColourBalance(row, ownerId);
+      }
+    }
+    return facts;
   }
 
   async owned(
@@ -119,8 +115,8 @@ export class MultiplayerGameRepository {
   }
 
   /**
-   * Writes the game's new state. A game that just ended frees both people
-   * for matchmaking, and a finished one moves both ratings for its speed
+   * Writes the game's new state. A game that just ended frees every participant
+   * for matchmaking, and a finished one moves every participant's rating for its speed
    * once; an unfinished one keeps a deadline for the scheduled sweep.
    */
   async save(

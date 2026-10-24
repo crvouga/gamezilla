@@ -76,9 +76,10 @@ export async function changeAvailability(
   }
 ): Promise<void> {
   const iso = new Date(args.nowMs).toISOString();
-  await lockOwner(tx, args.ownerId, iso);
-  await tx.run(sql<void>`UPDATE matchmaking_owners SET available = ${args.available}, updated_at = ${iso}
-    WHERE id = ${args.ownerId}`);
+  assert.nonEmptyString(args.ownerId, 'matchmaking: ownerId required');
+  await tx.run(sql<void>`INSERT INTO matchmaking_owners (id, current_id, available, created_at, updated_at, deleted_at)
+    VALUES (${args.ownerId}, ${null}, ${args.available}, ${iso}, ${iso}, ${null})
+    ON CONFLICT (id) DO UPDATE SET available = excluded.available, updated_at = excluded.updated_at`);
   if (args.available) return;
   await tx.run(sql<void>`UPDATE matchmaking_waiting SET deleted_at = ${iso}, updated_at = ${iso}, ended_at = ${args.nowMs}
     WHERE owner_id = ${args.ownerId} AND deleted_at IS NULL`);
