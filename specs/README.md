@@ -1160,7 +1160,7 @@ Matchmaking ──► Chess (a complete matchmaking match), Games (pair people u
 Chess    ──► Journeys (a game of chess, a puzzle, multiplayer chess, a Custom Game)
 Battleship ──► Journeys (Battleship)
 Games    ──► Connect Four (game), Battleship (game, custom game)
-Games    ──► Pong (game, custom game, under way, bot)
+Games    ──► Pong (game, custom game, under way, bot, move list)
 Matchmaking ──► Pong (pair people up)
 Spaces   ──► Pong (space, join)
 Games    ──► Journeys (bot)
