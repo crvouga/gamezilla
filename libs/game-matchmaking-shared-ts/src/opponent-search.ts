@@ -1,7 +1,8 @@
+import { requireLimitInMutation } from '@libs/permissions-shared-ts/mutation-permission';
 import {
-  requireInMutation,
-  requireLimitInMutation,
-} from '@libs/permissions-shared-ts/mutation-permission';
+  readMutationPermissionSnapshot,
+  requireInMutationSnapshot,
+} from '@libs/permissions-shared-ts/mutation-permission-snapshot';
 import {
   LIMIT,
   PERMISSION,
@@ -86,11 +87,11 @@ export async function beginOpponentSearch(
     readonly spaceId: string;
   }
 ): Promise<void> {
-  await requireInMutation(ctx, PERMISSION.matchmakingUse);
+  const permissions = await readMutationPermissionSnapshot(ctx);
+  requireInMutationSnapshot(permissions, PERMISSION.matchmakingUse);
   await refuseWhenAlreadyLooking(ctx);
-  const scope = await requireMultiplayerSpace(ctx, input.spaceId);
-  await refuseWhenAlreadyLooking(ctx);
-  await requireInMutation(ctx, PERMISSION.spacesSelectGame, scope);
+  const scope = await requireMultiplayerSpace(ctx, input.spaceId, permissions);
+  requireInMutationSnapshot(permissions, PERMISSION.spacesSelectGame, scope);
   const control = requireOfferedTimeControl(
     input.timeControl,
     requireTurnGames(ctx.env)

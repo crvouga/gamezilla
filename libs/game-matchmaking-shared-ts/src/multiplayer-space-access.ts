@@ -1,4 +1,8 @@
 import { decideInMutation } from '@libs/permissions-shared-ts/mutation-permission';
+import {
+  decideInMutationSnapshot,
+  type MutationPermissionSnapshot,
+} from '@libs/permissions-shared-ts/mutation-permission-snapshot';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { storedSpacePresence } from '@libs/spaces-shared-ts/stored-space-presence';
 import sql from '@pkgs/sql-root-shared-ts/sql';
@@ -17,11 +21,12 @@ export async function multiplayerSpaceScope(ctx: MutationCtx, spaceId: string) {
 
 export async function requireMultiplayerSpace(
   ctx: MutationCtx,
-  spaceId: string
+  spaceId: string,
+  permissions: MutationPermissionSnapshot
 ) {
   const scope = await multiplayerSpaceScope(ctx, spaceId);
-  const decision = await decideInMutation(
-    ctx,
+  const decision = decideInMutationSnapshot(
+    permissions,
     PERMISSION.gameMultiplayerWatch,
     scope
   );
