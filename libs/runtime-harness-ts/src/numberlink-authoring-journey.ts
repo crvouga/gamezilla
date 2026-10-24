@@ -19,10 +19,7 @@ import {
 } from './journey-gestures';
 import { hostDeferringEnd } from './journey-space';
 import type { JourneyAccess, JourneyHost } from './journey-types';
-import {
-  openNumberlinkLibrary,
-  openNumberlinkSpace,
-} from './numberlink-journey-navigation';
+import { openNumberlinkLibrary } from './numberlink-journey-navigation';
 
 async function authorChallenges(
   host: JourneyHost,
@@ -58,14 +55,12 @@ export async function authorNumberlinkJourney(
   owned: string[] = []
 ): Promise<PublishedJourneyPack> {
   await host.open('anonymous');
-  let hostLink = '';
   const onCreated = (documentId: string): void => {
     owned.push(documentId);
   };
   host.defer('numberlink-publications', async (ui) => {
     if (owned.length === 0) return;
     await host.online();
-    await openNumberlinkSpace(host, hostLink);
     await withdrawJourneyPublications({
       device: { ui, timeoutMs: JOURNEY_WAIT_MS },
       documentIds: owned,
@@ -73,7 +68,6 @@ export async function authorNumberlinkJourney(
     });
   });
   await hostDeferringEnd({ journey: host });
-  hostLink = await host.spaceLink();
   await host.act('openNumberlink', openNumberlinkLibrary);
   const items = await authorChallenges(host, onCreated);
   let published: PublishedJourneyPack | undefined;

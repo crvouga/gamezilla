@@ -266,13 +266,12 @@ async function closeBrowsing(
   try {
     const host = devices.host;
     if (host !== null) {
-      failure = await runLiveCleanups(devices, cleanups, (key, error) => {
+      failure = await runLiveCleanups(devices, cleanups, async (key, error) => {
         console.error(`cleanup ${key} failed: ${String(error)}`);
+        // Later cleanups navigate and can conceal the failing screen.
+        if (!failureFlag.failed)
+          await printBrowserState(devices).catch(() => undefined);
       });
-      // A cleanup that fails after every step passed has no step failure to
-      // print the devices; they close next.
-      if (failure !== null && !failureFlag.failed)
-        await printBrowserState(devices).catch(() => undefined);
       await host.close();
     }
   } finally {

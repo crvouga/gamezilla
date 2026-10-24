@@ -4,14 +4,16 @@ import { JOURNEY_WAIT_MS, tap } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
 
 export async function openNumberlinkLibrary(ui: Driver): Promise<void> {
-  await tap(ui, Handles.gameMenu('numberlink'));
+  if (await ui.get('content-create-puzzle').isVisible()) return;
+  if (!(await ui.get(Handles.gameChoice('puzzle-library')).isVisible()))
+    await tap(ui, Handles.gameMenu('numberlink'));
   await tap(ui, Handles.gameChoice('puzzle-library'));
   await ui
     .get('content-create-puzzle')
     .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
 }
 
-/** Following a saved space link starts at its game menu. */
+/** Open saved work after the space's restored game choice has settled. */
 export async function openNumberlinkSpace(
   host: Pick<JourneyHost, 'openLink' | 'act'>,
   link: string

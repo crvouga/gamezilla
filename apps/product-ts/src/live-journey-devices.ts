@@ -48,7 +48,7 @@ export async function actOnLiveDevice(
 export async function runLiveCleanups(
   devices: LiveDevices,
   cleanups: ReadonlyMap<string, (ui: Driver) => Promise<void>>,
-  report: (key: string, error: unknown) => void
+  report: (key: string, error: unknown) => void | Promise<void>
 ): Promise<unknown> {
   const host = devices.host;
   if (host === null) return null;
@@ -57,7 +57,7 @@ export async function runLiveCleanups(
     try {
       await actOnLiveDevice(devices, host, cleanup);
     } catch (error) {
-      report(key, error);
+      await report(key, error);
       failure ??= error;
     }
   }
