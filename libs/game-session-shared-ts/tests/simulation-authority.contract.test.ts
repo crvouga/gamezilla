@@ -75,6 +75,7 @@ test('spectators, another seat, stale rounds and malformed controls never enter 
     rig.clock.advance(50);
     expect(rig.simulation.snapshot().state.inputs).toEqual([]);
     expect(rig.errors).toHaveLength(4);
+    expect(rig.processingMs).toEqual([]);
     expect(await rig.storage.loadEventsAfter('race:1', 0)).toHaveLength(0);
   } finally {
     rig.dispose();

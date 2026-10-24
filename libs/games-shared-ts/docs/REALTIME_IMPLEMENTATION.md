@@ -674,8 +674,8 @@ The following remain required before the brief is complete:
    spectator delivery also have current probes.
 4. Product Gherkin, Quint and glossary, audited spec-only commits, deterministic
    adverse-network campaigns and full local/online end-to-end journeys.
-5. Finish telemetry for authoritative input processing, transport round-trip
-   latency and prediction error; client acknowledgment duration is now recorded.
+5. Finish transport round-trip latency and prediction-error telemetry; client
+   acknowledgment and authoritative input-processing duration are now recorded.
    Produce reproducible production failure artifacts and measure performance
    and bandwidth.
 6. Readiness evidence, automated responsive visual verification, the full current
@@ -1079,3 +1079,39 @@ Current local-recovery checkpoint evidence in `.cache/pong/`:
 The complete current Verify gate, hosted/browser recovery, duplicate-owner and
 adverse-network work, full shared policy/journey coverage, telemetry and measured
 performance/visual evidence remain required as listed above.
+
+## Authoritative input-processing timing
+
+`game.simulation.input.processing.duration` records seconds from receipt by the
+authority's input handler to successful application in a committed simulation
+tick. Both endpoints use the same injected authority clock. It includes input
+validation and the wait for a due tick; it excludes transport before that handler
+and snapshot publication afterward. Custom, matched and local authorities supply
+the same metric adapter, with only the finite `game.mode` dimension. No client
+timestamp, identity dimension or per-tick log/span is added.
+
+The pure engine exposes committed ticks and their exact applied inputs. The
+bounded receipt tracker accepts reordered arrivals and keeps each first accepted
+receipt once. It does not derive samples from cumulative acknowledgments:
+sequence two can apply before a previously queued sequence one, superseding that
+older input. Rejected, duplicate, superseded and failed-step inputs produce no
+sample. Pause, epoch replacement, disposal and driver failure discard timing
+state; backward or invalid clock readings cannot fabricate a later duration.
+
+`simulation-input-processing-latency-unreported` pins receipt at 7 ms and successful
+application at 17 ms, before the next 50 ms snapshot is due. Its initial run in
+`input-processing-red.log` had 106 passes and the missing 10 ms sample failure.
+`input-processing-green.log` passes all 117 game-session checks. Further contracts
+exercise reordered/duplicate delivery, supersession during catch-up, rejected
+controls, pause/epoch fences and failed mechanics. A property varies authority
+clock offsets, arrival order and the global retention bound. The tick observer
+contract also checks committed state, failure atomicity and unsubscription.
+`input-processing-deeper.log` passes the same 117 checks at `PBT_NUM_RUNS=200`;
+`input-processing-static-final.log` passes package types and lint, and
+`input-processing-dependent-types.log` passes all 35 dependent type tasks.
+`input-processing-policy.log` passes goals, spec ownership and package naming.
+
+This adds authority processing evidence; transport RTT, prediction error,
+production failure artifacts and measured performance remain open. Full Verify
+and nightly-random runs from the preceding local-recovery checkpoint remain in
+the normal machine-wide queue; they cannot establish a verdict for this change.

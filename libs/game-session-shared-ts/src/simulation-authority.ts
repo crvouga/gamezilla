@@ -7,6 +7,7 @@ import {
   type SimulationDriverPorts,
 } from './simulation-driver';
 import type { FixedStepSimulation } from './simulation-engine';
+import { SimulationInputProcessing } from './simulation-input-processing';
 import {
   RequestSimulationSnapshot,
   SimulationStateChanged,
@@ -27,6 +28,8 @@ export type SimulationAuthorityPorts<S> = Omit<
 > & {
   /** The existing RoomServer.publishSignal, never another transport. */
   readonly publish: (message: Message, audience?: readonly string[]) => void;
+  /** Authority receipt to successful application; excludes transport and snapshot wait. */
+  readonly inputProcessed: (milliseconds: readonly number[]) => void;
 };
 
 /**
@@ -41,6 +44,8 @@ export class SimulationAuthority<S, I> {
   private disposed = false;
   private epoch: string;
   private readonly controllers: ReadonlyMap<string, string>;
+  private readonly inputProcessing: SimulationInputProcessing;
+  private readonly unsubscribeTicks: () => void;
 
   constructor(
     private readonly simulation: FixedStepSimulation<S, I>,
@@ -51,11 +56,24 @@ export class SimulationAuthority<S, I> {
       throw new Error('invalid simulation epoch');
     this.controllers = new Map(rules.controllers);
     this.epoch = rules.epoch;
+    this.inputProcessing = new SimulationInputProcessing(
+      simulation.options.maxQueuedInputs
+    );
+    this.unsubscribeTicks = simulation.subscribeTicks((tick, inputs) => {
+      const samples = this.inputProcessing.applied(
+        tick,
+        inputs,
+        ports.clock.now()
+      );
+      if (samples.length > 0) ports.inputProcessed(samples);
+    });
     this.driver = driveSimulation(simulation, {
       ...ports,
       publish: () => this.publish(),
       onError: (error) => {
         this.disposed = true;
+        this.inputProcessing.clear();
+        this.unsubscribeTicks();
         ports.onError(error);
       },
     });
@@ -63,6 +81,7 @@ export class SimulationAuthority<S, I> {
 
   /** Called by room only after its ordinary permission and session-lifetime gates. */
   receive(command: RoomCommand, identity: string): RoomError | null {
+    const receivedAt = this.ports.clock.now();
     if (this.disposed) return this.refuse('this game is no longer running');
     if (RequestSimulationSnapshot.is(command.payload)) {
       this.publish([identity]);
@@ -89,6 +108,7 @@ export class SimulationAuthority<S, I> {
         reason: 'invalid game control',
       };
     const result = this.simulation.enqueue({ ...input, value });
+    if (result.accepted) this.inputProcessing.record(input, receivedAt);
     if (result.accepted || result.reason === 'duplicate') return null;
     return result.reason === 'full'
       ? { type: ROOM_ERROR_TYPE.rateLimited }
@@ -117,6 +137,7 @@ export class SimulationAuthority<S, I> {
   setPaused(paused: boolean): void {
     if (this.disposed || this.paused === paused) return;
     this.paused = paused;
+    this.inputProcessing.clear();
     this.simulation.restore(this.simulation.snapshot());
     this.simulation.setPaused(paused);
     this.driver.resetElapsed();
@@ -127,6 +148,8 @@ export class SimulationAuthority<S, I> {
 
   dispose(): void {
     this.disposed = true;
+    this.inputProcessing.clear();
+    this.unsubscribeTicks();
     this.driver.stop();
   }
 
@@ -135,6 +158,7 @@ export class SimulationAuthority<S, I> {
     if (epoch.length === 0 || epoch.length > 256)
       throw new Error('invalid simulation input epoch');
     this.epoch = epoch;
+    this.inputProcessing.clear();
     this.simulation.restore(this.simulation.snapshot());
   }
 

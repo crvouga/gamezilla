@@ -12,7 +12,11 @@ import {
 import { LocalSimulationRelay } from './simulation-local-relay';
 import { SessionSimulation } from './simulation-session-runtime';
 import { CheckpointSimulation } from './simulation-session-state';
-import { simulationFailed, simulationMeasures } from './simulation-telemetry';
+import {
+  simulationFailed,
+  simulationInputProcessingMeasures,
+  simulationMeasures,
+} from './simulation-telemetry';
 
 /** One room lifetime owns either shared execution or forwarding from its local creator. */
 export function createCustomSimulationRuntime(
@@ -41,6 +45,7 @@ export function createCustomSimulationRuntime(
       checkpoint: (view, position, change) =>
         CheckpointSimulation({ gameId: view.id, position, ...change }),
       measure: simulationMeasures('custom'),
+      inputProcessed: simulationInputProcessingMeasures('custom'),
     }
   );
   return {

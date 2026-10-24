@@ -37,6 +37,14 @@ const inputAcknowledgment = createMetric({
   type: 'histogram',
   dimensions,
 });
+const inputProcessing = createMetric({
+  name: 'game.simulation.input.processing.duration',
+  description:
+    'Authority receipt to successful tick application, excluding transport and snapshot wait',
+  unit: 's',
+  type: 'histogram',
+  dimensions,
+});
 const snapshotAge = createMetric({
   name: 'game.simulation.snapshot.age',
   description: 'Age since the latest valid snapshot was received',
@@ -93,4 +101,14 @@ export function simulationMeasures(mode: 'custom' | 'matched' | 'local') {
 
 export function simulationFailed(mode: 'custom' | 'matched' | 'local'): void {
   failed(1, { 'game.mode': mode });
+}
+
+export function simulationInputProcessingMeasures(
+  mode: 'custom' | 'matched' | 'local'
+) {
+  const attributes = { 'game.mode': mode };
+  return (milliseconds: readonly number[]): void => {
+    for (const sample of milliseconds)
+      inputProcessing(sample / 1000, attributes);
+  };
 }

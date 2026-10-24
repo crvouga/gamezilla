@@ -63,6 +63,7 @@ export type SimulationSessionBinding = {
     delayMs: number;
     droppedTicks: number;
   }) => void;
+  readonly inputProcessed: (milliseconds: readonly number[]) => void;
 };
 
 /** Shared execution attached to an existing custom or matched session. */
@@ -218,6 +219,7 @@ export class SessionSimulation implements RoomLiveSession<RoomState, string> {
         snapshotRate: definition.timing.snapshotRate,
         publish: (message, audience) => this.publish(message, audience),
         measure: this.binding.measure,
+        inputProcessed: this.binding.inputProcessed,
         onError: (error) => this.fail(error),
       }
     );

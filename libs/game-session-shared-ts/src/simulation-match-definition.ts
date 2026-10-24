@@ -33,7 +33,11 @@ import {
   CheckpointSimulation,
   ExpireSimulation,
 } from './simulation-session-state';
-import { simulationFailed, simulationMeasures } from './simulation-telemetry';
+import {
+  simulationFailed,
+  simulationInputProcessingMeasures,
+  simulationMeasures,
+} from './simulation-telemetry';
 
 function selectMatchSimulation(
   state: RoomState,
@@ -208,6 +212,7 @@ function createLiveMatchSession(
             };
       },
       measure: simulationMeasures('matched'),
+      inputProcessed: simulationInputProcessingMeasures('matched'),
     }
   );
 }

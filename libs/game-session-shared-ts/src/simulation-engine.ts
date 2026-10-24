@@ -22,6 +22,9 @@ import { SimulationInputs } from './simulation-inputs';
 export class FixedStepSimulation<S, I> {
   private readonly inputs: SimulationInputs<I>;
   private readonly random;
+  private readonly tickListeners = new Set<
+    (tick: number, inputs: readonly SimulationInput<I>[]) => void
+  >();
   private state: S;
   private tick = 0;
   private fractionalTicks = 0;
@@ -50,6 +53,14 @@ export class FixedStepSimulation<S, I> {
       state: this.state,
       acknowledged: this.inputs.acknowledgments(),
     };
+  }
+
+  /** Observes only committed ticks, including ticks with no applied input. */
+  subscribeTicks(
+    listener: (tick: number, inputs: readonly SimulationInput<I>[]) => void
+  ): () => void {
+    this.tickListeners.add(listener);
+    return () => this.tickListeners.delete(listener);
   }
 
   /** Direct tick advancement is useful for deterministic replay, never a wall clock. */
@@ -83,6 +94,7 @@ export class FixedStepSimulation<S, I> {
     this.inputs.commit(tick, inputs);
     this.state = state;
     this.tick = tick;
+    for (const listener of this.tickListeners) listener(tick, inputs);
   }
 
   /** Excess whole ticks are deliberately dropped; a stalled host cannot spiral. */

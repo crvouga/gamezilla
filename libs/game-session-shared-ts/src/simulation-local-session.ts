@@ -16,7 +16,11 @@ import {
 } from './simulation-local-choice';
 import { SessionSimulation } from './simulation-session-runtime';
 import { CheckpointLocalSimulation } from './simulation-session-state';
-import { simulationFailed, simulationMeasures } from './simulation-telemetry';
+import {
+  simulationFailed,
+  simulationInputProcessingMeasures,
+  simulationMeasures,
+} from './simulation-telemetry';
 
 export type LocalSimulationRoom = {
   readonly dispatch: (message: Message) => string | null;
@@ -88,6 +92,7 @@ export class LocalSimulationSession {
             at: Math.floor(options.clock.now()),
           }),
         measure: simulationMeasures('local'),
+        inputProcessed: simulationInputProcessingMeasures('local'),
       }
     );
     this.session.presence([{ id: options.owner, clientId: 'local' }]);

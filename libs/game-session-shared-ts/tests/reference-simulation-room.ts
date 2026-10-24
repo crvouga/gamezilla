@@ -37,9 +37,8 @@ export const parseRaceInput = (value: unknown) =>
     ? value
     : null;
 
-export async function simulationRoom() {
+export async function simulationRoom(simulation = raceSimulation()) {
   const time = createHarnessClock();
-  const simulation = raceSimulation();
   const definition = defineGame({
     rules,
     capabilities: { 'custom-games': { bots } },
@@ -58,6 +57,7 @@ export async function simulationRoom() {
   };
   const storage = new InMemoryRoomStorage();
   const errors: unknown[] = [];
+  const processingMs: number[] = [];
   let nextId = 0;
   const schedules = createTimerScheduleStack({
     ...time,
@@ -101,6 +101,8 @@ export async function simulationRoom() {
       snapshotRate: 20,
       publish: (message, audience) => server.publishSignal(message, audience),
       measure: () => {},
+      inputProcessed: (samples: readonly number[]) =>
+        processingMs.push(...samples),
       onError: (error) => errors.push(error),
     }
   );
@@ -140,6 +142,7 @@ export async function simulationRoom() {
     clients,
     transports,
     errors,
+    processingMs,
     connect,
     dispose: () => {
       for (const client of clients.values()) client.destroy();
