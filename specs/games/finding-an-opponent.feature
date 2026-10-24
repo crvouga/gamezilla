@@ -50,6 +50,7 @@ Feature: Finding an opponent in every game
 
   Rule: People are paired only for the same game
 
+    @regression:matched-game-seeded-initial-position
     Scenario: Compatible people receive one new game on opposite sides
       Given Alice and Bob are seeking an opponent for the game
       When they are paired
