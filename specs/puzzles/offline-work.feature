@@ -42,6 +42,11 @@ Feature: Keep puzzle work without a connection
       Then Alice can edit the puzzle draft "River" on her tablet
       And Bob cannot discover the puzzle "River"
 
+    Scenario: An offline pack order reaches its author's other device
+      Given Alice has saved the pack order "Valley, River" on her offline phone
+      When Alice's phone is back online
+      Then the pack draft on Alice's tablet contains "Valley, River" in that order
+
     Scenario: An offline completion reaches the person's other device once
       Given Bob has completed "River" on his offline phone in the published pack "Rivers" containing "River, Valley"
       When Bob's phone is back online

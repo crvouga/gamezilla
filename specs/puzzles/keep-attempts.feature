@@ -23,6 +23,12 @@ Feature: Keep personal puzzle attempts
       When Bob reopens the app
       Then Bob has the same unfinished puzzle position
 
+    Scenario: Resuming an earlier attempt restores its kept position
+      Given Bob has made progress in the published puzzle "River"
+      And Bob has restarted the puzzle "River"
+      When Bob resumes his earlier puzzle attempt
+      Then Bob has the same unfinished puzzle position in that earlier attempt
+
     Scenario: Another person's attempt remains private
       Given Bob has made progress in the published puzzle "River"
       When Alice opens Bob's saved puzzle attempt
@@ -46,6 +52,12 @@ Feature: Keep personal puzzle attempts
       Given Bob has a fresh attempt in a puzzle offering undo and redo
       When Bob undoes his last puzzle action
       Then Bob is told there is no earlier puzzle position
+      And Bob's fresh puzzle position is unchanged
+
+    Scenario: A fresh attempt has no later position to redo
+      Given Bob has a fresh attempt in a puzzle offering undo and redo
+      When Bob redoes that puzzle action
+      Then Bob is told there is no later puzzle position
       And Bob's fresh puzzle position is unchanged
 
     Scenario: A different action after undo replaces the redo choice

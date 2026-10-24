@@ -38,6 +38,14 @@ Feature: Publish stable puzzle editions
       Then Bob can discover the published puzzle "Valley"
       And Alice can still inspect the earlier edition "River"
 
+    Scenario: A new valid draft can be published after withdrawal
+      Given Alice has published the puzzle "River"
+      And Alice has withdrawn the puzzle "River"
+      And Alice has a valid working draft titled "Valley"
+      When Alice publishes her puzzle draft
+      Then Bob can discover the published puzzle "Valley"
+      And Alice can still inspect the earlier edition "River"
+
   Rule: Publishing the same saved draft again keeps one edition
     No counter-example: a newly saved draft is a different publication choice.
 
@@ -50,6 +58,13 @@ Feature: Publish stable puzzle editions
       Given Alice has published "Valley" after the earlier edition "River"
       When Alice publishes the earlier saved draft "River" again
       Then Bob can discover the published puzzle "Valley"
+
+    Scenario: Repeating an earlier publication cannot undo withdrawal
+      Given Alice has published the puzzle "River"
+      And Alice has withdrawn the puzzle "River"
+      When Alice publishes her puzzle draft
+      Then Bob cannot discover the puzzle "River"
+      And Alice sees one published edition of "River"
 
   Rule: Another person cannot publish or withdraw the author's puzzle
 

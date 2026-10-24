@@ -43,6 +43,7 @@ terms:
       be opened again ("reopens"), and it still has everything it had.
     forms: [app, the app's, app's, reopens, reopen, reopened]
     avoid: [frontend, website, web app, application]
+    model: [reopenApp]
 
   - term: connection
     definition: >-
@@ -56,6 +57,7 @@ terms:
       to do. A choice refused while offline does not happen later on its own.
     forms: [offline, online, back online, connected, disconnected]
     avoid: [network error, socket]
+    model: [connectionReturns]
 
   - term: environment
     definition: >-

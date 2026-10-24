@@ -2,7 +2,7 @@
 Feature: Publish packs with stable puzzle editions
   When Alice publishes a pack, she wants its chosen puzzles and order to stay fixed, so people can finish the collection they started.
 
-  Rule: Every published pack contains available published puzzles of one game
+  Rule: An author publishes a nonempty pack of available published puzzles of one game
 
     Scenario: A valid pack becomes discoverable with its ordered puzzles
       Given Alice owns the pack draft "Rivers" containing "River, Valley"
@@ -25,6 +25,12 @@ Feature: Publish packs with stable puzzle editions
       Given Alice owns the empty pack draft "Rivers"
       When Alice publishes her pack draft
       Then Alice is told to add a puzzle before publishing the pack
+      And Bob cannot discover the pack "Rivers"
+
+    Scenario: Another person cannot publish the author's private pack
+      Given Alice owns the pack draft "Rivers" containing "River, Valley"
+      When Bob publishes Alice's pack draft
+      Then Bob is told only the author may change that pack
       And Bob cannot discover the pack "Rivers"
 
   Rule: A published pack keeps its chosen puzzle editions
@@ -59,11 +65,37 @@ Feature: Publish packs with stable puzzle editions
       Then Bob can discover the pack "Rivers" with "Valley, River" in that order
       And Alice can still inspect the earlier pack edition
 
-  Rule: A withdrawn pack keeps its saved attempts available
-    No counter-example: withdrawal removes discovery rather than people's kept play.
+  Rule: Only the author withdraws a pack and saved attempts remain available
 
     Scenario: Withdrawing a pack hides it without erasing a saved attempt
       Given Bob has a saved attempt from Alice's published pack "Rivers"
       When Alice withdraws the pack "Rivers"
       Then Bob cannot discover the pack "Rivers"
       And Bob can resume that saved attempt
+
+    Scenario: Another person cannot withdraw the author's public pack
+      Given Alice has published the pack "Rivers" containing "River, Valley"
+      When Bob withdraws Alice's pack "Rivers"
+      Then Bob is told only the author may change that pack
+      And Bob can discover the pack "Rivers" with "River, Valley" in that order
+
+  Rule: Publishing the same saved pack draft again keeps one edition
+    No counter-example: a newly saved pack draft is a different publication choice.
+
+    Scenario: Repeated pack publication keeps one edition
+      Given Alice has published the pack "Rivers" containing "River, Valley"
+      When Alice publishes her pack draft
+      Then Alice sees one published pack edition of "Rivers"
+
+    Scenario: An earlier pack publication cannot replace a later order
+      Given Alice has published the pack "Rivers" containing "River, Valley"
+      And Alice has published a later pack edition containing "Valley, River"
+      When Alice publishes the earlier saved pack draft containing "River, Valley" again
+      Then Bob can discover the pack "Rivers" with "Valley, River" in that order
+
+    Scenario: Repeating pack publication cannot undo withdrawal
+      Given Alice has published the pack "Rivers" containing "River, Valley"
+      And Alice has withdrawn the pack "Rivers"
+      When Alice publishes her pack draft
+      Then Bob cannot discover the pack "Rivers"
+      And Alice sees one published pack edition of "Rivers"

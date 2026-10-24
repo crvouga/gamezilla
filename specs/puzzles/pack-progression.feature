@@ -51,3 +51,9 @@ Feature: Continue and complete puzzle packs
       When Bob returns to the pack overview
       Then Bob sees that the pack "Rivers" is unfinished
       And Bob is offered "Valley" as the next puzzle
+
+    Scenario: A complete pack offers no unfinished puzzle to continue
+      Given Bob has completed "River" and "Valley" in the published pack "Rivers"
+      When Bob continues the pack "Rivers"
+      Then Bob sees that the pack "Rivers" is complete
+      And Bob is not offered an unfinished puzzle
