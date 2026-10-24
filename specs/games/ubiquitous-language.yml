@@ -497,6 +497,7 @@ terms:
       - decline the rematch
       - declines the rematch
     model: [rematch, offerRematch, acceptRematch, declineRematch, rematchOffer, rematchOf]
+    published: true
 
   - term: find a new opponent
     definition: >-

@@ -89,5 +89,16 @@ terms:
   - term: Battleship
     from: battleship
 
+  - term: Pong
+    from: pong
+  - term: paddle
+    from: pong
+  - term: score
+    from: pong
+  - term: target score
+    from: pong
+  - term: rematch
+    from: games
+
   - term: bot
     from: games

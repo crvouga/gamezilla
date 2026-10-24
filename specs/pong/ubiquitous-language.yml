@@ -8,7 +8,7 @@ terms:
       A game with a paddle at each end of a court and one ball. Each person
       guides their own paddle to return the ball. The first to reach the
       target score wins. Both paddles can be guided at the same time.
-    forms: [Pong game, Pong's]
+    forms: [Pong game, Pong's, wins Pong, won Pong]
     published: true
     model: [stage]
 
@@ -22,6 +22,7 @@ terms:
       paddle is on the left and the other is on the right, and each stays
       within the court.
     forms: [paddles, left paddle, right paddle]
+    published: true
     model: [controlledPaddles, guidePaddle]
 
   - term: ball
@@ -42,10 +43,12 @@ terms:
   - term: score
     definition: The points each person has won in the current Pong game.
     forms: [scores]
+    published: true
     model: [score]
 
   - term: target score
     definition: The number of points needed to win, chosen before Pong starts.
+    published: true
     model: [targetScore]
 
   - term: countdown

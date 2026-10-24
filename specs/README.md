@@ -1163,7 +1163,8 @@ Games    ──► Connect Four (game), Battleship (game, custom game)
 Games    ──► Pong (game, custom game, under way, bot, move list)
 Matchmaking ──► Pong (pair people up)
 Spaces   ──► Pong (space, join)
-Games    ──► Journeys (bot)
+Games    ──► Journeys (bot, rematch)
+Pong     ──► Journeys (Pong, paddle, score, target score)
 Games    ──► Synthetic Population (game)
 Pong     ──► Synthetic Population (Pong)
 Battleship ──► Synthetic Population (Battleship)
@@ -1180,10 +1181,10 @@ Published language:
 | Spaces (`spaces`) | space, host, join, leave, create a space, end a space, open space, return to a space, lobby, space link, hosting limit, idle | `SpaceEvent`: `SpaceOpened`, `PersonJoined`, `PersonLeft`, `SpaceEnded` |
 | Friends (`friends`) | friend, friends list, people search, block someone, inbox | `FriendshipEvent`: `BecameFriends`, `FriendshipEnded` |
 | Chess (`chess`) | game, chess, board, puzzle, solve, multiplayer chess, multiplayer result, Custom Game, Custom Game move list | — |
-| Games (`games`) | game, the game's choices, custom game, under way | — |
+| Games (`games`) | game, the game's choices, custom game, under way, rematch | — |
 | Connect Four (`connect-four`) | Connect Four | — |
 | Battleship (`battleship`) | Battleship | — |
-| Pong (`pong`) | Pong | — |
+| Pong (`pong`) | Pong, paddle, score, target score | — |
 | App (`runtime`) | Settings, tabs, address, version of the app, trail, run into trouble, keyboard, control, place in the app | — |
 | Developer tools (`developer-tools`) | the testing tool | — |
 | Matchmaking (`matchmaking`) | matchmaking match, pair people up | `MatchmakingEvent`: `MatchFormed` |
