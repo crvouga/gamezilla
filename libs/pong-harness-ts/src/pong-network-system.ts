@@ -4,7 +4,11 @@ import {
 } from '@libs/game-session-harness-ts/simulation-room-fixture';
 import { connectSimulationRoomFixture } from '@libs/game-session-harness-ts/simulation-room-presentation';
 import { FixedStepSimulation } from '@libs/game-session-shared-ts/simulation-engine';
-import { SubmitSimulationInput } from '@libs/game-session-shared-ts/simulation-messages';
+import {
+  type SimulationSnapshotPayload,
+  SimulationStateChanged,
+  SubmitSimulationInput,
+} from '@libs/game-session-shared-ts/simulation-messages';
 import {
   pongGameShared,
   pongPositionCodec,
@@ -51,6 +55,7 @@ async function createNetworkPong(session: Session) {
   >();
   const history = new Map<string, PongState[]>();
   const errors: unknown[] = [];
+  const signals = new Map<string, SimulationSnapshotPayload>();
   const connections = new Map<
     string,
     ReturnType<typeof connectSimulationRoomFixture>
@@ -58,6 +63,12 @@ async function createNetworkPong(session: Session) {
   for (const owner of ['alice', 'bob', 'carol']) {
     const client = await kit.addClient({ id: owner });
     await kit.drain();
+    session.onDispose(
+      client.room()!.subscribeSignal((message) => {
+        if (SimulationStateChanged.is(message))
+          signals.set(owner, message.payload);
+      })
+    );
     const connection = connectSimulationRoomFixture(pongGameShared, {
       owner,
       room: client.room()!,
@@ -92,6 +103,7 @@ async function createNetworkPong(session: Session) {
     views,
     history,
     errors,
+    signals,
     connections,
     interruption: null as null | {
       id: string;
@@ -222,6 +234,34 @@ export async function readPongNetwork(s: PongNetwork) {
     await s.kit.server.readCommittedState()
   );
   return {
+    progress:
+      authority === null
+        ? null
+        : { phase: authority.execution.phase, tick: authority.execution.tick },
+    peers: [...s.views].map(([id, view]) => {
+      const execution = simulationRoomCourt(
+        s.kit.clients.get(id)!.snapshot()
+      )?.execution;
+      const signal = s.signals.get(id);
+      return {
+        id,
+        paused: view.paused,
+        stale: view.stale,
+        generation: execution?.inputGeneration,
+        signal:
+          signal === undefined
+            ? null
+            : {
+                paused: signal.paused,
+                tick: signal.tick,
+                revision: signal.revision,
+                matches:
+                  execution !== undefined &&
+                  signal.epoch ===
+                    `${execution.epoch}:${execution.inputGeneration}`,
+              },
+      };
+    }),
     authority,
     views: [...s.views.values()],
     history: [...s.history.values()],
