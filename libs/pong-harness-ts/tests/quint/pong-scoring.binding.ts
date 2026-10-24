@@ -5,6 +5,7 @@ import {
   finishPongCountdown,
   winPongPoint,
 } from '@libs/pong-harness-ts/pong-actions';
+import { pongMoveListOffered } from '@libs/pong-harness-ts/pong-controls-view';
 import { type PongPaddle, pongView } from '@libs/pong-harness-ts/pong-view';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
 
@@ -31,6 +32,7 @@ bindQuintModel<QuintHarnessWorld>({
       targetScore: view.targetScore,
       stage: view.stage,
       winner: view.winner ?? '',
+      moveListOffered: await w.quiet.read(pongMoveListOffered),
     };
   },
 });

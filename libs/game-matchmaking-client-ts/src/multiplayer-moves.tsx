@@ -2,7 +2,10 @@ import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-stat
 import { isFinished } from '@libs/game-matchmaking-shared-ts/game-state';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
-import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
+import {
+  useGamePresentation,
+  useTurnGames,
+} from '@pkgs/turn-game-client-ts/turn-games-context';
 import { ArrowKeyGroup } from '@pkgs/ui-root-client-ts/arrow-key-group';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
@@ -170,29 +173,35 @@ export function MultiplayerMoves(props: {
   readonly view: OwnBoard;
 }): JSX.Element {
   const presentation = useGamePresentation();
+  const rules = useTurnGames();
+  const hasTurns = () => rules.turnsForPosition(props.game.fen) !== undefined;
   return (
-    <GameSection
-      title={<Trans>Moves</Trans>}
-      footer={
-        isFinished(props.game.outcome) ? (
-          <MultiplayerGameRecord game={props.game} />
-        ) : undefined
-      }
-    >
-      <ArrowKeyGroup
-        aria-label={t`Moves. The left and right arrow keys step through them.`}
-        onPrevious={props.view.stepBack}
-        onNext={props.view.stepForward}
-        testId="multiplayer-moves"
+    <Show when={hasTurns() || isFinished(props.game.outcome)}>
+      <GameSection
+        title={hasTurns() ? <Trans>Moves</Trans> : <Trans>Game record</Trans>}
+        footer={
+          isFinished(props.game.outcome) ? (
+            <MultiplayerGameRecord game={props.game} />
+          ) : undefined
+        }
       >
-        <MoveList view={props.view} />
-        <GameActions>
-          <ReviewSteps view={props.view} />
-          <Show when={presentation(props.game.fen).canFlip}>
-            <FlipBoard view={props.view} />
-          </Show>
-        </GameActions>
-      </ArrowKeyGroup>
-    </GameSection>
+        <Show when={hasTurns()}>
+          <ArrowKeyGroup
+            aria-label={t`Moves. The left and right arrow keys step through them.`}
+            onPrevious={props.view.stepBack}
+            onNext={props.view.stepForward}
+            testId="multiplayer-moves"
+          >
+            <MoveList view={props.view} />
+            <GameActions>
+              <ReviewSteps view={props.view} />
+              <Show when={presentation(props.game.fen).canFlip}>
+                <FlipBoard view={props.view} />
+              </Show>
+            </GameActions>
+          </ArrowKeyGroup>
+        </Show>
+      </GameSection>
+    </Show>
   );
 }

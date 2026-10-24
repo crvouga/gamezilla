@@ -1,7 +1,9 @@
 # Pong move review contract
 
-Authoring verdict: **PASS**, with the new step, observations and fixture shape
-left to implementation. No passing implementation verdict is claimed yet.
+Verdict: **PASS for Pong move-list availability**. The whole Pong context,
+all thirty-two drawn traces of the two affected models, their existing
+regressions, static checks and policy gates pass. Full-goal verification remains
+incomplete; turn-game review has its own execution evidence below.
 
 Scope: the complete `pong-scoring` and `pong-shared-control` aggregates, their
 features, and the existing Games move-list term published and borrowed
@@ -58,12 +60,34 @@ already exists; only vocabulary publication/borrowing changes. Every When still
 maps to an existing action. The new field is an observable availability fact,
 not a new review command invented for Pong (C1–C6).
 
-## Handoff
+## Implementation and evidence
 
-Implementation must read offered review controls from the actual local and
-matched interfaces, retain score/history/finished-record access, and preserve
-turn-game review. Existing shared-control regression fixtures need only the
-new false availability field; their actions and prior states must remain.
-D2–D6 are pending for the new binding changes. Authoring evidence is
+The reader checks actual move controls on a visible local or matched Pong
+court, refusing to treat a missing court as evidence of unavailable controls.
+The new Then is one public read and assertion; the models read the same
+availability. There are no selectors, SQL, product rules, skips, retries or
+wall timers in the step or bindings (D2–D6).
+
+The shared-control regression fixtures gained only `moveListOffered = false`
+for each person. Their prior fields, actions and states are unchanged, verified
+by `pong-move-list-fixture-shape.json` under `.cache/pong/`. The implementation
+uses the registered turn capability rather than naming Pong or inferring it
+from an empty move list. Custom history selection/statistics remain; finished
+matched games retain their record controls. No new styling or design token is
+introduced. Existing turn games keep the same review components.
+
+Authoring evidence is
 `pong-move-list-author-gate.log` and `pong-move-list-author-models.log`
-under `.cache/pong/`.
+under `.cache/pong/`; the gate handed off only the new undefined step.
+
+- `pong-move-list-local-red.log`: all three local stages offered unused controls.
+- `pong-move-list-matched-red.log`: the late matched viewer offered them too.
+- `pong-after-move-list-cleanup.log`: the whole context passes all 61 checks.
+- `pong-move-list-all-traces.log`: all 32 drawn traces, 8 model checks and 3
+  existing regressions pass (43 checks).
+- `pong-move-list-quality-current.log`: all eight affected type/lint/unit tasks
+  pass.
+- `pong-move-list-final-policy-gates.log`: all four policy/freshness tasks pass.
+- `turn-game-review-after-cleanup.log`: all 74 ordinary-game review/history
+  checks pass across the eligible production and kitchen-sink registrations.
+  This is not a full-gate claim.

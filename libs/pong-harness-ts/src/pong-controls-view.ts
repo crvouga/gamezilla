@@ -10,6 +10,24 @@ export async function pongBoardId(s: ProductHarness, actor: string) {
     : PONG_BOARD;
 }
 
+/** A visible empty move pane still offers its controls; absence of the court is not a pass. */
+export async function pongMoveListOffered(
+  s: ProductHarness,
+  actor = 'alice'
+): Promise<boolean> {
+  const ui = await actorUi(s, actor);
+  if (!(await ui.get(await pongBoardId(s, actor)).isVisible()))
+    throw new Error('No Pong court is shown');
+  for (const id of [
+    'custom-game-review-back',
+    'custom-game-review-forward',
+    'custom-game-review-ply',
+    'multiplayer-moves',
+  ])
+    if (await ui.get(id).isVisible()) return true;
+  return false;
+}
+
 /** Enabled controls are the paddles this device can actually guide. */
 export async function pongControlledPaddles(
   s: ProductHarness,

@@ -5,6 +5,7 @@ import {
   PONG_MATCH_BOARD,
   pongBoardId,
   pongControlledPaddles,
+  pongMoveListOffered,
 } from './pong-controls-view';
 import type { PongPaddle } from './pong-view';
 
@@ -64,11 +65,13 @@ export async function pongSharedCourts(s: ProductHarness) {
   const paddlePlace = new Map<string, Map<string, string>>();
   const controlledPaddles = new Map<string, Set<string>>();
   const gameShown = new Map<string, boolean>();
+  const moveListOffered = new Map<string, boolean>();
   for (const person of ['alice', 'bob', 'carol']) {
     const view = await pongSharedView(s, person);
     paddlePlace.set(person, view.paddlePlace);
     controlledPaddles.set(person, new Set(view.controlledPaddles));
     gameShown.set(person, view.gameShown);
+    moveListOffered.set(person, await pongMoveListOffered(s, person));
   }
-  return { paddlePlace, controlledPaddles, gameShown };
+  return { paddlePlace, controlledPaddles, gameShown, moveListOffered };
 }

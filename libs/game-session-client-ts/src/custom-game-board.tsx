@@ -1,7 +1,10 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
-import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
+import {
+  useGamePresentation,
+  useTurnGames,
+} from '@pkgs/turn-game-client-ts/turn-games-context';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
@@ -126,6 +129,9 @@ function ReviewMoves(props: BoardProps): JSX.Element {
 
 /** The game's record: its moves, and the earlier games of this space. */
 export function CustomGameRecord(props: BoardProps): JSX.Element {
+  const rules = useTurnGames();
+  const hasTurns = () =>
+    rules.turnsForPosition(props.review.fen()) !== undefined;
   const options = createMemo(() => [
     { value: 'live', label: <Trans>Current game</Trans> },
     ...props.model.games().history.map((game, index) => ({
@@ -147,9 +153,11 @@ export function CustomGameRecord(props: BoardProps): JSX.Element {
           dataSet={{ testid: 'custom-game-history' }}
         />
       </Show>
-      <ReviewMoves {...props} />
-      <ReviewSteps {...props} />
-      <ReviewJump {...props} />
+      <Show when={hasTurns()}>
+        <ReviewMoves {...props} />
+        <ReviewSteps {...props} />
+        <ReviewJump {...props} />
+      </Show>
       <Show when={props.model.openHistory}>
         <Button
           title={<Trans>History and stats</Trans>}

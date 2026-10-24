@@ -7,6 +7,7 @@ import {
   finishPongCountdown,
   winPongPoint,
 } from '@libs/pong-harness-ts/pong-actions';
+import { pongMoveListOffered } from '@libs/pong-harness-ts/pong-controls-view';
 import {
   type PongPaddle,
   pongPoints,
@@ -115,3 +116,10 @@ Then('Pong is {pongStage}', async (w, stage: string) => {
   });
   expect(shown).toBe(stage);
 });
+
+Then(
+  '{actor} is not offered a move list in Pong because both paddles can be guided at once',
+  async (w, actor: string) => {
+    expect(await w.s.read(pongMoveListOffered, actor)).toBe(false);
+  }
+);

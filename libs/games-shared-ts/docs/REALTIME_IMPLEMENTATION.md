@@ -656,7 +656,7 @@ changes above, which require their own current full verdict.
 The following remain required before the brief is complete:
 
 1. Complete natural matched completion, confirmation-modal and rematch journeys,
-   hide turn-only move/review surfaces when there are no turns, and finish
+   remaining continuous-specific history coverage, and finish
    the remaining population/fallback policy and recovery verification.
 2. Complete capability-aware shared behavior coverage and continuous counterparts
    of the offered lifecycle policies. The registries and common/turn/simulation
@@ -788,3 +788,46 @@ Other Actions jobs never started. Their check-run annotation is exactly:
 “The job was not started because an Actions budget is preventing further use.”
 `ci-budget-annotation.json` records it. This external limit is separate from the
 executable failures. No full CI pass, merge readiness or budget change is claimed.
+
+### Seeded opening and record controls
+
+The common creation contract exposed an unseeded expected opening for Pong.
+`initialHarnessPosition` uses the declared simulation initializer with the real
+session seed, preserving the ordinary turn-game initializer. The literal
+`02ef41f0-b6e9-4c3e-86f9-d762b0ea8aba` opening serves right; the unseeded default
+serves left. All other initial-state fields are still compared exactly.
+`seeded-opening-product-green.log` passes all thirty creation checks;
+`seeded-opening-quality-current.log` passes five type/lint/unit tasks, and
+`seeded-opening-policy-gates.log` passes all three policy tasks. The regression
+is `simulation-starting-position-uses-unseeded-fixture`.
+
+Custom and matched record components now use actual registered turns to offer
+move-list review controls. A custom game's history selector/statistics and a
+finished matched game's record controls remain available. An unfinished game
+without turns allocates no empty Moves section. Styling still comes entirely
+from the existing design-system components.
+
+`pong-after-move-list-cleanup.log` passes the whole Pong context (61 checks).
+`pong-move-list-all-traces.log` passes all thirty-two traces of scoring/shared
+control, eight model checks and three existing regressions (43 checks).
+`pong-move-list-quality-current.log` passes eight type/lint/unit tasks;
+`pong-move-list-final-policy-gates.log` passes four policy/freshness tasks.
+`turn-game-review-after-cleanup.log` passes all seventy-four ordinary-game
+review/history checks across the eligible production/kitchen-sink registrations.
+The existing pinned inputs retain every prior field/action and add only the
+new false availability field. The audit is
+`@libs/pong-harness-ts/docs/PONG_MOVE_REVIEW_SPEC_AUDIT.md`.
+
+### Latest full-gate attempts
+
+The full local run on `f6f13592e` reached the unchanged 600-second deadline
+during `@libs/games-harness-ts#verify:models:10:6`. It completed eleven tasks
+before cancellation, with no reported assertion failure. The final exit is
+124, not a passing verdict. Generation passed all eight tasks and fresh
+dependency audit returned zero; completed caches and diagnostics were retained
+in `verify-after-local-viewing-diagnostics.tar.gz`. This snapshot predates the
+seeded-opening helper and record-control cleanup.
+
+Actions run `40108754500` on that same pushed commit could not start its first
+job. `ci-current-budget-annotation.json` records the exact Actions-budget
+annotation quoted above. No manual rerun or resource-budget change was made.

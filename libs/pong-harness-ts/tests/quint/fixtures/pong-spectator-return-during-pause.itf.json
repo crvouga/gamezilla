@@ -17,7 +17,8 @@
     "_beforePositions",
     "_refused",
     "mbt::actionTaken",
-    "mbt::nondetPicks"
+    "mbt::nondetPicks",
+    "moveListOffered"
   ],
   "states": [
     {
@@ -123,6 +124,9 @@
             }
           ]
         ]
+      },
+      "moveListOffered": {
+        "#map": [["alice", false], ["bob", false], ["carol", false]]
       }
     },
     {
@@ -222,6 +226,9 @@
             }
           ]
         ]
+      },
+      "moveListOffered": {
+        "#map": [["alice", false], ["bob", false], ["carol", false]]
       }
     },
     {
@@ -321,6 +328,9 @@
             }
           ]
         ]
+      },
+      "moveListOffered": {
+        "#map": [["alice", false], ["bob", false], ["carol", false]]
       }
     },
     {
@@ -420,6 +430,9 @@
             }
           ]
         ]
+      },
+      "moveListOffered": {
+        "#map": [["alice", false], ["bob", false], ["carol", false]]
       }
     },
     {
@@ -519,6 +532,9 @@
             }
           ]
         ]
+      },
+      "moveListOffered": {
+        "#map": [["alice", false], ["bob", false], ["carol", false]]
       }
     },
     {
@@ -618,6 +634,9 @@
             }
           ]
         ]
+      },
+      "moveListOffered": {
+        "#map": [["alice", false], ["bob", false], ["carol", false]]
       }
     },
     {
@@ -717,6 +736,9 @@
             }
           ]
         ]
+      },
+      "moveListOffered": {
+        "#map": [["alice", false], ["bob", false], ["carol", false]]
       }
     },
     {
@@ -816,6 +838,9 @@
             }
           ]
         ]
+      },
+      "moveListOffered": {
+        "#map": [["alice", false], ["bob", false], ["carol", false]]
       }
     },
     {
@@ -915,6 +940,9 @@
             }
           ]
         ]
+      },
+      "moveListOffered": {
+        "#map": [["alice", false], ["bob", false], ["carol", false]]
       }
     }
   ]

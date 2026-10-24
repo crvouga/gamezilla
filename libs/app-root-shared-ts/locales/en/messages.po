@@ -2080,6 +2080,7 @@ msgid "Game rating"
 msgstr "Game rating"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-game-record.tsx
+#: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
 #: libs/game-session-client-ts/src/custom-game-board.tsx
 msgid "Game record"
 msgstr "Game record"
