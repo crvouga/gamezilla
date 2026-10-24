@@ -1,5 +1,5 @@
 {
-  "lockfileVersion": 3,
+  "lockfileVersion": 2,
   "configVersion": 1,
   "workspaces": {
     "": {
@@ -6770,9 +6770,6 @@
   ],
   "overrides": {
     "@babel/plugin-transform-modules-systemjs": "^7.29.4",
-    "@crvouga/atlas": {
-      "vite": "7.3.7",
-    },
     "adm-zip": "^0.6.1",
     "brace-expansion": "5.0.12",
     "browserslist": "4.28.8",
