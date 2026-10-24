@@ -19,6 +19,7 @@ module pong_shared_control {
   var controlledPaddles: str -> Set[str]
   /// Pong stays visible on each person's device, including without a connection.
   var gameShown: str -> bool
+  var moveListOffered: str -> bool
 
   var _positions: PaddlePlace
   var _offline: Set[str]
@@ -33,6 +34,7 @@ module pong_shared_control {
     paddlePlace' = PEOPLE.mapBy(p => if (offline.contains(p)) paddlePlace.get(p) else positions),
     controlledPaddles' = PEOPLE.mapBy(p => if (_canGuide(p, offline)) ASSIGNED.get(p) else Set()),
     gameShown' = PEOPLE.mapBy(_ => true),
+    moveListOffered' = PEOPLE.mapBy(_ => false),
     _lastCourt' = PEOPLE.mapBy(p => if (not(_offline.contains(p)) and offline.contains(p)) paddlePlace.get(p) else _lastCourt.get(p)),
     _beforePositions' = _positions, _refused' = refused,
     _positions' = positions, _offline' = offline,
@@ -41,6 +43,7 @@ module pong_shared_control {
   action init = all {
     paddlePlace' = PEOPLE.mapBy(_ => PADDLES.mapBy(_ => "middle")),
     controlledPaddles' = ASSIGNED, gameShown' = PEOPLE.mapBy(_ => true),
+    moveListOffered' = PEOPLE.mapBy(_ => false),
     _positions' = PADDLES.mapBy(_ => "middle"), _offline' = Set(),
     _lastCourt' = PEOPLE.mapBy(_ => PADDLES.mapBy(_ => "middle")),
     _beforePositions' = PADDLES.mapBy(_ => "middle"), _refused' = false,
@@ -81,4 +84,6 @@ module pong_shared_control {
   val invRefusedControl = _refused implies _positions == _beforePositions
   /// A connection change does not hide the Pong court a person can see.
   val invGameShown = PEOPLE.forall(p => gameShown.get(p))
+  /// Neither a player nor a viewer is offered a move list for Pong's simultaneous paddles.
+  val invNoMoveReview = PEOPLE.forall(p => not(moveListOffered.get(p)))
 }

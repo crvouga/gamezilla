@@ -330,6 +330,7 @@ terms:
     definition: >-
       The moves of a game in the order they were made, each as the game
       writes it, kept with its result.
+    published: true
 
   - term: board
     definition: >-

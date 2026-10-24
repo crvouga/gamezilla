@@ -86,6 +86,10 @@ terms:
   - term: under way
     from: games
 
+  - term: move list
+    from: games
+    model: [moveListOffered]
+
   - term: bot
     from: games
 

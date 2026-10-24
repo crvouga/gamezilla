@@ -11,6 +11,7 @@ module pong_scoring {
   var stage: str
   /// No winner before the victory, then the left or right paddle's person.
   var winner: str
+  var moveListOffered: bool
   var _scoreAtFinish: str -> int
   var _beforeReopen: str -> int
   var _reopened: bool
@@ -20,6 +21,7 @@ module pong_scoring {
     targetScore' = targetScore,
     stage' = phase,
     winner' = victor,
+    moveListOffered' = false,
     _scoreAtFinish' = (if (stage == "finished") _scoreAtFinish else if (phase == "finished") points else _scoreAtFinish),
     _beforeReopen' = score,
     _reopened' = reopened,
@@ -30,6 +32,7 @@ module pong_scoring {
     all {
       score' = _PADDLES.mapBy(_ => 0), targetScore' = target,
       stage' = "countdown", winner' = "",
+      moveListOffered' = false,
       _scoreAtFinish' = _PADDLES.mapBy(_ => 0),
       _beforeReopen' = _PADDLES.mapBy(_ => 0), _reopened' = false,
     }
@@ -75,4 +78,6 @@ module pong_scoring {
   val invFinishedScore = stage == "finished" implies score == _scoreAtFinish
   /// Opening the app again keeps the score.
   val invReopening = _reopened implies score == _beforeReopen
+  /// Pong keeps its score without offering a move list for its simultaneous paddles.
+  val invNoMoveReview = not(moveListOffered)
 }

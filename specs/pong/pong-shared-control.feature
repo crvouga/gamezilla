@@ -39,6 +39,7 @@ Feature: Guide Pong from separate devices
       When Carol joins Alice's space
       Then Carol sees Pong's left paddle at the upper edge
       And Carol cannot guide either paddle because neither belongs to her
+      And Carol is not offered a move list in Pong because both paddles can be guided at once
 
     Scenario: Carol cannot take over either person's paddle
       Given Carol is in Alice's space with no Pong paddle

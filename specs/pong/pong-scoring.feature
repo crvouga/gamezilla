@@ -46,11 +46,13 @@ Feature: Score points and finish Pong
   Rule: Reopening local play keeps every point
     No counter-example: opening the app again never awards or removes a point.
 
+    @regression:pong-offers-unavailable-move-review
     Scenario Outline: Reopening keeps local Pong as it was
       Given Pong is <stage> with a score of <left> to <right> and a target score of 2
       When Alice closes and reopens the app
       Then the Pong score is still <left> to <right>
       And Pong is <stage>
+      And Alice is not offered a move list in Pong because both paddles can be guided at once
 
       Examples:
         | stage         | left | right |
