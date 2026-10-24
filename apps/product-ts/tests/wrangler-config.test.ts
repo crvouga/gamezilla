@@ -196,6 +196,7 @@ describe('wrangler.toml', () => {
     expect(deletedDurableObjectClasses(base)).toEqual([]);
   });
 
+  // regression: production-cron-registration-stalled
   test("renders for every environment under that environment's Worker name", () => {
     for (const env of Object.values(ENV_FILES)) {
       const rendered = renderWranglerConfig(base, env);
@@ -207,7 +208,7 @@ describe('wrangler.toml', () => {
         not_found_handling: 'single-page-application',
         run_worker_first: ['/api', '/api/*'],
       });
-      expect(rendered['triggers']).toEqual({ crons: ['*/1 * * * *'] });
+      expect(rendered['triggers']).toEqual({ crons: ['* * * * *'] });
       expect(rendered['durable_objects']).toEqual({
         bindings: [
           {

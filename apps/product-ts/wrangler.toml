@@ -33,7 +33,8 @@ tag = "v2-app-room-archive"
 tag = "v3-app-room-transfer"
 
 [triggers]
-crons = ["*/1 * * * *"]
+# Replace the stalled production registration without changing its cadence.
+crons = ["* * * * *"]
 
 [observability.traces]
 enabled = true

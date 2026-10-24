@@ -1,0 +1,4 @@
+{
+  "summary": "Deploy 40097722307 shipped production but failed both scheduled-outbox health checks. Cloudflare still listed */1 * * * * (last modified 2026-10-14), yet retained logs showed no production scheduled invocation after 2026-10-23T19:52:29Z while development continued firing. Replace that registration with the equivalent * * * * * expression through the normal deploy. Offline config coverage pins the replacement and cadence; only the unchanged live health checks can prove the provider resumes execution.",
+  "regressionTest": "apps/product-ts/tests/wrangler-config.test.ts"
+}
