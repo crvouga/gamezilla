@@ -1354,3 +1354,27 @@ game that ends before the measurement window completes.
 checks. `pong-profile-artifact-static.log` passes the entry's final type/lint
 checks, and the benchmark writes its standalone JSON through the existing
 object-store adapter in the package's `.cache/performance/`. These measurements and contracts do not establish the full current gate.
+
+## Verification after the network and profiling checkpoints
+
+The frozen `5c5cc0688` full run acquired the machine slot and reached the unchanged
+600-second deadline. `verify-frozen-network-playback.log` records exit 124 after
+648.4 seconds including planning and cleanup. A games-harness model phase had
+been active for 31 seconds; no assertion failure was printed. This is an
+incomplete gate, not evidence of a stuck proof. Its 41,307,164-byte diagnostic
+archive is preserved as `.cache/pong/verify-network-playback-diagnostics.tar.gz`.
+
+The same checkpoint's nightly random group found an existing OpenSLO property
+oracle defect with fresh seed `1269405076`, shrunk to `[144,144]`. The product
+and its pinned threshold regression correctly fire at 144 bad events of 10,000
+for a 99.9% objective and 14.4x threshold. The property's own float division
+rounded below that threshold. Its expected result now uses the independent exact
+integer boundary, with no change to product comparison, policy or threshold.
+
+`burn-rate-property-float-oracle` registers the literal 144/144 pair and mixed
+144/143, 143/144 cases in the PR suite. `alert-oracle-literal-red.log` reproduces
+the contradictory oracle in 0.30 ms. `alert-oracle-green.log` passes all 98
+OpenSLO tests with the actual failing seed and `PBT_NUM_RUNS=200`, plus types and
+lint. `alert-oracle-policy.log` passes goals, spec ownership and package naming.
+The older frozen nightly run still contains its original code and cannot prove
+this fix; a fresh exact-commit verdict remains required.
