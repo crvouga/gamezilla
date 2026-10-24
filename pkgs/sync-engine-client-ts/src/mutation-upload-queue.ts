@@ -23,7 +23,9 @@ import { SyncHttpPayloadTooLargeError } from './sync-http-payload-too-large-erro
 import { parseRateLimitRetryMs } from './sync-http-rate-limit-error';
 import type { TableChangeBus } from './table-change-bus';
 
-const BATCH_LIMIT = MAX_MUTATIONS_BATCH;
+// The wire accepts larger batches, but replay holds a pooled database session
+// for the whole request. Keep an offline backlog from monopolizing that hold.
+const BATCH_LIMIT = Math.min(4, MAX_MUTATIONS_BATCH);
 const MAX_SQLITE_VARS = 999;
 /** Fallback poll when nothing is pending; wakes interrupt this wait. */
 const IDLE_DELAY_MS = 100;

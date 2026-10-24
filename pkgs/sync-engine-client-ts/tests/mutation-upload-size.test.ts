@@ -79,6 +79,50 @@ const applied = (rows: readonly MutationUploadRow[]): MutationUploadResult => ({
   ackSeq: rows.length,
 });
 
+// regression: mutation-upload-backlog-holds-database-session
+test('a reconnect backlog is uploaded in short ordered batches', async () => {
+  const db = await queueWith([
+    '{"n":1}',
+    '{"n":2}',
+    '{"n":3}',
+    '{"n":4}',
+    '{"n":5}',
+    '{"n":6}',
+    '{"n":7}',
+    '{"n":8}',
+  ]);
+  const batches: string[][] = [];
+  try {
+    const result = await drain(db, async (rows) => {
+      batches.push(rows.map((row) => row.id));
+      return applied(rows);
+    });
+    expect(result).toEqual({ errors: [], refused: [] });
+    expect(batches.flat()).toEqual([
+      'm-1',
+      'm-2',
+      'm-3',
+      'm-4',
+      'm-5',
+      'm-6',
+      'm-7',
+      'm-8',
+    ]);
+    expect(
+      Math.max(...batches.map((batch) => batch.length))
+    ).toBeLessThanOrEqual(4);
+    expect(
+      await db.query(
+        sql<{
+          id: string;
+        }>`SELECT id FROM sync_engine_mutations WHERE deleted_at IS NULL`
+      )
+    ).toEqual([]);
+  } finally {
+    await db.disconnect();
+  }
+});
+
 describe('mutation uploads over the byte cap', () => {
   // regression: mutation-upload-oversized-retried-forever
   test('a batch the server refuses as too large is split until every write is sent', async () => {
