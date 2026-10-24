@@ -1,4 +1,4 @@
 {
-  "summary": "Numberlink journeys looked for saved attempts, drafts and publication cleanup controls immediately after following a saved space link, which opens the Games menu. They now select Numberlink and its library after each such navigation.",
+  "summary": "Numberlink journeys looked for saved attempts and drafts immediately after following a saved space link, which can open the Games menu. They now select Numberlink and its library after that navigation, also accepting an already restored library.",
   "regressionTest": "libs/runtime-harness-ts/tests/numberlink-journey-navigation.test.ts"
 }

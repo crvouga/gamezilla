@@ -1,0 +1,4 @@
+{
+  "summary": "Publication cleanup reloaded its space before returning to the owned library. Sampling the navigation while the library was loading could back out of it, or wait for a game menu that hydration had already replaced. Cleanup now withdraws through the current library navigation without reloading.",
+  "regressionTest": "libs/runtime-harness-ts/tests/numberlink-publication-cleanup.test.ts"
+}
