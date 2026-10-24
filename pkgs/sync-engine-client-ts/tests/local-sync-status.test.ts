@@ -44,3 +44,36 @@ test('the first-sync latch, errors and identity reset still publish actual chang
   store.reset();
   expect(states).toHaveLength(3);
 });
+
+// regression: sync-status-listener-replacement-loop
+test('a listener replacing its subscription receives each status change once', () => {
+  const store = createLocalSyncStatusStore();
+  const seen: boolean[] = [];
+  let stop = () => {};
+  const listener = (): void => {
+    seen.push(store.status.getSnapshot().online);
+    // Bound the failing example so a live-set notification cannot hang the test.
+    if (seen.length >= 3) return;
+    stop();
+    stop = store.status.subscribe(listener);
+  };
+  stop = store.status.subscribe(listener);
+  store.patch({ online: false });
+  expect(seen).toEqual([false]);
+  store.patch({ online: true });
+  expect(seen).toEqual([false, true]);
+  stop();
+});
+
+test('removing a listener during delivery takes effect before its turn', () => {
+  const store = createLocalSyncStatusStore();
+  const seen: string[] = [];
+  let stopSecond = () => {};
+  store.status.subscribe(() => {
+    seen.push('first');
+    stopSecond();
+  });
+  stopSecond = store.status.subscribe(() => seen.push('second'));
+  store.patch({ online: false });
+  expect(seen).toEqual(['first']);
+});

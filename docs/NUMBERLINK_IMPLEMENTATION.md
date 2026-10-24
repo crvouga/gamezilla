@@ -494,6 +494,20 @@ inferred from this ledger or from a narrow test run.
   unchanged 7,200-second deadline. Two existing matched-game histories stopped
   making progress: Connect Four traces 38 and 74 of
   `matched-game-shared.qnt`, seed `0x67932`. The literal inputs are preserved,
-  and trace 74 also stalls alone. This is an incomplete run, without a passing
-  UI-quality score. The stuck histories, full Verify and GitHub's blocked
-  verification remain open; no verification limit has been raised.
+  and trace 74 also stalled alone. This is an incomplete run, without a passing
+  UI-quality score; no verification limit has been raised.
+- The captured call stack identified a rejected room command feeding the
+  people dialog's activity effect. That effect inadvertently tracked quiet
+  state through its command and dispatched again after rollback. It now tracks
+  only dialog visibility. The original trace 74 passes in 5.7 seconds without
+  diagnostic guards. Both literal histories are pinned in the model binding
+  and included in its regenerated PR replay plan. All 37 model checks pass:
+  both new histories across four games, every earlier pinned history, the
+  drawn action-covering histories and the model checks. Renewed full Verify,
+  UI-quality scoring and GitHub verification remain required.
+- A separate bounded regression exposed live listener-set iteration in sync
+  status delivery. Replacing a subscription during one publication delivered
+  it repeatedly; publications now snapshot their listeners and skip removals.
+  The status package's typecheck, lint and tests pass, as do those of the
+  spaces client and the game model binding. All temporary clock diagnostics
+  have been removed.

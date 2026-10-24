@@ -12,7 +12,7 @@ import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from 'solid-js';
-import { createEffect, createMemo, Show } from 'solid-js';
+import { createEffect, createMemo, on, Show } from 'solid-js';
 import { SpaceProbe } from './space-probe';
 import { useSpaceRoomClientId } from './space-room-context';
 import { useMemberRole } from './use-member-role';
@@ -39,9 +39,14 @@ export function SpaceMembersListModal(
   const colors = useSpaceParticipantColors(props.spaceId);
   const selfClientId = useSpaceRoomClientId();
   const clearQuiet = useClearSpaceQuiet();
-  createEffect(() => {
-    if (props.visible) clearQuiet();
-  });
+  createEffect(
+    on(
+      () => props.visible,
+      (visible) => {
+        if (visible) clearQuiet();
+      }
+    )
+  );
 
   const rows = createMemo<readonly PresenceRosterRow[]>(() =>
     presence.people().map((person) => {

@@ -31,6 +31,8 @@ import idleTrace from './fixtures/multiplayer-idle-read-does-not-wake-person.itf
 import idleCase0 from './fixtures/multiplayer-idle-survives-host-return.itf.json';
 import idleCase2 from './fixtures/multiplayer-idle-survives-other-host-return.itf.json';
 import quietMinutes from './fixtures/multiplayer-quiet-minutes-stay-on-one-device.itf.json';
+import rejectedActivity from './fixtures/space-people-list-rejected-activity-loop.itf.json';
+import rejectedActivityOtherDevices from './fixtures/space-people-list-rejected-activity-other-devices.itf.json';
 import {
   changeSpacesMatch,
   prepareMatchedSpaces,
@@ -106,6 +108,20 @@ bindQuintModel<QuintHarnessWorld>({
   verifySteps: 2,
   timeoutMs: 300_000,
   regressions: [
+    {
+      // regression: space-people-list-rejected-activity-loop
+      id: 'space-people-list-rejected-activity-loop',
+      title: 'The people list stays usable after reconnection',
+      seed: '0x67932',
+      itf: rejectedActivity,
+    },
+    {
+      // regression: space-people-list-rejected-activity-loop
+      id: 'space-people-list-rejected-activity-other-devices',
+      title: 'The people list stays usable while other devices are away',
+      seed: '0x67932',
+      itf: rejectedActivityOtherDevices,
+    },
     {
       // regression: multiplayer-idle-survives-host-return
       id: 'multiplayer-idle-survives-host-return',
