@@ -14,6 +14,7 @@ terms:
 
   - term: court
     definition: The playing area between the paddles, bounded above and below.
+    model: [PaddlePlace, paddlePlace]
 
   - term: paddle
     definition: >-
@@ -21,7 +22,7 @@ terms:
       paddle is on the left and the other is on the right, and each stays
       within the court.
     forms: [paddles, left paddle, right paddle]
-    model: [controlledPaddles]
+    model: [controlledPaddles, guidePaddle]
 
   - term: ball
     definition: >-
@@ -90,6 +91,16 @@ terms:
 
   - term: game
     from: games
+    model: [gameShown]
+
+  - term: pair people up
+    from: matchmaking
+
+  - term: space
+    from: spaces
+
+  - term: join
+    from: spaces
 
   - term: custom game
     from: games
