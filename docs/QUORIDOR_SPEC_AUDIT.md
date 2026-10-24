@@ -5,7 +5,8 @@ All 58 PR-profile Quoridor tests and both full bounded mode proofs have passed.
 The tests comprise 47 feature scenarios, seven model checks and four model replays.
 The enforced dependency audit now passes after the isolated Atlas 0.10.1
 upgrade, which resolves [Atlas issue 16](https://github.com/crvouga/atlas/issues/16).
-The full local rerun and live pairing verdict remain open.
+The full local gate is blocked by [Atlas issue 18](https://github.com/crvouga/atlas/issues/18);
+the live pairing verdict remains open.
 The current full CI and live journey verdicts belong to [PR 226](https://github.com/crvouga/gamezilla/pull/226).
 This report does not claim deployed availability or a green release gate.
 
@@ -291,6 +292,20 @@ that one optimization resolved the deadline. The full release task took
 The full release-journey task in the current PR remains the authoritative
 result. None of these focused successes establishes a green full release.
 
+The foreground outbox loop now replaces a terminal empty transaction with
+a fresh scoped due-work read. It covers both pending registered deliveries
+and due events not yet routed, including retries, deleted or missing events
+and registration changes. Any captured event write conservatively retains
+the original next pass, including a write rolled back to a savepoint. The
+pass limit, one aggregate publication, room delivery and acknowledgment
+ordering are unchanged. The HTTP root-to-child regression changes three
+materialize/claim passes to two passes and one read with all prior outcomes
+still asserted. The official 200-run property (seed 466084113), full outbox
+contracts, actual PostgreSQL contract, type checks, lint and goal checks
+pass. The complete wire-privacy contract passes all eight outer checks,
+105 assertions and 281 main checks. A fresh live run must establish the
+effect on the five-second pairing deadline.
+
 ## Repository and upstream limits
 
 The full `bun verify` on code head `24b21be39` exited 1 at
@@ -304,9 +319,24 @@ installation reproduced the advisory. Upstream published 0.10.1 with Zod
 The isolated catalog/lockfile upgrade is commit `6c3925cd5`; it removes the
 obsolete Atlas Vite override. The fresh enforced audit passes, and all seven
 consumer test, type and statechart tasks pass. All 43 imported paths and
-existing CLI commands remain available. The new full local gate is queued
-for the shared machine verification slot. No dependency patch, ignored
-advisory or relaxed gate is used.
+existing CLI commands remain available.
+
+After acquiring the shared machine slot, the full local gate failed only
+`@pkgs/atlas-reports-harness-ts#test` (362.2 seconds in the runner). Its
+102 tests have 101 passes and one failure: static export returns two
+addresses for one logical recording instead of one. Atlas 0.10.1 normalizes
+archived records into schema key order while legacy records retain insertion
+order; execution identity uses order-sensitive JSON serialization. Existing
+[Atlas issue 18](https://github.com/crvouga/atlas/issues/18) covers the exact
+publication/export failure and a reduced public-API example. The strict
+one-recording, revision, timeline and snapshot assertions remain unchanged.
+Completion requires a published fix, then the unchanged export test and full
+gate passing. No dependency patch, ignored advisory or relaxed gate is used.
+
+CI run 40089692721 also found three old JUnit fixture objects missing
+Atlas's now-required `classname`, `suite` and `time` fields. Commit
+`7d323038e` supplies explicit null metadata; all existing assertions stay.
+The owning package's type checking, lint and both focused tests pass.
 
 Earlier full local attempts reached their fixed 600-second deadline during
 existing matchmaking proofs. Their partial successes are not green full
