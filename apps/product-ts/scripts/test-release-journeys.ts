@@ -153,7 +153,7 @@ async function printFailureTraces(manifest: StackManifest): Promise<void> {
         reports: store(join(PACKAGE_DIR, '.cache/release-report')),
         telemetry: store(manifest.observabilityTraceDir),
         run: { startMs: manifest.startedAtMs, endMs: wallClock.now() },
-        mutationNames: ['findChessOpponent'],
+        mutationNames: ['findChessOpponent', 'createSpace'],
       })
     );
   } catch {
