@@ -138,9 +138,6 @@
   },
   "overrides": {
     "@babel/plugin-transform-modules-systemjs": "^7.29.4",
-    "@crvouga/atlas": {
-      "vite": "7.3.7"
-    },
     "adm-zip": "^0.6.1",
     "brace-expansion": "5.0.12",
     "browserslist": "4.28.8",
@@ -196,7 +193,7 @@
     "@babel/runtime": "^7.29.7",
     "@biomejs/biome": "2.5.7",
     "@clack/prompts": "^1.8.1",
-    "@crvouga/atlas": "^0.1.0",
+    "@crvouga/atlas": "^0.10.1",
     "@crvouga/mockingbird-service-oauth": "^3.9.0",
     "@crvouga/mockingbird-service-openai": "^1.8.0",
     "@crvouga/mockingbird-service-paddle": "^2.9.0",
