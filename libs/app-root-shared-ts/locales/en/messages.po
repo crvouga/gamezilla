@@ -420,6 +420,14 @@ msgstr "1 second"
 msgid "A change wasn't saved"
 msgstr "A change wasn't saved"
 
+#: libs/app-root-client-ts/src/refused-publication-copy.tsx
+msgid "A chosen puzzle has not been published. Your pack draft is kept. Publish its puzzles first, then choose Publish for this pack."
+msgstr "A chosen puzzle has not been published. Your pack draft is kept. Publish its puzzles first, then choose Publish for this pack."
+
+#: libs/app-root-client-ts/src/refused-publication-copy.tsx
+msgid "A chosen puzzle is no longer available. Your pack draft is kept. Choose an available puzzle, or publish that puzzle again, then choose Publish for this pack."
+msgstr "A chosen puzzle is no longer available. Your pack draft is kept. Choose an available puzzle, or publish that puzzle again, then choose Publish for this pack."
+
 #: libs/chess-puzzle-client-ts/src/puzzle-source-controls.tsx
 msgid "A connection is needed to check for the saved Lichess file."
 msgstr "A connection is needed to check for the saved Lichess file."
@@ -3775,9 +3783,21 @@ msgstr "Progress saved on this device. Changes share when connected."
 msgid "Prove the account again to continue"
 msgstr "Prove the account again to continue"
 
+#: libs/app-root-client-ts/src/refused-change-copy.tsx
+msgid "Publication did not go ahead"
+msgstr "Publication did not go ahead"
+
+#: libs/game-puzzle-client-ts/src/content-publication-status.tsx
+msgid "Publication is waiting for confirmation. Your draft is kept. Keep this app connected to share it."
+msgstr "Publication is waiting for confirmation. Your draft is kept. Keep this app connected to share it."
+
 #: libs/game-puzzle-client-ts/src/use-content-publication.tsx
 msgid "Publication saved"
 msgstr "Publication saved"
+
+#: libs/game-puzzle-client-ts/src/content-publication-status.tsx
+msgid "Publication waits for your connection. Your draft is kept on this device."
+msgstr "Publication waits for your connection. Your draft is kept on this device."
 
 #: libs/game-puzzle-client-ts/src/use-content-publication.tsx
 msgid "Publish"
@@ -6312,6 +6332,10 @@ msgstr "Your completion is saved. You can keep playing or choose another puzzle.
 msgid "Your data"
 msgstr "Your data"
 
+#: libs/app-root-client-ts/src/refused-publication-copy.tsx
+msgid "Your draft is kept. Check its validation details, correct the draft, then choose Publish again."
+msgstr "Your draft is kept. Check its validation details, correct the draft, then choose Publish again."
+
 #: libs/game-puzzle-client-ts/src/content-create-controls.tsx
 msgid "Your draft was not created"
 msgstr "Your draft was not created"
@@ -6392,6 +6416,10 @@ msgstr "Your opponent's turn."
 #: libs/game-puzzle-client-ts/src/content-kept-positions.tsx
 msgid "Your other continuations stay saved."
 msgstr "Your other continuations stay saved."
+
+#: libs/app-root-client-ts/src/refused-publication-copy.tsx
+msgid "Your pack draft is kept. Add a published puzzle, then choose Publish again."
+msgstr "Your pack draft is kept. Add a published puzzle, then choose Publish again."
 
 #: libs/billing-client-ts/src/billing-plan-card.tsx
 msgid "Your payment isn't confirmed yet, but it may have gone through. Check again before paying again."
