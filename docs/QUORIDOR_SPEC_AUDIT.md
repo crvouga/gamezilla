@@ -3,10 +3,11 @@
 Verdict: **Implementation and focused checks pass; release verification remains open.**
 All 58 PR-profile Quoridor tests and both full bounded mode proofs have passed.
 The tests comprise 47 feature scenarios, seven model checks and four model replays.
-The enforced dependency audit now passes after the isolated Atlas 0.10.1
-upgrade, which resolves [Atlas issue 16](https://github.com/crvouga/atlas/issues/16).
-The full local gate is blocked by [Atlas issue 18](https://github.com/crvouga/atlas/issues/18);
-the live pairing verdict remains open.
+The enforced dependency audit and unchanged strict export tests pass with
+Atlas 0.10.2, which includes the upstream fixes for
+[issue 16](https://github.com/crvouga/atlas/issues/16) and
+[issue 18](https://github.com/crvouga/atlas/issues/18).
+The full gate and live journey verdicts remain open.
 The current full CI and live journey verdicts belong to [PR 226](https://github.com/crvouga/gamezilla/pull/226).
 This report does not claim deployed availability or a green release gate.
 
@@ -134,7 +135,7 @@ fabricated winner is installed.
 | Final permission and matching nightly checks | 152 tests, 14,049 assertions pass at 200 runs per property; fresh seed 1057416651 |
 | Quoridor bounded proof | Both modes, eight invariants, two steps; fresh CI task passes in 155.1s |
 | Full framework-independence contract | Eight outer checks, 105 assertions; main process runs 281 checks; independent consumer features pass |
-| Runtime harness package | 47 tests, 202 assertions; type checking and lint pass |
+| Runtime harness package | 58 tests, 256 assertions; type checking and lint pass, including reviewed-board recovery and bounded failure context |
 | Runtime scenario part 13 | All 14 cases in six files pass in 4.84s after the upgrade-refusal fix |
 | Sync HTTP client | 27 tests, 757 assertions, including two public HTTP properties; type checking and lint pass |
 | Harness preparation package | 106 tests, 786 assertions; type checking and lint pass |
@@ -306,6 +307,38 @@ pass. The complete wire-privacy contract passes all eight outer checks,
 105 assertions and 281 main checks. A fresh live run must establish the
 effect on the five-second pairing deadline.
 
+The final applied mutation now leaves its savepoint for the enclosing
+transaction's commit, removing one successful release statement. Earlier,
+duplicate and rejected records still release normally; failures retain
+rollback and release. Actual HTTP, PostgreSQL and SQLite contracts cover
+acknowledgment, publication, mixed batches, late failures and subsequent
+transaction reuse. The official 200-run checks (seed 1130279081) pass:
+44 sync harness tests with 2,530 assertions and 20 server tests with 53
+assertions, plus type checking, lint and goal checks. This saves one SQL
+round trip; it does not establish a resolved pairing deadline.
+
+[CI run 40095444082](https://github.com/crvouga/gamezilla/actions/runs/40095444082)
+failed only the older Atlas export task and the release journeys. That
+release task took 401.372 seconds and failed five scenarios: Chess pairing,
+custom-game readiness, Battleship's own-fleet observation, and both hill
+journeys. The selected Chess acknowledgment arrived 201 milliseconds after
+the failed observation. Its originating interaction was absent from the
+retained journal, so the pre-upload interval remains unattributed.
+
+The hill helper previously chose from a parked observer before activating
+the person whose turn it was. A literal 16-move accepted history reproduces
+the disabled-f5 choice after a bot rebase. An actual-app regression also
+reproduces a reviewed position paired with the live turn and move count.
+The helper now activates that person, reads their board, returns to live
+when necessary, and chooses only when that device can move. All eight
+focused helper checks, both actual mode journeys and the actual reviewed-
+board regression pass; the existing move deadlines and 400-turn bound
+remain. The exact failed CI interleaving was not retained, so a fresh live
+run must establish the result. Failure-only errors now retain bounded
+public board counts, refusal context and failed control identifiers,
+without fleet positions or gesture arguments. The other two new live
+failures have no proven functional fix yet.
+
 ## Repository and upstream limits
 
 The full `bun verify` on code head `24b21be39` exited 1 at
@@ -330,8 +363,10 @@ order; execution identity uses order-sensitive JSON serialization. Existing
 [Atlas issue 18](https://github.com/crvouga/atlas/issues/18) covers the exact
 publication/export failure and a reduced public-API example. The strict
 one-recording, revision, timeline and snapshot assertions remain unchanged.
-Completion requires a published fix, then the unchanged export test and full
-gate passing. No dependency patch, ignored advisory or relaxed gate is used.
+Upstream then published 0.10.2 and closed issue 18. The isolated upgrade is
+commit `4ef4f9bfc`. All twelve consumer type, lint and test tasks pass,
+including the unchanged strict export suite; the enforced dependency audit
+also passes. No dependency patch, ignored advisory or relaxed gate is used.
 
 CI run 40089692721 also found three old JUnit fixture objects missing
 Atlas's now-required `classname`, `suite` and `time` fields. Commit
