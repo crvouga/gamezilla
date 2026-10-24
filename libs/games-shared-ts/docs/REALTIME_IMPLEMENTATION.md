@@ -1408,10 +1408,26 @@ reestablishes reliable metadata delivery after impairment. The assertions cover
 own-seat controls, retroactive-input refusal, offline court retention, score
 progress and agreement after guidance stops and authority pauses.
 
-This checkpoint is deliberately not green: the campaign and its pinned
-`pong-recovered-court-pause-not-observed` example fail at seed 1 with reliable
-delivery and Bob returning. All three fresh paused presentations are not observed
-within 250 virtual milliseconds. `pong-network-quiescent-checks.log` retains the
-failure; the fixture or product cause remains unresolved. Types/lint and the
-policy checks pass, and the test is neither skipped nor weakened. This is
-unfinished coverage, not an additional readiness claim.
+The pinned `pong-recovered-court-pause-not-observed` example exposed a shared
+presentation gap: Alice retained a fresh running snapshot from an older input
+generation after the authority paused. Signals can arrive before their durable
+metadata or while the room is unsynced. The adapter now resets obsolete controls
+and requests a current snapshot when the generation changes or synchronization
+returns, retaining the last painted court during recovery. The counting-race
+adapter contract pins both delivery windows and failed before the fix.
+
+`recovery-invalidation-packages-final.log` passes all 12 type, lint and test tasks
+across the client, shared framework, framework harness and Pong harness.
+`pong-recovery-property-200.log` passes all 200 seeded Pong fault cases with
+45,468 assertions; `recovery-invalidation-policy.log` passes all three policy
+tasks. The literal seed-1 integration also passes. Every distinct presented court
+is still checked; consecutive identical paints are recorded once. Profiling
+identified validation/serialization cost, and this compaction reduced the
+200-case runtime from about nine to six seconds on this machine. The new
+integration property has an explicit 20-second runner timeout to accommodate
+the nightly depth; its 250-virtual-millisecond convergence bound, generated case
+count and state assertions are unchanged.
+
+This closes the pinned delivery failure. Current full verification, scheduler
+stall/teardown integration and the previously identified hosted/browser and
+product-flow coverage remain outstanding.

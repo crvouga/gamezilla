@@ -20,4 +20,4 @@ test('Pong courts recover from seeded faulty delivery and a lost player or spect
       verifyRecovery
     )
   );
-});
+}, 20_000);

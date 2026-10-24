@@ -10,8 +10,7 @@ export type SimulationPresentation = {
   readonly stale: boolean;
 };
 
-/** The existing room signals feed one renderer-independent replica in every game mode. */
-export function connectSimulationPresentation(options: {
+type PresentationOptions = {
   readonly simulation: RegisteredSimulation;
   readonly clock: Clock;
   readonly timers: Timers;
@@ -24,7 +23,10 @@ export function connectSimulationPresentation(options: {
     typeof SimulationReplica
   >[0]['measure'];
   readonly changed: (view: SimulationPresentation) => void;
-}) {
+};
+
+/** The existing room signals feed one renderer-independent replica in every game mode. */
+export function connectSimulationPresentation(options: PresentationOptions) {
   const replica = new SimulationReplica({
     simulation: options.simulation,
     clock: options.clock,
@@ -40,9 +42,7 @@ export function connectSimulationPresentation(options: {
     replica.reset();
     options.send(RequestSimulationSnapshot({ version: 1 }));
   };
-  const unsubscribeRoom = options.subscribeRoom(() => {
-    if (options.isReady() && replica.isStale()) refresh();
-  });
+  const unsubscribeRoom = subscribeSimulationRoom(options, replica, refresh);
   let position: string | null = null;
   const stopFrames = presentationFrames({
     timers: options.timers,
@@ -72,6 +72,24 @@ export function connectSimulationPresentation(options: {
       replica.reset();
     },
   };
+}
+
+function subscribeSimulationRoom(
+  options: PresentationOptions,
+  replica: SimulationReplica,
+  refresh: () => void
+): () => void {
+  let generation = options.generation();
+  let ready = options.isReady();
+  return options.subscribeRoom(() => {
+    const nextGeneration = options.generation();
+    const nextReady = options.isReady();
+    const invalidated = generation !== nextGeneration || ready !== nextReady;
+    generation = nextGeneration;
+    ready = nextReady;
+    if (!ready || generation === undefined) replica.reset();
+    else if (invalidated || replica.isStale()) refresh();
+  });
 }
 
 function presentationFrames(options: {

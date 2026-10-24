@@ -1,4 +1,4 @@
 {
-  "summary": "The real Pong room/presentation campaign with seed 1, reliable delivery, no held viewer frames, and Bob disconnecting/reconnecting does not observe all three fresh paused views within 250 virtual milliseconds after the final authority pause. It persists after normal room recovery and releasing held controls. The fixture or product cause remains under investigation; the literal case is retained without skipping it or loosening the assertions.",
+  "summary": "With seed 1, reliable delivery, no held viewer frames and Bob returning, the authority pauses but Alice retains a fresh running snapshot from an older input generation. The presentation only refreshed stale replicas, so it missed a snapshot that arrived before its room metadata or while the room was unsynced. Refresh on generation changes and restored synchronization, reset obsolete controls and retain the last painted court until a current snapshot arrives. The literal Pong integration retains its 250 virtual millisecond convergence bound; the counting-race adapter contract also pins both delivery windows.",
   "regressionTest": "libs/pong-harness-ts/tests/pong-network-regression.test.ts"
 }

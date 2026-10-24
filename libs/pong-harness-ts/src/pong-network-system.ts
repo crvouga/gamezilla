@@ -76,7 +76,10 @@ async function createNetworkPong(session: Session) {
       timers: session.ports.timers,
       createId: session.ports.createId,
       changed: (view) => {
+        const previous = views.get(owner);
         views.set(owner, view);
+        // Repeated paints retain the same scores; inspect each position transition once.
+        if (previous?.position === view.position) return;
         const state =
           view.position === null
             ? null

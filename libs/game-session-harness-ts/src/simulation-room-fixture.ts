@@ -63,7 +63,7 @@ export function simulationRoomFixture(
   };
 }
 
-/** Live reads use RoomServer.readCommittedState, so this includes projected execution progress. */
+/** Read the saved court and execution checkpoint from a room snapshot. */
 export function simulationRoomCourt(state: RoomState) {
   const game = CustomGamesAttr.from(state).current;
   return game?.execution === undefined
