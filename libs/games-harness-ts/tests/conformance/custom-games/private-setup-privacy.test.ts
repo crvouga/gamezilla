@@ -13,10 +13,17 @@ import { hostedSpaceId } from '@libs/game-matchmaking-harness-ts/multiplayer-spa
 import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-lineup';
 import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import {
+  type PrivateSetupCheckpoint,
+  privateSetupCheckpoint,
+  privateSetupWireFromCheckpoint,
+} from '@libs/game-session-harness-ts/private-setup-checkpoint';
+import {
   deviceRowsOf,
   roomHistorySentTo,
 } from '@libs/game-session-harness-ts/private-setup-observation';
 import type { OpenHarness } from '@libs/harness-ts/open-harness';
+import { SpaceAwayChanged } from '@libs/spaces-shared-ts/space-members-messages';
+import { ROOM_PRESENCE_IDENTITY } from '@pkgs/room-root-shared-ts/builtin';
 import { openConformanceHarness } from '../../conformance-world';
 import { forEveryGame } from '../game-suite';
 
@@ -37,24 +44,40 @@ function anotherSetup(game: HarnessGame, than: string): string {
   throw new Error(`${game.label} draws no other setup`);
 }
 
-/**
- * `text` as two worlds of one scenario would both write it: each generated
- * identifier named by its first appearance, and each time counted from the
- * first time it shows (worlds start their clocks apart).
- */
-function namedInOrder(text: string): string {
-  const names = new Map<string, string>();
-  const first = Number(/\b1[0-9]{12}\b/.exec(text)?.[0] ?? 0);
-  return text
-    .replace(/\b1[0-9]{12}\b/g, (ms) => `t+${String(Number(ms) - first)}`)
-    .replace(
-      /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g,
-      (id) => {
-        const name = names.get(id) ?? `id-${String(names.size)}`;
-        names.set(id, name);
-        return name;
-      }
-    );
+/** The actual CI bootstrap delta belongs to both counterfactual inputs. */
+function withObservedPresence(checkpoint: PrivateSetupCheckpoint) {
+  const creator = checkpoint.people.find(
+    (person) => person.actor === checkpoint.creator
+  );
+  if (creator === undefined) throw new Error('No creator in paired checkpoint');
+  // regression: private-setup-independent-bootstrap
+  // CI had 27 versus 29 entries: creator away at t+2, then available at t+100.
+  const actor = { id: ROOM_PRESENCE_IDENTITY, clientId: 'scheduler' };
+  const prefix = [
+    {
+      seq: checkpoint.room.lastSeq + 1,
+      event: SpaceAwayChanged({
+        away: { [creator.identity]: checkpoint.at + 2 },
+      }),
+      actor,
+      ts: checkpoint.at + 2,
+    },
+    {
+      seq: checkpoint.room.lastSeq + 2,
+      event: SpaceAwayChanged({ away: {} }),
+      actor,
+      ts: checkpoint.at + 100,
+    },
+  ];
+  return {
+    ...checkpoint,
+    at: checkpoint.at + 100,
+    room: {
+      ...checkpoint.room,
+      lastSeq: checkpoint.room.lastSeq + 2,
+      entries: [...checkpoint.room.entries, ...prefix],
+    },
+  };
 }
 
 async function sentTo(s: OpenHarness, actor: string): Promise<string> {
@@ -121,22 +144,32 @@ forEveryGame(
     }, 240_000);
 
     test("what a person receives does not change when only the other side's hidden setup does", async () => {
+      // regression: private-setup-independent-bootstrap
+      await using s = await openConformanceHarness(
+        `${game.shared.id}-private-setup-noninterference`
+      );
+      await s.apply(establishCustomGame, game.shared.id, {
+        watchers: ['carol'],
+        ready: false,
+        active: false,
+      });
+      const checkpoint = withObservedPresence(
+        await s.read(privateSetupCheckpoint, 'alice', ['alice', 'bob', 'carol'])
+      );
       const seen: string[] = [];
       for (const black of [
         setups().black,
         anotherSetup(game, setups().black),
       ]) {
-        await using s = await openConformanceHarness(
-          `${game.shared.id}-private-setup-noninterference`
-        );
-        await s.apply(establishCustomGame, game.shared.id, {
-          watchers: ['carol'],
-          setups: { black },
-        });
         seen.push(
-          namedInOrder((await sentTo(s, 'alice')) + (await sentTo(s, 'carol')))
+          await s.read(privateSetupWireFromCheckpoint, checkpoint, {
+            setups: { alice: setups().white, bob: black },
+            observers: ['alice', 'carol'],
+          })
         );
       }
+      for (const entry of checkpoint.room.entries.slice(-2))
+        expect(seen[0]).toContain(JSON.stringify(entry.event));
       expect(seen[1]).toBe(seen[0]);
     }, 240_000);
   },
