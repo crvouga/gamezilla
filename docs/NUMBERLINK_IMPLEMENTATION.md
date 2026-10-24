@@ -241,3 +241,15 @@ inferred from this ledger or from a narrow test run.
   of nested journey registrations; new harnesses are included in spec-cache
   inputs and the existing UI-quality report graph. These focused results do
   not replace the full release gate or the outstanding browser execution.
+- The full gate on `caa722e0a` stopped at its enforced dependency audit after
+  66.7 seconds. Newly reported advisories affected Happy DOM, Serialize
+  JavaScript, Undici and Atlas's separate Zod 3 dependency. Updating the first
+  three to their patched releases leaves only the Atlas-owned Zod finding.
+  The same issue is already tracked at
+  [atlas#16](https://github.com/crvouga/atlas/issues/16); the current npm Atlas
+  release still requests Zod 3. No advisory suppression, report-only mode or
+  forced Zod major override is introduced. The full gate remains blocked on
+  a corrected upstream dependency graph.
+  With the available updates installed, 15 affected DOM/UI/harness tasks,
+  both browser bundle builds, all 75 shared checks and all four app journeys
+  pass. This dependency repair is committed separately from the app journeys.
