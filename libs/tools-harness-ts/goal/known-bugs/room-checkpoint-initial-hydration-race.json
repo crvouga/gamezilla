@@ -1,0 +1,4 @@
+{
+  "summary": "An immediate room checkpoint replacement raced the topic's initial empty hydration. The empty read could finish last, leaving the restored log intact but erasing its in-memory membership state and refusing admitted setup commands. Await initial hydration before replacing and rehydrating the complete checkpoint. The literal joined, away-at-2, available-at-100 prefix pins the race through the public room node.",
+  "regressionTest": "libs/spaces-harness-ts/tests/room-checkpoint-hydration.test.ts"
+}

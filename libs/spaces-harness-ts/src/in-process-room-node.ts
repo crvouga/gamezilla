@@ -315,6 +315,8 @@ export function createInProcessRoomNode(
     async replaceTopic(topic, next) {
       if (disposed) throw new Error('RoomServerApp: disposed');
       const entry = getOrCreate(topic);
+      // regression: room-checkpoint-initial-hydration-race
+      await entry.ready;
       entry.storage.replaceTopic(topic, next);
       await entry.server.hydrateFromStorage();
       notify();
