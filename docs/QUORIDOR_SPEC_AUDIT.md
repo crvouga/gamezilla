@@ -127,6 +127,8 @@ fabricated winner is installed.
 | Automated check | Recorded result |
 | --- | --- |
 | Official Quoridor `test:spec:0`, `:1`, `:2` | All three parts pass; 58 examples in the current suite |
+| Nightly Quoridor profile, all three parts | 64 tests, 127 assertions, no failures or skips; all ten model replays executed |
+| Nightly focused properties | Five affected packages, 155 tests and 143,859 assertions pass at the official 200-run budget |
 | Quoridor bounded proof | Both modes, eight invariants, two steps; fresh CI task passes in 155.1s |
 | Full framework-independence contract | Eight outer checks, 105 assertions; main process runs 281 checks; independent consumer features pass |
 | Runtime harness package | 47 tests, 202 assertions; type checking and lint pass |
@@ -155,8 +157,10 @@ independent assertions across zero-, one- and two-wall layouts. General
 connectivity and forced-pass checks remain for larger layouts.
 
 Both Boolean assignments, all eight invariant targets and both initial
-situations remain. The official plan keeps four drawn traces per mode,
-one action-cover trace and a correctly scoped historical pin per mode.
+situations remain. Preparation keeps four drawn traces per mode. The PR
+profile executes the minimum action-cover selection plus each historical
+pin: four replays total across both modes. The nightly profile executes
+all four drawn traces and the historical pin per mode: ten replays total.
 Its three parts stay within the existing 30-unit cap. No proof depth,
 deadline, trace count, assertion or retry policy was relaxed.
 
@@ -210,14 +214,27 @@ legs, in addition to its declared round-trip model. Both legs now request
 `TCP_NODELAY`; the configured three-millisecond delay, pool and request
 counts are unchanged. All five real-wire contracts and their 72-test
 owning unit shard pass. The existing exact 5+0, five-second journey is
-pinned without changing its prose or deadline. The next live result must
-establish whether this configuration correction resolves that deadline.
+pinned without changing its prose or deadline. CI run 40081895815 still
+failed that deadline, so this configuration correction is not claimed as
+its resolution. That run passed every other task except dependency audit;
+the corrected shard distribution incurred no shard deadline failures.
 
 Matchmaking notification lookups are now batched per captured table,
 retaining every old and new owner image. The actual Find regression drops
 from five lookups to at most three while preserving delivery to both
 players and both hosted-space observers. This measured saving alone did
 not resolve the Chess deadline and is not presented as its cause.
+
+The failed request's collected server spans show 6.22 seconds overall,
+including 3.86 seconds in match formation. Formation now reads the roster
+and rating snapshots together and writes player and availability changes
+in batches. The actual Find regression drops from 35 statements to 27,
+retaining delivery to both players and both hosted-space observers. All
+six eligible games pass the complete authority contract (24 tests, 434
+assertions); owning properties, history/rating checks and downstream static
+checks pass. An independent review found no authority or capture regression.
+This statement reduction requires a fresh live result before any deadline
+claim can be made.
 
 Failure-only release diagnostics now use the existing canonical scenario
 reporter and native collector journal. Their timestamps select the failed
@@ -226,6 +243,10 @@ later successful matches. Output is bounded and redacted; absent roots
 are explicitly incomplete. Temporary PR reports are still removed. All
 258 product unit tests, type checks and lint pass. No extra runtime logs,
 artifact retention, waits or test budgets were introduced.
+Repeated request resource and identity attributes are emitted once, while
+changed child context remains visible. A literal regression confirms that
+the bounded summary retains terminal database work instead of truncating
+it behind repeated context; the owning unit, type and lint tasks pass.
 
 The full release-journey task in the current PR remains the authoritative
 result. None of these focused successes establishes a green full release.
@@ -248,9 +269,11 @@ override, dependency patch, ignored advisory or relaxed gate.
 
 Earlier full local attempts reached their fixed 600-second deadline during
 existing matchmaking proofs. Their partial successes are not green full
-verification. A prior nightly random run reproduced four Battleship
-five-second property failures also present on main; nightly is not the
-release gate. Read-only infrastructure rehearsal previously stopped at a
+verification. A complete nightly random run (40078618306, seed 1236218278)
+processed all 169 discovered files and reproduced four Battleship
+five-second property failures also present on main. The focused nightly
+runs above pass; the whole random group did not. Nightly is not the release
+gate. Read-only infrastructure rehearsal previously stopped at a
 Railway project authorization denial; no infrastructure apply occurred.
 
 The PR remains a draft while required verification is incomplete. CI and
