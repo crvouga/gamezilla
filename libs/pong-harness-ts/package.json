@@ -24,7 +24,8 @@
     "@libs/harness-ts": "workspace:*",
     "@libs/pong-client-ts": "workspace:*",
     "@libs/pong-shared-ts": "workspace:*",
-    "@libs/spaces-harness-ts": "workspace:*"
+    "@libs/spaces-harness-ts": "workspace:*",
+    "@pkgs/ui-testing-root-shared-ts": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/bun-test-solid-client-ts": "workspace:*",

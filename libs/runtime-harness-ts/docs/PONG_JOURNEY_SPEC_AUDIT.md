@@ -1,8 +1,10 @@
 # Pong completion and rematch journey
 
-Verdict: **INCOMPLETE — authoring passes; bindings are handed off**.
+Verdict: **PASS for the simulated completion/rematch journey**.
 Scope: `specs/journeys/pong-game.feature` and its published-language edges.
-The strict gate reports only the new undefined steps; no execution is claimed.
+The strict spec and ownership gates pass. The whole runtime/journey context
+passes 126 checks, and the Pong context passes 61. Live-browser execution and
+the full release verdict remain unproven.
 
 ## Contract review
 
@@ -25,14 +27,32 @@ rule; scoring and victory are Pong's existing rules.
 | B17 | The people see the winner, assigned paddles, scores and target. Identity/generation fencing remains a code contract, not prose here. |
 | P1–P2 | Contract changes and this audit are a separate spec-only commit. Implementation treats them as read-only. |
 
-## Handoff
+## Implementation evidence
 
 `pong-journey-author-gate-final.log` under `.cache/pong/` is the authoring
-gate. Bind the journey on the existing `JourneyHost`, using real finding,
-paddle controls and rematch actions. A natural target-score victory must be
-observed before a rematch; neither fixture results nor resignation establish
-that step. Preserve the first assignment and target to compare the new game.
-No new transport, session, game identity or automated human account is needed.
+gate; it reported only the undefined handoff steps. Those steps are now bound
+on the existing `JourneyHost`, using real finding, paddle controls and rematch
+actions. Alice's natural target-score victory is observed before the rematch;
+no fixture result or resignation establishes it. The first assignment and
+target are retained to compare the new game. No transport, session, game
+registration or automated human account was added.
+
+The step definitions only call public harness helpers. UI reads and gestures
+live in those helpers; the existing court reader now accepts the actual board
+identifier. Explicit host elapsed time uses virtual time in the harness and
+the existing injected wall timer in the live adapter (D2–D6).
+
+Evidence under `.cache/pong/`:
+
+- `pong-journey-undefined-red.log`: the new journey fails undefined.
+- `pong-journey-bound-second.log`: the whole journey passes by itself.
+- `runtime-after-pong-journey.log`: all 126 runtime/journey checks pass,
+  including existing chess, custom-game, Connect Four and Battleship journeys.
+- `pong-after-journey-reader.log`: all 61 Pong checks pass with the shared reader.
+- `pong-journey-quality.log`: all six affected unit/type/lint tasks pass.
+- `pong-journey-type-lint.log`: all six type/lint tasks, including the live
+  product adapter, pass.
+- `pong-journey-bound-policy-current.log`: strict spec and ownership gates pass.
 
 Technical timing, stale room identities, input generations and bounded waiting
 belong in code contracts. The full current gate, automated production-like

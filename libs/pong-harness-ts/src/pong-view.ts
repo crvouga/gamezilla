@@ -1,5 +1,6 @@
 import { actorUi } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 
 export type PongPaddle = 'left' | 'right';
 export type PongStage =
@@ -18,8 +19,12 @@ function trailingNumber(text: string | null): number {
 
 /** Scores, status and ball geometry are read from the same board a person sees. */
 export async function pongView(s: ProductHarness, actor = 'alice') {
-  const ui = await actorUi(s, actor);
-  const status = await ui.get(`${PONG_BOARD}-status`).text();
+  return readPongCourt(await actorUi(s, actor), PONG_BOARD);
+}
+
+/** The same visible court reader serves local specs and whole-product journeys. */
+export async function readPongCourt(ui: Driver, board: string) {
+  const status = await ui.get(`${board}-status`).text();
   if (status === null) throw new Error('No Pong status is shown');
   const winner: PongPaddle | null =
     status === 'Left wins.'
@@ -37,18 +42,18 @@ export async function pongView(s: ProductHarness, actor = 'alice') {
           : status.startsWith('Paused ')
             ? 'paused'
             : 'reconnecting';
-  const ball = ui.get(`${PONG_BOARD}-ball`);
-  const bounds = (await ui.get(`${PONG_BOARD}-drawing`).attribute('viewBox'))
+  const ball = ui.get(`${board}-ball`);
+  const bounds = (await ui.get(`${board}-drawing`).attribute('viewBox'))
     ?.split(' ')
     .map(Number);
   if (bounds?.length !== 4 || !bounds.every(Number.isFinite))
     throw new Error('No visible Pong court bounds');
   return {
     score: {
-      left: trailingNumber(await ui.get(`${PONG_BOARD}-score-left`).text()),
-      right: trailingNumber(await ui.get(`${PONG_BOARD}-score-right`).text()),
+      left: trailingNumber(await ui.get(`${board}-score-left`).text()),
+      right: trailingNumber(await ui.get(`${board}-score-right`).text()),
     },
-    targetScore: trailingNumber(await ui.get(`${PONG_BOARD}-target`).text()),
+    targetScore: trailingNumber(await ui.get(`${board}-target`).text()),
     stage,
     winner,
     ball: {

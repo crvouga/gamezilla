@@ -38,6 +38,8 @@ export type JourneyHost = {
   readonly runId: string;
   /** The host's clock, virtual in the harness and wall time in live checks. */
   now(): Promise<number>;
+  /** Let gameplay progress: virtual time in the harness, injected timers live. */
+  elapse(milliseconds: number): Promise<void>;
   /** Present only when the host drives a real browser. */
   readonly browser: JourneyBrowser | null;
   /**

@@ -151,8 +151,9 @@ checkpoints through the existing offline custom-game queue. Only the creator of
 a game involving no other account can submit those checkpoints. A second person
 on the device is an explicit local seat with no account identity. Local bot and
 two-seat controls have in-process room-client coverage, including preserving a
-finished offline bot game on return. Local games are unrated. Transient streaming
-to online spectators of a locally owned game is not wired yet.
+finished offline bot game on return. Local games are unrated. Online spectators
+receive the creator's current court through the validated local relay described
+below.
 
 ## Matched execution and persistence
 
@@ -179,10 +180,10 @@ Configuration-preserving rematches use the game's position rules. Automated
 contracts exercise actual rooms and SQLite, including a rollback after room
 acceptance, retrying the receipt, and rating/freeing both people once.
 
-This is framework and persistence evidence. Pong is now registered by the shared,
-client and harness registries. Matched client presentation, real matchmaking
-journeys and continuous inputs from the existing synthetic population remain
-unfinished.
+This is framework and persistence evidence. Pong is registered by the shared,
+client and harness registries. Matched presentation, synthetic-population input
+and the natural completion/rematch journey have additional evidence below;
+the outstanding acceptance work is listed separately.
 
 ## Client presentation
 
@@ -360,8 +361,9 @@ Pong's initial countdown; its literal trace is pinned as
 `simulation-revision-is-not-a-first-move`. An additional literal trace keeps
 the winner observer correct when adjacent own-seat labels have no space.
 The model observes the actual offered buttons, seats and result announcement.
-The scenarios also exercise the existing client mutation boundary; complete
-confirmation-modal and natural completion/rematch journeys remain required.
+The scenarios also exercise the existing client mutation boundary. Complete
+confirmation-modal journeys and production-like execution of the natural
+completion/rematch journey remain required.
 
 Specification eligibility is now a discovered directory with one JSON entry
 per specification. The first-move abort feature requires genuine turns; the
@@ -655,8 +657,9 @@ changes above, which require their own current full verdict.
 
 The following remain required before the brief is complete:
 
-1. Complete natural matched completion, confirmation-modal and rematch journeys,
-   remaining continuous-specific history coverage, and finish
+1. Execute the natural matched completion/rematch journey in the production-like
+   browser, complete confirmation-modal journeys and continuous-specific history
+   coverage, and finish
    the remaining population/fallback policy and recovery verification.
 2. Complete capability-aware shared behavior coverage and continuous counterparts
    of the offered lifecycle policies. The registries and common/turn/simulation
@@ -687,6 +690,36 @@ property shrunk to revision zero followed by one; that literal case is pinned.
 passing, and `pong-after-room-handover.log` records 61 passing Pong checks.
 This mechanical handover coverage does not establish the remaining natural
 matched completion/rematch journeys or unclean authority-loss recovery.
+
+## Natural matched Pong journey
+
+`specs/journeys/pong-game.feature` follows fresh accounts through the real Pong
+search, natural score-target victory and UI rematch. It uses the existing
+`JourneyHost` in both runners. The host now supplies elapsed time explicitly:
+the harness advances virtual time and the live adapter uses its injected wall
+timer. The game-owned court reader is shared with the local Pong specifications.
+
+Alice follows the displayed ball with her offered paddle slider; Bob guides his
+own away from it. No result, winning position, move, clock choice or replacement
+room is injected. Both people must see Alice's finished target-score victory
+before Bob offers and Alice accepts the rematch. The new game must have another
+identity, swapped assigned controls, zero scores, active play and the same target
+score on both devices. The existing live cleanup retires the unfinished rematch
+and closes both spaces.
+
+`pong-journey-undefined-red.log` records the missing journey step, and
+`pong-journey-bound-second.log` records the complete journey passing in the
+simulated product. `pong-journey-quality.log` records six passing package
+unit/type/lint tasks, while `pong-journey-type-lint.log` also covers the live
+product adapter. `pong-journey-bound-policy-current.log` records passing strict
+spec and ownership gates. Full-context execution is recorded separately.
+This is not a live-browser, rating/history completeness or full-gate claim.
+
+`runtime-after-pong-journey.log` records 126 passing runtime/journey checks,
+including the existing turn-game journeys and the new Pong flow.
+`pong-after-journey-reader.log` records all 61 Pong checks passing with the
+shared court reader. Both runs completed without assertion failures; no
+verification budget or replay depth changed.
 
 ## Future-game checks
 

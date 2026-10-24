@@ -2458,6 +2458,7 @@
         "@libs/pong-client-ts": "workspace:*",
         "@libs/pong-shared-ts": "workspace:*",
         "@libs/spaces-harness-ts": "workspace:*",
+        "@pkgs/ui-testing-root-shared-ts": "workspace:*",
       },
       "devDependencies": {
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
@@ -2712,6 +2713,7 @@
         "@libs/game-session-harness-ts": "workspace:*",
         "@libs/games-shared-ts": "workspace:*",
         "@libs/harness-ts": "workspace:*",
+        "@libs/pong-harness-ts": "workspace:*",
         "@libs/profile-harness-ts": "workspace:*",
         "@libs/runtime-client-ts": "workspace:*",
         "@libs/runtime-server-ts": "workspace:*",

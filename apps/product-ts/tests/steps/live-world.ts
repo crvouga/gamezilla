@@ -50,6 +50,7 @@ import type { ScenarioContext } from '@pkgs/gherkin-shared-ts/registry';
 import { setWorld } from '@pkgs/gherkin-shared-ts/registry';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared-ts/global';
 import type { HttpClient } from '@pkgs/http-client-shared-ts/types';
+import { wallWait } from './wall-wait';
 
 const API_PATH_PREFIX = '/api';
 const SSO_CALLBACK_PATH = '/sso-callback';
@@ -147,6 +148,7 @@ function liveJourneyHost(
   return {
     runId: RUN_ID,
     now: () => Promise.resolve(wallClock.now()),
+    elapse: wallWait.sleep,
     get browser() {
       return devices.host === null
         ? null
