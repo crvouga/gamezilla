@@ -57,11 +57,9 @@ new business concepts or changing the meaning of any existing scenario.
 Verdict: INCOMPLETE. All four journeys pass together in the full product
 harness through the registered Numberlink game and shared screens. The same
 bindings are registered in the live runner; execution against the compiled
-browser bundle and full release verification remain open. Automated stack
-execution on the frozen Vite test build passes authoring/discovery,
-cross-device continuation and earlier-edition play. Offline authoring and
-completion reach reopening, which currently fails on the guest's space
-screen; reconnection has not been verified in that browser run. Four separate
+browser bundle and full release verification remain open. All four automated
+stack journeys pass together on the frozen Vite test build, including offline
+authoring, completion, reopening and sharing after reconnection. Four separate
 initial executions each failed on its own undefined command before binding.
 
 The authoring journey visually edits and playtests both challenges, changes

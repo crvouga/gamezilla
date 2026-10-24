@@ -307,5 +307,16 @@ inferred from this ledger or from a narrow test run.
   Nine web-SQLite typecheck, lint and code-test tasks pass after the upgrade,
   including client, shared and asset-builder checks. Before the upgrade,
   the broader harness, runtime and tool packages passed 12 tasks; the product
-  app's typecheck and lint also passed. Stack-browser execution remains the outstanding
-  check for the complete offline flow.
+  app's typecheck and lint also passed.
+- Closing a pooled SQLite database did not release its pool's file handles.
+  The adapter now pauses the pool after closing the database and resumes it
+  before reuse. A literal resource-ordering regression failed before this
+  change; nine web-SQLite tasks pass afterward. All four automated stack
+  journeys then passed together (4 pass, 0 fail, 106.72 seconds), including
+  both devices reopening offline, retained authoring and completion, and
+  discovery on a fresh signed-in device after reconnection. This remains a
+  frozen Vite test build, not production-bundle or full-release evidence.
+- Selecting a kept draft now binds its fresh identity to the working draft it
+  replaces. Reusing that identity with a later expected draft cannot overwrite
+  later editing. The literal reused-choice regression was red before the fix;
+  all 261 shared package tests, typecheck and lint pass afterward.
