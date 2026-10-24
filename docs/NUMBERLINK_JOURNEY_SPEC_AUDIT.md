@@ -54,12 +54,12 @@ new business concepts or changing the meaning of any existing scenario.
   of authoring. Observation must include saved content and visible outcomes,
   not merely a control having been pressed.
 
-Verdict: INCOMPLETE. All four journeys pass together in the full product
-harness through the registered Numberlink game and shared screens. The same
-bindings are registered in the live runner; execution against the compiled
-browser bundle and full release verification remain open. All four automated
-stack journeys pass together on the frozen Vite test build, including offline
-authoring, completion, reopening and sharing after reconnection. Four separate
+Verdict: INCOMPLETE for delivery. All four journeys pass together in the full
+product harness through the registered Numberlink game and shared screens.
+The same bindings now also pass together against the compiled production
+bundle, including offline authoring, completion, reopening and sharing after
+reconnection. Full release verification remains open; current receipts are in
+the [implementation ledger](NUMBERLINK_IMPLEMENTATION.md). Four separate
 initial executions each failed on its own undefined command before binding.
 
 The authoring journey visually edits and playtests both challenges, changes

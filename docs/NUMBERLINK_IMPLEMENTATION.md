@@ -63,22 +63,24 @@ unfinished work; it is not a second product definition.
 - [ ] Attempts, automatic persistence, undo/redo, restart, replay history,
   completions, next puzzle and cross-device pack progression.
   The shared domain path and four assembled app journeys pass, including
-  a fresh signed-in device. The four critical models also pass; complete model
-  coverage and production-bundle execution remain open.
+  a fresh signed-in device. All seven lifecycle models pass their deeper
+  replay, and the four journeys pass together in the production bundle.
+  The complete release gate remains open.
 - [ ] Shared discovery, authoring shell, pack editor and player shell.
   Shared screens now compose the real mutation, query, identity and permission
   hooks. Creation, metadata autosave, validation, publication and completion
   scenarios drive them in the counting reference app. Four normal Numberlink
   app journeys also pass. Waiting and refused publications remain visible
-  beside their kept drafts after reopening. Production-bundle execution
-  and the full release gate remain open. Bounded hydration and normal
+  beside their kept drafts after reopening. Production-bundle execution now
+  passes; the full release gate remains open. Bounded hydration and normal
   Numberlink registry enrollment are implemented.
 - [ ] Numberlink visual builder, player and previews; pointer, touch, keyboard,
   accessible labels and responsive design-system components.
   Game components and automated input contracts are implemented; assembling
   the registered Numberlink client supplies them to the shared saved-content
   workflows. Four full app journeys have executable bindings and pass in
-  the product harness; browser-bundle and UI-quality checks remain open.
+  the product harness and compiled production bundle; UI-quality and full
+  release checks remain open.
 - [ ] Real app registry, navigation, runtime/sub composition, sync, identity,
   observability, feedback and self-service readiness integration.
 - [x] Bound discovery and retained-history subscriptions before offering them
@@ -453,3 +455,27 @@ inferred from this ledger or from a narrow test run.
   its existing 60-second limit during concurrent verification. Renewed full
   Verify, complete journey suites and the post-uploader deeper profile remain
   required. The current full run uses a frozen checkout and unchanged limits.
+- The four journeys now pass together against the compiled production bundle
+  with test hooks disabled, in 3m32s. Across 534 requests they used at most six
+  pooled sessions; the costliest request took 83 round trips and the longest
+  uninterrupted transaction took 72, inside the unchanged 180/100 budgets.
+- Those executions pinned an account-check navigation error and four SQLite
+  handoff cases: requests and their first notification during opening,
+  repeated request ids from different tabs, late work after page release,
+  and a proxy request arriving after its own promotion. Each has a literal
+  regression and a known-bug record. The browser transports preserve normal
+  explicit reconnect, reject work from discarded pages, and route queued
+  replies to the correct caller. The account check preserves its caller's
+  current game. No stored data is wiped to recover these cases.
+- The renewed official deeper profile passes all five Puzzles tasks: all
+  seven models, 168 drawn histories and five pinned histories. The driver and
+  runtime checks pass all fifteen tasks; the SQLite handoff checks pass all
+  six tasks; four product runner tasks and the known-bug gate pass. The
+  runtime package's earlier nested-runner timeout is followed by a passing
+  isolated run at the standard single-case concurrency and unchanged limit.
+- The latest interrupted full Verify completed fifteen tasks successfully;
+  its 57-task summary also included unfinished work. Two cold matchmaking
+  proofs took 206 and 308 seconds. Completed cache entries are retained.
+  The next full run uses the documented two-task concurrency setting while
+  retaining the existing deadlines, solver and test-case limits. Full Verify,
+  automated UI-quality evidence and GitHub's blocked verification remain open.
