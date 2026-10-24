@@ -49,6 +49,13 @@ Feature: Publish packs with stable puzzle editions
       Then Bob's published pack still offers the puzzle edition "River"
       And Bob cannot discover the puzzle "River"
 
+    Scenario: Publishing a pack keeps the puzzle edition chosen in its draft
+      Given Alice owns the pack draft "Rivers" containing "River"
+      And the pack's puzzle "River" now has a published edition "Valley"
+      When Alice publishes her pack draft
+      Then Bob can discover the pack "Rivers" with "River" in that order
+      And Bob can discover the published puzzle "Valley"
+
   Rule: A published pack's draft can be changed independently
     No counter-example: keeping the public order is the purpose of a working draft.
 

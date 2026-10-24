@@ -9,7 +9,7 @@ module pack_publication {
   pure val PEOPLE = Set("Alice", "Bob")
   pure val ORDERS = Set(List(), List(0), List(1), List(0, 1), List(1, 0))
 
-  var drafts: List[List[int]]
+  var drafts: List[List[Reference]]
   var workingDraft: int
   var otherDraft: int
   var editions: int -> List[Reference]
@@ -20,7 +20,7 @@ module pack_publication {
   var _online: bool
   var _previousEditions: int -> List[Reference]
 
-  action _keep(copies: List[List[int]], chosen: int, published: int -> List[Reference],
+  action _keep(copies: List[List[Reference]], chosen: int, published: int -> List[Reference],
     current: int, puzzles: int -> int, available: Set[int], online: bool): bool = all {
     drafts' = copies, workingDraft' = chosen,
     otherDraft' = (if (not(online)) otherDraft else chosen),
@@ -31,16 +31,27 @@ module pack_publication {
   }
 
   action init = all {
-    drafts' = List(List(0, 1)), workingDraft' = 0, otherDraft' = 0,
+    drafts' = List(List({ puzzle: 0, edition: 1 }, { puzzle: 1, edition: 0 })),
+    workingDraft' = 0, otherDraft' = 0,
     editions' = Map(), currentEdition' = -1, discoveredEdition' = -1,
     puzzleEditions' = Map(0 -> 1, 1 -> 0), availablePuzzles' = Set(0),
     _online' = true, _previousEditions' = Map(),
   }
 
+  /// Reordering keeps each chosen edition. Adding a puzzle chooses its current
+  /// published edition. An unpublished puzzle waits for its first publication.
+  def _reference(puzzle: int): Reference = {
+    val chosen = drafts.nth(workingDraft)
+    if (chosen.length() > 0 and chosen.nth(0).puzzle == puzzle) chosen.nth(0)
+    else if (chosen.length() > 1 and chosen.nth(1).puzzle == puzzle) chosen.nth(1)
+    else { puzzle: puzzle, edition: puzzleEditions.get(puzzle) }
+  }
+
   /// Alice saves a complete pack order privately; four copies bound exploration.
   action savePackDraft(order: List[int]): bool = all {
     ORDERS.contains(order), drafts.length() < 4,
-    _keep(drafts.append(order), drafts.length(), editions, currentEdition,
+    val chosen = order.foldl(List(), (refs, p) => refs.append(_reference(p)))
+    _keep(drafts.append(chosen), drafts.length(), editions, currentEdition,
       puzzleEditions, availablePuzzles, _online),
   }
 
@@ -48,11 +59,13 @@ module pack_publication {
   /// Publishing the same draft again never replaces a later choice or withdrawal.
   action publishPack(person: str, draft: int): bool = all {
     PEOPLE.contains(person), drafts.indices().contains(draft),
+    draft == workingDraft or editions.keys().contains(draft),
     if (person == "Alice" and drafts.nth(draft).length() > 0 and
-      drafts.nth(draft).indices().forall(i => availablePuzzles.contains(drafts.nth(draft).nth(i))) and
+      drafts.nth(draft).indices().forall(i => availablePuzzles.contains(drafts.nth(draft).nth(i).puzzle)) and
       not(editions.keys().contains(draft)))
-      _keep(drafts, workingDraft, editions.put(draft, drafts.nth(draft).foldl(List(), (refs, p) =>
-        refs.append({ puzzle: p, edition: puzzleEditions.get(p) }))), draft,
+      _keep(drafts, workingDraft, editions.put(draft, drafts.nth(draft).foldl(List(), (refs, r) =>
+        refs.append({ puzzle: r.puzzle,
+          edition: (if (r.edition == 0) puzzleEditions.get(r.puzzle) else r.edition) }))), draft,
         puzzleEditions, availablePuzzles, _online)
     else _keep(drafts, workingDraft, editions, currentEdition,
       puzzleEditions, availablePuzzles, _online),

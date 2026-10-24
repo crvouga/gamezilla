@@ -53,10 +53,12 @@ module puzzle_publication {
     else _keep(drafts, workingDraft, editions, currentEdition, _online),
   }
 
-  /// Only Alice publishes a named, valid saved draft. An already published
-  /// draft stays the same edition, even after another publication or withdrawal.
+  /// Only Alice publishes her chosen working draft. Another kept copy must
+  /// first be chosen. An already published draft may be repeated without
+  /// replacing a later publication or withdrawal.
   action publishPuzzle(person: str, draft: int): bool = all {
     PEOPLE.contains(person), drafts.indices().contains(draft),
+    draft == workingDraft or editions.keys().contains(draft),
     if (person == "Alice" and drafts.nth(draft).valid and
       drafts.nth(draft).title != "" and not(editions.keys().contains(draft)))
       _keep(drafts, workingDraft, editions.put(draft,

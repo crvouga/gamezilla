@@ -186,3 +186,33 @@ shared counting example and actual mutation/query paths, observing public
 state after every action. Never implement an expected-state calculator in the
 binding. Add discovery and the bounded verification task through the existing
 package conventions, then run the new examples red before binding them.
+
+## First implementation handback
+
+The coverage-map line references above identify the initial contract in
+`7fc38f2ac`. The first real publication replay failed at trace 1, step 16,
+`publishPuzzle(draft: 0, person: "Alice")`: the model published an older,
+unpublished draft that had not been chosen as the working draft. This was a
+model-boundary mistake. The existing publish definition says publication
+follows the author's chosen draft, and the draft definition/choice examples
+say a kept copy is chosen before becoming the working draft. Repeating an
+already published draft is a separate permitted command and remains tested.
+The implementer handed this back rather than changing publication behavior
+to accept an unchosen copy. Both publication models now restrict new
+publication to the working draft, retaining repetition of earlier editions.
+
+The pack model also now keeps the chosen edition with each private draft item.
+Reordering retains that choice; adding an item chooses its available edition;
+a puzzle not yet published waits for its first edition. Publication resolves
+only that waiting choice. The added example, “Publishing a pack keeps the
+puzzle edition chosen in its draft”, illustrates the already-defined stable
+choice when the puzzle gains a later edition before the pack is published.
+It adds one setup phrase about the chosen puzzle's later publication, and
+reuses publication/discovery wording. No term or product definition changes.
+These corrections belong in another separate `spec:` commit. Both corrected
+models typecheck and independently simulate 50 seeded traces of up to 40 steps
+with every invariant enabled, without a violation. The new pack example ran
+red on its undefined setup phrase, with the other fourteen pack-publication
+examples passing. The strict gate again reports the three remaining missing
+model bindings, this new phrase, and thirteen wording pairs outside Puzzles.
+The first model's product replay still needs to be repeated after this handback.
