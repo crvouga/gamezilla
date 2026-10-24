@@ -435,3 +435,18 @@ journey job and final gate. GitHub's annotation is: "The job was not started
 because an Actions budget is preventing further use." They produced no
 test results. A funded CI run is still required; no spending limit, runner
 policy, verification assertion or deadline was changed.
+
+After the fanout fix, `bun verify` with two local Turbo workers exited 1
+after 287.4 seconds: the existing custom-game play model did not complete
+its liveness check within 240 seconds. It reached all 811,080 distinct
+states with an empty exploration queue, then timed out checking the two
+temporal properties. A single-task serial invocation also timed out, with
+the same task hash `1dcee8efadaedd8b` and no counterexample. All twelve
+safety invariants and both liveness properties remain requested. The model
+bytes match main and the pre-merge head; the JVM is native ARM. No complete
+verdict for this local check is claimed, and its deadline was retained.
+
+[The latest CI attempt](https://github.com/crvouga/gamezilla/actions/runs/40106768270)
+was rejected before its first job started with the same Actions-budget
+annotation. Full verification therefore remains incomplete even though
+the implementation's focused checks pass.
