@@ -3,14 +3,33 @@ import { contentClient } from './content-actions';
 import { currentSavedContentDraft } from './content-observations';
 import type { ContentHarness } from './content-system';
 
-export function contentIssue(
+export async function contentIssue(
   s: ContentHarness,
   clientId: string
-): string | null {
+): Promise<string | null> {
   const result = s.lastResult.get(clientId);
-  if (result?.ok !== false) return null;
-  const issues = result.failures[0]?.meta?.['issues'];
-  if (!Array.isArray(issues)) return result.failures[0]?.code ?? null;
+  const local = result?.ok === false ? result.failures[0] : undefined;
+  if (local?.meta !== undefined) return issueCode(local.meta) ?? local.code;
+  const editor = s.editors.get(clientId);
+  const choice = s.publicationResults.get(editor?.documentId ?? '');
+  if (choice?.ok === true) {
+    const rejection = (
+      await contentClient(s, clientId).engine.listRejections()
+    ).find((entry) => entry.mutationId === choice.mutationId);
+    if (rejection !== undefined) {
+      const meta: unknown =
+        rejection.meta === null ? null : JSON.parse(rejection.meta);
+      return issueCode(meta) ?? rejection.code;
+    }
+  }
+  return local?.code ?? null;
+}
+
+function issueCode(meta: unknown): string | null {
+  if (typeof meta !== 'object' || meta === null || !('issues' in meta))
+    return null;
+  const issues = meta.issues;
+  if (!Array.isArray(issues)) return null;
   const first: unknown = issues[0];
   return typeof first === 'object' &&
     first !== null &&

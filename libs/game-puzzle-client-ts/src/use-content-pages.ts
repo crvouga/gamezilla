@@ -71,15 +71,25 @@ export function useContentPages(
     positionAttempt
   );
   const [attemptCursors, setAttemptCursors] = createSignal<
-    readonly { beforeAt: string; beforeId: string }[]
-  >([{ beforeAt: '9999-12-31T23:59:59.999Z', beforeId: '' }]);
+    readonly { beforeOrder: number; beforeAt: string; beforeId: string }[]
+  >([
+    {
+      beforeOrder: Number.MAX_SAFE_INTEGER,
+      beforeAt: '9999-12-31T23:59:59.999Z',
+      beforeId: '',
+    },
+  ]);
   const attemptLimit = () => attemptCursors().length * CONTENT_PAGE_SIZE;
   const moreAttempts = (): void => {
     const last = play().attempts[attemptLimit() - 1];
     if (last !== undefined)
       setAttemptCursors((prior) => [
         ...prior,
-        { beforeAt: last.updated_at, beforeId: last.id },
+        {
+          beforeOrder: last.activity_order,
+          beforeAt: last.updated_at,
+          beforeId: last.id,
+        },
       ]);
   };
   return {

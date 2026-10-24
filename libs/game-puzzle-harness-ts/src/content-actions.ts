@@ -9,12 +9,32 @@ import {
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import type { HarnessClient } from '@pkgs/sync-engine-harness-ts/client';
 import { waitUntil } from '@pkgs/sync-engine-harness-ts/wait-until';
+import type { MutateResult } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import type { ContentEditor, ContentHarness } from './content-system';
 
 export function contentClient(s: ContentHarness, id: string): HarnessClient {
   const client = s.clients.get(id);
   if (client === undefined) throw new Error(`Missing content device: ${id}`);
   return client;
+}
+
+/** Record actual caller results, including the publication's document scope. */
+export function recordContentResult(
+  s: ContentHarness,
+  clientId: string,
+  write: { readonly name: string; readonly args: unknown },
+  result: MutateResult
+): void {
+  s.lastResult.set(clientId, result);
+  const args = write.args;
+  if (
+    write.name === 'publishPuzzleContent' &&
+    typeof args === 'object' &&
+    args !== null &&
+    'documentId' in args &&
+    typeof args.documentId === 'string'
+  )
+    s.publicationResults.set(args.documentId, result);
 }
 
 export async function sendContentMutation(
@@ -28,7 +48,7 @@ export async function sendContentMutation(
   if (definition === undefined)
     throw new Error(`Unknown content mutation: ${name}`);
   const result = await client.mutate(definition, args);
-  s.lastResult.set(clientId, result);
+  recordContentResult(s, clientId, { name, args }, result);
   if (!result.ok || s.offline.has(clientId)) return result.ok;
   const outcome = client.outcome(result.mutationId);
   await waitUntil(

@@ -89,6 +89,12 @@ export const publishPuzzleContentMutation = (
       (id, document_id, owner_id, game_id, kind, edition, title, description, difficulty, definition)
     VALUES (${draft.id}, ${doc.id}, ${doc.owner_id}, ${doc.game_id}, ${doc.kind}, ${edition},
       ${draft.title.trim()}, ${draft.description}, ${draft.difficulty}, ${definition})
+    ON CONFLICT (id) DO UPDATE SET
+      edition = excluded.edition, title = excluded.title,
+      description = excluded.description, difficulty = excluded.difficulty,
+      definition = excluded.definition, deleted_at = NULL
+    WHERE puzzle_content_revisions.document_id = excluded.document_id
+      AND puzzle_content_revisions.deleted_at IS NOT NULL
   `);
       if (doc.kind === 'pack')
         await writePackReferences(ctx.tx, doc, definition);

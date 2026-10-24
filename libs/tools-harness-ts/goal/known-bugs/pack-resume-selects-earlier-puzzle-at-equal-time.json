@@ -1,0 +1,4 @@
+{
+  "summary": "Starting two pack puzzles during the same clock instant could offer the earlier puzzle on Continue instead of the latest active puzzle.",
+  "regressionTest": "libs/game-puzzle-harness-ts/tests/quint/pack-progression.binding.ts"
+}

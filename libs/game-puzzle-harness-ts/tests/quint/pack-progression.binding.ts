@@ -15,11 +15,21 @@ import {
 import { progressionLifecycleState } from '@libs/game-puzzle-harness-ts/progression-lifecycle-observations';
 import type { Run } from '@pkgs/harness-root-shared-ts/run-types';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
+import sameTimeTrace from './fixtures/same-time-pack-resume.itf.json';
 
 bindQuintModel<Run<ContentHarness>>({
   model: 'pack-progression',
   traces: 24,
   maxSteps: 32,
+  regressions: [
+    // regression: pack-resume-selects-earlier-puzzle-at-equal-time
+    {
+      id: 'pack-resume-selects-earlier-puzzle-at-equal-time',
+      title: 'Continue offers the last puzzle chosen within the same instant',
+      seed: '0x67932',
+      itf: sameTimeTrace,
+    },
+  ],
   actions: {
     init: (run) => run.apply(setupPackProgression),
     openPack: (run) => run.apply(openPublishedPack, 'bob:phone', 'Rivers'),

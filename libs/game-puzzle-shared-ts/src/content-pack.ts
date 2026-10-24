@@ -110,6 +110,12 @@ export async function writePackReferences(
       (id, owner_id, pack_revision_id, puzzle_id, puzzle_revision_id, position)
     VALUES (${`${doc.working_draft_id}:${position}`}, ${doc.owner_id}, ${doc.working_draft_id},
       ${item.puzzleId}, ${item.revisionId}, ${position})
+    ON CONFLICT (id) DO UPDATE SET
+      puzzle_id = excluded.puzzle_id,
+      puzzle_revision_id = excluded.puzzle_revision_id,
+      deleted_at = NULL
+    WHERE puzzle_content_pack_items.pack_revision_id = excluded.pack_revision_id
+      AND puzzle_content_pack_items.deleted_at IS NOT NULL
   `);
 }
 

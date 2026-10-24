@@ -83,6 +83,7 @@ export type ReplayOutcome =
       readonly status: 'rejected';
       readonly code: string;
       readonly message: string;
+      readonly meta?: Readonly<Record<string, unknown>>;
     };
 
 function originTraceId(traceparent: string | null): string | null {
@@ -275,6 +276,7 @@ async function replayMutationCore(
           status: 'rejected' as const,
           code: failure.code,
           message: failure.message,
+          ...(failure.meta === undefined ? {} : { meta: failure.meta }),
         };
       }
 
@@ -295,6 +297,7 @@ async function replayMutationCore(
         status: 'rejected',
         code: mapped.code,
         message: mapped.message,
+        ...(mapped.meta === undefined ? {} : { meta: mapped.meta }),
       };
     }
     if (isMutationError(e)) {
@@ -304,6 +307,7 @@ async function replayMutationCore(
         status: 'rejected',
         code: failure.code,
         message: failure.message,
+        ...(failure.meta === undefined ? {} : { meta: failure.meta }),
       };
     }
     throw e;

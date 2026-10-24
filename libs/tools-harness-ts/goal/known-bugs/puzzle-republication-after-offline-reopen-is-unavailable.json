@@ -1,0 +1,4 @@
+{
+  "summary": "The publication-recovery model binding used a short fixture wait before its normal model settling phase, prematurely failing a republication while the reopened phone was still reconnecting. The command now performs the tablet publication and leaves cross-device conformance to the unchanged model observer and settling budget.",
+  "regressionTest": "libs/game-puzzle-harness-ts/tests/quint/publication-recovery.binding.ts"
+}

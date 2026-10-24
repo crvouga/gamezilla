@@ -32,6 +32,7 @@ import { PACK_PUBLICATION_LIFECYCLE_ACTIONS } from './pack-publication-lifecycle
 import { previewDuringPackReorder } from './pack-workspace-actions';
 import { PROGRESSION_LIFECYCLE_ACTIONS } from './progression-lifecycle-actions';
 import { PUBLICATION_LIFECYCLE_ACTIONS } from './publication-lifecycle-actions';
+import { PUBLICATION_RECOVERY_ACTIONS } from './publication-recovery-actions';
 import {
   publishThroughScreen,
   validateThroughScreen,
@@ -53,6 +54,7 @@ export type ContentHarness = SyncHarness & {
   readonly documents: Map<string, string>;
   readonly editors: Map<string, ContentEditor>;
   readonly lastResult: Map<string, MutateResult>;
+  readonly publicationResults: Map<string, MutateResult>;
   readonly notices: Map<string, string>;
   readonly offline: Set<string>;
   readonly games: Map<string, string>;
@@ -103,6 +105,7 @@ export const contentSystem = defineSystem<
     ...PACK_PUBLICATION_LIFECYCLE_ACTIONS,
     ...ATTEMPT_LIFECYCLE_ACTIONS,
     ...PROGRESSION_LIFECYCLE_ACTIONS,
+    ...PUBLICATION_RECOVERY_ACTIONS,
   ],
   runtimes: [
     defineRuntime({
@@ -140,6 +143,7 @@ export const contentSystem = defineSystem<
       documents: new Map(),
       editors: new Map(),
       lastResult: new Map(),
+      publicationResults: new Map(),
       notices: new Map(),
       offline: new Set(),
       games: new Map(),

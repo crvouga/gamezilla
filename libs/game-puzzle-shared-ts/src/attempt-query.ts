@@ -9,6 +9,12 @@ import { contentId } from './content-types';
 export const contentAttemptParams = z
   .object({
     gameId: contentId,
+    beforeOrder: z
+      .number()
+      .int()
+      .min(0)
+      .max(Number.MAX_SAFE_INTEGER)
+      .default(Number.MAX_SAFE_INTEGER),
     beforeAt: z.string().max(40).default('9999-12-31T23:59:59.999Z'),
     beforeId: z.string().max(160).default(''),
     attemptId: contentId.optional(),
@@ -24,6 +30,7 @@ export const puzzleContentAttemptsOwned = defineQuery({
   params: contentAttemptParams,
   sampleParams: {
     gameId: 'game',
+    beforeOrder: Number.MAX_SAFE_INTEGER,
     beforeAt: '9999-12-31T23:59:59.999Z',
     beforeId: '',
     unfinishedOnly: false,
@@ -34,7 +41,7 @@ export const puzzleContentAttemptsOwned = defineQuery({
     const actor = ctx.env.actorId;
     const selected =
       params.attemptId === undefined
-        ? sql`(updated_at < ${params.beforeAt} OR (updated_at = ${params.beforeAt} AND id < ${params.beforeId}))`
+        ? sql`(activity_order < ${params.beforeOrder} OR (activity_order = ${params.beforeOrder} AND (updated_at < ${params.beforeAt} OR (updated_at = ${params.beforeAt} AND id < ${params.beforeId}))))`
         : sql`id = ${params.attemptId}`;
     const source =
       params.sourceId === undefined
@@ -50,7 +57,7 @@ export const puzzleContentAttemptsOwned = defineQuery({
     const attempts = (
       await ctx.db.query(sql`
       SELECT * FROM puzzle_content_attempts WHERE owner_id = ${actor} AND game_id = ${params.gameId}
-        AND ${selected} AND ${source} AND ${pack} AND ${unfinished} ORDER BY updated_at DESC, id DESC
+        AND ${selected} AND ${source} AND ${pack} AND ${unfinished} ORDER BY activity_order DESC, updated_at DESC, id DESC
     `)
     ).slice(0, CONTENT_PAGE_SIZE);
     const positions = attempts.map((row) => String(row['current_position_id']));

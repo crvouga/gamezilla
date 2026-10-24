@@ -1,6 +1,7 @@
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { MutationError } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { z } from 'zod';
+import { nextAttemptActivity } from './attempt-activity';
 import { recordAttemptCompletion } from './attempt-completion';
 import { readAttemptPosition, readContentAttempt } from './attempt-store';
 import type { ContentAttempt } from './attempt-types';
@@ -64,12 +65,13 @@ export async function createContentAttempt(
     mode: source.mode,
     pack_revision_id: source.packRevisionId,
     current_position_id: args.positionId,
+    activity_order: await nextAttemptActivity(ctx.tx, ctx.env.actorId),
     deleted_at: null,
     updated_at: ctx.env.now().toISOString(),
   };
   await ctx.tx.run(sql`
-    INSERT INTO puzzle_content_attempts (id, owner_id, puzzle_id, source_id, game_id, mode, pack_revision_id, current_position_id)
-    VALUES (${attempt.id}, ${attempt.owner_id}, ${attempt.puzzle_id}, ${attempt.source_id}, ${attempt.game_id}, ${attempt.mode}, ${attempt.pack_revision_id}, ${args.positionId})
+    INSERT INTO puzzle_content_attempts (id, owner_id, puzzle_id, source_id, game_id, mode, pack_revision_id, current_position_id, activity_order)
+    VALUES (${attempt.id}, ${attempt.owner_id}, ${attempt.puzzle_id}, ${attempt.source_id}, ${attempt.game_id}, ${attempt.mode}, ${attempt.pack_revision_id}, ${args.positionId}, ${attempt.activity_order})
   `);
   const history = JSON.stringify({
     entries: [{ action: null, state: initial.state }],

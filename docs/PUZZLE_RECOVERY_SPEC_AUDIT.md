@@ -3,8 +3,9 @@
 Date: 2026-10-24. Scope: `publication-recovery.feature` and
 `publication-recovery.qnt` in Puzzles. This extends the existing save,
 publication, withdrawal and connection contracts; it adds no vocabulary.
-Verdict: INCOMPLETE. The initial examples and model need implementation
-conformance and their complete transition audit. The broader C6 gaps remain
+Verdict: INCOMPLETE. The recovery examples, binding and bounded proof pass;
+the strict gate still reports thirteen wording pairs outside Puzzles. The
+broader C6 gaps remain
 listed in [the lifecycle audit](PUZZLE_LIFECYCLE_SPEC_AUDIT.md).
 
 ## Example map
@@ -115,3 +116,47 @@ model's language and aggregate shape. Its expected handoff is the missing
 model binding and new wording. The strict gate also reports the same thirteen
 wording pairs outside Puzzles. Input fingerprints were refreshed after adding
 the aggregate. No implementation file changes belong in this `spec:` commit.
+
+## Implementation audit
+
+All eleven examples now pass through the real shared editor, SQLite, mutation
+queue and cross-device discovery. The waiting notice survives offline
+reopening. A later refusal is visible beside the retained draft and explains
+the unavailable puzzle and the next publication choice. Correcting River
+alone never publishes Rivers. Reopening and repeated choices keep both pack
+entries, and another publication succeeds after River becomes available.
+
+The structured refusal reason is retained through the existing response and
+feedback path. Copy is selected by known codes; a literal component regression
+checks that remote diagnostic and issue text are not displayed. Internal SQL
+composition regressions cover restoring the same refused tentative edition
+and publishing an edited draft without losing its prior tombstone. Public
+edition numbering still uses the document's atomic compare-and-set.
+
+C1–C3: the command, invariant and event map above remains unchanged; every
+bound action is covered by the draw. C4: the eleven examples and existing
+publication examples cover the draft/waiting/published/refused transitions
+listed above, with reopening in every choice and fresh-choice versus
+correction-alone contrasts. The model has no further attempted publication
+guard or upstream event policy. C5 therefore adds no requirement. C6 remains
+open for the other Puzzles aggregates listed in the lifecycle audit.
+
+D1–D6: the new steps call only exported harness actions and observations.
+The binding uses real mutations and reads the normal discovery projection
+and actual mutation outcome; it does not calculate expected publication.
+The contextual refusal assertion reads the real editor's notice and editable
+title. A model command performs the tablet's publication; the existing world
+observer and settling budget check cross-device agreement. Its former short
+fixture wait prematurely failed a reconnecting phone and is separately
+pinned. No model, example assertion or settling budget was weakened.
+
+The full context passes 127 checks. The model gate proves all six recovery
+invariants, and all 32 invariants across the five models, within four steps.
+The official nightly profile passes every drawn history (24 per model, up to
+32 steps) and four pinned histories, across all four spec parts. The deeper
+findings are promoted into ordinary PR replay. Package typechecks, lint and
+code tests also pass across the eight affected packages before the final
+HTTP teardown repair; that repair has its own focused red/green example and
+the complete deeper replay. Ownership and the known-bug gate pass. The strict
+gate reports no Puzzles finding, but its thirteen external B14 pairs prevent
+a PASS verdict. Production-bundle and full Verify evidence remain open.

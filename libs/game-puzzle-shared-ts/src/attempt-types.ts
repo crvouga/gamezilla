@@ -9,6 +9,7 @@ export type ContentAttempt = {
   readonly mode: 'ordinary' | 'playtest';
   readonly pack_revision_id: string | null;
   readonly current_position_id: string;
+  readonly activity_order: number;
   readonly deleted_at: string | null;
   readonly updated_at: string;
 };

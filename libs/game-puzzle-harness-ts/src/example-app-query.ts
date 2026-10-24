@@ -41,6 +41,7 @@ export async function exampleContentSnapshot(
       puzzleContentAttemptsOwned.run(ctx, {
         gameId,
         beforeAt: '9999-12-31T23:59:59.999Z',
+        beforeOrder: Number.MAX_SAFE_INTEGER,
         beforeId: '',
         unfinishedOnly: false,
       }),
@@ -86,6 +87,7 @@ export const exampleContentQuery = defineQuery({
       await puzzleContentAttemptsOwned.authorize?.(ctx, {
         gameId: 'counting',
         beforeAt: '9999-12-31T23:59:59.999Z',
+        beforeOrder: Number.MAX_SAFE_INTEGER,
         beforeId: '',
         unfinishedOnly: false,
       })

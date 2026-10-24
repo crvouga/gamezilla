@@ -31,7 +31,7 @@ export const PUZZLE_PRIVACY: AccountPrivacyContribution = {
   },
   erase: async ({ tx, env }) => {
     await tx.run(sql`
-      UPDATE puzzle_content_attempts SET owner_id = ${null}, puzzle_id = ${null}, source_id = ${null}, game_id = ${null}, pack_revision_id = ${null}, current_position_id = ${null}
+      UPDATE puzzle_content_attempts SET owner_id = ${null}, puzzle_id = ${null}, source_id = ${null}, game_id = ${null}, pack_revision_id = ${null}, current_position_id = ${null}, activity_order = ${null}
       WHERE owner_id = ${env.actorId}
     `);
     await tx.run(sql`

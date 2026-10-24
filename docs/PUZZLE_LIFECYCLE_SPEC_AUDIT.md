@@ -260,5 +260,14 @@ unclosed types still refuse. Tooling typecheck, lint, all 866 tests and the
 known-bug gate pass after that separate fix. The generated CI capacity section
 now includes the new model gate, without changing runner limits or deadlines.
 
+The subsequent [publication recovery audit](PUZZLE_RECOVERY_SPEC_AUDIT.md)
+adds a fifth aggregate and eleven examples. The complete context now passes
+127 checks. All 32 invariants pass bounded checking within four steps, and
+the official nightly profile passes all 120 drawn histories plus four pinned
+histories across the five models. This is a targeted context run, not a full
+nightly verdict. Deeper findings are retained in PR replay: same-instant
+activity ordering, harness HTTP retirement, and a recovery fixture wait.
+
 Remaining: the C6 commands above, their complete transition/coverage audit,
-deeper exploration, production-bundle execution and the full Verify gate.
+production-bundle execution and the full Verify gate. The strict gate still
+finds thirteen wording pairs outside Puzzles, preventing a whole-tree PASS.

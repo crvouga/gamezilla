@@ -13,7 +13,7 @@ import { SyncEngineProvider } from '@pkgs/sync-engine-client-ts/sync-engine-cont
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { IdProvider } from '@pkgs/uuid-client-ts/solid';
-import { contentClient } from './content-actions';
+import { contentClient, recordContentResult } from './content-actions';
 import { ContentExampleClient } from './content-example-client';
 import { ContentExampleHost } from './content-example-host';
 import type { ContentHarness } from './content-system';
@@ -30,7 +30,7 @@ export async function mountContentExample(s: ContentHarness, clientId: string) {
     ...client.mutationClient,
     async mutate(mutation, args) {
       const result = await client.mutationClient.mutate(mutation, args);
-      s.lastResult.set(clientId, result);
+      recordContentResult(s, clientId, { name: mutation.name, args }, result);
       return result;
     },
   };

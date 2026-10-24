@@ -9,6 +9,7 @@ import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { type JSX, Show } from 'solid-js';
 import { useContentGame } from './content-game-context';
+import { ContentPublicationStatus } from './content-publication-status';
 import { ContentWithdraw } from './content-withdraw';
 import {
   type ContentPublicationProps,
@@ -47,6 +48,7 @@ export function ContentPublicationControls(
   }));
   return (
     <StackVertical gap="md">
+      <ContentPublicationStatus documentId={props.document.id} />
       <Show when={tools.draft()?.validation_status === 'valid'}>
         <Notice
           tone="success"

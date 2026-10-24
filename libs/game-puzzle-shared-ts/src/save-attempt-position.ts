@@ -3,6 +3,7 @@ import {
   type MutationCtx,
   MutationError,
 } from '@pkgs/sync-engine-shared-ts/mutations-types';
+import { nextAttemptActivity } from './attempt-activity';
 import type { AttemptPosition, ContentAttempt } from './attempt-types';
 
 export async function saveAttemptPosition(
@@ -36,7 +37,8 @@ export async function saveAttemptPosition(
     VALUES (${args.positionId}, ${args.attempt.owner_id}, ${args.attempt.id}, ${args.parentId}, ${args.history}, ${false})
   `);
   const changed = await ctx.tx.run(sql`
-    UPDATE puzzle_content_attempts SET current_position_id = ${args.positionId}
+    UPDATE puzzle_content_attempts SET current_position_id = ${args.positionId},
+      activity_order = ${await nextAttemptActivity(ctx.tx, args.attempt.owner_id)}
     WHERE id = ${args.attempt.id} AND current_position_id = ${args.parentId} AND deleted_at IS NULL
   `);
   if (changed.changes > 0 || existing !== undefined) return;

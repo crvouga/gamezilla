@@ -133,7 +133,7 @@ async function storeRejection(
       ${clientId},
       ${verdict.code},
       ${verdict.message},
-      ${null},
+      ${verdict.meta === undefined ? null : JSON.stringify(verdict.meta)},
       ${createdAt},
       ${createdAt},
       ${null},
@@ -142,6 +142,7 @@ async function storeRejection(
     ON CONFLICT (id) DO UPDATE SET
       code = excluded.code,
       message = excluded.message,
+      meta = excluded.meta,
       updated_at = excluded.updated_at,
       deleted_at = NULL
   `);

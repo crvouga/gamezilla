@@ -11,8 +11,13 @@ export const puzzleContentAttempts = defineTable({
     mode: 'text',
     pack_revision_id: 'text',
     current_position_id: 'text',
+    activity_order: { type: 'integer', backfill: { sql: '0' } },
   },
-  indexes: ['owner_id', ['owner_id', 'pack_revision_id']],
+  indexes: [
+    'owner_id',
+    ['owner_id', 'pack_revision_id'],
+    ['owner_id', 'activity_order'],
+  ],
 });
 
 export const puzzleContentPositions = defineTable({

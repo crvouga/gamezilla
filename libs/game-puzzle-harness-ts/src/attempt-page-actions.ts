@@ -19,7 +19,7 @@ export const seedEqualTimeAttempts = defineAction({
     const history =
       '{"entries":[{"action":null,"state":"count:0"}],"cursor":0}';
     await s.server.db.run(
-      sql`INSERT INTO puzzle_content_attempts (id, owner_id, puzzle_id, source_id, game_id, mode, pack_revision_id, current_position_id, created_at, updated_at, deleted_at) VALUES ${join(ids.map((id) => sql`(${id}, ${owner}, ${source.documentId}, ${source.parentId}, ${'counting'}, ${'ordinary'}, ${null}, ${`position-${id}`}, ${stamp}, ${stamp}, ${null})`))}`
+      sql`INSERT INTO puzzle_content_attempts (id, owner_id, puzzle_id, source_id, game_id, mode, pack_revision_id, current_position_id, activity_order, created_at, updated_at, deleted_at) VALUES ${join(ids.map((id) => sql`(${id}, ${owner}, ${source.documentId}, ${source.parentId}, ${'counting'}, ${'ordinary'}, ${null}, ${`position-${id}`}, ${0}, ${stamp}, ${stamp}, ${null})`))}`
     );
     await s.server.db.run(
       sql`INSERT INTO puzzle_content_positions (id, owner_id, attempt_id, parent_id, history, conflicted, created_at, updated_at, deleted_at) VALUES ${join(ids.map((id) => sql`(${`position-${id}`}, ${owner}, ${id}, ${null}, ${history}, ${false}, ${stamp}, ${stamp}, ${null})`))}`

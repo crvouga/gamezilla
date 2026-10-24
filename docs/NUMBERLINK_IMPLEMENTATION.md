@@ -43,8 +43,9 @@ unfinished work; it is not a second product definition.
   ownership, offline/recovery, Numberlink rules, and complete app journeys.
 - [ ] Quint lifecycle models with implementation replay and invariants for
   publication, stable references, attempts and progression.
-  Those four critical models now pass replay and bounded checking at four
-  steps. Authoring, playtest and concurrent-choice model coverage and the
+  Those four critical models and publication recovery now pass replay and
+  bounded checking at four steps, including every drawn history in the deeper
+  profile. Authoring, playtest and concurrent-choice model coverage and the
   complete context audit remain open.
 - [x] Numberlink definitions, path rules, codecs, bounded solver and properties.
 - [ ] Independent puzzle capabilities in shared game and client registration;
@@ -67,7 +68,8 @@ unfinished work; it is not a second product definition.
   Shared screens now compose the real mutation, query, identity and permission
   hooks. Creation, metadata autosave, validation, publication and completion
   scenarios drive them in the counting reference app. Four normal Numberlink
-  app journeys also pass. Server-refusal recovery, browser-bundle execution
+  app journeys also pass. Waiting and refused publications remain visible
+  beside their kept drafts after reopening. Production-bundle execution
   and the full release gate remain open. Bounded hydration and normal
   Numberlink registry enrollment are implemented.
 - [ ] Numberlink visual builder, player and previews; pointer, touch, keyboard,
@@ -339,3 +341,28 @@ inferred from this ledger or from a narrow test run.
   tests and the known-bug gate now pass. No release deadline, runner limit or
   gate was relaxed. The strict spec gate still finds thirteen wording pairs
   outside Puzzles and no Puzzles error.
+- Publication recovery adds eleven examples and a fifth shared model. Waiting
+  and later refusals use the existing durable mutation feedback, scoped to
+  the open document. The sync response and retained refusal now preserve
+  structured reasons; the shared notice chooses local guidance without
+  rendering remote diagnostic text. Correcting availability requires a fresh
+  publication choice, and refused tentative editions no longer block that
+  choice, even after editing the draft. The original and corrected draft
+  identities are pinned as SQL composition regressions.
+- The full Puzzles context passes 127 checks. All five models' 32 invariants
+  hold in every reachable state within four steps. The official nightly
+  profile also passes all four puzzle spec parts: 120 drawn histories of up
+  to 32 steps plus four pinned histories, alongside the same examples and
+  decision checks. This is targeted deeper verification, not a full nightly
+  or release verdict. The broader random nightly group separately passed
+  its three tasks at the preceding four-model revision.
+- Deeper replay found a same-instant activity ordering defect and a harness
+  teardown stall. A persisted activity order now determines the latest
+  unfinished puzzle, including its paged query and local read. A retired
+  harness HTTP transport now refuses new requests before engine draining;
+  both literal request kinds failed before the fix. A separate binding
+  correction leaves cross-device settling to the unchanged model observer
+  rather than a shorter fixture-only wait. Every history is retained in the
+  PR profile. The recovery audit remains INCOMPLETE because the strict gate
+  reports thirteen wording pairs outside Puzzles; the context's C6 gaps,
+  production-bundle verification and full release gate remain open.

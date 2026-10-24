@@ -1,5 +1,6 @@
 import type { EndpointId } from '@pkgs/harness-root-shared-ts/network-state';
 import type { Scheduler as VirtualScheduler } from '@pkgs/harness-root-shared-ts/scheduler';
+import { HttpNetworkError } from '@pkgs/http-client-shared-ts/http-network-error';
 import type {
   MutationUploadResult,
   MutationUploadRow,
@@ -12,11 +13,7 @@ import type { QueryResponse } from '@pkgs/sync-engine-shared-ts/v2';
 import type { EdgeFaultController } from './edge-faults';
 import { dispatchHarnessHttpRequest } from './http-bridge-dispatch';
 import type { HarnessHttpPending } from './http-bridge-rpc';
-import {
-  abortAllPending,
-  createHarnessHttpRpc,
-  rejectAllPending,
-} from './http-bridge-rpc';
+import { abortAllPending, createHarnessHttpRpc } from './http-bridge-rpc';
 import type {
   HarnessHttpRequest,
   HarnessHttpResponse,
@@ -142,6 +139,7 @@ export function createHarnessHttpClient(args: {
 }): HarnessHttpClient {
   const timeoutMs = args.rpcTimeoutMs ?? DEFAULT_RPC_TIMEOUT_MS;
   const pending: HarnessHttpPending = new Map();
+  let disposed = false;
   const nodeId = classifyEndpoint(args.clientId)?.nodeId;
 
   args.network.register(args.clientId, (payload) => {
@@ -169,6 +167,7 @@ export function createHarnessHttpClient(args: {
 
   return {
     async postQueries(requests) {
+      if (disposed) throw new HttpNetworkError('harness http client disposed');
       const res = await rpc({
         kind: 'query',
         correlationId: args.createId(),
@@ -177,6 +176,7 @@ export function createHarnessHttpClient(args: {
       return validateWireQueryBatch(unwrapOk(res, 'query'), requests.length);
     },
     async postMutations(mutations) {
+      if (disposed) throw new HttpNetworkError('harness http client disposed');
       const res = await rpc({
         kind: 'mutations',
         correlationId: args.createId(),
@@ -188,7 +188,9 @@ export function createHarnessHttpClient(args: {
       abortAllPending(pending, 'harness http client disconnected');
     },
     dispose() {
-      rejectAllPending(pending, 'harness http client disposed');
+      if (disposed) return;
+      disposed = true;
+      abortAllPending(pending, 'harness http client disposed');
       args.network.unregister(args.clientId);
     },
   };

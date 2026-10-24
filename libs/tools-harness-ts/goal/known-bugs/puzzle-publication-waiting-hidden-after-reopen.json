@@ -1,0 +1,4 @@
+{
+  "summary": "A pending offline publication had no visible waiting explanation after the author reopened its draft.",
+  "regressionTest": "specs/puzzles/publication-recovery.feature"
+}

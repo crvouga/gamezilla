@@ -19,13 +19,18 @@ export const contentDeviceOffline = defineAction({
 });
 export const contentDeviceOnline = defineAction({
   name: 'contentDeviceOnline',
-  act: async (s: ContentHarness, clientId: string) => {
-    s.net(clientId, 'all').set('ok');
-    s.offline.delete(clientId);
-    contentClient(s, clientId).online(true);
-    await contentClient(s, clientId).connect();
-  },
+  act: connectContentDevice,
 });
+
+export async function connectContentDevice(
+  s: ContentHarness,
+  clientId: string
+): Promise<void> {
+  s.net(clientId, 'all').set('ok');
+  s.offline.delete(clientId);
+  contentClient(s, clientId).online(true);
+  await contentClient(s, clientId).connect();
+}
 
 export const reopenContentDevice = defineAction({
   name: 'reopenContentDevice',

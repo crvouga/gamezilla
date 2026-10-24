@@ -104,6 +104,7 @@ export type MutationVerdict =
       readonly status: 'rejected';
       readonly code: string;
       readonly message: string;
+      readonly meta?: Readonly<Record<string, unknown>>;
     };
 
 export type MutationBatchResponse = {

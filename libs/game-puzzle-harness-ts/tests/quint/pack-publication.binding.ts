@@ -18,12 +18,20 @@ import {
 import type { Run } from '@pkgs/harness-root-shared-ts/run-types';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
 import withdrawalTrace from './fixtures/pack-withdrawal-observation.itf.json';
+import collisionTrace from './fixtures/reopen-during-http-work.itf.json';
 
 bindQuintModel<Run<ContentHarness>>({
   model: 'pack-publication',
   traces: 24,
   maxSteps: 32,
   regressions: [
+    // regression: sync-harness-retired-http-accepts-new-requests
+    {
+      id: 'sync-harness-retired-http-accepts-new-requests',
+      title: 'Repeated reopenings retire the earlier HTTP client',
+      seed: '0x67932',
+      itf: collisionTrace,
+    },
     // regression: puzzle-withdrawal-observation-uses-retained-edition
     {
       id: 'puzzle-withdrawal-observation-uses-retained-edition',

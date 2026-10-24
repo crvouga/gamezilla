@@ -51,8 +51,9 @@ export const puzzleContentRevisions = defineTable({
     difficulty: 'text',
     definition: 'text',
   },
-  indexes: ['owner_id', 'document_id'],
-  uniqueIndexes: [['document_id', 'edition']],
+  // Replica tombstones can retain a refused tentative edition with this number.
+  // The publication's document compare-and-set allocates authoritative numbers.
+  indexes: ['owner_id', 'document_id', ['document_id', 'edition']],
 });
 
 /** Public pack references are materialized once when their edition is published. */

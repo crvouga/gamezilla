@@ -1,4 +1,5 @@
 import type { AttemptLibrary } from './attempt-library';
+import type { ContentAttempt } from './attempt-types';
 import type { ContentLibrary } from './content-library';
 import { decodePackDefinition } from './content-pack';
 
@@ -10,10 +11,9 @@ export type PackPuzzleProgress = {
   readonly attemptId: string | null;
 };
 
-function newer(
-  a: { readonly updated_at: string; readonly id: string },
-  b: { readonly updated_at: string; readonly id: string }
-): number {
+function newer(a: ContentAttempt, b: ContentAttempt): number {
+  if (a.activity_order !== b.activity_order)
+    return b.activity_order - a.activity_order;
   if (a.updated_at !== b.updated_at)
     return a.updated_at < b.updated_at ? 1 : -1;
   return a.id < b.id ? 1 : a.id > b.id ? -1 : 0;
