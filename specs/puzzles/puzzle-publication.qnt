@@ -8,7 +8,7 @@ module puzzle_publication {
   type Draft = { title: str, valid: bool }
   type Edition = { title: str, valid: bool, author: str }
   pure val PEOPLE = Set("Alice", "Bob")
-  pure val TITLES = Set("River", "Valley", "")
+  pure val TITLES = Set("River", "Valley", "Harbor", "")
 
   var drafts: List[Draft]
   var workingDraft: int
@@ -18,6 +18,7 @@ module puzzle_publication {
   var discoveredEdition: int
   var _online: bool
   var _previousEditions: int -> Edition
+  var _previousDrafts: List[Draft]
 
   action _keep(copies: List[Draft], chosen: int, published: int -> Edition,
     current: int, online: bool): bool = all {
@@ -25,13 +26,14 @@ module puzzle_publication {
     otherDraft' = (if (not(online)) otherDraft else chosen),
     editions' = published, currentEdition' = current,
     discoveredEdition' = (if (not(online)) discoveredEdition else current),
-    _online' = online, _previousEditions' = editions,
+    _online' = online, _previousEditions' = editions, _previousDrafts' = drafts,
   }
 
   action init = all {
     drafts' = List({ title: "River", valid: true }), workingDraft' = 0,
     otherDraft' = 0, editions' = Map(), currentEdition' = -1,
     discoveredEdition' = -1, _online' = true, _previousEditions' = Map(),
+    _previousDrafts' = List(),
   }
 
   /// Alice saves another draft; Bob's attempt leaves her work unchanged.
@@ -42,6 +44,16 @@ module puzzle_publication {
       _keep(drafts.append({ title: title, valid: valid }), drafts.length(),
         editions, currentEdition, _online)
     else _keep(drafts, workingDraft, editions, currentEdition, _online),
+  }
+
+  /// The connected tablet saves a different edit based on the earlier draft.
+  /// Both complete copies remain choices; this does not replace the phone's choice.
+  action saveEarlierPuzzleDraft(title: str, valid: bool): bool = all {
+    _online, drafts.length() > 1, drafts.length() < 4, TITLES.contains(title),
+    { title: title, valid: valid } != drafts.nth(workingDraft),
+    { title: title, valid: valid } != drafts.nth(0),
+    _keep(drafts.append({ title: title, valid: valid }), workingDraft,
+      editions, currentEdition, _online),
   }
 
   /// Choosing a kept copy keeps every earlier copy available.
@@ -91,7 +103,8 @@ module puzzle_publication {
     nondet title = TITLES.oneOf()
     nondet valid = Set(true, false).oneOf()
     nondet draft = drafts.indices().oneOf()
-    any { savePuzzleDraft(person, title, valid), choosePuzzleDraft(person, draft),
+    any { savePuzzleDraft(person, title, valid), saveEarlierPuzzleDraft(title, valid),
+      choosePuzzleDraft(person, draft),
       publishPuzzle(person, draft), withdrawPuzzle(person), reopenApp,
       _loseConnection, connectionReturns }
   }
@@ -102,6 +115,9 @@ module puzzle_publication {
   /// No later edit, publication or withdrawal changes an earlier edition.
   val invEditionsNeverChange = _previousEditions.keys().forall(e =>
     editions.keys().contains(e) and editions.get(e) == _previousEditions.get(e))
+  /// Saving from an earlier draft cannot overwrite either complete saved copy.
+  val invDraftCopiesNeverChange = _previousDrafts.indices().forall(d =>
+    drafts.indices().contains(d) and drafts.nth(d) == _previousDrafts.nth(d))
   val invDiscoveryChoosesAnEdition = Set(currentEdition, discoveredEdition).forall(e =>
     e == -1 or editions.keys().contains(e))
   /// Connected devices agree; private drafts do not become public by saving.

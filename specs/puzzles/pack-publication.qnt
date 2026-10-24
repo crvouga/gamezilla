@@ -19,6 +19,7 @@ module pack_publication {
   var availablePuzzles: Set[int]
   var _online: bool
   var _previousEditions: int -> List[Reference]
+  var _previousDrafts: List[List[Reference]]
 
   action _keep(copies: List[List[Reference]], chosen: int, published: int -> List[Reference],
     current: int, puzzles: int -> int, available: Set[int], online: bool): bool = all {
@@ -27,7 +28,7 @@ module pack_publication {
     editions' = published, currentEdition' = current,
     discoveredEdition' = (if (not(online)) discoveredEdition else current),
     puzzleEditions' = puzzles, availablePuzzles' = available,
-    _online' = online, _previousEditions' = editions,
+    _online' = online, _previousEditions' = editions, _previousDrafts' = drafts,
   }
 
   action init = all {
@@ -35,7 +36,7 @@ module pack_publication {
     workingDraft' = 0, otherDraft' = 0,
     editions' = Map(), currentEdition' = -1, discoveredEdition' = -1,
     puzzleEditions' = Map(0 -> 1, 1 -> 0), availablePuzzles' = Set(0),
-    _online' = true, _previousEditions' = Map(),
+    _online' = true, _previousEditions' = Map(), _previousDrafts' = List(),
   }
 
   /// Reordering keeps each chosen edition. Adding a puzzle chooses its current
@@ -53,6 +54,19 @@ module pack_publication {
     val chosen = order.foldl(List(), (refs, p) => refs.append(_reference(p)))
     _keep(drafts.append(chosen), drafts.length(), editions, currentEdition,
       puzzleEditions, availablePuzzles, _online),
+  }
+
+  /// The connected tablet keeps a different whole order from the earlier draft.
+  /// Neither order is mixed into the other or replaces the phone's chosen copy.
+  action saveEarlierPackDraft(order: List[int]): bool = all {
+    _online, drafts.length() > 1, drafts.length() < 4,
+    Set(List(0, 1), List(1, 0)).contains(order),
+    val chosen = order.foldl(List(), (refs, p) => refs.append(drafts.nth(0).nth(p)))
+    all {
+      chosen != drafts.nth(workingDraft), chosen != drafts.nth(0),
+      _keep(drafts.append(chosen), workingDraft, editions, currentEdition,
+        puzzleEditions, availablePuzzles, _online),
+    },
   }
 
   /// Only the author publishes a nonempty pack of available published puzzles.
@@ -115,7 +129,7 @@ module pack_publication {
     nondet order = ORDERS.oneOf()
     nondet draft = drafts.indices().oneOf()
     nondet puzzle = Set(0, 1).oneOf()
-    any { savePackDraft(order), publishPack(person, draft), withdrawPack(person),
+    any { savePackDraft(order), saveEarlierPackDraft(order), publishPack(person, draft), withdrawPack(person),
       publishPackPuzzle(puzzle), withdrawPackPuzzle(puzzle), reopenApp,
       _loseConnection, connectionReturns }
   }
@@ -132,6 +146,8 @@ module pack_publication {
   /// Neither pack edits nor puzzle publication or withdrawal change an earlier pack.
   val invPackEditionsNeverChange = _previousEditions.keys().forall(e =>
     editions.keys().contains(e) and editions.get(e) == _previousEditions.get(e))
+  val invPackDraftCopiesNeverChange = _previousDrafts.indices().forall(d =>
+    drafts.indices().contains(d) and drafts.nth(d) == _previousDrafts.nth(d))
   val invDiscoveryChoosesAnEdition = Set(currentEdition, discoveredEdition).forall(e =>
     e == -1 or editions.keys().contains(e))
   /// A withdrawn puzzle may still be played in an earlier published pack.

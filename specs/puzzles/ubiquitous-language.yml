@@ -37,28 +37,32 @@ terms:
       for the author to choose from.
     forms: [drafts, draft copy, draft copies, working draft]
     published: true
-    model: [Draft, drafts, workingDraft, otherDraft, choosePuzzleDraft, draftKept]
+    model: [Draft, draft, drafts, workingDraft, otherDraft, choosePuzzleDraft, draftKept, inspectPuzzleDraft, otherCanRead]
   - term: title
     definition: The name an author gives a puzzle or pack. Publishing requires a nonempty title.
     forms: [titles, titled]
+    model: [title]
   - term: description
     definition: Optional writing by the author that explains a puzzle or pack.
     forms: [descriptions]
+    model: [description]
   - term: difficulty
     definition: An optional description of how challenging the author considers a puzzle.
   - term: create
     definition: Begin a privately owned puzzle or pack draft for a chosen game.
     forms: [creates, creating, creation, created]
+    model: [createPuzzleDraft, createPackDraft, createPackPuzzle, createdPuzzle]
   - term: save
     definition: Keep the author's current draft so it remains after leaving or closing the app, including offline.
     forms: [saves, saved, saving]
-    model: [savePuzzleDraft, savePackDraft]
+    model: [savePuzzleDraft, savePackDraft, saveAuthoringDraft, saveEarlierPuzzleDraft, saveEarlierPackDraft]
   - term: validate
     definition: >-
       Check that required puzzle details follow the game's rules and show
       what must be corrected. Where a game checks for a solution, either
       that check or a completed playtest must establish one before publication.
     forms: [validates, validated, validation, valid, invalid]
+    model: [validateDraft]
   - term: playtest
     definition: >-
       Play an author's private draft with the same rules and controls as
@@ -66,6 +70,7 @@ terms:
       attempts, completion or pack progress.
     forms: [playtests, playtesting, playtested]
     published: true
+    model: [Playtest, playtest, beginPlaytest, completePlaytest, ordinaryAttempts, ordinaryCompletions]
   - term: publish
     definition: >-
       Make a validated draft a stable public edition. Publishing the same
@@ -108,6 +113,7 @@ terms:
   - term: pack contents
     definition: The ordered puzzles in a pack, each appearing at most once and belonging to the pack's game.
     forms: [contents, pack order, reorders, adds, removes]
+    model: [addPackPuzzle, removePackPuzzle, reorderPackPuzzle]
   - term: attempt
     definition: >-
       One person's saved play of one puzzle edition, including the game's
@@ -126,7 +132,7 @@ terms:
     definition: Return to a saved attempt at its kept position and edition, even after closing the app or a later publication.
     forms: [resumes, resumed, resuming, continues]
     published: true
-    model: [resumeAttempt]
+    model: [resumeAttempt, continueEarlierAttempt, keptContinuations]
   - term: undo
     definition: Return to the preceding kept position when the game offers history, without erasing an earlier completion.
     forms: [undoes, undoing]

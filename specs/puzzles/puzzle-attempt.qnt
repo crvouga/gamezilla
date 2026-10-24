@@ -12,28 +12,36 @@ module puzzle_attempt {
   var otherCompletions: Set[int]
   var currentEdition: int
   var available: bool
+  var keptContinuations: Set[int]
   var _online: bool
   var _previousAttempts: List[Attempt]
   var _previousCompletions: Set[int]
+  var _previousContinuations: Set[int]
 
   pure def _fresh(edition: int): Attempt =
     { edition: edition, history: List(0), cursor: 0, finished: false }
 
-  action _keep(plays: List[Attempt], chosen: int, edition: int,
-    offered: bool, online: bool): bool = {
+  action _save(plays: List[Attempt], chosen: int, edition: int,
+    offered: bool, online: bool, kept: Set[int]): bool = {
     val completed = plays.indices().filter(i => plays.nth(i).finished).map(i => plays.nth(i).edition)
     all {
       attempts' = plays, activeAttempt' = chosen, completions' = completed,
       otherCompletions' = (if (online) completed else otherCompletions),
       currentEdition' = edition, available' = offered, _online' = online,
       _previousAttempts' = attempts, _previousCompletions' = completions,
+      keptContinuations' = kept, _previousContinuations' = keptContinuations,
     }
   }
+
+  action _keep(plays: List[Attempt], chosen: int, edition: int,
+    offered: bool, online: bool): bool =
+    _save(plays, chosen, edition, offered, online, keptContinuations)
 
   action init = all {
     attempts' = List(), activeAttempt' = -1, completions' = Set(),
     otherCompletions' = Set(), currentEdition' = 1, available' = true,
     _online' = true, _previousAttempts' = List(), _previousCompletions' = Set(),
+    keptContinuations' = Set(), _previousContinuations' = Set(),
   }
 
   /// Starting unavailable content is refused without losing other attempts.
@@ -90,6 +98,16 @@ module puzzle_attempt {
     _keep(attempts, attempt, currentEdition, available, _online),
   }
 
+  /// The connected tablet continues from the attempt's earlier starting position.
+  /// Its different accepted play remains a choice beside the phone's continuation.
+  action continueEarlierAttempt: bool = all {
+    _online, attempts.indices().contains(activeAttempt),
+    val attempt = attempts.nth(activeAttempt)
+    attempt.cursor > 0,
+    _save(attempts, activeAttempt, currentEdition, available, _online,
+      keptContinuations.union(Set(activeAttempt))),
+  }
+
   /// Reopening never changes accepted play, including with no connection.
   action reopenApp: bool = _keep(attempts, activeAttempt, currentEdition, available, _online)
 
@@ -115,7 +133,7 @@ module puzzle_attempt {
   action step = {
     nondet attempt = Set(0, 1, 2).oneOf()
     any { startPuzzle, advanceAttempt, undoAttempt, redoAttempt, restartPuzzle,
-      resumeAttempt(attempt), reopenApp, publishPuzzleEdition, withdrawPuzzle,
+      resumeAttempt(attempt), continueEarlierAttempt, reopenApp, publishPuzzleEdition, withdrawPuzzle,
       _loseConnection, connectionReturns }
   }
 
@@ -133,6 +151,8 @@ module puzzle_attempt {
     attempts.indices().filter(i => attempts.nth(i).finished).map(i => attempts.nth(i).edition)
   /// Undoing, restarting and publication never erase completion.
   val invCompletionNeverDisappears = _previousCompletions.subseteq(completions)
+  val invDifferentContinuationsAreKept = keptContinuations.subseteq(attempts.indices()) and
+    _previousContinuations.subseteq(keptContinuations)
   val invConnectedCompletionAgrees = _online implies otherCompletions == completions
   /// Offline completion stays on the phone until it can reach Bob's other device.
   val invOfflineCompletionIsKept = not(_online) implies otherCompletions.subseteq(completions)
