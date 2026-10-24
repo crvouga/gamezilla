@@ -16,6 +16,9 @@ test('failed JUnit cases become deterministic exact-name traces', () => {
     {
       file: 'tests/harness/example.test.ts',
       name: 'offline edits converge',
+      classname: 'example',
+      suite: 'harness',
+      time: 0.012,
       line: 12,
       status: 'failed' as const,
       failure: 'expected replicas to converge\nstack line',
@@ -37,6 +40,9 @@ test('passed and skipped JUnit cases do not create failure traces', () => {
     {
       file: 'tests/harness/example.test.ts',
       name: 'passes',
+      classname: 'example',
+      suite: 'harness',
+      time: 0.001,
       line: 1,
       status: 'passed' as const,
       failure: null,
@@ -44,6 +50,9 @@ test('passed and skipped JUnit cases do not create failure traces', () => {
     {
       file: 'tests/harness/example.test.ts',
       name: 'skips',
+      classname: 'example',
+      suite: 'harness',
+      time: 0,
       line: 2,
       status: 'skipped' as const,
       failure: null,
