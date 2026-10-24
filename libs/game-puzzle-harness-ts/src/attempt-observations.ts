@@ -86,6 +86,17 @@ export async function earlierAttemptVisible(
   );
 }
 
+export async function earlierAttemptResumed(
+  s: ContentHarness,
+  clientId: string
+): Promise<boolean> {
+  const earlier = s.earlierPlay.get(clientId);
+  return (
+    earlier !== undefined &&
+    (await currentAttemptView(s, clientId))?.attemptId === earlier.attemptId
+  );
+}
+
 export async function keptAttemptStates(
   s: ContentHarness,
   clientId: string

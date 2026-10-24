@@ -2,10 +2,12 @@
 
 Date: 2026-10-24. Scope: the four new Puzzles lifecycle models and the
 publication, saved-attempt and progression examples they touch.
-Verdict: FAIL (C6 remains open). Model shape and independent simulation pass; product
-bindings and bounded model checking are not yet present. The context's
-creation, validation, playtest and concurrent-edit commands still need their
-own model coverage. This is a handoff checkpoint, not a conformance pass.
+Verdict: FAIL (C6 remains open). All four critical models pass product replay
+and bounded checking at four steps. The complete context passes 108 checks.
+Creation, validation, playtest and concurrent-edit commands still need their
+own model coverage. The strict gate reports thirteen wording pairs outside
+Puzzles, with no remaining Puzzles gate error. This checkpoint does not close
+the context audit or the full release gate.
 
 ## Example map and writer review
 
@@ -160,7 +162,7 @@ Whole-order saving covers pack publication integrity, but does not replace a
 model of authoring or concurrent choices. Those commands must not be hidden
 behind a generic save action in the final coverage map.
 
-## Execution and implementation handoff
+## Initial execution and implementation handoff
 
 All four files typecheck with the installed Quint 0.32.0. Each independently
 simulates 50 seeded traces of up to 40 steps with every declared invariant
@@ -215,4 +217,48 @@ with every invariant enabled, without a violation. The new pack example ran
 red on its undefined setup phrase, with the other fourteen pack-publication
 examples passing. The strict gate again reports the three remaining missing
 model bindings, this new phrase, and thirteen wording pairs outside Puzzles.
-The first model's product replay still needs to be repeated after this handback.
+The first model's product replay was still open at that handback; current
+implementation evidence follows.
+
+## Current implementation evidence
+
+The four bindings call only exported reference-app actions and observations.
+Every operation uses the real shared mutation/query implementation. The
+attempt model uses the same non-grid example game with a three-step target;
+its author also plays, so offline publication is an action on that person's
+own phone rather than invisible changes from another person. Historical
+completion is read from retained positions through the game's real projection.
+The progression model reads the shared pack-progress projection. No binding
+computes expected domain behavior, issues SQL, or touches interface selectors.
+
+Each model draws 24 traces of up to 32 steps, checks every invariant over the
+draw, and verifies that every bound action appears. The PR profile replays
+the smallest selected trace set covering those actions, as the repository
+contract requires. All four replays pass; this is not a claim that every
+drawn trace has been replayed in the deeper profile. A pinned 32-step pack
+history also passes on every run.
+
+That history caught a harness observation defect: a withdrawn document keeps
+its old edition for saved play, while discovery correctly hides it. The
+observer incorrectly called that retained pointer publicly current. It now
+uses the product's discovery projection. The literal history failed before
+the observation fix, is registered under
+`puzzle-withdrawal-observation-uses-retained-edition`, and has its own known-bug
+entry. No product publication behavior was changed to satisfy this observation.
+
+The package's model gate proves all 26 declared invariants in every reachable
+state within four steps. All four models have passing shape and proof
+evidence. The package's typecheck, lint and nine code tests pass. All 108
+checks pass together: 80 feature examples, seven decision checks and 21 model
+checks/replays. Every added feature example first ran on undefined wording.
+Generated catalogs and input fingerprints were refreshed; the strict gate
+then reported only the thirteen duplicate wording pairs outside Puzzles.
+
+The known-bug gate also exposed its own parser rejecting nested world types.
+A literal `Run<World>` regression was red before balancing type brackets;
+unclosed types still refuse. Tooling typecheck, lint, all 866 tests and the
+known-bug gate pass after that separate fix. The generated CI capacity section
+now includes the new model gate, without changing runner limits or deadlines.
+
+Remaining: the C6 commands above, their complete transition/coverage audit,
+deeper exploration, production-bundle execution and the full Verify gate.

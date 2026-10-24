@@ -78,23 +78,28 @@ export const changeContentAttempt = defineAction({
   act: changeAttemptFor,
 });
 
+export async function restartAttemptFor(
+  s: ContentHarness,
+  clientId: string
+): Promise<void> {
+  const earlier = selectedPlay(s, clientId);
+  const attemptId = s.session.ports.createId();
+  const positionId = s.session.ports.createId();
+  if (
+    await sendContentMutation(s, clientId, 'restartPuzzleAttempt', {
+      earlierAttemptId: earlier.attemptId,
+      attemptId,
+      positionId,
+    })
+  ) {
+    s.earlierPlay.set(clientId, earlier);
+    s.playSelections.set(clientId, { attemptId, positionId });
+  }
+}
+
 export const restartContentAttempt = defineAction({
   name: 'restartContentAttempt',
-  act: async (s: ContentHarness, clientId: string) => {
-    const earlier = selectedPlay(s, clientId);
-    const attemptId = s.session.ports.createId();
-    const positionId = s.session.ports.createId();
-    if (
-      await sendContentMutation(s, clientId, 'restartPuzzleAttempt', {
-        earlierAttemptId: earlier.attemptId,
-        attemptId,
-        positionId,
-      })
-    ) {
-      s.earlierPlay.set(clientId, earlier);
-      s.playSelections.set(clientId, { attemptId, positionId });
-    }
-  },
+  act: restartAttemptFor,
 });
 
 export const playtestContentDraft = defineAction({

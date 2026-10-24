@@ -43,6 +43,9 @@ unfinished work; it is not a second product definition.
   ownership, offline/recovery, Numberlink rules, and complete app journeys.
 - [ ] Quint lifecycle models with implementation replay and invariants for
   publication, stable references, attempts and progression.
+  Those four critical models now pass replay and bounded checking at four
+  steps. Authoring, playtest and concurrent-choice model coverage and the
+  complete context audit remain open.
 - [x] Numberlink definitions, path rules, codecs, bounded solver and properties.
 - [ ] Independent puzzle capabilities in shared game and client registration;
   composable with existing turn games, with a structurally different consumer.
@@ -58,8 +61,8 @@ unfinished work; it is not a second product definition.
 - [ ] Attempts, automatic persistence, undo/redo, restart, replay history,
   completions, next puzzle and cross-device pack progression.
   The shared domain path and four assembled app journeys pass, including
-  a fresh signed-in device. Critical models and browser-bundle execution
-  remain open.
+  a fresh signed-in device. The four critical models also pass; complete model
+  coverage and production-bundle execution remain open.
 - [ ] Shared discovery, authoring shell, pack editor and player shell.
   Shared screens now compose the real mutation, query, identity and permission
   hooks. Creation, metadata autosave, validation, publication and completion
@@ -320,3 +323,19 @@ inferred from this ledger or from a narrow test run.
   replaces. Reusing that identity with a later expected draft cannot overwrite
   later editing. The literal reused-choice regression was red before the fix;
   all 261 shared package tests, typecheck and lint pass afterward.
+- Four shared Quint lifecycle models now replay through the real non-grid
+  reference app: puzzle publication, pack publication with chosen editions,
+  attempts with retained history and completion, and pack progression. All 26
+  invariants pass bounded checking at four steps. Each model draws 24 histories
+  of up to 32 steps; the PR profile replays the selected action-covering set.
+  The complete context passes 108 checks, including twelve new examples.
+  The authoring/concurrency command map remains open in
+  [the lifecycle audit](PUZZLE_LIFECYCLE_SPEC_AUDIT.md).
+- A literal pack history caught the observer treating a withdrawn edition as
+  publicly current. Discovery already behaved correctly; the observation now
+  reads that projection, and the full failing history is pinned. Registering
+  it also exposed a nested-type parser defect in the known-bug gate. Its
+  literal regression was red before the fix; tooling typecheck, lint, all 866
+  tests and the known-bug gate now pass. No release deadline, runner limit or
+  gate was relaxed. The strict spec gate still finds thirteen wording pairs
+  outside Puzzles and no Puzzles error.

@@ -89,6 +89,11 @@ export async function arrangePackFor(
     if (s.lastResult.get('alice:phone')?.ok !== true)
       throw new Error('The fixture pack could not be published');
     const packId = s.selectedPacks.get('alice:phone');
+    const editor = currentContentEditor(s, 'alice:phone');
+    s.publishedDrafts.set(`${packId}:${args.titles.join(', ')}`, {
+      documentId: editor.documentId,
+      draftId: editor.parentId,
+    });
     await waitForContent(s, async () =>
       (
         await readContentLibrary(contentClient(s, 'bob:phone').db)

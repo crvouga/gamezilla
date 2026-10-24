@@ -18,7 +18,8 @@
     "test:spec:0": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 0/4",
     "test:spec:1": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 1/4",
     "test:spec:2": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 2/4",
-    "test:spec:3": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 3/4"
+    "test:spec:3": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 3/4",
+    "verify:models": "bun run ../../libs/tools-harness-ts/scripts/verify-models.ts"
   },
   "dependencies": {
     "@libs/auth-client-ts": "workspace:*",
@@ -39,6 +40,7 @@
     "@pkgs/logger-client-ts": "workspace:*",
     "@pkgs/logger-shared-ts": "workspace:*",
     "@pkgs/permissions-shared-ts": "workspace:*",
+    "@pkgs/quint-shared-ts": "workspace:*",
     "@pkgs/secure-storage-root-client-ts": "workspace:*",
     "@pkgs/secure-storage-root-shared-ts": "workspace:*",
     "@pkgs/sql-client-root-shared-ts": "workspace:*",

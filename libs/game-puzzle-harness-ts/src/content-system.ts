@@ -9,6 +9,7 @@ import type { SyncHarness } from '@pkgs/sync-engine-harness-ts/scenario-system';
 import type { MutateResult } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { ATTEMPT_ACTIONS } from './attempt-actions';
 import { ATTEMPT_FIXTURES } from './attempt-fixtures';
+import { ATTEMPT_LIFECYCLE_ACTIONS } from './attempt-lifecycle-actions';
 import {
   loadEarlierAttemptsThroughScreen,
   seedEqualTimeAttempts,
@@ -27,11 +28,15 @@ import { OFFLINE_ACTIONS } from './offline-actions';
 import { OFFLINE_FIXTURES } from './offline-fixtures';
 import { PACK_ACTIONS } from './pack-actions';
 import { PACK_PLAY_ACTIONS } from './pack-play-actions';
+import { PACK_PUBLICATION_LIFECYCLE_ACTIONS } from './pack-publication-lifecycle-actions';
 import { previewDuringPackReorder } from './pack-workspace-actions';
+import { PROGRESSION_LIFECYCLE_ACTIONS } from './progression-lifecycle-actions';
+import { PUBLICATION_LIFECYCLE_ACTIONS } from './publication-lifecycle-actions';
 import {
   publishThroughScreen,
   validateThroughScreen,
 } from './publication-screen-actions';
+import { RETAINED_CONTENT_ACTIONS } from './retained-content-actions';
 import { startPublishedThroughScreen } from './start-screen-actions';
 
 export type ContentEditor = {
@@ -62,6 +67,9 @@ export type ContentHarness = SyncHarness & {
     string,
     { readonly documentId: string; readonly draftId: string }
   >;
+  readonly lifecycleDrafts: string[];
+  readonly lifecyclePuzzles: string[];
+  readonly lifecycleAttempts: string[];
 };
 
 export const contentSystem = defineSystem<
@@ -90,6 +98,11 @@ export const contentSystem = defineSystem<
     ...PACK_PLAY_ACTIONS,
     ...OFFLINE_ACTIONS,
     ...OFFLINE_FIXTURES,
+    ...RETAINED_CONTENT_ACTIONS,
+    ...PUBLICATION_LIFECYCLE_ACTIONS,
+    ...PACK_PUBLICATION_LIFECYCLE_ACTIONS,
+    ...ATTEMPT_LIFECYCLE_ACTIONS,
+    ...PROGRESSION_LIFECYCLE_ACTIONS,
   ],
   runtimes: [
     defineRuntime({
@@ -138,6 +151,9 @@ export const contentSystem = defineSystem<
       rememberedStates: new Map(),
       rememberedEditions: new Map(),
       publishedDrafts: new Map(),
+      lifecycleDrafts: [],
+      lifecyclePuzzles: [],
+      lifecycleAttempts: [],
     };
   },
 });

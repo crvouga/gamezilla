@@ -1743,6 +1743,7 @@
         "@pkgs/logger-client-ts": "workspace:*",
         "@pkgs/logger-shared-ts": "workspace:*",
         "@pkgs/permissions-shared-ts": "workspace:*",
+        "@pkgs/quint-shared-ts": "workspace:*",
         "@pkgs/secure-storage-root-client-ts": "workspace:*",
         "@pkgs/secure-storage-root-shared-ts": "workspace:*",
         "@pkgs/sql-client-root-shared-ts": "workspace:*",

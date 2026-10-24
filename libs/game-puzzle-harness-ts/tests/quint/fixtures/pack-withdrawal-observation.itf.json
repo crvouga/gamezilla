@@ -1,0 +1,1564 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
+    "source": "/Users/chrisvouga/.super.engineering/worktrees/gamezilla/sc-pinned-phonon-60cf/specs/puzzles/pack-publication.qnt",
+    "status": "ok",
+    "description": "Created by Quint on Sat Oct 24 2026 04:36:11 GMT-0700 (Mountain Standard Time)",
+    "timestamp": 1792841771963
+  },
+  "vars": [
+    "editions",
+    "availablePuzzles",
+    "drafts",
+    "currentEdition",
+    "_online",
+    "workingDraft",
+    "discoveredEdition",
+    "otherDraft",
+    "_previousEditions",
+    "puzzleEditions",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": { "index": 0 },
+      "_online": true,
+      "_previousEditions": { "#map": [] },
+      "availablePuzzles": { "#set": [{ "#bigint": "0" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": { "#map": [] },
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "None", "value": { "#tup": [] } },
+        "order": { "tag": "None", "value": { "#tup": [] } },
+        "person": { "tag": "None", "value": { "#tup": [] } },
+        "puzzle": { "tag": "None", "value": { "#tup": [] } }
+      },
+      "otherDraft": { "#bigint": "0" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "1" }],
+          [{ "#bigint": "1" }, { "#bigint": "0" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "0" }
+    },
+    {
+      "#meta": { "index": 1 },
+      "_online": true,
+      "_previousEditions": { "#map": [] },
+      "availablePuzzles": { "#set": [{ "#bigint": "0" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": { "#map": [] },
+      "mbt::actionTaken": "publishPackPuzzle",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "0" } },
+        "order": { "tag": "Some", "value": [] },
+        "person": { "tag": "Some", "value": "Alice" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "0" } }
+      },
+      "otherDraft": { "#bigint": "0" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "0" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "0" }
+    },
+    {
+      "#meta": { "index": 2 },
+      "_online": true,
+      "_previousEditions": { "#map": [] },
+      "availablePuzzles": { "#set": [{ "#bigint": "0" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+      ],
+      "editions": { "#map": [] },
+      "mbt::actionTaken": "savePackDraft",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "0" } },
+        "order": { "tag": "Some", "value": [{ "#bigint": "0" }] },
+        "person": { "tag": "Some", "value": "Alice" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "0" } }
+      },
+      "otherDraft": { "#bigint": "1" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "0" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "1" }
+    },
+    {
+      "#meta": { "index": 3 },
+      "_online": false,
+      "_previousEditions": { "#map": [] },
+      "availablePuzzles": { "#set": [{ "#bigint": "0" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+      ],
+      "editions": { "#map": [] },
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "0" } },
+        "order": { "tag": "Some", "value": [{ "#bigint": "1" }] },
+        "person": { "tag": "Some", "value": "Alice" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "1" } }
+      },
+      "otherDraft": { "#bigint": "1" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "0" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "1" }
+    },
+    {
+      "#meta": { "index": 4 },
+      "_online": false,
+      "_previousEditions": { "#map": [] },
+      "availablePuzzles": { "#set": [{ "#bigint": "0" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+      ],
+      "editions": { "#map": [] },
+      "mbt::actionTaken": "withdrawPackPuzzle",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "0" } },
+        "order": { "tag": "Some", "value": [{ "#bigint": "1" }] },
+        "person": { "tag": "Some", "value": "Alice" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "1" } }
+      },
+      "otherDraft": { "#bigint": "1" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "0" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "1" }
+    },
+    {
+      "#meta": { "index": 5 },
+      "_online": true,
+      "_previousEditions": { "#map": [] },
+      "availablePuzzles": { "#set": [{ "#bigint": "0" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+      ],
+      "editions": { "#map": [] },
+      "mbt::actionTaken": "connectionReturns",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "0" } },
+        "order": {
+          "tag": "Some",
+          "value": [{ "#bigint": "0" }, { "#bigint": "1" }]
+        },
+        "person": { "tag": "Some", "value": "Bob" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "0" } }
+      },
+      "otherDraft": { "#bigint": "1" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "0" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "1" }
+    },
+    {
+      "#meta": { "index": 6 },
+      "_online": true,
+      "_previousEditions": { "#map": [] },
+      "availablePuzzles": { "#set": [{ "#bigint": "0" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+      ],
+      "editions": { "#map": [] },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "0" } },
+        "order": { "tag": "Some", "value": [{ "#bigint": "0" }] },
+        "person": { "tag": "Some", "value": "Bob" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "0" } }
+      },
+      "otherDraft": { "#bigint": "1" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "0" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "1" }
+    },
+    {
+      "#meta": { "index": 7 },
+      "_online": true,
+      "_previousEditions": { "#map": [] },
+      "availablePuzzles": { "#set": [{ "#bigint": "0" }] },
+      "currentEdition": { "#bigint": "1" },
+      "discoveredEdition": { "#bigint": "1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "publishPack",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "1" } },
+        "order": {
+          "tag": "Some",
+          "value": [{ "#bigint": "1" }, { "#bigint": "0" }]
+        },
+        "person": { "tag": "Some", "value": "Alice" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "0" } }
+      },
+      "otherDraft": { "#bigint": "1" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "0" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "1" }
+    },
+    {
+      "#meta": { "index": 8 },
+      "_online": true,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "0" }] },
+      "currentEdition": { "#bigint": "1" },
+      "discoveredEdition": { "#bigint": "1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        []
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "savePackDraft",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "1" } },
+        "order": { "tag": "Some", "value": [] },
+        "person": { "tag": "Some", "value": "Alice" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "0" } }
+      },
+      "otherDraft": { "#bigint": "2" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "0" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "2" }
+    },
+    {
+      "#meta": { "index": 9 },
+      "_online": true,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "0" }] },
+      "currentEdition": { "#bigint": "1" },
+      "discoveredEdition": { "#bigint": "1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "savePackDraft",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "0" } },
+        "order": {
+          "tag": "Some",
+          "value": [{ "#bigint": "0" }, { "#bigint": "1" }]
+        },
+        "person": { "tag": "Some", "value": "Alice" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "0" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "0" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    },
+    {
+      "#meta": { "index": 10 },
+      "_online": true,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "0" }, { "#bigint": "1" }] },
+      "currentEdition": { "#bigint": "1" },
+      "discoveredEdition": { "#bigint": "1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "publishPackPuzzle",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "0" } },
+        "order": {
+          "tag": "Some",
+          "value": [{ "#bigint": "1" }, { "#bigint": "0" }]
+        },
+        "person": { "tag": "Some", "value": "Bob" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "1" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "1" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    },
+    {
+      "#meta": { "index": 11 },
+      "_online": true,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "0" }, { "#bigint": "1" }] },
+      "currentEdition": { "#bigint": "1" },
+      "discoveredEdition": { "#bigint": "1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "publishPack",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "1" } },
+        "order": { "tag": "Some", "value": [{ "#bigint": "0" }] },
+        "person": { "tag": "Some", "value": "Bob" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "1" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "1" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    },
+    {
+      "#meta": { "index": 12 },
+      "_online": true,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "0" }, { "#bigint": "1" }] },
+      "currentEdition": { "#bigint": "1" },
+      "discoveredEdition": { "#bigint": "1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "2" } },
+        "order": { "tag": "Some", "value": [{ "#bigint": "1" }] },
+        "person": { "tag": "Some", "value": "Alice" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "0" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "1" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    },
+    {
+      "#meta": { "index": 13 },
+      "_online": true,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "0" }, { "#bigint": "1" }] },
+      "currentEdition": { "#bigint": "1" },
+      "discoveredEdition": { "#bigint": "1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "0" } },
+        "order": { "tag": "Some", "value": [{ "#bigint": "1" }] },
+        "person": { "tag": "Some", "value": "Bob" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "1" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "1" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    },
+    {
+      "#meta": { "index": 14 },
+      "_online": true,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "0" }, { "#bigint": "1" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "withdrawPack",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "2" } },
+        "order": {
+          "tag": "Some",
+          "value": [{ "#bigint": "1" }, { "#bigint": "0" }]
+        },
+        "person": { "tag": "Some", "value": "Alice" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "0" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "1" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    },
+    {
+      "#meta": { "index": 15 },
+      "_online": true,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "0" }, { "#bigint": "1" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "2" } },
+        "order": {
+          "tag": "Some",
+          "value": [{ "#bigint": "1" }, { "#bigint": "0" }]
+        },
+        "person": { "tag": "Some", "value": "Bob" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "0" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "1" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    },
+    {
+      "#meta": { "index": 16 },
+      "_online": true,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "0" }, { "#bigint": "1" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "publishPackPuzzle",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "1" } },
+        "order": { "tag": "Some", "value": [{ "#bigint": "1" }] },
+        "person": { "tag": "Some", "value": "Alice" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "1" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "2" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    },
+    {
+      "#meta": { "index": 17 },
+      "_online": true,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "0" }, { "#bigint": "1" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "2" } },
+        "order": { "tag": "Some", "value": [{ "#bigint": "1" }] },
+        "person": { "tag": "Some", "value": "Alice" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "1" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "2" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    },
+    {
+      "#meta": { "index": 18 },
+      "_online": true,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "0" }, { "#bigint": "1" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "3" } },
+        "order": {
+          "tag": "Some",
+          "value": [{ "#bigint": "0" }, { "#bigint": "1" }]
+        },
+        "person": { "tag": "Some", "value": "Alice" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "0" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "2" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    },
+    {
+      "#meta": { "index": 19 },
+      "_online": true,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "1" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "withdrawPackPuzzle",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "2" } },
+        "order": { "tag": "Some", "value": [] },
+        "person": { "tag": "Some", "value": "Alice" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "0" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "2" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    },
+    {
+      "#meta": { "index": 20 },
+      "_online": true,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "1" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "withdrawPack",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "0" } },
+        "order": { "tag": "Some", "value": [{ "#bigint": "0" }] },
+        "person": { "tag": "Some", "value": "Bob" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "0" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "2" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    },
+    {
+      "#meta": { "index": 21 },
+      "_online": true,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "1" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "withdrawPack",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "2" } },
+        "order": { "tag": "Some", "value": [{ "#bigint": "1" }] },
+        "person": { "tag": "Some", "value": "Bob" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "1" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "2" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    },
+    {
+      "#meta": { "index": 22 },
+      "_online": true,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "1" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "publishPack",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "3" } },
+        "order": {
+          "tag": "Some",
+          "value": [{ "#bigint": "0" }, { "#bigint": "1" }]
+        },
+        "person": { "tag": "Some", "value": "Bob" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "1" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "2" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    },
+    {
+      "#meta": { "index": 23 },
+      "_online": true,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "1" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "2" } },
+        "order": { "tag": "Some", "value": [{ "#bigint": "0" }] },
+        "person": { "tag": "Some", "value": "Bob" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "1" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "2" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    },
+    {
+      "#meta": { "index": 24 },
+      "_online": true,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "1" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "2" } },
+        "order": {
+          "tag": "Some",
+          "value": [{ "#bigint": "0" }, { "#bigint": "1" }]
+        },
+        "person": { "tag": "Some", "value": "Bob" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "0" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "2" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    },
+    {
+      "#meta": { "index": 25 },
+      "_online": true,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "1" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "2" } },
+        "order": {
+          "tag": "Some",
+          "value": [{ "#bigint": "1" }, { "#bigint": "0" }]
+        },
+        "person": { "tag": "Some", "value": "Bob" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "1" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "2" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    },
+    {
+      "#meta": { "index": 26 },
+      "_online": true,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "1" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "0" } },
+        "order": { "tag": "Some", "value": [{ "#bigint": "1" }] },
+        "person": { "tag": "Some", "value": "Alice" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "1" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "2" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    },
+    {
+      "#meta": { "index": 27 },
+      "_online": true,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "1" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "0" } },
+        "order": { "tag": "Some", "value": [{ "#bigint": "0" }] },
+        "person": { "tag": "Some", "value": "Bob" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "1" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "2" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    },
+    {
+      "#meta": { "index": 28 },
+      "_online": true,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "1" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "3" } },
+        "order": { "tag": "Some", "value": [] },
+        "person": { "tag": "Some", "value": "Alice" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "1" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "2" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    },
+    {
+      "#meta": { "index": 29 },
+      "_online": false,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "1" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "1" } },
+        "order": {
+          "tag": "Some",
+          "value": [{ "#bigint": "1" }, { "#bigint": "0" }]
+        },
+        "person": { "tag": "Some", "value": "Alice" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "0" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "2" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    },
+    {
+      "#meta": { "index": 30 },
+      "_online": false,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "1" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "2" } },
+        "order": {
+          "tag": "Some",
+          "value": [{ "#bigint": "1" }, { "#bigint": "0" }]
+        },
+        "person": { "tag": "Some", "value": "Alice" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "0" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "2" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    },
+    {
+      "#meta": { "index": 31 },
+      "_online": false,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "1" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "3" } },
+        "order": { "tag": "Some", "value": [{ "#bigint": "1" }] },
+        "person": { "tag": "Some", "value": "Alice" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "1" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "2" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    },
+    {
+      "#meta": { "index": 32 },
+      "_online": false,
+      "_previousEditions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "availablePuzzles": { "#set": [{ "#bigint": "1" }] },
+      "currentEdition": { "#bigint": "-1" },
+      "discoveredEdition": { "#bigint": "-1" },
+      "drafts": [
+        [
+          { "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ],
+        [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }],
+        [],
+        [
+          { "edition": { "#bigint": "2" }, "puzzle": { "#bigint": "0" } },
+          { "edition": { "#bigint": "0" }, "puzzle": { "#bigint": "1" } }
+        ]
+      ],
+      "editions": {
+        "#map": [
+          [
+            { "#bigint": "1" },
+            [{ "edition": { "#bigint": "1" }, "puzzle": { "#bigint": "0" } }]
+          ]
+        ]
+      },
+      "mbt::actionTaken": "withdrawPackPuzzle",
+      "mbt::nondetPicks": {
+        "draft": { "tag": "Some", "value": { "#bigint": "3" } },
+        "order": {
+          "tag": "Some",
+          "value": [{ "#bigint": "1" }, { "#bigint": "0" }]
+        },
+        "person": { "tag": "Some", "value": "Alice" },
+        "puzzle": { "tag": "Some", "value": { "#bigint": "0" } }
+      },
+      "otherDraft": { "#bigint": "3" },
+      "puzzleEditions": {
+        "#map": [
+          [{ "#bigint": "0" }, { "#bigint": "2" }],
+          [{ "#bigint": "1" }, { "#bigint": "2" }]
+        ]
+      },
+      "workingDraft": { "#bigint": "3" }
+    }
+  ]
+}

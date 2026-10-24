@@ -20,6 +20,26 @@ export async function packEditionOrders(
     .map((edition) => packTitles(library, edition.definition).join(', '));
 }
 
+export async function packEditionTitles(
+  s: ContentHarness
+): Promise<readonly string[]> {
+  const library = await readContentLibrary(contentClient(s, 'alice:phone').db);
+  const documentId = s.selectedPacks.get('alice:phone');
+  return library.revisions
+    .filter((edition) => edition.document_id === documentId)
+    .map((edition) => edition.title);
+}
+
+export async function namedWorkingPackOrder(
+  s: ContentHarness,
+  clientId: string,
+  title: string
+): Promise<string> {
+  const library = await readContentLibrary(contentClient(s, clientId).db);
+  const draft = workingContentDraft(library, s.documents.get(title) ?? '');
+  return draft === null ? '' : packTitles(library, draft.definition).join(', ');
+}
+
 function packTitles(
   library: ContentLibrary,
   definition: string

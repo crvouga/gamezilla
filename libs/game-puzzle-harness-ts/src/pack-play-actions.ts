@@ -61,26 +61,32 @@ export const startPublishedPackPuzzle = defineAction({
   },
 });
 
+export async function continuePackFor(
+  s: ContentHarness,
+  clientId: string,
+  title: string
+): Promise<void> {
+  await openPackFor(s, clientId, title);
+  const content = await readContentLibrary(contentClient(s, clientId).db);
+  const play = await readAttemptLibrary(contentClient(s, clientId).db);
+  const packRevisionId = s.packViews.get(clientId);
+  if (packRevisionId === undefined)
+    throw new Error('Open a published pack before continuing it');
+  const next = packProgress({ content, play, packRevisionId })?.next;
+  if (next == null) return;
+  const attempt = play.attempts.find((entry) => entry.id === next.attemptId);
+  if (attempt !== undefined)
+    s.playSelections.set(clientId, {
+      attemptId: attempt.id,
+      positionId: attempt.current_position_id,
+    });
+  else await startPackPuzzleFor(s, clientId, next.title);
+}
+
 export const continuePublishedPack = defineAction({
   name: 'continuePublishedPack',
-  act: async (s: ContentHarness, title: string) => {
-    const clientId = 'bob:phone';
-    await openPackFor(s, clientId, title);
-    const content = await readContentLibrary(contentClient(s, clientId).db);
-    const play = await readAttemptLibrary(contentClient(s, clientId).db);
-    const packRevisionId = s.packViews.get(clientId);
-    if (packRevisionId === undefined)
-      throw new Error('Open a published pack before continuing it');
-    const next = packProgress({ content, play, packRevisionId })?.next;
-    if (next == null) return;
-    const attempt = play.attempts.find((entry) => entry.id === next.attemptId);
-    if (attempt !== undefined)
-      s.playSelections.set(clientId, {
-        attemptId: attempt.id,
-        positionId: attempt.current_position_id,
-      });
-    else await startPackPuzzleFor(s, clientId, next.title);
-  },
+  act: (s: ContentHarness, title: string) =>
+    continuePackFor(s, 'bob:phone', title),
 });
 
 export const PACK_PLAY_ACTIONS = [
