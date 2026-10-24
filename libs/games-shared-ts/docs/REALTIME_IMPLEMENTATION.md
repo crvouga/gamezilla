@@ -1397,3 +1397,21 @@ seed, plus types and lint; `bun-host-receipt-policy.log` passes the three policy
 tasks. No service implementation or response contract was changed to clear the
 failure. The complete nightly diagnostics are retained in
 `.cache/pong/verify-nightly-random-network-playback-diagnostics.tar.gz`.
+
+## Pong delivery campaign checkpoint
+
+The next technical campaign runs the registered Pong mechanics and production
+presentation adapter against real room clients under seeded delay, jitter, loss,
+duplication, reordering, held spectator frames and a returning player or viewer.
+It starts from a valid rally prepared by the shared engine. Normal room recovery
+reestablishes reliable metadata delivery after impairment. The assertions cover
+own-seat controls, retroactive-input refusal, offline court retention, score
+progress and agreement after guidance stops and authority pauses.
+
+This checkpoint is deliberately not green: the campaign and its pinned
+`pong-recovered-court-pause-not-observed` example fail at seed 1 with reliable
+delivery and Bob returning. All three fresh paused presentations are not observed
+within 250 virtual milliseconds. `pong-network-quiescent-checks.log` retains the
+failure; the fixture or product cause remains unresolved. Types/lint and the
+policy checks pass, and the test is neither skipped nor weakened. This is
+unfinished coverage, not an additional readiness claim.

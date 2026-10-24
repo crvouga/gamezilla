@@ -7,6 +7,7 @@ import { GamesRoomAttr } from '@libs/spaces-shared-ts/games';
 import { SpaceMembersRoomAttr } from '@libs/spaces-shared-ts/space-members-messages';
 import { createSpaceModule } from '@libs/spaces-shared-ts/space-module';
 import type { Clock } from '@pkgs/clock-shared-ts/types';
+import type { RoomState } from '@pkgs/room-root-shared-ts/types';
 import { assertRoomModuleName } from '@pkgs/room-root-shared-ts/types';
 import type { Random } from '@pkgs/uuid-shared-ts/create-id';
 import { initialHarnessPosition } from './simulation-fixtures';
@@ -17,6 +18,7 @@ export function simulationRoomFixture(
     readonly game: GameRegistration;
     readonly id: string;
     readonly viewers: readonly string[];
+    readonly position?: string;
   },
   clock: Clock,
   random: Random
@@ -30,12 +32,12 @@ export function simulationRoomFixture(
       authority: true,
     }
   );
+  const position =
+    options.position ?? initialHarnessPosition(options.game, options.id);
+  if (!options.game.registration.rules.recognizes(position))
+    throw new Error('The simulation fixture position belongs to another game');
   const game = {
-    ...newCustomGame(
-      options.id,
-      'alice',
-      initialHarnessPosition(options.game, options.id)
-    ),
+    ...newCustomGame(options.id, 'alice', position),
     black: { kind: 'person' as const, person: 'bob' },
     ready: ['white', 'black'] as ('white' | 'black')[],
     status: 'active' as const,
@@ -59,4 +61,12 @@ export function simulationRoomFixture(
       ...CustomGamesAttr({ current: game, history: [] }),
     }),
   };
+}
+
+/** Live reads use RoomServer.readCommittedState, so this includes projected execution progress. */
+export function simulationRoomCourt(state: RoomState) {
+  const game = CustomGamesAttr.from(state).current;
+  return game?.execution === undefined
+    ? null
+    : { position: game.fen, execution: game.execution };
 }

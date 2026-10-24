@@ -92,7 +92,8 @@
     "puzzle-listening",
     "puzzle-sounds",
     "puzzle-result-recovery",
-    "simulation-room-fixture"
+    "simulation-room-fixture",
+    "simulation-room-presentation"
   ],
   "language": "typescript"
 }

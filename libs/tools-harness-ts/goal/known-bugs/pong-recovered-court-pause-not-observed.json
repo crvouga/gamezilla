@@ -1,0 +1,4 @@
+{
+  "summary": "The real Pong room/presentation campaign with seed 1, reliable delivery, no held viewer frames, and Bob disconnecting/reconnecting does not observe all three fresh paused views within 250 virtual milliseconds after the final authority pause. It persists after normal room recovery and releasing held controls. The fixture or product cause remains under investigation; the literal case is retained without skipping it or loosening the assertions.",
+  "regressionTest": "libs/pong-harness-ts/tests/pong-network-regression.test.ts"
+}
