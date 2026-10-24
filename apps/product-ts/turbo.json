@@ -26,6 +26,10 @@
       "cache": false,
       "outputs": []
     },
+    "test:stack": {
+      "cache": false,
+      "outputs": []
+    },
     "test:contract:0": {
       "dependsOn": [
         "@pkgs/quint-server-ts#src",

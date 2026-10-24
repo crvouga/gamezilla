@@ -261,3 +261,51 @@ inferred from this ledger or from a narrow test run.
   expires on the injected clock and rejects tampering, callback changes and
   rotated secrets. The auth/vendor/product typechecks, lints and code tests
   pass. This repairs the live fixture; it is not browser-execution evidence.
+- Automated stack-browser execution now passes the authoring/discovery,
+  cross-device continuation and earlier-edition journeys. The fourth journey
+  reaches offline creation and completion, then fails when the guest reopens:
+  the app shows a space-joining screen instead of its saved workspace.
+  The failure is recorded under the full offline Numberlink scenario name in
+  the runtime harness report at 2026-10-24T09:57:34.545Z, trace
+  `ea216bfecc6bd9774e7e672bde3d529e`. This is
+  a frozen Vite test build against the production Worker handler and owned
+  simulated services; production-bundle and full release evidence remain open.
+- Those browser runs exposed independently reproducible defects. Outside
+  SQLite reads could observe an intermediate transaction state; root queries,
+  prepared executions and worker operations now queue behind whole
+  transactions. Acknowledgement generation fences are checked again after
+  the merge and database queues grant a response its turn. Literal regressions
+  cover both queues and the native, Mockingbird and worker SQL adapters.
+  All 25 affected SQL/sync/harness tasks passed before the later puzzle fixes;
+  the final sync fence typecheck, lint and code-test tasks also pass.
+- Saved positions and private draft copies survived snapshots, but their
+  pending replay previously skipped restoring the current head. Replay now
+  conditionally restores that head without moving back from a later choice.
+  Selecting a kept position creates a fresh continuation identity, so revisiting
+  a state never revisits an old head identity. Fresh stale choices still refuse
+  atomically. Pinned examples cover draft saves, kept-draft choices, moves,
+  kept-position choices, identity reuse and old replay after later editing.
+- Identical incoming Numberlink row snapshots could cancel a provisional
+  gesture. Primitive input equality now preserves it; a pinned keyboard
+  example failed before this fix. The counting reference app now supplies the
+  complete providers required by central permission-denial surfaces. Fourteen
+  focused puzzle/Numberlink typecheck, lint and code-test tasks, all 75 shared
+  checks, and all four in-process app journeys pass. The isolated browser
+  offline-reopening failure remains under investigation.
+- Offline-browser diagnostics preserve the same account and find its saved
+  rows on the first reopening, but a following navigation encounters an old
+  owner's handles. The previously installed SQLite WASM initializer removes
+  its pool directory when initialization fails. Upstream added explicit
+  preservation and corrected failed-acquisition cleanup; SQLite WASM is now
+  pinned to 3.54.1-build1 and the adapter enables preservation. The interim
+  local preflight is deleted. See the
+  [upstream report](https://sqlite.org/forum/info/5664cd4baee50236) and
+  [documented option](https://sqlite.org/wasm/doc/tip/persistence.md).
+  Further pinned examples
+  cover retry after owner release, a queued broker connect outliving its
+  disconnect, and a Web Lock granted after the fallback owner page unloads.
+  Nine web-SQLite typecheck, lint and code-test tasks pass after the upgrade,
+  including client, shared and asset-builder checks. Before the upgrade,
+  the broader harness, runtime and tool packages passed 12 tasks; the product
+  app's typecheck and lint also passed. Stack-browser execution remains the outstanding
+  check for the complete offline flow.
