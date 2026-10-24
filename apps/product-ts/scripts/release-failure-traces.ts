@@ -16,6 +16,10 @@ import type {
   TimeRange,
   Trace,
 } from '@pkgs/observability-root-shared-ts/types';
+import {
+  clientTraceEvidence,
+  indexClientTraces,
+} from './release-client-traces';
 
 const MAX_FAILURES = 3;
 const MAX_TRACES = 2;
@@ -75,6 +79,7 @@ async function failureWindows(
 function candidates(text: string, mutationNames: readonly string[]) {
   const starts = new Map<string, number>();
   const matches = new Set<string>();
+  const clientSpans: NarrateSpan[] = [];
   let malformed = 0;
   for (const line of text.split('\n')) {
     if (line.trim() === '') continue;
@@ -86,6 +91,8 @@ function candidates(text: string, mutationNames: readonly string[]) {
       continue;
     }
     for (const span of spansFromDocument(document)) {
+      if (span.attributes[ATTR.SERVICE_NAME] === 'gamezilla-client')
+        clientSpans.push(span);
       starts.set(
         span.traceId,
         Math.min(starts.get(span.traceId) ?? span.startTimeMs, span.startTimeMs)
@@ -99,6 +106,7 @@ function candidates(text: string, mutationNames: readonly string[]) {
   }
   return {
     malformed,
+    clientIndex: indexClientTraces(clientSpans),
     traces: [...matches].map((traceId) => ({
       traceId,
       startMs: starts.get(traceId)!,
@@ -184,6 +192,7 @@ export async function releaseFailureTraces(args: {
     'release trace evidence: collected completed spans; absent spans may be unfinished or unexported.',
     `${windows.length} failed scenario timelines; ${Math.max(0, windows.length - MAX_FAILURES)} omitted by the failure cap; ${found.malformed} malformed collector lines ignored.`,
   ];
+  let clientBudget = 2_000;
   for (const window of windows.slice(0, MAX_FAILURES)) {
     output.push(
       `failed scenario ${window.testId}; request-start window ${new Date(window.startMs).toISOString()} .. ${new Date(window.endMs).toISOString()}`
@@ -203,7 +212,17 @@ export async function releaseFailureTraces(args: {
     );
     for (const candidate of matching.slice(0, MAX_TRACES)) {
       const trace = await store.getTrace(candidate.traceId);
-      if (trace !== null) output.push(traceEvidence(trace, candidate));
+      if (trace !== null) {
+        output.push(traceEvidence(trace, candidate));
+        const client = clientTraceEvidence(found.clientIndex, trace, {
+          mutationNames: args.mutationNames,
+          maxChars: clientBudget - 1,
+        });
+        if (client !== '') {
+          output.push(client);
+          clientBudget -= client.length + 1;
+        }
+      }
     }
   }
   return output.join('\n');
