@@ -18,6 +18,7 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { JOURNEY_WAIT_MS } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
 import { authorNumberlinkJourney } from './numberlink-authoring-journey';
+import { openNumberlinkSpace } from './numberlink-journey-navigation';
 
 export type NumberlinkContinuity = {
   pack: PublishedJourneyPack;
@@ -82,14 +83,15 @@ export async function continueNumberlinkAcrossDevices(
     id = await beginAndKeep({ ui, timeoutMs: JOURNEY_WAIT_MS });
   });
   await host.peerDevice.reopen();
-  await host.openGuest(link);
+  const guest = { openLink: host.openGuest, act: host.actAsGuest };
+  await openNumberlinkSpace(guest, link);
   await host.actAsGuest('resumeNumberlinkAfterClosingApp', async (ui) => {
     const device = { ui, timeoutMs: JOURNEY_WAIT_MS };
     await openJourneyAttempt(device, id);
     await observeNumberlinkJourneyRow(device, 0, true);
   });
   await host.peerDevice.anotherSignedInDevice();
-  await host.openGuest(link);
+  await openNumberlinkSpace(guest, link);
   let attemptId = '';
   await host.actAsGuest(
     'completeAndContinueNumberlinkOnAnotherDevice',

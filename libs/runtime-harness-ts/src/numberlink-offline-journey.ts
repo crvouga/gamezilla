@@ -22,6 +22,7 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { JOURNEY_WAIT_MS } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
 import { authorNumberlinkJourney } from './numberlink-authoring-journey';
+import { openNumberlinkSpace } from './numberlink-journey-navigation';
 import {
   publishOfflineNumberlinkDraft,
   reopenOfflineNumberlinkDraft,
@@ -78,7 +79,10 @@ async function playWhileOffline(
     }
   );
   await host.peerDevice.reopen();
-  await host.openGuest(link);
+  await openNumberlinkSpace(
+    { openLink: host.openGuest, act: host.actAsGuest },
+    link
+  );
   await host.actAsGuest('reopenNumberlinkWithoutConnection', async (ui) => {
     const device = { ui, timeoutMs: JOURNEY_WAIT_MS };
     await ui.get('content-offline').expect.visible(device);
@@ -109,7 +113,10 @@ export async function keepNumberlinkOfflineWork(
   await host.peerDevice.online();
   const published = await publishOfflineNumberlinkDraft(host, draft);
   await host.peerDevice.anotherSignedInDevice();
-  await host.openGuest(peerLink);
+  await openNumberlinkSpace(
+    { openLink: host.openGuest, act: host.actAsGuest },
+    peerLink
+  );
   await host.actAsGuest('discoverReconnectedNumberlinkWork', async (ui) => {
     const device = { ui, timeoutMs: JOURNEY_WAIT_MS };
     await contentTap(device, `content-published-${published.revisionId}`);

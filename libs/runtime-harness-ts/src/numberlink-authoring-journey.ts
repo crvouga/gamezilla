@@ -11,7 +11,6 @@ import {
 import { withdrawJourneyPublications } from '@libs/game-puzzle-harness-ts/content-journey-withdraw';
 import { NUMBERLINK_JOURNEY_BOARD } from '@libs/numberlink-harness-ts/numberlink-journey-board';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import {
   endActiveSpace,
   hostSpace,
@@ -20,14 +19,10 @@ import {
 } from './journey-gestures';
 import { hostDeferringEnd } from './journey-space';
 import type { JourneyAccess, JourneyHost } from './journey-types';
-
-async function openNumberlink(ui: Driver): Promise<void> {
-  await tap(ui, Handles.gameMenu('numberlink'));
-  await tap(ui, Handles.gameChoice('puzzle-library'));
-  await ui
-    .get('content-create-puzzle')
-    .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
-}
+import {
+  openNumberlinkLibrary,
+  openNumberlinkSpace,
+} from './numberlink-journey-navigation';
 
 async function authorChallenges(
   host: JourneyHost,
@@ -70,7 +65,7 @@ export async function authorNumberlinkJourney(
   host.defer('numberlink-publications', async (ui) => {
     if (owned.length === 0) return;
     await host.online();
-    await host.openLink(hostLink);
+    await openNumberlinkSpace(host, hostLink);
     await withdrawJourneyPublications({
       device: { ui, timeoutMs: JOURNEY_WAIT_MS },
       documentIds: owned,
@@ -79,7 +74,7 @@ export async function authorNumberlinkJourney(
   });
   await hostDeferringEnd({ journey: host });
   hostLink = await host.spaceLink();
-  await host.act('openNumberlink', openNumberlink);
+  await host.act('openNumberlink', openNumberlinkLibrary);
   const items = await authorChallenges(host, onCreated);
   let published: PublishedJourneyPack | undefined;
   await host.act('authorNumberlinkPack', async (ui) => {
@@ -104,7 +99,7 @@ export async function authorNumberlinkJourney(
   await host.actAsGuest('hostNumberlinkGuestSpace', hostSpace);
   peerLink = await host.peerDevice.spaceLink();
   await host.actAsGuest('discoverNumberlinkPack', async (ui) => {
-    await openNumberlink(ui);
+    await openNumberlinkLibrary(ui);
     await tap(ui, `content-published-${published!.revisionId}`);
   });
   return published;

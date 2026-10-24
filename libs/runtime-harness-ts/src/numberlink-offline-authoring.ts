@@ -12,6 +12,7 @@ import { NUMBERLINK_JOURNEY_BOARD } from '@libs/numberlink-harness-ts/numberlink
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { JOURNEY_WAIT_MS } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
+import { openNumberlinkSpace } from './numberlink-journey-navigation';
 
 export async function reopenOfflineNumberlinkDraft(
   host: JourneyHost,
@@ -19,7 +20,7 @@ export async function reopenOfflineNumberlinkDraft(
   draft: JourneyPackDraft
 ): Promise<void> {
   await host.reopen();
-  await host.openLink(link);
+  await openNumberlinkSpace(host, link);
   await host.act('reopenOfflineNumberlinkAuthoring', async (ui) => {
     const device = { ui, timeoutMs: JOURNEY_WAIT_MS };
     await ui.get('content-offline').expect.visible(device);
