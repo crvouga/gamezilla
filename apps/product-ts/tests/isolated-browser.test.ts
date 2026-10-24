@@ -261,7 +261,9 @@ test('cleanups after the peer acted last run on the activated host page', async 
           },
         ],
       ]),
-      (key) => failures.push(key)
+      (key) => {
+        failures.push(key);
+      }
     );
     expect(reads).toBe(2);
     expect(failures).toEqual(['first']);
