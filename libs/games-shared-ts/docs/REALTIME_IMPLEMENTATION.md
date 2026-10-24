@@ -97,8 +97,10 @@ The execution adapter has been exercised over actual in-process `RoomServer`,
 race and its normal schedule handlers. The contract suites check invalid
 controls, another player's seat, stale rounds, duplicates, reordering,
 independent publication, pause/resume and teardown. Product custom-session
-integration also uses the real space module and authorizer. Full adverse-network
-campaigns remain pending.
+integration also uses the real space module and authorizer. The
+[seeded live-network campaign](#seeded-live-network-campaign) now exercises the
+session and presentation adapters under bounded faults; product-wide
+adverse-network campaigns remain pending.
 
 ## Pong mechanics
 
@@ -673,7 +675,7 @@ The following remain required before the brief is complete:
    storage contracts and repeated-crash properties. Local command rebasing and
    spectator delivery also have current probes.
 4. Product Gherkin, Quint and glossary, audited spec-only commits, deterministic
-   adverse-network campaigns and full local/online end-to-end journeys.
+   product-level adverse-network campaigns and full local/online end-to-end journeys.
 5. Measure performance and bandwidth. Bounded deterministic failure records now
    travel through the existing root error traces; see
    [failure reproduction](#failure-reproduction).
@@ -1250,3 +1252,44 @@ Goals, spec ownership and package naming pass in
 checks with `QUINT_REPLAY_TRACES=all` (57.08 s test body, 67.095 s task).
 These automated in-process and exporter checks do not establish a hosted
 production ingestion or full Verify verdict.
+
+## Seeded live-network campaign
+
+The framework's counting-race example now runs through its real custom-session
+module, `RoomServer`, three `RoomClient`s and `connectCustomSimulation`, using
+the existing room harness and root `defineSystem`/`defineAction` execution.
+Its seeded network supplies a bounded 480 ms impairment window: mean latency
+0–80 ms, jitter 0–40 ms, loss 0/10/30%, duplication 0/50/100%, reordering and
+an optionally held spectator link. Both people use the normal replica controls;
+one admitted viewer observes. Admission-policy suites remain separate.
+
+The property checks unique processed control identities, real input processing,
+valid controls, monotonic displayed race progress, fresh replicas and agreement
+with authority. Liveness assumes that the finite impairment window ends, the
+links heal and authority then pauses after 200 ms of healthy delivery, permitting
+comparison at one stable checkpoint. It claims no convergence during a permanent
+partition and no exact same-time presentation for a continuously moving court.
+The scheduler and all delivery are virtual; happy-dom supplies the presentation
+adapter's document lifecycle. No browser or external network is launched.
+
+This campaign found `simulation-presentation-clock-rewinds-on-snapshot`. Its
+literal seed 12912, 1 ms jitter, 10% loss, reordered frames and held viewer link
+made displayed distance retreat from `550.0000000000001` to
+`500.0000000000002`. `live-network-rewind-literal-red.log` reproduces that input
+in 32.93 ms. Receiving a newer snapshot resets its observed age, which previously
+could move the interpolation target backward. The replica now retains a
+monotonic playback tick bounded by the latest authoritative tick, resetting it
+with its execution/pause history. A long gap cannot reserve future playback.
+There is no change to authoritative mechanics or snapshot cadence.
+
+`live-network-rewind-green-contracts.log` passes all five affected test tasks at
+`PBT_NUM_RUNS=200`, including the 200-seed campaign and pinned regression.
+The isolated `simulation-replica-clock.test.ts` pins ticks 33 and 36, a 100 ms
+packet age, the 550-to-500 rewind, a later long gap and a fresh execution.
+`live-network-rewind-static.log` passes both packages' type and lint tasks.
+`live-network-rewind-dependent-types.log` passes all 35 dependent type tasks,
+and `live-network-rewind-policy.log` passes goals, spec ownership and package
+naming. `pong-after-network-playback-all-traces.log` passes all 108 Pong checks
+with `QUINT_REPLAY_TRACES=all` (46.54 s test body, 60.56 s task).
+Product-level adverse-network journeys, physical Pong presentation measurements,
+socket fidelity, hosted recovery and the full current gate remain required.

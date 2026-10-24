@@ -22,6 +22,7 @@ export class SimulationReplica {
   private receivedAt = 0;
   private lastSentAt = -Infinity;
   private measuredAt = -Infinity;
+  private presentationTick = -Infinity;
   private readonly inputTiming;
   private readonly interpolation;
   private readonly controls = new Map<GameSide, LocalControl>();
@@ -74,6 +75,7 @@ export class SimulationReplica {
       this.inputTiming.clear();
       this.held.clear();
       this.interpolation.reset();
+      this.presentationTick = -Infinity;
     }
     this.latest = snapshot;
     this.receivedAt = this.options.clock.now();
@@ -228,7 +230,13 @@ export class SimulationReplica {
       snapshot.tick +
       (snapshot.paused ? 0 : (age * timing.tickRate) / 1000) -
       (2 * timing.tickRate) / timing.snapshotRate;
-    let state = this.interpolation.sample(tick);
+    // Packet arrival changes snapshot age, but cannot rewind the playback clock.
+    // Holding at the latest frame must not reserve time beyond received authority.
+    this.presentationTick = Math.max(
+      this.presentationTick,
+      Math.min(snapshot.tick, tick)
+    );
+    let state = this.interpolation.sample(this.presentationTick);
     const merge = this.options.simulation.presentation?.mergeLocal;
     if (merge !== undefined && !snapshot.paused)
       for (const [side, control] of this.controls)
@@ -253,6 +261,7 @@ export class SimulationReplica {
     this.inputTiming.clear();
     this.held.clear();
     this.interpolation.reset();
+    this.presentationTick = -Infinity;
   }
 
   private measure(
