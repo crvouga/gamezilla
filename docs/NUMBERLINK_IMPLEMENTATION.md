@@ -486,9 +486,14 @@ inferred from this ledger or from a narrow test run.
   six tasks; four product runner tasks and the known-bug gate pass. The
   runtime package's earlier nested-runner timeout is followed by a passing
   isolated run at the standard single-case concurrency and unchanged limit.
-- The latest interrupted full Verify completed fifteen tasks successfully;
-  its 57-task summary also included unfinished work. Two cold matchmaking
-  proofs took 206 and 308 seconds. Completed cache entries are retained.
-  The next full run uses the documented two-task concurrency setting while
-  retaining the existing deadlines, solver and test-case limits. Full Verify,
-  automated UI-quality evidence and GitHub's blocked verification remain open.
+- The latest full Verify completed 42 tasks successfully before its unchanged
+  600-second execution deadline; its 86-task summary included unfinished work.
+  It used the documented two-task concurrency setting. Completed cache entries
+  are retained; the complete gate remains unproven.
+- Automated visual verification completed 190 tasks successfully before its
+  unchanged 7,200-second deadline. Two existing matched-game histories stopped
+  making progress: Connect Four traces 38 and 74 of
+  `matched-game-shared.qnt`, seed `0x67932`. The literal inputs are preserved,
+  and trace 74 also stalls alone. This is an incomplete run, without a passing
+  UI-quality score. The stuck histories, full Verify and GitHub's blocked
+  verification remain open; no verification limit has been raised.
