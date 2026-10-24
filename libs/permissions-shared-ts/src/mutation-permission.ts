@@ -44,6 +44,14 @@ export async function requireInMutation(
   scope?: AccessScope
 ): Promise<void> {
   const decision = await decideInMutation(ctx, key, scope);
+  requireGrantDecision(key, decision);
+}
+
+/** Apply the same permanent grant refusal to live and captured decisions. */
+export function requireGrantDecision(
+  key: AppGrantKey,
+  decision: Decision
+): void {
   if (decision.allowed) return;
   throw new MutationError(
     decision.reason ?? 'not_granted',

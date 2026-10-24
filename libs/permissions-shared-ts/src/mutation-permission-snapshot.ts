@@ -1,14 +1,10 @@
-import { type Decision, decide } from '@pkgs/permissions-shared-ts/decision';
+import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { policyAt } from '@pkgs/permissions-shared-ts/policy';
-import { resolveSubject } from '@pkgs/permissions-shared-ts/resolve';
-import {
-  type MutationCtx,
-  MutationError,
-} from '@pkgs/sync-engine-shared-ts/mutations-types';
-import type { AccessScope } from './decide-for-actor';
+import type { MutationCtx } from '@pkgs/sync-engine-shared-ts/mutations-types';
+import { type AccessScope, decideGrant } from './decide-for-actor';
+import { requireGrantDecision } from './mutation-permission';
 import type { AppGrantKey } from './permission-catalog';
 import { readAccess } from './read-access';
-import { resolveSpaceRoles } from './space-roles';
 
 const evaluate = Symbol('mutationPermissionSnapshot');
 
@@ -32,15 +28,7 @@ export async function readMutationPermissionSnapshot(
   const facts = access.facts;
   return Object.freeze({
     [evaluate]: (key: AppGrantKey, scope?: AccessScope) =>
-      decide(
-        policy,
-        resolveSubject(
-          policy,
-          facts,
-          resolveSpaceRoles(scope?.spacePresence ?? null)
-        ),
-        key
-      ),
+      decideGrant({ policy, facts, key, scope }),
   });
 }
 
@@ -58,10 +46,5 @@ export function requireInMutationSnapshot(
   scope?: AccessScope
 ): void {
   const decision = decideInMutationSnapshot(snapshot, key, scope);
-  if (decision.allowed) return;
-  throw new MutationError(
-    decision.reason ?? 'not_granted',
-    `Permission denied: ${key}`,
-    { decision }
-  );
+  requireGrantDecision(key, decision);
 }

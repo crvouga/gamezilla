@@ -1,11 +1,14 @@
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { decide, decideLimit } from '@pkgs/permissions-shared-ts/decision';
+import type { Facts } from '@pkgs/permissions-shared-ts/facts';
+import type { PolicyVersion } from '@pkgs/permissions-shared-ts/policy';
 import { policyAt } from '@pkgs/permissions-shared-ts/policy';
 import { resolveSubject } from '@pkgs/permissions-shared-ts/resolve';
 
 import type {
   AppGrantKey,
   AppLimit,
+  AppPolicyKey,
   SpacePresenceRole,
 } from './permission-catalog';
 import type { AccessIdentity, AccessReader } from './read-access';
@@ -17,6 +20,21 @@ export type AccessScope = {
   /** The actor's presence in the space the action targets. */
   readonly spacePresence?: SpacePresenceRole | null;
 };
+
+/** Evaluate one grant from selected policy and facts, without further reads. */
+export function decideGrant(args: {
+  readonly policy: PolicyVersion<AppPolicyKey, AppLimit>;
+  readonly facts: Facts;
+  readonly key: AppGrantKey;
+  readonly scope?: AccessScope | undefined;
+}): Decision {
+  const subject = resolveSubject(
+    args.policy,
+    args.facts,
+    resolveSpaceRoles(args.scope?.spacePresence ?? null)
+  );
+  return decide(args.policy, subject, args.key);
+}
 
 /**
  * One grant decision for `identity`, read from synced rows: the policy
@@ -35,12 +53,12 @@ export async function decideForActor(
 ): Promise<Decision> {
   const access = await readAccess(db, args.identity, args.nowMs);
   const policy = policyAt(access.policy, args.clientAtMs);
-  const subject = resolveSubject(
+  return decideGrant({
     policy,
-    access.facts,
-    resolveSpaceRoles(args.scope?.spacePresence ?? null)
-  );
-  return decide(policy, subject, args.key);
+    facts: access.facts,
+    key: args.key,
+    scope: args.scope,
+  });
 }
 
 /**
