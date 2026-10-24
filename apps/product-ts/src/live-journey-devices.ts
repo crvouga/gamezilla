@@ -32,11 +32,17 @@ export async function openGuestDevice(
 export async function actOnLiveDevice(
   devices: LiveDevices,
   device: Device,
-  gestures: (ui: Driver) => Promise<void>
+  gestures: (ui: Driver) => Promise<void>,
+  name?: string
 ): Promise<void> {
   devices.shown = device;
   await device.view.cdp('Page.bringToFront', {});
-  await gestures(device.driver);
+  try {
+    await gestures(device.driver);
+  } catch (error) {
+    if (name === undefined) throw error;
+    throw new Error(`${name}: ${String(error)}`, { cause: error });
+  }
 }
 
 /**

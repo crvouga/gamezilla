@@ -169,13 +169,13 @@ function liveJourneyHost(
     open: (access) => openLiveDevice(target, devices, access),
     peerDevice: peer,
     openPeer: peer.open,
-    act: async (_name, gestures) => {
+    act: async (name, gestures) => {
       const current = await ensureHost(target, devices);
-      await actOnLiveDevice(devices, current, gestures);
+      await actOnLiveDevice(devices, current, gestures, name);
     },
-    actAsGuest: async (_name, gestures) => {
+    actAsGuest: async (name, gestures) => {
       const current = requireDevice(devices.guest, 'guest');
-      await actOnLiveDevice(devices, current, gestures);
+      await actOnLiveDevice(devices, current, gestures, name);
     },
     spaceLink: async () =>
       spaceLinkFromLocation(

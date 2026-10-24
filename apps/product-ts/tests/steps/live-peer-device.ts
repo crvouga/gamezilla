@@ -64,7 +64,12 @@ export function liveJourneyPeerDevice(
       if (continuationToken === undefined)
         throw new Error('The second person has not signed in');
       const previous = current();
-      await actOnLiveDevice(devices, previous, confirmSignedIn);
+      await actOnLiveDevice(
+        devices,
+        previous,
+        confirmSignedIn,
+        'confirmPreviousPeerAccount'
+      );
       const next = await openIsolatedDevice(target);
       // Keep ownership of a failed sign-in device and the original account's cleanup access.
       const pending = devices.previousPeers.push(next) - 1;
