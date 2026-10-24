@@ -3,6 +3,7 @@
   "ui": "tui",
   "concurrency": "100%",
   "globalDependencies": ["tsconfig.base.json", "mise.toml"],
+  "globalEnv": ["VERIFY_TIME_LIMITS"],
   "globalPassThroughEnv": [
     "GITHUB_*",
     "GH_TOKEN",

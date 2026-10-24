@@ -1,0 +1,4 @@
+{
+  "summary": "An invalid VERIFY_TIME_LIMITS value was checked after creating scratch files and spawning a checker, so rejecting the value could leave work running. Validate the mode before any checker side effect.",
+  "regressionTest": "pkgs/quint-server-ts/tests/run-quint.test.ts"
+}

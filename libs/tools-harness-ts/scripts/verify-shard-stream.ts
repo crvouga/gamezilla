@@ -9,6 +9,11 @@ const EXITED =
   /command finished with error|command .*exited|error: script .*exited with code [1-9]/;
 const FAILURE = new RegExp(`${EXITED.source}|^\\(fail\\)`);
 type TaskFailure = Omit<StreamSnapshot['failed'][number], 'taskId'>;
+type StreamPorts = {
+  readonly now: () => number;
+  readonly completed: (task: VerifyTask) => boolean;
+  readonly env?: NodeJS.ProcessEnv;
+};
 
 function tailOf(output: string): string {
   return output.trimEnd().split('\n').slice(-TAIL_LINES).join('\n');
@@ -42,7 +47,7 @@ function failedTaskIds(
 export function taskStream(
   tasks: readonly VerifyTask[],
   log: (line: string) => void,
-  ports: { now: () => number; completed: (task: VerifyTask) => boolean }
+  ports: StreamPorts
 ) {
   const byId = new Map(tasks.map((task) => [task.taskId, task]));
   const logs = new Map<string, string>();
@@ -86,7 +91,7 @@ export function taskStream(
     if (/^cache (miss|bypass)/.test(event.text)) {
       started.set(event.source, ports.now());
       log(
-        `START ${event.source}; command: ${task.command}; budget: ${taskBudgetSeconds(event.source, true)}s`
+        `START ${event.source}; command: ${task.command}; budget: ${taskBudgetSeconds(event.source, true, ports.env)}s`
       );
     }
     if (/^cache hit/.test(event.text))
@@ -112,9 +117,9 @@ export function taskStream(
         );
         finished.set(id, seconds);
         started.delete(id);
-      } else if (seconds > taskBudgetSeconds(id, true)) {
+      } else if (seconds > taskBudgetSeconds(id, true, ports.env)) {
         log(
-          `TIMEOUT ${id}; command: ${byId.get(id)!.command}; elapsed: ${seconds.toFixed(1)}s; budget: ${taskBudgetSeconds(id, true)}s`
+          `TIMEOUT ${id}; command: ${byId.get(id)!.command}; elapsed: ${seconds.toFixed(1)}s; budget: ${taskBudgetSeconds(id, true, ports.env)}s`
         );
         timedOut.push(id);
       }
@@ -127,17 +132,18 @@ export function taskStream(
     );
   }
   const snapshot = (): StreamSnapshot =>
-    streamSnapshot(ports.now(), started, finished, failed);
+    streamSnapshot(ports, started, finished, failed);
   return Object.assign(line, { tick, heartbeat, snapshot });
 }
 
 /** What the shard had done, was doing and had failed at, right now. */
 function streamSnapshot(
-  now: number,
+  context: Pick<StreamPorts, 'now' | 'env'>,
   started: ReadonlyMap<string, number>,
   finished: ReadonlyMap<string, number>,
   failed: ReadonlyMap<string, TaskFailure>
 ): StreamSnapshot {
+  const now = context.now();
   const running = [...started].map(([taskId, start]) => ({
     taskId,
     seconds: (now - start) / 1000,
@@ -149,7 +155,7 @@ function streamSnapshot(
     overBudget: running
       .map((task) => ({
         ...task,
-        budget: taskBudgetSeconds(task.taskId, true),
+        budget: taskBudgetSeconds(task.taskId, true, context.env),
       }))
       .filter((task) => task.seconds > task.budget),
   };

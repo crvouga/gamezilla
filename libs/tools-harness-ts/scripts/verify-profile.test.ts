@@ -178,9 +178,9 @@ describe('verification profiles', () => {
       CI_RUN_DEADLINE_SECONDS
     );
     // A suite task has its suite's deadline and no tighter budget.
-    expect(taskBudgetSeconds('@apps/product-ts#test:stack', true)).toBe(
-      NIGHTLY_SUITES.browser.deadlineSeconds
-    );
+    expect(
+      taskBudgetSeconds('@apps/product-ts#test:stack', true, NIGHTLY)
+    ).toBe(NIGHTLY_SUITES.browser.deadlineSeconds);
     expect(suiteDeadlineSeconds(['verify-nightly:random'])).toBe(
       NIGHTLY_SUITES.random.deadlineSeconds
     );

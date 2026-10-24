@@ -280,13 +280,15 @@ describe('model parts', () => {
       expect(
         taskBudgetSeconds(
           '@pkgs/matchmaking-root-harness-ts#verify:models:0',
-          false
+          false,
+          { ...process.env, VERIFY_TIME_LIMITS: 'on' }
         )
       ).toBe(profileBudgetSeconds(480));
       expect(
         taskBudgetSeconds(
           '@pkgs/matchmaking-root-harness-ts#verify:models:1',
-          false
+          false,
+          { ...process.env, VERIFY_TIME_LIMITS: 'on' }
         )
       ).toBe(profileBudgetSeconds(480));
     },
@@ -366,9 +368,12 @@ describe('model parts', () => {
         expect(manifest.scripts[task]).toContain(
           `--phase ${String(index)}/${String(phases)}`
         );
-        expect(taskBudgetSeconds(`${name}#${task}`, false)).toBe(
-          profileBudgetSeconds(420)
-        );
+        expect(
+          taskBudgetSeconds(`${name}#${task}`, false, {
+            ...process.env,
+            VERIFY_TIME_LIMITS: 'on',
+          })
+        ).toBe(profileBudgetSeconds(420));
       }
     }
   );

@@ -604,7 +604,7 @@ async function main(): Promise<void> {
   const deadlineSeconds = deadlineFor(rawTaskArgs, mode, slowRunner, ci);
 
   console.log(
-    `turbo-ci-run: cache=${cache} concurrency=${resolveConcurrency()} log-order=${TURBO_LOG_ORDER} deadline=${String(deadlineSeconds)}s` +
+    `turbo-ci-run: cache=${cache} concurrency=${resolveConcurrency()} log-order=${TURBO_LOG_ORDER} deadline=${Number.isFinite(deadlineSeconds) ? `${String(deadlineSeconds)}s` : 'none'}` +
       (ui !== undefined ? ` ui=${ui}` : '') +
       (remote
         ? ` (remote creds present; api=${env['TURBO_API'] ?? DEFAULT_TURBO_API}; team=${env['TURBO_TEAM'] ?? TURBO_TEAM})`
@@ -685,6 +685,8 @@ function deadlineFor(
   slowRunner: boolean,
   ci: boolean
 ): number {
+  const runDeadline = runDeadlineSeconds(mode, slowRunner, ci);
+  if (!Number.isFinite(runDeadline)) return runDeadline;
   const override = Number.parseInt(
     process.env[RUN_DEADLINE_ENV]?.trim() ?? '',
     10
@@ -693,7 +695,7 @@ function deadlineFor(
     Number.isInteger(override) && override > 0
       ? null
       : suiteDeadlineSeconds(rawTaskArgs);
-  return suite ?? runDeadlineSeconds(mode, slowRunner, ci);
+  return suite ?? runDeadline;
 }
 
 function prepareTaskArgs(raw: readonly string[]): string[] {
@@ -946,32 +948,36 @@ function armDeadline(
   const onTerm = forward('SIGTERM');
   process.on('SIGINT', onInt);
   process.on('SIGTERM', onTerm);
-  const termAt = setTimeout(() => {
-    deadlineHit = true;
-    console.error(
-      `turbo-ci-run: hard deadline of ${String(deadlineSeconds)}s reached; asking turbo to flush finished cache uploads.`
-    );
-    if (child.pid !== undefined) {
-      console.error(describeRunningTasks(child.pid, REPO_ROOT));
-    }
-    killTree(child, 'SIGTERM');
-  }, deadlineSeconds * 1000);
-  const killAt = setTimeout(
-    () => {
-      deadlineHit = true;
-      console.error(
-        `turbo-ci-run: cache flush window of ${String(DEADLINE_FLUSH_MS)}ms elapsed; killing the run.`
-      );
-      console.error(
-        'turbo-ci-run: tasks that finished before the kill are cached, so a ' +
-          'rerun resumes from here. Fix a wedged task, or raise the deadline in ' +
-          'libs/tools-harness-ts/scripts/verify-budget.ts with the measurement.'
-      );
-      killTree(child, 'SIGKILL');
-      stopReports();
-    },
-    deadlineSeconds * 1000 + DEADLINE_FLUSH_MS
-  );
+  const termAt = Number.isFinite(deadlineSeconds)
+    ? setTimeout(() => {
+        deadlineHit = true;
+        console.error(
+          `turbo-ci-run: hard deadline of ${String(deadlineSeconds)}s reached; asking turbo to flush finished cache uploads.`
+        );
+        if (child.pid !== undefined) {
+          console.error(describeRunningTasks(child.pid, REPO_ROOT));
+        }
+        killTree(child, 'SIGTERM');
+      }, deadlineSeconds * 1000)
+    : undefined;
+  const killAt = Number.isFinite(deadlineSeconds)
+    ? setTimeout(
+        () => {
+          deadlineHit = true;
+          console.error(
+            `turbo-ci-run: cache flush window of ${String(DEADLINE_FLUSH_MS)}ms elapsed; killing the run.`
+          );
+          console.error(
+            'turbo-ci-run: tasks that finished before the kill are cached, so a ' +
+              'rerun resumes from here. Fix a wedged task, or raise the deadline in ' +
+              'libs/tools-harness-ts/scripts/verify-budget.ts with the measurement.'
+          );
+          killTree(child, 'SIGKILL');
+          stopReports();
+        },
+        deadlineSeconds * 1000 + DEADLINE_FLUSH_MS
+      )
+    : undefined;
   return {
     deadlineHit: () => deadlineHit,
     disarm: () => {

@@ -1,0 +1,4 @@
+{
+  "summary": "A full local verification was stopped at its 600-second deadline, and the unchanged custom-game play model exhausted its 240-second allowance before checking all liveness obligations. Local verification now runs without computation time cutoffs; explicit bounded runs and CI retain their limits, and unlimited results have distinct cache keys.",
+  "regressionTest": "libs/tools-harness-ts/scripts/local-verify-time-limits.test.ts"
+}

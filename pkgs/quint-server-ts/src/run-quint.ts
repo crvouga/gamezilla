@@ -3,7 +3,10 @@
 import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { wallDeadline } from '@pkgs/quint-shared-ts/wall';
+import {
+  verificationTimeLimitsEnabled,
+  wallDeadline,
+} from '@pkgs/quint-shared-ts/wall';
 
 export type QuintRun = {
   readonly code: number | null;
@@ -53,6 +56,9 @@ export async function runQuint(input: {
   readonly env: Record<string, string>;
   readonly timeoutMs: number;
 }): Promise<QuintRun> {
+  const timeoutMs = verificationTimeLimitsEnabled(input.env)
+    ? input.timeoutMs
+    : Number.POSITIVE_INFINITY;
   // TLC extracts its standard modules into java.io.tmpdir. Sharing /tmp lets
   // a second verifier truncate a module while the first is parsing it.
   const temporary = join(resolve(input.cwd), 'tmp');
@@ -84,7 +90,7 @@ export async function runQuint(input: {
   const release = guardGroup(child.pid);
   let timedOut = false;
   let signal: NodeJS.Signals | null = null;
-  const cancel = wallDeadline(input.timeoutMs, () => {
+  const cancel = wallDeadline(timeoutMs, () => {
     timedOut = true;
     killGroup(child.pid);
   });

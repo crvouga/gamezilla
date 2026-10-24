@@ -53,15 +53,23 @@ export function quintReplayBudget(): number {
   return budget;
 }
 
-/**
- * A proof's wall-clock allowance on this machine. A deadline is declared for
- * a developer laptop; a runner slower by a known factor names that factor in
- * `QUINT_VERIFY_TIME_SCALE`, as the Verify shards do for their 2-core runners.
- * It bounds how long a proof may take, never what it proves: a proof that
- * ends inside the allowance is the same verdict on every machine.
- */
-export function verifyDeadlineMs(declaredMs: number): number {
-  const raw = process.env['QUINT_VERIFY_TIME_SCALE']?.trim() ?? '';
+/** Explicit computation mode; the local launcher opts out of time cutoffs. */
+export function verificationTimeLimitsEnabled(
+  env: Readonly<Record<string, string | undefined>> = process.env
+): boolean {
+  const mode = env['VERIFY_TIME_LIMITS']?.trim() ?? '';
+  if (mode === 'off') return false;
+  if (mode === '' || mode === 'on') return true;
+  throw new Error(`verification: VERIFY_TIME_LIMITS=${mode} must be on or off`);
+}
+
+/** Scale a bounded proof's allowance, or let an unlimited proof finish. */
+export function verifyDeadlineMs(
+  declaredMs: number,
+  env: Readonly<Record<string, string | undefined>> = process.env
+): number {
+  if (!verificationTimeLimitsEnabled(env)) return Number.POSITIVE_INFINITY;
+  const raw = env['QUINT_VERIFY_TIME_SCALE']?.trim() ?? '';
   if (raw.length === 0) return declaredMs;
   const scale = Number(raw);
   if (!Number.isFinite(scale) || scale < 1) {
@@ -80,6 +88,7 @@ export function wallStopwatch(): () => number {
 
 /** Call `onExpire` once `ms` have passed; the returned function cancels it. */
 export function wallDeadline(ms: number, onExpire: () => void): () => void {
+  if (ms === Number.POSITIVE_INFINITY) return () => {};
   const timer = setTimeout(onExpire, ms);
   return () => clearTimeout(timer);
 }

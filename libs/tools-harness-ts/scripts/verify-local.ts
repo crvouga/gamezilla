@@ -100,7 +100,7 @@ async function runSnapshot(
     env,
     signal
   );
-  publishVerifyArtifacts(cache, store, readLatestRunSummary(root));
+  publishVerifyArtifacts(cache, store, readLatestRunSummary(root), env);
   return verdict;
 }
 

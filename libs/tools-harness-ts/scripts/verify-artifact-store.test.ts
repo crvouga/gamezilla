@@ -8,10 +8,45 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { localVerifyEnv } from './local-verify-queue';
 import {
   publishVerifyArtifacts,
   restoreVerifyArtifacts,
 } from './verify-artifact-store';
+
+// regression: local-verify-time-limits-stop-complete-proofs
+test('an unlimited local run retains a completed proof beyond the bounded allowance', () => {
+  const root = mkdtempSync(join(tmpdir(), 'verify-unlimited-artifacts-'));
+  try {
+    const cache = join(root, 'cache');
+    const store = join(root, 'store');
+    const restored = join(root, 'restored');
+    mkdirSync(cache);
+    const hash = 'c54b47920c7edc79';
+    writeFileSync(join(cache, `${hash}.tar.zst`), 'complete unlimited proof');
+    writeFileSync(join(cache, `${hash}-meta.json`), '{}');
+    publishVerifyArtifacts(
+      cache,
+      store,
+      {
+        tasks: [
+          {
+            taskId: '@libs/games-harness-ts#verify:models:2',
+            hash,
+            execution: { startTime: 0, endTime: 645_400, exitCode: 0 },
+          },
+        ],
+      },
+      localVerifyEnv({})
+    );
+    restoreVerifyArtifacts(store, restored);
+    expect(readFileSync(join(restored, `${hash}.tar.zst`), 'utf8')).toBe(
+      'complete unlimited proof'
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
 
 test('a zero exit after the task budget is not reusable passing evidence', () => {
   // regression: verify-over-budget-artifact

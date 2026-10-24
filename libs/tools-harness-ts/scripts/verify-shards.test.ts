@@ -382,6 +382,7 @@ test('progress and live timeouts use virtual time and completed artifacts, never
   const stream = taskStream([task('slow')], (line) => logs.push(line), {
     now: () => now,
     completed: () => completed,
+    env: { ...process.env, VERIFY_TIME_LIMITS: 'on' },
   });
   stream(
     JSON.stringify({
@@ -396,7 +397,13 @@ test('progress and live timeouts use virtual time and completed artifacts, never
   expect(logs.join(' ')).toContain('slow 30s');
   expect(stream.tick()).toEqual([]);
   // regression: randomized-budget-tests-inherit-nightly
-  now = taskBudgetSeconds('slow', true) * 1000 + 1;
+  now =
+    taskBudgetSeconds('slow', true, {
+      ...process.env,
+      VERIFY_TIME_LIMITS: 'on',
+    }) *
+      1000 +
+    1;
   expect(stream.tick()).toEqual(['slow']);
   expect(logs.join(' ')).toContain('TIMEOUT slow');
   completed = true;
