@@ -37,7 +37,7 @@ terms:
       for the author to choose from.
     forms: [drafts, draft copy, draft copies, working draft]
     published: true
-    model: [Draft, draft, drafts, workingDraft, otherDraft, choosePuzzleDraft, draftKept, inspectPuzzleDraft, otherCanRead]
+    model: [Draft, EditingDraft, draft, drafts, workingDraft, otherDraft, keptCopies, choosePuzzleDraft, draftKept, inspectPuzzleDraft, otherCanRead]
   - term: title
     definition: The name an author gives a puzzle or pack. Publishing requires a nonempty title.
     forms: [titles, titled]
@@ -134,13 +134,13 @@ terms:
     published: true
     model: [resumeAttempt, continueEarlierAttempt, keptContinuations]
   - term: undo
-    definition: Return to the preceding kept position when the game offers history, without erasing an earlier completion.
+    definition: Return to the preceding draft edit without deleting draft copies, or to the preceding kept puzzle position when the game offers history without erasing an earlier completion.
     forms: [undoes, undoing]
-    model: [undoAttempt]
+    model: [undoAttempt, undoDraftEdit, undoOffered]
   - term: redo
-    definition: Restore an undone position when no different action has replaced that continuation.
+    definition: Restore an undone draft edit or puzzle position when no different edit or action has replaced that choice.
     forms: [redoes, redoing]
-    model: [redoAttempt]
+    model: [redoAttempt, redoDraftEdit, redoOffered]
   - term: restart
     definition: Begin a new attempt at the same edition with no play yet, keeping the earlier attempt available.
     forms: [restarts, restarting]
