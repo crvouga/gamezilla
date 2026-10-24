@@ -1,0 +1,4 @@
+{
+  "summary": "Release CI 40076550953 left Find and session-query requests pending at the Chess same-game deadline, but removed the isolated OTLP journal after printing only browser and SQL-cost summaries. Print bounded redacted server work anchored to the failed scenario before normal PR cleanup, keeping late completed children by trace id and excluding later successful uses of the same RPC.",
+  "regressionTest": "apps/product-ts/scripts/release-failure-traces.test.ts"
+}

@@ -217,6 +217,36 @@ test('health generates feature and objective stubs with resolvable declared brid
   }
 });
 
+// regression: release-journey-erases-server-trace-evidence
+test('release timelines are opt-in while ordinary health keeps verdict-only reports', () => {
+  const stubDir = mkdtempSync(join(tmpdir(), 'release-timeline-bridge-'));
+  const dirs = { stubDir, reportDir: join(stubDir, 'report') };
+  const features = [join(REPO_ROOT, 'specs/journeys/multiplayer-game.feature')];
+  const sourceOf = (files: readonly string[]) =>
+    readFileSync(resolve(import.meta.dir, '..', files[0]!), 'utf8');
+  try {
+    expect(sourceOf(writeFeatureStubs(STANDARD, features, dirs))).not.toContain(
+      'wallFeatureReport'
+    );
+    const release = sourceOf(
+      writeFeatureStubs(STANDARD, features, { ...dirs, timelineReports: true })
+    );
+    expect(release).toContain(
+      JSON.stringify(
+        Bun.resolveSync(
+          '@pkgs/gherkin-server-ts/wall-reports-env',
+          import.meta.dir
+        )
+      )
+    );
+    expect(release).toContain(
+      `report: wallFeatureReport(${JSON.stringify(dirs.reportDir)})`
+    );
+  } finally {
+    rmSync(stubDir, { recursive: true, force: true });
+  }
+});
+
 // regression: multiplayer-journey-parameter-registration
 // regression: custom-game-journey-parameter-registration
 test('health loads its live entry and constructs the real S3 transport', () => {
