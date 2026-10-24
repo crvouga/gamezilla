@@ -8,6 +8,7 @@ import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { type JSX, Show } from 'solid-js';
+import { useContentGame } from './content-game-context';
 import { ContentWithdraw } from './content-withdraw';
 import {
   type ContentPublicationProps,
@@ -40,13 +41,17 @@ export function ContentPublicationControls(
 ): JSX.Element {
   const { t } = useLingui();
   const tools = useContentPublication(props);
+  const game = useContentGame();
   const decision = useDecision(PERMISSION.puzzlesPublishContent, () => ({
     puzzleOwnerId: props.document.owner_id,
   }));
   return (
     <StackVertical gap="md">
       <Show when={tools.draft()?.validation_status === 'valid'}>
-        <Notice tone="success">
+        <Notice
+          tone="success"
+          dataSet={{ testid: 'content-validation-passed' }}
+        >
           <Trans>
             This draft passed validation. Publication checks it again.
           </Trans>
@@ -94,6 +99,17 @@ export function ContentPublicationControls(
           decision().allowed && props.document.published_revision_id !== null
         }
       >
+        <Button
+          title={t`View published edition`}
+          intent="neutral"
+          variant="outline"
+          onClick={() => {
+            const revisionId = props.document.published_revision_id;
+            if (revisionId !== null)
+              game.open({ kind: 'edition', revisionId, packRevisionId: null });
+          }}
+          dataSet={{ testid: 'content-view-publication' }}
+        />
         <ContentWithdraw
           documentId={props.document.id}
           disabled={props.disabled}

@@ -35,7 +35,9 @@ export function ContentConnectionStatus(props: {
         )}
       </Show>
       <Show when={!engine.status().online}>
-        <Notice>{t`You are offline. Available puzzles and your saved work stay on this device. Changes share when connected.`}</Notice>
+        <Notice
+          dataSet={{ testid: 'content-offline' }}
+        >{t`You are offline. Available puzzles and your saved work stay on this device. Changes share when connected.`}</Notice>
       </Show>
     </>
   );

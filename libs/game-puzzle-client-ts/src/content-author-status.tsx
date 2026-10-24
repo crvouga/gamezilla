@@ -12,7 +12,12 @@ export function ContentAuthorStatus(props: {
   const { t } = useLingui();
   return (
     <>
-      <P role="status" variant="caption" tone="secondary">
+      <P
+        role="status"
+        variant="caption"
+        tone="secondary"
+        dataSet={{ testid: 'content-draft-save-status' }}
+      >
         {props.writer.saving()
           ? t`Saving your draft…`
           : props.writer.dirty()

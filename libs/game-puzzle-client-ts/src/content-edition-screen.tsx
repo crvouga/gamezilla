@@ -59,6 +59,11 @@ export function ContentEditionScreen(props: {
       {(edition) => (
         <GameScreen
           screenId="puzzle-content-edition"
+          dataSet={{
+            testid: 'content-edition',
+            revisionid: edition().id,
+            documentid: edition().document_id,
+          }}
           title={edition().title}
           subtitle={edition().difficulty}
         >
@@ -81,6 +86,7 @@ export function ContentEditionScreen(props: {
                     title={t`Edit working draft`}
                     variant="outline"
                     intent="neutral"
+                    dataSet={{ testid: 'content-edit-working-draft' }}
                     onClick={() =>
                       game.open({
                         kind: 'edit',

@@ -80,6 +80,7 @@ export function ContentPackEditor(props: PackEditorProps): JSX.Element {
       <Show when={game.client.authoring !== undefined}>
         <Button
           {...tools.create.buttonProps}
+          dataSet={{ testid: 'content-create-in-pack' }}
           disabled={props.disabled || tools.change.loading()}
         />
       </Show>
@@ -101,6 +102,7 @@ export function ContentPackEditor(props: PackEditorProps): JSX.Element {
         {(id) => (
           <Button
             title={t`Open the new puzzle draft`}
+            dataSet={{ testid: 'content-open-pack-puzzle' }}
             intent="neutral"
             variant="outline"
             onClick={() => game.open({ kind: 'edit', documentId: id() })}

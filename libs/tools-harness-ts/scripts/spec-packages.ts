@@ -18,7 +18,7 @@
  */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { specInputProblems } from '@libs/harness-ts/spec-inputs';
 import type { PackageSpecs } from '@pkgs/gherkin-shared-ts/check';
 import type { ExtractedStep } from '@pkgs/gherkin-shared-ts/extract';
@@ -334,8 +334,11 @@ function readFeatures(domains: readonly string[]): readonly SpecFeature[] {
 /** Resolve a flat exported step module in its owning harness package. */
 function resolveStepImport(
   specifier: string,
-  byName: ReadonlyMap<string, string>
+  byName: ReadonlyMap<string, string>,
+  importer: string
 ): string | null {
+  if (specifier.startsWith('.') && specifier.endsWith('.steps'))
+    return join(dirname(importer), `${specifier}.ts`);
   const match = /^(@[a-z]+\/[a-z0-9-]+)\/([^/]+\.steps)$/.exec(specifier);
   if (match === null) return null;
   const dir = byName.get(match[1] ?? '');
@@ -395,19 +398,25 @@ function stepImports(
 ): { readonly imports: readonly string[]; readonly sharedSteps: boolean } {
   const imports: string[] = [];
   let sharedSteps = false;
-  for (const specifier of extractStepImports(
-    readFileSync(join(REPO_ROOT, stepsEntry), 'utf8')
-  )) {
-    if (specifier.startsWith(SHARED_STEPS_IMPORT)) sharedSteps = true;
-    const file = resolveStepImport(specifier, byName);
-    if (file === null) continue;
-    if (!existsSync(join(REPO_ROOT, file))) {
-      problems.push(
-        `${stepsEntry}: imports ${specifier} but ${file} does not exist`
-      );
-      continue;
+  const pending = [stepsEntry];
+  const seen = new Set(pending);
+  for (const entry of pending) {
+    for (const specifier of extractStepImports(
+      readFileSync(join(REPO_ROOT, entry), 'utf8')
+    )) {
+      if (specifier.startsWith(SHARED_STEPS_IMPORT)) sharedSteps = true;
+      const file = resolveStepImport(specifier, byName, entry);
+      if (file === null || seen.has(file)) continue;
+      if (!existsSync(join(REPO_ROOT, file))) {
+        problems.push(
+          `${entry}: imports ${specifier} but ${file} does not exist`
+        );
+        continue;
+      }
+      seen.add(file);
+      imports.push(file);
+      pending.push(file);
     }
-    imports.push(file);
   }
   return { imports, sharedSteps };
 }

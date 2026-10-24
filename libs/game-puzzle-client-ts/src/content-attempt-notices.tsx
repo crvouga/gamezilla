@@ -14,7 +14,12 @@ export function ContentAttemptNotices(props: {
   const { t } = useLingui();
   return (
     <>
-      <P role="status" variant="caption" tone="secondary">
+      <P
+        role="status"
+        variant="caption"
+        tone="secondary"
+        dataSet={{ testid: 'content-position-save-status' }}
+      >
         {props.writer.pending()
           ? t`Saving your position…`
           : t`Progress saved on this device. Changes share when connected.`}
@@ -40,6 +45,7 @@ export function ContentAttemptNotices(props: {
       <Show when={props.complete}>
         <SuccessState
           variant="compact"
+          dataSet={{ testid: 'content-attempt-complete' }}
           title={props.playtest ? t`Playtest solved` : t`Puzzle completed`}
           body={
             props.playtest

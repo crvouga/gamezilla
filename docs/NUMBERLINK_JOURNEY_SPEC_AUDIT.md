@@ -2,7 +2,7 @@
 
 Scope: [`numberlink-packs.feature`](../specs/journeys/numberlink-packs.feature),
 its borrowed language, and existing homonyms made explicit in their own
-contexts' glossaries. Initial binding status: undefined, intentionally.
+contexts' glossaries. All four journeys now have executable bindings.
 This report does not claim the implementation or release is complete.
 
 ## Example map
@@ -54,14 +54,31 @@ new business concepts or changing the meaning of any existing scenario.
   of authoring. Observation must include saved content and visible outcomes,
   not merely a control having been pressed.
 
-Verdict: INCOMPLETE. Executable bindings and full release verification remain
-open. Four separate initial executions each reached its own journey command
-and failed on its undefined step, rather than setup or compilation. The
-language gate has no remaining vocabulary error. The strict gate reports the
-eight undefined phrasings for both journey runners and the existing thirteen
-near-duplicate wording pairs outside this scope. Undefined bindings are the
-implementation handoff; the external strict findings prevent a whole-repo
-audit pass. No new pair involves a Numberlink phrasing.
+Verdict: INCOMPLETE. All four journeys pass together in the full product
+harness through the registered Numberlink game and shared screens. The same
+bindings are registered in the live runner; execution against the compiled
+browser bundle and full release verification remain open. Four separate
+initial executions each failed on its own undefined command before binding.
+
+The authoring journey visually edits and playtests both challenges, changes
+their pack order, and observes that order on another person's device. The
+continuity journey exercises undo, redo, restart, app reopening, a fresh
+signed-in device, completion and pack continuation. The revision journey
+checks the earlier attempt identity, puzzle edition, pack edition and board
+after the author publishes changed content.
+
+The offline journey creates a private pack and a new challenge from within
+that pack, edits and previews their contents, and completes a previously
+available challenge without a connection. Both devices reopen while offline.
+After reconnection the author publishes the retained work; a fresh signed-in
+device discovers that pack in its chosen order, observes the new challenge
+and its own earlier completion, and reopens the same completed attempt.
+These observations use the app's controls and visible saved state; no domain
+records are seeded by the journey bindings.
+
+The previous strict gate found thirteen near-duplicate wording pairs outside
+this scope. Those findings and the remaining execution gates prevent a
+whole-repo audit pass. No reported pair involves a Numberlink phrasing.
 
 The separate `spec:` commit hands off the four scenarios and their eight
 phrases to `spec-implement`. No code-level case is promoted to Gherkin and no

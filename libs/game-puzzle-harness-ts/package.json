@@ -44,6 +44,7 @@
     "@pkgs/sync-engine-shared-ts": "workspace:*",
     "@pkgs/turn-game-shared-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
+    "@pkgs/ui-testing-root-shared-ts": "workspace:*",
     "@pkgs/uuid-client-ts": "workspace:*",
     "solid-js": "catalog:"
   },

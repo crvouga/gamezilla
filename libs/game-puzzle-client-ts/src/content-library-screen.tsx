@@ -78,6 +78,7 @@ function PublishedContent(): JSX.Element {
         </MenuSection>
       </Show>
       <ContentLoadMore
+        testId="content-more-published"
         page={data.pages.published}
         label={t`Load more published puzzles and packs`}
       />

@@ -57,19 +57,22 @@ unfinished work; it is not a second product definition.
   withdrawal behavior and stable old revision access.
 - [ ] Attempts, automatic persistence, undo/redo, restart, replay history,
   completions, next puzzle and cross-device pack progression.
-  The shared domain path passes the reference app's scenarios; delivery
-  through the real application is still required.
+  The shared domain path and four assembled app journeys pass, including
+  a fresh signed-in device. Critical models and browser-bundle execution
+  remain open.
 - [ ] Shared discovery, authoring shell, pack editor and player shell.
   Shared screens now compose the real mutation, query, identity and permission
   hooks. Creation, metadata autosave, validation, publication and completion
-  scenarios drive them in the counting reference app. Normal Numberlink
-  server-refusal recovery and assembled app journeys remain open. Bounded
-  hydration and normal Numberlink registry enrollment are implemented.
+  scenarios drive them in the counting reference app. Four normal Numberlink
+  app journeys also pass. Server-refusal recovery, browser-bundle execution
+  and the full release gate remain open. Bounded hydration and normal
+  Numberlink registry enrollment are implemented.
 - [ ] Numberlink visual builder, player and previews; pointer, touch, keyboard,
   accessible labels and responsive design-system components.
   Game components and automated input contracts are implemented; assembling
   the registered Numberlink client supplies them to the shared saved-content
-  workflows. The full app journeys still need executable bindings.
+  workflows. Four full app journeys have executable bindings and pass in
+  the product harness; browser-bundle and UI-quality checks remain open.
 - [ ] Real app registry, navigation, runtime/sub composition, sync, identity,
   observability, feedback and self-service readiness integration.
 - [x] Bound discovery and retained-history subscriptions before offering them
@@ -218,3 +221,23 @@ inferred from this ledger or from a narrow test run.
   full app query check. A named regression records that failure. The app's
   explicit composition test includes the new puzzle tables, queries and
   mutations as well as the existing multiplayer setup table and mutation.
+- All four Numberlink app journeys pass together through ordinary navigation,
+  identity, permissions, SQLite reads, local mutations and server replay.
+  They cover visual authoring, validation and real playtests, publication,
+  changed pack order, undo/redo, restart, reopening, another signed-in device,
+  completing and continuing a pack, and old editions after republication.
+  The offline journey creates a puzzle inside a new pack, edits and reorders
+  private work, completes an available puzzle, reopens both devices offline,
+  then shares the retained publication and completion with a fresh device.
+  The live runner uses the same bindings; its browser execution is still open.
+- App-journey development pinned and fixed two regressions in separate commits:
+  a scoped tap could select a sibling's identically named child control, and
+  opening pack preview could unmount a pending reorder. Their literal examples
+  remain part of ordinary verification.
+- The affected puzzle, Numberlink, runtime, product, Gherkin and tool package
+  typechecks, lints and code tests pass. All 75 shared lifecycle/access checks
+  also pass. The standard spec, spec-ownership, i18n, package and readiness
+  gates pass. A separate literal regression fixes the static checker's loss
+  of nested journey registrations; new harnesses are included in spec-cache
+  inputs and the existing UI-quality report graph. These focused results do
+  not replace the full release gate or the outstanding browser execution.

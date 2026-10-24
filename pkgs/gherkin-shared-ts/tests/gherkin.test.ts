@@ -263,6 +263,20 @@ Feature: Journeys
 });
 
 describe('step definitions', () => {
+  // regression: nested-journey-step-discovery
+  test('relative step registrations remain visible to static discovery', () => {
+    expect(
+      extractStepImports(`
+import './numberlink-journey.steps';
+import './journey-helpers';
+import '@libs/runtime-harness-ts/journeys.steps';
+`)
+    ).toEqual([
+      './numberlink-journey.steps',
+      '@libs/runtime-harness-ts/journeys.steps',
+    ]);
+  });
+
   test('extracts literal definitions, pending bodies, and package imports', () => {
     const source = `
 import '@libs/harness-ts/spec/steps/platform';

@@ -29,7 +29,7 @@ export function ContentPackPreview(props: { definition: string }): JSX.Element {
     return id === null ? null : entry(id);
   };
   return (
-    <StackVertical gap="lg">
+    <StackVertical gap="lg" dataSet={{ testid: 'content-pack-preview' }}>
       <Show
         when={(pack()?.items.length ?? 0) > 0}
         fallback={
@@ -52,6 +52,7 @@ export function ContentPackPreview(props: { definition: string }): JSX.Element {
           <For each={pack()?.items.map((item) => item.puzzleId) ?? []}>
             {(id) => (
               <MenuRow
+                dataSet={{ testid: `content-preview-puzzle-${id}` }}
                 title={(entry(id)?.title ?? '') || t`Unavailable puzzle`}
                 selected={selected() === id}
                 value={

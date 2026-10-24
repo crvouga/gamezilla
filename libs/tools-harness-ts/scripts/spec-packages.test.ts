@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { liveObjectivePaths } from './spec-live';
 import {
+  importedSteps,
   MAX_SPEC_PARTS,
   MODELS_RUNNER,
   modelTaskProblems,
@@ -195,6 +196,18 @@ describe('specPackages', () => {
   const packages = specPackages();
   const inDomain = (path: string, domains: readonly string[]) =>
     domains.some((domain) => path.startsWith(`specs/${domain}/`));
+
+  // regression: nested-journey-step-discovery
+  test('the live runner discovers Numberlink steps imported by its shared journey entry', () => {
+    const live = packages.find((pkg) => pkg.name === '@apps/product-ts');
+    if (live === undefined)
+      throw new Error('The live journey runner must exist');
+    const borrowed = [...importedSteps(live, packages).values()].flat();
+    expect(borrowed.map((step) => step.text)).toContain(
+      'Alice authors, playtests and publishes a Numberlink pack from a fresh device'
+    );
+    expect(live.problems).toEqual([]);
+  });
 
   // regression: db-framework-contract-spec-discovery
   test('unbound database protocols stay in package model tests', () => {

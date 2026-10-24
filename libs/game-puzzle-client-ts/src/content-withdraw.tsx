@@ -30,6 +30,7 @@ export function ContentWithdraw(props: {
         variant="outline"
         onClick={() => setVisible(true)}
         disabled={props.disabled}
+        dataSet={{ testid: 'content-withdraw' }}
       />
       <MutationModal
         visible={visible()}
@@ -45,6 +46,8 @@ export function ContentWithdraw(props: {
         variant="destructive"
         successTitle={<Trans>Withdrawal saved</Trans>}
         operation={withdraw}
+        submitDataSet={{ testid: 'content-withdraw-confirm' }}
+        dismissDataSet={{ testid: 'content-withdraw-dismiss' }}
       />
     </>
   );

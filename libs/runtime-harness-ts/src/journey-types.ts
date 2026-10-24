@@ -33,6 +33,15 @@ export type JourneyBrowser = {
 /** Gestures against the app, driven by `data-testid` as a person would. */
 export type JourneyGestures = (ui: Driver) => Promise<void>;
 
+/** The second person's device lifecycle; earlier devices remain available for sharing. */
+export type JourneyPeerDevice = {
+  spaceLink(): Promise<string>;
+  reopen(): Promise<void>;
+  offline(): Promise<void>;
+  online(): Promise<void>;
+  anotherSignedInDevice(): Promise<void>;
+};
+
 export type JourneyHost = {
   /** Unique per run: seeds values a journey writes, so runs never collide. */
   readonly runId: string;
@@ -50,6 +59,7 @@ export type JourneyHost = {
   open(access: JourneyAccess): Promise<void>;
   /** Open the second person's fresh device with its own identity. */
   openPeer(access: JourneyAccess): Promise<void>;
+  readonly peerDevice: JourneyPeerDevice;
   /** Run `gestures` against the open app. */
   act(name: string, gestures: JourneyGestures): Promise<void>;
   /**
@@ -62,6 +72,8 @@ export type JourneyHost = {
    * hands out.
    */
   spaceLink(): Promise<string>;
+  /** Open a saved space link again on this person's device. */
+  openLink(link: string): Promise<void>;
   /** Open `link` (`/space/<id>`) on the guest's device. */
   openGuest(link: string): Promise<void>;
   /** This device has no connection to the app's servers. */

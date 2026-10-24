@@ -74,6 +74,8 @@ export function ContentAttemptRestart(props: {
         submitLabel={<Trans>Restart</Trans>}
         successTitle={<Trans>New attempt saved</Trans>}
         operation={restart}
+        submitDataSet={{ testid: 'content-restart-confirm' }}
+        dismissDataSet={{ testid: 'content-restart-dismiss' }}
       />
     </>
   );

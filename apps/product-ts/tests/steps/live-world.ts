@@ -50,6 +50,7 @@ import type { ScenarioContext } from '@pkgs/gherkin-shared-ts/registry';
 import { setWorld } from '@pkgs/gherkin-shared-ts/registry';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared-ts/global';
 import type { HttpClient } from '@pkgs/http-client-shared-ts/types';
+import { liveJourneyPeerDevice } from './live-peer-device';
 
 const API_PATH_PREFIX = '/api';
 const SSO_CALLBACK_PATH = '/sso-callback';
@@ -155,6 +156,9 @@ function liveJourneyHost(
     // The deployed bundle is a production build: no puzzle answers on the page.
     showsPuzzleAnswers: false,
     open: (access) => openLiveDevice(target, devices, access),
+    peerDevice: liveJourneyPeerDevice(target, devices, (device) =>
+      signIn(device, target, true)
+    ),
     openPeer: async (access) => {
       if (devices.guest !== null)
         throw new Error('The second device is already open');
@@ -178,6 +182,10 @@ function liveJourneyHost(
     spaceLink: async () =>
       spaceLinkFromLocation(
         await readLocation(requireDevice(devices.host, 'device').view)
+      ),
+    openLink: (link) =>
+      requireDevice(devices.host, 'device').view.navigate(
+        new URL(link, target.webOrigin).href
       ),
     openGuest: (link) => openGuestDevice(target, devices, link),
     offline: async () => {
@@ -212,6 +220,9 @@ async function printBrowserState(devices: LiveDevices): Promise<void> {
   for (const [name, current] of [
     ['host', devices.host],
     ['peer', devices.guest],
+    ...devices.previousPeers.map(
+      (device, index) => [`earlier peer ${index + 1}`, device] as const
+    ),
   ] as const) {
     const layout = await current?.view
       .evaluate(BROWSER_FAILURE_LAYOUT)
@@ -255,7 +266,12 @@ async function closeBrowsing(
       await host.close();
     }
   } finally {
-    if (devices.guest !== null) await devices.guest.close();
+    const peers = [...devices.previousPeers, devices.guest];
+    const closed = await Promise.allSettled(
+      peers.map((device) => device?.close())
+    );
+    for (const result of closed)
+      if (result.status === 'rejected') failure ??= result.reason;
   }
   if (failure === null) return;
   if (!failureFlag.failed) throw failure;
@@ -265,7 +281,12 @@ async function closeBrowsing(
 }
 
 function browsing(target: LiveTarget): Browsing {
-  const devices: LiveDevices = { host: null, guest: null, shown: null };
+  const devices: LiveDevices = {
+    host: null,
+    guest: null,
+    shown: null,
+    previousPeers: [],
+  };
   const cleanups = new Map<string, JourneyGestures>();
   const failureFlag: FailureFlag = { failed: false };
   return {

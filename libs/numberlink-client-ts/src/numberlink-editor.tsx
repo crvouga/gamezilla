@@ -57,12 +57,14 @@ function PairTools(props: {
       <StackHorizontal gap="sm">
         <Button
           title={t`Move first endpoint`}
+          dataSet={{ testid: 'numberlink-move-first' }}
           aria-pressed={props.editor.endpoint() === 0}
           disabled={props.disabled}
           onClick={() => props.editor.setEndpoint(0)}
         />
         <Button
           title={t`Move second endpoint`}
+          dataSet={{ testid: 'numberlink-move-second' }}
           aria-pressed={props.editor.endpoint() === 1}
           disabled={props.disabled}
           onClick={() => props.editor.setEndpoint(1)}
@@ -149,6 +151,7 @@ export function NumberlinkEditor(props: PuzzleEditorProps): JSX.Element {
         <StackVertical gap="lg">
           <NumberStepper
             label={t`Columns`}
+            dataSet={{ testid: 'numberlink-columns' }}
             value={board().width}
             min={2}
             max={20}
@@ -157,6 +160,7 @@ export function NumberlinkEditor(props: PuzzleEditorProps): JSX.Element {
           />
           <NumberStepper
             label={t`Rows`}
+            dataSet={{ testid: 'numberlink-rows' }}
             value={board().height}
             min={2}
             max={20}

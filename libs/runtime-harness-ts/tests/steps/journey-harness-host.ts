@@ -21,6 +21,7 @@ import type {
   JourneyHost,
 } from '@libs/runtime-harness-ts/journey-types';
 import { spaceLinkFromLocation } from '@libs/runtime-harness-ts/journey-types';
+import { harnessJourneyPeerDevice } from './journey-peer-device';
 
 const HOST = 'alice';
 const GUEST = 'guest';
@@ -65,11 +66,16 @@ async function actorSpaceLink(
 }
 
 export function harnessJourneyHost(w: HarnessWorld): JourneyHost {
+  let guestId = GUEST;
   const act = async (name: string, gestures: JourneyGestures) => {
     // The guest's last gesture parks Alice. An instant visibility check then
     // reads her game as gone and the journey tries to host another space.
     await w.s.apply(focusActor, HOST);
     await w.s.apply(journeyGestures, HOST, name, gestures);
+  };
+  const actAsGuest: JourneyHost['actAsGuest'] = async (name, gestures) => {
+    await w.s.apply(focusActor, guestId);
+    await w.s.apply(journeyGestures, guestId, name, gestures);
   };
   return {
     runId: 'harness',
@@ -87,6 +93,14 @@ export function harnessJourneyHost(w: HarnessWorld): JourneyHost {
       await act('confirmSignedIn', confirmSignedIn);
     },
     act,
+    peerDevice: harnessJourneyPeerDevice(w, {
+      current: () => guestId,
+      select: (id) => {
+        guestId = id;
+      },
+      account: GUEST,
+      act: actAsGuest,
+    }),
     openPeer: async (access) => {
       await w.s.apply(
         access === 'signed-in' ? signInWithGoogle : spawnActor,
@@ -101,13 +115,10 @@ export function harnessJourneyHost(w: HarnessWorld): JourneyHost {
           confirmSignedIn
         );
     },
-    actAsGuest: async (name, gestures) => {
-      // Focusing the guest opens their device on the first call.
-      await w.s.apply(focusActor, GUEST);
-      await w.s.apply(journeyGestures, GUEST, name, gestures);
-    },
+    actAsGuest,
     spaceLink: () => w.s.read(actorSpaceLink, HOST),
-    openGuest: (link) => w.s.apply(openActorLink, GUEST, link),
+    openLink: (link) => w.s.apply(openActorLink, HOST, link),
+    openGuest: (link) => w.s.apply(openActorLink, guestId, link),
     offline: async () => {
       // regression: journey-offline-live-browser-capability
       await w.s.apply(setWorkOfflineFromCurrentPlace, HOST, true);

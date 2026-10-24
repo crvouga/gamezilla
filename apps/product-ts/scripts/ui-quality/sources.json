@@ -30,9 +30,19 @@
     "parts": 64
   },
   {
+    "package": "@libs/game-puzzle-harness-ts",
+    "directory": "libs/game-puzzle-harness-ts",
+    "parts": 4
+  },
+  {
     "package": "@libs/games-harness-ts",
     "directory": "libs/games-harness-ts",
     "parts": 95
+  },
+  {
+    "package": "@libs/numberlink-harness-ts",
+    "directory": "libs/numberlink-harness-ts",
+    "parts": 1
   },
   {
     "package": "@libs/profile-harness-ts",

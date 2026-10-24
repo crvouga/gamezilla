@@ -6,6 +6,7 @@ export type LiveDevices = {
   host: Device | null;
   guest: Device | null;
   shown: Device | null;
+  readonly previousPeers: Device[];
 };
 
 export function requireDevice(device: Device | null, who: string): Device {

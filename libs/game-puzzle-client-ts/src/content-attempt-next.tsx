@@ -42,6 +42,7 @@ export function ContentAttemptNext(props: {
         {(id) => (
           <Button
             title={t`Pack overview`}
+            dataSet={{ testid: 'content-return-pack' }}
             variant="outline"
             intent="neutral"
             onClick={() =>

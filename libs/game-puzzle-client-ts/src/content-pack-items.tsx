@@ -49,6 +49,7 @@ export function ContentPackItems(props: {
         <MenuSection
           title={<Trans>Pack order</Trans>}
           role="group"
+          dataSet={{ testid: 'content-pack-order' }}
           footer={
             <Trans>
               People may play these puzzles in any order. Publication pins the

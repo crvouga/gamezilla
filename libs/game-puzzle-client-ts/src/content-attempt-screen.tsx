@@ -43,6 +43,12 @@ function AttemptBody(props: {
   return (
     <GameScreen
       screenId="puzzle-content-attempt"
+      dataSet={{
+        testid: 'content-attempt',
+        attemptid: props.attempt.id,
+        sourceid: props.attempt.source_id,
+        packrevisionid: props.attempt.pack_revision_id ?? '',
+      }}
       title={props.source.title}
       subtitle={props.source.difficulty}
     >

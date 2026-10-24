@@ -52,7 +52,10 @@ export function ContentPackOverview(props: {
       >
         {(pack) => (
           <StackVertical gap="lg">
-            <P role="status">{t`${pack().completedCount} of ${pack().total} puzzles completed`}</P>
+            <P
+              role="status"
+              dataSet={{ testid: 'content-pack-progress' }}
+            >{t`${pack().completedCount} of ${pack().total} puzzles completed`}</P>
             <Show when={pack().complete}>
               <SuccessState
                 title={t`Pack completed`}
@@ -80,7 +83,10 @@ export function ContentPackOverview(props: {
                 </Trans>
               </Notice>
             </Show>
-            <MenuSection title={<Trans>Choose any puzzle</Trans>}>
+            <MenuSection
+              title={<Trans>Choose any puzzle</Trans>}
+              dataSet={{ testid: 'content-pack-puzzles' }}
+            >
               <For each={pack().items.map((item) => item.revisionId)}>
                 {(id) => {
                   const item = () =>

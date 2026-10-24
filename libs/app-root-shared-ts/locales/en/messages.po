@@ -5931,6 +5931,10 @@ msgstr "Version accepting new assignments"
 msgid "View profile"
 msgstr "View profile"
 
+#: libs/game-puzzle-client-ts/src/content-publication-controls.tsx
+msgid "View published edition"
+msgstr "View published edition"
+
 #: libs/game-session-client-ts/src/custom-game-status.tsx
 msgid "Waiting for participants and readiness."
 msgstr "Waiting for participants and readiness."
