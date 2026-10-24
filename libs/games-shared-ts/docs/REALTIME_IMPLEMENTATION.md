@@ -685,3 +685,32 @@ game's other capabilities or create a second game identity. Registration accepts
 that composition under one game identity. The mechanics-owned command capability
 and custom/matched probes above implement its shared execution paths. Local
 command projection remains required before hybrid support is complete.
+
+
+### Draft checkpoint and trunk synchronization
+
+The implementation checkpoint is `53d38f4f5`, published in draft
+[PR #227](https://github.com/crvouga/gamezilla/pull/227). Full-CI, complete
+coverage and person-facing readiness claims remain unchecked while their
+obligations are open. The user-provided implementation prompt remains untracked.
+
+Current main initially conflicted with the draft and prevented Verify PR from
+starting. The merge preserves main's batched matchmaking, due-clock checks,
+outbox consumers, stricter private-setup UI and spec-part allocation, together
+with Pong's live room ports, clockless choices, native bridge and continuous
+controls. Clockless simulation projection remains eligible when there is no
+turn-clock deadline. Fresh native peers use their requested shared policy seed;
+registered peers retain their checkpoint.
+
+Evidence under `.cache/pong/`:
+
+- `merge-main-type-lint-second.log`: all eighteen affected type/lint tasks pass.
+- `merge-main-unit-contracts.log`: all six affected unit/contract tasks pass.
+- `merge-main-pong-context.log`: the complete Pong context passes 52 checks.
+- `merge-main-synthetic-context.log`: the complete Synthetic Population context
+  passes 59 checks.
+
+The JUnit fixture's overlapping upstream/branch fields were reconciled to the
+upstream typed fixture. Resolution paths pass whitespace checking. Generated
+SQLite assets inherited from main are byte-identical to that parent and were
+not patched. No new spec text was authored in this merge.

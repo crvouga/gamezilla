@@ -151,6 +151,26 @@ async function openRuntimeBackend(
         )
       );
     },
+    async matchmakingDiagnostics() {
+      const db = harness.serverSql.sqlClient;
+      return {
+        deliveries: await db.query(
+          sql<
+            Record<string, unknown>
+          >`SELECT consumer_id, attempts, last_error FROM outbox_deliveries WHERE last_error IS NOT NULL`
+        ),
+        searches: await db.query(
+          sql<
+            Record<string, unknown>
+          >`SELECT standing, time_control FROM chess_opponent_searches WHERE deleted_at IS NULL`
+        ),
+        games: await db.query(
+          sql<
+            Record<string, unknown>
+          >`SELECT id, outcome, setup_ready FROM chess_multiplayer_games WHERE deleted_at IS NULL`
+        ),
+      };
+    },
     async acceptedGameMoves() {
       return harness.serverSql.sqlClient.query(sql<{
         owner_id: string;

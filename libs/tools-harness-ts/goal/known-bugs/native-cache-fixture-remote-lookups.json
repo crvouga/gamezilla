@@ -1,0 +1,4 @@
+{
+  "summary": "Native cache-key fixture dry runs inherited CI remote-cache credentials and spent their test budget querying remote verdicts. Hash-only fixtures explicitly use local caching and disable the daemon.",
+  "regressionTest": "libs/tools-harness-ts/scripts/native-cache-keys.test.ts"
+}

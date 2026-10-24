@@ -23,7 +23,7 @@ import {
   SLICE_SCENARIOS,
   specUnits,
   specWeight,
-  splitSpecParts,
+  splitSpecUnits,
   TRACE_WEIGHT,
   VERIFY_WEIGHT,
 } from './spec-parts';
@@ -159,6 +159,16 @@ describe('a planned model', () => {
 });
 
 describe('partOf', () => {
+  test('the 95 shared-game parts all hold runnable units', () => {
+    // regression: games-spec-empty-hash-parts
+    const parts = suiteParts('libs/games-harness-ts', 95);
+    for (const part of parts) expect(part.length).toBeGreaterThan(0);
+    const all = parts.flat();
+    expect(
+      new Set(all.map((unit) => `${unit.path}#${unit.slice?.index ?? 0}`)).size
+    ).toBe(all.length);
+  });
+
   const unit = (path: string, weight: number): SpecUnit => ({ path, weight });
   const units = [unit('a', 10), unit('b', 6), unit('c', 5), unit('d', 1)];
   const paths = (list: readonly SpecUnit[]) => list.map((u) => u.path);
@@ -335,7 +345,7 @@ describe('partOf', () => {
         packageSpecs(packageDir, REPO_ROOT)
       );
       for (let count = 1; count < specParts; count++)
-        expect(splitSpecParts(unitsFor(count), count).every(withinCaps)).toBe(
+        expect(splitSpecUnits(unitsFor(count), count).every(withinCaps)).toBe(
           false
         );
     }
@@ -375,7 +385,7 @@ function suiteParts(
     packageSpecs(packageDir, REPO_ROOT),
     count
   );
-  return splitSpecParts(units, count);
+  return splitSpecUnits(units, count);
 }
 
 // regression: chess-model-preparation-timeout

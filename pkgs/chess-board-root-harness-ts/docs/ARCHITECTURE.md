@@ -47,8 +47,9 @@ width — so a resize rewrites nothing and every motion is a `transform`.
   `contextmenu` only; move / up / cancel listeners exist for the life of a
   press (`chess-board-pointer.ts`). Cursors come from CSS.
 - **Presses are cheap on slow phones.** One layout read per press
-  (`getBoundingClientRect` + `clientLeft/Top/Width`, no `getComputedStyle`,
-  no observer), re-read only if the page scrolls mid-press. The board
+  (`getBoundingClientRect`, current CSS width and `clientLeft/Top`,
+  no observer), re-read only if the page scrolls mid-press. Reading the current
+  width keeps input correct before a resize observer delivers its update. The board
   prevents the press's defaults: no compatibility mouse events after a touch,
   no text selection, no focus churn (a mouse press focuses its square itself
   so keyboard play continues).

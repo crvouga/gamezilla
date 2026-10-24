@@ -40,11 +40,7 @@ import { HTTPException } from 'hono/http-exception';
 import { mountBrowserTelemetryIngress } from './browser-telemetry-ingress';
 import { createHealthApp } from './health-route';
 import { notifyUserChannels } from './notify-user-channels';
-import {
-  drainAndNotifyOutbox,
-  requestOutboxRegistry,
-  setOutboxConsumerRegistry,
-} from './outbox-drain';
+import { setOutboxConsumerRegistry } from './outbox-drain';
 import { createPubSubTokenRoutes } from './pubsub-token-routes';
 import { createRequestDbMiddleware } from './request-db-middleware';
 import {
@@ -251,6 +247,7 @@ function createSyncAppMount(
 ) {
   return createSyncApp({
     app,
+    outboxConsumers: args.servers.outboxConsumers,
     authorizeServerMutation: args.servers.authorizeMutation,
     ...(args.rooms === undefined ? {} : { rooms: args.rooms }),
     now: () => env.clock.now(),
@@ -316,21 +313,6 @@ function createServerRouter(args: {
         notifyUserChannels(userIds, 'auth-domain-write')
       ).build()
     )
-    .use('*', async (c, next) => {
-      await next();
-      const path = new URL(c.req.url).pathname;
-      if (c.req.method !== 'POST' || !path.endsWith('/mutations')) return;
-      if (c.res.status < 200 || c.res.status >= 300) return;
-      const store = apiRequestAsyncLocalStorage.getStore();
-      if (store === undefined) return;
-      await drainAndNotifyOutbox({
-        consumerRegistry: requestOutboxRegistry(servers.outboxConsumers),
-        objectStore: env.blob,
-        db: store.sqlClient,
-        clock: store.clock,
-        createId: store.createId,
-      });
-    })
     .route('/', sync)
     .route('/', createPubSubTokenRoutes(servers))
     .route('/', tts.app)

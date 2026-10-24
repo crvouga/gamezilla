@@ -46,7 +46,11 @@ export function CustomGamePrivateSetup(props: {
               />
             )}
           </Show>
-          <P variant="bodyBold" role="status" testId="custom-game-setup-status">
+          <P
+            variant="bodyBold"
+            role="status"
+            dataSet={{ testid: 'custom-game-setup-status' }}
+          >
             <Show
               when={setup().complete()}
               fallback={<Trans>Your private setup is incomplete.</Trans>}

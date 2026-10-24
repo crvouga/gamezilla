@@ -1,0 +1,4 @@
+{
+  "summary": "Superseded multiplayer deadlines locked both owners and reread the game even when the game had ended, paused or moved its deadline later, delaying unrelated outbox work. Check the current deadline before taking locks; still reread due games under the locks.",
+  "regressionTest": "libs/game-matchmaking-shared-ts/tests/settle-due-game.test.ts"
+}

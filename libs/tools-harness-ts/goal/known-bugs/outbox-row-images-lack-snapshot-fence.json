@@ -1,0 +1,4 @@
+{
+  "summary": "Outbox row images had no query checkpoint, so an older in-flight snapshot could overwrite a newly committed pairing. Share the snapshot checkpoint source, and use invalidations when no fence is available.",
+  "regressionTest": "libs/app-root-server-ts/tests/outbox-row-images.test.ts"
+}

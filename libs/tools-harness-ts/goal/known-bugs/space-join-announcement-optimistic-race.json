@@ -1,0 +1,4 @@
+{
+  "summary": "A join's optimistic row announced membership before its mutation completed; the completion then announced it again. Independent private-setup runs received 29 versus 27 history entries. The acknowledgement must honor the announcement already made.",
+  "regressionTest": "libs/games-harness-ts/tests/conformance/custom-games/private-setup-privacy.test.ts"
+}

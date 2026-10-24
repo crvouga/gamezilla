@@ -13,19 +13,27 @@ export async function runtimeSession(
   backend: Backend,
   workerId: string,
   version = 'realm-test',
-  policySeed = 'native-chess-pair'
+  policySeed = 'native-paired-chess-1'
 ) {
   const response = await backend.rpc.claim.$post({ json: { workerId } });
-  const { assignment: claimed } = await response.json();
-  if (claimed === null)
+  const { assignment: stored } = await response.json();
+  if (stored === null)
     throw new Error('An application instance was not assigned');
-  // A pairing contract chooses one shared activity, instead of relying on two independent policy draws to coincide.
-  const assignment = {
-    ...claimed,
-    checkpoint:
-      claimed.checkpoint ??
-      reconcileCheckpoint(null, backend.wall.clock.now(), policySeed),
-  };
+  // regression: synthetic-native-pair-different-games
+  // Fresh fixture peers share the requested activity; registered users retain their checkpoint.
+  const assignment = stored.registered
+    ? stored
+    : {
+        ...stored,
+        checkpoint: {
+          ...reconcileCheckpoint(
+            stored.checkpoint,
+            backend.wall.clock.now(),
+            policySeed
+          ),
+          policySeed,
+        },
+      };
   const realm = createIsolatedWorker(
     new URL('../src/session-entry.ts', import.meta.url),
     ['@pkgs/bun-test-solid-client-ts/register'],
@@ -124,6 +132,6 @@ export async function awaitRuntimeUsers(
   }
   const users = await backend.repository.users();
   throw new Error(
-    `The application instances did not reach the expected state: ${JSON.stringify(users.map((user) => ({ activity: user.activity, error: user.last_error, action: user.last_action })))}`
+    `The application instances did not reach the expected state: ${JSON.stringify(users.map((user) => ({ activity: user.activity, error: user.last_error, action: user.last_action })))}; matchmaking: ${JSON.stringify(await backend.matchmakingDiagnostics())}`
   );
 }

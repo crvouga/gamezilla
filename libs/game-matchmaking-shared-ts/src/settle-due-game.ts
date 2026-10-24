@@ -6,7 +6,10 @@ import type { MutationEnv } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { wrapMutationDb } from '@pkgs/sync-engine-shared-ts/wrap-mutation-db';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { MultiplayerGameRepository } from './game-repository';
-import { settleMultiplayerClock } from './multiplayer-clock';
+import {
+  multiplayerDeadlineMs,
+  settleMultiplayerClock,
+} from './multiplayer-clock';
 import { synchronizeLiveMatchMutation } from './synchronize-live-match-mutation';
 
 async function projectLiveMatch(
@@ -50,6 +53,11 @@ export async function settleDueGame(
   const repository = new MultiplayerGameRepository(tx);
   const found = await repository.byId(gameId);
   if (found === null) return [];
+  const simulated =
+    rules.simulation(rules.forPosition(found.fen).id) !== undefined;
+  const due = multiplayerDeadlineMs(found);
+  // Old move deadlines remain durable, but cannot settle this newer state.
+  if (!simulated && (due === null || due > nowMs)) return [];
   const stored = await repository.owned(gameId, found.white_id, nowMs);
   if (stored.outcome !== 'ongoing') return [];
   if (rules.simulation(rules.forPosition(stored.fen).id) !== undefined) {

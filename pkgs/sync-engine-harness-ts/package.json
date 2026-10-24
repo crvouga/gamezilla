@@ -40,6 +40,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/property-shared-ts": "workspace:*",
     "@pkgs/bun-test-solid-client-ts": "workspace:*",
     "@pkgs/db-schema-postgres-shared-ts": "workspace:*",
     "@pkgs/gherkin-shared-ts": "workspace:*",

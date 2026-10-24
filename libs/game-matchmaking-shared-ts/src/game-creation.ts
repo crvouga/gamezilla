@@ -104,10 +104,11 @@ export async function createMultiplayerGame(
       ${game.white_ms}, ${game.black_ms}, ${game.clock_at_ms}, ${game.paused_at_ms}, ${game.draw_offer_by},
       ${game.rematch_offer_by}, ${game.rematch_of}, ${game.white_rating}, ${game.black_rating},
       ${null}, ${null}, ${game.setup_ready}, ${iso}, ${iso}, ${null})`);
+  await tx.run(sql`INSERT INTO chess_multiplayer_players (id, owner_id, game_id, created_at, updated_at, deleted_at)
+    VALUES (${input.whiteId}, ${input.whiteId}, ${game.id}, ${iso}, ${iso}, ${null}),
+      (${input.blackId}, ${input.blackId}, ${game.id}, ${iso}, ${iso}, ${null})
+    ON CONFLICT (id) DO UPDATE SET game_id = excluded.game_id, updated_at = excluded.updated_at`);
   for (const ownerId of [input.whiteId, input.blackId]) {
-    await tx.run(sql`INSERT INTO chess_multiplayer_players (id, owner_id, game_id, created_at, updated_at, deleted_at)
-      VALUES (${ownerId}, ${ownerId}, ${game.id}, ${iso}, ${iso}, ${null})
-      ON CONFLICT (id) DO UPDATE SET game_id = excluded.game_id, updated_at = excluded.updated_at`);
     await changeAvailability(tx, {
       ownerId,
       available: false,

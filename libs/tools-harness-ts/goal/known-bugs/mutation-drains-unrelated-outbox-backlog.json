@@ -1,0 +1,4 @@
+{
+  "summary": "Every mutation drained global due outbox work, letting unrelated deliveries delay a fresh pairing. Scope request drains to committed write-captured event IDs and their causal descendants; retain global scheduled draining.",
+  "regressionTest": "libs/app-root-server-ts/tests/outbox-pass-notification.test.ts"
+}

@@ -93,3 +93,25 @@ export function participatingRoster(
     .filter((connection) => participates(connection, authority))
     .map((connection) => connection.actor);
 }
+
+/** Only participating identities change presence; previews and extra tabs do not. */
+export function changedPresence(
+  previous: string,
+  roster: readonly RoomActor[]
+): { readonly key: string; readonly present: readonly string[] } | null {
+  const present = [...new Set(roster.map((actor) => actor.id))].sort();
+  const key = JSON.stringify(present);
+  return key === previous ? null : { key, present };
+}
+
+export function connectionIdsForActor(
+  connections: ReadonlyMap<string, RoomConnection>,
+  actorId: string,
+  clientId: string
+): readonly string[] {
+  const out: string[] = [];
+  for (const conn of connections.values())
+    if (conn.actor.id === actorId && conn.actor.clientId === clientId)
+      out.push(conn.id);
+  return out;
+}

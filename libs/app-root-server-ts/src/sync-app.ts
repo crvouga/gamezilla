@@ -6,12 +6,15 @@ import { HttpPubSubFromSecretStore } from '@libs/pubsub-server-ts/create-http-pu
 import type { ComposedSubs } from '@libs/sub-shared-ts/compose';
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import { createLogger } from '@pkgs/logger-shared-ts/logger';
+import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared-ts/define-consumer';
 import type { PubSub } from '@pkgs/pubsub-root-shared-ts/interface';
 import { PubSubNotSupportedError } from '@pkgs/pubsub-root-shared-ts/pubsub-not-supported-error';
 import type { RoomServicePort } from '@pkgs/room-root-shared-ts/room-service';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import { createSyncApp as createSyncEngineApp } from '@pkgs/sync-engine-server-ts/create-sync-app';
 import type { MutationAuthorize } from '@pkgs/sync-engine-shared-ts/mutations-types';
+import { drainAndNotifyOutbox, requestOutboxRegistry } from './outbox-drain';
+import { capturedOutboxScope } from './outbox-event-scope';
 import { countTruncatedQuery } from './query-truncation';
 
 function openRequestSqlClient(): SqlClient {
@@ -52,6 +55,7 @@ function createRequestScopedPubSub(): PubSub {
 export async function createSyncApp(deps: {
   /** The folded sub set: schema, queries, wake topics, mutations. */
   readonly app: ComposedSubs;
+  readonly outboxConsumers: OutboxConsumerRegistry;
   /** The subs' server-only mutation checks (rooms they read); none by default. */
   readonly authorizeServerMutation?: MutationAuthorize;
   readonly rooms?: RoomServicePort;
@@ -63,6 +67,10 @@ export async function createSyncApp(deps: {
   readonly strictQueryLimits?: boolean;
 }) {
   let checkpointSeq = 0;
+  const nextCheckpoint = (): string => {
+    checkpointSeq += 1;
+    return `${String(deps.now())}${String(checkpointSeq).padStart(6, '0')}`;
+  };
   const mutations = await deps.app.mutations();
   return createSyncEngineApp({
     resolveAuth: resolveSessionReplayAuth,
@@ -82,10 +90,20 @@ export async function createSyncApp(deps: {
     pubsub: createRequestScopedPubSub(),
     rowImageFanout: true,
     topicMap: deps.app.topicMap,
-    nextCheckpoint: () => {
-      checkpointSeq += 1;
-      return `${String(deps.now())}${String(checkpointSeq).padStart(6, '0')}`;
+    onCommitted: async (captures) => {
+      const store = apiRequestAsyncLocalStorage.getStore();
+      assert.defined(store, 'sync outbox: request store missing');
+      await drainAndNotifyOutbox({
+        consumerRegistry: requestOutboxRegistry(deps.outboxConsumers),
+        nextCheckpoint,
+        objectStore: store.objectStore,
+        db: store.sqlClient,
+        clock: store.clock,
+        createId: store.createId,
+        ...capturedOutboxScope(captures),
+      });
     },
+    nextCheckpoint,
     ...(deps.strictQueryLimits === true ? { strictQueryLimits: true } : {}),
     onQueryTruncated: countTruncatedQuery(
       createLogger({ name: 'sync:query', now: deps.now })

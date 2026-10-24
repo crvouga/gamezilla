@@ -257,6 +257,9 @@ export type MountMutationsRouteDeps = {
   readonly turnGames?: TurnGames;
   readonly rooms?: RoomServicePort;
   readonly contentRulesAt?: (atMs: number) => ContentRules;
+  readonly onCommitted?: (
+    captures: readonly WriteCaptureSnapshot[]
+  ) => Promise<void>;
 };
 
 export function mountMutationsRoute(
@@ -296,24 +299,18 @@ export function mountMutationsRoute(
     const { result, checkpoints } = prepared;
     if (deps.pubsub !== undefined && result.applied.length > 0) {
       await publishMutationPushes(deps, prepared);
-      return c.json(
-        {
-          ok: result.ok,
-          serverTimeMs: deps.now(),
-          verdicts: result.verdicts,
-          ackSeq: result.ackSeq,
-          topicPushSeqs: Object.fromEntries(checkpoints),
-          protocol: SYNC_PROTOCOL_VERSION,
-        },
-        200
-      );
     }
+    if (result.applied.length > 0)
+      await deps.onCommitted?.(result.applied.map((item) => item.capture));
     return c.json(
       {
         ok: result.ok,
         serverTimeMs: deps.now(),
         verdicts: result.verdicts,
         ackSeq: result.ackSeq,
+        ...(deps.pubsub !== undefined && result.applied.length > 0
+          ? { topicPushSeqs: Object.fromEntries(checkpoints) }
+          : {}),
         protocol: SYNC_PROTOCOL_VERSION,
       },
       200

@@ -1,0 +1,4 @@
+{
+  "summary": "Outbox notifications waited for every causal pass to finish, so a committed multiplayer pairing stayed hidden while later deadline deliveries held the request. Publish each committed pass before starting the next one.",
+  "regressionTest": "libs/app-root-server-ts/tests/outbox-pass-notification.test.ts"
+}

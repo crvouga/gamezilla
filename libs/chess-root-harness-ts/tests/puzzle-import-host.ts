@@ -71,6 +71,7 @@ function importHost(
 ) {
   const store = new ObjectStoreImplInMemory();
   let id = 0;
+  let checkpoint = 0;
   const createId = () => `id-${++id}`;
   const clock = { now: () => Date.parse(AT) };
   const env = (actorId: string): MutationEnv => ({
@@ -102,6 +103,7 @@ function importHost(
     drainAndNotify: () =>
       drainAndNotifyOutbox({
         db: postgres.db,
+        nextCheckpoint: () => String(++checkpoint),
         clock,
         createId,
         consumerRegistry: registry,

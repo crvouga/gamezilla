@@ -20,6 +20,7 @@ test('a refused mutation rolls back its writes without discarding the other batc
     for (const schema of [syncEngineServerSchema, exampleAppSchema])
       await reconcileSqliteSchema(db, schema, { ownership: 'declared-only' });
     let id = 0;
+    const committed: string[][] = [];
     const app = createSyncApp({
       resolveAuth: async () => ({
         actorId: 'alice',
@@ -28,6 +29,15 @@ test('a refused mutation rolls back its writes without discarding the other batc
         isAnon: false,
       }),
       getSql: () => db,
+      onCommitted: async (captures) => {
+        // regression: mutation-commit-host-work-capture
+        committed.push(
+          captures.flatMap((capture) => capture.ids['notes'] ?? [])
+        );
+        expect(
+          await db.query(sql<{ body: string }>`SELECT body FROM notes`)
+        ).toEqual([{ body: 'bread' }]);
+      },
       queries: {},
       mutations: mutationRegistry([pendingNote]),
       now: () => 1700000000000,
@@ -52,6 +62,7 @@ test('a refused mutation rolls back its writes without discarding the other batc
       }),
     });
     expect(response.status).toBe(200);
+    expect(committed).toEqual([['Groceries', 'Groceries']]);
     const result = (await response.json()) as {
       verdicts: { status: string }[];
     };

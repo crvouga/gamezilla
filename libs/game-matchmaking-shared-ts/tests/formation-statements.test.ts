@@ -1,6 +1,9 @@
 import { expect, test } from 'bun:test';
 import { offeredMatchChoices } from '@libs/game-matchmaking-shared-ts/match-choice';
-import { formGameMatches } from '@libs/game-matchmaking-shared-ts/match-handoff';
+import {
+  acceptGameMatch,
+  formGameMatches,
+} from '@libs/game-matchmaking-shared-ts/match-handoff';
 import { opponentPool } from '@libs/game-matchmaking-shared-ts/search-config';
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import {
@@ -46,7 +49,9 @@ function recordingTx(waitingPools: readonly string[]) {
       return (
         poolsQuery
           ? waitingPools.map((partition_signature) => ({ partition_signature }))
-          : []
+          : query.sql.includes('INSERT INTO matchmaking_owners')
+            ? [{ current_id: null, available: true }]
+            : []
       ) as never;
     },
     run: async (query) => {
@@ -81,4 +86,45 @@ test('a formation pass runs only for the pools that have people waiting', async 
   ]);
   await formGameMatches(waiting.tx, ports, rules);
   expect(waiting.passes()).toBe(2);
+});
+
+// regression: match-formation-redundant-round-trips
+test('accepting a pair reads its histories once and inserts both player pointers together', async () => {
+  const pass = recordingTx([]);
+  await acceptGameMatch(
+    pass.tx,
+    {
+      matchId: 'accepted-pair',
+      participants: ['alice', 'bob'].map((ownerId) => ({
+        id: ownerId,
+        ownerId,
+        joinedAtMs: ports.nowMs,
+        data: { 'chess/time-control': '5+0' } as never,
+        metadata: null,
+      })),
+    },
+    { ...ports, tieBreak: () => true },
+    rules
+  );
+  const histories = pass.statements.filter(
+    (query) =>
+      query.includes('FROM chess_multiplayer_games') &&
+      !query.includes('match_id =')
+  );
+  expect(histories).toHaveLength(1);
+  expect(
+    pass.statements.filter((query) =>
+      query.includes('INSERT INTO chess_multiplayer_players')
+    )
+  ).toHaveLength(1);
+  expect(
+    pass.statements.filter((query) =>
+      query.includes('INSERT INTO chess_opponent_searches')
+    )
+  ).toHaveLength(1);
+  expect(
+    pass.statements.filter((query) =>
+      query.includes('SELECT w.id, w.data, w.metadata')
+    )
+  ).toHaveLength(0);
 });

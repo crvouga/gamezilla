@@ -1,0 +1,4 @@
+{
+  "summary": "The chess matchmaking journey reused another game's visible multiplayer choice, leaving its two participants waiting in different game pools. Select chess explicitly from the existing space's game menu.",
+  "regressionTest": "libs/runtime-harness-ts/tests/multiplayer-search-loading.test.ts"
+}

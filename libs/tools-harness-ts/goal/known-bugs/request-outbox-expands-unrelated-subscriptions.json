@@ -1,0 +1,4 @@
+{
+  "summary": "A request expanded every registered outbox subscription into registration and claim queries despite knowing its captured event types. Keep the request's complete type set, expand it with captured children, and fall back to all consumers when type images are missing.",
+  "regressionTest": "libs/app-root-server-ts/tests/outbox-event-scope.test.ts"
+}

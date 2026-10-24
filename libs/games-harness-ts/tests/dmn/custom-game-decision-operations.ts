@@ -40,6 +40,7 @@ function readyFor(w: RoomWorld, side: 'white' | 'black'): CustomGameInput {
   return { operation: 'ready', ...(setup === undefined ? {} : { setup }) };
 }
 async function prepare(w: RoomWorld, capability: string): Promise<void> {
+  // regression: custom-game-decision-private-setup
   const join = (memberId: string) =>
     w.node.services.send(
       `space:${SPACE_ID}`,
