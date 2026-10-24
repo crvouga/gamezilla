@@ -9,6 +9,7 @@ import {
   useSyncEngineInstance,
 } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { createEffect, onCleanup } from 'solid-js';
+import { matchingMultiplayerRoomGame } from './multiplayer-room-game';
 import { useMatchRoom } from './use-match-room';
 
 export type MultiplayerSearchRow = {
@@ -30,10 +31,10 @@ const GAME_COLUMNS = raw(
 
 function withRoom(
   row: MultiplayerGame,
-  room: MatchRoomGame | null
+  candidate: MatchRoomGame | null
 ): MultiplayerGame {
-  if (room === null || room.id !== row.id || room.revision < row.revision)
-    return row;
+  const room = matchingMultiplayerRoomGame(row, candidate);
+  if (room === null) return row;
   return {
     ...row,
     white_id: room.white_id,
@@ -129,7 +130,9 @@ export function useMultiplayerData(gameId: () => string) {
     hostId,
     game,
     room: roomGame.room,
-    execution: () => roomGame.game()?.execution,
+    execution: () =>
+      matchingMultiplayerRoomGame(games.rows()[0] ?? null, roomGame.game())
+        ?.execution,
     search: () => searches.rows()[0] ?? null,
     ratings: ratings.rows,
     participant: () => {

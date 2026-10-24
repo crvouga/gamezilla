@@ -18,6 +18,7 @@ import {
   onCleanup,
   untrack,
 } from 'solid-js';
+import { matchingMultiplayerRoomGame } from './multiplayer-room-game';
 import type { MatchRoomClient } from './use-match-room';
 
 /** Matched play uses its already-open authoritative room, including viewers with no paddle. */
@@ -50,18 +51,25 @@ export function useMatchedSimulation(
     const definition = rules.simulation(
       rules.forPosition(untrack(current).fen).id
     )!;
+    const acceptedRoom = () =>
+      matchingMultiplayerRoomGame(
+        untrack(current),
+        matchRoomGame(live.getSnapshot())
+      );
     const connection = connectSimulationPresentation({
       simulation: definition,
       clock,
       timers,
       generation: () => {
-        const execution = matchRoomGame(live.getSnapshot())?.execution;
+        const execution = acceptedRoom()?.execution;
         return execution === undefined
           ? undefined
           : `${execution.epoch}:${execution.inputGeneration}`;
       },
       isReady: () =>
-        untrack(online) && RoomMetaAttr.isSynced.from(live.getSnapshot()),
+        untrack(online) &&
+        acceptedRoom() !== null &&
+        RoomMetaAttr.isSynced.from(live.getSnapshot()),
       send: live.sendSignal.bind(live),
       subscribeSignal: live.subscribeSignal.bind(live),
       subscribeRoom: live.subscribe.bind(live),

@@ -671,6 +671,23 @@ The following remain required before the brief is complete:
 6. Readiness evidence, automated responsive visual verification, the full current
    `bun verify` gate and appropriate deeper verification, and a reviewable PR.
 
+## Matched room handover
+
+The displayed SQL game already rejected a room with another match identity or
+an older checkpoint. Live execution metadata and the presentation connection
+did not share that check. `matched-simulation-room-handover` pins both the
+previous-match/rematch case and an older checkpoint of the same match. The
+public room selector now gates the displayed game, execution metadata and
+presentation readiness/generation together. Until the new room catches up,
+controls stay stale rather than adopting the previous match's generation.
+
+`matched-room-handover-red.log` records three failing checks, including a
+property shrunk to revision zero followed by one; that literal case is pinned.
+`matched-room-handover-quality.log` records all three affected package tasks
+passing, and `pong-after-room-handover.log` records 61 passing Pong checks.
+This mechanical handover coverage does not establish the remaining natural
+matched completion/rematch journeys or unclean authority-loss recovery.
+
 ## Future-game checks
 
 An Asteroids-like simulation can store any number of moving entities in its
