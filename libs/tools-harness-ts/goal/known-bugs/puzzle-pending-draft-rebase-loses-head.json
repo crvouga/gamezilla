@@ -1,0 +1,4 @@
+{
+  "summary": "A server snapshot replaced a private draft head while retaining its pending saved copy. Mutation replay returned early and failed to restore the pending edit.",
+  "regressionTest": "libs/game-puzzle-shared-ts/tests/draft-replay.test.ts"
+}

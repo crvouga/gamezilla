@@ -58,6 +58,7 @@ export const changePuzzleAttemptMutation = (
         positionId: args.positionId,
         parentId: parent.id,
         history: JSON.stringify(next),
+        onConflict: 'keep',
       });
       await recordAttemptCompletion(ctx, {
         attempt,

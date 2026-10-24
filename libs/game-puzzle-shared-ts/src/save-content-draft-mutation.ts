@@ -33,10 +33,10 @@ export const savePuzzleContentDraftMutation = defineMutation({
           'PUZZLE_DRAFT_ID_REUSED',
           'This saved draft identity is already used. Save a new draft copy.'
         );
-      return;
     }
     const body = args.body;
-    await ctx.tx.run(sql`
+    if (existing === null)
+      await ctx.tx.run(sql`
       INSERT INTO puzzle_content_drafts
         (id, document_id, owner_id, parent_id, title, description, difficulty, definition, conflicted,
           validation_status, validation_issues, validation_solution)
@@ -48,7 +48,7 @@ export const savePuzzleContentDraftMutation = defineMutation({
       UPDATE puzzle_content_documents SET working_draft_id = ${args.draftId}
       WHERE id = ${doc.id} AND working_draft_id = ${args.parentId} AND deleted_at IS NULL
     `);
-    if (changed.changes === 0)
+    if (changed.changes === 0 && existing === null)
       await ctx.tx.run(sql`
       UPDATE puzzle_content_drafts SET conflicted = ${true} WHERE id = ${args.draftId}
     `);

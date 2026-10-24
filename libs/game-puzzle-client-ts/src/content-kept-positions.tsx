@@ -5,6 +5,7 @@ import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-c
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
+import { useCreateId } from '@pkgs/uuid-client-ts/solid';
 import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 import { useContentLibraryState } from './content-library-context';
 import { ContentLoadMore } from './content-load-more';
@@ -17,6 +18,7 @@ export function ContentKeptPositions(props: {
   const { t } = useLingui();
   const data = useContentLibraryState();
   const mutations = useMutationClient();
+  const createId = useCreateId();
   const positions = createMemo(() =>
     data
       .play()
@@ -27,6 +29,7 @@ export function ContentKeptPositions(props: {
   const [choice, setChoice] = createSignal<{
     positionId: string;
     expectedPositionId: string;
+    continuationId: string;
   } | null>(null);
   const choose = async (): Promise<void> => {
     const selected = choice();
@@ -65,6 +68,7 @@ export function ContentKeptPositions(props: {
                 setChoice({
                   positionId: id,
                   expectedPositionId: props.attempt.current_position_id,
+                  continuationId: createId(),
                 })
               }
               dataSet={{ testid: `content-position-${id}` }}

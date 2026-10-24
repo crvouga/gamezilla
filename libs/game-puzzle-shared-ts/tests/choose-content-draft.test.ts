@@ -6,6 +6,7 @@ import {
   readContentRevision,
 } from '@libs/game-puzzle-shared-ts/content-store';
 import { savePuzzleContentDraftMutation as save } from '@libs/game-puzzle-shared-ts/save-content-draft-mutation';
+import sql from '@pkgs/sql-root-shared-ts/sql';
 import {
   CONTENT_BODY,
   type ContentFixture,
@@ -40,6 +41,23 @@ const CHOICE = {
   expectedDraftId: 'phone',
   draftId: 'chosen-harbor',
 };
+
+// regression: puzzle-pending-draft-rebase-loses-head
+test('a pending kept-copy choice restores its head after an earlier snapshot', async () => {
+  await withContentFixture(async (f) => {
+    await branches(f);
+    await f.db.transaction((tx) => choose.run({ tx, env: f.env }, CHOICE));
+    const chosen = await readContentDraft(f.db, CHOICE.draftId);
+    await f.db.run(
+      sql`UPDATE puzzle_content_documents SET working_draft_id = ${'phone'} WHERE id = ${'river'}`
+    );
+    await f.db.transaction((tx) => choose.run({ tx, env: f.env }, CHOICE));
+    expect((await readContentDocument(f.db, 'river'))?.working_draft_id).toBe(
+      CHOICE.draftId
+    );
+    expect(await readContentDraft(f.db, CHOICE.draftId)).toEqual(chosen);
+  });
+});
 
 test('a kept branch becomes a new head without changing either source or the published edition', async () => {
   await withContentFixture(async (f) => {

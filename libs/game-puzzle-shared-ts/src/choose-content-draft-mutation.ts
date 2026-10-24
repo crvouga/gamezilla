@@ -38,12 +38,12 @@ export const choosePuzzleContentDraftMutation = defineMutation({
           'PUZZLE_DRAFT_ID_REUSED',
           'This saved copy identity is already used. Choose the kept draft again.'
         );
-      return;
     }
     const changed = await ctx.tx.run(sql`
       UPDATE puzzle_content_documents SET working_draft_id = ${args.draftId}
       WHERE id = ${doc.id} AND working_draft_id = ${args.expectedDraftId} AND deleted_at IS NULL
     `);
+    if (existing !== null) return;
     if (changed.changes === 0)
       throw new MutationError(
         'PUZZLE_DRAFT_CHANGED',
