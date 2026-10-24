@@ -1,0 +1,4 @@
+{
+  "summary": "Verify 40078571430 reserved 49 of its 64 sequential runners for individual proof tasks while packing 18,918 seconds of other misses into 15 shards estimated at 1,261–1,262 seconds, already exceeding their unchanged 1,200-second deadline. When the preferred dedicated layout exceeds the runner cap, reuse those same bins with deterministic balancing while preserving proof spreading, dependency ownership, stages and exact coverage.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-shard-capacity.test.ts"
+}

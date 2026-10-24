@@ -36,7 +36,8 @@ const DIRECTORY = join(ROOT, '.cache/verify-ci');
  * slot. A runner spends about a minute on checkout and install before its
  * first task (Verify run 38128423200: 7 s and 40 s medians, plus the plan
  * restore), so three minutes of useful work amortizes its startup. Heavy tasks and
- * solvers retain dedicated runners; this only batches lightweight misses.
+ * solvers prefer dedicated runners. A capped plan shares the available
+ * runners rather than overfilling the few left after proof reservations.
  */
 const SHARD_TARGET_SECONDS = 180;
 

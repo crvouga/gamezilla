@@ -94,23 +94,28 @@ export function shardWidth(
   if (targetSeconds === undefined) return count;
   if (!Number.isFinite(targetSeconds) || targetSeconds <= 0)
     throw new Error('Shard target must be a positive number of seconds');
+  return Math.min(count, preferredWidth(ordered, targetSeconds));
+}
+
+/** Dedicated proof lanes plus the runners needed to pack other work at target. */
+function preferredWidth(
+  ordered: readonly (readonly VerifyTask[])[],
+  targetSeconds: number
+): number {
   const solvers = ordered.filter((group) => modelCount(group) > 0).length;
   const rest = ordered.filter((group) => modelCount(group) === 0);
   const own = rest.filter((group) => cost(group) >= targetSeconds).length;
   const packed = rest
     .filter((group) => cost(group) < targetSeconds)
     .reduce((sum, group) => sum + cost(group), 0);
-  return Math.min(
-    count,
-    Math.max(1, solvers + own + Math.ceil(packed / targetSeconds))
-  );
+  return Math.max(1, solvers + own + Math.ceil(packed / targetSeconds));
 }
 
 /**
  * Spread uncached solver groups, then LPT; ties use stable discovery order.
  * `targetSeconds` narrows the plan to the shards its uncached work needs
- * ({@link shardWidth}), each solver group alone on its runner; the rest stay
- * empty and never start.
+ * ({@link shardWidth}). Proofs retain dedicated runners when that preferred
+ * layout fits the cap; otherwise all allocated runners share the work.
  */
 export function balanceShards(
   tasks: readonly VerifyTask[],
@@ -131,16 +136,18 @@ export function balanceShards(
     [...stages.verifications].sort((a, b) => compare(a.taskId, b.taskId))
   ).sort((a, b) => cost(b) - cost(a) || compare(a[0]!.taskId, b[0]!.taskId));
   const bins = every.slice(0, shardWidth(ordered, count, targetSeconds));
-  // A narrowed plan places solver groups first and keeps everything else off
-  // their runners: a proof that outruns its budget ends its shard, and the
-  // tasks queued behind it would end unrun with it.
-  const isolate = targetSeconds !== undefined;
-  const placement = isolate
-    ? [
-        ...ordered.filter((group) => modelCount(group) > 0),
-        ...ordered.filter((group) => modelCount(group) === 0),
-      ]
-    : ordered;
+  // Reserve proof runners only when the preferred layout fits. At the cap,
+  // unused proof capacity must not force all other work onto too few runners.
+  const isolate =
+    targetSeconds !== undefined &&
+    preferredWidth(ordered, targetSeconds) <= count;
+  const placement =
+    targetSeconds !== undefined
+      ? [
+          ...ordered.filter((group) => modelCount(group) > 0),
+          ...ordered.filter((group) => modelCount(group) === 0),
+        ]
+      : ordered;
   for (const group of placement) {
     const leastModels = Math.min(...bins.map((bin) => modelCount(bin.tasks)));
     const free = bins.filter((bin) => modelCount(bin.tasks) === 0);
