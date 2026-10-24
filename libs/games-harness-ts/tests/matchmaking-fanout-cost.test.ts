@@ -66,6 +66,18 @@ test(
     );
     // One owner-pair lookup and one lookup for each distinct owner suffice.
     expect(lookups.length).toBeLessThanOrEqual(3);
+    const formationAt = statements.findIndex((statement) =>
+      /SELECT DISTINCT w\.partition_signature/i.test(statement.text)
+    );
+    expect(formationAt).toBeGreaterThanOrEqual(0);
+    const formation = statements.slice(formationAt);
+    const completedAt = formation.findIndex((statement) =>
+      /UPDATE\s+outbox_deliveries\s+SET processed_at/i.test(statement.text)
+    );
+    expect(completedAt).toBeGreaterThanOrEqual(0);
+    // regression: match-formation-per-person-round-trips
+    // Eligibility, ratings and roster writes can each resolve the whole pair.
+    expect(formation.slice(0, completedAt).length).toBeLessThanOrEqual(27);
   },
   PRODUCT_HARNESS_TIMEOUT_MS
 );

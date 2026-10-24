@@ -6,11 +6,24 @@ import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 test('playing an extra seat does not count as playing the second seat', async () => {
   const tx = {
     query: async () => [
-      { white_id: 'alice', black_id: 'bob', red_id: 'carol', blue_id: 'dave' },
-      { white_id: 'bob', black_id: 'alice', red_id: 'dave', blue_id: 'carol' },
+      {
+        white_id: 'alice',
+        black_id: 'bob',
+        red_id: 'carol',
+        blue_id: 'dave',
+        outcome: 'draw',
+      },
+      {
+        white_id: 'bob',
+        black_id: 'alice',
+        red_id: 'dave',
+        blue_id: 'carol',
+        outcome: 'draw',
+      },
     ],
   } as unknown as SqlTx;
-  expect(await new MultiplayerGameRepository(tx).colourBalance('carol')).toBe(
-    0
-  );
+  const people = await new MultiplayerGameRepository(tx).formationState([
+    'carol',
+  ]);
+  expect(people.get('carol')?.colourBalance).toBe(0);
 });

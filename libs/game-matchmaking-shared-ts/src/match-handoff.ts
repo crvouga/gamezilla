@@ -14,7 +14,10 @@ import {
   type TurnGames,
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import { createMultiplayerGame } from './game-creation';
-import { MultiplayerGameRepository } from './game-repository';
+import {
+  type FormationPlayerState,
+  MultiplayerGameRepository,
+} from './game-repository';
 import {
   OPPONENT_SEARCH_RADIUS,
   OPPONENT_TIME_CONTROL_KEY,
@@ -44,15 +47,14 @@ function timeControlOf(fact: MatchFormation): string {
 }
 
 /** The person with the greater colour balance plays Black. */
-async function colours(
-  tx: SqlTx,
+function colours(
   people: readonly FormedParticipant[],
+  players: ReadonlyMap<string, FormationPlayerState>,
   tieBreak: ColourTieBreak
-): Promise<readonly [string, string]> {
-  const games = new MultiplayerGameRepository(tx);
+): readonly [string, string] {
   const [first, second] = [people[0]!.ownerId, people[1]!.ownerId];
-  const a = await games.colourBalance(first);
-  const b = await games.colourBalance(second);
+  const a = players.get(first)!.colourBalance;
+  const b = players.get(second)!.colourBalance;
   const firstIsWhite = a === b ? tieBreak() : a < b;
   return firstIsWhite ? [first, second] : [second, first];
 }
@@ -80,14 +82,17 @@ export async function acceptGameMatch(
   );
   if (prior.length > 0) return;
   const games = new MultiplayerGameRepository(tx);
+  const players = await games.formationState(
+    fact.participants.map((person) => person.ownerId)
+  );
   for (const person of fact.participants)
     assert.ok(
-      (await games.unfinishedCount(person.ownerId)) === 0,
+      players.get(person.ownerId)?.unfinishedCount === 0,
       'an unfinished game makes its person unavailable'
     );
   const [whiteId, blackId] =
     seats.length === 2
-      ? await colours(tx, fact.participants, ports.tieBreak)
+      ? colours(fact.participants, players, ports.tieBreak)
       : [fact.participants[0]!.ownerId, fact.participants[1]!.ownerId];
   const extra =
     seats.length > 2

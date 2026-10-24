@@ -17,8 +17,59 @@ import { recordGameTransition } from './telemetry';
 
 const COLUMNS = raw(MULTIPLAYER_GAME_COLUMNS.join(', '));
 
+export type FormationPlayerState = {
+  readonly unfinishedCount: number;
+  readonly colourBalance: number;
+};
+
 export class MultiplayerGameRepository {
   constructor(private readonly tx: SqlTx) {}
+
+  /** Eligibility and colour history for the complete, already-locked roster. */
+  async formationState(
+    ownerIds: readonly string[]
+  ): Promise<ReadonlyMap<string, FormationPlayerState>> {
+    const owners = [...new Set(ownerIds)];
+    if (owners.length === 0) return new Map();
+    const rows = await this.tx.query(sql<{
+      white_id: string;
+      black_id: string;
+      red_id: string | null;
+      blue_id: string | null;
+      outcome: string;
+    }>`SELECT white_id, black_id, red_id, blue_id, outcome FROM chess_multiplayer_games
+      WHERE (white_id IN (${join(owners)}) OR black_id IN (${join(owners)})
+        OR red_id IN (${join(owners)}) OR blue_id IN (${join(owners)}))
+        AND outcome IN (${join(['ongoing', 'white', 'black', 'draw'])}) AND deleted_at IS NULL`);
+    return new Map(
+      owners.map((ownerId) => {
+        const games = rows.filter((row) =>
+          [row.white_id, row.black_id, row.red_id, row.blue_id].includes(
+            ownerId
+          )
+        );
+        return [
+          ownerId,
+          {
+            unfinishedCount: games.filter((row) => row.outcome === 'ongoing')
+              .length,
+            colourBalance: games.reduce(
+              (balance, row) =>
+                balance +
+                (row.outcome === 'ongoing'
+                  ? 0
+                  : row.white_id === ownerId
+                    ? 1
+                    : row.black_id === ownerId
+                      ? -1
+                      : 0),
+              0
+            ),
+          },
+        ];
+      })
+    );
+  }
 
   async unfinishedCount(ownerId: string): Promise<number> {
     const rows = await this.tx.query(sql<{
@@ -26,22 +77,6 @@ export class MultiplayerGameRepository {
     }>`SELECT id FROM chess_multiplayer_games
       WHERE (white_id = ${ownerId} OR black_id = ${ownerId} OR red_id = ${ownerId} OR blue_id = ${ownerId}) AND outcome = 'ongoing' AND deleted_at IS NULL`);
     return rows.length;
-  }
-
-  /** Finished games as White minus finished games as Black; aborted games do not count. */
-  async colourBalance(ownerId: string): Promise<number> {
-    const rows = await this.tx.query(sql<{
-      white_id: string;
-      black_id: string;
-    }>`SELECT white_id, black_id FROM chess_multiplayer_games
-      WHERE (white_id = ${ownerId} OR black_id = ${ownerId} OR red_id = ${ownerId} OR blue_id = ${ownerId})
-        AND outcome IN (${join(['white', 'black', 'draw'])}) AND deleted_at IS NULL`);
-    return rows.reduce(
-      (balance, row) =>
-        balance +
-        (row.white_id === ownerId ? 1 : row.black_id === ownerId ? -1 : 0),
-      0
-    );
   }
 
   async owned(

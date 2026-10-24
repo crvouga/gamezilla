@@ -1,0 +1,4 @@
+{
+  "summary": "A real final two-person Find ran 35 statements inside the formation consumer, including separate eligibility, colour-history, rating, roster and availability work per person. Resolve roster facts and writes in batches while retaining sorted owner locks, every captured row, exact rating defaults, and the same accepted game for players and room observers. The literal public Find boundary caps this consumer at 27 statements without a wall-time assertion.",
+  "regressionTest": "libs/games-harness-ts/tests/matchmaking-fanout-cost.test.ts"
+}

@@ -1,7 +1,7 @@
 import { telemetrySubjectId } from '@libs/observability-shared-ts/domain-event';
-import { changeAvailability } from '@pkgs/matchmaking-sql-shared-ts/owner-repository';
+import { changeAvailabilities } from '@pkgs/matchmaking-sql-shared-ts/owner-repository';
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
-import sql from '@pkgs/sql-root-shared-ts/sql';
+import sql, { join } from '@pkgs/sql-root-shared-ts/sql';
 import { MutationError } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import {
   gameSides,
@@ -30,15 +30,27 @@ export type NewMultiplayerGame = {
   readonly createId?: () => string;
 };
 
-async function shownRating(
+async function shownRatings(
   tx: SqlTx,
-  ownerId: string,
-  timeControl: string
-): Promise<string> {
-  const control = timeControlOf(timeControl);
-  if (control === null) return '';
-  return formatMultiplayerRating(
-    await new MultiplayerRatingRepository(tx).read(ownerId, control.speed)
+  input: NewMultiplayerGame
+): Promise<ReadonlyMap<string, string>> {
+  const control = timeControlOf(input.timeControl);
+  if (control === null) return new Map();
+  const people = [
+    input.whiteId,
+    input.blackId,
+    input.redId,
+    input.blueId,
+  ].filter((person): person is string => Boolean(person));
+  const ratings = await new MultiplayerRatingRepository(tx).readMany(
+    people,
+    control.speed
+  );
+  return new Map(
+    [...ratings].map(([owner, rating]) => [
+      owner,
+      formatMultiplayerRating(rating),
+    ])
   );
 }
 
@@ -54,6 +66,7 @@ async function initialMultiplayerGame(
 ): Promise<MultiplayerGame> {
   requirePlayers(input, rules);
   const ms = startingMs(input.timeControl);
+  const ratings = await shownRatings(tx, input);
   const game: MultiplayerGame = {
     id: input.id,
     white_id: input.whiteId,
@@ -78,14 +91,10 @@ async function initialMultiplayerGame(
     draw_votes: null,
     rematch_votes: null,
     rematch_of: input.rematchOf,
-    white_rating: await shownRating(tx, input.whiteId, input.timeControl),
-    black_rating: await shownRating(tx, input.blackId, input.timeControl),
-    red_rating: input.redId
-      ? await shownRating(tx, input.redId, input.timeControl)
-      : null,
-    blue_rating: input.blueId
-      ? await shownRating(tx, input.blueId, input.timeControl)
-      : null,
+    white_rating: ratings.get(input.whiteId) ?? '',
+    black_rating: ratings.get(input.blackId) ?? '',
+    red_rating: input.redId ? (ratings.get(input.redId) ?? '') : null,
+    blue_rating: input.blueId ? (ratings.get(input.blueId) ?? '') : null,
     white_rating_diff: null,
     black_rating_diff: null,
     red_rating_diff: null,
@@ -144,16 +153,15 @@ export async function createMultiplayerGame(
   const game = await initialMultiplayerGame(tx, input, rules);
   await insertGame(tx, game, input.nowMs);
   const iso = new Date(input.nowMs).toISOString();
-  for (const ownerId of multiplayerPeople(game)) {
-    await tx.run(sql`INSERT INTO chess_multiplayer_players (id, owner_id, game_id, created_at, updated_at, deleted_at)
-      VALUES (${ownerId}, ${ownerId}, ${game.id}, ${iso}, ${iso}, ${null})
-      ON CONFLICT (id) DO UPDATE SET game_id = excluded.game_id, updated_at = excluded.updated_at`);
-    await changeAvailability(tx, {
-      ownerId,
-      available: false,
-      nowMs: input.nowMs,
-    });
-  }
+  const people = multiplayerPeople(game);
+  await tx.run(sql`INSERT INTO chess_multiplayer_players (id, owner_id, game_id, created_at, updated_at, deleted_at)
+    VALUES ${join(people.map((ownerId) => sql`(${ownerId}, ${ownerId}, ${game.id}, ${iso}, ${iso}, ${null})`))}
+    ON CONFLICT (id) DO UPDATE SET game_id = excluded.game_id, updated_at = excluded.updated_at`);
+  await changeAvailabilities(tx, {
+    ownerIds: people,
+    available: false,
+    nowMs: input.nowMs,
+  });
   await scheduleMultiplayerDeadline(tx, game, input.nowMs);
   await scheduleMultiplayerNotices(
     tx,
