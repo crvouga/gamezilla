@@ -44,7 +44,7 @@ const rules: GameRules = {
   canWin: () => true,
   moves: () => [],
 };
-const automation = {
+const turnAutomation = {
   choose: () => 'step',
   perform: async () => {},
 };
@@ -55,11 +55,11 @@ const puzzles: PuzzlesCapability = {
   marks: (_position, action) => ({ from: null, to: action }),
   isCell: (cell) => cell.length > 0,
 };
-const plain = defineGame({ rules, capabilities: { history }, automation });
+const plain = defineGame({ rules, capabilities: { history }, turnAutomation });
 const withPuzzles = defineGame({
   rules,
   capabilities: { history, puzzles },
-  automation,
+  turnAutomation,
 });
 const puzzlesPart: GamePuzzlesClient = { Board: () => null };
 
@@ -85,7 +85,7 @@ test('a timed matchmaking presentation needs its timeout description', () => {
     parts.presentation;
   const shared = defineGame({
     rules,
-    automation,
+    turnAutomation,
     capabilities: {
       history,
       matchmaking: {

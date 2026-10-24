@@ -75,7 +75,7 @@ test('the presentation names the game, its sides and its ending', () => {
     'Sank the whole fleet.'
   );
   expect(presentation.endingLabel('fleet sunk')).toBe('fleet sunk');
-  expect(presentation.timeoutDrawDescription('black')).toBe(
+  expect(presentation.timeoutDrawDescription?.('black')).toBe(
     'Red fleet ran out of time, but the other side cannot win.'
   );
 });
