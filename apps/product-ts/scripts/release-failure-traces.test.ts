@@ -194,9 +194,22 @@ test('repeated request context leaves room for terminal database work', async ()
     [ATTR.CODE_FILE_PATH]: 'libs/app-root-shared-ts/src/wrap-sql-client.ts',
     [ATTR.CODE_FUNCTION_NAME]: 'runObservedSql',
   };
+  const worker = span(7, 499, {
+    name: 'worker.fetch',
+    durationMs: 45_001,
+    attributes: {
+      [ATTR.SERVICE_NAME]: context[ATTR.SERVICE_NAME],
+      [ATTR.SERVICE_INSTANCE_ID]: context[ATTR.SERVICE_INSTANCE_ID],
+      [ATTR.SERVICE_VERSION]: context[ATTR.SERVICE_VERSION],
+      [ATTR.DEPLOYMENT_ENVIRONMENT_NAME]:
+        context[ATTR.DEPLOYMENT_ENVIRONMENT_NAME],
+      [ATTR.APP_BUILD_SHA]: context[ATTR.APP_BUILD_SHA],
+    },
+  });
   const request = span(7, 500, {
     name: 'http.server.request',
     durationMs: 45_000,
+    parentSpanId: worker.spanId,
     attributes: context,
   });
   const replay = span(7, 1_000, {
@@ -224,12 +237,19 @@ test('repeated request context leaves room for terminal database work', async ()
   );
   const text = await releaseFailureTraces({
     reports: await reportsForFailure(),
-    telemetry: await telemetryOf([request, replay, ...deliveries, ...children]),
+    telemetry: await telemetryOf([
+      worker,
+      request,
+      replay,
+      ...deliveries,
+      ...children,
+    ]),
     run: RUN,
     mutationNames: ['findChessOpponent'],
   });
   expect(text).toContain('SELECT completed_99');
   expect(text).toContain('user.id=bob');
+  expect(text.match(/user.id=alice/g)).toHaveLength(1);
   expect(text.match(/service.instance.id=release-instance/g)).toHaveLength(1);
   expect(text.length).toBeLessThan(11_000);
 });

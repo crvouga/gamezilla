@@ -131,7 +131,9 @@ function criticalSpans(spans: readonly NarrateSpan[]): NarrateSpan[] {
 /** Keep shared context once; retain a child's changed service or identity. */
 function requestContextOnce(spans: readonly NarrateSpan[]): NarrateSpan[] {
   const root =
-    spans.find((span) => REQUEST_SPANS.includes(span.name)) ?? spans[0];
+    spans.find((span) => span.name === 'http.server.request') ??
+    spans.find((span) => span.name === 'worker.fetch') ??
+    spans[0];
   if (root === undefined) return [];
   return spans.map((span) => {
     if (span.spanId === root.spanId) return span;
