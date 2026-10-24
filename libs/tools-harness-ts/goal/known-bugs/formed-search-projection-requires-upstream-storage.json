@@ -1,0 +1,4 @@
+{
+  "summary": "An accepted pairing left both searches waiting when its fact arrived independently of matchmaking storage; project the named accepted searches from the pairing fact.",
+  "regressionTest": "libs/games-harness-ts/tests/quint/matched-game-trace-regression.test.ts"
+}

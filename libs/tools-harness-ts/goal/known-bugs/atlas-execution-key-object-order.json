@@ -1,0 +1,4 @@
+{
+  "summary": "Object insertion order split one Atlas execution into distinct mutable and archived identities; covered by a literal reordered part and generated nested permutations (crvouga/atlas#18).",
+  "regressionTest": "pkgs/atlas-reports-harness-ts/tests/layer-execution-order.test.ts"
+}

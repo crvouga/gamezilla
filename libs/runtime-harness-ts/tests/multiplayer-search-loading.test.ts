@@ -2,6 +2,7 @@ import { expect, test } from 'bun:test';
 import {
   establishMultiplayerSearch,
   expectSharedMultiplayerGame,
+  openMultiplayerJourney,
   prepareUnfinishedMultiplayerGame,
   startMultiplayerSearch,
 } from '@libs/runtime-harness-ts/multiplayer-journey';
@@ -74,6 +75,36 @@ test('a loading permission surface does not count as a completed search', async 
   const { ui, taps } = loadingScreen(false);
   await startMultiplayerSearch('5+0')(ui);
   expect(taps).toEqual(['multiplayer-time-control-5-0', 'multiplayer-find']);
+});
+
+test('a chess journey leaves Connect Four choices before finding an opponent', async () => {
+  // regression: chess-journey-inherits-other-game-choice
+  const { ui, taps } = loadingScreen(false);
+  const get = ui.get.bind(ui);
+  let choices = true;
+  ui.get = (id) => {
+    const node = get(id);
+    return {
+      ...node,
+      isVisible: async () => {
+        if (id === 'game-choice-multiplayer' || id === Handles.navBack)
+          return choices;
+        if (id === 'game-menu-chess') return !choices;
+        return node.isVisible();
+      },
+      tap: async () => {
+        taps.push(id);
+        if (id === Handles.navBack) choices = false;
+        if (id === 'game-menu-chess') choices = true;
+      },
+    };
+  };
+  await openMultiplayerJourney(ui);
+  expect(taps).toEqual([
+    Handles.navBack,
+    'game-menu-chess',
+    'game-choice-multiplayer',
+  ]);
 });
 
 // regression: live-multiplayer-leftover-game

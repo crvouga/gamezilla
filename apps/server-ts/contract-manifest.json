@@ -9,6 +9,7 @@
     "applyEnsuredUsername",
     "blockUser",
     "cancelFriendRequest",
+    "chooseMultiplayerSetup",
     "claimUsername",
     "closeEndedOpenSessions",
     "confirmAccountDeletion",

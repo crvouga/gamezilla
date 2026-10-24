@@ -8,6 +8,7 @@ import {
   type BattleshipBoardsShown,
   boardsShownIn,
   fleetSeenBeyondShots,
+  fleetShown,
   wholeFleetShown,
 } from '@libs/battleship-harness-ts/battleship-boards-shown';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
@@ -26,10 +27,13 @@ async function screenShown(ui: Driver): Promise<ScreenShown> {
     .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
   const html = (await ui.snapshotHtml()) ?? '';
   const boards = boardsShownIn(html, Handles.multiplayerBoard);
+  const fleet = fleetShown(boards.own);
+  const ownCells = Object.keys(boards.own).length;
+  const fleetCells = [...fleet.values()].flat().length;
   // Without the person's own fleet on screen there is nothing to compare.
   check(
     wholeFleetShown(boards.own),
-    'A Battleship screen does not show its own whole fleet'
+    `A Battleship screen does not show its own whole fleet (ownCells=${ownCells}, ships=${fleet.size}, fleetCells=${fleetCells}, htmlChars=${html.length})`
   );
   return { html, boards };
 }

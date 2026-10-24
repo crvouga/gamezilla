@@ -224,10 +224,22 @@ async function printBrowserState(devices: LiveDevices): Promise<void> {
   ] as const) {
     const layout = await current?.view
       .evaluate(BROWSER_FAILURE_LAYOUT)
-      .catch(() => null);
+      .catch((error: unknown) => {
+        console.error(
+          `browser failure geometry error (${name}): ${String(error)}`
+        );
+        return null;
+      });
     if (layout !== null && layout !== undefined)
       console.error(`browser failure geometry (${name}): ${String(layout)}`);
-    const html = await current?.driver.snapshotHtml().catch(() => null);
+    const html = await current?.driver
+      .snapshotHtml()
+      .catch((error: unknown) => {
+        console.error(
+          `browser failure snapshot error (${name}): ${String(error)}`
+        );
+        return null;
+      });
     if (typeof html === 'string')
       console.error(
         `browser failure state (${name}): ${browserFailureSummary(html)}`

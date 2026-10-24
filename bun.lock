@@ -1,5 +1,5 @@
 {
-  "lockfileVersion": 3,
+  "lockfileVersion": 2,
   "configVersion": 1,
   "workspaces": {
     "": {
@@ -253,7 +253,6 @@
       },
       "devDependencies": {
         "@libs/app-config-shared-ts": "workspace:*",
-        "@libs/auth-shared-ts": "workspace:*",
         "@libs/chess-puzzle-server-ts": "workspace:*",
         "@libs/db-server-ts": "workspace:*",
         "@libs/games-shared-ts": "workspace:*",
@@ -6373,6 +6372,7 @@
         "@pkgs/gherkin-shared-ts": "workspace:*",
         "@pkgs/openslo-shared-ts": "workspace:*",
         "@pkgs/postgres-mockingbird-server-ts": "workspace:*",
+        "@pkgs/property-shared-ts": "workspace:*",
         "@pkgs/quint-shared-ts": "workspace:*",
         "@pkgs/sql-client-postgres-server-ts": "workspace:*",
         "@pkgs/sql-client-sqlite-root-shared-ts": "workspace:*",
@@ -6887,9 +6887,6 @@
   ],
   "overrides": {
     "@babel/plugin-transform-modules-systemjs": "^7.29.4",
-    "@crvouga/atlas": {
-      "vite": "7.3.7",
-    },
     "adm-zip": "^0.6.1",
     "brace-expansion": "5.0.12",
     "browserslist": "4.28.8",

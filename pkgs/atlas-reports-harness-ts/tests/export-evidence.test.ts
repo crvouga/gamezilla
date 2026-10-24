@@ -1,8 +1,10 @@
 import { expect, test } from 'bun:test';
+import type { EvidencePage } from '@crvouga/atlas/reports/evidence-types';
 import {
   evidenceFile,
   exportEvidence,
 } from '@crvouga/atlas/reports/export-evidence';
+import { distinctHeaders } from '@crvouga/atlas/reports/layer-merge';
 import {
   closeCommit,
   openCommit,
@@ -81,9 +83,10 @@ test('static Atlas export preserves revision specs, outcomes, timeline and snaps
   expect(exported.missing).toEqual([]);
   const page = JSON.parse(
     (await readUtf8(output, evidenceFile('/evidence')))!
-  ) as { layers: { id: string; backend: string }[] };
-  expect(page.layers).toHaveLength(1);
-  const layer = page.layers[0]!;
+  ) as EvidencePage;
+  const layers = distinctHeaders(page.layers);
+  expect(layers).toHaveLength(1);
+  const layer = layers[0]!;
   const base = `/layers/${layer.id}/tests/adds-tea/report.json`;
   expect(await readUtf8(output, evidenceFile(base))).toContain('adds-tea');
   expect(

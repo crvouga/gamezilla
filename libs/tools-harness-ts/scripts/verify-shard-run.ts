@@ -10,6 +10,7 @@ import {
 } from 'node:fs';
 import { join } from 'node:path';
 import { reportTask } from '@libs/harness-ts/report-ready';
+import { writeHostKey } from './package-hosts';
 import { SECRETS_RANGE_ENV } from './secrets-scan-range';
 import { turboChildEnv, writePlatformCacheKey } from './turbo-ci-run';
 import { readLatestRunSummary, SLOW_RUNNER_MULTIPLIER } from './verify-budget';
@@ -53,7 +54,7 @@ export async function runShard(index: number): Promise<number> {
   const shard = plan.shards[index];
   if (!shard) throw new Error(`Unknown shard ${index}`);
   const env = turboChildEnv();
-  applyPlanContext(env);
+  applyPlanContext(env, ROOT);
   // A shard runs on the 2-core runner: a proof gets the same correction to
   // its deadline that every task gets to its budget.
   env[VERIFY_TIME_SCALE_ENV] ??= String(SLOW_RUNNER_MULTIPLIER);
@@ -250,9 +251,9 @@ function preserveFailedReports(results: readonly Result[]): void {
 
 if (import.meta.main) process.exit(await runShard(Number(process.argv[2])));
 
-function applyPlanContext(env: NodeJS.ProcessEnv): void {
+export function applyPlanContext(env: NodeJS.ProcessEnv, root: string): void {
   const context = JSON.parse(
-    readFileSync(join(DIRECTORY, 'context.json'), 'utf8')
+    readFileSync(join(root, '.cache/verify-ci/context.json'), 'utf8')
   ) as { secretsRange: string; platformKey: string };
   env[SECRETS_RANGE_ENV] = context.secretsRange;
   const platform = JSON.parse(context.platformKey) as {
@@ -278,5 +279,6 @@ function applyPlanContext(env: NodeJS.ProcessEnv): void {
         'Renderer/platform differs from plan; install the pinned Chrome and Bun versions'
       );
   }
-  writeFileSync(join(ROOT, 'turbo-platform-key.json'), context.platformKey);
+  writeHostKey(root);
+  writeFileSync(join(root, 'turbo-platform-key.json'), context.platformKey);
 }

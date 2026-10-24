@@ -1,5 +1,6 @@
 import { ManagedSession } from '@apps/synthetic-population-worker-ts/managed-session';
 import type { SessionInput } from '@apps/synthetic-population-worker-ts/session-messages';
+import { reconcileCheckpoint } from '@libs/synthetic-population-shared-ts/config';
 import { createNoopLogger } from '@pkgs/logger-shared-ts/logger';
 import {
   createIsolatedWorker,
@@ -14,9 +15,25 @@ export async function runtimeSession(
   version = 'realm-test'
 ) {
   const response = await backend.rpc.claim.$post({ json: { workerId } });
-  const { assignment } = await response.json();
-  if (assignment === null)
+  const { assignment: stored } = await response.json();
+  if (stored === null)
     throw new Error('An application instance was not assigned');
+  // regression: synthetic-native-pair-different-games
+  // Fresh fixture peers choose chess with the same seeded policy;
+  // production users retain independent policies, covered by game automation.
+  const assignment = stored.registered
+    ? stored
+    : {
+        ...stored,
+        checkpoint: {
+          ...reconcileCheckpoint(
+            stored.checkpoint,
+            backend.wall.clock.now(),
+            'native-paired-chess-1'
+          ),
+          policySeed: 'native-paired-chess-1',
+        },
+      };
   const realm = createIsolatedWorker(
     new URL('../src/session-entry.ts', import.meta.url),
     ['@pkgs/bun-test-solid-client-ts/register'],
@@ -115,6 +132,6 @@ export async function awaitRuntimeUsers(
   }
   const users = await backend.repository.users();
   throw new Error(
-    `The application instances did not reach the expected state: ${JSON.stringify(users.map((user) => ({ activity: user.activity, error: user.last_error, action: user.last_action })))}`
+    `The application instances did not reach the expected state: ${JSON.stringify(users.map((user) => ({ activity: user.activity, error: user.last_error, action: user.last_action })))}; matchmaking: ${JSON.stringify(await backend.matchmakingDiagnostics())}`
   );
 }

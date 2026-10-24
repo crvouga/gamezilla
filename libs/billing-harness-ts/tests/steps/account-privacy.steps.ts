@@ -1,4 +1,5 @@
 import { expect } from 'bun:test';
+import { confirmedAccount } from '@libs/account-privacy-harness-ts/privacy.steps';
 import { openPrivacy } from '@libs/account-privacy-harness-ts/privacy-actions';
 import { privacyText } from '@libs/account-privacy-harness-ts/privacy-reads';
 import {
@@ -15,11 +16,7 @@ import { openBilling } from '@libs/billing-harness-ts/billing-actions';
 import { billingTier } from '@libs/billing-harness-ts/billing-reads';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import type { Actor } from '@libs/harness-ts/parameter-types';
-import {
-  recall,
-  remember,
-  signedInAccountKey,
-} from '@libs/harness-ts/spec-world';
+import { recall, signedInAccountKey } from '@libs/harness-ts/spec-world';
 
 Then(
   "{actor}'s membership cannot renew because the account was deleted",
@@ -150,9 +147,8 @@ Then(
 Given(
   "{actor}'s payment record is 7 years old",
   async (w: PrivacySetupWorld, actor: Actor) => {
-    await w.beforeAccountDeletion?.(actor, 'completed');
-    const accountId = await w.s.read(signedInAccountOf, actor);
-    remember(w, signedInAccountKey(actor), accountId);
+    await confirmedAccount(w, actor, 'completed');
+    const accountId = recall(w, signedInAccountKey(actor));
     await w.s.apply(agePaymentRetention, String(accountId));
   }
 );
@@ -181,4 +177,3 @@ Then(
 
 import type { PrivacySetupWorld } from '@libs/account-privacy-harness-ts/privacy.steps';
 import { runPrivacyJobs } from '@libs/account-privacy-harness-ts/privacy-actions';
-import { signedInAccountOf } from '@libs/harness-ts/identity';

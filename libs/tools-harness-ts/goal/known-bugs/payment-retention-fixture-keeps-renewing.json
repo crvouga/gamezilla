@@ -1,0 +1,4 @@
+{
+  "summary": "The payment-retention precondition advanced seven years after subscribing without completing account deletion. The provider kept renewing and created fresh payments that correctly remained retained. Complete deletion before aging its retained payment evidence.",
+  "regressionTest": "libs/billing-harness-ts/tests/payment-retention-regression.test.ts"
+}

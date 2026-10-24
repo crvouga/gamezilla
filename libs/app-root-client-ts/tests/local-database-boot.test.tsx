@@ -13,12 +13,14 @@ import { createInMemoryClientPorts } from '@libs/app-root-client-ts/in-memory-cl
 import type { AppSyncEnginePool } from '@libs/app-root-client-ts/sync-engine-pool';
 import { createAppSyncEnginePool } from '@libs/app-root-client-ts/sync-engine-pool';
 import { useSyncEngineBootViews } from '@libs/app-root-client-ts/use-sync-engine-boot-views';
+import { AuthClientProvider } from '@libs/auth-client-ts/auth-client-provider';
 import {
   DEVICE_ID_KEY,
   LAST_LOCAL_ACCOUNT_ID_KEY,
 } from '@libs/auth-shared-ts/auth-storage-keys';
 import { shippedModerationRules } from '@libs/moderation-shared-ts/moderation-rules';
 import { composeSubs } from '@libs/sub-shared-ts/compose';
+import type { AuthClientPort } from '@pkgs/auth-root-shared-ts/auth-client-port';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { KvImplInMemory } from '@pkgs/kv-root-shared-ts/impl-in-memory';
 import { LoggerProvider } from '@pkgs/logger-client-ts/solid';
@@ -124,9 +126,15 @@ async function boot(options: {
           }}
         >
           <SecureStorageStoreProvider value={store}>
-            <LocalIdentityProvider>
-              <Probe onState={(state) => (latest = state)} />
-            </LocalIdentityProvider>
+            <AuthClientProvider
+              port={
+                { getFreshToken: () => Promise.resolve(null) } as AuthClientPort
+              }
+            >
+              <LocalIdentityProvider>
+                <Probe onState={(state) => (latest = state)} />
+              </LocalIdentityProvider>
+            </AuthClientProvider>
           </SecureStorageStoreProvider>
         </AppCompositionProvider>
       </ClientEnvProvider>

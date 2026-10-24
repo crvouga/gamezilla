@@ -1,4 +1,5 @@
 import { expect, test } from 'bun:test';
+import type { JunitCase } from '@crvouga/atlas/reports/junit';
 import { testFailureSpans } from '@libs/harness-ts/test-failure-spans';
 import { ATTR } from '@pkgs/observability-root-shared-ts/attributes';
 
@@ -15,6 +16,9 @@ test('failed JUnit cases become deterministic exact-name traces', () => {
   const cases = [
     {
       file: 'tests/harness/example.test.ts',
+      classname: 'example',
+      suite: 'Example',
+      time: null,
       name: 'offline edits converge',
       classname: 'example',
       suite: 'harness',
@@ -23,7 +27,7 @@ test('failed JUnit cases become deterministic exact-name traces', () => {
       status: 'failed' as const,
       failure: 'expected replicas to converge\nstack line',
     },
-  ];
+  ] satisfies readonly JunitCase[];
   const first = testFailureSpans(cases, OPTIONS);
   const second = testFailureSpans(cases, OPTIONS);
   expect(first).toEqual(second);
@@ -39,6 +43,9 @@ test('passed and skipped JUnit cases do not create failure traces', () => {
   const cases = [
     {
       file: 'tests/harness/example.test.ts',
+      classname: 'example',
+      suite: 'Example',
+      time: null,
       name: 'passes',
       classname: 'example',
       suite: 'harness',
@@ -49,6 +56,9 @@ test('passed and skipped JUnit cases do not create failure traces', () => {
     },
     {
       file: 'tests/harness/example.test.ts',
+      classname: 'example',
+      suite: 'Example',
+      time: null,
       name: 'skips',
       classname: 'example',
       suite: 'harness',
@@ -57,6 +67,6 @@ test('passed and skipped JUnit cases do not create failure traces', () => {
       status: 'skipped' as const,
       failure: null,
     },
-  ];
+  ] satisfies readonly JunitCase[];
   expect(testFailureSpans(cases, OPTIONS)).toEqual([]);
 });

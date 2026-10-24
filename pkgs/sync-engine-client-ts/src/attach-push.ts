@@ -113,11 +113,15 @@ function clearTopicState(bag: PushSubscriptions): void {
 }
 
 function subscribeTopic(bag: PushSubscriptions, topic: Topic): void {
+  let tail: Promise<void> = Promise.resolve();
   const unsub = bag.pubsub.subscribe(topic, (data) => {
-    void handlePush(bag, topic, data).catch((error) => {
-      if (bag.disposed) return;
-      warnPush('[push] handlePush failed', topic, error);
-    });
+    // Read and advance this topic's sequence in delivery order. Concurrent
+    // handlers mistook the next frame for a gap before its predecessor committed.
+    tail = tail
+      .then(() => handlePush(bag, topic, data))
+      .catch((error) => {
+        if (!bag.disposed) warnPush('[push] handlePush failed', topic, error);
+      });
   });
   bag.topicUnsubs.set(topic, unsub);
 }

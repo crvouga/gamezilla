@@ -1,0 +1,4 @@
+{
+  "summary": "Committed outbox results sent invalidations without captured rows, forcing a second snapshot before the paired game appeared. Reuse guarded per-topic row-image fanout, falling back to invalidation-only delivery for private, unknown or oversized captures.",
+  "regressionTest": "libs/app-root-server-ts/tests/outbox-row-images.test.ts"
+}

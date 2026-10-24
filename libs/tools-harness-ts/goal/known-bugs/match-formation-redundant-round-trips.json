@@ -1,0 +1,4 @@
+{
+  "summary": "Pair acceptance read each player history separately for eligibility and colour balance and inserted each player pointer separately. Read both histories once and insert both player pointers together without changing lock order or game rules.",
+  "regressionTest": "libs/game-matchmaking-shared-ts/tests/formation-statements.test.ts"
+}
