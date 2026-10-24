@@ -101,6 +101,7 @@ terms:
 
   - term: join
     from: spaces
+    model: [joinSpace]
 
   - term: custom game
     from: games
@@ -116,4 +117,4 @@ terms:
 
   - term: connection
     from: kernel
-    model: [loseConnection, connectionReturns]
+    model: [loseConnection, connectionReturns, viewerLosesConnection, viewerConnectionReturns]
