@@ -12,8 +12,9 @@
  * Safety properties:
  * - Unconfigured (no token) → the route answers 404, as if it did not exist.
  * - The token is compared as peppered hashes in constant time.
- * - The server mints each user in a reserved namespace. The caller cannot
- *   choose an existing user, so the secret cannot impersonate a real person.
+ * - Without a continuation, the server mints a fresh user in a reserved namespace.
+ *   A server-signed, short-lived continuation joins another device to that
+ *   monitor account. The caller cannot name an existing or real user.
  * - The callback URL must be trusted, like any OAuth launch.
  * - The provider is hidden: never in `/auth/providers`, never a sign-in button.
  */
@@ -24,6 +25,10 @@ import { isTrustedCallbackUrl } from '@pkgs/auth-inhouse-shared-ts/trusted-origi
 import type { Context } from 'hono';
 import { readBearer, readStringField, repo } from './auth-route-handlers';
 import type { AuthAppCtx } from './create-auth-app-types';
+import {
+  createMonitorContinuation,
+  readMonitorContinuation,
+} from './synthetic-monitor-continuation';
 
 export type SyntheticMonitorConfig = {
   /** Shared secret the synthetic runner presents as a bearer token. */
@@ -57,10 +62,40 @@ function presentedTokenMatches(ctx: AuthAppCtx, presented: string): boolean {
   );
 }
 
+async function monitorUser(
+  ctx: AuthAppCtx,
+  raw: unknown,
+  callbackUrl: string
+): Promise<string | null> {
+  const r = repo(ctx.deps);
+  if (
+    raw !== null &&
+    typeof raw === 'object' &&
+    Reflect.has(raw, 'continuationToken')
+  ) {
+    const token = readStringField(raw, 'continuationToken');
+    const id = await readMonitorContinuation(ctx, token, callbackUrl);
+    if (id === null || !isSyntheticMonitor(id)) return null;
+    return (await r.findUserById(id)) === null ? null : id;
+  }
+  const id = `${MONITOR_NAMESPACE}${ctx.deps.createId()}`;
+  const peer =
+    raw !== null &&
+    typeof raw === 'object' &&
+    Reflect.get(raw, 'peer') === true;
+  await r.insertUser({
+    id,
+    email: null,
+    name: peer ? 'Synthetic Monitor Peer' : 'Synthetic Monitor',
+    image: null,
+  });
+  return id;
+}
+
 /**
  * `POST /auth/synthetic-monitor/code` with `Authorization: Bearer <token>`
- * and `{ "callbackUrl": "https://www…/sso-callback" }` →
- * `{ "redirectUrl": "<callbackUrl>?code=<one-time exchange code>" }`.
+ * and a trusted callback → a single-use redirect and a short-lived continuation
+ * kept by the runner for another device within this journey.
  */
 export async function handleSyntheticMonitorCode(
   c: Context,
@@ -81,20 +116,10 @@ export async function handleSyntheticMonitorCode(
   ) {
     return c.json({ error: 'invalid_callback_url' }, 400);
   }
-  // Reusing monitoring accounts carries user state between independent runs.
-  // Minting an identity here also keeps existing users out of caller control.
-  const userId = `${MONITOR_NAMESPACE}${ctx.deps.createId()}`;
-  const peer =
-    raw !== null &&
-    typeof raw === 'object' &&
-    Reflect.get(raw, 'peer') === true;
+  const userId = await monitorUser(ctx, raw, callbackUrl);
+  if (userId === null)
+    return c.json({ error: 'invalid_monitor_continuation' }, 400);
   const r = repo(ctx.deps);
-  await r.insertUser({
-    id: userId,
-    email: null,
-    name: peer ? 'Synthetic Monitor Peer' : 'Synthetic Monitor',
-    image: null,
-  });
   const { state } = await r.createOauthState({
     provider: SYNTHETIC_MONITOR_PROVIDER,
     callbackUrl,
@@ -114,5 +139,15 @@ export async function handleSyntheticMonitorCode(
   });
   const redirect = new URL(callbackUrl);
   redirect.searchParams.set(AUTH_CALLBACK_PARAM.code, code);
-  return c.json({ redirectUrl: redirect.toString() }, 200);
+  return c.json(
+    {
+      redirectUrl: redirect.toString(),
+      continuationToken: await createMonitorContinuation(
+        ctx,
+        userId,
+        callbackUrl
+      ),
+    },
+    200
+  );
 }

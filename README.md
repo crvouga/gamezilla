@@ -598,6 +598,12 @@ Leave a check untagged until it can run on a dedicated synthetic identity, clean
 
 While iterating, prefer `bunx turbo run tc test --filter=<pkg>` before a full verification; an unchanged package is a cache hit.
 
+A journey that opens another signed-in device keeps a server-issued monitoring
+continuation in its runner. It lasts ten minutes, is bound to the callback and
+the deployment's secrets, and grants another normal single-use sign-in code for
+that same monitoring account. It never reaches the browser. Omitting it starts
+a fresh account, so separate journeys still share no personal state.
+
 Live Health scenarios run serially: the primary Chrome storage is shared, so each scenario must finish its cleanup before the next opens a device. Other participants use isolated browser processes.
 
 Health authenticates AWS with its read-only role on a named branch. Use `gh workflow run health.yml --repo gamezilla-org/gamezilla --ref <branch>` for infrastructure health evidence. This does not grant a branch deployment access.

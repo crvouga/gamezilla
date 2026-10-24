@@ -1,0 +1,4 @@
+{
+  "summary": "The live cross-device journey signed into a fresh synthetic-monitor account on its second device, so it could not observe the original account's saved work. A short-lived server-issued continuation authenticates another device to that same monitoring account; independent journeys still mint fresh accounts.",
+  "regressionTest": "pkgs/auth-inhouse-server-ts/tests/synthetic-monitor-continuation.test.ts"
+}

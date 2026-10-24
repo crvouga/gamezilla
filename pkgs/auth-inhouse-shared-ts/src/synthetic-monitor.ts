@@ -9,7 +9,7 @@ import type { HttpClient } from '@pkgs/http-client-shared-ts/types';
 /** Route under the auth app: `POST <prefix>/auth/synthetic-monitor/code`. */
 export const SYNTHETIC_MONITOR_CODE_PATH = '/auth/synthetic-monitor/code';
 
-export type SyntheticMonitorRedirectArgs = {
+export type SyntheticMonitorSignInArgs = {
   readonly http: HttpClient;
   /** API origin, e.g. `https://api.example.com`. */
   readonly apiOrigin: string;
@@ -17,14 +17,21 @@ export type SyntheticMonitorRedirectArgs = {
   readonly apiPathPrefix: string;
   readonly token: string;
   readonly peer?: boolean;
+  /** Server-issued capability for another device in this journey; omit for a fresh journey. */
+  readonly continuationToken?: string;
   /** Trusted web callback, e.g. `https://www.example.com/sso-callback`. */
   readonly callbackUrl: string;
 };
 
-/** Resolve the `<callbackUrl>?code=…` a browser loads to finish sign-in. */
-export async function requestSyntheticMonitorRedirect(
-  args: SyntheticMonitorRedirectArgs
-): Promise<string> {
+export type SyntheticMonitorSignIn = {
+  readonly redirectUrl: string;
+  readonly continuationToken: string;
+};
+
+/** Issue a browser callback and keep its device-continuation capability in the runner. */
+export async function requestSyntheticMonitorSignIn(
+  args: SyntheticMonitorSignInArgs
+): Promise<SyntheticMonitorSignIn> {
   const origin = args.apiOrigin.replace(/\/$/, '');
   const prefix = args.apiPathPrefix.replace(/\/$/, '');
   const url = `${origin}${prefix}${SYNTHETIC_MONITOR_CODE_PATH}`;
@@ -37,6 +44,9 @@ export async function requestSyntheticMonitorRedirect(
     body: JSON.stringify({
       callbackUrl: args.callbackUrl,
       ...(args.peer === true ? { peer: true } : {}),
+      ...(args.continuationToken === undefined
+        ? {}
+        : { continuationToken: args.continuationToken }),
     }),
   });
   const body: unknown = await res.json().catch(() => null);
@@ -44,10 +54,18 @@ export async function requestSyntheticMonitorRedirect(
     body !== null && typeof body === 'object'
       ? (body as Record<string, unknown>)['redirectUrl']
       : undefined;
-  if (!res.ok || typeof redirectUrl !== 'string') {
+  const continuationToken =
+    body !== null && typeof body === 'object'
+      ? (body as Record<string, unknown>)['continuationToken']
+      : undefined;
+  if (
+    !res.ok ||
+    typeof redirectUrl !== 'string' ||
+    typeof continuationToken !== 'string'
+  ) {
     throw new Error(
-      `synthetic-monitor sign-in refused: HTTP ${String(res.status)} ${JSON.stringify(body)}`
+      `synthetic-monitor sign-in refused or incomplete: HTTP ${String(res.status)}`
     );
   }
-  return redirectUrl;
+  return { redirectUrl, continuationToken };
 }

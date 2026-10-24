@@ -253,3 +253,11 @@ inferred from this ledger or from a narrow test run.
   With the available updates installed, 15 affected DOM/UI/harness tasks,
   both browser bundle builds, all 75 shared checks and all four app journeys
   pass. This dependency repair is committed separately from the app journeys.
+- Preparing live cross-device verification found that requesting another
+  monitoring sign-in always minted a different account. A pinned HTTP example
+  was red before the fixture gained a server-signed, callback-bound continuation.
+  A second device uses the normal callback to join that same monitoring account;
+  another journey still starts fresh. The continuation stays in the runner,
+  expires on the injected clock and rejects tampering, callback changes and
+  rotated secrets. The auth/vendor/product typechecks, lints and code tests
+  pass. This repairs the live fixture; it is not browser-execution evidence.

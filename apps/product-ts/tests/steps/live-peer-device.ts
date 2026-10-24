@@ -15,16 +15,39 @@ import {
   atTabShell,
   confirmSignedIn,
 } from '@libs/runtime-harness-ts/journey-gestures';
-import type { JourneyPeerDevice } from '@libs/runtime-harness-ts/journey-types';
+import type {
+  JourneyAccess,
+  JourneyPeerDevice,
+} from '@libs/runtime-harness-ts/journey-types';
 import { spaceLinkFromLocation } from '@libs/runtime-harness-ts/journey-types';
 
 export function liveJourneyPeerDevice(
   target: LiveTarget,
   devices: LiveDevices,
-  signIn: (device: Device) => Promise<void>
-): JourneyPeerDevice {
+  signIn: (
+    device: Device,
+    continuationToken: string | undefined
+  ) => Promise<string>
+): JourneyPeerDevice & { open: (access: JourneyAccess) => Promise<void> } {
+  let continuationToken: string | undefined;
   const current = () => requireDevice(devices.guest, 'peer');
+  const prepare = (device: Device, access: JourneyAccess): Promise<void> =>
+    prepareCriticalJourneyAccess({
+      access,
+      launch: () => device.driver.launch(),
+      waitForTabShell: () => atTabShell(device.driver),
+      signIn: async () => {
+        continuationToken = await signIn(device, continuationToken);
+      },
+    });
   return {
+    open: async (access) => {
+      if (devices.guest !== null)
+        throw new Error('The second device is already open');
+      devices.guest = await openIsolatedDevice(target);
+      devices.shown = devices.guest;
+      await prepare(devices.guest, access);
+    },
     spaceLink: async () =>
       spaceLinkFromLocation(await readLocation(current().view)),
     reopen: () => current().driver.launch(),
@@ -38,18 +61,17 @@ export function liveJourneyPeerDevice(
       });
     },
     anotherSignedInDevice: async () => {
+      if (continuationToken === undefined)
+        throw new Error('The second person has not signed in');
       const previous = current();
       await actOnLiveDevice(devices, previous, confirmSignedIn);
       const next = await openIsolatedDevice(target);
-      devices.previousPeers.push(previous);
-      devices.guest = next;
+      // Keep ownership of a failed sign-in device and the original account's cleanup access.
+      const pending = devices.previousPeers.push(next) - 1;
       devices.shown = next;
-      await prepareCriticalJourneyAccess({
-        access: 'signed-in',
-        launch: () => next.driver.launch(),
-        waitForTabShell: () => atTabShell(next.driver),
-        signIn: () => signIn(next),
-      });
+      await prepare(next, 'signed-in');
+      devices.previousPeers[pending] = previous;
+      devices.guest = next;
     },
   };
 }

@@ -3,7 +3,6 @@ import {
   browserFailureSummary,
 } from '@apps/product-ts/browser-failure-summary';
 import { readSyncResponseEvidence } from '@apps/product-ts/browser-network-evidence';
-import { openIsolatedDevice } from '@apps/product-ts/isolated-browser';
 import {
   actOnLiveDevice,
   type LiveDevices,
@@ -44,7 +43,7 @@ import type {
   JourneyWorld,
 } from '@libs/runtime-harness-ts/journey-types';
 import { spaceLinkFromLocation } from '@libs/runtime-harness-ts/journey-types';
-import { requestSyntheticMonitorRedirect } from '@pkgs/auth-inhouse-shared-ts/synthetic-monitor';
+import { requestSyntheticMonitorSignIn } from '@pkgs/auth-inhouse-shared-ts/synthetic-monitor';
 import { wallClock } from '@pkgs/clock-shared-ts/wall';
 import type { ScenarioContext } from '@pkgs/gherkin-shared-ts/registry';
 import { setWorld } from '@pkgs/gherkin-shared-ts/registry';
@@ -80,17 +79,17 @@ export function requireSecret(name: string): string {
 async function signIn(
   device: Device,
   target: LiveTarget,
-  peer = false
-): Promise<void> {
-  const redirectUrl = await requestSyntheticMonitorRedirect({
+  options: { peer?: boolean; continuationToken?: string } = {}
+): Promise<string> {
+  const issued = await requestSyntheticMonitorSignIn({
     http: target.http,
     apiOrigin: target.apiOrigin,
     apiPathPrefix: API_PATH_PREFIX,
     token: requireSecret('SYNTHETIC_MONITOR_TOKEN'),
-    peer,
+    ...options,
     callbackUrl: `${target.webOrigin}${SSO_CALLBACK_PATH}`,
   });
-  await device.view.navigate(redirectUrl);
+  await device.view.navigate(issued.redirectUrl);
   // The header (and its account menu) shows before the lazy callback route
   // reads `?code=` from the URL. Leaving first drops the code, so wait for
   // the callback to finish and move on by itself.
@@ -99,6 +98,7 @@ async function signIn(
     JOURNEY_WAIT_MS
   );
   await confirmSignedIn(device.driver);
+  return issued.continuationToken;
 }
 
 type Browsing = {
@@ -128,7 +128,9 @@ async function openLiveDevice(
     access,
     launch: () => opened.driver.launch(),
     waitForTabShell: () => atTabShell(opened.driver),
-    signIn: () => signIn(opened, target),
+    signIn: async () => {
+      await signIn(opened, target);
+    },
   });
 }
 
@@ -145,6 +147,15 @@ function liveJourneyHost(
   devices: LiveDevices,
   cleanups: Map<string, JourneyGestures>
 ): JourneyHost {
+  const peer = liveJourneyPeerDevice(
+    target,
+    devices,
+    (device, continuationToken) =>
+      signIn(device, target, {
+        peer: true,
+        ...(continuationToken === undefined ? {} : { continuationToken }),
+      })
+  );
   return {
     runId: RUN_ID,
     now: () => Promise.resolve(wallClock.now()),
@@ -156,21 +167,8 @@ function liveJourneyHost(
     // The deployed bundle is a production build: no puzzle answers on the page.
     showsPuzzleAnswers: false,
     open: (access) => openLiveDevice(target, devices, access),
-    peerDevice: liveJourneyPeerDevice(target, devices, (device) =>
-      signIn(device, target, true)
-    ),
-    openPeer: async (access) => {
-      if (devices.guest !== null)
-        throw new Error('The second device is already open');
-      devices.guest = await openIsolatedDevice(target);
-      devices.shown = devices.guest;
-      await prepareCriticalJourneyAccess({
-        access,
-        launch: () => devices.guest!.driver.launch(),
-        waitForTabShell: () => atTabShell(devices.guest!.driver),
-        signIn: () => signIn(devices.guest!, target, true),
-      });
-    },
+    peerDevice: peer,
+    openPeer: peer.open,
     act: async (_name, gestures) => {
       const current = await ensureHost(target, devices);
       await actOnLiveDevice(devices, current, gestures);
