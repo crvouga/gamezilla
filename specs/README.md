@@ -1137,6 +1137,7 @@ terms:
 | App | `runtime` | the app itself: opening it, tabs, Settings, addresses, updates, reconnecting, and the promises a live environment keeps about reaching and answering people | generic |
 | Developer tools | `developer-tools` | the team's testing tool, test worlds, checkpoints, data notebooks, test runs, test reports, recorded moments, and release checks | supporting |
 | Product feedback | `feedback` | bugs, feature requests, gaps and polish, with recordings and diagnostics that help the team reproduce trouble | supporting |
+| Synthetic Population | `synthetic-population` | persistent automated opponents, their activities, recovery, disclosure and authorized observation and control | supporting |
 | Journeys | `journeys` | the critical journeys across every context | — |
 
 Relationships — upstream contexts publish; downstream contexts borrow their
@@ -1163,6 +1164,8 @@ Games    ──► Pong (game, custom game, under way, bot)
 Matchmaking ──► Pong (pair people up)
 Spaces   ──► Pong (space, join)
 Games    ──► Journeys (bot)
+Games    ──► Synthetic Population (game)
+Pong     ──► Synthetic Population (Pong)
 Room, Sync engine: stand alone; Matchmaking publishes complete matches to Chess (Sync engine's "shared space" is not a Spaces space)
 Database indexing: stands alone; publishes no product terms or events
 ```
@@ -1176,7 +1179,7 @@ Published language:
 | Spaces (`spaces`) | space, host, join, leave, create a space, end a space, open space, return to a space, lobby, space link, hosting limit, idle | `SpaceEvent`: `SpaceOpened`, `PersonJoined`, `PersonLeft`, `SpaceEnded` |
 | Friends (`friends`) | friend, friends list, people search, block someone, inbox | `FriendshipEvent`: `BecameFriends`, `FriendshipEnded` |
 | Chess (`chess`) | game, chess, board, puzzle, solve, multiplayer chess, multiplayer result, Custom Game, Custom Game move list | — |
-| Games (`games`) | game, the game's choices, custom game | — |
+| Games (`games`) | game, the game's choices, custom game, under way | — |
 | Connect Four (`connect-four`) | Connect Four | — |
 | Battleship (`battleship`) | Battleship | — |
 | Pong (`pong`) | Pong | — |
