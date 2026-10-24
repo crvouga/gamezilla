@@ -1,0 +1,4 @@
+{
+  "summary": "SQLite's SAH-pool initializer removes its pool directory when initialization rejects. A rapid page navigation encountered a previous worker's locked handles, and initialization cleanup erased the offline attempts and pending writes. Check existing pool handles before initialization so contention uses the existing safe retry path.",
+  "regressionTest": "pkgs/sql-client-sqlite-web-client-ts/tests/opfs-open-contention.test.ts"
+}

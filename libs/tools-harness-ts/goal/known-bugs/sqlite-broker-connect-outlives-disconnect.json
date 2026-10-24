@@ -1,0 +1,4 @@
+{
+  "summary": "Disconnecting before a queued broker connect completed left the departed page registered as owner, and its late reply could start another worker after unload. Pending disconnects must follow their connect; departed transports must reject late ownership.",
+  "regressionTest": "pkgs/sql-client-sqlite-web-client-ts/tests/shared-worker-transport.test.ts"
+}

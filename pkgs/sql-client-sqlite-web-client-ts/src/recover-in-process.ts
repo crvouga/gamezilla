@@ -179,16 +179,20 @@ export async function openSqlOwnerWithRecovery(args: {
   readonly timers: Timers;
   readonly logger: Logger;
   readonly migrate: (client: SqlClient) => Promise<void>;
+  readonly signal?: AbortSignal;
 }): Promise<SqlClient> {
   const open = () =>
     openWithWaitRetry({
       databaseName: args.dbName,
       timers: args.timers,
       logger: args.logger,
+      ...(args.signal === undefined ? {} : { signal: args.signal }),
       openOnce: async () => {
+        args.signal?.throwIfAborted();
         try {
           const client = await args.owner.open();
           await args.migrate(client);
+          args.signal?.throwIfAborted();
           return client;
         } catch (error: unknown) {
           await args.owner.close();
@@ -200,6 +204,7 @@ export async function openSqlOwnerWithRecovery(args: {
     return await open();
   } catch (error: unknown) {
     await args.owner.close();
+    args.signal?.throwIfAborted();
     // Contention is not corruption. Never erase a database held by another owner.
     if (!isSqlOwnerWipeWorthyError(error)) throw error;
     await args.owner.resetStore();

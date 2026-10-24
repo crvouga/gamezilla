@@ -144,6 +144,27 @@ describe('shared-worker transport across page loads', () => {
     expect((await openPage().connect()).role).toBe('owner');
   });
 
+  // regression: sqlite-broker-connect-outlives-disconnect
+  test('a broker response arriving after unload cannot start an owner', async () => {
+    installSharedWorker();
+    let created = 0;
+    const first = createSharedWorkerTransport({
+      dbName: 'app',
+      timers: parkedTimers,
+      workerUrl: '/db-host-shared-worker.js',
+      createOwnerRuntimeFn: ({ dbName }) => {
+        created += 1;
+        return stubOwnerRuntime(dbName, () => undefined);
+      },
+    });
+    const opening = first.connect().catch(() => undefined);
+    first.leaveOnUnload();
+    await opening;
+    expect(created).toBe(0);
+    expect(first.isOwner()).toBe(false);
+    expect((await openPage().connect()).role).toBe('owner');
+  });
+
   // regression: sqlite-web-navigation-dead-owner — a same-tab navigation
   // (the sign-in callback, any reload) left the previous page owning the
   // store: discarded, or frozen in the back/forward cache still holding its

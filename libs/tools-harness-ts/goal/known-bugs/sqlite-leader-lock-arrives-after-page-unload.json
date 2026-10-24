@@ -1,0 +1,4 @@
+{
+  "summary": "The fallback transport could accept a Web Lock granted after its page had unloaded, then create another owner and hold the next page's OPFS files. Unload now invalidates that acquisition and releases the late grant.",
+  "regressionTest": "pkgs/sql-client-sqlite-web-client-ts/tests/leader-transport-unload.test.ts"
+}

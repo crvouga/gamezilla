@@ -48,9 +48,22 @@ export function isLikelyOpfsLockError(error: unknown): boolean {
   );
 }
 
-export async function sleepMs(timers: Timers, ms: number): Promise<void> {
-  await new Promise<void>((resolve) => {
-    timers.setTimeout(() => resolve(), ms);
+export async function sleepMs(
+  timers: Timers,
+  ms: number,
+  signal?: AbortSignal
+): Promise<void> {
+  signal?.throwIfAborted();
+  await new Promise<void>((resolve, reject) => {
+    const aborted = () => {
+      timers.clearTimeout(timer);
+      reject(signal?.reason);
+    };
+    const timer = timers.setTimeout(() => {
+      signal?.removeEventListener('abort', aborted);
+      resolve();
+    }, ms);
+    signal?.addEventListener('abort', aborted, { once: true });
   });
 }
 
@@ -64,10 +77,12 @@ export async function openWithWaitRetry<T>(args: {
   readonly logger: Logger;
   readonly openOnce: () => Promise<T>;
   readonly delaysMs?: readonly number[];
+  readonly signal?: AbortSignal;
 }): Promise<T> {
   const delays = args.delaysMs ?? WEB_OPEN_RETRY_DELAYS_MS;
   let lastError: unknown;
   for (let attempt = 0; attempt <= delays.length; attempt++) {
+    args.signal?.throwIfAborted();
     try {
       return await withOpenTimeout(
         args.databaseName,
@@ -75,6 +90,7 @@ export async function openWithWaitRetry<T>(args: {
         args.timers
       );
     } catch (error: unknown) {
+      args.signal?.throwIfAborted();
       lastError = error;
       if (attempt >= delays.length || !isLikelyOpfsLockError(error)) {
         throw error;
@@ -87,7 +103,7 @@ export async function openWithWaitRetry<T>(args: {
         attempts: delays.length,
         error: String(error),
       });
-      await sleepMs(args.timers, delay);
+      await sleepMs(args.timers, delay, args.signal);
     }
   }
   throw lastError instanceof Error ? lastError : new Error(String(lastError));

@@ -44,11 +44,15 @@ function poolDbFilename(dbName: string): string {
 export class OpfsSahPoolBackend implements SqliteWorkerBackend {
   private pools = new Map<string, SahPoolUtil>();
 
-  constructor(private readonly sqlite3: Sqlite3Static) {}
+  constructor(
+    private readonly sqlite3: Sqlite3Static,
+    private readonly beforePoolOpen: (dbName: string) => Promise<void>
+  ) {}
 
   private async pool(dbName: string): Promise<SahPoolUtil> {
     const existing = this.pools.get(dbName);
     if (existing !== undefined) return existing;
+    await this.beforePoolOpen(dbName);
     const util = await this.sqlite3.installOpfsSAHPoolVfs({
       directory: opfsSahPoolDirectory(dbName),
       name: opfsSahPoolVfsName(dbName),

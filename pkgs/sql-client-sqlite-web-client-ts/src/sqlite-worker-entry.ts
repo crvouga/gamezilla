@@ -18,10 +18,13 @@ import {
   createSqliteWorkerHost,
 } from '@pkgs/sql-client-sqlite-web-shared-ts/sqlite-worker-host';
 import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
+import { assertOpfsPoolUnlocked } from './opfs-pool-preflight';
 
 function pickBackend(sqlite3: Sqlite3Static): SqliteWorkerBackend {
   if (isOpfsSahPoolSupported()) {
-    return new OpfsSahPoolBackend(sqlite3);
+    return new OpfsSahPoolBackend(sqlite3, async (dbName) =>
+      assertOpfsPoolUnlocked(dbName, await navigator.storage.getDirectory())
+    );
   }
   console.warn(
     '[sqlite-worker] OPFS sync access handles unavailable; using memory database'

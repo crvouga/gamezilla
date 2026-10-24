@@ -187,6 +187,30 @@ async function handleConnect(
   await next;
 }
 
+function handleDisconnect(
+  state: BrokerState,
+  portId: string,
+  request: RpcRequest<'disconnect'>
+): void {
+  const release = () => {
+    releasePortFromDb(state, portId, request.dbName);
+    post(state, portId, { id: request.id, ok: true, result: null });
+  };
+  const chain = state.connectChains.get(request.dbName);
+  if (
+    chain === undefined ||
+    state.slots.get(request.dbName)?.portIds.has(portId)
+  ) {
+    release();
+    return;
+  }
+  const next = chain.then((slot) => {
+    release();
+    return slot;
+  });
+  state.connectChains.set(request.dbName, next);
+}
+
 function routeToOwner(
   state: BrokerState,
   fromPortId: string,
@@ -382,8 +406,7 @@ function handleRpcRequest(
     return;
   }
   if (message.op === 'disconnect') {
-    releasePortFromDb(state, portId, message.dbName);
-    post(state, portId, { id: message.id, ok: true, result: null });
+    handleDisconnect(state, portId, message as RpcRequest<'disconnect'>);
     return;
   }
   const ownerId = state.slots.get(message.dbName)?.ownerPortId ?? null;

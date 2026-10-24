@@ -127,6 +127,7 @@ class OwnerRuntimeImpl implements OwnerRuntime {
   private readonly migrate: ((client: SqlClient) => Promise<void>) | undefined;
   private client: SqlClient | null = null;
   private openPromise: Promise<void> | null = null;
+  private openController: AbortController | null = null;
   private readonly stmts = new Map<
     string,
     PreparedStatement<Record<string, unknown>>
@@ -193,12 +194,13 @@ class OwnerRuntimeImpl implements OwnerRuntime {
     this.txGate = null;
   }
 
-  private async openOwnerClient(): Promise<SqlClient> {
+  private async openOwnerClient(signal: AbortSignal): Promise<SqlClient> {
     return openSqlOwnerWithRecovery({
       dbName: this.dbName,
       owner: this.owner,
       timers: this.timers,
       logger: this.logger,
+      signal,
       migrate: async (client) => {
         await applySqliteConnectionPragmas(client);
         await this.migrate?.(client);
@@ -209,11 +211,15 @@ class OwnerRuntimeImpl implements OwnerRuntime {
   private async ensureOpen(): Promise<SqlClient> {
     if (this.client !== null) return this.client;
     if (this.openPromise === null) {
+      const controller = new AbortController();
+      this.openController = controller;
       this.openPromise = (async () => {
         try {
-          this.client = await this.openOwnerClient();
+          const client = await this.openOwnerClient(controller.signal);
+          controller.signal.throwIfAborted();
+          this.client = client;
         } catch (error: unknown) {
-          this.openPromise = null;
+          if (this.openController === controller) this.openPromise = null;
           throw error;
         }
       })();
@@ -255,6 +261,8 @@ class OwnerRuntimeImpl implements OwnerRuntime {
   }
 
   async close(): Promise<void> {
+    this.openController?.abort(new Error('SQLite owner closed'));
+    this.openController = null;
     if (this.activeTx !== null) {
       await this.abortActiveTx(
         txError(RPC_ERROR_TX_ABORTED, 'Transaction aborted: owner closing')
@@ -267,6 +275,8 @@ class OwnerRuntimeImpl implements OwnerRuntime {
   }
 
   release(): void {
+    this.openController?.abort(new Error('SQLite owner released'));
+    this.openController = null;
     const tx = this.activeTx;
     if (tx !== null) {
       if (tx.idleTimerId !== null) this.timers.clearTimeout(tx.idleTimerId);

@@ -39,6 +39,7 @@ export type LeaderTransport = {
 };
 
 class LeaderTransportImpl implements LeaderTransport {
+  private generation = 0;
   private readonly dbName: string;
   private readonly timers: Timers;
   private readonly tabId: string;
@@ -70,7 +71,9 @@ class LeaderTransportImpl implements LeaderTransport {
     this.nextId = createRpcIdFactory(`lead_${args.tabId}`);
   }
 
-  private async tryAcquireOwnership(): Promise<'owner' | 'proxy'> {
+  private async tryAcquireOwnership(
+    generation = this.generation
+  ): Promise<'owner' | 'proxy'> {
     const locks = navigator.locks;
     if (locks === undefined) return 'owner';
     return new Promise<'owner' | 'proxy'>((resolve) => {
@@ -78,7 +81,7 @@ class LeaderTransportImpl implements LeaderTransport {
         `db-owner:${this.dbName}`,
         { mode: 'exclusive', ifAvailable: true },
         (lock) => {
-          if (lock === null) {
+          if (lock === null || generation !== this.generation) {
             resolve('proxy');
             return;
           }
@@ -92,12 +95,18 @@ class LeaderTransportImpl implements LeaderTransport {
   }
 
   private async becomeOwner(): Promise<void> {
+    const generation = this.generation;
     this.ownerRuntime = this.createFn({
       dbName: this.dbName,
       timers: this.timers,
     });
-    await this.ownerRuntime.open();
-    this.unsubOwnerChanged = this.ownerRuntime.onChanged((notify) => {
+    const runtime = this.ownerRuntime;
+    await runtime.open();
+    if (generation !== this.generation) {
+      runtime.release();
+      throw new Error('SQLite page released');
+    }
+    this.unsubOwnerChanged = runtime.onChanged((notify) => {
       this.changedChannel?.postMessage(notify);
       for (const listener of this.changeListeners) listener(notify);
     });
@@ -161,10 +170,13 @@ class LeaderTransportImpl implements LeaderTransport {
 
   async connect(): Promise<ConnectResult> {
     if (this.connected && this.role !== null) return { role: this.role };
+    const generation = this.generation;
     this.ensureChannels();
-    const acquired = await this.tryAcquireOwnership();
+    const acquired = await this.tryAcquireOwnership(generation);
+    if (generation !== this.generation) throw new Error('SQLite page released');
     if (acquired === 'owner') await this.becomeOwner();
     else this.role = 'proxy';
+    if (generation !== this.generation) throw new Error('SQLite page released');
     this.connected = true;
     const beat = () => {
       this.heartbeatTimer = this.timers.setTimeout(beat, HEARTBEAT_INTERVAL_MS);
@@ -174,7 +186,10 @@ class LeaderTransportImpl implements LeaderTransport {
   }
 
   async disconnect(): Promise<void> {
-    if (!this.connected) return;
+    if (!this.connected) {
+      this.leaveOnUnload();
+      return;
+    }
     this.connected = false;
     if (this.heartbeatTimer !== null) {
       this.timers.clearTimeout(this.heartbeatTimer);
@@ -237,9 +252,11 @@ class LeaderTransportImpl implements LeaderTransport {
     payload: RpcRequest<O>['payload'],
     opts?: { timeoutMs?: number }
   ): Promise<RpcResponse<O> extends { ok: true; result: infer R } ? R : never> {
+    const generation = this.generation;
     try {
       return (await this.requestOnce(op, payload, opts)) as never;
     } catch (error: unknown) {
+      if (generation !== this.generation) throw error;
       if (
         !isLeaderLostError(error) &&
         !(error instanceof Error && error.name === 'RpcTimeoutError')
@@ -247,7 +264,8 @@ class LeaderTransportImpl implements LeaderTransport {
         throw error;
       }
       await this.teardownOwner();
-      const next = await this.tryAcquireOwnership();
+      const next = await this.tryAcquireOwnership(generation);
+      if (generation !== this.generation) throw error;
       if (next === 'owner') await this.becomeOwner();
       else this.role = 'proxy';
       return (await this.requestOnce(op, payload, opts)) as never;
@@ -262,6 +280,21 @@ class LeaderTransportImpl implements LeaderTransport {
   }
 
   leaveOnUnload(): void {
+    this.generation += 1;
+    this.connected = false;
+    if (this.heartbeatTimer !== null) {
+      this.timers.clearTimeout(this.heartbeatTimer);
+      this.heartbeatTimer = null;
+    }
+    this.rpcChannel?.close();
+    this.rpcChannel = null;
+    this.changedChannel?.close();
+    this.changedChannel = null;
+    for (const entry of this.pending.values()) {
+      this.timers.clearTimeout(entry.timerId);
+      entry.reject(leaderLostError('Page released'));
+    }
+    this.pending.clear();
     this.unsubOwnerChanged?.();
     this.unsubOwnerChanged = null;
     this.ownerRuntime?.release();
