@@ -8,7 +8,12 @@ import type {
 import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import fc from 'fast-check';
 import type { HarnessGame } from './harness-game';
-import { playedRules, playedRulesOf } from './played-rules';
+import {
+  playedRules,
+  playedRulesOf,
+  scriptedRandom,
+  splitDealtPosition,
+} from './played-rules';
 
 /**
  * One law a game's rules keep: a named check that throws, naming the game,
@@ -53,6 +58,34 @@ export function law(
 /** Fail with `problem` unless the law `holds`. */
 export function must(holds: boolean, problem: string): void {
   if (!holds) throw new Error(problem);
+}
+
+/**
+ * What a side may propose at `position` of `game`'s played rules, as the
+ * game's own judge sees it: one of `legal` for most games; for a game with
+ * dealt hands (whose `legal` is a bounded sample of what a hand allows),
+ * any proposal its authority accepts.
+ */
+function offered(
+  game: HarnessGame,
+  played: { readonly rules: GameRules; readonly position: string },
+  action: string,
+  accepted: () => boolean
+): boolean {
+  if (game.shared.turnGame.rules.hands === undefined)
+    return played.rules.legal(played.position).includes(action);
+  return accepted();
+}
+
+/** The public position and the mover's own hand at a played-rules position. */
+function seat(
+  game: HarnessGame,
+  position: string
+): { readonly position: string; readonly hand: string | null } {
+  const hands = game.shared.turnGame.rules.hands;
+  if (hands === undefined) return { position, hand: null };
+  const at = splitDealtPosition(position);
+  return { position: at.position, hand: hands.hand(at.hidden, at.turn) };
 }
 
 const same = (a: unknown, b: unknown) =>
@@ -368,6 +401,56 @@ function privateSetupLaws(game: HarnessGame): readonly GameLaw[] {
 }
 
 /**
+ * The laws of a game with dealt hands: whatever the authority draws, it
+ * deals a hidden state that shows every side a hand; every proposal it
+ * offers a hand resolves to a public action its rules accept; and the same
+ * deal and proposals always resolve alike.
+ */
+function dealtHandsLaws(game: HarnessGame): readonly GameLaw[] {
+  const rules = game.shared.turnGame.rules;
+  const hands = rules.hands;
+  if (hands === undefined) return [];
+  return [
+    law(game, 'every deal shows each side a hand of its own', () =>
+      assertProperty(
+        `${game.label}: deals`,
+        fc.property(draws, (drawn) => {
+          const hidden = hands.deal(rules.initial(), scriptedRandom(drawn));
+          must(
+            hands.deal(rules.initial(), scriptedRandom(drawn)) === hidden,
+            'the same draws dealt differently'
+          );
+          for (const side of gameSides(rules)) hands.hand(hidden, side);
+        })
+      )
+    ),
+    law(
+      game,
+      'every proposal a hand is offered resolves to a public action',
+      () => {
+        const played = playedRulesOf(game);
+        assertProperty(
+          `${game.label}: offered proposals`,
+          fc.property(picks, (drawn) => {
+            const walked = walk(played, drawn);
+            for (const proposal of played.legal(walked.position))
+              must(
+                played.play(
+                  walked.position,
+                  proposal,
+                  walked.history,
+                  walked.actions
+                ) !== null,
+                `the offered ${proposal} was refused at ${walked.position}`
+              );
+          })
+        );
+      }
+    ),
+  ];
+}
+
+/**
  * Every law of a turn game's rules, for `game`, among the `others` whose
  * positions it must never claim.
  */
@@ -484,9 +567,15 @@ export function gameRulesLaws(
               // A game may end by its history (a repetition) while its
               // position still lists actions: finished, it accepts none.
               const finished = played.steps.at(-1)?.winner != null;
+              // A near miss of a placement may be another placement the hand
+              // allows, so a game with dealt hands is held to strangers alone.
+              const near =
+                game.shared.turnGame.rules.hands === undefined
+                  ? misspellings(legal)
+                  : [];
               for (const action of [
                 ...sent,
-                ...misspellings(legal),
+                ...near,
                 ...(finished ? legal : []),
               ])
                 must(
@@ -506,6 +595,7 @@ export function gameRulesLaws(
     ),
     ...duelRulesLaws(game),
     ...privateSetupLaws(game),
+    ...dealtHandsLaws(game),
     law(game, 'its rules draw it only where the game names a line to it', () =>
       drawnOnlyWhereKnown(game)
     ),
@@ -520,15 +610,28 @@ export function gameRulesLaws(
             // The platform never asks for a move in a finished game.
             if (steps.at(-1)?.winner != null) return;
             const legal = rules.legal(position);
+            const own = seat(game, position);
             const chosen = game.shared.automation.choose(
-              position,
+              own.position,
               () => r,
-              null
+              own.hand
             );
             must(
               legal.length === 0
                 ? chosen === null
-                : legal.includes(chosen ?? ''),
+                : chosen !== null &&
+                    offered(
+                      game,
+                      { rules, position },
+                      chosen,
+                      () =>
+                        rules.play(
+                          position,
+                          chosen,
+                          '',
+                          walk(rules, drawn).actions
+                        ) !== null
+                    ),
               `the automated participant chose ${String(chosen)} at ${position}`
             );
           })
@@ -572,21 +675,31 @@ export function gameBotLaws(game: HarnessGame): readonly GameLaw[] {
               const actions: string[] = [];
               for (let ply = 0; ply < BOT_PLIES; ply++) {
                 const legal = rules.legal(position);
+                const own = seat(game, position);
                 const chosen = bots.choose(
-                  position,
+                  own.position,
                   difficulties[ply % difficulties.length]!,
                   () => draws[ply % draws.length]!,
-                  null
+                  own.hand
                 );
                 if (legal.length === 0) {
                   must(chosen === null, 'a bot moved in a finished game');
                   return;
                 }
+                const played =
+                  chosen === null
+                    ? null
+                    : rules.play(position, chosen, history, actions);
                 must(
-                  chosen !== null && legal.includes(chosen),
+                  chosen !== null &&
+                    offered(
+                      game,
+                      { rules, position },
+                      chosen,
+                      () => played !== null
+                    ),
                   `a bot chose ${String(chosen)} at ${position}`
                 );
-                const played = rules.play(position, chosen!, history, actions);
                 must(
                   played !== null,
                   `the bot's ${String(chosen)} was refused`

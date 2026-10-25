@@ -13,6 +13,7 @@ import {
 import { showCustomGames } from './game-navigation';
 import { harnessGameAt } from './harness-game-of';
 import { keepsOwnPrivateSetup } from './own-private-setups';
+import { dealKnownHandsOnStart } from './room-draws';
 
 /** The custom-game control a person uses for `input`. */
 export function customGameControl(
@@ -183,6 +184,7 @@ export async function operateCustomGameControls(
     return;
   }
   await arrangeSetup(s, actor, input, probe);
+  await dealKnownHandsOnStart(s, actor, input.operation);
   const ui = await actorUi(s, actor);
   await ui.get(target).tap();
   if (input.operation === 'cancel' || input.operation === 'resign')

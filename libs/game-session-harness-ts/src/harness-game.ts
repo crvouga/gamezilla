@@ -16,7 +16,12 @@ import {
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { KnownPuzzles, PuzzleFixture } from './known-puzzles';
 import { assertKnownPuzzles, assertMorePuzzles } from './known-puzzles';
-import { playedRulesOf } from './played-rules';
+import {
+  type KnownDeal,
+  playedRulesOf,
+  recordedLine,
+  scriptedRandom,
+} from './played-rules';
 
 /**
  * Known examples of a game's rules, written by the game's author from the
@@ -67,6 +72,13 @@ type RulesFixtures = {
    * shared suites play them so, and a person readies with their side's.
    */
   readonly setups?: GameSetups;
+  /**
+   * Exactly for a game with dealt hands: the deal the shared suites start
+   * every game from. The room's random source is made to return its
+   * `draws` as a game starts, so the real authority deals `hidden`; every
+   * line above is then the proposals people make with the hands it deals.
+   */
+  readonly knownDeal?: KnownDeal;
 };
 
 /**
@@ -202,6 +214,7 @@ export function assertHarnessGame<C extends TurnGameCapabilities>(
     );
   assertPuzzlesAgree(game, fail);
   assertKnownSetups(game, fail);
+  assertKnownDeal(game, fail);
   const played = playedRulesOf(game);
   const { firstSideVictory, refusedOpenings } = game.fixtures;
   if (firstSideVictory.length < gameSides(rules).length)
@@ -209,14 +222,14 @@ export function assertHarnessGame<C extends TurnGameCapabilities>(
   if (refusedOpenings.length === 0)
     fail('name at least one opening its rules refuse');
   for (const action of refusedOpenings)
-    if (played.play(rules.initial(), action, '', []) !== null)
+    if (played.play(played.initial(), action, '', []) !== null)
       fail(`the refused opening ${action} is accepted`);
   assertMoveNamesAndRecord(game, fail);
   const cannotWin = game.fixtures.secondSideCannotWin;
   if (cannotWin !== undefined) assertCannotWinLine(game, cannotWin, fail);
   const drawn = game.fixtures.drawByRules;
   if (drawn !== undefined) assertDrawingLine(game, drawn, fail);
-  let position = rules.initial();
+  let position = played.initial();
   let history = '';
   const actions: string[] = [];
   for (const [index, action] of firstSideVictory.entries()) {
@@ -258,6 +271,40 @@ function assertKnownSetups(
       fail(
         `the known ${side} setup is not one complete setup as the game stores it`
       );
+}
+
+/**
+ * A game with dealt hands names the deal its suites start from: its draws
+ * deal exactly its hidden state, and the hands written beside the known
+ * victory are the hands that deal gives; no other game names a deal.
+ */
+function assertKnownDeal(
+  game: HarnessGame,
+  fail: (problem: string) => void
+): void {
+  const rules = game.shared.turnGame.rules;
+  const hands = rules.hands;
+  const deal = game.fixtures.knownDeal;
+  if ((hands === undefined) !== (deal === undefined))
+    fail(
+      hands === undefined
+        ? 'only a game with dealt hands names a known deal'
+        : 'a game with dealt hands names the deal its suites start from (fixtures.knownDeal)'
+    );
+  if (hands === undefined || deal === undefined) return;
+  if (hands.deal(rules.initial(), scriptedRandom(deal.draws)) !== deal.hidden)
+    fail('the known deal draws do not deal its hidden state');
+  const written = deal.hands ?? [];
+  const victory = game.fixtures.firstSideVictory;
+  const played = playedRulesOf(game);
+  for (const [ply, expected] of written.entries()) {
+    const at = played.replay(victory, ply).split('\n');
+    for (const [side, hand] of Object.entries(expected))
+      if (hands.hand(at[1] ?? '', side as GameSide) !== hand)
+        fail(`before victory move ${ply + 1} the ${side} hand is not ${hand}`);
+  }
+  if (recordedLine(game, victory).length !== victory.length)
+    fail('the known victory is not playable from the known deal');
 }
 
 /**

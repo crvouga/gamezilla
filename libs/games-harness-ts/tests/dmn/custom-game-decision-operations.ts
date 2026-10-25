@@ -5,6 +5,7 @@
  */
 
 import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import { scriptedRandom } from '@libs/game-session-harness-ts/played-rules';
 import { createGameSessionServer } from '@libs/game-session-server-ts/sub-server';
 import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
 import { ChangeCustomGame } from '@libs/game-session-shared-ts/custom-game-commands';
@@ -231,7 +232,17 @@ async function performFor(game: HarnessGame, c: ServerCase): Promise<void> {
   let ids = 0;
   const nextId = (): string => `decision-choice-${++ids}`;
   const node = createInProcessRoomNode(
-    { clock, timers, createId: nextId, random: () => 0.5, seed: 1n },
+    {
+      clock,
+      timers,
+      createId: nextId,
+      // A game with dealt hands is dealt its known deal, as its lines expect.
+      random:
+        game.fixtures.knownDeal === undefined
+          ? () => 0.5
+          : scriptedRandom(game.fixtures.knownDeal.draws),
+      seed: 1n,
+    },
     {
       games: [game.shared],
       gateway: {

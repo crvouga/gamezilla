@@ -1,5 +1,6 @@
 import { expect, test } from 'bun:test';
 import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import { scriptedRandom } from '@libs/game-session-harness-ts/played-rules';
 import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
 import { ChangeCustomGame } from '@libs/game-session-shared-ts/custom-game-commands';
 import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
@@ -18,7 +19,15 @@ function session(game: HarnessGame) {
   const module = createSpaceModule(
     assertRoomModuleName('roster-contract'),
     [game.shared],
-    { now: () => 0, random: () => 0, authority: true }
+    {
+      now: () => 0,
+      // A game with dealt hands is dealt its known deal, as every line expects.
+      random:
+        game.fixtures.knownDeal === undefined
+          ? () => 0
+          : scriptedRandom(game.fixtures.knownDeal.draws),
+      authority: true,
+    }
   );
   let state = {
     ...module.initialState(),

@@ -54,10 +54,19 @@ export const GAME_TRAITS = {
     game.shared.turnGame.rules.setup !== undefined,
   /**
    * Every position public, so a custom game without another person may be
-   * played on the host's device alone; a game with private setups is not.
+   * played on the host's device alone; a game with private setups or dealt
+   * hands is not.
    */
   'every position public': (game: HarnessGame) =>
-    game.shared.turnGame.rules.setup === undefined,
+    game.shared.turnGame.rules.setup === undefined &&
+    game.shared.turnGame.rules.hands === undefined,
+  /**
+   * Hands the authority deals and keeps hidden (`rules.hands`); the rules
+   * laws hold such a game to resolving every offered proposal from a known
+   * deal.
+   */
+  'dealt hands': (game: HarnessGame) =>
+    game.shared.turnGame.rules.hands !== undefined,
   /**
    * A known first-side victory of exactly seven moves (`firstSideVictory`),
    * which the whole-game models follow (`tests/quint/model-game.ts`). A
