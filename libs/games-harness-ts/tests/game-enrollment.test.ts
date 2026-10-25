@@ -7,10 +7,14 @@
 import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { isTurnGameDefinition } from '@libs/game-session-shared-ts/turn-game-definition';
 import { packageFamilyProblems } from '@libs/games-harness-ts/conformance-enrollment';
 import { enrollmentProblems } from '@libs/games-harness-ts/game-conformance';
 import { HARNESS_GAMES } from '@libs/games-harness-ts/harness-games';
-import { TURN_GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
+import {
+  GAME_DEFINITIONS,
+  TURN_GAME_DEFINITIONS,
+} from '@libs/games-shared-ts/game-plugins';
 import { gameFamily } from '@pkgs/turn-game-shared-ts/game-rules';
 import { CONFORMANCE_GAMES } from './conformance-world';
 
@@ -49,6 +53,7 @@ test('the shared suites run every registered game and only test-only games besid
     ).toBe(registered.has(game.shared));
 });
 
+// regression: puzzle-only-game-packages-look-unregistered
 test('every game a package implements is registered, and every registered game has packages', () => {
   const root = join(import.meta.dir, '../../..');
   const declared = new Set<string>();
@@ -61,12 +66,11 @@ test('every game a package implements is registered, and every registered game h
       ) as { game?: string };
       if (game !== undefined) declared.add(game);
     }
-  expect(
-    packageFamilyProblems(
-      TURN_GAME_DEFINITIONS.map((mode) => mode.turnGame.rules),
-      [...declared]
-    )
-  ).toEqual([]);
+  // A puzzle-only game is registered too: its own id is its family.
+  const registered = GAME_DEFINITIONS.map((game) =>
+    isTurnGameDefinition(game) ? game.turnGame.rules : { id: game.id }
+  );
+  expect(packageFamilyProblems(registered, [...declared])).toEqual([]);
 });
 
 test('a game family owns several modes without duplicating its packages', () => {
