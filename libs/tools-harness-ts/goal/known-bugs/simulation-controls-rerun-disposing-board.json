@@ -1,0 +1,4 @@
+{
+  "summary": "A Pong board hands its control surface neutral input when it is torn down, and both simulation control surfaces (custom and matched games) checked each input against their live sides memo. Torn down outside an update with that memo stale (Alice blocking Bob in a Pong custom game, then closing the app), the read re-ran the memo and through it the very component Solid was disposing, which crashed the teardown (\"null is not an object (evaluating 'node.owned[i]')\"). A surface's handlers now check the sides it advertises and read no reactive state.",
+  "regressionTest": "libs/game-session-client-ts/tests/simulation-controls.test.tsx"
+}
