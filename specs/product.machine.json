@@ -794,29 +794,9 @@
       "Opens a King of the Hill custom game": "user",
       "Finds King of the Hill opponents": "user",
       "Reviews a King of the Hill game": "user",
-      "Chooses Pong": "user",
-      "Chooses Light Cycles Duel": "user",
-      "Chooses Light Cycles Trio": "user",
-      "Chooses Light Cycles Quad": "user",
-      "Chooses Numberlink": "user",
-      "Opens a Pong custom game": "user",
-      "Finds a Pong opponent": "user",
-      "Opens puzzle authoring": "user",
-      "Returns to Numberlink choices": "user",
-      "Opens a Light Cycles Duel custom game": "user",
-      "Finds Light Cycles Duel players": "user",
-      "Reviews a Light Cycles Duel game": "user",
-      "Opens a Light Cycles Trio custom game": "user",
-      "Finds Light Cycles Trio players": "user",
-      "Reviews a Light Cycles Trio game": "user",
-      "Opens a Light Cycles Quad custom game": "user",
-      "Finds Light Cycles Quad players": "user",
-      "Reviews a Light Cycles Quad game": "user",
-      "Chooses Hearts": "user",
-      "Opens a Hearts custom game": "user",
-      "Reviews a Hearts game": "user",
       "Opens local Pong against another person": "user",
       "Opens local Pong against a Pong bot": "user",
+      "Opens a Pong custom game": "user",
       "Opens finding a Pong opponent": "user",
       "Watches the Pong game in the space": "user",
       "Starts local Pong": "user",
@@ -861,21 +841,10 @@
       "Starts the first starter puzzle": "user",
       "Continues the starter pack": "user",
       "Continues a complete starter pack": "user",
-      "Opens a Sokoban puzzle whose crates all start on goals": "user",
-      "Opens Sokoban puzzles and packs": "user",
-      "Builds a new Sokoban board": "user",
       "Moves the worker": "user",
       "Pushes a crate": "user",
-      "Undoes a Sokoban move": "user",
-      "Redoes a Sokoban move": "user",
-      "Restarts the Sokoban puzzle": "user",
-      "Continues the Sokoban attempt on another device": "user",
       "Tries a move a wall, an outside square, the edge or a second crate blocks": "user",
-      "Undoes before the first Sokoban move": "user",
       "Pushes the last crate onto a goal": "user",
-      "Sokoban's rules change during play": "system",
-      "Returns to Sokoban choices": "user",
-      "Returns to the Sokoban puzzle": "user",
       "Continues to the next unfinished puzzle": "user",
       "Undoes the completing push": "user",
       "The connection returns after an offline completion": "system",
@@ -883,19 +852,8 @@
       "Makes a board edit that leaves nothing to correct": "user",
       "Tries a board edit the builder refuses": "user",
       "Undoes a board edit": "user",
-      "Reopens the Sokoban draft": "user",
       "Tries to playtest a board with something to correct": "user",
       "Redoes a board edit": "user",
-      "Changes only the details of the Sokoban draft": "user",
-      "Playtests the Sokoban draft": "user",
-      "Publishes a Sokoban draft without a completed playtest": "user",
-      "Returns to the Sokoban board": "user",
-      "Completes the Sokoban playtest": "user",
-      "Stops the Sokoban playtest before completion": "user",
-      "Sokoban's rules change": "system",
-      "Playtests the proven Sokoban board again": "user",
-      "Publishes the proven Sokoban draft": "user",
-      "Publishes the proven Sokoban draft without a connection": "user",
       "The author's connection returns": "system",
       "Adds the published puzzle to a pack": "user",
       "Starts a Numberlink puzzle": "user",
@@ -905,6 +863,7 @@
       "Clears the Numberlink board": "user",
       "Draws a path the Numberlink rules refuse": "user",
       "Connects the last pair the coverage needs": "user",
+      "Returns to Numberlink choices": "user",
       "Returns to the Numberlink board": "user",
       "Creates a puzzle draft": "user",
       "Creates a pack draft": "user",
@@ -921,7 +880,6 @@
       "Playtests the puzzle draft": "user",
       "Publishes the validated puzzle draft": "user",
       "Publishes a draft missing its title or details": "user",
-      "Builds the Sokoban board of the draft": "user",
       "Returns to the puzzle library": "user",
       "Returns to the puzzle draft": "user",
       "Completes the puzzle playtest": "user",
@@ -959,6 +917,52 @@
       "The connection returns after a chosen puzzle was withdrawn": "system",
       "Publishes the same pack draft again": "user",
       "Withdraws the pack": "user",
+      "Chooses Pong": "user",
+      "Chooses Numberlink": "user",
+      "Chooses Word Tiles": "user",
+      "Opens a Word Tiles custom game": "user",
+      "Finds a Word Tiles opponent": "user",
+      "Reviews a Word Tiles game": "user",
+      "Chooses Light Cycles Duel": "user",
+      "Chooses Light Cycles Trio": "user",
+      "Chooses Light Cycles Quad": "user",
+      "Finds a Pong opponent": "user",
+      "Opens puzzle authoring": "user",
+      "Opens a Light Cycles Duel custom game": "user",
+      "Finds Light Cycles Duel players": "user",
+      "Reviews a Light Cycles Duel game": "user",
+      "Opens a Light Cycles Trio custom game": "user",
+      "Finds Light Cycles Trio players": "user",
+      "Reviews a Light Cycles Trio game": "user",
+      "Opens a Light Cycles Quad custom game": "user",
+      "Finds Light Cycles Quad players": "user",
+      "Reviews a Light Cycles Quad game": "user",
+      "Chooses Hearts": "user",
+      "Opens a Hearts custom game": "user",
+      "Reviews a Hearts game": "user",
+      "Opens a Sokoban puzzle whose crates all start on goals": "user",
+      "Opens Sokoban puzzles and packs": "user",
+      "Builds a new Sokoban board": "user",
+      "Undoes a Sokoban move": "user",
+      "Redoes a Sokoban move": "user",
+      "Restarts the Sokoban puzzle": "user",
+      "Continues the Sokoban attempt on another device": "user",
+      "Undoes before the first Sokoban move": "user",
+      "Sokoban's rules change during play": "system",
+      "Returns to Sokoban choices": "user",
+      "Returns to the Sokoban puzzle": "user",
+      "Reopens the Sokoban draft": "user",
+      "Changes only the details of the Sokoban draft": "user",
+      "Playtests the Sokoban draft": "user",
+      "Publishes a Sokoban draft without a completed playtest": "user",
+      "Returns to the Sokoban board": "user",
+      "Completes the Sokoban playtest": "user",
+      "Stops the Sokoban playtest before completion": "user",
+      "Sokoban's rules change": "system",
+      "Playtests the proven Sokoban board again": "user",
+      "Publishes the proven Sokoban draft": "user",
+      "Publishes the proven Sokoban draft without a connection": "user",
+      "Builds the Sokoban board of the draft": "user",
       "Chooses Sokoban": "user"
     }
   },
@@ -1031,7 +1035,9 @@
                 "description": "A guest explores with free access and the guest allowance; an account is needed for paid access.",
                 "snapshot": "A guest explores with free access and the guest allowance; an account is needed for paid access.",
                 "confidence": "assumed",
-                "source": ["specs/profile/profile-defaults.feature:7"],
+                "source": [
+                  "specs/profile/profile-defaults.feature:7"
+                ],
                 "events": []
               },
               "on": {
@@ -1244,7 +1250,9 @@
                     "Spaces: Lobby": {
                       "id": "Spaces: Lobby",
                       "meta": {
-                        "routes": ["/"],
+                        "routes": [
+                          "/"
+                        ],
                         "description": "Spaces lists hosted, joined and discoverable friends’ open spaces.",
                         "snapshot": "Spaces lists hosted, joined and discoverable friends’ open spaces.",
                         "confidence": "assumed",
@@ -1254,7 +1262,9 @@
                           "specs/spaces/spaces.feature:6"
                         ],
                         "events": [],
-                        "hints": ["App address: /"]
+                        "hints": [
+                          "App address: /"
+                        ]
                       },
                       "on": {
                         "Creates below the hosting limit online": {
@@ -1453,7 +1463,9 @@
                         "description": "The link identifies an open space and joining is in progress.",
                         "snapshot": "The link identifies an open space and joining is in progress.",
                         "confidence": "assumed",
-                        "source": ["specs/spaces/space-links.feature:7"],
+                        "source": [
+                          "specs/spaces/space-links.feature:7"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -1507,7 +1519,9 @@
                     "Spaces: Hosting a space": {
                       "id": "Spaces: Hosting a space",
                       "meta": {
-                        "routes": ["/space/:id"],
+                        "routes": [
+                          "/space/:id"
+                        ],
                         "description": "The host sees the space’s people and choices and can play.",
                         "snapshot": "The host sees the space’s people and choices and can play.",
                         "confidence": "assumed",
@@ -1524,7 +1538,9 @@
                           "specs/spaces/space-remove-person.feature"
                         ],
                         "events": [],
-                        "hints": ["App address: /space/:id"]
+                        "hints": [
+                          "App address: /space/:id"
+                        ]
                       },
                       "on": {
                         "Shares the space link": {
@@ -2010,7 +2026,10 @@
                     "Profile: Viewing the profile": {
                       "id": "Profile: Viewing the profile",
                       "meta": {
-                        "routes": ["/profile", "/more/account"],
+                        "routes": [
+                          "/profile",
+                          "/more/account"
+                        ],
                         "description": "The current username, avatar and profile are shown.",
                         "snapshot": "The current username, avatar and profile are shown.",
                         "confidence": "assumed",
@@ -2052,7 +2071,9 @@
                     "Profile: Account devices": {
                       "id": "Profile: Account devices",
                       "meta": {
-                        "routes": ["/more/account/devices"],
+                        "routes": [
+                          "/more/account/devices"
+                        ],
                         "description": "Only this account's signed-in devices are listed and this device is identified. A device disappears from this list when it signs out.",
                         "snapshot": "Only this account's signed-in devices are listed and this device is identified. A device disappears from this list when it signs out.",
                         "confidence": "assumed",
@@ -2061,7 +2082,9 @@
                           "specs/profile/devices.feature:15"
                         ],
                         "events": [],
-                        "hints": ["App address: /more/account/devices"]
+                        "hints": [
+                          "App address: /more/account/devices"
+                        ]
                       },
                       "on": {
                         "Another account device signs out": {
@@ -2081,7 +2104,9 @@
                         "description": "A guest is asked to sign in before seeing account devices; no account's device list is exposed.",
                         "snapshot": "A guest is asked to sign in before seeing account devices; no account's device list is exposed.",
                         "confidence": "assumed",
-                        "source": ["specs/profile/devices.feature:22"],
+                        "source": [
+                          "specs/profile/devices.feature:22"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -2096,7 +2121,9 @@
                         "description": "Signing out everywhere ends this account's device sessions. Other devices are signed out within one hundred fifty seconds; saved account data remains with the account.",
                         "snapshot": "Signing out everywhere ends this account's device sessions. Other devices are signed out within one hundred fifty seconds; saved account data remains with the account.",
                         "confidence": "assumed",
-                        "source": ["specs/profile/sessions.feature:9"],
+                        "source": [
+                          "specs/profile/sessions.feature:9"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -2367,7 +2394,9 @@
                 "App: Signing in": {
                   "id": "App: Signing in",
                   "meta": {
-                    "routes": ["/sso-callback"],
+                    "routes": [
+                      "/sso-callback"
+                    ],
                     "description": "Google and Apple identify the person; account matching always preserves the person’s choice.",
                     "snapshot": "Outside providers prove the chosen account while the current profile is preserved.",
                     "confidence": "assumed",
@@ -2391,7 +2420,9 @@
                       "specs/ubiquitous-language.yml"
                     ],
                     "events": [],
-                    "hints": ["App address: /sso-callback"]
+                    "hints": [
+                      "App address: /sso-callback"
+                    ]
                   },
                   "initial": "Sign In: Choosing a method",
                   "states": {
@@ -2589,7 +2620,9 @@
                         "description": "Invalid or stolen proof gives no access to another person’s account.",
                         "snapshot": "Invalid or stolen proof gives no access to another person’s account.",
                         "confidence": "assumed",
-                        "source": ["specs/auth/stolen-sign-ins.feature:10"],
+                        "source": [
+                          "specs/auth/stolen-sign-ins.feature:10"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -2700,7 +2733,9 @@
                         "description": "The person keeps the profile they had before signing in.",
                         "snapshot": "The person keeps the profile they had before signing in.",
                         "confidence": "assumed",
-                        "source": ["specs/profile/sign-in-abandoned.feature:7"],
+                        "source": [
+                          "specs/profile/sign-in-abandoned.feature:7"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -2732,13 +2767,19 @@
                     "Sign In Methods: Connected methods": {
                       "id": "Sign In Methods: Connected methods",
                       "meta": {
-                        "routes": ["/more/account/providers"],
+                        "routes": [
+                          "/more/account/providers"
+                        ],
                         "description": "The account’s connected methods are shown.",
                         "snapshot": "The account’s connected methods are shown.",
                         "confidence": "assumed",
-                        "source": ["specs/profile/sign-in-methods.feature:7"],
+                        "source": [
+                          "specs/profile/sign-in-methods.feature:7"
+                        ],
                         "events": [],
-                        "hints": ["App address: /more/account/providers"]
+                        "hints": [
+                          "App address: /more/account/providers"
+                        ]
                       },
                       "on": {
                         "Connects a different provider with recent account proof": {
@@ -2764,7 +2805,9 @@
                         "description": "The chosen provider is proving the new method for this account.",
                         "snapshot": "The chosen provider is proving the new method for this account.",
                         "confidence": "assumed",
-                        "source": ["specs/profile/sign-in-methods.feature"],
+                        "source": [
+                          "specs/profile/sign-in-methods.feature"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -2785,7 +2828,9 @@
                         "description": "Connecting a method needs recent proof of the current account.",
                         "snapshot": "Connecting a method needs recent proof of the current account.",
                         "confidence": "assumed",
-                        "source": ["specs/profile/sign-in-methods.feature"],
+                        "source": [
+                          "specs/profile/sign-in-methods.feature"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -2800,7 +2845,9 @@
                         "description": "A method cannot move between accounts or replace the same provider’s method.",
                         "snapshot": "A method cannot move between accounts or replace the same provider’s method.",
                         "confidence": "assumed",
-                        "source": ["specs/profile/sign-in-methods.feature"],
+                        "source": [
+                          "specs/profile/sign-in-methods.feature"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -2815,7 +2862,9 @@
                         "description": "Removing this method requires confirmation and another connected method.",
                         "snapshot": "Removing this method requires confirmation and another connected method.",
                         "confidence": "assumed",
-                        "source": ["specs/profile/sign-in-methods.feature"],
+                        "source": [
+                          "specs/profile/sign-in-methods.feature"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -2833,7 +2882,9 @@
                         "description": "The last sign-in method stays connected so the person can return.",
                         "snapshot": "The last sign-in method stays connected so the person can return.",
                         "confidence": "assumed",
-                        "source": ["specs/profile/sign-in-methods.feature"],
+                        "source": [
+                          "specs/profile/sign-in-methods.feature"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -2866,7 +2917,9 @@
                     "Settings: Settings home": {
                       "id": "Settings: Settings home",
                       "meta": {
-                        "routes": ["/more"],
+                        "routes": [
+                          "/more"
+                        ],
                         "description": "Settings offers preferences, About and permitted account and product choices.",
                         "snapshot": "Settings offers preferences, About and permitted account and product choices.",
                         "confidence": "assumed",
@@ -2878,7 +2931,9 @@
                           "specs/runtime/settings.feature:7"
                         ],
                         "events": [],
-                        "hints": ["App address: /more"]
+                        "hints": [
+                          "App address: /more"
+                        ]
                       },
                       "on": {
                         "Opens appearance preferences": {
@@ -2907,13 +2962,19 @@
                     "Settings: Appearance": {
                       "id": "Settings: Appearance",
                       "meta": {
-                        "routes": ["/more/theme"],
+                        "routes": [
+                          "/more/theme"
+                        ],
                         "description": "Theme choices apply on this device and survive closing the app.",
                         "snapshot": "Theme choices apply on this device and survive closing the app.",
                         "confidence": "assumed",
-                        "source": ["specs/runtime/device-layouts.feature:6"],
+                        "source": [
+                          "specs/runtime/device-layouts.feature:6"
+                        ],
                         "events": [],
-                        "hints": ["App address: /more/theme"]
+                        "hints": [
+                          "App address: /more/theme"
+                        ]
                       },
                       "on": {
                         "Chooses a permitted theme": {
@@ -2927,7 +2988,9 @@
                     "Settings: Sounds": {
                       "id": "Settings: Sounds",
                       "meta": {
-                        "routes": ["/more/sound"],
+                        "routes": [
+                          "/more/sound"
+                        ],
                         "description": "Sound choices apply on this device and survive closing the app.",
                         "snapshot": "Sound choices apply on this device and survive closing the app.",
                         "confidence": "assumed",
@@ -2937,7 +3000,9 @@
                           "specs/runtime/settings.feature"
                         ],
                         "events": [],
-                        "hints": ["App address: /more/sound"]
+                        "hints": [
+                          "App address: /more/sound"
+                        ]
                       },
                       "on": {
                         "Changes the sound preference": {
@@ -2951,7 +3016,9 @@
                     "Settings: About": {
                       "id": "Settings: About",
                       "meta": {
-                        "routes": ["/more/about"],
+                        "routes": [
+                          "/more/about"
+                        ],
                         "description": "About identifies the version of the app on this device.",
                         "snapshot": "About identifies the version of the app on this device.",
                         "confidence": "assumed",
@@ -2961,7 +3028,9 @@
                           "specs/runtime/settings.feature"
                         ],
                         "events": [],
-                        "hints": ["App address: /more/about"]
+                        "hints": [
+                          "App address: /more/about"
+                        ]
                       },
                       "on": {
                         "Returns to Settings": {
@@ -2994,7 +3063,9 @@
                     "Privacy: Account privacy": {
                       "id": "Privacy: Account privacy",
                       "meta": {
-                        "routes": ["/profile/privacy"],
+                        "routes": [
+                          "/profile/privacy"
+                        ],
                         "description": "Export and deletion choices are available according to account permission.",
                         "snapshot": "Export and deletion choices are available according to account permission.",
                         "confidence": "assumed",
@@ -3007,7 +3078,9 @@
                           "specs/profile/account-privacy.qnt"
                         ],
                         "events": [],
-                        "hints": ["App address: /profile/privacy"]
+                        "hints": [
+                          "App address: /profile/privacy"
+                        ]
                       },
                       "on": {
                         "Requests deletion with recent proof online": {
@@ -3253,7 +3326,9 @@
                     "Privacy: Export ready": {
                       "id": "Privacy: Export ready",
                       "meta": {
-                        "routes": ["/profile/privacy/export/:accountId"],
+                        "routes": [
+                          "/profile/privacy/export/:accountId"
+                        ],
                         "description": "Only the owning account with recent proof can download this complete export.",
                         "snapshot": "Only the owning account with recent proof can download this complete export.",
                         "confidence": "assumed",
@@ -3412,7 +3487,9 @@
                     "Billing: Plans": {
                       "id": "Billing: Plans",
                       "meta": {
-                        "routes": ["/more/billing"],
+                        "routes": [
+                          "/more/billing"
+                        ],
                         "description": "Monthly and yearly Plus plans show their price and trial before purchase.",
                         "snapshot": "Monthly and yearly Plus plans show their price and trial before purchase.",
                         "confidence": "assumed",
@@ -3430,7 +3507,9 @@
                           "specs/billing/subscribe.feature:7"
                         ],
                         "events": [],
-                        "hints": ["App address: /more/billing"]
+                        "hints": [
+                          "App address: /more/billing"
+                        ]
                       },
                       "on": {
                         "Current billing information shows a trial": {
@@ -3748,7 +3827,9 @@
                         "description": "The provider is opening membership management.",
                         "snapshot": "The provider is opening membership management.",
                         "confidence": "assumed",
-                        "source": ["specs/billing/billing-portal.feature:7"],
+                        "source": [
+                          "specs/billing/billing-portal.feature:7"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -4193,7 +4274,10 @@
                     "Friends: People and friends": {
                       "id": "Friends: People and friends",
                       "meta": {
-                        "routes": ["/search", "/profile/friends"],
+                        "routes": [
+                          "/search",
+                          "/profile/friends"
+                        ],
                         "description": "The friends list and people search show only people the person may find.",
                         "snapshot": "The friends list and people search show only people the person may find.",
                         "confidence": "assumed",
@@ -4347,7 +4431,9 @@
                     "Friends: Person to ask": {
                       "id": "Friends: Person to ask",
                       "meta": {
-                        "routes": ["/profile/user/:userId"],
+                        "routes": [
+                          "/profile/user/:userId"
+                        ],
                         "description": "The person may send an allowed friend request or block this person.",
                         "snapshot": "The person may send an allowed friend request or block this person.",
                         "confidence": "assumed",
@@ -4361,7 +4447,9 @@
                           "specs/friends/friend-request-inbox.feature:22"
                         ],
                         "events": [],
-                        "hints": ["App address: /profile/user/:userId"]
+                        "hints": [
+                          "App address: /profile/user/:userId"
+                        ]
                       },
                       "on": {
                         "Returns to the people list": {
@@ -4662,7 +4750,9 @@
                         "description": "The confirmed removal is in progress; completion ends the friendship for both people and updates both friend counts.",
                         "snapshot": "The confirmed removal is in progress; completion ends the friendship for both people and updates both friend counts.",
                         "confidence": "assumed",
-                        "source": ["specs/friends/friend-remove.feature:17"],
+                        "source": [
+                          "specs/friends/friend-remove.feature:17"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -4727,13 +4817,19 @@
                     "Inbox: Inbox": {
                       "id": "Inbox: Inbox",
                       "meta": {
-                        "routes": ["/notifications"],
+                        "routes": [
+                          "/notifications"
+                        ],
                         "description": "The person sees their current inbox and available choices.",
                         "snapshot": "The person sees their current inbox and available choices.",
                         "confidence": "assumed",
-                        "source": ["specs/README.md#context-map"],
+                        "source": [
+                          "specs/README.md#context-map"
+                        ],
                         "events": [],
-                        "hints": ["App address: /notifications"]
+                        "hints": [
+                          "App address: /notifications"
+                        ]
                       },
                       "on": {
                         "Opens an unread notice": {
@@ -4762,7 +4858,9 @@
                         "description": "This owned notice is unread and its current action is shown.",
                         "snapshot": "This owned notice is unread and its current action is shown.",
                         "confidence": "assumed",
-                        "source": ["specs/README.md#context-map"],
+                        "source": [
+                          "specs/README.md#context-map"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -4786,7 +4884,9 @@
                         "description": "Reading a notice does not invent an outcome for its request.",
                         "snapshot": "Reading a notice does not invent an outcome for its request.",
                         "confidence": "assumed",
-                        "source": ["specs/README.md#context-map"],
+                        "source": [
+                          "specs/README.md#context-map"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -4810,7 +4910,9 @@
                         "description": "The current request is being accepted once for this person.",
                         "snapshot": "The current request is being accepted once for this person.",
                         "confidence": "assumed",
-                        "source": ["specs/README.md#context-map"],
+                        "source": [
+                          "specs/README.md#context-map"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -4831,7 +4933,9 @@
                         "description": "The failed inbox action has an explanation without losing the notice.",
                         "snapshot": "The failed inbox action has an explanation without losing the notice.",
                         "confidence": "assumed",
-                        "source": ["specs/README.md#context-map"],
+                        "source": [
+                          "specs/README.md#context-map"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -4846,7 +4950,9 @@
                         "description": "An ended or expired request cannot still be accepted.",
                         "snapshot": "An ended or expired request cannot still be accepted.",
                         "confidence": "assumed",
-                        "source": ["specs/README.md#context-map"],
+                        "source": [
+                          "specs/README.md#context-map"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -4867,7 +4973,9 @@
                         "description": "Archived notices keep their history and do not revive ended requests.",
                         "snapshot": "Archived notices keep their history and do not revive ended requests.",
                         "confidence": "assumed",
-                        "source": ["specs/README.md#context-map"],
+                        "source": [
+                          "specs/README.md#context-map"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -4882,7 +4990,7 @@
                   "id": "App: Games",
                   "meta": {
                     "description": "The host chooses a registered game; participants play or watch according to their permission.",
-                    "snapshot": "The space offers Chess, Connect Four, Battleship, Classic Quoridor, Four-Player King of the Hill, Hearts, Pong, Light Cycles Duel, Light Cycles Trio, Light Cycles Quad, Sokoban and Numberlink.",
+                    "snapshot": "The space offers Chess, Connect Four, Battleship, Classic Quoridor, Four-Player King of the Hill, Hearts, Pong, Light Cycles Duel, Light Cycles Trio, Light Cycles Quad, Sokoban, Numberlink and Word Tiles.",
                     "confidence": "assumed",
                     "source": [
                       "specs/games/space-follow.qnt",
@@ -4981,6 +5089,12 @@
                         "Chooses Pong": {
                           "target": "#Games: Pong"
                         },
+                        "Chooses Numberlink": {
+                          "target": "#Games: Numberlink"
+                        },
+                        "Chooses Word Tiles": {
+                          "target": "#Games: Word Tiles choices"
+                        },
                         "Chooses Light Cycles Duel": {
                           "target": "#Games: Light Cycles Duel choices"
                         },
@@ -4989,9 +5103,6 @@
                         },
                         "Chooses Light Cycles Quad": {
                           "target": "#Games: Light Cycles Quad choices"
-                        },
-                        "Chooses Numberlink": {
-                          "target": "#Games: Numberlink"
                         },
                         "Chooses Hearts": {
                           "target": "#Games: Hearts choices"
@@ -5181,155 +5292,6 @@
                         }
                       }
                     },
-                    "Games: Hearts choices": {
-                      "id": "Games: Hearts choices",
-                      "meta": {
-                        "description": "Hearts offers four players custom games with people or bots, instructions, history and replay, and nobody is paired up for it. Each player passes three cards in secret, a stand-in plays for a player who is away, and players tied for the lowest score share the victory.",
-                        "snapshot": "Hearts offers four players custom games with people or bots, instructions, history and replay, and nobody is paired up for it. Each player passes three cards in secret, a stand-in plays for a player who is away, and players tied for the lowest score share the victory.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/hearts/hearts-accessibility.feature",
-                          "specs/hearts/hearts-away.feature",
-                          "specs/hearts/hearts-breaking.feature",
-                          "specs/hearts/hearts-custom-games.feature",
-                          "specs/hearts/hearts-hands.feature",
-                          "specs/hearts/hearts-passing.feature",
-                          "specs/hearts/hearts-scoring.feature",
-                          "specs/hearts/hearts-tricks.feature",
-                          "specs/hearts/ubiquitous-language.yml",
-                          "specs/games/secret-choices.feature",
-                          "specs/games/secret-choices.qnt",
-                          "specs/games/multi-seat-stand-ins.feature",
-                          "specs/games/shared-victories.feature",
-                          "specs/games/game-history.feature",
-                          "specs/games/game-turns.feature",
-                          "specs/games/ubiquitous-language.yml"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Opens a Hearts custom game": {
-                          "target": "#App: Custom game"
-                        },
-                        "Reviews a Hearts game": {
-                          "target": "#Custom Game: Reviewing"
-                        },
-                        "Returns to the game choice": {
-                          "target": "#Games: Choose a game"
-                        }
-                      }
-                    },
-                    "Games: Light Cycles Duel choices": {
-                      "id": "Games: Light Cycles Duel choices",
-                      "meta": {
-                        "description": "Light Cycles Duel offers two riders, Comet and Ember, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
-                        "snapshot": "Light Cycles Duel offers two riders, Comet and Ember, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/light-cycles/light-cycles-riding.feature",
-                          "specs/light-cycles/light-cycles-crashes.feature",
-                          "specs/light-cycles/light-cycles-rounds.feature",
-                          "specs/light-cycles/light-cycles-victory.feature",
-                          "specs/light-cycles/light-cycles-riders.feature",
-                          "specs/light-cycles/light-cycles-connection.feature",
-                          "specs/light-cycles/light-cycles-bots-and-modes.feature",
-                          "specs/light-cycles/light-cycles-round.qnt",
-                          "specs/light-cycles/ubiquitous-language.yml",
-                          "specs/games/game-choices.feature",
-                          "specs/games/game-history.feature",
-                          "specs/games/ubiquitous-language.yml"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Opens a Light Cycles Duel custom game": {
-                          "target": "#App: Custom game"
-                        },
-                        "Finds Light Cycles Duel players": {
-                          "target": "#App: Multiplayer"
-                        },
-                        "Reviews a Light Cycles Duel game": {
-                          "target": "#Custom Game: Reviewing"
-                        },
-                        "Returns to the game choice": {
-                          "target": "#Games: Choose a game"
-                        }
-                      }
-                    },
-                    "Games: Light Cycles Trio choices": {
-                      "id": "Games: Light Cycles Trio choices",
-                      "meta": {
-                        "description": "Light Cycles Trio offers three riders, Comet, Ember and Nova, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
-                        "snapshot": "Light Cycles Trio offers three riders, Comet, Ember and Nova, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/light-cycles/light-cycles-riding.feature",
-                          "specs/light-cycles/light-cycles-crashes.feature",
-                          "specs/light-cycles/light-cycles-rounds.feature",
-                          "specs/light-cycles/light-cycles-victory.feature",
-                          "specs/light-cycles/light-cycles-riders.feature",
-                          "specs/light-cycles/light-cycles-connection.feature",
-                          "specs/light-cycles/light-cycles-bots-and-modes.feature",
-                          "specs/light-cycles/light-cycles-round.qnt",
-                          "specs/light-cycles/ubiquitous-language.yml",
-                          "specs/games/game-choices.feature",
-                          "specs/games/game-history.feature",
-                          "specs/games/ubiquitous-language.yml"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Opens a Light Cycles Trio custom game": {
-                          "target": "#App: Custom game"
-                        },
-                        "Finds Light Cycles Trio players": {
-                          "target": "#App: Multiplayer"
-                        },
-                        "Reviews a Light Cycles Trio game": {
-                          "target": "#Custom Game: Reviewing"
-                        },
-                        "Returns to the game choice": {
-                          "target": "#Games: Choose a game"
-                        }
-                      }
-                    },
-                    "Games: Light Cycles Quad choices": {
-                      "id": "Games: Light Cycles Quad choices",
-                      "meta": {
-                        "description": "Light Cycles Quad offers four riders, Comet, Ember, Nova and Volt, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
-                        "snapshot": "Light Cycles Quad offers four riders, Comet, Ember, Nova and Volt, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/light-cycles/light-cycles-riding.feature",
-                          "specs/light-cycles/light-cycles-crashes.feature",
-                          "specs/light-cycles/light-cycles-rounds.feature",
-                          "specs/light-cycles/light-cycles-victory.feature",
-                          "specs/light-cycles/light-cycles-riders.feature",
-                          "specs/light-cycles/light-cycles-connection.feature",
-                          "specs/light-cycles/light-cycles-bots-and-modes.feature",
-                          "specs/light-cycles/light-cycles-round.qnt",
-                          "specs/light-cycles/ubiquitous-language.yml",
-                          "specs/games/game-choices.feature",
-                          "specs/games/game-history.feature",
-                          "specs/games/ubiquitous-language.yml"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Opens a Light Cycles Quad custom game": {
-                          "target": "#App: Custom game"
-                        },
-                        "Finds Light Cycles Quad players": {
-                          "target": "#App: Multiplayer"
-                        },
-                        "Reviews a Light Cycles Quad game": {
-                          "target": "#Custom Game: Reviewing"
-                        },
-                        "Returns to the game choice": {
-                          "target": "#Games: Choose a game"
-                        }
-                      }
-                    },
                     "Games: Pong": {
                       "id": "Games: Pong",
                       "meta": {
@@ -5394,6 +5356,9 @@
                             },
                             "Returns to the game choice": {
                               "target": "#Games: Choose a game"
+                            },
+                            "Finds a Pong opponent": {
+                              "target": "#App: Multiplayer"
                             }
                           }
                         },
@@ -5909,6 +5874,908 @@
                         }
                       }
                     },
+                    "Games: Numberlink": {
+                      "id": "Games: Numberlink",
+                      "meta": {
+                        "description": "Numberlink offers published Numberlink puzzles and packs and authoring a person’s own. A person joins each matching pair of endpoints with a continuous path, and completion follows the puzzle’s chosen coverage.",
+                        "snapshot": "Numberlink offers published Numberlink puzzles and packs and authoring a person’s own. A person joins each matching pair of endpoints with a continuous path, and completion follows the puzzle’s chosen coverage.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/numberlink/draw-paths.feature",
+                          "specs/numberlink/complete-and-edit.feature",
+                          "specs/numberlink/ubiquitous-language.yml",
+                          "specs/journeys/numberlink-packs.feature",
+                          "specs/puzzles/ubiquitous-language.yml"
+                        ],
+                        "events": []
+                      },
+                      "initial": "Numberlink: Numberlink choices",
+                      "states": {
+                        "Numberlink: Numberlink choices": {
+                          "id": "Numberlink: Numberlink choices",
+                          "meta": {
+                            "description": "Numberlink offers published Numberlink puzzles and packs, and authoring a person’s own.",
+                            "snapshot": "Numberlink offers published Numberlink puzzles and packs, and authoring a person’s own.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/numberlink/ubiquitous-language.yml",
+                              "specs/journeys/numberlink-packs.feature"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Starts a Numberlink puzzle": {
+                              "target": "#Numberlink: Drawing paths"
+                            },
+                            "Opens Numberlink puzzles and packs": {
+                              "target": "#Puzzles: Puzzle library"
+                            },
+                            "Returns to the game choice": {
+                              "target": "#Games: Choose a game"
+                            },
+                            "Opens puzzle authoring": {
+                              "target": "#Games: Puzzle content"
+                            }
+                          }
+                        },
+                        "Numberlink: Drawing paths": {
+                          "id": "Numberlink: Drawing paths",
+                          "meta": {
+                            "description": "A path starts at either matching endpoint and joins neighboring cells horizontally or vertically. It never revisits a cell, overlaps another path or passes another pair's endpoint, and it ends at its matching endpoint. Redrawing or removing one path keeps the others; clearing the board keeps every endpoint and the chosen coverage.",
+                            "snapshot": "A path starts at either matching endpoint and joins neighboring cells horizontally or vertically. It never revisits a cell, overlaps another path or passes another pair's endpoint, and it ends at its matching endpoint. Redrawing or removing one path keeps the others; clearing the board keeps every endpoint and the chosen coverage.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/numberlink/draw-paths.feature",
+                              "specs/numberlink/complete-and-edit.feature"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Draws a Numberlink path": {
+                              "target": "#Numberlink: Drawing paths"
+                            },
+                            "Removes a Numberlink path": {
+                              "target": "#Numberlink: Drawing paths"
+                            },
+                            "Clears the Numberlink board": {
+                              "target": "#Numberlink: Drawing paths"
+                            },
+                            "Draws a path the Numberlink rules refuse": {
+                              "target": "#Numberlink: Path refused"
+                            },
+                            "Connects the last pair the coverage needs": {
+                              "target": "#Numberlink: Numberlink puzzle complete"
+                            },
+                            "Returns to Numberlink choices": {
+                              "target": "#Numberlink: Numberlink choices"
+                            }
+                          }
+                        },
+                        "Numberlink: Path refused": {
+                          "id": "Numberlink: Path refused",
+                          "meta": {
+                            "description": "A path cannot start between endpoints, jump over a cell, step diagonally, revisit its own cell, cross another path, pass another pair's endpoint or continue beyond its matching endpoint; the drawing is unchanged.",
+                            "snapshot": "A path cannot start between endpoints, jump over a cell, step diagonally, revisit its own cell, cross another path, pass another pair's endpoint or continue beyond its matching endpoint; the drawing is unchanged.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/numberlink/draw-paths.feature"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Returns to the Numberlink board": {
+                              "target": "#Numberlink: Drawing paths"
+                            }
+                          }
+                        },
+                        "Numberlink: Numberlink puzzle complete": {
+                          "id": "Numberlink: Numberlink puzzle complete",
+                          "meta": {
+                            "description": "With full-board coverage every pair is connected and every cell covered; with endpoint-only coverage every pair is connected and uncovered cells are allowed. A partial drawing never counts as complete.",
+                            "snapshot": "With full-board coverage every pair is connected and every cell covered; with endpoint-only coverage every pair is connected and uncovered cells are allowed. A partial drawing never counts as complete.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/numberlink/complete-and-edit.feature"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Clears the Numberlink board": {
+                              "target": "#Numberlink: Drawing paths"
+                            },
+                            "Opens Numberlink puzzles and packs": {
+                              "target": "#Puzzles: Puzzle library"
+                            },
+                            "Returns to Numberlink choices": {
+                              "target": "#Numberlink: Numberlink choices"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "Games: Puzzle content": {
+                      "id": "Games: Puzzle content",
+                      "meta": {
+                        "description": "Puzzle games share private drafts, validation, playtests, stable published editions, ordered packs, personal attempts and pack progress, for every kind of person and without a connection where the work allows.",
+                        "snapshot": "Puzzle games share private drafts, validation, playtests, stable published editions, ordered packs, personal attempts and pack progress, for every kind of person and without a connection where the work allows.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/puzzles/author-drafts.feature",
+                          "specs/puzzles/author-packs.feature",
+                          "specs/puzzles/edit-draft-history.feature",
+                          "specs/puzzles/edition-rules.feature",
+                          "specs/puzzles/keep-attempts.feature",
+                          "specs/puzzles/offline-work.feature",
+                          "specs/puzzles/pack-progression.feature",
+                          "specs/puzzles/playtest-drafts.feature",
+                          "specs/puzzles/publication-recovery.feature",
+                          "specs/puzzles/publish-packs.feature",
+                          "specs/puzzles/publish-puzzles.feature",
+                          "specs/puzzles/draft-editing.qnt",
+                          "specs/puzzles/edition-rules.qnt",
+                          "specs/puzzles/pack-authoring.qnt",
+                          "specs/puzzles/pack-progression.qnt",
+                          "specs/puzzles/pack-publication.qnt",
+                          "specs/puzzles/publication-recovery.qnt",
+                          "specs/puzzles/puzzle-attempt.qnt",
+                          "specs/puzzles/puzzle-authoring.qnt",
+                          "specs/puzzles/puzzle-publication.qnt",
+                          "specs/puzzles/puzzle-content-access.dmn",
+                          "specs/puzzles/ubiquitous-language.yml",
+                          "specs/journeys/sokoban-packs.feature",
+                          "specs/journeys/numberlink-packs.feature"
+                        ],
+                        "events": []
+                      },
+                      "initial": "Puzzles: Puzzle library",
+                      "states": {
+                        "Puzzles: Puzzle library": {
+                          "id": "Puzzles: Puzzle library",
+                          "meta": {
+                            "description": "The person discovers the chosen game's published puzzles and packs and reads their own private drafts. Anyone, a guest too, may create a puzzle or pack draft.",
+                            "snapshot": "The person discovers the chosen game's published puzzles and packs and reads their own private drafts. Anyone, a guest too, may create a puzzle or pack draft.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/author-drafts.feature",
+                              "specs/puzzles/publish-puzzles.feature",
+                              "specs/puzzles/publish-packs.feature",
+                              "specs/puzzles/puzzle-content-access.dmn"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Creates a puzzle draft": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            },
+                            "Creates a pack draft": {
+                              "target": "#Puzzles: Pack draft"
+                            },
+                            "Starts a published puzzle": {
+                              "target": "#Puzzles: Playing a puzzle attempt"
+                            },
+                            "Starts a puzzle that is not available": {
+                              "target": "#Puzzles: Puzzle not available"
+                            },
+                            "Opens another person's draft or attempt": {
+                              "target": "#Puzzles: Belongs to someone else"
+                            },
+                            "Opens a published pack": {
+                              "target": "#Puzzles: Pack progress"
+                            },
+                            "Returns to the game choice": {
+                              "target": "#Games: Choose a game"
+                            },
+                            "Returns to Numberlink choices": {
+                              "target": "#Numberlink: Numberlink choices"
+                            }
+                          }
+                        },
+                        "Puzzles: Private puzzle draft": {
+                          "id": "Puzzles: Private puzzle draft",
+                          "meta": {
+                            "description": "A new puzzle belongs to its author and stays private. Saving keeps incomplete work, the title, description and difficulty, with or without a connection. Undo and redo restore draft edits until a different edit replaces the redo choice; reopening keeps the draft with fresh undo and redo choices. Different edits made from an earlier draft on two devices both remain as kept copies.",
+                            "snapshot": "A new puzzle belongs to its author and stays private. Saving keeps incomplete work, the title, description and difficulty, with or without a connection. Undo and redo restore draft edits until a different edit replaces the redo choice; reopening keeps the draft with fresh undo and redo choices. Different edits made from an earlier draft on two devices both remain as kept copies.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/author-drafts.feature",
+                              "specs/puzzles/edit-draft-history.feature",
+                              "specs/puzzles/offline-work.feature",
+                              "specs/puzzles/draft-editing.qnt",
+                              "specs/puzzles/puzzle-authoring.qnt",
+                              "specs/puzzles/puzzle-content-access.dmn"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Saves the puzzle draft": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            },
+                            "Undoes a draft edit": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            },
+                            "Redoes a draft edit": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            },
+                            "Chooses a kept copy of the draft": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            },
+                            "Reopens the puzzle draft": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            },
+                            "Validates a draft with details missing": {
+                              "target": "#Puzzles: Draft needs correcting"
+                            },
+                            "Playtests the puzzle draft": {
+                              "target": "#Puzzles: Playtesting a puzzle draft"
+                            },
+                            "Publishes the validated puzzle draft": {
+                              "target": "#Puzzles: Published puzzle edition"
+                            },
+                            "Publishes a draft missing its title or details": {
+                              "target": "#Puzzles: Publication refused"
+                            },
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            },
+                            "Builds the Sokoban board of the draft": {
+                              "target": "#Sokoban: Board needs correcting"
+                            }
+                          }
+                        },
+                        "Puzzles: Draft needs correcting": {
+                          "id": "Puzzles: Draft needs correcting",
+                          "meta": {
+                            "description": "Validation explains which required puzzle details are missing; the draft is kept as it was.",
+                            "snapshot": "Validation explains which required puzzle details are missing; the draft is kept as it was.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/playtest-drafts.feature",
+                              "specs/puzzles/puzzle-authoring.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Returns to the puzzle draft": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            }
+                          }
+                        },
+                        "Puzzles: Playtesting a puzzle draft": {
+                          "id": "Puzzles: Playtesting a puzzle draft",
+                          "meta": {
+                            "description": "Only the author plays the private draft, with the puzzle's own rules. Completing the playtest leaves ordinary progress unchanged.",
+                            "snapshot": "Only the author plays the private draft, with the puzzle's own rules. Completing the playtest leaves ordinary progress unchanged.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/playtest-drafts.feature",
+                              "specs/puzzles/puzzle-authoring.qnt",
+                              "specs/puzzles/puzzle-content-access.dmn"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Completes the puzzle playtest": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            },
+                            "Leaves the puzzle playtest": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            }
+                          }
+                        },
+                        "Puzzles: Publication refused": {
+                          "id": "Puzzles: Publication refused",
+                          "meta": {
+                            "description": "A missing title or missing puzzle details refuse publication without losing the drawing.",
+                            "snapshot": "A missing title or missing puzzle details refuse publication without losing the drawing.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/publish-puzzles.feature",
+                              "specs/puzzles/puzzle-publication.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Returns to the puzzle draft": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            }
+                          }
+                        },
+                        "Puzzles: Published puzzle edition": {
+                          "id": "Puzzles: Published puzzle edition",
+                          "meta": {
+                            "description": "Other people discover and play the published edition. Draft edits do not change it until the author republishes; publishing the same saved draft again keeps one edition, and an earlier publication cannot replace a later one.",
+                            "snapshot": "Other people discover and play the published edition. Draft edits do not change it until the author republishes; publishing the same saved draft again keeps one edition, and an earlier publication cannot replace a later one.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/publish-puzzles.feature",
+                              "specs/puzzles/puzzle-publication.qnt",
+                              "specs/puzzles/edition-rules.feature",
+                              "specs/puzzles/edition-rules.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Edits the draft of a published puzzle": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            },
+                            "Publishes the same saved draft again": {
+                              "target": "#Puzzles: Published puzzle edition"
+                            },
+                            "Withdraws the published puzzle": {
+                              "target": "#Puzzles: Withdrawn puzzle"
+                            },
+                            "Adds the published puzzle to a pack": {
+                              "target": "#Puzzles: Pack draft"
+                            },
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            },
+                            "The game's rules change": {
+                              "target": "#Puzzles: Edition under earlier rules"
+                            }
+                          }
+                        },
+                        "Puzzles: Withdrawn puzzle": {
+                          "id": "Puzzles: Withdrawn puzzle",
+                          "meta": {
+                            "description": "Only the author withdraws a puzzle. It is no longer discovered and cannot enter a newly published pack, while saved attempts stay playable. Repeating an earlier publication cannot undo withdrawal; a new valid draft can be published.",
+                            "snapshot": "Only the author withdraws a puzzle. It is no longer discovered and cannot enter a newly published pack, while saved attempts stay playable. Repeating an earlier publication cannot undo withdrawal; a new valid draft can be published.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/publish-puzzles.feature",
+                              "specs/puzzles/publish-packs.feature",
+                              "specs/puzzles/keep-attempts.feature",
+                              "specs/puzzles/puzzle-publication.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Publishes a new valid draft": {
+                              "target": "#Puzzles: Published puzzle edition"
+                            },
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            }
+                          }
+                        },
+                        "Puzzles: Belongs to someone else": {
+                          "id": "Puzzles: Belongs to someone else",
+                          "meta": {
+                            "description": "Another person's draft, pack or attempt stays theirs alone: the person is told it belongs to someone else and cannot change, choose a kept copy of, playtest, publish, withdraw or read it.",
+                            "snapshot": "Another person's draft, pack or attempt stays theirs alone: the person is told it belongs to someone else and cannot change, choose a kept copy of, playtest, publish, withdraw or read it.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/author-drafts.feature",
+                              "specs/puzzles/playtest-drafts.feature",
+                              "specs/puzzles/publish-puzzles.feature",
+                              "specs/puzzles/publish-packs.feature",
+                              "specs/puzzles/keep-attempts.feature",
+                              "specs/puzzles/puzzle-content-access.dmn"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            }
+                          }
+                        },
+                        "Puzzles: Puzzle not available": {
+                          "id": "Puzzles: Puzzle not available",
+                          "meta": {
+                            "description": "A private draft cannot be started as a public puzzle, and a puzzle never available on the device without a connection explains how to continue.",
+                            "snapshot": "A private draft cannot be started as a public puzzle, and a puzzle never available on the device without a connection explains how to continue.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/keep-attempts.feature",
+                              "specs/puzzles/offline-work.feature",
+                              "specs/puzzles/puzzle-attempt.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            }
+                          }
+                        },
+                        "Puzzles: Playing a puzzle attempt": {
+                          "id": "Puzzles: Playing a puzzle attempt",
+                          "meta": {
+                            "description": "Starting a published puzzle creates the person's own attempt at its chosen edition. Accepted play is kept automatically and resumes at the same position after reopening the app, on another device and without a connection; undo and redo follow the game's history; restarting begins another attempt and keeps earlier attempts and completion. Later publication and withdrawal keep the attempt at its edition, and different continuations on two devices are both kept.",
+                            "snapshot": "Starting a published puzzle creates the person's own attempt at its chosen edition. Accepted play is kept automatically and resumes at the same position after reopening the app, on another device and without a connection; undo and redo follow the game's history; restarting begins another attempt and keeps earlier attempts and completion. Later publication and withdrawal keep the attempt at its edition, and different continuations on two devices are both kept.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/keep-attempts.feature",
+                              "specs/puzzles/offline-work.feature",
+                              "specs/puzzles/puzzle-attempt.qnt",
+                              "specs/puzzles/pack-progression.feature",
+                              "specs/puzzles/pack-progression.qnt",
+                              "specs/journeys/sokoban-packs.feature",
+                              "specs/journeys/numberlink-packs.feature"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Plays on in the puzzle attempt": {
+                              "target": "#Puzzles: Playing a puzzle attempt"
+                            },
+                            "Undoes in the puzzle attempt": {
+                              "target": "#Puzzles: Playing a puzzle attempt"
+                            },
+                            "Redoes in the puzzle attempt": {
+                              "target": "#Puzzles: Playing a puzzle attempt"
+                            },
+                            "Restarts the puzzle attempt": {
+                              "target": "#Puzzles: Playing a puzzle attempt"
+                            },
+                            "Resumes an earlier puzzle attempt": {
+                              "target": "#Puzzles: Playing a puzzle attempt"
+                            },
+                            "Reopens the app with an unfinished attempt": {
+                              "target": "#Puzzles: Playing a puzzle attempt"
+                            },
+                            "Completes a puzzle of the pack": {
+                              "target": "#Puzzles: Pack progress"
+                            },
+                            "Completes the last unfinished puzzle of the pack": {
+                              "target": "#Puzzles: Pack complete"
+                            },
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            },
+                            "The game's rules change during play": {
+                              "target": "#Puzzles: Attempt kept under earlier rules"
+                            }
+                          }
+                        },
+                        "Puzzles: Pack progress": {
+                          "id": "Puzzles: Pack progress",
+                          "meta": {
+                            "description": "A pack reports each chosen puzzle edition's progress, counting a completed puzzle once. Continuing returns to the last active unfinished puzzle, and puzzles may be played in any order.",
+                            "snapshot": "A pack reports each chosen puzzle edition's progress, counting a completed puzzle once. Continuing returns to the last active unfinished puzzle, and puzzles may be played in any order.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/pack-progression.feature",
+                              "specs/puzzles/pack-progression.qnt",
+                              "specs/journeys/sokoban-packs.feature"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Continues the pack": {
+                              "target": "#Puzzles: Playing a puzzle attempt"
+                            },
+                            "Starts a later puzzle of the pack": {
+                              "target": "#Puzzles: Playing a puzzle attempt"
+                            },
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            }
+                          }
+                        },
+                        "Puzzles: Pack complete": {
+                          "id": "Puzzles: Pack complete",
+                          "meta": {
+                            "description": "Completing every chosen edition completes the pack, so it offers no unfinished puzzle to continue; repeating a completed puzzle never increases its completion count.",
+                            "snapshot": "Completing every chosen edition completes the pack, so it offers no unfinished puzzle to continue; repeating a completed puzzle never increases its completion count.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/pack-progression.feature",
+                              "specs/puzzles/pack-progression.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Repeats a completed puzzle of the pack": {
+                              "target": "#Puzzles: Playing a puzzle attempt"
+                            },
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            }
+                          }
+                        },
+                        "Puzzles: Pack draft": {
+                          "id": "Puzzles: Pack draft",
+                          "meta": {
+                            "description": "A pack keeps an ordered collection of distinct puzzles of its game. Adding appends a published puzzle once; reordering or removing changes only the working pack; a new puzzle can be authored from the pack. Pack edits undo and redo, with or without a connection, and different orders saved on two devices both remain.",
+                            "snapshot": "A pack keeps an ordered collection of distinct puzzles of its game. Adding appends a published puzzle once; reordering or removing changes only the working pack; a new puzzle can be authored from the pack. Pack edits undo and redo, with or without a connection, and different orders saved on two devices both remain.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/author-packs.feature",
+                              "specs/puzzles/pack-authoring.qnt",
+                              "specs/puzzles/edit-draft-history.feature",
+                              "specs/puzzles/offline-work.feature",
+                              "specs/puzzles/puzzle-content-access.dmn"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Adds a published puzzle to the pack": {
+                              "target": "#Puzzles: Pack draft"
+                            },
+                            "Reorders the pack's puzzles": {
+                              "target": "#Puzzles: Pack draft"
+                            },
+                            "Removes a puzzle from the pack": {
+                              "target": "#Puzzles: Pack draft"
+                            },
+                            "Undoes a draft edit": {
+                              "target": "#Puzzles: Pack draft"
+                            },
+                            "Redoes a draft edit": {
+                              "target": "#Puzzles: Pack draft"
+                            },
+                            "Adds a puzzle of another game to the pack": {
+                              "target": "#Puzzles: Pack change refused"
+                            },
+                            "Authors a new puzzle from the pack": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            },
+                            "Publishes the pack": {
+                              "target": "#Puzzles: Published pack"
+                            },
+                            "Publishes a pack that cannot be published": {
+                              "target": "#Puzzles: Pack publication refused"
+                            },
+                            "Publishes the pack without a connection": {
+                              "target": "#Puzzles: Pack publication waiting"
+                            },
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            }
+                          }
+                        },
+                        "Puzzles: Pack change refused": {
+                          "id": "Puzzles: Pack change refused",
+                          "meta": {
+                            "description": "A puzzle of another game cannot enter the pack; the pack is unchanged.",
+                            "snapshot": "A puzzle of another game cannot enter the pack; the pack is unchanged.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/author-packs.feature",
+                              "specs/puzzles/pack-authoring.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Returns to the pack draft": {
+                              "target": "#Puzzles: Pack draft"
+                            }
+                          }
+                        },
+                        "Puzzles: Pack publication refused": {
+                          "id": "Puzzles: Pack publication refused",
+                          "meta": {
+                            "description": "An empty pack, an unpublished puzzle or a withdrawn puzzle keeps the pack a private draft, with the explanation kept after reopening. Correcting the puzzle never publishes the refused pack on its own; the author publishes again.",
+                            "snapshot": "An empty pack, an unpublished puzzle or a withdrawn puzzle keeps the pack a private draft, with the explanation kept after reopening. Correcting the puzzle never publishes the refused pack on its own; the author publishes again.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/publish-packs.feature",
+                              "specs/puzzles/publication-recovery.feature",
+                              "specs/puzzles/publication-recovery.qnt",
+                              "specs/puzzles/pack-publication.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Reopens the refused pack": {
+                              "target": "#Puzzles: Pack publication refused"
+                            },
+                            "Returns to the pack draft": {
+                              "target": "#Puzzles: Pack draft"
+                            }
+                          }
+                        },
+                        "Puzzles: Pack publication waiting": {
+                          "id": "Puzzles: Pack publication waiting",
+                          "meta": {
+                            "description": "A private pack chosen for publication without a connection waits without losing its draft; publishing again or reopening keeps it waiting and private. When the connection returns it is published only if its chosen puzzles are still available.",
+                            "snapshot": "A private pack chosen for publication without a connection waits without losing its draft; publishing again or reopening keeps it waiting and private. When the connection returns it is published only if its chosen puzzles are still available.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/publication-recovery.feature",
+                              "specs/puzzles/publication-recovery.qnt",
+                              "specs/journeys/sokoban-packs.feature"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Publishes the pack without a connection": {
+                              "target": "#Puzzles: Pack publication waiting"
+                            },
+                            "Reopens the app with a waiting pack": {
+                              "target": "#Puzzles: Pack publication waiting"
+                            },
+                            "The connection returns with the pack's puzzles available": {
+                              "target": "#Puzzles: Published pack"
+                            },
+                            "The connection returns after a chosen puzzle was withdrawn": {
+                              "target": "#Puzzles: Pack publication refused"
+                            }
+                          }
+                        },
+                        "Puzzles: Published pack": {
+                          "id": "Puzzles: Published pack",
+                          "meta": {
+                            "description": "The pack is discovered with its ordered puzzles and keeps its chosen editions: revising or withdrawing a puzzle and reordering the working draft leave it unchanged until the author republishes. Publishing the same saved pack draft again keeps one edition.",
+                            "snapshot": "The pack is discovered with its ordered puzzles and keeps its chosen editions: revising or withdrawing a puzzle and reordering the working draft leave it unchanged until the author republishes. Publishing the same saved pack draft again keeps one edition.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/publish-packs.feature",
+                              "specs/puzzles/pack-publication.qnt",
+                              "specs/puzzles/publication-recovery.feature",
+                              "specs/journeys/sokoban-packs.feature",
+                              "specs/journeys/numberlink-packs.feature"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Reorders the pack's puzzles": {
+                              "target": "#Puzzles: Pack draft"
+                            },
+                            "Publishes the same pack draft again": {
+                              "target": "#Puzzles: Published pack"
+                            },
+                            "Withdraws the pack": {
+                              "target": "#Puzzles: Withdrawn pack"
+                            },
+                            "Opens a published pack": {
+                              "target": "#Puzzles: Pack progress"
+                            },
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            }
+                          }
+                        },
+                        "Puzzles: Withdrawn pack": {
+                          "id": "Puzzles: Withdrawn pack",
+                          "meta": {
+                            "description": "Only the author withdraws a pack. It is hidden without erasing a saved attempt, and repeating its publication cannot undo withdrawal.",
+                            "snapshot": "Only the author withdraws a pack. It is hidden without erasing a saved attempt, and repeating its publication cannot undo withdrawal.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/publish-packs.feature",
+                              "specs/puzzles/pack-publication.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            }
+                          }
+                        },
+                        "Puzzles: Edition under earlier rules": {
+                          "id": "Puzzles: Edition under earlier rules",
+                          "meta": {
+                            "description": "An edition published before a rules change is not started under the changed rules. Republishing after the rules change makes an edition that can be started.",
+                            "snapshot": "An edition published before a rules change is not started under the changed rules. Republishing after the rules change makes an edition that can be started.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/edition-rules.feature",
+                              "specs/puzzles/edition-rules.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Republishes after the rules change": {
+                              "target": "#Puzzles: Published puzzle edition"
+                            },
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            }
+                          }
+                        },
+                        "Puzzles: Attempt kept under earlier rules": {
+                          "id": "Puzzles: Attempt kept under earlier rules",
+                          "meta": {
+                            "description": "A rules change during play stops the play and keeps the attempt; a saved attempt whose edition's rules changed is kept but not resumed.",
+                            "snapshot": "A rules change during play stops the play and keeps the attempt; a saved attempt whose edition's rules changed is kept but not resumed.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/edition-rules.feature",
+                              "specs/puzzles/edition-rules.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "Games: Word Tiles choices": {
+                      "id": "Games: Word Tiles choices",
+                      "meta": {
+                        "description": "Word Tiles offers custom games for two to four, an opponent for two, instructions, history, replay and one-move challenges, as every game does, each player seeing only their own rack.",
+                        "snapshot": "Word Tiles offers custom games for two to four, an opponent for two, instructions, history, replay and one-move challenges, as every game does, each player seeing only their own rack.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/word-tiles/word-tiles-words.feature",
+                          "specs/word-tiles/word-tiles-scores.feature",
+                          "specs/word-tiles/word-tiles-turns.feature",
+                          "specs/word-tiles/word-tiles-racks.feature",
+                          "specs/word-tiles/word-tiles-endings.feature",
+                          "specs/word-tiles/word-tiles-challenges.feature",
+                          "specs/word-tiles/ubiquitous-language.yml",
+                          "specs/games/custom-games.feature",
+                          "specs/games/custom-game-offline.feature",
+                          "specs/games/finding-an-opponent.feature",
+                          "specs/games/game-history.feature",
+                          "specs/games/game-choices.feature",
+                          "specs/games/game-turns.feature",
+                          "specs/games/multi-seat-games.feature",
+                          "specs/games/ubiquitous-language.yml"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Opens a Word Tiles custom game": {
+                          "target": "#App: Custom game"
+                        },
+                        "Finds a Word Tiles opponent": {
+                          "target": "#App: Multiplayer"
+                        },
+                        "Reviews a Word Tiles game": {
+                          "target": "#Custom Game: Reviewing"
+                        },
+                        "Returns to the game choice": {
+                          "target": "#Games: Choose a game"
+                        }
+                      }
+                    },
+                    "Games: Hearts choices": {
+                      "id": "Games: Hearts choices",
+                      "meta": {
+                        "description": "Hearts offers four players custom games with people or bots, instructions, history and replay, and nobody is paired up for it. Each player passes three cards in secret, a stand-in plays for a player who is away, and players tied for the lowest score share the victory.",
+                        "snapshot": "Hearts offers four players custom games with people or bots, instructions, history and replay, and nobody is paired up for it. Each player passes three cards in secret, a stand-in plays for a player who is away, and players tied for the lowest score share the victory.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/hearts/hearts-accessibility.feature",
+                          "specs/hearts/hearts-away.feature",
+                          "specs/hearts/hearts-breaking.feature",
+                          "specs/hearts/hearts-custom-games.feature",
+                          "specs/hearts/hearts-hands.feature",
+                          "specs/hearts/hearts-passing.feature",
+                          "specs/hearts/hearts-scoring.feature",
+                          "specs/hearts/hearts-tricks.feature",
+                          "specs/hearts/ubiquitous-language.yml",
+                          "specs/games/secret-choices.feature",
+                          "specs/games/secret-choices.qnt",
+                          "specs/games/multi-seat-stand-ins.feature",
+                          "specs/games/shared-victories.feature",
+                          "specs/games/game-history.feature",
+                          "specs/games/game-turns.feature",
+                          "specs/games/ubiquitous-language.yml"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Opens a Hearts custom game": {
+                          "target": "#App: Custom game"
+                        },
+                        "Reviews a Hearts game": {
+                          "target": "#Custom Game: Reviewing"
+                        },
+                        "Returns to the game choice": {
+                          "target": "#Games: Choose a game"
+                        }
+                      }
+                    },
+                    "Games: Light Cycles Duel choices": {
+                      "id": "Games: Light Cycles Duel choices",
+                      "meta": {
+                        "description": "Light Cycles Duel offers two riders, Comet and Ember, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
+                        "snapshot": "Light Cycles Duel offers two riders, Comet and Ember, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/light-cycles/light-cycles-riding.feature",
+                          "specs/light-cycles/light-cycles-crashes.feature",
+                          "specs/light-cycles/light-cycles-rounds.feature",
+                          "specs/light-cycles/light-cycles-victory.feature",
+                          "specs/light-cycles/light-cycles-riders.feature",
+                          "specs/light-cycles/light-cycles-connection.feature",
+                          "specs/light-cycles/light-cycles-bots-and-modes.feature",
+                          "specs/light-cycles/light-cycles-round.qnt",
+                          "specs/light-cycles/ubiquitous-language.yml",
+                          "specs/games/game-choices.feature",
+                          "specs/games/game-history.feature",
+                          "specs/games/ubiquitous-language.yml"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Opens a Light Cycles Duel custom game": {
+                          "target": "#App: Custom game"
+                        },
+                        "Finds Light Cycles Duel players": {
+                          "target": "#App: Multiplayer"
+                        },
+                        "Reviews a Light Cycles Duel game": {
+                          "target": "#Custom Game: Reviewing"
+                        },
+                        "Returns to the game choice": {
+                          "target": "#Games: Choose a game"
+                        }
+                      }
+                    },
+                    "Games: Light Cycles Trio choices": {
+                      "id": "Games: Light Cycles Trio choices",
+                      "meta": {
+                        "description": "Light Cycles Trio offers three riders, Comet, Ember and Nova, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
+                        "snapshot": "Light Cycles Trio offers three riders, Comet, Ember and Nova, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/light-cycles/light-cycles-riding.feature",
+                          "specs/light-cycles/light-cycles-crashes.feature",
+                          "specs/light-cycles/light-cycles-rounds.feature",
+                          "specs/light-cycles/light-cycles-victory.feature",
+                          "specs/light-cycles/light-cycles-riders.feature",
+                          "specs/light-cycles/light-cycles-connection.feature",
+                          "specs/light-cycles/light-cycles-bots-and-modes.feature",
+                          "specs/light-cycles/light-cycles-round.qnt",
+                          "specs/light-cycles/ubiquitous-language.yml",
+                          "specs/games/game-choices.feature",
+                          "specs/games/game-history.feature",
+                          "specs/games/ubiquitous-language.yml"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Opens a Light Cycles Trio custom game": {
+                          "target": "#App: Custom game"
+                        },
+                        "Finds Light Cycles Trio players": {
+                          "target": "#App: Multiplayer"
+                        },
+                        "Reviews a Light Cycles Trio game": {
+                          "target": "#Custom Game: Reviewing"
+                        },
+                        "Returns to the game choice": {
+                          "target": "#Games: Choose a game"
+                        }
+                      }
+                    },
+                    "Games: Light Cycles Quad choices": {
+                      "id": "Games: Light Cycles Quad choices",
+                      "meta": {
+                        "description": "Light Cycles Quad offers four riders, Comet, Ember, Nova and Volt, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
+                        "snapshot": "Light Cycles Quad offers four riders, Comet, Ember, Nova and Volt, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/light-cycles/light-cycles-riding.feature",
+                          "specs/light-cycles/light-cycles-crashes.feature",
+                          "specs/light-cycles/light-cycles-rounds.feature",
+                          "specs/light-cycles/light-cycles-victory.feature",
+                          "specs/light-cycles/light-cycles-riders.feature",
+                          "specs/light-cycles/light-cycles-connection.feature",
+                          "specs/light-cycles/light-cycles-bots-and-modes.feature",
+                          "specs/light-cycles/light-cycles-round.qnt",
+                          "specs/light-cycles/ubiquitous-language.yml",
+                          "specs/games/game-choices.feature",
+                          "specs/games/game-history.feature",
+                          "specs/games/ubiquitous-language.yml"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Opens a Light Cycles Quad custom game": {
+                          "target": "#App: Custom game"
+                        },
+                        "Finds Light Cycles Quad players": {
+                          "target": "#App: Multiplayer"
+                        },
+                        "Reviews a Light Cycles Quad game": {
+                          "target": "#Custom Game: Reviewing"
+                        },
+                        "Returns to the game choice": {
+                          "target": "#Games: Choose a game"
+                        }
+                      }
+                    },
                     "Games: Sokoban": {
                       "id": "Games: Sokoban",
                       "meta": {
@@ -6374,711 +7241,6 @@
                           }
                         }
                       }
-                    },
-                    "Games: Numberlink": {
-                      "id": "Games: Numberlink",
-                      "meta": {
-                        "description": "Numberlink offers published Numberlink puzzles and packs and authoring a person’s own. A person joins each matching pair of endpoints with a continuous path, and completion follows the puzzle’s chosen coverage.",
-                        "snapshot": "Numberlink offers published Numberlink puzzles and packs and authoring a person’s own. A person joins each matching pair of endpoints with a continuous path, and completion follows the puzzle’s chosen coverage.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/numberlink/draw-paths.feature",
-                          "specs/numberlink/complete-and-edit.feature",
-                          "specs/numberlink/ubiquitous-language.yml",
-                          "specs/journeys/numberlink-packs.feature",
-                          "specs/puzzles/ubiquitous-language.yml"
-                        ],
-                        "events": []
-                      },
-                      "initial": "Numberlink: Numberlink choices",
-                      "states": {
-                        "Numberlink: Numberlink choices": {
-                          "id": "Numberlink: Numberlink choices",
-                          "meta": {
-                            "description": "Numberlink offers published Numberlink puzzles and packs, and authoring a person’s own.",
-                            "snapshot": "Numberlink offers published Numberlink puzzles and packs, and authoring a person’s own.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/numberlink/ubiquitous-language.yml",
-                              "specs/journeys/numberlink-packs.feature"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Starts a Numberlink puzzle": {
-                              "target": "#Numberlink: Drawing paths"
-                            },
-                            "Opens Numberlink puzzles and packs": {
-                              "target": "#Puzzles: Puzzle library"
-                            },
-                            "Returns to the game choice": {
-                              "target": "#Games: Choose a game"
-                            }
-                          }
-                        },
-                        "Numberlink: Drawing paths": {
-                          "id": "Numberlink: Drawing paths",
-                          "meta": {
-                            "description": "A path starts at either matching endpoint and joins neighboring cells horizontally or vertically. It never revisits a cell, overlaps another path or passes another pair's endpoint, and it ends at its matching endpoint. Redrawing or removing one path keeps the others; clearing the board keeps every endpoint and the chosen coverage.",
-                            "snapshot": "A path starts at either matching endpoint and joins neighboring cells horizontally or vertically. It never revisits a cell, overlaps another path or passes another pair's endpoint, and it ends at its matching endpoint. Redrawing or removing one path keeps the others; clearing the board keeps every endpoint and the chosen coverage.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/numberlink/draw-paths.feature",
-                              "specs/numberlink/complete-and-edit.feature"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Draws a Numberlink path": {
-                              "target": "#Numberlink: Drawing paths"
-                            },
-                            "Removes a Numberlink path": {
-                              "target": "#Numberlink: Drawing paths"
-                            },
-                            "Clears the Numberlink board": {
-                              "target": "#Numberlink: Drawing paths"
-                            },
-                            "Draws a path the Numberlink rules refuse": {
-                              "target": "#Numberlink: Path refused"
-                            },
-                            "Connects the last pair the coverage needs": {
-                              "target": "#Numberlink: Numberlink puzzle complete"
-                            },
-                            "Returns to Numberlink choices": {
-                              "target": "#Numberlink: Numberlink choices"
-                            }
-                          }
-                        },
-                        "Numberlink: Path refused": {
-                          "id": "Numberlink: Path refused",
-                          "meta": {
-                            "description": "A path cannot start between endpoints, jump over a cell, step diagonally, revisit its own cell, cross another path, pass another pair's endpoint or continue beyond its matching endpoint; the drawing is unchanged.",
-                            "snapshot": "A path cannot start between endpoints, jump over a cell, step diagonally, revisit its own cell, cross another path, pass another pair's endpoint or continue beyond its matching endpoint; the drawing is unchanged.",
-                            "confidence": "assumed",
-                            "source": ["specs/numberlink/draw-paths.feature"],
-                            "events": []
-                          },
-                          "on": {
-                            "Returns to the Numberlink board": {
-                              "target": "#Numberlink: Drawing paths"
-                            }
-                          }
-                        },
-                        "Numberlink: Numberlink puzzle complete": {
-                          "id": "Numberlink: Numberlink puzzle complete",
-                          "meta": {
-                            "description": "With full-board coverage every pair is connected and every cell covered; with endpoint-only coverage every pair is connected and uncovered cells are allowed. A partial drawing never counts as complete.",
-                            "snapshot": "With full-board coverage every pair is connected and every cell covered; with endpoint-only coverage every pair is connected and uncovered cells are allowed. A partial drawing never counts as complete.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/numberlink/complete-and-edit.feature"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Clears the Numberlink board": {
-                              "target": "#Numberlink: Drawing paths"
-                            },
-                            "Opens Numberlink puzzles and packs": {
-                              "target": "#Puzzles: Puzzle library"
-                            },
-                            "Returns to Numberlink choices": {
-                              "target": "#Numberlink: Numberlink choices"
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "Games: Puzzle content": {
-                      "id": "Games: Puzzle content",
-                      "meta": {
-                        "description": "Puzzle games share private drafts, validation, playtests, stable published editions, ordered packs, personal attempts and pack progress, for every kind of person and without a connection where the work allows.",
-                        "snapshot": "Puzzle games share private drafts, validation, playtests, stable published editions, ordered packs, personal attempts and pack progress, for every kind of person and without a connection where the work allows.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/puzzles/author-drafts.feature",
-                          "specs/puzzles/author-packs.feature",
-                          "specs/puzzles/edit-draft-history.feature",
-                          "specs/puzzles/edition-rules.feature",
-                          "specs/puzzles/keep-attempts.feature",
-                          "specs/puzzles/offline-work.feature",
-                          "specs/puzzles/pack-progression.feature",
-                          "specs/puzzles/playtest-drafts.feature",
-                          "specs/puzzles/publication-recovery.feature",
-                          "specs/puzzles/publish-packs.feature",
-                          "specs/puzzles/publish-puzzles.feature",
-                          "specs/puzzles/draft-editing.qnt",
-                          "specs/puzzles/edition-rules.qnt",
-                          "specs/puzzles/pack-authoring.qnt",
-                          "specs/puzzles/pack-progression.qnt",
-                          "specs/puzzles/pack-publication.qnt",
-                          "specs/puzzles/publication-recovery.qnt",
-                          "specs/puzzles/puzzle-attempt.qnt",
-                          "specs/puzzles/puzzle-authoring.qnt",
-                          "specs/puzzles/puzzle-publication.qnt",
-                          "specs/puzzles/puzzle-content-access.dmn",
-                          "specs/puzzles/ubiquitous-language.yml",
-                          "specs/journeys/sokoban-packs.feature",
-                          "specs/journeys/numberlink-packs.feature"
-                        ],
-                        "events": []
-                      },
-                      "initial": "Puzzles: Puzzle library",
-                      "states": {
-                        "Puzzles: Puzzle library": {
-                          "id": "Puzzles: Puzzle library",
-                          "meta": {
-                            "description": "The person discovers the chosen game's published puzzles and packs and reads their own private drafts. Anyone, a guest too, may create a puzzle or pack draft.",
-                            "snapshot": "The person discovers the chosen game's published puzzles and packs and reads their own private drafts. Anyone, a guest too, may create a puzzle or pack draft.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/author-drafts.feature",
-                              "specs/puzzles/publish-puzzles.feature",
-                              "specs/puzzles/publish-packs.feature",
-                              "specs/puzzles/puzzle-content-access.dmn"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Creates a puzzle draft": {
-                              "target": "#Puzzles: Private puzzle draft"
-                            },
-                            "Creates a pack draft": {
-                              "target": "#Puzzles: Pack draft"
-                            },
-                            "Starts a published puzzle": {
-                              "target": "#Puzzles: Playing a puzzle attempt"
-                            },
-                            "Starts a puzzle that is not available": {
-                              "target": "#Puzzles: Puzzle not available"
-                            },
-                            "Opens another person's draft or attempt": {
-                              "target": "#Puzzles: Belongs to someone else"
-                            },
-                            "Opens a published pack": {
-                              "target": "#Puzzles: Pack progress"
-                            },
-                            "Returns to the game choice": {
-                              "target": "#Games: Choose a game"
-                            }
-                          }
-                        },
-                        "Puzzles: Private puzzle draft": {
-                          "id": "Puzzles: Private puzzle draft",
-                          "meta": {
-                            "description": "A new puzzle belongs to its author and stays private. Saving keeps incomplete work, the title, description and difficulty, with or without a connection. Undo and redo restore draft edits until a different edit replaces the redo choice; reopening keeps the draft with fresh undo and redo choices. Different edits made from an earlier draft on two devices both remain as kept copies.",
-                            "snapshot": "A new puzzle belongs to its author and stays private. Saving keeps incomplete work, the title, description and difficulty, with or without a connection. Undo and redo restore draft edits until a different edit replaces the redo choice; reopening keeps the draft with fresh undo and redo choices. Different edits made from an earlier draft on two devices both remain as kept copies.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/author-drafts.feature",
-                              "specs/puzzles/edit-draft-history.feature",
-                              "specs/puzzles/offline-work.feature",
-                              "specs/puzzles/draft-editing.qnt",
-                              "specs/puzzles/puzzle-authoring.qnt",
-                              "specs/puzzles/puzzle-content-access.dmn"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Saves the puzzle draft": {
-                              "target": "#Puzzles: Private puzzle draft"
-                            },
-                            "Undoes a draft edit": {
-                              "target": "#Puzzles: Private puzzle draft"
-                            },
-                            "Redoes a draft edit": {
-                              "target": "#Puzzles: Private puzzle draft"
-                            },
-                            "Chooses a kept copy of the draft": {
-                              "target": "#Puzzles: Private puzzle draft"
-                            },
-                            "Reopens the puzzle draft": {
-                              "target": "#Puzzles: Private puzzle draft"
-                            },
-                            "Validates a draft with details missing": {
-                              "target": "#Puzzles: Draft needs correcting"
-                            },
-                            "Playtests the puzzle draft": {
-                              "target": "#Puzzles: Playtesting a puzzle draft"
-                            },
-                            "Publishes the validated puzzle draft": {
-                              "target": "#Puzzles: Published puzzle edition"
-                            },
-                            "Publishes a draft missing its title or details": {
-                              "target": "#Puzzles: Publication refused"
-                            },
-                            "Builds the Sokoban board of the draft": {
-                              "target": "#Sokoban: Board needs correcting"
-                            },
-                            "Returns to the puzzle library": {
-                              "target": "#Puzzles: Puzzle library"
-                            }
-                          }
-                        },
-                        "Puzzles: Draft needs correcting": {
-                          "id": "Puzzles: Draft needs correcting",
-                          "meta": {
-                            "description": "Validation explains which required puzzle details are missing; the draft is kept as it was.",
-                            "snapshot": "Validation explains which required puzzle details are missing; the draft is kept as it was.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/playtest-drafts.feature",
-                              "specs/puzzles/puzzle-authoring.qnt"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Returns to the puzzle draft": {
-                              "target": "#Puzzles: Private puzzle draft"
-                            }
-                          }
-                        },
-                        "Puzzles: Playtesting a puzzle draft": {
-                          "id": "Puzzles: Playtesting a puzzle draft",
-                          "meta": {
-                            "description": "Only the author plays the private draft, with the puzzle's own rules. Completing the playtest leaves ordinary progress unchanged.",
-                            "snapshot": "Only the author plays the private draft, with the puzzle's own rules. Completing the playtest leaves ordinary progress unchanged.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/playtest-drafts.feature",
-                              "specs/puzzles/puzzle-authoring.qnt",
-                              "specs/puzzles/puzzle-content-access.dmn"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Completes the puzzle playtest": {
-                              "target": "#Puzzles: Private puzzle draft"
-                            },
-                            "Leaves the puzzle playtest": {
-                              "target": "#Puzzles: Private puzzle draft"
-                            }
-                          }
-                        },
-                        "Puzzles: Publication refused": {
-                          "id": "Puzzles: Publication refused",
-                          "meta": {
-                            "description": "A missing title or missing puzzle details refuse publication without losing the drawing.",
-                            "snapshot": "A missing title or missing puzzle details refuse publication without losing the drawing.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/publish-puzzles.feature",
-                              "specs/puzzles/puzzle-publication.qnt"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Returns to the puzzle draft": {
-                              "target": "#Puzzles: Private puzzle draft"
-                            }
-                          }
-                        },
-                        "Puzzles: Published puzzle edition": {
-                          "id": "Puzzles: Published puzzle edition",
-                          "meta": {
-                            "description": "Other people discover and play the published edition. Draft edits do not change it until the author republishes; publishing the same saved draft again keeps one edition, and an earlier publication cannot replace a later one.",
-                            "snapshot": "Other people discover and play the published edition. Draft edits do not change it until the author republishes; publishing the same saved draft again keeps one edition, and an earlier publication cannot replace a later one.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/publish-puzzles.feature",
-                              "specs/puzzles/puzzle-publication.qnt",
-                              "specs/puzzles/edition-rules.feature",
-                              "specs/puzzles/edition-rules.qnt"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Edits the draft of a published puzzle": {
-                              "target": "#Puzzles: Private puzzle draft"
-                            },
-                            "Publishes the same saved draft again": {
-                              "target": "#Puzzles: Published puzzle edition"
-                            },
-                            "Withdraws the published puzzle": {
-                              "target": "#Puzzles: Withdrawn puzzle"
-                            },
-                            "Adds the published puzzle to a pack": {
-                              "target": "#Puzzles: Pack draft"
-                            },
-                            "The game's rules change": {
-                              "target": "#Puzzles: Edition under earlier rules"
-                            },
-                            "Returns to the puzzle library": {
-                              "target": "#Puzzles: Puzzle library"
-                            }
-                          }
-                        },
-                        "Puzzles: Withdrawn puzzle": {
-                          "id": "Puzzles: Withdrawn puzzle",
-                          "meta": {
-                            "description": "Only the author withdraws a puzzle. It is no longer discovered and cannot enter a newly published pack, while saved attempts stay playable. Repeating an earlier publication cannot undo withdrawal; a new valid draft can be published.",
-                            "snapshot": "Only the author withdraws a puzzle. It is no longer discovered and cannot enter a newly published pack, while saved attempts stay playable. Repeating an earlier publication cannot undo withdrawal; a new valid draft can be published.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/publish-puzzles.feature",
-                              "specs/puzzles/publish-packs.feature",
-                              "specs/puzzles/keep-attempts.feature",
-                              "specs/puzzles/puzzle-publication.qnt"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Publishes a new valid draft": {
-                              "target": "#Puzzles: Published puzzle edition"
-                            },
-                            "Returns to the puzzle library": {
-                              "target": "#Puzzles: Puzzle library"
-                            }
-                          }
-                        },
-                        "Puzzles: Edition under earlier rules": {
-                          "id": "Puzzles: Edition under earlier rules",
-                          "meta": {
-                            "description": "An edition published before a rules change is not started under the changed rules. Republishing after the rules change makes an edition that can be started.",
-                            "snapshot": "An edition published before a rules change is not started under the changed rules. Republishing after the rules change makes an edition that can be started.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/edition-rules.feature",
-                              "specs/puzzles/edition-rules.qnt"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Republishes after the rules change": {
-                              "target": "#Puzzles: Published puzzle edition"
-                            },
-                            "Returns to the puzzle library": {
-                              "target": "#Puzzles: Puzzle library"
-                            }
-                          }
-                        },
-                        "Puzzles: Belongs to someone else": {
-                          "id": "Puzzles: Belongs to someone else",
-                          "meta": {
-                            "description": "Another person's draft, pack or attempt stays theirs alone: the person is told it belongs to someone else and cannot change, choose a kept copy of, playtest, publish, withdraw or read it.",
-                            "snapshot": "Another person's draft, pack or attempt stays theirs alone: the person is told it belongs to someone else and cannot change, choose a kept copy of, playtest, publish, withdraw or read it.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/author-drafts.feature",
-                              "specs/puzzles/playtest-drafts.feature",
-                              "specs/puzzles/publish-puzzles.feature",
-                              "specs/puzzles/publish-packs.feature",
-                              "specs/puzzles/keep-attempts.feature",
-                              "specs/puzzles/puzzle-content-access.dmn"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Returns to the puzzle library": {
-                              "target": "#Puzzles: Puzzle library"
-                            }
-                          }
-                        },
-                        "Puzzles: Puzzle not available": {
-                          "id": "Puzzles: Puzzle not available",
-                          "meta": {
-                            "description": "A private draft cannot be started as a public puzzle, and a puzzle never available on the device without a connection explains how to continue.",
-                            "snapshot": "A private draft cannot be started as a public puzzle, and a puzzle never available on the device without a connection explains how to continue.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/keep-attempts.feature",
-                              "specs/puzzles/offline-work.feature",
-                              "specs/puzzles/puzzle-attempt.qnt"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Returns to the puzzle library": {
-                              "target": "#Puzzles: Puzzle library"
-                            }
-                          }
-                        },
-                        "Puzzles: Playing a puzzle attempt": {
-                          "id": "Puzzles: Playing a puzzle attempt",
-                          "meta": {
-                            "description": "Starting a published puzzle creates the person's own attempt at its chosen edition. Accepted play is kept automatically and resumes at the same position after reopening the app, on another device and without a connection; undo and redo follow the game's history; restarting begins another attempt and keeps earlier attempts and completion. Later publication and withdrawal keep the attempt at its edition, and different continuations on two devices are both kept.",
-                            "snapshot": "Starting a published puzzle creates the person's own attempt at its chosen edition. Accepted play is kept automatically and resumes at the same position after reopening the app, on another device and without a connection; undo and redo follow the game's history; restarting begins another attempt and keeps earlier attempts and completion. Later publication and withdrawal keep the attempt at its edition, and different continuations on two devices are both kept.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/keep-attempts.feature",
-                              "specs/puzzles/offline-work.feature",
-                              "specs/puzzles/puzzle-attempt.qnt",
-                              "specs/puzzles/pack-progression.feature",
-                              "specs/puzzles/pack-progression.qnt",
-                              "specs/journeys/sokoban-packs.feature",
-                              "specs/journeys/numberlink-packs.feature"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Plays on in the puzzle attempt": {
-                              "target": "#Puzzles: Playing a puzzle attempt"
-                            },
-                            "Undoes in the puzzle attempt": {
-                              "target": "#Puzzles: Playing a puzzle attempt"
-                            },
-                            "Redoes in the puzzle attempt": {
-                              "target": "#Puzzles: Playing a puzzle attempt"
-                            },
-                            "Restarts the puzzle attempt": {
-                              "target": "#Puzzles: Playing a puzzle attempt"
-                            },
-                            "Resumes an earlier puzzle attempt": {
-                              "target": "#Puzzles: Playing a puzzle attempt"
-                            },
-                            "Reopens the app with an unfinished attempt": {
-                              "target": "#Puzzles: Playing a puzzle attempt"
-                            },
-                            "Completes a puzzle of the pack": {
-                              "target": "#Puzzles: Pack progress"
-                            },
-                            "Completes the last unfinished puzzle of the pack": {
-                              "target": "#Puzzles: Pack complete"
-                            },
-                            "The game's rules change during play": {
-                              "target": "#Puzzles: Attempt kept under earlier rules"
-                            },
-                            "Returns to the puzzle library": {
-                              "target": "#Puzzles: Puzzle library"
-                            }
-                          }
-                        },
-                        "Puzzles: Attempt kept under earlier rules": {
-                          "id": "Puzzles: Attempt kept under earlier rules",
-                          "meta": {
-                            "description": "A rules change during play stops the play and keeps the attempt; a saved attempt whose edition's rules changed is kept but not resumed.",
-                            "snapshot": "A rules change during play stops the play and keeps the attempt; a saved attempt whose edition's rules changed is kept but not resumed.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/edition-rules.feature",
-                              "specs/puzzles/edition-rules.qnt"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Returns to the puzzle library": {
-                              "target": "#Puzzles: Puzzle library"
-                            }
-                          }
-                        },
-                        "Puzzles: Pack progress": {
-                          "id": "Puzzles: Pack progress",
-                          "meta": {
-                            "description": "A pack reports each chosen puzzle edition's progress, counting a completed puzzle once. Continuing returns to the last active unfinished puzzle, and puzzles may be played in any order.",
-                            "snapshot": "A pack reports each chosen puzzle edition's progress, counting a completed puzzle once. Continuing returns to the last active unfinished puzzle, and puzzles may be played in any order.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/pack-progression.feature",
-                              "specs/puzzles/pack-progression.qnt",
-                              "specs/journeys/sokoban-packs.feature"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Continues the pack": {
-                              "target": "#Puzzles: Playing a puzzle attempt"
-                            },
-                            "Starts a later puzzle of the pack": {
-                              "target": "#Puzzles: Playing a puzzle attempt"
-                            },
-                            "Returns to the puzzle library": {
-                              "target": "#Puzzles: Puzzle library"
-                            }
-                          }
-                        },
-                        "Puzzles: Pack complete": {
-                          "id": "Puzzles: Pack complete",
-                          "meta": {
-                            "description": "Completing every chosen edition completes the pack, so it offers no unfinished puzzle to continue; repeating a completed puzzle never increases its completion count.",
-                            "snapshot": "Completing every chosen edition completes the pack, so it offers no unfinished puzzle to continue; repeating a completed puzzle never increases its completion count.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/pack-progression.feature",
-                              "specs/puzzles/pack-progression.qnt"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Repeats a completed puzzle of the pack": {
-                              "target": "#Puzzles: Playing a puzzle attempt"
-                            },
-                            "Returns to the puzzle library": {
-                              "target": "#Puzzles: Puzzle library"
-                            }
-                          }
-                        },
-                        "Puzzles: Pack draft": {
-                          "id": "Puzzles: Pack draft",
-                          "meta": {
-                            "description": "A pack keeps an ordered collection of distinct puzzles of its game. Adding appends a published puzzle once; reordering or removing changes only the working pack; a new puzzle can be authored from the pack. Pack edits undo and redo, with or without a connection, and different orders saved on two devices both remain.",
-                            "snapshot": "A pack keeps an ordered collection of distinct puzzles of its game. Adding appends a published puzzle once; reordering or removing changes only the working pack; a new puzzle can be authored from the pack. Pack edits undo and redo, with or without a connection, and different orders saved on two devices both remain.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/author-packs.feature",
-                              "specs/puzzles/pack-authoring.qnt",
-                              "specs/puzzles/edit-draft-history.feature",
-                              "specs/puzzles/offline-work.feature",
-                              "specs/puzzles/puzzle-content-access.dmn"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Adds a published puzzle to the pack": {
-                              "target": "#Puzzles: Pack draft"
-                            },
-                            "Reorders the pack's puzzles": {
-                              "target": "#Puzzles: Pack draft"
-                            },
-                            "Removes a puzzle from the pack": {
-                              "target": "#Puzzles: Pack draft"
-                            },
-                            "Undoes a draft edit": {
-                              "target": "#Puzzles: Pack draft"
-                            },
-                            "Redoes a draft edit": {
-                              "target": "#Puzzles: Pack draft"
-                            },
-                            "Adds a puzzle of another game to the pack": {
-                              "target": "#Puzzles: Pack change refused"
-                            },
-                            "Authors a new puzzle from the pack": {
-                              "target": "#Puzzles: Private puzzle draft"
-                            },
-                            "Publishes the pack": {
-                              "target": "#Puzzles: Published pack"
-                            },
-                            "Publishes a pack that cannot be published": {
-                              "target": "#Puzzles: Pack publication refused"
-                            },
-                            "Publishes the pack without a connection": {
-                              "target": "#Puzzles: Pack publication waiting"
-                            },
-                            "Returns to the puzzle library": {
-                              "target": "#Puzzles: Puzzle library"
-                            }
-                          }
-                        },
-                        "Puzzles: Pack change refused": {
-                          "id": "Puzzles: Pack change refused",
-                          "meta": {
-                            "description": "A puzzle of another game cannot enter the pack; the pack is unchanged.",
-                            "snapshot": "A puzzle of another game cannot enter the pack; the pack is unchanged.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/author-packs.feature",
-                              "specs/puzzles/pack-authoring.qnt"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Returns to the pack draft": {
-                              "target": "#Puzzles: Pack draft"
-                            }
-                          }
-                        },
-                        "Puzzles: Pack publication refused": {
-                          "id": "Puzzles: Pack publication refused",
-                          "meta": {
-                            "description": "An empty pack, an unpublished puzzle or a withdrawn puzzle keeps the pack a private draft, with the explanation kept after reopening. Correcting the puzzle never publishes the refused pack on its own; the author publishes again.",
-                            "snapshot": "An empty pack, an unpublished puzzle or a withdrawn puzzle keeps the pack a private draft, with the explanation kept after reopening. Correcting the puzzle never publishes the refused pack on its own; the author publishes again.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/publish-packs.feature",
-                              "specs/puzzles/publication-recovery.feature",
-                              "specs/puzzles/publication-recovery.qnt",
-                              "specs/puzzles/pack-publication.qnt"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Reopens the refused pack": {
-                              "target": "#Puzzles: Pack publication refused"
-                            },
-                            "Returns to the pack draft": {
-                              "target": "#Puzzles: Pack draft"
-                            }
-                          }
-                        },
-                        "Puzzles: Pack publication waiting": {
-                          "id": "Puzzles: Pack publication waiting",
-                          "meta": {
-                            "description": "A private pack chosen for publication without a connection waits without losing its draft; publishing again or reopening keeps it waiting and private. When the connection returns it is published only if its chosen puzzles are still available.",
-                            "snapshot": "A private pack chosen for publication without a connection waits without losing its draft; publishing again or reopening keeps it waiting and private. When the connection returns it is published only if its chosen puzzles are still available.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/publication-recovery.feature",
-                              "specs/puzzles/publication-recovery.qnt",
-                              "specs/journeys/sokoban-packs.feature"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Publishes the pack without a connection": {
-                              "target": "#Puzzles: Pack publication waiting"
-                            },
-                            "Reopens the app with a waiting pack": {
-                              "target": "#Puzzles: Pack publication waiting"
-                            },
-                            "The connection returns with the pack's puzzles available": {
-                              "target": "#Puzzles: Published pack"
-                            },
-                            "The connection returns after a chosen puzzle was withdrawn": {
-                              "target": "#Puzzles: Pack publication refused"
-                            }
-                          }
-                        },
-                        "Puzzles: Published pack": {
-                          "id": "Puzzles: Published pack",
-                          "meta": {
-                            "description": "The pack is discovered with its ordered puzzles and keeps its chosen editions: revising or withdrawing a puzzle and reordering the working draft leave it unchanged until the author republishes. Publishing the same saved pack draft again keeps one edition.",
-                            "snapshot": "The pack is discovered with its ordered puzzles and keeps its chosen editions: revising or withdrawing a puzzle and reordering the working draft leave it unchanged until the author republishes. Publishing the same saved pack draft again keeps one edition.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/publish-packs.feature",
-                              "specs/puzzles/pack-publication.qnt",
-                              "specs/puzzles/publication-recovery.feature",
-                              "specs/journeys/sokoban-packs.feature",
-                              "specs/journeys/numberlink-packs.feature"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Reorders the pack's puzzles": {
-                              "target": "#Puzzles: Pack draft"
-                            },
-                            "Publishes the same pack draft again": {
-                              "target": "#Puzzles: Published pack"
-                            },
-                            "Withdraws the pack": {
-                              "target": "#Puzzles: Withdrawn pack"
-                            },
-                            "Opens a published pack": {
-                              "target": "#Puzzles: Pack progress"
-                            },
-                            "Returns to the puzzle library": {
-                              "target": "#Puzzles: Puzzle library"
-                            }
-                          }
-                        },
-                        "Puzzles: Withdrawn pack": {
-                          "id": "Puzzles: Withdrawn pack",
-                          "meta": {
-                            "description": "Only the author withdraws a pack. It is hidden without erasing a saved attempt, and repeating its publication cannot undo withdrawal.",
-                            "snapshot": "Only the author withdraws a pack. It is hidden without erasing a saved attempt, and repeating its publication cannot undo withdrawal.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/publish-packs.feature",
-                              "specs/puzzles/pack-publication.qnt"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Returns to the puzzle library": {
-                              "target": "#Puzzles: Puzzle library"
-                            }
-                          }
-                        }
-                      }
                     }
                   },
                   "on": {
@@ -7519,7 +7681,9 @@
                         "description": "Review shows only positions already reached and guidance belongs to that position.",
                         "snapshot": "Review shows only positions already reached and guidance belongs to that position.",
                         "confidence": "assumed",
-                        "source": ["specs/games/puzzle-review.feature:14"],
+                        "source": [
+                          "specs/games/puzzle-review.feature:14"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -7868,7 +8032,9 @@
                         "description": "A puzzle that never reached the device needs a connection.",
                         "snapshot": "A puzzle that never reached the device needs a connection.",
                         "confidence": "assumed",
-                        "source": ["specs/games/puzzle-offline-days.feature:7"],
+                        "source": [
+                          "specs/games/puzzle-offline-days.feature:7"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -8072,7 +8238,9 @@
                         "description": "Only the solver controls this puzzle; the watched position remains intact.",
                         "snapshot": "Only the solver controls this puzzle; the watched position remains intact.",
                         "confidence": "assumed",
-                        "source": ["specs/games/puzzle-late-watcher.feature:7"],
+                        "source": [
+                          "specs/games/puzzle-late-watcher.feature:7"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -8312,7 +8480,9 @@
                         "description": "Offline choices stay on this device and reach the account when the connection returns.",
                         "snapshot": "Offline choices stay on this device and reach the account when the connection returns.",
                         "confidence": "assumed",
-                        "source": ["specs/games/puzzle-feed-gates.feature:7"],
+                        "source": [
+                          "specs/games/puzzle-feed-gates.feature:7"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -8350,7 +8520,9 @@
                     "Puzzle Links: Opening a puzzle link": {
                       "id": "Puzzle Links: Opening a puzzle link",
                       "meta": {
-                        "routes": ["/chess/puzzle/:puzzleId"],
+                        "routes": [
+                          "/chess/puzzle/:puzzleId"
+                        ],
                         "description": "The link identifies one puzzle and the current allowance determines how it opens.",
                         "snapshot": "The link identifies one puzzle and the current allowance determines how it opens.",
                         "confidence": "assumed",
@@ -8361,7 +8533,9 @@
                           "specs/games/puzzle-link.feature:60"
                         ],
                         "events": [],
-                        "hints": ["App address: /chess/puzzle/:puzzleId"]
+                        "hints": [
+                          "App address: /chess/puzzle/:puzzleId"
+                        ]
                       },
                       "on": {
                         "The linked puzzle opens as rated": {
@@ -8542,7 +8716,9 @@
                           "specs/games/puzzle-stats.feature:11"
                         ],
                         "events": [],
-                        "routes": ["/more/:id-stats"]
+                        "routes": [
+                          "/more/:id-stats"
+                        ]
                       },
                       "on": {
                         "Opens a recorded puzzle attempt": {
@@ -8702,7 +8878,9 @@
                     "Multiplayer: Opening own multiplayer": {
                       "id": "Multiplayer: Opening own multiplayer",
                       "meta": {
-                        "routes": ["/:gameId/multiplayer"],
+                        "routes": [
+                          "/:gameId/multiplayer"
+                        ],
                         "description": "Opening observes the account's accepted search, current game or lasting result. These records belong to the account across devices and are not restarted by navigation.",
                         "snapshot": "Opening observes the account's accepted search, current game or lasting result. These records belong to the account across devices and are not restarted by navigation.",
                         "confidence": "assumed",
@@ -8713,7 +8891,9 @@
                           "specs/games/finding-an-opponent.feature"
                         ],
                         "events": [],
-                        "hints": ["App address: /:gameId/multiplayer"]
+                        "hints": [
+                          "App address: /:gameId/multiplayer"
+                        ]
                       },
                       "on": {
                         "No accepted opponent search or multiplayer game exists": {
@@ -10687,7 +10867,9 @@
                 "App: Unknown address": {
                   "id": "App: Unknown address",
                   "meta": {
-                    "routes": ["/*all"],
+                    "routes": [
+                      "/*all"
+                    ],
                     "description": "An unknown app address gives a clear way back.",
                     "snapshot": "An unknown app address gives a clear way back.",
                     "confidence": "assumed",
@@ -10697,7 +10879,9 @@
                       "specs/runtime/app-platform.qnt"
                     ],
                     "events": [],
-                    "hints": ["App address: /*all"]
+                    "hints": [
+                      "App address: /*all"
+                    ]
                   },
                   "on": {
                     "Returns to Spaces": {
@@ -11146,7 +11330,9 @@
                     "Tools: Tool home": {
                       "id": "Tools: Tool home",
                       "meta": {
-                        "routes": ["/harness"],
+                        "routes": [
+                          "/harness"
+                        ],
                         "description": "The team can choose a test world, evidence or an independent framework example.",
                         "snapshot": "The team can choose a test world, evidence or an independent framework example.",
                         "confidence": "assumed",
@@ -11247,7 +11433,10 @@
                           "id": "Inspectors: Sync inspection",
                           "meta": {
                             "description": "This device's sync inspection is at /more/sync; /more/server-status is currently a status placeholder. Offline recovery and keeping saved data have contracts; diagnostic controls, status details and their failure outcomes still need their own complete observable contract.",
-                            "routes": ["/more/sync", "/more/server-status"],
+                            "routes": [
+                              "/more/sync",
+                              "/more/server-status"
+                            ],
                             "source": [
                               "specs/sync-engine/notes-offline.feature",
                               "specs/README.md#product-contract-inventory"
@@ -11272,7 +11461,9 @@
                               "specs/runtime/connected-services.feature",
                               "specs/README.md#product-contract-inventory"
                             ],
-                            "hints": ["App address: /more/client-config"]
+                            "hints": [
+                              "App address: /more/client-config"
+                            ]
                           },
                           "on": {
                             "Returns to the inspection inventory": {
@@ -11288,7 +11479,9 @@
                             "source": [
                               "specs/README.md#product-contract-inventory"
                             ],
-                            "hints": ["App address: /more/performance"]
+                            "hints": [
+                              "App address: /more/performance"
+                            ]
                           },
                           "on": {
                             "Returns to the inspection inventory": {
@@ -11300,7 +11493,10 @@
                           "id": "Inspectors: Component reference",
                           "meta": {
                             "description": "The component reference is at /ui and an individual component at /ui/:component. Component exploration and team authoring are explicitly awaiting a complete observable contract in the product inventory.",
-                            "routes": ["/ui", "/ui/:component"],
+                            "routes": [
+                              "/ui",
+                              "/ui/:component"
+                            ],
                             "source": [
                               "specs/README.md#product-contract-inventory"
                             ],
@@ -11343,7 +11539,9 @@
                               "specs/runtime/request-records.feature",
                               "specs/README.md#product-contract-inventory"
                             ],
-                            "hints": ["App address: /client/events"]
+                            "hints": [
+                              "App address: /client/events"
+                            ]
                           },
                           "on": {
                             "Returns to the inspection inventory": {
@@ -11555,7 +11753,9 @@
                         "Notebook: Notebook": {
                           "id": "Notebook: Notebook",
                           "meta": {
-                            "routes": ["/client/sql"],
+                            "routes": [
+                              "/client/sql"
+                            ],
                             "description": "The selected device’s saved questions remain separate from another device’s notebook.",
                             "snapshot": "The selected device’s saved questions remain separate from another device’s notebook.",
                             "confidence": "assumed",
@@ -11566,7 +11766,9 @@
                               "specs/developer-tools/data-notebook.feature:46"
                             ],
                             "events": [],
-                            "hints": ["App address: /client/sql"]
+                            "hints": [
+                              "App address: /client/sql"
+                            ]
                           },
                           "on": {
                             "Adds a notebook question": {
@@ -11978,7 +12180,9 @@
                             "description": "Only the permitted person can obtain the stored file and unavailable files are explained.",
                             "snapshot": "Only the permitted person can obtain the stored file and unavailable files are explained.",
                             "confidence": "assumed",
-                            "source": ["specs/runtime/stored-files.feature:7"],
+                            "source": [
+                              "specs/runtime/stored-files.feature:7"
+                            ],
                             "events": []
                           },
                           "on": {
@@ -13495,7 +13699,9 @@
                         "description": "The old app must update before continuing; its local data is not erased.",
                         "snapshot": "The old app must update before continuing; its local data is not erased.",
                         "confidence": "assumed",
-                        "source": ["specs/runtime/app-updates.feature:7"],
+                        "source": [
+                          "specs/runtime/app-updates.feature:7"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -13530,7 +13736,9 @@
                       "specs/chess/puzzle-management-access.dmn"
                     ],
                     "events": [],
-                    "routes": ["/more/puzzles"]
+                    "routes": [
+                      "/more/puzzles"
+                    ]
                   },
                   "states": {
                     "Puzzle loading: Checking access": {

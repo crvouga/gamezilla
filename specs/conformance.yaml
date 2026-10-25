@@ -18,6 +18,7 @@ product:
     - chess-board
     - connect-four
     - quoridor
+    - word-tiles
     - hearts
     - games
     - developer-tools

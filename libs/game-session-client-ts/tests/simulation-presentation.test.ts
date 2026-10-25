@@ -189,3 +189,50 @@ test('a refresh keeps the control a player is still holding', () => {
     connection.dispose();
   }
 });
+
+test('a court that became ready by its own refresh keeps the held input on the next room change', () => {
+  // regression: local-court-readiness-drops-held-input
+  const time = createHarnessClock();
+  const generation = 'race:1';
+  let ready = false;
+  let receive: Parameters<Options['subscribeSignal']>[0] = () => {};
+  let roomChanged = () => {};
+  const requests: string[] = [];
+  const inputs: number[] = [];
+  const connection = connectSimulationPresentation({
+    simulation: raceGame.registration.simulation!,
+    ...time,
+    generation: () => generation,
+    isReady: () => ready,
+    send: (message) => {
+      if (RequestSimulationSnapshot.is(message)) requests.push(generation);
+      if (SubmitSimulationInput.is(message)) inputs.push(message.payload.tick);
+      return 'race-signal';
+    },
+    subscribeSignal: (listener) => {
+      receive = listener;
+      return () => {};
+    },
+    subscribeRoom: (listener) => {
+      roomChanged = listener;
+      return () => {};
+    },
+    measure: () => {},
+    changed: () => {},
+  });
+  try {
+    roomChanged();
+    // A local session settles its own queue; the room says nothing about it.
+    ready = true;
+    connection.refresh();
+    receive(snapshot(generation, false));
+    expect(connection.replica.control('white', 1)).toBe(true);
+    roomChanged();
+    time.clock.advance(100);
+    expect(requests).toEqual([generation]);
+    expect(inputs.length).toBeGreaterThan(0);
+  } finally {
+    connection.dispose();
+  }
+  expect(time.clock.pendingOneShotCount()).toBe(0);
+});

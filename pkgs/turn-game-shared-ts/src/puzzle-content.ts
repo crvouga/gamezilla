@@ -140,6 +140,8 @@ export type PuzzleContent = {
   ) => PuzzleValidation;
   readonly statistics?: (definition: string, state: string) => PuzzleStatistics;
   readonly bundledPacks?: readonly BundledPuzzlePack[];
+  /** Original puzzles published once by the platform at database preparation. */
+  readonly starter?: BundledPuzzlePack;
 };
 
 function assertBundledPacks(id: string, content: PuzzleContent): void {
@@ -197,4 +199,21 @@ export function assertPuzzleContent(id: string, content: PuzzleContent): void {
   if (!Number.isInteger(content.rulesVersion) || content.rulesVersion < 1)
     throw new Error(`${id}: puzzle rulesVersion must be a positive integer`);
   assertBundledPacks(id, content);
+  assertStarterContent(id, content);
+}
+
+/** Published starter entries have stable ids and the game's publication check. */
+function assertStarterContent(id: string, content: PuzzleContent): void {
+  const starter = content.starter;
+  if (starter === undefined) return;
+  if (content.validatePublication === undefined)
+    throw new Error(
+      `${id}: starter puzzles need validatePublication to prove them`
+    );
+  const slug = /^[a-z][a-z0-9-]{0,63}$/;
+  const ids = [starter.id, ...starter.puzzles.map((puzzle) => puzzle.id)];
+  if (starter.puzzles.length === 0 || ids.some((each) => !slug.test(each)))
+    throw new Error(`${id}: starter content names a pack and puzzles by slug`);
+  if (new Set(ids).size !== ids.length)
+    throw new Error(`${id}: starter content names each pack and puzzle once`);
 }

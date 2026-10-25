@@ -2013,6 +2013,7 @@
         "@libs/quoridor-client-ts": "workspace:*",
         "@libs/sokoban-client-ts": "workspace:*",
         "@libs/spaces-shared-ts": "workspace:*",
+        "@libs/word-tiles-client-ts": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -2033,6 +2034,7 @@
         "@libs/light-cycles-harness-ts": "workspace:*",
         "@libs/pong-harness-ts": "workspace:*",
         "@libs/quoridor-harness-ts": "workspace:*",
+        "@libs/word-tiles-harness-ts": "workspace:*",
       },
       "devDependencies": {
         "@libs/account-privacy-harness-ts": "workspace:*",
@@ -2117,6 +2119,7 @@
         "@libs/quoridor-shared-ts": "workspace:*",
         "@libs/sokoban-shared-ts": "workspace:*",
         "@libs/spaces-shared-ts": "workspace:*",
+        "@libs/word-tiles-shared-ts": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -3140,6 +3143,7 @@
         "@pkgs/sql-client-root-shared-ts": "workspace:*",
         "@pkgs/sql-root-shared-ts": "workspace:*",
         "@pkgs/sync-engine-shared-ts": "workspace:*",
+        "@pkgs/turn-game-shared-ts": "workspace:*",
         "@pkgs/uuid-shared-ts": "workspace:*",
       },
       "devDependencies": {
@@ -3712,6 +3716,71 @@
       "version": "0.0.0",
       "devDependencies": {
         "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/word-tiles-client-ts": {
+      "name": "@libs/word-tiles-client-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/game-menu-client-ts": "workspace:*",
+        "@libs/game-puzzle-client-ts": "workspace:*",
+        "@libs/word-tiles-shared-ts": "workspace:*",
+        "@lingui/core": "catalog:",
+        "@lingui/solid": "catalog:",
+        "@pkgs/turn-game-shared-ts": "workspace:*",
+        "@pkgs/ui-root-client-ts": "workspace:*",
+        "@pkgs/uuid-client-ts": "workspace:*",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/bun-test-solid-client-ts": "workspace:*",
+        "@pkgs/clock-client-ts": "workspace:*",
+        "@pkgs/clock-shared-ts": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/word-tiles-harness-ts": {
+      "name": "@libs/word-tiles-harness-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/game-session-harness-ts": "workspace:*",
+        "@libs/harness-ts": "workspace:*",
+        "@libs/word-tiles-client-ts": "workspace:*",
+        "@libs/word-tiles-shared-ts": "workspace:*",
+        "@pkgs/gherkin-shared-ts": "workspace:*",
+        "@pkgs/harness-root-shared-ts": "workspace:*",
+        "@pkgs/turn-game-shared-ts": "workspace:*",
+      },
+      "devDependencies": {
+        "@pkgs/bun-test-solid-client-ts": "workspace:*",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/word-tiles-shared-ts": {
+      "name": "@libs/word-tiles-shared-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/game-session-shared-ts": "workspace:*",
+        "@pkgs/turn-game-shared-ts": "workspace:*",
+      },
+      "devDependencies": {
+        "@libs/game-puzzle-shared-ts": "workspace:*",
+        "@pkgs/http-client-shared-ts": "workspace:*",
+        "@pkgs/object-store-node-fs-server-ts": "workspace:*",
+        "@pkgs/property-shared-ts": "workspace:*",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -8282,6 +8351,12 @@
     "@libs/user-search-client-ts": ["@libs/user-search-client-ts@workspace:libs/user-search-client-ts"],
 
     "@libs/user-search-shared-ts": ["@libs/user-search-shared-ts@workspace:libs/user-search-shared-ts"],
+
+    "@libs/word-tiles-client-ts": ["@libs/word-tiles-client-ts@workspace:libs/word-tiles-client-ts"],
+
+    "@libs/word-tiles-harness-ts": ["@libs/word-tiles-harness-ts@workspace:libs/word-tiles-harness-ts"],
+
+    "@libs/word-tiles-shared-ts": ["@libs/word-tiles-shared-ts@workspace:libs/word-tiles-shared-ts"],
 
     "@lingui/babel-plugin-extract-messages": ["@lingui/babel-plugin-extract-messages@6.6.0", "", { "dependencies": { "@lingui/conf": "6.6.0" } }, "sha512-QfCS4SjZYvVZFaiF44e/mLsdzCqQvRSGoVJWkb8nc51FkNpOZkwFLiwLtRnWgvm0ce7GeG51czMsG7RFPPCXqw=="],
 

@@ -30,6 +30,8 @@ flowchart TD
   app --> games[Games]
   games --> pong[Pong]
   games --> sokoban[Sokoban]
+
+  games --> word_tiles[Word Tiles]
   games --> numberlink[Numberlink]
   games --> puzzle_content[Puzzle content]
   app --> puzzles[Puzzles]
@@ -95,7 +97,7 @@ flowchart TD
 | test-worlds | developer-tools | The team selects independent devices, changes their arrangement and saves or restores compatible checkpoints. |
 | tools | developer-tools | The testing tool reaches test worlds, notebooks, release evidence and the framework example apps. |
 
-The current machine has 436 states and 1,178 transitions.
+The current machine has 441 states and 1,205 transitions.
 [EXECUTION_NOTES.md](EXECUTION_NOTES.md) records complete graph traversal and
 serialization checks; [SOURCES.md](SOURCES.md) explains the source catalog.
 Framework contracts and inspection-scope choices retain their declared

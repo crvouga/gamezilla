@@ -25,7 +25,8 @@
     "@libs/pong-client-ts": "workspace:*",
     "@libs/quoridor-client-ts": "workspace:*",
     "@libs/sokoban-client-ts": "workspace:*",
-    "@libs/spaces-shared-ts": "workspace:*"
+    "@libs/spaces-shared-ts": "workspace:*",
+    "@libs/word-tiles-client-ts": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

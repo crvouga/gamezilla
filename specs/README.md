@@ -1133,6 +1133,7 @@ terms:
 | Puzzles | `puzzles` | author-created puzzle and pack drafts, validation, playtests, stable published editions, personal attempts and pack progression for any game offering puzzle content | core |
 | Battleship | `battleship` | Battleship's own boards, fleets, placing ships, shots, hits, misses, sinkings, victory and bots | supporting |
 | Quoridor | `quoridor` | Classic Quoridor and Four-Player King of the Hill: the board, pawns, movement, jumps, walls, paths and goals | supporting |
+| Word Tiles | `word-tiles` | Word Tiles for two, three and four: the board, bonus squares, tiles and blanks, racks and the bag, placing words from the word list, scores, passing, exchanging, endings, private racks and one-move challenges | supporting |
 | Hearts | `hearts` | Hearts's own cards, deals, hands, passing, tricks, hearts being broken, penalty points, scores and winners | supporting |
 | Pong | `pong` | Pong's court, paddles, ball, points, score, serves and victory | supporting |
 | Light Cycles | `light-cycles` | Light Cycles Duel, Trio and Quad: the arena, riders, trails, steering, crashes, rounds, round wins, victory, riders whose people are away, bots and practice | supporting |
@@ -1171,6 +1172,8 @@ Battleship ──► Journeys (Battleship)
 Quoridor ──► Journeys (Quoridor, Classic Quoridor, Four-Player King of the Hill)
 Games    ──► Connect Four (game), Battleship (game, custom game)
 Games    ──► Quoridor (game, custom game, ready, start)
+Games    ──► Word Tiles (game, custom game, bot)
+Puzzles  ──► Word Tiles (puzzle, publish)
 Games    ──► Hearts (game, custom game, custom game readiness, start a custom game, bot, stand-in, take back their side, secret choice, rematch, shared victory, the game's choices)
 Games    ──► Journeys (bot)
 App      ──► Quoridor (keyboard, control)
@@ -1211,7 +1214,7 @@ Published language:
 | Battleship (`battleship`) | Battleship | — |
 | Quoridor (`quoridor`) | Quoridor, Classic Quoridor, Four-Player King of the Hill | — |
 | Sokoban (`sokoban`) | Sokoban, starter pack | — |
-
+| Word Tiles (`word-tiles`) | Word Tiles, Word Tiles for three, Word Tiles for four | — |
 | Hearts (`hearts`) | Hearts | — |
 | Pong (`pong`) | Pong, paddle, score, target score | — |
 | Light Cycles (`light-cycles`) | Light Cycles, Light Cycles Duel, Light Cycles Trio, Light Cycles Quad | — |

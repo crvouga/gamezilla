@@ -58,7 +58,8 @@
     "puzzle-catalogue",
     "puzzle-link",
     "solve-status",
-    "sub"
+    "sub",
+    "starter-content"
   ],
   "language": "typescript"
 }

@@ -32,6 +32,7 @@ every rule in a feature.
 | [Spaces](../../specs/spaces/) | Spaces |
 | [Sync engine](../../specs/sync-engine/) | Independent notes contract, related inspection scope |
 | [Synthetic Population](../../specs/synthetic-population/) | Test worlds, Pong |
+| [Word Tiles](../../specs/word-tiles/) | Word Tiles |
 
 This table locates source families; the current exact examples and their
 source addresses are in `.cache/product-statechart/contracts.json`, produced

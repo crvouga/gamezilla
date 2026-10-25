@@ -83,5 +83,10 @@
     "package": "@libs/synthetic-population-harness-ts",
     "directory": "libs/synthetic-population-harness-ts",
     "parts": 1
+  },
+  {
+    "package": "@libs/word-tiles-harness-ts",
+    "directory": "libs/word-tiles-harness-ts",
+    "parts": 1
   }
 ]
