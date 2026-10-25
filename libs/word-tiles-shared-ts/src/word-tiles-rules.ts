@@ -216,13 +216,17 @@ export function wordTilesRecord(
   metadata: GameRecordMetadata
 ): string {
   const decoded = decodeOrThrow(position);
+  const actions = history === '' ? [] : history.split(' ');
   return JSON.stringify({
     game: WORD_TILES_IDS[decoded.seats],
     ruleset: decoded.ruleset,
     lexicon: decoded.lexicon,
     metadata,
     scores: decoded.scores,
-    actions: history === '' ? [] : history.split(' '),
+    actions,
+    moves: WORD_TILES_RULES[decoded.seats]
+      .moves(position, history, actions)
+      .map((move) => move.label),
   });
 }
 

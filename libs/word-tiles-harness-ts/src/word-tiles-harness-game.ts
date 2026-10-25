@@ -12,10 +12,12 @@ import {
   WORD_TILES_4_PLAYABLE,
   WORD_TILES_PLAYABLE,
 } from './word-tiles-playable';
+import { readWordTilesRecord } from './word-tiles-record-reading';
 
 export const WORD_TILES_HARNESS_GAME: HarnessGame = assertHarnessGame({
   ...WORD_TILES_PLAYABLE,
   client: wordTilesGameClient,
+  readRecord: readWordTilesRecord,
 });
 
 export const WORD_TILES_3_HARNESS_GAME: HarnessGame = assertHarnessGame({
