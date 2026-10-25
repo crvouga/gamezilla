@@ -1,0 +1,4 @@
+{
+  "summary": "The localhost stack's simulated network (--edge-latency-ms, used by the release journeys) waited one full latency after each message before starting the next one's, so each direction carried at most one message per 50 ms. Matched Pong publishes 20 snapshots a second plus other traffic, so the queue grew without bound: devices fell seconds behind the authority and every paddle input arrived for a tick already committed. The Pong release journey's winner then depended only on the first serve's direction (specs/journeys/pong-game.feature, failing on main). Each message is now in flight from when it is sent, and order is kept.",
+  "regressionTest": "apps/product-ts/scripts/edge-latency.test.ts"
+}
