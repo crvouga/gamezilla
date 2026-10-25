@@ -29,7 +29,7 @@ test('the Hill party returns a real reviewed board to the live position', async 
           const view = JSON.parse(raw!) as PublicCustomGame;
           if (view.ply === 16) {
             expect(view.position).toBe(
-              'quoridor:1:hill:e2,b5,e8,h5,e3,c5,e7,g5,e4,d4h,e5v,c5v,f4,c6,e6,g6'
+              'quoridor:1:hill:e2,b5,e8,h5,e3,c5,e7,g5,e4,d4h,e5v,c5v,f4,c6,e6,f5'
             );
             await ui.get('custom-game-review-move-15').tap();
             reviewed = true;

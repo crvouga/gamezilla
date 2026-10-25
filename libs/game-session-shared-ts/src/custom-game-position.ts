@@ -3,7 +3,6 @@ import {
   gameSides,
   type TurnGames,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { createSeededRng } from '@pkgs/uuid-shared-ts/seeded-rng';
 import type { CustomGame } from './custom-game-state';
 import { simulationCommandKey } from './simulation-command-state';
 /** A retained position must describe exactly the accepted action sequence. */
@@ -61,16 +60,12 @@ export function customGameBots(
     throw new Error('The game offers no Custom Games');
   return customGames.bots;
 }
-/**
- * The bot's choice for the side to move, at its difficulty. Every device
- * that plays a due bot move (the host's and the room's scheduler) chooses
- * the same one, so none shows a move the room then replaces.
- */
+/** The bot's choice for the side to move, at its difficulty. */
 export function customGameBotMove(
   game: CustomGame,
-  rules: TurnGames
+  rules: TurnGames,
+  random: () => number
 ): string | null {
-  const random = createSeededRng(`${game.id}:${game.moves.length}`).random;
   return (
     customGameBots(game, rules).choose?.(
       game.fen,

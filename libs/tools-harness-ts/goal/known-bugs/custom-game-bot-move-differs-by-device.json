@@ -1,4 +1,0 @@
-{
-  "summary": "A bot's due move in a custom game may be played by the host's device (which keeps bots moving while offline) and by the room's scheduler; each chose the move with its own random source. When both played the same turn, the host showed its own choice until the room's different one replaced it: in King of the Hill the host saw a bot play f5, chose its move from that position, and the room had the bot play g6 instead, so the move failed (specs/quoridor/quoridor-health.feature, failing on main). A bot's choice now depends only on the game and its ply, so every device that plays a due bot move plays the same one.",
-  "regressionTest": "libs/game-session-shared-ts/tests/private-setup.test.ts"
-}
