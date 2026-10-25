@@ -108,8 +108,9 @@ test('the witness reads newly committed work and time advanced during delivery',
     expect((await drainOutbox(h.deps)).processed).toBe(1);
     expect(await hasDueOutboxWork(h.deps)).toBe(false);
     // Another producer commits between the pass and the observation.
-    await h.db.transaction(async () => {
-      await h.append({ id: 'concurrent' });
+    // regression: outbox-witness-test-deadlocks-on-its-own-transaction
+    await h.db.transaction(async (tx) => {
+      await h.append({ id: 'concurrent' }, tx);
     });
     expect(await hasDueOutboxWork(h.deps)).toBe(true);
     expect((await drainOutbox(h.deps)).processed).toBe(1);

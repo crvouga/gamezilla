@@ -74,9 +74,10 @@ export async function openDueWork() {
     },
     registerConsumer: (consumer: OutboxConsumerDef<{ n: number }>) =>
       registry.register(consumer),
-    async append(event: EventInput) {
+    /** Appends through `tx`, a producer's own open transaction, or alone. */
+    async append(event: EventInput, tx: Pick<typeof db, 'query' | 'run'> = db) {
       await new Outbox({
-        tx: withOutboxCausation(db, event.causation ?? null),
+        tx: withOutboxCausation(tx, event.causation ?? null),
         env: { now: () => new Date(now), createId: deps.createId },
       }).send({
         id: event.id,
@@ -84,7 +85,7 @@ export async function openDueWork() {
         availableAt: new Date(NOW + (event.at ?? 0)),
       });
       if (event.deleted)
-        await db.run(
+        await tx.run(
           sql`UPDATE outbox_events SET deleted_at = ${new Date(now).toISOString()} WHERE id = ${event.id}`
         );
     },
