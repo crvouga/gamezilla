@@ -1,0 +1,4 @@
+{
+  "summary": "The turn-based multi-seat game specifications (first moves, turn order) enrolled every game with more than two seats, including turn-less Light Cycles Trio and Quad.",
+  "regressionTest": "libs/games-harness-ts/tests/simulation-specification-needs.test.ts"
+}

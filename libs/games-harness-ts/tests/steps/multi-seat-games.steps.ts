@@ -1,6 +1,7 @@
 import { expect } from 'bun:test';
 import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe';
 import { Given, Then } from '@libs/harness-ts/define';
+import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import {
   chosen,
@@ -8,9 +9,29 @@ import {
   identityOf,
   toldOf,
 } from './custom-game-set-up-world';
-import { setupCustomGame, turnGameOf } from './game-world';
+
+import { hostOf, setupCustomGame, turnGameOf } from './game-world';
+import { followsKnownLine, plyWithMover } from './known-line';
+import { gameShownToOthers } from './secret-choices-world';
 
 const PEOPLE = ['alice', 'bob', 'carol', 'dave'] as const;
+
+/**
+ * Alice, Bob, Carol and Dave in a custom game that followed its known
+ * victory until the side at `seat` (0 for the first) is to move, no round of
+ * secret choices open.
+ */
+async function toMove(w: HarnessWorld, seat: number): Promise<void> {
+  const game = turnGameOf(w);
+  const line = game.fixtures.firstSideVictory;
+  const side = gameSides(game.shared.turnGame.rules)[seat]!;
+  followsKnownLine(w, line);
+  await setupCustomGame(w, {
+    third: 'carol',
+    fourth: 'dave',
+    moves: line.slice(0, plyWithMover(game, line, side)),
+  });
+}
 
 Given(
   'Alice, Bob, Carol and Dave are setting up a four-player custom game',
@@ -40,12 +61,18 @@ Given(
 );
 Given(
   'Alice, Bob, Carol and Dave have a four-player custom game with Bob to move',
-  async (w) =>
-    setupCustomGame(w, {
-      third: 'carol',
-      fourth: 'dave',
-      moves: turnGameOf(w).fixtures.firstSideVictory.slice(0, 1),
-    })
+  async (w) => toMove(w, 1)
+);
+Given(
+  'Alice, Bob, Carol and Dave have a four-player custom game with Alice to move',
+  async (w) => toMove(w, 0)
+);
+Given(
+  "Alice, Bob, Carol and Dave have a four-player custom game in Alice's space with Alice to move",
+  async (w) => {
+    await toMove(w, 0);
+    expect(hostOf(w)).toBe('alice');
+  }
 );
 Given('Alice has offered a draw accepted by Bob and Carol', async (w) => {
   await chosen(w, 'alice', { operation: 'offer' });
@@ -80,10 +107,11 @@ Then(
   '{actor} is told every side needs a participant',
   async (w, actor: string) => toldOf(w, actor, 'every side needs a participant')
 );
-Then('Bob keeps the custom game turn', async (w) => {
-  const game = await current(w);
+// As the others see it: a person away keeps showing what they last saw.
+Then('{actor} keeps the custom game turn', async (w, actor: string) => {
+  const game = await gameShownToOthers(w, actor);
   expect(game.status).toBe('active');
-  expect(game[game.turn].person).toBe(await identityOf(w, 'bob'));
+  expect(game[game.turn].person).toBe(await identityOf(w, actor));
 });
 Then('Carol cannot make a custom game move before Bob', async (w) => {
   const seen = await w.s.read(customGameView, 'carol');

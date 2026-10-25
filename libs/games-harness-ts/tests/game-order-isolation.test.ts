@@ -19,7 +19,7 @@ import {
   SHARED_SPECIFICATIONS,
 } from '@libs/games-harness-ts/game-conformance';
 import { HARNESS_GAMES } from '@libs/games-harness-ts/harness-games';
-import { REGISTERED_GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
+import { PLAYABLE_GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
 import { planCodeSuites } from './conformance/game-suite';
 import { CONFORMANCE_GAMES } from './conformance-world';
 import {
@@ -45,7 +45,7 @@ test('the plan and matrix are the same with the games in reverse order', async (
   const codeSuites = await planCodeSuites(import.meta.dir);
   const plan = (games: readonly HarnessGame[]) =>
     planConformance({
-      registered: REGISTERED_GAME_DEFINITIONS,
+      registered: PLAYABLE_GAME_DEFINITIONS,
       harness: HARNESS_GAMES,
       games,
       codeSuites,

@@ -25,7 +25,7 @@ test('all declared participants own their turns and the third seat can win', () 
       game,
       { actorId: person, revision: ply, uci: 'step', nowMs: ply * 1000 },
       MULTISEAT_GAMES
-    );
+    ).game;
     expect(bothHaveMoved(game)).toBe(ply >= 3);
   }
   expect(game).toMatchObject({ outcome: 'red', turn: '', revision: 7 });

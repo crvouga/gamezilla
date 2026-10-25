@@ -30,10 +30,8 @@ import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import { assertGameId } from './assert-game-id';
 import { withCustomGames } from './custom-game-definition';
 import {
-  isPuzzleGameDefinition,
-  newPuzzleGameDefinition,
-  type PuzzleGame,
-  type PuzzleGameDefinition,
+  DefinedPuzzleGame,
+  type PuzzleOnlyGame,
 } from './puzzle-game-definition';
 import { withSimulationCustomGames } from './simulation-custom-definition';
 import { simulationMatchRoom } from './simulation-match-definition';
@@ -64,14 +62,14 @@ type GameParts<C extends TurnGameCapabilities> = Pick<
 > & {
   readonly rules: GamePositionRules;
   readonly capabilities: C;
-  /** Authored content may coexist with multiplayer and the rated puzzle feed. */
-  readonly puzzleContent?: PuzzleContent;
   readonly own?: GameOwnRoom;
   readonly simulation?: RegisteredSimulation;
   readonly continuousAutomation?: Omit<
     ContinuousAutomation<Driver>,
     'parseInput'
   >;
+  /** Authored content may coexist with multiplayer and the rated puzzle feed. */
+  readonly puzzleContent?: PuzzleContent;
 };
 
 /** A discrete turn capability can coexist with a simulation on the same game identity. */
@@ -97,9 +95,9 @@ class DefinedGame<C extends TurnGameCapabilities = TurnGameCapabilities>
   readonly id: string;
   readonly capabilities: C;
   readonly registration: RegisteredGame;
-  declare readonly puzzleContent?: PuzzleContent;
   declare readonly turnGame?: RegisteredTurnGame;
   declare readonly automation?: GameAutomation<Driver>;
+  declare readonly puzzleContent?: PuzzleContent;
   readonly sharedModules: readonly SharedGameModule[];
   readonly commandRouters: GameOwnRoom['commandRouters'];
   readonly eventRouters: GameOwnRoom['eventRouters'];
@@ -110,11 +108,11 @@ class DefinedGame<C extends TurnGameCapabilities = TurnGameCapabilities>
     this.id = game.rules.id;
     this.capabilities = game.capabilities;
     this.registration = registration;
-    if (game.puzzleContent !== undefined)
-      this.puzzleContent = game.puzzleContent;
     if (isTurnRules(game.rules)) {
       this.turnGame = { ...registration, rules: game.rules };
     }
+    if (game.puzzleContent !== undefined)
+      this.puzzleContent = game.puzzleContent;
     const turns =
       isTurnRules(game.rules) && game.turnAutomation !== undefined
         ? { rules: game.rules, ...game.turnAutomation }
@@ -132,6 +130,7 @@ class DefinedGame<C extends TurnGameCapabilities = TurnGameCapabilities>
         ...(turns === undefined ? {} : { turns }),
         ...(continuous === undefined ? {} : { continuous }),
       };
+    // Puzzles are offered through the one puzzle session every space installs.
     this.sharedModules =
       game.capabilities.puzzles === undefined
         ? [GAME_SESSIONS]
@@ -147,19 +146,13 @@ class DefinedGame<C extends TurnGameCapabilities = TurnGameCapabilities>
   }
 }
 
-export type { PuzzleGame, PuzzleGameDefinition };
-
+/** A game with position rules: turns, a simulation, or both. */
 export type GameRegistration<
   C extends TurnGameCapabilities = TurnGameCapabilities,
 > = DefinedGame<C>;
-
-/** One registry composes standalone puzzles and registered games, including games offering both. */
-export type RegistryGame = GameRegistration | PuzzleGameDefinition;
-
-/** Whether `value` holds positions and execution, as catalogs and shared suites require. */
-export function isGameRegistration(value: unknown): value is GameRegistration {
-  return DefinedGame.made(value);
-}
+export type PuzzleGameDefinition = DefinedPuzzleGame;
+/** One registry composes standalone puzzles and rule-bearing games, including games offering both. */
+export type AnyGameRegistration = GameRegistration | PuzzleGameDefinition;
 /** The stronger contract shared turn suites require; a continuous game supplies no fake turns. */
 export type TurnGameDefinition<
   C extends TurnGameCapabilities = TurnGameCapabilities,
@@ -169,6 +162,19 @@ export type TurnGameDefinition<
     readonly turns: TurnAutomation<Driver>;
   };
 };
+
+function assertSimulation(
+  id: string,
+  rules: GamePositionRules,
+  simulation: RegisteredSimulation
+): void {
+  const state = simulation.initialize('registration');
+  const encoded = simulation.codec.encode(state);
+  if (!rules.recognizes(encoded) || simulation.codec.decode(encoded) === null)
+    throw new Error(
+      `${id}: simulation initialization must produce a recognized, serializable position`
+    );
+}
 
 function assertParts<C extends TurnGameCapabilities>(game: Game<C>): void {
   const id = game.rules.id;
@@ -196,21 +202,12 @@ function assertParts<C extends TurnGameCapabilities>(game: Game<C>): void {
         ? `${id}: its sides prepare private setups (rules.setup) — give its turnAutomation.arrange(ui, board, setup), the gesture that enters a setup on its setup board`
         : `${id}: turnAutomation.arrange is only for a game with private setups (rules.setup)`
     );
-  if (game.simulation !== undefined) {
-    const state = game.simulation.initialize('registration');
-    const encoded = game.simulation.codec.encode(state);
-    if (
-      !game.rules.recognizes(encoded) ||
-      game.simulation.codec.decode(encoded) === null
-    )
-      throw new Error(
-        `${id}: simulation initialization must produce a recognized, serializable position`
-      );
-  }
+  if (game.simulation !== undefined)
+    assertSimulation(id, game.rules, game.simulation);
 }
 
 /** Register one game with its product capabilities and optional execution parts. */
-export function defineGame(game: PuzzleGame): PuzzleGameDefinition;
+export function defineGame(game: PuzzleOnlyGame): PuzzleGameDefinition;
 export function defineGame<C extends TurnGameCapabilities>(
   game: TurnGame<C> & { readonly puzzleContent: PuzzleContent }
 ): TurnGameDefinition<C> & { readonly puzzleContent: PuzzleContent };
@@ -227,12 +224,12 @@ export function defineGame<C extends TurnGameCapabilities>(
   game: Game<C>
 ): GameRegistration<C>;
 export function defineGame<C extends TurnGameCapabilities>(
-  game: Game<C> | PuzzleGame
+  game: Game<C> | PuzzleOnlyGame
 ): GameRegistration<C> | PuzzleGameDefinition {
-  if (!('rules' in game)) {
+  if (game.rules === undefined) {
     assertGameId(game.id);
     assertPuzzleContent(game.id, game.puzzleContent);
-    return newPuzzleGameDefinition(game);
+    return new DefinedPuzzleGame(game);
   }
   assertParts(game);
   const registration: RegisteredGame = {
@@ -247,12 +244,16 @@ export function defineGame<C extends TurnGameCapabilities>(
   return new DefinedGame(game, registration);
 }
 
+export function isGameRegistration(value: unknown): value is GameRegistration {
+  return DefinedGame.made(value);
+}
+
 export function assertGameDefinitions(
   registry: string,
   definitions: readonly unknown[]
 ): void {
   for (const [index, definition] of definitions.entries()) {
-    if (DefinedGame.made(definition) || isPuzzleGameDefinition(definition))
+    if (DefinedGame.made(definition) || DefinedPuzzleGame.made(definition))
       continue;
     const id =
       typeof definition === 'object' &&

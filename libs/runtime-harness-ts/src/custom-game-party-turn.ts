@@ -54,6 +54,68 @@ async function performObservedMove(
   }
 }
 
+const MOVE_ATTEMPTS = 3;
+const MOVE_SETTLE_MS = 5_000;
+
+/** Whether the board changed under a move chosen from `chosen`, at the same ply. */
+async function replacedBoard(
+  ui: Driver,
+  chosen: PublicCustomGame
+): Promise<PublicCustomGame | null> {
+  const latest = await readPublicCustomGame(ui).catch(() => null);
+  return latest !== null &&
+    latest.ply === chosen.ply &&
+    latest.canMove &&
+    latest.position !== chosen.position
+    ? latest
+    : null;
+}
+
+/**
+ * Choose, play and see the move accepted. The host's device shows its own
+ * choice for a bot until the room's replaces it, so a move chosen from a
+ * board that then changed at the same ply is chosen again.
+ */
+async function playOnSettledBoard(
+  ui: Driver,
+  game: PlayableGame,
+  shown: PublicCustomGame
+): Promise<void> {
+  let view = shown;
+  for (let attempt = 1; ; attempt += 1) {
+    const action = game.shared.automation.turns.choose(
+      view.position,
+      () => 0.25,
+      null
+    );
+    check(
+      action !== null,
+      'The active participant has no automated legal action'
+    );
+    const last = attempt === MOVE_ATTEMPTS;
+    const accepted = ui.get(`custom-game-review-move-${view.ply + 1}`);
+    let performed = false;
+    try {
+      await performObservedMove(ui, game, view, action);
+      performed = true;
+      await accepted.expect.visible({
+        timeoutMs: last ? JOURNEY_WAIT_MS : MOVE_SETTLE_MS,
+      });
+      return;
+    } catch (error) {
+      const replaced = last ? null : await replacedBoard(ui, view);
+      if (replaced !== null) {
+        view = replaced;
+        continue;
+      }
+      if (!performed || last) throw error;
+      // Not replaced, only slow: the move still has its full wait.
+      await accepted.expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+      return;
+    }
+  }
+}
+
 /** A parked observer's position is never the acting person's decision. */
 export async function playCustomGamePartyTurn(
   ui: Driver,
@@ -80,14 +142,6 @@ export async function playCustomGamePartyTurn(
     !view.canMove
   )
     return view.ply;
-  const action = game.shared.automation.turns.choose(view.position, () => 0.25);
-  check(
-    action !== null,
-    'The active participant has no automated legal action'
-  );
-  await performObservedMove(ui, game, view, action);
-  await ui
-    .get(`custom-game-review-move-${view.ply + 1}`)
-    .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+  await playOnSettledBoard(ui, game, view);
   return view.ply + 1;
 }

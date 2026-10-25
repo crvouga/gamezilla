@@ -161,7 +161,7 @@ Bun workspaces: `apps/*`, `libs/*`, `pkgs/*`.
 | `@libs/infra` | OpenTofu. The only place infrastructure is declared. |
 | `@libs/harness-ts` | Product spec runner. |
 | `@libs/tools-harness-ts` | Lint, CI, git-sync, naming, spec verifications. |
-| `@libs/games` | The game registries (`GAME_DEFINITIONS`, `GAME_CLIENT_DEFINITIONS`, `HARNESS_GAMES`, and the derived `TURN_GAME_DEFINITIONS` / `TURN_GAMES` / `GAME_AUTOMATIONS`): Chess, Connect Four, Battleship, Numberlink, Sokoban and Quoridor. Turn-only registries and conformance enroll only games with a turn engine. With the runtime, the only packages that compose games (`"gameRegistry": true`); `@libs/games-harness-ts` also holds the game × capability conformance matrix. |
+| `@libs/games` | The game registries (`GAME_DEFINITIONS`, `GAME_CLIENT_DEFINITIONS`, `HARNESS_GAMES`, and the derived `PLAYABLE_GAME_DEFINITIONS` / `TURN_GAMES` / `GAME_AUTOMATIONS`): Chess, Connect Four, Battleship, Numberlink, Sokoban, Quoridor, Hearts, Pong and Light Cycles. Turn-only registries and conformance enroll only games with a turn engine. With the runtime, the only packages that compose games (`"gameRegistry": true`); `@libs/games-harness-ts` also holds the game × capability conformance matrix. |
 | `@libs/observability` | Product telemetry wiring. |
 
 Packages split by vertical slice first, then by runtime. Both `libs/` and

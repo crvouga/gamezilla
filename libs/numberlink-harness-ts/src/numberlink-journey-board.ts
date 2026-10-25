@@ -7,6 +7,22 @@ import {
   contentTap,
 } from '@libs/game-puzzle-harness-ts/content-journey-device';
 
+/** Driver reads between a choice and its rendered label; each is a round trip. */
+const LABEL_READS = 100;
+
+/** Whether `id`'s accessible label comes to include `expected`. */
+async function labelBecomes(
+  device: ContentJourneyDevice,
+  id: string,
+  expected: string
+): Promise<boolean> {
+  for (let read = 0; read < LABEL_READS; read += 1) {
+    const label = await device.ui.get(id).attribute('aria-label');
+    if (label?.includes(expected)) return true;
+  }
+  return false;
+}
+
 async function edit(device: ContentJourneyDevice): Promise<void> {
   const columns = device.ui.get('numberlink-columns-value');
   await columns.key('arrowUp');
@@ -14,10 +30,7 @@ async function edit(device: ContentJourneyDevice): Promise<void> {
   await columns.key('arrowDown');
   await columns.expect.text('3', device);
   await contentTap(device, 'numberlink-board-cell-1');
-  const moved = await device.ui
-    .get('numberlink-board-cell-1')
-    .attribute('aria-label');
-  if (!moved?.includes('endpoint 1'))
+  if (!(await labelBecomes(device, 'numberlink-board-cell-1', 'endpoint 1')))
     throw new Error(
       'Choosing an empty cell did not move the selected endpoint'
     );

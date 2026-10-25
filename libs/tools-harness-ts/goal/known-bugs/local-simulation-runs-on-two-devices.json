@@ -1,0 +1,4 @@
+{
+  "summary": "Opening a space on another device of the same person started a second copy of a real-time game running on the first device (practice against bots): the other device ran it from the room's last checkpoint while the first device's copy stopped with \"The local simulation stopped\". A local game under way now runs only on the device that saved it; the owner's other devices show it without running it.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-local-device.contract.test.ts"
+}

@@ -14,10 +14,10 @@ import { MultiplayerGameRepository } from './game-repository';
 import type { MultiplayerGame } from './game-state';
 import { isFinished, otherPerson } from './game-state';
 import {
-  multiplayerOwner,
   multiplayerPeople,
   multiplayerSides,
   multiplayerVotes,
+  rotatedSeatOwners,
 } from './multiplayer-roster';
 import { synchronizeLiveMatchMutation } from './synchronize-live-match-mutation';
 
@@ -101,21 +101,11 @@ async function startRematch(
       'The game no longer offers finding an opponent.'
     );
   const seats = gameSides(rules.forPosition(game.fen));
-  const rotated = Object.fromEntries(
-    seats.map((side, index) => [
-      side,
-      multiplayerOwner(game, seats[(index + seats.length - 1) % seats.length]!),
-    ])
-  );
   await createMultiplayerGame(
     ctx.tx,
     {
       id: `rematch:${game.id}`,
-      whiteId: rotated['white']!,
-      blackId: rotated['black']!,
-      ...(rotated['red']
-        ? { redId: rotated['red'], blueId: rotated['blue']! }
-        : {}),
+      ...rotatedSeatOwners(game, seats),
       timeControl: game.time_control ?? '',
       rematchOf: game.id,
       nowMs,

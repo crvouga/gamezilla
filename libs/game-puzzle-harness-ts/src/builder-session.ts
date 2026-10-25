@@ -8,6 +8,7 @@ import { fireEvent } from '@solidjs/testing-library';
 import { contentClient } from './content-actions';
 import { waitForContent } from './content-sync';
 import type { ContentHarness } from './content-system';
+import { waitForEditorAt, workingDraftOn } from './draft-editor-screen';
 import { mountContentExample } from './mount-content-example';
 
 type View = Awaited<ReturnType<typeof mountContentExample>>;
@@ -149,22 +150,34 @@ async function chooseHistory(
 ): Promise<void> {
   const session = s.builders.get(clientId);
   const view = session?.view ?? (await openBuilder(s, clientId));
+  const documentId = buildingDocument(s, clientId);
+  const before = await workingDraftOn(s, clientId, documentId);
   const button = historyButton(view, testId);
   if (button.disabled) throw new Error(`${testId} is not offered`);
   fireEvent.click(button);
+  await waitForEditorAt(
+    s,
+    { view, clientId },
+    documentId,
+    (draft) => draft.id !== before?.id
+  );
   await settleBuilder(s, clientId);
+  // The shared control shows its success face before offering the next edit.
+  const label =
+    testId === 'content-undo-draft-edit' ? 'Undo edit' : 'Redo edit';
+  await waitForContent(s, () => Promise.resolve(button.textContent === label));
 }
 
 export const undoDraftEditInBuilder = defineAction({
   name: 'undoDraftEditInBuilder',
   act: (s: ContentHarness, clientId: string) =>
-    chooseHistory(s, clientId, 'content-draft-undo'),
+    chooseHistory(s, clientId, 'content-undo-draft-edit'),
 });
 
 export const redoDraftEditInBuilder = defineAction({
   name: 'redoDraftEditInBuilder',
   act: (s: ContentHarness, clientId: string) =>
-    chooseHistory(s, clientId, 'content-draft-redo'),
+    chooseHistory(s, clientId, 'content-redo-draft-edit'),
 });
 
 /** Which editing choices the open builder offers; opening one offers fresh choices. */
@@ -177,8 +190,8 @@ export async function offeredDraftEdits(
     s.builders.get(clientId)?.view ??
     (await openBuilder(s, clientId, documentId));
   return {
-    undo: !historyButton(view, 'content-draft-undo').disabled,
-    redo: !historyButton(view, 'content-draft-redo').disabled,
+    undo: !historyButton(view, 'content-undo-draft-edit').disabled,
+    redo: !historyButton(view, 'content-redo-draft-edit').disabled,
   };
 }
 

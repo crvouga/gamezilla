@@ -19,6 +19,7 @@ import { MultiplayerRatings } from './multiplayer-ratings';
 import { useDeadlineSettle } from './use-deadline-settle';
 import { useMultiplayerControls } from './use-multiplayer-controls';
 import { useMultiplayerData } from './use-multiplayer-data';
+import { useMultiplayerHand } from './use-multiplayer-hand';
 import { useMultiplayerPrivateSetup } from './use-multiplayer-private-setup';
 import type { OwnBoard } from './use-own-board';
 import { useOwnBoard } from './use-own-board';
@@ -33,6 +34,7 @@ type ScreenProps = {
 function MultiplayerStage(props: ScreenProps): JSX.Element {
   const sync = useSyncEngine();
   const setup = useMultiplayerPrivateSetup(props.data.game, props.data.myId);
+  const hand = useMultiplayerHand(props.data.game, props.data.myId);
   return (
     <>
       <Show when={props.data.game()}>
@@ -48,6 +50,7 @@ function MultiplayerStage(props: ScreenProps): JSX.Element {
         {(game) => (
           <MultiplayerBoard
             ownSetup={setup.own()}
+            ownHand={hand()}
             game={game()}
             room={props.data.room()}
             myId={props.data.myId()}
@@ -99,6 +102,7 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
   const sync = useSyncEngine();
   useDeadlineSettle({
     game: props.data.game,
+    stored: props.data.stored,
     online: () => sync.status().online,
     settle: props.controls.settle,
   });

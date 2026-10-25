@@ -1,0 +1,4 @@
+{
+  "summary": "The Light Cycles board used its framework test id only as a prefix, so shared matched-game reads that look for the board itself (multiplayer-board) never saw a Light Cycles board after pairing.",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-board.test.tsx"
+}

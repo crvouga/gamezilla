@@ -26,7 +26,7 @@ import { contentActorId } from './content-identity';
 import { PUBLICATION_ACTIONS } from './content-publication-actions';
 import { createContentThroughScreen } from './content-screen-actions';
 import { DRAFT_CHOICE_ACTIONS } from './draft-choice-actions';
-import { DRAFT_EDITING_ACTIONS } from './draft-editing-lifecycle';
+import { DRAFT_HISTORY_ACTIONS } from './draft-history-actions';
 import { EDITION_RULES_ACTIONS } from './edition-rules-actions';
 import { EDITION_RULES_LIFECYCLE_ACTIONS } from './edition-rules-lifecycle';
 import { createContentExampleApp } from './example-app';
@@ -130,6 +130,7 @@ export const contentSystem = defineSystem<
     loadEarlierAttemptsThroughScreen,
     ...CONTENT_ACTIONS,
     ...DRAFT_CHOICE_ACTIONS,
+    ...DRAFT_HISTORY_ACTIONS,
     ...PUBLICATION_ACTIONS,
     ...PACK_ACTIONS,
     ...NAMED_PACK_ACTIONS,
@@ -148,7 +149,6 @@ export const contentSystem = defineSystem<
     ...PROGRESSION_LIFECYCLE_ACTIONS,
     ...PUBLICATION_RECOVERY_ACTIONS,
     ...BUILDER_ACTIONS,
-    ...DRAFT_EDITING_ACTIONS,
     ...EDITION_RULES_ACTIONS,
     ...EDITION_RULES_LIFECYCLE_ACTIONS,
   ],

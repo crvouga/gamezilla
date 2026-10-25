@@ -15,7 +15,12 @@ export type DriverKey =
   | 'end'
   | 'space'
   | 'delete'
-  | 'commandPalette';
+  | 'commandPalette'
+  /** The letter keys games steer with beside the arrows. */
+  | 'letterW'
+  | 'letterA'
+  | 'letterS'
+  | 'letterD';
 
 /** DOM `KeyboardEvent.key` identifiers for each {@link DriverKey}. */
 export const DRIVER_KEY_TO_DOM: Record<DriverKey, string> = {
@@ -32,4 +37,8 @@ export const DRIVER_KEY_TO_DOM: Record<DriverKey, string> = {
   space: ' ',
   delete: 'Delete',
   commandPalette: 'Control+k',
+  letterW: 'w',
+  letterA: 'a',
+  letterS: 's',
+  letterD: 'd',
 };

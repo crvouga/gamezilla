@@ -68,5 +68,10 @@ test('journey diagnostics keep the failed readiness control and public refusal',
   expect(message).toContain('"role":"invited to black"');
   expect(message).toContain('"connectionNeeded":false');
   expect(message).toContain('Waiting for participants and readiness.');
-  expect(taps).toEqual(['custom-game-black-accept']);
+  // A choice that did not take is chosen again, a bounded number of times.
+  expect(taps).toEqual([
+    'custom-game-black-accept',
+    'custom-game-black-accept',
+    'custom-game-black-accept',
+  ]);
 });

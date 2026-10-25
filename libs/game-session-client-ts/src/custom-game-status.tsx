@@ -1,3 +1,7 @@
+import {
+  customGameOutcomeReason,
+  customGameWinners,
+} from '@libs/game-session-shared-ts/custom-game-outcome';
 import type {
   CustomGame,
   CustomGameSide,
@@ -17,6 +21,7 @@ import { createTimedValue } from '@pkgs/clock-client-ts/solid';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useGameSideLabel } from '@pkgs/turn-game-client-ts/use-game-side-label';
 import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentation';
+import type { BotDifficulty } from '@pkgs/turn-game-shared-ts/game-rules';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameClock } from '@pkgs/ui-root-client-ts/game-clock';
 import type { GameStatusTone } from '@pkgs/ui-root-client-ts/game-status';
@@ -27,6 +32,8 @@ import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { createMemo, type JSX, Show } from 'solid-js';
+import { botName, useBotLevel } from './custom-game-person';
+import { sideNames } from './side-names';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
 /** Moderated name for display, or `null` while it is unknown. */
@@ -42,7 +49,8 @@ function shownName(
 function participantName(
   game: CustomGame,
   side: CustomGameSide,
-  name: string | null
+  name: string | null,
+  level: BotDifficulty | undefined
 ): string {
   switch (game[side].kind) {
     case 'person':
@@ -50,7 +58,7 @@ function participantName(
     case 'invitation':
       return t`Invited person: ${name ?? t`Person`}`;
     case 'bot':
-      return t`Bot`;
+      return botName(level);
     case 'local':
       return t`Player on this device`;
     case 'open':
@@ -78,12 +86,19 @@ function gameStateDescription(
     return completedGameDescription(game, presentation);
   }
   if (game.status === 'active') {
+    if (game.awaiting.length > 0) {
+      const chosen = game.committed.length;
+      const total = game.awaiting.length + chosen;
+      return t`Every side chooses in secret: ${chosen} of ${total} have chosen.`;
+    }
     if (game.execution !== undefined)
       return game.execution.phase === 'paused'
         ? t`Paused while a player returns.`
         : t`Game in progress.`;
     const player = presentation.sideLabel(game.turn);
-    return t`${player} to move.`;
+    return game.standIns.includes(game.turn)
+      ? t`${player} to move, played by a stand-in bot.`
+      : t`${player} to move.`;
   }
   return customGameStartable(game)
     ? t`Ready to start.`
@@ -148,7 +163,13 @@ function statusTone(
   game: CustomGame,
   mySide: CustomGameSide | null
 ): GameStatusTone {
-  if (game.status === 'active' && mySide !== null && game.turn === mySide)
+  if (
+    game.status === 'active' &&
+    mySide !== null &&
+    (game.awaiting.length > 0
+      ? game.awaiting.includes(mySide)
+      : game.turn === mySide)
+  )
     return 'active';
   if (game.status === 'configuring' && customGameStartable(game))
     return 'success';
@@ -163,11 +184,17 @@ function useSeatName(
   const person = () => model.current()?.[side].person ?? '';
   const name = useProfileColumn(person, 'username');
   const moderation = useModeration();
+  const level = useBotLevel({ model, side });
   return () => {
     const game = model.current();
     return game === null
       ? ''
-      : participantName(game, side, shownName(moderation(), name(), person()));
+      : participantName(
+          game,
+          side,
+          shownName(moderation(), name(), person()),
+          level()
+        );
   };
 }
 
@@ -277,15 +304,18 @@ function completedGameDescription(
   game: CustomGame,
   presentation: GamePresentation
 ): string {
-  const winner = presentation.sideLabel(
-    game.sides.find((side) => game.outcome.startsWith(side)) ?? 'white'
-  );
+  const winners = customGameWinners(game);
   const reason = game.outcome.includes('resignation')
     ? t`resignation`
     : game.outcome.includes('time')
       ? t`time`
       : game.outcome.includes('stayed away')
         ? t`opponent staying away`
-        : presentation.endingLabel(game.outcome.split(' wins by ')[1] ?? '');
+        : presentation.endingLabel(customGameOutcomeReason(game.outcome));
+  if (winners.length > 1) {
+    const names = sideNames(winners.map(presentation.sideLabel));
+    return t`${names} win by ${reason}.`;
+  }
+  const winner = presentation.sideLabel(winners[0] ?? 'white');
   return t`${winner} wins by ${reason}.`;
 }

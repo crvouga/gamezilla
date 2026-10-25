@@ -4,7 +4,10 @@ import { FRIENDS_HARNESS_SLICE } from '@libs/friends-harness-ts/friends-harness-
 import { FRIENDS_BLOCK_RELATION } from '@libs/friends-shared-ts/block-relation';
 import { createMultiplayerLinkClient } from '@libs/game-matchmaking-client-ts/multiplayer-link-client';
 import { MATCHED_GAME_HARNESS_ACTIONS } from '@libs/game-matchmaking-harness-ts/matched-game-actions';
-import { registerKnownSetups } from '@libs/game-matchmaking-harness-ts/multiplayer-setups';
+import {
+  registerKnownDeals,
+  registerKnownSetups,
+} from '@libs/game-matchmaking-harness-ts/multiplayer-setups';
 import { withOpponentSearchCleanup } from '@libs/game-matchmaking-harness-ts/opponent-search-cleanup';
 import { OPPONENT_SEEKING_ACTIONS } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
 import { createPersonalPuzzleStatsClients } from '@libs/game-menu-client-ts/personal-puzzle-stats-clients';
@@ -132,6 +135,14 @@ export function gameSystem(
         .filter(isTurnHarnessGame)
         .find((game) => game.shared.registration.rules.recognizes(position))
         ?.fixtures.setups?.[side]
+  );
+  registerKnownDeals(
+    composition,
+    (position) =>
+      games
+        .filter(isTurnHarnessGame)
+        .find((game) => game.shared.turnGame.rules.recognizes(position))
+        ?.fixtures.knownDeal?.hidden
   );
   return defineProductSystem(composition, options.product);
 }

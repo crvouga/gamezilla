@@ -74,7 +74,7 @@ export async function openDueWork() {
     },
     registerConsumer: (consumer: OutboxConsumerDef<{ n: number }>) =>
       registry.register(consumer),
-    /** Appends through `tx` when another producer's transaction is open. */
+    /** Appends through `tx`, a producer's own open transaction, or alone. */
     async append(event: EventInput, tx: Pick<typeof db, 'query' | 'run'> = db) {
       await new Outbox({
         tx: withOutboxCausation(tx, event.causation ?? null),

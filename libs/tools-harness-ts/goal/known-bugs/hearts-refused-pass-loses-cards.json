@@ -1,0 +1,4 @@
+{
+  "summary": "When a Hearts pass was refused or failed (offline, the host away, a network failure), the board reset and threw away the three chosen cards, so the person had to choose them again. The chosen cards now stay and the pass can be sent again.",
+  "regressionTest": "libs/hearts-client-ts/tests/board-recovery.test.tsx"
+}

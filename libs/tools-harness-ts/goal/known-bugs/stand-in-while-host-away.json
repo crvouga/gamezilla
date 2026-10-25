@@ -1,0 +1,4 @@
+{
+  "summary": "A stand-in was put on an away person's side while the host was away (the game paused), and time during an ongoing pause counted toward the 60 seconds. Stand-ins now wait while the game is paused, and the stand-in wake is rescheduled when the host is back.",
+  "regressionTest": "libs/game-session-shared-ts/tests/stand-ins.test.ts"
+}

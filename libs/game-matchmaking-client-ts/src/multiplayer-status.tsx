@@ -70,6 +70,7 @@ function PlayerHeadline(props: StatusProps): JSX.Element {
   const gameSideLabel = useGameSideLabel();
   const turnName = useShownName(() => props.game.turn);
   const count = () => multiplayerSides(props.game).length;
+  const timed = () => timeControlOf(props.game.time_control) !== null;
   return (
     <Show
       when={props.game.outcome === 'ongoing'}
@@ -84,19 +85,24 @@ function PlayerHeadline(props: StatusProps): JSX.Element {
                 Matched with {props.viewer.opponentName}, rated{' '}
                 {props.viewer.opponentRating}.
               </Trans>{' '}
-              <Show when={timeControlOf(props.game.time_control) !== null}>
+              <Show when={timed()}>
                 <Trans>
                   Time control: {timeControlText(props.game.time_control)}.
-                </Trans>
+                </Trans>{' '}
               </Show>
             </>
           }
         >
-          <Trans>
-            A multiplayer game for {count()} players at{' '}
-            {timeControlText(props.game.time_control)}.
-          </Trans>
-        </Show>{' '}
+          <Show
+            when={timed()}
+            fallback={<Trans>A multiplayer game for {count()} players.</Trans>}
+          >
+            <Trans>
+              A multiplayer game for {count()} players at{' '}
+              {timeControlText(props.game.time_control)}.
+            </Trans>
+          </Show>{' '}
+        </Show>
         <Trans>
           You are {gameSideLabel(props.game.fen, ownSide(props))}.
         </Trans>{' '}

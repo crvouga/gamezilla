@@ -17,8 +17,11 @@ import {
   type CustomGame,
   type CustomGames,
   CustomGamesAttr,
-  otherCustomGameSide,
 } from './custom-game-state';
+import {
+  simulationAbsenceWinner,
+  simulationAwaitsAbsence,
+} from './simulation-absence';
 import { simulationCommandKey } from './simulation-command-state';
 import {
   staleSimulationCheckpoint,
@@ -35,7 +38,7 @@ export function simulationCustomEffects(
   game: CustomGame | null
 ): readonly RoomEffect[] {
   const execution = game?.execution;
-  return execution?.phase === 'paused' && execution.expiresAt !== null
+  return simulationAwaitsAbsence(execution)
     ? [
         ScheduleEffect({
           id: SIMULATION_DISCONNECT_SCHEDULE,
@@ -148,15 +151,16 @@ export function expireCustomSimulation(
     execution === undefined ||
     game.id !== expiry.gameId ||
     execution.epoch !== expiry.epoch ||
-    execution.phase !== 'paused' ||
+    !simulationAwaitsAbsence(execution) ||
     execution.expiresAt !== expiry.expiresAt ||
     ctx.ts < expiry.expiresAt
   )
     return refuseCustomGame('this interruption is no longer current');
-  const abandoned = execution.missing.length !== 1;
+  const winner = simulationAbsenceWinner(game.sides, execution.missing);
+  const abandoned = winner === null;
   const outcome = abandoned
     ? 'cancelled'
-    : `${otherCustomGameSide(execution.missing[0]!)} wins because the opponent stayed away`;
+    : `${winner} wins because the opponent stayed away`;
   const next = finishCustomGame(
     {
       ...game,

@@ -28,6 +28,11 @@
     "paths": {
       "@libs/pong-client-ts/*": ["./libs/pong-client-ts/src/*"],
       "@libs/pong-shared-ts/*": ["./libs/pong-shared-ts/src/*"],
+      "@libs/light-cycles-shared-ts/*": ["./libs/light-cycles-shared-ts/src/*"],
+      "@libs/light-cycles-client-ts/*": ["./libs/light-cycles-client-ts/src/*"],
+      "@libs/light-cycles-harness-ts/*": [
+        "./libs/light-cycles-harness-ts/src/*"
+      ],
       "@apps/auth-relay-ts/*": ["./apps/auth-relay-ts/src/*"],
       "@apps/client-ts/*": ["./apps/client-ts/src/*"],
       "@apps/product-ts/*": ["./apps/product-ts/src/*"],
@@ -526,6 +531,9 @@
       "@libs/battleship-shared-ts/*": ["./libs/battleship-shared-ts/src/*"],
       "@libs/battleship-client-ts/*": ["./libs/battleship-client-ts/src/*"],
       "@libs/battleship-harness-ts/*": ["./libs/battleship-harness-ts/src/*"],
+      "@libs/hearts-shared-ts/*": ["./libs/hearts-shared-ts/src/*"],
+      "@libs/hearts-client-ts/*": ["./libs/hearts-client-ts/src/*"],
+      "@libs/hearts-harness-ts/*": ["./libs/hearts-harness-ts/src/*"],
       "@libs/connect-four-client-ts/*": ["./libs/connect-four-client-ts/src/*"],
       "@libs/game-menu-client-ts/*": ["./libs/game-menu-client-ts/src/*"],
       "@libs/games-harness-ts/*": ["./libs/games-harness-ts/src/*"],

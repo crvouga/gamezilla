@@ -102,7 +102,7 @@ export const SECRET_PICK_TURN_GAME: TurnGame<typeof CAPABILITIES> = {
   capabilities: CAPABILITIES,
   turnAutomation: {
     choose: (position, random) =>
-      SECRET_PICK_BOTS.choose(position, 'medium', random),
+      SECRET_PICK_BOTS.choose(position, 'medium', random, null),
     async perform(ui, board, action) {
       await ui.get(`${board}-${action}`).tap();
     },

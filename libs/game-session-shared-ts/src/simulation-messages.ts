@@ -11,7 +11,8 @@ const inputSchema = z
     epoch,
     playerId: z.string().min(1).max(256),
     sequence: integer.min(1),
-    tick: integer.min(1),
+    /** Held controls: the requested tick. Commands: the latest tick the device saw. */
+    tick: integer,
     value: z.unknown(),
   })
   .strict();

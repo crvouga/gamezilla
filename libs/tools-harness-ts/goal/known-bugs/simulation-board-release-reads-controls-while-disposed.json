@@ -1,0 +1,4 @@
+{
+  "summary": "Alice steps out of her space while Pong is under way in its custom games and comes back to them (as 'Blocking the other participant keeps the custom game under way [Pong]' in specs/games/custom-game-blocking.feature does). As the screen shows the game again, the old Pong board is disposed and, in its cleanup, releases its paddle through the controls' onInput. That handler read the steered-sides memo at call time; the memo was stale, so reading it reran the screen's tree that Solid was already disposing, and the app crashed with TypeError: null is not an object (evaluating 'node.owned[i]'). The custom and matched simulation controls now keep the sides they offer when they are computed, so a handler reads nothing reactive.",
+  "regressionTest": "libs/games-harness-ts/tests/simulation-board-return-regression.test.ts"
+}

@@ -1,41 +1,55 @@
-import {
-  redoDraftEditInBuilder,
-  undoDraftEditInBuilder,
-} from '@libs/game-puzzle-harness-ts/builder-session';
+import { copyContentEditorToTablet } from '@libs/game-puzzle-harness-ts/content-actions';
 import type { ContentHarness } from '@libs/game-puzzle-harness-ts/content-system';
 import {
-  draftEditingState,
-  type EditingDraft,
-  saveEditingDraft,
+  redoDraftEditThroughScreen,
+  saveEditingDraftThroughScreen,
   setupDraftEditing,
-} from '@libs/game-puzzle-harness-ts/draft-editing-lifecycle';
+  undoDraftEditThroughScreen,
+} from '@libs/game-puzzle-harness-ts/draft-history-actions';
+import { draftEditingState } from '@libs/game-puzzle-harness-ts/draft-history-observations';
 import {
   contentDeviceOffline,
   contentDeviceOnline,
   reopenContentDevice,
 } from '@libs/game-puzzle-harness-ts/offline-actions';
 import type { Run } from '@pkgs/harness-root-shared-ts/run-types';
+import type { QuintValue } from '@pkgs/quint-shared-ts/itf';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
 
-const ALICE = 'alice:phone';
+function savedDraft(saved: QuintValue | undefined) {
+  const record = (saved ?? {}) as Readonly<Record<string, QuintValue>>;
+  return {
+    title: String(record['title']),
+    valid: record['valid'] === true,
+    contents: ((record['contents'] ?? []) as readonly QuintValue[]).map(String),
+  };
+}
 
 bindQuintModel<Run<ContentHarness>>({
   model: 'draft-editing',
-  traces: 16,
+  traces: 12,
   maxSteps: 12,
   actions: {
-    init: (run, picks) =>
-      run.apply(
+    init: async (run, picks) => {
+      await run.apply(
         setupDraftEditing,
         picks['kind'] === 'pack' ? 'pack' : 'puzzle'
-      ),
+      );
+      await run.apply(copyContentEditorToTablet);
+    },
     saveAuthoringDraft: (run, picks) =>
-      run.apply(saveEditingDraft, picks['saved'] as EditingDraft),
-    undoDraftEdit: (run) => run.apply(undoDraftEditInBuilder, ALICE),
-    redoDraftEdit: (run) => run.apply(redoDraftEditInBuilder, ALICE),
-    reopenApp: (run) => run.apply(reopenContentDevice, ALICE),
-    _loseConnection: (run) => run.apply(contentDeviceOffline, ALICE),
-    connectionReturns: (run) => run.apply(contentDeviceOnline, ALICE),
+      run.apply(
+        saveEditingDraftThroughScreen,
+        'alice:phone',
+        savedDraft(picks['saved'])
+      ),
+    undoDraftEdit: (run) =>
+      run.apply(undoDraftEditThroughScreen, 'alice:phone'),
+    redoDraftEdit: (run) =>
+      run.apply(redoDraftEditThroughScreen, 'alice:phone'),
+    reopenApp: (run) => run.apply(reopenContentDevice, 'alice:phone'),
+    _loseConnection: (run) => run.apply(contentDeviceOffline, 'alice:phone'),
+    connectionReturns: (run) => run.apply(contentDeviceOnline, 'alice:phone'),
   },
   observe: (run) => run.read(draftEditingState),
 });

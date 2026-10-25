@@ -175,3 +175,6 @@ terms:
     forms: [progress, progression, unplayed, in progress, next puzzle, last active puzzle]
     published: true
     model: [started, completed, activePuzzle, offeredPuzzle, progress, otherProgress, completionCount, packComplete, continuePack]
+
+  - term: end a space
+    from: spaces

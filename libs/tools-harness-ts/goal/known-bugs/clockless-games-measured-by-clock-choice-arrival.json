@@ -1,0 +1,4 @@
+{
+  "summary": "The custom-game choice-arrival objective (specs/games/custom-game-delivery.openslo.yaml, 'Almost every choice arrives within five seconds') holds every game with custom games and two seats, but measured only turn-clock choices. Pong and Light Cycles Duel refuse a turn clock ('choose the game score instead of a turn clock'), so the measure could not establish a single choice and the objective failed. A game without turns is now measured with two of its own declared game options (Pong's and Light Cycles' score targets).",
+  "regressionTest": "libs/games-harness-ts/tests/simulation-specification-needs.test.ts"
+}

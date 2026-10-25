@@ -3,28 +3,16 @@ import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-l
 import { readCustomGameProbe } from '@libs/game-session-harness-ts/custom-game-probe';
 import { configureCustomGameChoice } from '@libs/game-session-harness-ts/custom-game-ui';
 import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
-import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
 import type { Measurement } from '@pkgs/openslo-shared-ts/evaluate';
 import type { MeasureContext } from '@pkgs/openslo-shared-ts/registry';
 import { bindObjectives } from '@pkgs/openslo-shared-ts/registry';
 import { gamesHeldTo, openConformanceHarness } from '../conformance-world';
+import { measuredChoice } from './custom-game-choice-measure';
 
 /** Accepted choices measured, shared out evenly among the games. */
 const CHOICES = 100;
 
 type Sample = { readonly atMs: number; readonly value: number };
-
-/**
- * The `index`th choice measured in `game`: a turn clock, alternating its
- * increment, where the game has one, and otherwise its own game options.
- */
-function choiceAt(game: HarnessGame, index: number): CustomGameInput {
-  // regression: games-bindings-assume-clocked-turn-games
-  const options = game.configurationChoices;
-  if (game.shared.turnGame === undefined && options !== undefined)
-    return { operation: 'rules', choice: options[index % 2]! };
-  return { operation: 'clock', minutes: 1, increment: index % 2 === 0 ? 2 : 0 };
-}
 
 /**
  * `choices` accepted choices in `game`'s custom game, each measured on
@@ -50,19 +38,23 @@ async function gameArrivals(
   for (let index = 0; index < choices; index += 1) {
     // Include acknowledgement time so settling the writer cannot hide delivery.
     const chosenAtMs = await s.read(readCustomGameTime);
-    await s.apply(configureCustomGameChoice, 'alice', choiceAt(game, index));
-    const chosen = (await s.read(readCustomGameProbe, 'alice'))?.current;
-    if (chosen == null)
+    await s.apply(
+      configureCustomGameChoice,
+      'alice',
+      measuredChoice(game, index)
+    );
+    const accepted = (await s.read(readCustomGameProbe, 'alice'))?.current;
+    if (accepted === undefined || accepted === null)
       throw new Error(`${game.label}: an accepted choice has no custom game`);
     let elapsed = 0;
     for (;;) {
       elapsed = (await s.read(readCustomGameTime)) - chosenAtMs;
       const received = (await s.read(readCustomGameProbe, 'bob'))?.current;
       if (
-        received?.revision === chosen.revision &&
-        received.fen === chosen.fen &&
-        received.minutes === chosen.minutes &&
-        received.increment === chosen.increment
+        received?.revision === accepted.revision &&
+        received.fen === accepted.fen &&
+        received.minutes === accepted.minutes &&
+        received.increment === accepted.increment
       )
         break;
       if (elapsed >= 10_000) break;

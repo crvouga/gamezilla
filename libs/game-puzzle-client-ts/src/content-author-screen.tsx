@@ -15,7 +15,7 @@ import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { ContentAuthorStage } from './content-author-stage';
 import { ContentAuthorStatus } from './content-author-status';
-import { ContentDraftHistoryControls } from './content-draft-history-controls';
+import { ContentDraftHistory } from './content-draft-history';
 import { ContentDraftMetadata } from './content-draft-metadata';
 import { ContentDraftPlaytest } from './content-draft-playtest';
 import { useContentGame } from './content-game-context';
@@ -25,35 +25,40 @@ import { ContentPackEditor } from './content-pack-editor';
 import { ContentPackPreview } from './content-pack-preview';
 import { ContentPublicationControls } from './content-publication-controls';
 import { useContentAuthorWorkspace } from './use-content-author-workspace';
-import type { useContentDraftSave } from './use-content-draft-save';
 
+type AuthorWorkspace = ReturnType<typeof useContentAuthorWorkspace>;
+
+/** Undo, redo, preview and playtest beside the builder. */
 function AuthorActions(props: {
   document: ContentDocument;
-  writer: ReturnType<typeof useContentDraftSave>;
-  preview: boolean;
-  onPreview: () => void;
-  disabled: boolean;
+  workspace: AuthorWorkspace;
 }): JSX.Element {
   const { t } = useLingui();
+  const busy = () => props.workspace.disabled();
   return (
     <>
-      <ContentDraftHistoryControls
-        writer={props.writer}
-        disabled={props.disabled || props.preview}
+      <ContentDraftHistory
+        writer={props.workspace.writer}
+        history={props.workspace.history}
+        disabled={
+          busy() ||
+          props.workspace.conflicted() ||
+          props.workspace.writer.dirty()
+        }
       />
       <Button
-        title={props.preview ? t`Return to editing` : t`Preview`}
+        title={props.workspace.preview() ? t`Return to editing` : t`Preview`}
         intent="neutral"
         variant="outline"
-        onClick={props.onPreview}
-        disabled={props.disabled}
+        onClick={() => props.workspace.setPreview((value) => !value)}
+        disabled={busy()}
         dataSet={{ testid: 'content-preview' }}
       />
       <Show when={props.document.kind === 'puzzle'}>
         <ContentDraftPlaytest
           documentId={props.document.id}
-          writer={props.writer}
-          disabled={props.disabled}
+          writer={props.workspace.writer}
+          disabled={busy()}
         />
       </Show>
     </>
@@ -65,19 +70,20 @@ function AuthorBody(props: {
   initial: ContentDraft;
 }): JSX.Element {
   const { t } = useLingui();
+  const workspace = useContentAuthorWorkspace(
+    () => props.document,
+    () => props.initial
+  );
   const {
     writer,
+    chooseCopy,
     preview,
-    setPreview,
     adopting,
     packTools,
     packPending,
     disabled,
     conflicted,
-  } = useContentAuthorWorkspace(
-    () => props.document,
-    () => props.initial
-  );
+  } = workspace;
   return (
     <GameScreen
       screenId="puzzle-content-author"
@@ -106,13 +112,7 @@ function AuthorBody(props: {
           </StackVertical>
         }
         actions={
-          <AuthorActions
-            document={props.document}
-            writer={writer}
-            preview={preview()}
-            onPreview={() => setPreview((value) => !value)}
-            disabled={disabled()}
-          />
+          <AuthorActions document={props.document} workspace={workspace} />
         }
       >
         <Show
@@ -143,7 +143,7 @@ function AuthorBody(props: {
         document={props.document}
         currentId={writer.draftId()}
         disabled={disabled() || writer.dirty()}
-        onChoose={(draft) => writer.adopt(draft, 'replace')}
+        onChoose={chooseCopy}
       />
     </GameScreen>
   );

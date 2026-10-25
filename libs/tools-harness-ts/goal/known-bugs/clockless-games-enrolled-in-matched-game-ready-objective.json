@@ -1,0 +1,4 @@
+{
+  "summary": "The matched-game-ready objective seeks opponents at the 5+0 clock and waits for the first side's turn, but enrolled every matchmaking game, so clockless games without turns (Pong, Light Cycles Duel) timed out waiting for a clock choice that does not exist.",
+  "regressionTest": "libs/games-harness-ts/tests/simulation-specification-needs.test.ts"
+}

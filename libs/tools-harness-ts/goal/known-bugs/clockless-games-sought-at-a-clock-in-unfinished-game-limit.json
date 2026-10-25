@@ -1,0 +1,4 @@
+{
+  "summary": "The unfinished-game-limit server probe sought every game's opponent at the 5+0 clock, so clockless games (Pong, Light Cycles Duel) were refused as offering no such clock instead of being judged by the limit; it now seeks each game at its own default match choice.",
+  "regressionTest": "libs/games-harness-ts/tests/limit-probe-choice.test.ts"
+}

@@ -1,5 +1,5 @@
 {
-  "release": 17,
+  "release": 18,
   "snapshot": {
     "tables": {
       "auth_account_devices": {
@@ -328,6 +328,79 @@
         "preserved_data": "text",
         "purpose": "text"
       },
+      "puzzle_content_attempts": {
+        "activity_order": "integer",
+        "current_position_id": "text",
+        "game_id": "text",
+        "mode": "text",
+        "owner_id": "text",
+        "pack_revision_id": "text",
+        "puzzle_id": "text",
+        "source_id": "text"
+      },
+      "puzzle_content_completions": {
+        "attempt_id": "text",
+        "owner_id": "text",
+        "position_id": "text",
+        "puzzle_id": "text",
+        "puzzle_revision_id": "text",
+        "statistics": "text"
+      },
+      "puzzle_content_documents": {
+        "game_id": "text",
+        "kind": "text",
+        "owner_id": "text",
+        "publication_count": "integer",
+        "published_revision_id": "text",
+        "status": "text",
+        "working_draft_id": "text"
+      },
+      "puzzle_content_drafts": {
+        "conflicted": "boolean",
+        "definition": "text",
+        "description": "text",
+        "difficulty": "text",
+        "document_id": "text",
+        "owner_id": "text",
+        "parent_id": "text",
+        "title": "text",
+        "validation_issues": "text",
+        "validation_solution": "text",
+        "validation_status": "text"
+      },
+      "puzzle_content_pack_items": {
+        "owner_id": "text",
+        "pack_revision_id": "text",
+        "position": "integer",
+        "puzzle_id": "text",
+        "puzzle_revision_id": "text"
+      },
+      "puzzle_content_positions": {
+        "attempt_id": "text",
+        "conflicted": "boolean",
+        "history": "text",
+        "owner_id": "text",
+        "parent_id": "text"
+      },
+      "puzzle_content_publications": {
+        "game_id": "text",
+        "kind": "text",
+        "owner_id": "text",
+        "publication_count": "integer",
+        "published_revision_id": "text",
+        "status": "text"
+      },
+      "puzzle_content_revisions": {
+        "definition": "text",
+        "description": "text",
+        "difficulty": "text",
+        "document_id": "text",
+        "edition": "integer",
+        "game_id": "text",
+        "kind": "text",
+        "owner_id": "text",
+        "title": "text"
+      },
       "spaces": {
         "ended_at": "timestamp",
         "host_account_id": "text",
@@ -405,7 +478,25 @@
       ["population_events", "user_id", "created_at"],
       ["population_sign_in_mail", "email", "created_at"],
       ["population_users", "lease_until"],
-      ["population_users", "worker_id"]
+      ["population_users", "worker_id"],
+      ["puzzle_content_attempts", "owner_id", "activity_order"],
+      ["puzzle_content_attempts", "owner_id", "pack_revision_id"],
+      ["puzzle_content_attempts", "owner_id"],
+      ["puzzle_content_completions", "owner_id"],
+      ["puzzle_content_completions", "puzzle_revision_id"],
+      ["puzzle_content_documents", "game_id", "status"],
+      ["puzzle_content_documents", "owner_id"],
+      ["puzzle_content_drafts", "document_id"],
+      ["puzzle_content_drafts", "owner_id"],
+      ["puzzle_content_pack_items", "pack_revision_id"],
+      ["puzzle_content_pack_items", "puzzle_revision_id"],
+      ["puzzle_content_positions", "attempt_id"],
+      ["puzzle_content_positions", "owner_id"],
+      ["puzzle_content_publications", "game_id", "status"],
+      ["puzzle_content_publications", "owner_id"],
+      ["puzzle_content_revisions", "document_id", "edition"],
+      ["puzzle_content_revisions", "document_id"],
+      ["puzzle_content_revisions", "owner_id"]
     ],
     "uniqueIndexes": [
       ["auth_account_devices", "user_id", "device_id"],
@@ -436,6 +527,9 @@
       ["profile", "username_norm"],
       ["profile_account_privacy", "owner_id"],
       ["profile_deletion_receipts", "owner_id"],
+      ["puzzle_content_completions", "owner_id", "puzzle_revision_id"],
+      ["puzzle_content_pack_items", "pack_revision_id", "position"],
+      ["puzzle_content_pack_items", "pack_revision_id", "puzzle_id"],
       ["spaces_open_sessions", "device_id", "space_id"],
       ["spaces_users", "space_id", "user_id"]
     ]

@@ -9,9 +9,9 @@
 import { expect, test } from 'bun:test';
 import { GAME_PLATFORM_NAMESPACE } from '@libs/game-matchmaking-shared-ts/durable-names';
 import {
+  type AnyGameRegistration,
   assertGameDefinitions,
   defineGame,
-  type RegistryGame,
   type TurnGame,
   type TurnGameDefinition,
 } from '@libs/game-session-shared-ts/game-definition';
@@ -93,7 +93,7 @@ test('one registry accepts standalone puzzles and a turn game offering authored 
     'game-session',
   ]);
   // @ts-expect-error: copying a definition loses its registration brand.
-  const copy: RegistryGame = { ...solo };
+  const copy: AnyGameRegistration = { ...solo };
   expect(() => assertGameDefinitions('games', [copy])).toThrow(
     'was not made by'
   );

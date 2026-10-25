@@ -5,6 +5,7 @@ import type { RoomState } from '@pkgs/room-root-shared-ts/types';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
 import type { CustomGameChoice } from './custom-game-choice';
+import { CustomGamesAttr } from './custom-game-state';
 import {
   projectCustomSimulation,
   selectCustomSimulation,
@@ -14,6 +15,7 @@ import {
   chooseLocalSimulation,
   dispatchLocalSimulation,
 } from './simulation-local-choice';
+import { RecoverSimulation } from './simulation-recovery';
 import { SessionSimulation } from './simulation-session-runtime';
 import { CheckpointLocalSimulation } from './simulation-session-state';
 import {
@@ -40,6 +42,7 @@ export class LocalSimulationSession {
   private disposed = false;
   private ready = false;
   private receiving = false;
+  private elsewhere = false;
 
   constructor(
     private readonly options: {
@@ -106,6 +109,20 @@ export class LocalSimulationSession {
     const room = this.options.room;
     const saved = await room.loadLiveCheckpoint();
     if (this.disposed) return;
+    // A game already under way runs on the device that saved it: another
+    // device of the same person shows it, but never runs it a second time.
+    const current = CustomGamesAttr.from(room.getSnapshot()).current;
+    if (
+      current?.execution !== undefined &&
+      !(
+        saved !== null &&
+        RecoverSimulation.is(saved.payload) &&
+        saved.payload.payload.checkpoint.gameId === current.id
+      )
+    ) {
+      this.elsewhere = true;
+      return;
+    }
     const command =
       saved === null
         ? null
@@ -135,6 +152,11 @@ export class LocalSimulationSession {
 
   isReady(): boolean {
     return this.receiving && !this.disposed;
+  }
+
+  /** Whether this game runs on another device of its owner, not this one. */
+  runsElsewhere(): boolean {
+    return this.elsewhere;
   }
 
   send(message: Message): string | null {

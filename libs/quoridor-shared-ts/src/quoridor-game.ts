@@ -16,20 +16,18 @@ export function quoridorSideLabel(side: GameSide, hill = false): string {
   return side === 'red' ? 'North triangle' : 'East square';
 }
 
-function notices(
-  hill: boolean
-): GameNoticeText & Required<Pick<GameNoticeText, 'timeoutDraw'>> {
+function notices(hill: boolean) {
   return {
-    side: (side) => quoridorSideLabel(side, hill),
-    timeoutDraw: (side) =>
+    side: (side: GameSide) => quoridorSideLabel(side, hill),
+    timeoutDraw: (side: GameSide) =>
       `${quoridorSideLabel(side, hill)} ran out of time. The game is a draw.`,
-    ending: (reason) =>
+    ending: (reason: string) =>
       reason === 'hill reached'
         ? 'The central hill was reached.'
         : reason === 'opposite row reached'
           ? 'The opposite home row was reached.'
           : undefined,
-  };
+  } satisfies GameNoticeText;
 }
 
 function definition(rules: typeof quoridorRules, hill: boolean) {
@@ -46,7 +44,7 @@ function definition(rules: typeof quoridorRules, hill: boolean) {
     },
     turnAutomation: {
       choose: (position, random) =>
-        quoridorBots.choose(position, 'medium', random),
+        quoridorBots.choose(position, 'medium', random, null),
       async perform(ui, board, action) {
         const mode = ui.get(
           `${board}-mode-${action.length === 3 ? action[2] : 'move'}`

@@ -18,11 +18,13 @@ product:
     - chess-board
     - connect-four
     - quoridor
+    - hearts
     - games
     - developer-tools
     - db-indexes
     - friends
     - journeys
+    - light-cycles
     - matchmaking
     - numberlink
     - pong

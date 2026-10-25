@@ -1,5 +1,4 @@
 import { findOpponentMutation } from '@libs/game-matchmaking-shared-ts/find-opponent-mutation';
-import { defaultMatchChoice } from '@libs/game-matchmaking-shared-ts/match-choice';
 import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { opponentSearchGuard } from '@libs/game-session-server-ts/opponent-search-guard';
 import { useUnfinishedGamesDecision } from '@libs/permissions-client-ts/use-can';
@@ -27,6 +26,7 @@ import sql from '@pkgs/sql-root-shared-ts/sql';
 import { createQuery } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { gamesHeldTo } from '../conformance-world';
+import { limitProbeChoice } from './limit-probe-choice';
 import {
   CUSTOM_GAME_INPUT,
   LIMIT_SPACE,
@@ -68,7 +68,7 @@ function serverEnforcementIn(game: HarnessGame): DecisionLayer {
       const replay = replayOperation(findOpponentMutation, () => ({
         requestId: 'another-game',
         spaceId: LIMIT_SPACE,
-        timeControl: defaultMatchChoice(matchmaking),
+        timeControl: limitProbeChoice(matchmaking),
       }));
       await replay({
         ...c,

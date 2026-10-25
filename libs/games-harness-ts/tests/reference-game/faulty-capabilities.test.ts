@@ -107,7 +107,8 @@ const soundRecord: HistoryCapability['record'] = (
   JSON.stringify({
     first: metadata.participants[0]!.name,
     second: metadata.participants[1]!.name,
-    result: metadata.outcome,
+    // The counting race always names one winner or a draw.
+    result: String(metadata.outcome),
     clock: clockOf(metadata),
     moves: COUNTING_RACE_RULES.moves(position, history, []).map(
       (move) => move.label

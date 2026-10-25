@@ -1,8 +1,16 @@
-import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  pendingCommitments,
+  type TurnGames,
+} from '@pkgs/turn-game-shared-ts/game-rules';
 import type { CustomGameChoice } from './custom-game-choice';
-import { assertCustomGamePosition } from './custom-game-position';
+import { customGameOutcome } from './custom-game-outcome';
+import {
+  assertCustomGamePosition,
+  rememberCustomGamePosition,
+} from './custom-game-position';
 import type { CustomGame, CustomGameSide } from './custom-game-state';
 import {
+  customGameCommitting,
   customGamePersonSide,
   customGameRemaining,
   customGameTimeLeft,
@@ -24,6 +32,9 @@ export function finishCustomGame(
     endedAt: Math.floor(now),
     drawOfferedBy: '',
     declinedOffers: [],
+    awaiting: [],
+    committed: [],
+    standIns: [],
     remaining: customGameRemaining(game, now),
     ready: outcome === 'cancelled' ? [] : game.ready,
     white:
@@ -68,6 +79,7 @@ export function expireCustomGame(
   if (
     game.status !== 'active' ||
     game.minutes === 0 ||
+    customGameCommitting(game) ||
     customGameTimeLeft(game, game.turn, now) > 0
   )
     return game;
@@ -85,6 +97,21 @@ export function expireCustomGame(
       );
 }
 
+/** The game at a new position: a phase of private commitments opens when its rules start one. */
+function openedCommitments(game: CustomGame, rules: TurnGames): CustomGame {
+  const turns = rules.turnsForPosition(game.fen);
+  return {
+    ...game,
+    awaiting:
+      turns === undefined ? [] : [...pendingCommitments(turns, game.fen, [])],
+    committed: [],
+  };
+}
+
+/**
+ * The game after the public action `uci`: a side's move, or the resolution
+ * of every private commitment, which no side's clock pays for.
+ */
 export function playCustomGameMove(
   game: CustomGame,
   uci: string,
@@ -102,35 +129,47 @@ export function playCustomGameMove(
     game.moves.map((m) => m.uci)
   );
   if (move === null) return null;
-  const moved: CustomGame = {
-    ...game,
-    fen: move.position,
-    turn: move.turn,
-    moves: [...game.moves, { uci, san: move.label }],
-    drawOfferedBy: '',
-    drawAcceptedBy: [],
-    declinedOffers: game.declinedOffers.filter(
-      (person) => person !== game[game.turn].person
-    ),
-    turnStartedAt: Math.floor(now),
-    remaining: {
-      ...game.remaining,
-      [game.turn]:
-        game.minutes === 0
-          ? 0
-          : customGameTimeLeft(game, game.turn, now) + game.increment * 1000,
+  // Played from a verified position, the new one needs no replay of its own.
+  rememberCustomGamePosition(
+    { fen: move.position, moves: [...game.moves, { uci, san: move.label }] },
+    turns
+  );
+  const resolution = game.committed.length > 0;
+  const moved = openedCommitments(
+    {
+      ...game,
+      fen: move.position,
+      turn: move.turn,
+      moves: [...game.moves, { uci, san: move.label }],
+      drawOfferedBy: '',
+      drawAcceptedBy: [],
+      declinedOffers: resolution
+        ? game.declinedOffers
+        : game.declinedOffers.filter(
+            (person) => person !== game[game.turn].person
+          ),
+      turnStartedAt: Math.floor(now),
+      remaining: resolution
+        ? game.remaining
+        : {
+            ...game.remaining,
+            [game.turn]:
+              game.minutes === 0
+                ? 0
+                : customGameTimeLeft(game, game.turn, now) +
+                  game.increment * 1000,
+          },
     },
-  };
-  if (move.winner === 'draw') return finishCustomGame(moved, 'draw', now);
-  // The rules name the winner: a move can lose for its mover (a misère
-  // ending), so the side that moved is not assumed to have won.
-  if (move.winner !== null)
-    return finishCustomGame(
-      moved,
-      `${move.winner} wins by ${move.reason}`,
-      now
-    );
-  return moved;
+    rules
+  );
+  if (move.winner === null) return moved;
+  // The rules name the result: a move can lose for its mover (a misère
+  // ending), and several sides can share a win (a tie for the best score).
+  return finishCustomGame(
+    moved,
+    customGameOutcome(move.winner, String(move.reason), game.sides),
+    now
+  );
 }
 
 export function playCustomGameChoice(
@@ -144,18 +183,21 @@ export function playCustomGameChoice(
     case 'start':
       return game.status === 'active'
         ? game
-        : {
-            ...game,
-            status: 'active',
-            startedAt: Math.floor(now),
-            turnStartedAt: Math.floor(now),
-            remaining: {
-              white: game.minutes * 60_000,
-              black: game.minutes * 60_000,
-              red: game.minutes * 60_000,
-              blue: game.minutes * 60_000,
+        : openedCommitments(
+            {
+              ...game,
+              status: 'active',
+              startedAt: Math.floor(now),
+              turnStartedAt: Math.floor(now),
+              remaining: {
+                white: game.minutes * 60_000,
+                black: game.minutes * 60_000,
+                red: game.minutes * 60_000,
+                blue: game.minutes * 60_000,
+              },
             },
-          };
+            rules
+          );
     case 'cancel':
       return finishCustomGame(game, 'cancelled', now);
     case 'resign': {
@@ -206,6 +248,12 @@ export function playCustomGameChoice(
     }
     case 'move':
       return playCustomGameMove(game, choice.uci, now, rules);
+    case 'reclaim': {
+      // Between two commands is a safe point: a stand-in's wake still
+      // waiting finds the side its person's again and decides nothing.
+      const side = customGamePersonSide(game, actor);
+      return { ...game, standIns: game.standIns.filter((s) => s !== side) };
+    }
     default:
       return game;
   }

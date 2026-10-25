@@ -232,6 +232,64 @@ phase with its own deadline in matched games, the private-setup
 specifications and privacy suites, and the test-only consumer secret pick
 as its game-independent twin. Such a game offers no puzzles.
 
+### A game with dealt hands
+
+When the authority deals hidden information as the game starts and keeps it
+as play goes on (a bag of tiles, each side's rack), supply it in the rules
+and nowhere else
+([semantics](GAME_FRAMEWORK.md#dealt-hands-gameruleshands)):
+
+- **Rules** — `hands: { deal, hand, resolve, proposals }`. Positions stay
+  public: `resolve(position, proposal, hidden)` gives the public action and
+  the next hidden state, or a refusal; `play`, `replay` and `moves` take
+  public actions. Keep enough entropy in the hidden state that a side cannot
+  search for it from what it sees.
+- **Data** — immutable data the rules decide with (a word list) loads in
+  `prepare`, which the platform awaits; keep it in its own chunk so other
+  games never download it.
+- **Bots and automation** — `choose` receives the bot side's own hand.
+- **Client** — every `Board` receives the viewer's own `hand`, or `null`.
+- **Fixtures** — `knownDeal: { draws, hidden }`, the authority's draws and
+  the hidden state they deal; every known line is the proposals people make
+  from that deal (Word Tiles: `libs/word-tiles-harness-ts`).
+
+The platform then gives the game private hands in custom games and finding
+an opponent, practice against bots on one device (also offline), the
+dealt-hands laws and privacy suites. Such a game offers no rated puzzle feed;
+it may offer
+authored puzzle content and [starter content](ADDING_A_PUZZLE_GAME.md#ship-starter-content).
+
+### A card game: secret choices, turns by the rules, joint winners
+
+Hearts (`libs/hearts-shared-ts`, `-client-ts`, `-harness-ts`) is the worked
+example. On top of dealt hands:
+
+- **Secret choices** — `hands.commit: { sides, accept, resolve }` for a phase
+  where several sides choose at once in private (a pass). `accept` judges a
+  side's choice from its own hand and gives a reason when it refuses; the
+  last choice resolves them all into one public action
+  ([semantics](GAME_FRAMEWORK.md#secret-choices-gameruleshandscommit)).
+  Bots choose from their own hand; the board receives `committed` (who has
+  chosen) and `commitment` (the viewer's own choice).
+- **Turns** — `turnOrder: 'rules'` when the rules name who moves next (a
+  trick's winner leads); leave it out when seats take turns in order.
+- **Results** — `winner` may list several sides (a tie for the lowest
+  score); the platform records and credits each.
+- **Refusals** — `resolve` and `accept` give the game's own reasons
+  (`follow suit`); `presentation.refusalDescription(reason, position)`
+  words them for the person refused.
+- **Fixtures** — `knownDeal` with draws chosen so the first deal is known;
+  `sharedVictories` for a line ending in joint winners; four seats.
+- **Conformance** — list the game's traits through its capabilities:
+  `four seats`, `dealt hands`, `secret choices`, `a shared victory`; the
+  shared stand-in, secret-choice and shared-victory features then bind it.
+
+Both secret choices and turns by the rules are custom-game capabilities:
+`defineGame` refuses them in a game offering matchmaking. A person away
+from a custom game of more than two sides is replaced by a disclosed
+stand-in until they take their seat back; the game supplies nothing for it
+beyond its bots.
+
 ## 3. Supply the conformance adapter
 
 ```ts

@@ -3,6 +3,10 @@ export type GameSimulationControls = {
   readonly paused: boolean;
   readonly stale: boolean;
   readonly sides: readonly GameSide[];
+  /** This person's sides that another of their devices steers now. */
+  readonly elsewhere?: readonly GameSide[];
+  /** Steer those sides from this device instead, where the game allows it. */
+  readonly claim?: () => void;
   readonly onInput: (side: GameSide, input: unknown) => void;
   readonly onRelease: () => void;
 };
@@ -21,6 +25,19 @@ export type GameBoardProps = {
    * never receives another side's setup.
    */
   readonly setup: string | null;
+  /**
+   * The viewer's own hand, for a game whose authority deals hands; `null`
+   * for a watcher and for every other game. A board never receives another
+   * side's hand.
+   */
+  readonly hand: string | null;
+  /**
+   * In a game with private commitments: the sides that have committed in the
+   * phase open now (everyone sees which, never what), and the viewer's own
+   * commitment, `null` until they make one. Empty and `null` otherwise.
+   */
+  readonly committed: readonly GameSide[];
+  readonly commitment: string | null;
 };
 /** A side arranging its private setup: the game's own setup board. */
 export type GameSetupBoardProps = {
@@ -47,4 +64,10 @@ export type GamePresentation<View = unknown> = {
   readonly endingDescription: (reason: string) => string | undefined;
   readonly timeoutDrawDescription?: (flagged: GameSide) => string;
   readonly endingLabel: (reason: string) => string;
+  /**
+   * What a person is told when the game's own rules refuse their choice
+   * (`must follow suit`), for a refusal reason the game itself gave; absent
+   * or `undefined` for a reason only the platform words.
+   */
+  readonly refusalDescription?: (reason: string) => string | undefined;
 };

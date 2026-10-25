@@ -1,0 +1,4 @@
+{
+  "summary": "A pass made for a person (by a stand-in while they were away) was shown together with the cards they had started choosing, so five cards appeared passed. Once a pass is made, exactly its three cards are shown.",
+  "regressionTest": "libs/hearts-client-ts/tests/board-recovery.test.tsx"
+}

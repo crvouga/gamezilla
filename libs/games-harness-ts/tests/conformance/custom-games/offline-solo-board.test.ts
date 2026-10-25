@@ -10,6 +10,7 @@ import { expect, test } from 'bun:test';
 import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-lineup';
 import { CUSTOM_GAME_BOARD } from '@libs/game-session-harness-ts/custom-game-moves';
 import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe';
+import { recordedMove } from '@libs/game-session-harness-ts/played-rules';
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import { cutConnection } from '@libs/harness-ts/platform';
 import { openConformanceHarness } from '../../conformance-world';
@@ -46,10 +47,15 @@ forEveryTurnGame(
         maxMs: 5000,
         pred: (view) => view.current?.moves.length === 2,
       });
-      expect(played.current?.moves[0]?.uci).toBe(opening);
+      // Recorded as the room records it: resolved from the known deal the
+      // device dealt, for a game with dealt hands.
+      expect(played.current?.moves[0]?.uci).toBe(
+        recordedMove(game, game.shared.turnGame.rules.initial(), opening)
+      );
       expect(played.current?.turn).toBe('white');
     }, 120_000);
   },
-  // A game with private setups is never played on the host's device alone.
-  ['every position public', 'two seats']
+  // A game with private setups is never played on the host's device alone;
+  // one with dealt hands is, dealing from the device's own draws.
+  ['played on one device', 'two seats']
 );

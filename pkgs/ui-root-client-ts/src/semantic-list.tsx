@@ -63,10 +63,16 @@ export function UnorderedList(props: SemanticListProps): JSX.Element {
 }
 
 /** Items in a meaningful order: steps, a ranking, moves. */
-export function OrderedList(props: SemanticListProps): JSX.Element {
+export function OrderedList(
+  props: SemanticListProps & {
+    /** The first item's number, when the list shows the later part of a longer one. */
+    start?: number | undefined;
+  }
+): JSX.Element {
   return (
     <ol
       class="contents"
+      start={props.start}
       id={props.id}
       data-testid={props.testId}
       data-component={componentId('OrderedList')}

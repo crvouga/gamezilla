@@ -59,6 +59,23 @@ export const MULTIPLAYER_TOPIC_MAP = {
     },
     rowImage: { publish: () => false },
   },
+  /**
+   * A dealt hand reaches only its owner's devices, as a private setup does:
+   * a change wakes the owner alone and never travels as a row image.
+   */
+  chess_multiplayer_hands: {
+    topics(row, ctx) {
+      return [`user:${String(row['owner_id'] ?? ctx.actorId)}`];
+    },
+    rowImage: { publish: () => false },
+  },
+  /** The hidden state wakes nobody: no device ever reads it. */
+  chess_multiplayer_hidden: {
+    topics() {
+      return [];
+    },
+    rowImage: { publish: () => false },
+  },
   chess_multiplayer_commands: {
     topics(row, ctx) {
       return [`user:${String(row['owner_id'] ?? ctx.actorId)}`];

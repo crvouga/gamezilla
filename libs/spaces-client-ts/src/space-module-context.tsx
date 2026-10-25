@@ -42,3 +42,8 @@ export function SpaceModuleProvider(
 export function useSpaceModule(): SpaceRoomModule {
   return SpaceModuleContext.use();
 }
+
+/** The composed `SpaceModule`, or `undefined` outside a provider. */
+export function useOptionalSpaceModule(): SpaceRoomModule | undefined {
+  return SpaceModuleContext.useOptional();
+}

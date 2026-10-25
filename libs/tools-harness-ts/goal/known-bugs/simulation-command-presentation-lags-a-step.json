@@ -1,0 +1,4 @@
+{
+  "summary": "A real-time game steered by discrete commands (Light Cycles) was shown two snapshots behind the authority: four ticks at 15 snapshots a second, longer than a three-tick step. A turn chosen from the arena on screen always took effect on the step after the next one, so no rider ever turned on its next step. Command-steered games now show the latest authoritative frame; games with held controls keep their playback buffer.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-replica-commands.test.ts"
+}

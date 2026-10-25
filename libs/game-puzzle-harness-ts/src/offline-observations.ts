@@ -13,8 +13,10 @@ export async function contentDraftAvailable(
   title: string
 ): Promise<boolean> {
   const library = await readContentLibrary(contentClient(s, clientId).db);
-  const draft = workingContentDraft(library, s.documents.get(title) ?? '');
-  return draft?.title === title;
+  // The draft created with this title, or the one the device is editing.
+  return [s.documents.get(title), s.editors.get(clientId)?.documentId].some(
+    (id) => workingContentDraft(library, id ?? '')?.title === title
+  );
 }
 
 export function unavailableAttemptNotice(

@@ -9,6 +9,10 @@ import {
   matchRoomGame,
   matchRoomModule,
 } from '@libs/game-matchmaking-shared-ts/match-room';
+import {
+  multiplayerOwner,
+  multiplayerSides,
+} from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
 import type { Message } from '@pkgs/message-shared-ts/message';
 import type { RoomLivePorts } from '@pkgs/room-root-shared-ts/live';
 import { ROOM_SERVICE_IDENTITY } from '@pkgs/room-root-shared-ts/service-identity';
@@ -47,6 +51,7 @@ function selectMatchSimulation(
   if (game === null) return null;
   const simulation = rules.simulation(rules.forPosition(game.fen).id);
   if (simulation === undefined) return null;
+  const roster = multiplayerGameFromRoom(game);
   return {
     id: game.id,
     active: game.outcome === 'ongoing',
@@ -54,10 +59,12 @@ function selectMatchSimulation(
     position: game.fen,
     simulation,
     execution: game.execution,
-    controllers: new Map<GameSide, string>([
-      ['white', game.white_id],
-      ['black', game.black_id],
-    ]),
+    controllers: new Map<GameSide, string>(
+      multiplayerSides(roster).map((side) => [
+        side,
+        multiplayerOwner(roster, side),
+      ])
+    ),
     bots: [],
   };
 }

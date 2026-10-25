@@ -130,4 +130,8 @@ export async function eraseMultiplayer(ctx: MutationCtx): Promise<void> {
   await ctx.tx.run(
     sql`UPDATE chess_multiplayer_setups SET owner_id = ${null}, setup = ${''} WHERE owner_id = ${ctx.env.actorId}`
   );
+  // So is a dealt hand.
+  await ctx.tx.run(
+    sql`UPDATE chess_multiplayer_hands SET owner_id = ${null}, hand = ${''} WHERE owner_id = ${ctx.env.actorId}`
+  );
 }
