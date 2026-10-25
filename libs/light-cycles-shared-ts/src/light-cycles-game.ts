@@ -2,6 +2,7 @@ import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import type {
   GamePositionRules,
   GameSide,
+  GameWinner,
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import {
   defineSimulation,
@@ -113,7 +114,7 @@ function record(mode: LightCyclesMode) {
         readonly name: string;
         readonly rating: string | null;
       }[];
-      readonly outcome: string;
+      readonly outcome: GameWinner;
       readonly reason: string | null;
     }
   ) => {

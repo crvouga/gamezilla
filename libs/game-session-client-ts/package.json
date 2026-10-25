@@ -12,8 +12,8 @@
   "scripts": {
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "verify:board-contract": "bun run ../tools-harness-ts/scripts/verify-board-contract.ts",
-    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests"
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests",
+    "verify:board-contract": "bun run ../tools-harness-ts/scripts/verify-board-contract.ts"
   },
   "dependencies": {
     "@libs/app-config-shared-ts": "workspace:*",

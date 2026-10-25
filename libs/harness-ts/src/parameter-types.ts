@@ -86,6 +86,57 @@ export function puzzleFinish(text: string): PuzzleFinishName {
   return finish;
 }
 
+/** A card table's seats by name, clockwise from the first, as the sides they are. */
+export const HEARTS_SEATS = {
+  South: 'white',
+  West: 'black',
+  North: 'red',
+  East: 'blue',
+} as const;
+type HeartsSeatName = keyof typeof HEARTS_SEATS;
+
+/** A card game's deals by their ordinal name. */
+const HEARTS_DEALS = ['first', 'second', 'third', 'fourth', 'fifth'];
+
+const RANK_NAMES: Readonly<Record<string, string>> = {
+  two: '2',
+  three: '3',
+  four: '4',
+  five: '5',
+  six: '6',
+  seven: '7',
+  eight: '8',
+  nine: '9',
+  ten: 'T',
+  jack: 'J',
+  queen: 'Q',
+  king: 'K',
+  ace: 'A',
+};
+const SUIT_NAMES: Readonly<Record<string, string>> = {
+  clubs: 'C',
+  diamonds: 'D',
+  spades: 'S',
+  hearts: 'H',
+};
+const CARD_RANK = `(?:${Object.keys(RANK_NAMES).join('|')})`;
+const CARD_SUIT = `(?:${Object.keys(SUIT_NAMES).join('|')})`;
+/** `the ace, king and queen of hearts`: ranks of one suit. */
+const CARD_GROUP = `the ${CARD_RANK}(?:(?:, | and )${CARD_RANK})* of ${CARD_SUIT}`;
+
+/**
+ * Playing cards as a scenario names them (`the queen of spades and the ace
+ * and king of hearts`), as their rank and suit letters (`QS`, `AH`, `KH`).
+ */
+function cardsNamed(text: string): string[] {
+  return text.split(/ and (?=the )/).flatMap((group) => {
+    const [, ranks = '', suit = ''] = /^the (.+) of (\w+)$/.exec(group) ?? [];
+    return ranks
+      .split(/, | and /)
+      .map((rank) => `${RANK_NAMES[rank] ?? '?'}${SUIT_NAMES[suit] ?? '?'}`);
+  });
+}
+
 export const PARAMETER_TYPES: readonly ParameterTypeSpec[] = [
   {
     name: 'puzzleAnimation',
@@ -247,5 +298,25 @@ export const PARAMETER_TYPES: readonly ParameterTypeSpec[] = [
     regexp:
       /two ready people|a ready person on the first side and a bot on the second side|a bot on the first side and a ready person on the second side|two bots/,
     transformer: (text: string) => text,
+  },
+  {
+    name: 'heartsSeat',
+    regexp: /South|West|North|East/,
+    transformer: (text: string) => HEARTS_SEATS[text as HeartsSeatName],
+  },
+  {
+    name: 'heartsDeal',
+    regexp: new RegExp(HEARTS_DEALS.join('|')),
+    transformer: (text: string) => HEARTS_DEALS.indexOf(text) + 1,
+  },
+  {
+    name: 'heartsCard',
+    regexp: new RegExp(`the ${CARD_RANK} of ${CARD_SUIT}`),
+    transformer: (text: string) => cardsNamed(text)[0]!,
+  },
+  {
+    name: 'heartsCards',
+    regexp: new RegExp(`${CARD_GROUP}(?: and ${CARD_GROUP})*`),
+    transformer: cardsNamed,
   },
 ];

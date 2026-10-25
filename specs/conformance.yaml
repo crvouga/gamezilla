@@ -18,6 +18,7 @@ product:
     - chess-board
     - connect-four
     - quoridor
+    - hearts
     - games
     - developer-tools
     - db-indexes

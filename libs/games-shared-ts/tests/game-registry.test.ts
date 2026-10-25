@@ -21,6 +21,7 @@ test('the product registers Numberlink with puzzle capabilities and no turn engi
     'battleship',
     'quoridor',
     'quoridor-hill',
+    'hearts',
     'pong',
     'light-cycles',
     'light-cycles-3',

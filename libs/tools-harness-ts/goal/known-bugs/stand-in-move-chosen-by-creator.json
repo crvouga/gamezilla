@@ -1,0 +1,4 @@
+{
+  "summary": "In a custom game of more than two sides, the creator (also a competitor) could send a bot wake carrying a move for an away person's side while a stand-in played it, and the room played that move. A move supplied by anyone but the room is now refused for a stand-in's side, and the creator's device no longer predicts one.",
+  "regressionTest": "libs/game-session-shared-ts/tests/stand-ins.test.ts"
+}

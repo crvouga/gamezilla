@@ -85,7 +85,8 @@ async function playOnSettledBoard(
   for (let attempt = 1; ; attempt += 1) {
     const action = game.shared.automation.turns.choose(
       view.position,
-      () => 0.25
+      () => 0.25,
+      null
     );
     check(
       action !== null,

@@ -205,7 +205,7 @@ test('a specification table listing an unknown capability, nothing, or only a tr
       uris
     )
   ).toEqual([
-    'SHARED_SPECIFICATIONS["a"] lists "tournaments", which is neither a capability (custom-games, matchmaking, history, puzzles) nor a trait (two seats, more than two seats, clock choices, no clock choices, turns, no turns, simulation, a puzzle opponent, a side that cannot win, a draw by the game\'s own rules, a private setup, every position public, a seven-move victory, a known puzzle won another way)',
+    'SHARED_SPECIFICATIONS["a"] lists "tournaments", which is neither a capability (custom-games, matchmaking, history, puzzles) nor a trait (two seats, more than two seats, four seats, rotating turns, secret choices, a shared victory, clock choices, no clock choices, turns, no turns, simulation, a puzzle opponent, a side that cannot win, a draw by the game\'s own rules, a private setup, played on one device, a bot choosing among legal moves, dealt hands, a seven-move victory, a known puzzle won another way)',
     'SHARED_SPECIFICATIONS["b"] lists nothing — list the capabilities it shows',
     'SHARED_SPECIFICATIONS["c"] lists no capability — a specification counts toward the capabilities it shows',
   ]);
@@ -256,7 +256,9 @@ test('a shared specification added to the table reaches every game offering what
     games.map((game) => [game.label, ['specs/games/new-custom.feature']])
   );
   expect(bound('matchmaking').map(([game]) => game)).toEqual(
-    HARNESS_GAMES.map((game) => game.label)
+    HARNESS_GAMES.filter(
+      (game) => game.shared.capabilities.matchmaking !== undefined
+    ).map((game) => game.label)
   );
   expect(matrix.at(-1)!.cells.matchmaking.status).toBe('unsupported');
   // History is bound for every registered game through the matched feature,

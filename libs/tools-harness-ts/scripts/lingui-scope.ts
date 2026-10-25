@@ -18,6 +18,7 @@ export const LINGUI_CATALOG_SOURCES = [
   'libs/connect-four-client-ts/src',
   'libs/quoridor-client-ts/src',
   'libs/battleship-client-ts/src',
+  'libs/hearts-client-ts/src',
   'libs/numberlink-client-ts/src',
   'libs/pong-client-ts/src',
   'libs/light-cycles-client-ts/src',

@@ -7,6 +7,7 @@ import {
   LIGHT_CYCLES_QUAD_HARNESS_GAME,
   LIGHT_CYCLES_TRIO_HARNESS_GAME,
 } from '@libs/light-cycles-harness-ts/light-cycles-harness-game';
+import { HEARTS_HARNESS_GAME } from '@libs/hearts-harness-ts/hearts-harness-game';
 import { PONG_HARNESS_GAME } from '@libs/pong-harness-ts/pong-harness-game';
 import {
   QUORIDOR_HARNESS_GAME,
@@ -25,6 +26,7 @@ export const HARNESS_GAMES: readonly HarnessGame[] = [
   BATTLESHIP_HARNESS_GAME,
   QUORIDOR_HARNESS_GAME,
   QUORIDOR_HILL_HARNESS_GAME,
+  HEARTS_HARNESS_GAME,
   PONG_HARNESS_GAME,
   LIGHT_CYCLES_DUEL_HARNESS_GAME,
   LIGHT_CYCLES_TRIO_HARNESS_GAME,

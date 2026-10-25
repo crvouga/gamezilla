@@ -1,6 +1,9 @@
 import type { GameCommandContext } from '@libs/spaces-shared-ts/game';
 import { SpaceEnded } from '@libs/spaces-shared-ts/space-log-messages';
-import { SpaceSeatLeft } from '@libs/spaces-shared-ts/space-members-messages';
+import {
+  SpaceAwayChanged,
+  SpaceSeatLeft,
+} from '@libs/spaces-shared-ts/space-members-messages';
 import type { Message } from '@pkgs/message-shared-ts/message';
 import type { HandleResult, RoomState } from '@pkgs/room-root-shared-ts/types';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
@@ -11,6 +14,7 @@ import {
   finishCustomGame,
 } from './custom-game-play';
 import { changedCustomGames } from './custom-game-result';
+import { customGameStandInEffects } from './custom-game-stand-in';
 import type { CustomGame } from './custom-game-state';
 import {
   CustomGamesAttr,
@@ -63,6 +67,15 @@ export function reactCustomGameToSpaceEvent(
   event: Message,
   rules: TurnGames
 ): HandleResult | null {
+  if (SpaceAwayChanged.is(event))
+    return {
+      ok: true,
+      events: [],
+      effects: customGameStandInEffects(
+        state,
+        CustomGamesAttr.from(state).current
+      ),
+    };
   if (!SpaceEnded.is(event) && !SpaceSeatLeft.is(event)) return null;
   const games = CustomGamesAttr.from(state);
   const game = games.current;

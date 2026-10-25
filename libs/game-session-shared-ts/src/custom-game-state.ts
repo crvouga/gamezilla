@@ -101,12 +101,24 @@ export const customGameSchema = z
     drawOfferedBy: z.string(),
     /** People whose draw offer was declined and who have not moved since. */
     declinedOffers: z.array(z.string()).default([]),
+    /**
+     * In a phase of private commitments: the sides still to commit and the
+     * sides that have (which everyone sees; what they chose stays private).
+     */
+    awaiting: z.array(customGameSideSchema).default([]),
+    committed: z.array(customGameSideSchema).default([]),
+    /** Sides of people away past the grace period, played by a disclosed stand-in bot. */
+    standIns: z.array(customGameSideSchema).default([]),
   })
   .strict()
   .refine(
     (game) =>
       game.sides.includes(game.turn) &&
-      game.ready.every((side) => game.sides.includes(side))
+      [...game.ready, ...game.awaiting, ...game.committed].every((side) =>
+        game.sides.includes(side)
+      ) &&
+      game.awaiting.every((side) => !game.committed.includes(side)) &&
+      game.standIns.every((side) => game[side].kind === 'person')
   )
   .refine((game) =>
     CUSTOM_GAME_SIDES.every(
@@ -123,10 +135,24 @@ export const customGamesSchema = z
 export type CustomGames = z.infer<typeof customGamesSchema>;
 export const EMPTY_CUSTOM_GAMES: CustomGames = { current: null, history: [] };
 
+/**
+ * Parsed custom games by the stored value they came from. Room state is
+ * immutable, so a value parsed once parses the same every time it is read:
+ * a long game (every card of a Hearts game) is validated once per change,
+ * not once per read.
+ */
+const PARSED = new WeakMap<object, CustomGames>();
+
 function parseCustomGames(value: unknown): CustomGames {
-  return value === undefined
-    ? EMPTY_CUSTOM_GAMES
-    : customGamesSchema.parse(value);
+  if (value === undefined) return EMPTY_CUSTOM_GAMES;
+  if (typeof value === 'object' && value !== null) {
+    const known = PARSED.get(value);
+    if (known !== undefined) return known;
+  }
+  const parsed = customGamesSchema.parse(value);
+  if (typeof value === 'object' && value !== null) PARSED.set(value, parsed);
+  PARSED.set(parsed, parsed);
+  return parsed;
 }
 const ns = createAttrNamespace(GAME_PLATFORM_NAMESPACE, 'custom');
 export const CustomGamesAttr = ns.json('games', parseCustomGames);
@@ -175,6 +201,9 @@ export function newCustomGame(
     drawAcceptedBy: [],
     drawOfferedBy: '',
     declinedOffers: [],
+    awaiting: [],
+    committed: [],
+    standIns: [],
   };
 }
 
@@ -222,6 +251,20 @@ export function customGameStartable(game: CustomGame): boolean {
   );
 }
 
+/** Whether a bot plays `side` now: a bot's side, or a person's stand-in. */
+export function customGameBotPlays(
+  game: CustomGame,
+  side: CustomGameSide
+): boolean {
+  return game[side].kind === 'bot' || game.standIns.includes(side);
+}
+
+/** Whether the game waits for private commitments rather than a turn. */
+export function customGameCommitting(game: CustomGame): boolean {
+  return game.status === 'active' && game.awaiting.length > 0;
+}
+
+/** The clock of the side to move runs only while play is by turns. */
 export function customGameTimeLeft(
   game: CustomGame,
   side: CustomGameSide,
@@ -229,6 +272,7 @@ export function customGameTimeLeft(
 ): number {
   const elapsed =
     game.status === 'active' &&
+    !customGameCommitting(game) &&
     game.turn === side &&
     game.turnStartedAt !== null
       ? Math.max(0, now - game.turnStartedAt)

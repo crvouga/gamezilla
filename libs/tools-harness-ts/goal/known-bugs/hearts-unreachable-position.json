@@ -1,0 +1,4 @@
+{
+  "summary": "The Hearts position reader accepted positions play never reaches: a pass in the fourth deal (each seat then passed to itself, labelled 'Cards passed hold'), a finished match with no score at 100, and a deal under way after a score reached 100. They are no longer Hearts positions.",
+  "regressionTest": "libs/hearts-shared-ts/tests/position.test.ts"
+}

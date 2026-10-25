@@ -9,6 +9,7 @@ import {
   lightCyclesQuadClient,
   lightCyclesTrioClient,
 } from '@libs/light-cycles-client-ts/light-cycles-game-client';
+import { heartsGameClient } from '@libs/hearts-client-ts/hearts-game-client';
 import { numberlinkGameClient } from '@libs/numberlink-client-ts/numberlink-game-client';
 import { pongGameClient } from '@libs/pong-client-ts/pong-game-client';
 import {
@@ -31,6 +32,7 @@ export const GAME_CLIENT_DEFINITIONS = [
   numberlinkGameClient,
   quoridorGameClient,
   quoridorHillGameClient,
+  heartsGameClient,
   pongGameClient,
   lightCyclesDuelClient,
   lightCyclesTrioClient,

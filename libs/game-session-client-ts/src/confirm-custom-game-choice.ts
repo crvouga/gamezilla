@@ -2,7 +2,7 @@ import type { CustomGameChoice } from '@libs/game-session-shared-ts/custom-game-
 import {
   ChangeCustomGame,
   ChangeLocalCustomGame,
-  CustomGamesChanged,
+  customGameChangeAnswer,
 } from '@libs/game-session-shared-ts/custom-game-commands';
 import { localCustomGameChoiceAllowed } from '@libs/game-session-shared-ts/custom-game-local';
 import { CustomGameNoticeAttr } from '@libs/game-session-shared-ts/custom-game-router';
@@ -40,6 +40,14 @@ type ConfirmationArgs = {
   chooseLocal?: (choice: CustomGameChoice) => Promise<void> | null;
   /** Told when the choice waits for the connection before it is sent. */
   onWaiting?: () => void;
+  /**
+   * Prepares a choice made on this device as the space's module does (a
+   * solo start of a game with dealt hands draws its deal here once).
+   */
+  prepare?: (
+    state: RoomState,
+    payload: RoomCommandPayload
+  ) => RoomCommandPayload;
 };
 
 function confirmLocalChoice(
@@ -56,10 +64,14 @@ function confirmLocalChoice(
       args.rules
     )
   ) {
+    const local = ChangeLocalCustomGame({
+      choice,
+      at: Math.floor(args.clock.now()),
+    });
     const simulated = args.chooseLocal?.(choice);
     if (simulated != null) return simulated;
     const id = room.dispatch(
-      ChangeLocalCustomGame({ choice, at: Math.floor(args.clock.now()) })
+      args.prepare?.(room.getSnapshot(), local) ?? local
     );
     if (id === null)
       return Promise.reject(
@@ -149,13 +161,9 @@ export function confirmCustomGameChoice(
       }
       const fact = room
         .getLog()
-        .findLast(
-          (entry) =>
-            CustomGamesChanged.is(entry.event) &&
-            entry.event.payload.commandId === commandId
-        );
-      if (fact !== undefined && CustomGamesChanged.is(fact.event))
-        finish(fact.event.payload.reason);
+        .map((entry) => customGameChangeAnswer(entry.event))
+        .findLast((answer) => answer?.commandId === commandId);
+      if (fact != null) finish(fact.reason);
     };
     const cancel = (): void => finish('game closed before confirmation');
     const unsubscribe = room.subscribe(inspect);

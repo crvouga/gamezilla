@@ -1,16 +1,18 @@
 /**
  * Probe: actions that are not conventional alternating turns.
  *
- * Limitation (executable). The rules contract can say it — every
- * `PlayedPosition` names the side to move (`turn`), and the custom-game
- * engine seats each move by it — but alternation is the platform's
- * contract, not one game's habit: `specs/games/game-turns.feature` ("A
- * participant's move passes the turn", "Then it is Bob's turn"), the
- * custom-game and matched-game models ("sides take turns"), a matched
- * game's abort window and clock start (`bothHaveMoved`: two accepted
- * moves), its move list numbering (`multiplayer-format`: plies in pairs)
- * and a puzzle's line (solver and opponent by parity). So the rules laws
- * hold every turn game to it, and refuse this one by that law alone.
+ * Supported (executable) for custom games. Every `PlayedPosition` names the
+ * side to move (`turn`), and the custom-game engine seats each move by it.
+ * A game whose rules decide the turn says so (`GameRules.turnOrder:
+ * 'rules'`, as Hearts does: a trick's winner leads); the rules laws then
+ * hold it to its own turns, and the rotating-turn specifications
+ * (`rotating turns`) do not bind it. A game that does not declare it is
+ * still held to rotation and refused by that law alone.
+ *
+ * Limitation: matchmaking still assumes rotation — a matched game's abort
+ * window and clock start (`bothHaveMoved`: two accepted moves) and its move
+ * numbering (plies in pairs) — so `defineGame` refuses a matched game with
+ * `turnOrder: 'rules'`.
  */
 
 import { expect, test } from 'bun:test';
@@ -23,7 +25,11 @@ import {
 } from '@libs/game-session-harness-ts/game-system';
 import { assertHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { refusals } from '../reference-game/faulty-game';
-import { DOUBLE_TURN_GAME, DOUBLE_TURN_RULES } from './double-turn-game';
+import {
+  DOUBLE_TURN_BY_RULES_GAME,
+  DOUBLE_TURN_GAME,
+  DOUBLE_TURN_RULES,
+} from './double-turn-game';
 import { TAKES_TURNS_LAW } from './probe-verdict';
 
 test('a game whose first side moves twice is refused by the turn law alone', () => {
@@ -32,6 +38,10 @@ test('a game whose first side moves twice is refused by the turn law alone', () 
   expect(refused.get(TAKES_TURNS_LAW)).toContain(
     "after white's one at ply 1 it is white's turn, not black's"
   );
+});
+
+test('the same game, declaring that its rules decide the turn, keeps every law', () => {
+  expect([...refusals(DOUBLE_TURN_BY_RULES_GAME).keys()]).toEqual([]);
 });
 
 test("a matched game's abort window counts two accepted moves as both people having moved", () => {

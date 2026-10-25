@@ -63,6 +63,9 @@ function SeatTags(props: SideProps): JSX.Element {
         intent="neutral"
         label={gameSideLabel(props.model.current()?.fen ?? '', props.side)}
       />
+      <Show when={props.model.current()?.status === 'active'}>
+        <SeatPlayTags {...props} />
+      </Show>
       <Show when={props.model.current()?.status === 'configuring'}>
         <Show
           when={ready()}
@@ -75,6 +78,66 @@ function SeatTags(props: SideProps): JSX.Element {
       </Show>
     </>
   );
+}
+
+/**
+ * While the game is played: a side a stand-in bot plays says so, and while
+ * every side chooses in secret, whether this side has chosen (never what).
+ */
+function SeatPlayTags(props: SideProps): JSX.Element {
+  const game = () => props.model.current()!;
+  return (
+    <>
+      <Show when={game().standIns.includes(props.side)}>
+        <Badge
+          intent="warning"
+          label={<Trans>Stand-in bot</Trans>}
+          dataSet={{ testid: `custom-game-${props.side}-stand-in` }}
+        />
+      </Show>
+      <Show when={game().committed.includes(props.side)}>
+        <Badge
+          intent="success"
+          label={<Trans>Chosen</Trans>}
+          dataSet={{ testid: `custom-game-${props.side}-committed` }}
+        />
+      </Show>
+      <Show when={game().awaiting.includes(props.side)}>
+        <Badge intent="neutral" label={<Trans>Choosing</Trans>} />
+      </Show>
+    </>
+  );
+}
+
+/** The person whose side a stand-in plays takes it back. */
+function TakeBackSide(props: SideProps): JSX.Element {
+  const game = () => props.model.current()!;
+  return (
+    <Show
+      when={
+        game().status === 'active' &&
+        game().standIns.includes(props.side) &&
+        game()[props.side].person === props.model.myId() &&
+        props.model.canPlay()
+      }
+    >
+      <GameActionButton
+        title={<Trans>Take back my side</Trans>}
+        variant="solid"
+        dataSet={{ testid: 'custom-game-reclaim' }}
+        operation={() => props.model.choose({ operation: 'reclaim' })}
+      />
+    </Show>
+  );
+}
+
+/** Whether `side` decides now: its turn, or its secret choice still open. */
+function seatDeciding(model: CustomGameScreenModel, side: CustomGameSide) {
+  const game = model.current();
+  if (game?.status !== 'active') return false;
+  return game.awaiting.length > 0
+    ? game.awaiting.includes(side)
+    : game.turn === side;
 }
 
 /**
@@ -101,14 +164,13 @@ export function CustomGameSeat(props: SideProps): JSX.Element {
           <CustomGameClock game={props.model.current()!} side={props.side} />
         ) : undefined
       }
-      active={
-        props.model.current()?.status === 'active' &&
-        props.model.current()?.turn === props.side
-      }
+      active={seatDeciding(props.model, props.side)}
     >
       {props.model.current()?.status === 'configuring' ? (
         <CustomGameSideActions {...props} />
-      ) : undefined}
+      ) : (
+        <TakeBackSide {...props} />
+      )}
     </GamePlayerBar>
   );
 }

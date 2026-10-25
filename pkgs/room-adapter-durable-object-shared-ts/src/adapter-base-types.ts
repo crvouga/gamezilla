@@ -47,4 +47,9 @@ export type ResolvedAdapterConfig<
   effectHandlers: readonly RoomEffectHandler[];
   telemetry: (env: Env) => DurableObjectTelemetry;
   serviceIdentity: Identity | null;
+  /**
+   * Loads what the hosted modules decide with (immutable rule data) before
+   * the object handles anything; awaited once per isolate.
+   */
+  ready: () => Promise<void>;
 };

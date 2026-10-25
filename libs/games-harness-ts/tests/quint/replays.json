@@ -209,6 +209,15 @@
       }
     ]
   },
+  "secret-choices": {
+    "seed": "0x67932",
+    "traces": 128,
+    "cover": [2, 6],
+    "replayed": [2, 6],
+    "regressions": 0,
+    "determinism": false,
+    "variants": 1
+  },
   "space-follow": {
     "seed": "0x67932",
     "traces": 16,

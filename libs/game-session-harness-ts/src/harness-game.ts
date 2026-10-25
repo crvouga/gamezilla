@@ -16,10 +16,16 @@ import type {
 import {
   gameSides,
   offeredCapabilities,
+  winningSides,
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { KnownPuzzles, PuzzleFixture } from './known-puzzles';
 import { assertKnownPuzzles, assertMorePuzzles } from './known-puzzles';
-import { playedRulesOf } from './played-rules';
+import {
+  type KnownDeal,
+  playedRulesOf,
+  recordedLine,
+  scriptedRandom,
+} from './played-rules';
 import {
   assertSimulationFixtures,
   type SimulationHarnessFixtures,
@@ -68,12 +74,29 @@ type RulesFixtures = {
    */
   readonly drawByRules?: readonly string[];
   /**
+   * Only for a game of four seats whose rules let sides share a victory:
+   * lines from the start, each ending on the fourth side's move, after which
+   * the first and third sides share the victory (`shared`) or the third side
+   * wins alone (`alone`). The shared-victory feature needs them.
+   */
+  readonly sharedVictories?: {
+    readonly shared: readonly string[];
+    readonly alone: readonly string[];
+  };
+  /**
    * Exactly for a game with private setups: one complete setup for each
    * side, as the game writes it. Every line above is then the proposals
    * people make, which the authority resolves against these setups — the
    * shared suites play them so, and a person readies with their side's.
    */
   readonly setups?: GameSetups;
+  /**
+   * Exactly for a game with dealt hands: the deal the shared suites start
+   * every game from. The room's random source is made to return its
+   * `draws` as a game starts, so the real authority deals `hidden`; every
+   * line above is then the proposals people make with the hands it deals.
+   */
+  readonly knownDeal?: KnownDeal;
 };
 
 /**
@@ -285,6 +308,7 @@ function assertTurnHarnessGame<C extends TurnGameCapabilities>(
     );
   assertPuzzlesAgree(game, fail);
   assertKnownSetups(game, fail);
+  assertKnownDeal(game, fail);
   const played = playedRulesOf(game);
   const { firstSideVictory, refusedOpenings } = game.fixtures;
   if (firstSideVictory.length < gameSides(rules).length)
@@ -292,14 +316,19 @@ function assertTurnHarnessGame<C extends TurnGameCapabilities>(
   if (refusedOpenings.length === 0)
     fail('name at least one opening its rules refuse');
   for (const action of refusedOpenings)
-    if (played.play(rules.initial(), action, '', []) !== null)
+    if (played.play(played.initial(), action, '', []) !== null)
       fail(`the refused opening ${action} is accepted`);
   assertMoveNamesAndRecord(game, fail);
   const cannotWin = game.fixtures.secondSideCannotWin;
   if (cannotWin !== undefined) assertCannotWinLine(game, cannotWin, fail);
   const drawn = game.fixtures.drawByRules;
   if (drawn !== undefined) assertDrawingLine(game, drawn, fail);
-  let position = rules.initial();
+  const shared = game.fixtures.sharedVictories;
+  if (shared !== undefined) {
+    assertVictoryLine(game, shared.shared, ['white', 'red'], fail);
+    assertVictoryLine(game, shared.alone, ['red'], fail);
+  }
+  let position = played.initial();
   let history = '';
   const actions: string[] = [];
   for (const [index, action] of firstSideVictory.entries()) {
@@ -341,6 +370,40 @@ function assertKnownSetups(
       fail(
         `the known ${side} setup is not one complete setup as the game stores it`
       );
+}
+
+/**
+ * A game with dealt hands names the deal its suites start from: its draws
+ * deal exactly its hidden state, and the hands written beside the known
+ * victory are the hands that deal gives; no other game names a deal.
+ */
+function assertKnownDeal(
+  game: TurnHarnessGame,
+  fail: (problem: string) => void
+): void {
+  const rules = game.shared.turnGame.rules;
+  const hands = rules.hands;
+  const deal = game.fixtures.knownDeal;
+  if ((hands === undefined) !== (deal === undefined))
+    fail(
+      hands === undefined
+        ? 'only a game with dealt hands names a known deal'
+        : 'a game with dealt hands names the deal its suites start from (fixtures.knownDeal)'
+    );
+  if (hands === undefined || deal === undefined) return;
+  if (hands.deal(rules.initial(), scriptedRandom(deal.draws)) !== deal.hidden)
+    fail('the known deal draws do not deal its hidden state');
+  const written = deal.hands ?? [];
+  const victory = game.fixtures.firstSideVictory;
+  const played = playedRulesOf(game);
+  for (const [ply, expected] of written.entries()) {
+    const at = played.replay(victory, ply).split('\n');
+    for (const [side, hand] of Object.entries(expected))
+      if (hands.hand(at[1] ?? '', side as GameSide) !== hand)
+        fail(`before victory move ${ply + 1} the ${side} hand is not ${hand}`);
+  }
+  if (recordedLine(game, victory).length !== victory.length)
+    fail('the known victory is not playable from the known deal');
 }
 
 /**
@@ -452,6 +515,48 @@ function assertCannotWinLine(
  * The known line the game's rules draw: legal, unfinished until its last
  * action, which draws the game.
  */
+/**
+ * A known line ending, on the fourth side's move, in a victory exactly
+ * `winners` hold; nothing finishes the game before its last move.
+ */
+function assertVictoryLine(
+  game: TurnHarnessGame,
+  line: readonly string[],
+  winners: readonly GameSide[],
+  fail: (problem: string) => void
+): void {
+  const rules = playedRulesOf(game);
+  const sides = gameSides(game.shared.turnGame.rules);
+  if (sides.length !== 4) fail('shared victories are named for four seats');
+  let position = rules.initial();
+  let history = '';
+  let mover: GameSide = sides[0]!;
+  const actions: string[] = [];
+  for (const [index, action] of line.entries()) {
+    const played = rules.play(position, action, history, actions);
+    const last = index === line.length - 1;
+    if (played === null || (played.winner !== null) !== last)
+      return fail(
+        `the known victory of ${winners.join(' and ')} stops at ${action}`
+      );
+    if (last) {
+      if (mover !== sides[3])
+        fail(
+          `the known victory of ${winners.join(' and ')} is not won on the fourth side's move`
+        );
+      const won = winningSides(played.winner!, sides);
+      if (won.join() !== winners.join())
+        fail(
+          `the known victory of ${winners.join(' and ')} goes to ${won.join(' and ')}`
+        );
+    }
+    position = played.position;
+    history = played.history;
+    mover = played.turn;
+    actions.push(action);
+  }
+}
+
 function assertDrawingLine(
   game: TurnHarnessGame,
   line: readonly string[],
