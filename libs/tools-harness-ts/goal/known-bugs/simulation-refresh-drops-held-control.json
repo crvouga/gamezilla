@@ -1,0 +1,4 @@
+{
+  "summary": "Alice starts local Pong and guides her paddle to the upper edge with the paddle slider. Her local game becomes ready with its first court before the room changes; the room's next change refreshes the presentation, and the refresh reset the replica, including the control Alice was still holding. The paddle stopped about a third of the way up when its input lease expired, so Carol, joining, saw it short of the upper edge (specs/pong/pong-local-watch.feature, 'Carol joins while Alice is already playing'). A refresh now re-reads the authority without letting go of a held control: the control resumes on the same court, and a new or paused court still drops it.",
+  "regressionTest": "libs/game-session-client-ts/tests/simulation-presentation.test.ts"
+}

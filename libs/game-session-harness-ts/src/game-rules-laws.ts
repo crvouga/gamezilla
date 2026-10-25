@@ -4,12 +4,14 @@ import type {
   BotDifficulty,
   GameRules,
   GameSide,
+  GameWinner,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
+import { gameSides, plainWinner } from '@pkgs/turn-game-shared-ts/game-rules';
 import fc from 'fast-check';
 import type { HarnessGame, TurnHarnessGame } from './harness-game';
 import { isTurnHarnessGame } from './harness-game';
 import {
+  committedProposal,
   playedRules,
   playedRulesOf,
   scriptedRandom,
@@ -34,7 +36,7 @@ type Step = {
   /** The side to move after this action (`PlayedPosition.turn`). */
   readonly turn: GameSide;
   readonly label: string;
-  readonly winner: string | null;
+  readonly winner: GameWinner | null;
   readonly reason: string | null;
 };
 
@@ -62,6 +64,18 @@ export function must(holds: boolean, problem: string): void {
 }
 
 /**
+ * Whether every side commits at `position`: a bot's choice there is the
+ * seats' combined commitments, each held to its side's own hand when played.
+ */
+function committingAt(game: TurnHarnessGame, position: string): boolean {
+  const commit = game.shared.turnGame.rules.hands?.commit;
+  return (
+    commit !== undefined &&
+    commit.sides(splitDealtPosition(position).position).length > 0
+  );
+}
+
+/**
  * What a side may propose at `position` of `game`'s played rules, as the
  * game's own judge sees it: one of `legal` for most games; for a game with
  * dealt hands (whose `legal` is a bounded sample of what a hand allows),
@@ -73,12 +87,32 @@ function offered(
   action: string,
   accepted: () => boolean
 ): boolean {
-  if (game.shared.turnGame.rules.hands === undefined)
+  const hands = game.shared.turnGame.rules.hands;
+  if (hands === undefined)
     return played.rules.legal(played.position).includes(action);
+  // While every side commits, a seat's choice is its own commitment.
+  const at = splitDealtPosition(played.position);
+  const committing = hands.commit?.sides(at.position) ?? [];
+  if (committing.length > 0) {
+    const side = committing[0]!;
+    return (
+      'commitment' in
+      hands.commit!.accept(
+        at.position,
+        side,
+        hands.hand(at.hidden, side),
+        action
+      )
+    );
+  }
   return accepted();
 }
 
-/** The public position and the mover's own hand at a played-rules position. */
+/**
+ * The public position and the deciding side's own hand at a played-rules
+ * position: the side to move, or, while every side commits, the first side
+ * still to commit.
+ */
 function seat(
   game: TurnHarnessGame,
   position: string
@@ -86,7 +120,32 @@ function seat(
   const hands = game.shared.turnGame.rules.hands;
   if (hands === undefined) return { position, hand: null };
   const at = splitDealtPosition(position);
-  return { position: at.position, hand: hands.hand(at.hidden, at.turn) };
+  const side = hands.commit?.sides(at.position)[0] ?? at.turn;
+  return { position: at.position, hand: hands.hand(at.hidden, side) };
+}
+
+/**
+ * What the deciding seats propose at a played-rules position, each from its
+ * own hand: the side to move's choice or, while every side commits, every
+ * committing side's commitment together, as the law view plays one phase.
+ */
+function seatsProposal(
+  game: TurnHarnessGame,
+  position: string,
+  choose: (position: string, hand: string | null) => string | null
+): string | null {
+  const hands = game.shared.turnGame.rules.hands;
+  if (hands === undefined) return choose(position, null);
+  const at = splitDealtPosition(position);
+  const committing = hands.commit?.sides(at.position) ?? [];
+  if (committing.length === 0)
+    return choose(at.position, hands.hand(at.hidden, at.turn));
+  const commitments = committing.map((side) =>
+    choose(at.position, hands.hand(at.hidden, side))
+  );
+  return commitments.some((commitment) => commitment === null)
+    ? null
+    : committedProposal(commitments as string[]);
 }
 
 const same = (a: unknown, b: unknown) =>
@@ -231,7 +290,12 @@ function takesTurns(game: TurnHarnessGame): void {
   );
 }
 
-/** Only experiences whose shared specifications promise alternating participants. */
+/**
+ * Only experiences whose shared specifications promise alternating
+ * participants, and only for a game whose turns rotate: a game whose rules
+ * name the next side (`turnOrder: 'rules'`, a trick's winner leading) is
+ * held to the side its rules name, which every custom game seats.
+ */
 function duelRulesLaws(game: TurnHarnessGame): readonly GameLaw[] {
   const offered = game.shared.turnGame.capabilities;
   if (
@@ -239,16 +303,67 @@ function duelRulesLaws(game: TurnHarnessGame): readonly GameLaw[] {
     offered.matchmaking === undefined
   )
     return [];
+  const rotating = game.shared.turnGame.rules.turnOrder !== 'rules';
   return [
-    law(
-      game,
-      'the first side moves first and every action passes the turn to the next declared side',
-      () => takesTurns(game)
-    ),
+    ...(rotating
+      ? [
+          law(
+            game,
+            'the first side moves first and every action passes the turn to the next declared side',
+            () => takesTurns(game)
+          ),
+        ]
+      : []),
     law(game, 'a side cannot win only where the game names a line to it', () =>
       cannotWinOnlyWhereKnown(game)
     ),
+    law(game, 'every turn and every result names the seats of the game', () =>
+      namesItsSeats(game)
+    ),
   ];
+}
+
+/** Whether `winner` is a draw, one seat, or distinct seats of the game. */
+function resultOfSeats(winner: GameWinner, sides: readonly GameSide[]) {
+  if (typeof winner === 'string')
+    return winner === 'draw' || sides.includes(winner);
+  return (
+    winner.length > 0 &&
+    new Set(winner).size === winner.length &&
+    winner.every((side) => sides.includes(side))
+  );
+}
+
+/**
+ * The side to move is always a declared seat (the only check a game whose
+ * rules name the next side has), and a result names only seats, at least
+ * one, each once. A matched game ends with one winner or a draw: ratings
+ * compare one winner.
+ */
+function namesItsSeats(game: TurnHarnessGame): void {
+  const rules = playedRulesOf(game);
+  const sides = gameSides(rules);
+  const matched = game.shared.turnGame.capabilities.matchmaking !== undefined;
+  assertProperty(
+    `${game.label}: turns and results name its seats`,
+    fc.property(picks, (drawn) => {
+      for (const step of walk(rules, drawn).steps) {
+        must(
+          sides.includes(step.turn),
+          `the turn at ${step.position} goes to ${step.turn}, not a seat of the game`
+        );
+        if (step.winner === null) continue;
+        must(
+          resultOfSeats(step.winner, sides),
+          `the result at ${step.position} names ${JSON.stringify(step.winner)}, not seats of the game`
+        );
+        must(
+          !matched || typeof plainWinner(step.winner, sides) === 'string',
+          `the matched result at ${step.position} has several winners`
+        );
+      }
+    })
+  );
 }
 
 /**
@@ -290,10 +405,18 @@ function cannotWinOnlyWhereKnown(game: TurnHarnessGame): void {
  */
 function drawnOnlyWhereKnown(game: TurnHarnessGame): void {
   const rules = playedRulesOf(game);
+  const sides = gameSides(rules);
+  // A result naming every seat is a draw too.
+  const isDraw = (winner: GameWinner | null) =>
+    winner !== null &&
+    resultOfSeats(winner, sides) &&
+    plainWinner(winner, sides) === 'draw';
   const line = game.fixtures.drawByRules;
   if (line !== undefined) {
-    const played = walkLine(rules, line);
-    must(played === 'draw', 'the known line its rules draw does not draw');
+    must(
+      isDraw(walkLine(rules, line)),
+      'the known line its rules draw does not draw'
+    );
     return;
   }
   assertProperty(
@@ -301,7 +424,7 @@ function drawnOnlyWhereKnown(game: TurnHarnessGame): void {
     fc.property(picks, (drawn) => {
       for (const step of walk(rules, drawn).steps)
         must(
-          step.winner !== 'draw',
+          !isDraw(step.winner),
           `its rules drew at ${step.position}, which the game names no line to`
         );
     })
@@ -309,11 +432,14 @@ function drawnOnlyWhereKnown(game: TurnHarnessGame): void {
 }
 
 /** How the known `line` ends: the result of its last action, if accepted. */
-function walkLine(rules: GameRules, line: readonly string[]): string | null {
+function walkLine(
+  rules: GameRules,
+  line: readonly string[]
+): GameWinner | null {
   let position = rules.initial();
   let history = '';
   const actions: string[] = [];
-  let winner: string | null = null;
+  let winner: GameWinner | null = null;
   for (const action of line) {
     const played = rules.play(position, action, history, actions);
     if (played === null) return null;
@@ -687,12 +813,13 @@ export function gameBotLaws(game: TurnHarnessGame): readonly GameLaw[] {
               const actions: string[] = [];
               for (let ply = 0; ply < BOT_PLIES; ply++) {
                 const legal = rules.legal(position);
-                const own = seat(game, position);
-                const chosen = choose(
-                  own.position,
-                  difficulties[ply % difficulties.length]!,
-                  () => draws[ply % draws.length]!,
-                  own.hand
+                const chosen = seatsProposal(game, position, (at, hand) =>
+                  choose(
+                    at,
+                    difficulties[ply % difficulties.length]!,
+                    () => draws[ply % draws.length]!,
+                    hand
+                  )
                 );
                 if (legal.length === 0) {
                   must(chosen === null, 'a bot moved in a finished game');
@@ -704,12 +831,13 @@ export function gameBotLaws(game: TurnHarnessGame): readonly GameLaw[] {
                     : rules.play(position, chosen, history, actions);
                 must(
                   chosen !== null &&
-                    offered(
-                      game,
-                      { rules, position },
-                      chosen,
-                      () => played !== null
-                    ),
+                    (committingAt(game, position) ||
+                      offered(
+                        game,
+                        { rules, position },
+                        chosen,
+                        () => played !== null
+                      )),
                   `a bot chose ${String(chosen)} at ${position}`
                 );
                 must(

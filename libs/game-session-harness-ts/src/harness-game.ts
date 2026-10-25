@@ -16,6 +16,7 @@ import type {
 import {
   gameSides,
   offeredCapabilities,
+  winningSides,
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { KnownPuzzles, PuzzleFixture } from './known-puzzles';
 import { assertKnownPuzzles, assertMorePuzzles } from './known-puzzles';
@@ -72,6 +73,16 @@ type RulesFixtures = {
    * own rules (`matched-game-rules-draw`) needs it.
    */
   readonly drawByRules?: readonly string[];
+  /**
+   * Only for a game of four seats whose rules let sides share a victory:
+   * lines from the start, each ending on the fourth side's move, after which
+   * the first and third sides share the victory (`shared`) or the third side
+   * wins alone (`alone`). The shared-victory feature needs them.
+   */
+  readonly sharedVictories?: {
+    readonly shared: readonly string[];
+    readonly alone: readonly string[];
+  };
   /**
    * Exactly for a game with private setups: one complete setup for each
    * side, as the game writes it. Every line above is then the proposals
@@ -191,7 +202,7 @@ export type TurnHarnessGame<
   ConfigurationFixtures & {
     readonly simulationFixtures?: SimulationHarnessFixtures;
     /** The same client definition production registers. */
-    readonly client: GameClientRegistration<TurnGameDefinition>;
+    readonly client: GameClientRegistration<GameRegistration>;
     /** The sub only this game's screens need, beside the shared ones. */
     readonly slice?: HarnessSlice;
     /** This game's own testing-tool actions. */
@@ -340,6 +351,11 @@ function assertTurnHarnessGame<C extends TurnGameCapabilities>(
   if (cannotWin !== undefined) assertCannotWinLine(game, cannotWin, fail);
   const drawn = game.fixtures.drawByRules;
   if (drawn !== undefined) assertDrawingLine(game, drawn, fail);
+  const shared = game.fixtures.sharedVictories;
+  if (shared !== undefined) {
+    assertVictoryLine(game, shared.shared, ['white', 'red'], fail);
+    assertVictoryLine(game, shared.alone, ['red'], fail);
+  }
   let position = played.initial();
   let history = '';
   const actions: string[] = [];
@@ -527,6 +543,48 @@ function assertCannotWinLine(
  * The known line the game's rules draw: legal, unfinished until its last
  * action, which draws the game.
  */
+/**
+ * A known line ending, on the fourth side's move, in a victory exactly
+ * `winners` hold; nothing finishes the game before its last move.
+ */
+function assertVictoryLine(
+  game: TurnHarnessGame,
+  line: readonly string[],
+  winners: readonly GameSide[],
+  fail: (problem: string) => void
+): void {
+  const rules = playedRulesOf(game);
+  const sides = gameSides(game.shared.turnGame.rules);
+  if (sides.length !== 4) fail('shared victories are named for four seats');
+  let position = rules.initial();
+  let history = '';
+  let mover: GameSide = sides[0]!;
+  const actions: string[] = [];
+  for (const [index, action] of line.entries()) {
+    const played = rules.play(position, action, history, actions);
+    const last = index === line.length - 1;
+    if (played === null || (played.winner !== null) !== last)
+      return fail(
+        `the known victory of ${winners.join(' and ')} stops at ${action}`
+      );
+    if (last) {
+      if (mover !== sides[3])
+        fail(
+          `the known victory of ${winners.join(' and ')} is not won on the fourth side's move`
+        );
+      const won = winningSides(played.winner!, sides);
+      if (won.join() !== winners.join())
+        fail(
+          `the known victory of ${winners.join(' and ')} goes to ${won.join(' and ')}`
+        );
+    }
+    position = played.position;
+    history = played.history;
+    mover = played.turn;
+    actions.push(action);
+  }
+}
+
 function assertDrawingLine(
   game: TurnHarnessGame,
   line: readonly string[],

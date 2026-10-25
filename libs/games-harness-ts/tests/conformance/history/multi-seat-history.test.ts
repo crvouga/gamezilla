@@ -10,18 +10,23 @@ import {
   gameHistoryStatistics,
   openGameHistory,
 } from '@libs/game-session-harness-ts/game-history-actions';
+import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { openConformanceHarness } from '../../conformance-world';
-import { forEveryTurnGame } from '../game-suite';
+import { forEveryGame } from '../game-suite';
 
-forEveryTurnGame(
+forEveryGame(
   import.meta.path,
   (game) => {
+    if (!isTurnHarnessGame(game))
+      throw new Error(`${game.label} has no turn fixtures`);
     test('a finished game of more than two people counts its result once for each of them', async () => {
       await using s = await openConformanceHarness(
         `${game.shared.id}-multi-seat-history`
       );
+      // An earlier history through the room boundary: a game of many moves
+      // (a whole Hearts game) finishes in seconds.
       await s.apply(establishCustomGame, game.shared.id, {
-        moves: game.fixtures.firstSideVictory,
+        history: game.fixtures.firstSideVictory,
       });
       // The first side won its known victory; everyone else lost it.
       await s.apply(openGameHistory, 'alice');
@@ -30,7 +35,7 @@ forEveryTurnGame(
       await s.apply(openGameHistory, 'bob');
       const other = await s.read(gameHistoryStatistics, 'bob');
       expect([other.wins, other.losses, other.draws]).toEqual([0, 1, 0]);
-    }, 240_000);
+    }, 60_000);
   },
   ['custom-games', 'more than two seats']
 );

@@ -44,6 +44,12 @@ export async function guidePongJourney(
     : court.ball.y < court.height / 2
       ? 1000
       : 0;
-  await ui.get(`${BOARD}-${side}-control`).input(String(target));
+  try {
+    await ui.get(`${BOARD}-${side}-control`).input(String(target));
+  } catch (error) {
+    // The point that ends the game can land between reading and moving.
+    if ((await pongJourneyCourt(ui)).stage === 'finished') return true;
+    throw error;
+  }
   return false;
 }

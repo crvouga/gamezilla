@@ -62,6 +62,8 @@ export function puzzleBoardDriver(
                   sound={false}
                   setup={null}
                   hand={null}
+                  committed={[]}
+                  commitment={null}
                   syncKey={0}
                   size={320}
                   mode="play"

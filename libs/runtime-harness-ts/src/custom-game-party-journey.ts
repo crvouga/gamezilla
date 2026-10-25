@@ -6,6 +6,7 @@ import {
   playCustomGamePartyTurn,
   readPublicCustomGame,
 } from './custom-game-party-turn';
+import { takeBlack } from './custom-game-readiness-wait';
 import {
   check,
   endActiveSpace,
@@ -44,10 +45,7 @@ async function createParty(ui: Driver, game: PlayableGame): Promise<void> {
 async function readyParty(host: JourneyHost): Promise<void> {
   let guestName = '';
   await host.actAsGuest('takeSecondSeat', async (ui) => {
-    await tap(ui, 'custom-game-black-claim');
-    await ui
-      .get('custom-game-black-release')
-      .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+    await takeBlack(ui, 'custom-game-black-claim');
     guestName = (await ui.get('custom-game-black-person').text())?.trim() ?? '';
     check(guestName !== '', 'The second participant has no displayed name');
     await tap(ui, 'custom-game-ready');

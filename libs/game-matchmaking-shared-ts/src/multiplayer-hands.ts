@@ -25,20 +25,19 @@ export function multiplayerHandsRules(
 }
 
 /**
- * The draws an id minted by the server's injected id source gives: its 128
- * hexadecimal bits as four numbers in [0, 1), then repeated. A server-made
- * UUID is the authority's randomness here, never shown to a seat.
+ * The draws the server's injected id source gives: each a fresh id's first
+ * 32 hexadecimal bits (wholly random in a version 4 UUID) as a number in
+ * [0, 1). A deal takes dozens of draws, so it needs that many ids: four
+ * numbers repeated would leave a deal few enough outcomes for a seat to
+ * search from its own cards. A server-made id is the authority's randomness
+ * here, never shown to a seat.
  */
-export function drawsFromId(id: string): () => number {
-  const hex = id
-    .replace(/[^0-9a-f]/gi, '')
-    .padEnd(32, '0')
-    .slice(0, 32);
-  const words = [0, 8, 16, 24].map(
-    (at) => Number.parseInt(hex.slice(at, at + 8), 16) / 4_294_967_296
-  );
-  let next = 0;
-  return () => words[next++ % words.length]!;
+export function drawsFromIds(createId: () => string): () => number {
+  return () => {
+    const hex = createId().replace(/[^0-9a-f]/gi, '');
+    if (hex.length < 8) throw new Error('an id gives no draw');
+    return Number.parseInt(hex.slice(0, 8), 16) / 4_294_967_296;
+  };
 }
 
 async function writeHands(
@@ -76,7 +75,7 @@ export async function dealMultiplayerHands(
   if (hands === undefined) return;
   if (ports.createId === undefined)
     throw new Error('dealing a matched game needs the server id source');
-  const hidden = hands.deal(game.fen, drawsFromId(ports.createId()));
+  const hidden = hands.deal(game.fen, drawsFromIds(ports.createId));
   await writeHands(tx, game, { hidden, hands }, ports.nowMs);
 }
 

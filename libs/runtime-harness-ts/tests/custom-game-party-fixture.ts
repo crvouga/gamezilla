@@ -70,7 +70,7 @@ export function delayedPartyHost(
       position: next.position,
       status: next.winner === null ? 'active' : 'completed',
       turn: next.turn,
-      outcome: next.winner ?? '',
+      outcome: typeof next.winner === 'string' ? next.winner : '',
       ply: moves.length,
     };
   };

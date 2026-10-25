@@ -164,6 +164,111 @@ terms:
       of the private setup; a refused move reveals nothing.
     forms: [reveals, revealed, what play revealed]
 
+  - term: secret choice
+    definition: >-
+      A choice every side of some games makes in secret at the same point of
+      play, by the game's own rules, before play goes on. Each time the
+      game's rules call for them is a new round of secret choices. Only its
+      own person sees what was chosen for their side: never another
+      participant, a watcher or anyone else, and not after coming back
+      either. Everyone in the custom game and every watcher sees which sides
+      have made theirs. A secret choice is final for its round, and nothing
+      a round's secret choices decide happens until every side has made one;
+      then all of them take effect at once as the game's own move, and
+      nobody, not even their own person, sees them any more. A game
+      without secret choices has nothing of the kind. It is a different
+      thing from a private setup, which each side prepares once before play
+      begins.
+    forms:
+      - secret choices
+      - round of secret choices
+      - rounds of secret choices
+      - next round of secret choices
+      - second round of secret choices
+      - earlier round of secret choices
+      - awaiting secret choices
+      - a game with secret choices
+    avoid: [hidden choice, blind choice, simultaneous move, commitment]
+    published: true
+    model: [secretChoiceShown, chosenShown, choosing, reachNextRound]
+
+  - term: make a secret choice
+    definition: >-
+      A participant choosing their side's secret choice for the current
+      round of secret choices; a bot, or a stand-in, makes its side's own by
+      itself. In a custom game with another person it needs a connection; a
+      person alone with bots may make it offline. A second one in the same round, one for
+      an earlier round, one while the custom game is not awaiting secret
+      choices, one from someone without a side, and one for a side a
+      stand-in is playing are refused and change nothing.
+    forms:
+      - makes a secret choice
+      - makes her secret choice
+      - makes his secret choice
+      - makes its secret choice
+      - makes another secret choice
+      - made her secret choice
+      - made his secret choice
+      - made its secret choice
+      - made their secret choices
+      - has made her secret choice
+      - has made his secret choice
+      - has made its secret choice
+      - have made their secret choices
+      - making a secret choice
+    published: true
+    model: [makeSecretChoice]
+
+  - term: stand-in
+    definition: >-
+      A bot that plays the side of a participant who has been away from a
+      custom game under way with more than two sides for 60 seconds, so the
+      others are not held up. Everyone sees it is a stand-in and whose side
+      it plays. It knows only what that side may know and plays by the same
+      rules, only while the custom game is under way: finishing it ends
+      every stand-in. The participant keeps their side and its result; while the
+      stand-in plays it, their own moves and secret choices are refused
+      until they take back their side. Coming back alone does not end it. A
+      stand-in comes only while another person is in the custom game and the
+      host of the space is here: a person alone with bots gets none, and
+      while the host is away the space waits, so nobody's time away counts
+      and no stand-in comes for anyone, the host included. A custom game with two sides has no
+      stand-in: the other participant may claim the win instead.
+    forms: [stand-ins, stand-in's]
+    avoid: [substitute, replacement bot, takeover, autopilot]
+    published: true
+    model: [standIn, standInTakesSide]
+
+  - term: take back their side
+    definition: >-
+      A participant who has come back taking their side from the stand-in
+      playing it, which needs a connection. From then on the stand-in decides
+      nothing for that side, and the participant sees their side as it now
+      stands, with nothing of any other side's that they could not see
+      before. Only that participant may take it back, and only while a
+      stand-in plays it; anyone else, or someone whose side no stand-in
+      plays, is told they are already playing their own side.
+    forms:
+      - takes back their side
+      - takes back her side
+      - takes back his side
+      - took back her side
+      - took back his side
+      - has taken back her side
+      - has taken back his side
+      - taking back their side
+    published: true
+    model: [takeBackSide]
+
+  - term: shared victory
+    definition: >-
+      A victory the game's own rules give to several sides together, when
+      they tie for the best result. Every side sharing it is shown as a
+      winner, and each person on one counts it, once, as a victory in their
+      history and statistics. Only a game whose rules allow it has one.
+    forms: [shared victories, share the victory, shares the victory, shared the victory, have shared the victory]
+    published: true
+
   - term: start a custom game
     definition: >-
       Begin a custom game once every declared side has a participant and every
@@ -266,10 +371,10 @@ terms:
 
   - term: side
     definition: >-
-      One of a game's declared places to play from. A game has two or four
-      sides. When the game uses turns, the sides take them in a fixed order
-      and the first side moves first. A side is open until a person or a bot
-      takes it. Every declared side needs a participant before play begins.
+      One of a game's declared places to play from. A game has two, three or four
+      sides. When the game uses turns, they follow a fixed turn order and the
+      first side moves first; a side is open until a person or a bot takes
+      it. Every declared side needs a participant before play begins.
     forms:
       - sides
       - first side
@@ -358,7 +463,7 @@ terms:
       unfinished. A puzzle is finished once it is over; one still being
       solved, or waiting for a retry after a wrong move, is unfinished.
     forms: [finish, finishes, unfinished]
-    model: [Finished]
+    model: [Finished, finishGame]
 
   - term: end
     definition: >-
@@ -385,9 +490,10 @@ terms:
     definition: >-
       The result that gives a participant the game, by the game's own rules
       or because the opponent resigns. In a custom game it may also come on
-      time or because the opponent stayed away. A victory, once reached, is
-      never replaced.
-    forms: [victories, wins, won]
+      time or because the opponent stayed away. Where the game's own rules
+      allow it, several sides may share it: a shared victory. A victory, once
+      reached, is never replaced.
+    forms: [victories, wins, won, winner, winners]
 
   - term: draw
     definition: >-
@@ -408,7 +514,7 @@ terms:
       Give up a game under way. In a two-sided game the opponent wins; a
       game with more than two sides finishes as a draw because a participant
       withdrew. In a matched game, resigning is refused before it is under
-      way, and the person is told to abort instead. Once it is under way any
+      way, and the person is told to abort instead; from then on any
       participant may resign, whoever's turn it is when there are turns, and
       resigning again keeps the result. Leaving the space resigns a
       participant's side of a custom game under way, and a finished custom
@@ -423,9 +529,8 @@ terms:
       together at the same game, and at the same clock choice when the game
       offers one. Each is given a side, everyone sees the same board, play
       and result, and only those people may play, resign, abort it or offer
-      a draw. A person has at
-      most one unfinished matched game. Different games and clock choices
-      never fill the same matched game.
+      a draw. A person has at most one unfinished matched game. Different
+      games and clock choices never fill the same matched game.
     forms: [matched games, matched game's]
     avoid: [multiplayer game, online game, found-opponent game]
     model: [PlayGame, PlayWorld, playNumber, playSide]
@@ -433,8 +538,8 @@ terms:
   - term: abort
     definition: >-
       Stop a matched game before it is under way. Any participant may abort
-      until then. An aborted matched game is over
-      with no result, changes nobody's rating, has no rematch, and frees all
+      until then. An aborted matched game is over with no result, changes
+      nobody's rating, has no rematch, and frees all
       people to seek an opponent again; aborting it again changes nothing.
     forms: [aborts, aborted, aborting, can no longer be aborted]
     avoid: [void]
@@ -520,6 +625,7 @@ terms:
       - accepting the rematch
       - decline the rematch
       - declines the rematch
+    published: true
     model: [rematch, offerRematch, acceptRematch, declineRematch, rematchOffer, rematchOf]
     published: true
 
@@ -869,7 +975,8 @@ terms:
   - term: statistics
     definition: >-
       Victories, losses and draws of one game alone; another game's results
-      never count.
+      never count. A shared victory counts once as a victory for every
+      person who shares it.
 
   # --- Puzzles, for every game that offers them -------------------------------
 

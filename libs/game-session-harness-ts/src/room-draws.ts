@@ -50,7 +50,6 @@ export async function dealKnownHandsOnStart(
   const current = (await readCustomGameProbe(s, actor))?.current;
   if (current === null || current === undefined) return;
   const game = harnessGameAt(s, current.fen);
-  if (!isTurnHarnessGame(game)) return;
-  const deal = game.fixtures.knownDeal;
+  const deal = isTurnHarnessGame(game) ? game.fixtures.knownDeal : undefined;
   if (deal !== undefined) queueRoomDraws(s, deal.draws);
 }

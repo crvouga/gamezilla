@@ -30,10 +30,20 @@ export function MultiplayerFindPanel(props: {
       description={
         <>
           <Show when={count() > 2}>
-            <Trans>
-              A game needs {count()} players including you. Find {count() - 1}{' '}
-              other players at the same clock choice.
-            </Trans>{' '}
+            <Show
+              when={timed()}
+              fallback={
+                <Trans>
+                  A game needs {count()} players including you. Find{' '}
+                  {count() - 1} other players.
+                </Trans>
+              }
+            >
+              <Trans>
+                A game needs {count()} players including you. Find {count() - 1}{' '}
+                other players at the same clock choice.
+              </Trans>
+            </Show>{' '}
           </Show>
           <Show
             when={timed()}

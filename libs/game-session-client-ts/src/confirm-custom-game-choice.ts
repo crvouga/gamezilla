@@ -2,7 +2,7 @@ import type { CustomGameChoice } from '@libs/game-session-shared-ts/custom-game-
 import {
   ChangeCustomGame,
   ChangeLocalCustomGame,
-  CustomGamesChanged,
+  customGameChangeAnswer,
 } from '@libs/game-session-shared-ts/custom-game-commands';
 import { localCustomGameChoiceAllowed } from '@libs/game-session-shared-ts/custom-game-local';
 import { CustomGameNoticeAttr } from '@libs/game-session-shared-ts/custom-game-router';
@@ -64,12 +64,12 @@ function confirmLocalChoice(
       args.rules
     )
   ) {
-    const simulated = args.chooseLocal?.(choice);
-    if (simulated != null) return simulated;
     const local = ChangeLocalCustomGame({
       choice,
       at: Math.floor(args.clock.now()),
     });
+    const simulated = args.chooseLocal?.(choice);
+    if (simulated != null) return simulated;
     const id = room.dispatch(
       args.prepare?.(room.getSnapshot(), local) ?? local
     );
@@ -161,13 +161,9 @@ export function confirmCustomGameChoice(
       }
       const fact = room
         .getLog()
-        .findLast(
-          (entry) =>
-            CustomGamesChanged.is(entry.event) &&
-            entry.event.payload.commandId === commandId
-        );
-      if (fact !== undefined && CustomGamesChanged.is(fact.event))
-        finish(fact.event.payload.reason);
+        .map((entry) => customGameChangeAnswer(entry.event))
+        .findLast((answer) => answer?.commandId === commandId);
+      if (fact != null) finish(fact.reason);
     };
     const cancel = (): void => finish('game closed before confirmation');
     const unsubscribe = room.subscribe(inspect);

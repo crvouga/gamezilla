@@ -1,7 +1,11 @@
 import { MutationError } from '@pkgs/sync-engine-shared-ts/mutations-types';
-import type {
-  GameSetups,
-  TurnGames,
+import {
+  type GameSetups,
+  type GameSide,
+  type GameWinner,
+  gameSides,
+  plainWinner,
+  type TurnGames,
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { MultiplayerGame } from './game-state';
 import {
@@ -53,6 +57,21 @@ function recordedAction(
       'That multiplayer move is illegal.'
     );
   return { action, hidden: null };
+}
+
+/**
+ * A matched game records one winner or a draw: its rating compares people
+ * by a win, a loss or a draw, so joint winners are a custom-game result only.
+ */
+function matchedOutcome(
+  winner: GameWinner | null,
+  sides: readonly GameSide[]
+): MultiplayerGame['outcome'] {
+  if (winner === null) return 'ongoing';
+  const plain = plainWinner(winner, sides);
+  if (typeof plain !== 'string')
+    throw new Error('matched games record one winner or a draw');
+  return plain;
 }
 
 /** A matched game after one move, and its hidden state for a game with dealt hands. */
@@ -113,7 +132,10 @@ export function playMultiplayerMove(
     );
   const moved: MultiplayerGame = {
     ...spendMultiplayerClock(game, input.nowMs),
-    outcome: played.winner ?? 'ongoing',
+    outcome: matchedOutcome(
+      played.winner,
+      gameSides(rules.forPosition(game.fen))
+    ),
     reason: played.reason,
     fen: played.position,
     pgn: played.history,

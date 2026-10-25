@@ -15,17 +15,19 @@ import {
   opponentSearchView,
   seekGameOpponent,
 } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
+import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { deviceRowsOf } from '@libs/game-session-harness-ts/private-setup-observation';
 import { openConformanceHarness } from '../../conformance-world';
-import { forEveryTurnGame } from '../game-suite';
+import { forEveryGame } from '../game-suite';
 
-forEveryTurnGame(
+forEveryGame(
   import.meta.path,
   (game) => {
+    if (!isTurnHarnessGame(game))
+      throw new Error(`${game.label} has no turn fixtures`);
     test("each person's device holds their own hand and never the opponent's or the hidden state", async () => {
       await using s = await openConformanceHarness(
-        `${game.shared.id},
-        ['dealt hands', 'two seats']-matched-dealt-hands`
+        `${game.shared.id}-matched-dealt-hands`
       );
       const deal = game.fixtures.knownDeal;
       const [first, second] = deal?.hands ?? [];

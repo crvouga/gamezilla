@@ -28,6 +28,8 @@ export type CustomGameProbe = CustomGames & {
   } | null;
   /** For a game with dealt hands, the person's own hand; `null` otherwise. */
   readonly ownHand: string | null;
+  /** For a game with private commitments, the person's own in the open phase; `null` before they make one. */
+  readonly ownCommitment: string | null;
   /** People in the space who are away, each with since when (room time). */
   readonly away: Readonly<Record<string, number>>;
   readonly error: string;

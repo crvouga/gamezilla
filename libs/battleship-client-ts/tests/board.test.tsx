@@ -36,6 +36,8 @@ function board(options: {
       syncKey={0}
       setup={options.setup}
       hand={null}
+      committed={[]}
+      commitment={null}
       testId="board"
       onAction={(action) => actions.push(action)}
     />

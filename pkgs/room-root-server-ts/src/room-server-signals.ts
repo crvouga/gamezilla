@@ -13,6 +13,7 @@ import {
   hasAuthority,
   readsHistory,
   refuseConnectionCommand,
+  refuseLiveSignal,
 } from './room-server-connections';
 import { broadcastToConnections } from './room-server-fanout';
 import { sessionDenial, sessionGrantValid } from './session-grant';
@@ -29,16 +30,21 @@ export async function receiveRoomSignal<Identity>(args: {
     grants: readonly string[]
   ) => Promise<RoomError | null>;
   readonly handler: RoomSignalHandler<Identity> | undefined;
+  /**
+   * The room runs a live session itself: anyone reading the room may signal
+   * it, whether or not the authority their writes depend on is present.
+   */
+  readonly live?: boolean;
 }): Promise<void> {
   const connection = args.connection;
+  const refuse =
+    args.live === true ? refuseLiveSignal : refuseConnectionCommand;
   if (args.connections.get(connection.id) !== connection) return;
-  if (refuseConnectionCommand(connection, args.connections, args.command.id))
-    return;
+  if (refuse(connection, args.connections, args.command.id)) return;
   const denied = await args.authorize(args.command, connection.grants);
   // Authorization can yield while the transport is being replaced or removed.
   if (args.connections.get(connection.id) !== connection) return;
-  if (refuseConnectionCommand(connection, args.connections, args.command.id))
-    return;
+  if (refuse(connection, args.connections, args.command.id)) return;
   const refusal = sessionDenial(denied, connection.grants, args.now());
   const error =
     refusal ??

@@ -28,6 +28,7 @@ import {
   assertRoomModuleName,
   type RoomState,
 } from '@pkgs/room-root-shared-ts/types';
+import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import { continuousRaceGame } from './reference-continuous-game';
 
 export async function liveSessionRoom(
@@ -47,19 +48,25 @@ export async function liveSessionRoom(
     ? gameModules([definition]).flatMap((game) => game.matchRooms ?? [])[0]!
     : custom;
   const topic = matched ? matchRoomTopic('race-1') : 'space:race';
+  const sides = gameSides(definition.registration.rules);
+  const extra = (side: 'red' | 'blue', person: string) =>
+    sides.includes(side) ? { [side]: { kind: 'person' as const, person } } : {};
   const game = {
     ...newCustomGame(
       'race-1',
       'alice',
-      definition.registration.rules.initial()
+      definition.registration.rules.initial(),
+      sides
     ),
+    ...extra('red', 'carol'),
+    ...extra('blue', 'dave'),
     black:
       local === 'players'
         ? { kind: 'local' as const, person: '' }
         : local
           ? { kind: 'bot' as const, person: '' }
           : { kind: 'person' as const, person: 'bob' },
-    ready: ['white', 'black'] as ('white' | 'black')[],
+    ready: [...sides],
     status: 'active' as const,
     startedAt: 0,
     turnStartedAt: 0,
@@ -74,6 +81,8 @@ export async function liveSessionRoom(
               id: game.id,
               white_id: 'alice',
               black_id: 'bob',
+              ...(sides.includes('red') ? { red_id: 'carol' } : {}),
+              ...(sides.includes('blue') ? { blue_id: 'dave' } : {}),
               fen: game.fen,
               pgn: '',
               revision: 0,
@@ -88,6 +97,8 @@ export async function liveSessionRoom(
       ...SpaceMembersRoomAttr.seats({
         alice: { joinedAt: '2026-10-23' },
         bob: { joinedAt: '2026-10-23' },
+        carol: { joinedAt: '2026-10-23' },
+        dave: { joinedAt: '2026-10-23' },
         eve: { joinedAt: '2026-10-23' },
       }),
       ...CustomGamesAttr({ current: game, history: [] }),
@@ -119,7 +130,9 @@ export async function liveSessionRoom(
   const transports = new Map<string, LoopbackRoomTransport>();
   const connect = async (
     identity: string,
-    clientStorage: ClientRoomStorage = new InMemoryClientStorage()
+    clientStorage: ClientRoomStorage = new InMemoryClientStorage(),
+    /** Another device of the same person connects under its own name. */
+    device: string = identity
   ) => {
     const grants = [
       PERMISSION.spacesLeave,
@@ -134,9 +147,9 @@ export async function liveSessionRoom(
     ];
     const transport = new LoopbackRoomTransport({
       server,
-      connectionId: identity,
+      connectionId: device,
       identity,
-      clientId: identity,
+      clientId: device,
       grants,
     });
     const localSchedules = createTimerScheduleStack({
@@ -160,8 +173,8 @@ export async function liveSessionRoom(
       room.dispatch(payload);
     });
     await room.untilSynced();
-    clients.set(identity, room);
-    transports.set(identity, transport);
+    clients.set(device, room);
+    transports.set(device, transport);
     await settle();
     return room;
   };

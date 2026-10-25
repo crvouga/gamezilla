@@ -13,13 +13,14 @@ import { expect, test } from 'bun:test';
 import { hostedSpaceId } from '@libs/game-matchmaking-harness-ts/multiplayer-spaces';
 import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-lineup';
 import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import {
   deviceRowsOf,
   roomHistorySentTo,
 } from '@libs/game-session-harness-ts/private-setup-observation';
 import type { OpenHarness } from '@libs/harness-ts/open-harness';
 import { openConformanceHarness } from '../../conformance-world';
-import { forEveryTurnGame } from '../game-suite';
+import { forEveryGame } from '../game-suite';
 
 /** The two first hands of the known deal, and its hidden state. */
 function knownDeal(game: TurnHarnessGame) {
@@ -40,13 +41,14 @@ async function sentTo(s: OpenHarness, actor: string): Promise<string> {
   return s.read(roomHistorySentTo, actor, spaceId);
 }
 
-forEveryTurnGame(
+forEveryGame(
   import.meta.path,
   (game) => {
+    if (!isTurnHarnessGame(game))
+      throw new Error(`${game.label} has no turn fixtures`);
     test('each person receives their own hand alone; a watcher none; nobody the hidden state', async () => {
       await using s = await openConformanceHarness(
-        `${game.shared.id},
-        ['dealt hands', 'two seats']-dealt-hands-delivery`
+        `${game.shared.id}-dealt-hands-delivery`
       );
       await s.apply(establishCustomGame, game.shared.id, {
         watchers: ['carol'],

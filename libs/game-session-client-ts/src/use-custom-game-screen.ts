@@ -25,6 +25,7 @@ import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { type GameSide, gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import { type Accessor, createMemo } from 'solid-js';
 import { useCustomGameCommand } from './use-custom-game-command';
+import { useCustomGameCommitment } from './use-custom-game-commitment';
 import { useCustomGameHand } from './use-custom-game-hand';
 import { useCustomGamePrivateSetup } from './use-custom-game-private-setup';
 import { useCustomSimulation } from './use-custom-simulation';
@@ -185,6 +186,8 @@ export function useCustomGameScreen(
     privateSetup,
     /** The person's own dealt hand in the current game; never another's. */
     ownHand: useCustomGameHand(current, myId),
+    /** The person's own commitment in the phase open now; never another's. */
+    ownCommitment: useCustomGameCommitment(current, myId),
     playBot,
     attempt: command.send,
     error: command.error,

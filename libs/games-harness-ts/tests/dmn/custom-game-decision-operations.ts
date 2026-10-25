@@ -45,10 +45,6 @@ function readyFor(w: RoomWorld, side: GameSide): CustomGameInput {
   return { operation: 'ready', ...(setup === undefined ? {} : { setup }) };
 }
 
-async function ready(w: RoomWorld, identity: string, side: GameSide) {
-  await choice(w, identity, readyFor(w, side));
-}
-
 function peerForSide(side: GameSide) {
   return side === 'black' ? PEER : `${PEER}-${side}`;
 }
@@ -62,10 +58,9 @@ async function fillExtraSides(w: RoomWorld) {
       ApplySpaceMembership({ memberId: person, change: 'joined' })
     );
     await choice(w, person, { operation: 'claim', side });
-    await ready(w, person, side);
+    await choice(w, person, readyFor(w, side));
   }
 }
-
 async function prepare(w: RoomWorld, capability: string): Promise<void> {
   // regression: custom-game-decision-private-setup
   const join = (memberId: string) =>
@@ -85,7 +80,7 @@ async function prepare(w: RoomWorld, capability: string): Promise<void> {
   if (capability === 'start a custom game') {
     for (const side of gameSides(w.game.shared.registration.rules).slice(1))
       await choice(w, w.host, { operation: 'bot', side });
-    await ready(w, w.host, 'white');
+    await choice(w, w.host, readyFor(w, 'white'));
     return;
   }
   if (
@@ -95,8 +90,8 @@ async function prepare(w: RoomWorld, capability: string): Promise<void> {
     // A participant cancels only a game between people, before each side moved.
     await choice(w, actor, { operation: 'claim', side: 'black' });
     await fillExtraSides(w);
-    await ready(w, actor, 'black');
-    await ready(w, w.host, 'white');
+    await choice(w, actor, readyFor(w, 'black'));
+    await choice(w, w.host, readyFor(w, 'white'));
     await choice(w, w.host, { operation: 'start' });
     return;
   }
@@ -107,11 +102,11 @@ async function prepare(w: RoomWorld, capability: string): Promise<void> {
   }
   await choice(w, PEER, { operation: 'claim', side: 'black' });
   await fillExtraSides(w);
-  await ready(w, PEER, 'black');
-  await ready(
+  await choice(w, PEER, readyFor(w, 'black'));
+  await choice(
     w,
     spacePresenceOf(w.c.input) === 'guest' ? actor : w.host,
-    'white'
+    readyFor(w, 'white')
   );
   await choice(w, w.host, { operation: 'start' });
 }

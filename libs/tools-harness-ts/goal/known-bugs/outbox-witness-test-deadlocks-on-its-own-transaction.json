@@ -1,0 +1,4 @@
+{
+  "summary": "The outbox witness test appended a 'concurrent' event outside the producer transaction it opened, so the append waited on the client's serialized transaction forever and the test hung (it times out on main).",
+  "regressionTest": "pkgs/outbox-harness-ts/tests/due-work.test.ts"
+}

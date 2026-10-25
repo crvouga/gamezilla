@@ -112,6 +112,8 @@ function BoardStage(
         testId="multiplayer-board"
         setup={props.ownSetup}
         hand={props.ownHand}
+        committed={[]}
+        commitment={null}
         onAction={(action: string) => {
           void props.onMove(action);
         }}

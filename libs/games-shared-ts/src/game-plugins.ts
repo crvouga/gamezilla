@@ -2,11 +2,17 @@ import { battleshipGameShared } from '@libs/battleship-shared-ts/battleship-game
 import { chessGameShared } from '@libs/chess-sub-shared-ts/chess-game';
 import { connectFourGameShared } from '@libs/connect-four-shared-ts/connect-four-game';
 import {
+  type AnyGameRegistration,
   assertGameDefinitions,
   type GameRegistration,
   isGameRegistration,
-  type RegistryGame,
 } from '@libs/game-session-shared-ts/game-definition';
+import {
+  lightCyclesDuelShared,
+  lightCyclesQuadShared,
+  lightCyclesTrioShared,
+} from '@libs/light-cycles-shared-ts/light-cycles-game';
+import { heartsGameShared } from '@libs/hearts-shared-ts/hearts-game';
 import { numberlinkGameShared } from '@libs/numberlink-shared-ts/numberlink-game';
 import { pongGameShared } from '@libs/pong-shared-ts/pong-game';
 import {
@@ -37,13 +43,17 @@ export const GAME_DEFINITIONS = [
   wordTilesGameShared,
   wordTiles3GameShared,
   wordTiles4GameShared,
+  heartsGameShared,
   pongGameShared,
-] as const satisfies readonly RegistryGame[];
+  lightCyclesDuelShared,
+  lightCyclesTrioShared,
+  lightCyclesQuadShared,
+] as const satisfies readonly AnyGameRegistration[];
 
-/** Only games holding positions (turn rules or a simulation) enter catalogs and shared suites. */
-export const REGISTERED_GAME_DEFINITIONS: readonly GameRegistration[] =
+/** Games with position rules — turns, a simulation or both — enter session catalogs and suites. */
+export const PLAYABLE_GAME_DEFINITIONS: readonly GameRegistration[] =
   GAME_DEFINITIONS.flatMap((game) => (isGameRegistration(game) ? [game] : []));
 
 assertGameRegistry(GAME_DEFINITIONS);
 assertGameDefinitions('GAME_DEFINITIONS', GAME_DEFINITIONS);
-assertGameNamespaceOwner(REGISTERED_GAME_DEFINITIONS, chessGameShared);
+assertGameNamespaceOwner(PLAYABLE_GAME_DEFINITIONS, chessGameShared);

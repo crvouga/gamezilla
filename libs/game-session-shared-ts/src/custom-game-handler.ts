@@ -14,6 +14,10 @@ import { customGameAwaySince } from './custom-game-absence';
 import { CustomGameAvailableAttr } from './custom-game-availability';
 import type { CustomGameChoice } from './custom-game-choice';
 import type { CustomGameBotWake, CustomGameWake } from './custom-game-commands';
+import {
+  commitCustomGameSide,
+  commitmentChoice,
+} from './custom-game-commit-play';
 import { rematchCustomGame } from './custom-game-configuration';
 import {
   dealtHandsChoice,
@@ -36,7 +40,11 @@ import { privateSetupChoice } from './custom-game-private-play';
 import { customGameRefusal } from './custom-game-refusal';
 import { changedCustomGames, refuseCustomGame } from './custom-game-result';
 import type { CustomGame } from './custom-game-state';
-import { CustomGamesAttr, newCustomGame } from './custom-game-state';
+import {
+  CustomGamesAttr,
+  customGameBotPlays,
+  newCustomGame,
+} from './custom-game-state';
 
 /** The game a new custom game is of: the one asked for, else the space's. */
 function gameForChoice(state: RoomState, choice: CustomGameChoice): string {
@@ -132,7 +140,9 @@ export function handleCustomGameChoice(
     return refuseCustomGame('difficulty not offered');
   const decision = { state, ctx, game, rules };
   const privately =
-    privateSetupChoice(decision, choice) ?? dealtHandsChoice(decision, choice);
+    privateSetupChoice(decision, choice) ??
+    commitmentChoice(decision, choice) ??
+    dealtHandsChoice(decision, choice);
   if (privately !== null) return privately;
   const configured = configuredCustomGame(game, choice, ctx.identity, rules);
   if (configured.reason !== '') return refuseCustomGame(configured.reason);
@@ -156,25 +166,29 @@ function currentWake(
     game.status === 'active' &&
     game.id === wake.gameId &&
     game.moves.length === wake.ply &&
-    game.turn === wake.side
+    (game.awaiting.length > 0
+      ? game.awaiting.includes(wake.side)
+      : game.turn === wake.side)
   );
 }
 
 /**
- * Whether someone other than the room chooses a move for a bot whose hand
- * is the room's alone: in every game with dealt hands but its creator's
- * solo practice.
+ * Whether someone other than the room chooses a move only the room may
+ * choose: a stand-in's move for an away person's side, or a bot's whose hand
+ * is the room's alone (every game with dealt hands but its creator's solo
+ * practice). The creator's device predicts only its own bots' public moves.
  */
-function chosesHiddenBotMove(
+function choosesRoomBotMove(
   game: CustomGame | null,
   ctx: GameCommandContext,
   wake: CustomGameBotWake | CustomGameWake,
   rules: TurnGames
 ): boolean {
+  if (ctx.identity === ROOM_SCHEDULER_IDENTITY || !('move' in wake))
+    return false;
+  if (game === null) return false;
+  if (game.standIns.includes(wake.side)) return true;
   return (
-    ctx.identity !== ROOM_SCHEDULER_IDENTITY &&
-    'move' in wake &&
-    game !== null &&
     customGameHandsRules(game, rules) !== undefined &&
     !soloCustomGame(game, rules)
   );
@@ -191,6 +205,72 @@ function lacksHiddenState(
     !ctx.authority &&
     customGameHandsRules(game, rules) !== undefined &&
     customGameHidden(state, game) === null
+  );
+}
+
+/** The bot or stand-in playing `side` commits with that side's own hand alone. */
+function botCommitment(
+  state: RoomState,
+  ctx: GameCommandContext,
+  game: CustomGame,
+  rules: TurnGames
+): (side: CustomGame['turn']) => HandleResult {
+  return (side) => {
+    const commitment =
+      customGameBots(game, rules).choose?.(
+        game.fen,
+        game.difficulty[side],
+        ctx.random,
+        customGameHand(state, game, side)
+      ) ?? null;
+    if (commitment === null)
+      throw new Error('a committing bot has no commitment');
+    return commitCustomGameSide({ state, ctx, game, rules }, side, commitment);
+  };
+}
+
+type BotWakeDecision = {
+  readonly state: RoomState;
+  readonly ctx: GameCommandContext;
+  readonly game: CustomGame;
+  readonly rules: TurnGames;
+};
+
+/** The bot's own choice on its wake: a commitment, or a move the room resolves. */
+function playBotWake(
+  decision: BotWakeDecision,
+  wake: CustomGameBotWake | CustomGameWake,
+  at: number
+): HandleResult {
+  const { state, ctx, game, rules } = decision;
+  // A copy without the hidden state leaves the bot's turn to the room.
+  if (lacksHiddenState(state, ctx, game, rules))
+    return { ok: true, events: [] };
+  if (game.awaiting.length > 0)
+    return 'move' in wake
+      ? commitCustomGameSide({ state, ctx, game, rules }, wake.side, wake.move)
+      : botCommitment(state, ctx, game, rules)(wake.side);
+  const move =
+    'move' in wake
+      ? wake.move
+      : customGameBotMove(game, rules, {
+          random: ctx.random,
+          hand: customGameHand(state, game, game.turn),
+        });
+  if (move === null) throw new Error('active bot game has no legal move');
+  // A bot proposes from the public position and its own hand; the room
+  // alone resolves it.
+  const decided = decideCustomGameMove(state, game, move, rules);
+  if ('refusal' in decided) return refuseCustomGame(decided.refusal);
+  const next = playCustomGameMove(game, decided.action, at, rules);
+  if (next === null) return refuseCustomGame('move is illegal');
+  return changedCustomGames(
+    { ...CustomGamesAttr.from(state), current: next },
+    ctx,
+    rules,
+    {
+      privately: decided.privately,
+    }
   );
 }
 
@@ -215,7 +295,7 @@ export function handleCustomGameWake(
     )
   )
     return refuseCustomGame('only the game may move a bot or end a clock');
-  if (chosesHiddenBotMove(game, ctx, wake, rules))
+  if (choosesRoomBotMove(game, ctx, wake, rules))
     return refuseCustomGame('only the game may move a bot or end a clock');
   if (!CustomGameAvailableAttr.from(state) && !soloCustomGame(game, rules))
     return changedCustomGames(games, ctx, rules);
@@ -226,26 +306,7 @@ export function handleCustomGameWake(
   const expired = expireCustomGame(game, at, rules);
   if (expired !== game)
     return changedCustomGames({ ...games, current: expired }, ctx, rules);
-  if (!bot || game[game.turn].kind !== 'bot')
+  if (!bot || !customGameBotPlays(game, wake.side))
     return changedCustomGames(games, ctx, rules);
-  // A copy without the hidden state leaves the bot's turn to the room.
-  if (lacksHiddenState(state, ctx, game, rules))
-    return { ok: true, events: [] };
-  const move =
-    'move' in wake
-      ? wake.move
-      : customGameBotMove(game, rules, {
-          random: ctx.random,
-          hand: customGameHand(state, game, game.turn),
-        });
-  if (move === null) throw new Error('active bot game has no legal move');
-  // A bot proposes from the public position and its own hand; the room
-  // alone resolves it.
-  const decided = decideCustomGameMove(state, game, move, rules);
-  if ('refusal' in decided) return refuseCustomGame(decided.refusal);
-  const next = playCustomGameMove(game, decided.action, at, rules);
-  if (next === null) return refuseCustomGame('move is illegal');
-  return changedCustomGames({ ...games, current: next }, ctx, rules, {
-    privately: decided.privately,
-  });
+  return playBotWake({ state, ctx, game, rules }, wake, at);
 }

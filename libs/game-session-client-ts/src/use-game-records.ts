@@ -8,11 +8,13 @@ import {
   CustomGameHandsAttr,
   ownCustomGameHand,
 } from '@libs/game-session-shared-ts/custom-game-hands';
+import { customGameWinners } from '@libs/game-session-shared-ts/custom-game-outcome';
 import {
   CustomGameSetupsAttr,
   ownCustomGameSetup,
 } from '@libs/game-session-shared-ts/custom-game-setup';
 import {
+  type CustomGame,
   type CustomGames,
   CustomGamesAttr,
 } from '@libs/game-session-shared-ts/custom-game-state';
@@ -36,7 +38,10 @@ export type GameHistoryRecord = {
     readonly bot: boolean;
     readonly local: boolean;
   }[];
-  readonly outcome: string;
+  /** Won (by one side or jointly), drawn or cancelled. */
+  readonly result: 'won' | 'draw' | 'aborted';
+  /** The sides the result went to: every side for a draw, none when cancelled. */
+  readonly winners: readonly GameSide[];
   readonly reason: string;
   readonly moves: readonly RecordedMove[];
   /** The viewer's own private setup in the game, when it has one; never another's. */
@@ -91,7 +96,7 @@ export function useGameRecords(gameId: () => string) {
           bot: false,
           local: false,
         })),
-        outcome: g.outcome,
+        ...matchedResult(g),
         reason: g.reason ?? '',
         moves: isTurnRules(gameRules) ? gameRules.moves(g.fen, g.pgn, []) : [],
         setup:
@@ -135,12 +140,7 @@ function customRecords(
         bot: g[side].kind === 'bot',
         local: g[side].kind === 'local',
       })),
-      outcome:
-        g.outcome === 'draw'
-          ? 'draw'
-          : g.status === 'cancelled'
-            ? 'aborted'
-            : (g.sides.find((side) => g.outcome.startsWith(side)) ?? 'draw'),
+      ...customResult(g),
       reason: g.outcomeReason || g.outcome,
       moves: isTurnRules(context.gameRules)
         ? context.gameRules.moves(
@@ -162,6 +162,29 @@ function customRecords(
     }));
 }
 
+function customResult(
+  game: CustomGame
+): Pick<GameHistoryRecord, 'result' | 'winners'> {
+  if (game.status === 'cancelled') return { result: 'aborted', winners: [] };
+  const winners = customGameWinners(game);
+  // An outcome naming no side reads as a draw, as it always has.
+  return game.outcome === 'draw' || winners.length === 0
+    ? { result: 'draw', winners: game.sides }
+    : { result: 'won', winners };
+}
+
+function matchedResult(
+  game: MultiplayerGame
+): Pick<GameHistoryRecord, 'result' | 'winners'> {
+  if (game.outcome === 'aborted') return { result: 'aborted', winners: [] };
+  if (game.outcome === 'draw')
+    return { result: 'draw', winners: multiplayerSides(game) };
+  return game.outcome === 'ongoing'
+    ? { result: 'aborted', winners: [] }
+    : { result: 'won', winners: [game.outcome] };
+}
+
+/** A person wins when the result goes to their side, alone or jointly. */
 function countResults(records: readonly GameHistoryRecord[], myId: string) {
   let wins = 0;
   let losses = 0;
@@ -170,9 +193,9 @@ function countResults(records: readonly GameHistoryRecord[], myId: string) {
     const side =
       game.participants.find((participant) => participant.person === myId)
         ?.side ?? null;
-    if (side === null || game.outcome === 'aborted') continue;
-    if (game.outcome === 'draw') draws++;
-    else if (game.outcome === side) wins++;
+    if (side === null || game.result === 'aborted') continue;
+    if (game.result === 'draw') draws++;
+    else if (game.winners.includes(side)) wins++;
     else losses++;
   }
   return { wins, losses, draws };

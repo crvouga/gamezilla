@@ -12,9 +12,13 @@ import {
   useSpaceColumn,
 } from '@libs/spaces-client-ts/use-space-column';
 import { useSpaceHostConnection } from '@libs/spaces-client-ts/use-space-host-connection';
-import { SPACE_ROOM_NAME } from '@libs/spaces-client-ts/use-space-room-selector';
+import {
+  SPACE_ROOM_NAME,
+  useSpaceRoomSelector,
+} from '@libs/spaces-client-ts/use-space-room-selector';
 import { useClock, useTimers } from '@pkgs/clock-client-ts/solid';
 import { useNamedRoomRoster } from '@pkgs/room-root-client-ts/room-clients-context';
+import { RoomMetaAttr } from '@pkgs/room-root-client-ts/room-meta';
 import type {
   RoomCommandPayload,
   RoomState,
@@ -23,6 +27,46 @@ import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { createSignal, onCleanup } from 'solid-js';
 import { confirmCustomGameChoice } from './confirm-custom-game-choice';
+import { customGameHostKnownAbsent } from './custom-game-host-absence';
+
+/**
+ * Why a choice cannot reach the host now, or `''`. A guest's own lost
+ * connection is a different refusal from the host being gone, and the
+ * creator's authority is named before the host being gone.
+ */
+function useHostRefusal(): (choice: CustomGameChoice) => string {
+  const rooms = useSpaceOpenRooms();
+  const spaceId = useSpaceRoomSessionId();
+  const hostConnection = useSpaceHostConnection();
+  const hostId = useSpaceColumn(() => spaceId() ?? '', SpaceField.hostMemberId);
+  const roster = useNamedRoomRoster(SPACE_ROOM_NAME);
+  const connected = useSpaceRoomSelector(RoomMetaAttr.isConnected.from);
+  const hasRoster = useSpaceRoomSelector(RoomMetaAttr.hasRoster.from);
+  const myId = useMyId();
+  const engine = useSyncEngine();
+  return (choice: CustomGameChoice): string => {
+    const hostAbsent = customGameHostKnownAbsent({
+      connected: connected(),
+      hasRoster: hasRoster(),
+      hostId: hostId(),
+      myId: myId(),
+      roster: roster(),
+    });
+    if (
+      !engine.status().online ||
+      !(hostAbsent || hostConnection() === 'host-offline')
+    )
+      return '';
+    const snapshot = rooms.getEntry(spaceId() ?? '')?.room.getSnapshot();
+    return (
+      customGameCreatorRefusal(
+        snapshot === undefined ? null : CustomGamesAttr.from(snapshot).current,
+        choice,
+        myId()
+      ) || 'the host is offline'
+    );
+  };
+}
 
 export function useCustomGameCommand(
   chooseLocal?: (choice: CustomGameChoice) => Promise<void> | null
@@ -36,11 +80,7 @@ export function useCustomGameCommand(
     () => spaceId() ?? '',
     PERMISSION.gameCustomCreate
   );
-  const hostConnection = useSpaceHostConnection();
-  const hostId = useSpaceColumn(() => spaceId() ?? '', SpaceField.hostMemberId);
-  const roster = useNamedRoomRoster(SPACE_ROOM_NAME);
-  const myId = useMyId();
-  const engine = useSyncEngine();
+  const hostRefusal = useHostRefusal();
   const module = useOptionalSpaceModule();
   const [error, setError] = createSignal('');
   const [settled, setSettled] = createSignal(0);
@@ -60,25 +100,8 @@ export function useCustomGameCommand(
         };
   const send = async (choice: CustomGameChoice): Promise<void> => {
     setError('');
-    // A guest's own lost connection is a different refusal from the host being
-    // gone, and the creator's authority is named before the host being gone.
-    const hostAbsent =
-      hostId() !== null &&
-      hostId() !== myId() &&
-      !roster().some((actor) => actor.id === hostId());
-    if (
-      engine.status().online &&
-      (hostAbsent || hostConnection() === 'host-offline')
-    ) {
-      const snapshot = rooms.getEntry(spaceId() ?? '')?.room.getSnapshot();
-      const reason =
-        customGameCreatorRefusal(
-          snapshot === undefined
-            ? null
-            : CustomGamesAttr.from(snapshot).current,
-          choice,
-          myId()
-        ) || 'the host is offline';
+    const reason = hostRefusal(choice);
+    if (reason !== '') {
       setError(reason);
       setSettled((value) => value + 1);
       throw new Error(reason);

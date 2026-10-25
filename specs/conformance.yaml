@@ -19,11 +19,13 @@ product:
     - connect-four
     - quoridor
     - word-tiles
+    - hearts
     - games
     - developer-tools
     - db-indexes
     - friends
     - journeys
+    - light-cycles
     - matchmaking
     - numberlink
     - pong

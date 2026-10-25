@@ -102,6 +102,7 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
   const sync = useSyncEngine();
   useDeadlineSettle({
     game: props.data.game,
+    stored: props.data.stored,
     online: () => sync.status().online,
     settle: props.controls.settle,
   });

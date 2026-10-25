@@ -44,6 +44,11 @@ msgstr "(opens in a new tab)"
 msgid "{0, plural, one {# device} other {# devices}}"
 msgstr "{0, plural, one {# device} other {# devices}}"
 
+#. placeholder {0}: earlier()
+#: libs/game-session-client-ts/src/custom-game-board.tsx
+msgid "{0, plural, one {# earlier move. Review it by its move number.} other {# earlier moves. Review any of them by its move number.}}"
+msgstr "{0, plural, one {# earlier move. Review it by its move number.} other {# earlier moves. Review any of them by its move number.}}"
+
 #. placeholder {0}: count()
 #: libs/spaces-client-ts/src/miniplayer-space-summary.tsx
 msgid "{0, plural, one {# person here} other {# people here}}"
@@ -63,6 +68,12 @@ msgstr "{0, plural, one {friend} other {friends}}"
 #: libs/spaces-client-ts/src/spaces-notices.tsx
 msgid "{0, plural, one {Hosting # space} other {Hosting # spaces}}"
 msgstr "{0, plural, one {Hosting # space} other {Hosting # spaces}}"
+
+#. placeholder {0}: riderName(rider.seat)
+#. placeholder {1}: props.state.scores[index()] ?? 0
+#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+msgid "{0} {1}"
+msgstr "{0} {1}"
 
 #. placeholder {0}: props.matched
 #. placeholder {1}: props.total
@@ -158,6 +169,16 @@ msgstr "{0} tiles"
 msgid "{0} tiles in the bag"
 msgstr "{0} tiles in the bag"
 
+#. placeholder {0}: riderName(state.result.winner)
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "{0} wins the game."
+msgstr "{0} wins the game."
+
+#. placeholder {0}: riderName(winner)
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "{0} wins the round."
+msgstr "{0} wins the round."
+
 #. placeholder {0}: props.winnerName
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
 msgid "{0} won the multiplayer game."
@@ -239,6 +260,22 @@ msgstr "{flagged} ran out of time, but the other side cannot checkmate."
 msgid "{flagged} ran out of time, but the other side cannot win."
 msgstr "{flagged} ran out of time, but the other side cannot win."
 
+#: libs/hearts-client-ts/src/hearts-presentation.tsx
+msgid "{flagged} ran out of time. The game is a draw."
+msgstr "{flagged} ran out of time. The game is a draw."
+
+#: libs/game-session-client-ts/src/side-names.tsx
+msgid "{head} and {last}"
+msgstr "{head} and {last}"
+
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "{head} and {last} have passed."
+msgstr "{head} and {last} have passed."
+
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "{held, plural, one {# card} other {# cards}}"
+msgstr "{held, plural, one {# card} other {# cards}}"
+
 #: libs/game-matchmaking-client-ts/src/multiplayer-time-left.tsx
 msgid "{hours} hours"
 msgstr "{hours} hours"
@@ -304,6 +341,10 @@ msgstr "{label}: your {name}, hit"
 msgid "{label}: your {name}, sunk"
 msgstr "{label}: your {name}, sunk"
 
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "{last} has passed."
+msgstr "{last} has passed."
+
 #: libs/battleship-client-ts/src/battleship-setup-board.tsx
 msgid "{length} cells, placed at {bow} {direction}"
 msgstr "{length} cells, placed at {bow} {direction}"
@@ -319,6 +360,18 @@ msgstr "{mins}m ago"
 #: libs/game-matchmaking-client-ts/src/multiplayer-time-left.tsx
 msgid "{minutes} minutes"
 msgstr "{minutes} minutes"
+
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "{name} (you)"
+msgstr "{name} (you)"
+
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "{name} {score}"
+msgstr "{name} {score}"
+
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "{name} has crashed in this round. Watch until the next round."
+msgstr "{name} has crashed in this round. Watch until the next round."
 
 #: libs/quoridor-client-ts/src/quoridor-game-client.tsx
 msgid "{name} ran out of time. Game drawn."
@@ -349,6 +402,14 @@ msgstr "{name}, {0}, empty"
 msgid "{name}, empty"
 msgstr "{name}, empty"
 
+#: libs/game-session-client-ts/src/custom-game-status.tsx
+msgid "{names} win by {reason}."
+msgstr "{names} win by {reason}."
+
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "{next} to play."
+msgstr "{next} to play."
+
 #: libs/battleship-client-ts/src/battleship-board.tsx
 msgid "{own} waters"
 msgstr "{own} waters"
@@ -358,12 +419,32 @@ msgid "{placed} of {total} ships placed."
 msgstr "{placed} of {total} ships placed."
 
 #: libs/game-session-client-ts/src/custom-game-status.tsx
+msgid "{player} to move, played by a stand-in bot."
+msgstr "{player} to move, played by a stand-in bot."
+
+#: libs/game-session-client-ts/src/custom-game-status.tsx
 msgid "{player} to move."
 msgstr "{player} to move."
 
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "{points} points"
 msgstr "{points} points"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "{rank} of clubs"
+msgstr "{rank} of clubs"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "{rank} of diamonds"
+msgstr "{rank} of diamonds"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "{rank} of hearts"
+msgstr "{rank} of hearts"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "{rank} of spades"
+msgstr "{rank} of spades"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-time-left.tsx
 msgid "{seconds} seconds"
@@ -385,6 +466,10 @@ msgstr "{shooter} fired at {cell} and sank the {ship}."
 msgid "{side} to move. Find the best move."
 msgstr "{side} to move. Find the best move."
 
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "{taker} took the trick with the {card} and leads."
+msgstr "{taker} took the trick with the {card} and leads."
+
 #: libs/battleship-client-ts/src/battleship-board.tsx
 msgid "{target} waters"
 msgstr "{target} waters"
@@ -405,6 +490,10 @@ msgstr "{USERNAME_MIN_LENGTH} to {USERNAME_MAX_LENGTH} letters, numbers or _. Sa
 #: libs/game-session-client-ts/src/game-record-label.tsx
 msgid "{winner} wins by {reason}."
 msgstr "{winner} wins by {reason}."
+
+#: libs/game-session-client-ts/src/game-record-label.tsx
+msgid "{winners} win by {reason}."
+msgstr "{winners} win by {reason}."
 
 #: pkgs/ui-root-client-ts/src/command-palette-hint.tsx
 msgid "↑ ↓ navigate · ↵ run · Esc close · Tab next"
@@ -520,10 +609,21 @@ msgid "A game needs {0} players including you. Find {1} other players at the sam
 msgstr "A game needs {0} players including you. Find {1} other players at the same clock choice."
 
 #. placeholder {0}: count()
+#. placeholder {1}: count() - 1
+#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
+msgid "A game needs {0} players including you. Find {1} other players."
+msgstr "A game needs {0} players including you. Find {1} other players."
+
+#. placeholder {0}: count()
 #. placeholder {1}: timeControlText(props.game.time_control)
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
 msgid "A multiplayer game for {0} players at {1}."
 msgstr "A multiplayer game for {0} players at {1}."
+
+#. placeholder {0}: count()
+#: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
+msgid "A multiplayer game for {0} players."
+msgstr "A multiplayer game for {0} players."
 
 #: libs/game-puzzle-client-ts/src/content-attempt-restart.tsx
 msgid "A new attempt could not be saved. Your earlier attempt is still here. Try again."
@@ -537,6 +637,10 @@ msgstr "A new attempt starts at the beginning. Your earlier progress and complet
 msgid "A new working copy will use these details. Your other saved copies remain available."
 msgstr "A new working copy will use these details. Your other saved copies remain available."
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "A pass is exactly three different cards."
+msgstr "A pass is exactly three different cards."
+
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "A person can have only one side."
 msgstr "A person can have only one side."
@@ -549,9 +653,17 @@ msgstr "A player left the round."
 msgid "A player used their last tile with the bag empty. Everyone else's tiles count against them and go to that player."
 msgstr "A player used their last tile with the bag empty. Everyone else's tiles count against them and go to that player."
 
+#: libs/hearts-client-ts/src/hearts-presentation.tsx
+msgid "A score reached 100, and the lowest score wins."
+msgstr "A score reached 100, and the lowest score wins."
+
 #: libs/account-privacy-client-ts/src/privacy-explanation.tsx
 msgid "A specific legal preservation obligation may retain only the information it covers until that obligation ends. Preserved information cannot restore a profile or be used to promote the product. Any applicable obligation and its end condition will be disclosed here."
 msgstr "A specific legal preservation obligation may retain only the information it covers until that obligation ends. Preserved information cannot restore a profile or be used to promote the product. Any applicable obligation and its end condition will be disclosed here."
+
+#: libs/game-session-client-ts/src/custom-game-error.tsx
+msgid "A stand-in bot is playing your side. Take back your side to play."
+msgstr "A stand-in bot is playing your side. Take back your side to play."
 
 #: libs/game-puzzle-client-ts/src/puzzle-game-log-row.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-review-screen.tsx
@@ -639,6 +751,10 @@ msgstr "Account privacy"
 #: libs/game-puzzle-client-ts/src/puzzle-stats-cards.tsx
 msgid "Accuracy"
 msgstr "Accuracy"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Ace"
+msgstr "Ace"
 
 #: libs/battleship-client-ts/src/battleship-copy.tsx
 msgid "across"
@@ -914,6 +1030,14 @@ msgstr "Back<0> one move</0>"
 msgid "Battleship"
 msgstr "Battleship"
 
+#: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
+msgid "Be the last of four riders riding."
+msgstr "Be the last of four riders riding."
+
+#: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
+msgid "Be the last of three riders riding."
+msgstr "Be the last of three riders riding."
+
 #: libs/synthetic-population-client-ts/src/synthetic-user-statechart.tsx
 msgid "Behavior Statechart"
 msgstr "Behavior Statechart"
@@ -981,11 +1105,22 @@ msgstr "Boards"
 
 #: libs/game-session-client-ts/src/custom-game-person.tsx
 #: libs/game-session-client-ts/src/custom-game-side-choices.tsx
-#: libs/game-session-client-ts/src/custom-game-status.tsx
 #: libs/game-session-client-ts/src/game-history-participant.tsx
 #: libs/profile-client-ts/src/account-automation-label.tsx
 msgid "Bot"
 msgstr "Bot"
+
+#: libs/game-session-client-ts/src/custom-game-person.tsx
+msgid "Bot (easy)"
+msgstr "Bot (easy)"
+
+#: libs/game-session-client-ts/src/custom-game-person.tsx
+msgid "Bot (hard)"
+msgstr "Bot (hard)"
+
+#: libs/game-session-client-ts/src/custom-game-person.tsx
+msgid "Bot (medium)"
+msgstr "Bot (medium)"
 
 #: libs/game-session-client-ts/src/custom-game-difficulty.tsx
 msgid "Bot difficulty"
@@ -1232,6 +1367,10 @@ msgstr "Choose a tile, then a square."
 msgid "Choose a username"
 msgstr "Choose a username"
 
+#: libs/light-cycles-client-ts/src/light-cycles-options.tsx
+msgid "Choose a whole number from 1 to 9. Changing it asks every rider to get ready again."
+msgstr "Choose a whole number from 1 to 9. Changing it asks every rider to get ready again."
+
 #: libs/pong-client-ts/src/pong-options.tsx
 msgid "Choose a whole number from 1 to 99. Changing it asks both players to get ready again."
 msgstr "Choose a whole number from 1 to 99. Changing it asks both players to get ready again."
@@ -1272,6 +1411,18 @@ msgstr "Choose the tiles to exchange."
 msgid "Choose this setup"
 msgstr "Choose this setup"
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Choose three cards to pass across."
+msgstr "Choose three cards to pass across."
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Choose three cards to pass to the left."
+msgstr "Choose three cards to pass to the left."
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Choose three cards to pass to the right."
+msgstr "Choose three cards to pass to the right."
+
 #: libs/game-session-client-ts/src/custom-game-actions.tsx
 msgid "Choose who plays each side. Anyone in this space can watch."
 msgstr "Choose who plays each side. Anyone in this space can watch."
@@ -1280,9 +1431,18 @@ msgstr "Choose who plays each side. Anyone in this space can watch."
 msgid "Choose whole minutes from 1 to 180 and whole added seconds from 0 to 60."
 msgstr "Choose whole minutes from 1 to 180 and whole added seconds from 0 to 60."
 
+#: libs/game-session-client-ts/src/custom-game-side.tsx
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "Choosing"
+msgstr "Choosing"
+
 #: libs/game-puzzle-client-ts/src/content-kept-copies.tsx
 msgid "Choosing a copy keeps earlier work and leaves published editions unchanged."
 msgstr "Choosing a copy keeps earlier work and leaves published editions unchanged."
+
+#: libs/game-session-client-ts/src/custom-game-side.tsx
+msgid "Chosen"
+msgstr "Chosen"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-source-controls.tsx
 msgid "Chosen Lichess file"
@@ -1359,6 +1519,10 @@ msgstr "Close place"
 #: libs/game-session-client-ts/src/custom-game-status.tsx
 msgid "Closed place"
 msgstr "Closed place"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "clubs"
+msgstr "clubs"
 
 #: pkgs/ui-devtools-client-ts/src/json-view.tsx
 msgid "Collapse all"
@@ -1953,6 +2117,10 @@ msgstr "Devices"
 msgid "Devices appear here after they sign in."
 msgstr "Devices appear here after they sign in."
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "diamonds"
+msgstr "diamonds"
+
 #: libs/game-puzzle-client-ts/src/content-kept-copies.tsx
 msgid "Different work was kept from another device"
 msgstr "Different work was kept from another device"
@@ -2073,6 +2241,10 @@ msgstr "Drop a disc. Connect four. Plan your next turn."
 msgid "Drop in column {0}, {occupied} of 6 occupied"
 msgstr "Drop in column {0}, {occupied} of 6 occupied"
 
+#: libs/hearts-client-ts/src/hearts-game-client.tsx
+msgid "Duck the tricks. Dodge the queen. Lowest wins."
+msgstr "Duck the tricks. Dodge the queen. Lowest wins."
+
 #: libs/chess-puzzle-client-ts/src/puzzle-import-status.tsx
 msgid "Duplicates skipped"
 msgstr "Duplicates skipped"
@@ -2093,6 +2265,10 @@ msgstr "Each side hides five ships on its own ten by ten waters: a Carrier of fi
 #: libs/game-session-client-ts/src/custom-game-board.tsx
 msgid "Earlier game {0}"
 msgstr "Earlier game {0}"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "East"
+msgstr "East"
 
 #: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
 #: libs/quoridor-client-ts/src/quoridor-game-client.tsx
@@ -2120,6 +2296,10 @@ msgstr "Edit undone"
 #: libs/game-puzzle-client-ts/src/content-edition-screen.tsx
 msgid "Edit working draft"
 msgstr "Edit working draft"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Eight"
+msgstr "Eight"
 
 #: libs/auth-client-ts/src/auth-flow-messages.tsx
 #: pkgs/ui-root-client-ts/src/text-input.example.tsx
@@ -2231,6 +2411,14 @@ msgstr "Every plan starts with a {0}-day free trial. Switch between monthly and 
 #: libs/game-puzzle-client-ts/src/content-pack-overview.tsx
 msgid "Every puzzle is completed. You can revisit any of them."
 msgstr "Every puzzle is completed. You can revisit any of them."
+
+#: libs/game-session-client-ts/src/custom-game-status.tsx
+msgid "Every side chooses in secret: {chosen} of {total} have chosen."
+msgstr "Every side chooses in secret: {chosen} of {total} have chosen."
+
+#: libs/game-session-client-ts/src/custom-game-error.tsx
+msgid "Every side makes its secret choice before play goes on."
+msgstr "Every side makes its secret choice before play goes on."
 
 #: libs/spaces-client-ts/src/leave-space-confirm-modal.tsx
 msgid "Everyone can see that the space has ended."
@@ -2412,6 +2600,10 @@ msgstr "First to {0}"
 msgid "First to e5 wins immediately. Everyone keeps a path to the hill."
 msgstr "First to e5 wins immediately. Everyone keeps a path to the hill."
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Five"
+msgstr "Five"
+
 #: libs/battleship-client-ts/src/battleship-presentation.tsx
 msgid "fleet sunk"
 msgstr "fleet sunk"
@@ -2419,6 +2611,10 @@ msgstr "fleet sunk"
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
 msgid "Flip board"
 msgstr "Flip board"
+
+#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+msgid "Focus the arena and steer with the arrow keys or W, A, S and D, or use the direction pad. A turn straight back is ignored. Avoid the edge and every trail; the last rider riding wins the round."
+msgstr "Focus the arena and steer with the arrow keys or W, A, S and D, or use the direction pad. A turn straight back is ignored. Avoid the edge and every trail; the last rider riding wins the round."
 
 #: libs/pong-client-ts/src/pong-board.tsx
 msgid "Focus the court to play. Use W and S for Left, or the arrow keys for your paddle. With two players on this device, the arrow keys control Right. Drag on your side of the court, or use the paddle sliders below."
@@ -2436,6 +2632,10 @@ msgstr "Forward"
 msgid "Forward<0> one move</0>"
 msgstr "Forward<0> one move</0>"
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Four"
+msgstr "Four"
+
 #: libs/connect-four-client-ts/src/connect-four-presentation.tsx
 msgid "four in a row"
 msgstr "four in a row"
@@ -2443,6 +2643,10 @@ msgstr "four in a row"
 #: libs/connect-four-client-ts/src/connect-four-presentation.tsx
 msgid "Four in a row."
 msgstr "Four in a row."
+
+#: libs/hearts-client-ts/src/hearts-game-client.tsx
+msgid "Four players each get thirteen cards. Before each deal's play, everyone secretly passes three cards: to the left, then right, then across, then not at all, and again. Whoever holds the two of clubs leads it. Follow the suit led if you can; the highest card of that suit takes the trick and leads next. Hearts and the queen of spades can't be played on the first trick unless you hold nothing else, and hearts can't be led until one has been played, unless you hold only hearts. Each heart you take costs a point and the queen of spades thirteen, unless you take them all: then everyone else gets twenty-six. When a score reaches 100 at the end of a deal, the lowest score wins; tied lowest scores share the win."
+msgstr "Four players each get thirteen cards. Before each deal's play, everyone secretly passes three cards: to the left, then right, then across, then not at all, and again. Whoever holds the two of clubs leads it. Follow the suit led if you can; the highest card of that suit takes the trick and leads next. Hearts and the queen of spades can't be played on the first trick unless you hold nothing else, and hearts can't be led until one has been played, unless you hold only hearts. Each heart you take costs a point and the queen of spades thirteen, unless you take them all: then everyone else gets twenty-six. When a score reaches 100 at the end of a deal, the lowest score wins; tied lowest scores share the win."
 
 #: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
 msgid "Four racks, one board, the highest score wins."
@@ -2580,6 +2784,10 @@ msgstr "Gamezilla is open in another tab"
 msgid "Get Plus to host more spaces"
 msgstr "Get Plus to host more spaces"
 
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "Get ready: a turn chosen now takes effect on {name}'s first step."
+msgstr "Get ready: a turn chosen now takes effect on {name}'s first step."
+
 #: libs/game-matchmaking-client-ts/src/multiplayer-private-setup.tsx
 #: libs/game-session-client-ts/src/custom-game-side.tsx
 msgid "Getting ready"
@@ -2629,6 +2837,30 @@ msgstr "Has synced"
 #: libs/synthetic-population-client-ts/src/synthetic-population-workers.tsx
 msgid "Health"
 msgstr "Health"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "hearts"
+msgstr "hearts"
+
+#: libs/hearts-client-ts/src/hearts-presentation.tsx
+msgid "Hearts"
+msgstr "Hearts"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Hearts and the queen of spades cannot be played on the first trick."
+msgstr "Hearts and the queen of spades cannot be played on the first trick."
+
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "Hearts are broken."
+msgstr "Hearts are broken."
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Hearts are not broken yet. Lead another suit."
+msgstr "Hearts are not broken yet. Lead another suit."
+
+#: libs/hearts-client-ts/src/hearts-board.tsx
+msgid "Hearts table"
+msgstr "Hearts table"
 
 #: libs/auth-client-ts/src/sign-in-method-row.tsx
 msgid "Hidden email · forwarding is off"
@@ -2783,6 +3015,10 @@ msgstr "is away. After a minute away you may claim the win."
 msgid "is away. Their turn stays reserved until they return."
 msgstr "is away. Their turn stays reserved until they return."
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "It is not your turn to play."
+msgstr "It is not your turn to play."
+
 #: libs/auth-client-ts/src/account-device-detail-screen.tsx
 msgid "It may have signed out, or it hasn't synced to this device yet."
 msgstr "It may have signed out, or it hasn't synced to this device yet."
@@ -2810,6 +3046,10 @@ msgstr "Item not found"
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 msgid "Its application reconnects and reconciles its ongoing activity before taking another action."
 msgstr "Its application reconnects and reconciles its ongoing activity before taking another action."
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Jack"
+msgstr "Jack"
 
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "jank"
@@ -2891,6 +3131,10 @@ msgstr "Kept"
 msgid "Kept copies"
 msgstr "Kept copies"
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "King"
+msgstr "King"
+
 #: pkgs/chess-board-root-client-ts/src/chess-board-promotion.tsx
 msgid "Knight"
 msgstr "Knight"
@@ -2902,6 +3146,10 @@ msgstr "Last activity"
 #: libs/app-root-client-ts/src/more-server-status.tsx
 msgid "Last connected"
 msgstr "Last connected"
+
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "Last deal added: {added}."
+msgstr "Last deal added: {added}."
 
 #: libs/app-root-client-ts/src/sync-screen.tsx
 msgid "Last error"
@@ -3013,6 +3261,26 @@ msgstr "light"
 #: libs/app-root-client-ts/src/theme-screen.tsx
 msgid "Light"
 msgstr "Light"
+
+#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+msgid "Light Cycles arena"
+msgstr "Light Cycles arena"
+
+#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+msgid "Light Cycles could not be opened. Return to the game choices and open it again."
+msgstr "Light Cycles could not be opened. Return to the game choices and open it again."
+
+#: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
+msgid "Light Cycles Duel"
+msgstr "Light Cycles Duel"
+
+#: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
+msgid "Light Cycles Quad"
+msgstr "Light Cycles Quad"
+
+#: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
+msgid "Light Cycles Trio"
+msgstr "Light Cycles Trio"
 
 #: libs/spaces-client-ts/src/space-share-link-section.tsx
 msgid "Link"
@@ -3145,6 +3413,13 @@ msgstr "Long tasks"
 #: libs/game-matchmaking-client-ts/src/multiplayer-waiting.tsx
 msgid "Looking for {0} other players for {1} at {2}. A game needs {3} players including you."
 msgstr "Looking for {0} other players for {1} at {2}. A game needs {3} players including you."
+
+#. placeholder {0}: props.count - 1
+#. placeholder {1}: props.gameName
+#. placeholder {2}: props.count
+#: libs/game-matchmaking-client-ts/src/multiplayer-waiting.tsx
+msgid "Looking for {0} other players for {1}. A game needs {2} players including you."
+msgstr "Looking for {0} other players for {1}. A game needs {2} players including you."
 
 #. placeholder {0}: timeControlText(props.search.time_control)
 #. placeholder {1}: props.gameName
@@ -3440,9 +3715,17 @@ msgstr "Next puzzle immediately"
 msgid "Next puzzle: {0}"
 msgstr "Next puzzle: {0}"
 
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "Next round soon."
+msgstr "Next round soon."
+
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "night"
 msgstr "night"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Nine"
+msgstr "Nine"
 
 #: libs/app-root-client-ts/src/sync-screen.tsx
 msgid "No"
@@ -3537,6 +3820,10 @@ msgstr "No one connected yet"
 msgid "No participant"
 msgstr "No participant"
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "No passing this deal."
+msgstr "No passing this deal."
+
 #: libs/spaces-client-ts/src/space-share-add-people.tsx
 msgid "No people found"
 msgstr "No people found"
@@ -3582,10 +3869,18 @@ msgstr "No Synthetic Population Workers"
 msgid "No Synthetic Users found"
 msgstr "No Synthetic Users found"
 
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "Nobody has passed yet."
+msgstr "Nobody has passed yet."
+
 #: libs/app-root-client-ts/src/sync-screen.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "None"
 msgstr "None"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "North"
+msgstr "North"
 
 #: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
 #: libs/quoridor-client-ts/src/quoridor-game-client.tsx
@@ -3852,6 +4147,10 @@ msgstr "OS"
 msgid "Other people see you as {alias} until you choose a new username"
 msgstr "Other people see you as {alias} until you choose a new username"
 
+#: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
+msgid "Outlast your rival on the grid."
+msgstr "Outlast your rival on the grid."
+
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "Ownership generation"
 msgstr "Ownership generation"
@@ -3915,6 +4214,19 @@ msgstr "Pair label"
 #: libs/word-tiles-client-ts/src/word-tiles-board.tsx
 msgid "Pass"
 msgstr "Pass"
+
+#. placeholder {0}: count()
+#: libs/hearts-client-ts/src/hearts-board.tsx
+msgid "Pass {0} of 3 cards"
+msgstr "Pass {0} of 3 cards"
+
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "Passed"
+msgstr "Passed"
+
+#: libs/hearts-client-ts/src/hearts-board.tsx
+msgid "Passing your cards…"
+msgstr "Passing your cards…"
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 msgid "Pause"
@@ -4381,6 +4693,7 @@ msgstr "Puzzles need a connection. Reconnect and open the puzzle link again."
 msgid "Puzzles processed"
 msgstr "Puzzles processed"
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
 #: pkgs/chess-board-root-client-ts/src/chess-board-promotion.tsx
 msgid "Queen"
 msgstr "Queen"
@@ -4496,6 +4809,10 @@ msgstr "Reconnect before changing or playing the game."
 #: libs/pong-client-ts/src/pong-board.tsx
 msgid "Reconnecting. Controls resume when the game returns."
 msgstr "Reconnecting. Controls resume when the game returns."
+
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "Reconnecting. Steering resumes when the game returns."
+msgstr "Reconnecting. Steering resumes when the game returns."
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-event-timeline.tsx
 msgid "Recorded activity appears here as it happens."
@@ -4810,6 +5127,10 @@ msgstr "Review your games, wins and draws"
 msgid "Revoke invitation"
 msgstr "Revoke invitation"
 
+#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+msgid "Ride from this device"
+msgstr "Ride from this device"
+
 #: libs/pong-client-ts/src/pong-game-client.tsx
 msgid "Right"
 msgstr "Right"
@@ -4835,6 +5156,25 @@ msgstr "Rook"
 #: libs/battleship-client-ts/src/battleship-setup-board.tsx
 msgid "Rotate: {0}"
 msgstr "Rotate: {0}"
+
+#. placeholder {0}: state.round
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "Round {0}"
+msgstr "Round {0}"
+
+#. placeholder {0}: props.state.round
+#. placeholder {1}: props.state.targetScore
+#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+msgid "Round {0} · first to {1}"
+msgstr "Round {0} · first to {1}"
+
+#: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
+msgid "round limit"
+msgstr "round limit"
+
+#: libs/light-cycles-client-ts/src/light-cycles-options.tsx
+msgid "Round wins to win"
+msgstr "Round wins to win"
 
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Rows"
@@ -4924,6 +5264,10 @@ msgstr "Saving your position…"
 #: libs/synthetic-population-client-ts/src/synthetic-population-screen.tsx
 msgid "Saving…"
 msgstr "Saving…"
+
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "Score {score}"
+msgstr "Score {score}"
 
 #. placeholder {0}: target()
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
@@ -5117,6 +5461,10 @@ msgstr "Settings"
 msgid "Setup move: {side} played {0} to {1}."
 msgstr "Setup move: {side} played {0} to {1}."
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Seven"
+msgstr "Seven"
+
 #. placeholder {0}: score().bonus
 #: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
 msgid "Seven-tile bonus: {0}"
@@ -5309,6 +5657,10 @@ msgstr "Signing in…"
 msgid "Signing out…"
 msgstr "Signing out…"
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Six"
+msgstr "Six"
+
 #: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
 msgid "six scoreless turns"
 msgstr "six scoreless turns"
@@ -5383,6 +5735,10 @@ msgstr "Sound on"
 msgid "Source"
 msgstr "Source"
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "South"
+msgstr "South"
+
 #: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
 #: libs/quoridor-client-ts/src/quoridor-game-client.tsx
 msgid "South red circle"
@@ -5432,6 +5788,10 @@ msgstr "Space renamed"
 msgid "Spaces"
 msgstr "Spaces"
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "spades"
+msgstr "spades"
+
 #: pkgs/ui-root-client-ts/src/spectator-indicator.tsx
 msgid "Spectating"
 msgstr "Spectating"
@@ -5447,6 +5807,10 @@ msgstr "Square tool"
 #: libs/auth-client-ts/src/account-device-id-field.tsx
 msgid "Stable per-device identifier; tap to copy"
 msgstr "Stable per-device identifier; tap to copy"
+
+#: libs/game-session-client-ts/src/custom-game-side.tsx
+msgid "Stand-in bot"
+msgstr "Stand-in bot"
 
 #: libs/game-session-client-ts/src/custom-game-configuration.tsx
 #: pkgs/ui-root-client-ts/src/pagination-controls.tsx
@@ -5517,6 +5881,30 @@ msgstr "Status"
 #: pkgs/ui-root-client-ts/src/pending-navigation-provider.tsx
 msgid "Stay here"
 msgstr "Stay here"
+
+#. placeholder {0}: riderName(side)
+#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+msgid "Steer {0} down"
+msgstr "Steer {0} down"
+
+#. placeholder {0}: riderName(side)
+#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+msgid "Steer {0} left"
+msgstr "Steer {0} left"
+
+#. placeholder {0}: riderName(side)
+#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+msgid "Steer {0} right"
+msgstr "Steer {0} right"
+
+#. placeholder {0}: riderName(side)
+#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+msgid "Steer {0} up"
+msgstr "Steer {0} up"
+
+#: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
+msgid "Steer your rider around the arena. Every rider leaves a light trail; the edge and every trail crash a rider. The last rider riding wins the round, and the first to the target score wins the game. Ride against bots, share a device, invite people, or find players."
+msgstr "Steer your rider around the arena. Every rider leaves a light trail; the edge and every trail crash a rider. The last rider riding wins the round, and the first to the target score wins the game. Ride against bots, share a device, invite people, or find players."
 
 #: libs/app-root-client-ts/src/settings-screen.tsx
 msgid "Stop every network connection until you work online"
@@ -5654,6 +6042,10 @@ msgstr "Take a personal-data export or delete your account"
 msgid "Take an export or permanently delete your account"
 msgstr "Take an export or permanently delete your account"
 
+#: libs/game-session-client-ts/src/custom-game-side.tsx
+msgid "Take back my side"
+msgstr "Take back my side"
+
 #: libs/game-session-client-ts/src/custom-game-side-choices.tsx
 msgid "Take this side"
 msgstr "Take this side"
@@ -5661,6 +6053,10 @@ msgstr "Take this side"
 #: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
 msgid "Take turns placing tiles from your seven-tile rack in one row or column to form words, joined to the tiles already on the 15 × 15 board; the first word covers the centre star. Every word you form or extend must be in the word list, and each is scored: letter squares multiply the new tile under them, word squares the whole word, and using all seven tiles earns 50 more. A blank plays any letter for no points. Instead of placing you may pass, or exchange tiles while the bag holds at least seven. The game ends when someone uses their last tile with the bag empty — the others' remaining tiles count against them and go to that player — or after six scoreless turns in a row, when everyone's remaining tiles count against them. The highest score wins; tied leaders share the win. Resigning or running out of time follows the table's rules: with two players the other wins, with more the game is drawn. Word list: {lexicon} (ENABLE, public domain, words of 2 to 15 letters). Rules: {ruleset}."
 msgstr "Take turns placing tiles from your seven-tile rack in one row or column to form words, joined to the tiles already on the 15 × 15 board; the first word covers the centre star. Every word you form or extend must be in the word list, and each is scored: letter squares multiply the new tile under them, word squares the whole word, and using all seven tiles earns 50 more. A blank plays any letter for no points. Instead of placing you may pass, or exchange tiles while the bag holds at least seven. The game ends when someone uses their last tile with the bag empty — the others' remaining tiles count against them and go to that player — or after six scoreless turns in a row, when everyone's remaining tiles count against them. The highest score wins; tied leaders share the win. Resigning or running out of time follows the table's rules: with two players the other wins, with more the game is drawn. Word list: {lexicon} (ENABLE, public domain, words of 2 to 15 letters). Rules: {ruleset}."
+
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "Taken {taken}"
+msgstr "Taken {taken}"
 
 #: libs/auth-client-ts/src/account-devices-card.tsx
 msgid "Tap a device for details."
@@ -5692,6 +6088,10 @@ msgstr "Target rating"
 msgid "Target rating: {0}"
 msgstr "Target rating: {0}"
 
+#: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
+msgid "target score"
+msgstr "target score"
+
 #: libs/battleship-client-ts/src/battleship-board.tsx
 msgid "Targeting"
 msgstr "Targeting"
@@ -5699,6 +6099,10 @@ msgstr "Targeting"
 #: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
 msgid "Teal"
 msgstr "Teal"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Ten"
+msgstr "Ten"
 
 #: libs/app-config-client-ts/src/client-config-entity-card.tsx
 msgid "Text to speech"
@@ -5801,6 +6205,10 @@ msgstr "The {name} cannot go there: it would overlap the {other}."
 msgid "The {name} does not fit there: it would run off the board."
 msgstr "The {name} does not fit there: it would run off the board."
 
+#: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
+msgid "The 15th round was played; the rider with the most round wins takes the game."
+msgstr "The 15th round was played; the rider with the most round wins takes the game."
+
 #: libs/game-puzzle-client-ts/src/content-start-attempt.tsx
 msgid "The attempt could not be saved. Try starting again."
 msgstr "The attempt could not be saved. Try starting again."
@@ -5877,6 +6285,10 @@ msgstr "The export was not requested. Use the choice shown."
 msgid "The first move wasn't made in time."
 msgstr "The first move wasn't made in time."
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "The first trick begins with the two of clubs."
+msgstr "The first trick begins with the two of clubs."
+
 #: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
 msgid "The first word must cover the centre star."
 msgstr "The first word must cover the centre star."
@@ -5888,6 +6300,18 @@ msgstr "The game choices changed. Review them and try again."
 #: libs/game-matchmaking-client-ts/src/multiplayer-controls.tsx
 msgid "The game ends with no result and no rating change."
 msgstr "The game ends with no result and no rating change."
+
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "The game is drawn."
+msgstr "The game is drawn."
+
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "The game is over. Final scores: {scores}. {head} and {last} win."
+msgstr "The game is over. Final scores: {scores}. {head} and {last} win."
+
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "The game is over. Final scores: {scores}. {last} wins."
+msgstr "The game is over. Final scores: {scores}. {last} wins."
 
 #: libs/game-session-client-ts/src/custom-game-board.tsx
 msgid "The game stopped. Your last saved score is kept. Reopen the game to try again."
@@ -5910,9 +6334,17 @@ msgstr "The host picks the game for this space."
 msgid "The Lichess file is in the shared bucket. Start loading to add its puzzles to this environment."
 msgstr "The Lichess file is in the shared bucket. Start loading to add its puzzles to this environment."
 
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "The Light Cycles game is finished."
+msgstr "The Light Cycles game is finished."
+
 #: libs/spaces-client-ts/src/space-join-prompt.tsx
 msgid "The link may be wrong, or the space may never have existed."
 msgstr "The link may be wrong, or the space may never have existed."
+
+#: libs/hearts-client-ts/src/hearts-presentation.tsx
+msgid "the lowest score"
+msgstr "the lowest score"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
 msgid "The multiplayer game is drawn."
@@ -5970,6 +6402,14 @@ msgstr "The puzzle draft was not created"
 msgid "The puzzle stays available on its own. Published pack editions keep their contents."
 msgstr "The puzzle stays available on its own. Published pack editions keep their contents."
 
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "The round is drawn."
+msgstr "The round is drawn."
+
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "The round result is showing. The next round starts soon."
+msgstr "The round result is showing. The next round starts soon."
+
 #: libs/game-matchmaking-client-ts/src/multiplayer-controls.tsx
 msgid "The round will end in a draw for all players."
 msgstr "The round will end in a draw for all players."
@@ -5989,6 +6429,14 @@ msgstr "The space stays open. They can join again through its link."
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 msgid "The Synthetic Population Worker will recover this application."
 msgstr "The Synthetic Population Worker will recover this application."
+
+#: libs/light-cycles-client-ts/src/light-cycles-options.tsx
+msgid "The target score must be from 1 to 9."
+msgstr "The target score must be from 1 to 9."
+
+#: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
+msgid "The target score was reached."
+msgstr "The target score was reached."
 
 #: libs/chess-puzzle-client-ts/src/puzzle-import-stop.tsx
 msgid "The unfinished file will not become available. You can save the chosen file again."
@@ -6018,6 +6466,14 @@ msgstr "There is no invitation for that side."
 #: libs/account-privacy-client-ts/src/privacy-explanation.tsx
 msgid "There is no legal preservation obligation on this account unless one is listed below."
 msgstr "There is no legal preservation obligation on this account unless one is listed below."
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "There is no passing now."
+msgstr "There is no passing now."
+
+#: libs/game-session-client-ts/src/custom-game-error.tsx
+msgid "There is no secret choice to make now."
+msgstr "There is no secret choice to make now."
 
 #: libs/app-root-client-ts/src/route-stub.tsx
 msgid "There is nothing at this address."
@@ -6291,6 +6747,10 @@ msgstr "This wall overlaps another wall. Choose a different anchor."
 msgid "This wall would close a player's last path to the goal. Choose another anchor."
 msgstr "This wall would close a player's last path to the goal. Choose another anchor."
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Three"
+msgstr "Three"
+
 #: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
 msgid "Three racks, one board, the highest score wins."
 msgstr "Three racks, one board, the highest score wins."
@@ -6403,6 +6863,10 @@ msgstr "Try undoing again"
 #: libs/chess-puzzle-client-ts/src/puzzle-source-controls.tsx
 msgid "Try uploading again"
 msgstr "Try uploading again"
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "Two"
+msgstr "Two"
 
 #: libs/pong-client-ts/src/pong-game-client.tsx
 msgid "Two paddles. One ball. Every return counts."
@@ -6605,6 +7069,10 @@ msgstr "Use this kept copy?"
 msgid "Use this score"
 msgstr "Use this score"
 
+#: libs/light-cycles-client-ts/src/light-cycles-options.tsx
+msgid "Use this target score"
+msgstr "Use this target score"
+
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "User ID"
 msgstr "User ID"
@@ -6704,6 +7172,10 @@ msgstr "Walls must fit between four squares. Choose an anchor from a1 to h8."
 msgid "Watching multiplayer {0}."
 msgstr "Watching multiplayer {0}."
 
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "Watching. Only a rider's own person steers it."
+msgstr "Watching. Only a rider's own person steers it."
+
 #: libs/search-client-ts/src/search-screen-view.tsx
 msgid "We couldn't reach the server. Search again once you're back online."
 msgstr "We couldn't reach the server. Search again once you're back online."
@@ -6711,6 +7183,10 @@ msgstr "We couldn't reach the server. Search again once you're back online."
 #: libs/account-privacy-client-ts/src/privacy-explanation.tsx
 msgid "We retain only minimum payment evidence for accounting and disputes for 7 years after payment. It cannot restore your account or membership."
 msgstr "We retain only minimum payment evidence for accounting and disputes for 7 years after payment. It cannot restore your account or membership."
+
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "West"
+msgstr "West"
 
 #: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
 #: libs/quoridor-client-ts/src/quoridor-game-client.tsx
@@ -6848,6 +7324,10 @@ msgstr "You are {0}."
 msgid "You are already friends with this person."
 msgstr "You are already friends with this person."
 
+#: libs/game-session-client-ts/src/custom-game-error.tsx
+msgid "You are already playing your own side."
+msgstr "You are already playing your own side."
+
 #: libs/game-puzzle-client-ts/src/content-connection-status.tsx
 msgid "You are offline. Available puzzles and your saved work stay on this device. Changes share when connected."
 msgstr "You are offline. Available puzzles and your saved work stay on this device. Changes share when connected."
@@ -6913,6 +7393,10 @@ msgstr "You didn't leave the space"
 msgid "You do not control that side."
 msgstr "You do not control that side."
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "You do not hold that card."
+msgstr "You do not hold that card."
+
 #: libs/battleship-client-ts/src/battleship-copy.tsx
 msgid "You fired at {cell} and hit."
 msgstr "You fired at {cell} and hit."
@@ -6950,6 +7434,10 @@ msgstr "You left the space"
 msgid "You may offer a draw again after your next move."
 msgstr "You may offer a draw again after your next move."
 
+#: libs/hearts-client-ts/src/hearts-copy.tsx
+msgid "You must follow suit with a card of the suit led."
+msgstr "You must follow suit with a card of the suit led."
+
 #. placeholder {0}: gameSideLabel(props.position, props.side)
 #: libs/game-matchmaking-client-ts/src/multiplayer-seat.tsx
 msgid "You play {0}"
@@ -6960,6 +7448,14 @@ msgstr "You play {0}"
 #: libs/chess-puzzle-client-ts/src/chess-puzzle-announcement.tsx
 msgid "You played {0} to {1}."
 msgstr "You played {0} to {1}."
+
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "You ride {name} from another of your devices."
+msgstr "You ride {name} from another of your devices."
+
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "You ride {name}."
+msgstr "You ride {name}."
 
 #: libs/battleship-client-ts/src/battleship-copy.tsx
 msgid "You sank the whole fleet. You win."
@@ -7056,6 +7552,14 @@ msgstr "Your avatar"
 msgid "Your avatar change wasn't saved"
 msgstr "Your avatar change wasn't saved"
 
+#: libs/hearts-client-ts/src/hearts-table-view.tsx
+msgid "Your cards are chosen. Waiting for every player to pass."
+msgstr "Your cards are chosen. Waiting for every player to pass."
+
+#: libs/hearts-client-ts/src/hearts-board.tsx
+msgid "Your cards are on their way."
+msgstr "Your cards are on their way."
+
 #: libs/game-puzzle-client-ts/src/content-attempt-notices.tsx
 msgid "Your change was not saved"
 msgstr "Your change was not saved"
@@ -7136,6 +7640,10 @@ msgstr "Your friends could not be loaded"
 #: pkgs/ui-root-client-ts/src/text-input.example.tsx
 msgid "Your full name"
 msgstr "Your full name"
+
+#: libs/hearts-client-ts/src/hearts-board.tsx
+msgid "Your hand"
+msgstr "Your hand"
 
 #. placeholder {0}: progress().score ?? 0
 #. placeholder {1}: target()
@@ -7255,6 +7763,10 @@ msgstr "Your ratings"
 #: libs/game-puzzle-client-ts/src/content-saved-attempts.tsx
 msgid "Your saved attempts"
 msgstr "Your saved attempts"
+
+#: libs/game-session-client-ts/src/custom-game-error.tsx
+msgid "Your secret choice is already made for this round."
+msgstr "Your secret choice is already made for this round."
 
 #: libs/auth-client-ts/src/signed-out-notice-banner.tsx
 msgid "Your sign-in here ended, from another device or because it ran out. Changes made here that had not been shared yet were not kept."

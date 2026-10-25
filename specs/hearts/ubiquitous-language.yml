@@ -1,0 +1,236 @@
+context: Hearts
+purpose: >-
+  Hearts for four players in a space: its cards, deals, hands, passing,
+  tricks, hearts being broken, penalty points, scores and winners. What every
+  game offers alike, such as custom games, bots, watchers, secret choices,
+  stand-ins, rematches and shared victories, is the games context's.
+terms:
+  - term: Hearts
+    definition: >-
+      A card game for four players with one standard deck of 52 cards. A
+      Hearts game is played over several deals. In each deal the players may
+      pass cards, then play 13 tricks, each trying to take as few penalty
+      points as possible. Once a deal is scored with any score at 100 or
+      more, the Hearts game is over and the lowest score wins.
+    published: true
+
+  - term: player
+    definition: >-
+      One of the four people or bots in a Hearts game, named by where they
+      sit: South, West, North or East. They sit in that clockwise order, the
+      same for everyone, and South is the first player.
+    forms: [players, player's, South, West, North, East, South's, West's, North's, East's]
+
+  - term: card
+    definition: >-
+      One of the 52 cards of the deck: thirteen of each suit, clubs,
+      diamonds, spades and hearts, ranked from the two, lowest, through the
+      ten, then the jack, queen, king and ace, highest. Every card is in the
+      deck exactly once, and each card shows its rank and its suit by both
+      symbol and name.
+    forms: [cards, deck, rank, ranks, suit, suits, club, clubs, diamond, diamonds, spade, spades, heart, hearts, jack, queen, king, ace]
+
+  - term: two of clubs
+    definition: >-
+      The card that leads the first trick of every deal, played by whoever
+      holds it.
+
+  - term: queen of spades
+    definition: >-
+      The card worth 13 penalty points. Nobody may play it on the first trick
+      while they have anything else to play. Playing it does not break
+      hearts.
+
+  - term: deal
+    definition: >-
+      One round of a Hearts game. The game shuffles the deck and gives each
+      player 13 cards; nobody can choose or predict who gets which card, but
+      every card goes to exactly one player. The players pass if the deal has
+      passing, then play 13 tricks, and the deal is scored. The first deal
+      passes to the left, the second to the right, the third across, the
+      fourth has no passing, and then the order repeats.
+    forms:
+      - deals
+      - dealt
+      - first deal
+      - second deal
+      - third deal
+      - fourth deal
+      - fifth deal
+      - next deal
+      - final deal
+      - this deal
+      - the deal's
+
+  - term: hand
+    definition: >-
+      The cards a player holds in the current deal. Only the player sees
+      their own hand; everyone else, watchers included, sees only how many
+      cards each hand holds.
+    forms: [hands, own hand, current hand, hold, holds, held, holding, how many cards]
+
+  - term: pass
+    definition: >-
+      In a deal with passing, a player's secret choice of exactly three
+      different cards from their own hand, for the player the deal passes
+      to. It is final for that deal. Everyone sees which players have
+      passed, and nobody but the player sees which cards they chose. The
+      cards change hands only once all four players have passed, all at
+      once, and only then does the first trick begin. A pass of other than
+      three different cards, of a card the player does not hold, a second
+      pass in the same deal, or a pass in a deal without passing is refused
+      and changes nothing.
+    forms: [passes, passed, passing, has passed, have passed, awaiting passes]
+
+  - term: passing direction
+    definition: >-
+      To whom a deal's passes go. To the left means to the next player
+      clockwise: South to West, West to North, North to East and East to
+      South. To the right is the other way round: South to East, East to
+      North, North to West and West to South. Across means South and North
+      swap, and West and East swap. A deal with no passing has none.
+    forms: [to the left, to the right, across, no passing]
+
+  - term: receive
+    definition: >-
+      Get the three cards another player passed to one, when all four
+      players' passes change hands together.
+    forms: [receives, received]
+
+  - term: trick
+    definition: >-
+      One card from each player in turn, clockwise, starting with the player
+      who leads. The highest card of the suit led wins it, whatever the other
+      cards are; the winner takes the trick's four cards and leads the next
+      trick. Every deal has 13 tricks.
+    forms: [tricks, current trick, last trick, second trick, third trick, fourth trick, take, takes, took, taken, last card]
+
+  - term: first trick
+    definition: >-
+      The first trick of a deal, which the two of clubs leads. On it nobody
+      may play a heart or the queen of spades unless, after following suit,
+      they hold nothing else.
+
+  - term: lead
+    definition: >-
+      Play the first card of a trick. The player holding the two of clubs
+      leads it to the first trick, and the winner of each trick leads the
+      next.
+    forms: [leads, led, leading, suit led]
+
+  - term: follow suit
+    definition: >-
+      Play a card of the suit led. A player who holds one must; a player who
+      holds none may play any card the first trick and hearts rules allow.
+    forms: [follows suit, followed suit, following suit]
+
+  - term: play a card
+    definition: >-
+      Put one card from one's own hand on the current trick, on one's turn,
+      as the rules allow. A card played out of turn, one the player does not
+      hold, one that does not follow suit when the player could, one the
+      first trick does not allow, a heart led before hearts are broken, or
+      any card once the Hearts game is over is refused: it changes nothing
+      and the turn stays where it was.
+    forms: [plays, played, playing, play]
+
+  - term: broken
+    definition: >-
+      Hearts are broken in a deal once a heart has been played in it. Until
+      then nobody may lead a heart, unless they hold only hearts. Playing the
+      queen of spades does not break hearts.
+    forms: [break, breaks, hearts are broken, hearts are not broken]
+
+  - term: penalty point
+    definition: >-
+      What the cards a player takes in a deal cost them: one for each heart
+      and 13 for the queen of spades, 26 in all.
+    forms: [penalty points]
+
+  - term: shoot the moon
+    definition: >-
+      Take every heart and the queen of spades in one deal, all 26 penalty
+      points. The player who does scores 0 for that deal, and each other
+      player scores 26.
+    forms: [shoots the moon, shot the moon, shooting the moon]
+
+  - term: score
+    definition: >-
+      A player's penalty points for one deal, and their cumulative score:
+      every deal's score added up since the Hearts game started. Everyone
+      sees every cumulative score. A deal is scored once its 13 tricks are
+      taken, and cumulative scores carry over from deal to deal.
+    forms: [scores, scored, is scored, cumulative score, cumulative scores, final scores]
+
+  - term: turn
+    definition: >-
+      The player who may play the next card: the one who leads a trick, then
+      each next player clockwise. While a deal awaits passes, nobody has the
+      turn.
+    forms: [turns, whose turn]
+
+  - term: over
+    definition: >-
+      A Hearts game once a deal is scored with any cumulative score at 100
+      or more. It takes no more passes or cards, and everyone sees the final
+      scores and the winners.
+    forms: [is over]
+
+  - term: winner
+    definition: >-
+      A player with the lowest cumulative score once the Hearts game is
+      over. Players tied for the lowest score share the victory.
+    forms: [winners, wins, won]
+
+  - term: watcher
+    definition: >-
+      Someone in the space who is not one of the four players of the Hearts
+      game, including someone who arrives while it is being played. A
+      watcher sees only the board, never a hand or the cards anyone passed.
+    forms: [watchers, watch, watches, watching]
+
+  - term: board
+    definition: >-
+      What every player and watcher of a Hearts game sees alike: the cards
+      of the current trick, who took the last trick, whose turn it is, how
+      many cards each hand holds, which players have passed, every
+      cumulative score, the passing direction and, once the Hearts game is
+      over, the winners. It never shows anyone's hand or the cards anyone
+      passed.
+
+  - term: game
+    from: games
+  - term: custom game
+    from: games
+  - term: custom game readiness
+    from: games
+  - term: start a custom game
+    from: games
+  - term: bot
+    from: games
+  - term: stand-in
+    from: games
+  - term: take back their side
+    from: games
+  - term: secret choice
+    from: games
+  - term: rematch
+    from: games
+  - term: shared victory
+    from: games
+  - term: pair people up
+    from: matchmaking
+    forms: [pairing people up]
+  - term: the game's choices
+    from: games
+  - term: space
+    from: spaces
+  - term: join
+    from: spaces
+  - term: keyboard
+    from: runtime
+  - term: control
+    from: runtime
+  - term: listen to the app
+    from: runtime
+    forms: [hears]

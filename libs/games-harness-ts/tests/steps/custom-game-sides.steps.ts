@@ -8,6 +8,7 @@ import {
   choose,
   current,
   identityOf,
+  inSpace,
   race,
   sideShownTo,
 } from './custom-game-set-up-world';
@@ -102,7 +103,10 @@ Then(
   }
 );
 
+// Someone not yet in the space joins it to watch; anyone shown the custom
+// games stays as they are.
 Then('{actor} is watching the custom game', async (w, actor: string) => {
+  await inSpace(w, actor);
   const seen = await view(w, actor);
   expect(seen.mySide).toBeNull();
   expect(seen.gates['watch']).toBe(true);

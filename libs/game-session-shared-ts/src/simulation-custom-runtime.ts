@@ -3,15 +3,28 @@ import type {
   RoomLivePorts,
   RoomLiveSession,
 } from '@pkgs/room-root-shared-ts/live';
-import type { RoomState } from '@pkgs/room-root-shared-ts/types';
-import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  ROOM_ERROR_TYPE,
+  type RoomActor,
+  type RoomState,
+} from '@pkgs/room-root-shared-ts/types';
+import type { GameSide, TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import {
   projectCustomSimulation,
   selectCustomSimulation,
 } from './simulation-custom-selection';
 import { LocalSimulationRelay } from './simulation-local-relay';
+import {
+  RequestSimulationSnapshot,
+  SubmitSimulationInput,
+} from './simulation-messages';
 import { SessionSimulation } from './simulation-session-runtime';
 import { CheckpointSimulation } from './simulation-session-state';
+import {
+  ClaimSimulationControl,
+  SimulationSteering,
+  SimulationSteeringChanged,
+} from './simulation-steering';
 import {
   simulationFailed,
   simulationInputProcessingMeasures,
@@ -48,20 +61,51 @@ export function createCustomSimulationRuntime(
       inputProcessed: simulationInputProcessingMeasures('custom'),
     }
   );
+  const steering = new SimulationSteering();
+  let controllers: ReadonlyMap<GameSide, string> = new Map<GameSide, string>();
+  let actors: readonly RoomActor[] = [];
+  const people = () => [...new Set(controllers.values())];
+  const publishSteering = () =>
+    ports.publish(
+      SimulationSteeringChanged({
+        version: 1,
+        steering: steering.bySide(controllers),
+      })
+    );
+  const steer = () => {
+    if (steering.presence(actors, people())) publishSteering();
+  };
   return {
     recover: (state, payload) => shared.recover(state, payload),
     project: (state) => shared.project(state),
-    receive: (command, identity, actor) =>
-      relay.active
-        ? relay.receive(command, identity, actor)
-        : shared.receive(command, identity),
+    receive: (command, identity, actor) => {
+      if (relay.active) return relay.receive(command, identity, actor);
+      // One device steers a person's seats; another of theirs claims it to take over.
+      if (ClaimSimulationControl.is(command.payload)) {
+        if (steering.claim(actor, people())) publishSteering();
+        return null;
+      }
+      if (SubmitSimulationInput.is(command.payload) && !steering.steers(actor))
+        return {
+          type: ROOM_ERROR_TYPE.conflict,
+          reason: 'another of your devices steers this game',
+        };
+      if (RequestSimulationSnapshot.is(command.payload)) publishSteering();
+      return shared.receive(command, identity);
+    },
     update: (state) => {
       shared.update(state);
       relay.update(state);
+      const view = selectCustomSimulation(state, rules, null);
+      controllers =
+        view?.active === true ? view.controllers : new Map<GameSide, string>();
+      steer();
     },
-    presence: (actors) => {
-      shared.presence(actors);
-      relay.presence(actors);
+    presence: (next) => {
+      actors = next;
+      shared.presence(next);
+      relay.presence(next);
+      steer();
     },
     dispose: () => {
       shared.dispose();

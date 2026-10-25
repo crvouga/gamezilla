@@ -10,6 +10,7 @@ import AvatarExample from './avatar.example';
 import AvatarGroupExample from './avatar-group.example';
 import AvatarHeroExample from './avatar-hero.example';
 import BadgeExample from './badge.example';
+import CardTableExample from './card-table.example';
 import CellGridBoardExample from './cell-grid-board.example';
 import ChipExample from './chip.example';
 import CollapsibleExample from './collapsible.example';
@@ -49,6 +50,7 @@ const OVERLAY = 'Overlay';
 export const DISPLAY_ENTRIES: readonly ComponentEntry[] = [
   entry('game-arena', 'Game Arena', 'Games', GameArenaExample),
   entry('cell-grid-board', 'CellGridBoard', 'Games', CellGridBoardExample),
+  entry('card-table', 'CardTable', 'Games', CardTableExample),
   entry('path-grid-board', 'PathGridBoard', 'Games', PathGridBoardExample),
   entry('word-tile-board', 'WordTileBoard', 'Games', WordTileBoardExample),
   entry('range-control', 'RangeControl', DATA_DISPLAY, RangeControlExample),

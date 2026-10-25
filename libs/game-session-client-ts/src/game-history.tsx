@@ -86,6 +86,8 @@ function RecordReview(props: {
           testId="game-history-board"
           setup={props.record.setup}
           hand={props.record.hand}
+          committed={[]}
+          commitment={null}
         />
       </GameReviewScreen>
     </>

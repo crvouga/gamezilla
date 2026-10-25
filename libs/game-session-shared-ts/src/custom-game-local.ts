@@ -8,7 +8,7 @@ import {
   PlayCustomGameBot,
 } from './custom-game-commands';
 import { customGameHand, customGameHandsRules } from './custom-game-hands';
-import { customGameBotMove } from './custom-game-position';
+import { customGameBots } from './custom-game-position';
 import { creatorAloneInCustomGame } from './custom-game-solo';
 import type { CustomGame } from './custom-game-state';
 import { CustomGamesAttr } from './custom-game-state';
@@ -83,13 +83,22 @@ export function prepareLocalCustomGameCommand(
     game.id !== payload.payload.gameId
   )
     return payload;
-  // A bot proposes from its own hand: one this copy holds only when the
-  // game is the creator's solo practice.
+  // A bot decides for its own side from its own hand — its move, or its
+  // commitment while every side commits — with a hand this copy holds only
+  // when the game is the creator's solo practice.
+  const side = payload.payload.side;
+  // A stand-in plays an away person's side; only the room chooses for it.
+  if (game.standIns.includes(side)) return payload;
   const hands = customGameHandsRules(game, rules);
-  const hand =
-    hands === undefined ? null : customGameHand(state, game, game.turn);
+  const hand = hands === undefined ? null : customGameHand(state, game, side);
   if (hands !== undefined && hand === null) return payload;
-  const move = customGameBotMove(game, rules, { random, hand });
+  const move =
+    customGameBots(game, rules).choose?.(
+      game.fen,
+      game.difficulty[side],
+      random,
+      hand
+    ) ?? null;
   if (move === null) throw new Error('active bot game has no legal move');
   return PlayCustomGameBot({ ...payload.payload, at, move });
 }

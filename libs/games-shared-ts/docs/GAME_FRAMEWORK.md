@@ -474,8 +474,9 @@ game starts; each side is shown `hand(hidden, side)` after every action; and
 the authority resolves each proposal with the hidden state into the public
 action it records (`play:h8=12.i8=98E` becomes `play:h8C.i8e`: the letters, never which tiles), so
 `play`, `replay`, `moves`, records, review and every watcher's copy work on
-public positions and actions alone. A refusal changes nothing and is
-reported as an illegal move. Bots choose from the public position and their
+public positions and actions alone. A refusal changes nothing; its reason
+is the game's own (`follow suit`), told only to the side that proposed it
+and worded by `GamePresentation.refusalDescription(reason, position)`. Bots choose from the public position and their
 own side's hand (`GameBots.choose(…, hand)`, `GameAutomation.choose(…,
 hand)`); they are never given another side's.
 
@@ -494,8 +495,8 @@ hand)`); they are never given another side's.
   so the device resolves moves and pre-chooses the bots' proposals as the
   room does. A watcher still receives none of it
   (`custom-game-router.ts`, `custom-game-local.ts`).
-- **Matched games.** The server deals at creation, drawing from a fresh
-  server-side identity (`drawsFromId`), and keeps the hidden state in
+- **Matched games.** The server deals at creation, each draw from a fresh
+  server-side identity (`drawsFromIds`), and keeps the hidden state in
   `chess_multiplayer_hidden`, which never syncs; each person's hand is a row
   of `chess_multiplayer_hands` that syncs only to its owner and is never sent
   as a row image. Moves are resolved on the server under the owner lock;
@@ -516,6 +517,73 @@ hand)`); they are never given another side's.
   (`conformance/custom-games/dealt-hands-privacy.test.ts`,
   `conformance/matchmaking/dealt-hands-privacy.test.ts`). Conformance traits
   `dealt hands` and `four seats` route the shared features that need them.
+
+### Secret choices: `GameRules.hands.commit`
+
+A phase in which several sides choose at once, each in private (Hearts'
+three-card pass). `commit.sides(position)` names who chooses now;
+`accept(position, side, hand, commitment)` judges one side's choice from
+its own hand alone (`{commitment}` or `{refusal}`); once every side has
+chosen, `resolve(position, commitments, hidden)` turns them into one public
+action and the new hidden state. No choice is a public turn and no
+cryptography is involved: the authority alone holds them.
+
+- **Custom games.** Each choice is a room event read only by its person
+  (`commitment-chosen`, `custom-game-commitments.ts`); everyone sees only
+  which sides have chosen (`GameBoardProps.committed`, the side badges and
+  status line), and a person sees their own choice
+  (`GameBoardProps.commitment`) until the last one resolves the phase
+  (`custom-game-commit-play.ts`). A choice may be changed until then;
+  clocks do not run while sides choose. Bots choose from their own hand.
+  In solo practice the creator's device decides as the room does, reading
+  the bots' choices (`reader`), as with dealt hands.
+- **Matchmaking.** Not offered: `defineGame` refuses a matched game with
+  `hands.commit`.
+- **Proof.** The laws and the played rules treat a whole phase as one
+  combined proposal (`commit:a|b|c|d`, `played-rules.ts`), so every shared
+  law plays it as the authority does; `specs/games/secret-choices.feature`
+  and the reduced model `secret-choices.qnt` (trait `secret choices`).
+
+### Turns the rules decide: `GameRules.turnOrder`
+
+`'rotation'` (the default) holds a game to seats taking turns in order.
+`'rules'` lets the rules name the next side (`PlayedPosition.turn`), as a
+trick's winner leads the next trick; the alternation law and the
+specifications needing `rotating turns` then do not bind the game.
+Matchmaking still assumes rotation (its abort window, clock start and move
+numbering), so `defineGame` refuses a matched game with `turnOrder: 'rules'`.
+
+### Joint winners: `GameWinner`
+
+A result is one side, `'draw'`, or several sides (`readonly GameSide[]`).
+`plainWinner` puts it in its plainest form — every seat is a draw, one seat
+that seat — and `winningSides` lists who it goes to. A custom game stores
+`white and red win by <reason>` (`customGameOutcome`,
+`custom-game-outcome.ts`) and credits each winner in its status, records
+and history (`specs/games/shared-victories.feature`, trait
+`a shared victory`). A matched game records one winner or a draw: its
+ratings compare a win, a loss or a draw.
+
+### Stand-ins
+
+In a custom game of more than two sides, a person away for
+`CUSTOM_GAME_STAND_IN_MS` (the away grace period) is replaced by a
+disclosed stand-in bot that plays their seat with their own hand; the side
+shows it (`custom-game-<side>-stand-in`) and the person takes the seat back
+with a choice of their own (`reclaim`, `custom-game-reclaim`). Only one
+controller acts for a seat: the person's moves are refused while a stand-in
+plays (`a stand-in plays your side`), and a stand-in's wake is stale once
+the seat is taken back. Stand-ins end with the game
+(`custom-game-stand-in.ts`, `specs/games/multi-seat-stand-ins.feature`).
+
+### Long custom games
+
+A game of hundreds of actions (a Hearts match) keeps the room log and the
+screens linear: an appended move is recorded as one `progressed` event
+rather than the whole game again (`custom-game-progress.ts`), a played
+position is verified once and remembered (`rememberCustomGamePosition`),
+parsed state is cached by identity, and the move list shows the latest 40
+moves, numbered from where they start.
 
 ### Matchmaking handoff
 
@@ -990,10 +1058,12 @@ position and action already stored.
 
 ## Fit for future games
 
-The shared lifecycles serve **two- to four-seat, ordered-turn** games whose
-state is one opaque public position, with hidden information either set up
-before play (`GameRules.setup`) or dealt and kept by the authority
-(`GameRules.hands`). Private setup and puzzle capabilities currently require
+The shared lifecycles serve **two- to four-seat** games whose state is one
+opaque public position, with turns that rotate or that the rules decide
+(`turnOrder`), hidden information either set up before play
+(`GameRules.setup`) or dealt and kept by the authority (`GameRules.hands`,
+with phases of secret choices: `hands.commit`), and results that may name
+joint winners. Private setup and puzzle capabilities currently require
 two seats; registration refuses unsupported combinations. Each
 claim beyond that is an executable probe in
 [`libs/games-harness-ts/tests/probes/`](../../games-harness-ts/tests/probes/):
@@ -1018,11 +1088,11 @@ relying on its planned enrollment alone.
 | --- | --- | --- | --- | --- | --- |
 | [Puzzle-first](../../games-harness-ts/tests/probes/puzzle-only.test.ts) (puzzles only: no custom games, opponent or history) | Executable: supported | `defineTurnGame({ capabilities: { puzzles } })`, `defineGameClient({ puzzles })`, `HarnessGame` with known puzzles | None | A space offers exactly Puzzle and Puzzle stats; a known puzzle is solved on the shared puzzle screen; every `specs/games` specification needing only `puzzles`, and the `rules` and `puzzles` code suites | — |
 | [Puzzle without an opponent](../../games-harness-ts/tests/probes/puzzle-only.test.ts) (`solo-count`) | Executable: enrolled; broader verification in progress | `PuzzlesCapability.lineMode: 'solver-only'`, the existing definitions and checked harness adapter | Shared layout, navigation, fixture checks and model input binding | Every applicable rules and puzzle suite is automatically enrolled; both attempt and sound models have passing solo replays | A test-only one-person consumer; it advertises no custom games, matchmaking or history. Full verification evidence is tracked in the audit |
-| [Turns that do not alternate](../../games-harness-ts/tests/probes/turn-order.test.ts) (`double-turn`) | Executable: limitation | `PlayedPosition.turn` already names the side to move, and the custom-game engine seats each move by it | Would need one | — | Alternation is the platform's contract, not chess's: `specs/games/game-turns.feature` ("A participant's move passes the turn"), the custom-game and matched-game models, `bothHaveMoved` (two moves close a matched game's abort window and start its clock), move-list numbering in pairs (`multiplayer-format`) and puzzle lines by parity. The rules law "the first side moves first and every action passes the turn to the next declared side" refuses such a game, by name, alone. Simultaneous actions (design-only) also need a position with no single side to move |
+| [Turns that do not alternate](../../games-harness-ts/tests/probes/turn-order.test.ts) (`double-turn`) | Executable: supported in custom games when declared | `PlayedPosition.turn`, `GameRules.turnOrder: 'rules'` | Made: the alternation law and the `rotating turns` specifications bind only rotating games; Hearts is the consumer | Every custom-game specification and suite not needing `rotating turns` | Undeclared, the turn law still refuses the game by name. Matchmaking assumes rotation (`bothHaveMoved`, move numbering in pairs), so `defineGame` refuses a matched game deciding its own turns. Simultaneous choices are a phase of secret choices (`hands.commit`), not a position with no side to move |
 | [Setup phase](../../games-harness-ts/tests/probes/setup-phase.test.ts) (`setup-race`: each side picks a stride, then races) | Executable: supported as ordinary turns | `GameRules` actions and positions | None | Every custom-game specification and suite; setup actions replay, list and are refused before play like any move | As ordinary actions a setup starts and spends clocks, is numbered as moves and closes a matched game's abort window. A simultaneous, hidden setup is the private-setup phase instead (`GameRules.setup`, below): prepared before the first action, with readiness and a setup deadline of its own, never a move |
 | [Result the mover does not win](../../games-harness-ts/tests/probes/results.test.ts) (`misere-tally`) | Executable: supported | `PlayedPosition.winner` | One, made: custom games credited the mover (`custom-game-mover-credited-win`) | Every custom-game specification and suite | A margin or score is only the ending's reason text (`endingDescription(reason)`) |
-| [Results beyond one winner](../../games-harness-ts/tests/probes/results.test.ts) (shared win, ranking, score) | Executable (type-level): limitation | — | Would need one | — | `PlayedPosition.winner: GameSide \| 'draw' \| null`, `GameRecordMetadata.outcome: GameSide \| 'draw'`; stored custom and matched outcomes, Glicko-2 ratings on win/draw/loss and history's wins, losses and draws |
-| [More than two participants](../../games-harness-ts/tests/probes/participants.test.ts) | Executable: two to four declared seats (Word Tiles has three) | `GameRules.sides`, `gameSides`, `GameRecordMetadata.participants` | Shared rosters, clocks, group matching, consent, records and synchronization | [Roster conformance](../../games-harness-ts/tests/conformance/custom-games/declared-roster.test.ts), `specs/games/multi-seat-games.feature`, `four-seat-matchmaking.feature`, `multi-seat-recovery.feature` | A single winner or draw; private setups and puzzles remain two-seat capabilities |
+| [Results beyond one winner](../../games-harness-ts/tests/probes/results.test.ts) (shared win, ranking, score) | Executable: joint winners supported in custom games; scores and rankings a type-level limitation | `GameWinner`, `plainWinner`, `winningSides`, `GameRecordMetadata.outcome` | Made: stored custom outcomes, status, records and history credit every winner; Hearts is the consumer | `specs/games/shared-victories.feature` (trait `a shared victory`) | A matched game records one winner or a draw (Glicko-2 on win/draw/loss); a score is only the ending's reason |
+| [More than two participants](../../games-harness-ts/tests/probes/participants.test.ts) | Executable: two to four declared seats (Word Tiles has three) | `GameRules.sides`, `gameSides`, `GameRecordMetadata.participants` | Shared rosters, clocks, group matching, consent, records and synchronization | [Roster conformance](../../games-harness-ts/tests/conformance/custom-games/declared-roster.test.ts), `specs/games/multi-seat-games.feature`, `four-seat-matchmaking.feature`, `multi-seat-recovery.feature` | Private setups and puzzles remain two-seat capabilities; a seat whose person is away is played by a disclosed stand-in in custom games (`multi-seat-stand-ins.feature`) |
 | [Participant-private state](../../games-harness-ts/tests/probes/private-state.test.ts) | Executable: supported as private setups and dealt hands; per-viewer positions a limitation | `GameRules.setup`, `GamePresentation.SetupBoard`, `GameAutomation.arrange`, `fixtures.setups`; `GameRules.hands`, `GameBoardProps.hand`, `fixtures.knownDeal` | Made: private room events, authority-only resolution, owner-only setups and hands in matched games, hidden state no device holds, the viewer's own setup or hand on every board | Every shared specification and suite for what it offers, plus the private-setup and dealt-hands ones; secret pick, Battleship and Word Tiles | A position that differs per viewer (a fog that lifts) is still one public string: `GameBoardProps` takes no viewer and the rules decide with no actor |
 | [A surface unlike a chessboard](../../games-harness-ts/tests/probes/play-surface.test.ts) | Executable: supported | `GamePresentation.Board`, `GamePuzzlesClient.Board`, `PuzzleMarks` | None | The reference game's board is a row of buttons and its cells counts; it runs every shared specification and suite it offers | Puzzles mark cells (`PuzzleMarks.to`, `isCell`), the board faces a side (`orientation`), and automation is one pointer gesture (see Known limits) |
 
@@ -1147,8 +1217,10 @@ no production game advertises the new mode.
   legal moves`); a bot proposing from a hidden hand does not, so they hold
   for every other game, while the offline features, the whole custom-game
   model and the four-seat recovery hold for dealt hands too.
-- Results are a single winner or a draw. Word Tiles' joint winners in a
-  game of three or four are recorded as a draw, with the scores shown.
+- A matched game's result is a single winner or a draw; joint winners are a
+  custom-game result (Hearts' tie for the lowest score).
+- Secret choices and turns the rules decide are custom-game capabilities;
+  `defineGame` refuses either in a game offering matchmaking.
 - A game with private setups is never played on the host's device alone,
   so the offline solo specifications and the custom-game model (whose host
   chooses alone with no connection) hold only for games without them

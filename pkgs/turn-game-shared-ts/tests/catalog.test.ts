@@ -6,10 +6,12 @@ import {
   gameFamily,
   gameSides,
   offeredCapabilities,
+  plainWinner,
   type RegisteredTurnGame,
   requireTurnGames,
   requireTwoPlayerSide,
   type TurnGameCapabilities,
+  winningSides,
 } from '@pkgs/turn-game-shared-ts/game-rules';
 
 const rulesOf = (id: string): GameRules => ({
@@ -153,21 +155,22 @@ test('only the game granted it keeps the unprefixed puzzle namespace, and no two
   ).toThrow('second: puzzle namespace "" is taken');
 });
 
-test('game rosters preserve the two-seat default and validate declared seat order', () => {
+test('game rosters preserve the two-seat default and validate declared two-, three- and four-seat order', () => {
   expect(gameSides(game)).toEqual(['white', 'black']);
-  const three: GameRules = { ...game, sides: ['white', 'black', 'red'] };
-  expect(
-    gameSides(createTurnGames([registration({}, three)]).byId('counter'))
-  ).toEqual(['white', 'black', 'red']);
   const four: GameRules = { ...game, sides: ['white', 'black', 'red', 'blue'] };
   expect(
     gameSides(createTurnGames([registration({}, four)]).byId('counter'))
   ).toEqual(['white', 'black', 'red', 'blue']);
+  const three: GameRules = { ...game, sides: ['white', 'black', 'red'] };
+  expect(
+    gameSides(createTurnGames([registration({}, three)]).byId('counter'))
+  ).toEqual(['white', 'black', 'red']);
   for (const sides of [
     [],
     ['white'],
-    ['white', 'black', 'blue'],
+    ['white', 'black', 'blue', 'red'],
     ['white', 'black', 'red', 'red'],
+    ['white', 'black', 'blue'],
     ['white', 'white'],
     ['black', 'white'],
   ] as const)
@@ -203,6 +206,59 @@ test('unsupported multi-seat private setups or puzzle capabilities fail at regis
       ),
     ])
   ).toThrow('require two declared seats');
+});
+
+test('a result names one side, every side or joint winners in seat order', () => {
+  const four = ['white', 'black', 'red', 'blue'] as const;
+  expect(plainWinner('red', four)).toBe('red');
+  expect(plainWinner('draw', four)).toBe('draw');
+  expect(plainWinner(['blue'], four)).toBe('blue');
+  expect(plainWinner(['blue', 'white'], four)).toEqual(['white', 'blue']);
+  expect(plainWinner(['blue', 'red', 'black', 'white'], four)).toBe('draw');
+  expect(winningSides('draw', four)).toEqual(four);
+  expect(winningSides(['red', 'white'], four)).toEqual(['white', 'red']);
+  expect(winningSides('black', four)).toEqual(['black']);
+  expect(() => plainWinner([], four)).toThrow('at least one');
+  expect(() => plainWinner(['red', 'red'], four)).toThrow('only seats');
+  expect(() => plainWinner(['red'], ['white', 'black'])).toThrow('only seats');
+});
+
+test('matched games refuse turns the rules name', () => {
+  const byRules: GameRules = { ...game, turnOrder: 'rules' };
+  expect(() =>
+    createTurnGames([
+      registration({ matchmaking: matchmaking('counter/'), history }, byRules),
+    ])
+  ).toThrow('matched games rotate turns');
+  expect(
+    createTurnGames([registration({ history }, byRules)]).games
+  ).toHaveLength(1);
+});
+
+test('matched games refuse private commitments', () => {
+  const committing: GameRules = {
+    ...game,
+    hands: {
+      deal: () => 'hidden',
+      hand: () => '',
+      resolve: () => ({ refusal: 'no' }),
+      proposals: () => [],
+      commit: {
+        sides: () => [],
+        accept: () => ({ refusal: 'no' }),
+        resolve: () => ({ action: 'a', hidden: 'hidden' }),
+      },
+    },
+  };
+  expect(() =>
+    createTurnGames([
+      registration(
+        { matchmaking: matchmaking('counter/'), history },
+        committing
+      ),
+    ])
+  ).toThrow('private commitments are offered in custom games');
+  expect(createTurnGames([registration({}, committing)]).games).toHaveLength(1);
 });
 
 test('modes have distinct registrations and may share one declared game family', () => {

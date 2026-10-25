@@ -90,12 +90,22 @@ function ensureWorkerTelemetry(env: RoomWorkerEnv): RoomTelemetryRuntime {
   return workerTelemetry;
 }
 
-/** DO adapter only uses clock/createId; seed is unused — no random I/O at module load. */
+/**
+ * A number in [0, 1) nobody can predict from other draws: a room deals hidden
+ * hands from it, so it is the platform's cryptographic source, not
+ * `Math.random`, whose state a few outputs give away.
+ */
+function unpredictableRandom(): number {
+  const [high, low] = crypto.getRandomValues(new Uint32Array(2));
+  return ((high! >>> 5) * 67108864 + (low! >>> 6)) / 9007199254740992;
+}
+
+/** The seed is unused by the DO adapter — no random I/O at module load. */
 const env: RoomServerEnv = {
   clock: wallClock,
   timers: wallTimers,
   createId: () => crypto.randomUUID(),
-  random: () => Math.random(),
+  random: unpredictableRandom,
   seed: 1n,
 };
 

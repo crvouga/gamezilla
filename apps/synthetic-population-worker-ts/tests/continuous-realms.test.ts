@@ -20,7 +20,7 @@ test('native Synthetic User realms guide both Pong paddles through normal contro
       [0, 1].map(async () => {
         const realm = await runtimeSession(backend, workerId, 'pong-realm', {
           policySeed: 'native-pong-pair',
-          game: 'pong',
+          entry: 'runtime-pong-session-entry.ts',
         });
         sessions.push(realm.session);
         await realm.authenticated;

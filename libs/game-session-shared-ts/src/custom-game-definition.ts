@@ -2,6 +2,7 @@ import type { GameDefinition } from '@libs/spaces-shared-ts/game';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { createCustomGameAvailabilityChange } from './custom-game-availability';
 import { customGameCmdNs, customGameEvtNs } from './custom-game-commands';
+import { customGameCommitmentAudience } from './custom-game-commitments';
 import {
   customGameEffects,
   localCustomGameEffects,
@@ -16,6 +17,7 @@ import {
 } from './custom-game-router';
 import { customGameSetupAudience } from './custom-game-setup';
 import { reactCustomGameToSpaceEvent } from './custom-game-space-events';
+import { customGameStandInEffects } from './custom-game-stand-in';
 import { CustomGamesAttr } from './custom-game-state';
 
 /** One custom-game lifecycle per space, composed once alongside playable plugins. */
@@ -35,7 +37,9 @@ export function withCustomGames(
     ...(privately
       ? {
           audience: (event) =>
-            customGameSetupAudience(event) ?? customGameHandsAudience(event),
+            customGameSetupAudience(event) ??
+            customGameHandsAudience(event) ??
+            customGameCommitmentAudience(event),
         }
       : {}),
     availabilityChange: createCustomGameAvailabilityChange(rules),
@@ -46,6 +50,7 @@ export function withCustomGames(
     recoverEffects: (state) => [
       ...game.recoverEffects(state),
       ...customGameEffects(CustomGamesAttr.from(state).current, rules),
+      ...customGameStandInEffects(state, CustomGamesAttr.from(state).current),
     ],
     reactToSpaceEvent: (state, ctx, event) =>
       reactCustomGameToSpaceEvent(state, ctx, event, rules),

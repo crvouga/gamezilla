@@ -183,6 +183,94 @@ export function recordedLine(
   return actions;
 }
 
+/**
+ * A phase of private commitments, as one proposal of a known line: every
+ * committing side's commitment, in seat order, after `commit:` and joined by
+ * `|`. The authority resolves the whole phase at once, so one proposal is
+ * still one public action, as the shared laws read every line.
+ */
+const COMMITMENTS = 'commit:';
+
+export function committedProposal(commitments: readonly string[]): string {
+  return `${COMMITMENTS}${commitments.join('|')}`;
+}
+
+/** Each committing side's commitment of a combined proposal, or `null` for any other proposal. */
+export function splitCommittedProposal(
+  proposal: string
+): readonly string[] | null {
+  return proposal.startsWith(COMMITMENTS)
+    ? proposal.slice(COMMITMENTS.length).split('|')
+    : null;
+}
+
+/** The sides that commit at `position`, empty while play is by turns. */
+function committingSides(
+  hands: DealtHandsRules,
+  position: string
+): readonly GameSide[] {
+  return hands.commit?.sides(position) ?? [];
+}
+
+/**
+ * What the authority records for `proposal` at `position`: a move resolved
+ * with the hidden state, or, while every side commits, the commitments of
+ * a combined proposal resolved together. `null` when refused.
+ */
+function resolveDealt(
+  hands: DealtHandsRules,
+  position: string,
+  proposal: string,
+  hidden: string
+): { readonly action: string; readonly hidden: string } | null {
+  const sides = committingSides(hands, position);
+  if (sides.length === 0 || hands.commit === undefined) {
+    const resolution = hands.resolve(position, proposal, hidden);
+    return 'refusal' in resolution ? null : resolution;
+  }
+  if (!proposal.startsWith(COMMITMENTS)) return null;
+  const parts = proposal.slice(COMMITMENTS.length).split('|');
+  if (parts.length !== sides.length) return null;
+  const commitments: Partial<Record<GameSide, string>> = {};
+  for (const [index, side] of sides.entries()) {
+    const accepted = hands.commit.accept(
+      position,
+      side,
+      hands.hand(hidden, side),
+      parts[index]!
+    );
+    if ('refusal' in accepted) return null;
+    commitments[side] = accepted.commitment;
+  }
+  return hands.commit.resolve(position, commitments, hidden);
+}
+
+/**
+ * What may be proposed at `position`: the mover's bounded proposals, or,
+ * while every side commits, a few combined proposals made of each side's
+ * own (the i-th of every side's together).
+ */
+function dealtLegal(
+  hands: DealtHandsRules,
+  at: {
+    readonly position: string;
+    readonly hidden: string;
+    readonly turn: GameSide;
+  }
+): readonly string[] {
+  const sides = committingSides(hands, at.position);
+  if (sides.length === 0)
+    return hands.proposals(at.position, hands.hand(at.hidden, at.turn));
+  const options = sides.map((side) =>
+    hands.proposals(at.position, hands.hand(at.hidden, side))
+  );
+  if (options.some((own) => own.length === 0)) return [];
+  const count = Math.max(...options.map((own) => own.length));
+  return Array.from({ length: count }, (_, i) =>
+    committedProposal(options.map((own) => own[i % own.length]!))
+  );
+}
+
 /** Positions of a dealt-hands view: the public position, the hidden state, the side to move. */
 const SEPARATOR = '\n';
 
@@ -225,18 +313,39 @@ type HandsLine = {
 function handsLine(
   rules: GameRules,
   hands: DealtHandsRules,
-  line: { readonly hidden: string; readonly proposals: readonly string[] }
+  line: {
+    readonly hidden: string;
+    readonly proposals: readonly string[];
+    /** A line already resolved for a prefix of `proposals`, to continue from. */
+    readonly from?: {
+      readonly proposals: readonly string[];
+      readonly state: HandsLine;
+    };
+  }
 ): HandsLine {
-  let state: HandsLine = {
-    actions: [],
-    position: rules.initial(),
-    hidden: line.hidden,
-    turn: gameSides(rules)[0]!,
-    history: '',
-  };
-  for (const proposal of line.proposals) {
-    const resolution = hands.resolve(state.position, proposal, state.hidden);
-    if ('refusal' in resolution) break;
+  const from = line.from;
+  const continues =
+    from !== undefined &&
+    from.state.actions.length === from.proposals.length &&
+    from.proposals.length <= line.proposals.length &&
+    from.proposals.every((proposal, i) => proposal === line.proposals[i]);
+  let state: HandsLine = continues
+    ? from.state
+    : {
+        actions: [],
+        position: rules.initial(),
+        hidden: line.hidden,
+        turn: gameSides(rules)[0]!,
+        history: '',
+      };
+  for (const proposal of line.proposals.slice(state.actions.length)) {
+    const resolution = resolveDealt(
+      hands,
+      state.position,
+      proposal,
+      state.hidden
+    );
+    if (resolution === null) break;
     const played = rules.play(
       state.position,
       resolution.action,
@@ -268,8 +377,19 @@ function dealtRules(
   hands: DealtHandsRules,
   hidden: string
 ): GameRules {
-  const line = (proposals: readonly string[], ply = proposals.length) =>
-    handsLine(rules, hands, { hidden, proposals: proposals.slice(0, ply) });
+  // Shared walks extend one line a proposal at a time: continue from the
+  // last line resolved rather than replaying from the deal each time.
+  let last: { proposals: readonly string[]; state: HandsLine } | undefined;
+  const line = (proposals: readonly string[], ply = proposals.length) => {
+    const wanted = proposals.slice(0, ply);
+    const state = handsLine(rules, hands, {
+      hidden,
+      proposals: wanted,
+      ...(last === undefined ? {} : { from: last }),
+    });
+    last = { proposals: wanted, state };
+    return state;
+  };
   const composite = (state: HandsLine) =>
     dealtPosition(state.position, state.hidden, state.turn);
   return {
@@ -280,16 +400,20 @@ function dealtRules(
     initial: () => composite(line([])),
     legal: (position) => {
       const at = splitDealtPosition(position);
-      if (rules.legal(at.position).length === 0) return [];
-      return hands.proposals(at.position, hands.hand(at.hidden, at.turn));
+      if (
+        rules.legal(at.position).length === 0 &&
+        committingSides(hands, at.position).length === 0
+      )
+        return [];
+      return dealtLegal(hands, at);
     },
     canWin: (position, side) =>
       rules.canWin(splitDealtPosition(position).position, side),
     play: (position, proposal, history, proposals) => {
       const at = splitDealtPosition(position);
       const before = line(proposals);
-      const resolution = hands.resolve(at.position, proposal, at.hidden);
-      if ('refusal' in resolution) return null;
+      const resolution = resolveDealt(hands, at.position, proposal, at.hidden);
+      if (resolution === null) return null;
       const played = rules.play(
         at.position,
         resolution.action,

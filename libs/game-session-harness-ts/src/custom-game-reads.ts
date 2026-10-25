@@ -75,16 +75,31 @@ export async function customGameShownUnrated(
   return ui.get('custom-game-unrated').isVisible();
 }
 
-/** The moves the person's move list shows, in order, as the game writes them. */
+/** At most as many moves as the board lists after its earlier ones. */
+const LISTED_MOVES_STRIDE = 40;
+
+/**
+ * The moves the person's move list shows, in order, as the game writes them:
+ * a long game's latest moves only.
+ */
 export async function readCustomGameMoveList(
   s: ProductHarness,
   actor: string
 ): Promise<readonly string[]> {
   const ui = await actorUi(s, actor);
   await bringToFront(s, actor);
+  const listed = (ply: number) =>
+    ui.get(`custom-game-review-move-${String(ply)}`);
+  // A long game lists only its latest moves, a run shorter than the stride:
+  // stepping by it lands on one of them.
+  let first = 1;
+  if (await ui.get('custom-game-earlier-moves').isVisible()) {
+    while (!(await listed(first).isVisible())) first += LISTED_MOVES_STRIDE;
+    while (first > 1 && (await listed(first - 1).isVisible())) first -= 1;
+  }
   const shown: string[] = [];
-  for (let ply = 1; ; ply += 1) {
-    const move = ui.get(`custom-game-review-move-${String(ply)}`);
+  for (let ply = first; ; ply += 1) {
+    const move = listed(ply);
     if (!(await move.isVisible())) return shown;
     shown.push((await move.text()) ?? '');
   }
@@ -124,4 +139,15 @@ export async function readCustomGameAlert(
   if (!(await ui.get('custom-game-content').isVisible())) return null;
   const alert = ui.get('custom-game-error');
   return (await alert.isVisible()) ? ((await alert.text()) ?? '') : '';
+}
+
+/** What the seat of `side` calls whoever holds it, on the person's screen. */
+export async function customGameSeatName(
+  s: ProductHarness,
+  actor: string,
+  side: CustomGameSide
+): Promise<string | null> {
+  const ui = await actorUi(s, actor);
+  await bringToFront(s, actor);
+  return ui.get(`custom-game-${side}-person`).text();
 }

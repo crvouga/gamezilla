@@ -1,7 +1,11 @@
 import type { Clock } from '@pkgs/clock-shared-ts/types';
 import type { Message } from '@pkgs/message-shared-ts/message';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
-import type { RegisteredSimulation } from '@pkgs/turn-game-shared-ts/game-simulation';
+import {
+  type RegisteredSimulation,
+  simulationInputPolicy,
+} from '@pkgs/turn-game-shared-ts/game-simulation';
+import { SimulationCommandOutbox } from './simulation-command-outbox';
 import { SimulationInputTiming } from './simulation-input-timing';
 import { SnapshotInterpolation } from './simulation-interpolation';
 import {
@@ -27,6 +31,10 @@ export class SimulationReplica {
   private readonly interpolation;
   private readonly controls = new Map<GameSide, LocalControl>();
   private readonly held = new Map<GameSide, unknown>();
+  /** The court a held control was chosen on, kept while a refresh re-reads it. */
+  private heldOn: { readonly epoch: string; readonly paused: boolean } | null =
+    null;
+  private readonly commands: SimulationCommandOutbox | null;
 
   constructor(
     private readonly options: {
@@ -45,6 +53,13 @@ export class SimulationReplica {
     this.inputTiming = new SimulationInputTiming(
       Math.min(64, options.simulation.timing.maxQueuedInputs)
     );
+    const policy = simulationInputPolicy(options.simulation);
+    this.commands =
+      policy.mode === 'commands'
+        ? new SimulationCommandOutbox(
+            Math.min(64, 2 * policy.maxPendingPerPlayer)
+          )
+        : null;
     this.interpolation = new SnapshotInterpolation<unknown>(
       options.simulation.presentation?.interpolate ??
         ((_before, after) => after),
@@ -73,11 +88,19 @@ export class SimulationReplica {
     ) {
       this.controls.clear();
       this.inputTiming.clear();
-      this.held.clear();
+      const heldOn = previous ?? this.heldOn;
+      if (heldOn?.epoch !== snapshot.epoch || heldOn.paused !== snapshot.paused)
+        this.held.clear();
+      this.commands?.reset(snapshot.acknowledged);
       this.interpolation.reset();
       this.presentationTick = -Infinity;
     }
     this.latest = snapshot;
+    this.heldOn = null;
+    this.commands?.acknowledge(
+      snapshot.acknowledged,
+      this.options.simulation.rounds?.current(state)
+    );
     this.receivedAt = this.options.clock.now();
     this.interpolation.push({ tick: snapshot.tick, state });
     const measures = this.reconcile(snapshot, state, previous?.tick ?? -1);
@@ -96,6 +119,15 @@ export class SimulationReplica {
   ) {
     const acknowledgmentMs: number[] = [];
     const predictionErrors: number[] = [];
+    if (this.commands !== null)
+      for (const side of this.commands.sides())
+        acknowledgmentMs.push(
+          ...this.inputTiming.acknowledge(
+            side,
+            snapshot.acknowledged[side] ?? 0,
+            this.receivedAt
+          )
+        );
     for (const [side, control] of this.controls) {
       acknowledgmentMs.push(
         ...this.inputTiming.acknowledge(
@@ -139,11 +171,36 @@ export class SimulationReplica {
       : null;
   }
 
+  /** A held control is coalesced for `pump`; a command is sent once, now. */
   control(side: GameSide, input: unknown): boolean {
     const value = this.options.simulation.parseInput(input);
     if (value === null || this.latest === null || this.latest.paused)
       return false;
+    if (this.commands !== null) return this.command(side, value);
     this.held.set(side, value);
+    return true;
+  }
+
+  private command(side: GameSide, value: unknown): boolean {
+    const snapshot = this.latest!;
+    if (this.isStale()) return false;
+    const sequence = this.commands!.next(side, snapshot.acknowledged[side]);
+    if (sequence === null) return false;
+    this.inputTiming.record(side, sequence, this.options.clock.now());
+    const sent = this.options.send(
+      SubmitSimulationInput({
+        version: 1,
+        epoch: snapshot.epoch,
+        playerId: side,
+        sequence,
+        tick: snapshot.tick,
+        value,
+      })
+    );
+    if (sent === null) {
+      this.reset();
+      return false;
+    }
     return true;
   }
 
@@ -153,6 +210,7 @@ export class SimulationReplica {
     const now = this.options.clock.now();
     const timing = this.options.simulation.timing;
     if (
+      this.commands !== null ||
       snapshot === null ||
       snapshot.paused ||
       now - this.receivedAt > 1000 ||
@@ -226,10 +284,14 @@ export class SimulationReplica {
     }
     const age = Math.max(0, this.options.clock.now() - this.receivedAt);
     const timing = this.options.simulation.timing;
+    // A player chooses each discrete command from the frame shown: a playback
+    // buffer behind the authority would land every command a step late.
+    const buffer =
+      this.commands === null ? (2 * timing.tickRate) / timing.snapshotRate : 0;
     const tick =
       snapshot.tick +
       (snapshot.paused ? 0 : (age * timing.tickRate) / 1000) -
-      (2 * timing.tickRate) / timing.snapshotRate;
+      buffer;
     // Packet arrival changes snapshot age, but cannot rewind the playback clock.
     // Holding at the latest frame must not reserve time beyond received authority.
     this.presentationTick = Math.max(
@@ -256,10 +318,26 @@ export class SimulationReplica {
     this.held.clear();
   }
   reset(): void {
+    this.forget();
+    this.held.clear();
+    this.heldOn = null;
+  }
+
+  /**
+   * Re-reads the authority without letting go of a control the player still
+   * holds: it resumes on the same court, and a new or paused court drops it.
+   */
+  resynchronize(): void {
+    if (this.latest !== null)
+      this.heldOn = { epoch: this.latest.epoch, paused: this.latest.paused };
+    this.forget();
+  }
+
+  private forget(): void {
     this.latest = null;
+    this.commands?.reset({});
     this.controls.clear();
     this.inputTiming.clear();
-    this.held.clear();
     this.interpolation.reset();
     this.presentationTick = -Infinity;
   }
@@ -271,10 +349,12 @@ export class SimulationReplica {
   ): void {
     this.options.measure({
       snapshotAgeMs: Math.max(0, this.options.clock.now() - this.receivedAt),
-      pendingInputs: [...this.controls.values()].reduce(
-        (count, control) => count + control.prediction.pendingCount(),
-        0
-      ),
+      pendingInputs:
+        (this.commands?.outstanding() ?? 0) +
+        [...this.controls.values()].reduce(
+          (count, control) => count + control.prediction.pendingCount(),
+          0
+        ),
       reconciled,
       acknowledgmentMs,
       predictionErrors,

@@ -15,14 +15,50 @@ export function requireTwoPlayerSide(side: GameSide): TwoPlayerSide {
 }
 export type BotDifficulty = 'easy' | 'medium' | 'hard';
 export const BOT_DIFFICULTIES = ['easy', 'medium', 'hard'] as const;
+/**
+ * Who a finished game's result goes to: one side, every side (`'draw'`), or
+ * several joint winners (a tie for the best score among more than two).
+ */
+export type GameWinner = GameSide | 'draw' | readonly GameSide[];
 export type PlayedPosition = {
   readonly position: string;
   readonly history: string;
   readonly turn: GameSide;
   readonly label: string;
-  readonly winner: GameSide | 'draw' | null;
+  /** The result once the game is over; `null` while it goes on. */
+  readonly winner: GameWinner | null;
   readonly reason: string | null;
 };
+
+/**
+ * One result in its plainest form: a single side, `'draw'` when it goes to
+ * every seat, or two or more (but not all) joint winners in seat order.
+ */
+export function plainWinner(
+  winner: GameWinner,
+  sides: readonly GameSide[]
+): GameWinner {
+  if (typeof winner === 'string') return winner;
+  const winners = sides.filter((side) => winner.includes(side));
+  if (
+    winners.length === 0 ||
+    winners.length !== winner.length ||
+    new Set(winner).size !== winner.length
+  )
+    throw new Error('A result names only seats of the game, at least one');
+  if (winners.length === sides.length) return 'draw';
+  return winners.length === 1 ? winners[0]! : winners;
+}
+
+/** The sides a result goes to: every seat for a draw. */
+export function winningSides(
+  winner: GameWinner,
+  sides: readonly GameSide[]
+): readonly GameSide[] {
+  const plain = plainWinner(winner, sides);
+  if (plain === 'draw') return sides;
+  return typeof plain === 'string' ? [plain] : plain;
+}
 export type RecordedMove = {
   readonly label: string;
   readonly before: string;
@@ -34,7 +70,7 @@ export type GameRecordMetadata = {
     readonly name: string;
     readonly rating: string | null;
   }[];
-  readonly outcome: GameSide | 'draw';
+  readonly outcome: GameWinner;
   readonly reason: string | null;
   readonly timeControl: {
     readonly minutes: number;
@@ -78,7 +114,11 @@ export type HandsResolution =
       readonly hidden: string;
     }
   | {
-      /** Why the proposal is refused; nothing changes. */
+      /**
+       * Why the proposal is refused; nothing changes. Only its proposer is
+       * told, so it may speak of their own hand and the public position,
+       * never of another side's hand.
+       */
       readonly refusal: string;
     };
 /**
@@ -111,7 +151,54 @@ export type DealtHandsRules = {
    * them (bounded; the shared laws and drivers walk games with them).
    */
   readonly proposals: (position: string, hand: string) => readonly string[];
+  /** Present for a game with phases of private commitments. */
+  readonly commit?: PrivateCommitRules;
 };
+/** A commitment as stored, or why it is refused; nothing changes on a refusal. */
+export type CommitmentAcceptance =
+  | { readonly commitment: string }
+  | { readonly refusal: string };
+/** The private commitments of a phase, by the side that made each. */
+export type GameCommitments = Readonly<Partial<Record<GameSide, string>>>;
+/**
+ * A simultaneous phase: before play goes on, each named side commits a
+ * private choice from its own hand (three cards to pass). A commitment is
+ * read only by its side and the authority and is final for the phase; the
+ * public game shows only which sides have committed. Once every side has,
+ * the authority resolves all of them at once into one public action and the
+ * hidden state after it, so no commitment is a public turn of its own.
+ */
+export type PrivateCommitRules = {
+  /** The sides that each commit before play goes on from `position`; empty while play is by turns. */
+  readonly sides: (position: string) => readonly GameSide[];
+  /**
+   * The commitment as stored, or why `side`, holding `hand`, may not make
+   * it (the reason a person is told).
+   */
+  readonly accept: (
+    position: string,
+    side: GameSide,
+    hand: string,
+    commitment: string
+  ) => CommitmentAcceptance;
+  /** The public action every side's commitment resolves to, and the hidden state after it. Authority only. */
+  readonly resolve: (
+    position: string,
+    commitments: GameCommitments,
+    hidden: string
+  ) => { readonly action: string; readonly hidden: string };
+};
+
+/** The sides that must still commit privately in `position`, given those that have. */
+export function pendingCommitments(
+  rules: Pick<GameRules, 'hands'>,
+  position: string,
+  committed: readonly GameSide[]
+): readonly GameSide[] {
+  return (rules.hands?.commit?.sides(position) ?? []).filter(
+    (side) => !committed.includes(side)
+  );
+}
 /**
  * A turn game's mechanics: what every shared lifecycle needs to
  * hold, check and show a game. Positions and actions are opaque strings the
@@ -153,6 +240,12 @@ export type GameRules = GamePositionRules & {
    * fails without effect and can be retried.
    */
   readonly prepare?: () => Promise<void>;
+  /**
+   * `'rotation'` (the default): every action passes the turn to the next
+   * declared seat. `'rules'`: the rules name the next side after each action
+   * (`PlayedPosition.turn`), as when a trick's winner leads the next one.
+   */
+  readonly turnOrder?: 'rotation' | 'rules';
   readonly id: string;
   readonly recognizes: (position: string) => boolean;
   readonly initial: () => string;
@@ -204,11 +297,11 @@ export function assertGameSides(rules: Pick<GameRules, 'id' | 'sides'>): void {
   const sides = gameSides(rules);
   if (
     sides.length < 2 ||
-    sides.length > 4 ||
-    sides.some((side, index) => GAME_SIDES[index] !== side)
+    sides.length > GAME_SIDES.length ||
+    sides.some((side, index) => side !== GAME_SIDES[index])
   )
     throw new Error(
-      `${rules.id}: declare two to four ordered seats, in the order white, black, red, blue`
+      `${rules.id}: declare two to four ordered seats: white, black, then red and blue`
     );
 }
 
@@ -367,21 +460,23 @@ export function publicAction(
   return rules.setup.resolve(position, proposal, setups);
 }
 
-/** Fail when a game dealing hands also has what dealt hands exclude. */
-function assertHandsRequirements(game: RegisteredGame): void {
-  if (!isTurnRules(game.rules) || game.rules.hands === undefined) return;
-  if (game.rules.setup !== undefined)
+/** Fail when a matched game needs what only custom games hold. */
+function assertMatchedTurns(game: RegisteredGame): void {
+  if (game.capabilities.matchmaking === undefined || !isTurnRules(game.rules))
+    return;
+  if (game.rules.turnOrder === 'rules')
     throw new Error(
-      `${game.rules.id}: a game deals hands or has private setups, not both`
+      `${game.rules.id}: matched games rotate turns (their abort window and first-move clock count one move per side) — a game whose rules name the next side is offered in custom games`
     );
-  if (game.capabilities.puzzles !== undefined)
+  if (game.rules.hands?.commit !== undefined)
     throw new Error(
-      `${game.rules.id}: a rated puzzle shows its whole position to the solver, so a game with dealt hands offers no puzzle feed — offer authored puzzle content instead`
+      `${game.rules.id}: private commitments are offered in custom games — matched games hold no commitment phase`
     );
 }
 
-/** Fail when a game offers a capability without what it needs beside it. */
-function assertRequirements(game: RegisteredGame): void {
+/** Fail when private setups or dealt hands meet what cannot hold them. */
+function assertPrivateState(game: RegisteredGame): void {
+  const turns = isTurnRules(game.rules) ? game.rules : undefined;
   if (
     gameSides(game.rules).length > 2 &&
     (game.rules.setup !== undefined || game.capabilities.puzzles !== undefined)
@@ -389,7 +484,20 @@ function assertRequirements(game: RegisteredGame): void {
     throw new Error(
       `${game.rules.id}: private setups and puzzles require two declared seats`
     );
-  assertHandsRequirements(game);
+  if (turns?.hands !== undefined && game.rules.setup !== undefined)
+    throw new Error(
+      `${game.rules.id}: a game deals hands or has private setups, not both`
+    );
+  if (turns?.hands !== undefined && game.capabilities.puzzles !== undefined)
+    throw new Error(
+      `${game.rules.id}: a rated puzzle shows its whole position to the solver, so a game with dealt hands offers no puzzle feed — offer authored puzzle content instead`
+    );
+}
+
+/** Fail when a game offers a capability without what it needs beside it. */
+function assertRequirements(game: RegisteredGame): void {
+  assertMatchedTurns(game);
+  assertPrivateState(game);
   if (game.capabilities.puzzles !== undefined && !isTurnRules(game.rules))
     throw new Error(`${game.rules.id}: puzzles require turn rules`);
   if (!isTurnRules(game.rules) && game.simulation === undefined)
@@ -525,7 +633,7 @@ export function createTurnGames(games: readonly RegisteredGame[]): TurnGames {
 export async function prepareTurnGames(turnGames: TurnGames): Promise<void> {
   await Promise.all(
     turnGames.games.map((game) =>
-      isTurnRules(game.rules) ? game.rules.prepare?.() : undefined
+      turnGames.turnsForPosition(game.rules.initial())?.prepare?.()
     )
   );
 }

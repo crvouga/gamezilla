@@ -44,7 +44,10 @@ export function journeyDiagnosticDriver(input: {
           if (input.refusedVisible === id)
             throw new Error('Timed out after 20000ms waiting for visible');
         },
-        hidden: unused,
+        hidden: async () => {
+          if (input.visible.includes(id))
+            throw new Error('Timed out after 20000ms waiting for hidden');
+        },
         text: unused,
       },
     }),

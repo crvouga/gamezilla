@@ -48,7 +48,7 @@ export function connectSimulationPresentation(options: PresentationOptions) {
     if (generation === undefined || !options.isReady()) return;
     synced.generation = generation;
     synced.ready = true;
-    replica.reset();
+    replica.resynchronize();
     options.send(RequestSimulationSnapshot({ version: 1 }));
   };
   const unsubscribeRoom = subscribeSimulationRoom(
