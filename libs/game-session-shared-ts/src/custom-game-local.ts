@@ -10,8 +10,9 @@ import { CustomGamesAttr } from './custom-game-state';
 
 /**
  * Choices with another person are agreed online; solo choices stay on the
- * creator's device. A game with private setups is never solo: its bot's
- * setup is the room's alone to hold, so it is always played online.
+ * creator's device. A game with private setups or dealt hands is never
+ * solo: its bot's setup, and every hand and the hidden state, are the
+ * room's alone to hold, so it is always played online.
  */
 export function soloCustomGame(
   game: CustomGame | null,
@@ -20,6 +21,7 @@ export function soloCustomGame(
   return (
     game === null ||
     (rules.forPosition(game.fen).setup === undefined &&
+      rules.forPosition(game.fen).hands === undefined &&
       game.sides.every(
         (side) => game[side].person === '' || game[side].person === game.creator
       ))
@@ -51,7 +53,7 @@ export function prepareLocalCustomGameCommand(
     game.id !== payload.payload.gameId
   )
     return payload;
-  const move = customGameBotMove(game, rules, random);
+  const move = customGameBotMove(game, rules, { random, hand: null });
   if (move === null) throw new Error('active bot game has no legal move');
   return PlayCustomGameBot({ ...payload.payload, at, move });
 }

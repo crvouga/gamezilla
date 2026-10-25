@@ -68,6 +68,49 @@ export type PrivateSetupRules = {
     setups: GameSetups
   ) => string | null;
 };
+/** The authority's decision on a proposal in a game with dealt hands. */
+export type HandsResolution =
+  | {
+      /** The public action the proposal is recorded as. */
+      readonly action: string;
+      /** The hidden state after it. */
+      readonly hidden: string;
+    }
+  | {
+      /** Why the proposal is refused; nothing changes. */
+      readonly refusal: string;
+    };
+/**
+ * Dealt hands: hidden information the authority deals when a game starts
+ * and keeps as play goes on (a shuffled bag, each side's rack of tiles).
+ * Every position stays public. The authority alone holds the hidden state;
+ * each side sees only its own hand (`hand`), which may change after every
+ * action, and the authority resolves each proposal with the hidden state
+ * into the public action it records, so `play`, `replay` and `moves` take
+ * public actions and never see a hand. Bots and automation choose from the
+ * public position and their own side's hand alone.
+ */
+export type DealtHandsRules = {
+  /** A new game's hidden state at `position`, dealt with the authority's `random`. */
+  readonly deal: (position: string, random: () => number) => string;
+  /** Everything `side` may know of `hidden`: its own hand, never another side's. */
+  readonly hand: (hidden: string, side: GameSide) => string;
+  /**
+   * The authority's decision on `proposal` by the side to move: the public
+   * action and next hidden state, or a refusal. Called only by the
+   * authority; a refusal leaves the hidden state as it was.
+   */
+  readonly resolve: (
+    position: string,
+    proposal: string,
+    hidden: string
+  ) => HandsResolution;
+  /**
+   * Some proposals `hand` allows at `position`, as its side could make
+   * them (bounded; the shared laws and drivers walk games with them).
+   */
+  readonly proposals: (position: string, hand: string) => readonly string[];
+};
 /**
  * A turn game's mechanics: what every shared lifecycle needs to
  * hold, check and show a game. Positions and actions are opaque strings the
@@ -84,6 +127,19 @@ export type GameRules = {
    * `legal` actions are proposals and the rest take resolved public actions.
    */
   readonly setup?: PrivateSetupRules;
+  /**
+   * Present for a game whose authority deals hidden hands as it starts; its
+   * `legal` lists the proposals every hand allows (passing) and the rest
+   * take resolved public actions.
+   */
+  readonly hands?: DealtHandsRules;
+  /**
+   * Loads the immutable data the rules decide with (a word list), once.
+   * The platform awaits it before an authority, a bot or a device playing
+   * alone decides; a decision needing data that has not loaded throws, so it
+   * fails without effect and can be retried.
+   */
+  readonly prepare?: () => Promise<void>;
   readonly id: string;
   readonly recognizes: (position: string) => boolean;
   readonly initial: () => string;
@@ -127,18 +183,19 @@ export function gameSides(
   return rules.sides ?? TWO_PLAYER_SIDES;
 }
 
-/** Validate a roster before its rules enter any shared lifecycle. */
+/**
+ * Validate a roster before its rules enter any shared lifecycle: two to four
+ * seats, in the platform's seat order (`white`, `black`, then `red`, `blue`).
+ */
 export function assertGameSides(rules: Pick<GameRules, 'id' | 'sides'>): void {
   const sides = gameSides(rules);
   if (
-    (sides.length !== 2 && sides.length !== 4) ||
-    sides[0] !== 'white' ||
-    sides[1] !== 'black' ||
-    new Set(sides).size !== sides.length ||
-    sides.some((side) => !GAME_SIDES.includes(side))
+    sides.length < 2 ||
+    sides.length > 4 ||
+    sides.some((side, index) => GAME_SIDES[index] !== side)
   )
     throw new Error(
-      `${rules.id}: declare two or four distinct ordered seats, starting white, black`
+      `${rules.id}: declare two to four ordered seats, in the order white, black, red, blue`
     );
 }
 
@@ -154,7 +211,9 @@ export type GameBots = {
   readonly choose: (
     position: string,
     difficulty: BotDifficulty,
-    random: () => number
+    random: () => number,
+    /** The bot side's own hand, for a game with dealt hands; `null` otherwise. */
+    hand: string | null
   ) => string | null;
 };
 /**
@@ -276,6 +335,14 @@ function assertRequirements(game: RegisteredTurnGame): void {
   )
     throw new Error(
       `${game.rules.id}: private setups and puzzles require two declared seats`
+    );
+  if (game.rules.hands !== undefined && game.rules.setup !== undefined)
+    throw new Error(
+      `${game.rules.id}: a game deals hands or has private setups, not both`
+    );
+  if (game.rules.hands !== undefined && game.capabilities.puzzles !== undefined)
+    throw new Error(
+      `${game.rules.id}: a rated puzzle shows its whole position to the solver, so a game with dealt hands offers no puzzle feed — offer authored puzzle content instead`
     );
   if (game.rules.setup !== undefined && game.capabilities.puzzles !== undefined)
     throw new Error(

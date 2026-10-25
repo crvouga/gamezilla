@@ -42,6 +42,7 @@ function ReviewBoardSurface(props: {
         interactive={false}
         sound={!sounds.muted()}
         setup={null}
+        hand={null}
         syncKey={model.solveIdx()}
         animated={model.animated()}
         moveMs={null}

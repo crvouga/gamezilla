@@ -47,7 +47,7 @@ export function delayedPartyHost(
     if (mode === 'rebased' && !rebased && shown.ply === 16) {
       const prefix = moves.slice(0, 15);
       const position = rules.replay(prefix, prefix.length);
-      const action = game.shared.automation.choose(position, () => 0.75);
+      const action = game.shared.automation.choose(position, () => 0.75, null);
       const next = rules.play(position, action!, prefix.join(','), prefix);
       if (next === null)
         throw new Error('The authoritative bot move is illegal');
@@ -75,8 +75,10 @@ export function delayedPartyHost(
     players.push(actor);
     accept(action);
     while (view.status === 'active' && ['red', 'blue'].includes(view.turn)) {
-      const bot = game.shared.automation.choose(view.position, () =>
-        mode === 'reviewed' && view.ply === 15 ? 0.75 : 0.25
+      const bot = game.shared.automation.choose(
+        view.position,
+        () => (mode === 'reviewed' && view.ply === 15 ? 0.75 : 0.25),
+        null
       );
       if (bot === null) throw new Error('Bot has no action');
       accept(bot);

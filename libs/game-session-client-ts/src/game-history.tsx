@@ -85,6 +85,7 @@ function RecordReview(props: {
           onAction={() => {}}
           testId="game-history-board"
           setup={props.record.setup}
+          hand={props.record.hand}
         />
       </GameReviewScreen>
     </>

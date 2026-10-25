@@ -40,16 +40,20 @@ export function customGameBots(game: CustomGame, rules: TurnGames): GameBots {
     throw new Error('The game offers no Custom Games');
   return customGames.bots;
 }
-/** The bot's choice for the side to move, at its difficulty. */
+/**
+ * The bot's choice for the side to move, at its difficulty, given only
+ * that side's own hand (for a game with dealt hands).
+ */
 export function customGameBotMove(
   game: CustomGame,
   rules: TurnGames,
-  random: () => number
+  turn: { readonly random: () => number; readonly hand: string | null }
 ): string | null {
   return customGameBots(game, rules).choose(
     game.fen,
     game.difficulty[game.turn],
-    random
+    turn.random,
+    turn.hand
   );
 }
 export function customGameLegalMoves(

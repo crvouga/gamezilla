@@ -40,7 +40,7 @@ test('the recorded Hill position chooses a legal move past the occupied f5', () 
     'f5',
   ];
   const position = game.turnGame.rules.replay(actions, actions.length);
-  const action = game.automation.choose(position, () => 0.25);
+  const action = game.automation.choose(position, () => 0.25, null);
   expect(action).not.toBe('f5');
   expect(game.turnGame.rules.legal(position)).toContain(action!);
 });
@@ -89,10 +89,12 @@ test('both provisional g6 and authoritative f5 are real bot choices', () => {
   const game = QUORIDOR_HILL_PLAYABLE.shared;
   const actions = 'e2,b5,e8,h5,e3,c5,e7,g5,e4,d4h,e5v,c5v,f4,c6,e6'.split(',');
   const position = game.turnGame.rules.replay(actions, actions.length);
-  expect(game.automation.choose(position, () => 0.25)).toBe('g6');
-  expect(game.automation.choose(position, () => 0.75)).toBe('f5');
+  expect(game.automation.choose(position, () => 0.25, null)).toBe('g6');
+  expect(game.automation.choose(position, () => 0.75, null)).toBe('f5');
   const provisional = game.turnGame.rules.play(position, 'g6', '', actions)!;
-  expect(game.automation.choose(provisional.position, () => 0.25)).toBe('f5');
+  expect(game.automation.choose(provisional.position, () => 0.25, null)).toBe(
+    'f5'
+  );
 });
 
 test('the party reselects a pending acting board without repeating a move', async () => {

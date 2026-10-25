@@ -6,6 +6,7 @@ import {
   customGameEffects,
   localCustomGameEffects,
 } from './custom-game-effects';
+import { customGameHandsAudience } from './custom-game-hands';
 import { prepareLocalCustomGameCommand } from './custom-game-local';
 import { customGameCommandPermission } from './custom-game-permissions';
 import {
@@ -22,11 +23,19 @@ export function withCustomGames(
   game: GameDefinition,
   rules: TurnGames
 ): GameDefinition {
-  // Only a game with private setups makes any custom-game event private.
-  const privateSetups = rules.games.some((g) => g.rules.setup !== undefined);
+  // Only a game with private setups or dealt hands makes any custom-game
+  // event private.
+  const privately = rules.games.some(
+    (g) => g.rules.setup !== undefined || g.rules.hands !== undefined
+  );
   return {
     ...game,
-    ...(privateSetups ? { audience: customGameSetupAudience } : {}),
+    ...(privately
+      ? {
+          audience: (event) =>
+            customGameSetupAudience(event) ?? customGameHandsAudience(event),
+        }
+      : {}),
     availabilityChange: createCustomGameAvailabilityChange(rules),
     prepareLocalCommand: (state, payload, at, random) =>
       prepareLocalCustomGameCommand(state, payload, { at, random }, rules),

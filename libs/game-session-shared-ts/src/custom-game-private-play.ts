@@ -44,7 +44,7 @@ function changed(
     { ...CustomGamesAttr.from(decision.state), current },
     decision.ctx,
     decision.rules,
-    { setups }
+    { privately: setups }
   );
 }
 

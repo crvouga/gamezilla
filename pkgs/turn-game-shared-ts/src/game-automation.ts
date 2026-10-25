@@ -7,7 +7,12 @@ import type { GameRules } from './game-rules';
  */
 export type GameAutomation<Ui> = {
   readonly rules: GameRules;
-  readonly choose: (position: string, random: () => number) => string | null;
+  /** `hand` is the side's own dealt hand, for a game with dealt hands; `null` otherwise. */
+  readonly choose: (
+    position: string,
+    random: () => number,
+    hand: string | null
+  ) => string | null;
   /** Perform `action` on the game's board identified by `board`. */
   readonly perform: (ui: Ui, board: string, action: string) => Promise<void>;
   /**

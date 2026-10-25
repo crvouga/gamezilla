@@ -41,6 +41,7 @@ function boardDriver(played: string[]): SolidDomDriver {
                 interactive
                 sound={false}
                 syncKey={0}
+                hand={null}
                 setup={
                   'fleet:carrier@a3h;battleship@a5h;cruiser@a7h;submarine@a9h;destroyer@h1h'
                 }

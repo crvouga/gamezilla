@@ -243,6 +243,7 @@ export function CustomGameBoard(props: BoardProps): JSX.Element {
         syncKey={reset()}
         testId="custom-game-board"
         setup={props.model.privateSetup.own()}
+        hand={props.model.ownHand()}
         onAction={(action: string) => {
           void move(action);
         }}

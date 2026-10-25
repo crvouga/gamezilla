@@ -520,7 +520,11 @@ export function gameRulesLaws(
             // The platform never asks for a move in a finished game.
             if (steps.at(-1)?.winner != null) return;
             const legal = rules.legal(position);
-            const chosen = game.shared.automation.choose(position, () => r);
+            const chosen = game.shared.automation.choose(
+              position,
+              () => r,
+              null
+            );
             must(
               legal.length === 0
                 ? chosen === null
@@ -571,7 +575,8 @@ export function gameBotLaws(game: HarnessGame): readonly GameLaw[] {
                 const chosen = bots.choose(
                   position,
                   difficulties[ply % difficulties.length]!,
-                  () => draws[ply % draws.length]!
+                  () => draws[ply % draws.length]!,
+                  null
                 );
                 if (legal.length === 0) {
                   must(chosen === null, 'a bot moved in a finished game');

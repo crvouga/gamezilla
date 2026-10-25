@@ -5,6 +5,10 @@ import {
   multiplayerSides,
 } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
 import {
+  CustomGameHandsAttr,
+  ownCustomGameHand,
+} from '@libs/game-session-shared-ts/custom-game-hands';
+import {
   CustomGameSetupsAttr,
   ownCustomGameSetup,
 } from '@libs/game-session-shared-ts/custom-game-setup';
@@ -35,12 +39,15 @@ export type GameHistoryRecord = {
   readonly moves: readonly RecordedMove[];
   /** The viewer's own private setup in the game, when it has one; never another's. */
   readonly setup: string | null;
+  /** The viewer's own last hand in the game, when it deals hands; never another's. */
+  readonly hand: string | null;
 };
 export function useGameRecords(gameId: () => string) {
   const myId = useMyId();
   const rules = useTurnGames();
   const local = useSpaceRoomSelector(CustomGamesAttr.from);
   const localSetups = useSpaceRoomSelector(CustomGameSetupsAttr.from);
+  const localHands = useSpaceRoomSelector(CustomGameHandsAttr.from);
   // Only the person's own setups ever reach this device.
   const ownSetups = createQuery(
     () => sql<{
@@ -58,6 +65,7 @@ export function useGameRecords(gameId: () => string) {
     const gameRules = rules.byId(gameId());
     const owned = customRecords(local(), {
       setups: localSetups(),
+      hands: localHands(),
       gameRules,
       myId: myId(),
     });
@@ -77,6 +85,7 @@ export function useGameRecords(gameId: () => string) {
         moves: gameRules.moves(g.fen, g.pgn, []),
         setup:
           ownSetups.rows().find((row) => row.game_id === g.id)?.setup ?? null,
+        hand: null,
       }));
     return [
       ...owned.reverse(),
@@ -92,6 +101,7 @@ function customRecords(
   custom: CustomGames,
   context: {
     readonly setups: ReturnType<typeof CustomGameSetupsAttr.from>;
+    readonly hands: ReturnType<typeof CustomGameHandsAttr.from>;
     readonly gameRules: GameRules;
     readonly myId: string;
   }
@@ -127,6 +137,11 @@ function customRecords(
       ),
       setup: ownCustomGameSetup(
         CustomGameSetupsAttr(context.setups),
+        g,
+        context.myId
+      ),
+      hand: ownCustomGameHand(
+        CustomGameHandsAttr(context.hands),
         g,
         context.myId
       ),

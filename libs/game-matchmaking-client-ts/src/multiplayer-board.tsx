@@ -95,6 +95,7 @@ function BoardStage(
         syncKey={props.syncKey}
         testId="multiplayer-board"
         setup={props.ownSetup}
+        hand={null}
         onAction={(action: string) => {
           void props.onMove(action);
         }}

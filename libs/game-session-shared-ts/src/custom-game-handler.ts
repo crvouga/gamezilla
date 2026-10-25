@@ -18,6 +18,11 @@ import {
   configureCustomGame,
   rematchCustomGame,
 } from './custom-game-configuration';
+import {
+  dealtHandsChoice,
+  decideCustomGameMove,
+} from './custom-game-hand-play';
+import { customGameHand } from './custom-game-hands';
 import { soloCustomGame } from './custom-game-local';
 import {
   expireCustomGame,
@@ -25,10 +30,7 @@ import {
   playCustomGameMove,
 } from './custom-game-play';
 import { customGameBotMove, customGameBots } from './custom-game-position';
-import {
-  privateSetupChoice,
-  publicCustomGameMove,
-} from './custom-game-private-play';
+import { privateSetupChoice } from './custom-game-private-play';
 import { customGameRefusal } from './custom-game-refusal';
 import { changedCustomGames, refuseCustomGame } from './custom-game-result';
 import type { CustomGame } from './custom-game-state';
@@ -121,7 +123,9 @@ export function handleCustomGameChoice(
     !customGameBots(game, rules).difficulties.includes(choice.difficulty)
   )
     return refuseCustomGame('difficulty not offered');
-  const privately = privateSetupChoice({ state, ctx, game, rules }, choice);
+  const decision = { state, ctx, game, rules };
+  const privately =
+    privateSetupChoice(decision, choice) ?? dealtHandsChoice(decision, choice);
   if (privately !== null) return privately;
   const configured = configureCustomGame(game, choice, ctx.identity);
   const next = playCustomGameChoice(
@@ -181,12 +185,20 @@ export function handleCustomGameWake(
   if (!bot || game[game.turn].kind !== 'bot')
     return changedCustomGames(games, ctx, rules);
   const move =
-    'move' in wake ? wake.move : customGameBotMove(game, rules, ctx.random);
+    'move' in wake
+      ? wake.move
+      : customGameBotMove(game, rules, {
+          random: ctx.random,
+          hand: customGameHand(state, game, game.turn),
+        });
   if (move === null) throw new Error('active bot game has no legal move');
-  // A bot proposes from the public position; the room alone resolves it.
-  const played = publicCustomGameMove(state, game, move, rules);
-  const next =
-    played === null ? null : playCustomGameMove(game, played, at, rules);
+  // A bot proposes from the public position and its own hand; the room
+  // alone resolves it.
+  const decided = decideCustomGameMove(state, game, move, rules);
+  if ('refusal' in decided) return refuseCustomGame(decided.refusal);
+  const next = playCustomGameMove(game, decided.action, at, rules);
   if (next === null) return refuseCustomGame('move is illegal');
-  return changedCustomGames({ ...games, current: next }, ctx, rules);
+  return changedCustomGames({ ...games, current: next }, ctx, rules, {
+    privately: decided.privately,
+  });
 }

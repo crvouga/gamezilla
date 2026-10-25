@@ -22,6 +22,14 @@ import {
   handleCustomGameChoice,
   handleCustomGameWake,
 } from './custom-game-handler';
+import {
+  CustomGameHandShown,
+  CustomGameHandsAttr,
+  CustomGameHiddenDealt,
+  keptCustomGameHands,
+  reduceCustomGameHand,
+  reduceCustomGameHidden,
+} from './custom-game-hands';
 import { localCustomGameChoiceAllowed } from './custom-game-local';
 import { refuseCustomGame } from './custom-game-result';
 import {
@@ -93,20 +101,29 @@ export const customGameEventReducer = createMessageRouter<
   RoomState
 >(customGameEvtNs)
   .on(CustomGamesChanged, (state, _ctx, event) =>
-    keptCustomGameSetups(
-      {
-        ...state,
-        ...CustomGamesAttr(event.payload.games),
-        ...CustomGameNoticeAttr({
-          commandId: event.payload.commandId,
-          reason: event.payload.reason,
-        }),
-      },
+    keptCustomGameHands(
+      keptCustomGameSetups(
+        {
+          ...state,
+          ...CustomGamesAttr(event.payload.games),
+          ...CustomGameNoticeAttr({
+            commandId: event.payload.commandId,
+            reason: event.payload.reason,
+          }),
+        },
+        event.payload.games
+      ),
       event.payload.games
     )
   )
   .on(CustomGameSetupChosen, (state, _ctx, event) =>
     reduceCustomGameSetup(state, event.payload)
+  )
+  .on(CustomGameHiddenDealt, (state, _ctx, event) =>
+    reduceCustomGameHidden(state, event.payload)
+  )
+  .on(CustomGameHandShown, (state, _ctx, event) =>
+    reduceCustomGameHand(state, event.payload)
   )
   .on(CustomGameAvailabilityChanged, (state, _ctx, event) => ({
     ...state,
@@ -119,5 +136,6 @@ export function customGameInitialAttrs(): RoomState {
     ...CustomGamesAttr(EMPTY_CUSTOM_GAMES),
     ...CustomGameNoticeAttr({ commandId: '', reason: '' }),
     ...CustomGameSetupsAttr({}),
+    ...CustomGameHandsAttr({}),
   };
 }
