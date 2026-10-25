@@ -67,6 +67,7 @@ export function CustomGameTest(props: {
           // The person's own hand in a game with dealt hands, as their
           // board receives it; never another side's.
           ownHand: props.model.ownHand(),
+          ownCommitment: props.model.ownCommitment(),
           away: props.model.away(),
           gates: {
             create: props.model.canCreate(),

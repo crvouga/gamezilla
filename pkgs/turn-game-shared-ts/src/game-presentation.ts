@@ -48,4 +48,10 @@ export type GamePresentation<View = unknown> = {
   readonly endingDescription: (reason: string) => string | undefined;
   readonly timeoutDrawDescription: (flagged: GameSide) => string;
   readonly endingLabel: (reason: string) => string;
+  /**
+   * What a person is told when the game's own rules refuse their choice
+   * (`must follow suit`), for a refusal reason the game itself gave; absent
+   * or `undefined` for a reason only the platform words.
+   */
+  readonly refusalDescription?: (reason: string) => string | undefined;
 };

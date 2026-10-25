@@ -2,7 +2,7 @@ import type { GameClientPresentation } from '@libs/game-menu-client-ts/game-clie
 import { HEARTS_REASON } from '@libs/hearts-shared-ts/hearts-rules';
 import { t } from '@lingui/core/macro';
 import { HeartsBoard } from './hearts-board';
-import { heartsSeatName } from './hearts-copy';
+import { heartsRefusal, heartsSeatName } from './hearts-copy';
 
 export const heartsPresentation: GameClientPresentation = {
   canFlip: false,
@@ -19,4 +19,5 @@ export const heartsPresentation: GameClientPresentation = {
   },
   endingLabel: (reason) =>
     reason === HEARTS_REASON ? t`the lowest score` : reason,
+  refusalDescription: heartsRefusal,
 };

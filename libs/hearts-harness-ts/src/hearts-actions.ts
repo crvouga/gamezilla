@@ -9,7 +9,6 @@
  */
 
 import { operateCustomGameControls } from '@libs/game-session-harness-ts/custom-game-controls';
-import { playCustomGameHistory } from '@libs/game-session-harness-ts/custom-game-history';
 import {
   type CustomGameSeat,
   establishCustomGame,
@@ -27,13 +26,7 @@ import {
   chooseCustomGame,
   configureCustomGame,
 } from '@libs/game-session-harness-ts/custom-game-ui';
-import { queueRoomDraws } from '@libs/game-session-harness-ts/room-draws';
-import {
-  partition,
-  refreshActorConnection,
-  restoreActorConnection,
-  restoreNetwork,
-} from '@libs/harness-ts/actions';
+import { partition, restoreActorConnection } from '@libs/harness-ts/actions';
 import { actorPage } from '@libs/harness-ts/actor-page';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
@@ -49,7 +42,6 @@ import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { type HeartsLine, heartsLineDraws } from './hearts-lines';
 import { type HeartsView, heartsView } from './hearts-view';
 
-const SIDES: readonly GameSide[] = ['white', 'black', 'red', 'blue'];
 /** How long a person may take to catch up with a game played without them. */
 const CATCH_UP_MS = 30_000;
 /** How long the room may take to bring in a stand-in or let it decide. */
@@ -116,86 +108,6 @@ async function signIn(s: ProductHarness, person: string): Promise<void> {
   await Promise.resolve(backToTabs.act(s, person));
 }
 
-/** Start the game as its creator does, from the deal `line` names when it names one. */
-async function startFrom(
-  s: ProductHarness,
-  host: string,
-  line: HeartsLine | undefined
-): Promise<void> {
-  if (line === undefined) {
-    await configureCustomGame(s, host, { operation: 'start' });
-    return;
-  }
-  queueRoomDraws(s, heartsLineDraws(line));
-  const start = (await actorUi(s, host)).get('custom-game-start');
-  const refused = await playOnCustomGameBoard(s, host, async () => {
-    await start.tap();
-    return 'made';
-  });
-  if (refused) throw new Error(`could not start: ${refused}`);
-}
-
-/** Wait until every one of `people` is connected to the game at `moves` actions. */
-async function caughtUp(
-  s: ProductHarness,
-  people: readonly string[],
-  moves: number
-): Promise<void> {
-  for (const person of people)
-    await pollUntil(
-      s,
-      async () => {
-        const screen = await readCustomGameScreen(s, person);
-        return screen?.connected === true &&
-          screen.current?.moves.length === moves
-          ? true
-          : null;
-      },
-      { maxMs: CATCH_UP_MS, stepMs: 10, description: `${person} catches up` }
-    );
-}
-
-/** The space `host` hosts, as its link names it. */
-async function spaceOf(s: ProductHarness, host: string): Promise<string> {
-  const link = await readSpaceLink(s, host);
-  if (link === null) throw new Error(`${host} is not in a space`);
-  return link.slice('/space/'.length);
-}
-
-/**
- * Play `history` as the game's earlier history: nobody watches it, so every
- * person's device is cut off while it is played through the room boundary
- * under each seat's device, then catches up with the game it reached.
- */
-async function playEarlierHistory(
-  s: ProductHarness,
-  table: {
-    readonly host: string;
-    readonly seats: Seats;
-    readonly people: readonly string[];
-  },
-  history: readonly string[]
-): Promise<void> {
-  const { host, seats, people } = table;
-  const spaceId = await spaceOf(s, host);
-  for (const person of people) {
-    await Promise.resolve(partition.act(s, person));
-    await Promise.resolve(refreshActorConnection.act(s, person));
-  }
-  await Promise.resolve(
-    playCustomGameHistory.act(s, {
-      spaceId,
-      white: String(seats.white),
-      black: String(seats.black),
-      red: String(seats.red),
-      blue: String(seats.blue),
-      moves: history,
-    })
-  );
-  await Promise.resolve(restoreNetwork.act(s));
-  await caughtUp(s, people, history.length);
-}
-
 /** `person` joins `host`'s space from its link, without opening the custom game. */
 async function joinSpace(
   s: ProductHarness,
@@ -217,12 +129,26 @@ async function untilSeen(
   holds: (view: HeartsView) => boolean,
   description: string
 ): Promise<void> {
+  let seen: HeartsView | null = null;
   for (let waited = 0; waited <= STAND_IN_WAIT_MS; waited += WAIT_STEP_MS) {
-    if (holds(await heartsView(s, observer))) return;
+    seen = await heartsView(s, observer);
+    if (holds(seen)) return;
     await s.session.advanceTime(WAIT_STEP_MS);
     await s.harness.drainServerFetch();
   }
-  throw new Error(`Hearts: ${description} never happened`);
+  const last =
+    seen === null
+      ? 'nothing'
+      : JSON.stringify({
+          standIns: seen.standIns,
+          committed: seen.committed,
+          moves: seen.screen.current?.moves.length,
+          status: seen.screen.current?.status,
+          error: seen.screen.error,
+        });
+  throw new Error(
+    `Hearts: ${description} never happened; ${observer} saw ${last}`
+  );
 }
 
 /** `person` is back online and their screen connected again. */
@@ -271,6 +197,7 @@ export const establishHearts = scenarioAction({
   act: async (s, lineup: HeartsLineup = {}) => {
     const host = lineup.host ?? 'alice';
     const seats = seatsOf(lineup);
+    const line = lineup.line;
     await Promise.resolve(
       establishCustomGame.act(s, 'hearts', {
         host,
@@ -280,21 +207,13 @@ export const establishHearts = scenarioAction({
         fourth: seats.blue,
         watchers: lineup.watchers ?? [],
         ...(lineup.ready === undefined ? {} : { ready: lineup.ready }),
-        active: false,
+        ...(lineup.active === undefined ? {} : { active: lineup.active }),
+        ...(line === undefined
+          ? {}
+          : { draws: heartsLineDraws(line), history: line.history }),
       })
     );
     if (lineup.active === false) return;
-    await startFrom(s, host, lineup.line);
-    const people = [
-      ...new Set([
-        host,
-        ...SIDES.map((side) => seats[side]).filter(isPerson),
-        ...(lineup.watchers ?? []),
-      ]),
-    ].map(String);
-    const history = lineup.line?.history ?? [];
-    if (history.length > 0)
-      await playEarlierHistory(s, { host, seats, people }, history);
     if (lineup.away !== undefined) {
       const side = lineup.away;
       const person = String(seats[side]);
@@ -439,17 +358,14 @@ export const playDealsLastCard = scenarioAction({
 /** Let the room's time pass until the stand-in playing `side` has made its secret choice. */
 export const letStandInPass = scenarioAction({
   name: 'letStandInPass',
-  act: async (s, observer: string, side: GameSide) => {
-    const moves = await movesSeen(s, observer);
-    await untilSeen(
+  act: (s, observer: string, side: GameSide) =>
+    untilSeen(
       s,
       observer,
-      (view) =>
-        view.committed.includes(side) ||
-        (view.screen.current?.moves.length ?? 0) > moves,
+      // Chosen, or every pass already changed hands: no longer choosing.
+      (view) => view.seats[side]?.facts.includes('Choosing') === false,
       `${side}'s stand-in passing`
-    );
-  },
+    ),
 });
 
 /** Let the room's time pass until the stand-in playing `side` has played its card. */

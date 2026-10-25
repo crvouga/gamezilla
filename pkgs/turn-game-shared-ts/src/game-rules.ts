@@ -113,7 +113,11 @@ export type HandsResolution =
       readonly hidden: string;
     }
   | {
-      /** Why the proposal is refused; nothing changes. */
+      /**
+       * Why the proposal is refused; nothing changes. Only its proposer is
+       * told, so it may speak of their own hand and the public position,
+       * never of another side's hand.
+       */
       readonly refusal: string;
     };
 /**
@@ -149,6 +153,10 @@ export type DealtHandsRules = {
   /** Present for a game with phases of private commitments. */
   readonly commit?: PrivateCommitRules;
 };
+/** A commitment as stored, or why it is refused; nothing changes on a refusal. */
+export type CommitmentAcceptance =
+  | { readonly commitment: string }
+  | { readonly refusal: string };
 /** The private commitments of a phase, by the side that made each. */
 export type GameCommitments = Readonly<Partial<Record<GameSide, string>>>;
 /**
@@ -162,13 +170,16 @@ export type GameCommitments = Readonly<Partial<Record<GameSide, string>>>;
 export type PrivateCommitRules = {
   /** The sides that each commit before play goes on from `position`; empty while play is by turns. */
   readonly sides: (position: string) => readonly GameSide[];
-  /** The commitment as stored, or `null` when `side`, holding `hand`, may not make it. */
+  /**
+   * The commitment as stored, or why `side`, holding `hand`, may not make
+   * it (the reason a person is told).
+   */
   readonly accept: (
     position: string,
     side: GameSide,
     hand: string,
     commitment: string
-  ) => string | null;
+  ) => CommitmentAcceptance;
   /** The public action every side's commitment resolves to, and the hidden state after it. Authority only. */
   readonly resolve: (
     position: string,
@@ -417,6 +428,13 @@ function assertRequirements(game: RegisteredTurnGame): void {
   )
     throw new Error(
       `${game.rules.id}: matched games rotate turns (their abort window and first-move clock count one move per side) — a game whose rules name the next side is offered in custom games`
+    );
+  if (
+    game.capabilities.matchmaking !== undefined &&
+    game.rules.hands?.commit !== undefined
+  )
+    throw new Error(
+      `${game.rules.id}: private commitments are offered in custom games — matched games hold no commitment phase`
     );
   if (
     gameSides(game.rules).length > 2 &&

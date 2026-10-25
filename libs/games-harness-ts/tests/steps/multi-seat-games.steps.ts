@@ -98,10 +98,10 @@ Then(
   '{actor} is told every side needs a participant',
   async (w, actor: string) => toldOf(w, actor, 'every side needs a participant')
 );
-Then('Bob keeps the custom game turn', async (w) => {
+Then('{actor} keeps the custom game turn', async (w, actor: string) => {
   const game = await current(w);
   expect(game.status).toBe('active');
-  expect(game[game.turn].person).toBe(await identityOf(w, 'bob'));
+  expect(game[game.turn].person).toBe(await identityOf(w, actor));
 });
 Then('Carol cannot make a custom game move before Bob', async (w) => {
   const seen = await w.s.read(customGameView, 'carol');

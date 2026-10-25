@@ -2,30 +2,37 @@
 Feature: A stand-in for someone away from a game with more than two sides
   When a participant of a custom game with more than two sides stays away, the others want play to go on without them, and the participant wants their side back when they return, so nobody is held up and nobody loses their side. It holds for every game with more than two sides that offers custom games.
 
-  Rule: After 60 seconds away, a stand-in plays the participant's side, shown to everyone as their stand-in
-
-    Background:
-      Given Alice, Bob, Carol and Dave have a four-player custom game with Bob to move
+  Rule: After 60 seconds away, a stand-in plays the participant's side, shown to everyone as their stand-in, while another person is in the custom game
 
     Scenario: A stand-in moves for a participant away for 60 seconds
-      Given Bob has been away from the custom game for 59 seconds
+      Given Alice, Bob, Carol and Dave have a four-player custom game with Bob to move
+      And Bob has been away from the custom game for 59 seconds
       When a second passes
       Then Alice, Carol and Dave see a stand-in playing Bob's side
       And Bob's stand-in makes a move for Bob's side
 
     Scenario: A participant away for less than 60 seconds keeps the turn with no stand-in
-      Given Bob has been away from the custom game for 30 seconds
+      Given Alice, Bob, Carol and Dave have a four-player custom game with Bob to move
+      And Bob has been away from the custom game for 30 seconds
       When 29 seconds pass
       Then Bob keeps the custom game turn
       And Bob's side still has no stand-in
 
+    Scenario: A person alone with three bots gets no stand-in
+      Given Alice has a four-player custom game against three bots with Alice to move
+      And Alice has been offline for 59 seconds
+      When a second passes
+      Then Alice keeps the custom game turn
+      And Alice's side still has no stand-in
+
   Rule: While a stand-in plays their side, the participant keeps it and their own moves are refused
 
-    Scenario: A victory the stand-in wins is the participant's victory
-      Given Alice, Bob, Carol and Dave have a four-player custom game one move from Bob's victory
-      And a stand-in is playing Bob's side
-      When Bob's stand-in makes the winning move
-      Then Bob wins the custom game
+    Scenario: A stand-in's last move finishes the custom game by the rules, and the participant keeps their side
+      Given Alice, Bob, Carol and Dave have a four-player custom game one move from Carol's victory alone, with Dave to move
+      And a stand-in is playing Dave's side
+      When Dave's stand-in makes its move
+      Then Carol wins the custom game
+      And the finished custom game shows Dave on the fourth side
 
     Scenario: A participant's own move is refused while a stand-in plays their side
       Given Alice, Bob, Carol and Dave have a four-player custom game with Bob to move
@@ -55,10 +62,10 @@ Feature: A stand-in for someone away from a game with more than two sides
       Then Bob has the custom game turn
       And no stand-in plays Bob's side
 
-    Scenario: Someone else cannot take back a participant's side
+    Scenario: Only the participant whose side a stand-in plays can take a side back
       Given a stand-in is playing Bob's side
-      When Carol takes back Bob's side
-      Then Carol is told only Bob may take back his side
+      When Carol takes back her side
+      Then Carol is told she is already playing her own side
       And a stand-in still plays Bob's side
 
     Scenario: A participant without a connection cannot take back their side
@@ -70,7 +77,7 @@ Feature: A stand-in for someone away from a game with more than two sides
 
     Scenario: A participant playing their own side has no side to take back
       When Bob takes back his side
-      Then Bob is told no stand-in plays his side
+      Then Bob is told he is already playing his own side
       And Bob still plays his own side
 
   Rule: A participant taking back their side sees nothing of another side they could not see before

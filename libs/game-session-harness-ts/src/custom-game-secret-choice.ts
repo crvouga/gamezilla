@@ -57,20 +57,9 @@ export const makeCustomGameSecretChoice = scenarioAction({
   },
 });
 
-/**
- * The person's own secret choice in the open round on the screen `probe`
- * read, `null` while they have made none. It fails when the screen's test
- * hook does not report the choice it shows (`ownCommitment`), so a missing
- * observation is never read as "no secret choice".
- */
+/** The person's own secret choice in the open round on the screen `probe` read, `null` while they have made none. */
 export function secretChoiceOnScreen(probe: CustomGameProbe): string | null {
-  const shown: unknown = (probe as { readonly ownCommitment?: unknown })
-    .ownCommitment;
-  if (shown === undefined)
-    throw new Error(
-      "The Custom Game screen's test hook does not report the person's own secret choice (ownCommitment)"
-    );
-  return typeof shown === 'string' ? shown : null;
+  return probe.ownCommitment;
 }
 
 /** `actor`'s own secret choice in the open round as their screen shows it. */

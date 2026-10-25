@@ -68,3 +68,18 @@ export function passInstruction(direction: PassDirection): string {
   };
   return instructions[direction];
 }
+
+/** What a person is told when Hearts' rules refuse their card or pass. */
+export function heartsRefusal(reason: string): string | undefined {
+  const refusals: Readonly<Record<string, string>> = {
+    'not your turn': t`It is not your turn to play.`,
+    'not your card': t`You do not hold that card.`,
+    'lead the two of clubs': t`The first trick begins with the two of clubs.`,
+    'follow suit': t`You must follow suit with a card of the suit led.`,
+    'no points on the first trick': t`Hearts and the queen of spades cannot be played on the first trick.`,
+    'hearts not broken': t`Hearts are not broken yet. Lead another suit.`,
+    'pass three different cards': t`A pass is exactly three different cards.`,
+    'no passing now': t`There is no passing now.`,
+  };
+  return refusals[reason];
+}

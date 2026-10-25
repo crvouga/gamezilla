@@ -10,6 +10,7 @@ import type {
   CustomGameSide,
   CustomGames,
 } from './custom-game-state';
+import { creatorAloneInCustomGame } from './custom-game-solo';
 import { CUSTOM_GAME_SIDES, customGamePersonSide } from './custom-game-state';
 
 /**
@@ -28,6 +29,8 @@ const commitmentChosenSchema = z
     side: z.enum(CUSTOM_GAME_SIDES),
     /** The person the commitment is private to; empty for a bot's. */
     person: z.string(),
+    /** Who else reads a bot's commitment: the creator of a solo practice game. */
+    reader: z.string().max(256).optional(),
     /** The ply at which the phase of commitments opened. */
     ply: z.number().int().nonnegative(),
     commitment: commitmentSchema,
@@ -72,7 +75,8 @@ export function customGameCommitmentAudience(
   event: Message
 ): readonly string[] | null {
   if (!CustomGameCommitmentChosen.is(event)) return null;
-  return event.payload.person === '' ? [] : [event.payload.person];
+  if (event.payload.person !== '') return [event.payload.person];
+  return event.payload.reader === undefined ? [] : [event.payload.reader];
 }
 
 /** A commitment joins its phase's; an earlier phase's are forgotten. */
@@ -145,10 +149,18 @@ export function customGameCommitmentChosen(
   side: CustomGameSide,
   commitment: string
 ): Message {
+  const person = game[side].kind === 'person' ? game[side].person : '';
+  // In the creator's solo practice their device decides as the room does,
+  // so it reads the bots' commitments too; with anyone else, nobody does.
+  const reader =
+    person === '' && creatorAloneInCustomGame(game)
+      ? { reader: game.creator }
+      : {};
   return CustomGameCommitmentChosen({
     gameId: game.id,
     side,
-    person: game[side].kind === 'person' ? game[side].person : '',
+    person,
+    ...reader,
     ply: game.moves.length,
     commitment,
   });

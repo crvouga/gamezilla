@@ -3,7 +3,12 @@ import { heartsBots } from '@libs/hearts-shared-ts/hearts-bot';
 import { DECK, parseCards } from '@libs/hearts-shared-ts/hearts-cards';
 import { decodeHearts } from '@libs/hearts-shared-ts/hearts-position';
 import { heartsRules } from '@libs/hearts-shared-ts/hearts-rules';
-import { takenPoints, tricksOf } from '@libs/hearts-shared-ts/hearts-tricks';
+import {
+  cardRefusal,
+  legalCards,
+  takenPoints,
+  tricksOf,
+} from '@libs/hearts-shared-ts/hearts-tricks';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import { createSeededRng } from '@pkgs/uuid-shared-ts/seeded-rng';
 import fc from 'fast-check';
@@ -177,6 +182,28 @@ describe('Hearts properties', () => {
         );
       }),
       { numRuns: 4 }
+    );
+  });
+
+  test('a refusal is explained exactly when the rules refuse a card, and only then', () => {
+    assertProperty(
+      'refusals',
+      fc.property(seeds, fc.integer({ min: 0, max: 300 }), (seed, at) => {
+        const rng = createSeededRng(seed);
+        const table = dealtTable(rng.random);
+        for (let n = 0; n < at && !finished(table); n += 1) decide(table, rng.random);
+        const position = decodeHearts(table.position)!;
+        if (position.phase !== 'play') return;
+        const seat = HEARTS_SIDES.indexOf(turn(table) as never) as 0;
+        const hand = parseCards(handOf(table, turn(table)))!;
+        const legal = legalCards(position, seat, hand);
+        for (const card of DECK)
+          must(
+            (cardRefusal(position, seat, hand, card) === null) === legal.includes(card),
+            `${card} is explained against the rules at ${table.position}`
+          );
+      }),
+      { numRuns: 20 }
     );
   });
 

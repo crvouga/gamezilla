@@ -75,8 +75,8 @@ export function pendingPasses(table: Table): readonly GameSide[] {
 export function pass(table: Table, side: GameSide, cards: string): boolean {
   if (!pendingPasses(table).includes(side)) return false;
   const accepted = commit.accept(table.position, side, handOf(table, side), cards);
-  if (accepted === null) return false;
-  table.commitments[side] = accepted;
+  if ('refusal' in accepted) return false;
+  table.commitments[side] = accepted.commitment;
   if (pendingPasses(table).length > 0) return true;
   const resolution = commit.resolve(
     table.position,

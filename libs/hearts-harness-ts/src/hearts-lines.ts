@@ -99,8 +99,9 @@ function resolved(at: HeartsReached, proposal: string) {
       HANDS.hand(at.hidden, side),
       commitments[index] ?? ''
     );
-    if (accepted === null) throw new Error(`${side} cannot pass ${proposal}`);
-    chosen[side] = accepted;
+    if ('refusal' in accepted)
+      throw new Error(`${side} cannot pass ${proposal}: ${accepted.refusal}`);
+    chosen[side] = accepted.commitment;
   }
   return COMMIT.resolve(at.text, chosen, at.hidden);
 }

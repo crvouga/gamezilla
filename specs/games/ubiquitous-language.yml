@@ -188,13 +188,14 @@ terms:
       - a game with secret choices
     avoid: [hidden choice, blind choice, simultaneous move, commitment]
     published: true
-    model: [secretChoice, secretChoiceShown, chosenShown, choiceRound, choosing, appliedRounds]
+    model: [secretChoice, secretChoiceShown, chosenShown, choiceRound, choosing, appliedRounds, reachNextRound]
 
   - term: make a secret choice
     definition: >-
       A participant choosing their side's secret choice for the current
-      round of secret choices; a bot, or a stand-in, makes its side's own at
-      once. It needs a connection. A second one in the same round, one for
+      round of secret choices; a bot, or a stand-in, makes its side's own by
+      itself. In a custom game with another person it needs a connection; a
+      person alone with bots may make it offline. A second one in the same round, one for
       an earlier round, one while the custom game is not awaiting secret
       choices, one from someone without a side, and one for a side a
       stand-in is playing are refused and change nothing.
@@ -225,12 +226,13 @@ terms:
       rules. The participant keeps their side and its result; while the
       stand-in plays it, their own moves and secret choices are refused
       until they take back their side. Coming back alone does not end it. A
-      custom game with two sides has no stand-in: the other participant may
-      claim the win instead.
+      stand-in plays only while another person is in the custom game: a
+      person alone with bots gets none. A custom game with two sides has no
+      stand-in: the other participant may claim the win instead.
     forms: [stand-ins, stand-in's]
     avoid: [substitute, replacement bot, takeover, autopilot]
     published: true
-    model: [standIn, standInPlays]
+    model: [standIn, standInPlays, standInTakesSide]
 
   - term: take back their side
     definition: >-
@@ -239,12 +241,12 @@ terms:
       nothing for that side, and the participant sees their side as it now
       stands, with nothing of any other side's that they could not see
       before. Only that participant may take it back, and only while a
-      stand-in plays it.
+      stand-in plays it; anyone else, or someone whose side no stand-in
+      plays, is told they are already playing their own side.
     forms:
       - takes back their side
       - takes back her side
       - takes back his side
-      - takes back Bob's side
       - took back her side
       - took back his side
       - has taken back her side
@@ -261,7 +263,6 @@ terms:
       history and statistics. Only a game whose rules allow it has one.
     forms: [shared victories, share the victory, shares the victory, shared the victory, have shared the victory]
     published: true
-    model: [winners]
 
   - term: start a custom game
     definition: >-
@@ -422,7 +423,7 @@ terms:
       - move played
       - moves played
     avoid: [command, action]
-    model: [playCustomMove, movesPlayed, moveWaiting, movesShown, playMove, playCurrentMove, moveCount, moves, playCorrectContinuation, tryMoveAfterFinish, tryMoveFromReview, tryMoveBeforeRetry, tryIllegalMove, playPuzzleMove]
+    model: [playCustomMove, movesPlayed, movesThisRound, moveWaiting, movesShown, playMove, playCurrentMove, moveCount, moves, playCorrectContinuation, tryMoveAfterFinish, tryMoveFromReview, tryMoveBeforeRetry, tryIllegalMove, playPuzzleMove]
 
   - term: turn
     definition: The participant who may make the next move.
@@ -449,7 +450,7 @@ terms:
       unfinished. A puzzle is finished once it is over; one still being
       solved, or waiting for a retry after a wrong move, is unfinished.
     forms: [finish, finishes, unfinished]
-    model: [Finished]
+    model: [Finished, finishGame]
 
   - term: end
     definition: >-
@@ -956,7 +957,6 @@ terms:
       Victories, losses and draws of one game alone; another game's results
       never count. A shared victory counts once as a victory for every
       person who shares it.
-    model: [victoriesShown]
 
   # --- Puzzles, for every game that offers them -------------------------------
 

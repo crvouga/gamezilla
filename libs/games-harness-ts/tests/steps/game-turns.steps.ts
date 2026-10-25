@@ -110,7 +110,7 @@ Then(
 );
 Then('{actor} wins the custom game', async (w, actor: string) => {
   expect((await view(w)).current?.outcome).toStartWith(
-    `${await sideOf(w, actor)} wins`
+    `${(await view(w, actor)).mySide} wins`
   );
 });
 Then('{actor} is told the game is finished', async (w, actor: string) => {

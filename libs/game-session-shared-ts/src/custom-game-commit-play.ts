@@ -72,8 +72,9 @@ export function commitCustomGameSide(
     return refuseCustomGame('nothing to choose now');
   if (!game.awaiting.includes(side))
     return refuseCustomGame('nothing to choose now');
-  const accepted = commit.accept(game.fen, side, hand, commitment);
-  if (accepted === null) return refuseCustomGame('move is illegal');
+  const acceptance = commit.accept(game.fen, side, hand, commitment);
+  if ('refusal' in acceptance) return refuseCustomGame(acceptance.refusal);
+  const accepted = acceptance.commitment;
   if (!ctx.authority) return { ok: true, events: [] };
   const recorded = customGameCommitmentChosen(game, side, accepted);
   const committed: CustomGame = {

@@ -60,7 +60,9 @@ export function decideCustomGameMove(
   const hidden = customGameHidden(state, game);
   if (hidden === null) return { refusal: 'the hands are not dealt' };
   const resolution = hands.resolve(game.fen, proposal, hidden);
-  if ('refusal' in resolution) return { refusal: 'move is illegal' };
+  // A refusal reaches only the person who proposed: the game words why
+  // (`follow suit`), from their own hand and the public position.
+  if ('refusal' in resolution) return { refusal: resolution.refusal };
   return {
     action: resolution.action,
     privately: customGameHandEvents(state, game, {

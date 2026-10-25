@@ -260,7 +260,9 @@ export function handleCustomGameWake(
   if (lacksHiddenState(state, ctx, game, rules))
     return { ok: true, events: [] };
   if (game.awaiting.length > 0)
-    return botCommitment(state, ctx, game, rules)(wake.side);
+    return 'move' in wake
+      ? commitCustomGameSide({ state, ctx, game, rules }, wake.side, wake.move)
+      : botCommitment(state, ctx, game, rules)(wake.side);
   const move =
     'move' in wake
       ? wake.move

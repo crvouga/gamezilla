@@ -20,7 +20,6 @@ import {
   held,
   plan,
   planned,
-  remember,
   remembered,
   seated,
   sees,
@@ -34,8 +33,8 @@ Given(
   "{actor}'s phone has been offline for {int} seconds",
   async (w, actor: string, seconds: number) => {
     await table(w);
+    // What everyone saw before going offline stays the view to compare with.
     await w.s.apply(stayOffline, actor, seconds * SECOND_MS);
-    await remember(w);
   }
 );
 Given('a stand-in is playing {heartsSeat} for {actor}', (w, side: GameSide) =>

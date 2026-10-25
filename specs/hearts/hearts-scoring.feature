@@ -27,38 +27,39 @@ Feature: Score deals and decide who wins Hearts
       Then the deal's scores are South 0, West 0, North 25 and East 1
 
   Rule: Another deal follows while every cumulative score is below 100, carrying over the scores and the passing direction
-    No counter-example: nobody can start or skip a deal; the scores decide, and 99 and 100 show both sides of the line.
+    No counter-example: no person decides whether another deal follows; the scores alone do, as 99 and 100 show.
 
     Background:
-      Given it is the second deal and the cumulative scores are South 40, West 90, North 30 and East 20
+      Given it is the sixth deal, and after five deals the scores stand at South 12, West 90, North 14 and East 14
 
     Scenario: A deal that keeps every score below 100 is followed by the next deal
-      Given in this deal South took 5 penalty points, West 9, North 7 and East 5
+      Given in this deal South took 0 penalty points, West 9, North 17 and East 0
       When the deal is scored
-      Then the cumulative scores are South 45, West 99, North 37 and East 25
-      And the third deal is dealt, passing across
+      Then the cumulative scores are South 12, West 99, North 31 and East 14
+      And the seventh deal is dealt, passing across
 
     Scenario: A deal that brings a score to 100 is the last deal
-      Given in this deal South took 5 penalty points, West 10, North 6 and East 5
+      Given in this deal South took 0 penalty points, West 10, North 16 and East 0
       When the deal is scored
-      Then the cumulative scores are South 45, West 100, North 36 and East 25
-      And the Hearts game is over with no third deal
+      Then the cumulative scores are South 12, West 100, North 30 and East 14
+      And the Hearts game is over with no seventh deal
 
   Rule: Once the Hearts game is over, the lowest cumulative score wins, and players tied for it share the victory
     No counter-example: the scores alone decide the winners.
 
+    Background:
+      Given after five deals the scores stand at South 12, West 90, North 14 and East 14
+
     Scenario: The lowest score wins alone
-      Given the cumulative scores are South 40, West 95, North 50 and East 70
-      And in this deal South took 2 penalty points, West 6, North 10 and East 8
+      Given in this deal South took 0 penalty points, West 11, North 2 and East 13
       When the deal is scored
-      Then the Hearts game is over and South wins alone with 42
+      Then the Hearts game is over and South wins alone with 12
       And every player and watcher sees the final scores and South as the winner
 
     Scenario: Players tied for the lowest score share the victory
-      Given the cumulative scores are South 50, West 95, North 50 and East 70
-      And in this deal South took 6 penalty points, West 8, North 6 and East 6
+      Given in this deal South took 2 penalty points, West 11, North 0 and East 13
       When the deal is scored
-      Then the Hearts game is over and South and North share the victory with 56
+      Then the Hearts game is over and South and North share the victory with 14
       And every player and watcher sees the final scores and both winners
 
   Rule: A Hearts game that is over takes no more passes or cards

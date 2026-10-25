@@ -260,9 +260,10 @@ export function secretChoicesOf(
   const hand = hands.hand(at.hidden, side);
   const offered = [line[ply] ?? '', ...rules.legal(rules.replay(line, ply))]
     .map((proposal) => splitCommittedProposal(proposal)?.[index])
-    .flatMap((own) =>
-      own === undefined ? [] : [commit.accept(at.position, side, hand, own)]
-    )
-    .filter((own): own is string => own !== null);
+    .flatMap((own) => {
+      if (own === undefined) return [];
+      const acceptance = commit.accept(at.position, side, hand, own);
+      return 'commitment' in acceptance ? [acceptance.commitment] : [];
+    });
   return [...new Set(offered)];
 }

@@ -1,4 +1,5 @@
 import { expect, test } from 'bun:test';
+import { fiveDealsScored } from '@libs/hearts-harness-ts/hearts-five-deals';
 import { KNOWN_HIDDEN } from '@libs/hearts-harness-ts/hearts-known-match';
 import {
   awaitingPassesIn,
@@ -100,4 +101,10 @@ test('the known deal is the one its known draws deal, and South wins it alone', 
   const south = over.scores[0] ?? -1;
   expect(Math.min(...over.scores)).toBe(south);
   expect(over.scores.filter((score) => score === south)).toHaveLength(1);
+});
+
+test('five known deals leave the scores at South 12, West 90, North 14 and East 14', () => {
+  const at = heartsReached(fiveDealsScored()).position;
+  expect([at.deal, at.phase]).toEqual([6, 'pass']);
+  expect(at.scores).toEqual([12, 90, 14, 14]);
 });

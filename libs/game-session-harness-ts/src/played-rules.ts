@@ -241,8 +241,8 @@ function resolveDealt(
       hands.hand(hidden, side),
       parts[index]!
     );
-    if (accepted === null) return null;
-    commitments[side] = accepted;
+    if ('refusal' in accepted) return null;
+    commitments[side] = accepted.commitment;
   }
   return hands.commit.resolve(position, commitments, hidden);
 }

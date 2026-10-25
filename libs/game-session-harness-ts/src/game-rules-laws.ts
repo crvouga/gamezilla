@@ -83,8 +83,8 @@ function offered(
   if (committing.length > 0) {
     const side = committing[0]!;
     return (
-      hands.commit!.accept(at.position, side, hands.hand(at.hidden, side), action) !==
-      null
+      'commitment' in
+      hands.commit!.accept(at.position, side, hands.hand(at.hidden, side), action)
     );
   }
   return accepted();

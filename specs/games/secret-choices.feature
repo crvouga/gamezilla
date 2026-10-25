@@ -39,8 +39,8 @@ Feature: Make secret choices at the same time
       And Bob keeps the custom game turn
 
     Scenario: A new round of secret choices starts with nobody chosen
-      Given Alice, Bob, Carol and Dave have a four-player custom game one move from its next round of secret choices
-      When Dave makes his move
+      Given Alice, Bob, Carol and Dave have a four-player custom game whose secret choices have taken effect
+      When play reaches the next round of secret choices
       Then the custom game is awaiting secret choices
       And nobody has made a secret choice
 
@@ -87,18 +87,23 @@ Feature: Make secret choices at the same time
       When Alice makes her secret choice
       Then every secret choice of the round takes effect at once
 
-  Rule: Making a secret choice needs a connection
-
-    Background:
-      Given Alice, Bob, Carol and Dave have a four-player custom game awaiting secret choices
+  Rule: With another person in the custom game, making a secret choice needs a connection
 
     Scenario: A participant back online makes their secret choice
-      Given Bob is back online after his offline secret choice was refused
+      Given Alice, Bob, Carol and Dave have a four-player custom game awaiting secret choices
+      And Bob is back online after his offline secret choice was refused
       When Bob makes his secret choice
       Then Alice, Carol and Dave see Bob has made his secret choice
 
     Scenario: A participant without a connection cannot make a secret choice
-      Given Bob is offline
+      Given Alice, Bob, Carol and Dave have a four-player custom game awaiting secret choices
+      And Bob is offline
       When Bob makes his secret choice
       Then Bob is told the game needs a connection
       And nobody has made a secret choice
+
+    Scenario: A person alone with three bots makes their secret choice offline
+      Given Alice has a four-player custom game against three bots awaiting secret choices
+      And Alice is offline
+      When Alice makes her secret choice
+      Then every secret choice of the round takes effect at once

@@ -2,6 +2,7 @@ import {
   plainWinner,
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import type {
+  CommitmentAcceptance,
   DealtHandsRules,
   GameCommitments,
   GameRules,
@@ -44,6 +45,7 @@ import {
   sideOfSeat,
 } from './hearts-position';
 import {
+  cardRefusal,
   dealScores,
   legalCards,
   matchOver,
@@ -102,8 +104,9 @@ function resolveHeartsCard(
   const seat = position === null ? null : seatToPlay(position);
   if (position === null || hidden === null || seat === null)
     return { refusal: 'no card is played now' };
-  if (!isCard(proposal) || !legalCards(position, seat, hidden.hands[seat]!).includes(proposal))
-    return { refusal: 'that card cannot be played now' };
+  if (!isCard(proposal)) return { refusal: 'not your card' };
+  const refusal = cardRefusal(position, seat, hidden.hands[seat]!, proposal);
+  if (refusal !== null) return { refusal };
   const after = withoutCard(hidden, seat, proposal);
   if (!dealsAgain(position, proposal))
     return { action: proposal, hidden: writeHidden(after) };
@@ -139,14 +142,16 @@ function acceptPass(
   _side: GameSide,
   hand: string,
   commitment: string
-): string | null {
+): CommitmentAcceptance {
   const held = parseCards(hand);
   const cards = parseCards(commitment);
-  if (decodeHearts(text)?.phase !== 'pass' || held === null || cards === null)
-    return null;
-  if (cards.length !== 3 || !cards.every((card) => held.includes(card)))
-    return null;
-  return writeCards(cards);
+  if (decodeHearts(text)?.phase !== 'pass' || held === null)
+    return { refusal: 'no passing now' };
+  if (cards === null || cards.length !== 3)
+    return { refusal: 'pass three different cards' };
+  if (!cards.every((card) => held.includes(card)))
+    return { refusal: 'not your card' };
+  return { commitment: writeCards(cards) };
 }
 
 /** Every side's three cards change hands at once; the two of clubs' new holder leads. */

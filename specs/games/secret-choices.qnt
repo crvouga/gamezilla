@@ -1,47 +1,47 @@
-// A custom game of a game with secret choices and four sides in a fixed turn
-// order: Alice created it and plays the first side, Bob the second, Carol the
-// third and a bot the fourth. Eve is in the space and watches.
-// Play goes in rounds. Each round opens with secret choices: every side makes
-// one in secret, the bot at once. Everyone sees which sides have made theirs,
+// A custom game under way of a game with secret choices and four sides:
+// Alice created it and plays the first side, Bob the second, Carol the third
+// and a bot the fourth. Eve is in the space and watches.
+// The game's own rules say when play reaches a round of secret choices and
+// who moves next; this model follows only what every such game shares. The
+// custom game starts awaiting its first round of secret choices. Each side
+// makes one secret choice in the round: a person when they choose, the bot
+// and any stand-in by themselves. Everyone sees which sides have made theirs,
 // and each person sees only their own side's secret choice, never another
-// side's, and a watcher sees none. A secret choice is final for its round; a
-// second one, one for an earlier round, one while play goes on, one from the
-// watcher and one for a side a stand-in plays are refused and change nothing.
-// Nothing a round's secret choices decide happens until the last side has
-// made one; then they all take effect at once, and each side makes one move
-// in turn, starting with the first side. After the second round's moves the
-// custom game is finished with the result the game's own rules give: one
-// side's victory, or a victory several sides share. Which result the rules
-// give is not promised here. The result is decided once and never changes,
-// and each person counts a victory, once, exactly when their side is a
-// winner.
+// side's; a watcher sees none. A secret choice is final for its round. A
+// second one, one from someone without a side, one while the custom game is
+// not awaiting secret choices and one for a side a stand-in plays are refused
+// and change nothing. No move is made while a round is awaited, and nothing
+// the round decides happens until the last side has made its secret choice;
+// then they all take effect at once and play goes on. Play then makes moves,
+// each by whoever the game's rules say moves next, until it reaches the next
+// round of secret choices or the game's rules finish the custom game. The
+// result is decided once, as the game's own rules decide it, and is never
+// replaced; a finished custom game takes no more secret choices or moves.
 // A person whose device has no connection is away. Their device keeps
 // showing which sides it last saw chosen, and they cannot make a secret
-// choice, move or take back their side. After 60 seconds away, a stand-in
-// plays their side, shown to everyone, by the same rules and knowing only
-// what that side may know. The person keeps their side and its result; their
-// own secret choices and moves are refused while the stand-in plays, and
-// coming back alone does not end it: back online, they take back their side,
-// and from then on the stand-in decides nothing for it. Losing the connection
-// for less than 60 seconds leaves the side and its turn with its person.
+// choice or take back their side. Someone away for 60 seconds gets a stand-in
+// for their side, shown to everyone, playing by the same rules with only what
+// that side may know, while another person is in the custom game. The person
+// keeps their side; their own secret choices are refused while the stand-in
+// plays it, and coming back alone does not end it: back online, they take
+// back their side, and from then on the stand-in decides nothing for it.
+// Play goes on only while every side has someone to play it: its person with
+// a connection, the bot, or a stand-in.
 module secret_choices {
   pure val PEOPLE = Set("alice", "bob", "carol", "eve")
   pure val SIDE_SET = Set("first", "second", "third", "fourth")
   pure val PARTICIPANTS = Map("first" -> "alice", "second" -> "bob", "third" -> "carol", "fourth" -> "bot")
-  pure val NEXT_SIDE = Map("first" -> "second", "second" -> "third", "third" -> "fourth", "fourth" -> "first")
-  /// The two secret choices a side can make in this reduced game.
-  pure val CHOICES = Set("one way", "another way")
-  /// The results the game's own rules may give with the last move: a victory alone or a shared victory.
-  pure val RESULTS = Set(Set("third"), Set("first", "third"), Set("second", "fourth"))
-  pure val ROUNDS = 2
-  pure val SIDE_COUNT = 4
-  pure val AWAY_SECONDS = 60
+  /// Two different secret choices a side can make in any such game.
+  pure val CHOICES = Set("one choice", "another choice")
+  /// Bounds for checking: the rounds of secret choices and the moves between them.
+  pure val MAX_ROUNDS = 3
+  pure val MAX_MOVES = 2
 
   /// Who plays each side; a stand-in never changes it.
   var participants: str -> str
   /// "under way" or "finished".
   var status: str
-  /// The current round of secret choices, from 1.
+  /// How many rounds of secret choices the custom game has reached, from 1.
   var choiceRound: int
   /// Whether the custom game is awaiting secret choices.
   var choosing: bool
@@ -55,16 +55,12 @@ module secret_choices {
   var appliedRounds: int
   /// The sides a stand-in plays.
   var standIn: Set[str]
-  var sideToMove: str
-  var movesPlayed: int
-  /// The sides that won, once the custom game is finished; several when they share the victory.
-  var winners: Set[str]
-  /// The victories each person's history and statistics count for this custom game.
-  var victoriesShown: str -> int
+  /// Moves made since the latest round of secret choices took effect.
+  var movesThisRound: int
+  /// "" until the game's rules finish the custom game, then "decided".
+  var result: str
   var _offline: Set[str]
-  /// Bookkeeping: seconds each person has been away, up to the limit.
-  var _awayFor: str -> int
-  /// Bookkeeping: the side that last acted and who decided for it: "person", "stand-in", "bot" or "".
+  /// Bookkeeping: the side that last made a secret choice and who decided it: "person", "stand-in", "bot" or "".
   var _actedBy: (str, str)
   var _previousRound: int
   var _previousSecretChoice: str -> str
@@ -72,16 +68,16 @@ module secret_choices {
   var _previousOffline: Set[str]
   var _previousChosenShown: str -> Set[str]
   var _previousStatus: str
-  var _previousWinners: Set[str]
+  var _previousMoves: int
 
   pure def _ownSides(viewer: str): Set[str] = SIDE_SET.filter(s => PARTICIPANTS.get(s) == viewer)
   pure def _sideOf(actor: str): str = if (actor == "alice") "first" else if (actor == "bob") "second" else if (actor == "carol") "third" else ""
-  pure def _sideAt(moves: int): str =
-    if (moves % SIDE_COUNT == 0) "first" else if (moves % SIDE_COUNT == 1) "second" else if (moves % SIDE_COUNT == 2) "third" else "fourth"
+  /// Every side has someone to play it: its person with a connection, the bot, or a stand-in.
+  def _playable = SIDE_SET.forall(s => PARTICIPANTS.get(s) == "bot" or standIn.contains(s) or not(_offline.contains(PARTICIPANTS.get(s))))
 
   action _update(
     newStatus: str, newRound: int, awaiting: bool, choices: str -> str, applied: int, standIns: Set[str],
-    turn: str, moves: int, won: Set[str], offline: Set[str], away: str -> int, acted: (str, str),
+    moves: int, outcome: str, offline: Set[str], acted: (str, str),
   ): bool = all {
     participants' = participants,
     status' = newStatus, choiceRound' = newRound, choosing' = awaiting, secretChoice' = choices,
@@ -92,119 +88,109 @@ module secret_choices {
     secretChoiceShown' = PEOPLE.mapBy(v =>
       if (offline.contains(v)) secretChoiceShown.get(v)
       else _ownSides(v).filter(s => choices.get(s) != "")),
-    appliedRounds' = applied, standIn' = standIns, sideToMove' = turn, movesPlayed' = moves,
-    winners' = won,
-    victoriesShown' = PEOPLE.mapBy(p => if (newStatus == "finished" and _ownSides(p).exists(s => won.contains(s))) 1 else 0),
-    _offline' = offline, _awayFor' = away, _actedBy' = acted,
+    appliedRounds' = applied, standIn' = standIns, movesThisRound' = moves, result' = outcome,
+    _offline' = offline, _actedBy' = acted,
     _previousRound' = choiceRound, _previousSecretChoice' = secretChoice, _previousStandIn' = standIn,
     _previousOffline' = _offline, _previousChosenShown' = chosenShown,
-    _previousStatus' = status, _previousWinners' = winners,
+    _previousStatus' = status, _previousMoves' = movesThisRound,
   }
   action _hold = _update(status, choiceRound, choosing, secretChoice, appliedRounds, standIn,
-    sideToMove, movesPlayed, winners, _offline, _awayFor, ("", ""))
+    movesThisRound, result, _offline, ("", ""))
 
   /// One side's secret choice; the last one makes every secret choice of the round take effect at once.
   action _choose(side: str, choice: str, who: str): bool = {
     val choices = secretChoice.set(side, choice)
     val complete = SIDE_SET.forall(s => choices.get(s) != "")
     _update(status, choiceRound, not(complete), choices, if (complete) choiceRound else appliedRounds, standIn,
-      "first", movesPlayed, winners, _offline, _awayFor, (side, who))
+      0, result, _offline, (side, who))
   }
-  /// One side's move; the round's last move opens the next round of secret choices or finishes the custom game.
-  action _move(side: str, result: Set[str], who: str): bool = {
-    val moves = movesPlayed + 1
-    val roundDone = moves - (choiceRound - 1) * SIDE_COUNT == SIDE_COUNT
-    if (roundDone and choiceRound == ROUNDS)
-      _update("finished", choiceRound, false, secretChoice, appliedRounds, standIn,
-        sideToMove, moves, result, _offline, _awayFor, (side, who))
-    else if (roundDone)
-      _update(status, choiceRound + 1, true, SIDE_SET.mapBy(_ => ""), appliedRounds, standIn,
-        "first", moves, winners, _offline, _awayFor, (side, who))
-    else
-      _update(status, choiceRound, false, secretChoice, appliedRounds, standIn,
-        NEXT_SIDE.get(side), moves, winners, _offline, _awayFor, (side, who))
-  }
-  /// A bot or stand-in acting for a side: its secret choice while the round is open, else its move on its turn.
-  action _decideFor(side: str, choice: str, result: Set[str], who: str): bool =
-    if (status == "under way" and choosing and secretChoice.get(side) == "") _choose(side, choice, who)
-    else if (status == "under way" and not(choosing) and sideToMove == side) _move(side, result, who)
-    else _hold
 
   action init = all {
     participants' = PARTICIPANTS,
     status' = "under way", choiceRound' = 1, choosing' = true,
     secretChoice' = SIDE_SET.mapBy(_ => ""),
     chosenShown' = PEOPLE.mapBy(_ => Set()), secretChoiceShown' = PEOPLE.mapBy(_ => Set()),
-    appliedRounds' = 0, standIn' = Set(), sideToMove' = "first", movesPlayed' = 0,
-    winners' = Set(), victoriesShown' = PEOPLE.mapBy(_ => 0),
-    _offline' = Set(), _awayFor' = PEOPLE.mapBy(_ => 0), _actedBy' = ("", ""),
+    appliedRounds' = 0, standIn' = Set(), movesThisRound' = 0, result' = "",
+    _offline' = Set(), _actedBy' = ("", ""),
     _previousRound' = 1, _previousSecretChoice' = SIDE_SET.mapBy(_ => ""), _previousStandIn' = Set(),
     _previousOffline' = Set(), _previousChosenShown' = PEOPLE.mapBy(_ => Set()),
-    _previousStatus' = "under way", _previousWinners' = Set(),
+    _previousStatus' = "under way", _previousMoves' = 0,
   }
 
-  /// A participant makes their side's secret choice for a round; anything but the current round's first one is refused.
-  action makeSecretChoice(actor: str, choice: str, forRound: int): bool = {
+  /// A person makes their side's secret choice; refused when already made, not theirs, not awaited, offline or while a stand-in plays their side.
+  action makeSecretChoice(actor: str, choice: str): bool = {
     val side = _sideOf(actor)
-    if (status == "under way" and choosing and side != "" and forRound == choiceRound
-        and secretChoice.get(side) == "" and not(standIn.contains(side)) and not(_offline.contains(actor)))
+    if (status == "under way" and choosing and side != "" and secretChoice.get(side) == ""
+        and not(standIn.contains(side)) and not(_offline.contains(actor)))
       _choose(side, choice, "person")
     else _hold
   }
-  /// The participant whose turn it is makes a move; refused while choosing, out of turn, offline or while a stand-in plays their side.
-  action playMove(actor: str, result: Set[str]): bool = {
-    val side = _sideOf(actor)
-    if (status == "under way" and not(choosing) and side != "" and sideToMove == side
-        and not(standIn.contains(side)) and not(_offline.contains(actor)))
-      _move(side, result, "person")
+  /// The bot makes its own side's secret choice by itself.
+  action botPlays(choice: str): bool = all {
+    status == "under way", choosing, secretChoice.get("fourth") == "",
+    _choose("fourth", choice, "bot"),
+  }
+  /// A stand-in makes the secret choice of the side it plays, by itself.
+  action standInPlays(side: str, choice: str): bool = all {
+    status == "under way", choosing, standIn.contains(side), secretChoice.get(side) == "",
+    _choose(side, choice, "stand-in"),
+  }
+  /// One move by whoever the game's rules say moves next; refused while secret choices are awaited.
+  action playMove: bool =
+    if (status == "under way" and not(choosing) and _playable and movesThisRound < MAX_MOVES)
+      _update(status, choiceRound, choosing, secretChoice, appliedRounds, standIn,
+        movesThisRound + 1, result, _offline, ("", ""))
     else _hold
+  /// Play goes on, as the game's rules say, until it reaches the next round of secret choices, which nobody has made yet.
+  action reachNextRound: bool = all {
+    status == "under way", not(choosing), _playable, choiceRound < MAX_ROUNDS,
+    _update(status, choiceRound + 1, true, SIDE_SET.mapBy(_ => ""), appliedRounds, standIn,
+      0, result, _offline, ("", "")),
   }
-  /// The bot makes its own side's secret choice, or its move on its turn.
-  action botPlays(choice: str, result: Set[str]): bool = all {
-    status == "under way",
-    _decideFor("fourth", choice, result, "bot"),
+  /// Play goes on until the game's own rules finish the custom game, with the result they decide.
+  action finishGame: bool = all {
+    status == "under way", not(choosing), _playable,
+    _update("finished", choiceRound, false, secretChoice, appliedRounds, standIn,
+      movesThisRound, "decided", _offline, ("", "")),
   }
-  /// A stand-in decides for the side it plays, as that side's bot would.
-  action standInPlays(side: str, choice: str, result: Set[str]): bool = all {
-    standIn.contains(side), status == "under way",
-    _decideFor(side, choice, result, "stand-in"),
+  /// After 60 seconds away, a stand-in takes the side of a person without a connection, while another person is in the custom game.
+  action standInTakesSide(actor: str): bool = {
+    val side = _sideOf(actor)
+    all {
+      status == "under way", side != "", _offline.contains(actor), not(standIn.contains(side)),
+      _update(status, choiceRound, choosing, secretChoice, appliedRounds, standIn.union(Set(side)),
+        movesThisRound, result, _offline, ("", "")),
+    }
   }
-  /// Time passes; a participant away for 60 seconds gets a stand-in for their side.
-  action secondsPass(seconds: int): bool = {
-    val away = PEOPLE.mapBy(p => if (_offline.contains(p)) (if (_awayFor.get(p) + seconds >= AWAY_SECONDS) AWAY_SECONDS else _awayFor.get(p) + seconds) else 0)
-    val standIns = if (status == "under way")
-      standIn.union(SIDE_SET.filter(s => PARTICIPANTS.get(s) != "bot" and away.get(PARTICIPANTS.get(s)) >= AWAY_SECONDS))
-      else standIn
-    _update(status, choiceRound, choosing, secretChoice, appliedRounds, standIns,
-      sideToMove, movesPlayed, winners, _offline, away, ("", ""))
-  }
-  /// A participant back online takes back their side from its stand-in.
+  /// A participant back online takes back their side; anyone else, or with no stand-in on their side, is refused.
   action takeBackSide(actor: str): bool = {
     val side = _sideOf(actor)
     if (status == "under way" and side != "" and standIn.contains(side) and not(_offline.contains(actor)))
       _update(status, choiceRound, choosing, secretChoice, appliedRounds, standIn.exclude(Set(side)),
-        sideToMove, movesPlayed, winners, _offline, _awayFor, ("", ""))
+        movesThisRound, result, _offline, ("", ""))
     else _hold
   }
   /// A person's device loses its connection and keeps what it last showed.
   action loseConnection(actor: str): bool = all {
     not(_offline.contains(actor)),
     _update(status, choiceRound, choosing, secretChoice, appliedRounds, standIn,
-      sideToMove, movesPlayed, winners, _offline.union(Set(actor)), _awayFor, ("", "")),
+      movesThisRound, result, _offline.union(Set(actor)), ("", "")),
   }
-  /// The connection comes back; any stand-in keeps playing until its person takes back their side.
+  /// The connection comes back; a stand-in keeps playing until its person takes back their side.
   action connectionReturns(actor: str): bool = all {
     _offline.contains(actor),
     _update(status, choiceRound, choosing, secretChoice, appliedRounds, standIn,
-      sideToMove, movesPlayed, winners, _offline.exclude(Set(actor)), _awayFor.set(actor, 0), ("", "")),
+      movesThisRound, result, _offline.exclude(Set(actor)), ("", "")),
   }
 
   action step = any {
-    { nondet actor = PEOPLE.oneOf() nondet choice = CHOICES.oneOf() nondet forRound = 1.to(ROUNDS).oneOf() makeSecretChoice(actor, choice, forRound) },
-    { nondet actor = PEOPLE.oneOf() nondet result = RESULTS.oneOf() playMove(actor, result) },
-    { nondet choice = CHOICES.oneOf() nondet result = RESULTS.oneOf() botPlays(choice, result) },
-    { nondet side = SIDE_SET.oneOf() nondet choice = CHOICES.oneOf() nondet result = RESULTS.oneOf() standInPlays(side, choice, result) },
-    { nondet seconds = Set(1, 29, 59, 60).oneOf() secondsPass(seconds) },
+    { nondet actor = PEOPLE.oneOf() nondet choice = CHOICES.oneOf() makeSecretChoice(actor, choice) },
+    { nondet choice = CHOICES.oneOf() botPlays(choice) },
+    { nondet side = SIDE_SET.oneOf() nondet choice = CHOICES.oneOf() standInPlays(side, choice) },
+    playMove,
+    reachNextRound,
+    finishGame,
+    { nondet actor = PEOPLE.oneOf() standInTakesSide(actor) },
     { nondet actor = PEOPLE.oneOf() takeBackSide(actor) },
     { nondet actor = PEOPLE.oneOf() loseConnection(actor) },
     { nondet actor = PEOPLE.oneOf() connectionReturns(actor) },
@@ -220,33 +206,28 @@ module secret_choices {
     (_offline.contains(v) and _previousOffline.contains(v)) implies chosenShown.get(v) == _previousChosenShown.get(v))
   /// A round's secret choices take effect only once every side has made one, and no move is made while they are awaited.
   val invChoicesTakeEffectTogether = and {
-    choosing implies (appliedRounds == choiceRound - 1 and movesPlayed == (choiceRound - 1) * SIDE_COUNT),
+    choosing implies (appliedRounds == choiceRound - 1 and movesThisRound == 0),
     not(choosing) implies (appliedRounds == choiceRound and SIDE_SET.forall(s => secretChoice.get(s) != "")),
   }
   /// A secret choice is final for its round.
   val invSecretChoiceFinal = (choiceRound == _previousRound) implies
     SIDE_SET.forall(s => _previousSecretChoice.get(s) == "" or secretChoice.get(s) == _previousSecretChoice.get(s))
-  /// One decider per side: its person only while no stand-in plays it and they have a connection; a stand-in only for a side it plays.
+  /// One decider per side: its person only while no stand-in plays it and they have a connection; a stand-in only for a side it plays; the bot only for its own.
   val invOneDeciderPerSide = and {
     _actedBy._2 == "person" implies (not(_previousStandIn.contains(_actedBy._1)) and not(_previousOffline.contains(PARTICIPANTS.get(_actedBy._1)))),
     _actedBy._2 == "stand-in" implies _previousStandIn.contains(_actedBy._1),
     _actedBy._2 == "bot" implies _actedBy._1 == "fourth",
   }
-  /// A stand-in begins only for a person away for 60 seconds, and the person keeps their side.
-  val invStandInOnlyAfterAway = and {
+  /// A stand-in begins only for a person without a connection, never for the bot, and the person keeps their side.
+  val invStandInOnlyWhenAway = and {
     participants == PARTICIPANTS,
     standIn.forall(s => PARTICIPANTS.get(s) != "bot"),
-    standIn.forall(s => _previousStandIn.contains(s) or _awayFor.get(PARTICIPANTS.get(s)) >= AWAY_SECONDS),
+    standIn.forall(s => _previousStandIn.contains(s) or _previousOffline.contains(PARTICIPANTS.get(s))),
   }
-  /// Play follows the turn order, starting each round with the first side.
-  val invTurnOrder = (status == "under way" and not(choosing)) implies
-    sideToMove == _sideAt(movesPlayed - (choiceRound - 1) * SIDE_COUNT)
-  /// The result is decided once: a finished custom game has winners that never change.
+  /// The result is decided once and never replaced: a finished custom game stays finished, with no more secret choices or moves.
   val invResultDecidedOnce = and {
-    (status == "finished") == (winners != Set()),
-    _previousStatus == "finished" implies (status == "finished" and winners == _previousWinners),
+    (status == "finished") == (result == "decided"),
+    _previousStatus == "finished" implies (status == "finished" and movesThisRound == _previousMoves
+      and secretChoice == _previousSecretChoice and not(choosing)),
   }
-  /// Each person counts one victory exactly when their side is among the winners, a shared victory included.
-  val invVictoriesCounted = PEOPLE.forall(p =>
-    victoriesShown.get(p) == (if (status == "finished" and _ownSides(p).exists(s => winners.contains(s))) 1 else 0))
 }

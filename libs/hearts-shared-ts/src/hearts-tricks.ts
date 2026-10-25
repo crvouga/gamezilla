@@ -137,3 +137,34 @@ export function legalCards(
   );
   return safe.length > 0 ? safe : [...hand];
 }
+
+/** Why a card is refused, as a person is told it. */
+export type CardRefusal =
+  | 'not your turn'
+  | 'not your card'
+  | 'lead the two of clubs'
+  | 'follow suit'
+  | 'no points on the first trick'
+  | 'hearts not broken';
+
+/**
+ * Why `seat` may not play `card` from `hand`, or `null` when it may: the
+ * same rules as {@link legalCards}, explained.
+ */
+export function cardRefusal(
+  position: HeartsPosition,
+  seat: Seat,
+  hand: readonly Card[],
+  card: Card
+): CardRefusal | null {
+  if (seatToPlay(position) !== seat) return 'not your turn';
+  if (!hand.includes(card)) return 'not your card';
+  if (legalCards(position, seat, hand).includes(card)) return null;
+  const inTrick = position.plays.length % 4;
+  if (position.plays.length === 0) return 'lead the two of clubs';
+  if (inTrick === 0) return 'hearts not broken';
+  const led = suitOf(position.plays[position.plays.length - inTrick]!);
+  return hand.some((held) => suitOf(held) === led)
+    ? 'follow suit'
+    : 'no points on the first trick';
+}

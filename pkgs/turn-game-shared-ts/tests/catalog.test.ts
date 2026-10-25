@@ -228,6 +228,29 @@ test('matched games refuse turns the rules name', () => {
   expect(createTurnGames([registration({ history }, byRules)]).games).toHaveLength(1);
 });
 
+test('matched games refuse private commitments', () => {
+  const committing: GameRules = {
+    ...game,
+    hands: {
+      deal: () => 'hidden',
+      hand: () => '',
+      resolve: () => ({ refusal: 'no' }),
+      proposals: () => [],
+      commit: {
+        sides: () => [],
+        accept: () => ({ refusal: 'no' }),
+        resolve: () => ({ action: 'a', hidden: 'hidden' }),
+      },
+    },
+  };
+  expect(() =>
+    createTurnGames([
+      registration({ matchmaking: matchmaking('counter/'), history }, committing),
+    ])
+  ).toThrow('private commitments are offered in custom games');
+  expect(createTurnGames([registration({}, committing)]).games).toHaveLength(1);
+});
+
 test('modes have distinct registrations and may share one declared game family', () => {
   const classic = { ...rulesOf('counter'), family: 'counting' };
   const four = {

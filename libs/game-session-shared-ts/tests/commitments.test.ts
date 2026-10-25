@@ -26,7 +26,9 @@ import {
   type CustomGame,
   CustomGamesAttr,
 } from '@libs/game-session-shared-ts/custom-game-state';
+import { localCustomGameEffects } from '@libs/game-session-shared-ts/custom-game-effects';
 import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { GamesRoomAttr } from '@libs/spaces-shared-ts/games';
 import { SpaceMembersRoomAttr } from '@libs/spaces-shared-ts/space-members-messages';
 import {
@@ -219,7 +221,7 @@ test('the last commitment resolves every one at once into one public action and 
   expect(ownCustomGameHand(after, current(after), current(after)[leader].person)).toContain('8');
 });
 
-test('bots commit for their sides with only their own hands, one wake after another', () => {
+test('bots commit for their sides with only their own hands, one wake after another, and the creator reads them in solo practice', () => {
   let state = decide(space(), 'alice', { operation: 'create' }).state;
   for (const side of ['black', 'red', 'blue'] as const)
     state = decide(state, 'alice', { operation: 'bot', side }).state;
@@ -228,10 +230,18 @@ test('bots commit for their sides with only their own hands, one wake after anot
   state = started.state;
   const wakes = (effects: readonly RoomEffect[] | undefined) =>
     (effects ?? []).flatMap((e) => (e.type === 'schedule' ? [e] : []));
-  expect(JSON.stringify(started.result.ok ? started.result.effects : [])).toContain('"side":"black"');
+  // The creator alone with bots practises solo: the device wakes its bots.
+  expect(JSON.stringify(started.result.ok ? started.result.effects : [])).not.toContain('"side":"black"');
+  expect(
+    JSON.stringify(localCustomGameEffects(current(state), createTurnGames([tokenPass.turnGame])))
+  ).toContain('"side":"black"');
   for (const side of ['black', 'red', 'blue'] as const) {
     const wake = handle(ROOM, state, ROOM_SCHEDULER_IDENTITY, PlayCustomGameBot({ gameId: current(state).id, ply: 0, side }), 2000);
     if (!wake.ok) throw new Error(reason(wake));
+    // Practising alone, the creator's device decides as the room does, so
+    // it reads each bot's commitment too.
+    const chosen = wake.events.find((e) => CustomGameCommitmentChosen.is(e));
+    expect(ROOM.audience?.(chosen!)).toEqual(['alice']);
     state = reduce(state, wake.events);
     expect(wakes(wake.effects).length).toBeGreaterThanOrEqual(0);
   }
@@ -310,4 +320,17 @@ test('a move is recorded as just what it adds, and every copy folding the log ho
   expect(CustomGamesAttr.from(device)).toEqual(CustomGamesAttr.from(state));
   // Each move's record stays the same size however long the game grows.
   expect(Math.max(...sizes) - Math.min(...sizes)).toBeLessThan(200);
+});
+
+test("with another person at the table, nobody reads a bot's commitment", () => {
+  let state = decide(space(), 'alice', { operation: 'create' }).state;
+  state = decide(state, 'bob', { operation: 'claim', side: 'black' }).state;
+  for (const side of ['red', 'blue'] as const)
+    state = decide(state, 'alice', { operation: 'bot', side }).state;
+  for (const person of ['alice', 'bob']) state = decide(state, person, { operation: 'ready' }).state;
+  state = decide(state, 'alice', { operation: 'start' }).state;
+  const wake = handle(ROOM, state, ROOM_SCHEDULER_IDENTITY, PlayCustomGameBot({ gameId: current(state).id, ply: 0, side: 'red' }), 2000);
+  if (!wake.ok) throw new Error(reason(wake));
+  const chosen = wake.events.find((e) => CustomGameCommitmentChosen.is(e));
+  expect(ROOM.audience?.(chosen!)).toEqual([]);
 });

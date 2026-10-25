@@ -117,8 +117,8 @@ export const tokenPassHands: DealtHandsRules = {
     sides: (text) => (parse(text)?.phase === 'pass' ? SIDES : []),
     accept: (text, _side, hand, commitment) =>
       parse(text)?.phase === 'pass' && /^[1-8]$/.test(commitment) && hand.includes(commitment)
-        ? commitment
-        : null,
+        ? { commitment }
+        : { refusal: 'move is illegal' },
     resolve: (_text, commitments, hiddenText) => {
       const hidden = readHidden(hiddenText);
       const given = SIDES.map((side) => Number(commitments[side]));

@@ -1,4 +1,5 @@
 import { t } from '@lingui/core/macro';
+import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { type JSX, Show } from 'solid-js';
 
@@ -47,12 +48,28 @@ function errorText(reason: string): string {
   return messages[reason] ?? t`The choice could not be confirmed. Try again.`;
 }
 
-export function CustomGameError(props: { reason: string }): JSX.Element {
+/**
+ * A refused choice, as the person is told it: in the game's own words when
+ * its rules gave the reason, otherwise the platform's.
+ */
+export function CustomGameError(props: {
+  reason: string;
+  /** The position the choice was made at, whose game words its own refusals. */
+  position?: string | undefined;
+}): JSX.Element {
+  const presentation = useGamePresentation();
+  const text = (): string => {
+    const own =
+      props.position === undefined || props.position === ''
+        ? undefined
+        : presentation(props.position).refusalDescription?.(props.reason);
+    return own ?? errorText(props.reason);
+  };
   return (
     <Show when={props.reason !== ''}>
       <ErrorState
         variant="compact"
-        title={errorText(props.reason)}
+        title={text()}
         dataSet={{ testid: 'custom-game-error' }}
       />
     </Show>
