@@ -18,7 +18,7 @@ import {
   type SokobanBoard,
   type Validation,
 } from '@libs/sokoban-shared-ts/sokoban-types';
-import { createMemo, createSignal } from 'solid-js';
+import { createEffect, createMemo, createSignal, on } from 'solid-js';
 
 export const SOKOBAN_TOOLS = [
   'wall',
@@ -60,10 +60,27 @@ export function useSokobanEditor(props: PuzzleEditorProps) {
     const decoded = decodeSokobanBoard(props.definition);
     return decoded.valid ? decoded.value : null;
   });
+  let emitted: string | null = null;
   const keep = (next: SokobanBoard): void => {
     const encoded = encodeSokobanBoard(next);
-    if (encoded !== props.definition) props.onChange(encoded);
+    if (encoded === props.definition) return;
+    emitted = encoded;
+    props.onChange(encoded);
   };
+  // A board changed elsewhere (undo, redo, another copy) clears this edit's notices.
+  createEffect(
+    on(
+      () => props.definition,
+      (definition) => {
+        if (definition !== emitted) {
+          setRemoved([]);
+          setRefusal(null);
+        }
+        emitted = null;
+      },
+      { defer: true }
+    )
+  );
   const edit = (name: string): void => {
     const current = board();
     const cell = parseSquareName(name);
