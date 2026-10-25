@@ -3022,6 +3022,67 @@
         "typescript": "catalog:",
       },
     },
+    "libs/sokoban-client-ts": {
+      "name": "@libs/sokoban-client-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/game-menu-client-ts": "workspace:*",
+        "@libs/game-puzzle-client-ts": "workspace:*",
+        "@libs/sokoban-shared-ts": "workspace:*",
+        "@lingui/core": "catalog:",
+        "@lingui/solid": "catalog:",
+        "@pkgs/ui-root-client-ts": "workspace:*",
+        "@pkgs/uuid-client-ts": "workspace:*",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/sokoban-harness-ts": {
+      "name": "@libs/sokoban-harness-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/game-puzzle-harness-ts": "workspace:*",
+        "@libs/sokoban-shared-ts": "workspace:*",
+        "@pkgs/gherkin-shared-ts": "workspace:*",
+        "@pkgs/harness-root-shared-ts": "workspace:*",
+      },
+      "devDependencies": {
+        "@libs/sokoban-client-ts": "workspace:*",
+        "@pkgs/bun-test-solid-client-ts": "workspace:*",
+        "@pkgs/clock-client-ts": "workspace:*",
+        "@pkgs/clock-shared-ts": "workspace:*",
+        "@pkgs/ui-root-client-ts": "workspace:*",
+        "@pkgs/uuid-client-ts": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "solid-js": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/sokoban-shared-ts": {
+      "name": "@libs/sokoban-shared-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/game-session-shared-ts": "workspace:*",
+        "@pkgs/turn-game-shared-ts": "workspace:*",
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/property-shared-ts": "workspace:*",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "libs/spaces-client-ts": {
       "name": "@libs/spaces-client-ts",
       "version": "0.0.0",
@@ -7894,6 +7955,12 @@
     "@libs/secrets-server-ts": ["@libs/secrets-server-ts@workspace:libs/secrets-server-ts"],
 
     "@libs/secrets-shared-ts": ["@libs/secrets-shared-ts@workspace:libs/secrets-shared-ts"],
+
+    "@libs/sokoban-client-ts": ["@libs/sokoban-client-ts@workspace:libs/sokoban-client-ts"],
+
+    "@libs/sokoban-harness-ts": ["@libs/sokoban-harness-ts@workspace:libs/sokoban-harness-ts"],
+
+    "@libs/sokoban-shared-ts": ["@libs/sokoban-shared-ts@workspace:libs/sokoban-shared-ts"],
 
     "@libs/spaces-client-ts": ["@libs/spaces-client-ts@workspace:libs/spaces-client-ts"],
 
