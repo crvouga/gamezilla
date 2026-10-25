@@ -1,3 +1,4 @@
+import { attemptHistoryStates } from '@libs/game-puzzle-shared-ts/attempt-history';
 import {
   attemptContinuations,
   projectAttemptPosition,
@@ -51,9 +52,13 @@ export async function attemptLifecycleState(s: ContentHarness) {
     );
     return {
       edition: source.edition,
-      history: history.entries.map((entry) =>
-        Number(entry.state.slice('count:'.length))
-      ),
+      history: (
+        attemptHistoryStates({
+          game: examplePuzzleContent,
+          definition: source.definition,
+          history,
+        }) ?? []
+      ).map((state) => Number(state.slice('count:'.length))),
       cursor: history.cursor,
       finished,
     };

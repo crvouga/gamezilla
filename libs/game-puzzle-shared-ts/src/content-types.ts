@@ -73,6 +73,7 @@ export type ContentRevision = {
   readonly description: string;
   readonly difficulty: string;
   readonly definition: string;
+  readonly rules_version: number;
   readonly deleted_at: string | null;
 };
 

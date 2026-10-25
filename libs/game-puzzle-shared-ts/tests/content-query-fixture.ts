@@ -54,10 +54,10 @@ export async function seedLargeContentCatalogue(
   );
   await insertRows(
     fixture,
-    sql`INSERT INTO puzzle_content_revisions (id, document_id, owner_id, game_id, kind, edition, title, description, difficulty, definition, created_at, updated_at, deleted_at)`,
+    sql`INSERT INTO puzzle_content_revisions (id, document_id, owner_id, game_id, kind, edition, title, description, difficulty, definition, rules_version, created_at, updated_at, deleted_at)`,
     ids.map(
       (id) =>
-        sql`(${`${id}-edition`}, ${id}, ${'alice'}, ${'pile'}, ${'puzzle'}, ${1}, ${id}, ${''}, ${''}, ${'pile:3:white'}, ${stamp}, ${stamp}, ${null})`
+        sql`(${`${id}-edition`}, ${id}, ${'alice'}, ${'pile'}, ${'puzzle'}, ${1}, ${id}, ${''}, ${''}, ${'pile:3:white'}, ${1}, ${stamp}, ${stamp}, ${null})`
     )
   );
   const drafts = ids.map((id) => ({ id: `${id}-edition`, documentId: id }));

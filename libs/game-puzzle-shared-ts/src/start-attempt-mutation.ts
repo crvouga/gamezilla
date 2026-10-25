@@ -71,6 +71,7 @@ export const startPuzzleAttemptMutation = (
         definition: revision.definition,
         mode: 'ordinary',
         packRevisionId: args.packRevisionId,
+        rulesVersion: revision.rules_version,
       });
     },
   });

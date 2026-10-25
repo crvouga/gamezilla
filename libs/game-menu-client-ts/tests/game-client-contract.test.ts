@@ -85,6 +85,7 @@ const parts = {
 const client: GameClient = { ...parts, shared: plain };
 
 const content: PuzzleContent = {
+  rulesVersion: 1,
   rules: {
     validateDefinition: () => ({ valid: true }),
     initial: () => ({ accepted: true, state: rules.initial() }),

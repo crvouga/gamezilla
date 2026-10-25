@@ -13,6 +13,7 @@ const invalid = [
 ];
 
 export const examplePuzzleContent: PuzzleContent = {
+  rulesVersion: 1,
   history: 'snapshots',
   rules: {
     validateDefinition: (definition) =>

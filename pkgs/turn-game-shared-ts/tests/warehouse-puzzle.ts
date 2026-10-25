@@ -52,6 +52,7 @@ function apply(
 }
 
 export const warehousePuzzleContent: PuzzleContent = {
+  rulesVersion: 1,
   history: 'snapshots',
   rules: {
     validateDefinition: (definition) =>

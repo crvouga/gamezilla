@@ -65,6 +65,29 @@ export function ContentPublicationControls(
             t`Complete the required details and validate again.`}
         </Notice>
       </Show>
+      <Show when={props.document.kind === 'puzzle'}>
+        <Notice
+          tone={tools.proven() ? 'success' : 'neutral'}
+          dataSet={{
+            testid: 'content-proof',
+            proven: String(tools.proven()),
+          }}
+        >
+          <Show
+            when={tools.proven()}
+            fallback={
+              <Trans>
+                No completed playtest of this version yet. Complete a playtest
+                to prove it can be finished.
+              </Trans>
+            }
+          >
+            <Trans>
+              A completed playtest proves this version can be finished.
+            </Trans>
+          </Show>
+        </Notice>
+      </Show>
       <StackHorizontal gap="sm" wrap>
         <Button
           {...tools.validate.buttonProps}

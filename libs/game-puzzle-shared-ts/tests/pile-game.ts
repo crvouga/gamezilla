@@ -82,6 +82,7 @@ export function pileContent(id = 'pile'): PuzzleContent {
     },
   ];
   return {
+    rulesVersion: 1,
     history: 'snapshots',
     rules: {
       validateDefinition: (definition) =>

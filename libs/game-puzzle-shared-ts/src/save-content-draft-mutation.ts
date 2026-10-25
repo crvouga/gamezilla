@@ -21,7 +21,10 @@ export const savePuzzleContentDraftMutation = defineMutation({
     .strict(),
   async run(ctx, args) {
     const doc = await requireContentAuthor(ctx, args.documentId);
-    requireDraftOf(doc, await readContentDraft(ctx.tx, args.parentId));
+    const parent = requireDraftOf(
+      doc,
+      await readContentDraft(ctx.tx, args.parentId)
+    );
     const existing = await readContentDraft(ctx.tx, args.draftId);
     if (existing !== null) {
       if (
@@ -35,6 +38,9 @@ export const savePuzzleContentDraftMutation = defineMutation({
         );
     }
     const body = args.body;
+    // Details-only edits keep the evidence; any use replays it against this definition.
+    const evidence =
+      parent.definition === body.definition ? parent.validation_solution : null;
     if (existing === null)
       await ctx.tx.run(sql`
       INSERT INTO puzzle_content_drafts
@@ -42,7 +48,7 @@ export const savePuzzleContentDraftMutation = defineMutation({
           validation_status, validation_issues, validation_solution)
       VALUES (${args.draftId}, ${doc.id}, ${doc.owner_id}, ${args.parentId},
         ${body.title}, ${body.description}, ${body.difficulty}, ${body.definition}, ${false},
-        ${'unchecked'}, ${'[]'}, ${null})
+        ${'unchecked'}, ${'[]'}, ${evidence})
     `);
     const changed = await ctx.tx.run(sql`
       UPDATE puzzle_content_documents SET working_draft_id = ${args.draftId}

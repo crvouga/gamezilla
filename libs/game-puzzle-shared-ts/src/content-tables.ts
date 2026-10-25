@@ -46,6 +46,7 @@ export const puzzleContentDrafts = defineTable({
     conflicted: 'boolean',
     validation_status: 'text',
     validation_issues: 'text',
+    /** Encoded replayable evidence: the rules version and accepted actions. */
     validation_solution: 'text',
   },
   indexes: ['owner_id', 'document_id'],
@@ -65,6 +66,8 @@ export const puzzleContentRevisions = defineTable({
     description: 'text',
     difficulty: 'text',
     definition: 'text',
+    /** The game's rules version this edition is played under, and no other. */
+    rules_version: { type: 'integer', backfill: { sql: '1' } },
   },
   // Replica tombstones can retain a refused tentative edition with this number.
   // The publication's document compare-and-set allocates authoritative numbers.
