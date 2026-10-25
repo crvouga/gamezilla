@@ -109,6 +109,21 @@ Each defect has a `// regression:` test and a record in `libs/tools-harness-ts/g
 - `simulation-enrolled-in-multi-seat-turn-specifications`
 - `simulation-finished-custom-game-needs-turns` (also failed for Pong)
 - `light-cycles-board-without-its-own-test-id`
+- `simulation-refresh-drops-held-control` (Pong)
+- `simulation-board-release-reads-controls-while-disposed`
+- `clockless-games-enrolled-in-matched-game-ready-objective`
+- `clockless-games-sought-at-a-clock-in-unfinished-game-limit`
+- `live-match-result-waits-for-sweep`
+- `late-settle-erases-a-live-match-rating`
+- `outbox-witness-test-deadlocks-on-its-own-transaction`
+- `edge-latency-serializes-messages` (the localhost stack's simulated network)
+- `simulation-held-control-late-by-its-round-trip` (Pong was unsteerable
+  over a 100 ms round trip)
+- `custom-game-choice-refused-before-roster-arrives`
+
+The last four were found by the release journeys, which had failed on
+`main`: neither Pong paddle ever moved there, and a Pong rematch, Quoridor
+King of the Hill and custom-game seats failed intermittently.
 
 ## Evidence
 
@@ -160,6 +175,10 @@ Each defect has a `// regression:` test and a record in `libs/tools-harness-ts/g
     and without a clock, across devices) and matched games without turns.
   - Trio and Quad run the suites eligible for more than two seats.
   - Turn games keep their suites.
+- **Release journeys** (`apps/product-ts` `test:release-journeys`, the
+  production build over a 50 ms edge latency): all 23 pass, including Pong
+  played to a natural score target and a rematch, and Quoridor King of the
+  Hill with two people and two bots.
 
 ## Measurements
 
@@ -205,6 +224,10 @@ interpolation history and retention are all bounded.
     discards reversals.
   - A turn from another round is refused, and the game also ignores one
     admitted just before a round change.
+- **Held controls** (Pong): a control for a tick already committed applies
+  at the next tick when it is at most a 250 ms round trip late; older ones
+  are stale and refused. Measured lateness in the release journeys is 1 to
+  4 ticks.
 - **Scheduler stalls:** the engine catches up at most 6 ticks per wake and
   drops the remaining time. That loss shows as a drop in the measured rate,
   never as a skipped collision.
@@ -217,10 +240,12 @@ interpolation history and retention are all bounded.
 
 ## Limitations
 
-- **`ci:spec-ownership`** flags `771dd5fc1`, whose re-application of the
-  Pong branch included Pong's spec files beside code. Clearing it needs
-  that commit split, which is a history rewrite under the later merge
-  of `main`.
+- **A host's bot prediction:** in a shared custom game both the host's
+  device and the room may play a bot's due move, as the custom-game models
+  specify, each with its own random choice. The host can briefly show its
+  own choice until the room's replaces it. The journeys choose again from
+  the board that stands; seeding the choice per ply would remove the random
+  port the model bindings use to steer bots.
 - **Waiting turns in the model:** the model hides the queue of waiting
   turns, and the board shows only the next step, so a defect that adds a
   third queued turn is caught by the mechanics properties rather than the
