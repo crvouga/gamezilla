@@ -1,10 +1,10 @@
 // Bob, whether he is a guest or not, plays Sokoban's starter pack. It
 // comes with the app, so it is ready for everyone, with or without a
 // connection. Bob may start any starter puzzle. Completing one keeps its
-// completion, counted once, and offers the next unfinished starter puzzle in
-// the pack's order, or the first unfinished one. Continuing the pack returns
-// to the last active unfinished puzzle, or the offered one; a complete pack
-// offers no unfinished puzzle. Bob's phone starts connected. Without a
+// completion, counted once. As in every pack, the offered puzzle is the last
+// active unfinished puzzle, otherwise the first unfinished one in the pack's
+// order, otherwise none; continuing the pack goes to the offered puzzle, and
+// a complete pack offers no unfinished puzzle. Bob's phone starts connected. Without a
 // connection he plays the starter pack as usual, and his completions reach
 // his tablet when the connection returns. The examples use three starter
 // puzzles to stand for the pack's few.
@@ -24,10 +24,11 @@ module starter_pack {
   pure def _first(puzzles: Set[int]): int = puzzles.fold(-1, (first, p) =>
     if (first == -1 or p < first) p else first)
 
-  pure def _offered(done: Set[int], active: int): int = {
-    val later = STARTER.filter(p => p > active and not(done.contains(p)))
-    if (later.size() > 0) _first(later) else _first(STARTER.exclude(done))
-  }
+  /// The shared pack policy: the last active unfinished puzzle, otherwise the
+  /// first unfinished one in the pack's order, otherwise none.
+  pure def _offered(done: Set[int], active: int): int =
+    if (STARTER.contains(active) and not(done.contains(active))) active
+    else _first(STARTER.exclude(done))
 
   action _keep(active: int, done: Set[int], online: bool): bool = all {
     activePuzzle' = active, completed' = done, offeredPuzzle' = _offered(done, active),
@@ -51,13 +52,11 @@ module starter_pack {
     _keep(activePuzzle, completed.union(Set(activePuzzle)), _online),
   }
 
-  /// Continuing returns to the last active unfinished puzzle, or the offered
-  /// one; a complete pack offers none and nothing changes.
+  /// Continuing goes to the offered puzzle; a complete pack offers none and
+  /// nothing changes.
   action continueStarterPack: bool =
-    if (STARTER.contains(activePuzzle) and not(completed.contains(activePuzzle)))
-      _keep(activePuzzle, completed, _online)
-    else if (offeredPuzzle != -1) _keep(offeredPuzzle, completed, _online)
-    else _keep(activePuzzle, completed, _online)
+    if (offeredPuzzle == -1) _keep(activePuzzle, completed, _online)
+    else _keep(offeredPuzzle, completed, _online)
 
   /// Model-only: the phone loses its connection and keeps playing.
   action _loseConnection: bool = all { _online, _keep(activePuzzle, completed, false) }
@@ -71,6 +70,8 @@ module starter_pack {
       _loseConnection, connectionReturns }
   }
 
+  /// The offered puzzle follows the shared pack policy.
+  val invOfferFollowsThePackPolicy = offeredPuzzle == _offered(completed, activePuzzle)
   /// The offered next puzzle is unfinished, and only a complete pack offers none.
   val invNextPuzzleIsUnfinished = (offeredPuzzle == -1) == (completed == STARTER) and
     (offeredPuzzle != -1 implies not(completed.contains(offeredPuzzle)))

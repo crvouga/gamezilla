@@ -51,11 +51,19 @@ reachable.
   as a wall ("the worker's way is blocked").
 - Placing the worker or a crate on a wall or an outside square, or where a
   piece stands, is refused. So is removing a crate from an empty square.
-- Any board edit takes the proof away, even one that brings back the
-  playtested board. A playtest plays the board as it was when it began.
+- Proof belongs to the board's content and the current rules, as the
+  product goal asks: bringing back a board already completed in a playtest
+  (by undo, say) brings its proof back. A playtest plays the board as it
+  was when it began and, once completed, proves that board.
 - Choosing publication again while one is waiting keeps the first choice.
   A rules change before the connection returns leaves it unpublished.
 - Moves after completion are not specified.
+
+## Shared policy
+
+The starter pack offers and continues to the same puzzle as every pack
+(`puzzles/pack-progression.qnt`): the last active unfinished puzzle, then the
+first unfinished one in the pack's order, then none.
 
 ## Code tests, not scenarios (B17)
 

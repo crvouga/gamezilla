@@ -244,9 +244,11 @@ terms:
     definition: >-
       A completed playtest of exactly the board being published, under
       Sokoban's current rules. A Sokoban puzzle is published only with
-      proof. A board edit or a rules change leaves the board without proof,
-      changing only the details keeps it, and an unfinished playtest is no
-      proof.
+      proof. Proof belongs to the board itself: changing the board to one
+      never completed in a playtest leaves it without proof, bringing back a
+      board already completed brings its proof back, changing only the
+      details keeps it, a rules change removes all earlier proof, and an
+      unfinished playtest is no proof.
     forms: [proven]
     model: [proof]
 

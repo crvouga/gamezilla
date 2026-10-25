@@ -1,16 +1,18 @@
 // Alice prepares one Sokoban draft for publication. Its board is one of two
 // boards with nothing to correct, or a board that still has something to
 // correct; its details are its title, description and difficulty. A Sokoban
-// puzzle is published only with proof: a completed playtest of exactly the
-// board being published, under Sokoban's current rules. A playtest plays the
-// board as it was when the playtest began. A board edit leaves the board
-// without proof, even one that brings back an earlier board; changing only
-// the details keeps the proof; a playtest under way or stopped before it was
-// complete adds no proof and takes none away; and a rules change leaves no
-// proof from a playtest completed before it. A board with something to
-// correct cannot be playtested. Publishing a proven board again with nothing
-// changed makes no new edition, and no edit changes an edition already
-// published.
+// puzzle is published only with proof: the draft's board has proof exactly
+// when a playtest of exactly that board, under Sokoban's current rules, was
+// completed. Proof belongs to the board's content, not to its edits: editing
+// to a board never completed in a playtest leaves no proof, bringing back a
+// board already completed in a playtest (by undo, say) brings its proof back,
+// and changing only the details keeps the proof. A playtest plays the board
+// as it was when it began and, once completed, proves that board. A playtest
+// under way or stopped before it was complete proves nothing, and a rules
+// change leaves no proof from playtests completed before it. A board with
+// something to correct cannot be playtested. Publishing a proven board again
+// with nothing changed makes no new edition, and no edit changes an edition
+// already published.
 // Alice's phone starts connected. Without a connection she can still build,
 // change the details and playtest. Choosing publication then waits for the
 // connection: when it returns, the proven board she chose is published,
@@ -49,18 +51,24 @@ module publication_proof {
   var _previousDetails: int
   var _previousRules: int
 
-  action _keep(b: int, d: int, r: int, practice: Playtest, proven: bool,
-    published: List[Edition], isWaiting: bool, chosen: Edition, online: bool): bool = all {
-    board' = b, details' = d, rules' = r, playtest' = practice, proof' = proven,
-    editions' = published, waiting' = isWaiting, _chosen' = chosen,
-    _proven' = (if (practice.status == "completed")
-      _proven.union(Set((practice.board, practice.rules))) else _proven),
-    _online' = online, _previousEditions' = editions, _previousProof' = proof,
-    _previousBoard' = board, _previousDetails' = details, _previousRules' = rules,
+  /// Proof follows the board's content: it is recomputed from every completed
+  /// playtest after each step.
+  action _keep(b: int, d: int, r: int, practice: Playtest,
+    published: List[Edition], isWaiting: bool, chosen: Edition, online: bool): bool = {
+    val proven = if (practice.status == "completed")
+      _proven.union(Set((practice.board, practice.rules))) else _proven
+    all {
+      board' = b, details' = d, rules' = r, playtest' = practice,
+      proof' = proven.contains((b, r)),
+      editions' = published, waiting' = isWaiting, _chosen' = chosen,
+      _proven' = proven,
+      _online' = online, _previousEditions' = editions, _previousProof' = proof,
+      _previousBoard' = board, _previousDetails' = details, _previousRules' = rules,
+    }
   }
 
   action _same: bool =
-    _keep(board, details, rules, playtest, proof, editions, waiting, _chosen, _online)
+    _keep(board, details, rules, playtest, editions, waiting, _chosen, _online)
 
   action init = all {
     board' = 0, details' = 0, rules' = 0, playtest' = NO_PLAYTEST, proof' = false,
@@ -69,17 +77,18 @@ module publication_proof {
     _previousBoard' = 0, _previousDetails' = 0, _previousRules' = 0,
   }
 
-  /// Any board edit gives the draft another board and leaves it without proof.
-  /// A playtest under way keeps playing the board it began with.
+  /// A board edit gives the draft another board, proven only if exactly that
+  /// board was completed in a playtest under the current rules. A playtest
+  /// under way keeps playing the board it began with.
   action editBoard(newBoard: int): bool = all {
     BOARDS.contains(newBoard), newBoard != board,
-    _keep(newBoard, details, rules, playtest, false, editions, waiting, _chosen, _online),
+    _keep(newBoard, details, rules, playtest, editions, waiting, _chosen, _online),
   }
 
   /// Changing only the title, description or difficulty keeps the board and its proof.
   action editDetails(newDetails: int): bool = all {
     DETAILS.contains(newDetails), newDetails != details,
-    _keep(board, newDetails, rules, playtest, proof, editions, waiting, _chosen, _online),
+    _keep(board, newDetails, rules, playtest, editions, waiting, _chosen, _online),
   }
 
   /// A playtest plays the draft's board as it is now, under the current rules,
@@ -87,24 +96,23 @@ module publication_proof {
   action beginPlaytest: bool = all {
     playtest.status != "playing",
     if (board != BOARD_TO_CORRECT)
-      _keep(board, details, rules, { board: board, rules: rules, status: "playing" }, proof,
+      _keep(board, details, rules, { board: board, rules: rules, status: "playing" },
         editions, waiting, _chosen, _online)
     else _same,
   }
 
-  /// Completing a playtest proves the board only if it is still exactly the
-  /// board played, under the same rules.
+  /// Completing a playtest proves the board it played, under the rules it
+  /// began with; it proves the draft while the draft has exactly that board.
   action completePlaytest: bool = all {
     playtest.status == "playing",
     _keep(board, details, rules, { ...playtest, status: "completed" },
-      proof or (playtest.board == board and playtest.rules == rules),
       editions, waiting, _chosen, _online),
   }
 
   /// Stopping a playtest before it is complete adds no proof and takes none away.
   action leavePlaytest: bool = all {
     playtest.status == "playing",
-    _keep(board, details, rules, { ...playtest, status: "stopped" }, proof,
+    _keep(board, details, rules, { ...playtest, status: "stopped" },
       editions, waiting, _chosen, _online),
   }
 
@@ -117,21 +125,22 @@ module publication_proof {
     val latest = editions.length() > 0 and editions[editions.length() - 1] == chosen
     if (not(proof) or waiting or latest) _same
     else if (_online)
-      _keep(board, details, rules, playtest, proof, editions.append(chosen), false,
+      _keep(board, details, rules, playtest, editions.append(chosen), false,
         NO_EDITION, _online)
-    else _keep(board, details, rules, playtest, proof, editions, true, chosen, _online),
+    else _keep(board, details, rules, playtest, editions, true, chosen, _online),
   }
 
-  /// World event: Sokoban's rules change once. A playtest completed before it is no proof.
+  /// World event: Sokoban's rules change once. Playtests completed before it
+  /// are no proof under the changed rules.
   action rulesChange: bool = all {
     rules == 0,
-    _keep(board, details, 1, playtest, false, editions, waiting, _chosen, _online),
+    _keep(board, details, 1, playtest, editions, waiting, _chosen, _online),
   }
 
   /// Model-only: the phone loses its connection; building and playtesting go on.
   action _loseConnection: bool = all {
     _online,
-    _keep(board, details, rules, playtest, proof, editions, waiting, _chosen, false),
+    _keep(board, details, rules, playtest, editions, waiting, _chosen, false),
   }
 
   /// A waiting publication goes ahead only if its playtest is still proof
@@ -139,9 +148,9 @@ module publication_proof {
   action connectionReturns: bool = all {
     not(_online),
     if (waiting and _chosen.rules == rules)
-      _keep(board, details, rules, playtest, proof, editions.append(_chosen), false,
+      _keep(board, details, rules, playtest, editions.append(_chosen), false,
         NO_EDITION, true)
-    else _keep(board, details, rules, playtest, proof, editions, false, NO_EDITION, true),
+    else _keep(board, details, rules, playtest, editions, false, NO_EDITION, true),
   }
 
   action step = {
@@ -155,14 +164,13 @@ module publication_proof {
   /// that board, under the rules it was published with.
   val invPublishedBoardsWereProven = editions.indices().forall(i =>
     _proven.contains((editions[i].board, editions[i].rules)))
-  /// Proof comes only from a completed playtest of exactly the draft's board
-  /// under the current rules; a playtest under way or stopped adds none.
-  val invProofComesFromACompletedPlaytest = proof implies _proven.contains((board, rules))
-  /// A board edit leaves the new board without proof.
-  val invBoardEditLeavesNoProof = board != _previousBoard implies not(proof)
+  /// The draft's board has proof exactly when a playtest of exactly that
+  /// board under the current rules was completed; a playtest under way or
+  /// stopped adds none.
+  val invProofIsACompletedPlaytestOfThisBoard = proof == _proven.contains((board, rules))
   /// Changing only the details keeps the proof the board had.
   val invDetailsEditKeepsProof = details != _previousDetails implies proof == _previousProof
-  /// A rules change leaves no proof from a playtest completed before it.
+  /// A rules change leaves no proof from playtests completed before it.
   val invRulesChangeLeavesNoProof = rules != _previousRules implies not(proof)
   /// A board with something to correct is never playtested or proven.
   val invBoardToCorrectHasNoProof = board == BOARD_TO_CORRECT implies

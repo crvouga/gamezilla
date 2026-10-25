@@ -15,14 +15,14 @@ Feature: Play the Sokoban starter pack
       When Bob starts the first starter puzzle
       Then Bob sees the first starter puzzle's starting position
 
-  Rule: Completing a starter puzzle offers the next unfinished one
+  Rule: Completing a starter puzzle offers the first unfinished one in the pack's order
 
     Scenario: Completing the first starter puzzle offers the second
       Given Bob is playing the first starter puzzle
       When Bob completes that puzzle
       Then Bob is offered the second starter puzzle as the next puzzle
 
-    Scenario: Continuing the starter pack goes to the next unfinished puzzle
+    Scenario: Continuing the starter pack goes to the first unfinished puzzle
       Given Bob has completed the first starter puzzle
       When Bob continues the starter pack
       Then Bob sees the second starter puzzle's starting position
