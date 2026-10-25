@@ -1,3 +1,4 @@
+import { withBundledContent } from '@libs/game-puzzle-shared-ts/bundled-content';
 import { DefineBackButton } from '@libs/spaces-client-ts/spaces-nav-context';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import type { PuzzleContent } from '@pkgs/turn-game-shared-ts/puzzle-content';
@@ -5,6 +6,7 @@ import { createPuzzleContentCatalog } from '@pkgs/turn-game-shared-ts/puzzle-con
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { useConfirmNavigation } from '@pkgs/ui-root-client-ts/pending-navigation';
 import {
+  type Accessor,
   createEffect,
   createMemo,
   createSignal,
@@ -51,6 +53,18 @@ function ContentScreen(props: { view: ContentView }): JSX.Element {
   );
 }
 
+/** Shipped editions are part of every device's library, offline included. */
+function useGameLibrary(
+  gameId: Accessor<string>,
+  game: Accessor<PuzzleContent>
+) {
+  const stored = useContentLibrary(gameId);
+  const library = createMemo(() =>
+    withBundledContent(stored.library(), gameId(), game())
+  );
+  return { stored, content: { library, isLoading: stored.isLoading } };
+}
+
 /** One shared content experience for both independent and turn-based games. */
 export function ContentExperience(props: {
   gameId: string;
@@ -60,7 +74,10 @@ export function ContentExperience(props: {
   onBack: () => void;
 }): JSX.Element {
   const engine = useSyncEngine();
-  const content = useContentLibrary(() => props.gameId);
+  const { stored, content } = useGameLibrary(
+    () => props.gameId,
+    () => props.content
+  );
   const play = useContentAttempts(() => props.gameId);
   const [view, setView] = createSignal<ContentView>({ kind: 'library' });
   const pages = useContentPages(content.library, play.library, view);
@@ -79,7 +96,7 @@ export function ContentExperience(props: {
   createEffect(() => {
     if (
       ready() ||
-      content.library().documents.length > 0 ||
+      stored.library().documents.length > 0 ||
       play.library().attempts.length > 0 ||
       !engine.status().online ||
       engine.status().lastError !== null

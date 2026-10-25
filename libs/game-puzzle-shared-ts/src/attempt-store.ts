@@ -7,7 +7,11 @@ import {
   MutationError,
 } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import type { AttemptPosition, ContentAttempt } from './attempt-types';
-import { readContentDraft, readContentRevision } from './content-store';
+import {
+  type ContentMutationCtx,
+  readContentDraft,
+  readEdition,
+} from './content-store';
 
 export async function readContentAttempt(
   tx: MutationDb,
@@ -39,13 +43,13 @@ export async function requireAttemptPlayer(
 }
 
 export async function attemptDefinition(
-  ctx: MutationCtx,
+  ctx: ContentMutationCtx,
   attempt: ContentAttempt
 ): Promise<string> {
   const source =
     attempt.mode === 'playtest'
       ? await readContentDraft(ctx.tx, attempt.source_id)
-      : await readContentRevision(ctx.tx, attempt.source_id);
+      : await readEdition(ctx, attempt.source_id);
   if (source === null || source.document_id !== attempt.puzzle_id)
     throw new MutationError(
       'PUZZLE_EDITION_UNAVAILABLE',

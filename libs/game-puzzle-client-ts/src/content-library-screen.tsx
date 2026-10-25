@@ -1,4 +1,5 @@
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
+import { isBundledContent } from '@libs/game-puzzle-shared-ts/bundled-content';
 import {
   discoverContent,
   workingContentDraft,
@@ -29,7 +30,10 @@ function PublishedContent(): JSX.Element {
         ...data.content(),
         documents: data
           .content()
-          .documents.filter((doc) => doc.published_revision_id !== null)
+          .documents.filter(
+            (doc) =>
+              doc.published_revision_id !== null && !isBundledContent(doc.id)
+          )
           .toSorted(byContentId)
           .slice(0, data.pages.published.limit()),
       },
@@ -83,6 +87,39 @@ function PublishedContent(): JSX.Element {
         label={t`Load more published puzzles and packs`}
       />
     </>
+  );
+}
+
+/** Packs the game ships: available to everyone, with or without a connection. */
+function BundledPacks(): JSX.Element {
+  const game = useContentGame();
+  const data = useContentLibraryState();
+  const packs = createMemo(() =>
+    discoverContent(data.content(), game.id).filter(
+      (edition) => edition.kind === 'pack' && isBundledContent(edition.id)
+    )
+  );
+  return (
+    <Show when={packs().length > 0}>
+      <MenuSection title={<Trans>Starter packs</Trans>}>
+        <For each={packs()}>
+          {(pack) => (
+            <MenuRow
+              title={pack.title}
+              caption={pack.description}
+              onClick={() =>
+                game.open({
+                  kind: 'edition',
+                  revisionId: pack.id,
+                  packRevisionId: null,
+                })
+              }
+              dataSet={{ testid: `content-bundled-${pack.document_id}` }}
+            />
+          )}
+        </For>
+      </MenuSection>
+    </Show>
   );
 }
 
@@ -161,6 +198,7 @@ export function ContentLibraryScreen(): JSX.Element {
       }
     >
       <ContentCreateControls />
+      <BundledPacks />
       <PersonalContent />
       <PublishedContent />
     </EmbeddedScreen>
