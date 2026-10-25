@@ -45,6 +45,11 @@
     "parts": 1
   },
   {
+    "package": "@libs/sokoban-harness-ts",
+    "directory": "libs/sokoban-harness-ts",
+    "parts": 1
+  },
+  {
     "package": "@libs/profile-harness-ts",
     "directory": "libs/profile-harness-ts",
     "parts": 22

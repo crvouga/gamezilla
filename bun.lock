@@ -2817,6 +2817,7 @@
         "@libs/runtime-server-ts": "workspace:*",
         "@libs/runtime-shared-ts": "workspace:*",
         "@libs/search-harness-ts": "workspace:*",
+        "@libs/sokoban-harness-ts": "workspace:*",
         "@libs/spaces-harness-ts": "workspace:*",
         "@libs/test-ids-shared-ts": "workspace:*",
         "@pkgs/chess-board-core-shared-ts": "workspace:*",
