@@ -104,14 +104,16 @@ Feature: Keep riding when someone loses the connection
       Given Comet has 1 round win and Ember has 0
       And Alice, Bob and Carol are all away
 
-    Scenario: Everyone away for 30 seconds calls off the game
+    Scenario: A watcher sees the game called off when everyone riding has been away for 30 seconds
+      Given Dave is watching the Light Cycles game in Alice's space with a connection
       When 30 seconds pass
-      Then the Light Cycles game is called off with no winner
-      And Comet has 1 round win and Ember has 0
+      Then Dave sees the Light Cycles game is called off with no winner
+      And Dave sees Comet has 1 round win and Ember has 0
 
-    Scenario: Everyone away for 29 seconds keeps the game going
+    Scenario: A watcher sees the game still going when everyone riding has been away for 29 seconds
+      Given Dave is watching the Light Cycles game in Alice's space with a connection
       When 29 seconds pass
-      Then the Light Cycles game is still unfinished
+      Then Dave sees the Light Cycles game is still unfinished
 
     Scenario: Nobody steers in a called-off game
       Given the Light Cycles game is called off
