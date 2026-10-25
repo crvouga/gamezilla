@@ -54,7 +54,7 @@ test('placing tiles from the rack and playing sends one proposal', () => {
   expect(view.getByTestId('wt-status').textContent).toContain('10');
   fireEvent.click(view.getByTestId('wt-submit'));
   expect(actions).toEqual(['play:g8=11.h8=0.i8=82']);
-}, 30_000);
+});
 
 test('a placement the rules refuse cannot be played and says why', () => {
   const { view, actions } = board('11,0,82,98,25,77,69');
@@ -65,16 +65,16 @@ test('a placement the rules refuse cannot be played and says why', () => {
   expect(view.getByTestId('wt-status').textContent).toContain('centre');
   expect(view.getByTestId('wt-submit').hasAttribute('disabled')).toBe(true);
   expect(actions).toEqual([]);
-}, 30_000);
+});
 
 test('a watcher sees the board but no rack', () => {
   const { view } = board(null, false);
   expect(view.queryByTestId('wt-rack')).toBeNull();
   expect(view.getByTestId('wt-bag').textContent).toContain('86');
-}, 30_000);
+});
 
 test('passing is one tap', () => {
   const { view, actions } = board('11,0,82,98,25,77,69');
   fireEvent.click(view.getByTestId('wt-pass'));
   expect(actions).toEqual(['pass']);
-}, 30_000);
+});

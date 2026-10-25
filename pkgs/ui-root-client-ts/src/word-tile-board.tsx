@@ -42,12 +42,13 @@ export type WordTileBoardProps = {
 
 function BoardCell(props: {
   board: WordTileBoardProps;
+  cells: () => readonly WordTileBoardCell[];
   index: number;
   focusable: boolean;
   onFocusIndex: (index: number) => void;
   onKey: (event: KeyboardEvent, index: number) => void;
 }): JSX.Element {
-  const cell = () => props.board.cells[props.index];
+  const cell = () => props.cells()[props.index];
   return (
     <button
       type="button"
@@ -103,6 +104,9 @@ function range(count: number): readonly number[] {
  */
 export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
   const [focusIndex, setFocusIndex] = createSignal(112);
+  // Read once per change: every square reads the list, and a caller that
+  // computes it inline would otherwise rebuild it once per square.
+  const cells = createMemo(() => props.cells);
   const rows = createMemo(() => range(props.rowLabels.length));
   const columns = createMemo(() => range(props.columnLabels.length));
   let root: HTMLDivElement | undefined;
@@ -145,6 +149,7 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
               {(column) => (
                 <BoardCell
                   board={props}
+                  cells={cells}
                   index={row * columns().length + column}
                   focusable={focusIndex() === row * columns().length + column}
                   onFocusIndex={setFocusIndex}

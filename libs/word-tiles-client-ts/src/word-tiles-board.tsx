@@ -204,6 +204,12 @@ function SeatView(props: {
   const preview = createMemo(() =>
     previewCandidate(props.position(), m.candidate(), lexicon.state())
   );
+  // Memoized: each square reads the list, so computing it inline would
+  // rebuild the whole board once per square on every change.
+  const cells = createMemo(() =>
+    boardCells(props.position(), m.candidate(), m.editable())
+  );
+  const tiles = createMemo(() => rackTiles(m.candidate(), m.editable()));
   const testId = () => props.board.testId;
   return (
     <StackVertical gap="sm">
@@ -213,7 +219,7 @@ function SeatView(props: {
         testId={testId()}
         columnLabels={COLUMN_LABELS}
         rowLabels={ROW_LABELS}
-        cells={boardCells(props.position(), m.candidate(), m.editable())}
+        cells={cells()}
         squareText={squareText}
         onActivate={(id) => {
           const cell = parseCell(id);
@@ -229,7 +235,7 @@ function SeatView(props: {
         <TileRack
           label={t`Your rack`}
           testId={`${testId()}-rack`}
-          tiles={rackTiles(m.candidate(), m.editable())}
+          tiles={tiles()}
           onActivate={(id) => m.update((c) => pressTile(c, Number(id)))}
         />
         <Show when={m.candidate().blankAt !== null}>

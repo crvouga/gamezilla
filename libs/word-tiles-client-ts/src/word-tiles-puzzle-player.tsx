@@ -98,6 +98,11 @@ function PuzzleBoard(props: {
   const progress = () => puzzleProgress(props.state);
   const target = () => props.puzzle.target;
   const editable = () => !props.disabled;
+  // Memoized: each square reads the list (see the game board).
+  const cells = createMemo(() =>
+    boardCells(framePosition(props.puzzle), candidate(), editable())
+  );
+  const tiles = createMemo(() => rackTiles(candidate(), editable()));
   return (
     <StackVertical gap="sm">
       <P variant="bodyBold" dataSet={{ testid: 'word-tiles-puzzle-target' }}>
@@ -113,7 +118,7 @@ function PuzzleBoard(props: {
         testId="word-tiles-puzzle"
         columnLabels={COLUMN_LABELS}
         rowLabels={ROW_LABELS}
-        cells={boardCells(framePosition(props.puzzle), candidate(), editable())}
+        cells={cells()}
         squareText={squareText}
         onActivate={(id) => {
           const cell = parseCell(id);
@@ -123,7 +128,7 @@ function PuzzleBoard(props: {
       <TileRack
         label={t`Your rack`}
         testId="word-tiles-puzzle-rack"
-        tiles={rackTiles(candidate(), editable())}
+        tiles={tiles()}
         onActivate={(id) => setCandidate((c) => pressTile(c, Number(id)))}
       />
       <Show when={candidate().blankAt !== null}>
@@ -186,7 +191,6 @@ export function WordTilesPuzzlePlayer(props: PuzzlePlayerProps): JSX.Element {
 /** The board, rack and target, without any moves. */
 export function WordTilesPuzzlePreview(props: PuzzlePreviewProps): JSX.Element {
   const puzzle = createMemo(() => readPuzzle(props.definition));
-  const empty = newCandidate('', null);
   return (
     <Show
       when={(() => {
@@ -195,21 +199,29 @@ export function WordTilesPuzzlePreview(props: PuzzlePreviewProps): JSX.Element {
       })()}
       fallback={<P>{t`This puzzle cannot be shown.`}</P>}
     >
-      {(read) => (
-        <StackVertical gap="sm">
-          <WordTileBoard
-            label={t`Puzzle board, fifteen columns and fifteen rows`}
-            testId="word-tiles-puzzle-preview"
-            columnLabels={COLUMN_LABELS}
-            rowLabels={ROW_LABELS}
-            cells={boardCells(framePosition(read()), empty, false)}
-            squareText={squareText}
-          />
-          <P>
-            {t`Rack: ${read().rack.replaceAll('?', '·')}. Target: ${read().target} points.`}
-          </P>
-        </StackVertical>
-      )}
+      {(read) => <PreviewBoard puzzle={read()} />}
     </Show>
+  );
+}
+
+function PreviewBoard(props: { puzzle: WordTilesPuzzle }): JSX.Element {
+  const empty = newCandidate('', null);
+  const cells = createMemo(() =>
+    boardCells(framePosition(props.puzzle), empty, false)
+  );
+  return (
+    <StackVertical gap="sm">
+      <WordTileBoard
+        label={t`Puzzle board, fifteen columns and fifteen rows`}
+        testId="word-tiles-puzzle-preview"
+        columnLabels={COLUMN_LABELS}
+        rowLabels={ROW_LABELS}
+        cells={cells()}
+        squareText={squareText}
+      />
+      <P>
+        {t`Rack: ${props.puzzle.rack.replaceAll('?', '·')}. Target: ${props.puzzle.target} points.`}
+      </P>
+    </StackVertical>
   );
 }

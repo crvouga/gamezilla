@@ -4,8 +4,13 @@ import { renderWithI18n as render } from '@pkgs/bun-test-solid-client-ts/render'
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
+import {
+  WordTileBoard,
+  type WordTileBoardCell,
+} from '@pkgs/ui-root-client-ts/word-tile-board';
 import WordTileBoardExample from '@pkgs/ui-root-client-ts/word-tile-board.example';
 import { fireEvent } from '@solidjs/testing-library';
+import { createSignal } from 'solid-js';
 
 function example() {
   const { clock, timers } = createHarnessClock();
@@ -64,4 +69,37 @@ test('the board and rack pass the accessibility audit', () => {
   const view = example();
   const failures = auditTree(view.container);
   expect(failures.map(formatFailure)).toEqual([]);
+});
+
+test('the board reads its squares once per change, however a caller computes them', () => {
+  let reads = 0;
+  const [letter, setLetter] = createSignal('A');
+  const cells = (shown: string): readonly WordTileBoardCell[] => {
+    reads += 1;
+    return Array.from({ length: 9 }, (_, at) => ({
+      id: `c${String(at)}`,
+      label: `square ${String(at)}`,
+      state: at === 4 ? ('committed' as const) : ('empty' as const),
+      letter: at === 4 ? shown : '',
+      points: at === 4 ? 1 : null,
+      square: null,
+      enabled: true,
+    }));
+  };
+  const view = render(() => (
+    <WordTileBoard
+      label="Counted board"
+      testId="counted"
+      columnLabels={['a', 'b', 'c']}
+      rowLabels={['1', '2', '3']}
+      cells={cells(letter())}
+      squareText={(square) => square}
+    />
+  ));
+  expect(reads).toBe(1);
+  setLetter('B');
+  expect([reads, view.getByTestId('counted-cell-c4').textContent]).toEqual([
+    2,
+    'B 1',
+  ]);
 });

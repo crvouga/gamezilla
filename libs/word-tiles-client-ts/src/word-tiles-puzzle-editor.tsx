@@ -111,6 +111,20 @@ export function WordTilesPuzzleEditor(props: PuzzleEditorProps): JSX.Element {
   // Board words are checked against the pinned list, loaded here for the shell.
   useWordTilesLexicon(() => DEFAULT_LEXICON_KEY);
   const change = (next: WordTilesPuzzle) => props.onChange(encodePuzzle(next));
+  // Memoized: each square reads the list, so computing it inline would
+  // rebuild the whole board once per square on every change.
+  const cells = createMemo(() => {
+    const read = puzzle();
+    if (!read.valid) return [];
+    const frame = {
+      ...newPosition(2, read.value.lexicon),
+      board: read.value.board,
+    };
+    return boardCells(frame, newCandidate('', null), false).map((cell) => ({
+      ...cell,
+      enabled: !props.disabled,
+    }));
+  });
   const current = (): Brush => {
     const value = brush();
     if (value === 'clear') return null;
@@ -145,11 +159,7 @@ export function WordTilesPuzzleEditor(props: PuzzleEditorProps): JSX.Element {
             testId="word-tiles-editor"
             columnLabels={COLUMN_LABELS}
             rowLabels={ROW_LABELS}
-            cells={boardCells(
-              { ...newPosition(2, read().lexicon), board: read().board },
-              newCandidate('', null),
-              false
-            ).map((cell) => ({ ...cell, enabled: !props.disabled }))}
+            cells={cells()}
             squareText={squareText}
             onActivate={(id) => {
               const cell = parseCell(id);
