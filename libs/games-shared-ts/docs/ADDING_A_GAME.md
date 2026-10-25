@@ -259,6 +259,37 @@ dealt-hands laws and privacy suites. Such a game offers no rated puzzle feed;
 it may offer
 authored puzzle content and [starter content](ADDING_A_PUZZLE_GAME.md#ship-starter-content).
 
+### A card game: secret choices, turns by the rules, joint winners
+
+Hearts (`libs/hearts-shared-ts`, `-client-ts`, `-harness-ts`) is the worked
+example. On top of dealt hands:
+
+- **Secret choices** — `hands.commit: { sides, accept, resolve }` for a phase
+  where several sides choose at once in private (a pass). `accept` judges a
+  side's choice from its own hand and gives a reason when it refuses; the
+  last choice resolves them all into one public action
+  ([semantics](GAME_FRAMEWORK.md#secret-choices-gameruleshandscommit)).
+  Bots choose from their own hand; the board receives `committed` (who has
+  chosen) and `commitment` (the viewer's own choice).
+- **Turns** — `turnOrder: 'rules'` when the rules name who moves next (a
+  trick's winner leads); leave it out when seats take turns in order.
+- **Results** — `winner` may list several sides (a tie for the lowest
+  score); the platform records and credits each.
+- **Refusals** — `resolve` and `accept` give the game's own reasons
+  (`follow suit`); `presentation.refusalDescription(reason, position)`
+  words them for the person refused.
+- **Fixtures** — `knownDeal` with draws chosen so the first deal is known;
+  `sharedVictories` for a line ending in joint winners; four seats.
+- **Conformance** — list the game's traits through its capabilities:
+  `four seats`, `dealt hands`, `secret choices`, `a shared victory`; the
+  shared stand-in, secret-choice and shared-victory features then bind it.
+
+Both secret choices and turns by the rules are custom-game capabilities:
+`defineGame` refuses them in a game offering matchmaking. A person away
+from a custom game of more than two sides is replaced by a disclosed
+stand-in until they take their seat back; the game supplies nothing for it
+beyond its bots.
+
 ## 3. Supply the conformance adapter
 
 ```ts
