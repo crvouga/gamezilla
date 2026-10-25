@@ -3431,8 +3431,11 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/game-session-harness-ts": "workspace:*",
+        "@libs/harness-ts": "workspace:*",
         "@libs/word-tiles-client-ts": "workspace:*",
         "@libs/word-tiles-shared-ts": "workspace:*",
+        "@pkgs/gherkin-shared-ts": "workspace:*",
+        "@pkgs/harness-root-shared-ts": "workspace:*",
       },
       "devDependencies": {
         "@pkgs/bun-test-solid-client-ts": "workspace:*",

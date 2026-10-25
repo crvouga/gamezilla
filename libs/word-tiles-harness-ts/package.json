@@ -12,12 +12,17 @@
   "scripts": {
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests"
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests",
+    "test:spec": "bun run ../../libs/harness-ts/scripts/test-spec.ts",
+    "test:spec:0": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 0/1"
   },
   "dependencies": {
     "@libs/game-session-harness-ts": "workspace:*",
+    "@libs/harness-ts": "workspace:*",
     "@libs/word-tiles-client-ts": "workspace:*",
-    "@libs/word-tiles-shared-ts": "workspace:*"
+    "@libs/word-tiles-shared-ts": "workspace:*",
+    "@pkgs/gherkin-shared-ts": "workspace:*",
+    "@pkgs/harness-root-shared-ts": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/bun-test-solid-client-ts": "workspace:*",
@@ -29,5 +34,9 @@
   },
   "category": "harness",
   "game": "word-tiles",
-  "language": "typescript"
+  "language": "typescript",
+  "specDomains": [
+    "word-tiles"
+  ],
+  "specParts": 1
 }
