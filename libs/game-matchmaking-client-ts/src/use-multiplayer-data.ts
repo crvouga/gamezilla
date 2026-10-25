@@ -9,8 +9,12 @@ import {
   createQuery,
   useSyncEngineInstance,
 } from '@pkgs/sync-engine-client-ts/sync-engine-context';
+import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { createEffect, onCleanup } from 'solid-js';
-import { matchingMultiplayerRoomGame } from './multiplayer-room-game';
+import {
+  awaitsMatchRoom,
+  matchingMultiplayerRoomGame,
+} from './multiplayer-room-game';
 import { useMatchRoom } from './use-match-room';
 
 export type MultiplayerSearchRow = {
@@ -52,6 +56,7 @@ export function useMultiplayerData(gameId: () => string) {
   const myId = useMyId();
   const spaceId = useSpaceRoomSessionId();
   const sync = useSyncEngineInstance();
+  const rules = useTurnGames();
   const spaces = createQuery(
     () =>
       sql<{
@@ -83,9 +88,13 @@ export function useMultiplayerData(gameId: () => string) {
     void sync.refreshQueries();
   });
   const roomGame = useMatchRoom(() => games.rows()[0]?.id);
+  const awaitingRoom = () =>
+    awaitsMatchRoom(games.rows()[0] ?? null, roomGame.opening(), rules);
   const game = () => {
     const row = games.rows()[0] ?? null;
-    return row === null ? null : withRoom(row, roomGame.game());
+    return row === null || awaitingRoom()
+      ? null
+      : withRoom(row, roomGame.game());
   };
   return {
     gameId,
@@ -103,7 +112,7 @@ export function useMultiplayerData(gameId: () => string) {
       const current = game();
       return current !== null && multiplayerSideOf(current, myId()) !== null;
     },
-    loading: games.isLoading,
+    loading: () => games.isLoading() || awaitingRoom(),
   };
 }
 
