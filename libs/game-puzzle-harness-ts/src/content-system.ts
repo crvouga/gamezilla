@@ -1,6 +1,8 @@
+import type { PuzzleContentClient } from '@libs/game-puzzle-client-ts/puzzle-content-client';
 import type { ContentBody } from '@libs/game-puzzle-shared-ts/content-types';
 import { defineRuntime } from '@pkgs/harness-root-shared-ts/define-runtime';
 import { defineSystem } from '@pkgs/harness-root-shared-ts/define-system';
+import type { SyncApp } from '@pkgs/sync-engine-harness-ts/scenario-app';
 import {
   createSyncHarness,
   syncVirtual,
@@ -19,6 +21,7 @@ import { playTwoStepsThroughScreen } from './attempt-screen-actions';
 import { AUTHORING_LIFECYCLE_ACTIONS } from './authoring-lifecycle-actions';
 import { BUILDER_ACTIONS, type BuilderSession } from './builder-session';
 import { CONTENT_ACTIONS } from './content-actions';
+import { countingContentClient } from './content-example-client';
 import { contentActorId } from './content-identity';
 import { PUBLICATION_ACTIONS } from './content-publication-actions';
 import { createContentThroughScreen } from './content-screen-actions';
@@ -62,7 +65,26 @@ export type PlaySelection = {
   readonly positionId: string;
 };
 
+/** One puzzle game as a harness world composes it: real rules, client and sub. */
+export type ContentHarnessGame = {
+  readonly id: string;
+  readonly title: string;
+  readonly client: PuzzleContentClient;
+  /** The game's rules under a run's changeable rules version. */
+  readonly content: (rules: ExampleRules) => PuzzleContent;
+  readonly app: (content: PuzzleContent) => SyncApp;
+};
+
+export const COUNTING_GAME: ContentHarnessGame = {
+  id: 'counting',
+  title: 'Counting',
+  client: countingContentClient,
+  content: examplePuzzleContentFor,
+  app: createContentExampleApp,
+};
+
 export type ContentHarness = SyncHarness & {
+  readonly game: ContentHarnessGame;
   /** This run's game rules; an app update may change their version. */
   readonly rules: ExampleRules;
   readonly content: PuzzleContent;
@@ -137,57 +159,65 @@ export const contentSystem = defineSystem<
       create: () => syncVirtual(),
     }),
   ],
-  async create(session, args) {
-    const rules: ExampleRules = { version: 1 };
-    const content = examplePuzzleContentFor(rules);
-    const contentExampleApp = createContentExampleApp(content);
-    const app = args.initialContent
-      ? contentExampleApp
-      : {
-          ...contentExampleApp,
-          pack: {
-            ...contentExampleApp.pack,
-            sessionQuery: {
-              name: exampleContentBootstrapQuery.name,
-              params: {},
-            },
-          },
-        };
-    const sync = await createSyncHarness(session, app, {
-      clientCount: 0,
-      rowImageFanout: false,
-      liveResendOnReconnect: false,
-      bufferOutboundLive: false,
-    });
-    for (const id of ['alice:phone', 'alice:tablet', 'bob:phone', 'bob:tablet'])
-      await sync.addClient({
-        id,
-        actorId: contentActorId(id.split(':')[0] ?? ''),
-      });
-    const harness: ContentHarness = {
-      ...sync,
-      rules,
-      content,
-      documents: new Map(),
-      editors: new Map(),
-      builders: new Map(),
-      lastResult: new Map(),
-      publicationResults: new Map(),
-      notices: new Map(),
-      offline: new Set(),
-      games: new Map(),
-      selectedPuzzles: new Map(),
-      selectedPacks: new Map(),
-      playSelections: new Map(),
-      earlierPlay: new Map(),
-      packViews: new Map(),
-      rememberedStates: new Map(),
-      rememberedEditions: new Map(),
-      publishedDrafts: new Map(),
-      lifecycleDrafts: [],
-      lifecyclePuzzles: [],
-      lifecycleAttempts: [],
-    };
-    return harness;
-  },
+  create: (session, args) => createContentWorld(session, args, COUNTING_GAME),
 });
+
+/** Four devices over one game's real sub, sync engine and screens. */
+export async function createContentWorld(
+  session: Parameters<typeof createSyncHarness>[0],
+  args: { readonly initialContent: boolean },
+  game: ContentHarnessGame
+): Promise<ContentHarness> {
+  const rules: ExampleRules = { version: 1 };
+  const content = game.content(rules);
+  const contentExampleApp = game.app(content);
+  const app = args.initialContent
+    ? contentExampleApp
+    : {
+        ...contentExampleApp,
+        pack: {
+          ...contentExampleApp.pack,
+          sessionQuery: {
+            name: exampleContentBootstrapQuery.name,
+            params: {},
+          },
+        },
+      };
+  const sync = await createSyncHarness(session, app, {
+    clientCount: 0,
+    rowImageFanout: false,
+    liveResendOnReconnect: false,
+    bufferOutboundLive: false,
+  });
+  for (const id of ['alice:phone', 'alice:tablet', 'bob:phone', 'bob:tablet'])
+    await sync.addClient({
+      id,
+      actorId: contentActorId(id.split(':')[0] ?? ''),
+    });
+  const harness: ContentHarness = {
+    ...sync,
+    game,
+    rules,
+    content,
+    documents: new Map(),
+    editors: new Map(),
+    builders: new Map(),
+    lastResult: new Map(),
+    publicationResults: new Map(),
+    notices: new Map(),
+    offline: new Set(),
+    games: new Map(),
+    selectedPuzzles: new Map(),
+    selectedPacks: new Map(),
+    playSelections: new Map(),
+    earlierPlay: new Map(),
+    packViews: new Map(),
+    rememberedStates: new Map(),
+    rememberedEditions: new Map(),
+    publishedDrafts: new Map(),
+    lifecycleDrafts: [],
+    lifecyclePuzzles: [],
+    lifecycleAttempts: [],
+  };
+  return harness;
+}

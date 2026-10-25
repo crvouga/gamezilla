@@ -48,21 +48,25 @@ function CountingPlayer(props: PuzzlePlayerProps): JSX.Element {
   );
 }
 
-const client: PuzzleContentClient = {
+export const countingContentClient: PuzzleContentClient = {
   Player: CountingPlayer,
   authoring: { initialDefinition: () => 'target:', Editor: CountingEditor },
 };
 
+/** The shared content experience of one harness game, as the app offers it. */
 export function ContentExampleClient(props: {
+  gameId: string;
+  title: string;
   content: PuzzleContent;
+  client: PuzzleContentClient;
 }): JSX.Element {
   return (
     <SpacesNavProvider>
       <ContentExperience
-        gameId="counting"
-        title="Counting"
+        gameId={props.gameId}
+        title={props.title}
         content={props.content}
-        client={client}
+        client={props.client}
         onBack={() => {
           throw new Error('This fixture opens the puzzle library directly');
         }}

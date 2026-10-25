@@ -14,8 +14,8 @@ import { createPuzzleContentCatalog } from '@pkgs/turn-game-shared-ts/puzzle-con
 import fc from 'fast-check';
 import { contentClientsConverged } from './example-app-convergence';
 import {
+  contentSessionQuery,
   exampleContentBootstrapQuery,
-  exampleContentQuery,
 } from './example-app-query';
 import { examplePuzzleContent } from './example-app-rules';
 
@@ -33,25 +33,35 @@ const tables = uniqueTables([
   ...AUTH_TABLES,
 ]);
 
-/** The counting reference app over one game's rules, as each run's world has. */
-export function createContentExampleApp(content: PuzzleContent): SyncApp {
+/** A harness app over its games' real content sub, as each run's world has. */
+export function createContentApp(
+  games: readonly {
+    readonly id: string;
+    readonly content: PuzzleContent;
+    /** A valid definition, for generated concurrent creations. */
+    readonly sample: string;
+  }[]
+): SyncApp {
+  const first = games[0];
+  const sessionQuery = contentSessionQuery(games.map((game) => game.id));
+  const catalog = createPuzzleContentCatalog(
+    games.map((game) => ({ id: game.id, puzzleContent: game.content }))
+  );
   return {
     pack: {
       localSchema: {
         domainSchema: registerTables(tables),
         cacheTableNames: tables.map((table) => table.name),
       },
-      mutationRegistry: mutationRegistry(
-        createContentMutations(catalogFor(content))
-      ),
+      mutationRegistry: mutationRegistry(createContentMutations(catalog)),
       queryRegistry: queryRegistry([
-        exampleContentQuery,
+        sessionQuery,
         exampleContentBootstrapQuery,
         ...CONTENT_QUERIES,
       ]),
-      sessionQuery: { name: exampleContentQuery.name, params: {} },
+      sessionQuery: { name: sessionQuery.name, params: {} },
       topicMap: CONTENT_TOPIC_MAP,
-      checkAllInSync: contentClientsConverged,
+      checkAllInSync: contentClientsConverged(games.map((game) => game.id)),
     },
     domainOpArbs: ({ clientIds }) => [
       fc.record({
@@ -60,18 +70,26 @@ export function createContentExampleApp(content: PuzzleContent): SyncApp {
         args: fc.nat({ max: 1_000 }).map((id) => ({
           documentId: `puzzle-${id}`,
           draftId: `draft-${id}`,
-          gameId: 'counting',
+          gameId: first?.id ?? '',
           kind: 'puzzle',
           body: {
             title: 'River',
             description: '',
             difficulty: '',
-            definition: 'target:2',
+            definition: first?.sample ?? '',
           },
         })),
       }),
     ],
   };
+}
+
+/** The counting reference app over one rules version. */
+export function createContentExampleApp(content: PuzzleContent): SyncApp {
+  return createContentApp([
+    { id: 'counting', content, sample: 'target:2' },
+    { id: 'other-counting', content, sample: 'target:2' },
+  ]);
 }
 
 export const contentExampleApp = createContentExampleApp(examplePuzzleContent);

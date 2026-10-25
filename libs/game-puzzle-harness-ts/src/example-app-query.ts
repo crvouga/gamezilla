@@ -30,12 +30,13 @@ export const exampleContentBootstrapQuery = defineQuery({
   },
 });
 
-/** The tiny reference app holds the first production pages and explicit selected-content scopes. */
+/** A harness app holds the first production pages and explicit selected-content scopes. */
 export async function exampleContentSnapshot(
-  ctx: QueryCtx
+  ctx: QueryCtx,
+  gameIds: readonly string[]
 ): Promise<Readonly<Record<string, readonly QueryRow[]>>> {
   const pages = await Promise.all(
-    ['counting', 'other-counting'].flatMap((gameId) => [
+    gameIds.flatMap((gameId) => [
       puzzleContentOwned.run(ctx, { gameId, afterId: '' }),
       puzzleContentPublished.run(ctx, { gameId, afterId: '' }),
       puzzleContentAttemptsOwned.run(ctx, {
@@ -73,30 +74,39 @@ export async function exampleContentSnapshot(
   ]);
 }
 
-export const exampleContentQuery = defineQuery({
-  name: 'puzzleContentExample',
-  entryChannel: (_params, ctx) => [`user:${ctx.actorId}`, puzzleContentTopic],
-  authorize: async (ctx) =>
-    Boolean(
-      await puzzleContentOwned.authorize?.(ctx, {
-        gameId: 'counting',
-        afterId: '',
-      })
-    ) &&
-    Boolean(
-      await puzzleContentAttemptsOwned.authorize?.(ctx, {
-        gameId: 'counting',
-        beforeAt: '9999-12-31T23:59:59.999Z',
-        beforeOrder: Number.MAX_SAFE_INTEGER,
-        beforeId: '',
-        unfinishedOnly: false,
-      })
-    ) &&
-    Boolean(
-      await puzzleContentPublished.authorize?.(ctx, {
-        gameId: 'counting',
-        afterId: '',
-      })
-    ),
-  run: exampleContentSnapshot,
-});
+/** One session query for a harness app over its games' content. */
+export function contentSessionQuery(gameIds: readonly string[]) {
+  const first = gameIds[0] ?? '';
+  return defineQuery({
+    name: 'puzzleContentExample',
+    entryChannel: (_params, ctx) => [`user:${ctx.actorId}`, puzzleContentTopic],
+    authorize: async (ctx) =>
+      Boolean(
+        await puzzleContentOwned.authorize?.(ctx, {
+          gameId: first,
+          afterId: '',
+        })
+      ) &&
+      Boolean(
+        await puzzleContentAttemptsOwned.authorize?.(ctx, {
+          gameId: first,
+          beforeAt: '9999-12-31T23:59:59.999Z',
+          beforeOrder: Number.MAX_SAFE_INTEGER,
+          beforeId: '',
+          unfinishedOnly: false,
+        })
+      ) &&
+      Boolean(
+        await puzzleContentPublished.authorize?.(ctx, {
+          gameId: first,
+          afterId: '',
+        })
+      ),
+    run: (ctx) => exampleContentSnapshot(ctx, gameIds),
+  });
+}
+
+export const exampleContentQuery = contentSessionQuery([
+  'counting',
+  'other-counting',
+]);
