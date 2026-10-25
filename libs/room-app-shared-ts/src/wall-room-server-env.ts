@@ -4,6 +4,16 @@ import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
 
 import type { RoomServerEnv } from './room-server-env';
 
+/**
+ * A number in [0, 1) nobody can predict from other draws: a room deals hidden
+ * hands from it, so it is the platform's cryptographic source, not
+ * `Math.random`, whose state a few outputs give away.
+ */
+function unpredictableRandom(): number {
+  const [high, low] = crypto.getRandomValues(new Uint32Array(2));
+  return ((high! >>> 5) * 67108864 + (low! >>> 6)) / 9007199254740992;
+}
+
 function mintWallSeed(): bigint {
   const bytes = new Uint8Array(8);
   crypto.getRandomValues(bytes);
@@ -22,7 +32,7 @@ export function wallRoomServerEnv(): RoomServerEnv {
     clock: wallClock,
     timers: wallTimers,
     createId: () => crypto.randomUUID(),
-    random: () => Math.random(),
+    random: unpredictableRandom,
     seed: mintWallSeed(),
   };
 }

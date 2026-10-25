@@ -1,6 +1,6 @@
 import {
   GAME_DEFINITIONS,
-  TURN_GAME_DEFINITIONS,
+  REGISTERED_GAME_DEFINITIONS,
 } from '@libs/games-shared-ts/game-plugins';
 import type { RoomServerEnv } from '@libs/room-app-shared-ts/room-server-env';
 import { composeRoomModules } from '@libs/spaces-shared-ts/load-game-plugins';
@@ -14,7 +14,7 @@ import {
 } from '@pkgs/turn-game-shared-ts/game-rules';
 
 const TURN_GAMES = createTurnGames(
-  TURN_GAME_DEFINITIONS.map((game) => game.turnGame)
+  REGISTERED_GAME_DEFINITIONS.map((game) => game.registration)
 );
 
 /**
