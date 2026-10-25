@@ -1,5 +1,9 @@
 import { expect, test } from 'bun:test';
 import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import {
+  scriptedRandom,
+  splitCommittedProposal,
+} from '@libs/game-session-harness-ts/played-rules';
 import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
 import { ChangeCustomGame } from '@libs/game-session-shared-ts/custom-game-commands';
 import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
@@ -18,7 +22,15 @@ function session(game: HarnessGame) {
   const module = createSpaceModule(
     assertRoomModuleName('roster-contract'),
     [game.shared],
-    { now: () => 0, random: () => 0, authority: true }
+    {
+      now: () => 0,
+      // A game with dealt hands is dealt its known deal, as every line expects.
+      random:
+        game.fixtures.knownDeal === undefined
+          ? () => 0
+          : scriptedRandom(game.fixtures.knownDeal.draws),
+      authority: true,
+    }
   );
   let state = {
     ...module.initialState(),
@@ -77,6 +89,27 @@ forEveryGame(import.meta.path, (game) => {
     room.start();
     expect(room.current().sides).toEqual([...room.sides]);
     for (const [ply, action] of game.fixtures.firstSideVictory.entries()) {
+      const commitments = splitCommittedProposal(action);
+      if (commitments !== null) {
+        // Every committing side commits its own part once; nobody moves meanwhile.
+        const awaiting = [...room.current().awaiting];
+        expect(awaiting).toHaveLength(commitments.length);
+        for (const [index, side] of awaiting.entries()) {
+          const person = PEOPLE[room.sides.indexOf(side)]!;
+          const commitment = commitments[index]!;
+          expect(
+            room.send(person, { operation: 'move', uci: commitment, ply })
+          ).toBe(false);
+          expect(
+            room.send(person, { operation: 'commit', commitment, ply })
+          ).toBe(true);
+          expect(
+            room.send(person, { operation: 'commit', commitment, ply })
+          ).toBe(false);
+        }
+        expect(room.current().moves).toHaveLength(ply + 1);
+        continue;
+      }
       const side = room.current().turn;
       const mover = room.sides.indexOf(side);
       const before = room.current();

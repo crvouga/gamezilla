@@ -46,8 +46,9 @@ composition roots (registries, runtime, apps)
 
 ## Who owns what
 
-`GameRules.sides` declares the ordered seats a mode uses; `gameSides` supplies
-the two-seat default for existing registrations. Seat tokens are opaque
+`GameRules.sides` declares the ordered seats a mode uses — two to four, in
+the order `white`, `black`, `red`, `blue` (`assertGameSides`) — and `gameSides`
+supplies the two-seat default for existing registrations. Seat tokens are opaque
 identities (`white`, `black`, `red`, `blue`); presentation supplies their visible
 names. Custom-game readiness, per-seat clocks, bot scheduling, authoritative
 ownership, matchmaking group size, synchronization, results and records consume
@@ -235,6 +236,25 @@ to with both setups) — its presentation's `SetupBoard`, its automation's
 [Private setups](#private-setups-gamerulessetup). A game with private setups
 offers no puzzles (`createTurnGames` refuses the pair: a puzzle shows its
 whole position to the solver).
+
+**Dealt hands** are part of the rules too: a game whose authority deals
+hidden information as it starts and keeps it as play goes on (Word Tiles'
+bag and racks) supplies `GameRules.hands` — `deal(position, random)` (the
+hidden state), `hand(hidden, side)` (all one side may know of it),
+`resolve(position, proposal, hidden)` (the public action and next hidden
+state, or a refusal) and `proposals(position, hand)` (some proposals a hand
+allows) — and, in its harness, one known deal (`fixtures.knownDeal`). Every
+capability it offers then follows
+[Dealt hands](#dealt-hands-gameruleshands). A game deals hands or has private
+setups, not both, and offers no rated puzzle feed; it may offer authored
+puzzle content (`puzzleContent`).
+
+**Immutable rule data** a game decides with (a word list) loads through
+`GameRules.prepare`, once per process. The platform awaits
+`prepareTurnGames` before a room authority restores, before the API server
+and migrations start, and before a device decides alone; a decision that
+needs data that has not loaded throws, so it fails without effect and is
+retried.
 
 Finding an opponent requires history: every finished matched game offers
 its game record (`specs/games/matched-game-record.feature`), which only
@@ -444,6 +464,58 @@ setup because it is never given it.
   `game-matchmaking-shared/tests/private-setup.test.ts`. The test-only
   consumer secret pick (`reference-game/secret-pick-game.tsx`) holds every
   one of them beside Battleship.
+
+### Dealt hands: `GameRules.hands`
+
+The same rule as private setups: **every position stays public**. The
+hidden state (a bag's order and each side's hand) is one opaque string only
+the authority holds. It is dealt once, with the authority's random, when the
+game starts; each side is shown `hand(hidden, side)` after every action; and
+the authority resolves each proposal with the hidden state into the public
+action it records (`play:h8=12.i8=98E` becomes `play:h8C.i8e`: the letters, never which tiles), so
+`play`, `replay`, `moves`, records, review and every watcher's copy work on
+public positions and actions alone. A refusal changes nothing and is
+reported as an illegal move. Bots choose from the public position and their
+own side's hand (`GameBots.choose(…, hand)`, `GameAutomation.choose(…,
+hand)`); they are never given another side's.
+
+- **Custom games.** When the game starts the room deals the hidden state as
+  an event nobody reads (`hidden-dealt`) and shows each person their hand as
+  an event only they read (`hand-shown`; a bot's is read by nobody), again
+  after every action. With another person at the table, devices predict
+  nothing and only the room moves a bot (a creator's chosen bot move is
+  refused), so no hidden state reaches a device
+  (`custom-game-hands.ts`, `custom-game-hand-play.ts`).
+- **Practice against bots.** A game whose only person is its creator is
+  solo, also offline: the creator's device draws the deal's numbers once and
+  sends them with the start (`ChangeLocalCustomGame.draws`, accepted only for
+  a solo game), so the device and the room deal the same hidden state; the
+  creator alone also reads the hidden state and the bots' hands (`reader`),
+  so the device resolves moves and pre-chooses the bots' proposals as the
+  room does. A watcher still receives none of it
+  (`custom-game-router.ts`, `custom-game-local.ts`).
+- **Matched games.** The server deals at creation, drawing from a fresh
+  server-side identity (`drawsFromId`), and keeps the hidden state in
+  `chess_multiplayer_hidden`, which never syncs; each person's hand is a row
+  of `chess_multiplayer_hands` that syncs only to its owner and is never sent
+  as a row image. Moves are resolved on the server under the owner lock;
+  a deleted account's hands are erased and an export holds only the
+  person's own (`multiplayer-hands.ts`).
+- **Screens.** Every board and the history review receive only the viewer's
+  own hand (`GameBoardProps.hand`, `null` for a watcher).
+- **Randomness.** A deal must not be recoverable from what a side sees: Word
+  Tiles keeps a 128-bit seed and a xoshiro128** state in the hidden state,
+  not a 32-bit seed a player could search for.
+- **Proof.** The dealt-hands laws (`game-rules-laws.ts`: every offered
+  proposal resolves, refusals change nothing, no position or label spells
+  another side's hand); every shared law plays a dealt-hands game as its
+  authority does, on composite positions `public`, `hidden` and turn
+  (`played-rules.ts`, with `fixtures.knownDeal` and a scripted random); room
+  draws a scenario fixes (`room-draws.ts`: `dealKnownHandsOnStart`); and the
+  privacy suites reading what leaves the platform
+  (`conformance/custom-games/dealt-hands-privacy.test.ts`,
+  `conformance/matchmaking/dealt-hands-privacy.test.ts`). Conformance traits
+  `dealt hands` and `four seats` route the shared features that need them.
 
 ### Matchmaking handoff
 
@@ -872,14 +944,15 @@ The matrix today:
 
 Three traits select specifications beyond capabilities for games with
 private setups: `a private setup` (the private-setup specifications and
-suites), `every position public` (play on the host's device alone:
+suites), `played on one device` (play on the host's device alone, for every
+game without private setups:
 `custom-game-offline`, `custom-game-local.qnt`, `custom-game.qnt`,
 `custom-game-control.qnt` and the offline solo board suite) and `a seven-move
 victory` (the whole-game models `custom-game-control`, `matched-game`,
 `matched-game-daily`). Battleship's shortest victory takes 33 shots, so it is
 held to the models that follow the start of its known victory; secret pick,
 whose victory takes seven moves, carries private setups through the
-whole-game models that do not need every position public.
+whole-game models that do not need play on one device.
 
 ## Durable names
 
@@ -917,10 +990,11 @@ position and action already stored.
 
 ## Fit for future games
 
-The shared lifecycles serve **two- or four-seat, ordered-turn,
-perfect-information** games whose state is one opaque position. Private setup
-and puzzle capabilities currently require two seats; registration refuses
-unsupported combinations. Each
+The shared lifecycles serve **two- to four-seat, ordered-turn** games whose
+state is one opaque public position, with hidden information either set up
+before play (`GameRules.setup`) or dealt and kept by the authority
+(`GameRules.hands`). Private setup and puzzle capabilities currently require
+two seats; registration refuses unsupported combinations. Each
 claim beyond that is an executable probe in
 [`libs/games-harness-ts/tests/probes/`](../../games-harness-ts/tests/probes/):
 the smallest game that asks the question, written as a game is (its
@@ -948,8 +1022,8 @@ relying on its planned enrollment alone.
 | [Setup phase](../../games-harness-ts/tests/probes/setup-phase.test.ts) (`setup-race`: each side picks a stride, then races) | Executable: supported as ordinary turns | `GameRules` actions and positions | None | Every custom-game specification and suite; setup actions replay, list and are refused before play like any move | As ordinary actions a setup starts and spends clocks, is numbered as moves and closes a matched game's abort window. A simultaneous, hidden setup is the private-setup phase instead (`GameRules.setup`, below): prepared before the first action, with readiness and a setup deadline of its own, never a move |
 | [Result the mover does not win](../../games-harness-ts/tests/probes/results.test.ts) (`misere-tally`) | Executable: supported | `PlayedPosition.winner` | One, made: custom games credited the mover (`custom-game-mover-credited-win`) | Every custom-game specification and suite | A margin or score is only the ending's reason text (`endingDescription(reason)`) |
 | [Results beyond one winner](../../games-harness-ts/tests/probes/results.test.ts) (shared win, ranking, score) | Executable (type-level): limitation | — | Would need one | — | `PlayedPosition.winner: GameSide \| 'draw' \| null`, `GameRecordMetadata.outcome: GameSide \| 'draw'`; stored custom and matched outcomes, Glicko-2 ratings on win/draw/loss and history's wins, losses and draws |
-| [More than two participants](../../games-harness-ts/tests/probes/participants.test.ts) | Executable: two or four declared seats | `GameRules.sides`, `gameSides`, `GameRecordMetadata.participants` | Shared rosters, clocks, group matching, consent, records and synchronization | [Roster conformance](../../games-harness-ts/tests/conformance/custom-games/declared-roster.test.ts), `specs/games/multi-seat-games.feature`, `four-seat-matchmaking.feature`, `multi-seat-recovery.feature` | A single winner or draw; private setups and puzzles remain two-seat capabilities |
-| [Participant-private state](../../games-harness-ts/tests/probes/private-state.test.ts) | Executable: supported as private setups; per-viewer positions a limitation | `GameRules.setup`, `GamePresentation.SetupBoard`, `GameAutomation.arrange`, `fixtures.setups` | Made: private room events, authority-only resolution, owner-only setups in matched games, the viewer's own setup on every board | Every shared specification and suite for what it offers, plus the private-setup ones; secret pick and Battleship | A position that differs per viewer as play goes on (cards drawn during play) is still one public string: `GameBoardProps` takes no per-viewer position and the rules decide with no actor |
+| [More than two participants](../../games-harness-ts/tests/probes/participants.test.ts) | Executable: two to four declared seats (Word Tiles has three) | `GameRules.sides`, `gameSides`, `GameRecordMetadata.participants` | Shared rosters, clocks, group matching, consent, records and synchronization | [Roster conformance](../../games-harness-ts/tests/conformance/custom-games/declared-roster.test.ts), `specs/games/multi-seat-games.feature`, `four-seat-matchmaking.feature`, `multi-seat-recovery.feature` | A single winner or draw; private setups and puzzles remain two-seat capabilities |
+| [Participant-private state](../../games-harness-ts/tests/probes/private-state.test.ts) | Executable: supported as private setups and dealt hands; per-viewer positions a limitation | `GameRules.setup`, `GamePresentation.SetupBoard`, `GameAutomation.arrange`, `fixtures.setups`; `GameRules.hands`, `GameBoardProps.hand`, `fixtures.knownDeal` | Made: private room events, authority-only resolution, owner-only setups and hands in matched games, hidden state no device holds, the viewer's own setup or hand on every board | Every shared specification and suite for what it offers, plus the private-setup and dealt-hands ones; secret pick, Battleship and Word Tiles | A position that differs per viewer (a fog that lifts) is still one public string: `GameBoardProps` takes no viewer and the rules decide with no actor |
 | [A surface unlike a chessboard](../../games-harness-ts/tests/probes/play-surface.test.ts) | Executable: supported | `GamePresentation.Board`, `GamePuzzlesClient.Board`, `PuzzleMarks` | None | The reference game's board is a row of buttons and its cells counts; it runs every shared specification and suite it offers | Puzzles mark cells (`PuzzleMarks.to`, `isCell`), the board faces a side (`orientation`), and automation is one pointer gesture (see Known limits) |
 
 ### Change impact
@@ -1064,11 +1138,22 @@ no production game advertises the new mode.
   stay inside their caps: chess 7, games 41. Each model is still checked
   in a task of its own (seven and sixteen model-check tasks, the
   matched-game model's sixteen phases apart).
+- A game with dealt hands offers no rated puzzle feed; Word Tiles' one-move
+  challenges are authored puzzle content instead. A solo practice game's deal
+  is on its creator's device, which could read the bots' racks: practice,
+  not a contest. The models that name every bot move along the
+  victory line (`custom-game-control`, `custom-game-local`) need a bot that
+  chooses among the position's legal moves by its draw (`a bot choosing among
+  legal moves`); a bot proposing from a hidden hand does not, so they hold
+  for every other game, while the offline features, the whole custom-game
+  model and the four-seat recovery hold for dealt hands too.
+- Results are a single winner or a draw. Word Tiles' joint winners in a
+  game of three or four are recorded as a draw, with the scores shown.
 - A game with private setups is never played on the host's device alone,
   so the offline solo specifications and the custom-game model (whose host
-  chooses alone with no connection) hold only for games whose every position
-  is public; its custom game against a bot needs the connection and a move
-  made without one waits for it.
+  chooses alone with no connection) hold only for games without them
+  (`played on one device`); its custom game against a bot needs the
+  connection and a move made without one waits for it.
 - The game models follow a first-side victory of exactly seven moves
   (Connect Four's shortest), so every game supplies one; a game whose
   victories all take longer needs the models' bound raised with it. The

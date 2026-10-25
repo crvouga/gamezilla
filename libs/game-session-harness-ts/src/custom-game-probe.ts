@@ -26,6 +26,8 @@ export type CustomGameProbe = CustomGames & {
     readonly arranged: string;
     readonly own: string | null;
   } | null;
+  /** For a game with dealt hands, the person's own hand; `null` otherwise. */
+  readonly ownHand: string | null;
   /** People in the space who are away, each with since when (room time). */
   readonly away: Readonly<Record<string, number>>;
   readonly error: string;

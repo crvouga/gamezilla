@@ -1,6 +1,7 @@
 import { expect } from 'bun:test';
 import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe';
 import { Given, Then } from '@libs/harness-ts/define';
+import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import {
   chosen,
@@ -9,8 +10,26 @@ import {
   toldOf,
 } from './custom-game-set-up-world';
 import { gameOf, setupCustomGame } from './game-world';
+import { followsKnownLine, plyWithMover } from './known-line';
 
 const PEOPLE = ['alice', 'bob', 'carol', 'dave'] as const;
+
+/**
+ * Alice, Bob, Carol and Dave in a custom game that followed its known
+ * victory until the side at `seat` (0 for the first) is to move, no round of
+ * secret choices open.
+ */
+async function toMove(w: HarnessWorld, seat: number): Promise<void> {
+  const game = gameOf(w);
+  const line = game.fixtures.firstSideVictory;
+  const side = gameSides(game.shared.turnGame.rules)[seat]!;
+  followsKnownLine(w, line);
+  await setupCustomGame(w, {
+    third: 'carol',
+    fourth: 'dave',
+    moves: line.slice(0, plyWithMover(game, line, side)),
+  });
+}
 
 Given(
   'Alice, Bob, Carol and Dave are setting up a four-player custom game',
@@ -40,12 +59,11 @@ Given(
 );
 Given(
   'Alice, Bob, Carol and Dave have a four-player custom game with Bob to move',
-  async (w) =>
-    setupCustomGame(w, {
-      third: 'carol',
-      fourth: 'dave',
-      moves: gameOf(w).fixtures.firstSideVictory.slice(0, 1),
-    })
+  async (w) => toMove(w, 1)
+);
+Given(
+  'Alice, Bob, Carol and Dave have a four-player custom game with Alice to move',
+  async (w) => toMove(w, 0)
 );
 Given('Alice has offered a draw accepted by Bob and Carol', async (w) => {
   await chosen(w, 'alice', { operation: 'offer' });

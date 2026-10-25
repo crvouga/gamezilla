@@ -15,10 +15,11 @@ export function customGameChoiceWaits(
   rules: TurnGames
 ): boolean {
   return (
-    choice.operation === 'move' &&
+    (choice.operation === 'move' || choice.operation === 'commit') &&
     game !== null &&
     game.status === 'active' &&
-    rules.forPosition(game.fen).setup !== undefined &&
+    (rules.forPosition(game.fen).setup !== undefined ||
+      rules.forPosition(game.fen).hands !== undefined) &&
     game.sides.some((side) => game[side].kind === 'bot')
   );
 }

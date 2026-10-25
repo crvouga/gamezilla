@@ -1,3 +1,7 @@
+import {
+  customGameOutcomeReason,
+  customGameWinners,
+} from '@libs/game-session-shared-ts/custom-game-outcome';
 import type {
   CustomGame,
   CustomGameSide,
@@ -27,6 +31,7 @@ import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { createMemo, type JSX, Show } from 'solid-js';
+import { sideNames } from './side-names';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
 /** Moderated name for display, or `null` while it is unknown. */
@@ -73,21 +78,31 @@ function gameStateDescription(
   if (game.status === 'cancelled') return t`Game cancelled.`;
   if (game.status === 'completed') {
     if (game.outcome === 'draw') return drawnDescription(game.outcomeReason);
-    const winner = presentation.sideLabel(
-      game.sides.find((side) => game.outcome.startsWith(side)) ?? 'white'
-    );
+    const winners = customGameWinners(game);
     const reason = game.outcome.includes('resignation')
       ? t`resignation`
       : game.outcome.includes('time')
         ? t`time`
         : game.outcome.includes('stayed away')
           ? t`opponent staying away`
-          : presentation.endingLabel(game.outcome.split(' wins by ')[1] ?? '');
+          : presentation.endingLabel(customGameOutcomeReason(game.outcome));
+    if (winners.length > 1) {
+      const names = sideNames(winners.map(presentation.sideLabel));
+      return t`${names} win by ${reason}.`;
+    }
+    const winner = presentation.sideLabel(winners[0] ?? 'white');
     return t`${winner} wins by ${reason}.`;
   }
   if (game.status === 'active') {
+    if (game.awaiting.length > 0) {
+      const chosen = game.committed.length;
+      const total = game.awaiting.length + chosen;
+      return t`Every side chooses in secret: ${chosen} of ${total} have chosen.`;
+    }
     const player = presentation.sideLabel(game.turn);
-    return t`${player} to move.`;
+    return game.standIns.includes(game.turn)
+      ? t`${player} to move, played by a stand-in bot.`
+      : t`${player} to move.`;
   }
   return customGameStartable(game)
     ? t`Ready to start.`
@@ -152,7 +167,13 @@ function statusTone(
   game: CustomGame,
   mySide: CustomGameSide | null
 ): GameStatusTone {
-  if (game.status === 'active' && mySide !== null && game.turn === mySide)
+  if (
+    game.status === 'active' &&
+    mySide !== null &&
+    (game.awaiting.length > 0
+      ? game.awaiting.includes(mySide)
+      : game.turn === mySide)
+  )
     return 'active';
   if (game.status === 'configuring' && customGameStartable(game))
     return 'success';

@@ -307,6 +307,7 @@ export class RoomDurableObjectAdapterBase<
     if (this.restored) return;
     await this.ctx.blockConcurrencyWhile(async () => {
       if (this.restored) return;
+      await this.config.ready();
       await restoreHibernatedSockets({
         ctx: this.ctx,
         config: this.config,

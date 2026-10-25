@@ -11,6 +11,7 @@ import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe'
 import { partition } from '@libs/harness-ts/actions';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import { before, gameOf, setupCustomGame, sideOf, view } from './game-world';
+import { knownNextMove } from './known-line';
 import { nextVictoryMove, told } from './matched-game';
 import {
   boardTakesNoMove,
@@ -50,7 +51,14 @@ When('{actor} makes his/her/a move', async (w, actor: string) => {
   else if (inMatchedGame(w)) {
     const { revision } = await matchedGameOf(w, actor);
     await move(w, actor, nextVictoryMove(w, revision));
-  } else await w.s.apply(makeCustomGameMove, actor, gameOf(w).shared.id);
+  } else {
+    // A custom game following a known line makes the line's next move.
+    const ply = (await view(w, actor)).current?.moves.length ?? 0;
+    const next = knownNextMove(w, ply);
+    if (next === undefined)
+      await w.s.apply(makeCustomGameMove, actor, gameOf(w).shared.id);
+    else await w.s.apply(makeCustomGameMove, actor, gameOf(w).shared.id, next);
+  }
 });
 When('{actor} makes the winning move', async (w, actor: string) => {
   const winning = String(w.memo.get('winning-move'));

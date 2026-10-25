@@ -1,0 +1,4 @@
+{
+  "summary": "A device more than one welcome batch (512 events) behind applied the first partial welcome, then a duplicate answer to its earlier request arrived with nothing new; the client took it for a broken replica, reset to empty and asked again, and every following batch no longer fitted, so it reset forever. A person returning to a long game (a whole Hearts game) never caught up. Fixed in room-client-wire applyWelcome: a batch ending at or before what the device applied is a stale answer and is ignored.",
+  "regressionTest": "pkgs/room-root-harness-ts/tests/stale-welcome.test.ts"
+}

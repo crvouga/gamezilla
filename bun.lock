@@ -1966,6 +1966,7 @@
         "@libs/connect-four-client-ts": "workspace:*",
         "@libs/game-menu-client-ts": "workspace:*",
         "@libs/games-shared-ts": "workspace:*",
+        "@libs/hearts-client-ts": "workspace:*",
         "@libs/numberlink-client-ts": "workspace:*",
         "@libs/quoridor-client-ts": "workspace:*",
         "@libs/spaces-shared-ts": "workspace:*",
@@ -1985,6 +1986,7 @@
         "@libs/connect-four-harness-ts": "workspace:*",
         "@libs/game-session-harness-ts": "workspace:*",
         "@libs/games-shared-ts": "workspace:*",
+        "@libs/hearts-harness-ts": "workspace:*",
         "@libs/quoridor-harness-ts": "workspace:*",
       },
       "devDependencies": {
@@ -2063,6 +2065,7 @@
         "@libs/chess-sub-shared-ts": "workspace:*",
         "@libs/connect-four-shared-ts": "workspace:*",
         "@libs/game-session-shared-ts": "workspace:*",
+        "@libs/hearts-shared-ts": "workspace:*",
         "@libs/numberlink-shared-ts": "workspace:*",
         "@libs/quoridor-shared-ts": "workspace:*",
         "@libs/spaces-shared-ts": "workspace:*",
@@ -2175,6 +2178,67 @@
         "@pkgs/openslo-shared-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/hearts-client-ts": {
+      "name": "@libs/hearts-client-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/game-menu-client-ts": "workspace:*",
+        "@libs/hearts-shared-ts": "workspace:*",
+        "@lingui/core": "catalog:",
+        "@lingui/solid": "catalog:",
+        "@pkgs/turn-game-shared-ts": "workspace:*",
+        "@pkgs/ui-root-client-ts": "workspace:*",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/bun-test-solid-client-ts": "workspace:*",
+        "@pkgs/clock-client-ts": "workspace:*",
+        "@pkgs/clock-shared-ts": "workspace:*",
+        "@pkgs/ui-testing-solid-dom-client-ts": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
+        "@testing-library/user-event": "catalog:",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/hearts-harness-ts": {
+      "name": "@libs/hearts-harness-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/game-session-harness-ts": "workspace:*",
+        "@libs/harness-ts": "workspace:*",
+        "@libs/hearts-client-ts": "workspace:*",
+        "@libs/hearts-shared-ts": "workspace:*",
+        "@libs/spaces-harness-ts": "workspace:*",
+      },
+      "devDependencies": {
+        "@pkgs/bun-test-solid-client-ts": "workspace:*",
+        "@pkgs/turn-game-shared-ts": "workspace:*",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/hearts-shared-ts": {
+      "name": "@libs/hearts-shared-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/game-session-shared-ts": "workspace:*",
+        "@pkgs/turn-game-shared-ts": "workspace:*",
+      },
+      "devDependencies": {
+        "@pkgs/property-shared-ts": "workspace:*",
+        "@pkgs/uuid-shared-ts": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -7822,6 +7886,12 @@
     "@libs/games-shared-ts": ["@libs/games-shared-ts@workspace:libs/games-shared-ts"],
 
     "@libs/harness-ts": ["@libs/harness-ts@workspace:libs/harness-ts"],
+
+    "@libs/hearts-client-ts": ["@libs/hearts-client-ts@workspace:libs/hearts-client-ts"],
+
+    "@libs/hearts-harness-ts": ["@libs/hearts-harness-ts@workspace:libs/hearts-harness-ts"],
+
+    "@libs/hearts-shared-ts": ["@libs/hearts-shared-ts@workspace:libs/hearts-shared-ts"],
 
     "@libs/infra-server-ts": ["@libs/infra-server-ts@workspace:libs/infra-server-ts"],
 

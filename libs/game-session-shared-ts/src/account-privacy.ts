@@ -12,6 +12,7 @@ const PERSONAL_TABLES = [
   'chess_multiplayer_commands',
   'chess_multiplayer_ratings',
   'chess_multiplayer_setups',
+  'chess_multiplayer_hands',
 ] as const;
 export const GAME_SESSION_PRIVACY: AccountPrivacyContribution = {
   name: 'game history and preferences',

@@ -40,6 +40,11 @@
     "parts": 95
   },
   {
+    "package": "@libs/hearts-harness-ts",
+    "directory": "libs/hearts-harness-ts",
+    "parts": 4
+  },
+  {
     "package": "@libs/numberlink-harness-ts",
     "directory": "libs/numberlink-harness-ts",
     "parts": 1

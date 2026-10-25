@@ -11,6 +11,10 @@ import {
 } from './custom-game-commands';
 import { soloCustomGame } from './custom-game-local';
 import type { CustomGame } from './custom-game-state';
+import {
+  customGameBotPlays,
+  customGameCommitting,
+} from './custom-game-state';
 
 const BOT_SCHEDULE = 'chess-custom:bot';
 const CLOCK_SCHEDULE = 'chess-custom:clock';
@@ -30,6 +34,16 @@ export function localCustomGameEffects(
   return schedules(game, rules, true);
 }
 
+/**
+ * The side whose bot decides next: the bot or stand-in to move, or, while
+ * every side commits, the first such side still to commit.
+ */
+function botToDecide(game: CustomGame): CustomGame['turn'] | null {
+  if (game.awaiting.length > 0)
+    return game.awaiting.find((side) => customGameBotPlays(game, side)) ?? null;
+  return customGameBotPlays(game, game.turn) ? game.turn : null;
+}
+
 function schedules(
   game: CustomGame | null,
   rules: TurnGames,
@@ -40,27 +54,31 @@ function schedules(
     CancelScheduleEffect({ id: CLOCK_SCHEDULE }),
   ];
   if (game?.status !== 'active' || game.turnStartedAt === null) return effects;
-  const wake = { gameId: game.id, ply: game.moves.length, side: game.turn };
   const solo = soloCustomGame(game, rules);
-  if (game.minutes > 0 && solo === local)
+  if (game.minutes > 0 && solo === local && !customGameCommitting(game)) {
+    const wake = { gameId: game.id, ply: game.moves.length, side: game.turn };
+    const at = game.turnStartedAt + game.remaining[game.turn];
     effects.push(
       ScheduleEffect({
         id: CLOCK_SCHEDULE,
-        at: game.turnStartedAt + game.remaining[game.turn],
+        at,
         payload: local
-          ? EndLocalCustomGameOnTime({
-              ...wake,
-              at: game.turnStartedAt + game.remaining[game.turn],
-            })
+          ? EndLocalCustomGameOnTime({ ...wake, at })
           : EndCustomGameOnTime(wake),
       })
     );
-  if ((local || !solo) && game[game.turn].kind === 'bot')
+  }
+  const bot = botToDecide(game);
+  if ((local || !solo) && bot !== null)
     effects.push(
       ScheduleEffect({
         id: BOT_SCHEDULE,
         at: game.turnStartedAt + CUSTOM_GAME_BOT_DELAY_MS,
-        payload: PlayCustomGameBot(wake),
+        payload: PlayCustomGameBot({
+          gameId: game.id,
+          ply: game.moves.length,
+          side: bot,
+        }),
       })
     );
   return effects;

@@ -38,6 +38,11 @@ function errorText(reason: string): string {
     'may still return': t`The other participant may still return. Wait before claiming the win.`,
     'no invitation': t`There is no invitation for that side.`,
     'no finished game': t`Finish a game before asking for a rematch.`,
+    'every side chooses first': t`Every side makes its secret choice before play goes on.`,
+    'already chosen': t`Your secret choice is already made for this round.`,
+    'nothing to choose now': t`There is no secret choice to make now.`,
+    'a stand-in plays your side': t`A stand-in bot is playing your side. Take back your side to play.`,
+    'no stand-in plays your side': t`You are already playing your own side.`,
   };
   return messages[reason] ?? t`The choice could not be confirmed. Try again.`;
 }

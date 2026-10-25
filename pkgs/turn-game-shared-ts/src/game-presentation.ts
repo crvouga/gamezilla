@@ -13,6 +13,19 @@ export type GameBoardProps = {
    * never receives another side's setup.
    */
   readonly setup: string | null;
+  /**
+   * The viewer's own hand, for a game whose authority deals hands; `null`
+   * for a watcher and for every other game. A board never receives another
+   * side's hand.
+   */
+  readonly hand: string | null;
+  /**
+   * In a game with private commitments: the sides that have committed in the
+   * phase open now (everyone sees which, never what), and the viewer's own
+   * commitment, `null` until they make one. Empty and `null` otherwise.
+   */
+  readonly committed: readonly GameSide[];
+  readonly commitment: string | null;
 };
 /** A side arranging its private setup: the game's own setup board. */
 export type GameSetupBoardProps = {

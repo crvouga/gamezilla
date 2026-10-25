@@ -1,10 +1,22 @@
 import { hostedSpaceId } from '@libs/game-matchmaking-harness-ts/multiplayer-spaces';
-import type { CustomGameSide } from '@libs/game-session-shared-ts/custom-game-state';
-import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
+import {
+  type CustomGameSide,
+  CustomGamesAttr,
+} from '@libs/game-session-shared-ts/custom-game-state';
+import {
+  actorUi,
+  pollUntil,
+  scenarioAction,
+} from '@libs/harness-ts/actor-ui';
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { signedInAccountOf } from '@libs/harness-ts/identity';
 import { backToTabs } from '@libs/harness-ts/shell-actions';
+import {
+  partition,
+  refreshActorConnection,
+  restoreNetwork,
+} from '@libs/harness-ts/actions';
 import {
   createSpace,
   joinFromPrompt,
@@ -12,11 +24,13 @@ import {
   reopenSpaceLink,
 } from '@libs/spaces-harness-ts/space-actions';
 import { readSpaceLink } from '@libs/spaces-harness-ts/spaces-ui-reads';
-import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
+import { type GameSide, gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import { readCustomGameProbe } from './custom-game-probe';
 import { configureCustomGame } from './custom-game-ui';
+import { playCustomGameHistory } from './custom-game-history';
 import { showCustomGames } from './game-navigation';
 import { harnessGameOf } from './harness-game-of';
+import { splitCommittedProposal } from './played-rules';
 
 /** Who takes each side: a person by name, a bot, or nobody yet. */
 export type CustomGameSeat = string | 'bot' | 'open';
@@ -37,6 +51,13 @@ export type CustomGameLineup = {
   readonly active?: boolean;
   /** Moves played from the start, alternating sides. */
   readonly moves?: readonly string[];
+  /**
+   * Proposals played first, as an earlier history, straight through the
+   * real server's room boundary under each seat's device: a long game (every
+   * card of a Hearts game) reaches its end in seconds, then `moves` follow
+   * through the participants' choices.
+   */
+  readonly history?: readonly string[];
   /** A side's private setup other than the game's known one, for a game with private setups. */
   readonly setups?: Partial<Record<CustomGameSide, string>>;
 };
@@ -79,12 +100,40 @@ export async function playCustomGameMoves(
   for (const move of moves) {
     const game = (await readCustomGameProbe(s, observer))?.current;
     if (game === null || game === undefined) throw new Error('No game');
+    const commitments = splitCommittedProposal(move);
+    if (commitments !== null) {
+      await commitCustomGameSides(s, seats, game, commitments);
+      continue;
+    }
     const mover = seats[game.turn];
     if (mover === undefined || !isPerson(mover))
       throw new Error(`The ${game.turn} side has no person to play ${move}`);
     await configureCustomGame(s, mover, {
       operation: 'move',
       uci: move,
+      ply: game.moves.length,
+    });
+  }
+}
+
+/** Every committing side's person commits its part of a combined proposal, in seat order. */
+async function commitCustomGameSides(
+  s: ProductHarness,
+  seats: Readonly<Partial<Record<GameSide, CustomGameSeat>>>,
+  game: { readonly awaiting: readonly GameSide[]; readonly moves: readonly unknown[] },
+  commitments: readonly string[]
+): Promise<void> {
+  if (game.awaiting.length !== commitments.length)
+    throw new Error(
+      `${String(game.awaiting.length)} sides commit, not ${String(commitments.length)}`
+    );
+  for (const [index, side] of [...game.awaiting].entries()) {
+    const committer = seats[side];
+    if (committer === undefined || !isPerson(committer))
+      throw new Error(`The ${side} side has no person to commit`);
+    await configureCustomGame(s, committer, {
+      operation: 'commit',
+      commitment: commitments[index]!,
       ply: game.moves.length,
     });
   }
@@ -228,6 +277,42 @@ export const establishCustomGame = scenarioAction({
     if (lineup.ready !== false) await readyEveryPerson(s, seats, lineup);
     if (lineup.active !== false)
       await configureCustomGame(s, host, { operation: 'start' });
+    if (lineup.history !== undefined && lineup.history.length > 0) {
+      const spaceId = await hostedSpaceId(s, host);
+      if (spaceId === null) throw new Error(`${game.label}: no space for its history`);
+      // Nobody watches an earlier history: the people's devices are cut off
+      // while it is played and catch up with the game it reached after.
+      for (const person of people) {
+        await Promise.resolve(partition.act(s, person));
+        await Promise.resolve(refreshActorConnection.act(s, person));
+      }
+      await Promise.resolve(
+        playCustomGameHistory.act(s, {
+          spaceId,
+          white: String(seats.white),
+          black: String(seats.black),
+          ...(sides.includes('red') ? { red: String(seats.red) } : {}),
+          ...(sides.includes('blue') ? { blue: String(seats.blue) } : {}),
+          moves: lineup.history,
+        })
+      );
+      await Promise.resolve(restoreNetwork.act(s));
+      const reached = CustomGamesAttr.from(
+        s.harness.roomNode.inspect(`space:${spaceId}`)?.committedState ?? {}
+      ).current?.moves.length;
+      for (const person of people)
+        await pollUntil(
+          s,
+          async () => {
+            const probe = await readCustomGameProbe(s, person);
+            return probe?.connected === true &&
+              probe.current?.moves.length === reached
+              ? true
+              : null;
+          },
+          { maxMs: 30_000, stepMs: 10, description: `${person} catches up` }
+        );
+    }
     await playCustomGameMoves(s, host, seats, lineup.moves ?? []);
   },
 });

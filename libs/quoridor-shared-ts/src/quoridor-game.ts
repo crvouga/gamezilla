@@ -40,7 +40,7 @@ function definition(rules: typeof quoridorRules, hill: boolean) {
     },
     automation: {
       choose: (position, random) =>
-        quoridorBots.choose(position, 'medium', random),
+        quoridorBots.choose(position, 'medium', random, null),
       async perform(ui, board, action) {
         const mode = ui.get(
           `${board}-mode-${action.length === 3 ? action[2] : 'move'}`

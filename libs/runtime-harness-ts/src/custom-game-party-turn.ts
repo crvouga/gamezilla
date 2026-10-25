@@ -80,7 +80,7 @@ export async function playCustomGamePartyTurn(
     !view.canMove
   )
     return view.ply;
-  const action = game.shared.automation.choose(view.position, () => 0.25);
+  const action = game.shared.automation.choose(view.position, () => 0.25, null);
   check(
     action !== null,
     'The active participant has no automated legal action'

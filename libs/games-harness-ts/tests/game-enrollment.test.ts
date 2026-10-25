@@ -7,10 +7,14 @@
 import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { isTurnGameDefinition } from '@libs/game-session-shared-ts/turn-game-definition';
 import { packageFamilyProblems } from '@libs/games-harness-ts/conformance-enrollment';
 import { enrollmentProblems } from '@libs/games-harness-ts/game-conformance';
 import { HARNESS_GAMES } from '@libs/games-harness-ts/harness-games';
-import { TURN_GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
+import {
+  GAME_DEFINITIONS,
+  TURN_GAME_DEFINITIONS,
+} from '@libs/games-shared-ts/game-plugins';
 import { gameFamily } from '@pkgs/turn-game-shared-ts/game-rules';
 import { CONFORMANCE_GAMES } from './conformance-world';
 
@@ -63,7 +67,10 @@ test('every game a package implements is registered, and every registered game h
     }
   expect(
     packageFamilyProblems(
-      TURN_GAME_DEFINITIONS.map((mode) => mode.turnGame.rules),
+      // A standalone puzzle game has packages too, but no turn rules.
+      GAME_DEFINITIONS.map((game) =>
+        isTurnGameDefinition(game) ? game.turnGame.rules : { id: game.id }
+      ),
       [...declared]
     )
   ).toEqual([]);
@@ -107,7 +114,7 @@ test('every mode of a shared family still needs its own conformance adapter', ()
       enrollmentProblems(unregistered, HARNESS_GAMES).some(
         (problem) =>
           problem.includes(`"${mode.id}"`) &&
-          problem.includes('but not GAME_DEFINITIONS')
+          problem.includes('but not TURN_GAME_DEFINITIONS')
       )
     ).toBe(true);
 
@@ -115,7 +122,7 @@ test('every mode of a shared family still needs its own conformance adapter', ()
     expect(
       enrollmentProblems(TURN_GAME_DEFINITIONS, omitted).some((problem) =>
         problem.includes(
-          `"${mode.id}" is in GAME_DEFINITIONS but not HARNESS_GAMES`
+          `"${mode.id}" is in TURN_GAME_DEFINITIONS but not HARNESS_GAMES`
         )
       )
     ).toBe(true);

@@ -35,6 +35,9 @@ function board(options: {
       sound={false}
       syncKey={0}
       setup={options.setup}
+      hand={null}
+      committed={[]}
+      commitment={null}
       testId="board"
       onAction={(action) => actions.push(action)}
     />

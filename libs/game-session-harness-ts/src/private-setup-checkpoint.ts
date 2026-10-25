@@ -3,7 +3,7 @@ import { hostedSpaceId } from '@libs/game-matchmaking-harness-ts/multiplayer-spa
 import type { CustomGameChoice } from '@libs/game-session-shared-ts/custom-game-choice';
 import {
   ChangeCustomGame,
-  CustomGamesChanged,
+  customGameChangeAnswer,
 } from '@libs/game-session-shared-ts/custom-game-commands';
 import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
 import type { HarnessRoomNode } from '@libs/harness-ts/composition';
@@ -165,10 +165,13 @@ async function choose(
   const receipt = peer.frames.flatMap((raw) => {
     const frame = parseServerToClientWire(raw);
     return frame?.kind === ROOM_WIRE_KIND.committed && frame.commandId === id
-      ? frame.entries.map((entry) => entry.event).filter(CustomGamesChanged.is)
+      ? frame.entries.flatMap((entry) => {
+          const answer = customGameChangeAnswer(entry.event);
+          return answer === null ? [] : [answer];
+        })
       : [];
   })[0];
-  if (receipt === undefined || receipt.payload.reason !== '')
+  if (receipt === undefined || receipt.reason !== '')
     throw new Error(`The paired ${id} did not make its requested game choice`);
 }
 

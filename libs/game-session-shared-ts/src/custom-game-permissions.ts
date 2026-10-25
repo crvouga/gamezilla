@@ -46,6 +46,8 @@ export function customGamePermission(
     case 'unready':
       return PERMISSION.gameCustomJoin;
     case 'move':
+    case 'commit':
+    case 'reclaim':
     case 'resign':
     case 'offer':
     case 'agree':

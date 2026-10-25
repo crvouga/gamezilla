@@ -34,6 +34,24 @@ export const GAME_TRAITS = {
     gameSides(game.shared.turnGame.rules).length === 2,
   'more than two seats': (game: HarnessGame) =>
     gameSides(game.shared.turnGame.rules).length > 2,
+  /** Exactly four seats, as the four-player specifications describe. */
+  'four seats': (game: HarnessGame) =>
+    gameSides(game.shared.turnGame.rules).length === 4,
+  /**
+   * Every action passes the turn to the next declared seat from the first
+   * action on, so a game is under way with its first side to move. A game
+   * whose rules name the next side (a trick's winner leads) or that opens
+   * with secret choices is held to the secret-choice specifications instead.
+   */
+  'rotating turns': (game: HarnessGame) =>
+    game.shared.turnGame.rules.turnOrder !== 'rules' &&
+    game.shared.turnGame.rules.hands?.commit === undefined,
+  /** Phases where every side commits a secret choice at once (`rules.hands.commit`). */
+  'secret choices': (game: HarnessGame) =>
+    game.shared.turnGame.rules.hands?.commit !== undefined,
+  /** Known lines to a victory sides share and to one side's alone (`sharedVictories`). */
+  'a shared victory': (game: HarnessGame) =>
+    game.fixtures.sharedVictories !== undefined,
   /** A puzzle line whose opponent supplies setup and automatic replies. */
   'a puzzle opponent': (game: HarnessGame) => {
     const puzzles = game.shared.turnGame.capabilities.puzzles;
@@ -53,11 +71,27 @@ export const GAME_TRAITS = {
   'a private setup': (game: HarnessGame) =>
     game.shared.turnGame.rules.setup !== undefined,
   /**
-   * Every position public, so a custom game without another person may be
-   * played on the host's device alone; a game with private setups is not.
+   * A custom game without another person may be played on the host's device
+   * alone: every game but one with private setups (a bot's setup is the
+   * room's alone). A game with dealt hands deals on the device from draws it
+   * makes once.
    */
-  'every position public': (game: HarnessGame) =>
+  'played on one device': (game: HarnessGame) =>
     game.shared.turnGame.rules.setup === undefined,
+  /**
+   * A bot that chooses among the position's legal moves, so a scenario names
+   * its next move by the draw that picks it. A bot proposing from a hidden
+   * hand (`rules.hands`) chooses among what its hand allows instead.
+   */
+  'a bot choosing among legal moves': (game: HarnessGame) =>
+    game.shared.turnGame.rules.hands === undefined,
+  /**
+   * Hands the authority deals and keeps hidden (`rules.hands`); the rules
+   * laws hold such a game to resolving every offered proposal from a known
+   * deal.
+   */
+  'dealt hands': (game: HarnessGame) =>
+    game.shared.turnGame.rules.hands !== undefined,
   /**
    * A known first-side victory of exactly seven moves (`firstSideVictory`),
    * which the whole-game models follow (`tests/quint/model-game.ts`). A
@@ -101,13 +135,22 @@ export function capabilitiesOf(
 export const SHARED_SPECIFICATIONS: Readonly<
   Record<string, readonly ConformanceNeed[]>
 > = {
-  'multi-seat-games': ['custom-games', 'more than two seats'],
+  'multi-seat-games': ['custom-games', 'four seats', 'rotating turns'],
+  'secret-choices': ['custom-games', 'secret choices', 'four seats'],
+  'multi-seat-stand-ins': ['custom-games', 'secret choices', 'four seats'],
+  'shared-victories': [
+    'custom-games',
+    'history',
+    'a shared victory',
+    'four seats',
+  ],
   'multi-seat-recovery': [
     'custom-games',
-    'more than two seats',
-    'every position public',
+    'four seats',
+    'played on one device',
+    'rotating turns',
   ],
-  'four-seat-matchmaking': ['matchmaking', 'more than two seats'],
+  'four-seat-matchmaking': ['matchmaking', 'four seats'],
   'game-choices': ['custom-games', 'matchmaking', 'history'],
   'custom-games': ['custom-games', 'two seats'],
   'custom-game-creation': ['custom-games', 'two seats'],
@@ -126,7 +169,7 @@ export const SHARED_SPECIFICATIONS: Readonly<
   ],
   'custom-game-rematch': ['custom-games', 'two seats'],
   'custom-game-connection': ['custom-games', 'two seats'],
-  'custom-game-offline': ['custom-games', 'every position public', 'two seats'],
+  'custom-game-offline': ['custom-games', 'played on one device', 'two seats'],
   'custom-game-private-setup': ['custom-games', 'a private setup', 'two seats'],
   'matched-game-private-setup': ['matchmaking', 'a private setup', 'two seats'],
   'private-setup': [
@@ -187,15 +230,22 @@ export const SHARED_SPECIFICATIONS: Readonly<
   // The model's host makes choices alone with no connection: a game played
   // on the host's device alone. A game with a private setup is held to the
   // same lifecycle by the custom-game features and private-setup.qnt.
-  'custom-game': ['custom-games', 'every position public', 'two seats'],
+  'custom-game': ['custom-games', 'played on one device', 'two seats'],
   'custom-game-play': ['custom-games', 'two seats'],
+  // These models name every bot move along the victory line.
   'custom-game-control': [
     'custom-games',
     'a seven-move victory',
-    'every position public',
+    'played on one device',
+    'a bot choosing among legal moves',
     'two seats',
   ],
-  'custom-game-local': ['custom-games', 'every position public', 'two seats'],
+  'custom-game-local': [
+    'custom-games',
+    'played on one device',
+    'a bot choosing among legal moves',
+    'two seats',
+  ],
   'custom-game-access': ['custom-games', 'two seats'],
   'custom-game-delivery': ['custom-games', 'two seats'],
   'matched-game': ['matchmaking', 'a seven-move victory', 'two seats'],

@@ -45,8 +45,11 @@ Then(
     expect(seen.current?.moves).toEqual(earlier.moves);
   }
 );
-Then('Carol has the custom game turn', async (w) => {
-  const seen = await w.s.read(customGameView, 'carol');
+Then('{actor} has the custom game turn', async (w, actor: string) => {
+  const seen = await w.s.until((s) => customGameView(s, actor), {
+    pred: (view) =>
+      view.current?.turn === view.mySide && view.gates['move'] === true,
+  });
   expect(seen.current?.turn).toBe(seen.mySide!);
   expect(seen.gates['move']).toBe(true);
 });
@@ -59,8 +62,17 @@ Then('Alice sees three legal bot replies and her next turn', async (w) => {
   expect(game.turn).toBe(seen.mySide!);
   const rules = gameOf(w).shared.turnGame.rules;
   const actions = game.moves.map((move) => move.uci);
+  // Each reply is one the rules accept where it was made (a game with dealt
+  // hands records the public action its proposal resolved to).
   for (let ply = 1; ply < actions.length; ply++)
-    expect(rules.legal(rules.replay(actions, ply))).toContain(actions[ply]!);
+    expect(
+      rules.play(
+        rules.replay(actions, ply),
+        actions[ply]!,
+        '',
+        actions.slice(0, ply)
+      )
+    ).not.toBeNull();
 });
 Then(
   "the four-player custom game's board and finished result are unchanged",

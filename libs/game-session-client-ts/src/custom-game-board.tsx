@@ -14,7 +14,14 @@ import { ListEntry, OrderedList } from '@pkgs/ui-root-client-ts/semantic-list';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
-import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
+import {
+  createMemo,
+  createSignal,
+  For,
+  Index,
+  type JSX,
+  Show,
+} from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { customGameCanMove } from './custom-game-can-move';
 import { CustomGameError } from './custom-game-error';
@@ -87,8 +94,21 @@ function ReviewJump(props: BoardProps): JSX.Element {
   );
 }
 
+/** How many of the latest moves the record lists; earlier ones are reached by number. */
+const LISTED_MOVES = 40;
+
 function ReviewMoves(props: BoardProps): JSX.Element {
   const moves = () => props.review.game()?.moves ?? [];
+  // The latest moves only: a long game (a Hearts game's every card) would
+  // otherwise list hundreds; any earlier one is reached by its number.
+  const first = createMemo(() => Math.max(0, moves().length - LISTED_MOVES));
+  // Labels compare by value, so a move appended updates one row, not all.
+  const labels = createMemo(() =>
+    moves()
+      .slice(first())
+      .map((move) => move.san)
+  );
+  const earlier = () => first();
   return (
     <Show
       when={moves().length > 0}
@@ -98,26 +118,38 @@ function ReviewMoves(props: BoardProps): JSX.Element {
         </P>
       }
     >
+      <Show when={earlier() > 0}>
+        <P variant="caption" tone="secondary">
+          <Trans>
+            {earlier()} earlier moves. Review any of them by its move number.
+          </Trans>
+        </P>
+      </Show>
       <StackHorizontal wrap gap="xs">
-        <OrderedList aria-label={t`Moves played`}>
-          <For each={moves()}>
-            {(move, index) => (
+        <OrderedList aria-label={t`Moves played`} start={first() + 1}>
+          {/* By position and label, not by object: each change parses fresh
+              move objects, and a long game would otherwise rebuild its whole
+              list on every move. */}
+          <Index each={labels()}>
+            {(label, index) => (
               <ListEntry>
                 <Button
-                  title={move.san}
+                  title={label()}
                   size="sm"
                   variant={
-                    props.review.displayedPly() === index() + 1
+                    props.review.displayedPly() === first() + index + 1
                       ? 'solid'
                       : 'ghost'
                   }
                   intent="neutral"
-                  onClick={() => props.review.seek(index() + 1)}
-                  dataSet={{ testid: `custom-game-review-move-${index() + 1}` }}
+                  onClick={() => props.review.seek(first() + index + 1)}
+                  dataSet={{
+                    testid: `custom-game-review-move-${first() + index + 1}`,
+                  }}
                 />
               </ListEntry>
             )}
-          </For>
+          </Index>
         </OrderedList>
       </StackHorizontal>
     </Show>
@@ -189,12 +221,17 @@ export function CustomGameBoard(props: BoardProps): JSX.Element {
     customGameCanMove(props.model, props.review);
   const presentation = useGamePresentation();
   const move = async (action: string): Promise<void> => {
+    const game = props.model.current();
+    const ply = game?.moves.length ?? 0;
+    const side = props.model.mySide();
     try {
-      await props.model.choose({
-        operation: 'move',
-        uci: action,
-        ply: props.model.current()?.moves.length ?? 0,
-      });
+      // While every side commits, the board's gesture is this side's own
+      // commitment; otherwise it is a move.
+      await props.model.choose(
+        side !== null && game?.awaiting.includes(side) === true
+          ? { operation: 'commit', commitment: action, ply }
+          : { operation: 'move', uci: action, ply }
+      );
     } catch {
       setReset((value) => value + 1);
     }
@@ -243,6 +280,9 @@ export function CustomGameBoard(props: BoardProps): JSX.Element {
         syncKey={reset()}
         testId="custom-game-board"
         setup={props.model.privateSetup.own()}
+        hand={props.model.ownHand()}
+        committed={props.model.current()?.committed ?? []}
+        commitment={props.model.ownCommitment()}
         onAction={(action: string) => {
           void move(action);
         }}

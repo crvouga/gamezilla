@@ -10,6 +10,7 @@ import {
   isTurnGameDefinition,
   type TurnGameDefinition,
 } from '@libs/game-session-shared-ts/turn-game-definition';
+import { heartsGameShared } from '@libs/hearts-shared-ts/hearts-game';
 import { numberlinkGameShared } from '@libs/numberlink-shared-ts/numberlink-game';
 import {
   quoridorGameShared,
@@ -31,6 +32,7 @@ export const GAME_DEFINITIONS = [
   numberlinkGameShared,
   quoridorGameShared,
   quoridorHillGameShared,
+  heartsGameShared,
 ] as const satisfies readonly GameRegistration[];
 
 /** Only games offering a turn engine enter multiplayer catalogs and suites. */

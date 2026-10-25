@@ -62,7 +62,7 @@ describe('Battleship automation', () => {
   test('chooses as the medium bot does', () => {
     const position = rules.replay(['e5:hit', 'a1:miss'], 2);
     for (const draw of [0, 0.4, 0.9])
-      expect(battleshipAutomation.choose(position, () => draw)).toBe(
+      expect(battleshipAutomation.choose(position, () => draw, null)).toBe(
         chooseBattleshipShot(position, 'medium', () => draw)
       );
   });

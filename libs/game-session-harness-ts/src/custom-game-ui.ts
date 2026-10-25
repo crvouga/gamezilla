@@ -8,6 +8,7 @@ import { bringToFront, partitioned } from '@libs/harness-ts/observations';
 import { readCustomGameProbe } from './custom-game-probe';
 import { harnessGameAt, knownSetupAt } from './harness-game-of';
 import { keepsOwnPrivateSetup } from './own-private-setups';
+import { dealKnownHandsOnStart } from './room-draws';
 
 export async function customGameReference(s: ProductHarness, actor: string) {
   const probe = await readCustomGameProbe(s, actor);
@@ -35,11 +36,8 @@ async function awaitOnlineSpace(
   // A device cut off from the server is refused at once: waiting would only
   // spend time on the clocks of everyone still playing.
   if (partitioned(s).some((pair) => pair.split('|').includes(actor))) return;
-  if (
-    harnessGameAt(s, probe.current.fen).shared.turnGame.rules.setup ===
-    undefined
-  )
-    return;
+  const rules = harnessGameAt(s, probe.current.fen).shared.turnGame.rules;
+  if (rules.setup === undefined && rules.hands === undefined) return;
   for (let waited = 0; waited < SYNC_WAIT_MS; waited += 100) {
     await s.session.advanceTime(100);
     await s.harness.drainServerFetch();
@@ -54,6 +52,7 @@ export async function sendCustomGameChoice(
   choice: CustomGameChoice
 ): Promise<string> {
   await awaitOnlineSpace(s, actor);
+  await dealKnownHandsOnStart(s, actor, choice.operation);
   const ui = await actorUi(s, actor);
   await bringToFront(s, actor);
   const raw = JSON.stringify(choice);

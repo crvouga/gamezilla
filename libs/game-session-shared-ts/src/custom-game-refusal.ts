@@ -146,9 +146,15 @@ function relationshipRefusal(
   )
     return 'not your side';
   if (
-    ['ready', 'unready', 'resign', 'offer', 'claimWin'].includes(
-      choice.operation
-    ) &&
+    [
+      'ready',
+      'unready',
+      'resign',
+      'offer',
+      'claimWin',
+      'commit',
+      'reclaim',
+    ].includes(choice.operation) &&
     customGamePersonSide(game, actor) === null
   )
     return 'not a participant';
@@ -224,9 +230,16 @@ function playRefusal(
   room: CustomGameRoom
 ): string {
   if (
-    ['resign', 'offer', 'agree', 'reject', 'move', 'claimWin'].includes(
-      choice.operation
-    ) &&
+    [
+      'resign',
+      'offer',
+      'agree',
+      'reject',
+      'move',
+      'claimWin',
+      'commit',
+      'reclaim',
+    ].includes(choice.operation) &&
     game.status !== 'active'
   )
     return 'not started';
@@ -247,12 +260,37 @@ function playRefusal(
     return 'not the other participant';
   const start = startRefusal(game, choice);
   if (start !== '') return start;
-  if (choice.operation === 'move') {
+  return turnRefusal(game, choice, actor);
+}
+
+/**
+ * A move needs the turn, and a commitment the side's own open choice; a side
+ * a stand-in plays is the stand-in's alone until its person takes it back,
+ * and a stale ply names a board that changed.
+ */
+function turnRefusal(
+  game: CustomGame,
+  choice: CustomGameChoice,
+  actor: string
+): string {
+  const side = customGamePersonSide(game, actor);
+  if (choice.operation === 'reclaim')
+    return side !== null && game.standIns.includes(side)
+      ? ''
+      : 'no stand-in plays your side';
+  if (choice.operation !== 'move' && choice.operation !== 'commit') return '';
+  if (side !== null && game.standIns.includes(side))
+    return 'a stand-in plays your side';
+  if (choice.operation === 'commit') {
+    if (side === null) return 'not a participant';
+    if (game.committed.includes(side)) return 'already chosen';
+    if (!game.awaiting.includes(side)) return 'nothing to choose now';
+  } else {
+    if (game.awaiting.length > 0) return 'every side chooses first';
     if (game[game.turn].kind !== 'person' || game[game.turn].person !== actor)
       return 'only the participant to move may play';
-    if (choice.ply !== game.moves.length) return 'board changed';
   }
-  return '';
+  return choice.ply === game.moves.length ? '' : 'board changed';
 }
 
 /** Only the creator makes the creator's choices, however connected they are. */

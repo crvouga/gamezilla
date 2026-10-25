@@ -9,6 +9,7 @@ import {
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { MultiplayerGame } from './game-state';
 import { scheduleMultiplayerDeadline } from './multiplayer-deadline';
+import { dealMultiplayerHands } from './multiplayer-hands';
 import { scheduleMultiplayerNotices } from './multiplayer-notices';
 import { formatMultiplayerRating } from './multiplayer-rating';
 import { multiplayerPeople } from './multiplayer-roster';
@@ -152,6 +153,11 @@ export async function createMultiplayerGame(
 ): Promise<void> {
   const game = await initialMultiplayerGame(tx, input, rules);
   await insertGame(tx, game, input.nowMs);
+  await dealMultiplayerHands(tx, game, {
+    rules,
+    createId: input.createId,
+    nowMs: input.nowMs,
+  });
   const iso = new Date(input.nowMs).toISOString();
   const people = multiplayerPeople(game);
   await tx.run(sql`INSERT INTO chess_multiplayer_players (id, owner_id, game_id, created_at, updated_at, deleted_at)
