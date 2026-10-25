@@ -25,3 +25,15 @@ condition = "AND"
 paths = ['''^pkgs/auth-inhouse-server-ts/tests/oauth-cross-origin-handoff\.test\.ts$''']
 regexes = ['''^handoff-test-secret-0123456789abcdef$''']
 regexTarget = "secret"
+
+# False positive: a Word Tiles lexicon key names a public word list and the
+# first 12 hex digits of its published checksum (`enable1.90ef7a729517`), and
+# the `key:` field makes the default `generic-api-key` rule score it. Only that
+# key shape, only in the lexicon module, is allowed.
+[[allowlists]]
+description = "Word Tiles lexicon keys (word list id and checksum prefix)"
+targetRules = ["generic-api-key"]
+condition = "AND"
+paths = ['''^libs/word-tiles-shared-ts/src/word-tiles-lexicon\.ts$''']
+regexes = ['''^\s*key:\s*'[a-z0-9]+\.[0-9a-f]{12}',?$''']
+regexTarget = "line"
