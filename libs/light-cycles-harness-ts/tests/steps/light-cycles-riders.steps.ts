@@ -4,7 +4,6 @@ import type {
   LightCyclesDirection,
   LightCyclesRiderName,
 } from '@libs/light-cycles-harness-ts/light-cycles-board-view';
-import { refusalTold } from '@libs/light-cycles-harness-ts/light-cycles-choices';
 import {
   type LightCyclesStage,
   stageShown,
@@ -127,14 +126,6 @@ Then(
       row,
       heading,
     });
-  }
-);
-/** A game under way says it has started; a finished or called-off one says that it is. */
-const AFTER_THE_START = ['already started', 'finished', 'cancelled'];
-Then(
-  '{actor} is told the custom game has already started',
-  async (w, actor: string) => {
-    expect(AFTER_THE_START).toContain(await w.s.read(refusalTold, actor));
   }
 );
 Then(

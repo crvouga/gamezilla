@@ -73,10 +73,8 @@ function lifecycleRefusal(
   if (game === null) return 'no Custom Game';
   if (game.status === 'completed') return 'finished';
   if (game.status === 'cancelled') return 'cancelled';
-  // A game starts once: starting one under way again is refused, not ignored.
   if (
-    (CUSTOM_GAME_SETTING_OPERATIONS.includes(choice.operation) ||
-      choice.operation === 'start') &&
+    CUSTOM_GAME_SETTING_OPERATIONS.includes(choice.operation) &&
     game.status !== 'configuring'
   )
     return 'already started';

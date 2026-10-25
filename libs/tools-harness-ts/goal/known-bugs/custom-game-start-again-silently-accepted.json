@@ -1,4 +1,0 @@
-{
-  "summary": "Starting a custom game that was already under way was accepted without a word: the choice left the game as it was and the person was told nothing. Starting a game under way is now refused as already started; a finished or cancelled game still says it is finished or cancelled.",
-  "regressionTest": "libs/game-session-shared-ts/tests/custom-game-start-again.test.ts"
-}

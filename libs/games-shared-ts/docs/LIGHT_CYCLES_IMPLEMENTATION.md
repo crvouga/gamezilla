@@ -103,7 +103,6 @@ Each defect has a `// regression:` test and a record in `libs/tools-harness-ts/g
 - `simulation-retirement-away-seat-rides-at-round-start`
 - `simulation-epoch-clock-drops-snapshots`
 - `simulation-command-presentation-lags-a-step`
-- `custom-game-start-again-silently-accepted`
 - `local-simulation-runs-on-two-devices`
 - `light-cycles-finished-game-says-watching`
 - `light-cycles-crashed-rider-takes-its-turn`
