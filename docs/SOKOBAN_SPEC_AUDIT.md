@@ -80,6 +80,15 @@ rules but edits nothing. Publishing again then keeps the earlier edition,
 which was published under the earlier rules. Should a rules change count as
 a new publication choice?
 
+## Quoridor gate fix
+
+`specs/quoridor/ubiquitous-language.yml` borrows `resume` from Puzzles, so
+the bound step "the Quoridor game continues with … turn" passes the gate
+unchanged. Puzzles' `resume` means returning to a saved attempt, which is not
+quite Quoridor's sense of play going on to the next turn. Quoridor's own term
+(for example `continue`: play goes on with the next player's turn) needs
+the person's yes, so that cleaner fix is still open.
+
 ## Code tests, not scenarios (B17)
 
 - Replaying the recorded moves of a claimed playtest under Sokoban's rules,
