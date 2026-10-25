@@ -21,6 +21,9 @@ import {
 } from '@libs/db-server-ts/migrate-transient-errors';
 import { fetchSecret } from '@libs/db-server-ts/secret-io';
 import { appPostgresDbScope } from '@libs/db-shared-ts/scope';
+import { TURN_GAMES } from '@libs/game-catalog-shared-ts/turn-games';
+import { seedStarterContent } from '@libs/game-puzzle-shared-ts/starter-content';
+import { GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
 import { isProductionEnv } from '@libs/infra-shared-ts/env-file';
 import { envFile, PRODUCTION_ENV_NAMES } from '@libs/infra-shared-ts/envs';
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
@@ -32,6 +35,7 @@ import { createScriptSecretStore } from '@pkgs/secret-store-shared-ts/create-scr
 import { resolveSecretsScope } from '@pkgs/secrets-config-server-ts/secrets-scope';
 import { createPgPool } from '@pkgs/sql-client-postgres-server-ts/connect';
 import { pingPostgres } from '@pkgs/sql-client-postgres-server-ts/ping';
+import { prepareTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { reconcilePostgres } from './reconcile-postgres';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
@@ -185,6 +189,11 @@ async function runMigrateOnce(databaseUrl: string): Promise<void> {
       dbScope,
       clock: wallClock,
     });
+    // The games' starter puzzles: proven, then published once, never edited.
+    await prepareTurnGames(TURN_GAMES);
+    await sqlClient.transaction((tx) =>
+      seedStarterContent(tx, GAME_DEFINITIONS, wallClock.now())
+    );
     log.info(
       'postgres reconciled (schema + kv + IdP + autoidx; matchmaking reconciles on first request)'
     );

@@ -13,6 +13,7 @@ import { OPPONENT_SEEKING_ACTIONS } from '@libs/game-matchmaking-harness-ts/oppo
 import { createPersonalPuzzleStatsClients } from '@libs/game-menu-client-ts/personal-puzzle-stats-clients';
 import { createPuzzleLinkClient } from '@libs/game-puzzle-client-ts/puzzle-link-client';
 import { GAME_PUZZLE_SERVER } from '@libs/game-puzzle-shared-ts/puzzle-sub-server';
+import { seedStarterContent } from '@libs/game-puzzle-shared-ts/starter-content';
 import { gamePuzzleSubs } from '@libs/game-puzzle-shared-ts/sub';
 import { createGameSessionServer } from '@libs/game-session-server-ts/sub-server';
 import { createGameSessionSub } from '@libs/game-session-shared-ts/sub';
@@ -26,13 +27,19 @@ import { NOTIFICATIONS_HARNESS_SLICE } from '@libs/notifications-harness-ts/noti
 import { PROFILE_HARNESS_SLICE } from '@libs/profile-harness-ts/profile-harness-slice';
 import { SEARCH_HARNESS_SLICE } from '@libs/search-harness-ts/search-harness-slice';
 import { spacesHarnessSlice } from '@libs/spaces-harness-ts/spaces-harness-slice';
-import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  createTurnGames,
+  prepareTurnGames,
+} from '@pkgs/turn-game-shared-ts/game-rules';
 import { customGameBotRoomNode } from './custom-game-bots';
 import { GAME_SESSION_HARNESS_ACTIONS } from './game-session-actions';
 import type { HarnessGame } from './harness-game';
 import { assertHarnessGame } from './harness-game';
 import { registerHarnessGames } from './harness-game-of';
 import { seedKnownPuzzles } from './known-puzzle-catalogue';
+
+/** When a world's starter content was published: before any scenario begins. */
+const STARTER_SEEDED_AT = Date.UTC(2026, 0, 1);
 
 export type GameSystemOptions = {
   /** Replaces a game's own slice (a richer seed for its own suites). */
@@ -110,12 +117,19 @@ export function gameSystem(
           ),
         },
         server: () => GAME_PUZZLE_SERVER,
-        ...(options.knownPuzzles === true
-          ? {
-              seedServer: (sqlClient) =>
-                seedKnownPuzzles(sqlClient, turnGames, games),
-            }
-          : {}),
+        seedServer: async (sqlClient) => {
+          if (options.knownPuzzles === true)
+            await seedKnownPuzzles(sqlClient, turnGames, games);
+          // Every game's starter puzzles, as a deploy publishes them.
+          await prepareTurnGames(turnGames);
+          await sqlClient.transaction((tx) =>
+            seedStarterContent(
+              tx,
+              games.map((game) => game.shared),
+              STARTER_SEEDED_AT
+            )
+          );
+        },
       })
     ),
     BILLING_HARNESS_SLICE,
