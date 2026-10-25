@@ -39,6 +39,7 @@ import SpeakingAvatarExample from './speaking-avatar.example';
 import SpinnerExample from './spinner.example';
 import StatusDotExample from './status-dot.example';
 import SuccessStateExample from './success-state.example';
+import TileBoardExample from './tile-board.example';
 
 const DATA_DISPLAY = 'Data Display';
 const FEEDBACK = 'Feedback';
@@ -49,6 +50,7 @@ export const DISPLAY_ENTRIES: readonly ComponentEntry[] = [
   entry('game-arena', 'Game Arena', 'Games', GameArenaExample),
   entry('cell-grid-board', 'CellGridBoard', 'Games', CellGridBoardExample),
   entry('path-grid-board', 'PathGridBoard', 'Games', PathGridBoardExample),
+  entry('tile-board', 'TileBoard', 'Games', TileBoardExample),
   entry('range-control', 'RangeControl', DATA_DISPLAY, RangeControlExample),
   entry('document-panel', 'DocumentPanel', DATA_DISPLAY, DocumentPanelExample),
   entry(
