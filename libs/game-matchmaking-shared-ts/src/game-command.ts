@@ -97,6 +97,8 @@ export async function runGameCommand(
     )
   )
     return;
+  // A device asks to settle what it saw due; an ended game has nothing left.
+  if (args.kind === 'settle' && stored.outcome !== 'ongoing') return;
   if (stored.outcome === 'ongoing' && stored.paused_at_ms !== null)
     throw new MutationError(
       'CHESS_PLAY_UNAVAILABLE',

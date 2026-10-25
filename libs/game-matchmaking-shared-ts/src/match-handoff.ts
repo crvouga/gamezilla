@@ -19,6 +19,7 @@ import {
   type MultiplayerOwnerFacts,
 } from './game-repository';
 import { offeredMatchChoices } from './match-choice';
+import { multiplayerSeatOwners } from './multiplayer-roster';
 import {
   OPPONENT_SEARCH_RADIUS,
   OPPONENT_TIME_CONTROL_KEY,
@@ -90,24 +91,17 @@ export async function acceptGameMatch(
       players.get(person.ownerId)?.unfinished === 0,
       'an unfinished game makes its person unavailable'
     );
-  const [whiteId, blackId] =
+  const owners = multiplayerSeatOwners(
+    seats,
     seats.length === 2
       ? colours(fact.participants, players, ports.tieBreak)
-      : [fact.participants[0]!.ownerId, fact.participants[1]!.ownerId];
-  const extra =
-    seats.length > 2
-      ? {
-          redId: fact.participants[seats.indexOf('red')]!.ownerId,
-          blueId: fact.participants[seats.indexOf('blue')]!.ownerId,
-        }
-      : {};
+      : fact.participants.map((person) => person.ownerId)
+  );
   await createMultiplayerGame(
     tx,
     {
       id: fact.matchId,
-      whiteId,
-      blackId,
-      ...extra,
+      ...owners,
       timeControl: timeControlOf(fact),
       rematchOf: null,
       nowMs: ports.nowMs,

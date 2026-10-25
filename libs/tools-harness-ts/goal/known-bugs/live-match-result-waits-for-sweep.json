@@ -1,0 +1,4 @@
+{
+  "summary": "Cedar finishes a matched Pong game and sees the result, then closes and reopens the app (specs/synthetic-population/synthetic-user-continuity.feature, 'A Synthetic User keeps its finished Pong game after reopening'). The result lived only in the game's live room: the durable game took it only at the next scheduled sweep, which runs once a minute in production and never ran in the scenario. So the reopened app first showed the durable game, still ongoing, until the room it had kept opened again. A device that sees a live game's result its durable game does not have yet now asks the server to settle it, as it already does for a passed deadline, so the durable game takes the result at once.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-settle-due.test.ts"
+}

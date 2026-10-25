@@ -21,6 +21,7 @@ import { createTimedValue } from '@pkgs/clock-client-ts/solid';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useGameSideLabel } from '@pkgs/turn-game-client-ts/use-game-side-label';
 import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentation';
+import type { BotDifficulty } from '@pkgs/turn-game-shared-ts/game-rules';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameClock } from '@pkgs/ui-root-client-ts/game-clock';
 import type { GameStatusTone } from '@pkgs/ui-root-client-ts/game-status';
@@ -31,6 +32,7 @@ import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { createMemo, type JSX, Show } from 'solid-js';
+import { botName, useBotLevel } from './custom-game-person';
 import { sideNames } from './side-names';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
@@ -47,7 +49,8 @@ function shownName(
 function participantName(
   game: CustomGame,
   side: CustomGameSide,
-  name: string | null
+  name: string | null,
+  level: BotDifficulty | undefined
 ): string {
   switch (game[side].kind) {
     case 'person':
@@ -55,7 +58,7 @@ function participantName(
     case 'invitation':
       return t`Invited person: ${name ?? t`Person`}`;
     case 'bot':
-      return t`Bot`;
+      return botName(level);
     case 'local':
       return t`Player on this device`;
     case 'open':
@@ -181,11 +184,17 @@ function useSeatName(
   const person = () => model.current()?.[side].person ?? '';
   const name = useProfileColumn(person, 'username');
   const moderation = useModeration();
+  const level = useBotLevel({ model, side });
   return () => {
     const game = model.current();
     return game === null
       ? ''
-      : participantName(game, side, shownName(moderation(), name(), person()));
+      : participantName(
+          game,
+          side,
+          shownName(moderation(), name(), person()),
+          level()
+        );
   };
 }
 

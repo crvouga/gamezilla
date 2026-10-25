@@ -20,13 +20,14 @@ function WaitingDescription(props: {
   readonly count: number;
   readonly gameName: string;
 }): JSX.Element {
+  const timed = () => timeControlOf(props.search.time_control) !== null;
   return (
     <P variant="inherit" testId="multiplayer-waiting">
       <Show
         when={props.count > 2}
         fallback={
           <Show
-            when={timeControlOf(props.search.time_control) !== null}
+            when={timed()}
             fallback={<Trans>Looking for a {props.gameName} opponent.</Trans>}
           >
             <Trans>
@@ -36,11 +37,21 @@ function WaitingDescription(props: {
           </Show>
         }
       >
-        <Trans>
-          Looking for {props.count - 1} other players for {props.gameName} at{' '}
-          {timeControlText(props.search.time_control)}. A game needs{' '}
-          {props.count} players including you.
-        </Trans>
+        <Show
+          when={timed()}
+          fallback={
+            <Trans>
+              Looking for {props.count - 1} other players for {props.gameName}.
+              A game needs {props.count} players including you.
+            </Trans>
+          }
+        >
+          <Trans>
+            Looking for {props.count - 1} other players for {props.gameName} at{' '}
+            {timeControlText(props.search.time_control)}. A game needs{' '}
+            {props.count} players including you.
+          </Trans>
+        </Show>
       </Show>
     </P>
   );

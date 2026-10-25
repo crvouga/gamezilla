@@ -38,6 +38,7 @@ import {
   changedPresence,
   connectionIdsForActor,
   hasAuthority,
+  liveRoster,
   participatingRoster,
   readsHistory,
 } from './room-server-connections';
@@ -283,7 +284,7 @@ export class RoomServer<
       clients: this.getRoster(),
     });
     this.notePresence();
-    const actors = this.getRoster();
+    const actors = liveRoster(this.connections);
     this.enqueue(async () => {
       this.live.presence(actors);
     }).catch((error: unknown) => this.live.report(error));
@@ -533,6 +534,7 @@ export class RoomServer<
               this.authorizeOrNull(identity, command as RoomCommand<C>, grants),
             handler: (command, actorIdentity, actor) =>
               this.live.receive(command, actorIdentity, actor),
+            live: this.module.createLive !== undefined,
           })
         ),
       command: (parsed) =>

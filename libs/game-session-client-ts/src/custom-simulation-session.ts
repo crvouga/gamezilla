@@ -5,6 +5,10 @@ import {
   CustomGamesAttr,
 } from '@libs/game-session-shared-ts/custom-game-state';
 import { LocalSimulationSession } from '@libs/game-session-shared-ts/simulation-local-session';
+import {
+  ClaimSimulationControl,
+  SimulationSteeringChanged,
+} from '@libs/game-session-shared-ts/simulation-steering';
 import { simulationReplicaMeasures } from '@libs/game-session-shared-ts/simulation-telemetry';
 import type { SpaceOpenRoomEntry } from '@libs/spaces-client-ts/space-open-rooms-store';
 import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
@@ -28,6 +32,8 @@ export function connectCustomSimulation(options: {
     stale: boolean;
   }) => void;
   readonly failed: (error: unknown) => void;
+  /** Which device steers each seat a person controls, as the room says. */
+  readonly steered?: (steering: Readonly<Record<string, string>>) => void;
 }) {
   const { room, game, rules, clock, timers, createId } = options;
   const definition = rules.simulation(rules.forPosition(game.fen).id)!;
@@ -63,7 +69,13 @@ export function connectCustomSimulation(options: {
     send: local === null ? room.sendSignal.bind(room) : local.send.bind(local),
     subscribeSignal:
       local === null
-        ? room.subscribeSignal.bind(room)
+        ? (receive) =>
+            // The room says which device steers on the same signal subscription.
+            room.subscribeSignal((message) => {
+              if (SimulationSteeringChanged.is(message))
+                options.steered?.(message.payload.steering);
+              else receive(message);
+            })
         : local.subscribe.bind(local),
     subscribeRoom: room.subscribe.bind(room),
     changed: options.changed,
@@ -74,6 +86,15 @@ export function connectCustomSimulation(options: {
   return {
     replica: connection.replica,
     chooseLocal: (choice: CustomGameChoice) => local?.choose(choice) ?? null,
+    /** A local game this device saw begin elsewhere runs on that device. */
+    runsElsewhere: () => local?.runsElsewhere() ?? false,
+    /** Steer this person's seats of a shared game from this device. */
+    claim:
+      local === null
+        ? () => {
+            room.sendSignal(ClaimSimulationControl({ version: 1 }));
+          }
+        : undefined,
     dispose: () => {
       stopForwarding();
       connection.dispose();

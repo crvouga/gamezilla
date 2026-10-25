@@ -6,6 +6,7 @@ import { type Accessor, createEffect, createSignal } from 'solid-js';
 import { useContentLibraryState } from './content-library-context';
 import { useContentDraftSave } from './use-content-draft-save';
 import { useContentPackEdit } from './use-content-pack-edit';
+import { useDraftEditHistory } from './use-draft-edit-history';
 
 /** Keep pack operations alive across preview and adopt their saved head before publication. */
 export function useContentAuthorWorkspace(
@@ -13,7 +14,8 @@ export function useContentAuthorWorkspace(
   initial: Accessor<ContentDraft>
 ) {
   const data = useContentLibraryState();
-  const writer = useContentDraftSave(initial);
+  const history = useDraftEditHistory(() => document().id);
+  const writer = useContentDraftSave(initial, history.record);
   const [preview, setPreview] = createSignal(false);
   const [adopting, setAdopting] = createSignal<string | null>(null);
   const packTools = useContentPackEdit({
@@ -21,8 +23,16 @@ export function useContentAuthorWorkspace(
       return document().id;
     },
     writer,
-    onSaved: setAdopting,
+    onSaved: (id) => {
+      history.record(writer.draftId(), id);
+      setAdopting(id);
+    },
   });
+  /** Choosing a kept copy is an edit too, so it can be undone. */
+  const chooseCopy = (draft: ContentDraft): void => {
+    history.record(writer.draftId(), draft.id);
+    writer.adopt(draft);
+  };
   const packPending = () =>
     packTools.change.loading() || packTools.create.feedback() === 'loading';
   createEffect(() => {
@@ -40,6 +50,8 @@ export function useContentAuthorWorkspace(
     !writer.saving() && document().working_draft_id !== writer.draftId();
   return {
     writer,
+    history,
+    chooseCopy,
     preview,
     setPreview,
     adopting,

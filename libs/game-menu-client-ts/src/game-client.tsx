@@ -2,8 +2,8 @@ import type { GamePuzzlesClient } from '@libs/game-puzzle-client-ts/puzzle-clien
 import type { PuzzleContentClient } from '@libs/game-puzzle-client-ts/puzzle-content-client';
 import { PuzzleSessionEffects } from '@libs/game-puzzle-client-ts/puzzle-frame';
 import type {
+  AnyGameRegistration,
   GameRegistration,
-  RegistryGame,
 } from '@libs/game-session-shared-ts/game-definition';
 import { assertGameDefinitions } from '@libs/game-session-shared-ts/game-definition';
 import type { GameClientDefinition } from '@libs/spaces-shared-ts/game';
@@ -47,15 +47,15 @@ export type GameClientPuzzles<C> = 'puzzles' extends keyof C
  * registration declares (`shared`), and a capability whose screens show
  * the game's own board asks for that part here (`puzzles`).
  */
-export type GameClientContent<G extends RegistryGame> =
+export type GameClientContent<G extends AnyGameRegistration> =
   NonNullable<G['puzzleContent']> extends never
     ? { readonly puzzleContent?: never }
     : undefined extends G['puzzleContent']
       ? { readonly puzzleContent?: PuzzleContentClient }
       : { readonly puzzleContent: PuzzleContentClient };
 
-export type GameClient<G extends RegistryGame = RegistryGame> =
-  G extends RegistryGame
+export type GameClient<G extends AnyGameRegistration = AnyGameRegistration> =
+  G extends AnyGameRegistration
     ? GameClientParts & { readonly shared: G } & (G extends GameRegistration<
           infer C
         >
@@ -135,12 +135,13 @@ class DefinedGameClient implements GameClientDefinition {
   }
 }
 
-export type GameClientRegistration<G extends RegistryGame = RegistryGame> =
-  DefinedGameClient &
-    GameClientContent<G> &
-    (G extends GameRegistration
-      ? { readonly presentation: GamePresentation<JSX.Element> }
-      : unknown);
+export type GameClientRegistration<
+  G extends AnyGameRegistration = AnyGameRegistration,
+> = DefinedGameClient &
+  GameClientContent<G> &
+  (G extends GameRegistration
+    ? { readonly presentation: GamePresentation<JSX.Element> }
+    : unknown);
 
 /**
  * The puzzles part agrees with the shared registration: present exactly
@@ -179,7 +180,7 @@ function assertSetupBoard(game: GameClient): void {
 }
 
 /** The one way a game joins the space's game choice. */
-export function defineGameClient<G extends RegistryGame>(
+export function defineGameClient<G extends AnyGameRegistration>(
   game: GameClient<G> & { readonly shared: G }
 ): GameClientRegistration<G> {
   assertGameDefinitions('defineGameClient.shared', [game.shared]);

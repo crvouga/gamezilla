@@ -13,6 +13,7 @@ import ArrowKeyGroupExample from './arrow-key-group.example';
 import BadgedIconExample from './badged-icon.example';
 import BoardFitExample from './board-fit.example';
 import ChromeTitleExample from './chrome-title.example';
+import DirectionPadExample from './direction-pad.example';
 import EmbeddedFrameExample from './embedded-frame.example';
 import FileTriggerExample from './file-trigger.example';
 import FloatingPanelExample from './floating-panel.example';
@@ -35,6 +36,7 @@ import TabsExample from './tabs.example';
 import TestCommandProbeExample from './test-command-probe.example';
 import TextareaExample from './textarea.example';
 import ToolbarExample from './toolbar.example';
+import TrailArenaExample from './trail-arena.example';
 
 const LAYOUT = 'Layout';
 const INPUTS = 'Inputs';
@@ -45,6 +47,8 @@ const DISCLOSURE = 'Disclosure';
 
 export const ADDITION_ENTRIES: readonly ComponentEntry[] = [
   entry('paddle-court', 'PaddleCourt', INPUTS, PaddleCourtExample),
+  entry('trail-arena', 'TrailArena', INPUTS, TrailArenaExample),
+  entry('direction-pad', 'DirectionPad', INPUTS, DirectionPadExample),
   entry('spacer', 'Spacer', LAYOUT, SpacerExample),
   entry('layer', 'Layer', LAYOUT, LayerExample),
   entry('image', 'Image', PRIMITIVES, ImageExample),

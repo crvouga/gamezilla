@@ -154,3 +154,31 @@ test('headless bots use bounded valid inputs and do not impersonate a person', (
     ).advanceTicks(1)
   ).toThrow('invalid input');
 });
+
+test('a held control its round trip made late applies at the next tick', async () => {
+  // regression: simulation-held-control-late-by-its-round-trip
+  const rig = await simulationRoom();
+  try {
+    const alice = await rig.connect('alice');
+    rig.clock.advance(100);
+    const committed = rig.simulation.snapshot().tick;
+    // The device chose a tick the authority committed while the control
+    // was crossing the network.
+    alice.sendSignal(input('first', 1, committed - 2));
+    await requestState(alice);
+    rig.clock.advance(1000 / 60);
+    expect(rig.simulation.snapshot().state.inputs).toEqual([
+      `${committed + 1}:first:1:4`,
+    ]);
+    expect(rig.errors).toEqual([]);
+    // One older than the lead window is still refused.
+    rig.clock.advance(2500);
+    alice.sendSignal(input('first', 2, committed));
+    await requestState(alice);
+    rig.clock.advance(1000 / 60);
+    expect(rig.simulation.snapshot().state.inputs).toHaveLength(1);
+    expect(rig.errors).toHaveLength(1);
+  } finally {
+    rig.dispose();
+  }
+});

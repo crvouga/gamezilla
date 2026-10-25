@@ -29,7 +29,7 @@ import {
   specificationConformanceSuites,
 } from '@libs/games-harness-ts/game-conformance';
 import { HARNESS_GAMES } from '@libs/games-harness-ts/harness-games';
-import { REGISTERED_GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
+import { PLAYABLE_GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
 import { planCodeSuites } from './conformance/game-suite';
 import {
   CONFORMANCE_GAMES,
@@ -49,7 +49,7 @@ async function suites(): Promise<readonly ConformanceSuite[]> {
 
 test('the conformance plan is complete: enrollment, the specification table, every suite and every offered capability', async () => {
   const { matrix, problems } = planConformance({
-    registered: REGISTERED_GAME_DEFINITIONS,
+    registered: PLAYABLE_GAME_DEFINITIONS,
     harness: HARNESS_GAMES,
     games: CONFORMANCE_GAMES,
     codeSuites: await planCodeSuites(TESTS),

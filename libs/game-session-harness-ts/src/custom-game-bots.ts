@@ -65,7 +65,9 @@ export const finishCustomGameAgainstBots = scenarioAction({
       if (current.status !== 'active') return;
       if (current.turn === probe.mySide) {
         const game = turnHarnessGameAt(s, current.fen);
-        const action = game.shared.automation.turns.choose(
+        const turns = game.shared.automation?.turns;
+        if (turns === undefined) throw new Error('A bot turn needs turn rules');
+        const action = turns.choose(
           current.fen,
           () => 0,
           probe.ownHand

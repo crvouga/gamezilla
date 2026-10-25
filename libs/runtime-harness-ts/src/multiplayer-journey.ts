@@ -77,11 +77,32 @@ async function guestInvited(ui: Driver): Promise<boolean> {
  * and the app refuses the command until it has; over a real network that
  * takes several round trips, and a person waits for the notice to go.
  */
+const FIND_ATTEMPTS = 3;
+
+/**
+ * Find an opponent. A device that has just opened may still be connecting,
+ * and the app refuses a search made before it connects ('This action needs
+ * a connection.') at once; a person who sees that finds again, so this does.
+ */
 export async function tapFindOpponent(ui: Driver): Promise<void> {
-  await ui.get('multiplayer-offline').expect.hidden({
-    timeoutMs: JOURNEY_WAIT_MS,
-  });
-  await tap(ui, 'multiplayer-find');
+  for (let attempt = 1; ; attempt += 1) {
+    await ui.get('multiplayer-offline').expect.hidden({
+      timeoutMs: JOURNEY_WAIT_MS,
+    });
+    await tap(ui, 'multiplayer-find');
+    if (attempt === FIND_ATTEMPTS || !(await findRefused(ui))) return;
+  }
+}
+
+/** The app refuses a search made before connecting at once, on the device. */
+async function findRefused(ui: Driver): Promise<boolean> {
+  const error = ui.get('multiplayer-error');
+  try {
+    if (!(await error.isVisible())) return false;
+    return ((await error.text()) ?? '').includes('needs a connection');
+  } catch {
+    return false;
+  }
 }
 
 /** Choose the time control (`5+0`), then find an opponent at it. */

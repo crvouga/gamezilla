@@ -45,6 +45,11 @@
     "parts": 4
   },
   {
+    "package": "@libs/light-cycles-harness-ts",
+    "directory": "libs/light-cycles-harness-ts",
+    "parts": 1
+  },
+  {
     "package": "@libs/numberlink-harness-ts",
     "directory": "libs/numberlink-harness-ts",
     "parts": 1

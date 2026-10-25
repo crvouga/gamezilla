@@ -1,6 +1,10 @@
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
 import { matchRoomGame } from '@libs/game-matchmaking-shared-ts/match-room';
 import {
+  multiplayerOwner,
+  multiplayerSides,
+} from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
+import {
   connectSimulationPresentation,
   type SimulationPresentation,
 } from '@libs/game-session-client-ts/simulation-presentation-session';
@@ -88,23 +92,37 @@ export function useMatchedSimulation(
   const sides = createMemo(() =>
     !online() || key() === ''
       ? []
-      : (['white', 'black'] as const).filter(
-          (side) =>
-            current()[side === 'white' ? 'white_id' : 'black_id'] === myId()
+      : multiplayerSides(current()).filter(
+          (side) => multiplayerOwner(current(), side) === myId()
         )
   );
-  const controls = createMemo<GameSimulationControls>(() => ({
-    sides: sides(),
-    paused: shown().paused,
-    stale: shown().stale || !online(),
-    onInput: (side, input) => {
-      if (sides().includes(side)) replica?.control(side, input);
-    },
-    onRelease: () => replica?.release(),
-  }));
+  const controls = createMemo<GameSimulationControls>(() =>
+    matchedControls(sides(), shown(), online(), () => replica)
+  );
   return {
     active: () => key() !== '',
     position: () => shown().position,
     controls,
+  };
+}
+
+/**
+ * Handlers keep the sides these controls offer: a board releasing its input
+ * while it is disposed must not read (and so rerun) the tree.
+ */
+function matchedControls(
+  sides: GameSimulationControls['sides'],
+  shown: SimulationPresentation,
+  online: boolean,
+  replica: () => SimulationReplica | null
+): GameSimulationControls {
+  return {
+    sides,
+    paused: shown.paused,
+    stale: shown.stale || !online,
+    onInput: (side, input) => {
+      if (sides.includes(side)) replica()?.control(side, input);
+    },
+    onRelease: () => replica()?.release(),
   };
 }

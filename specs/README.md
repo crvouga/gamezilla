@@ -1134,6 +1134,7 @@ terms:
 | Quoridor | `quoridor` | Classic Quoridor and Four-Player King of the Hill: the board, pawns, movement, jumps, walls, paths and goals | supporting |
 | Hearts | `hearts` | Hearts's own cards, deals, hands, passing, tricks, hearts being broken, penalty points, scores and winners | supporting |
 | Pong | `pong` | Pong's court, paddles, ball, points, score, serves and victory | supporting |
+| Light Cycles | `light-cycles` | Light Cycles Duel, Trio and Quad: the arena, riders, trails, steering, crashes, rounds, round wins, victory, riders whose people are away, bots and practice | supporting |
 | Auth | `auth` | how outside accounts at Google and Apple, and sign-in links sent to an email address, get people into accounts: matching and confirming accounts, connecting and removing sign-in methods, asking for and opening a sign-in link, stolen sign-ins, how long a sign-in lasts, Google or Apple having trouble | generic (Google, Apple and the mailbox say who is signing in) |
 | Room | `room` | the room framework's example game room: a tally friends keep together, owning the room and turning someone away, a timed match, who is present | supporting |
 | Matchmaking | `matchmaking` | waiting for a match, one wait at a time, rating ranges, pairing people up, being matched, stopping a wait | supporting |
@@ -1180,6 +1181,11 @@ Games    ──► Journeys (bot, rematch)
 Pong     ──► Journeys (Pong, paddle, score, target score)
 Games    ──► Synthetic Population (game)
 Pong     ──► Synthetic Population (Pong)
+Games    ──► Light Cycles (game, custom game, custom game readiness, bot, start a custom game, under way)
+Matchmaking ──► Light Cycles (pair people up)
+Spaces   ──► Light Cycles (space, join)
+Identity ──► Light Cycles (guest, sign in)
+App      ──► Light Cycles (keyboard)
 Battleship ──► Synthetic Population (Battleship)
 Room, Sync engine: stand alone; Matchmaking publishes complete matches to Chess (Sync engine's "shared space" is not a Spaces space)
 Database indexing: stands alone; publishes no product terms or events
@@ -1200,6 +1206,7 @@ Published language:
 | Quoridor (`quoridor`) | Quoridor, Classic Quoridor, Four-Player King of the Hill | — |
 | Hearts (`hearts`) | Hearts | — |
 | Pong (`pong`) | Pong, paddle, score, target score | — |
+| Light Cycles (`light-cycles`) | Light Cycles, Light Cycles Duel, Light Cycles Trio, Light Cycles Quad | — |
 | App (`runtime`) | Settings, tabs, address, version of the app, trail, run into trouble, keyboard, control, place in the app | — |
 | Developer tools (`developer-tools`) | the testing tool | — |
 | Matchmaking (`matchmaking`) | matchmaking match, pair people up | `MatchmakingEvent`: `MatchFormed` |

@@ -28,6 +28,11 @@
     "paths": {
       "@libs/pong-client-ts/*": ["./libs/pong-client-ts/src/*"],
       "@libs/pong-shared-ts/*": ["./libs/pong-shared-ts/src/*"],
+      "@libs/light-cycles-shared-ts/*": ["./libs/light-cycles-shared-ts/src/*"],
+      "@libs/light-cycles-client-ts/*": ["./libs/light-cycles-client-ts/src/*"],
+      "@libs/light-cycles-harness-ts/*": [
+        "./libs/light-cycles-harness-ts/src/*"
+      ],
       "@apps/auth-relay-ts/*": ["./apps/auth-relay-ts/src/*"],
       "@apps/client-ts/*": ["./apps/client-ts/src/*"],
       "@apps/product-ts/*": ["./apps/product-ts/src/*"],

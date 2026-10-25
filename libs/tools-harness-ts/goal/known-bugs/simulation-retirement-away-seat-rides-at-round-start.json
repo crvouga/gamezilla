@@ -1,0 +1,4 @@
+{
+  "summary": "Under the continue disconnection policy the authority retired an away seat only before each step. The step that begins a new round puts every rider back on its starting cell, so the publication of that tick showed the away person's rider riding, and it crashed one tick later with a fresh retirement crash. In a Light Cycles Quad (seed 1, Bob away, a 400 ms authority stall shifting the snapshot cadence onto the round's first tick) Ember was published alive at the start of round 2, against the rule that an away person's rider sits out every round that begins. SimulationRetirement now applies the due retirements before and after each step; the retire hook was already required to be idempotent because it runs every tick.",
+  "regressionTest": "libs/light-cycles-harness-ts/tests/light-cycles-network-regression.test.ts"
+}

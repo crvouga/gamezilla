@@ -19,7 +19,7 @@ export const NO_EDGE_LATENCY: EdgeLatency = {
 export type Lagged = {
   /** Resolves once one way across the network has passed. */
   after(): Promise<void>;
-  /** Runs `send` one way later than the one before it, never ahead of it. */
+  /** Runs `send` one way after it was sent, never ahead of the one before it. */
   inOrder(send: () => void): void;
 };
 
@@ -33,8 +33,11 @@ export function lagged(latency: EdgeLatency): Lagged {
         send();
         return;
       }
+      // Each message is in flight from when it is sent: a network delays
+      // messages, it does not carry one per round trip.
+      const crossed = latency.sleep(latency.ms);
       tail = tail.then(async () => {
-        await latency.sleep(latency.ms);
+        await crossed;
         send();
       });
     },

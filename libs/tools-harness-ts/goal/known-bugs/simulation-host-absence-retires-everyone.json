@@ -1,0 +1,4 @@
+{
+  "summary": "When the person hosting a space lost the connection during a real-time game the room runs (Light Cycles), every other person's connection stopped counting as present and their steering was refused as 'the host is offline': all riders retired after 3 seconds and the everyone-away deadline started. A live game the room keeps running now sees everyone who still reads the room as present and takes their controls, so the host's absence is one rider's absence like anyone else's.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-host-absence.contract.test.ts"
+}

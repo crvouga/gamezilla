@@ -3,6 +3,10 @@ export type GameSimulationControls = {
   readonly paused: boolean;
   readonly stale: boolean;
   readonly sides: readonly GameSide[];
+  /** This person's sides that another of their devices steers now. */
+  readonly elsewhere?: readonly GameSide[];
+  /** Steer those sides from this device instead, where the game allows it. */
+  readonly claim?: () => void;
   readonly onInput: (side: GameSide, input: unknown) => void;
   readonly onRelease: () => void;
 };

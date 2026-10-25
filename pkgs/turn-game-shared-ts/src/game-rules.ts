@@ -296,11 +296,12 @@ export function gameSides(
 export function assertGameSides(rules: Pick<GameRules, 'id' | 'sides'>): void {
   const sides = gameSides(rules);
   if (
-    (sides.length !== 2 && sides.length !== 4) ||
-    sides.some((side, index) => GAME_SIDES[index] !== side)
+    sides.length < 2 ||
+    sides.length > GAME_SIDES.length ||
+    sides.some((side, index) => side !== GAME_SIDES[index])
   )
     throw new Error(
-      `${rules.id}: declare two or four ordered seats, in the order white, black, red, blue`
+      `${rules.id}: declare two to four ordered seats: white, black, then red and blue`
     );
 }
 

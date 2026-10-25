@@ -54,10 +54,8 @@ export const customGameSchema = z
       .array(customGameSideSchema)
       .refine(
         (sides) =>
-          (sides.length === 2 || sides.length === 4) &&
-          sides[0] === 'white' &&
-          sides[1] === 'black' &&
-          new Set(sides).size === sides.length
+          sides.length >= 2 &&
+          sides.every((side, index) => side === GAME_SIDES[index])
       )
       .default(['white', 'black']),
     ready: z.array(customGameSideSchema),

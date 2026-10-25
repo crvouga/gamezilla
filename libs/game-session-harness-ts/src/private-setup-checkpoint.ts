@@ -215,7 +215,7 @@ export async function privateSetupWireFromCheckpoint(
   const peers: Peer[] = [];
   try {
     await fork.node.replaceTopic(checkpoint.topic, {
-      liveCheckpoint: structuredClone(checkpoint.room.liveCheckpoint),
+      liveCheckpoint: structuredClone(checkpoint.room.liveCheckpoint ?? null),
       entries: structuredClone(checkpoint.room.entries),
       dedup: structuredClone(checkpoint.room.dedup ?? {}),
     });

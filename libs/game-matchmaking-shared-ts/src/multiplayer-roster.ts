@@ -74,3 +74,48 @@ export function multiplayerVotes(
     return [];
   }
 }
+
+/** The people filling a new game's declared seats, in seat order. */
+export type MultiplayerSeatOwners = {
+  readonly whiteId: string;
+  readonly blackId: string;
+  readonly redId?: string;
+  readonly blueId?: string;
+};
+
+/** Assign people to two to four declared seats; every seat gets exactly one person. */
+export function multiplayerSeatOwners(
+  seats: readonly GameSide[],
+  owners: readonly string[]
+): MultiplayerSeatOwners {
+  if (
+    seats.length !== owners.length ||
+    seats.length < 2 ||
+    seats[0] !== 'white' ||
+    seats[1] !== 'black'
+  )
+    throw new Error('every declared seat needs exactly one person');
+  const of = (side: 'red' | 'blue') => {
+    const index = seats.indexOf(side);
+    return index === -1 ? {} : { [`${side}Id`]: owners[index]! };
+  };
+  return {
+    whiteId: owners[0]!,
+    blackId: owners[1]!,
+    ...of('red'),
+    ...of('blue'),
+  };
+}
+
+/** A rematch keeps everyone and moves each person one seat along the declared order. */
+export function rotatedSeatOwners(
+  game: MultiplayerRoster,
+  seats: readonly GameSide[]
+): MultiplayerSeatOwners {
+  return multiplayerSeatOwners(
+    seats,
+    seats.map((_side, index) =>
+      multiplayerOwner(game, seats[(index + seats.length - 1) % seats.length]!)
+    )
+  );
+}

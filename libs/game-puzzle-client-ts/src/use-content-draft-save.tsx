@@ -10,8 +10,14 @@ import { usePendingOperation } from '@pkgs/ui-root-client-ts/pending-navigation'
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
 import { createSignal, onCleanup, untrack } from 'solid-js';
 
-/** Serial saves coalesce edits and retain the local body when persistence refuses. */
-export function useContentDraftSave(initial: () => ContentDraft) {
+/**
+ * Serial saves coalesce edits and retain the local body when persistence
+ * refuses. `onSaved` hears each kept copy and the working copy it followed.
+ */
+export function useContentDraftSave(
+  initial: () => ContentDraft,
+  onSaved: (from: string, to: string) => void
+) {
   const { t } = useLingui();
   const mutations = useMutationClient();
   const createId = useCreateId();
@@ -29,10 +35,11 @@ export function useContentDraftSave(initial: () => ContentDraft) {
     try {
       while (dirty() && live) {
         const value = body();
+        const parentId = draftId();
         const nextId = createId();
         const result = await mutations.mutate(savePuzzleContentDraftMutation, {
           documentId: seed.document_id,
-          parentId: draftId(),
+          parentId,
           draftId: nextId,
           body: value,
         });
@@ -41,6 +48,7 @@ export function useContentDraftSave(initial: () => ContentDraft) {
             result.failures[0]?.message ??
               t`The draft could not be saved. Try saving again.`
           );
+        onSaved(parentId, nextId);
         setDraftId(nextId);
         setDirty(body() !== value);
       }

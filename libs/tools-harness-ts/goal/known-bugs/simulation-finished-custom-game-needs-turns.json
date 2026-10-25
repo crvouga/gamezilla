@@ -1,0 +1,4 @@
+{
+  "summary": "The shared 'has a finished custom game' setup finished games only by playing turn moves, so every game without turns (Pong, Light Cycles Duel) failed 'A finished game cannot gain a new participant'; it now finishes a simulation game from its own literal example that reaches a result, through the room's recovery.",
+  "regressionTest": "libs/games-harness-ts/tests/finished-simulation-custom-game.test.ts"
+}

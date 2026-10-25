@@ -1,0 +1,70 @@
+.pad {
+  display: grid;
+  grid-template-columns: repeat(3, var(--ui-space-16));
+  grid-template-rows: repeat(3, var(--ui-space-16));
+  grid-template-areas:
+    ". up ."
+    "left . right"
+    ". down .";
+  gap: var(--ui-space-2);
+  width: max-content;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.button {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: var(--ui-space-hairline) solid var(--ui-color-border);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-color-surface-muted);
+  color: var(--ui-color-text);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background var(--ui-duration-fast) var(--ui-easing-standard),
+    transform var(--ui-duration-fast) var(--ui-easing-standard);
+}
+.button[data-heading="up"] {
+  grid-area: up;
+}
+.button[data-heading="left"] {
+  grid-area: left;
+}
+.button[data-heading="right"] {
+  grid-area: right;
+}
+.button[data-heading="down"] {
+  grid-area: down;
+}
+.button:active:not(:disabled) {
+  background: var(--ui-color-border);
+  transform: scale(0.97);
+}
+.button:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
+}
+.button:disabled {
+  cursor: default;
+  opacity: var(--ui-opacity-disabled);
+}
+.glyph {
+  width: var(--ui-icon-size-xl);
+  height: var(--ui-icon-size-xl);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+  .button:active:not(:disabled) {
+    transform: none;
+  }
+}

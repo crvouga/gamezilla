@@ -7,6 +7,7 @@ import type { Measurement } from '@pkgs/openslo-shared-ts/evaluate';
 import type { MeasureContext } from '@pkgs/openslo-shared-ts/registry';
 import { bindObjectives } from '@pkgs/openslo-shared-ts/registry';
 import { gamesHeldTo, openConformanceHarness } from '../conformance-world';
+import { measuredChoice } from './custom-game-choice-measure';
 
 /** Accepted choices measured, shared out evenly among the games. */
 const CHOICES = 100;
@@ -14,7 +15,7 @@ const CHOICES = 100;
 type Sample = { readonly atMs: number; readonly value: number };
 
 /**
- * `choices` accepted clock choices in `game`'s custom game, each measured on
+ * `choices` accepted choices in `game`'s custom game, each measured on
  * the harness clock from the creator's choice until Bob's screen shows it.
  */
 async function gameArrivals(
@@ -35,26 +36,25 @@ async function gameArrivals(
   });
   const samples: Sample[] = [];
   for (let index = 0; index < choices; index += 1) {
-    const increment = index % 2 === 0 ? 2 : 0;
     // Include acknowledgement time so settling the writer cannot hide delivery.
     const chosenAtMs = await s.read(readCustomGameTime);
-    await s.apply(configureCustomGameChoice, 'alice', {
-      operation: 'clock',
-      minutes: 1,
-      increment,
-    });
-    const revision = (await s.read(readCustomGameProbe, 'alice'))?.current
-      ?.revision;
-    if (revision === undefined)
+    await s.apply(
+      configureCustomGameChoice,
+      'alice',
+      measuredChoice(game, index)
+    );
+    const accepted = (await s.read(readCustomGameProbe, 'alice'))?.current;
+    if (accepted === undefined || accepted === null)
       throw new Error(`${game.label}: an accepted choice has no custom game`);
     let elapsed = 0;
     for (;;) {
       elapsed = (await s.read(readCustomGameTime)) - chosenAtMs;
       const received = (await s.read(readCustomGameProbe, 'bob'))?.current;
       if (
-        received?.revision === revision &&
-        received.minutes === 1 &&
-        received.increment === increment
+        received?.revision === accepted.revision &&
+        received.fen === accepted.fen &&
+        received.minutes === accepted.minutes &&
+        received.increment === accepted.increment
       )
         break;
       if (elapsed >= 10_000) break;

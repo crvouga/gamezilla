@@ -1,0 +1,6956 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
+    "source": "specs/light-cycles/light-cycles-round.qnt",
+    "status": "ok",
+    "description": "Created by Quint on Sun Oct 25 2026 00:37:58 GMT-0700 (Mountain Standard Time)",
+    "timestamp": 1792913878381
+  },
+  "vars": [
+    "roundWinner",
+    "mode",
+    "heading",
+    "riding",
+    "riders",
+    "_beforeCell",
+    "_beforeGame",
+    "_acceptedFrom",
+    "_wonRounds",
+    "_turns",
+    "_refused",
+    "_beforeTrail",
+    "_late",
+    "_beforeTurns",
+    "_beforeRound",
+    "roundWins",
+    "_stepped",
+    "nextStep",
+    "crashed",
+    "targetScore",
+    "roundNumber",
+    "riderCell",
+    "gameStage",
+    "roundStage",
+    "trail",
+    "gameWinner",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": {
+        "index": 0
+      },
+      "_acceptedFrom": {
+        "#tup": ["", ""]
+      },
+      "_beforeCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "4"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "_beforeGame": {
+        "#tup": [
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "1"
+                        },
+                        {
+                          "#bigint": "1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "4"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#set": []
+                }
+              ]
+            ]
+          },
+          {
+            "#bigint": "1"
+          },
+          "counting down",
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#bigint": "0"
+                }
+              ]
+            ]
+          },
+          ""
+        ]
+      },
+      "_beforeRound": {
+        "#bigint": "1"
+      },
+      "_beforeTrail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "_beforeTurns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_late": false,
+      "_refused": false,
+      "_stepped": false,
+      "_turns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_wonRounds": {
+        "#bigint": "0"
+      },
+      "crashed": {
+        "#set": []
+      },
+      "gameStage": "under way",
+      "gameWinner": "",
+      "heading": {
+        "#map": [["comet", "right"], ["ember", "left"], ["nova", "right"]]
+      },
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "direction": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "m": {
+          "tag": "Some",
+          "value": "duel"
+        },
+        "person": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "rider": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "target": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        }
+      },
+      "mode": "duel",
+      "nextStep": {
+        "#map": [["comet", "right"], ["ember", "left"], ["nova", ""]]
+      },
+      "riderCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "4"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "riders": {
+        "#set": ["comet", "ember"]
+      },
+      "riding": {
+        "#set": ["comet", "ember"]
+      },
+      "roundNumber": {
+        "#bigint": "1"
+      },
+      "roundStage": "counting down",
+      "roundWinner": "",
+      "roundWins": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "ember",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "nova",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "targetScore": {
+        "#bigint": "1"
+      },
+      "trail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 1
+      },
+      "_acceptedFrom": {
+        "#tup": ["", ""]
+      },
+      "_beforeCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "4"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "_beforeGame": {
+        "#tup": [
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "1"
+                        },
+                        {
+                          "#bigint": "1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "4"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#set": []
+                }
+              ]
+            ]
+          },
+          {
+            "#bigint": "1"
+          },
+          "counting down",
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#bigint": "0"
+                }
+              ]
+            ]
+          },
+          ""
+        ]
+      },
+      "_beforeRound": {
+        "#bigint": "1"
+      },
+      "_beforeTrail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "_beforeTurns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_late": false,
+      "_refused": false,
+      "_stepped": false,
+      "_turns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_wonRounds": {
+        "#bigint": "0"
+      },
+      "crashed": {
+        "#set": []
+      },
+      "gameStage": "under way",
+      "gameWinner": "",
+      "heading": {
+        "#map": [["comet", "right"], ["ember", "left"], ["nova", "right"]]
+      },
+      "mbt::actionTaken": "countdownEnds",
+      "mbt::nondetPicks": {
+        "direction": {
+          "tag": "Some",
+          "value": "left"
+        },
+        "m": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "rider": {
+          "tag": "Some",
+          "value": "ember"
+        },
+        "target": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "mode": "duel",
+      "nextStep": {
+        "#map": [["comet", "right"], ["ember", "left"], ["nova", ""]]
+      },
+      "riderCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "4"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "riders": {
+        "#set": ["comet", "ember"]
+      },
+      "riding": {
+        "#set": ["comet", "ember"]
+      },
+      "roundNumber": {
+        "#bigint": "1"
+      },
+      "roundStage": "riding",
+      "roundWinner": "",
+      "roundWins": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "ember",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "nova",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "targetScore": {
+        "#bigint": "1"
+      },
+      "trail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 2
+      },
+      "_acceptedFrom": {
+        "#tup": ["", ""]
+      },
+      "_beforeCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "4"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "_beforeGame": {
+        "#tup": [
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "1"
+                        },
+                        {
+                          "#bigint": "1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "4"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#set": []
+                }
+              ]
+            ]
+          },
+          {
+            "#bigint": "1"
+          },
+          "riding",
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#bigint": "0"
+                }
+              ]
+            ]
+          },
+          ""
+        ]
+      },
+      "_beforeRound": {
+        "#bigint": "1"
+      },
+      "_beforeTrail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "_beforeTurns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_late": false,
+      "_refused": true,
+      "_stepped": false,
+      "_turns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_wonRounds": {
+        "#bigint": "0"
+      },
+      "crashed": {
+        "#set": []
+      },
+      "gameStage": "under way",
+      "gameWinner": "",
+      "heading": {
+        "#map": [["comet", "right"], ["ember", "left"], ["nova", "right"]]
+      },
+      "mbt::actionTaken": "steer",
+      "mbt::nondetPicks": {
+        "direction": {
+          "tag": "Some",
+          "value": "left"
+        },
+        "m": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "rider": {
+          "tag": "Some",
+          "value": "nova"
+        },
+        "target": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "mode": "duel",
+      "nextStep": {
+        "#map": [["comet", "right"], ["ember", "left"], ["nova", ""]]
+      },
+      "riderCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "4"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "riders": {
+        "#set": ["comet", "ember"]
+      },
+      "riding": {
+        "#set": ["comet", "ember"]
+      },
+      "roundNumber": {
+        "#bigint": "1"
+      },
+      "roundStage": "riding",
+      "roundWinner": "",
+      "roundWins": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "ember",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "nova",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "targetScore": {
+        "#bigint": "1"
+      },
+      "trail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 3
+      },
+      "_acceptedFrom": {
+        "#tup": ["", ""]
+      },
+      "_beforeCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "4"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "_beforeGame": {
+        "#tup": [
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "1"
+                        },
+                        {
+                          "#bigint": "1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "4"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#set": []
+                }
+              ]
+            ]
+          },
+          {
+            "#bigint": "1"
+          },
+          "riding",
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#bigint": "0"
+                }
+              ]
+            ]
+          },
+          ""
+        ]
+      },
+      "_beforeRound": {
+        "#bigint": "1"
+      },
+      "_beforeTrail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "_beforeTurns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_late": false,
+      "_refused": true,
+      "_stepped": false,
+      "_turns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_wonRounds": {
+        "#bigint": "0"
+      },
+      "crashed": {
+        "#set": []
+      },
+      "gameStage": "under way",
+      "gameWinner": "",
+      "heading": {
+        "#map": [["comet", "right"], ["ember", "left"], ["nova", "right"]]
+      },
+      "mbt::actionTaken": "steer",
+      "mbt::nondetPicks": {
+        "direction": {
+          "tag": "Some",
+          "value": "up"
+        },
+        "m": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "rider": {
+          "tag": "Some",
+          "value": "comet"
+        },
+        "target": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "mode": "duel",
+      "nextStep": {
+        "#map": [["comet", "right"], ["ember", "left"], ["nova", ""]]
+      },
+      "riderCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "4"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "riders": {
+        "#set": ["comet", "ember"]
+      },
+      "riding": {
+        "#set": ["comet", "ember"]
+      },
+      "roundNumber": {
+        "#bigint": "1"
+      },
+      "roundStage": "riding",
+      "roundWinner": "",
+      "roundWins": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "ember",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "nova",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "targetScore": {
+        "#bigint": "1"
+      },
+      "trail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 4
+      },
+      "_acceptedFrom": {
+        "#tup": ["", ""]
+      },
+      "_beforeCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "4"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "_beforeGame": {
+        "#tup": [
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "1"
+                        },
+                        {
+                          "#bigint": "1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "4"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#set": []
+                }
+              ]
+            ]
+          },
+          {
+            "#bigint": "1"
+          },
+          "riding",
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#bigint": "0"
+                }
+              ]
+            ]
+          },
+          ""
+        ]
+      },
+      "_beforeRound": {
+        "#bigint": "1"
+      },
+      "_beforeTrail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "_beforeTurns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_late": false,
+      "_refused": true,
+      "_stepped": false,
+      "_turns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_wonRounds": {
+        "#bigint": "0"
+      },
+      "crashed": {
+        "#set": []
+      },
+      "gameStage": "under way",
+      "gameWinner": "",
+      "heading": {
+        "#map": [["comet", "right"], ["ember", "left"], ["nova", "right"]]
+      },
+      "mbt::actionTaken": "steer",
+      "mbt::nondetPicks": {
+        "direction": {
+          "tag": "Some",
+          "value": "down"
+        },
+        "m": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "dave"
+        },
+        "rider": {
+          "tag": "Some",
+          "value": "nova"
+        },
+        "target": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "mode": "duel",
+      "nextStep": {
+        "#map": [["comet", "right"], ["ember", "left"], ["nova", ""]]
+      },
+      "riderCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "4"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "riders": {
+        "#set": ["comet", "ember"]
+      },
+      "riding": {
+        "#set": ["comet", "ember"]
+      },
+      "roundNumber": {
+        "#bigint": "1"
+      },
+      "roundStage": "riding",
+      "roundWinner": "",
+      "roundWins": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "ember",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "nova",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "targetScore": {
+        "#bigint": "1"
+      },
+      "trail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 5
+      },
+      "_acceptedFrom": {
+        "#tup": ["", ""]
+      },
+      "_beforeCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "4"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "_beforeGame": {
+        "#tup": [
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "1"
+                        },
+                        {
+                          "#bigint": "1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "4"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#set": []
+                }
+              ]
+            ]
+          },
+          {
+            "#bigint": "1"
+          },
+          "riding",
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#bigint": "0"
+                }
+              ]
+            ]
+          },
+          ""
+        ]
+      },
+      "_beforeRound": {
+        "#bigint": "1"
+      },
+      "_beforeTrail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "_beforeTurns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_late": false,
+      "_refused": true,
+      "_stepped": false,
+      "_turns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_wonRounds": {
+        "#bigint": "0"
+      },
+      "crashed": {
+        "#set": []
+      },
+      "gameStage": "under way",
+      "gameWinner": "",
+      "heading": {
+        "#map": [["comet", "right"], ["ember", "left"], ["nova", "right"]]
+      },
+      "mbt::actionTaken": "steer",
+      "mbt::nondetPicks": {
+        "direction": {
+          "tag": "Some",
+          "value": "left"
+        },
+        "m": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "rider": {
+          "tag": "Some",
+          "value": "nova"
+        },
+        "target": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "mode": "duel",
+      "nextStep": {
+        "#map": [["comet", "right"], ["ember", "left"], ["nova", ""]]
+      },
+      "riderCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "4"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "riders": {
+        "#set": ["comet", "ember"]
+      },
+      "riding": {
+        "#set": ["comet", "ember"]
+      },
+      "roundNumber": {
+        "#bigint": "1"
+      },
+      "roundStage": "riding",
+      "roundWinner": "",
+      "roundWins": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "ember",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "nova",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "targetScore": {
+        "#bigint": "1"
+      },
+      "trail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 6
+      },
+      "_acceptedFrom": {
+        "#tup": ["alice", "comet"]
+      },
+      "_beforeCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "4"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "_beforeGame": {
+        "#tup": [
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "1"
+                        },
+                        {
+                          "#bigint": "1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "4"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#set": []
+                }
+              ]
+            ]
+          },
+          {
+            "#bigint": "1"
+          },
+          "riding",
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#bigint": "0"
+                }
+              ]
+            ]
+          },
+          ""
+        ]
+      },
+      "_beforeRound": {
+        "#bigint": "1"
+      },
+      "_beforeTrail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "_beforeTurns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_late": false,
+      "_refused": false,
+      "_stepped": false,
+      "_turns": {
+        "#map": [["comet", ["up"]], ["ember", []], ["nova", []]]
+      },
+      "_wonRounds": {
+        "#bigint": "0"
+      },
+      "crashed": {
+        "#set": []
+      },
+      "gameStage": "under way",
+      "gameWinner": "",
+      "heading": {
+        "#map": [["comet", "right"], ["ember", "left"], ["nova", "right"]]
+      },
+      "mbt::actionTaken": "steer",
+      "mbt::nondetPicks": {
+        "direction": {
+          "tag": "Some",
+          "value": "up"
+        },
+        "m": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "rider": {
+          "tag": "Some",
+          "value": "comet"
+        },
+        "target": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "mode": "duel",
+      "nextStep": {
+        "#map": [["comet", "up"], ["ember", "left"], ["nova", ""]]
+      },
+      "riderCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "4"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "riders": {
+        "#set": ["comet", "ember"]
+      },
+      "riding": {
+        "#set": ["comet", "ember"]
+      },
+      "roundNumber": {
+        "#bigint": "1"
+      },
+      "roundStage": "riding",
+      "roundWinner": "",
+      "roundWins": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "ember",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "nova",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "targetScore": {
+        "#bigint": "1"
+      },
+      "trail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 7
+      },
+      "_acceptedFrom": {
+        "#tup": ["", ""]
+      },
+      "_beforeCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "4"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "_beforeGame": {
+        "#tup": [
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "1"
+                        },
+                        {
+                          "#bigint": "1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "4"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#set": []
+                }
+              ]
+            ]
+          },
+          {
+            "#bigint": "1"
+          },
+          "riding",
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#bigint": "0"
+                }
+              ]
+            ]
+          },
+          ""
+        ]
+      },
+      "_beforeRound": {
+        "#bigint": "1"
+      },
+      "_beforeTrail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "_beforeTurns": {
+        "#map": [["comet", ["up"]], ["ember", []], ["nova", []]]
+      },
+      "_late": false,
+      "_refused": false,
+      "_stepped": true,
+      "_turns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_wonRounds": {
+        "#bigint": "1"
+      },
+      "crashed": {
+        "#set": ["comet"]
+      },
+      "gameStage": "finished",
+      "gameWinner": "ember",
+      "heading": {
+        "#map": [["comet", "right"], ["ember", "left"], ["nova", "right"]]
+      },
+      "mbt::actionTaken": "ridersStep",
+      "mbt::nondetPicks": {
+        "direction": {
+          "tag": "Some",
+          "value": "up"
+        },
+        "m": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "rider": {
+          "tag": "Some",
+          "value": "nova"
+        },
+        "target": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "mode": "duel",
+      "nextStep": {
+        "#map": [["comet", ""], ["ember", "left"], ["nova", ""]]
+      },
+      "riderCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "3"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "riders": {
+        "#set": ["comet", "ember"]
+      },
+      "riding": {
+        "#set": ["ember"]
+      },
+      "roundNumber": {
+        "#bigint": "1"
+      },
+      "roundStage": "result",
+      "roundWinner": "ember",
+      "roundWins": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "ember",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "nova",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "targetScore": {
+        "#bigint": "1"
+      },
+      "trail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                },
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 8
+      },
+      "_acceptedFrom": {
+        "#tup": ["", ""]
+      },
+      "_beforeCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "3"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "_beforeGame": {
+        "#tup": [
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "1"
+                        },
+                        {
+                          "#bigint": "1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "3"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    },
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "4"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#set": []
+                }
+              ]
+            ]
+          },
+          {
+            "#bigint": "1"
+          },
+          "result",
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#bigint": "1"
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#bigint": "0"
+                }
+              ]
+            ]
+          },
+          "ember"
+        ]
+      },
+      "_beforeRound": {
+        "#bigint": "1"
+      },
+      "_beforeTrail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                },
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "_beforeTurns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_late": false,
+      "_refused": false,
+      "_stepped": false,
+      "_turns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_wonRounds": {
+        "#bigint": "1"
+      },
+      "crashed": {
+        "#set": ["comet"]
+      },
+      "gameStage": "finished",
+      "gameWinner": "ember",
+      "heading": {
+        "#map": [["comet", "right"], ["ember", "left"], ["nova", "right"]]
+      },
+      "mbt::actionTaken": "secondsPass",
+      "mbt::nondetPicks": {
+        "direction": {
+          "tag": "Some",
+          "value": "right"
+        },
+        "m": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "rider": {
+          "tag": "Some",
+          "value": "ember"
+        },
+        "target": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "mode": "duel",
+      "nextStep": {
+        "#map": [["comet", ""], ["ember", "left"], ["nova", ""]]
+      },
+      "riderCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "3"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "riders": {
+        "#set": ["comet", "ember"]
+      },
+      "riding": {
+        "#set": ["ember"]
+      },
+      "roundNumber": {
+        "#bigint": "1"
+      },
+      "roundStage": "result",
+      "roundWinner": "ember",
+      "roundWins": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "ember",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "nova",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "targetScore": {
+        "#bigint": "1"
+      },
+      "trail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                },
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 9
+      },
+      "_acceptedFrom": {
+        "#tup": ["", ""]
+      },
+      "_beforeCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "3"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "_beforeGame": {
+        "#tup": [
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "1"
+                        },
+                        {
+                          "#bigint": "1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "3"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    },
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "4"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#set": []
+                }
+              ]
+            ]
+          },
+          {
+            "#bigint": "1"
+          },
+          "result",
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#bigint": "1"
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#bigint": "0"
+                }
+              ]
+            ]
+          },
+          "ember"
+        ]
+      },
+      "_beforeRound": {
+        "#bigint": "1"
+      },
+      "_beforeTrail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                },
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "_beforeTurns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_late": false,
+      "_refused": false,
+      "_stepped": false,
+      "_turns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_wonRounds": {
+        "#bigint": "1"
+      },
+      "crashed": {
+        "#set": ["comet"]
+      },
+      "gameStage": "finished",
+      "gameWinner": "ember",
+      "heading": {
+        "#map": [["comet", "right"], ["ember", "left"], ["nova", "right"]]
+      },
+      "mbt::actionTaken": "secondsPass",
+      "mbt::nondetPicks": {
+        "direction": {
+          "tag": "Some",
+          "value": "right"
+        },
+        "m": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "rider": {
+          "tag": "Some",
+          "value": "nova"
+        },
+        "target": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "mode": "duel",
+      "nextStep": {
+        "#map": [["comet", ""], ["ember", "left"], ["nova", ""]]
+      },
+      "riderCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "3"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "riders": {
+        "#set": ["comet", "ember"]
+      },
+      "riding": {
+        "#set": ["ember"]
+      },
+      "roundNumber": {
+        "#bigint": "1"
+      },
+      "roundStage": "result",
+      "roundWinner": "ember",
+      "roundWins": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "ember",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "nova",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "targetScore": {
+        "#bigint": "1"
+      },
+      "trail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                },
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 10
+      },
+      "_acceptedFrom": {
+        "#tup": ["", ""]
+      },
+      "_beforeCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "3"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "_beforeGame": {
+        "#tup": [
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "1"
+                        },
+                        {
+                          "#bigint": "1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "3"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    },
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "4"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#set": []
+                }
+              ]
+            ]
+          },
+          {
+            "#bigint": "1"
+          },
+          "result",
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#bigint": "1"
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#bigint": "0"
+                }
+              ]
+            ]
+          },
+          "ember"
+        ]
+      },
+      "_beforeRound": {
+        "#bigint": "1"
+      },
+      "_beforeTrail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                },
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "_beforeTurns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_late": false,
+      "_refused": true,
+      "_stepped": false,
+      "_turns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_wonRounds": {
+        "#bigint": "1"
+      },
+      "crashed": {
+        "#set": ["comet"]
+      },
+      "gameStage": "finished",
+      "gameWinner": "ember",
+      "heading": {
+        "#map": [["comet", "right"], ["ember", "left"], ["nova", "right"]]
+      },
+      "mbt::actionTaken": "steer",
+      "mbt::nondetPicks": {
+        "direction": {
+          "tag": "Some",
+          "value": "down"
+        },
+        "m": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "rider": {
+          "tag": "Some",
+          "value": "comet"
+        },
+        "target": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "mode": "duel",
+      "nextStep": {
+        "#map": [["comet", ""], ["ember", "left"], ["nova", ""]]
+      },
+      "riderCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "3"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "riders": {
+        "#set": ["comet", "ember"]
+      },
+      "riding": {
+        "#set": ["ember"]
+      },
+      "roundNumber": {
+        "#bigint": "1"
+      },
+      "roundStage": "result",
+      "roundWinner": "ember",
+      "roundWins": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "ember",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "nova",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "targetScore": {
+        "#bigint": "1"
+      },
+      "trail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                },
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 11
+      },
+      "_acceptedFrom": {
+        "#tup": ["", ""]
+      },
+      "_beforeCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "3"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "_beforeGame": {
+        "#tup": [
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "1"
+                        },
+                        {
+                          "#bigint": "1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "3"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    },
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "4"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#set": []
+                }
+              ]
+            ]
+          },
+          {
+            "#bigint": "1"
+          },
+          "result",
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#bigint": "1"
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#bigint": "0"
+                }
+              ]
+            ]
+          },
+          "ember"
+        ]
+      },
+      "_beforeRound": {
+        "#bigint": "1"
+      },
+      "_beforeTrail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                },
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "_beforeTurns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_late": false,
+      "_refused": false,
+      "_stepped": false,
+      "_turns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_wonRounds": {
+        "#bigint": "1"
+      },
+      "crashed": {
+        "#set": ["comet"]
+      },
+      "gameStage": "finished",
+      "gameWinner": "ember",
+      "heading": {
+        "#map": [["comet", "right"], ["ember", "left"], ["nova", "right"]]
+      },
+      "mbt::actionTaken": "secondsPass",
+      "mbt::nondetPicks": {
+        "direction": {
+          "tag": "Some",
+          "value": "up"
+        },
+        "m": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "rider": {
+          "tag": "Some",
+          "value": "comet"
+        },
+        "target": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "mode": "duel",
+      "nextStep": {
+        "#map": [["comet", ""], ["ember", "left"], ["nova", ""]]
+      },
+      "riderCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "3"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "riders": {
+        "#set": ["comet", "ember"]
+      },
+      "riding": {
+        "#set": ["ember"]
+      },
+      "roundNumber": {
+        "#bigint": "1"
+      },
+      "roundStage": "result",
+      "roundWinner": "ember",
+      "roundWins": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "ember",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "nova",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "targetScore": {
+        "#bigint": "1"
+      },
+      "trail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                },
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 12
+      },
+      "_acceptedFrom": {
+        "#tup": ["", ""]
+      },
+      "_beforeCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "3"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "_beforeGame": {
+        "#tup": [
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "1"
+                        },
+                        {
+                          "#bigint": "1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "3"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    },
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "4"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#set": []
+                }
+              ]
+            ]
+          },
+          {
+            "#bigint": "1"
+          },
+          "result",
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#bigint": "1"
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#bigint": "0"
+                }
+              ]
+            ]
+          },
+          "ember"
+        ]
+      },
+      "_beforeRound": {
+        "#bigint": "1"
+      },
+      "_beforeTrail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                },
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "_beforeTurns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_late": false,
+      "_refused": true,
+      "_stepped": false,
+      "_turns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_wonRounds": {
+        "#bigint": "1"
+      },
+      "crashed": {
+        "#set": ["comet"]
+      },
+      "gameStage": "finished",
+      "gameWinner": "ember",
+      "heading": {
+        "#map": [["comet", "right"], ["ember", "left"], ["nova", "right"]]
+      },
+      "mbt::actionTaken": "steer",
+      "mbt::nondetPicks": {
+        "direction": {
+          "tag": "Some",
+          "value": "right"
+        },
+        "m": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "dave"
+        },
+        "rider": {
+          "tag": "Some",
+          "value": "comet"
+        },
+        "target": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "mode": "duel",
+      "nextStep": {
+        "#map": [["comet", ""], ["ember", "left"], ["nova", ""]]
+      },
+      "riderCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "3"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "riders": {
+        "#set": ["comet", "ember"]
+      },
+      "riding": {
+        "#set": ["ember"]
+      },
+      "roundNumber": {
+        "#bigint": "1"
+      },
+      "roundStage": "result",
+      "roundWinner": "ember",
+      "roundWins": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "ember",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "nova",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "targetScore": {
+        "#bigint": "1"
+      },
+      "trail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                },
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 13
+      },
+      "_acceptedFrom": {
+        "#tup": ["", ""]
+      },
+      "_beforeCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "3"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "_beforeGame": {
+        "#tup": [
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "1"
+                        },
+                        {
+                          "#bigint": "1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "3"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    },
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "4"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#set": []
+                }
+              ]
+            ]
+          },
+          {
+            "#bigint": "1"
+          },
+          "result",
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#bigint": "1"
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#bigint": "0"
+                }
+              ]
+            ]
+          },
+          "ember"
+        ]
+      },
+      "_beforeRound": {
+        "#bigint": "1"
+      },
+      "_beforeTrail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                },
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "_beforeTurns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_late": false,
+      "_refused": true,
+      "_stepped": false,
+      "_turns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_wonRounds": {
+        "#bigint": "1"
+      },
+      "crashed": {
+        "#set": ["comet"]
+      },
+      "gameStage": "finished",
+      "gameWinner": "ember",
+      "heading": {
+        "#map": [["comet", "right"], ["ember", "left"], ["nova", "right"]]
+      },
+      "mbt::actionTaken": "steer",
+      "mbt::nondetPicks": {
+        "direction": {
+          "tag": "Some",
+          "value": "left"
+        },
+        "m": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "rider": {
+          "tag": "Some",
+          "value": "nova"
+        },
+        "target": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "mode": "duel",
+      "nextStep": {
+        "#map": [["comet", ""], ["ember", "left"], ["nova", ""]]
+      },
+      "riderCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "3"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "riders": {
+        "#set": ["comet", "ember"]
+      },
+      "riding": {
+        "#set": ["ember"]
+      },
+      "roundNumber": {
+        "#bigint": "1"
+      },
+      "roundStage": "result",
+      "roundWinner": "ember",
+      "roundWins": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "ember",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "nova",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "targetScore": {
+        "#bigint": "1"
+      },
+      "trail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                },
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 14
+      },
+      "_acceptedFrom": {
+        "#tup": ["", ""]
+      },
+      "_beforeCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "3"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "_beforeGame": {
+        "#tup": [
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "1"
+                        },
+                        {
+                          "#bigint": "1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "3"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    },
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "4"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#set": []
+                }
+              ]
+            ]
+          },
+          {
+            "#bigint": "1"
+          },
+          "result",
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#bigint": "1"
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#bigint": "0"
+                }
+              ]
+            ]
+          },
+          "ember"
+        ]
+      },
+      "_beforeRound": {
+        "#bigint": "1"
+      },
+      "_beforeTrail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                },
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "_beforeTurns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_late": false,
+      "_refused": true,
+      "_stepped": false,
+      "_turns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_wonRounds": {
+        "#bigint": "1"
+      },
+      "crashed": {
+        "#set": ["comet"]
+      },
+      "gameStage": "finished",
+      "gameWinner": "ember",
+      "heading": {
+        "#map": [["comet", "right"], ["ember", "left"], ["nova", "right"]]
+      },
+      "mbt::actionTaken": "steer",
+      "mbt::nondetPicks": {
+        "direction": {
+          "tag": "Some",
+          "value": "right"
+        },
+        "m": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "rider": {
+          "tag": "Some",
+          "value": "comet"
+        },
+        "target": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "mode": "duel",
+      "nextStep": {
+        "#map": [["comet", ""], ["ember", "left"], ["nova", ""]]
+      },
+      "riderCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "3"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "riders": {
+        "#set": ["comet", "ember"]
+      },
+      "riding": {
+        "#set": ["ember"]
+      },
+      "roundNumber": {
+        "#bigint": "1"
+      },
+      "roundStage": "result",
+      "roundWinner": "ember",
+      "roundWins": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "ember",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "nova",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "targetScore": {
+        "#bigint": "1"
+      },
+      "trail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                },
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 15
+      },
+      "_acceptedFrom": {
+        "#tup": ["", ""]
+      },
+      "_beforeCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "3"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "_beforeGame": {
+        "#tup": [
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "1"
+                        },
+                        {
+                          "#bigint": "1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "3"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    },
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "4"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#set": []
+                }
+              ]
+            ]
+          },
+          {
+            "#bigint": "1"
+          },
+          "result",
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#bigint": "1"
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#bigint": "0"
+                }
+              ]
+            ]
+          },
+          "ember"
+        ]
+      },
+      "_beforeRound": {
+        "#bigint": "1"
+      },
+      "_beforeTrail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                },
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "_beforeTurns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_late": false,
+      "_refused": true,
+      "_stepped": false,
+      "_turns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_wonRounds": {
+        "#bigint": "1"
+      },
+      "crashed": {
+        "#set": ["comet"]
+      },
+      "gameStage": "finished",
+      "gameWinner": "ember",
+      "heading": {
+        "#map": [["comet", "right"], ["ember", "left"], ["nova", "right"]]
+      },
+      "mbt::actionTaken": "steer",
+      "mbt::nondetPicks": {
+        "direction": {
+          "tag": "Some",
+          "value": "right"
+        },
+        "m": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "dave"
+        },
+        "rider": {
+          "tag": "Some",
+          "value": "comet"
+        },
+        "target": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "mode": "duel",
+      "nextStep": {
+        "#map": [["comet", ""], ["ember", "left"], ["nova", ""]]
+      },
+      "riderCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "3"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "riders": {
+        "#set": ["comet", "ember"]
+      },
+      "riding": {
+        "#set": ["ember"]
+      },
+      "roundNumber": {
+        "#bigint": "1"
+      },
+      "roundStage": "result",
+      "roundWinner": "ember",
+      "roundWins": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "ember",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "nova",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "targetScore": {
+        "#bigint": "1"
+      },
+      "trail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                },
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 16
+      },
+      "_acceptedFrom": {
+        "#tup": ["", ""]
+      },
+      "_beforeCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "3"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "_beforeGame": {
+        "#tup": [
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "1"
+                        },
+                        {
+                          "#bigint": "1"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#set": [
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "3"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    },
+                    {
+                      "#tup": [
+                        {
+                          "#bigint": "4"
+                        },
+                        {
+                          "#bigint": "3"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#set": []
+                }
+              ]
+            ]
+          },
+          {
+            "#bigint": "1"
+          },
+          "result",
+          {
+            "#map": [
+              [
+                "comet",
+                {
+                  "#bigint": "0"
+                }
+              ],
+              [
+                "ember",
+                {
+                  "#bigint": "1"
+                }
+              ],
+              [
+                "nova",
+                {
+                  "#bigint": "0"
+                }
+              ]
+            ]
+          },
+          "ember"
+        ]
+      },
+      "_beforeRound": {
+        "#bigint": "1"
+      },
+      "_beforeTrail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                },
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "_beforeTurns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_late": false,
+      "_refused": false,
+      "_stepped": false,
+      "_turns": {
+        "#map": [["comet", []], ["ember", []], ["nova", []]]
+      },
+      "_wonRounds": {
+        "#bigint": "1"
+      },
+      "crashed": {
+        "#set": ["comet"]
+      },
+      "gameStage": "finished",
+      "gameWinner": "ember",
+      "heading": {
+        "#map": [["comet", "right"], ["ember", "left"], ["nova", "right"]]
+      },
+      "mbt::actionTaken": "secondsPass",
+      "mbt::nondetPicks": {
+        "direction": {
+          "tag": "Some",
+          "value": "right"
+        },
+        "m": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "person": {
+          "tag": "Some",
+          "value": "dave"
+        },
+        "rider": {
+          "tag": "Some",
+          "value": "nova"
+        },
+        "target": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "mode": "duel",
+      "nextStep": {
+        "#map": [["comet", ""], ["ember", "left"], ["nova", ""]]
+      },
+      "riderCell": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#tup": [
+                {
+                  "#bigint": "3"
+                },
+                {
+                  "#bigint": "3"
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#tup": [
+                {
+                  "#bigint": "1"
+                },
+                {
+                  "#bigint": "1"
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "riders": {
+        "#set": ["comet", "ember"]
+      },
+      "riding": {
+        "#set": ["ember"]
+      },
+      "roundNumber": {
+        "#bigint": "1"
+      },
+      "roundStage": "result",
+      "roundWinner": "ember",
+      "roundWins": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "ember",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "nova",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "targetScore": {
+        "#bigint": "1"
+      },
+      "trail": {
+        "#map": [
+          [
+            "comet",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "1"
+                    },
+                    {
+                      "#bigint": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "ember",
+            {
+              "#set": [
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "3"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                },
+                {
+                  "#tup": [
+                    {
+                      "#bigint": "4"
+                    },
+                    {
+                      "#bigint": "3"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          [
+            "nova",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      }
+    }
+  ]
+}

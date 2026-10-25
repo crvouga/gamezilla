@@ -1,0 +1,4 @@
+{
+  "summary": "A rider that crashed on the step that took its waiting turn was published, and drawn on the arena, heading the way it had turned, although it never took that step. In a 4 by 3 Light Cycles Duel, Alice turned Comet up from column 1, row 1 heading right; at the next step Comet crashed into the edge but the authority published it heading up, where the round model (and its rule that a crashed rider stays where it was) keeps it heading right. Movement now keeps a crashing rider's heading from before the step; the crash cell was already the pre-step cell. Found by binding specs/light-cycles/light-cycles-round.qnt against the real room, session authority and watcher's replica (seed 0x67932, Duel and Trio traces).",
+  "regressionTest": "libs/light-cycles-shared-ts/tests/light-cycles-mode.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "With a clock that counts milliseconds since the epoch (about 1.7e12, where one ulp is about 0.2 µs) and timers that wake exactly on time, the simulation driver published a 30-tick/15-snapshot game only every third tick (10 per second) and the engine committed some ticks one wake late. Both compared against an exact boundary with a fixed 1e-9 tolerance, below the rounding of epoch-scale sums: two 33.3 ms wakes land a rounding error short of the 66.7 ms publication boundary, and an on-time elapsed of 33.33325 ms is 0.9999975 of a tick. Found by the Light Cycles room profile (31 publications in a 3 s window instead of 45). The driver now allows eight ulps of the boundary and the engine 1e-4 of a tick.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-driver-epoch.test.ts"
+}

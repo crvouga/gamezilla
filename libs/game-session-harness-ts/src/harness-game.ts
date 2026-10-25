@@ -191,7 +191,7 @@ export type TurnHarnessGame<
 > = PlayableGame<C> & {
   readonly simulationFixtures?: SimulationHarnessFixtures;
   /** The same client definition production registers. */
-  readonly client: GameClientRegistration<TurnGameDefinition>;
+  readonly client: GameClientRegistration<GameRegistration>;
   /** The sub only this game's screens need, beside the shared ones. */
   readonly slice?: HarnessSlice;
   /** This game's own testing-tool actions. */
@@ -220,6 +220,8 @@ export type SimulationHarnessGame<
   readonly shared: GameRegistration<C>;
   readonly client: GameClientRegistration<GameRegistration>;
   readonly simulationFixtures: SimulationHarnessFixtures;
+  /** Two different game options it offers, for checks that measure choices. */
+  readonly configurationChoices?: readonly [string, string];
   readonly slice?: HarnessSlice;
   readonly actions?: readonly CatalogAction<ProductHarness>[];
   readonly readRecord?: (record: string) => Omit<ReadGameRecord, 'moves'>;

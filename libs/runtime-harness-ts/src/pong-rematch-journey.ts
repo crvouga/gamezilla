@@ -1,4 +1,5 @@
-import { check, tap } from './journey-gestures';
+import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
+import { check, JOURNEY_WAIT_MS, tap } from './journey-gestures';
 import { type JourneyHost, journeyDevice } from './journey-types';
 import {
   type PongJourneyStart,
@@ -24,13 +25,27 @@ export async function acceptPongRematch(
   );
 }
 
+/**
+ * The finished board stays on screen until the rematch replaces it: read
+ * the new game only once the finished game's actions give way to its own.
+ */
+async function rematchShown(ui: Driver): Promise<PongJourneyStart> {
+  await ui
+    .get('multiplayer-offer-rematch')
+    .expect.hidden({ timeoutMs: JOURNEY_WAIT_MS });
+  await ui
+    .get('multiplayer-resign')
+    .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+  return pongJourneyStart(ui);
+}
+
 export async function observePongRematch(
   host: JourneyHost,
   start: PongJourneyStart
 ): Promise<void> {
   let rematchId = '';
   await host.act('observePongRematch', async (ui) => {
-    const next = await pongJourneyStart(ui);
+    const next = await rematchShown(ui);
     const court = await pongJourneyCourt(ui);
     check(next.gameId !== start.gameId, 'The rematch reused the finished game');
     check(next.side !== start.side, 'Alice kept her earlier paddle');
@@ -45,7 +60,7 @@ export async function observePongRematch(
     rematchId = next.gameId;
   });
   await host.actAsGuest('observePongRematch', async (ui) => {
-    const next = await pongJourneyStart(ui);
+    const next = await rematchShown(ui);
     const court = await pongJourneyCourt(ui);
     check(next.gameId === rematchId, 'The people see different rematches');
     check(next.side === start.side, 'Bob kept his earlier paddle');
