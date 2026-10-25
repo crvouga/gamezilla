@@ -1,0 +1,4 @@
+{
+  "summary": "Pack progress offered the most recently played unfinished puzzle, so after completing the last puzzle played it continued an older one instead of the first unfinished puzzle, as the shared pack policy says.",
+  "regressionTest": "libs/game-puzzle-shared-ts/tests/pack-progress-offer.test.ts"
+}
