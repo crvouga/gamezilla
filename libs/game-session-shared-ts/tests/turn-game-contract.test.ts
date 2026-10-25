@@ -68,6 +68,7 @@ const unchecked = (capabilities: object) =>
   capabilities as TurnGameCapabilities;
 
 const content: PuzzleContent = {
+  rulesVersion: 1,
   rules: {
     validateDefinition: () => ({ valid: true }),
     initial: () => ({ accepted: true, state: 'start' }),

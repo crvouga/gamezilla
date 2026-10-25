@@ -1,6 +1,7 @@
 import type {
   PuzzleChange,
   PuzzleContent,
+  PuzzleEvidence,
   PuzzleSolution,
   PuzzleValidation,
 } from '@pkgs/turn-game-shared-ts/puzzle-content';
@@ -91,14 +92,15 @@ function complete(definition: string, state: string): boolean {
   return progress.valid && numberlinkComplete(board.value, progress.value);
 }
 
+/** A completed playtest replay proves the drawing; otherwise the bounded solver must. */
 function validatePublication(
   definition: string,
-  solution?: string
+  evidence?: PuzzleEvidence
 ): PuzzleValidation {
   const board = decodeNumberlinkDefinition(definition);
   if (!board.valid) return board;
-  if (solution !== undefined)
-    return complete(definition, solution)
+  if (evidence !== undefined)
+    return complete(definition, evidence.state)
       ? { valid: true }
       : {
           valid: false,
@@ -129,6 +131,7 @@ function validatePublication(
 }
 
 export const numberlinkPuzzleContent: PuzzleContent = {
+  rulesVersion: 1,
   history: 'snapshots',
   rules: {
     validateDefinition: (definition) =>

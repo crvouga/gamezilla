@@ -35,6 +35,7 @@ import { defineRuntime } from '@pkgs/harness-root-shared-ts/define-runtime';
 import { defineSnapshot } from '@pkgs/harness-root-shared-ts/define-snapshot';
 import { defineSystem } from '@pkgs/harness-root-shared-ts/define-system';
 import { virtualTimeRuntime } from '@pkgs/harness-root-shared-ts/virtual-time-runtime';
+import { replayPuzzleEvidence } from '@pkgs/turn-game-shared-ts/puzzle-content';
 
 /**
  * A table of Word Tiles as its authority keeps it — the public position,
@@ -382,19 +383,17 @@ export const publishChallenge = defineAction({
     const placements = wordPlacements(s, word, span);
     const challenge = s.challenge;
     if (challenge === null) throw new Error('no challenge');
-    const start = wordTilesPuzzleContent.rules.initial(challenge.definition);
-    const played = start.accepted
-      ? wordTilesPuzzleContent.rules.apply(
-          challenge.definition,
-          start.state,
-          challengeAction(s, placements)
-        )
-      : start;
-    const witness = played.accepted ? played.state : '';
-    const check = wordTilesPuzzleContent.validatePublication?.(
+    const replay = replayPuzzleEvidence(
+      wordTilesPuzzleContent.rules,
       challenge.definition,
-      witness
+      [challengeAction(s, placements)]
     );
+    const check = replay.valid
+      ? wordTilesPuzzleContent.validatePublication?.(
+          challenge.definition,
+          replay.evidence
+        )
+      : replay;
     challenge.published = check?.valid === true;
     s.refusal = challenge.published ? null : 'witness';
   },

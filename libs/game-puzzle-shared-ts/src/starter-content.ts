@@ -1,9 +1,10 @@
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import type {
+  BundledPuzzle,
   PuzzleContent,
-  StarterPuzzle,
 } from '@pkgs/turn-game-shared-ts/puzzle-content';
+import { replayPuzzleEvidence } from '@pkgs/turn-game-shared-ts/puzzle-content';
 
 /**
  * Writing the starter content games ship: each puzzle published once, as an
@@ -35,11 +36,17 @@ export function starterContentProblems(game: StarterGame): readonly string[] {
   const starter = content?.starter;
   if (content === undefined || starter === undefined) return [];
   return starter.puzzles.flatMap((puzzle) => {
-    const check = content.validatePublication?.(
+    const replay = replayPuzzleEvidence(
+      content.rules,
       puzzle.definition,
       puzzle.witness
     );
-    return check?.valid === true
+    const check = replay.valid
+      ? content.validatePublication?.(puzzle.definition, replay.evidence)
+      : replay;
+    return replay.valid &&
+      content.rules.complete(puzzle.definition, replay.evidence.state) &&
+      check?.valid === true
       ? []
       : [
           `${game.id}/${puzzle.id}: ${check?.valid === false ? (check.issues[0]?.message ?? 'refused') : 'cannot be proven'}`,
@@ -51,8 +58,9 @@ type Row = {
   readonly gameId: string;
   readonly id: string;
   readonly kind: 'puzzle' | 'pack';
+  readonly rulesVersion: number;
   readonly body: Pick<
-    StarterPuzzle,
+    BundledPuzzle,
     'title' | 'description' | 'difficulty' | 'definition'
   >;
 };
@@ -66,8 +74,8 @@ async function publish(tx: SqlTx, row: Row, iso: string): Promise<void> {
     VALUES (${document}, ${STARTER_CONTENT_OWNER}, ${row.gameId}, ${row.kind}, ${null}, ${revision}, ${1}, ${'published'}, ${iso}, ${iso}, ${null})
     ON CONFLICT (id) DO NOTHING`);
   await tx.run(sql`INSERT INTO puzzle_content_revisions
-    (id, document_id, owner_id, game_id, kind, edition, title, description, difficulty, definition, created_at, updated_at, deleted_at)
-    VALUES (${revision}, ${document}, ${STARTER_CONTENT_OWNER}, ${row.gameId}, ${row.kind}, ${1}, ${title}, ${description}, ${difficulty}, ${definition}, ${iso}, ${iso}, ${null})
+    (id, document_id, owner_id, game_id, kind, edition, title, description, difficulty, definition, rules_version, created_at, updated_at, deleted_at)
+    VALUES (${revision}, ${document}, ${STARTER_CONTENT_OWNER}, ${row.gameId}, ${row.kind}, ${1}, ${title}, ${description}, ${difficulty}, ${definition}, ${row.rulesVersion}, ${iso}, ${iso}, ${null})
     ON CONFLICT (id) DO NOTHING`);
   await tx.run(sql`INSERT INTO puzzle_content_publications
     (id, owner_id, game_id, kind, published_revision_id, publication_count, status, created_at, updated_at, deleted_at)
@@ -90,18 +98,19 @@ async function publishPack(
     tx,
     {
       gameId: game.id,
-      id: starter.pack.id,
+      id: starter.id,
       kind: 'pack',
+      rulesVersion: game.puzzleContent!.rulesVersion,
       body: {
-        title: starter.pack.title,
-        description: starter.pack.description,
+        title: starter.title,
+        description: starter.description,
         difficulty: '',
         definition: JSON.stringify({ items }),
       },
     },
     iso
   );
-  const pack = starterRevisionId(game.id, starter.pack.id);
+  const pack = starterRevisionId(game.id, starter.id);
   for (const [position, item] of items.entries())
     await tx.run(sql`INSERT INTO puzzle_content_pack_items
       (id, owner_id, pack_revision_id, puzzle_id, puzzle_revision_id, position, created_at, updated_at, deleted_at)
@@ -126,7 +135,13 @@ export async function seedStarterContent(
     for (const puzzle of game.puzzleContent?.starter?.puzzles ?? [])
       await publish(
         tx,
-        { gameId: game.id, id: puzzle.id, kind: 'puzzle', body: puzzle },
+        {
+          gameId: game.id,
+          id: puzzle.id,
+          kind: 'puzzle',
+          body: puzzle,
+          rulesVersion: game.puzzleContent!.rulesVersion,
+        },
         iso
       );
     await publishPack(tx, game, iso);

@@ -12,7 +12,7 @@ import { type ContentFixture, withContentFixture } from './content-fixture';
 import { pileContent } from './pile-game';
 
 /** The test pile game, shipping two puzzles and their pack. */
-function shipping(witness: string): {
+function shipping(witness: readonly string[]): {
   id: string;
   puzzleContent: PuzzleContent;
 } {
@@ -22,18 +22,17 @@ function shipping(witness: string): {
     puzzleContent: {
       ...base,
       validatePublication: (definition, solution) =>
-        solution !== undefined && base.rules.complete(definition, solution)
+        solution !== undefined &&
+        base.rules.complete(definition, solution.state)
           ? { valid: true }
           : {
               valid: false,
               issues: [{ code: 'witness', message: 'not solved' }],
             },
       starter: {
-        pack: {
-          id: 'first-piles',
-          title: 'First piles',
-          description: 'Two piles.',
-        },
+        id: 'first-piles',
+        title: 'First piles',
+        description: 'Two piles.',
         puzzles: [
           {
             id: 'one',
@@ -49,7 +48,7 @@ function shipping(witness: string): {
             description: '',
             difficulty: 'easy',
             definition: 'pile:2:white',
-            witness: 'pile:0:black',
+            witness: ['take2'],
           },
         ],
       },
@@ -69,17 +68,18 @@ function published(fixture: ContentFixture) {
 
 async function revisions(fixture: ContentFixture): Promise<unknown> {
   return fixture.db.query(sql<QueryRow>`
-    SELECT id, edition, definition FROM puzzle_content_revisions
+    SELECT id, edition, definition, rules_version FROM puzzle_content_revisions
     WHERE owner_id = ${STARTER_CONTENT_OWNER} ORDER BY id`);
 }
 
 test('starter content is proven, then published once for everyone, and seeding again changes nothing', async () => {
   await withContentFixture(async (fixture) => {
-    const game = shipping('pile:0:black');
+    const game = shipping(['take1']);
     expect(starterContentProblems(game)).toEqual([]);
     await fixture.db.transaction((tx) => seedStarterContent(tx, [game], 0));
     const first = await revisions(fixture);
     expect(first).toHaveLength(3);
+    expect(JSON.stringify(first)).toContain('"rules_version":1');
     expect(JSON.stringify(await published(fixture))).toContain('First piles');
     await fixture.db.transaction((tx) => seedStarterContent(tx, [game], 1000));
     expect(await revisions(fixture)).toEqual(first);
@@ -88,7 +88,7 @@ test('starter content is proven, then published once for everyone, and seeding a
 
 test('an unproven starter puzzle publishes nothing', async () => {
   await withContentFixture(async (fixture) => {
-    const game = shipping('pile:1:white');
+    const game = shipping([]);
     expect(starterContentProblems(game)).toEqual(['pile/one: not solved']);
     await expect(
       fixture.db.transaction((tx) => seedStarterContent(tx, [game], 0))

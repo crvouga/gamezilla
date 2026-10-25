@@ -32,6 +32,7 @@ test('a selected pack edition stays startable after a later edition becomes curr
         difficulty: '',
         definition:
           '{"items":[{"puzzleId":"river","revisionId":"river-edition-one"}]}',
+        rules_version: 1,
         deleted_at: null,
       },
     ],

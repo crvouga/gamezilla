@@ -25,8 +25,8 @@ Open a state to read its capability's exact source-derived examples and decision
 
 [`specs/product.machine.json`](../../specs/product.machine.json) is the only
 authored chart. Its nested and parallel regions contain the entire product:
-419 states, 1,114 transitions and 46 guided journeys. The compiler rejects a
-second machine, attaches 4,330 source-derived contract cards, and gives Atlas
+441 states, 1,205 transitions and 46 guided journeys. The compiler rejects a
+second machine, attaches 4,809 source-derived contract cards, and gives Atlas
 one enriched copy of that same chart. Every one of the 39 registered public
 route patterns has a reachable state owner, including alternative profile
 addresses, parameterized links and the not-found screen. The

@@ -10,15 +10,12 @@ import {
   gameHistoryStatistics,
   openGameHistory,
 } from '@libs/game-session-harness-ts/game-history-actions';
-import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { openConformanceHarness } from '../../conformance-world';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 
-forEveryGame(
+forEveryTurnGame(
   import.meta.path,
   (game) => {
-    if (!isTurnHarnessGame(game))
-      throw new Error(`${game.label} has no turn fixtures`);
     test('a finished game of more than two people counts its result once for each of them', async () => {
       await using s = await openConformanceHarness(
         `${game.shared.id}-multi-seat-history`

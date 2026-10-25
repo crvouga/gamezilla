@@ -1129,6 +1129,7 @@ terms:
 | Games | `games` | what every game in a space offers alike: the game's choices, custom games with people and bots, private setups, secret choices, stand-ins for people away from games with more than two sides, shared victories, turns, finding an opponent, matched games (aborting, resigning, draw offers and rematches), puzzles for every game offering them (playing them as a feed, solving, hints, retries, showing the solution, resuming an attempt, the puzzle clock, reviewing a puzzle's line, the feed and its settings, choosing the next puzzle, puzzle ratings, stats and game logs, refused puzzle actions, the daily puzzle limit, guests' puzzles, erasing a deleted account's puzzle progress, playing offline, results across devices, watching, puzzle links, sounds, the keyboard and listening, winning a puzzle another way, and other play leaving puzzles alone), history, review and statistics | core |
 | Connect Four | `connect-four` | Connect Four's own board, drops, winning alignments, draws and bots | supporting |
 | Numberlink | `numberlink` | Numberlink's rectangular board, matching endpoints, paths, coverage and completion | supporting |
+| Sokoban | `sokoban` | Sokoban's rectangular board of walls, floor, goals and outside squares, the worker, crates, moves, pushes and completion, building a board, the proof a board needs before publication, and the starter pack | supporting |
 | Puzzles | `puzzles` | author-created puzzle and pack drafts, validation, playtests, stable published editions, personal attempts and pack progression for any game offering puzzle content | core |
 | Battleship | `battleship` | Battleship's own boards, fleets, placing ships, shots, hits, misses, sinkings, victory and bots | supporting |
 | Quoridor | `quoridor` | Classic Quoridor and Four-Player King of the Hill: the board, pawns, movement, jumps, walls, paths and goals | supporting |
@@ -1176,6 +1177,11 @@ Puzzles  ──► Word Tiles (puzzle, publish)
 Games    ──► Hearts (game, custom game, custom game readiness, start a custom game, bot, stand-in, take back their side, secret choice, rematch, shared victory, the game's choices)
 Games    ──► Journeys (bot)
 App      ──► Quoridor (keyboard, control)
+Identity ──► Sokoban (guest)
+App      ──► Puzzles (version of the app)
+Puzzles  ──► Sokoban (puzzle, author, draft, playtest, publish, edition, pack, attempt, resume, pack progress, rules change)
+Sokoban  ──► Journeys (Sokoban, starter pack)
+
 App      ──► Hearts (keyboard, control, listen to the app)
 Games    ──► Pong (game, custom game, under way, bot, move list)
 Matchmaking ──► Pong (pair people up)
@@ -1207,6 +1213,7 @@ Published language:
 | Connect Four (`connect-four`) | Connect Four | — |
 | Battleship (`battleship`) | Battleship | — |
 | Quoridor (`quoridor`) | Quoridor, Classic Quoridor, Four-Player King of the Hill | — |
+| Sokoban (`sokoban`) | Sokoban, starter pack | — |
 | Word Tiles (`word-tiles`) | Word Tiles, Word Tiles for three, Word Tiles for four | — |
 | Hearts (`hearts`) | Hearts | — |
 | Pong (`pong`) | Pong, paddle, score, target score | — |

@@ -75,6 +75,11 @@
     "parts": 15
   },
   {
+    "package": "@libs/sokoban-harness-ts",
+    "directory": "libs/sokoban-harness-ts",
+    "parts": 1
+  },
+  {
     "package": "@libs/synthetic-population-harness-ts",
     "directory": "libs/synthetic-population-harness-ts",
     "parts": 1

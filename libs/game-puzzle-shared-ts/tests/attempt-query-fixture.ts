@@ -12,10 +12,10 @@ export async function seedLargeAttemptCatalogue(
   const stamp = '2026-10-23T00:00:00.000Z';
   await insertRows(
     fixture,
-    sql`INSERT INTO puzzle_content_attempts (id, owner_id, puzzle_id, source_id, game_id, mode, pack_revision_id, current_position_id, activity_order, created_at, updated_at, deleted_at)`,
+    sql`INSERT INTO puzzle_content_attempts (id, owner_id, puzzle_id, source_id, game_id, mode, pack_revision_id, current_position_id, activity_order, rules_version, created_at, updated_at, deleted_at)`,
     ids.map(
       (id, index) =>
-        sql`(${`attempt-${id}`}, ${'alice'}, ${'p0000'}, ${'p0000-edition'}, ${'pile'}, ${'ordinary'}, ${null}, ${`position-${id}`}, ${index}, ${stamp}, ${stamp}, ${null})`
+        sql`(${`attempt-${id}`}, ${'alice'}, ${'p0000'}, ${'p0000-edition'}, ${'pile'}, ${'ordinary'}, ${null}, ${`position-${id}`}, ${index}, ${1}, ${stamp}, ${stamp}, ${null})`
     )
   );
   const positions = ids.map((id) => ({

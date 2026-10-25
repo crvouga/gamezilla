@@ -8,6 +8,7 @@ import type {
 import { MutationError } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import type { PuzzleContent } from '@pkgs/turn-game-shared-ts/puzzle-content';
 import type { PuzzleContentCatalog } from '@pkgs/turn-game-shared-ts/puzzle-content-catalog';
+import { findBundledContent } from './bundled-content';
 import type {
   ContentDocument,
   ContentDraft,
@@ -94,6 +95,33 @@ export async function readContentRevision(
     sql<ContentRevision>`SELECT * FROM puzzle_content_revisions WHERE id = ${id} AND deleted_at IS NULL`
   );
   return rows[0] ?? null;
+}
+
+/** An edition from storage, or one the game ships. */
+export async function readEdition(
+  ctx: ContentMutationCtx,
+  id: string
+): Promise<ContentRevision | null> {
+  return (
+    (await readContentRevision(ctx.tx, id)) ??
+    findBundledContent(ctx.puzzleContents, id)?.revisions.find(
+      (edition) => edition.id === id
+    ) ??
+    null
+  );
+}
+
+export async function readEditionDocument(
+  ctx: ContentMutationCtx,
+  id: string
+): Promise<ContentDocument | null> {
+  return (
+    (await readContentDocument(ctx.tx, id)) ??
+    findBundledContent(ctx.puzzleContents, id)?.documents.find(
+      (doc) => doc.id === id
+    ) ??
+    null
+  );
 }
 
 export function requireDraftOf(

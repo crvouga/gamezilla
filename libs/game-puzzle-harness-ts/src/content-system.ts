@@ -1,12 +1,15 @@
+import type { PuzzleContentClient } from '@libs/game-puzzle-client-ts/puzzle-content-client';
 import type { ContentBody } from '@libs/game-puzzle-shared-ts/content-types';
 import { defineRuntime } from '@pkgs/harness-root-shared-ts/define-runtime';
 import { defineSystem } from '@pkgs/harness-root-shared-ts/define-system';
+import type { SyncApp } from '@pkgs/sync-engine-harness-ts/scenario-app';
 import {
   createSyncHarness,
   syncVirtual,
 } from '@pkgs/sync-engine-harness-ts/scenario-boot';
 import type { SyncHarness } from '@pkgs/sync-engine-harness-ts/scenario-system';
 import type { MutateResult } from '@pkgs/sync-engine-shared-ts/mutations-types';
+import type { PuzzleContent } from '@pkgs/turn-game-shared-ts/puzzle-content';
 import { ATTEMPT_ACTIONS } from './attempt-actions';
 import { ATTEMPT_FIXTURES } from './attempt-fixtures';
 import { ATTEMPT_LIFECYCLE_ACTIONS } from './attempt-lifecycle-actions';
@@ -16,14 +19,22 @@ import {
 } from './attempt-page-actions';
 import { playTwoStepsThroughScreen } from './attempt-screen-actions';
 import { AUTHORING_LIFECYCLE_ACTIONS } from './authoring-lifecycle-actions';
+import { BUILDER_ACTIONS, type BuilderSession } from './builder-session';
 import { CONTENT_ACTIONS } from './content-actions';
+import { countingContentClient } from './content-example-client';
 import { contentActorId } from './content-identity';
 import { PUBLICATION_ACTIONS } from './content-publication-actions';
 import { createContentThroughScreen } from './content-screen-actions';
 import { DRAFT_CHOICE_ACTIONS } from './draft-choice-actions';
 import { DRAFT_HISTORY_ACTIONS } from './draft-history-actions';
-import { contentExampleApp } from './example-app';
+import { EDITION_RULES_ACTIONS } from './edition-rules-actions';
+import { EDITION_RULES_LIFECYCLE_ACTIONS } from './edition-rules-lifecycle';
+import { createContentExampleApp } from './example-app';
 import { exampleContentBootstrapQuery } from './example-app-query';
+import {
+  type ExampleRules,
+  examplePuzzleContentFor,
+} from './example-app-rules';
 import { saveMetadataThroughScreen } from './metadata-screen-actions';
 import { NAMED_PACK_ACTIONS } from './named-pack-actions';
 import { OFFLINE_ACTIONS } from './offline-actions';
@@ -54,9 +65,32 @@ export type PlaySelection = {
   readonly positionId: string;
 };
 
+/** One puzzle game as a harness world composes it: real rules, client and sub. */
+export type ContentHarnessGame = {
+  readonly id: string;
+  readonly title: string;
+  readonly client: PuzzleContentClient;
+  /** The game's rules under a run's changeable rules version. */
+  readonly content: (rules: ExampleRules) => PuzzleContent;
+  readonly app: (content: PuzzleContent) => SyncApp;
+};
+
+export const COUNTING_GAME: ContentHarnessGame = {
+  id: 'counting',
+  title: 'Counting',
+  client: countingContentClient,
+  content: examplePuzzleContentFor,
+  app: createContentExampleApp,
+};
+
 export type ContentHarness = SyncHarness & {
+  readonly game: ContentHarnessGame;
+  /** This run's game rules; an app update may change their version. */
+  readonly rules: ExampleRules;
+  readonly content: PuzzleContent;
   readonly documents: Map<string, string>;
   readonly editors: Map<string, ContentEditor>;
+  readonly builders: Map<string, BuilderSession>;
   readonly lastResult: Map<string, MutateResult>;
   readonly publicationResults: Map<string, MutateResult>;
   readonly notices: Map<string, string>;
@@ -114,6 +148,9 @@ export const contentSystem = defineSystem<
     ...STALE_EDITOR_ACTIONS,
     ...PROGRESSION_LIFECYCLE_ACTIONS,
     ...PUBLICATION_RECOVERY_ACTIONS,
+    ...BUILDER_ACTIONS,
+    ...EDITION_RULES_ACTIONS,
+    ...EDITION_RULES_LIFECYCLE_ACTIONS,
   ],
   runtimes: [
     defineRuntime({
@@ -122,50 +159,65 @@ export const contentSystem = defineSystem<
       create: () => syncVirtual(),
     }),
   ],
-  async create(session, args) {
-    const app = args.initialContent
-      ? contentExampleApp
-      : {
-          ...contentExampleApp,
-          pack: {
-            ...contentExampleApp.pack,
-            sessionQuery: {
-              name: exampleContentBootstrapQuery.name,
-              params: {},
-            },
-          },
-        };
-    const sync = await createSyncHarness(session, app, {
-      clientCount: 0,
-      rowImageFanout: false,
-      liveResendOnReconnect: false,
-      bufferOutboundLive: false,
-    });
-    for (const id of ['alice:phone', 'alice:tablet', 'bob:phone', 'bob:tablet'])
-      await sync.addClient({
-        id,
-        actorId: contentActorId(id.split(':')[0] ?? ''),
-      });
-    return {
-      ...sync,
-      documents: new Map(),
-      editors: new Map(),
-      lastResult: new Map(),
-      publicationResults: new Map(),
-      notices: new Map(),
-      offline: new Set(),
-      games: new Map(),
-      selectedPuzzles: new Map(),
-      selectedPacks: new Map(),
-      playSelections: new Map(),
-      earlierPlay: new Map(),
-      packViews: new Map(),
-      rememberedStates: new Map(),
-      rememberedEditions: new Map(),
-      publishedDrafts: new Map(),
-      lifecycleDrafts: [],
-      lifecyclePuzzles: [],
-      lifecycleAttempts: [],
-    };
-  },
+  create: (session, args) => createContentWorld(session, args, COUNTING_GAME),
 });
+
+/** Four devices over one game's real sub, sync engine and screens. */
+export async function createContentWorld(
+  session: Parameters<typeof createSyncHarness>[0],
+  args: { readonly initialContent: boolean },
+  game: ContentHarnessGame
+): Promise<ContentHarness> {
+  const rules: ExampleRules = { version: 1 };
+  const content = game.content(rules);
+  const contentExampleApp = game.app(content);
+  const app = args.initialContent
+    ? contentExampleApp
+    : {
+        ...contentExampleApp,
+        pack: {
+          ...contentExampleApp.pack,
+          sessionQuery: {
+            name: exampleContentBootstrapQuery.name,
+            params: {},
+          },
+        },
+      };
+  const sync = await createSyncHarness(session, app, {
+    clientCount: 0,
+    rowImageFanout: false,
+    liveResendOnReconnect: false,
+    bufferOutboundLive: false,
+  });
+  for (const id of ['alice:phone', 'alice:tablet', 'bob:phone', 'bob:tablet'])
+    await sync.addClient({
+      id,
+      actorId: contentActorId(id.split(':')[0] ?? ''),
+    });
+  const harness: ContentHarness = {
+    ...sync,
+    game,
+    rules,
+    content,
+    documents: new Map(),
+    editors: new Map(),
+    builders: new Map(),
+    lastResult: new Map(),
+    publicationResults: new Map(),
+    notices: new Map(),
+    offline: new Set(),
+    games: new Map(),
+    selectedPuzzles: new Map(),
+    selectedPacks: new Map(),
+    playSelections: new Map(),
+    earlierPlay: new Map(),
+    packViews: new Map(),
+    rememberedStates: new Map(),
+    rememberedEditions: new Map(),
+    publishedDrafts: new Map(),
+    lifecycleDrafts: [],
+    lifecyclePuzzles: [],
+    lifecycleAttempts: [],
+  };
+  return harness;
+}

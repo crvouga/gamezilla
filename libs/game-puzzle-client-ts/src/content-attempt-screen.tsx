@@ -26,6 +26,9 @@ function AttemptBody(props: {
   const game = useContentGame();
   const data = useContentLibraryState();
   const writer = useContentAttemptChange(() => props.attempt);
+  // An edition plays only under the rules it was published with.
+  const rulesChanged = () =>
+    props.attempt.rules_version !== game.content.rulesVersion;
   const progress = createMemo(() => {
     const saved = data
       .play()
@@ -58,6 +61,7 @@ function AttemptBody(props: {
             writer={writer}
             playtest={props.attempt.mode === 'playtest'}
             complete={progress()?.complete ?? false}
+            rulesChanged={rulesChanged()}
           />
         }
         aside={<P>{props.source.description}</P>}
@@ -65,7 +69,7 @@ function AttemptBody(props: {
           <ContentAttemptControls
             attempt={props.attempt}
             writer={writer}
-            progress={progress()}
+            progress={rulesChanged() ? null : progress()}
           />
         }
       >
@@ -86,7 +90,7 @@ function AttemptBody(props: {
               component={game.client.Player}
               definition={props.source.definition}
               state={state().state}
-              disabled={writer.pending()}
+              disabled={writer.pending() || rulesChanged()}
               onAction={(action: string) =>
                 writer.execute({ kind: 'play', action })
               }

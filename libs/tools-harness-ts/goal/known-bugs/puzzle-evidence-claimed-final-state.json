@@ -1,0 +1,4 @@
+{
+  "summary": "Publication accepted a client-supplied finished state as playtest proof, so a puzzle whose finished state is not reachable (a pushed crate drawn on its goal) could be published unplayable.",
+  "regressionTest": "libs/game-puzzle-shared-ts/tests/content-evidence.test.ts"
+}

@@ -22,6 +22,7 @@ export const restartPuzzleAttemptMutation = (
         definition,
         mode: earlier.mode,
         packRevisionId: earlier.pack_revision_id,
+        rulesVersion: earlier.rules_version,
       });
     },
   });

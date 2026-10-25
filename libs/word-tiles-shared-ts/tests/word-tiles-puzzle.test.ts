@@ -1,14 +1,14 @@
 import { beforeAll, describe, expect, test } from 'bun:test';
 import { starterContentProblems } from '@libs/game-puzzle-shared-ts/starter-content';
-import { wordTilesGameShared } from '../src/word-tiles-game';
-import { EMPTY_BOARD } from '../src/word-tiles-position';
+import { wordTilesGameShared } from '@libs/word-tiles-shared-ts/word-tiles-game';
+import { EMPTY_BOARD } from '@libs/word-tiles-shared-ts/word-tiles-position';
 import {
   decodePuzzle,
   encodePuzzle,
   scorePlacement,
   wordTilesPuzzleContent,
-} from '../src/word-tiles-puzzle';
-import { WORD_TILES_STARTER } from '../src/word-tiles-starter';
+} from '@libs/word-tiles-shared-ts/word-tiles-puzzle';
+import { WORD_TILES_STARTER } from '@libs/word-tiles-shared-ts/word-tiles-starter';
 import { boardWith, lexicon } from './word-tiles-fixtures';
 
 beforeAll(async () => {
@@ -17,6 +17,13 @@ beforeAll(async () => {
 
 const rules = wordTilesPuzzleContent.rules;
 const CAT = boardWith([['g8', 'across', 'CAT']]);
+const STARTER_SCORES: Readonly<Record<string, number>> = {
+  'first-word': 10,
+  'letter-bonus': 64,
+  'make-it-longer': 8,
+  'all-seven': 72,
+  'blank-tile': 8,
+};
 
 function definition(board: string, rack: string, target: number) {
   return encodePuzzle({
@@ -32,15 +39,13 @@ describe('one-move challenges', () => {
   test('every starter puzzle is proven by its witness, at the score worked out by hand', () => {
     expect(starterContentProblems(wordTilesGameShared)).toEqual([]);
     for (const puzzle of WORD_TILES_STARTER.puzzles) {
-      const witness = JSON.parse(puzzle.witness) as {
-        played: string;
-        score: number;
-      };
+      const action = puzzle.witness[0] ?? '';
+      expect(puzzle.witness).toHaveLength(1);
       const decoded = decodePuzzle(puzzle.definition);
       if (!decoded.valid) throw new Error(puzzle.id);
-      expect(scorePlacement(decoded.value, witness.played)).toEqual({
+      expect(scorePlacement(decoded.value, action)).toEqual({
         valid: true,
-        value: witness.score,
+        value: STARTER_SCORES[puzzle.id]!,
       });
     }
   });
@@ -92,9 +97,12 @@ describe('one-move challenges', () => {
   test('publication needs a witness that reaches the target, or a search that finds one', () => {
     const def = definition(EMPTY_BOARD, 'CATDOGS', 10);
     const short = JSON.stringify({ v: 1, played: 'play:h8=0.i8=1', score: 99 });
-    expect(wordTilesPuzzleContent.validatePublication?.(def, short).valid).toBe(
-      false
-    );
+    expect(
+      wordTilesPuzzleContent.validatePublication?.(def, {
+        actions: ['play:h8=0.i8=1'],
+        state: short,
+      }).valid
+    ).toBe(false);
     expect(wordTilesPuzzleContent.validatePublication?.(def).valid).toBe(true);
     const impossible = definition(EMPTY_BOARD, 'QZ', 500);
     expect(wordTilesPuzzleContent.solver?.solve(impossible).status).toBe(

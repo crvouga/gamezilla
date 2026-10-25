@@ -1,6 +1,7 @@
 import type {
   PuzzleChange,
   PuzzleContent,
+  PuzzleEvidence,
   PuzzleIssue,
   PuzzleSolution,
   PuzzleValidation,
@@ -359,12 +360,12 @@ function solve(definition: string): PuzzleSolution {
  */
 function validatePublication(
   definition: string,
-  solution?: string
+  evidence?: PuzzleEvidence
 ): PuzzleValidation {
   const puzzle = decodePuzzle(definition);
   if (!puzzle.valid) return puzzle;
-  if (solution !== undefined)
-    return complete(definition, solution)
+  if (evidence !== undefined)
+    return complete(definition, evidence.state)
       ? { valid: true }
       : {
           valid: false,
@@ -397,6 +398,7 @@ function validatePublication(
 }
 
 export const wordTilesPuzzleContent: PuzzleContent = {
+  rulesVersion: 1,
   history: 'snapshots',
   rules: {
     validateDefinition: (definition) => {

@@ -13,6 +13,7 @@ import { attemptCommandSchema, decodeAttemptHistory } from './attempt-types';
 import type { ContentMutationCtx } from './content-store';
 import { contentGame } from './content-store';
 import { contentId } from './content-types';
+import { requireAttemptRules } from './create-attempt';
 import { saveAttemptPosition } from './save-attempt-position';
 
 export const changePuzzleAttemptMutation = (
@@ -40,6 +41,7 @@ export const changePuzzleAttemptMutation = (
         );
       const definition = await attemptDefinition(ctx, attempt);
       const game = contentGame(ctx.puzzleContents, attempt.game_id);
+      requireAttemptRules(game, attempt.rules_version);
       const next = advanceAttemptHistory({
         game,
         definition,

@@ -5,15 +5,15 @@
 | Check | Current result |
 | --- | --- |
 | Source shape | Exactly one authored chart, `specs/product.machine.json`, named `product` |
-| State identity and sources | All 419 states have globally unique names, matching ids, descriptions and existing source references |
-| Complete graph traversal | 4,570 reachable configurations; all 419 states and 1,114 transitions reached |
+| State identity and sources | All 441 states have globally unique names, matching ids, descriptions and existing source references |
+| Complete graph traversal | 4,670 reachable configurations; all 441 states and 1,205 transitions reached |
 | Identity and access | No reachable guest or deleted-account configuration carries paid access |
 | Guided journeys | All 46 journeys replay from the product's canonical initial configuration to their declared outcomes |
-| Generated paths | 879 guided/generated paths collectively cover all 1,114 transitions; every planned sequence replays |
+| Generated paths | 968 guided/generated paths collectively cover all 1,205 transitions; every planned sequence replays |
 | Portable serialization | SCXML round-trip preserves states, nesting, initial states, transitions, metadata and rule cards |
 | Compiled model integrity | The enriched JSON guide preserves the one authored topology and all journeys |
 | Public routes | All 39 registered route patterns have a reachable chart owner; declared routes are read statically from the composed client and product entry |
-| Source-derived catalog | 4,330 contract cards from 527 source files, including complete feature and decision documents, expanded scenarios, decision rows, models, glossary definitions and scope notes |
+| Source-derived catalog | 4,809 contract cards from 565 source files, including complete feature and decision documents, expanded scenarios, decision rows, models, glossary definitions and scope notes |
 | Diagnostics | Zero structural or source-ownership findings; traversal completed |
 
 These numbers describe the current source. After a change, regenerate the

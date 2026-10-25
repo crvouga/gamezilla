@@ -7,18 +7,19 @@ import {
   type GameRegistration,
   isGameRegistration,
 } from '@libs/game-session-shared-ts/game-definition';
+import { heartsGameShared } from '@libs/hearts-shared-ts/hearts-game';
 import {
   lightCyclesDuelShared,
   lightCyclesQuadShared,
   lightCyclesTrioShared,
 } from '@libs/light-cycles-shared-ts/light-cycles-game';
-import { heartsGameShared } from '@libs/hearts-shared-ts/hearts-game';
 import { numberlinkGameShared } from '@libs/numberlink-shared-ts/numberlink-game';
 import { pongGameShared } from '@libs/pong-shared-ts/pong-game';
 import {
   quoridorGameShared,
   quoridorHillGameShared,
 } from '@libs/quoridor-shared-ts/quoridor-game';
+import { sokobanGameShared } from '@libs/sokoban-shared-ts/sokoban-game';
 import { assertGameRegistry } from '@libs/spaces-shared-ts/load-game-plugins';
 import {
   wordTiles3GameShared,
@@ -38,6 +39,7 @@ export const GAME_DEFINITIONS = [
   connectFourGameShared,
   battleshipGameShared,
   numberlinkGameShared,
+  sokobanGameShared,
   quoridorGameShared,
   quoridorHillGameShared,
   wordTilesGameShared,

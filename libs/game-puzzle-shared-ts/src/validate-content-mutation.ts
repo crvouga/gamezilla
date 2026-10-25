@@ -2,8 +2,10 @@ import sql from '@pkgs/sql-root-shared-ts/sql';
 import { defineMutation } from '@pkgs/sync-engine-shared-ts/define-mutation';
 import type { PuzzleContentCatalog } from '@pkgs/turn-game-shared-ts/puzzle-content-catalog';
 import { z } from 'zod';
+import { encodeContentEvidence } from './content-evidence';
 import type { ContentMutationCtx } from './content-store';
 import {
+  contentGame,
   readContentDraft,
   requireContentAuthor,
   requireDraftOf,
@@ -20,7 +22,7 @@ export const validatePuzzleContentDraftMutation = (
       .object({
         documentId: contentId,
         draftId: contentId,
-        solution: z.string().max(65_536).optional(),
+        playtestAttemptId: contentId.optional(),
       })
       .strict(),
     async run(baseCtx, args) {
@@ -30,17 +32,23 @@ export const validatePuzzleContentDraftMutation = (
         doc,
         await readContentDraft(ctx.tx, args.draftId)
       );
-      const checked = await validateContentDraft(
+      const { validation, evidence } = await validateContentDraft(
         ctx,
         doc,
         draft,
-        args.solution
+        args.playtestAttemptId
       );
+      const game = contentGame(ctx.puzzleContents, doc.game_id);
+      const kept = !validation.valid
+        ? null
+        : evidence === null
+          ? draft.validation_solution
+          : encodeContentEvidence(game, evidence);
       await ctx.tx.run(sql`
     UPDATE puzzle_content_drafts
-    SET validation_status = ${checked.valid ? 'valid' : 'invalid'},
-        validation_issues = ${JSON.stringify(checked.valid ? [] : checked.issues)},
-        validation_solution = ${checked.valid ? (args.solution ?? draft.validation_solution) : null}
+    SET validation_status = ${validation.valid ? 'valid' : 'invalid'},
+        validation_issues = ${JSON.stringify(validation.valid ? [] : validation.issues)},
+        validation_solution = ${kept}
     WHERE id = ${draft.id}
   `);
     },

@@ -5,13 +5,15 @@ import {
   PLAYABLE_GAME_DEFINITIONS,
 } from '@libs/games-shared-ts/game-plugins';
 
-test('the product registers Numberlink with puzzle capabilities and no turn engine', () => {
-  const numberlink = GAME_DEFINITIONS.find((game) => game.id === 'numberlink');
-  expect(numberlink).toBeDefined();
-  expect(numberlink?.puzzleContent).toBeDefined();
-  expect(numberlink?.registration).toBeUndefined();
-  expect(numberlink?.turnGame).toBeUndefined();
-  expect(isGameRegistration(numberlink)).toBe(false);
+test('the product registers Numberlink and Sokoban with puzzle capabilities and no turn engine', () => {
+  for (const id of ['numberlink', 'sokoban']) {
+    const game = GAME_DEFINITIONS.find((entry) => entry.id === id);
+    expect(game).toBeDefined();
+    expect(game?.puzzleContent).toBeDefined();
+    expect(game?.registration).toBeUndefined();
+    expect(game?.turnGame).toBeUndefined();
+    expect(isGameRegistration(game)).toBe(false);
+  }
   expect(PLAYABLE_GAME_DEFINITIONS.map((game) => game.id)).toEqual(
     GAME_DEFINITIONS.filter(isGameRegistration).map((game) => game.id)
   );

@@ -16,6 +16,8 @@ import {
   assertGameClientDefinitions,
   defineGameClient,
 } from '@libs/game-menu-client-ts/game-client';
+import { gameChoices } from '@libs/game-menu-client-ts/game-menu-choices';
+import { SHARED_GAME_SCREEN } from '@libs/game-menu-client-ts/shared-game-screens';
 import type { GamePuzzlesClient } from '@libs/game-puzzle-client-ts/puzzle-client';
 import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import type { PuzzlesCapability } from '@pkgs/turn-game-shared-ts/game-puzzles';
@@ -81,6 +83,7 @@ const parts = {
 const client: GameClient = { ...parts, shared: plain };
 
 const content: PuzzleContent = {
+  rulesVersion: 1,
   rules: {
     validateDefinition: () => ({ valid: true }),
     initial: () => ({ accepted: true, state: rules.initial() }),
@@ -110,6 +113,20 @@ test('a puzzle-only client needs its player and no turn-game presentation', () =
   expect(defined.puzzles).toBeUndefined();
   expect(defined.puzzleContent?.Player).toBe(Player);
   expect(typeof defined.MainMenu).toBe('function');
+});
+
+// regression: puzzle-only-menu-reads-turn-rules
+test("a puzzle-only game's menu offers its puzzles without reading turn rules", () => {
+  const game: GameClient = {
+    shared: defineGame({ id: 'race-puzzle', puzzleContent: content }),
+    title: 'Race puzzle',
+    caption: 'Reach seven',
+    subtitle: () => 'Count on.',
+    puzzleContent: { Player: () => null },
+  };
+  expect(gameChoices(game, () => false).map((choice) => choice.screen)).toEqual(
+    [SHARED_GAME_SCREEN.content]
+  );
 });
 
 test('puzzle rendering agrees with standalone and combined registrations', () => {

@@ -9,6 +9,7 @@ import {
 } from '@libs/game-puzzle-shared-ts/content-store';
 import { publishPuzzleContentMutation as publish } from '@libs/game-puzzle-shared-ts/publish-content-mutation';
 import { savePuzzleContentDraftMutation as save } from '@libs/game-puzzle-shared-ts/save-content-draft-mutation';
+import { startPuzzlePlaytestMutation } from '@libs/game-puzzle-shared-ts/start-playtest-mutation';
 import { validatePuzzleContentDraftMutation as validate } from '@libs/game-puzzle-shared-ts/validate-content-mutation';
 import { withdrawPuzzleContentMutation as withdraw } from '@libs/game-puzzle-shared-ts/withdraw-content-mutation';
 import type { Sql } from '@pkgs/sql-root-shared-ts/sql';
@@ -152,6 +153,17 @@ test('a valid flag or an incomplete witness cannot authorize invalid publication
       )
     ).rejects.toMatchObject({ code: 'PUZZLE_PUBLICATION_INVALID' });
     await createContentFixture(fixture, { id: 'valley', title: 'Valley' });
+    await db.transaction((tx) =>
+      startPuzzlePlaytestMutation(fixture.puzzleContents).run(
+        { tx, env },
+        {
+          documentId: 'valley',
+          draftId: 'valley-first',
+          attemptId: 'unfinished',
+          positionId: 'unfinished-start',
+        }
+      )
+    );
     await expect(
       db.transaction((tx) =>
         publish(fixture.puzzleContents).run(
@@ -159,7 +171,7 @@ test('a valid flag or an incomplete witness cannot authorize invalid publication
           {
             documentId: 'valley',
             draftId: 'valley-first',
-            solution: 'pile:2:white',
+            playtestAttemptId: 'unfinished',
           }
         )
       )

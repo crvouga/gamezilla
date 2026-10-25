@@ -37,7 +37,10 @@ test('the opaque capability produces the same validated states and completion as
           true
         );
         expect(
-          numberlinkPuzzleContent.validatePublication?.(encoded, state)
+          numberlinkPuzzleContent.validatePublication?.(encoded, {
+            actions: [],
+            state,
+          })
         ).toEqual({ valid: true });
         expect(numberlinkPuzzleContent.statistics?.(encoded, state)).toEqual({
           connectedPairs: height,
@@ -52,10 +55,16 @@ test('publication requires a valid solved witness or a successful search using t
   const definition = encodeNumberlinkDefinition(TWO_ROWS);
   const solution = encodeNumberlinkState(TWO_ROWS, TWO_ROWS_SOLUTION);
   expect(
-    numberlinkPuzzleContent.validatePublication?.(definition, solution)
+    numberlinkPuzzleContent.validatePublication?.(definition, {
+      actions: [],
+      state: solution,
+    })
   ).toEqual({ valid: true });
   expect(
-    numberlinkPuzzleContent.validatePublication?.(definition, '{"paths":[]}')
+    numberlinkPuzzleContent.validatePublication?.(definition, {
+      actions: [],
+      state: '{"paths":[]}',
+    })
   ).toMatchObject({ valid: false });
   expect(numberlinkPuzzleContent.validatePublication?.(definition)).toEqual({
     valid: true,

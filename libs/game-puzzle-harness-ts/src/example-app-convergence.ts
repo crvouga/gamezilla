@@ -24,33 +24,39 @@ function canonical(rows: readonly QueryRow[]): string {
   return JSON.stringify(ordered);
 }
 
-export async function contentClientsConverged(args: {
-  readonly clients: readonly {
-    readonly label: string;
-    readonly db: SqlClient;
-  }[];
-  readonly serverDb: SqlClient;
-}): Promise<InvariantViolation | null> {
-  for (const client of args.clients) {
-    const expected = await exampleContentSnapshot({
-      db: { query: (query) => args.serverDb.query(query as Sql<QueryRow>) },
-      env: {
-        ...identityFor('guest'),
-        actorId: contentActorId(client.label.split(':')[0] ?? ''),
-        deviceId: client.label,
-        now: () => new Date(0),
-      },
-    });
-    for (const [table, rows] of Object.entries(expected)) {
-      const local = await client.db.query(
-        sql<QueryRow>`SELECT * FROM ${raw(table)}`
+/** Every device holds exactly its authorized server view of the games' content. */
+export const contentClientsConverged =
+  (gameIds: readonly string[]) =>
+  async (args: {
+    readonly clients: readonly {
+      readonly label: string;
+      readonly db: SqlClient;
+    }[];
+    readonly serverDb: SqlClient;
+  }): Promise<InvariantViolation | null> => {
+    for (const client of args.clients) {
+      const expected = await exampleContentSnapshot(
+        {
+          db: { query: (query) => args.serverDb.query(query as Sql<QueryRow>) },
+          env: {
+            ...identityFor('guest'),
+            actorId: contentActorId(client.label.split(':')[0] ?? ''),
+            deviceId: client.label,
+            now: () => new Date(0),
+          },
+        },
+        gameIds
       );
-      if (canonical(local) !== canonical(rows))
-        return {
-          invariant: 'convergence',
-          detail: `${client.label}: ${table} differs from its authorized server view`,
-        };
+      for (const [table, rows] of Object.entries(expected)) {
+        const local = await client.db.query(
+          sql<QueryRow>`SELECT * FROM ${raw(table)}`
+        );
+        if (canonical(local) !== canonical(rows))
+          return {
+            invariant: 'convergence',
+            detail: `${client.label}: ${table} differs from its authorized server view`,
+          };
+      }
     }
-  }
-  return null;
-}
+    return null;
+  };

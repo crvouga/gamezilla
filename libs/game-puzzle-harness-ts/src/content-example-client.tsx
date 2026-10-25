@@ -5,6 +5,7 @@ import type {
   PuzzlePlayerProps,
 } from '@libs/game-puzzle-client-ts/puzzle-content-client';
 import { SpacesNavProvider } from '@libs/spaces-client-ts/spaces-nav-context';
+import type { PuzzleContent } from '@pkgs/turn-game-shared-ts/puzzle-content';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -47,19 +48,25 @@ function CountingPlayer(props: PuzzlePlayerProps): JSX.Element {
   );
 }
 
-const client: PuzzleContentClient = {
+export const countingContentClient: PuzzleContentClient = {
   Player: CountingPlayer,
   authoring: { initialDefinition: () => 'target:', Editor: CountingEditor },
 };
 
-export function ContentExampleClient(): JSX.Element {
+/** The shared content experience of one harness game, as the app offers it. */
+export function ContentExampleClient(props: {
+  gameId: string;
+  title: string;
+  content: PuzzleContent;
+  client: PuzzleContentClient;
+}): JSX.Element {
   return (
     <SpacesNavProvider>
       <ContentExperience
-        gameId="counting"
-        title="Counting"
-        content={examplePuzzleContent}
-        client={client}
+        gameId={props.gameId}
+        title={props.title}
+        content={props.content}
+        client={props.client}
         onBack={() => {
           throw new Error('This fixture opens the puzzle library directly');
         }}

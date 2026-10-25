@@ -22,7 +22,8 @@
     "@libs/word-tiles-client-ts": "workspace:*",
     "@libs/word-tiles-shared-ts": "workspace:*",
     "@pkgs/gherkin-shared-ts": "workspace:*",
-    "@pkgs/harness-root-shared-ts": "workspace:*"
+    "@pkgs/harness-root-shared-ts": "workspace:*",
+    "@pkgs/turn-game-shared-ts": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/bun-test-solid-client-ts": "workspace:*",

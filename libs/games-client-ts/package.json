@@ -19,11 +19,12 @@
     "@libs/connect-four-client-ts": "workspace:*",
     "@libs/game-menu-client-ts": "workspace:*",
     "@libs/games-shared-ts": "workspace:*",
-    "@libs/light-cycles-client-ts": "workspace:*",
     "@libs/hearts-client-ts": "workspace:*",
+    "@libs/light-cycles-client-ts": "workspace:*",
     "@libs/numberlink-client-ts": "workspace:*",
     "@libs/pong-client-ts": "workspace:*",
     "@libs/quoridor-client-ts": "workspace:*",
+    "@libs/sokoban-client-ts": "workspace:*",
     "@libs/spaces-shared-ts": "workspace:*",
     "@libs/word-tiles-client-ts": "workspace:*"
   },

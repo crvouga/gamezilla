@@ -20,7 +20,7 @@ every rule in a feature.
 | [Feedback](../../specs/feedback/) | Feedback |
 | [Friends](../../specs/friends/) | Friendships, inbox |
 | [Games](../../specs/games/) | Game choices, Custom Games, multiplayer, finding a Pong opponent without a clock and matched Pong without turns |
-| [Journeys](../../specs/journeys/) | Whole-product root, Pong and puzzle content |
+| [Journeys](../../specs/journeys/) | Whole-product root, Pong, Sokoban and puzzle content |
 | [Matchmaking](../../specs/matchmaking/) | Independent matchmaking contract |
 | [Numberlink](../../specs/numberlink/) | Numberlink |
 | [Pong](../../specs/pong/) | Pong |
@@ -28,6 +28,7 @@ every rule in a feature.
 | [Puzzles](../../specs/puzzles/) | Puzzle content: drafts, playtests, editions, packs, attempts and pack progress |
 | [Room](../../specs/room/) | Independent room contract |
 | [Runtime](../../specs/runtime/) | App navigation, settings, opening and updates, environment, inspection scope |
+| [Sokoban](../../specs/sokoban/) | Sokoban |
 | [Spaces](../../specs/spaces/) | Spaces |
 | [Sync engine](../../specs/sync-engine/) | Independent notes contract, related inspection scope |
 | [Synthetic Population](../../specs/synthetic-population/) | Test worlds, Pong |

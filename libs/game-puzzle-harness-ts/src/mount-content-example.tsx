@@ -46,7 +46,12 @@ export async function mountContentExample(s: ContentHarness, clientId: string) {
               >
                 <SurfaceStackProvider>
                   <ContentExampleHost>
-                    <ContentExampleClient />
+                    <ContentExampleClient
+                      gameId={s.game.id}
+                      title={s.game.title}
+                      content={s.content}
+                      client={s.game.client}
+                    />
                   </ContentExampleHost>
                 </SurfaceStackProvider>
               </ThemeProvider>

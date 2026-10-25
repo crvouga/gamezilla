@@ -112,7 +112,7 @@ Feature: Undo and redo draft edits
       Then Alice can resume editing her private puzzle draft "River"
       And Alice is not offered undo or redo for her draft
 
-    Scenario: Reopening ends earlier and undone editing choices together
+    Scenario: Reopening clears earlier and undone editing choices together
       Given Alice has edited its draft title to "Valley" and then "Harbor"
       And Alice has undone her last draft edit
       When Alice reopens the app

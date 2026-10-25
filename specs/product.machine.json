@@ -939,7 +939,31 @@
       "Reviews a Light Cycles Quad game": "user",
       "Chooses Hearts": "user",
       "Opens a Hearts custom game": "user",
-      "Reviews a Hearts game": "user"
+      "Reviews a Hearts game": "user",
+      "Opens a Sokoban puzzle whose crates all start on goals": "user",
+      "Opens Sokoban puzzles and packs": "user",
+      "Builds a new Sokoban board": "user",
+      "Undoes a Sokoban move": "user",
+      "Redoes a Sokoban move": "user",
+      "Restarts the Sokoban puzzle": "user",
+      "Continues the Sokoban attempt on another device": "user",
+      "Undoes before the first Sokoban move": "user",
+      "Sokoban's rules change during play": "system",
+      "Returns to Sokoban choices": "user",
+      "Returns to the Sokoban puzzle": "user",
+      "Reopens the Sokoban draft": "user",
+      "Changes only the details of the Sokoban draft": "user",
+      "Playtests the Sokoban draft": "user",
+      "Publishes a Sokoban draft without a completed playtest": "user",
+      "Returns to the Sokoban board": "user",
+      "Completes the Sokoban playtest": "user",
+      "Stops the Sokoban playtest before completion": "user",
+      "Sokoban's rules change": "system",
+      "Playtests the proven Sokoban board again": "user",
+      "Publishes the proven Sokoban draft": "user",
+      "Publishes the proven Sokoban draft without a connection": "user",
+      "Builds the Sokoban board of the draft": "user",
+      "Chooses Sokoban": "user"
     }
   },
   "states": {
@@ -1011,7 +1035,9 @@
                 "description": "A guest explores with free access and the guest allowance; an account is needed for paid access.",
                 "snapshot": "A guest explores with free access and the guest allowance; an account is needed for paid access.",
                 "confidence": "assumed",
-                "source": ["specs/profile/profile-defaults.feature:7"],
+                "source": [
+                  "specs/profile/profile-defaults.feature:7"
+                ],
                 "events": []
               },
               "on": {
@@ -1224,7 +1250,9 @@
                     "Spaces: Lobby": {
                       "id": "Spaces: Lobby",
                       "meta": {
-                        "routes": ["/"],
+                        "routes": [
+                          "/"
+                        ],
                         "description": "Spaces lists hosted, joined and discoverable friends’ open spaces.",
                         "snapshot": "Spaces lists hosted, joined and discoverable friends’ open spaces.",
                         "confidence": "assumed",
@@ -1234,7 +1262,9 @@
                           "specs/spaces/spaces.feature:6"
                         ],
                         "events": [],
-                        "hints": ["App address: /"]
+                        "hints": [
+                          "App address: /"
+                        ]
                       },
                       "on": {
                         "Creates below the hosting limit online": {
@@ -1433,7 +1463,9 @@
                         "description": "The link identifies an open space and joining is in progress.",
                         "snapshot": "The link identifies an open space and joining is in progress.",
                         "confidence": "assumed",
-                        "source": ["specs/spaces/space-links.feature:7"],
+                        "source": [
+                          "specs/spaces/space-links.feature:7"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -1487,7 +1519,9 @@
                     "Spaces: Hosting a space": {
                       "id": "Spaces: Hosting a space",
                       "meta": {
-                        "routes": ["/space/:id"],
+                        "routes": [
+                          "/space/:id"
+                        ],
                         "description": "The host sees the space’s people and choices and can play.",
                         "snapshot": "The host sees the space’s people and choices and can play.",
                         "confidence": "assumed",
@@ -1504,7 +1538,9 @@
                           "specs/spaces/space-remove-person.feature"
                         ],
                         "events": [],
-                        "hints": ["App address: /space/:id"]
+                        "hints": [
+                          "App address: /space/:id"
+                        ]
                       },
                       "on": {
                         "Shares the space link": {
@@ -1990,7 +2026,10 @@
                     "Profile: Viewing the profile": {
                       "id": "Profile: Viewing the profile",
                       "meta": {
-                        "routes": ["/profile", "/more/account"],
+                        "routes": [
+                          "/profile",
+                          "/more/account"
+                        ],
                         "description": "The current username, avatar and profile are shown.",
                         "snapshot": "The current username, avatar and profile are shown.",
                         "confidence": "assumed",
@@ -2032,7 +2071,9 @@
                     "Profile: Account devices": {
                       "id": "Profile: Account devices",
                       "meta": {
-                        "routes": ["/more/account/devices"],
+                        "routes": [
+                          "/more/account/devices"
+                        ],
                         "description": "Only this account's signed-in devices are listed and this device is identified. A device disappears from this list when it signs out.",
                         "snapshot": "Only this account's signed-in devices are listed and this device is identified. A device disappears from this list when it signs out.",
                         "confidence": "assumed",
@@ -2041,7 +2082,9 @@
                           "specs/profile/devices.feature:15"
                         ],
                         "events": [],
-                        "hints": ["App address: /more/account/devices"]
+                        "hints": [
+                          "App address: /more/account/devices"
+                        ]
                       },
                       "on": {
                         "Another account device signs out": {
@@ -2061,7 +2104,9 @@
                         "description": "A guest is asked to sign in before seeing account devices; no account's device list is exposed.",
                         "snapshot": "A guest is asked to sign in before seeing account devices; no account's device list is exposed.",
                         "confidence": "assumed",
-                        "source": ["specs/profile/devices.feature:22"],
+                        "source": [
+                          "specs/profile/devices.feature:22"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -2076,7 +2121,9 @@
                         "description": "Signing out everywhere ends this account's device sessions. Other devices are signed out within one hundred fifty seconds; saved account data remains with the account.",
                         "snapshot": "Signing out everywhere ends this account's device sessions. Other devices are signed out within one hundred fifty seconds; saved account data remains with the account.",
                         "confidence": "assumed",
-                        "source": ["specs/profile/sessions.feature:9"],
+                        "source": [
+                          "specs/profile/sessions.feature:9"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -2347,7 +2394,9 @@
                 "App: Signing in": {
                   "id": "App: Signing in",
                   "meta": {
-                    "routes": ["/sso-callback"],
+                    "routes": [
+                      "/sso-callback"
+                    ],
                     "description": "Google and Apple identify the person; account matching always preserves the person’s choice.",
                     "snapshot": "Outside providers prove the chosen account while the current profile is preserved.",
                     "confidence": "assumed",
@@ -2371,7 +2420,9 @@
                       "specs/ubiquitous-language.yml"
                     ],
                     "events": [],
-                    "hints": ["App address: /sso-callback"]
+                    "hints": [
+                      "App address: /sso-callback"
+                    ]
                   },
                   "initial": "Sign In: Choosing a method",
                   "states": {
@@ -2569,7 +2620,9 @@
                         "description": "Invalid or stolen proof gives no access to another person’s account.",
                         "snapshot": "Invalid or stolen proof gives no access to another person’s account.",
                         "confidence": "assumed",
-                        "source": ["specs/auth/stolen-sign-ins.feature:10"],
+                        "source": [
+                          "specs/auth/stolen-sign-ins.feature:10"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -2680,7 +2733,9 @@
                         "description": "The person keeps the profile they had before signing in.",
                         "snapshot": "The person keeps the profile they had before signing in.",
                         "confidence": "assumed",
-                        "source": ["specs/profile/sign-in-abandoned.feature:7"],
+                        "source": [
+                          "specs/profile/sign-in-abandoned.feature:7"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -2712,13 +2767,19 @@
                     "Sign In Methods: Connected methods": {
                       "id": "Sign In Methods: Connected methods",
                       "meta": {
-                        "routes": ["/more/account/providers"],
+                        "routes": [
+                          "/more/account/providers"
+                        ],
                         "description": "The account’s connected methods are shown.",
                         "snapshot": "The account’s connected methods are shown.",
                         "confidence": "assumed",
-                        "source": ["specs/profile/sign-in-methods.feature:7"],
+                        "source": [
+                          "specs/profile/sign-in-methods.feature:7"
+                        ],
                         "events": [],
-                        "hints": ["App address: /more/account/providers"]
+                        "hints": [
+                          "App address: /more/account/providers"
+                        ]
                       },
                       "on": {
                         "Connects a different provider with recent account proof": {
@@ -2744,7 +2805,9 @@
                         "description": "The chosen provider is proving the new method for this account.",
                         "snapshot": "The chosen provider is proving the new method for this account.",
                         "confidence": "assumed",
-                        "source": ["specs/profile/sign-in-methods.feature"],
+                        "source": [
+                          "specs/profile/sign-in-methods.feature"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -2765,7 +2828,9 @@
                         "description": "Connecting a method needs recent proof of the current account.",
                         "snapshot": "Connecting a method needs recent proof of the current account.",
                         "confidence": "assumed",
-                        "source": ["specs/profile/sign-in-methods.feature"],
+                        "source": [
+                          "specs/profile/sign-in-methods.feature"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -2780,7 +2845,9 @@
                         "description": "A method cannot move between accounts or replace the same provider’s method.",
                         "snapshot": "A method cannot move between accounts or replace the same provider’s method.",
                         "confidence": "assumed",
-                        "source": ["specs/profile/sign-in-methods.feature"],
+                        "source": [
+                          "specs/profile/sign-in-methods.feature"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -2795,7 +2862,9 @@
                         "description": "Removing this method requires confirmation and another connected method.",
                         "snapshot": "Removing this method requires confirmation and another connected method.",
                         "confidence": "assumed",
-                        "source": ["specs/profile/sign-in-methods.feature"],
+                        "source": [
+                          "specs/profile/sign-in-methods.feature"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -2813,7 +2882,9 @@
                         "description": "The last sign-in method stays connected so the person can return.",
                         "snapshot": "The last sign-in method stays connected so the person can return.",
                         "confidence": "assumed",
-                        "source": ["specs/profile/sign-in-methods.feature"],
+                        "source": [
+                          "specs/profile/sign-in-methods.feature"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -2846,7 +2917,9 @@
                     "Settings: Settings home": {
                       "id": "Settings: Settings home",
                       "meta": {
-                        "routes": ["/more"],
+                        "routes": [
+                          "/more"
+                        ],
                         "description": "Settings offers preferences, About and permitted account and product choices.",
                         "snapshot": "Settings offers preferences, About and permitted account and product choices.",
                         "confidence": "assumed",
@@ -2858,7 +2931,9 @@
                           "specs/runtime/settings.feature:7"
                         ],
                         "events": [],
-                        "hints": ["App address: /more"]
+                        "hints": [
+                          "App address: /more"
+                        ]
                       },
                       "on": {
                         "Opens appearance preferences": {
@@ -2887,13 +2962,19 @@
                     "Settings: Appearance": {
                       "id": "Settings: Appearance",
                       "meta": {
-                        "routes": ["/more/theme"],
+                        "routes": [
+                          "/more/theme"
+                        ],
                         "description": "Theme choices apply on this device and survive closing the app.",
                         "snapshot": "Theme choices apply on this device and survive closing the app.",
                         "confidence": "assumed",
-                        "source": ["specs/runtime/device-layouts.feature:6"],
+                        "source": [
+                          "specs/runtime/device-layouts.feature:6"
+                        ],
                         "events": [],
-                        "hints": ["App address: /more/theme"]
+                        "hints": [
+                          "App address: /more/theme"
+                        ]
                       },
                       "on": {
                         "Chooses a permitted theme": {
@@ -2907,7 +2988,9 @@
                     "Settings: Sounds": {
                       "id": "Settings: Sounds",
                       "meta": {
-                        "routes": ["/more/sound"],
+                        "routes": [
+                          "/more/sound"
+                        ],
                         "description": "Sound choices apply on this device and survive closing the app.",
                         "snapshot": "Sound choices apply on this device and survive closing the app.",
                         "confidence": "assumed",
@@ -2917,7 +3000,9 @@
                           "specs/runtime/settings.feature"
                         ],
                         "events": [],
-                        "hints": ["App address: /more/sound"]
+                        "hints": [
+                          "App address: /more/sound"
+                        ]
                       },
                       "on": {
                         "Changes the sound preference": {
@@ -2931,7 +3016,9 @@
                     "Settings: About": {
                       "id": "Settings: About",
                       "meta": {
-                        "routes": ["/more/about"],
+                        "routes": [
+                          "/more/about"
+                        ],
                         "description": "About identifies the version of the app on this device.",
                         "snapshot": "About identifies the version of the app on this device.",
                         "confidence": "assumed",
@@ -2941,7 +3028,9 @@
                           "specs/runtime/settings.feature"
                         ],
                         "events": [],
-                        "hints": ["App address: /more/about"]
+                        "hints": [
+                          "App address: /more/about"
+                        ]
                       },
                       "on": {
                         "Returns to Settings": {
@@ -2974,7 +3063,9 @@
                     "Privacy: Account privacy": {
                       "id": "Privacy: Account privacy",
                       "meta": {
-                        "routes": ["/profile/privacy"],
+                        "routes": [
+                          "/profile/privacy"
+                        ],
                         "description": "Export and deletion choices are available according to account permission.",
                         "snapshot": "Export and deletion choices are available according to account permission.",
                         "confidence": "assumed",
@@ -2987,7 +3078,9 @@
                           "specs/profile/account-privacy.qnt"
                         ],
                         "events": [],
-                        "hints": ["App address: /profile/privacy"]
+                        "hints": [
+                          "App address: /profile/privacy"
+                        ]
                       },
                       "on": {
                         "Requests deletion with recent proof online": {
@@ -3233,7 +3326,9 @@
                     "Privacy: Export ready": {
                       "id": "Privacy: Export ready",
                       "meta": {
-                        "routes": ["/profile/privacy/export/:accountId"],
+                        "routes": [
+                          "/profile/privacy/export/:accountId"
+                        ],
                         "description": "Only the owning account with recent proof can download this complete export.",
                         "snapshot": "Only the owning account with recent proof can download this complete export.",
                         "confidence": "assumed",
@@ -3392,7 +3487,9 @@
                     "Billing: Plans": {
                       "id": "Billing: Plans",
                       "meta": {
-                        "routes": ["/more/billing"],
+                        "routes": [
+                          "/more/billing"
+                        ],
                         "description": "Monthly and yearly Plus plans show their price and trial before purchase.",
                         "snapshot": "Monthly and yearly Plus plans show their price and trial before purchase.",
                         "confidence": "assumed",
@@ -3410,7 +3507,9 @@
                           "specs/billing/subscribe.feature:7"
                         ],
                         "events": [],
-                        "hints": ["App address: /more/billing"]
+                        "hints": [
+                          "App address: /more/billing"
+                        ]
                       },
                       "on": {
                         "Current billing information shows a trial": {
@@ -3728,7 +3827,9 @@
                         "description": "The provider is opening membership management.",
                         "snapshot": "The provider is opening membership management.",
                         "confidence": "assumed",
-                        "source": ["specs/billing/billing-portal.feature:7"],
+                        "source": [
+                          "specs/billing/billing-portal.feature:7"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -4173,7 +4274,10 @@
                     "Friends: People and friends": {
                       "id": "Friends: People and friends",
                       "meta": {
-                        "routes": ["/search", "/profile/friends"],
+                        "routes": [
+                          "/search",
+                          "/profile/friends"
+                        ],
                         "description": "The friends list and people search show only people the person may find.",
                         "snapshot": "The friends list and people search show only people the person may find.",
                         "confidence": "assumed",
@@ -4327,7 +4431,9 @@
                     "Friends: Person to ask": {
                       "id": "Friends: Person to ask",
                       "meta": {
-                        "routes": ["/profile/user/:userId"],
+                        "routes": [
+                          "/profile/user/:userId"
+                        ],
                         "description": "The person may send an allowed friend request or block this person.",
                         "snapshot": "The person may send an allowed friend request or block this person.",
                         "confidence": "assumed",
@@ -4341,7 +4447,9 @@
                           "specs/friends/friend-request-inbox.feature:22"
                         ],
                         "events": [],
-                        "hints": ["App address: /profile/user/:userId"]
+                        "hints": [
+                          "App address: /profile/user/:userId"
+                        ]
                       },
                       "on": {
                         "Returns to the people list": {
@@ -4642,7 +4750,9 @@
                         "description": "The confirmed removal is in progress; completion ends the friendship for both people and updates both friend counts.",
                         "snapshot": "The confirmed removal is in progress; completion ends the friendship for both people and updates both friend counts.",
                         "confidence": "assumed",
-                        "source": ["specs/friends/friend-remove.feature:17"],
+                        "source": [
+                          "specs/friends/friend-remove.feature:17"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -4707,13 +4817,19 @@
                     "Inbox: Inbox": {
                       "id": "Inbox: Inbox",
                       "meta": {
-                        "routes": ["/notifications"],
+                        "routes": [
+                          "/notifications"
+                        ],
                         "description": "The person sees their current inbox and available choices.",
                         "snapshot": "The person sees their current inbox and available choices.",
                         "confidence": "assumed",
-                        "source": ["specs/README.md#context-map"],
+                        "source": [
+                          "specs/README.md#context-map"
+                        ],
                         "events": [],
-                        "hints": ["App address: /notifications"]
+                        "hints": [
+                          "App address: /notifications"
+                        ]
                       },
                       "on": {
                         "Opens an unread notice": {
@@ -4742,7 +4858,9 @@
                         "description": "This owned notice is unread and its current action is shown.",
                         "snapshot": "This owned notice is unread and its current action is shown.",
                         "confidence": "assumed",
-                        "source": ["specs/README.md#context-map"],
+                        "source": [
+                          "specs/README.md#context-map"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -4766,7 +4884,9 @@
                         "description": "Reading a notice does not invent an outcome for its request.",
                         "snapshot": "Reading a notice does not invent an outcome for its request.",
                         "confidence": "assumed",
-                        "source": ["specs/README.md#context-map"],
+                        "source": [
+                          "specs/README.md#context-map"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -4790,7 +4910,9 @@
                         "description": "The current request is being accepted once for this person.",
                         "snapshot": "The current request is being accepted once for this person.",
                         "confidence": "assumed",
-                        "source": ["specs/README.md#context-map"],
+                        "source": [
+                          "specs/README.md#context-map"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -4811,7 +4933,9 @@
                         "description": "The failed inbox action has an explanation without losing the notice.",
                         "snapshot": "The failed inbox action has an explanation without losing the notice.",
                         "confidence": "assumed",
-                        "source": ["specs/README.md#context-map"],
+                        "source": [
+                          "specs/README.md#context-map"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -4826,7 +4950,9 @@
                         "description": "An ended or expired request cannot still be accepted.",
                         "snapshot": "An ended or expired request cannot still be accepted.",
                         "confidence": "assumed",
-                        "source": ["specs/README.md#context-map"],
+                        "source": [
+                          "specs/README.md#context-map"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -4847,7 +4973,9 @@
                         "description": "Archived notices keep their history and do not revive ended requests.",
                         "snapshot": "Archived notices keep their history and do not revive ended requests.",
                         "confidence": "assumed",
-                        "source": ["specs/README.md#context-map"],
+                        "source": [
+                          "specs/README.md#context-map"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -4862,7 +4990,7 @@
                   "id": "App: Games",
                   "meta": {
                     "description": "The host chooses a registered game; participants play or watch according to their permission.",
-                    "snapshot": "The space offers Chess, Connect Four, Battleship, Classic Quoridor, Four-Player King of the Hill, Hearts, Pong, Light Cycles Duel, Light Cycles Trio, Light Cycles Quad, Numberlink and Word Tiles.",
+                    "snapshot": "The space offers Chess, Connect Four, Battleship, Classic Quoridor, Four-Player King of the Hill, Hearts, Pong, Light Cycles Duel, Light Cycles Trio, Light Cycles Quad, Sokoban, Numberlink and Word Tiles.",
                     "confidence": "assumed",
                     "source": [
                       "specs/games/space-follow.qnt",
@@ -4978,6 +5106,9 @@
                         },
                         "Chooses Hearts": {
                           "target": "#Games: Hearts choices"
+                        },
+                        "Chooses Sokoban": {
+                          "target": "#Games: Sokoban"
                         }
                       }
                     },
@@ -5826,7 +5957,9 @@
                             "description": "A path cannot start between endpoints, jump over a cell, step diagonally, revisit its own cell, cross another path, pass another pair's endpoint or continue beyond its matching endpoint; the drawing is unchanged.",
                             "snapshot": "A path cannot start between endpoints, jump over a cell, step diagonally, revisit its own cell, cross another path, pass another pair's endpoint or continue beyond its matching endpoint; the drawing is unchanged.",
                             "confidence": "assumed",
-                            "source": ["specs/numberlink/draw-paths.feature"],
+                            "source": [
+                              "specs/numberlink/draw-paths.feature"
+                            ],
                             "events": []
                           },
                           "on": {
@@ -5870,6 +6003,7 @@
                           "specs/puzzles/author-drafts.feature",
                           "specs/puzzles/author-packs.feature",
                           "specs/puzzles/edit-draft-history.feature",
+                          "specs/puzzles/edition-rules.feature",
                           "specs/puzzles/keep-attempts.feature",
                           "specs/puzzles/offline-work.feature",
                           "specs/puzzles/pack-progression.feature",
@@ -5878,6 +6012,7 @@
                           "specs/puzzles/publish-packs.feature",
                           "specs/puzzles/publish-puzzles.feature",
                           "specs/puzzles/draft-editing.qnt",
+                          "specs/puzzles/edition-rules.qnt",
                           "specs/puzzles/pack-authoring.qnt",
                           "specs/puzzles/pack-progression.qnt",
                           "specs/puzzles/pack-publication.qnt",
@@ -5887,6 +6022,7 @@
                           "specs/puzzles/puzzle-publication.qnt",
                           "specs/puzzles/puzzle-content-access.dmn",
                           "specs/puzzles/ubiquitous-language.yml",
+                          "specs/journeys/sokoban-packs.feature",
                           "specs/journeys/numberlink-packs.feature"
                         ],
                         "events": []
@@ -5980,6 +6116,9 @@
                             },
                             "Returns to the puzzle library": {
                               "target": "#Puzzles: Puzzle library"
+                            },
+                            "Builds the Sokoban board of the draft": {
+                              "target": "#Sokoban: Board needs correcting"
                             }
                           }
                         },
@@ -6049,7 +6188,9 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/puzzles/publish-puzzles.feature",
-                              "specs/puzzles/puzzle-publication.qnt"
+                              "specs/puzzles/puzzle-publication.qnt",
+                              "specs/puzzles/edition-rules.feature",
+                              "specs/puzzles/edition-rules.qnt"
                             ],
                             "events": []
                           },
@@ -6068,6 +6209,9 @@
                             },
                             "Returns to the puzzle library": {
                               "target": "#Puzzles: Puzzle library"
+                            },
+                            "The game's rules change": {
+                              "target": "#Puzzles: Edition under earlier rules"
                             }
                           }
                         },
@@ -6147,6 +6291,7 @@
                               "specs/puzzles/puzzle-attempt.qnt",
                               "specs/puzzles/pack-progression.feature",
                               "specs/puzzles/pack-progression.qnt",
+                              "specs/journeys/sokoban-packs.feature",
                               "specs/journeys/numberlink-packs.feature"
                             ],
                             "events": []
@@ -6178,6 +6323,9 @@
                             },
                             "Returns to the puzzle library": {
                               "target": "#Puzzles: Puzzle library"
+                            },
+                            "The game's rules change during play": {
+                              "target": "#Puzzles: Attempt kept under earlier rules"
                             }
                           }
                         },
@@ -6189,7 +6337,8 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/puzzles/pack-progression.feature",
-                              "specs/puzzles/pack-progression.qnt"
+                              "specs/puzzles/pack-progression.qnt",
+                              "specs/journeys/sokoban-packs.feature"
                             ],
                             "events": []
                           },
@@ -6326,7 +6475,8 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/puzzles/publication-recovery.feature",
-                              "specs/puzzles/publication-recovery.qnt"
+                              "specs/puzzles/publication-recovery.qnt",
+                              "specs/journeys/sokoban-packs.feature"
                             ],
                             "events": []
                           },
@@ -6355,6 +6505,7 @@
                               "specs/puzzles/publish-packs.feature",
                               "specs/puzzles/pack-publication.qnt",
                               "specs/puzzles/publication-recovery.feature",
+                              "specs/journeys/sokoban-packs.feature",
                               "specs/journeys/numberlink-packs.feature"
                             ],
                             "events": []
@@ -6386,6 +6537,45 @@
                             "source": [
                               "specs/puzzles/publish-packs.feature",
                               "specs/puzzles/pack-publication.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            }
+                          }
+                        },
+                        "Puzzles: Edition under earlier rules": {
+                          "id": "Puzzles: Edition under earlier rules",
+                          "meta": {
+                            "description": "An edition published before a rules change is not started under the changed rules. Republishing after the rules change makes an edition that can be started.",
+                            "snapshot": "An edition published before a rules change is not started under the changed rules. Republishing after the rules change makes an edition that can be started.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/edition-rules.feature",
+                              "specs/puzzles/edition-rules.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Republishes after the rules change": {
+                              "target": "#Puzzles: Published puzzle edition"
+                            },
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            }
+                          }
+                        },
+                        "Puzzles: Attempt kept under earlier rules": {
+                          "id": "Puzzles: Attempt kept under earlier rules",
+                          "meta": {
+                            "description": "A rules change during play stops the play and keeps the attempt; a saved attempt whose edition's rules changed is kept but not resumed.",
+                            "snapshot": "A rules change during play stops the play and keeps the attempt; a saved attempt whose edition's rules changed is kept but not resumed.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/edition-rules.feature",
+                              "specs/puzzles/edition-rules.qnt"
                             ],
                             "events": []
                           },
@@ -6583,6 +6773,472 @@
                         },
                         "Returns to the game choice": {
                           "target": "#Games: Choose a game"
+                        }
+                      }
+                    },
+                    "Games: Sokoban": {
+                      "id": "Games: Sokoban",
+                      "meta": {
+                        "description": "Sokoban offers its starter pack, published Sokoban puzzles and packs, and building a person’s own boards. The worker pushes every crate onto a goal, and a board is published only after its author completed a playtest of exactly that board.",
+                        "snapshot": "Sokoban offers its starter pack, published Sokoban puzzles and packs, and building a person’s own boards. The worker pushes every crate onto a goal, and a board is published only after its author completed a playtest of exactly that board.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/sokoban/move-and-push.feature",
+                          "specs/sokoban/undo-and-redo-moves.feature",
+                          "specs/sokoban/complete-puzzles.feature",
+                          "specs/sokoban/sokoban-play.qnt",
+                          "specs/sokoban/starter-pack.feature",
+                          "specs/sokoban/starter-pack.qnt",
+                          "specs/sokoban/build-boards.feature",
+                          "specs/sokoban/place-pieces.feature",
+                          "specs/sokoban/check-boards.feature",
+                          "specs/sokoban/board-building.qnt",
+                          "specs/sokoban/publish-sokoban-puzzles.feature",
+                          "specs/sokoban/publication-proof.qnt",
+                          "specs/sokoban/ubiquitous-language.yml",
+                          "specs/journeys/sokoban-packs.feature",
+                          "specs/puzzles/ubiquitous-language.yml"
+                        ],
+                        "events": []
+                      },
+                      "initial": "Sokoban: Sokoban choices",
+                      "states": {
+                        "Sokoban: Sokoban choices": {
+                          "id": "Sokoban: Sokoban choices",
+                          "meta": {
+                            "description": "Sokoban offers its starter pack to everyone, a guest too and without a connection, published Sokoban puzzles and packs, and building a new board.",
+                            "snapshot": "Sokoban offers its starter pack to everyone, a guest too and without a connection, published Sokoban puzzles and packs, and building a new board.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/sokoban/starter-pack.feature",
+                              "specs/sokoban/starter-pack.qnt",
+                              "specs/sokoban/ubiquitous-language.yml"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Starts the first starter puzzle": {
+                              "target": "#Sokoban: Playing a Sokoban puzzle"
+                            },
+                            "Continues the starter pack": {
+                              "target": "#Sokoban: Playing a Sokoban puzzle"
+                            },
+                            "Continues a complete starter pack": {
+                              "target": "#Sokoban: No unfinished starter puzzle"
+                            },
+                            "Opens a Sokoban puzzle whose crates all start on goals": {
+                              "target": "#Sokoban: Sokoban puzzle complete"
+                            },
+                            "Opens Sokoban puzzles and packs": {
+                              "target": "#Puzzles: Puzzle library"
+                            },
+                            "Builds a new Sokoban board": {
+                              "target": "#Sokoban: Board needs correcting"
+                            },
+                            "Returns to the game choice": {
+                              "target": "#Games: Choose a game"
+                            }
+                          }
+                        },
+                        "Sokoban: Playing a Sokoban puzzle": {
+                          "id": "Sokoban: Playing a Sokoban puzzle",
+                          "meta": {
+                            "description": "The worker steps one square up, down, left or right onto empty floor or a goal and pushes the one crate in front of it one square. Every move counts one move and a push also one push. Undo returns to the position before the last move, redo makes it again until a new move replaces it, and restarting returns to the starting position. The attempt is kept, on another device too.",
+                            "snapshot": "The worker steps one square up, down, left or right onto empty floor or a goal and pushes the one crate in front of it one square. Every move counts one move and a push also one push. Undo returns to the position before the last move, redo makes it again until a new move replaces it, and restarting returns to the starting position. The attempt is kept, on another device too.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/sokoban/move-and-push.feature",
+                              "specs/sokoban/undo-and-redo-moves.feature",
+                              "specs/sokoban/complete-puzzles.feature",
+                              "specs/sokoban/sokoban-play.qnt",
+                              "specs/sokoban/starter-pack.feature",
+                              "specs/sokoban/starter-pack.qnt",
+                              "specs/journeys/sokoban-packs.feature",
+                              "specs/puzzles/keep-attempts.feature"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Moves the worker": {
+                              "target": "#Sokoban: Playing a Sokoban puzzle"
+                            },
+                            "Pushes a crate": {
+                              "target": "#Sokoban: Playing a Sokoban puzzle"
+                            },
+                            "Undoes a Sokoban move": {
+                              "target": "#Sokoban: Playing a Sokoban puzzle"
+                            },
+                            "Redoes a Sokoban move": {
+                              "target": "#Sokoban: Playing a Sokoban puzzle"
+                            },
+                            "Restarts the Sokoban puzzle": {
+                              "target": "#Sokoban: Playing a Sokoban puzzle"
+                            },
+                            "Continues the Sokoban attempt on another device": {
+                              "target": "#Sokoban: Playing a Sokoban puzzle"
+                            },
+                            "Tries a move a wall, an outside square, the edge or a second crate blocks": {
+                              "target": "#Sokoban: Move refused"
+                            },
+                            "Undoes before the first Sokoban move": {
+                              "target": "#Sokoban: Move refused"
+                            },
+                            "Pushes the last crate onto a goal": {
+                              "target": "#Sokoban: Sokoban puzzle complete"
+                            },
+                            "Sokoban's rules change during play": {
+                              "target": "#Puzzles: Attempt kept under earlier rules"
+                            },
+                            "Returns to Sokoban choices": {
+                              "target": "#Sokoban: Sokoban choices"
+                            }
+                          }
+                        },
+                        "Sokoban: Move refused": {
+                          "id": "Sokoban: Move refused",
+                          "meta": {
+                            "description": "A blocked step or push, or undo before the first move, leaves the position, the moves and the pushes unchanged; a crate is never pulled.",
+                            "snapshot": "A blocked step or push, or undo before the first move, leaves the position, the moves and the pushes unchanged; a crate is never pulled.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/sokoban/move-and-push.feature",
+                              "specs/sokoban/undo-and-redo-moves.feature",
+                              "specs/sokoban/sokoban-play.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Returns to the Sokoban puzzle": {
+                              "target": "#Sokoban: Playing a Sokoban puzzle"
+                            }
+                          }
+                        },
+                        "Sokoban: Sokoban puzzle complete": {
+                          "id": "Sokoban: Sokoban puzzle complete",
+                          "meta": {
+                            "description": "Every crate stands on a goal. The puzzle counts as completed once, however often its crates reach the goals, and undoing, redoing or restarting keeps the completion. Completing a starter or pack puzzle offers the first unfinished one in the pack's order; a completion made without a connection reaches the person's other device when it returns.",
+                            "snapshot": "Every crate stands on a goal. The puzzle counts as completed once, however often its crates reach the goals, and undoing, redoing or restarting keeps the completion. Completing a starter or pack puzzle offers the first unfinished one in the pack's order; a completion made without a connection reaches the person's other device when it returns.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/sokoban/complete-puzzles.feature",
+                              "specs/sokoban/sokoban-play.qnt",
+                              "specs/sokoban/starter-pack.feature",
+                              "specs/sokoban/starter-pack.qnt",
+                              "specs/puzzles/pack-progression.feature",
+                              "specs/journeys/sokoban-packs.feature"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Continues to the next unfinished puzzle": {
+                              "target": "#Sokoban: Playing a Sokoban puzzle"
+                            },
+                            "Undoes the completing push": {
+                              "target": "#Sokoban: Playing a Sokoban puzzle"
+                            },
+                            "Restarts the Sokoban puzzle": {
+                              "target": "#Sokoban: Playing a Sokoban puzzle"
+                            },
+                            "Continues a complete starter pack": {
+                              "target": "#Sokoban: No unfinished starter puzzle"
+                            },
+                            "The connection returns after an offline completion": {
+                              "target": "#Sokoban: Sokoban puzzle complete"
+                            },
+                            "Returns to Sokoban choices": {
+                              "target": "#Sokoban: Sokoban choices"
+                            }
+                          }
+                        },
+                        "Sokoban: No unfinished starter puzzle": {
+                          "id": "Sokoban: No unfinished starter puzzle",
+                          "meta": {
+                            "description": "Every starter puzzle is complete, so no unfinished puzzle is offered.",
+                            "snapshot": "Every starter puzzle is complete, so no unfinished puzzle is offered.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/sokoban/starter-pack.feature",
+                              "specs/sokoban/starter-pack.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Returns to Sokoban choices": {
+                              "target": "#Sokoban: Sokoban choices"
+                            }
+                          }
+                        },
+                        "Sokoban: Sokoban draft": {
+                          "id": "Sokoban: Sokoban draft",
+                          "meta": {
+                            "description": "The author builds a private Sokoban board of at most 20 columns and 20 rows by painting walls, floor, goals and outside squares and placing the worker and crates, with or without a connection. Board edits undo and redo until a new board edit replaces the redo choice, and the preview shows the board as built.",
+                            "snapshot": "The author builds a private Sokoban board of at most 20 columns and 20 rows by painting walls, floor, goals and outside squares and placing the worker and crates, with or without a connection. Board edits undo and redo until a new board edit replaces the redo choice, and the preview shows the board as built.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/sokoban/build-boards.feature",
+                              "specs/sokoban/place-pieces.feature",
+                              "specs/sokoban/check-boards.feature",
+                              "specs/sokoban/board-building.qnt",
+                              "specs/sokoban/publish-sokoban-puzzles.feature",
+                              "specs/sokoban/publication-proof.qnt",
+                              "specs/puzzles/author-drafts.feature",
+                              "specs/puzzles/offline-work.feature"
+                            ],
+                            "events": []
+                          },
+                          "initial": "Sokoban: Board needs correcting",
+                          "states": {
+                            "Sokoban: Board needs correcting": {
+                              "id": "Sokoban: Board needs correcting",
+                              "meta": {
+                                "description": "The builder lists what must be corrected: a missing worker, no crates, or different numbers of crates and goals. The board is kept as a draft and reopens as it was, with no undo or redo choices, and cannot be playtested yet.",
+                                "snapshot": "The builder lists what must be corrected: a missing worker, no crates, or different numbers of crates and goals. The board is kept as a draft and reopens as it was, with no undo or redo choices, and cannot be playtested yet.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/sokoban/check-boards.feature",
+                                  "specs/sokoban/board-building.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Makes a board edit that leaves something to correct": {
+                                  "target": "#Sokoban: Board needs correcting"
+                                },
+                                "Makes a board edit that leaves nothing to correct": {
+                                  "target": "#Sokoban: Board has nothing to correct"
+                                },
+                                "Tries a board edit the builder refuses": {
+                                  "target": "#Sokoban: Board needs correcting"
+                                },
+                                "Undoes a board edit": {
+                                  "target": "#Sokoban: Board needs correcting"
+                                },
+                                "Reopens the Sokoban draft": {
+                                  "target": "#Sokoban: Board needs correcting"
+                                },
+                                "Tries to playtest a board with something to correct": {
+                                  "target": "#Sokoban: Playtest needs nothing to correct"
+                                }
+                              }
+                            },
+                            "Sokoban: Board has nothing to correct": {
+                              "id": "Sokoban: Board has nothing to correct",
+                              "meta": {
+                                "description": "The board has its worker, at least one crate and as many goals as crates, so it can be playtested. It is not proven until its author completes a playtest of exactly this board.",
+                                "snapshot": "The board has its worker, at least one crate and as many goals as crates, so it can be playtested. It is not proven until its author completes a playtest of exactly this board.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/sokoban/check-boards.feature",
+                                  "specs/sokoban/build-boards.feature",
+                                  "specs/sokoban/place-pieces.feature",
+                                  "specs/sokoban/publish-sokoban-puzzles.feature",
+                                  "specs/sokoban/publication-proof.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Makes a board edit that leaves something to correct": {
+                                  "target": "#Sokoban: Board needs correcting"
+                                },
+                                "Makes a board edit that leaves nothing to correct": {
+                                  "target": "#Sokoban: Board has nothing to correct"
+                                },
+                                "Tries a board edit the builder refuses": {
+                                  "target": "#Sokoban: Board has nothing to correct"
+                                },
+                                "Undoes a board edit": {
+                                  "target": "#Sokoban: Board has nothing to correct"
+                                },
+                                "Redoes a board edit": {
+                                  "target": "#Sokoban: Board has nothing to correct"
+                                },
+                                "Changes only the details of the Sokoban draft": {
+                                  "target": "#Sokoban: Board has nothing to correct"
+                                },
+                                "Playtests the Sokoban draft": {
+                                  "target": "#Sokoban: Playtesting a Sokoban draft"
+                                },
+                                "Publishes a Sokoban draft without a completed playtest": {
+                                  "target": "#Sokoban: Playtest needed before publication"
+                                }
+                              }
+                            },
+                            "Sokoban: Playtest needs nothing to correct": {
+                              "id": "Sokoban: Playtest needs nothing to correct",
+                              "meta": {
+                                "description": "Only a board with nothing to correct can be playtested; the builder lists what the board still needs.",
+                                "snapshot": "Only a board with nothing to correct can be playtested; the builder lists what the board still needs.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/sokoban/check-boards.feature"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Returns to the Sokoban board": {
+                                  "target": "#Sokoban: Board needs correcting"
+                                }
+                              }
+                            },
+                            "Sokoban: Playtesting a Sokoban draft": {
+                              "id": "Sokoban: Playtesting a Sokoban draft",
+                              "meta": {
+                                "description": "The author plays the private draft with Sokoban’s rules, with or without a connection. Completing the playtest proves the board without counting as an ordinary completion; stopping before completion keeps the board unproven, and the playtest can be begun again. A rules change stops the playtest.",
+                                "snapshot": "The author plays the private draft with Sokoban’s rules, with or without a connection. Completing the playtest proves the board without counting as an ordinary completion; stopping before completion keeps the board unproven, and the playtest can be begun again. A rules change stops the playtest.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/sokoban/publish-sokoban-puzzles.feature",
+                                  "specs/sokoban/publication-proof.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Completes the Sokoban playtest": {
+                                  "target": "#Sokoban: Proven board"
+                                },
+                                "Stops the Sokoban playtest before completion": {
+                                  "target": "#Sokoban: Board has nothing to correct"
+                                },
+                                "Sokoban's rules change": {
+                                  "target": "#Sokoban: Board has nothing to correct"
+                                }
+                              }
+                            },
+                            "Sokoban: Playtest needed before publication": {
+                              "id": "Sokoban: Playtest needed before publication",
+                              "meta": {
+                                "description": "The author is told to complete a playtest of this board before publication, and nobody else can play it.",
+                                "snapshot": "The author is told to complete a playtest of this board before publication, and nobody else can play it.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/sokoban/publish-sokoban-puzzles.feature",
+                                  "specs/sokoban/publication-proof.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Returns to the Sokoban board": {
+                                  "target": "#Sokoban: Board has nothing to correct"
+                                }
+                              }
+                            },
+                            "Sokoban: Proven board": {
+                              "id": "Sokoban: Proven board",
+                              "meta": {
+                                "description": "The author completed a playtest of exactly this board under Sokoban’s current rules, so it can be published. Changing only the details keeps the proof; a board edit or a rules change takes it away.",
+                                "snapshot": "The author completed a playtest of exactly this board under Sokoban’s current rules, so it can be published. Changing only the details keeps the proof; a board edit or a rules change takes it away.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/sokoban/publish-sokoban-puzzles.feature",
+                                  "specs/sokoban/publication-proof.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Makes a board edit that leaves something to correct": {
+                                  "target": "#Sokoban: Board needs correcting"
+                                },
+                                "Makes a board edit that leaves nothing to correct": {
+                                  "target": "#Sokoban: Board has nothing to correct"
+                                },
+                                "Tries a board edit the builder refuses": {
+                                  "target": "#Sokoban: Proven board"
+                                },
+                                "Changes only the details of the Sokoban draft": {
+                                  "target": "#Sokoban: Proven board"
+                                },
+                                "Sokoban's rules change": {
+                                  "target": "#Sokoban: Board has nothing to correct"
+                                },
+                                "Playtests the proven Sokoban board again": {
+                                  "target": "#Sokoban: Playtesting a proven board"
+                                },
+                                "Publishes the proven Sokoban draft": {
+                                  "target": "#Sokoban: Published Sokoban puzzle"
+                                },
+                                "Publishes the proven Sokoban draft without a connection": {
+                                  "target": "#Sokoban: Publication waits for a connection"
+                                }
+                              }
+                            },
+                            "Sokoban: Playtesting a proven board": {
+                              "id": "Sokoban: Playtesting a proven board",
+                              "meta": {
+                                "description": "Playtesting a proven board again keeps its proof.",
+                                "snapshot": "Playtesting a proven board again keeps its proof.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/sokoban/publish-sokoban-puzzles.feature",
+                                  "specs/sokoban/publication-proof.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Completes the Sokoban playtest": {
+                                  "target": "#Sokoban: Proven board"
+                                },
+                                "Stops the Sokoban playtest before completion": {
+                                  "target": "#Sokoban: Proven board"
+                                },
+                                "Sokoban's rules change": {
+                                  "target": "#Sokoban: Board has nothing to correct"
+                                }
+                              }
+                            },
+                            "Sokoban: Publication waits for a connection": {
+                              "id": "Sokoban: Publication waits for a connection",
+                              "meta": {
+                                "description": "The author is told publication waits for her connection; publishing again keeps it waiting, and nobody else can play the puzzle yet. When the connection returns the puzzle is published.",
+                                "snapshot": "The author is told publication waits for her connection; publishing again keeps it waiting, and nobody else can play the puzzle yet. When the connection returns the puzzle is published.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/sokoban/publish-sokoban-puzzles.feature",
+                                  "specs/sokoban/publication-proof.qnt",
+                                  "specs/journeys/sokoban-packs.feature"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Publishes the proven Sokoban draft without a connection": {
+                                  "target": "#Sokoban: Publication waits for a connection"
+                                },
+                                "The author's connection returns": {
+                                  "target": "#Sokoban: Published Sokoban puzzle"
+                                }
+                              }
+                            },
+                            "Sokoban: Published Sokoban puzzle": {
+                              "id": "Sokoban: Published Sokoban puzzle",
+                              "meta": {
+                                "description": "Everyone can play the published Sokoban puzzle. Editing the board afterwards keeps the published puzzle as it was until another completed playtest and publication. The puzzle can join an ordered pack.",
+                                "snapshot": "Everyone can play the published Sokoban puzzle. Editing the board afterwards keeps the published puzzle as it was until another completed playtest and publication. The puzzle can join an ordered pack.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/sokoban/publish-sokoban-puzzles.feature",
+                                  "specs/sokoban/publication-proof.qnt",
+                                  "specs/puzzles/author-packs.feature",
+                                  "specs/journeys/sokoban-packs.feature"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "Makes a board edit that leaves nothing to correct": {
+                                  "target": "#Sokoban: Board has nothing to correct"
+                                },
+                                "Adds the published puzzle to a pack": {
+                                  "target": "#Puzzles: Pack draft"
+                                },
+                                "Opens Sokoban puzzles and packs": {
+                                  "target": "#Puzzles: Puzzle library"
+                                }
+                              }
+                            }
+                          },
+                          "on": {
+                            "Returns to Sokoban choices": {
+                              "target": "#Sokoban: Sokoban choices"
+                            }
+                          }
                         }
                       }
                     }
@@ -7025,7 +7681,9 @@
                         "description": "Review shows only positions already reached and guidance belongs to that position.",
                         "snapshot": "Review shows only positions already reached and guidance belongs to that position.",
                         "confidence": "assumed",
-                        "source": ["specs/games/puzzle-review.feature:14"],
+                        "source": [
+                          "specs/games/puzzle-review.feature:14"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -7374,7 +8032,9 @@
                         "description": "A puzzle that never reached the device needs a connection.",
                         "snapshot": "A puzzle that never reached the device needs a connection.",
                         "confidence": "assumed",
-                        "source": ["specs/games/puzzle-offline-days.feature:7"],
+                        "source": [
+                          "specs/games/puzzle-offline-days.feature:7"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -7578,7 +8238,9 @@
                         "description": "Only the solver controls this puzzle; the watched position remains intact.",
                         "snapshot": "Only the solver controls this puzzle; the watched position remains intact.",
                         "confidence": "assumed",
-                        "source": ["specs/games/puzzle-late-watcher.feature:7"],
+                        "source": [
+                          "specs/games/puzzle-late-watcher.feature:7"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -7818,7 +8480,9 @@
                         "description": "Offline choices stay on this device and reach the account when the connection returns.",
                         "snapshot": "Offline choices stay on this device and reach the account when the connection returns.",
                         "confidence": "assumed",
-                        "source": ["specs/games/puzzle-feed-gates.feature:7"],
+                        "source": [
+                          "specs/games/puzzle-feed-gates.feature:7"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -7856,7 +8520,9 @@
                     "Puzzle Links: Opening a puzzle link": {
                       "id": "Puzzle Links: Opening a puzzle link",
                       "meta": {
-                        "routes": ["/chess/puzzle/:puzzleId"],
+                        "routes": [
+                          "/chess/puzzle/:puzzleId"
+                        ],
                         "description": "The link identifies one puzzle and the current allowance determines how it opens.",
                         "snapshot": "The link identifies one puzzle and the current allowance determines how it opens.",
                         "confidence": "assumed",
@@ -7867,7 +8533,9 @@
                           "specs/games/puzzle-link.feature:60"
                         ],
                         "events": [],
-                        "hints": ["App address: /chess/puzzle/:puzzleId"]
+                        "hints": [
+                          "App address: /chess/puzzle/:puzzleId"
+                        ]
                       },
                       "on": {
                         "The linked puzzle opens as rated": {
@@ -8048,7 +8716,9 @@
                           "specs/games/puzzle-stats.feature:11"
                         ],
                         "events": [],
-                        "routes": ["/more/:id-stats"]
+                        "routes": [
+                          "/more/:id-stats"
+                        ]
                       },
                       "on": {
                         "Opens a recorded puzzle attempt": {
@@ -8208,7 +8878,9 @@
                     "Multiplayer: Opening own multiplayer": {
                       "id": "Multiplayer: Opening own multiplayer",
                       "meta": {
-                        "routes": ["/:gameId/multiplayer"],
+                        "routes": [
+                          "/:gameId/multiplayer"
+                        ],
                         "description": "Opening observes the account's accepted search, current game or lasting result. These records belong to the account across devices and are not restarted by navigation.",
                         "snapshot": "Opening observes the account's accepted search, current game or lasting result. These records belong to the account across devices and are not restarted by navigation.",
                         "confidence": "assumed",
@@ -8219,7 +8891,9 @@
                           "specs/games/finding-an-opponent.feature"
                         ],
                         "events": [],
-                        "hints": ["App address: /:gameId/multiplayer"]
+                        "hints": [
+                          "App address: /:gameId/multiplayer"
+                        ]
                       },
                       "on": {
                         "No accepted opponent search or multiplayer game exists": {
@@ -10193,7 +10867,9 @@
                 "App: Unknown address": {
                   "id": "App: Unknown address",
                   "meta": {
-                    "routes": ["/*all"],
+                    "routes": [
+                      "/*all"
+                    ],
                     "description": "An unknown app address gives a clear way back.",
                     "snapshot": "An unknown app address gives a clear way back.",
                     "confidence": "assumed",
@@ -10203,7 +10879,9 @@
                       "specs/runtime/app-platform.qnt"
                     ],
                     "events": [],
-                    "hints": ["App address: /*all"]
+                    "hints": [
+                      "App address: /*all"
+                    ]
                   },
                   "on": {
                     "Returns to Spaces": {
@@ -10652,7 +11330,9 @@
                     "Tools: Tool home": {
                       "id": "Tools: Tool home",
                       "meta": {
-                        "routes": ["/harness"],
+                        "routes": [
+                          "/harness"
+                        ],
                         "description": "The team can choose a test world, evidence or an independent framework example.",
                         "snapshot": "The team can choose a test world, evidence or an independent framework example.",
                         "confidence": "assumed",
@@ -10753,7 +11433,10 @@
                           "id": "Inspectors: Sync inspection",
                           "meta": {
                             "description": "This device's sync inspection is at /more/sync; /more/server-status is currently a status placeholder. Offline recovery and keeping saved data have contracts; diagnostic controls, status details and their failure outcomes still need their own complete observable contract.",
-                            "routes": ["/more/sync", "/more/server-status"],
+                            "routes": [
+                              "/more/sync",
+                              "/more/server-status"
+                            ],
                             "source": [
                               "specs/sync-engine/notes-offline.feature",
                               "specs/README.md#product-contract-inventory"
@@ -10778,7 +11461,9 @@
                               "specs/runtime/connected-services.feature",
                               "specs/README.md#product-contract-inventory"
                             ],
-                            "hints": ["App address: /more/client-config"]
+                            "hints": [
+                              "App address: /more/client-config"
+                            ]
                           },
                           "on": {
                             "Returns to the inspection inventory": {
@@ -10794,7 +11479,9 @@
                             "source": [
                               "specs/README.md#product-contract-inventory"
                             ],
-                            "hints": ["App address: /more/performance"]
+                            "hints": [
+                              "App address: /more/performance"
+                            ]
                           },
                           "on": {
                             "Returns to the inspection inventory": {
@@ -10806,7 +11493,10 @@
                           "id": "Inspectors: Component reference",
                           "meta": {
                             "description": "The component reference is at /ui and an individual component at /ui/:component. Component exploration and team authoring are explicitly awaiting a complete observable contract in the product inventory.",
-                            "routes": ["/ui", "/ui/:component"],
+                            "routes": [
+                              "/ui",
+                              "/ui/:component"
+                            ],
                             "source": [
                               "specs/README.md#product-contract-inventory"
                             ],
@@ -10849,7 +11539,9 @@
                               "specs/runtime/request-records.feature",
                               "specs/README.md#product-contract-inventory"
                             ],
-                            "hints": ["App address: /client/events"]
+                            "hints": [
+                              "App address: /client/events"
+                            ]
                           },
                           "on": {
                             "Returns to the inspection inventory": {
@@ -11061,7 +11753,9 @@
                         "Notebook: Notebook": {
                           "id": "Notebook: Notebook",
                           "meta": {
-                            "routes": ["/client/sql"],
+                            "routes": [
+                              "/client/sql"
+                            ],
                             "description": "The selected device’s saved questions remain separate from another device’s notebook.",
                             "snapshot": "The selected device’s saved questions remain separate from another device’s notebook.",
                             "confidence": "assumed",
@@ -11072,7 +11766,9 @@
                               "specs/developer-tools/data-notebook.feature:46"
                             ],
                             "events": [],
-                            "hints": ["App address: /client/sql"]
+                            "hints": [
+                              "App address: /client/sql"
+                            ]
                           },
                           "on": {
                             "Adds a notebook question": {
@@ -11484,7 +12180,9 @@
                             "description": "Only the permitted person can obtain the stored file and unavailable files are explained.",
                             "snapshot": "Only the permitted person can obtain the stored file and unavailable files are explained.",
                             "confidence": "assumed",
-                            "source": ["specs/runtime/stored-files.feature:7"],
+                            "source": [
+                              "specs/runtime/stored-files.feature:7"
+                            ],
                             "events": []
                           },
                           "on": {
@@ -13001,7 +13699,9 @@
                         "description": "The old app must update before continuing; its local data is not erased.",
                         "snapshot": "The old app must update before continuing; its local data is not erased.",
                         "confidence": "assumed",
-                        "source": ["specs/runtime/app-updates.feature:7"],
+                        "source": [
+                          "specs/runtime/app-updates.feature:7"
+                        ],
                         "events": []
                       },
                       "on": {
@@ -13036,7 +13736,9 @@
                       "specs/chess/puzzle-management-access.dmn"
                     ],
                     "events": [],
-                    "routes": ["/more/puzzles"]
+                    "routes": [
+                      "/more/puzzles"
+                    ]
                   },
                   "states": {
                     "Puzzle loading: Checking access": {

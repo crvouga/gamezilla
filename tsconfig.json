@@ -602,6 +602,8 @@
     "libs/connect-four-shared-ts/src/**/*.ts",
     "libs/numberlink-shared-ts/src/**/*.ts",
     "libs/numberlink-harness-ts/src/**/*.ts",
+    "libs/sokoban-shared-ts/src/**/*.ts",
+    "libs/sokoban-harness-ts/src/**/*.ts",
     "libs/game-puzzle-harness-ts/src/**/*.ts",
     "libs/connect-four-shared-ts/src/**/*.tsx",
     "libs/connect-four-shared-ts/scripts/**/*.ts",

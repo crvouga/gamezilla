@@ -29,6 +29,8 @@ flowchart TD
   app --> inbox[Notifications]
   app --> games[Games]
   games --> pong[Pong]
+  games --> sokoban[Sokoban]
+
   games --> word_tiles[Word Tiles]
   games --> numberlink[Numberlink]
   games --> puzzle_content[Puzzle content]
@@ -90,11 +92,12 @@ flowchart TD
 | settings | runtime | Device preferences survive closing the app; account and product choices remain reachable from Settings. |
 | sign-in | auth | Google and Apple identify the person; account matching always preserves the person’s choice. |
 | sign-in-methods | profile | A person connects and removes sign-in methods without losing the last way into the account. |
+| sokoban | sokoban | The starter pack, moving the worker and pushing crates, building a board and publishing only a board its author proved in a playtest. |
 | spaces | spaces | People create, join, share, rename, leave and end spaces, with clear limits and recovery. |
 | test-worlds | developer-tools | The team selects independent devices, changes their arrangement and saves or restores compatible checkpoints. |
 | tools | developer-tools | The testing tool reaches test worlds, notebooks, release evidence and the framework example apps. |
 
-The current machine has 419 states and 1,114 transitions.
+The current machine has 441 states and 1,205 transitions.
 [EXECUTION_NOTES.md](EXECUTION_NOTES.md) records complete graph traversal and
 serialization checks; [SOURCES.md](SOURCES.md) explains the source catalog.
 Framework contracts and inspection-scope choices retain their declared

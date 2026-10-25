@@ -12,6 +12,8 @@ export const puzzleContentAttempts = defineTable({
     pack_revision_id: 'text',
     current_position_id: 'text',
     activity_order: { type: 'integer', backfill: { sql: '0' } },
+    /** The rules every position of this attempt was played under. */
+    rules_version: { type: 'integer', backfill: { sql: '1' } },
   },
   indexes: [
     'owner_id',

@@ -1,0 +1,4 @@
+{
+  "summary": "The multi-seat history conformance suite replayed a turn victory but enrolled Light Cycles Trio, which has no turn fixtures. Planning then failed for every conformance matrix consumer. The suite now declares its turn requirement while retaining Hearts and the other eligible turn games.",
+  "regressionTest": "libs/games-harness-ts/tests/multi-seat-history-planning.test.ts"
+}

@@ -5,7 +5,8 @@ editions, packs and saved attempts. Product behavior belongs to
 [`specs/puzzles/`](../../../specs/puzzles/); a game's own rules belong to its
 context. This guide describes the implementation boundary.
 
-Numberlink is the production example. The existing
+Numberlink and Sokoban are the production examples: one draws paths, the
+other moves a piece square by square, and both use the same lifecycle. The existing
 [`ADDING_A_GAME.md`](ADDING_A_GAME.md) describes turn games and their optional
 rated, line-based puzzle feed (`capabilities.puzzles`). A game can supply
 either puzzle capability, both, or puzzle content alongside turn play.
@@ -25,11 +26,34 @@ the editor, player, publication checks and any solver. Numberlink's
 [`numberlink-puzzle-content.ts`](../../numberlink-shared-ts/src/numberlink-puzzle-content.ts)
 shows the complete adapter.
 
+Declare `rulesVersion`, a positive integer. Editions and attempts keep the
+version they were published or started under; raise it only when a change
+would make an already published edition play differently. The platform then
+refuses to start or continue the older editions, says the puzzle needs a
+version of the app with its rules, and keeps every saved attempt.
+
 Offer only the optional computations the game implements: snapshot history,
-a solver, publication validation and completion statistics. A bounded solver
-can return `inconclusive`; that does not mean `unsolvable`. The publication
-validator can accept a completed playtest as proof. Keep expensive or
-game-specific search inside that game.
+a solver, publication validation, completion statistics and bundled packs. A
+bounded solver can return `inconclusive`; that does not mean `unsolvable`.
+Keep expensive or game-specific search inside that game.
+
+Publication evidence is never a claimed result. A completed playtest is
+replayed by the authority from `rules.initial` through `rules.apply` against
+exactly the definition being published, under the current rules version,
+before `validatePublication(definition, evidence)` sees it. A game that needs
+proof (Sokoban) refuses when `evidence` is absent; a game whose finished state
+proves itself can accept it, and one that can search (Numberlink) may fall
+back to its solver. Details-only edits keep the evidence; any change to the
+definition needs a new playtest.
+
+Bundled packs (`bundledPacks`) ship with the game: ordered puzzles with a
+witness of accepted actions, checked at registration. They appear in every
+device's library offline, guests included, and use the ordinary attempts and
+pack progress. Changing one gives it a new edition identity.
+
+Snapshot histories keep a state only at keyframes and the cursor, so many
+small moves stay cheap to save and sync; undo and redo replay at most one
+keyframe interval.
 
 ## Register the shared and client parts
 
@@ -46,8 +70,10 @@ Use `defineGameClient` with the shared registration and a
   Emit the game's encoded action; the shared player owns persistence and
   attempt history. Provisional gestures can remain local until accepted.
 - Optional `authoring` supplies `initialDefinition` and `Editor`. The editor
-  emits a complete definition through `onChange`; the shared authoring shell
-  owns metadata, autosave, validation, playtesting and publication.
+  emits a complete definition through `onChange`, including unfinished ones it
+  can reopen; the shared authoring shell owns metadata, autosave, undo and
+  redo of every draft edit, validation, proof status, playtesting and
+  publication. The editor owns its tools and rules-specific diagnostics.
 - Optional `Preview` renders the definition without writes.
 
 Read Solid props reactively and honor `disabled`. Compose the design system;
@@ -103,21 +129,32 @@ the entire public catalogue or all saved histories open for a session.
 
 ## Verify the extension
 
-Add the game's rule specifications and deterministic harness, properties for
-its codecs and rule invariants, and input contracts for its renderer. Follow
-the repository's spec workflow; scenario steps use exported harness actions
-and observations. Add a whole app journey when a new interaction is not
-already reached by the shared coverage. Run `bun verify` before declaring the
-change complete, plus the applicable deeper profile. Nothing is verified by
-hand.
+Add the game's rule specifications and properties for its codecs and rule
+invariants. Compose its harness world from the shared one rather than a world
+of its own: `createContentWorld` with a `ContentHarnessGame` (its rules under a
+run's rules version, its client parts and `createContentApp`) gives four
+devices over the real sub, sync engine and shared screens, with the builder
+session, offline, reopening and rules-change actions. Read what devices hold
+through `content-game-reads` (`@libs/game-puzzle-harness-ts`), never the
+platform's storage modules. Whole-app journeys reuse the shared journey
+helpers with a `ContentJourneyBoard` (edit, preview, solve) for the game. The
+Sokoban harness (`libs/sokoban-harness-ts`) binds every Sokoban feature and
+model this way. Follow the repository's spec workflow and run `bun verify`
+before declaring the change complete, plus the applicable deeper profile.
+Nothing is verified by hand.
 
-The shared framework is held to a non-grid counting app:
+The shared framework is also held to a non-grid counting app:
 [`example-app-rules.ts`](../../game-puzzle-harness-ts/src/example-app-rules.ts)
 and [`content-example-client.tsx`](../../game-puzzle-harness-ts/src/content-example-client.tsx).
-Its seven lifecycle models replay through the real sync and mutation paths.
-A separate
-[`box-pushing rules consumer`](../../../pkgs/turn-game-shared-ts/tests/warehouse-puzzle.ts)
-checks that the core contract also accepts a different action/state structure;
-it is a test consumer, not a shipped Sokoban game. A new game should reuse the
-shared lifecycle evidence and supply its own rules, rendering, editor and
-game-specific interaction evidence.
+Its lifecycle models replay through the real sync and mutation paths.
+
+### Adding the next game
+
+For a game such as Unblock Me, implement only: a `PuzzleContent` (definition
+and state codecs, `apply`, `complete`, `rulesVersion`, optionally
+`validatePublication`, `statistics`, `bundledPacks`), a `defineGame`
+registration, a client with `Player`, `Preview` and an `Editor` composed from
+the design system (adding a component there only if none fits), its rule
+specifications, properties and harness game. Drafts, undo and redo,
+playtests, proof, publication, packs, discovery, attempts, progression,
+offline storage and sync come from the platform unchanged.

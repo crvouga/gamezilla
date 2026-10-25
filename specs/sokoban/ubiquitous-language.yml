@@ -1,0 +1,262 @@
+context: Sokoban
+purpose: >-
+  Sokoban's rectangular board of walls, floor, goals and outside squares, the
+  worker who pushes crates onto goals, moves, pushes and completion, building
+  a board, the proof a board needs before publication, and the starter pack.
+  Drafts, publication, packs, attempts and pack progress are shared across
+  puzzle games.
+terms:
+  - term: Sokoban
+    definition: >-
+      A puzzle game in which a person moves a worker around a warehouse and
+      pushes every crate onto a goal. The worker pushes one crate at a time
+      and never pulls one.
+    published: true
+
+  # Borrowed from Puzzles.
+  - term: puzzle
+    from: puzzles
+  - term: author
+    from: puzzles
+  - term: draft
+    from: puzzles
+  - term: playtest
+    from: puzzles
+    model: [Playtest, playtest, beginPlaytest, completePlaytest, leavePlaytest]
+  - term: publish
+    from: puzzles
+    model: [publishPuzzle, waiting]
+  - term: edition
+    from: puzzles
+    model: [Edition, editions]
+  - term: pack
+    from: puzzles
+  - term: attempt
+    from: puzzles
+  - term: resume
+    from: puzzles
+    model: [continueStarterPack]
+  - term: pack progress
+    from: puzzles
+    model: [activePuzzle, completed, offeredPuzzle, otherProgress]
+  - term: rules change
+    from: puzzles
+    model: [rules, rulesChange]
+
+  # Borrowed from Identity.
+  - term: guest
+    from: profile
+
+  - term: board
+    definition: >-
+      The rectangular warehouse a Sokoban puzzle is played on, at most 20
+      columns by 20 rows. Columns are named A through T from left to right
+      and rows are numbered from 1 at the top, so A1 is the top-left square.
+    forms: [boards, board's, Sokoban board, Sokoban board's]
+    model: [Board, board]
+
+  - term: board size
+    definition: >-
+      How many columns and rows a board has, each from 1 to 20. A smaller
+      board removes everything beyond its new edge and says what it removed;
+      squares a bigger board adds are floor.
+    forms: [column, columns, row, rows, smaller board, bigger board]
+    model: [changeBoardSize]
+
+  - term: square
+    definition: >-
+      One place on the board, named by its column and row, such as A1. Every
+      square is a wall, floor, a goal or outside.
+    forms: [squares]
+    avoid: [cell, cells, tile, tiles]
+    model: [Square]
+
+  - term: wall
+    definition: A square the worker and crates can never enter.
+    forms: [walls]
+
+  - term: floor
+    definition: >-
+      A square of the warehouse where the worker and crates can stand. An
+      erased square is floor.
+    forms: [floor square, floor squares]
+
+  - term: goal
+    definition: >-
+      A marked floor square where a crate belongs. A crate or the worker may
+      stand on it, and may start there.
+    forms: [goals, goal square, goal squares]
+    avoid: [target, targets, dock]
+
+  - term: outside
+    definition: >-
+      A square that is not part of the warehouse. Nothing stands on it and
+      nothing enters it.
+    forms: [outside square, outside squares]
+    avoid: [void]
+
+  - term: direction
+    definition: >-
+      One of the four ways the worker can move: up, down, left or right.
+      There are no diagonal moves.
+    forms: [directions, up, down, left, right]
+
+  - term: worker
+    definition: >-
+      The one figure a person moves around the board to push crates. It
+      stands on floor or a goal and never shares a square with a crate.
+    forms: [worker's]
+    avoid: [player, pusher, keeper, character]
+    model: [worker]
+
+  - term: crate
+    definition: >-
+      Something the worker pushes onto a goal. A Sokoban puzzle has at least
+      one crate and as many crates as goals. Crates stand on floor or goals,
+      never two on one square.
+    forms: [crates]
+    avoid: [box, boxes, stone]
+    model: [crates]
+
+  - term: piece
+    definition: The worker or a crate, which stands on a square.
+    forms: [pieces]
+
+  - term: move
+    definition: >-
+      One step of the worker in one direction, onto an empty floor or goal
+      square, or onto a crate's square by pushing that crate one square
+      further. A move that cannot happen changes nothing, counts nothing,
+      and the person is told why. Each move counts one move.
+    forms: [moves, moved, moving]
+    model: [moveWorker, moves]
+
+  - term: push
+    definition: >-
+      A move onto a crate's square that pushes that one crate one square
+      further, which needs the square beyond it to be empty floor or an empty
+      goal. It counts one move and one push. A crate is never pulled, and two
+      crates in a row are never pushed together.
+    forms: [pushes, pushed, pushing]
+    model: [pushes]
+
+  - term: position
+    definition: >-
+      Where the worker and every crate stand at one moment of play, with the
+      moves and pushes made to reach it. The starting position is the board
+      as published, with no moves and no pushes.
+    forms: [positions, starting position]
+    model: [Position]
+
+  - term: complete
+    definition: >-
+      Every crate stands on a goal. A Sokoban puzzle whose crates all start
+      on goals is complete at once, with no moves. A puzzle counts as
+      completed only once, however often its crates reach the goals again.
+      Until then it is unfinished.
+    forms: [completes, completed, completing, completion, unfinished]
+    model: [complete, completions, completeStarterPuzzle]
+
+  - term: undo
+    definition: >-
+      Return to the position before the last move, with that position's
+      moves and pushes, or to the board as it was before the author's last
+      board edit. An earlier completion is kept.
+    forms: [undoes, undoing, undone]
+    model: [undoMove, undoBoardEdit, undoOffered]
+
+  - term: redo
+    definition: >-
+      Make an undone move or board edit again, with that position's moves and
+      pushes. A new move or board edit after undo removes the redo choice.
+    forms: [redoes, redoing, redone]
+    model: [redoMove, redoBoardEdit, redoOffered]
+
+  - term: restart
+    definition: >-
+      Return a Sokoban puzzle to its starting position with no moves and no
+      pushes. An earlier completion of the puzzle is kept.
+    forms: [restarts, restarted, restarting]
+    model: [restartPuzzle]
+
+  - term: build
+    definition: >-
+      Shape the board of a Sokoban draft in the puzzle builder: its size, its
+      squares, the worker and its crates.
+    forms: [builds, building, built, builder, puzzle builder]
+
+  - term: board edit
+    definition: >-
+      One change an author makes while building: changing the board size,
+      painting or erasing a square, placing the worker, or placing or
+      removing a crate.
+    forms: [board edits, edits the board, edited the board]
+    model: [editBoard]
+
+  - term: paint
+    definition: >-
+      Make a square a wall, floor, a goal or outside. Painting a wall or an
+      outside square under the worker or a crate removes it.
+    forms: [paints, painted, painting]
+    model: [paintSquare]
+
+  - term: place
+    definition: >-
+      Put the worker or a crate on an empty floor or goal square. Placing the
+      worker again takes it from its earlier square, since a board has one
+      worker.
+    forms: [places, placed, placing]
+    model: [placeWorker, placeCrate]
+
+  - term: remove
+    definition: >-
+      Take something off the board: a crate the author removes, a piece under
+      a painted wall or outside square, or the worker, crates and goals
+      beyond the edge of a smaller board.
+    forms: [removes, removed, removing]
+    model: [removeCrate, removedBeyondEdge]
+
+  - term: erase
+    definition: Make a square floor again, removing any piece or goal on it.
+    forms: [erases, erased, erasing]
+    model: [eraseSquare]
+
+  - term: correction
+    definition: >-
+      Something the builder lists that must be fixed before a board can be
+      playtested: a missing worker, no crates, or different numbers of crates
+      and goals.
+    forms: [corrections, correct]
+    model: [corrections]
+
+  - term: preview
+    definition: A small picture of the board as built so far, shown beside it.
+    forms: [previews]
+    model: [preview]
+
+  - term: details
+    definition: >-
+      A Sokoban puzzle's title, description and difficulty: everything about
+      it except its board. Changing only the details keeps the board's proof.
+    model: [details, editDetails]
+
+  - term: proof
+    definition: >-
+      A completed playtest of exactly the board being published, under
+      Sokoban's current rules. A Sokoban puzzle is published only with
+      proof. Proof belongs to the board itself: changing the board to one
+      never completed in a playtest leaves it without proof, bringing back a
+      board already completed brings its proof back, changing only the
+      details keeps it, a rules change removes all earlier proof, and an
+      unfinished playtest is no proof.
+    forms: [proven]
+    model: [proof]
+
+  - term: starter pack
+    definition: >-
+      A small pack of original introductory Sokoban puzzles that comes with
+      the app, ready for everyone, guests included, with or without a
+      connection.
+    forms: [starter packs, Sokoban starter pack, starter puzzle, starter puzzles, starter puzzle's]
+    published: true
+    model: [playStarterPuzzle]

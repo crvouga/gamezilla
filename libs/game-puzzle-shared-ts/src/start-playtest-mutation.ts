@@ -3,6 +3,7 @@ import { defineMutation } from '@pkgs/sync-engine-shared-ts/define-mutation';
 import type { PuzzleContentCatalog } from '@pkgs/turn-game-shared-ts/puzzle-content-catalog';
 import type { ContentMutationCtx } from './content-store';
 import {
+  contentGame,
   readContentDraft,
   requireContentAuthor,
   requireDraftOf,
@@ -36,6 +37,7 @@ export const startPuzzlePlaytestMutation = (
         definition: draft.definition,
         mode: 'playtest',
         packRevisionId: null,
+        rulesVersion: contentGame(ctx.puzzleContents, doc.game_id).rulesVersion,
       });
     },
   });

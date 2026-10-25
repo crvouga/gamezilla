@@ -1,0 +1,4 @@
+{
+  "summary": "The game menu read the turn engine's rules to count places for every game, so opening a puzzle-only game's menu (Numberlink) threw before any choice was offered.",
+  "regressionTest": "libs/game-menu-client-ts/tests/game-client-contract.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "The due-work witness test appended through the root connection inside its own open transaction; since root work queues behind whole transactions it waited on itself until the test timed out.",
+  "regressionTest": "pkgs/outbox-harness-ts/tests/due-work.test.ts"
+}

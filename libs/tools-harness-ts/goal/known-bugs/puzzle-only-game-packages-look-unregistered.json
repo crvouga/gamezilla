@@ -1,0 +1,4 @@
+{
+  "summary": "Game enrollment counted only games with a turn engine as registered, so every puzzle-only game's packages (Numberlink, Sokoban) were reported as having no registered mode.",
+  "regressionTest": "libs/games-harness-ts/tests/game-enrollment.test.ts"
+}

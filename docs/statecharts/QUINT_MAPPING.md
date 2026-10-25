@@ -71,6 +71,10 @@ or policy without an owner fails compilation.
 | [specs/room/tally-recovery.qnt](../../specs/room/tally-recovery.qnt) | room |
 | [specs/room/tally.qnt](../../specs/room/tally.qnt) | room |
 | [specs/runtime/app-platform.qnt](../../specs/runtime/app-platform.qnt) | app |
+| [specs/sokoban/board-building.qnt](../../specs/sokoban/board-building.qnt) | sokoban |
+| [specs/sokoban/publication-proof.qnt](../../specs/sokoban/publication-proof.qnt) | sokoban |
+| [specs/sokoban/sokoban-play.qnt](../../specs/sokoban/sokoban-play.qnt) | sokoban |
+| [specs/sokoban/starter-pack.qnt](../../specs/sokoban/starter-pack.qnt) | sokoban |
 | [specs/spaces/events.qnt](../../specs/spaces/events.qnt) | spaces |
 | [specs/spaces/space-hosting.qnt](../../specs/spaces/space-hosting.qnt) | spaces |
 | [specs/spaces/space-names.qnt](../../specs/spaces/space-names.qnt) | spaces |
