@@ -34,6 +34,8 @@ test('disposing a connecting room closes after the handshake without notifying o
   const transport = new WebSocketRoomTransport({
     url: 'ws://localhost:63877/api/room?topic=space%3Aa0dcf89d-16b8-4783-8d09-e9276c8c58ca',
     timers: clock.timers,
+    clock: clock.clock,
+    onRoundTrip: () => {},
     random: () => 0,
   });
   let opens = 0;

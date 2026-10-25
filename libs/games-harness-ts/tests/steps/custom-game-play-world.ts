@@ -8,7 +8,7 @@ import { expect } from 'bun:test';
 import { attemptCustomGame } from '@libs/game-session-harness-ts/custom-game-ui';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import { current, identityOf } from './custom-game-set-up-world';
-import { gameOf, view } from './game-world';
+import { turnGameOf, view } from './game-world';
 
 /** `actor` sees a draw offer from the other participant. */
 export async function offeredCustomGameDraw(
@@ -33,9 +33,9 @@ export async function refusedCustomGameMove(
   w: HarnessWorld,
   actor: string
 ): Promise<void> {
-  const refused = gameOf(w).fixtures.refusedOpenings[0];
+  const refused = turnGameOf(w).fixtures.refusedOpenings[0];
   if (refused === undefined)
-    throw new Error(`${gameOf(w).label} names no move its rules refuse`);
+    throw new Error(`${turnGameOf(w).label} names no move its rules refuse`);
   const ply = (await view(w, actor)).current?.moves.length ?? 0;
   await w.s.apply(attemptCustomGame, actor, {
     operation: 'move',

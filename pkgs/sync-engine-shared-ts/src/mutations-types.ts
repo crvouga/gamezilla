@@ -1,3 +1,4 @@
+import type { RoomServicePort } from '@pkgs/room-root-shared-ts/room-service';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { StandardSchemaV1 } from '@standard-schema/spec';
@@ -7,6 +8,7 @@ export type MutationDb = Pick<SqlClient, 'query' | 'run'>;
 
 export type MutationEnv = {
   readonly turnGames?: TurnGames;
+  readonly rooms?: RoomServicePort;
   /** Host-verified provenance; absent means unknown. Never read from mutation args. */
   readonly synthetic?: boolean;
   readonly actorId: string;

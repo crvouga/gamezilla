@@ -28,6 +28,7 @@ import {
   customGameHidden,
 } from './custom-game-hands';
 import { soloCustomGame } from './custom-game-local';
+import { configuredCustomGame } from './custom-game-options';
 import {
   expireCustomGame,
   playCustomGameChoice,
@@ -66,10 +67,15 @@ function createdCustomGame(
   if (!rules.offers(id, 'custom-games')) return null;
   if (choice.operation === 'rematch' && game !== null)
     return rematchCustomGame(game, ctx.commandId, members, rules);
+  const simulation = rules.simulation(id);
+  const position =
+    simulation === undefined
+      ? rules.byId(id).initial()
+      : simulation.codec.encode(simulation.initialize(ctx.commandId));
   return newCustomGame(
     ctx.commandId,
     ctx.identity,
-    rules.byId(id).initial(),
+    position,
     gameSides(rules.byId(id))
   );
 }
@@ -131,9 +137,10 @@ export function handleCustomGameChoice(
   const privately =
     privateSetupChoice(decision, choice) ?? dealtHandsChoice(decision, choice);
   if (privately !== null) return privately;
-  const configured = configureCustomGame(game, choice, ctx.identity);
+  const configured = configuredCustomGame(game, choice, ctx.identity, rules);
+  if (configured.reason !== '') return refuseCustomGame(configured.reason);
   const next = playCustomGameChoice(
-    configured,
+    configured.game,
     choice,
     { actor: ctx.identity, now: ctx.ts },
     rules

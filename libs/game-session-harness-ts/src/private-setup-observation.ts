@@ -40,6 +40,7 @@ export async function roomHistorySentTo(
     installId,
     clientId: env.createId(),
     apiUrl: '',
+    clock: env.clock,
     timers: env.timers,
     random: env.random,
     getSessionToken: () => null,

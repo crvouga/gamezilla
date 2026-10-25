@@ -4,13 +4,11 @@ import { connectFourGameShared } from '@libs/connect-four-shared-ts/connect-four
 import {
   assertGameDefinitions,
   type GameRegistration,
+  isGameRegistration,
+  type RegistryGame,
 } from '@libs/game-session-shared-ts/game-definition';
-import {
-  assertTurnGameDefinitions,
-  isTurnGameDefinition,
-  type TurnGameDefinition,
-} from '@libs/game-session-shared-ts/turn-game-definition';
 import { numberlinkGameShared } from '@libs/numberlink-shared-ts/numberlink-game';
+import { pongGameShared } from '@libs/pong-shared-ts/pong-game';
 import {
   quoridorGameShared,
   quoridorHillGameShared,
@@ -26,8 +24,8 @@ import { assertGameNamespaceOwner } from './game-namespace-owner';
 /**
  * Every game the product offers, in the order the game choice shows them:
  * the one registry the server, the room host and the client compose. Add a
- * game by appending its `defineGame` or `defineTurnGame` definition; nothing
- * else in the platform names a game.
+ * game by appending its `defineGame` definition; nothing else in the
+ * platform names a game.
  */
 export const GAME_DEFINITIONS = [
   chessGameShared,
@@ -39,15 +37,13 @@ export const GAME_DEFINITIONS = [
   wordTilesGameShared,
   wordTiles3GameShared,
   wordTiles4GameShared,
-] as const satisfies readonly GameRegistration[];
+  pongGameShared,
+] as const satisfies readonly RegistryGame[];
 
-/** Only games offering a turn engine enter multiplayer catalogs and suites. */
-export const TURN_GAME_DEFINITIONS: readonly TurnGameDefinition[] =
-  GAME_DEFINITIONS.flatMap((game) =>
-    isTurnGameDefinition(game) ? [game] : []
-  );
+/** Only games holding positions (turn rules or a simulation) enter catalogs and shared suites. */
+export const REGISTERED_GAME_DEFINITIONS: readonly GameRegistration[] =
+  GAME_DEFINITIONS.flatMap((game) => (isGameRegistration(game) ? [game] : []));
 
 assertGameRegistry(GAME_DEFINITIONS);
 assertGameDefinitions('GAME_DEFINITIONS', GAME_DEFINITIONS);
-assertTurnGameDefinitions('TURN_GAME_DEFINITIONS', TURN_GAME_DEFINITIONS);
-assertGameNamespaceOwner(TURN_GAME_DEFINITIONS, chessGameShared);
+assertGameNamespaceOwner(REGISTERED_GAME_DEFINITIONS, chessGameShared);

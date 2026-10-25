@@ -11,10 +11,14 @@
 
 import { test } from 'bun:test';
 import { gamePuzzleContentLaws } from '@libs/game-session-harness-ts/game-puzzle-laws';
+import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { CONFORMANCE_GAMES } from '../../conformance-world';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 
-forEveryGame(import.meta.path, (game) => {
-  for (const law of gamePuzzleContentLaws(game, CONFORMANCE_GAMES))
+forEveryTurnGame(import.meta.path, (game) => {
+  for (const law of gamePuzzleContentLaws(
+    game,
+    CONFORMANCE_GAMES.filter(isTurnHarnessGame)
+  ))
     test(law.name, law.check);
 });

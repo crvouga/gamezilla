@@ -1,0 +1,4 @@
+{
+  "summary": "From paddle center 400, the client projects its own paddle to 430 at input tick thirteen; the acknowledged authority reports 410 at that same tick. No normalized prediction-error sample records the twenty-unit correction (20 / 800 = 0.025). Compare only matching logical tick and input acknowledgment, retain bounded projections through rebasing, and exclude other seats, stale generations and incomparable point/phase transitions.",
+  "regressionTest": "libs/pong-shared-ts/tests/pong-replica.test.ts"
+}

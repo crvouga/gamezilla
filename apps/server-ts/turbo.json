@@ -2,6 +2,9 @@
   "$schema": "https://v2-11-3.turborepo.dev/schema.json",
   "extends": ["//"],
   "tasks": {
+    "contract:write": {
+      "cache": false
+    },
     "build": {
       "outputs": []
     },

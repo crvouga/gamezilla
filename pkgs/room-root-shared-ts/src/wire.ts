@@ -27,9 +27,18 @@ export const ROOM_WIRE_KIND = {
   rejected: 'rejected',
   /** Ephemeral connected-client snapshot; not part of the committed log. */
   roster: 'roster',
+  /** Typed transient traffic over the existing authenticated connection. */
+  signal: 'signal',
 } as const;
 
 export type ClientToServerWire =
+  | {
+      v: typeof WIRE_VERSION;
+      kind: typeof ROOM_WIRE_KIND.signal;
+      id: string;
+      ts: number;
+      payload: RoomCommandPayload;
+    }
   | {
       v: typeof WIRE_VERSION;
       kind: typeof ROOM_WIRE_KIND.command;
@@ -48,6 +57,11 @@ export type ClientToServerWire =
     };
 
 export type ServerToClientWire =
+  | {
+      v: typeof WIRE_VERSION;
+      kind: typeof ROOM_WIRE_KIND.signal;
+      payload: RoomCommandPayload;
+    }
   | {
       v: typeof WIRE_VERSION;
       kind: typeof ROOM_WIRE_KIND.welcome;
@@ -104,6 +118,8 @@ function isRoomErrorWire(value: unknown): value is RoomError {
   if (typeof t !== 'string') return false;
   if (!isNamespacedKeyword(t)) return false;
   if (!ROOM_ERROR_TYPES.has(t)) return false;
+  if (value['code'] !== undefined && typeof value['code'] !== 'string')
+    return false;
   if (t === ROOM_ERROR_TYPE.rateLimited) return true;
   // All other variants carry a `reason` (required for invalid-command,
   // unauthorized, conflict; optional for internal). Be strict on the wire:
@@ -156,7 +172,10 @@ function parseClientCommand(
   // `RoomServer.handleParsedCommand`.
   return {
     v: WIRE_VERSION,
-    kind: ROOM_WIRE_KIND.command,
+    kind:
+      raw['kind'] === ROOM_WIRE_KIND.signal
+        ? ROOM_WIRE_KIND.signal
+        : ROOM_WIRE_KIND.command,
     id,
     ts,
     payload: raw['payload'] as RoomCommandPayload,
@@ -174,6 +193,8 @@ export function parseClientToServerWire(
       return parseClientSync(raw);
     case ROOM_WIRE_KIND.command:
       return parseClientCommand(raw);
+    case ROOM_WIRE_KIND.signal:
+      return isMessageEnvelope(raw['payload']) ? parseClientCommand(raw) : null;
     default:
       return null;
   }
@@ -261,6 +282,14 @@ export function parseServerToClientWire(
       return parseRejectedWire(raw);
     case ROOM_WIRE_KIND.roster:
       return parseRosterWire(raw);
+    case ROOM_WIRE_KIND.signal:
+      return isMessageEnvelope(raw['payload'])
+        ? {
+            v: WIRE_VERSION,
+            kind: ROOM_WIRE_KIND.signal,
+            payload: raw['payload'],
+          }
+        : null;
     default:
       return null;
   }

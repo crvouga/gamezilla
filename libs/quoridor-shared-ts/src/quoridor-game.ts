@@ -1,4 +1,4 @@
-import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import type {
   GameNoticeText,
   GameSide,
@@ -16,7 +16,9 @@ export function quoridorSideLabel(side: GameSide, hill = false): string {
   return side === 'red' ? 'North triangle' : 'East square';
 }
 
-function notices(hill: boolean): GameNoticeText {
+function notices(
+  hill: boolean
+): GameNoticeText & Required<Pick<GameNoticeText, 'timeoutDraw'>> {
   return {
     side: (side) => quoridorSideLabel(side, hill),
     timeoutDraw: (side) =>
@@ -31,14 +33,18 @@ function notices(hill: boolean): GameNoticeText {
 }
 
 function definition(rules: typeof quoridorRules, hill: boolean) {
-  return defineTurnGame({
+  return defineGame({
     rules,
     capabilities: {
       'custom-games': { bots: quoridorBots },
-      matchmaking: { clockNamespace: `${rules.id}/`, notice: notices(hill) },
+      matchmaking: {
+        clockChoices: true as const,
+        namespace: `${rules.id}/`,
+        notice: notices(hill),
+      },
       history: { record: quoridorRecord },
     },
-    automation: {
+    turnAutomation: {
       choose: (position, random) =>
         quoridorBots.choose(position, 'medium', random, null),
       async perform(ui, board, action) {

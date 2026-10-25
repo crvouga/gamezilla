@@ -40,7 +40,7 @@ export function gameRecord(
   const history = rules.capability(id, 'history');
   if (history === undefined)
     throw new Error(
-      `${id}: a finished matched game's record needs history, yet the game offers matchmaking without it — define it with defineTurnGame, which refuses that`
+      `${id}: a finished matched game's record needs history, yet the game offers matchmaking without it — define it with defineGame, which refuses that`
     );
   return history.record(game.fen, game.pgn, {
     participants: gameSides(rules.forPosition(game.fen)).map((side) => ({

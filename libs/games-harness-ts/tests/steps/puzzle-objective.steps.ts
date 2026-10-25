@@ -14,7 +14,7 @@ import { Given, When } from '@libs/harness-ts/define';
 import type { Actor } from '@libs/harness-ts/parameter-types';
 import { cutConnection, otherDevice } from '@libs/harness-ts/platform';
 import { focusActor } from '@libs/harness-ts/shell-actions';
-import { gameOf } from './game-world';
+import { turnGameOf } from './game-world';
 import {
   enterPuzzles,
   focusPuzzle,
@@ -26,7 +26,7 @@ import {
 Given(
   "{actor} is solving the game's known puzzle that can be won another way",
   async (w, actor: Actor) => {
-    const fixture = puzzleWonAnotherWay(gameOf(w));
+    const fixture = puzzleWonAnotherWay(turnGameOf(w));
     await writePool(w, [{ id: fixture.record.id }]);
     const id = await enterPuzzles(w, actor);
     // Precondition guard: the feed served it, the one puzzle in the pool.

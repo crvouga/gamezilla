@@ -47,6 +47,7 @@
     "@libs/games-shared-ts": "workspace:*",
     "@libs/harness-ts": "workspace:*",
     "@libs/numberlink-harness-ts": "workspace:*",
+    "@libs/pong-harness-ts": "workspace:*",
     "@libs/profile-harness-ts": "workspace:*",
     "@libs/quoridor-harness-ts": "workspace:*",
     "@libs/runtime-client-ts": "workspace:*",

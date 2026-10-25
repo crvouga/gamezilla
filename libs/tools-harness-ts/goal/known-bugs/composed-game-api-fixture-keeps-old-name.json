@@ -1,0 +1,4 @@
+{
+  "summary": "The public-game-API checker fixture still advertised turn-game-definition after the composed API was renamed to game-definition, so it rejected a valid game import.",
+  "regressionTest": "libs/tools-harness-ts/scripts/package-boundaries.test.ts"
+}

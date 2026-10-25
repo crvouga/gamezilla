@@ -67,19 +67,19 @@ Feature: Place a Battleship fleet
       Given Alice is ready for the custom game with a random fleet
       When Alice places her destroyer vertically from H5
       Then Alice is told her fleet cannot change while she is ready
-      And Alice's own board is unchanged
+      And Alice's own board keeps every ship in its place
 
     Scenario: A ready player's ships cannot be rotated
       Given Alice is ready for the custom game with a random fleet
       When Alice rotates her destroyer
       Then Alice is told her fleet cannot change while she is ready
-      And Alice's own board is unchanged
+      And Alice's own board keeps every ship in its place
 
     Scenario: A ready player cannot ask for a random fleet
       Given Alice is ready for the custom game with a random fleet
       When Alice asks for a random fleet
       Then Alice is told her fleet cannot change while she is ready
-      And Alice's own board is unchanged
+      And Alice's own board keeps every ship in its place
 
   Rule: A random fleet is complete and keeps every placing rule
     No counter-example: a random fleet never breaks a placing rule, and which cells it uses is not promised.

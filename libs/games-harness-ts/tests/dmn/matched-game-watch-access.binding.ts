@@ -38,7 +38,7 @@ function seedWatchedGame(game: HarnessGame) {
     const stamp = c.env.now().toISOString();
     await c.db.run(sql`INSERT INTO chess_multiplayer_games
       (id, match_id, white_id, black_id, fen, pgn, revision, turn, outcome, reason, created_at, updated_at, deleted_at)
-      SELECT ${id}, ${`match-${id}`}, host_member_id, ${'opponent'}, ${game.shared.turnGame.rules.initial()},
+      SELECT ${id}, ${`match-${id}`}, host_member_id, ${'opponent'}, ${game.shared.registration.rules.initial()},
         ${''}, ${0}, host_member_id, ${'ongoing'}, ${null}, ${stamp}, ${stamp}, ${null}
       FROM spaces WHERE id = ${SPACE_ID}`);
     await c.db.run(sql`INSERT INTO chess_multiplayer_players (id, owner_id, game_id)

@@ -21,20 +21,20 @@
  * seven fails here, naming it, before any trace runs.
  */
 
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import type { CustomGameSide } from '@libs/game-session-shared-ts/custom-game-state';
 import type { QuintHarnessWorld } from '@libs/harness-ts/quint-world';
 import {
   requireTwoPlayerSide,
   type TwoPlayerSide,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { conformanceGameOf } from '../conformance-world';
+import { turnConformanceGameOf } from '../conformance-world';
 
 /** The moves of the victory the game models follow. */
 export const VICTORY_MOVES = 7;
 
 /** `game`'s victory, or a failure saying what the models need of it. */
-export function victoryOf(game: HarnessGame): readonly string[] {
+export function victoryOf(game: TurnHarnessGame): readonly string[] {
   const victory = game.fixtures.firstSideVictory;
   if (victory.length < VICTORY_MOVES)
     throw new Error(
@@ -44,8 +44,8 @@ export function victoryOf(game: HarnessGame): readonly string[] {
 }
 
 /** The game this trace is replayed for, with a victory the models can follow. */
-export function modelGameOf(w: QuintHarnessWorld): HarnessGame {
-  const game = conformanceGameOf(w.ctx.variant, w.ctx.title);
+export function modelGameOf(w: QuintHarnessWorld): TurnHarnessGame {
+  const game = turnConformanceGameOf(w.ctx.variant, w.ctx.title);
   victoryOf(game);
   return game;
 }

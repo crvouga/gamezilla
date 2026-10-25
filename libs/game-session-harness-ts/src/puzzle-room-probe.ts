@@ -128,6 +128,7 @@ export const attemptHostPuzzleCommand = scenarioAction({
       installId: `${actorId}-room-probe`,
       clientId: `${actorId}-room-probe-${commandId}`,
       getSessionToken: () => null,
+      clock: env.clock,
       timers: env.timers,
       random: env.random,
     });

@@ -116,6 +116,7 @@ function GameHistoryRecords(props: {
                             <GameHistoryParticipant
                               id={participant.person}
                               bot={participant.bot}
+                              local={participant.local}
                             />
                           </>
                         )}

@@ -36,6 +36,7 @@ export function createRoomServerDurableObject<WorkerEnv>(
     // A game's rule data (a word list) loads before its room decides.
     ready: () => prepareTurnGames(TURN_GAMES),
     clock: env.clock,
+    timers: env.timers,
     createId: env.createId,
     telemetry,
     serviceIdentity: ROOM_SERVICE_IDENTITY,

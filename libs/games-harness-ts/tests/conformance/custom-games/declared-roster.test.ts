@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { scriptedRandom } from '@libs/game-session-harness-ts/played-rules';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
 import { ChangeCustomGame } from '@libs/game-session-shared-ts/custom-game-commands';
 import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
@@ -9,12 +9,12 @@ import { SpaceMembersRoomAttr } from '@libs/spaces-shared-ts/space-members-messa
 import { createSpaceModule } from '@libs/spaces-shared-ts/space-module';
 import { assertRoomModuleName } from '@pkgs/room-root-shared-ts/types';
 import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 
 const PEOPLE = ['alice', 'bob', 'carol', 'dave'] as const;
 
 /** Exercise the real authority and event reducer for each declared roster. */
-function session(game: HarnessGame) {
+function session(game: TurnHarnessGame) {
   const sides = gameSides(game.shared.turnGame.rules);
   const module = createSpaceModule(
     assertRoomModuleName('roster-contract'),
@@ -80,7 +80,7 @@ function session(game: HarnessGame) {
   return { current, send, start, sides };
 }
 
-forEveryGame(import.meta.path, (game) => {
+forEveryTurnGame(import.meta.path, (game) => {
   test('every declared seat is enforced by the authority through completion and replay', () => {
     const room = session(game);
     room.start();

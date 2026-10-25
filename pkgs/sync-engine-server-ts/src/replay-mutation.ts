@@ -7,6 +7,7 @@ import {
 import { EVENT, events } from '@pkgs/observability-root-shared-ts/events';
 import { createMutationReplayMetric } from '@pkgs/observability-root-shared-ts/mutation-metrics';
 import { withSpan } from '@pkgs/observability-root-shared-ts/span';
+import type { RoomServicePort } from '@pkgs/room-root-shared-ts/room-service';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import {
@@ -75,6 +76,7 @@ export type ReplayMutationDeps = {
    * handed to its body as `env.contentRules`.
    */
   readonly turnGames?: TurnGames;
+  readonly rooms?: RoomServicePort;
   readonly contentRulesAt?: (atMs: number) => ContentRules;
 };
 
@@ -168,6 +170,7 @@ async function applyReplayMutationInTxn(args: {
       ? {}
       : { authenticatedAtMs: deps.auth.authenticatedAtMs }),
     ...(deps.turnGames === undefined ? {} : { turnGames: deps.turnGames }),
+    ...(deps.rooms === undefined ? {} : { rooms: deps.rooms }),
     ...(deps.contentRulesAt === undefined
       ? {}
       : {

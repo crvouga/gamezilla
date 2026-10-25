@@ -11,7 +11,14 @@ import { attemptCustomGame } from '@libs/game-session-harness-ts/custom-game-ui'
 import { partition, restoreActorConnection } from '@libs/harness-ts/actions';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import { choose } from './custom-game-set-up-world';
-import { before, gameOf, setupCustomGame, sideOf, view } from './game-world';
+import {
+  before,
+  gameOf,
+  setupCustomGame,
+  sideOf,
+  turnGameOf,
+  view,
+} from './game-world';
 import { playsPuzzles, solverToMove } from './puzzle-world';
 
 const SECOND_MS = 1000;
@@ -79,7 +86,7 @@ Then('{actor} is told she is not a participant', async (w, actor: string) => {
 });
 
 Given('{actor} has a finished custom game', async (w) =>
-  setupCustomGame(w, { moves: gameOf(w).fixtures.firstSideVictory })
+  setupCustomGame(w, { moves: turnGameOf(w).fixtures.firstSideVictory })
 );
 When('{actor} asks for a rematch', async (w, actor: string) => {
   await w.s.apply(attemptCustomGame, actor, { operation: 'rematch' });
@@ -91,7 +98,7 @@ Then('the new custom game has the sides swapped and no moves', async (w) => {
   expect(next?.white).toEqual(earlier?.black);
   expect(next?.black).toEqual(earlier?.white);
   expect(next?.moves).toEqual([]);
-  expect(next?.fen).toBe(gameOf(w).shared.turnGame.rules.initial());
+  expect(next?.fen).toBe(gameOf(w).shared.registration.rules.initial());
 });
 Then('the earlier custom game is unchanged in the history', async (w) => {
   const earlier = before(w).current;

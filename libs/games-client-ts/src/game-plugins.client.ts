@@ -5,6 +5,7 @@ import type { GameClientRegistration } from '@libs/game-menu-client-ts/game-clie
 import { assertGameClientDefinitions } from '@libs/game-menu-client-ts/game-client';
 import { GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
 import { numberlinkGameClient } from '@libs/numberlink-client-ts/numberlink-game-client';
+import { pongGameClient } from '@libs/pong-client-ts/pong-game-client';
 import {
   quoridorGameClient,
   quoridorHillGameClient,
@@ -33,6 +34,7 @@ export const GAME_CLIENT_DEFINITIONS = [
   wordTilesGameClient,
   wordTiles3GameClient,
   wordTiles4GameClient,
+  pongGameClient,
 ] as const satisfies readonly GameClientRegistration[];
 
 assertGameRegistry(GAME_CLIENT_DEFINITIONS);

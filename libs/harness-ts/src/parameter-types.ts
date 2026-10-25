@@ -43,6 +43,7 @@ export const ACTOR_IDS = {
   Eve: 'eve',
   White: 'white',
   Black: 'black',
+  Cedar: 'cedar',
 } as const;
 
 export type ActorName = keyof typeof ACTOR_IDS;
@@ -89,7 +90,7 @@ export function puzzleFinish(text: string): PuzzleFinishName {
   return finish;
 }
 
-export const SPEC_PARAMETER_TYPES: readonly ParameterTypeSpec[] = [
+export const PARAMETER_TYPES: readonly ParameterTypeSpec[] = [
   {
     name: 'puzzleAnimation',
     regexp: /with animation|without animation/,

@@ -10,8 +10,8 @@
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { puzzleLineLayout } from '@pkgs/turn-game-shared-ts/game-puzzles';
-import type { HarnessGame } from './harness-game';
-import { harnessGameOf } from './harness-game-of';
+import type { TurnHarnessGame } from './harness-game';
+import { turnHarnessGameOf } from './harness-game-of';
 import type { PuzzleFixture, PuzzleFixtureMove } from './known-puzzles';
 import {
   PUZZLE_BOARD,
@@ -24,7 +24,9 @@ const WAIT_MS = 15_000;
 const POLL_MS = 250;
 
 /** `game`'s known puzzles; a game offering none has no puzzle to name. */
-export function knownPuzzlesOf(game: HarnessGame): readonly PuzzleFixture[] {
+export function knownPuzzlesOf(
+  game: TurnHarnessGame
+): readonly PuzzleFixture[] {
   const known = game.fixtures.puzzles;
   if (known === undefined) throw new Error(`${game.label} offers no puzzles`);
   return known;
@@ -33,7 +35,7 @@ export function knownPuzzlesOf(game: HarnessGame): readonly PuzzleFixture[] {
 /**
  * "The game's known puzzle": its first known puzzle of two solver moves.
  */
-export function theKnownPuzzle(game: HarnessGame): PuzzleFixture {
+export function theKnownPuzzle(game: TurnHarnessGame): PuzzleFixture {
   const puzzles = game.shared.turnGame.capabilities.puzzles;
   if (puzzles === undefined) throw new Error(`${game.label} offers no puzzles`);
   const layout = puzzleLineLayout(puzzles);
@@ -47,7 +49,7 @@ export function theKnownPuzzle(game: HarnessGame): PuzzleFixture {
 
 /** `game`'s known puzzle `puzzleId`, or one of its more puzzles. */
 export function knownPuzzle(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   puzzleId: string
 ): PuzzleFixture {
   const fixture = [
@@ -63,7 +65,7 @@ export function knownPuzzle(
 async function knownPuzzleOnBoard(
   s: ProductHarness,
   actorId: string,
-  game: HarnessGame
+  game: TurnHarnessGame
 ): Promise<PuzzleFixture> {
   const id = await readPuzzleOnBoard(s, actorId);
   if (id === null) throw new Error(`${actorId} has no puzzle on the board`);
@@ -74,10 +76,10 @@ async function knownPuzzleOnBoard(
 async function perform(
   s: ProductHarness,
   actorId: string,
-  game: HarnessGame,
+  game: TurnHarnessGame,
   action: string
 ): Promise<void> {
-  await game.shared.automation.perform(
+  await game.shared.automation.turns.perform(
     await actorUi(s, actorId),
     PUZZLE_BOARD,
     action
@@ -93,7 +95,7 @@ async function perform(
 async function reachMove(
   s: ProductHarness,
   actorId: string,
-  on: { readonly game: HarnessGame; readonly fixture: PuzzleFixture },
+  on: { readonly game: TurnHarnessGame; readonly fixture: PuzzleFixture },
   index: number
 ): Promise<void> {
   const { game, fixture } = on;
@@ -130,7 +132,7 @@ async function playFixtureMove(
   gameId: string,
   pick: (fixture: PuzzleFixture) => PuzzleFixtureMove
 ): Promise<void> {
-  const game = harnessGameOf(s, gameId);
+  const game = turnHarnessGameOf(s, gameId);
   const fixture = await knownPuzzleOnBoard(s, actorId, game);
   const move = pick(fixture);
   await reachMove(s, actorId, { game, fixture }, move.at);
@@ -141,7 +143,7 @@ async function playFixtureMove(
 export const solveKnownPuzzle = scenarioAction({
   name: 'solveKnownPuzzle',
   act: async (s, actorId: string, gameId: string) => {
-    const game = harnessGameOf(s, gameId);
+    const game = turnHarnessGameOf(s, gameId);
     const fixture = await knownPuzzleOnBoard(s, actorId, game);
     const last = fixture.record.line.length - 1;
     await reachMove(s, actorId, { game, fixture }, last);
@@ -159,7 +161,7 @@ export const solveKnownPuzzle = scenarioAction({
 export const playNextKnownMove = scenarioAction({
   name: 'playNextKnownMove',
   act: async (s, actorId: string, gameId: string) => {
-    const game = harnessGameOf(s, gameId);
+    const game = turnHarnessGameOf(s, gameId);
     const fixture = await knownPuzzleOnBoard(s, actorId, game);
     const { solveIdx } = await waitSolverMayMove(s, actorId);
     const puzzles = game.shared.turnGame.capabilities.puzzles;
@@ -178,7 +180,7 @@ export const playNextKnownMove = scenarioAction({
 export const playSolutionMove = scenarioAction({
   name: 'playSolutionMove',
   act: async (s, actorId: string, gameId: string) => {
-    const game = harnessGameOf(s, gameId);
+    const game = turnHarnessGameOf(s, gameId);
     const fixture = await knownPuzzleOnBoard(s, actorId, game);
     const { solveIdx } = await waitSolverMayMove(s, actorId);
     await perform(s, actorId, game, fixture.record.line[solveIdx] ?? '');
@@ -203,7 +205,7 @@ export const playKnownWrongMove = scenarioAction({
 export const reachKnownRefusedMove = scenarioAction({
   name: 'reachKnownRefusedMove',
   act: async (s, actorId: string, gameId: string) => {
-    const game = harnessGameOf(s, gameId);
+    const game = turnHarnessGameOf(s, gameId);
     const fixture = await knownPuzzleOnBoard(s, actorId, game);
     await reachMove(s, actorId, { game, fixture }, fixture.refusedMove.at);
   },
@@ -220,7 +222,7 @@ export const tryKnownRefusedMove = scenarioAction({
 export const reachKnownOpponentMove = scenarioAction({
   name: 'reachKnownOpponentMove',
   act: async (s, actorId: string, gameId: string) => {
-    const game = harnessGameOf(s, gameId);
+    const game = turnHarnessGameOf(s, gameId);
     const fixture = await knownPuzzleOnBoard(s, actorId, game);
     await reachMove(
       s,
@@ -252,7 +254,7 @@ function knownOpponentMove(fixture: PuzzleFixture): PuzzleFixtureMove {
 export const playWrongMoveHere = scenarioAction({
   name: 'playWrongMoveHere',
   act: async (s, actorId: string, gameId: string) => {
-    const game = harnessGameOf(s, gameId);
+    const game = turnHarnessGameOf(s, gameId);
     const fixture = await knownPuzzleOnBoard(s, actorId, game);
     const { solveIdx } = await waitSolverMayMove(s, actorId);
     const action =
@@ -276,7 +278,7 @@ export const playWrongMoveHere = scenarioAction({
 export const suggestMoveToHost = scenarioAction({
   name: 'suggestMoveToHost',
   act: async (s, watcherId: string, gameId: string) => {
-    const game = harnessGameOf(s, gameId);
+    const game = turnHarnessGameOf(s, gameId);
     const fixture = await knownPuzzleOnBoard(s, watcherId, game);
     const probe = await readPuzzleProbe(s, watcherId);
     if (probe === null) throw new Error(`${watcherId} sees no puzzle`);
@@ -293,7 +295,7 @@ export const suggestMoveToHost = scenarioAction({
  * The known puzzle that can be won another way: the first whose author
  * wrote a winning move off its line.
  */
-export function puzzleWonAnotherWay(game: HarnessGame): PuzzleFixture {
+export function puzzleWonAnotherWay(game: TurnHarnessGame): PuzzleFixture {
   const fixture = knownPuzzlesOf(game).find(
     (known) => known.wonAnotherWay !== undefined
   );
@@ -321,7 +323,7 @@ export const winKnownPuzzleAnotherWay = scenarioAction({
  * the line's move, no win, and no other way its author wrote to go on.
  */
 export function wrongMoveAt(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   fixture: PuzzleFixture,
   index: number
 ): string {

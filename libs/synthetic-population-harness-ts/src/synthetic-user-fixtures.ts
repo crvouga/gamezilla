@@ -1,10 +1,4 @@
-import { givenMultiplayerPosition } from '@libs/game-matchmaking-harness-ts/matched-game-fixtures';
-import {
-  awaitGameMatch,
-  givenOpponentSearch,
-} from '@libs/game-matchmaking-harness-ts/multiplayer-fixtures';
-import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
-import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
+import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { signedInAccountOf } from '@libs/harness-ts/identity';
 import { SyntheticPopulationController } from '@libs/synthetic-population-server-ts/synthetic-population-controller';
@@ -14,12 +8,8 @@ import sql from '@pkgs/sql-root-shared-ts/sql';
 import { bindFixtureAccount } from './fixture-account-binding';
 import { maintainFixtureLease } from './fixture-lease-lifecycle';
 import { givenDesiredSyntheticPopulation } from './observatory-actions';
-import {
-  givenSyntheticGameSpace,
-  openSyntheticGame,
-  syntheticGame,
-  syntheticGameView,
-} from './synthetic-game-actions';
+import { syntheticGame } from './synthetic-game-actions';
+import { prepareSyntheticMatch } from './synthetic-match-fixtures';
 import {
   givenSyntheticUserDevice,
   signInSyntheticUser,
@@ -77,14 +67,6 @@ export const givenLeasedSyntheticUser = scenarioAction({
     );
   },
 });
-/** The clock namespace of the synthetic game's opponent searches. */
-function syntheticClockNamespace(game: string): string {
-  const matchmaking =
-    syntheticGame(game).shared.turnGame.capabilities.matchmaking;
-  if (matchmaking === undefined)
-    throw new Error(`${game} offers no matchmaking to play`);
-  return matchmaking.clockNamespace;
-}
 export const givenSyntheticUser = scenarioAction({
   name: 'givenSyntheticUser',
   act: async (s, name: string, playing: boolean, game?: string) => {
@@ -106,63 +88,6 @@ export const givenSyntheticUser = scenarioAction({
     );
     await configureUsername(await actorUi(s, 'cedar'), 'cedar');
     if (!playing) return;
-    // Bob is a person: people sign in with a provider, never by email.
-    await Promise.resolve(signInWithGoogle.act(s, 'bob'));
-    await pollUntil(
-      s,
-      async () => (await signedInAccountOf(s, 'bob')) ?? null,
-      {
-        maxMs: 20_000,
-        description: "Bob's account is ready",
-      }
-    );
-    await configureUsername(await actorUi(s, 'bob'), 'bob');
-    for (const actor of ['cedar', 'bob']) {
-      await Promise.resolve(givenSyntheticGameSpace.act(s, actor, label));
-      await Promise.resolve(
-        givenOpponentSearch.act(
-          s,
-          actor,
-          `${syntheticClockNamespace(label)}5+0`
-        )
-      );
-    }
-    // Cedar plays the first side, from one move before the game's known
-    // victory, so its next move can finish the game.
-    await Promise.resolve(awaitGameMatch.act(s, 'cedar', 'bob', true));
-    await Promise.resolve(openSyntheticGame.act(s, 'cedar', label));
-    const gameId = await pollUntil(
-      s,
-      async () => (await syntheticGameView(s, 'cedar')).gameId,
-      { maxMs: 10_000, description: 'Cedar sees the assigned multiplayer game' }
-    );
-    const victory = syntheticGame(label).fixtures.firstSideVictory;
-    const fen = syntheticGame(label).shared.turnGame.rules.replay(
-      victory,
-      victory.length - 1
-    );
-    await Promise.resolve(
-      givenMultiplayerPosition.act(s, 'cedar', {
-        gameId,
-        fen,
-      })
-    );
-    await Promise.resolve(openSyntheticGame.act(s, 'cedar', label));
-    await (await actorUi(s, 'cedar')).get('multiplayer-game').expect.visible();
-    await pollUntil(
-      s,
-      async () => {
-        const board = await syntheticGameView(s, 'cedar');
-        return board.gameId === gameId &&
-          board.position === fen &&
-          board.canMove
-          ? true
-          : null;
-      },
-      {
-        maxMs: 15_000,
-        description: 'Cedar sees its supplied game position and turn',
-      }
-    );
+    await prepareSyntheticMatch(s, label);
   },
 });

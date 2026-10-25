@@ -30,10 +30,15 @@ export function PuzzleGameProvider(props: {
     const puzzles = turnGames.capability(props.gameId, 'puzzles');
     if (puzzles === undefined)
       throw new Error(`${props.gameId}: the game offers no puzzles`);
+    const rules = turnGames.turnsForPosition(
+      turnGames.byId(props.gameId).initial()
+    );
+    if (rules === undefined)
+      throw new Error(`${props.gameId}: puzzles require turn rules`);
     return {
       gameId: props.gameId,
       namespace: puzzles.namespace,
-      game: { rules: turnGames.byId(props.gameId), puzzles },
+      game: { rules, puzzles },
       client: props.client,
     };
   });

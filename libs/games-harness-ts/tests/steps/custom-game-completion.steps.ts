@@ -14,7 +14,7 @@ import {
   inSpace,
   toldOf,
 } from './custom-game-set-up-world';
-import { gameOf, hostOf, setupCustomGame } from './game-world';
+import { gameOf, hostOf, setupCustomGame, turnGameOf } from './game-world';
 import { onlyWatches } from './matched-game-watchers.steps';
 import { boardTakesNoMove, playsPuzzles } from './puzzle-world';
 
@@ -22,7 +22,7 @@ Given(
   '{actor} and {actor} have a custom game after their first moves',
   async (w) =>
     setupCustomGame(w, {
-      moves: gameOf(w).fixtures.firstSideVictory.slice(0, 2),
+      moves: turnGameOf(w).fixtures.firstSideVictory.slice(0, 2),
     })
 );
 Given(

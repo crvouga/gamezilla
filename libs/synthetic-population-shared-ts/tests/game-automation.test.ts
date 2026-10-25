@@ -23,8 +23,11 @@ const RULES: GameRules = {
 function game(id: string): GameAutomation<Driver> {
   return {
     rules: { ...RULES, id },
-    choose: () => 'advance',
-    perform: (ui, board, action) => ui.get(`${board}-${action}`).key('enter'),
+    turns: {
+      rules: { ...RULES, id },
+      choose: () => 'advance',
+      perform: (ui, board, action) => ui.get(`${board}-${action}`).key('enter'),
+    },
   };
 }
 const COUNTING = game('counting');
@@ -150,7 +153,12 @@ test('invalid suggestions and spectators cannot submit through the shared contro
     clock: { now: () => 0 },
     random: () => 0.95,
     username: 'watcher',
-    games: [{ ...COUNTING, choose: () => 'invented-action' }],
+    games: [
+      {
+        ...COUNTING,
+        turns: { ...COUNTING.turns!, choose: () => 'invented-action' },
+      },
+    ],
     emit: (event) => events.push(event.name),
   });
   application.authenticated();

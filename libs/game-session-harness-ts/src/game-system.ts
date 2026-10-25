@@ -34,7 +34,7 @@ import {
 import { customGameBotRoomNode } from './custom-game-bots';
 import { GAME_SESSION_HARNESS_ACTIONS } from './game-session-actions';
 import type { HarnessGame } from './harness-game';
-import { assertHarnessGame } from './harness-game';
+import { assertHarnessGame, isTurnHarnessGame } from './harness-game';
 import { registerHarnessGames } from './harness-game-of';
 import { seedKnownPuzzles } from './known-puzzle-catalogue';
 
@@ -67,7 +67,9 @@ export function gameSystem(
   options: GameSystemOptions = {}
 ) {
   for (const game of games) assertHarnessGame(game);
-  const turnGames = createTurnGames(games.map((game) => game.shared.turnGame));
+  const turnGames = createTurnGames(
+    games.map((game) => game.shared.registration)
+  );
   const spaces = spacesHarnessSlice({
     games: games.map((game) => game.shared),
     clients: games.map((game) => game.client),
@@ -119,7 +121,11 @@ export function gameSystem(
         server: () => GAME_PUZZLE_SERVER,
         seedServer: async (sqlClient) => {
           if (options.knownPuzzles === true)
-            await seedKnownPuzzles(sqlClient, turnGames, games);
+            await seedKnownPuzzles(
+              sqlClient,
+              turnGames,
+              games.filter(isTurnHarnessGame)
+            );
           // Every game's starter puzzles, as a deploy publishes them.
           await prepareTurnGames(turnGames);
           await sqlClient.transaction((tx) =>
@@ -139,13 +145,17 @@ export function gameSystem(
   registerKnownSetups(
     composition,
     (position, side) =>
-      games.find((game) => game.shared.turnGame.rules.recognizes(position))
+      games
+        .filter(isTurnHarnessGame)
+        .find((game) => game.shared.registration.rules.recognizes(position))
         ?.fixtures.setups?.[side]
   );
   registerKnownDeals(
     composition,
     (position) =>
-      games.find((game) => game.shared.turnGame.rules.recognizes(position))
+      games
+        .filter(isTurnHarnessGame)
+        .find((game) => game.shared.turnGame.rules.recognizes(position))
         ?.fixtures.knownDeal?.hidden
   );
   return defineProductSystem(composition, options.product);

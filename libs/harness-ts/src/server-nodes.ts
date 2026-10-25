@@ -69,6 +69,7 @@ async function openHarnessServer(args: {
   );
   const app = await http.run(() =>
     createServer(env, {
+      rooms: args.rooms,
       app: args.composition.app,
       servers: subServers,
     })

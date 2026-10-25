@@ -6,6 +6,7 @@ import {
   openFindingAnOpponent,
   opponentSearchView,
 } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
+import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import { actorHtml } from '@libs/harness-ts/observations';
 import type { OpenHarness } from '@libs/harness-ts/open-harness';
@@ -14,7 +15,7 @@ import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import { agreed, command, matched } from './conformance/match-authority-world';
 import { CONFORMANCE_GAMES, openConformanceHarness } from './conformance-world';
 
-const FOUR_SEAT_GAME = CONFORMANCE_GAMES.find(
+const FOUR_SEAT_GAME = CONFORMANCE_GAMES.filter(isTurnHarnessGame).find(
   (game) =>
     gameSides(game.shared.turnGame.rules).length === 4 &&
     game.shared.turnGame.capabilities.matchmaking !== undefined

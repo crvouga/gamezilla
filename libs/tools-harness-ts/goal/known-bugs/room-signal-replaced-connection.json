@@ -1,0 +1,4 @@
+{
+  "summary": "A queued transient frame looked up its connection only when the room serial ran, so a removed connection's frame could execute as a new connection reusing its identifier. Capture the admitted connection at ingress and require that exact connection before and after authorization.",
+  "regressionTest": "pkgs/room-root-harness-ts/tests/room-signals.contract.test.ts"
+}

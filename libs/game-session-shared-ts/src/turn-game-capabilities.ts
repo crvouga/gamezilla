@@ -4,6 +4,7 @@ import {
   BOT_DIFFICULTIES,
   GAME_CAPABILITIES,
 } from '@pkgs/turn-game-shared-ts/game-rules';
+import type { RegisteredSimulation } from '@pkgs/turn-game-shared-ts/game-simulation';
 
 /** Refuse capabilities the platform does not offer, and placeholders. */
 function assertKeys(id: string, capabilities: object): void {
@@ -31,10 +32,22 @@ function assertFunctions(
       );
 }
 
-function assertBots(id: string, capabilities: TurnGameCapabilities): void {
+function assertBots(
+  id: string,
+  capabilities: TurnGameCapabilities,
+  simulation?: RegisteredSimulation
+): void {
   const custom = capabilities['custom-games'];
   if (custom === undefined) return;
-  assertFunctions(id, 'custom-games', { 'bots.choose': custom.bots?.choose });
+  if (
+    custom.localPlayers !== undefined &&
+    (custom.localPlayers !== true || simulation === undefined)
+  )
+    throw new Error(`${id}: local players require simulation inputs`);
+  if (simulation === undefined)
+    assertFunctions(id, 'custom-games', { 'bots.choose': custom.bots?.choose });
+  else if (simulation.bots === undefined)
+    throw new Error(`${id}: custom games need simulation bot inputs`);
   const difficulties = custom.bots?.difficulties;
   if (
     !Array.isArray(difficulties) ||
@@ -50,22 +63,30 @@ function assertBots(id: string, capabilities: TurnGameCapabilities): void {
 /** Validate every advertised implementation before installing its sessions. */
 export function assertTurnGameCapabilities(
   id: string,
-  capabilities: TurnGameCapabilities
+  capabilities: TurnGameCapabilities,
+  simulation?: RegisteredSimulation
 ): void {
   assertKeys(id, capabilities);
-  assertBots(id, capabilities);
+  assertBots(id, capabilities, simulation);
   if (capabilities.history !== undefined)
     assertFunctions(id, 'history', { record: capabilities.history.record });
   const matched = capabilities.matchmaking;
   if (matched !== undefined) {
+    if (matched.clockChoices === true)
+      assertFunctions(id, 'matchmaking', {
+        'notice.timeoutDraw': matched.notice?.timeoutDraw,
+      });
     assertFunctions(id, 'matchmaking', {
-      'notice.timeoutDraw': matched.notice?.timeoutDraw,
       'notice.side': matched.notice?.side,
       'notice.ending': matched.notice?.ending,
     });
-    if (typeof matched.clockNamespace !== 'string')
+    if (matched.clockChoices !== undefined && matched.clockChoices !== true)
       throw new Error(
-        `${id}: offering matchmaking needs capabilities.matchmaking.clockNamespace ("${id}/")`
+        `${id}: matchmaking.clockChoices is true when turn clocks are offered, otherwise leave it out`
+      );
+    if (typeof matched.namespace !== 'string')
+      throw new Error(
+        `${id}: offering matchmaking needs capabilities.matchmaking.namespace ("${id}/")`
       );
   }
   const puzzles = capabilities.puzzles;

@@ -1,123 +1,52 @@
-/**
- * The real custom-game operation behind each capability of the
- * custom-game access table, performed in a space's room for every game
- * offering custom games: each game must give the same answer.
- */
-
+/** Real custom-game operations behind the access decision table, for every offered game. */
 import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
-import { scriptedRandom } from '@libs/game-session-harness-ts/played-rules';
-import { createGameSessionServer } from '@libs/game-session-server-ts/sub-server';
+import {
+  isSimulationHarnessGame,
+  isTurnHarnessGame,
+} from '@libs/game-session-harness-ts/harness-game';
 import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
-import { ChangeCustomGame } from '@libs/game-session-shared-ts/custom-game-commands';
-import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
-import type { HarnessRoomNode } from '@libs/harness-ts/composition';
 import {
   capabilityOf,
   spacePresenceOf,
 } from '@libs/permissions-shared-ts/people';
-import type {
-  ServerCase,
-  ServerOperation,
+import {
+  OperationRefused,
+  type ServerCase,
+  type ServerOperation,
 } from '@libs/permissions-shared-ts/server';
-import { OperationRefused } from '@libs/permissions-shared-ts/server';
-import { createInProcessRoomNode } from '@libs/spaces-harness-ts/in-process-room-node';
-import { answerOfRoomCommand } from '@libs/spaces-harness-ts/room-command-probe';
-import { roomHistoryDisclosed } from '@libs/spaces-harness-ts/room-history-observation';
 import {
   memberIdOf,
   SPACE_ID,
   seedPlaceInSpace,
 } from '@libs/spaces-harness-ts/space-decision-world';
-import { spaceRoomGrants } from '@libs/spaces-server-ts/space-room-grants';
 import { spaceUserEntityId } from '@libs/spaces-shared-ts/participation-ids';
 import { ApplySpaceMembership } from '@libs/spaces-shared-ts/space-service-command';
-import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
-import type { Timers } from '@pkgs/clock-shared-ts/types';
-import type { Message } from '@pkgs/message-shared-ts/message';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import {
-  createTurnGames,
   GAME_SIDES,
   type GameSide,
   gameSides,
 } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  choice,
+  createDecisionRoom,
+  decisionConnection,
+  type RoomWorld,
+  watchDecisionRoom,
+} from './custom-game-decision-room';
+import { performSimulationControlDecision } from './custom-game-decision-simulation';
 
-const OTHER_HOST = 'someone-else';
 const PEER = 'another-participant';
-type RoomWorld = {
-  game: HarnessGame;
-  node: HarnessRoomNode;
-  timers: Timers;
-  c: ServerCase;
-  nextId: () => string;
-  host: string;
-};
 
-async function send(
-  w: RoomWorld,
-  identity: string,
-  payload: Message
-): Promise<void> {
-  const game = () => {
-    const state = w.node.inspect(`space:${SPACE_ID}`)?.committedState;
-    return JSON.stringify(
-      state === undefined ? null : CustomGamesAttr.from(state)
-    );
-  };
-  const before = game();
-  try {
-    const answer = await answerOfRoomCommand(w.node, {
-      spaceId: SPACE_ID,
-      identity,
-      installId:
-        identity === memberIdOf(w.c) ? w.c.env.deviceId : `${identity}-device`,
-      payload,
-      commandId: w.nextId(),
-      nowMs: w.c.nowMs,
-      timers: w.timers,
-    });
-    if (answer.kind !== 'rejected') return;
-    if (game() !== before)
-      throw new Error('a denied room command changed the game');
-    throw new OperationRefused(answer.error.type);
-  } catch (cause) {
-    if (cause instanceof Error && cause.message === 'not in the space')
-      throw new OperationRefused(cause.message);
-    throw cause;
-  }
-}
-async function choice(
-  w: RoomWorld,
-  identity: string,
-  input: CustomGameInput
-): Promise<void> {
-  const state = w.node.inspect(`space:${SPACE_ID}`)?.committedState;
-  const game = state === undefined ? null : CustomGamesAttr.from(state).current;
-  await send(
-    w,
-    identity,
-    ChangeCustomGame({
-      ...input,
-      ...(input.operation === 'ready' && w.game.fixtures.setups !== undefined
-        ? {
-            setup:
-              w.game.fixtures.setups[
-                game?.black.person === identity ? 'black' : 'white'
-              ],
-          }
-        : {}),
-      gameId: game?.id ?? null,
-      revision: game?.revision ?? 0,
-    })
-  );
+function readyFor(w: RoomWorld, side: GameSide): CustomGameInput {
+  const setup = isTurnHarnessGame(w.game)
+    ? w.game.fixtures.setups?.[side]
+    : undefined;
+  return { operation: 'ready', ...(setup === undefined ? {} : { setup }) };
 }
 
 async function ready(w: RoomWorld, identity: string, side: GameSide) {
-  const setup = w.game.fixtures.setups?.[side];
-  await choice(w, identity, {
-    operation: 'ready',
-    ...(setup === undefined ? {} : { setup }),
-  });
+  await choice(w, identity, readyFor(w, side));
 }
 
 function peerForSide(side: GameSide) {
@@ -125,7 +54,7 @@ function peerForSide(side: GameSide) {
 }
 
 async function fillExtraSides(w: RoomWorld) {
-  for (const side of gameSides(w.game.shared.turnGame.rules).slice(2)) {
+  for (const side of gameSides(w.game.shared.registration.rules).slice(2)) {
     const person = peerForSide(side);
     await w.node.services.send(
       `space:${SPACE_ID}`,
@@ -154,7 +83,7 @@ async function prepare(w: RoomWorld, capability: string): Promise<void> {
   if (capability === 'join a custom game' && actor === w.host)
     await choice(w, w.host, { operation: 'release', side: 'white' });
   if (capability === 'start a custom game') {
-    for (const side of gameSides(w.game.shared.turnGame.rules).slice(1))
+    for (const side of gameSides(w.game.shared.registration.rules).slice(1))
       await choice(w, w.host, { operation: 'bot', side });
     await ready(w, w.host, 'white');
     return;
@@ -194,7 +123,9 @@ function inputFor(
     case 'create a custom game':
       return { operation: 'create', game: game.shared.id };
     case 'configure a custom game':
-      return { operation: 'clock', minutes: 5, increment: 2 };
+      return isTurnHarnessGame(game)
+        ? { operation: 'clock', minutes: 5, increment: 2 }
+        : { operation: 'difficulty', side: 'black', difficulty: 'easy' };
     case 'invite a custom game participant':
       return { operation: 'invite', side: 'black', person: PEER };
     case 'configure a custom game bot':
@@ -206,6 +137,7 @@ function inputFor(
     case 'join a custom game':
       return { operation: 'claim', side: 'black' };
     case 'play a custom game': {
+      if (!isTurnHarnessGame(game)) return null;
       const move = game.fixtures.firstSideVictory[0];
       if (move === undefined)
         throw new Error(`${game.label} has no first move`);
@@ -228,82 +160,34 @@ export async function seedCustomGameDecision(c: ServerCase): Promise<void> {
   }
 }
 async function performFor(game: HarnessGame, c: ServerCase): Promise<void> {
-  const { clock, timers } = createHarnessClock({ startMs: c.nowMs });
-  let ids = 0;
-  const nextId = (): string => `decision-choice-${++ids}`;
-  const node = createInProcessRoomNode(
-    {
-      clock,
-      timers,
-      createId: nextId,
-      // A game with dealt hands is dealt its known deal, as its lines expect.
-      random:
-        game.fixtures.knownDeal === undefined
-          ? () => 0.5
-          : scriptedRandom(game.fixtures.knownDeal.draws),
-      seed: 1n,
-    },
-    {
-      games: [game.shared],
-      gateway: {
-        roomGrants: async ({ topic, actor }) => {
-          const ctx = { db: c.db, topic, actor, nowMs: c.nowMs };
-          return [
-            ...((await spaceRoomGrants(ctx)) ?? []),
-            ...((await createGameSessionServer(
-              node.services,
-              createTurnGames([game.shared.turnGame])
-            ).roomGrants?.(ctx)) ?? []),
-          ];
-        },
-      },
-    }
-  );
-  const host = spacePresenceOf(c.input) === 'host' ? memberIdOf(c) : OTHER_HOST;
-  const w = { game, node, timers, c, nextId, host };
-  const hosting = node.createTransport({
-    topic: `space:${SPACE_ID}`,
-    module: 'space',
-    identity: host,
-    installId: host === memberIdOf(c) ? c.env.deviceId : `${host}-device`,
-    clientId: nextId(),
-    apiUrl: '',
-    timers,
-    random: () => 0.5,
-    getSessionToken: () => null,
-  });
+  if (isTurnHarnessGame(game))
+    await game.shared.turnGame.rules.prepare?.();
+  const w = createDecisionRoom(game, c);
   try {
-    await hosting.connect();
+    await decisionConnection(w, w.host).connect();
     const capability = capabilityOf(c.input);
     await prepare(w, capability);
+    if (capability === 'play a custom game' && isSimulationHarnessGame(game)) {
+      await performSimulationControlDecision({
+        game,
+        node: w.node,
+        clock: w.clock,
+        timers: w.timers,
+        nextId: w.nextId,
+        host: w.host,
+        peer: PEER,
+        topic: `space:${SPACE_ID}`,
+        actor: memberIdOf(c),
+        actorDevice: c.env.deviceId,
+      });
+      return;
+    }
     const input = inputFor(game, capability);
     if (input !== null) await choice(w, memberIdOf(c), input);
-    else {
-      const transport = node.createTransport({
-        topic: `space:${SPACE_ID}`,
-        module: 'space',
-        identity: memberIdOf(c),
-        installId: c.env.deviceId,
-        clientId: nextId(),
-        apiUrl: '',
-        timers,
-        random: () => 0.5,
-        getSessionToken: () => null,
-      });
-      try {
-        const disclosed = await roomHistoryDisclosed(transport, timers);
-        if (!disclosed) throw new OperationRefused('not in the space');
-      } catch (cause) {
-        if (cause instanceof Error && cause.message === 'not in the space')
-          throw new OperationRefused(cause.message);
-        throw cause;
-      } finally {
-        transport.destroy();
-      }
-    }
+    else await watchDecisionRoom(w);
   } finally {
-    hosting.destroy();
-    node.dispose();
+    for (const transport of w.connections.values()) transport.destroy();
+    w.node.dispose();
   }
 }
 
@@ -315,8 +199,10 @@ export function performCustomGameDecision(
   games: readonly HarnessGame[]
 ): ServerOperation {
   return async (c) => {
-    const answers: { game: HarnessGame; refusal: OperationRefused | null }[] =
-      [];
+    const answers: {
+      game: HarnessGame;
+      refusal: OperationRefused | null;
+    }[] = [];
     for (const game of games) {
       try {
         await performFor(game, c);

@@ -1,0 +1,4 @@
+{
+  "summary": "A matched simulation checkpoint queued before an accepted turn could reset its command-owned position at the same tick while retaining the newer turn history.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-hybrid-match.contract.test.ts"
+}

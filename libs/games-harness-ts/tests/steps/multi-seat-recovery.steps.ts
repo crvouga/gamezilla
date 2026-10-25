@@ -5,7 +5,7 @@ import type { CustomGame } from '@libs/game-session-shared-ts/custom-game-state'
 import { Given, Then } from '@libs/harness-ts/define';
 import { cutConnection } from '@libs/harness-ts/platform';
 import { chosen, current } from './custom-game-set-up-world';
-import { gameOf, setupCustomGame } from './game-world';
+import { setupCustomGame, turnGameOf } from './game-world';
 
 Given('Alice, Bob, Carol and Dave have a four-player custom game', async (w) =>
   setupCustomGame(w, { third: 'carol', fourth: 'dave' })
@@ -14,7 +14,7 @@ Given(
   "Carol's phone was offline while Alice and Bob made their first moves",
   async (w) => {
     await cutConnection(w, 'carol');
-    const line = gameOf(w).fixtures.firstSideVictory;
+    const line = turnGameOf(w).fixtures.firstSideVictory;
     await chosen(w, 'alice', { operation: 'move', uci: line[0]!, ply: 0 });
     await chosen(w, 'bob', { operation: 'move', uci: line[1]!, ply: 1 });
     w.memo.set('four-seat-recovery-before', await current(w));
@@ -57,7 +57,7 @@ Then('Alice sees three legal bot replies and her next turn', async (w) => {
   });
   const game = seen.current!;
   expect(game.turn).toBe(seen.mySide!);
-  const rules = gameOf(w).shared.turnGame.rules;
+  const rules = turnGameOf(w).shared.turnGame.rules;
   const actions = game.moves.map((move) => move.uci);
   // Each reply is one the rules accept where it was made (a game with dealt
   // hands records the public action its proposal resolved to).

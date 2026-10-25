@@ -1,0 +1,4 @@
+{
+  "summary": "Shared conformance planning dereferenced only turnGame, so a genuine simulation-only registration lost its capability obligations or crashed before it could receive evidence.",
+  "regressionTest": "libs/games-harness-ts/tests/simulation-conformance.test.ts"
+}

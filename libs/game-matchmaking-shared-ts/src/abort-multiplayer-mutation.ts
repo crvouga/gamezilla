@@ -8,5 +8,5 @@ export const abortMultiplayerMutation = defineMutation({
   pendingUx: 'pending',
   args: gameCommandArgs,
   run: (ctx, args) =>
-    runGameCommand(ctx, { ...args, kind: 'abort' }, abortGame),
+    runGameCommand(ctx, { ...args, kind: 'abort' }, (game) => abortGame(game)),
 });

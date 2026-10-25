@@ -141,8 +141,8 @@ test('a bot choosing an action the rules do not offer is refused', () => {
 
 test('an automated participant choosing an action the rules do not offer is refused', () => {
   const reckless = definedWith({
-    automation: {
-      ...COUNTING_RACE_TURN_GAME.automation,
+    turnAutomation: {
+      ...COUNTING_RACE_TURN_GAME.turnAutomation,
       choose: () => 'retreat',
     },
   });

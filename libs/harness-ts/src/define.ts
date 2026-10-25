@@ -12,7 +12,7 @@ import {
   defineParameterType,
   stepsFor,
 } from '@pkgs/gherkin-shared-ts/registry';
-import { SPEC_PARAMETER_TYPES } from './parameter-types';
+import { SPEC_PARAMETER_TYPES } from './spec-parameter-types';
 import type { HarnessWorld } from './spec-world';
 
 for (const spec of SPEC_PARAMETER_TYPES) {

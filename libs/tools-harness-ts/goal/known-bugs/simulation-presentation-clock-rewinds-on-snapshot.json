@@ -1,0 +1,4 @@
+{
+  "summary": "Seed 12912 with 0 ms mean latency, 1 ms jitter, 10% loss, reordered frames and a held spectator link makes the live counting-race presentation move backward from 550.0000000000001 to 500.0000000000002. Receiving a newer snapshot resets its age and rewinds the interpolation target. Preserve a monotonic presentation tick within an execution epoch, bounded by the latest authoritative tick, and reset it with the replica's epoch/pause history.",
+  "regressionTest": "libs/game-session-harness-ts/tests/live-network-regression.test.ts"
+}

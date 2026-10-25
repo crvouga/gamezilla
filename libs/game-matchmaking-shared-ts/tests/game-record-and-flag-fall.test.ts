@@ -37,7 +37,8 @@ const GAMES = createTurnGames([
     rules,
     capabilities: {
       matchmaking: {
-        clockNamespace: 'stub/',
+        clockChoices: true as const,
+        namespace: 'stub/',
         notice: {
           timeoutDraw: () => '',
           side: () => '',

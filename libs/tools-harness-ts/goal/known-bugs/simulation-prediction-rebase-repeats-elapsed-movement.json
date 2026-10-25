@@ -1,0 +1,4 @@
+{
+  "summary": "A held downward control predicts through tick thirteen, then queues a tick-sixteen control with a three-tick duration. When authority tick fourteen reports paddle center 410, reconciliation replays all three ticks and paints 440, repeating the already elapsed tick fourteen. Project only the remaining ticks fifteen and sixteen, yielding 430; preserve future input ordering and exact-tick prediction-error alignment.",
+  "regressionTest": "libs/pong-shared-ts/tests/pong-replica.test.ts"
+}

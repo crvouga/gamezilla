@@ -9,7 +9,7 @@ export function gameModules(
 ): readonly GameDefinition[] {
   const rules = createTurnGames(
     games.flatMap((game) =>
-      game.turnGame === undefined ? [] : [game.turnGame]
+      game.registration === undefined ? [] : [game.registration]
     )
   );
   const shared = new Map<string, SharedGameModule>();

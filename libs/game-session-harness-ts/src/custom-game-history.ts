@@ -57,6 +57,7 @@ export const playCustomGameHistory = scenarioAction({
         }),
         commandId: env.createId(),
         nowMs: s.harness.clock.now(),
+        clock: env.clock,
         timers: env.timers,
       });
       if (answer.kind === 'rejected')

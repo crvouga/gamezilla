@@ -169,11 +169,13 @@ When('{actor} offers a rematch with the keyboard alone', (w, actor: string) =>
 Then(
   '{actor} hears she was paired with {actor}, his blitz rating, the clock choice and her side',
   async (w, actor: string, opponent: string) => {
+    // regression: matched-accessibility-clock-copy-prefix
     const clock = String(w.memo.get(`matched-game:sought:${actor}`));
     await hears(
       w,
       actor,
-      `Matched with ${await nameOf(w, opponent)}, rated 1500?, at ${clockShown(clock)}.`
+      `Matched with ${await nameOf(w, opponent)}, rated 1500?`,
+      `Time control: ${clockShown(clock)}.`
     );
     await hears(w, actor, `You are ${sideName(w, await sideOf(w, actor))}.`);
   }

@@ -99,9 +99,13 @@ export function playMultiplayerMove(
     { setups: input.setups ?? null, hidden: input.hidden ?? null },
     rules
   );
-  const played = rules
-    .forPosition(game.fen)
-    .play(game.fen, recorded.action, game.pgn, []);
+  const turns = rules.turnsForPosition(game.fen);
+  if (turns === undefined)
+    throw new MutationError(
+      'GAME_CONTINUOUS_CONTROLS',
+      'Use the game controls to play this game.'
+    );
+  const played = turns.play(game.fen, recorded.action, game.pgn, []);
   if (played === null)
     throw new MutationError(
       'CHESS_ILLEGAL_MOVE',

@@ -35,7 +35,7 @@ Feature: Keep a space usable through time without a connection
       And Bob has a space of their own
       And Bob has left the space while Alice and Bob were offline
       When Bob returns to their space
-      Then Bob is in their own space
+      Then Bob is back in the space he hosts
       And Bob hosts 1 space
 
   Rule: Returning people see the lasting end or departure before being offered to join

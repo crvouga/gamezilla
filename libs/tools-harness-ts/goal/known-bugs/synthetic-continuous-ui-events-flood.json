@@ -1,0 +1,4 @@
+{
+  "summary": "Continuous paddle gestures emitted a pair of durable UI events on every input, multiplying telemetry writes by the control frequency.",
+  "regressionTest": "apps/synthetic-population-worker-ts/tests/runtime-scheduling.test.tsx"
+}

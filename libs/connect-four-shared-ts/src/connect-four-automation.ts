@@ -1,7 +1,7 @@
-import type { TurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import type { TurnGame } from '@libs/game-session-shared-ts/game-definition';
 import { connectFourBots, parseConnectFourColumn } from './connect-four-rules';
 
-export const connectFourAutomation: TurnGame['automation'] = {
+export const connectFourAutomation: TurnGame['turnAutomation'] = {
   choose: (position, random) =>
     connectFourBots.choose(position, 'medium', random, null),
   async perform(ui, board, action) {

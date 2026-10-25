@@ -1,0 +1,4 @@
+{
+  "id": "02ef41f0-b6e9-4c3e-86f9-d762b0ea8aba",
+  "position": "pong:{\"targetScore\":11,\"phase\":\"countdown\",\"countdown\":180,\"servingToward\":\"right\",\"paddles\":{\"left\":{\"y\":400,\"input\":{\"kind\":\"direction\",\"direction\":0},\"inputTick\":0},\"right\":{\"y\":400,\"input\":{\"kind\":\"direction\",\"direction\":0},\"inputTick\":0}},\"ball\":{\"x\":600,\"y\":400,\"vx\":0,\"vy\":0},\"score\":{\"left\":0,\"right\":0},\"winner\":null,\"feedback\":{\"walls\":0,\"paddles\":0,\"points\":0,\"serves\":0}}"
+}

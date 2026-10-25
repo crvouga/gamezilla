@@ -8,7 +8,10 @@ import { requireTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { z } from 'zod';
 import { MultiplayerGameRepository } from './game-repository';
 import type { MultiplayerGame } from './game-state';
+import { runLiveMatchCommand } from './live-match-command';
+import { isMatchIntentKind, type MatchDecision } from './match-intent';
 import { settleMultiplayerClock } from './multiplayer-clock';
+import { readMultiplayerSetups } from './multiplayer-setup';
 import { requireMultiplayerParticipant } from './multiplayer-space-access';
 
 export const gameCommandArgs = z.object({
@@ -18,6 +21,43 @@ export const gameCommandArgs = z.object({
 });
 
 export type GameCommandArgs = z.infer<typeof gameCommandArgs>;
+export type GameCommandInput = GameCommandArgs &
+  (
+    | { readonly kind: 'move'; readonly revision: number; readonly uci: string }
+    | {
+        readonly kind:
+          | 'setup'
+          | 'abort'
+          | 'resign'
+          | 'offer-draw'
+          | 'accept-draw'
+          | 'decline-draw'
+          | 'settle';
+      }
+  );
+
+async function liveIntent(
+  ctx: MutationCtx,
+  args: GameCommandInput,
+  game: MultiplayerGame
+): Promise<MatchDecision & { readonly actorId: string }> {
+  const actorId = ctx.env.actorId;
+  if (args.kind === 'move')
+    return {
+      kind: 'move',
+      actorId,
+      revision: args.revision,
+      uci: args.uci,
+      setups:
+        game.setup_ready === null
+          ? null
+          : await readMultiplayerSetups(ctx.tx, game.id),
+    };
+  const kind = args.kind === 'settle' ? 'sync' : args.kind;
+  if (!isMatchIntentKind(kind))
+    throw new Error('this command has no live decision');
+  return { actorId, kind };
+}
 
 /**
  * The game after one person's command, decided under both people's owner
@@ -37,7 +77,7 @@ export type GameDecision = (
  */
 export async function runGameCommand(
   ctx: MutationCtx,
-  args: GameCommandArgs & { readonly kind: string },
+  args: GameCommandInput,
   decide: GameDecision,
   permission: AppGrantKey = PERMISSION.gameMultiplayerPlay
 ): Promise<void> {
@@ -62,8 +102,23 @@ export async function runGameCommand(
       'CHESS_PLAY_UNAVAILABLE',
       'Multiplayer game is temporarily unavailable.'
     );
-  const game = settleMultiplayerClock(stored, nowMs, requireTurnGames(ctx.env));
-  const decided = await decide(game, ctx.env.actorId, nowMs, ctx.tx);
+  const rules = requireTurnGames(ctx.env);
+  const kind = args.kind === 'settle' ? 'sync' : args.kind;
+  const live =
+    rules.simulation(rules.forPosition(stored.fen).id) !== undefined &&
+    isMatchIntentKind(kind);
+  if (live && ctx.env.rooms === undefined)
+    throw new Error('live matches require the injected room service');
+  const game = settleMultiplayerClock(stored, nowMs, rules);
+  const decided =
+    live && ctx.env.rooms !== undefined && isMatchIntentKind(kind)
+      ? await runLiveMatchCommand(
+          ctx.env.rooms,
+          stored,
+          await liveIntent(ctx, args, stored),
+          args.requestId
+        )
+      : await decide(game, ctx.env.actorId, nowMs, ctx.tx);
   await repository.save(stored, decided, nowMs, {
     server: true,
     publish: ctx.env,

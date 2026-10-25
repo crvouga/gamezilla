@@ -7,10 +7,10 @@ import { Given, Then } from '@libs/harness-ts/define';
 import { chosen, current, toldOf } from './custom-game-set-up-world';
 import {
   before,
-  gameOf,
   hostOf,
   positionAfter,
   rememberCustomGame,
+  turnGameOf,
 } from './game-world';
 
 const SECOND_MS = 1000;
@@ -31,9 +31,9 @@ Then("the move list shows {actor}'s move", async (w, _mover: string) => {
   expect(game.moves.map((move) => move.uci)).toEqual([
     ...earlier.moves.map((move) => move.uci),
     recordedMove(
-      gameOf(w),
+      turnGameOf(w),
       earlier.fen,
-      firstLegalMove(gameOf(w), earlier.fen)
+      firstLegalMove(turnGameOf(w), earlier.fen)
     ),
   ]);
   expect(await w.s.read(readCustomGameMoveList, hostOf(w))).toEqual(
@@ -53,7 +53,7 @@ Then(
     const moves = seen.current?.moves.map((move) => move.uci) ?? [];
     expect(moves).toHaveLength(2);
     // The reply as recorded is a move the rules accept from where it was made.
-    const rules = gameOf(w).shared.turnGame.rules;
+    const rules = turnGameOf(w).shared.turnGame.rules;
     const before = positionAfter(w, moves, 1);
     expect(rules.play(before, moves[1]!, '', moves.slice(0, 1))).not.toBeNull();
   }

@@ -1,0 +1,4 @@
+{
+  "summary": "After the injected clock went from 16.666666666666668 back to 8.333333333333334 and then to 25 milliseconds, the driver counted an already observed interval twice. Keep the high-water reading while discarding negative elapsed time.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-driver.test.ts"
+}

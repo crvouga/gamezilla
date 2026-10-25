@@ -1,0 +1,4 @@
+{
+  "summary": "A matched Pong court had no simulation presentation connection, so neither player received live paddle controls or peer updates.",
+  "regressionTest": "libs/pong-harness-ts/tests/quint/pong-shared-control.binding.ts"
+}

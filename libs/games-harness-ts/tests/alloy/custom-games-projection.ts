@@ -54,7 +54,12 @@ export function projectCustomGames(stored: Stored, label: string): Snapshot {
     for (const side of ['white', 'black'] as const) {
       const id = `${game.id}-${SIDE_FIELD[side]}`;
       add(`CustomGame.${SIDE_FIELD[side]}`, game.id, id);
-      add('Side.kind', id, KIND[game[side].kind]);
+      const kind = game[side].kind;
+      if (kind === 'local')
+        throw new Error(
+          'The account-seat structure does not describe two players on one device'
+        );
+      add('Side.kind', id, KIND[kind]);
       if (game[side].person !== '') {
         people.add(game[side].person);
         add('Side.person', id, game[side].person);

@@ -1,0 +1,4 @@
+{
+  "summary": "A ping sent at time seven should retire the unanswered socket at 8007 ms. A foreground probe at 4006 ms used to send a second unidentified ping and postpone that deadline, allowing repeated probes to keep a silent socket alive. Keep one outstanding heartbeat with its original receipt deadline and timing origin.",
+  "regressionTest": "pkgs/room-adapter-web-shared-ts/tests/websocket-round-trip.test.ts"
+}

@@ -21,10 +21,11 @@ import sql from '@pkgs/sql-root-shared-ts/sql';
 import { createQuery } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
 import type {
-  GameRules,
+  GamePositionRules,
   GameSide,
   RecordedMove,
 } from '@pkgs/turn-game-shared-ts/game-rules';
+import { isTurnRules } from '@pkgs/turn-game-shared-ts/game-rules';
 import { createMemo } from 'solid-js';
 export type GameHistoryRecord = {
   readonly id: string;
@@ -33,6 +34,7 @@ export type GameHistoryRecord = {
     readonly side: GameSide;
     readonly person: string;
     readonly bot: boolean;
+    readonly local: boolean;
   }[];
   readonly outcome: string;
   readonly reason: string;
@@ -87,10 +89,11 @@ export function useGameRecords(gameId: () => string) {
           side,
           person: multiplayerOwner(g, side),
           bot: false,
+          local: false,
         })),
         outcome: g.outcome,
         reason: g.reason ?? '',
-        moves: gameRules.moves(g.fen, g.pgn, []),
+        moves: isTurnRules(gameRules) ? gameRules.moves(g.fen, g.pgn, []) : [],
         setup:
           ownSetups.rows().find((row) => row.game_id === g.id)?.setup ?? null,
         hand: ownHands.rows().find((row) => row.game_id === g.id)?.hand ?? null,
@@ -110,7 +113,7 @@ function customRecords(
   context: {
     readonly setups: ReturnType<typeof CustomGameSetupsAttr.from>;
     readonly hands: ReturnType<typeof CustomGameHandsAttr.from>;
-    readonly gameRules: GameRules;
+    readonly gameRules: GamePositionRules;
     readonly myId: string;
   }
 ): GameHistoryRecord[] {
@@ -130,6 +133,7 @@ function customRecords(
         side,
         person: g[side].person,
         bot: g[side].kind === 'bot',
+        local: g[side].kind === 'local',
       })),
       outcome:
         g.outcome === 'draw'
@@ -138,11 +142,13 @@ function customRecords(
             ? 'aborted'
             : (g.sides.find((side) => g.outcome.startsWith(side)) ?? 'draw'),
       reason: g.outcomeReason || g.outcome,
-      moves: context.gameRules.moves(
-        g.fen,
-        '',
-        g.moves.map((move) => move.uci)
-      ),
+      moves: isTurnRules(context.gameRules)
+        ? context.gameRules.moves(
+            g.fen,
+            '',
+            g.moves.map((move) => move.uci)
+          )
+        : [],
       setup: ownCustomGameSetup(
         CustomGameSetupsAttr(context.setups),
         g,

@@ -1,5 +1,13 @@
 import type { GameSide } from './game-rules';
+export type GameSimulationControls = {
+  readonly paused: boolean;
+  readonly stale: boolean;
+  readonly sides: readonly GameSide[];
+  readonly onInput: (side: GameSide, input: unknown) => void;
+  readonly onRelease: () => void;
+};
 export type GameBoardProps = {
+  readonly simulation?: GameSimulationControls | undefined;
   readonly position: string;
   readonly orientation: GameSide;
   readonly interactive: boolean;
@@ -31,6 +39,10 @@ export type GameSetupBoardProps = {
   readonly testId: string;
 };
 export type GamePresentation<View = unknown> = {
+  readonly Configuration?: (props: {
+    readonly position: string;
+    readonly onChoice: (choice: string) => Promise<void>;
+  }) => View;
   readonly name: () => string;
   readonly canFlip: boolean;
   readonly id: string;
@@ -39,6 +51,6 @@ export type GamePresentation<View = unknown> = {
   readonly SetupBoard?: (props: GameSetupBoardProps) => View;
   readonly sideLabel: (side: GameSide) => string;
   readonly endingDescription: (reason: string) => string | undefined;
-  readonly timeoutDrawDescription: (flagged: GameSide) => string;
+  readonly timeoutDrawDescription?: (flagged: GameSide) => string;
   readonly endingLabel: (reason: string) => string;
 };

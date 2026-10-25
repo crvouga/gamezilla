@@ -108,7 +108,12 @@ function parseRoomDump(
   expect(isPlainObject(value), `${path}: expected room dump`);
   expect(Array.isArray(value['entries']), `${path}.entries: expected array`);
   expect(isPlainObject(value['dedup']), `${path}.dedup: expected object`);
+  expect(
+    value['liveCheckpoint'] === null || isPlainObject(value['liveCheckpoint']),
+    `${path}.liveCheckpoint: expected object or null`
+  );
   return {
+    liveCheckpoint: value['liveCheckpoint'],
     entries: value['entries'] as unknown[],
     dedup: value['dedup'] as Record<string, unknown>,
   };

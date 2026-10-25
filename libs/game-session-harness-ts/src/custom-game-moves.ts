@@ -3,8 +3,8 @@ import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { readCustomGameProbe } from './custom-game-probe';
 import { chooseCustomGame, waitCustomGameSettled } from './custom-game-ui';
-import type { HarnessGame } from './harness-game';
-import { harnessGameOf } from './harness-game-of';
+import type { TurnHarnessGame } from './harness-game';
+import { turnHarnessGameOf } from './harness-game-of';
 
 /** The board every custom game is played on. */
 export const CUSTOM_GAME_BOARD = 'custom-game-board';
@@ -14,7 +14,10 @@ export const CUSTOM_GAME_BOARD = 'custom-game-board';
  * position, which has none, the game's known opening (a move legal at the
  * start of a game).
  */
-export function firstLegalMove(game: HarnessGame, position: string): string {
+export function firstLegalMove(
+  game: TurnHarnessGame,
+  position: string
+): string {
   const move =
     game.shared.turnGame.rules.legal(position)[0] ??
     game.fixtures.firstSideVictory[0];
@@ -78,14 +81,14 @@ export async function playOnCustomGameBoard(
 export const makeCustomGameMove = scenarioAction({
   name: 'makeCustomGameMove',
   act: async (s, actor: string, gameId: string, move?: string) => {
-    const game = harnessGameOf(s, gameId);
+    const game = turnHarnessGameOf(s, gameId);
     const probe = await readCustomGameProbe(s, actor);
     const current = probe?.current;
     if (probe === null || current === null || current === undefined)
       throw new Error(`${game.label}: ${actor} sees no custom game`);
     const action = move ?? firstLegalMove(game, current.fen);
     if (probe.gates['move'] === true) {
-      await game.shared.automation.perform(
+      await game.shared.automation.turns.perform(
         await actorUi(s, actor),
         CUSTOM_GAME_BOARD,
         action

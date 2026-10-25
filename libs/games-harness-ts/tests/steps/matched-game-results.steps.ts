@@ -14,12 +14,12 @@ import {
 } from '@libs/game-matchmaking-harness-ts/matched-game-world';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
-import { gameOf } from './game-world';
+import { gameOf, turnGameOf } from './game-world';
 import { pairedAt } from './matched-game';
 
 /** The game's known line its own rules draw. */
 function drawingLine(w: HarnessWorld): readonly string[] {
-  const line = gameOf(w).fixtures.drawByRules;
+  const line = turnGameOf(w).fixtures.drawByRules;
   if (line === undefined)
     throw new Error(`${gameOf(w).label} names no line its rules draw`);
   return line;
@@ -28,7 +28,7 @@ function drawingLine(w: HarnessWorld): readonly string[] {
 Given(
   '{actor} has the first side against {actor} in a matched game one move from her victory',
   async (w, first: string, second: string) => {
-    const victory = gameOf(w).fixtures.firstSideVictory;
+    const victory = turnGameOf(w).fixtures.firstSideVictory;
     await pairedAt(w, first, second);
     await acceptedMoves(w, victory.slice(0, -1));
     w.memo.set('winning-move', victory.at(-1));
@@ -38,7 +38,7 @@ Given(
   '{actor} has won the matched game with the winning move',
   async (w, first: string) => {
     await pairedAt(w, first, 'bob');
-    await acceptedMoves(w, gameOf(w).fixtures.firstSideVictory);
+    await acceptedMoves(w, turnGameOf(w).fixtures.firstSideVictory);
   }
 );
 Given(

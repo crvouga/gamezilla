@@ -7,8 +7,8 @@
 
 import { expect, test } from 'bun:test';
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
-import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import type {
   GameRules,
   PrivateSetupRules,
@@ -25,9 +25,9 @@ import { SECRET_PICK_RULES } from './secret-pick-rules';
 const setup = SECRET_PICK_RULES.setup as PrivateSetupRules;
 
 /** The consumer with `fault` in its rules, defined like any game. */
-function faulty(fault: Partial<GameRules>): HarnessGame {
+function faulty(fault: Partial<GameRules>): TurnHarnessGame {
   const rules = { ...SECRET_PICK_RULES, ...fault };
-  const shared = defineTurnGame({ ...SECRET_PICK_TURN_GAME, rules });
+  const shared = defineGame({ ...SECRET_PICK_TURN_GAME, rules });
   return {
     ...SECRET_PICK_GAME,
     shared,
@@ -36,7 +36,7 @@ function faulty(fault: Partial<GameRules>): HarnessGame {
   };
 }
 
-function expectRefusedBy(game: HarnessGame, law: string, reason: string) {
+function expectRefusedBy(game: TurnHarnessGame, law: string, reason: string) {
   const refused = refusals(game);
   expect([...refused.keys()]).toEqual([law]);
   expect(refused.get(law)).toContain(reason);

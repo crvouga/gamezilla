@@ -195,6 +195,18 @@ const PROBES: readonly Probe[] = [
     message: 'confined to the ADR boundary-file inventory',
   },
   {
+    path: 'libs/zz-client-ts/src/reproducible-error.ts',
+    source:
+      "import { ReproducibleError } from '@pkgs/observability-root-shared-ts/reproducible-error';",
+    message: null,
+  },
+  {
+    path: 'libs/game-session-shared-ts/src/simulation-failure.ts',
+    source:
+      "import { recordException } from '@pkgs/observability-root-shared-ts/span';",
+    message: 'confined to the ADR boundary-file inventory',
+  },
+  {
     path: 'apps/client-ts/src/main.tsx',
     source:
       "import { createNodeTelemetry } from '@pkgs/observability-root-server-ts/node-node';",

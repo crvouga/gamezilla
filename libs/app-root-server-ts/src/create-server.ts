@@ -244,12 +244,13 @@ async function buildDesiredClientConfig(args: {
 function createSyncAppMount(
   env: ServerEnv,
   app: ComposedSubs,
-  servers: ComposedSubServers
+  args: CreateServerArgs
 ) {
   return createSyncApp({
     app,
-    outboxConsumers: servers.outboxConsumers,
-    authorizeServerMutation: servers.authorizeMutation,
+    outboxConsumers: args.servers.outboxConsumers,
+    authorizeServerMutation: args.servers.authorizeMutation,
+    ...(args.rooms === undefined ? {} : { rooms: args.rooms }),
     now: () => env.clock.now(),
     createId: env.createId,
     moderation: env.moderation,
@@ -336,6 +337,7 @@ function createServerRouter(args: {
 }
 
 export type CreateServerArgs = {
+  readonly rooms?: import('@pkgs/room-root-shared-ts/room-service').RoomServicePort;
   /** The folded sub set sync serves: schema, queries, topics, mutations. */
   readonly app: ComposedSubs;
   /** The same subs' server halves: routes, outbox consumers, topics. */
@@ -392,7 +394,7 @@ export async function createServer(env: ServerEnv, args: CreateServerArgs) {
     }),
     createTtsAppForServer(env),
     createLlmAppForServer(env),
-    createSyncAppMount(env, args.app, args.servers),
+    createSyncAppMount(env, args.app, args),
     // A game's rule data (a word list) loads before a mutation decides.
     prepareTurnGames(args.app.turnGames),
   ]);

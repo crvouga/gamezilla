@@ -6,13 +6,21 @@ import { type JSX, Show } from 'solid-js';
 export function GameHistoryParticipant(props: {
   readonly id: string;
   readonly bot: boolean;
+  readonly local: boolean;
 }): JSX.Element {
   return (
     <Show
       when={props.id !== ''}
       fallback={
-        <Show when={props.bot} fallback={<Trans>No participant</Trans>}>
-          <Trans>Bot</Trans>
+        <Show
+          when={props.local}
+          fallback={
+            <Show when={props.bot} fallback={<Trans>No participant</Trans>}>
+              <Trans>Bot</Trans>
+            </Show>
+          }
+        >
+          <Trans>Player on this device</Trans>
         </Show>
       }
     >

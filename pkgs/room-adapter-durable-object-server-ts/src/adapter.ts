@@ -1,5 +1,5 @@
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
-import type { Clock } from '@pkgs/clock-shared-ts/types';
+import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
 import type { ResolvedAdapterConfig } from '@pkgs/room-adapter-durable-object-shared-ts/adapter-base-types';
 import { DurableObjectRoomStorage } from '@pkgs/room-adapter-durable-object-shared-ts/storage';
 import type {
@@ -87,6 +87,8 @@ export type CreateDurableObjectAdapterOptions<
   ) => RoomStorage;
   /** Injectable clock (required — no wall default). */
   clock: Clock;
+  /** Required only for a module that opts into live execution. */
+  timers?: Timers;
   /** Injectable id mint (required — no wall default). */
   createId: CreateId;
   /** Extra effect handlers after the built-in DO Schedule/CancelSchedule handler. */
@@ -142,6 +144,7 @@ function resolveOptions<
       ((state, _env, moduleName) =>
         new DurableObjectRoomStorage(state.storage, moduleName)),
     clock: options.clock,
+    timers: options.timers,
     createId: options.createId,
     authorize: options.authorize,
     ready: options.ready ?? (() => Promise.resolve()),

@@ -29,10 +29,10 @@ const RISE = 'matched-game:rating-rise';
 
 /** The run's game's clock namespace, where its ratings are kept. */
 function namespace(w: HarnessWorld): string {
-  const matchmaking = gameOf(w).shared.turnGame.capabilities.matchmaking;
+  const matchmaking = gameOf(w).shared.registration.capabilities.matchmaking;
   if (matchmaking === undefined)
     throw new Error(`${gameOf(w).label} offers no finding an opponent`);
-  return matchmaking.clockNamespace;
+  return matchmaking.namespace;
 }
 
 /** A settled rating at `speed`: enough rated matched games to lose its "?". */

@@ -1,9 +1,9 @@
 import { expect, test } from 'bun:test';
 import { judgePuzzleAction } from '@libs/game-puzzle-shared-ts/puzzle-judge';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 import { puzzleCase } from './puzzle-room';
 
-forEveryGame(import.meta.path, (game) => {
+forEveryTurnGame(import.meta.path, (game) => {
   const c = puzzleCase(game);
   // regression: puzzle-stored-mate-continues
   test('a rules win ends play even when the matching stored move has another reply', () => {

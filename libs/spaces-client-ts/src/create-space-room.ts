@@ -91,6 +91,7 @@ export class SpaceRoomFactory {
       installId,
       clientId,
       getSessionToken,
+      clock: this.clock,
       timers: this.timers,
       random: this.random,
     });

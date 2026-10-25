@@ -21,7 +21,7 @@ module choose_a_game {
 
   /// The Synthetic User starts its next activity by looking for a game.
   action startNextActivity = {
-    nondet choice = Set("chess", "Connect Four").oneOf()
+    nondet choice = Set("chess", "Connect Four", "Battleship", "Pong").oneOf()
     all {
       not(seekingOpponent),
       not(_offline.contains("Cedar")),
@@ -68,7 +68,7 @@ module choose_a_game {
   val invOfflineKeepsChoice = _offline.contains("Cedar") implies (chosenGame == _choiceBeforeOffline)
 
   /// Only games offered by the app can be chosen.
-  val invOnlyOfferedGames = Set("", "chess", "Connect Four").contains(chosenGame)
+  val invOnlyOfferedGames = Set("", "chess", "Connect Four", "Battleship", "Pong").contains(chosenGame)
   /// Looking for a multiplayer opponent always names a chosen game.
   val invLookingHasGame = seekingOpponent implies (chosenGame != "")
 }

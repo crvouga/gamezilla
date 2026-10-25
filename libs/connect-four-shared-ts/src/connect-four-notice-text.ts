@@ -1,5 +1,5 @@
 import type { GameNoticeText } from '@pkgs/turn-game-shared-ts/game-rules';
-export const connectFourNoticeText: GameNoticeText = {
+export const connectFourNoticeText = {
   timeoutDraw: (side) =>
     `${side === 'white' ? 'Red' : 'Yellow'} ran out of time, but the other side cannot win.`,
   side: (side) => (side === 'white' ? 'Red' : 'Yellow'),
@@ -9,4 +9,4 @@ export const connectFourNoticeText: GameNoticeText = {
       : reason === 'full board'
         ? 'The board is full. Game drawn.'
         : undefined,
-};
+} satisfies GameNoticeText;

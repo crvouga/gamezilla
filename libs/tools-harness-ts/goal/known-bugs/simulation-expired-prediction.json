@@ -1,0 +1,4 @@
+{
+  "summary": "A predicted tick-three input that arrived too late remained in the client's pending history after authoritative tick four, moving the paddle again during reconciliation. Discard predictions whose assigned ticks are already past even when no acknowledgement includes them.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-presentation.test.ts"
+}

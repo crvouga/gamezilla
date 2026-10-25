@@ -1,7 +1,10 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
-import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
+import {
+  useGamePresentation,
+  useTurnGames,
+} from '@pkgs/turn-game-client-ts/turn-games-context';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
@@ -126,6 +129,9 @@ function ReviewMoves(props: BoardProps): JSX.Element {
 
 /** The game's record: its moves, and the earlier games of this space. */
 export function CustomGameRecord(props: BoardProps): JSX.Element {
+  const rules = useTurnGames();
+  const hasTurns = () =>
+    rules.turnsForPosition(props.review.fen()) !== undefined;
   const options = createMemo(() => [
     { value: 'live', label: <Trans>Current game</Trans> },
     ...props.model.games().history.map((game, index) => ({
@@ -147,9 +153,11 @@ export function CustomGameRecord(props: BoardProps): JSX.Element {
           dataSet={{ testid: 'custom-game-history' }}
         />
       </Show>
-      <ReviewMoves {...props} />
-      <ReviewSteps {...props} />
-      <ReviewJump {...props} />
+      <Show when={hasTurns()}>
+        <ReviewMoves {...props} />
+        <ReviewSteps {...props} />
+        <ReviewJump {...props} />
+      </Show>
       <Show when={props.model.openHistory}>
         <Button
           title={<Trans>History and stats</Trans>}
@@ -188,6 +196,11 @@ export function CustomGameBoard(props: BoardProps): JSX.Element {
   const interactive = (): boolean =>
     customGameCanMove(props.model, props.review);
   const presentation = useGamePresentation();
+  const simulation = props.model.simulation;
+  const position = () =>
+    props.review.live() && simulation.active()
+      ? (simulation.position() ?? props.review.fen())
+      : props.review.fen();
   const move = async (action: string): Promise<void> => {
     try {
       await props.model.choose({
@@ -235,8 +248,13 @@ export function CustomGameBoard(props: BoardProps): JSX.Element {
       }
     >
       <Dynamic
-        component={presentation(props.review.fen()).Board}
-        position={props.review.fen()}
+        component={presentation(position()).Board}
+        position={position()}
+        simulation={
+          props.review.live() && simulation.active()
+            ? simulation.controls()
+            : undefined
+        }
         orientation={near()}
         interactive={interactive()}
         sound={!sounds.muted()}
@@ -247,6 +265,13 @@ export function CustomGameBoard(props: BoardProps): JSX.Element {
         onAction={(action: string) => {
           void move(action);
         }}
+      />
+      <CustomGameError
+        reason={
+          simulation.error()
+            ? t`The game stopped. Your last saved score is kept. Reopen the game to try again.`
+            : ''
+        }
       />
     </GameBoardStage>
   );

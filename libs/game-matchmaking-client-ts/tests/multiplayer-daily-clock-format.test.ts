@@ -8,6 +8,7 @@ import {
 } from '@libs/game-matchmaking-client-ts/multiplayer-format';
 import {
   createTurnGames,
+  type GameRules,
   type GameSide,
 } from '@pkgs/turn-game-shared-ts/game-rules';
 
@@ -86,27 +87,23 @@ const MOVE_LABELS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const;
 const RECORDED_GAME = { fen: 'reference:8', pgn: '' };
 
 function recordedRules(sides: readonly GameSide[]) {
-  return createTurnGames([
-    {
-      rules: {
-        id: 'reference',
-        sides,
-        initial: () => 'reference:0',
-        recognizes: (position) => position.startsWith('reference:'),
-        legal: () => [],
-        play: () => null,
-        replay: (_actions, ply) => `reference:${ply}`,
-        canWin: () => true,
-        moves: () =>
-          MOVE_LABELS.map((label, index) => ({
-            label,
-            before: `reference:${index}`,
-            after: `reference:${index + 1}`,
-          })),
-      },
-      capabilities: {},
-    },
-  ]);
+  const rules: GameRules = {
+    id: 'reference',
+    sides,
+    initial: () => 'reference:0',
+    recognizes: (position) => position.startsWith('reference:'),
+    legal: () => [],
+    play: () => null,
+    replay: (_actions, ply) => `reference:${ply}`,
+    canWin: () => true,
+    moves: () =>
+      MOVE_LABELS.map((label, index) => ({
+        label,
+        before: `reference:${index}`,
+        after: `reference:${index + 1}`,
+      })),
+  };
+  return createTurnGames([{ rules, capabilities: {} }]);
 }
 
 describe('move numbering follows the declared seats', () => {

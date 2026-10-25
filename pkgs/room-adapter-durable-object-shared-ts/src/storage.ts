@@ -1,3 +1,9 @@
+import type { Message } from '@pkgs/message-shared-ts/message';
+import {
+  parseRoomLiveCheckpoint,
+  type RoomLiveCheckpoint,
+  roomLiveCheckpoint,
+} from '@pkgs/room-root-shared-ts/live-checkpoint';
 import type { RoomIdentityErasure } from '@pkgs/room-root-shared-ts/room-service';
 import { eraseRoomIdentity } from '@pkgs/room-root-shared-ts/room-service';
 import type {
@@ -59,6 +65,31 @@ export class DurableObjectRoomStorage implements RoomStorage {
     return [...listed.values()];
   }
 
+  async loadLiveCheckpoint(_topic: string): Promise<RoomLiveCheckpoint | null> {
+    await this.ensureV3();
+    return parseRoomLiveCheckpoint(await this.kv.get(this.ns.liveCheckpoint));
+  }
+
+  async replaceLiveCheckpoint(
+    _topic: string,
+    expectedSeq: number,
+    payload: Message | null
+  ): Promise<boolean> {
+    await this.ensureV3();
+    const checkpoint =
+      payload === null ? null : roomLiveCheckpoint(expectedSeq, payload);
+    return this.kv.transaction(async (tx) => {
+      const meta = await tx.get<RoomDoMeta>(this.ns.meta);
+      if ((meta?.lastSeq ?? 0) !== expectedSeq) {
+        this.lastSeq = null;
+        return false;
+      }
+      if (checkpoint === null) await tx.delete(this.ns.liveCheckpoint);
+      else await tx.put(this.ns.liveCheckpoint, checkpoint);
+      return true;
+    });
+  }
+
   async eraseIdentity(
     _topic: string,
     erasure: RoomIdentityErasure,
@@ -80,6 +111,14 @@ export class DurableObjectRoomStorage implements RoomStorage {
         }
         await putEntriesBatched(tx, batch);
       }
+      const checkpoint = await tx.get<RoomLiveCheckpoint>(
+        this.ns.liveCheckpoint
+      );
+      if (checkpoint !== undefined)
+        await tx.put(
+          this.ns.liveCheckpoint,
+          eraseRoomIdentity(checkpoint, erasure)
+        );
       await tx.put({
         [eventKey(this.ns, invalidation.entry.seq)]: invalidation.entry,
         [dedupKey(this.ns, invalidation.commandId)]: {
@@ -104,7 +143,6 @@ export class DurableObjectRoomStorage implements RoomStorage {
     commandId: string,
     newEntries: LogEntry[]
   ): Promise<void> {
-    if (newEntries.length === 0) return;
     await this.ensureV3();
     if ((await this.getDedupOutcome(_topic, commandId)) !== null) return;
     const prevLast = await this.readLastSeq();
@@ -119,7 +157,7 @@ export class DurableObjectRoomStorage implements RoomStorage {
       batch[eventKey(this.ns, e.seq)] = e;
       expect++;
     }
-    const lastSeq = newEntries[newEntries.length - 1]!.seq;
+    const lastSeq = newEntries.at(-1)?.seq ?? prevLast;
     batch[this.ns.meta] = { lastSeq } satisfies RoomDoMeta;
     batch[dedupKey(this.ns, commandId)] = {
       kind: 'committed',

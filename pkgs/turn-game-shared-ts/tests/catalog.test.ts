@@ -29,7 +29,11 @@ const notice = {
   ending: () => undefined,
 };
 const history = { record: String };
-const matchmaking = (clockNamespace: string) => ({ clockNamespace, notice });
+const matchmaking = (namespace: string) => ({
+  clockChoices: true as const,
+  namespace,
+  notice,
+});
 const registration = (
   capabilities: TurnGameCapabilities,
   rules: GameRules = game
@@ -66,26 +70,26 @@ test('a clock choice belongs only to a game offering matchmaking', () => {
   expect(() => rules.forControl('counter/5+0')).toThrow();
 });
 
-test('clock namespaces are the game id and never shared', () => {
+test('matchmaking namespaces are the game id and never shared', () => {
   expect(() =>
     createTurnGames([
       registration({ matchmaking: matchmaking('other/'), history }),
     ])
-  ).toThrow('clock namespace "other/" is not "counter/"');
+  ).toThrow('matchmaking namespace "other/" is not "counter/"');
   const unprefixed = (rules: GameRules): RegisteredTurnGame => ({
     ...registration({ matchmaking: matchmaking(''), history }, rules),
     unprefixedNamespace: true,
   });
   expect(() =>
     createTurnGames([unprefixed(game), unprefixed(rulesOf('second'))])
-  ).toThrow('second: clock namespace "" is taken');
+  ).toThrow('second: matchmaking namespace "" is taken');
 });
 
-test('only the game granted it keeps the unprefixed clock namespace', () => {
+test('only the game granted it keeps the unprefixed matchmaking namespace', () => {
   expect(() =>
     createTurnGames([registration({ matchmaking: matchmaking(''), history })])
   ).toThrow(
-    `counter: the unprefixed clock namespace "" belongs to the platform's durable game alone — use "counter/"`
+    `counter: the unprefixed matchmaking namespace "" belongs to the platform's durable game alone — use "counter/"`
   );
   const granted = createTurnGames([
     {
