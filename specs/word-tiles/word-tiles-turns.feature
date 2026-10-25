@@ -9,7 +9,7 @@ Feature: Take turns at Word Tiles
       Given Alice and Bob have started Word Tiles with Alice holding C, A, T, D, O, G and S
       When Alice passes
       Then Bob has the turn
-      And Alice holds C, A, T, D, O, G and S
+      And Alice still holds C, A, T, D, O, G and S
 
   Rule: An exchange needs at least seven tiles in the bag
 
@@ -52,4 +52,4 @@ Feature: Take turns at Word Tiles
       Given Alice and Bob have started Word Tiles with Alice holding C, A, T, D, O, G and S
       When Bob passes
       Then Bob is told it is not his turn
-      And Alice still has the turn
+      And Alice has the turn

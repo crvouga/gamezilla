@@ -18,12 +18,12 @@ Feature: Solve one-move challenges
   Rule: A one-move challenge can be published only with a placement that reaches its target
 
     Scenario: A challenge with a placement reaching its target can be published
-      Given Alice has made a one-move challenge with a rack of R, E, T, A, I, N and S and a target of 70 points on an empty board
-      When Alice publishes the challenge with her placement of RETAINS from d8 to j8
+      Given Alice has made a one-move challenge with a rack of R, O, A, S, T, E and D and a target of 70 points on an empty board
+      When Alice publishes the challenge with her placement of ROASTED from d8 to j8
       Then the challenge is published
 
     Scenario: A challenge whose placement falls short cannot be published
-      Given Alice has made a one-move challenge with a rack of R, E, T, A, I, N and S and a target of 70 points on an empty board
+      Given Alice has made a one-move challenge with a rack of R, O, A, S, T, E and D and a target of 70 points on an empty board
       When Alice publishes the challenge with her placement of RAT from h7 to h9
       Then Alice is told her placement does not reach the target
       And the challenge is still not published

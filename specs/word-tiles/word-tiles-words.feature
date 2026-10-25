@@ -19,7 +19,7 @@ Feature: Place words on the board
   Rule: Every word a placement forms is in the word list
 
     Scenario: A placement whose words are all in the word list is placed
-      Given CAT is on the board from g8 to i8 with Alice holding A, S, E, D, O, G and R
+      Given the board shows CAT from g8 to i8 with Alice holding A, S, E, D, O, G and R
       When Alice places AS from j7 to j8
       Then the board shows AS from j7 to j8 and CATS from g8 to j8
 
@@ -29,15 +29,15 @@ Feature: Place words on the board
       Then Alice is told ZQ is not in the word list
       And the board is still empty
 
-  Rule: A later word joins the tiles on the board in one row or one column
+  Rule: A later word joins the tiles on the board in one line
 
     Scenario: A word built through the tiles on the board is placed
-      Given CAT is on the board from g8 to i8 with Alice holding S, S, E, D, O, G and R
+      Given the board shows CAT from g8 to i8 with Alice holding S, S, E, D, O, G and R
       When Alice places SCATS from f8 to j8
       Then the board shows SCATS from f8 to j8
 
     Scenario: A word apart from the tiles on the board is refused
-      Given CAT is on the board from g8 to i8 with Alice holding S, S, E, D, O, G and R
+      Given the board shows CAT from g8 to i8 with Alice holding S, S, E, D, O, G and R
       When Alice places DOG from a1 to c1
       Then Alice is told her word must join the tiles on the board
       And the board still shows only CAT from g8 to i8
@@ -45,5 +45,5 @@ Feature: Place words on the board
     Scenario: Tiles placed in two rows are refused
       Given Alice and Bob have started Word Tiles with Alice holding C, A, T, D, O, G and S
       When Alice places C on g7 and A on h8
-      Then Alice is told her tiles must lie in one row or one column
+      Then Alice is told her tiles must lie in one line
       And the board is still empty

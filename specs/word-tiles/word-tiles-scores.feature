@@ -11,7 +11,7 @@ Feature: Score words
       Then Alice scores 10 points
 
     Scenario: A bonus square under a tile already on the board counts no more
-      Given CAT is on the board from g8 to i8 with Alice holding S, S, E, D, O, G and R
+      Given the board shows CAT from g8 to i8 with Alice holding S, S, E, D, O, G and R
       When Alice places SCATS from f8 to j8
       Then Alice scores 11 points
 
@@ -19,7 +19,7 @@ Feature: Score words
     No counter-example: a placement always scores each word it forms or extends.
 
     Scenario: One tile forming two words scores both
-      Given CAT is on the board from g8 to i8 and TO from i8 to i9 with Alice holding S, E, D, O, G, R and A
+      Given the board shows CAT from g8 to i8 and TO from i8 to i9 with Alice holding S, E, D, O, G, R and A
       When Alice places S on h9
       Then Alice scores 4 points for AS and SO
 
@@ -36,6 +36,6 @@ Feature: Score words
     No counter-example: every placement of seven tiles earns it; fewer tiles score only their words.
 
     Scenario: Placing all seven tiles earns 50 points more
-      Given Alice and Bob have started Word Tiles with Alice holding R, E, T, A, I, N and S
-      When Alice places RETAINS from d8 to j8
-      Then Alice scores 72 points
+      Given Alice and Bob have started Word Tiles with Alice holding R, O, A, S, T, E and D
+      When Alice places ROASTED from d8 to j8
+      Then Alice scores 78 points
