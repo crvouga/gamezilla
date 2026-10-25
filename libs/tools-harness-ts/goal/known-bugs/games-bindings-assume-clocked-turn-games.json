@@ -1,4 +1,4 @@
 {
   "summary": "Shared games specifications bound every game as a clocked turn game, and Pong, held to them since it joined, offers neither. The unfinished-game limit sought every opponent on a 5+0 clock, which Pong refuses as unoffered (its one match is pong/play), before the limit was decided; the matched-game-ready objective waited for a 5+0 button Pong never shows and took a game as ready only when Left had the move, while a simultaneous game starts with no side to move; the custom-game delivery objective measured only turn-clock choices, which a game without turns refuses; 'has a finished custom game' played a turn victory; and the matched-games structure sought 5+0 and 3+2 clocks. Each now follows what the game offers: its default match, a first mover only where it takes turns, its own game options (the harness game's configurationChoices) where it has no clock, and a resignation where it has no turn victory.",
-  "regressionTest": "libs/games-harness-ts/tests/openslo/matched-game-ready.binding.ts"
+  "regressionTest": "libs/pong-harness-ts/tests/pong-harness-game.test.ts"
 }
