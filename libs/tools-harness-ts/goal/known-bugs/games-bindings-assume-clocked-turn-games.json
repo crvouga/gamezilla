@@ -1,0 +1,4 @@
+{
+  "summary": "Two games conformance bindings assumed every matched game is a clocked turn game. They sought every opponent on a 5+0 clock, but Pong offers no clock choices (its one match is pong/play): the unfinished-game limit's server layer was refused as an unoffered time control before the limit was decided, and the matched-game-ready objective waited for a 5+0 button Pong never shows. The objective also took a game as ready only when Left had the move, while a simultaneous game starts with no side to move. Both bindings now seek each game's own default offered match, and readiness expects the first side to move only where the game takes turns.",
+  "regressionTest": "libs/games-harness-ts/tests/openslo/matched-game-ready.binding.ts"
+}
