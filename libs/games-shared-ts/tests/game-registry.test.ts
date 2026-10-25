@@ -5,12 +5,14 @@ import {
   TURN_GAME_DEFINITIONS,
 } from '@libs/games-shared-ts/game-plugins';
 
-test('the product registers Numberlink with puzzle capabilities and no turn engine', () => {
-  const numberlink = GAME_DEFINITIONS.find((game) => game.id === 'numberlink');
-  expect(numberlink).toBeDefined();
-  expect(numberlink?.puzzleContent).toBeDefined();
-  expect(numberlink?.turnGame).toBeUndefined();
-  expect(isTurnGameDefinition(numberlink)).toBe(false);
+test('the product registers Numberlink and Sokoban with puzzle capabilities and no turn engine', () => {
+  for (const id of ['numberlink', 'sokoban']) {
+    const game = GAME_DEFINITIONS.find((entry) => entry.id === id);
+    expect(game).toBeDefined();
+    expect(game?.puzzleContent).toBeDefined();
+    expect(game?.turnGame).toBeUndefined();
+    expect(isTurnGameDefinition(game)).toBe(false);
+  }
   expect(TURN_GAME_DEFINITIONS.map((game) => game.id)).toEqual(
     GAME_DEFINITIONS.filter(isTurnGameDefinition).map((game) => game.id)
   );
@@ -18,5 +20,7 @@ test('the product registers Numberlink with puzzle capabilities and no turn engi
     'chess',
     'connect-four',
     'battleship',
+    'quoridor',
+    'quoridor-hill',
   ]);
 });

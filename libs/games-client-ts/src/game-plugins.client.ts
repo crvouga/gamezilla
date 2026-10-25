@@ -9,6 +9,7 @@ import {
   quoridorGameClient,
   quoridorHillGameClient,
 } from '@libs/quoridor-client-ts/quoridor-game-client';
+import { sokobanGameClient } from '@libs/sokoban-client-ts/sokoban-game-client';
 import {
   assertGameRegistry,
   assertMatchingGameIds,
@@ -23,6 +24,7 @@ export const GAME_CLIENT_DEFINITIONS = [
   connectFourGameClient,
   battleshipGameClient,
   numberlinkGameClient,
+  sokobanGameClient,
   quoridorGameClient,
   quoridorHillGameClient,
 ] as const satisfies readonly GameClientRegistration[];

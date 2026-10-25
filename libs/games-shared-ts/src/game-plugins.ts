@@ -15,6 +15,7 @@ import {
   quoridorGameShared,
   quoridorHillGameShared,
 } from '@libs/quoridor-shared-ts/quoridor-game';
+import { sokobanGameShared } from '@libs/sokoban-shared-ts/sokoban-game';
 import { assertGameRegistry } from '@libs/spaces-shared-ts/load-game-plugins';
 import { assertGameNamespaceOwner } from './game-namespace-owner';
 
@@ -29,6 +30,7 @@ export const GAME_DEFINITIONS = [
   connectFourGameShared,
   battleshipGameShared,
   numberlinkGameShared,
+  sokobanGameShared,
   quoridorGameShared,
   quoridorHillGameShared,
 ] as const satisfies readonly GameRegistration[];

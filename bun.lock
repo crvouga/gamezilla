@@ -1968,6 +1968,7 @@
         "@libs/games-shared-ts": "workspace:*",
         "@libs/numberlink-client-ts": "workspace:*",
         "@libs/quoridor-client-ts": "workspace:*",
+        "@libs/sokoban-client-ts": "workspace:*",
         "@libs/spaces-shared-ts": "workspace:*",
       },
       "devDependencies": {
@@ -2065,6 +2066,7 @@
         "@libs/game-session-shared-ts": "workspace:*",
         "@libs/numberlink-shared-ts": "workspace:*",
         "@libs/quoridor-shared-ts": "workspace:*",
+        "@libs/sokoban-shared-ts": "workspace:*",
         "@libs/spaces-shared-ts": "workspace:*",
       },
       "devDependencies": {
@@ -3032,7 +3034,6 @@
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
         "@pkgs/ui-root-client-ts": "workspace:*",
-        "@pkgs/uuid-client-ts": "workspace:*",
         "solid-js": "catalog:",
       },
       "devDependencies": {

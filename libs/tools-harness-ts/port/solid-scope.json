@@ -35,6 +35,7 @@
     "libs/quoridor-client-ts/src",
     "libs/battleship-client-ts/src",
     "libs/numberlink-client-ts/src",
+    "libs/sokoban-client-ts/src",
     "libs/game-menu-client-ts/src"
   ],
   "files": [
@@ -264,6 +265,7 @@
     "libs/quoridor-client-ts/src",
     "libs/battleship-client-ts/src",
     "libs/numberlink-client-ts/src",
+    "libs/sokoban-client-ts/src",
     "libs/game-menu-client-ts/src"
   ],
   "noDestructureDirs": [
@@ -290,6 +292,7 @@
     "libs/quoridor-client-ts/src",
     "libs/battleship-client-ts/src",
     "libs/numberlink-client-ts/src",
+    "libs/sokoban-client-ts/src",
     "libs/game-menu-client-ts/src"
   ]
 }

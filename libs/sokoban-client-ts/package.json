@@ -20,7 +20,6 @@
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
     "@pkgs/ui-root-client-ts": "workspace:*",
-    "@pkgs/uuid-client-ts": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {
