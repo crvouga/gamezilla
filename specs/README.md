@@ -1128,6 +1128,7 @@ terms:
 | Games | `games` | what every game in a space offers alike: the game's choices, custom games with people and bots, private setups, turns, finding an opponent, matched games (aborting, resigning, draw offers and rematches), puzzles for every game offering them (playing them as a feed, solving, hints, retries, showing the solution, resuming an attempt, the puzzle clock, reviewing a puzzle's line, the feed and its settings, choosing the next puzzle, puzzle ratings, stats and game logs, refused puzzle actions, the daily puzzle limit, guests' puzzles, erasing a deleted account's puzzle progress, playing offline, results across devices, watching, puzzle links, sounds, the keyboard and listening, winning a puzzle another way, and other play leaving puzzles alone), history, review and statistics | core |
 | Connect Four | `connect-four` | Connect Four's own board, drops, winning alignments, draws and bots | supporting |
 | Numberlink | `numberlink` | Numberlink's rectangular board, matching endpoints, paths, coverage and completion | supporting |
+| Sokoban | `sokoban` | Sokoban's rectangular board of walls, floor, goals and outside squares, the worker, crates, moves, pushes and completion, building a board, the proof a board needs before publication, and the starter pack | supporting |
 | Puzzles | `puzzles` | author-created puzzle and pack drafts, validation, playtests, stable published editions, personal attempts and pack progression for any game offering puzzle content | core |
 | Battleship | `battleship` | Battleship's own boards, fleets, placing ships, shots, hits, misses, sinkings, victory and bots | supporting |
 | Quoridor | `quoridor` | Classic Quoridor and Four-Player King of the Hill: the board, pawns, movement, jumps, walls, paths and goals | supporting |
@@ -1166,6 +1167,10 @@ Games    ──► Connect Four (game), Battleship (game, custom game)
 Games    ──► Quoridor (game, custom game, ready, start)
 Games    ──► Journeys (bot)
 App      ──► Quoridor (keyboard, control)
+Identity ──► Sokoban (guest)
+App      ──► Puzzles (version of the app)
+Puzzles  ──► Sokoban (puzzle, author, draft, playtest, publish, edition, pack, attempt, resume, pack progress, rules change)
+Sokoban  ──► Journeys (Sokoban, starter pack)
 Room, Sync engine: stand alone; Matchmaking publishes complete matches to Chess (Sync engine's "shared space" is not a Spaces space)
 Database indexing: stands alone; publishes no product terms or events
 ```
@@ -1183,6 +1188,7 @@ Published language:
 | Connect Four (`connect-four`) | Connect Four | — |
 | Battleship (`battleship`) | Battleship | — |
 | Quoridor (`quoridor`) | Quoridor, Classic Quoridor, Four-Player King of the Hill | — |
+| Sokoban (`sokoban`) | Sokoban, starter pack | — |
 | App (`runtime`) | Settings, tabs, address, version of the app, trail, run into trouble, keyboard, control, place in the app | — |
 | Developer tools (`developer-tools`) | the testing tool | — |
 | Matchmaking (`matchmaking`) | matchmaking match, pair people up | `MatchmakingEvent`: `MatchFormed` |

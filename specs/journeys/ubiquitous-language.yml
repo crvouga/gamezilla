@@ -109,6 +109,10 @@ terms:
     from: puzzles
   - term: pack progress
     from: puzzles
+  - term: Sokoban
+    from: sokoban
+  - term: starter pack
+    from: sokoban
   - term: Quoridor
     from: quoridor
   - term: Classic Quoridor

@@ -30,6 +30,7 @@ product:
     - synthetic-population
     - room
     - runtime
+    - sokoban
     - spaces
     - sync-engine
 

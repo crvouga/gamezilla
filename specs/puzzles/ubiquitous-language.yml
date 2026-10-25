@@ -15,6 +15,8 @@ terms:
     from: games
   - term: control
     from: runtime
+  - term: version of the app
+    from: runtime
   - term: puzzle
     definition: >-
       A standalone challenge belonging to one game. It has a title,
@@ -153,6 +155,17 @@ terms:
       publications never erase it. Playtests do not count.
     forms: [complete, completed, completes, unfinished]
     model: [completions, otherCompletions, completePackPuzzle]
+  - term: rules change
+    definition: >-
+      A change to how a game plays its puzzles that would make a puzzle
+      published earlier play differently. Each edition keeps the rules it was
+      published under: after a rules change, an edition published before it
+      is not started or continued under the changed rules, the person is told
+      it needs a version of the app with its rules, and their saved attempt
+      at it is kept.
+    forms: [rules changes, rules changed, rules have changed]
+    published: true
+    model: [rules, rulesChange]
   - term: pack progress
     definition: >-
       Which of a pack edition's chosen puzzle editions are unplayed,
