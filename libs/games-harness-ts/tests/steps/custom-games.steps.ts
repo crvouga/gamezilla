@@ -7,16 +7,20 @@ import {
 import { playCustomGameBots } from '@libs/game-session-harness-ts/custom-game-bots';
 import { makeCustomGameMove } from '@libs/game-session-harness-ts/custom-game-moves';
 import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe';
-import { attemptCustomGame } from '@libs/game-session-harness-ts/custom-game-ui';
+import {
+  attemptCustomGame,
+  configureCustomGameChoice,
+} from '@libs/game-session-harness-ts/custom-game-ui';
+import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { partition, restoreActorConnection } from '@libs/harness-ts/actions';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import { choose } from './custom-game-set-up-world';
 import {
   before,
   gameOf,
+  rememberCustomGame,
   setupCustomGame,
   sideOf,
-  turnGameOf,
   view,
 } from './game-world';
 import { playsPuzzles, solverToMove } from './puzzle-world';
@@ -85,9 +89,16 @@ Then('{actor} is told she is not a participant', async (w, actor: string) => {
   expect((await view(w, actor)).error).toBe('not a participant');
 });
 
-Given('{actor} has a finished custom game', async (w) =>
-  setupCustomGame(w, { moves: turnGameOf(w).fixtures.firstSideVictory })
-);
+/** Won by its first side: by the game's own victory where it takes turns, otherwise by the second side resigning. */
+Given('{actor} has a finished custom game', async (w) => {
+  const game = gameOf(w);
+  if (isTurnHarnessGame(game))
+    return setupCustomGame(w, { moves: game.fixtures.firstSideVictory });
+  // regression: games-bindings-assume-clocked-turn-games
+  await setupCustomGame(w);
+  await w.s.apply(configureCustomGameChoice, 'bob', { operation: 'resign' });
+  await rememberCustomGame(w);
+});
 When('{actor} asks for a rematch', async (w, actor: string) => {
   await w.s.apply(attemptCustomGame, actor, { operation: 'rematch' });
 });
