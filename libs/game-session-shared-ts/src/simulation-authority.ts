@@ -44,6 +44,9 @@ export type SimulationAuthorityPorts<S> = Omit<
   readonly inputRefused?: (reason: SimulationInputRefusal) => void;
 };
 
+/** The longest round trip a held control may take and still apply. */
+const HELD_CONTROL_LATE_MS = 250;
+
 export type SimulationInputRefusal =
   | 'epoch'
   | 'owner'
@@ -182,14 +185,19 @@ export class SimulationAuthority<S, I> {
   /**
    * A held control for a tick already committed outran its device's lead
    * by the network's round trip: what the player holds now applies at the
-   * next tick, unless it is older than the lead window allows.
+   * next tick. One later than a round trip allows is stale and refused.
    */
   private held(
     input: SimulationInput<I>,
     committed: number
   ): SimulationInput<I> | { readonly refusal: RoomError } {
     if (input.tick > committed) return input;
-    if (committed - input.tick >= this.simulation.options.maxInputLeadTicks)
+    const options = this.simulation.options;
+    const tolerance = Math.min(
+      options.maxInputLeadTicks,
+      Math.ceil((options.tickRate * HELD_CONTROL_LATE_MS) / 1000)
+    );
+    if (committed - input.tick >= tolerance)
       return { refusal: this.refused('late', 'input late') };
     return { ...input, tick: committed + 1 };
   }
