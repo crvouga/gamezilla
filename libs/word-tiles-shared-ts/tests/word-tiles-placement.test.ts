@@ -67,6 +67,9 @@ describe('placement geometry', () => {
     // S1×3 (f8) + C3 A1 T1 (h8's bonus square is spent) + S1×3 (j8).
     expect(total(CAT, 'f8S j8S')).toBe(11);
   });
+  test('two tiles never share a square', () => {
+    expect(refusal(EMPTY_BOARD, 'h8C h8A i8T')).toBe('cell taken');
+  });
   test('a committed tile is never overwritten', () => {
     expect(refusal(CAT, 'h8O')).toBe('cell taken');
   });

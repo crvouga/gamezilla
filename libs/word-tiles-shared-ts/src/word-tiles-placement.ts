@@ -170,6 +170,9 @@ function geometryRefusal(
   placed: readonly PlacedLetter[]
 ): PlacementRefusal | null {
   if (placed.length === 0) return 'no tiles';
+  // Two tiles on one square: the second finds it taken.
+  const cells = new Set(placed.map((p) => p.cell));
+  if (cells.size !== placed.length) return 'cell taken';
   if (placed.some((p) => isOccupied(board, p.cell))) return 'cell taken';
   const line = lineOf(placed);
   if (line === null) return 'not in one line';
