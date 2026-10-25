@@ -15,8 +15,8 @@
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests"
   },
   "dependencies": {
-    "@libs/hearts-shared-ts": "workspace:*",
     "@libs/game-menu-client-ts": "workspace:*",
+    "@libs/hearts-shared-ts": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
     "@pkgs/turn-game-shared-ts": "workspace:*",
