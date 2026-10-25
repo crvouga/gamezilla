@@ -20,6 +20,7 @@ import {
   contentValidationIssues,
   contentValidationStatus,
 } from '@libs/game-puzzle-harness-ts/content-publication-observations';
+import { editDraftTitleThroughScreen } from '@libs/game-puzzle-harness-ts/draft-history-actions';
 import {
   publishThroughScreen,
   validateThroughScreen,
@@ -57,10 +58,11 @@ When('Alice publishes her puzzle draft', async (w) => {
   await w.run.apply(publishThroughScreen);
 });
 
+// Renaming goes through the builder, so it also replaces any undone edit.
 When(
   'Alice renames its working draft to {string}',
   async (w, title: string) => {
-    await w.run.apply(reviseContentDraft, title);
+    await w.run.apply(editDraftTitleThroughScreen, 'alice:phone', title);
   }
 );
 

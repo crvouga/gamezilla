@@ -21,6 +21,7 @@ import { contentActorId } from './content-identity';
 import { PUBLICATION_ACTIONS } from './content-publication-actions';
 import { createContentThroughScreen } from './content-screen-actions';
 import { DRAFT_CHOICE_ACTIONS } from './draft-choice-actions';
+import { DRAFT_HISTORY_ACTIONS } from './draft-history-actions';
 import { contentExampleApp } from './example-app';
 import { exampleContentBootstrapQuery } from './example-app-query';
 import { saveMetadataThroughScreen } from './metadata-screen-actions';
@@ -95,6 +96,7 @@ export const contentSystem = defineSystem<
     loadEarlierAttemptsThroughScreen,
     ...CONTENT_ACTIONS,
     ...DRAFT_CHOICE_ACTIONS,
+    ...DRAFT_HISTORY_ACTIONS,
     ...PUBLICATION_ACTIONS,
     ...PACK_ACTIONS,
     ...NAMED_PACK_ACTIONS,

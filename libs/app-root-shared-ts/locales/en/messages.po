@@ -2109,6 +2109,14 @@ msgstr "Easy"
 msgid "Edit profile"
 msgstr "Edit profile"
 
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
+msgid "Edit restored"
+msgstr "Edit restored"
+
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
+msgid "Edit undone"
+msgstr "Edit undone"
+
 #: libs/game-puzzle-client-ts/src/content-edition-screen.tsx
 msgid "Edit working draft"
 msgstr "Edit working draft"
@@ -2870,6 +2878,10 @@ msgstr "Keep the current changes before playtesting. Try saving again."
 #: libs/game-puzzle-client-ts/src/use-content-publication.tsx
 msgid "Keep the current changes before publishing. Try saving again."
 msgstr "Keep the current changes before publishing. Try saving again."
+
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
+msgid "Keep the current changes first. Try saving again."
+msgstr "Keep the current changes first. Try saving again."
 
 #: libs/game-puzzle-client-ts/src/content-kept-positions.tsx
 msgid "Kept"
@@ -4515,6 +4527,14 @@ msgstr "Red fleet"
 msgid "Redo"
 msgstr "Redo"
 
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
+msgid "Redo edit"
+msgstr "Redo edit"
+
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
+msgid "Redoing…"
+msgstr "Redoing…"
+
 #. placeholder {0}: reference()
 #: libs/app-root-client-ts/src/crash-screen.tsx
 msgid "Reference: {0}"
@@ -5696,6 +5716,10 @@ msgstr "That change wasn't made. The item may no longer be in your inbox."
 msgid "That change wasn't made. Try again in a moment."
 msgstr "That change wasn't made. Try again in a moment."
 
+#: libs/game-puzzle-client-ts/src/use-draft-edit-history.tsx
+msgid "That edit is no longer available here. Your kept copies remain below."
+msgstr "That edit is no longer available here. Your kept copies remain below."
+
 #: libs/app-root-client-ts/src/refused-change-copy.tsx
 msgid "That friend request wasn't declined"
 msgstr "That friend request wasn't declined"
@@ -5828,6 +5852,10 @@ msgstr "The draft could not be saved. Try saving again."
 #: libs/game-puzzle-client-ts/src/content-publication-controls.tsx
 msgid "The draft needs your attention"
 msgstr "The draft needs your attention"
+
+#: libs/game-puzzle-client-ts/src/use-draft-edit-history.tsx
+msgid "The edit could not be changed. Try again."
+msgstr "The edit could not be changed. Try again."
 
 #: libs/account-privacy-client-ts/src/export-choice.tsx
 msgid "The export could not be requested. Try again."
@@ -6360,9 +6388,17 @@ msgstr "Try playtesting again"
 msgid "Try publishing again"
 msgstr "Try publishing again"
 
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
+msgid "Try redoing again"
+msgstr "Try redoing again"
+
 #: libs/game-puzzle-client-ts/src/content-start-attempt.tsx
 msgid "Try starting again"
 msgstr "Try starting again"
+
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
+msgid "Try undoing again"
+msgstr "Try undoing again"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-source-controls.tsx
 msgid "Try uploading again"
@@ -6432,6 +6468,14 @@ msgstr "Unblocking…"
 #: libs/word-tiles-client-ts/src/word-tiles-board.tsx
 msgid "Undo"
 msgstr "Undo"
+
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
+msgid "Undo edit"
+msgstr "Undo edit"
+
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
+msgid "Undoing…"
+msgstr "Undoing…"
 
 #: libs/numberlink-client-ts/src/numberlink-board.tsx
 msgid "unfinished"
@@ -7039,6 +7083,10 @@ msgstr "Your data"
 #: libs/app-root-client-ts/src/refused-publication-copy.tsx
 msgid "Your draft is kept. Check its validation details, correct the draft, then choose Publish again."
 msgstr "Your draft is kept. Check its validation details, correct the draft, then choose Publish again."
+
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
+msgid "Your draft is unchanged"
+msgstr "Your draft is unchanged"
 
 #: libs/game-puzzle-client-ts/src/content-create-controls.tsx
 msgid "Your draft was not created"
