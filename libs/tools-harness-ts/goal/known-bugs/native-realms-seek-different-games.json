@@ -1,0 +1,4 @@
+{
+  "summary": "The native worker pairing fixture let two independent policy draws select different games, then incorrectly expected those accounts to be paired.",
+  "regressionTest": "apps/synthetic-population-worker-ts/tests/application-realm.test.ts"
+}

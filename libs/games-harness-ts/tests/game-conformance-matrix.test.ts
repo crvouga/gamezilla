@@ -11,6 +11,7 @@
  */
 
 import { expect, test } from 'bun:test';
+import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import type {
   ConformanceArea,
   ConformanceSuite,
@@ -28,7 +29,7 @@ import {
   specificationConformanceSuites,
 } from '@libs/games-harness-ts/game-conformance';
 import { HARNESS_GAMES } from '@libs/games-harness-ts/harness-games';
-import { TURN_GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
+import { PLAYABLE_GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
 import { planCodeSuites } from './conformance/game-suite';
 import {
   CONFORMANCE_GAMES,
@@ -48,7 +49,7 @@ async function suites(): Promise<readonly ConformanceSuite[]> {
 
 test('the conformance plan is complete: enrollment, the specification table, every suite and every offered capability', async () => {
   const { matrix, problems } = planConformance({
-    registered: TURN_GAME_DEFINITIONS,
+    registered: PLAYABLE_GAME_DEFINITIONS,
     harness: HARNESS_GAMES,
     games: CONFORMANCE_GAMES,
     codeSuites: await planCodeSuites(TESTS),
@@ -107,6 +108,7 @@ test('what a game does not offer is unsupported, not untested', async () => {
   ) as Record<ConformanceArea, string>;
   expect(statuses).toEqual({
     rules: 'bound',
+    simulation: 'unsupported',
     'custom-games': 'bound',
     matchmaking: 'unsupported',
     history: 'bound',
@@ -145,7 +147,9 @@ test('a specification needing a trait binds only games whose fixtures show it', 
   );
   expect(gamesHeldTo(cannotWin).map((game) => game.label)).toEqual(
     CONFORMANCE_GAMES.filter(
-      (game) => game.fixtures.secondSideCannotWin !== undefined
+      (game) =>
+        isTurnHarnessGame(game) &&
+        game.fixtures.secondSideCannotWin !== undefined
     ).map((game) => game.label)
   );
   // The reference game's sides can always win, so it owes nothing here.
@@ -163,8 +167,9 @@ test("a draw by the game's own rules binds only games whose fixtures show one", 
   expect(gamesHeldTo(rulesDraw).map((game) => game.label)).toEqual(
     CONFORMANCE_GAMES.filter(
       (game) =>
+        isTurnHarnessGame(game) &&
         game.fixtures.drawByRules !== undefined &&
-        game.shared.turnGame.capabilities.matchmaking !== undefined
+        game.shared.registration.capabilities.matchmaking !== undefined
     ).map((game) => game.label)
   );
 });

@@ -20,6 +20,7 @@ import {
   ModalHeader,
 } from '@pkgs/ui-root-client-ts/modal-parts';
 import { ModalRoot } from '@pkgs/ui-root-client-ts/modal-root';
+import { RangeControl } from '@pkgs/ui-root-client-ts/range-control';
 import { ScreenBase } from '@pkgs/ui-root-client-ts/screen-base';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
@@ -90,6 +91,7 @@ function LoginScreen(props: { onLogin: (email: string) => void }): JSX.Element {
   const [email, setEmail] = createSignal('');
   const [password, setPassword] = createSignal('');
   const [count, setCount] = createSignal(0);
+  const [position, setPosition] = createSignal(500);
   const [help, setHelp] = createSignal(false);
   const submit = (): void => {
     if (email().length > 0 && password().length > 0) props.onLogin(email());
@@ -120,6 +122,15 @@ function LoginScreen(props: { onLogin: (email: string) => void }): JSX.Element {
             onClick={submit}
             dataSet={{ testid: 'submit' }}
           />
+          <RangeControl
+            label="Position"
+            min={0}
+            max={1000}
+            value={position()}
+            onInput={setPosition}
+            dataSet={{ testid: 'position' }}
+          />
+          <p data-testid="position-value">{position()}</p>
           <p class="text" data-testid="count">
             {String(count())}
           </p>

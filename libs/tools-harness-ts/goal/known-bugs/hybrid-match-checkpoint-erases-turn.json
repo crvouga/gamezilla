@@ -1,0 +1,4 @@
+{
+  "summary": "A simulation checkpoint unconditionally cleared the matched game's turn, making a genuinely composed turn-and-simulation game lose its turn owner.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-hybrid-match.contract.test.ts"
+}

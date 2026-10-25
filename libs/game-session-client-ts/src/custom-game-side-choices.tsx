@@ -2,6 +2,7 @@ import type { CustomGameSide } from '@libs/game-session-shared-ts/custom-game-st
 import { UserUsername } from '@libs/profile-client-ts/user-username';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
+import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useGameSideLabel } from '@pkgs/turn-game-client-ts/use-game-side-label';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
@@ -66,6 +67,15 @@ export function CustomGameInvitation(props: SideProps): JSX.Element {
 }
 
 export function CustomGameSideChoices(props: SideProps): JSX.Element {
+  const rules = useTurnGames();
+  const localPlayers = () => {
+    const game = props.model.current();
+    return (
+      game !== null &&
+      rules.capability(rules.forPosition(game.fen).id, 'custom-games')
+        ?.localPlayers === true
+    );
+  };
   const [person, setPerson] = createSignal('');
   const invitations = createMemo(() =>
     props.model.members().map((id) => {
@@ -93,6 +103,15 @@ export function CustomGameSideChoices(props: SideProps): JSX.Element {
             props.model.choose({ operation: 'take', side: props.side })
           }
         />
+        <Show when={localPlayers() && props.model.canConfigure()}>
+          <GameActionButton
+            title={<Trans>Player on this device</Trans>}
+            dataSet={{ testid: `custom-game-${props.side}-local` }}
+            operation={() =>
+              props.model.choose({ operation: 'local', side: props.side })
+            }
+          />
+        </Show>
         <Show when={props.model.canBot()}>
           <GameActionButton
             title={<Trans>Bot</Trans>}

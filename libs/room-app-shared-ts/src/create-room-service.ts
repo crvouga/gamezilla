@@ -1,5 +1,8 @@
 import type { Message } from '@pkgs/message-shared-ts/message';
-import type { RoomServicePort } from '@pkgs/room-root-shared-ts/room-service';
+import type {
+  RoomServicePort,
+  RoomServiceReceipt,
+} from '@pkgs/room-root-shared-ts/room-service';
 import type { RoomState } from '@pkgs/room-root-shared-ts/types';
 
 type RoomNamespace = {
@@ -49,7 +52,7 @@ export function createRoomService(
         commandId,
         payload,
       });
-      await response.body?.cancel();
+      return (await response.json()) as RoomServiceReceipt;
     },
     async eraseIdentity(topic, identity, replacement) {
       const response = await call(topic, {

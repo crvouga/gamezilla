@@ -16,7 +16,7 @@ import { multiplayerView } from '@libs/game-matchmaking-harness-ts/multiplayer-r
 import { Given, Then, When } from '@libs/harness-ts/define';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import { daily } from './finding-an-opponent-world';
-import { gameOf } from './game-world';
+import { gameOf, turnGameOf } from './game-world';
 import { finishedAt, firstMoves, pairedAt } from './matched-game';
 import { deviceOffline } from './matched-game-connection';
 import type { NoticeWanted } from './matched-game-notice-world';
@@ -142,7 +142,7 @@ Given(
 Given(
   "{actor} has the first side against {actor} in a daily game at {int} day(s) per move one move from a draw by the game's own rules",
   async (w, first: string, second: string, days: number) => {
-    const line = gameOf(w).fixtures.drawByRules;
+    const line = turnGameOf(w).fixtures.drawByRules;
     if (line === undefined)
       throw new Error(`${gameOf(w).label} names no line its rules draw`);
     await pairedAt(w, first, second, daily(days));

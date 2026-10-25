@@ -7,7 +7,7 @@
 
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
 import { assertHarnessGame } from '@libs/game-session-harness-ts/harness-game';
-import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import type { TurnGameCapabilities } from '@pkgs/turn-game-shared-ts/game-rules';
 import {
   COUNTING_RACE_CLIENT,
@@ -21,10 +21,10 @@ const CAPABILITIES = {
   puzzles: COUNTING_RACE_PUZZLES,
 } satisfies TurnGameCapabilities;
 
-const SHARED = defineTurnGame({
+const SHARED = defineGame({
   rules: COUNTING_RACE_TURN_GAME.rules,
   capabilities: CAPABILITIES,
-  automation: COUNTING_RACE_TURN_GAME.automation,
+  turnAutomation: COUNTING_RACE_TURN_GAME.turnAutomation,
 });
 
 export const PUZZLE_ONLY_GAME = assertHarnessGame({

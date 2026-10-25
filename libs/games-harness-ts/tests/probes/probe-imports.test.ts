@@ -78,7 +78,7 @@ test('the check refuses a framework module outside its game API', () => {
   expect(
     gameApiViolations(
       'fine.ts',
-      "import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';"
+      "import { defineGame } from '@libs/game-session-shared-ts/game-definition';"
     )
   ).toEqual([]);
 });

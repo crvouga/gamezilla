@@ -1,0 +1,4 @@
+{
+  "summary": "A thrown deterministic simulation step disposed the simulation timer but left the durable game active forever. The authority now abandons the game from its last valid checkpoint, retains the reproducible failure, and leaves an ordinary cancelled game that can be rematched.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-session.contract.test.ts"
+}

@@ -134,7 +134,7 @@ export type DriverNode = {
    */
   layout(): Promise<ElementLayout | null>;
 
-  /** Wait until visible, then type `text` (appends by default). */
+  /** Wait until visible, then append text, or select an absolute value for a range control. */
   input(text: string, options?: UiWaitOptions): Promise<void>;
 
   /** Choose a file using in-memory contents, without accessing the host filesystem. */

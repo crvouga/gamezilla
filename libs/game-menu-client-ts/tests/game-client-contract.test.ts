@@ -18,12 +18,8 @@ import {
 } from '@libs/game-menu-client-ts/game-client';
 import type { GamePuzzlesClient } from '@libs/game-puzzle-client-ts/puzzle-client';
 import { defineGame } from '@libs/game-session-shared-ts/game-definition';
-import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
 import type { PuzzlesCapability } from '@pkgs/turn-game-shared-ts/game-puzzles';
-import type {
-  GameRules,
-  GameSide,
-} from '@pkgs/turn-game-shared-ts/game-rules';
+import type { GameRules, GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { PuzzleContent } from '@pkgs/turn-game-shared-ts/puzzle-content';
 
 /** Count to seven: `step` adds one, and whoever reaches seven wins. */
@@ -49,7 +45,7 @@ const rules: GameRules = {
   canWin: () => true,
   moves: () => [],
 };
-const automation = {
+const turnAutomation = {
   choose: () => 'step',
   perform: async () => {},
 };
@@ -60,11 +56,11 @@ const puzzles: PuzzlesCapability = {
   marks: (_position, action) => ({ from: null, to: action }),
   isCell: (cell) => cell.length > 0,
 };
-const plain = defineTurnGame({ rules, capabilities: { history }, automation });
-const withPuzzles = defineTurnGame({
+const plain = defineGame({ rules, capabilities: { history }, turnAutomation });
+const withPuzzles = defineGame({
   rules,
   capabilities: { history, puzzles },
-  automation,
+  turnAutomation,
 });
 const puzzlesPart: GamePuzzlesClient = { Board: () => null };
 
@@ -127,10 +123,10 @@ test('puzzle rendering agrees with standalone and combined registrations', () =>
       subtitle: () => '',
     })
   ).toThrow('puzzleContent.Player');
-  const combined = defineTurnGame({
+  const combined = defineGame({
     rules,
     capabilities: { history },
-    automation,
+    turnAutomation,
     puzzleContent: content,
   });
   // @ts-expect-error: combined games supply their puzzle player too.
@@ -146,6 +142,38 @@ test('puzzle rendering agrees with standalone and combined registrations', () =>
     // @ts-expect-error: a game without puzzle content cannot render its player.
     defineGameClient({ ...parts, shared: plain, puzzleContent: { Player } })
   ).toThrow('offers no puzzle content');
+});
+
+test('a timed matchmaking presentation needs its timeout description', () => {
+  const { timeoutDrawDescription: _dropped, ...presentation } =
+    parts.presentation;
+  const shared = defineGame({
+    rules,
+    turnAutomation,
+    capabilities: {
+      history,
+      matchmaking: {
+        namespace: 'race/',
+        clockChoices: true,
+        notice: {
+          side: (side) => side,
+          ending: () => undefined,
+          timeoutDraw: () => 'Drawn on time.',
+        },
+      },
+    },
+  });
+  expect(() =>
+    defineGameClient({ ...parts, shared, presentation } as GameClient)
+  ).toThrow('clock choices need presentation.timeoutDrawDescription');
+});
+
+test('a presentation without turn clocks has no timeout-copy obligation', () => {
+  const { timeoutDrawDescription: _dropped, ...presentation } =
+    parts.presentation;
+  expect(() =>
+    defineGameClient({ ...parts, shared: plain, presentation })
+  ).not.toThrow();
 });
 
 test('a presentation without its ending copy is refused at type checking', () => {
@@ -203,7 +231,7 @@ test('a game offering no puzzles has no puzzles part, at type checking and when 
     // @ts-expect-error: the platform offers no puzzle screens for this game.
     defineGameClient({ ...parts, shared: plain, puzzles: puzzlesPart });
   expect(extra).toThrow(
-    'race: the client has a puzzles part but the game offers no puzzles — add capabilities.puzzles to its defineTurnGame, or leave the part out'
+    'race: the client has a puzzles part but the game offers no puzzles — add capabilities.puzzles to its defineGame, or leave the part out'
   );
   expect(defineGameClient({ ...parts, shared: plain }).puzzles).toBeUndefined();
 });

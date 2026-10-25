@@ -5,7 +5,7 @@
  * the board ready to solve.
  */
 
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import {
   moveOnWithoutWaiting,
   openGamePuzzles,
@@ -17,7 +17,7 @@ import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import { createSpace } from '@libs/spaces-harness-ts/space-actions';
 import type { MeasureContext } from '@pkgs/openslo-shared-ts/registry';
 import { bindObjectives } from '@pkgs/openslo-shared-ts/registry';
-import { gamesHeldTo, openConformanceHarness } from '../conformance-world';
+import { openConformanceHarness, turnGamesHeldTo } from '../conformance-world';
 
 const SOLVER = 'alice';
 /** Times the solver moves on, in each game. */
@@ -30,7 +30,7 @@ type Sample = { readonly atMs: number; readonly value: number };
 
 /** How long each next puzzle of `game` took to be ready, in seconds. */
 async function nextPuzzleReadyTimes(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   endMs: number
 ): Promise<readonly Sample[]> {
   await using s = await openConformanceHarness(
@@ -66,7 +66,7 @@ async function nextPuzzleReadyTimes(
 
 async function readyTimes(context: MeasureContext) {
   const samples: Sample[] = [];
-  for (const game of gamesHeldTo('specs/games/puzzle-ready.openslo.yaml'))
+  for (const game of turnGamesHeldTo('specs/games/puzzle-ready.openslo.yaml'))
     samples.push(...(await nextPuzzleReadyTimes(game, context.endMs)));
   return { kind: 'samples' as const, samples };
 }

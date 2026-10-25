@@ -1,0 +1,4 @@
+{
+  "summary": "Local-play trace 4, seed 0x67932, guides Alice's paddle to the lower edge then reopens at step 7. Closing the controller discarded its live pose; replay waited for the lost paddle while the bot finished. Record the current state in the existing local room queue before disposing. The literal trace now runs in the PR profile.",
+  "regressionTest": "libs/pong-harness-ts/tests/quint/pong-local-play.binding.ts"
+}

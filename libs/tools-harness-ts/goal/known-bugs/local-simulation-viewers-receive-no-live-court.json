@@ -1,0 +1,4 @@
+{
+  "summary": "The creator's local simulation published only to its own presentation, so a late room viewer received no tick-three snapshot and never followed local play. Forward the authenticated creator's current court through the existing room, preserving it while offline and refreshing on return.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-local-watch.contract.test.ts"
+}

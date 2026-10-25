@@ -8,6 +8,8 @@ import {
   multiplayerSideOf,
 } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
 import { Trans } from '@lingui/solid/macro';
+import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
+import type { SimulationExecution } from '@pkgs/turn-game-shared-ts/simulation-execution';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
@@ -118,14 +120,14 @@ function RematchActions(props: {
   );
 }
 
-/** Before both have moved a game is aborted; after that it is resigned. */
+/** Before play begins a game is aborted; afterwards it is resigned. */
 function LeaveGameAction(props: {
-  readonly game: MultiplayerGame;
+  readonly started: boolean;
   readonly onConfirm: (kind: 'abort' | 'resign') => void;
 }): JSX.Element {
   return (
     <Show
-      when={bothHaveMoved(props.game)}
+      when={props.started}
       fallback={
         <Button
           title={
@@ -158,11 +160,17 @@ function LeaveGameAction(props: {
 /** What a person can do with their game: only what its state allows. */
 export function MultiplayerGameActions(props: {
   readonly game: MultiplayerGame;
+  readonly execution: SimulationExecution | undefined;
   readonly myId: string;
   readonly controls: MultiplayerControlsModel;
   readonly looking: boolean;
   readonly onConfirm: (kind: 'abort' | 'resign') => void;
 }): JSX.Element {
+  const rules = useTurnGames();
+  const started = () =>
+    rules.turnsForPosition(props.game.fen) !== undefined
+      ? bothHaveMoved(props.game)
+      : props.execution?.started === true;
   const playing = () => multiplayerSideOf(props.game, props.myId) !== null;
   const ongoing = () => playing() && props.game.outcome === 'ongoing';
   const over = () =>
@@ -176,7 +184,7 @@ export function MultiplayerGameActions(props: {
             myId={props.myId}
             controls={props.controls}
           />
-          <LeaveGameAction game={props.game} onConfirm={props.onConfirm} />
+          <LeaveGameAction started={started()} onConfirm={props.onConfirm} />
         </Show>
         <Show when={over()}>
           <GameActionButton

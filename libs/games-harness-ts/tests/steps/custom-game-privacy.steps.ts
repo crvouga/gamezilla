@@ -17,10 +17,10 @@ import { seesNoCustomGame, tryToWatch } from './custom-game-access.steps';
 import { current } from './custom-game-set-up-world';
 import {
   before,
-  gameOf,
   rememberCustomGame,
   setupCustomGame,
   spaceLinkOf,
+  turnGameOf,
 } from './game-world';
 
 const DELETED_GAME = 'deleted-custom-game-id';
@@ -76,7 +76,10 @@ Then(
       })
     );
     expect(game.moves.map((move) => move.uci)).toEqual(
-      recordedLine(gameOf(w), gameOf(w).fixtures.firstSideVictory.slice(0, 1))
+      recordedLine(
+        turnGameOf(w),
+        turnGameOf(w).fixtures.firstSideVictory.slice(0, 1)
+      )
     );
   }
 );

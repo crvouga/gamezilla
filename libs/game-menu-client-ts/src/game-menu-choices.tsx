@@ -110,7 +110,10 @@ const PUZZLE_CHOICES: readonly GameChoiceItem[] = [
 
 function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
   const name = game.title;
-  const playerCount = gameSides(game.shared.turnGame.rules).length;
+  const playerCount =
+    game.shared.registration === undefined
+      ? 1
+      : gameSides(game.shared.registration.rules).length;
   return [
     ...(game.puzzleContent === undefined
       ? []

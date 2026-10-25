@@ -5,7 +5,10 @@ import {
   multiplayerSideOf,
   multiplayerSides,
 } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
-import { isDailyTimeControl } from '@libs/game-matchmaking-shared-ts/time-control';
+import {
+  isDailyTimeControl,
+  timeControlOf,
+} from '@libs/game-matchmaking-shared-ts/time-control';
 import { Trans } from '@lingui/solid/macro';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useGameSideLabel } from '@pkgs/turn-game-client-ts/use-game-side-label';
@@ -67,6 +70,7 @@ function PlayerHeadline(props: StatusProps): JSX.Element {
   const gameSideLabel = useGameSideLabel();
   const turnName = useShownName(() => props.game.turn);
   const count = () => multiplayerSides(props.game).length;
+  const timed = () => timeControlOf(props.game.time_control) !== null;
   return (
     <Show
       when={props.game.outcome === 'ongoing'}
@@ -76,34 +80,50 @@ function PlayerHeadline(props: StatusProps): JSX.Element {
         <Show
           when={count() > 2}
           fallback={
-            <Trans>
-              Matched with {props.viewer.opponentName}, rated{' '}
-              {props.viewer.opponentRating}, at{' '}
-              {timeControlText(props.game.time_control)}.
-            </Trans>
+            <>
+              <Trans>
+                Matched with {props.viewer.opponentName}, rated{' '}
+                {props.viewer.opponentRating}.
+              </Trans>{' '}
+              <Show when={timed()}>
+                <Trans>
+                  Time control: {timeControlText(props.game.time_control)}.
+                </Trans>{' '}
+              </Show>
+            </>
           }
         >
-          <Trans>
-            A multiplayer game for {count()} players at{' '}
-            {timeControlText(props.game.time_control)}.
-          </Trans>
-        </Show>{' '}
+          <Show
+            when={timed()}
+            fallback={<Trans>A multiplayer game for {count()} players.</Trans>}
+          >
+            <Trans>
+              A multiplayer game for {count()} players at{' '}
+              {timeControlText(props.game.time_control)}.
+            </Trans>
+          </Show>{' '}
+        </Show>
         <Trans>
           You are {gameSideLabel(props.game.fen, ownSide(props))}.
         </Trans>{' '}
       </VisuallyHidden>
       <Show
-        when={props.game.turn === props.viewer.myId}
-        fallback={
-          <Show
-            when={count() > 2}
-            fallback={<Trans>Your opponent's turn.</Trans>}
-          >
-            <Trans>{turnName()}'s turn.</Trans>
-          </Show>
-        }
+        when={props.game.turn !== ''}
+        fallback={<Trans>Game in progress.</Trans>}
       >
-        <Trans>Your turn.</Trans>
+        <Show
+          when={props.game.turn === props.viewer.myId}
+          fallback={
+            <Show
+              when={count() > 2}
+              fallback={<Trans>Your opponent's turn.</Trans>}
+            >
+              <Trans>{turnName()}'s turn.</Trans>
+            </Show>
+          }
+        >
+          <Trans>Your turn.</Trans>
+        </Show>
       </Show>
     </Show>
   );
@@ -184,7 +204,7 @@ function Reason(props: { readonly game: MultiplayerGame }): JSX.Element {
         <Trans>{flagged()} ran out of time.</Trans>
       </Match>
       <Match when={props.game.reason === 'timeout vs insufficient material'}>
-        {presentation(props.game.fen).timeoutDrawDescription(
+        {presentation(props.game.fen).timeoutDrawDescription?.(
           multiplayerSides(props.game).find(
             (side) => props.game[`${side}_ms`] === 0
           ) ?? 'white'
@@ -311,6 +331,7 @@ function FirstMoveCountdown(props: StatusProps): JSX.Element {
 /** A daily game's first move is timed by its own clock, in days. */
 const awaitingFirstMoves = (props: StatusProps): boolean =>
   props.game.outcome === 'ongoing' &&
+  props.game.clock_at_ms !== null &&
   props.game.paused_at_ms === null &&
   !bothHaveMoved(props.game) &&
   !isDailyTimeControl(props.game.time_control);
@@ -335,7 +356,12 @@ export function MultiplayerStatus(props: StatusProps): JSX.Element {
             }
           >
             <Text variant="inherit" testId="multiplayer-paused">
-              <Trans>Multiplayer clocks are paused.</Trans>{' '}
+              <Show
+                when={timeControlOf(props.game.time_control) !== null}
+                fallback={<Trans>Multiplayer game is paused.</Trans>}
+              >
+                <Trans>Multiplayer clocks are paused.</Trans>
+              </Show>{' '}
             </Text>
           </Show>
           <Show
@@ -354,14 +380,16 @@ export function MultiplayerStatus(props: StatusProps): JSX.Element {
         ) : undefined
       }
       trailing={
-        <Badge
-          intent="neutral"
-          label={
-            <Text variant="inherit" testId="multiplayer-time-control">
-              {timeControlText(props.game.time_control)}
-            </Text>
-          }
-        />
+        <Show when={timeControlOf(props.game.time_control) !== null}>
+          <Badge
+            intent="neutral"
+            label={
+              <Text variant="inherit" testId="multiplayer-time-control">
+                {timeControlText(props.game.time_control)}
+              </Text>
+            }
+          />
+        </Show>
       }
     />
   );

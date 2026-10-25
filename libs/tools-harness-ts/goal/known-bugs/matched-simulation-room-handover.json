@@ -1,0 +1,4 @@
+{
+  "summary": "A new matched game rejects the previous room's board but still reads its execution and accepts its simulation generation during handover. Fence live metadata and presentation on the displayed match identity and checkpoint revision.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-room-game.test.ts"
+}

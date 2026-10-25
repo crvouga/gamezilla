@@ -1,0 +1,4 @@
+{
+  "summary": "Adding a simulation to a registry made ordinary turn rooms demand simulation timers at hydration, even though their selected game never starts a simulation. Live ports now require timers only when execution actually reads that injected port.",
+  "regressionTest": "libs/game-session-shared-ts/tests/turn-simulation-independence.test.ts"
+}

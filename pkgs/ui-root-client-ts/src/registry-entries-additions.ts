@@ -23,6 +23,7 @@ import LayerExample from './layer.example';
 import LogLineExample from './log-line.example';
 import MiniPlayerExample from './mini-player.example';
 import MoveStripExample from './move-strip.example';
+import PaddleCourtExample from './paddle-court.example';
 import PaneExample from './pane.example';
 import PopoverExample from './popover.example';
 import RadioGroupExample from './radio-group.example';
@@ -43,6 +44,7 @@ const PRIMITIVES = 'Primitives';
 const DISCLOSURE = 'Disclosure';
 
 export const ADDITION_ENTRIES: readonly ComponentEntry[] = [
+  entry('paddle-court', 'PaddleCourt', INPUTS, PaddleCourtExample),
   entry('spacer', 'Spacer', LAYOUT, SpacerExample),
   entry('layer', 'Layer', LAYOUT, LayerExample),
   entry('image', 'Image', PRIMITIVES, ImageExample),

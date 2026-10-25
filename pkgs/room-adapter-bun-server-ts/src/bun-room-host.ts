@@ -111,6 +111,8 @@ function createEntry(
     module,
     storage: new InMemoryRoomStorage(),
     clock: deps.clock,
+    timers: deps.timers,
+    onError: (error) => deps.enqueueWake(topic, () => Promise.reject(error)),
     ...(deps.authorize === undefined ? {} : { authorize: deps.authorize }),
     effectHandlers: [schedule.handler],
   });
@@ -234,7 +236,10 @@ export function createBunRoomHost(deps: BunRoomHostDeps): BunRoomHost {
     service: createService(entryFor, sockets),
     listTopics: () => [...entries.keys()],
     dispose() {
-      for (const entry of entries.values()) entry.disposeSchedule();
+      for (const entry of entries.values()) {
+        entry.server.dispose();
+        entry.disposeSchedule();
+      }
       entries.clear();
       for (const socket of sockets.values()) socket.close();
       sockets.clear();

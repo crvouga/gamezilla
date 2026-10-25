@@ -191,6 +191,7 @@ export function settleMultiplayerClock(
   nowMs: number,
   rules: TurnGames
 ): MultiplayerGame {
+  if (game.turn === '') return game;
   const deadline = multiplayerDeadlineMs(game);
   if (deadline === null || nowMs < deadline) return game;
   const group = multiplayerSides(game).length > 2;
@@ -202,14 +203,12 @@ export function settleMultiplayerClock(
       group ? 'draw' : 'aborted',
       'first move missed'
     );
+  const turns = rules.turnsForPosition(game.fen);
+  if (turns === undefined) return game;
   const flagged = sideToMove(game);
   const out = withMultiplayerClock(game, flagged, 0);
   if (group) return endMultiplayerGame(out, 'draw', 'timeout');
-  if (
-    !rules
-      .forPosition(game.fen)
-      .canWin(game.fen, flagged === 'white' ? 'black' : 'white')
-  )
+  if (!turns.canWin(game.fen, flagged === 'white' ? 'black' : 'white'))
     return endMultiplayerGame(out, 'draw', 'timeout vs insufficient material');
   return endMultiplayerGame(
     out,

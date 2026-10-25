@@ -17,7 +17,13 @@ import {
   current,
   inSpace,
 } from './custom-game-set-up-world';
-import { gameOf, hostOf, positionAfter, setupCustomGame } from './game-world';
+import {
+  gameOf,
+  hostOf,
+  positionAfter,
+  setupCustomGame,
+  turnGameOf,
+} from './game-world';
 
 const SECOND_MS = 1000;
 const OFFLINE_MOVES = 'custom-game-offline-moves';
@@ -70,7 +76,7 @@ Then('the custom game is unrated', async (w) => {
 });
 Then("the custom game keeps her move and the bot's reply", async (w) => {
   const kept = w.memo.get(OFFLINE_MOVES) as CustomGame['moves'];
-  const rules = gameOf(w).shared.turnGame.rules;
+  const rules = turnGameOf(w).shared.turnGame.rules;
   if (kept.length === 0) {
     // Her waiting move was played once sent, and the bot replied.
     const seen = await w.s.until((s) => customGameView(s, hostOf(w)), {
@@ -85,7 +91,9 @@ Then("the custom game keeps her move and the bot's reply", async (w) => {
   const game = await current(w);
   expect(game.moves).toHaveLength(2);
   // Her move is the first the game's rules allow from its start.
-  expect(game.moves[0]?.uci).toBe(firstLegalMove(gameOf(w), rules.initial()));
+  expect(game.moves[0]?.uci).toBe(
+    firstLegalMove(turnGameOf(w), rules.initial())
+  );
   expect(game.moves).toEqual(kept);
 });
 Then(
@@ -97,7 +105,7 @@ Then(
       maxMs: seconds * SECOND_MS,
     });
     const moves = seen.current?.moves.map((move) => move.uci) ?? [];
-    const rules = gameOf(w).shared.turnGame.rules;
+    const rules = turnGameOf(w).shared.turnGame.rules;
     expect(
       rules.play(
         positionAfter(w, moves, ply),

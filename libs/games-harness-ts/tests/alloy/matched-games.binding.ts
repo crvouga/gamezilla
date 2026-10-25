@@ -4,8 +4,16 @@ import {
   pairGameOpponents,
 } from '@libs/game-matchmaking-harness-ts/multiplayer-fixtures';
 import { storedMultiplayerSnapshot } from '@libs/game-matchmaking-harness-ts/multiplayer-reads';
-import { givenGameSpace } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
+import {
+  givenGameSpace,
+  openFindingAnOpponent,
+} from '@libs/game-matchmaking-harness-ts/opponent-seeking';
+import {
+  matchRoomGame,
+  matchRoomTopic,
+} from '@libs/game-matchmaking-shared-ts/match-room';
 import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import type { OpenHarness } from '@libs/harness-ts/open-harness';
 import { bindStructure } from '@pkgs/alloy-shared-ts/registry';
@@ -34,11 +42,47 @@ async function latest(s: OpenHarness) {
 }
 
 /** The stored worlds one game's matched games pass through, each labelled for it. */
+async function beginGame(
+  s: OpenHarness,
+  game: HarnessGame,
+  gameId: string
+): Promise<void> {
+  if (!isTurnHarnessGame(game)) {
+    for (const actor of ['alice', 'bob'])
+      await s.apply(openFindingAnOpponent, actor, game.shared.id);
+    // Wait for the game's own lifecycle, without assuming any countdown length.
+    await s.until(
+      async (world) => {
+        const state = await world.harness.roomNode.services.read(
+          matchRoomTopic(gameId)
+        );
+        return (
+          state !== null && matchRoomGame(state)?.execution?.started === true
+        );
+      },
+      { pred: (begun) => begun, maxMs: 10_000 }
+    );
+    return;
+  }
+  const [firstMove, secondMove] = game.fixtures.firstSideVictory;
+  for (const [actor, uci, revision] of [
+    ['alice', firstMove, 0],
+    ['bob', secondMove, 1],
+  ] as const)
+    await gameCommand(s, actor, 'playMultiplayerMove', {
+      gameId,
+      revision,
+      uci,
+    });
+  if ((await latest(s)).revision !== 2)
+    throw new Error(`${game.label}: the first moves were not accepted`);
+}
+
 async function matchedGameWorlds(game: HarnessGame): Promise<Snapshot[]> {
-  const matchmaking = game.shared.turnGame.capabilities.matchmaking;
+  const matchmaking = game.shared.registration.capabilities.matchmaking;
   if (matchmaking === undefined)
     throw new Error(`${game.label} offers no finding an opponent`);
-  const clock = (choice: string) => `${matchmaking.clockNamespace}${choice}`;
+  const clock = (choice: string) => `${matchmaking.namespace}${choice}`;
   await using s = await openConformanceHarness(
     `legal-matched-worlds-${game.shared.id}`
   );
@@ -60,19 +104,8 @@ async function matchedGameWorlds(game: HarnessGame): Promise<Snapshot[]> {
   await s.apply(pairGameOpponents, 'alice', true);
   await keep('one complete matched game');
   const first = await latest(s);
-  const [firstMove, secondMove] = game.fixtures.firstSideVictory;
-  for (const [actor, uci, revision] of [
-    ['alice', firstMove, 0],
-    ['bob', secondMove, 1],
-  ] as const)
-    await gameCommand(s, actor, 'playMultiplayerMove', {
-      gameId: first.id,
-      revision,
-      uci,
-    });
-  if ((await latest(s)).revision !== 2)
-    throw new Error(`${game.label}: the first moves were not accepted`);
-  await keep('both first moves accepted');
+  await beginGame(s, game, first.id);
+  await keep('the matched game is under way');
   await gameCommand(s, 'bob', 'resignMultiplayer', { gameId: first.id });
   if ((await latest(s)).outcome !== 'white')
     throw new Error(`${game.label}: the resignation was not accepted`);

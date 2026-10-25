@@ -17,12 +17,15 @@
     "@pkgs/observability-root-shared-ts": "workspace:*",
     "@pkgs/room-adapter-durable-object-server-ts": "workspace:*",
     "@pkgs/room-adapter-durable-object-shared-ts": "workspace:*",
+    "@pkgs/room-adapter-memory-shared-ts": "workspace:*",
+    "@pkgs/property-shared-ts": "workspace:*",
     "@pkgs/room-root-harness-ts": "workspace:*",
     "@pkgs/room-root-server-ts": "workspace:*",
     "@pkgs/room-root-shared-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "fast-check": "catalog:"
   },
   "category": "harness",
   "language": "typescript"

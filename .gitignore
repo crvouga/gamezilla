@@ -148,6 +148,7 @@ pkgs/sounds-shared-ts/src/sound-id.ts
 pkgs/sounds-shared-ts/src/sound-urls.ts
 pkgs/sounds-shared-ts/src/sound-volumes.ts
 libs/app-root-shared-ts/locales/*/messages.ts
+apps/product-ts/scripts/ui-quality/sources.json
 
 # Graphify: the knowledge graph, and the project skill the pinned release
 # writes (`bun run graphify:install`)

@@ -20,6 +20,11 @@ export type RoomClientPersist = {
   readonly queueChanged: () => void;
   /** Resolves once every write scheduled so far has completed (tests / flush). */
   readonly flush: () => Promise<void>;
+  /** Other bounded storage operations share the queue/log serial chain. */
+  readonly run: <T>(
+    work: () => Promise<T>,
+    kind: 'read' | 'write'
+  ) => Promise<T>;
 };
 
 function toError(err: unknown): Error {
@@ -38,6 +43,7 @@ export function createRoomClientPersist(args: {
   let appendPending: LogEntry[] = [];
   let queueDirty = false;
   let failure: Error | null = null;
+  let writeFailure: Error | null = null;
 
   const run = async (): Promise<void> => {
     scheduled = false;
@@ -51,6 +57,7 @@ export function createRoomClientPersist(args: {
     if (batch.length > 0) await storage.appendCommitted(batch);
     if (doQueue) await storage.saveQueued(args.readQueue().slice());
     failure = null;
+    writeFailure = null;
   };
 
   const schedule = (): void => {
@@ -58,8 +65,31 @@ export function createRoomClientPersist(args: {
     scheduled = true;
     chain = chain.then(run).catch((err: unknown) => {
       failure = toError(err);
+      writeFailure = failure;
       args.onError(failure);
     });
+  };
+
+  const serialize = <T>(
+    work: () => Promise<T>,
+    kind: 'read' | 'write'
+  ): Promise<T> => {
+    const result = chain.then(() => {
+      if (kind === 'write' && writeFailure !== null) throw writeFailure;
+      return work();
+    });
+    chain = result.then(
+      () => {
+        failure = writeFailure;
+      },
+      (err: unknown) => {
+        const error = toError(err);
+        if (error !== failure) args.onError(error);
+        failure = error;
+        if (kind === 'write') writeFailure = error;
+      }
+    );
+    return result;
   };
 
   return {
@@ -77,8 +107,13 @@ export function createRoomClientPersist(args: {
       schedule();
     },
     flush: async () => {
-      await chain;
+      let observed: Promise<void>;
+      do {
+        observed = chain;
+        await observed;
+      } while (observed !== chain);
       if (failure !== null) throw failure;
     },
+    run: serialize,
   };
 }

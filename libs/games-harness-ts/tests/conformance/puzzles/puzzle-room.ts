@@ -10,7 +10,7 @@ import { StartPuzzlePlay } from '@libs/game-puzzle-shared-ts/play-messages';
 import { PUZZLE_SESSIONS } from '@libs/game-puzzle-shared-ts/puzzle-sessions';
 import type { PuzzleGame } from '@libs/game-puzzle-shared-ts/puzzle-setup';
 import { rulesTrail } from '@libs/game-session-harness-ts/game-puzzle-laws';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import type { PuzzleFixture } from '@libs/game-session-harness-ts/known-puzzles';
 import type { GameCommandContext } from '@libs/spaces-shared-ts/game';
 import { mergeGameRouterEntries } from '@libs/spaces-shared-ts/game';
@@ -27,7 +27,7 @@ import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { CONFORMANCE_GAMES } from '../../conformance-world';
 
 const session = PUZZLE_SESSIONS.bind(
-  createTurnGames(CONFORMANCE_GAMES.map((game) => game.shared.turnGame))
+  createTurnGames(CONFORMANCE_GAMES.map((game) => game.shared.registration))
 );
 
 const commands = createComposedMessageRouter<
@@ -134,9 +134,9 @@ export function started(fixture: PuzzleFixture, identity = HOST): RoomState {
 }
 
 /** `game`'s known puzzles, its rules and puzzles capability, and its positions. */
-export function puzzleCase(game: HarnessGame) {
+export function puzzleCase(game: TurnHarnessGame) {
   const known = game.fixtures.puzzles;
-  const puzzles = game.shared.turnGame.capabilities.puzzles;
+  const puzzles = game.shared.registration.capabilities.puzzles;
   if (known === undefined || puzzles === undefined)
     throw new Error(`${game.label} offers no puzzles`);
   const rules = game.shared.turnGame.rules;

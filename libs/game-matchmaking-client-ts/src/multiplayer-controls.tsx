@@ -86,6 +86,7 @@ export function MultiplayerControls(props: {
         {(game) => (
           <MultiplayerGameActions
             game={game()}
+            execution={props.data.execution()}
             myId={props.data.myId()}
             controls={props.controls}
             looking={looking()}

@@ -11,8 +11,8 @@ import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
 import { readCustomGameProbe } from './custom-game-probe';
 import { customGameReference, sendCustomGameChoice } from './custom-game-ui';
-import type { HarnessGame } from './harness-game';
-import { harnessGameAt } from './harness-game-of';
+import type { TurnHarnessGame } from './harness-game';
+import { turnHarnessGameAt } from './harness-game-of';
 import { keepOwnPrivateSetup } from './own-private-setups';
 
 /** The setup board of the Custom Game screen. */
@@ -23,7 +23,7 @@ export const CUSTOM_GAME_SETUP_BOARD = 'custom-game-setup';
  * `others`: the setup a person changes theirs to.
  */
 export function anotherCompleteSetup(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   others: readonly (string | null)[]
 ): string {
   const setup = game.shared.turnGame.rules.setup;
@@ -39,7 +39,7 @@ async function screenOf(s: ProductHarness, actor: string) {
   const probe = await readCustomGameProbe(s, actor);
   if (probe?.current == null)
     throw new Error(`${actor} sees no custom game to set up`);
-  return { probe, game: harnessGameAt(s, probe.current.fen) };
+  return { probe, game: turnHarnessGameAt(s, probe.current.fen) };
 }
 
 /**
@@ -73,7 +73,7 @@ export const arrangeCustomGamePrivateSetup = scenarioAction({
     keepOwnPrivateSetup(s, actor);
     if (setup === null) return;
     const { game } = await screenOf(s, actor);
-    const arrange = game.shared.automation.arrange;
+    const arrange = game.shared.automation.turns.arrange;
     if (arrange === undefined)
       throw new Error(`${game.label} has no setup board gesture`);
     await bringToFront(s, actor);
@@ -92,7 +92,7 @@ export const changeCustomGamePrivateSetup = scenarioAction({
     keepOwnPrivateSetup(s, actor);
     if (await boardTakesSetup(s, actor)) {
       const { game } = await screenOf(s, actor);
-      const arrange = game.shared.automation.arrange;
+      const arrange = game.shared.automation.turns.arrange;
       if (arrange === undefined)
         throw new Error(`${game.label} has no setup board gesture`);
       await bringToFront(s, actor);

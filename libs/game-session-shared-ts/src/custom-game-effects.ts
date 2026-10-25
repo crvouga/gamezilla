@@ -40,6 +40,7 @@ function schedules(
     CancelScheduleEffect({ id: CLOCK_SCHEDULE }),
   ];
   if (game?.status !== 'active' || game.turnStartedAt === null) return effects;
+  if (rules.turnsForPosition(game.fen) === undefined) return effects;
   const wake = { gameId: game.id, ply: game.moves.length, side: game.turn };
   const solo = soloCustomGame(game, rules);
   if (game.minutes > 0 && solo === local)

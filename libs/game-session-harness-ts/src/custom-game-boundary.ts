@@ -73,6 +73,7 @@ export const attemptCustomGameBoundary = scenarioAction({
           payload: ChangeCustomGame(args.choice),
           commandId: env.createId(),
           nowMs: s.harness.clock.now(),
+          clock: env.clock,
           timers: env.timers,
         });
         const reason =
@@ -91,6 +92,7 @@ export const attemptCustomGameBoundary = scenarioAction({
         installId,
         clientId: env.createId(),
         apiUrl: '',
+        clock: env.clock,
         timers: env.timers,
         random: env.random,
         getSessionToken: () => null,

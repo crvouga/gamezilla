@@ -15,6 +15,7 @@
     "test": "bun test tests"
   },
   "dependencies": {
+    "@libs/auth-shared-ts": "workspace:*",
     "@libs/friends-shared-ts": "workspace:*",
     "@libs/notifications-shared-ts": "workspace:*",
     "@libs/observability-shared-ts": "workspace:*",

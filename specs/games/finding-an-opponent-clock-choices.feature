@@ -28,6 +28,7 @@ Feature: Choose a clock choice when finding an opponent
       When they are paired
       Then Alice and Bob receive the same new game on opposite sides
       And both people see their matched game is played at 5+0
+      And the first side has the first turn
 
     Scenario: A 5+0 search is never paired with a 3+2 search
       Given Alice is seeking an opponent for the game at 5+0
@@ -59,3 +60,26 @@ Feature: Choose a clock choice when finding an opponent
       When Alice finds a new opponent
       Then Alice is told to finish her matched game first
       And Alice keeps her matched game with Bob
+
+  Rule: A person waiting for an opponent sees their clock choice and how long they have been waiting
+    No counter-example: every search shows its clock choice and how long it has run, so there is nothing to refuse.
+
+    Scenario: A search shows its clock choice and how long it has run
+      Given Alice is seeking an opponent for the game at 5+0
+      When 40 seconds pass
+      Then Alice sees she has been waiting for an opponent at 5+0 for 40 seconds
+
+  Rule: A paired person sees their opponent's username and rating, the clock choice and their side
+
+    Scenario: Each paired person sees who they play, how fast and on which side
+      Given Bob has a blitz rating of 1620
+      And Alice and Bob are seeking an opponent for the game at 3+2
+      When they are paired
+      Then Alice sees Bob as her opponent at 3+2, with a blitz rating of "1620" and her side
+      And Bob sees Alice as his opponent at 3+2, with a blitz rating of "1500?" and his side
+
+    Scenario: A person still waiting is shown no opponent
+      Given Alice is the only person seeking an opponent for the game at 3+2
+      When people are paired up
+      Then Alice is still waiting for an opponent at 3+2
+      And Alice is not shown an opponent

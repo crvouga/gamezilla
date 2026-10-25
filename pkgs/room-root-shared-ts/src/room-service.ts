@@ -1,11 +1,20 @@
 import type { Message } from '@pkgs/message-shared-ts/message';
-import type { RoomState } from './types';
+import type { RoomError, RoomState } from './types';
+
+/** Accepted retries return current state; refused retries retain their original error. */
+export type RoomServiceReceipt =
+  | { readonly ok: true; readonly state: RoomState }
+  | { readonly ok: false; readonly error: RoomError };
 
 /** An injected service binding to authoritative rooms, never a client API. */
 export type RoomServicePort = {
   read(topic: string): Promise<RoomState>;
   setAvailability(topic: string, available: boolean): Promise<void>;
-  send(topic: string, commandId: string, payload: Message): Promise<void>;
+  send(
+    topic: string,
+    commandId: string,
+    payload: Message
+  ): Promise<RoomServiceReceipt>;
   disconnect(topic: string, identity: string | null): Promise<void>;
   eraseIdentity(
     topic: string,

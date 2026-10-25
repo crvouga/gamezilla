@@ -60,7 +60,10 @@ Then(
     const before = recallContinuity(w);
     const after = await w.s.read(syntheticGameShown);
     expect(after.board.gameId).toBe(before.board.gameId);
-    expect(after.board.announcement).toBe(before.board.announcement);
-    expect(after.board.outcome).not.toBe('ongoing');
+    // regression: pong-synthetic-finished-result-reopening
+    expect(['white', 'black', 'draw']).toContain(before.board.outcome ?? '');
+    expect(after.board.outcome).toBe(before.board.outcome);
+    expect(after.board.reason).toBe(before.board.reason);
+    expect(after.board.position).toBe(before.board.position);
   }
 );

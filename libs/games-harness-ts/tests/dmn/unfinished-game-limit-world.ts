@@ -47,7 +47,7 @@ export function limitRooms(game: HarnessGame) {
           ...newCustomGame(
             `custom-game-of-${host}`,
             host,
-            game.shared.turnGame.rules.initial()
+            game.shared.registration.rules.initial()
           ),
           status: 'active',
           white: { kind: 'person', person: host },
@@ -78,7 +78,7 @@ export function seedUnfinishedGames(game: HarnessGame) {
       await c.db.run(sql`INSERT INTO chess_multiplayer_games
         (id, match_id, white_id, black_id, fen, pgn, revision, turn, outcome, reason, created_at, updated_at, deleted_at)
         VALUES (${`earlier-${n}`}, ${`match-${n}`}, ${c.env.actorId}, ${`opponent-${n}`},
-          ${game.shared.turnGame.rules.initial()}, ${''}, ${0}, ${c.env.actorId},
+          ${game.shared.registration.rules.initial()}, ${''}, ${0}, ${c.env.actorId},
           ${'ongoing'}, ${null}, ${stamp}, ${stamp}, ${null})`);
   };
 }

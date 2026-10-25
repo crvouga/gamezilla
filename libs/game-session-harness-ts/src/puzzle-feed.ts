@@ -9,8 +9,8 @@
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import type { HarnessGame } from './harness-game';
-import { harnessGameOf } from './harness-game-of';
+import type { TurnHarnessGame } from './harness-game';
+import { turnHarnessGameOf } from './harness-game-of';
 import {
   isEmptyFeedShown,
   pressEmptyFeedAction,
@@ -31,7 +31,7 @@ function stripProbe(text: string | null | undefined): string {
 }
 
 /** How `game` names `theme` to a person. */
-export function feedThemeLabel(game: HarnessGame, theme: string): string {
+export function feedThemeLabel(game: TurnHarnessGame, theme: string): string {
   const themes = game.client.puzzles?.themes;
   if (themes === undefined)
     throw new Error(`${game.label} offers no puzzle themes`);
@@ -39,7 +39,7 @@ export function feedThemeLabel(game: HarnessGame, theme: string): string {
 }
 
 /** Every theme `game` lets a feed be limited to. */
-export function feedThemesOf(game: HarnessGame): readonly string[] {
+export function feedThemesOf(game: TurnHarnessGame): readonly string[] {
   return game.client.puzzles?.themes?.choices ?? [];
 }
 
@@ -176,7 +176,7 @@ async function pickFeedTheme(
   await ui.get(Handles.chessPuzzleFeedThemeSearch).clear();
   await ui
     .get(Handles.chessPuzzleFeedThemeSearch)
-    .input(feedThemeLabel(harnessGameOf(s, pick.gameId), pick.theme));
+    .input(feedThemeLabel(turnHarnessGameOf(s, pick.gameId), pick.theme));
   if ((await isThemeChosen(s, actorId, pick.theme)) !== pick.chosen)
     await ui
       .get(Handles.chessPuzzleFeedThemeOption(pick.theme))
@@ -338,7 +338,7 @@ export async function isFeedLimitedToTheme(
   const raw = stripProbe(
     await ui.get(Handles.chessPuzzleFeedThemesLabel).text()
   );
-  return raw === feedThemeLabel(harnessGameOf(s, gameId), theme);
+  return raw === feedThemeLabel(turnHarnessGameOf(s, gameId), theme);
 }
 
 /**

@@ -49,6 +49,7 @@ function MultiplayerStage(props: ScreenProps): JSX.Element {
           <MultiplayerBoard
             ownSetup={setup.own()}
             game={game()}
+            room={props.data.room()}
             myId={props.data.myId()}
             connected={sync.status().online}
             moving={props.controls.moving()}

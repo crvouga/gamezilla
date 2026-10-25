@@ -101,7 +101,7 @@ The longest shared-game part took 213 seconds. Device agreement fell from 267 to
 The generated sizing model totals 17,071 task-seconds, including 9,493 spec-seconds, using the harvested timings, retained history and family estimates. The five-minute, three-minute leaf and ninety-second percentile targets, the 16-worker cap, and each machine's 32 vCPU / 64 GB shape stay fixed. This is a sizing forecast; the hosted run remains the evidence of actual execution. The proposed pool changes no deployed infrastructure.
 
 <!-- ci-load:start -->
-Unmeasured scripts follow `estimateTask`: the family median when that family has a sample, otherwise 60 seconds. 555 cost keys name tasks outside the current graph and stay out of the cold total. The unit-test median is one second, the recorder floor. A family with no sample, such as an unmeasured `verify:board-contract`, reserves 60 seconds until a cold Verification is harvested.
+Unmeasured scripts follow `estimateTask`: the family median when that family has a sample, otherwise 60 seconds. 572 cost keys name tasks outside the current graph and stay out of the cold total. The unit-test median is one second, the recorder floor. A family with no sample, such as an unmeasured `verify:board-contract`, reserves 60 seconds until a cold Verification is harvested.
 
 | | |
 | --- | --- |
@@ -164,8 +164,8 @@ Slot allocation target 240 s. Warm start 30 s. Verdict slack 15 s. Spec workers 
 | --- | --- |
 | Runners per verification | 3 |
 | Spec slots per runner | 15 |
-| Other slots per runner | 12 |
-| Cores required per runner | 29 |
+| Other slots per runner | 11 |
+| Cores required per runner | 28 |
 | Memory required per runner | 38 GiB |
 | Estimated makespan | 230 s |
 | Provision | 6 × 32 vCPU, 64 GB, Linux x64 |

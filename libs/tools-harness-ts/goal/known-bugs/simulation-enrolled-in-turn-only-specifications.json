@@ -1,0 +1,4 @@
+{
+  "summary": "The shared conformance table enrolled real Pong in game-turns, winning-move results, 5+0 accessibility and daily-clock contracts, causing missing-turn errors and invented pong/5+0 or pong/3d choices. Select the existing genuine turn and clock-choice traits while retaining common and continuous obligations.",
+  "regressionTest": "libs/games-harness-ts/tests/simulation-specification-needs.test.ts"
+}

@@ -47,7 +47,11 @@ test('restoring a room immediately preserves its full pre-choice member history'
   try {
     // The immediate call starts the empty load before installing these rows.
     // Its last-sequence await must finish before replacement can hydrate them.
-    await node.replaceTopic('space:paired', { entries, dedup: {} });
+    await node.replaceTopic('space:paired', {
+      liveCheckpoint: null,
+      entries,
+      dedup: {},
+    });
     const state = await node.services.read('space:paired');
     expect(node.exportTopic('space:paired')?.entries).toEqual(entries);
     expect(Object.keys(SpaceMembersRoomAttr.seats.from(state))).toEqual([

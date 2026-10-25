@@ -1,8 +1,8 @@
 import { expect, test } from 'bun:test';
-import { isTurnGameDefinition } from '@libs/game-session-shared-ts/turn-game-definition';
+import { isGameRegistration } from '@libs/game-session-shared-ts/game-definition';
 import {
   GAME_DEFINITIONS,
-  TURN_GAME_DEFINITIONS,
+  PLAYABLE_GAME_DEFINITIONS,
 } from '@libs/games-shared-ts/game-plugins';
 
 test('the product registers Numberlink with puzzle capabilities and no turn engine', () => {
@@ -10,13 +10,16 @@ test('the product registers Numberlink with puzzle capabilities and no turn engi
   expect(numberlink).toBeDefined();
   expect(numberlink?.puzzleContent).toBeDefined();
   expect(numberlink?.turnGame).toBeUndefined();
-  expect(isTurnGameDefinition(numberlink)).toBe(false);
-  expect(TURN_GAME_DEFINITIONS.map((game) => game.id)).toEqual(
-    GAME_DEFINITIONS.filter(isTurnGameDefinition).map((game) => game.id)
+  expect(isGameRegistration(numberlink)).toBe(false);
+  expect(PLAYABLE_GAME_DEFINITIONS.map((game) => game.id)).toEqual(
+    GAME_DEFINITIONS.filter(isGameRegistration).map((game) => game.id)
   );
-  expect(TURN_GAME_DEFINITIONS.map((game) => game.id)).toEqual([
+  expect(PLAYABLE_GAME_DEFINITIONS.map((game) => game.id)).toEqual([
     'chess',
     'connect-four',
     'battleship',
+    'quoridor',
+    'quoridor-hill',
+    'pong',
   ]);
 });

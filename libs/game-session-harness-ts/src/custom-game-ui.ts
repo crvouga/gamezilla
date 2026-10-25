@@ -36,7 +36,7 @@ async function awaitOnlineSpace(
   // spend time on the clocks of everyone still playing.
   if (partitioned(s).some((pair) => pair.split('|').includes(actor))) return;
   if (
-    harnessGameAt(s, probe.current.fen).shared.turnGame.rules.setup ===
+    harnessGameAt(s, probe.current.fen).shared.registration.rules.setup ===
     undefined
   )
     return;

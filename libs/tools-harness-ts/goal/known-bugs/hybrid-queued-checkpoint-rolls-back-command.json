@@ -1,0 +1,4 @@
+{
+  "summary": "An authority checkpoint queued before a discrete turn could roll that turn back even though the checkpoint shared its tick and input generation.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-hybrid.contract.test.ts"
+}

@@ -76,7 +76,9 @@ export const finishCustomGameAgainstBots = scenarioAction({
       if (current.status !== 'active') return;
       if (current.turn === probe.mySide) {
         const game = harnessGameAt(s, current.fen);
-        const action = game.shared.automation.choose(current.fen, () => 0);
+        const turns = game.shared.automation?.turns;
+        if (turns === undefined) throw new Error('A bot turn needs turn rules');
+        const action = turns.choose(current.fen, () => 0);
         if (action === null) throw new Error('Active game offers no action');
         await Promise.resolve(
           makeCustomGameMove.act(s, observer, game.shared.id, action)

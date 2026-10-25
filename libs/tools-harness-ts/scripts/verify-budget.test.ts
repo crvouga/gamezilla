@@ -89,19 +89,19 @@ describe('taskBudgetSeconds', () => {
     const withinAllowance = Array.from({ length: 16 }, () => 419);
     const summary = {
       tasks: withinAllowance.map((seconds, index) =>
-        task(`@libs/games-harness-ts#verify:models:9:${index}`, seconds)
+        task(`@libs/games-harness-ts#verify:models:10:${index}`, seconds)
       ),
     };
     expect(findBudgetOverruns(summary, false, {})).toEqual([]);
     expect(
       findBudgetOverruns(
-        { tasks: [task('@libs/games-harness-ts#verify:models:9:2', 421)] },
+        { tasks: [task('@libs/games-harness-ts#verify:models:10:2', 421)] },
         false,
         {}
       )
     ).toEqual([
       {
-        taskId: '@libs/games-harness-ts#verify:models:9:2',
+        taskId: '@libs/games-harness-ts#verify:models:10:2',
         seconds: 421,
         budgetSeconds: 420,
       },

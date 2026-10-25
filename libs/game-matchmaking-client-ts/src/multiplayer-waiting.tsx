@@ -1,3 +1,4 @@
+import { timeControlOf } from '@libs/game-matchmaking-shared-ts/time-control';
 import { Trans } from '@lingui/solid/macro';
 import { createTimedValue } from '@pkgs/clock-client-ts/solid';
 import {
@@ -19,22 +20,38 @@ function WaitingDescription(props: {
   readonly count: number;
   readonly gameName: string;
 }): JSX.Element {
+  const timed = () => timeControlOf(props.search.time_control) !== null;
   return (
     <P variant="inherit" testId="multiplayer-waiting">
       <Show
         when={props.count > 2}
         fallback={
-          <Trans>
-            Looking for a {timeControlText(props.search.time_control)}{' '}
-            {props.gameName} opponent.
-          </Trans>
+          <Show
+            when={timed()}
+            fallback={<Trans>Looking for a {props.gameName} opponent.</Trans>}
+          >
+            <Trans>
+              Looking for a {timeControlText(props.search.time_control)}{' '}
+              {props.gameName} opponent.
+            </Trans>
+          </Show>
         }
       >
-        <Trans>
-          Looking for {props.count - 1} other players for {props.gameName} at{' '}
-          {timeControlText(props.search.time_control)}. A game needs{' '}
-          {props.count} players including you.
-        </Trans>
+        <Show
+          when={timed()}
+          fallback={
+            <Trans>
+              Looking for {props.count - 1} other players for {props.gameName}.
+              A game needs {props.count} players including you.
+            </Trans>
+          }
+        >
+          <Trans>
+            Looking for {props.count - 1} other players for {props.gameName} at{' '}
+            {timeControlText(props.search.time_control)}. A game needs{' '}
+            {props.count} players including you.
+          </Trans>
+        </Show>
       </Show>
     </P>
   );

@@ -98,6 +98,17 @@ export type SyncActor = {
   readonly authenticatedAtMs?: number;
 };
 
+/** An injected host service has an explicit identity and owns no person's account. */
+export function serviceSyncActor(serviceId: string): SyncActor {
+  if (serviceId.length === 0) throw new Error('service identity is required');
+  return {
+    actorId: serviceId,
+    deviceId: serviceId,
+    accountId: null,
+    isAnon: true,
+  };
+}
+
 export function syncActorOf(auth: AppAuth): SyncActor {
   return {
     ...(auth.synthetic === undefined ? {} : { synthetic: auth.synthetic }),

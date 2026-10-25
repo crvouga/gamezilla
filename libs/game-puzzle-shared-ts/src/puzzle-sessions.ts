@@ -20,15 +20,18 @@ export function puzzleGamesOf(games: TurnGames): PuzzleGameLookup {
   return (position) => {
     if (!games.games.some((game) => game.rules.recognizes(position)))
       return null;
-    const rules = games.forPosition(position);
-    const puzzles = games.capability(rules.id, 'puzzles');
-    return puzzles === undefined ? 'unoffered' : { rules, puzzles };
+    const positionRules = games.forPosition(position);
+    const rules = games.turnsForPosition(position);
+    const puzzles = games.capability(positionRules.id, 'puzzles');
+    return puzzles === undefined || rules === undefined
+      ? 'unoffered'
+      : { rules, puzzles };
   };
 }
 
 /**
  * The space's puzzle session, installed once in every space whose games
- * offer puzzles (`defineTurnGame` declares it for a game with
+ * offer puzzles (`defineGame` declares it for a game with
  * `capabilities.puzzles`): one host solves a puzzle of any such game while
  * the space watches and suggests, and the puzzle the space reviews from its
  * stats. Its room state and messages keep their durable names

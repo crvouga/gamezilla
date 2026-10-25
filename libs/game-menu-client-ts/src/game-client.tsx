@@ -1,9 +1,11 @@
 import type { GamePuzzlesClient } from '@libs/game-puzzle-client-ts/puzzle-client';
 import type { PuzzleContentClient } from '@libs/game-puzzle-client-ts/puzzle-content-client';
 import { PuzzleSessionEffects } from '@libs/game-puzzle-client-ts/puzzle-frame';
-import type { GameRegistration } from '@libs/game-session-shared-ts/game-definition';
+import type {
+  AnyGameRegistration,
+  GameRegistration,
+} from '@libs/game-session-shared-ts/game-definition';
 import { assertGameDefinitions } from '@libs/game-session-shared-ts/game-definition';
-import type { TurnGameDefinition } from '@libs/game-session-shared-ts/turn-game-definition';
 import type { GameClientDefinition } from '@libs/spaces-shared-ts/game';
 import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { JSX } from 'solid-js';
@@ -45,16 +47,16 @@ export type GameClientPuzzles<C> = 'puzzles' extends keyof C
  * registration declares (`shared`), and a capability whose screens show
  * the game's own board asks for that part here (`puzzles`).
  */
-export type GameClientContent<G extends GameRegistration> =
+export type GameClientContent<G extends AnyGameRegistration> =
   NonNullable<G['puzzleContent']> extends never
     ? { readonly puzzleContent?: never }
     : undefined extends G['puzzleContent']
       ? { readonly puzzleContent?: PuzzleContentClient }
       : { readonly puzzleContent: PuzzleContentClient };
 
-export type GameClient<G extends GameRegistration = GameRegistration> =
-  G extends GameRegistration
-    ? GameClientParts & { readonly shared: G } & (G extends TurnGameDefinition<
+export type GameClient<G extends AnyGameRegistration = AnyGameRegistration> =
+  G extends AnyGameRegistration
+    ? GameClientParts & { readonly shared: G } & (G extends GameRegistration<
           infer C
         >
           ? {
@@ -134,10 +136,10 @@ class DefinedGameClient implements GameClientDefinition {
 }
 
 export type GameClientRegistration<
-  G extends GameRegistration = GameRegistration,
+  G extends AnyGameRegistration = AnyGameRegistration,
 > = DefinedGameClient &
   GameClientContent<G> &
-  (G extends TurnGameDefinition
+  (G extends GameRegistration
     ? { readonly presentation: GamePresentation<JSX.Element> }
     : unknown);
 
@@ -147,14 +149,14 @@ export type GameClientRegistration<
  */
 function assertPuzzlesPart(game: GameClient): void {
   const id = game.shared.id;
-  const offered = game.shared.turnGame?.capabilities.puzzles !== undefined;
+  const offered = game.shared.registration?.capabilities.puzzles !== undefined;
   if (offered && game.puzzles === undefined)
     throw new Error(
       `${id}: the game offers puzzles (capabilities.puzzles) but its client has no puzzles part — give defineGameClient puzzles: { Board, … }`
     );
   if (!offered && game.puzzles !== undefined)
     throw new Error(
-      `${id}: the client has a puzzles part but the game offers no puzzles — add capabilities.puzzles to its defineTurnGame, or leave the part out`
+      `${id}: the client has a puzzles part but the game offers no puzzles — add capabilities.puzzles to its defineGame, or leave the part out`
     );
   if (game.puzzles !== undefined && typeof game.puzzles.Board !== 'function')
     throw new Error(
@@ -165,7 +167,7 @@ function assertPuzzlesPart(game: GameClient): void {
 /** A game with private setups shows its own setup board; no other game has one. */
 function assertSetupBoard(game: GameClient): void {
   const id = game.shared.id;
-  const setups = game.shared.turnGame?.rules.setup !== undefined;
+  const setups = game.shared.registration?.rules.setup !== undefined;
   const board = game.presentation?.SetupBoard;
   if (setups && typeof board !== 'function')
     throw new Error(
@@ -178,13 +180,20 @@ function assertSetupBoard(game: GameClient): void {
 }
 
 /** The one way a game joins the space's game choice. */
-export function defineGameClient<G extends GameRegistration>(
+export function defineGameClient<G extends AnyGameRegistration>(
   game: GameClient<G> & { readonly shared: G }
 ): GameClientRegistration<G> {
   assertGameDefinitions('defineGameClient.shared', [game.shared]);
   assertContentPart(game);
   assertPuzzlesPart(game);
   assertSetupBoard(game);
+  if (
+    game.shared.registration?.capabilities.matchmaking?.clockChoices === true &&
+    typeof game.presentation?.timeoutDrawDescription !== 'function'
+  )
+    throw new Error(
+      `${game.shared.id}: clock choices need presentation.timeoutDrawDescription`
+    );
   assertGameScreens(game.shared.id, [
     ...(game.choices ?? []).map((choice) => choice.screen),
     ...(game.screens ?? []).map((screen) => screen.screen),

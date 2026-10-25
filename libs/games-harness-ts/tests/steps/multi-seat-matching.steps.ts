@@ -17,7 +17,7 @@ import {
 import { Given, Then, When } from '@libs/harness-ts/define';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
-import { gameOf } from './game-world';
+import { turnGameOf } from './game-world';
 import { readyPeople, timeControlFor } from './matched-game';
 
 const PEOPLE = ['alice', 'bob', 'carol', 'dave'] as const;
@@ -77,7 +77,7 @@ When('Dave seeks that four-player game at {word}', async (w, clock: string) => {
   await w.s.apply(
     findGameOpponent,
     'dave',
-    gameOf(w).shared.id,
+    turnGameOf(w).shared.id,
     timeControlFor(w, clock)
   );
 });
@@ -158,7 +158,7 @@ Then(
 Then('each person has the next side in the declared turn order', async (w) => {
   const before = finishedMatch(w);
   const game = await matchedGameOf(w);
-  const sides = gameSides(gameOf(w).shared.turnGame.rules);
+  const sides = gameSides(turnGameOf(w).shared.turnGame.rules);
   for (const [index, side] of sides.entries()) {
     const nextSide = sides[(index + 1) % sides.length]!;
     expect(multiplayerOwner(game, nextSide)).toBe(

@@ -11,7 +11,7 @@ import type {
   PuzzleBoardMarks,
   PuzzleBoardProps,
 } from '@libs/game-puzzle-client-ts/puzzle-client';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import {
@@ -36,7 +36,7 @@ export type MountedBoardProps = Partial<PuzzleBoardProps> & {
 
 /** A driver over `game`'s puzzle board, reporting its moves to `played`. */
 export function puzzleBoardDriver(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   props: MountedBoardProps,
   played: string[]
 ): SolidDomDriver {

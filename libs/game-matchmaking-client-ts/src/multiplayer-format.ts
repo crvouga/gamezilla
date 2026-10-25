@@ -70,7 +70,8 @@ export function multiplayerMoves(
 ): readonly MultiplayerMove[] {
   const gameRules = rules.forPosition(game.fen);
   const seats = gameSides(gameRules).length;
-  return gameRules.moves(game.fen, game.pgn, []).map((move, index) => {
+  const turns = rules.turnsForPosition(game.fen);
+  return (turns?.moves(game.fen, game.pgn, []) ?? []).map((move, index) => {
     const round = Math.floor(index / seats) + 1;
     const seat = index % seats;
     const ordinal =

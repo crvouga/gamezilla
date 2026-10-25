@@ -3,7 +3,7 @@ Feature: Abort a matched game before it begins
   When a matched game has not really begun, people want to abort it with no
   result, so nobody loses a game that never began.
 
-  Rule: Either person may abort the matched game until both people have made their first move
+  Rule: In a game with turns, either person may abort the matched game until both people have made their first move
 
     Scenario: The second side aborts before either first move
       Given Alice has the first side against Bob in a new matched game
@@ -27,7 +27,7 @@ Feature: Abort a matched game before it begins
       Then Alice is told the matched game is over
       And both people see Alice won the matched game
 
-  Rule: Resigning is refused until both people have made their first move, and the person is told to abort instead
+  Rule: In a game with turns, resigning is refused until both people have made their first move, and the person is told to abort instead
 
     Scenario: The second side cannot resign before either first move
       Given Alice has the first side against Bob in a new matched game
@@ -46,7 +46,7 @@ Feature: Abort a matched game before it begins
       When Bob resigns the matched game
       Then both people see Alice won the matched game
 
-  Rule: Missing the first move aborts the matched game
+  Rule: In a game with turns, missing the first move aborts the matched game
 
     Scenario: The first side misses the first move after 30 seconds
       Given Alice has the first side against Bob in a new matched game

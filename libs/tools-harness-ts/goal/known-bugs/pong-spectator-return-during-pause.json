@@ -1,0 +1,4 @@
+{
+  "summary": "Carol returned while Bob was offline and the match was paused. The room became ready before query transport reported her online; no snapshot request followed that change, leaving her old court indefinitely. Refresh the replica when the device returns online as well as when its room becomes ready.",
+  "regressionTest": "libs/pong-harness-ts/tests/quint/pong-shared-control.binding.ts"
+}

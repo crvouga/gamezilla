@@ -12,15 +12,22 @@ type Backend = Awaited<ReturnType<typeof runtimeBackend>>;
 export async function runtimeSession(
   backend: Backend,
   workerId: string,
-  version = 'realm-test'
+  version = 'realm-test',
+  /** The realm offers one game, so fresh fixture peers always meet in it. */
+  realmGame: {
+    readonly policySeed: string;
+    readonly entry:
+      | 'runtime-session-entry.ts'
+      | 'runtime-pong-session-entry.ts';
+  } = { policySeed: 'native-paired-chess-1', entry: 'runtime-session-entry.ts' }
 ) {
+  const { policySeed, entry } = realmGame;
   const response = await backend.rpc.claim.$post({ json: { workerId } });
   const { assignment: stored } = await response.json();
   if (stored === null)
     throw new Error('An application instance was not assigned');
   // regression: synthetic-native-pair-different-games
-  // Fresh fixture peers choose chess with the same seeded policy;
-  // production users retain independent policies, covered by game automation.
+  // Fresh fixture peers share the requested activity; registered users retain their checkpoint.
   const assignment = stored.registered
     ? stored
     : {
@@ -29,13 +36,13 @@ export async function runtimeSession(
           ...reconcileCheckpoint(
             stored.checkpoint,
             backend.wall.clock.now(),
-            'native-paired-chess-1'
+            policySeed
           ),
-          policySeed: 'native-paired-chess-1',
+          policySeed,
         },
       };
   const realm = createIsolatedWorker(
-    new URL('./runtime-session-entry.ts', import.meta.url),
+    new URL(`./${entry}`, import.meta.url),
     ['@pkgs/bun-test-solid-client-ts/register'],
     { VITE_TEST_HOOKS: '0' }
   );

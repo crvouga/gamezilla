@@ -27,6 +27,7 @@ Feature: Synthetic Users recover their current activity
         | game |
         | chess |
         | Connect Four |
+        | Pong |
 
   Rule: Recovery preserves a finished multiplayer result
     No counter-example: reopening never makes a finished game ongoing again.
@@ -34,6 +35,7 @@ Feature: Synthetic Users recover their current activity
     @regression:finished-game-fixture-observes-unsettled-result
     @regression:synthetic-game-fixture-runs-before-position
     @regression:multiplayer-snapshot-one-millisecond-focus
+    @regression:pong-synthetic-finished-result-reopening
     Scenario Outline: A Synthetic User keeps its finished <game> game after reopening
       Given the Synthetic User "Cedar" has a finished "<game>" game
       When the Synthetic User "Cedar" closes and reopens the app
@@ -44,3 +46,4 @@ Feature: Synthetic Users recover their current activity
         | game |
         | chess |
         | Connect Four |
+        | Pong |

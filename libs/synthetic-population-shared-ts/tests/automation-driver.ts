@@ -10,6 +10,7 @@ export function automationDriver(input: {
   attributes?: Map<string, string>;
   texts?: Map<string, string>;
   onTap?: (id: string) => void;
+  onInput?: (id: string, value: string) => void;
 }) {
   const actions: string[] = [];
   const unsupported = async (): Promise<never> => {
@@ -46,7 +47,10 @@ export function automationDriver(input: {
       tapAt: unsupported,
       drag: unsupported,
       layout: unsupported,
-      input: unsupported,
+      input: async (value) => {
+        actions.push(`${id}:${value}`);
+        input.onInput?.(id, value);
+      },
       selectFile: unsupported,
       clear: unsupported,
       scroll: unsupported,

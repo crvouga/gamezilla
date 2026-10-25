@@ -14,6 +14,9 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test tests"
   },
+  "dependencies": {
+    "@pkgs/uuid-shared-ts": "workspace:*"
+  },
   "devDependencies": {
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
@@ -27,7 +30,9 @@
     "game-puzzles",
     "game-rules",
     "puzzle-content",
-    "puzzle-content-catalog"
+    "puzzle-content-catalog",
+    "simulation",
+    "game-simulation"
   ],
   "language": "typescript"
 }

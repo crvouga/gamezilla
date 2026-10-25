@@ -12,7 +12,7 @@ export type LoopbackRoomHost = {
     id: string,
     send: (payload: unknown) => void,
     actor: RoomActor,
-    options?: { readonly silent?: boolean }
+    options?: { readonly silent?: boolean; readonly grants?: readonly string[] }
   ): void;
   unregisterConnection(id: string): void;
   handleClientMessage(
@@ -27,6 +27,7 @@ export type LoopbackRoomTransportArgs = {
   readonly connectionId: string;
   readonly identity: string;
   readonly clientId: string;
+  readonly grants?: readonly string[];
 };
 
 /**
@@ -50,12 +51,14 @@ export class LoopbackRoomTransport implements ClientTransport {
   private readonly connectionId: string;
   private readonly identity: string;
   private readonly clientId: string;
+  private readonly grants: readonly string[];
 
   constructor(args: LoopbackRoomTransportArgs) {
     this.server = args.server;
     this.connectionId = args.connectionId;
     this.identity = args.identity;
     this.clientId = args.clientId;
+    this.grants = args.grants ?? [];
   }
 
   get isConnected(): boolean {
@@ -69,7 +72,8 @@ export class LoopbackRoomTransport implements ClientTransport {
         (msg) => {
           this.deliverToClient(msg);
         },
-        { id: this.identity, clientId: this.clientId }
+        { id: this.identity, clientId: this.clientId },
+        { grants: this.grants }
       );
       this.registered = true;
     }
@@ -94,6 +98,15 @@ export class LoopbackRoomTransport implements ClientTransport {
           h.onError?.(err instanceof Error ? err : new Error(String(err)));
         }
       });
+  }
+
+  /** Deterministically drains in-process delivery, including responses that enqueue more work. */
+  async flush(): Promise<void> {
+    let chain: Promise<void>;
+    do {
+      chain = this.sendChain;
+      await chain;
+    } while (chain !== this.sendChain);
   }
 
   /** Server → client (broadcast or unicast). */

@@ -26,7 +26,7 @@
  */
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { SPEC_PARAMETER_TYPES } from '@libs/harness-ts/parameter-types';
+import { SPEC_PARAMETER_TYPES } from '@libs/harness-ts/spec-parameter-types';
 import { checkSpecs } from '@pkgs/gherkin-shared-ts/check';
 import { parameterTypeRegistryFrom } from '@pkgs/gherkin-shared-ts/registry';
 import { nearDuplicates } from '@pkgs/gherkin-shared-ts/similarity';

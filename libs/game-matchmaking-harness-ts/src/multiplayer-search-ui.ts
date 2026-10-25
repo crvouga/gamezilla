@@ -1,4 +1,7 @@
-import { timeControlKey } from '@libs/game-matchmaking-shared-ts/time-control';
+import {
+  timeControlKey,
+  timeControlOf,
+} from '@libs/game-matchmaking-shared-ts/time-control';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 
@@ -23,11 +26,12 @@ export const requestGameOpponent = scenarioAction({
   name: 'requestGameOpponent',
   act: async (s, actor: string, timeControl: string) => {
     const ui = await actorUi(s, actor);
-    await ui
-      .get(
-        `multiplayer-time-control-${timeControlKey(clockChoiceOf(timeControl))}`
-      )
-      .tap();
+    if (timeControlOf(timeControl) !== null)
+      await ui
+        .get(
+          `multiplayer-time-control-${timeControlKey(clockChoiceOf(timeControl))}`
+        )
+        .tap();
     await ui.get('multiplayer-find').wait('enabled');
     const actors = searches.get(s) ?? new Set<string>();
     actors.add(actor);

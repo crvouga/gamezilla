@@ -14,7 +14,7 @@ import {
   type CustomGame,
   CustomGamesAttr,
 } from '@libs/game-session-shared-ts/custom-game-state';
-import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import { GamesRoomAttr } from '@libs/spaces-shared-ts/games';
 import { SpaceMembersRoomAttr } from '@libs/spaces-shared-ts/space-members-messages';
 import {
@@ -29,19 +29,19 @@ import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { bots as raceBots, rules as raceRules } from './reference-game';
 import { secretPickBots, secretPickRules } from './secret-pick';
 
-const secretPick = defineTurnGame({
+const secretPick = defineGame({
   rules: secretPickRules,
   capabilities: { 'custom-games': { bots: secretPickBots } },
-  automation: {
+  turnAutomation: {
     choose: () => null,
     perform: async () => {},
     arrange: async () => {},
   },
 });
-const race = defineTurnGame({
+const race = defineGame({
   rules: raceRules,
   capabilities: { 'custom-games': { bots: raceBots } },
-  automation: { choose: () => null, perform: async () => {} },
+  turnAutomation: { choose: () => null, perform: async () => {} },
 });
 
 function spaceModule(authority: boolean): SpaceModule {

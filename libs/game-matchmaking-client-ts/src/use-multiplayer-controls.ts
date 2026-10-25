@@ -2,6 +2,7 @@ import { abortMultiplayerMutation } from '@libs/game-matchmaking-shared-ts/abort
 import { chooseMultiplayerSetupMutation } from '@libs/game-matchmaking-shared-ts/choose-multiplayer-setup-mutation';
 import { findNewOpponentMutation } from '@libs/game-matchmaking-shared-ts/find-new-opponent-mutation';
 import { findOpponentMutation } from '@libs/game-matchmaking-shared-ts/find-opponent-mutation';
+import { defaultMatchChoice } from '@libs/game-matchmaking-shared-ts/match-choice';
 import {
   acceptMultiplayerDrawMutation,
   declineMultiplayerDrawMutation,
@@ -113,7 +114,7 @@ export function useMultiplayerControls(data: MultiplayerData) {
   const onGame =
     (mutation: Mutation<{ gameId: string; requestId: string }>) => () =>
       run(mutation, { gameId: data.game()?.id ?? 'no-game' });
-  const begin = async (timeControl: string) => {
+  const begin = async (timeControl?: string) => {
     const decision = beginDecision().allowed
       ? unfinishedDecision()
       : beginDecision();
@@ -125,7 +126,10 @@ export function useMultiplayerControls(data: MultiplayerData) {
     if (matchmaking === undefined)
       throw new Error('The selected game does not support matchmaking');
     await run(findOpponentMutation, {
-      timeControl: matchmaking.clockNamespace + timeControl,
+      timeControl:
+        timeControl === undefined
+          ? defaultMatchChoice(matchmaking)
+          : matchmaking.namespace + timeControl,
     });
   };
   const stop = () =>
