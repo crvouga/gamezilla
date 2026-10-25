@@ -112,7 +112,7 @@ function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
   const name = game.title;
   const registration = game.shared.registration;
   const playerCount =
-    registration === undefined ? 0 : gameSides(registration.rules).length;
+    registration === undefined ? 1 : gameSides(registration.rules).length;
   return [
     ...(game.puzzleContent === undefined
       ? []

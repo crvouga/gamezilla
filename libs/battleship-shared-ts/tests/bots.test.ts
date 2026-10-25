@@ -24,7 +24,12 @@ function botChooser(
 ): Chooser {
   const random = createSeededRng(`battleship-bot-${seed}`).random;
   return (position, mover) =>
-    battleshipBots.choose(position, mover === 'white' ? white : black, random);
+    battleshipBots.choose(
+      position,
+      mover === 'white' ? white : black,
+      random,
+      null
+    );
 }
 const ADJACENT_TO_E5 = ['d5', 'f5', 'e4', 'e6'];
 const DRAWS = [0, 0.25, 0.5, 0.75, 0.999_999];
@@ -51,7 +56,7 @@ describe('battleship bots', () => {
           expect(game.steps.at(-1)?.played.winner).not.toBeNull();
           for (const difficulty of DIFFICULTIES)
             expect(
-              battleshipBots.choose(game.position, difficulty, () => 0)
+              battleshipBots.choose(game.position, difficulty, () => 0, null)
             ).toBe(null);
         }
       )

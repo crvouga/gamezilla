@@ -1,7 +1,9 @@
 /**
  * Probe: turns that do not alternate. The first side moves twice, then the
  * second side once (first, first, second, first, first, second, …); who
- * counts to seven wins. Offers custom games only.
+ * counts to seven wins. Offers custom games only. Played twice: as written
+ * (rotating turns, which the laws refuse) and declaring that its rules
+ * decide the turn (`turnOrder: 'rules'`, which they accept).
  */
 
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
@@ -35,16 +37,15 @@ const SHARED = defineGame({
   turnAutomation: probeAutomation(DOUBLE_TURN_RULES),
 });
 
-/**
- * The adapter, unchecked: `assertHarnessGame` takes it (it checks fixtures,
- * not turn order), and the rules laws then refuse it
- * (`turn-order.test.ts`).
- */
-export const DOUBLE_TURN_GAME: TurnHarnessGame<typeof CAPABILITIES> = {
-  label: 'double turn',
-  shared: SHARED,
-  client: defineGameClient({
-    shared: SHARED,
+const BY_RULES = defineGame({
+  rules: { ...DOUBLE_TURN_RULES, turnOrder: 'rules' },
+  capabilities: CAPABILITIES,
+  turnAutomation: probeAutomation(DOUBLE_TURN_RULES),
+});
+
+function clientOf(shared: typeof SHARED) {
+  return defineGameClient({
+    shared,
     title: 'Double turn',
     caption: 'Two counts, then one',
     subtitle: () => 'The first side counts twice in a row.',
@@ -53,7 +54,18 @@ export const DOUBLE_TURN_GAME: TurnHarnessGame<typeof CAPABILITIES> = {
       sides: { white: 'Doubles', black: 'Singles' },
       endings: { 'counted to seven': 'Counted to seven first.' },
     }),
-  }),
+  });
+}
+
+/**
+ * The adapter, unchecked: `assertHarnessGame` takes it (it checks fixtures,
+ * not turn order), and the rules laws then refuse it
+ * (`turn-order.test.ts`).
+ */
+export const DOUBLE_TURN_GAME: TurnHarnessGame<typeof CAPABILITIES> = {
+  label: 'double turn',
+  shared: SHARED,
+  client: clientOf(SHARED),
   fixtures: {
     // Movers: first, first, second, first, first, second, first.
     firstSideVictory: ['one', 'one', 'one', 'one', 'one', 'one', 'one'],
@@ -62,4 +74,12 @@ export const DOUBLE_TURN_GAME: TurnHarnessGame<typeof CAPABILITIES> = {
     ),
     refusedOpenings: ['three', ''],
   },
+};
+
+/** The same game, declaring that its rules name the side to move. */
+export const DOUBLE_TURN_BY_RULES_GAME: TurnHarnessGame<typeof CAPABILITIES> = {
+  ...DOUBLE_TURN_GAME,
+  label: 'double turn by rules',
+  shared: BY_RULES,
+  client: clientOf(BY_RULES),
 };

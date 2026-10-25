@@ -40,6 +40,26 @@ export const GAME_TRAITS = {
     gameSides(game.shared.registration.rules).length === 2,
   'more than two seats': (game: HarnessGame) =>
     gameSides(game.shared.registration.rules).length > 2,
+  /** Exactly four seats, as the four-player specifications describe. */
+  'four seats': (game: HarnessGame) =>
+    gameSides(game.shared.registration.rules).length === 4,
+  /**
+   * Every action passes the turn to the next declared seat from the first
+   * action on, so a game is under way with its first side to move. A game
+   * whose rules name the next side (a trick's winner leads) or that opens
+   * with secret choices is held to the secret-choice specifications instead.
+   */
+  'rotating turns': (game: HarnessGame) =>
+    isTurnHarnessGame(game) &&
+    game.shared.turnGame.rules.turnOrder !== 'rules' &&
+    game.shared.turnGame.rules.hands?.commit === undefined,
+  /** Phases where every side commits a secret choice at once (`rules.hands.commit`). */
+  'secret choices': (game: HarnessGame) =>
+    isTurnHarnessGame(game) &&
+    game.shared.turnGame.rules.hands?.commit !== undefined,
+  /** Known lines to a victory sides share and to one side's alone (`sharedVictories`). */
+  'a shared victory': (game: HarnessGame) =>
+    isTurnHarnessGame(game) && game.fixtures.sharedVictories !== undefined,
   'clock choices': (game: HarnessGame) =>
     game.shared.capabilities.matchmaking?.clockChoices === true,
   'no clock choices': (game: HarnessGame) =>
@@ -70,11 +90,27 @@ export const GAME_TRAITS = {
   'a private setup': (game: HarnessGame) =>
     game.shared.registration.rules.setup !== undefined,
   /**
-   * Every position public, so a custom game without another person may be
-   * played on the host's device alone; a game with private setups is not.
+   * A custom game without another person may be played on the host's device
+   * alone: every game but one with private setups (a bot's setup is the
+   * room's alone). A game with dealt hands deals on the device from draws it
+   * makes once.
    */
-  'every position public': (game: HarnessGame) =>
-    game.shared.registration.rules.setup === undefined,
+  'played on one device': (game: HarnessGame) =>
+    isTurnHarnessGame(game) && game.shared.turnGame.rules.setup === undefined,
+  /**
+   * A bot that chooses among the position's legal moves, so a scenario names
+   * its next move by the draw that picks it. A bot proposing from a hidden
+   * hand (`rules.hands`) chooses among what its hand allows instead.
+   */
+  'a bot choosing among legal moves': (game: HarnessGame) =>
+    isTurnHarnessGame(game) && game.shared.turnGame.rules.hands === undefined,
+  /**
+   * Hands the authority deals and keeps hidden (`rules.hands`); the rules
+   * laws hold such a game to resolving every offered proposal from a known
+   * deal.
+   */
+  'dealt hands': (game: HarnessGame) =>
+    isTurnHarnessGame(game) && game.shared.turnGame.rules.hands !== undefined,
   /**
    * A known first-side victory of exactly seven moves (`firstSideVictory`),
    * which the whole-game models follow (`tests/quint/model-game.ts`). A

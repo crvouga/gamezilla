@@ -146,7 +146,7 @@ test('the server resolves a move with both setups into its public result', () =>
       setups: { white: 'n3', black: 'n7' },
     },
     RULES
-  );
+  ).game;
   expect(won.fen).toBe('hidden:g7:found');
   expect(won.outcome).toBe('white');
   const forged = {

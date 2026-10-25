@@ -11,7 +11,10 @@ import { expect, test } from 'bun:test';
 import { sendMultiplayerCommand } from '@libs/game-matchmaking-harness-ts/multiplayer-commands';
 import { setMultiplayerConnection } from '@libs/game-matchmaking-harness-ts/multiplayer-connection';
 import { opponentSearchView } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
-import { playedRulesOf } from '@libs/game-session-harness-ts/played-rules';
+import {
+  playedRulesOf,
+  publicPosition,
+} from '@libs/game-session-harness-ts/played-rules';
 import { openConformanceHarness } from '../../conformance-world';
 import { forEveryTurnGame } from '../game-suite';
 import { agreed, command, matched, rematched } from '../match-authority-world';
@@ -78,7 +81,7 @@ forEveryTurnGame(import.meta.path, (game) => {
       })
     ).toBe(false);
     const rematch = await rematched(s, people, game, finished);
-    expect(rematch.fen).toBe(rules.initial());
+    expect(rematch.fen).toBe(publicPosition(rules.initial()));
   }, 180_000);
 
   test("a refused action changes no participant's game", async () => {
@@ -97,7 +100,7 @@ forEveryTurnGame(import.meta.path, (game) => {
       ).toBe(false);
     const unchanged = await agreed(s, people);
     expect(unchanged.revision).toBe(0);
-    expect(unchanged.fen).toBe(rules.initial());
+    expect(unchanged.fen).toBe(publicPosition(rules.initial()));
   }, 180_000);
 
   test('a reconnecting participant receives every preceding turn and can play their own', async () => {
@@ -125,7 +128,9 @@ forEveryTurnGame(import.meta.path, (game) => {
     });
     const restored = await agreed(s, people);
     expect(restored.id).toBe(match.id);
-    expect(restored.fen).toBe(rules.replay(moves, moves.length));
+    expect(restored.fen).toBe(
+      publicPosition(rules.replay(moves, moves.length))
+    );
     expect(
       await command(s, returning, {
         gameId: match.id,
@@ -162,8 +167,8 @@ forEveryTurnGame(import.meta.path, (game) => {
     );
     const accepted = await agreed(s, people);
     expect(accepted.revision).toBe(1);
-    expect(choices.map((uci) => rules.replay([uci], 1))).toContain(
-      accepted.fen
-    );
+    expect(
+      choices.map((uci) => publicPosition(rules.replay([uci], 1)))
+    ).toContain(accepted.fen);
   }, 180_000);
 });

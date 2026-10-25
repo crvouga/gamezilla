@@ -41,7 +41,10 @@ function CustomGameContent(props: ModelProps): JSX.Element {
         notices={
           <>
             <CustomGameConnectionNotice model={props.model} />
-            <CustomGameError reason={props.model.error()} />
+            <CustomGameError
+              reason={props.model.error()}
+              position={props.model.current()?.fen}
+            />
           </>
         }
         setup={

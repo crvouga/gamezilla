@@ -1,31 +1,23 @@
 import { customGameLegalMoves } from '@libs/game-session-shared-ts/custom-game-position';
 import { scenarioAction } from '@libs/harness-ts/actor-ui';
-import type {
-  HarnessComposition,
-  HarnessRoomNode,
-} from '@libs/harness-ts/composition';
+import type { HarnessComposition } from '@libs/harness-ts/composition';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { makeCustomGameMove } from './custom-game-moves';
 import { readCustomGameProbe } from './custom-game-probe';
 import { turnHarnessGameAt } from './harness-game-of';
+import { queuedRandom, queueRoomDraws } from './room-draws';
 
-const choices = new WeakMap<HarnessRoomNode, { next: number | null }>();
-
-/** Inject a documented allowed legal choice through the room's random port. */
+/** Inject documented allowed choices through the room's random port. */
 export function customGameBotRoomNode(
   createNode: NonNullable<HarnessComposition['roomNode']>
 ): NonNullable<HarnessComposition['roomNode']> {
   return (env, gateway) => {
-    const choice = { next: null as number | null };
-    const random = (): number => {
-      const next = choice.next;
-      choice.next = null;
-      return next ?? env.random();
-    };
-    const node = Object.assign(createNode({ ...env, random }, gateway), {
-      clientRandom: random,
-    });
-    choices.set(node, choice);
+    const port = queuedRandom(env);
+    const node = Object.assign(
+      createNode({ ...env, random: port.random }, gateway),
+      { clientRandom: port.random }
+    );
+    port.register(node);
     return node;
   };
 }
@@ -43,10 +35,7 @@ export const chooseCustomGameBotMove = scenarioAction({
     );
     const index = moves.indexOf(action);
     if (index === -1) throw new Error(`${action} is not a legal bot choice`);
-    const choice = choices.get(s.harness.roomNode);
-    if (choice === undefined)
-      throw new Error('Room random choice was not injected');
-    choice.next = (index + 0.5) / moves.length;
+    queueRoomDraws(s, [(index + 0.5) / moves.length]);
   },
 });
 
@@ -78,7 +67,8 @@ export const finishCustomGameAgainstBots = scenarioAction({
         const game = turnHarnessGameAt(s, current.fen);
         const action = game.shared.automation.turns.choose(
           current.fen,
-          () => 0
+          () => 0,
+          probe.ownHand
         );
         if (action === null) throw new Error('Active game offers no action');
         await Promise.resolve(

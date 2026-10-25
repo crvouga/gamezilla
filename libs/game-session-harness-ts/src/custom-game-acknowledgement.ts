@@ -1,7 +1,7 @@
 import type { CustomGameChoice } from '@libs/game-session-shared-ts/custom-game-choice';
 import {
   ChangeCustomGame,
-  CustomGamesChanged,
+  customGameChangeAnswer,
 } from '@libs/game-session-shared-ts/custom-game-commands';
 import { scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
@@ -29,18 +29,17 @@ export async function rememberCustomGameAcknowledgement(
   for (let turn = 0; turn < 1000; turn += 1) {
     const returned = s.harness.roomNode
       .exportTopic(`space:${spaceId}`)
-      ?.entries.findLast(
-        (entry) =>
-          entry.seq > afterSequence && CustomGamesChanged.is(entry.event)
-      );
-    if (returned !== undefined && CustomGamesChanged.is(returned.event)) {
+      ?.entries.filter((entry) => entry.seq > afterSequence)
+      .map((entry) => customGameChangeAnswer(entry.event))
+      .findLast((answer) => answer !== null);
+    if (returned != null) {
       let rooms = acknowledged.get(s);
       if (rooms === undefined) {
         rooms = new Map();
         acknowledged.set(s, rooms);
       }
       rooms.set(spaceId, {
-        commandId: returned.event.payload.commandId,
+        commandId: returned.commandId,
         choice,
       });
       return;

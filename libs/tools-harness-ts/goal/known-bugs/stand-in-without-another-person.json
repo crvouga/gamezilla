@@ -1,0 +1,4 @@
+{
+  "summary": "A person alone with bots (or with every other person away too) was given a stand-in after 60 seconds away, against the rule that a stand-in plays only while another person is in the game. A stand-in now needs another person here playing their own side.",
+  "regressionTest": "libs/game-session-shared-ts/tests/stand-ins.test.ts"
+}

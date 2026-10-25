@@ -10,7 +10,7 @@ import type { GameLaw } from './game-rules-laws';
 import { law, must, picks, walk } from './game-rules-laws';
 import type { HarnessGame, TurnHarnessGame } from './harness-game';
 import { isTurnHarnessGame } from './harness-game';
-import { playedRulesOf } from './played-rules';
+import { playedRulesOf, publicPosition } from './played-rules';
 import {
   simulationEndingReasons,
   simulationRecordLaws,
@@ -236,7 +236,11 @@ function turnRecordLaws(game: TurnHarnessGame): readonly GameLaw[] {
                 timeControl: clock.timeControl,
               };
               const got = read(
-                history.record(played.position, played.history, metadata)
+                history.record(
+                  publicPosition(played.position),
+                  played.history,
+                  metadata
+                )
               );
               must(
                 got.firstSide === first && got.secondSide === second,

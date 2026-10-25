@@ -29,6 +29,7 @@ export const customGameChoiceSchema = z.discriminatedUnion('operation', [
         'reject',
         'untimed',
         'claimWin',
+        'reclaim',
       ]),
     })
     .strict(),
@@ -94,6 +95,15 @@ export const customGameChoiceSchema = z.discriminatedUnion('operation', [
       ...reference,
       operation: z.literal('move'),
       uci: z.string().min(1).max(256),
+      ply: z.number().int().nonnegative(),
+    })
+    .strict(),
+  z
+    .object({
+      ...reference,
+      operation: z.literal('commit'),
+      /** The side's private commitment, for the phase opened at `ply`. */
+      commitment: z.string().min(1).max(256),
       ply: z.number().int().nonnegative(),
     })
     .strict(),

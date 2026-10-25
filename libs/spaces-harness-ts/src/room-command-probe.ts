@@ -33,6 +33,79 @@ function answerIn(frames: readonly Frame[], id: string): RoomAnswer | null {
   return null;
 }
 
+/** A device's connection to a space's room, kept open across many commands. */
+export type RoomCommandProbe = {
+  /** The room's answer to `payload`; the room answers without timers. */
+  readonly send: (command: {
+    readonly payload: Message;
+    readonly commandId: string;
+    readonly nowMs: number;
+  }) => Promise<RoomAnswer>;
+  readonly close: () => void;
+};
+
+/**
+ * Connect as `identity` from `installId` once and send commands through the
+ * one connection, as a device does; `null` when the room refuses the person.
+ */
+export async function openRoomCommandProbe(
+  node: HarnessRoomNode,
+  args: {
+    readonly spaceId: string;
+    readonly identity: string;
+    readonly installId: string;
+    readonly clientId: string;
+    readonly clock: Clock;
+    readonly timers: Timers;
+  }
+): Promise<RoomCommandProbe | null> {
+  const frames: Frame[] = [];
+  const transport = node.createTransport({
+    topic: `space:${args.spaceId}`,
+    module: 'space',
+    apiUrl: '',
+    identity: args.identity,
+    installId: args.installId,
+    clientId: `${args.clientId}-probe`,
+    getSessionToken: () => null,
+    clock: args.clock,
+    timers: args.timers,
+    random: () => 0.5,
+  });
+  transport.subscribe((raw) => {
+    frames.push((typeof raw === 'string' ? JSON.parse(raw) : raw) as Frame);
+  });
+  try {
+    await transport.connect();
+  } catch (cause) {
+    transport.destroy();
+    if (!(cause instanceof Error) || cause.message !== 'not in the space')
+      throw cause;
+    return null;
+  }
+  return {
+    send: async (command) => {
+      transport.sendJson({
+        v: WIRE_VERSION,
+        kind: ROOM_WIRE_KIND.command,
+        id: command.commandId,
+        ts: command.nowMs,
+        payload: command.payload,
+      });
+      for (let turn = 0; turn < 1_000; turn += 1) {
+        const answer = answerIn(frames, command.commandId);
+        if (answer !== null) {
+          frames.length = 0;
+          return answer;
+        }
+        await Promise.resolve();
+      }
+      throw new Error('the space room never answered the command');
+    },
+    close: () => transport.destroy(),
+  };
+}
+
 /** The room's answer to `payload`; the room answers without timers. */
 export async function answerOfRoomCommand(
   node: HarnessRoomNode,

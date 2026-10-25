@@ -1,0 +1,41 @@
+{
+  "name": "@libs/hearts-client-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests"
+  },
+  "dependencies": {
+    "@libs/game-menu-client-ts": "workspace:*",
+    "@libs/hearts-shared-ts": "workspace:*",
+    "@lingui/core": "catalog:",
+    "@lingui/solid": "catalog:",
+    "@pkgs/turn-game-shared-ts": "workspace:*",
+    "@pkgs/ui-root-client-ts": "workspace:*",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/bun-test-solid-client-ts": "workspace:*",
+    "@pkgs/clock-client-ts": "workspace:*",
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/ui-testing-solid-dom-client-ts": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
+    "@testing-library/user-event": "catalog:",
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "client",
+  "game": "hearts",
+  "language": "typescript"
+}

@@ -51,6 +51,7 @@
     "@pkgs/sync-engine-server-ts": "workspace:*",
     "@pkgs/sync-engine-shared-ts": "workspace:*",
     "@pkgs/tts-elevenlabs-server-ts": "workspace:*",
+    "@pkgs/turn-game-shared-ts": "workspace:*",
     "@pkgs/uuid-shared-ts": "workspace:*",
     "hono": "catalog:"
   },

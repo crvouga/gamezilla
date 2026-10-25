@@ -5,10 +5,16 @@ import {
   multiplayerSides,
 } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
 import {
+  CustomGameHandsAttr,
+  ownCustomGameHand,
+} from '@libs/game-session-shared-ts/custom-game-hands';
+import { customGameWinners } from '@libs/game-session-shared-ts/custom-game-outcome';
+import {
   CustomGameSetupsAttr,
   ownCustomGameSetup,
 } from '@libs/game-session-shared-ts/custom-game-setup';
 import {
+  type CustomGame,
   type CustomGames,
   CustomGamesAttr,
 } from '@libs/game-session-shared-ts/custom-game-state';
@@ -32,23 +38,37 @@ export type GameHistoryRecord = {
     readonly bot: boolean;
     readonly local: boolean;
   }[];
-  readonly outcome: string;
+  /** Won (by one side or jointly), drawn or cancelled. */
+  readonly result: 'won' | 'draw' | 'aborted';
+  /** The sides the result went to: every side for a draw, none when cancelled. */
+  readonly winners: readonly GameSide[];
   readonly reason: string;
   readonly moves: readonly RecordedMove[];
   /** The viewer's own private setup in the game, when it has one; never another's. */
   readonly setup: string | null;
+  /** The viewer's own last hand in the game, when it deals hands; never another's. */
+  readonly hand: string | null;
 };
 export function useGameRecords(gameId: () => string) {
   const myId = useMyId();
   const rules = useTurnGames();
   const local = useSpaceRoomSelector(CustomGamesAttr.from);
   const localSetups = useSpaceRoomSelector(CustomGameSetupsAttr.from);
+  const localHands = useSpaceRoomSelector(CustomGameHandsAttr.from);
   // Only the person's own setups ever reach this device.
   const ownSetups = createQuery(
     () => sql<{
       game_id: string;
       setup: string;
     }>`SELECT game_id, setup FROM chess_multiplayer_setups
+    WHERE owner_id = ${myId()} AND deleted_at IS NULL`
+  );
+  // And only their own dealt hands.
+  const ownHands = createQuery(
+    () => sql<{
+      game_id: string;
+      hand: string;
+    }>`SELECT game_id, hand FROM chess_multiplayer_hands
     WHERE owner_id = ${myId()} AND deleted_at IS NULL`
   );
   const matches = createQuery(
@@ -60,6 +80,7 @@ export function useGameRecords(gameId: () => string) {
     const gameRules = rules.byId(gameId());
     const owned = customRecords(local(), {
       setups: localSetups(),
+      hands: localHands(),
       gameRules,
       myId: myId(),
     });
@@ -75,11 +96,12 @@ export function useGameRecords(gameId: () => string) {
           bot: false,
           local: false,
         })),
-        outcome: g.outcome,
+        ...matchedResult(g),
         reason: g.reason ?? '',
         moves: isTurnRules(gameRules) ? gameRules.moves(g.fen, g.pgn, []) : [],
         setup:
           ownSetups.rows().find((row) => row.game_id === g.id)?.setup ?? null,
+        hand: ownHands.rows().find((row) => row.game_id === g.id)?.hand ?? null,
       }));
     return [
       ...owned.reverse(),
@@ -95,6 +117,7 @@ function customRecords(
   custom: CustomGames,
   context: {
     readonly setups: ReturnType<typeof CustomGameSetupsAttr.from>;
+    readonly hands: ReturnType<typeof CustomGameHandsAttr.from>;
     readonly gameRules: GamePositionRules;
     readonly myId: string;
   }
@@ -117,12 +140,7 @@ function customRecords(
         bot: g[side].kind === 'bot',
         local: g[side].kind === 'local',
       })),
-      outcome:
-        g.outcome === 'draw'
-          ? 'draw'
-          : g.status === 'cancelled'
-            ? 'aborted'
-            : (g.sides.find((side) => g.outcome.startsWith(side)) ?? 'draw'),
+      ...customResult(g),
       reason: g.outcomeReason || g.outcome,
       moves: isTurnRules(context.gameRules)
         ? context.gameRules.moves(
@@ -136,9 +154,37 @@ function customRecords(
         g,
         context.myId
       ),
+      hand: ownCustomGameHand(
+        CustomGameHandsAttr(context.hands),
+        g,
+        context.myId
+      ),
     }));
 }
 
+function customResult(
+  game: CustomGame
+): Pick<GameHistoryRecord, 'result' | 'winners'> {
+  if (game.status === 'cancelled') return { result: 'aborted', winners: [] };
+  const winners = customGameWinners(game);
+  // An outcome naming no side reads as a draw, as it always has.
+  return game.outcome === 'draw' || winners.length === 0
+    ? { result: 'draw', winners: game.sides }
+    : { result: 'won', winners };
+}
+
+function matchedResult(
+  game: MultiplayerGame
+): Pick<GameHistoryRecord, 'result' | 'winners'> {
+  if (game.outcome === 'aborted') return { result: 'aborted', winners: [] };
+  if (game.outcome === 'draw')
+    return { result: 'draw', winners: multiplayerSides(game) };
+  return game.outcome === 'ongoing'
+    ? { result: 'aborted', winners: [] }
+    : { result: 'won', winners: [game.outcome] };
+}
+
+/** A person wins when the result goes to their side, alone or jointly. */
 function countResults(records: readonly GameHistoryRecord[], myId: string) {
   let wins = 0;
   let losses = 0;
@@ -147,9 +193,9 @@ function countResults(records: readonly GameHistoryRecord[], myId: string) {
     const side =
       game.participants.find((participant) => participant.person === myId)
         ?.side ?? null;
-    if (side === null || game.outcome === 'aborted') continue;
-    if (game.outcome === 'draw') draws++;
-    else if (game.outcome === side) wins++;
+    if (side === null || game.result === 'aborted') continue;
+    if (game.result === 'draw') draws++;
+    else if (game.winners.includes(side)) wins++;
     else losses++;
   }
   return { wins, losses, draws };

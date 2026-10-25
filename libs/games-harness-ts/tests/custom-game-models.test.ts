@@ -10,6 +10,7 @@ import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import {
   playedRulesOf,
   recordedLine,
+  splitDealtPosition,
 } from '@libs/game-session-harness-ts/played-rules';
 import {
   offersAll,
@@ -72,9 +73,12 @@ test('the models compare moves with the victory as the game records it', () => {
     const rules = game.shared.turnGame.rules;
     // Played as recorded, the line is the victory its authority plays.
     expect(rules.replay(recorded, recorded.length)).toBe(
-      playedRulesOf(game).replay([...victory], victory.length)
+      splitDealtPosition(
+        playedRulesOf(game).replay([...victory], victory.length)
+      ).position
     );
-    if (rules.setup === undefined) expect(recorded).toEqual([...victory]);
+    if (rules.setup === undefined && rules.hands === undefined)
+      expect(recorded).toEqual([...victory]);
     else expect(recorded).not.toEqual([...victory]);
   }
 });

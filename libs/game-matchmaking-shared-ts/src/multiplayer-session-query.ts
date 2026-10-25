@@ -37,10 +37,15 @@ export const multiplayerSessionQuery = defineQuery({
     const setups = await ctx.db.query(
       sql`SELECT * FROM chess_multiplayer_setups WHERE owner_id = ${ctx.env.actorId}`
     );
+    // A person's own dealt hands, and nobody else's; never the hidden state.
+    const hands = await ctx.db.query(
+      sql`SELECT * FROM chess_multiplayer_hands WHERE owner_id = ${ctx.env.actorId}`
+    );
     return {
       ...profiles,
       chess_multiplayer_ratings: ratings,
       chess_multiplayer_setups: setups,
+      chess_multiplayer_hands: hands,
       chess_multiplayer_players: players,
       chess_multiplayer_games: games,
       chess_opponent_searches: searches,

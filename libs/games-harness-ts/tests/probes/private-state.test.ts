@@ -12,10 +12,15 @@
  * custom games and finding an opponent, and the shared private-setup
  * specifications).
  *
+ * Supported as dealt hands (`GameRules.hands`): hidden state the
+ * authority deals as a game starts and keeps as play goes on — a bag, each
+ * side's rack drawn from it — with every position still public. A board is
+ * given its viewer's own hand (`GameBoardProps.hand`), never the hidden
+ * state; Word Tiles is held to it (the `dealt-hands-privacy` suites).
+ *
  * Still a limitation (executable below): a position that differs per
- * viewer as play goes on — a hand of cards drawn during play, a fog that
- * lifts — since the shared position is one public string, the board takes
- * no per-viewer position, and rules decide with no actor.
+ * viewer — a fog that lifts — since the shared position is one public
+ * string, the board takes no viewer, and rules decide with no actor.
  */
 
 import { expect, test } from 'bun:test';

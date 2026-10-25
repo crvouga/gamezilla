@@ -96,6 +96,18 @@ export function applyWelcome(env: AnyWireEnv, msg: Welcome): void {
     return;
   }
 
+  // A batch answering an earlier request (a duplicate of a partial welcome
+  // the device already applied) adds nothing: the device's own request for
+  // the rest is in flight, so it waits for that rather than starting over.
+  // regression: room-stale-partial-welcome-resets-replica
+  if (
+    behindWithoutEntries &&
+    msg.fromSeq < core.lastSeq &&
+    msg.entries.length > 0 &&
+    (msg.entries.at(-1)?.seq ?? 0) <= core.lastSeq
+  )
+    return;
+
   if (behindWithoutEntries) {
     if (msg.fromSeq === 0 && core.lastSeq === 0) {
       assert.ok(false, 'welcome lastSeq must match last applied entry seq', {

@@ -14,14 +14,14 @@
     "ci:statecharts": "bun run scripts/statechart-cli.ts verify",
     "ci:syncpack": "cd ../.. && syncpack lint --dependency-types prod,dev",
     "ci:workspace-lifecycle": "bun run scripts/sync-workspace-lifecycle.ts --check",
+    "generate:ui-quality-sources": "bun run scripts/sync-ui-quality-sources.ts",
     "install:cli": "mise install",
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test scripts/*.test.ts",
     "verify:actionlint": "bun run scripts/verify-actionlint.ts",
     "verify:root-lint": "bun run scripts/lint-package.ts --root",
-    "verify:secrets": "bun run scripts/verify-secrets.ts",
-    "generate:ui-quality-sources": "bun run scripts/sync-ui-quality-sources.ts"
+    "verify:secrets": "bun run scripts/verify-secrets.ts"
   },
   "dependencies": {},
   "devDependencies": {
@@ -35,6 +35,8 @@
     "@pkgs/conformance-shared-ts": "workspace:*",
     "@pkgs/dmn-shared-ts": "workspace:*",
     "@pkgs/gherkin-shared-ts": "workspace:*",
+    "@pkgs/object-store-node-fs-server-ts": "workspace:*",
+    "@pkgs/object-store-root-shared-ts": "workspace:*",
     "@pkgs/observability-root-shared-ts": "workspace:*",
     "@pkgs/openslo-shared-ts": "workspace:*",
     "@pkgs/os-server-ts": "workspace:*",
@@ -44,9 +46,7 @@
     "@pkgs/quint-shared-ts": "workspace:*",
     "fast-check": "catalog:",
     "typescript": "catalog:",
-    "wrangler": "catalog:",
-    "@pkgs/object-store-node-fs-server-ts": "workspace:*",
-    "@pkgs/object-store-root-shared-ts": "workspace:*"
+    "wrangler": "catalog:"
   },
   "category": "harness",
   "language": "typescript"

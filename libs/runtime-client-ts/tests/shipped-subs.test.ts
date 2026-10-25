@@ -44,6 +44,8 @@ const TABLE_NAMES = [
   'billing_subscriptions',
   'chess_multiplayer_commands',
   'chess_multiplayer_games',
+  'chess_multiplayer_hands',
+  'chess_multiplayer_hidden',
   'chess_multiplayer_players',
   'chess_multiplayer_ratings',
   'chess_multiplayer_setups',

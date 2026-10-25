@@ -276,7 +276,7 @@ export class SyntheticUserApplication {
   private async move(position: string): Promise<void> {
     const automation = gameForPosition(this.ports.games, position).turns;
     if (automation === undefined) return;
-    const action = automation.choose(position, this.ports.random);
+    const action = automation.choose(position, this.ports.random, null);
     if (action === null) return;
     if (!automation.rules.legal(position).includes(action))
       throw new Error('The automated participant suggested an illegal action');

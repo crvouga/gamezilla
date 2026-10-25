@@ -110,9 +110,43 @@ export const multiplayerSetups = defineTable({
   indexes: ['owner_id'],
 });
 
+/**
+ * One side's dealt hand in a matched game, rewritten after every action
+ * that changes it. Only its owner's devices and the server read it.
+ */
+export const multiplayerHands = defineTable({
+  domain: GAME_PLATFORM_NAMESPACE,
+  name: 'chess_multiplayer_hands',
+  columns: {
+    game_id: 'text',
+    owner_id: 'text',
+    side: 'text',
+    hand: 'text',
+  },
+  uniqueIndexes: [['game_id', 'side']],
+  indexes: ['owner_id'],
+});
+
+/**
+ * A matched game's hidden state (the bag, every hand, the random state),
+ * for a game whose authority deals hands. The server alone reads it: no
+ * query, topic or export ever names this table.
+ */
+export const multiplayerHidden = defineTable({
+  domain: GAME_PLATFORM_NAMESPACE,
+  name: 'chess_multiplayer_hidden',
+  columns: {
+    game_id: 'text',
+    hidden: 'text',
+  },
+  uniqueIndexes: ['game_id'],
+});
+
 export const MULTIPLAYER_TABLES = [
   multiplayerGames,
   multiplayerSetups,
+  multiplayerHands,
+  multiplayerHidden,
   multiplayerPlayers,
   opponentSearches,
   multiplayerCommands,

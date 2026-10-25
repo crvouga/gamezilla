@@ -3,7 +3,7 @@ import { connectFourBots, parseConnectFourColumn } from './connect-four-rules';
 
 export const connectFourAutomation: TurnGame['turnAutomation'] = {
   choose: (position, random) =>
-    connectFourBots.choose(position, 'medium', random),
+    connectFourBots.choose(position, 'medium', random, null),
   async perform(ui, board, action) {
     const column = parseConnectFourColumn(action);
     if (column === null)

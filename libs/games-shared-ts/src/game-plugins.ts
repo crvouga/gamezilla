@@ -7,6 +7,7 @@ import {
   isGameRegistration,
   type RegistryGame,
 } from '@libs/game-session-shared-ts/game-definition';
+import { heartsGameShared } from '@libs/hearts-shared-ts/hearts-game';
 import { numberlinkGameShared } from '@libs/numberlink-shared-ts/numberlink-game';
 import { pongGameShared } from '@libs/pong-shared-ts/pong-game';
 import {
@@ -29,6 +30,7 @@ export const GAME_DEFINITIONS = [
   numberlinkGameShared,
   quoridorGameShared,
   quoridorHillGameShared,
+  heartsGameShared,
   pongGameShared,
 ] as const satisfies readonly RegistryGame[];
 

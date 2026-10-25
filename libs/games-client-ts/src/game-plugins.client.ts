@@ -4,6 +4,7 @@ import { connectFourGameClient } from '@libs/connect-four-client-ts/connect-four
 import type { GameClientRegistration } from '@libs/game-menu-client-ts/game-client';
 import { assertGameClientDefinitions } from '@libs/game-menu-client-ts/game-client';
 import { GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
+import { heartsGameClient } from '@libs/hearts-client-ts/hearts-game-client';
 import { numberlinkGameClient } from '@libs/numberlink-client-ts/numberlink-game-client';
 import { pongGameClient } from '@libs/pong-client-ts/pong-game-client';
 import {
@@ -26,6 +27,7 @@ export const GAME_CLIENT_DEFINITIONS = [
   numberlinkGameClient,
   quoridorGameClient,
   quoridorHillGameClient,
+  heartsGameClient,
   pongGameClient,
 ] as const satisfies readonly GameClientRegistration[];
 

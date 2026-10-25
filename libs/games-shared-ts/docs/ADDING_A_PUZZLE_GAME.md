@@ -63,6 +63,19 @@ turn games; a standalone puzzle needs no multiplayer fixtures, opponent,
 clock, automation or `HARNESS_GAMES` entry. Package setup and dependency rules
 remain those in [`ADDING_A_GAME.md`](ADDING_A_GAME.md).
 
+## Ship starter content
+
+A game can ship original puzzles of its own in `puzzleContent.starter`
+([`StarterContent`](../../../pkgs/turn-game-shared-ts/src/puzzle-content.ts)):
+a pack and its puzzles, each with a stable `id` and a `witness`, a completed
+state the game's publication check accepts. Registration checks the shape;
+`seedStarterContent` re-proves every witness and publishes each puzzle and
+the pack once, as immutable first editions owned by `starter-content`, when
+migrations run (and in the harness's game system). Seeding again changes
+nothing; it writes nothing at all if any witness fails. Word Tiles' one-move
+challenges are the example
+([`word-tiles-starter.ts`](../../word-tiles-shared-ts/src/word-tiles-starter.ts)).
+
 ## Reuse the shared lifecycle
 
 The runtime already passes the registrations into spaces and

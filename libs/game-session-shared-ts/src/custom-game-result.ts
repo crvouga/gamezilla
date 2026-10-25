@@ -11,14 +11,17 @@ export function refuseCustomGame(reason: string): HandleResult {
   return { ok: false, error: { type: ROOM_ERROR_TYPE.conflict, reason } };
 }
 
-/** The custom games as a choice left them, with any private setups it chose. */
+/**
+ * The custom games as a choice left them, with the private events it made
+ * (a setup chosen, a hand dealt), each read only by its audience.
+ */
 export function changedCustomGames(
   games: CustomGames,
   ctx: GameCommandContext,
   rules: TurnGames,
   change: {
     readonly reason?: string;
-    readonly setups?: readonly Message[];
+    readonly privately?: readonly Message[];
   } = {}
 ): HandleResult {
   return {
@@ -29,7 +32,7 @@ export function changedCustomGames(
         commandId: ctx.commandId,
         reason: change.reason ?? '',
       }),
-      ...(change.setups ?? []),
+      ...(change.privately ?? []),
     ],
     effects: customGameEffects(games.current, rules),
   };

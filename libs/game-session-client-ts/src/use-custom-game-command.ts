@@ -3,6 +3,7 @@ import type { CustomGameChoice } from '@libs/game-session-shared-ts/custom-game-
 import { customGameCreatorRefusal } from '@libs/game-session-shared-ts/custom-game-refusal';
 import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
+import { useOptionalSpaceModule } from '@libs/spaces-client-ts/space-module-context';
 import { useSpaceOpenRooms } from '@libs/spaces-client-ts/space-open-rooms-store';
 import { useSpaceRoomSessionId } from '@libs/spaces-client-ts/space-room-context';
 import { useSpaceCan } from '@libs/spaces-client-ts/use-space-can';
@@ -19,6 +20,40 @@ import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { createSignal, onCleanup } from 'solid-js';
 import { confirmCustomGameChoice } from './confirm-custom-game-choice';
 
+/**
+ * Why a choice cannot reach the host now, or `''`. A guest's own lost
+ * connection is a different refusal from the host being gone, and the
+ * creator's authority is named before the host being gone.
+ */
+function useHostRefusal(): (choice: CustomGameChoice) => string {
+  const rooms = useSpaceOpenRooms();
+  const spaceId = useSpaceRoomSessionId();
+  const hostConnection = useSpaceHostConnection();
+  const hostId = useSpaceColumn(() => spaceId() ?? '', SpaceField.hostMemberId);
+  const roster = useNamedRoomRoster(SPACE_ROOM_NAME);
+  const myId = useMyId();
+  const engine = useSyncEngine();
+  return (choice: CustomGameChoice): string => {
+    const hostAbsent =
+      hostId() !== null &&
+      hostId() !== myId() &&
+      !roster().some((actor) => actor.id === hostId());
+    if (
+      !engine.status().online ||
+      !(hostAbsent || hostConnection() === 'host-offline')
+    )
+      return '';
+    const snapshot = rooms.getEntry(spaceId() ?? '')?.room.getSnapshot();
+    return (
+      customGameCreatorRefusal(
+        snapshot === undefined ? null : CustomGamesAttr.from(snapshot).current,
+        choice,
+        myId()
+      ) || 'the host is offline'
+    );
+  };
+}
+
 export function useCustomGameCommand(
   chooseLocal?: (choice: CustomGameChoice) => Promise<void> | null
 ) {
@@ -31,11 +66,8 @@ export function useCustomGameCommand(
     () => spaceId() ?? '',
     PERMISSION.gameCustomCreate
   );
-  const hostConnection = useSpaceHostConnection();
-  const hostId = useSpaceColumn(() => spaceId() ?? '', SpaceField.hostMemberId);
-  const roster = useNamedRoomRoster(SPACE_ROOM_NAME);
-  const myId = useMyId();
-  const engine = useSyncEngine();
+  const hostRefusal = useHostRefusal();
+  const module = useOptionalSpaceModule();
   const [error, setError] = createSignal('');
   const [settled, setSettled] = createSignal(0);
   const [submitting, setSubmitting] = createSignal(false);
@@ -46,25 +78,8 @@ export function useCustomGameCommand(
   });
   const send = async (choice: CustomGameChoice): Promise<void> => {
     setError('');
-    // A guest's own lost connection is a different refusal from the host being
-    // gone, and the creator's authority is named before the host being gone.
-    const hostAbsent =
-      hostId() !== null &&
-      hostId() !== myId() &&
-      !roster().some((actor) => actor.id === hostId());
-    if (
-      engine.status().online &&
-      (hostAbsent || hostConnection() === 'host-offline')
-    ) {
-      const snapshot = rooms.getEntry(spaceId() ?? '')?.room.getSnapshot();
-      const reason =
-        customGameCreatorRefusal(
-          snapshot === undefined
-            ? null
-            : CustomGamesAttr.from(snapshot).current,
-          choice,
-          myId()
-        ) || 'the host is offline';
+    const reason = hostRefusal(choice);
+    if (reason !== '') {
       setError(reason);
       setSettled((value) => value + 1);
       throw new Error(reason);
@@ -79,6 +94,12 @@ export function useCustomGameCommand(
           canHost: canHost(),
           pending,
           rules,
+          ...(module === undefined
+            ? {}
+            : {
+                prepare: (state, payload) =>
+                  module.prepareLocalCommand(state, payload, clock.now()),
+              }),
           ...(chooseLocal === undefined ? {} : { chooseLocal }),
           onWaiting: () => setWaiting(true),
         },
