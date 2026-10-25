@@ -19,6 +19,7 @@ import workerHandler from '@apps/server-ts/server';
 import { ensureWorkerTelemetry } from '@apps/server-ts/worker-telemetry';
 import type { ApiWorkerEnv, RoomNamespace } from '@libs/app-root-shared-ts/env';
 import type { ExecutionContext } from '@libs/app-root-shared-ts/worker-handler';
+import { TURN_GAMES } from '@libs/game-catalog-shared-ts/turn-games';
 import { GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
 import { composeRoomModules } from '@libs/spaces-shared-ts/load-game-plugins';
 import { createSpaceRoomAuthorizer } from '@libs/spaces-shared-ts/space-room-authorize';
@@ -37,6 +38,7 @@ import {
   decodeRoomGrants,
   ROOM_GRANTS_HEADER,
 } from '@pkgs/room-root-server-ts/grants-header';
+import { prepareTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 
 const PORT = Number(process.env['API_NODE_PORT'] ?? 0);
 const NODE_ID = process.env['API_NODE_ID'] ?? 'api-a';
@@ -71,6 +73,9 @@ async function observeRoomCall<T>(
     }
   });
 }
+
+// A game's rule data (a word list) loads before any room decides.
+await prepareTurnGames(TURN_GAMES);
 
 const rooms = createBunRoomHost({
   modules: composeRoomModules(

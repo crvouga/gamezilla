@@ -35,6 +35,7 @@ import { currentCorrelation } from '@pkgs/observability-root-shared-ts/correlati
 import { activeSpan } from '@pkgs/observability-root-shared-ts/span';
 import type { SecretStore } from '@pkgs/secret-store-shared-ts/interface';
 import { createTtsAppFromBindings } from '@pkgs/tts-elevenlabs-server-ts/create-tts-app-from-bindings';
+import { prepareTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { mountBrowserTelemetryIngress } from './browser-telemetry-ingress';
@@ -392,6 +393,8 @@ export async function createServer(env: ServerEnv, args: CreateServerArgs) {
     createTtsAppForServer(env),
     createLlmAppForServer(env),
     createSyncAppMount(env, args.app, args.servers),
+    // A game's rule data (a word list) loads before a mutation decides.
+    prepareTurnGames(args.app.turnGames),
   ]);
 
   registerAccountDeletionConsumers(args.servers.outboxConsumers, auth.server);

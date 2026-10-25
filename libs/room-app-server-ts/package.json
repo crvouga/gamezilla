@@ -19,7 +19,8 @@
     "@libs/spaces-shared-ts": "workspace:*",
     "@pkgs/room-adapter-durable-object-server-ts": "workspace:*",
     "@pkgs/room-adapter-durable-object-shared-ts": "workspace:*",
-    "@pkgs/room-root-shared-ts": "workspace:*"
+    "@pkgs/room-root-shared-ts": "workspace:*",
+    "@pkgs/turn-game-shared-ts": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

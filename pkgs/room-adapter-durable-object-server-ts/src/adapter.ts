@@ -70,6 +70,12 @@ export type CreateDurableObjectAdapterOptions<
    */
   authorize?: RoomServerConfig<S, C, E, Identity>['authorize'];
   /**
+   * Loads what the hosted modules decide with (immutable rule data, such as
+   * a word list) before the object handles any request, frame or alarm.
+   * Nothing to load when omitted.
+   */
+  ready?: () => Promise<void>;
+  /**
    * Override storage construction (mainly for tests / alternative
    * persistence). Defaults to {@link DurableObjectRoomStorage} backed by
    * the DO's KV `storage` binding (per-event / per-dedup keys per module).
@@ -138,6 +144,7 @@ function resolveOptions<
     clock: options.clock,
     createId: options.createId,
     authorize: options.authorize,
+    ready: options.ready ?? (() => Promise.resolve()),
     effectHandlers: options.effectHandlers ?? [],
     telemetry: options.telemetry,
     serviceIdentity: options.serviceIdentity ?? null,

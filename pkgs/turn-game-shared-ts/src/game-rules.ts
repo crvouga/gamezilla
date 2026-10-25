@@ -453,6 +453,15 @@ export function createTurnGames(
     },
   };
 }
+/**
+ * Load every registered game's rule data (`GameRules.prepare`), once: what
+ * a composition root awaits before an authority, a bot or a device playing
+ * alone decides.
+ */
+export async function prepareTurnGames(turnGames: TurnGames): Promise<void> {
+  await Promise.all(turnGames.games.map((game) => game.rules.prepare?.()));
+}
+
 export function requireTurnGames(env: {
   readonly turnGames?: TurnGames;
 }): TurnGames {
