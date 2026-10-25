@@ -15,6 +15,7 @@ import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { ContentAuthorStage } from './content-author-stage';
 import { ContentAuthorStatus } from './content-author-status';
+import { ContentDraftHistoryControls } from './content-draft-history-controls';
 import { ContentDraftMetadata } from './content-draft-metadata';
 import { ContentDraftPlaytest } from './content-draft-playtest';
 import { useContentGame } from './content-game-context';
@@ -24,6 +25,40 @@ import { ContentPackEditor } from './content-pack-editor';
 import { ContentPackPreview } from './content-pack-preview';
 import { ContentPublicationControls } from './content-publication-controls';
 import { useContentAuthorWorkspace } from './use-content-author-workspace';
+import type { useContentDraftSave } from './use-content-draft-save';
+
+function AuthorActions(props: {
+  document: ContentDocument;
+  writer: ReturnType<typeof useContentDraftSave>;
+  preview: boolean;
+  onPreview: () => void;
+  disabled: boolean;
+}): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <>
+      <ContentDraftHistoryControls
+        writer={props.writer}
+        disabled={props.disabled || props.preview}
+      />
+      <Button
+        title={props.preview ? t`Return to editing` : t`Preview`}
+        intent="neutral"
+        variant="outline"
+        onClick={props.onPreview}
+        disabled={props.disabled}
+        dataSet={{ testid: 'content-preview' }}
+      />
+      <Show when={props.document.kind === 'puzzle'}>
+        <ContentDraftPlaytest
+          documentId={props.document.id}
+          writer={props.writer}
+          disabled={props.disabled}
+        />
+      </Show>
+    </>
+  );
+}
 
 function AuthorBody(props: {
   document: ContentDocument;
@@ -71,23 +106,13 @@ function AuthorBody(props: {
           </StackVertical>
         }
         actions={
-          <>
-            <Button
-              title={preview() ? t`Return to editing` : t`Preview`}
-              intent="neutral"
-              variant="outline"
-              onClick={() => setPreview((value) => !value)}
-              disabled={disabled()}
-              dataSet={{ testid: 'content-preview' }}
-            />
-            <Show when={props.document.kind === 'puzzle'}>
-              <ContentDraftPlaytest
-                documentId={props.document.id}
-                writer={writer}
-                disabled={disabled()}
-              />
-            </Show>
-          </>
+          <AuthorActions
+            document={props.document}
+            writer={writer}
+            preview={preview()}
+            onPreview={() => setPreview((value) => !value)}
+            disabled={disabled()}
+          />
         }
       >
         <Show
@@ -118,7 +143,7 @@ function AuthorBody(props: {
         document={props.document}
         currentId={writer.draftId()}
         disabled={disabled() || writer.dirty()}
-        onChoose={writer.adopt}
+        onChoose={(draft) => writer.adopt(draft, 'replace')}
       />
     </GameScreen>
   );

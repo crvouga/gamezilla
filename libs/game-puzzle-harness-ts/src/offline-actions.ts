@@ -1,5 +1,6 @@
 import { readAttemptLibrary } from '@libs/game-puzzle-shared-ts/attempt-library';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
+import { closeBuilder } from './builder-session';
 import { contentClient } from './content-actions';
 import { selectContentDocument } from './content-selection';
 import type { ContentHarness } from './content-system';
@@ -39,6 +40,7 @@ export const reopenContentDevice = defineAction({
     const selected = s.playSelections.get(clientId);
     s.editors.delete(clientId);
     s.playSelections.delete(clientId);
+    closeBuilder(s, clientId);
     await s.node(clientId).restart({ preserveLocalDb: true });
     if (s.offline.has(clientId)) contentClient(s, clientId).online(false);
     if (documentId !== undefined)

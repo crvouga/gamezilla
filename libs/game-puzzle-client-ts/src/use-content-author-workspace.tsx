@@ -30,7 +30,7 @@ export function useContentAuthorWorkspace(
       .content()
       .drafts.find((entry) => entry.id === adopting());
     if (draft !== undefined) {
-      writer.adopt(draft);
+      writer.adopt(draft, 'edit');
       setAdopting(null);
     }
   });

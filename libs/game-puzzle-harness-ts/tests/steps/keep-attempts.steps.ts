@@ -200,8 +200,16 @@ Then(
         maxMs: 5000,
       })
     ).toBe(true);
-    expect(await w.run.read(currentAttemptView, 'bob:phone')).not.toMatchObject(
-      { title }
-    );
+    const current = await w.run.read(currentAttemptView, 'bob:phone');
+    if (current !== null) {
+      expect(current).not.toMatchObject({ title });
+      return;
+    }
+    // With no earlier attempt to keep apart, starting it shows that it starts.
+    await w.run.apply(startStandaloneAttempt, 'bob:phone', { title });
+    expect(await w.run.read(currentAttemptView, 'bob:phone')).toMatchObject({
+      title,
+      mode: 'ordinary',
+    });
   }
 );

@@ -5,6 +5,7 @@ import type {
   PuzzlePlayerProps,
 } from '@libs/game-puzzle-client-ts/puzzle-content-client';
 import { SpacesNavProvider } from '@libs/spaces-client-ts/spaces-nav-context';
+import type { PuzzleContent } from '@pkgs/turn-game-shared-ts/puzzle-content';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -52,13 +53,15 @@ const client: PuzzleContentClient = {
   authoring: { initialDefinition: () => 'target:', Editor: CountingEditor },
 };
 
-export function ContentExampleClient(): JSX.Element {
+export function ContentExampleClient(props: {
+  content: PuzzleContent;
+}): JSX.Element {
   return (
     <SpacesNavProvider>
       <ContentExperience
         gameId="counting"
         title="Counting"
-        content={examplePuzzleContent}
+        content={props.content}
         client={client}
         onBack={() => {
           throw new Error('This fixture opens the puzzle library directly');

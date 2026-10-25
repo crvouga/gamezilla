@@ -7,6 +7,7 @@ import {
 } from '@pkgs/sync-engine-harness-ts/scenario-boot';
 import type { SyncHarness } from '@pkgs/sync-engine-harness-ts/scenario-system';
 import type { MutateResult } from '@pkgs/sync-engine-shared-ts/mutations-types';
+import type { PuzzleContent } from '@pkgs/turn-game-shared-ts/puzzle-content';
 import { ATTEMPT_ACTIONS } from './attempt-actions';
 import { ATTEMPT_FIXTURES } from './attempt-fixtures';
 import { ATTEMPT_LIFECYCLE_ACTIONS } from './attempt-lifecycle-actions';
@@ -16,13 +17,21 @@ import {
 } from './attempt-page-actions';
 import { playTwoStepsThroughScreen } from './attempt-screen-actions';
 import { AUTHORING_LIFECYCLE_ACTIONS } from './authoring-lifecycle-actions';
+import { BUILDER_ACTIONS, type BuilderSession } from './builder-session';
 import { CONTENT_ACTIONS } from './content-actions';
 import { contentActorId } from './content-identity';
 import { PUBLICATION_ACTIONS } from './content-publication-actions';
 import { createContentThroughScreen } from './content-screen-actions';
 import { DRAFT_CHOICE_ACTIONS } from './draft-choice-actions';
-import { contentExampleApp } from './example-app';
+import { DRAFT_EDITING_ACTIONS } from './draft-editing-lifecycle';
+import { EDITION_RULES_ACTIONS } from './edition-rules-actions';
+import { EDITION_RULES_LIFECYCLE_ACTIONS } from './edition-rules-lifecycle';
+import { createContentExampleApp } from './example-app';
 import { exampleContentBootstrapQuery } from './example-app-query';
+import {
+  type ExampleRules,
+  examplePuzzleContentFor,
+} from './example-app-rules';
 import { saveMetadataThroughScreen } from './metadata-screen-actions';
 import { NAMED_PACK_ACTIONS } from './named-pack-actions';
 import { OFFLINE_ACTIONS } from './offline-actions';
@@ -54,8 +63,12 @@ export type PlaySelection = {
 };
 
 export type ContentHarness = SyncHarness & {
+  /** This run's game rules; an app update may change their version. */
+  readonly rules: ExampleRules;
+  readonly content: PuzzleContent;
   readonly documents: Map<string, string>;
   readonly editors: Map<string, ContentEditor>;
+  readonly builders: Map<string, BuilderSession>;
   readonly lastResult: Map<string, MutateResult>;
   readonly publicationResults: Map<string, MutateResult>;
   readonly notices: Map<string, string>;
@@ -112,6 +125,10 @@ export const contentSystem = defineSystem<
     ...STALE_EDITOR_ACTIONS,
     ...PROGRESSION_LIFECYCLE_ACTIONS,
     ...PUBLICATION_RECOVERY_ACTIONS,
+    ...BUILDER_ACTIONS,
+    ...DRAFT_EDITING_ACTIONS,
+    ...EDITION_RULES_ACTIONS,
+    ...EDITION_RULES_LIFECYCLE_ACTIONS,
   ],
   runtimes: [
     defineRuntime({
@@ -121,6 +138,9 @@ export const contentSystem = defineSystem<
     }),
   ],
   async create(session, args) {
+    const rules: ExampleRules = { version: 1 };
+    const content = examplePuzzleContentFor(rules);
+    const contentExampleApp = createContentExampleApp(content);
     const app = args.initialContent
       ? contentExampleApp
       : {
@@ -144,10 +164,13 @@ export const contentSystem = defineSystem<
         id,
         actorId: contentActorId(id.split(':')[0] ?? ''),
       });
-    return {
+    const harness: ContentHarness = {
       ...sync,
+      rules,
+      content,
       documents: new Map(),
       editors: new Map(),
+      builders: new Map(),
       lastResult: new Map(),
       publicationResults: new Map(),
       notices: new Map(),
@@ -165,5 +188,6 @@ export const contentSystem = defineSystem<
       lifecyclePuzzles: [],
       lifecycleAttempts: [],
     };
+    return harness;
   },
 });

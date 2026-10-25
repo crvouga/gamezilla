@@ -10,6 +10,7 @@ export function ContentAttemptNotices(props: {
   writer: ReturnType<typeof useContentAttemptChange>;
   playtest: boolean;
   complete: boolean;
+  rulesChanged: boolean;
 }): JSX.Element {
   const { t } = useLingui();
   return (
@@ -24,6 +25,17 @@ export function ContentAttemptNotices(props: {
           ? t`Saving your position…`
           : t`Progress saved on this device. Changes share when connected.`}
       </P>
+      <Show when={props.rulesChanged}>
+        <Notice
+          tone="warning"
+          dataSet={{ testid: 'content-attempt-rules-changed' }}
+        >
+          <Trans>
+            This puzzle needs a version of the app with its rules. Your saved
+            attempt stays kept; update the app to continue it.
+          </Trans>
+        </Notice>
+      </Show>
       <Show when={props.playtest}>
         <Notice>
           <Trans>

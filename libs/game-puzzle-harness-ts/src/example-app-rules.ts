@@ -12,8 +12,7 @@ const invalid = [
   },
 ];
 
-export const examplePuzzleContent: PuzzleContent = {
-  rulesVersion: 1,
+const counting: Omit<PuzzleContent, 'rulesVersion'> = {
   history: 'snapshots',
   rules: {
     validateDefinition: (definition) =>
@@ -52,3 +51,17 @@ export const examplePuzzleContent: PuzzleContent = {
     remaining: (targetOf(definition) ?? 0) - (positionOf(state) ?? 0),
   }),
 };
+
+/** A harness run's game rules version: an app update may change it. */
+export type ExampleRules = { version: number };
+
+export function examplePuzzleContentFor(rules: ExampleRules): PuzzleContent {
+  return {
+    ...counting,
+    get rulesVersion() {
+      return rules.version;
+    },
+  };
+}
+
+export const examplePuzzleContent = examplePuzzleContentFor({ version: 1 });

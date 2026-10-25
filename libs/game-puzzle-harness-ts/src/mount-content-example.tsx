@@ -46,7 +46,7 @@ export async function mountContentExample(s: ContentHarness, clientId: string) {
               >
                 <SurfaceStackProvider>
                   <ContentExampleHost>
-                    <ContentExampleClient />
+                    <ContentExampleClient content={s.content} />
                   </ContentExampleHost>
                 </SurfaceStackProvider>
               </ThemeProvider>

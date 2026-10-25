@@ -1,5 +1,6 @@
 import { readContentLibrary } from '@libs/game-puzzle-shared-ts/content-library';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
+import { editTitleInBuilder } from './builder-session';
 import {
   contentClient,
   createDraftFor,
@@ -55,6 +56,9 @@ export const arrangePublishedContent = defineAction({
 export const reviseContentDraft = defineAction({
   name: 'reviseContentDraft',
   act: async (s: ContentHarness, title: string) => {
+    // A person already in the builder renames there, so its choices follow.
+    if (s.builders.has('alice:phone'))
+      return editTitleInBuilder.act(s, 'alice:phone', title);
     await selectPuzzleEditor(s, 'alice:phone');
     const editor = currentContentEditor(s, 'alice:phone');
     editor.body = { ...editor.body, title };
