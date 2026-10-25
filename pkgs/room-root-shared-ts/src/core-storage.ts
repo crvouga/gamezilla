@@ -1,3 +1,5 @@
+import type { Message } from '@pkgs/message-shared-ts/message';
+import type { RoomLiveCheckpoint } from './live-checkpoint';
 import type { LogEntry, RoomCommandPayload } from './types';
 
 export type QueuedCommand = {
@@ -7,7 +9,7 @@ export type QueuedCommand = {
 };
 
 /**
- * Durable client-side cache: committed tail + outbound command queue.
+ * Durable client-side cache: committed tail, outbound choices and one bounded live value.
  *
  * This interface is the only contract every client storage adapter
  * (in-memory, `localStorage`, async key-value, future SQLite, etc.) must
@@ -28,4 +30,10 @@ export interface ClientRoomStorage {
   loadQueued(): Promise<QueuedCommand[]>;
   /** Replace the durable outbound queue with a snapshot of the in-memory queue. */
   saveQueued(queue: readonly QueuedCommand[]): Promise<void>;
+  /** One bounded, replaceable value for client-owned live execution, never a tick journal. */
+  loadLiveCheckpoint(): Promise<RoomLiveCheckpoint | null>;
+  replaceLiveCheckpoint(
+    expectedSeq: number,
+    payload: Message | null
+  ): Promise<boolean>;
 }

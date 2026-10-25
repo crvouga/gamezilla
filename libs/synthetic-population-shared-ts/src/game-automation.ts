@@ -1,5 +1,6 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { GameAutomation } from '@pkgs/turn-game-shared-ts/game-automation';
+import type { GamePositionRules } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 
 const FIND_AN_OPPONENT = Handles.gameChoice('multiplayer');
@@ -7,14 +8,14 @@ const FIND_AN_OPPONENT = Handles.gameChoice('multiplayer');
 /** Resume the current game's choices before considering a fresh game choice. */
 export async function openMultiplayer(
   driver: Driver,
-  games: readonly GameAutomation<Driver>[],
+  games: readonly { readonly rules: Pick<GamePositionRules, 'id'> }[],
   random: () => number
 ): Promise<void> {
   if (await driver.get(FIND_AN_OPPONENT).isVisible()) {
     await driver.get(FIND_AN_OPPONENT).tap();
     return;
   }
-  const offered: GameAutomation<Driver>[] = [];
+  const offered: (typeof games)[number][] = [];
   for (const game of games)
     if (await driver.get(Handles.gameMenu(game.rules.id)).isVisible())
       offered.push(game);

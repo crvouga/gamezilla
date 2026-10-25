@@ -11,7 +11,7 @@
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
 import type { GameFixtures } from '@libs/game-session-harness-ts/harness-game';
 import { assertHarnessGame } from '@libs/game-session-harness-ts/harness-game';
-import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import type {
   GameRules,
   PlayedPosition,
@@ -118,10 +118,10 @@ const CAPABILITIES = {
   },
 } satisfies TurnGameCapabilities;
 
-const SHARED = defineTurnGame({
+const SHARED = defineGame({
   rules: SETUP_RACE_RULES,
   capabilities: CAPABILITIES,
-  automation: probeAutomation(SETUP_RACE_RULES),
+  turnAutomation: probeAutomation(SETUP_RACE_RULES),
 });
 
 /** Both pick a stride of one; the first side runs home on its third run. */

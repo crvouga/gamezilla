@@ -118,7 +118,7 @@ export function GameMenu(props: {
 }): JSX.Element {
   const navigation = useGameScreen();
   const offers: Offers = (capability) =>
-    props.game.shared.turnGame?.capabilities[capability] !== undefined;
+    props.game.shared.registration?.capabilities[capability] !== undefined;
   useOpenLinkedMultiplayer(navigation, () => offers('matchmaking'));
   const screens = createMemo(
     () =>

@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly fresh seed 1269405076 shrank the fast-burn property to 144 bad events in each 10000-event window. The implementation and existing literal contract correctly fire at this exact 14.4x boundary, but the property's independent oracle divides floats and computes a value just below 14.4. Compare the exact 144-event integer boundary instead, preserving checks of every window and the existing product comparison.",
+  "regressionTest": "pkgs/openslo-shared-ts/tests/alert-policy.test.ts"
+}

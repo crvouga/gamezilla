@@ -32,7 +32,7 @@ import { PUZZLE_MAX_RECOMMENDATIONS } from '@libs/game-puzzle-shared-ts/recommen
 import { projectBoardPosition } from '@libs/game-puzzle-shared-ts/solve-projection';
 import type { RoomState } from '@pkgs/room-root-shared-ts/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared-ts/types';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 import {
   apply,
   committed,
@@ -47,7 +47,7 @@ import {
 const errorOf = (result: ReturnType<typeof send>) =>
   result.ok ? null : result.error.type;
 
-forEveryGame(import.meta.path, (game) => {
+forEveryTurnGame(import.meta.path, (game) => {
   const c = puzzleCase(game);
   const { long, layout } = c;
   const first = long.solution[0] ?? '';

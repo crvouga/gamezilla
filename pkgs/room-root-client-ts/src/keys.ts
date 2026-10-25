@@ -33,3 +33,8 @@ export function committedSegmentKeyword(
 ): Keyword {
   return asKeyword(`${committed}-seg-${String(index)}`);
 }
+
+/** The bounded live value shares the existing room client's storage namespace. */
+export function clientLiveCheckpointKeyword(committed: Keyword): Keyword {
+  return asKeyword(`${committed}-live`);
+}

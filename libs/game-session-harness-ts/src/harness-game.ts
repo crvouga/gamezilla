@@ -1,7 +1,10 @@
 import type { GameClientRegistration } from '@libs/game-menu-client-ts/game-client';
 import { assertGameClientDefinitions } from '@libs/game-menu-client-ts/game-client';
-import type { TurnGameDefinition } from '@libs/game-session-shared-ts/turn-game-definition';
-import { assertTurnGameDefinitions } from '@libs/game-session-shared-ts/turn-game-definition';
+import type {
+  GameRegistration,
+  TurnGameDefinition,
+} from '@libs/game-session-shared-ts/game-definition';
+import { assertGameDefinitions } from '@libs/game-session-shared-ts/game-definition';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import type { HarnessSlice } from '@libs/harness-ts/slices';
 import type { CatalogAction } from '@pkgs/harness-root-shared-ts/effect';
@@ -17,6 +20,10 @@ import {
 import type { KnownPuzzles, PuzzleFixture } from './known-puzzles';
 import { assertKnownPuzzles, assertMorePuzzles } from './known-puzzles';
 import { playedRulesOf } from './played-rules';
+import {
+  assertSimulationFixtures,
+  type SimulationHarnessFixtures,
+} from './simulation-fixtures';
 
 /**
  * Known examples of a game's rules, written by the game's author from the
@@ -156,49 +163,123 @@ export const HEARD_PUZZLE_SOUNDS: readonly PuzzleSoundKind[] = [
  * adapter its harness package exports. The games registry harness lists
  * every one, and a registered game without one fails the enrollment test.
  */
+export type TurnHarnessGame<
+  C extends TurnGameCapabilities = TurnGameCapabilities,
+> = PlayableGame<C> & {
+  readonly simulationFixtures?: SimulationHarnessFixtures;
+  /** The same client definition production registers. */
+  readonly client: GameClientRegistration<TurnGameDefinition>;
+  /** The sub only this game's screens need, beside the shared ones. */
+  readonly slice?: HarnessSlice;
+  /** This game's own testing-tool actions. */
+  readonly actions?: readonly CatalogAction<ProductHarness>[];
+  /**
+   * Reads the game's record back in its own format, for a game offering
+   * finding an opponent and history (whose matched games offer a game
+   * record); absent otherwise, which `assertHarnessGame` checks. The shared
+   * game-record feature (`matched-game-record`) needs it.
+   */
+  readonly readRecord?: (record: string) => ReadGameRecord;
+  /**
+   * The sounds its puzzles and their reviews play, by the source the
+   * app's audio plays (`createAudioPlayer(source)`), each as what it is to
+   * the solver; a game offering puzzles names one for each kind the shared
+   * puzzle-sound specifications hear ({@link HEARD_PUZZLE_SOUNDS}), and
+   * no other game names any, which `assertHarnessGame` checks.
+   */
+  readonly puzzleSounds?: Readonly<Record<string, PuzzleSoundKind>>;
+};
+
+export type SimulationHarnessGame<
+  C extends TurnGameCapabilities = TurnGameCapabilities,
+> = {
+  readonly label: string;
+  readonly shared: GameRegistration<C>;
+  readonly client: GameClientRegistration<GameRegistration>;
+  readonly simulationFixtures: SimulationHarnessFixtures;
+  readonly slice?: HarnessSlice;
+  readonly actions?: readonly CatalogAction<ProductHarness>[];
+  readonly readRecord?: (record: string) => Omit<ReadGameRecord, 'moves'>;
+};
+
+/** Real capabilities determine the obligations; a hybrid supplies both sets of examples. */
 export type HarnessGame<C extends TurnGameCapabilities = TurnGameCapabilities> =
-  PlayableGame<C> & {
-    /** The same client definition production registers. */
-    readonly client: GameClientRegistration<TurnGameDefinition>;
-    /** The sub only this game's screens need, beside the shared ones. */
-    readonly slice?: HarnessSlice;
-    /** This game's own testing-tool actions. */
-    readonly actions?: readonly CatalogAction<ProductHarness>[];
-    /**
-     * Reads the game's record back in its own format, for a game offering
-     * finding an opponent and history (whose matched games offer a game
-     * record); absent otherwise, which `assertHarnessGame` checks. The shared
-     * game-record feature (`matched-game-record`) needs it.
-     */
-    readonly readRecord?: (record: string) => ReadGameRecord;
-    /**
-     * The sounds its puzzles and their reviews play, by the source the
-     * app's audio plays (`createAudioPlayer(source)`), each as what it is to
-     * the solver; a game offering puzzles names one for each kind the shared
-     * puzzle-sound specifications hear ({@link HEARD_PUZZLE_SOUNDS}), and
-     * no other game names any, which `assertHarnessGame` checks.
-     */
-    readonly puzzleSounds?: Readonly<Record<string, PuzzleSoundKind>>;
+  | TurnHarnessGame<C>
+  | SimulationHarnessGame<C>;
+
+export function isTurnHarnessGame<C extends TurnGameCapabilities>(
+  game: HarnessGame<C>
+): game is TurnHarnessGame<C> {
+  return game.shared.turnGame !== undefined && 'fixtures' in game;
+}
+
+export function isSimulationHarnessGame<C extends TurnGameCapabilities>(
+  game: HarnessGame<C>
+): game is SimulationHarnessGame<C> {
+  return (
+    game.shared.registration.simulation !== undefined &&
+    game.simulationFixtures !== undefined
+  );
+}
+
+export function assertHarnessGame<C extends TurnGameCapabilities>(
+  game: TurnHarnessGame<C>
+): TurnHarnessGame<C>;
+export function assertHarnessGame<C extends TurnGameCapabilities>(
+  game: SimulationHarnessGame<C>
+): SimulationHarnessGame<C>;
+export function assertHarnessGame<C extends TurnGameCapabilities>(
+  game: HarnessGame<C>
+): HarnessGame<C>;
+export function assertHarnessGame<C extends TurnGameCapabilities>(
+  game: HarnessGame<C>
+): HarnessGame<C> {
+  const fail = (problem: string): never => {
+    throw new Error(`${game.label}: ${problem}`);
   };
+  assertGameDefinitions(`${game.label}: shared`, [game.shared]);
+  assertGameClientDefinitions(`${game.label}: client`, [game.client]);
+  if (game.shared.id !== game.client.id)
+    fail('its shared and client definitions name different games');
+  if (game.shared.turnGame !== undefined && !isTurnHarnessGame(game))
+    fail('turn rules require independent turn fixtures');
+  if (isTurnHarnessGame(game)) assertTurnHarnessGame(game);
+  const simulation = game.shared.registration.simulation;
+  if (simulation === undefined) {
+    if (game.simulationFixtures !== undefined)
+      fail('only a simulation supplies simulation fixtures');
+  } else {
+    if (game.simulationFixtures === undefined)
+      fail('a simulation supplies independent examples');
+    assertSimulationFixtures(simulation, game.simulationFixtures!, fail);
+    if (
+      game.shared.capabilities.matchmaking !== undefined &&
+      game.shared.capabilities.history !== undefined &&
+      game.readRecord === undefined
+    )
+      fail('a game whose matched games offer a game record reads it back');
+  }
+  return game;
+}
 
 /**
  * Fail fast, naming the game, on an adapter its own rules contradict. Its
  * fixtures follow what its definition offers (`C`): known puzzles exactly
  * for a game offering puzzles.
  */
-export function assertHarnessGame<C extends TurnGameCapabilities>(
-  harnessGame: HarnessGame<C>
-): HarnessGame {
-  const game: HarnessGame = harnessGame;
+function assertTurnHarnessGame<C extends TurnGameCapabilities>(
+  harnessGame: TurnHarnessGame<C>
+): TurnHarnessGame {
+  const game: TurnHarnessGame = harnessGame;
   const rules = game.shared.turnGame.rules;
   const fail = (problem: string) => {
     throw new Error(`${game.label}: ${problem}`);
   };
-  assertTurnGameDefinitions(`${game.label}: shared`, [game.shared]);
+  assertGameDefinitions(`${game.label}: shared`, [game.shared]);
   assertGameClientDefinitions(`${game.label}: client`, [game.client]);
   if (game.shared.id !== game.client.id || game.shared.id !== rules.id)
     fail(
-      `its definitions name different games (defineTurnGame "${game.shared.id}", defineGameClient "${game.client.id}", rules "${rules.id}") — give defineGameClient this game's defineTurnGame value as its shared`
+      `its definitions name different games (defineGame "${game.shared.id}", defineGameClient "${game.client.id}", rules "${rules.id}") — give defineGameClient this game's defineGame value as its shared`
     );
   assertPuzzlesAgree(game, fail);
   assertKnownSetups(game, fail);
@@ -241,7 +322,7 @@ export function assertHarnessGame<C extends TurnGameCapabilities>(
  * written as the game stores it; no other game names any.
  */
 function assertKnownSetups(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   fail: (problem: string) => void
 ): void {
   const setup = game.shared.turnGame.rules.setup;
@@ -266,7 +347,7 @@ function assertKnownSetups(
  * offering none has neither.
  */
 function assertPuzzlesAgree(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   fail: (problem: string) => void
 ): void {
   const offered = offeredCapabilities(game.shared.turnGame).includes('puzzles');
@@ -313,7 +394,7 @@ function assertPuzzlesAgree(
  * games offer a game record (finding an opponent and history) reads it.
  */
 function assertMoveNamesAndRecord(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   fail: (problem: string) => void
 ): void {
   const { firstSideVictory, firstSideVictoryLabels } = game.fixtures;
@@ -336,7 +417,7 @@ function assertMoveNamesAndRecord(
  * win (the first side able to) before and after that move.
  */
 function assertCannotWinLine(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   line: readonly string[],
   fail: (problem: string) => void
 ): void {
@@ -370,7 +451,7 @@ function assertCannotWinLine(
  * action, which draws the game.
  */
 function assertDrawingLine(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   line: readonly string[],
   fail: (problem: string) => void
 ): void {

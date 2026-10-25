@@ -21,6 +21,7 @@
     "@libs/app-config-shared-ts": "workspace:*",
     "@libs/game-catalog-shared-ts": "workspace:*",
     "@libs/game-matchmaking-harness-ts": "workspace:*",
+    "@libs/game-matchmaking-shared-ts": "workspace:*",
     "@libs/game-session-harness-ts": "workspace:*",
     "@libs/games-harness-ts": "workspace:*",
     "@libs/harness-ts": "workspace:*",

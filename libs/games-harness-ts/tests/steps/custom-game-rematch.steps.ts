@@ -11,11 +11,11 @@ import {
 } from './custom-game-set-up-world';
 import {
   before,
-  gameOf,
   hostOf,
   rememberCustomGame,
   setupCustomGame,
   sideOf,
+  turnGameOf,
 } from './game-world';
 
 Given(
@@ -24,7 +24,7 @@ Given(
     await setupCustomGame(w, {
       host: actor,
       first: actor,
-      moves: gameOf(w).fixtures.firstSideVictory.slice(0, 1),
+      moves: turnGameOf(w).fixtures.firstSideVictory.slice(0, 1),
     });
     await chosen(w, actor, { operation: 'resign' });
     await rememberCustomGame(w);
@@ -56,7 +56,10 @@ Then(
     const history = (await w.s.read(customGameView, hostOf(w))).history;
     const game = history.find((candidate) => candidate.id === earlier?.id);
     expect(game?.moves.map((move) => move.uci)).toEqual(
-      recordedLine(gameOf(w), gameOf(w).fixtures.firstSideVictory.slice(0, 1))
+      recordedLine(
+        turnGameOf(w),
+        turnGameOf(w).fixtures.firstSideVictory.slice(0, 1)
+      )
     );
     expect(game?.outcome).toBe(String(w.memo.get('custom-game-resigned')));
   }

@@ -19,7 +19,7 @@ import { passMultiplayerDays } from '@libs/game-matchmaking-harness-ts/multiplay
 import { Given, Then, When } from '@libs/harness-ts/define';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import { daily } from './finding-an-opponent-world';
-import { gameOf } from './game-world';
+import { turnGameOf } from './game-world';
 import {
   firstMoveOf,
   firstMoves,
@@ -134,7 +134,7 @@ Given(
   '{actor} has the first side against {actor} in a daily game at {int} day(s) per move one move from her victory',
   async (w, first: string, second: string, days: number) => {
     await pairedAt(w, first, second, daily(days));
-    const victory = gameOf(w).fixtures.firstSideVictory;
+    const victory = turnGameOf(w).fixtures.firstSideVictory;
     await acceptedMoves(w, victory.slice(0, -1));
     w.memo.set('winning-move', victory.at(-1));
   }

@@ -1,7 +1,8 @@
 import {
-  DEFAULT_TIME_CONTROL,
-  timeControlKey,
-} from '@libs/game-matchmaking-shared-ts/time-control';
+  defaultMatchChoice,
+  matchChoiceOf,
+} from '@libs/game-matchmaking-shared-ts/match-choice';
+import { timeControlKey } from '@libs/game-matchmaking-shared-ts/time-control';
 import {
   actorUi,
   ensureActor,
@@ -31,19 +32,26 @@ import { multiplayerSpaceId } from './multiplayer-spaces';
  */
 export const seekGameOpponent = scenarioAction({
   name: 'seekGameOpponent',
-  act: async (
-    s,
-    actor: string,
-    gameId: string,
-    clockChoice: string = DEFAULT_TIME_CONTROL
-  ) => {
+  act: async (s, actor: string, gameId: string, clockChoice?: string) => {
     await Promise.resolve(signInWithGoogle.act(s, actor));
     await Promise.resolve(backToTabs.act(s, actor));
     await Promise.resolve(createSpace.act(s, actor));
     const ui = await actorUi(s, actor);
     await ui.get(Handles.gameMenu(gameId)).tap();
     await ui.get(Handles.gameChoice('multiplayer')).tap();
-    await Promise.resolve(requestGameOpponent.act(s, actor, clockChoice));
+    const matched = s.harness.composition.app.turnGames.capability(
+      gameId,
+      'matchmaking'
+    );
+    if (matched === undefined)
+      throw new Error(`${gameId} offers no finding an opponent`);
+    await Promise.resolve(
+      requestGameOpponent.act(
+        s,
+        actor,
+        clockChoice ?? defaultMatchChoice(matched)
+      )
+    );
   },
 });
 
@@ -182,6 +190,15 @@ async function seekFromFindingAnOpponent(
   const choice = ui.get(
     `multiplayer-time-control-${timeControlKey(clockChoiceOf(timeControl))}`
   );
+  if (
+    matchChoiceOf(timeControl)?.clock === null &&
+    (await ui.get('multiplayer-find').isVisible())
+  ) {
+    await forgetMultiplayerReply(s, actor);
+    await ui.get('multiplayer-find').tap();
+    await s.session.waitForIdle();
+    return;
+  }
   if (!(await choice.isVisible())) {
     await Promise.resolve(
       sendMultiplayerCommand.act(s, actor, {
@@ -191,7 +208,7 @@ async function seekFromFindingAnOpponent(
     );
     return;
   }
-  forgetMultiplayerReply(s, actor);
+  await forgetMultiplayerReply(s, actor);
   await choice.tap();
   await ui.get('multiplayer-find').tap();
   await s.session.waitForIdle();
@@ -244,7 +261,7 @@ export const stopSeekingOpponent = scenarioAction({
   act: async (s, actor: string) => {
     const stop = (await actorUi(s, actor)).get('multiplayer-stop');
     if (await stop.isVisible()) {
-      forgetMultiplayerReply(s, actor);
+      await forgetMultiplayerReply(s, actor);
       await stop.tap();
       return;
     }

@@ -28,13 +28,13 @@ forEveryGame(
   (game) => {
     const session = withCustomGames(
       game.shared,
-      createTurnGames([game.shared.turnGame])
+      createTurnGames([game.shared.registration])
     );
     const active: CustomGame = {
       ...newCustomGame(
         'friday-game',
         'alice',
-        game.shared.turnGame.rules.initial()
+        game.shared.registration.rules.initial()
       ),
       status: 'active',
       black: { kind: 'person', person: 'bob' },

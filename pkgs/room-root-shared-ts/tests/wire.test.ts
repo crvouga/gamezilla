@@ -14,6 +14,24 @@ const entry = {
   ts: 5,
 };
 
+test('signal frames round-trip typed messages and reject malformed envelopes', () => {
+  const input = {
+    v: WIRE_VERSION,
+    kind: 'signal',
+    id: 'signal-1',
+    ts: 4,
+    payload: entry.event,
+  };
+  const state = { v: WIRE_VERSION, kind: 'signal', payload: entry.event };
+  expect(parseClientToServerWire(input)).toMatchObject(input);
+  expect(parseServerToClientWire(state)).toMatchObject(state);
+  for (const payload of [null, 'state', { type: 'unqualified', payload: {} }]) {
+    expect(parseClientToServerWire({ ...input, payload })).toBeNull();
+    expect(parseServerToClientWire({ ...state, payload })).toBeNull();
+  }
+  expect(parseClientToServerWire({ ...input, id: '' })).toBeNull();
+});
+
 describe('wire parsing', () => {
   test('client → server frames round-trip and reject garbage', () => {
     expect(parseClientToServerWire({ v: WIRE_VERSION, kind: 'ping' })).toEqual({

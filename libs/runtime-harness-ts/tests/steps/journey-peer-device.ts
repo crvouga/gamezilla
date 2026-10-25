@@ -11,7 +11,7 @@ import type {
 import { spaceLinkFromLocation } from '@libs/runtime-harness-ts/journey-types';
 
 export function harnessJourneyPeerDevice(
-  w: HarnessWorld,
+  w: Pick<HarnessWorld, 's'>,
   peer: {
     current: () => string;
     select: (id: string) => void;

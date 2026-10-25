@@ -172,9 +172,12 @@ Then(
     expect(await w.s.read(battleshipFleetLockedShown, actor)).toBe(true);
   }
 );
-Then("{actor}'s own board is unchanged", async (w, actor: string) => {
-  expect((await sees(w, actor)).setup).toEqual(remembered(w, actor).setup);
-});
+Then(
+  "{actor}'s own board keeps every ship in its place",
+  async (w, actor: string) => {
+    expect((await sees(w, actor)).setup).toEqual(remembered(w, actor).setup);
+  }
+);
 Then('{actor} has a complete fleet', async (w, actor: string) => {
   expect(await w.s.read(battleshipSetupStatus, actor)).toBe(
     'Your private setup is complete.'

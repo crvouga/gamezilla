@@ -44,7 +44,7 @@ export function GamesBootstrapFromPlugins(
         <TurnGamesProvider
           rules={createTurnGames(
             games.flatMap((game) =>
-              game.turnGame === undefined ? [] : [game.turnGame]
+              game.registration === undefined ? [] : [game.registration]
             )
           )}
           presentations={clients.flatMap((client) =>

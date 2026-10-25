@@ -38,6 +38,7 @@
     "@pkgs/keyword-shared-ts": "workspace:*",
     "@pkgs/kv-root-shared-ts": "workspace:*",
     "@pkgs/quint-shared-ts": "workspace:*",
+    "@pkgs/room-adapter-web-shared-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",

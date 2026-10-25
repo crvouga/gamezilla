@@ -1,5 +1,5 @@
 import { isProvisional } from '@libs/game-matchmaking-shared-ts/multiplayer-rating';
-import type { MultiplayerSpeed } from '@libs/game-matchmaking-shared-ts/time-control';
+import type { MultiplayerRatingPool } from '@libs/game-matchmaking-shared-ts/time-control';
 import {
   gameSpeed,
   MULTIPLAYER_SPEEDS,
@@ -10,7 +10,7 @@ import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameStat } from '@pkgs/ui-root-client-ts/game-stat';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { For, type JSX } from 'solid-js';
+import { For, type JSX, Show } from 'solid-js';
 import { SpeedName } from './speed-name';
 import type { MultiplayerRatingRow } from './use-multiplayer-data';
 
@@ -23,18 +23,29 @@ export function MultiplayerRatings(props: {
 }): JSX.Element {
   const rules = useTurnGames();
   const prefix = () =>
-    rules.capability(props.gameId, 'matchmaking')?.clockNamespace ?? '';
-  const ratingOf = (speed: MultiplayerSpeed) =>
+    rules.capability(props.gameId, 'matchmaking')?.namespace ?? '';
+  const pools = () =>
+    rules.capability(props.gameId, 'matchmaking')?.clockChoices === true
+      ? MULTIPLAYER_SPEEDS
+      : (['game'] as const);
+  const ratingOf = (speed: MultiplayerRatingPool) =>
     props.ratings.find((row) => row.speed === gameSpeed(prefix(), speed)) ??
     NEW_RATING;
   return (
     <GameSection title={<Trans>Your ratings</Trans>}>
       <Grid columns={2} gap="lg">
-        <For each={MULTIPLAYER_SPEEDS}>
+        <For each={pools()}>
           {(speed) => (
             <GameStat
               dataSet={{ testid: `multiplayer-rating-${speed}` }}
-              label={<SpeedName speed={speed} />}
+              label={
+                <Show
+                  when={speed === 'game'}
+                  fallback={<SpeedName speed={speed} />}
+                >
+                  <Trans>Game rating</Trans>
+                </Show>
+              }
               value={
                 <Text
                   variant="inherit"

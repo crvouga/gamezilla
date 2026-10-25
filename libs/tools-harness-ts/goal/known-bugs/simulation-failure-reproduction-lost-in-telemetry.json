@@ -1,0 +1,4 @@
+{
+  "summary": "A deterministic counting-race failure carries its seed, tick-zero checkpoint and first player's tick-one input four in memory, but the exported root error discards that reproduction. Preserve a bounded complete replay diagnostic through existing root exception and diagnostic boundaries so its recorded input and tick-local random draw reproduce the same failure; never silently truncate or corrupt a replay payload.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-failure-telemetry.test.ts"
+}

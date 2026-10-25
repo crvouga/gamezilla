@@ -7,7 +7,10 @@ import {
 } from '@pkgs/observability-root-shared-ts/correlation';
 import { addEvent, EVENT } from '@pkgs/observability-root-shared-ts/events';
 import { recordStructuredError } from '@pkgs/observability-root-shared-ts/log';
-import { startSpan } from '@pkgs/observability-root-shared-ts/span';
+import {
+  recordException,
+  startSpan,
+} from '@pkgs/observability-root-shared-ts/span';
 import {
   clearPendingInteractionCorrelation,
   setInteractionRequestRunner,
@@ -34,7 +37,7 @@ function reportError(error: unknown, source: string): string | undefined {
     [ATTR.CODE_FILE_PATH]: 'libs/app-root-shared-ts/src/browser-boundaries.ts',
     [ATTR.CODE_FUNCTION_NAME]: source,
   });
-  span.recordException(exception);
+  recordException(span, exception);
   recordStructuredError(
     exception,
     source,
@@ -80,7 +83,7 @@ export function recordLocalDatabaseOpen(
   });
   if (failure !== undefined) {
     const cause = asError(failure);
-    span.recordException(cause);
+    recordException(span, cause);
     span.setStatus({
       code: SpanStatusCode.ERROR,
       message: `local SQLite unavailable, running on an in-memory database on the main thread: ${cause.message}`,

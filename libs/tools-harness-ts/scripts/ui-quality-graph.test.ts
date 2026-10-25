@@ -53,6 +53,10 @@ test('the visual gate consumes every product spec part and caches both verdict a
   const sources = readJson<
     readonly { package: string; directory: string; parts: number }[]
   >('apps/product-ts/scripts/ui-quality/sources.json');
+  // regression: pong-visual-evidence-not-enrolled — its declared spec package was missing here.
+  expect(
+    sources.some((source) => source.directory === 'libs/pong-harness-ts')
+  ).toBe(true);
   expect(sources.map((s) => s.directory).sort()).toEqual(
     owners.map((p) => p.dir).sort()
   );

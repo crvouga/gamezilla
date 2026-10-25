@@ -21,8 +21,8 @@ import {
   topicsFromWriteCapture,
 } from '@pkgs/sync-engine-shared-ts/topic-map';
 import { wrapMutationDb } from '@pkgs/sync-engine-shared-ts/wrap-mutation-db';
-import type { HarnessGame } from './harness-game';
-import { harnessGameOf } from './harness-game-of';
+import type { TurnHarnessGame } from './harness-game';
+import { turnHarnessGameOf } from './harness-game-of';
 import { openPuzzleLink, puzzleLinkTo } from './puzzle-link';
 import { knownPuzzlesOf, theKnownPuzzle } from './puzzle-moves';
 import {
@@ -68,7 +68,7 @@ export function readLocalPuzzleStartLedger(
  * A known puzzle of `game` other than "the game's known puzzle", or null
  * when the game knows no other.
  */
-export function unnamedKnownPuzzleId(game: HarnessGame): string | null {
+export function unnamedKnownPuzzleId(game: TurnHarnessGame): string | null {
   const named = theKnownPuzzle(game).record.id;
   return (
     knownPuzzlesOf(game).find((fixture) => fixture.record.id !== named)?.record
@@ -89,7 +89,7 @@ export function unnamedKnownPuzzleId(game: HarnessGame): string | null {
 export const startUnnamedPuzzle = scenarioAction({
   name: 'startUnnamedPuzzle',
   act: async (s, actorId: string, gameId: string) => {
-    const puzzleId = unnamedKnownPuzzleId(harnessGameOf(s, gameId));
+    const puzzleId = unnamedKnownPuzzleId(turnHarnessGameOf(s, gameId));
     if (puzzleId === null) {
       await Promise.resolve(openGamePuzzles.act(s, actorId, gameId));
       return;

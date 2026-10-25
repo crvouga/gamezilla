@@ -30,7 +30,7 @@ import {
   nameEveryoneSeesOf,
   standInNameOf,
 } from '@libs/profile-harness-ts/profile-ui-reads';
-import { gameOf } from './game-world';
+import { gameOf, turnGameOf } from './game-world';
 import { firstMoveOf, pairedAt } from './matched-game';
 import { openOn } from './matched-game-shown.steps';
 
@@ -64,7 +64,7 @@ async function recordCopiedBy(
   w: HarnessWorld,
   person: string
 ): Promise<ReadGameRecord> {
-  const read = gameOf(w).readRecord;
+  const read = turnGameOf(w).readRecord;
   if (read === undefined)
     throw new Error(`${gameOf(w).label} reads no game record`);
   return read(await copiedBy(w, person));
@@ -84,7 +84,7 @@ async function recordGives(
   }).toEqual({
     result: wanted.result,
     clockChoice: wanted.clock,
-    moves: gameOf(w).fixtures.firstSideVictoryLabels.slice(0, 2),
+    moves: turnGameOf(w).fixtures.firstSideVictoryLabels.slice(0, 2),
   });
 }
 

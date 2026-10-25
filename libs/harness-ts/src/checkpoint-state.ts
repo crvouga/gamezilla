@@ -123,6 +123,7 @@ export function collectRooms(
     const exported = ctx.harness.roomNode.exportTopic(topic);
     if (exported === null) continue;
     rooms[topic] = {
+      liveCheckpoint: exported.liveCheckpoint,
       entries: exported.entries,
       dedup: exported.dedup ?? {},
     };
@@ -237,6 +238,7 @@ export async function restoreCheckpointRooms(
     const room = checkpoint.rooms[topic];
     if (room === undefined) continue;
     await ctx.harness.roomNode.replaceTopic(topic, {
+      liveCheckpoint: room.liveCheckpoint as never,
       entries: room.entries as never,
       dedup: room.dedup as never,
     });

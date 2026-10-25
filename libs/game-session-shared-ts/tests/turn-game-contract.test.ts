@@ -1,5 +1,5 @@
 /**
- * A declared capability is an enforceable promise: `defineTurnGame` refuses
+ * A declared capability is an enforceable promise: `defineGame` refuses
  * an incorrect game at type checking (each `@ts-expect-error` below fails
  * the package's `tc` the day the type accepts it) and, for what a type
  * cannot see (JavaScript, a cast, a widened value), when the game is
@@ -11,16 +11,10 @@ import { GAME_PLATFORM_NAMESPACE } from '@libs/game-matchmaking-shared-ts/durabl
 import {
   assertGameDefinitions,
   defineGame,
-  type GameRegistration,
+  type RegistryGame,
+  type TurnGame,
+  type TurnGameDefinition,
 } from '@libs/game-session-shared-ts/game-definition';
-import type {
-  TurnGame,
-  TurnGameDefinition,
-} from '@libs/game-session-shared-ts/turn-game-definition';
-import {
-  assertTurnGameDefinitions,
-  defineTurnGame,
-} from '@libs/game-session-shared-ts/turn-game-definition';
 import type { PuzzlesCapability } from '@pkgs/turn-game-shared-ts/game-puzzles';
 import type {
   GameRules,
@@ -44,14 +38,29 @@ const notice = {
   ending: () => undefined,
 };
 const history = { record: String };
-const automation: TurnGame['automation'] = {
+const automation: TurnGame['turnAutomation'] = {
   choose: () => null,
   perform: async () => {},
 };
 const game = (capabilities: TurnGameCapabilities, id = 'race'): TurnGame => ({
   rules: rulesOf(id),
   capabilities,
-  automation,
+  turnAutomation: automation,
+});
+
+// regression: clockless-game-requires-timeout-copy
+test('clockless matchmaking requires no turn-clock notice copy', () => {
+  expect(() =>
+    defineGame(
+      game({
+        matchmaking: {
+          namespace: 'race/',
+          notice: { side: (side: string) => side, ending: () => undefined },
+        },
+        history,
+      })
+    )
+  ).not.toThrow();
 });
 
 /** `capabilities` as JavaScript or a cast hands them over, unchecked. */
@@ -70,7 +79,7 @@ const content: PuzzleContent = {
 
 test('one registry accepts standalone puzzles and a turn game offering authored puzzles', () => {
   const solo = defineGame({ id: 'solo', puzzleContent: content });
-  const combined = defineTurnGame({
+  const combined = defineGame({
     ...game({ history }),
     puzzleContent: content,
   });
@@ -80,10 +89,10 @@ test('one registry accepts standalone puzzles and a turn game offering authored 
   expect(solo.puzzleContent).toBe(content);
   expect(combined.puzzleContent).toBe(content);
   expect(combined.sharedModules.map((module) => module.id)).toEqual([
-    'turn-game-session',
+    'game-session',
   ]);
   // @ts-expect-error: copying a definition loses its registration brand.
-  const copy: GameRegistration = { ...solo };
+  const copy: RegistryGame = { ...solo };
   expect(() => assertGameDefinitions('games', [copy])).toThrow(
     'was not made by'
   );
@@ -98,7 +107,7 @@ test('both constructors refuse incomplete advertised puzzle capabilities', () =>
     'rules.apply'
   );
   expect(() =>
-    defineTurnGame({ ...game({ history }), puzzleContent: invalid })
+    defineGame({ ...game({ history }), puzzleContent: invalid })
   ).toThrow('rules.apply');
   expect(() =>
     defineGame({ id: 'Not a slug', puzzleContent: content })
@@ -107,15 +116,18 @@ test('both constructors refuse incomplete advertised puzzle capabilities', () =>
 
 // regression: game-registration-implicit-legacy-id
 test('legacy namespace authority is explicit and independent of a concrete game id', () => {
-  const capabilities = { matchmaking: { clockNamespace: '', notice }, history };
-  expect(() =>
-    defineTurnGame(game(capabilities, GAME_PLATFORM_NAMESPACE))
-  ).toThrow('unprefixed clock namespace');
+  const capabilities = {
+    matchmaking: { clockChoices: true as const, namespace: '', notice },
+    history,
+  };
+  expect(() => defineGame(game(capabilities, GAME_PLATFORM_NAMESPACE))).toThrow(
+    'unprefixed matchmaking namespace'
+  );
   const granted = {
     ...game(capabilities, 'independent-legacy'),
     unprefixedNamespace: true as const,
   };
-  expect(() => defineTurnGame(granted)).not.toThrow();
+  expect(() => defineGame(granted)).not.toThrow();
 });
 
 test('a capability declared without what it needs is refused at type checking', () => {
@@ -125,7 +137,7 @@ test('a capability declared without what it needs is refused at type checking', 
   };
   const matched: TurnGameCapabilities = {
     // @ts-expect-error: finding an opponent needs its notice copy.
-    matchmaking: { clockNamespace: 'race/' },
+    matchmaking: { clockChoices: true as const, namespace: 'race/' },
     history,
   };
   void capabilities;
@@ -136,7 +148,7 @@ test('an unknown capability is refused at type checking and when defined', () =>
   // @ts-expect-error: the platform offers no tournaments.
   const capabilities: TurnGameCapabilities = { tournaments: {} };
   void capabilities;
-  expect(() => defineTurnGame(game(unchecked({ tournaments: {} })))).toThrow(
+  expect(() => defineGame(game(unchecked({ tournaments: {} })))).toThrow(
     'race: "tournaments" is not a capability the platform offers (custom-games, matchmaking, history, puzzles)'
   );
 });
@@ -145,10 +157,10 @@ test('a placeholder for a capability the game does not offer is refused at type 
   // @ts-expect-error: leave out what the game does not offer.
   const capabilities: TurnGameCapabilities = { history: undefined };
   void capabilities;
-  expect(() => defineTurnGame(game(unchecked({ history: undefined })))).toThrow(
+  expect(() => defineGame(game(unchecked({ history: undefined })))).toThrow(
     'race: capabilities.history is a placeholder — leave out a capability the game does not offer'
   );
-  expect(() => defineTurnGame(game(unchecked({ history: null })))).toThrow(
+  expect(() => defineGame(game(unchecked({ history: null })))).toThrow(
     'placeholder'
   );
 });
@@ -156,54 +168,82 @@ test('a placeholder for a capability the game does not offer is refused at type 
 test('finding an opponent without history is refused at type checking and when defined', () => {
   // @ts-expect-error: every finished matched game offers its game record.
   const capabilities: TurnGameCapabilities = {
-    matchmaking: { clockNamespace: 'race/', notice },
+    matchmaking: { clockChoices: true as const, namespace: 'race/', notice },
   };
   void capabilities;
   expect(() =>
-    defineTurnGame(
-      game(unchecked({ matchmaking: { clockNamespace: 'race/', notice } }))
+    defineGame(
+      game(
+        unchecked({
+          matchmaking: {
+            clockChoices: true as const,
+            namespace: 'race/',
+            notice,
+          },
+        })
+      )
     )
   ).toThrow(
     'race: offering matchmaking needs history too (every finished matched game offers its game record) — add capabilities.history'
   );
   expect(() =>
-    defineTurnGame(
-      game({ matchmaking: { clockNamespace: 'race/', notice }, history })
+    defineGame(
+      game({
+        matchmaking: {
+          clockChoices: true as const,
+          namespace: 'race/',
+          notice,
+        },
+        history,
+      })
     )
   ).not.toThrow();
 });
 
-test('only the platform’s durable game keeps the unprefixed clock namespace', () => {
+test('only the platform’s durable game keeps the unprefixed matchmaking namespace', () => {
   expect(() =>
-    defineTurnGame(
-      game({ matchmaking: { clockNamespace: '', notice }, history })
+    defineGame(
+      game({
+        matchmaking: { clockChoices: true as const, namespace: '', notice },
+        history,
+      })
     )
   ).toThrow(
-    `race: the unprefixed clock namespace "" belongs to the platform's durable game alone — use "race/"`
+    `race: the unprefixed matchmaking namespace "" belongs to the platform's durable game alone — use "race/"`
   );
-  const durable = defineTurnGame({
+  const durable = defineGame({
     ...game(
-      { matchmaking: { clockNamespace: '', notice }, history },
+      {
+        matchmaking: { clockChoices: true as const, namespace: '', notice },
+        history,
+      },
       GAME_PLATFORM_NAMESPACE
     ),
     unprefixedNamespace: true,
   });
   expect(durable.turnGame.unprefixedNamespace).toBe(true);
   expect(
-    defineTurnGame(
-      game({ matchmaking: { clockNamespace: 'race/', notice }, history })
+    defineGame(
+      game({
+        matchmaking: {
+          clockChoices: true as const,
+          namespace: 'race/',
+          notice,
+        },
+        history,
+      })
     ).turnGame.unprefixedNamespace
   ).toBeUndefined();
 });
 
-test('a definition defineTurnGame did not make is refused at type checking and by the registry', () => {
-  const defined = defineTurnGame(game({ history }));
-  // @ts-expect-error: a copy loses the brand only defineTurnGame gives.
+test('a definition defineGame did not make is refused at type checking and by the registry', () => {
+  const defined = defineGame(game({ history }));
+  // @ts-expect-error: a copy loses the brand only defineGame gives.
   const copy: TurnGameDefinition = { ...defined };
   const handBuilt = {
     id: 'race',
     turnGame: defined.turnGame,
-    automation: defined.automation,
+    turnAutomation: defined.automation.turns,
     commandRouters: [],
     eventRouters: [],
     recoverEffects: () => [],
@@ -212,16 +252,16 @@ test('a definition defineTurnGame did not make is refused at type checking and b
   const registry: readonly TurnGameDefinition[] = [handBuilt];
   void registry;
   expect(() =>
-    assertTurnGameDefinitions('GAME_DEFINITIONS', [defined])
+    assertGameDefinitions('GAME_DEFINITIONS', [defined])
   ).not.toThrow();
   expect(() =>
-    assertTurnGameDefinitions('GAME_DEFINITIONS', [defined, copy])
+    assertGameDefinitions('GAME_DEFINITIONS', [defined, copy])
   ).toThrow(
-    "GAME_DEFINITIONS[1] (race) was not made by defineTurnGame — register the game's defineTurnGame(...) value itself, never a copy or a hand-built definition"
+    "GAME_DEFINITIONS[1] (race) was not made by defineGame — register the game's defineGame(...) value itself, never a copy or a hand-built definition"
   );
-  expect(() =>
-    assertTurnGameDefinitions('GAME_DEFINITIONS', [handBuilt])
-  ).toThrow('GAME_DEFINITIONS[0] (race) was not made by defineTurnGame');
+  expect(() => assertGameDefinitions('GAME_DEFINITIONS', [handBuilt])).toThrow(
+    'GAME_DEFINITIONS[0] (race) was not made by defineGame'
+  );
 });
 
 const puzzles: PuzzlesCapability = {
@@ -246,37 +286,35 @@ test('puzzles declared without what they need are refused at type checking and w
     { puzzles: { ...puzzles, content: {} } },
   ];
   void capabilities;
-  expect(() =>
-    defineTurnGame(game(unchecked({ puzzles: withoutMarks })))
-  ).toThrow(
+  expect(() => defineGame(game(unchecked({ puzzles: withoutMarks })))).toThrow(
     'race: offering puzzles needs capabilities.puzzles.marks — supply its implementation'
   );
   expect(() =>
-    defineTurnGame(game(unchecked({ puzzles: { ...puzzles, content: {} } })))
+    defineGame(game(unchecked({ puzzles: { ...puzzles, content: {} } })))
   ).toThrow(
     'race: offering puzzles needs capabilities.puzzles.content.validate'
   );
   expect(() =>
-    defineTurnGame(game(unchecked({ puzzles: withoutNamespace })))
+    defineGame(game(unchecked({ puzzles: withoutNamespace })))
   ).toThrow(
     'race: offering puzzles needs capabilities.puzzles.namespace ("race/")'
   );
 });
 
 test('puzzles need no other capability, and only the platform’s durable game keeps the unprefixed puzzle namespace', () => {
-  expect(defineTurnGame(game({ puzzles })).turnGame.capabilities.puzzles).toBe(
+  expect(defineGame(game({ puzzles })).turnGame.capabilities.puzzles).toBe(
     puzzles
   );
   expect(() =>
-    defineTurnGame(game({ puzzles: { ...puzzles, namespace: '' } }))
+    defineGame(game({ puzzles: { ...puzzles, namespace: '' } }))
   ).toThrow(
     `race: the unprefixed puzzle namespace "" belongs to the platform's durable game alone — use "race/"`
   );
   expect(() =>
-    defineTurnGame(game({ puzzles: { ...puzzles, namespace: 'other/' } }))
+    defineGame(game({ puzzles: { ...puzzles, namespace: 'other/' } }))
   ).toThrow('race: puzzle namespace "other/" is not "race/"');
   expect(
-    defineTurnGame({
+    defineGame({
       ...game(
         { puzzles: { ...puzzles, namespace: '' } },
         GAME_PLATFORM_NAMESPACE
@@ -296,17 +334,27 @@ test.each([
     'custom-games.bots.choose',
   ],
   [
-    { matchmaking: { clockNamespace: 'race/' }, history },
+    {
+      matchmaking: { clockChoices: true as const, namespace: 'race/' },
+      history,
+    },
     'matchmaking.notice.timeoutDraw',
   ],
   [
-    { matchmaking: { clockNamespace: 'race/', notice: {} }, history },
+    {
+      matchmaking: {
+        clockChoices: true as const,
+        namespace: 'race/',
+        notice: {},
+      },
+      history,
+    },
     'matchmaking.notice.timeoutDraw',
   ],
 ] as const)(
   'an incomplete capability %j fails when defined, naming %s',
   (capabilities, missing) => {
-    expect(() => defineTurnGame(game(unchecked(capabilities)))).toThrow(
+    expect(() => defineGame(game(unchecked(capabilities)))).toThrow(
       `race: offering ${missing.split('.')[0]} needs capabilities.${missing}`
     );
   }
@@ -318,6 +366,6 @@ test.each([
   { choose: () => null, difficulties: ['unavailable'] },
 ])('invalid bot choices %j fail at registration', (bots) => {
   expect(() =>
-    defineTurnGame(game(unchecked({ 'custom-games': { bots } })))
+    defineGame(game(unchecked({ 'custom-games': { bots } })))
   ).toThrow('race: capabilities.custom-games.bots.difficulties');
 });

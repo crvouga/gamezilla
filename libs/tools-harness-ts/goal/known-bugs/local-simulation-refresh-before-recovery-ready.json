@@ -1,0 +1,4 @@
+{
+  "summary": "A restored room already has an input epoch while its local controller is still reading recovery. Treating the presence of a local controller as readiness lets room notifications request a snapshot before execution exists, producing a false failure. Signal readiness follows the first durably published court and clears on failure or disposal.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-local-readiness.contract.test.ts"
+}

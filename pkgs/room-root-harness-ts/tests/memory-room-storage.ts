@@ -1,3 +1,8 @@
+import type { Message } from '@pkgs/message-shared-ts/message';
+import {
+  type RoomLiveCheckpoint,
+  roomLiveCheckpoint,
+} from '@pkgs/room-root-shared-ts/live-checkpoint';
 import type { RoomIdentityErasure } from '@pkgs/room-root-shared-ts/room-service';
 import { eraseRoomIdentity } from '@pkgs/room-root-shared-ts/room-service';
 import type {
@@ -10,12 +15,29 @@ import type { LogEntry } from '@pkgs/room-root-shared-ts/types';
 export class MemoryRoomStorage implements RoomStorage {
   entries: LogEntry[] = [];
   dedup = new Map<string, CommandDedupOutcome>();
+  private liveCheckpoint: RoomLiveCheckpoint | null = null;
+
+  async loadLiveCheckpoint(): Promise<RoomLiveCheckpoint | null> {
+    return structuredClone(this.liveCheckpoint);
+  }
+
+  async replaceLiveCheckpoint(
+    _topic: string,
+    expectedSeq: number,
+    payload: Message | null
+  ): Promise<boolean> {
+    if ((this.entries.at(-1)?.seq ?? 0) !== expectedSeq) return false;
+    this.liveCheckpoint =
+      payload === null ? null : roomLiveCheckpoint(expectedSeq, payload);
+    return true;
+  }
 
   async eraseIdentity(
     _t: string,
     erasure: RoomIdentityErasure,
     invalidation: { commandId: string; entry: LogEntry }
   ): Promise<void> {
+    this.liveCheckpoint = eraseRoomIdentity(this.liveCheckpoint, erasure);
     this.entries = eraseRoomIdentity(
       [...this.entries, invalidation.entry],
       erasure

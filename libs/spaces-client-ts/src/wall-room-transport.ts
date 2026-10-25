@@ -11,12 +11,15 @@
 import type { CreateRoomTransport } from '@libs/app-root-client-ts/client-env';
 import { apiUrlToRoomWebSocketUrl } from '@libs/spaces-shared-ts/space-room-url';
 import { WebSocketRoomTransport } from '@pkgs/room-adapter-web-shared-ts/websocket-transport';
+import { roomRoundTrip } from './room-transport-measures';
 
 export const wallSpaceRoomTransport: CreateRoomTransport = (args) => {
   const topic = args.topic;
   return new WebSocketRoomTransport({
+    clock: args.clock,
     timers: args.timers,
     random: args.random,
+    onRoundTrip: roomRoundTrip,
     url: async () => {
       const token = await Promise.resolve(args.getSessionToken());
       return apiUrlToRoomWebSocketUrl({

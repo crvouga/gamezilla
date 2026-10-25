@@ -22,6 +22,12 @@ describe('Collector environment contracts', () => {
     expect(text).toContain('append: true');
     expect(text).toContain('transform/allowlist');
     for (const attribute of ROOM_ATTRIBUTES) expect(text).toContain(attribute);
+    for (const attribute of [
+      'app.error.reproduction',
+      'app.error.reproduction.format',
+      'app.error.reproduction.status',
+    ])
+      expect(text).toContain(attribute);
   });
 
   test('production alert hands an agent a safe first command', async () => {

@@ -1,7 +1,8 @@
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { policyAt } from '@pkgs/permissions-shared-ts/policy';
 import type { MutationCtx } from '@pkgs/sync-engine-shared-ts/mutations-types';
-import { type AccessScope, decideGrant } from './decide-for-actor';
+import type { AccessScope } from './access-scope';
+import { decideGrant } from './decide-for-actor';
 import { requireGrantDecision } from './mutation-permission';
 import type { AppGrantKey } from './permission-catalog';
 import { readAccess } from './read-access';

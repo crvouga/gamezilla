@@ -68,6 +68,7 @@ export async function openLoopbackRoom<
       module: args.module,
       storage,
       clock,
+      timers,
       effectHandlers: [schedule.handler],
     });
     schedule.bindInject((cmd) =>

@@ -25,7 +25,7 @@
 
 import { BILLING_TABLES } from '@libs/billing-shared-ts/tables';
 import { GAME_PUZZLE_SUB } from '@libs/game-puzzle-shared-ts/sub';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import {
   RATE_PUZZLE_ATTEMPT,
   ratedPuzzleStartKey,
@@ -49,15 +49,15 @@ import type { DecisionLayer } from '@pkgs/dmn-shared-ts/registry';
 import { bindDecisions } from '@pkgs/dmn-shared-ts/registry';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import sql from '@pkgs/sql-root-shared-ts/sql';
-import { gamesHeldTo } from '../conformance-world';
+import { turnGamesHeldTo } from '../conformance-world';
 
 const [consumeQuota] = PERMISSIONS_MUTATIONS;
 
 /** Every game offering puzzles: each one's starts count toward the same 20. */
-const GAMES = gamesHeldTo('specs/games/daily-puzzle-limit.dmn');
+const GAMES = turnGamesHeldTo('specs/games/daily-puzzle-limit.dmn');
 
 /** The game whose puzzles were started before `game`'s: the next one round. */
-function otherGame(game: HarnessGame): HarnessGame {
+function otherGame(game: TurnHarnessGame): TurnHarnessGame {
   const index = GAMES.indexOf(game);
   const other = GAMES[(index + 1) % GAMES.length];
   if (other === undefined || other === game)
@@ -71,7 +71,7 @@ function otherGame(game: HarnessGame): HarnessGame {
  */
 async function insertStartsOf(
   db: SqlClient,
-  game: HarnessGame,
+  game: TurnHarnessGame,
   input: CaseInput,
   nowMs: number
 ): Promise<void> {
@@ -99,7 +99,7 @@ async function insertStartsOf(
  * One more rated puzzle of `game`, started and finished the way a device
  * sends it, after the case's starts of another game.
  */
-function ratedResultServerLayer(game: HarnessGame): DecisionLayer {
+function ratedResultServerLayer(game: TurnHarnessGame): DecisionLayer {
   const attempted = `${puzzleNamespaceOfGame(game)}attempted-puzzle`;
   const start = replayOperation(consumeQuota, (c) => ({
     id: 'attempted-start',

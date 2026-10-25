@@ -20,7 +20,8 @@
     "test": "bun test scripts/*.test.ts",
     "verify:actionlint": "bun run scripts/verify-actionlint.ts",
     "verify:root-lint": "bun run scripts/lint-package.ts --root",
-    "verify:secrets": "bun run scripts/verify-secrets.ts"
+    "verify:secrets": "bun run scripts/verify-secrets.ts",
+    "generate:ui-quality-sources": "bun run scripts/sync-ui-quality-sources.ts"
   },
   "dependencies": {},
   "devDependencies": {
@@ -43,7 +44,9 @@
     "@pkgs/quint-shared-ts": "workspace:*",
     "fast-check": "catalog:",
     "typescript": "catalog:",
-    "wrangler": "catalog:"
+    "wrangler": "catalog:",
+    "@pkgs/object-store-node-fs-server-ts": "workspace:*",
+    "@pkgs/object-store-root-shared-ts": "workspace:*"
   },
   "category": "harness",
   "language": "typescript"

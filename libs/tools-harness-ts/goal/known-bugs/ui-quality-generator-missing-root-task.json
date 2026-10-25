@@ -1,0 +1,4 @@
+{
+  "summary": "The root generate launcher invoked its package-owned UI evidence generator without declaring that qualified task in the root task graph, so root task-runner validation failed.",
+  "regressionTest": "libs/tools-harness-ts/scripts/task-runner-policy.test.ts"
+}

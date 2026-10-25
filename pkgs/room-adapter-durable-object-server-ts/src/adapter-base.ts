@@ -36,6 +36,7 @@ import {
 } from './hibernation-restore';
 import {
   observeRoomError,
+  observeRoomLiveError,
   observeRoomMessage,
   observeRoomUpgrade,
 } from './observability';
@@ -397,6 +398,15 @@ export class RoomDurableObjectAdapterBase<
       module: moduleImpl,
       storage,
       clock: this.config.clock,
+      ...(this.config.timers === undefined
+        ? {}
+        : { timers: this.config.timers }),
+      onError: (error) =>
+        this.ctx.waitUntil(
+          observeRoomLiveError(error, moduleName).finally(() =>
+            this.flushTelemetry()
+          )
+        ),
       ...(this.config.authorize === undefined
         ? {}
         : { authorize: this.config.authorize }),

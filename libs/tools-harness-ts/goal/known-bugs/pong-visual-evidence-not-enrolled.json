@@ -1,0 +1,4 @@
+{
+  "summary": "The product visual-evidence source list omitted the real Pong spec package and retained the old Games shard count. Derive sources and prepare dependencies from package declarations so their recorded evidence always reaches the automated visual gate.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ui-quality-graph.test.ts"
+}

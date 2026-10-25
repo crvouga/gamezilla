@@ -1,0 +1,4 @@
+{
+  "summary": "Two departures before a queued checkpoint committed made the older input generation look fatal, stopping a valid custom or matched authority.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-checkpoint-race.test.ts"
+}

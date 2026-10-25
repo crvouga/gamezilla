@@ -1,0 +1,4 @@
+{
+  "summary": "If no timer woke during a pause, resuming reused the scheduler's old wall timestamp and simulated catch-up ticks for paused time. Reset the driver's elapsed-time origin when authoritative execution changes pause state.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-driver.test.ts"
+}

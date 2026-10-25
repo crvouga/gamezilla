@@ -1,0 +1,4 @@
+{
+  "summary": "A turn at the 60 Hz clock's seventh tick (116.66666666666669 ms) emitted a fractional turnStartedAt and crashed validation of its durable event.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-hybrid.contract.test.ts"
+}

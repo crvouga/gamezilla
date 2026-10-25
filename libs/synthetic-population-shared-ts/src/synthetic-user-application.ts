@@ -16,6 +16,7 @@ import {
   behaviorStatechart,
 } from './behavior-statechart';
 import type { Activity } from './config';
+import { ContinuousInputPlayer } from './continuous-input-player';
 import {
   chooseActivity,
   type Decision,
@@ -27,6 +28,7 @@ const MULTIPLAYER_BOARD = Handles.multiplayerBoard;
 
 export class SyntheticUserApplication {
   readonly actor = createActor(behaviorStatechart).start();
+  private readonly continuous: ContinuousInputPlayer;
   private pendingPosition: string | null = null;
   private submittedAt = 0;
   private idleUntil = 0;
@@ -44,6 +46,7 @@ export class SyntheticUserApplication {
       emit: (event: ApplicationEvent) => void;
     }
   ) {
+    this.continuous = new ContinuousInputPlayer(driver, ports);
     this.restoringGame = ports.restoreGame ?? false;
     this.restoreStartedAt = ports.clock.now();
   }
@@ -67,6 +70,9 @@ export class SyntheticUserApplication {
   }
   policyDecision() {
     return this.decision;
+  }
+  continuousIntervalMs(): number | null {
+    return this.continuous.intervalMs();
   }
   reconciled(): boolean {
     return !this.restoringGame;
@@ -218,21 +224,28 @@ export class SyntheticUserApplication {
     }
     return false;
   }
+  async continueCurrentGame(): Promise<void> {
+    await this.playCurrentGame();
+  }
   private async playCurrentGame(): Promise<boolean> {
     if (
       !(await this.driver.get('multiplayer-game').isVisible()) ||
       !(await isMatchParticipant(this.driver))
-    )
+    ) {
+      this.continuous.suspend();
       return false;
+    }
     const game = this.driver.get('multiplayer-game');
     const position = await game.attribute('data-fen');
     if (position === null)
       throw new Error('The game position is unavailable in the app');
     // Only a registered game is played; its adapter moves on its turn.
-    gameForPosition(this.ports.games, position);
-    await this.driver.get(MULTIPLAYER_BOARD).wait('visible');
+    const automation = gameForPosition(this.ports.games, position);
+    if (!(await this.driver.get(MULTIPLAYER_BOARD).isVisible()))
+      await this.driver.get(MULTIPLAYER_BOARD).wait('visible');
     this.restoringGame = false;
     if ((await game.attribute('data-outcome')) !== 'ongoing') {
+      this.continuous.suspend();
       if (this.activity() !== 'postGame') {
         if (this.activity() !== 'playing') this.transition({ type: 'MATCH' });
         this.transition({ type: 'COMPLETE' });
@@ -244,11 +257,14 @@ export class SyntheticUserApplication {
       this.transition({ type: 'MATCH' });
       this.event('GameStarted');
     }
+    const enabled = (await game.attribute('data-can-move')) === 'true';
+    await this.continuous.update(automation.continuous, enabled);
+    if (automation.turns === undefined) return true;
     if (this.pendingPosition !== null && position !== this.pendingPosition) {
       this.pendingPosition = null;
       this.transition({ type: 'ACKNOWLEDGED' });
     }
-    if ((await game.attribute('data-can-move')) === 'true') {
+    if (enabled) {
       if (this.pendingPosition === null) await this.move(position);
       else if (this.ports.clock.now() - this.submittedAt > 5_000)
         throw new Error(
@@ -258,7 +274,8 @@ export class SyntheticUserApplication {
     return true;
   }
   private async move(position: string): Promise<void> {
-    const automation = gameForPosition(this.ports.games, position);
+    const automation = gameForPosition(this.ports.games, position).turns;
+    if (automation === undefined) return;
     const action = automation.choose(position, this.ports.random);
     if (action === null) return;
     if (!automation.rules.legal(position).includes(action))
@@ -275,6 +292,7 @@ export class SyntheticUserApplication {
     });
   }
   close(): void {
+    this.continuous.suspend();
     this.actor.stop();
   }
 }

@@ -15,7 +15,7 @@ import type {
 } from '@libs/game-puzzle-client-ts/puzzle-client';
 import { assertHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import type { PuzzleFixture } from '@libs/game-session-harness-ts/known-puzzles';
-import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import {
   createAudioPlayer,
   createPlayFromStartHandles,
@@ -142,10 +142,10 @@ const PUZZLES: PuzzlesCapability = {
 
 const CAPABILITIES = { puzzles: PUZZLES } satisfies TurnGameCapabilities;
 
-const SHARED = defineTurnGame({
+const SHARED = defineGame({
   rules: SOLO_COUNT_RULES,
   capabilities: CAPABILITIES,
-  automation: probeAutomation(SOLO_COUNT_RULES),
+  turnAutomation: probeAutomation(SOLO_COUNT_RULES),
 });
 
 const record = (

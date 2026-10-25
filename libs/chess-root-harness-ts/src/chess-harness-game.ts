@@ -1,5 +1,5 @@
 import { chessGameClient } from '@libs/chess-root-client-ts/chess-game-client';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { assertHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { chessSoundUrls } from '@pkgs/sounds-shared-ts/chess-sound-urls';
 import { CHESS_HARNESS_SLICE } from './chess-harness-slice';
@@ -7,7 +7,7 @@ import { CHESS_PLAYABLE } from './chess-playable';
 import { readChessRecord } from './chess-record-reading';
 
 /** Chess as every shared game suite exercises it, with its puzzles beside it. */
-export const CHESS_HARNESS_GAME: HarnessGame = assertHarnessGame({
+export const CHESS_HARNESS_GAME: TurnHarnessGame = assertHarnessGame({
   ...CHESS_PLAYABLE,
   client: chessGameClient,
   slice: CHESS_HARNESS_SLICE,

@@ -4,7 +4,7 @@ import {
   EndCustomGameOnTime,
 } from '@libs/game-session-shared-ts/custom-game-commands';
 import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
-import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import { GamesRoomAttr } from '@libs/spaces-shared-ts/games';
 import { SpaceMembersRoomAttr } from '@libs/spaces-shared-ts/space-members-messages';
 import { createSpaceModule } from '@libs/spaces-shared-ts/space-module';
@@ -41,12 +41,12 @@ export const PEOPLE = ['alice', 'bob', 'carol', 'dave'] as const;
 
 /** A separate four-seat consumer, through the same public room command boundary. */
 export function fourSeatRoom() {
-  const definition = defineTurnGame({
+  const definition = defineGame({
     rules,
     capabilities: {
       'custom-games': { bots: { difficulties: [], choose: () => 'advance' } },
     },
-    automation: { choose: () => 'advance', perform: async () => {} },
+    turnAutomation: { choose: () => 'advance', perform: async () => {} },
   });
   const module = createSpaceModule(
     assertRoomModuleName('four-seat-room'),

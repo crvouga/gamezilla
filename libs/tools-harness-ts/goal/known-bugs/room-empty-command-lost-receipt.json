@@ -1,0 +1,4 @@
+{
+  "summary": "A room command accepted with no events lost its deduplication verdict in the memory and Durable Object adapters, allowing a retry to run its handler again after state or authorization changed.",
+  "regressionTest": "pkgs/room-adapter-durable-object-harness-ts/tests/empty-command-receipt.test.ts"
+}

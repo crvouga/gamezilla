@@ -14,7 +14,7 @@ import { Given, Then, When } from '@libs/harness-ts/define';
 import type { Actor } from '@libs/harness-ts/parameter-types';
 import { otherDevice } from '@libs/harness-ts/platform';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
-import { gameOf } from './game-world';
+import { turnGameOf } from './game-world';
 import {
   currentPuzzle,
   focusPuzzle,
@@ -41,7 +41,7 @@ function ratedPuzzle(w: HarnessWorld, rating: number): string {
 Given(
   'the puzzle pool holds just one puzzle, with a popularity of {int}, played {int} times',
   async (w, popularity: number, plays: number) => {
-    const { id } = theKnownPuzzle(gameOf(w)).record;
+    const { id } = theKnownPuzzle(turnGameOf(w)).record;
     await writePool(w, [{ id, popularity, plays }]);
     // Precondition guard: that puzzle is the whole pool.
     expect(await poolIds(w)).toEqual([id]);
@@ -51,7 +51,7 @@ Given(
 Given(
   "the puzzle pool's unplayed puzzles are rated {ratings}",
   async (w, ratings: readonly number[]) => {
-    const known = knownPuzzlesOf(gameOf(w));
+    const known = knownPuzzlesOf(turnGameOf(w));
     const pool = ratings.map((rating, index) => ({
       id: required(known[index], `a known puzzle to rate ${rating}`).record.id,
       rating,

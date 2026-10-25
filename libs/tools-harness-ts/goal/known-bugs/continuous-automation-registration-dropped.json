@@ -1,0 +1,4 @@
+{
+  "summary": "A continuous game's registered board automation was discarded because registration only retained discrete-turn decisions.",
+  "regressionTest": "libs/game-session-shared-ts/tests/automation-capabilities.test.ts"
+}

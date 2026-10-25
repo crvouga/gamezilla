@@ -10,6 +10,7 @@ import {
   useSyncEngineInstance,
 } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { createEffect, onCleanup } from 'solid-js';
+import { matchingMultiplayerRoomGame } from './multiplayer-room-game';
 import { useMatchRoom } from './use-match-room';
 
 export type MultiplayerSearchRow = {
@@ -31,10 +32,10 @@ const GAME_COLUMNS = raw(
 
 function withRoom(
   row: MultiplayerGame,
-  room: MatchRoomGame | null
+  candidate: MatchRoomGame | null
 ): MultiplayerGame {
-  if (room === null || room.id !== row.id || room.revision < row.revision)
-    return row;
+  const room = matchingMultiplayerRoomGame(row, candidate);
+  if (room === null) return row;
   // A room delivery may omit untimed fields; explicit nulls remain authoritative.
   const defined = Object.fromEntries(
     Object.entries(room).filter(([, value]) => value !== undefined)
@@ -84,7 +85,7 @@ export function useMultiplayerData(gameId: () => string) {
   const roomGame = useMatchRoom(() => games.rows()[0]?.id);
   const game = () => {
     const row = games.rows()[0] ?? null;
-    return row === null ? null : withRoom(row, roomGame());
+    return row === null ? null : withRoom(row, roomGame.game());
   };
   return {
     gameId,
@@ -92,6 +93,10 @@ export function useMultiplayerData(gameId: () => string) {
     spaceId,
     hostId,
     game,
+    room: roomGame.room,
+    execution: () =>
+      matchingMultiplayerRoomGame(games.rows()[0] ?? null, roomGame.game())
+        ?.execution,
     search: () => searches.rows()[0] ?? null,
     ratings: ratings.rows,
     participant: () => {

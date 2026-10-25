@@ -44,7 +44,7 @@ async function performObservedMove(
   action: string
 ): Promise<void> {
   try {
-    await game.shared.automation.perform(ui, 'custom-game-board', action);
+    await game.shared.automation.turns.perform(ui, 'custom-game-board', action);
   } catch (cause) {
     const latest = await readPublicCustomGame(ui).catch(() => null);
     throw new Error(
@@ -80,7 +80,7 @@ export async function playCustomGamePartyTurn(
     !view.canMove
   )
     return view.ply;
-  const action = game.shared.automation.choose(view.position, () => 0.25);
+  const action = game.shared.automation.turns.choose(view.position, () => 0.25);
   check(
     action !== null,
     'The active participant has no automated legal action'

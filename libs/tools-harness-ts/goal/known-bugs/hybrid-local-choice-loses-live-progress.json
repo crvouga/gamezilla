@@ -1,0 +1,4 @@
+{
+  "summary": "An offline hybrid game advanced seven 60 Hz ticks, but its discrete choice read the saved tick-zero position and replayed distance 0 instead of 116.66666666666667. Queue the live checkpoint before the choice through the existing local room.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-hybrid-local.contract.test.ts"
+}

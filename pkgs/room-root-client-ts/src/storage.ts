@@ -1,11 +1,17 @@
 import { createAttrNamespace } from '@pkgs/attribute-shared-ts/attribute';
 import type { Keyword } from '@pkgs/keyword-shared-ts/keyword';
 import type { Kv, KvRecord } from '@pkgs/kv-root-shared-ts/interface';
+import type { Message } from '@pkgs/message-shared-ts/message';
 import { isMessageEnvelope } from '@pkgs/message-shared-ts/message';
 import type {
   ClientRoomStorage,
   QueuedCommand,
 } from '@pkgs/room-root-shared-ts/core-storage';
+import {
+  parseRoomLiveCheckpoint,
+  type RoomLiveCheckpoint,
+  roomLiveCheckpoint,
+} from '@pkgs/room-root-shared-ts/live-checkpoint';
 import type {
   CommittedLogBlobs,
   CommittedLogManifest,
@@ -13,10 +19,14 @@ import type {
 } from '@pkgs/room-root-shared-ts/segmented-committed-log';
 import { createSegmentedCommittedLog } from '@pkgs/room-root-shared-ts/segmented-committed-log';
 import type { LogEntry } from '@pkgs/room-root-shared-ts/types';
-import { committedSegmentKeyword } from './keys';
+import { clientLiveCheckpointKeyword, committedSegmentKeyword } from './keys';
 
 const Committed = createAttrNamespace('room', 'client', 'committed');
 const Queue = createAttrNamespace('room', 'client', 'queue');
+const LiveCheckpoint = createAttrNamespace('room', 'client', 'live').jsonOrNull(
+  'checkpoint',
+  parseRoomLiveCheckpoint
+);
 
 function isNonNegativeInt(v: unknown): v is number {
   return typeof v === 'number' && Number.isInteger(v) && v >= 0;
@@ -125,7 +135,7 @@ export class KeyValueClientRoomStorage implements ClientRoomStorage {
 
   constructor(
     private readonly kv: Kv,
-    committedKey: Keyword,
+    private readonly committedKey: Keyword,
     private readonly queueKey: Keyword
   ) {
     this.log = createSegmentedCommittedLog(
@@ -141,8 +151,9 @@ export class KeyValueClientRoomStorage implements ClientRoomStorage {
     return this.log.appendCommitted(entries);
   }
 
-  resetCommitted(): Promise<void> {
-    return this.log.resetCommitted();
+  async resetCommitted(): Promise<void> {
+    await this.log.resetCommitted();
+    await this.kv.zap(clientLiveCheckpointKeyword(this.committedKey));
   }
 
   async loadQueued(): Promise<QueuedCommand[]> {
@@ -159,6 +170,30 @@ export class KeyValueClientRoomStorage implements ClientRoomStorage {
   async saveQueued(queue: readonly QueuedCommand[]): Promise<void> {
     await this.kv.put(this.queueKey, {
       ...RoomStorageAttr.commands(queue),
+    });
+  }
+
+  async loadLiveCheckpoint(): Promise<RoomLiveCheckpoint | null> {
+    const raw = await this.kv.get(
+      clientLiveCheckpointKeyword(this.committedKey)
+    );
+    return raw === null ? null : LiveCheckpoint.from(raw);
+  }
+
+  async replaceLiveCheckpoint(
+    expectedSeq: number,
+    payload: Message | null
+  ): Promise<boolean> {
+    const checkpoint =
+      payload === null ? null : roomLiveCheckpoint(expectedSeq, payload);
+    return this.kv.tx(async (tx) => {
+      const raw = await tx.get(this.committedKey);
+      const manifest = raw === null ? null : softManifest(raw);
+      if ((manifest?.lastSeq ?? 0) !== expectedSeq) return false;
+      const key = clientLiveCheckpointKeyword(this.committedKey);
+      if (checkpoint === null) await tx.zap(key);
+      else await tx.put(key, LiveCheckpoint(checkpoint));
+      return true;
     });
   }
 }

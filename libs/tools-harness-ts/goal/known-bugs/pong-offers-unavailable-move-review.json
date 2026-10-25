@@ -1,0 +1,4 @@
+{
+  "summary": "Pong displayed numbered-move review buttons and a move-number field despite having no turn capability or recorded moves. In local and matched play, offer move review only for a game that actually supplies turns; retain its score, history and finished record.",
+  "regressionTest": "specs/pong/pong-scoring.feature"
+}

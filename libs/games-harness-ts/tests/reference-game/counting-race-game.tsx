@@ -2,7 +2,7 @@
  * The reference game: test-only, never shipped. A race to seven where each
  * turn counts one on (`advance`), from five or less two (`leap`), or from
  * four or less three (`hop`); who reaches seven wins. It is registered, rendered and played purely through
- * the platform's public contracts — `defineTurnGame`, `defineGameClient`
+ * the platform's public contracts — `defineGame`, `defineGameClient`
  * and a `HarnessGame` — and enrolled in every shared suite beside the
  * registered games (`tests/conformance-world.ts`). It proves a new game
  * needs no change to any shared screen, workflow, specification or suite;
@@ -21,15 +21,15 @@ import type {
 } from '@libs/game-puzzle-client-ts/puzzle-client';
 import type {
   GameFixtures,
-  HarnessGame,
+  TurnHarnessGame,
 } from '@libs/game-session-harness-ts/harness-game';
 import { assertHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import type {
   KnownPuzzles,
   PuzzleFixture,
 } from '@libs/game-session-harness-ts/known-puzzles';
-import type { TurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
-import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import type { TurnGame } from '@libs/game-session-shared-ts/game-definition';
+import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import {
   createAudioPlayer,
   createPlayFromStartHandles,
@@ -390,14 +390,14 @@ const CAPABILITIES = {
 } satisfies TurnGameCapabilities;
 
 /**
- * What the reference game hands `defineTurnGame` and `defineGameClient`:
+ * What the reference game hands `defineGame` and `defineGameClient`:
  * a faulty copy (`faulty-games.test.ts`) changes one part and is defined
  * through the same constructors, as any game would be.
  */
 export const COUNTING_RACE_TURN_GAME: TurnGame<typeof CAPABILITIES> = {
   rules: COUNTING_RACE_RULES,
   capabilities: CAPABILITIES,
-  automation: {
+  turnAutomation: {
     choose: advance,
     async perform(ui, board, action) {
       await ui.get(`${board}-${action}`).tap();
@@ -405,7 +405,7 @@ export const COUNTING_RACE_TURN_GAME: TurnGame<typeof CAPABILITIES> = {
   },
 };
 
-export const COUNTING_RACE_SHARED = defineTurnGame(COUNTING_RACE_TURN_GAME);
+export const COUNTING_RACE_SHARED = defineGame(COUNTING_RACE_TURN_GAME);
 
 /** The themes a race's feed can be limited to. */
 const RACE_THEMES = ['short', 'long'] as const satisfies readonly string[];
@@ -651,7 +651,7 @@ export const COUNTING_RACE_FIXTURES: GameFixtures<typeof CAPABILITIES> = {
   morePuzzles: moreRacePuzzles(KNOWN_RACE_PUZZLES),
 };
 
-export const COUNTING_RACE_GAME: HarnessGame = assertHarnessGame({
+export const COUNTING_RACE_GAME: TurnHarnessGame = assertHarnessGame({
   label: 'counting race',
   shared: COUNTING_RACE_SHARED,
   client: defineGameClient(COUNTING_RACE_CLIENT),

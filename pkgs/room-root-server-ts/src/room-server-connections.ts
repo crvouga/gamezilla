@@ -1,3 +1,5 @@
+import { Assert } from '@pkgs/assert-root-shared-ts/assert';
+import { MAX_ROSTER_SIZE } from '@pkgs/room-root-shared-ts/bounds';
 import {
   type RoomConnection,
   rejectedFrame,
@@ -6,6 +8,27 @@ import {
   ROOM_ERROR_TYPE,
   type RoomActor,
 } from '@pkgs/room-root-shared-ts/types';
+
+const crash: Assert = Assert.crash();
+
+export function addRoomConnection(
+  connections: Map<string, RoomConnection>,
+  connection: RoomConnection
+): void {
+  const actor = connection.actor;
+  crash.ok(!connections.has(connection.id), 'duplicate connection id', {
+    id: connection.id,
+  });
+  crash.ok(actor.id.length > 0, 'RoomActor.id must be non-empty', { actor });
+  crash.ok(actor.clientId.length > 0, 'RoomActor.clientId must be non-empty', {
+    actor,
+  });
+  if (connections.size >= MAX_ROSTER_SIZE)
+    throw new Error(
+      `Tiger: roster full (MAX_ROSTER_SIZE=${String(MAX_ROSTER_SIZE)})`
+    );
+  connections.set(connection.id, connection);
+}
 
 export function hasAuthority(
   connections: ReadonlyMap<string, RoomConnection>

@@ -1,0 +1,4 @@
+{
+  "summary": "After Alice guided her paddle to the upper edge and disconnected, an expired prediction replaced her last displayed court with an older pose 158 units down. Freeze the last presented court until fresh connected state arrives.",
+  "regressionTest": "libs/pong-harness-ts/tests/quint/pong-shared-control.binding.ts"
+}

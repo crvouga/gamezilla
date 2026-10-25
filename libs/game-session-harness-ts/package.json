@@ -11,7 +11,8 @@
   },
   "scripts": {
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
-    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests"
   },
   "dependencies": {
     "@libs/account-privacy-harness-ts": "workspace:*",
@@ -50,9 +51,12 @@
     "@pkgs/sync-engine-shared-ts": "workspace:*",
     "@pkgs/turn-game-shared-ts": "workspace:*",
     "@pkgs/ui-testing-root-shared-ts": "workspace:*",
+    "@pkgs/uuid-shared-ts": "workspace:*",
     "fast-check": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/bun-test-solid-client-ts": "workspace:*",
+    "@pkgs/room-root-harness-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",
@@ -70,6 +74,7 @@
     "game-navigation",
     "game-system",
     "harness-game",
+    "simulation-fixtures",
     "known-puzzles",
     "space-game-choice",
     "puzzle-session-probe",
@@ -86,7 +91,9 @@
     "puzzle-finishes",
     "puzzle-listening",
     "puzzle-sounds",
-    "puzzle-result-recovery"
+    "puzzle-result-recovery",
+    "simulation-room-fixture",
+    "simulation-room-presentation"
   ],
   "language": "typescript"
 }

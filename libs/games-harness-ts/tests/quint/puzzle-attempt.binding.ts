@@ -9,7 +9,7 @@
  * board.
  */
 
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import {
   playNextKnownMove,
   playWrongMoveHere,
@@ -55,7 +55,7 @@ import { readSpaceLink } from '@libs/spaces-harness-ts/spaces-ui-reads';
 import type { QuintValue } from '@pkgs/quint-shared-ts/itf';
 import { variant } from '@pkgs/quint-shared-ts/itf';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
-import { conformanceGameOf } from '../conformance-world';
+import { turnConformanceGameOf } from '../conformance-world';
 
 const HOST = 'alice';
 const WATCHER = 'bob';
@@ -68,8 +68,8 @@ const TIME_PASSING_MS = 65_000;
 const SEEN = 'seenPuzzles';
 
 /** The game this trace is replayed for: one offering puzzles. */
-function gameOfTrace(w: QuintHarnessWorld): HarnessGame {
-  return conformanceGameOf(w.ctx.variant, w.ctx.title);
+function gameOfTrace(w: QuintHarnessWorld): TurnHarnessGame {
+  return turnConformanceGameOf(w.ctx.variant, w.ctx.title);
 }
 
 function gameId(w: QuintHarnessWorld): string {

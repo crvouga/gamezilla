@@ -16,9 +16,9 @@ import {
   createTurnGames,
   gameSides,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 
-forEveryGame(import.meta.path, (game) => {
+forEveryTurnGame(import.meta.path, (game) => {
   // regression: game-session-inconsistent-retained-history
   test('a retained first move cannot be silently paired with an empty action history', () => {
     const rules = createTurnGames([game.shared.turnGame]);

@@ -1,0 +1,4 @@
+{
+  "summary": "The committed English catalog omitted Pong, score-target and reconnect guidance keys, so production lookups without a source-text fallback returned opaque ids.",
+  "regressionTest": "libs/app-root-shared-ts/tests/pong-catalog.test.ts"
+}

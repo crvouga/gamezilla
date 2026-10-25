@@ -1,0 +1,4 @@
+{
+  "summary": "The finished-game recovery observer compared the entire announcement, so delayed rating information made an unchanged Pong victory appear to change after reopening.",
+  "regressionTest": "specs/synthetic-population/synthetic-user-continuity.feature"
+}

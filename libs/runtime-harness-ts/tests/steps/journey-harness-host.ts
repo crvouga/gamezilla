@@ -65,9 +65,7 @@ async function actorSpaceLink(
   return spaceLinkFromLocation(await actor.currentPath());
 }
 
-export function harnessJourneyHost(
-  w: Pick<HarnessWorld, 's'>
-): JourneyHost {
+export function harnessJourneyHost(w: Pick<HarnessWorld, 's'>): JourneyHost {
   let guestId = GUEST;
   const act = async (name: string, gestures: JourneyGestures) => {
     // The guest's last gesture parks Alice. An instant visibility check then
@@ -82,6 +80,7 @@ export function harnessJourneyHost(
   return {
     runId: 'harness',
     now: () => w.s.read((s) => s.session.ports.clock.now()),
+    elapse: (milliseconds) => w.s.advanceTime(milliseconds),
     browser: null,
     // The harness runs the test build: the puzzle board carries its answers.
     showsPuzzleAnswers: true,
