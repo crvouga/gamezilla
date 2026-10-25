@@ -4811,6 +4811,9 @@
                         },
                         "Chooses Four-Player King of the Hill": {
                           "target": "#Games: King of the Hill choices"
+                        },
+                        "Chooses Word Tiles": {
+                          "target": "#Games: Word Tiles choices"
                         }
                       }
                     },
@@ -4986,6 +4989,46 @@
                           "target": "#App: Multiplayer"
                         },
                         "Reviews a King of the Hill game": {
+                          "target": "#Custom Game: Reviewing"
+                        },
+                        "Returns to the game choice": {
+                          "target": "#Games: Choose a game"
+                        }
+                      }
+                    },
+                    "Games: Word Tiles choices": {
+                      "id": "Games: Word Tiles choices",
+                      "meta": {
+                        "description": "Word Tiles offers custom games for two to four, an opponent for two, instructions, history, replay and one-move challenges, as every game does, each player seeing only their own rack.",
+                        "snapshot": "Word Tiles offers custom games for two to four, an opponent for two, instructions, history, replay and one-move challenges, as every game does, each player seeing only their own rack.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/word-tiles/word-tiles-words.feature",
+                          "specs/word-tiles/word-tiles-scores.feature",
+                          "specs/word-tiles/word-tiles-turns.feature",
+                          "specs/word-tiles/word-tiles-racks.feature",
+                          "specs/word-tiles/word-tiles-endings.feature",
+                          "specs/word-tiles/word-tiles-challenges.feature",
+                          "specs/word-tiles/ubiquitous-language.yml",
+                          "specs/games/custom-games.feature",
+                          "specs/games/custom-game-offline.feature",
+                          "specs/games/finding-an-opponent.feature",
+                          "specs/games/game-history.feature",
+                          "specs/games/game-choices.feature",
+                          "specs/games/game-turns.feature",
+                          "specs/games/multi-seat-games.feature",
+                          "specs/games/ubiquitous-language.yml"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Opens a Word Tiles custom game": {
+                          "target": "#App: Custom game"
+                        },
+                        "Finds a Word Tiles opponent": {
+                          "target": "#App: Multiplayer"
+                        },
+                        "Reviews a Word Tiles game": {
                           "target": "#Custom Game: Reviewing"
                         },
                         "Returns to the game choice": {
