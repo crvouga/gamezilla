@@ -28,6 +28,10 @@ flowchart TD
   app --> friends[Friends]
   app --> inbox[Notifications]
   app --> games[Games]
+  games --> pong[Pong]
+  games --> sokoban[Sokoban]
+  games --> numberlink[Numberlink]
+  games --> puzzle_content[Puzzle content]
   app --> puzzles[Puzzles]
   app --> puzzle_feed[Puzzle feed]
   app --> puzzle_links[Puzzle links]
@@ -69,10 +73,13 @@ flowchart TD
 | matchmaking | matchmaking | A person maintains one wait, compatible rating ranges and a durable complete-group outcome. |
 | multiplayer | chess | A private multiplayer game joins opponent search, timed play, results and rematch into one continuous flow. |
 | notebook | developer-tools | Each selected device keeps its notebook questions and their answers. |
+| numberlink | numberlink | A person joins matching endpoints with paths under the puzzle’s chosen coverage, and finds published Numberlink puzzles and packs. |
 | notes | sync-engine | The framework example keeps owned and shared notes across offline work, conflicts, deletion and refused edits. |
+| pong | pong | Local Pong on one device, watching from the space, finding an opponent without a clock, play from separate devices, results and rematch. |
 | privacy | profile | A person proves their account before exporting personal data or confirming permanent deletion. |
 | product | system | Explore the whole product from one chart: the current person and this device’s place change together. |
 | profile | profile | The person edits their public profile while refused edits leave the saved profile intact. |
+| puzzle-content | puzzles | Private drafts, validation, playtests, stable editions, ordered packs, personal attempts and pack progress shared by puzzle games. |
 | puzzle-feed | games | Feed edits preview eligible choices; saving applies them and cancelling keeps the saved feed. |
 | puzzle-history | chess | Puzzle history and statistics show the person’s recorded attempts and skill without changing earlier outcomes. |
 | puzzle-ingest | chess | An allowed person adds puzzle material and sees accepted and broken items or a retryable failure. |
@@ -83,11 +90,12 @@ flowchart TD
 | settings | runtime | Device preferences survive closing the app; account and product choices remain reachable from Settings. |
 | sign-in | auth | Google and Apple identify the person; account matching always preserves the person’s choice. |
 | sign-in-methods | profile | A person connects and removes sign-in methods without losing the last way into the account. |
+| sokoban | sokoban | The starter pack, moving the worker and pushing crates, building a board and publishing only a board its author proved in a playtest. |
 | spaces | spaces | People create, join, share, rename, leave and end spaces, with clear limits and recovery. |
 | test-worlds | developer-tools | The team selects independent devices, changes their arrangement and saves or restores compatible checkpoints. |
 | tools | developer-tools | The testing tool reaches test worlds, notebooks, release evidence and the framework example apps. |
 
-The current machine has 350 states and 906 transitions.
+The current machine has 436 states and 1,178 transitions.
 [EXECUTION_NOTES.md](EXECUTION_NOTES.md) records complete graph traversal and
 serialization checks; [SOURCES.md](SOURCES.md) explains the source catalog.
 Framework contracts and inspection-scope choices retain their declared
