@@ -11,8 +11,8 @@ export type LexiconState =
   | { readonly status: 'unavailable'; readonly reason: string };
 
 /**
- * The word list a game pins, loaded on demand (a separate download, so
- * other games never fetch it). While it loads, or when it cannot, the board
+ * The word list a game pins, decoded the first time a game needs it. While
+ * it loads, or when it cannot, the board
  * says so: the preview is advisory and the authority still decides.
  */
 export function useWordTilesLexicon(key: Accessor<string>) {

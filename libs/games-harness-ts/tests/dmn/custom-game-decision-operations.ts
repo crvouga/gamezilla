@@ -160,8 +160,7 @@ export async function seedCustomGameDecision(c: ServerCase): Promise<void> {
   }
 }
 async function performFor(game: HarnessGame, c: ServerCase): Promise<void> {
-  if (isTurnHarnessGame(game))
-    await game.shared.turnGame.rules.prepare?.();
+  if (isTurnHarnessGame(game)) await game.shared.turnGame.rules.prepare?.();
   const w = createDecisionRoom(game, c);
   try {
     await decisionConnection(w, w.host).connect();

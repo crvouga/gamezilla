@@ -315,7 +315,7 @@ test('with another person at the table, nobody but the room chooses a bot’s mo
       sides: ['white', 'black', 'red'],
     },
     capabilities: { 'custom-games': { bots: handDrawBots } },
-    automation: { choose: () => null, perform: async () => {} },
+    turnAutomation: { choose: () => null, perform: async () => {} },
   });
   const room = createSpaceModule(
     assertRoomModuleName('hands-room'),

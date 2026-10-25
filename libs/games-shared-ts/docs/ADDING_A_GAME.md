@@ -245,8 +245,9 @@ and nowhere else
   public actions. Keep enough entropy in the hidden state that a side cannot
   search for it from what it sees.
 - **Data** — immutable data the rules decide with (a word list) loads in
-  `prepare`, which the platform awaits; keep it in its own chunk so other
-  games never download it.
+  `prepare`, which the platform awaits. The client imports application code
+  eagerly (no `import()` on its critical path), so ship the data as a module
+  and defer only its decoding.
 - **Bots and automation** — `choose` receives the bot side's own hand.
 - **Client** — every `Board` receives the viewer's own `hand`, or `null`.
 - **Fixtures** — `knownDeal: { draws, hidden }`, the authority's draws and

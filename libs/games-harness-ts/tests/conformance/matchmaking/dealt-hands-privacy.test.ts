@@ -24,7 +24,7 @@ forEveryTurnGame(
   (game) => {
     test("each person's device holds their own hand and never the opponent's or the hidden state", async () => {
       await using s = await openConformanceHarness(
-        `${game.shared.id        },
+        `${game.shared.id},
         ['dealt hands', 'two seats']-matched-dealt-hands`
       );
       const deal = game.fixtures.knownDeal;

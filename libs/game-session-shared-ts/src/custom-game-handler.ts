@@ -14,9 +14,7 @@ import { customGameAwaySince } from './custom-game-absence';
 import { CustomGameAvailableAttr } from './custom-game-availability';
 import type { CustomGameChoice } from './custom-game-choice';
 import type { CustomGameBotWake, CustomGameWake } from './custom-game-commands';
-import {
-  rematchCustomGame,
-} from './custom-game-configuration';
+import { rematchCustomGame } from './custom-game-configuration';
 import {
   dealtHandsChoice,
   decideCustomGameMove,

@@ -260,7 +260,7 @@ test('a shared specification added to the table reaches every game offering what
   );
   expect(bound('matchmaking').map(([game]) => game)).toEqual(
     HARNESS_GAMES.filter(
-      (game) => game.shared.turnGame?.capabilities.matchmaking !== undefined
+      (game) => game.shared.capabilities.matchmaking !== undefined
     ).map((game) => game.label)
   );
   expect(matrix.at(-1)!.cells.matchmaking.status).toBe('unsupported');

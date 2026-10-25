@@ -45,7 +45,7 @@ forEveryTurnGame(
   (game) => {
     test('each person receives their own hand alone; a watcher none; nobody the hidden state', async () => {
       await using s = await openConformanceHarness(
-        `${game.shared.id        },
+        `${game.shared.id},
         ['dealt hands', 'two seats']-dealt-hands-delivery`
       );
       await s.apply(establishCustomGame, game.shared.id, {

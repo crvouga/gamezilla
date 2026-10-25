@@ -3,6 +3,7 @@ import {
   MIN_WORD_LENGTH,
   sha256Hex,
 } from './word-tiles-lexicon-codec';
+import { ENABLE_WORDS } from './word-tiles-lexicon-enable-data';
 import { ENABLE_SOURCE } from './word-tiles-lexicon-source';
 import { buildWordTrie, trieHas, type WordTrie } from './word-tiles-trie';
 
@@ -58,9 +59,9 @@ export const ENABLE_LEXICON: LexiconIdentity = {
 const CATALOG: readonly LexiconEntry[] = [
   {
     identity: ENABLE_LEXICON,
-    // A separate chunk: opening another game never downloads the words.
-    artifact: () =>
-      import('./word-tiles-lexicon-enable-data').then((m) => m.ENABLE_WORDS),
+    // Shipped with the app like all its code (the offline shell precaches
+    // it either way); decoded only when a game first needs it.
+    artifact: () => Promise.resolve(ENABLE_WORDS),
   },
 ];
 

@@ -69,11 +69,13 @@ permission ([`word-tiles-lexicon-source.ts`](../src/word-tiles-lexicon-source.ts
   (`enable1.90ef7a729517`, from the canonical list's SHA-256). Changing the
   default never changes what an existing match or puzzle accepts; a retired
   list stays in the catalogue while content names it.
-- **Offline and separate.** The list ships front-coded in its own chunk
+- **Offline.** The list ships front-coded with the app
   ([`word-tiles-lexicon-enable-data.ts`](../src/word-tiles-lexicon-enable-data.ts),
-  generated), loaded on demand, checked against its artifact SHA-256 and
-  decoded into a typed-array trie. Other games never download it. The
-  authority and the API server load it through `GameRules.prepare`.
+  generated, about 220 KB compressed): the client imports its code eagerly
+  and its offline shell precaches everything the client can load, so a
+  separate chunk would save nothing. It is checked against its artifact
+  SHA-256 and decoded into a typed-array trie only when a game first needs
+  it. The authority and the API server load it through `GameRules.prepare`.
 - **Notice.** The game's instructions show the list's name and notice.
 
 ## Hidden information

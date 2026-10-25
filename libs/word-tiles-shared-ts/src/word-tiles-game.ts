@@ -48,7 +48,11 @@ export const wordTilesGameShared = defineGame({
   puzzleContent: { ...wordTilesPuzzleContent, starter: WORD_TILES_STARTER },
   capabilities: {
     'custom-games': { bots: wordTilesBots },
-    matchmaking: { namespace: 'word-tiles/', notice: NOTICE },
+    matchmaking: {
+      namespace: 'word-tiles/',
+      clockChoices: true as const,
+      notice: NOTICE,
+    },
     history: { record: wordTilesRecord },
   },
   turnAutomation: wordTilesAutomation,

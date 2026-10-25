@@ -3,6 +3,14 @@ import { specificationGames } from '@libs/games-harness-ts/game-conformance';
 import { HARNESS_GAMES } from '@libs/games-harness-ts/harness-games';
 
 // regression: simulation-enrolled-in-turn-only-specifications
+const TURN_GAMES = [
+  'chess',
+  'connect-four',
+  'battleship',
+  'quoridor',
+  'word-tiles',
+];
+
 test.each([
   'game-turns',
   'matched-game-results',
@@ -14,7 +22,7 @@ test.each([
     specificationGames(`specs/games/${stem}.feature`, HARNESS_GAMES).map(
       (game) => game.shared.id
     )
-  ).toEqual(['chess', 'connect-four', 'battleship', 'quoridor']);
+  ).toEqual(TURN_GAMES);
 });
 
 test.each([
