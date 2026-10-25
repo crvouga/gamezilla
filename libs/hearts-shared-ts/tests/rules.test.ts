@@ -141,7 +141,8 @@ describe('playing cards', () => {
 
   test('the highest card of the led suit wins and its player leads next', () => {
     const table = holdTable([0, 0, 0, 0]);
-    for (const card of ['2C', '2D', '2S', '2H']) expect(play(table, card)).toBe(true);
+    for (const card of ['2C', '2D', '2S', '2H'])
+      expect(play(table, card)).toBe(true);
     expect(turn(table)).toBe('white');
     expect(play(table, '2D')).toBe(false);
   });

@@ -60,6 +60,11 @@ function parseLead(text: string): Seat | null | undefined {
 
 function consistent(position: HeartsPosition): boolean {
   if (position.deal < 1 || position.deal > 9999) return false;
+  // A match is over exactly when a score has reached the target.
+  const over = position.scores.some((score) => score >= MATCH_TARGET);
+  if (over !== (position.phase === 'done')) return false;
+  // The fourth deal of every four holds its cards: nobody passes.
+  if (position.phase === 'pass' && (position.deal - 1) % 4 === 3) return false;
   if (position.phase === 'play')
     return (
       position.lead !== null &&
@@ -125,7 +130,12 @@ export const INITIAL_HEARTS: HeartsPosition = {
 };
 
 export type PassDirection = 'left' | 'right' | 'across' | 'hold';
-const DIRECTIONS: readonly PassDirection[] = ['left', 'right', 'across', 'hold'];
+const DIRECTIONS: readonly PassDirection[] = [
+  'left',
+  'right',
+  'across',
+  'hold',
+];
 
 /** Left, right, across and hold, repeating by deal. */
 export function passDirection(deal: number): PassDirection {
@@ -137,6 +147,12 @@ export function passTarget(seat: Seat, deal: number): Seat {
   const direction = passDirection(deal);
   return seatAfter(
     seat,
-    direction === 'left' ? 1 : direction === 'right' ? 3 : direction === 'across' ? 2 : 0
+    direction === 'left'
+      ? 1
+      : direction === 'right'
+        ? 3
+        : direction === 'across'
+          ? 2
+          : 0
   );
 }

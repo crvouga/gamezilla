@@ -5,10 +5,13 @@ import { HEARTS_SIDES, type Seat } from './hearts-position';
  * What only the authority holds: every seat's cards and the state of the
  * shuffler that deals the next deal. A seed that can rebuild a hand is as
  * secret as the hand, so it never leaves the authority either; it is 128
- * bits, so a player who knows their own cards cannot search every seed for
- * the others'. Written `<shuffler>|<South>|<West>|<North>|<East>`, the
- * shuffler as four 32-bit words joined by `.`, each seat's cards in deck
- * order.
+ * bits drawn from the room's unpredictable source, so a player who knows
+ * their own cards cannot search every seed for the others'. xoshiro128** is
+ * not a cryptographic generator, though: the cards a match reveals are
+ * evidence about its state, so its later deals resist casual inference, not
+ * a determined solver (see docs/HEARTS_IMPLEMENTATION.md). Written
+ * `<shuffler>|<South>|<West>|<North>|<East>`, the shuffler as four 32-bit
+ * words joined by `.`, each seat's cards in deck order.
  */
 export type Shuffler = readonly [number, number, number, number];
 export type HeartsHidden = {
@@ -46,7 +49,8 @@ export function readHidden(text: string): HeartsHidden | null {
   return { shuffler, hands: hands as Card[][] };
 }
 
-const rotl = (x: number, k: number): number => ((x << k) | (x >>> (32 - k))) >>> 0;
+const rotl = (x: number, k: number): number =>
+  ((x << k) | (x >>> (32 - k))) >>> 0;
 
 /** One step of the shuffler (xoshiro128**): the next state and a number in [0, 1). */
 function next(state: Shuffler): {
@@ -68,7 +72,9 @@ function next(state: Shuffler): {
 /** A shuffler seeded with four 32-bit words (all zero is replaced, as xoshiro needs). */
 export function shufflerFrom(words: readonly number[]): Shuffler {
   const state = [0, 1, 2, 3].map((i) => (words[i] ?? 0) >>> 0);
-  return (state.every((word) => word === 0) ? [1, 0, 0, 0] : state) as unknown as Shuffler;
+  return (state.every((word) => word === 0)
+    ? [1, 0, 0, 0]
+    : state) as unknown as Shuffler;
 }
 
 /**
@@ -86,7 +92,9 @@ export function shuffleDeck(random: () => number): Card[] {
 
 /** Thirteen cards to each seat, in seat order, from a shuffled deck. */
 export function handsOf(deck: readonly Card[]): Card[][] {
-  return HEARTS_SIDES.map((_, seat) => [...deck.slice(seat * 13, seat * 13 + 13)]);
+  return HEARTS_SIDES.map((_, seat) => [
+    ...deck.slice(seat * 13, seat * 13 + 13),
+  ]);
 }
 
 /** A deal from the hidden shuffler, and the shuffler after it. */

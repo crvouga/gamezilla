@@ -1,0 +1,4 @@
+{
+  "summary": "The end of a Hearts game listed bare numbers ('Final scores: 10, 20, 30, 40.') with no seat names and no winner, in the live region a listener relies on. It now names every seat's score and the winner or joint winners.",
+  "regressionTest": "libs/hearts-client-ts/tests/board-recovery.test.tsx"
+}

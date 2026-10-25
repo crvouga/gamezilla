@@ -53,17 +53,29 @@ const disabled = (card: string) =>
 
 test('the viewer sits nearest, named as their own seat, with every seat around the table', () => {
   board({ orientation: 'red' });
-  expect(byTestId('hearts-seat-red').getAttribute('data-position')).toBe('bottom');
-  expect(byTestId('hearts-seat-red').getAttribute('aria-label')).toBe('North (you)');
-  expect(byTestId('hearts-seat-blue').getAttribute('data-position')).toBe('left');
-  expect(byTestId('hearts-seat-white').getAttribute('data-position')).toBe('top');
-  expect(byTestId('hearts-seat-black').getAttribute('data-position')).toBe('right');
+  expect(byTestId('hearts-seat-red').getAttribute('data-position')).toBe(
+    'bottom'
+  );
+  expect(byTestId('hearts-seat-red').getAttribute('aria-label')).toBe(
+    'North (you)'
+  );
+  expect(byTestId('hearts-seat-blue').getAttribute('data-position')).toBe(
+    'left'
+  );
+  expect(byTestId('hearts-seat-white').getAttribute('data-position')).toBe(
+    'top'
+  );
+  expect(byTestId('hearts-seat-black').getAttribute('data-position')).toBe(
+    'right'
+  );
 });
 
-test('a watcher sees the table, every seat\'s hand size and score, and no hand', () => {
+test("a watcher sees the table, every seat's hand size and score, and no hand", () => {
   board({ hand: null, position: HOLD_START, interactive: false });
   expect(byTestId('hearts-hand').children).toHaveLength(0);
-  expect(byTestId('hearts-seat-white').getAttribute('aria-label')).toBe('South');
+  expect(byTestId('hearts-seat-white').getAttribute('aria-label')).toBe(
+    'South'
+  );
   expect(byTestId('hearts-seat-blue').textContent).toContain('13 cards');
   expect(byTestId('hearts-seat-blue').textContent).toContain('Score 40');
 });
@@ -86,7 +98,8 @@ test('three cards are chosen, then passed together; passing progress shows who h
   expect(byTestId('hearts-seat-red').textContent).toContain('Choosing');
   const pass = () => byTestId('hearts-pass') as HTMLButtonElement;
   expect(pass().disabled).toBe(true);
-  for (const card of ['AC', 'KC', 'QC']) fireEvent.click(byTestId(`hearts-card-${card}`));
+  for (const card of ['AC', 'KC', 'QC'])
+    fireEvent.click(byTestId(`hearts-card-${card}`));
   fireEvent.click(byTestId('hearts-card-JC'));
   expect(byTestId('hearts-card-JC').getAttribute('aria-pressed')).toBe('false');
   fireEvent.click(pass());
@@ -98,7 +111,9 @@ test('once passed, the cards stay chosen and nothing more can be passed', () => 
   expect(byTestId('hearts-card-QC').getAttribute('aria-pressed')).toBe('true');
   expect(disabled('2C')).toBe(true);
   expect(document.querySelector('[data-testid="hearts-pass"]')).toBeNull();
-  expect(byTestId('hearts-center').textContent).toContain('Waiting for every player to pass');
+  expect(byTestId('hearts-center').textContent).toContain(
+    'Waiting for every player to pass'
+  );
 });
 
 let driver: SolidDomDriver | undefined;
@@ -112,7 +127,12 @@ test('the game automation passes and plays through the board as a person does', 
   const time = createHarnessClock();
   const Board = heartsGameClient.presentation.Board;
   const i18n = setupI18n({ locale: 'en', messages: { en: {} } });
-  const [position, setPosition] = [{ value: heartsRules.initial() }, (p: string) => { position.value = p; }];
+  const [position, setPosition] = [
+    { value: heartsRules.initial() },
+    (p: string) => {
+      position.value = p;
+    },
+  ];
   driver = createSolidDomDriver({
     clock: time.clock,
     pump: async () => {
@@ -145,7 +165,7 @@ test('the game automation passes and plays through the board as a person does', 
   });
   setPosition(heartsRules.initial());
   await driver.launch();
-  await heartsGameShared.automation.perform(driver, 'board', '2C3C4C');
+  await heartsGameShared.automation.turns.perform(driver, 'board', '2C3C4C');
   expect(played).toEqual(['2C3C4C']);
 });
 
@@ -155,12 +175,11 @@ test('the presentation names the game, its seats and its ending', () => {
   expect(presentation.name()).toBe('Hearts');
   expect(presentation.canFlip).toBe(false);
   expect(presentation.SetupBoard).toBeUndefined();
-  expect(['white', 'black', 'red', 'blue'].map((s) => presentation.sideLabel(s as 'white'))).toEqual([
-    'South',
-    'West',
-    'North',
-    'East',
-  ]);
+  expect(
+    ['white', 'black', 'red', 'blue'].map((s) =>
+      presentation.sideLabel(s as 'white')
+    )
+  ).toEqual(['South', 'West', 'North', 'East']);
   expect(presentation.endingLabel('lowest score')).toBe('the lowest score');
   expect(presentation.endingDescription('lowest score')).toBe(
     'A score reached 100, and the lowest score wins.'

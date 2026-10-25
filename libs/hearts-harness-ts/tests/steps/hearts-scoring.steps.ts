@@ -6,7 +6,10 @@
 import { expect } from 'bun:test';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import { playDealsLastCard } from '@libs/hearts-harness-ts/hearts-actions';
-import { fiveDealsScored } from '@libs/hearts-harness-ts/hearts-five-deals';
+import {
+  fiveDealsScored,
+  sixthDealButLastCard,
+} from '@libs/hearts-harness-ts/hearts-five-deals';
 import {
   southVictory,
   thirdDealLastCard,
@@ -75,6 +78,16 @@ Given(
 Given(
   'after five deals the scores stand at South {int}, West {int}, North {int} and East {int}',
   (w, ...scores: number[]) => afterFiveDeals(w, scores)
+);
+
+Given(
+  'in this deal South took {int} penalty points, West {int}, North {int} and East {int}',
+  (w, ...taken: number[]) => {
+    const line = sixthDealButLastCard(taken);
+    if (line === null)
+      throw new Error(`no known sixth deal gives ${taken.join(', ')}`);
+    plan(w, { line });
+  }
 );
 
 When('the deal is scored', async (w) => {

@@ -1,6 +1,3 @@
-import {
-  plainWinner,
-} from '@pkgs/turn-game-shared-ts/game-rules';
 import type {
   CommitmentAcceptance,
   DealtHandsRules,
@@ -10,11 +7,8 @@ import type {
   HandsResolution,
   PlayedPosition,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import {
-  stepHearts,
-  replayHearts,
-  writeHeartsAction,
-} from './hearts-actions';
+import { plainWinner } from '@pkgs/turn-game-shared-ts/game-rules';
+import { replayHearts, stepHearts, writeHeartsAction } from './hearts-actions';
 import {
   type Card,
   DECK,
@@ -26,17 +20,17 @@ import {
   dealFrom,
   type HeartsHidden,
   handsOf,
+  readHidden,
   shuffleDeck,
   shufflerFrom,
-  readHidden,
   twoOfClubsSeat,
   writeHidden,
 } from './hearts-hidden';
 import {
   decodeHearts,
   encodeHearts,
-  type HeartsPosition,
   HEARTS_SIDES,
+  type HeartsPosition,
   INITIAL_HEARTS,
   passDirection,
   passTarget,
@@ -84,7 +78,11 @@ function dealsAgain(position: HeartsPosition, card: Card): boolean {
   return !matchOver(position.scores.map((score, seat) => score + added[seat]!));
 }
 
-function withoutCard(hidden: HeartsHidden, seat: Seat, card: Card): HeartsHidden {
+function withoutCard(
+  hidden: HeartsHidden,
+  seat: Seat,
+  card: Card
+): HeartsHidden {
   return {
     ...hidden,
     hands: hidden.hands.map((hand, at) =>
@@ -175,7 +173,10 @@ function resolvePasses(
   );
   for (const [seat, cards] of given.entries())
     hands[passTarget(seat as Seat, position.deal)]!.push(...cards);
-  const after = { ...hidden, hands: hands.map((hand) => DECK.filter((card) => hand.includes(card))) };
+  const after = {
+    ...hidden,
+    hands: hands.map((hand) => DECK.filter((card) => hand.includes(card))),
+  };
   return {
     action: writeHeartsAction({ kind: 'pass', lead: twoOfClubsSeat(after) }),
     hidden: writeHidden(after),
@@ -195,8 +196,7 @@ export const heartsHands: DealtHandsRules = {
     return seat === null ? [] : legalCards(position, seat, held);
   },
   commit: {
-    sides: (text) =>
-      decodeHearts(text)?.phase === 'pass' ? HEARTS_SIDES : [],
+    sides: (text) => (decodeHearts(text)?.phase === 'pass' ? HEARTS_SIDES : []),
     accept: acceptPass,
     resolve: resolvePasses,
   },
@@ -238,7 +238,10 @@ export const heartsRules: GameRules = {
     if (position === null || position.phase === 'done') return null;
     const step = stepHearts(position, action);
     if (step === null) return null;
-    return playedPosition(step, history === '' ? action : `${history} ${action}`);
+    return playedPosition(
+      step,
+      history === '' ? action : `${history} ${action}`
+    );
   },
   replay: (actions, ply) => {
     const accepted = actions.slice(0, ply);

@@ -2,8 +2,8 @@ import { type Card, cardLabel, isCard } from './hearts-cards';
 import {
   decodeHearts,
   encodeHearts,
-  type HeartsPosition,
   HEARTS_SIDES,
+  type HeartsPosition,
   type HeartsSide,
   INITIAL_HEARTS,
   passDirection,
@@ -92,7 +92,14 @@ function dealEnded(
   const scores = position.scores.map((score, seat) => score + added[seat]!);
   if (matchOver(scores))
     return next === undefined
-      ? { ...position, phase: 'done', scores, lead: null, plays: [], last: added }
+      ? {
+          ...position,
+          phase: 'done',
+          scores,
+          lead: null,
+          plays: [],
+          last: added,
+        }
       : null;
   const deal = position.deal + 1;
   const hold = passDirection(deal) === 'hold';

@@ -12,12 +12,7 @@ import {
   writeCards,
 } from './hearts-cards';
 import { decodeHearts, type HeartsPosition } from './hearts-position';
-import {
-  legalCards,
-  seatToPlay,
-  tricksOf,
-  trickWinner,
-} from './hearts-tricks';
+import { legalCards, seatToPlay, tricksOf, trickWinner } from './hearts-tricks';
 
 /**
  * Hearts bots decide for their own seat with its own cards and the public
@@ -28,7 +23,9 @@ import {
 
 /** One of `options`, drawn with `random`. */
 function pick<T>(options: readonly T[], random: () => number): T {
-  return options[Math.min(options.length - 1, Math.floor(random() * options.length))]!;
+  return options[
+    Math.min(options.length - 1, Math.floor(random() * options.length))
+  ]!;
 }
 
 /** How much a card is worth getting rid of: the queen and high spades, high hearts, then high cards. */
@@ -85,7 +82,10 @@ function chooseCard(
     const hearts = byRank.filter((card) => suitOf(card) === 'H');
     return (hearts.length > 0 ? hearts : byRank).at(-1)!;
   }
-  if (legal.includes(QUEEN_OF_SPADES) && rankOf(winning) > rankOf(QUEEN_OF_SPADES))
+  if (
+    legal.includes(QUEEN_OF_SPADES) &&
+    rankOf(winning) > rankOf(QUEEN_OF_SPADES)
+  )
     return QUEEN_OF_SPADES;
   const under = byRank.filter((card) => rankOf(card) < rankOf(winning));
   if (under.length > 0) return under.at(-1)!;

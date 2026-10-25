@@ -27,7 +27,10 @@ export type Table = {
 const hands = heartsRules.hands!;
 const commit = hands.commit!;
 
-export function newTable(hidden: string, position = heartsRules.initial()): Table {
+export function newTable(
+  hidden: string,
+  position = heartsRules.initial()
+): Table {
   return {
     position,
     history: '',
@@ -74,7 +77,12 @@ export function pendingPasses(table: Table): readonly GameSide[] {
 /** `side` passes `cards`; the last pass is resolved at once. `false` when refused. */
 export function pass(table: Table, side: GameSide, cards: string): boolean {
   if (!pendingPasses(table).includes(side)) return false;
-  const accepted = commit.accept(table.position, side, handOf(table, side), cards);
+  const accepted = commit.accept(
+    table.position,
+    side,
+    handOf(table, side),
+    cards
+  );
   if ('refusal' in accepted) return false;
   table.commitments[side] = accepted.commitment;
   if (pendingPasses(table).length > 0) return true;

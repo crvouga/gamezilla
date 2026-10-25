@@ -5,8 +5,8 @@ import type {
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import { winningSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import { replayHearts } from './hearts-actions';
-import { parseCards } from './hearts-cards';
 import { chooseHeartsDecision, heartsBots } from './hearts-bot';
+import { parseCards } from './hearts-cards';
 import { decodeHearts, HEARTS_SIDES } from './hearts-position';
 import { heartsRules } from './hearts-rules';
 

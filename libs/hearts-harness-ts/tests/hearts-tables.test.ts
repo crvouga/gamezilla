@@ -1,5 +1,9 @@
 import { expect, test } from 'bun:test';
-import { fiveDealsScored } from '@libs/hearts-harness-ts/hearts-five-deals';
+import {
+  fiveDealsScored,
+  sixthDealButLastCard,
+  sixthDealLastCard,
+} from '@libs/hearts-harness-ts/hearts-five-deals';
 import { KNOWN_HIDDEN } from '@libs/hearts-harness-ts/hearts-known-match';
 import {
   awaitingPassesIn,
@@ -107,4 +111,21 @@ test('five known deals leave the scores at South 12, West 90, North 14 and East 
   const at = heartsReached(fiveDealsScored()).position;
   expect([at.deal, at.phase]).toEqual([6, 'pass']);
   expect(at.scores).toEqual([12, 90, 14, 14]);
+});
+
+test('each known sixth deal adds exactly the penalty points it is known by', () => {
+  for (const taken of [
+    [0, 9, 17, 0],
+    [0, 10, 16, 0],
+    [0, 11, 2, 13],
+    [2, 11, 0, 13],
+  ]) {
+    const line = sixthDealButLastCard(taken)!;
+    const last = sixthDealLastCard(taken)!;
+    const at = heartsReached({
+      ...line,
+      history: [...line.history, last],
+    }).position;
+    expect(at.scores).toEqual([12, 90, 14, 14].map((s, i) => s + taken[i]!));
+  }
 });

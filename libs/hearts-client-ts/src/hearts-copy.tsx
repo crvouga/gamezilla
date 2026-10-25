@@ -23,9 +23,20 @@ export const SUIT_NAMES: Readonly<Record<Suit, CardSuit>> = {
   H: 'hearts',
 };
 
+/** A suit's name as a card shows it under its symbol, in the reader's language. */
+export function suitName(suit: Suit): string {
+  const names: Readonly<Record<Suit, string>> = {
+    C: t`clubs`,
+    D: t`diamonds`,
+    S: t`spades`,
+    H: t`hearts`,
+  };
+  return names[suit];
+}
+
 /** The rank as a card shows it: `10` for the ten. */
 export function rankText(card: Card): string {
-  return card[0] === 'T' ? '10' : card[0]!;
+  return card.startsWith('T') ? '10' : card.charAt(0);
 }
 
 function rankName(card: Card): string {
@@ -44,7 +55,7 @@ function rankName(card: Card): string {
     K: t`King`,
     A: t`Ace`,
   };
-  return names[card[0]!] ?? card[0]!;
+  return names[card.charAt(0)] ?? card.charAt(0);
 }
 
 /** A card's full name, `Queen of spades`. */
