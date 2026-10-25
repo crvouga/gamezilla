@@ -125,3 +125,9 @@ terms:
   - term: connection
     from: kernel
     model: [loseConnection, connectionReturns, viewerLosesConnection, viewerConnectionReturns]
+
+  - term: resume
+    from: puzzles
+
+  - term: pack progress
+    from: puzzles

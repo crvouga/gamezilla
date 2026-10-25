@@ -793,7 +793,25 @@
       "Reviews a Classic Quoridor game": "user",
       "Opens a King of the Hill custom game": "user",
       "Finds King of the Hill opponents": "user",
-      "Reviews a King of the Hill game": "user"
+      "Reviews a King of the Hill game": "user",
+      "Chooses Pong": "user",
+      "Chooses Light Cycles Duel": "user",
+      "Chooses Light Cycles Trio": "user",
+      "Chooses Light Cycles Quad": "user",
+      "Chooses Numberlink": "user",
+      "Opens a Pong custom game": "user",
+      "Finds a Pong opponent": "user",
+      "Opens puzzle authoring": "user",
+      "Returns to Numberlink choices": "user",
+      "Opens a Light Cycles Duel custom game": "user",
+      "Finds Light Cycles Duel players": "user",
+      "Reviews a Light Cycles Duel game": "user",
+      "Opens a Light Cycles Trio custom game": "user",
+      "Finds Light Cycles Trio players": "user",
+      "Reviews a Light Cycles Trio game": "user",
+      "Opens a Light Cycles Quad custom game": "user",
+      "Finds Light Cycles Quad players": "user",
+      "Reviews a Light Cycles Quad game": "user"
     }
   },
   "states": {
@@ -4716,7 +4734,7 @@
                   "id": "App: Games",
                   "meta": {
                     "description": "The host chooses a registered game; participants play or watch according to their permission.",
-                    "snapshot": "The space offers Chess, Connect Four, Battleship, Classic Quoridor and Four-Player King of the Hill.",
+                    "snapshot": "The space offers Chess, Connect Four, Battleship, Classic Quoridor, Four-Player King of the Hill, Pong, Light Cycles Duel, Light Cycles Trio, Light Cycles Quad and Numberlink.",
                     "confidence": "assumed",
                     "source": [
                       "specs/games/space-follow.qnt",
@@ -4811,6 +4829,21 @@
                         },
                         "Chooses Four-Player King of the Hill": {
                           "target": "#Games: King of the Hill choices"
+                        },
+                        "Chooses Pong": {
+                          "target": "#Games: Pong choices"
+                        },
+                        "Chooses Light Cycles Duel": {
+                          "target": "#Games: Light Cycles Duel choices"
+                        },
+                        "Chooses Light Cycles Trio": {
+                          "target": "#Games: Light Cycles Trio choices"
+                        },
+                        "Chooses Light Cycles Quad": {
+                          "target": "#Games: Light Cycles Quad choices"
+                        },
+                        "Chooses Numberlink": {
+                          "target": "#Games: Numberlink choices"
                         }
                       }
                     },
@@ -4990,6 +5023,214 @@
                         },
                         "Returns to the game choice": {
                           "target": "#Games: Choose a game"
+                        }
+                      }
+                    },
+                    "Games: Pong choices": {
+                      "id": "Games: Pong choices",
+                      "meta": {
+                        "description": "Pong offers custom games against a person or a bot, finding an opponent without choosing a clock, and play on one device. Each person guides their own paddle, and the first to reach the target score wins.",
+                        "snapshot": "Pong offers custom games against a person or a bot, finding an opponent without choosing a clock, and play on one device. Each person guides their own paddle, and the first to reach the target score wins.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/pong/pong-local-play.feature",
+                          "specs/pong/pong-local-play.qnt",
+                          "specs/pong/pong-local-watch.feature",
+                          "specs/pong/pong-scoring.feature",
+                          "specs/pong/pong-scoring.qnt",
+                          "specs/pong/pong-shared-control.feature",
+                          "specs/pong/pong-shared-control.qnt",
+                          "specs/pong/ubiquitous-language.yml",
+                          "specs/journeys/pong-game.feature",
+                          "specs/games/game-choices.feature",
+                          "specs/games/game-history.feature",
+                          "specs/games/ubiquitous-language.yml"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Opens a Pong custom game": {
+                          "target": "#App: Custom game"
+                        },
+                        "Finds a Pong opponent": {
+                          "target": "#App: Multiplayer"
+                        },
+                        "Returns to the game choice": {
+                          "target": "#Games: Choose a game"
+                        }
+                      }
+                    },
+                    "Games: Light Cycles Duel choices": {
+                      "id": "Games: Light Cycles Duel choices",
+                      "meta": {
+                        "description": "Light Cycles Duel offers two riders, Comet and Ember, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
+                        "snapshot": "Light Cycles Duel offers two riders, Comet and Ember, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/light-cycles/light-cycles-riding.feature",
+                          "specs/light-cycles/light-cycles-crashes.feature",
+                          "specs/light-cycles/light-cycles-rounds.feature",
+                          "specs/light-cycles/light-cycles-victory.feature",
+                          "specs/light-cycles/light-cycles-riders.feature",
+                          "specs/light-cycles/light-cycles-connection.feature",
+                          "specs/light-cycles/light-cycles-bots-and-modes.feature",
+                          "specs/light-cycles/light-cycles-round.qnt",
+                          "specs/light-cycles/ubiquitous-language.yml",
+                          "specs/games/game-choices.feature",
+                          "specs/games/game-history.feature",
+                          "specs/games/ubiquitous-language.yml"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Opens a Light Cycles Duel custom game": {
+                          "target": "#App: Custom game"
+                        },
+                        "Finds Light Cycles Duel players": {
+                          "target": "#App: Multiplayer"
+                        },
+                        "Reviews a Light Cycles Duel game": {
+                          "target": "#Custom Game: Reviewing"
+                        },
+                        "Returns to the game choice": {
+                          "target": "#Games: Choose a game"
+                        }
+                      }
+                    },
+                    "Games: Light Cycles Trio choices": {
+                      "id": "Games: Light Cycles Trio choices",
+                      "meta": {
+                        "description": "Light Cycles Trio offers three riders, Comet, Ember and Nova, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
+                        "snapshot": "Light Cycles Trio offers three riders, Comet, Ember and Nova, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/light-cycles/light-cycles-riding.feature",
+                          "specs/light-cycles/light-cycles-crashes.feature",
+                          "specs/light-cycles/light-cycles-rounds.feature",
+                          "specs/light-cycles/light-cycles-victory.feature",
+                          "specs/light-cycles/light-cycles-riders.feature",
+                          "specs/light-cycles/light-cycles-connection.feature",
+                          "specs/light-cycles/light-cycles-bots-and-modes.feature",
+                          "specs/light-cycles/light-cycles-round.qnt",
+                          "specs/light-cycles/ubiquitous-language.yml",
+                          "specs/games/game-choices.feature",
+                          "specs/games/game-history.feature",
+                          "specs/games/ubiquitous-language.yml"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Opens a Light Cycles Trio custom game": {
+                          "target": "#App: Custom game"
+                        },
+                        "Finds Light Cycles Trio players": {
+                          "target": "#App: Multiplayer"
+                        },
+                        "Reviews a Light Cycles Trio game": {
+                          "target": "#Custom Game: Reviewing"
+                        },
+                        "Returns to the game choice": {
+                          "target": "#Games: Choose a game"
+                        }
+                      }
+                    },
+                    "Games: Light Cycles Quad choices": {
+                      "id": "Games: Light Cycles Quad choices",
+                      "meta": {
+                        "description": "Light Cycles Quad offers four riders, Comet, Ember, Nova and Volt, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
+                        "snapshot": "Light Cycles Quad offers four riders, Comet, Ember, Nova and Volt, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/light-cycles/light-cycles-riding.feature",
+                          "specs/light-cycles/light-cycles-crashes.feature",
+                          "specs/light-cycles/light-cycles-rounds.feature",
+                          "specs/light-cycles/light-cycles-victory.feature",
+                          "specs/light-cycles/light-cycles-riders.feature",
+                          "specs/light-cycles/light-cycles-connection.feature",
+                          "specs/light-cycles/light-cycles-bots-and-modes.feature",
+                          "specs/light-cycles/light-cycles-round.qnt",
+                          "specs/light-cycles/ubiquitous-language.yml",
+                          "specs/games/game-choices.feature",
+                          "specs/games/game-history.feature",
+                          "specs/games/ubiquitous-language.yml"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Opens a Light Cycles Quad custom game": {
+                          "target": "#App: Custom game"
+                        },
+                        "Finds Light Cycles Quad players": {
+                          "target": "#App: Multiplayer"
+                        },
+                        "Reviews a Light Cycles Quad game": {
+                          "target": "#Custom Game: Reviewing"
+                        },
+                        "Returns to the game choice": {
+                          "target": "#Games: Choose a game"
+                        }
+                      }
+                    },
+                    "Games: Numberlink choices": {
+                      "id": "Games: Numberlink choices",
+                      "meta": {
+                        "description": "Numberlink offers published puzzles and packs. A person draws paths joining each matching pair of numbers, keeps their place in every puzzle and pack, and continues a pack where they left off.",
+                        "snapshot": "Numberlink offers published puzzles and packs. A person draws paths joining each matching pair of numbers, keeps their place in every puzzle and pack, and continues a pack where they left off.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/numberlink/draw-paths.feature",
+                          "specs/numberlink/complete-and-edit.feature",
+                          "specs/numberlink/ubiquitous-language.yml",
+                          "specs/journeys/numberlink-packs.feature",
+                          "specs/puzzles/keep-attempts.feature",
+                          "specs/puzzles/pack-progression.feature",
+                          "specs/puzzles/pack-progression.qnt",
+                          "specs/puzzles/puzzle-attempt.qnt",
+                          "specs/puzzles/ubiquitous-language.yml",
+                          "specs/games/game-choices.feature",
+                          "specs/games/game-history.feature",
+                          "specs/games/ubiquitous-language.yml"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Opens puzzle authoring": {
+                          "target": "#Games: Puzzle authoring"
+                        },
+                        "Returns to the game choice": {
+                          "target": "#Games: Choose a game"
+                        }
+                      }
+                    },
+                    "Games: Puzzle authoring": {
+                      "id": "Games: Puzzle authoring",
+                      "meta": {
+                        "description": "An author creates private puzzle drafts and packs, undoes and redoes edits, playtests a draft with its real rules, and publishes puzzles and packs as stable editions. Drafts are kept without a connection, and a publication that cannot go ahead keeps the pack.",
+                        "snapshot": "An author creates private puzzle drafts and packs, undoes and redoes edits, playtests a draft with its real rules, and publishes puzzles and packs as stable editions. Drafts are kept without a connection, and a publication that cannot go ahead keeps the pack.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/puzzles/author-drafts.feature",
+                          "specs/puzzles/author-packs.feature",
+                          "specs/puzzles/edit-draft-history.feature",
+                          "specs/puzzles/draft-editing.qnt",
+                          "specs/puzzles/offline-work.feature",
+                          "specs/puzzles/playtest-drafts.feature",
+                          "specs/puzzles/publish-puzzles.feature",
+                          "specs/puzzles/publish-packs.feature",
+                          "specs/puzzles/publication-recovery.feature",
+                          "specs/puzzles/publication-recovery.qnt",
+                          "specs/puzzles/puzzle-authoring.qnt",
+                          "specs/puzzles/pack-authoring.qnt",
+                          "specs/puzzles/puzzle-publication.qnt",
+                          "specs/puzzles/pack-publication.qnt",
+                          "specs/puzzles/puzzle-content-access.dmn",
+                          "specs/puzzles/ubiquitous-language.yml"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Returns to Numberlink choices": {
+                          "target": "#Games: Numberlink choices"
                         }
                       }
                     }
@@ -6602,7 +6843,11 @@
                       "specs/chess/ubiquitous-language.yml",
                       "specs/games/unfinished-game-limit.dmn",
                       "specs/ubiquitous-language.yml",
-                      "specs/games/four-seat-matchmaking.feature"
+                      "specs/games/four-seat-matchmaking.feature",
+                      "specs/games/finding-an-opponent-without-a-clock.feature",
+                      "specs/games/matched-game-without-turns.feature",
+                      "specs/games/matched-game-ending.qnt",
+                      "specs/games/opponent-search.qnt"
                     ],
                     "events": []
                   },
@@ -9287,7 +9532,10 @@
                           "specs/synthetic-population/synthetic-user-sign-in.feature",
                           "specs/synthetic-population/ubiquitous-language.yml",
                           "specs/ubiquitous-language.yml",
-                          "specs/developer-tools/checkpoints.qnt"
+                          "specs/developer-tools/checkpoints.qnt",
+                          "specs/synthetic-population/playing-pong.feature",
+                          "specs/synthetic-population/playing-pong.qnt",
+                          "specs/synthetic-population/recognizing-synthetic-users.qnt"
                         ],
                         "events": [],
                         "routes": [

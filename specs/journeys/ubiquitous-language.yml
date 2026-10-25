@@ -115,6 +115,7 @@ terms:
     from: quoridor
   - term: Four-Player King of the Hill
     from: quoridor
+
   - term: Pong
     from: pong
   - term: paddle
@@ -125,5 +126,6 @@ terms:
     from: pong
   - term: rematch
     from: games
+
   - term: bot
     from: games

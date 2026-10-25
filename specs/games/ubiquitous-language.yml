@@ -266,10 +266,10 @@ terms:
 
   - term: side
     definition: >-
-      One of a game's declared places to play from. A game has two or four
-      sides. When the game uses turns, the sides take them in a fixed order
-      and the first side moves first. A side is open until a person or a bot
-      takes it. Every declared side needs a participant before play begins.
+      One of a game's declared places to play from. A game has two, three or four
+      sides. When the game uses turns, they follow a fixed turn order and the
+      first side moves first; a side is open until a person or a bot takes
+      it. Every declared side needs a participant before play begins.
     forms:
       - sides
       - first side
@@ -408,7 +408,7 @@ terms:
       Give up a game under way. In a two-sided game the opponent wins; a
       game with more than two sides finishes as a draw because a participant
       withdrew. In a matched game, resigning is refused before it is under
-      way, and the person is told to abort instead. Once it is under way any
+      way, and the person is told to abort instead; from then on any
       participant may resign, whoever's turn it is when there are turns, and
       resigning again keeps the result. Leaving the space resigns a
       participant's side of a custom game under way, and a finished custom
@@ -423,9 +423,8 @@ terms:
       together at the same game, and at the same clock choice when the game
       offers one. Each is given a side, everyone sees the same board, play
       and result, and only those people may play, resign, abort it or offer
-      a draw. A person has at
-      most one unfinished matched game. Different games and clock choices
-      never fill the same matched game.
+      a draw. A person has at most one unfinished matched game. Different
+      games and clock choices never fill the same matched game.
     forms: [matched games, matched game's]
     avoid: [multiplayer game, online game, found-opponent game]
     model: [PlayGame, PlayWorld, playNumber, playSide]
@@ -433,8 +432,8 @@ terms:
   - term: abort
     definition: >-
       Stop a matched game before it is under way. Any participant may abort
-      until then. An aborted matched game is over
-      with no result, changes nobody's rating, has no rematch, and frees all
+      until then. An aborted matched game is over with no result, changes
+      nobody's rating, has no rematch, and frees all
       people to seek an opponent again; aborting it again changes nothing.
     forms: [aborts, aborted, aborting, can no longer be aborted]
     avoid: [void]
