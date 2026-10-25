@@ -1,0 +1,4 @@
+{
+  "summary": "Leaving a cancelled Pong custom game for history read the disposed Dynamic board's reactive props from the court cleanup, reentering Solid owner cleanup and leaving navigation stuck. Pong now releases normalized input through the last mounted control surface.",
+  "regressionTest": "libs/games-harness-ts/tests/simulation-history.test.ts"
+}

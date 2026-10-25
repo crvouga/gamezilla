@@ -1,0 +1,4 @@
+{
+  "summary": "One transient recovery-read error latched the client persistence queue so every later read failed without touching the store, making reopening unable to recover. Reads may retry independently; failed queue/log writes still fence live writes until a successful durable retry.",
+  "regressionTest": "pkgs/room-root-harness-ts/tests/client-live-retry.contract.test.ts"
+}

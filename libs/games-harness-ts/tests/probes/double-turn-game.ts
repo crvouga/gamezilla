@@ -5,8 +5,8 @@
  */
 
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
-import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import type { TurnGameCapabilities } from '@pkgs/turn-game-shared-ts/game-rules';
 import { countRules } from './count-rules';
 import { probeAutomation, probePresentation } from './probe-parts';
@@ -29,10 +29,10 @@ const CAPABILITIES = {
   },
 } satisfies TurnGameCapabilities;
 
-const SHARED = defineTurnGame({
+const SHARED = defineGame({
   rules: DOUBLE_TURN_RULES,
   capabilities: CAPABILITIES,
-  automation: probeAutomation(DOUBLE_TURN_RULES),
+  turnAutomation: probeAutomation(DOUBLE_TURN_RULES),
 });
 
 /**
@@ -40,7 +40,7 @@ const SHARED = defineTurnGame({
  * not turn order), and the rules laws then refuse it
  * (`turn-order.test.ts`).
  */
-export const DOUBLE_TURN_GAME: HarnessGame<typeof CAPABILITIES> = {
+export const DOUBLE_TURN_GAME: TurnHarnessGame<typeof CAPABILITIES> = {
   label: 'double turn',
   shared: SHARED,
   client: defineGameClient({

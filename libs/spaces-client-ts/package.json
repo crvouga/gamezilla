@@ -37,6 +37,7 @@
     "@pkgs/kv-root-shared-ts": "workspace:*",
     "@pkgs/logger-client-ts": "workspace:*",
     "@pkgs/logger-shared-ts": "workspace:*",
+    "@pkgs/observability-root-shared-ts": "workspace:*",
     "@pkgs/permissions-shared-ts": "workspace:*",
     "@pkgs/room-adapter-web-shared-ts": "workspace:*",
     "@pkgs/room-root-client-ts": "workspace:*",

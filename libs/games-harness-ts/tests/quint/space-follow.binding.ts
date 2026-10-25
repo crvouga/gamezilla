@@ -31,7 +31,11 @@ import {
 import { readSpaceLink } from '@libs/spaces-harness-ts/spaces-ui-reads';
 import type { Picks } from '@pkgs/quint-shared-ts/registry';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
-import { modelGameOf } from './model-game';
+import { conformanceGameOf } from '../conformance-world';
+
+function gameOf(w: QuintHarnessWorld) {
+  return conformanceGameOf(w.ctx.variant, w.ctx.title);
+}
 
 const PHONE = 'alice';
 const COMPUTER = 'alice_phone';
@@ -51,7 +55,7 @@ function actorOf(device: string): string {
 }
 
 async function views(w: QuintHarnessWorld): Promise<Map<string, string>> {
-  const gameId = modelGameOf(w).shared.id;
+  const gameId = gameOf(w).shared.id;
   const view = new Map<string, string>();
   for (const [device, actor] of Object.entries(ACTOR_OF))
     view.set(device, await w.quiet.read(readSpaceView, actor, gameId));
@@ -81,7 +85,7 @@ bindQuintModel<QuintHarnessWorld>({
     pickGame: async (w, picks: Picks) => {
       const actor = actorOf(String(picks['device']));
       await w.s.apply(focusActor, actor);
-      await w.s.apply(pickGame, actor, modelGameOf(w).shared.id);
+      await w.s.apply(pickGame, actor, gameOf(w).shared.id);
     },
     backToGameChoice: async (w, picks: Picks) => {
       const actor = actorOf(String(picks['device']));

@@ -10,7 +10,13 @@ import { makeCustomGameMove } from '@libs/game-session-harness-ts/custom-game-mo
 import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe';
 import { partition } from '@libs/harness-ts/actions';
 import { Given, Then, When } from '@libs/harness-ts/define';
-import { before, gameOf, setupCustomGame, sideOf, view } from './game-world';
+import {
+  before,
+  setupCustomGame,
+  sideOf,
+  turnGameOf,
+  view,
+} from './game-world';
 import { nextVictoryMove, told } from './matched-game';
 import {
   boardTakesNoMove,
@@ -23,7 +29,7 @@ Given(
   "{actor} and {actor} have a custom game after {actor}'s first move",
   async (w) => {
     await setupCustomGame(w, {
-      moves: gameOf(w).fixtures.firstSideVictory.slice(0, 1),
+      moves: turnGameOf(w).fixtures.firstSideVictory.slice(0, 1),
     });
   }
 );
@@ -39,7 +45,7 @@ Given(
   }
 );
 Given('{actor} has a custom game one move from her victory', async (w) => {
-  const victory = gameOf(w).fixtures.firstSideVictory;
+  const victory = turnGameOf(w).fixtures.firstSideVictory;
   await setupCustomGame(w, { moves: victory.slice(0, -1) });
   w.memo.set('winning-move', victory.at(-1));
 });
@@ -50,12 +56,18 @@ When('{actor} makes his/her/a move', async (w, actor: string) => {
   else if (inMatchedGame(w)) {
     const { revision } = await matchedGameOf(w, actor);
     await move(w, actor, nextVictoryMove(w, revision));
-  } else await w.s.apply(makeCustomGameMove, actor, gameOf(w).shared.id);
+  } else await w.s.apply(makeCustomGameMove, actor, turnGameOf(w).shared.id);
 });
 When('{actor} makes the winning move', async (w, actor: string) => {
   const winning = String(w.memo.get('winning-move'));
   if (inMatchedGame(w)) await move(w, actor, winning);
-  else await w.s.apply(makeCustomGameMove, actor, gameOf(w).shared.id, winning);
+  else
+    await w.s.apply(
+      makeCustomGameMove,
+      actor,
+      turnGameOf(w).shared.id,
+      winning
+    );
 });
 
 Then(

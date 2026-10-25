@@ -24,7 +24,7 @@ import sql from '@pkgs/sql-root-shared-ts/sql';
 import type { PuzzleRecord } from '@pkgs/turn-game-shared-ts/game-puzzles';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { HarnessGame } from './harness-game';
-import { harnessGameOf } from './harness-game-of';
+import { turnHarnessGameOf } from './harness-game-of';
 import { knownPuzzlesOf } from './puzzle-moves';
 
 /**
@@ -37,7 +37,7 @@ export type PoolPuzzle = { readonly id: string } & Partial<
 
 /** The game's puzzle namespace (its share of the catalogue and profiles). */
 export function puzzleNamespaceOfGame(game: HarnessGame): string {
-  const puzzles = game.shared.turnGame.capabilities.puzzles;
+  const puzzles = game.shared.registration.capabilities.puzzles;
   if (puzzles === undefined) throw new Error(`${game.label} offers no puzzles`);
   return puzzles.namespace;
 }
@@ -50,7 +50,7 @@ export function puzzleNamespaceOfGame(game: HarnessGame): string {
 export const writeKnownPuzzlePool = scenarioAction({
   name: 'writeKnownPuzzlePool',
   act: async (s, gameId: string, pool: readonly PoolPuzzle[]) => {
-    const game = harnessGameOf(s, gameId);
+    const game = turnHarnessGameOf(s, gameId);
     const known = knownPuzzlesOf(game);
     const authored = [...known, ...(game.fixtures.morePuzzles ?? [])];
     const turnGames = createTurnGames([game.shared.turnGame]);
@@ -90,7 +90,7 @@ export const writeKnownPuzzlePool = scenarioAction({
 export const stockMorePuzzles = scenarioAction({
   name: 'stockMorePuzzles',
   act: async (s, gameId: string, count: number) => {
-    const game = harnessGameOf(s, gameId);
+    const game = turnHarnessGameOf(s, gameId);
     const more = game.fixtures.morePuzzles ?? [];
     if (more.length < count)
       throw new Error(
@@ -172,7 +172,7 @@ export const seedPuzzleRating = scenarioAction({
     const device = actorLocalSql(s, actorId);
     if (device === null) throw new Error(`${actorId} has no device database`);
     const id = puzzleOwnerKey(
-      puzzleNamespaceOfGame(harnessGameOf(s, gameId)),
+      puzzleNamespaceOfGame(turnHarnessGameOf(s, gameId)),
       owner
     );
     const at = new Date(s.harness.clock.now()).toISOString();

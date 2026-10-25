@@ -109,6 +109,7 @@ function createTopicEntry(
     storage,
     clock: env.clock,
     authorize: createSpaceRoomAuthorizer(games),
+    timers: env.timers,
     effectHandlers: [schedule.handler],
   });
   schedule.bindInject((cmd) =>
@@ -121,7 +122,10 @@ function createTopicEntry(
   return {
     server,
     storage,
-    disposeSchedule: schedule.dispose,
+    disposeSchedule: () => {
+      server.dispose();
+      schedule.dispose();
+    },
     ready: server.hydrateFromStorage(),
     connections: new Map(),
   };
@@ -268,7 +272,7 @@ export function createInProcessRoomNode(
       async send(topic, commandId, payload) {
         const entry = getOrCreate(topic);
         await entry.ready;
-        await entry.server.injectServiceCommand({
+        return entry.server.injectServiceCommand({
           id: commandId,
           identity: ROOM_SERVICE_IDENTITY,
           payload,

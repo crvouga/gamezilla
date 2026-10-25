@@ -4,7 +4,11 @@ import {
   returnToCustomGames,
 } from '@libs/game-session-harness-ts/custom-game-lineup';
 import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type {
+  HarnessGame,
+  TurnHarnessGame,
+} from '@libs/game-session-harness-ts/harness-game';
+import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { backToTabs, focusActor } from '@libs/harness-ts/shell-actions';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import {
@@ -16,11 +20,19 @@ import {
   readSpaceLink,
 } from '@libs/spaces-harness-ts/spaces-ui-reads';
 import type { GameCapability } from '@pkgs/turn-game-shared-ts/game-rules';
-import { CONFORMANCE_GAMES, conformanceGameOf } from '../conformance-world';
+import {
+  CONFORMANCE_GAMES,
+  conformanceGameOf,
+  turnConformanceGameOf,
+} from '../conformance-world';
 
 /** The game this run of the scenario is for. */
 export function gameOf(w: HarnessWorld): HarnessGame {
   return conformanceGameOf(w.ctx.variant, w.ctx.scenarioName);
+}
+
+export function turnGameOf(w: HarnessWorld): TurnHarnessGame {
+  return turnConformanceGameOf(w.ctx.variant, w.ctx.scenarioName);
 }
 
 /** Any other enrolled game offering `capability`. */
@@ -31,10 +43,25 @@ export function anotherGame(
   const other = CONFORMANCE_GAMES.find(
     (game) =>
       game.shared.id !== gameOf(w).shared.id &&
-      game.shared.turnGame.capabilities[capability] !== undefined
+      game.shared.registration.capabilities[capability] !== undefined
   );
   if (other === undefined)
     throw new Error(`No other game offers ${capability} to compare with`);
+  return other;
+}
+
+/** Another real turn game, for scenarios that review its recorded moves. */
+export function anotherTurnGame(
+  w: HarnessWorld,
+  capability: GameCapability
+): TurnHarnessGame {
+  const other = CONFORMANCE_GAMES.filter(isTurnHarnessGame).find(
+    (game) =>
+      game.shared.id !== gameOf(w).shared.id &&
+      game.shared.registration.capabilities[capability] !== undefined
+  );
+  if (other === undefined)
+    throw new Error(`No other turn game offers ${capability}`);
   return other;
 }
 
@@ -135,5 +162,5 @@ export function positionAfter(
   moves: readonly string[],
   ply: number
 ): string {
-  return gameOf(w).shared.turnGame.rules.replay(moves, ply);
+  return turnGameOf(w).shared.turnGame.rules.replay(moves, ply);
 }

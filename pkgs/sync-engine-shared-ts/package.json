@@ -24,6 +24,7 @@
     "@pkgs/db-schema-root-shared-ts": "workspace:*",
     "@pkgs/observability-root-shared-ts": "workspace:*",
     "@pkgs/pubsub-root-shared-ts": "workspace:*",
+    "@pkgs/room-root-shared-ts": "workspace:*",
     "@pkgs/sql-client-root-shared-ts": "workspace:*",
     "@pkgs/sql-root-shared-ts": "workspace:*",
     "@pkgs/turn-game-shared-ts": "workspace:*",

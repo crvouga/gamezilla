@@ -1,17 +1,18 @@
 import { Assert } from '@pkgs/assert-root-shared-ts/assert';
-import type { Timers } from '@pkgs/clock-shared-ts/types';
+import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
 import type {
   ClientTransport,
   ClientTransportHandlers,
 } from '@pkgs/room-root-shared-ts/transport';
 import type { Random } from '@pkgs/uuid-shared-ts/create-id';
 import { closeRoomSocket } from './close-room-socket';
-import type { HeartbeatTimers } from './heartbeat';
+import type { HeartbeatState } from './heartbeat';
 import {
-  clearHeartbeatTimers,
+  acknowledgeHeartbeat,
+  clearHeartbeat,
   isPongWire,
+  probeHeartbeat,
   raceWithTimeout,
-  sendPing,
   startHeartbeat,
 } from './heartbeat';
 
@@ -36,6 +37,10 @@ export type WebSocketRoomTransportOptions = {
   urlResolveTimeoutMs?: number;
   /** Injectable timers (required — no wall default). */
   timers: Timers;
+  /** Both heartbeat endpoints are measured on this client clock. */
+  clock: Clock;
+  /** Successful application-heartbeat round trip in milliseconds. */
+  onRoundTrip: (milliseconds: number) => void;
   /** Injectable RNG for reconnect jitter (required — no wall default). */
   random: Random;
 };
@@ -53,6 +58,8 @@ export class WebSocketRoomTransport implements ClientTransport {
   private readonly heartbeatTimeoutMs: number;
   private readonly urlResolveTimeoutMs: number;
   private readonly timers: Timers;
+  private readonly clock: Clock;
+  private readonly onRoundTrip: (milliseconds: number) => void;
   private readonly random: Random;
 
   private socket: WebSocket | null = null;
@@ -64,9 +71,10 @@ export class WebSocketRoomTransport implements ClientTransport {
   private messageHandlers = new Set<(raw: unknown) => void>();
   private readonly decoder = new TextDecoder();
   private handlerSets: ClientTransportHandlers[] = [];
-  private readonly heartbeat: HeartbeatTimers = {
+  private readonly heartbeat: HeartbeatState = {
     interval: null,
     timeout: null,
+    sentAt: null,
   };
 
   constructor(options: WebSocketRoomTransportOptions) {
@@ -82,6 +90,8 @@ export class WebSocketRoomTransport implements ClientTransport {
     this.heartbeatTimeoutMs = options.heartbeatTimeoutMs ?? 8_000;
     this.urlResolveTimeoutMs = options.urlResolveTimeoutMs ?? 10_000;
     this.timers = options.timers;
+    this.clock = options.clock;
+    this.onRoundTrip = options.onRoundTrip;
     this.random = options.random;
   }
 
@@ -150,7 +160,7 @@ export class WebSocketRoomTransport implements ClientTransport {
     }
     this.reconnectAttempt = 0;
     this.openGeneration += 1;
-    clearHeartbeatTimers(this.heartbeat, this.timers);
+    clearHeartbeat(this.heartbeat, this.timers);
     if (this.socket !== null) {
       try {
         closeRoomSocket(this.socket, 'reconnect now');
@@ -177,26 +187,21 @@ export class WebSocketRoomTransport implements ClientTransport {
       this.reconnectNow();
       return;
     }
-    try {
-      sendPing(s);
-    } catch {
-      this.reconnectNow();
-      return;
-    }
-    if (this.heartbeat.timeout !== null) {
-      this.timers.clearTimeout(this.heartbeat.timeout);
-    }
-    this.heartbeat.timeout = this.timers.setTimeout(() => {
-      this.heartbeat.timeout = null;
-      if (!this.destroyed) this.reconnectNow();
-    }, this.heartbeatTimeoutMs);
+    probeHeartbeat({
+      handles: this.heartbeat,
+      clock: this.clock,
+      timers: this.timers,
+      getSocket: () => this.socket,
+      heartbeatTimeoutMs: this.heartbeatTimeoutMs,
+      onMissed: () => this.reconnectNow(),
+    });
   }
 
   destroy(): void {
     if (this.destroyed) return;
     this.destroyed = true;
     this.openGeneration += 1;
-    clearHeartbeatTimers(this.heartbeat, this.timers);
+    clearHeartbeat(this.heartbeat, this.timers);
     if (this.reconnectTimer !== null) {
       this.timers.clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
@@ -229,7 +234,7 @@ export class WebSocketRoomTransport implements ClientTransport {
 
   private onHeartbeatMissed(generation: number): void {
     if (this.destroyed || generation !== this.openGeneration) return;
-    clearHeartbeatTimers(this.heartbeat, this.timers);
+    clearHeartbeat(this.heartbeat, this.timers);
     if (this.socket !== null) {
       try {
         closeRoomSocket(this.socket, 'heartbeat missed');
@@ -255,6 +260,7 @@ export class WebSocketRoomTransport implements ClientTransport {
       this.reconnectAttempt = 0;
       startHeartbeat({
         handles: this.heartbeat,
+        clock: this.clock,
         timers: this.timers,
         getSocket: () => this.socket,
         heartbeatMs: this.heartbeatMs,
@@ -279,10 +285,12 @@ export class WebSocketRoomTransport implements ClientTransport {
         return;
       }
       if (isPongWire(parsed)) {
-        if (this.heartbeat.timeout !== null) {
-          this.timers.clearTimeout(this.heartbeat.timeout);
-          this.heartbeat.timeout = null;
-        }
+        const elapsed = acknowledgeHeartbeat(
+          this.heartbeat,
+          this.clock,
+          this.timers
+        );
+        if (elapsed !== null) this.onRoundTrip(elapsed);
         return;
       }
       for (const h of this.messageHandlers) {
@@ -300,7 +308,7 @@ export class WebSocketRoomTransport implements ClientTransport {
     ws.onclose = () => {
       if (this.destroyed || generation !== this.openGeneration) return;
       this.socket = null;
-      clearHeartbeatTimers(this.heartbeat, this.timers);
+      clearHeartbeat(this.heartbeat, this.timers);
       for (const h of this.handlerSets) {
         h.onClose?.();
       }

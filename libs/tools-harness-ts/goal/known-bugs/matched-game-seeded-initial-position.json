@@ -1,0 +1,9 @@
+{
+  "summary": "A new Pong match seeded to serve right failed common matchmaking conformance because the observer assumed the rules' default left serve. The common example requires the same new match on opposite sides; the fixed turn opening belongs to the clock-choice example.",
+  "regressionTest": "specs/games/finding-an-opponent.feature",
+  "input": {
+    "game": "pong",
+    "people": ["alice", "bob"],
+    "initialServingToward": "right"
+  }
+}

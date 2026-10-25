@@ -1,0 +1,4 @@
+{
+  "summary": "Synthetic Users treated continuous input as a discrete turn, read stale checkpoints and waited for a move acknowledgement that does not exist.",
+  "regressionTest": "libs/synthetic-population-shared-ts/tests/continuous-automation.test.ts"
+}

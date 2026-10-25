@@ -5,10 +5,42 @@
  * and publishes the game to both people's devices, so the next move, flag
  * fall or result still goes through the real commands and sweep.
  */
+
+import { defaultMatchChoice } from '@libs/game-matchmaking-shared-ts/match-choice';
 import { scenarioAction } from '@libs/harness-ts/actor-ui';
+import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
+import { createSpace } from '@libs/spaces-harness-ts/space-actions';
 import sql from '@pkgs/sql-root-shared-ts/sql';
-import { publishMultiplayerFixture } from './multiplayer-fixtures';
+import {
+  awaitGameMatch,
+  givenOpponentSearch,
+  publishMultiplayerFixture,
+} from './multiplayer-fixtures';
 import { multiplayerFixture } from './multiplayer-fixtures-core';
+import { openFindingAnOpponent } from './opponent-seeking';
+
+/** Pair two real accounts using the registered choice, with the first on White. */
+export const pairGamePlayers = scenarioAction({
+  name: 'pairGamePlayers',
+  act: async (s, gameId: string, first: string, second: string) => {
+    const matched = s.harness.composition.app.turnGames.capability(
+      gameId,
+      'matchmaking'
+    );
+    if (matched === undefined)
+      throw new Error(`${gameId} offers no finding an opponent`);
+    for (const person of [first, second]) {
+      await Promise.resolve(signInWithGoogle.act(s, person));
+      await Promise.resolve(createSpace.act(s, person));
+      await Promise.resolve(openFindingAnOpponent.act(s, person, gameId));
+      await Promise.resolve(
+        givenOpponentSearch.act(s, person, defaultMatchChoice(matched))
+      );
+      await s.session.advanceTime(1);
+    }
+    await Promise.resolve(awaitGameMatch.act(s, first, second, true));
+  },
+});
 
 /**
  * A legal pre-existing position after both first moves, the actor to move,

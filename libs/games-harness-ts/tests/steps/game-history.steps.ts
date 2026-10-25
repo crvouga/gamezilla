@@ -8,21 +8,22 @@ import {
 import { switchSpaceGame } from '@libs/game-session-harness-ts/game-navigation';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import {
-  anotherGame,
+  anotherTurnGame,
   before,
   gameOf,
   positionAfter,
   setupCustomGame,
+  turnGameOf,
   view,
 } from './game-world';
 
 Given('{actor} has won a custom game', async (w) =>
-  setupCustomGame(w, { moves: gameOf(w).fixtures.firstSideVictory })
+  setupCustomGame(w, { moves: turnGameOf(w).fixtures.firstSideVictory })
 );
 Given(
   '{actor} has won a custom game of another game',
   async (w, actor: string) => {
-    const other = anotherGame(w, 'history');
+    const other = anotherTurnGame(w, 'history');
     await w.s.apply(establishCustomGame, other.shared.id, {
       host: actor,
       first: actor,
@@ -52,7 +53,7 @@ Then('{actor} sees the board after three moves', async (w, actor: string) => {
 Then("{actor} sees the game's starting position", async (w, actor: string) => {
   const seen = await view(w, actor);
   expect(seen.reviewPly).toBe(0);
-  expect(seen.displayFen).toBe(gameOf(w).shared.turnGame.rules.initial());
+  expect(seen.displayFen).toBe(gameOf(w).shared.registration.rules.initial());
 });
 Then('the finished custom game is unchanged', async (w) => {
   expect((await view(w)).current).toEqual(before(w).current);

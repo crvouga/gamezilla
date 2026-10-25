@@ -49,14 +49,17 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@libs/game-matchmaking-shared-ts": "workspace:*",
     "@libs/games-shared-ts": "workspace:*",
     "@libs/harness-ts": "workspace:*",
+    "@libs/pong-shared-ts": "workspace:*",
     "@libs/pubsub-server-ts": "workspace:*",
     "@libs/runtime-harness-ts": "workspace:*",
     "@opentelemetry/api": "catalog:",
     "@opentelemetry/sdk-trace-base": "catalog:",
     "@pkgs/aedes-server-ts": "workspace:*",
     "@pkgs/harness-root-shared-ts": "workspace:*",
+    "@pkgs/room-root-shared-ts": "workspace:*",
     "@pkgs/sql-root-shared-ts": "workspace:*",
     "@pkgs/sync-engine-shared-ts": "workspace:*",
     "@types/bun": "catalog:",

@@ -1,0 +1,4 @@
+{
+  "summary": "Driver input appended a numeric position to a range control's current value, so selecting 200 from 500 became 500200 and clamped at the maximum instead of moving to 200.",
+  "regressionTest": "pkgs/ui-testing-solid-dom-client-ts/tests/range-input.test.tsx"
+}

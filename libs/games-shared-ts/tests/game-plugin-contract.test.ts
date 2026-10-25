@@ -30,13 +30,13 @@ describe('game plugin contract', () => {
   test('composition reserves legacy namespaces for its one designated definition', () => {
     const owner = {
       id: 'legacy',
-      turnGame: { unprefixedNamespace: true as const },
+      registration: { unprefixedNamespace: true as const },
     };
-    const other = { id: 'other', turnGame: {} };
+    const other = { id: 'other', registration: {} };
     expect(() => assertGameNamespaceOwner([owner, other], owner)).not.toThrow();
     expect(() =>
       assertGameNamespaceOwner(
-        [owner, { ...other, turnGame: { unprefixedNamespace: true } }],
+        [owner, { ...other, registration: { unprefixedNamespace: true } }],
         owner
       )
     ).toThrow('"other" claims the unprefixed namespace owned by "legacy"');
@@ -84,7 +84,7 @@ describe('game plugin contract', () => {
     expect(() =>
       assertMatchingGameIds([dummyGame('a')], [dummyGame('a'), dummyGame('c')])
     ).toThrow(
-      'game registry: client "c" has no shared game — register its defineGame(...) or defineTurnGame(...) value in GAME_DEFINITIONS, or give its defineGameClient the shared definition of the game it shows'
+      'game registry: client "c" has no game — register its defineGame(...) value in GAME_DEFINITIONS, or give its defineGameClient the shared definition of the game it shows'
     );
     expect(() =>
       assertMatchingGameIds(
@@ -99,7 +99,7 @@ describe('game plugin contract', () => {
   test('a client has a puzzles part exactly when its game offers puzzles, saying which entry to fix', () => {
     const offering = {
       id: 'a',
-      turnGame: { capabilities: { puzzles: { namespace: 'a/' } } },
+      registration: { capabilities: { puzzles: { namespace: 'a/' } } },
     };
     const part = { Board: () => null };
     expect(() =>

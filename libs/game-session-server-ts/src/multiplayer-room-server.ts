@@ -30,13 +30,20 @@ export async function multiplayerRoomGrants(
       space.id,
       ctx.actor
     );
-    const decision = await decideOnServer(ctx.db, {
-      actor: ctx.actor,
-      key: PERMISSION.gameMultiplayerWatch,
-      nowMs: ctx.nowMs,
-      scope: { spacePresence },
-    });
-    if (decision.allowed) return [PERMISSION.gameMultiplayerWatch];
+    const grants: string[] = [];
+    for (const key of [
+      PERMISSION.gameMultiplayerWatch,
+      PERMISSION.gameMultiplayerPlay,
+    ]) {
+      const decision = await decideOnServer(ctx.db, {
+        actor: ctx.actor,
+        key,
+        nowMs: ctx.nowMs,
+        scope: { spacePresence },
+      });
+      if (decision.allowed) grants.push(key);
+    }
+    if (grants.includes(PERMISSION.gameMultiplayerWatch)) return grants;
   }
   return [];
 }
@@ -56,12 +63,15 @@ export function registerMatchRoomConsumers(
       >`SELECT ${raw(MULTIPLAYER_GAME_COLUMNS.join(', '))}
         FROM chess_multiplayer_games WHERE id = ${game.id} AND deleted_at IS NULL`);
       const current = rows[0];
-      if (current !== undefined)
-        await rooms.send(
+      if (current !== undefined) {
+        const receipt = await rooms.send(
           matchRoomTopic(game.id),
           `match:${ctx.createId()}`,
           MultiplayerGameChanged(current)
         );
+        if (!receipt.ok)
+          throw new Error('matched room refused its SQL projection');
+      }
     },
   });
   registry.register({

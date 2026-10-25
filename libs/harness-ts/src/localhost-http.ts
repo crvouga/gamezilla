@@ -7,10 +7,11 @@
 
 import type { ClientTransport } from '@pkgs/room-root-shared-ts/transport';
 import type { Harness } from './create-harness';
+import { localhostRoomBridge } from './localhost-room-bridge';
 import {
-  localhostRoomBridge,
-  ROOM_UPGRADE_HEADER,
-} from './localhost-room-bridge';
+  forwardHarnessRoomRequest,
+  harnessRoomSocketHandlers,
+} from './localhost-room-upgrade';
 
 const DEFAULT_PORT = 8787;
 const ACTOR_HEADER = 'x-harness-actor';
@@ -57,53 +58,24 @@ export async function listenHarnessHttpServer(
   const server = Bun.serve<{ transport: ClientTransport }>({
     port,
     hostname: '127.0.0.1',
-    async fetch(req) {
+    async fetch(req, listener): Promise<Response | undefined> {
       const actorId = req.headers.get(ACTOR_HEADER);
       const from =
         actorId != null && actorId !== '' ? actorId : BROWSER_INGRESS_ID;
       try {
-        if (req.headers.get('upgrade')?.toLowerCase() !== 'websocket')
-          return await harness.loadBalancer.fetchFrom(from)(req);
-        const ticket = harness.server.createId();
-        const headers = new Headers(req.headers);
-        headers.set(ROOM_UPGRADE_HEADER, ticket);
-        const response = await harness.loadBalancer.fetchFrom(from)(
-          new Request(req, { headers })
-        );
-        const transport = bridge.take(ticket);
-        if (response.status !== 101 || transport === undefined) return response;
-        if (server.upgrade(req, { data: { transport } })) return undefined;
-        bridge.close(transport);
-        return new Response('Room upgrade failed', { status: 500 });
+        return await forwardHarnessRoomRequest(req, {
+          bridge,
+          createId: harness.server.createId,
+          forward: harness.loadBalancer.fetchFrom(from),
+          upgrade: (transport) =>
+            listener.upgrade(req, { data: { transport } }),
+        });
       } catch (err) {
         if (isHarnessNetFault(err)) return partitionedResponse(err);
         throw err;
       }
     },
-    websocket: {
-      async open(ws) {
-        ws.data.transport.subscribe((frame) => ws.send(JSON.stringify(frame)));
-        ws.data.transport.onHandlers({
-          onError: () => ws.close(),
-          onClose: () => ws.close(),
-        });
-        try {
-          await ws.data.transport.connect();
-        } catch {
-          ws.close();
-        }
-      },
-      message(ws, message) {
-        try {
-          ws.data.transport.sendJson(JSON.parse(String(message)));
-        } catch {
-          ws.close();
-        }
-      },
-      close(ws) {
-        bridge.close(ws.data.transport);
-      },
-    },
+    websocket: harnessRoomSocketHandlers(bridge),
   });
   const apiUrl = server.url.origin;
   process.env['VITE_API_URL'] = apiUrl;

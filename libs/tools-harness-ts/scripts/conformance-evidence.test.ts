@@ -33,6 +33,7 @@ test('every declared environment and public contract has evidence mappings', () 
 });
 
 test('whole-product campaign modules retain gated specification coverage', () => {
+  // regression: pong-missing-release-conformance — specs/pong/ was absent from product.contexts.
   // regression: conformance-campaign-coverage
   const { world, specs, problems } = readConformanceWorld();
   if (world === null) throw new Error('conformance manifest did not parse');

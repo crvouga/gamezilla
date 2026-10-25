@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly determinism seed 1615826050 reached the Bun host's literal StartMatch command 'start-before-outage' with 4000 ms for each side. The availability test expected the old empty 204 response, while the shared private service contract now returns a 200 JSON RoomServiceReceipt. Its sibling deduplication test retained the same stale expectation. Assert the typed accepted receipt and returned authoritative clock/tally state for the first send and retry; retain availability/disconnect/erase 204 checks and all pause/resume/deduplication assertions.",
+  "regressionTest": "pkgs/room-adapter-bun-harness-ts/tests/availability.test.ts"
+}

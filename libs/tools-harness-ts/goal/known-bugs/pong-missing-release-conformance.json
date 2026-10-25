@@ -1,0 +1,4 @@
+{
+  "summary": "Pong specifications existed and ran, but specs/pong/ was absent from the release conformance inventory's product contexts.",
+  "regressionTest": "libs/tools-harness-ts/scripts/conformance-evidence.test.ts"
+}

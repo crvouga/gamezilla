@@ -308,7 +308,7 @@ describe('the game API', () => {
       '@libs/game-session-shared-ts',
       {
         name: '@libs/game-session-shared-ts',
-        gameApi: ['turn-game-definition'],
+        gameApi: ['game-definition'],
       },
     ],
     [
@@ -327,10 +327,11 @@ describe('the game API', () => {
     });
 
   test('a game imports the framework through its public modules', () => {
+    // regression: composed-game-api-fixture-keeps-old-name
     expect(
       imports(
         [
-          "import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';",
+          "import { defineGame } from '@libs/game-session-shared-ts/game-definition';",
           "import { raceRules } from '@libs/race-shared/race-rules';",
           "import sql from '@pkgs/sql-root-shared-ts/sql';",
         ].join('\n')
@@ -346,7 +347,7 @@ describe('the game API', () => {
       "const state = await import('@libs/game-session-shared-ts/custom-game-state');",
     ])
       expect(imports(text)).toEqual([
-        "tests/race.test.ts: imports @libs/game-session-shared-ts/custom-game-state, which is @libs/game-session-shared-ts's own implementation, not its game API (turn-game-definition). A game depends on what the framework promises: use a public module, add a focused read, action or fixture helper to one, or move a test of the framework's own behaviour into the framework",
+        "tests/race.test.ts: imports @libs/game-session-shared-ts/custom-game-state, which is @libs/game-session-shared-ts's own implementation, not its game API (game-definition). A game depends on what the framework promises: use a public module, add a focused read, action or fixture helper to one, or move a test of the framework's own behaviour into the framework",
       ]);
   });
 

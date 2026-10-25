@@ -27,7 +27,7 @@ import { otherDevice } from '@libs/harness-ts/platform';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import { joinViaLink } from '@libs/spaces-harness-ts/space-actions';
 import { current, identityOf, race } from './custom-game-set-up-world';
-import { gameOf, sideOf, spaceLinkOf } from './game-world';
+import { gameOf, sideOf, spaceLinkOf, turnGameOf } from './game-world';
 
 const SECOND_MS = 1000;
 /** How long the other device may take to show what the first one shows. */
@@ -96,7 +96,7 @@ When(
     const game = await current(w);
     const choice = {
       operation: 'move',
-      uci: firstLegalMove(gameOf(w), game.fen),
+      uci: firstLegalMove(turnGameOf(w), game.fen),
       ply: game.moves.length,
     } as const;
     await race(w, [
@@ -143,8 +143,8 @@ Then(
   "both of {actor}'s devices show her move in the move list",
   async (w, actor: Actor) => {
     const first = recordedLine(
-      gameOf(w),
-      gameOf(w).fixtures.firstSideVictory.slice(0, 1)
+      turnGameOf(w),
+      turnGameOf(w).fixtures.firstSideVictory.slice(0, 1)
     );
     for (const device of [actor, otherDevice(actor)]) {
       const seen = await w.s.read(customGameView, device);
@@ -157,9 +157,13 @@ Then(
 );
 Then('the move list shows her move once', async (w) => {
   const game = await current(w);
-  const initial = gameOf(w).shared.turnGame.rules.initial();
+  const initial = gameOf(w).shared.registration.rules.initial();
   expect(game.moves.map((move) => move.uci)).toEqual([
-    recordedMove(gameOf(w), initial, firstLegalMove(gameOf(w), initial)),
+    recordedMove(
+      turnGameOf(w),
+      initial,
+      firstLegalMove(turnGameOf(w), initial)
+    ),
   ]);
 });
 Then(

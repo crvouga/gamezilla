@@ -28,7 +28,9 @@ export function assertGameRegistry(
 type RegisteredShared = {
   readonly id: string;
   readonly puzzleContent?: unknown;
-  readonly turnGame?: { readonly capabilities: { readonly puzzles?: unknown } };
+  readonly registration?: {
+    readonly capabilities: { readonly puzzles?: unknown };
+  };
 };
 
 type RegisteredClient = {
@@ -72,7 +74,7 @@ export function assertMatchingGameIds(
   for (const game of client)
     if (!sharedIds.has(game.id))
       throw new Error(
-        `game registry: client "${game.id}" has no shared game — register its defineGame(...) or defineTurnGame(...) value in GAME_DEFINITIONS, or give its defineGameClient the shared definition of the game it shows`
+        `game registry: client "${game.id}" has no game — register its defineGame(...) value in GAME_DEFINITIONS, or give its defineGameClient the shared definition of the game it shows`
       );
   for (const [index, game] of shared.entries()) {
     const shown = client[index];
@@ -82,7 +84,7 @@ export function assertMatchingGameIds(
       );
     if (shown === undefined) continue;
     assertContentAgreement(game, shown, index);
-    const offered = game.turnGame?.capabilities.puzzles !== undefined;
+    const offered = game.registration?.capabilities.puzzles !== undefined;
     if (offered && shown.puzzles === undefined)
       throw new Error(
         `game registry: "${game.id}" offers puzzles but GAME_CLIENT_DEFINITIONS[${String(index)}] has no puzzles part — give its defineGameClient a puzzles part (its board), made with this definition as its shared`

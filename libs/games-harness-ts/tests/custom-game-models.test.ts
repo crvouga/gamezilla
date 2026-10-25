@@ -6,6 +6,7 @@
 
 import { expect, test } from 'bun:test';
 import { join } from 'node:path';
+import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import {
   playedRulesOf,
   recordedLine,
@@ -48,22 +49,23 @@ test('every shared model replays once for each game offering what it shows', () 
   }
 });
 
-test('every game offering custom games shows a victory the models can follow', () => {
-  for (const game of CONFORMANCE_GAMES.filter((candidate) =>
-    offersAll(candidate, ['custom-games'])
+test('every turn game offering custom games shows a victory the move models can follow', () => {
+  for (const game of CONFORMANCE_GAMES.filter(isTurnHarnessGame).filter(
+    (candidate) => offersAll(candidate, ['custom-games'])
   ))
     expect(victoryOf(game).length).toBeGreaterThanOrEqual(VICTORY_MOVES);
   // The whole-victory models follow exactly the seven moves.
-  for (const game of CONFORMANCE_GAMES.filter((candidate) =>
-    offersAll(candidate, ['custom-games', 'a seven-move victory'])
+  for (const game of CONFORMANCE_GAMES.filter(isTurnHarnessGame).filter(
+    (candidate) =>
+      offersAll(candidate, ['custom-games', 'a seven-move victory'])
   ))
     expect(victoryOf(game)).toHaveLength(VICTORY_MOVES);
 });
 
 // regression: private-setup-model-victory-as-proposed
 test('the models compare moves with the victory as the game records it', () => {
-  for (const game of CONFORMANCE_GAMES.filter((candidate) =>
-    offersAll(candidate, ['custom-games'])
+  for (const game of CONFORMANCE_GAMES.filter(isTurnHarnessGame).filter(
+    (candidate) => offersAll(candidate, ['custom-games'])
   )) {
     const victory = victoryOf(game);
     const recorded = recordedLine(game, victory);
@@ -78,7 +80,7 @@ test('the models compare moves with the victory as the game records it', () => {
 });
 
 test('a victory of another length is refused with what the models need', () => {
-  const [game] = CONFORMANCE_GAMES;
+  const [game] = CONFORMANCE_GAMES.filter(isTurnHarnessGame);
   if (game === undefined) throw new Error('No conformance game');
   const shorter = {
     ...game,

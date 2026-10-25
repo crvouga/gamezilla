@@ -1,0 +1,4 @@
+{
+  "summary": "A real replica receives an authoritative acknowledgment 63 ms after submitting its paddle input but reports no acknowledgment timing. Record bounded client-clock durations once per input, fenced by execution resets.",
+  "regressionTest": "libs/pong-shared-ts/tests/pong-replica.test.ts"
+}

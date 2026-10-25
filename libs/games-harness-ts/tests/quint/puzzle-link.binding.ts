@@ -6,7 +6,7 @@
  * connection; the team can retire the puzzle.
  */
 
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import {
   readLocalPuzzleStartLedger,
   startUnnamedPuzzle,
@@ -36,7 +36,7 @@ import { focusActor } from '@libs/harness-ts/shell-actions';
 import { createSpace } from '@libs/spaces-harness-ts/space-actions';
 import type { Picks } from '@pkgs/quint-shared-ts/registry';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
-import { conformanceGameOf } from '../conformance-world';
+import { turnConformanceGameOf } from '../conformance-world';
 import lostRequest from './fixtures/puzzle-link-request-cleared-before-placement.itf.json';
 
 const SHARER = 'alice';
@@ -54,8 +54,8 @@ const REFUSALS: Readonly<Record<PuzzleLinkOutcome, string>> = {
   offline: 'puzzles need a connection',
 };
 
-function gameOfTrace(w: QuintHarnessWorld): HarnessGame {
-  return conformanceGameOf(w.ctx.variant, w.ctx.title);
+function gameOfTrace(w: QuintHarnessWorld): TurnHarnessGame {
+  return turnConformanceGameOf(w.ctx.variant, w.ctx.title);
 }
 
 /** The linked puzzle: the game's known puzzle. */

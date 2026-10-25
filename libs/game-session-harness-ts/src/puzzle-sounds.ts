@@ -8,12 +8,12 @@
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import type { InMemoryAudioPlaybackPort } from '@pkgs/sounds-shared-ts/in-memory-audio-playback-port';
 import { puzzleLineLayout } from '@pkgs/turn-game-shared-ts/game-puzzles';
-import type { HarnessGame, PuzzleSoundKind } from './harness-game';
-import { harnessGameOf } from './harness-game-of';
+import type { PuzzleSoundKind, TurnHarnessGame } from './harness-game';
+import { turnHarnessGameOf } from './harness-game-of';
 
 /** The declared continuation: the correct cue, the solver's move and any reply. */
 export function puzzleContinuationSounds(
-  game: HarnessGame
+  game: TurnHarnessGame
 ): readonly PuzzleSoundKind[] {
   const puzzles = game.shared.turnGame.capabilities.puzzles;
   if (puzzles === undefined) throw new Error(`${game.label} offers no puzzles`);
@@ -31,7 +31,7 @@ export async function readPuzzleSoundsPlayed(
   actorId: string,
   gameId: string
 ): Promise<readonly PuzzleSoundKind[]> {
-  const named = harnessGameOf(s, gameId).puzzleSounds ?? {};
+  const named = turnHarnessGameOf(s, gameId).puzzleSounds ?? {};
   const env = await s.harness.client(actorId);
   const audio = env.audio as Partial<InMemoryAudioPlaybackPort>;
   if (typeof audio.playedSources !== 'function')

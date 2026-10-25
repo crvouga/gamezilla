@@ -71,6 +71,9 @@ export const ATTR = {
   APP_LOG_MESSAGE: 'app.log.message',
   APP_LOG_NAME: 'app.log.name',
   APP_ERROR_TRACE_ID: 'app.error.trace_id',
+  APP_ERROR_REPRODUCTION: 'app.error.reproduction',
+  APP_ERROR_REPRODUCTION_FORMAT: 'app.error.reproduction.format',
+  APP_ERROR_REPRODUCTION_STATUS: 'app.error.reproduction.status',
   APP_ROOM_CONNECTION_ID: 'app.room.connection_id',
   APP_ROOM_MESSAGE_BYTES: 'app.room.message_bytes',
   APP_ROOM_MODULE: 'app.room.module',
@@ -139,6 +142,13 @@ export type AttrValue = {
   'app.log.message': string;
   'app.log.name': string;
   'app.error.trace_id': string;
+  'app.error.reproduction': string;
+  'app.error.reproduction.format': string;
+  'app.error.reproduction.status':
+    | 'available'
+    | 'too_large'
+    | 'unsupported'
+    | 'redacted';
   'app.room.connection_id': string;
   'app.room.message_bytes': number;
   'app.room.module': string;

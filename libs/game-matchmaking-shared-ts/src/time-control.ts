@@ -1,10 +1,12 @@
-import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 /** A speed family; each has its own multiplayer rating. */
 export type ClockSpeed = 'bullet' | 'blitz' | 'rapid' | 'classical' | 'daily';
 
-export type MultiplayerSpeed = ClockSpeed | `${string}:${ClockSpeed}`;
+export type MultiplayerRatingPool =
+  | ClockSpeed
+  | 'game'
+  | `${string}:${ClockSpeed | 'game'}`;
 
-export const MULTIPLAYER_SPEEDS: readonly MultiplayerSpeed[] = [
+export const MULTIPLAYER_SPEEDS: readonly ClockSpeed[] = [
   'bullet',
   'blitz',
   'rapid',
@@ -20,7 +22,7 @@ export type TimeControl = {
   readonly id: string;
   readonly minutes: number;
   readonly incrementSeconds: number;
-  readonly speed: MultiplayerSpeed;
+  readonly speed: MultiplayerRatingPool;
   /** Days each person has for every move of a daily game; 0 otherwise. */
   readonly daysPerMove: number;
 };
@@ -30,7 +32,7 @@ const MINUTES_PER_DAY = 24 * 60;
 function control(
   minutes: number,
   incrementSeconds: number,
-  speed: MultiplayerSpeed
+  speed: MultiplayerRatingPool
 ): TimeControl {
   return {
     id: `${String(minutes)}+${String(incrementSeconds)}`,
@@ -56,7 +58,7 @@ export function dailyTimeControlId(daysPerMove: number): string {
   return `${String(daysPerMove)}d`;
 }
 
-/** The only time controls multiplayer game offers; no game is untimed. */
+/** The platform's turn-clock choices, for games that opt into them. */
 export const TIME_CONTROLS: readonly TimeControl[] = [
   control(1, 0, 'bullet'),
   control(2, 1, 'bullet'),
@@ -86,7 +88,7 @@ export function timeControlOf(
     ? {
         ...found,
         id,
-        speed: `${id.split('/')[0]}:${found.speed}` as MultiplayerSpeed,
+        speed: `${id.split('/')[0]}:${found.speed}` as MultiplayerRatingPool,
       }
     : found;
 }
@@ -94,11 +96,11 @@ export function timeControlOf(
 /** The rating speed of `speed` in a game's clock namespace (`''` or `<id>/`). */
 export function gameSpeed(
   controlPrefix: string,
-  speed: MultiplayerSpeed
-): MultiplayerSpeed {
+  speed: MultiplayerRatingPool
+): MultiplayerRatingPool {
   return controlPrefix === ''
     ? speed
-    : (`${controlPrefix.slice(0, -1)}:${speed}` as MultiplayerSpeed);
+    : (`${controlPrefix.slice(0, -1)}:${speed}` as MultiplayerRatingPool);
 }
 
 export function startingMs(id: string | null | undefined): number {
@@ -122,16 +124,4 @@ export function isDailyTimeControl(id: string | null | undefined): boolean {
 /** A stable, selector-safe name for one time control (`5+0` → `5-0`). */
 export function timeControlKey(id: string): string {
   return id.replace('+', '-');
-}
-
-/** The clock choices of every registered game offering matchmaking. */
-export function offeredTimeControls(rules: TurnGames): readonly TimeControl[] {
-  return rules.games.flatMap((game) => {
-    const matchmaking = game.capabilities.matchmaking;
-    return matchmaking === undefined
-      ? []
-      : TIME_CONTROLS.map(
-          (control) => timeControlOf(matchmaking.clockNamespace + control.id)!
-        );
-  });
 }

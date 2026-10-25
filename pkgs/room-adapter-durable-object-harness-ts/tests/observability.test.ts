@@ -4,7 +4,9 @@ import { InMemorySpanExporter } from '@opentelemetry/sdk-trace-base';
 import type { WorkerTelemetry } from '@pkgs/observability-root-server-ts/worker-worker';
 import { createWorkerTelemetry } from '@pkgs/observability-root-server-ts/worker-worker';
 import { ATTR } from '@pkgs/observability-root-shared-ts/attributes';
+import { ReproducibleError } from '@pkgs/observability-root-shared-ts/reproducible-error';
 import { createDurableObjectAdapter } from '@pkgs/room-adapter-durable-object-server-ts/adapter';
+import { observeRoomLiveError } from '@pkgs/room-adapter-durable-object-server-ts/observability';
 import { roomDoKeyNs } from '@pkgs/room-adapter-durable-object-shared-ts/storage-keys';
 import type { DurableObjectInstanceState } from '@pkgs/room-adapter-durable-object-shared-ts/types';
 import { gameRoomModule } from '@pkgs/room-root-harness-ts/game-room';
@@ -44,6 +46,35 @@ afterEach(async () => {
 });
 
 describe('room Durable Object observability', () => {
+  test('the live authority error boundary retains its complete replay diagnostic', async () => {
+    const exporter = new InMemorySpanExporter();
+    telemetry = createWorkerTelemetry({
+      serviceName: 'room-test',
+      serviceVersion: '1',
+      environment: 'test',
+      buildSha: 'test',
+      exporter,
+    });
+    const value = { seed: 'race', tick: 1, input: 4 };
+    const error = new ReproducibleError(
+      'literal mechanics failure',
+      {},
+      { format: 'example.v1', value }
+    );
+    await observeRoomLiveError(error, gameRoomModule.name);
+    await telemetry.forceFlush();
+    const failure = exporter
+      .getFinishedSpans()
+      .find((span) => span.name === 'room.live.failure');
+    expect(failure?.status.code).toBe(2);
+    expect(failure?.attributes[ATTR.APP_ROOM_MODULE]).toBe(gameRoomModule.name);
+    expect(
+      JSON.parse(String(failure?.attributes[ATTR.APP_ERROR_REPRODUCTION]))
+    ).toEqual(value);
+    expect(failure?.events[0]?.attributes?.[ATTR.EXCEPTION_MESSAGE]).toBe(
+      'literal mechanics failure'
+    );
+  });
   // regression: room-alarm-failure-not-observed
   test('alarm restoration failures retain the exception and flush before returning', async () => {
     const exporter = new InMemorySpanExporter();

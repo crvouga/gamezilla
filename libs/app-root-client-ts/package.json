@@ -87,9 +87,11 @@
     "workbox-window": "catalog:"
   },
   "devDependencies": {
+    "@opentelemetry/sdk-trace-base": "catalog:",
     "@pkgs/a11y-shared-ts": "workspace:*",
     "@pkgs/bun-test-solid-client-ts": "workspace:*",
     "@pkgs/db-schema-root-shared-ts": "workspace:*",
+    "@pkgs/observability-root-server-ts": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",

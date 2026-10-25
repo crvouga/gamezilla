@@ -12,7 +12,7 @@
  */
 
 import { join } from 'node:path';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import {
   CONFORMANCE_AREAS,
   type ConformanceArea,
@@ -28,7 +28,9 @@ export const TAKES_TURNS_LAW =
   'the first side moves first and every action passes the turn to the next declared side';
 
 /** The shared specifications `game` is held to, by what it offers. */
-export function inheritedSpecifications(game: HarnessGame): readonly string[] {
+export function inheritedSpecifications(
+  game: TurnHarnessGame
+): readonly string[] {
   return sharedSpecifications().filter(
     (uri) => specificationGames(uri, [game]).length === 1
   );
@@ -39,7 +41,7 @@ export function inheritedSpecifications(game: HarnessGame): readonly string[] {
  * planning reads them, so call it inside a test.
  */
 export async function inheritedCodeSuites(
-  game: HarnessGame
+  game: TurnHarnessGame
 ): Promise<readonly string[]> {
   const planned = await planCodeSuites(join(import.meta.dir, '..'));
   return planned
@@ -48,7 +50,7 @@ export async function inheritedCodeSuites(
 }
 
 /** The areas `game` is bound in, and those it does not offer. */
-export function areasOf(game: HarnessGame): {
+export function areasOf(game: TurnHarnessGame): {
   readonly bound: readonly ConformanceArea[];
   readonly unsupported: readonly ConformanceArea[];
 } {

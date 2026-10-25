@@ -15,6 +15,7 @@ import { everInASpace } from '@libs/game-matchmaking-harness-ts/multiplayer-spac
 import {
   findGameOpponent,
   findGameOpponentOutsideSpaces,
+  openFindingAnOpponent,
 } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
 import { dailyTimeControlId } from '@libs/game-matchmaking-shared-ts/time-control';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
@@ -34,16 +35,17 @@ export function clockShown(clock: string): string {
 }
 
 /** `actor` has an account, a space and a search at `clock`. */
-export async function seeking(w: HarnessWorld, actor: string, clock: string) {
+export async function seeking(w: HarnessWorld, actor: string, clock?: string) {
   await readyPeople(w, [actor]);
   await searchFor(w, actor, timeControlFor(w, clock));
+  await w.s.apply(openFindingAnOpponent, actor, gameOf(w).shared.id);
 }
 
 /** `actor` seeks an opponent at `clock` from `device` (their phone). */
 export async function seek(
   w: HarnessWorld,
   actor: string,
-  clock: string,
+  clock?: string,
   device = actor
 ) {
   actOnOtherDevice(w, actor, device);

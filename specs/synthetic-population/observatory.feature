@@ -39,6 +39,7 @@ Feature: Observe and control the Synthetic Population
 
     @regression:synthetic-population-chess-clicks-submit-no-move
     @regression:game-session-synthetic-composition-missing
+    @regression:synthetic-pause-assertions-drive-gameplay
     Scenario Outline: A paused Synthetic User finishes its ongoing <game> game
       Given Alice is authorized to control the Synthetic Population
       And the Synthetic User "Cedar" has an ongoing "<game>" game

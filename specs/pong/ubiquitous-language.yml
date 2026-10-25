@@ -1,0 +1,127 @@
+context: Pong
+purpose: >-
+  Pong's court, paddles, ball, points and victory. What every game offers
+  alike belongs to the games context.
+terms:
+  - term: Pong
+    definition: >-
+      A game with a paddle at each end of a court and one ball. Each person
+      guides their own paddle to return the ball. The first to reach the
+      target score wins. Both paddles can be guided at the same time.
+    forms: [Pong game, Pong's, wins Pong, won Pong]
+    published: true
+    model: [stage]
+
+  - term: court
+    definition: The playing area between the paddles, bounded above and below.
+    model: [PaddlePlace, paddlePlace]
+
+  - term: paddle
+    definition: >-
+      The part of Pong a person guides up and down to return the ball. One
+      paddle is on the left and the other is on the right, and each stays
+      within the court.
+    forms: [paddles, left paddle, right paddle]
+    published: true
+    model: [controlledPaddles, guidePaddle]
+
+  - term: ball
+    definition: >-
+      What travels across the court during play. It bounces off a paddle or
+      the upper or lower edge of the court. Passing a paddle awards a point
+      to the other paddle's person.
+    forms: [ball's]
+    model: [pointWon]
+
+  - term: point
+    definition: >-
+      One added to a person's score when the ball passes the other person's
+      paddle. A ball returned by a paddle awards no point.
+    forms: [points]
+    model: [pointWon]
+
+  - term: score
+    definition: The points each person has won in the current Pong game.
+    forms: [scores]
+    published: true
+    model: [score]
+
+  - term: target score
+    definition: The number of points needed to win, chosen before Pong starts.
+    published: true
+    model: [targetScore]
+
+  - term: countdown
+    definition: >-
+      The wait shown before the first serve and before a serve after a point.
+      The ball stays still until the countdown ends.
+    forms: [counting down, countdown ends]
+    model: [countdownEnds]
+
+  - term: serve
+    definition: The ball beginning to travel from the middle of the court.
+    forms: [serves, first serve]
+
+  - term: in play
+    definition: Pong while the ball is travelling between the paddles.
+    forms: [playing]
+
+  - term: victory
+    definition: >-
+      Reaching the target score finishes Pong with that person as its winner.
+      A finished Pong game keeps its score and the ball stays still.
+    forms: [wins, won, winner, finished, finish, finishes]
+    model: [winner, finishLocalPong]
+
+  - term: local play
+    definition: >-
+      Playing Pong on one device with another person or a bot. It needs no
+      connection, and closing and reopening the app keeps its score. Local
+      Pong may be ready to start, under way, or finished.
+    forms: [on one device, local Pong, ready to start]
+    model: [gameShown, localStage, localOpponent]
+
+  - term: local Pong start
+    definition: Beginning local Pong's countdown for its first serve on this device.
+    forms: [starts local Pong]
+    model: [startLocalPong]
+
+  - term: under way
+    from: games
+
+  - term: move list
+    from: games
+    model: [moveListOffered]
+
+  - term: bot
+    from: games
+
+  - term: game
+    from: games
+    model: [gameShown]
+
+  - term: pair people up
+    from: matchmaking
+
+  - term: space
+    from: spaces
+
+  - term: join
+    from: spaces
+    model: [joinSpace]
+
+  - term: custom game
+    from: games
+
+  - term: seconds pass
+    definition: Time going by after Pong has finished.
+    forms: [second passes, seconds have passed]
+    model: [waitAfterFinish]
+
+  - term: the app
+    from: kernel
+    model: [reopenApp]
+
+  - term: connection
+    from: kernel
+    model: [loseConnection, connectionReturns, viewerLosesConnection, viewerConnectionReturns]

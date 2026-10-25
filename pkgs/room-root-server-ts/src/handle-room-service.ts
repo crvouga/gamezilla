@@ -38,12 +38,12 @@ export async function handleRoomService<
     input['commandId'].length > 0 &&
     isMessageEnvelope(input['payload'])
   ) {
-    await server.injectServiceCommand({
+    const receipt = await server.injectServiceCommand({
       id: input['commandId'],
       payload: input['payload'] as C,
       identity: control.identity,
     });
-    return new Response(null, { status: 204 });
+    return Response.json(receipt);
   }
   if (
     input['operation'] === 'erase' &&

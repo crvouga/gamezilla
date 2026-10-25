@@ -70,6 +70,7 @@ async function send(db: SqlClient, person: string, payload: Message) {
     installId: HOST,
     clientId: 'host-presence',
     getSessionToken: () => null,
+    clock,
     timers,
     random: env.random,
   });
@@ -82,6 +83,7 @@ async function send(db: SqlClient, person: string, payload: Message) {
       payload,
       commandId: `choice-${person}`,
       nowMs: clock.now(),
+      clock,
       timers,
     });
   } finally {

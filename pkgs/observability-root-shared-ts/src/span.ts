@@ -8,6 +8,7 @@ import {
 } from '@opentelemetry/api';
 
 import type { Attributes } from './attributes';
+import { ReproducibleError } from './reproducible-error';
 
 const TRACER_NAME = '@pkgs/observability';
 
@@ -56,7 +57,7 @@ export async function withSpan<T>(
       try {
         return await fn(span);
       } catch (error) {
-        span.recordException(toException(error));
+        recordException(span, error);
         span.setStatus({
           code: SpanStatusCode.ERROR,
           message: error instanceof Error ? error.message : String(error),
@@ -90,6 +91,11 @@ export function activeSpan(): Span | undefined {
   return trace.getSpan(context.active());
 }
 
-function toException(error: unknown): Error {
-  return error instanceof Error ? error : new Error(String(error));
+/** Preserve bounded replay details without changing ordinary exception recording. */
+export function recordException(span: Span, error: unknown): void {
+  span.recordException(
+    error instanceof Error ? error : new Error(String(error))
+  );
+  if (error instanceof ReproducibleError)
+    span.setAttributes(error.diagnostic as OtelAttributes);
 }

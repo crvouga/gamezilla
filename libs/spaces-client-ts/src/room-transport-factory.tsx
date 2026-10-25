@@ -4,11 +4,12 @@
  */
 
 import { apiUrlToRoomWebSocketUrl } from '@libs/spaces-shared-ts/space-room-url';
-import type { Timers } from '@pkgs/clock-shared-ts/types';
+import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
 import { WebSocketRoomTransport } from '@pkgs/room-adapter-web-shared-ts/websocket-transport';
 import type { ClientTransport } from '@pkgs/room-root-shared-ts/transport';
 import type { Random } from '@pkgs/uuid-shared-ts/create-id';
 import { createContext, type JSX, useContext } from 'solid-js';
+import { roomRoundTrip } from './room-transport-measures';
 
 export type CreateRoomTransportArgs = {
   readonly topic: string;
@@ -19,6 +20,7 @@ export type CreateRoomTransportArgs = {
   readonly installId: string;
   readonly clientId: string;
   readonly getSessionToken: () => string | null | Promise<string | null>;
+  readonly clock: Clock;
   readonly timers: Timers;
   readonly random: Random;
 };
@@ -29,17 +31,20 @@ export type CreateRoomTransport = (
 
 export class WebSocketRoomTransportFactory {
   constructor(
+    private readonly clock: Clock,
     private readonly timers: Timers,
     private readonly random: Random
   ) {}
 
   create(
-    args: Omit<CreateRoomTransportArgs, 'timers' | 'random'>
+    args: Omit<CreateRoomTransportArgs, 'clock' | 'timers' | 'random'>
   ): ClientTransport {
     const topic = args.topic;
     return new WebSocketRoomTransport({
+      clock: this.clock,
       timers: this.timers,
       random: this.random,
+      onRoundTrip: roomRoundTrip,
       url: async () => {
         const token = await Promise.resolve(args.getSessionToken());
         return apiUrlToRoomWebSocketUrl({

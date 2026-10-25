@@ -2,7 +2,7 @@ import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import sql, { join } from '@pkgs/sql-root-shared-ts/sql';
 import type { MultiplayerRating } from './multiplayer-rating';
 import { NEW_MULTIPLAYER_RATING } from './multiplayer-rating';
-import type { MultiplayerSpeed } from './time-control';
+import type { MultiplayerRatingPool } from './time-control';
 
 type RatingRow = {
   readonly rating: number | null;
@@ -13,7 +13,7 @@ type RatingRow = {
 
 export function multiplayerRatingId(
   ownerId: string,
-  speed: MultiplayerSpeed
+  speed: MultiplayerRatingPool
 ): string {
   return JSON.stringify([ownerId, speed]);
 }
@@ -23,7 +23,7 @@ export class MultiplayerRatingRepository {
 
   async readMany(
     ownerIds: readonly string[],
-    speed: MultiplayerSpeed
+    speed: MultiplayerRatingPool
   ): Promise<ReadonlyMap<string, MultiplayerRating>> {
     const owners = [...new Set(ownerIds)];
     if (owners.length === 0) return new Map();
@@ -40,7 +40,7 @@ export class MultiplayerRatingRepository {
 
   async read(
     ownerId: string,
-    speed: MultiplayerSpeed
+    speed: MultiplayerRatingPool
   ): Promise<MultiplayerRating> {
     const rows = await this.tx.query(sql<RatingRow>`SELECT rating,
       rating_deviation, volatility_micros, games FROM chess_multiplayer_ratings
@@ -50,7 +50,7 @@ export class MultiplayerRatingRepository {
 
   async write(
     ownerId: string,
-    speed: MultiplayerSpeed,
+    speed: MultiplayerRatingPool,
     rating: MultiplayerRating,
     nowMs: number
   ): Promise<void> {

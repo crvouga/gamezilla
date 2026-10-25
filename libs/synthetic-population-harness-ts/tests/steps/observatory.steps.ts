@@ -18,11 +18,10 @@ import {
   cedarAvailable,
   cedarGameResult,
   cedarSessionEnded,
-  completePausedGame,
-  finishPausedSession,
   pauseSyntheticUser,
 } from '@libs/synthetic-population-harness-ts/synthetic-population-control-actions';
 import { givenSyntheticUser } from '@libs/synthetic-population-harness-ts/synthetic-user-fixtures';
+import { recallContinuity, rememberContinuity } from './continuity-memo';
 
 // regression: stack-fixtures-publish-to-in-process-broker
 Given(
@@ -113,20 +112,22 @@ Given('the Synthetic User {string} is available', async (w, name: string) => {
 When(
   '{actor} pauses the Synthetic User {string}',
   async (w, actor: Actor, name: string) => {
+    await rememberContinuity(w);
     await w.s.apply(pauseSyntheticUser, actor, name);
   }
 );
+// regression: synthetic-pause-assertions-drive-gameplay
 Then('{string} can finish its ongoing game', async (w, name: string) => {
   expect(name).toBe('Cedar');
-  await w.s.apply(completePausedGame);
-  await w.s.until(cedarGameResult, {
-    pred: (text) => /won.*(checkmate|four in a row)/i.test(text ?? ''),
+  const result = await w.s.until(cedarGameResult, {
+    pred: (view) => ['white', 'black', 'draw'].includes(view.outcome ?? ''),
     maxMs: 10_000,
   });
+  expect(result.gameId).toBe(recallContinuity(w).board.gameId);
+  expect(result.announcement).toBeTruthy();
 });
 Then('{string} starts no new activity', async (w, name: string) => {
   expect(name).toBe('Cedar');
-  await w.s.apply(finishPausedSession);
   await w.s.until(cedarSessionEnded, { pred: Boolean, maxMs: 10_000 });
 });
 Then('{string} remains available', async (w, name: string) => {

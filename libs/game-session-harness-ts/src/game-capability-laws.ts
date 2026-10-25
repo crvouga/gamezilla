@@ -8,8 +8,13 @@ import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import fc from 'fast-check';
 import type { GameLaw } from './game-rules-laws';
 import { law, must, picks, walk } from './game-rules-laws';
-import type { HarnessGame } from './harness-game';
+import type { HarnessGame, TurnHarnessGame } from './harness-game';
+import { isTurnHarnessGame } from './harness-game';
 import { playedRulesOf } from './played-rules';
+import {
+  simulationEndingReasons,
+  simulationRecordLaws,
+} from './simulation-capability-laws';
 
 /**
  * The laws of what the shared screens and records say about a game: its
@@ -26,7 +31,7 @@ const filled = (text: string | undefined): boolean =>
  * victory and, for a game its rules can draw, that draw. A known line its
  * rules refuse, never end, or end without a reason is a fault.
  */
-function knownEndings(game: HarnessGame): readonly string[] {
+function knownTurnEndings(game: TurnHarnessGame): readonly string[] {
   const rules = playedRulesOf(game);
   const lines = [
     ['known victory', game.fixtures.firstSideVictory],
@@ -35,6 +40,13 @@ function knownEndings(game: HarnessGame): readonly string[] {
   return lines.flatMap(([name, line]) =>
     line === undefined ? [] : [endingReason(rules, name, line)]
   );
+}
+
+function knownEndings(game: HarnessGame): readonly string[] {
+  return [
+    ...(isTurnHarnessGame(game) ? knownTurnEndings(game) : []),
+    ...simulationEndingReasons(game),
+  ];
 }
 
 function endingReason(
@@ -73,7 +85,7 @@ export function gamePresentationLaws(game: HarnessGame): readonly GameLaw[] {
     law(game, 'the game and each of its sides have a name of their own', () => {
       must(presentation !== undefined, 'the game supplies no presentation');
       must(filled(presentation.name()), 'the game has no name');
-      const names = gameSides(game.shared.turnGame.rules).map((side) =>
+      const names = gameSides(game.shared.registration.rules).map((side) =>
         presentation.sideLabel(side)
       );
       must(names.every(filled), 'a side has no name');
@@ -91,13 +103,16 @@ export function gamePresentationLaws(game: HarnessGame): readonly GameLaw[] {
         );
       };
       for (const reason of knownEndings(game)) described(reason);
-      assertProperty(
-        `${game.label}: endings`,
-        fc.property(picks, (drawn) => {
-          const reason = walk(playedRulesOf(game), drawn).steps.at(-1)?.reason;
-          if (reason !== undefined && reason !== null) described(reason);
-        })
-      );
+      if (isTurnHarnessGame(game))
+        assertProperty(
+          `${game.label}: endings`,
+          fc.property(picks, (drawn) => {
+            const reason = walk(playedRulesOf(game), drawn).steps.at(
+              -1
+            )?.reason;
+            if (reason !== undefined && reason !== null) described(reason);
+          })
+        );
     }),
     law(game, 'distinct endings keep descriptions of their own', () => {
       const byDescription = new Map<string, string>();
@@ -119,21 +134,32 @@ export function gamePresentationLaws(game: HarnessGame): readonly GameLaw[] {
         `the reason "${unknown}" is described as "${String(description)}"`
       );
     }),
-    law(game, 'a draw on time is described whichever side ran out', () => {
-      for (const side of gameSides(game.shared.turnGame.rules))
-        must(
-          filled(presentation.timeoutDrawDescription(side)),
-          `a draw on time against the ${sideName(side)} side has no description`
-        );
-    }),
+    ...(game.shared.capabilities.matchmaking?.clockChoices !== true &&
+    !isTurnHarnessGame(game)
+      ? []
+      : [
+          law(
+            game,
+            'a draw on time is described whichever side ran out',
+            () => {
+              for (const side of gameSides(game.shared.registration.rules))
+                must(
+                  filled(presentation.timeoutDrawDescription?.(side)),
+                  `a draw on time against the ${sideName(side)} side has no description`
+                );
+            }
+          ),
+        ]),
     // A flag fall is a draw only against a side that cannot win, which a
     // game shows by its fixture; a game without one is never drawn on time.
-    ...(game.fixtures.secondSideCannotWin === undefined
+    ...(!isTurnHarnessGame(game) ||
+    game.fixtures.secondSideCannotWin === undefined
       ? []
       : [
           law(game, 'a draw on time names the side that ran out', () => {
             const [first, second] = SIDES.map((side) => {
-              const description = presentation.timeoutDrawDescription(side);
+              const description =
+                presentation.timeoutDrawDescription?.(side) ?? '';
               must(
                 description.includes(presentation.sideLabel(side)),
                 `a draw on time against the ${sideName(side)} side ("${description}") does not name ${presentation.sideLabel(side)}`
@@ -171,6 +197,13 @@ const username = fc.stringMatching(/^[a-z][a-z0-9]{2,11}$/);
  * this game as its fixtures write them.
  */
 export function gameRecordLaws(game: HarnessGame): readonly GameLaw[] {
+  return [
+    ...(isTurnHarnessGame(game) ? turnRecordLaws(game) : []),
+    ...simulationRecordLaws(game),
+  ];
+}
+
+function turnRecordLaws(game: TurnHarnessGame): readonly GameLaw[] {
   const history = game.shared.turnGame.capabilities.history;
   const read = game.readRecord;
   if (history === undefined || read === undefined) return [];

@@ -14,7 +14,7 @@ Given("{actor} is in {actor}'s space", async (w, actor: string, host: string) =>
 );
 
 When(
-  '{actor} swaps White and Black in the Custom Game',
+  '{actor} swaps White and Black in the custom game',
   async (w, actor: string) =>
     w.s.apply(changeCustomGame, actor, { operation: 'swap' })
 );

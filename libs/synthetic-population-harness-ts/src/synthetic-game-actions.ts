@@ -19,8 +19,7 @@ export function syntheticGame(name?: string): HarnessGame {
   const game =
     name === undefined
       ? HARNESS_GAMES.find(
-          (candidate) =>
-            candidate.shared.turnGame.capabilities.matchmaking !== undefined
+          (candidate) => candidate.shared.capabilities.matchmaking !== undefined
         )
       : HARNESS_GAMES.find(
           (candidate) =>
@@ -30,7 +29,11 @@ export function syntheticGame(name?: string): HarnessGame {
   return game;
 }
 export function syntheticGameAdapter(name?: string) {
-  return syntheticGame(name).shared.automation;
+  const game = syntheticGame(name);
+  const automation = game.shared.automation;
+  if (automation === undefined)
+    throw new Error(`${game.label} has no registered automated play`);
+  return automation;
 }
 export const givenSyntheticGameSpace = scenarioAction({
   name: 'givenSyntheticGameSpace',
@@ -39,7 +42,7 @@ export const givenSyntheticGameSpace = scenarioAction({
     await Promise.resolve(createSpace.act(s, actor));
     await openMultiplayer(
       await actorUi(s, actor),
-      [syntheticGameAdapter(name)],
+      [{ rules: syntheticGame(name).shared.registration.rules }],
       () => 0
     );
   },
@@ -49,7 +52,9 @@ export const openSyntheticGame = scenarioAction({
   act: async (s, actor: string, name?: string) => {
     await Promise.resolve(returnToOwnSpace.act(s, actor));
     const games =
-      name === undefined ? GAME_AUTOMATIONS : [syntheticGameAdapter(name)];
+      name === undefined
+        ? GAME_AUTOMATIONS
+        : [{ rules: syntheticGame(name).shared.registration.rules }];
     await openMultiplayer(await actorUi(s, actor), games, () => 0);
   },
 });
@@ -61,6 +66,7 @@ export async function syntheticGameView(s: ProductHarness, actor = 'cedar') {
     gameId: visible ? await game.attribute('data-game-id') : null,
     position: visible ? await game.attribute('data-fen') : null,
     outcome: visible ? await game.attribute('data-outcome') : null,
+    reason: visible ? await game.attribute('data-reason') : null,
     canMove: visible && (await game.attribute('data-can-move')) === 'true',
     announcement: (await ui.get('multiplayer-announcement').isVisible())
       ? await ui.get('multiplayer-announcement').text()

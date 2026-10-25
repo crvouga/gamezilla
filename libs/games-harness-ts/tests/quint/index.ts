@@ -21,7 +21,7 @@ defineTraceVariants(({ specUri, parameters = [] }) =>
     parameters: Object.fromEntries(
       parameters.map((name) => {
         const game = conformanceGameOf(variant, specUri);
-        const puzzles = game.shared.turnGame.capabilities.puzzles;
+        const puzzles = game.shared.registration.capabilities.puzzles;
         if (name !== 'OPPONENT' || puzzles === undefined)
           throw new Error(
             `${specUri}: no ${name} model input for ${variant.id}`
