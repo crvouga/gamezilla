@@ -290,18 +290,17 @@ export function gameSides(
 }
 
 /**
- * Validate a roster before its rules enter any shared lifecycle: two to four
+ * Validate a roster before its rules enter any shared lifecycle: two or four
  * seats, in the platform's seat order (`white`, `black`, then `red`, `blue`).
  */
 export function assertGameSides(rules: Pick<GameRules, 'id' | 'sides'>): void {
   const sides = gameSides(rules);
   if (
-    sides.length < 2 ||
-    sides.length > 4 ||
+    (sides.length !== 2 && sides.length !== 4) ||
     sides.some((side, index) => GAME_SIDES[index] !== side)
   )
     throw new Error(
-      `${rules.id}: declare two to four ordered seats, in the order white, black, red, blue`
+      `${rules.id}: declare two or four ordered seats, in the order white, black, red, blue`
     );
 }
 
@@ -460,23 +459,23 @@ export function publicAction(
   return rules.setup.resolve(position, proposal, setups);
 }
 
-/** Fail when a game offers a capability without what it needs beside it. */
-function assertRequirements(game: RegisteredGame): void {
-  const turns = isTurnRules(game.rules) ? game.rules : undefined;
-  if (
-    game.capabilities.matchmaking !== undefined &&
-    turns?.turnOrder === 'rules'
-  )
+/** Fail when a matched game needs what only custom games hold. */
+function assertMatchedTurns(game: RegisteredGame): void {
+  if (game.capabilities.matchmaking === undefined || !isTurnRules(game.rules))
+    return;
+  if (game.rules.turnOrder === 'rules')
     throw new Error(
       `${game.rules.id}: matched games rotate turns (their abort window and first-move clock count one move per side) — a game whose rules name the next side is offered in custom games`
     );
-  if (
-    game.capabilities.matchmaking !== undefined &&
-    turns?.hands?.commit !== undefined
-  )
+  if (game.rules.hands?.commit !== undefined)
     throw new Error(
       `${game.rules.id}: private commitments are offered in custom games — matched games hold no commitment phase`
     );
+}
+
+/** Fail when private setups or dealt hands meet what cannot hold them. */
+function assertPrivateState(game: RegisteredGame): void {
+  const turns = isTurnRules(game.rules) ? game.rules : undefined;
   if (
     gameSides(game.rules).length > 2 &&
     (game.rules.setup !== undefined || game.capabilities.puzzles !== undefined)
@@ -488,13 +487,16 @@ function assertRequirements(game: RegisteredGame): void {
     throw new Error(
       `${game.rules.id}: a game deals hands or has private setups, not both`
     );
-  if (
-    turns?.hands !== undefined &&
-    game.capabilities.puzzles !== undefined
-  )
+  if (turns?.hands !== undefined && game.capabilities.puzzles !== undefined)
     throw new Error(
       `${game.rules.id}: a rated puzzle shows its whole position to the solver, so a game with dealt hands offers no puzzle feed — offer authored puzzle content instead`
     );
+}
+
+/** Fail when a game offers a capability without what it needs beside it. */
+function assertRequirements(game: RegisteredGame): void {
+  assertMatchedTurns(game);
+  assertPrivateState(game);
   if (game.capabilities.puzzles !== undefined && !isTurnRules(game.rules))
     throw new Error(`${game.rules.id}: puzzles require turn rules`);
   if (!isTurnRules(game.rules) && game.simulation === undefined)
