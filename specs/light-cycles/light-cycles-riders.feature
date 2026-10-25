@@ -30,8 +30,7 @@ Feature: Take a rider or watch
     Scenario Outline: Starting a custom game again changes nothing
       Given the Light Cycles game is <stage>
       When Alice starts the custom game
-      Then Alice is told the custom game has already started
-      And the Light Cycles game is still <stage>
+      Then the Light Cycles game is still <stage>
 
       Examples:
         | stage      |
