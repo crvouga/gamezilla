@@ -198,6 +198,17 @@ function appendGameReactions(input: {
  *
  * @param name — Wire id for the composed module (DO `module` query, uniqueness).
  */
+function composedLive(
+  games: readonly GameDefinition[]
+): Pick<SpaceModule, 'createLive'> {
+  const live = games.flatMap((game) =>
+    game.createLive === undefined ? [] : [game.createLive]
+  );
+  if (live.length > 1)
+    throw new Error('one shared execution owns the space room');
+  return live[0] === undefined ? {} : { createLive: live[0] };
+}
+
 export function createSpaceModule(
   name: RoomModuleName,
   definitions: readonly GameDefinition[],
@@ -213,6 +224,7 @@ export function createSpaceModule(
 
   return {
     name,
+    ...composedLive(games),
     ...composedAudience(games),
     connectionView: (grants) => {
       if (grants.includes(PERMISSION.spacesSelectGame))

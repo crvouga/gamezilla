@@ -30,7 +30,7 @@ Given('{actor} has a space of their own', async (w, actor: Actor) => {
   remember(w, `continuityOwnSpace:${actor}`, link);
 });
 
-Then('{actor} is in their own space', async (w, actor: Actor) => {
+Then('{actor} is back in the space he hosts', async (w, actor: Actor) => {
   const link = recall(w, `continuityOwnSpace:${actor}`) as string;
   await w.s.until((s) => ownSpaceShown(s, actor, link), {
     pred: Boolean,

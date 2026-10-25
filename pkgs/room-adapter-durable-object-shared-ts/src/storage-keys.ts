@@ -9,6 +9,8 @@ export const SEQ_KEY_PAD = 16;
 export const DO_KV_MULTI_KEY_LIMIT = 128;
 
 export type RoomDoKeyNs = {
+  /** One bounded replacement value for live execution recovery. */
+  liveCheckpoint: string;
   /** Tiny `{ lastSeq }` record. */
   meta: string;
   /** Topic string for this module (needed for alarm wake without sockets). */
@@ -36,6 +38,7 @@ export function roomDoKeyNs(moduleName?: RoomModuleName): RoomDoKeyNs {
       ? asKeyword(`room.do/state-v2-${String(moduleName)}`)
       : asKeyword('room.do/state-v2');
   return {
+    liveCheckpoint: `${base}.live-checkpoint`,
     meta: `${base}.meta`,
     topic: `${base}.topic`,
     eventPrefix: `${base}.e.`,

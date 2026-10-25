@@ -80,6 +80,7 @@ export function harnessJourneyHost(w: Pick<HarnessWorld, 's'>): JourneyHost {
   return {
     runId: 'harness',
     now: () => w.s.read((s) => s.session.ports.clock.now()),
+    elapse: (milliseconds) => w.s.advanceTime(milliseconds),
     browser: null,
     // The harness runs the test build: the puzzle board carries its answers.
     showsPuzzleAnswers: true,

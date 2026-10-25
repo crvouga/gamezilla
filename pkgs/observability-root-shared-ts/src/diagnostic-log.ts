@@ -1,6 +1,7 @@
 import { context, SpanStatusCode, trace } from '@opentelemetry/api';
 import { ATTR } from './attributes';
 import { allowlistedAttributes } from './redaction';
+import { reproductionAttributes } from './reproducible-error';
 
 export type DiagnosticLog = {
   readonly severity: 'debug' | 'info' | 'warn' | 'error';
@@ -45,7 +46,11 @@ export function diagnosticAttributes(event: DiagnosticLog) {
  */
 export function recordDiagnosticSpan(event: DiagnosticLog): void {
   if (event.severity !== 'error' && event.severity !== 'warn') return;
-  const attributes = diagnosticAttributes(event);
+  // Replay bytes belong to the trace: the independent log signal has a 512-character cap.
+  const attributes = {
+    ...diagnosticAttributes(event),
+    ...reproductionAttributes(event.context?.['error']),
+  };
   const span = trace
     .getTracer('@pkgs/observability')
     .startSpan(

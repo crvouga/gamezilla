@@ -11,7 +11,8 @@
   },
   "scripts": {
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
-    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
   },
   "dependencies": {
     "@libs/games-shared-ts": "workspace:*",

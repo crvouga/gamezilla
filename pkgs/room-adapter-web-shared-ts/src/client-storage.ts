@@ -1,8 +1,14 @@
 import { Assert } from '@pkgs/assert-root-shared-ts/assert';
+import type { Message } from '@pkgs/message-shared-ts/message';
 import type {
   ClientRoomStorage,
   QueuedCommand,
 } from '@pkgs/room-root-shared-ts/core-storage';
+import {
+  parseRoomLiveCheckpoint,
+  type RoomLiveCheckpoint,
+  roomLiveCheckpoint,
+} from '@pkgs/room-root-shared-ts/live-checkpoint';
 import type {
   CommittedLogBlobs,
   CommittedLogManifest,
@@ -90,7 +96,7 @@ export class WebClientStorage implements ClientRoomStorage {
   private readonly queueKey: string;
 
   constructor(
-    prefix: string,
+    private readonly prefix: string,
     private readonly storage: WebStorage
   ) {
     crash.nonEmptyString(prefix, 'WebClientStorage prefix must be non-empty');
@@ -108,8 +114,9 @@ export class WebClientStorage implements ClientRoomStorage {
     return this.log.appendCommitted(entries);
   }
 
-  resetCommitted(): Promise<void> {
-    return this.log.resetCommitted();
+  async resetCommitted(): Promise<void> {
+    await this.log.resetCommitted();
+    this.storage.removeItem(`${this.prefix}:live-checkpoint`);
   }
 
   async loadQueued(): Promise<QueuedCommand[]> {
@@ -119,5 +126,27 @@ export class WebClientStorage implements ClientRoomStorage {
 
   async saveQueued(queue: readonly QueuedCommand[]): Promise<void> {
     this.storage.setItem(this.queueKey, JSON.stringify(queue));
+  }
+
+  async loadLiveCheckpoint(): Promise<RoomLiveCheckpoint | null> {
+    return parseRoomLiveCheckpoint(
+      readJson(this.storage.getItem(`${this.prefix}:live-checkpoint`))
+    );
+  }
+
+  async replaceLiveCheckpoint(
+    expectedSeq: number,
+    payload: Message | null
+  ): Promise<boolean> {
+    const checkpoint =
+      payload === null ? null : roomLiveCheckpoint(expectedSeq, payload);
+    const manifest = parseManifest(
+      readJson(this.storage.getItem(`${this.prefix}:committed`))
+    );
+    if ((manifest?.lastSeq ?? 0) !== expectedSeq) return false;
+    const key = `${this.prefix}:live-checkpoint`;
+    if (checkpoint === null) this.storage.removeItem(key);
+    else this.storage.setItem(key, JSON.stringify(checkpoint));
+    return true;
   }
 }

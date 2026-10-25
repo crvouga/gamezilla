@@ -1,4 +1,4 @@
-import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import { connectFourAutomation } from './connect-four-automation';
 import { connectFourNoticeText } from './connect-four-notice-text';
 import {
@@ -8,15 +8,16 @@ import {
 } from './connect-four-rules';
 
 /** Connect Four offers every shared capability; its rules are its own. */
-export const connectFourGameShared = defineTurnGame({
+export const connectFourGameShared = defineGame({
   rules: connectFourRules,
   capabilities: {
     'custom-games': { bots: connectFourBots },
     matchmaking: {
-      clockNamespace: 'connect-four/',
+      clockChoices: true as const,
+      namespace: 'connect-four/',
       notice: connectFourNoticeText,
     },
     history: { record: connectFourRecord },
   },
-  automation: connectFourAutomation,
+  turnAutomation: connectFourAutomation,
 });

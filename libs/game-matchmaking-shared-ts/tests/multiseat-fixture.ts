@@ -33,7 +33,8 @@ export const MULTISEAT_GAMES = createTurnGames([
     rules: MULTISEAT_RULES,
     capabilities: {
       matchmaking: {
-        clockNamespace: 'four-seat-reference/',
+        clockChoices: true,
+        namespace: 'four-seat-reference/',
         notice: { side: String, ending: String, timeoutDraw: String },
       },
       history: {

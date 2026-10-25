@@ -26,7 +26,7 @@ import {
   WIRE_VERSION,
 } from '@pkgs/room-root-shared-ts/wire';
 import { puzzleLineLayout } from '@pkgs/turn-game-shared-ts/game-puzzles';
-import { harnessGameOf } from './harness-game-of';
+import { turnHarnessGameOf } from './harness-game-of';
 import { sleepUntilNextUtcDay } from './puzzle-allowance';
 import {
   knownPuzzle,
@@ -92,7 +92,7 @@ function finishCommands(
   if (finish === 'skip') return [puzzleSessionCommand({ kind: 'skip' })];
   if (finish === 'showSolution')
     return [puzzleSessionCommand({ kind: 'show-line' })];
-  const game = harnessGameOf(s, gameId);
+  const game = turnHarnessGameOf(s, gameId);
   const fixture = knownPuzzle(game, puzzleId);
   const puzzles = game.shared.turnGame.capabilities.puzzles;
   if (puzzles === undefined) throw new Error(`${game.label} offers no puzzles`);
@@ -183,6 +183,7 @@ export const finishGamePuzzleAsAppCloses = scenarioAction({
       installId: `${actor}-finish`,
       clientId: `${actor}-finish`,
       getSessionToken: () => null,
+      clock: env.clock,
       timers: env.timers,
       random: env.random,
     });

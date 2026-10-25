@@ -1,0 +1,4 @@
+{
+  "summary": "A discrete turn was durably accepted while its game's live simulation kept the old turn state and overwrote it in subsequent snapshots.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-hybrid.contract.test.ts"
+}

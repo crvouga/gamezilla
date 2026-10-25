@@ -50,7 +50,7 @@ const REASONS = {
  */
 function serverEnforcementIn(game: HarnessGame): DecisionLayer {
   const searchGuard = opponentSearchGuard(limitRooms(game));
-  const matchmaking = game.shared.turnGame.capabilities.matchmaking;
+  const matchmaking = game.shared.registration.capabilities.matchmaking;
   if (matchmaking === undefined)
     throw new Error(`${game.label} offers no finding an opponent`);
   return serverEnforcementLayer({
@@ -66,13 +66,13 @@ function serverEnforcementIn(game: HarnessGame): DecisionLayer {
       const replay = replayOperation(findOpponentMutation, () => ({
         requestId: 'another-game',
         spaceId: LIMIT_SPACE,
-        timeControl: `${matchmaking.clockNamespace}5+0`,
+        timeControl: `${matchmaking.namespace}5+0`,
       }));
       await replay({
         ...c,
         env: {
           ...c.env,
-          turnGames: createTurnGames(GAMES.map((g) => g.shared.turnGame)),
+          turnGames: createTurnGames(GAMES.map((g) => g.shared.registration)),
         },
       });
     },

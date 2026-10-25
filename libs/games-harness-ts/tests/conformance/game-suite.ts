@@ -12,7 +12,15 @@
 
 import { test as bunTest, describe } from 'bun:test';
 import { basename, dirname, join } from 'node:path';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type {
+  HarnessGame,
+  SimulationHarnessGame,
+  TurnHarnessGame,
+} from '@libs/game-session-harness-ts/harness-game';
+import {
+  isSimulationHarnessGame,
+  isTurnHarnessGame,
+} from '@libs/game-session-harness-ts/harness-game';
 import type {
   ConformanceArea,
   ConformanceNeed,
@@ -94,6 +102,40 @@ export function forEveryGame(
   for (const game of bound)
     describe(`${game.label} › ${area} › ${suiteName(suiteFile)}`, () =>
       suite(game));
+}
+
+/** Discrete obligations run only with real turn mechanics and independent move fixtures. */
+export function forEveryTurnGame(
+  suiteFile: string,
+  suite: (game: TurnHarnessGame) => void,
+  needs: readonly ConformanceNeed[] = []
+): void {
+  forEveryGame(
+    suiteFile,
+    (game) => {
+      if (!isTurnHarnessGame(game))
+        throw new Error(`${game.label}: turn fixtures are missing`);
+      suite(game);
+    },
+    ['turns', ...needs]
+  );
+}
+
+/** A hybrid owes both sets of execution checks, without changing game identity. */
+export function forEverySimulationGame(
+  suiteFile: string,
+  suite: (game: SimulationHarnessGame) => void,
+  needs: readonly ConformanceNeed[] = []
+): void {
+  forEveryGame(
+    suiteFile,
+    (game) => {
+      if (!isSimulationHarnessGame(game))
+        throw new Error(`${game.label}: simulation fixtures are missing`);
+      suite(game);
+    },
+    ['simulation', ...needs]
+  );
 }
 
 /**

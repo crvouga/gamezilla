@@ -1,8 +1,8 @@
 import { expect, test } from 'bun:test';
-import { isTurnGameDefinition } from '@libs/game-session-shared-ts/turn-game-definition';
+import { isGameRegistration } from '@libs/game-session-shared-ts/game-definition';
 import {
   GAME_DEFINITIONS,
-  TURN_GAME_DEFINITIONS,
+  REGISTERED_GAME_DEFINITIONS,
 } from '@libs/games-shared-ts/game-plugins';
 
 test('the product registers Numberlink and Sokoban with puzzle capabilities and no turn engine', () => {
@@ -10,17 +10,19 @@ test('the product registers Numberlink and Sokoban with puzzle capabilities and 
     const game = GAME_DEFINITIONS.find((entry) => entry.id === id);
     expect(game).toBeDefined();
     expect(game?.puzzleContent).toBeDefined();
+    expect(game?.registration).toBeUndefined();
     expect(game?.turnGame).toBeUndefined();
-    expect(isTurnGameDefinition(game)).toBe(false);
+    expect(isGameRegistration(game)).toBe(false);
   }
-  expect(TURN_GAME_DEFINITIONS.map((game) => game.id)).toEqual(
-    GAME_DEFINITIONS.filter(isTurnGameDefinition).map((game) => game.id)
+  expect(REGISTERED_GAME_DEFINITIONS.map((game) => game.id)).toEqual(
+    GAME_DEFINITIONS.filter(isGameRegistration).map((game) => game.id)
   );
-  expect(TURN_GAME_DEFINITIONS.map((game) => game.id)).toEqual([
+  expect(REGISTERED_GAME_DEFINITIONS.map((game) => game.id)).toEqual([
     'chess',
     'connect-four',
     'battleship',
     'quoridor',
     'quoridor-hill',
+    'pong',
   ]);
 });

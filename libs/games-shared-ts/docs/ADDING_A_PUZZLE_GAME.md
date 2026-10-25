@@ -84,7 +84,7 @@ markup. The working registration is
 Add the shared and client registrations to `GAME_DEFINITIONS` and
 `GAME_CLIENT_DEFINITIONS`, with their workspace dependencies. Registration
 checks require the matching player and validate any advertised authoring and
-preview components. `TURN_GAME_DEFINITIONS` and `TURN_GAMES` derive only actual
+preview components. `REGISTERED_GAME_DEFINITIONS` and `TURN_GAMES` derive only actual
 turn games; a standalone puzzle needs no multiplayer fixtures, opponent,
 clock, automation or `HARNESS_GAMES` entry. Package setup and dependency rules
 remain those in [`ADDING_A_GAME.md`](ADDING_A_GAME.md).

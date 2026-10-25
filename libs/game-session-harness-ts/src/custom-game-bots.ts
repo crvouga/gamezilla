@@ -7,7 +7,7 @@ import type {
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { makeCustomGameMove } from './custom-game-moves';
 import { readCustomGameProbe } from './custom-game-probe';
-import { harnessGameAt } from './harness-game-of';
+import { turnHarnessGameAt } from './harness-game-of';
 
 const choices = new WeakMap<HarnessRoomNode, { next: number | null }>();
 
@@ -75,8 +75,11 @@ export const finishCustomGameAgainstBots = scenarioAction({
         throw new Error('No custom game');
       if (current.status !== 'active') return;
       if (current.turn === probe.mySide) {
-        const game = harnessGameAt(s, current.fen);
-        const action = game.shared.automation.choose(current.fen, () => 0);
+        const game = turnHarnessGameAt(s, current.fen);
+        const action = game.shared.automation.turns.choose(
+          current.fen,
+          () => 0
+        );
         if (action === null) throw new Error('Active game offers no action');
         await Promise.resolve(
           makeCustomGameMove.act(s, observer, game.shared.id, action)

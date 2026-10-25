@@ -50,62 +50,62 @@ async function historicalGame(
 }
 
 Given(
-  '{actor} has an active Custom Game one move before White promotes on e8',
+  '{actor} has an active custom game one move before White promotes on e8',
   async (w, host: string) =>
     historicalGame(w, host, CUSTOM_GAME_BEFORE_PROMOTION)
 );
 Given(
-  '{actor} has an active Custom Game one move before White castles kingside',
+  '{actor} has an active custom game one move before White castles kingside',
   async (w, host: string) =>
     historicalGame(w, host, CUSTOM_GAME_BEFORE_CASTLING)
 );
 Given(
-  '{actor} has an active Custom Game one move before White captures en passant on d6',
+  '{actor} has an active custom game one move before White captures en passant on d6',
   async (w, host: string) =>
     historicalGame(w, host, CUSTOM_GAME_BEFORE_EN_PASSANT)
 );
 Given(
-  "{actor} has an active Custom Game where White's king would castle through check",
+  "{actor} has an active custom game where White's king would castle through check",
   async (w, host: string) =>
     historicalGame(w, host, CUSTOM_GAME_CASTLING_THROUGH_CHECK)
 );
 Given(
-  "{actor} has an active Custom Game one move before Black's checkmate",
+  "{actor} has an active custom game one move before Black's checkmate",
   async (w, host: string) =>
     historicalGame(w, host, CUSTOM_GAME_FOOLS_MATE.slice(0, 3))
 );
 Given(
-  '{actor} has a Custom Game one move before the third repetition',
+  '{actor} has a custom game one move before the third repetition',
   async (w, host: string) =>
     historicalGame(w, host, CUSTOM_GAME_REPETITION.slice(0, 7))
 );
 Given(
-  '{actor} has a Custom Game one move before the second repetition',
+  '{actor} has a custom game one move before the second repetition',
   async (w, host: string) =>
     historicalGame(w, host, CUSTOM_GAME_REPETITION.slice(0, 3))
 );
 Given(
-  '{actor} has a Custom Game one move before stalemate',
+  '{actor} has a custom game one move before stalemate',
   async (w, host: string) =>
     historicalGame(w, host, CUSTOM_GAME_STALEMATE.slice(0, 18))
 );
 Given(
-  '{actor} has a Custom Game one move before only the two kings remain',
+  '{actor} has a custom game one move before only the two kings remain',
   async (w, host: string) =>
     historicalGame(w, host, CUSTOM_GAME_MATERIAL.slice(0, 53))
 );
 Given(
-  '{actor} has a Custom Game one move before fifty moves without a pawn move or capture',
+  '{actor} has a custom game one move before fifty moves without a pawn move or capture',
   async (w, host: string) =>
     historicalGame(w, host, CUSTOM_GAME_FIFTY.slice(0, 99))
 );
 Given(
-  '{actor} has a Custom Game two moves before fifty moves without a pawn move or capture',
+  '{actor} has a custom game two moves before fifty moves without a pawn move or capture',
   async (w, host: string) =>
     historicalGame(w, host, CUSTOM_GAME_FIFTY.slice(0, 98))
 );
 Given(
-  "{actor} has a timed Custom Game with a queen against {actor}'s bare king",
+  "{actor} has a timed custom game with a queen against {actor}'s bare king",
   async (w, host: string, black: string) => {
     await customHumans(w, { host, white: host, black });
     await customFact(w, host, { operation: 'clock', minutes: 1, increment: 0 });
@@ -114,7 +114,7 @@ Given(
   }
 );
 Given(
-  '{word} has one second left in the Custom Game',
+  '{word} has one second left in the custom game',
   async (w, side: string) => {
     if (side === 'Black') await history(w, ['h6f6']);
     await customGame(w);

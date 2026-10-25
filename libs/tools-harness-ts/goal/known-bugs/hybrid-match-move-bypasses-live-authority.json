@@ -1,0 +1,4 @@
+{
+  "summary": "Matched turn mutations in a genuinely composed game had no authoritative live move command, so their SQL decisions could diverge from the continuing simulation and its retry receipts.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-hybrid-mutation.contract.test.ts"
+}

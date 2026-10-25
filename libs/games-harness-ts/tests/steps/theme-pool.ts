@@ -10,7 +10,7 @@
  * pick depends on the person's id), so the pool leaves one to move on to
  * whatever it served.
  */
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import type { PuzzleFixture } from '@libs/game-session-harness-ts/known-puzzles';
 import { chosenFeedTheme } from '@libs/game-session-harness-ts/puzzle-feed-choices';
 import { theKnownPuzzle } from '@libs/game-session-harness-ts/puzzle-moves';
@@ -23,7 +23,7 @@ export type ThemePool = {
   readonly themed: readonly string[];
 };
 
-export function themePool(game: HarnessGame): ThemePool {
+export function themePool(game: TurnHarnessGame): ThemePool {
   const theme = chosenFeedTheme(game);
   const known = theKnownPuzzle(game);
   const others = (game.fixtures.puzzles ?? []).filter(

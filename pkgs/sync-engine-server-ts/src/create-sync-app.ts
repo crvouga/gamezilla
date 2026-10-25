@@ -1,4 +1,5 @@
 import type { PubSub } from '@pkgs/pubsub-root-shared-ts/interface';
+import type { RoomServicePort } from '@pkgs/room-root-shared-ts/room-service';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import { FRAMEWORK_MUTATIONS } from '@pkgs/sync-engine-shared-ts/acknowledge-write-rejection';
 import { createMonotonicCheckpoint } from '@pkgs/sync-engine-shared-ts/commit-checkpoint';
@@ -58,6 +59,7 @@ export type CreateSyncAppDeps = MutationLifecycle & {
    * `created_at`), handed to the mutation body as `env.contentRules`.
    */
   readonly turnGames?: TurnGames;
+  readonly rooms?: RoomServicePort;
   readonly contentRulesAt?: (atMs: number) => ContentRules;
   /** Host work after committed writes and their first invalidation publish. */
   readonly onCommitted?: (
@@ -112,6 +114,7 @@ export function createSyncApp(deps: CreateSyncAppDeps) {
       ? { authorize: productOnly(deps.authorizeMutation) }
       : {}),
     ...(deps.turnGames === undefined ? {} : { turnGames: deps.turnGames }),
+    ...(deps.rooms === undefined ? {} : { rooms: deps.rooms }),
     ...(deps.contentRulesAt !== undefined
       ? { contentRulesAt: deps.contentRulesAt }
       : {}),

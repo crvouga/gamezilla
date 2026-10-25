@@ -49,7 +49,7 @@ import { focusActor } from '@libs/harness-ts/shell-actions';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import { returnToOwnSpace } from '@libs/spaces-harness-ts/space-actions';
 import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
-import { gameOf } from './game-world';
+import { turnGameOf } from './game-world';
 import {
   boardBefore,
   currentPuzzle,
@@ -141,7 +141,7 @@ Then(
   "{actor} is prompted to find the next move for the solver's side",
   async (w, actor: Actor) => {
     await focusPuzzle(w, actor);
-    const side = gameOf(w).client.presentation.sideLabel(
+    const side = turnGameOf(w).client.presentation.sideLabel(
       requireTwoPlayerSide(puzzleOn(w, actor).solverSide)
     );
     const prompt = await w.s.read(readPuzzlePrompt, actor);

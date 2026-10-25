@@ -1,13 +1,14 @@
-import { TURN_GAMES } from '@libs/game-catalog-shared-ts/turn-games';
+import { GAME_AUTOMATIONS } from '@libs/game-catalog-shared-ts/game-automations';
 import { restartApp } from '@libs/harness-ts/actions';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { signedInAccountOf } from '@libs/harness-ts/identity';
 import { bringToFront } from '@libs/harness-ts/observations';
 import { readProfileUsernameShown } from '@libs/profile-harness-ts/profile-ui-reads';
+import { gameForPosition } from '@libs/synthetic-population-shared-ts/game-automation';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { openSyntheticGame, syntheticGameView } from './synthetic-game-actions';
-import { completePausedGame } from './synthetic-population-control-actions';
+import { completeSyntheticGame } from './synthetic-population-control-actions';
 import { givenSyntheticUser } from './synthetic-user-fixtures';
 
 export async function syntheticContinuity(s: ProductHarness) {
@@ -48,14 +49,14 @@ export const givenFinishedSyntheticGame = scenarioAction({
   name: 'givenFinishedSyntheticGame',
   act: async (s, name: string, game?: string) => {
     await Promise.resolve(givenSyntheticUser.act(s, name, true, game));
-    await Promise.resolve(completePausedGame.act(s));
+    await Promise.resolve(completeSyntheticGame.act(s));
     await pollUntil(
       s,
       async () => {
         const board = await syntheticGameView(s, 'cedar');
         return board.gameId !== null &&
           board.outcome !== null &&
-          board.outcome !== 'ongoing'
+          ['white', 'black', 'draw'].includes(board.outcome)
           ? board
           : null;
       },
@@ -91,14 +92,16 @@ export async function observeSyntheticContinuity(
           ? 'Browsing'
           : current.board.outcome === 'ongoing'
             ? 'Playing'
-            : 'Finished',
+            : ['white', 'black', 'draw'].includes(current.board.outcome ?? '')
+              ? 'Finished'
+              : 'Unavailable',
       value: [],
     },
     game:
       gameId === null
         ? ''
         : gameId === initial.board.gameId
-          ? `friday-${TURN_GAMES.forPosition(initial.board.position ?? '').id}`
+          ? `friday-${gameForPosition(GAME_AUTOMATIONS, initial.board.position ?? '').rules.id}`
           : gameId,
   };
 }

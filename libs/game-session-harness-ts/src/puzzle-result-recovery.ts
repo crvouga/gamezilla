@@ -24,7 +24,7 @@ import {
 } from '@pkgs/glicko2-shared-ts/glicko2';
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import sql from '@pkgs/sql-root-shared-ts/sql';
-import { harnessGameOf } from './harness-game-of';
+import { turnHarnessGameOf } from './harness-game-of';
 import { knownPuzzle, solveKnownPuzzle } from './puzzle-moves';
 import {
   readGameLogTitle,
@@ -144,7 +144,7 @@ export async function readPuzzleResultShown(
   gameId: string,
   puzzleId: string
 ): Promise<PuzzleResultShown> {
-  const { record } = knownPuzzle(harnessGameOf(s, gameId), puzzleId);
+  const { record } = knownPuzzle(turnHarnessGameOf(s, gameId), puzzleId);
   const title = await readGameLogTitle(s, device, puzzleId);
   const rating = await readStatsPuzzleRating(s, device);
   const { played } = await readStatsFigures(s, device);

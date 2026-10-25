@@ -8,7 +8,7 @@ import {
   identityOf,
   toldOf,
 } from './custom-game-set-up-world';
-import { gameOf, setupCustomGame } from './game-world';
+import { setupCustomGame, turnGameOf } from './game-world';
 
 const PEOPLE = ['alice', 'bob', 'carol', 'dave'] as const;
 
@@ -44,7 +44,7 @@ Given(
     setupCustomGame(w, {
       third: 'carol',
       fourth: 'dave',
-      moves: gameOf(w).fixtures.firstSideVictory.slice(0, 1),
+      moves: turnGameOf(w).fixtures.firstSideVictory.slice(0, 1),
     })
 );
 Given('Alice has offered a draw accepted by Bob and Carol', async (w) => {
@@ -63,13 +63,13 @@ Given(
       third: 'carol',
       fourth: 'dave',
       clock: { minutes: 1, increment: 0 },
-      moves: gameOf(w).fixtures.firstSideVictory.slice(0, 2),
+      moves: turnGameOf(w).fixtures.firstSideVictory.slice(0, 2),
     })
 );
 
 Then("the four sides follow the game's declared turn order", async (w) => {
   expect((await current(w)).sides).toEqual([
-    ...gameSides(gameOf(w).shared.turnGame.rules),
+    ...gameSides(turnGameOf(w).shared.turnGame.rules),
   ]);
   for (const [index, person] of PEOPLE.entries()) {
     const seen = await w.s.read(customGameView, person);

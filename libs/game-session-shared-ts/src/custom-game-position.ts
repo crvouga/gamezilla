@@ -1,9 +1,10 @@
 import {
-  type GameBots,
+  type GameBotChoices,
   gameSides,
   type TurnGames,
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { CustomGame } from './custom-game-state';
+import { simulationCommandKey } from './simulation-command-state';
 /** A retained position must describe exactly the accepted action sequence. */
 export function assertCustomGamePosition(
   game: CustomGame,
@@ -13,7 +14,21 @@ export function assertCustomGamePosition(
   if (JSON.stringify(game.sides) !== JSON.stringify(expected))
     throw new Error('The retained game roster does not match its rules');
   const actions = game.moves.map((move) => move.uci);
-  if (rules.forPosition(game.fen).replay(actions, actions.length) !== game.fen)
+  const turns = rules.turnsForPosition(game.fen);
+  if (turns === undefined) {
+    const simulation = rules.simulation(rules.forPosition(game.fen).id);
+    if (simulation === undefined || simulation.codec.decode(game.fen) === null)
+      throw new Error('The retained simulation position is invalid');
+    return;
+  }
+  const replayed = turns.replay(actions, actions.length);
+  const simulation = rules.simulation(turns.id);
+  const matches =
+    simulation?.commands === undefined
+      ? replayed === game.fen
+      : simulationCommandKey(simulation, replayed) ===
+        simulationCommandKey(simulation, game.fen);
+  if (!matches)
     throw new Error(
       'The retained game position does not match its action history'
     );
@@ -25,13 +40,18 @@ export function customGamePositionAt(
 ): string | null {
   assertCustomGamePosition(game, rules);
   if (!Number.isInteger(ply) || ply < 0 || ply > game.moves.length) return null;
-  return rules.forPosition(game.fen).replay(
+  const turns = rules.turnsForPosition(game.fen);
+  if (turns === undefined) return ply === 0 ? game.fen : null;
+  return turns.replay(
     game.moves.map((move) => move.uci),
     ply
   );
 }
 /** The bots of the custom game's own game. */
-export function customGameBots(game: CustomGame, rules: TurnGames): GameBots {
+export function customGameBots(
+  game: CustomGame,
+  rules: TurnGames
+): GameBotChoices {
   const customGames = rules.capability(
     rules.forPosition(game.fen).id,
     'custom-games'
@@ -46,10 +66,12 @@ export function customGameBotMove(
   rules: TurnGames,
   random: () => number
 ): string | null {
-  return customGameBots(game, rules).choose(
-    game.fen,
-    game.difficulty[game.turn],
-    random
+  return (
+    customGameBots(game, rules).choose?.(
+      game.fen,
+      game.difficulty[game.turn],
+      random
+    ) ?? null
   );
 }
 export function customGameLegalMoves(
@@ -57,6 +79,6 @@ export function customGameLegalMoves(
   rules: TurnGames
 ): readonly string[] {
   return game.status === 'active'
-    ? rules.forPosition(game.fen).legal(game.fen)
+    ? (rules.turnsForPosition(game.fen)?.legal(game.fen) ?? [])
     : [];
 }

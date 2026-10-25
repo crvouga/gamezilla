@@ -34,28 +34,28 @@ import { joinFromLink } from './space-gestures';
 
 const { Given, When, Then } = stepsFor<JourneyWorld>();
 
-When('they start a Custom Game against a bot', async (w) => {
+When('they start a custom game against a bot', async (w) => {
   await w.journey.act('startCustomGameAgainstBot', startCustomGameAgainstBot);
 });
-Then('their Custom Game board is ready for White', async (w) => {
+Then('their custom game board is ready for White', async (w) => {
   await w.journey.act('expectCustomGameReady', expectCustomGameReady);
 });
-When('they play e2-e4 in the Custom Game', async (w) => {
+When('they play e2-e4 in the custom game', async (w) => {
   await w.journey.act('playCustomGameE4', playCustomGameE4);
 });
 Then("a legal bot reply returns White's turn", async (w) => {
   await w.journey.act('expectCustomGameBotReply', expectCustomGameBotReply);
 });
-When('they resign the Custom Game', async (w) => {
+When('they resign the custom game', async (w) => {
   await w.journey.act('resignCustomGame', resignCustomGame);
 });
-Then('their Custom Game is completed by resignation', async (w) => {
+Then('their custom game is completed by resignation', async (w) => {
   await w.journey.act('expectCustomGameResigned', expectCustomGameResigned);
 });
-Given('they have a ready Custom Game against a bot', async (w) => {
+Given('they have a ready custom game against a bot', async (w) => {
   await w.journey.act('prepareCustomGame', prepareCustomGame);
 });
-When('they start the Custom Game', async (w) => {
+When('they start the custom game', async (w) => {
   await w.journey.act('startCustomGame', startCustomGame);
 });
 
@@ -90,7 +90,7 @@ Given(
   }
 );
 When(
-  '{actor} invites {actor} to Black in a new Custom Game',
+  '{actor} invites {actor} to Black in a new custom game',
   async (w, host: Actor) => {
     await journeyDevice(w.journey, host)('inviteToBlack', inviteToBlack);
   }
@@ -109,10 +109,10 @@ Then(
     );
   }
 );
-When('{actor} accepts Black in the Custom Game', async (w, actor: Actor) => {
+When('{actor} accepts Black in the custom game', async (w, actor: Actor) => {
   await journeyDevice(w.journey, actor)('acceptBlack', acceptBlack);
 });
-Then('Black is {actor} in the Custom Game', async (w, actor: Actor) => {
+Then('Black is {actor} in the custom game', async (w, actor: Actor) => {
   const name = await readWith(
     journeyDevice(w.journey, actor),
     'readOwnBlackName',
@@ -124,23 +124,23 @@ Then('Black is {actor} in the Custom Game', async (w, actor: Actor) => {
   );
 });
 When(
-  '{actor} and {actor} become ready for the Custom Game',
+  '{actor} and {actor} become ready for the custom game',
   async (w, first: Actor, second: Actor) => {
     await journeyDevice(w.journey, first)('becomeReady', becomeReady);
     await journeyDevice(w.journey, second)('becomeReady', becomeReady);
   }
 );
-Then('The Custom Game is startable', async (w) => {
+Then('The custom game is startable', async (w) => {
   await w.journey.act('expectStartable', expectStartable);
 });
 Given(
-  '{actor} and {actor} are ready for a Custom Game with {actor} as Black',
+  '{actor} and {actor} are ready for a custom game with {actor} as Black',
   async (w, _host: Actor, _guest: Actor, black: Actor) => {
     if (black !== 'bob') throw new Error('the journey seats Bob as Black');
     await prepareCustomGamePair(w.journey);
   }
 );
-When('{actor} starts the Custom Game', async (w, actor: Actor) => {
+When('{actor} starts the custom game', async (w, actor: Actor) => {
   await journeyDevice(w.journey, actor)('startReadyGame', startReadyGame);
 });
 Then("{actor}'s board faces {word}", async (w, actor: Actor, side: string) => {
@@ -149,11 +149,11 @@ Then("{actor}'s board faces {word}", async (w, actor: Actor, side: string) => {
     expectBoardFacing(side === 'Black' ? 'black' : 'white')
   );
 });
-When('{actor} plays e2-e4 in the Custom Game', async (w, actor: Actor) => {
+When('{actor} plays e2-e4 in the custom game', async (w, actor: Actor) => {
   await journeyDevice(w.journey, actor)('playCustomGameE4', playCustomGameE4);
 });
 Then(
-  '{actor} sees {word} in the Custom Game move list',
+  '{actor} sees {word} in the custom game move list',
   async (w, actor: Actor, san: string) => {
     await journeyDevice(w.journey, actor)(
       'expectMoveListed',
@@ -161,11 +161,11 @@ Then(
     );
   }
 );
-When('{actor} resigns the Custom Game', async (w, actor: Actor) => {
+When('{actor} resigns the custom game', async (w, actor: Actor) => {
   await journeyDevice(w.journey, actor)('resignCustomGame', resignCustomGame);
 });
 Then(
-  'both people see {actor} wins the Custom Game by resignation',
+  'both people see {actor} wins the custom game by resignation',
   async (w, winner: Actor) => {
     const outcome = expectOutcome(`${seatOf(winner)} wins by resignation.`);
     await w.journey.act('expectOutcome', outcome);

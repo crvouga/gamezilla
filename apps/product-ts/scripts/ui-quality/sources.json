@@ -37,7 +37,7 @@
   {
     "package": "@libs/games-harness-ts",
     "directory": "libs/games-harness-ts",
-    "parts": 95
+    "parts": 99
   },
   {
     "package": "@libs/numberlink-harness-ts",
@@ -45,8 +45,8 @@
     "parts": 1
   },
   {
-    "package": "@libs/sokoban-harness-ts",
-    "directory": "libs/sokoban-harness-ts",
+    "package": "@libs/pong-harness-ts",
+    "directory": "libs/pong-harness-ts",
     "parts": 1
   },
   {
@@ -63,6 +63,11 @@
     "package": "@libs/runtime-harness-ts",
     "directory": "libs/runtime-harness-ts",
     "parts": 15
+  },
+  {
+    "package": "@libs/sokoban-harness-ts",
+    "directory": "libs/sokoban-harness-ts",
+    "parts": 1
   },
   {
     "package": "@libs/synthetic-population-harness-ts",

@@ -3,11 +3,11 @@
  * writes it, from the framework's public game API alone
  * (`probe-imports.test.ts`): a board of one button per legal action, the
  * copy the shared screens show, and the automation that taps a button.
- * Each probe still makes its own `defineTurnGame` and `defineGameClient`.
+ * Each probe still makes its own `defineGame` and `defineGameClient`.
  */
 
 import type { GameClientPresentation } from '@libs/game-menu-client-ts/game-client';
-import type { TurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import type { TurnGame } from '@libs/game-session-shared-ts/game-definition';
 import type { GameRules, GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { For, type JSX } from 'solid-js';
 
@@ -42,7 +42,7 @@ export function buttonBoard(rules: GameRules) {
 }
 
 /** The first legal action, tapped on the board's button. */
-export function probeAutomation(rules: GameRules): TurnGame['automation'] {
+export function probeAutomation(rules: GameRules): TurnGame['turnAutomation'] {
   return {
     choose: (position) => rules.legal(position)[0] ?? null,
     async perform(ui, board, action) {

@@ -46,6 +46,14 @@ const evaluate = (
     minimumEventsPerHour,
   });
 
+function assertFastThreshold(bad1h: number, bad5m: number): void {
+  const result = evaluate(countsFor(10_000, { '1h': bad1h, '5m': bad5m }));
+  // At 99.9%, 10000 events allow 10 bad events; 14.4 times that is exactly 144.
+  // Count integers independently of the implementation's floating-point arithmetic.
+  const holds = (bad: number) => bad >= 144;
+  expect(result.state === 'firing').toBe(holds(bad1h) && holds(bad5m));
+}
+
 describe('the standard policies of an SLO', () => {
   test('are a fast and a slow page and a ticket, named after the SLO', () => {
     expect(bundle.policies.map((p) => p.name)).toEqual([
@@ -188,14 +196,15 @@ describe('judging a policy', () => {
       fc.property(
         fc.integer({ min: 0, max: 400 }),
         fc.integer({ min: 0, max: 400 }),
-        (bad1h, bad5m) => {
-          const result = evaluate(
-            countsFor(10_000, { '1h': bad1h, '5m': bad5m })
-          );
-          const holds = (bad: number) => bad / 10_000 / 0.001 >= 14.4;
-          expect(result.state === 'firing').toBe(holds(bad1h) && holds(bad5m));
-        }
+        assertFastThreshold
       )
     );
+  });
+
+  test('the property oracle agrees with the exact 144-event boundary in both windows', () => {
+    // regression: burn-rate-property-float-oracle
+    assertFastThreshold(144, 144);
+    assertFastThreshold(144, 143);
+    assertFastThreshold(143, 144);
   });
 });

@@ -13,16 +13,16 @@ import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe'
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import { cutConnection } from '@libs/harness-ts/platform';
 import { openConformanceHarness } from '../../conformance-world';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 
-forEveryGame(
+forEveryTurnGame(
   import.meta.path,
   (game) => {
     /** `actor` plays `action` with the board's own gesture, and nothing else. */
     const playOnBoard = scenarioAction({
       name: 'playOnBoard',
       act: async (s, actor: string, action: string) =>
-        game.shared.automation.perform(
+        game.shared.automation.turns.perform(
           await actorUi(s, actor),
           CUSTOM_GAME_BOARD,
           action

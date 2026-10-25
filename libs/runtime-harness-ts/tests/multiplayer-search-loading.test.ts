@@ -199,6 +199,9 @@ test('recovery setup can establish its unfinished game beyond the separate timed
   await prepareUnfinishedMultiplayerGame({
     runId: 'recovery-setup',
     now: async () => elapsed,
+    elapse: async (milliseconds) => {
+      elapsed += milliseconds;
+    },
     browser: null,
     showsPuzzleAnswers: false,
     open: async () => {},

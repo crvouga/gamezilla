@@ -279,11 +279,11 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     fetch: observedFetch,
   };
 
+  const rooms = createRoomService(env.ROOM);
   return await createServer(serverEnv, {
+    rooms,
     app: APP,
-    servers: composeSubServers(
-      appSubServers({ billing, rooms: createRoomService(env.ROOM) })
-    ),
+    servers: composeSubServers(appSubServers({ billing, rooms })),
   });
 }
 

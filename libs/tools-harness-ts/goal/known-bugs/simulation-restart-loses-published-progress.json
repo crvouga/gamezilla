@@ -1,0 +1,4 @@
+{
+  "summary": "Custom and matched authorities publish tick 6 between durable score boundaries but restore tick 0 after process loss. Keep one validated bounded recovery value before publication and restore through normal checkpoint validation with a new input generation.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-restart.contract.test.ts"
+}

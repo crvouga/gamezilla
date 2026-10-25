@@ -26,6 +26,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "paths": {
+      "@libs/pong-client-ts/*": ["./libs/pong-client-ts/src/*"],
+      "@libs/pong-shared-ts/*": ["./libs/pong-shared-ts/src/*"],
       "@apps/auth-relay-ts/*": ["./apps/auth-relay-ts/src/*"],
       "@apps/client-ts/*": ["./apps/client-ts/src/*"],
       "@apps/product-ts/*": ["./apps/product-ts/src/*"],

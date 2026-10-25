@@ -8,7 +8,7 @@
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
 import type { GameFixtures } from '@libs/game-session-harness-ts/harness-game';
 import { assertHarnessGame } from '@libs/game-session-harness-ts/harness-game';
-import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import type { TurnGameCapabilities } from '@pkgs/turn-game-shared-ts/game-rules';
 import { countRules, otherSide } from './count-rules';
 import { probeAutomation, probePresentation } from './probe-parts';
@@ -30,10 +30,10 @@ const CAPABILITIES = {
   },
 } satisfies TurnGameCapabilities;
 
-const SHARED = defineTurnGame({
+const SHARED = defineGame({
   rules: MISERE_TALLY_RULES,
   capabilities: CAPABILITIES,
-  automation: probeAutomation(MISERE_TALLY_RULES),
+  turnAutomation: probeAutomation(MISERE_TALLY_RULES),
 });
 
 /** The first side wins when the second is left to count from six to seven. */

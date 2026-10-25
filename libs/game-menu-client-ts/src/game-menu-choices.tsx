@@ -110,10 +110,9 @@ const PUZZLE_CHOICES: readonly GameChoiceItem[] = [
 
 function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
   const name = game.title;
-  // A puzzle-only game has no turn engine and so no places to fill.
-  const turnGame = game.shared.turnGame;
+  const registration = game.shared.registration;
   const playerCount =
-    turnGame === undefined ? 0 : gameSides(turnGame.rules).length;
+    registration === undefined ? 0 : gameSides(registration.rules).length;
   return [
     ...(game.puzzleContent === undefined
       ? []

@@ -1,0 +1,4 @@
+{
+  "summary": "The real 3+2 pairing announcement gives the opponent/rating, then a separate Time control sentence. The listener observer still required the former combined ', at 3+2' copy and failed every genuine turn-game pairing. Observe each spoken fact independently, keeping opponent, rating, clock and side assertions.",
+  "regressionTest": "specs/games/matched-game-accessibility.feature"
+}

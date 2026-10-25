@@ -9,7 +9,11 @@ import {
   gameSystem,
   openGameHarness,
 } from '@libs/game-session-harness-ts/game-system';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type {
+  HarnessGame,
+  TurnHarnessGame,
+} from '@libs/game-session-harness-ts/harness-game';
+import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import {
   requiredGames,
   SHARED_SPECIFICATION_KINDS,
@@ -36,6 +40,15 @@ export const CONFORMANCE_GAMES: readonly HarnessGame[] = [
  */
 export function gamesHeldTo(specUri: string): readonly HarnessGame[] {
   return specificationGames(specUri, CONFORMANCE_GAMES);
+}
+
+/** A turn-specific binding must refuse an incorrect plan rather than drop a game's obligation. */
+export function turnGamesHeldTo(specUri: string): readonly TurnHarnessGame[] {
+  return gamesHeldTo(specUri).map((game) => {
+    if (!isTurnHarnessGame(game))
+      throw new Error(`${specUri}: ${game.label} has no turn capability`);
+    return game;
+  });
 }
 
 const SHARED_SPECS = join(import.meta.dir, '../../../specs/games');
@@ -93,6 +106,16 @@ export function conformanceGameOf(
     (candidate) => candidate.shared.id === variant?.id
   );
   if (game === undefined) throw new Error(`${run}: no game for this run`);
+  return game;
+}
+
+export function turnConformanceGameOf(
+  variant: { readonly id: string } | undefined,
+  run: string
+): TurnHarnessGame {
+  const game = conformanceGameOf(variant, run);
+  if (!isTurnHarnessGame(game))
+    throw new Error(`${run}: ${game.label} has no turn capability`);
   return game;
 }
 

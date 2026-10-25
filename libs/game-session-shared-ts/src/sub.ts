@@ -4,10 +4,10 @@ import { multiplayerSpaceQuery } from '@libs/game-matchmaking-shared-ts/multipla
 import { MULTIPLAYER_TABLES } from '@libs/game-matchmaking-shared-ts/multiplayer-tables';
 import { MULTIPLAYER_TOPIC_MAP } from '@libs/game-matchmaking-shared-ts/topic-map';
 import { defineSub } from '@libs/sub-shared-ts/manifest';
-import type { RegisteredTurnGame } from '@pkgs/turn-game-shared-ts/game-rules';
+import type { RegisteredGame } from '@pkgs/turn-game-shared-ts/game-rules';
 import { GAME_SESSION_PRIVACY } from './account-privacy';
 /** No game is named here: composition roots supply their rules registrations. */
-export function createGameSessionSub(games: readonly RegisteredTurnGame[]) {
+export function createGameSessionSub(games: readonly RegisteredGame[]) {
   return defineSub({
     name: 'game-session',
     turnGames: games,

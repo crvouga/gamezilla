@@ -21,7 +21,7 @@ export function finishCustomGame(
     outcome,
     outcomeReason: reason,
     drawAcceptedBy: [],
-    endedAt: now,
+    endedAt: Math.floor(now),
     drawOfferedBy: '',
     declinedOffers: [],
     remaining: customGameRemaining(game, now),
@@ -49,7 +49,8 @@ export function customGameWinOrDraw(
   reason: 'resignation' | 'time' | 'away',
   rules: TurnGames
 ): CustomGame['outcome'] {
-  if (!rules.forPosition(game.fen).canWin(game.fen, winner)) return 'draw';
+  if (rules.turnsForPosition(game.fen)?.canWin(game.fen, winner) === false)
+    return 'draw';
   if (reason === 'away')
     return winner === 'white'
       ? 'white wins because black stayed away'
@@ -91,8 +92,10 @@ export function playCustomGameMove(
   rules: TurnGames
 ): CustomGame | null {
   if (game.status !== 'active') return null;
+  const turns = rules.turnsForPosition(game.fen);
+  if (turns === undefined) return null;
   assertCustomGamePosition(game, rules);
-  const move = rules.forPosition(game.fen).play(
+  const move = turns.play(
     game.fen,
     uci,
     '',
@@ -109,7 +112,7 @@ export function playCustomGameMove(
     declinedOffers: game.declinedOffers.filter(
       (person) => person !== game[game.turn].person
     ),
-    turnStartedAt: now,
+    turnStartedAt: Math.floor(now),
     remaining: {
       ...game.remaining,
       [game.turn]:
@@ -144,8 +147,8 @@ export function playCustomGameChoice(
         : {
             ...game,
             status: 'active',
-            startedAt: now,
-            turnStartedAt: now,
+            startedAt: Math.floor(now),
+            turnStartedAt: Math.floor(now),
             remaining: {
               white: game.minutes * 60_000,
               black: game.minutes * 60_000,

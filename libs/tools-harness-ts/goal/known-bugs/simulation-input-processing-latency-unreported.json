@@ -1,0 +1,4 @@
+{
+  "summary": "An input arriving at authority time seven applies at time seventeen before the next snapshot, but no ten-millisecond processing sample is emitted. Measure accepted ingress to successful input application with the authority clock; exclude rejected, superseded, failed-step and old-generation inputs.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-processing.contract.test.ts"
+}

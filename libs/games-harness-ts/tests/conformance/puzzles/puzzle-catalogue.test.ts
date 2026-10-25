@@ -18,6 +18,7 @@ import {
   insertNewCatalogueRows,
 } from '@libs/game-puzzle-shared-ts/puzzle-catalogue';
 import { PUZZLE_TABLES } from '@libs/game-puzzle-shared-ts/puzzle-tables';
+import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { CASE_NOW_MS } from '@libs/permissions-shared-ts/people';
 import {
   mutationEnvFor,
@@ -29,14 +30,14 @@ import type { QueryRow } from '@pkgs/sync-engine-shared-ts/v2';
 import type { PuzzleRecord } from '@pkgs/turn-game-shared-ts/game-puzzles';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { CONFORMANCE_GAMES } from '../../conformance-world';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 import { puzzleCase } from './puzzle-room';
 
 const GAMES = createTurnGames(
-  CONFORMANCE_GAMES.map((game) => game.shared.turnGame)
+  CONFORMANCE_GAMES.map((game) => game.shared.registration)
 );
 
-const ALL_KNOWN = CONFORMANCE_GAMES.flatMap((game) =>
+const ALL_KNOWN = CONFORMANCE_GAMES.filter(isTurnHarnessGame).flatMap((game) =>
   (game.fixtures.puzzles ?? []).map((fixture) => fixture.record)
 );
 
@@ -81,7 +82,7 @@ async function idsOf(
   return (tables['chess_puzzles'] ?? []).map((row) => String(row['id'])).sort();
 }
 
-forEveryGame(import.meta.path, (game) => {
+forEveryTurnGame(import.meta.path, (game) => {
   const { known, puzzles } = puzzleCase(game);
   const own = known.map((fixture) => fixture.record.id).sort();
   const namespace = puzzles.namespace;

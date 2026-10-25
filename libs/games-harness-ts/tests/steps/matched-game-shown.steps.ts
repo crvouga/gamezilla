@@ -29,7 +29,7 @@ import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import { nameEveryoneSeesOf } from '@libs/profile-harness-ts/profile-ui-reads';
-import { gameOf } from './game-world';
+import { gameOf, turnGameOf } from './game-world';
 import { firstMoveOf, readyPeople, victoryMoveAt } from './matched-game';
 import { deviceOffline, keepsLastKnownBoard } from './matched-game-connection';
 
@@ -60,7 +60,7 @@ export async function seesVictoryMoves(
   count: number
 ) {
   const device = viewerOf(w, person);
-  const wanted = gameOf(w).fixtures.firstSideVictoryLabels.slice(0, count);
+  const wanted = turnGameOf(w).fixtures.firstSideVictoryLabels.slice(0, count);
   await openOn(w, device);
   await w.s.until((s) => shownMoveLabels(s, device), {
     pred: (shown) => JSON.stringify(shown) === JSON.stringify(wanted),

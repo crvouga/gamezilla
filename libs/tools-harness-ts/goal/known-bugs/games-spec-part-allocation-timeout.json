@@ -1,0 +1,4 @@
+{
+  "summary": "Planning libs/games-harness-ts at every count below its declared part count reread and weighed the same sources and recomputed the entire allocation once per selected part. The minimum-part contract exceeded its existing five-second budget under parallel verification. Prepare immutable sources once and allocate all parts once per count, preserving every unit and capacity assertion.",
+  "regressionTest": "libs/harness-ts/scripts/spec-parts.test.ts"
+}

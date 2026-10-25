@@ -9,9 +9,9 @@
  */
 
 import { afterEach, expect, test } from 'bun:test';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import type { SolidDomDriver } from '@pkgs/ui-testing-solid-dom-client-ts/solid-dom-driver';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 import type { MountedBoardProps } from './puzzle-board-mount';
 import {
   PUZZLE_BOARD as BOARD,
@@ -29,7 +29,7 @@ afterEach(async () => {
 
 /** `game`'s puzzle board mounted alone, reporting its moves to `played`. */
 async function mount(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   props: MountedBoardProps,
   played: string[] = []
 ): Promise<SolidDomDriver> {
@@ -41,13 +41,13 @@ async function mount(
 
 /** The board's markup for `props`. */
 async function drawn(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   props: MountedBoardProps
 ): Promise<string> {
   return (await (await mount(game, props)).snapshotHtml()) ?? '';
 }
 
-forEveryGame(import.meta.path, (game) => {
+forEveryTurnGame(import.meta.path, (game) => {
   const c = puzzleCase(game);
   const { layout } = c;
 
@@ -61,7 +61,7 @@ forEveryGame(import.meta.path, (game) => {
           { position: trail[layout.start + layout.solverStep * index] ?? '' },
           played
         );
-        await game.shared.automation.perform(driver, BOARD, action);
+        await game.shared.automation.turns.perform(driver, BOARD, action);
         expect({ id: fixture.record.id, played }).toEqual({
           id: fixture.record.id,
           played: [action],
@@ -102,7 +102,7 @@ forEveryGame(import.meta.path, (game) => {
       },
       played
     );
-    await game.shared.automation
+    await game.shared.automation.turns
       .perform(driver, BOARD, fixture.solution[0] ?? '')
       .catch(() => undefined);
     expect(played).toEqual([]);

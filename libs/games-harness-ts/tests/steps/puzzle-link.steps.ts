@@ -22,7 +22,7 @@ import { Given, Then, When } from '@libs/harness-ts/define';
 import type { Actor } from '@libs/harness-ts/parameter-types';
 import { focusActor } from '@libs/harness-ts/shell-actions';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
-import { gameOf } from './game-world';
+import { turnGameOf } from './game-world';
 import {
   ensureOnPuzzle,
   focusPuzzle,
@@ -56,7 +56,7 @@ async function untilKnownPuzzleOnBoard(
   w: HarnessWorld,
   actor: Actor
 ): Promise<void> {
-  const known = theKnownPuzzle(gameOf(w)).record.id;
+  const known = theKnownPuzzle(turnGameOf(w)).record.id;
   await w.s.apply(focusActor, actor);
   await w.s.until((surf) => readPuzzleOnBoard(surf, actor), {
     maxMs: SETTLE_MS,
@@ -90,7 +90,7 @@ Given(
     await w.s.apply(
       openPuzzleLink,
       actor,
-      puzzleLinkTo(theKnownPuzzle(gameOf(w)).record.id)
+      puzzleLinkTo(theKnownPuzzle(turnGameOf(w)).record.id)
     );
     await untilKnownPuzzleOnBoard(w, actor);
     w.memo.set(sharedLinkKey(actor), await share(w, actor));
@@ -173,7 +173,7 @@ Given(
       await w.s.read(
         hasPlayedPuzzle,
         actor,
-        theKnownPuzzle(gameOf(w)).record.id
+        theKnownPuzzle(turnGameOf(w)).record.id
       )
     ).toBe(false);
   }

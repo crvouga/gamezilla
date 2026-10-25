@@ -15,7 +15,7 @@ import { Then, When } from '@libs/harness-ts/define';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import { refusedCustomGameMove } from './custom-game-play-world';
 import { toldOf } from './custom-game-set-up-world';
-import { gameOf } from './game-world';
+import { gameOf, turnGameOf } from './game-world';
 import {
   actOnOtherDevice,
   firstMoveOf,
@@ -54,7 +54,7 @@ When('{actor} makes his/her first move', async (w, actor: string) => {
   await move(w, actor, firstMoveOf(w, actor));
 });
 When(
-  '{actor} makes her first move again on her other device',
+  '{actor} repeats her first move from her other device',
   async (w, actor: string) => {
     const device = await otherDeviceWithGame(w, actor);
     await move(w, device, firstMoveOf(w, actor), 0);
@@ -63,7 +63,7 @@ When(
 When(
   '{actor} makes a different first move on her other device still showing the starting board',
   async (w, actor: string) => {
-    const rules = gameOf(w).shared.turnGame.rules;
+    const rules = turnGameOf(w).shared.turnGame.rules;
     const different = rules
       .legal(rules.initial())
       .find((candidate) => candidate !== firstMoveOf(w, actor));
@@ -83,7 +83,7 @@ Then(
   async (w, _actor: string) => {
     const game = await bothBoards(w, (g) => g.revision === 1);
     expect(game.revision).toBe(1);
-    expect(game.fen).not.toBe(gameOf(w).shared.turnGame.rules.initial());
+    expect(game.fen).not.toBe(gameOf(w).shared.registration.rules.initial());
   }
 );
 Then('both people (still )see the one move played', (w) => bothSeeMoves(w, 1));

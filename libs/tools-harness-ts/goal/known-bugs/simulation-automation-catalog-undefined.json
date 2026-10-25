@@ -1,0 +1,4 @@
+{
+  "summary": "Adding Pong without a discrete-turn adapter left an undefined element in GAME_AUTOMATIONS and crashed synthetic game selection. The catalog must contain every actual registered adapter and no missing adapter placeholders.",
+  "regressionTest": "libs/game-catalog-shared-ts/tests/game-automations.test.ts"
+}

@@ -6,10 +6,12 @@ import {
   gameRoomModule,
   readTally,
 } from '@pkgs/room-root-harness-ts/game-room';
+import type { RoomServiceReceipt } from '@pkgs/room-root-shared-ts/room-service';
 import type { RoomState } from '@pkgs/room-root-shared-ts/types';
 
 // regression: localhost-room-service-upgrade
 test('private service commands use the same authoritative room as sockets and deduplicate delivery', async () => {
+  // regression: room-host-service-tests-stale-send-status
   const { clock, timers } = createHarnessClock();
   let id = 0;
   const wakes: Promise<void>[] = [];
@@ -55,8 +57,14 @@ test('private service commands use the same authoritative room as sockets and de
       commandId: 'space-membership:f68cf97c-c006-4e9f-84ee-0fa7698180ea',
       payload: AddOne({}),
     };
-    expect((await call(input)).status).toBe(204);
-    expect((await call(input)).status).toBe(204);
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const response = await call(input);
+      expect(response.status).toBe(200);
+      const receipt = (await response.json()) as RoomServiceReceipt;
+      expect(receipt.ok).toBe(true);
+      if (!receipt.ok) throw new Error('The private room command was refused');
+      expect(readTally(receipt.state)).toBe(1);
+    }
     const state = (await (
       await call({ operation: 'read' })
     ).json()) as RoomState;

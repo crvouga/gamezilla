@@ -73,9 +73,13 @@ export function playMultiplayerMove(
       'Only matched people can play.'
     );
   const action = recordedAction(game, input.uci, input.setups ?? null, rules);
-  const played = rules
-    .forPosition(game.fen)
-    .play(game.fen, action, game.pgn, []);
+  const turns = rules.turnsForPosition(game.fen);
+  if (turns === undefined)
+    throw new MutationError(
+      'GAME_CONTINUOUS_CONTROLS',
+      'Use the game controls to play this game.'
+    );
+  const played = turns.play(game.fen, action, game.pgn, []);
   if (played === null)
     throw new MutationError(
       'CHESS_ILLEGAL_MOVE',

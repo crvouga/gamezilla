@@ -1,0 +1,4 @@
+{
+  "summary": "The room host detached a live session's receive method before invoking it. A valid version-one snapshot request then lost its class instance and could never return authoritative state. Invoke the method through the owned session and exercise the actual room-client snapshot round trip.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-session.contract.test.ts"
+}

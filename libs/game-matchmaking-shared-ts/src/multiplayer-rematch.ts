@@ -19,6 +19,7 @@ import {
   multiplayerSides,
   multiplayerVotes,
 } from './multiplayer-roster';
+import { synchronizeLiveMatchMutation } from './synchronize-live-match-mutation';
 
 export type RematchAnswer = 'offer' | 'accept' | 'decline';
 
@@ -119,6 +120,13 @@ async function startRematch(
       rematchOf: game.id,
       nowMs,
       createId: ctx.env.createId,
+      ...(rules.forPosition(game.fen).configuration === undefined
+        ? {}
+        : {
+            initialPosition: rules
+              .forPosition(game.fen)
+              .configuration!.restart(game.fen),
+          }),
     },
     rules
   );
@@ -162,14 +170,30 @@ async function decideRematch(
 /** Offer, accept or decline a rematch of the person's finished game. */
 export async function answerRematch(
   ctx: MutationCtx,
-  args: { readonly gameId: string; readonly answer: RematchAnswer }
+  args: {
+    readonly gameId: string;
+    readonly requestId: string;
+    readonly answer: RematchAnswer;
+  }
 ): Promise<void> {
   await requireInMutation(ctx, PERMISSION.gameMultiplayerPlay);
   const serverNow = ctx.env.serverNow;
   if (serverNow === undefined) return;
   const nowMs = serverNow().getTime();
   const repository = new MultiplayerGameRepository(ctx.tx);
-  const game = await repository.owned(args.gameId, ctx.env.actorId, nowMs);
+  let game = await repository.owned(args.gameId, ctx.env.actorId, nowMs);
+  if (
+    game.outcome === 'ongoing' &&
+    requireTurnGames(ctx.env).simulation(
+      requireTurnGames(ctx.env).forPosition(game.fen).id
+    ) !== undefined
+  ) {
+    await synchronizeLiveMatchMutation.run(ctx, {
+      gameId: game.id,
+      requestId: `rematch:${args.requestId}`,
+    });
+    game = await repository.owned(args.gameId, ctx.env.actorId, nowMs);
+  }
   const next = await decideRematch(ctx, game, args.answer, nowMs);
   await repository.save(game, next, nowMs, { server: true, publish: ctx.env });
 }

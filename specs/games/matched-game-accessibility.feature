@@ -33,6 +33,7 @@ Feature: Matched games with the keyboard alone and by listening
   Rule: A listener hears who they were paired with, the matched game, both clocks, offers and the result
     No counter-example: descriptions and announcements are always there for a listener.
 
+    @regression:matched-accessibility-clock-copy-prefix
     Scenario: A listener hears who they were paired with
       Given Alice is listening to the app while seeking an opponent for the game at 3+2
       And Bob is seeking an opponent for the game at 3+2

@@ -6,9 +6,9 @@
 import { test } from 'bun:test';
 import { gameRulesLaws } from '@libs/game-session-harness-ts/game-rules-laws';
 import { CONFORMANCE_GAMES } from '../../conformance-world';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 
-forEveryGame(import.meta.path, (game) => {
+forEveryTurnGame(import.meta.path, (game) => {
   const others = CONFORMANCE_GAMES.filter((other) => other !== game);
   for (const law of gameRulesLaws(game, others))
     test(law.name, law.check, 60_000);

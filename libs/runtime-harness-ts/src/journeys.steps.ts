@@ -10,6 +10,7 @@ import './game-journey.steps';
 import './multiplayer-journey.steps';
 import './numberlink-journey.steps';
 import './sokoban-journey.steps';
+import './pong-journey.steps';
 
 import { hostLimit, stepsFor } from '@pkgs/gherkin-shared-ts/registry';
 import {

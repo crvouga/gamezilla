@@ -19,7 +19,9 @@ import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { createSignal, onCleanup } from 'solid-js';
 import { confirmCustomGameChoice } from './confirm-custom-game-choice';
 
-export function useCustomGameCommand() {
+export function useCustomGameCommand(
+  chooseLocal?: (choice: CustomGameChoice) => Promise<void> | null
+) {
   const rooms = useSpaceOpenRooms();
   const spaceId = useSpaceRoomSessionId();
   const timers = useTimers();
@@ -77,6 +79,7 @@ export function useCustomGameCommand() {
           canHost: canHost(),
           pending,
           rules,
+          ...(chooseLocal === undefined ? {} : { chooseLocal }),
           onWaiting: () => setWaiting(true),
         },
         choice

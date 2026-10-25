@@ -50,7 +50,8 @@ const RULES = createTurnGames([
     rules: hidden,
     capabilities: {
       matchmaking: {
-        clockNamespace: 'hidden/',
+        clockChoices: true as const,
+        namespace: 'hidden/',
         notice: {
           timeoutDraw: () => '',
           side: String,

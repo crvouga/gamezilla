@@ -5,11 +5,12 @@
  * before the feed was limited and the one limiting brought.
  */
 import { expect, test } from 'bun:test';
+import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { CONFORMANCE_GAMES } from './conformance-world';
 import { themePool } from './steps/theme-pool';
 
-const PUZZLE_GAMES = CONFORMANCE_GAMES.filter(
-  (game) => game.shared.turnGame.capabilities.puzzles !== undefined
+const PUZZLE_GAMES = CONFORMANCE_GAMES.filter(isTurnHarnessGame).filter(
+  (game) => game.shared.registration.capabilities.puzzles !== undefined
 );
 
 // regression: puzzle-theme-pool-exhausted-by-first-pick

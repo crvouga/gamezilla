@@ -1,0 +1,4 @@
+{
+  "summary": "The ending observer read the actual own-seat label aliceYou play Left, whose adjacent text nodes have no inserted space. A word-boundary regex missed Alice even though her rendered result correctly said she won. Read the displayed name prefix and keep the same result assertions.",
+  "regressionTest": "libs/games-harness-ts/tests/quint/matched-game-ending.binding.ts"
+}

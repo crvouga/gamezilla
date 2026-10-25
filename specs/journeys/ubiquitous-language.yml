@@ -78,9 +78,9 @@ terms:
     from: chess
   - term: multiplayer result
     from: chess
-  - term: Custom Game
+  - term: custom game
     from: chess
-  - term: Custom Game move list
+  - term: custom game move list
     from: chess
 
   - term: Connect Four
@@ -119,5 +119,15 @@ terms:
     from: quoridor
   - term: Four-Player King of the Hill
     from: quoridor
+  - term: Pong
+    from: pong
+  - term: paddle
+    from: pong
+  - term: score
+    from: pong
+  - term: target score
+    from: pong
+  - term: rematch
+    from: games
   - term: bot
     from: games

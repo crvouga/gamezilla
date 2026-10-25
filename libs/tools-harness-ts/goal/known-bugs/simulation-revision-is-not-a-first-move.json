@@ -1,0 +1,4 @@
+{
+  "summary": "Matched Pong offered resignation during its initial countdown because authoritative room revisions were treated as two first moves. Games without turns must use the actual execution.started marker for abort and resign choices, including before their first serve.",
+  "regressionTest": "libs/games-harness-ts/tests/quint/matched-game-ending.binding.ts"
+}

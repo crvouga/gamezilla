@@ -1,0 +1,4 @@
+{
+  "summary": "A 60 Hz authoritative simulation completed at 1049.999999999999 milliseconds. The custom-game endedAt timestamp requires integral milliseconds, so the terminal event was refused and the match stayed active. Round the persisted completion timestamp while retaining fractional simulation time.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-session.contract.test.ts"
+}

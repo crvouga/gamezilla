@@ -1,4 +1,5 @@
 import type { PuzzlesCapability } from './game-puzzles';
+import type { RegisteredSimulation } from './game-simulation';
 
 /** Stable opaque seat tokens retained for durable records; visual identity comes from presentation. */
 export const GAME_SIDES = ['white', 'black', 'red', 'blue'] as const;
@@ -74,11 +75,23 @@ export type PrivateSetupRules = {
  * platform never parses; `recognizes` must accept only this game's
  * positions, so a position always names exactly one game.
  */
-export type GameRules = {
+export type GamePositionRules = {
+  readonly id: string;
   /** Package ownership shared by modes of one game; omitted when it is this rule set's id. */
   readonly family?: string;
   /** Ordered seats; omitted by games using the standard two seats. */
   readonly sides?: readonly GameSide[];
+  readonly recognizes: (position: string) => boolean;
+  readonly initial: () => string;
+  readonly setup?: PrivateSetupRules;
+  /** Optional game-specific choices, applied before play and preserved by a rematch. */
+  readonly configuration?: {
+    readonly apply: (position: string, choice: string) => string | null;
+    readonly restart: (position: string) => string;
+  };
+};
+
+export type GameRules = GamePositionRules & {
   /**
    * Present for a game whose sides prepare private setups before play; its
    * `legal` actions are proposals and the rest take resolved public actions.
@@ -143,35 +156,51 @@ export function assertGameSides(rules: Pick<GameRules, 'id' | 'sides'>): void {
 }
 
 export type GameNoticeText = {
-  readonly timeoutDraw: (flagged: GameSide) => string;
+  readonly timeoutDraw?: (flagged: GameSide) => string;
   readonly side: (side: GameSide) => string;
   readonly ending: (reason: string) => string | undefined;
 };
 /** A bot for each side of a custom game; it only ever chooses among `legal`. */
-export type GameBots = {
+export type GameBotChoices = {
   /** Strengths people choose between; empty when the game has one bot. */
   readonly difficulties: readonly BotDifficulty[];
-  readonly choose: (
+  readonly choose?: (
     position: string,
     difficulty: BotDifficulty,
     random: () => number
   ) => string | null;
 };
+export type GameBots = GameBotChoices & {
+  readonly choose: NonNullable<GameBotChoices['choose']>;
+};
 /**
  * Custom games in a space: sides, people and bots, invitations, clocks,
  * resignation, draws, rematches and offline solo play.
  */
-export type CustomGamesCapability = { readonly bots: GameBots };
+export type CustomGamesCapability = {
+  readonly bots: GameBotChoices;
+  /** Two independently controlled seats on the creator's device. */
+  readonly localPlayers?: true;
+};
 /**
- * Finding an opponent at a clock choice: matched games, ratings per speed,
+ * Finding an opponent: matched games, ratings per game or speed,
  * turn and result notices, rematches and the multiplayer link.
  */
 export type MatchmakingCapability = {
-  /** Namespace of the game's clock choices, searches and ratings (`<id>/`). */
-  readonly clockNamespace: string;
+  /** Namespace of the game's match choices, searches and ratings (`<id>/`). */
+  readonly namespace: string;
   /** Notice copy the server sends without the client's translations. */
   readonly notice: GameNoticeText;
-};
+} & (
+  | { readonly clockChoices?: never }
+  | {
+      /** Opt in to turn-clock choices; absent means a single choice without a clock. */
+      readonly clockChoices: true;
+      readonly notice: GameNoticeText & {
+        readonly timeoutDraw: (flagged: GameSide) => string;
+      };
+    }
+);
 /** History, statistics and review of finished games, and their export. */
 export type HistoryCapability = {
   /** The game's portable record of a finished game (the downloaded file). */
@@ -217,8 +246,9 @@ export const GAME_CAPABILITIES = [
 export const CAPABILITY_REQUIRES: Readonly<
   Partial<Record<GameCapability, readonly GameCapability[]>>
 > = { matchmaking: ['history'] };
-export type RegisteredTurnGame = {
-  readonly rules: GameRules;
+export type RegisteredGame = {
+  readonly rules: GamePositionRules;
+  readonly simulation?: RegisteredSimulation;
   readonly capabilities: TurnGameCapabilities;
   /**
    * The one game whose stored clock choices, searches, ratings and puzzles
@@ -227,20 +257,30 @@ export type RegisteredTurnGame = {
    */
   readonly unprefixedNamespace?: true;
 };
+/** A registered turn capability remains independent of optional simulation. */
+export type RegisteredTurnGame = RegisteredGame & { readonly rules: GameRules };
+
+export function isTurnRules(rules: GamePositionRules): rules is GameRules {
+  return ['play', 'replay', 'legal', 'canWin', 'moves'].every(
+    (key) => key in rules && typeof Reflect.get(rules, key) === 'function'
+  );
+}
 /** The capabilities `game` offers, in the platform's order. */
 export function offeredCapabilities(
-  game: RegisteredTurnGame
+  game: RegisteredGame
 ): readonly GameCapability[] {
   return GAME_CAPABILITIES.filter(
     (capability) => game.capabilities[capability] !== undefined
   );
 }
 export type TurnGames = {
-  readonly games: readonly RegisteredTurnGame[];
-  readonly forPosition: (position: string) => GameRules;
-  readonly byId: (id: string) => GameRules;
+  readonly games: readonly RegisteredGame[];
+  readonly forPosition: (position: string) => GamePositionRules;
+  readonly byId: (id: string) => GamePositionRules;
+  readonly turnsForPosition: (position: string) => GameRules | undefined;
+  readonly simulation: (id: string) => RegisteredSimulation | undefined;
   /** The matchmaking game whose clock namespace `control` is in. */
-  readonly forControl: (control: string) => GameRules;
+  readonly forControl: (control: string) => GamePositionRules;
   /** Whether the registered game `id` offers `capability`. */
   readonly offers: (id: string, capability: GameCapability) => boolean;
   /** What the registered game `id` supplies for `capability`, if it offers it. */
@@ -255,7 +295,7 @@ export type TurnGames = {
  * other game, the proposal itself.
  */
 export function publicAction(
-  rules: GameRules,
+  rules: GamePositionRules,
   position: string,
   proposal: string,
   setups: GameSetups | null
@@ -269,13 +309,27 @@ export function publicAction(
 }
 
 /** Fail when a game offers a capability without what it needs beside it. */
-function assertRequirements(game: RegisteredTurnGame): void {
+function assertRequirements(game: RegisteredGame): void {
   if (
     gameSides(game.rules).length > 2 &&
     (game.rules.setup !== undefined || game.capabilities.puzzles !== undefined)
   )
     throw new Error(
       `${game.rules.id}: private setups and puzzles require two declared seats`
+    );
+  if (game.capabilities.puzzles !== undefined && !isTurnRules(game.rules))
+    throw new Error(`${game.rules.id}: puzzles require turn rules`);
+  if (!isTurnRules(game.rules) && game.simulation === undefined)
+    throw new Error(
+      `${game.rules.id}: supply turn rules or a simulation capability`
+    );
+  if (
+    isTurnRules(game.rules) &&
+    game.simulation !== undefined &&
+    game.simulation.commands === undefined
+  )
+    throw new Error(
+      `${game.rules.id}: combining turn rules and simulation requires command rebasing`
     );
   if (game.rules.setup !== undefined && game.capabilities.puzzles !== undefined)
     throw new Error(
@@ -295,19 +349,18 @@ function assertRequirements(game: RegisteredTurnGame): void {
 /** The namespaces a game's capabilities claim, by what each names. */
 const NAMESPACES = [
   {
-    of: 'clock',
-    read: (game: RegisteredTurnGame) =>
-      game.capabilities.matchmaking?.clockNamespace,
+    of: 'matchmaking',
+    read: (game: RegisteredGame) => game.capabilities.matchmaking?.namespace,
   },
   {
     of: 'puzzle',
-    read: (game: RegisteredTurnGame) => game.capabilities.puzzles?.namespace,
+    read: (game: RegisteredGame) => game.capabilities.puzzles?.namespace,
   },
 ] as const;
 
 /** The `kind` namespace `game` may use. */
 function assertNamespace(
-  game: RegisteredTurnGame,
+  game: RegisteredGame,
   kind: string,
   namespace: string
 ) {
@@ -321,7 +374,7 @@ function assertNamespace(
 }
 
 /** Fail when the registered games cannot be told apart by id, position or namespace. */
-function assertDistinct(games: readonly RegisteredTurnGame[]): void {
+function assertDistinct(games: readonly RegisteredGame[]): void {
   if (new Set(games.map((g) => g.rules.id)).size !== games.length)
     throw new Error('Duplicate game rules');
   for (const game of games) {
@@ -351,11 +404,9 @@ function assertDistinct(games: readonly RegisteredTurnGame[]): void {
       );
   }
 }
-export function createTurnGames(
-  games: readonly RegisteredTurnGame[]
-): TurnGames {
+export function createTurnGames(games: readonly RegisteredGame[]): TurnGames {
   assertDistinct(games);
-  const one = (matches: readonly GameRules[]): GameRules => {
+  const one = (matches: readonly GamePositionRules[]): GamePositionRules => {
     if (matches.length !== 1)
       throw new Error('Unknown or ambiguous game rules');
     return matches[0]!;
@@ -363,6 +414,15 @@ export function createTurnGames(
   const registered = (id: string) => games.find((game) => game.rules.id === id);
   return {
     games,
+    turnsForPosition: (position) => {
+      const rules = one(
+        games
+          .filter((game) => game.rules.recognizes(position))
+          .map((game) => game.rules)
+      );
+      return isTurnRules(rules) ? rules : undefined;
+    },
+    simulation: (id) => registered(id)?.simulation,
     offers: (id, capability) =>
       registered(id)?.capabilities[capability] !== undefined,
     capability: (id, capability) => registered(id)?.capabilities[capability],
@@ -378,9 +438,7 @@ export function createTurnGames(
         : '';
       return one(
         games
-          .filter(
-            (g) => g.capabilities.matchmaking?.clockNamespace === namespace
-          )
+          .filter((g) => g.capabilities.matchmaking?.namespace === namespace)
           .map((g) => g.rules)
       );
     },

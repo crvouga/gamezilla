@@ -4,7 +4,7 @@ import {
   type PuzzleReviewBoardModel,
   usePuzzleReviewBoard,
 } from '@libs/game-puzzle-client-ts/use-puzzle-review-board';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { TurnGamesProvider } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { createComponent, createRoot, createSignal } from 'solid-js';
@@ -12,7 +12,7 @@ import { COUNTING_RACE_GAME } from '../reference-game/counting-race-game';
 import { SOLO_COUNT_GAME } from './solo-count-game';
 
 type ReviewCase = {
-  readonly game: HarnessGame;
+  readonly game: TurnHarnessGame;
   readonly position: string;
   readonly moves: string;
   readonly lineMode: 'solver-only' | 'opponent-replies';

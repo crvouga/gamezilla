@@ -10,7 +10,7 @@ function refusal(reason: string) {
 }
 
 Then(
-  '{actor} is told the Custom Game has already started',
+  '{actor} is told the custom game has already started',
   refusal('already started')
 );
 Then('{actor} is told the move is illegal', refusal('move is illegal'));

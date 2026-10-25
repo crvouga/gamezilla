@@ -36,6 +36,8 @@ type ConfirmationArgs = {
   pending: Set<() => void>;
   /** The registered games: a game with private setups never chooses on the device. */
   rules: TurnGames;
+  /** The screen's live owner records current progress before a local choice. */
+  chooseLocal?: (choice: CustomGameChoice) => Promise<void> | null;
   /** Told when the choice waits for the connection before it is sent. */
   onWaiting?: () => void;
 };
@@ -54,8 +56,10 @@ function confirmLocalChoice(
       args.rules
     )
   ) {
+    const simulated = args.chooseLocal?.(choice);
+    if (simulated != null) return simulated;
     const id = room.dispatch(
-      ChangeLocalCustomGame({ choice, at: args.clock.now() })
+      ChangeLocalCustomGame({ choice, at: Math.floor(args.clock.now()) })
     );
     if (id === null)
       return Promise.reject(

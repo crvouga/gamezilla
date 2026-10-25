@@ -36,6 +36,7 @@ test('destroying a room during admission prevents a late connection', async () =
     clientId: 'alice-tab',
     apiUrl: 'https://app.example',
     getSessionToken: () => null,
+    clock,
     timers,
     random: () => 0.5,
   });

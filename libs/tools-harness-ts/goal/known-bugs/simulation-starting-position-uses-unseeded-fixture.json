@@ -1,0 +1,4 @@
+{
+  "summary": "Pong game 02ef41f0-b6e9-4c3e-86f9-d762b0ea8aba starts serving right from the middle at 0–0. The shared creation observer demanded the unseeded left-serve opening. Use the actual session seed while retaining exact initial-state validation and the ordinary turn-game initializer.",
+  "regressionTest": "libs/games-harness-ts/tests/seeded-opening.test.ts"
+}

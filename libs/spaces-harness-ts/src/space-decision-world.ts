@@ -153,6 +153,7 @@ export const chooseGame: ServerOperation = async (c) => {
       payload: SelectGame({ game: null }),
       commandId: 'choose-no-game',
       nowMs: c.nowMs,
+      clock,
       timers,
     });
     if (answer.kind === 'rejected') {

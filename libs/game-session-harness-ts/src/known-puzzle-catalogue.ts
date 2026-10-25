@@ -10,7 +10,7 @@ import {
 } from '@libs/game-puzzle-shared-ts/puzzle-catalogue';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
-import type { HarnessGame } from './harness-game';
+import type { TurnHarnessGame } from './harness-game';
 
 /** When the known puzzles entered the catalogue: fixed, so seeds are stable. */
 const SEEDED_AT = new Date(1_700_000_000_000).toISOString();
@@ -19,7 +19,7 @@ const SEEDED_AT = new Date(1_700_000_000_000).toISOString();
 export async function seedKnownPuzzles(
   sqlClient: SqlClient,
   turnGames: TurnGames,
-  games: readonly HarnessGame[]
+  games: readonly TurnHarnessGame[]
 ): Promise<void> {
   const rows = games.flatMap((game) =>
     (game.fixtures.puzzles ?? []).map((fixture) => {

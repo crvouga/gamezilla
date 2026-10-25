@@ -13,7 +13,7 @@ import type { GameRules } from '@pkgs/turn-game-shared-ts/game-rules';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { GameLaw } from './game-rules-laws';
 import { law, must } from './game-rules-laws';
-import type { HarnessGame } from './harness-game';
+import type { TurnHarnessGame } from './harness-game';
 import type { PuzzleFixture, PuzzleFixtureMove } from './known-puzzles';
 
 /**
@@ -27,7 +27,7 @@ import type { PuzzleFixture, PuzzleFixtureMove } from './known-puzzles';
  */
 
 /** The game's rules and puzzles capability, and its known puzzles. */
-function puzzlesOf(game: HarnessGame) {
+function puzzlesOf(game: TurnHarnessGame) {
   const puzzles = game.shared.turnGame.capabilities.puzzles;
   const known = game.fixtures.puzzles;
   if (puzzles === undefined || known === undefined) return null;
@@ -69,7 +69,7 @@ const kindOf = (verdict: PuzzleMoveJudgement) =>
   verdict.kind === 'correct' ? `correct (${verdict.via})` : verdict.kind;
 
 /** The catalogue key the platform stores `record` under. */
-function catalogueKey(game: HarnessGame, record: PuzzleRecord): string {
+function catalogueKey(game: TurnHarnessGame, record: PuzzleRecord): string {
   const admission = admitCataloguePuzzle(
     createTurnGames([game.shared.turnGame]),
     { record, source: { url: null, tags: [] } }
@@ -80,9 +80,9 @@ function catalogueKey(game: HarnessGame, record: PuzzleRecord): string {
 
 /** The other games offering puzzles, with their known puzzles. */
 function puzzleOffering(
-  game: HarnessGame,
-  others: readonly HarnessGame[]
-): readonly HarnessGame[] {
+  game: TurnHarnessGame,
+  others: readonly TurnHarnessGame[]
+): readonly TurnHarnessGame[] {
   return others.filter(
     (other) =>
       other.shared.id !== game.shared.id &&
@@ -100,7 +100,7 @@ function filedUnder(
 }
 
 function ownPuzzlesLaw(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   puzzleGame: PuzzleGame,
   known: readonly PuzzleFixture[]
 ): GameLaw {
@@ -126,9 +126,9 @@ function ownPuzzlesLaw(
 }
 
 function othersRefusedLaw(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   puzzleGame: PuzzleGame,
-  others: readonly HarnessGame[]
+  others: readonly TurnHarnessGame[]
 ): GameLaw {
   return law(
     game,
@@ -154,9 +154,9 @@ function othersRefusedLaw(
 }
 
 function recognisedLaw(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   known: readonly PuzzleFixture[],
-  others: readonly HarnessGame[]
+  others: readonly TurnHarnessGame[]
 ): GameLaw {
   return law(game, 'a known puzzle is recognised by its own game alone', () => {
     const rules = game.shared.turnGame.rules;
@@ -176,9 +176,9 @@ function recognisedLaw(
 }
 
 function admissionLaw(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   known: readonly PuzzleFixture[],
-  others: readonly HarnessGame[]
+  others: readonly TurnHarnessGame[]
 ): GameLaw {
   return law(
     game,
@@ -216,7 +216,7 @@ function admissionLaw(
 }
 
 function duplicatesLaw(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   known: readonly PuzzleFixture[]
 ): GameLaw {
   return law(
@@ -247,8 +247,8 @@ function duplicatesLaw(
  * and deduplicated by their key.
  */
 export function gamePuzzleContentLaws(
-  game: HarnessGame,
-  others: readonly HarnessGame[]
+  game: TurnHarnessGame,
+  others: readonly TurnHarnessGame[]
 ): readonly GameLaw[] {
   const of = puzzlesOf(game);
   if (of === null) return [];
@@ -389,7 +389,7 @@ type TraitLaw = {
 };
 
 function traitLaws(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   known: readonly PuzzleFixture[],
   laws: readonly TraitLaw[]
 ): readonly GameLaw[] {
@@ -413,7 +413,7 @@ function traitLaws(
  * legal move judged; and, for a game whose puzzles show them, a win off the
  * line solves at once and a transposed move continues the reordered line.
  */
-export function gamePuzzleJudgeLaws(game: HarnessGame): readonly GameLaw[] {
+export function gamePuzzleJudgeLaws(game: TurnHarnessGame): readonly GameLaw[] {
   const of = puzzlesOf(game);
   if (of === null) return [];
   const { puzzleGame, known } = of;
@@ -512,7 +512,9 @@ function namesCells(
  * The playback laws: the platform replays each line as its rules play it,
  * and a hint, a wrong move and a suggestion name cells of the board.
  */
-export function gamePuzzlePlaybackLaws(game: HarnessGame): readonly GameLaw[] {
+export function gamePuzzlePlaybackLaws(
+  game: TurnHarnessGame
+): readonly GameLaw[] {
   const of = puzzlesOf(game);
   if (of === null) return [];
   const { puzzleGame, known } = of;
@@ -568,8 +570,8 @@ export function gamePuzzlePlaybackLaws(game: HarnessGame): readonly GameLaw[] {
 
 /** Every puzzle law of `game`, among the `others` whose puzzles it must refuse. */
 export function gamePuzzleLaws(
-  game: HarnessGame,
-  others: readonly HarnessGame[]
+  game: TurnHarnessGame,
+  others: readonly TurnHarnessGame[]
 ): readonly GameLaw[] {
   return [
     ...gamePuzzleContentLaws(game, others),

@@ -52,7 +52,7 @@ import type { Actor } from '@libs/harness-ts/parameter-types';
 import { cutConnection } from '@libs/harness-ts/platform';
 import { focusActor } from '@libs/harness-ts/shell-actions';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
-import { gameOf } from './game-world';
+import { turnGameOf } from './game-world';
 import {
   failedPuzzlesKey,
   feedTheme,
@@ -410,7 +410,7 @@ Then(
 Given(
   "the puzzle pool holds puzzles with and without a theme of the game's known puzzle",
   async (w) => {
-    const { pool, themed } = themePool(gameOf(w));
+    const { pool, themed } = themePool(turnGameOf(w));
     await writePool(w, pool);
     rememberThemed(w, themed);
   }
@@ -451,14 +451,14 @@ When(
   '{actor} limits the feed to a theme of the game that no puzzle in the pool has',
   async (w, actor: Actor) => {
     const pooled = new Set(
-      (gameOf(w).fixtures.puzzles ?? []).flatMap(
+      (turnGameOf(w).fixtures.puzzles ?? []).flatMap(
         (fixture) =>
           // The pool's themes are its known puzzles' own here.
           fixture.record.themes
       )
     );
     const theme = required(
-      gameOf(w).client.puzzles?.themes?.choices.find(
+      turnGameOf(w).client.puzzles?.themes?.choices.find(
         (choice) => !pooled.has(choice)
       ),
       'a theme of the game no puzzle has'
@@ -474,10 +474,10 @@ Given(
   "{actor} has already played the pool's one puzzle with a theme of the game's known puzzle",
   async (w, actor: Actor) => {
     const theme = feedTheme(w);
-    const known = theKnownPuzzle(gameOf(w));
+    const known = theKnownPuzzle(turnGameOf(w));
     await writePool(
       w,
-      (gameOf(w).fixtures.puzzles ?? []).map((fixture) => ({
+      (turnGameOf(w).fixtures.puzzles ?? []).map((fixture) => ({
         id: fixture.record.id,
         themes: themesWith(
           fixture.record.themes,

@@ -27,7 +27,7 @@ import {
 } from '@libs/game-matchmaking-harness-ts/multiplayer-review';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
-import { gameOf } from './game-world';
+import { gameOf, turnGameOf } from './game-world';
 import { victoryMoveAt } from './matched-game';
 import { markReviewing } from './matched-game-review-world';
 import { openOn } from './matched-game-shown.steps';
@@ -144,7 +144,7 @@ Then(
   '{actor} hears she is reviewing the earlier position after the first move',
   async (w, person: string) => {
     const device = viewerOf(w, person);
-    const move = gameOf(w).fixtures.firstSideVictoryLabels[0];
+    const move = turnGameOf(w).fixtures.firstSideVictoryLabels[0];
     if (move === undefined) throw new Error('The game names no first move');
     await openOn(w, device);
     expect(await w.s.read(shownReviewDescription, device)).toContain(
@@ -157,7 +157,7 @@ Then(
   (w, person: string) =>
     boardSeen(w, person, {
       earlier: 0,
-      position: gameOf(w).shared.turnGame.rules.initial(),
+      position: gameOf(w).shared.registration.rules.initial(),
     })
 );
 Then(
@@ -171,11 +171,11 @@ Then(
 Then('{actor} cannot review an earlier position', (w, person: string) =>
   boardSeen(w, person, {
     earlier: null,
-    position: gameOf(w).shared.turnGame.rules.initial(),
+    position: gameOf(w).shared.registration.rules.initial(),
   })
 );
 Then("both people's boards still show the starting position", async (w) => {
-  const start = gameOf(w).shared.turnGame.rules.initial();
+  const start = gameOf(w).shared.registration.rules.initial();
   for (const person of pairOf(w))
     await boardSeen(w, person, { earlier: null, position: start });
 });

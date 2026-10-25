@@ -7,10 +7,12 @@ import {
   readTimeLeftSeconds,
   StartMatch,
 } from '@pkgs/room-root-harness-ts/game-room';
+import type { RoomServiceReceipt } from '@pkgs/room-root-shared-ts/room-service';
 import type { RoomState } from '@pkgs/room-root-shared-ts/types';
 
 // regression: room-clock-charges-shared-outage
 test('the private host boundary pauses and resumes the retained match clock', async () => {
+  // regression: room-host-service-tests-stale-send-status
   const { clock, timers } = createHarnessClock();
   let id = 0;
   const wakes: Promise<void>[] = [];
@@ -35,15 +37,16 @@ test('the private host boundary pauses and resumes the retained match clock', as
   const read = async () =>
     (await (await call({ operation: 'read' })).json()) as RoomState;
   try {
-    expect(
-      (
-        await call({
-          operation: 'send',
-          commandId: 'start-before-outage',
-          payload: StartMatch({ whiteMs: 4000, blackMs: 4000 }),
-        })
-      ).status
-    ).toBe(204);
+    const started = await call({
+      operation: 'send',
+      commandId: 'start-before-outage',
+      payload: StartMatch({ whiteMs: 4000, blackMs: 4000 }),
+    });
+    expect(started.status).toBe(200);
+    const receipt = (await started.json()) as RoomServiceReceipt;
+    expect(receipt.ok).toBe(true);
+    if (!receipt.ok) throw new Error('The retained match was refused');
+    expect(readTimeLeftSeconds(receipt.state, 'white', clock.now())).toBe(4);
     expect(
       (await call({ operation: 'availability', available: false })).status
     ).toBe(204);
