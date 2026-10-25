@@ -21,5 +21,8 @@ test('the product registers Numberlink with puzzle capabilities and no turn engi
     'quoridor',
     'quoridor-hill',
     'pong',
+    'light-cycles',
+    'light-cycles-3',
+    'light-cycles-4',
   ]);
 });

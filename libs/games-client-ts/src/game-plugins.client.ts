@@ -4,6 +4,11 @@ import { connectFourGameClient } from '@libs/connect-four-client-ts/connect-four
 import type { GameClientRegistration } from '@libs/game-menu-client-ts/game-client';
 import { assertGameClientDefinitions } from '@libs/game-menu-client-ts/game-client';
 import { GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
+import {
+  lightCyclesDuelClient,
+  lightCyclesQuadClient,
+  lightCyclesTrioClient,
+} from '@libs/light-cycles-client-ts/light-cycles-game-client';
 import { numberlinkGameClient } from '@libs/numberlink-client-ts/numberlink-game-client';
 import { pongGameClient } from '@libs/pong-client-ts/pong-game-client';
 import {
@@ -27,6 +32,9 @@ export const GAME_CLIENT_DEFINITIONS = [
   quoridorGameClient,
   quoridorHillGameClient,
   pongGameClient,
+  lightCyclesDuelClient,
+  lightCyclesTrioClient,
+  lightCyclesQuadClient,
 ] as const satisfies readonly GameClientRegistration[];
 
 assertGameRegistry(GAME_CLIENT_DEFINITIONS);

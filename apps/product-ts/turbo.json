@@ -619,6 +619,7 @@
         "@libs/games-harness-ts#test:spec:96",
         "@libs/games-harness-ts#test:spec:97",
         "@libs/games-harness-ts#test:spec:98",
+        "@libs/light-cycles-harness-ts#test:spec:0",
         "@libs/numberlink-harness-ts#test:spec:0",
         "@libs/pong-harness-ts#test:spec:0",
         "@libs/profile-harness-ts#test:spec:0",

@@ -17,6 +17,8 @@ export type TrailRider = {
   /** Head cell, row from the top. */
   readonly y: number;
   readonly heading: TrailHeading;
+  /** The direction of its next step when a turn is waiting; the heading otherwise. */
+  readonly next?: TrailHeading | undefined;
   readonly alive: boolean;
   /** One letter drawn on the head. */
   readonly mark: string;

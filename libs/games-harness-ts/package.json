@@ -167,6 +167,7 @@
     "@libs/connect-four-harness-ts": "workspace:*",
     "@libs/game-session-harness-ts": "workspace:*",
     "@libs/games-shared-ts": "workspace:*",
+    "@libs/light-cycles-harness-ts": "workspace:*",
     "@libs/pong-harness-ts": "workspace:*",
     "@libs/quoridor-harness-ts": "workspace:*"
   },

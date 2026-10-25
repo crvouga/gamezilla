@@ -1,0 +1,54 @@
+{
+  "name": "@libs/light-cycles-harness-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "prepare:spec": "bun run --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client-ts/register ../../libs/harness-ts/scripts/prepare-spec.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload --preload @libs/harness-ts/preload tests",
+    "test:spec": "bun run ../../libs/harness-ts/scripts/test-spec.ts",
+    "test:spec:0": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 0/1",
+    "verify:models": "bun run ../../libs/tools-harness-ts/scripts/verify-models.ts"
+  },
+  "dependencies": {
+    "@libs/game-matchmaking-harness-ts": "workspace:*",
+    "@libs/game-session-harness-ts": "workspace:*",
+    "@libs/game-session-shared-ts": "workspace:*",
+    "@libs/harness-ts": "workspace:*",
+    "@libs/light-cycles-client-ts": "workspace:*",
+    "@libs/light-cycles-shared-ts": "workspace:*",
+    "@libs/spaces-harness-ts": "workspace:*",
+    "@pkgs/harness-root-shared-ts": "workspace:*",
+    "@pkgs/room-root-harness-ts": "workspace:*",
+    "@pkgs/room-root-shared-ts": "workspace:*",
+    "@pkgs/turn-game-shared-ts": "workspace:*",
+    "@pkgs/ui-testing-root-shared-ts": "workspace:*"
+  },
+  "devDependencies": {
+    "@pkgs/bun-test-solid-client-ts": "workspace:*",
+    "@pkgs/object-store-node-fs-server-ts": "workspace:*",
+    "@pkgs/object-store-root-shared-ts": "workspace:*",
+    "@pkgs/os-server-ts": "workspace:*",
+    "@pkgs/property-shared-ts": "workspace:*",
+    "@pkgs/quint-shared-ts": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness",
+  "game": "light-cycles",
+  "language": "typescript",
+  "specDomains": [
+    "light-cycles"
+  ],
+  "specParts": 1
+}

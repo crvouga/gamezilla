@@ -84,6 +84,13 @@
   stroke-width: 0.1;
   stroke-linejoin: round;
 }
+.next {
+  fill: none;
+  stroke: var(--rider-color);
+  stroke-width: 0.16;
+  stroke-dasharray: 0.2 0.14;
+  stroke-linejoin: round;
+}
 .disc {
   fill: var(--rider-color);
   stroke: var(--ui-color-background);

@@ -122,6 +122,7 @@ export function RiderHead(props: {
       data-x={props.rider.x}
       data-y={props.rider.y}
       data-heading={props.rider.heading}
+      data-next={props.rider.next ?? props.rider.heading}
       data-alive={props.rider.alive}
       data-controlled={props.rider.controlled}
       data-mark={props.rider.mark}
@@ -137,6 +138,19 @@ export function RiderHead(props: {
         d="M-0.56 -0.74L0 -1.6L0.56 -0.74Z"
         transform={`rotate(${headingRotation(props.rider.heading)})`}
       />
+      <Show
+        when={
+          props.rider.alive &&
+          props.rider.next !== undefined &&
+          props.rider.next !== props.rider.heading
+        }
+      >
+        <path
+          class={styles['next']}
+          d="M-0.56 -0.74L0 -1.6L0.56 -0.74Z"
+          transform={`rotate(${headingRotation(props.rider.next ?? props.rider.heading)})`}
+        />
+      </Show>
       <circle class={styles['disc']} r="1" />
       <text class={styles['mark']} dy="0.07">
         {props.rider.mark}

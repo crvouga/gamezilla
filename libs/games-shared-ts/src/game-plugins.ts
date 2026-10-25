@@ -7,6 +7,11 @@ import {
   type GameRegistration,
   isGameRegistration,
 } from '@libs/game-session-shared-ts/game-definition';
+import {
+  lightCyclesDuelShared,
+  lightCyclesQuadShared,
+  lightCyclesTrioShared,
+} from '@libs/light-cycles-shared-ts/light-cycles-game';
 import { numberlinkGameShared } from '@libs/numberlink-shared-ts/numberlink-game';
 import { pongGameShared } from '@libs/pong-shared-ts/pong-game';
 import {
@@ -30,6 +35,9 @@ export const GAME_DEFINITIONS = [
   quoridorGameShared,
   quoridorHillGameShared,
   pongGameShared,
+  lightCyclesDuelShared,
+  lightCyclesTrioShared,
+  lightCyclesQuadShared,
 ] as const satisfies readonly AnyGameRegistration[];
 
 /** Games with position rules — turns, a simulation or both — enter session catalogs and suites. */
