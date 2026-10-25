@@ -374,9 +374,25 @@ msgstr "{USERNAME_MIN_LENGTH} to {USERNAME_MAX_LENGTH} letters, numbers or _. Sa
 msgid "{winner} wins by {reason}."
 msgstr "{winner} wins by {reason}."
 
+#: libs/sokoban-client-ts/src/sokoban-player.tsx
+msgid "← Left"
+msgstr "← Left"
+
+#: libs/sokoban-client-ts/src/sokoban-player.tsx
+msgid "→ Right"
+msgstr "→ Right"
+
 #: pkgs/ui-root-client-ts/src/command-palette-hint.tsx
 msgid "↑ ↓ navigate · ↵ run · Esc close · Tab next"
 msgstr "↑ ↓ navigate · ↵ run · Esc close · Tab next"
+
+#: libs/sokoban-client-ts/src/sokoban-player.tsx
+msgid "↑ Up"
+msgstr "↑ Up"
+
+#: libs/sokoban-client-ts/src/sokoban-player.tsx
+msgid "↓ Down"
+msgstr "↓ Down"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-game-actions.tsx
 msgid "<0>Find </0>New players"
@@ -437,6 +453,14 @@ msgstr "1 minute"
 msgid "1 second"
 msgstr "1 second"
 
+#: libs/sokoban-client-ts/src/use-sokoban-words.tsx
+msgid "A board has at least 1 column and 1 row."
+msgstr "A board has at least 1 column and 1 row."
+
+#: libs/sokoban-client-ts/src/use-sokoban-words.tsx
+msgid "A board has at most 20 columns and 20 rows."
+msgstr "A board has at most 20 columns and 20 rows."
+
 #: libs/app-root-client-ts/src/refused-change-copy.tsx
 msgid "A change wasn't saved"
 msgstr "A change wasn't saved"
@@ -449,6 +473,10 @@ msgstr "A chosen puzzle has not been published. Your pack draft is kept. Publish
 msgid "A chosen puzzle is no longer available. Your pack draft is kept. Choose an available puzzle, or publish that puzzle again, then choose Publish for this pack."
 msgstr "A chosen puzzle is no longer available. Your pack draft is kept. Choose an available puzzle, or publish that puzzle again, then choose Publish for this pack."
 
+#: libs/game-puzzle-client-ts/src/content-publication-controls.tsx
+msgid "A completed playtest proves this version can be finished."
+msgstr "A completed playtest proves this version can be finished."
+
 #: libs/chess-puzzle-client-ts/src/puzzle-source-controls.tsx
 msgid "A connection is needed to check for the saved Lichess file."
 msgstr "A connection is needed to check for the saved Lichess file."
@@ -460,18 +488,6 @@ msgstr "A different working copy was kept. Choose the copy you want below before
 #: libs/game-session-client-ts/src/custom-game-active.tsx
 msgid "A draw has been offered."
 msgstr "A draw has been offered."
-
-#: libs/game-puzzle-client-ts/src/content-attempt-restart.tsx
-msgid "A new attempt could not be saved. Your earlier attempt is still here. Try again."
-msgstr "A new attempt could not be saved. Your earlier attempt is still here. Try again."
-
-#: libs/game-puzzle-client-ts/src/content-attempt-restart.tsx
-msgid "A new attempt starts at the beginning. Your earlier progress and completion stay saved."
-msgstr "A new attempt starts at the beginning. Your earlier progress and completion stay saved."
-
-#: libs/game-puzzle-client-ts/src/content-kept-copies.tsx
-msgid "A new working copy will use these details. Your other saved copies remain available."
-msgstr "A new working copy will use these details. Your other saved copies remain available."
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "A draw needs every participant to be a person."
@@ -488,6 +504,18 @@ msgstr "A game needs {0} players including you. Find {1} other players at the sa
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
 msgid "A multiplayer game for {0} players at {1}."
 msgstr "A multiplayer game for {0} players at {1}."
+
+#: libs/game-puzzle-client-ts/src/content-attempt-restart.tsx
+msgid "A new attempt could not be saved. Your earlier attempt is still here. Try again."
+msgstr "A new attempt could not be saved. Your earlier attempt is still here. Try again."
+
+#: libs/game-puzzle-client-ts/src/content-attempt-restart.tsx
+msgid "A new attempt starts at the beginning. Your earlier progress and completion stay saved."
+msgstr "A new attempt starts at the beginning. Your earlier progress and completion stay saved."
+
+#: libs/game-puzzle-client-ts/src/content-kept-copies.tsx
+msgid "A new working copy will use these details. Your other saved copies remain available."
+msgstr "A new working copy will use these details. Your other saved copies remain available."
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "A person can have only one side."
@@ -1048,6 +1076,10 @@ msgstr "Central hill"
 msgid "Change participant"
 msgstr "Change participant"
 
+#: libs/sokoban-client-ts/src/sokoban-size-controls.tsx
+msgid "Change size"
+msgstr "Change size"
+
 #: libs/synthetic-population-client-ts/src/synthetic-population-users.tsx
 msgid "Change the search or increase the desired synthetic population."
 msgstr "Change the search or increase the desired synthetic population."
@@ -1146,6 +1178,14 @@ msgstr "Choose a saved position to continue. Your other positions stay kept."
 #: libs/auth-client-ts/src/sign-in-modal-body.tsx
 msgid "Choose a sign-in method"
 msgstr "Choose a sign-in method"
+
+#: libs/sokoban-client-ts/src/use-sokoban-words.tsx
+msgid "Choose a square on the board."
+msgstr "Choose a square on the board."
+
+#: libs/sokoban-client-ts/src/sokoban-editor.tsx
+msgid "Choose a tool, then a square. Walls and outside squares remove any piece on them; erasing makes plain floor."
+msgstr "Choose a tool, then a square. Walls and outside squares remove any piece on them; erasing makes plain floor."
 
 #: libs/profile-client-ts/src/username-change-feedback.tsx
 msgid "Choose a username"
@@ -1291,6 +1331,7 @@ msgid "Column {0}, row {1}: {identity}, winning disc"
 msgstr "Column {0}, row {1}: {identity}, winning disc"
 
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
+#: libs/sokoban-client-ts/src/sokoban-size-controls.tsx
 msgid "Columns"
 msgstr "Columns"
 
@@ -1627,6 +1668,14 @@ msgstr "Cover every cell"
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Coverage"
 msgstr "Coverage"
+
+#: libs/sokoban-client-ts/src/use-sokoban-words.tsx
+msgid "crate"
+msgstr "crate"
+
+#: libs/sokoban-client-ts/src/sokoban-editor.tsx
+msgid "Crate"
+msgstr "Crate"
 
 #: libs/game-puzzle-client-ts/src/content-library-screen.tsx
 msgid "Create a private draft above, or come back for new puzzles and packs."
@@ -2054,9 +2103,17 @@ msgstr "Endpoints removed"
 msgid "Enter a valid desired synthetic population."
 msgstr "Enter a valid desired synthetic population."
 
+#: libs/sokoban-client-ts/src/use-sokoban-words.tsx
+msgid "Enter whole numbers of columns and rows."
+msgstr "Enter whole numbers of columns and rows."
+
 #: libs/chess-puzzle-client-ts/src/puzzle-management-settings.tsx
 msgid "Environment"
 msgstr "Environment"
+
+#: libs/sokoban-client-ts/src/sokoban-editor.tsx
+msgid "Erase"
+msgstr "Erase"
 
 #: libs/app-root-client-ts/src/crash-screen.tsx
 msgid "Error details"
@@ -2270,6 +2327,14 @@ msgstr "fleet sunk"
 msgid "Flip board"
 msgstr "Flip board"
 
+#: libs/sokoban-client-ts/src/use-sokoban-words.tsx
+msgid "floor"
+msgstr "floor"
+
+#: libs/sokoban-client-ts/src/sokoban-editor.tsx
+msgid "Floor"
+msgstr "Floor"
+
 #: libs/app-root-client-ts/src/theme-screen.tsx
 msgid "Follows your device appearance"
 msgstr "Follows your device appearance"
@@ -2432,6 +2497,14 @@ msgstr "Go to {0}"
 #: libs/game-matchmaking-client-ts/src/multiplayer-link-screen.tsx
 msgid "Go to Spaces"
 msgstr "Go to Spaces"
+
+#: libs/sokoban-client-ts/src/use-sokoban-words.tsx
+msgid "goal"
+msgstr "goal"
+
+#: libs/sokoban-client-ts/src/sokoban-editor.tsx
+msgid "Goal"
+msgstr "Goal"
 
 #: libs/app-config-client-ts/src/client-config-entity-card.tsx
 #: libs/auth-client-ts/src/auth-flow-messages.tsx
@@ -3079,13 +3152,17 @@ msgstr "Move number to review"
 msgid "Move on to the next puzzle by itself after a solve."
 msgstr "Move on to the next puzzle by itself after a solve."
 
+#: libs/quoridor-client-ts/src/quoridor-board.tsx
+msgid "Move pawn"
+msgstr "Move pawn"
+
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Move second endpoint"
 msgstr "Move second endpoint"
 
-#: libs/quoridor-client-ts/src/quoridor-board.tsx
-msgid "Move pawn"
-msgstr "Move pawn"
+#: libs/sokoban-client-ts/src/sokoban-game-client.tsx
+msgid "Move the worker up, down, left or right. Walk onto empty floor or push one crate a square further onto empty floor. Crates are never pulled, and two crates in a row do not move. Finish when every crate stands on a goal."
+msgstr "Move the worker up, down, left or right. Walk onto empty floor or push one crate a square further onto empty floor. Crates are never pulled, and two crates in a row do not move. Finish when every crate stands on a goal."
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
 msgid "Moves"
@@ -3095,6 +3172,12 @@ msgstr "Moves"
 #: libs/game-session-client-ts/src/custom-game-board.tsx
 msgid "Moves played"
 msgstr "Moves played"
+
+#. placeholder {0}: props.position.moves
+#. placeholder {1}: props.position.pushes
+#: libs/sokoban-client-ts/src/sokoban-player.tsx
+msgid "Moves: {0} · Pushes: {1}"
+msgstr "Moves: {0} · Pushes: {1}"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
 msgid "Moves. The left and right arrow keys step through them."
@@ -3242,6 +3325,10 @@ msgstr "No catalog entry for \"{id}\"."
 #: libs/game-session-client-ts/src/game-history.tsx
 msgid "No completed games yet."
 msgstr "No completed games yet."
+
+#: libs/game-puzzle-client-ts/src/content-publication-controls.tsx
+msgid "No completed playtest of this version yet. Complete a playtest to prove it can be finished."
+msgstr "No completed playtest of this version yet. Complete a playtest to prove it can be finished."
 
 #: libs/chess-shared-client-ts/src/chess-settings-developer-ui-component-detail-screen.tsx
 msgid "No component selected"
@@ -3441,6 +3528,10 @@ msgstr "Nothing needs your attention"
 msgid "Nothing synced near this rating yet. Change the target rating to keep playing."
 msgstr "Nothing synced near this rating yet. Change the target rating to keep playing."
 
+#: libs/sokoban-client-ts/src/sokoban-editor.tsx
+msgid "Nothing to correct. Playtest the board to prove it."
+msgstr "Nothing to correct. Playtest the board to prove it."
+
 #: libs/notifications-client-ts/src/notifications-screen.tsx
 #: libs/notifications-client-ts/src/sub-client.tsx
 msgid "Notifications"
@@ -3602,13 +3693,13 @@ msgstr "opponent staying away"
 msgid "Opponent's reply: {side} played {0} to {1}."
 msgstr "Opponent's reply: {side} played {0} to {1}."
 
-#: libs/numberlink-client-ts/src/numberlink-editor.tsx
-msgid "Orange"
-msgstr "Orange"
-
 #: libs/quoridor-client-ts/src/quoridor-game-client.tsx
 msgid "opposite row reached"
 msgstr "opposite row reached"
+
+#: libs/numberlink-client-ts/src/numberlink-editor.tsx
+msgid "Orange"
+msgstr "Orange"
 
 #: libs/account-privacy-client-ts/src/privacy-screen.tsx
 msgid "Ordinary personal data will be erased within 30 days."
@@ -3626,6 +3717,14 @@ msgstr "OS"
 #: libs/profile-client-ts/src/stand-in-notice.tsx
 msgid "Other people see you as {alias} until you choose a new username"
 msgstr "Other people see you as {alias} until you choose a new username"
+
+#: libs/sokoban-client-ts/src/use-sokoban-words.tsx
+msgid "outside"
+msgstr "outside"
+
+#: libs/sokoban-client-ts/src/sokoban-editor.tsx
+msgid "Outside"
+msgstr "Outside"
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "Ownership generation"
@@ -3975,6 +4074,14 @@ msgstr "Publishing…"
 msgid "Purple"
 msgstr "Purple"
 
+#: libs/sokoban-client-ts/src/sokoban-game-client.tsx
+msgid "Push every crate onto a goal, one at a time."
+msgstr "Push every crate onto a goal, one at a time."
+
+#: libs/sokoban-client-ts/src/sokoban-player.tsx
+msgid "Push every crate onto a goal. Use the arrow keys or W A S D on the board, swipe, tap a square beside the worker, or use the buttons."
+msgstr "Push every crate onto a goal. Use the arrow keys or W A S D on the board, swipe, tap a square beside the worker, or use the buttons."
+
 #: libs/game-menu-client-ts/src/game-menu-choices.tsx
 #: libs/game-puzzle-client-ts/src/content-library-screen.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-link-screen.tsx
@@ -4221,6 +4328,10 @@ msgstr "Red fleet"
 msgid "Redo"
 msgstr "Redo"
 
+#: libs/game-puzzle-client-ts/src/content-draft-history-controls.tsx
+msgid "Redo edit"
+msgstr "Redo edit"
+
 #. placeholder {0}: reference()
 #: libs/app-root-client-ts/src/crash-screen.tsx
 msgid "Reference: {0}"
@@ -4280,6 +4391,10 @@ msgstr "Remove {0} sign-in?"
 #: libs/spaces-client-ts/src/remove-space-person-modal.tsx
 msgid "Remove {0}?"
 msgstr "Remove {0}?"
+
+#: libs/sokoban-client-ts/src/sokoban-editor.tsx
+msgid "Remove crate"
+msgstr "Remove crate"
 
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Remove endpoints"
@@ -4506,6 +4621,7 @@ msgid "Rotate: {0}"
 msgstr "Rotate: {0}"
 
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
+#: libs/sokoban-client-ts/src/sokoban-size-controls.tsx
 msgid "Rows"
 msgstr "Rows"
 
@@ -4955,6 +5071,18 @@ msgstr "Slowest script"
 msgid "Snapshot (JSON)"
 msgstr "Snapshot (JSON)"
 
+#: libs/sokoban-client-ts/src/sokoban-player.tsx
+msgid "Sokoban board"
+msgstr "Sokoban board"
+
+#: libs/sokoban-client-ts/src/sokoban-editor.tsx
+msgid "Sokoban board being built"
+msgstr "Sokoban board being built"
+
+#: libs/sokoban-client-ts/src/sokoban-player.tsx
+msgid "Sokoban board preview"
+msgstr "Sokoban board preview"
+
 #: libs/game-puzzle-client-ts/src/puzzle-action-bar-items.tsx
 msgid "Solution"
 msgstr "Solution"
@@ -5111,6 +5239,10 @@ msgstr "Start the game before playing."
 #: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
 msgid "Started"
 msgstr "Started"
+
+#: libs/game-puzzle-client-ts/src/content-library-screen.tsx
+msgid "Starter packs"
+msgstr "Starter packs"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-management-screen.tsx
 msgid "Starting load…"
@@ -5318,6 +5450,10 @@ msgstr "That change wasn't made. The item may no longer be in your inbox."
 msgid "That change wasn't made. Try again in a moment."
 msgstr "That change wasn't made. Try again in a moment."
 
+#: libs/sokoban-client-ts/src/use-sokoban-words.tsx
+msgid "That crate cannot move."
+msgstr "That crate cannot move."
+
 #: libs/app-root-client-ts/src/refused-change-copy.tsx
 msgid "That friend request wasn't declined"
 msgstr "That friend request wasn't declined"
@@ -5374,6 +5510,10 @@ msgstr "That space name is not allowed"
 msgid "That space name is not allowed. The change was undone."
 msgstr "That space name is not allowed. The change was undone."
 
+#: libs/sokoban-client-ts/src/use-sokoban-words.tsx
+msgid "That square already has a piece."
+msgstr "That square already has a piece."
+
 #: libs/auth-client-ts/src/auth-flow-messages.tsx
 msgid "That took too long. Start again."
 msgstr "That took too long. Start again."
@@ -5411,13 +5551,25 @@ msgstr "The board changed. Review the current turn."
 msgid "The board is full. Game drawn."
 msgstr "The board is full. Game drawn."
 
-#: libs/game-puzzle-client-ts/src/use-content-attempt-change.tsx
-msgid "The change was not saved. Your previous position is still kept. Try again."
-msgstr "The change was not saved. Your previous position is still kept. Try again."
+#: libs/sokoban-client-ts/src/use-sokoban-words.tsx
+msgid "The board needs a worker."
+msgstr "The board needs a worker."
+
+#: libs/sokoban-client-ts/src/use-sokoban-words.tsx
+msgid "The board needs as many crates as goals."
+msgstr "The board needs as many crates as goals."
+
+#: libs/sokoban-client-ts/src/use-sokoban-words.tsx
+msgid "The board needs at least one crate."
+msgstr "The board needs at least one crate."
 
 #: libs/quoridor-client-ts/src/quoridor-game-client.tsx
 msgid "The central hill was reached. Game won."
 msgstr "The central hill was reached. Game won."
+
+#: libs/game-puzzle-client-ts/src/use-content-attempt-change.tsx
+msgid "The change was not saved. Your previous position is still kept. Try again."
+msgstr "The change was not saved. Your previous position is still kept. Try again."
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "The choice could not be confirmed. Try again."
@@ -5560,6 +5712,11 @@ msgstr "The round will end in a draw for all players."
 msgid "The sign-in provider couldn't finish. Try again in a moment."
 msgstr "The sign-in provider couldn't finish. Try again in a moment."
 
+#. placeholder {0}: removed().join(', ')
+#: libs/sokoban-client-ts/src/sokoban-editor.tsx
+msgid "The smaller board removed: {0}."
+msgstr "The smaller board removed: {0}."
+
 #: libs/spaces-client-ts/src/remove-space-person-modal.tsx
 msgid "The space stays open. They can join again through its link."
 msgstr "The space stays open. They can join again through its link."
@@ -5571,6 +5728,14 @@ msgstr "The Synthetic Population Worker will recover this application."
 #: libs/chess-puzzle-client-ts/src/puzzle-import-stop.tsx
 msgid "The unfinished file will not become available. You can save the chosen file again."
 msgstr "The unfinished file will not become available. You can save the chosen file again."
+
+#: libs/sokoban-client-ts/src/use-sokoban-words.tsx
+msgid "The worker and crates stand only on floor or goals."
+msgstr "The worker and crates stand only on floor or goals."
+
+#: libs/sokoban-client-ts/src/use-sokoban-words.tsx
+msgid "The worker's way is blocked."
+msgstr "The worker's way is blocked."
 
 #: libs/game-puzzle-client-ts/src/use-content-copy-choice.tsx
 msgid "The working draft changed. Open the kept copies and choose again."
@@ -5588,6 +5753,10 @@ msgstr "Themes"
 #: libs/numberlink-client-ts/src/use-numberlink-editor.tsx
 msgid "There are no two open cells. Enlarge the board or remove a pair first."
 msgstr "There are no two open cells. Enlarge the board or remove a pair first."
+
+#: libs/sokoban-client-ts/src/use-sokoban-words.tsx
+msgid "There is no crate on that square."
+msgstr "There is no crate on that square."
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "There is no invitation for that side."
@@ -5636,6 +5805,10 @@ msgstr "This account was already deleted. Sign in again to start a new account."
 #: libs/game-puzzle-client-ts/src/puzzle-result-announcement.tsx
 msgid "This attempt was unrated."
 msgstr "This attempt was unrated."
+
+#: libs/sokoban-client-ts/src/sokoban-editor.tsx
+msgid "This board cannot be opened. Choose an earlier saved draft to keep building."
+msgstr "This board cannot be opened. Choose an earlier saved draft to keep building."
 
 #: libs/quoridor-client-ts/src/quoridor-board.tsx
 msgid "This board is read-only. Follow the game or review earlier moves."
@@ -5705,13 +5878,13 @@ msgstr "This finishes the current game. Its record remains available."
 msgid "This friend could not be removed. Try again."
 msgstr "This friend could not be removed. Try again."
 
-#: libs/game-puzzle-client-ts/src/content-author-stage.tsx
-msgid "This game has no editor for puzzle details. Metadata and kept copies remain available."
-msgstr "This game has no editor for puzzle details. Metadata and kept copies remain available."
-
 #: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
 msgid "This game has finished. Choose a rematch to play again."
 msgstr "This game has finished. Choose a rematch to play again."
+
+#: libs/game-puzzle-client-ts/src/content-author-stage.tsx
+msgid "This game has no editor for puzzle details. Metadata and kept copies remain available."
+msgstr "This game has no editor for puzzle details. Metadata and kept copies remain available."
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "This game is available to people in its space."
@@ -5778,6 +5951,7 @@ msgid "This publication is withdrawn. You can continue saved attempts from your 
 msgstr "This publication is withdrawn. You can continue saved attempts from your library."
 
 #: libs/numberlink-client-ts/src/numberlink-player.tsx
+#: libs/sokoban-client-ts/src/sokoban-player.tsx
 msgid "This puzzle cannot be opened. Return to its overview and choose a saved edition."
 msgstr "This puzzle cannot be opened. Return to its overview and choose a saved edition."
 
@@ -5792,6 +5966,10 @@ msgstr "This puzzle is no longer available"
 #: libs/game-puzzle-client-ts/src/puzzle-review-screen.tsx
 msgid "This puzzle is not in your local feed yet. Try again after sync."
 msgstr "This puzzle is not in your local feed yet. Try again after sync."
+
+#: libs/game-puzzle-client-ts/src/content-attempt-notices.tsx
+msgid "This puzzle needs a version of the app with its rules. Your saved attempt stays kept; update the app to continue it."
+msgstr "This puzzle needs a version of the app with its rules. Your saved attempt stays kept; update the app to continue it."
 
 #: libs/app-root-client-ts/src/refused-change-copy.tsx
 msgid "This request could not be applied. Dismiss this notice and choose another space from the lobby."
@@ -5997,6 +6175,10 @@ msgstr "Unblocking…"
 msgid "Undo"
 msgstr "Undo"
 
+#: libs/game-puzzle-client-ts/src/content-draft-history-controls.tsx
+msgid "Undo edit"
+msgstr "Undo edit"
+
 #: libs/numberlink-client-ts/src/numberlink-board.tsx
 msgid "unfinished"
 msgstr "unfinished"
@@ -6200,8 +6382,13 @@ msgid "Waiting for the host to start a puzzle."
 msgstr "Waiting for the host to start a puzzle."
 
 #: libs/quoridor-client-ts/src/quoridor-board.tsx
+#: libs/sokoban-client-ts/src/use-sokoban-words.tsx
 msgid "wall"
 msgstr "wall"
+
+#: libs/sokoban-client-ts/src/sokoban-editor.tsx
+msgid "Wall"
+msgstr "Wall"
 
 #: libs/quoridor-client-ts/src/quoridor-board.tsx
 msgid "walls"
@@ -6283,6 +6470,14 @@ msgstr "Work offline"
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "Work online"
 msgstr "Work online"
+
+#: libs/sokoban-client-ts/src/use-sokoban-words.tsx
+msgid "worker"
+msgstr "worker"
+
+#: libs/sokoban-client-ts/src/sokoban-editor.tsx
+msgid "Worker"
+msgstr "Worker"
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "Worker Lease"
