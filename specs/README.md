@@ -1131,6 +1131,7 @@ terms:
 | Puzzles | `puzzles` | author-created puzzle and pack drafts, validation, playtests, stable published editions, personal attempts and pack progression for any game offering puzzle content | core |
 | Battleship | `battleship` | Battleship's own boards, fleets, placing ships, shots, hits, misses, sinkings, victory and bots | supporting |
 | Quoridor | `quoridor` | Classic Quoridor and Four-Player King of the Hill: the board, pawns, movement, jumps, walls, paths and goals | supporting |
+| Word Tiles | `word-tiles` | Word Tiles for two, three and four: the board, bonus squares, tiles and blanks, racks and the bag, placing words from the word list, scores, passing, exchanging, endings, private racks and one-move challenges | supporting |
 | Auth | `auth` | how outside accounts at Google and Apple, and sign-in links sent to an email address, get people into accounts: matching and confirming accounts, connecting and removing sign-in methods, asking for and opening a sign-in link, stolen sign-ins, how long a sign-in lasts, Google or Apple having trouble | generic (Google, Apple and the mailbox say who is signing in) |
 | Room | `room` | the room framework's example game room: a tally friends keep together, owning the room and turning someone away, a timed match, who is present | supporting |
 | Matchmaking | `matchmaking` | waiting for a match, one wait at a time, rating ranges, pairing people up, being matched, stopping a wait | supporting |
@@ -1164,6 +1165,8 @@ Battleship ──► Journeys (Battleship)
 Quoridor ──► Journeys (Quoridor, Classic Quoridor, Four-Player King of the Hill)
 Games    ──► Connect Four (game), Battleship (game, custom game)
 Games    ──► Quoridor (game, custom game, ready, start)
+Games    ──► Word Tiles (game, custom game, bot)
+Puzzles  ──► Word Tiles (puzzle, publish)
 Games    ──► Journeys (bot)
 App      ──► Quoridor (keyboard, control)
 Room, Sync engine: stand alone; Matchmaking publishes complete matches to Chess (Sync engine's "shared space" is not a Spaces space)
@@ -1183,6 +1186,7 @@ Published language:
 | Connect Four (`connect-four`) | Connect Four | — |
 | Battleship (`battleship`) | Battleship | — |
 | Quoridor (`quoridor`) | Quoridor, Classic Quoridor, Four-Player King of the Hill | — |
+| Word Tiles (`word-tiles`) | Word Tiles, Word Tiles for three, Word Tiles for four | — |
 | App (`runtime`) | Settings, tabs, address, version of the app, trail, run into trouble, keyboard, control, place in the app | — |
 | Developer tools (`developer-tools`) | the testing tool | — |
 | Matchmaking (`matchmaking`) | matchmaking match, pair people up | `MatchmakingEvent`: `MatchFormed` |

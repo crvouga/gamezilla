@@ -1,0 +1,159 @@
+context: Word Tiles
+purpose: >-
+  Word Tiles' board, tiles, racks, words, scores and endings, and its
+  one-move challenges. Shared game choices, custom games, bots, finding an
+  opponent and puzzle authoring belong to Games and Puzzles.
+terms:
+  - term: Word Tiles
+    definition: >-
+      A word game for two to four players on a board of fifteen columns and
+      fifteen rows. Each player takes a turn placing tiles from their rack to
+      form words from the word list, passing, or exchanging tiles. The
+      highest score when the game ends wins.
+    published: true
+  - term: Word Tiles for three
+    definition: Word Tiles for three players.
+    published: true
+  - term: Word Tiles for four
+    definition: Word Tiles for four players.
+    published: true
+  - term: game
+    from: games
+  - term: custom game
+    from: games
+  - term: bot
+    from: games
+  - term: puzzle
+    from: puzzles
+  - term: publish
+    from: puzzles
+  - term: start
+    definition: >-
+      Begin a game of Word Tiles: the bag is shuffled, every player is dealt
+      seven tiles, and the first player has the first turn.
+    forms: [starts, started, starting]
+  - term: board
+    definition: >-
+      The playing area of 225 squares. Columns a to o run from left to
+      right and rows 1 to 15 from top to bottom, so every square has a name
+      such as h8. A tile placed on the board stays there for the rest of
+      the game.
+    forms: [boards]
+  - term: square
+    definition: A place on the board named by its column and row, such as g8.
+    forms: [squares, empty square, empty squares]
+  - term: centre square
+    definition: The square h8, in the middle of the board. The first word covers it.
+    avoid: [center, star]
+  - term: bonus square
+    definition: >-
+      A square that raises a score the first time a tile is placed on it: a
+      double letter or triple letter square multiplies that tile's points,
+      a double word or triple word square multiplies the whole word. The
+      centre square is a double word square. A bonus square under a tile
+      already on the board counts no more.
+    forms: [bonus squares, double letter, triple letter, double word, triple word]
+    avoid: [premium, premium square]
+  - term: tile
+    definition: >-
+      One piece showing a letter and its points. There are 100 tiles:
+      letters with their points, and two blanks.
+    forms: [tiles]
+  - term: blank
+    definition: >-
+      A tile with no letter. Its player chooses the letter it plays when
+      placing it, and it keeps that letter for the rest of the game. It
+      always scores no points.
+    forms: [blanks, blank tile]
+  - term: rack
+    definition: >-
+      The tiles a player holds, at most seven. Only that player sees which
+      tiles they are; everyone sees how many.
+    forms: [racks, hold, holds, holding, held]
+  - term: bag
+    definition: >-
+      The tiles not yet on the board or in a rack. Nobody sees which tiles
+      it holds or their order; everyone sees how many.
+  - term: word list
+    definition: >-
+      The list of words the game accepts: English words of two to fifteen
+      letters, the same for every player and every game.
+    avoid: [dictionary, lexicon]
+  - term: word
+    definition: >-
+      Two or more letters in a row or a column with no empty square between
+      them, read left to right or top to bottom.
+    forms: [words]
+  - term: place a word
+    definition: >-
+      Put one or more tiles from one's own rack on empty squares in one row
+      or one column, all at once, so that with the tiles already there they
+      form unbroken words. The first word covers the centre square; every
+      later placement joins the tiles on the board. Every word it forms must
+      be in the word list. A refused placement changes nothing.
+    forms: [places, placing, placed, placement, placements]
+  - term: join
+    definition: Touch a tile already on the board above, below, left or right.
+    forms: [joins, joined]
+  - term: score
+    definition: >-
+      The points a player has, or a placement earns: each word it forms or
+      extends counts its tiles' points with bonus squares under the newly
+      placed tiles, and placing all seven tiles of a rack earns 50 points
+      more. A score may go below zero.
+    forms: [scores, scored, scoring, points, point]
+  - term: seven-tile bonus
+    definition: The 50 points a placement earns for using all seven tiles of a rack.
+  - term: pass
+    definition: Take a turn without placing or exchanging tiles; it scores nothing.
+    forms: [passes, passing, passed]
+  - term: exchange
+    definition: >-
+      Return chosen tiles of one's own rack to the bag for the same number
+      of other tiles from it, as one's turn, scoring nothing. It needs at
+      least seven tiles in the bag.
+    forms: [exchanges, exchanging, exchanged]
+  - term: turn
+    definition: >-
+      The player allowed to place a word, pass or exchange next. Every
+      accepted turn passes to the next player in seat order; a refused one
+      keeps it. Nobody has the turn once the game is over.
+    forms: [turns, has the turn]
+  - term: player
+    definition: One person or bot playing a seat at the board.
+    forms: [players, player's, first player, next player]
+  - term: scoreless turn
+    definition: >-
+      A turn that scores no points: a pass, an exchange, or a placement
+      worth nothing. Six in a row end the game.
+    forms: [scoreless turns]
+  - term: go out
+    definition: >-
+      Place one's last tile while the bag is empty. It ends the game: every
+      other player loses the points of the tiles they still hold, and the
+      player who went out gains them all.
+    forms: [goes out, going out, went out]
+  - term: end
+    definition: >-
+      Finish a game of Word Tiles, when a player goes out or after six
+      scoreless turns in a row.
+    forms: [ends, ended, ending]
+  - term: over
+    definition: >-
+      A game that has ended, by a player going out or by six scoreless turns
+      in a row. Every rack's points then count against its player, and
+      nobody takes another turn.
+  - term: win
+    definition: >-
+      Have the highest score when the game is over. Players tied for the
+      highest score share the win.
+    forms: [wins, won, share the win, shares the win]
+  - term: one-move challenge
+    definition: >-
+      A puzzle of Word Tiles: a board, a rack and a target. It is solved
+      when one placement from that rack scores at least the target; scores
+      of several placements never add up.
+    forms: [one-move challenges, challenge, challenges, target]
+  - term: solve
+    definition: Reach a one-move challenge's target with one placement.
+    forms: [solves, solved, solving, unsolved]
