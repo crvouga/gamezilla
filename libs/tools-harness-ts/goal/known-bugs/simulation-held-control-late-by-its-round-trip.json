@@ -1,0 +1,4 @@
+{
+  "summary": "A device chooses the tick for a held control (a Pong paddle) as the authority's tick it last saw, plus how long ago it saw it, plus a 3-tick lead. Over a round trip longer than that lead (50 ms each way in the release journeys), every held control arrived for a tick the authority had already committed and was refused as late, so in matched Pong neither paddle ever moved on the authority (11 serves, no paddle hits). A held control that is late by no more than the lead window now applies at the next tick as the value the player holds; older ones are still refused.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-authority.contract.test.ts"
+}

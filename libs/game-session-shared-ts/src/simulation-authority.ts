@@ -162,8 +162,8 @@ export class SimulationAuthority<S, I> {
     input: SimulationInput<I>
   ): SimulationInput<I> | { readonly refusal: RoomError } {
     const policy = this.rules.input;
-    if (policy?.mode !== 'commands') return input;
     const committed = this.simulation.committedTick();
+    if (policy?.mode !== 'commands') return this.held(input, committed);
     if (input.tick > committed)
       return { refusal: this.refused('future', 'input future') };
     if (committed - input.tick > policy.maxAgeTicks)
@@ -176,6 +176,21 @@ export class SimulationAuthority<S, I> {
           type: ROOM_ERROR_TYPE.rateLimited,
         }),
       };
+    return { ...input, tick: committed + 1 };
+  }
+
+  /**
+   * A held control for a tick already committed outran its device's lead
+   * by the network's round trip: what the player holds now applies at the
+   * next tick, unless it is older than the lead window allows.
+   */
+  private held(
+    input: SimulationInput<I>,
+    committed: number
+  ): SimulationInput<I> | { readonly refusal: RoomError } {
+    if (input.tick > committed) return input;
+    if (committed - input.tick >= this.simulation.options.maxInputLeadTicks)
+      return { refusal: this.refused('late', 'input late') };
     return { ...input, tick: committed + 1 };
   }
 
