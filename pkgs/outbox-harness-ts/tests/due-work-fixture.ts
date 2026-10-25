@@ -8,6 +8,7 @@ import type { DrainOutboxDeps } from '@pkgs/outbox-shared-ts/drain';
 import { Outbox } from '@pkgs/outbox-shared-ts/outbox';
 import { reconcileOutbox } from '@pkgs/outbox-shared-ts/reconcile';
 import type { OutboxConsumerDef } from '@pkgs/outbox-shared-ts/types';
+import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server-ts/impl-bun-sqlite';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 
@@ -74,9 +75,10 @@ export async function openDueWork() {
     },
     registerConsumer: (consumer: OutboxConsumerDef<{ n: number }>) =>
       registry.register(consumer),
-    async append(event: EventInput) {
+    /** Append `event`, inside `tx` when a producer commits it in a transaction. */
+    async append(event: EventInput, tx: SqlTx = db) {
       await new Outbox({
-        tx: withOutboxCausation(db, event.causation ?? null),
+        tx: withOutboxCausation(tx, event.causation ?? null),
         env: { now: () => new Date(now), createId: deps.createId },
       }).send({
         id: event.id,
@@ -84,7 +86,7 @@ export async function openDueWork() {
         availableAt: new Date(NOW + (event.at ?? 0)),
       });
       if (event.deleted)
-        await db.run(
+        await tx.run(
           sql`UPDATE outbox_events SET deleted_at = ${new Date(now).toISOString()} WHERE id = ${event.id}`
         );
     },
