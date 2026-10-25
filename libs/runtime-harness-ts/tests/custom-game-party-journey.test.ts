@@ -94,9 +94,7 @@ test('both provisional g6 and authoritative f5 are real bot choices', () => {
   const provisional = game.turnGame.rules.play(position, 'g6', '', actions)!;
   expect(
     game.automation.turns.choose(provisional.position, () => 0.25, null)
-  ).toBe(
-    'f5'
-  );
+  ).toBe('f5');
 });
 
 test('the party reselects a pending acting board without repeating a move', async () => {
