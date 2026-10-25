@@ -52,6 +52,7 @@ test('the shared suites run every registered game and only test-only games besid
     ).toBe(registered.has(game.shared));
 });
 
+// regression: puzzle-only-game-packages-look-unregistered
 test('every game a package implements is registered, and every registered game has packages', () => {
   const root = join(import.meta.dir, '../../..');
   const declared = new Set<string>();
