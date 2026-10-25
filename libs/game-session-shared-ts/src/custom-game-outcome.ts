@@ -23,7 +23,8 @@ export function customGameOutcome(
 }
 
 const SINGLE = /^(white|black|red|blue) wins\b/;
-const JOINT = /^((?:white|black|red|blue)(?:, (?:white|black|red|blue))*) and (white|black|red|blue) win by /;
+const JOINT =
+  /^((?:white|black|red|blue)(?:, (?:white|black|red|blue))*) and (white|black|red|blue) win by /;
 
 /**
  * The sides a finished game's result went to: every side for a draw, none

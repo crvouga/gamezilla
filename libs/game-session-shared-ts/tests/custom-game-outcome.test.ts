@@ -42,11 +42,19 @@ test('the winners of a stored outcome: one, several, all for a draw, none otherw
   ).toEqual(['white', 'black', 'blue']);
   expect(customGameWinners(finished('draw'))).toEqual(FOUR);
   expect(customGameWinners(finished('white wins on time'))).toEqual(['white']);
-  expect(customGameWinners(finished('black wins because white stayed away'))).toEqual(['black']);
   expect(
-    customGameWinners({ status: 'cancelled', outcome: 'cancelled', sides: [...FOUR] })
+    customGameWinners(finished('black wins because white stayed away'))
+  ).toEqual(['black']);
+  expect(
+    customGameWinners({
+      status: 'cancelled',
+      outcome: 'cancelled',
+      sides: [...FOUR],
+    })
   ).toEqual([]);
-  expect(customGameWinners({ status: 'active', outcome: '', sides: [...FOUR] })).toEqual([]);
+  expect(
+    customGameWinners({ status: 'active', outcome: '', sides: [...FOUR] })
+  ).toEqual([]);
 });
 
 test('the ending reason a won outcome names', () => {

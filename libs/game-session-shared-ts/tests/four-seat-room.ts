@@ -104,5 +104,19 @@ export function fourSeatRoom() {
       }),
       at
     );
-  return { current, send, fill, expire };
+  /** `people` away since the times given; everyone else is here. */
+  const away = (since: Readonly<Record<string, number>>) => {
+    state = { ...state, ...SpaceMembersRoomAttr.away(since) };
+  };
+  /** The host's availability changes at `at`; the effects it schedules. */
+  const available = (value: boolean, at: number) => {
+    const change = module.availabilityChange?.(state, value, at) ?? null;
+    if (change === null) return [];
+    state = change.events.reduce(
+      (next, event) => module.reduce(next, event),
+      state
+    );
+    return change.effects ?? [];
+  };
+  return { current, send, fill, expire, deliver, away, available };
 }

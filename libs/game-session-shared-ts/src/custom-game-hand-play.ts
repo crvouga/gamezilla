@@ -22,9 +22,9 @@ import { CustomGamesAttr } from './custom-game-state';
  * game starts and resolves every proposal with the hidden state; a device
  * predicting its own move shows nothing until the room answers, so no
  * device ever holds, or guesses, anything that depends on a hand it may not
- * see. A refused proposal changes nothing and is refused as every game's
- * is (`move is illegal`); why is the board's own preview to say, from the
- * same rules.
+ * see. A refused proposal changes nothing; its reason is the game's own
+ * (`follow suit`), told only to the person who proposed it and worded by
+ * the game's presentation (`refusalDescription`).
  */
 
 type Decision = {

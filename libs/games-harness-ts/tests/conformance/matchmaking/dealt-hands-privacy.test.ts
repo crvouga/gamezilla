@@ -6,7 +6,6 @@
  */
 
 import { expect, test } from 'bun:test';
-import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import {
   multiplayerCommandReply,
   sendMultiplayerCommand,
@@ -16,6 +15,7 @@ import {
   opponentSearchView,
   seekGameOpponent,
 } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
+import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { deviceRowsOf } from '@libs/game-session-harness-ts/private-setup-observation';
 import { openConformanceHarness } from '../../conformance-world';
 import { forEveryGame } from '../game-suite';

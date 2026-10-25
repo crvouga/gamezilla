@@ -8,13 +8,17 @@
 
 import { expect } from 'bun:test';
 import type { CustomGameProbe } from '@libs/game-session-harness-ts/custom-game-probe';
-import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe';
+import {
+  customGameView,
+  readCustomGameProbe,
+} from '@libs/game-session-harness-ts/custom-game-probe';
 import {
   makeCustomGameSecretChoice,
   ownCustomGameSecretChoiceShown,
   secretChoiceOnScreen,
 } from '@libs/game-session-harness-ts/custom-game-secret-choice';
 import { privateSetupsReaching } from '@libs/game-session-harness-ts/private-setup-reach';
+import type { CustomGame } from '@libs/game-session-shared-ts/custom-game-state';
 import { restoreActorConnection } from '@libs/harness-ts/actions';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
@@ -224,4 +228,22 @@ export async function backOnline(
     maxMs: SHOWN_WITHIN_MS,
   });
   await rememberCustomGame(w);
+}
+
+/**
+ * The custom game as the room shows it to the people in it: the screen of
+ * the first person other than `actor` who has a connection, or the host's
+ * when nobody else is connected (a person alone with bots).
+ */
+export async function gameShownToOthers(
+  w: HarnessWorld,
+  actor: string
+): Promise<CustomGame> {
+  for (const person of ['alice', 'bob', 'carol', 'dave', 'eve']) {
+    if (person === actor || !(await w.s.read((s) => s.actors.has(person))))
+      continue;
+    const seen = await w.s.read(readCustomGameProbe, person);
+    if (seen?.connected === true && seen.current !== null) return seen.current;
+  }
+  return current(w);
 }

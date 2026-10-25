@@ -65,7 +65,10 @@ export const EndLocalCustomGameOnTime = customGameCmdNs(
 export const StandInCustomGame = customGameCmdNs(
   'stand-in',
   (p): p is { readonly gameId: string } =>
-    z.object({ gameId: z.string().min(1) }).strict().safeParse(p).success
+    z
+      .object({ gameId: z.string().min(1) })
+      .strict()
+      .safeParse(p).success
 );
 export const EndCustomGameOnTime = customGameCmdNs(
   'time-up',

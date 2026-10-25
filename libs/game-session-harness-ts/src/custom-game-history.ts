@@ -1,12 +1,13 @@
 import { DEVICE_ID_KEY } from '@libs/auth-shared-ts/auth-storage-keys';
 import { ChangeCustomGame } from '@libs/game-session-shared-ts/custom-game-commands';
+import type { CustomGame } from '@libs/game-session-shared-ts/custom-game-state';
 import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
 import { scenarioAction } from '@libs/harness-ts/actor-ui';
 import {
   openRoomCommandProbe,
+  type RoomAnswer,
   type RoomCommandProbe,
 } from '@libs/spaces-harness-ts/room-command-probe';
-import type { CustomGame } from '@libs/game-session-shared-ts/custom-game-state';
 import { splitCommittedProposal } from './played-rules';
 
 /**
@@ -17,7 +18,10 @@ import { splitCommittedProposal } from './played-rules';
 function historyChoices(
   game: CustomGame,
   proposal: string
-): readonly { readonly side: CustomGame['turn']; readonly payload: ReturnType<typeof ChangeCustomGame> }[] {
+): readonly {
+  readonly side: CustomGame['turn'];
+  readonly payload: ReturnType<typeof ChangeCustomGame>;
+}[] {
   const reference = {
     ply: game.moves.length,
     gameId: game.id,
@@ -28,7 +32,11 @@ function historyChoices(
     return [
       {
         side: game.turn,
-        payload: ChangeCustomGame({ operation: 'move', uci: proposal, ...reference }),
+        payload: ChangeCustomGame({
+          operation: 'move',
+          uci: proposal,
+          ...reference,
+        }),
       },
     ];
   if (commitments.length !== game.awaiting.length)
@@ -44,6 +52,14 @@ function historyChoices(
 }
 
 /** Acquire a legal historical position through the real server's move boundary. */
+/** Fail the history when the room refuses one of its moves. */
+function refuseHistory(uci: string, answer: RoomAnswer): void {
+  if (answer.kind === 'rejected')
+    throw new Error(
+      `historical move ${uci} refused: ${'reason' in answer.error ? answer.error.reason : answer.error.type}`
+    );
+}
+
 export const playCustomGameHistory = scenarioAction({
   name: 'playCustomGameHistory',
   act: async (
@@ -101,15 +117,14 @@ export const playCustomGameHistory = scenarioAction({
           if (game[choice.side].kind !== 'person')
             throw new Error('history needs a person on every seat');
           const probe = await probeOf(choice.side, game[choice.side].person);
-          const answer = await probe.send({
-            payload: choice.payload,
-            commandId: devices.get(choice.side)!.createId(),
-            nowMs: s.harness.clock.now(),
-          });
-          if (answer.kind === 'rejected')
-            throw new Error(
-              `historical move ${uci} refused: ${'reason' in answer.error ? answer.error.reason : answer.error.type}`
-            );
+          refuseHistory(
+            uci,
+            await probe.send({
+              payload: choice.payload,
+              commandId: devices.get(choice.side)!.createId(),
+              nowMs: s.harness.clock.now(),
+            })
+          );
         }
       }
     } finally {

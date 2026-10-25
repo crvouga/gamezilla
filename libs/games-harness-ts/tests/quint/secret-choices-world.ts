@@ -49,14 +49,6 @@ export function modelSide(w: QuintHarnessWorld, side: GameSide): string {
   return MODEL_SIDES[index] ?? side;
 }
 
-/** The game's side for the model's `side`. */
-export function gameSide(w: QuintHarnessWorld, side: string): GameSide {
-  const index = MODEL_SIDES.indexOf(side as (typeof MODEL_SIDES)[number]);
-  const found = gameSides(choiceGameOf(w).shared.turnGame.rules)[index];
-  if (found === undefined) throw new Error(`No side ${side}`);
-  return found;
-}
-
 /** The people by member identity. */
 export function choicePeople(w: QuintHarnessWorld): Map<string, string> {
   const known = w.memo.get('choice-people');
@@ -96,35 +88,6 @@ export async function prepareChoiceModel(w: QuintHarnessWorld): Promise<void> {
     choicePeople(w).set((await probeOf(w, person)).myId, person);
 }
 
-/** Which secret choices of the open round the binding made, by model side and model choice. */
-function madeChoices(w: QuintHarnessWorld): Map<string, string> {
-  const made = w.memo.get('made-choices');
-  if (made instanceof Map) return made as Map<string, string>;
-  const fresh = new Map<string, string>();
-  w.memo.set('made-choices', fresh);
-  return fresh;
-}
-
-/** The model's choice name `side`'s secret choice `shown` was made as, if the binding made it. */
-export function madeChoiceName(
-  w: QuintHarnessWorld,
-  side: string,
-  shown: string
-): string | undefined {
-  for (const [key, value] of madeChoices(w))
-    if (value === shown && key.startsWith(`${side}|`)) return key.split('|')[1];
-  return undefined;
-}
-
-/** What a bot or stand-in chose by itself, as the trace named it. */
-export function decidedChoices(w: QuintHarnessWorld): Map<string, string> {
-  const decided = w.memo.get('decided-choices');
-  if (decided instanceof Map) return decided as Map<string, string>;
-  const fresh = new Map<string, string>();
-  w.memo.set('decided-choices', fresh);
-  return fresh;
-}
-
 /**
  * `actor` makes the secret choice the model calls `choice`: the first or
  * second the game's rules offer from their own hand (a watcher, holding
@@ -140,33 +103,22 @@ export async function makeModelSecretChoice(
   const current = probe.current;
   if (current === null) throw new Error(`${actor} sees no custom game`);
   const hands = game.shared.turnGame.rules.hands;
+  // Someone holding no hand, or with no round open, tries the known line's
+  // first secret choice: one the custom game refuses.
+  const known =
+    splitCommittedProposal(game.fixtures.firstSideVictory[0] ?? '') ?? [];
   const offered =
     probe.ownHand === null || hands === undefined
-      ? (splitCommittedProposal(game.fixtures.firstSideVictory[0] ?? '') ?? [])
+      ? known
       : hands.proposals(current.fen, probe.ownHand);
-  const commitment = offered[choice === 'one choice' ? 0 : 1] ?? offered[0];
+  const commitment =
+    offered[choice === 'one choice' ? 0 : 1] ?? offered[0] ?? known[0];
   if (commitment === undefined) throw new Error(`${actor} has no choice`);
-  if (probe.mySide !== null)
-    madeChoices(w).set(`${modelSide(w, probe.mySide)}|${choice}`, commitment);
   await w.s.apply(makeCustomGameSecretChoice, actor, {
     gameId: game.shared.id,
     commitment,
     ply: current.moves.length,
   });
-}
-
-/** A bot or stand-in on model side `side` makes its secret choice by itself. */
-export async function awaitOwnSecretChoice(
-  w: QuintHarnessWorld,
-  side: string,
-  choice: string
-): Promise<void> {
-  const own = gameSide(w, side);
-  await w.s.until((s) => readCustomGameProbe(s, CHOICE_OBSERVER), {
-    pred: (shown) => shown?.current?.committed.includes(own) === true,
-    maxMs: SHOWN_WITHIN_MS,
-  });
-  decidedChoices(w).set(side, choice);
 }
 
 /** Moves made since the latest round of secret choices took effect, by the game's rules. */
@@ -175,15 +127,21 @@ export function movesSinceRound(
   game: CustomGame
 ): { readonly rounds: number; readonly since: number } {
   const rules = choiceGameOf(w).shared.turnGame.rules;
-  const actions = game.moves.map((move) => move.uci);
+  const actions: string[] = [];
+  let position = rules.initial();
+  let history = '';
   let rounds = 0;
   let since = 0;
-  for (let ply = 0; ply < actions.length; ply += 1) {
-    const before = rules.replay(actions, ply);
-    if ((rules.hands?.commit?.sides(before) ?? []).length > 0) {
+  for (const { uci } of game.moves) {
+    if ((rules.hands?.commit?.sides(position) ?? []).length > 0) {
       rounds += 1;
       since = 0;
     } else since += 1;
+    const played = rules.play(position, uci, history, actions);
+    if (played === null) throw new Error(`${uci} is not a recorded move here`);
+    position = played.position;
+    history = played.history;
+    actions.push(uci);
   }
   return { rounds, since };
 }
@@ -197,7 +155,11 @@ function playing(game: CustomGame): boolean {
  * One move by whoever the rules say moves next: a person's own choice from
  * their hand on their board, or a bot's or stand-in's, made by itself.
  */
-async function nextMove(w: QuintHarnessWorld, game: CustomGame) {
+async function nextMove(
+  w: QuintHarnessWorld,
+  game: CustomGame,
+  h: QuintHarnessWorld['s'] = w.s
+) {
   const played = game.moves.length;
   const seat = game[game.turn];
   const person = choicePeople(w).get(seat.person);
@@ -213,14 +175,9 @@ async function nextMove(w: QuintHarnessWorld, game: CustomGame) {
       probe.ownHand
     );
     if (move === null) throw new Error(`${person} has no move`);
-    await w.s.apply(
-      makeCustomGameMove,
-      person,
-      choiceGameOf(w).shared.id,
-      move
-    );
+    await h.apply(makeCustomGameMove, person, choiceGameOf(w).shared.id, move);
   }
-  await w.s.until((s) => readCustomGameProbe(s, CHOICE_OBSERVER), {
+  await h.until((s) => readCustomGameProbe(s, CHOICE_OBSERVER), {
     pred: (shown) => (shown?.current?.moves.length ?? 0) > played,
     maxMs: SHOWN_WITHIN_MS,
   });
@@ -257,8 +214,9 @@ export async function playOn(
     const game = await shownGame(w);
     if (done(game)) return;
     if (game.status !== 'active') throw new Error('Play ended early');
+    // A whole stretch of play is unrecorded: the step shows where it led.
     if (game.awaiting.length > 0) await chooseForPeople(w, game);
-    else await nextMove(w, game);
+    else await nextMove(w, game, w.quiet);
   }
   throw new Error('Play did not get there');
 }
@@ -282,14 +240,11 @@ async function chooseForPeople(w: QuintHarnessWorld, game: CustomGame) {
 
 /** Play goes on until the next round of secret choices opens. */
 export async function reachModelRound(w: QuintHarnessWorld): Promise<void> {
-  const start = movesSinceRound(w, await shownGame(w)).rounds;
+  const start = (await shownGame(w)).moves.length;
   await playOn(
     w,
-    (game) =>
-      game.awaiting.length > 0 && movesSinceRound(w, game).rounds === start
+    (game) => game.awaiting.length > 0 && game.moves.length > start
   );
-  madeChoices(w).clear();
-  decidedChoices(w).clear();
 }
 
 /** Play goes on until the game's rules finish the custom game. */

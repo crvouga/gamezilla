@@ -5,12 +5,12 @@
  */
 
 import { expect, test } from 'bun:test';
-import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-lineup';
 import {
   gameHistoryStatistics,
   openGameHistory,
 } from '@libs/game-session-harness-ts/game-history-actions';
+import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { openConformanceHarness } from '../../conformance-world';
 import { forEveryGame } from '../game-suite';
 

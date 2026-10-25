@@ -8,11 +8,11 @@ import {
   CustomGameHandsAttr,
   ownCustomGameHand,
 } from '@libs/game-session-shared-ts/custom-game-hands';
+import { customGameWinners } from '@libs/game-session-shared-ts/custom-game-outcome';
 import {
   CustomGameSetupsAttr,
   ownCustomGameSetup,
 } from '@libs/game-session-shared-ts/custom-game-setup';
-import { customGameWinners } from '@libs/game-session-shared-ts/custom-game-outcome';
 import {
   type CustomGame,
   type CustomGames,

@@ -1,0 +1,4 @@
+{
+  "summary": "A matched game's deal drew from one server id turned into four numbers and repeated, so a 55-draw Hearts-style shuffle had about 2^32 outcomes and a seat could search them from its own cards. Every draw now comes from a fresh id.",
+  "regressionTest": "libs/game-matchmaking-shared-ts/tests/multiplayer-hands.test.ts"
+}

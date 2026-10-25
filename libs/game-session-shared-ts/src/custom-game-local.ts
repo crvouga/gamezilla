@@ -87,6 +87,8 @@ export function prepareLocalCustomGameCommand(
   // commitment while every side commits — with a hand this copy holds only
   // when the game is the creator's solo practice.
   const side = payload.payload.side;
+  // A stand-in plays an away person's side; only the room chooses for it.
+  if (game.standIns.includes(side)) return payload;
   const hands = customGameHandsRules(game, rules);
   const hand = hands === undefined ? null : customGameHand(state, game, side);
   if (hands !== undefined && hand === null) return payload;

@@ -534,13 +534,19 @@ function assertVictoryLine(
     const played = rules.play(position, action, history, actions);
     const last = index === line.length - 1;
     if (played === null || (played.winner !== null) !== last)
-      return fail(`the known victory of ${winners.join(' and ')} stops at ${action}`);
+      return fail(
+        `the known victory of ${winners.join(' and ')} stops at ${action}`
+      );
     if (last) {
       if (mover !== sides[3])
-        fail(`the known victory of ${winners.join(' and ')} is not won on the fourth side's move`);
+        fail(
+          `the known victory of ${winners.join(' and ')} is not won on the fourth side's move`
+        );
       const won = winningSides(played.winner!, sides);
       if (won.join() !== winners.join())
-        fail(`the known victory of ${winners.join(' and ')} goes to ${won.join(' and ')}`);
+        fail(
+          `the known victory of ${winners.join(' and ')} goes to ${won.join(' and ')}`
+        );
     }
     position = played.position;
     history = played.history;

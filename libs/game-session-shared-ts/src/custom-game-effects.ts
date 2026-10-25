@@ -11,10 +11,7 @@ import {
 } from './custom-game-commands';
 import { soloCustomGame } from './custom-game-local';
 import type { CustomGame } from './custom-game-state';
-import {
-  customGameBotPlays,
-  customGameCommitting,
-} from './custom-game-state';
+import { customGameBotPlays, customGameCommitting } from './custom-game-state';
 
 const BOT_SCHEDULE = 'chess-custom:bot';
 const CLOCK_SCHEDULE = 'chess-custom:clock';

@@ -24,6 +24,7 @@ import { followKnownLine, knownLine, secretChoiceRound } from './known-line';
 import {
   backOnline,
   FOUR_PEOPLE,
+  gameShownToOthers,
   makeOwnSecretChoice,
   rememberScreen,
   SHOWN_WITHIN_MS,
@@ -58,15 +59,24 @@ async function awayFor(
   await w.s.advanceTime(Math.max(0, ms - elapsed));
 }
 
-/** `actor` stays away until a stand-in plays their side. */
+/**
+ * `actor` stays away until a stand-in plays their side: shown on it, or
+ * already having made the move their side was to make (a stand-in decides
+ * at once, and a game its move finishes shows no stand-in any more).
+ */
 async function standInPlays(w: HarnessWorld, actor: string): Promise<void> {
   const side = await sideShown(w, actor);
+  const earlier = before(w).current;
+  const toMove = earlier?.turn === side && earlier.awaiting.length === 0;
   await awayFor(w, actor, CUSTOM_GAME_STAND_IN_MS);
   const seen = await w.s.until((s) => customGameView(s, hostOf(w)), {
-    pred: (shown) => shown.current?.standIns.includes(side) === true,
+    pred: (shown) =>
+      shown.current?.standIns.includes(side) === true ||
+      (toMove &&
+        (shown.current?.moves.length ?? 0) > (earlier?.moves.length ?? 0)),
     maxMs: SHOWN_WITHIN_MS,
   });
-  expect(seen.current?.standIns).toContain(side);
+  expect(seen.current).not.toBeNull();
 }
 
 /**
@@ -189,7 +199,9 @@ Then(
   }
 );
 Then("{actor}'s side still has no stand-in", async (w, actor: string) => {
-  expect((await current(w)).standIns).not.toContain(await sideShown(w, actor));
+  expect((await gameShownToOthers(w, actor)).standIns).not.toContain(
+    await sideShown(w, actor)
+  );
 });
 Then("no stand-in plays {actor}'s side", async (w, actor: string) => {
   expect((await current(w)).standIns).not.toContain(await sideShown(w, actor));

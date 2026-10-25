@@ -7,6 +7,7 @@
 
 import { expect } from 'bun:test';
 import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe';
+import { ownCustomGameSecretChoiceShown } from '@libs/game-session-harness-ts/custom-game-secret-choice';
 import { recordedLine } from '@libs/game-session-harness-ts/played-rules';
 import { restoreNetwork } from '@libs/harness-ts/actions';
 import { Given, Then, When } from '@libs/harness-ts/define';
@@ -225,6 +226,15 @@ Then('no secret choice has taken effect', async (w) => {
   const game = await current(w);
   expect(game.moves).toEqual(before(w).current?.moves ?? []);
   expect(game.awaiting).not.toEqual([]);
+});
+Then("nobody sees that round's secret choices any more", async (w) => {
+  for (const person of ['alice', 'bob', 'carol', 'dave'])
+    expect(
+      await w.s.until((s) => ownCustomGameSecretChoiceShown(s, person), {
+        pred: (own) => own === null,
+        maxMs: SHOWN_WITHIN_MS,
+      })
+    ).toBeNull();
 });
 Then("the custom game goes on as the game's rules say", async (w) => {
   const game = await current(w);

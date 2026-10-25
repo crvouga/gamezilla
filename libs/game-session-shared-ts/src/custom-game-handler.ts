@@ -14,15 +14,15 @@ import { customGameAwaySince } from './custom-game-absence';
 import { CustomGameAvailableAttr } from './custom-game-availability';
 import type { CustomGameChoice } from './custom-game-choice';
 import type { CustomGameBotWake, CustomGameWake } from './custom-game-commands';
+import {
+  commitCustomGameSide,
+  commitmentChoice,
+} from './custom-game-commit-play';
 import { rematchCustomGame } from './custom-game-configuration';
 import {
   dealtHandsChoice,
   decideCustomGameMove,
 } from './custom-game-hand-play';
-import {
-  commitCustomGameSide,
-  commitmentChoice,
-} from './custom-game-commit-play';
 import {
   customGameHand,
   customGameHandsRules,
@@ -173,20 +173,22 @@ function currentWake(
 }
 
 /**
- * Whether someone other than the room chooses a move for a bot whose hand
- * is the room's alone: in every game with dealt hands but its creator's
- * solo practice.
+ * Whether someone other than the room chooses a move only the room may
+ * choose: a stand-in's move for an away person's side, or a bot's whose hand
+ * is the room's alone (every game with dealt hands but its creator's solo
+ * practice). The creator's device predicts only its own bots' public moves.
  */
-function chosesHiddenBotMove(
+function choosesRoomBotMove(
   game: CustomGame | null,
   ctx: GameCommandContext,
   wake: CustomGameBotWake | CustomGameWake,
   rules: TurnGames
 ): boolean {
+  if (ctx.identity === ROOM_SCHEDULER_IDENTITY || !('move' in wake))
+    return false;
+  if (game === null) return false;
+  if (game.standIns.includes(wake.side)) return true;
   return (
-    ctx.identity !== ROOM_SCHEDULER_IDENTITY &&
-    'move' in wake &&
-    game !== null &&
     customGameHandsRules(game, rules) !== undefined &&
     !soloCustomGame(game, rules)
   );
@@ -227,40 +229,20 @@ function botCommitment(
   };
 }
 
-export function handleCustomGameWake(
-  state: RoomState,
-  ctx: GameCommandContext,
-  action: {
-    wake: CustomGameBotWake | (CustomGameWake & { at: number });
-    bot: boolean;
-  },
-  rules: TurnGames
+type BotWakeDecision = {
+  readonly state: RoomState;
+  readonly ctx: GameCommandContext;
+  readonly game: CustomGame;
+  readonly rules: TurnGames;
+};
+
+/** The bot's own choice on its wake: a commitment, or a move the room resolves. */
+function playBotWake(
+  decision: BotWakeDecision,
+  wake: CustomGameBotWake | CustomGameWake,
+  at: number
 ): HandleResult {
-  const { wake, bot } = action;
-  const games = CustomGamesAttr.from(state);
-  const game = games.current;
-  if (
-    ctx.identity !== ROOM_SCHEDULER_IDENTITY &&
-    !(
-      game?.creator === ctx.identity &&
-      'at' in wake &&
-      (bot || soloCustomGame(game, rules))
-    )
-  )
-    return refuseCustomGame('only the game may move a bot or end a clock');
-  if (chosesHiddenBotMove(game, ctx, wake, rules))
-    return refuseCustomGame('only the game may move a bot or end a clock');
-  if (!CustomGameAvailableAttr.from(state) && !soloCustomGame(game, rules))
-    return changedCustomGames(games, ctx, rules);
-  if (!currentWake(game, wake)) return changedCustomGames(games, ctx, rules);
-  const at = 'at' in wake ? Math.min(ctx.ts, wake.at) : ctx.ts;
-  if (game.turnStartedAt !== null && at < game.turnStartedAt)
-    return refuseCustomGame('choices changed');
-  const expired = expireCustomGame(game, at, rules);
-  if (expired !== game)
-    return changedCustomGames({ ...games, current: expired }, ctx, rules);
-  if (!bot || !customGameBotPlays(game, wake.side))
-    return changedCustomGames(games, ctx, rules);
+  const { state, ctx, game, rules } = decision;
   // A copy without the hidden state leaves the bot's turn to the room.
   if (lacksHiddenState(state, ctx, game, rules))
     return { ok: true, events: [] };
@@ -282,7 +264,49 @@ export function handleCustomGameWake(
   if ('refusal' in decided) return refuseCustomGame(decided.refusal);
   const next = playCustomGameMove(game, decided.action, at, rules);
   if (next === null) return refuseCustomGame('move is illegal');
-  return changedCustomGames({ ...games, current: next }, ctx, rules, {
-    privately: decided.privately,
-  });
+  return changedCustomGames(
+    { ...CustomGamesAttr.from(state), current: next },
+    ctx,
+    rules,
+    {
+      privately: decided.privately,
+    }
+  );
+}
+
+export function handleCustomGameWake(
+  state: RoomState,
+  ctx: GameCommandContext,
+  action: {
+    wake: CustomGameBotWake | (CustomGameWake & { at: number });
+    bot: boolean;
+  },
+  rules: TurnGames
+): HandleResult {
+  const { wake, bot } = action;
+  const games = CustomGamesAttr.from(state);
+  const game = games.current;
+  if (
+    ctx.identity !== ROOM_SCHEDULER_IDENTITY &&
+    !(
+      game?.creator === ctx.identity &&
+      'at' in wake &&
+      (bot || soloCustomGame(game, rules))
+    )
+  )
+    return refuseCustomGame('only the game may move a bot or end a clock');
+  if (choosesRoomBotMove(game, ctx, wake, rules))
+    return refuseCustomGame('only the game may move a bot or end a clock');
+  if (!CustomGameAvailableAttr.from(state) && !soloCustomGame(game, rules))
+    return changedCustomGames(games, ctx, rules);
+  if (!currentWake(game, wake)) return changedCustomGames(games, ctx, rules);
+  const at = 'at' in wake ? Math.min(ctx.ts, wake.at) : ctx.ts;
+  if (game.turnStartedAt !== null && at < game.turnStartedAt)
+    return refuseCustomGame('choices changed');
+  const expired = expireCustomGame(game, at, rules);
+  if (expired !== game)
+    return changedCustomGames({ ...games, current: expired }, ctx, rules);
+  if (!bot || !customGameBotPlays(game, wake.side))
+    return changedCustomGames(games, ctx, rules);
+  return playBotWake({ state, ctx, game, rules }, wake, at);
 }

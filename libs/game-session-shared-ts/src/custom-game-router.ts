@@ -42,6 +42,10 @@ import {
   reduceCustomGameHidden,
 } from './custom-game-hands';
 import { localCustomGameChoiceAllowed } from './custom-game-local';
+import {
+  compactCustomGameResult,
+  progressedCustomGames,
+} from './custom-game-progress';
 import { refuseCustomGame } from './custom-game-result';
 import {
   CustomGameSetupChosen,
@@ -58,10 +62,6 @@ import {
   CustomGamesAttr,
   EMPTY_CUSTOM_GAMES,
 } from './custom-game-state';
-import {
-  compactCustomGameResult,
-  progressedCustomGames,
-} from './custom-game-progress';
 
 const noticeSchema = z
   .object({ commandId: z.string(), reason: z.string() })
@@ -113,10 +113,7 @@ export function createCustomGameCommandRouter(rules: TurnGames) {
     customGameCmdNs
   )
     .on(ChangeCustomGame, (state, ctx, command) =>
-      settled(
-        state,
-        handleCustomGameChoice(state, ctx, command.payload, rules)
-      )
+      settled(state, handleCustomGameChoice(state, ctx, command.payload, rules))
     )
     .on(ChangeLocalCustomGame, (state, ctx, command) =>
       localCustomGameChoiceAllowed(

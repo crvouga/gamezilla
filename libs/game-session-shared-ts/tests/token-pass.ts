@@ -18,7 +18,11 @@ type Seat = 0 | 1 | 2 | 3;
 type Hidden = { readonly hands: readonly (readonly number[])[] };
 type Position =
   | { readonly phase: 'pass' }
-  | { readonly phase: 'play'; readonly lead: Seat; readonly plays: readonly number[] }
+  | {
+      readonly phase: 'play';
+      readonly lead: Seat;
+      readonly plays: readonly number[];
+    }
   | { readonly phase: 'done'; readonly plays: readonly number[] };
 
 function parse(text: string): Position | null {
@@ -31,12 +35,15 @@ function parse(text: string): Position | null {
       plays: [...play[2]!].map(Number),
     };
   const done = /^token-pass:done:([1-8]{4})$/.exec(text);
-  return done === null ? null : { phase: 'done', plays: [...done[1]!].map(Number) };
+  return done === null
+    ? null
+    : { phase: 'done', plays: [...done[1]!].map(Number) };
 }
 
 function write(position: Position): string {
   if (position.phase === 'pass') return 'token-pass:pass';
-  if (position.phase === 'done') return `token-pass:done:${position.plays.join('')}`;
+  if (position.phase === 'done')
+    return `token-pass:done:${position.plays.join('')}`;
   return `token-pass:play:${position.lead}:${position.plays.join('')}`;
 }
 
@@ -61,11 +68,19 @@ function step(text: string, action: string): PlayedPosition | null {
   if (position.plays.includes(value)) return null;
   const plays = [...position.plays, value];
   if (plays.length < 4)
-    return played({ ...position, plays }, String(value), SIDES[((seat + 1) % 4) as Seat]);
+    return played(
+      { ...position, plays },
+      String(value),
+      SIDES[((seat + 1) % 4) as Seat]
+    );
   const winners = SIDES.filter(
     (_, at) => plays[(at - position.lead + 4) % 4]! > 4
   );
-  const done: PlayedPosition = played({ phase: 'done', plays }, String(value), 'white');
+  const done: PlayedPosition = played(
+    { phase: 'done', plays },
+    String(value),
+    'white'
+  );
   return {
     ...done,
     winner: winners.length === 0 ? 'draw' : winners,
@@ -73,8 +88,19 @@ function step(text: string, action: string): PlayedPosition | null {
   };
 }
 
-function played(position: Position, label: string, turn: GameSide): PlayedPosition {
-  return { position: write(position), history: '', turn, label, winner: null, reason: null };
+function played(
+  position: Position,
+  label: string,
+  turn: GameSide
+): PlayedPosition {
+  return {
+    position: write(position),
+    history: '',
+    turn,
+    label,
+    winner: null,
+    reason: null,
+  };
 }
 
 const readHidden = (text: string): Hidden => JSON.parse(text) as Hidden;
@@ -90,17 +116,25 @@ export const tokenPassHands: DealtHandsRules = {
       [tokens[i], tokens[j]] = [tokens[j]!, tokens[i]!];
     }
     return writeHidden({
-      hands: SIDES.map((_, seat) => tokens.slice(seat * 2, seat * 2 + 2).sort()),
+      hands: SIDES.map((_, seat) =>
+        tokens.slice(seat * 2, seat * 2 + 2).sort()
+      ),
     });
   },
   hand: (hidden, side) =>
-    readHidden(hidden).hands[SIDES.indexOf(side as (typeof SIDES)[number])]!.join(''),
+    readHidden(hidden).hands[
+      SIDES.indexOf(side as (typeof SIDES)[number])
+    ]!.join(''),
   resolve: (text, proposal, hiddenText) => {
     const position = parse(text);
     const seat = position === null ? null : seatToPlay(position);
     const hidden = readHidden(hiddenText);
     const value = Number(proposal);
-    if (seat === null || !/^[1-8]$/.test(proposal) || !hidden.hands[seat]!.includes(value))
+    if (
+      seat === null ||
+      !/^[1-8]$/.test(proposal) ||
+      !hidden.hands[seat]!.includes(value)
+    )
       return { refusal: 'that token is not yours to play' };
     return {
       action: `play:${proposal}`,
@@ -116,16 +150,20 @@ export const tokenPassHands: DealtHandsRules = {
   commit: {
     sides: (text) => (parse(text)?.phase === 'pass' ? SIDES : []),
     accept: (text, _side, hand, commitment) =>
-      parse(text)?.phase === 'pass' && /^[1-8]$/.test(commitment) && hand.includes(commitment)
+      parse(text)?.phase === 'pass' &&
+      /^[1-8]$/.test(commitment) &&
+      hand.includes(commitment)
         ? { commitment }
         : { refusal: 'move is illegal' },
     resolve: (_text, commitments, hiddenText) => {
       const hidden = readHidden(hiddenText);
       const given = SIDES.map((side) => Number(commitments[side]));
-      const hands = hidden.hands.map((hand, seat) => [
-        ...hand.filter((held) => held !== given[seat]),
-        given[(seat + 3) % 4]!,
-      ].sort());
+      const hands = hidden.hands.map((hand, seat) =>
+        [
+          ...hand.filter((held) => held !== given[seat]),
+          given[(seat + 3) % 4]!,
+        ].sort()
+      );
       const after = { hands };
       return { action: `passed:${holder8(after)}`, hidden: writeHidden(after) };
     },
@@ -149,7 +187,9 @@ export const tokenPassRules: GameRules = {
   legal: (text) => {
     const position = parse(text);
     return position?.phase === 'play'
-      ? ['1', '2', '3', '4', '5', '6', '7', '8'].filter((t) => !position.plays.includes(Number(t)))
+      ? ['1', '2', '3', '4', '5', '6', '7', '8'].filter(
+          (t) => !position.plays.includes(Number(t))
+        )
       : [];
   },
   canWin: (text) => parse(text)?.phase !== 'done',

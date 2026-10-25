@@ -173,7 +173,7 @@ test("a refused proposal is refused as every game's is and changes nothing", () 
   );
   expect(result.ok).toBe(false);
   expect(!result.ok && 'reason' in result.error && result.error.reason).toBe(
-    'move is illegal'
+    'not a move'
   );
 });
 
@@ -308,18 +308,18 @@ test('a game with another person never takes a device’s draws', () => {
 });
 
 test('with another person at the table, nobody but the room chooses a bot’s move', () => {
-  const threeSeats = defineGame({
+  const fourSeats = defineGame({
     rules: {
       ...handDrawRules,
-      id: 'hand-draw-three',
-      sides: ['white', 'black', 'red'],
+      id: 'hand-draw-four',
+      sides: ['white', 'black', 'red', 'blue'],
     },
     capabilities: { 'custom-games': { bots: handDrawBots } },
     turnAutomation: { choose: () => null, perform: async () => {} },
   });
   const room = createSpaceModule(
     assertRoomModuleName('hands-room'),
-    [threeSeats],
+    [fourSeats],
     { now: () => 0, random: () => 0.5, authority: true }
   );
   const decide = (state: RoomState, as: string, input: CustomGameInput) => {
@@ -329,7 +329,7 @@ test('with another person at the table, nobody but the room chooses a bot’s mo
   };
   let state: RoomState = {
     ...room.initialState(),
-    ...GamesRoomAttr.selected('hand-draw-three'),
+    ...GamesRoomAttr.selected('hand-draw-four'),
     ...SpaceMembersRoomAttr.seats({
       alice: { joinedAt: '2026-10-24' },
       bob: { joinedAt: '2026-10-24' },
@@ -338,6 +338,7 @@ test('with another person at the table, nobody but the room chooses a bot’s mo
   state = decide(state, 'alice', { operation: 'create' });
   state = decide(state, 'bob', { operation: 'claim', side: 'black' });
   state = decide(state, 'alice', { operation: 'bot', side: 'red' });
+  state = decide(state, 'alice', { operation: 'bot', side: 'blue' });
   state = decide(state, 'alice', { operation: 'ready' });
   state = decide(state, 'bob', { operation: 'ready' });
   state = decide(state, 'alice', { operation: 'start' });

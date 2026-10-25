@@ -1,10 +1,12 @@
+import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Plural, Trans } from '@lingui/solid/macro';
 import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
 import {
   useGamePresentation,
   useTurnGames,
 } from '@pkgs/turn-game-client-ts/turn-games-context';
+import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
@@ -17,14 +19,7 @@ import { ListEntry, OrderedList } from '@pkgs/ui-root-client-ts/semantic-list';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
-import {
-  createMemo,
-  createSignal,
-  For,
-  Index,
-  type JSX,
-  Show,
-} from 'solid-js';
+import { createMemo, createSignal, For, Index, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { customGameCanMove } from './custom-game-can-move';
 import { CustomGameError } from './custom-game-error';
@@ -122,10 +117,16 @@ function ReviewMoves(props: BoardProps): JSX.Element {
       }
     >
       <Show when={earlier() > 0}>
-        <P variant="caption" tone="secondary">
-          <Trans>
-            {earlier()} earlier moves. Review any of them by its move number.
-          </Trans>
+        <P
+          variant="caption"
+          tone="secondary"
+          dataSet={{ testid: 'custom-game-earlier-moves' }}
+        >
+          <Plural
+            value={earlier()}
+            one="# earlier move. Review it by its move number."
+            other="# earlier moves. Review any of them by its move number."
+          />
         </P>
       </Show>
       <StackHorizontal wrap gap="xs">
@@ -216,6 +217,41 @@ function publicBoardState(props: BoardProps, canMove: boolean): string {
 }
 
 /**
+ * The board's gesture as a choice: while every side commits it is this
+ * side's own commitment; otherwise it is a move.
+ */
+function gestureChoice(
+  model: BoardProps['model'],
+  action: string
+): CustomGameInput {
+  const game = model.current();
+  const ply = game?.moves.length ?? 0;
+  const side = model.mySide();
+  return side !== null && game?.awaiting.includes(side) === true
+    ? { operation: 'commit', commitment: action, ply }
+    : { operation: 'move', uci: action, ply };
+}
+
+/** The seats across the board from the person's own. */
+function FarSeats(props: {
+  readonly model: BoardProps['model'];
+  readonly near: GameSide;
+}): JSX.Element {
+  return (
+    <StackVertical gap="sm">
+      <For
+        each={
+          props.model.current()?.sides.filter((side) => side !== props.near) ??
+          []
+        }
+      >
+        {(side) => <CustomGameSeat model={props.model} side={side} />}
+      </For>
+    </StackVertical>
+  );
+}
+
+/**
  * The board. Once the game is under way the two seats sit around it, the
  * person's own side nearest them; while it is set up the seats are in the
  * Players section with their choices.
@@ -234,17 +270,8 @@ export function CustomGameBoard(props: BoardProps): JSX.Element {
       ? (simulation.position() ?? props.review.fen())
       : props.review.fen();
   const move = async (action: string): Promise<void> => {
-    const game = props.model.current();
-    const ply = game?.moves.length ?? 0;
-    const side = props.model.mySide();
     try {
-      // While every side commits, the board's gesture is this side's own
-      // commitment; otherwise it is a move.
-      await props.model.choose(
-        side !== null && game?.awaiting.includes(side) === true
-          ? { operation: 'commit', commitment: action, ply }
-          : { operation: 'move', uci: action, ply }
-      );
+      await props.model.choose(gestureChoice(props.model, action));
     } catch {
       setReset((value) => value + 1);
     }
@@ -262,19 +289,7 @@ export function CustomGameBoard(props: BoardProps): JSX.Element {
         canmove: String(interactive()),
       }}
       top={
-        seated() ? (
-          <StackVertical gap="sm">
-            <For
-              each={
-                props.model
-                  .current()
-                  ?.sides.filter((side) => side !== near()) ?? []
-              }
-            >
-              {(side) => <CustomGameSeat model={props.model} side={side} />}
-            </For>
-          </StackVertical>
-        ) : undefined
+        seated() ? <FarSeats model={props.model} near={near()} /> : undefined
       }
       bottom={
         seated() ? (
@@ -298,9 +313,13 @@ export function CustomGameBoard(props: BoardProps): JSX.Element {
         syncKey={reset()}
         testId="custom-game-board"
         setup={props.model.privateSetup.own()}
-        hand={props.model.ownHand()}
-        committed={props.model.current()?.committed ?? []}
-        commitment={props.model.ownCommitment()}
+        // The hand and commitments are the live game's: an earlier move
+        // reviewed shows its position without them.
+        hand={props.review.live() ? props.model.ownHand() : null}
+        committed={
+          props.review.live() ? (props.model.current()?.committed ?? []) : []
+        }
+        commitment={props.review.live() ? props.model.ownCommitment() : null}
         onAction={(action: string) => {
           void move(action);
         }}

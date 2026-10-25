@@ -191,9 +191,7 @@ export function recordedLine(
  */
 const COMMITMENTS = 'commit:';
 
-export function committedProposal(
-  commitments: readonly string[]
-): string {
+export function committedProposal(commitments: readonly string[]): string {
   return `${COMMITMENTS}${commitments.join('|')}`;
 }
 
@@ -254,7 +252,11 @@ function resolveDealt(
  */
 function dealtLegal(
   hands: DealtHandsRules,
-  at: { readonly position: string; readonly hidden: string; readonly turn: GameSide }
+  at: {
+    readonly position: string;
+    readonly hidden: string;
+    readonly turn: GameSide;
+  }
 ): readonly string[] {
   const sides = committingSides(hands, at.position);
   if (sides.length === 0)
@@ -315,7 +317,10 @@ function handsLine(
     readonly hidden: string;
     readonly proposals: readonly string[];
     /** A line already resolved for a prefix of `proposals`, to continue from. */
-    readonly from?: { readonly proposals: readonly string[]; readonly state: HandsLine };
+    readonly from?: {
+      readonly proposals: readonly string[];
+      readonly state: HandsLine;
+    };
   }
 ): HandsLine {
   const from = line.from;

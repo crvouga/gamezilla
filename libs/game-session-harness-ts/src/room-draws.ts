@@ -1,8 +1,8 @@
 import type { HarnessRoomNode } from '@libs/harness-ts/composition';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { readCustomGameProbe } from './custom-game-probe';
-import { harnessGameAt } from './harness-game-of';
 import { isTurnHarnessGame } from './harness-game';
+import { harnessGameAt } from './harness-game-of';
 
 /**
  * Documented choices made through the room's injected random port: the

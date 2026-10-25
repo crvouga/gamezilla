@@ -2,11 +2,11 @@ import type { GameDefinition } from '@libs/spaces-shared-ts/game';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { createCustomGameAvailabilityChange } from './custom-game-availability';
 import { customGameCmdNs, customGameEvtNs } from './custom-game-commands';
+import { customGameCommitmentAudience } from './custom-game-commitments';
 import {
   customGameEffects,
   localCustomGameEffects,
 } from './custom-game-effects';
-import { customGameCommitmentAudience } from './custom-game-commitments';
 import { customGameHandsAudience } from './custom-game-hands';
 import { prepareLocalCustomGameCommand } from './custom-game-local';
 import { customGameCommandPermission } from './custom-game-permissions';

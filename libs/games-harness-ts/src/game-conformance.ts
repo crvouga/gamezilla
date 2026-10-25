@@ -96,26 +96,21 @@ export const GAME_TRAITS = {
    * makes once.
    */
   'played on one device': (game: HarnessGame) =>
-    isTurnHarnessGame(game) &&
-    game.shared.turnGame.rules.setup === undefined,
-  'every position public': (game: HarnessGame) =>
-    game.shared.registration.rules.setup === undefined,
+    isTurnHarnessGame(game) && game.shared.turnGame.rules.setup === undefined,
   /**
    * A bot that chooses among the position's legal moves, so a scenario names
    * its next move by the draw that picks it. A bot proposing from a hidden
    * hand (`rules.hands`) chooses among what its hand allows instead.
    */
   'a bot choosing among legal moves': (game: HarnessGame) =>
-    isTurnHarnessGame(game) &&
-    game.shared.turnGame.rules.hands === undefined,
+    isTurnHarnessGame(game) && game.shared.turnGame.rules.hands === undefined,
   /**
    * Hands the authority deals and keeps hidden (`rules.hands`); the rules
    * laws hold such a game to resolving every offered proposal from a known
    * deal.
    */
   'dealt hands': (game: HarnessGame) =>
-    isTurnHarnessGame(game) &&
-    game.shared.turnGame.rules.hands !== undefined,
+    isTurnHarnessGame(game) && game.shared.turnGame.rules.hands !== undefined,
   /**
    * A known first-side victory of exactly seven moves (`firstSideVictory`),
    * which the whole-game models follow (`tests/quint/model-game.ts`). A

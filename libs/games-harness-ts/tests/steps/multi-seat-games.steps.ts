@@ -10,8 +10,9 @@ import {
   toldOf,
 } from './custom-game-set-up-world';
 
-import { setupCustomGame, turnGameOf } from './game-world';
+import { hostOf, setupCustomGame, turnGameOf } from './game-world';
 import { followsKnownLine, plyWithMover } from './known-line';
+import { gameShownToOthers } from './secret-choices-world';
 
 const PEOPLE = ['alice', 'bob', 'carol', 'dave'] as const;
 
@@ -66,6 +67,13 @@ Given(
   'Alice, Bob, Carol and Dave have a four-player custom game with Alice to move',
   async (w) => toMove(w, 0)
 );
+Given(
+  "Alice, Bob, Carol and Dave have a four-player custom game in Alice's space with Alice to move",
+  async (w) => {
+    await toMove(w, 0);
+    expect(hostOf(w)).toBe('alice');
+  }
+);
 Given('Alice has offered a draw accepted by Bob and Carol', async (w) => {
   await chosen(w, 'alice', { operation: 'offer' });
   await chosen(w, 'bob', { operation: 'agree' });
@@ -99,8 +107,9 @@ Then(
   '{actor} is told every side needs a participant',
   async (w, actor: string) => toldOf(w, actor, 'every side needs a participant')
 );
+// As the others see it: a person away keeps showing what they last saw.
 Then('{actor} keeps the custom game turn', async (w, actor: string) => {
-  const game = await current(w);
+  const game = await gameShownToOthers(w, actor);
   expect(game.status).toBe('active');
   expect(game[game.turn].person).toBe(await identityOf(w, actor));
 });

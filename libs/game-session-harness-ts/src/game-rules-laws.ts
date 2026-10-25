@@ -6,7 +6,7 @@ import type {
   GameSide,
   GameWinner,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
+import { gameSides, plainWinner } from '@pkgs/turn-game-shared-ts/game-rules';
 import fc from 'fast-check';
 import type { HarnessGame, TurnHarnessGame } from './harness-game';
 import { isTurnHarnessGame } from './harness-game';
@@ -64,6 +64,18 @@ export function must(holds: boolean, problem: string): void {
 }
 
 /**
+ * Whether every side commits at `position`: a bot's choice there is the
+ * seats' combined commitments, each held to its side's own hand when played.
+ */
+function committingAt(game: TurnHarnessGame, position: string): boolean {
+  const commit = game.shared.turnGame.rules.hands?.commit;
+  return (
+    commit !== undefined &&
+    commit.sides(splitDealtPosition(position).position).length > 0
+  );
+}
+
+/**
  * What a side may propose at `position` of `game`'s played rules, as the
  * game's own judge sees it: one of `legal` for most games; for a game with
  * dealt hands (whose `legal` is a bounded sample of what a hand allows),
@@ -85,7 +97,12 @@ function offered(
     const side = committing[0]!;
     return (
       'commitment' in
-      hands.commit!.accept(at.position, side, hands.hand(at.hidden, side), action)
+      hands.commit!.accept(
+        at.position,
+        side,
+        hands.hand(at.hidden, side),
+        action
+      )
     );
   }
   return accepted();
@@ -300,7 +317,53 @@ function duelRulesLaws(game: TurnHarnessGame): readonly GameLaw[] {
     law(game, 'a side cannot win only where the game names a line to it', () =>
       cannotWinOnlyWhereKnown(game)
     ),
+    law(game, 'every turn and every result names the seats of the game', () =>
+      namesItsSeats(game)
+    ),
   ];
+}
+
+/** Whether `winner` is a draw, one seat, or distinct seats of the game. */
+function resultOfSeats(winner: GameWinner, sides: readonly GameSide[]) {
+  if (typeof winner === 'string')
+    return winner === 'draw' || sides.includes(winner);
+  return (
+    winner.length > 0 &&
+    new Set(winner).size === winner.length &&
+    winner.every((side) => sides.includes(side))
+  );
+}
+
+/**
+ * The side to move is always a declared seat (the only check a game whose
+ * rules name the next side has), and a result names only seats, at least
+ * one, each once. A matched game ends with one winner or a draw: ratings
+ * compare one winner.
+ */
+function namesItsSeats(game: TurnHarnessGame): void {
+  const rules = playedRulesOf(game);
+  const sides = gameSides(rules);
+  const matched = game.shared.turnGame.capabilities.matchmaking !== undefined;
+  assertProperty(
+    `${game.label}: turns and results name its seats`,
+    fc.property(picks, (drawn) => {
+      for (const step of walk(rules, drawn).steps) {
+        must(
+          sides.includes(step.turn),
+          `the turn at ${step.position} goes to ${step.turn}, not a seat of the game`
+        );
+        if (step.winner === null) continue;
+        must(
+          resultOfSeats(step.winner, sides),
+          `the result at ${step.position} names ${JSON.stringify(step.winner)}, not seats of the game`
+        );
+        must(
+          !matched || typeof plainWinner(step.winner, sides) === 'string',
+          `the matched result at ${step.position} has several winners`
+        );
+      }
+    })
+  );
 }
 
 /**
@@ -342,10 +405,18 @@ function cannotWinOnlyWhereKnown(game: TurnHarnessGame): void {
  */
 function drawnOnlyWhereKnown(game: TurnHarnessGame): void {
   const rules = playedRulesOf(game);
+  const sides = gameSides(rules);
+  // A result naming every seat is a draw too.
+  const isDraw = (winner: GameWinner | null) =>
+    winner !== null &&
+    resultOfSeats(winner, sides) &&
+    plainWinner(winner, sides) === 'draw';
   const line = game.fixtures.drawByRules;
   if (line !== undefined) {
-    const played = walkLine(rules, line);
-    must(played === 'draw', 'the known line its rules draw does not draw');
+    must(
+      isDraw(walkLine(rules, line)),
+      'the known line its rules draw does not draw'
+    );
     return;
   }
   assertProperty(
@@ -353,7 +424,7 @@ function drawnOnlyWhereKnown(game: TurnHarnessGame): void {
     fc.property(picks, (drawn) => {
       for (const step of walk(rules, drawn).steps)
         must(
-          step.winner !== 'draw',
+          !isDraw(step.winner),
           `its rules drew at ${step.position}, which the game names no line to`
         );
     })
@@ -760,7 +831,7 @@ export function gameBotLaws(game: TurnHarnessGame): readonly GameLaw[] {
                     : rules.play(position, chosen, history, actions);
                 must(
                   chosen !== null &&
-                    (chosen.startsWith('commit:') ||
+                    (committingAt(game, position) ||
                       offered(
                         game,
                         { rules, position },

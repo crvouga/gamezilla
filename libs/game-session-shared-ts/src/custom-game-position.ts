@@ -42,7 +42,10 @@ export function assertCustomGamePosition(
   if (JSON.stringify(game.sides) !== JSON.stringify(expected))
     throw new Error('The retained game roster does not match its rules');
   const turns = rules.turnsForPosition(game.fen);
-  if (turns !== undefined && VERIFIED.get(turns)?.has(retainedKey(game)) === true)
+  if (
+    turns !== undefined &&
+    VERIFIED.get(turns)?.has(retainedKey(game)) === true
+  )
     return;
   const actions = game.moves.map((move) => move.uci);
   if (turns === undefined) {

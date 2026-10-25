@@ -13,6 +13,7 @@ import { expect, test } from 'bun:test';
 import { hostedSpaceId } from '@libs/game-matchmaking-harness-ts/multiplayer-spaces';
 import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-lineup';
 import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import {
   deviceRowsOf,
   roomHistorySentTo,
@@ -20,7 +21,6 @@ import {
 import type { OpenHarness } from '@libs/harness-ts/open-harness';
 import { openConformanceHarness } from '../../conformance-world';
 import { forEveryGame } from '../game-suite';
-import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 
 /** The two first hands of the known deal, and its hidden state. */
 function knownDeal(game: TurnHarnessGame) {

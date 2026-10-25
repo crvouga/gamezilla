@@ -103,9 +103,7 @@ function openedCommitments(game: CustomGame, rules: TurnGames): CustomGame {
   return {
     ...game,
     awaiting:
-      turns === undefined
-        ? []
-        : [...pendingCommitments(turns, game.fen, [])],
+      turns === undefined ? [] : [...pendingCommitments(turns, game.fen, [])],
     committed: [],
   };
 }

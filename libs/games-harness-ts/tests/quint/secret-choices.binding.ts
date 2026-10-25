@@ -3,7 +3,6 @@ import type { Picks } from '@pkgs/quint-shared-ts/registry';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
 import { observeChoiceModel } from './secret-choices-observe';
 import {
-  awaitOwnSecretChoice,
   awaitStandIn,
   finishModelGame,
   loseModelConnection,
@@ -16,28 +15,18 @@ import {
 } from './secret-choices-world';
 
 const actor = (picks: Picks): string => String(picks['actor']);
-const choice = (picks: Picks): string => String(picks['choice']);
 
-/** The model's people by side: who a stand-in plays for. */
-const PERSON_OF_SIDE: Readonly<Record<string, string>> = {
-  first: 'alice',
-  second: 'bob',
-  third: 'carol',
-};
-
+// The bot and a stand-in decide by themselves (`choice`): the product's own
+// decision stands for it, and nobody sees which one it made.
 bindQuintModel<QuintHarnessWorld>({
   model: 'secret-choices',
-  traces: 8,
-  maxSteps: 12,
-  timeoutMs: 600_000,
+  traces: 128,
+  maxSteps: 20,
+  timeoutMs: 1_200_000,
   actions: {
     init: (w) => prepareChoiceModel(w),
     makeSecretChoice: (w, picks) =>
-      makeModelSecretChoice(w, actor(picks), choice(picks)),
-    // The bot and a stand-in choose by themselves: the step is when they have.
-    botPlays: (w, picks) => awaitOwnSecretChoice(w, 'fourth', choice(picks)),
-    standInPlays: (w, picks) =>
-      awaitOwnSecretChoice(w, String(picks['side']), choice(picks)),
+      makeModelSecretChoice(w, actor(picks), String(picks['choice'])),
     playMove: (w) => playModelMove(w),
     reachNextRound: (w) => reachModelRound(w),
     finishGame: (w) => finishModelGame(w),
@@ -46,5 +35,5 @@ bindQuintModel<QuintHarnessWorld>({
     loseConnection: (w, picks) => loseModelConnection(w, actor(picks)),
     connectionReturns: (w, picks) => modelConnectionReturns(w, actor(picks)),
   },
-  observe: (w) => observeChoiceModel(w, PERSON_OF_SIDE),
+  observe: (w) => observeChoiceModel(w),
 });

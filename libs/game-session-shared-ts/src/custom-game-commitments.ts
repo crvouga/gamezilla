@@ -5,12 +5,12 @@ import type { RoomState } from '@pkgs/room-root-shared-ts/types';
 import type { GameCommitments } from '@pkgs/turn-game-shared-ts/game-rules';
 import { z } from 'zod';
 import { customGameEvtNs } from './custom-game-commands';
+import { creatorAloneInCustomGame } from './custom-game-solo';
 import type {
   CustomGame,
   CustomGameSide,
   CustomGames,
 } from './custom-game-state';
-import { creatorAloneInCustomGame } from './custom-game-solo';
 import { CUSTOM_GAME_SIDES, customGamePersonSide } from './custom-game-state';
 
 /**

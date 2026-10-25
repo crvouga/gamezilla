@@ -276,6 +276,56 @@ async function startCustomGame(
   if (refused !== '') throw new Error(`could not establish start: ${refused}`);
 }
 
+/**
+ * An earlier history nobody watches: the people's devices are cut off while
+ * it is played and catch up with the game it reached after.
+ */
+async function playHistory(
+  s: ProductHarness,
+  history: {
+    readonly label: string;
+    readonly host: string;
+    readonly people: readonly string[];
+    readonly seats: Readonly<Partial<Record<GameSide, CustomGameSeat>>>;
+    readonly moves: readonly string[];
+  }
+): Promise<void> {
+  const { seats, people } = history;
+  const spaceId = await hostedSpaceId(s, history.host);
+  if (spaceId === null)
+    throw new Error(`${history.label}: no space for its history`);
+  for (const person of people) {
+    await Promise.resolve(partition.act(s, person));
+    await Promise.resolve(refreshActorConnection.act(s, person));
+  }
+  await Promise.resolve(
+    playCustomGameHistory.act(s, {
+      spaceId,
+      white: String(seats.white),
+      black: String(seats.black),
+      ...(seats.red === undefined ? {} : { red: String(seats.red) }),
+      ...(seats.blue === undefined ? {} : { blue: String(seats.blue) }),
+      moves: history.moves,
+    })
+  );
+  await Promise.resolve(restoreNetwork.act(s));
+  const reached = CustomGamesAttr.from(
+    s.harness.roomNode.inspect(`space:${spaceId}`)?.committedState ?? {}
+  ).current?.moves.length;
+  for (const person of people)
+    await pollUntil(
+      s,
+      async () => {
+        const probe = await readCustomGameProbe(s, person);
+        return probe?.connected === true &&
+          probe.current?.moves.length === reached
+          ? true
+          : null;
+      },
+      { maxMs: 30_000, stepMs: 10, description: `${person} catches up` }
+    );
+}
+
 /** Preconditions use ordinary space and game choices, never inject a board or a winner. */
 export const establishCustomGame = scenarioAction({
   name: 'establishCustomGame',
@@ -328,43 +378,14 @@ export const establishCustomGame = scenarioAction({
     // Changing either side withdraws all readiness, so agree to the final lineup.
     if (lineup.ready !== false) await readyEveryPerson(s, seats, lineup);
     if (lineup.active !== false) await startCustomGame(s, host, lineup.draws);
-    if (lineup.history !== undefined && lineup.history.length > 0) {
-      const spaceId = await hostedSpaceId(s, host);
-      if (spaceId === null)
-        throw new Error(`${game.label}: no space for its history`);
-      // Nobody watches an earlier history: the people's devices are cut off
-      // while it is played and catch up with the game it reached after.
-      for (const person of people) {
-        await Promise.resolve(partition.act(s, person));
-        await Promise.resolve(refreshActorConnection.act(s, person));
-      }
-      await Promise.resolve(
-        playCustomGameHistory.act(s, {
-          spaceId,
-          white: String(seats.white),
-          black: String(seats.black),
-          ...(sides.includes('red') ? { red: String(seats.red) } : {}),
-          ...(sides.includes('blue') ? { blue: String(seats.blue) } : {}),
-          moves: lineup.history,
-        })
-      );
-      await Promise.resolve(restoreNetwork.act(s));
-      const reached = CustomGamesAttr.from(
-        s.harness.roomNode.inspect(`space:${spaceId}`)?.committedState ?? {}
-      ).current?.moves.length;
-      for (const person of people)
-        await pollUntil(
-          s,
-          async () => {
-            const probe = await readCustomGameProbe(s, person);
-            return probe?.connected === true &&
-              probe.current?.moves.length === reached
-              ? true
-              : null;
-          },
-          { maxMs: 30_000, stepMs: 10, description: `${person} catches up` }
-        );
-    }
+    if (lineup.history !== undefined && lineup.history.length > 0)
+      await playHistory(s, {
+        label: game.label,
+        host,
+        people,
+        seats: Object.fromEntries(sides.map((side) => [side, seats[side]])),
+        moves: lineup.history,
+      });
     await playCustomGameMoves(s, host, seats, lineup.moves ?? []);
   },
 });

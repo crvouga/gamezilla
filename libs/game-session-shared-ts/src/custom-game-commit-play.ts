@@ -14,6 +14,7 @@ import {
   customGameHandEvents,
   customGameHidden,
 } from './custom-game-hands';
+import { soloCustomGame } from './custom-game-local';
 import { playCustomGameMove } from './custom-game-play';
 import { refuseCustomGame } from './custom-game-result';
 import type { CustomGame, CustomGameSide } from './custom-game-state';
@@ -75,7 +76,12 @@ export function commitCustomGameSide(
   const acceptance = commit.accept(game.fen, side, hand, commitment);
   if ('refusal' in acceptance) return refuseCustomGame(acceptance.refusal);
   const accepted = acceptance.commitment;
-  if (!ctx.authority) return { ok: true, events: [] };
+  // The room decides; so does the creator's device in their solo practice,
+  // which holds the hidden state and plays the bots offline too.
+  const decides =
+    ctx.authority ||
+    (soloCustomGame(game, rules) && customGameHidden(state, game) !== null);
+  if (!decides) return { ok: true, events: [] };
   const recorded = customGameCommitmentChosen(game, side, accepted);
   const committed: CustomGame = {
     ...game,
@@ -95,7 +101,9 @@ export function commitCustomGameSide(
   );
   const next = playCustomGameMove(committed, resolution.action, ctx.ts, rules);
   if (next === null)
-    throw new Error(`${game.fen}: its commitments resolved to a refused action`);
+    throw new Error(
+      `${game.fen}: its commitments resolved to a refused action`
+    );
   return changed(decision, next, [
     recorded,
     ...customGameHandEvents(state, game, {

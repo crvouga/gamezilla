@@ -10,7 +10,10 @@ import type {
   RoomState,
 } from '@pkgs/room-root-shared-ts/types';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
-import { customGameAwaySince } from './custom-game-absence';
+import {
+  CustomGameAbsenceAttr,
+  customGameAwaySince,
+} from './custom-game-absence';
 import { CustomGamesChanged, StandInCustomGame } from './custom-game-commands';
 import { CUSTOM_GAME_AWAY_CLAIM_MS } from './custom-game-refusal';
 import { changedCustomGames, refuseCustomGame } from './custom-game-result';
@@ -30,17 +33,39 @@ const STAND_IN_SCHEDULE = 'chess-custom:stand-in';
 /** How long a participant stays away before a stand-in plays their side. */
 export const CUSTOM_GAME_STAND_IN_MS = CUSTOM_GAME_AWAY_CLAIM_MS;
 
-/** The sides of people away from `game`, with when their grace period ends. */
+/** Whether a person here plays `side` themselves. */
+function playedByPersonHere(
+  state: RoomState,
+  game: CustomGame,
+  side: CustomGameSide
+): boolean {
+  return (
+    game[side].kind === 'person' &&
+    !game.standIns.includes(side) &&
+    customGameAwaySince(state, game[side].person) === null
+  );
+}
+
+/**
+ * The sides of people away from `game`, with when their grace period ends.
+ * Nobody gets a stand-in while the host is away (the game is paused, and a
+ * pause never counts as time away), nor without another person here whom
+ * the absence holds up.
+ */
 function awayDeadlines(
   state: RoomState,
   game: CustomGame
 ): readonly { readonly side: CustomGameSide; readonly at: number }[] {
   if (game.status !== 'active' || game.sides.length <= 2) return [];
+  if (CustomGameAbsenceAttr.from(state).pausedAt !== null) return [];
   return game.sides.flatMap((side) => {
-    if (game[side].kind !== 'person' || game.standIns.includes(side))
-      return [];
+    if (game[side].kind !== 'person' || game.standIns.includes(side)) return [];
     const since = customGameAwaySince(state, game[side].person);
-    return since === null ? [] : [{ side, at: since + CUSTOM_GAME_STAND_IN_MS }];
+    if (since === null) return [];
+    const heldUp = game.sides.some(
+      (other) => other !== side && playedByPersonHere(state, game, other)
+    );
+    return heldUp ? [{ side, at: since + CUSTOM_GAME_STAND_IN_MS }] : [];
   });
 }
 

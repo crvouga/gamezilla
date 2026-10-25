@@ -2,7 +2,7 @@ import type {
   CustomGameChoice,
   CustomGameOperation,
 } from './custom-game-choice';
-import type { CustomGame } from './custom-game-state';
+import type { CustomGame, CustomGameSide } from './custom-game-state';
 import {
   customGamePersonSide,
   customGameStartable,
@@ -288,16 +288,25 @@ function turnRefusal(
   if (choice.operation !== 'move' && choice.operation !== 'commit') return '';
   if (side !== null && game.standIns.includes(side))
     return 'a stand-in plays your side';
-  if (choice.operation === 'commit') {
-    if (side === null) return 'not a participant';
-    if (game.committed.includes(side)) return 'already chosen';
-    if (!game.awaiting.includes(side)) return 'nothing to choose now';
-  } else {
-    if (game.awaiting.length > 0) return 'every side chooses first';
-    if (game[game.turn].kind !== 'person' || game[game.turn].person !== actor)
-      return 'only the participant to move may play';
-  }
+  const refusal =
+    choice.operation === 'commit'
+      ? commitRefusal(game, side)
+      : moveTurnRefusal(game, actor);
+  if (refusal !== '') return refusal;
   return choice.ply === game.moves.length ? '' : 'board changed';
+}
+
+function commitRefusal(game: CustomGame, side: CustomGameSide | null): string {
+  if (side === null) return 'not a participant';
+  if (game.committed.includes(side)) return 'already chosen';
+  return game.awaiting.includes(side) ? '' : 'nothing to choose now';
+}
+
+function moveTurnRefusal(game: CustomGame, actor: string): string {
+  if (game.awaiting.length > 0) return 'every side chooses first';
+  return game[game.turn].kind === 'person' && game[game.turn].person === actor
+    ? ''
+    : 'only the participant to move may play';
 }
 
 /** Only the creator makes the creator's choices, however connected they are. */

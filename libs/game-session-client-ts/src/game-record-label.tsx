@@ -1,7 +1,7 @@
 import { t } from '@lingui/core/macro';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
-import type { GameHistoryRecord } from './use-game-records';
 import { sideNames } from './side-names';
+import type { GameHistoryRecord } from './use-game-records';
 
 /** Stored seat and result codes never become player-facing labels. */
 export function useGameRecordLabel(): (record: GameHistoryRecord) => string {
