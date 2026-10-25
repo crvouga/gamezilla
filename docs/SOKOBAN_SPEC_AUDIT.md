@@ -65,6 +65,10 @@ The starter pack offers and continues to the same puzzle as every pack
 (`puzzles/pack-progression.qnt`): the last active unfinished puzzle, then the
 first unfinished one in the pack's order, then none.
 
+A rules change stops a playtest under way, as it stops all play begun under
+earlier rules (`puzzles/edition-rules`); that playtest can no longer be
+completed and proves nothing.
+
 ## Code tests, not scenarios (B17)
 
 - Replaying the recorded moves of a claimed playtest under Sokoban's rules,

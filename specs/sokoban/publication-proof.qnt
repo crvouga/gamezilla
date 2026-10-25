@@ -8,8 +8,9 @@
 // board already completed in a playtest (by undo, say) brings its proof back,
 // and changing only the details keeps the proof. A playtest plays the board
 // as it was when it began and, once completed, proves that board. A playtest
-// under way or stopped before it was complete proves nothing, and a rules
-// change leaves no proof from playtests completed before it. A board with
+// under way or stopped before it was complete proves nothing. A rules change
+// leaves no proof from playtests completed before it and stops a playtest
+// under way, which can then no longer be completed. A board with
 // something to correct cannot be playtested. Publishing a proven board again
 // with nothing changed makes no new edition, and no edit changes an edition
 // already published.
@@ -131,10 +132,13 @@ module publication_proof {
   }
 
   /// World event: Sokoban's rules change once. Playtests completed before it
-  /// are no proof under the changed rules.
+  /// are no proof under the changed rules, and a playtest under way stops, as
+  /// all play begun under earlier rules does.
   action rulesChange: bool = all {
     rules == 0,
-    _keep(board, details, 1, playtest, editions, waiting, _chosen, _online),
+    _keep(board, details, 1,
+      if (playtest.status == "playing") { ...playtest, status: "stopped" } else playtest,
+      editions, waiting, _chosen, _online),
   }
 
   /// Model-only: the phone loses its connection; building and playtesting go on.
@@ -172,6 +176,10 @@ module publication_proof {
   val invDetailsEditKeepsProof = details != _previousDetails implies proof == _previousProof
   /// A rules change leaves no proof from playtests completed before it.
   val invRulesChangeLeavesNoProof = rules != _previousRules implies not(proof)
+  /// A rules change stops a playtest under way: only one begun under the
+  /// current rules can be under way, and so be completed.
+  val invPlaytestUnderWayUsesCurrentRules = playtest.status == "playing" implies
+    playtest.rules == rules
   /// A board with something to correct is never playtested or proven.
   val invBoardToCorrectHasNoProof = board == BOARD_TO_CORRECT implies
     (not(proof) and playtest.board != BOARD_TO_CORRECT)
