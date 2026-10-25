@@ -23,6 +23,7 @@ product:
     - db-indexes
     - friends
     - journeys
+    - light-cycles
     - matchmaking
     - numberlink
     - pong

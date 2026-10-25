@@ -266,7 +266,7 @@ terms:
 
   - term: side
     definition: >-
-      One of a game's declared places to play from. A game has two or four
+      One of a game's declared places to play from. A game has two, three or four
       sides. When the game uses turns, they follow a fixed turn order and the
       first side moves first; a side is open until a person or a bot takes
       it. Every declared side needs a participant before play begins.

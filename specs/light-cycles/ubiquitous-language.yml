@@ -1,0 +1,394 @@
+context: Light Cycles
+purpose: >-
+  Light Cycles' arena, riders, trails, steering, crashes, rounds, round wins
+  and victory in Light Cycles Duel, Light Cycles Trio and Light Cycles Quad.
+  What every game offers alike, such as custom games, finding an opponent,
+  results, history and rematches, belongs to the games context.
+terms:
+  - term: Light Cycles
+    definition: >-
+      A game of riders on an arena. Every rider moves at the same time and
+      leaves a light trail behind it that stays for the whole round. A
+      rider that goes outside the arena or onto a trail crashes, and the last
+      rider riding wins the round. The first rider to reach the target score
+      wins the game.
+    forms: [Light Cycles game, Light Cycles game's, Light Cycles games]
+    published: true
+
+  - term: Light Cycles Duel
+    definition: Light Cycles for two riders, Comet and Ember.
+    forms: [Duel]
+    published: true
+
+  - term: Light Cycles Trio
+    definition: Light Cycles for three riders, Comet, Ember and Nova.
+    forms: [Trio, Light Cycles Trio's]
+    published: true
+
+  - term: Light Cycles Quad
+    definition: Light Cycles for four riders, Comet, Ember, Nova and Volt.
+    forms: [Quad]
+    published: true
+
+  - term: mode
+    definition: >-
+      Light Cycles Duel, Light Cycles Trio or Light Cycles Quad. Each mode is
+      a separate game a space can play, with its own custom games and its own
+      finding players. A mode's number of riders never changes during a game;
+      anyone who arrives once every rider is taken watches.
+    forms: [modes]
+    model: [mode]
+
+  - term: arena
+    definition: >-
+      The rectangle riders ride on: 40 cells wide and 28 cells tall. Nothing
+      wraps round from one edge to the other.
+    forms: [arena's, edge, edges, edge of the arena, edges of the arena]
+
+  - term: cell
+    definition: >-
+      One square of the arena, named by its column and row. Columns run from
+      1 on the left to 40 on the right; rows run from 1 at the top to 28 at
+      the bottom.
+    forms: [cells, column, columns, row, rows, empty cell]
+    model: [Cell]
+
+  - term: starting cell
+    definition: >-
+      Where a rider waits during a round's countdown, with its starting
+      direction. In the first round Comet waits at column 10, row 7 heading
+      right; Ember at column 31, row 22 heading left; Nova at column 31,
+      row 7 heading down; and Volt at column 10, row 22 heading up. In each
+      new round every rider sets off from the starting cell of the next
+      rider in seat order, and the last rider in the mode from Comet's, so
+      nobody keeps the same starting cell. Chance never decides it. A starting cell is part
+      of its rider's trail.
+    forms: [starting cells, starting direction]
+
+  - term: rider
+    definition: >-
+      What a person or a bot rides in Light Cycles. Riders are named by seat
+      order: Comet first, Ember second, Nova third and Volt fourth. Each
+      rider is shown with its name, its letter mark and its own trail
+      pattern, never by its colour alone. Only the rider's own person steers
+      it, and that person keeps their rider for the whole game.
+    forms: [riders, rider's, riders', ride, rides, ridden by, seat order]
+    model: [riders, riderCell]
+
+  - term: Comet
+    definition: The first rider, marked C.
+    forms: [Comet's]
+
+  - term: Ember
+    definition: The second rider, marked E.
+    forms: [Ember's]
+
+  - term: Nova
+    definition: The third rider, marked N.
+    forms: [Nova's]
+
+  - term: Volt
+    definition: The fourth rider, marked V.
+    forms: [Volt's]
+
+  - term: letter mark
+    definition: >-
+      The letter shown on a rider and its trail: C for Comet, E for Ember,
+      N for Nova and V for Volt.
+    forms: [letter marks]
+
+  - term: trail
+    definition: >-
+      The cells a rider has ridden through in the current round, its
+      starting cell and the cell it is on included. A trail stays on the
+      arena until the round ends, even after its rider crashes. Each
+      rider's trail has its own pattern.
+    forms: [trails, trail's, light trail, trail pattern]
+    model: [trail]
+
+  - term: direction
+    definition: >-
+      Which way a rider is heading: up, down, left or right. A rider never
+      goes diagonally.
+    forms: [directions, heading, heads, up, down, left, right]
+    model: [heading]
+
+  - term: step
+    definition: >-
+      Every riding rider moving one cell at the same moment, straight ahead
+      or in the direction it was just steered. Riders take 10 steps every
+      second, and a riding rider never stops between them.
+    forms: [steps, next step, next steps, moves, move, moving]
+    model: [ridersStep]
+
+  - term: riding
+    definition: >-
+      A rider that has not crashed in the current round. A rider rides
+      again from the next round, whatever happened in this one, unless its
+      person is away.
+    forms: [still riding, ride again, rides again]
+    model: [riding]
+
+  - term: steer
+    definition: >-
+      A person choosing a turn for their own riding rider, during a round's
+      countdown or while it is riding, with the keyboard's arrows or W, A, S
+      and D, or with the direction pad. Nobody else may steer it, and nobody
+      steers before the game starts, while a round result shows, a rider
+      that has crashed or a rider in a finished game.
+    forms: [steers, steered, steering]
+    model: [steer, canSteer]
+
+  - term: turn
+    definition: >-
+      A change of direction chosen for a rider, taking effect on its next
+      step. A turn straight back the way the rider is about to go is
+      ignored. Two quick turns, such as up and then left, take effect one
+      step after the other; a third quick turn before the first takes effect
+      is ignored. A turn never carries into another round.
+    forms: [turns, turned, turning, quick turn, quick turns, waiting turn]
+    model: [waitingTurns]
+
+  - term: direction pad
+    definition: >-
+      The four direction controls shown for steering on a phone or tablet.
+
+  - term: crash
+    definition: >-
+      A rider stopping for the rest of the round. A rider crashes when its
+      step would take it outside the arena, onto any trail (its own, another
+      rider's or a crashed rider's), into an empty cell another rider is also
+      stepping into, or past another rider coming head-on. Every crash of a
+      step is decided at once from where everyone was before that step, so
+      no rider is favoured. A crashed rider stays on the last cell it
+      reached, and its trail stays on the arena until the round ends.
+    forms: [crashes, crashed, crashing]
+    model: [crashed]
+
+  - term: round
+    definition: >-
+      One contest on a clear arena. It begins with a countdown, then every
+      rider rides until at most one is still riding after a step. The
+      round's result then shows for 2 seconds before the next round's
+      countdown.
+    forms: [rounds, round's, first round, second round, third round, next round]
+    model: [roundNumber, roundStage]
+
+  - term: countdown
+    definition: >-
+      The 3 seconds before a round's riding begins. Every rider waits on its
+      starting cell until the countdown ends.
+    forms: [counting down, countdown ends, waits, wait]
+    model: [countdownEnds]
+
+  - term: round result
+    definition: >-
+      Who won the round, or that it was drawn, shown to everyone for 2
+      seconds after the round ends. Then the arena is cleared and every
+      rider rides again in the next round.
+    forms: [round results]
+    model: [roundWinner]
+
+  - term: end
+    definition: >-
+      A round ending once at most one rider is still riding after a step, or
+      a Light Cycles game ending with a victory, a drawn game or being
+      called off.
+    forms: [ends, ended, ending]
+
+  - term: round win
+    definition: >-
+      The one point a rider scores by being the last rider riding when a
+      round ends. A round scores once, and a finished round never scores
+      again.
+    forms: [round wins, wins the round, won the round]
+    model: [roundWins]
+
+  - term: drawn round
+    definition: >-
+      A round that ends with no rider riding, because the last riders crashed
+      at the same step. Nobody scores for it.
+    forms: [drawn rounds, the round is drawn]
+
+  - term: score
+    definition: >-
+      Every rider's round wins in the current Light Cycles game, kept from
+      one round to the next.
+    forms: [scores, final score]
+
+  - term: target score
+    definition: >-
+      The round wins that win the Light Cycles game: 3, unless the custom
+      game's creator chooses from 1 to 9 before it starts. A game found by
+      finding players uses 3.
+    model: [targetScore, chooseTargetScore]
+
+  - term: last round
+    definition: >-
+      The 15th round. When it ends without any rider reaching the target
+      score, the rider with the most round wins wins the Light Cycles game,
+      and equal leaders draw it.
+    forms: [15th round]
+
+  - term: victory
+    definition: >-
+      A rider reaching the target score, or leading after the last round,
+      wins the Light Cycles game for its person. Everyone sees the winning
+      rider with its person.
+    forms: [win, winner, wins the game, wins a game, wins the Light Cycles game, won the Light Cycles game]
+    model: [gameWinner]
+
+  - term: drawn game
+    definition: >-
+      A Light Cycles game that ends after the last round with two or more
+      riders sharing the most round wins. Nobody wins it.
+    forms: [draw, draws, drawn, the Light Cycles game was drawn, the Light Cycles game is drawn]
+
+  - term: setting up
+    definition: >-
+      A Light Cycles custom game that has not started yet. Only now may its
+      creator choose the target score and how well its bots ride, and nobody
+      steers yet.
+    forms: [has not started]
+
+  - term: finished
+    definition: >-
+      A Light Cycles game with a victory or a drawn game. Nobody steers in
+      it, no round starts, and its score never changes.
+    forms: [finish, finishes, unfinished]
+    model: [gameStage]
+
+  - term: called off
+    definition: >-
+      A Light Cycles game shared with other people that ended because every
+      person riding in it had been away for 30 seconds. It has no winner and
+      is not a drawn game; it keeps the score it had, and nobody steers in
+      it.
+    forms: [is called off, was called off]
+
+  - term: away
+    definition: >-
+      A person riding in a Light Cycles game shared with other people whose
+      device has no connection. The arena never stops for them: their rider
+      keeps going straight, and they cannot steer it. After 3 seconds away
+      their rider crashes for the round, and while they stay away their
+      rider sits out every following round. Coming back lets them ride again
+      from the next round; it never brings back a crashed rider, clears a
+      trail or changes the score. Practice has nobody away.
+    forms: [stays away, stayed away, been away, is away, away person]
+
+  - term: sit out
+    definition: >-
+      A rider whose person is away when a round begins taking no part in it:
+      it stays crashed on its starting cell for the whole round.
+    forms: [sits out, sat out]
+
+  - term: lose the connection
+    definition: >-
+      A person's device going offline while they ride or watch.
+    forms: [loses the connection, lost the connection]
+    model: [loseConnection]
+
+  - term: the connection comes back
+    definition: >-
+      A person's device that was offline reaching everyone again. A person
+      who was away has come back.
+    forms: [connection comes back, comes back, came back, coming back, come back, has come back]
+    model: [connectionReturns]
+
+  - term: switch devices
+    definition: >-
+      A person riding in a Light Cycles game carrying on from another of
+      their devices. From then on that device steers their rider, and the
+      device they left cannot, so a rider is never steered from two devices.
+    forms: [switches devices, switched devices, has switched devices]
+    model: [switchDevices, steeringDevice]
+
+  - term: everyone
+    definition: >-
+      Every rider's person and every watcher in the space. In practice,
+      that is the person practising.
+
+  - term: watcher
+    definition: >-
+      Someone in the space with no rider in the Light Cycles game. A watcher,
+      and anyone who arrives during a round, sees the same arena, trails,
+      riders, score, round and countdown as the riders, and steers nothing.
+    forms: [watchers, watch, watches, watching, watched]
+
+  - term: find players
+    definition: >-
+      Wait to be paired up with other people for one Light Cycles mode,
+      with nothing else to choose. Each mode is paired up only with people
+      finding players for the same mode, and its target score is 3.
+    forms: [finds players, finding players, are finding players, is finding players]
+
+  - term: practice
+    definition: >-
+      Light Cycles against bots on one person's own device. It needs no
+      connection, and that person rides Comet.
+    forms: [offline practice, start practice, starts practice, practising]
+    model: [practice, startPractice]
+
+  - term: bot level
+    definition: >-
+      How well a bot rides: easy, medium or hard. A bot of any level steers
+      by the same rules as a person and is always shown as a bot with its
+      level.
+    forms: [bot levels, level, levels, easy, medium, hard]
+    model: [botLevel, chooseBotLevel]
+
+  - term: bot
+    from: games
+    model: [botSteers]
+
+  - term: game
+    from: games
+
+  - term: custom game
+    from: games
+    forms: [created, custom game's, creator's]
+
+  - term: custom game readiness
+    from: games
+    forms: [ready]
+
+  - term: start a custom game
+    from: games
+    forms: [started, has started, starts]
+    model: [startGame]
+
+  - term: under way
+    from: games
+
+  - term: pair people up
+    from: matchmaking
+    forms: [paired, are paired, paired up, are paired up]
+
+  - term: space
+    from: spaces
+
+  - term: join
+    from: spaces
+
+  - term: guest
+    from: profile
+
+  - term: sign in
+    from: profile
+
+  - term: keyboard
+    from: runtime
+
+  - term: connection
+    from: kernel
+    model: [offline]
+
+  - term: seconds pass
+    definition: >-
+      Time going by in a Light Cycles game: riders take 10 steps each
+      second, a countdown runs for 3 seconds, a round result shows for 2
+      seconds, and an away person's time away grows. Once a game is finished
+      or called off, time passing changes nothing.
+    forms: [second passes, seconds have passed]
+    model: [secondsPass, ridersStep, countdownEnds, resultEnds, awayTooLong, everyoneAwayTooLong]
