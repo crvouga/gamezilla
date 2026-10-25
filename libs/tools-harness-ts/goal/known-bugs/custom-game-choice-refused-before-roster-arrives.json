@@ -1,0 +1,4 @@
+{
+  "summary": "Before sending a custom-game choice, a guest's device refuses it at once when the space's host is not in its room roster. Right after Bob joined Alice's space his room had not yet said who is present, so his empty roster read as Alice being gone: claiming a side was refused with 'The choice could not be confirmed. Try again.' and never sent (specs/journeys/quoridor-game.feature, King of the Hill, failing on main in most runs). The host is now taken for absent only once the device is connected and its room has sent who is present; before that the choice goes to the room, which decides.",
+  "regressionTest": "libs/game-session-client-ts/tests/custom-game-host-absence.test.ts"
+}
