@@ -232,6 +232,32 @@ phase with its own deadline in matched games, the private-setup
 specifications and privacy suites, and the test-only consumer secret pick
 as its game-independent twin. Such a game offers no puzzles.
 
+### A game with dealt hands
+
+When the authority deals hidden information as the game starts and keeps it
+as play goes on (a bag of tiles, each side's rack), supply it in the rules
+and nowhere else
+([semantics](GAME_FRAMEWORK.md#dealt-hands-gameruleshands)):
+
+- **Rules** — `hands: { deal, hand, resolve, proposals }`. Positions stay
+  public: `resolve(position, proposal, hidden)` gives the public action and
+  the next hidden state, or a refusal; `play`, `replay` and `moves` take
+  public actions. Keep enough entropy in the hidden state that a side cannot
+  search for it from what it sees.
+- **Data** — immutable data the rules decide with (a word list) loads in
+  `prepare`, which the platform awaits; keep it in its own chunk so other
+  games never download it.
+- **Bots and automation** — `choose` receives the bot side's own hand.
+- **Client** — every `Board` receives the viewer's own `hand`, or `null`.
+- **Fixtures** — `knownDeal: { draws, hidden }`, the authority's draws and
+  the hidden state they deal; every known line is the proposals people make
+  from that deal (Word Tiles: `libs/word-tiles-harness-ts`).
+
+The platform then gives the game private hands in custom games and finding
+an opponent, the dealt-hands laws and privacy suites. Such a game is never
+played on one device alone and offers no rated puzzle feed; it may offer
+authored puzzle content and [starter content](ADDING_A_PUZZLE_GAME.md#ship-starter-content).
+
 ## 3. Supply the conformance adapter
 
 ```ts
