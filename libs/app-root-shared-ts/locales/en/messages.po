@@ -3288,10 +3288,6 @@ msgstr "Move second endpoint"
 msgid "Move your paddle to return the ball. A ball past the other paddle scores a point. Reach the chosen score to win. Play with a bot, share a device, invite someone, or find an opponent."
 msgstr "Move your paddle to return the ball. A ball past the other paddle scores a point. Reach the chosen score to win. Play with a bot, share a device, invite someone, or find an opponent."
 
-#: libs/numberlink-client-ts/src/numberlink-editor.tsx
-msgid "Move second endpoint"
-msgstr "Move second endpoint"
-
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
 msgid "Moves"
 msgstr "Moves"
@@ -4914,6 +4910,10 @@ msgstr "Saving…"
 msgid "Score at least {0} points in one move."
 msgstr "Score at least {0} points in one move."
 
+#: libs/pong-client-ts/src/pong-game-client.tsx
+msgid "score target"
+msgstr "score target"
+
 #: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
 msgid "Scores {total} points."
 msgstr "Scores {total} points."
@@ -4925,9 +4925,6 @@ msgstr "Scores {total} points. Checking the words…"
 #: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
 msgid "Scores {total} points. The word list could not load here; the game checks the words when you play."
 msgstr "Scores {total} points. The word list could not load here; the game checks the words when you play."
-#: libs/pong-client-ts/src/pong-game-client.tsx
-msgid "score target"
-msgstr "score target"
 
 #: libs/search-client-ts/src/search-screen-view.tsx
 #: libs/search-client-ts/src/sub-client.tsx
