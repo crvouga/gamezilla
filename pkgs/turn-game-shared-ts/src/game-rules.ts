@@ -367,6 +367,19 @@ export function publicAction(
   return rules.setup.resolve(position, proposal, setups);
 }
 
+/** Fail when a game dealing hands also has what dealt hands exclude. */
+function assertHandsRequirements(game: RegisteredGame): void {
+  if (!isTurnRules(game.rules) || game.rules.hands === undefined) return;
+  if (game.rules.setup !== undefined)
+    throw new Error(
+      `${game.rules.id}: a game deals hands or has private setups, not both`
+    );
+  if (game.capabilities.puzzles !== undefined)
+    throw new Error(
+      `${game.rules.id}: a rated puzzle shows its whole position to the solver, so a game with dealt hands offers no puzzle feed — offer authored puzzle content instead`
+    );
+}
+
 /** Fail when a game offers a capability without what it needs beside it. */
 function assertRequirements(game: RegisteredGame): void {
   if (
@@ -376,19 +389,7 @@ function assertRequirements(game: RegisteredGame): void {
     throw new Error(
       `${game.rules.id}: private setups and puzzles require two declared seats`
     );
-  if (isTurnRules(game.rules)) {
-    if (game.rules.hands !== undefined && game.rules.setup !== undefined)
-      throw new Error(
-        `${game.rules.id}: a game deals hands or has private setups, not both`
-      );
-    if (
-      game.rules.hands !== undefined &&
-      game.capabilities.puzzles !== undefined
-    )
-      throw new Error(
-        `${game.rules.id}: a rated puzzle shows its whole position to the solver, so a game with dealt hands offers no puzzle feed — offer authored puzzle content instead`
-      );
-  }
+  assertHandsRequirements(game);
   if (game.capabilities.puzzles !== undefined && !isTurnRules(game.rules))
     throw new Error(`${game.rules.id}: puzzles require turn rules`);
   if (!isTurnRules(game.rules) && game.simulation === undefined)
