@@ -68,7 +68,7 @@ export function must(holds: boolean, problem: string): void {
  * any proposal its authority accepts.
  */
 function offered(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   played: { readonly rules: GameRules; readonly position: string },
   action: string,
   accepted: () => boolean
@@ -80,7 +80,7 @@ function offered(
 
 /** The public position and the mover's own hand at a played-rules position. */
 function seat(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   position: string
 ): { readonly position: string; readonly hand: string | null } {
   const hands = game.shared.turnGame.rules.hands;
@@ -415,7 +415,7 @@ function privateSetupLaws(game: TurnHarnessGame): readonly GameLaw[] {
  * offers a hand resolves to a public action its rules accept; and the same
  * deal and proposals always resolve alike.
  */
-function dealtHandsLaws(game: HarnessGame): readonly GameLaw[] {
+function dealtHandsLaws(game: TurnHarnessGame): readonly GameLaw[] {
   const rules = game.shared.turnGame.rules;
   const hands = rules.hands;
   if (hands === undefined) return [];

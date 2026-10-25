@@ -1,4 +1,4 @@
-import type { TurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import type { TurnGame } from '@libs/game-session-shared-ts/game-definition';
 import { parseProposal } from './word-tiles-action';
 import { cellName } from './word-tiles-board';
 import { wordTilesBots } from './word-tiles-rules';
@@ -9,7 +9,7 @@ import { wordTilesBots } from './word-tiles-rules';
  * then a cell, for each tile, then submit; or pass; or choose the tiles to
  * exchange and confirm.
  */
-export const wordTilesAutomation: TurnGame['automation'] = {
+export const wordTilesAutomation: TurnGame['turnAutomation'] = {
   choose: (position, random, hand) =>
     wordTilesBots.choose(position, 'medium', random, hand),
   async perform(ui, board, action) {

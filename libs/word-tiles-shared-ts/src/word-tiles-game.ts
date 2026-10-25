@@ -1,4 +1,4 @@
-import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import type { GameNoticeText } from '@pkgs/turn-game-shared-ts/game-rules';
 import { wordTilesAutomation } from './word-tiles-automation';
 import { wordTilesPuzzleContent } from './word-tiles-puzzle';
@@ -16,18 +16,18 @@ import { WORD_TILES_STARTER } from './word-tiles-starter';
  * registered mode sharing one implementation (family `word-tiles`).
  */
 function definition(rules: (typeof WORD_TILES_RULES)[2]) {
-  return defineTurnGame({
+  return defineGame({
     rules,
     capabilities: {
       'custom-games': { bots: wordTilesBots },
       history: { record: wordTilesRecord },
     },
-    automation: wordTilesAutomation,
+    turnAutomation: wordTilesAutomation,
   });
 }
 
 /** What the server says of a matched game without the client's translations. */
-const NOTICE: GameNoticeText = {
+const NOTICE = {
   side: wordTilesSideLabel,
   timeoutDraw: (side) =>
     `${wordTilesSideLabel(side)} ran out of time. The game is a draw.`,
@@ -37,19 +37,21 @@ const NOTICE: GameNoticeText = {
       : reason === WORD_TILES_REASONS.scoreless
         ? 'Six turns in a row scored nothing.'
         : undefined,
+} satisfies GameNoticeText & {
+  readonly timeoutDraw: NonNullable<GameNoticeText['timeoutDraw']>;
 };
 
 /** Two players also find an opponent: matched games, ratings and records. */
-export const wordTilesGameShared = defineTurnGame({
+export const wordTilesGameShared = defineGame({
   rules: WORD_TILES_RULES[2],
   // One-move challenges and the introductory pack, with every table size.
   puzzleContent: { ...wordTilesPuzzleContent, starter: WORD_TILES_STARTER },
   capabilities: {
     'custom-games': { bots: wordTilesBots },
-    matchmaking: { clockNamespace: 'word-tiles/', notice: NOTICE },
+    matchmaking: { namespace: 'word-tiles/', notice: NOTICE },
     history: { record: wordTilesRecord },
   },
-  automation: wordTilesAutomation,
+  turnAutomation: wordTilesAutomation,
 });
 export const wordTiles3GameShared = definition(WORD_TILES_RULES[3]);
 export const wordTiles4GameShared = definition(WORD_TILES_RULES[4]);

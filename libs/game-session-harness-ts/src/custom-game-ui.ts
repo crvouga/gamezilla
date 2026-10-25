@@ -39,7 +39,7 @@ async function awaitOnlineSpace(
   const game = harnessGameAt(s, probe.current.fen);
   if (
     game.shared.registration.rules.setup === undefined &&
-    game.shared.registration.rules.hands === undefined
+    game.shared.turnGame?.rules.hands === undefined
   )
     return;
   for (let waited = 0; waited < SYNC_WAIT_MS; waited += 100) {

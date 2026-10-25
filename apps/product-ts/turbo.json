@@ -661,7 +661,8 @@
         "@libs/runtime-harness-ts#test:spec:12",
         "@libs/runtime-harness-ts#test:spec:13",
         "@libs/runtime-harness-ts#test:spec:14",
-        "@libs/synthetic-population-harness-ts#test:spec:0"
+        "@libs/synthetic-population-harness-ts#test:spec:0",
+        "@libs/word-tiles-harness-ts#test:spec:0"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",

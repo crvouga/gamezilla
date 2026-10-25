@@ -81,7 +81,7 @@ export function decideMatchIntent(
           nowMs: context.nowMs,
         },
         context.rules
-      );
+      ).game;
     case 'resign':
       return resignGame(game, intent.actorId, context.started);
     case 'abort':

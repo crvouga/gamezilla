@@ -360,7 +360,7 @@ function assertKnownSetups(
  * victory are the hands that deal gives; no other game names a deal.
  */
 function assertKnownDeal(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   fail: (problem: string) => void
 ): void {
   const rules = game.shared.turnGame.rules;

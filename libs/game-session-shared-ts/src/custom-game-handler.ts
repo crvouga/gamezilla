@@ -15,7 +15,6 @@ import { CustomGameAvailableAttr } from './custom-game-availability';
 import type { CustomGameChoice } from './custom-game-choice';
 import type { CustomGameBotWake, CustomGameWake } from './custom-game-commands';
 import {
-  configureCustomGame,
   rematchCustomGame,
 } from './custom-game-configuration';
 import {

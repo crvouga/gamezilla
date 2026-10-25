@@ -19,7 +19,7 @@ import {
   type CustomGame,
   CustomGamesAttr,
 } from '@libs/game-session-shared-ts/custom-game-state';
-import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import { GamesRoomAttr } from '@libs/spaces-shared-ts/games';
 import { SpaceMembersRoomAttr } from '@libs/spaces-shared-ts/space-members-messages';
 import {
@@ -33,10 +33,10 @@ import { assertRoomModuleName } from '@pkgs/room-root-shared-ts/types';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { handDrawBots, handDrawRules } from './hand-draw';
 
-const handDraw = defineTurnGame({
+const handDraw = defineGame({
   rules: handDrawRules,
   capabilities: { 'custom-games': { bots: handDrawBots } },
-  automation: { choose: () => null, perform: async () => {} },
+  turnAutomation: { choose: () => null, perform: async () => {} },
 });
 
 function spaceModule(authority: boolean): SpaceModule {
@@ -308,7 +308,7 @@ test('a game with another person never takes a device’s draws', () => {
 });
 
 test('with another person at the table, nobody but the room chooses a bot’s move', () => {
-  const threeSeats = defineTurnGame({
+  const threeSeats = defineGame({
     rules: {
       ...handDrawRules,
       id: 'hand-draw-three',

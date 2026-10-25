@@ -11,9 +11,9 @@ import {
   openGameHistory,
 } from '@libs/game-session-harness-ts/game-history-actions';
 import { openConformanceHarness } from '../../conformance-world';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 
-forEveryGame(
+forEveryTurnGame(
   import.meta.path,
   (game) => {
     test('a finished game of more than two people counts its result once for each of them', async () => {

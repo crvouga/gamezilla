@@ -376,14 +376,19 @@ function assertRequirements(game: RegisteredGame): void {
     throw new Error(
       `${game.rules.id}: private setups and puzzles require two declared seats`
     );
-  if (game.rules.hands !== undefined && game.rules.setup !== undefined)
-    throw new Error(
-      `${game.rules.id}: a game deals hands or has private setups, not both`
-    );
-  if (game.rules.hands !== undefined && game.capabilities.puzzles !== undefined)
-    throw new Error(
-      `${game.rules.id}: a rated puzzle shows its whole position to the solver, so a game with dealt hands offers no puzzle feed — offer authored puzzle content instead`
-    );
+  if (isTurnRules(game.rules)) {
+    if (game.rules.hands !== undefined && game.rules.setup !== undefined)
+      throw new Error(
+        `${game.rules.id}: a game deals hands or has private setups, not both`
+      );
+    if (
+      game.rules.hands !== undefined &&
+      game.capabilities.puzzles !== undefined
+    )
+      throw new Error(
+        `${game.rules.id}: a rated puzzle shows its whole position to the solver, so a game with dealt hands offers no puzzle feed — offer authored puzzle content instead`
+      );
+  }
   if (game.capabilities.puzzles !== undefined && !isTurnRules(game.rules))
     throw new Error(`${game.rules.id}: puzzles require turn rules`);
   if (!isTurnRules(game.rules) && game.simulation === undefined)
@@ -517,7 +522,11 @@ export function createTurnGames(games: readonly RegisteredGame[]): TurnGames {
  * alone decides.
  */
 export async function prepareTurnGames(turnGames: TurnGames): Promise<void> {
-  await Promise.all(turnGames.games.map((game) => game.rules.prepare?.()));
+  await Promise.all(
+    turnGames.games.map((game) =>
+      isTurnRules(game.rules) ? game.rules.prepare?.() : undefined
+    )
+  );
 }
 
 export function requireTurnGames(env: {

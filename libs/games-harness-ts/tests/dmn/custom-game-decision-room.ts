@@ -1,4 +1,6 @@
 import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import { scriptedRandom } from '@libs/game-session-harness-ts/played-rules';
 import { createGameSessionServer } from '@libs/game-session-server-ts/sub-server';
 import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
 import { ChangeCustomGame } from '@libs/game-session-shared-ts/custom-game-commands';
@@ -42,8 +44,12 @@ export function createDecisionRoom(
   let ids = 0;
   const nextId = () => `decision-choice-${++ids}`;
   const rules = createTurnGames([game.shared.registration]);
+  const random =
+    isTurnHarnessGame(game) && game.fixtures.knownDeal !== undefined
+      ? scriptedRandom(game.fixtures.knownDeal.draws)
+      : () => 0.5;
   const node = createInProcessRoomNode(
-    { ...time, createId: nextId, random: () => 0.5, seed: 1n },
+    { ...time, createId: nextId, random, seed: 1n },
     {
       games: [game.shared],
       gateway: {
