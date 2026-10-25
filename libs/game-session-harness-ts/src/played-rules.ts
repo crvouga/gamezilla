@@ -205,6 +205,14 @@ export function splitDealtPosition(composite: string): {
   return { position, hidden, turn: turn as GameSide };
 }
 
+/**
+ * The public position a played-rules position is, as the product stores
+ * and shows it: itself for most games, the public part for dealt hands.
+ */
+export function publicPosition(position: string): string {
+  return splitDealtPosition(position).position;
+}
+
 type HandsLine = {
   readonly actions: readonly string[];
   readonly position: string;

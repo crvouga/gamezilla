@@ -50,7 +50,9 @@ export function prepareLocalCustomGameCommand(
   if (
     game?.status !== 'active' ||
     game.moves.length !== payload.payload.ply ||
-    game.id !== payload.payload.gameId
+    game.id !== payload.payload.gameId ||
+    // A bot's hand is the room's alone: the room chooses its move.
+    rules.forPosition(game.fen).hands !== undefined
   )
     return payload;
   const move = customGameBotMove(game, rules, { random, hand: null });

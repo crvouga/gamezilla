@@ -9,7 +9,7 @@ import fc from 'fast-check';
 import type { GameLaw } from './game-rules-laws';
 import { law, must, picks, walk } from './game-rules-laws';
 import type { HarnessGame } from './harness-game';
-import { playedRulesOf } from './played-rules';
+import { playedRulesOf, publicPosition } from './played-rules';
 
 /**
  * The laws of what the shared screens and records say about a game: its
@@ -203,7 +203,11 @@ export function gameRecordLaws(game: HarnessGame): readonly GameLaw[] {
                 timeControl: clock.timeControl,
               };
               const got = read(
-                history.record(played.position, played.history, metadata)
+                history.record(
+                  publicPosition(played.position),
+                  played.history,
+                  metadata
+                )
               );
               must(
                 got.firstSide === first && got.secondSide === second,

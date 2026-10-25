@@ -22,7 +22,9 @@ import { CustomGamesAttr } from './custom-game-state';
  * game starts and resolves every proposal with the hidden state; a device
  * predicting its own move shows nothing until the room answers, so no
  * device ever holds, or guesses, anything that depends on a hand it may not
- * see. A refused proposal changes nothing, and its reason is the refusal.
+ * see. A refused proposal changes nothing and is refused as every game's
+ * is (`move is illegal`); why is the board's own preview to say, from the
+ * same rules.
  */
 
 type Decision = {
@@ -58,7 +60,7 @@ export function decideCustomGameMove(
   const hidden = customGameHidden(state, game);
   if (hidden === null) return { refusal: 'the hands are not dealt' };
   const resolution = hands.resolve(game.fen, proposal, hidden);
-  if ('refusal' in resolution) return { refusal: resolution.refusal };
+  if ('refusal' in resolution) return { refusal: 'move is illegal' };
   return {
     action: resolution.action,
     privately: customGameHandEvents(state, game, {

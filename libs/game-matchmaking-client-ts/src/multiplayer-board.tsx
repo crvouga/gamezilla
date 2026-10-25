@@ -35,6 +35,8 @@ type BoardProps = {
   readonly onMove: (uci: string) => Promise<void>;
   /** The viewer's own private setup in this game, if it has one. */
   readonly ownSetup: string | null;
+  /** The viewer's own dealt hand in this game, if it deals hands. */
+  readonly ownHand: string | null;
 };
 
 /**
@@ -95,7 +97,7 @@ function BoardStage(
         syncKey={props.syncKey}
         testId="multiplayer-board"
         setup={props.ownSetup}
-        hand={null}
+        hand={props.ownHand}
         onAction={(action: string) => {
           void props.onMove(action);
         }}

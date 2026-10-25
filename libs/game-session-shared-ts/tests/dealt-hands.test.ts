@@ -158,7 +158,7 @@ test('a proposal is resolved by the room alone; a device predicts nothing', () =
   );
 });
 
-test('a refused proposal says why and changes nothing', () => {
+test("a refused proposal is refused as every game's is and changes nothing", () => {
   const ready = readyToStart();
   const state = reduce(ready, events(ready, 'alice', { operation: 'start' }));
   const result = handle(
@@ -169,7 +169,7 @@ test('a refused proposal says why and changes nothing', () => {
   );
   expect(result.ok).toBe(false);
   expect(!result.ok && 'reason' in result.error && result.error.reason).toBe(
-    'not a move'
+    'move is illegal'
   );
 });
 

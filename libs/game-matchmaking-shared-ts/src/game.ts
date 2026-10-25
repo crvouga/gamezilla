@@ -13,21 +13,34 @@ import {
   settleMultiplayerClock,
   spendMultiplayerClock,
 } from './multiplayer-clock';
+import {
+  multiplayerHandsRules,
+  resolveMultiplayerHand,
+} from './multiplayer-hands';
 import { multiplayerOwner, multiplayerSideOf } from './multiplayer-roster';
 
 /**
- * The public action a proposal is recorded as: for a game with private
- * setups, resolved by the server with both of them; refused while a setup
- * is still being chosen or when the rules refuse it.
+ * The public action a proposal is recorded as: for a game with dealt
+ * hands, resolved by the server with the hidden state (and the hidden state
+ * after it); for a game with private setups, resolved with both of them,
+ * refused while a setup is still being chosen; refused when the rules
+ * refuse it.
  */
 function recordedAction(
   game: MultiplayerGame,
   proposal: string,
-  setups: GameSetups | null,
+  held: { readonly setups: GameSetups | null; readonly hidden: string | null },
   rules: TurnGames
-): string {
+): { readonly action: string; readonly hidden: string | null } {
+  const hands = multiplayerHandsRules(game, rules);
+  if (hands !== undefined)
+    return resolveMultiplayerHand(game, proposal, {
+      hidden: held.hidden,
+      hands,
+    });
+  const setups = held.setups;
   const setup = rules.forPosition(game.fen).setup;
-  if (setup === undefined) return proposal;
+  if (setup === undefined) return { action: proposal, hidden: null };
   if (awaitingSetups(game) || setups === null)
     throw new MutationError(
       'CHESS_SETUP_UNFINISHED',
@@ -39,8 +52,14 @@ function recordedAction(
       'CHESS_ILLEGAL_MOVE',
       'That multiplayer move is illegal.'
     );
-  return action;
+  return { action, hidden: null };
 }
+
+/** A matched game after one move, and its hidden state for a game with dealt hands. */
+export type MultiplayerMove = {
+  readonly game: MultiplayerGame;
+  readonly hidden: string | null;
+};
 
 /** One serialized turn; only the injected rules interpret positions or actions. */
 export function playMultiplayerMove(
@@ -52,9 +71,11 @@ export function playMultiplayerMove(
     readonly nowMs: number;
     /** Both private setups, for a game whose sides prepare them. */
     readonly setups?: GameSetups | null;
+    /** The hidden state, for a game whose authority deals hands. */
+    readonly hidden?: string | null;
   },
   rules: TurnGames
-): MultiplayerGame {
+): MultiplayerMove {
   const game = settleMultiplayerClock(stored, input.nowMs, rules);
   requireUnfinished(game);
   if (input.revision !== game.revision)
@@ -72,10 +93,15 @@ export function playMultiplayerMove(
       'CHESS_MATCHED_ONLY',
       'Only matched people can play.'
     );
-  const action = recordedAction(game, input.uci, input.setups ?? null, rules);
+  const recorded = recordedAction(
+    game,
+    input.uci,
+    { setups: input.setups ?? null, hidden: input.hidden ?? null },
+    rules
+  );
   const played = rules
     .forPosition(game.fen)
-    .play(game.fen, action, game.pgn, []);
+    .play(game.fen, recorded.action, game.pgn, []);
   if (played === null)
     throw new MutationError(
       'CHESS_ILLEGAL_MOVE',
@@ -93,7 +119,11 @@ export function playMultiplayerMove(
       game.draw_offer_by === input.actorId ? (game.draw_votes ?? null) : null,
     turn: multiplayerOwner(game, played.turn),
   };
-  return moved.outcome === 'ongoing'
-    ? moved
-    : endMultiplayerGame(moved, moved.outcome, moved.reason ?? '');
+  return {
+    game:
+      moved.outcome === 'ongoing'
+        ? moved
+        : endMultiplayerGame(moved, moved.outcome, moved.reason ?? ''),
+    hidden: recorded.hidden,
+  };
 }

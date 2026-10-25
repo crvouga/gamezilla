@@ -56,6 +56,14 @@ export function useGameRecords(gameId: () => string) {
     }>`SELECT game_id, setup FROM chess_multiplayer_setups
     WHERE owner_id = ${myId()} AND deleted_at IS NULL`
   );
+  // And only their own dealt hands.
+  const ownHands = createQuery(
+    () => sql<{
+      game_id: string;
+      hand: string;
+    }>`SELECT game_id, hand FROM chess_multiplayer_hands
+    WHERE owner_id = ${myId()} AND deleted_at IS NULL`
+  );
   const matches = createQuery(
     () => sql<MultiplayerGame>`SELECT * FROM chess_multiplayer_games
     WHERE (white_id = ${myId()} OR black_id = ${myId()} OR red_id = ${myId()} OR blue_id = ${myId()}) AND deleted_at IS NULL
@@ -85,7 +93,7 @@ export function useGameRecords(gameId: () => string) {
         moves: gameRules.moves(g.fen, g.pgn, []),
         setup:
           ownSetups.rows().find((row) => row.game_id === g.id)?.setup ?? null,
-        hand: null,
+        hand: ownHands.rows().find((row) => row.game_id === g.id)?.hand ?? null,
       }));
     return [
       ...owned.reverse(),
