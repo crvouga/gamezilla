@@ -8,15 +8,21 @@ import { playCustomGameBots } from '@libs/game-session-harness-ts/custom-game-bo
 import { makeCustomGameMove } from '@libs/game-session-harness-ts/custom-game-moves';
 import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe';
 import { attemptCustomGame } from '@libs/game-session-harness-ts/custom-game-ui';
+import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import {
+  finishingSimulationExample,
+  restoreSharedSimulationAt,
+} from '@libs/game-session-harness-ts/simulation-fixtures';
 import { partition, restoreActorConnection } from '@libs/harness-ts/actions';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import { choose } from './custom-game-set-up-world';
 import {
   before,
   gameOf,
+  hostOf,
+  rememberCustomGame,
   setupCustomGame,
   sideOf,
-  turnGameOf,
   view,
 } from './game-world';
 import { playsPuzzles, solverToMove } from './puzzle-world';
@@ -85,9 +91,22 @@ Then('{actor} is told she is not a participant', async (w, actor: string) => {
   expect((await view(w, actor)).error).toBe('not a participant');
 });
 
-Given('{actor} has a finished custom game', async (w) =>
-  setupCustomGame(w, { moves: turnGameOf(w).fixtures.firstSideVictory })
-);
+// regression: simulation-finished-custom-game-needs-turns
+Given('{actor} has a finished custom game', async (w) => {
+  const game = gameOf(w);
+  if (isTurnHarnessGame(game)) {
+    await setupCustomGame(w, { moves: game.fixtures.firstSideVictory });
+    return;
+  }
+  // A game without turns finishes the way its own literal example does.
+  await setupCustomGame(w);
+  const finishing = finishingSimulationExample(game);
+  await w.s.apply(restoreSharedSimulationAt, finishing.initialPosition);
+  await w.s.until((s) => customGameView(s, hostOf(w)), {
+    pred: (seen) => seen.current?.status === 'completed',
+  });
+  await rememberCustomGame(w);
+});
 When('{actor} asks for a rematch', async (w, actor: string) => {
   await w.s.apply(attemptCustomGame, actor, { operation: 'rematch' });
 });

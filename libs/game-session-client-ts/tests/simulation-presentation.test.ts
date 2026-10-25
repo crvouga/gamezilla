@@ -6,18 +6,19 @@ import {
 import {
   RequestSimulationSnapshot,
   SimulationStateChanged,
+  SubmitSimulationInput,
 } from '@libs/game-session-shared-ts/simulation-messages';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { raceGame } from './reference-race-game';
 
 type Options = Parameters<typeof connectSimulationPresentation>[0];
 
-function snapshot(epoch: string, paused: boolean) {
+function snapshot(epoch: string, paused: boolean, tick = 2) {
   return SimulationStateChanged({
     version: 1,
     epoch,
-    revision: 1,
-    tick: 2,
+    revision: tick - 1,
+    tick,
     paused,
     state: raceGame.registration.rules.initial(),
     acknowledged: {},
@@ -91,3 +92,53 @@ test.each(['generation change', 'room resynchronization'] as const)(
     expect(time.clock.pendingOneShotCount()).toBe(0);
   }
 );
+
+test('a refresh keeps the control a player is still holding', () => {
+  // regression: simulation-refresh-drops-held-control
+  const time = createHarnessClock();
+  // A game on this device becomes ready with its first court, before the
+  // room says anything; the room's next change then refreshes the court.
+  let ready = false;
+  let receive: Parameters<Options['subscribeSignal']>[0] = () => {};
+  let roomChanged = () => {};
+  const held: number[] = [];
+  let requests = 0;
+  const connection = connectSimulationPresentation({
+    simulation: raceGame.registration.simulation!,
+    ...time,
+    generation: () => 'race:1',
+    isReady: () => ready,
+    send: (message) => {
+      if (RequestSimulationSnapshot.is(message)) requests += 1;
+      if (SubmitSimulationInput.is(message)) held.push(message.payload.tick);
+      return 'race-signal';
+    },
+    subscribeSignal: (listener) => {
+      receive = listener;
+      return () => {};
+    },
+    subscribeRoom: (listener) => {
+      roomChanged = listener;
+      return () => {};
+    },
+    measure: () => {},
+    changed: () => {},
+  });
+  try {
+    roomChanged();
+    ready = true;
+    receive(snapshot('race:1', false));
+    expect(connection.replica.control('white', 7)).toBe(true);
+    for (let ms = 0; ms < 100; ms += 10) time.clock.advance(10);
+    expect(held.length).toBeGreaterThan(0);
+    roomChanged();
+    expect(requests).toBe(1);
+    receive(snapshot('race:1', false, 9));
+    const before = held.length;
+    for (let ms = 0; ms < 200; ms += 10) time.clock.advance(10);
+    // The player never let go, so the held control keeps being refreshed.
+    expect(held.length).toBeGreaterThan(before);
+  } finally {
+    connection.dispose();
+  }
+});

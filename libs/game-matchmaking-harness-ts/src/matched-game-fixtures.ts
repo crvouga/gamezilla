@@ -14,6 +14,7 @@ import sql from '@pkgs/sql-root-shared-ts/sql';
 import {
   awaitGameMatch,
   givenOpponentSearch,
+  pairGameOpponents,
   publishMultiplayerFixture,
 } from './multiplayer-fixtures';
 import { multiplayerFixture } from './multiplayer-fixtures-core';
@@ -91,4 +92,13 @@ export const givenMultiplayerClock = scenarioAction({
       );
       return publishMultiplayerFixture(tx, gameId, env);
     }),
+});
+
+/**
+ * Matchmaking's formation pass pairs up everyone waiting who can be paired,
+ * whatever the game and however many it seats, as the scheduled pass does.
+ */
+export const pairUpWaitingPeople = scenarioAction({
+  name: 'pairUpWaitingPeople',
+  act: (s, actor?: string) => pairGameOpponents.act(s, actor),
 });

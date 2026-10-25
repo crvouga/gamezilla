@@ -334,6 +334,7 @@ describe('partOf', () => {
     (dir) => {
       // regression: games-spec-parts-exceed-capacity-pole
       // regression: spec-parts-repeats-suite-planning
+      // regression: games-spec-part-allocation-timeout
       const { specParts, inventory } = plannedSuite(dir);
       for (let count = 1; count < specParts; count++)
         expect(partsOf(inventory(count), count).every(withinCaps)).toBe(false);

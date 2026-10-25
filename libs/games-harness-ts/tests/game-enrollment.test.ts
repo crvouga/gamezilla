@@ -12,20 +12,20 @@ import { enrollmentProblems } from '@libs/games-harness-ts/game-conformance';
 import { HARNESS_GAMES } from '@libs/games-harness-ts/harness-games';
 import {
   GAME_DEFINITIONS,
-  REGISTERED_GAME_DEFINITIONS,
+  PLAYABLE_GAME_DEFINITIONS,
 } from '@libs/games-shared-ts/game-plugins';
 import { gameFamily } from '@pkgs/turn-game-shared-ts/game-rules';
 import { CONFORMANCE_GAMES } from './conformance-world';
 
 test('every registered game is enrolled in the shared suites, in registry order', () => {
   expect(HARNESS_GAMES.map((game) => game.shared.id)).toEqual(
-    REGISTERED_GAME_DEFINITIONS.map((game) => game.id)
+    PLAYABLE_GAME_DEFINITIONS.map((game) => game.id)
   );
 });
 
 test('each enrolled game is the very definition production registers', () => {
   for (const [index, game] of HARNESS_GAMES.entries())
-    expect(game.shared).toBe(REGISTERED_GAME_DEFINITIONS[index]!);
+    expect(game.shared).toBe(PLAYABLE_GAME_DEFINITIONS[index]!);
 });
 
 test('each enrolled game shows the very client production registers', async () => {
@@ -40,13 +40,13 @@ test('each enrolled game shows the very client production registers', async () =
 });
 
 test('the shared suites run every registered game and only test-only games beside them', () => {
-  const registered = new Set<unknown>(REGISTERED_GAME_DEFINITIONS);
+  const registered = new Set<unknown>(PLAYABLE_GAME_DEFINITIONS);
   expect(
     CONFORMANCE_GAMES.filter((game) => registered.has(game.shared))
   ).toEqual([...HARNESS_GAMES]);
   for (const game of CONFORMANCE_GAMES)
     expect(
-      REGISTERED_GAME_DEFINITIONS.some(
+      PLAYABLE_GAME_DEFINITIONS.some(
         (definition) => definition.id === game.shared.id
       )
     ).toBe(registered.has(game.shared));
@@ -96,8 +96,8 @@ test('an unknown family cannot hide a mode without owning packages', () => {
 });
 
 test('every mode of a shared family still needs its own conformance adapter', () => {
-  const variants = REGISTERED_GAME_DEFINITIONS.filter((mode) =>
-    REGISTERED_GAME_DEFINITIONS.some(
+  const variants = PLAYABLE_GAME_DEFINITIONS.filter((mode) =>
+    PLAYABLE_GAME_DEFINITIONS.some(
       (other) =>
         other.id !== mode.id &&
         gameFamily(other.registration.rules) ===
@@ -106,22 +106,22 @@ test('every mode of a shared family still needs its own conformance adapter', ()
   );
   expect(variants.length).toBeGreaterThan(1);
   for (const mode of variants) {
-    const unregistered = REGISTERED_GAME_DEFINITIONS.filter(
+    const unregistered = PLAYABLE_GAME_DEFINITIONS.filter(
       (other) => other.id !== mode.id
     );
     expect(
       enrollmentProblems(unregistered, HARNESS_GAMES).some(
         (problem) =>
           problem.includes(`"${mode.id}"`) &&
-          problem.includes('but not REGISTERED_GAME_DEFINITIONS')
+          problem.includes('but not PLAYABLE_GAME_DEFINITIONS')
       )
     ).toBe(true);
 
     const omitted = HARNESS_GAMES.filter((game) => game.shared.id !== mode.id);
     expect(
-      enrollmentProblems(REGISTERED_GAME_DEFINITIONS, omitted).some((problem) =>
+      enrollmentProblems(PLAYABLE_GAME_DEFINITIONS, omitted).some((problem) =>
         problem.includes(
-          `"${mode.id}" is in REGISTERED_GAME_DEFINITIONS but not HARNESS_GAMES`
+          `"${mode.id}" is in PLAYABLE_GAME_DEFINITIONS but not HARNESS_GAMES`
         )
       )
     ).toBe(true);

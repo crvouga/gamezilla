@@ -35,19 +35,17 @@ export function useCustomSimulation(
   const [paused, setPaused] = createSignal(true);
   const [stale, setStale] = createSignal(true);
   const [error, setError] = createSignal(false);
+  const [steering, setSteering] = createSignal<Steering>({});
+  const [elsewhere, setElsewhere] = createSignal(false);
   let connection: ReturnType<typeof connectCustomSimulation> | null = null;
-  const key = createMemo(() => {
-    const game = current();
-    return game?.status === 'active' &&
-      rules.simulation(rules.forPosition(game.fen).id) !== undefined
-      ? `${game.id}:${soloCustomGame(game, rules) ? myId() : 'shared'}`
-      : '';
-  });
+  const key = useSimulationKey(current, myId);
   createEffect(() => {
     const room = entry()?.room;
     const id = key();
     setPosition(null);
     setError(false);
+    setSteering({});
+    setElsewhere(false);
     if (room === undefined || id === '') return;
     const next = connectCustomSimulation({
       room,
@@ -61,14 +59,12 @@ export function useCustomSimulation(
         setPosition(next.position);
         setPaused(next.paused);
         setStale(next.stale);
+        setElsewhere(connection?.runsElsewhere() ?? false);
       },
+      steered: setSteering,
       failed: (error) => {
         setError(true);
-        try {
-          logger.error('The local simulation stopped', { error });
-        } catch {
-          // Recovery remains available when the diagnostic sink fails.
-        }
+        reportStopped(logger, error);
       },
     });
     connection = next;
@@ -77,25 +73,26 @@ export function useCustomSimulation(
       if (connection === next) connection = null;
     });
   });
-  const sides = createMemo(() => {
-    const game = current();
-    return game === null || !allowed()
-      ? []
-      : (['white', 'black'] as const).filter((side) =>
-          game[side].kind === 'person'
-            ? game[side].person === myId()
-            : game[side].kind === 'local' && game.creator === myId()
-        );
+  const sides = useSteeredSides(current, myId, allowed, {
+    steering,
+    elsewhere,
+    clientId: () => entry()?.clientId,
   });
-  const controls = createMemo<GameSimulationControls>(() => ({
-    paused: paused(),
-    stale: stale(),
-    sides: sides(),
-    onInput: (side, input) => {
-      if (sides().includes(side)) connection?.replica.control(side, input);
-    },
-    onRelease: () => connection?.replica.release(),
-  }));
+  const controls = createMemo<GameSimulationControls>(() => {
+    const claim = connection?.claim;
+    return {
+      paused: paused(),
+      stale: stale(),
+      sides: sides.here(),
+      elsewhere: sides.elsewhere(),
+      ...(claim === undefined || elsewhere() ? {} : { claim }),
+      onInput: (side, input) => {
+        if (sides.here().includes(side))
+          connection?.replica.control(side, input);
+      },
+      onRelease: () => connection?.replica.release(),
+    };
+  });
   return {
     position,
     controls,
@@ -103,5 +100,71 @@ export function useCustomSimulation(
     active: () => key() !== '',
     chooseLocal: (choice: CustomGameChoice) =>
       connection?.chooseLocal(choice) ?? null,
+  };
+}
+
+type Steering = Readonly<Record<string, string>>;
+
+/** Which live execution the screen shows: '' while none runs. */
+function useSimulationKey(
+  current: Accessor<CustomGame | null>,
+  myId: Accessor<string>
+): Accessor<string> {
+  const rules = useTurnGames();
+  return createMemo(() => {
+    const game = current();
+    return game?.status === 'active' &&
+      rules.simulation(rules.forPosition(game.fen).id) !== undefined
+      ? `${game.id}:${soloCustomGame(game, rules) ? myId() : 'shared'}`
+      : '';
+  });
+}
+
+function reportStopped(
+  logger: ReturnType<typeof useLogger>,
+  error: unknown
+): void {
+  try {
+    logger.error('The local simulation stopped', { error });
+  } catch {
+    // Recovery remains available when the diagnostic sink fails.
+  }
+}
+
+/**
+ * The person's own sides, and which of them this device steers: one of a
+ * person's devices steers their sides, the others only show the game.
+ */
+function useSteeredSides(
+  current: Accessor<CustomGame | null>,
+  myId: Accessor<string>,
+  allowed: Accessor<boolean>,
+  device: {
+    readonly steering: Accessor<Steering>;
+    readonly elsewhere: Accessor<boolean>;
+    readonly clientId: Accessor<string | undefined>;
+  }
+) {
+  const mine = createMemo(() => {
+    const game = current();
+    return game === null || !allowed()
+      ? []
+      : game.sides.filter((side) =>
+          game[side].kind === 'person'
+            ? game[side].person === myId()
+            : game[side].kind === 'local' && game.creator === myId()
+        );
+  });
+  const here = createMemo(() =>
+    device.elsewhere()
+      ? []
+      : mine().filter((side) => {
+          const steering = device.steering()[side];
+          return steering === undefined || steering === device.clientId();
+        })
+  );
+  return {
+    here,
+    elsewhere: () => mine().filter((side) => !here().includes(side)),
   };
 }

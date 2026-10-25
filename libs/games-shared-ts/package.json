@@ -19,6 +19,7 @@
     "@libs/chess-sub-shared-ts": "workspace:*",
     "@libs/connect-four-shared-ts": "workspace:*",
     "@libs/game-session-shared-ts": "workspace:*",
+    "@libs/light-cycles-shared-ts": "workspace:*",
     "@libs/numberlink-shared-ts": "workspace:*",
     "@libs/pong-shared-ts": "workspace:*",
     "@libs/quoridor-shared-ts": "workspace:*",

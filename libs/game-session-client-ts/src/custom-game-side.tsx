@@ -15,7 +15,7 @@ import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { BotIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { For, type JSX, Match, Show, Switch } from 'solid-js';
-import { CustomGamePerson } from './custom-game-person';
+import { CustomGamePerson, useBotLevel } from './custom-game-person';
 import {
   CustomGameInvitation,
   CustomGameSideChoices,
@@ -82,12 +82,16 @@ function SeatTags(props: SideProps): JSX.Element {
  * game is set up it also carries the choices for that side.
  */
 export function CustomGameSeat(props: SideProps): JSX.Element {
+  const level = useBotLevel(props);
   return (
     <GamePlayerBar
       dataSet={{ testid: `custom-game-${props.side}` }}
       name={
         <Text variant="inherit" testId={`custom-game-${props.side}-person`}>
-          <CustomGamePerson participant={props.model.current()![props.side]} />
+          <CustomGamePerson
+            participant={props.model.current()![props.side]}
+            level={level()}
+          />
         </Text>
       }
       avatar={<SeatAvatar {...props} />}

@@ -206,7 +206,7 @@ Do not create `word_tiles_packs`, separate publication workflows, or game-specif
 
 ## 9. Executable verification
 
-Follow the repository's Gherkin/BDD, Quint, PBT, DST, integration, and E2E conventions. Run real implementation code beneath test drivers, not a simpler test-only game, room, or sync engine.
+Follow the repository's Gherkin/BDD, Quint, PBT, DST, integration, and critical-journey conventions. Run real implementation code beneath test drivers, not a simpler test-only game, room, or sync engine.
 
 ### Behavior and integration coverage
 
@@ -243,7 +243,7 @@ Capture reproducible failures with configuration/artifact versions, initial stat
 3. **Shared multiplayer refinement.** Extend command, private-view, seat/controller, and result contracts where needed; migrate affected existing games. **Exit:** private two/three/four-seat contract tests and existing-consumer regressions pass.
 4. **Live and asynchronous integration.** Connect custom games, existing matchmaking, durable commands, scoped room delivery, spectators, reconnects, deadlines, and bots. **Exit:** real multi-client play plus authority restart and lost-response retry work without inventory loss, rerolls, leakage, or duplicate turns.
 5. **Puzzle composition.** Integrate the one-move challenge, editor/playtest tools, witness validation, packs, publication, and original starter content through shared capabilities. **Exit:** one author publishes a pack and another user plays/resumes/completes it; existing puzzle consumers still work.
-6. **Hardening and cleanup.** Complete BDD/PBT/DST/bounded models/E2E, profile dictionary and bot budgets, verify offline/version/conflict cases, and remove obsolete code. **Exit:** the definition of done is demonstrated with recorded commands and results.
+6. **Hardening and cleanup.** Complete BDD/PBT/DST/bounded models/critical journeys, profile dictionary and bot budgets, verify offline/version/conflict cases, and remove obsolete code. **Exit:** the definition of done is demonstrated with recorded commands and results.
 
 Run relevant checks at every gate, then the repository's full validation entry point, including `bun check` if that is the actual command. Do not claim execution or success without running it. Report environmental blockers and pre-existing failures separately; never weaken checks to obtain green results.
 

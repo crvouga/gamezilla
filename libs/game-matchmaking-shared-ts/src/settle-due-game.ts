@@ -63,7 +63,7 @@ export async function settleDueGame(
   if (stored.outcome !== 'ongoing') return [];
   if (rules.simulation(rules.forPosition(stored.fen).id) !== undefined) {
     await projectLiveMatch(tx, deadline, rules, rooms);
-    return [stored.white_id, stored.black_id];
+    return multiplayerPeople(stored);
   }
   const settled = settleMultiplayerClock(stored, nowMs, rules);
   if (settled === stored) return [];

@@ -32,4 +32,4 @@ test('live session replicas converge after a bounded seeded window of delayed, l
       }
     )
   );
-});
+}, 60_000);

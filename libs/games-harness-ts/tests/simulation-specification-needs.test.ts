@@ -29,3 +29,16 @@ test.each([
     )
   ).toContain('pong');
 });
+
+// regression: simulation-enrolled-in-multi-seat-turn-specifications
+test.each(['multi-seat-games', 'multi-seat-recovery', 'four-seat-matchmaking'])(
+  'the turn-based %s contract never enrolls a multi-rider simulation',
+  (stem) => {
+    const ids = specificationGames(
+      `specs/games/${stem}.feature`,
+      HARNESS_GAMES
+    ).map((game) => game.shared.id);
+    expect(ids).toContain('quoridor-hill');
+    expect(ids.filter((id) => id.startsWith('light-cycles'))).toEqual([]);
+  }
+);

@@ -5,6 +5,7 @@ import {
   MultiplayerGameChanged,
   matchRoomGame,
 } from '@libs/game-matchmaking-shared-ts/match-room';
+import { multiplayerSides } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
 import {
   CancelScheduleEffect,
   ROOM_SCHEDULER_IDENTITY,
@@ -18,6 +19,10 @@ import type {
 } from '@pkgs/room-root-shared-ts/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared-ts/types';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  simulationAbsenceWinner,
+  simulationAwaitsAbsence,
+} from './simulation-absence';
 import { simulationCommandKey } from './simulation-command-state';
 import {
   staleSimulationCheckpoint,
@@ -48,9 +53,7 @@ export function simulationMatchEffects(
   game: MatchRoomGame | null
 ): readonly RoomEffect[] {
   const execution = game?.execution;
-  return game?.outcome === 'ongoing' &&
-    execution?.phase === 'paused' &&
-    execution.expiresAt !== null
+  return game?.outcome === 'ongoing' && simulationAwaitsAbsence(execution)
     ? [
         ScheduleEffect({
           id: SIMULATION_DISCONNECT_SCHEDULE,
@@ -136,21 +139,22 @@ export function expireMatchSimulation(
     game === null ||
     game.id !== expiry.gameId ||
     game.outcome !== 'ongoing' ||
-    execution?.phase !== 'paused' ||
+    !simulationAwaitsAbsence(execution) ||
     execution.epoch !== expiry.epoch ||
     execution.expiresAt !== expiry.expiresAt ||
     now < expiry.expiresAt
   )
     return { ok: true, events: [] };
-  const abandoned = execution.missing.length !== 1;
+  const roster = multiplayerGameFromRoom(game);
+  const winner = simulationAbsenceWinner(
+    multiplayerSides(roster),
+    execution.missing
+  );
+  const abandoned = winner === null;
   const next: MatchRoomGame = {
     ...endMultiplayerGame(
-      multiplayerGameFromRoom(game),
-      abandoned
-        ? 'aborted'
-        : execution.missing[0] === 'white'
-          ? 'black'
-          : 'white',
+      roster,
+      winner ?? 'aborted',
       abandoned ? 'everyone stayed away' : 'opponent stayed away'
     ),
     execution: {

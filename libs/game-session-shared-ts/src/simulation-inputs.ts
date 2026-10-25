@@ -60,6 +60,34 @@ export class SimulationInputs<I> {
       this.acknowledged.set(input.playerId, input.sequence);
   }
 
+  /** Whether this exact command was already applied or is waiting. */
+  seen(playerId: string, sequence: number): boolean {
+    return (
+      sequence <= (this.acknowledged.get(playerId) ?? 0) ||
+      this.pending.some(
+        (item) => item.playerId === playerId && item.sequence === sequence
+      )
+    );
+  }
+
+  pendingFor(playerId: string): number {
+    return this.pending.filter((item) => item.playerId === playerId).length;
+  }
+
+  /**
+   * Fences one absent player: its waiting inputs never apply, and their
+   * sequences count as answered so a returning device stops waiting for them.
+   */
+  discard(playerId: string): void {
+    for (const item of this.pending)
+      if (
+        item.playerId === playerId &&
+        item.sequence > (this.acknowledged.get(playerId) ?? 0)
+      )
+        this.acknowledged.set(playerId, item.sequence);
+    this.pending = this.pending.filter((item) => item.playerId !== playerId);
+  }
+
   acknowledgments(): Readonly<Record<string, number>> {
     return Object.fromEntries(
       [...this.acknowledged].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))

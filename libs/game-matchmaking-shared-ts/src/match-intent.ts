@@ -97,38 +97,36 @@ export function decideMatchIntent(
   }
 }
 
-/** Seats beyond the first two, and their group votes, as a group game stores them. */
-function extraSeatFields(game: MatchRoomGame) {
-  return {
-    red_id: game.red_id ?? null,
-    blue_id: game.blue_id ?? null,
-    red_ms: game.red_ms ?? null,
-    blue_ms: game.blue_ms ?? null,
-    red_rating: game.red_rating ?? null,
-    blue_rating: game.blue_rating ?? null,
-    red_rating_diff: game.red_rating_diff ?? null,
-    blue_rating_diff: game.blue_rating_diff ?? null,
-    draw_votes: game.draw_votes ?? null,
-    rematch_votes: game.rematch_votes ?? null,
-  };
-}
+/** Optional wire fields absent from a delivery are explicit nulls in the domain. */
+const NULLABLE_ROOM_FIELDS = [
+  'red_id',
+  'blue_id',
+  'time_control',
+  'white_ms',
+  'black_ms',
+  'red_ms',
+  'blue_ms',
+  'clock_at_ms',
+  'draw_offer_by',
+  'rematch_offer_by',
+  'rematch_of',
+  'white_rating',
+  'black_rating',
+  'red_rating',
+  'blue_rating',
+  'white_rating_diff',
+  'black_rating_diff',
+  'red_rating_diff',
+  'blue_rating_diff',
+  'draw_votes',
+  'rematch_votes',
+  'setup_ready',
+] as const satisfies readonly (keyof MatchRoomGame & keyof MultiplayerGame)[];
 
 /** Optional wire clock fields are normalized only at the domain decision boundary. */
 export function multiplayerGameFromRoom(game: MatchRoomGame): MultiplayerGame {
-  return {
-    ...game,
-    ...extraSeatFields(game),
-    time_control: game.time_control ?? null,
-    white_ms: game.white_ms ?? null,
-    black_ms: game.black_ms ?? null,
-    clock_at_ms: game.clock_at_ms ?? null,
-    draw_offer_by: game.draw_offer_by ?? null,
-    rematch_offer_by: game.rematch_offer_by ?? null,
-    rematch_of: game.rematch_of ?? null,
-    white_rating: game.white_rating ?? null,
-    black_rating: game.black_rating ?? null,
-    white_rating_diff: game.white_rating_diff ?? null,
-    black_rating_diff: game.black_rating_diff ?? null,
-    setup_ready: game.setup_ready ?? null,
-  };
+  const normalized: Record<string, unknown> = { ...game };
+  for (const field of NULLABLE_ROOM_FIELDS)
+    normalized[field] = game[field] ?? null;
+  return normalized as MultiplayerGame;
 }

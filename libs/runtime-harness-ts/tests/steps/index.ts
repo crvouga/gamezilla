@@ -1,6 +1,7 @@
 import '@libs/runtime-harness-ts/game-journey.steps';
 import '@libs/runtime-harness-ts/pong-journey.steps';
 import '@libs/runtime-harness-ts/quoridor-journey.steps';
+import '@libs/runtime-harness-ts/pong-journey.steps';
 import '@libs/account-privacy-harness-ts/privacy.steps';
 /**
  * Steps entry for the `specs/<domain>/` features this package runs

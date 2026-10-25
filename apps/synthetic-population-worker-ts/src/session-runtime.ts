@@ -47,9 +47,9 @@ export class SessionRuntime {
     private readonly assignment: WorkerAssignment,
     private readonly origin: string,
     private readonly ports: {
-      games: readonly GameAutomation<Driver>[];
       clock: Clock;
       timers: Timers;
+      games: readonly GameAutomation<Driver>[];
       openApplication: (
         input: Parameters<typeof createApplicationInstance>[0]
       ) => Promise<Instance>;

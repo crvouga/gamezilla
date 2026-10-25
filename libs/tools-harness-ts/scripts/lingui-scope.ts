@@ -20,6 +20,7 @@ export const LINGUI_CATALOG_SOURCES = [
   'libs/battleship-client-ts/src',
   'libs/numberlink-client-ts/src',
   'libs/pong-client-ts/src',
+  'libs/light-cycles-client-ts/src',
   'libs/game-menu-client-ts/src',
   'libs/game-session-client-ts/src',
   'libs/game-matchmaking-client-ts/src',

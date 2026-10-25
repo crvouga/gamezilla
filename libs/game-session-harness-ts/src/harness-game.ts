@@ -168,7 +168,7 @@ export type TurnHarnessGame<
 > = PlayableGame<C> & {
   readonly simulationFixtures?: SimulationHarnessFixtures;
   /** The same client definition production registers. */
-  readonly client: GameClientRegistration<TurnGameDefinition>;
+  readonly client: GameClientRegistration<GameRegistration>;
   /** The sub only this game's screens need, beside the shared ones. */
   readonly slice?: HarnessSlice;
   /** This game's own testing-tool actions. */

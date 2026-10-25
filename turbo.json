@@ -1131,6 +1131,7 @@
         "$TURBO_ROOT$/libs/battleship-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/numberlink-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/pong-client-ts/src/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/libs/light-cycles-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/game-menu-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/game-session-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/game-matchmaking-client-ts/src/**/*.{ts,tsx}",
@@ -3134,6 +3135,10 @@
       "passThroughEnv": ["*"]
     },
     "@libs/pong-harness-ts#bench": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@libs/light-cycles-harness-ts#bench": {
       "cache": false,
       "passThroughEnv": ["*"]
     },

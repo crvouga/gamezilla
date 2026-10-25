@@ -13,10 +13,15 @@ export async function runtimeSession(
   backend: Backend,
   workerId: string,
   version = 'realm-test',
-  policySeed = 'native-paired-chess-1',
-  /** The one two-person matching game both peers' realms offer; the first turn game by default. */
-  game?: string
+  /** The realm offers one game, so fresh fixture peers always meet in it. */
+  realmGame: {
+    readonly policySeed: string;
+    readonly entry:
+      | 'runtime-session-entry.ts'
+      | 'runtime-pong-session-entry.ts';
+  } = { policySeed: 'native-paired-chess-1', entry: 'runtime-session-entry.ts' }
 ) {
+  const { policySeed, entry } = realmGame;
   const response = await backend.rpc.claim.$post({ json: { workerId } });
   const { assignment: stored } = await response.json();
   if (stored === null)
@@ -37,12 +42,9 @@ export async function runtimeSession(
         },
       };
   const realm = createIsolatedWorker(
-    new URL('./runtime-session-entry.ts', import.meta.url),
+    new URL(`./${entry}`, import.meta.url),
     ['@pkgs/bun-test-solid-client-ts/register'],
-    {
-      VITE_TEST_HOOKS: '0',
-      ...(game === undefined ? {} : { NATIVE_FIXTURE_GAME: game }),
-    }
+    { VITE_TEST_HOOKS: '0' }
   );
   const authenticated = new Promise<void>((resolve, reject) => {
     let lastError: string | null = null;

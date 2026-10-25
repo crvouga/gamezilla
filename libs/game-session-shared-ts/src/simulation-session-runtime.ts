@@ -27,6 +27,10 @@ import {
   type SimulationRecovery,
 } from './simulation-recovery';
 import { publishRecoverableSimulation } from './simulation-recovery-publish';
+import {
+  continuesWhenAbsent,
+  SimulationRetirement,
+} from './simulation-retirement';
 import { SIMULATION_DISCONNECT_MS } from './simulation-session-state';
 
 export type SimulationSessionView = {
@@ -73,6 +77,7 @@ export class SessionSimulation implements RoomLiveSession<RoomState, string> {
   private recovery: SimulationRecovery | null = null;
   private engine: FixedStepSimulation<unknown, unknown> | null = null;
   private authority: SimulationAuthority<unknown, unknown> | null = null;
+  private retirement: SimulationRetirement | null = null;
   private execution: SimulationExecution | null = null;
   private actors: readonly RoomActor[] = [];
   private pendingEpoch: string | null = null;
@@ -137,22 +142,22 @@ export class SessionSimulation implements RoomLiveSession<RoomState, string> {
     const decoded = view.simulation.codec.decode(view.position);
     if (decoded === null) throw new Error('invalid simulation checkpoint');
     const phase = view.simulation.phase?.(decoded) ?? 'running';
+    const live = missing.length === 0 || continuesWhenAbsent(view.simulation);
     const execution: SimulationExecution = {
       epoch: `${view.id}:${generation}`,
       generation,
       inputGeneration: 0,
       tick: view.execution?.tick ?? 0,
       acknowledged: {},
-      phase: missing.length === 0 ? phase : 'paused',
+      phase: live ? phase : 'paused',
       started:
-        view.execution?.started === true ||
-        (missing.length === 0 && phase === 'running'),
+        view.execution?.started === true || (live && phase === 'running'),
       missing,
-      expiresAt:
-        missing.length === 0
-          ? null
-          : (view.execution?.expiresAt ??
-            Math.floor(this.ports.clock.now()) + SIMULATION_DISCONNECT_MS),
+      expiresAt: this.deadline(
+        view,
+        missing,
+        view.execution?.expiresAt ?? null
+      ),
     };
     this.pendingEpoch = execution.epoch;
     const command = this.binding.checkpoint(view, view.position, {
@@ -172,7 +177,10 @@ export class SessionSimulation implements RoomLiveSession<RoomState, string> {
     const decoded = definition.codec.decode(view.position);
     if (decoded === null) throw new Error('invalid simulation checkpoint');
     const initial = definition.resetInputs?.(decoded) ?? decoded;
-    const step = withSimulationBots(
+    const retirement = continuesWhenAbsent(definition)
+      ? new SimulationRetirement(definition)
+      : null;
+    const withBots = withSimulationBots(
       definition.step,
       view.bots.map((bot) => ({
         playerId: bot.side,
@@ -192,6 +200,9 @@ export class SessionSimulation implements RoomLiveSession<RoomState, string> {
       })),
       definition.parseInput
     );
+    const step = retirement === null ? withBots : retirement.wrap(withBots);
+    retirement?.absent(execution.missing, execution.tick);
+    this.retirement = retirement;
     const engine = new FixedStepSimulation(initial, step, {
       ...definition.timing,
       seed: view.id,
@@ -212,6 +223,10 @@ export class SessionSimulation implements RoomLiveSession<RoomState, string> {
         controllers: view.controllers,
         codec: definition.codec,
         parseInput: definition.parseInput,
+        ...(definition.input === undefined ? {} : { input: definition.input }),
+        ...(definition.rounds === undefined
+          ? {}
+          : { rounds: definition.rounds }),
       },
       {
         clock: this.ports.clock,
@@ -273,15 +288,16 @@ export class SessionSimulation implements RoomLiveSession<RoomState, string> {
       return;
     const missing = this.missing(view);
     if (missing.join(',') === this.execution.missing.join(',')) return;
+    if (this.retirement !== null) {
+      this.continueWithout(view, missing);
+      return;
+    }
     this.execution = {
       ...this.execution,
       inputGeneration: this.execution.inputGeneration + 1,
       missing,
       phase: missing.length === 0 ? 'running' : 'paused',
-      expiresAt:
-        missing.length === 0
-          ? null
-          : Math.floor(this.ports.clock.now()) + SIMULATION_DISCONNECT_MS,
+      expiresAt: this.deadline(view, missing, null),
     };
     const snapshot = this.engine.snapshot();
     this.engine.restore({
@@ -293,8 +309,54 @@ export class SessionSimulation implements RoomLiveSession<RoomState, string> {
     this.authority.publish();
   }
 
+  /**
+   * A continuing arena keeps running for everyone else: only the absent
+   * seats' waiting inputs are fenced, present players keep their input epoch,
+   * and absent seats retire after the grace period.
+   */
+  private continueWithout(
+    view: SimulationSessionView,
+    missing: readonly GameSide[]
+  ): void {
+    const engine = this.engine!;
+    for (const side of missing)
+      if (!this.execution!.missing.includes(side)) engine.discardInputs(side);
+    this.retirement!.absent(missing, engine.committedTick());
+    this.execution = {
+      ...this.execution!,
+      missing: [...missing],
+      expiresAt: this.deadline(view, missing, null),
+    };
+    this.authority!.publish();
+  }
+
+  /**
+   * The persisted absence deadline: any absence of a paused game, or the
+   * absence of every controller of a continuing one.
+   */
+  private deadline(
+    view: SimulationSessionView,
+    missing: readonly GameSide[],
+    previous: number | null
+  ): number | null {
+    const waits = continuesWhenAbsent(view.simulation)
+      ? missing.length > 0 &&
+        [...view.controllers.keys()].every((side) => missing.includes(side))
+      : missing.length > 0;
+    if (!waits) return null;
+    return (
+      previous ?? Math.floor(this.ports.clock.now()) + SIMULATION_DISCONNECT_MS
+    );
+  }
+
   private missing(view: SimulationSessionView): GameSide[] {
-    if (!view.available) return ['black', 'white'];
+    if (!view.available)
+      return [
+        ...new Set([
+          ...view.controllers.keys(),
+          ...view.bots.map((bot) => bot.side),
+        ]),
+      ].sort();
     const present = new Set(this.actors.map((actor) => actor.id));
     return [...view.controllers]
       .filter(([, identity]) => !present.has(identity))
@@ -303,7 +365,8 @@ export class SessionSimulation implements RoomLiveSession<RoomState, string> {
   }
 
   private phase(): SimulationExecution['phase'] {
-    if (this.execution?.missing.length !== 0) return 'paused';
+    if (this.execution?.missing.length !== 0 && this.retirement === null)
+      return 'paused';
     const state = this.engine!.snapshot().state;
     return (
       this.view!.simulation.phase?.(state) ??
@@ -399,6 +462,7 @@ export class SessionSimulation implements RoomLiveSession<RoomState, string> {
   private stop(): void {
     this.authority?.dispose();
     this.authority = null;
+    this.retirement = null;
     this.engine = null;
     this.recovery = null;
     this.execution = null;

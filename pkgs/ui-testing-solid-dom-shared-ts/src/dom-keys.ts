@@ -16,6 +16,10 @@ export const DRIVER_KEY_TO_USER_EVENT: Record<DriverKey, string> = {
   space: '[Space]',
   delete: '{Delete}',
   commandPalette: '{Control>}k{/Control}',
+  letterW: 'w',
+  letterA: 'a',
+  letterS: 's',
+  letterD: 'd',
 };
 
 /** Reverse map: DOM `KeyboardEvent.key` → user-event descriptor. */

@@ -1,6 +1,7 @@
 import '@libs/runtime-harness-ts/game-journey.steps';
 import '@libs/runtime-harness-ts/pong-journey.steps';
 import '@libs/runtime-harness-ts/quoridor-journey.steps';
+import '@libs/runtime-harness-ts/pong-journey.steps';
 
 // The one registration entry selects the runner's injected world.
 // Live checks use server ports without loading the in-process browser app.

@@ -39,7 +39,7 @@ export function connectSimulationPresentation(options: PresentationOptions) {
   });
   const refresh = () => {
     if (options.generation() === undefined || !options.isReady()) return;
-    replica.reset();
+    replica.resynchronize();
     options.send(RequestSimulationSnapshot({ version: 1 }));
   };
   const unsubscribeRoom = subscribeSimulationRoom(options, replica, refresh);

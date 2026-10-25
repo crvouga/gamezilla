@@ -64,6 +64,12 @@ msgstr "{0, plural, one {friend} other {friends}}"
 msgid "{0, plural, one {Hosting # space} other {Hosting # spaces}}"
 msgstr "{0, plural, one {Hosting # space} other {Hosting # spaces}}"
 
+#. placeholder {0}: riderName(rider.seat)
+#. placeholder {1}: props.state.scores[index()] ?? 0
+#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+msgid "{0} {1}"
+msgstr "{0} {1}"
+
 #. placeholder {0}: props.matched
 #. placeholder {1}: props.total
 #: libs/game-puzzle-client-ts/src/puzzle-feed-bar.tsx
@@ -142,6 +148,16 @@ msgstr "{0} removed"
 #: libs/game-puzzle-client-ts/src/puzzle-feed-bar.tsx
 msgid "{0} themes"
 msgstr "{0} themes"
+
+#. placeholder {0}: riderName(state.result.winner)
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "{0} wins the game."
+msgstr "{0} wins the game."
+
+#. placeholder {0}: riderName(winner)
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "{0} wins the round."
+msgstr "{0} wins the round."
 
 #. placeholder {0}: props.winnerName
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
@@ -304,6 +320,10 @@ msgstr "{mins}m ago"
 #: libs/game-matchmaking-client-ts/src/multiplayer-time-left.tsx
 msgid "{minutes} minutes"
 msgstr "{minutes} minutes"
+
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "{name} has crashed in this round. Watch until the next round."
+msgstr "{name} has crashed in this round. Watch until the next round."
 
 #: libs/quoridor-client-ts/src/quoridor-game-client.tsx
 msgid "{name} ran out of time. Game drawn."
@@ -472,10 +492,21 @@ msgid "A game needs {0} players including you. Find {1} other players at the sam
 msgstr "A game needs {0} players including you. Find {1} other players at the same clock choice."
 
 #. placeholder {0}: count()
+#. placeholder {1}: count() - 1
+#: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
+msgid "A game needs {0} players including you. Find {1} other players."
+msgstr "A game needs {0} players including you. Find {1} other players."
+
+#. placeholder {0}: count()
 #. placeholder {1}: timeControlText(props.game.time_control)
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
 msgid "A multiplayer game for {0} players at {1}."
 msgstr "A multiplayer game for {0} players at {1}."
+
+#. placeholder {0}: count()
+#: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
+msgid "A multiplayer game for {0} players."
+msgstr "A multiplayer game for {0} players."
 
 #: libs/game-puzzle-client-ts/src/content-attempt-restart.tsx
 msgid "A new attempt could not be saved. Your earlier attempt is still here. Try again."
@@ -858,6 +889,14 @@ msgstr "Back<0> one move</0>"
 msgid "Battleship"
 msgstr "Battleship"
 
+#: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
+msgid "Be the last of four riders riding."
+msgstr "Be the last of four riders riding."
+
+#: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
+msgid "Be the last of three riders riding."
+msgstr "Be the last of three riders riding."
+
 #: libs/synthetic-population-client-ts/src/synthetic-user-statechart.tsx
 msgid "Behavior Statechart"
 msgstr "Behavior Statechart"
@@ -908,11 +947,22 @@ msgstr "Boards"
 
 #: libs/game-session-client-ts/src/custom-game-person.tsx
 #: libs/game-session-client-ts/src/custom-game-side-choices.tsx
-#: libs/game-session-client-ts/src/custom-game-status.tsx
 #: libs/game-session-client-ts/src/game-history-participant.tsx
 #: libs/profile-client-ts/src/account-automation-label.tsx
 msgid "Bot"
 msgstr "Bot"
+
+#: libs/game-session-client-ts/src/custom-game-person.tsx
+msgid "Bot (easy)"
+msgstr "Bot (easy)"
+
+#: libs/game-session-client-ts/src/custom-game-person.tsx
+msgid "Bot (hard)"
+msgstr "Bot (hard)"
+
+#: libs/game-session-client-ts/src/custom-game-person.tsx
+msgid "Bot (medium)"
+msgstr "Bot (medium)"
 
 #: libs/game-session-client-ts/src/custom-game-difficulty.tsx
 msgid "Bot difficulty"
@@ -1150,6 +1200,10 @@ msgstr "Choose a sign-in method"
 #: libs/profile-client-ts/src/username-change-feedback.tsx
 msgid "Choose a username"
 msgstr "Choose a username"
+
+#: libs/light-cycles-client-ts/src/light-cycles-options.tsx
+msgid "Choose a whole number from 1 to 9. Changing it asks every rider to get ready again."
+msgstr "Choose a whole number from 1 to 9. Changing it asks every rider to get ready again."
 
 #: libs/pong-client-ts/src/pong-options.tsx
 msgid "Choose a whole number from 1 to 99. Changing it asks both players to get ready again."
@@ -1996,6 +2050,14 @@ msgstr "Easy"
 msgid "Edit profile"
 msgstr "Edit profile"
 
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
+msgid "Edit restored"
+msgstr "Edit restored"
+
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
+msgid "Edit undone"
+msgstr "Edit undone"
+
 #: libs/game-puzzle-client-ts/src/content-edition-screen.tsx
 msgid "Edit working draft"
 msgstr "Edit working draft"
@@ -2283,6 +2345,10 @@ msgstr "fleet sunk"
 msgid "Flip board"
 msgstr "Flip board"
 
+#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+msgid "Focus the arena and steer with the arrow keys or W, A, S and D, or use the direction pad. A turn straight back is ignored. Avoid the edge and every trail; the last rider riding wins the round."
+msgstr "Focus the arena and steer with the arrow keys or W, A, S and D, or use the direction pad. A turn straight back is ignored. Avoid the edge and every trail; the last rider riding wins the round."
+
 #: libs/pong-client-ts/src/pong-board.tsx
 msgid "Focus the court to play. Use W and S for Left, or the arrow keys for your paddle. With two players on this device, the arrow keys control Right. Drag on your side of the court, or use the paddle sliders below."
 msgstr "Focus the court to play. Use W and S for Left, or the arrow keys for your paddle. With two players on this device, the arrow keys control Right. Drag on your side of the court, or use the paddle sliders below."
@@ -2438,6 +2504,10 @@ msgstr "Gamezilla is open in another tab"
 #: libs/permissions-client-ts/src/unlock-copy.tsx
 msgid "Get Plus to host more spaces"
 msgstr "Get Plus to host more spaces"
+
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "Get ready: a turn chosen now takes effect on {name}'s first step."
+msgstr "Get ready: a turn chosen now takes effect on {name}'s first step."
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-private-setup.tsx
 #: libs/game-session-client-ts/src/custom-game-side.tsx
@@ -2734,6 +2804,10 @@ msgstr "Keep the current changes before playtesting. Try saving again."
 msgid "Keep the current changes before publishing. Try saving again."
 msgstr "Keep the current changes before publishing. Try saving again."
 
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
+msgid "Keep the current changes first. Try saving again."
+msgstr "Keep the current changes first. Try saving again."
+
 #: libs/game-puzzle-client-ts/src/content-kept-positions.tsx
 msgid "Kept"
 msgstr "Kept"
@@ -2860,6 +2934,26 @@ msgstr "light"
 #: libs/app-root-client-ts/src/theme-screen.tsx
 msgid "Light"
 msgstr "Light"
+
+#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+msgid "Light Cycles arena"
+msgstr "Light Cycles arena"
+
+#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+msgid "Light Cycles could not be opened. Return to the game choices and open it again."
+msgstr "Light Cycles could not be opened. Return to the game choices and open it again."
+
+#: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
+msgid "Light Cycles Duel"
+msgstr "Light Cycles Duel"
+
+#: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
+msgid "Light Cycles Quad"
+msgstr "Light Cycles Quad"
+
+#: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
+msgid "Light Cycles Trio"
+msgstr "Light Cycles Trio"
 
 #: libs/spaces-client-ts/src/space-share-link-section.tsx
 msgid "Link"
@@ -2988,6 +3082,13 @@ msgstr "Long tasks"
 #: libs/game-matchmaking-client-ts/src/multiplayer-waiting.tsx
 msgid "Looking for {0} other players for {1} at {2}. A game needs {3} players including you."
 msgstr "Looking for {0} other players for {1} at {2}. A game needs {3} players including you."
+
+#. placeholder {0}: props.count - 1
+#. placeholder {1}: props.gameName
+#. placeholder {2}: props.count
+#: libs/game-matchmaking-client-ts/src/multiplayer-waiting.tsx
+msgid "Looking for {0} other players for {1}. A game needs {2} players including you."
+msgstr "Looking for {0} other players for {1}. A game needs {2} players including you."
 
 #. placeholder {0}: timeControlText(props.search.time_control)
 #. placeholder {1}: props.gameName
@@ -3282,6 +3383,10 @@ msgstr "Next puzzle immediately"
 #: libs/game-puzzle-client-ts/src/content-attempt-next.tsx
 msgid "Next puzzle: {0}"
 msgstr "Next puzzle: {0}"
+
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "Next round soon."
+msgstr "Next round soon."
 
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "night"
@@ -3686,6 +3791,10 @@ msgstr "OS"
 #: libs/profile-client-ts/src/stand-in-notice.tsx
 msgid "Other people see you as {alias} until you choose a new username"
 msgstr "Other people see you as {alias} until you choose a new username"
+
+#: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
+msgid "Outlast your rival on the grid."
+msgstr "Outlast your rival on the grid."
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "Ownership generation"
@@ -4284,6 +4393,10 @@ msgstr "Reconnect before changing or playing the game."
 msgid "Reconnecting. Controls resume when the game returns."
 msgstr "Reconnecting. Controls resume when the game returns."
 
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "Reconnecting. Steering resumes when the game returns."
+msgstr "Reconnecting. Steering resumes when the game returns."
+
 #: libs/synthetic-population-client-ts/src/synthetic-population-event-timeline.tsx
 msgid "Recorded activity appears here as it happens."
 msgstr "Recorded activity appears here as it happens."
@@ -4312,6 +4425,14 @@ msgstr "Red fleet"
 #: libs/game-puzzle-client-ts/src/content-attempt-controls.tsx
 msgid "Redo"
 msgstr "Redo"
+
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
+msgid "Redo edit"
+msgstr "Redo edit"
+
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
+msgid "Redoing…"
+msgstr "Redoing…"
 
 #. placeholder {0}: reference()
 #: libs/app-root-client-ts/src/crash-screen.tsx
@@ -4588,6 +4709,10 @@ msgstr "Review your games, wins and draws"
 msgid "Revoke invitation"
 msgstr "Revoke invitation"
 
+#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+msgid "Ride from this device"
+msgstr "Ride from this device"
+
 #: libs/pong-client-ts/src/pong-game-client.tsx
 msgid "Right"
 msgstr "Right"
@@ -4613,6 +4738,25 @@ msgstr "Rook"
 #: libs/battleship-client-ts/src/battleship-setup-board.tsx
 msgid "Rotate: {0}"
 msgstr "Rotate: {0}"
+
+#. placeholder {0}: state.round
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "Round {0}"
+msgstr "Round {0}"
+
+#. placeholder {0}: props.state.round
+#. placeholder {1}: props.state.targetScore
+#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+msgid "Round {0} · first to {1}"
+msgstr "Round {0} · first to {1}"
+
+#: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
+msgid "round limit"
+msgstr "round limit"
+
+#: libs/light-cycles-client-ts/src/light-cycles-options.tsx
+msgid "Round wins to win"
+msgstr "Round wins to win"
 
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Rows"
@@ -5250,6 +5394,30 @@ msgstr "Status"
 msgid "Stay here"
 msgstr "Stay here"
 
+#. placeholder {0}: riderName(side)
+#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+msgid "Steer {0} down"
+msgstr "Steer {0} down"
+
+#. placeholder {0}: riderName(side)
+#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+msgid "Steer {0} left"
+msgstr "Steer {0} left"
+
+#. placeholder {0}: riderName(side)
+#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+msgid "Steer {0} right"
+msgstr "Steer {0} right"
+
+#. placeholder {0}: riderName(side)
+#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+msgid "Steer {0} up"
+msgstr "Steer {0} up"
+
+#: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
+msgid "Steer your rider around the arena. Every rider leaves a light trail; the edge and every trail crash a rider. The last rider riding wins the round, and the first to the target score wins the game. Ride against bots, share a device, invite people, or find players."
+msgstr "Steer your rider around the arena. Every rider leaves a light trail; the edge and every trail crash a rider. The last rider riding wins the round, and the first to the target score wins the game. Ride against bots, share a device, invite people, or find players."
+
 #: libs/app-root-client-ts/src/settings-screen.tsx
 msgid "Stop every network connection until you work online"
 msgstr "Stop every network connection until you work online"
@@ -5416,6 +5584,10 @@ msgstr "Target rating"
 msgid "Target rating: {0}"
 msgstr "Target rating: {0}"
 
+#: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
+msgid "target score"
+msgstr "target score"
+
 #: libs/battleship-client-ts/src/battleship-board.tsx
 msgid "Targeting"
 msgstr "Targeting"
@@ -5435,6 +5607,10 @@ msgstr "That change wasn't made. The item may no longer be in your inbox."
 #: libs/notifications-client-ts/src/notifications-screen.tsx
 msgid "That change wasn't made. Try again in a moment."
 msgstr "That change wasn't made. Try again in a moment."
+
+#: libs/game-puzzle-client-ts/src/use-draft-edit-history.tsx
+msgid "That edit is no longer available here. Your kept copies remain below."
+msgstr "That edit is no longer available here. Your kept copies remain below."
 
 #: libs/app-root-client-ts/src/refused-change-copy.tsx
 msgid "That friend request wasn't declined"
@@ -5513,6 +5689,10 @@ msgstr "The {name} cannot go there: it would overlap the {other}."
 msgid "The {name} does not fit there: it would run off the board."
 msgstr "The {name} does not fit there: it would run off the board."
 
+#: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
+msgid "The 15th round was played; the rider with the most round wins takes the game."
+msgstr "The 15th round was played; the rider with the most round wins takes the game."
+
 #: libs/game-puzzle-client-ts/src/content-start-attempt.tsx
 msgid "The attempt could not be saved. Try starting again."
 msgstr "The attempt could not be saved. Try starting again."
@@ -5565,6 +5745,10 @@ msgstr "The draft could not be saved. Try saving again."
 msgid "The draft needs your attention"
 msgstr "The draft needs your attention"
 
+#: libs/game-puzzle-client-ts/src/use-draft-edit-history.tsx
+msgid "The edit could not be changed. Try again."
+msgstr "The edit could not be changed. Try again."
+
 #: libs/account-privacy-client-ts/src/export-choice.tsx
 msgid "The export could not be requested. Try again."
 msgstr "The export could not be requested. Try again."
@@ -5593,6 +5777,10 @@ msgstr "The game choices changed. Review them and try again."
 msgid "The game ends with no result and no rating change."
 msgstr "The game ends with no result and no rating change."
 
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "The game is drawn."
+msgstr "The game is drawn."
+
 #: libs/game-session-client-ts/src/custom-game-board.tsx
 msgid "The game stopped. Your last saved score is kept. Reopen the game to try again."
 msgstr "The game stopped. Your last saved score is kept. Reopen the game to try again."
@@ -5613,6 +5801,10 @@ msgstr "The host picks the game for this space."
 #: libs/chess-puzzle-client-ts/src/puzzle-source-controls.tsx
 msgid "The Lichess file is in the shared bucket. Start loading to add its puzzles to this environment."
 msgstr "The Lichess file is in the shared bucket. Start loading to add its puzzles to this environment."
+
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "The Light Cycles game is finished."
+msgstr "The Light Cycles game is finished."
 
 #: libs/spaces-client-ts/src/space-join-prompt.tsx
 msgid "The link may be wrong, or the space may never have existed."
@@ -5674,6 +5866,14 @@ msgstr "The puzzle draft was not created"
 msgid "The puzzle stays available on its own. Published pack editions keep their contents."
 msgstr "The puzzle stays available on its own. Published pack editions keep their contents."
 
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "The round is drawn."
+msgstr "The round is drawn."
+
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "The round result is showing. The next round starts soon."
+msgstr "The round result is showing. The next round starts soon."
+
 #: libs/game-matchmaking-client-ts/src/multiplayer-controls.tsx
 msgid "The round will end in a draw for all players."
 msgstr "The round will end in a draw for all players."
@@ -5693,6 +5893,14 @@ msgstr "The space stays open. They can join again through its link."
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 msgid "The Synthetic Population Worker will recover this application."
 msgstr "The Synthetic Population Worker will recover this application."
+
+#: libs/light-cycles-client-ts/src/light-cycles-options.tsx
+msgid "The target score must be from 1 to 9."
+msgstr "The target score must be from 1 to 9."
+
+#: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
+msgid "The target score was reached."
+msgstr "The target score was reached."
 
 #: libs/chess-puzzle-client-ts/src/puzzle-import-stop.tsx
 msgid "The unfinished file will not become available. You can save the chosen file again."
@@ -6060,9 +6268,17 @@ msgstr "Try playtesting again"
 msgid "Try publishing again"
 msgstr "Try publishing again"
 
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
+msgid "Try redoing again"
+msgstr "Try redoing again"
+
 #: libs/game-puzzle-client-ts/src/content-start-attempt.tsx
 msgid "Try starting again"
 msgstr "Try starting again"
+
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
+msgid "Try undoing again"
+msgstr "Try undoing again"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-source-controls.tsx
 msgid "Try uploading again"
@@ -6131,6 +6347,14 @@ msgstr "Unblocking…"
 #: libs/game-puzzle-client-ts/src/content-attempt-controls.tsx
 msgid "Undo"
 msgstr "Undo"
+
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
+msgid "Undo edit"
+msgstr "Undo edit"
+
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
+msgid "Undoing…"
+msgstr "Undoing…"
 
 #: libs/numberlink-client-ts/src/numberlink-board.tsx
 msgid "unfinished"
@@ -6260,6 +6484,10 @@ msgstr "Use this kept copy?"
 msgid "Use this score"
 msgstr "Use this score"
 
+#: libs/light-cycles-client-ts/src/light-cycles-options.tsx
+msgid "Use this target score"
+msgstr "Use this target score"
+
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "User ID"
 msgstr "User ID"
@@ -6354,6 +6582,10 @@ msgstr "Walls must fit between four squares. Choose an anchor from a1 to h8."
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
 msgid "Watching multiplayer {0}."
 msgstr "Watching multiplayer {0}."
+
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "Watching. Only a rider's own person steers it."
+msgstr "Watching. Only a rider's own person steers it."
 
 #: libs/search-client-ts/src/search-screen-view.tsx
 msgid "We couldn't reach the server. Search again once you're back online."
@@ -6596,6 +6828,14 @@ msgstr "You play {0}"
 msgid "You played {0} to {1}."
 msgstr "You played {0} to {1}."
 
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "You ride {name} from another of your devices."
+msgstr "You ride {name} from another of your devices."
+
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "You ride {name}."
+msgstr "You ride {name}."
+
 #: libs/battleship-client-ts/src/battleship-copy.tsx
 msgid "You sank the whole fleet. You win."
 msgstr "You sank the whole fleet. You win."
@@ -6718,6 +6958,10 @@ msgstr "Your data"
 #: libs/app-root-client-ts/src/refused-publication-copy.tsx
 msgid "Your draft is kept. Check its validation details, correct the draft, then choose Publish again."
 msgstr "Your draft is kept. Check its validation details, correct the draft, then choose Publish again."
+
+#: libs/game-puzzle-client-ts/src/content-draft-history.tsx
+msgid "Your draft is unchanged"
+msgstr "Your draft is unchanged"
 
 #: libs/game-puzzle-client-ts/src/content-create-controls.tsx
 msgid "Your draft was not created"
