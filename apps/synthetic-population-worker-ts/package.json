@@ -59,6 +59,7 @@
     "@opentelemetry/sdk-trace-base": "catalog:",
     "@pkgs/aedes-server-ts": "workspace:*",
     "@pkgs/harness-root-shared-ts": "workspace:*",
+    "@pkgs/room-root-shared-ts": "workspace:*",
     "@pkgs/sql-root-shared-ts": "workspace:*",
     "@pkgs/room-root-shared-ts": "workspace:*",
     "@pkgs/sync-engine-shared-ts": "workspace:*",

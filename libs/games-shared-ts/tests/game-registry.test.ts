@@ -9,6 +9,7 @@ test('the product registers Numberlink with puzzle capabilities and no turn engi
   const numberlink = GAME_DEFINITIONS.find((game) => game.id === 'numberlink');
   expect(numberlink).toBeDefined();
   expect(numberlink?.puzzleContent).toBeDefined();
+  expect(numberlink?.registration).toBeUndefined();
   expect(numberlink?.turnGame).toBeUndefined();
   expect(isGameRegistration(numberlink)).toBe(false);
   expect(PLAYABLE_GAME_DEFINITIONS.map((game) => game.id)).toEqual(

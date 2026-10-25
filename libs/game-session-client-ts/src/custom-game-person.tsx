@@ -60,6 +60,9 @@ export function CustomGamePerson(props: {
       <Match when={props.participant.kind === 'local'}>
         <Trans>Player on this device</Trans>
       </Match>
+      <Match when={props.participant.kind === 'local'}>
+        <Trans>Player on this device</Trans>
+      </Match>
       <Match when={props.participant.kind === 'open'}>
         <Trans>Open place</Trans>
       </Match>

@@ -44,7 +44,10 @@ export async function runtimeSession(
   const realm = createIsolatedWorker(
     new URL(`./${entry}`, import.meta.url),
     ['@pkgs/bun-test-solid-client-ts/register'],
-    { VITE_TEST_HOOKS: '0' }
+    {
+      VITE_TEST_HOOKS: '0',
+      ...(game === undefined ? {} : { NATIVE_FIXTURE_GAME: game }),
+    }
   );
   const authenticated = new Promise<void>((resolve, reject) => {
     let lastError: string | null = null;

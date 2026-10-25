@@ -7,7 +7,7 @@ import type {
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { makeCustomGameMove } from './custom-game-moves';
 import { readCustomGameProbe } from './custom-game-probe';
-import { harnessGameAt } from './harness-game-of';
+import { turnHarnessGameAt } from './harness-game-of';
 
 const choices = new WeakMap<HarnessRoomNode, { next: number | null }>();
 

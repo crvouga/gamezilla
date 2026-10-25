@@ -17,7 +17,7 @@ import {
 import { gameFamily } from '@pkgs/turn-game-shared-ts/game-rules';
 import { CONFORMANCE_GAMES } from './conformance-world';
 
-test('every registered turn game is enrolled in the turn suites, in registry order', () => {
+test('every registered game is enrolled in the shared suites, in registry order', () => {
   expect(HARNESS_GAMES.map((game) => game.shared.id)).toEqual(
     PLAYABLE_GAME_DEFINITIONS.map((game) => game.id)
   );

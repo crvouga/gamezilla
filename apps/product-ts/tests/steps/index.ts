@@ -1,4 +1,5 @@
 import '@libs/runtime-harness-ts/game-journey.steps';
+import '@libs/runtime-harness-ts/pong-journey.steps';
 import '@libs/runtime-harness-ts/quoridor-journey.steps';
 import '@libs/runtime-harness-ts/pong-journey.steps';
 

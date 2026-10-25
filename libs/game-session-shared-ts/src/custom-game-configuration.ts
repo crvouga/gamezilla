@@ -134,6 +134,7 @@ export function rematchCustomGame(
   members: readonly string[],
   rules: TurnGames
 ): CustomGame {
+  const position = rules.forPosition(game.fen);
   const next = newCustomGame(
     id,
     game.creator,
