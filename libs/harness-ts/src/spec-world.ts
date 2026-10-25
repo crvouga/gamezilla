@@ -114,6 +114,18 @@ export function signedInAccountKey(actor: string): string {
   return `signed-in-account:${actor}`;
 }
 
+const STEP_KIND_KEY = 'scenario-step-kind';
+
+/**
+ * Whether the step running now states what a scenario starts from (a
+ * `Given`, or an `And` after one). Matching ignores the keyword, so one
+ * sentence ("Comet is at column 10, row 5") can be both a fact a `Given`
+ * sets up and an outcome a `Then` checks; its one definition asks this.
+ */
+export function settingUp(w: HarnessWorld): boolean {
+  return w.memo.get(STEP_KIND_KEY) === 'Given';
+}
+
 /** Remember a value for a later step. */
 export function remember<T>(w: HarnessWorld, key: string, value: T): T {
   w.memo.set(key, value);
@@ -167,14 +179,19 @@ export function useHarnessWorld(
     },
     dispose: (w) => w.s[Symbol.asyncDispose](),
     calls: (w) => w.calls,
-    record: (w, step, fn) =>
-      recordStep(
+    record: (w, step, fn) => {
+      const keyword = step.keyword.trim();
+      // `And`, `But` and `*` continue the kind of step before them.
+      if (['Given', 'When', 'Then'].includes(keyword))
+        w.memo.set(STEP_KIND_KEY, keyword);
+      return recordStep(
         w.s,
         {
           kind: step.keyword.trim(),
           title: `${step.keyword.trim()} ${step.text}`,
         },
         fn
-      ),
+      );
+    },
   });
 }

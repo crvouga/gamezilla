@@ -5,6 +5,7 @@ import {
   SimulationStateChanged,
   SubmitSimulationInput,
 } from '@libs/game-session-shared-ts/simulation-messages';
+import { ClaimSimulationControl } from '@libs/game-session-shared-ts/simulation-steering';
 import type { HarnessRoomNode } from '@libs/harness-ts/composition';
 import { OperationRefused } from '@libs/permissions-shared-ts/server';
 import type { HarnessClockBundle } from '@pkgs/clock-shared-ts/harness-clock';
@@ -96,6 +97,10 @@ async function submit(
   owner: Connection,
   actor: Connection
 ): Promise<void> {
+  // One device steers a person's seats; the probe's device claims it, as
+  // "Ride from this device" does, before its control is judged.
+  signal(w, actor, ClaimSimulationControl({ version: 1 }));
+  await settle(w);
   const before = await snapshot(w, owner);
   const example = w.game.simulationFixtures.examples.flatMap(
     (item) => item.inputs

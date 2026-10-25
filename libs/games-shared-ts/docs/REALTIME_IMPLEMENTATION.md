@@ -1461,8 +1461,9 @@ Added for multi-participant real-time games; Pong keeps every default.
   running: only the absent seat's waiting inputs are discarded (and counted as
   answered so a returning device stops waiting), present players keep their
   input epoch, and from the tick the absence began plus the grace period the
-  pure `retire(state, side)` runs before every step while the seat stays
-  away. Retirement depends on ticks only.
+  pure `retire(state, side)` runs before and after every step while the seat
+  stays away, so a step that begins a new round never publishes an away seat
+  riding. Retirement depends on ticks only.
 - **Absence deadline.** The persisted 30-second deadline runs for any absence
   of a paused game, but only when every controller of a continuing game is
   away. When it passes, a two-seat game is forfeited to the seat that stayed;

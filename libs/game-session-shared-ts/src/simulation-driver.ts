@@ -17,6 +17,15 @@ export type SimulationDriverPorts<S> = {
   readonly enqueue?: (work: () => void) => void;
 };
 
+/**
+ * Whether `now` has reached `at`. Clocks count from the epoch, where one ulp
+ * is about 0.2 µs, so an on-time wake can land a rounding error short of an
+ * exact boundary; a fixed tolerance below that would skip the boundary.
+ */
+function reached(now: number, at: number): boolean {
+  return now + 1e-9 + Math.abs(at) * Number.EPSILON * 8 >= at;
+}
+
 /** Owns one injected timer. Publication cadence is independent of simulation cadence. */
 export function driveSimulation<S, I>(
   simulation: FixedStepSimulation<S, I>,
@@ -53,7 +62,7 @@ export function driveSimulation<S, I>(
       const elapsed = Math.max(0, now - previous);
       const result = simulation.advance(elapsed);
       previous = Math.max(previous, now);
-      if (now + 1e-9 >= publishAt) {
+      if (reached(now, publishAt)) {
         ports.publish(simulation.snapshot());
         publishAt = now + publishInterval;
       }

@@ -138,3 +138,16 @@ test('sequences stay strictly increasing and outstanding stays bounded under any
     )
   );
 });
+
+test('a game steered by discrete commands shows the latest authoritative frame', () => {
+  // regression: simulation-command-presentation-lags-a-step
+  // A playback buffer two snapshots behind the authority (four ticks at 15
+  // snapshots a second) is longer than a Light Cycles step (three ticks): a
+  // turn chosen from the arena shown could only ever land a step later.
+  const { replica, receive } = commandReplica();
+  receive(30);
+  receive(33);
+  expect(replica.sample()).toMatchObject({ ticks: 33 });
+  receive(36);
+  expect(replica.sample()).toMatchObject({ ticks: 36 });
+});

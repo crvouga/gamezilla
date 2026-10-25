@@ -278,10 +278,14 @@ export class SimulationReplica {
     }
     const age = Math.max(0, this.options.clock.now() - this.receivedAt);
     const timing = this.options.simulation.timing;
+    // A player chooses each discrete command from the frame shown: a playback
+    // buffer behind the authority would land every command a step late.
+    const buffer =
+      this.commands === null ? (2 * timing.tickRate) / timing.snapshotRate : 0;
     const tick =
       snapshot.tick +
       (snapshot.paused ? 0 : (age * timing.tickRate) / 1000) -
-      (2 * timing.tickRate) / timing.snapshotRate;
+      buffer;
     // Packet arrival changes snapshot age, but cannot rewind the playback clock.
     // Holding at the latest frame must not reserve time beyond received authority.
     this.presentationTick = Math.max(

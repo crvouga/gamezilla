@@ -132,8 +132,10 @@ export class FixedStepSimulation<S, I> {
       this.fractionalTicks + (elapsedMs * this.options.tickRate) / 1000;
     if (!Number.isSafeInteger(Math.floor(due)))
       throw new Error('simulation elapsed time overflow');
-    // Accommodate accumulation error at the exact mathematical tick boundary.
-    const whole = Math.floor(due + 1e-9);
+    // Accommodate rounding at the exact mathematical tick boundary. Elapsed
+    // time is a difference of epoch-scale clock readings, whose ulp is about
+    // 0.2 µs, so an on-time wake can fall ~1e-5 of a tick short of it.
+    const whole = Math.floor(due + 1e-4);
     this.fractionalTicks = Math.max(0, due - whole);
     const advanced = Math.min(whole, this.options.maxCatchUpTicks);
     this.advanceTicks(advanced);

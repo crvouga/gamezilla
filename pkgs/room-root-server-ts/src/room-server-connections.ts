@@ -94,6 +94,31 @@ export function participatingRoster(
     .map((connection) => connection.actor);
 }
 
+/**
+ * Who a live session (a real-time game the room itself runs) sees as
+ * present: everyone whose connection reads the room's history. A connection
+ * that depends on the room's authority for its writes is still here for a
+ * game the room keeps running while that authority is away.
+ */
+export function liveRoster(
+  connections: ReadonlyMap<string, RoomConnection>
+): readonly RoomActor[] {
+  const authority = hasAuthority(connections);
+  return [...connections.values()]
+    .filter((connection) => readsHistory(connection, authority))
+    .map((connection) => connection.actor);
+}
+
+/** A live session's signal from a connection that cannot read the room is refused. */
+export function refuseLiveSignal(
+  connection: RoomConnection,
+  connections: ReadonlyMap<string, RoomConnection>,
+  commandId: string
+): boolean {
+  if (readsHistory(connection, hasAuthority(connections))) return false;
+  return refuseConnectionCommand(connection, connections, commandId);
+}
+
 /** Only participating identities change presence; previews and extra tabs do not. */
 export function changedPresence(
   previous: string,

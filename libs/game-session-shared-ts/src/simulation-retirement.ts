@@ -32,17 +32,22 @@ export class SimulationRetirement {
         this.from.set(side, committedTick + 1 + this.graceTicks);
   }
 
-  /** Retire due seats, in seat order, before each step. */
+  /**
+   * Retire due seats, in seat order, before each step and again after it: a
+   * step that begins a new round puts every rider back, and a seat that is
+   * still away must never be published riding at a tick boundary.
+   */
   wrap(
     step: SimulationStep<unknown, unknown>
   ): SimulationStep<unknown, unknown> {
     return (state, inputs, context) => {
-      let current = state;
-      for (const [side, from] of [...this.from].sort(([a], [b]) =>
-        a < b ? -1 : a > b ? 1 : 0
-      ))
-        if (context.tick >= from) current = this.retire(current, side);
-      return step(current, inputs, context);
+      const due = [...this.from]
+        .filter(([, from]) => context.tick >= from)
+        .map(([side]) => side)
+        .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+      const retired = (current: unknown) =>
+        due.reduce((next, side) => this.retire(next, side), current);
+      return retired(step(retired(state), inputs, context));
     };
   }
 }

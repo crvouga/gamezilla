@@ -92,8 +92,8 @@ export type SimulationRounds<S, I> = {
  * - `pause` (default): every absence pauses the whole simulation.
  * - `continue`: the simulation keeps running; the absent seat's pending
  *   inputs are fenced, and once it has been absent for `graceMs` the
- *   authority applies the game's pure `retire` before every step while the
- *   seat stays absent.
+ *   authority applies the game's pure, idempotent `retire` before and after
+ *   every step while the seat stays absent.
  */
 export type SimulationDisconnection<S> =
   | { readonly policy: 'pause' }

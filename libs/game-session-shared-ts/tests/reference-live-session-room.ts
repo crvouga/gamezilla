@@ -130,7 +130,9 @@ export async function liveSessionRoom(
   const transports = new Map<string, LoopbackRoomTransport>();
   const connect = async (
     identity: string,
-    clientStorage: ClientRoomStorage = new InMemoryClientStorage()
+    clientStorage: ClientRoomStorage = new InMemoryClientStorage(),
+    /** Another device of the same person connects under its own name. */
+    device: string = identity
   ) => {
     const grants = [
       PERMISSION.spacesLeave,
@@ -145,9 +147,9 @@ export async function liveSessionRoom(
     ];
     const transport = new LoopbackRoomTransport({
       server,
-      connectionId: identity,
+      connectionId: device,
       identity,
-      clientId: identity,
+      clientId: device,
       grants,
     });
     const localSchedules = createTimerScheduleStack({
@@ -171,8 +173,8 @@ export async function liveSessionRoom(
       room.dispatch(payload);
     });
     await room.untilSynced();
-    clients.set(identity, room);
-    transports.set(identity, transport);
+    clients.set(device, room);
+    transports.set(device, transport);
     await settle();
     return room;
   };
