@@ -2256,6 +2256,74 @@
         "wrangler": "catalog:",
       },
     },
+    "libs/light-cycles-client-ts": {
+      "name": "@libs/light-cycles-client-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/game-menu-client-ts": "workspace:*",
+        "@libs/light-cycles-shared-ts": "workspace:*",
+        "@lingui/core": "catalog:",
+        "@lingui/solid": "catalog:",
+        "@pkgs/sounds-client-ts": "workspace:*",
+        "@pkgs/turn-game-shared-ts": "workspace:*",
+        "@pkgs/ui-root-client-ts": "workspace:*",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/bun-test-solid-client-ts": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/light-cycles-harness-ts": {
+      "name": "@libs/light-cycles-harness-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/game-matchmaking-harness-ts": "workspace:*",
+        "@libs/game-session-harness-ts": "workspace:*",
+        "@libs/game-session-shared-ts": "workspace:*",
+        "@libs/harness-ts": "workspace:*",
+        "@libs/light-cycles-client-ts": "workspace:*",
+        "@libs/light-cycles-shared-ts": "workspace:*",
+        "@libs/spaces-harness-ts": "workspace:*",
+        "@pkgs/harness-root-shared-ts": "workspace:*",
+        "@pkgs/room-root-harness-ts": "workspace:*",
+        "@pkgs/room-root-shared-ts": "workspace:*",
+        "@pkgs/ui-testing-root-shared-ts": "workspace:*",
+      },
+      "devDependencies": {
+        "@pkgs/bun-test-solid-client-ts": "workspace:*",
+        "@pkgs/object-store-node-fs-server-ts": "workspace:*",
+        "@pkgs/object-store-root-shared-ts": "workspace:*",
+        "@pkgs/os-server-ts": "workspace:*",
+        "@pkgs/property-shared-ts": "workspace:*",
+        "@pkgs/quint-shared-ts": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/light-cycles-shared-ts": {
+      "name": "@libs/light-cycles-shared-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/game-session-shared-ts": "workspace:*",
+        "@pkgs/turn-game-shared-ts": "workspace:*",
+        "@pkgs/uuid-shared-ts": "workspace:*",
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/property-shared-ts": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "libs/moderation-client-ts": {
       "name": "@libs/moderation-client-ts",
       "version": "0.0.0",
@@ -7955,6 +8023,12 @@
     "@libs/infra-server-ts": ["@libs/infra-server-ts@workspace:libs/infra-server-ts"],
 
     "@libs/infra-shared-ts": ["@libs/infra-shared-ts@workspace:libs/infra-shared-ts"],
+
+    "@libs/light-cycles-client-ts": ["@libs/light-cycles-client-ts@workspace:libs/light-cycles-client-ts"],
+
+    "@libs/light-cycles-harness-ts": ["@libs/light-cycles-harness-ts@workspace:libs/light-cycles-harness-ts"],
+
+    "@libs/light-cycles-shared-ts": ["@libs/light-cycles-shared-ts@workspace:libs/light-cycles-shared-ts"],
 
     "@libs/moderation-client-ts": ["@libs/moderation-client-ts@workspace:libs/moderation-client-ts"],
 
