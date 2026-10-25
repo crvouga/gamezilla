@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@libs/game-menu-client-ts": "workspace:*",
+    "@libs/game-puzzle-client-ts": "workspace:*",
     "@libs/word-tiles-shared-ts": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",

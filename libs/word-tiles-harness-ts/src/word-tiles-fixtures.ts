@@ -32,7 +32,7 @@ export const WORD_TILES_2_FIXTURES: GameFixtures = {
   },
   firstSideVictory: [WONTS, ...PASSES],
   firstSideVictoryLabels: ['WONTS f8 36', ...PASSES],
-  refusedOpenings: ['', 'play:', 'swap:', 'play:a1=53.b1=83', 'play:h8=53'],
+  refusedOpenings: ['play:h8=53', 'play:', 'swap:', 'play:a1=53.b1=83'],
 };
 
 export const WORD_TILES_3_FIXTURES: GameFixtures = {
@@ -52,7 +52,7 @@ export const WORD_TILES_3_FIXTURES: GameFixtures = {
   },
   firstSideVictory: [WONTS, ...PASSES],
   firstSideVictoryLabels: ['WONTS f8 36', ...PASSES],
-  refusedOpenings: ['', 'play:', 'swap:', 'play:a1=53.b1=83', 'play:h8=53'],
+  refusedOpenings: ['play:h8=53', 'play:', 'swap:', 'play:a1=53.b1=83'],
 };
 
 /**
@@ -92,5 +92,5 @@ export const WORD_TILES_4_FIXTURES: GameFixtures = {
     'MAW AW WO e7 27',
     ...PASSES,
   ],
-  refusedOpenings: ['', 'play:', 'swap:', 'play:a1=53.b1=83', 'play:h8=53'],
+  refusedOpenings: ['play:h8=53', 'play:', 'swap:', 'play:a1=53.b1=83'],
 };

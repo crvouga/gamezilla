@@ -1,6 +1,7 @@
 import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
 import type { GameNoticeText } from '@pkgs/turn-game-shared-ts/game-rules';
 import { wordTilesAutomation } from './word-tiles-automation';
+import { wordTilesPuzzleContent } from './word-tiles-puzzle';
 import {
   WORD_TILES_REASONS,
   WORD_TILES_RULES,
@@ -8,6 +9,7 @@ import {
   wordTilesRecord,
   wordTilesSideLabel,
 } from './word-tiles-rules';
+import { WORD_TILES_STARTER } from './word-tiles-starter';
 
 /**
  * Word Tiles, at a table of two, three or four: each size its own
@@ -40,6 +42,8 @@ const NOTICE: GameNoticeText = {
 /** Two players also find an opponent: matched games, ratings and records. */
 export const wordTilesGameShared = defineTurnGame({
   rules: WORD_TILES_RULES[2],
+  // One-move challenges and the introductory pack, with every table size.
+  puzzleContent: { ...wordTilesPuzzleContent, starter: WORD_TILES_STARTER },
   capabilities: {
     'custom-games': { bots: wordTilesBots },
     matchmaking: { clockNamespace: 'word-tiles/', notice: NOTICE },

@@ -15,6 +15,14 @@ import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { JSX } from 'solid-js';
 import { WordTilesBoard } from './word-tiles-board';
 import { seatName } from './word-tiles-panels';
+import {
+  initialWordTilesPuzzle,
+  WordTilesPuzzleEditor,
+} from './word-tiles-puzzle-editor';
+import {
+  WordTilesPuzzlePlayer,
+  WordTilesPuzzlePreview,
+} from './word-tiles-puzzle-player';
 
 function sideLabel(side: GameSide): string {
   return seatName(['white', 'black', 'red', 'blue'].indexOf(side));
@@ -71,6 +79,14 @@ export const wordTilesGameClient = defineGameClient({
   ),
   instructions: () => <Instructions />,
   presentation: PRESENTATION,
+  puzzleContent: {
+    Player: WordTilesPuzzlePlayer,
+    Preview: WordTilesPuzzlePreview,
+    authoring: {
+      Editor: WordTilesPuzzleEditor,
+      initialDefinition: initialWordTilesPuzzle,
+    },
+  },
 });
 
 export const wordTiles3GameClient = defineGameClient({

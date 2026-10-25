@@ -2891,6 +2891,7 @@
         "@pkgs/sql-client-root-shared-ts": "workspace:*",
         "@pkgs/sql-root-shared-ts": "workspace:*",
         "@pkgs/sync-engine-shared-ts": "workspace:*",
+        "@pkgs/turn-game-shared-ts": "workspace:*",
         "@pkgs/uuid-shared-ts": "workspace:*",
       },
       "devDependencies": {
@@ -3405,6 +3406,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/game-menu-client-ts": "workspace:*",
+        "@libs/game-puzzle-client-ts": "workspace:*",
         "@libs/word-tiles-shared-ts": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
@@ -3449,6 +3451,7 @@
         "@pkgs/turn-game-shared-ts": "workspace:*",
       },
       "devDependencies": {
+        "@libs/game-puzzle-shared-ts": "workspace:*",
         "@pkgs/http-client-shared-ts": "workspace:*",
         "@pkgs/object-store-node-fs-server-ts": "workspace:*",
         "@pkgs/property-shared-ts": "workspace:*",

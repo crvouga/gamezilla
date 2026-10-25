@@ -182,8 +182,13 @@ export function createWordTilesRules(seats: WordTilesSeatCount): GameRules {
     legal: (position) =>
       decodePosition(position)?.ended === null ? ['pass'] : [],
     canWin: (position) => decodePosition(position)?.ended === null,
-    moves: (_position, _history, actions) =>
-      replayed(actions, actions.length).moves,
+    // The accepted actions, or else the history that records them (matched
+    // games keep only the history).
+    moves: (_position, history, actions) => {
+      const recorded =
+        actions.length > 0 || history === '' ? actions : history.split(' ');
+      return replayed(recorded, recorded.length).moves;
+    },
   };
 }
 

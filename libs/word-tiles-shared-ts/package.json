@@ -19,6 +19,7 @@
     "@pkgs/turn-game-shared-ts": "workspace:*"
   },
   "devDependencies": {
+    "@libs/game-puzzle-shared-ts": "workspace:*",
     "@pkgs/http-client-shared-ts": "workspace:*",
     "@pkgs/object-store-node-fs-server-ts": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",
