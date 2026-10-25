@@ -1,4 +1,3 @@
-import type { GameCommandContext } from '@libs/spaces-shared-ts/game';
 import type { Message } from '@pkgs/message-shared-ts/message';
 import type { RoomState } from '@pkgs/room-root-shared-ts/types';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
@@ -38,10 +37,10 @@ export function localCustomGameChoiceAllowed(
 export function prepareLocalCustomGameCommand(
   state: RoomState,
   payload: Message,
-  turn: { at: number; random: GameCommandContext['random'] },
+  turn: { at: number },
   rules: TurnGames
 ): Message {
-  const { at, random } = turn;
+  const { at } = turn;
   if (!PlayCustomGameBot.is(payload) || 'move' in payload.payload)
     return payload;
   const game = CustomGamesAttr.from(state).current;
@@ -51,7 +50,7 @@ export function prepareLocalCustomGameCommand(
     game.id !== payload.payload.gameId
   )
     return payload;
-  const move = customGameBotMove(game, rules, random);
+  const move = customGameBotMove(game, rules);
   if (move === null) throw new Error('active bot game has no legal move');
   return PlayCustomGameBot({ ...payload.payload, at, move });
 }

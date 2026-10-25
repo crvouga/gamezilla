@@ -28,8 +28,8 @@ export function withCustomGames(
     ...game,
     ...(privateSetups ? { audience: customGameSetupAudience } : {}),
     availabilityChange: createCustomGameAvailabilityChange(rules),
-    prepareLocalCommand: (state, payload, at, random) =>
-      prepareLocalCustomGameCommand(state, payload, { at, random }, rules),
+    prepareLocalCommand: (state, payload, at) =>
+      prepareLocalCustomGameCommand(state, payload, { at }, rules),
     recoverLocalEffects: (state) =>
       localCustomGameEffects(CustomGamesAttr.from(state).current, rules),
     recoverEffects: (state) => [

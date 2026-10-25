@@ -255,7 +255,15 @@ test("a bot proposes from the public position and the room resolves it against t
   );
   if (!wake.ok) throw new Error('refused');
   const after = wake.events.reduce((s, e) => ROOM.reduce(s, e), state);
-  expect(current(after).moves).toEqual([{ uci: 'g5:found', san: '5 found' }]);
+  // The bot guesses without seeing Alice's 5; the room answers the guess.
+  const [move, ...rest] = current(after).moves;
+  const guess = Number(move?.uci.match(/^g(\d)/)?.[1]);
+  const answer = guess < 5 ? 'higher' : guess > 5 ? 'lower' : 'found';
+  expect(rest).toEqual([]);
+  expect(move).toEqual({
+    uci: `g${guess}:${answer}`,
+    san: `${guess} ${answer}`,
+  });
 });
 
 test('a custom game with private setups is never played on the device alone', () => {
@@ -278,4 +286,35 @@ test("a rematch starts with no setup of the finished game's", () => {
   expect(next.id).not.toBe(current(finished).id);
   expect(ownCustomGameSetup(rematch, next, 'alice')).toBeNull();
   expect(ownCustomGameSetup(rematch, next, 'bob')).toBeNull();
+});
+
+test("the host's device and the room's scheduler play the same bot move", () => {
+  // regression: custom-game-bot-move-differs-by-device
+  const module = (random: number, authority: boolean) =>
+    createSpaceModule(assertRoomModuleName('secret-room'), [secretPick, race], {
+      now: () => 0,
+      random: () => random,
+      authority,
+    });
+  const device = module(0.05, false);
+  const room = module(0.95, true);
+  let state = decide(space('secret-pick'), 'alice', { operation: 'create' });
+  state = decide(state, 'alice', { operation: 'swap' });
+  state = decide(state, 'alice', { operation: 'bot', side: 'white' });
+  state = decide(state, 'alice', { operation: 'ready', setup: 'n5' });
+  state = decide(state, 'alice', { operation: 'start' });
+  const wake = PlayCustomGameBot({
+    gameId: current(state).id,
+    ply: 0,
+    side: 'white',
+  });
+  const moves = (result: HandleResult) => {
+    if (!result.ok) throw new Error(reason(result));
+    return current(result.events.reduce((s, e) => room.reduce(s, e), state))
+      .moves;
+  };
+  // Both may play the due move: whichever the room takes first stands.
+  const byRoom = moves(handle(room, state, ROOM_SCHEDULER_IDENTITY, wake));
+  const prepared = device.prepareLocalCommand(state, wake, 1000);
+  expect(moves(handle(room, state, 'alice', prepared))).toEqual(byRoom);
 });

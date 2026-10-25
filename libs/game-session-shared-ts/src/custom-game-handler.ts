@@ -184,8 +184,7 @@ export function handleCustomGameWake(
     return changedCustomGames({ ...games, current: expired }, ctx, rules);
   if (!bot || game[game.turn].kind !== 'bot')
     return changedCustomGames(games, ctx, rules);
-  const move =
-    'move' in wake ? wake.move : customGameBotMove(game, rules, ctx.random);
+  const move = 'move' in wake ? wake.move : customGameBotMove(game, rules);
   if (move === null) throw new Error('active bot game has no legal move');
   // A bot proposes from the public position; the room alone resolves it.
   const played = publicCustomGameMove(state, game, move, rules);
