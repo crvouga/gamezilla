@@ -72,6 +72,7 @@ Feature: Make secret choices at the same time
       When Dave makes his secret choice
       Then every secret choice of the round takes effect at once
       And the custom game goes on as the game's rules say
+      And nobody sees that round's secret choices any more
 
     Scenario: Play waits for the last secret choice
       Given Alice, Bob and Carol have made their secret choices

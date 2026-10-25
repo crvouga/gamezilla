@@ -2,7 +2,7 @@
 Feature: A stand-in for someone away from a game with more than two sides
   When a participant of a custom game with more than two sides stays away, the others want play to go on without them, and the participant wants their side back when they return, so nobody is held up and nobody loses their side. It holds for every game with more than two sides that offers custom games.
 
-  Rule: After 60 seconds away, a stand-in plays the participant's side, shown to everyone as their stand-in, while another person is in the custom game
+  Rule: After 60 seconds away, a stand-in plays the participant's side, shown to everyone as their stand-in, while another person is in the custom game and the host is here
 
     Scenario: A stand-in moves for a participant away for 60 seconds
       Given Alice, Bob, Carol and Dave have a four-player custom game with Bob to move
@@ -17,6 +17,13 @@ Feature: A stand-in for someone away from a game with more than two sides
       When 29 seconds pass
       Then Bob keeps the custom game turn
       And Bob's side still has no stand-in
+
+    Scenario: Nobody gets a stand-in while the host is away
+      Given Alice, Bob, Carol and Dave have a four-player custom game in Alice's space with Alice to move
+      And Alice has been away from the custom game for 59 seconds
+      When a second passes
+      Then Alice keeps the custom game turn
+      And Alice's side still has no stand-in
 
     Scenario: A person alone with three bots gets no stand-in
       Given Alice has a four-player custom game against three bots with Alice to move

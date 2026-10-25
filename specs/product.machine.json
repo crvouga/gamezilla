@@ -793,7 +793,10 @@
       "Reviews a Classic Quoridor game": "user",
       "Opens a King of the Hill custom game": "user",
       "Finds King of the Hill opponents": "user",
-      "Reviews a King of the Hill game": "user"
+      "Reviews a King of the Hill game": "user",
+      "Chooses Hearts": "user",
+      "Opens a Hearts custom game": "user",
+      "Reviews a Hearts game": "user"
     }
   },
   "states": {
@@ -4716,7 +4719,7 @@
                   "id": "App: Games",
                   "meta": {
                     "description": "The host chooses a registered game; participants play or watch according to their permission.",
-                    "snapshot": "The space offers Chess, Connect Four, Battleship, Classic Quoridor and Four-Player King of the Hill.",
+                    "snapshot": "The space offers Chess, Connect Four, Battleship, Classic Quoridor, Four-Player King of the Hill and Hearts.",
                     "confidence": "assumed",
                     "source": [
                       "specs/games/space-follow.qnt",
@@ -4811,6 +4814,9 @@
                         },
                         "Chooses Four-Player King of the Hill": {
                           "target": "#Games: King of the Hill choices"
+                        },
+                        "Chooses Hearts": {
+                          "target": "#Games: Hearts choices"
                         }
                       }
                     },
@@ -4974,6 +4980,7 @@
                           "specs/games/game-choices.feature",
                           "specs/games/game-history.feature",
                           "specs/games/game-turns.feature",
+                          "specs/games/multi-seat-stand-ins.feature",
                           "specs/games/ubiquitous-language.yml"
                         ],
                         "events": []
@@ -4986,6 +4993,44 @@
                           "target": "#App: Multiplayer"
                         },
                         "Reviews a King of the Hill game": {
+                          "target": "#Custom Game: Reviewing"
+                        },
+                        "Returns to the game choice": {
+                          "target": "#Games: Choose a game"
+                        }
+                      }
+                    },
+                    "Games: Hearts choices": {
+                      "id": "Games: Hearts choices",
+                      "meta": {
+                        "description": "Hearts offers four players custom games with people or bots, instructions, history and replay, and nobody is paired up for it. Each player passes three cards in secret, a stand-in plays for a player who is away, and players tied for the lowest score share the victory.",
+                        "snapshot": "Hearts offers four players custom games with people or bots, instructions, history and replay, and nobody is paired up for it. Each player passes three cards in secret, a stand-in plays for a player who is away, and players tied for the lowest score share the victory.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/hearts/hearts-accessibility.feature",
+                          "specs/hearts/hearts-away.feature",
+                          "specs/hearts/hearts-breaking.feature",
+                          "specs/hearts/hearts-custom-games.feature",
+                          "specs/hearts/hearts-hands.feature",
+                          "specs/hearts/hearts-passing.feature",
+                          "specs/hearts/hearts-scoring.feature",
+                          "specs/hearts/hearts-tricks.feature",
+                          "specs/hearts/ubiquitous-language.yml",
+                          "specs/games/secret-choices.feature",
+                          "specs/games/secret-choices.qnt",
+                          "specs/games/multi-seat-stand-ins.feature",
+                          "specs/games/shared-victories.feature",
+                          "specs/games/game-history.feature",
+                          "specs/games/game-turns.feature",
+                          "specs/games/ubiquitous-language.yml"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Opens a Hearts custom game": {
+                          "target": "#App: Custom game"
+                        },
+                        "Reviews a Hearts game": {
                           "target": "#Custom Game: Reviewing"
                         },
                         "Returns to the game choice": {

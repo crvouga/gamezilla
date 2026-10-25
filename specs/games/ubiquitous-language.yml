@@ -170,11 +170,12 @@ terms:
       play, by the game's own rules, before play goes on. Each time the
       game's rules call for them is a new round of secret choices. Only its
       own person sees what was chosen for their side: never another
-      participant, a watcher or anyone else, then or afterwards, and not
-      after coming back either. Everyone in the custom game and every watcher
-      sees which sides have made theirs. A secret choice is final for its
-      round, and nothing a round's secret choices decide happens until every
-      side has made one; then all of them take effect at once. A game
+      participant, a watcher or anyone else, and not after coming back
+      either. Everyone in the custom game and every watcher sees which sides
+      have made theirs. A secret choice is final for its round, and nothing
+      a round's secret choices decide happens until every side has made one;
+      then all of them take effect at once as the game's own move, and
+      nobody, not even their own person, sees them any more. A game
       without secret choices has nothing of the kind. It is a different
       thing from a private setup, which each side prepares once before play
       begins.
@@ -189,7 +190,7 @@ terms:
       - a game with secret choices
     avoid: [hidden choice, blind choice, simultaneous move, commitment]
     published: true
-    model: [secretChoice, secretChoiceShown, chosenShown, choiceRound, choosing, appliedRounds, reachNextRound]
+    model: [secretChoiceShown, chosenShown, choosing, reachNextRound]
 
   - term: make a secret choice
     definition: >-
@@ -224,16 +225,19 @@ terms:
       custom game under way with more than two sides for 60 seconds, so the
       others are not held up. Everyone sees it is a stand-in and whose side
       it plays. It knows only what that side may know and plays by the same
-      rules. The participant keeps their side and its result; while the
+      rules, only while the custom game is under way: finishing it ends
+      every stand-in. The participant keeps their side and its result; while the
       stand-in plays it, their own moves and secret choices are refused
       until they take back their side. Coming back alone does not end it. A
-      stand-in plays only while another person is in the custom game: a
-      person alone with bots gets none. A custom game with two sides has no
+      stand-in comes only while another person is in the custom game and the
+      host of the space is here: a person alone with bots gets none, and
+      while the host is away the space waits, so nobody's time away counts
+      and no stand-in comes for anyone, the host included. A custom game with two sides has no
       stand-in: the other participant may claim the win instead.
     forms: [stand-ins, stand-in's]
     avoid: [substitute, replacement bot, takeover, autopilot]
     published: true
-    model: [standIn, standInPlays, standInTakesSide]
+    model: [standIn, standInTakesSide]
 
   - term: take back their side
     definition: >-
@@ -431,7 +435,7 @@ terms:
       - move played
       - moves played
     avoid: [command, action]
-    model: [playCustomMove, movesPlayed, movesThisRound, moveWaiting, movesShown, playMove, playCurrentMove, moveCount, moves, playCorrectContinuation, tryMoveAfterFinish, tryMoveFromReview, tryMoveBeforeRetry, tryIllegalMove, playPuzzleMove]
+    model: [playCustomMove, movesPlayed, moveWaiting, movesShown, playMove, playCurrentMove, moveCount, moves, playCorrectContinuation, tryMoveAfterFinish, tryMoveFromReview, tryMoveBeforeRetry, tryIllegalMove, playPuzzleMove]
 
   - term: turn
     definition: The participant who may make the next move.
