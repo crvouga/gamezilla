@@ -80,15 +80,17 @@ export function useCustomSimulation(
   });
   const controls = createMemo<GameSimulationControls>(() => {
     const claim = connection?.claim;
+    // Handlers keep the sides these controls offer: a board releasing its
+    // input while it is disposed must not read (and so rerun) the tree.
+    const here = sides.here();
     return {
       paused: paused(),
       stale: stale(),
-      sides: sides.here(),
+      sides: here,
       elsewhere: sides.elsewhere(),
       ...(claim === undefined || elsewhere() ? {} : { claim }),
       onInput: (side, input) => {
-        if (sides.here().includes(side))
-          connection?.replica.control(side, input);
+        if (here.includes(side)) connection?.replica.control(side, input);
       },
       onRelease: () => connection?.replica.release(),
     };
