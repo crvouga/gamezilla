@@ -50,6 +50,7 @@ function MultiplayerNextGame(props: {
   const waiting = () =>
     props.data.search()?.standing === 'waiting' ? props.data.search() : null;
   const mayFind = () =>
+    !props.data.loading() &&
     (props.data.participant() || props.data.hostId() === props.data.myId()) &&
     props.data.game()?.outcome !== 'ongoing';
   return (

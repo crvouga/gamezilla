@@ -101,5 +101,10 @@ export function useMatchRoom(gameId: Accessor<string | undefined>) {
     })
   );
   const state = createRoomSnapshot(room);
-  return { game: () => matchRoomGame(state()), room };
+  return {
+    game: () => matchRoomGame(state()),
+    room,
+    /** From a known room until its device-stored state is restored. */
+    opening: () => connectionKey() !== null && room() === null,
+  };
 }

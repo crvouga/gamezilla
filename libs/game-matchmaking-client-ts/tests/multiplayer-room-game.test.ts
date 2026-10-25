@@ -1,5 +1,8 @@
 import { expect, test } from 'bun:test';
-import { matchingMultiplayerRoomGame } from '@libs/game-matchmaking-client-ts/multiplayer-room-game';
+import {
+  awaitsMatchRoom,
+  matchingMultiplayerRoomGame,
+} from '@libs/game-matchmaking-client-ts/multiplayer-room-game';
 import type { MatchRoomGame } from '@libs/game-matchmaking-shared-ts/match-room';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
@@ -80,4 +83,22 @@ test('room handover fences old matches until the current checkpoint catches up',
       }
     )
   );
+});
+
+test("a reopened live game's ongoing stored row waits for its match room", () => {
+  // regression: reopened-live-match-shows-stored-row-before-room
+  const rules = {
+    forPosition: (fen: string) => ({ id: fen.split(':')[0]! }),
+    simulation: (id: string) => (id === 'live-race' ? {} : undefined),
+  };
+  const live = { outcome: 'ongoing', fen: 'live-race:0' } as const;
+  expect(awaitsMatchRoom(live, true, rules)).toBe(true);
+  expect(awaitsMatchRoom(live, false, rules)).toBe(false);
+  expect(awaitsMatchRoom({ ...live, outcome: 'white' }, true, rules)).toBe(
+    false
+  );
+  expect(
+    awaitsMatchRoom({ outcome: 'ongoing', fen: 'turn-race:0' }, true, rules)
+  ).toBe(false);
+  expect(awaitsMatchRoom(null, true, rules)).toBe(false);
 });
