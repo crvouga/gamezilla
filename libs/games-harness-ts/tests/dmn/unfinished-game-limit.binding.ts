@@ -26,6 +26,7 @@ import sql from '@pkgs/sql-root-shared-ts/sql';
 import { createQuery } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { gamesHeldTo } from '../conformance-world';
+import { limitProbeChoice } from './limit-probe-choice';
 import {
   CUSTOM_GAME_INPUT,
   LIMIT_SPACE,
@@ -66,7 +67,7 @@ function serverEnforcementIn(game: HarnessGame): DecisionLayer {
       const replay = replayOperation(findOpponentMutation, () => ({
         requestId: 'another-game',
         spaceId: LIMIT_SPACE,
-        timeControl: `${matchmaking.namespace}5+0`,
+        timeControl: limitProbeChoice(matchmaking),
       }));
       await replay({
         ...c,
