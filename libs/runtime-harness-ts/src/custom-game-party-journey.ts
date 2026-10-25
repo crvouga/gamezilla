@@ -6,6 +6,7 @@ import {
   playCustomGamePartyTurn,
   readPublicCustomGame,
 } from './custom-game-party-turn';
+import { takeBlack } from './custom-game-readiness-wait';
 import {
   check,
   endActiveSpace,
@@ -41,39 +42,10 @@ async function createParty(ui: Driver, game: PlayableGame): Promise<void> {
   }
 }
 
-const CLAIM_ATTEMPTS = 3;
-const CLAIM_SETTLE_MS = 5_000;
-
-/**
- * A device that has just joined the space is still connecting to it, and a
- * choice made before it connects is refused: wait for the connection, and
- * claim again when a claim did not take.
- */
-async function claimSecondSeat(ui: Driver): Promise<void> {
-  const release = ui.get('custom-game-black-release');
-  for (let attempt = 1; attempt <= CLAIM_ATTEMPTS; attempt += 1) {
-    await ui
-      .get('custom-game-black-claim')
-      .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
-    await ui
-      .get('custom-game-connection-needed')
-      .expect.hidden({ timeoutMs: JOURNEY_WAIT_MS });
-    await tap(ui, 'custom-game-black-claim');
-    const settle =
-      attempt === CLAIM_ATTEMPTS ? JOURNEY_WAIT_MS : CLAIM_SETTLE_MS;
-    try {
-      await release.expect.visible({ timeoutMs: settle });
-      return;
-    } catch (error) {
-      if (attempt === CLAIM_ATTEMPTS) throw error;
-    }
-  }
-}
-
 async function readyParty(host: JourneyHost): Promise<void> {
   let guestName = '';
   await host.actAsGuest('takeSecondSeat', async (ui) => {
-    await claimSecondSeat(ui);
+    await takeBlack(ui, 'custom-game-black-claim');
     guestName = (await ui.get('custom-game-black-person').text())?.trim() ?? '';
     check(guestName !== '', 'The second participant has no displayed name');
     await tap(ui, 'custom-game-ready');
