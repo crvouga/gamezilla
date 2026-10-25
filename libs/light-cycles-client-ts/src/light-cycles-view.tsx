@@ -22,6 +22,7 @@ const config = lightCyclesConfig();
 /** Why this device can or cannot steer its rider right now; a test and screen-reader hook. */
 export type LightCyclesSteering =
   | 'watching'
+  | 'elsewhere'
   | 'away'
   | 'finished'
   | 'round-over'
@@ -97,9 +98,11 @@ export function steeringOf(
   controls: GameSimulationControls | undefined,
   side: GameSide | undefined
 ): LightCyclesSteering {
-  if (controls === undefined || side === undefined) return 'watching';
-  if (controls.stale || controls.paused) return 'away';
+  // A finished game hands nobody steering controls: say why, rider or not.
   if (state.phase === 'completed') return 'finished';
+  if (controls === undefined || side === undefined) return 'watching';
+  if (controls.elsewhere?.includes(side) === true) return 'elsewhere';
+  if (controls.stale || controls.paused) return 'away';
   if (state.phase === 'round-over') return 'round-over';
   if (state.riders.find((rider) => rider.seat === side)?.alive !== true)
     return 'crashed';
@@ -114,6 +117,8 @@ export function steeringText(
   switch (steering) {
     case 'watching':
       return t`Watching. Only a rider's own person steers it.`;
+    case 'elsewhere':
+      return t`You ride ${name} from another of your devices.`;
     case 'away':
       return t`Reconnecting. Steering resumes when the game returns.`;
     case 'finished':

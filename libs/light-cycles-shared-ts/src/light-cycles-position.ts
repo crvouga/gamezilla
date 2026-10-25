@@ -19,49 +19,106 @@ export const LIGHT_CYCLES_MODES = Object.freeze({
   4: 'light-cycles-4',
 }) satisfies Readonly<Record<LightCyclesRiderCount, string>>;
 
-const CODECS = new Map(
-  LIGHT_CYCLES_TARGETS.map((targetScore) => [
-    targetScore,
-    lightCyclesCodec(lightCyclesConfig({ targetScore })),
-  ])
-);
+/** A registered mode: its id, rider count, arena and round limit. */
+export type LightCyclesMode = {
+  readonly id: string;
+  readonly count: LightCyclesRiderCount;
+  readonly width: number;
+  readonly height: number;
+  readonly maxRounds: number;
+};
 
-/** The encoded target is the fourth field: `L1;width;height;target;…`. */
-function codecFor(encoded: string): SimulationCodec<LightCyclesState> | null {
-  const target = Number(encoded.split(';', 4)[3]);
-  return CODECS.get(target as (typeof LIGHT_CYCLES_TARGETS)[number]) ?? null;
+/** The product mode of each rider count: the 40 x 28 arena and 15 rounds. */
+export function lightCyclesMode(
+  mode: LightCyclesRiderCount | LightCyclesMode
+): LightCyclesMode {
+  if (typeof mode !== 'number') return mode;
+  const config = lightCyclesConfig();
+  return {
+    id: LIGHT_CYCLES_MODES[mode],
+    count: mode,
+    width: config.width,
+    height: config.height,
+    maxRounds: config.maxRounds,
+  };
+}
+
+export function lightCyclesModeConfig(mode: LightCyclesMode, targetScore = 3) {
+  return lightCyclesConfig({
+    targetScore,
+    width: mode.width,
+    height: mode.height,
+    maxRounds: mode.maxRounds,
+  });
+}
+
+function codecs(mode: LightCyclesMode) {
+  return new Map(
+    LIGHT_CYCLES_TARGETS.map((targetScore) => [
+      targetScore as number,
+      lightCyclesCodec(lightCyclesModeConfig(mode, targetScore)),
+    ])
+  );
 }
 
 /** Mode-prefixed, strictly validated positions; a position names exactly one mode. */
 export function lightCyclesPositionCodec(
-  count: LightCyclesRiderCount
+  selected: LightCyclesRiderCount | LightCyclesMode
 ): SimulationCodec<LightCyclesState> {
-  const prefix = `${LIGHT_CYCLES_MODES[count]}:`;
+  const mode = lightCyclesMode(selected);
+  const byTarget = codecs(mode);
+  const prefix = `${mode.id}:`;
   return {
     encode: (state) => {
-      const codec = CODECS.get(
-        state.targetScore as (typeof LIGHT_CYCLES_TARGETS)[number]
-      );
-      if (codec === undefined || state.seats.length !== count)
+      const codec = byTarget.get(state.targetScore);
+      if (codec === undefined || state.seats.length !== mode.count)
         throw new Error('invalid Light Cycles state for this mode');
       return prefix + codec.encode(state);
     },
     decode: (position) => {
       if (!position.startsWith(prefix)) return null;
       const encoded = position.slice(prefix.length);
-      const state = codecFor(encoded)?.decode(encoded) ?? null;
-      return state !== null && state.seats.length === count ? state : null;
+      // The encoded target is the fourth field: `L1;width;height;target;…`.
+      const target = Number(encoded.split(';', 4)[3]);
+      const state = byTarget.get(target)?.decode(encoded) ?? null;
+      return state !== null && state.seats.length === mode.count ? state : null;
     },
   };
 }
 
 /** A fresh first round at `targetScore` round wins. */
 export function lightCyclesStart(
-  count: LightCyclesRiderCount,
+  selected: LightCyclesRiderCount | LightCyclesMode,
   targetScore: number
 ): LightCyclesState {
+  const mode = lightCyclesMode(selected);
   return initialLightCyclesState(
-    lightCyclesConfig({ targetScore }),
-    LIGHT_CYCLES_SEATS[count]
+    lightCyclesModeConfig(mode, targetScore),
+    LIGHT_CYCLES_SEATS[mode.count]
   );
+}
+
+/**
+ * Any mode's position, for a board that renders every mode: the arena and
+ * round limit come from the encoded header (`L1;width;height;target;rounds;…`)
+ * and the strict codec still validates the whole state.
+ */
+export function decodeLightCyclesPosition(
+  position: string
+): LightCyclesState | null {
+  const split = position.indexOf(':');
+  if (split < 1) return null;
+  const encoded = position.slice(split + 1);
+  const [, width, height, target, rounds] = encoded.split(';', 5).map(Number);
+  try {
+    const config = lightCyclesConfig({
+      width: width!,
+      height: height!,
+      targetScore: target!,
+      maxRounds: rounds!,
+    });
+    return lightCyclesCodec(config).decode(encoded);
+  } catch {
+    return null;
+  }
 }

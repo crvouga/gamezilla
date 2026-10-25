@@ -21,7 +21,7 @@ export type LightCyclesConfig = {
 };
 
 export type LightCyclesConfigOverrides = Partial<
-  Pick<LightCyclesConfig, 'targetScore' | 'maxRounds'>
+  Pick<LightCyclesConfig, 'targetScore' | 'maxRounds' | 'width' | 'height'>
 >;
 
 export function lightCyclesConfig(
@@ -33,7 +33,19 @@ export function lightCyclesConfig(
     throw new Error('Light Cycles score target must be an integer from 1 to 9');
   if (!Number.isSafeInteger(maxRounds) || maxRounds < 1 || maxRounds > 99)
     throw new Error('Light Cycles round limit must be an integer from 1 to 99');
-  return Object.freeze({ ...LIGHT_CYCLES_CONFIG, targetScore, maxRounds });
+  const width = overrides.width ?? LIGHT_CYCLES_CONFIG.width;
+  const height = overrides.height ?? LIGHT_CYCLES_CONFIG.height;
+  // Smaller arenas exist for bounded model checking; products use 40 x 28.
+  for (const size of [width, height])
+    if (!Number.isSafeInteger(size) || size < 3 || size > 64)
+      throw new Error('Light Cycles arena sides must be integers from 3 to 64');
+  return Object.freeze({
+    ...LIGHT_CYCLES_CONFIG,
+    targetScore,
+    maxRounds,
+    width,
+    height,
+  });
 }
 
 /** Seat tokens in canonical order; a trail cell stores its owner's index here. */

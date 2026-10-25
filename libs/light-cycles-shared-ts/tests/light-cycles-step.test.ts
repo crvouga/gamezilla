@@ -12,7 +12,7 @@ import {
   lightCyclesRound,
 } from '@libs/light-cycles-shared-ts/light-cycles-result';
 import { retireLightCyclesRider } from '@libs/light-cycles-shared-ts/light-cycles-retire';
-import { LIGHT_CYCLES_SPAWNS } from '@libs/light-cycles-shared-ts/light-cycles-spawns';
+import { lightCyclesStarts } from '@libs/light-cycles-shared-ts/light-cycles-spawns';
 import {
   initialLightCyclesState,
   type LightCyclesState,
@@ -46,7 +46,9 @@ test('config, seats, spawns and rider identities are fixed and validated', () =>
   expect(Object.values(LIGHT_CYCLES_RIDERS).map((rider) => rider.mark)).toEqual(
     ['C', 'E', 'N', 'V']
   );
-  for (const spawns of Object.values(LIGHT_CYCLES_SPAWNS)) {
+  for (const spawns of [2, 3, 4].map((count) =>
+    lightCyclesStarts(config).slice(0, count)
+  )) {
     const cells = new Set(spawns.map((spawn) => `${spawn.x},${spawn.y}`));
     expect(cells.size).toBe(spawns.length);
     for (const spawn of spawns) {
@@ -59,6 +61,15 @@ test('config, seats, spawns and rider identities are fixed and validated', () =>
       expect(room).toBeGreaterThanOrEqual(5);
     }
   }
+  expect(lightCyclesStarts(lightCyclesConfig({ width: 4, height: 3 }))).toEqual(
+    [
+      { x: 0, y: 0, heading: 'right' },
+      { x: 3, y: 2, heading: 'left' },
+      { x: 3, y: 0, heading: 'down' },
+      { x: 0, y: 2, heading: 'up' },
+    ]
+  );
+  expect(() => lightCyclesConfig({ width: 2 })).toThrow();
   expect(() => initialLightCyclesState(config, ['white'])).toThrow();
   expect(() => initialLightCyclesState(config, ['black', 'white'])).toThrow();
 });

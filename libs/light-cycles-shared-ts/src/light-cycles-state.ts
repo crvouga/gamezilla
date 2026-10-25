@@ -90,7 +90,7 @@ export function lightCyclesRoundStart(
     () => EMPTY_CELL
   );
   const riders = seats.map((seat, index): LightCyclesRider => {
-    const spawn = lightCyclesSpawn(count, index, round);
+    const spawn = lightCyclesSpawn(config, count, index, round);
     cells[spawn.y * config.width + spawn.x] = trailMark(seat);
     return {
       seat,

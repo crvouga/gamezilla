@@ -34,6 +34,7 @@ export const LIGHT_CYCLES_TRIO_HARNESS_GAME: SimulationHarnessGame =
     client: lightCyclesTrioClient,
     simulationFixtures: lightCyclesSimulationFixtures(3),
     readRecord: readLightCyclesRecord,
+    actions: LIGHT_CYCLES_ACTIONS,
   });
 
 export const LIGHT_CYCLES_QUAD_HARNESS_GAME: SimulationHarnessGame =
@@ -43,4 +44,5 @@ export const LIGHT_CYCLES_QUAD_HARNESS_GAME: SimulationHarnessGame =
     client: lightCyclesQuadClient,
     simulationFixtures: lightCyclesSimulationFixtures(4),
     readRecord: readLightCyclesRecord,
+    actions: LIGHT_CYCLES_ACTIONS,
   });

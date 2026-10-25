@@ -12,13 +12,14 @@ import { lightCyclesBotInput } from './light-cycles-bot';
 import {
   LIGHT_CYCLES_RIDERS,
   LIGHT_CYCLES_SEATS,
-  type LightCyclesRiderCount,
   type LightCyclesSeat,
   lightCyclesConfig,
 } from './light-cycles-config';
 import { parseLightCyclesInput } from './light-cycles-input';
 import {
-  LIGHT_CYCLES_MODES,
+  type LightCyclesMode,
+  lightCyclesMode,
+  lightCyclesModeConfig,
   lightCyclesPositionCodec,
   lightCyclesStart,
 } from './light-cycles-position';
@@ -31,8 +32,6 @@ import { retireLightCyclesRider } from './light-cycles-retire';
 import { createLightCyclesStep } from './light-cycles-step';
 
 const config = lightCyclesConfig();
-const step = createLightCyclesStep(config);
-const bot = lightCyclesBotInput(config);
 
 /** A seat absent for this long has its rider crash at the next tick boundary. */
 export const LIGHT_CYCLES_GRACE_MS = 3000;
@@ -41,42 +40,45 @@ export function lightCyclesSideLabel(side: GameSide): string {
   return LIGHT_CYCLES_RIDERS[side as LightCyclesSeat].name;
 }
 
-function positionRules(count: LightCyclesRiderCount): GamePositionRules {
-  const codec = lightCyclesPositionCodec(count);
+function positionRules(mode: LightCyclesMode): GamePositionRules {
+  const codec = lightCyclesPositionCodec(mode);
   const require = (position: string) => {
     const state = codec.decode(position);
     if (state === null) throw new Error('invalid Light Cycles position');
     return state;
   };
   return {
-    id: LIGHT_CYCLES_MODES[count],
+    id: mode.id,
     family: 'light-cycles',
-    sides: LIGHT_CYCLES_SEATS[count],
-    initial: () => codec.encode(lightCyclesStart(count, config.targetScore)),
+    sides: LIGHT_CYCLES_SEATS[mode.count],
+    initial: () => codec.encode(lightCyclesStart(mode, config.targetScore)),
     recognizes: (position) => codec.decode(position) !== null,
     configuration: {
       apply: (position, choice) => {
         if (!/^[1-9]$/.test(choice)) return null;
         require(position);
-        return codec.encode(lightCyclesStart(count, Number(choice)));
+        return codec.encode(lightCyclesStart(mode, Number(choice)));
       },
       restart: (position) =>
-        codec.encode(lightCyclesStart(count, require(position).targetScore)),
+        codec.encode(lightCyclesStart(mode, require(position).targetScore)),
     },
   };
 }
 
-function simulationOf(count: LightCyclesRiderCount): RegisteredSimulation {
+function simulationOf(mode: LightCyclesMode): RegisteredSimulation {
+  const modeConfig = lightCyclesModeConfig(mode);
+  const step = createLightCyclesStep(modeConfig);
+  const bot = lightCyclesBotInput(modeConfig);
   return defineSimulation(
     {
-      initialize: () => lightCyclesStart(count, config.targetScore),
+      initialize: () => lightCyclesStart(mode, config.targetScore),
       step,
       parseInput: parseLightCyclesInput,
       result: lightCyclesResult,
       phase: lightCyclesPhase,
       checkpointKey: lightCyclesCheckpointKey,
     },
-    lightCyclesPositionCodec(count),
+    lightCyclesPositionCodec(mode),
     {
       tickRate: config.tickRate,
       snapshotRate: config.snapshotRate,
@@ -101,8 +103,8 @@ function simulationOf(count: LightCyclesRiderCount): RegisteredSimulation {
   );
 }
 
-function record(count: LightCyclesRiderCount) {
-  const codec = lightCyclesPositionCodec(count);
+function record(mode: LightCyclesMode) {
+  const codec = lightCyclesPositionCodec(mode);
   return (
     position: string,
     _history: string,
@@ -117,7 +119,7 @@ function record(count: LightCyclesRiderCount) {
   ) => {
     const state = codec.decode(position);
     return JSON.stringify({
-      game: LIGHT_CYCLES_MODES[count],
+      game: mode.id,
       participants: metadata.participants,
       outcome: metadata.outcome,
       reason: metadata.reason,
@@ -128,11 +130,13 @@ function record(count: LightCyclesRiderCount) {
   };
 }
 
-function definition(count: LightCyclesRiderCount) {
-  const simulation = simulationOf(count);
-  const id = LIGHT_CYCLES_MODES[count];
+/** One registered mode; the product registers three, a model check may define a small one. */
+export function defineLightCyclesMode(mode: LightCyclesMode) {
+  const simulation = simulationOf(mode);
+  const id = mode.id;
+  const count = mode.count;
   return defineGame({
-    rules: positionRules(count),
+    rules: positionRules(mode),
     simulation,
     continuousAutomation: lightCyclesAutomation(simulation),
     capabilities: {
@@ -153,12 +157,12 @@ function definition(count: LightCyclesRiderCount) {
                 : undefined,
         },
       },
-      history: { record: record(count) },
+      history: { record: record(mode) },
     },
   });
 }
 
 /** Light Cycles supplies arena mechanics; the framework owns sessions, rooms and transport. */
-export const lightCyclesDuelShared = definition(2);
-export const lightCyclesTrioShared = definition(3);
-export const lightCyclesQuadShared = definition(4);
+export const lightCyclesDuelShared = defineLightCyclesMode(lightCyclesMode(2));
+export const lightCyclesTrioShared = defineLightCyclesMode(lightCyclesMode(3));
+export const lightCyclesQuadShared = defineLightCyclesMode(lightCyclesMode(4));

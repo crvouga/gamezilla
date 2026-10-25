@@ -117,3 +117,72 @@ test('a watcher sees every rider and no steering control', () => {
     expect(view.getByTestId(`arena-arena-rider-${index}`)).toBeDefined();
   expect(view.queryByRole('button', { name: /Steer/ })).toBeNull();
 });
+
+test('a finished game tells its riders it is finished, not that they watch', () => {
+  // regression: light-cycles-finished-game-says-watching
+  // A finished custom game hands its board no steering controls at all, so
+  // the reason must come from the game itself.
+  const start = lightCyclesStart(3, 1);
+  const finished = until(
+    running(start),
+    (state) => state.phase === 'completed'
+  );
+  const view = renderWithI18n(() => (
+    <ThemeProvider
+      colorScheme="light"
+      fixedLayout={{ width: 390, height: 844 }}
+    >
+      <LightCyclesBoard
+        position={trio.encode(finished)}
+        orientation="white"
+        interactive={false}
+        sound={false}
+        syncKey={0}
+        testId="arena"
+        setup={null}
+        onAction={() => {}}
+      />
+    </ThemeProvider>
+  ));
+  expect(view.getByTestId('arena-status').dataset['steering']).toBe('finished');
+});
+
+test("a person's other device says it does not steer their rider and offers to ride from it", () => {
+  let claims = 0;
+  const view = renderWithI18n(() => (
+    <ThemeProvider
+      colorScheme="light"
+      fixedLayout={{ width: 390, height: 844 }}
+    >
+      <LightCyclesBoard
+        position={trio.encode(running(lightCyclesStart(3, 3)))}
+        orientation="white"
+        interactive={true}
+        sound={false}
+        syncKey={0}
+        testId="arena"
+        setup={null}
+        onAction={() => {}}
+        simulation={{
+          paused: false,
+          stale: false,
+          sides: [],
+          elsewhere: ['white'],
+          claim: () => {
+            claims += 1;
+          },
+          onInput: () => {
+            throw new Error('a device that does not steer sends no turn');
+          },
+          onRelease: () => {},
+        }}
+      />
+    </ThemeProvider>
+  ));
+  expect(view.getByTestId('arena-status').dataset['steering']).toBe(
+    'elsewhere'
+  );
+  expect(view.queryByTestId('arena-white-pad-up')).toBeNull();
+  fireEvent.click(view.getByTestId('arena-ride-here'));
+  expect(claims).toBe(1);
+});

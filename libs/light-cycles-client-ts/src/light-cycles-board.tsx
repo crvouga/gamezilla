@@ -1,5 +1,4 @@
-import { lightCyclesConfig } from '@libs/light-cycles-shared-ts/light-cycles-config';
-import { lightCyclesPositionCodec } from '@libs/light-cycles-shared-ts/light-cycles-position';
+import { decodeLightCyclesPosition } from '@libs/light-cycles-shared-ts/light-cycles-position';
 import type { LightCyclesState } from '@libs/light-cycles-shared-ts/light-cycles-state';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
@@ -9,6 +8,7 @@ import type {
   GameSimulationControls,
 } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { DirectionPad } from '@pkgs/ui-root-client-ts/direction-pad';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
@@ -33,17 +33,8 @@ import {
   trailRiders,
 } from './light-cycles-view';
 
-const config = lightCyclesConfig();
-const CODECS = ([2, 3, 4] as const).map((count) =>
-  lightCyclesPositionCodec(count)
-);
-
 export function decodeLightCycles(position: string): LightCyclesState | null {
-  for (const codec of CODECS) {
-    const state = codec.decode(position);
-    if (state !== null) return state;
-  }
-  return null;
+  return decodeLightCyclesPosition(position);
 }
 
 function steer(
@@ -122,15 +113,14 @@ function Arena(props: {
 }): JSX.Element {
   const instructionsId = createUniqueId();
   const controlled = () => props.board.simulation?.sides ?? [];
-  const steering = (side: GameSide) =>
+  const steering = (side: GameSide | undefined) =>
     steeringOf(props.state, props.board.simulation, side);
   const steerable = (side: GameSide) =>
     steering(side) === 'riding' || steering(side) === 'countdown';
-  const primary = () => controlled()[0];
-  const ownSteering = () => {
-    const side = primary();
-    return side === undefined ? 'watching' : steering(side);
-  };
+  // The person's own rider, steered here or from another of their devices.
+  const primary = () =>
+    controlled()[0] ?? props.board.simulation?.elsewhere?.[0];
+  const ownSteering = () => steering(primary());
   return (
     <StackVertical gap="md">
       <Scores state={props.state} testId={props.board.testId} />
@@ -141,9 +131,10 @@ function Arena(props: {
       >
         {steeringText(ownSteering(), primary())}
       </P>
+      <RideHere board={props.board} shown={ownSteering() === 'elsewhere'} />
       <TrailArena
-        width={config.width}
-        height={config.height}
+        width={props.state.width}
+        height={props.state.height}
         cells={props.state.trails}
         riders={trailRiders(props.state, controlled())}
         crashes={trailCrashes(props.state)}
@@ -167,6 +158,25 @@ function Arena(props: {
       </P>
       <Pads state={props.state} board={props.board} steerable={steerable} />
     </StackVertical>
+  );
+}
+
+/** On a person's other device: steer their rider from this one instead. */
+function RideHere(props: {
+  board: GameBoardProps;
+  shown: boolean;
+}): JSX.Element {
+  return (
+    <Show when={props.shown ? props.board.simulation?.claim : undefined}>
+      {(claim) => (
+        <Button
+          title={<Trans>Ride from this device</Trans>}
+          variant="outline"
+          onClick={() => claim()()}
+          dataSet={{ testid: `${props.board.testId}-ride-here` }}
+        />
+      )}
+    </Show>
   );
 }
 

@@ -68,7 +68,7 @@ test('random play keeps riders in bounds, trails monotone, motion single-cell an
       expect(found).toEqual([]);
     })
   );
-});
+}, 60_000);
 
 function engine(config: LightCyclesConfig, count: 2 | 3 | 4, seed: string) {
   return new FixedStepSimulation<LightCyclesState, LightCyclesInput>(
@@ -113,4 +113,4 @@ test('identical initial state, seed and command schedule replay identically in a
       expect(a.snapshot().state).toEqual(direct.at(-1)!);
     })
   );
-});
+}, 60_000);

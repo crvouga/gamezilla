@@ -1,0 +1,4 @@
+{
+  "summary": "Once a Light Cycles custom game finished, its board told the riders \"Watching. Only a rider's own person steers it.\": a finished game hands its board no steering controls, and the board took that for a watcher before looking at the game. The board now says the game is finished to everyone.",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-board.test.tsx"
+}
