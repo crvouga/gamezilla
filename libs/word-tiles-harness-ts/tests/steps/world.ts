@@ -1,4 +1,4 @@
-import { SPEC_PARAMETER_TYPES } from '@libs/harness-ts/parameter-types';
+import { PARAMETER_TYPES } from '@libs/harness-ts/parameter-types';
 import {
   type WordTilesTable,
   wordTilesTableSystem,
@@ -11,7 +11,7 @@ import {
 import type { Run } from '@pkgs/harness-root-shared-ts/run-types';
 
 // Tiles, words, squares and refusals as the scenarios write them.
-for (const spec of SPEC_PARAMETER_TYPES) defineParameterType(spec);
+for (const spec of PARAMETER_TYPES) defineParameterType(spec);
 
 type WordTilesWorld = { readonly run: Run<WordTilesTable> };
 export const { Given, When, Then } = stepsFor<WordTilesWorld>();

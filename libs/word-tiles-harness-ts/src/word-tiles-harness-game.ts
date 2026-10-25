@@ -1,6 +1,6 @@
 import {
   assertHarnessGame,
-  type HarnessGame,
+  type TurnHarnessGame,
 } from '@libs/game-session-harness-ts/harness-game';
 import {
   wordTiles3GameClient,
@@ -14,18 +14,18 @@ import {
 } from './word-tiles-playable';
 import { readWordTilesRecord } from './word-tiles-record-reading';
 
-export const WORD_TILES_HARNESS_GAME: HarnessGame = assertHarnessGame({
+export const WORD_TILES_HARNESS_GAME: TurnHarnessGame = assertHarnessGame({
   ...WORD_TILES_PLAYABLE,
   client: wordTilesGameClient,
   readRecord: readWordTilesRecord,
 });
 
-export const WORD_TILES_3_HARNESS_GAME: HarnessGame = assertHarnessGame({
+export const WORD_TILES_3_HARNESS_GAME: TurnHarnessGame = assertHarnessGame({
   ...WORD_TILES_3_PLAYABLE,
   client: wordTiles3GameClient,
 });
 
-export const WORD_TILES_4_HARNESS_GAME: HarnessGame = assertHarnessGame({
+export const WORD_TILES_4_HARNESS_GAME: TurnHarnessGame = assertHarnessGame({
   ...WORD_TILES_4_PLAYABLE,
   client: wordTiles4GameClient,
 });

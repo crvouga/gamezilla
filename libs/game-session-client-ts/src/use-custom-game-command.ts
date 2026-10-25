@@ -15,6 +15,10 @@ import { useSpaceHostConnection } from '@libs/spaces-client-ts/use-space-host-co
 import { SPACE_ROOM_NAME } from '@libs/spaces-client-ts/use-space-room-selector';
 import { useClock, useTimers } from '@pkgs/clock-client-ts/solid';
 import { useNamedRoomRoster } from '@pkgs/room-root-client-ts/room-clients-context';
+import type {
+  RoomCommandPayload,
+  RoomState,
+} from '@pkgs/room-root-shared-ts/types';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { createSignal, onCleanup } from 'solid-js';
@@ -46,6 +50,14 @@ export function useCustomGameCommand(
   onCleanup(() => {
     for (const cancel of pending) cancel();
   });
+  // A choice made here is prepared as the space's module prepares its own.
+  const preparing =
+    module === undefined
+      ? {}
+      : {
+          prepare: (state: RoomState, payload: RoomCommandPayload) =>
+            module.prepareLocalCommand(state, payload, clock.now()),
+        };
   const send = async (choice: CustomGameChoice): Promise<void> => {
     setError('');
     // A guest's own lost connection is a different refusal from the host being
@@ -81,12 +93,7 @@ export function useCustomGameCommand(
           canHost: canHost(),
           pending,
           rules,
-          ...(module === undefined
-            ? {}
-            : {
-                prepare: (state, payload) =>
-                  module.prepareLocalCommand(state, payload, clock.now()),
-              }),
+          ...preparing,
           ...(chooseLocal === undefined ? {} : { chooseLocal }),
           onWaiting: () => setWaiting(true),
         },

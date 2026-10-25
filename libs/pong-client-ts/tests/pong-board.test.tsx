@@ -30,6 +30,7 @@ function board(sides: readonly GameSide[]) {
         syncKey={0}
         testId="pong"
         setup={null}
+        hand={null}
         onAction={() => {
           throw new Error('Pong cannot emit a discrete move');
         }}
