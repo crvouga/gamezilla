@@ -119,7 +119,7 @@ terms:
       or in the direction it was just steered. Riders take 10 steps every
       second, and a riding rider never stops between them.
     forms: [steps, next step, next steps, moves, move, moving]
-    model: [ridersStep]
+    model: [ridersStep, nextStep]
 
   - term: riding
     definition: >-
@@ -137,7 +137,7 @@ terms:
       steers before the game starts, while a round result shows, a rider
       that has crashed or a rider in a finished game.
     forms: [steers, steered, steering]
-    model: [steer, canSteer]
+    model: [steer]
 
   - term: turn
     definition: >-
@@ -147,7 +147,7 @@ terms:
       step after the other; a third quick turn before the first takes effect
       is ignored. A turn never carries into another round.
     forms: [turns, turned, turning, quick turn, quick turns, waiting turn]
-    model: [waitingTurns]
+    model: [lateTurn]
 
   - term: direction pad
     definition: >-
@@ -221,7 +221,7 @@ terms:
       The round wins that win the Light Cycles game: 3, unless the custom
       game's creator chooses from 1 to 9 before it starts. A game found by
       finding players uses 3.
-    model: [targetScore, chooseTargetScore]
+    model: [targetScore]
 
   - term: last round
     definition: >-
@@ -287,14 +287,12 @@ terms:
     definition: >-
       A person's device going offline while they ride or watch.
     forms: [loses the connection, lost the connection]
-    model: [loseConnection]
 
   - term: the connection comes back
     definition: >-
       A person's device that was offline reaching everyone again. A person
       who was away has come back.
     forms: [connection comes back, comes back, came back, coming back, come back, has come back]
-    model: [connectionReturns]
 
   - term: switch devices
     definition: >-
@@ -302,7 +300,6 @@ terms:
       their devices. From then on that device steers their rider, and the
       device they left cannot, so a rider is never steered from two devices.
     forms: [switches devices, switched devices, has switched devices]
-    model: [switchDevices, steeringDevice]
 
   - term: everyone
     definition: >-
@@ -328,7 +325,6 @@ terms:
       Light Cycles against bots on one person's own device. It needs no
       connection, and that person rides Comet.
     forms: [offline practice, start practice, starts practice, practising]
-    model: [practice, startPractice]
 
   - term: bot level
     definition: >-
@@ -336,11 +332,9 @@ terms:
       by the same rules as a person and is always shown as a bot with its
       level.
     forms: [bot levels, level, levels, easy, medium, hard]
-    model: [botLevel, chooseBotLevel]
 
   - term: bot
     from: games
-    model: [botSteers]
 
   - term: game
     from: games
@@ -356,7 +350,6 @@ terms:
   - term: start a custom game
     from: games
     forms: [started, has started, starts]
-    model: [startGame]
 
   - term: under way
     from: games
@@ -382,7 +375,6 @@ terms:
 
   - term: connection
     from: kernel
-    model: [offline]
 
   - term: seconds pass
     definition: >-
@@ -391,4 +383,4 @@ terms:
       seconds, and an away person's time away grows. Once a game is finished
       or called off, time passing changes nothing.
     forms: [second passes, seconds have passed]
-    model: [secondsPass, ridersStep, countdownEnds, resultEnds, awayTooLong, everyoneAwayTooLong]
+    model: [secondsPass, ridersStep, countdownEnds, resultEnds]
