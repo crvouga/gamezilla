@@ -11,9 +11,11 @@
 // under way or stopped before it was complete proves nothing. A rules change
 // leaves no proof from playtests completed before it and stops a playtest
 // under way, which can then no longer be completed. A board with
-// something to correct cannot be playtested. Publishing a proven board again
-// with nothing changed makes no new edition, and no edit changes an edition
-// already published.
+// something to correct cannot be playtested. Publishing again with no board
+// or details edit since the last publication choice makes no new edition;
+// after any edit, even one that brings back what was published, publishing
+// is a new choice and makes a new edition. No edit changes an edition already
+// published.
 // Alice's phone starts connected. Without a connection she can still build,
 // change the details and playtest. Choosing publication then waits for the
 // connection: when it returns, the proven board she chose is published,
@@ -51,11 +53,15 @@ module publication_proof {
   var _previousBoard: int
   var _previousDetails: int
   var _previousRules: int
+  /// No board or details edit since the last publication choice that went
+  /// ahead or still waits.
+  var _unedited: bool
 
   /// Proof follows the board's content: it is recomputed from every completed
   /// playtest after each step.
   action _keep(b: int, d: int, r: int, practice: Playtest,
-    published: List[Edition], isWaiting: bool, chosen: Edition, online: bool): bool = {
+    published: List[Edition], isWaiting: bool, chosen: Edition, online: bool,
+    unedited: bool): bool = {
     val proven = if (practice.status == "completed")
       _proven.union(Set((practice.board, practice.rules))) else _proven
     all {
@@ -65,17 +71,18 @@ module publication_proof {
       _proven' = proven,
       _online' = online, _previousEditions' = editions, _previousProof' = proof,
       _previousBoard' = board, _previousDetails' = details, _previousRules' = rules,
+      _unedited' = unedited,
     }
   }
 
   action _same: bool =
-    _keep(board, details, rules, playtest, editions, waiting, _chosen, _online)
+    _keep(board, details, rules, playtest, editions, waiting, _chosen, _online, _unedited)
 
   action init = all {
     board' = 0, details' = 0, rules' = 0, playtest' = NO_PLAYTEST, proof' = false,
     editions' = List(), waiting' = false, _chosen' = NO_EDITION, _proven' = Set(),
     _online' = true, _previousEditions' = List(), _previousProof' = false,
-    _previousBoard' = 0, _previousDetails' = 0, _previousRules' = 0,
+    _previousBoard' = 0, _previousDetails' = 0, _previousRules' = 0, _unedited' = false,
   }
 
   /// A board edit gives the draft another board, proven only if exactly that
@@ -83,13 +90,13 @@ module publication_proof {
   /// under way keeps playing the board it began with.
   action editBoard(newBoard: int): bool = all {
     BOARDS.contains(newBoard), newBoard != board,
-    _keep(newBoard, details, rules, playtest, editions, waiting, _chosen, _online),
+    _keep(newBoard, details, rules, playtest, editions, waiting, _chosen, _online, false),
   }
 
   /// Changing only the title, description or difficulty keeps the board and its proof.
   action editDetails(newDetails: int): bool = all {
     DETAILS.contains(newDetails), newDetails != details,
-    _keep(board, newDetails, rules, playtest, editions, waiting, _chosen, _online),
+    _keep(board, newDetails, rules, playtest, editions, waiting, _chosen, _online, false),
   }
 
   /// A playtest plays the draft's board as it is now, under the current rules,
@@ -98,7 +105,7 @@ module publication_proof {
     playtest.status != "playing",
     if (board != BOARD_TO_CORRECT)
       _keep(board, details, rules, { board: board, rules: rules, status: "playing" },
-        editions, waiting, _chosen, _online)
+        editions, waiting, _chosen, _online, _unedited)
     else _same,
   }
 
@@ -107,28 +114,29 @@ module publication_proof {
   action completePlaytest: bool = all {
     playtest.status == "playing",
     _keep(board, details, rules, { ...playtest, status: "completed" },
-      editions, waiting, _chosen, _online),
+      editions, waiting, _chosen, _online, _unedited),
   }
 
   /// Stopping a playtest before it is complete adds no proof and takes none away.
   action leavePlaytest: bool = all {
     playtest.status == "playing",
     _keep(board, details, rules, { ...playtest, status: "stopped" },
-      editions, waiting, _chosen, _online),
+      editions, waiting, _chosen, _online, _unedited),
   }
 
-  /// Without proof publication is refused. With a connection a proven board
-  /// becomes a new edition unless that exact edition is already the latest;
-  /// without one the choice waits, and choosing again keeps it waiting.
+  /// Without proof publication is refused. Publishing again with no board or
+  /// details edit since the last publication choice keeps one edition. Otherwise,
+  /// with a connection a proven board becomes a new edition, even with the same
+  /// content as the latest; without one the choice waits, and choosing again
+  /// keeps it waiting.
   action publishPuzzle: bool = all {
     editions.length() < 2,
     val chosen = { board: board, details: details, rules: rules }
-    val latest = editions.length() > 0 and editions[editions.length() - 1] == chosen
-    if (not(proof) or waiting or latest) _same
+    if (not(proof) or waiting or _unedited) _same
     else if (_online)
       _keep(board, details, rules, playtest, editions.append(chosen), false,
-        NO_EDITION, _online)
-    else _keep(board, details, rules, playtest, editions, true, chosen, _online),
+        NO_EDITION, _online, true)
+    else _keep(board, details, rules, playtest, editions, true, chosen, _online, true),
   }
 
   /// World event: Sokoban's rules change once. Playtests completed before it
@@ -138,23 +146,25 @@ module publication_proof {
     rules == 0,
     _keep(board, details, 1,
       if (playtest.status == "playing") { ...playtest, status: "stopped" } else playtest,
-      editions, waiting, _chosen, _online),
+      editions, waiting, _chosen, _online, _unedited),
   }
 
   /// Model-only: the phone loses its connection; building and playtesting go on.
   action _loseConnection: bool = all {
     _online,
-    _keep(board, details, rules, playtest, editions, waiting, _chosen, false),
+    _keep(board, details, rules, playtest, editions, waiting, _chosen, false, _unedited),
   }
 
   /// A waiting publication goes ahead only if its playtest is still proof
-  /// under the current rules.
+  /// under the current rules; one that cannot go ahead is no publication, so
+  /// publishing again is a new choice.
   action connectionReturns: bool = all {
     not(_online),
     if (waiting and _chosen.rules == rules)
       _keep(board, details, rules, playtest, editions.append(_chosen), false,
-        NO_EDITION, true)
-    else _keep(board, details, rules, playtest, editions, false, NO_EDITION, true),
+        NO_EDITION, true, _unedited)
+    else _keep(board, details, rules, playtest, editions, false, NO_EDITION, true,
+      _unedited and not(waiting)),
   }
 
   action step = {

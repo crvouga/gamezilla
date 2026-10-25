@@ -69,6 +69,17 @@ A rules change stops a playtest under way, as it stops all play begun under
 earlier rules (`puzzles/edition-rules`); that playtest can no longer be
 completed and proves nothing.
 
+Publishing again keeps one edition only when no board or details edit has
+been made since the last publication choice (`puzzles/publish-puzzles`: the
+same saved draft). After any edit, even one that brings back what was
+published, publishing makes a new edition. A waiting choice that cannot go
+ahead is no publication.
+
+Open question: after a rules change, Alice playtests again under the new
+rules but edits nothing. Publishing again then keeps the earlier edition,
+which was published under the earlier rules. Should a rules change count as
+a new publication choice?
+
 ## Code tests, not scenarios (B17)
 
 - Replaying the recorded moves of a claimed playtest under Sokoban's rules,
