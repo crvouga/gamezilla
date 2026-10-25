@@ -6,7 +6,6 @@ import { useSpaceRoomSessionId } from '@libs/spaces-client-ts/space-room-context
 import { useClock, useTimers } from '@pkgs/clock-client-ts/solid';
 import { useLogger } from '@pkgs/logger-client-ts/solid';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
-import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
 import {
   type Accessor,
@@ -17,6 +16,7 @@ import {
   untrack,
 } from 'solid-js';
 import { connectCustomSimulation } from './custom-simulation-session';
+import { simulationControls } from './simulation-controls';
 
 /** The screen owns one controller for its board and its choices. */
 export function useCustomSimulation(
@@ -87,15 +87,14 @@ export function useCustomSimulation(
             : game[side].kind === 'local' && game.creator === myId()
         );
   });
-  const controls = createMemo<GameSimulationControls>(() => ({
-    paused: paused(),
-    stale: stale(),
-    sides: sides(),
-    onInput: (side, input) => {
-      if (sides().includes(side)) connection?.replica.control(side, input);
-    },
-    onRelease: () => connection?.replica.release(),
-  }));
+  const controls = createMemo(() =>
+    simulationControls({
+      sides: sides(),
+      paused: paused(),
+      stale: stale(),
+      replica: () => connection?.replica,
+    })
+  );
   return {
     position,
     controls,
