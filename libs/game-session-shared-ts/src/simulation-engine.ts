@@ -47,6 +47,29 @@ export class FixedStepSimulation<S, I> {
     return this.inputs.add(input, this.tick);
   }
 
+  /** The last committed tick; the next step commits `committedTick() + 1`. */
+  committedTick(): number {
+    return this.tick;
+  }
+
+  /** The current committed state, without allocating a snapshot. */
+  current(): S {
+    return this.state;
+  }
+
+  seen(playerId: string, sequence: number): boolean {
+    return this.inputs.seen(playerId, sequence);
+  }
+
+  pendingFor(playerId: string): number {
+    return this.inputs.pendingFor(playerId);
+  }
+
+  /** Drop one player's waiting inputs without touching anyone else's. */
+  discardInputs(playerId: string): void {
+    this.inputs.discard(playerId);
+  }
+
   snapshot(): SimulationSnapshot<S> {
     return {
       tick: this.tick,

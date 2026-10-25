@@ -1,6 +1,10 @@
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
 import { matchRoomGame } from '@libs/game-matchmaking-shared-ts/match-room';
 import {
+  multiplayerOwner,
+  multiplayerSides,
+} from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
+import {
   connectSimulationPresentation,
   type SimulationPresentation,
 } from '@libs/game-session-client-ts/simulation-presentation-session';
@@ -88,9 +92,8 @@ export function useMatchedSimulation(
   const sides = createMemo(() =>
     !online() || key() === ''
       ? []
-      : (['white', 'black'] as const).filter(
-          (side) =>
-            current()[side === 'white' ? 'white_id' : 'black_id'] === myId()
+      : multiplayerSides(current()).filter(
+          (side) => multiplayerOwner(current(), side) === myId()
         )
   );
   const controls = createMemo<GameSimulationControls>(() => ({

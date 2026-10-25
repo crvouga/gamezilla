@@ -153,16 +153,20 @@ test('only the game granted it keeps the unprefixed puzzle namespace, and no two
   ).toThrow('second: puzzle namespace "" is taken');
 });
 
-test('game rosters preserve the two-seat default and validate declared four-seat order', () => {
+test('game rosters preserve the two-seat default and validate declared three- and four-seat order', () => {
   expect(gameSides(game)).toEqual(['white', 'black']);
   const four: GameRules = { ...game, sides: ['white', 'black', 'red', 'blue'] };
   expect(
     gameSides(createTurnGames([registration({}, four)]).byId('counter'))
   ).toEqual(['white', 'black', 'red', 'blue']);
+  const three: GameRules = { ...game, sides: ['white', 'black', 'red'] };
+  expect(
+    gameSides(createTurnGames([registration({}, three)]).byId('counter'))
+  ).toEqual(['white', 'black', 'red']);
   for (const sides of [
     [],
     ['white'],
-    ['white', 'black', 'red'],
+    ['white', 'black', 'blue'],
     ['white', 'white'],
     ['black', 'white'],
   ] as const)

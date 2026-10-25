@@ -81,7 +81,7 @@ export function useCustomSimulation(
     const game = current();
     return game === null || !allowed()
       ? []
-      : (['white', 'black'] as const).filter((side) =>
+      : game.sides.filter((side) =>
           game[side].kind === 'person'
             ? game[side].person === myId()
             : game[side].kind === 'local' && game.creator === myId()

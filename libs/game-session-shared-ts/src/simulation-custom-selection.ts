@@ -1,5 +1,5 @@
 import type { RoomState } from '@pkgs/room-root-shared-ts/types';
-import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
+import type { GameSide, TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { SimulationExecution } from '@pkgs/turn-game-shared-ts/simulation-execution';
 import { CustomGameAvailableAttr } from './custom-game-availability';
 import { soloCustomGame } from './custom-game-local';
@@ -39,9 +39,9 @@ export function selectCustomSimulation(
     (local && current.creator !== owner)
   )
     return null;
-  const controllers = new Map<'white' | 'black', string>();
+  const controllers = new Map<GameSide, string>();
   const bots: SimulationSessionView['bots'][number][] = [];
-  for (const side of ['white', 'black'] as const) {
+  for (const side of current.sides) {
     if (current[side].kind === 'person')
       controllers.set(side, current[side].person);
     if (current[side].kind === 'local' && local)

@@ -1431,3 +1431,43 @@ count and state assertions are unchanged.
 This closes the pinned delivery failure. Current full verification, scheduler
 stall/teardown integration and the previously identified hosted/browser and
 product-flow coverage remain outstanding.
+
+## Seats, input policy, rounds and disconnection
+
+Added for multi-participant real-time games; Pong keeps every default.
+
+- **Two to four seats.** `assertGameSides` accepts 2–4 seats in the fixed
+  order `white, black, red, blue`. Custom and matched simulation controllers,
+  client seat filters, the execution's `missing` seats, match formation
+  (`multiplayerSeatOwners`) and rematch rotation (`rotatedSeatOwners`) iterate
+  the declared seats.
+- **Input policy** (`RegisteredSimulation.input`). `held` (default) keeps
+  Pong's coalesced, refreshed controls at a client-requested tick inside the
+  lead window. `commands` sends each command once and in order. The message
+  `tick` is only the latest authoritative tick the device saw; the authority
+  assigns every accepted command to its next uncommitted tick in arrival
+  order, refuses a basis newer than the committed tick or older than
+  `maxAgeTicks`, and rate-limits beyond `maxPendingPerPlayer` waiting
+  commands. Duplicates by sequence stay idempotent. The replica's bounded
+  `SimulationCommandOutbox` never resends, releases commands on
+  acknowledgment, a new round or a new epoch, and does not predict commands.
+  Fairness is the arrival order at the authority; equal ticks resolve in ASCII
+  seat order, so replay is deterministic for identical arrivals.
+- **Round fence** (`RegisteredSimulation.rounds`). A command whose round is
+  not the state's current round is refused at admission; games still ignore a
+  mismatched round inside their own step.
+- **Disconnection policy** (`RegisteredSimulation.disconnection`). `pause`
+  (default) pauses the simulation for any absence. `continue` keeps the arena
+  running: only the absent seat's waiting inputs are discarded (and counted as
+  answered so a returning device stops waiting), present players keep their
+  input epoch, and from the tick the absence began plus the grace period the
+  pure `retire(state, side)` runs before every step while the seat stays
+  away. Retirement depends on ticks only.
+- **Absence deadline.** The persisted 30-second deadline runs for any absence
+  of a paused game, but only when every controller of a continuing game is
+  away. When it passes, a two-seat game is forfeited to the seat that stayed;
+  any other absence abandons the game. More than two seats never forfeit
+  everyone's game to one absence.
+- **Lifecycle.** Contract tests repeat resign and rematch over a real room and
+  assert exactly one owned simulation timer per running game and none after
+  completion or disposal.

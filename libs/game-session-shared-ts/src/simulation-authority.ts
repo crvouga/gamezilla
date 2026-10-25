@@ -1,7 +1,14 @@
 import type { Message } from '@pkgs/message-shared-ts/message';
 import type { RoomCommand, RoomError } from '@pkgs/room-root-shared-ts/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared-ts/types';
-import type { SimulationCodec } from '@pkgs/turn-game-shared-ts/simulation';
+import type {
+  SimulationInputPolicy,
+  SimulationRounds,
+} from '@pkgs/turn-game-shared-ts/game-simulation';
+import type {
+  SimulationCodec,
+  SimulationInput,
+} from '@pkgs/turn-game-shared-ts/simulation';
 import {
   driveSimulation,
   type SimulationDriverPorts,
@@ -20,6 +27,9 @@ export type SimulationAuthorityRules<S, I> = {
   readonly controllers: ReadonlyMap<string, string>;
   readonly codec: SimulationCodec<S>;
   readonly parseInput: (value: unknown) => I | null;
+  /** Held controls by default; discrete commands are scheduled by arrival. */
+  readonly input?: SimulationInputPolicy;
+  readonly rounds?: SimulationRounds<S, I>;
 };
 
 export type SimulationAuthorityPorts<S> = Omit<
@@ -30,7 +40,19 @@ export type SimulationAuthorityPorts<S> = Omit<
   readonly publish: (message: Message, audience?: readonly string[]) => void;
   /** Authority receipt to successful application; excludes transport and snapshot wait. */
   readonly inputProcessed: (milliseconds: readonly number[]) => void;
+  /** A refused control, by bounded reason; never a per-player label. */
+  readonly inputRefused?: (reason: SimulationInputRefusal) => void;
 };
+
+export type SimulationInputRefusal =
+  | 'epoch'
+  | 'owner'
+  | 'paused'
+  | 'invalid'
+  | 'round'
+  | 'late'
+  | 'future'
+  | 'full';
 
 /**
  * Execution adapter hosted by an existing game session's authoritative room.
@@ -94,25 +116,67 @@ export class SimulationAuthority<S, I> {
       };
     const input = command.payload.payload;
     if (input.epoch !== this.epoch)
-      return this.refuse('this input belongs to an earlier game');
+      return this.refused('epoch', 'this input belongs to an earlier game');
     if (this.controllers.get(input.playerId) !== identity)
-      return {
+      return this.refused('owner', 'only the player controls this side', {
         type: ROOM_ERROR_TYPE.unauthorized,
         reason: 'only the player controls this side',
-      };
-    if (this.paused) return this.refuse('this game is paused');
+      });
+    if (this.paused) return this.refused('paused', 'this game is paused');
     const value = this.rules.parseInput(input.value);
     if (value === null)
-      return {
+      return this.refused('invalid', 'invalid game control', {
         type: ROOM_ERROR_TYPE.invalidCommand,
         reason: 'invalid game control',
-      };
-    const result = this.simulation.enqueue({ ...input, value });
-    if (result.accepted) this.inputProcessing.record(input, receivedAt);
+      });
+    if (this.simulation.seen(input.playerId, input.sequence)) return null;
+    const rounds = this.rules.rounds;
+    if (
+      rounds !== undefined &&
+      rounds.ofInput(value) !== rounds.current(this.simulation.current())
+    )
+      return this.refused('round', 'this input belongs to an earlier round');
+    const scheduled = this.schedule({ ...input, value });
+    if ('refusal' in scheduled) return scheduled.refusal;
+    const result = this.simulation.enqueue(scheduled);
+    if (result.accepted) this.inputProcessing.record(scheduled, receivedAt);
     if (result.accepted || result.reason === 'duplicate') return null;
-    return result.reason === 'full'
-      ? { type: ROOM_ERROR_TYPE.rateLimited }
-      : this.refuse(`input ${result.reason}`);
+    if (result.reason === 'full')
+      return this.refused('full', 'too many controls', {
+        type: ROOM_ERROR_TYPE.rateLimited,
+      });
+    if (result.reason === 'invalid')
+      return this.refused('invalid', 'invalid game control', {
+        type: ROOM_ERROR_TYPE.invalidCommand,
+        reason: 'invalid game control',
+      });
+    return this.refused(result.reason, `input ${result.reason}`);
+  }
+
+  /**
+   * Held controls keep their requested tick inside the engine's lead window.
+   * A command's tick is only its basis: it applies at the next uncommitted
+   * tick in arrival order, so no device chooses when its command takes effect.
+   */
+  private schedule(
+    input: SimulationInput<I>
+  ): SimulationInput<I> | { readonly refusal: RoomError } {
+    const policy = this.rules.input;
+    if (policy?.mode !== 'commands') return input;
+    const committed = this.simulation.committedTick();
+    if (input.tick > committed)
+      return { refusal: this.refused('future', 'input future') };
+    if (committed - input.tick > policy.maxAgeTicks)
+      return { refusal: this.refused('late', 'input late') };
+    if (
+      this.simulation.pendingFor(input.playerId) >= policy.maxPendingPerPlayer
+    )
+      return {
+        refusal: this.refused('full', 'too many controls', {
+          type: ROOM_ERROR_TYPE.rateLimited,
+        }),
+      };
+    return { ...input, tick: committed + 1 };
   }
 
   publish(audience?: readonly string[]): void {
@@ -164,5 +228,14 @@ export class SimulationAuthority<S, I> {
 
   private refuse(reason: string): RoomError {
     return { type: ROOM_ERROR_TYPE.conflict, reason };
+  }
+
+  private refused(
+    kind: SimulationInputRefusal,
+    reason: string,
+    error: RoomError = this.refuse(reason)
+  ): RoomError {
+    this.ports.inputRefused?.(kind);
+    return error;
   }
 }
