@@ -1,0 +1,4 @@
+{
+  "summary": "A device that sees a live match's result before its durable record has it asks the server to settle the game, and asks again every 2 seconds until its copy of the record catches up. A settle that reached a live match that had already ended re-saved it: each one bumped the game's revision and erased both people's rating changes, and the stream of settles kept Bob's rematch offer from reaching Alice (specs/journeys/pong-game.feature). Settling a game that has ended now changes nothing.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-match-settle-finished.test.ts"
+}
