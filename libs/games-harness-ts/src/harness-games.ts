@@ -2,17 +2,22 @@ import { BATTLESHIP_HARNESS_GAME } from '@libs/battleship-harness-ts/battleship-
 import { CHESS_HARNESS_GAME } from '@libs/chess-root-harness-ts/chess-harness-game';
 import { CONNECT_FOUR_HARNESS_GAME } from '@libs/connect-four-harness-ts/connect-four-harness-game';
 import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import { HEARTS_HARNESS_GAME } from '@libs/hearts-harness-ts/hearts-harness-game';
 import {
   LIGHT_CYCLES_DUEL_HARNESS_GAME,
   LIGHT_CYCLES_QUAD_HARNESS_GAME,
   LIGHT_CYCLES_TRIO_HARNESS_GAME,
 } from '@libs/light-cycles-harness-ts/light-cycles-harness-game';
-import { HEARTS_HARNESS_GAME } from '@libs/hearts-harness-ts/hearts-harness-game';
 import { PONG_HARNESS_GAME } from '@libs/pong-harness-ts/pong-harness-game';
 import {
   QUORIDOR_HARNESS_GAME,
   QUORIDOR_HILL_HARNESS_GAME,
 } from '@libs/quoridor-harness-ts/quoridor-harness-game';
+import {
+  WORD_TILES_3_HARNESS_GAME,
+  WORD_TILES_4_HARNESS_GAME,
+  WORD_TILES_HARNESS_GAME,
+} from '@libs/word-tiles-harness-ts/word-tiles-harness-game';
 
 /**
  * Every registered turn game as the turn suites exercise it, in registry
@@ -26,6 +31,9 @@ export const HARNESS_GAMES: readonly HarnessGame[] = [
   BATTLESHIP_HARNESS_GAME,
   QUORIDOR_HARNESS_GAME,
   QUORIDOR_HILL_HARNESS_GAME,
+  WORD_TILES_HARNESS_GAME,
+  WORD_TILES_3_HARNESS_GAME,
+  WORD_TILES_4_HARNESS_GAME,
   HEARTS_HARNESS_GAME,
   PONG_HARNESS_GAME,
   LIGHT_CYCLES_DUEL_HARNESS_GAME,

@@ -8,6 +8,7 @@ import {
   givenGameSpace,
   openFindingAnOpponent,
 } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
+import { defaultMatchChoice } from '@libs/game-matchmaking-shared-ts/match-choice';
 import {
   matchRoomGame,
   matchRoomTopic,
@@ -82,7 +83,11 @@ async function matchedGameWorlds(game: HarnessGame): Promise<Snapshot[]> {
   const matchmaking = game.shared.registration.capabilities.matchmaking;
   if (matchmaking === undefined)
     throw new Error(`${game.label} offers no finding an opponent`);
-  const clock = (choice: string) => `${matchmaking.namespace}${choice}`;
+  // regression: games-bindings-assume-clocked-turn-games
+  const clock = (choice: string) =>
+    matchmaking.clockChoices === true
+      ? `${matchmaking.namespace}${choice}`
+      : defaultMatchChoice(matchmaking);
   await using s = await openConformanceHarness(
     `legal-matched-worlds-${game.shared.id}`
   );
@@ -122,7 +127,9 @@ async function matchedGameWorlds(game: HarnessGame): Promise<Snapshot[]> {
   await s.apply(givenOpponentSearch, 'dave', clock('3+2'), 'first');
   await s.apply(pairGameOpponents, 'carol', true);
   const third = await s.read(storedMultiplayerSnapshot);
-  const aborted = third.games.find((g) => g.time_control === clock('3+2'))!;
+  const aborted = third.games.find(
+    (g) => g.id !== first.id && g.rematch_of !== first.id
+  )!;
   await gameCommand(s, 'carol', 'abortMultiplayer', { gameId: aborted.id });
   await keep('an aborted matched game beside a rematch');
   return worlds;

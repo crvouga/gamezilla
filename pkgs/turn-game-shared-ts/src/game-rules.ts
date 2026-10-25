@@ -290,7 +290,7 @@ export function gameSides(
 }
 
 /**
- * Validate a roster before its rules enter any shared lifecycle: two or four
+ * Validate a roster before its rules enter any shared lifecycle: two to four
  * seats, in the platform's seat order (`white`, `black`, then `red`, `blue`).
  */
 export function assertGameSides(rules: Pick<GameRules, 'id' | 'sides'>): void {

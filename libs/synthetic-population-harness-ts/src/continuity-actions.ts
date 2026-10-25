@@ -30,8 +30,24 @@ export async function syntheticAvailable(s: ProductHarness) {
     (await ui.get(Handles.tabSpaces).isVisible())
   );
 }
+/**
+ * The game screen once it shows a game: device work settles at the same
+ * instant, so a screen still restoring its game reads as what it then shows,
+ * while no time passes for the server to change what that is.
+ */
+async function settledGameScreen(s: ProductHarness, actor: string) {
+  const ui = await actorUi(s, actor);
+  for (let turn = 0; turn < 100; turn++) {
+    if (!(await ui.get('multiplayer-loading').isVisible())) return;
+    await s.session.advanceTime(0);
+    await s.session.waitForIdle();
+  }
+  throw new Error(`${actor}'s game screen never finished loading`);
+}
 export async function syntheticGameShown(s: ProductHarness) {
   await Promise.resolve(openSyntheticGame.act(s, 'cedar'));
+  // regression: reopened-live-match-shows-stored-row-before-room
+  await settledGameScreen(s, 'cedar');
   return syntheticContinuity(s);
 }
 export const reopenSyntheticApp = scenarioAction({

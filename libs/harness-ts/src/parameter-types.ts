@@ -23,6 +23,10 @@
  * - `{deviceKind}` — `phone` or `tablet`.
  * - `{gameSide}` — `first side` or `second side` of any game, transformed to
  *   its seat (`white`, `black`).
+ * - `{tiles}`, `{tileWord}`, `{boardSquare}`, `{wordSpan}`,
+ *   `{tilePlacements}`, `{wordTilesRefusal}` — Word Tiles' tiles (as
+ *   letters, a blank as `?`), words, squares, words where they lie, tiles
+ *   put on squares and refusals.
  *
  * `@pkgs/sync-engine` cannot import this module (pkgs never import libs), so
  * its steps entry registers `{actor}` / `{device}` / `{deviceKind}` with the
@@ -297,6 +301,59 @@ export const PARAMETER_TYPES: readonly ParameterTypeSpec[] = [
     name: 'gameParticipants',
     regexp:
       /two ready people|a ready person on the first side and a bot on the second side|a bot on the first side and a ready person on the second side|two bots/,
+    transformer: (text: string) => text,
+  },
+  {
+    // Word Tiles: "C, A, T and a blank", "Q and Z", "seven E tiles" — the
+    // tiles' letters, a blank as "?".
+    name: 'tiles',
+    regexp:
+      /seven [A-Z] tiles|(?:[A-Z]|a blank)(?:(?:, | and )(?:[A-Z]|a blank))*/,
+    transformer: (text: string) =>
+      text.startsWith('seven ')
+        ? (text[6] ?? '').repeat(7)
+        : text
+            .split(/, | and /)
+            .map((tile) => (tile === 'a blank' ? '?' : tile))
+            .join(''),
+  },
+  {
+    // A Word Tiles word as the board shows it: "CAT", "RETAINS".
+    name: 'tileWord',
+    regexp: /[A-Z]{2,15}/,
+    transformer: (text: string) => text,
+  },
+  {
+    // A Word Tiles square: columns a to o, rows 1 to 15.
+    name: 'boardSquare',
+    regexp: /[a-o](?:1[0-5]|[1-9])/,
+    transformer: (text: string) => text,
+  },
+  {
+    // A Word Tiles word and where it lies: "CAT from g8 to i8".
+    name: 'wordSpan',
+    regexp: /[A-Z]{2,15} from [a-o](?:1[0-5]|[1-9]) to [a-o](?:1[0-5]|[1-9])/,
+    transformer: (text: string) => {
+      const [word = '', , from = '', , to = ''] = text.split(' ');
+      return { word, from, to };
+    },
+  },
+  {
+    // Word Tiles tiles put on squares: "C on g7 and A on h8", "S on h9".
+    name: 'tilePlacements',
+    regexp:
+      /[A-Z] on [a-o](?:1[0-5]|[1-9])(?: and [A-Z] on [a-o](?:1[0-5]|[1-9]))*/,
+    transformer: (text: string) =>
+      text.split(' and ').map((entry) => {
+        const [letter = '', , square = ''] = entry.split(' ');
+        return { letter, square };
+      }),
+  },
+  {
+    // What a Word Tiles player is told when a turn is refused.
+    name: 'wordTilesRefusal',
+    regexp:
+      /her first word must cover the centre square|her word must join the tiles on the board|her tiles must lie in one line|the bag holds too few tiles to exchange|it is not his turn|the game is over|he does not hold those tiles|her placement does not reach the target/,
     transformer: (text: string) => text,
   },
   {

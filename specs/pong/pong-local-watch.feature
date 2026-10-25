@@ -29,7 +29,7 @@ Feature: Watch Pong played on one device
         | left   |
         | right  |
 
-  Rule: A missing connection keeps the viewer's earlier court while local play continues
+  Rule: A missing connection keeps the viewer's earlier court while local play goes on
     No counter-example: local play needs no connection, but Carol can see a changed court only while both devices have a connection.
 
     Scenario Outline: Carol keeps the earlier court while Alice keeps playing
@@ -48,7 +48,7 @@ Feature: Watch Pong played on one device
   Rule: Returning shows the current local court without giving the viewer a paddle
     No counter-example: the viewer can follow the current game again once both connections are available.
 
-    Scenario Outline: Carol sees Alice's local progress after the connection returns
+    Scenario Outline: Carol sees Alice's current court after the connection returns
       Given Alice has local Pong under way against a Pong bot
       And Carol is in Alice's space with no Pong paddle
       And <person> is offline

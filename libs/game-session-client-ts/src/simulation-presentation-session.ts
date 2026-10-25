@@ -10,6 +10,8 @@ export type SimulationPresentation = {
   readonly stale: boolean;
 };
 
+type Synced = { generation: string | undefined; ready: boolean };
+
 type PresentationOptions = {
   readonly simulation: RegisteredSimulation;
   readonly clock: Clock;
@@ -37,12 +39,23 @@ export function connectSimulationPresentation(options: PresentationOptions) {
     const generation = options.generation();
     if (generation !== undefined) replica.receive(message, generation);
   });
+  const synced: Synced = {
+    generation: options.generation(),
+    ready: options.isReady(),
+  };
   const refresh = () => {
-    if (options.generation() === undefined || !options.isReady()) return;
+    const generation = options.generation();
+    if (generation === undefined || !options.isReady()) return;
+    synced.generation = generation;
+    synced.ready = true;
     replica.resynchronize();
     options.send(RequestSimulationSnapshot({ version: 1 }));
   };
-  const unsubscribeRoom = subscribeSimulationRoom(options, replica, refresh);
+  const unsubscribeRoom = subscribeSimulationRoom(
+    options,
+    { replica, synced },
+    refresh
+  );
   let position: string | null = null;
   const stopFrames = presentationFrames({
     timers: options.timers,
@@ -74,19 +87,24 @@ export function connectSimulationPresentation(options: PresentationOptions) {
   };
 }
 
+/**
+ * Readiness can arrive without a room change (a local session settles its own
+ * queue), so the last refresh, not the last notification, says what the
+ * replica was synchronized to; a court already resynchronized keeps its held input.
+ */
 function subscribeSimulationRoom(
   options: PresentationOptions,
-  replica: SimulationReplica,
+  view: { readonly replica: SimulationReplica; readonly synced: Synced },
   refresh: () => void
 ): () => void {
-  let generation = options.generation();
-  let ready = options.isReady();
+  const { replica, synced } = view;
   return options.subscribeRoom(() => {
-    const nextGeneration = options.generation();
-    const nextReady = options.isReady();
-    const invalidated = generation !== nextGeneration || ready !== nextReady;
-    generation = nextGeneration;
-    ready = nextReady;
+    const generation = options.generation();
+    const ready = options.isReady();
+    const invalidated =
+      synced.generation !== generation || synced.ready !== ready;
+    synced.generation = generation;
+    synced.ready = ready;
     if (!ready || generation === undefined) replica.reset();
     else if (invalidated || replica.isStale()) refresh();
   });

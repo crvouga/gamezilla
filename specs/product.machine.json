@@ -794,15 +794,140 @@
       "Opens a King of the Hill custom game": "user",
       "Finds King of the Hill opponents": "user",
       "Reviews a King of the Hill game": "user",
+      "Opens local Pong against another person": "user",
+      "Opens local Pong against a Pong bot": "user",
+      "Opens a Pong custom game": "user",
+      "Opens finding a Pong opponent": "user",
+      "Watches the Pong game in the space": "user",
+      "Starts local Pong": "user",
+      "Loses the connection with local Pong": "system",
+      "The connection comes back with local Pong": "system",
+      "Closes and reopens the app with local Pong": "user",
+      "Returns to Pong choices": "user",
+      "The Pong countdown ends": "time",
+      "The ball passes a paddle before the target score": "system",
+      "The ball passes a paddle for the final point": "system",
+      "Seconds pass after Pong finishes": "time",
+      "Tries to guide a paddle without one": "user",
+      "The watcher loses the connection": "system",
+      "Returns to watching Pong": "user",
+      "The watcher's connection returns": "system",
+      "Seconds pass while seeking a Pong opponent": "time",
+      "Stops seeking a Pong opponent": "user",
+      "Pairs people up for Pong": "system",
+      "Loses the connection while seeking a Pong opponent": "system",
+      "Comes back online with nobody paired for Pong": "system",
+      "Comes back online to a Pong game agreed while away": "system",
+      "Aborts Pong before play begins": "user",
+      "Resigns Pong before play begins": "user",
+      "Tries to abort Pong without a connection": "user",
+      "Pong play begins": "system",
+      "Returns to the paired Pong game": "user",
+      "The connection returns to the paired Pong game": "system",
+      "Guides their own Pong paddle": "user",
+      "Tries to guide the other person's Pong paddle": "user",
+      "Aborts Pong after play begins": "user",
+      "Resigns Pong": "user",
+      "A Synthetic User opponent plays Pong to its result": "system",
+      "A player loses the connection during Pong": "system",
+      "A person with no paddle loses the connection": "system",
+      "Returns to the Pong court": "user",
+      "Tries to resign Pong without a connection": "user",
+      "The missing player returns to Pong": "system",
+      "Returns to see the opponent's accepted resignation": "system",
+      "Tries to end a finished Pong game again": "user",
+      "Offers a Pong rematch": "user",
+      "Accepts the Pong rematch": "user",
+      "Starts the first starter puzzle": "user",
+      "Continues the starter pack": "user",
+      "Continues a complete starter pack": "user",
+      "Moves the worker": "user",
+      "Pushes a crate": "user",
+      "Tries a move a wall, an outside square, the edge or a second crate blocks": "user",
+      "Pushes the last crate onto a goal": "user",
+      "Continues to the next unfinished puzzle": "user",
+      "Undoes the completing push": "user",
+      "The connection returns after an offline completion": "system",
+      "Makes a board edit that leaves something to correct": "user",
+      "Makes a board edit that leaves nothing to correct": "user",
+      "Tries a board edit the builder refuses": "user",
+      "Undoes a board edit": "user",
+      "Tries to playtest a board with something to correct": "user",
+      "Redoes a board edit": "user",
+      "The author's connection returns": "system",
+      "Adds the published puzzle to a pack": "user",
+      "Starts a Numberlink puzzle": "user",
+      "Opens Numberlink puzzles and packs": "user",
+      "Draws a Numberlink path": "user",
+      "Removes a Numberlink path": "user",
+      "Clears the Numberlink board": "user",
+      "Draws a path the Numberlink rules refuse": "user",
+      "Connects the last pair the coverage needs": "user",
+      "Returns to Numberlink choices": "user",
+      "Returns to the Numberlink board": "user",
+      "Creates a puzzle draft": "user",
+      "Creates a pack draft": "user",
+      "Starts a published puzzle": "user",
+      "Starts a puzzle that is not available": "user",
+      "Opens another person's draft or attempt": "user",
+      "Opens a published pack": "user",
+      "Saves the puzzle draft": "user",
+      "Undoes a draft edit": "user",
+      "Redoes a draft edit": "user",
+      "Chooses a kept copy of the draft": "user",
+      "Reopens the puzzle draft": "user",
+      "Validates a draft with details missing": "user",
+      "Playtests the puzzle draft": "user",
+      "Publishes the validated puzzle draft": "user",
+      "Publishes a draft missing its title or details": "user",
+      "Returns to the puzzle library": "user",
+      "Returns to the puzzle draft": "user",
+      "Completes the puzzle playtest": "user",
+      "Leaves the puzzle playtest": "user",
+      "Edits the draft of a published puzzle": "user",
+      "Publishes the same saved draft again": "user",
+      "Withdraws the published puzzle": "user",
+      "The game's rules change": "system",
+      "Publishes a new valid draft": "user",
+      "Republishes after the rules change": "user",
+      "Plays on in the puzzle attempt": "user",
+      "Undoes in the puzzle attempt": "user",
+      "Redoes in the puzzle attempt": "user",
+      "Restarts the puzzle attempt": "user",
+      "Resumes an earlier puzzle attempt": "user",
+      "Reopens the app with an unfinished attempt": "user",
+      "Completes a puzzle of the pack": "user",
+      "Completes the last unfinished puzzle of the pack": "user",
+      "The game's rules change during play": "system",
+      "Continues the pack": "user",
+      "Starts a later puzzle of the pack": "user",
+      "Repeats a completed puzzle of the pack": "user",
+      "Adds a published puzzle to the pack": "user",
+      "Reorders the pack's puzzles": "user",
+      "Removes a puzzle from the pack": "user",
+      "Adds a puzzle of another game to the pack": "user",
+      "Authors a new puzzle from the pack": "user",
+      "Publishes the pack": "user",
+      "Publishes a pack that cannot be published": "user",
+      "Publishes the pack without a connection": "user",
+      "Returns to the pack draft": "user",
+      "Reopens the refused pack": "user",
+      "Reopens the app with a waiting pack": "user",
+      "The connection returns with the pack's puzzles available": "system",
+      "The connection returns after a chosen puzzle was withdrawn": "system",
+      "Publishes the same pack draft again": "user",
+      "Withdraws the pack": "user",
       "Chooses Pong": "user",
+      "Chooses Numberlink": "user",
+      "Chooses Word Tiles": "user",
+      "Opens a Word Tiles custom game": "user",
+      "Finds a Word Tiles opponent": "user",
+      "Reviews a Word Tiles game": "user",
       "Chooses Light Cycles Duel": "user",
       "Chooses Light Cycles Trio": "user",
       "Chooses Light Cycles Quad": "user",
-      "Chooses Numberlink": "user",
-      "Opens a Pong custom game": "user",
       "Finds a Pong opponent": "user",
       "Opens puzzle authoring": "user",
-      "Returns to Numberlink choices": "user",
       "Opens a Light Cycles Duel custom game": "user",
       "Finds Light Cycles Duel players": "user",
       "Reviews a Light Cycles Duel game": "user",
@@ -4737,7 +4862,7 @@
                   "id": "App: Games",
                   "meta": {
                     "description": "The host chooses a registered game; participants play or watch according to their permission.",
-                    "snapshot": "The space offers Chess, Connect Four, Battleship, Classic Quoridor, Four-Player King of the Hill, Hearts, Pong, Light Cycles Duel, Light Cycles Trio, Light Cycles Quad and Numberlink.",
+                    "snapshot": "The space offers Chess, Connect Four, Battleship, Classic Quoridor, Four-Player King of the Hill, Hearts, Pong, Light Cycles Duel, Light Cycles Trio, Light Cycles Quad, Numberlink and Word Tiles.",
                     "confidence": "assumed",
                     "source": [
                       "specs/games/space-follow.qnt",
@@ -4834,7 +4959,13 @@
                           "target": "#Games: King of the Hill choices"
                         },
                         "Chooses Pong": {
-                          "target": "#Games: Pong choices"
+                          "target": "#Games: Pong"
+                        },
+                        "Chooses Numberlink": {
+                          "target": "#Games: Numberlink"
+                        },
+                        "Chooses Word Tiles": {
+                          "target": "#Games: Word Tiles choices"
                         },
                         "Chooses Light Cycles Duel": {
                           "target": "#Games: Light Cycles Duel choices"
@@ -4844,9 +4975,6 @@
                         },
                         "Chooses Light Cycles Quad": {
                           "target": "#Games: Light Cycles Quad choices"
-                        },
-                        "Chooses Numberlink": {
-                          "target": "#Games: Numberlink choices"
                         },
                         "Chooses Hearts": {
                           "target": "#Games: Hearts choices"
@@ -5033,6 +5161,1282 @@
                         }
                       }
                     },
+                    "Games: Pong": {
+                      "id": "Games: Pong",
+                      "meta": {
+                        "description": "Pong offers local play on one device against another person or a Pong bot, custom games, finding an opponent and its history. Each person guides their own paddle, and the first to reach the target score wins.",
+                        "snapshot": "Pong offers local play on one device against another person or a Pong bot, custom games, finding an opponent and its history. Each person guides their own paddle, and the first to reach the target score wins.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/pong/pong-local-play.feature",
+                          "specs/pong/pong-local-play.qnt",
+                          "specs/pong/pong-local-watch.feature",
+                          "specs/pong/pong-scoring.feature",
+                          "specs/pong/pong-scoring.qnt",
+                          "specs/pong/pong-shared-control.feature",
+                          "specs/pong/pong-shared-control.qnt",
+                          "specs/pong/ubiquitous-language.yml",
+                          "specs/journeys/pong-game.feature",
+                          "specs/games/finding-an-opponent-without-a-clock.feature",
+                          "specs/games/opponent-search.qnt",
+                          "specs/games/matched-game-without-turns.feature",
+                          "specs/games/matched-game-ending.qnt",
+                          "specs/synthetic-population/recognizing-synthetic-users.feature",
+                          "specs/synthetic-population/recognizing-synthetic-users.qnt",
+                          "specs/synthetic-population/playing-pong.feature",
+                          "specs/synthetic-population/playing-pong.qnt",
+                          "specs/synthetic-population/ubiquitous-language.yml",
+                          "specs/games/game-choices.feature",
+                          "specs/games/ubiquitous-language.yml"
+                        ],
+                        "events": []
+                      },
+                      "initial": "Pong: Pong choices",
+                      "states": {
+                        "Pong: Pong choices": {
+                          "id": "Pong: Pong choices",
+                          "meta": {
+                            "description": "Pong offers local play, custom games, finding an opponent and its history. Both paddles can be guided at once, so Pong offers no move list.",
+                            "snapshot": "Pong offers local play, custom games, finding an opponent and its history. Both paddles can be guided at once, so Pong offers no move list.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/games/game-choices.feature",
+                              "specs/pong/pong-local-play.feature",
+                              "specs/pong/pong-scoring.feature",
+                              "specs/pong/ubiquitous-language.yml"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Opens local Pong against another person": {
+                              "target": "#Pong: Local Pong ready"
+                            },
+                            "Opens local Pong against a Pong bot": {
+                              "target": "#Pong: Local Pong ready"
+                            },
+                            "Opens a Pong custom game": {
+                              "target": "#App: Custom game"
+                            },
+                            "Opens finding a Pong opponent": {
+                              "target": "#Pong: Finding a Pong opponent"
+                            },
+                            "Watches the Pong game in the space": {
+                              "target": "#Pong: Watching Pong"
+                            },
+                            "Returns to the game choice": {
+                              "target": "#Games: Choose a game"
+                            },
+                            "Finds a Pong opponent": {
+                              "target": "#App: Multiplayer"
+                            }
+                          }
+                        },
+                        "Pong: Local Pong ready": {
+                          "id": "Pong: Local Pong ready",
+                          "meta": {
+                            "description": "Local Pong is ready to start on this device, against another person sharing it or a Pong bot. Starting needs no connection, and losing or getting back the connection or closing and reopening the app keeps it ready.",
+                            "snapshot": "Local Pong is ready to start on this device, against another person sharing it or a Pong bot. Starting needs no connection, and losing or getting back the connection or closing and reopening the app keeps it ready.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/pong/pong-local-play.feature",
+                              "specs/pong/pong-local-play.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Starts local Pong": {
+                              "target": "#Pong: Counting down for a serve"
+                            },
+                            "Loses the connection with local Pong": {
+                              "target": "#Pong: Local Pong ready"
+                            },
+                            "The connection comes back with local Pong": {
+                              "target": "#Pong: Local Pong ready"
+                            },
+                            "Closes and reopens the app with local Pong": {
+                              "target": "#Pong: Local Pong ready"
+                            },
+                            "Returns to Pong choices": {
+                              "target": "#Pong: Pong choices"
+                            }
+                          }
+                        },
+                        "Pong: Local Pong under way": {
+                          "id": "Pong: Local Pong under way",
+                          "meta": {
+                            "description": "Local Pong is under way on this device. Against another person each guides their own paddle; against a Pong bot the person guides only the left paddle. A connection change or reopening the app keeps every point.",
+                            "snapshot": "Local Pong is under way on this device. Against another person each guides their own paddle; against a Pong bot the person guides only the left paddle. A connection change or reopening the app keeps every point.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/pong/pong-local-play.feature",
+                              "specs/pong/pong-local-play.qnt",
+                              "specs/pong/pong-scoring.feature",
+                              "specs/pong/pong-scoring.qnt"
+                            ],
+                            "events": []
+                          },
+                          "initial": "Pong: Counting down for a serve",
+                          "states": {
+                            "Pong: Counting down for a serve": {
+                              "id": "Pong: Counting down for a serve",
+                              "meta": {
+                                "description": "Pong counts down before each serve. The countdown ends with a serve and awards no point.",
+                                "snapshot": "Pong counts down before each serve. The countdown ends with a serve and awards no point.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/pong/pong-scoring.feature",
+                                  "specs/pong/pong-scoring.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "The Pong countdown ends": {
+                                  "target": "#Pong: Ball in play"
+                                },
+                                "Loses the connection with local Pong": {
+                                  "target": "#Pong: Counting down for a serve"
+                                },
+                                "The connection comes back with local Pong": {
+                                  "target": "#Pong: Counting down for a serve"
+                                },
+                                "Closes and reopens the app with local Pong": {
+                                  "target": "#Pong: Counting down for a serve"
+                                }
+                              }
+                            },
+                            "Pong: Ball in play": {
+                              "id": "Pong: Ball in play",
+                              "meta": {
+                                "description": "The ball is in play. A ball passing a paddle awards one point to the other person and Pong counts down for the next serve.",
+                                "snapshot": "The ball is in play. A ball passing a paddle awards one point to the other person and Pong counts down for the next serve.",
+                                "confidence": "assumed",
+                                "source": [
+                                  "specs/pong/pong-scoring.feature",
+                                  "specs/pong/pong-scoring.qnt",
+                                  "specs/pong/pong-local-play.feature",
+                                  "specs/pong/pong-local-play.qnt"
+                                ],
+                                "events": []
+                              },
+                              "on": {
+                                "The ball passes a paddle before the target score": {
+                                  "target": "#Pong: Counting down for a serve"
+                                },
+                                "The ball passes a paddle for the final point": {
+                                  "target": "#Pong: Local Pong finished"
+                                },
+                                "Loses the connection with local Pong": {
+                                  "target": "#Pong: Ball in play"
+                                },
+                                "The connection comes back with local Pong": {
+                                  "target": "#Pong: Ball in play"
+                                },
+                                "Closes and reopens the app with local Pong": {
+                                  "target": "#Pong: Ball in play"
+                                }
+                              }
+                            }
+                          },
+                          "on": {
+                            "Returns to Pong choices": {
+                              "target": "#Pong: Pong choices"
+                            }
+                          }
+                        },
+                        "Pong: Local Pong finished": {
+                          "id": "Pong: Local Pong finished",
+                          "meta": {
+                            "description": "The first to reach the target score wins local Pong, against a Pong bot too without a connection. The ball has stopped, neither paddle can be guided, and the score never changes, after reopening the app too.",
+                            "snapshot": "The first to reach the target score wins local Pong, against a Pong bot too without a connection. The ball has stopped, neither paddle can be guided, and the score never changes, after reopening the app too.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/pong/pong-scoring.feature",
+                              "specs/pong/pong-scoring.qnt",
+                              "specs/pong/pong-local-play.feature",
+                              "specs/pong/pong-local-play.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Seconds pass after Pong finishes": {
+                              "target": "#Pong: Local Pong finished"
+                            },
+                            "Loses the connection with local Pong": {
+                              "target": "#Pong: Local Pong finished"
+                            },
+                            "The connection comes back with local Pong": {
+                              "target": "#Pong: Local Pong finished"
+                            },
+                            "Closes and reopens the app with local Pong": {
+                              "target": "#Pong: Local Pong finished"
+                            },
+                            "Returns to Pong choices": {
+                              "target": "#Pong: Pong choices"
+                            }
+                          }
+                        },
+                        "Pong: Watching Pong": {
+                          "id": "Pong: Watching Pong",
+                          "meta": {
+                            "description": "A person in the space with no paddle sees the current court, of local Pong or of Pong played from separate devices, without controlling either paddle and without a move list.",
+                            "snapshot": "A person in the space with no paddle sees the current court, of local Pong or of Pong played from separate devices, without controlling either paddle and without a move list.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/pong/pong-local-watch.feature",
+                              "specs/pong/pong-local-play.qnt",
+                              "specs/pong/pong-shared-control.feature",
+                              "specs/pong/pong-shared-control.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Tries to guide a paddle without one": {
+                              "target": "#Pong: Watcher cannot guide a paddle"
+                            },
+                            "The watcher loses the connection": {
+                              "target": "#Pong: Earlier court kept"
+                            },
+                            "Returns to Pong choices": {
+                              "target": "#Pong: Pong choices"
+                            }
+                          }
+                        },
+                        "Pong: Watcher cannot guide a paddle": {
+                          "id": "Pong: Watcher cannot guide a paddle",
+                          "meta": {
+                            "description": "The watcher cannot guide either paddle because neither belongs to them; the court is unchanged.",
+                            "snapshot": "The watcher cannot guide either paddle because neither belongs to them; the court is unchanged.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/pong/pong-local-watch.feature",
+                              "specs/pong/pong-shared-control.feature",
+                              "specs/pong/pong-shared-control.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Returns to watching Pong": {
+                              "target": "#Pong: Watching Pong"
+                            }
+                          }
+                        },
+                        "Pong: Earlier court kept": {
+                          "id": "Pong: Earlier court kept",
+                          "meta": {
+                            "description": "Without a connection, the watcher keeps the court last shown on their device while play goes on. When the connection returns they see the current court, still without a paddle.",
+                            "snapshot": "Without a connection, the watcher keeps the court last shown on their device while play goes on. When the connection returns they see the current court, still without a paddle.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/pong/pong-local-watch.feature",
+                              "specs/pong/pong-local-play.qnt",
+                              "specs/pong/pong-shared-control.feature",
+                              "specs/pong/pong-shared-control.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "The watcher's connection returns": {
+                              "target": "#Pong: Watching Pong"
+                            }
+                          }
+                        },
+                        "Pong: Finding a Pong opponent": {
+                          "id": "Pong: Finding a Pong opponent",
+                          "meta": {
+                            "description": "A person with an account seeks an opponent for Pong. Pong offers no clock choice, so the search shows only how long the person has waited; seeking again keeps the same search.",
+                            "snapshot": "A person with an account seeks an opponent for Pong. Pong offers no clock choice, so the search shows only how long the person has waited; seeking again keeps the same search.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/games/finding-an-opponent-without-a-clock.feature",
+                              "specs/games/opponent-search.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Seconds pass while seeking a Pong opponent": {
+                              "target": "#Pong: Finding a Pong opponent"
+                            },
+                            "Stops seeking a Pong opponent": {
+                              "target": "#Pong: Pong choices"
+                            },
+                            "Pairs people up for Pong": {
+                              "target": "#Pong: Paired for Pong"
+                            },
+                            "Loses the connection while seeking a Pong opponent": {
+                              "target": "#Pong: Last known Pong search"
+                            }
+                          }
+                        },
+                        "Pong: Last known Pong search": {
+                          "id": "Pong: Last known Pong search",
+                          "meta": {
+                            "description": "Without a connection, the person keeps the search they were shown and is told finding an opponent needs a connection. Coming back online shows the same search, or the matched game agreed while they were away.",
+                            "snapshot": "Without a connection, the person keeps the search they were shown and is told finding an opponent needs a connection. Coming back online shows the same search, or the matched game agreed while they were away.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/games/finding-an-opponent-without-a-clock.feature",
+                              "specs/games/opponent-search.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Comes back online with nobody paired for Pong": {
+                              "target": "#Pong: Finding a Pong opponent"
+                            },
+                            "Comes back online to a Pong game agreed while away": {
+                              "target": "#Pong: Paired for Pong"
+                            }
+                          }
+                        },
+                        "Pong: Paired for Pong": {
+                          "id": "Pong: Paired for Pong",
+                          "meta": {
+                            "description": "The pair see each other's Pong rating and their sides, with no clock choice. Before play begins either may abort with no result. A Synthetic User opponent is identified as automated, a person never is.",
+                            "snapshot": "The pair see each other's Pong rating and their sides, with no clock choice. Before play begins either may abort with no result. A Synthetic User opponent is identified as automated, a person never is.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/games/finding-an-opponent-without-a-clock.feature",
+                              "specs/games/opponent-search.qnt",
+                              "specs/games/matched-game-without-turns.feature",
+                              "specs/games/matched-game-ending.qnt",
+                              "specs/synthetic-population/recognizing-synthetic-users.feature",
+                              "specs/synthetic-population/recognizing-synthetic-users.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Aborts Pong before play begins": {
+                              "target": "#Pong: Aborted Pong"
+                            },
+                            "Resigns Pong before play begins": {
+                              "target": "#Pong: Resigning needs play under way"
+                            },
+                            "Tries to abort Pong without a connection": {
+                              "target": "#Pong: Aborting needs a connection"
+                            },
+                            "Pong play begins": {
+                              "target": "#Pong: Playing Pong from separate devices"
+                            }
+                          }
+                        },
+                        "Pong: Resigning needs play under way": {
+                          "id": "Pong: Resigning needs play under way",
+                          "meta": {
+                            "description": "Resigning before play begins is refused, and the person is told to abort instead.",
+                            "snapshot": "Resigning before play begins is refused, and the person is told to abort instead.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/games/matched-game-without-turns.feature",
+                              "specs/games/matched-game-ending.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Returns to the paired Pong game": {
+                              "target": "#Pong: Paired for Pong"
+                            }
+                          }
+                        },
+                        "Pong: Aborting needs a connection": {
+                          "id": "Pong: Aborting needs a connection",
+                          "meta": {
+                            "description": "Without a connection, the person keeps the matched game they last saw and cannot abort it until the connection returns.",
+                            "snapshot": "Without a connection, the person keeps the matched game they last saw and cannot abort it until the connection returns.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/games/matched-game-without-turns.feature",
+                              "specs/games/matched-game-ending.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "The connection returns to the paired Pong game": {
+                              "target": "#Pong: Paired for Pong"
+                            }
+                          }
+                        },
+                        "Pong: Playing Pong from separate devices": {
+                          "id": "Pong: Playing Pong from separate devices",
+                          "meta": {
+                            "description": "Each person guides their own paddle between the edges of the court, and both see the same court. Aborting is refused once play is under way; resigning gives the opponent the victory. A Synthetic User opponent keeps playing to a multiplayer result and stays identified as automated.",
+                            "snapshot": "Each person guides their own paddle between the edges of the court, and both see the same court. Aborting is refused once play is under way; resigning gives the opponent the victory. A Synthetic User opponent keeps playing to a multiplayer result and stays identified as automated.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/pong/pong-shared-control.feature",
+                              "specs/pong/pong-shared-control.qnt",
+                              "specs/pong/pong-scoring.feature",
+                              "specs/pong/pong-scoring.qnt",
+                              "specs/games/matched-game-without-turns.feature",
+                              "specs/games/matched-game-ending.qnt",
+                              "specs/synthetic-population/playing-pong.feature",
+                              "specs/synthetic-population/playing-pong.qnt",
+                              "specs/synthetic-population/recognizing-synthetic-users.feature",
+                              "specs/synthetic-population/recognizing-synthetic-users.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Guides their own Pong paddle": {
+                              "target": "#Pong: Playing Pong from separate devices"
+                            },
+                            "Tries to guide the other person's Pong paddle": {
+                              "target": "#Pong: Paddle belongs to the other person"
+                            },
+                            "Aborts Pong after play begins": {
+                              "target": "#Pong: Aborting is over"
+                            },
+                            "Resigns Pong": {
+                              "target": "#Pong: Pong won"
+                            },
+                            "The ball passes a paddle for the final point": {
+                              "target": "#Pong: Pong won"
+                            },
+                            "A Synthetic User opponent plays Pong to its result": {
+                              "target": "#Pong: Pong won"
+                            },
+                            "A player loses the connection during Pong": {
+                              "target": "#Pong: Paddles wait for the missing player"
+                            },
+                            "A person with no paddle loses the connection": {
+                              "target": "#Pong: Playing Pong from separate devices"
+                            }
+                          }
+                        },
+                        "Pong: Paddle belongs to the other person": {
+                          "id": "Pong: Paddle belongs to the other person",
+                          "meta": {
+                            "description": "The person cannot guide the other person's paddle because it belongs to them; it stays where it was.",
+                            "snapshot": "The person cannot guide the other person's paddle because it belongs to them; it stays where it was.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/pong/pong-shared-control.feature",
+                              "specs/pong/pong-shared-control.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Returns to the Pong court": {
+                              "target": "#Pong: Playing Pong from separate devices"
+                            }
+                          }
+                        },
+                        "Pong: Aborting is over": {
+                          "id": "Pong: Aborting is over",
+                          "meta": {
+                            "description": "Aborting is refused once play is under way; the person may resign instead.",
+                            "snapshot": "Aborting is refused once play is under way; the person may resign instead.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/games/matched-game-without-turns.feature",
+                              "specs/games/matched-game-ending.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Returns to the Pong court": {
+                              "target": "#Pong: Playing Pong from separate devices"
+                            }
+                          }
+                        },
+                        "Pong: Paddles wait for the missing player": {
+                          "id": "Pong: Paddles wait for the missing player",
+                          "meta": {
+                            "description": "While a player has no connection, neither player can guide a paddle. The person without a connection keeps the last court shown, keeps the game unfinished and cannot resign until the connection returns.",
+                            "snapshot": "While a player has no connection, neither player can guide a paddle. The person without a connection keeps the last court shown, keeps the game unfinished and cannot resign until the connection returns.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/pong/pong-shared-control.feature",
+                              "specs/pong/pong-shared-control.qnt",
+                              "specs/games/matched-game-without-turns.feature",
+                              "specs/games/matched-game-ending.qnt",
+                              "specs/synthetic-population/playing-pong.feature",
+                              "specs/synthetic-population/playing-pong.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Tries to resign Pong without a connection": {
+                              "target": "#Pong: Paddles wait for the missing player"
+                            },
+                            "The missing player returns to Pong": {
+                              "target": "#Pong: Playing Pong from separate devices"
+                            },
+                            "Returns to see the opponent's accepted resignation": {
+                              "target": "#Pong: Pong won"
+                            }
+                          }
+                        },
+                        "Pong: Pong won": {
+                          "id": "Pong: Pong won",
+                          "meta": {
+                            "description": "Pong is won by the first to the target score or by the opponent of a person who resigned. The result lasts: time passing adds no point, aborting or resigning again changes nothing, and either person may offer a rematch.",
+                            "snapshot": "Pong is won by the first to the target score or by the opponent of a person who resigned. The result lasts: time passing adds no point, aborting or resigning again changes nothing, and either person may offer a rematch.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/pong/pong-scoring.feature",
+                              "specs/pong/pong-scoring.qnt",
+                              "specs/games/matched-game-without-turns.feature",
+                              "specs/games/matched-game-ending.qnt",
+                              "specs/synthetic-population/playing-pong.feature",
+                              "specs/synthetic-population/playing-pong.qnt",
+                              "specs/journeys/pong-game.feature"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Seconds pass after Pong finishes": {
+                              "target": "#Pong: Pong won"
+                            },
+                            "Tries to end a finished Pong game again": {
+                              "target": "#Pong: Pong won"
+                            },
+                            "Offers a Pong rematch": {
+                              "target": "#Pong: Pong rematch offered"
+                            },
+                            "Returns to Pong choices": {
+                              "target": "#Pong: Pong choices"
+                            }
+                          }
+                        },
+                        "Pong: Aborted Pong": {
+                          "id": "Pong: Aborted Pong",
+                          "meta": {
+                            "description": "An aborted Pong game has no result and stays aborted: aborting again changes nothing and it cannot be resigned.",
+                            "snapshot": "An aborted Pong game has no result and stays aborted: aborting again changes nothing and it cannot be resigned.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/games/matched-game-without-turns.feature",
+                              "specs/games/matched-game-ending.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Tries to end a finished Pong game again": {
+                              "target": "#Pong: Aborted Pong"
+                            },
+                            "Returns to Pong choices": {
+                              "target": "#Pong: Pong choices"
+                            }
+                          }
+                        },
+                        "Pong: Pong rematch offered": {
+                          "id": "Pong: Pong rematch offered",
+                          "meta": {
+                            "description": "Accepting the rematch starts a new Pong game with the paddles swapped, both scores at zero and the same target score.",
+                            "snapshot": "Accepting the rematch starts a new Pong game with the paddles swapped, both scores at zero and the same target score.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/journeys/pong-game.feature",
+                              "specs/pong/pong-scoring.feature",
+                              "specs/pong/pong-scoring.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Accepts the Pong rematch": {
+                              "target": "#Pong: Playing Pong from separate devices"
+                            },
+                            "Returns to Pong choices": {
+                              "target": "#Pong: Pong choices"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "Games: Numberlink": {
+                      "id": "Games: Numberlink",
+                      "meta": {
+                        "description": "Numberlink offers published Numberlink puzzles and packs and authoring a person’s own. A person joins each matching pair of endpoints with a continuous path, and completion follows the puzzle’s chosen coverage.",
+                        "snapshot": "Numberlink offers published Numberlink puzzles and packs and authoring a person’s own. A person joins each matching pair of endpoints with a continuous path, and completion follows the puzzle’s chosen coverage.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/numberlink/draw-paths.feature",
+                          "specs/numberlink/complete-and-edit.feature",
+                          "specs/numberlink/ubiquitous-language.yml",
+                          "specs/journeys/numberlink-packs.feature",
+                          "specs/puzzles/ubiquitous-language.yml"
+                        ],
+                        "events": []
+                      },
+                      "initial": "Numberlink: Numberlink choices",
+                      "states": {
+                        "Numberlink: Numberlink choices": {
+                          "id": "Numberlink: Numberlink choices",
+                          "meta": {
+                            "description": "Numberlink offers published Numberlink puzzles and packs, and authoring a person’s own.",
+                            "snapshot": "Numberlink offers published Numberlink puzzles and packs, and authoring a person’s own.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/numberlink/ubiquitous-language.yml",
+                              "specs/journeys/numberlink-packs.feature"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Starts a Numberlink puzzle": {
+                              "target": "#Numberlink: Drawing paths"
+                            },
+                            "Opens Numberlink puzzles and packs": {
+                              "target": "#Puzzles: Puzzle library"
+                            },
+                            "Returns to the game choice": {
+                              "target": "#Games: Choose a game"
+                            },
+                            "Opens puzzle authoring": {
+                              "target": "#Games: Puzzle content"
+                            }
+                          }
+                        },
+                        "Numberlink: Drawing paths": {
+                          "id": "Numberlink: Drawing paths",
+                          "meta": {
+                            "description": "A path starts at either matching endpoint and joins neighboring cells horizontally or vertically. It never revisits a cell, overlaps another path or passes another pair's endpoint, and it ends at its matching endpoint. Redrawing or removing one path keeps the others; clearing the board keeps every endpoint and the chosen coverage.",
+                            "snapshot": "A path starts at either matching endpoint and joins neighboring cells horizontally or vertically. It never revisits a cell, overlaps another path or passes another pair's endpoint, and it ends at its matching endpoint. Redrawing or removing one path keeps the others; clearing the board keeps every endpoint and the chosen coverage.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/numberlink/draw-paths.feature",
+                              "specs/numberlink/complete-and-edit.feature"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Draws a Numberlink path": {
+                              "target": "#Numberlink: Drawing paths"
+                            },
+                            "Removes a Numberlink path": {
+                              "target": "#Numberlink: Drawing paths"
+                            },
+                            "Clears the Numberlink board": {
+                              "target": "#Numberlink: Drawing paths"
+                            },
+                            "Draws a path the Numberlink rules refuse": {
+                              "target": "#Numberlink: Path refused"
+                            },
+                            "Connects the last pair the coverage needs": {
+                              "target": "#Numberlink: Numberlink puzzle complete"
+                            },
+                            "Returns to Numberlink choices": {
+                              "target": "#Numberlink: Numberlink choices"
+                            }
+                          }
+                        },
+                        "Numberlink: Path refused": {
+                          "id": "Numberlink: Path refused",
+                          "meta": {
+                            "description": "A path cannot start between endpoints, jump over a cell, step diagonally, revisit its own cell, cross another path, pass another pair's endpoint or continue beyond its matching endpoint; the drawing is unchanged.",
+                            "snapshot": "A path cannot start between endpoints, jump over a cell, step diagonally, revisit its own cell, cross another path, pass another pair's endpoint or continue beyond its matching endpoint; the drawing is unchanged.",
+                            "confidence": "assumed",
+                            "source": ["specs/numberlink/draw-paths.feature"],
+                            "events": []
+                          },
+                          "on": {
+                            "Returns to the Numberlink board": {
+                              "target": "#Numberlink: Drawing paths"
+                            }
+                          }
+                        },
+                        "Numberlink: Numberlink puzzle complete": {
+                          "id": "Numberlink: Numberlink puzzle complete",
+                          "meta": {
+                            "description": "With full-board coverage every pair is connected and every cell covered; with endpoint-only coverage every pair is connected and uncovered cells are allowed. A partial drawing never counts as complete.",
+                            "snapshot": "With full-board coverage every pair is connected and every cell covered; with endpoint-only coverage every pair is connected and uncovered cells are allowed. A partial drawing never counts as complete.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/numberlink/complete-and-edit.feature"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Clears the Numberlink board": {
+                              "target": "#Numberlink: Drawing paths"
+                            },
+                            "Opens Numberlink puzzles and packs": {
+                              "target": "#Puzzles: Puzzle library"
+                            },
+                            "Returns to Numberlink choices": {
+                              "target": "#Numberlink: Numberlink choices"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "Games: Puzzle content": {
+                      "id": "Games: Puzzle content",
+                      "meta": {
+                        "description": "Puzzle games share private drafts, validation, playtests, stable published editions, ordered packs, personal attempts and pack progress, for every kind of person and without a connection where the work allows.",
+                        "snapshot": "Puzzle games share private drafts, validation, playtests, stable published editions, ordered packs, personal attempts and pack progress, for every kind of person and without a connection where the work allows.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/puzzles/author-drafts.feature",
+                          "specs/puzzles/author-packs.feature",
+                          "specs/puzzles/edit-draft-history.feature",
+                          "specs/puzzles/keep-attempts.feature",
+                          "specs/puzzles/offline-work.feature",
+                          "specs/puzzles/pack-progression.feature",
+                          "specs/puzzles/playtest-drafts.feature",
+                          "specs/puzzles/publication-recovery.feature",
+                          "specs/puzzles/publish-packs.feature",
+                          "specs/puzzles/publish-puzzles.feature",
+                          "specs/puzzles/draft-editing.qnt",
+                          "specs/puzzles/pack-authoring.qnt",
+                          "specs/puzzles/pack-progression.qnt",
+                          "specs/puzzles/pack-publication.qnt",
+                          "specs/puzzles/publication-recovery.qnt",
+                          "specs/puzzles/puzzle-attempt.qnt",
+                          "specs/puzzles/puzzle-authoring.qnt",
+                          "specs/puzzles/puzzle-publication.qnt",
+                          "specs/puzzles/puzzle-content-access.dmn",
+                          "specs/puzzles/ubiquitous-language.yml",
+                          "specs/journeys/numberlink-packs.feature"
+                        ],
+                        "events": []
+                      },
+                      "initial": "Puzzles: Puzzle library",
+                      "states": {
+                        "Puzzles: Puzzle library": {
+                          "id": "Puzzles: Puzzle library",
+                          "meta": {
+                            "description": "The person discovers the chosen game's published puzzles and packs and reads their own private drafts. Anyone, a guest too, may create a puzzle or pack draft.",
+                            "snapshot": "The person discovers the chosen game's published puzzles and packs and reads their own private drafts. Anyone, a guest too, may create a puzzle or pack draft.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/author-drafts.feature",
+                              "specs/puzzles/publish-puzzles.feature",
+                              "specs/puzzles/publish-packs.feature",
+                              "specs/puzzles/puzzle-content-access.dmn"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Creates a puzzle draft": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            },
+                            "Creates a pack draft": {
+                              "target": "#Puzzles: Pack draft"
+                            },
+                            "Starts a published puzzle": {
+                              "target": "#Puzzles: Playing a puzzle attempt"
+                            },
+                            "Starts a puzzle that is not available": {
+                              "target": "#Puzzles: Puzzle not available"
+                            },
+                            "Opens another person's draft or attempt": {
+                              "target": "#Puzzles: Belongs to someone else"
+                            },
+                            "Opens a published pack": {
+                              "target": "#Puzzles: Pack progress"
+                            },
+                            "Returns to the game choice": {
+                              "target": "#Games: Choose a game"
+                            },
+                            "Returns to Numberlink choices": {
+                              "target": "#Numberlink: Numberlink choices"
+                            }
+                          }
+                        },
+                        "Puzzles: Private puzzle draft": {
+                          "id": "Puzzles: Private puzzle draft",
+                          "meta": {
+                            "description": "A new puzzle belongs to its author and stays private. Saving keeps incomplete work, the title, description and difficulty, with or without a connection. Undo and redo restore draft edits until a different edit replaces the redo choice; reopening keeps the draft with fresh undo and redo choices. Different edits made from an earlier draft on two devices both remain as kept copies.",
+                            "snapshot": "A new puzzle belongs to its author and stays private. Saving keeps incomplete work, the title, description and difficulty, with or without a connection. Undo and redo restore draft edits until a different edit replaces the redo choice; reopening keeps the draft with fresh undo and redo choices. Different edits made from an earlier draft on two devices both remain as kept copies.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/author-drafts.feature",
+                              "specs/puzzles/edit-draft-history.feature",
+                              "specs/puzzles/offline-work.feature",
+                              "specs/puzzles/draft-editing.qnt",
+                              "specs/puzzles/puzzle-authoring.qnt",
+                              "specs/puzzles/puzzle-content-access.dmn"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Saves the puzzle draft": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            },
+                            "Undoes a draft edit": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            },
+                            "Redoes a draft edit": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            },
+                            "Chooses a kept copy of the draft": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            },
+                            "Reopens the puzzle draft": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            },
+                            "Validates a draft with details missing": {
+                              "target": "#Puzzles: Draft needs correcting"
+                            },
+                            "Playtests the puzzle draft": {
+                              "target": "#Puzzles: Playtesting a puzzle draft"
+                            },
+                            "Publishes the validated puzzle draft": {
+                              "target": "#Puzzles: Published puzzle edition"
+                            },
+                            "Publishes a draft missing its title or details": {
+                              "target": "#Puzzles: Publication refused"
+                            },
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            }
+                          }
+                        },
+                        "Puzzles: Draft needs correcting": {
+                          "id": "Puzzles: Draft needs correcting",
+                          "meta": {
+                            "description": "Validation explains which required puzzle details are missing; the draft is kept as it was.",
+                            "snapshot": "Validation explains which required puzzle details are missing; the draft is kept as it was.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/playtest-drafts.feature",
+                              "specs/puzzles/puzzle-authoring.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Returns to the puzzle draft": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            }
+                          }
+                        },
+                        "Puzzles: Playtesting a puzzle draft": {
+                          "id": "Puzzles: Playtesting a puzzle draft",
+                          "meta": {
+                            "description": "Only the author plays the private draft, with the puzzle's own rules. Completing the playtest leaves ordinary progress unchanged.",
+                            "snapshot": "Only the author plays the private draft, with the puzzle's own rules. Completing the playtest leaves ordinary progress unchanged.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/playtest-drafts.feature",
+                              "specs/puzzles/puzzle-authoring.qnt",
+                              "specs/puzzles/puzzle-content-access.dmn"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Completes the puzzle playtest": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            },
+                            "Leaves the puzzle playtest": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            }
+                          }
+                        },
+                        "Puzzles: Publication refused": {
+                          "id": "Puzzles: Publication refused",
+                          "meta": {
+                            "description": "A missing title or missing puzzle details refuse publication without losing the drawing.",
+                            "snapshot": "A missing title or missing puzzle details refuse publication without losing the drawing.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/publish-puzzles.feature",
+                              "specs/puzzles/puzzle-publication.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Returns to the puzzle draft": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            }
+                          }
+                        },
+                        "Puzzles: Published puzzle edition": {
+                          "id": "Puzzles: Published puzzle edition",
+                          "meta": {
+                            "description": "Other people discover and play the published edition. Draft edits do not change it until the author republishes; publishing the same saved draft again keeps one edition, and an earlier publication cannot replace a later one.",
+                            "snapshot": "Other people discover and play the published edition. Draft edits do not change it until the author republishes; publishing the same saved draft again keeps one edition, and an earlier publication cannot replace a later one.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/publish-puzzles.feature",
+                              "specs/puzzles/puzzle-publication.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Edits the draft of a published puzzle": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            },
+                            "Publishes the same saved draft again": {
+                              "target": "#Puzzles: Published puzzle edition"
+                            },
+                            "Withdraws the published puzzle": {
+                              "target": "#Puzzles: Withdrawn puzzle"
+                            },
+                            "Adds the published puzzle to a pack": {
+                              "target": "#Puzzles: Pack draft"
+                            },
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            }
+                          }
+                        },
+                        "Puzzles: Withdrawn puzzle": {
+                          "id": "Puzzles: Withdrawn puzzle",
+                          "meta": {
+                            "description": "Only the author withdraws a puzzle. It is no longer discovered and cannot enter a newly published pack, while saved attempts stay playable. Repeating an earlier publication cannot undo withdrawal; a new valid draft can be published.",
+                            "snapshot": "Only the author withdraws a puzzle. It is no longer discovered and cannot enter a newly published pack, while saved attempts stay playable. Repeating an earlier publication cannot undo withdrawal; a new valid draft can be published.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/publish-puzzles.feature",
+                              "specs/puzzles/publish-packs.feature",
+                              "specs/puzzles/keep-attempts.feature",
+                              "specs/puzzles/puzzle-publication.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Publishes a new valid draft": {
+                              "target": "#Puzzles: Published puzzle edition"
+                            },
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            }
+                          }
+                        },
+                        "Puzzles: Belongs to someone else": {
+                          "id": "Puzzles: Belongs to someone else",
+                          "meta": {
+                            "description": "Another person's draft, pack or attempt stays theirs alone: the person is told it belongs to someone else and cannot change, choose a kept copy of, playtest, publish, withdraw or read it.",
+                            "snapshot": "Another person's draft, pack or attempt stays theirs alone: the person is told it belongs to someone else and cannot change, choose a kept copy of, playtest, publish, withdraw or read it.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/author-drafts.feature",
+                              "specs/puzzles/playtest-drafts.feature",
+                              "specs/puzzles/publish-puzzles.feature",
+                              "specs/puzzles/publish-packs.feature",
+                              "specs/puzzles/keep-attempts.feature",
+                              "specs/puzzles/puzzle-content-access.dmn"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            }
+                          }
+                        },
+                        "Puzzles: Puzzle not available": {
+                          "id": "Puzzles: Puzzle not available",
+                          "meta": {
+                            "description": "A private draft cannot be started as a public puzzle, and a puzzle never available on the device without a connection explains how to continue.",
+                            "snapshot": "A private draft cannot be started as a public puzzle, and a puzzle never available on the device without a connection explains how to continue.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/keep-attempts.feature",
+                              "specs/puzzles/offline-work.feature",
+                              "specs/puzzles/puzzle-attempt.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            }
+                          }
+                        },
+                        "Puzzles: Playing a puzzle attempt": {
+                          "id": "Puzzles: Playing a puzzle attempt",
+                          "meta": {
+                            "description": "Starting a published puzzle creates the person's own attempt at its chosen edition. Accepted play is kept automatically and resumes at the same position after reopening the app, on another device and without a connection; undo and redo follow the game's history; restarting begins another attempt and keeps earlier attempts and completion. Later publication and withdrawal keep the attempt at its edition, and different continuations on two devices are both kept.",
+                            "snapshot": "Starting a published puzzle creates the person's own attempt at its chosen edition. Accepted play is kept automatically and resumes at the same position after reopening the app, on another device and without a connection; undo and redo follow the game's history; restarting begins another attempt and keeps earlier attempts and completion. Later publication and withdrawal keep the attempt at its edition, and different continuations on two devices are both kept.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/keep-attempts.feature",
+                              "specs/puzzles/offline-work.feature",
+                              "specs/puzzles/puzzle-attempt.qnt",
+                              "specs/puzzles/pack-progression.feature",
+                              "specs/puzzles/pack-progression.qnt",
+                              "specs/journeys/numberlink-packs.feature"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Plays on in the puzzle attempt": {
+                              "target": "#Puzzles: Playing a puzzle attempt"
+                            },
+                            "Undoes in the puzzle attempt": {
+                              "target": "#Puzzles: Playing a puzzle attempt"
+                            },
+                            "Redoes in the puzzle attempt": {
+                              "target": "#Puzzles: Playing a puzzle attempt"
+                            },
+                            "Restarts the puzzle attempt": {
+                              "target": "#Puzzles: Playing a puzzle attempt"
+                            },
+                            "Resumes an earlier puzzle attempt": {
+                              "target": "#Puzzles: Playing a puzzle attempt"
+                            },
+                            "Reopens the app with an unfinished attempt": {
+                              "target": "#Puzzles: Playing a puzzle attempt"
+                            },
+                            "Completes a puzzle of the pack": {
+                              "target": "#Puzzles: Pack progress"
+                            },
+                            "Completes the last unfinished puzzle of the pack": {
+                              "target": "#Puzzles: Pack complete"
+                            },
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            }
+                          }
+                        },
+                        "Puzzles: Pack progress": {
+                          "id": "Puzzles: Pack progress",
+                          "meta": {
+                            "description": "A pack reports each chosen puzzle edition's progress, counting a completed puzzle once. Continuing returns to the last active unfinished puzzle, and puzzles may be played in any order.",
+                            "snapshot": "A pack reports each chosen puzzle edition's progress, counting a completed puzzle once. Continuing returns to the last active unfinished puzzle, and puzzles may be played in any order.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/pack-progression.feature",
+                              "specs/puzzles/pack-progression.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Continues the pack": {
+                              "target": "#Puzzles: Playing a puzzle attempt"
+                            },
+                            "Starts a later puzzle of the pack": {
+                              "target": "#Puzzles: Playing a puzzle attempt"
+                            },
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            }
+                          }
+                        },
+                        "Puzzles: Pack complete": {
+                          "id": "Puzzles: Pack complete",
+                          "meta": {
+                            "description": "Completing every chosen edition completes the pack, so it offers no unfinished puzzle to continue; repeating a completed puzzle never increases its completion count.",
+                            "snapshot": "Completing every chosen edition completes the pack, so it offers no unfinished puzzle to continue; repeating a completed puzzle never increases its completion count.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/pack-progression.feature",
+                              "specs/puzzles/pack-progression.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Repeats a completed puzzle of the pack": {
+                              "target": "#Puzzles: Playing a puzzle attempt"
+                            },
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            }
+                          }
+                        },
+                        "Puzzles: Pack draft": {
+                          "id": "Puzzles: Pack draft",
+                          "meta": {
+                            "description": "A pack keeps an ordered collection of distinct puzzles of its game. Adding appends a published puzzle once; reordering or removing changes only the working pack; a new puzzle can be authored from the pack. Pack edits undo and redo, with or without a connection, and different orders saved on two devices both remain.",
+                            "snapshot": "A pack keeps an ordered collection of distinct puzzles of its game. Adding appends a published puzzle once; reordering or removing changes only the working pack; a new puzzle can be authored from the pack. Pack edits undo and redo, with or without a connection, and different orders saved on two devices both remain.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/author-packs.feature",
+                              "specs/puzzles/pack-authoring.qnt",
+                              "specs/puzzles/edit-draft-history.feature",
+                              "specs/puzzles/offline-work.feature",
+                              "specs/puzzles/puzzle-content-access.dmn"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Adds a published puzzle to the pack": {
+                              "target": "#Puzzles: Pack draft"
+                            },
+                            "Reorders the pack's puzzles": {
+                              "target": "#Puzzles: Pack draft"
+                            },
+                            "Removes a puzzle from the pack": {
+                              "target": "#Puzzles: Pack draft"
+                            },
+                            "Undoes a draft edit": {
+                              "target": "#Puzzles: Pack draft"
+                            },
+                            "Redoes a draft edit": {
+                              "target": "#Puzzles: Pack draft"
+                            },
+                            "Adds a puzzle of another game to the pack": {
+                              "target": "#Puzzles: Pack change refused"
+                            },
+                            "Authors a new puzzle from the pack": {
+                              "target": "#Puzzles: Private puzzle draft"
+                            },
+                            "Publishes the pack": {
+                              "target": "#Puzzles: Published pack"
+                            },
+                            "Publishes a pack that cannot be published": {
+                              "target": "#Puzzles: Pack publication refused"
+                            },
+                            "Publishes the pack without a connection": {
+                              "target": "#Puzzles: Pack publication waiting"
+                            },
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            }
+                          }
+                        },
+                        "Puzzles: Pack change refused": {
+                          "id": "Puzzles: Pack change refused",
+                          "meta": {
+                            "description": "A puzzle of another game cannot enter the pack; the pack is unchanged.",
+                            "snapshot": "A puzzle of another game cannot enter the pack; the pack is unchanged.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/author-packs.feature",
+                              "specs/puzzles/pack-authoring.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Returns to the pack draft": {
+                              "target": "#Puzzles: Pack draft"
+                            }
+                          }
+                        },
+                        "Puzzles: Pack publication refused": {
+                          "id": "Puzzles: Pack publication refused",
+                          "meta": {
+                            "description": "An empty pack, an unpublished puzzle or a withdrawn puzzle keeps the pack a private draft, with the explanation kept after reopening. Correcting the puzzle never publishes the refused pack on its own; the author publishes again.",
+                            "snapshot": "An empty pack, an unpublished puzzle or a withdrawn puzzle keeps the pack a private draft, with the explanation kept after reopening. Correcting the puzzle never publishes the refused pack on its own; the author publishes again.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/publish-packs.feature",
+                              "specs/puzzles/publication-recovery.feature",
+                              "specs/puzzles/publication-recovery.qnt",
+                              "specs/puzzles/pack-publication.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Reopens the refused pack": {
+                              "target": "#Puzzles: Pack publication refused"
+                            },
+                            "Returns to the pack draft": {
+                              "target": "#Puzzles: Pack draft"
+                            }
+                          }
+                        },
+                        "Puzzles: Pack publication waiting": {
+                          "id": "Puzzles: Pack publication waiting",
+                          "meta": {
+                            "description": "A private pack chosen for publication without a connection waits without losing its draft; publishing again or reopening keeps it waiting and private. When the connection returns it is published only if its chosen puzzles are still available.",
+                            "snapshot": "A private pack chosen for publication without a connection waits without losing its draft; publishing again or reopening keeps it waiting and private. When the connection returns it is published only if its chosen puzzles are still available.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/publication-recovery.feature",
+                              "specs/puzzles/publication-recovery.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Publishes the pack without a connection": {
+                              "target": "#Puzzles: Pack publication waiting"
+                            },
+                            "Reopens the app with a waiting pack": {
+                              "target": "#Puzzles: Pack publication waiting"
+                            },
+                            "The connection returns with the pack's puzzles available": {
+                              "target": "#Puzzles: Published pack"
+                            },
+                            "The connection returns after a chosen puzzle was withdrawn": {
+                              "target": "#Puzzles: Pack publication refused"
+                            }
+                          }
+                        },
+                        "Puzzles: Published pack": {
+                          "id": "Puzzles: Published pack",
+                          "meta": {
+                            "description": "The pack is discovered with its ordered puzzles and keeps its chosen editions: revising or withdrawing a puzzle and reordering the working draft leave it unchanged until the author republishes. Publishing the same saved pack draft again keeps one edition.",
+                            "snapshot": "The pack is discovered with its ordered puzzles and keeps its chosen editions: revising or withdrawing a puzzle and reordering the working draft leave it unchanged until the author republishes. Publishing the same saved pack draft again keeps one edition.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/publish-packs.feature",
+                              "specs/puzzles/pack-publication.qnt",
+                              "specs/puzzles/publication-recovery.feature",
+                              "specs/journeys/numberlink-packs.feature"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Reorders the pack's puzzles": {
+                              "target": "#Puzzles: Pack draft"
+                            },
+                            "Publishes the same pack draft again": {
+                              "target": "#Puzzles: Published pack"
+                            },
+                            "Withdraws the pack": {
+                              "target": "#Puzzles: Withdrawn pack"
+                            },
+                            "Opens a published pack": {
+                              "target": "#Puzzles: Pack progress"
+                            },
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            }
+                          }
+                        },
+                        "Puzzles: Withdrawn pack": {
+                          "id": "Puzzles: Withdrawn pack",
+                          "meta": {
+                            "description": "Only the author withdraws a pack. It is hidden without erasing a saved attempt, and repeating its publication cannot undo withdrawal.",
+                            "snapshot": "Only the author withdraws a pack. It is hidden without erasing a saved attempt, and repeating its publication cannot undo withdrawal.",
+                            "confidence": "assumed",
+                            "source": [
+                              "specs/puzzles/publish-packs.feature",
+                              "specs/puzzles/pack-publication.qnt"
+                            ],
+                            "events": []
+                          },
+                          "on": {
+                            "Returns to the puzzle library": {
+                              "target": "#Puzzles: Puzzle library"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "Games: Word Tiles choices": {
+                      "id": "Games: Word Tiles choices",
+                      "meta": {
+                        "description": "Word Tiles offers custom games for two to four, an opponent for two, instructions, history, replay and one-move challenges, as every game does, each player seeing only their own rack.",
+                        "snapshot": "Word Tiles offers custom games for two to four, an opponent for two, instructions, history, replay and one-move challenges, as every game does, each player seeing only their own rack.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/word-tiles/word-tiles-words.feature",
+                          "specs/word-tiles/word-tiles-scores.feature",
+                          "specs/word-tiles/word-tiles-turns.feature",
+                          "specs/word-tiles/word-tiles-racks.feature",
+                          "specs/word-tiles/word-tiles-endings.feature",
+                          "specs/word-tiles/word-tiles-challenges.feature",
+                          "specs/word-tiles/ubiquitous-language.yml",
+                          "specs/games/custom-games.feature",
+                          "specs/games/custom-game-offline.feature",
+                          "specs/games/finding-an-opponent.feature",
+                          "specs/games/game-history.feature",
+                          "specs/games/game-choices.feature",
+                          "specs/games/game-turns.feature",
+                          "specs/games/multi-seat-games.feature",
+                          "specs/games/ubiquitous-language.yml"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Opens a Word Tiles custom game": {
+                          "target": "#App: Custom game"
+                        },
+                        "Finds a Word Tiles opponent": {
+                          "target": "#App: Multiplayer"
+                        },
+                        "Reviews a Word Tiles game": {
+                          "target": "#Custom Game: Reviewing"
+                        },
+                        "Returns to the game choice": {
+                          "target": "#Games: Choose a game"
+                        }
+                      }
+                    },
                     "Games: Hearts choices": {
                       "id": "Games: Hearts choices",
                       "meta": {
@@ -5065,40 +6469,6 @@
                         },
                         "Reviews a Hearts game": {
                           "target": "#Custom Game: Reviewing"
-                        },
-                        "Returns to the game choice": {
-                          "target": "#Games: Choose a game"
-                        }
-                      }
-                    },
-                    "Games: Pong choices": {
-                      "id": "Games: Pong choices",
-                      "meta": {
-                        "description": "Pong offers custom games against a person or a bot, finding an opponent without choosing a clock, and play on one device. Each person guides their own paddle, and the first to reach the target score wins.",
-                        "snapshot": "Pong offers custom games against a person or a bot, finding an opponent without choosing a clock, and play on one device. Each person guides their own paddle, and the first to reach the target score wins.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/pong/pong-local-play.feature",
-                          "specs/pong/pong-local-play.qnt",
-                          "specs/pong/pong-local-watch.feature",
-                          "specs/pong/pong-scoring.feature",
-                          "specs/pong/pong-scoring.qnt",
-                          "specs/pong/pong-shared-control.feature",
-                          "specs/pong/pong-shared-control.qnt",
-                          "specs/pong/ubiquitous-language.yml",
-                          "specs/journeys/pong-game.feature",
-                          "specs/games/game-choices.feature",
-                          "specs/games/game-history.feature",
-                          "specs/games/ubiquitous-language.yml"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Opens a Pong custom game": {
-                          "target": "#App: Custom game"
-                        },
-                        "Finds a Pong opponent": {
-                          "target": "#App: Multiplayer"
                         },
                         "Returns to the game choice": {
                           "target": "#Games: Choose a game"
@@ -5213,69 +6583,6 @@
                         },
                         "Returns to the game choice": {
                           "target": "#Games: Choose a game"
-                        }
-                      }
-                    },
-                    "Games: Numberlink choices": {
-                      "id": "Games: Numberlink choices",
-                      "meta": {
-                        "description": "Numberlink offers published puzzles and packs. A person draws paths joining each matching pair of numbers, keeps their place in every puzzle and pack, and continues a pack where they left off.",
-                        "snapshot": "Numberlink offers published puzzles and packs. A person draws paths joining each matching pair of numbers, keeps their place in every puzzle and pack, and continues a pack where they left off.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/numberlink/draw-paths.feature",
-                          "specs/numberlink/complete-and-edit.feature",
-                          "specs/numberlink/ubiquitous-language.yml",
-                          "specs/journeys/numberlink-packs.feature",
-                          "specs/puzzles/keep-attempts.feature",
-                          "specs/puzzles/pack-progression.feature",
-                          "specs/puzzles/pack-progression.qnt",
-                          "specs/puzzles/puzzle-attempt.qnt",
-                          "specs/puzzles/ubiquitous-language.yml",
-                          "specs/games/game-choices.feature",
-                          "specs/games/game-history.feature",
-                          "specs/games/ubiquitous-language.yml"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Opens puzzle authoring": {
-                          "target": "#Games: Puzzle authoring"
-                        },
-                        "Returns to the game choice": {
-                          "target": "#Games: Choose a game"
-                        }
-                      }
-                    },
-                    "Games: Puzzle authoring": {
-                      "id": "Games: Puzzle authoring",
-                      "meta": {
-                        "description": "An author creates private puzzle drafts and packs, undoes and redoes edits, playtests a draft with its real rules, and publishes puzzles and packs as stable editions. Drafts are kept without a connection, and a publication that cannot go ahead keeps the pack.",
-                        "snapshot": "An author creates private puzzle drafts and packs, undoes and redoes edits, playtests a draft with its real rules, and publishes puzzles and packs as stable editions. Drafts are kept without a connection, and a publication that cannot go ahead keeps the pack.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/puzzles/author-drafts.feature",
-                          "specs/puzzles/author-packs.feature",
-                          "specs/puzzles/edit-draft-history.feature",
-                          "specs/puzzles/draft-editing.qnt",
-                          "specs/puzzles/offline-work.feature",
-                          "specs/puzzles/playtest-drafts.feature",
-                          "specs/puzzles/publish-puzzles.feature",
-                          "specs/puzzles/publish-packs.feature",
-                          "specs/puzzles/publication-recovery.feature",
-                          "specs/puzzles/publication-recovery.qnt",
-                          "specs/puzzles/puzzle-authoring.qnt",
-                          "specs/puzzles/pack-authoring.qnt",
-                          "specs/puzzles/puzzle-publication.qnt",
-                          "specs/puzzles/pack-publication.qnt",
-                          "specs/puzzles/puzzle-content-access.dmn",
-                          "specs/puzzles/ubiquitous-language.yml"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Returns to Numberlink choices": {
-                          "target": "#Games: Numberlink choices"
                         }
                       }
                     }

@@ -8,20 +8,29 @@ import {
   givenGameSpace,
   openFindingAnOpponent,
 } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
+import { defaultMatchChoice } from '@libs/game-matchmaking-shared-ts/match-choice';
 import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import type { MeasureContext } from '@pkgs/openslo-shared-ts/registry';
 import { bindObjectives } from '@pkgs/openslo-shared-ts/registry';
+import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { gamesHeldTo, openConformanceHarness } from '../conformance-world';
-
-/** The clock choice both people seek at. */
-const CLOCK_CHOICE = '5+0';
 
 /**
  * The time, in `game`, from the second person seeking an opponent at the
- * same clock choice until both see their one matched game ready to play.
+ * same match choice (the game's default, a clock only where it offers
+ * clocks) until both see their one matched game ready to play: unplayed,
+ * with the first side to move where the game takes turns.
  */
 async function gameReadyTime(game: HarnessGame, endMs: number) {
+  const matchmaking = game.shared.registration.capabilities.matchmaking;
+  if (matchmaking === undefined)
+    throw new Error(`${game.label} offers no finding an opponent`);
+  // regression: games-bindings-assume-clocked-turn-games
+  const choice = defaultMatchChoice(matchmaking);
+  const rules = createTurnGames([game.shared.registration]);
+  const turns =
+    rules.turnsForPosition(rules.forControl(choice).initial()) !== undefined;
   await using s = await openConformanceHarness(
     `matched-game-ready-objective-${game.shared.id}`
   );
@@ -30,9 +39,9 @@ async function gameReadyTime(game: HarnessGame, endMs: number) {
     await s.apply(givenGameSpace, actor);
     await s.apply(openFindingAnOpponent, actor, game.shared.id);
   }
-  await s.apply(requestGameOpponent, 'alice', CLOCK_CHOICE);
+  await s.apply(requestGameOpponent, 'alice', choice);
   const beganAtMs = await s.read((world) => world.harness.clock.now());
-  await s.apply(requestGameOpponent, 'bob', CLOCK_CHOICE);
+  await s.apply(requestGameOpponent, 'bob', choice);
   await s.apply(pairGameOpponents);
   await s.until(
     async (world) => {
@@ -43,7 +52,7 @@ async function gameReadyTime(game: HarnessGame, endMs: number) {
         second !== null &&
         JSON.stringify(first) === JSON.stringify(second) &&
         first.white_id !== first.black_id &&
-        first.turn === first.white_id &&
+        first.turn === (turns ? first.white_id : '') &&
         first.revision === 0
       );
     },

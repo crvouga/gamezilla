@@ -20,6 +20,11 @@ import {
   quoridorHillGameShared,
 } from '@libs/quoridor-shared-ts/quoridor-game';
 import { assertGameRegistry } from '@libs/spaces-shared-ts/load-game-plugins';
+import {
+  wordTiles3GameShared,
+  wordTiles4GameShared,
+  wordTilesGameShared,
+} from '@libs/word-tiles-shared-ts/word-tiles-game';
 import { assertGameNamespaceOwner } from './game-namespace-owner';
 
 /**
@@ -35,6 +40,9 @@ export const GAME_DEFINITIONS = [
   numberlinkGameShared,
   quoridorGameShared,
   quoridorHillGameShared,
+  wordTilesGameShared,
+  wordTiles3GameShared,
+  wordTiles4GameShared,
   heartsGameShared,
   pongGameShared,
   lightCyclesDuelShared,

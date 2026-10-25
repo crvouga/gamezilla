@@ -119,6 +119,11 @@ msgstr "{0} no longer signs in to this account."
 msgid "{0} of {1} puzzles completed"
 msgstr "{0} of {1} puzzles completed"
 
+#. placeholder {0}: props.position.scoreless
+#: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
+msgid "{0} of 6 scoreless turns"
+msgstr "{0} of 6 scoreless turns"
+
 #. placeholder {0}: drawName()
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
 msgid "{0} offered you a multiplayer draw."
@@ -153,6 +158,16 @@ msgstr "{0} removed"
 #: libs/game-puzzle-client-ts/src/puzzle-feed-bar.tsx
 msgid "{0} themes"
 msgstr "{0} themes"
+
+#. placeholder {0}: props.position.racks[seat]
+#: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
+msgid "{0} tiles"
+msgstr "{0} tiles"
+
+#. placeholder {0}: props.position.bag
+#: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
+msgid "{0} tiles in the bag"
+msgstr "{0} tiles in the bag"
 
 #. placeholder {0}: riderName(state.result.winner)
 #: libs/light-cycles-client-ts/src/light-cycles-view.tsx
@@ -346,10 +361,6 @@ msgstr "{mins}m ago"
 msgid "{minutes} minutes"
 msgstr "{minutes} minutes"
 
-#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
-msgid "{name} has crashed in this round. Watch until the next round."
-msgstr "{name} has crashed in this round. Watch until the next round."
-
 #: libs/hearts-client-ts/src/hearts-table-view.tsx
 msgid "{name} (you)"
 msgstr "{name} (you)"
@@ -358,9 +369,17 @@ msgstr "{name} (you)"
 msgid "{name} {score}"
 msgstr "{name} {score}"
 
+#: libs/light-cycles-client-ts/src/light-cycles-view.tsx
+msgid "{name} has crashed in this round. Watch until the next round."
+msgstr "{name} has crashed in this round. Watch until the next round."
+
 #: libs/quoridor-client-ts/src/quoridor-game-client.tsx
 msgid "{name} ran out of time. Game drawn."
 msgstr "{name} ran out of time. Game drawn."
+
+#: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
+msgid "{name} ran out of time. The game is a draw."
+msgstr "{name} ran out of time. The game is a draw."
 
 #: libs/battleship-client-ts/src/battleship-copy.tsx
 msgid "{name} sank the whole fleet."
@@ -373,6 +392,15 @@ msgstr "{name} sank your whole fleet."
 #: libs/battleship-client-ts/src/battleship-board.tsx
 msgid "{name} sunk"
 msgstr "{name} sunk"
+
+#. placeholder {0}: squareName(square)
+#: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
+msgid "{name}, {0}, empty"
+msgstr "{name}, {0}, empty"
+
+#: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
+msgid "{name}, empty"
+msgstr "{name}, empty"
 
 #: libs/game-session-client-ts/src/custom-game-status.tsx
 msgid "{names} win by {reason}."
@@ -397,6 +425,10 @@ msgstr "{player} to move, played by a stand-in bot."
 #: libs/game-session-client-ts/src/custom-game-status.tsx
 msgid "{player} to move."
 msgstr "{player} to move."
+
+#: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
+msgid "{points} points"
+msgstr "{points} points"
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "{rank} of clubs"
@@ -526,6 +558,22 @@ msgstr "1 minute"
 msgid "1 second"
 msgstr "1 second"
 
+#: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
+msgid "2L"
+msgstr "2L"
+
+#: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
+msgid "2W"
+msgstr "2W"
+
+#: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
+msgid "3L"
+msgstr "3L"
+
+#: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
+msgid "3W"
+msgstr "3W"
+
 #: libs/app-root-client-ts/src/refused-change-copy.tsx
 msgid "A change wasn't saved"
 msgstr "A change wasn't saved"
@@ -600,6 +648,10 @@ msgstr "A person can have only one side."
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
 msgid "A player left the round."
 msgstr "A player left the round."
+
+#: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
+msgid "A player used their last tile with the bag empty. Everyone else's tiles count against them and go to that player."
+msgstr "A player used their last tile with the bag empty. Everyone else's tiles count against them and go to that player."
 
 #: libs/hearts-client-ts/src/hearts-presentation.tsx
 msgid "A score reached 100, and the lowest score wins."
@@ -827,6 +879,10 @@ msgstr "All players are ready."
 msgid "All themes"
 msgstr "All themes"
 
+#: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
+msgid "Amber"
+msgstr "Amber"
+
 #. placeholder {0}: props.link.email
 #. placeholder {1}: newProvider()
 #: libs/auth-client-ts/src/sign-in-link-required.tsx
@@ -1005,6 +1061,18 @@ msgstr "Bishop"
 msgid "Black"
 msgstr "Black"
 
+#: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
+msgid "Blank"
+msgstr "Blank"
+
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-editor.tsx
+msgid "Blank as {letter}"
+msgstr "Blank as {letter}"
+
+#: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
+msgid "blank played as {letter}"
+msgstr "blank played as {letter}"
+
 #: libs/game-matchmaking-client-ts/src/speed-name.tsx
 msgid "Blitz"
 msgstr "Blitz"
@@ -1025,6 +1093,11 @@ msgstr "Blue"
 #: libs/battleship-client-ts/src/battleship-copy.tsx
 msgid "Blue fleet"
 msgstr "Blue fleet"
+
+#. placeholder {0}: cellName(112)
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-editor.tsx
+msgid "Board tiles must join up through the centre square {0} and spell words from the list."
+msgstr "Board tiles must join up through the centre square {0} and spell words from the list."
 
 #: libs/battleship-client-ts/src/battleship-board.tsx
 msgid "Boards"
@@ -1131,6 +1204,10 @@ msgstr "Can’t reach Gamezilla"
 #: pkgs/ui-root-client-ts/src/mutation-modal-parts.tsx
 msgid "Cancel"
 msgstr "Cancel"
+
+#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+msgid "Cancel exchange"
+msgstr "Cancel exchange"
 
 #: libs/game-session-client-ts/src/custom-game-confirm.tsx
 msgid "Cancel game"
@@ -1282,6 +1359,10 @@ msgstr "Choose a saved position to continue. Your other positions stay kept."
 msgid "Choose a sign-in method"
 msgstr "Choose a sign-in method"
 
+#: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
+msgid "Choose a tile, then a square."
+msgstr "Choose a tile, then a square."
+
 #: libs/profile-client-ts/src/username-change-feedback.tsx
 msgid "Choose a username"
 msgstr "Choose a username"
@@ -1313,6 +1394,18 @@ msgstr "Choose people or bots for each of the {playerCount} places"
 #: libs/battleship-client-ts/src/battleship-setup-controller.tsx
 msgid "Choose the bow cell for the {name}: {length} cells, {direction}. Press R to rotate."
 msgstr "Choose the bow cell for the {name}: {length} cells, {direction}. Press R to rotate."
+
+#: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
+msgid "Choose the letter your blank plays"
+msgstr "Choose the letter your blank plays"
+
+#: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
+msgid "Choose the letter your blank plays."
+msgstr "Choose the letter your blank plays."
+
+#: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
+msgid "Choose the tiles to exchange."
+msgstr "Choose the tiles to exchange."
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-private-setup.tsx
 msgid "Choose this setup"
@@ -1375,6 +1468,10 @@ msgstr "Classical"
 #: pkgs/ui-root-client-ts/src/combobox-trigger.tsx
 msgid "Clear"
 msgstr "Clear"
+
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-editor.tsx
+msgid "Clear a square"
+msgstr "Clear a square"
 
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Clear endpoints"
@@ -1473,6 +1570,10 @@ msgstr "Commit"
 #: pkgs/ui-root-client-ts/src/copy-to-clipboard-field.example.tsx
 msgid "Commit hash"
 msgstr "Commit hash"
+
+#: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
+msgid "committed"
+msgstr "committed"
 
 #: libs/app-root-client-ts/src/about-screen.tsx
 msgid "Committed"
@@ -1677,6 +1778,10 @@ msgstr "Copy value"
 #: libs/spaces-client-ts/src/space-share-link-section.tsx
 msgid "Copying…"
 msgstr "Copying…"
+
+#: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
+msgid "Coral"
+msgstr "Coral"
 
 #: libs/app-root-client-ts/src/boot-error-screen.tsx
 msgid "Could not start local database"
@@ -2066,6 +2171,14 @@ msgstr "Dismiss"
 msgid "Done"
 msgstr "Done"
 
+#: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
+msgid "double letter"
+msgstr "double letter"
+
+#: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
+msgid "double word"
+msgstr "double word"
+
 #: libs/battleship-client-ts/src/battleship-copy.tsx
 msgid "down"
 msgstr "down"
@@ -2323,6 +2436,22 @@ msgstr "Everyone will leave this space. This cannot be undone."
 msgid "Everything in the free plan, synced across your devices"
 msgstr "Everything in the free plan, synced across your devices"
 
+#: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
+msgid "Exchange {count} tiles and score nothing this turn."
+msgstr "Exchange {count} tiles and score nothing this turn."
+
+#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+msgid "Exchange chosen tiles"
+msgstr "Exchange chosen tiles"
+
+#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+msgid "Exchange tiles"
+msgstr "Exchange tiles"
+
+#: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
+msgid "Exchanging needs at least seven tiles in the bag."
+msgstr "Exchanging needs at least seven tiles in the bag."
+
 #: pkgs/ui-devtools-client-ts/src/json-view.tsx
 msgid "Expand all"
 msgstr "Expand all"
@@ -2518,6 +2647,10 @@ msgstr "Four in a row."
 #: libs/hearts-client-ts/src/hearts-game-client.tsx
 msgid "Four players each get thirteen cards. Before each deal's play, everyone secretly passes three cards: to the left, then right, then across, then not at all, and again. Whoever holds the two of clubs leads it. Follow the suit led if you can; the highest card of that suit takes the trick and leads next. Hearts and the queen of spades can't be played on the first trick unless you hold nothing else, and hearts can't be led until one has been played, unless you hold only hearts. Each heart you take costs a point and the queen of spades thirteen, unless you take them all: then everyone else gets twenty-six. When a score reaches 100 at the end of a deal, the lowest score wins; tied lowest scores share the win."
 msgstr "Four players each get thirteen cards. Before each deal's play, everyone secretly passes three cards: to the left, then right, then across, then not at all, and again. Whoever holds the two of clubs leads it. Follow the suit led if you can; the highest card of that suit takes the trick and leads next. Hearts and the queen of spades can't be played on the first trick unless you hold nothing else, and hearts can't be led until one has been played, unless you hold only hearts. Each heart you take costs a point and the queen of spades thirteen, unless you take them all: then everyone else gets twenty-six. When a score reaches 100 at the end of a deal, the lowest score wins; tied lowest scores share the win."
+
+#: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
+msgid "Four racks, one board, the highest score wins."
+msgstr "Four racks, one board, the highest score wins."
 
 #: libs/quoridor-client-ts/src/quoridor-game-client.tsx
 msgid "Four sides. One hill. First to e5 wins immediately."
@@ -2938,6 +3071,10 @@ msgstr "Join space"
 msgid "Join to see who is here and hang out."
 msgstr "Join to see who is here and hang out."
 
+#: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
+msgid "Join your word to the tiles on the board."
+msgstr "Join your word to the tiles on the board."
+
 #: libs/spaces-client-ts/src/space-join-button.tsx
 msgid "Joined"
 msgstr "Joined"
@@ -3059,6 +3196,10 @@ msgstr "Leave and end the space?"
 #: pkgs/ui-root-client-ts/src/pending-navigation-provider.tsx
 msgid "Leave anyway"
 msgstr "Leave anyway"
+
+#: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
+msgid "Leave no gap between your tiles."
+msgstr "Leave no gap between your tiles."
 
 #: libs/spaces-client-ts/src/space-chrome-action-bar.tsx
 #: libs/spaces-client-ts/src/space-end-or-leave-button.tsx
@@ -3194,6 +3335,10 @@ msgstr "Load more saved positions"
 #: libs/chess-puzzle-client-ts/src/puzzle-management-screen.tsx
 msgid "Load started"
 msgstr "Load started"
+
+#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+msgid "Load the word list again"
+msgstr "Load the word list again"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-import-stop.tsx
 msgid "Loading already failed"
@@ -3776,6 +3921,10 @@ msgstr "Not connected"
 msgid "Not found"
 msgstr "Not found"
 
+#: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
+msgid "Not in the word list: {missing}"
+msgstr "Not in the word list: {missing}"
+
 #: libs/permissions-client-ts/src/denial-modal.tsx
 msgid "Not now"
 msgstr "Not now"
@@ -3861,6 +4010,10 @@ msgstr "OK"
 #: libs/app-root-client-ts/src/sound-screen.tsx
 msgid "On"
 msgstr "On"
+
+#: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
+msgid "on the board"
+msgstr "on the board"
 
 #: libs/app-root-client-ts/src/app-commands.tsx
 msgid "online"
@@ -4058,6 +4211,10 @@ msgstr "Pair color"
 msgid "Pair label"
 msgstr "Pair label"
 
+#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+msgid "Pass"
+msgstr "Pass"
+
 #. placeholder {0}: count()
 #: libs/hearts-client-ts/src/hearts-board.tsx
 msgid "Pass {0} of 3 cards"
@@ -4174,6 +4331,18 @@ msgstr "Pick one from the game log."
 msgid "Pick one from the previous screen."
 msgstr "Pick one from the previous screen."
 
+#: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
+msgid "Place every tile in one row or one column."
+msgstr "Place every tile in one row or one column."
+
+#: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
+msgid "Place letter tiles, cross words, score squares."
+msgstr "Place letter tiles, cross words, score squares."
+
+#: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
+msgid "Place tiles from your rack on the board."
+msgstr "Place tiles from your rack on the board."
+
 #: libs/app-root-client-ts/src/settings-screen.tsx
 msgid "Plan and subscription"
 msgstr "Plan and subscription"
@@ -4203,6 +4372,11 @@ msgstr "Play history"
 #: libs/game-puzzle-client-ts/src/content-library-screen.tsx
 msgid "Play published puzzles, continue your attempts, or build something of your own."
 msgstr "Play published puzzles, continue your attempts, or build something of your own."
+
+#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
+msgid "Play word"
+msgstr "Play word"
 
 #: libs/game-menu-client-ts/src/game-menu-choices.tsx
 msgid "Play, continue saved attempts, or create your own"
@@ -4397,6 +4571,14 @@ msgstr "Puzzle"
 msgid "Puzzle abandoned"
 msgstr "Puzzle abandoned"
 
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-editor.tsx
+msgid "Puzzle board to edit, fifteen columns and fifteen rows"
+msgstr "Puzzle board to edit, fifteen columns and fifteen rows"
+
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
+msgid "Puzzle board, fifteen columns and fifteen rows"
+msgstr "Puzzle board, fifteen columns and fifteen rows"
+
 #: libs/game-puzzle-client-ts/src/content-author-screen.tsx
 msgid "Puzzle builder"
 msgstr "Puzzle builder"
@@ -4528,6 +4710,20 @@ msgstr "Quoridor: King of the Hill"
 msgid "Race your pawn across the board. Shape the path with walls."
 msgstr "Race your pawn across the board. Shape the path with walls."
 
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-editor.tsx
+msgid "Rack (up to seven letters, ? for a blank)"
+msgstr "Rack (up to seven letters, ? for a blank)"
+
+#: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
+msgid "rack emptied"
+msgstr "rack emptied"
+
+#. placeholder {0}: props.puzzle.rack.replaceAll('?', '·')
+#. placeholder {1}: props.puzzle.target
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
+msgid "Rack: {0}. Target: {1} points."
+msgstr "Rack: {0}. Target: {1} points."
+
 #: libs/profile-client-ts/src/avatar-editor-pickers.tsx
 #: pkgs/ui-root-client-ts/src/multi-select-swatch-grid.tsx
 msgid "Random"
@@ -4589,6 +4785,11 @@ msgstr "Ready by {0}"
 msgid "Ready to start."
 msgstr "Ready to start."
 
+#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
+msgid "Recall tiles"
+msgstr "Recall tiles"
+
 #: libs/search-client-ts/src/search-recent-queries.tsx
 msgid "Recent"
 msgstr "Recent"
@@ -4639,6 +4840,7 @@ msgid "Red fleet"
 msgstr "Red fleet"
 
 #: libs/game-puzzle-client-ts/src/content-attempt-controls.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
 msgid "Redo"
 msgstr "Redo"
 
@@ -5067,9 +5269,26 @@ msgstr "Saving…"
 msgid "Score {score}"
 msgstr "Score {score}"
 
+#. placeholder {0}: target()
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
+msgid "Score at least {0} points in one move."
+msgstr "Score at least {0} points in one move."
+
 #: libs/pong-client-ts/src/pong-game-client.tsx
 msgid "score target"
 msgstr "score target"
+
+#: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
+msgid "Scores {total} points."
+msgstr "Scores {total} points."
+
+#: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
+msgid "Scores {total} points. Checking the words…"
+msgstr "Scores {total} points. Checking the words…"
+
+#: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
+msgid "Scores {total} points. The word list could not load here; the game checks the words when you play."
+msgstr "Scores {total} points. The word list could not load here; the game checks the words when you play."
 
 #: libs/search-client-ts/src/search-screen-view.tsx
 #: libs/search-client-ts/src/sub-client.tsx
@@ -5175,6 +5394,10 @@ msgstr "Select style…"
 msgid "Select…"
 msgstr "Select…"
 
+#: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
+msgid "selected"
+msgstr "selected"
+
 #: libs/game-session-client-ts/src/custom-game-status.tsx
 msgid "Sending choice…"
 msgstr "Sending choice…"
@@ -5242,6 +5465,11 @@ msgstr "Setup move: {side} played {0} to {1}."
 msgid "Seven"
 msgstr "Seven"
 
+#. placeholder {0}: score().bonus
+#: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
+msgid "Seven-tile bonus: {0}"
+msgstr "Seven-tile bonus: {0}"
+
 #: libs/spaces-client-ts/src/space-chrome-action-bar.tsx
 msgid "Share"
 msgstr "Share"
@@ -5282,6 +5510,10 @@ msgstr "Show your live spaces"
 #: libs/app-root-client-ts/src/performance-screen.tsx
 msgid "Shows a live FPS / INP top banner. Useful for diagnosing jank on low-end devices. Off by default."
 msgstr "Shows a live FPS / INP top banner. Useful for diagnosing jank on low-end devices. Off by default."
+
+#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+msgid "Shuffle rack"
+msgstr "Shuffle rack"
 
 #: libs/auth-client-ts/src/account-actions-row.tsx
 #: libs/auth-client-ts/src/account-devices-card.tsx
@@ -5429,6 +5661,14 @@ msgstr "Signing out…"
 msgid "Six"
 msgstr "Six"
 
+#: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
+msgid "six scoreless turns"
+msgstr "six scoreless turns"
+
+#: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
+msgid "Six turns in a row scored nothing. Each player's remaining tiles count against them."
+msgstr "Six turns in a row scored nothing. Each player's remaining tiles count against them."
+
 #: libs/game-puzzle-client-ts/src/puzzle-action-bar-items.tsx
 msgid "Skip"
 msgstr "Skip"
@@ -5560,6 +5800,10 @@ msgstr "Spectating"
 msgid "Spectating — controls are disabled"
 msgstr "Spectating — controls are disabled"
 
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-editor.tsx
+msgid "Square tool"
+msgstr "Square tool"
+
 #: libs/auth-client-ts/src/account-device-id-field.tsx
 msgid "Stable per-device identifier; tap to copy"
 msgstr "Stable per-device identifier; tap to copy"
@@ -5609,6 +5853,10 @@ msgstr "Start playtest"
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Start the game before playing."
 msgstr "Start the game before playing."
+
+#: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
+msgid "start, double word"
+msgstr "start, double word"
 
 #: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
 msgid "Started"
@@ -5802,6 +6050,10 @@ msgstr "Take back my side"
 msgid "Take this side"
 msgstr "Take this side"
 
+#: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
+msgid "Take turns placing tiles from your seven-tile rack in one row or column to form words, joined to the tiles already on the 15 × 15 board; the first word covers the centre star. Every word you form or extend must be in the word list, and each is scored: letter squares multiply the new tile under them, word squares the whole word, and using all seven tiles earns 50 more. A blank plays any letter for no points. Instead of placing you may pass, or exchange tiles while the bag holds at least seven. The game ends when someone uses their last tile with the bag empty — the others' remaining tiles count against them and go to that player — or after six scoreless turns in a row, when everyone's remaining tiles count against them. The highest score wins; tied leaders share the win. Resigning or running out of time follows the table's rules: with two players the other wins, with more the game is drawn. Word list: {lexicon} (ENABLE, public domain, words of 2 to 15 letters). Rules: {ruleset}."
+msgstr "Take turns placing tiles from your seven-tile rack in one row or column to form words, joined to the tiles already on the 15 × 15 board; the first word covers the centre star. Every word you form or extend must be in the word list, and each is scored: letter squares multiply the new tile under them, word squares the whole word, and using all seven tiles earns 50 more. A blank plays any letter for no points. Instead of placing you may pass, or exchange tiles while the bag holds at least seven. The game ends when someone uses their last tile with the bag empty — the others' remaining tiles count against them and go to that player — or after six scoreless turns in a row, when everyone's remaining tiles count against them. The highest score wins; tied leaders share the win. Resigning or running out of time follows the table's rules: with two players the other wins, with more the game is drawn. Word list: {lexicon} (ENABLE, public domain, words of 2 to 15 letters). Rules: {ruleset}."
+
 #: libs/hearts-client-ts/src/hearts-table-view.tsx
 msgid "Taken {taken}"
 msgstr "Taken {taken}"
@@ -5823,6 +6075,10 @@ msgstr "Tap to copy"
 msgid "Tap to return to your space"
 msgstr "Tap to return to your space"
 
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-editor.tsx
+msgid "Target points"
+msgstr "Target points"
+
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 msgid "Target rating"
 msgstr "Target rating"
@@ -5839,6 +6095,10 @@ msgstr "target score"
 #: libs/battleship-client-ts/src/battleship-board.tsx
 msgid "Targeting"
 msgstr "Targeting"
+
+#: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
+msgid "Teal"
+msgstr "Teal"
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Ten"
@@ -5919,6 +6179,10 @@ msgstr "That space name is not allowed"
 #: libs/app-root-client-ts/src/refused-change-copy.tsx
 msgid "That space name is not allowed. The change was undone."
 msgstr "That space name is not allowed. The change was undone."
+
+#: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
+msgid "That square already holds a tile."
+msgstr "That square already holds a tile."
 
 #: libs/auth-client-ts/src/auth-flow-messages.tsx
 msgid "That took too long. Start again."
@@ -6024,6 +6288,10 @@ msgstr "The first move wasn't made in time."
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "The first trick begins with the two of clubs."
 msgstr "The first trick begins with the two of clubs."
+
+#: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
+msgid "The first word must cover the centre star."
+msgstr "The first word must cover the centre star."
 
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "The game choices changed. Review them and try again."
@@ -6283,6 +6551,10 @@ msgstr "This device is offline"
 msgid "This device is online, but Gamezilla can’t be reached right now. This isn’t something you did. The app keeps trying on its own."
 msgstr "This device is online, but Gamezilla can’t be reached right now. This isn’t something you did. The app keeps trying on its own."
 
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-editor.tsx
+msgid "This draft cannot be opened. Choose an earlier saved copy to continue."
+msgstr "This draft cannot be opened. Choose an earlier saved copy to continue."
+
 #: libs/game-puzzle-client-ts/src/content-author-screen.tsx
 msgid "This draft is not available on this device"
 msgstr "This draft is not available on this device"
@@ -6314,6 +6586,10 @@ msgstr "This finishes the current game. Its record remains available."
 #: libs/friends-client-ts/src/friend-user-danger-modals.tsx
 msgid "This friend could not be removed. Try again."
 msgstr "This friend could not be removed. Try again."
+
+#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+msgid "This game cannot be shown. Update the app to open it."
+msgstr "This game cannot be shown. Update the app to open it."
 
 #: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
 msgid "This game has finished. Choose a rematch to play again."
@@ -6391,6 +6667,14 @@ msgstr "This publication is withdrawn. You can continue saved attempts from your
 msgid "This puzzle cannot be opened. Return to its overview and choose a saved edition."
 msgstr "This puzzle cannot be opened. Return to its overview and choose a saved edition."
 
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
+msgid "This puzzle cannot be opened. Update the app to play it."
+msgstr "This puzzle cannot be opened. Update the app to play it."
+
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
+msgid "This puzzle cannot be shown."
+msgstr "This puzzle cannot be shown."
+
 #: libs/game-puzzle-client-ts/src/content-attempt-screen.tsx
 msgid "This puzzle has not reached this device"
 msgstr "This puzzle has not reached this device"
@@ -6467,6 +6751,10 @@ msgstr "This wall would close a player's last path to the goal. Choose another a
 msgid "Three"
 msgstr "Three"
 
+#: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
+msgid "Three racks, one board, the highest score wins."
+msgstr "Three racks, one board, the highest score wins."
+
 #: libs/game-session-client-ts/src/custom-game-status.tsx
 #: libs/game-session-client-ts/src/game-record-label.tsx
 msgid "time"
@@ -6489,6 +6777,10 @@ msgstr "Title"
 msgid "To keep your data safe, export and deletion need a sign-in from the last {PROOF_MINUTES} minutes. Sign in again, then try once more. Nothing has changed yet."
 msgstr "To keep your data safe, export and deletion need a sign-in from the last {PROOF_MINUTES} minutes. Sign in again, then try once more. Nothing has changed yet."
 
+#: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
+msgid "to play"
+msgstr "to play"
+
 #: libs/chess-shared-client-ts/src/chess-settings-developer-screen.tsx
 msgid "Tools for debugging and exploring the UI."
 msgstr "Tools for debugging and exploring the UI."
@@ -6500,6 +6792,14 @@ msgstr "Total CPU time"
 #: pkgs/ui-root-client-ts/src/multi-select-swatch-grid.tsx
 msgid "Transparent"
 msgstr "Transparent"
+
+#: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
+msgid "triple letter"
+msgstr "triple letter"
+
+#: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
+msgid "triple word"
+msgstr "triple word"
 
 #: pkgs/ui-root-client-ts/src/catalog-list-rows.tsx
 msgid "Try a different search term."
@@ -6629,6 +6929,7 @@ msgid "Unblocking…"
 msgstr "Unblocking…"
 
 #: libs/game-puzzle-client-ts/src/content-attempt-controls.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
 msgid "Undo"
 msgstr "Undo"
 
@@ -6829,6 +7130,10 @@ msgstr "View profile"
 msgid "View published edition"
 msgstr "View published edition"
 
+#: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
+msgid "Violet"
+msgstr "Violet"
+
 #: libs/game-session-client-ts/src/custom-game-status.tsx
 msgid "Waiting for participants and readiness."
 msgstr "Waiting for participants and readiness."
@@ -6933,6 +7238,18 @@ msgstr "Withdrawn"
 msgid "Without a connection, your spaces, games on this device and preferences keep working. What you do is kept on this device and shared once the connection is back. Signing in, searching for people and playing someone online need a connection."
 msgstr "Without a connection, your spaces, games on this device and preferences keep working. What you do is kept on this device and shared once the connection is back. Signing in, searching for people and playing someone online need a connection."
 
+#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+msgid "Word board, fifteen columns and fifteen rows"
+msgstr "Word board, fifteen columns and fifteen rows"
+
+#: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
+msgid "Word Tiles"
+msgstr "Word Tiles"
+
+#: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
+msgid "Words have at least two letters."
+msgstr "Words have at least two letters."
+
 #: libs/app-root-client-ts/src/app-commands.tsx
 #: libs/app-root-client-ts/src/settings-screen.tsx
 #: libs/app-root-client-ts/src/work-offline-status.tsx
@@ -7035,6 +7352,10 @@ msgstr "You are reviewing an earlier position, after {0}. No piece can be moved 
 #: libs/game-matchmaking-client-ts/src/multiplayer-reviewing.tsx
 msgid "You are reviewing an earlier position, at the start of the game. No piece can be moved on it."
 msgstr "You are reviewing an earlier position, at the start of the game. No piece can be moved on it."
+
+#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+msgid "You are watching. Racks stay private to their players."
+msgstr "You are watching. Racks stay private to their players."
 
 #: pkgs/ui-root-client-ts/src/mutation-modal-parts.tsx
 msgid "You can close this and keep using the app. Check again to learn the outcome of this choice."
@@ -7324,6 +7645,12 @@ msgstr "Your full name"
 msgid "Your hand"
 msgstr "Your hand"
 
+#. placeholder {0}: progress().score ?? 0
+#. placeholder {1}: target()
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
+msgid "Your last move scored {0} of {1}."
+msgstr "Your last move scored {0} of {1}."
+
 #: libs/billing-client-ts/src/billing-plan-card.tsx
 msgid "Your last payment didn't go through. Update your payment method to keep your membership."
 msgstr "Your last payment didn't go through. Update your payment method to keep your membership."
@@ -7410,6 +7737,11 @@ msgstr "Your puzzle rating went up by {delta}, to {after}."
 msgid "Your puzzle settings weren't saved"
 msgstr "Your puzzle settings weren't saved"
 
+#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
+msgid "Your rack"
+msgstr "Your rack"
+
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 msgid "Your rating"
 msgstr "Your rating"
@@ -7455,6 +7787,14 @@ msgstr "Your space wasn't ended"
 #: libs/app-root-client-ts/src/refused-change-copy.tsx
 msgid "Your space wasn't renamed"
 msgstr "Your space wasn't renamed"
+
+#: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
+msgid "your tentative blank as {letter}"
+msgstr "your tentative blank as {letter}"
+
+#: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
+msgid "your tentative tile"
+msgstr "your tentative tile"
 
 #: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
 msgid "Your turn — find the best move for {side}"

@@ -100,6 +100,16 @@
         "white_rating": "text",
         "white_rating_diff": "integer"
       },
+      "chess_multiplayer_hands": {
+        "game_id": "text",
+        "hand": "text",
+        "owner_id": "text",
+        "side": "text"
+      },
+      "chess_multiplayer_hidden": {
+        "game_id": "text",
+        "hidden": "text"
+      },
       "chess_multiplayer_players": {
         "game_id": "text",
         "owner_id": "text"
@@ -469,6 +479,7 @@
       ["chess_multiplayer_games", "blue_id"],
       ["chess_multiplayer_games", "red_id"],
       ["chess_multiplayer_games", "white_id"],
+      ["chess_multiplayer_hands", "owner_id"],
       ["chess_multiplayer_setups", "owner_id"],
       ["chess_puzzle_rating_events", "owner_id"],
       ["chess_puzzles", "popularity"],
@@ -507,6 +518,8 @@
       ["billing_subscriptions", "provider", "provider_subscription_id"],
       ["chess_multiplayer_commands", "owner_id", "request_id"],
       ["chess_multiplayer_games", "match_id"],
+      ["chess_multiplayer_hands", "game_id", "side"],
+      ["chess_multiplayer_hidden", "game_id"],
       ["chess_multiplayer_players", "owner_id"],
       ["chess_multiplayer_ratings", "owner_id", "speed"],
       ["chess_multiplayer_setups", "game_id", "side"],

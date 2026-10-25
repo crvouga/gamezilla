@@ -1,0 +1,4 @@
+{
+  "summary": "A finished live matched game (Pong) reaches its stored row only on the server's next scheduled sweep, up to a minute later in production, while the device's match room already holds the result. Reopening the app in that window rendered the stored row first, so the finished game read as ongoing (and the host was offered a new search) until the match room restored its device-stored state. The game screen now withholds a live game whose stored row is ongoing while its match room is being restored, showing it as loading, and offers no new search while loading.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-room-game.test.ts"
+}

@@ -64,6 +64,7 @@ function serverEnforcementIn(game: HarnessGame): DecisionLayer {
       await searchGuard(ctx);
     },
     operationFor: () => async (c) => {
+      // regression: games-bindings-assume-clocked-turn-games
       const replay = replayOperation(findOpponentMutation, () => ({
         requestId: 'another-game',
         spaceId: LIMIT_SPACE,
