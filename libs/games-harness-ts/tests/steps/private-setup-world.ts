@@ -32,7 +32,7 @@ import { playedRulesOf } from '@libs/game-session-harness-ts/played-rules';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import type { GameSetups } from '@pkgs/turn-game-shared-ts/game-rules';
 import { identityOf } from './custom-game-set-up-world';
-import { before, gameOf, sideOf } from './game-world';
+import { before, sideOf, turnGameOf } from './game-world';
 import { readyPeople, timeControlFor } from './matched-game';
 
 /** What a person is told of a private setup that is not complete. */
@@ -40,9 +40,9 @@ export const INCOMPLETE = 'Your private setup is incomplete.';
 
 /** The run's game's known setups, one for each side. */
 export function knownSetups(w: HarnessWorld): GameSetups {
-  const setups = gameOf(w).fixtures.setups;
+  const setups = turnGameOf(w).fixtures.setups;
   if (setups === undefined)
-    throw new Error(`${gameOf(w).label} names no private setups`);
+    throw new Error(`${turnGameOf(w).label} names no private setups`);
   return setups;
 }
 
@@ -184,8 +184,8 @@ export async function pairedChoosingSetups(
 
 /** The public position after the first `ply` moves of the game's known victory. */
 export function revealedAfter(w: HarnessWorld, ply: number): string {
-  return playedRulesOf(gameOf(w)).replay(
-    gameOf(w).fixtures.firstSideVictory,
+  return playedRulesOf(turnGameOf(w)).replay(
+    turnGameOf(w).fixtures.firstSideVictory,
     ply
   );
 }

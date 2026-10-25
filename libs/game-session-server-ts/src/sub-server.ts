@@ -94,7 +94,8 @@ export function createGameSessionServer(
                 nowMs: ctx.clock.now(),
                 createId: ctx.createId,
               },
-              rules
+              rules,
+              rooms
             );
             return { notifyUserIds: ids };
           },

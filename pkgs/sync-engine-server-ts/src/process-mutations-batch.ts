@@ -1,4 +1,5 @@
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
+import type { RoomServicePort } from '@pkgs/room-root-shared-ts/room-service';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import { raw } from '@pkgs/sql-root-shared-ts/sql';
 import { MAX_MUTATIONS_BATCH } from '@pkgs/sync-engine-shared-ts/bounds';
@@ -52,6 +53,7 @@ export type ProcessMutationsBatchDeps = {
    * `created_at`), handed to the mutation body as `env.contentRules`.
    */
   readonly turnGames?: TurnGames;
+  readonly rooms?: RoomServicePort;
   readonly contentRulesAt?: (atMs: number) => ContentRules;
   /**
    * Called after each mutation attempt (applied/rejected/duplicate).
@@ -93,6 +95,7 @@ export async function processMutationsBatch(
           ? {}
           : { wrapMutationTx: deps.wrapMutationTx }),
         ...(deps.turnGames === undefined ? {} : { turnGames: deps.turnGames }),
+        ...(deps.rooms === undefined ? {} : { rooms: deps.rooms }),
         ...(deps.contentRulesAt !== undefined
           ? { contentRulesAt: deps.contentRulesAt }
           : {}),

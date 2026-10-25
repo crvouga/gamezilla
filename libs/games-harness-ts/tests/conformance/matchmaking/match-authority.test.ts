@@ -16,10 +16,10 @@ import {
   publicPosition,
 } from '@libs/game-session-harness-ts/played-rules';
 import { openConformanceHarness } from '../../conformance-world';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 import { agreed, command, matched, rematched } from '../match-authority-world';
 
-forEveryGame(import.meta.path, (game) => {
+forEveryTurnGame(import.meta.path, (game) => {
   // Moves are proposals; the authority plays them with the game's known setups.
   const rules = playedRulesOf(game);
   const victory = game.fixtures.firstSideVictory;

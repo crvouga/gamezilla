@@ -4,7 +4,7 @@ import {
   openFindingAnOpponent,
   seekGameOpponent,
 } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
-import { offeredTimeControls } from '@libs/game-matchmaking-shared-ts/time-control';
+import { offeredMatchChoices } from '@libs/game-matchmaking-shared-ts/match-choice';
 import { gameSystem } from '@libs/game-session-harness-ts/game-system';
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import type { ProductHarness } from '@libs/harness-ts/harness';
@@ -23,10 +23,10 @@ import { SECRET_PICK_GAME } from './reference-game/secret-pick-game';
 export const FANOUT_SYSTEM = gameSystem('matchmaking-fanout-cost', [
   SECRET_PICK_GAME,
 ]);
-export const FANOUT_CONTROL = offeredTimeControls(
-  createTurnGames([SECRET_PICK_GAME.shared.turnGame])
+export const FANOUT_CONTROL = offeredMatchChoices(
+  createTurnGames([SECRET_PICK_GAME.shared.registration])
 ).find(
-  (control) => control.minutes === 5 && control.incrementSeconds === 0
+  (choice) => choice.clock?.minutes === 5 && choice.clock.incrementSeconds === 0
 )?.id;
 
 export type Statement = {

@@ -1,0 +1,4 @@
+{
+  "summary": "The shared custom-game access probe built a guest's cancel choice before the live authority's initial checkpoint settled, sending a stale game revision and falsely reporting permission denial.",
+  "regressionTest": "libs/games-harness-ts/tests/custom-game-access-probe.test.ts"
+}

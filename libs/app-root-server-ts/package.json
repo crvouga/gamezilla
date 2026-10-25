@@ -43,6 +43,7 @@
     "@pkgs/observability-root-shared-ts": "workspace:*",
     "@pkgs/outbox-shared-ts": "workspace:*",
     "@pkgs/pubsub-root-shared-ts": "workspace:*",
+    "@pkgs/room-root-shared-ts": "workspace:*",
     "@pkgs/secret-store-shared-ts": "workspace:*",
     "@pkgs/sql-client-postgres-server-ts": "workspace:*",
     "@pkgs/sql-client-root-shared-ts": "workspace:*",

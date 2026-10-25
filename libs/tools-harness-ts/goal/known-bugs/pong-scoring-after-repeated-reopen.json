@@ -1,0 +1,4 @@
+{
+  "summary": "Scoring trace 3, seed 0x67932, lets Left score then reopens six times before asking Right to win. The harness left the losing paddle at the far edge; the next serve and reopen time left too little travel to follow the visible ball. Prepare both paddles at the middle through their actual sliders during each countdown. The literal trace remains in the PR profile and still compares the actual winner, score and stage with the unchanged model.",
+  "regressionTest": "libs/pong-harness-ts/tests/quint/pong-scoring.binding.ts"
+}

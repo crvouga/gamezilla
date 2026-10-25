@@ -42,7 +42,7 @@ test('a game offering only puzzles keeps every law and is bound for rules and pu
   expect([...refusals(GAME).keys()]).toEqual([]);
   expect(areasOf(GAME)).toEqual({
     bound: ['rules', 'puzzles'],
-    unsupported: ['custom-games', 'matchmaking', 'history'],
+    unsupported: ['simulation', 'custom-games', 'matchmaking', 'history'],
   });
   const specifications = inheritedSpecifications(GAME);
   expect(specifications).toContain('specs/games/puzzle-play.feature');

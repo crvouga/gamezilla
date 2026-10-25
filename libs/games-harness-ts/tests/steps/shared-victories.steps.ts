@@ -6,17 +6,17 @@
 
 import { expect } from 'bun:test';
 import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { Given, Then } from '@libs/harness-ts/define';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import { current } from './custom-game-set-up-world';
-import { before, gameOf } from './game-world';
+import { before, turnGameOf } from './game-world';
 import { followKnownLine, playToLastMove } from './known-line';
 import { FOUR_PEOPLE, sideShown } from './secret-choices-world';
 
 const BOTH = ['alice', 'bob', 'carol', 'dave'] as const;
 
-function sharedVictoriesOf(game: HarnessGame) {
+function sharedVictoriesOf(game: TurnHarnessGame) {
   const lines = game.fixtures.sharedVictories;
   if (lines === undefined)
     throw new Error(`${game.label} names no shared victory`);
@@ -34,15 +34,15 @@ async function winnersSeenBy(w: HarnessWorld, viewer: string): Promise<string> {
 
 Given(
   'the custom game is one move from a victory Alice and Carol share',
-  async (w) => playToLastMove(w, sharedVictoriesOf(gameOf(w)).shared)
+  async (w) => playToLastMove(w, sharedVictoriesOf(turnGameOf(w)).shared)
 );
 Given("the custom game is one move from Carol's victory alone", async (w) =>
-  playToLastMove(w, sharedVictoriesOf(gameOf(w)).alone)
+  playToLastMove(w, sharedVictoriesOf(turnGameOf(w)).alone)
 );
 Given(
   'Alice and Carol have shared the victory in a four-player custom game with Bob and Dave',
   async (w) => {
-    const line = sharedVictoriesOf(gameOf(w)).shared;
+    const line = sharedVictoriesOf(turnGameOf(w)).shared;
     await followKnownLine(w, FOUR_PEOPLE, line, line.length);
     expect((await current(w)).status).toBe('completed');
   }

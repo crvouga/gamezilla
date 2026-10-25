@@ -28,6 +28,7 @@ import { useCustomGameCommand } from './use-custom-game-command';
 import { useCustomGameCommitment } from './use-custom-game-commitment';
 import { useCustomGameHand } from './use-custom-game-hand';
 import { useCustomGamePrivateSetup } from './use-custom-game-private-setup';
+import { useCustomSimulation } from './use-custom-simulation';
 import { useVisibleCustomGames } from './use-visible-custom-games';
 
 function useSelectedCustomGames(
@@ -116,6 +117,19 @@ function useCustomGameProfiles(
 
 export type CustomGameScreenModel = ReturnType<typeof useCustomGameScreen>;
 
+function useCustomGamePermissions(scope: Accessor<string>) {
+  return {
+    canCreate: useSpaceCan(scope, PERMISSION.gameCustomCreate),
+    canConfigure: useSpaceCan(scope, PERMISSION.gameCustomConfigure),
+    canInvite: useSpaceCan(scope, PERMISSION.gameCustomInvite),
+    canBot: useSpaceCan(scope, PERMISSION.gameCustomBot),
+    canStart: useSpaceCan(scope, PERMISSION.gameCustomStart),
+    canCancel: useSpaceCan(scope, PERMISSION.gameCustomCancel),
+    canJoin: useSpaceCan(scope, PERMISSION.gameCustomJoin),
+    canPlay: useSpaceCan(scope, PERMISSION.gameCustomPlay),
+  };
+}
+
 export function useCustomGameScreen(
   back: () => void,
   gameId: Accessor<string>,
@@ -136,15 +150,16 @@ export function useCustomGameScreen(
     (s) => RoomMetaAttr.isConnected.from(s) && RoomMetaAttr.isSynced.from(s)
   );
   useCustomGameProfiles(current, members);
-  const canCreate = useSpaceCan(scope, PERMISSION.gameCustomCreate);
+  const permissions = useCustomGamePermissions(scope);
   const canSubmit = createMemo(
     () =>
       connected() ||
-      (canCreate() &&
+      (permissions.canCreate() &&
         current()?.creator === myId() &&
         soloCustomGame(current(), rules))
   );
-  const command = useCustomGameCommand();
+  const simulation = useCustomSimulation(current, myId, permissions.canPlay);
+  const command = useCustomGameCommand(simulation.chooseLocal);
   const choose = (input: CustomGameInput): Promise<void> =>
     command.send({
       ...input,
@@ -164,6 +179,7 @@ export function useCustomGameScreen(
     members,
     connected,
     canSubmit,
+    simulation,
     sharedAvailable,
     choose,
     ready,
@@ -190,14 +206,7 @@ export function useCustomGameScreen(
     /** Since when a person in the space has been away, or `null` while present. */
     awaySince: (person: string): number | null => away()[person] ?? null,
     watchDecision: useSpaceDecision(scope, PERMISSION.gameCustomWatch),
-    canCreate,
-    canConfigure: useSpaceCan(scope, PERMISSION.gameCustomConfigure),
-    canInvite: useSpaceCan(scope, PERMISSION.gameCustomInvite),
-    canBot: useSpaceCan(scope, PERMISSION.gameCustomBot),
-    canStart: useSpaceCan(scope, PERMISSION.gameCustomStart),
-    canCancel: useSpaceCan(scope, PERMISSION.gameCustomCancel),
-    canJoin: useSpaceCan(scope, PERMISSION.gameCustomJoin),
-    canPlay: useSpaceCan(scope, PERMISSION.gameCustomPlay),
+    ...permissions,
     back,
     openHistory,
   };

@@ -45,7 +45,7 @@
     "fmt:package-json": "sort-package-json \"**/package.json\" -i \"**/node_modules/**\"",
     "fmt:swift": "bun run libs/tools-harness-ts/scripts/swift-format.ts",
     "gc": "turbo run //#task:gc --",
-    "generate": "turbo run //#task:tokens:generate //#task:sounds:generate @pkgs/object-store-s3-server-ts#generate:browser @libs/infra-shared-ts#generate:infra-map //#task:i18n:compile //#task:spec:catalog //#task:spec:inputs",
+    "generate": "turbo run //#task:tokens:generate //#task:sounds:generate @pkgs/object-store-s3-server-ts#generate:browser @libs/infra-shared-ts#generate:infra-map //#task:i18n:compile //#task:spec:catalog //#task:spec:inputs @libs/tools-harness-ts#generate:ui-quality-sources",
     "gh": "turbo run //#task:gh --",
     "git-sync": "turbo run //#task:git-sync --",
     "graphify:install": "turbo run //#task:graphify:install --",

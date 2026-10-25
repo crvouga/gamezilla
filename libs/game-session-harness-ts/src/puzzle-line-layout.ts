@@ -1,12 +1,12 @@
 import type { PuzzleLinePoint } from '@libs/harness-ts/parameter-types';
 import { puzzleLineLayout } from '@pkgs/turn-game-shared-ts/game-puzzles';
 import { rulesTrail } from './game-puzzle-laws';
-import type { HarnessGame } from './harness-game';
+import type { TurnHarnessGame } from './harness-game';
 import type { PuzzleFixture } from './known-puzzles';
 
 /** A named point in the author's line, including its supplied position. */
 export function knownPuzzleLinePoint(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   fixture: PuzzleFixture,
   point: PuzzleLinePoint
 ): { readonly move: number; readonly of: number; readonly position: string } {
@@ -29,7 +29,7 @@ export function knownPuzzleLinePoint(
 
 /** The authored position one recorded action before the reached frontier. */
 export function knownPuzzlePreviousPoint(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   fixture: PuzzleFixture,
   reached: number
 ): { readonly move: number; readonly position: string } {

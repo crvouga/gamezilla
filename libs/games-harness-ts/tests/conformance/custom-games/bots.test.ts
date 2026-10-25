@@ -6,8 +6,8 @@
 
 import { test } from 'bun:test';
 import { gameBotLaws } from '@libs/game-session-harness-ts/game-rules-laws';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 
-forEveryGame(import.meta.path, (game) => {
+forEveryTurnGame(import.meta.path, (game) => {
   for (const law of gameBotLaws(game)) test(law.name, law.check, 60_000);
 });

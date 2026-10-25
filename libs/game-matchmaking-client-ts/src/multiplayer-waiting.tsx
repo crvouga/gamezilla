@@ -1,3 +1,4 @@
+import { timeControlOf } from '@libs/game-matchmaking-shared-ts/time-control';
 import { Trans } from '@lingui/solid/macro';
 import { createTimedValue } from '@pkgs/clock-client-ts/solid';
 import {
@@ -24,10 +25,15 @@ function WaitingDescription(props: {
       <Show
         when={props.count > 2}
         fallback={
-          <Trans>
-            Looking for a {timeControlText(props.search.time_control)}{' '}
-            {props.gameName} opponent.
-          </Trans>
+          <Show
+            when={timeControlOf(props.search.time_control) !== null}
+            fallback={<Trans>Looking for a {props.gameName} opponent.</Trans>}
+          >
+            <Trans>
+              Looking for a {timeControlText(props.search.time_control)}{' '}
+              {props.gameName} opponent.
+            </Trans>
+          </Show>
         }
       >
         <Trans>

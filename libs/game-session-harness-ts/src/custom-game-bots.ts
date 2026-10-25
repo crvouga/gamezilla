@@ -4,7 +4,7 @@ import type { HarnessComposition } from '@libs/harness-ts/composition';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { makeCustomGameMove } from './custom-game-moves';
 import { readCustomGameProbe } from './custom-game-probe';
-import { harnessGameAt } from './harness-game-of';
+import { turnHarnessGameAt } from './harness-game-of';
 import { queuedRandom, queueRoomDraws } from './room-draws';
 
 /** Inject documented allowed choices through the room's random port. */
@@ -64,8 +64,8 @@ export const finishCustomGameAgainstBots = scenarioAction({
         throw new Error('No custom game');
       if (current.status !== 'active') return;
       if (current.turn === probe.mySide) {
-        const game = harnessGameAt(s, current.fen);
-        const action = game.shared.automation.choose(
+        const game = turnHarnessGameAt(s, current.fen);
+        const action = game.shared.automation.turns.choose(
           current.fen,
           () => 0,
           probe.ownHand

@@ -6,7 +6,7 @@
  * the saved choice is read back off each device's feed bar.
  */
 
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import {
   closePuzzleFeedSettings,
   discardFeedSettings,
@@ -37,15 +37,15 @@ import {
   returnToOwnSpace,
 } from '@libs/spaces-harness-ts/space-actions';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
-import { conformanceGameOf } from '../conformance-world';
+import { turnConformanceGameOf } from '../conformance-world';
 import autoAdvanceTrace from './fixtures/puzzle-feed-auto-advance-save.itf.json';
 
 const SOLVER = 'alice';
 const SECOND_DEVICE = 'charlie';
 
 /** The game this trace is replayed for: one offering puzzles. */
-function gameOfTrace(w: QuintHarnessWorld): HarnessGame {
-  return conformanceGameOf(w.ctx.variant, w.ctx.title);
+function gameOfTrace(w: QuintHarnessWorld): TurnHarnessGame {
+  return turnConformanceGameOf(w.ctx.variant, w.ctx.title);
 }
 
 function gameId(w: QuintHarnessWorld): string {

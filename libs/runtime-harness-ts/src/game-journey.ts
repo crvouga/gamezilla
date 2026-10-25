@@ -71,7 +71,7 @@ function readyKnownSetup(
   found: (side: Side) => unknown
 ): (ui: Driver) => Promise<void> {
   return async (ui) => {
-    const { arrange } = game.shared.automation;
+    const { arrange } = game.shared.automation.turns;
     const setups = game.fixtures.setups;
     if (arrange === undefined || setups === undefined)
       throw new Error(`${game.label} has no known setups to arrange`);
@@ -129,7 +129,11 @@ export async function playJourneyMove(
     await ui
       .get(`multiplayer-move-${ply - 1}`)
       .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
-  await game.shared.automation.perform(ui, Handles.multiplayerBoard, action);
+  await game.shared.automation.turns.perform(
+    ui,
+    Handles.multiplayerBoard,
+    action
+  );
   await ui
     .get(`multiplayer-move-${ply}`)
     .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });

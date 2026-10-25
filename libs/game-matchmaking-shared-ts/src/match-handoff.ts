@@ -18,13 +18,13 @@ import {
   MultiplayerGameRepository,
   type MultiplayerOwnerFacts,
 } from './game-repository';
+import { offeredMatchChoices } from './match-choice';
 import {
   OPPONENT_SEARCH_RADIUS,
   OPPONENT_TIME_CONTROL_KEY,
   opponentPool,
 } from './search-config';
 import { projectFormedOpponentSearches } from './search-projection';
-import { offeredTimeControls } from './time-control';
 
 /**
  * Settles equal colour balances. Callers inject the chance: the formation
@@ -146,7 +146,7 @@ export async function formGameMatches(
     ),
   ];
   const waiting = await waitingPartitions(tx, sizes);
-  for (const control of offeredTimeControls(rules)) {
+  for (const control of offeredMatchChoices(rules)) {
     const pool = opponentPool(control.id, rules);
     if (!waiting.has(pool)) continue;
     await formMatches(tx, {

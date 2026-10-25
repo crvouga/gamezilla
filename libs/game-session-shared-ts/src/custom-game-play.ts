@@ -29,7 +29,7 @@ export function finishCustomGame(
     outcome,
     outcomeReason: reason,
     drawAcceptedBy: [],
-    endedAt: now,
+    endedAt: Math.floor(now),
     drawOfferedBy: '',
     declinedOffers: [],
     awaiting: [],
@@ -60,7 +60,8 @@ export function customGameWinOrDraw(
   reason: 'resignation' | 'time' | 'away',
   rules: TurnGames
 ): CustomGame['outcome'] {
-  if (!rules.forPosition(game.fen).canWin(game.fen, winner)) return 'draw';
+  if (rules.turnsForPosition(game.fen)?.canWin(game.fen, winner) === false)
+    return 'draw';
   if (reason === 'away')
     return winner === 'white'
       ? 'white wins because black stayed away'
@@ -98,11 +99,13 @@ export function expireCustomGame(
 
 /** The game at a new position: a phase of private commitments opens when its rules start one. */
 function openedCommitments(game: CustomGame, rules: TurnGames): CustomGame {
+  const turns = rules.turnsForPosition(game.fen);
   return {
     ...game,
-    awaiting: [
-      ...pendingCommitments(rules.forPosition(game.fen), game.fen, []),
-    ],
+    awaiting:
+      turns === undefined
+        ? []
+        : [...pendingCommitments(turns, game.fen, [])],
     committed: [],
   };
 }
@@ -118,9 +121,10 @@ export function playCustomGameMove(
   rules: TurnGames
 ): CustomGame | null {
   if (game.status !== 'active') return null;
+  const turns = rules.turnsForPosition(game.fen);
+  if (turns === undefined) return null;
   assertCustomGamePosition(game, rules);
-  const played = rules.forPosition(game.fen);
-  const move = played.play(
+  const move = turns.play(
     game.fen,
     uci,
     '',
@@ -130,7 +134,7 @@ export function playCustomGameMove(
   // Played from a verified position, the new one needs no replay of its own.
   rememberCustomGamePosition(
     { fen: move.position, moves: [...game.moves, { uci, san: move.label }] },
-    played
+    turns
   );
   const resolution = game.committed.length > 0;
   const moved = openedCommitments(
@@ -146,7 +150,7 @@ export function playCustomGameMove(
         : game.declinedOffers.filter(
             (person) => person !== game[game.turn].person
           ),
-      turnStartedAt: now,
+      turnStartedAt: Math.floor(now),
       remaining: resolution
         ? game.remaining
         : {
@@ -185,8 +189,8 @@ export function playCustomGameChoice(
             {
               ...game,
               status: 'active',
-              startedAt: now,
-              turnStartedAt: now,
+              startedAt: Math.floor(now),
+              turnStartedAt: Math.floor(now),
               remaining: {
                 white: game.minutes * 60_000,
                 black: game.minutes * 60_000,

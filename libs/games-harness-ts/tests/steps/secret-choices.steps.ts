@@ -11,15 +11,15 @@ import { recordedLine } from '@libs/game-session-harness-ts/played-rules';
 import { restoreNetwork } from '@libs/harness-ts/actions';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import { cutConnection } from '@libs/harness-ts/platform';
-import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import { current, toldOf } from './custom-game-set-up-world';
-import { before, gameOf } from './game-world';
+import { before, turnGameOf } from './game-world';
 import {
   followKnownLine,
   knownLine,
   lineState,
-  roundAfterMoveBy,
+  playKnownLineTo,
   secretChoiceRound,
+  secretChoiceRounds,
 } from './known-line';
 import {
   awaitingSecretChoicesAt,
@@ -44,32 +44,35 @@ const SECOND_MS = 1_000;
 Given(
   'Alice, Bob, Carol and Dave have a four-player custom game awaiting secret choices',
   async (w) =>
-    awaitingSecretChoicesAt(w, secretChoiceRound(gameOf(w), knownLine(w), 1))
+    awaitingSecretChoicesAt(
+      w,
+      secretChoiceRound(turnGameOf(w), knownLine(w), 1)
+    )
 );
 Given(
   'Alice, Bob, Carol and Dave have a four-player custom game in its second round of secret choices',
   async (w) => {
     const line = knownLine(w);
-    w.memo.set('earlier-round', secretChoiceRound(gameOf(w), line, 1));
-    await awaitingSecretChoicesAt(w, secretChoiceRound(gameOf(w), line, 2));
+    w.memo.set('earlier-round', secretChoiceRound(turnGameOf(w), line, 1));
+    await awaitingSecretChoicesAt(w, secretChoiceRound(turnGameOf(w), line, 2));
   }
 );
-// The round opens after the fourth side's move: Dave's move is the known line's.
 Given(
-  'Alice, Bob, Carol and Dave have a four-player custom game one move from its next round of secret choices',
+  'Alice, Bob, Carol and Dave have a four-player custom game whose secret choices have taken effect',
   async (w) => {
     const line = knownLine(w);
-    const fourth = gameSides(gameOf(w).shared.turnGame.rules)[3]!;
-    const round = roundAfterMoveBy(gameOf(w), line, fourth);
-    await followKnownLine(w, FOUR_PEOPLE, line, round - 1);
-    expect((await current(w)).turn).toBe(fourth);
+    const ply = secretChoiceRound(turnGameOf(w), line, 1) + 1;
+    await followKnownLine(w, FOUR_PEOPLE, line, ply);
+    const game = await current(w);
+    expect(game.awaiting).toEqual([]);
+    expect(game.moves).toHaveLength(ply);
   }
 );
 Given(
   'Alice has a four-player custom game against three bots awaiting secret choices',
   async (w) => {
     const line = knownLine(w);
-    const ply = secretChoiceRound(gameOf(w), line, 1);
+    const ply = secretChoiceRound(turnGameOf(w), line, 1);
     await followKnownLine(
       w,
       { second: 'bot', third: 'bot', fourth: 'bot' },
@@ -107,6 +110,13 @@ Given(
 When('{actor} makes his/her/a secret choice', async (w, actor: string) =>
   makeOwnSecretChoice(w, actor)
 );
+// Everyone plays the known line's moves until its next round of secret choices.
+When('play reaches the next round of secret choices', async (w) => {
+  const played = (await current(w)).moves.length;
+  const next = secretChoiceRounds(knownLine(w)).find((ply) => ply >= played);
+  if (next === undefined) throw new Error('The known line has no later round');
+  await playKnownLineTo(w, next);
+});
 When('{actor} makes another secret choice', async (w, actor: string) =>
   makeSecretChoice(
     w,
@@ -221,7 +231,7 @@ Then("the custom game goes on as the game's rules say", async (w) => {
   const line = knownLine(w).slice(0, game.moves.length);
   expect(game.status).toBe('active');
   expect(game.moves.map((move) => move.uci)).toEqual(
-    recordedLine(gameOf(w), line)
+    recordedLine(turnGameOf(w), line)
   );
-  expect(game.turn).toBe(lineState(gameOf(w), line).turn);
+  expect(game.turn).toBe(lineState(turnGameOf(w), line).turn);
 });

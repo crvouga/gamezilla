@@ -21,7 +21,7 @@ export function multiplayerHandsRules(
   game: Pick<MultiplayerGame, 'fen'>,
   rules: TurnGames
 ): DealtHandsRules | undefined {
-  return rules.forPosition(game.fen).hands;
+  return rules.turnsForPosition(game.fen)?.hands;
 }
 
 /**

@@ -21,6 +21,7 @@
     "@libs/game-session-shared-ts": "workspace:*",
     "@libs/hearts-shared-ts": "workspace:*",
     "@libs/numberlink-shared-ts": "workspace:*",
+    "@libs/pong-shared-ts": "workspace:*",
     "@libs/quoridor-shared-ts": "workspace:*",
     "@libs/spaces-shared-ts": "workspace:*"
   },

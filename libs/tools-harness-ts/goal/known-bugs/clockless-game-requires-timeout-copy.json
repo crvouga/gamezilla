@@ -1,0 +1,4 @@
+{
+  "summary": "A clockless game with matchmaking side and ending notices was rejected unless it invented turn-clock timeout copy. Only the advertised turn-clock capability requires that copy.",
+  "regressionTest": "libs/game-session-shared-ts/tests/turn-game-contract.test.ts"
+}

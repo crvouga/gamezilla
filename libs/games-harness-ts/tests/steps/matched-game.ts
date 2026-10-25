@@ -13,7 +13,11 @@ import {
   refusal,
   resignedBySecond,
 } from '@libs/game-matchmaking-harness-ts/matched-game-world';
-import { givenGameSpace } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
+import {
+  givenGameSpace,
+  openFindingAnOpponent,
+} from '@libs/game-matchmaking-harness-ts/opponent-seeking';
+import { defaultMatchChoice } from '@libs/game-matchmaking-shared-ts/match-choice';
 import {
   signInWithGoogle,
   signInWithGoogleAsAccount,
@@ -21,17 +25,18 @@ import {
 import { signedInAccountOf } from '@libs/harness-ts/identity';
 import { backToTabs } from '@libs/harness-ts/shell-actions';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
-import { gameOf } from './game-world';
+import { gameOf, turnGameOf } from './game-world';
 
 /** The clock choice a new matched game is played at unless one is named. */
-const NEW_GAME_CLOCK = '5+0';
 
 /** `clock` (`5+0`) as the run's game names it among its time controls. */
-export function timeControlFor(w: HarnessWorld, clock = NEW_GAME_CLOCK) {
-  const matchmaking = gameOf(w).shared.turnGame.capabilities.matchmaking;
+export function timeControlFor(w: HarnessWorld, clock?: string) {
+  const matchmaking = gameOf(w).shared.registration.capabilities.matchmaking;
   if (matchmaking === undefined)
     throw new Error(`${gameOf(w).label} offers no finding an opponent`);
-  return `${matchmaking.clockNamespace}${clock}`;
+  return clock === undefined
+    ? defaultMatchChoice(matchmaking)
+    : `${matchmaking.namespace}${clock}`;
 }
 
 /** Each person signed in, with a space of their own to play in. */
@@ -45,23 +50,26 @@ export async function readyPeople(w: HarnessWorld, people: readonly string[]) {
 }
 
 /** A new matched game of the run's game, `first` on the first side. */
-export function pairedAt(
+export async function pairedAt(
   w: HarnessWorld,
   first: string,
   second: string,
-  clock = NEW_GAME_CLOCK
+  clock?: string
 ) {
-  return pairMatchedGame(w, {
+  const game = await pairMatchedGame(w, {
     people: readyPeople,
     first,
     second,
     timeControl: timeControlFor(w, clock),
   });
+  for (const actor of [first, second])
+    await w.s.apply(openFindingAnOpponent, actor, gameOf(w).shared.id);
+  return game;
 }
 
 /** The game's fixture moves, from the first side, that win it. */
 function victory(w: HarnessWorld): readonly string[] {
-  return gameOf(w).fixtures.firstSideVictory;
+  return turnGameOf(w).fixtures.firstSideVictory;
 }
 
 /** The first move of `actor`'s side: the first side's, then the second's. */
@@ -88,7 +96,7 @@ export function nextVictoryMove(w: HarnessWorld, revision: number): string {
 
 /** A move the game refuses. */
 export function refusedMove(w: HarnessWorld): string {
-  return gameOf(w).fixtures.refusedOpenings[0]!;
+  return turnGameOf(w).fixtures.refusedOpenings[0]!;
 }
 
 /** Both people have made their first move. */

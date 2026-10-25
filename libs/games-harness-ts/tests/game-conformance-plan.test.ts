@@ -9,7 +9,8 @@
  */
 
 import { expect, test } from 'bun:test';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import type {
   ConformancePlan,
   PlannedCodeSuite,
@@ -21,7 +22,7 @@ import {
   specificationTableProblems,
 } from '@libs/games-harness-ts/game-conformance';
 import { HARNESS_GAMES } from '@libs/games-harness-ts/harness-games';
-import { TURN_GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
+import { REGISTERED_GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
 import { COUNTING_RACE_GAME } from './reference-game/counting-race-game';
 
 const RACE = COUNTING_RACE_GAME;
@@ -118,33 +119,36 @@ test('duplicate execution ids and a different shared definition fail', () => {
 
 test('a registered game missing from the harness games fails, naming where to add it', () => {
   expect(
-    enrollmentProblems(TURN_GAME_DEFINITIONS, HARNESS_GAMES.slice(0, 1))
+    enrollmentProblems(REGISTERED_GAME_DEFINITIONS, HARNESS_GAMES.slice(0, 1))
   ).toEqual(
-    TURN_GAME_DEFINITIONS.slice(1).map(
+    REGISTERED_GAME_DEFINITIONS.slice(1).map(
       (definition) =>
-        `"${definition.id}" is in TURN_GAME_DEFINITIONS but not HARNESS_GAMES — add its HarnessGame to HARNESS_GAMES (@libs/games-harness-ts/harness-games) so the shared suites hold it`
+        `"${definition.id}" is in REGISTERED_GAME_DEFINITIONS but not HARNESS_GAMES — add its HarnessGame to HARNESS_GAMES (@libs/games-harness-ts/harness-games) so the shared suites hold it`
     )
   );
 });
 
 test('a harness game that is not registered fails, naming where it belongs', () => {
   expect(
-    enrollmentProblems(TURN_GAME_DEFINITIONS, [...HARNESS_GAMES, RACE])
+    enrollmentProblems(REGISTERED_GAME_DEFINITIONS, [...HARNESS_GAMES, RACE])
   ).toEqual([
-    `"counting-race" (counting race) is in HARNESS_GAMES but not TURN_GAME_DEFINITIONS — register its defineTurnGame value, or list a test-only game beside the reference game (tests/conformance-world.ts)`,
+    `"counting-race" (counting race) is in HARNESS_GAMES but not REGISTERED_GAME_DEFINITIONS — register its defineGame value, or list a test-only game beside the reference game (tests/conformance-world.ts)`,
   ]);
 });
 
 test('harness games out of registry order, or holding another definition, fail', () => {
   expect(
-    enrollmentProblems(TURN_GAME_DEFINITIONS, [...HARNESS_GAMES].reverse())
+    enrollmentProblems(
+      REGISTERED_GAME_DEFINITIONS,
+      [...HARNESS_GAMES].reverse()
+    )
   ).toContain(
-    `HARNESS_GAMES[0] is "${TURN_GAME_DEFINITIONS.at(-1)!.id}" but TURN_GAME_DEFINITIONS[0] is "${TURN_GAME_DEFINITIONS[0]!.id}" — list the harness games in registry order`
+    `HARNESS_GAMES[0] is "${REGISTERED_GAME_DEFINITIONS.at(-1)!.id}" but REGISTERED_GAME_DEFINITIONS[0] is "${REGISTERED_GAME_DEFINITIONS[0]!.id}" — list the harness games in registry order`
   );
-  const copy: HarnessGame = { ...RACE };
+  const copy: TurnHarnessGame = { ...RACE };
   expect(enrollmentProblems([RACE.shared], [copy])).toEqual([]);
   expect(enrollmentProblems([{ id: 'counting-race' }], [RACE])).toEqual([
-    '"counting-race": HARNESS_GAMES holds another definition than TURN_GAME_DEFINITIONS registers — use the registered defineTurnGame value itself',
+    '"counting-race": HARNESS_GAMES holds another definition than REGISTERED_GAME_DEFINITIONS registers — use the registered defineGame value itself',
   ]);
 });
 
@@ -205,7 +209,7 @@ test('a specification table listing an unknown capability, nothing, or only a tr
       uris
     )
   ).toEqual([
-    'SHARED_SPECIFICATIONS["a"] lists "tournaments", which is neither a capability (custom-games, matchmaking, history, puzzles) nor a trait (two seats, more than two seats, four seats, a puzzle opponent, a side that cannot win, a draw by the game\'s own rules, a private setup, played on one device, a bot choosing among legal moves, dealt hands, a seven-move victory, a known puzzle won another way)',
+    'SHARED_SPECIFICATIONS["a"] lists "tournaments", which is neither a capability (custom-games, matchmaking, history, puzzles) nor a trait (two seats, more than two seats, four seats, rotating turns, secret choices, a shared victory, clock choices, no clock choices, turns, no turns, simulation, a puzzle opponent, a side that cannot win, a draw by the game\'s own rules, a private setup, played on one device, every position public, a bot choosing among legal moves, dealt hands, a seven-move victory, a known puzzle won another way)',
     'SHARED_SPECIFICATIONS["b"] lists nothing — list the capabilities it shows',
     'SHARED_SPECIFICATIONS["c"] lists no capability — a specification counts toward the capabilities it shows',
   ]);
@@ -233,7 +237,7 @@ test('a specification with an unknown capability binds no game', () => {
 test('a shared specification added to the table reaches every game offering what it shows, and no other', () => {
   const games = [...HARNESS_GAMES, RACE];
   const plan: ConformancePlan = {
-    registered: TURN_GAME_DEFINITIONS,
+    registered: REGISTERED_GAME_DEFINITIONS,
     harness: HARNESS_GAMES,
     games,
     codeSuites: [],
@@ -257,7 +261,9 @@ test('a shared specification added to the table reaches every game offering what
   );
   expect(bound('matchmaking').map(([game]) => game)).toEqual(
     HARNESS_GAMES.filter(
-      (game) => game.shared.turnGame.capabilities.matchmaking !== undefined
+      (game) =>
+        isTurnHarnessGame(game) &&
+        game.shared.turnGame.capabilities.matchmaking !== undefined
     ).map((game) => game.label)
   );
   expect(matrix.at(-1)!.cells.matchmaking.status).toBe('unsupported');

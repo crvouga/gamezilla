@@ -7,8 +7,8 @@
 
 import { test } from 'bun:test';
 import { gamePuzzlePlaybackLaws } from '@libs/game-session-harness-ts/game-puzzle-laws';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 
-forEveryGame(import.meta.path, (game) => {
+forEveryTurnGame(import.meta.path, (game) => {
   for (const law of gamePuzzlePlaybackLaws(game)) test(law.name, law.check);
 });

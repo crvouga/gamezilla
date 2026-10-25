@@ -6,11 +6,7 @@ import { policyAt } from '@pkgs/permissions-shared-ts/policy';
 import { resolveSubject } from '@pkgs/permissions-shared-ts/resolve';
 
 import type { AccessScope } from './access-scope';
-import type {
-  AppGrantKey,
-  AppLimit,
-  AppPolicyKey,
-} from './permission-catalog';
+import type { AppGrantKey, AppLimit, AppPolicyKey } from './permission-catalog';
 import type { AccessIdentity, AccessReader } from './read-access';
 import { readAccess } from './read-access';
 import { resolveResourceRoles } from './resource-roles';

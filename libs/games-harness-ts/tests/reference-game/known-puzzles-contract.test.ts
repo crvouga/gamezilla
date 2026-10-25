@@ -10,12 +10,12 @@
 import { expect, test } from 'bun:test';
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
 import type {
-  HarnessGame,
   PlayableGame,
+  TurnHarnessGame,
 } from '@libs/game-session-harness-ts/harness-game';
 import { assertHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import type { PuzzleFixture } from '@libs/game-session-harness-ts/known-puzzles';
-import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import {
   COUNTING_RACE_CLIENT,
   COUNTING_RACE_FIXTURES,
@@ -28,7 +28,7 @@ const { puzzles: known, ...rulesFixtures } = COUNTING_RACE_FIXTURES;
 const { puzzles: _part, ...clientWithoutPuzzles } = COUNTING_RACE_CLIENT;
 
 /** The reference game offering custom games and history, but no puzzles. */
-const WITHOUT_PUZZLES = defineTurnGame({
+const WITHOUT_PUZZLES = defineGame({
   ...COUNTING_RACE_TURN_GAME,
   capabilities: {
     'custom-games': COUNTING_RACE_TURN_GAME.capabilities['custom-games'],
@@ -68,7 +68,7 @@ test('assertHarnessGame refuses a game offering puzzles without known puzzles, a
     'counting race: a game offering puzzles names known puzzles of its own (fixtures.puzzles)'
   );
   // Typed loosely, as a spread copy would be, the adapter compiles.
-  const loose: HarnessGame = {
+  const loose: TurnHarnessGame = {
     ...COUNTING_RACE_GAME,
     shared: WITHOUT_PUZZLES,
     client: defineGameClient({

@@ -26,7 +26,7 @@ describe('the Battleship registration', () => {
       'history',
       'matchmaking',
     ]);
-    expect(battleshipGameShared.capabilities.matchmaking.clockNamespace).toBe(
+    expect(battleshipGameShared.capabilities.matchmaking.namespace).toBe(
       'battleship/'
     );
     expect(battleshipGameShared.turnGame.rules.setup).toBeDefined();

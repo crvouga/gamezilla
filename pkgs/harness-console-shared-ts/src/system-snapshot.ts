@@ -6,7 +6,7 @@
 import type { SqlDataDump } from '@pkgs/sql-client-root-shared-ts/types';
 import type { HarnessCheckpointRoomDump } from './checkpoint';
 
-export const HARNESS_SYSTEM_SNAPSHOT_VERSION = 1 as const;
+export const HARNESS_SYSTEM_SNAPSHOT_VERSION = 2 as const;
 
 export type HarnessSystemSnapshotClientSlice = {
   readonly tables: SqlDataDump;

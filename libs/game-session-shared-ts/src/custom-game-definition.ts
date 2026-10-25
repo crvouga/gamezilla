@@ -28,7 +28,9 @@ export function withCustomGames(
   // Only a game with private setups or dealt hands makes any custom-game
   // event private.
   const privately = rules.games.some(
-    (g) => g.rules.setup !== undefined || g.rules.hands !== undefined
+    (g) =>
+      g.rules.setup !== undefined ||
+      rules.turnsForPosition(g.rules.initial())?.hands !== undefined
   );
   return {
     ...game,

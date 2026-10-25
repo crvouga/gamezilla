@@ -23,7 +23,7 @@ import {
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { MutationError } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import type { PuzzleRecord } from '@pkgs/turn-game-shared-ts/game-puzzles';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 import { puzzleCase } from './puzzle-room';
 
 const PERSON = 'free account';
@@ -81,7 +81,7 @@ async function refusal(run: Promise<void>): Promise<string | null> {
   }
 }
 
-forEveryGame(import.meta.path, (game) => {
+forEveryTurnGame(import.meta.path, (game) => {
   const { known, puzzles } = puzzleCase(game);
   const { record } = known[0];
 

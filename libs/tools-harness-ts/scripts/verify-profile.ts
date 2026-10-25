@@ -123,6 +123,7 @@ export const NIGHTLY_SUITES = {
     summary: 'Hot-path benchmarks',
     tasks: [
       '@pkgs/room-root-harness-ts#bench',
+      '@libs/pong-harness-ts#bench',
       '@pkgs/sql-root-shared-ts#perf',
     ],
     deadlineSeconds: 1800,

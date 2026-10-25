@@ -8,6 +8,7 @@ import {
   type TurnGames,
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { MultiplayerGame } from './game-state';
+import { matchChoiceOf } from './match-choice';
 import { scheduleMultiplayerDeadline } from './multiplayer-deadline';
 import { dealMultiplayerHands } from './multiplayer-hands';
 import { scheduleMultiplayerNotices } from './multiplayer-notices';
@@ -29,13 +30,14 @@ export type NewMultiplayerGame = {
   readonly rematchOf: string | null;
   readonly nowMs: number;
   readonly createId?: () => string;
+  readonly initialPosition?: string;
 };
 
 async function shownRatings(
   tx: SqlTx,
   input: NewMultiplayerGame
 ): Promise<ReadonlyMap<string, string>> {
-  const control = timeControlOf(input.timeControl);
+  const control = matchChoiceOf(input.timeControl);
   if (control === null) return new Map();
   const people = [
     input.whiteId,
@@ -45,7 +47,7 @@ async function shownRatings(
   ].filter((person): person is string => Boolean(person));
   const ratings = await new MultiplayerRatingRepository(tx).readMany(
     people,
-    control.speed
+    control.ratingPool
   );
   return new Map(
     [...ratings].map(([owner, rating]) => [
@@ -66,7 +68,21 @@ async function initialMultiplayerGame(
   rules: TurnGames
 ): Promise<MultiplayerGame> {
   requirePlayers(input, rules);
-  const ms = startingMs(input.timeControl);
+  const gameRules = rules.forControl(input.timeControl);
+  const simulation = rules.simulation(gameRules.id);
+  const turns = rules.turnsForPosition(gameRules.initial()) !== undefined;
+  const timed = turns && timeControlOf(input.timeControl) !== null;
+  const ms = timed ? startingMs(input.timeControl) : null;
+  const position =
+    input.initialPosition ??
+    (simulation === undefined
+      ? gameRules.initial()
+      : simulation.codec.encode(simulation.initialize(input.id)));
+  if (
+    !gameRules.recognizes(position) ||
+    (simulation !== undefined && simulation.codec.decode(position) === null)
+  )
+    throw new Error('invalid initial multiplayer position');
   const ratings = await shownRatings(tx, input);
   const game: MultiplayerGame = {
     id: input.id,
@@ -74,10 +90,10 @@ async function initialMultiplayerGame(
     black_id: input.blackId,
     red_id: input.redId ?? null,
     blue_id: input.blueId ?? null,
-    fen: rules.forControl(input.timeControl).initial(),
+    fen: position,
     pgn: '',
     revision: 0,
-    turn: input.whiteId,
+    turn: turns ? input.whiteId : '',
     outcome: 'ongoing',
     reason: null,
     time_control: input.timeControl,
@@ -85,7 +101,7 @@ async function initialMultiplayerGame(
     black_ms: ms,
     red_ms: input.redId ? ms : null,
     blue_ms: input.blueId ? ms : null,
-    clock_at_ms: input.nowMs,
+    clock_at_ms: timed ? input.nowMs : null,
     paused_at_ms: null,
     draw_offer_by: '',
     rematch_offer_by: '',

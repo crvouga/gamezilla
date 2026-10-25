@@ -7,9 +7,9 @@ const ENDINGS: Readonly<Record<string, string>> = {
   'insufficient material': 'Neither side can checkmate.',
   'fifty moves': 'By the fifty-move rule.',
 };
-export const chessNoticeText: GameNoticeText = {
+export const chessNoticeText = {
   timeoutDraw: (side) =>
     `${side === 'white' ? 'White' : 'Black'} ran out of time, but the other side cannot checkmate.`,
   side: (side) => (side === 'white' ? 'White' : 'Black'),
   ending: (reason) => ENDINGS[reason],
-};
+} satisfies GameNoticeText;

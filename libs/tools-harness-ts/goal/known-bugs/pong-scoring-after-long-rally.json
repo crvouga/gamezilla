@@ -1,0 +1,4 @@
+{
+  "summary": "Scoring trace 8, seed 0x67932, opens a serve to Right and asks Right to win. The harness follows the delayed visible ball and moves the other paddle away from its current y; after several wall rebounds it accidentally returns the ball and eventually loses. Guide both paddles using the landing projected from consecutive visible ball positions and court bounds, retaining the actual score/winner oracle.",
+  "regressionTest": "libs/pong-harness-ts/tests/quint/pong-scoring.binding.ts"
+}

@@ -60,7 +60,7 @@ test('the solo solution is judged and replayed from its first move', () => {
 // regression: solver-only-known-puzzle-parity
 test('the declared solo line keeps both solver moves without inventing an opponent input', () => {
   const known = SOLO_COUNT_GAME.fixtures.puzzles?.[0];
-  const puzzles = SOLO_COUNT_GAME.shared.turnGame.capabilities.puzzles;
+  const puzzles = SOLO_COUNT_GAME.shared.registration.capabilities.puzzles;
   if (known === undefined || puzzles === undefined)
     throw new Error('Missing solo fixture');
   const { opponentMove: _opponentMove, ...solo } = known;
@@ -77,7 +77,7 @@ test('the declared solo line keeps both solver moves without inventing an oppone
 
 test('an opponent layout still requires its refused opponent input', () => {
   const known = COUNTING_RACE_GAME.fixtures.puzzles?.[0];
-  const puzzles = COUNTING_RACE_GAME.shared.turnGame.capabilities.puzzles;
+  const puzzles = COUNTING_RACE_GAME.shared.registration.capabilities.puzzles;
   if (known === undefined || puzzles === undefined)
     throw new Error('Missing opponent fixture');
   const { opponentMove: _opponentMove, ...missing } = known;

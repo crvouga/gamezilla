@@ -155,7 +155,7 @@ export function customGameHandsRules(
   game: CustomGame,
   rules: TurnGames
 ): DealtHandsRules | undefined {
-  return rules.forPosition(game.fen).hands;
+  return rules.turnsForPosition(game.fen)?.hands;
 }
 
 /** The game's hidden state, as only the room holds it; `null` until dealt. */

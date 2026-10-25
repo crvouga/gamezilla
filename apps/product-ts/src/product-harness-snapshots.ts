@@ -316,7 +316,7 @@ async function readRoomDumps(
       `${prefix}rooms/${encodeURIComponent(topic)}.json`
     );
     if (text === null) continue;
-    let room: { entries?: unknown; dedup?: unknown };
+    let room: { entries?: unknown; dedup?: unknown; liveCheckpoint?: unknown };
     try {
       room = JSON.parse(text) as typeof room;
     } catch {
@@ -325,6 +325,7 @@ async function readRoomDumps(
     rooms[topic] = {
       entries: (room.entries ?? []) as never,
       dedup: (room.dedup ?? {}) as never,
+      liveCheckpoint: room.liveCheckpoint ?? null,
     };
   }
   return rooms;

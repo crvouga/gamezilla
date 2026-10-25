@@ -4,7 +4,7 @@ import {
   PlayCustomGameBot,
 } from '@libs/game-session-shared-ts/custom-game-commands';
 import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
-import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import { GamesRoomAttr } from '@libs/spaces-shared-ts/games';
 import { SpaceMembersRoomAttr } from '@libs/spaces-shared-ts/space-members-messages';
 import { createSpaceModule } from '@libs/spaces-shared-ts/space-module';
@@ -17,10 +17,10 @@ import type {
 import { bots, notice, rules } from './reference-game';
 
 function raceRoom(capabilities: TurnGameCapabilities, gameRules = rules) {
-  const definition = defineTurnGame({
+  const definition = defineGame({
     rules: gameRules,
     capabilities,
-    automation: { choose: () => null, perform: async () => {} },
+    turnAutomation: { choose: () => null, perform: async () => {} },
   });
   const module = createSpaceModule(
     assertRoomModuleName('race-room'),
@@ -37,7 +37,11 @@ function raceRoom(capabilities: TurnGameCapabilities, gameRules = rules) {
 
 test('a game that declares no custom games cannot create one', () => {
   const { module, state } = raceRoom({
-    matchmaking: { clockNamespace: 'counting-race/', notice },
+    matchmaking: {
+      clockChoices: true as const,
+      namespace: 'counting-race/',
+      notice,
+    },
     history: { record: String },
   });
   const result = module.handle(

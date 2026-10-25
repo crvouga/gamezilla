@@ -25,7 +25,7 @@ import { PuzzleResultAttr } from '@libs/game-puzzle-shared-ts/play-result';
 import { lineActions } from '@libs/game-puzzle-shared-ts/step';
 import type { RoomState } from '@pkgs/room-root-shared-ts/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared-ts/types';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 import {
   apply,
   committed,
@@ -47,7 +47,7 @@ const resultOf = (state: RoomState) => ({
   score: PuzzleResultAttr.score.from(state),
 });
 
-forEveryGame(import.meta.path, (game) => {
+forEveryTurnGame(import.meta.path, (game) => {
   const c = puzzleCase(game);
   const { long, layout } = c;
   const first = long.solution[0] ?? '';

@@ -81,6 +81,7 @@ export const playCustomGameHistory = scenarioAction({
         identity: person,
         installId,
         clientId: env.createId(),
+        clock: env.clock,
         timers: env.timers,
       });
       if (probe === null) throw new Error('history seat is not in the space');

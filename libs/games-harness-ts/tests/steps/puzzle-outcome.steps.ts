@@ -32,7 +32,7 @@ import type { Actor } from '@libs/harness-ts/parameter-types';
 import { otherDevice } from '@libs/harness-ts/platform';
 import { focusActor } from '@libs/harness-ts/shell-actions';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
-import { gameOf, joinHostsSpace } from './game-world';
+import { joinHostsSpace, turnGameOf } from './game-world';
 import {
   currentPuzzle,
   ensureOnPuzzle,
@@ -229,9 +229,11 @@ const ratingBeforeRepeatKey = (actor: string) =>
   `puzzle-rating-before-repeat:${actor}`;
 
 Given('the puzzle pool holds just three puzzles', async (w) => {
-  const known = knownPuzzlesOf(gameOf(w)).map((fixture) => fixture.record.id);
+  const known = knownPuzzlesOf(turnGameOf(w)).map(
+    (fixture) => fixture.record.id
+  );
   const namespace =
-    gameOf(w).shared.turnGame.capabilities.puzzles?.namespace ?? '';
+    turnGameOf(w).shared.registration.capabilities.puzzles?.namespace ?? '';
   // Precondition guard: the world's pool is the game's three known puzzles.
   expect(known).toHaveLength(3);
   expect(await w.s.read(readCataloguePuzzles, namespace)).toEqual(

@@ -2,6 +2,7 @@ import type { HarnessRoomNode } from '@libs/harness-ts/composition';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { readCustomGameProbe } from './custom-game-probe';
 import { harnessGameAt } from './harness-game-of';
+import { isTurnHarnessGame } from './harness-game';
 
 /**
  * Documented choices made through the room's injected random port: the
@@ -48,6 +49,7 @@ export async function dealKnownHandsOnStart(
   if (operation !== 'start') return;
   const current = (await readCustomGameProbe(s, actor))?.current;
   if (current === null || current === undefined) return;
-  const deal = harnessGameAt(s, current.fen).fixtures.knownDeal;
+  const game = harnessGameAt(s, current.fen);
+  const deal = isTurnHarnessGame(game) ? game.fixtures.knownDeal : undefined;
   if (deal !== undefined) queueRoomDraws(s, deal.draws);
 }

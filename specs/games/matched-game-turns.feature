@@ -30,7 +30,7 @@ Feature: Play a matched game together
       Given Alice has made her first move in a new matched game against Bob
 
     Scenario: The same move made again on another device counts once
-      When Alice makes her first move again on her other device
+      When Alice repeats her first move from her other device
       Then both people see the one move played
       And it is Bob's turn
 

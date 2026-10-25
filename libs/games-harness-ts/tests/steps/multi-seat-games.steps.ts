@@ -9,7 +9,8 @@ import {
   identityOf,
   toldOf,
 } from './custom-game-set-up-world';
-import { gameOf, setupCustomGame } from './game-world';
+
+import { setupCustomGame, turnGameOf } from './game-world';
 import { followsKnownLine, plyWithMover } from './known-line';
 
 const PEOPLE = ['alice', 'bob', 'carol', 'dave'] as const;
@@ -20,7 +21,7 @@ const PEOPLE = ['alice', 'bob', 'carol', 'dave'] as const;
  * secret choices open.
  */
 async function toMove(w: HarnessWorld, seat: number): Promise<void> {
-  const game = gameOf(w);
+  const game = turnGameOf(w);
   const line = game.fixtures.firstSideVictory;
   const side = gameSides(game.shared.turnGame.rules)[seat]!;
   followsKnownLine(w, line);
@@ -81,13 +82,13 @@ Given(
       third: 'carol',
       fourth: 'dave',
       clock: { minutes: 1, increment: 0 },
-      moves: gameOf(w).fixtures.firstSideVictory.slice(0, 2),
+      moves: turnGameOf(w).fixtures.firstSideVictory.slice(0, 2),
     })
 );
 
 Then("the four sides follow the game's declared turn order", async (w) => {
   expect((await current(w)).sides).toEqual([
-    ...gameSides(gameOf(w).shared.turnGame.rules),
+    ...gameSides(turnGameOf(w).shared.turnGame.rules),
   ]);
   for (const [index, person] of PEOPLE.entries()) {
     const seen = await w.s.read(customGameView, person);

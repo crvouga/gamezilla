@@ -9,8 +9,9 @@
 
 import { playCustomGameHistory } from '@libs/game-session-harness-ts/custom-game-history';
 import type { CustomGameLineup } from '@libs/game-session-harness-ts/custom-game-lineup';
+import { makeCustomGameMove } from '@libs/game-session-harness-ts/custom-game-moves';
 import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import {
   playedRulesOf,
   splitCommittedProposal,
@@ -28,11 +29,11 @@ import type {
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import {
-  gameOf,
   hostOf,
   rememberCustomGame,
   setupCustomGame,
   spaceLinkOf,
+  turnGameOf,
 } from './game-world';
 
 const KNOWN_LINE = 'known-line';
@@ -53,7 +54,7 @@ export type LineState = {
 
 /** The state of `line` after its first `ply` proposals, by the game's rules. */
 export function lineState(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   line: readonly string[],
   ply = line.length
 ): LineState {
@@ -83,7 +84,7 @@ export function lineState(
 
 /** The shortest prefix of `line` after which `side` is to move with no round of secret choices open. */
 export function plyWithMover(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   line: readonly string[],
   side: GameSide
 ): number {
@@ -102,7 +103,7 @@ export function secretChoiceRounds(line: readonly string[]): readonly number[] {
 
 /** The `n`-th round of secret choices of `line` (1 for the first). */
 export function secretChoiceRound(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   line: readonly string[],
   n: number
 ): number {
@@ -116,7 +117,7 @@ export function secretChoiceRound(
 
 /** A later round of secret choices of `line` that opens right after `side`'s move. */
 export function roundAfterMoveBy(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   line: readonly string[],
   side: GameSide
 ): number {
@@ -134,7 +135,7 @@ export function roundAfterMoveBy(
 export function knownLine(w: HarnessWorld): readonly string[] {
   return (
     (w.memo.get(KNOWN_LINE) as readonly string[] | undefined) ??
-    gameOf(w).fixtures.firstSideVictory
+    turnGameOf(w).fixtures.firstSideVictory
   );
 }
 
@@ -216,7 +217,7 @@ export async function playToLastMove(
 }
 
 /** The scenario's person whose member identity is `id`. */
-async function personOn(w: HarnessWorld, id: string): Promise<string> {
+export async function personOn(w: HarnessWorld, id: string): Promise<string> {
   for (const person of ['alice', 'bob', 'carol', 'dave', 'eve'])
     if (
       (await w.s.read((s) => s.actors.has(person))) &&
@@ -224,6 +225,34 @@ async function personOn(w: HarnessWorld, id: string): Promise<string> {
     )
       return person;
   throw new Error(`Nobody in the scenario is ${id}`);
+}
+
+/**
+ * Play goes on along the known line until `ply` moves are played: each move
+ * by the person whose turn it is, on their own board.
+ */
+export async function playKnownLineTo(
+  w: HarnessWorld,
+  ply: number
+): Promise<void> {
+  const line = knownLine(w);
+  for (;;) {
+    const game = (await w.s.read(customGameView, hostOf(w))).current;
+    if (game === null) throw new Error('The host sees no custom game');
+    const at = game.moves.length;
+    if (at >= ply) return;
+    const mover = await personOn(w, game[game.turn].person);
+    await w.s.apply(
+      makeCustomGameMove,
+      mover,
+      turnGameOf(w).shared.id,
+      line[at]!
+    );
+    await w.s.until((s) => customGameView(s, hostOf(w)), {
+      pred: (shown) => (shown.current?.moves.length ?? 0) > at,
+      maxMs: 10_000,
+    });
+  }
 }
 
 /** Remember that the custom game follows `line`, set up by the scenario's own steps. */
@@ -240,7 +269,7 @@ export function followsKnownLine(
  * one the known line makes first, then others its rules offer.
  */
 export function secretChoicesOf(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   line: readonly string[],
   ply: number,
   side: GameSide

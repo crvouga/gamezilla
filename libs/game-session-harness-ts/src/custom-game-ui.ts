@@ -36,8 +36,12 @@ async function awaitOnlineSpace(
   // A device cut off from the server is refused at once: waiting would only
   // spend time on the clocks of everyone still playing.
   if (partitioned(s).some((pair) => pair.split('|').includes(actor))) return;
-  const rules = harnessGameAt(s, probe.current.fen).shared.turnGame.rules;
-  if (rules.setup === undefined && rules.hands === undefined) return;
+  const game = harnessGameAt(s, probe.current.fen);
+  if (
+    game.shared.registration.rules.setup === undefined &&
+    game.shared.turnGame?.rules.hands === undefined
+  )
+    return;
   for (let waited = 0; waited < SYNC_WAIT_MS; waited += 100) {
     await s.session.advanceTime(100);
     await s.harness.drainServerFetch();

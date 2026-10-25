@@ -27,7 +27,7 @@ import {
   CustomGamesAttr,
 } from '@libs/game-session-shared-ts/custom-game-state';
 import { localCustomGameEffects } from '@libs/game-session-shared-ts/custom-game-effects';
-import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { GamesRoomAttr } from '@libs/spaces-shared-ts/games';
 import { SpaceMembersRoomAttr } from '@libs/spaces-shared-ts/space-members-messages';
@@ -45,10 +45,10 @@ import type {
 import { assertRoomModuleName } from '@pkgs/room-root-shared-ts/types';
 import { tokenPassBots, tokenPassRules } from './token-pass';
 
-const tokenPass = defineTurnGame({
+const tokenPass = defineGame({
   rules: tokenPassRules,
   capabilities: { 'custom-games': { bots: tokenPassBots } },
-  automation: { choose: () => null, perform: async () => {} },
+  turnAutomation: { choose: () => null, perform: async () => {} },
 });
 
 function spaceModule(authority: boolean): SpaceModule {

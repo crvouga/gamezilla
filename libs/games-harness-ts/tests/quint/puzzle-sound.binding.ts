@@ -7,7 +7,7 @@
  * (`HarnessGame.puzzleSounds`); a capture, check or castling is a move.
  */
 
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { knownPuzzleLinePoint } from '@libs/game-session-harness-ts/puzzle-line-layout';
 import {
   playNextKnownMove,
@@ -36,7 +36,7 @@ import {
 import { createSpace } from '@libs/spaces-harness-ts/space-actions';
 import type { Picks } from '@pkgs/quint-shared-ts/registry';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
-import { conformanceGameOf } from '../conformance-world';
+import { turnConformanceGameOf } from '../conformance-world';
 
 const SOLVER = 'alice';
 /** How long a sound already due has to play. */
@@ -44,8 +44,8 @@ const SOUND_MS = 1_000;
 /** Memo key: how many puzzle sounds were played before the last action. */
 const HEARD_BEFORE = 'puzzle-sounds-before';
 
-function gameOfTrace(w: QuintHarnessWorld): HarnessGame {
-  return conformanceGameOf(w.ctx.variant, w.ctx.title);
+function gameOfTrace(w: QuintHarnessWorld): TurnHarnessGame {
+  return turnConformanceGameOf(w.ctx.variant, w.ctx.title);
 }
 
 function gameId(w: QuintHarnessWorld): string {

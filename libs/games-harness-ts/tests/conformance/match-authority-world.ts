@@ -10,7 +10,7 @@ import {
 } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
 import { multiplayerOwner } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { accountIdOf } from '@libs/harness-ts/identity';
 import type { OpenHarness } from '@libs/harness-ts/open-harness';
 import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
@@ -18,7 +18,7 @@ import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 const PEOPLE = ['alice', 'bob', 'carol', 'dave'];
 
 /** The real search and formation path fills exactly the declared roster. */
-export async function matched(s: OpenHarness, game: HarnessGame) {
+export async function matched(s: OpenHarness, game: TurnHarnessGame) {
   const sides = gameSides(game.shared.turnGame.rules);
   const people = PEOPLE.slice(0, sides.length);
   for (const person of people) {
@@ -80,7 +80,7 @@ export async function agreed(
 export async function rematched(
   s: OpenHarness,
   people: readonly string[],
-  game: HarnessGame,
+  game: TurnHarnessGame,
   finished: MultiplayerGame
 ) {
   for (const [index, actor] of people.entries())

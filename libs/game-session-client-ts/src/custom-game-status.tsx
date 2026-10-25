@@ -56,6 +56,8 @@ function participantName(
       return t`Invited person: ${name ?? t`Person`}`;
     case 'bot':
       return t`Bot`;
+    case 'local':
+      return t`Player on this device`;
     case 'open':
       return t`Open place`;
     case 'closed':
@@ -78,20 +80,7 @@ function gameStateDescription(
   if (game.status === 'cancelled') return t`Game cancelled.`;
   if (game.status === 'completed') {
     if (game.outcome === 'draw') return drawnDescription(game.outcomeReason);
-    const winners = customGameWinners(game);
-    const reason = game.outcome.includes('resignation')
-      ? t`resignation`
-      : game.outcome.includes('time')
-        ? t`time`
-        : game.outcome.includes('stayed away')
-          ? t`opponent staying away`
-          : presentation.endingLabel(customGameOutcomeReason(game.outcome));
-    if (winners.length > 1) {
-      const names = sideNames(winners.map(presentation.sideLabel));
-      return t`${names} win by ${reason}.`;
-    }
-    const winner = presentation.sideLabel(winners[0] ?? 'white');
-    return t`${winner} wins by ${reason}.`;
+    return completedGameDescription(game, presentation);
   }
   if (game.status === 'active') {
     if (game.awaiting.length > 0) {
@@ -99,6 +88,10 @@ function gameStateDescription(
       const total = game.awaiting.length + chosen;
       return t`Every side chooses in secret: ${chosen} of ${total} have chosen.`;
     }
+    if (game.execution !== undefined)
+      return game.execution.phase === 'paused'
+        ? t`Paused while a player returns.`
+        : t`Game in progress.`;
     const player = presentation.sideLabel(game.turn);
     return game.standIns.includes(game.turn)
       ? t`${player} to move, played by a stand-in bot.`
@@ -296,4 +289,24 @@ export function CustomGameConnectionNotice(props: {
       </Notice>
     </Show>
   );
+}
+
+function completedGameDescription(
+  game: CustomGame,
+  presentation: GamePresentation
+): string {
+  const winners = customGameWinners(game);
+  const reason = game.outcome.includes('resignation')
+    ? t`resignation`
+    : game.outcome.includes('time')
+      ? t`time`
+      : game.outcome.includes('stayed away')
+        ? t`opponent staying away`
+        : presentation.endingLabel(customGameOutcomeReason(game.outcome));
+  if (winners.length > 1) {
+    const names = sideNames(winners.map(presentation.sideLabel));
+    return t`${names} win by ${reason}.`;
+  }
+  const winner = presentation.sideLabel(winners[0] ?? 'white');
+  return t`${winner} wins by ${reason}.`;
 }

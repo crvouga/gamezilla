@@ -20,7 +20,7 @@ import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import { current } from './custom-game-set-up-world';
-import { gameOf, rememberCustomGame, view } from './game-world';
+import { rememberCustomGame, turnGameOf, view } from './game-world';
 import {
   followKnownLine,
   knownLine,
@@ -79,11 +79,11 @@ export async function secretChoiceOf(
   which: 0 | 1 = 0
 ): Promise<string> {
   const side = await sideShown(w, actor);
-  const choices = secretChoicesOf(gameOf(w), knownLine(w), ply, side);
+  const choices = secretChoicesOf(turnGameOf(w), knownLine(w), ply, side);
   const choice = choices[which];
   if (choice === undefined)
     throw new Error(
-      `${gameOf(w).label}: the ${side} side has no other secret choice`
+      `${turnGameOf(w).label}: the ${side} side has no other secret choice`
     );
   return choice;
 }
@@ -96,7 +96,7 @@ export async function makeSecretChoice(
   ply: number
 ): Promise<void> {
   await w.s.apply(makeCustomGameSecretChoice, actor, {
-    gameId: gameOf(w).shared.id,
+    gameId: turnGameOf(w).shared.id,
     commitment,
     ply,
   });
@@ -117,14 +117,14 @@ export async function makeOwnSecretChoice(
     .at(-1);
   if (round === undefined)
     throw new Error(
-      `${gameOf(w).label}: no round of secret choices before move ${String(ply)}`
+      `${turnGameOf(w).label}: no round of secret choices before move ${String(ply)}`
     );
   // Someone with no side (a watcher) tries the first side's.
   const side =
     (await view(w, actor)).mySide ??
-    gameSides(gameOf(w).shared.turnGame.rules)[0]!;
+    gameSides(turnGameOf(w).shared.turnGame.rules)[0]!;
   const [commitment = ''] = secretChoicesOf(
-    gameOf(w),
+    turnGameOf(w),
     knownLine(w),
     round,
     side

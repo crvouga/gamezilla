@@ -24,7 +24,7 @@ import {
   readSoundsOn,
 } from '@libs/harness-ts/sounds-preference';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
-import { gameOf } from './game-world';
+import { turnGameOf } from './game-world';
 import {
   focusPuzzle,
   noteSoundsSoFar,
@@ -97,7 +97,7 @@ Then("{actor}'s sounds are on", async (w, actor: Actor) => {
 Then("{actor} hears the puzzle's move sounds", async (w, actor: Actor) => {
   // regression: solver-only-hearing-requires-reply
   // solo-count:3w, [two, two] has one move sound, without an opponent reply.
-  const expected = puzzleContinuationSounds(gameOf(w));
+  const expected = puzzleContinuationSounds(turnGameOf(w));
   await untilHeard(
     w,
     actor,

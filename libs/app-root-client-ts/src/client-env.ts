@@ -44,6 +44,7 @@ export type CreateRoomTransportArgs = {
   readonly installId: string;
   readonly clientId: string;
   readonly getSessionToken: () => string | null | Promise<string | null>;
+  readonly clock: Clock;
   readonly timers: Timers;
   readonly random: Random;
 };

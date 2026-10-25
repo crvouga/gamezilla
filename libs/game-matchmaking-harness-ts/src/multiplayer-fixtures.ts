@@ -6,7 +6,7 @@ import { multiplayerPeople } from '@libs/game-matchmaking-shared-ts/multiplayer-
 import { publishMatchGame } from '@libs/game-matchmaking-shared-ts/publish-match-game';
 import { MultiplayerRatingRepository } from '@libs/game-matchmaking-shared-ts/rating-repository';
 import { OPPONENT_SEARCH_RADIUS } from '@libs/game-matchmaking-shared-ts/search-config';
-import type { MultiplayerSpeed } from '@libs/game-matchmaking-shared-ts/time-control';
+import type { MultiplayerRatingPool } from '@libs/game-matchmaking-shared-ts/time-control';
 import { scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { signedInAccountOf } from '@libs/harness-ts/identity';
@@ -163,7 +163,7 @@ export const givenMultiplayerRating = scenarioAction({
   act: (
     s,
     actor: string,
-    speed: MultiplayerSpeed,
+    speed: MultiplayerRatingPool,
     rating: { readonly rating: number; readonly games: number }
   ) =>
     multiplayerFixture(s, actor, async (tx, env) => {

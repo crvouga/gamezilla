@@ -9,8 +9,8 @@
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import type { HarnessGame } from './harness-game';
-import { harnessGameOf } from './harness-game-of';
+import type { TurnHarnessGame } from './harness-game';
+import { turnHarnessGameOf } from './harness-game-of';
 import type {
   FeedAutoAdvance,
   FeedHistoryFilter,
@@ -68,7 +68,7 @@ const HISTORY_LABELS: Readonly<Record<FeedHistoryFilter, string>> = {
  * "A theme of the game's known puzzle": the first theme of the game's
  * known puzzle that the game lets a feed be limited to.
  */
-export function chosenFeedTheme(game: HarnessGame): string {
+export function chosenFeedTheme(game: TurnHarnessGame): string {
   const offered = feedThemesOf(game);
   const theme = theKnownPuzzle(game).record.themes.find((candidate) =>
     offered.includes(candidate)
@@ -105,8 +105,8 @@ export async function readSavedFeedChoice(
       ? 'immediate'
       : 'off';
   const chosen = feedThemeLabel(
-    harnessGameOf(s, gameId),
-    chosenFeedTheme(harnessGameOf(s, gameId))
+    turnHarnessGameOf(s, gameId),
+    chosenFeedTheme(turnHarnessGameOf(s, gameId))
   );
   const matched = Object.entries(CHOICES).find(
     ([, choice]) =>
@@ -164,7 +164,7 @@ export const previewPuzzleFeedChoice = scenarioAction({
     await Promise.resolve(
       setPuzzleFeedAutoAdvance.act(s, actor, choice.advance)
     );
-    const theme = chosenFeedTheme(harnessGameOf(s, gameId));
+    const theme = chosenFeedTheme(turnHarnessGameOf(s, gameId));
     await Promise.resolve(
       (choice.theme ? setPuzzleFeedTheme : clearPuzzleFeedTheme).act(
         s,

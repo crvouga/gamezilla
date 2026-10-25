@@ -64,7 +64,7 @@ export function commitCustomGameSide(
   commitment: string
 ): HandleResult {
   const { game, ctx, rules, state } = decision;
-  const hands = rules.forPosition(game.fen).hands;
+  const hands = rules.turnsForPosition(game.fen)?.hands;
   const commit = hands?.commit;
   // The room holds every hand; a device only its own person's.
   const hand = customGameHand(state, game, side);

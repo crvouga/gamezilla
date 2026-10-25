@@ -26,6 +26,7 @@ product:
     - journeys
     - matchmaking
     - numberlink
+    - pong
     - profile
     - puzzles
     - synthetic-population

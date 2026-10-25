@@ -34,6 +34,7 @@ export const raceCustomGameChoices = scenarioAction({
           payload: ChangeCustomGame(attempt.choice),
           commandId: env.createId(),
           nowMs: s.harness.clock.now(),
+          clock: env.clock,
           timers: env.timers,
         });
       })

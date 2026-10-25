@@ -133,6 +133,18 @@ host on. Games should declare their own `defineSystem` from `@pkgs/harness-root-
 and drive runs with `system.run` / `.explore` / `.replay`, not deep relative
 `harness/` paths.
 
+The browser transport requires injected `clock`, `timers`, `random` and an
+`onRoundTrip(milliseconds)` observer. Its existing application heartbeat keeps
+one outstanding ping on the ordered WebSocket; foreground probes share that
+ping without changing its origin or deadline. Only its pong reports elapsed
+client-clock time. Reconnect, close and disposal discard the pending measurement;
+invalid/backward readings and unsolicited replies produce no sample. This is an
+application-heartbeat round trip, including transport and immediate server
+handling; it does not include a simulation tick or snapshot wait. The spaces
+composition aggregates seconds as `app.room.round_trip.duration` without room,
+URL, identity or game dimensions. Heartbeat contracts and probe-partition
+properties live in `pkgs/room-adapter-web-shared-ts/tests/`.
+
 ---
 
 ## Layout
@@ -301,8 +313,8 @@ replays are idempotent.
 | Port | Role |
 |------|------|
 | `ClientTransport` | connect / sendJson / subscribe / lifecycle handlers |
-| `ClientRoomStorage` | `loadCommitted` / `appendCommitted` / `resetCommitted` + `loadQueued` / `saveQueued` (queue snapshot). Every call is O(what changed); adapters use `createSegmentedCommittedLog` over a `CommittedLogBlobs` port |
-| `RoomStorage` | append/load log, lastSeq, command dedup |
+| `ClientRoomStorage` | `loadCommitted` / `appendCommitted` / `resetCommitted`, `loadQueued` / `saveQueued`, and bounded `loadLiveCheckpoint` / `replaceLiveCheckpoint`. Calls stay on one persistence chain; live frames replace a value instead of growing either journal. Adapters use `createSegmentedCommittedLog` for history |
+| `RoomStorage` | append/load log, lastSeq, command dedup and one bounded live checkpoint |
 | `RoomAuth` | upgrade auth; optional per-command `authorize` (handed the connection's grants) |
 | `RoomEffectHandler[]` | post-ok side effects (Schedule, custom) |
 | `clock` / `timers` / `createId` | all nondeterministic I/O, injected |

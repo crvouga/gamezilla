@@ -31,7 +31,7 @@ import { backToTabs, focusActor } from '@libs/harness-ts/shell-actions';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import { createSpace } from '@libs/spaces-harness-ts/space-actions';
 import { activeSpaceVisible } from '@libs/spaces-harness-ts/spaces-ui-reads';
-import { gameOf } from './game-world';
+import { turnGameOf } from './game-world';
 import {
   currentPuzzle,
   enterPuzzles,
@@ -128,7 +128,7 @@ Given(
     // Enough puzzles of the game reached the device before those days: one
     // more for each solve, beside the game's known puzzles.
     const solves = perDay * days;
-    const namespace = puzzleNamespaceOfGame(gameOf(w));
+    const namespace = puzzleNamespaceOfGame(turnGameOf(w));
     await w.s.apply(restoreActorConnection, actor);
     await w.s.apply(stockMorePuzzles, puzzleGameId(w), solves);
     await w.s.until((surf) => countDevicePuzzles(surf, actor, namespace), {

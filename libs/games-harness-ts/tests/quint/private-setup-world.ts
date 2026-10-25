@@ -36,7 +36,7 @@ import {
   changeCustomGamePrivateSetup,
 } from '@libs/game-session-harness-ts/custom-game-private-setup';
 import { readCustomGameProbe } from '@libs/game-session-harness-ts/custom-game-probe';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import {
   changeMatchedPrivateSetup,
   chooseMatchedPrivateSetup,
@@ -101,7 +101,7 @@ export function setupName(w: QuintHarnessWorld, id: string): string {
 
 /** Whether `rules` played with `setups` lets the first `plies` moves of `line` all happen without ending the game. */
 function lineKeepsGoing(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   setups: GameSetups,
   line: readonly string[],
   plies: number

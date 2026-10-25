@@ -7,6 +7,7 @@ import type {
   HarnessSystemSnapshot,
   HarnessSystemSnapshotClientSlice,
 } from '@pkgs/harness-console-shared-ts/system-snapshot';
+import { HARNESS_SYSTEM_SNAPSHOT_VERSION } from '@pkgs/harness-console-shared-ts/system-snapshot';
 import { dumpData, loadData } from '@pkgs/sql-client-root-shared-ts/port';
 import type {
   SqlDataDump,
@@ -127,7 +128,7 @@ export async function captureSystemSnapshot(
   const capturedAtMs = ctx.harness.clock.now();
 
   return {
-    version: 1,
+    version: HARNESS_SYSTEM_SNAPSHOT_VERSION,
     localSchemaVersion: getLocalSchemaTargetVersion(),
     clockMs: capturedAtMs,
     clockPaused: ctx.getClockPaused?.() ?? false,
@@ -254,6 +255,7 @@ async function restoreSystemSnapshotRooms(
     const room = snapshot.rooms[topic];
     if (room === undefined) continue;
     await ctx.harness.roomNode.replaceTopic(topic, {
+      liveCheckpoint: room.liveCheckpoint as never,
       entries: room.entries as never,
       dedup: room.dedup as never,
     });

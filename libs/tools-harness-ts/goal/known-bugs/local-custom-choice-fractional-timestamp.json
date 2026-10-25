@@ -1,0 +1,4 @@
+{
+  "summary": "The seventh 60 Hz tick produces 116.66666666666669 ms; passing it directly to a local-choice payload fails its integer timestamp schema. Record local choices at the floored injected clock time.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-hybrid-local.contract.test.ts"
+}

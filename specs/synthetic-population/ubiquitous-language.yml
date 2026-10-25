@@ -11,7 +11,7 @@ terms:
       Each has an email address of its own, and signs in through the same app
       as people with a sign-in link sent to it.
     forms: [Synthetic Users, Synthetic User's]
-    model: [SyntheticUser, identity, invPersistentIdentity]
+    model: [SyntheticUser, identity, invPersistentIdentity, syntheticIdentified, invSyntheticRecognition, invOfflineKeepsIdentification]
   - term: Bot Observatory
     definition: Where authorized people observe and control the Synthetic Population.
   - term: desired synthetic population
@@ -25,7 +25,7 @@ terms:
   - term: activity
     definition: What a Synthetic User is currently doing in the app.
     forms: [activities]
-    model: [Activity, activity, Browsing, Playing, Finished, invActivityRestored, startNextActivity]
+    model: [Activity, activity, Browsing, Playing, Finished, invActivityRestored, startNextActivity, continueActivity]
   - term: Recovery
     definition: Restoring an interrupted Synthetic User to its current activity safely.
     forms: [recovers, recovered, recovering]
@@ -73,12 +73,22 @@ terms:
     from: chess
   - term: Connect Four
     from: connect-four
+  - term: Battleship
+    from: battleship
+  - term: Pong
+    from: pong
   - term: multiplayer opponent
     from: chess
     model: [seekingOpponent, invLookingHasGame]
   - term: game
-    from: chess
-    model: [game, chosenGame, invOnlyOfferedGames]
+    from: games
+    model: [game, chosenGame, invOnlyOfferedGames, invGamePreserved, openMultiplayer]
+  - term: person
+    from: kernel
+    model: [personIdentified, invPersonRecognition]
+  - term: connection
+    from: kernel
+    model: [connectionAvailable]
   - term: multiplayer chess
     from: chess
   - term: multiplayer result

@@ -19,7 +19,7 @@ import { actorLocalSql, signedInAccountOf } from '@libs/harness-ts/identity';
 import { bringToFront } from '@libs/harness-ts/observations';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { controlIsEnabled } from '@pkgs/ui-testing-root-shared-ts/control-is-enabled';
-import { harnessGameAt } from './harness-game-of';
+import { turnHarnessGameAt } from './harness-game-of';
 
 /** The setup board of a matched game. */
 export const MATCHED_GAME_SETUP_BOARD = 'multiplayer-setup';
@@ -31,7 +31,7 @@ const arranged = new WeakMap<ProductHarness, Map<string, string>>();
 async function matchedGameShown(s: ProductHarness, actor: string) {
   const game = (await multiplayerView(s, actor)).game;
   if (game === null) throw new Error(`${actor} has no matched game`);
-  const played = harnessGameAt(s, game.fen);
+  const played = turnHarnessGameAt(s, game.fen);
   await Promise.resolve(
     openFindingAnOpponentIfAny.act(s, actor, played.shared.id)
   );
@@ -45,7 +45,7 @@ async function arrangeOnBoard(
   setup: string
 ): Promise<void> {
   const { game, played, ui } = await matchedGameShown(s, actor);
-  const arrange = played.shared.automation.arrange;
+  const arrange = played.shared.automation.turns.arrange;
   if (arrange === undefined)
     throw new Error(`${played.label} has no setup board gesture`);
   await arrange(ui, MATCHED_GAME_SETUP_BOARD, setup);

@@ -37,7 +37,7 @@
   {
     "package": "@libs/games-harness-ts",
     "directory": "libs/games-harness-ts",
-    "parts": 95
+    "parts": 99
   },
   {
     "package": "@libs/hearts-harness-ts",
@@ -47,6 +47,11 @@
   {
     "package": "@libs/numberlink-harness-ts",
     "directory": "libs/numberlink-harness-ts",
+    "parts": 1
+  },
+  {
+    "package": "@libs/pong-harness-ts",
+    "directory": "libs/pong-harness-ts",
     "parts": 1
   },
   {

@@ -19,13 +19,20 @@ export const MultiplayerDeadline = messages(
     value['gameId'].length > 0
 );
 
+/** Existing outbox deadlines also project live results without requiring another player action. */
+export const LIVE_MATCH_PROJECTION_MS = 5_000;
+
 /** The scheduled sweep settles the game at its deadline, whoever is online. */
 export async function scheduleMultiplayerDeadline(
   tx: SqlTx,
   game: MultiplayerGame,
   nowMs: number
 ): Promise<void> {
-  const deadline = multiplayerDeadlineMs(game);
+  const deadline =
+    game.outcome === 'ongoing' && game.turn === ''
+      ? (Math.floor(nowMs / LIVE_MATCH_PROJECTION_MS) + 1) *
+        LIVE_MATCH_PROJECTION_MS
+      : multiplayerDeadlineMs(game);
   if (deadline === null) return;
   await insertOutboxEvent(tx, {
     id: `chess.multiplayer-deadline:${JSON.stringify([game.id, deadline])}`,

@@ -13,7 +13,7 @@ import { Then, When } from '@libs/harness-ts/define';
 import type { Actor, PuzzleLinePoint } from '@libs/harness-ts/parameter-types';
 import { focusActor } from '@libs/harness-ts/shell-actions';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
-import { gameOf } from './game-world';
+import { turnGameOf } from './game-world';
 import {
   focusPuzzle,
   puzzleOn,
@@ -29,7 +29,7 @@ async function expectLinePoint(
   maxMs: number
 ): Promise<void> {
   await focusPuzzle(w, actor);
-  const at = knownPuzzleLinePoint(gameOf(w), puzzleOn(w, actor), point);
+  const at = knownPuzzleLinePoint(turnGameOf(w), puzzleOn(w, actor), point);
   await w.s.until(
     async (surf) => ({
       move: (await readPuzzleProbe(surf, actor))?.solveIdx,
@@ -76,7 +76,7 @@ Then(
     const probe = await w.s.read(readPuzzleProbe, actor);
     if (probe === null) throw new Error(`${actor} has no puzzle on the board`);
     const at = knownPuzzlePreviousPoint(
-      gameOf(w),
+      turnGameOf(w),
       puzzleOn(w, actor),
       Number(w.memo.get(puzzlePositionBeforeReviewKey(actor)))
     );

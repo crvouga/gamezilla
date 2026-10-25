@@ -1,10 +1,10 @@
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import type { MultiplayerGame } from './game-state';
 import { isFinished } from './game-state';
+import { matchChoiceOf } from './match-choice';
 import { rateMultiplayerRound } from './multiplayer-rating';
 import { multiplayerOwner, multiplayerSides } from './multiplayer-roster';
 import { MultiplayerRatingRepository } from './rating-repository';
-import { timeControlOf } from './time-control';
 
 /**
  * A game that just finished with a win or a draw moves both people's rating
@@ -16,13 +16,13 @@ export async function rateFinishedGame(
   game: MultiplayerGame,
   nowMs: number
 ): Promise<MultiplayerGame> {
-  const control = timeControlOf(game.time_control);
+  const control = matchChoiceOf(game.time_control);
   if (control === null || !isFinished(game.outcome)) return game;
   const ratings = new MultiplayerRatingRepository(tx);
   const sides = multiplayerSides(game);
   const prior = await Promise.all(
     sides.map((side) =>
-      ratings.read(multiplayerOwner(game, side), control.speed)
+      ratings.read(multiplayerOwner(game, side), control.ratingPool)
     )
   );
   const deltas: Partial<MultiplayerGame> = {};
@@ -43,7 +43,7 @@ export async function rateFinishedGame(
     const next = rateMultiplayerRound(player, results);
     await ratings.write(
       multiplayerOwner(game, side),
-      control.speed,
+      control.ratingPool,
       next,
       nowMs
     );

@@ -5,20 +5,20 @@
  * game's clock namespace (`<id>/1+0`, rated at `<id>:blitz`).
  */
 
-import type { MultiplayerSpeed } from '@libs/game-matchmaking-shared-ts/time-control';
+import type { MultiplayerRatingPool } from '@libs/game-matchmaking-shared-ts/time-control';
 import { gameSpeed } from '@libs/game-matchmaking-shared-ts/time-control';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import type { QuintHarnessWorld } from '@libs/harness-ts/quint-world';
 import { modelGameOf } from './model-game';
 
 /** The clock namespace of `game`'s matched games. */
-export function clockNamespaceOf(game: HarnessGame): string {
-  const matchmaking = game.shared.turnGame.capabilities.matchmaking;
+export function clockNamespaceOf(game: TurnHarnessGame): string {
+  const matchmaking = game.shared.registration.capabilities.matchmaking;
   if (matchmaking === undefined)
     throw new Error(
       `${game.label} offers no finding an opponent, which the matched-game models need`
     );
-  return matchmaking.clockNamespace;
+  return matchmaking.namespace;
 }
 
 /** The model's clock choice as the trace's game names it. */
@@ -44,7 +44,7 @@ export function modelClockChoice(
 /** The model's speed as the trace's game rates it. */
 export function productSpeed(
   w: QuintHarnessWorld,
-  speed: MultiplayerSpeed
-): MultiplayerSpeed {
+  speed: MultiplayerRatingPool
+): MultiplayerRatingPool {
   return gameSpeed(clockNamespaceOf(modelGameOf(w)), speed);
 }

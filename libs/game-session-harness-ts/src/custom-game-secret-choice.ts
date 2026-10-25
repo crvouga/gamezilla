@@ -11,7 +11,7 @@ import { CUSTOM_GAME_BOARD } from './custom-game-moves';
 import type { CustomGameProbe } from './custom-game-probe';
 import { readCustomGameProbe } from './custom-game-probe';
 import { chooseCustomGame, waitCustomGameSettled } from './custom-game-ui';
-import { harnessGameOf } from './harness-game-of';
+import { turnHarnessGameOf } from './harness-game-of';
 
 /**
  * `actor` makes `commitment` their secret choice in the round that opened
@@ -30,7 +30,7 @@ export const makeCustomGameSecretChoice = scenarioAction({
       readonly ply: number;
     }
   ) => {
-    const game = harnessGameOf(s, choice.gameId);
+    const game = turnHarnessGameOf(s, choice.gameId);
     const probe = await readCustomGameProbe(s, actor);
     const current = probe?.current;
     if (probe === null || current === null || current === undefined)
@@ -41,7 +41,7 @@ export const makeCustomGameSecretChoice = scenarioAction({
       current.awaiting.includes(probe.mySide) &&
       current.moves.length === choice.ply;
     if (onBoard) {
-      await game.shared.automation.perform(
+      await game.shared.automation.turns.perform(
         await actorUi(s, actor),
         CUSTOM_GAME_BOARD,
         choice.commitment

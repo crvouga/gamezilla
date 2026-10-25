@@ -16,12 +16,14 @@ import type { MultiplayerControlsModel } from './use-multiplayer-controls';
 
 /** Choose one of the offered time controls, then find an opponent at it. */
 export function MultiplayerFindPanel(props: {
-  readonly controls: MultiplayerControlsModel;
   readonly gameId: string;
+  readonly controls: MultiplayerControlsModel;
 }): JSX.Element {
   const [timeControl, setTimeControl] = createSignal(DEFAULT_TIME_CONTROL);
   const rules = useTurnGames();
   const count = () => gameSides(rules.byId(props.gameId)).length;
+  const timed = () =>
+    rules.capability(props.gameId, 'matchmaking')?.clockChoices === true;
   return (
     <GameSetupPanel
       title={<Trans>New game</Trans>}
@@ -33,10 +35,15 @@ export function MultiplayerFindPanel(props: {
               other players at the same clock choice.
             </Trans>{' '}
           </Show>
-          <Trans>
-            Minutes per player + seconds added after each move, or days for
-            every move in a daily game.
-          </Trans>
+          <Show
+            when={timed()}
+            fallback={<Trans>Find someone to play with.</Trans>}
+          >
+            <Trans>
+              Minutes per player + seconds added after each move, or days for
+              every move in a daily game.
+            </Trans>
+          </Show>
         </>
       }
       actions={
@@ -54,26 +61,30 @@ export function MultiplayerFindPanel(props: {
               <Trans>Player search accepted</Trans>
             </Show>
           }
-          operation={() => props.controls.begin(timeControl())}
+          operation={() =>
+            props.controls.begin(timed() ? timeControl() : undefined)
+          }
           variant="solid"
           fullWidth
           dataSet={{ testid: 'multiplayer-find' }}
         />
       }
     >
-      <GameChoiceGrid
-        label={<Trans>Time control</Trans>}
-        value={timeControl()}
-        onChange={setTimeControl}
-        choices={TIME_CONTROLS.map((control) => ({
-          value: control.id,
-          title: timeControlChoiceText(control.id),
-          detail: <SpeedName speed={control.speed} />,
-          dataSet: {
-            testid: `multiplayer-time-control-${timeControlKey(control.id)}`,
-          },
-        }))}
-      />
+      <Show when={timed()}>
+        <GameChoiceGrid
+          label={<Trans>Time control</Trans>}
+          value={timeControl()}
+          onChange={setTimeControl}
+          choices={TIME_CONTROLS.map((control) => ({
+            value: control.id,
+            title: timeControlChoiceText(control.id),
+            detail: <SpeedName speed={control.speed} />,
+            dataSet: {
+              testid: `multiplayer-time-control-${timeControlKey(control.id)}`,
+            },
+          }))}
+        />
+      </Show>
     </GameSetupPanel>
   );
 }

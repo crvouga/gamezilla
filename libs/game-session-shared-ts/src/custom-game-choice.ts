@@ -47,6 +47,7 @@ export const customGameChoiceSchema = z.discriminatedUnion('operation', [
       operation: z.enum([
         'take',
         'bot',
+        'local',
         'open',
         'close',
         'accept',
@@ -80,6 +81,13 @@ export const customGameChoiceSchema = z.discriminatedUnion('operation', [
       operation: z.literal('clock'),
       minutes: z.number(),
       increment: z.number(),
+    })
+    .strict(),
+  z
+    .object({
+      ...reference,
+      operation: z.literal('rules'),
+      choice: z.string().min(1).max(256),
     })
     .strict(),
   z

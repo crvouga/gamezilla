@@ -9,16 +9,21 @@ import {
   multiplayerSides,
 } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
 import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
-import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
+import {
+  useGamePresentation,
+  useTurnGames,
+} from '@pkgs/turn-game-client-ts/turn-games-context';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { For, type JSX } from 'solid-js';
+import { For, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { MultiplayerReviewing } from './multiplayer-reviewing';
 import type { MultiplayerViewer } from './multiplayer-seat';
 import { MultiplayerSeat } from './multiplayer-seat';
 import { MultiplayerStatus } from './multiplayer-status';
 import { useLowOnTime, useLowOnTimeWarning } from './use-low-on-time';
+import type { MatchRoomClient } from './use-match-room';
+import { useMatchedSimulation } from './use-matched-simulation';
 import type { OwnBoard } from './use-own-board';
 import { useShownName } from './use-shown-name';
 
@@ -27,6 +32,7 @@ const otherSide = (side: MultiplayerSide): MultiplayerSide =>
 
 type BoardProps = {
   readonly game: MultiplayerGame;
+  readonly room: MatchRoomClient | null;
   readonly myId: string;
   readonly connected: boolean;
   readonly moving: boolean;
@@ -50,6 +56,7 @@ function BoardStage(
     /** The person's own side; White's for a watcher. */
     readonly ownSide: MultiplayerSide;
     readonly canMove: boolean;
+    readonly simulation: ReturnType<typeof useMatchedSimulation>;
   }
 ): JSX.Element {
   const sounds = useSoundsPreference();
@@ -90,7 +97,14 @@ function BoardStage(
     >
       <Dynamic
         component={presentation(props.game.fen).Board}
-        position={props.view.earlier()?.fen ?? props.game.fen}
+        position={
+          props.simulation.position() ??
+          props.view.earlier()?.fen ??
+          props.game.fen
+        }
+        simulation={
+          props.simulation.active() ? props.simulation.controls() : undefined
+        }
         orientation={nearSide()}
         interactive={props.canMove && props.view.earlier() === null}
         sound={!sounds.muted()}
@@ -109,6 +123,13 @@ function BoardStage(
 }
 
 export function MultiplayerBoard(props: BoardProps): JSX.Element {
+  const rules = useTurnGames();
+  const simulation = useMatchedSimulation(
+    () => props.game,
+    () => props.room,
+    () => props.myId,
+    () => props.connected
+  );
   const lowOnTime = useLowOnTime(() => props.game);
   useLowOnTimeWarning({
     game: () => props.game,
@@ -124,7 +145,9 @@ export function MultiplayerBoard(props: BoardProps): JSX.Element {
     props.game.outcome === 'ongoing' &&
     props.game.paused_at_ms === null &&
     !awaitingSetups(props.game) &&
-    props.game.turn === props.myId;
+    (simulation.active()
+      ? !simulation.controls().paused && !simulation.controls().stale
+      : props.game.turn === props.myId);
   // A watcher sees the board from White's side.
   const other = () =>
     multiplayerSides(props.game).find((side) => side !== ownSide()) ?? 'black';
@@ -152,7 +175,8 @@ export function MultiplayerBoard(props: BoardProps): JSX.Element {
         'board-takes-moves': String(canMove() && props.view.earlier() === null),
         revision: String(props.game.revision),
         fen: props.game.fen,
-        'shown-position': props.view.earlier()?.fen ?? props.game.fen,
+        'shown-position':
+          simulation.position() ?? props.view.earlier()?.fen ?? props.game.fen,
         outcome: props.game.outcome,
         reason: props.game.reason ?? '',
       }}
@@ -162,8 +186,11 @@ export function MultiplayerBoard(props: BoardProps): JSX.Element {
         viewer={viewer()}
         ownSide={ownSide()}
         canMove={canMove()}
+        simulation={simulation}
       />
-      <MultiplayerReviewing view={props.view} />
+      <Show when={rules.turnsForPosition(props.game.fen) !== undefined}>
+        <MultiplayerReviewing view={props.view} />
+      </Show>
       <MultiplayerStatus
         game={props.game}
         viewer={viewer()}

@@ -1,4 +1,4 @@
-import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import { composeRoomModules } from '@libs/spaces-shared-ts/load-game-plugins';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { bots, rules } from './reference-game';
@@ -11,10 +11,10 @@ export function isolatedFrameworkProof() {
     () => 0,
     () => 0
   );
-  const definition = defineTurnGame({
+  const definition = defineGame({
     rules,
     capabilities: { 'custom-games': { bots } },
-    automation: { choose: () => 'advance-token', perform: async () => {} },
+    turnAutomation: { choose: () => 'advance-token', perform: async () => {} },
   });
   const games = createTurnGames([definition.turnGame]);
   const rooms = composeRoomModules(
@@ -23,8 +23,8 @@ export function isolatedFrameworkProof() {
     () => 0
   );
   const action = games
-    .byId('counting-race')
-    .play('race:3', 'advance-token', '', []);
+    .turnsForPosition('race:3')
+    ?.play('race:3', 'advance-token', '', []);
   return {
     emptyGames: empty.games.length,
     emptyRooms: emptyRooms.length,

@@ -26,7 +26,7 @@ import { Given, Then, When } from '@libs/harness-ts/define';
 import type { Actor, PuzzleLinePoint } from '@libs/harness-ts/parameter-types';
 import { focusActor } from '@libs/harness-ts/shell-actions';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
-import { gameOf } from './game-world';
+import { turnGameOf } from './game-world';
 import {
   currentPuzzle,
   enterKnownPuzzle,
@@ -57,7 +57,7 @@ async function expectReviewAt(
   point: PuzzleLinePoint,
   animated: boolean
 ): Promise<void> {
-  const at = knownPuzzleLinePoint(gameOf(w), puzzleOn(w, actor), point);
+  const at = knownPuzzleLinePoint(turnGameOf(w), puzzleOn(w, actor), point);
   const line = lineOf(w, puzzleOn(w, actor));
   expect(line).toHaveLength(at.of + 1);
   expect(await w.s.read(readPuzzleReview, actor)).toEqual({
@@ -88,7 +88,7 @@ Given(
     await w.s.apply(focusActor, actor);
     await w.s.apply(solveKnownPuzzle, actor, puzzleGameId(w));
     await openReview(w, actor);
-    const at = knownPuzzleLinePoint(gameOf(w), puzzleOn(w, actor), point);
+    const at = knownPuzzleLinePoint(turnGameOf(w), puzzleOn(w, actor), point);
     if (point === 'start') await w.s.apply(useReviewControl, actor, 'start');
     else if (point !== 'end') await w.s.apply(chooseReviewMove, actor, at.move);
   }

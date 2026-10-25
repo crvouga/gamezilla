@@ -90,12 +90,13 @@ export function prepareLocalCustomGameCommand(
   const hands = customGameHandsRules(game, rules);
   const hand = hands === undefined ? null : customGameHand(state, game, side);
   if (hands !== undefined && hand === null) return payload;
-  const move = customGameBots(game, rules).choose(
-    game.fen,
-    game.difficulty[side],
-    random,
-    hand
-  );
+  const move =
+    customGameBots(game, rules).choose?.(
+      game.fen,
+      game.difficulty[side],
+      random,
+      hand
+    ) ?? null;
   if (move === null) throw new Error('active bot game has no legal move');
   return PlayCustomGameBot({ ...payload.payload, at, move });
 }

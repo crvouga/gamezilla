@@ -31,33 +31,33 @@ import {
   stopSeekingOpponent,
 } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
 import { gameSpeed } from '@libs/game-matchmaking-shared-ts/time-control';
-import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import { actorHtml } from '@libs/harness-ts/observations';
 import { openConformanceHarness } from '../../conformance-world';
-import { forEveryGame } from '../game-suite';
+import { forEveryTurnGame } from '../game-suite';
 
 /** The game's clock namespace (`''` or `<id>/`), from its definition. */
-function clockNamespace(game: HarnessGame): string {
-  const matchmaking = game.shared.turnGame.capabilities.matchmaking;
+function namespace(game: TurnHarnessGame): string {
+  const matchmaking = game.shared.registration.capabilities.matchmaking;
   if (matchmaking === undefined)
     throw new Error(`${game.label} offers no finding an opponent`);
-  return matchmaking.clockNamespace;
+  return matchmaking.namespace;
 }
 
 /** How the game names a side to a person. */
-function sideName(game: HarnessGame, side: 'white' | 'black'): string {
+function sideName(game: TurnHarnessGame, side: 'white' | 'black'): string {
   const presentation = game.client.presentation;
   if (presentation === undefined)
     throw new Error(`${game.label} has no board to name its sides`);
   return presentation.sideLabel(side);
 }
 
-forEveryGame(
+forEveryTurnGame(
   import.meta.path,
   (game) => {
     const id = game.shared.id;
-    const at = (clock: string) => `${clockNamespace(game)}${clock}`;
+    const at = (clock: string) => `${namespace(game)}${clock}`;
 
     // regression: game-session-ui-rules-port-missing
     test('the fresh Find control commits its namespaced search through the injected UI rules port', async () => {
@@ -128,7 +128,7 @@ forEveryGame(
       await s.apply(
         givenMultiplayerRating,
         'bob',
-        gameSpeed(clockNamespace(game), 'blitz'),
+        gameSpeed(namespace(game), 'blitz'),
         { rating: 1620, games: 20 }
       );
       await s.apply(givenOpponentSearch, 'bob', at('3+2'));

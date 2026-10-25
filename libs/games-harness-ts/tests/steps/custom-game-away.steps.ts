@@ -37,7 +37,7 @@ async function opponentOf(w: HarnessWorld, actor: string): Promise<string> {
  * the other participant was shown them going (the host's absence counts at
  * once).
  */
-export async function stayAway(
+async function stayAway(
   w: HarnessWorld,
   actor: string,
   ms: number

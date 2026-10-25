@@ -8,7 +8,8 @@ import type {
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import fc from 'fast-check';
-import type { HarnessGame } from './harness-game';
+import type { HarnessGame, TurnHarnessGame } from './harness-game';
+import { isTurnHarnessGame } from './harness-game';
 import {
   committedProposal,
   playedRules,
@@ -41,7 +42,7 @@ type Step = {
 
 /** A law of `game` named `name`: `check` throws when the game breaks it. */
 export function law(
-  game: HarnessGame,
+  game: Pick<HarnessGame, 'label'>,
   name: string,
   check: () => void
 ): GameLaw {
@@ -69,7 +70,7 @@ export function must(holds: boolean, problem: string): void {
  * any proposal its authority accepts.
  */
 function offered(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   played: { readonly rules: GameRules; readonly position: string },
   action: string,
   accepted: () => boolean
@@ -96,7 +97,7 @@ function offered(
  * still to commit.
  */
 function seat(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   position: string
 ): { readonly position: string; readonly hand: string | null } {
   const hands = game.shared.turnGame.rules.hands;
@@ -112,7 +113,7 @@ function seat(
  * committing side's commitment together, as the law view plays one phase.
  */
 function seatsProposal(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   position: string,
   choose: (position: string, hand: string | null) => string | null
 ): string | null {
@@ -173,13 +174,21 @@ const strangers = fc.oneof(
   fc.stringMatching(/^-?[0-9]{1,2}$/)
 );
 
-/** The positions of a game's known line, from its start to its victory. */
-function knownPositions(game: HarnessGame): readonly string[] {
-  const rules = playedRulesOf(game);
-  const line = game.fixtures.firstSideVictory;
-  return Array.from({ length: line.length + 1 }, (_, ply) =>
-    rules.replay(line, ply)
-  );
+/** Independent known positions from every execution capability the game offers. */
+export function knownGamePositions(game: HarnessGame): readonly string[] {
+  const positions = [game.shared.registration.rules.initial()];
+  if (isTurnHarnessGame(game)) {
+    const rules = playedRulesOf(game);
+    const line = game.fixtures.firstSideVictory;
+    positions.push(
+      ...Array.from({ length: line.length + 1 }, (_, ply) =>
+        rules.replay(line, ply)
+      )
+    );
+  }
+  for (const example of game.simulationFixtures?.examples ?? [])
+    positions.push(example.initialPosition, example.expectedPosition);
+  return positions;
 }
 
 /**
@@ -199,7 +208,7 @@ function misspellings(legal: readonly string[]): readonly string[] {
 }
 
 /** The fixtures' known line, which only its last move wins, and then nothing. */
-function knownVictory(game: HarnessGame): void {
+function knownVictory(game: TurnHarnessGame): void {
   const rules = playedRulesOf(game);
   const victory = game.fixtures.firstSideVictory;
   let position = rules.initial();
@@ -241,7 +250,7 @@ function knownVictory(game: HarnessGame): void {
  * rather than deep inside a shared specification
  * (`tests/probes/turn-order.test.ts`).
  */
-function takesTurns(game: HarnessGame): void {
+function takesTurns(game: TurnHarnessGame): void {
   const rules = playedRulesOf(game);
   assertProperty(
     `${game.label}: sides take turns`,
@@ -270,7 +279,7 @@ function takesTurns(game: HarnessGame): void {
  * name the next side (`turnOrder: 'rules'`, a trick's winner leading) is
  * held to the side its rules name, which every custom game seats.
  */
-function duelRulesLaws(game: HarnessGame): readonly GameLaw[] {
+function duelRulesLaws(game: TurnHarnessGame): readonly GameLaw[] {
   const offered = game.shared.turnGame.capabilities;
   if (
     offered['custom-games'] === undefined &&
@@ -300,7 +309,7 @@ function duelRulesLaws(game: HarnessGame): readonly GameLaw[] {
  * wherever bounded play goes; with one, its end is such a position, and
  * both sides can win at the start.
  */
-function cannotWinOnlyWhereKnown(game: HarnessGame): void {
+function cannotWinOnlyWhereKnown(game: TurnHarnessGame): void {
   const rules = playedRulesOf(game);
   const both = (position: string) =>
     gameSides(rules).every((side) => rules.canWin(position, side));
@@ -331,7 +340,7 @@ function cannotWinOnlyWhereKnown(game: HarnessGame): void {
  * known line its rules draw, bounded play never reaches a draw; with one,
  * its end is a draw.
  */
-function drawnOnlyWhereKnown(game: HarnessGame): void {
+function drawnOnlyWhereKnown(game: TurnHarnessGame): void {
   const rules = playedRulesOf(game);
   const line = game.fixtures.drawByRules;
   if (line !== undefined) {
@@ -396,7 +405,7 @@ function drawnSetups(
  * resolves to a public action its rules accept, nothing else resolves, and
  * no position or label it shows spells out a setup.
  */
-function privateSetupLaws(game: HarnessGame): readonly GameLaw[] {
+function privateSetupLaws(game: TurnHarnessGame): readonly GameLaw[] {
   const rules = game.shared.turnGame.rules;
   const setup = rules.setup;
   if (setup === undefined) return [];
@@ -461,7 +470,7 @@ function privateSetupLaws(game: HarnessGame): readonly GameLaw[] {
  * offers a hand resolves to a public action its rules accept; and the same
  * deal and proposals always resolve alike.
  */
-function dealtHandsLaws(game: HarnessGame): readonly GameLaw[] {
+function dealtHandsLaws(game: TurnHarnessGame): readonly GameLaw[] {
   const rules = game.shared.turnGame.rules;
   const hands = rules.hands;
   if (hands === undefined) return [];
@@ -510,7 +519,7 @@ function dealtHandsLaws(game: HarnessGame): readonly GameLaw[] {
  * positions it must never claim.
  */
 export function gameRulesLaws(
-  game: HarnessGame,
+  game: TurnHarnessGame,
   others: readonly HarnessGame[]
 ): readonly GameLaw[] {
   const rules = playedRulesOf(game);
@@ -537,7 +546,7 @@ export function gameRulesLaws(
       'every position a game reaches is recognized as this game alone',
       () => {
         for (const other of others)
-          for (const position of knownPositions(other))
+          for (const position of knownGamePositions(other))
             must(
               !rules.recognizes(position),
               `it claims ${other.label}'s ${position}`
@@ -552,7 +561,7 @@ export function gameRulesLaws(
               must(rules.recognizes(position), `${position} is not recognized`);
               for (const other of others)
                 must(
-                  !other.shared.turnGame.rules.recognizes(position),
+                  !other.shared.registration.rules.recognizes(position),
                   `${other.label} claims ${position}`
                 );
             }
@@ -666,7 +675,7 @@ export function gameRulesLaws(
             if (steps.at(-1)?.winner != null) return;
             const legal = rules.legal(position);
             const own = seat(game, position);
-            const chosen = game.shared.automation.choose(
+            const chosen = game.shared.automation.turns.choose(
               own.position,
               () => r,
               own.hand
@@ -696,11 +705,14 @@ export function gameRulesLaws(
 }
 
 /** The laws of a game's bots, for a game offering custom games. */
-export function gameBotLaws(game: HarnessGame): readonly GameLaw[] {
+export function gameBotLaws(game: TurnHarnessGame): readonly GameLaw[] {
   const rules = playedRulesOf(game);
   const customGames = game.shared.turnGame.capabilities['custom-games'];
   if (customGames === undefined) return [];
   const { bots } = customGames;
+  const choose = bots.choose;
+  if (choose === undefined)
+    throw new Error('turn-game bot laws require turn choices');
   const strengths: readonly BotDifficulty[] =
     bots.difficulties.length === 0
       ? [DEFAULT_BOT_DIFFICULTY]
@@ -731,7 +743,7 @@ export function gameBotLaws(game: HarnessGame): readonly GameLaw[] {
               for (let ply = 0; ply < BOT_PLIES; ply++) {
                 const legal = rules.legal(position);
                 const chosen = seatsProposal(game, position, (at, hand) =>
-                  bots.choose(
+                  choose(
                     at,
                     difficulties[ply % difficulties.length]!,
                     () => draws[ply % draws.length]!,

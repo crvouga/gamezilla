@@ -16,6 +16,7 @@ test('publication cleanup withdraws from the current library without reloading i
   const host: JourneyHost = {
     runId: 'cleanup-regression',
     now: unused,
+    elapse: unused,
     browser: null,
     showsPuzzleAnswers: false,
     open: async () => {},

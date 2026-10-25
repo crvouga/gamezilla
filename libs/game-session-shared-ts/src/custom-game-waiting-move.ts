@@ -19,7 +19,7 @@ export function customGameChoiceWaits(
     game !== null &&
     game.status === 'active' &&
     (rules.forPosition(game.fen).setup !== undefined ||
-      rules.forPosition(game.fen).hands !== undefined) &&
+      rules.turnsForPosition(game.fen)?.hands !== undefined) &&
     game.sides.some((side) => game[side].kind === 'bot')
   );
 }

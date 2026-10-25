@@ -6,6 +6,7 @@
  */
 
 import { expect, test } from 'bun:test';
+import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import {
   multiplayerCommandReply,
   sendMultiplayerCommand,
@@ -22,6 +23,8 @@ import { forEveryGame } from '../game-suite';
 forEveryGame(
   import.meta.path,
   (game) => {
+    if (!isTurnHarnessGame(game))
+      throw new Error(`${game.label} has no turn fixtures`);
     test("each person's device holds their own hand and never the opponent's or the hidden state", async () => {
       await using s = await openConformanceHarness(
         `${game.shared.id}-matched-dealt-hands`

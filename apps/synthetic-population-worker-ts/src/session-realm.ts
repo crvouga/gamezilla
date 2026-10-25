@@ -2,6 +2,7 @@
 import { setDomWindow } from '@pkgs/bun-test-solid-client-ts/register';
 import type { GameAutomation } from '@pkgs/turn-game-shared-ts/game-automation';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
+import { createApplicationInstance } from './application-instance';
 import type { SessionInput } from './session-messages';
 import { SessionRuntime } from './session-runtime';
 import { workerWallPorts } from './wall-io';
@@ -27,6 +28,7 @@ export function startSessionRealm(
         games,
         clock: wall.clock,
         timers: wall.timers,
+        openApplication: createApplicationInstance,
         send: (value) => globalThis.postMessage(value),
       });
       void runtime.start().catch(async () => runtime?.close());

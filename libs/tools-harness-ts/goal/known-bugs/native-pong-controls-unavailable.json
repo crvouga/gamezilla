@@ -1,0 +1,4 @@
+{
+  "summary": "The native Synthetic User test listener omitted room WebSocket upgrades, so matched Pong remained reconnecting with disabled paddle controls.",
+  "regressionTest": "apps/synthetic-population-worker-ts/tests/continuous-realms.test.ts"
+}

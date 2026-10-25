@@ -1,4 +1,4 @@
-import type { Clock } from '@pkgs/clock-shared-ts/types';
+import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
 import type { RoomEffectHandler } from '@pkgs/room-root-shared-ts/handler';
 import type { RoomServerConfig } from '@pkgs/room-root-shared-ts/room-server-types';
 import type { RoomStorage } from '@pkgs/room-root-shared-ts/server-core-storage';
@@ -39,6 +39,7 @@ export type ResolvedAdapterConfig<
     moduleName: RoomModuleName
   ) => RoomStorage;
   clock: Clock;
+  timers: Timers | undefined;
   createId: CreateId;
   /** Per-command gate handed to every {@link RoomServer}; none when absent. */
   authorize: RoomServerConfig<S, C, E, Identity>['authorize'];

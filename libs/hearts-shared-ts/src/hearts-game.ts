@@ -1,4 +1,4 @@
-import { defineTurnGame } from '@libs/game-session-shared-ts/turn-game-definition';
+import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import type {
   GameRecordMetadata,
   GameSide,
@@ -47,13 +47,13 @@ export function heartsRecord(
   ].join('\n');
 }
 
-export const heartsGameShared = defineTurnGame({
+export const heartsGameShared = defineGame({
   rules: heartsRules,
   capabilities: {
     'custom-games': { bots: heartsBots },
     history: { record: heartsRecord },
   },
-  automation: {
+  turnAutomation: {
     choose: (position, random, hand) =>
       chooseHeartsDecision(position, 'medium', random, hand),
     async perform(ui, board, action) {

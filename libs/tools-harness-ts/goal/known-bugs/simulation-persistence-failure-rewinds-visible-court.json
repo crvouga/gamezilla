@@ -1,0 +1,4 @@
+{
+  "summary": "After publishing a durably retained tick 6, a later live-checkpoint write failure cancels from the old score boundary at tick 0. Retain the last successfully stored frame for failure recovery and never publish the unsaved frame.",
+  "regressionTest": "libs/game-session-shared-ts/tests/simulation-restart.contract.test.ts"
+}
