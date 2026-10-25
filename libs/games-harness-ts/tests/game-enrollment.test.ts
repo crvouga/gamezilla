@@ -111,7 +111,7 @@ test('every mode of a shared family still needs its own conformance adapter', ()
       enrollmentProblems(unregistered, HARNESS_GAMES).some(
         (problem) =>
           problem.includes(`"${mode.id}"`) &&
-          problem.includes('but not GAME_DEFINITIONS')
+          problem.includes('but not TURN_GAME_DEFINITIONS')
       )
     ).toBe(true);
 
@@ -119,7 +119,7 @@ test('every mode of a shared family still needs its own conformance adapter', ()
     expect(
       enrollmentProblems(TURN_GAME_DEFINITIONS, omitted).some((problem) =>
         problem.includes(
-          `"${mode.id}" is in GAME_DEFINITIONS but not HARNESS_GAMES`
+          `"${mode.id}" is in TURN_GAME_DEFINITIONS but not HARNESS_GAMES`
         )
       )
     ).toBe(true);
