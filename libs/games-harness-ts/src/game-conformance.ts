@@ -56,12 +56,19 @@ export const GAME_TRAITS = {
   'a private setup': (game: HarnessGame) =>
     game.shared.turnGame.rules.setup !== undefined,
   /**
-   * Every position public, so a custom game without another person may be
-   * played on the host's device alone; a game with private setups or dealt
-   * hands is not.
+   * A custom game without another person may be played on the host's device
+   * alone: every game but one with private setups (a bot's setup is the
+   * room's alone). A game with dealt hands deals on the device from draws it
+   * makes once.
    */
-  'every position public': (game: HarnessGame) =>
-    game.shared.turnGame.rules.setup === undefined &&
+  'played on one device': (game: HarnessGame) =>
+    game.shared.turnGame.rules.setup === undefined,
+  /**
+   * A bot that chooses among the position's legal moves, so a scenario names
+   * its next move by the draw that picks it. A bot proposing from a hidden
+   * hand (`rules.hands`) chooses among what its hand allows instead.
+   */
+  'a bot choosing among legal moves': (game: HarnessGame) =>
     game.shared.turnGame.rules.hands === undefined,
   /**
    * Hands the authority deals and keeps hidden (`rules.hands`); the rules
@@ -114,11 +121,7 @@ export const SHARED_SPECIFICATIONS: Readonly<
   Record<string, readonly ConformanceNeed[]>
 > = {
   'multi-seat-games': ['custom-games', 'four seats'],
-  'multi-seat-recovery': [
-    'custom-games',
-    'four seats',
-    'every position public',
-  ],
+  'multi-seat-recovery': ['custom-games', 'four seats', 'played on one device'],
   'four-seat-matchmaking': ['matchmaking', 'four seats'],
   'game-choices': ['custom-games', 'matchmaking', 'history'],
   'custom-games': ['custom-games', 'two seats'],
@@ -138,7 +141,7 @@ export const SHARED_SPECIFICATIONS: Readonly<
   ],
   'custom-game-rematch': ['custom-games', 'two seats'],
   'custom-game-connection': ['custom-games', 'two seats'],
-  'custom-game-offline': ['custom-games', 'every position public', 'two seats'],
+  'custom-game-offline': ['custom-games', 'played on one device', 'two seats'],
   'custom-game-private-setup': ['custom-games', 'a private setup', 'two seats'],
   'matched-game-private-setup': ['matchmaking', 'a private setup', 'two seats'],
   'private-setup': [
@@ -199,15 +202,22 @@ export const SHARED_SPECIFICATIONS: Readonly<
   // The model's host makes choices alone with no connection: a game played
   // on the host's device alone. A game with a private setup is held to the
   // same lifecycle by the custom-game features and private-setup.qnt.
-  'custom-game': ['custom-games', 'every position public', 'two seats'],
+  'custom-game': ['custom-games', 'played on one device', 'two seats'],
   'custom-game-play': ['custom-games', 'two seats'],
+  // These models name every bot move along the victory line.
   'custom-game-control': [
     'custom-games',
     'a seven-move victory',
-    'every position public',
+    'played on one device',
+    'a bot choosing among legal moves',
     'two seats',
   ],
-  'custom-game-local': ['custom-games', 'every position public', 'two seats'],
+  'custom-game-local': [
+    'custom-games',
+    'played on one device',
+    'a bot choosing among legal moves',
+    'two seats',
+  ],
   'custom-game-access': ['custom-games', 'two seats'],
   'custom-game-delivery': ['custom-games', 'two seats'],
   'matched-game': ['matchmaking', 'a seven-move victory', 'two seats'],

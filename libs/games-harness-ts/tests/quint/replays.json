@@ -6,7 +6,7 @@
     "replayed": [38, 55, 63, 122, 123, 125, 211, 250],
     "regressions": 12,
     "determinism": false,
-    "variants": 4
+    "variants": 5
   },
   "custom-game-control": {
     "seed": "0x67932",

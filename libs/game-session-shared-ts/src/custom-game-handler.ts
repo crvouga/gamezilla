@@ -22,7 +22,11 @@ import {
   dealtHandsChoice,
   decideCustomGameMove,
 } from './custom-game-hand-play';
-import { customGameHand } from './custom-game-hands';
+import {
+  customGameHand,
+  customGameHandsRules,
+  customGameHidden,
+} from './custom-game-hands';
 import { soloCustomGame } from './custom-game-local';
 import {
   expireCustomGame,
@@ -152,6 +156,40 @@ function currentWake(
   );
 }
 
+/**
+ * Whether someone other than the room chooses a move for a bot whose hand
+ * is the room's alone: in every game with dealt hands but its creator's
+ * solo practice.
+ */
+function chosesHiddenBotMove(
+  game: CustomGame | null,
+  ctx: GameCommandContext,
+  wake: CustomGameBotWake | CustomGameWake,
+  rules: TurnGames
+): boolean {
+  return (
+    ctx.identity !== ROOM_SCHEDULER_IDENTITY &&
+    'move' in wake &&
+    game !== null &&
+    customGameHandsRules(game, rules) !== undefined &&
+    !soloCustomGame(game, rules)
+  );
+}
+
+/** Whether this copy cannot decide for the game's hands: it holds no hidden state. */
+function lacksHiddenState(
+  state: RoomState,
+  ctx: GameCommandContext,
+  game: CustomGame,
+  rules: TurnGames
+): boolean {
+  return (
+    !ctx.authority &&
+    customGameHandsRules(game, rules) !== undefined &&
+    customGameHidden(state, game) === null
+  );
+}
+
 export function handleCustomGameWake(
   state: RoomState,
   ctx: GameCommandContext,
@@ -173,6 +211,8 @@ export function handleCustomGameWake(
     )
   )
     return refuseCustomGame('only the game may move a bot or end a clock');
+  if (chosesHiddenBotMove(game, ctx, wake, rules))
+    return refuseCustomGame('only the game may move a bot or end a clock');
   if (!CustomGameAvailableAttr.from(state) && !soloCustomGame(game, rules))
     return changedCustomGames(games, ctx, rules);
   if (!currentWake(game, wake)) return changedCustomGames(games, ctx, rules);
@@ -184,6 +224,9 @@ export function handleCustomGameWake(
     return changedCustomGames({ ...games, current: expired }, ctx, rules);
   if (!bot || game[game.turn].kind !== 'bot')
     return changedCustomGames(games, ctx, rules);
+  // A copy without the hidden state leaves the bot's turn to the room.
+  if (lacksHiddenState(state, ctx, game, rules))
+    return { ok: true, events: [] };
   const move =
     'move' in wake
       ? wake.move

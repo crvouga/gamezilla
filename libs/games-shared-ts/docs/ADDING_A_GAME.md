@@ -254,8 +254,9 @@ and nowhere else
   from that deal (Word Tiles: `libs/word-tiles-harness-ts`).
 
 The platform then gives the game private hands in custom games and finding
-an opponent, the dealt-hands laws and privacy suites. Such a game is never
-played on one device alone and offers no rated puzzle feed; it may offer
+an opponent, practice against bots on one device (also offline), the
+dealt-hands laws and privacy suites. Such a game offers no rated puzzle feed;
+it may offer
 authored puzzle content and [starter content](ADDING_A_PUZZLE_GAME.md#ship-starter-content).
 
 ## 3. Supply the conformance adapter

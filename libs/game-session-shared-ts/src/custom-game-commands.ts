@@ -11,16 +11,22 @@ export const ChangeCustomGame = customGameCmdNs(
   (p): p is CustomGameChoice => customGameChoiceSchema.safeParse(p).success
 );
 
+const localChangeSchema = z
+  .object({
+    choice: customGameChoiceSchema,
+    at: z.number().int().nonnegative(),
+    /**
+     * The draws a solo game with dealt hands deals from, drawn once on the
+     * creator's device, so every copy deals the same hands.
+     */
+    draws: z.array(z.number().min(0).lt(1)).max(64).optional(),
+  })
+  .strict();
+export type ChangeLocalCustomGamePayload = z.infer<typeof localChangeSchema>;
 export const ChangeLocalCustomGame = customGameCmdNs(
   'local-change',
-  (p): p is { choice: CustomGameChoice; at: number } =>
-    z
-      .object({
-        choice: customGameChoiceSchema,
-        at: z.number().int().nonnegative(),
-      })
-      .strict()
-      .safeParse(p).success
+  (p): p is ChangeLocalCustomGamePayload =>
+    localChangeSchema.safeParse(p).success
 );
 
 const wakeSchema = z

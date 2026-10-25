@@ -59,8 +59,17 @@ Then('Alice sees three legal bot replies and her next turn', async (w) => {
   expect(game.turn).toBe(seen.mySide!);
   const rules = gameOf(w).shared.turnGame.rules;
   const actions = game.moves.map((move) => move.uci);
+  // Each reply is one the rules accept where it was made (a game with dealt
+  // hands records the public action its proposal resolved to).
   for (let ply = 1; ply < actions.length; ply++)
-    expect(rules.legal(rules.replay(actions, ply))).toContain(actions[ply]!);
+    expect(
+      rules.play(
+        rules.replay(actions, ply),
+        actions[ply]!,
+        '',
+        actions.slice(0, ply)
+      )
+    ).not.toBeNull();
 });
 Then(
   "the four-player custom game's board and finished result are unchanged",

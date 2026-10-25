@@ -482,9 +482,18 @@ hand)`); they are never given another side's.
 - **Custom games.** When the game starts the room deals the hidden state as
   an event nobody reads (`hidden-dealt`) and shows each person their hand as
   an event only they read (`hand-shown`; a bot's is read by nobody), again
-  after every action. Devices predict nothing for such a game, never play it
-  alone and never pre-choose a bot's move, so no hidden state reaches a
-  device (`custom-game-hands.ts`, `custom-game-hand-play.ts`).
+  after every action. With another person at the table, devices predict
+  nothing and only the room moves a bot (a creator's chosen bot move is
+  refused), so no hidden state reaches a device
+  (`custom-game-hands.ts`, `custom-game-hand-play.ts`).
+- **Practice against bots.** A game whose only person is its creator is
+  solo, also offline: the creator's device draws the deal's numbers once and
+  sends them with the start (`ChangeLocalCustomGame.draws`, accepted only for
+  a solo game), so the device and the room deal the same hidden state; the
+  creator alone also reads the hidden state and the bots' hands (`reader`),
+  so the device resolves moves and pre-chooses the bots' proposals as the
+  room does. A watcher still receives none of it
+  (`custom-game-router.ts`, `custom-game-local.ts`).
 - **Matched games.** The server deals at creation, drawing from a fresh
   server-side identity (`drawsFromId`), and keeps the hidden state in
   `chess_multiplayer_hidden`, which never syncs; each person's hand is a row
@@ -935,14 +944,15 @@ The matrix today:
 
 Three traits select specifications beyond capabilities for games with
 private setups: `a private setup` (the private-setup specifications and
-suites), `every position public` (play on the host's device alone:
+suites), `played on one device` (play on the host's device alone, for every
+game without private setups:
 `custom-game-offline`, `custom-game-local.qnt`, `custom-game.qnt`,
 `custom-game-control.qnt` and the offline solo board suite) and `a seven-move
 victory` (the whole-game models `custom-game-control`, `matched-game`,
 `matched-game-daily`). Battleship's shortest victory takes 33 shots, so it is
 held to the models that follow the start of its known victory; secret pick,
 whose victory takes seven moves, carries private setups through the
-whole-game models that do not need every position public.
+whole-game models that do not need play on one device.
 
 ## Durable names
 
@@ -1128,17 +1138,22 @@ no production game advertises the new mode.
   stay inside their caps: chess 7, games 41. Each model is still checked
   in a task of its own (seven and sixteen model-check tasks, the
   matched-game model's sixteen phases apart).
-- A game with dealt hands is never played on the host's device alone either:
-  its custom game against bots needs the connection, and a move made
-  without one waits. It offers no rated puzzle feed; Word Tiles' one-move
-  challenges are authored puzzle content instead.
+- A game with dealt hands offers no rated puzzle feed; Word Tiles' one-move
+  challenges are authored puzzle content instead. A solo practice game's deal
+  is on its creator's device, which could read the bots' racks: practice,
+  not a contest. The models that name every bot move along the
+  victory line (`custom-game-control`, `custom-game-local`) need a bot that
+  chooses among the position's legal moves by its draw (`a bot choosing among
+  legal moves`); a bot proposing from a hidden hand does not, so they hold
+  for every other game, while the offline features, the whole custom-game
+  model and the four-seat recovery hold for dealt hands too.
 - Results are a single winner or a draw. Word Tiles' joint winners in a
   game of three or four are recorded as a draw, with the scores shown.
 - A game with private setups is never played on the host's device alone,
   so the offline solo specifications and the custom-game model (whose host
-  chooses alone with no connection) hold only for games whose every position
-  is public; its custom game against a bot needs the connection and a move
-  made without one waits for it.
+  chooses alone with no connection) hold only for games without them
+  (`played on one device`); its custom game against a bot needs the
+  connection and a move made without one waits for it.
 - The game models follow a first-side victory of exactly seven moves
   (Connect Four's shortest), so every game supplies one; a game whose
   victories all take longer needs the models' bound raised with it. The

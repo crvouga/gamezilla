@@ -68,7 +68,7 @@ export const finishCustomGameAgainstBots = scenarioAction({
         const action = game.shared.automation.choose(
           current.fen,
           () => 0,
-          null
+          probe.ownHand
         );
         if (action === null) throw new Error('Active game offers no action');
         await Promise.resolve(

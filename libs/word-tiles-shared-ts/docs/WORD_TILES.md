@@ -125,7 +125,8 @@ published once when migrations run.
   matched-game models hold for it.
 - Three and four seats are covered by the shared custom-game and history
   suites; finding an opponent is offered for two.
-- A game against bots needs the connection (a dealt-hands game never runs on
-  one device alone).
+- Practice against bots runs on the creator's device, also offline, which
+  therefore holds that game's bag and the bots' racks; with another person
+  at the table nothing hidden reaches any device.
 - The specific reason a placement is refused is shown by the board's own
   preview; the authority reports a refusal as an illegal move.

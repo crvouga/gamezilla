@@ -8,6 +8,7 @@ import type {
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import { z } from 'zod';
 import { customGameEvtNs } from './custom-game-commands';
+import { creatorAloneInCustomGame } from './custom-game-solo';
 import type {
   CustomGame,
   CustomGameSide,
@@ -21,14 +22,24 @@ import { CUSTOM_GAME_SIDES, customGamePersonSide } from './custom-game-state';
  * as an event nobody reads; each side's hand travels as an event only its
  * person reads (a bot's, nobody). So the room holds the hidden state and
  * every hand, a device only its own person's hand, and the custom game
- * itself, which everyone in the space sees, holds neither.
+ * itself, which everyone in the space sees, holds neither. In a solo game —
+ * its creator practising against bots — the creator also reads the hidden
+ * state and the bots' hands (`reader`), so their device can play offline;
+ * no other person ever does.
  */
 
 const hiddenSchema = z.string().min(1).max(4096);
 const handSchema = z.string().max(512);
 
+const readerSchema = z.string().max(256).optional();
+
 const hiddenDealtSchema = z
-  .object({ gameId: z.string().min(1), hidden: hiddenSchema })
+  .object({
+    gameId: z.string().min(1),
+    hidden: hiddenSchema,
+    /** The creator of a solo game, who may read it; absent, nobody. */
+    reader: readerSchema,
+  })
   .strict();
 export type CustomGameHiddenDealtPayload = z.infer<typeof hiddenDealtSchema>;
 export const CustomGameHiddenDealt = customGameEvtNs(
@@ -44,6 +55,8 @@ const handShownSchema = z
     /** The person the hand is private to; empty for a bot's. */
     person: z.string(),
     hand: handSchema,
+    /** For a bot's hand in a solo game, its creator, who may read it. */
+    reader: readerSchema,
   })
   .strict();
 export type CustomGameHandShownPayload = z.infer<typeof handShownSchema>;
@@ -80,9 +93,11 @@ export const CustomGameHandsAttr = ns.json(
 export function customGameHandsAudience(
   event: Message
 ): readonly string[] | null {
-  if (CustomGameHiddenDealt.is(event)) return [];
+  if (CustomGameHiddenDealt.is(event))
+    return event.payload.reader === undefined ? [] : [event.payload.reader];
   if (!CustomGameHandShown.is(event)) return null;
-  return event.payload.person === '' ? [] : [event.payload.person];
+  if (event.payload.person !== '') return [event.payload.person];
+  return event.payload.reader === undefined ? [] : [event.payload.reader];
 }
 
 export function reduceCustomGameHidden(
@@ -184,18 +199,26 @@ export function customGameHandEvents(
     readonly all: boolean;
   }
 ): readonly Message[] {
+  // A solo game's creator reads what the room alone reads otherwise.
+  const reader = creatorAloneInCustomGame(game) ? { reader: game.creator } : {};
   const events: Message[] = [
-    CustomGameHiddenDealt({ gameId: game.id, hidden: change.hidden }),
+    CustomGameHiddenDealt({
+      gameId: game.id,
+      hidden: change.hidden,
+      ...reader,
+    }),
   ];
   for (const side of game.sides) {
     const hand = change.hands.hand(change.hidden, side);
     if (!change.all && customGameHand(state, game, side) === hand) continue;
+    const person = game[side].kind === 'person' ? game[side].person : '';
     events.push(
       CustomGameHandShown({
         gameId: game.id,
         side,
-        person: game[side].kind === 'person' ? game[side].person : '',
+        person,
         hand,
+        ...(person === '' ? reader : {}),
       })
     );
   }

@@ -1,7 +1,11 @@
 import { expect, test } from 'bun:test';
-import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
+import type {
+  CustomGameChoice,
+  CustomGameInput,
+} from '@libs/game-session-shared-ts/custom-game-choice';
 import {
   ChangeCustomGame,
+  ChangeLocalCustomGame,
   PlayCustomGameBot,
 } from '@libs/game-session-shared-ts/custom-game-commands';
 import {
@@ -173,7 +177,7 @@ test("a refused proposal is refused as every game's is and changes nothing", () 
   );
 });
 
-test('a bot proposes from its own hand, which nobody else reads', () => {
+test('a bot proposes from its own hand, which only a solo game’s creator reads', () => {
   let state = reduce(
     space(),
     events(space(), 'alice', { operation: 'create' })
@@ -187,7 +191,7 @@ test('a bot proposes from its own hand, which nobody else reads', () => {
   const botHand = dealt.find(
     (e) => CustomGameHandShown.is(e) && e.payload.side === 'black'
   )!;
-  expect(ROOM.audience?.(botHand)).toEqual([]);
+  expect(ROOM.audience?.(botHand)).toEqual(['alice']);
   state = reduce(state, dealt);
   state = reduce(
     state,
@@ -206,4 +210,151 @@ test('a bot proposes from its own hand, which nobody else reads', () => {
     CustomGameHandShown.is(botHand) ? botHand.payload.hand : 0
   );
   expect(played.moves[1]?.uci).toBe(blackCard >= 4 ? 'keep' : 'swap');
+});
+
+/** The creator's device, drawing its own numbers. */
+function practiceDevice(): SpaceModule {
+  const draws = [0.1, 0.7, 0.3, 0.9, 0.2, 0.6];
+  return createSpaceModule(assertRoomModuleName('hands-room'), [handDraw], {
+    now: () => 0,
+    random: () => draws.shift() ?? 0.5,
+    authority: false,
+  });
+}
+
+function againstBot(): RoomState {
+  let state = reduce(
+    space(),
+    events(space(), 'alice', { operation: 'create' })
+  );
+  state = reduce(
+    state,
+    events(state, 'alice', { operation: 'bot', side: 'black' })
+  );
+  return reduce(state, events(state, 'alice', { operation: 'ready' }));
+}
+
+function local(state: RoomState, input: CustomGameInput): Message {
+  return ChangeLocalCustomGame({
+    choice: command(state, input).payload as CustomGameChoice,
+    at: 1000,
+  });
+}
+
+/** The same command on the creator's device and in the room: the same events. */
+function bothDecide(device: SpaceModule, state: RoomState, payload: Message) {
+  const prepared = device.prepareLocalCommand(state, payload, 1000);
+  commands += 1;
+  const sent = { id: `h${commands}`, ts: 1000, payload: prepared };
+  const onDevice = device.handle(state, sent, 'alice');
+  const inRoom = ROOM.handle(state, sent, 'alice');
+  if (!onDevice.ok || !inRoom.ok) throw new Error('refused');
+  expect(onDevice.events).toEqual(inRoom.events);
+  return inRoom.events;
+}
+
+test('practising against a bot, the device deals, plays and moves the bot as the room does', () => {
+  const device = practiceDevice();
+  const ready = againstBot();
+  const dealt = bothDecide(device, ready, local(ready, { operation: 'start' }));
+  expect(
+    dealt
+      .filter((e) => CustomGameHiddenDealt.is(e) || CustomGameHandShown.is(e))
+      .map((e) => ROOM.audience?.(e))
+  ).toEqual([['alice'], ['alice'], ['alice']]);
+  let state = reduce(ready, dealt);
+  expect(
+    soloCustomGame(current(state), createTurnGames([handDraw.turnGame]))
+  ).toBe(true);
+  state = reduce(
+    state,
+    bothDecide(
+      device,
+      state,
+      local(state, { operation: 'move', uci: 'swap', ply: 0 })
+    )
+  );
+  const game = current(state);
+  state = reduce(
+    state,
+    bothDecide(
+      device,
+      state,
+      PlayCustomGameBot({ gameId: game.id, ply: 1, side: 'black' })
+    )
+  );
+  expect(current(state).moves).toHaveLength(2);
+});
+
+test('a start without the creator’s draws is dealt by the room alone', () => {
+  const ready = againstBot();
+  const start = local(ready, { operation: 'start' });
+  const onDevice = handle(DEVICE, ready, 'alice', start);
+  if (!onDevice.ok) throw new Error('refused');
+  expect(onDevice.events.some((e) => CustomGameHiddenDealt.is(e))).toBe(false);
+});
+
+test('a game with another person never takes a device’s draws', () => {
+  const ready = readyToStart();
+  const start = practiceDevice().prepareLocalCommand(
+    ready,
+    local(ready, { operation: 'start' }),
+    1000
+  );
+  const result = handle(ROOM, ready, 'alice', start);
+  expect(!result.ok && 'reason' in result.error && result.error.reason).toBe(
+    'connection needed'
+  );
+});
+
+test('with another person at the table, nobody but the room chooses a bot’s move', () => {
+  const threeSeats = defineTurnGame({
+    rules: {
+      ...handDrawRules,
+      id: 'hand-draw-three',
+      sides: ['white', 'black', 'red'],
+    },
+    capabilities: { 'custom-games': { bots: handDrawBots } },
+    automation: { choose: () => null, perform: async () => {} },
+  });
+  const room = createSpaceModule(
+    assertRoomModuleName('hands-room'),
+    [threeSeats],
+    { now: () => 0, random: () => 0.5, authority: true }
+  );
+  const decide = (state: RoomState, as: string, input: CustomGameInput) => {
+    const result = handle(room, state, as, command(state, input));
+    if (!result.ok) throw new Error(`${as} ${input.operation} refused`);
+    return result.events.reduce((s, e) => room.reduce(s, e), state);
+  };
+  let state: RoomState = {
+    ...room.initialState(),
+    ...GamesRoomAttr.selected('hand-draw-three'),
+    ...SpaceMembersRoomAttr.seats({
+      alice: { joinedAt: '2026-10-24' },
+      bob: { joinedAt: '2026-10-24' },
+    }),
+  };
+  state = decide(state, 'alice', { operation: 'create' });
+  state = decide(state, 'bob', { operation: 'claim', side: 'black' });
+  state = decide(state, 'alice', { operation: 'bot', side: 'red' });
+  state = decide(state, 'alice', { operation: 'ready' });
+  state = decide(state, 'bob', { operation: 'ready' });
+  state = decide(state, 'alice', { operation: 'start' });
+  const game = current(state);
+  const chosen = handle(
+    room,
+    state,
+    'alice',
+    PlayCustomGameBot({
+      gameId: game.id,
+      ply: game.moves.length,
+      side: 'red',
+      at: 1000,
+      move: 'swap',
+    })
+  );
+  expect(!chosen.ok && 'reason' in chosen.error && chosen.error.reason).toBe(
+    'only the game may move a bot or end a clock'
+  );
 });

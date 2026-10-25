@@ -4,7 +4,9 @@
  * room sends each connection catching up from the start (what a
  * reconnecting device receives), and every row each device holds. The other
  * participant and a watcher never receive another's hand, and nobody ever
- * receives the hidden state (the bag, the random state).
+ * receives the hidden state (the bag, the random state) — but the creator
+ * of a solo game practising against a bot, whose own device deals and plays
+ * it: a watcher still receives neither.
  */
 
 import { expect, test } from 'bun:test';
@@ -74,6 +76,28 @@ forEveryGame(
         expect(text.includes(hidden)).toBe(false);
         expect(text.includes(bag)).toBe(false);
       }
+    }, 240_000);
+
+    test("practising against a bot, the creator's device holds the deal; a watcher receives none of it", async () => {
+      await using s = await openConformanceHarness(
+        `${game.shared.id}-dealt-hands-practice`
+      );
+      await s.apply(establishCustomGame, game.shared.id, {
+        second: 'bot',
+        watchers: ['carol'],
+      });
+      const { white, black, hidden } = knownDeal(game);
+      const alice = `${await sentTo(s, 'alice')}${await s.read(deviceRowsOf, 'alice')}`;
+      const carol = `${await sentTo(s, 'carol')}${await s.read(deviceRowsOf, 'carol')}`;
+      expect([alice.includes(white), alice.includes(black)]).toEqual([
+        true,
+        true,
+      ]);
+      expect([
+        carol.includes(white),
+        carol.includes(black),
+        carol.includes(hidden),
+      ]).toEqual([false, false, false]);
     }, 240_000);
   },
   ['dealt hands', 'two seats']

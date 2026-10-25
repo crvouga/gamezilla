@@ -38,6 +38,14 @@ type ConfirmationArgs = {
   rules: TurnGames;
   /** Told when the choice waits for the connection before it is sent. */
   onWaiting?: () => void;
+  /**
+   * Prepares a choice made on this device as the space's module does (a
+   * solo start of a game with dealt hands draws its deal here once).
+   */
+  prepare?: (
+    state: RoomState,
+    payload: RoomCommandPayload
+  ) => RoomCommandPayload;
 };
 
 function confirmLocalChoice(
@@ -54,8 +62,9 @@ function confirmLocalChoice(
       args.rules
     )
   ) {
+    const local = ChangeLocalCustomGame({ choice, at: args.clock.now() });
     const id = room.dispatch(
-      ChangeLocalCustomGame({ choice, at: args.clock.now() })
+      args.prepare?.(room.getSnapshot(), local) ?? local
     );
     if (id === null)
       return Promise.reject(

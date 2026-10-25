@@ -10,6 +10,7 @@ import { CustomGameAvailableAttr } from './custom-game-availability';
 import {
   ChangeCustomGame,
   ChangeLocalCustomGame,
+  type ChangeLocalCustomGamePayload,
   CustomGameAvailabilityChanged,
   CustomGamesChanged,
   customGameCmdNs,
@@ -26,6 +27,8 @@ import {
   CustomGameHandShown,
   CustomGameHandsAttr,
   CustomGameHiddenDealt,
+  customGameHandsRules,
+  customGameHidden,
   keptCustomGameHands,
   reduceCustomGameHand,
   reduceCustomGameHidden,
@@ -48,6 +51,33 @@ export const CustomGameNoticeAttr = ns.json('notice', (v) =>
   v === undefined ? { commandId: '', reason: '' } : noticeSchema.parse(v)
 );
 
+/**
+ * How every copy decides a solo choice: at the time the creator made it.
+ * In a solo game with dealt hands every copy decides as the room — it
+ * deals from the draws the creator's device made and resolves with the
+ * hidden state its creator reads — so the device and the room agree.
+ */
+function soloChoiceContext(
+  state: RoomState,
+  ctx: GameCommandContext,
+  payload: ChangeLocalCustomGamePayload,
+  rules: TurnGames
+): GameCommandContext {
+  const at = { ...ctx, ts: Math.min(ctx.ts, payload.at) };
+  const game = CustomGamesAttr.from(state).current;
+  if (game === null || customGameHandsRules(game, rules) === undefined)
+    return at;
+  const draws = [...(payload.draws ?? [])];
+  const dealt = customGameHidden(state, game) !== null;
+  // A start without the creator's draws is the room's alone to deal.
+  if (!dealt && payload.draws === undefined) return at;
+  return {
+    ...at,
+    authority: true,
+    random: () => draws.shift() ?? ctx.random(),
+  };
+}
+
 export function createCustomGameCommandRouter(rules: TurnGames) {
   return createMessageRouter<RoomState, GameCommandContext, HandleResult>(
     customGameCmdNs
@@ -63,7 +93,7 @@ export function createCustomGameCommandRouter(rules: TurnGames) {
       )
         ? handleCustomGameChoice(
             state,
-            { ...ctx, ts: Math.min(ctx.ts, command.payload.at) },
+            soloChoiceContext(state, ctx, command.payload, rules),
             command.payload.choice,
             rules
           )

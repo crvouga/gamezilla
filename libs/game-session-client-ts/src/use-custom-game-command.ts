@@ -3,6 +3,7 @@ import type { CustomGameChoice } from '@libs/game-session-shared-ts/custom-game-
 import { customGameCreatorRefusal } from '@libs/game-session-shared-ts/custom-game-refusal';
 import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
+import { useOptionalSpaceModule } from '@libs/spaces-client-ts/space-module-context';
 import { useSpaceOpenRooms } from '@libs/spaces-client-ts/space-open-rooms-store';
 import { useSpaceRoomSessionId } from '@libs/spaces-client-ts/space-room-context';
 import { useSpaceCan } from '@libs/spaces-client-ts/use-space-can';
@@ -34,6 +35,7 @@ export function useCustomGameCommand() {
   const roster = useNamedRoomRoster(SPACE_ROOM_NAME);
   const myId = useMyId();
   const engine = useSyncEngine();
+  const module = useOptionalSpaceModule();
   const [error, setError] = createSignal('');
   const [settled, setSettled] = createSignal(0);
   const [submitting, setSubmitting] = createSignal(false);
@@ -77,6 +79,12 @@ export function useCustomGameCommand() {
           canHost: canHost(),
           pending,
           rules,
+          ...(module === undefined
+            ? {}
+            : {
+                prepare: (state, payload) =>
+                  module.prepareLocalCommand(state, payload, clock.now()),
+              }),
           onWaiting: () => setWaiting(true),
         },
         choice
