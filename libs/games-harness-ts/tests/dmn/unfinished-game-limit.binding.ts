@@ -1,4 +1,5 @@
 import { findOpponentMutation } from '@libs/game-matchmaking-shared-ts/find-opponent-mutation';
+import { defaultMatchChoice } from '@libs/game-matchmaking-shared-ts/match-choice';
 import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { opponentSearchGuard } from '@libs/game-session-server-ts/opponent-search-guard';
 import { useUnfinishedGamesDecision } from '@libs/permissions-client-ts/use-can';
@@ -63,10 +64,11 @@ function serverEnforcementIn(game: HarnessGame): DecisionLayer {
       await searchGuard(ctx);
     },
     operationFor: () => async (c) => {
+      // regression: games-bindings-assume-clocked-turn-games
       const replay = replayOperation(findOpponentMutation, () => ({
         requestId: 'another-game',
         spaceId: LIMIT_SPACE,
-        timeControl: `${matchmaking.namespace}5+0`,
+        timeControl: defaultMatchChoice(matchmaking),
       }));
       await replay({
         ...c,

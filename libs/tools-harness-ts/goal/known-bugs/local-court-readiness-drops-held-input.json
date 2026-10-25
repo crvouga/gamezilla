@@ -1,0 +1,4 @@
+{
+  "summary": "In local Pong the local session becomes ready by settling its own queue, which no room notification reports. The presentation remembered readiness only from room notifications, so the next unrelated room change looked like a recovery: it reset the replica and dropped the paddle input the player was holding, and the paddle stopped once its input lease ran out (Pong local-watch: 'Carol joins while Alice is already playing'). The presentation now remembers the generation and readiness each refresh synchronized to, so a court already resynchronized keeps its held input while real recoveries still refresh.",
+  "regressionTest": "libs/game-session-client-ts/tests/simulation-presentation.test.ts"
+}
