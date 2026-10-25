@@ -13,10 +13,14 @@ export async function runtimeSession(
   backend: Backend,
   workerId: string,
   version = 'realm-test',
-  policySeed = 'native-paired-chess-1',
-  /** The one two-person matching game both peers' realms offer; the first turn game by default. */
-  game?: string
+  pairing: {
+    readonly policySeed?: string;
+    /** The one two-person matching game both peers' realms offer; the first turn game by default. */
+    readonly game?: string;
+  } = {}
 ) {
+  const policySeed = pairing.policySeed ?? 'native-paired-chess-1';
+  const game = pairing.game;
   const response = await backend.rpc.claim.$post({ json: { workerId } });
   const { assignment: stored } = await response.json();
   if (stored === null)
