@@ -34,6 +34,9 @@ export const GAME_TRAITS = {
     gameSides(game.shared.turnGame.rules).length === 2,
   'more than two seats': (game: HarnessGame) =>
     gameSides(game.shared.turnGame.rules).length > 2,
+  /** Exactly four seats, as the four-player specifications describe. */
+  'four seats': (game: HarnessGame) =>
+    gameSides(game.shared.turnGame.rules).length === 4,
   /** A puzzle line whose opponent supplies setup and automatic replies. */
   'a puzzle opponent': (game: HarnessGame) => {
     const puzzles = game.shared.turnGame.capabilities.puzzles;
@@ -110,13 +113,13 @@ export function capabilitiesOf(
 export const SHARED_SPECIFICATIONS: Readonly<
   Record<string, readonly ConformanceNeed[]>
 > = {
-  'multi-seat-games': ['custom-games', 'more than two seats'],
+  'multi-seat-games': ['custom-games', 'four seats'],
   'multi-seat-recovery': [
     'custom-games',
-    'more than two seats',
+    'four seats',
     'every position public',
   ],
-  'four-seat-matchmaking': ['matchmaking', 'more than two seats'],
+  'four-seat-matchmaking': ['matchmaking', 'four seats'],
   'game-choices': ['custom-games', 'matchmaking', 'history'],
   'custom-games': ['custom-games', 'two seats'],
   'custom-game-creation': ['custom-games', 'two seats'],

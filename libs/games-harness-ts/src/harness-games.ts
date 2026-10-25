@@ -6,6 +6,11 @@ import {
   QUORIDOR_HARNESS_GAME,
   QUORIDOR_HILL_HARNESS_GAME,
 } from '@libs/quoridor-harness-ts/quoridor-harness-game';
+import {
+  WORD_TILES_3_HARNESS_GAME,
+  WORD_TILES_4_HARNESS_GAME,
+  WORD_TILES_HARNESS_GAME,
+} from '@libs/word-tiles-harness-ts/word-tiles-harness-game';
 
 /**
  * Every registered turn game as the turn suites exercise it, in registry
@@ -19,4 +24,7 @@ export const HARNESS_GAMES: readonly HarnessGame[] = [
   BATTLESHIP_HARNESS_GAME,
   QUORIDOR_HARNESS_GAME,
   QUORIDOR_HILL_HARNESS_GAME,
+  WORD_TILES_HARNESS_GAME,
+  WORD_TILES_3_HARNESS_GAME,
+  WORD_TILES_4_HARNESS_GAME,
 ];

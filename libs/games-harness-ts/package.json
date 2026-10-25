@@ -160,7 +160,8 @@
     "@libs/connect-four-harness-ts": "workspace:*",
     "@libs/game-session-harness-ts": "workspace:*",
     "@libs/games-shared-ts": "workspace:*",
-    "@libs/quoridor-harness-ts": "workspace:*"
+    "@libs/quoridor-harness-ts": "workspace:*",
+    "@libs/word-tiles-harness-ts": "workspace:*"
   },
   "devDependencies": {
     "@libs/account-privacy-harness-ts": "workspace:*",

@@ -13,6 +13,11 @@ import {
   assertGameRegistry,
   assertMatchingGameIds,
 } from '@libs/spaces-shared-ts/load-game-plugins';
+import {
+  wordTiles3GameClient,
+  wordTiles4GameClient,
+  wordTilesGameClient,
+} from '@libs/word-tiles-client-ts/word-tiles-game-client';
 
 /**
  * Client UI definitions for each game in {@link GAME_DEFINITIONS}.
@@ -25,6 +30,9 @@ export const GAME_CLIENT_DEFINITIONS = [
   numberlinkGameClient,
   quoridorGameClient,
   quoridorHillGameClient,
+  wordTilesGameClient,
+  wordTiles3GameClient,
+  wordTiles4GameClient,
 ] as const satisfies readonly GameClientRegistration[];
 
 assertGameRegistry(GAME_CLIENT_DEFINITIONS);

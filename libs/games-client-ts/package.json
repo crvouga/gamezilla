@@ -21,7 +21,8 @@
     "@libs/games-shared-ts": "workspace:*",
     "@libs/numberlink-client-ts": "workspace:*",
     "@libs/quoridor-client-ts": "workspace:*",
-    "@libs/spaces-shared-ts": "workspace:*"
+    "@libs/spaces-shared-ts": "workspace:*",
+    "@libs/word-tiles-client-ts": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
