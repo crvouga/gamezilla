@@ -10,7 +10,7 @@ import { makeCustomGameMove } from '@libs/game-session-harness-ts/custom-game-mo
 import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe';
 import { partition } from '@libs/harness-ts/actions';
 import { Given, Then, When } from '@libs/harness-ts/define';
-import { before, gameOf, setupCustomGame, sideOf, view } from './game-world';
+import { before, gameOf, setupCustomGame, view } from './game-world';
 import { knownNextMove } from './known-line';
 import { nextVictoryMove, told } from './matched-game';
 import {
