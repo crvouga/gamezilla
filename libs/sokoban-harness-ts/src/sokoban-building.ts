@@ -72,13 +72,20 @@ export type SokobanTool =
   | 'erase';
 
 /** Chooses a builder tool, then the square, as the author does. */
+export function editSquare(
+  s: SokobanHarness,
+  tool: SokobanTool,
+  square: string
+): Promise<void> {
+  return editInBuilder(s, (view) => {
+    fireEvent.click(view.getByTestId(`sokoban-tool-${tool}`));
+    fireEvent.click(view.getByTestId(`sokoban-square-${square}`));
+  });
+}
+
 export const editSokobanSquare = defineAction({
   name: 'editSokobanSquare',
-  act: (s: SokobanHarness, tool: SokobanTool, square: string) =>
-    editInBuilder(s, (view) => {
-      fireEvent.click(view.getByTestId(`sokoban-tool-${tool}`));
-      fireEvent.click(view.getByTestId(`sokoban-square-${square}`));
-    }),
+  act: editSquare,
 });
 
 export const resizeSokobanBoard = defineAction({

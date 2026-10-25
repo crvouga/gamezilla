@@ -24,6 +24,29 @@ function sokobanContentFor(rules: ExampleRules): PuzzleContent {
   };
 }
 
+/** The same game shipping only the first `count` starter puzzles: a model's example bound. */
+function withStarters(
+  game: ContentHarnessGame,
+  count: number
+): ContentHarnessGame {
+  return {
+    ...game,
+    content: (rules) => {
+      const content = game.content(rules);
+      return {
+        ...content,
+        get rulesVersion() {
+          return content.rulesVersion;
+        },
+        bundledPacks: (content.bundledPacks ?? []).map((pack) => ({
+          ...pack,
+          puzzles: pack.puzzles.slice(0, count),
+        })),
+      };
+    },
+  };
+}
+
 const client = sokobanGameClient.puzzleContent;
 if (client === undefined) throw new Error('Sokoban registers no puzzle client');
 
@@ -40,17 +63,27 @@ export const SOKOBAN_GAME: ContentHarnessGame = {
 
 export type SokobanHarness = ContentHarness;
 
+function sokobanSystemOf(name: string, game: ContentHarnessGame) {
+  return defineSystem<SokobanHarness>({
+    name,
+    actions: [...SOKOBAN_ACTIONS],
+    runtimes: [
+      defineRuntime({
+        name: 'virtual',
+        default: true,
+        create: () => syncVirtual(),
+      }),
+    ],
+    create: (session) =>
+      createContentWorld(session, { initialContent: true }, game),
+  });
+}
+
 /** Four devices over Sokoban's rules, client, the shared Puzzles sub and sync. */
-export const sokobanSystem = defineSystem<SokobanHarness>({
-  name: 'sokoban',
-  actions: [...SOKOBAN_ACTIONS],
-  runtimes: [
-    defineRuntime({
-      name: 'virtual',
-      default: true,
-      create: () => syncVirtual(),
-    }),
-  ],
-  create: (session) =>
-    createContentWorld(session, { initialContent: true }, SOKOBAN_GAME),
-});
+export const sokobanSystem = sokobanSystemOf('sokoban', SOKOBAN_GAME);
+
+/** The models' world: their examples use three starter puzzles. */
+export const sokobanModelSystem = sokobanSystemOf(
+  'sokoban-models',
+  withStarters(SOKOBAN_GAME, 3)
+);

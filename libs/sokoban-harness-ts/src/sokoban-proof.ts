@@ -18,17 +18,16 @@ const ALICE = 'alice:phone';
 const PUBLISHED = new WeakMap<SokobanHarness, Map<string, string>>();
 const NEEDS_PLAYTEST = 'Complete a playtest of this board before publication.';
 
-/** A person presses a control once it shows its idle face again. */
+/** A person presses a control once it offers itself again: idle, or retry after a refusal. */
 async function clickIdle(
   s: SokobanHarness,
   view: View,
-  testId: string,
-  idle: string
+  testId: string
 ): Promise<void> {
-  await waitFor(
-    s,
-    () => view.queryByTestId(testId)?.textContent?.trim() === idle
-  );
+  await waitFor(s, () => {
+    const phase = view.queryByTestId(testId)?.getAttribute('data-phase');
+    return phase === 'idle' || phase === 'error';
+  });
   s.lastResult.delete(ALICE);
   fireEvent.click(view.getByTestId(testId));
 }
@@ -55,7 +54,7 @@ async function newestPlaytest(s: SokobanHarness): Promise<string | null> {
 export async function playtestFromBuilder(s: SokobanHarness): Promise<void> {
   const view = await openSokobanBuilder(s);
   const earlier = await newestPlaytest(s);
-  await clickIdle(s, view, 'content-start-playtest', 'Start playtest');
+  await clickIdle(s, view, 'content-start-playtest');
   await waitFor(s, () => s.lastResult.has(ALICE));
   const attemptId = await newestPlaytest(s);
   if (s.lastResult.get(ALICE)?.ok !== true || attemptId === earlier) return;
@@ -90,7 +89,7 @@ export const publishSokobanDraft = defineAction({
   act: async (s: SokobanHarness) => {
     const view = await openSokobanBuilder(s);
     const board = await builtDefinition(s);
-    await clickIdle(s, view, 'content-publish', 'Publish');
+    await clickIdle(s, view, 'content-publish');
     await waitFor(s, () => s.lastResult.has(ALICE));
     if (s.lastResult.get(ALICE)?.ok !== true) return;
     const title = s.editors.get(ALICE)?.body.title ?? '';

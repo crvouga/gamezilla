@@ -7,6 +7,7 @@ import {
   clickWhenReady,
   closePlay,
   devicePlay,
+  openAttemptOnScreen,
   screensOf,
   type View,
   waitFor,
@@ -24,11 +25,11 @@ export function starterEditions(s: SokobanHarness) {
   };
 }
 
+/** Mounts the library at the starter pack; an open attempt stays open. */
 async function openStarterPack(
   s: SokobanHarness,
   clientId: string
 ): Promise<View> {
-  closePlay(s, clientId);
   const view = await mountContentExample(s, clientId);
   await clickWhenReady(
     s,
@@ -71,11 +72,37 @@ async function startStarter(
   index: number
 ): Promise<void> {
   const view = await openStarterPack(s, clientId);
+  closePlay(s, clientId);
   const puzzle = starterEditions(s).puzzles[index];
   if (puzzle === undefined) throw new Error(`No starter puzzle ${index}`);
   fireEvent.click(view.getByTestId(`content-pack-puzzle-${puzzle.id}`));
   await enterAttempt(s, clientId, view);
 }
+
+/** A new attempt from the start, even where one is saved, opened from the library. */
+export const startFreshStarterPuzzle = defineAction({
+  name: 'startFreshStarterPuzzle',
+  act: async (s: SokobanHarness, clientId: string, index: number) => {
+    const view = await openStarterPack(s, clientId);
+    const puzzle = starterEditions(s).puzzles[index];
+    if (puzzle === undefined) throw new Error(`No starter puzzle ${index}`);
+    const before = new Set(
+      (await devicePlay(s, clientId)).attempts.map((entry) => entry.id)
+    );
+    fireEvent.click(view.getByTestId(`content-pack-puzzle-${puzzle.id}`));
+    await clickWhenReady(s, view, 'content-start-attempt');
+    let started: string | undefined;
+    await waitFor(s, async () => {
+      started = (await devicePlay(s, clientId)).attempts.find(
+        (entry) => !before.has(entry.id)
+      )?.id;
+      return started !== undefined;
+    });
+    view.unmount();
+    if (started === undefined) throw new Error('No new starter attempt');
+    await openAttemptOnScreen(s, clientId, started);
+  },
+});
 
 export const startStarterPuzzle = defineAction({
   name: 'startStarterPuzzle',
@@ -89,7 +116,11 @@ export const continueStarterPack = defineAction({
     const view = await openStarterPack(s, clientId);
     const next = view.queryByTestId('content-pack-next');
     screensOf(s, clientId).told = next === null ? 'no-unfinished-puzzle' : null;
-    if (next === null) return;
+    if (next === null) {
+      view.unmount();
+      return;
+    }
+    closePlay(s, clientId);
     fireEvent.click(next);
     await enterAttempt(s, clientId, view);
   },
@@ -145,4 +176,5 @@ export const SOKOBAN_STARTER_ACTIONS = [
   startStarterPuzzle,
   continueStarterPack,
   completeStarterPuzzle,
+  startFreshStarterPuzzle,
 ] as const;

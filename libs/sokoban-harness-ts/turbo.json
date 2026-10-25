@@ -2,6 +2,11 @@
   "$schema": "https://turborepo.com/schema.json",
   "extends": ["//"],
   "tasks": {
-    "test:spec:0": { "inputs": ["$TURBO_EXTENDS$"] }
+    "test:spec:0": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "verify:models": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/sokoban/*.qnt"]
+    }
   }
 }

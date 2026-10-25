@@ -56,13 +56,14 @@ export function packProgress(args: {
       },
     ];
   });
+  // The last puzzle played in this pack, if unfinished; else the first unfinished.
   const active = attempts.find(
-    (attempt) =>
-      attempt.pack_revision_id === args.packRevisionId &&
-      !completed.has(attempt.source_id)
+    (attempt) => attempt.pack_revision_id === args.packRevisionId
   );
   const next =
-    items.find((item) => item.revisionId === active?.source_id) ??
+    (active === undefined || completed.has(active.source_id)
+      ? undefined
+      : items.find((item) => item.revisionId === active.source_id)) ??
     items.find((item) => item.status !== 'completed') ??
     null;
   const completedCount = items.filter(
