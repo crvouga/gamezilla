@@ -93,6 +93,8 @@ export function useMultiplayerData(gameId: () => string) {
     spaceId,
     hostId,
     game,
+    /** The game as the durable record has it, before its room's live result. */
+    stored: () => games.rows()[0] ?? null,
     room: roomGame.room,
     execution: () =>
       matchingMultiplayerRoomGame(games.rows()[0] ?? null, roomGame.game())
