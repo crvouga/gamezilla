@@ -60,7 +60,20 @@ Sokoban imports no Numberlink code, and shared code names no game.
 - Shared tests: evidence replay and forgery, history compaction (mutation
   checked), draft edit history, bundled editions, pack offers; input
   contracts for the Sokoban player and editor; `TileBoard` component tests.
-- `bun run spec:verify` and `ci:i18n` pass.
+- After merging main (PR #230, Pong): typecheck, lint and unit tests of every
+  package (945 tasks); every spec part of the games (99), runtime (15),
+  chess, Battleship, Connect Four, Quoridor, Numberlink, Sokoban, Pong and
+  Synthetic Population suites; and `ci:goals`, `ci:statecharts`, `ci:specs`,
+  `ci:conformance`, `ci:spec-ownership`, `ci:i18n`, `ci:audit`, `ci:syncpack`,
+  `ci:agent-commands`, `ci:workspace-lifecycle` and `spec:verify` pass.
+- Defects the merged Pong work surfaced, fixed here with regression tests:
+  held paddle input dropped when a local court readied itself
+  (`local-court-readiness-drops-held-input`), simulation control handlers
+  re-running a board being disposed (`simulation-controls-rerun-disposing-board`),
+  a reopened live game showing its not-yet-projected stored row
+  (`reopened-live-match-shows-stored-row-before-room`), and shared games
+  bindings that assumed a clocked turn game
+  (`games-bindings-assume-clocked-turn-games`).
 - Limits: a 20 × 20 board; witnesses and histories of at most 10,000
   actions. Replaying a maximal witness on a 20 × 20 board takes about
   300 ms; one move appends in about 0.07 ms; one undo in about 0.9 ms.
@@ -68,8 +81,12 @@ Sokoban imports no Numberlink code, and shared code names no game.
 
 ## Remaining limitations
 
-- `ci:goals` fails on a pre-existing Pong known-bug whose regression test file
-  does not exist (`pong-recovered-court-pause-not-observed`).
+- `bun verify` has not produced a verdict on this machine: a run queues
+  behind other sessions' verifications and cannot outlast the agent's
+  ten-minute command limit. Its parts were run one by one instead (above).
+- A finished live matched game reaches its stored row only on the server's
+  next sweep (once a minute in production); the device's match room shows the
+  result meanwhile.
 - Publishing again after a rules change with no edit since keeps the earlier
   edition (the shared "same saved draft" rule); an edit is needed first. This
   is recorded as an open product question in the spec audit.
