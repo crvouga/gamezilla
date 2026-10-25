@@ -160,3 +160,5 @@ terms:
     from: runtime
   - term: control
     from: runtime
+  - term: resume
+    from: puzzles
