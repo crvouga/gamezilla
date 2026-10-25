@@ -23,6 +23,7 @@ export const LIGHT_CYCLES_DUEL_HARNESS_GAME: SimulationHarnessGame =
     shared: lightCyclesDuelShared,
     client: lightCyclesDuelClient,
     simulationFixtures: lightCyclesSimulationFixtures(2),
+    configurationChoices: ['2', '3'],
     readRecord: readLightCyclesRecord,
     actions: LIGHT_CYCLES_ACTIONS,
   });
@@ -33,6 +34,7 @@ export const LIGHT_CYCLES_TRIO_HARNESS_GAME: SimulationHarnessGame =
     shared: lightCyclesTrioShared,
     client: lightCyclesTrioClient,
     simulationFixtures: lightCyclesSimulationFixtures(3),
+    configurationChoices: ['2', '3'],
     readRecord: readLightCyclesRecord,
     actions: LIGHT_CYCLES_ACTIONS,
   });
@@ -43,6 +45,7 @@ export const LIGHT_CYCLES_QUAD_HARNESS_GAME: SimulationHarnessGame =
     shared: lightCyclesQuadShared,
     client: lightCyclesQuadClient,
     simulationFixtures: lightCyclesSimulationFixtures(4),
+    configurationChoices: ['2', '3'],
     readRecord: readLightCyclesRecord,
     actions: LIGHT_CYCLES_ACTIONS,
   });

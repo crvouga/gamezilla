@@ -197,6 +197,8 @@ export type SimulationHarnessGame<
   readonly shared: GameRegistration<C>;
   readonly client: GameClientRegistration<GameRegistration>;
   readonly simulationFixtures: SimulationHarnessFixtures;
+  /** Two different game options it offers, for checks that measure choices. */
+  readonly configurationChoices?: readonly [string, string];
   readonly slice?: HarnessSlice;
   readonly actions?: readonly CatalogAction<ProductHarness>[];
   readonly readRecord?: (record: string) => Omit<ReadGameRecord, 'moves'>;

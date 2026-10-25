@@ -17,6 +17,7 @@ export const PONG_HARNESS_GAME: SimulationHarnessGame = assertHarnessGame({
   shared: pongGameShared,
   client: pongGameClient,
   simulationFixtures: PONG_SIMULATION_FIXTURES,
+  configurationChoices: ['3', '5'],
   readRecord: readPongRecord,
   actions: [
     ...PONG_ACTIONS,
