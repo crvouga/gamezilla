@@ -19,13 +19,19 @@ every rule in a feature.
 | [Developer tools](../../specs/developer-tools/) | Test worlds, notebooks, release evidence, inspection scope |
 | [Feedback](../../specs/feedback/) | Feedback |
 | [Friends](../../specs/friends/) | Friendships, inbox |
-| [Journeys](../../specs/journeys/) | Whole-product root |
+| [Games](../../specs/games/) | Game choices, Custom Games, multiplayer, finding a Pong opponent without a clock and matched Pong without turns |
+| [Journeys](../../specs/journeys/) | Whole-product root, Pong and puzzle content |
 | [Matchmaking](../../specs/matchmaking/) | Independent matchmaking contract |
+| [Numberlink](../../specs/numberlink/) | Numberlink |
+| [Pong](../../specs/pong/) | Pong |
 | [Profile](../../specs/profile/) | Identity, profile and devices, signing in, sign-in methods, privacy |
+| [Puzzles](../../specs/puzzles/) | Puzzle content: drafts, playtests, editions, packs, attempts and pack progress |
 | [Room](../../specs/room/) | Independent room contract |
 | [Runtime](../../specs/runtime/) | App navigation, settings, opening and updates, environment, inspection scope |
 | [Spaces](../../specs/spaces/) | Spaces |
 | [Sync engine](../../specs/sync-engine/) | Independent notes contract, related inspection scope |
+| [Synthetic Population](../../specs/synthetic-population/) | Test worlds, Pong |
+| [Word Tiles](../../specs/word-tiles/) | Word Tiles |
 
 This table locates source families; the current exact examples and their
 source addresses are in `.cache/product-statechart/contracts.json`, produced
