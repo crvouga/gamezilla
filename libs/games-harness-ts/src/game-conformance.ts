@@ -81,9 +81,6 @@ export const GAME_TRAITS = {
   'played on one device': (game: HarnessGame) =>
     game.shared.turnGame !== undefined &&
     game.shared.turnGame.rules.setup === undefined,
-  'every position public': (game: HarnessGame) =>
-    game.shared.registration.rules.setup === undefined &&
-    game.shared.turnGame?.rules.hands === undefined,
   /**
    * A bot that chooses among the position's legal moves, so a scenario names
    * its next move by the draw that picks it. A bot proposing from a hidden

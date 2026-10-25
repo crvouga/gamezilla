@@ -208,7 +208,7 @@ test('a specification table listing an unknown capability, nothing, or only a tr
       uris
     )
   ).toEqual([
-    'SHARED_SPECIFICATIONS["a"] lists "tournaments", which is neither a capability (custom-games, matchmaking, history, puzzles) nor a trait (two seats, more than two seats, four seats, clock choices, no clock choices, turns, no turns, simulation, a puzzle opponent, a side that cannot win, a draw by the game\'s own rules, a private setup, played on one device, every position public, a bot choosing among legal moves, dealt hands, a seven-move victory, a known puzzle won another way)',
+    'SHARED_SPECIFICATIONS["a"] lists "tournaments", which is neither a capability (custom-games, matchmaking, history, puzzles) nor a trait (two seats, more than two seats, four seats, clock choices, no clock choices, turns, no turns, simulation, a puzzle opponent, a side that cannot win, a draw by the game\'s own rules, a private setup, played on one device, a bot choosing among legal moves, dealt hands, a seven-move victory, a known puzzle won another way)',
     'SHARED_SPECIFICATIONS["b"] lists nothing — list the capabilities it shows',
     'SHARED_SPECIFICATIONS["c"] lists no capability — a specification counts toward the capabilities it shows',
   ]);
