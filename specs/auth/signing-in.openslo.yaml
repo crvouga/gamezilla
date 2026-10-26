@@ -1,0 +1,57 @@
+# live
+# People can sign in. On every one of its regular checks the team starts
+# signing in with Google the way a person does, from outside, and follows it
+# as far as it can without a person's password (Sign in).
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: sign-in-checks-passing
+  displayName: The team's checks that find people can sign in
+spec:
+  description: >-
+    Of the team's regular checks from outside, the share in which people are
+    offered Google sign-in, starting it hands them to Google with the way
+    back, Google agrees to send them back, and a person finishing signing in
+    knows whether it worked. A check that did not run is not a pass.
+  ratioMetric:
+    counter: false
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            The team's regular checks from outside in which signing in
+            worked.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Every one of the team's regular checks from outside of whether
+            people can sign in.
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: people-can-sign-in
+  displayName: People can sign in
+  labels:
+    gamezilla.dev.tier: "0"
+spec:
+  description: >-
+    In at least 97 of every 100 hours in which the team checked, every step
+    of signing in it can follow worked, judged over the last week. The team checks about once an hour,
+    so a week holds at most about 170 checks: 97 in 100 is the strictest
+    rate those checks can tell apart from chance. No one can play who cannot
+    sign in.
+  service: auth
+  indicatorRef: sign-in-checks-passing
+  timeWindow:
+    - duration: 7d
+      isRolling: true
+  budgetingMethod: Timeslices
+  objectives:
+    - displayName: In at least 97 of every 100 checked hours people can sign in
+      target: 0.97
+      timeSliceTarget: 1
+      timeSliceWindow: 1h

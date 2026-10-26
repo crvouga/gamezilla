@@ -1375,8 +1375,15 @@ adapter with no snapshots fails.
 
 An objective file holds `SLI` and `SLO` documents (`openslo/v1`). An
 indicator's `metricSource` is `{ type: product, spec: { measures: <what, in
-product words> } }`, never a vendor query. Windows are rolling
-(`28d`), budgeting is by occurrences. The binding
+product words> } }`, never a vendor query. Windows are rolling. Budgeting is
+by occurrences, except for the team's checks from outside, which are judged
+by time slices (`Timeslices`: one run of a check is a moment, and a bad hour
+counts once). A `# live` objective is judged over `7d` and names how much it
+matters in `metadata.labels` as `gamezilla.dev.tier`: `"0"` for playing
+(reaching the app, signing in, spaces, moves, saving, live updates), `"1"`
+for what matters without stopping play, `"2"` for what supports it. Every
+file passes the OpenSLO reference validator (`oslo validate`): a display
+name is at most 63 characters and a label key has no `/`. The binding
 (`tests/openslo/<stem>.binding.ts`) measures each indicator: in `bun check`
 on the harness, and for live domains in `health:objectives`, which the
 hourly Health workflow runs after its checks. An objective whose first

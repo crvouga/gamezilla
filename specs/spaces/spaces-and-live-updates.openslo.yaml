@@ -1,0 +1,167 @@
+# live
+# People can host and join spaces, and the app can pass on what happens in a
+# space to everyone in it as it happens. The team checks both from outside on
+# every one of its regular checks (Spaces, Seeing each other play), and every
+# ten minutes that people's apps can reach the place live updates pass
+# through. Two people really seeing each other's moves is checked by the game
+# journeys.
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: space-checks-passing
+  displayName: The team's checks that find people can host and join spaces
+spec:
+  description: >-
+    Of the team's regular checks from outside, the share in which people
+    could host a space and join it. A check that did not run is not a pass.
+  ratioMetric:
+    counter: false
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            The team's regular checks from outside in which hosting and
+            joining a space worked.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Every one of the team's regular checks from outside of whether
+            people can host and join spaces.
+---
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: live-update-checks-passing
+  displayName: The team's checks that live updates can reach everyone
+spec:
+  description: >-
+    Of the team's regular checks from outside, the share in which the app
+    could pass on what happens in a space to everyone in it, people's apps
+    followed this environment's spaces, and nobody could listen in with a
+    well-known password. A check that did not run is not a pass.
+  ratioMetric:
+    counter: false
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            The team's regular checks from outside in which the app could
+            pass on what happens in a space to everyone in it.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Every one of the team's regular checks from outside of whether
+            the app can pass on what happens in a space.
+---
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: broker-pings-answered
+  displayName: The team's checks that people's apps can reach live updates
+spec:
+  description: >-
+    Every ten minutes the team asks, from outside, the place people's apps
+    connect to for live updates whether it is there to connect to. This is
+    the share of those checks it answered the way it answers a person's app
+    starting to connect. A check that could not reach it, waited too long,
+    or got any other answer counts as not answered.
+  ratioMetric:
+    counter: false
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            The team's ten-minute checks from outside that found the place
+            live updates pass through ready for people's apps to connect.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Every one of the team's ten-minute checks from outside of whether
+            people's apps can reach the place live updates pass through.
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: people-can-host-and-join-spaces
+  displayName: People can host and join spaces
+  labels:
+    gamezilla.dev.tier: "0"
+spec:
+  description: >-
+    In at least 97 of every 100 hours in which the team checked, hosting and
+    joining a space worked, judged over the last week. The team checks about
+    once an hour, so a week holds at most about 170 checks: 97 in 100 is the
+    strictest rate those checks can tell apart from chance. Joining a space
+    is how every game with other people starts.
+  service: spaces
+  indicatorRef: space-checks-passing
+  timeWindow:
+    - duration: 7d
+      isRolling: true
+  budgetingMethod: Timeslices
+  objectives:
+    - displayName: In at least 97 of every 100 checked hours people can host and join spaces
+      target: 0.97
+      timeSliceTarget: 1
+      timeSliceWindow: 1h
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: live-updates-can-reach-everyone
+  displayName: Live updates can reach everyone
+  labels:
+    gamezilla.dev.tier: "0"
+spec:
+  description: >-
+    In at least 97 of every 100 hours in which the team checked, the app
+    could pass on what happens in a space to everyone in it, judged over the
+    last week. The team checks about once an hour, so a week holds at most
+    about 170 checks: 97 in 100 is the strictest rate those checks can tell
+    apart from chance. A game in which the other player never sees your move
+    cannot be played.
+  service: spaces
+  indicatorRef: live-update-checks-passing
+  timeWindow:
+    - duration: 7d
+      isRolling: true
+  budgetingMethod: Timeslices
+  objectives:
+    - displayName: In at least 97 of every 100 checked hours live updates can reach everyone
+      target: 0.97
+      timeSliceTarget: 1
+      timeSliceWindow: 1h
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: live-updates-can-connect
+  displayName: Live updates can connect
+  labels:
+    gamezilla.dev.tier: "0"
+spec:
+  description: >-
+    In at least 995 of every 1000 ten-minute checks, people's apps could
+    reach the place live updates pass through, judged over the last week. A
+    week holds about a thousand of these checks: this allows five failed
+    ones. While it cannot be reached nobody sees anyone else's moves.
+  service: spaces
+  indicatorRef: broker-pings-answered
+  timeWindow:
+    - duration: 7d
+      isRolling: true
+  budgetingMethod: Timeslices
+  objectives:
+    - displayName: In at least 995 of every 1000 checks people's apps can reach live updates
+      target: 0.995
+      timeSliceTarget: 1
+      timeSliceWindow: 10m

@@ -1,0 +1,162 @@
+# live
+# People can open the app at its address at any minute of the day, and it
+# opens quickly. The team checks that every minute, from outside, without
+# waiting for people to notice: one check opens the app's address, the other
+# asks the app whether it is ready to serve people, what they saved included.
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: outside-pings-answered
+  displayName: The team's minute-by-minute checks that find the app open
+spec:
+  description: >-
+    Every minute the team opens the app's address from outside, and asks the
+    app whether it is ready to serve people, with what they saved within its
+    reach. This is the share of those checks in which the app opened and said
+    it was ready. A check that could not reach the app, waited too long, or
+    got something other than the app counts as not answered.
+  ratioMetric:
+    counter: false
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            The team's minute-by-minute checks from outside in which the app
+            opened at its address and said it was ready to serve people.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Every one of the team's minute-by-minute checks from outside of
+            whether the app opens at its address and is ready.
+---
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: outside-pings-answered-within-a-second
+  displayName: The team's minute-by-minute checks answered within a second
+spec:
+  description: >-
+    The same checks, counted by the share the app answered completely within
+    a second, from looking up its address to the last of the answer, as a
+    person's first visit of the day would.
+  ratioMetric:
+    counter: false
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            The team's minute-by-minute checks from outside that the app
+            answered completely within a second.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Every one of the team's minute-by-minute checks from outside.
+---
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: outside-pings-answered-within-two-and-a-half-seconds
+  displayName: The team's minute-by-minute checks answered in 2.5 seconds
+spec:
+  description: >-
+    The same checks, counted by the share the app answered completely within
+    two and a half seconds: past that a person assumes the app is broken.
+  ratioMetric:
+    counter: false
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            The team's minute-by-minute checks from outside that the app
+            answered completely within two and a half seconds.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Every one of the team's minute-by-minute checks from outside.
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: the-app-is-always-reachable
+  displayName: The app is always reachable
+  labels:
+    gamezilla.dev.tier: "0"
+spec:
+  description: >-
+    In at least 9995 of every 10000 minutes, every one of the team's checks
+    that minute finds the app open at its address and ready to serve people,
+    judged over the last week. That leaves five minutes a week in which
+    people may not be able to open the app or reach what they saved. Nothing
+    can be played while it is unreachable, so this matters most of all. The
+    team's longer regular checks say whether people can then sign in, play
+    and save.
+  service: runtime
+  indicatorRef: outside-pings-answered
+  timeWindow:
+    - duration: 7d
+      isRolling: true
+  budgetingMethod: Timeslices
+  objectives:
+    - displayName: In at least 9995 of every 10000 minutes the app opens and is ready
+      target: 0.9995
+      timeSliceTarget: 1
+      timeSliceWindow: 1m
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: the-app-opens-quickly
+  displayName: The app opens quickly
+  labels:
+    gamezilla.dev.tier: "0"
+spec:
+  description: >-
+    In at least 99 of every 100 minutes, every one of the team's checks that
+    minute is answered completely within a second, judged over the last week.
+    Opening the app is the first thing every person waits for. A slow minute
+    shows before people's own requests are many enough to measure.
+  service: runtime
+  indicatorRef: outside-pings-answered-within-a-second
+  timeWindow:
+    - duration: 7d
+      isRolling: true
+  budgetingMethod: Timeslices
+  objectives:
+    - displayName: In at least 99 of every 100 minutes the app answers within a second
+      target: 0.99
+      timeSliceTarget: 1
+      timeSliceWindow: 1m
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: the-app-never-hangs-on-opening
+  displayName: The app never hangs on opening
+  labels:
+    gamezilla.dev.tier: "0"
+spec:
+  description: >-
+    In at least 999 of every 1000 minutes, every one of the team's checks
+    that minute is answered completely within two and a half seconds, judged
+    over the last week: about ten minutes a week in which opening the app
+    may feel broken.
+  service: runtime
+  indicatorRef: outside-pings-answered-within-two-and-a-half-seconds
+  timeWindow:
+    - duration: 7d
+      isRolling: true
+  budgetingMethod: Timeslices
+  objectives:
+    - displayName: In at least 999 of every 1000 minutes the app answers in 2.5 seconds
+      target: 0.999
+      timeSliceTarget: 1
+      timeSliceWindow: 1m

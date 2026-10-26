@@ -1,0 +1,56 @@
+# live
+# The team can see what happened: it can follow a request's trail, find a
+# person's trouble, and see that the environment matches its plan (Request
+# records, Finding a person, Declared environment). People never use these;
+# they are how the team helps them.
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: team-tool-checks-passing
+  displayName: The team's checks that find its own tools working
+spec:
+  description: >-
+    Of the team's regular checks from outside, the share in which the team
+    could follow a request's trail, find a person's trouble and see that the
+    environment matches its plan. A check that did not run is not a pass.
+  ratioMetric:
+    counter: false
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            The team's regular checks from outside in which every one of the
+            team's own tools worked.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Every one of the team's regular checks from outside of the
+            team's own tools.
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: the-team-can-see-what-happened
+  displayName: The team can see what happened
+  labels:
+    gamezilla.dev.tier: "2"
+spec:
+  description: >-
+    In at least 90 of every 100 hours in which the team checked, every one
+    of the team's own tools worked, judged over the last week. Nobody
+    playing notices when they fail, but the team is slower to find and fix
+    what people do notice.
+  service: runtime
+  indicatorRef: team-tool-checks-passing
+  timeWindow:
+    - duration: 7d
+      isRolling: true
+  budgetingMethod: Timeslices
+  objectives:
+    - displayName: In at least 90 of every 100 checked hours the team's tools work
+      target: 0.9
+      timeSliceTarget: 1
+      timeSliceWindow: 1h
