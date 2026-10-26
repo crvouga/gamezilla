@@ -16,6 +16,7 @@ const README = join(
   import.meta.dirname,
   '../../observability-shared-ts/README.md'
 );
+const RUNBOOK = join(import.meta.dirname, '../../../docs/SLO_RUNBOOK.md');
 
 /** The module's alert rules as OpenTofu renders them for one environment. */
 function renderedAlerts(environment: string): Record<string, Rule> {
@@ -47,6 +48,7 @@ function anchors(markdown: string): Set<string> {
 test('every alert names its owner, severity and a runbook section that exists', () => {
   const alerts = renderedAlerts('example');
   const sections = anchors(readFileSync(README, 'utf8'));
+  const runbook = anchors(readFileSync(RUNBOOK, 'utf8'));
   for (const alert of Object.values(alerts)) {
     expect(alert.owner.length).toBeGreaterThan(0);
     expect(['warning', 'critical']).toContain(alert.severity);
@@ -55,6 +57,9 @@ test('every alert names its owner, severity and a runbook section that exists', 
     expect(page).toStartWith('https://github.com/crvouga/gamezilla/blob/main/');
     if (page?.endsWith('libs/observability-shared-ts/README.md'))
       expect(sections).toContain(anchor ?? '');
+    else expect(page).toEndWith('docs/SLO_RUNBOOK.md');
+    if (page?.endsWith('docs/SLO_RUNBOOK.md'))
+      expect(runbook).toContain(anchor ?? '');
   }
 });
 

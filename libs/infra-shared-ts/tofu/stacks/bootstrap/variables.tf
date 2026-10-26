@@ -107,3 +107,12 @@ variable "railway" { type = any }
 variable "shared_data" {
   type = object({ account_id = string, bucket = string })
 }
+
+variable "alerting" {
+  description = "Stack-wide alerting (stacks/bootstrap/alerting.tf). Routing stays off while the responder or the digest address is null."
+  type = object({
+    probe         = string
+    irm_responder = optional(string)
+    digest_email  = optional(string)
+  })
+}

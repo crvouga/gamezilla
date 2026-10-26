@@ -34,6 +34,7 @@ module "observability_views" {
   count       = module.observability.grafana_instance_ready ? 1 : 0
   source      = "../../modules/observability-views"
   environment = var.env
+  grafana_url = module.observability.grafana_url
   providers = {
     grafana = grafana.views
   }

@@ -8,6 +8,11 @@ variable "environment" {
   type = string
 }
 
+variable "grafana_url" {
+  type        = string
+  description = "The Grafana instance (https://<stack>.grafana.net): alert links point into it."
+}
+
 # Grafana Cloud provisions these ids on every stack. The slug-qualified names
 # (grafanacloud-<slug>-prom, grafanacloud-<slug>-logs) are a different field.
 # Reading them with data.grafana_data_source needs the views provider, whose

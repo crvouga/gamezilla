@@ -33,3 +33,11 @@ resource "grafana_cloud_stack" "this" {
     ignore_changes = [name, description, labels]
   }
 }
+
+output "id" {
+  value = grafana_cloud_stack.this.id
+}
+
+output "url" {
+  value = grafana_cloud_stack.this.url
+}
