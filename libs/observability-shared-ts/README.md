@@ -73,8 +73,9 @@ Long windows with many logical IDs can reach Loki query series limits; use bound
 windows and authoritative reporting rather than interpreting a failed query as zero.
 
 Every alert rule is generated, not typed: see
-[Service level objectives](#service-level-objectives). Delivery destinations
-inherit the stack's existing notification policy; no new contact channel is created.
+[Service level objectives](#service-level-objectives). Delivery goes through the
+stack-wide notification policy and Grafana IRM integration in
+`libs/infra-shared-ts/tofu/modules/alert-routing`, off until configured.
 `sync_query_truncations_total` counts query snapshots clipped to their row limit
 (query name in the warning log, never row content); it has no alert.
 
@@ -95,60 +96,135 @@ queries accepted. Never use manual dashboard inspection as verification.
 
 What people experience is promised in `specs/<context>/*.openslo.yaml`, in their
 words (`# live` files are measured against a deployment). This package binds each
-indicator to the instrument that counts it and derives everything else.
+indicator to the instrument that counts it and derives everything else. The
+objectives, their targets and why, the coverage matrix and the known gaps are in
+[`docs/SLO_COVERAGE.md`](../../docs/SLO_COVERAGE.md); one runbook section per
+objective is in [`docs/SLO_RUNBOOK.md`](../../docs/SLO_RUNBOOK.md).
 
-| Objective | Indicator | Target, 28 days |
+**Evidence.** Three kinds, all in the stack's Prometheus (Mimir):
+
+| Indicator kind | Counted from | Budgeted by |
 | --- | --- | --- |
-| The app serves people | people's requests not failing (no 5xx) | 99.9% |
-| Changes are saved | server replays of queued writes not failed | 99.9% |
-| The app answers people quickly | people's requests within 0.5 s | 95% |
-| The app never leaves people waiting | people's requests within 2.5 s | 99% |
-| The app answers people | the team's hourly checks pass (GitHub Actions history) | 99% |
+| `counter-ratio`, `histogram-under` | the server's own request, save and drain instruments (`emitted-metrics.ts`) | Occurrences |
+| `sample-share` on `synthetic.check.result` | one sample per live feature per Health run, recorded by `apps/product-ts/scripts/health-check-results.ts` (`synthetic-checks.ts` names the checks) | Timeslices (1 h) |
+| `sample-share` on `probe_success` | Grafana Synthetic Monitoring: the app shell and API readiness (which reads the database) every minute, the broker every ten (`synthetic-monitoring.ts` names the checks; they are in `libs/infra-shared-ts/tofu/modules/synthetic-monitoring`) | Timeslices (1 min, 10 min) |
+| `sample-under` on `probe_duration_seconds` | the same minute checks, by how long each took end to end | Timeslices (1 min) |
 
 "People's requests" are the route groups in `route-groups.ts` that people cause
 and wait on; the metrics carry `app.http.route_group`, derived from the route, so
 machine traffic (health probes, the synthetic population worker, telemetry
 uploads) never counts. A route no rule names counts as people's until a rule says
 otherwise, and `apps/server-ts/tests/route-groups.test.ts` fails until it has one.
-Speed leaves out generated speech and text (`media`), which takes seconds by nature.
 
-**Alerts.** Each metric-backed objective gets the standard multi-window,
-multi-burn-rate policies, generated from its own target (`@pkgs/openslo-shared-ts`,
-`alert-policy`): page at 14.4x over 1 h and 5 m, page at 6x over 6 h and 30 m,
-ticket at 1x over 3 d and 6 h. At a 28-day window they spend 2.1%, 5.4% and 10.7%
-of the budget (the workbook's 2, 5 and 10% are for 30 days). A policy fires when
-all its windows burn at least that fast and the longest window saw enough traffic
-to judge (`minimumEventsPerHour`). Every alert names its owner, runbook, objective
-and the exact `bun obs` command (`errors` or `slow`, `--source prod`).
+Every query selects its environment by the `deployment_environment_name` label on
+the point (Grafana Cloud copies it from the resource). Synthetic Monitoring's
+checks run as `<check>-<environment>` jobs instead: a check's own labels reach
+its metrics only on tenants Grafana has migrated. No query joins `target_info`:
+only isolates still running carry it, so a join drops everything an ended Worker
+isolate counted (the old objectives, alerts and dashboards counted nothing for
+this reason). A counter is counted as its growth plus the first value of each
+series that appeared in the window, because a short-lived isolate may report a
+single sample.
+
+**Slices.** Every rule of an indicator with a `sliceBy` (route group, check,
+probe job) is split by it: each slice burns on its own and is its own alert,
+named in its `slice` annotation, so one broken game, route group or check pages
+while the total still looks healthy. The hourly Health judge counts a run of
+checks bad when any check in it failed, to the same effect.
+
+**Windows.** Every objective is judged over a rolling 7 days: the metrics backend
+keeps about 14, and an alert's longest window (3 days) must fit inside.
+
+**Alerts.** Each objective gets multi-window, multi-burn-rate policies, generated
+from its own target (`@pkgs/openslo-shared-ts`, `alert-policy`) in the windows its
+cadence allows (`slo-alerts.ts`, `tiersFor`):
+
+| Cadence | Page (critical) | Ticket (warning) |
+| --- | --- | --- |
+| standard | 14.4x over 1 h and 5 min; 6x over 6 h and 30 min | 3x over 1 d and 2 h; 1x over 3 d and 6 h |
+| sparse (Health, about hourly) | 10x over 12 h and 4 h | 1x over 3 d and 12 h |
+
+The page tiers are Grafana SLO's fast burn, the ticket tiers its slow burn. No
+tier asks for more than three quarters of the fastest burn the target allows. A
+policy fires when all its windows burn at least that fast and the longest window
+saw enough traffic to judge (`minimumEventsPerHour`). The policies are written as
+OpenSLO (`slo-alert-policies.openslo.yaml`): OpenSLO lets a policy name one
+condition, so the short window is named in its
+`openslo-alerting/and-conditions` annotation.
+
+OpenSLO's conditions are burn rates only, so three companions are generated from
+the same files (`companion-alerts.ts`):
+
+- **Silence**: each source of evidence behind a tier 0 or 1 objective (a metric
+  at one cadence) has a rule that fires when nothing was counted for the
+  indicator's `silence.after`, so no traffic or no checks can never look like a
+  perfect objective.
+- **Low traffic**: while a window holds fewer events than the burn rates need,
+  an indicator's `lowTraffic` counts the bad ones instead: for people's
+  requests, one failure (or one wait past 2.5 s) pushes and three in an hour
+  page. Zero tolerance cannot wait for traffic large enough for a ratio.
+- **Certificates**: the certificate the checks are shown, 14 days (push) and 3
+  days (page) before it expires.
+
+**Routing.** Every rule carries `route`, `tier`, `capability` and (for an
+objective) `slo` labels, and annotations with the budget spent and remaining,
+the burn rate, the SLO dashboard, Explore already scoped to the environment's
+error logs and failed traces, the runbook section and the `bun obs` command.
+`route` is decided by `routeOf`: a critical alert on a tier 0 or 1 objective
+pages (Grafana IRM's paging chain, production only); any other critical alert
+and every tier 0 or 1 warning pushes (IRM, never pages); a tier 2 warning waits
+for the daily digest. The one notification policy and IRM integration for the
+stack are in `libs/infra-shared-ts/tofu/modules/alert-routing`, applied by the
+bootstrap stack once `alerting` in `global.tfvars.json` names the responder's
+IRM username and the digest address (the provider reaches IRM through the
+instance itself); until then alerts keep the stack's existing policy. Rules use
+a threshold condition, so each slice of a split rule is its own alert instance.
+
+**Grafana SLO.** Each live objective becomes one `grafana_slo` per environment
+(`slo-grafana.ts` → `grafana-slos.generated.json` → `observability-views/slos.tf`):
+
+| OpenSLO | Grafana SLO |
+| --- | --- |
+| `metadata.displayName`, `spec.description` | name (with the environment), description |
+| the one objective's `target`, rolling `timeWindow` | objective value and window |
+| the indicator's catalog entry | a freeform ratio query (`sloRatioQuery`), grouped by its `sliceBy` |
+| `metadata.labels` `gamezilla.dev.tier` | label `tier` (OpenSLO label keys allow no `/`) |
+| `spec.service`, `metadata.name`, the entry's owner | labels `service`, `slo`, `owner` |
+| none | folder: the environment's observability folder; alerting: none, the rules above alert |
+
+Grafana SLO has no time slices: its dashboards show the share of good samples,
+and sparse hourly samples draw gaps. The authoritative judge is the hourly
+`health:objectives` job.
 
 An alert reaches a person by two paths from the same policies:
 
 1. **Health job.** The hourly `health:objectives` job on `main` measures each
    environment through `OBS_PROMETHEUS_URL`, `OBS_PROMETHEUS_USER` and the read
-   token `OBS_TEMPO_TOKEN`, judges the 28-day objective and every policy, and fails
-   with the owner, runbook, burn rate, remaining budget and command when one
-   fires. It needs no dashboard service. No data, an unreachable backend or missing
-   credentials fail it with the reason; they never pass.
+   token `OBS_TEMPO_TOKEN`, judges the 7-day objective (in time slices for the
+   checks) and every policy, and fails with the owner, runbook, burn rate,
+   remaining budget and command when one fires. No data, an unreachable backend
+   or missing credentials fail it with the reason; they never pass.
 2. **Grafana.** While the instance is active, OpenTofu creates the rules in
-   `alert-rules.generated.json` (also the telemetry pipeline alerts) in
-   `libs/infra-shared-ts/tofu/modules/observability-views`. The rule shows its
-   threshold, the budget that burn spends and the current burn rate; the exact
-   remaining budget is printed by the Health job.
+   `alert-rules.generated.json` and the SLOs in `grafana-slos.generated.json` in
+   `libs/infra-shared-ts/tofu/modules/observability-views`.
 
 **Add an objective.** Write the `SLI` and `SLO` in a `# live` spec file (a `spec:`
-commit), add one entry to `INDICATORS` in `slo-indicators.ts`, add the file to the
-product binding (`apps/product-ts/tests/openslo/`, `liveMetricBinding`), then run
-`bun run libs/observability-shared-ts/scripts/slo-generate.ts` and commit the two
-generated files. Policies, rules, hourly evaluation and these checks follow:
-every live indicator is bound and every binding used; instruments, labels and
-values exist; a latency bound is a histogram bucket edge; rules carry owner,
-severity, runbook, command and select their environment; generated files equal
-their generator; every dashboard and alert expression selects only emitted series.
+commit) with a `gamezilla.dev.tier` label, add one entry to `INDICATORS` in
+`slo-indicators.ts`, add `apps/product-ts/tests/openslo/<stem>.binding.ts`
+(`liveMetricBinding`), add its section to `docs/SLO_RUNBOOK.md` and its row to
+`docs/SLO_COVERAGE.md`, then run
+`bun run libs/observability-shared-ts/scripts/slo-generate.ts` and commit the
+three generated files. A new live feature also needs its name in
+`SYNTHETIC_CHECKS` and an indicator that counts it. The checks follow: every live
+indicator is bound and every binding used; every check is counted by exactly one
+indicator; instruments, labels and values exist; a latency bound is a histogram
+bucket edge; every judged objective has a tier and the right budgeting; rules
+carry owner, severity, route, runbook, command and select their environment;
+generated files equal their generator and no `grafana_slo` exists without an
+objective; every objective has a runbook section.
 
 Metric names are derived from the instrument contracts (`emitted-metrics.ts`,
-`prometheusSeries`), never typed. One caveat for operators: queries use
-`increase()` over cumulative counters, so a series' first export counts only from
-its second sample; compare a window's count with traces if a total looks low.
+`prometheusSeries`), never typed.
 
 ## Alert runbooks
 
@@ -158,6 +234,21 @@ Worker isolate's resource information goes stale soon after the isolate ends.
 Inspect production read-only (`bun obs … --source prod`, `OBS_READONLY_DATABASE_URL`);
 never write to a production database by hand. Each alert clears on its own once
 its window passes with nothing new.
+
+### A certificate people are shown expires
+
+`probe_ssl_earliest_cert_expiry` from Synthetic Monitoring's checks is within 14
+days (push) or 3 days (page). The `slice` names the check: `app-shell` and
+`api-ready` are Cloudflare's edge certificates for the web and API hosts;
+`broker` is the ACM certificate on the AWS IoT Core custom domain
+(`libs/infra-shared-ts/tofu/modules/pubsub`), renewed by AWS while its DNS
+validation records stay in Cloudflare. Once it expires nobody can open the app or
+receive live updates.
+
+1. Cloudflare: the zone's SSL/TLS edge certificates show the renewal state; a
+   paused zone or a removed DNS record blocks it.
+2. AWS: ACM shows why a renewal is pending; recreate a missing validation record
+   by applying the edge or foundation stack, never by hand.
 
 ### Outbox deliveries exhausted their retries
 

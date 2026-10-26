@@ -8,14 +8,17 @@
  * once the problem has gone. Nothing here is written per SLO: the same
  * tiers apply to every objective, scaled by its own target.
  *
- * | tier         | severity | burn   | long | short | budget spent (28d window) |
- * | ------------ | -------- | ------ | ---- | ----- | ------------------------- |
- * | fast burn    | page     | 14.4x  | 1h   | 5m    | 2.1 %                     |
- * | slow burn    | page     | 6x     | 6h   | 30m   | 5.4 %                     |
- * | budget drift | ticket   | 1x     | 3d   | 6h    | 10.7 %                    |
+ * | tier         | severity | burn   | long | short | budget spent (28d / 7d window) |
+ * | ------------ | -------- | ------ | ---- | ----- | ------------------------------ |
+ * | fast burn    | page     | 14.4x  | 1h   | 5m    | 2.1 % / 8.6 %                  |
+ * | slow burn    | page     | 6x     | 6h   | 30m   | 5.4 % / 21.4 %                 |
+ * | daily burn   | ticket   | 3x     | 1d   | 2h    | 10.7 % / 42.9 %                |
+ * | budget drift | ticket   | 1x     | 3d   | 6h    | 10.7 % / 42.9 %                |
  *
- * The workbook states 2 %, 5 % and 10 % for a 30-day window; for 28 days the
- * same burn rates spend a slightly larger share (`budgetSpent`).
+ * The two page tiers together are the workbook's (and a hosted SLO
+ * service's) fast-burn alert; the two ticket tiers its slow-burn alert. The
+ * workbook states 2 %, 5 % and 10 % for a 30-day window; a shorter window
+ * spends a larger share for the same burn rate (`budgetSpent`).
  */
 
 import type { Counts } from './burn-rate';
@@ -57,6 +60,15 @@ export const STANDARD_BURN_TIERS: readonly BurnTier[] = [
     shortWindow: '30m',
     summary:
       'is spending its error budget steadily enough to end it within days',
+  },
+  {
+    name: 'daily-burn',
+    severity: 'ticket',
+    factor: 3,
+    longWindow: '1d',
+    shortWindow: '2h',
+    summary:
+      'is spending its error budget fast enough to end it within the window',
   },
   {
     name: 'budget-drift',

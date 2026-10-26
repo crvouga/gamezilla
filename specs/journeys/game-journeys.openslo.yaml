@@ -1,0 +1,62 @@
+# live
+# People can find a game, play it to the end with another person or alone,
+# and find it again afterwards. The team plays every game's critical journey,
+# and every game's own health check, from outside on every one of its regular
+# checks, each game on its own, so one broken game shows even when the others
+# work.
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: game-journeys-passing
+  displayName: The team's checks that every game plays from start to finish
+spec:
+  description: >-
+    Of the team's regular checks from outside, the share in which every
+    critical journey and every game's own health check passed: signing in,
+    finding or making a game, playing moves that the other player sees and
+    that are still there afterwards, going offline and coming back, and
+    ending the game. Each game is checked on its own. A check that did not
+    run is not a pass.
+  ratioMetric:
+    counter: false
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            The team's regular checks from outside in which a game's
+            critical journey or health check passed.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Every one of the team's regular checks from outside of a game's
+            critical journey or health check.
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: people-can-play-games-end-to-end
+  displayName: People can play games from start to finish
+  labels:
+    gamezilla.dev.tier: "0"
+spec:
+  description: >-
+    In at least 97 of every 100 hours in which the team checked, every
+    game's critical journey and health check passed, judged over the last
+    week. The team checks about once an hour, so a week holds at most about
+    170 checks: 97 in 100 is the strictest rate those checks can tell apart
+    from chance. An hour counts as bad when any one game failed, so one
+    broken game cannot hide behind the others.
+  service: games
+  indicatorRef: game-journeys-passing
+  timeWindow:
+    - duration: 7d
+      isRolling: true
+  budgetingMethod: Timeslices
+  objectives:
+    - displayName: In at least 97 of every 100 checked hours every game can be played from start to finish
+      target: 0.97
+      timeSliceTarget: 1
+      timeSliceWindow: 1h

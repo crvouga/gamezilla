@@ -6,6 +6,7 @@
  */
 
 import type { AlertBundle } from './alert-policy';
+import { AND_CONDITIONS_ANNOTATION } from './parse-alert';
 
 type Line = string;
 
@@ -13,7 +14,10 @@ const PLAIN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 
 function scalar(value: string | number | boolean): string {
   if (typeof value !== 'string') return String(value);
-  return PLAIN.test(value) ? value : JSON.stringify(value);
+  // Text that reads as a number, or as true/false/null, stays text.
+  const ambiguous =
+    /^[-+.\d]/.test(value) || /^(true|false|null|~)$/i.test(value);
+  return PLAIN.test(value) && !ambiguous ? value : JSON.stringify(value);
 }
 
 function field(indent: number, key: string, value: string | number | boolean) {
@@ -35,15 +39,22 @@ function header(
   ];
 }
 
+/**
+ * A label with one value is written as text, which every OpenSLO reader
+ * accepts (the reference CLI rejects a list); several values stay a list.
+ */
 function labels(values: Readonly<Record<string, readonly string[]>>): Line[] {
   const keys = Object.keys(values);
   if (keys.length === 0) return [];
   return [
     '  labels:',
-    ...keys.flatMap((key) => [
-      `    ${key}:`,
-      ...(values[key] ?? []).map((v) => `      - ${scalar(v)}`),
-    ]),
+    ...keys.flatMap((key) => {
+      const list = values[key] ?? [];
+      const [only] = list;
+      if (list.length === 1 && only !== undefined)
+        return [`    ${key}: ${scalar(only)}`];
+      return [`    ${key}:`, ...list.map((v) => `      - ${scalar(v)}`)];
+    }),
   ];
 }
 
@@ -76,9 +87,16 @@ export function renderAlertDocuments(bundle: AlertBundle): string {
     ]);
   }
   for (const p of bundle.policies) {
+    const [first, ...also] = p.conditions;
     documents.push([
       ...header('AlertPolicy', p),
       ...labels(p.labels),
+      ...(also.length === 0
+        ? []
+        : [
+            '  annotations:',
+            field(4, AND_CONDITIONS_ANNOTATION, also.join(',')),
+          ]),
       'spec:',
       ...(p.description === null
         ? []
@@ -87,7 +105,7 @@ export function renderAlertDocuments(bundle: AlertBundle): string {
       field(2, 'alertWhenResolved', p.alertWhenResolved),
       field(2, 'alertWhenBreaching', p.alertWhenBreaching),
       '  conditions:',
-      ...p.conditions.map((name) => `    - conditionRef: ${scalar(name)}`),
+      `    - conditionRef: ${scalar(first ?? '')}`,
       '  notificationTargets:',
       ...p.notificationTargets.map(
         (name) => `    - targetRef: ${scalar(name)}`

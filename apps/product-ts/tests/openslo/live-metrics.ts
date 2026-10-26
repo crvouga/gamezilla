@@ -22,8 +22,10 @@ import type {
   ObjectivesBinding,
 } from '@pkgs/openslo-shared-ts/registry';
 
-/** A 28 day question over every request is slow to answer; a hung one is not waited for. */
+/** A week's question over every request is slow to answer; a hung one is not waited for. */
 const QUERY_DEADLINE_MS = 60_000;
+/** A week of minute-by-minute check samples is a few megabytes of answer. */
+const MAX_RESPONSE_BYTES = 16 * 1_048_576;
 
 /** Measures for these indicators, built when the first one is asked. */
 function liveMeasures(
@@ -34,6 +36,7 @@ function liveMeasures(
     opened ??= metricMeasures({
       client: createPrometheusClient({
         ...metricSettings(process.env),
+        maxResponseBytes: MAX_RESPONSE_BYTES,
         fetch: createDeadlineFetch({
           fetch: createGlobalHttpClient().fetch,
           timers: wallTimers,

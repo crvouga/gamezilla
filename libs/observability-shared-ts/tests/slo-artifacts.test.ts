@@ -1,37 +1,68 @@
+// @io-wall-ok — reads the committed generated artifacts, OpenTofu sources and docs.
 import { describe, expect, test } from 'bun:test';
-import type { AlertRule } from '@libs/observability-shared-ts/slo-alert-rules';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join } from 'node:path';
+import { ENVIRONMENT_PLACEHOLDER } from '@libs/observability-shared-ts/alert-links';
+import type { AlertRule } from '@libs/observability-shared-ts/alert-rule';
+import { ruleKey } from '@libs/observability-shared-ts/alert-rule';
 import {
-  ENVIRONMENT_PLACEHOLDER,
+  lowTrafficRules,
+  silenceRules,
+} from '@libs/observability-shared-ts/companion-alerts';
+import {
   generateAlertRules,
   renderAlertRules,
-  ruleKey,
 } from '@libs/observability-shared-ts/slo-alert-rules';
 import {
-  RUNBOOK_URL,
+  metricBackedSlos,
+  metricIndicatorOf,
+  README_URL,
+  runbookFor,
   sloAlertBundle,
+  tierOf,
+  tiersFor,
 } from '@libs/observability-shared-ts/slo-alerts';
 import { ruleIssues } from '@libs/observability-shared-ts/slo-checks';
+import {
+  generateGrafanaSlos,
+  renderGrafanaSlos,
+} from '@libs/observability-shared-ts/slo-grafana';
 import { renderAlertDocuments } from '@pkgs/openslo-shared-ts/alert-yaml';
 import { parseOpenSlo } from '@pkgs/openslo-shared-ts/parse';
-import { objectiveFiles, readRepoFile } from './specs';
+import { objectiveFiles, REPO_ROOT, readRepoFile } from './specs';
 
-const RULES_FILE =
-  'libs/infra-shared-ts/tofu/modules/observability-views/alert-rules.generated.json';
+const MODULE = 'libs/infra-shared-ts/tofu/modules/observability-views';
+const RULES_FILE = `${MODULE}/alert-rules.generated.json`;
+const SLOS_FILE = `${MODULE}/grafana-slos.generated.json`;
 const POLICIES_FILE =
   'libs/observability-shared-ts/slo-alert-policies.openslo.yaml';
 const FIX = 'bun run libs/observability-shared-ts/scripts/slo-generate.ts';
 
 const docs = () => objectiveFiles().map((file) => file.doc);
+const slos = () => metricBackedSlos(docs());
 const rules = () => generateAlertRules(docs()).groups.flatMap((g) => g.rules);
+const objectiveRules = () => rules().filter((r) => r.slo !== '');
 
 // regression: grafana-alert-rules-hand-written
-describe('the generated alert artifacts', () => {
+describe('the generated artifacts', () => {
   test(`match the objective files and catalog; fix drift with: ${FIX}`, () => {
     expect(readRepoFile(RULES_FILE)).toBe(
       renderAlertRules(generateAlertRules(docs()))
     );
+    expect(readRepoFile(SLOS_FILE)).toBe(
+      renderGrafanaSlos(generateGrafanaSlos(docs()))
+    );
     expect(readRepoFile(POLICIES_FILE)).toBe(
       renderAlertDocuments(sloAlertBundle(docs()))
+    );
+  });
+
+  test('are the same bytes however often they are generated', () => {
+    expect(renderAlertRules(generateAlertRules(docs()))).toBe(
+      renderAlertRules(generateAlertRules(docs()))
+    );
+    expect(renderGrafanaSlos(generateGrafanaSlos(docs()))).toBe(
+      renderGrafanaSlos(generateGrafanaSlos(docs()))
     );
   });
 
@@ -39,47 +70,112 @@ describe('the generated alert artifacts', () => {
     const parsed = parseOpenSlo(readRepoFile(POLICIES_FILE));
     if (!parsed.ok) throw new Error(parsed.issues.join('\n'));
     const names = parsed.doc.alertPolicies.map((p) => p.name);
-    expect(names).toHaveLength(4 * 3);
+    expect(names).toHaveLength(
+      slos().reduce((sum, slo) => sum + tiersFor(slo).length, 0)
+    );
     expect(new Set(names).size).toBe(names.length);
     for (const policy of parsed.doc.alertPolicies) {
-      expect(policy.notificationTargets).toEqual([
-        'health-job-failure',
-        'grafana-notification-policy',
-      ]);
+      const [jobTarget, routeTarget] = policy.notificationTargets;
+      expect(jobTarget).toBe('health-job-failure');
+      expect(policy.notificationTargets).toHaveLength(2);
+      expect([
+        'grafana-irm-page',
+        'grafana-irm-push',
+        'grafana-daily-digest',
+      ]).toContain(routeTarget ?? '');
       expect(policy.conditions).toHaveLength(2);
+      expect(policy.labels['tier']).toHaveLength(1);
     }
   });
 });
 
-describe('every alert rule', () => {
-  test('carries an owner, severity, runbook, investigation command and environment', () => {
-    expect(ruleIssues(rules())).toEqual([]);
-    for (const rule of rules()) {
-      expect(['critical', 'warning']).toContain(rule.severity);
-      // A pipeline alert may link its own section of the same README.
-      if (rule.slo !== '') expect(rule.runbook_url).toBe(RUNBOOK_URL);
-      else
-        expect(rule.runbook_url).toStartWith(RUNBOOK_URL.split('#')[0] ?? '');
+describe('every Grafana SLO', () => {
+  const generated = () => generateGrafanaSlos(docs()).slos;
+
+  test('has an objective file behind it, and every judged objective has one', () => {
+    expect(generated().map((s) => s.key)).toEqual(slos().map((s) => s.name));
+  });
+
+  test('is never declared by hand in OpenTofu', () => {
+    const tofu = join(REPO_ROOT, 'libs/infra-shared-ts/tofu');
+    const files: string[] = [];
+    const walk = (dir: string) => {
+      for (const name of readdirSync(dir)) {
+        const path = join(dir, name);
+        if (statSync(path).isDirectory()) {
+          if (!name.startsWith('.')) walk(path);
+        } else if (name.endsWith('.tf')) files.push(path);
+      }
+    };
+    walk(tofu);
+    const declared = files.flatMap((file) =>
+      [
+        ...readFileSync(file, 'utf8').matchAll(
+          /resource\s+"grafana_slo"\s+"([^"]+)"/g
+        ),
+      ].map(([, name]) => `${file.slice(REPO_ROOT.length + 1)}:${name ?? ''}`)
+    );
+    expect(declared).toEqual([`${MODULE}/slos.tf:objectives`]);
+    const tf = readRepoFile(`${MODULE}/slos.tf`);
+    expect(tf).toContain(
+      'jsondecode(file("${path.module}/grafana-slos.generated.json"))'
+    );
+    expect(tf).not.toMatch(/\bquery\s*=\s*"/);
+  });
+
+  test('fits Grafana: a rolling window it accepts, a target below 1, its environment and tier', () => {
+    for (const slo of generated()) {
+      expect(slo.window).toBe('7d');
+      expect(slo.objective).toBeLessThan(1);
+      expect(slo.query).toContain(ENVIRONMENT_PLACEHOLDER);
+      expect(slo.query).toContain('$__rate_interval');
+      expect(['0', '1', '2']).toContain(slo.labels['tier'] ?? '');
     }
   });
 
-  test('names its objective, burn threshold and budget, unless it watches the pipeline', () => {
-    const [pipeline, objectives] = [
-      rules().filter((r) => r.slo === ''),
-      rules().filter((r) => r.slo !== ''),
-    ];
-    expect(pipeline?.map((r) => r.key)).toEqual([
-      'event-export-failures',
-      'schema-rejections',
-      'pipeline-absent',
-      'outbox-exhausted',
-      'outbox-drain-failing',
-      'billing-callbacks-refused',
-    ]);
-    expect(objectives).toHaveLength(12);
-    for (const rule of objectives ?? []) {
+  test('is judged within the fourteen days the metrics backend keeps', () => {
+    for (const slo of slos())
+      expect(['7d', '14d']).toContain(slo.timeWindow.duration);
+  });
+});
+
+describe('every alert rule', () => {
+  test('carries an owner, severity, route, runbook, investigation command and environment', () => {
+    expect(ruleIssues(rules())).toEqual([]);
+    for (const rule of rules()) {
+      expect(['critical', 'warning']).toContain(rule.severity);
+      expect(['page', 'push', 'digest']).toContain(rule.route);
+      expect(rule.logs_path).toStartWith('/explore?');
+      expect(rule.traces_path).toStartWith('/explore?');
+      expect(rule.logs_path).toContain(ENVIRONMENT_PLACEHOLDER);
+      if (rule.slo !== '') expect(rule.runbook_url).toBe(runbookFor(rule.slo));
+      else if (rule.covers === '')
+        expect(rule.runbook_url).toStartWith(README_URL.split('#')[0] ?? '');
+    }
+  });
+
+  test('pages only for a tier 0 or 1 objective, or the pipeline that measures them', () => {
+    for (const rule of rules()) {
+      if (rule.route !== 'page') continue;
+      expect(rule.severity).toBe('critical');
+      if (rule.capability !== 'pipeline')
+        expect(['0', '1']).toContain(rule.tier);
+    }
+    const digest = rules().filter((r) => r.route === 'digest');
+    expect(digest.length).toBeGreaterThan(0);
+    for (const rule of digest) {
+      expect(rule.tier).toBe('2');
+      expect(rule.severity).toBe('warning');
+    }
+  });
+
+  test('names its objective, burn threshold, budget and the budget left', () => {
+    const expected = slos().reduce((sum, slo) => sum + tiersFor(slo).length, 0);
+    expect(objectiveRules()).toHaveLength(expected);
+    for (const rule of objectiveRules()) {
       expect(rule.burn_threshold).toBeGreaterThan(0);
       expect(rule.budget_spent).toMatch(/^\d+(\.\d)?%$/);
+      expect(rule.budget_expr).toStartWith('(1 - ');
     }
   });
 
@@ -110,10 +206,72 @@ describe('every alert rule', () => {
       true
     );
   });
+
+  test('matches its objective by label, so one objective name beginning another takes nothing of it', () => {
+    for (const rule of objectiveRules()) {
+      expect(
+        rule.name.startsWith(
+          slos().find((s) => s.name === rule.slo)?.displayName ?? '\u0000'
+        )
+      ).toBe(true);
+    }
+  });
+});
+
+describe('every objective rule', () => {
+  test('is judged slice by slice when its indicator has slices', () => {
+    for (const rule of objectiveRules()) {
+      const indicator = metricIndicatorOf(
+        slos().find((s) => s.name === rule.slo) ?? (undefined as never)
+      );
+      const expected =
+        indicator.sliceBy === null
+          ? ''
+          : indicator.sliceBy.replaceAll('.', '_');
+      expect(rule.slice_label).toBe(expected);
+      if (expected !== '') expect(rule.expr).toContain(`sum by (${expected})`);
+    }
+  });
+});
+
+describe('the low-traffic rules', () => {
+  const rules = () => lowTrafficRules(docs());
+
+  test('push and page on bad events for every objective that counts them', () => {
+    const counted = slos().filter(
+      (slo) => metricIndicatorOf(slo).lowTraffic !== undefined
+    );
+    expect(rules()).toHaveLength(counted.length * 2);
+    expect(counted.map((s) => s.name)).toContain('the-app-serves-people');
+    for (const rule of rules()) {
+      expect(['push', 'page']).toContain(rule.route);
+      // Silent once traffic is enough for the burn rates to judge.
+      expect(rule.expr).toContain(') and on() (');
+    }
+  });
+});
+
+describe('the silence rules', () => {
+  test('cover every tier 0 and 1 objective exactly once, and no tier 2 one', () => {
+    const covered = silenceRules(docs())
+      .flatMap((r) => r.covers.split(', '))
+      .sort();
+    const expected = slos()
+      .filter((slo) => tierOf(slo) <= 1)
+      .map((slo) => slo.name)
+      .sort();
+    expect(covered).toEqual(expected);
+  });
+
+  test('fire on nothing counted, never on an empty answer', () => {
+    for (const rule of silenceRules(docs())) {
+      expect(rule.expr).toEndWith(' or vector(0)) < bool 1');
+    }
+  });
 });
 
 describe('a rule that would mislead', () => {
-  const good: AlertRule = rules().find((r) => r.slo !== '') as AlertRule;
+  const good: AlertRule = objectiveRules()[0] as AlertRule;
 
   test('without an owner, runbook or command', () => {
     const issues = ruleIssues([
@@ -140,29 +298,47 @@ describe('a rule that would mislead', () => {
   });
 
   test('that reads a metric nobody emits', () => {
-    const renamed = good.expr.replaceAll(
-      'http_server_request_duration_seconds',
-      'http_server_latency_seconds'
+    const served = objectiveRules().find((r) =>
+      r.expr.includes('http_server_requests_total')
+    ) as AlertRule;
+    const renamed = served.expr.replaceAll(
+      'http_server_requests_total',
+      'http_server_hits_total'
     );
     expect(
-      ruleIssues([{ ...good, expr: renamed }]).some((i) =>
+      ruleIssues([{ ...served, expr: renamed }]).some((i) =>
         i.includes(
-          'selects http_server_latency_seconds_bucket, which no emitted metric produces'
+          'selects http_server_hits_total, which no emitted metric produces'
         )
       )
     ).toBe(true);
   });
 
   test('that selects a label or value the series never has', () => {
-    const typo = good.expr.replace('app_http_route_group', 'app_http_route');
+    const quick = objectiveRules().find((r) =>
+      r.expr.includes('le="0.5"')
+    ) as AlertRule;
+    const typo = quick.expr.replace(
+      'app_http_route_group="sync"',
+      'app_http_route="sync"'
+    );
     expect(
-      ruleIssues([{ ...good, expr: typo }]).some((i) =>
+      ruleIssues([{ ...quick, expr: typo }]).some((i) =>
         i.includes('has no label app_http_route')
       )
     ).toBe(true);
-    const bound = good.expr.replace('le="0.5"', 'le="0.6"');
+    const split = quick.expr.replaceAll(
+      'by (app_http_route_group)',
+      'by (app_http_route)'
+    );
     expect(
-      ruleIssues([{ ...good, expr: bound }]).some((i) =>
+      ruleIssues([{ ...quick, expr: split }]).some((i) =>
+        i.includes('splits by app_http_route, which no series it reads carries')
+      )
+    ).toBe(true);
+    const bound = quick.expr.replace('le="0.5"', 'le="0.6"');
+    expect(
+      ruleIssues([{ ...quick, expr: bound }]).some((i) =>
         i.includes('{le} is never "0.6"')
       )
     ).toBe(true);
@@ -176,9 +352,7 @@ describe('a rule that would mislead', () => {
 });
 
 describe('the OpenTofu module', () => {
-  const tf = readRepoFile(
-    'libs/infra-shared-ts/tofu/modules/observability-views/alerts.tf'
-  );
+  const tf = readRepoFile(`${MODULE}/alerts.tf`);
 
   test('reads the generated rules and no hand-written expression', () => {
     expect(tf).toContain(
@@ -196,5 +370,28 @@ describe('the OpenTofu module', () => {
     expect(tf).toContain('to   = grafana_rule_group.groups["fast"]');
     const fast = generateAlertRules(docs()).groups[0];
     expect(fast?.name).toBe('Business observability');
+  });
+
+  test('routes by the label every rule carries, from the stack-wide policy', () => {
+    const routing = readRepoFile(
+      'libs/infra-shared-ts/tofu/modules/alert-routing/main.tf'
+    );
+    for (const route of ['page', 'push', 'digest'])
+      expect(routing).toContain(`"${route}"`);
+    expect(routing).toContain('label = "route"');
+  });
+});
+
+describe('the runbook', () => {
+  const runbook = readRepoFile('docs/SLO_RUNBOOK.md');
+  const coverage = readRepoFile('docs/SLO_COVERAGE.md');
+
+  test('has a section for every judged objective, keyed by its name', () => {
+    for (const slo of slos()) expect(runbook).toContain(`\n## ${slo.name}\n`);
+  });
+
+  test('and the coverage matrix names every live objective file', () => {
+    for (const file of objectiveFiles().filter((f) => f.live))
+      expect(coverage).toContain(file.path);
   });
 });

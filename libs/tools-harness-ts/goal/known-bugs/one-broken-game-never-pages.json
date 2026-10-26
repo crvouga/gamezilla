@@ -1,0 +1,4 @@
+{
+  "summary": "The game-journeys objective pooled every game's check: one game failing every run was 1 bad sample in 13, a 2.6x burn that never reached the 10x page, so one broken game could stay broken unalerted. Runs are now judged whole (bad when any check in them failed) and Grafana rules burn per check.",
+  "regressionTest": "libs/observability-shared-ts/tests/slo-live.test.ts"
+}

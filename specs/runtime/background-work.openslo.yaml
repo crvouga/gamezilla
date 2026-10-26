@@ -1,0 +1,54 @@
+# live
+# What the app does for people without them waiting on it gets done: notices,
+# the next step of a match, erasing an account, sending the app's own
+# records. The app does that work every minute; this counts whether it
+# finished.
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: background-runs-completing
+  displayName: The app's regular rounds of background work that finish
+spec:
+  description: >-
+    Every minute the app does a round of the work people do not wait on:
+    sending notices, taking the next step of a match, erasing an account
+    someone asked to erase, and sending the app's own records. This is the
+    share of those rounds that finished. A round that did not happen at all
+    is not counted, so the team is told separately when the rounds stop.
+  ratioMetric:
+    counter: true
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            The app's rounds of background work that finished.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Every round of background work the app started.
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: background-work-gets-done
+  displayName: Background work gets done
+  labels:
+    gamezilla.dev.tier: "1"
+spec:
+  description: >-
+    At least 999 in every 1000 rounds of background work finish, judged over
+    the last week. A round that fails is tried again a minute later, so
+    nothing is lost by one, but notices arrive late and a match waits on its
+    next step while they keep failing.
+  service: runtime
+  indicatorRef: background-runs-completing
+  timeWindow:
+    - duration: 7d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: At least 999 in every 1000 rounds of background work finish
+      target: 0.999

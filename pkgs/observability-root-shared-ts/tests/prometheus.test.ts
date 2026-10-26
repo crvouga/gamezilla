@@ -79,6 +79,75 @@ describe('an instant query', () => {
   });
 });
 
+const matrix = (
+  ...series: readonly [Record<string, string>, [number, string][]][]
+) =>
+  Response.json({
+    status: 'success',
+    data: {
+      resultType: 'matrix',
+      result: series.map(([metric, values]) => ({ metric, values })),
+    },
+  });
+
+describe('a range selector', () => {
+  test('answers every raw sample of every series, in milliseconds', async () => {
+    const { calls, fetch } = stub(() =>
+      matrix(
+        [
+          { job: 'web' },
+          [
+            [1_790_000_000, '1'],
+            [1_790_000_060.5, '0'],
+          ],
+        ],
+        [{ job: 'api' }, [[1_790_000_000, '1']]]
+      )
+    );
+    const series = await createPrometheusClient({ ...OPTIONS, fetch }).series(
+      'probe_success[7d]',
+      1_790_000_100_000
+    );
+    expect(series).toEqual([
+      {
+        labels: { job: 'web' },
+        points: [
+          { atMs: 1_790_000_000_000, value: 1 },
+          { atMs: 1_790_000_060_500, value: 0 },
+        ],
+      },
+      {
+        labels: { job: 'api' },
+        points: [{ atMs: 1_790_000_000_000, value: 1 }],
+      },
+    ]);
+    const body = new URLSearchParams(String(calls[0]?.init?.body));
+    expect(body.get('query')).toBe('probe_success[7d]');
+  });
+
+  test('refuses an instant vector where samples were asked for', async () => {
+    const { fetch } = stub(() => vector([{}, '1']));
+    await expect(
+      createPrometheusClient({ ...OPTIONS, fetch }).series('x', 0)
+    ).rejects.toThrow('not a range of samples');
+  });
+
+  test('refuses a sample without a time', async () => {
+    const { fetch } = stub(() =>
+      Response.json({
+        status: 'success',
+        data: {
+          resultType: 'matrix',
+          result: [{ metric: {}, values: [['1']] }],
+        },
+      })
+    );
+    await expect(
+      createPrometheusClient({ ...OPTIONS, fetch }).series('x', 0)
+    ).rejects.toThrow('without a time and a value');
+  });
+});
+
 describe('a query that cannot be answered', () => {
   const ask = (response: Response | Error, maxResponseBytes?: number) =>
     createPrometheusClient({

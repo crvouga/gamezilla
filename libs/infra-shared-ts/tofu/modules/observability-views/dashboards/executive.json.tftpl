@@ -127,7 +127,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum(rate(http_server_requests_total{job=\"gamezilla-server\",app_http_route_group=~\"sync|session|room|billing|media|app\",app_http_status_class=\"5xx\"}[5m]) * on(job, instance) group_left target_info{deployment_environment_name=\"${environment}\"}) or vector(0)) / sum(rate(http_server_requests_total{job=\"gamezilla-server\",app_http_route_group=~\"sync|session|room|billing|media|app\"}[5m]) * on(job, instance) group_left target_info{deployment_environment_name=\"${environment}\"})",
+          "expr": "(sum(rate(http_server_requests_total{job=\"gamezilla-server\",app_http_route_group=~\"sync|session|room|billing|media|app\",app_http_status_class=\"5xx\",deployment_environment_name=\"${environment}\"}[5m])) or vector(0)) / sum(rate(http_server_requests_total{job=\"gamezilla-server\",app_http_route_group=~\"sync|session|room|billing|media|app\",deployment_environment_name=\"${environment}\"}[5m]))",
           "datasource": {
             "type": "prometheus",
             "uid": "${metrics_uid}"

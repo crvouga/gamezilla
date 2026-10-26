@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { parseObjectiveFiles } from '@libs/observability-shared-ts/objective-files';
+import { tiersFor } from '@libs/observability-shared-ts/slo-alerts';
 import {
   catalogIssues,
   indicatorIssues,
@@ -13,6 +14,10 @@ import {
   INDICATORS,
   indicatorFor,
 } from '@libs/observability-shared-ts/slo-indicators';
+import {
+  SYNTHETIC_CHECK_DIMENSION,
+  SYNTHETIC_CHECKS,
+} from '@libs/observability-shared-ts/synthetic-checks';
 import { objectiveFiles } from './specs';
 
 function counterRatio(sli: string): CounterRatioIndicator {
@@ -23,7 +28,7 @@ function counterRatio(sli: string): CounterRatioIndicator {
 
 function metric(sli: string): MetricIndicator {
   const found = indicatorFor(sli);
-  if (found === undefined || found.kind === 'health-job-history') {
+  if (found === undefined) {
     throw new Error(`no metric indicator ${sli}`);
   }
   return found;
@@ -103,7 +108,7 @@ spec:
     );
     const issues = catalogIssues(withoutSpeed);
     expect(issues).toContain(
-      'the catalog binds indicator people-requests-answered-within-half-a-second, which no SLO of a live objective file uses'
+      'the catalog binds indicator saves-and-loads-answered-within-half-a-second, which no SLO of a live objective file uses'
     );
   });
 
@@ -121,13 +126,10 @@ spec:
 
 describe('an indicator whose instrument is wrong', () => {
   const served = counterRatio('people-requests-served');
-  const fast = metric('people-requests-answered-within-half-a-second');
+  const fast = metric('saves-and-loads-answered-within-half-a-second');
 
   test('a real indicator is clean', () => {
-    for (const each of INDICATORS) {
-      if (each.kind !== 'health-job-history')
-        expect(indicatorIssues(each)).toEqual([]);
-    }
+    for (const each of INDICATORS) expect(indicatorIssues(each)).toEqual([]);
   });
 
   test('a metric nobody emits', () => {
@@ -202,5 +204,96 @@ describe('an indicator whose instrument is wrong', () => {
       if (each.kind === 'histogram-under')
         expect(indicatorIssues(each)).toEqual([]);
     }
+  });
+});
+
+describe('the team checks from outside', () => {
+  const checksOf = (indicator: MetricIndicator) =>
+    indicator.scope.flatMap((m) =>
+      m.dimension === SYNTHETIC_CHECK_DIMENSION ? m.values : []
+    );
+
+  test('are each counted by exactly one indicator, so none goes unjudged', () => {
+    const counted = INDICATORS.flatMap(checksOf).sort();
+    expect(counted).toEqual([...SYNTHETIC_CHECKS].sort());
+  });
+
+  test('are judged in time slices and every judged objective has a tier', () => {
+    const wrong = parseObjectiveFiles([
+      {
+        path: 'specs/auth/sign-in-sliced.openslo.yaml',
+        text: `# live
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: sign-in-checks-passing
+spec:
+  ratioMetric:
+    counter: false
+    good:
+      metricSource: { type: product, spec: { measures: passed } }
+    total:
+      metricSource: { type: product, spec: { measures: ran } }
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: sign-in-by-occurrence
+spec:
+  service: auth
+  indicatorRef: sign-in-checks-passing
+  timeWindow:
+    - duration: 7d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: kept
+      target: 0.97
+`,
+      },
+    ]);
+    const issues = catalogIssues([...objectiveFiles(), ...wrong]);
+    expect(issues).toContain(
+      'specs/auth/sign-in-sliced.openslo.yaml: SLO sign-in-by-occurrence must be budgeted by Timeslices: each sample is one run of a check'
+    );
+    expect(
+      issues.some((i) =>
+        i.includes('sign-in-by-occurrence needs exactly one gamezilla.dev.tier')
+      )
+    ).toBe(true);
+  });
+});
+
+describe('the burn tiers of an objective', () => {
+  const slo = (name: string) => {
+    const found = objectiveFiles()
+      .flatMap((f) => f.doc.slos)
+      .find((s) => s.name === name);
+    if (found === undefined) throw new Error(`no SLO ${name}`);
+    return found;
+  };
+
+  test('never ask for a burn the target cannot reach', () => {
+    const quick = tiersFor(slo('saves-and-loads-are-quick'));
+    // 85 in 100 burns at most 6.7x; three quarters of that is 5x.
+    expect(quick.map((t) => [t.name, t.factor])).toEqual([
+      ['fast-burn', 5],
+      ['slow-burn', 5],
+      ['daily-burn', 3],
+      ['budget-drift', 1],
+    ]);
+    expect(tiersFor(slo('the-app-serves-people'))[0]?.factor).toBe(14.4);
+  });
+
+  test('look back long enough to hold a sample of a check that runs hourly', () => {
+    expect(
+      tiersFor(slo('people-can-sign-in')).map((t) => [
+        t.longWindow,
+        t.shortWindow,
+      ])
+    ).toEqual([
+      ['12h', '4h'],
+      ['3d', '12h'],
+    ]);
   });
 });

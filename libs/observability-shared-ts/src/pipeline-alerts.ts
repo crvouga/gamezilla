@@ -16,10 +16,11 @@ import {
   PIPELINE_HEARTBEAT_METRIC,
   SCHEMA_VIOLATIONS_METRIC,
 } from '@pkgs/observability-root-shared-ts/pipeline-metrics';
+import { logsPath, tracesPath } from './alert-links';
+import type { AlertRule } from './alert-rule';
 import { emittedMetric } from './emitted-metrics';
-import type { AlertRule } from './slo-alert-rules';
-import { RUNBOOK_URL } from './slo-alerts';
-import { environmentJoin } from './slo-promql';
+import { README_URL } from './slo-alerts';
+import { counterCount } from './slo-promql';
 
 const ENVIRONMENT = '__ENVIRONMENT__';
 
@@ -34,16 +35,16 @@ function counter(name: string): string {
 const README =
   'https://github.com/crvouga/gamezilla/blob/main/libs/observability-shared-ts/README.md';
 
-/**
- * Events in a window, for a counter that carries the environment on each
- * point. A Worker isolate's series starts at its first count, and a
- * short-lived isolate may report a single sample, which `increase` cannot see.
- * Growth of series that already existed plus the first value of series that
- * appeared in the window counts each event once, and the rule stays one series.
- */
+/** Events of one environment in a window. */
 function windowedCount(name: string, matchers: string, window: string): string {
-  const selector = `${counter(name)}{deployment_environment_name="${ENVIRONMENT}"${matchers === '' ? '' : `,${matchers}`}}`;
-  return `((sum(increase(${selector}[${window}])) or vector(0)) + (sum(min_over_time(${selector}[${window}]) unless min_over_time(${selector}[${window}] offset ${window})) or vector(0)))`;
+  return counterCount({
+    series: counter(name),
+    clauses: [
+      `deployment_environment_name="${ENVIRONMENT}"`,
+      ...(matchers === '' ? [] : [matchers]),
+    ],
+    window,
+  });
 }
 
 type PipelineAlert = Pick<
@@ -71,11 +72,20 @@ function pipelineRule(alert: PipelineAlert): AlertRule {
     severity: alert.severity,
     owner: alert.owner,
     slo: '',
+    tier: '',
+    // The pipeline carries every objective's evidence, so it is judged as tier 0.
+    route: alert.severity === 'critical' ? 'page' : 'push',
+    capability: 'pipeline',
+    covers: '',
+    slice_label: '',
     summary: alert.summary,
-    runbook_url: alert.runbook_url ?? RUNBOOK_URL,
+    runbook_url: alert.runbook_url ?? README_URL,
     investigate_command: alert.investigate_command,
+    logs_path: logsPath('1h'),
+    traces_path: tracesPath('1h'),
     budget_spent: '',
     burn_threshold: 0,
+    budget_expr: '',
   };
 }
 
@@ -84,7 +94,7 @@ export const PIPELINE_ALERTS: readonly AlertRule[] = (
     {
       key: 'event-export-failures',
       name: 'Reliable event exports repeatedly fail',
-      expr: `sum(increase(${counter(EXPORT_ATTEMPTS_METRIC.name)}{telemetry_outcome="failure"}[15m])${environmentJoin(ENVIRONMENT)}) > 10`,
+      expr: `${windowedCount(EXPORT_ATTEMPTS_METRIC.name, 'telemetry_outcome="failure"', '15m')} > 10`,
       for: '5m',
       severity: 'warning',
       owner: 'observability',
@@ -95,7 +105,7 @@ export const PIPELINE_ALERTS: readonly AlertRule[] = (
     {
       key: 'schema-rejections',
       name: 'Telemetry contract violations',
-      expr: `sum(increase(${counter(SCHEMA_VIOLATIONS_METRIC.name)}[15m])${environmentJoin(ENVIRONMENT)}) > 0`,
+      expr: `${windowedCount(SCHEMA_VIOLATIONS_METRIC.name, '', '15m')} > 0`,
       for: '5m',
       severity: 'warning',
       owner: 'observability',

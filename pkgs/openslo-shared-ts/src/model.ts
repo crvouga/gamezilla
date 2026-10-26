@@ -82,6 +82,8 @@ export type Slo = {
   readonly objectives: readonly Objective[];
   /** `alertPolicies: [{ alertPolicyRef }]`: names of AlertPolicy documents. */
   readonly alertPolicies: readonly string[];
+  /** `metadata.labels`: each key to one or more values (`{ tier: ['0'] }`). */
+  readonly labels: Readonly<Record<string, readonly string[]>>;
 };
 
 /** A burn-rate condition: the budget is spent `op` `threshold` times as fast as it lasts. */

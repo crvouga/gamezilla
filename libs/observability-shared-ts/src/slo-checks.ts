@@ -13,17 +13,19 @@ import {
   standardAlerts,
 } from '@pkgs/openslo-shared-ts/alert-policy';
 import type { OpenSloDoc } from '@pkgs/openslo-shared-ts/model';
+import { ENVIRONMENT_PLACEHOLDER } from './alert-links';
+import type { AlertRule } from './alert-rule';
 import {
   EMITTED_METRICS,
   emittedMetric,
   emittedSeriesNames,
   labelOf,
   labelsOf,
+  seriesNamesOf,
 } from './emitted-metrics';
-import type { AlertRule } from './slo-alert-rules';
-import { ENVIRONMENT_PLACEHOLDER } from './slo-alert-rules';
+import { tierOf, tiersFor } from './slo-alerts';
 import type { Indicator, Matcher, MetricIndicator } from './slo-indicators';
-import { INDICATORS, metricIndicators } from './slo-indicators';
+import { INDICATORS, isSampled, metricIndicators } from './slo-indicators';
 import { bucketLabel } from './slo-promql';
 
 /** An objective file as the checks see it. */
@@ -92,7 +94,12 @@ export function indicatorIssues(indicator: MetricIndicator): readonly string[] {
   if (found === undefined) {
     return [`${indicator.sli}: no emitted metric named ${indicator.metric}`];
   }
-  const want = indicator.kind === 'counter-ratio' ? 'counter' : 'histogram';
+  const want =
+    indicator.kind === 'counter-ratio'
+      ? 'counter'
+      : indicator.kind === 'histogram-under'
+        ? 'histogram'
+        : 'gauge';
   if (found.contract.type !== want) {
     issues.push(
       `${indicator.sli}: ${indicator.kind} needs a ${want}, but ${indicator.metric} is a ${found.contract.type}`
@@ -115,6 +122,19 @@ export function indicatorIssues(indicator: MetricIndicator): readonly string[] {
   if (indicator.kind === 'histogram-under') {
     issues.push(
       ...boundIssues(indicator.sli, indicator.underSeconds, found.contract.unit)
+    );
+  }
+  if (indicator.kind === 'sample-under' && found.contract.unit !== 's') {
+    issues.push(
+      `${indicator.sli}: a bound in seconds needs a gauge in seconds, not ${found.contract.unit}`
+    );
+  }
+  if (
+    indicator.lowTraffic !== undefined &&
+    indicator.lowTraffic.page < indicator.lowTraffic.push
+  ) {
+    issues.push(
+      `${indicator.sli}: its low-traffic page (${String(indicator.lowTraffic.page)}) needs at least as many bad events as its push (${String(indicator.lowTraffic.push)})`
     );
   }
   return issues;
@@ -175,9 +195,13 @@ function policyIssues(file: ObjectiveFile): readonly string[] {
     const indicator: Indicator | undefined = INDICATORS.find(
       (i) => i.sli === slo.indicator
     );
-    if (indicator === undefined || indicator.kind === 'health-job-history')
-      continue;
+    if (indicator === undefined) continue;
     const where = `${file.path}: SLO ${slo.name}`;
+    try {
+      tierOf(slo);
+    } catch (cause) {
+      issues.push(`${where}: ${(cause as Error).message}`);
+    }
     if (slo.objectives.length !== 1) {
       issues.push(
         `${where} has ${String(slo.objectives.length)} objectives; an alerted SLO has exactly one`
@@ -186,13 +210,20 @@ function policyIssues(file: ObjectiveFile): readonly string[] {
     }
     if (!slo.timeWindow.isRolling)
       issues.push(`${where} must use a rolling window`);
-    if (slo.budgetingMethod !== 'Occurrences') {
+    const sliced = isSampled(indicator);
+    if (!sliced && slo.budgetingMethod !== 'Occurrences') {
       issues.push(
         `${where} must be budgeted by Occurrences; counts cannot be sliced`
       );
     }
+    if (sliced && slo.budgetingMethod !== 'Timeslices') {
+      issues.push(
+        `${where} must be budgeted by Timeslices: each sample is one run of a check`
+      );
+    }
     alertedObjective(slo);
-    for (const issue of bundleIssues(slo, standardAlerts({ slo }))) {
+    const tiers = tiersFor(slo);
+    for (const issue of bundleIssues(slo, standardAlerts({ slo, tiers }))) {
       issues.push(`${where}: ${issue}`);
     }
   }
@@ -220,19 +251,20 @@ export function ruleIssues(rules: readonly AlertRule[]): readonly string[] {
         `${where}: investigate_command must be a bun obs command, got "${rule.investigate_command}"`
       );
     }
-    if (
-      !rule.expr.includes(
-        `deployment_environment_name="${ENVIRONMENT_PLACEHOLDER}"`
-      )
-    ) {
+    if (!ENVIRONMENT_MATCHER.test(rule.expr)) {
       issues.push(
-        `${where} does not select its environment (target_info join), so environments sharing the stack would mix`
+        `${where} does not select its environment (by label, or by a job's environment suffix), so environments sharing the stack would mix`
       );
     }
     issues.push(...expressionIssues(rule.expr).map((i) => `${where}: ${i}`));
   }
   return issues;
 }
+
+/** A label matcher whose value names the environment being applied. */
+const ENVIRONMENT_MATCHER = new RegExp(
+  `[a-z_]+=~?"[^"]*${ENVIRONMENT_PLACEHOLDER}[^"]*"`
+);
 
 const SELECTOR = /([a-zA-Z_:][a-zA-Z0-9_:]*)\{([^}]*)\}/g;
 const MATCH = /([a-zA-Z_][a-zA-Z0-9_]*)\s*(=~|!~|!=|=)\s*"([^"]*)"/g;
@@ -246,25 +278,50 @@ const BACKEND_SERIES = new Set(['target_info', 'up']);
 export function expressionIssues(expr: string): readonly string[] {
   const issues: string[] = [];
   const known = emittedSeriesNames();
+  const selected: string[] = [];
   for (const [, name = '', body = ''] of expr.matchAll(SELECTOR)) {
     if (BACKEND_SERIES.has(name)) continue;
     if (!known.has(name)) {
       issues.push(`selects ${name}, which no emitted metric produces`);
       continue;
     }
+    selected.push(name);
     issues.push(...labelProblems(name, body));
   }
+  issues.push(...groupingProblems(expr, selected));
   return issues;
+}
+
+const GROUPING = /\b(?:by|without)\s*\(([^)]*)\)/g;
+
+/**
+ * Every label an expression splits by must be one the series it reads
+ * carry: a misspelt `by (…)` label would quietly fold every slice into one,
+ * and a failing slice would hide inside the total again.
+ */
+function groupingProblems(
+  expr: string,
+  selected: readonly string[]
+): readonly string[] {
+  if (selected.length === 0) return [];
+  const carried = new Set(
+    selected.flatMap((series) => {
+      const metric = metricOfSeries(series);
+      return metric === undefined ? [] : [...labelsOf(metric)];
+    })
+  );
+  return [...expr.matchAll(GROUPING)]
+    .flatMap(([, labels = '']) => labels.split(','))
+    .map((label) => label.trim())
+    .filter((label) => label !== '' && !carried.has(label))
+    .filter((label, i, all) => all.indexOf(label) === i)
+    .map((label) => `splits by ${label}, which no series it reads carries`);
 }
 
 function metricOfSeries(
   series: string
 ): ReturnType<typeof emittedMetric> | undefined {
-  return EMITTED_METRICS.find((m) =>
-    m.series.kind === 'counter'
-      ? m.series.total === series
-      : [m.series.bucket, m.series.sum, m.series.count].includes(series)
-  );
+  return EMITTED_METRICS.find((m) => seriesNamesOf(m).includes(series));
 }
 
 function labelProblems(series: string, body: string): readonly string[] {

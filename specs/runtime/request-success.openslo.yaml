@@ -68,42 +68,47 @@ kind: SLO
 metadata:
   name: the-app-serves-people
   displayName: The app serves people
+  labels:
+    gamezilla.dev.tier: "0"
 spec:
   description: >-
-    At least 999 in every 1000 requests from people are answered without the
-    app failing, judged over the last four weeks. A visit to the app is
-    around a hundred requests, so this keeps about nine visits in ten free of
-    any failure; a looser rate would let most visits meet one. Nothing about
+    At least 9995 in every 10000 requests from people are answered without
+    the app failing, judged over the last week. A visit to the app is around
+    a hundred requests, so this keeps about 95 visits in 100 free of any
+    failure; a looser rate would let one visit in ten meet one. Nothing about
     this rate or this stretch of time is written in Reaching the app or
     Serving people, which say only that the app answers right now.
   service: runtime
   indicatorRef: people-requests-served
   timeWindow:
-    - duration: 28d
+    - duration: 7d
       isRolling: true
   budgetingMethod: Occurrences
   objectives:
-    - displayName: At least 999 in every 1000 requests from people are answered without a failure
-      target: 0.999
+    - displayName: At least 9995 in every 10000 requests from people are answered without a failure
+      target: 0.9995
 ---
 apiVersion: openslo/v1
 kind: SLO
 metadata:
   name: changes-are-saved
   displayName: Changes are saved
+  labels:
+    gamezilla.dev.tier: "0"
 spec:
   description: >-
-    At least 999 in every 1000 attempts to save a person's change end with
-    the app deciding it, rather than failing and trying again later, judged
-    over the last four weeks. A failed attempt is retried, so a change is
-    not lost, but the person waits longer to see it on their other devices,
-    and a change that keeps failing is a change that never arrives.
+    At least 9995 in every 10000 attempts to save a person's change, a move
+    in a game among them, end with the app deciding it, rather than failing
+    and trying again later, judged over the last week. A failed attempt is
+    retried, so a change is not lost, but the person waits longer to see it
+    on their other devices, and a change that keeps failing is a change that
+    never arrives.
   service: runtime
   indicatorRef: changes-saved-first-time
   timeWindow:
-    - duration: 28d
+    - duration: 7d
       isRolling: true
   budgetingMethod: Occurrences
   objectives:
-    - displayName: At least 999 in every 1000 attempts to save a change are decided without a failure
-      target: 0.999
+    - displayName: At least 9995 in every 10000 attempts to save a change are decided without a failure
+      target: 0.9995

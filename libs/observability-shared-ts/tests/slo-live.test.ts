@@ -68,7 +68,10 @@ async function verdicts(
 
 const SUCCESS_SLIS = ['people-requests-served', 'changes-saved-first-time'];
 const SPEED_SLIS = [
-  'people-requests-answered-within-half-a-second',
+  'saves-and-loads-answered-within-half-a-second',
+  'saves-and-loads-answered-within-a-second',
+  'sign-in-requests-answered-within-a-quarter-second',
+  'sign-in-requests-answered-within-a-second',
   'people-requests-answered-within-two-and-a-half-seconds',
 ];
 
@@ -155,13 +158,13 @@ describe('a product that degrades', () => {
       t.group === 'sync' ? { ...t, seconds: 1 } : t
     );
     const results = await verdicts(SPEED, productSeries(slowish), SPEED_SLIS);
-    // 1s answers pass the 2.5s bound but miss the 0.5s one; sync is 1 of 5 groups.
-    expect(results['the-app-answers-people-quickly']?.evaluation.met).toBe(
-      false
-    );
+    // 1s saves pass the 1s and 2.5s bounds but miss the 0.5s one.
+    expect(results['saves-and-loads-are-quick']?.evaluation.met).toBe(false);
     expect(
-      results['the-app-answers-people-quickly']?.evaluation.observed
-    ).toBeCloseTo(0.8, 6);
+      results['saves-and-loads-are-quick']?.evaluation.observed
+    ).toBeCloseTo(0, 6);
+    expect(results['saves-and-loads-never-stall']?.evaluation.met).toBe(true);
+    expect(results['signing-in-is-quick']?.evaluation.met).toBe(true);
     expect(results['the-app-never-leaves-people-waiting']?.evaluation.met).toBe(
       true
     );
@@ -169,9 +172,14 @@ describe('a product that degrades', () => {
       t.group === 'sync' ? { ...t, seconds: 6 } : t
     );
     const worse = await verdicts(SPEED, productSeries(verySlow), SPEED_SLIS);
+    // Sync is 1 of the 5 groups people wait on.
+    expect(worse['saves-and-loads-never-stall']?.evaluation.met).toBe(false);
     expect(worse['the-app-never-leaves-people-waiting']?.evaluation.met).toBe(
       false
     );
+    expect(
+      worse['the-app-never-leaves-people-waiting']?.evaluation.observed
+    ).toBeCloseTo(0.8, 6);
   });
 
   test('slow generated speech and slow machines do not count against speed', async () => {
@@ -222,6 +230,7 @@ describe('a product that is silent', () => {
                 'Prometheus answered 401 (token lacks metrics:read)'
               );
             },
+            series: async () => [],
           },
           environment: ENV,
           slis: SUCCESS_SLIS,
@@ -278,7 +287,10 @@ describe('asking the backend', () => {
 
   test('never reads a negative count as a count', async () => {
     const measures = metricMeasures({
-      client: { instant: async () => [{ labels: {}, value: -1 }] },
+      client: {
+        instant: async () => [{ labels: {}, value: -1 }],
+        series: async () => [],
+      },
       environment: ENV,
       slis: ['people-requests-served'],
     });
@@ -306,10 +318,8 @@ describe('alerts on the same product', () => {
       slo: serves,
       binding: binding(productSeries(healthyTraffic), SUCCESS_SLIS),
     });
-    expect(results.map((r) => r.ok)).toEqual([true, true, true]);
-    expect(results[0]?.detail).toContain(
-      '100% of the 28d error budget remains'
-    );
+    expect(results.map((r) => r.ok)).toEqual([true, true, true, true]);
+    expect(results[0]?.detail).toContain('100% of the 7d error budget remains');
   });
 
   test('page with the bun obs command when people meet failures', async () => {
@@ -330,6 +340,149 @@ describe('alerts on the same product', () => {
     );
     const ticket = results.find((r) => r.policy.endsWith('budget-drift'));
     expect(ticket?.detail).toContain('bun obs errors --since 3d --source prod');
+  });
+});
+
+// regression: ci-provider-native-health-history
+describe("the team's checks from outside", () => {
+  const SIGN_IN = readRepoFile('specs/auth/signing-in.openslo.yaml');
+  const HOUR = 3_600_000;
+  /** One sign-in check an hour for the last week, failing in `failing` of them. */
+  const hourly = (failing: ReadonlySet<number>, environment = ENV) => [
+    {
+      name: 'synthetic_check_result',
+      environment,
+      labels: { app_synthetic_check: 'auth.sign-in' },
+      points: Array.from({ length: 168 }, (_, i) => ({
+        atMs: NOW - i * HOUR - 60_000,
+        value: failing.has(i) ? 0 : 1,
+      })),
+    },
+  ];
+  const judge = async (samples: ReturnType<typeof hourly>) => {
+    const checked = await checkObjectiveSpec({
+      text: SIGN_IN,
+      binding: {
+        spec: 'live',
+        nowMs: () => NOW,
+        measure: metricMeasures({
+          client: fakeMetrics([], samples),
+          environment: ENV,
+          slis: ['sign-in-checks-passing'],
+        }),
+      },
+    });
+    const [only] = checked.results;
+    if (only === undefined) throw new Error('no verdict');
+    return only.evaluation;
+  };
+
+  test('are judged by the hour: five failed hours a week keep the promise, six break it', async () => {
+    const five = await judge(hourly(new Set([3, 30, 60, 90, 120])));
+    expect(five.met, five.detail).toBe(true);
+    expect(five.detail).toContain('163/168 good 1h slices');
+    const six = await judge(hourly(new Set([3, 30, 60, 90, 120, 150])));
+    expect(six.met).toBe(false);
+  });
+
+  test('that did not run are no evidence, never a pass', async () => {
+    const silent = await judge([]);
+    expect(silent.met).toBe(false);
+    expect(silent.detail).toContain('no evidence');
+  });
+
+  test("of another environment are not this environment's", async () => {
+    const elsewhere = await judge([
+      ...hourly(new Set()),
+      ...hourly(new Set(Array.from({ length: 168 }, (_, i) => i)), 'dev'),
+    ]);
+    expect(elsewhere.met).toBe(true);
+  });
+
+  test('page after a run of failures, with the alert windows that hold a sample', async () => {
+    const parsed = parseOpenSlo(SIGN_IN);
+    if (!parsed.ok) throw new Error(parsed.issues.join('\n'));
+    const [slo] = parsed.doc.slos;
+    if (slo === undefined) throw new Error('no slo');
+    const results = await measureAlerts({
+      doc: parsed.doc,
+      slo,
+      binding: {
+        spec: 'live',
+        nowMs: () => NOW,
+        measure: metricMeasures({
+          client: fakeMetrics([], hourly(new Set([0, 1, 2, 3, 4, 5]))),
+          environment: ENV,
+          slis: ['sign-in-checks-passing'],
+        }),
+        alerting: alertingBinding(),
+      },
+    });
+    expect(results.map((r) => [r.policy, r.ok])).toEqual([
+      ['people-can-sign-in-fast-burn', false],
+      ['people-can-sign-in-budget-drift', false],
+    ]);
+    expect(results[0]?.detail).toContain('PAGE people-can-sign-in');
+  });
+});
+
+// regression: one-broken-game-never-pages
+describe('one broken game among the journeys', () => {
+  const JOURNEYS = readRepoFile('specs/journeys/game-journeys.openslo.yaml');
+  const HOUR = 3_600_000;
+  const games = [
+    'battleship.battleship-health',
+    'connect-four.connect-four-health',
+    'journeys.battleship-game',
+    'journeys.connect-four-game',
+    'journeys.critical-journeys',
+    'journeys.custom-game',
+    'journeys.join-and-offline',
+    'journeys.multiplayer-game',
+    'journeys.numberlink-packs',
+    'journeys.pong-game',
+    'journeys.quoridor-game',
+    'journeys.sokoban-packs',
+    'quoridor.quoridor-health',
+  ];
+  /** Every game's check every hour for a week; pong fails from `brokenFor` hours ago. */
+  const runs = (brokenFor: number) =>
+    games.map((game) => ({
+      name: 'synthetic_check_result',
+      environment: ENV,
+      labels: { app_synthetic_check: game },
+      points: Array.from({ length: 168 }, (_, i) => ({
+        atMs: NOW - i * HOUR - 60_000,
+        value: game === 'journeys.pong-game' && i < brokenFor ? 0 : 1,
+      })),
+    }));
+
+  test('pages after a few hours, though twelve of thirteen checks still pass', async () => {
+    const parsed = parseOpenSlo(JOURNEYS);
+    if (!parsed.ok) throw new Error(parsed.issues.join('\n'));
+    const [slo] = parsed.doc.slos;
+    if (slo === undefined) throw new Error('no slo');
+    const alert = (brokenFor: number) =>
+      measureAlerts({
+        doc: parsed.doc,
+        slo,
+        binding: {
+          spec: 'live',
+          nowMs: () => NOW,
+          measure: metricMeasures({
+            client: fakeMetrics([], runs(brokenFor)),
+            environment: ENV,
+            slis: ['game-journeys-passing'],
+          }),
+          alerting: alertingBinding(),
+        },
+      });
+    const quietBefore = await alert(0);
+    expect(quietBefore.every((r) => r.ok)).toBe(true);
+    // Pooled, one game in thirteen is 7.7% of samples: a 2.6x burn that never
+    // reaches the 10x page. Judged by run, every run since it broke is bad.
+    const broken = await alert(4);
+    expect(broken.find((r) => r.policy.endsWith('fast-burn'))?.ok).toBe(false);
   });
 });
 

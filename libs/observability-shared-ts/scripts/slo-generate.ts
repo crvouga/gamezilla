@@ -5,13 +5,15 @@
  * indicator catalog:
  *
  *   libs/infra-shared-ts/tofu/modules/observability-views/alert-rules.generated.json
+ *   libs/infra-shared-ts/tofu/modules/observability-views/grafana-slos.generated.json
  *   libs/observability-shared-ts/slo-alert-policies.openslo.yaml
  *
  * Run it after changing an objective file, the catalog or a pipeline alert:
  *
  *   bun run libs/observability-shared-ts/scripts/slo-generate.ts
  *
- * A test fails while either file differs from what this would write.
+ * A test fails while any of them differs from what this would write. The
+ * output depends only on the files read: same input, same bytes.
  */
 
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -20,10 +22,13 @@ import { renderAlertDocuments } from '@pkgs/openslo-shared-ts/alert-yaml';
 import { parseObjectiveFiles } from '../src/objective-files';
 import { generateAlertRules, renderAlertRules } from '../src/slo-alert-rules';
 import { sloAlertBundle } from '../src/slo-alerts';
+import { generateGrafanaSlos, renderGrafanaSlos } from '../src/slo-grafana';
 
 const REPO_ROOT = resolve(import.meta.dir, '../../..');
 export const RULES_FILE =
   'libs/infra-shared-ts/tofu/modules/observability-views/alert-rules.generated.json';
+export const GRAFANA_SLOS_FILE =
+  'libs/infra-shared-ts/tofu/modules/observability-views/grafana-slos.generated.json';
 export const POLICIES_FILE =
   'libs/observability-shared-ts/slo-alert-policies.openslo.yaml';
 
@@ -51,8 +56,12 @@ if (import.meta.main) {
     renderAlertRules(generateAlertRules(docs))
   );
   writeFileSync(
+    join(REPO_ROOT, GRAFANA_SLOS_FILE),
+    renderGrafanaSlos(generateGrafanaSlos(docs))
+  );
+  writeFileSync(
     join(REPO_ROOT, POLICIES_FILE),
     renderAlertDocuments(sloAlertBundle(docs))
   );
-  console.log(`wrote ${RULES_FILE} and ${POLICIES_FILE}`);
+  console.log(`wrote ${RULES_FILE}, ${GRAFANA_SLOS_FILE} and ${POLICIES_FILE}`);
 }

@@ -63,6 +63,16 @@ export const envFileSchema = z
         memory_gb: 2,
         region: 'us-west2',
       }),
+    /**
+     * How often Grafana Synthetic Monitoring checks the environment from
+     * outside (stacks/bootstrap/alerting.tf). Every environment shares the
+     * stack's monthly allowance, so only production checks every minute;
+     * an environment that says nothing is checked every hour.
+     */
+    synthetic_monitoring: z
+      .object({ every_seconds: z.number().int().min(60).max(3600) })
+      .strict()
+      .default({ every_seconds: 3600 }),
     secrets: z
       .object({ regenerate: z.array(z.string()).optional() })
       .strict()

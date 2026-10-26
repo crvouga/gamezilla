@@ -1,19 +1,20 @@
 # live
 # The app answers people quickly. Measured from the requests people's devices
 # really make to the live app, so it is the wait people live with, not the
-# wait on a quiet day in the team's own checks.
+# wait on a quiet day in the team's own checks. Reading and saving (a move in
+# a game among them) and signing in are held apart, so a slow one cannot hide
+# inside a quick total.
 apiVersion: openslo/v1
 kind: SLI
 metadata:
-  name: people-requests-answered-within-half-a-second
-  displayName: Requests from people answered within half a second
+  name: saves-and-loads-answered-within-half-a-second
+  displayName: Saves and loads answered within half a second
 spec:
   description: >-
-    Of the requests people's devices make that they wait on (opening
-    their spaces, reading and saving their changes, signing in, joining a
-    room, paying), the share the app answers within half a second. Spoken
-    words and other generated answers take seconds by nature and are left out,
-    as are requests that machines make.
+    Of the requests in which people's devices read and save their spaces,
+    games and changes (a move in a game among them), the share the app
+    answers within half a second. Requests that machines make are not
+    counted.
   ratioMetric:
     counter: true
     good:
@@ -21,15 +22,93 @@ spec:
         type: product
         spec:
           measures: >-
-            Requests people wait on that the app answered within half a
-            second.
+            Reads and saves from people's devices that the app answered
+            within half a second.
     total:
       metricSource:
         type: product
         spec:
           measures: >-
-            Every request people wait on, other than generated speech and
-            text.
+            Every request in which a person's device reads or saves their
+            spaces, games and changes.
+---
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: saves-and-loads-answered-within-a-second
+  displayName: Saves and loads answered within a second
+spec:
+  description: >-
+    The same reads and saves, counted by the share the app answers within a
+    second.
+  ratioMetric:
+    counter: true
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Reads and saves from people's devices that the app answered
+            within a second.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Every request in which a person's device reads or saves their
+            spaces, games and changes.
+---
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: sign-in-requests-answered-within-a-quarter-second
+  displayName: Signing in answered within a quarter of a second
+spec:
+  description: >-
+    Of the requests in which people's devices sign them in or keep them
+    signed in, the share the app answers within a quarter of a second.
+  ratioMetric:
+    counter: true
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Signing-in requests from people's devices that the app answered
+            within a quarter of a second.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Every request in which a person's device signs them in or keeps
+            them signed in.
+---
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: sign-in-requests-answered-within-a-second
+  displayName: Signing in answered within a second
+spec:
+  description: >-
+    The same signing-in requests, counted by the share the app answers
+    within a second.
+  ratioMetric:
+    counter: true
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Signing-in requests from people's devices that the app answered
+            within a second.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Every request in which a person's device signs them in or keeps
+            them signed in.
 ---
 apiVersion: openslo/v1
 kind: SLI
@@ -38,9 +117,12 @@ metadata:
   displayName: Requests from people answered within two and a half seconds
 spec:
   description: >-
-    The same requests, counted by the share the app answers within two and a
-    half seconds. It is the slowest answer a person still waits for rather
-    than tapping again or giving up.
+    Of the requests people's devices make that they wait on (opening their
+    spaces, reading and saving their changes, signing in, joining a room,
+    paying), the share the app answers within two and a half seconds. It is
+    the slowest answer a person still waits for rather than tapping again or
+    giving up. Spoken words and other generated answers take seconds by
+    nature and are left out, as are requests that machines make.
   ratioMetric:
     counter: true
     good:
@@ -61,41 +143,113 @@ spec:
 apiVersion: openslo/v1
 kind: SLO
 metadata:
-  name: the-app-answers-people-quickly
-  displayName: The app answers people quickly
+  name: saves-and-loads-are-quick
+  displayName: Saves and loads are quick
+  labels:
+    gamezilla.dev.tier: "0"
 spec:
   description: >-
-    At least 19 in every 20 requests people wait on are answered within half
-    a second, judged over the last four weeks. Within about half a second a
-    tap feels immediate; each tenth of a second beyond it is a pause people
-    notice, and a visit is many requests, so the usual one has to be quick,
-    not just the average.
+    At least 85 in every 100 reads and saves are answered within half a
+    second, judged over the last week. Within about half a second a tap
+    feels immediate. Today about 87 in 100 are; the team holds that line
+    while it works towards 95 in 100, which a move in a game should feel
+    like.
   service: runtime
-  indicatorRef: people-requests-answered-within-half-a-second
+  indicatorRef: saves-and-loads-answered-within-half-a-second
   timeWindow:
-    - duration: 28d
+    - duration: 7d
       isRolling: true
   budgetingMethod: Occurrences
   objectives:
-    - displayName: At least 19 in every 20 requests people wait on are answered within half a second
+    - displayName: At least 85 in every 100 reads and saves are answered within half a second
+      target: 0.85
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: saves-and-loads-never-stall
+  displayName: Saves and loads never stall
+  labels:
+    gamezilla.dev.tier: "0"
+spec:
+  description: >-
+    At least 97 in every 100 reads and saves are answered within a second,
+    judged over the last week. A second is where a move or a change stops
+    feeling live, so the slow ones are held to a promise of their own rather
+    than hidden inside an average. Today about 98 in 100 are, a thin margin;
+    the team works towards 99 in 100.
+  service: runtime
+  indicatorRef: saves-and-loads-answered-within-a-second
+  timeWindow:
+    - duration: 7d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: At least 97 in every 100 reads and saves are answered within a second
+      target: 0.97
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: signing-in-is-quick
+  displayName: Signing in is quick
+  labels:
+    gamezilla.dev.tier: "0"
+spec:
+  description: >-
+    At least 95 in every 100 requests that sign people in or keep them
+    signed in are answered within a quarter of a second, judged over the
+    last week. They come before everything else a person does, so a slow one
+    delays the whole visit.
+  service: runtime
+  indicatorRef: sign-in-requests-answered-within-a-quarter-second
+  timeWindow:
+    - duration: 7d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: At least 95 in every 100 signing-in requests are answered within a quarter of a second
       target: 0.95
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: signing-in-never-stalls
+  displayName: Signing in never stalls
+  labels:
+    gamezilla.dev.tier: "0"
+spec:
+  description: >-
+    At least 99 in every 100 requests that sign people in or keep them
+    signed in are answered within a second, judged over the last week.
+  service: runtime
+  indicatorRef: sign-in-requests-answered-within-a-second
+  timeWindow:
+    - duration: 7d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: At least 99 in every 100 signing-in requests are answered within a second
+      target: 0.99
 ---
 apiVersion: openslo/v1
 kind: SLO
 metadata:
   name: the-app-never-leaves-people-waiting
   displayName: The app never leaves people waiting
+  labels:
+    gamezilla.dev.tier: "1"
 spec:
   description: >-
     At least 99 in every 100 requests people wait on are answered within two
-    and a half seconds, judged over the last four weeks. Past that a person
-    assumes something is broken, taps again, or leaves, so the slowest
-    requests are held to a promise of their own rather than hidden inside an
-    average.
+    and a half seconds, judged over the last week. Past that a person
+    assumes something is broken, taps again, or leaves. It covers every
+    request people wait on, joining a room and paying among them, which the
+    promises above do not.
   service: runtime
   indicatorRef: people-requests-answered-within-two-and-a-half-seconds
   timeWindow:
-    - duration: 28d
+    - duration: 7d
       isRolling: true
   budgetingMethod: Occurrences
   objectives:

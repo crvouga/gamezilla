@@ -1,0 +1,56 @@
+# live
+# The services the app relies on answer it, and the files people store come
+# back (Connected services, Stored files). The team checks both from outside
+# on every one of its regular checks, so when they fail the team can tell
+# whose failure it is.
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: outside-service-checks-passing
+  displayName: The team's checks of outside services and stored files
+spec:
+  description: >-
+    Of the team's regular checks from outside, the share in which every
+    service the app relies on answered and a file the team stored came back
+    as it was. A check that did not run is not a pass.
+  ratioMetric:
+    counter: false
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            The team's regular checks from outside in which every service
+            the app relies on answered and stored files came back.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Every one of the team's regular checks from outside of the
+            services the app relies on and of stored files.
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: outside-services-answer
+  displayName: The services the app relies on answer
+  labels:
+    gamezilla.dev.tier: "1"
+spec:
+  description: >-
+    In at least 95 of every 100 hours in which the team checked, every
+    service the app relies on answered and stored files came back, judged
+    over the last week. It matters to people, but they can still play while
+    it is down, so it is held a little looser than the core of the game.
+  service: runtime
+  indicatorRef: outside-service-checks-passing
+  timeWindow:
+    - duration: 7d
+      isRolling: true
+  budgetingMethod: Timeslices
+  objectives:
+    - displayName: In at least 95 of every 100 checked hours the services the app relies on answer
+      target: 0.95
+      timeSliceTarget: 1
+      timeSliceWindow: 1h

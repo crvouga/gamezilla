@@ -55,6 +55,7 @@ export function slo(
     indicator: 'delivered',
     timeWindow: window ?? { duration: '1h', isRolling: true, calendar: null },
     budgetingMethod: 'Occurrences',
+    labels: {},
     objectives: [],
     alertPolicies: [],
     ...rest,

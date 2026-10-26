@@ -7,7 +7,10 @@ bindObjectives(
   liveMetricBinding({
     spec: 'request-speed',
     slis: [
-      'people-requests-answered-within-half-a-second',
+      'saves-and-loads-answered-within-half-a-second',
+      'saves-and-loads-answered-within-a-second',
+      'sign-in-requests-answered-within-a-quarter-second',
+      'sign-in-requests-answered-within-a-second',
       'people-requests-answered-within-two-and-a-half-seconds',
     ],
   })

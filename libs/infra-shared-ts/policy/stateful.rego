@@ -32,6 +32,17 @@ deletable := {
 	# Only managed definitions/credentials; telemetry storage is not deleted.
 	"grafana_cloud_stack_service_account",
 	"grafana_cloud_stack_service_account_token",
+	# Alerting definitions: history stays in Grafana and IRM, results and
+	# source metrics in the metrics backend. Not the IRM integration (its
+	# address is in every alert sent so far) nor the Synthetic Monitoring
+	# installation (the stack's tenant).
+	"grafana_contact_point",
+	"grafana_notification_policy",
+	"grafana_oncall_escalation",
+	"grafana_oncall_escalation_chain",
+	"grafana_oncall_route",
+	"grafana_slo",
+	"grafana_synthetic_monitoring_check",
 	"infisical_secret",
 	"infisical_secret_import",
 	"terraform_data",

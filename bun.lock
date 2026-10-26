@@ -120,6 +120,7 @@
         "@pkgs/assert-root-shared-ts": "workspace:*",
         "@pkgs/clock-client-ts": "workspace:*",
         "@pkgs/clock-shared-ts": "workspace:*",
+        "@pkgs/conformance-server-ts": "workspace:*",
         "@pkgs/conformance-shared-ts": "workspace:*",
         "@pkgs/emqx-shared-ts": "workspace:*",
         "@pkgs/feedback-client-ts": "workspace:*",
@@ -2604,6 +2605,7 @@
         "@pkgs/sync-engine-shared-ts": "workspace:*",
       },
       "devDependencies": {
+        "@pkgs/gherkin-shared-ts": "workspace:*",
         "@pkgs/outbox-shared-ts": "workspace:*",
         "@pkgs/property-shared-ts": "workspace:*",
         "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",

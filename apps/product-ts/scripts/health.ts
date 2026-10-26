@@ -7,7 +7,9 @@
  * infrastructure, and the critical journeys in a real browser. `--synthetic`
  * runs only the `@synthetic` features. The last step of every deploy and the
  * Health workflow's schedule. Every decided scenario is recorded as `release`
- * evidence in `.cache/health-report/evidence/`.
+ * evidence in `.cache/health-report/evidence/`, and each feature's verdict
+ * as one sample of the team's checks for the objectives
+ * (`health-check-results.ts`).
  *
  * `--objectives` (`health:objectives`) instead checks every service level
  * objective of those domains (`*.openslo.yaml`, through
@@ -44,10 +46,15 @@ import { join, relative, resolve } from 'node:path';
 import { isProductionEnv } from '@libs/infra-shared-ts/env-file';
 import { envFile } from '@libs/infra-shared-ts/envs';
 import { exportSecretsMapLive } from '@libs/secrets-server-ts/secrets-io';
+import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
+import { readEvidence } from '@pkgs/conformance-server-ts/evidence-store';
 import { stubFileName, stubSource } from '@pkgs/gherkin-shared-ts/stubs';
 import { isSyntheticFeatureSource } from '@pkgs/gherkin-shared-ts/tags';
+import { createDeadlineFetch } from '@pkgs/http-client-shared-ts/deadline-fetch';
+import { createGlobalHttpClient } from '@pkgs/http-client-shared-ts/global';
 import { isLiveObjectiveSource } from '@pkgs/openslo-shared-ts/live';
 import { sloStubFileName, sloStubSource } from '@pkgs/openslo-shared-ts/stubs';
+import { featureVerdicts, recordCheckResults } from './health-check-results';
 
 const PACKAGE_DIR = resolve(import.meta.dir, '..');
 const REPO_ROOT = resolve(PACKAGE_DIR, '../..');
@@ -424,16 +431,63 @@ function environmentOffers(): {
   };
 }
 
-function writeStubs(cli: Cli, offers: Environment): readonly string[] {
+/** The stubs to run, and the repo-relative features they run. */
+function writeStubs(
+  cli: Cli,
+  offers: Environment
+): { readonly stubs: readonly string[]; readonly features: readonly string[] } {
   const selection = selectSpecs({ all: scopedSpecs(cli), cli });
   if (!selection.ok) {
     console.error(`health: ${selection.error} (${liveDomains().join(', ')})`);
     process.exit(1);
   }
   freshDirs(cli.objectives ? OBJECTIVE_DIRS : FEATURE_DIRS);
-  return cli.objectives
-    ? writeSloStubs(selection.specs, OBJECTIVE_DIRS)
-    : writeFeatureStubs(offers, selection.specs, FEATURE_DIRS);
+  if (cli.objectives) {
+    return {
+      stubs: writeSloStubs(selection.specs, OBJECTIVE_DIRS),
+      features: [],
+    };
+  }
+  return {
+    stubs: writeFeatureStubs(offers, selection.specs, FEATURE_DIRS),
+    features: selection.specs
+      .map((path) => relative(REPO_ROOT, path))
+      .filter((uri) => !hostSkips(offers, uri).wholeFeature),
+  };
+}
+
+/**
+ * A run of whole features is the team's checks from outside: record each
+ * feature's verdict for the objectives. A run narrowed by tags decides only
+ * some scenarios, so it is not a check and records nothing.
+ */
+async function recordChecks(input: {
+  readonly cli: Cli;
+  readonly environment: string;
+  readonly features: readonly string[];
+  readonly secrets: ReadonlyMap<string, string>;
+}): Promise<void> {
+  if (input.cli.objectives || input.cli.tags !== undefined) return;
+  const outcome = await recordCheckResults({
+    verdicts: featureVerdicts({
+      featureUris: input.features,
+      records: readEvidence(FEATURE_DIRS.reportDir).records,
+    }),
+    environment: input.environment,
+    version: process.env['GITHUB_SHA']?.trim() || 'local',
+    secrets: input.secrets,
+    fetch: createDeadlineFetch({
+      fetch: createGlobalHttpClient().fetch,
+      timers: wallTimers,
+      timeoutMs: 15_000,
+    }),
+    nowMs: wallClock.now(),
+  });
+  console.log(
+    outcome.recorded
+      ? `health: recorded ${String(outcome.checks)} check results for the objectives`
+      : `health: check results not recorded for the objectives: ${outcome.reason}`
+  );
 }
 
 function applyTarget(target: string | undefined): void {
@@ -500,11 +554,12 @@ if (import.meta.main) {
   console.log(
     `${label}${cli.objectives ? ' objectives' : ''}: ${name}${missing.length > 0 ? ` — without ${missing.join(', ')}` : ''}${tags.length > 0 ? ` — ${tags}` : ''}`
   );
-  const stubs = writeStubs(cli, offers);
+  const { stubs, features } = writeStubs(cli, offers);
   if (stubs.length === 0) {
     console.error('health: nothing to run');
     process.exit(1);
   }
+  const secrets = await exportSecretsMapLive(name);
   const result = spawnSync('bun', healthTestArguments(cli, stubs), {
     cwd: PACKAGE_DIR,
     stdio: 'inherit',
@@ -512,8 +567,9 @@ if (import.meta.main) {
       environment: name,
       tags,
       vars: process.env,
-      secrets: await exportSecretsMapLive(name),
+      secrets,
     }),
   });
+  await recordChecks({ cli, environment: name, features, secrets });
   process.exit(result.status ?? 1);
 }

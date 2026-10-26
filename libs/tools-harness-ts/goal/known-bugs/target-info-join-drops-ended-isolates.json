@@ -1,0 +1,4 @@
+{
+  "summary": "Objective queries, alert rules and dashboards selected an environment by joining target_info, which only Worker isolates still running carry, so they counted none of production's requests (the 2026-10-24 5xx burst raised no alert). Every point carries deployment_environment_name; select by it.",
+  "regressionTest": "libs/observability-shared-ts/tests/grafana-expressions.test.ts"
+}

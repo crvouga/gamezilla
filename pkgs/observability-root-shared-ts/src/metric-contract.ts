@@ -14,6 +14,7 @@ export const METRIC_DIMENSION_KEYS = [
   'app.room.module',
   'app.room.outcome',
   'web_vital.name',
+  'app.synthetic.check',
 ] as const;
 
 /**
@@ -33,7 +34,11 @@ export type MetricContract = {
   readonly name: string;
   readonly description: string;
   readonly unit: string;
-  readonly type: 'counter' | 'histogram';
+  /**
+   * A gauge is one reading per sample (a probe's 1 or 0), read by counting
+   * and summing its samples over a window rather than by `increase`.
+   */
+  readonly type: 'counter' | 'histogram' | 'gauge';
   /** Finite vocabularies only; identifiers can never become metric labels. */
   readonly dimensions: Readonly<Record<string, readonly string[]>>;
   /**
@@ -82,7 +87,9 @@ export function createMetric(contract: MetricContract) {
   const instrument =
     contract.type === 'counter'
       ? meter.createCounter(contract.name, contract)
-      : meter.createHistogram(contract.name, contract);
+      : contract.type === 'gauge'
+        ? meter.createGauge(contract.name, contract)
+        : meter.createHistogram(contract.name, contract);
   return (
     value: number,
     attributes: Readonly<Record<string, string>>

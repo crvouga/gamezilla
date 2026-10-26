@@ -17,7 +17,11 @@ describe('the emitted metrics', () => {
       'http_server_requests_total',
       'outbox_deliveries_exhausted_total',
       'outbox_drain_runs_total',
+      'probe_duration_seconds',
+      'probe_ssl_earliest_cert_expiry',
+      'probe_success',
       'sync_mutation_replays_total',
+      'synthetic_check_result',
       'telemetry_business_event_export_attempts_total',
       'telemetry_logs_schema_violations_total',
       'telemetry_pipeline_heartbeat_total',
@@ -41,13 +45,15 @@ describe('the emitted metrics', () => {
     ]) {
       expect(labels.has(label)).toBe(true);
     }
-    expect(labels.has('deployment_environment_name')).toBe(false);
-    expect(
-      labelsOf(emittedMetric('outbox.drain.runs')).has(
-        'deployment_environment_name'
-      )
-    ).toBe(true);
+    // Grafana Cloud copies the resource's environment onto every point.
+    expect(labels.has('deployment_environment_name')).toBe(true);
     expect(labels.has('user_id')).toBe(false);
+    // Synthetic Monitoring's environment is in its job name, never a label.
+    expect([...labelsOf(emittedMetric('probe_success'))].sort()).toEqual([
+      'instance',
+      'job',
+      'le',
+    ]);
   });
 
   test('refuse a metric nobody emits', () => {
