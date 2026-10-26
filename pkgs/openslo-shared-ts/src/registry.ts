@@ -7,6 +7,7 @@
  * package's openslo entry (`tests/openslo/index.ts`) imports.
  */
 
+import type { BurnTier } from './alert-policy';
 import type { Measurement } from './evaluate';
 import type { AlertPolicy, Slo } from './model';
 
@@ -46,6 +47,12 @@ export type AlertResponse = {
 export type AlertingBinding = {
   /** Fewest events per hour a window needs before its burn rate means anything. */
   readonly minimumEventsPerHour: (slo: Slo) => number;
+  /**
+   * The burn tiers that judge an SLO naming no `alertPolicies`; the standard
+   * ones when absent. A sparse probe (one sample an hour) needs windows long
+   * enough to hold a sample.
+   */
+  readonly tiers?: (slo: Slo) => readonly BurnTier[];
   readonly respond: (input: {
     readonly slo: Slo;
     readonly policy: AlertPolicy;

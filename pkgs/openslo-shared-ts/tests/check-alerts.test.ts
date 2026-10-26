@@ -188,6 +188,31 @@ describe('alerts that cannot be judged', () => {
     expect(results[0]?.detail).toContain('no evidence');
   });
 
+  test('a quiet hour inside a window with events is quiet, not missing evidence', async () => {
+    const DAY = 86_400_000;
+    const results = await measureAlerts({
+      doc,
+      slo,
+      binding: {
+        ...bindingFor([]),
+        // Events two days ago, none since: the objective's window has them,
+        // the policies' shorter windows do not.
+        measure: {
+          'requests-served': async ({ endMs, startMs }) =>
+            endMs - startMs > DAY
+              ? { kind: 'totals', good: 99, total: 100 }
+              : { kind: 'totals', good: 0, total: 0 },
+        },
+      },
+    });
+    const short = results.filter((r) => !r.policy.endsWith('budget-drift'));
+    expect(short.length).toBeGreaterThan(0);
+    for (const result of short) {
+      expect(result.ok).toBe(true);
+      expect(result.detail).toContain('too quiet to judge');
+    }
+  });
+
   test('too little traffic stays quiet and says so', async () => {
     const results = await measureAlerts({
       doc,

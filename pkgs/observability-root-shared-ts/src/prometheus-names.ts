@@ -9,6 +9,7 @@ import type { MetricContract } from './metric-contract';
  * - a unit adds a suffix (`s` → `_seconds`); `{annotation}` units add none;
  * - a counter adds `_total`;
  * - a histogram becomes `_bucket`, `_sum` and `_count` series;
+ * - a gauge keeps its family name;
  * - an attribute name is escaped the same way (`app.http.route_group` →
  *   `app_http_route_group`).
  */
@@ -43,6 +44,7 @@ function unitSuffix(unit: string): string | null {
 
 export type PrometheusSeries =
   | { readonly kind: 'counter'; readonly total: string }
+  | { readonly kind: 'gauge'; readonly value: string }
   | {
       readonly kind: 'histogram';
       readonly bucket: string;
@@ -71,6 +73,7 @@ export function prometheusSeries(
       total: family.endsWith('_total') ? family : `${family}_total`,
     };
   }
+  if (contract.type === 'gauge') return { kind: 'gauge', value: family };
   return {
     kind: 'histogram',
     bucket: `${family}_bucket`,

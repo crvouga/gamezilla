@@ -7,7 +7,12 @@
  * the response a person needs.
  */
 
-import type { AlertBundle, ConditionReading } from './alert-policy';
+import type {
+  AlertBundle,
+  BurnTier,
+  ConditionReading,
+  PolicyEvaluation,
+} from './alert-policy';
 import {
   alertedObjective,
   describeReadings,
@@ -18,7 +23,7 @@ import type { Counts } from './burn-rate';
 import { budgetRemaining } from './burn-rate';
 import type { Measurement } from './evaluate';
 import type { AlertPolicy, OpenSloDoc, Slo } from './model';
-import type { ObjectivesBinding } from './registry';
+import type { AlertingBinding, ObjectivesBinding } from './registry';
 import { parseDuration, withinBounds } from './window';
 
 export type AlertResult = {
@@ -35,9 +40,17 @@ export function alertId(slo: string, policy: string): string {
   return `alert:${slo}:${policy}`;
 }
 
-/** The file's own policies for an SLO when it names any, else the standard ones. */
-export function bundleFor(doc: OpenSloDoc, slo: Slo): AlertBundle {
-  if (slo.alertPolicies.length === 0) return standardAlerts({ slo });
+/**
+ * The file's own policies for an SLO when it names any, else the standard
+ * ones (in `tiers` when the binding chooses them).
+ */
+export function bundleFor(
+  doc: OpenSloDoc,
+  slo: Slo,
+  tiers?: readonly BurnTier[]
+): AlertBundle {
+  if (slo.alertPolicies.length === 0)
+    return standardAlerts({ slo, ...(tiers === undefined ? {} : { tiers }) });
   const policies = doc.alertPolicies.filter((p) =>
     slo.alertPolicies.includes(p.name)
   );
@@ -57,7 +70,7 @@ export async function measureAlerts(input: {
   const { doc, slo, binding } = input;
   const alerting = binding.alerting;
   if (alerting === undefined) return [];
-  const bundle = bundleFor(doc, slo);
+  const bundle = bundleFor(doc, slo, alerting.tiers?.(slo));
   const fail = (detail: string) =>
     bundle.policies.map((p) => result(slo, p, false, detail));
   if (slo.objectives.length !== 1) {
@@ -93,47 +106,78 @@ export async function measureAlerts(input: {
   }
   const ofWindow = (window: string): Counts =>
     counts.get(window) ?? { good: 0, total: 0 };
-  const remaining = budgetRemaining(ofWindow(slo.timeWindow.duration), target);
-  return bundle.policies.map((policy) => {
-    const evaluation = evaluatePolicy({
+  return bundle.policies.map((policy) =>
+    policyResult({
+      slo,
       policy,
-      conditions: policy.conditions.flatMap((name) =>
-        bundle.conditions.filter((c) => c.name === name)
-      ),
+      evaluation: evaluatePolicy({
+        policy,
+        conditions: policy.conditions.flatMap((name) =>
+          bundle.conditions.filter((c) => c.name === name)
+        ),
+        target,
+        counts: ofWindow,
+        minimumEventsPerHour: alerting.minimumEventsPerHour(slo),
+      }),
       target,
-      counts: ofWindow,
-      minimumEventsPerHour: alerting.minimumEventsPerHour(slo),
+      alerting,
+      windowCounts: ofWindow(slo.timeWindow.duration),
+    })
+  );
+}
+
+/** One policy's verdict, with what a person needs when it fires. */
+function policyResult(input: {
+  readonly slo: Slo;
+  readonly policy: AlertPolicy;
+  readonly evaluation: PolicyEvaluation;
+  readonly target: number;
+  readonly alerting: AlertingBinding;
+  /** Events over the objective's whole window. */
+  readonly windowCounts: Counts;
+}): AlertResult {
+  const { slo, policy, evaluation, target, alerting, windowCounts } = input;
+  const readings = describeReadings(evaluation.readings, target);
+  const budget = `${percent(budgetRemaining(windowCounts, target))} of the ${slo.timeWindow.duration} error budget remains`;
+  const severity = evaluation.readings[0]?.condition.severity ?? 'alert';
+  if (evaluation.state === 'firing') {
+    const response = alerting.respond({
+      slo,
+      policy,
+      lookbackWindow: longestLookback(evaluation.readings),
     });
-    const readings = describeReadings(evaluation.readings, target);
-    const budget = `${percent(remaining)} of the ${slo.timeWindow.duration} error budget remains`;
-    const severity = evaluation.readings[0]?.condition.severity ?? 'alert';
-    if (evaluation.state === 'firing') {
-      const response = alerting.respond({
-        slo,
-        policy,
-        lookbackWindow: longestLookback(evaluation.readings),
-      });
-      return result(
-        slo,
-        policy,
-        false,
-        `${severity.toUpperCase()} ${slo.name} (${policy.name}) is firing: ${readings}; ${budget}. Owner: ${response.owner}. Runbook: ${response.runbook}. Investigate with: ${response.command}`
-      );
-    }
-    if (evaluation.state === 'no-data') {
-      return result(
-        slo,
-        policy,
-        false,
-        `no evidence: no events were counted over the longest lookback window, so no burn rate can be judged (is telemetry reaching the metrics backend?)`
-      );
-    }
-    const why =
-      evaluation.state === 'low-traffic'
-        ? 'too little traffic in the longest window to judge'
-        : 'not firing';
-    return result(slo, policy, true, `${why}: ${readings}; ${budget}`);
-  });
+    return result(
+      slo,
+      policy,
+      false,
+      `${severity.toUpperCase()} ${slo.name} (${policy.name}) is firing: ${readings}; ${budget}. Owner: ${response.owner}. Runbook: ${response.runbook}. Investigate with: ${response.command}`
+    );
+  }
+  // Nothing in the policy's windows while the objective's window has events
+  // is quiet traffic, not missing evidence: a burn rate cannot be judged,
+  // and a failing test every quiet hour would bury a real one. Nothing in
+  // the objective's whole window is no evidence.
+  if (evaluation.state === 'no-data' && windowCounts.total <= 0) {
+    return result(
+      slo,
+      policy,
+      false,
+      `no evidence: no events were counted over the longest lookback window or the ${slo.timeWindow.duration} window, so no burn rate can be judged (is telemetry reaching the metrics backend?)`
+    );
+  }
+  if (evaluation.state === 'no-data') {
+    return result(
+      slo,
+      policy,
+      true,
+      `no events in the longest lookback window (${String(windowCounts.total)} in the ${slo.timeWindow.duration} window), too quiet to judge; ${budget}`
+    );
+  }
+  const why =
+    evaluation.state === 'low-traffic'
+      ? 'too little traffic in the longest window to judge'
+      : 'not firing';
+  return result(slo, policy, true, `${why}: ${readings}; ${budget}`);
 }
 
 function longestLookback(readings: readonly ConditionReading[]): string {

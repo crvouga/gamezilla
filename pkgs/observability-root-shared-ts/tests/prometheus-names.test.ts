@@ -43,6 +43,10 @@ describe('the names a metrics backend stores for an OTLP instrument', () => {
         count: 'rpc_latency_milliseconds_count',
       },
     ],
+    [
+      { name: 'probe.result', unit: '1', type: 'gauge' },
+      { kind: 'gauge', value: 'probe_result' },
+    ],
   ] as const)('%p is stored as %p', (contract, series) => {
     expect(prometheusSeries(contract)).toEqual(series);
   });
@@ -85,13 +89,15 @@ describe('the names a metrics backend stores for an OTLP instrument', () => {
       fc.property(
         fc.stringMatching(/^[a-z][a-z0-9._-]{0,30}$/),
         fc.constantFrom('s', 'ms', 'By', '1', '{request}', '%', 'By/s'),
-        fc.constantFrom('counter', 'histogram'),
+        fc.constantFrom('counter', 'histogram', 'gauge'),
         (name, unit, type) => {
           const series = prometheusSeries({ name, unit, type });
           const names =
             series.kind === 'counter'
               ? [series.total]
-              : [series.bucket, series.sum, series.count];
+              : series.kind === 'gauge'
+                ? [series.value]
+                : [series.bucket, series.sum, series.count];
           for (const each of names) {
             expect(each).toMatch(/^[a-zA-Z_:][a-zA-Z0-9_:]*$/);
           }

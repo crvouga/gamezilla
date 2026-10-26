@@ -1,6 +1,7 @@
 /**
  * A read-only client for the Prometheus HTTP API (Grafana Mimir answers it
- * under `<origin>/api/prom`). It speaks instant queries and nothing else.
+ * under `<origin>/api/prom`). It speaks instant queries: an instant vector,
+ * or the raw samples of a range selector (`probe_success[7d]`).
  *
  * Every failure is a thrown {@link PrometheusQueryError} that says what to
  * fix; no answer is ever read as "zero". The transport is injected: the
@@ -31,9 +32,20 @@ export type InstantSample = {
   readonly value: number;
 };
 
+/** One series of a range selector: every raw sample it holds in the range. */
+export type SampledSeries = {
+  readonly labels: Readonly<Record<string, string>>;
+  readonly points: readonly { readonly atMs: number; readonly value: number }[];
+};
+
 export type PrometheusClient = {
   /** The expression evaluated at `atMs`; an empty list means no series matched. */
   instant(query: string, atMs: number): Promise<readonly InstantSample[]>;
+  /**
+   * A range selector (`x{…}[7d]`) evaluated at `atMs`: the samples each
+   * series holds in that range. An empty list means no series matched.
+   */
+  series(query: string, atMs: number): Promise<readonly SampledSeries[]>;
 };
 
 const API_SUFFIX = '/api/prom';
@@ -68,20 +80,26 @@ export function createPrometheusClient(
   }
   const authorization = `Basic ${btoa(`${options.user}:${options.token}`)}`;
   const limit = options.maxResponseBytes ?? DEFAULT_MAX_BYTES;
+  const ask = async (query: string, atMs: number): Promise<string> => {
+    const response = await post({
+      ...options,
+      url: `${base}/api/v1/query`,
+      authorization,
+      body: new URLSearchParams({
+        query,
+        time: (atMs / 1000).toFixed(3),
+      }).toString(),
+    });
+    const text = await readBounded(response, limit);
+    if (!response.ok) throw rejected(response.status, text);
+    return text;
+  };
   return {
     async instant(query, atMs) {
-      const response = await post({
-        ...options,
-        url: `${base}/api/v1/query`,
-        authorization,
-        body: new URLSearchParams({
-          query,
-          time: (atMs / 1000).toFixed(3),
-        }).toString(),
-      });
-      const text = await readBounded(response, limit);
-      if (!response.ok) throw rejected(response.status, text);
-      return samples(text);
+      return samples(await ask(query, atMs));
+    },
+    async series(query, atMs) {
+      return matrix(await ask(query, atMs));
     },
   };
 }
@@ -173,7 +191,8 @@ type Answer = {
   };
 };
 
-function samples(text: string): readonly InstantSample[] {
+/** The answer's result list, once it is known to be a `resultType` answer. */
+function resultOf(text: string, resultType: 'vector' | 'matrix'): unknown[] {
   let answer: Answer;
   try {
     answer = JSON.parse(text) as Answer;
@@ -187,18 +206,48 @@ function samples(text: string): readonly InstantSample[] {
       `Prometheus reported ${String(answer.errorType ?? 'an error')}: ${String(answer.error ?? 'no detail')}`
     );
   }
-  if (answer.data?.resultType !== 'vector') {
+  if (answer.data?.resultType !== resultType) {
     throw new PrometheusQueryError(
-      `Prometheus answered a ${String(answer.data?.resultType)}, not an instant vector`
+      `Prometheus answered a ${String(answer.data?.resultType)}, not ${resultType === 'vector' ? 'an instant vector' : 'a range of samples'}`
     );
   }
   const result = answer.data.result;
   if (!Array.isArray(result)) {
     throw new PrometheusQueryError(
-      'Prometheus answered a vector without a list'
+      `Prometheus answered a ${resultType} without a list`
     );
   }
-  return result.map(readSample);
+  return result;
+}
+
+function samples(text: string): readonly InstantSample[] {
+  return resultOf(text, 'vector').map(readSample);
+}
+
+function matrix(text: string): readonly SampledSeries[] {
+  return resultOf(text, 'matrix').map((item) => {
+    const entry = item as {
+      readonly metric?: Record<string, string>;
+      readonly values?: unknown;
+    };
+    if (!Array.isArray(entry.values)) {
+      throw new PrometheusQueryError(
+        'Prometheus answered a series without its samples'
+      );
+    }
+    return {
+      labels: entry.metric ?? {},
+      points: entry.values.map((pair: unknown) => {
+        const [at, raw] = Array.isArray(pair) ? pair : [];
+        if (typeof at !== 'number' || typeof raw !== 'string') {
+          throw new PrometheusQueryError(
+            'Prometheus answered a sample without a time and a value'
+          );
+        }
+        return { atMs: Math.round(at * 1000), value: sampleNumber(raw) };
+      }),
+    };
+  });
 }
 
 function readSample(item: unknown): InstantSample {

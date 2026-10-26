@@ -55,10 +55,11 @@ function assertFastThreshold(bad1h: number, bad5m: number): void {
 }
 
 describe('the standard policies of an SLO', () => {
-  test('are a fast and a slow page and a ticket, named after the SLO', () => {
+  test('are a fast and a slow page and a daily and a drifting ticket, named after the SLO', () => {
     expect(bundle.policies.map((p) => p.name)).toEqual([
       'requests-served-fast-burn',
       'requests-served-slow-burn',
+      'requests-served-daily-burn',
       'requests-served-budget-drift',
     ]);
     expect(
@@ -68,6 +69,8 @@ describe('the standard policies of an SLO', () => {
       ['page', 14.4, '5m'],
       ['page', 6, '6h'],
       ['page', 6, '30m'],
+      ['ticket', 3, '1d'],
+      ['ticket', 3, '2h'],
       ['ticket', 1, '3d'],
       ['ticket', 1, '6h'],
     ]);
@@ -85,7 +88,7 @@ describe('the standard policies of an SLO', () => {
     }
   });
 
-  test('spend the shares of a 28 day budget the workbook rounds to 2, 5 and 10 percent', () => {
+  test('spend the shares of a 28 day budget the workbook rounds to 2, 5, 10 and 10 percent', () => {
     const spent = STANDARD_BURN_TIERS.map((tier) =>
       budgetSpent({
         factor: tier.factor,
@@ -94,7 +97,7 @@ describe('the standard policies of an SLO', () => {
       })
     );
     expect(spent.map((s) => Math.round(s * 1000) / 10)).toEqual([
-      2.1, 5.4, 10.7,
+      2.1, 5.4, 10.7, 10.7,
     ]);
   });
 

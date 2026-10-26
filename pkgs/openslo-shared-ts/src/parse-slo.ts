@@ -14,7 +14,7 @@ import type {
   TimeWindow,
 } from './model';
 import { BUDGETING_METHODS, OPERATORS } from './model';
-import { readRefs } from './parse-alert';
+import { readLabels, readRefs } from './parse-alert';
 import type { Cursor, Mapping } from './parse-fields';
 import {
   isMapping,
@@ -60,7 +60,9 @@ export function readSlo(at: Cursor, from: Mapping): ReadSlo | null {
           field: 'alertPolicies',
           refField: 'alertPolicyRef',
         });
+  const labels = readLabels(here, from);
   if (
+    labels === null ||
     alertPolicies === null ||
     service === null ||
     indicator === null ||
@@ -81,6 +83,7 @@ export function readSlo(at: Cursor, from: Mapping): ReadSlo | null {
       budgetingMethod,
       objectives,
       alertPolicies,
+      labels,
     },
     inlineSli: indicator.inline,
   };

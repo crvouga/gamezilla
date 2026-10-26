@@ -164,7 +164,7 @@ function registerAlerts(input: {
   const layer = binding.layer ?? 'implementation';
   for (const slo of doc.slos) {
     let measured: Promise<readonly AlertResult[]> | undefined;
-    const bundle = bundleFor(doc, slo);
+    const bundle = bundleFor(doc, slo, binding.alerting.tiers?.(slo));
     for (const policy of bundle.policies) {
       const severity =
         bundle.conditions.find((c) => c.name === policy.conditions[0])

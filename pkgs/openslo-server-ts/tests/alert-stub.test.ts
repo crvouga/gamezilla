@@ -52,7 +52,8 @@ function runStub(entryDir: string) {
 const DRIFT = 'alert:requests-are-answered:requests-are-answered-budget-drift';
 const FAST = 'alert:requests-are-answered:requests-are-answered-fast-burn';
 const SLOW = 'alert:requests-are-answered:requests-are-answered-slow-burn';
-const ALERTS = [DRIFT, FAST, SLOW];
+const DAILY = 'alert:requests-are-answered:requests-are-answered-daily-burn';
+const ALERTS = [DRIFT, DAILY, FAST, SLOW];
 
 // regression: slo-alerts-absent-while-grafana-archived
 describe('alerts through the generated stub', () => {
@@ -72,8 +73,8 @@ describe('alerts through the generated stub', () => {
       .filter((o) => o.id.startsWith('alert:') && o.status === 'fail')
       .map((o) => o.id);
     // The fast burn's 5 minute window is clean again, so it stays quiet; the
-    // slow burn's 30 minute window and the ticket's 6 hour one still hold the outage.
-    expect(failed).toEqual([DRIFT, SLOW]);
+    // slow burn's 30 minute window and the tickets' 2 and 6 hour ones still hold the outage.
+    expect(failed).toEqual([DRIFT, DAILY, SLOW]);
     expect(run.output).toContain(
       'PAGE requests-are-answered (requests-are-answered-slow-burn) is firing'
     );

@@ -120,6 +120,34 @@ export function readAlertNotificationTarget(
   };
 }
 
+/**
+ * OpenSLO v1 lets an AlertPolicy name exactly one condition. A multi-window
+ * policy (a long window to be sure, a short one to be sure it is still
+ * happening) names its first condition there and the rest, comma-separated,
+ * in this annotation; it fires only when all of them hold.
+ */
+export const AND_CONDITIONS_ANNOTATION = 'openslo-alerting/and-conditions';
+
+/** The policy's further conditions, from its `metadata.annotations`. */
+function readAndConditions(
+  at: Cursor,
+  from: Mapping
+): readonly string[] | null {
+  const metadata = from['metadata'];
+  const annotations = isMapping(metadata) ? metadata['annotations'] : undefined;
+  if (annotations === undefined) return [];
+  if (!isMapping(annotations))
+    return report(at, 'metadata.annotations must be a mapping');
+  const value = annotations[AND_CONDITIONS_ANNOTATION];
+  if (value === undefined) return [];
+  if (typeof value !== 'string' || value.trim() === '')
+    return report(
+      at,
+      `metadata.annotations.${AND_CONDITIONS_ANNOTATION} must name conditions, comma-separated`
+    );
+  return value.split(',').map((name) => name.trim());
+}
+
 export function readAlertPolicy(at: Cursor, from: Mapping): AlertPolicy | null {
   const metadata = readMetadata(at, from);
   if (metadata === null) return null;
@@ -144,7 +172,16 @@ export function readAlertPolicy(at: Cursor, from: Mapping): AlertPolicy | null {
     refField: 'targetRef',
   });
   const labels = readLabels(here, from);
+  const andConditions = readAndConditions(here, from);
+  if (conditions !== null && conditions.length > 1) {
+    report(
+      here,
+      `spec.conditions names ${String(conditions.length)} conditions; OpenSLO allows one, so name the rest in metadata.annotations.${AND_CONDITIONS_ANNOTATION}`
+    );
+    return null;
+  }
   if (
+    andConditions === null ||
     alertWhenNoData === null ||
     alertWhenResolved === null ||
     alertWhenBreaching === null ||
@@ -161,7 +198,7 @@ export function readAlertPolicy(at: Cursor, from: Mapping): AlertPolicy | null {
     alertWhenNoData,
     alertWhenResolved,
     alertWhenBreaching,
-    conditions,
+    conditions: [...conditions, ...andConditions],
     notificationTargets,
     labels,
   };
@@ -194,8 +231,11 @@ export function readRefs(
   return names;
 }
 
+/** OpenSLO's label key: a DNS-label-like name, which allows no `/`. */
+const LABEL_KEY = /^[a-zA-Z0-9]([-._a-zA-Z0-9]{0,61}[a-zA-Z0-9])?$/;
+
 /** `metadata.labels`: each key maps to a string or a list of strings. */
-function readLabels(
+export function readLabels(
   at: Cursor,
   from: Mapping
 ): Readonly<Record<string, readonly string[]>> | null {
@@ -206,6 +246,12 @@ function readLabels(
     return report(at, 'metadata.labels must be a mapping');
   const out: Record<string, readonly string[]> = {};
   for (const [key, value] of Object.entries(labels)) {
+    if (!LABEL_KEY.test(key)) {
+      return report(
+        at,
+        `metadata.labels key "${key}" must be letters, digits, ".", "-" or "_", at most 63 (OpenSLO; no "/")`
+      );
+    }
     const values = Array.isArray(value) ? value : [value];
     if (!values.every((v): v is string => typeof v === 'string')) {
       return report(

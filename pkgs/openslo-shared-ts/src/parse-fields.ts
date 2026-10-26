@@ -130,6 +130,15 @@ export function readMetadata(
   if (!KEBAB_CASE.test(name)) {
     return report(at, `metadata.name "${name}" must be kebab-case`);
   }
+  if (name.length > 63) {
+    return report(at, `metadata.name "${name}" must be at most 63 characters`);
+  }
+  if (displayName !== null && displayName.length > 63) {
+    return report(
+      at,
+      `metadata.displayName "${displayName}" must be at most 63 characters (OpenSLO)`
+    );
+  }
   return { name, displayName };
 }
 
