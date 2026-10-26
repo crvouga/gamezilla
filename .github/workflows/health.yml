@@ -23,13 +23,17 @@ run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manua
 # keep their critical-journey evidence on failure. Scenarios only production
 # can run (`HOST_LIMITS` in apps/product-ts/scripts/health.ts) skip elsewhere.
 #
+# Every health run records each live feature's verdict as one sample of
+# synthetic.check.result in Grafana Cloud (apps/product-ts/scripts/health.ts),
+# so the team's checks are objectives' evidence wherever they run.
+#
 # On main, health:objectives checks each environment's service level objectives
 # (the `# live` files in specs/, `health:objectives` in @apps/product-ts): that the
-# team's checks find the app answering, read back from the GitHub Actions API,
-# and that the requests people really make succeed and are answered quickly,
-# counted by the server's own metrics (Grafana Cloud's Prometheus API, opened
-# with the environment's read secrets). Each objective is judged over its last
-# 28 days and by its burn-rate alert policies; a policy that fires fails this
+# team's checks (these runs and Grafana Synthetic Monitoring's every minute) find
+# the app answering, and that the requests people really make succeed and are
+# answered quickly, all read from Grafana Cloud's Prometheus API with the
+# environment's read secrets. Each objective is judged over its last
+# 7 days and by its burn-rate alert policies; a policy that fires fails this
 # job with the owner, runbook and `bun obs` command in the log, which is how an
 # alert reaches people while no Grafana instance is active
 # (libs/observability-shared-ts/README.md, "Service level objectives"). Objectives
@@ -186,9 +190,8 @@ jobs:
           include-hidden-files: true
           retention-days: 14
 
-  # One job for every env, not a matrix: a per-env job would be named
-  # health:<env>, the very checks the availability objective counts. Runs
-  # after the checks (whatever their result) so this run's checks count too.
+  # One job for every env, not a matrix. Runs after the checks (whatever
+  # their result) so this run's checks count too.
   health-objectives:
     name: health:objectives
     needs: [health-matrix, health-env]
@@ -197,10 +200,8 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
-      actions: read
       id-token: write
     env:
-      GH_TOKEN: ${{ github.token }}
       ENVS: ${{ needs.health-matrix.outputs.all }}
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
     steps:
@@ -209,7 +210,6 @@ jobs:
 
       - uses: ./.github/actions/setup
 
-      # The workflow token has Actions read permission for historical attempts.
       # Every env is checked even when one misses its objectives.
       - name: health:objectives
         run: |

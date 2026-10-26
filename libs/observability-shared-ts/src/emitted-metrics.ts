@@ -25,6 +25,32 @@ import {
   prometheusSeries,
 } from '@pkgs/observability-root-shared-ts/prometheus-names';
 import { ROUTE_GROUPS } from './route-groups';
+import { SYNTHETIC_CHECK_METRIC } from './synthetic-checks';
+import {
+  PROBE_CERT_EXPIRY_METRIC,
+  PROBE_DURATION_METRIC,
+  PROBE_SUCCESS_METRIC,
+} from './synthetic-monitoring';
+
+/**
+ * How a metric's points say which environment they belong to.
+ *
+ * - `label`: on each point. Grafana Cloud copies the resource's
+ *   `deployment.environment.name` onto every point it ingests over OTLP, so
+ *   a query never joins `target_info`, which only the isolates still running
+ *   carry and so loses everything an ended isolate counted.
+ * - `job-suffix`: in the job name (`api-ready-prd`), for Synthetic
+ *   Monitoring, whose own labels are not on every tenant's points.
+ */
+export type EnvironmentPlacement =
+  | { readonly kind: 'label'; readonly label: string }
+  | { readonly kind: 'job-suffix' };
+
+const ON_THE_POINT: EnvironmentPlacement = {
+  kind: 'label',
+  label: 'deployment_environment_name',
+};
+const IN_THE_JOB: EnvironmentPlacement = { kind: 'job-suffix' };
 
 export type EmittedMetric = {
   readonly contract: MetricContract;
@@ -35,6 +61,7 @@ export type EmittedMetric = {
    * names). A matcher may select any value of these.
    */
   readonly openDimensions: readonly string[];
+  readonly environment: EnvironmentPlacement;
 };
 
 const http = httpMetricContracts(ROUTE_GROUPS);
@@ -42,9 +69,15 @@ const heartbeat = pipelineHeartbeatContract('');
 
 function emitted(
   contract: MetricContract,
-  openDimensions: readonly string[] = []
+  openDimensions: readonly string[] = [],
+  environment: EnvironmentPlacement = ON_THE_POINT
 ): EmittedMetric {
-  return { contract, series: prometheusSeries(contract), openDimensions };
+  return {
+    contract,
+    series: prometheusSeries(contract),
+    openDimensions,
+    environment,
+  };
 }
 
 export const EMITTED_METRICS: readonly EmittedMetric[] = [
@@ -57,6 +90,12 @@ export const EMITTED_METRICS: readonly EmittedMetric[] = [
   emitted(OUTBOX_DELIVERIES_EXHAUSTED_METRIC),
   emitted(OUTBOX_DRAIN_RUNS_METRIC),
   emitted(BILLING_CALLBACKS_METRIC),
+  emitted(SYNTHETIC_CHECK_METRIC),
+  // Written by Grafana Synthetic Monitoring, not the app. The job carries
+  // the environment, so its values are open.
+  emitted(PROBE_SUCCESS_METRIC, ['job'], IN_THE_JOB),
+  emitted(PROBE_DURATION_METRIC, ['job'], IN_THE_JOB),
+  emitted(PROBE_CERT_EXPIRY_METRIC, ['job'], IN_THE_JOB),
 ];
 
 export function emittedMetric(name: string): EmittedMetric {
@@ -71,13 +110,15 @@ export function emittedMetric(name: string): EmittedMetric {
 
 /** Every series name the backend stores for the metrics above. */
 export function emittedSeriesNames(): ReadonlySet<string> {
-  return new Set(
-    EMITTED_METRICS.flatMap((m) =>
-      m.series.kind === 'counter'
-        ? [m.series.total]
-        : [m.series.bucket, m.series.sum, m.series.count]
-    )
-  );
+  return new Set(EMITTED_METRICS.flatMap((m) => seriesNamesOf(m)));
+}
+
+/** The names the backend stores for one metric. */
+export function seriesNamesOf(metric: EmittedMetric): readonly string[] {
+  const { series } = metric;
+  if (series.kind === 'counter') return [series.total];
+  if (series.kind === 'gauge') return [series.value];
+  return [series.bucket, series.sum, series.count];
 }
 
 /** The label a dimension becomes (`app.http.route_group` → `app_http_route_group`). */
@@ -91,16 +132,11 @@ export function labelOf(dimension: string): string {
  */
 export const IDENTITY_LABELS: readonly string[] = ['le', 'job', 'instance'];
 
-/**
- * Every label name some emitted series can be selected by. An
- * environment-scoped metric carries the environment on each point.
- */
+/** Every label name some emitted series can be selected by. */
 export function labelsOf(metric: EmittedMetric): ReadonlySet<string> {
   return new Set([
     ...Object.keys(metric.contract.dimensions).map(labelOf),
-    ...(metric.contract.environmentScoped === true
-      ? ['deployment_environment_name']
-      : []),
+    ...(metric.environment.kind === 'label' ? [metric.environment.label] : []),
     ...IDENTITY_LABELS,
   ]);
 }

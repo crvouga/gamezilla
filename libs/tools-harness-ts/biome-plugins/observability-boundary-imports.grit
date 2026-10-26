@@ -11,7 +11,7 @@ file($body) where {
     JsCallExpression() as $call where { $call <: `require($src)` }
   } where {
     $src <: r"^['\"]@pkgs/observability-root-(?:client|server|shared)-ts/[^'\"]+['\"]$",
-    not $src <: r"^['\"]@pkgs/observability-root-shared-ts/(?:deployment-environment|metric-contract|http-metrics|mutation-metrics|pipeline-metrics|outbox-metrics|billing-metrics|prometheus|prometheus-names|event-contract|business-event|event-outbox|event-analytics|web-vital|reproducible-error)['\"]$",
+    not $src <: r"^['\"]@pkgs/observability-root-shared-ts/(?:deployment-environment|metric-contract|http-metrics|mutation-metrics|pipeline-metrics|outbox-metrics|billing-metrics|prometheus|prometheus-names|otlp-gauge|event-contract|business-event|event-outbox|event-analytics|web-vital|reproducible-error)['\"]$",
     register_diagnostic(span=$src, message="Manual observability imports are confined to the ADR boundary-file inventory; instrument a shared boundary instead of sub code.", severity="error")
   }
 }

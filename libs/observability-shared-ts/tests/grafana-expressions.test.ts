@@ -35,6 +35,12 @@ describe('every dashboard query on metrics', () => {
       );
       expect(issues).toEqual([]);
     });
+
+    // regression: target-info-join-drops-ended-isolates
+    test(`${file} never joins target_info, which drops every isolate that has ended`, () => {
+      const source = readFileSync(join(DASHBOARDS, file), 'utf8');
+      expect(source).not.toContain('target_info');
+    });
   }
 
   test('are not vacuous: the engineering dashboard really queries request metrics', () => {
@@ -71,7 +77,7 @@ describe('a PromQL expression that drifted from the emitted metrics', () => {
   test('a correct one is not', () => {
     expect(
       expressionIssues(
-        'sum(rate(http_server_requests_total{job="gamezilla-server",app_http_status_class="5xx"}[5m]) * on(job, instance) group_left target_info{deployment_environment_name="prd"})'
+        'sum(rate(http_server_requests_total{job="gamezilla-server",app_http_status_class="5xx",deployment_environment_name="prd"}[5m]))'
       )
     ).toEqual([]);
   });
