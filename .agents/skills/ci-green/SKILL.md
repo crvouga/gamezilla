@@ -228,6 +228,11 @@ A full local suite can take hours. Run it to the end anyway:
   with no output, a port that cannot be bound) is an environment failure:
   the next slice reruns it, since it was never cached. A task that fails the
   same way twice on an idle slot is a real failure; triage it.
+- Running a gate with more parallelism than its local default can make
+  tasks that share a machine-wide resource (a fixed port, a broker, a
+  browser profile) collide. A failure that repeats under parallelism but
+  passes when its task runs alone on the same tree is such a collision:
+  record the solo pass and say so in the report.
 - The full suite is green when one run of the whole task set on the final
   tree ends with every task passed or replayed from a cache entry of a pass.
 

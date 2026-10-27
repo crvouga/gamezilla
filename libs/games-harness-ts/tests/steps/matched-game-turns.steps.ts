@@ -13,7 +13,10 @@ import { openFindingAnOpponent } from '@libs/game-matchmaking-harness-ts/opponen
 import { makeCustomGameMove } from '@libs/game-session-harness-ts/custom-game-moves';
 import { Then, When } from '@libs/harness-ts/define';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
-import { refusedCustomGameMove } from './custom-game-play-world';
+import {
+  refusedCustomGameMove,
+  refusedCustomGameMoveReason,
+} from './custom-game-play-world';
 import { toldOf } from './custom-game-set-up-world';
 import { gameOf, turnGameOf } from './game-world';
 import {
@@ -91,10 +94,10 @@ Then('both people (still )see the two moves played', (w) => bothSeeMoves(w, 2));
 Then('{actor} sees the two moves played', (w, actor: string) =>
   movesSeen(w, seenOn(w, actor), 2)
 );
-Then('{actor} is told that move is not allowed', (w, actor: string) =>
+Then('{actor} is told that move is not allowed', async (w, actor: string) =>
   inMatchedGame(w)
     ? told(w, actor, 'CHESS_ILLEGAL_MOVE')
-    : toldOf(w, actor, 'move is illegal')
+    : toldOf(w, actor, await refusedCustomGameMoveReason(w, actor))
 );
 Then('{actor} is told her board has changed', (w, actor: string) =>
   told(w, actor, 'CHESS_BOARD_CHANGED')
