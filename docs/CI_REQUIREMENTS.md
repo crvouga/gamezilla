@@ -60,7 +60,7 @@ Each runner needs, beyond the runner service:
 - **Any OS:** git, bash and `gh` on the service's PATH. Deploy's wait-for-Health and release steps run before setup installs the pinned tools.
 - **Linux:** Chrome's system libraries (the renderer setup installs no packages) and passwordless `sudo` for the Chrome sandbox's AppArmor knob.
 - **macOS:** the Xcode Command Line Tools: the esbuild clean-up after every Turbo run compiles a small `cc` process probe. Browser tests run in WebKit (`Bun.WebView`) on macOS and Chrome elsewhere.
-- **Windows:** Git for Windows, with its `bash` ahead of `System32\bash.exe` (the WSL launcher) on the service's PATH; Developer Mode on and `core.symlinks=true`, because the checkout holds symlinks and tests create them; long paths enabled (`core.longpaths=true` and the `LongPathsEnabled` policy) for `node_modules`; Windows PowerShell, which reads the pinned Chrome's version.
+- **Windows:** Git for Windows, with its `bash` ahead of `System32\bash.exe` (the WSL launcher) on the service's PATH; Developer Mode on and `core.symlinks=true`, because the checkout holds symlinks and tests create them; long paths enabled (`core.longpaths=true` and the `LongPathsEnabled` policy) for `node_modules`; Windows PowerShell, which reads the pinned Chrome's version; PowerShell 7 (`pwsh`) on the service's PATH, because the actions' tool cache unpacks Chrome's zip with it (Windows PowerShell 5.1 cannot). Setup puts Git for Windows' `usr/bin` (its `unzip`, which installs mise) on PATH itself.
 
 Checks that cannot run on all three are not run in CI, and are listed here so a change never brings them back silently:
 
