@@ -121,7 +121,7 @@ describe('Verify workflow cancellation', () => {
       // What remains carries state between jobs, for a day at most.
       expect(upload.with?.['name']).toMatch(/^verify-(plan|results|evidence)/);
       expect(upload.with?.['retention-days']).toBe(
-        "${{ inputs.profile == 'nightly' && 14 || 1 }}"
+        "${{ inputs.profile == 'nightly' && 3 || 1 }}"
       );
     }
     // Reports, traces, summaries and publication are the nightly profile's.

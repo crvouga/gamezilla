@@ -158,7 +158,7 @@ jobs:
           path: apps/product-ts/.cache/critical-journeys/
           if-no-files-found: ignore
           include-hidden-files: true
-          retention-days: 14
+          retention-days: 7
       - name: Write workflow summary
         if: always() && steps.setup.outcome == 'success'
         env:

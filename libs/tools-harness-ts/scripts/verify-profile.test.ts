@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { NIGHTLY_REPLAY_SCALE } from '@libs/harness-ts/spec-parts';
+import { SWEEP_POLICY } from './artifact-sweep';
 import { flattenVerifyAggregators, MAIN_VERIFY_TASKS } from './turbo-ci-run';
 import { CI_RUN_DEADLINE_SECONDS, taskBudgetSeconds } from './verify-budget';
 import {
@@ -289,7 +290,11 @@ describe('Verify Nightly workflow', () => {
       expect(upload.with!['name']).toBe(
         `verify-nightly-${suite}-\${{ github.run_id }}`
       );
-      expect(Number(upload.with!['retention-days'])).toBeGreaterThanOrEqual(14);
+      // A week, covering a weekend; never past what the artifact sweep keeps.
+      expect(Number(upload.with!['retention-days'])).toBeGreaterThanOrEqual(7);
+      expect(Number(upload.with!['retention-days'])).toBeLessThanOrEqual(
+        SWEEP_POLICY.maxAgeDays
+      );
       expect(job.steps!.some((step) => 'continue-on-error' in step)).toBe(
         false
       );

@@ -1,0 +1,4 @@
+{
+  "summary": "Verify PR stopped at its plan upload ('Artifact storage quota has been hit'): nightly runs uploaded one trace artifact per shard kept 14 days, and a retired workflow's check-* artifacts kept their own retention, filling 11 GB. Health now sweeps artifacts hourly by age and a size budget.",
+  "regressionTest": "libs/tools-harness-ts/scripts/artifact-sweep.test.ts"
+}

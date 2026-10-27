@@ -116,7 +116,7 @@ jobs:
             .turbo/runs/*.json
           if-no-files-found: ignore
           include-hidden-files: true
-          retention-days: 30
+          retention-days: 7
 
   verify-nightly-browser:
     name: verify-nightly:browser
@@ -154,7 +154,7 @@ jobs:
             pkgs/*/.cache/harness-report/
           if-no-files-found: ignore
           include-hidden-files: true
-          retention-days: 14
+          retention-days: 7
 
   # Judges the snapshots the gate job's spec parts recorded, restored from
   # the remote cache, so it waits for that job and runs whatever its result.
@@ -198,7 +198,7 @@ jobs:
             apps/product-ts/.cache/harness-report/ui-quality/
           if-no-files-found: ignore
           include-hidden-files: true
-          retention-days: 14
+          retention-days: 7
 
   verify-nightly-coverage:
     name: verify-nightly:coverage
@@ -231,7 +231,7 @@ jobs:
             .turbo/runs/*.json
           if-no-files-found: ignore
           include-hidden-files: true
-          retention-days: 30
+          retention-days: 7
 
   verify-nightly-performance:
     name: verify-nightly:performance
@@ -271,7 +271,7 @@ jobs:
             .turbo/runs/*.json
           if-no-files-found: ignore
           include-hidden-files: true
-          retention-days: 30
+          retention-days: 7
 
   # The ending word. Every group ran to its own result; any group that did
   # not succeed fails the night, and the failure is filed where people look.
