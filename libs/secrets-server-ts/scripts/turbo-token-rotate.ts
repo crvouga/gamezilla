@@ -15,7 +15,13 @@
  * Rerunning it rotates the token. A token is revoked again when it cannot be
  * written, so a failed run leaves nothing behind.
  *
- *   bun run libs/secrets-server-ts/scripts/turbo-token-rotate.ts [--no-login]
+ * A Vercel CLI signed in with "Sign in with Vercel" cannot create tokens.
+ * Then create one at https://vercel.com/account/tokens (scope: the team
+ * above) and pipe it in: steps 2 and 4 run as above, and the tokens it
+ * replaces are yours to revoke in the dashboard.
+ *
+ *   bun run secrets:turbo-token [-- --no-login]
+ *   pbpaste | bun run secrets:turbo-token -- --stdin [--no-login]
  */
 // @io-wall-ok — composition root (Vercel CLI + Infisical admin CLI)
 import { join } from 'node:path';
@@ -100,6 +106,11 @@ async function pruneSecrets(): Promise<void> {
 
 async function main(): Promise<number> {
   const login = !process.argv.includes('--no-login');
+  if (process.argv.includes('--stdin')) {
+    await writeToken((await Bun.stdin.text()).trim());
+    await pruneSecrets();
+    return finish(login);
+  }
   if (!which('vercel')) {
     console.error('turbo-token-rotate: the Vercel CLI is not on PATH');
     return 1;
@@ -127,6 +138,10 @@ async function main(): Promise<number> {
     ok('vercel', `revoked earlier token ${id}`);
   }
 
+  return finish(login);
+}
+
+function finish(login: boolean): number {
   run('bun', ['run', 'secrets:pull'], { cwd: REPO_ROOT });
   if (!login) return 0;
   if (process.stdin.isTTY !== true) {

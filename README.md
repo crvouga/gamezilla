@@ -525,7 +525,7 @@ Continuous integration and continuous delivery: every pull request runs every ga
 | `bun health` | Dispatch Health. Local forms are `bun health:local` and `bun health:prd`. |
 | `bun deploy` | Release `main` by hand, as the three-hourly schedule does: verify the exact commit with the whole gate, then ship it. Local environment forms are `bun deploy:local`, `bun deploy:dev`, and `bun deploy:prd`. |
 
-Every Turbo run, local and CI, shares one remote cache: Vercel Remote Cache, team `crvougas-projects` (`remoteCache` in `turbo.json`). `TURBO_TOKEN` is a Vercel access token for that team; without it a local run uses its local cache only, and CI and deploy refuse to start. `bun run secrets:turbo-token` creates one with the Vercel CLI, writes it to Infisical, revokes the one it replaces, refreshes the local secrets cache and runs `turbo login`; rerun it to rotate the token.
+Every Turbo run, local and CI, shares one remote cache: Vercel Remote Cache, team `crvougas-projects` (`remoteCache` in `turbo.json`). `TURBO_TOKEN` is a Vercel access token for that team; without it a local run uses its local cache only, and CI and deploy refuse to start. `bun run secrets:turbo-token` creates one with the Vercel CLI, writes it to Infisical, revokes the one it replaces, refreshes the local secrets cache and runs `turbo login`; rerun it to rotate the token. A CLI signed in with "Sign in with Vercel" cannot create tokens: create one at https://vercel.com/account/tokens scoped to the team and pipe it in with `--stdin`.
 
 The capacity contract for a self-hosted pull-request verification (under five minutes, and under three minutes for a leaf package) is [docs/CI_REQUIREMENTS.md](docs/CI_REQUIREMENTS.md).
 
