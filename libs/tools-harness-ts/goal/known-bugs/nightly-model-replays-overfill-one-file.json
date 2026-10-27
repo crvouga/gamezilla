@@ -1,0 +1,4 @@
+{
+  "summary": "The shared-game suite could not be split into parts within their caps: Hearts' secret-choices model covers its actions in 2 of 128 drawn traces, so its files were sized by those 2 gate replays and one file carried all 128 nightly replays, twice what a part may hold. Size a model's files by both profiles.",
+  "regressionTest": "libs/harness-ts/scripts/spec-parts.test.ts"
+}

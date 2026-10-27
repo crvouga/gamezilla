@@ -59,7 +59,7 @@ export const MODELS_RUNNER =
  * Most parts one suite may split into: root `turbo.json` defines
  * `test:spec:0` … `test:spec:<MAX_SPEC_PARTS - 1>` and the sharded Verify runs them.
  */
-export const MAX_SPEC_PARTS = 99;
+export const MAX_SPEC_PARTS = 114;
 /**
  * The most parts a package's models verification splits into (`verify:models:<k>`).
  * `turbo.json` declares that many; one part is one runner in the sharded

@@ -134,6 +134,30 @@ describe('a planned model', () => {
       );
   });
 
+  // regression: nightly-model-replays-overfill-one-file
+  test('a model drawing far more traces than it covers splits its nightly replays to fit a part', () => {
+    // Hearts' secret choices: 128 drawn traces, two of them covering.
+    const wide: ReplayPlan = {
+      seed: '0x67932',
+      traces: 128,
+      cover: [2, 6],
+      replayed: [2, 6],
+      regressions: 0,
+      determinism: false,
+      variants: 1,
+    };
+    const units = plannedModelUnits('specs/games/secret-choices.qnt', wide);
+    expect(sum(units, 'pr')).toBe(2);
+    expect(sum(units, 'nightly')).toBe(128);
+    expect(units.length).toBe(2);
+    for (const unit of units) {
+      expect(unit.replays!.pr).toBeLessThanOrEqual(MODEL_FILE_REPLAYS);
+      expect(unit.replays!.nightly).toBeLessThanOrEqual(
+        PART_REPLAYS * NIGHTLY_REPLAY_SCALE
+      );
+    }
+  });
+
   test('a package that plans replays sizes its models by them', () => {
     expect(specUnits('specs/g/m.qnt', '', 64, plan)).toEqual(
       plannedModelUnits('specs/g/m.qnt', plan)
