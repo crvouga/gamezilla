@@ -8,6 +8,7 @@ import {
   readsRemoteCache,
   resolveRemoteHits,
   restoreEveryHit,
+  retryRateLimited,
 } from './turbo-preflight';
 
 function dryRun(tasks: readonly unknown[]): string {
@@ -332,5 +333,55 @@ describe('resolveRemoteHits', () => {
       '@pkgs/a#test',
       '@pkgs/b#tc',
     ]);
+  });
+});
+
+describe('retryRateLimited', () => {
+  // regression: vercel-remote-cache-rate-limited-misses
+  test('a 429 is retried, after Retry-After, until the cache answers', async () => {
+    const statuses = [429, 429, 200];
+    const waits: number[] = [];
+    const res = await retryRateLimited(
+      async () =>
+        new Response(null, {
+          status: statuses.shift()!,
+          headers: { 'retry-after': '2' },
+        }),
+      async (ms) => {
+        waits.push(ms);
+      }
+    );
+    expect(res.status).toBe(200);
+    expect(waits).toEqual([2000, 2000]);
+  });
+
+  test('without Retry-After it backs off, and gives up after its attempts', async () => {
+    const waits: number[] = [];
+    let calls = 0;
+    const res = await retryRateLimited(
+      async () => {
+        calls += 1;
+        return new Response(null, { status: 429 });
+      },
+      async (ms) => {
+        waits.push(ms);
+      },
+      3
+    );
+    expect(res.status).toBe(429);
+    expect(calls).toBe(3);
+    expect(waits).toEqual([250, 500]);
+  });
+
+  test('a miss or a hit is never retried', async () => {
+    for (const status of [200, 404]) {
+      let calls = 0;
+      const res = await retryRateLimited(async () => {
+        calls += 1;
+        return new Response(null, { status });
+      });
+      expect(res.status).toBe(status);
+      expect(calls).toBe(1);
+    }
   });
 });

@@ -12,6 +12,7 @@ import {
 import type { RunPlan } from './turbo-preflight';
 import {
   planFromDryRun,
+  REMOTE_LOOKUP_CONCURRENCY,
   resolveRemoteHits,
   wallRemoteHas,
 } from './turbo-preflight';
@@ -218,7 +219,7 @@ async function resolveCache(local: RunPlan, env: NodeJS.ProcessEnv) {
   });
   const resolved =
     env['TURBO_TOKEN'] && env['VERIFY_CACHE_MODE'] !== 'cold'
-      ? await resolveRemoteHits(local, remoteHas, 256)
+      ? await resolveRemoteHits(local, remoteHas, REMOTE_LOOKUP_CONCURRENCY)
       : local;
   if (remoteResponses[401] || remoteResponses[403])
     throw new Error(
