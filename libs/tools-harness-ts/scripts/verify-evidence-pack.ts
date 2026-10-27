@@ -1,7 +1,6 @@
 // @io-wall-ok — stream compressed archives and separate verdicts from rendered evidence.
-import { spawnSync } from 'node:child_process';
-import { join } from 'node:path';
-import { tarPath } from './verify-evidence-archive';
+import { join, resolve } from 'node:path';
+import { evidenceTar } from './verify-evidence-archive';
 
 export function packShardEvidence(
   root: string,
@@ -17,17 +16,14 @@ export function packShardEvidence(
   for (const [kind, entries] of [
     ['results', metadata],
     ['evidence', paths],
-  ] as const) {
-    // Run in `root` so the archive and member names are relative for any tar.
-    const packed = spawnSync(
-      'tar',
+  ] as const)
+    evidenceTar(
       [
-        '-czf',
-        tarPath(root, join(root, directory, `${kind}-${index}.tar.gz`)),
+        'pack',
+        join(resolve(root), directory, `${kind}-${index}.tar.gz`),
+        resolve(root),
         ...entries,
       ],
-      { cwd: root }
+      `Cannot transfer shard ${kind}`
     );
-    if (packed.status !== 0) throw new Error(`Cannot transfer shard ${kind}`);
-  }
 }

@@ -1,28 +1,28 @@
 // @io-wall-ok — select paths inside an immutable CI evidence archive.
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, relative, resolve } from 'node:path';
-import { slashPath } from '@pkgs/os-shared-ts/slash-path';
+import { join, resolve } from 'node:path';
 
 /**
- * `path` as tar names an archive: relative to the `cwd` tar runs in, with `/`
- * separators. GNU tar (Git Bash on Windows) reads `C:\…` as `host:path`, a
- * remote archive; a relative path means the same file to it and to bsdtar.
+ * Runs `verify-evidence-tar.ts` with the current Bun, so an archive means the
+ * same on every OS and no system `tar` is involved.
  */
-export function tarPath(cwd: string, path: string): string {
-  return slashPath(relative(cwd, resolve(cwd, path)));
+export function evidenceTar(args: readonly string[], failure: string): string {
+  const result = spawnSync(
+    process.execPath,
+    [join(import.meta.dirname, 'verify-evidence-tar.ts'), ...args],
+    { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 }
+  );
+  if (result.status !== 0)
+    throw new Error(`${failure}: ${result.stderr.trim()}`);
+  return result.stdout;
 }
 
 export function archiveEntries(archive: string): string[] {
-  const cwd = dirname(resolve(archive));
-  const listed = spawnSync('tar', ['-tf', tarPath(cwd, archive)], {
-    cwd,
-    encoding: 'utf8',
-    maxBuffer: 32 * 1024 * 1024,
-  });
-  if (listed.status !== 0) throw new Error('Cannot list shard evidence');
-  return listed.stdout.split(/\r?\n/).filter(Boolean);
+  return evidenceTar(['list', resolve(archive)], 'Cannot list shard evidence')
+    .split(/\r?\n/)
+    .filter(Boolean);
 }
 
 export function extractEvidence(
@@ -35,16 +35,10 @@ export function extractEvidence(
   try {
     const manifest = join(directory, 'paths');
     writeFileSync(manifest, paths.join('\n') + '\n');
-    mkdirSync(root, { recursive: true });
-    const extracted = spawnSync(
-      'tar',
-      ['-xf', tarPath(root, archive), '--no-recursion', '-T', manifest],
-      { cwd: root }
+    evidenceTar(
+      ['extract', resolve(archive), resolve(root), manifest],
+      'Cannot extract selected shard evidence'
     );
-    if (extracted.status !== 0)
-      throw new Error(
-        `Cannot extract selected shard evidence: ${extracted.stderr.toString()}`
-      );
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
