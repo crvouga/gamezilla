@@ -1,0 +1,4 @@
+{
+  "summary": "Quint launched its own Apalache server (apalache-mc.bat on Windows, where killing the batch file left the JVM running and holding the check's output pipes, so the check hung). Each check now starts the pinned server itself, points Quint at it, and kills the server's tree when Quint exits or the deadline passes.",
+  "regressionTest": "pkgs/quint-server-ts/tests/run-quint.test.ts"
+}

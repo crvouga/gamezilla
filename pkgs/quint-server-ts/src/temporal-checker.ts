@@ -2,7 +2,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { wallStopwatch } from '@pkgs/quint-shared-ts/wall';
-import { APALACHE_VERSION, freePort } from './apalache';
+import { APALACHE_VERSION } from './apalache';
 import { quintModuleName } from './model-source';
 import { runQuint } from './run-quint';
 import { QUINT_CLI } from './simulate';
@@ -34,8 +34,6 @@ export async function runTemporalChecker(input: {
       '0',
       '--apalache-version',
       APALACHE_VERSION,
-      '--server-endpoint',
-      `127.0.0.1:${String(await freePort())}`,
       '--temporal',
       options.properties.join(','),
       ...(step === undefined ? [] : ['--step', step]),
@@ -46,6 +44,7 @@ export async function runTemporalChecker(input: {
     cwd: options.outDir,
     env,
     timeoutMs: deadlineMs,
+    apalacheHome: input.apalacheHome,
   });
   if (compiled.code !== 0 || compiled.timedOut) return compiled;
   writeFileSync(tla, compiled.stdout);
