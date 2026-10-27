@@ -11,6 +11,16 @@ inputs:
 runs:
   using: composite
   steps:
+    # Every workflow checks out with `clean: false` and this step cleans
+    # instead: everything untracked or ignored goes, except installed
+    # dependencies. checkout's own `git clean -ffdx` spent 25 s deleting
+    # every package's node_modules on Windows, and the install below 22 s
+    # linking them again (Verify run 40581372043). The frozen install still
+    # runs, so a lockfile change relinks and prunes what no longer belongs.
+    - name: Clean the checkout, keeping installed dependencies
+      shell: bash
+      run: git clean -ffdxq -e node_modules
+
     # Every system tool — Bun, Node, gh, gitleaks, actionlint, the secrets
     # backend CLI, EMQX — at the version pinned in the repo's mise.toml, the
     # same file a laptop runs `mise install` against. The action puts the

@@ -154,6 +154,7 @@ jobs:
           fi
       - uses: actions/checkout@v6
         with:
+          clean: false
           fetch-depth: 0
       - uses: ./.github/actions/setup
         with:
@@ -236,6 +237,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          clean: false
           fetch-depth: 0
       - uses: ./.github/actions/setup
         with:
@@ -303,6 +305,7 @@ jobs:
       # read from Git; the default checkout holds only the merge commit.
       - uses: actions/checkout@v6
         with:
+          clean: false
           fetch-depth: 0
       - uses: ./.github/actions/setup
       - uses: ./.github/actions/secrets-auth

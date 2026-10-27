@@ -61,6 +61,8 @@ jobs:
       AWS_ROLE_ARN: ${{ vars.AWS_HEALTH_ROLE_ARN }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          clean: false
       - uses: ./.github/actions/setup
       - uses: ./.github/actions/secrets-auth
         with:
@@ -86,6 +88,8 @@ jobs:
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          clean: false
       - uses: ./.github/actions/setup
       - uses: ./.github/actions/secrets-auth
         with:
@@ -135,6 +139,7 @@ jobs:
           exit 1
       - uses: actions/checkout@v6
         with:
+          clean: false
           fetch-depth: 0
       - id: setup
         uses: ./.github/actions/setup
