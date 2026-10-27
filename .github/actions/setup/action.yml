@@ -13,8 +13,8 @@ runs:
   steps:
     # Every system tool — Bun, Node, gh, gitleaks, actionlint, the secrets
     # backend CLI, EMQX — at the version pinned in the repo's mise.toml, the
-    # same file a laptop runs `mise install` against. Installs are cached on
-    # a key over mise.toml; the action puts the tools on PATH for later steps.
+    # same file a laptop runs `mise install` against. The action puts the
+    # tools on PATH for later steps.
     # Later steps (verify:actionlint, verify:secrets) `mise exec` against the
     # same file, so trust the checkout for the whole job.
     # Coding-agent tools (graphify, serena) are laptop-only, and their
@@ -38,6 +38,12 @@ runs:
       uses: jdx/mise-action@v4
       with:
         version: 2026.9.13
+        # Every runner is self-hosted and keeps mise's data directory between
+        # jobs, so an installed tool is already there (`mise install` checks
+        # all 17 in 32 ms). The action's GitHub cache instead downloaded and
+        # unpacked a 961 MB archive of the same tools in every job: 3m20s of a
+        # shard's 3m43s setup (Verify run 40578797561).
+        cache: false
         # jdx/mise-action defaults to `bun opentofu` when this is blank. The
         # full Verify jobs need every tool pinned in mise.toml, including the
         # lazy tools used by model and security verifications. Callers that need a
