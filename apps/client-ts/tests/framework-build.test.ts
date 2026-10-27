@@ -64,6 +64,13 @@ test('the shared game screens compile with the production web toolchain and no g
     throw new Error('The isolated build must produce one completed bundle');
   const chunks = result.output.filter((output) => output.type === 'chunk');
   const modules = chunks.flatMap((chunk) => Object.keys(chunk.modules));
+  // regression: workspace-resolver-windows-backslash-ids
+  // Rollup keys modules by id string: a `\`-separated id (a resolver returning
+  // a raw Windows path) is a second copy of a module Vite resolves with `/`.
+  expect(
+    modules.filter((id) => id.includes('\\')),
+    'module ids are `/`-separated on every OS'
+  ).toEqual([]);
   for (const screen of [
     'game-menu-client-ts/src/game-menu.tsx',
     'game-menu-client-ts/src/personal-puzzle-stats-clients.tsx',

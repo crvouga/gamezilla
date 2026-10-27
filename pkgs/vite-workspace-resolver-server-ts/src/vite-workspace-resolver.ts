@@ -1,6 +1,7 @@
 // @io-wall-ok — build-tool plugin: reads workspace package manifests from disk.
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import type { Plugin } from 'vite';
 
 type ExportTarget =
@@ -107,7 +108,9 @@ export function workspaceExportsResolver(
       const subpath = rest === '' ? '.' : `.${rest}`;
       for (const target of expandExportTargets(manifest.exports, subpath)) {
         const abs = resolve(dir, target);
-        if (existsSync(abs)) return abs;
+        // Vite gives relative imports `/` ids; a `\` id on Windows would
+        // make a module imported both ways two modules.
+        if (existsSync(abs)) return slashPath(abs);
       }
       return null;
     },
