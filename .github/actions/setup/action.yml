@@ -21,6 +21,14 @@ runs:
       shell: bash
       run: echo "MISE_TRUSTED_CONFIG_PATHS=${GITHUB_WORKSPACE}" >> "$GITHUB_ENV"
 
+    # jdx/mise-action extracts mise's Windows zip with `unzip`, which Git for
+    # Windows ships in its usr/bin (on PATH on GitHub's Windows images, not
+    # on a self-hosted runner that only lists Git's bin).
+    - name: Put Git for Windows' tools on PATH
+      if: runner.os == 'Windows'
+      shell: bash
+      run: cygpath -w /usr/bin >> "$GITHUB_PATH"
+
     - name: Install pinned tools (mise.toml)
       uses: jdx/mise-action@v4
       with:
