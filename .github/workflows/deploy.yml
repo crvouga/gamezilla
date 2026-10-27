@@ -152,13 +152,9 @@ jobs:
         run: bun run deploy:local
       - name: Keep the critical journeys' evidence
         if: failure()
-        uses: actions/upload-artifact@v6
-        with:
-          name: critical-journeys-${{ github.run_id }}-${{ env.SECRETS_ENV }}
-          path: apps/product-ts/.cache/critical-journeys/
-          if-no-files-found: ignore
-          include-hidden-files: true
-          retention-days: 7
+        run: >-
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload critical-journeys-${{ github.run_id }}-${{ env.SECRETS_ENV }}
+          apps/product-ts/.cache/critical-journeys
       - name: Write workflow summary
         if: always() && steps.setup.outcome == 'success'
         env:

@@ -36,8 +36,8 @@ run-name: "Verify Nightly · ${{ github.event_name == 'schedule' && 'schedule' |
 # the default branch) and by hand: "Run workflow", or
 # `gh workflow run verify-nightly.yml --ref <branch>` to rehearse a branch.
 #
-# Every group keeps its log, its seeds and its evidence as artifacts, on
-# failure too. Each runs with dev secrets only; nothing here reads a
+# Every group keeps its log, its seeds and its evidence as CI artifacts
+# (`libs/tools-harness-ts/scripts/ci-artifacts.ts`), on failure too. Each runs with dev secrets only; nothing here reads a
 # production secret or deploys.
 
 permissions:
@@ -108,15 +108,9 @@ jobs:
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:random
       - name: Retain seeds and the run summary
         if: always() && !cancelled()
-        uses: actions/upload-artifact@v6
-        with:
-          name: verify-nightly-random-${{ github.run_id }}
-          path: |
-            apps/product-ts/.cache/randomized/
-            .turbo/runs/*.json
-          if-no-files-found: ignore
-          include-hidden-files: true
-          retention-days: 7
+        run: >-
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-nightly-random-${{ github.run_id }}
+          apps/product-ts/.cache/randomized '.turbo/runs/*.json'
 
   verify-nightly-browser:
     name: verify-nightly:browser
@@ -144,17 +138,9 @@ jobs:
       # Step timelines, screenshots, recordings and traces of every scenario.
       - name: Retain browser reports and traces
         if: always() && !cancelled()
-        uses: actions/upload-artifact@v6
-        with:
-          name: verify-nightly-browser-${{ github.run_id }}
-          path: |
-            .turbo/runs/*.json
-            apps/*/.cache/harness-report/
-            libs/*/.cache/harness-report/
-            pkgs/*/.cache/harness-report/
-          if-no-files-found: ignore
-          include-hidden-files: true
-          retention-days: 7
+        run: >-
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-nightly-browser-${{ github.run_id }}
+          '.turbo/runs/*.json' 'apps/*/.cache/harness-report' 'libs/*/.cache/harness-report' 'pkgs/*/.cache/harness-report'
 
   # Judges the snapshots the gate job's spec parts recorded, restored from
   # the remote cache, so it waits for that job and runs whatever its result.
@@ -189,16 +175,9 @@ jobs:
       # Scores, failing screenshots and context clips.
       - name: Retain the visual report
         if: always() && !cancelled()
-        uses: actions/upload-artifact@v6
-        with:
-          name: verify-nightly-visual-${{ github.run_id }}
-          path: |
-            .turbo/runs/*.json
-            apps/product-ts/.cache/ui-quality/
-            apps/product-ts/.cache/harness-report/ui-quality/
-          if-no-files-found: ignore
-          include-hidden-files: true
-          retention-days: 7
+        run: >-
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-nightly-visual-${{ github.run_id }}
+          '.turbo/runs/*.json' apps/product-ts/.cache/ui-quality apps/product-ts/.cache/harness-report/ui-quality
 
   verify-nightly-coverage:
     name: verify-nightly:coverage
@@ -223,15 +202,9 @@ jobs:
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:coverage
       - name: Retain the coverage report
         if: always() && !cancelled()
-        uses: actions/upload-artifact@v6
-        with:
-          name: verify-nightly-coverage-${{ github.run_id }}
-          path: |
-            .cache/coverage/
-            .turbo/runs/*.json
-          if-no-files-found: ignore
-          include-hidden-files: true
-          retention-days: 7
+        run: >-
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-nightly-coverage-${{ github.run_id }}
+          .cache/coverage '.turbo/runs/*.json'
 
   verify-nightly-performance:
     name: verify-nightly:performance
@@ -263,15 +236,9 @@ jobs:
           bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:performance 2>&1 | tee .cache/verify-nightly/performance.log
       - name: Retain the benchmark results
         if: always() && !cancelled()
-        uses: actions/upload-artifact@v6
-        with:
-          name: verify-nightly-performance-${{ github.run_id }}
-          path: |
-            .cache/verify-nightly/performance.log
-            .turbo/runs/*.json
-          if-no-files-found: ignore
-          include-hidden-files: true
-          retention-days: 7
+        run: >-
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-nightly-performance-${{ github.run_id }}
+          .cache/verify-nightly/performance.log '.turbo/runs/*.json'
 
   # The ending word. Every group ran to its own result; any group that did
   # not succeed fails the night, and the failure is filed where people look.

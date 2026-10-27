@@ -112,17 +112,14 @@ describe('Verify workflow cancellation', () => {
     const nightlyOnly = (step: { if?: string }) =>
       step.if === "always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'";
     const steps = Object.values(workflow.jobs).flatMap((job) => job.steps);
-    const uploads = steps.filter((step) =>
-      step.uses?.startsWith('actions/upload-artifact@')
-    );
+    const uploadOf = (step: { run?: string }) =>
+      /ci-artifacts\.ts upload (\S+)/.exec(step.run ?? '')?.[1];
+    const uploads = steps.filter((step) => uploadOf(step) !== undefined);
     expect(uploads.length).toBeGreaterThan(0);
     for (const upload of uploads) {
       if (nightlyOnly(upload)) continue;
-      // What remains carries state between jobs, for a day at most.
-      expect(upload.with?.['name']).toMatch(/^verify-(plan|results|evidence)/);
-      expect(upload.with?.['retention-days']).toBe(
-        "${{ inputs.profile == 'nightly' && 3 || 1 }}"
-      );
+      // What remains carries state between jobs until `verify:end`.
+      expect(uploadOf(upload)).toMatch(/^verify-(plan|results|evidence)/);
     }
     // Reports, traces, summaries and publication are the nightly profile's.
     for (const name of [
@@ -133,7 +130,7 @@ describe('Verify workflow cancellation', () => {
     ])
       expect(
         uploads
-          .filter((upload) => upload.with?.['name']?.startsWith(name))
+          .filter((upload) => uploadOf(upload)?.startsWith(name))
           .every(nightlyOnly)
       ).toBe(true);
     expect(
@@ -145,8 +142,9 @@ describe('Verify workflow cancellation', () => {
     expect(cleanup.if).toBe(
       "always() && !cancelled() && env.VERIFY_PROFILE != 'nightly'"
     );
-    expect(cleanup.run).toContain('startswith("verify-")');
-    expect(cleanup.run).toContain('--method DELETE');
+    expect(cleanup.run?.trim()).toBe(
+      'bun run libs/tools-harness-ts/scripts/ci-artifacts.ts delete verify-'
+    );
   });
   // regression: concurrent-verify-run-isolation
   test('a newer push supersedes its PR run; dispatched and release runs never cancel one another', () => {

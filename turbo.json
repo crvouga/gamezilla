@@ -33,6 +33,7 @@
     "IOT_*",
     "S3_*",
     "SHARED_DATA_*",
+    "CI_ARTIFACTS_*",
     "REPORTS_*",
     "ELEVEN_LABS_*",
     "PS_*",

@@ -14,7 +14,7 @@ type Step = {
 type Job = { outputs?: Record<string, unknown>; steps: Step[] };
 
 // regression: github-verify-plan-output-secret-masking
-test('Verification transfers the immutable plan as an artifact rather than a masked job output', () => {
+test('Verification transfers the immutable plan as a CI artifact rather than a masked job output', () => {
   // Run 37511860563 suppressed the plan output and supplied an empty payload.
   const text = readFileSync(
     join(import.meta.dirname, '../../../.github/workflows/verify-pr.yml'),
@@ -28,15 +28,16 @@ test('Verification transfers the immutable plan as an artifact rather than a mas
     'os',
     'arch',
   ]);
-  const upload = jobs['verify-start']!.steps.find(
-    (step) =>
-      step.uses === 'actions/upload-artifact@v6' &&
-      step.with?.['name'] === 'verify-plan'
+  const upload = jobs['verify-start']!.steps.find((step) =>
+    step.run?.includes('scripts/ci-artifacts.ts upload verify-plan')
   );
-  expect(upload?.with?.['path']).toBe('.cache/verify-ci/plan.payload');
-  expect(upload?.with?.['overwrite']).toBe(true);
+  // An upload of a name replaces it (`ci-artifacts.ts`), so a rerun's
+  // shards never read an earlier attempt's plan.
+  expect(upload?.run?.trim().split(/\s+/).slice(-2)).toEqual([
+    'verify-plan',
+    '.cache/verify-ci/plan.payload',
+  ]);
   expect(text).not.toContain('VERIFY_PLAN_PAYLOAD');
-  // regression: github-download-artifact-node20
   for (const [name, script] of [
     ['verify-shards', 'verify-stage-transfer.ts'],
     ['verify-end', 'verify-consumers.ts'],
@@ -44,13 +45,12 @@ test('Verification transfers the immutable plan as an artifact rather than a mas
     const steps = jobs[name]!.steps;
     const download = steps.findIndex(
       (step) =>
-        step.uses === 'actions/download-artifact@v8' &&
-        step.with?.['name'] === 'verify-plan'
+        step.run?.trim() ===
+        'bun run libs/tools-harness-ts/scripts/ci-artifacts.ts download verify-plan .cache/verify-ci'
     );
     const restore = steps.findIndex((step) => step.run?.includes(script));
     expect(download).toBeGreaterThan(-1);
     expect(download).toBeLessThan(restore);
-    expect(steps[download]?.with?.['path']).toBe('.cache/verify-ci');
   }
 });
 

@@ -185,7 +185,6 @@
     "node": ">=22.18.0"
   },
   "catalog": {
-    "@actions/artifact": "6.2.1",
     "@aws-sdk/client-s3": "^3.1154.0",
     "@babel/core": "^7.29.7",
     "@babel/plugin-transform-explicit-resource-management": "^7.29.7",

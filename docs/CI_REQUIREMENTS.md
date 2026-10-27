@@ -5,7 +5,7 @@ Capacity plan for self-hosted pull-request verifications. Every workflow job run
 Refresh after a cold Verify harvest:
 
 ```bash
-bun run libs/tools-harness-ts/scripts/verify-task-costs.ts --harvest <run id>
+bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/verify-task-costs.ts --harvest <run id>
 bun run libs/tools-harness-ts/scripts/ci-load.ts --write
 ```
 
@@ -70,7 +70,7 @@ Checks that cannot run on all three are not run in CI, and are listed here so a 
 | `@apps/client-swift` (iOS build, launch, smoke test) | Xcode and the iOS simulator exist only on macOS | `bun verify` on a Mac with the pinned Xcode |
 | `@pkgs/pubsub-emqx-harness-ts` `emqx.contract.test.ts` | EMQX 5 publishes no Windows build, and its launcher is a shell script | `bun run test:posix` in the package |
 | `@pkgs/os-server-ts` `dev-owner*.test.ts` | Dev-owner's launch gate is POSIX: `/bin/sh` `kill -STOP`, `ps`, `/proc`, process groups. It is local dev tooling; CI never sets `DEV_OWNER_ROOT` | `bun run test:posix` in the package |
-| `@libs/tools-harness-ts` `verify-actionlint`, `workflow-artifacts`, `workspace-run`, `verify-snapshot`, `verify-prepared-model` tests | Shebang fake executables run directly, `zip`/`unzip`, the bash `workspace/*.sh` hooks with a POSIX PATH, `cp --reflink`/`cp -c` snapshots | `bun run test:posix` in the package |
+| `@libs/tools-harness-ts` `verify-actionlint`, `workspace-run`, `verify-snapshot`, `verify-prepared-model` tests | Shebang fake executables run directly, the bash `workspace/*.sh` hooks with a POSIX PATH, `cp --reflink`/`cp -c` snapshots | `bun run test:posix` in the package |
 
 `test:posix` is the one script outside the gate that `test-scripts.ts` accepts; no CI job and no `bun verify` runs it.
 

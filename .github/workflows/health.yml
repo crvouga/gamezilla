@@ -81,8 +81,6 @@ jobs:
       contents: write
       pull-requests: read
       id-token: write
-      # Deleting artifacts (the artifact sweep below).
-      actions: write
     concurrency:
       group: reports-cleanup
       cancel-in-progress: false
@@ -107,11 +105,6 @@ jobs:
           environment: ${{ matrix.env }}
       - name: Remove unused branches and stale reports
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/harness-ts/scripts/report-cleanup.ts --apply --branches
-      # Keeps artifact storage far below the quota whose exhaustion stops
-      # every Verify run (libs/tools-harness-ts/scripts/artifact-sweep.ts).
-      - name: Sweep old artifacts
-        if: always() && !cancelled()
-        run: bun run libs/tools-harness-ts/scripts/artifact-sweep.ts --apply
 
   health-matrix:
     name: health:matrix
@@ -195,13 +188,9 @@ jobs:
       # save a screenshot, the page HTML and the browser console per failure.
       - name: Upload critical journey evidence
         if: failure()
-        uses: actions/upload-artifact@v6
-        with:
-          name: critical-journeys-${{ github.run_id }}-${{ matrix.env }}
-          path: apps/product-ts/.cache/critical-journeys/
-          if-no-files-found: ignore
-          include-hidden-files: true
-          retention-days: 7
+        run: >-
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload critical-journeys-${{ github.run_id }}-${{ matrix.env }}
+          apps/product-ts/.cache/critical-journeys
 
   # One job for every env, not a matrix. Runs after the checks (whatever
   # their result) so this run's checks count too.

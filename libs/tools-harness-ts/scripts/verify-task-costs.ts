@@ -10,7 +10,11 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { downloadRunArtifacts } from './workflow-artifacts';
+import {
+  ciArtifactsStore,
+  downloadArtifact,
+  listArtifacts,
+} from './ci-artifacts';
 export const TASK_COSTS_PATH = join(
   import.meta.dirname,
   'verify-task-costs.json'
@@ -170,10 +174,24 @@ function jsonFiles(dir: string): string[] {
 }
 
 /** The execution and publication summaries a Verify run uploaded. */
-function downloadRunSummaries(runId: string): string[] {
+async function downloadRunSummaries(runId: string): Promise<string[]> {
   const dir = mkdtempSync(join(tmpdir(), 'verify-costs-'));
   try {
-    downloadRunArtifacts(runId, 'verify-ci-details', dir);
+    const store = ciArtifactsStore(process.env);
+    const names = await listArtifacts({
+      store,
+      runId,
+      prefix: 'verify-ci-details',
+    });
+    if (!names.length)
+      throw new Error(`No verify-ci-details CI artifact in run ${runId}`);
+    for (const name of names)
+      await downloadArtifact({
+        store,
+        runId,
+        name,
+        directory: join(dir, name),
+      });
     return jsonFiles(dir)
       .filter((path) => /shard-\d+\.json$/.test(path))
       .map((path) => readFileSync(path, 'utf8'));
@@ -186,13 +204,13 @@ if (import.meta.main) {
   const [flag, ...rest] = process.argv.slice(2);
   let summaries: string[];
   if (flag === '--harvest' && rest.length === 1) {
-    summaries = downloadRunSummaries(rest[0] as string);
+    summaries = await downloadRunSummaries(rest[0] as string);
   } else if (flag === '--write-costs' && rest.length > 0) {
     summaries = rest.map((path) => readFileSync(path, 'utf8'));
   } else {
     console.error(
       [
-        'usage: bun run libs/tools-harness-ts/scripts/verify-task-costs.ts --harvest <Verify run id>',
+        'usage: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/verify-task-costs.ts --harvest <Verify run id>',
         '       bun run libs/tools-harness-ts/scripts/verify-task-costs.ts --write-costs <turbo run summary.json>…',
       ].join('\n')
     );

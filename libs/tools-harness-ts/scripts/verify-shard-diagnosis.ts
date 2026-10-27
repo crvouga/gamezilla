@@ -190,7 +190,7 @@ function advice(kind: DiagnosisKind, facts: ShardFacts): string[] {
         '(push a commit, or close and reopen the pull request) gives this work',
         'fewer tasks, so it usually passes on the second run.',
         'If it keeps timing out, the planner has stale cost estimates for these tasks:',
-        '  bun run libs/tools-harness-ts/scripts/verify-task-costs.ts --harvest <run id>',
+        '  bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/verify-task-costs.ts --harvest <run id>',
         slowest
           ? `Slowest finished here: ${slowest.taskId} (${fmt(slowest.seconds)}).`
           : 'Nothing finished in this shard before the deadline.',
