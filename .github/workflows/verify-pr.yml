@@ -111,9 +111,12 @@ env:
   GH_EVENT: ${{ github.event_name }}
   PR_BASE: ${{ github.event.pull_request.base.sha }}
   PR_HEAD: ${{ github.event.pull_request.head.sha }}
-  # Forty runners left a cold corpus — every cache missed — packed past the
-  # 1200s shard deadline once each solver had a runner of its own
-  # (Verify run 38328597240). Sixty-four keeps that pack inside the deadline.
+  # A cap, not the count: the plan packs the uncached work into shards of
+  # about three minutes each, never more than the online runners for the start
+  # job's OS and arch (libs/tools-harness-ts/scripts/verify-runners.ts).
+  # Forty left a cold corpus — every cache missed — packed past the 1200s
+  # shard deadline once each solver had a runner of its own (Verify run
+  # 38328597240); sixty-four keeps that pack inside the deadline.
   VERIFY_SHARDS: ${{ inputs.shards || vars.VERIFY_SHARDS || '64' }}
   VERIFY_CONCURRENCY: ${{ inputs.concurrency || vars.VERIFY_CONCURRENCY || '1' }}
   VERIFY_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}

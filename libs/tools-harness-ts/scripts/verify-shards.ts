@@ -111,19 +111,39 @@ function preferredWidth(
   return Math.max(1, solvers + own + Math.ceil(packed / targetSeconds));
 }
 
+/** The runners that can take a plan's shards, and how full one shard may get. */
+export type ShardCapacity = {
+  readonly runners: number;
+  /** Seconds of estimated work a shard may hold and still finish inside its deadline. */
+  readonly fillSeconds: number;
+};
+
 /**
  * Spread uncached solver groups, then LPT; ties use stable discovery order.
  * `targetSeconds` narrows the plan to the shards its uncached work needs
- * ({@link shardWidth}). Proofs retain dedicated runners when that preferred
- * layout fits the cap; otherwise all allocated runners share the work.
+ * ({@link shardWidth}), and `capacity` to the runners that can take them: a
+ * shard beyond them would only queue and pay its checkout and install again.
+ * Too few runners never pack a shard past `fillSeconds`; the extra shards
+ * queue instead. Shard indices stay `0..count-1`, so the prerequisite and
+ * consumer stages keep theirs. Proofs retain dedicated runners when that
+ * preferred layout fits the cap; otherwise all allocated runners share the
+ * work.
  */
 export function balanceShards(
   tasks: readonly VerifyTask[],
   count: number,
-  targetSeconds?: number
+  targetSeconds?: number,
+  capacity?: ShardCapacity
 ): VerifyPlan {
   if (!Number.isSafeInteger(count) || count < 1 || count > 64)
     throw new Error('VERIFY_SHARDS must be an integer in 1..64');
+  if (
+    capacity !== undefined &&
+    (!Number.isSafeInteger(capacity.runners) ||
+      capacity.runners < 1 ||
+      !(capacity.fillSeconds > 0))
+  )
+    throw new Error('Shard capacity needs positive runners and fill seconds');
   const every = Array.from({ length: count }, (_, index) => ({
     index,
     stage: 'verifications' as const,
@@ -135,12 +155,22 @@ export function balanceShards(
   const ordered = groups(
     [...stages.verifications].sort((a, b) => compare(a.taskId, b.taskId))
   ).sort((a, b) => cost(b) - cost(a) || compare(a[0]!.taskId, b[0]!.taskId));
-  const bins = every.slice(0, shardWidth(ordered, count, targetSeconds));
+  const cap =
+    capacity === undefined
+      ? count
+      : Math.min(
+          count,
+          Math.max(
+            capacity.runners,
+            preferredWidth(ordered, capacity.fillSeconds)
+          )
+        );
+  const bins = every.slice(0, shardWidth(ordered, cap, targetSeconds));
   // Reserve proof runners only when the preferred layout fits. At the cap,
   // unused proof capacity must not force all other work onto too few runners.
   const isolate =
     targetSeconds !== undefined &&
-    preferredWidth(ordered, targetSeconds) <= count;
+    preferredWidth(ordered, targetSeconds) <= cap;
   const placement =
     targetSeconds !== undefined
       ? [

@@ -15,10 +15,12 @@ import {
   resolveRemoteHits,
   wallRemoteHas,
 } from './turbo-preflight';
+import { resolveRunDeadlineSeconds } from './verify-budget';
 import { cacheDiagnostics } from './verify-cache-diagnostics';
 import { startedFirst, writeSchedule } from './verify-plan-schedule';
 import { profileManifest } from './verify-profile';
-import type { VerifyTask } from './verify-shards';
+import { availableRunners } from './verify-runners';
+import type { ShardCapacity, VerifyTask } from './verify-shards';
 import { balanceShards, planWarnings } from './verify-shards';
 import { readScheduleCosts } from './verify-task-costs';
 import { estimateScheduledTask, shardSummary } from './verify-task-estimates';
@@ -41,6 +43,29 @@ function shardTargetSeconds(env: NodeJS.ProcessEnv): number {
     SHARD_TARGET_SECONDS *
     (Number.isSafeInteger(slots) && slots > 0 ? slots : 1)
   );
+}
+
+/**
+ * Share of a shard's deadline its estimated work may fill: estimates miss,
+ * and a shard past its deadline fails the run.
+ */
+const DEADLINE_FILL = 0.6;
+
+function shardCapacity(env: NodeJS.ProcessEnv): ShardCapacity | undefined {
+  const runners = availableRunners(env);
+  if (runners === undefined) return undefined;
+  const deadline = resolveRunDeadlineSeconds(env, {
+    isDeploy: false,
+    slowRunner: true,
+  });
+  const slots = Number(env['VERIFY_CONCURRENCY'] ?? '1');
+  return {
+    runners,
+    fillSeconds:
+      deadline *
+      DEADLINE_FILL *
+      (Number.isSafeInteger(slots) && slots > 0 ? slots : 1),
+  };
 }
 
 export async function createVerifyPlan(): Promise<void> {
@@ -91,7 +116,8 @@ export async function createVerifyPlan(): Promise<void> {
     balanceShards(
       tasks,
       Number(env['VERIFY_SHARDS'] ?? '16'),
-      shardTargetSeconds(env)
+      shardTargetSeconds(env),
+      shardCapacity(env)
     )
   );
   mkdirSync(DIRECTORY, { recursive: true });

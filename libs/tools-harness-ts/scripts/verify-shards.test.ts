@@ -696,3 +696,71 @@ test('a task whose script exited non-zero is over, not "running" until its budge
     '@libs/tools-harness-ts#ci:x',
   ]);
 });
+
+test('a plan never starts more shards than the runners that can take them, and loses no task', () => {
+  assertProperty(
+    'verify-runner-cap',
+    fc.property(
+      fc.array(fc.integer({ min: 1, max: 600 }), {
+        minLength: 1,
+        maxLength: 80,
+      }),
+      fc.integer({ min: 1, max: 64 }),
+      fc.integer({ min: 1, max: 64 }),
+      (seconds, count, runners) => {
+        const tasks = seconds.map((s, i) => task(`pkg-${i}#test`, s));
+        const plan = balanceShards(tasks, count, 180, {
+          runners,
+          fillSeconds: 720,
+        });
+        const started = plan.shards.filter(
+          (shard) => shard.stage === 'verifications' && shard.tasks.length > 0
+        );
+        // More shards than runners only when the runners cannot hold the
+        // work inside a shard's deadline.
+        if (started.length > Math.min(count, runners))
+          expect(
+            balanceShards(tasks, count, 720).shards.filter(
+              (shard) =>
+                shard.stage === 'verifications' && shard.tasks.length > 0
+            ).length
+          ).toBeGreaterThan(runners);
+        expect(
+          plan.shards
+            .filter((shard) => shard.stage === 'verifications')
+            .flatMap((shard) => shard.tasks.map((t) => t.taskId))
+            .sort()
+        ).toEqual(tasks.map((t) => t.taskId).sort());
+        // The prerequisite stage keeps index `count`, which the workflow names.
+        expect(
+          plan.shards.find((shard) => shard.stage === 'prerequisites')?.index
+        ).toBe(count);
+      }
+    )
+  );
+});
+
+const startedShards = (plan: ReturnType<typeof balanceShards>) =>
+  plan.shards.filter(
+    (shard) => shard.stage === 'verifications' && shard.tasks.length > 0
+  );
+
+test('four runners take a corpus that fits their deadline in four shards instead of sixty-four', () => {
+  const tasks = Array.from({ length: 24 }, (_, i) => task(`pkg-${i}#test`, 90));
+  const started = startedShards(
+    balanceShards(tasks, 64, 180, { runners: 4, fillSeconds: 720 })
+  );
+  expect(started).toHaveLength(4);
+  expect(Math.max(...started.map((s) => s.seconds))).toBe(540);
+});
+
+test('too few runners queue extra shards rather than overfill one past its deadline', () => {
+  const tasks = Array.from({ length: 200 }, (_, i) =>
+    task(`pkg-${i}#test`, 90)
+  );
+  const started = startedShards(
+    balanceShards(tasks, 64, 180, { runners: 4, fillSeconds: 720 })
+  );
+  expect(started).toHaveLength(25);
+  expect(Math.max(...started.map((s) => s.seconds))).toBeLessThanOrEqual(720);
+});
