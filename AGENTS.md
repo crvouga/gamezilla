@@ -261,7 +261,10 @@ super.engineering's app project settings.
   then `bun verify` for the local full gate.
   `bun run git-sync` (`/git-sync`) is the one commit/push/trunk-sync step.
   PR bodies follow `.github/PULL_REQUEST_TEMPLATE.md`. `/pr-ready` drives a PR
-  to Ready to merge; `/ci-green` drives Verify, Deploy and Health green.
+  to Ready to merge; `/ci-workflows-green` drives Verify, Deploy and Health
+  green; the [`ci-green`](.agents/skills/ci-green/SKILL.md) skill runs the
+  full pull-request suite locally and fixes every failure on the current
+  branch.
 - **Agent commands.** `.agents/commands/<name>.md` (with `description:`
   frontmatter) is the only source of a slash command; `bun run agents:sync`
   projects it into every harness (`.claude/commands`, `.cursor/commands`,

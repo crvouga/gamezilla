@@ -1,0 +1,673 @@
+#!/usr/bin/env python3
+"""Run checks from `.ci-green/checks.json` the way CI runs them, inside the
+shared resource budget.
+
+For each check: verify the toolchain matches CI's pins (a different major
+version stops the run), start its services once, take a budget slot, run
+its steps at lowered priority with CI's environment, capture the log to
+`.ci-green/logs/<id>/`, record the result in `.ci-green/results/<id>.json`,
+and release the slot, also on Ctrl-C.
+
+Usage:
+  run-check ID [ID ...]            run these checks (in manifest order)
+  run-check --all                  every pull-request check that can run locally
+  run-check --phase lint,typecheck every pull-request check in these phases
+  run-check ID --repeat 20         run one check repeatedly (flakiness); --until-fail stops at the first failure
+  run-check --adhoc NAME --cmd "pytest tests/x.py -k y" [--cwd DIR] [--weight light]
+                                   a narrower reproduction, under the same budget and logging
+  run-check --list                 the checks and their last results
+  run-check --services             services ci-green started; --stop-services stops them
+
+Options: --skip-setup (skip dependency-install steps), --ignore-needs,
+--allow-toolchain-mismatch (records it; never silent), --wait SECONDS for a
+slot, --quiet (no streaming; print the summary only).
+
+Exit status: 0 all passed; 1 a check failed; 3 toolchain mismatch;
+4 not runnable locally; 75 no budget slot within --wait; 2 usage error.
+"""
+
+import argparse
+import hashlib
+import json
+import os
+import platform
+import re
+import shlex
+import shutil
+import signal
+import socket
+import subprocess
+import sys
+import tempfile
+import threading
+import time
+
+sys.dont_write_bytecode = True
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), "lib"))
+
+import budget
+import common
+import signatures
+
+VERSION_COMMANDS = {
+    "node": ["node", "--version"], "bun": ["bun", "--version"], "deno": ["deno", "--version"],
+    "python": ["python3", "--version"], "go": ["go", "version"], "rust": ["rustc", "--version"],
+    "java": ["java", "-version"], "ruby": ["ruby", "--version"], "dotnet": ["dotnet", "--version"],
+    "pnpm": ["pnpm", "--version"], "yarn": ["yarn", "--version"], "npm": ["npm", "--version"],
+    "terraform": ["terraform", "version"], "opentofu": ["tofu", "version"], "swift": ["swift", "--version"],
+    "php": ["php", "--version"], "uv": ["uv", "--version"], "elixir": ["elixir", "--version"],
+    "gradle": ["gradle", "--version"], "flutter": ["flutter", "--version"],
+}
+OUTPUT_LOCK = threading.Lock()
+ACTIVE = {}  # token -> Popen, so a signal can stop everything and free the slots
+
+
+def say(message):
+    with OUTPUT_LOCK:
+        sys.stderr.write(message + "\n")
+        sys.stderr.flush()
+
+
+# -- manifest --------------------------------------------------------------
+def load_manifest(root):
+    path = os.path.join(common.state_dir(root), "checks.json")
+    manifest = common.read_json(path)
+    if not manifest:
+        common.die("no manifest at %s; run discover-checks first" % os.path.relpath(path, root))
+    return manifest
+
+
+def tree_state(root):
+    head = common.git(["rev-parse", "HEAD"], cwd=root) or ""
+    status = common.git(["status", "--porcelain", "--untracked-files=normal"], cwd=root) or ""
+    diff = common.git(["diff", "HEAD"], cwd=root) or ""
+    digest = hashlib.sha1((status + "\n" + diff).encode("utf-8", "replace")).hexdigest()[:12]
+    return {"head": head, "dirty": bool(status.strip()), "tree_digest": digest}
+
+
+# -- toolchain -------------------------------------------------------------
+def exec_prefix(manifest):
+    mgr = (manifest.get("toolchain") or {}).get("manager") or {}
+    if mgr.get("available") and mgr.get("exec_prefix") and common.which(mgr["exec_prefix"][0]):
+        return list(mgr["exec_prefix"])
+    return []
+
+
+def verify_toolchain(check, prefix, root, allow_mismatch):
+    found, problems, warnings = {}, [], []
+    for tool, entry in sorted((check.get("toolchain") or {}).items()):
+        if not entry.get("verify") or tool not in VERSION_COMMANDS:
+            continue
+        cmd = VERSION_COMMANDS[tool]
+        code, out, err = common.run(prefix + cmd, cwd=root, timeout=60)
+        text = (out + "\n" + err).strip()
+        if code != 0 and tool == "python":
+            code, out, err = common.run(prefix + ["python", "--version"], cwd=root, timeout=60)
+            text = (out + "\n" + err).strip()
+        if code != 0:
+            first = next((l for l in signatures.strip_ansi(text).splitlines() if l.strip()), "not found")
+            problems.append("%s is not available (CI uses %s from %s): %s" % (tool, entry["version"], entry["source"], first.strip()[:200]))
+            continue
+        version = common.parse_version(text)
+        version_text = ".".join(str(v) for v in version) if version else text[:40]
+        found[tool] = version_text
+        ok, level = common.version_matches(entry["version"], version_text, tool)
+        if not ok:
+            problems.append("%s %s here, CI uses %s (%s)" % (tool, version_text, entry["version"], entry["source"]))
+        elif level in ("minor", "patch"):
+            warnings.append("%s %s here, CI pins %s (%s difference)" % (tool, version_text, entry["version"], level))
+    if problems and allow_mismatch:
+        warnings.extend("ALLOWED MISMATCH: " + p for p in problems)
+        return found, [], warnings
+    return found, problems, warnings
+
+
+# -- services --------------------------------------------------------------
+def container_name(root, service):
+    base = common.slug(os.path.basename(common.primary_root(root)))
+    return "ci-green-%s-%s" % (base, common.slug(service["name"]))
+
+
+def port_open(port, host="127.0.0.1"):
+    try:
+        with socket.create_connection((host, int(port)), timeout=1):
+            return True
+    except (OSError, ValueError):
+        return False
+
+
+def ensure_services(check, root):
+    """Start each service once (shared across agents and worktrees); return problems."""
+    problems = []
+    for service in check.get("services") or []:
+        name = container_name(root, service)
+        with budget.Ledger(root, "services") as ledger:
+            data = ledger.load()
+            record = data["services"].get(name)
+            running = False
+            if record:
+                code, out, _ = common.run(["docker", "inspect", "-f", "{{.State.Running}}", name], timeout=20)
+                running = code == 0 and out.strip() == "true"
+            if running:
+                continue
+            if not common.which("docker"):
+                problems.append("service %s needs docker, which is not installed" % service["name"])
+                continue
+            host_ports = [p.split(":")[0] for p in service.get("ports") or []]
+            busy = [p for p in host_ports if port_open(p)]
+            if busy:
+                problems.append("service %s: port %s is already in use by another process; ci-green will not start a second copy. Stop it or point the check at it." % (service["name"], ", ".join(busy)))
+                continue
+            if any("${{" in v for v in (service.get("env") or {}).values()):
+                problems.append("service %s needs values only CI has (%s)" % (service["name"], ", ".join(k for k, v in service["env"].items() if "${{" in v)))
+                continue
+            cmd = ["docker", "run", "-d", "--rm", "--name", name]
+            for port in service.get("ports") or []:
+                cmd += ["-p", port]
+            for key, value in (service.get("env") or {}).items():
+                cmd += ["-e", "%s=%s" % (key, value)]
+            cmd.append(service["image"])
+            common.run(["docker", "rm", "-f", name], timeout=30)
+            code, out, err = common.run(cmd, timeout=600)
+            if code != 0:
+                problems.append("service %s failed to start: %s" % (service["name"], (err or out).strip()[-300:]))
+                continue
+            data["services"][name] = {"service": service["name"], "image": service["image"], "container": name,
+                                      "ports": service.get("ports") or [], "started_at": time.time(), "worktree": root}
+            ledger.save(data)
+        say("service %s started (%s)" % (service["name"], name))
+        deadline = time.time() + 90
+        for port in [p.split(":")[0] for p in service.get("ports") or []]:
+            while not port_open(port) and time.time() < deadline:
+                time.sleep(1)
+            if not port_open(port):
+                problems.append("service %s did not open port %s within 90s" % (service["name"], port))
+    return problems
+
+
+def stop_services(root):
+    with budget.Ledger(root, "services") as ledger:
+        data = ledger.load()
+        for name in list(data["services"]):
+            code, _, err = common.run(["docker", "rm", "-f", name], timeout=60)
+            say("stopped %s" % name if code == 0 else "could not stop %s: %s" % (name, err.strip()))
+            del data["services"][name]
+        ledger.save(data)
+
+
+# -- step execution --------------------------------------------------------
+def shell_command(shell, script, tmpdir):
+    shell = (shell or "bash").strip()
+    if "{0}" in shell:
+        path = os.path.join(tmpdir, "step.sh")
+        with open(path, "w") as handle:
+            handle.write(script)
+        return shlex.split(shell.replace("{0}", path))
+    if shell == "bash":
+        if common.which("bash"):
+            return ["bash", "--noprofile", "--norc", "-eo", "pipefail", "-c", script]
+        return ["sh", "-e", "-c", script]
+    if shell == "sh":
+        return ["sh", "-e", "-c", script]
+    if shell in ("pwsh", "powershell"):
+        return ["pwsh", "-NoProfile", "-NonInteractive", "-Command", script]
+    if shell == "python":
+        return ["python3", "-c", script]
+    if shell == "cmd":
+        return None
+    return shlex.split(shell) + ["-c", script]
+
+
+def read_env_file(path):
+    """GitHub's $GITHUB_ENV format: KEY=value lines and KEY<<DELIM blocks."""
+    out = {}
+    text = common.read_text(path) or ""
+    lines = text.splitlines()
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        m = re.match(r"^([^=<]+)<<(.+)$", line)
+        if m:
+            key, delim = m.group(1), m.group(2)
+            body = []
+            i += 1
+            while i < len(lines) and lines[i] != delim:
+                body.append(lines[i])
+                i += 1
+            out[key] = "\n".join(body)
+        elif "=" in line:
+            key, value = line.split("=", 1)
+            out[key] = value
+        i += 1
+    return out
+
+
+def priority_prefix(nice):
+    prefix = []
+    if common.which("nice"):
+        prefix += ["nice", "-n", str(nice)]
+    if platform.system() == "Linux" and common.which("ionice"):
+        prefix += ["ionice", "-c", "2", "-n", "7"]
+    return prefix
+
+
+def run_process(cmd, cwd, env, log, stream, timeout):
+    """Run cmd, tee output to log (and the terminal when streaming).
+    Returns (exit_code, rusage or None, timed_out)."""
+    try:
+        proc = subprocess.Popen(cmd, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                stdin=subprocess.DEVNULL, start_new_session=True)
+    except OSError as exc:
+        log.write("ci-green: cannot start %s: %s\n" % (cmd[0], exc))
+        return 127, None, False
+    token = "p%d" % proc.pid
+    ACTIVE[token] = proc
+    timed_out = [False]
+    timer = None
+    if timeout:
+        def kill():
+            timed_out[0] = True
+            try:
+                os.killpg(proc.pid, signal.SIGTERM)
+                time.sleep(5)
+                os.killpg(proc.pid, signal.SIGKILL)
+            except OSError:
+                pass
+        timer = threading.Timer(timeout, kill)
+        timer.daemon = True
+        timer.start()
+    for raw in iter(proc.stdout.readline, b""):
+        text = raw.decode("utf-8", "replace")
+        log.write(text)
+        if stream:
+            with OUTPUT_LOCK:
+                sys.stdout.write(text)
+                sys.stdout.flush()
+    proc.stdout.close()
+    usage = None
+    try:
+        _, status, usage = os.wait4(proc.pid, 0)
+        code = os.waitstatus_to_exitcode(status) if hasattr(os, "waitstatus_to_exitcode") else (
+            -(status & 0x7f) if status & 0x7f else (status >> 8) & 0xff)
+        proc.returncode = code
+    except ChildProcessError:
+        code = proc.wait()
+    if timer:
+        timer.cancel()
+    ACTIVE.pop(token, None)
+    return code, usage, timed_out[0]
+
+
+def run_steps(check, root, manifest, args, log, stream):
+    """Execute the check's steps; return (status, exit_code, failed_step, step_results, usage_totals)."""
+    plan = budget.compute(budget.measure(root))
+    prefix = priority_prefix(plan["nice"]) + exec_prefix(manifest)
+    tmpdir = tempfile.mkdtemp(prefix="ci-green-")
+    files = {k: os.path.join(tmpdir, k.lower()) for k in ("GITHUB_ENV", "GITHUB_PATH", "GITHUB_OUTPUT", "GITHUB_STEP_SUMMARY")}
+    for path in files.values():
+        open(path, "w").close()
+    env = dict(os.environ)
+    env.update({"CI": "true", "CI_GREEN": "1", "CI_GREEN_CHECK": check["id"], "GITHUB_WORKSPACE": root,
+                "RUNNER_TEMP": tmpdir, "RUNNER_OS": {"Darwin": "macOS"}.get(platform.system(), platform.system())})
+    env.update(files)
+    dropped = []
+    for key, value in (check.get("env") or {}).items():
+        if isinstance(value, bool):
+            value = "true" if value else "false"
+        value = "" if value is None else (json.dumps(value) if isinstance(value, (dict, list)) else str(value))
+        if "${{" in value:
+            dropped.append(key)
+            continue
+        env[key] = value
+    if dropped:
+        log.write("ci-green: not set (only CI knows them): %s\n" % ", ".join(dropped))
+    extra_path = []
+    results = []
+    totals = {"cpu_s": 0.0, "max_rss_mb": 0.0}
+    timeout = None
+    if check.get("timeout_minutes"):
+        timeout = float(check["timeout_minutes"]) * 60
+    deadline = time.time() + timeout if timeout else None
+    for idx, step in enumerate(check.get("steps") or []):
+        name = step.get("name") or "step %d" % (idx + 1)
+        local = step.get("local")
+        if local != "run" or not step.get("run"):
+            results.append({"name": name, "status": "skipped" if local == "skip" else local or "skipped", "note": step.get("note")})
+            continue
+        if step.get("kind") == "system-setup":
+            results.append({"name": name, "status": "skipped", "note": step.get("note")})
+            continue
+        if args.skip_setup and step.get("kind") == "setup":
+            results.append({"name": name, "status": "skipped", "note": "--skip-setup"})
+            continue
+        if step.get("unresolved"):
+            results.append({"name": name, "status": "ci-only", "note": "needs values only CI has: %s" % ", ".join(step["unresolved"])})
+            continue
+        step_env = dict(env)
+        for key, value in (step.get("env") or {}).items():
+            value = "" if value is None else str(value)
+            if "${{" not in value:
+                step_env[key] = value
+        if extra_path:
+            step_env["PATH"] = os.pathsep.join(extra_path + [step_env.get("PATH", "")])
+        cwd = os.path.normpath(os.path.join(root, step.get("cwd") or "."))
+        cmd = shell_command(step.get("shell"), step["run"], tmpdir)
+        if cmd is None:
+            results.append({"name": name, "status": "ci-only", "note": "cmd.exe shell"})
+            continue
+        log.write("\n### ci-green step %d: %s\n### cwd: %s\n%s\n###\n" % (idx + 1, name, os.path.relpath(cwd, root), step["run"]))
+        if stream:
+            say("[%s] step: %s" % (check["id"], name))
+        remaining = None if deadline is None else max(1, deadline - time.time())
+        started = time.time()
+        code, usage, timed_out = run_process(prefix + cmd, cwd, step_env, log, stream, remaining)
+        elapsed = time.time() - started
+        if usage is not None:
+            totals["cpu_s"] += usage.ru_utime + usage.ru_stime
+            rss = usage.ru_maxrss / (1024.0 * 1024.0) if platform.system() == "Darwin" else usage.ru_maxrss / 1024.0
+            totals["max_rss_mb"] = max(totals["max_rss_mb"], rss)
+        for key, value in read_env_file(files["GITHUB_ENV"]).items():
+            env[key] = value
+        for line in (common.read_text(files["GITHUB_PATH"]) or "").splitlines():
+            if line.strip() and line.strip() not in extra_path:
+                extra_path.insert(0, line.strip())
+        status = "pass" if code == 0 else ("timeout" if timed_out else "fail")
+        results.append({"name": name, "status": status, "exit_code": code, "duration_s": round(elapsed, 1)})
+        if code != 0 and not step.get("continue_on_error"):
+            shutil.rmtree(tmpdir, ignore_errors=True)
+            return ("timeout" if timed_out else "fail"), code, name, results, totals
+    shutil.rmtree(tmpdir, ignore_errors=True)
+    return "pass", 0, None, results, totals
+
+
+# -- one check -------------------------------------------------------------
+def run_one(check, root, manifest, args, stream, slot=None, attempt=None):
+    """Run one check. A slot passed in (by the scheduler) is always released."""
+    try:
+        return _run_one(check, root, manifest, args, stream, slot, attempt)
+    finally:
+        if slot is not None:
+            budget.release(slot["token"], root)
+
+
+def _run_one(check, root, manifest, args, stream, slot, attempt):
+    state = common.state_dir(root)
+    stamp = time.strftime("%Y%m%dT%H%M%S", time.gmtime())
+    log_dir = os.path.join(state, "logs", check["id"])
+    os.makedirs(log_dir, exist_ok=True)
+    log_path = os.path.join(log_dir, "%s%s.log" % (stamp, "-r%d" % attempt if attempt else ""))
+    result = {
+        "id": check["id"], "name": check["name"], "status": None, "exit_code": None,
+        "started_at": common.now_iso(), "log": os.path.relpath(log_path, root),
+        "tree": tree_state(root), "toolchain": {}, "warnings": [], "skipped_steps": [],
+    }
+    local = check.get("local") or {}
+    if check.get("covered_by"):
+        result.update(status="covered", reasons=["runs locally as part of %s" % check["covered_by"]], log=None)
+        return finish(result, root, None)
+    if local.get("runnable") == "no" and not check.get("adhoc"):
+        result.update(status="not-runnable", reasons=local.get("blocked_by"), log=None)
+        return finish(result, root, None)
+    prefix = exec_prefix(manifest)
+    found, problems, warnings = verify_toolchain(check, prefix, root, args.allow_toolchain_mismatch)
+    result["toolchain"] = found
+    result["warnings"].extend(warnings)
+    if problems:
+        result.update(status="toolchain-mismatch", reasons=problems, log=None)
+        return finish(result, root, None)
+    service_problems = [] if args.no_services else ensure_services(check, root)
+    if service_problems:
+        result.update(status="not-runnable", reasons=service_problems, log=None)
+        return finish(result, root, None)
+    own_slot = None
+    if slot is None:
+        own_slot = budget.acquire("check", check["id"], weight=check.get("weight") or "medium", wait=args.wait,
+                                  label=check["name"], root=root, log=say)
+        if own_slot is None:
+            result.update(status="no-slot", reasons=["no budget slot within %ss" % args.wait], log=None)
+            return finish(result, root, None)
+    held_slot = slot or own_slot
+    started = time.time()
+    try:
+        with open(log_path, "w", encoding="utf-8") as log:
+            log.write("# ci-green run-check %s (%s)\n# started %s, slot %s (%s)\n# toolchain %s\n" % (
+                check["id"], check["name"], result["started_at"], held_slot["token"], held_slot["weight"], json.dumps(found)))
+            for warning in warnings:
+                log.write("# warning: %s\n" % warning)
+            status, code, failed, steps, totals = run_steps(check, root, manifest, args, log, stream)
+    finally:
+        if own_slot is not None:
+            budget.release(own_slot["token"], root)
+    duration = time.time() - started
+    cpu_avg = totals["cpu_s"] / duration if duration > 0 else 0.0
+    result.update(status=status, exit_code=code, failed_step=failed, duration_s=round(duration, 1), steps=steps,
+                  observed={"cpu_avg": round(cpu_avg, 2), "max_rss_mb": round(totals["max_rss_mb"]),
+                            "weight": common.observed_weight(cpu_avg, totals["max_rss_mb"])})
+    result["skipped_steps"] = [s for s in steps if s["status"] in ("skipped", "ci-only")]
+    if status != "pass":
+        text = common.read_text(log_path) or ""
+        result["signatures"] = signatures.extract(text, limit=25)
+        result["tail"] = signatures.tail(text, 40)
+    return finish(result, root, log_path)
+
+
+def finish(result, root, log_path):
+    result["finished_at"] = common.now_iso()
+    results_dir = os.path.join(common.state_dir(root), "results")
+    os.makedirs(results_dir, exist_ok=True)
+    common.write_json(os.path.join(results_dir, result["id"] + ".json"), result)
+    with open(os.path.join(results_dir, "history.jsonl"), "a") as handle:
+        handle.write(json.dumps({k: result.get(k) for k in ("id", "status", "exit_code", "duration_s", "finished_at", "log", "tree")}) + "\n")
+    return result
+
+
+def summary_line(result):
+    extra = ""
+    if result.get("failed_step"):
+        extra = " at step %r" % result["failed_step"]
+    if result.get("reasons"):
+        extra = ": " + "; ".join(result["reasons"])
+    duration = " in %ss" % result["duration_s"] if result.get("duration_s") is not None else ""
+    return "%-18s %s%s%s  (log: %s)" % (result["status"].upper(), result["id"], duration, extra, result.get("log"))
+
+
+EXIT = {"covered": 0, "pass": 0, "fail": 1, "timeout": 1, "toolchain-mismatch": 3, "not-runnable": 4, "no-slot": 75, "skipped-dependency": 1}
+
+
+# -- many checks -----------------------------------------------------------
+def run_many(checks, root, manifest, args):
+    stream = len(checks) == 1 and not args.quiet
+    by_id = {c["id"]: c for c in checks}
+    results = {}
+    pending = list(checks)
+    threads = []
+    lock = threading.Lock()
+
+    def worker(check, slot):
+        res = run_one(check, root, manifest, args, False, slot=slot)
+        with lock:
+            results[check["id"]] = res
+        say(summary_line(res))
+
+    if stream:
+        res = run_one(checks[0], root, manifest, args, True)
+        say(summary_line(res))
+        return [res]
+    while pending:
+        progressed = False
+        for check in list(pending):
+            needs = [n for n in check.get("needs") or [] if n in by_id]
+            with lock:
+                failed = [n for n in needs if n in results and results[n]["status"] != "pass"]
+                waiting = [n for n in needs if n not in results]
+            if failed and not args.ignore_needs:
+                res = finish({"id": check["id"], "name": check["name"], "status": "skipped-dependency",
+                              "reasons": ["needs %s, which did not pass" % ", ".join(failed)], "log": None,
+                              "tree": tree_state(root)}, root, None)
+                with lock:
+                    results[check["id"]] = res
+                say(summary_line(res))
+                pending.remove(check)
+                progressed = True
+                continue
+            if waiting and not args.ignore_needs:
+                continue
+            local = check.get("local") or {}
+            if local.get("runnable") == "no":
+                t = threading.Thread(target=worker, args=(check, None))
+            else:
+                slot = budget.acquire("check", check["id"], weight=check.get("weight") or "medium", wait=0,
+                                      label=check["name"], root=root)
+                if slot is None:
+                    break  # keep manifest order: wait for capacity before starting later checks
+                say("start  %s [%s, %s]" % (check["id"], check.get("phase"), check.get("weight")))
+                t = threading.Thread(target=worker, args=(check, slot))
+            t.daemon = True
+            t.start()
+            threads.append(t)
+            pending.remove(check)
+            progressed = True
+            break
+        if not progressed:
+            time.sleep(2)
+    for t in threads:
+        t.join()
+    return [results[c["id"]] for c in checks if c["id"] in results]
+
+
+# -- entry -----------------------------------------------------------------
+def select(manifest, args):
+    checks = manifest["checks"]
+    if args.adhoc:
+        if not args.cmd:
+            common.die("--adhoc needs --cmd")
+        check = common.new_check("adhoc", "adhoc." + common.slug(args.adhoc), args.adhoc, "run-check --adhoc", None)
+        check["steps"] = [common.step(args.adhoc, args.cmd, cwd=args.cwd or ".")]
+        check["weight"] = args.weight or "medium"
+        check["adhoc"] = True
+        base = next((c for c in checks if c["id"] == args.like), None) if args.like else None
+        if base:
+            check["env"] = base.get("env") or {}
+            check["toolchain"] = base.get("toolchain") or {}
+            check["services"] = base.get("services") or []
+        else:
+            pins = (manifest.get("toolchain") or {}).get("pins") or {}
+            check["toolchain"] = {tool: {"version": version, "source": "the repo's pins", "verify": tool in VERSION_COMMANDS}
+                                  for tool, version in pins.items()}
+        check["local"] = {"runnable": "yes", "blocked_by": [], "limited_by": []}
+        return [check]
+    if args.ids:
+        by_id = {c["id"]: c for c in checks}
+        missing = [i for i in args.ids if i not in by_id]
+        if missing:
+            common.die("unknown check id(s): %s (see run-check --list)" % ", ".join(missing))
+        chosen = [by_id[i] for i in args.ids]
+    elif args.all or args.phase:
+        phases = set(args.phase.split(",")) if args.phase else None
+        chosen = [c for c in checks if c["in_pr"] and (phases is None or c.get("phase") in phases)]
+        chosen = [c for c in chosen if c.get("triggered_by_diff") is not False]
+        covered = [c for c in chosen if c.get("covered_by")]
+        for c in covered:
+            say("covered  %s: runs locally as part of %s" % (c["id"], c["covered_by"]))
+        chosen = [c for c in chosen if not c.get("covered_by")]
+    else:
+        common.die("name check ids, or use --all / --phase / --adhoc / --list")
+    if args.weight:
+        for c in chosen:
+            c["weight"] = args.weight
+    order = {c["id"]: c.get("order", 0) for c in checks}
+    return sorted(chosen, key=lambda c: order.get(c["id"], 0))
+
+
+def list_checks(manifest, root):
+    state = common.state_dir(root)
+    current = tree_state(root)["tree_digest"]
+    for c in manifest["checks"]:
+        res = common.read_json(os.path.join(state, "results", c["id"] + ".json"), None)
+        last = "-"
+        if res:
+            stale = "" if (res.get("tree") or {}).get("tree_digest") == current else " (stale: tree changed)"
+            last = "%s %s%s" % (res["status"], res.get("finished_at", ""), stale)
+        print("%-3s %-45s %-4s %-10s %-7s %-8s %s" % (c.get("order", ""), c["id"], "PR" if c["in_pr"] else "-",
+                                                   c.get("phase"), c.get("weight"), (c.get("local") or {}).get("runnable"), last))
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0], formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("ids", nargs="*")
+    parser.add_argument("--all", action="store_true")
+    parser.add_argument("--phase")
+    parser.add_argument("--adhoc")
+    parser.add_argument("--cmd")
+    parser.add_argument("--cwd")
+    parser.add_argument("--like", help="with --adhoc: borrow env, toolchain and services from this check id")
+    parser.add_argument("--weight", choices=common.WEIGHTS)
+    parser.add_argument("--repeat", type=int, default=1)
+    parser.add_argument("--until-fail", action="store_true")
+    parser.add_argument("--skip-setup", action="store_true")
+    parser.add_argument("--ignore-needs", action="store_true")
+    parser.add_argument("--allow-toolchain-mismatch", action="store_true")
+    parser.add_argument("--no-services", action="store_true")
+    parser.add_argument("--wait", type=float)
+    parser.add_argument("--quiet", action="store_true")
+    parser.add_argument("--json", action="store_true", help="print results as JSON")
+    parser.add_argument("--list", action="store_true")
+    parser.add_argument("--services", action="store_true")
+    parser.add_argument("--stop-services", action="store_true")
+    args = parser.parse_args()
+
+    root = common.repo_root()
+    if args.stop_services:
+        stop_services(root)
+        return 0
+    if args.services:
+        data, _ = budget.status(root)
+        print(json.dumps(data["services"], indent=2))
+        return 0
+    manifest = load_manifest(root)
+    if args.list:
+        list_checks(manifest, root)
+        return 0
+
+    def on_signal(signum, frame):
+        for proc in list(ACTIVE.values()):
+            try:
+                os.killpg(proc.pid, signal.SIGTERM)
+            except OSError:
+                pass
+        raise KeyboardInterrupt
+
+    signal.signal(signal.SIGTERM, on_signal)
+    checks = select(manifest, args)
+    results = []
+    try:
+        if args.repeat > 1:
+            if len(checks) != 1:
+                common.die("--repeat takes exactly one check")
+            outcomes = []
+            for attempt in range(1, args.repeat + 1):
+                res = run_one(checks[0], root, manifest, args, not args.quiet and attempt == 1, attempt=attempt)
+                outcomes.append(res["status"])
+                say("attempt %d/%d: %s" % (attempt, args.repeat, summary_line(res)))
+                results.append(res)
+                if args.until_fail and res["status"] != "pass":
+                    break
+            say("repeat summary for %s: %d pass, %d other (%s)" % (checks[0]["id"], outcomes.count("pass"),
+                len(outcomes) - outcomes.count("pass"), ", ".join(outcomes)))
+        else:
+            results = run_many(checks, root, manifest, args)
+    except KeyboardInterrupt:
+        say("interrupted: running checks were stopped and their slots released")
+        return 130
+    if args.json:
+        print(json.dumps(results, indent=2))
+    elif len(results) > 1 and args.repeat <= 1:
+        say("\nsummary:")
+        for res in results:
+            say("  " + summary_line(res))
+    codes = [EXIT.get(r["status"], 1) for r in results]
+    return max(codes) if codes else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
