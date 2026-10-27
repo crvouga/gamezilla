@@ -108,6 +108,7 @@ import { verifyCacheConcurrency } from './verify-cache-concurrency';
 import {
   activeProfile,
   applyProfileEnv,
+  profileGateTasks,
   suiteDeadlineSeconds,
   verifyAggregatorTasks,
 } from './verify-profile';
@@ -390,13 +391,15 @@ const HOST_AGGREGATOR = /^verify:([a-z]+)$/;
 const CI_AGGREGATOR = 'verify:ci';
 
 /**
- * The gate as CI runs it: every gate task over the packages that run on
- * Linux, macOS and Windows alike (`package-hosts.ts` `ciFilters`).
+ * The gate as CI runs it: the active profile's gate tasks
+ * (`profileGateTasks`) over the packages that run on Linux, macOS and
+ * Windows alike (`package-hosts.ts` `ciFilters`).
  */
 export function ciVerifyArgs(
-  manifests = workspaceManifests(REPO_ROOT)
+  manifests = workspaceManifests(REPO_ROOT),
+  env: NodeJS.ProcessEnv = process.env
 ): readonly string[] {
-  return [...MAIN_VERIFY_TASKS, ...ciFilters(manifests)];
+  return [...profileGateTasks(MAIN_VERIFY_TASKS, env), ...ciFilters(manifests)];
 }
 
 /**
@@ -406,10 +409,11 @@ export function ciVerifyArgs(
  */
 export function hostVerifyArgs(
   host: Parameters<typeof hostFilters>[1],
-  manifests = workspaceManifests(REPO_ROOT)
+  manifests = workspaceManifests(REPO_ROOT),
+  env: NodeJS.ProcessEnv = process.env
 ): readonly string[] {
   return [
-    ...MAIN_VERIFY_TASKS.filter(
+    ...profileGateTasks(MAIN_VERIFY_TASKS, env).filter(
       (task) => isDefaultHost(host) || !task.includes('#')
     ),
     ...hostFilters(manifests, host),

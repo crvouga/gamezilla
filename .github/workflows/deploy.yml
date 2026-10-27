@@ -3,11 +3,16 @@ name: Deploy
 # Run title, identical shape in every workflow (enforced by
 # libs/tools-harness-ts/scripts/workflow-run-names.test.ts):
 #   <Workflow> · <trigger>
-run-name: "Deploy · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
+run-name: "Deploy · ${{ github.event_name == 'schedule' && 'schedule' || 'manual' }}"
 
-# Verify the exact commit, deploy shared services, then development and
-# production, then publish a release. A rehearsal verifies and plans only.
-# Environment deployment steps are defined once and reused below.
+# Every three hours, ship whatever reached `main` since the last deploy: run
+# the whole gate (Verify PR's `release` profile) on the exact commit, deploy
+# shared services, then development and production, then publish a release.
+# A pull request runs only the fast `pr` profile, so this is where the spec
+# suites, Quint models, contract models and release journeys gate a release.
+# A scheduled run with nothing new to ship stops at its first job. A
+# rehearsal verifies and plans only. Environment deployment steps are
+# defined once and reused below.
 
 permissions:
   contents: read
@@ -15,8 +20,8 @@ permissions:
   id-token: write
 
 on:
-  push:
-    branches: [main]
+  schedule:
+    - cron: "17 */3 * * *"
   workflow_dispatch:
     inputs:
       rehearsal:
@@ -40,10 +45,41 @@ defaults:
     shell: bash
 
 jobs:
+  # A scheduled run ships only when `main` has moved past the commit the last
+  # successful Deploy shipped. A manual run always proceeds.
+  deploy-changes:
+    name: Find undeployed commits
+    runs-on: self-hosted
+    timeout-minutes: 5
+    outputs:
+      ship: ${{ steps.changes.outputs.ship }}
+    steps:
+      - id: changes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_EVENT_NAME" != schedule ]; then
+            echo "ship=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          shipped=$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/deploy.yml/runs?branch=main&status=success&per_page=1" \
+            --jq '.workflow_runs[0].head_sha // ""')
+          if [ "$shipped" = "$GITHUB_SHA" ]; then
+            echo "main is ${GITHUB_SHA}, already deployed; nothing to ship."
+            echo "ship=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Shipping ${GITHUB_SHA} (last deployed: ${shipped:-none})."
+            echo "ship=true" >> "$GITHUB_OUTPUT"
+          fi
+
   deploy-verify:
     name: Verify commit
+    needs: deploy-changes
+    if: needs.deploy-changes.outputs.ship == 'true'
     uses: ./.github/workflows/verify-pr.yml
     with:
+      profile: release
       require-main: ${{ !inputs.rehearsal }}
       # The pull request already enforced advisories on this code. A registry
       # that moved since then must not fail a deploy of a verified commit.

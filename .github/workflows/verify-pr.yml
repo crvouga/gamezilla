@@ -1,9 +1,15 @@
 name: Verify PR
 run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{0}', github.event.pull_request.number) || 'manual' }}"
 
-# Verify PR is the merge gate (README "Verification and CI"): every package gate —
-# lint, architecture boundaries, typecheck, unit tests, Gherkin specs, contract
-# suites, Quint models, schema evolution, bundles, security scans.
+# Verify PR runs the gate (README "Verification and CI") at one of three
+# widths (`libs/tools-harness-ts/scripts/verify-profile.ts`):
+# - `pr`, on every pull request: lint, architecture boundaries, typecheck,
+#   unit tests, the repository checks, schema evolution, bundles and security
+#   scans. The slow suites (Gherkin spec parts, Quint models, contract models,
+#   release journeys) are left to Deploy, so a pull request hears back in
+#   minutes.
+# - `release`, from Deploy on the exact commit it ships: the whole gate.
+# - `nightly`, from Verify Nightly: the whole gate deeper, with reports.
 #
 # Three jobs, on any self-hosted runner OS (Linux, macOS, Windows); the
 # shards and the end run on the start's OS and arch. `verify:start` plans the
@@ -21,15 +27,15 @@ run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{
 # need, and records the cached verdicts itself. A fully cached run is the start
 # and the end, with no shard at all.
 #
-# It runs on every pull request, where `verify:end` is the required status:
-# a green pull request is releasable, and merging it deploys. It also runs from
-# a manual dispatch, from Deploy (`workflow_call`) on the exact commit it
-# ships, and from Verify Nightly at the nightly profile's depth. `bun verify`
-# runs the same gate locally.
+# It runs on every pull request, where `verify:end` is the required status. A
+# green pull request is mergeable; scheduled Deploy runs the whole gate on
+# `main` before anything ships. It also runs from a manual dispatch, from
+# Deploy (`workflow_call`), and from Verify Nightly. `bun verify` runs the
+# whole gate locally.
 #
-# The `pr` profile (`libs/tools-harness-ts/scripts/verify-profile.ts`) is bounded and never
-# explores: each Quint model replays the fewest drawn traces that take every
-# bound action, the same ones every run. It keeps no test report: no JUnit
+# The `pr` and `release` profiles are bounded and never explore: each Quint
+# model replays the fewest drawn traces that take every bound action, the
+# same ones every run. They keep no test report: no JUnit
 # file, no trace, snapshot or coverage upload, no publication. A failure is
 # read from the job log and the run summary. The CI artifacts below
 # (`libs/tools-harness-ts/scripts/ci-artifacts.ts`, in the CI artifacts
@@ -80,7 +86,7 @@ on:
         type: string
         default: normal
       profile:
-        description: pr (the merge gate) or nightly (deeper budgets, reports kept)
+        description: pr (the fast pull-request check), release (the whole gate, before Deploy ships) or nightly (deeper budgets, reports kept)
         type: string
         default: pr
       advisories:
@@ -320,20 +326,31 @@ jobs:
         timeout-minutes: ${{ inputs.profile == 'nightly' && 60 || 25 }}
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-consumers.ts
       # What Deploy would apply, planned against the real state for this merge
-      # result. Some configuration errors only a plan finds (a `removed` block
-      # whose resource is still in state, a project the provider cannot find);
-      # each failed Deploy after the pull request had passed. Read-only: the
-      # plan applies nothing and the AWS role it uses cannot mutate. They run
-      # after the fan-in consumers so those still report, and each runs when
-      # the other failed so one red plan does not hide the other.
-      - name: Plan the fleet stack
+      # result, on a pull request that changes the infrastructure. Some
+      # configuration errors only a plan finds (a `removed` block whose
+      # resource is still in state, a project the provider cannot find); each
+      # failed Deploy after the pull request had passed. Read-only: the plan
+      # applies nothing and the AWS role it uses cannot mutate. They run after
+      # the fan-in consumers so those still report, and each runs when the
+      # other failed so one red plan does not hide the other.
+      - name: Find infrastructure changes
+        id: infra
         if: always() && !cancelled() && github.event_name == 'pull_request'
+        run: |
+          set -euo pipefail
+          if git diff --quiet "$PR_BASE...$PR_HEAD" -- libs/infra-shared-ts libs/infra-server-ts; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Plan the fleet stack
+        if: always() && !cancelled() && steps.infra.outputs.changed == 'true'
         timeout-minutes: 15
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run --filter @libs/infra-server-ts plan:fleet
       # Foundation also reads AWS. Bootstrap sets the variable in the same
       # apply that lets the read-only role trust a pull request.
       - name: Plan dev's foundation stack
-        if: always() && !cancelled() && github.event_name == 'pull_request' && vars.INFRA_PLAN_ON_PULL_REQUEST == 'true'
+        if: always() && !cancelled() && steps.infra.outputs.changed == 'true' && vars.INFRA_PLAN_ON_PULL_REQUEST == 'true'
         timeout-minutes: 15
         env:
           AWS_ROLE_ARN: ${{ vars.AWS_HEALTH_ROLE_ARN }}

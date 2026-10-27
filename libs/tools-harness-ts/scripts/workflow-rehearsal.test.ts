@@ -24,7 +24,10 @@ test('Deploy rehearsal verifies and plans without opening the release path', () 
   expect(workflow.jobs['deploy-verify']).toMatchObject({
     uses: './.github/workflows/verify-pr.yml',
   });
-  expect(workflow.jobs['deploy-verify']?.if).toBeUndefined();
+  // Only a scheduled run with nothing new to ship skips it.
+  expect(workflow.jobs['deploy-verify']?.if).toBe(
+    "needs.deploy-changes.outputs.ship == 'true'"
+  );
   expect(workflow.jobs['deploy-rehearsal']).toMatchObject({
     if: '${{ inputs.rehearsal }}',
     needs: 'deploy-verify',
@@ -44,7 +47,12 @@ test('Deploy rehearsal verifies and plans without opening the release path', () 
   expect(source).not.toContain('deploy-guard:');
   expect(source).not.toContain('/pulls');
   expect(source).not.toContain('pull-requests:');
-  expect(workflow.jobs['deploy-verify']?.needs).toBeUndefined();
+  // Only the undeployed-commit check runs first, and it passes every manual
+  // run (a rehearsal included) straight through.
+  expect(workflow.jobs['deploy-verify']?.needs).toBe('deploy-changes');
+  expect(workflow.jobs['deploy-changes']?.steps?.[0]?.run).toContain(
+    'if [ "$GITHUB_EVENT_NAME" != schedule ]'
+  );
   expect(workflow.jobs['deploy-verify']).toHaveProperty(
     'with.require-main',
     '${{ !inputs.rehearsal }}'

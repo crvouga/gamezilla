@@ -18,7 +18,9 @@ import {
   localVerifyArgs,
   NIGHTLY_SUITES,
   profileDeadlineSeconds,
+  profileGateTasks,
   profileManifest,
+  releaseOnlyTask,
   suiteDeadlineSeconds,
   verifyAggregatorTasks,
 } from './verify-profile';
@@ -64,9 +66,10 @@ function workflow(file: string): Workflow {
 }
 
 describe('verification profiles', () => {
-  test('an unnamed profile is the merge gate, and an unknown one is refused', () => {
-    expect(activeProfile({}).name).toBe('pr');
-    expect(activeProfile({ VERIFY_PROFILE: '' }).name).toBe('pr');
+  test('an unnamed profile is the whole gate, and an unknown one is refused', () => {
+    expect(activeProfile({}).name).toBe('release');
+    expect(activeProfile({ VERIFY_PROFILE: '' }).name).toBe('release');
+    expect(activeProfile({ VERIFY_PROFILE: 'pr' }).name).toBe('pr');
     expect(activeProfile(NIGHTLY).name).toBe('nightly');
     expect(() => activeProfile({ VERIFY_PROFILE: 'weekly' })).toThrow(
       'not a verification profile'
@@ -351,5 +354,46 @@ describe('Verify Nightly workflow', () => {
     expect(Number(minutes![1]) * 60).toBeGreaterThan(
       profileDeadlineSeconds(NIGHTLY, true)!
     );
+  });
+});
+
+describe('the pull-request profile', () => {
+  const PR = { VERIFY_PROFILE: 'pr' };
+  test('leaves the slow suites to the release and keeps every fast check', () => {
+    const gate = [...MAIN_VERIFY_TASKS];
+    const pr = profileGateTasks(gate, PR);
+    for (const kept of [
+      'lint',
+      'tc',
+      'test',
+      'test:unit:1',
+      'test:contract:render',
+      '@libs/tools-harness-ts#ci:audit',
+      '@libs/tools-harness-ts#verify:secrets',
+      '@libs/tools-harness-ts#verify:actionlint',
+      '@libs/runtime-server-ts#verify:schema-evolution',
+      '@apps/product-ts#verify:worker-bundle',
+    ])
+      expect(pr).toContain(kept);
+    for (const left of [
+      'test:spec:0',
+      'verify:models',
+      'verify:models:3',
+      'test:contract',
+      'test:contract:4',
+      '@apps/product-ts#test:release-journeys',
+      'verify:board-contract',
+    ])
+      expect(pr).not.toContain(left);
+    // Every gate task runs in exactly one place: the pull request or only the release.
+    expect([...pr, ...gate.filter(releaseOnlyTask)].sort()).toEqual(
+      [...gate].sort()
+    );
+  });
+
+  test('the release and nightly profiles run every gate task', () => {
+    const gate = [...MAIN_VERIFY_TASKS];
+    expect(profileGateTasks(gate, {})).toEqual(gate);
+    expect(profileGateTasks(gate, NIGHTLY)).toEqual(gate);
   });
 });
