@@ -15,6 +15,27 @@ import { compileCssModule } from '@pkgs/bun-test-solid-client-ts/css-module';
 import { run } from '@pkgs/os-server-ts/command';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
+/** The package that declares the Tailwind CLI, so the install links it there. */
+const TAILWIND_PACKAGE = 'pkgs/tailwind-harness-ts';
+
+/**
+ * The Tailwind CLI script `@pkgs/tailwind-harness-ts` declares, read from the
+ * installed package's `bin`, for this Bun to run. The repo root links no
+ * Tailwind bin (the isolated linker links one only into the packages that
+ * declare it), and the `.bin` shim's name differs by OS (`tailwindcss` on
+ * POSIX, `tailwindcss.exe` / `.bunx` on Windows), so neither is relied on.
+ */
+export function tailwindCli(repoRoot: string): string {
+  const pkg = join(repoRoot, TAILWIND_PACKAGE, 'node_modules/@tailwindcss/cli');
+  const manifest = JSON.parse(
+    readFileSync(join(pkg, 'package.json'), 'utf8')
+  ) as { readonly bin?: Readonly<Record<string, string>> };
+  const bin = manifest.bin?.['tailwindcss'];
+  if (bin === undefined)
+    throw new Error('@tailwindcss/cli declares no `tailwindcss` bin');
+  return join(pkg, bin);
+}
+
 function uiCss(repoRoot: string): readonly string[] {
   return [
     join(repoRoot, 'pkgs/ui-root-client-ts/src/tokens.css'),
@@ -90,16 +111,15 @@ function compileFrameCssUncached(
   try {
     const out = join(tmp, 'tailwind.css');
     run(
-      'bunx',
+      process.execPath,
       [
-        '--no-install',
-        '@tailwindcss/cli',
+        tailwindCli(repoRoot),
         '-i',
         join(repoRoot, 'pkgs/tailwind-shared-ts/src/tailwind.css'),
         '-o',
         out,
       ],
-      { cwd: join(repoRoot, 'pkgs/tailwind-harness-ts') }
+      { cwd: join(repoRoot, TAILWIND_PACKAGE) }
     );
     const modules = inputs.filter((path) => path.endsWith('.module.css'));
     return [
