@@ -1004,7 +1004,8 @@
           "specs/system/recovery.qnt",
           "specs/system/replication.qnt",
           "specs/system/system-actions.qnt",
-          "specs/system/universe.qnt"
+          "specs/system/universe.qnt",
+          "specs/journeys/game-journeys.openslo.yaml"
         ],
         "events": []
       },
@@ -1239,7 +1240,8 @@
                       "specs/spaces/ubiquitous-language.yml",
                       "specs/ubiquitous-language.yml",
                       "specs/spaces/space-unreachable.feature",
-                      "specs/spaces/space-unreachable.qnt"
+                      "specs/spaces/space-unreachable.qnt",
+                      "specs/spaces/spaces-and-live-updates.openslo.yaml"
                     ],
                     "events": []
                   },
@@ -2386,6 +2388,7 @@
                       "specs/auth/sign-in-links.qnt",
                       "specs/auth/sign-in-methods.feature",
                       "specs/auth/sign-in.feature",
+                      "specs/auth/signing-in.openslo.yaml",
                       "specs/auth/stolen-sign-ins.feature",
                       "specs/auth/ubiquitous-language.yml",
                       "specs/profile/apple-sign-in.feature",
@@ -3407,7 +3410,8 @@
                       "specs/billing/subscribe.feature",
                       "specs/billing/ubiquitous-language.yml",
                       "specs/ubiquitous-language.yml",
-                      "specs/billing/grace-and-refunds.qnt"
+                      "specs/billing/grace-and-refunds.qnt",
+                      "specs/billing/payments.openslo.yaml"
                     ],
                     "events": []
                   },
@@ -11193,6 +11197,7 @@
                       "docs/statecharts/SPEC_CONFLICTS.md",
                       "specs/README.md",
                       "specs/developer-tools/ubiquitous-language.yml",
+                      "specs/runtime/team-tools.openslo.yaml",
                       "specs/ubiquitous-language.yml"
                     ],
                     "events": []
@@ -11861,7 +11866,10 @@
                           "specs/runtime/environment-release.qnt",
                           "specs/runtime/privacy-recovery.qnt",
                           "specs/runtime/request-speed.openslo.yaml",
-                          "specs/runtime/request-success.openslo.yaml"
+                          "specs/runtime/request-success.openslo.yaml",
+                          "specs/runtime/always-reachable.openslo.yaml",
+                          "specs/runtime/background-work.openslo.yaml",
+                          "specs/runtime/outside-services.openslo.yaml"
                         ],
                         "events": []
                       },
