@@ -67,6 +67,10 @@ const PROTECTED: ReadonlySet<string> = new Set([
   'grafana_folder',
   'grafana_dashboard',
   'grafana_rule_group',
+  // The IRM integration's address is in every alert sent so far; the
+  // Synthetic Monitoring installation is the stack's tenant.
+  'grafana_oncall_integration',
+  'grafana_synthetic_monitoring_installation',
   'infisical_identity',
   'infisical_identity_oidc_auth',
   // Replacing the GitHub OIDC provider would strand every deploy.

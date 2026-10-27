@@ -176,3 +176,13 @@ variable "infisical_token" {
 variable "shared_data" {
   type = object({ account_id = string, bucket = string })
 }
+
+variable "alerting" {
+  type        = any
+  description = "Read by the bootstrap stack (stacks/bootstrap/alerting.tf)."
+}
+
+variable "synthetic_monitoring" {
+  type        = any
+  description = "Read by the bootstrap stack from every env file (modules/synthetic-monitoring)."
+}
