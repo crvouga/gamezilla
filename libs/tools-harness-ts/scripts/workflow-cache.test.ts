@@ -66,7 +66,7 @@ test('setup never installs the laptop-only coding-agent tools', () => {
   for (const tool of disabled!.split(',')) expect(mise).toContain(`"${tool}"`);
 });
 
-test('setup reuses generation artifacts separately while retaining frozen dependency validation', () => {
+test('setup restores generation from the remote cache, else a separate GitHub cache, while retaining frozen dependency validation', () => {
   const setup = Bun.YAML.parse(
     readFileSync(join(root, '.github/actions/setup/action.yml'), 'utf8')
   ) as {
@@ -94,14 +94,38 @@ test('setup reuses generation artifacts separately while retaining frozen depend
       step.uses?.startsWith('actions/cache/save') &&
       step.with?.['path'] === '.cache/setup-generation'
   );
+  const inject = steps.findIndex(
+    (step) => step.uses === './.github/actions/secrets-auth'
+  );
+  // Secrets, and with them TURBO_TOKEN, are in place before the install's
+  // generation tasks run, so they use the Vercel Remote Cache.
+  expect(inject).toBeGreaterThan(-1);
+  expect(inject).toBeLessThan(install);
+  expect(steps[inject]!.if).toBe("inputs.secrets-environment != ''");
+  // A job without secrets has no remote cache and keeps the GitHub one.
   expect(restore).toBeGreaterThan(-1);
   expect(restore).toBeLessThan(install);
   expect(save).toBeGreaterThan(install);
+  expect(steps[restore]!.if).toBe("inputs.secrets-environment == ''");
   expect(steps[install]!.env?.['TURBO_CACHE_DIR']).toBe(
     '.cache/setup-generation'
   );
   expect(steps[install]!.if).toBeUndefined();
-  expect(steps[save]!.if).toBe("steps.generation.outputs.cache-hit != 'true'");
+  expect(steps[save]!.if).toBe(
+    "inputs.secrets-environment == '' && steps.generation.outputs.cache-hit != 'true'"
+  );
+});
+
+test('every job that injects secrets does it in setup, before the install', () => {
+  for (const file of [
+    'deploy.yml',
+    'health.yml',
+    'verify-nightly.yml',
+    'verify-pr.yml',
+  ]) {
+    const text = readFileSync(join(root, '.github/workflows', file), 'utf8');
+    expect(text).not.toContain('uses: ./.github/actions/secrets-auth');
+  }
 });
 
 // regression: turbo-build-unhashed-inputs

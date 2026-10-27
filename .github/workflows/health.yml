@@ -100,11 +100,9 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           tools: bun gh
-      - uses: ./.github/actions/secrets-auth
-        with:
-          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: ${{ matrix.env }}
+          secrets-environment: ${{ matrix.env }}
+          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
       - name: Remove unused branches and stale reports
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/harness-ts/scripts/report-cleanup.ts --apply --branches
 
@@ -176,12 +174,11 @@ jobs:
 
       - id: setup
         uses: ./.github/actions/setup
-
-      - uses: ./.github/actions/secrets-auth
         with:
-          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: ${{ matrix.env }}
+          secrets-environment: ${{ matrix.env }}
+          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
+
 
       - name: health:${{ matrix.env }}
         # Above `CI_RUN_DEADLINE_SECONDS` (libs/tools-harness-ts/scripts/verify-budget.ts)

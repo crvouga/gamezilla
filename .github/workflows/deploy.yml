@@ -100,11 +100,10 @@ jobs:
         with:
           clean: false
       - uses: ./.github/actions/setup
-      - uses: ./.github/actions/secrets-auth
         with:
-          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: dev
+          secrets-environment: dev
+          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
       - name: Plan fleet without changing infrastructure
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run --filter @libs/infra-server-ts plan:fleet
       - name: Plan dev's foundation without changing infrastructure
@@ -127,11 +126,10 @@ jobs:
         with:
           clean: false
       - uses: ./.github/actions/setup
-      - uses: ./.github/actions/secrets-auth
         with:
-          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: shared
+          secrets-environment: shared
+          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
       # The fleet apply reads its state passphrase from shared.
       - name: Reconcile shared secrets
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/secrets-server-ts/scripts/secrets-reconcile-shared.ts promote
@@ -179,14 +177,13 @@ jobs:
           fetch-depth: 0
       - id: setup
         uses: ./.github/actions/setup
+        with:
+          secrets-environment: ${{ env.SECRETS_ENV }}
+          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
       # Verification fingerprints this Chrome into the cache key of every test, so
       # without it each task reruns here instead of restoring.
       - uses: ./.github/actions/visual-renderer
-      - uses: ./.github/actions/secrets-auth
-        with:
-          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: ${{ env.SECRETS_ENV }}
       # Foundation, migrations, Workers, edge, billing sync, then health.
       - name: Deploy and verify environment
         id: deploy

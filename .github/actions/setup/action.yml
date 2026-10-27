@@ -7,6 +7,18 @@ inputs:
     description: Pinned mise tools to install; empty installs the full verify toolchain
     required: false
     default: ''
+  secrets-environment:
+    description: Secrets environment to inject (dev, prd, shared) before the install; empty injects none
+    required: false
+    default: ''
+  secrets-identity-id:
+    description: Secrets backend machine identity ID for OIDC (with secrets-environment)
+    required: false
+    default: ''
+  secrets-project-id:
+    description: Secrets project id / slug (with secrets-environment)
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -60,12 +72,25 @@ runs:
         # smaller toolchain pass an explicit list (for example `bun gh`).
         install_args: ${{ inputs.tools || '--include-lazy' }}
 
+    # Secrets go in before the install: its generation tasks, like every
+    # Turbo run, then read and write the Vercel Remote Cache with the
+    # TURBO_TOKEN this injects, the same cache a laptop uses. A job that
+    # injects no secrets has no token and keeps the GitHub cache below.
+    - name: Inject secrets
+      if: inputs.secrets-environment != ''
+      uses: ./.github/actions/secrets-auth
+      with:
+        identity-id: ${{ inputs.secrets-identity-id }}
+        project-id: ${{ inputs.secrets-project-id }}
+        environment: ${{ inputs.secrets-environment }}
+
     # No cache of the installed node_modules trees: bun links packages into
     # them, and an archive of links does not survive every OS (Git's tar on
     # Windows restored them unreadable: EPERM, Verify run 40532833763). A
     # self-hosted runner keeps bun's download cache, so the frozen install
     # below is a link step (24 s cold on Windows, Verify run 40531923687).
     - name: Restore generation artifacts
+      if: inputs.secrets-environment == ''
       # Reuse only Turbo's immutable generation artifacts. Turbo still hashes
       # current inputs and restores outputs; frozen install still runs below.
       # This cache is separate from the verification artifacts and verdicts.
@@ -84,7 +109,7 @@ runs:
       run: bun install --frozen-lockfile
 
     - name: Save generation artifacts
-      if: steps.generation.outputs.cache-hit != 'true'
+      if: inputs.secrets-environment == '' && steps.generation.outputs.cache-hit != 'true'
       uses: actions/cache/save@v5
       with:
         path: .cache/setup-generation
