@@ -283,7 +283,9 @@ jobs:
       - name: verify
         timeout-minutes: ${{ inputs.profile == 'nightly' && 60 || 25 }}
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-shard-run.ts "$VERIFY_SHARD"
-      # Reports are the nightly profile's; the `pr` profile keeps none.
+      # Reports are the nightly profile's; the `pr` profile keeps none. One
+      # artifact per shard every night: three days keeps the last three
+      # nights inside the account's artifact storage quota.
       - name: Upload queryable trace artifacts
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
         uses: actions/upload-artifact@v6
@@ -295,7 +297,7 @@ jobs:
             pkgs/*/.cache/harness-report/*/traces/*.ndjson
           if-no-files-found: ignore
           include-hidden-files: true
-          retention-days: 14
+          retention-days: 3
       - name: Upload turbo run summary
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
         uses: actions/upload-artifact@v6
@@ -304,7 +306,7 @@ jobs:
           path: .turbo/runs/*.json
           if-no-files-found: ignore
           include-hidden-files: true
-          retention-days: 14
+          retention-days: 3
       # Transfer verdicts and the exact cache artifacts consumers need; the
       # nightly profile adds failed reports.
       - name: Transfer raw evidence
@@ -395,7 +397,7 @@ jobs:
             pkgs/*/.cache/harness-report/*/traces/*.ndjson
           if-no-files-found: ignore
           include-hidden-files: true
-          retention-days: 14
+          retention-days: 3
       - name: Upload turbo run summary
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
         uses: actions/upload-artifact@v6
@@ -404,7 +406,7 @@ jobs:
           path: .turbo/runs/*.json
           if-no-files-found: ignore
           include-hidden-files: true
-          retention-days: 14
+          retention-days: 3
       - name: Transfer raw evidence
         if: always() && !cancelled()
         uses: actions/upload-artifact@v6
