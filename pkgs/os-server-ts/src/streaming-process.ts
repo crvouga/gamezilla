@@ -4,8 +4,15 @@ import type { Readable } from 'node:stream';
 export interface StreamingProcess {
   readonly stdout: Readable;
   readonly stderr: Readable;
+  /** The exit code; `null` when a signal (or, on Windows, a kill) ended it. */
   readonly completed: Promise<number | null>;
+  /** Kill at once (`SIGKILL`). */
   stop(): void;
+  /**
+   * Ask the process to end (`SIGTERM`), so it can clean up and pick its exit
+   * code. Windows has no signals: there the process is ended at once, as
+   * `stop` does, no handler of its runs, and `completed` resolves `null`.
+   */
   terminate(): void;
 }
 
