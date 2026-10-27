@@ -18,6 +18,7 @@
     "@noble/hashes": "catalog:",
     "@pkgs/observability-root-shared-ts": "workspace:*",
     "@pkgs/openslo-shared-ts": "workspace:*",
+    "@pkgs/os-shared-ts": "workspace:*",
     "@pkgs/sync-engine-shared-ts": "workspace:*"
   },
   "devDependencies": {

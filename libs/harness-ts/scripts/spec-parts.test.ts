@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import type { ReplayPlan } from '@pkgs/quint-server-ts/trace-runs';
 import { sliceReplays } from '@pkgs/quint-server-ts/trace-runs';
 import { packageSpecInventory, readReplayPlans } from './replay-plans';
@@ -343,7 +343,7 @@ describe('partOf', () => {
       for (const model of models) {
         const files = parts
           .flat()
-          .filter((unit) => unit.path.endsWith(`/${model}.qnt`));
+          .filter((unit) => basename(unit.path) === `${model}.qnt`);
         for (const profile of ['pr', 'nightly'] as const)
           expect(
             files.reduce((sum, unit) => sum + unit.replays![profile], 0)

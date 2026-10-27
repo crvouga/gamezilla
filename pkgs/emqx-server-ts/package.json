@@ -19,7 +19,8 @@
     "@pkgs/clock-shared-ts": "workspace:*",
     "@pkgs/emqx-shared-ts": "workspace:*",
     "@pkgs/http-client-shared-ts": "workspace:*",
-    "@pkgs/os-server-ts": "workspace:*"
+    "@pkgs/os-server-ts": "workspace:*",
+    "@pkgs/os-shared-ts": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

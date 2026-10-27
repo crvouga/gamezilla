@@ -35,7 +35,7 @@ process.env.NODE_ENV = process.env.NODE_ENV ?? 'test';
 const configFile = require.resolve('./babel.config.cjs');
 
 /** Workspace `.tsx` outside `node_modules` (tests included). */
-const WORKSPACE_TSX_FILTER = /^(?!.*\/node_modules\/).*\.tsx$/;
+const WORKSPACE_TSX_FILTER = /^(?!.*[\\/]node_modules[\\/]).*\.tsx$/;
 const CSS_FILTER = /\.css$/;
 /** Media assets (`require('../assets/x.mp3')`) → their file path, like Vite's URL import. */
 const MEDIA_FILTER = /\.(?:mp3|wav|ogg|png|jpe?g|gif|webp|svg|woff2?|ttf)$/;

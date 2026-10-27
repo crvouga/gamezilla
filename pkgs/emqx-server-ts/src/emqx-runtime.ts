@@ -2,6 +2,7 @@
 import { cpSync, mkdtempSync, realpathSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 export type EmqxRuntime = {
   readonly bin: string;
@@ -36,7 +37,7 @@ export function prepareEmqxRuntime(bin: string): EmqxRuntime {
       recursive: true,
       verbatimSymlinks: true,
       filter: (source) => {
-        const path = relative(root, source);
+        const path = slashPath(relative(root, source));
         return path !== 'data' && path !== 'log';
       },
     });
@@ -45,7 +46,7 @@ export function prepareEmqxRuntime(bin: string): EmqxRuntime {
     throw error;
   }
   return {
-    bin: join(runtime, relative(root, resolved)),
+    bin: join(runtime, slashPath(relative(root, resolved))),
     dispose() {
       rmSync(runtime, { recursive: true, force: true });
     },

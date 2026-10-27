@@ -20,6 +20,7 @@ import {
 import { availableParallelism } from 'node:os';
 import { join, sep } from 'node:path';
 import { testConcurrency } from '@pkgs/os-server-ts/test-concurrency';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import type { FileCoverage } from './lcov';
 import { formatLcov, mergeInto, parseLcov } from './lcov';
 import type { PackagePlan } from './packages';
@@ -90,7 +91,8 @@ function parseOptions(argv: readonly string[]): Options {
 function matchesFilter(plan: PackagePlan, filters: readonly string[]): boolean {
   if (filters.length === 0) return true;
   return filters.some(
-    (filter) => plan.name.includes(filter) || plan.dir.includes(filter)
+    (filter) =>
+      plan.name.includes(filter) || slashPath(plan.dir).includes(filter)
   );
 }
 
@@ -135,7 +137,7 @@ async function runSpec(
   env: NodeJS.ProcessEnv
 ): Promise<RunResult> {
   const coverageDir = join(spec.plan.coverageRoot, String(spec.index));
-  const command = `${spec.command} --coverage --coverage-reporter=lcov --coverage-dir=${JSON.stringify(coverageDir)}`;
+  const command = `${spec.command} --coverage --coverage-reporter=lcov --coverage-dir=${JSON.stringify(slashPath(coverageDir))}`;
   const startedAt = Date.now();
   const proc = Bun.spawn([...scriptShellArgv(command)], {
     cwd: spec.plan.dir,

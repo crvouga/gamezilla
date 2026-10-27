@@ -10,7 +10,9 @@ export function copyModelInput(
   transform: (source: string, path: string) => string
 ): string {
   const visited = new Set<string>();
-  const destination = (path: string) => join(root, path.replace(/^[/\\]+/, ''));
+  // An absolute path, less its root (`/` or a Windows drive), under `root`.
+  const destination = (path: string) =>
+    join(root, path.replace(/^[A-Za-z]:/, '').replace(/^[/\\]+/, ''));
   const copy = (path: string): void => {
     if (visited.has(path)) return;
     visited.add(path);

@@ -19,6 +19,7 @@
   "dependencies": {
     "@pkgs/clock-shared-ts": "workspace:*",
     "@pkgs/http-client-shared-ts": "workspace:*",
+    "@pkgs/os-shared-ts": "workspace:*",
     "zod": "catalog:"
   },
   "devDependencies": {

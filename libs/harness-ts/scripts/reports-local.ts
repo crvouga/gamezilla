@@ -24,6 +24,7 @@ import { wallClock } from '@pkgs/clock-shared-ts/wall';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server-ts/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
 import { readUtf8 } from '@pkgs/object-store-root-shared-ts/helpers';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { publishCheckoutInventory } from './report-inventory';
 import { type ReportOrigin, reportBranch, reportOrigin } from './report-origin';
 import { reportsStore } from './report-store';
@@ -58,9 +59,10 @@ async function collect(): Promise<void> {
   for (const completion of new Bun.Glob(
     '{apps,libs,pkgs}/*/.cache/harness-report/*/complete.json'
   ).scanSync({ cwd: ROOT, onlyFiles: true })) {
-    const packageDir = completion.split('/').slice(0, 2).join('/');
+    const segments = slashPath(completion).split('/');
+    const packageDir = segments.slice(0, 2).join('/');
     if (packageDirArg >= 0 && packageDir !== requestedPackageDir) continue;
-    const bucket = completion.split('/')[4]!;
+    const bucket = segments[4]!;
     const local = store(
       join(ROOT, packageDir, '.cache/harness-report', bucket)
     );

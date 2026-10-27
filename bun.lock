@@ -77,6 +77,7 @@
         "@pkgs/logger-shared-ts": "workspace:*",
         "@pkgs/object-store-node-fs-server-ts": "workspace:*",
         "@pkgs/os-server-ts": "workspace:*",
+        "@pkgs/os-shared-ts": "workspace:*",
         "@pkgs/secret-store-shared-ts": "workspace:*",
         "@pkgs/sql-client-sqlite-web-server-ts": "workspace:*",
         "@pkgs/turn-game-shared-ts": "workspace:*",
@@ -1968,6 +1969,7 @@
         "@pkgs/clock-shared-ts": "workspace:*",
         "@pkgs/message-shared-ts": "workspace:*",
         "@pkgs/observability-root-shared-ts": "workspace:*",
+        "@pkgs/os-shared-ts": "workspace:*",
         "@pkgs/room-root-shared-ts": "workspace:*",
         "@pkgs/sql-root-shared-ts": "workspace:*",
         "@pkgs/sync-engine-shared-ts": "workspace:*",
@@ -2036,6 +2038,7 @@
         "@libs/pong-harness-ts": "workspace:*",
         "@libs/quoridor-harness-ts": "workspace:*",
         "@libs/word-tiles-harness-ts": "workspace:*",
+        "@pkgs/os-shared-ts": "workspace:*",
       },
       "devDependencies": {
         "@libs/account-privacy-harness-ts": "workspace:*",
@@ -2183,6 +2186,7 @@
         "@pkgs/observability-root-shared-ts": "workspace:*",
         "@pkgs/observability-runtime-shared-ts": "workspace:*",
         "@pkgs/os-server-ts": "workspace:*",
+        "@pkgs/os-shared-ts": "workspace:*",
         "@pkgs/outbox-shared-ts": "workspace:*",
         "@pkgs/postgres-local-shared-ts": "workspace:*",
         "@pkgs/postgres-mockingbird-server-ts": "workspace:*",
@@ -2321,6 +2325,7 @@
       "dependencies": {
         "@pkgs/clock-shared-ts": "workspace:*",
         "@pkgs/http-client-shared-ts": "workspace:*",
+        "@pkgs/os-shared-ts": "workspace:*",
         "zod": "catalog:",
       },
       "devDependencies": {
@@ -2602,6 +2607,7 @@
         "@noble/hashes": "catalog:",
         "@pkgs/observability-root-shared-ts": "workspace:*",
         "@pkgs/openslo-shared-ts": "workspace:*",
+        "@pkgs/os-shared-ts": "workspace:*",
         "@pkgs/sync-engine-shared-ts": "workspace:*",
       },
       "devDependencies": {
@@ -4462,6 +4468,7 @@
       "name": "@pkgs/config-check-server-ts",
       "version": "0.0.0",
       "dependencies": {
+        "@pkgs/os-shared-ts": "workspace:*",
         "typescript": "catalog:",
       },
       "devDependencies": {
@@ -4810,6 +4817,7 @@
         "@pkgs/emqx-shared-ts": "workspace:*",
         "@pkgs/http-client-shared-ts": "workspace:*",
         "@pkgs/os-server-ts": "workspace:*",
+        "@pkgs/os-shared-ts": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -4989,6 +4997,7 @@
         "@cucumber/gherkin": "catalog:",
         "@cucumber/messages": "catalog:",
         "@cucumber/tag-expressions": "catalog:",
+        "@pkgs/os-shared-ts": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -5534,6 +5543,7 @@
       "dependencies": {
         "@pkgs/object-store-node-fs-shared-ts": "workspace:*",
         "@pkgs/object-store-root-shared-ts": "workspace:*",
+        "@pkgs/os-shared-ts": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -6069,6 +6079,7 @@
         "@informalsystems/quint": "catalog:",
         "@pkgs/conformance-server-ts": "workspace:*",
         "@pkgs/conformance-shared-ts": "workspace:*",
+        "@pkgs/os-shared-ts": "workspace:*",
         "@pkgs/quint-shared-ts": "workspace:*",
       },
       "devDependencies": {
@@ -6080,6 +6091,9 @@
     "pkgs/quint-shared-ts": {
       "name": "@pkgs/quint-shared-ts",
       "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/os-shared-ts": "workspace:*",
+      },
       "devDependencies": {
         "@pkgs/property-shared-ts": "workspace:*",
         "@types/bun": "catalog:",
@@ -6714,6 +6728,7 @@
       "name": "@pkgs/sql-client-sqlite-web-server-ts",
       "version": "0.0.0",
       "dependencies": {
+        "@pkgs/os-shared-ts": "workspace:*",
         "@pkgs/sql-client-root-shared-ts": "workspace:*",
         "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",
         "@pkgs/sql-client-sqlite-web-shared-ts": "workspace:*",
@@ -6835,6 +6850,7 @@
         "@pkgs/db-schema-sqlite-shared-ts": "workspace:*",
         "@pkgs/harness-root-shared-ts": "workspace:*",
         "@pkgs/http-client-shared-ts": "workspace:*",
+        "@pkgs/os-shared-ts": "workspace:*",
         "@pkgs/pubsub-root-shared-ts": "workspace:*",
         "@pkgs/sql-client-root-shared-ts": "workspace:*",
         "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",
@@ -7068,6 +7084,7 @@
       "name": "@pkgs/ui-codegen-server-ts",
       "version": "0.0.0",
       "dependencies": {
+        "@pkgs/os-shared-ts": "workspace:*",
         "typescript": "catalog:",
       },
       "devDependencies": {
@@ -7119,6 +7136,7 @@
         "@pkgs/object-store-node-fs-server-ts": "workspace:*",
         "@pkgs/object-store-root-shared-ts": "workspace:*",
         "@pkgs/os-server-ts": "workspace:*",
+        "@pkgs/os-shared-ts": "workspace:*",
         "@pkgs/ui-quality-check-shared-ts": "workspace:*",
         "ffmpeg-static": "5.3.0",
         "onnxruntime-node": "1.30.0",
@@ -7159,6 +7177,7 @@
         "@pkgs/keyword-shared-ts": "workspace:*",
         "@pkgs/kv-root-client-ts": "workspace:*",
         "@pkgs/kv-root-shared-ts": "workspace:*",
+        "@pkgs/os-shared-ts": "workspace:*",
         "@pkgs/solid-context-client-ts": "workspace:*",
         "@pkgs/ui-root-shared-ts": "workspace:*",
         "@solidjs/router": "catalog:",

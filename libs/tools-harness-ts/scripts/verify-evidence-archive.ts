@@ -2,7 +2,8 @@
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, relative, resolve, sep } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 /**
  * `path` as tar names an archive: relative to the `cwd` tar runs in, with `/`
@@ -10,7 +11,7 @@ import { dirname, join, relative, resolve, sep } from 'node:path';
  * remote archive; a relative path means the same file to it and to bsdtar.
  */
 export function tarPath(cwd: string, path: string): string {
-  return relative(cwd, resolve(cwd, path)).split(sep).join('/');
+  return slashPath(relative(cwd, resolve(cwd, path)));
 }
 
 export function archiveEntries(archive: string): string[] {

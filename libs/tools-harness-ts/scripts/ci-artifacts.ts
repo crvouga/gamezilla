@@ -19,10 +19,11 @@
  * The run is `GITHUB_RUN_ID`, or `--run <id>` before the command.
  */
 import { mkdirSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { dirname, join, relative, resolve, sep } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared-ts/global';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
 import { createS3ObjectStore } from '@pkgs/object-store-s3-server-ts/impl-s3';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 /** Bucket keys sit under this root; the run ID follows. */
 export const CI_ARTIFACTS_ROOT = 'runs';
@@ -171,8 +172,8 @@ export async function uploadArtifact(args: {
   const prefix = artifactPrefix(runId, name);
   await store.deleteMany(await store.listKeys(prefix));
   await eachLimited(files, async (file) => {
-    const key = relative(root, file).split(sep).join('/');
-    if (!key || key.startsWith('../'))
+    const key = slashPath(relative(root, file));
+    if (!key || key.startsWith('../') || isAbsolute(key))
       throw new Error(`${file} is outside the artifact root ${root}`);
     await store.put(
       `${prefix}${key}`,

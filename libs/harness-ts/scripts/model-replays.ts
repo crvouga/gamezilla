@@ -11,6 +11,7 @@
 
 import { existsSync, writeFileSync } from 'node:fs';
 import { basename, join, relative, resolve } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import {
   drawModelInstances,
   instancesReplayPlan,
@@ -41,7 +42,7 @@ async function writePlans(dir: string): Promise<void> {
   for (const specPath of packageSpecs(dir, root)) {
     if (!specPath.endsWith('.qnt')) continue;
     const model = basename(specPath, '.qnt');
-    const specUri = relative(root, specPath);
+    const specUri = slashPath(relative(root, specPath));
     const binding = quintBinding(model);
     const instances = drawModelInstances({
       specPath,

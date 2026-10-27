@@ -13,6 +13,7 @@
  * aggregate, so it has nothing to check here.
  */
 
+import { lastSegment } from '@pkgs/os-shared-ts/slash-path';
 import { assignmentShapeIssues } from './shape-assignment';
 import { offlineShapeIssues } from './shape-connectivity';
 import type { Item, ModelShapeIssue, ParsedModel } from './shape-model';
@@ -196,7 +197,7 @@ export function modelShapeIssues(
   source: string,
   fileName: string
 ): readonly ModelShapeIssue[] {
-  const base = fileName.split('/').pop() ?? fileName;
+  const base = lastSegment(fileName);
   if (base === 'events.qnt') return [];
   const model = parseModel(source);
   // Operator-maintenance models have no app devices. They still satisfy every

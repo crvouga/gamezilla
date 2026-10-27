@@ -10,6 +10,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { quintImportPaths } from '@pkgs/quint-shared-ts/imports';
 import { packageSpecUnits } from './replay-plans';
 import { partsOf, type SpecUnit } from './spec-parts';
@@ -39,10 +40,10 @@ export function specInputManifest(
   const files = new Map<string, string>();
   for (const unit of units)
     for (const [path, hash] of Object.entries(specSourceClosure(unit.path)))
-      files.set(relative(root, path), hash);
+      files.set(slashPath(relative(root, path)), hash);
   return JSON.stringify({
     units: units.map((unit) => ({
-      path: relative(root, unit.path),
+      path: slashPath(relative(root, unit.path)),
       slice: unit.slice,
     })),
     files: Object.fromEntries(
@@ -81,7 +82,9 @@ export function specInputProblems(dir: string, root: string): string[] {
       const path = join(dir, '.cache/spec-inputs', file);
       return existsSync(path) && readFileSync(path, 'utf8') === value
         ? []
-        : [`${relative(root, path)} is missing or stale; run bun spec:inputs`];
+        : [
+            `${slashPath(relative(root, path))} is missing or stale; run bun spec:inputs`,
+          ];
     }
   );
 }

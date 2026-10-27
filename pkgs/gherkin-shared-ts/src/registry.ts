@@ -9,6 +9,7 @@ import {
   ParameterType,
   ParameterTypeRegistry,
 } from '@cucumber/cucumber-expressions';
+import { lastSegment } from '@pkgs/os-shared-ts/slash-path';
 
 export type StepKind = 'Given' | 'When' | 'Then' | 'Step';
 
@@ -170,7 +171,7 @@ function callerLocation(): string {
     );
     if (match === null) continue;
     const file = match[1] ?? '';
-    if (file.endsWith('/registry.ts')) continue;
+    if (lastSegment(file) === 'registry.ts') continue;
     return `${file}:${match[2] ?? '0'}`;
   }
   return 'unknown';

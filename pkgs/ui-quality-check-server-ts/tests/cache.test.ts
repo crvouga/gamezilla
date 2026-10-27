@@ -2,6 +2,7 @@ import { expect, test } from 'bun:test';
 import { relative, resolve } from 'node:path';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server-ts/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import {
   checkImage,
   createUIQualityChecker,
@@ -70,7 +71,7 @@ test('corrupt cached evidence is recomputed and failure artifacts contain actual
     expect(artifact).toBeDefined();
     if (!artifact) throw new Error('Expected frame artifact.');
     const png = await store.get(
-      relative(resolve('.cache/unit-evidence'), artifact).replaceAll('\\', '/')
+      slashPath(relative(resolve('.cache/unit-evidence'), artifact))
     );
     if (!png) throw new Error('Expected emitted PNG.');
     const bytes = new Uint8Array(await new Response(png.body).arrayBuffer());

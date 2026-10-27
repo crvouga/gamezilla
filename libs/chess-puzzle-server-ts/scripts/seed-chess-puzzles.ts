@@ -1,4 +1,5 @@
 // @io-wall-ok
+import { fileURLToPath } from 'node:url';
 import { ChessPuzzleSeeder } from '@libs/chess-puzzle-server-ts/chess-puzzle-seeder';
 import {
   formatPostgresStorageLimitError,
@@ -12,7 +13,7 @@ import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs-server-ts/
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
 
 const fs = wallNodeFs();
-const repoRoot = new URL('../../..', import.meta.url).pathname;
+const repoRoot = fileURLToPath(new URL('../../..', import.meta.url));
 
 await ChessPuzzleSeeder.fromArgv(
   process.argv.slice(2),

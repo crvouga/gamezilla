@@ -1,0 +1,4 @@
+{
+  "summary": "The SQLite web dev server built its watch-ignore globs from `\\`-separated Windows paths, which a glob reads as escapes, so emitted worker files retriggered the build.",
+  "regressionTest": "pkgs/sql-client-sqlite-web-server-ts/tests/sqlite-web-assets.test.ts"
+}

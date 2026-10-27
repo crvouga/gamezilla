@@ -36,6 +36,7 @@
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import ts from 'typescript';
 import {
   languageViolations,
@@ -164,7 +165,7 @@ function sourceFiles(dir: string, out: string[] = []): string[] {
       if (entry.name !== 'node_modules') sourceFiles(full, out);
       continue;
     }
-    if (/\.(ts|tsx)$/.test(entry.name)) out.push(full);
+    if (/\.(ts|tsx)$/.test(entry.name)) out.push(slashPath(full));
   }
   return out;
 }
@@ -465,9 +466,9 @@ function languageAndNativeViolations(
   manifest: Manifest,
   workspace: ReturnType<typeof workspaceManifests>
 ): readonly string[] {
-  const tier = pkgDir.split('/').at(-2) ?? '';
+  const tier = slashPath(pkgDir).split('/').at(-2) ?? '';
   const native = {
-    dir: `${tier}/${pkgDir.split('/').at(-1) ?? ''}`,
+    dir: `${tier}/${slashPath(pkgDir).split('/').at(-1) ?? ''}`,
     files: manifest.language === 'typescript' ? [] : packageFiles(pkgDir),
     read: (path: string) => readFileSync(join(pkgDir, path), 'utf8'),
     packagesByDir: workspace.byDir,
@@ -493,7 +494,7 @@ export function packageBoundaryViolations(pkgDir: string): readonly string[] {
   const sources = sourceFiles(srcDir).filter((f) => !/\.test\.tsx?$/.test(f));
   const out: string[] = [
     ...categoryViolations(manifest, {
-      tier: pkgDir.split('/').at(-2) ?? '',
+      tier: slashPath(pkgDir).split('/').at(-2) ?? '',
       sources: sources.map((path) => ({
         path: path.slice(pkgDir.length + 1),
         text: readFileSync(path, 'utf8'),
@@ -515,7 +516,7 @@ export function packageBoundaryViolations(pkgDir: string): readonly string[] {
           text: readFileSync(path, 'utf8'),
         })),
     }),
-    ...(pkgDir.split('/').at(-2) === 'libs'
+    ...(slashPath(pkgDir).split('/').at(-2) === 'libs'
       ? gameIdentityViolations(manifest, {
           gameIds: new Set(
             [...workspace.values()].flatMap((other) =>

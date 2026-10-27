@@ -1,7 +1,7 @@
 // @io-wall-ok — reads the committed generated artifacts, OpenTofu sources and docs.
 import { describe, expect, test } from 'bun:test';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import { ENVIRONMENT_PLACEHOLDER } from '@libs/observability-shared-ts/alert-links';
 import type { AlertRule } from '@libs/observability-shared-ts/alert-rule';
 import { ruleKey } from '@libs/observability-shared-ts/alert-rule';
@@ -29,6 +29,7 @@ import {
 } from '@libs/observability-shared-ts/slo-grafana';
 import { renderAlertDocuments } from '@pkgs/openslo-shared-ts/alert-yaml';
 import { parseOpenSlo } from '@pkgs/openslo-shared-ts/parse';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { objectiveFiles, REPO_ROOT, readRepoFile } from './specs';
 
 const MODULE = 'libs/infra-shared-ts/tofu/modules/observability-views';
@@ -113,7 +114,9 @@ describe('every Grafana SLO', () => {
         ...readFileSync(file, 'utf8').matchAll(
           /resource\s+"grafana_slo"\s+"([^"]+)"/g
         ),
-      ].map(([, name]) => `${file.slice(REPO_ROOT.length + 1)}:${name ?? ''}`)
+      ].map(
+        ([, name]) => `${slashPath(relative(REPO_ROOT, file))}:${name ?? ''}`
+      )
     );
     expect(declared).toEqual([`${MODULE}/slos.tf:objectives`]);
     const tf = readRepoFile(`${MODULE}/slos.tf`);

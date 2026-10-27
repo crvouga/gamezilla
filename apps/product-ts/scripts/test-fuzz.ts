@@ -3,6 +3,7 @@
 import { spawnSync } from 'node:child_process';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { recordSeeds } from './seed-record';
 import { owningPackagePath, testFileCommand } from './test-file-command';
 
@@ -67,7 +68,7 @@ if (files.length === 0) {
 }
 
 const commands = files.map((file) => {
-  const selected = relative(REPO_ROOT, file).split(sep).join('/');
+  const selected = slashPath(relative(REPO_ROOT, file));
   const packagePath = owningPackagePath(selected);
   const manifest = JSON.parse(
     readFileSync(join(REPO_ROOT, packagePath, 'package.json'), 'utf8')

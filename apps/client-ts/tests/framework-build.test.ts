@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
 import { readFileSync, realpathSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { build, type Plugin } from 'vite';
 
 const CLIENT = realpathSync(join(import.meta.dir, '..'));
@@ -18,14 +19,14 @@ function withoutProductionGames(): Plugin {
       readonly gameRegistry?: boolean;
     };
     if (owner.game !== undefined || owner.gameRegistry === true)
-      owners.set(path.slice(0, -'package.json'.length), owner.name);
+      owners.set(slashPath(path).slice(0, -'package.json'.length), owner.name);
   }
   return {
     name: 'no-production-game-sources',
     enforce: 'pre',
     load(id) {
       if (id.startsWith('\0')) return;
-      const path = relative(ROOT, realpathSync(id.split('?')[0]!));
+      const path = slashPath(relative(ROOT, realpathSync(id.split('?')[0]!)));
       const directory = /^(libs|pkgs|apps)\/[^/]+\//.exec(path)?.[0];
       if (directory === undefined) return;
       const owner = owners.get(directory);

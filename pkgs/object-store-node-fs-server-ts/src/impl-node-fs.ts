@@ -1,4 +1,4 @@
-import { dirname, relative, resolve, sep } from 'node:path';
+import { dirname, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type { NodeFs } from '@pkgs/object-store-node-fs-shared-ts/node-fs';
 import { ObjectStoreWithPrefix } from '@pkgs/object-store-root-shared-ts/impl-with-prefix';
@@ -7,6 +7,7 @@ import type {
   StoredObject,
 } from '@pkgs/object-store-root-shared-ts/interface';
 import { assertLogicalObjectKey } from '@pkgs/object-store-root-shared-ts/namespace-guard';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 const META_SUFFIX = '.meta.json';
 const DEFAULT_CONTENT_TYPE = 'application/octet-stream';
@@ -26,6 +27,23 @@ function isEnoent(error: unknown): boolean {
     error !== null &&
     'code' in error &&
     (error as { readonly code?: unknown }).code === 'ENOENT'
+  );
+}
+
+/**
+ * Windows refuses to replace a file while another process replaces or holds
+ * it (`EPERM` / `EACCES` / `EBUSY`); the holder lets go within moments, so the
+ * rename is tried again rather than failing a put that raced another writer.
+ */
+const BUSY_CODES = new Set(['EPERM', 'EACCES', 'EBUSY']);
+const RENAME_ATTEMPTS = 200;
+
+function isBusy(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    BUSY_CODES.has(String((error as { readonly code?: unknown }).code))
   );
 }
 
@@ -103,8 +121,8 @@ export class ObjectStoreImplNodeFs implements ObjectStore {
   private resolveDataPath(key: string): string {
     assertLogicalObjectKey(key);
     const dataPath = resolve(this.rootDir, ...key.split('/'));
-    const rel = relative(this.rootDir, dataPath);
-    if (rel.startsWith('..') || rel.includes(`..${sep}`)) {
+    const rel = slashPath(relative(this.rootDir, dataPath));
+    if (rel.startsWith('..') || rel.includes('../')) {
       throw new Error(`ObjectStoreImplNodeFs: key escapes rootDir: ${key}`);
     }
     return dataPath;
@@ -138,14 +156,22 @@ export class ObjectStoreImplNodeFs implements ObjectStore {
     const tmp = nextTmpPath(dest);
     try {
       await this.fs.writeFile(tmp, contents);
-      try {
-        await this.fs.rename(tmp, dest);
-      } catch {
-        await this.fs.rm(dest, { force: true });
-        await this.fs.rename(tmp, dest);
-      }
+      await this.replace(tmp, dest);
     } finally {
       await this.fs.rm(tmp, { force: true });
+    }
+  }
+
+  private async replace(tmp: string, dest: string): Promise<void> {
+    for (let attempt = 1; ; attempt++) {
+      try {
+        await this.fs.rename(tmp, dest);
+        return;
+      } catch (error) {
+        if (isBusy(error) && attempt < RENAME_ATTEMPTS) continue;
+        if (attempt > 1) throw error;
+        await this.fs.rm(dest, { force: true });
+      }
     }
   }
 

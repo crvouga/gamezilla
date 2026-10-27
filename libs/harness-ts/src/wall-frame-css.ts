@@ -10,9 +10,10 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 import { compileCssModule } from '@pkgs/bun-test-solid-client-ts/css-module';
 import { run } from '@pkgs/os-server-ts/command';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 function uiCss(repoRoot: string): readonly string[] {
   return [
@@ -110,7 +111,7 @@ function compileFrameCssUncached(
       ),
       ...modules.map(
         (p) =>
-          `/* ${p.slice(repoRoot.length + 1)} */\n${compileCssModule(p, readFileSync(p, 'utf8')).css}`
+          `/* ${slashPath(relative(repoRoot, p))} */\n${compileCssModule(p, readFileSync(p, 'utf8')).css}`
       ),
     ].join('\n');
   } finally {

@@ -1,0 +1,4 @@
+{
+  "summary": "On Windows the Quint shape check split the spec path on `/` only, so the whole `C:\\...` path became the expected module name and every model failed `module-name` (Verify run 40571328806).",
+  "regressionTest": "pkgs/quint-shared-ts/tests/shape.test.ts"
+}

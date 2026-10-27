@@ -1,5 +1,6 @@
 // @io-wall-ok — coverage reporter composition root
 import { relative, resolve } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 export type FileCoverage = {
   /** Instrumented line number → execution count (max observed across runs). */
@@ -158,7 +159,7 @@ export function formatLcov(
     blocks.push(
       [
         'TN:',
-        `SF:${relative(repoRoot, path)}`,
+        `SF:${slashPath(relative(repoRoot, path))}`,
         `FNF:${String(functions.found)}`,
         `FNH:${String(functions.hit)}`,
         formatHits(coverage.lines),

@@ -8,6 +8,7 @@
  */
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { buildInfraModel } from '../src/infra-model';
 import { renderInfraMap } from '../src/infra-render';
 
@@ -26,7 +27,7 @@ function collect(dir: string, into: Map<string, string>): void {
     const path = join(dir, entry.name);
     if (entry.isDirectory()) collect(path, into);
     else if (SOURCE.test(entry.name)) {
-      into.set(relative(PKG_DIR, path), readFileSync(path, 'utf8'));
+      into.set(slashPath(relative(PKG_DIR, path)), readFileSync(path, 'utf8'));
     }
   }
 }
@@ -49,4 +50,6 @@ const html = renderInfraMap(buildInfraModel(sources), {
 
 mkdirSync(OUT_DIR, { recursive: true });
 writeFileSync(OUT_HTML, html);
-console.log(`wrote ${relative(REPO_ROOT, OUT_HTML)} (${html.length} bytes)`);
+console.log(
+  `wrote ${slashPath(relative(REPO_ROOT, OUT_HTML))} (${html.length} bytes)`
+);

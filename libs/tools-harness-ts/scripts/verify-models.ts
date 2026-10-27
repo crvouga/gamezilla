@@ -33,6 +33,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { recordEvidence } from '@pkgs/conformance-server-ts/evidence-store';
 import { sha256 } from '@pkgs/conformance-shared-ts/evidence';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { modelInvariants } from '@pkgs/quint-server-ts/simulate';
 import {
   modelTemporalProperties,
@@ -393,7 +394,7 @@ async function runAll(
 }
 
 if (import.meta.main) {
-  const dir = relative(REPO_ROOT, process.cwd());
+  const dir = slashPath(relative(REPO_ROOT, process.cwd()));
   const pkg = specPackages().find((candidate) => candidate.dir === dir);
   if (pkg === undefined || pkg.models.length === 0) {
     console.error(

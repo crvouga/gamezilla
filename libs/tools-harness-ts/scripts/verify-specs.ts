@@ -31,6 +31,7 @@ import { checkSpecs } from '@pkgs/gherkin-shared-ts/check';
 import { parameterTypeRegistryFrom } from '@pkgs/gherkin-shared-ts/registry';
 import { nearDuplicates } from '@pkgs/gherkin-shared-ts/similarity';
 import { specSmells } from '@pkgs/gherkin-shared-ts/smells';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { randomWalkViolations } from './behavior-tests';
 import { modelShapeProblems } from './model-shape';
 import { campaignProblems, specCampaigns } from './spec-campaigns';
@@ -74,6 +75,7 @@ const specFiles = [
   ...new Bun.Glob('**/*').scanSync({ cwd: join(REPO_ROOT, SPECS_DIR) }),
 ]
   .sort()
+  .map(slashPath)
   .map((file) => ({
     path: `${SPECS_DIR}/${file}`,
     text: readFileSync(join(REPO_ROOT, SPECS_DIR, file), 'utf8'),
@@ -84,6 +86,7 @@ const outsideSpecFiles = ['apps', 'libs', 'pkgs'].flatMap((tier) =>
       cwd: join(REPO_ROOT, tier),
     }),
   ]
+    .map(slashPath)
     .filter(
       (file) => !file.includes('/node_modules/') && !file.includes('/.cache/')
     )
@@ -125,10 +128,12 @@ const errors: string[] = [
           ...new Bun.Glob(`${root}/**/*.test.{ts,tsx}`).scanSync({
             cwd: join(REPO_ROOT, pkg.dir),
           }),
-        ].map((file) => ({
-          path: `${pkg.dir}/${file}`,
-          text: readFileSync(join(REPO_ROOT, pkg.dir, file), 'utf8'),
-        }))
+        ]
+          .map(slashPath)
+          .map((file) => ({
+            path: `${pkg.dir}/${file}`,
+            text: readFileSync(join(REPO_ROOT, pkg.dir, file), 'utf8'),
+          }))
       )
     )
   ),

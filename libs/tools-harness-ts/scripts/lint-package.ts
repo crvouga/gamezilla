@@ -26,6 +26,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { findNamingViolations } from '../naming/naming-rules';
 import { bannedWordViolations, isWordedFile } from './banned-words';
 import { behaviorTestViolations } from './behavior-tests';
@@ -417,8 +418,9 @@ function lintRoot(): Promise<boolean> {
   ).then((biome) => biome && ok);
 }
 
+// Workspace directories are `/`-separated on every OS, Windows included.
 const pkg = process.argv.includes('--root')
   ? ''
-  : relative(REPO_ROOT, process.cwd());
+  : slashPath(relative(REPO_ROOT, process.cwd()));
 const ok = await (pkg === '' ? lintRoot() : lintPackage(pkg));
 process.exit(ok ? 0 : 1);

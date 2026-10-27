@@ -5,6 +5,7 @@
  * fails when any projection is stale.
  */
 import path from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { renderTokensCss } from '@pkgs/ui-root-shared-ts/css-vars';
 import { renderTokenNamesTs } from '@pkgs/ui-root-shared-ts/render-token-names';
 
@@ -30,7 +31,7 @@ const OUTPUTS: readonly { readonly file: string; readonly text: string }[] = [
 
 let stale = false;
 for (const output of OUTPUTS) {
-  const name = path.relative(REPO, output.file);
+  const name = slashPath(path.relative(REPO, output.file));
   if (!check) {
     await Bun.write(output.file, output.text);
     console.log(`wrote ${name}`);

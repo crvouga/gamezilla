@@ -1,4 +1,5 @@
 import { expect, test } from 'bun:test';
+import { join } from 'node:path';
 import { spawnOwned } from '@pkgs/os-server-ts/dev-owner-spawn';
 
 // regression: worker-cron-cold-outbox-registry
@@ -7,7 +8,7 @@ test('a cold cron invocation composes consumers and releases each database sessi
     process.execPath,
     [
       '--no-env-file',
-      new URL('./worker-cron-bootstrap.fixture.ts', import.meta.url).pathname,
+      join(import.meta.dir, 'worker-cron-bootstrap.fixture.ts'),
     ],
     { stdio: ['ignore', 'pipe', 'pipe'] }
   );

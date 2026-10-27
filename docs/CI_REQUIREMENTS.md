@@ -74,6 +74,13 @@ Checks that cannot run on all three are not run in CI, and are listed here so a 
 
 `test:posix` is the one script outside the gate that `test-scripts.ts` accepts; no CI job and no `bun verify` runs it.
 
+Everything else must behave the same on every runner, so code a CI task runs makes no assumption about the OS it is on:
+
+- **Paths.** A repository path is `/`-separated wherever it is compared, stored, hashed, matched or printed: `slashPath(relative(...))` (`@pkgs/os-shared-ts/slash-path`), never a bare `node:path` `relative()` (`libs/tools-harness-ts/biome-plugins/no-native-relative-path.grit` refuses one), and `lastSegment` rather than `split('/')` for a file name. Windows file APIs accept `/`, so a slash path also opens the file. A file URL becomes a path through `fileURLToPath`, never `.pathname`, and an absolute path is never joined under another directory with its drive letter.
+- **Processes and files.** Spawn programs directly or through Bun, not through `sh`; temporary files go under `os.tmpdir()`; a rename onto a file another process may hold is retried, because Windows refuses it.
+- **Tools.** A tool a task needs comes from `mise.toml` (Chrome for Testing included), never from what a runner happens to have installed.
+- **Proof.** A pure function that handles paths has a test that feeds it `node:path`'s `win32` form as well as its `posix` form, so a macOS or Linux run catches a separator bug before a Windows runner does.
+
 ## Runner
 
 Six proposed warm Linux x64 machines, grouped into two verification allocations of up to three machines each. Linux x64 matches the release runner's platform cache key (operating system, architecture, Bun, Chrome), so a remote cache hit is the same verdict. A macOS result stays a different key.
@@ -129,11 +136,11 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | | |
 | --- | --- |
 | Packages | 356 |
-| Verify scripts | 1417 |
+| Verify scripts | 1418 |
 | Measured scripts | 930 |
-| Estimated scripts | 487 |
+| Estimated scripts | 488 |
 | Stale cost keys | 572 |
-| Cold CPU | 18191 s |
+| Cold CPU | 18192 s |
 | Spec parts | 10857 s across 307 tasks |
 | Longest task | @libs/games-harness-ts#test:spec:49 213 s |
 
@@ -145,7 +152,7 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | lint | 355 | 1267 s |
 | test:contract | 25 | 1004 s |
 | verify:models:10 | 16 | 960 s |
-| test | 264 | 925 s |
+| test | 265 | 926 s |
 | verify:models | 46 | 748 s |
 | verify:models:2 | 11 | 660 s |
 | tc | 354 | 538 s |

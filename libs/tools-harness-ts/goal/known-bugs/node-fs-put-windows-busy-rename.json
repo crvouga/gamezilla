@@ -1,0 +1,4 @@
+{
+  "summary": "Windows refuses to rename onto a file another writer is replacing (EPERM/EACCES/EBUSY), so concurrent puts of one key from several processes failed there; a put retries the rename.",
+  "regressionTest": "pkgs/object-store-node-fs-server-ts/tests/put-busy-rename.test.ts"
+}

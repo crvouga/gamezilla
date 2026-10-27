@@ -219,6 +219,10 @@ Four workflows, one contract each. Details:
   Windows, so CI checks only what runs on all three; native packages and
   `test:posix` suites are not checked in CI
   ([`docs/CI_REQUIREMENTS.md`](docs/CI_REQUIREMENTS.md#runner-operating-systems)).
+  Code a CI task runs is OS-neutral: a repository path is `/`-separated
+  (`slashPath` from `@pkgs/os-shared-ts/slash-path`; `no-native-relative-path.grit`
+  refuses a bare `node:path` `relative()`), and nothing assumes a POSIX shell,
+  `/tmp` or a tool the runner did not get from `mise.toml`.
   The ruleset on `main` does not require that verification before a push.
 - **Every gate is a package-owned Turbo task.** The task list in
   `libs/tools-harness-ts/scripts/turbo-ci-run.ts` runs every gate through Turbo. There

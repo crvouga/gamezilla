@@ -28,19 +28,25 @@ runs:
       run: |
         knob=/proc/sys/kernel/apparmor_restrict_unprivileged_userns
         if [ -e "$knob" ]; then echo 0 | sudo tee "$knob" > /dev/null; fi
-    # Chrome's own reason, if it cannot start, in seconds: the tests that use
-    # it print only that the process went away.
+    # Chrome's own reason, if it cannot start, in seconds. The renderer
+    # starts it the way the tests do — Bun.WebView over
+    # --remote-debugging-pipe — with Chrome's stderr shown: a bare
+    # `chrome --dump-dom` started on Windows while every Bun.WebView there
+    # failed with "Chrome process closed the pipe" (Verify run 40571328806).
     - name: Start the renderer once
       shell: bash
       env:
         CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
-      # Bun, not `timeout`: macOS has no `timeout`.
       run: |
         bun -e '
-          let started = false;
-          try {
-            const run = Bun.spawnSync([process.env.CHROME_PATH, "--headless=new", "--dump-dom", "about:blank"], { stdout: "ignore", timeout: 30000 });
-            started = run.exitCode === 0;
-          } catch {}
-          if (!started) console.log("::warning::The pinned Chrome did not start");
+          const view = new Bun.WebView({
+            backend: { type: "chrome", url: false, path: process.env.CHROME_PATH, argv: ["--headless=new"], stderr: "inherit" },
+          });
+          const started = await Promise.race([
+            view.navigate("about:blank").then(() => true, (error) => { console.log(String(error)); return false; }),
+            Bun.sleep(30000).then(() => false),
+          ]);
+          if (!started) console.log("::warning::The pinned Chrome did not start under Bun.WebView; its output is above");
+          Bun.WebView.closeAll();
+          process.exit(0);
         '

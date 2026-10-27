@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "@pkgs/object-store-node-fs-shared-ts": "workspace:*",
-    "@pkgs/object-store-root-shared-ts": "workspace:*"
+    "@pkgs/object-store-root-shared-ts": "workspace:*",
+    "@pkgs/os-shared-ts": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

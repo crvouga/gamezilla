@@ -47,13 +47,14 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import { join, relative, resolve, sep } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import { parseJunit } from '@crvouga/atlas/reports/junit';
 import { REPORT_COMPLETION, REPORT_READY } from '@libs/harness-ts/report-ready';
 import { testFailureSpans } from '@libs/harness-ts/test-failure-spans';
 import { wallClock } from '@pkgs/clock-shared-ts/wall';
 import { stubFileName, stubSource } from '@pkgs/gherkin-shared-ts/stubs';
 import { specParallelism } from '@pkgs/os-server-ts/test-concurrency';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import {
   modelStubFileName,
   modelStubSource,
@@ -78,7 +79,7 @@ const TEST_SERVICE_NAME = `${TEST_PACKAGE_NAME}-spec`;
 
 /** Repo-relative path with `/` separators on every host (report identity). */
 function repoPath(path: string): string {
-  return relative(REPO_ROOT, path).split(sep).join('/');
+  return slashPath(relative(REPO_ROOT, path));
 }
 /**
  * Per test, a wall clock. A scenario costs 2–5 s idle, but under a full
@@ -178,7 +179,7 @@ function namedSpecs(cli: Cli, all: readonly string[]): readonly string[] {
 function requireEntry(entry: string, what: string): void {
   if (existsSync(entry)) return;
   console.error(
-    `test-spec: ${relative(PACKAGE_DIR, entry)} is missing — a package whose specDomains hold ${what}`
+    `test-spec: ${slashPath(relative(PACKAGE_DIR, entry))} is missing — a package whose specDomains hold ${what}`
   );
   process.exit(1);
 }
@@ -226,7 +227,7 @@ function writeStubs(units: readonly SpecUnit[]): readonly string[] {
         reportDir: REPORT_DIR,
       })
     );
-    out.push(`./${relative(PACKAGE_DIR, file)}`);
+    out.push(`./${slashPath(relative(PACKAGE_DIR, file))}`);
   }
   const plans = readReplayPlans(PACKAGE_DIR);
   const quintBridge = Bun.resolveSync(
@@ -249,7 +250,7 @@ function writeStubs(units: readonly SpecUnit[]): readonly string[] {
         replayPlan: replayPlanFor(plans, specPath),
       })
     );
-    out.push(`./${relative(PACKAGE_DIR, file)}`);
+    out.push(`./${slashPath(relative(PACKAGE_DIR, file))}`);
   }
   return out;
 }
@@ -276,7 +277,7 @@ function writeCheckStubs(units: readonly SpecUnit[]): readonly string[] {
           reportDir: REPORT_DIR,
         })
       );
-      return `./${relative(PACKAGE_DIR, file)}`;
+      return `./${slashPath(relative(PACKAGE_DIR, file))}`;
     });
   });
 }
@@ -304,7 +305,8 @@ const ORIGIN = reportOrigin(REPO_ROOT);
 const ACTIVE_REPORT = join(
   REPO_ROOT,
   '.cache/local-reports/active',
-  `${repoPath(PACKAGE_DIR).replaceAll('/', '--')}-${BUCKET}.json`
+  // A package on another drive than the checkout is `D:/...`: no `:` in a name.
+  `${repoPath(PACKAGE_DIR).replace(/[/:]/g, '--')}-${BUCKET}.json`
 );
 rmSync(REPORT_DIR, { recursive: true, force: true });
 mkdirSync(REPORT_DIR, { recursive: true });
@@ -332,7 +334,7 @@ mkdirSync(join(REPO_ROOT, '.cache/local-reports/active'), { recursive: true });
 writeFileSync(
   ACTIVE_REPORT,
   JSON.stringify({
-    packageDir: relative(REPO_ROOT, PACKAGE_DIR),
+    packageDir: slashPath(relative(REPO_ROOT, PACKAGE_DIR)),
     bucket: BUCKET,
     startedAtMs: wallClock.now(),
     plannedChecks: stubs.length,

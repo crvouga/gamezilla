@@ -6,6 +6,7 @@
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const ENTRY_REL = 'apps/client-ts/src/main.tsx';
@@ -208,7 +209,7 @@ export function walkCriticalPath(args: {
     for (const specifier of collectStaticSpecifiers(source)) {
       if (isDeniedSpecifier(specifier)) {
         violations.push({
-          fromRel: relative(args.repoRoot, file),
+          fromRel: slashPath(relative(args.repoRoot, file)),
           specifier,
           reason: 'specifier is on the critical-path denylist',
         });
@@ -231,7 +232,7 @@ export function walkCriticalPath(args: {
       if (resolved === undefined) continue;
       if (isDeniedResolvedPath(resolved)) {
         violations.push({
-          fromRel: relative(args.repoRoot, file),
+          fromRel: slashPath(relative(args.repoRoot, file)),
           specifier,
           reason: 'resolved module is on the critical-path denylist',
         });
@@ -252,7 +253,7 @@ export function scanTopLevelDynamicImports(args: {
   for (const file of args.files) {
     if (!existsSync(file)) continue;
     const source = readFileSync(file, 'utf8');
-    const fromRel = relative(args.repoRoot, file);
+    const fromRel = slashPath(relative(args.repoRoot, file));
     for (const hit of collectDynamicImports(source)) {
       violations.push({
         fromRel: `${fromRel}:${String(hit.line)}`,

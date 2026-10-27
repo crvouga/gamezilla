@@ -187,7 +187,8 @@
     "@libs/light-cycles-harness-ts": "workspace:*",
     "@libs/pong-harness-ts": "workspace:*",
     "@libs/quoridor-harness-ts": "workspace:*",
-    "@libs/word-tiles-harness-ts": "workspace:*"
+    "@libs/word-tiles-harness-ts": "workspace:*",
+    "@pkgs/os-shared-ts": "workspace:*"
   },
   "devDependencies": {
     "@libs/account-privacy-harness-ts": "workspace:*",

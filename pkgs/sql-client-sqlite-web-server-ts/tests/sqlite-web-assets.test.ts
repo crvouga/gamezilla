@@ -8,12 +8,12 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join, resolve, win32 } from 'node:path';
 import {
   buildSqlWorkers,
   sqliteWebAssets,
 } from '@pkgs/sql-client-sqlite-web-server-ts/sqlite-web-assets';
-import { createServer } from 'vite';
+import { createServer, type UserConfig } from 'vite';
 
 const REPO_ROOT = resolve(import.meta.dirname, '../../..');
 
@@ -95,4 +95,19 @@ test('a first dev start in a fresh checkout serves the workers it just emitted',
     await server.close();
     rmSync(root, { recursive: true, force: true });
   }
+});
+
+// regression: sqlite-watch-ignore-windows-glob
+test('the dev server ignores the emitted Windows directories', () => {
+  const publicDir = win32.join('C:\\app', 'public');
+  const plugin = sqliteWebAssets({
+    repoRoot: 'C:\\repo',
+    sqlWorkersDir: win32.join(publicDir, 'sql-workers'),
+    sqliteWasmDir: win32.join(publicDir, 'generated', 'sqlite-wasm'),
+  });
+  const config = (plugin.config as () => UserConfig)();
+  expect(config.server?.watch?.ignored).toEqual([
+    'C:/app/public/sql-workers/**',
+    'C:/app/public/generated/sqlite-wasm/**',
+  ]);
 });
