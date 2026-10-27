@@ -8,7 +8,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, sep } from 'node:path';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
@@ -217,7 +217,7 @@ test('the common root is the deepest directory every path shares', () => {
         const absolute = paths.map((parts) => join('/', 'r', ...parts));
         const root = commonRoot(absolute);
         for (const path of absolute)
-          expect(path === root || path.startsWith(`${root}/`)).toBe(true);
+          expect(path === root || path.startsWith(`${root}${sep}`)).toBe(true);
       }
     )
   );

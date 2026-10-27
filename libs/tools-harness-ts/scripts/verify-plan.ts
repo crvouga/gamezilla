@@ -20,7 +20,12 @@ import { cacheDiagnostics } from './verify-cache-diagnostics';
 import { startedFirst, writeSchedule } from './verify-plan-schedule';
 import { profileManifest } from './verify-profile';
 import { availableRunners } from './verify-runners';
-import type { ShardCapacity, ShardSizing, VerifyTask } from './verify-shards';
+import type {
+  ShardCapacity,
+  ShardSizing,
+  VerifyPlan,
+  VerifyTask,
+} from './verify-shards';
 import {
   adaptiveShardTarget,
   balanceShards,
