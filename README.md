@@ -409,7 +409,7 @@ OpenTofu looks them up. It does not create them.
 | --- | --- |
 | Cloudflare zone `gamezilla.app` | DNS for every hostname above. |
 | PlanetScale organization `gamezilla` | The account the databases are created in. The slug is configuration. |
-| Shared secrets, seeded once with `bun run secrets:seed` | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `GITHUB_ADMIN_TOKEN`, `GRAFANA_CLOUD_API_TOKEN`, `PLANETSCALE_SERVICE_TOKEN_ID`, `PLANETSCALE_SERVICE_TOKEN`, `TOFU_STATE_PASSPHRASE`, `TURBO_API`, `TURBO_TOKEN`, `ELEVEN_LABS_API_KEY`, `WEB_CLIENT_GOOGLE_CLIENT_ID`, `WEB_CLIENT_GOOGLE_CLIENT_SECRET`. Unknown keys in the store are left alone. |
+| Shared secrets, seeded once with `bun run secrets:seed` | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `GITHUB_ADMIN_TOKEN`, `GRAFANA_CLOUD_API_TOKEN`, `PLANETSCALE_SERVICE_TOKEN_ID`, `PLANETSCALE_SERVICE_TOKEN`, `TOFU_STATE_PASSPHRASE`, `TURBO_TOKEN`, `ELEVEN_LABS_API_KEY`, `WEB_CLIENT_GOOGLE_CLIENT_ID`, `WEB_CLIENT_GOOGLE_CLIENT_SECRET`. Unknown keys in the store are left alone. |
 | The Google OAuth client | One redirect, `https://auth.gamezilla.app/api/auth/callback/google`. Google's console has no API. |
 
 ### Data stays
@@ -524,6 +524,8 @@ Continuous integration and continuous delivery: every pull request runs every ga
 | `bun verify-nightly` | Comprehensive verification and exploration: the same tasks at the nightly depth plus the nightly suites. `bun verify-nightly <group>` runs one group (`gate`, `random`, `browser`, `visual`, `coverage`, `performance`). Verify Nightly runs it on `main` every night and owns the reports. |
 | `bun health` | Dispatch Health. Local forms are `bun health:local` and `bun health:prd`. |
 | `bun deploy` | Release `main` by hand, as the three-hourly schedule does: verify the exact commit with the whole gate, then ship it. Local environment forms are `bun deploy:local`, `bun deploy:dev`, and `bun deploy:prd`. |
+
+Every Turbo run, local and CI, shares one remote cache: Vercel Remote Cache, team `crvougas-projects` (`remoteCache` in `turbo.json`). `TURBO_TOKEN` is a Vercel access token for that team; without it a local run uses its local cache only, and CI and deploy refuse to start. `bun run secrets:turbo-token` creates one with the Vercel CLI, writes it to Infisical, revokes the one it replaces, refreshes the local secrets cache and runs `turbo login`; rerun it to rotate the token.
 
 The capacity contract for a self-hosted pull-request verification (under five minutes, and under three minutes for a leaf package) is [docs/CI_REQUIREMENTS.md](docs/CI_REQUIREMENTS.md).
 

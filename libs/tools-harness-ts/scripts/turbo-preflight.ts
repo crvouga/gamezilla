@@ -228,7 +228,7 @@ export function artifactUrl(api: string, team: string, hash: string): string {
 
 const REMOTE_LOOKUP_TIMEOUT_MS = 10_000;
 
-/** Wall `HEAD` against the self-hosted remote cache: does it hold `hash`? */
+/** Wall `HEAD` against the Vercel Remote Cache: does it hold `hash`? */
 export function wallRemoteHas(
   env: NodeJS.ProcessEnv,
   observe?: (status: number, hash: string) => void
@@ -351,7 +351,7 @@ export function dryRunPlan(
 const PREFETCH_CONCURRENCY = 32;
 const PREFETCH_TIMEOUT_MS = 30_000;
 
-/** Wall I/O for `prefetchArtifacts` against the self-hosted remote cache. */
+/** Wall I/O for `prefetchArtifacts` against the Vercel Remote Cache. */
 export function wallPrefetchIo(
   env: NodeJS.ProcessEnv,
   cacheDir: string

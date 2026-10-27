@@ -2,6 +2,10 @@
   "$schema": "https://v2-11-3.turborepo.dev/schema.json",
   "ui": "tui",
   "concurrency": "100%",
+  "remoteCache": {
+    "apiUrl": "https://api.vercel.com",
+    "teamSlug": "crvougas-projects"
+  },
   "globalDependencies": ["tsconfig.base.json", "mise.toml"],
   "globalEnv": ["VERIFY_TIME_LIMITS"],
   "globalPassThroughEnv": [

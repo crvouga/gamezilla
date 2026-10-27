@@ -1,17 +1,17 @@
 /**
  * Shared Turbo flags for CI / local `verify` / `deploy`.
  *
- * - Cache is `local:rw,remote:rw` (self-hosted remote at
- *   `https://turborepo.chrisvouga.dev`) when `TURBO_TOKEN` is present
- *   (`TURBO_TEAM` defaults to the constant slug; telemetry is disabled).
+ * - Cache is `local:rw,remote:rw` (Vercel Remote Cache) when `TURBO_TOKEN`
+ *   is present (`TURBO_API` and `TURBO_TEAM` are pinned to Vercel and the
+ *   constant team slug; telemetry is disabled).
  *   Local disk under `.turbo` is ephemeral in CI. `TURBO_CACHE` may tighten local/remote modes but cannot
  *   drop `remote:` when creds are present.
  * - CI requires `TURBO_TOKEN`. Locally, a missing token (Infisical
  *   login/network fallback) use `local:rw` so `bun verify` still runs.
  * - Disables framework inference so only explicit `turbo.json` `env` /
  *   `globalEnv` enter the hash. Builds explicitly hash public `VITE_*` inputs.
- * - Ensures `TURBO_API` points at the self-hosted cache origin (defaults when
- *   remote creds are present but the secret is unset).
+ * - Pins `TURBO_API` to the Vercel Remote Cache, whatever the environment
+ *   holds, so no run reads or writes any other remote.
  * - No affected-package filter: every gate task is cached per package, so an
  *   unchanged package is a cache hit, which is the same saving without a
  *   second notion of "what changed" to keep correct. The one input turbo
@@ -61,10 +61,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
 import { writeSpecInputs } from '@libs/harness-ts/spec-inputs';
-import {
-  DEFAULT_TURBO_API,
-  TURBO_TEAM,
-} from '@libs/secrets-shared-ts/turbo-token';
+import { TURBO_API, TURBO_TEAM } from '@libs/secrets-shared-ts/turbo-token';
 import { capture } from '@pkgs/os-server-ts/command';
 import { killOrphanEsbuildServices } from '@pkgs/os-server-ts/kill-orphan-esbuild';
 import { captureAudit } from './audit-snapshot';
@@ -336,8 +333,8 @@ export function resolveUi(env: NodeJS.ProcessEnv): string | undefined {
 }
 
 /**
- * Turbo child env: telemetry off, and for the self-hosted remote cache the
- * constant `TURBO_TEAM` plus a normalized / defaulted `TURBO_API`.
+ * Turbo child env: telemetry off, and for the Vercel Remote Cache the
+ * constant `TURBO_TEAM` and `TURBO_API`.
  */
 export function turboChildEnv(
   source: NodeJS.ProcessEnv = process.env
@@ -359,10 +356,8 @@ export function turboChildEnv(
     delete env[REPLAY_BUDGET_ENV];
   applyProfileEnv(env);
   if (!hasRemoteCreds(env)) return env;
-  if ((env['TURBO_TEAM']?.trim() ?? '') === '') env['TURBO_TEAM'] = TURBO_TEAM;
-  const api = env['TURBO_API']?.trim() ?? '';
-  env['TURBO_API'] =
-    api.length > 0 ? api.replace(/\/+$/, '') : DEFAULT_TURBO_API;
+  env['TURBO_TEAM'] = TURBO_TEAM;
+  env['TURBO_API'] = TURBO_API;
   return env;
 }
 
@@ -481,7 +476,7 @@ export function flattenVerifyAggregators(
 function requireRemoteCredsInCi(hasRemote: boolean): void {
   if (hasRemote || !inCi()) return;
   console.error(
-    'turbo-ci-run: TURBO_TOKEN is required for self-hosted Turbo remote cache. ' +
+    'turbo-ci-run: TURBO_TOKEN is required for the Vercel Remote Cache. ' +
       'Run via secrets-run / secrets-auth (Infisical) so local warms upload and CI reuses them.'
   );
   process.exit(1);
@@ -491,7 +486,7 @@ function warnLocalCacheOnly(hasRemote: boolean): void {
   if (hasRemote) return;
   console.warn(
     'turbo-ci-run: TURBO_TOKEN missing; using local cache only. ' +
-      'Run `bun run secrets:pull` so local warms upload to the self-hosted Turbo remote cache.'
+      'Run `bun run secrets:pull` so local warms upload to the Vercel Remote Cache.'
   );
 }
 
@@ -629,7 +624,7 @@ async function main(): Promise<void> {
     `turbo-ci-run: cache=${cache} concurrency=${resolveConcurrency()} log-order=${TURBO_LOG_ORDER} deadline=${Number.isFinite(deadlineSeconds) ? `${String(deadlineSeconds)}s` : 'none'}` +
       (ui !== undefined ? ` ui=${ui}` : '') +
       (remote
-        ? ` (remote creds present; api=${env['TURBO_API'] ?? DEFAULT_TURBO_API}; team=${env['TURBO_TEAM'] ?? TURBO_TEAM})`
+        ? ` (remote creds present; api=${env['TURBO_API'] ?? TURBO_API}; team=${env['TURBO_TEAM'] ?? TURBO_TEAM})`
         : ' (local cache only)')
   );
 

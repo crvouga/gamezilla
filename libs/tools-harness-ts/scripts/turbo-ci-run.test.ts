@@ -1,9 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import {
-  DEFAULT_TURBO_API,
-  TURBO_TEAM,
-} from '@libs/secrets-shared-ts/turbo-token';
+import { TURBO_API, TURBO_TEAM } from '@libs/secrets-shared-ts/turbo-token';
 import {
   defaultVerifyConcurrency,
   flattenVerifyAggregators,
@@ -60,18 +57,20 @@ describe('turbo-ci-run cache flags', () => {
 });
 
 describe('turbo-ci-run child env', () => {
-  test('defaults TURBO_API and TURBO_TEAM when a token is present', () => {
+  test('sets the Vercel TURBO_API and TURBO_TEAM when a token is present', () => {
     const env = turboChildEnv({ TURBO_TOKEN: 'tok' });
-    expect(env['TURBO_API']).toBe(DEFAULT_TURBO_API);
+    expect(env['TURBO_API']).toBe(TURBO_API);
     expect(env['TURBO_TEAM']).toBe(TURBO_TEAM);
   });
 
-  test('passes through and strips trailing slash on TURBO_API', () => {
+  test('overrides any other remote cache in the environment', () => {
     const env = turboChildEnv({
       TURBO_TOKEN: 'tok',
-      TURBO_API: 'https://turborepo.chrisvouga.dev/',
+      TURBO_API: 'https://cache.example',
+      TURBO_TEAM: 'other',
     });
-    expect(env['TURBO_API']).toBe(DEFAULT_TURBO_API);
+    expect(env['TURBO_API']).toBe(TURBO_API);
+    expect(env['TURBO_TEAM']).toBe(TURBO_TEAM);
   });
 
   test('does not invent remote cache settings without a token', () => {

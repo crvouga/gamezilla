@@ -75,6 +75,7 @@
     "reports:performance": "turbo run //#task:reports:performance --",
     "secrets:pull": "turbo run //#task:secrets:pull --",
     "secrets:seed": "bun run libs/secrets-server-ts/scripts/secrets-seed.ts",
+    "secrets:turbo-token": "bun run libs/secrets-server-ts/scripts/turbo-token-rotate.ts",
     "sims:open": "bun run apps/product-ts/scripts/open-sims.ts",
     "sounds:generate": "turbo run //#task:sounds:generate",
     "spec": "turbo run //#task:spec --",
