@@ -1,0 +1,4 @@
+{
+  "summary": "On the Windows runner, setup restored the cached node_modules trees with Git for Windows' GNU tar, which cannot recreate the links bun's isolated install makes; the postinstall then failed with EPERM reading node_modules/.bun/@cucumber+gherkin@42.0.1/node_modules/@cucumber/messages (Verify run 40532833763). The trees are no longer cached on any OS.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-cache.test.ts"
+}

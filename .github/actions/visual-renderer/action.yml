@@ -3,19 +3,22 @@ description: Install the fixed Chrome release only for tasks that need a native 
 runs:
   using: composite
   steps:
-    # A self-hosted Linux runner must already have these libraries. `true`
-    # runs apt-get and upgrades mesa; that download stalled past the step cap
-    # (Verify run 37668279155, mesa-libgallium). The action default is false.
-    - uses: browser-actions/setup-chrome@v2
-      id: chrome
-      with:
-        chrome-version: '154.0.8037.92'
-        install-dependencies: false
-    - name: Select visual renderer
+    # The Chrome for Testing build mise.toml pins, unpacked by mise the same
+    # way on every runner OS: no browser installer action, which on Windows
+    # needed PowerShell 7 (Verify run 40531923687). No system packages are
+    # installed: a self-hosted Linux runner must already have Chrome's
+    # libraries (a package upgrade stalled past the step cap in Verify run
+    # 37668279155, mesa-libgallium).
+    - name: Install the pinned Chrome
       shell: bash
-      env:
-        CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
-      run: echo "BUN_CHROME_PATH=$CHROME_PATH" >> "$GITHUB_ENV"
+      run: mise install http:chrome-for-testing
+    - name: Select visual renderer
+      id: chrome
+      shell: bash
+      run: |
+        chrome_path="$(bun run libs/tools-harness-ts/scripts/chrome-for-testing.ts)"
+        echo "BUN_CHROME_PATH=$chrome_path" >> "$GITHUB_ENV"
+        echo "chrome-path=$chrome_path" >> "$GITHUB_OUTPUT"
     # Chrome's sandbox needs unprivileged user namespaces. Ubuntu's AppArmor
     # profile grants them to the system Chrome's path only, so the pinned
     # Chrome for Testing exits as it starts ("Chrome process closed the pipe",

@@ -16,7 +16,8 @@ test('Verification enforces read/write after secrets injection', () => {
 });
 
 // regression: ci-provider-api-dependency-cache-ref
-test('setup installs frozen dependencies whether or not the dependency cache answers', () => {
+// regression: windows-dependency-tree-cache-eperm
+test('setup installs frozen dependencies on every run and never archives the linked trees', () => {
   const source = readFileSync(
     join(root, '.github/actions/setup/action.yml'),
     'utf8'
@@ -39,32 +40,30 @@ test('setup installs frozen dependencies whether or not the dependency cache ans
   expect(install).toBeGreaterThan(-1);
   expect(steps[install]!.if).toBeUndefined();
   expect(source).toContain('uses: jdx/mise-action@v4');
-  // The cache is an exact, content-only key: no ref, no fallback to the
-  // trees of another lockfile.
+  // No cache key depends on the ref.
   expect(source).not.toMatch(/github\.(ref|head_ref|base_ref)|GITHUB_REF/);
-  const caches = steps.filter(
-    (step) =>
-      step.uses?.startsWith('actions/cache') &&
-      step.with?.['path']?.includes('node_modules')
+  // bun links packages into node_modules; an archive of those links did not
+  // survive Windows (Git's tar restored them unreadable, EPERM), so no OS
+  // caches the trees and every run links them from bun's own cache.
+  expect(
+    steps.filter(
+      (step) =>
+        step.uses?.startsWith('actions/cache') &&
+        step.with?.['path']?.includes('node_modules')
+    )
+  ).toEqual([]);
+});
+
+// regression: windows-ci-installs-agent-tools
+test('setup never installs the laptop-only coding-agent tools', () => {
+  const source = readFileSync(
+    join(root, '.github/actions/setup/action.yml'),
+    'utf8'
   );
-  expect(caches.map((step) => step.uses)).toEqual([
-    'actions/cache/restore@v5',
-    'actions/cache/save@v5',
-  ]);
-  const [restore, save] = caches as [
-    (typeof steps)[number],
-    (typeof steps)[number],
-  ];
-  expect(restore.with!['restore-keys']).toBeUndefined();
-  expect(restore.with!['fail-on-cache-miss']).toBeUndefined();
-  expect(restore.with!['key']).toContain(
-    "hashFiles('bun.lock', 'mise.toml', '.github/actions/setup/action.yml')"
-  );
-  expect(save.with!['path']).toBe(restore.with!['path']!);
-  // Restored before the install verifies the trees, saved after it built them.
-  expect(steps.indexOf(restore)).toBeLessThan(install);
-  expect(steps.indexOf(save)).toBeGreaterThan(install);
-  expect(save.if).toBe("steps.dependencies.outputs.cache-hit != 'true'");
+  const mise = readFileSync(join(root, 'mise.toml'), 'utf8');
+  const disabled = /MISE_DISABLE_TOOLS=([^"\s]+)/.exec(source)?.[1];
+  expect(disabled?.split(',')).toEqual(['pipx:graphifyy', 'pipx:serena-agent']);
+  for (const tool of disabled!.split(',')) expect(mise).toContain(`"${tool}"`);
 });
 
 test('setup reuses generation artifacts separately while retaining frozen dependency validation', () => {

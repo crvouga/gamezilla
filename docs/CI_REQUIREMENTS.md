@@ -55,12 +55,12 @@ The structure sets a floor near five minutes before any uncached test runs: a pl
 
 Every job requests `runs-on: self-hosted` and runs its `run:` steps in bash, so any free self-hosted runner takes it, whatever its OS. Verify PR's `verify:shards` and `verify:end` also request the `runner.os` and `runner.arch` that `verify:start` ran on: a plan holds for the platform it was made on, and `verify-shard-run.ts` refuses any other. Turbo's platform cache key (OS, arch, Bun, Chrome) keeps one OS's verdict from answering for another, so a run on a different OS from the pull request's run executes its tasks again.
 
-Each runner needs, beyond the runner service:
+Setup installs everything else from `mise.toml` the same way on every OS, Chrome for Testing included (`http:chrome-for-testing`); it never caches the linked `node_modules` trees, and never installs the laptop-only coding-agent tools (`MISE_DISABLE_TOOLS`). Each runner needs, beyond the runner service:
 
 - **Any OS:** git, bash and `gh` on the service's PATH. Deploy's wait-for-Health and release steps run before setup installs the pinned tools.
 - **Linux:** Chrome's system libraries (the renderer setup installs no packages) and passwordless `sudo` for the Chrome sandbox's AppArmor knob.
 - **macOS:** the Xcode Command Line Tools: the esbuild clean-up after every Turbo run compiles a small `cc` process probe. Browser tests run in WebKit (`Bun.WebView`) on macOS and Chrome elsewhere.
-- **Windows:** Git for Windows, with its `bash` ahead of `System32\bash.exe` (the WSL launcher) on the service's PATH; Developer Mode on and `core.symlinks=true`, because the checkout holds symlinks and tests create them; long paths enabled (`core.longpaths=true` and the `LongPathsEnabled` policy) for `node_modules`; Windows PowerShell, which reads the pinned Chrome's version; PowerShell 7 (`pwsh`) on the service's PATH, because the actions' tool cache unpacks Chrome's zip with it (Windows PowerShell 5.1 cannot). Setup puts Git for Windows' `usr/bin` (its `unzip`, which installs mise) on PATH itself.
+- **Windows:** Git for Windows, with its `bash` ahead of `System32\bash.exe` (the WSL launcher) on the service's PATH; Developer Mode on and `core.symlinks=true`, because the checkout holds symlinks and tests create them; long paths enabled (`core.longpaths=true` and the `LongPathsEnabled` policy) for `node_modules`; Windows PowerShell (built in), which reads the pinned Chrome's version. Setup puts Git for Windows' `usr/bin` (its `unzip`, which installs mise) on PATH itself.
 
 Checks that cannot run on all three are not run in CI, and are listed here so a change never brings them back silently:
 
