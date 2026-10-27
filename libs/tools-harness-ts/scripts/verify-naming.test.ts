@@ -110,6 +110,11 @@ describe('naming rules', () => {
       // rounds read 11x under load. So measure this process's own CPU time, which
       // other processes cannot inflate; still interleave the sizes and keep the
       // fastest round of each. The bound is unchanged: quadratic reads ~10x.
+      //
+      // Process CPU time is coarse on some hosts (Windows counts it in ~15.6 ms
+      // ticks), so one fast pass can read 0 ms. Repeat each size until the
+      // sample spans many ticks; the per-path cost is then total over paths.
+      const MIN_SAMPLE_CPU_MS = 100;
       const makePaths = (count: number): string[] =>
         Array.from(
           { length: count },
@@ -118,9 +123,15 @@ describe('naming rules', () => {
       const perPathMs = (count: number): number => {
         const paths = makePaths(count);
         const started = process.cpuUsage();
-        findNamingViolations(paths);
-        const spent = process.cpuUsage(started);
-        return (spent.user + spent.system) / 1000 / count;
+        let passes = 0;
+        let spentMs = 0;
+        while (spentMs < MIN_SAMPLE_CPU_MS) {
+          findNamingViolations(paths);
+          passes += 1;
+          const spent = process.cpuUsage(started);
+          spentMs = (spent.user + spent.system) / 1000;
+        }
+        return spentMs / (count * passes);
       };
 
       perPathMs(2_000); // warm the JIT so the first sample is not the slow one

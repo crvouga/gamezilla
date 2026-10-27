@@ -39,7 +39,8 @@ test('independent connections share admission and closing an owner recovers its 
 });
 
 test('the lease location depends on the user home, not checkout or TMPDIR', () => {
+  // A native path: SQLite opens it on the host OS.
   expect(localVerifyLeasePath('/user')).toBe(
-    '/user/.cache/gamezilla/local-verify.sqlite'
+    join('/user', '.cache', 'gamezilla', 'local-verify.sqlite')
   );
 });
