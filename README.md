@@ -363,6 +363,7 @@ resource declared only in fleet.
 | Railway project `gamezilla`, with an environment per env file | One shared project, protected from deletion. Its default `core` environment stays empty; `dev` and `prd` fork it so service creation and removal stay isolated. Railway environments are protected by the plan policy and removed only by a deliberate non-production teardown. |
 | Custom domain `auth.gamezilla.app` on Worker `gamezilla-auth-relay` | One OAuth callback for every environment. The relay reads the OAuth state tag and forwards the callback home. |
 | Shared reference-data bucket and scoped S3 token | The [shared-data configuration](libs/infra-shared-ts/tofu/stacks/fleet/shared-data.tf) retains the Lichess source independently of environment teardown. |
+| CI artifacts bucket `gamezilla-ci-artifacts`, its expiry rule and scoped S3 token | CI jobs hand their plan, verdicts and evidence, and the nightly profile keeps its reports, here instead of in GitHub Actions artifacts, whose account quota stops every Verify run when it fills. Every object expires after `ci_artifacts.retention_days` (7). The [configuration](libs/infra-shared-ts/tofu/stacks/fleet/ci-artifacts.tf) writes `CI_ARTIFACTS_*` to the shared secrets environment. |
 
 The retired reports bucket and its credentials are no longer provisioned. Report
 publishing skips when no `REPORTS_*` credentials are configured.

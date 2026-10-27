@@ -78,3 +78,7 @@ variable "alerting" {
   type        = any
   description = "Read by the bootstrap stack (stacks/bootstrap/alerting.tf)."
 }
+
+variable "ci_artifacts" {
+  type = object({ account_id = string, bucket = string, retention_days = number })
+}

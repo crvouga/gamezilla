@@ -13,6 +13,7 @@ import {
 } from '@libs/secrets-shared-ts/auth-secrets';
 import { CLOUDFLARE_ACCOUNT_ID } from '@libs/secrets-shared-ts/cf-account-id';
 import { CLOUDFLARE_API_TOKEN } from '@libs/secrets-shared-ts/cf-api-token';
+import { CI_ARTIFACTS_SECRETS } from '@libs/secrets-shared-ts/ci-artifacts-credentials';
 import {
   FEEDBACK_GITHUB_REPOSITORY,
   FEEDBACK_GITHUB_TOKEN,
@@ -91,6 +92,7 @@ export const SECRETS: readonly Secret[] = [
   S3_REGION,
   ...REPORTS_SECRETS,
   ...SHARED_DATA_SECRETS,
+  ...CI_ARTIFACTS_SECRETS,
   ELEVEN_LABS_API_KEY,
   GRAFANA_CLOUD_API_TOKEN,
   OBSERVABILITY_COLLECTOR_URL,
