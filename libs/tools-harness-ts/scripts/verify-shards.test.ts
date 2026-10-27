@@ -754,6 +754,22 @@ test('four runners take a corpus that fits their deadline in four shards instead
   expect(Math.max(...started.map((s) => s.seconds))).toBe(540);
 });
 
+// Verify run 40577850573: 92 uncached proof parts each preferred a runner of
+// their own, so four runners still got 64 shards.
+test('proof lanes do not widen a small pool beyond what its deadline needs', () => {
+  const tasks = [
+    ...Array.from({ length: 90 }, (_, i) =>
+      task(`@libs/p${i}-harness-ts#verify:models:${i}`, 30)
+    ),
+    ...Array.from({ length: 20 }, (_, i) => task(`pkg-${i}#test`, 30)),
+  ];
+  const started = startedShards(
+    balanceShards(tasks, 64, 180, { runners: 4, fillSeconds: 720 })
+  );
+  expect(started).toHaveLength(5);
+  expect(Math.max(...started.map((s) => s.seconds))).toBeLessThanOrEqual(720);
+});
+
 test('too few runners queue extra shards rather than overfill one past its deadline', () => {
   const tasks = Array.from({ length: 200 }, (_, i) =>
     task(`pkg-${i}#test`, 90)

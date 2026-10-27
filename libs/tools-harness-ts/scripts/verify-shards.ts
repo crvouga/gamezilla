@@ -111,6 +111,23 @@ function preferredWidth(
   return Math.max(1, solvers + own + Math.ceil(packed / targetSeconds));
 }
 
+/**
+ * The fewest shards that hold the work with none past `fillSeconds`: a group
+ * at least that long fills a shard alone, the rest pack together. Unlike
+ * {@link preferredWidth} it reserves no proof lanes; those are a preference
+ * a small pool cannot afford, not a deadline.
+ */
+function deadlineWidth(
+  ordered: readonly (readonly VerifyTask[])[],
+  fillSeconds: number
+): number {
+  const own = ordered.filter((group) => cost(group) >= fillSeconds).length;
+  const packed = ordered
+    .filter((group) => cost(group) < fillSeconds)
+    .reduce((sum, group) => sum + cost(group), 0);
+  return Math.max(1, own + Math.ceil(packed / fillSeconds));
+}
+
 /** The runners that can take a plan's shards, and how full one shard may get. */
 export type ShardCapacity = {
   readonly runners: number;
@@ -162,7 +179,7 @@ export function balanceShards(
           count,
           Math.max(
             capacity.runners,
-            preferredWidth(ordered, capacity.fillSeconds)
+            deadlineWidth(ordered, capacity.fillSeconds)
           )
         );
   const bins = every.slice(0, shardWidth(ordered, cap, targetSeconds));
