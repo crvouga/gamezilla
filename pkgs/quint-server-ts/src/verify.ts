@@ -311,8 +311,11 @@ const NOISE = [
   /com\.google\.protobuf|^WARNING: Vulnerable protobuf|^As of 2022\/09\/29/,
 ];
 
-/** Quint's verdict, without the Apalache server's pass-by-pass log. */
-function verdict(output: string): string {
+/**
+ * Quint's verdict, without the Apalache server's pass-by-pass log. The JVM
+ * ends lines with `\r\n` on Windows, so lines split on either ending.
+ */
+export function verdict(output: string): string {
   const at = output.indexOf('An example execution:');
   if (at >= 0) return output.slice(at).trim();
   // An opaque RPC failure can follow the server's actual exception. Keep
@@ -320,12 +323,12 @@ function verdict(output: string): string {
   if (/\bINTERNAL:/.test(output)) return output.trim();
   return tail(
     output
-      .split('\n')
+      .split(/\r?\n/)
       .filter((line) => !NOISE.some((noise) => noise.test(line)))
       .join('\n')
   );
 }
 
 function tail(output: string): string {
-  return output.trim().split('\n').slice(-40).join('\n');
+  return output.trim().split(/\r?\n/).slice(-40).join('\n');
 }

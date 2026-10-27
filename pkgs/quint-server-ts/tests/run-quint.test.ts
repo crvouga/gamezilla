@@ -1,4 +1,5 @@
 import { expect, test } from 'bun:test';
+import { spawn } from 'node:child_process';
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -38,18 +39,27 @@ test.each(['on', 'off'])(
   'a checker terminated after the JVM notice retains its exit signal and stderr (limits %s)',
   async (mode) => {
     const cwd = mkdtempSync(join(tmpdir(), 'quint-signal-'));
+    const args = [
+      '-e',
+      "console.error('Picked up JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=4'); process.kill(process.pid, 'SIGTERM')",
+    ];
     try {
       const result = await runQuint({
-        args: [
-          '-e',
-          "console.error('Picked up JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=4'); process.kill(process.pid, 'SIGTERM')",
-        ],
+        args,
         cwd,
         env: { VERIFY_TIME_LIMITS: mode },
         timeoutMs: 1000,
       });
-      expect(result.code).toBeNull();
-      expect(result.signal).toBe('SIGTERM');
+      // The status this OS gives the terminated process: the signal on
+      // POSIX, a nonzero exit code on Windows, which has no signals.
+      const native = await exitStatus(args);
+      expect(native).toEqual(
+        process.platform === 'win32'
+          ? { code: expect.any(Number), signal: null }
+          : { code: null, signal: 'SIGTERM' }
+      );
+      expect(native.code).not.toBe(0);
+      expect({ code: result.code, signal: result.signal }).toEqual(native);
       expect(result.timedOut).toBe(false);
       expect(result.output).toContain('Picked up JAVA_TOOL_OPTIONS');
     } finally {
@@ -57,6 +67,17 @@ test.each(['on', 'off'])(
     }
   }
 );
+
+/** The exit status of `args` run directly, as the OS reports it. */
+function exitStatus(
+  args: readonly string[]
+): Promise<{ code: number | null; signal: NodeJS.Signals | null }> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, args, { stdio: 'ignore' });
+    child.once('error', reject);
+    child.once('exit', (code, signal) => resolve({ code, signal }));
+  });
+}
 
 test('Windows kills the checker tree with taskkill, and an exited checker is not an error', () => {
   const calls: (readonly [string, readonly string[]])[] = [];

@@ -5,7 +5,7 @@ import {
   APALACHE_VERSION,
   resolveApalache,
 } from '@pkgs/quint-server-ts/apalache';
-import { verify } from '@pkgs/quint-server-ts/verify';
+import { verdict, verify } from '@pkgs/quint-server-ts/verify';
 
 const FIXTURES = join(import.meta.dir, 'fixtures');
 const OUT = join(import.meta.dir, '../.cache/test-verify');
@@ -72,6 +72,20 @@ describe('verify', () => {
     },
     VERIFY_TIMEOUT_MS
   );
+
+  // regression: quint-verdict-crlf-server-log
+  test('the server log is dropped from a verdict whose lines end in CRLF', () => {
+    // As the Windows JVM wrote it (Verify run 40596596039).
+    const output = [
+      '  > No temporal property specified, nothing to encode             I@15:45:59.927',
+      'PASS #6: InlinePass                                               I@15:45:59.927',
+      'State 0: state invariant 0 holds.                                 I@15:46:00.244',
+      'error: <unknown>: Input error (see the manual): Expected a constant integer range in [ .. ], found 1..IF (n$1 > count) THEN n$1 ELSE count.',
+    ].join('\r\n');
+    expect(verdict(output)).toBe(
+      'error: <unknown>: Input error (see the manual): Expected a constant integer range in [ .. ], found 1..IF (n$1 > count) THEN n$1 ELSE count.'
+    );
+  });
 
   test('a model with no invariant fails without running the checker', async () => {
     const result = await verify({

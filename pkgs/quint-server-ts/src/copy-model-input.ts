@@ -3,6 +3,14 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { quintImportPaths } from '@pkgs/quint-shared-ts/imports';
 
+/**
+ * An absolute path less its root (`/`, a Windows drive or a UNC `\\`), so
+ * it nests under another directory on every OS.
+ */
+export function rootlessPath(path: string): string {
+  return path.replace(/^[A-Za-z]:/, '').replace(/^[/\\]+/, '');
+}
+
 /** Copy sources without compiling them; the official checker validates the copy. */
 export function copyModelInput(
   specPath: string,
@@ -10,9 +18,7 @@ export function copyModelInput(
   transform: (source: string, path: string) => string
 ): string {
   const visited = new Set<string>();
-  // An absolute path, less its root (`/` or a Windows drive), under `root`.
-  const destination = (path: string) =>
-    join(root, path.replace(/^[A-Za-z]:/, '').replace(/^[/\\]+/, ''));
+  const destination = (path: string) => join(root, rootlessPath(path));
   const copy = (path: string): void => {
     if (visited.has(path)) return;
     visited.add(path);
