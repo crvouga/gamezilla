@@ -2,7 +2,12 @@
 import { realpathSync } from 'node:fs';
 import { processSnapshot } from './dev-owner-state';
 
-export type KillEsbuildServicesOptions = { readonly commandIncludes: string };
+export type KillEsbuildServicesOptions = {
+  readonly commandIncludes: string;
+  /** Host platform; injectable so the Windows branch is testable anywhere. */
+  readonly platform?: NodeJS.Platform;
+};
+
 function collect(
   options: KillEsbuildServicesOptions,
   orphanOnly: boolean
@@ -26,13 +31,22 @@ function collect(
     }
   }
 }
+/**
+ * Orphaned esbuild services are a POSIX artifact: a dead parent reparents its
+ * `esbuild --service` child to pid 1, and the cleanup finds it with `ps`.
+ * Windows has neither reparenting to pid 1 nor `ps`, so there is nothing to
+ * collect and the snapshot would only fail.
+ */
+function posixHost(options: KillEsbuildServicesOptions): boolean {
+  return (options.platform ?? process.platform) !== 'win32';
+}
 export function killOrphanEsbuildServices(
   options: KillEsbuildServicesOptions
 ): void {
-  collect(options, true);
+  if (posixHost(options)) collect(options, true);
 }
 export function killAllEsbuildServices(
   options: KillEsbuildServicesOptions
 ): void {
-  collect(options, false);
+  if (posixHost(options)) collect(options, false);
 }

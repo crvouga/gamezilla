@@ -56,7 +56,17 @@ function spawnTurbo(
       '--output-logs=full',
       '--continue=dependencies-successful',
     ],
-    { cwd: ROOT, env, detached: true, stdio: ['ignore', 'pipe', 'pipe'] }
+    {
+      cwd: ROOT,
+      env,
+      // A process group lets killProcessTree reach detached task workers on
+      // POSIX. Windows has no process groups (taskkill /T walks the tree), and
+      // a detached child there loses its console, so every task turbo starts
+      // would allocate a console window of its own.
+      detached: process.platform !== 'win32',
+      windowsHide: true,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }
   );
 }
 

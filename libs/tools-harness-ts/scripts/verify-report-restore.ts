@@ -52,12 +52,11 @@ export async function restoreReportOutputs(args: {
       const tar = Bun.zstdDecompressSync(
         new Uint8Array(await response.arrayBuffer())
       );
+      // Run in `root`: GNU tar (Git Bash on Windows) misreads `C:\…` paths.
       const restored = spawnSync(
         'tar',
-        ['-xf', '-', '-C', root, '--', reportOutputPath(id)],
-        {
-          input: tar,
-        }
+        ['-xf', '-', '--', reportOutputPath(id)],
+        { cwd: root, input: tar }
       );
       if (restored.status !== 0)
         throw new Error(`Report cache extraction failed: ${id}`);

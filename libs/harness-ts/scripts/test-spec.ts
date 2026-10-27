@@ -47,7 +47,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
+import { join, relative, resolve, sep } from 'node:path';
 import { parseJunit } from '@crvouga/atlas/reports/junit';
 import { REPORT_COMPLETION, REPORT_READY } from '@libs/harness-ts/report-ready';
 import { testFailureSpans } from '@libs/harness-ts/test-failure-spans';
@@ -75,6 +75,11 @@ const QUINT_ENTRY = join(PACKAGE_DIR, 'tests/quint/index.ts');
 const REPO_ROOT = resolve(import.meta.dir, '../../..');
 const TEST_PACKAGE_NAME = process.env['npm_package_name'] ?? 'unknown';
 const TEST_SERVICE_NAME = `${TEST_PACKAGE_NAME}-spec`;
+
+/** Repo-relative path with `/` separators on every host (report identity). */
+function repoPath(path: string): string {
+  return relative(REPO_ROOT, path).split(sep).join('/');
+}
 /**
  * Per test, a wall clock. A scenario costs 2–5 s idle, but under a full
  * `bun verify` (every package's spec plus the Quint models at once) chess
@@ -203,7 +208,7 @@ function writeStubs(units: readonly SpecUnit[]): readonly string[] {
     import.meta.dir
   );
   for (const { path: featurePath, slice } of features) {
-    const featureUri = relative(REPO_ROOT, featurePath);
+    const featureUri = repoPath(featurePath);
     const file = join(SPEC_STUB_DIR, stubFileName(featureUri, slice));
     writeFileSync(
       file,
@@ -229,7 +234,7 @@ function writeStubs(units: readonly SpecUnit[]): readonly string[] {
     import.meta.dir
   );
   for (const { path: specPath, slice } of models) {
-    const specUri = relative(REPO_ROOT, specPath);
+    const specUri = repoPath(specPath);
     const file = join(SPEC_STUB_DIR, modelStubFileName(specUri, slice));
     writeFileSync(
       file,
@@ -258,7 +263,7 @@ function writeCheckStubs(units: readonly SpecUnit[]): readonly string[] {
     requireEntry(entry, kind.what);
     const bridge = Bun.resolveSync(kind.bridge, import.meta.dir);
     return specs.map(({ path: specPath }) => {
-      const specUri = relative(REPO_ROOT, specPath);
+      const specUri = repoPath(specPath);
       const file = join(SPEC_STUB_DIR, kind.fileName(specUri));
       writeFileSync(
         file,
@@ -299,7 +304,7 @@ const ORIGIN = reportOrigin(REPO_ROOT);
 const ACTIVE_REPORT = join(
   REPO_ROOT,
   '.cache/local-reports/active',
-  `${relative(REPO_ROOT, PACKAGE_DIR).replaceAll('/', '--')}-${BUCKET}.json`
+  `${repoPath(PACKAGE_DIR).replaceAll('/', '--')}-${BUCKET}.json`
 );
 rmSync(REPORT_DIR, { recursive: true, force: true });
 mkdirSync(REPORT_DIR, { recursive: true });

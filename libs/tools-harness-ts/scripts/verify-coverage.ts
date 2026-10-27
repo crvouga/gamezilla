@@ -18,7 +18,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { availableParallelism } from 'node:os';
-import { join } from 'node:path';
+import { join, sep } from 'node:path';
 import { testConcurrency } from '@pkgs/os-server-ts/test-concurrency';
 import type { FileCoverage } from './lcov';
 import { formatLcov, mergeInto, parseLcov } from './lcov';
@@ -116,6 +116,20 @@ export function coverageWorkerEnv(
   };
 }
 
+/**
+ * A test script segment runs under the shell `bun run` would use for it: `sh`
+ * on POSIX, Bun's own shell on Windows (no POSIX shell is assumed there). Both
+ * handle the segments' quoting, globs and `$(...)` substitutions.
+ */
+export function scriptShellArgv(
+  command: string,
+  platform: NodeJS.Platform = process.platform
+): readonly string[] {
+  return platform === 'win32'
+    ? [process.execPath, 'exec', command]
+    : ['sh', '-c', command];
+}
+
 async function runSpec(
   spec: RunSpec,
   env: NodeJS.ProcessEnv
@@ -123,7 +137,7 @@ async function runSpec(
   const coverageDir = join(spec.plan.coverageRoot, String(spec.index));
   const command = `${spec.command} --coverage --coverage-reporter=lcov --coverage-dir=${JSON.stringify(coverageDir)}`;
   const startedAt = Date.now();
-  const proc = Bun.spawn(['sh', '-c', command], {
+  const proc = Bun.spawn([...scriptShellArgv(command)], {
     cwd: spec.plan.dir,
     env,
     stdout: 'pipe',
@@ -182,7 +196,10 @@ function collectIndex(
       result.plan.dir
     )) {
       const { path } = record;
-      if (!path.startsWith(REPO_ROOT) || path.includes('/node_modules/')) {
+      if (
+        !path.startsWith(REPO_ROOT) ||
+        path.includes(`${sep}node_modules${sep}`)
+      ) {
         continue;
       }
       mergeInto(index, record);

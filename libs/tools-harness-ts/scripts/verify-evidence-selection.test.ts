@@ -43,8 +43,10 @@ test('verdict and consumer extraction omit failed report payloads and unrelated 
       writeFileSync(join(source, entry), '{}');
     }
     const archive = join(fixture, 'evidence.tar');
+    // Relative names: GNU tar (Git Bash on Windows) misreads `C:\…` paths.
     expect(
-      spawnSync('tar', ['-cf', archive, '-C', source, ...entries]).status
+      spawnSync('tar', ['-cf', '../evidence.tar', ...entries], { cwd: source })
+        .status
     ).toBe(0);
     const listed = archiveEntries(archive);
     for (const mode of ['verdict', 'consumers']) {

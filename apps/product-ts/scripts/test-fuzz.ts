@@ -2,9 +2,9 @@
 // @io-wall-ok
 import { spawnSync } from 'node:child_process';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join, relative, sep } from 'node:path';
 import { recordSeeds } from './seed-record';
-import { testFileCommand } from './test-file-command';
+import { owningPackagePath, testFileCommand } from './test-file-command';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 
@@ -34,7 +34,7 @@ function collectHarnessTests(): string[] {
         continue;
       }
       // Prefer package-level tests/ suites.
-      const underTests = path.includes('/tests/');
+      const underTests = path.includes(`${sep}tests${sep}`);
       if (
         underTests &&
         (name.endsWith('.test.ts') || name.endsWith('.test.tsx')) &&
@@ -67,8 +67,8 @@ if (files.length === 0) {
 }
 
 const commands = files.map((file) => {
-  const selected = relative(REPO_ROOT, file);
-  const packagePath = selected.split('/').slice(0, 2).join('/');
+  const selected = relative(REPO_ROOT, file).split(sep).join('/');
+  const packagePath = owningPackagePath(selected);
   const manifest = JSON.parse(
     readFileSync(join(REPO_ROOT, packagePath, 'package.json'), 'utf8')
   ) as { scripts: Record<string, string> };

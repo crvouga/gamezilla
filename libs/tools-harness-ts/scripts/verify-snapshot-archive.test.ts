@@ -8,7 +8,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { archiveVerifySnapshot } from './verify-snapshot-archive';
 
 test('diagnostics retain failures and exclude the local credential cache', async () => {
@@ -27,14 +27,12 @@ test('diagnostics retain failures and exclude the local credential cache', async
   );
   try {
     const archive = await archiveVerifySnapshot(root);
-    const names = execFileSync('tar', ['-tzf', archive], { encoding: 'utf8' });
-    expect(names).not.toContain('.cache/secrets');
+    // Relative names: GNU tar (Git Bash on Windows) misreads `C:\…` paths.
+    const tar = (...args: string[]) =>
+      execFileSync('tar', args, { cwd: dirname(archive), encoding: 'utf8' });
+    expect(tar('-tzf', basename(archive))).not.toContain('.cache/secrets');
     expect(
-      execFileSync(
-        'tar',
-        ['-xOf', archive, './.cache/harness-report/failure.log'],
-        { encoding: 'utf8' }
-      )
+      tar('-xOf', basename(archive), './.cache/harness-report/failure.log')
     ).toBe('literal failing input retained');
     expect(existsSync(root)).toBe(false);
   } finally {

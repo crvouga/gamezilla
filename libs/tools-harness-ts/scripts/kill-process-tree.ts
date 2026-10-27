@@ -25,7 +25,37 @@ export function descendantPids(
   return found.reverse();
 }
 
-export function killProcessTree(pid: number, signal: NodeJS.Signals): void {
+type RunCommand = (file: string, args: readonly string[]) => void;
+
+const runQuietly: RunCommand = (file, args) => {
+  execFileSync(file, args, { stdio: 'ignore', windowsHide: true });
+};
+
+/**
+ * Windows has no process groups to signal and no `ps`; `taskkill /T` walks the
+ * tree by parent pid and `/F` terminates it. Windows cannot deliver a
+ * catchable SIGTERM to a console process, so every signal is a hard kill.
+ */
+export function killWindowsProcessTree(
+  pid: number,
+  run: RunCommand = runQuietly
+): void {
+  try {
+    run('taskkill', ['/PID', String(pid), '/T', '/F']);
+  } catch {
+    /* Already exited: taskkill reports the pid as not found. */
+  }
+}
+
+export function killProcessTree(
+  pid: number,
+  signal: NodeJS.Signals,
+  platform: NodeJS.Platform = process.platform
+): void {
+  if (platform === 'win32') {
+    killWindowsProcessTree(pid);
+    return;
+  }
   let descendants: readonly number[] = [pid];
   try {
     const output = execFileSync('ps', ['-axo', 'pid=,ppid=,etime=,command='], {
