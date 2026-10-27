@@ -1,0 +1,4 @@
+{
+  "summary": "verify:root-lint passed every root file to one `bunx biome check`; the ~33K-character command line exceeded the Windows 32,767-character cap and spawn failed with ENAMETOOLONG. Fixed: the paths are split into batches under a 16K budget, each checked by its own Biome run.",
+  "regressionTest": "libs/tools-harness-ts/scripts/argument-batches.test.ts"
+}
