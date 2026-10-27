@@ -135,6 +135,64 @@ export type ShardCapacity = {
   readonly fillSeconds: number;
 };
 
+/** What starting one more shard costs, and how much of its runner's time must be tasks. */
+export type ShardSizing = {
+  /** Seconds a shard spends outside its tasks: checkout, setup, plan restore, upload. */
+  readonly setupSeconds: number;
+  /** A shard holds at least this many times its setup in work, per slot. */
+  readonly setupMultiple: number;
+  /** Turbo slots per shard. */
+  readonly slots: number;
+};
+
+/** How the plan sized its shards, for the log. */
+export type ShardTarget = {
+  readonly targetSeconds: number;
+  readonly uncachedSeconds: number;
+  readonly longestGroupSeconds: number;
+  readonly efficiencySeconds: number;
+};
+
+/**
+ * Seconds of uncached work worth starting one shard for. A shard holds at
+ * least `setupMultiple` times its setup per slot, so setup stays a small
+ * share of the runner's time, and never less than the longest indivisible
+ * task group: the run cannot finish before that group does, so smaller
+ * shards only pay setup again without finishing sooner. `fillSeconds`, the
+ * most a shard may hold inside its deadline, caps it.
+ */
+export function adaptiveShardTarget(
+  tasks: readonly VerifyTask[],
+  sizing: ShardSizing,
+  fillSeconds = Number.POSITIVE_INFINITY
+): ShardTarget {
+  if (
+    !(sizing.setupSeconds > 0) ||
+    !(sizing.setupMultiple > 0) ||
+    !Number.isSafeInteger(sizing.slots) ||
+    sizing.slots < 1
+  )
+    throw new Error('Shard sizing needs positive setup, multiple and slots');
+  const verifications = verifyStages(
+    [...tasks].sort((a, b) => compare(a.taskId, b.taskId))
+  ).verifications;
+  const longestGroupSeconds = Math.max(
+    0,
+    ...groups(verifications).map((group) => cost(group))
+  );
+  const efficiencySeconds =
+    sizing.setupMultiple * sizing.setupSeconds * sizing.slots;
+  return {
+    targetSeconds: Math.min(
+      fillSeconds,
+      Math.max(efficiencySeconds, longestGroupSeconds)
+    ),
+    uncachedSeconds: cost(verifications),
+    longestGroupSeconds,
+    efficiencySeconds,
+  };
+}
+
 /**
  * Spread uncached solver groups, then LPT; ties use stable discovery order.
  * `targetSeconds` narrows the plan to the shards its uncached work needs

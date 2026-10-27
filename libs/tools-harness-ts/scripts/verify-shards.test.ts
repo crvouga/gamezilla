@@ -6,6 +6,7 @@ import { CI_RUN_DEADLINE_SECONDS, taskBudgetSeconds } from './verify-budget';
 import { redactSecrets, taskStream } from './verify-shard-stream';
 import type { VerifyTask } from './verify-shards';
 import {
+  adaptiveShardTarget,
   balanceShards,
   executes,
   planWarnings,
@@ -779,4 +780,61 @@ test('too few runners queue extra shards rather than overfill one past its deadl
   );
   expect(started).toHaveLength(25);
   expect(Math.max(...started.map((s) => s.seconds))).toBeLessThanOrEqual(720);
+});
+
+const SIZING = { setupSeconds: 30, setupMultiple: 3, slots: 1 };
+
+test('a shard holds a few times its setup, never less than the longest group, never past its deadline fill', () => {
+  assertProperty(
+    'verify-adaptive-shard-target',
+    fc.property(
+      fc.array(fc.integer({ min: 1, max: 900 }), {
+        minLength: 1,
+        maxLength: 60,
+      }),
+      fc.integer({ min: 1, max: 120 }),
+      fc.integer({ min: 100, max: 2000 }),
+      (seconds, setup, fill) => {
+        const tasks = seconds.map((s, i) => task(`pkg-${i}#test`, s));
+        const target = adaptiveShardTarget(
+          tasks,
+          { ...SIZING, setupSeconds: setup },
+          fill
+        );
+        expect(target.longestGroupSeconds).toBe(Math.max(...seconds));
+        expect(target.uncachedSeconds).toBe(seconds.reduce((a, b) => a + b, 0));
+        expect(target.targetSeconds).toBe(
+          Math.min(fill, Math.max(3 * setup, Math.max(...seconds)))
+        );
+      }
+    )
+  );
+});
+
+test('cached tasks size nothing', () => {
+  const tasks = [{ ...task('a#test', 500), hit: true }, task('b#test', 40)];
+  expect(adaptiveShardTarget(tasks, SIZING)).toEqual({
+    targetSeconds: 90,
+    uncachedSeconds: 40,
+    longestGroupSeconds: 40,
+    efficiencySeconds: 90,
+  });
+});
+
+// Verify run 40577850573's pull-request share: 2,500 s of small tasks whose
+// longest is 132 s. Shards smaller than that group cannot finish sooner.
+test('more runners than useful shards start only the shards that shorten the run', () => {
+  const tasks = Array.from({ length: 40 }, (_, i) =>
+    task(`pkg-${i}#test`, i === 0 ? 132 : 60)
+  );
+  const target = adaptiveShardTarget(tasks, SIZING, 720);
+  expect(target.targetSeconds).toBe(132);
+  const started = balanceShards(tasks, 64, target.targetSeconds, {
+    runners: 34,
+    fillSeconds: 720,
+  }).shards.filter(
+    (shard) => shard.stage === 'verifications' && shard.tasks.length > 0
+  );
+  expect(started.length).toBeLessThan(34);
+  expect(started.length).toBe(Math.ceil((132 + 39 * 60) / 132));
 });

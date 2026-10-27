@@ -117,9 +117,12 @@ env:
   GH_EVENT: ${{ github.event_name }}
   PR_BASE: ${{ github.event.pull_request.base.sha }}
   PR_HEAD: ${{ github.event.pull_request.head.sha }}
-  # A cap, not the count: the plan packs the uncached work into shards of
-  # about three minutes each, never more than the online runners for the start
-  # job's OS and arch (libs/tools-harness-ts/scripts/verify-runners.ts).
+  # A cap, not the count. The plan sizes shards to the work: each holds at
+  # least three times a shard's setup (`VERIFY_SHARD_SETUP_SECONDS`, 30 s)
+  # and no less than the longest indivisible task group, and it starts no
+  # more than the online runners for the start job's OS and arch unless the
+  # shard deadline needs more (libs/tools-harness-ts/scripts/verify-plan.ts,
+  # verify-runners.ts). The log's `shards:` line says why.
   # Forty left a cold corpus — every cache missed — packed past the 1200s
   # shard deadline once each solver had a runner of its own (Verify run
   # 38328597240); sixty-four keeps that pack inside the deadline.
