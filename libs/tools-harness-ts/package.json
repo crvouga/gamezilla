@@ -18,7 +18,8 @@
     "install:cli": "mise install",
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test scripts/*.test.ts",
+    "test": "bun test --path-ignore-patterns='scripts/{verify-actionlint.test.ts,verify-prepared-model.contract.test.ts,verify-snapshot.test.ts,workflow-artifacts.test.ts,workspace-run.test.ts}' scripts/*.test.ts",
+    "test:posix": "bun test scripts/verify-actionlint.test.ts scripts/verify-prepared-model.contract.test.ts scripts/verify-snapshot.test.ts scripts/workflow-artifacts.test.ts scripts/workspace-run.test.ts",
     "verify:actionlint": "bun run scripts/verify-actionlint.ts",
     "verify:root-lint": "bun run scripts/lint-package.ts --root",
     "verify:secrets": "bun run scripts/verify-secrets.ts"

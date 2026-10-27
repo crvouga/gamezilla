@@ -33,6 +33,12 @@ concurrency:
   group: deploy-main
   cancel-in-progress: false
 
+# Every job runs on whichever self-hosted runner is free — Linux, macOS or
+# Windows — so every `run:` step is bash (Git Bash on Windows).
+defaults:
+  run:
+    shell: bash
+
 jobs:
   deploy-verify:
     name: Verify commit
@@ -47,7 +53,7 @@ jobs:
     name: Preview infrastructure changes
     if: ${{ inputs.rehearsal }}
     needs: deploy-verify
-    runs-on: ubuntu-24.04
+    runs-on: self-hosted
     timeout-minutes: 20
     env:
       SECRETS_ENV: dev
@@ -73,7 +79,7 @@ jobs:
     name: Deploy shared services
     if: ${{ !inputs.rehearsal }}
     needs: deploy-verify
-    runs-on: ubuntu-24.04
+    runs-on: self-hosted
     timeout-minutes: 20
     env:
       SECRETS_ENV: shared
@@ -101,7 +107,7 @@ jobs:
   deploy-dev:
     name: Deploy development
     needs: deploy-fleet
-    runs-on: ubuntu-24.04
+    runs-on: self-hosted
     # Above `DEPLOY_RUN_DEADLINE_SECONDS` (45 min) plus setup, so
     # turbo-ci-run's own deadline fires first and names what wedged.
     timeout-minutes: 55
@@ -163,7 +169,7 @@ jobs:
   deploy-prd:
     name: Deploy production
     needs: deploy-dev
-    runs-on: ubuntu-24.04
+    runs-on: self-hosted
     timeout-minutes: 55
     environment: production
     env:
@@ -175,7 +181,7 @@ jobs:
   deploy-release:
     name: Publish release
     needs: deploy-prd
-    runs-on: ubuntu-24.04
+    runs-on: self-hosted
     timeout-minutes: 5
     permissions:
       contents: write

@@ -14,6 +14,10 @@
  *   is a bug to fix, not to retry.
  * - A test file no gate script reaches never runs. It reads like coverage and
  *   proves nothing.
+ * - `test:posix` is the one declared exception: tests of behavior only a POSIX
+ *   host (Linux, macOS) has, such as process groups or a broker with no Windows
+ *   build. CI runs only checks every runner OS can run, so no gate runs it;
+ *   it is run by hand. Its files are disabled, not orphaned.
  * - The harness spec runner also runs the specs (features and Quint models) of
  *   the domains the package lists in `specDomains`, so a `test:spec` with no
  *   `tests/harness/` file is fine when it runs specs; `spec:verify` proves those
@@ -35,6 +39,12 @@ export const GATE_TEST_SCRIPTS = [
   'test:spec',
   'test:integration',
 ] as const;
+
+/**
+ * Tests that only run on a POSIX host. Disabled: no gate runs them, because
+ * every CI job must run on Linux, macOS and Windows alike.
+ */
+export const POSIX_TEST_SCRIPT = 'test:posix';
 
 /** The one harness runner every package's `test:spec` uses. */
 const SPEC_RUNNER = 'libs/harness-ts/scripts/test-spec.ts';
@@ -163,6 +173,7 @@ export function testScriptViolations(input: {
     ...Object.keys(input.scripts).filter((name) =>
       /^test:contract:\d+$/.test(name)
     ),
+    POSIX_TEST_SCRIPT,
   ];
   for (const name of gateScripts) {
     const script = input.scripts[name];
@@ -186,7 +197,7 @@ export function testScriptViolations(input: {
   const orphans = testFiles.filter((file) => !reached.has(file));
   if (orphans.length > 0) {
     out.push(
-      `test files no gate script runs (${GATE_TEST_SCRIPTS.join(', ')}) — they never execute:\n    ${orphans.join('\n    ')}`
+      `test files no gate script runs (${[...GATE_TEST_SCRIPTS, POSIX_TEST_SCRIPT].join(', ')}) — they never execute:\n    ${orphans.join('\n    ')}`
     );
   }
   return out;

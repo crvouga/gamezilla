@@ -58,6 +58,8 @@ test('the Infisical CLI names its release asset per platform', () => {
     'macos-x64': 'cli_{{ version }}_darwin_amd64.tar.gz',
     'linux-arm64': 'cli_{{ version }}_linux_arm64.tar.gz',
     'linux-x64': 'cli_{{ version }}_linux_amd64.tar.gz',
+    'windows-x64': 'cli_{{ version }}_windows_amd64.zip',
+    'windows-arm64': 'cli_{{ version }}_windows_arm64.zip',
   });
 });
 

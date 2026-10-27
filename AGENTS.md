@@ -208,14 +208,14 @@ Four workflows, one contract each. Details:
 - **A nightly finding is promoted.** Pin the failing trace in the model
   binding's `regressions`, or the shrunk input as a `// regression: <bug-id>`
   example, so the `pr` profile replays it from then on.
-- **The required status is `verify:end`.** Verify PR is four jobs
-  (`verify:start`, `verify:shards (N)`, `verify:apple`, `verify:end`). They
-  keep the `verify:` prefix wherever the gate runs (a pull request, Deploy's
-  verification, the nightly run). `verify:apple` is the macOS gate for packages
-  that build for Apple platforms; it is skipped only when the plan finds its
-  tasks cached, and anything else it does decides the verdict
-  ([`docs/POLYGLOT.md`](docs/POLYGLOT.md#ci)). The ruleset on `main` does not
-  require that verification before a push.
+- **The required status is `verify:end`.** Verify PR is three jobs
+  (`verify:start`, `verify:shards (N)`, `verify:end`). They keep the `verify:`
+  prefix wherever the gate runs (a pull request, Deploy's verification, the
+  nightly run). Every CI job runs on any self-hosted runner, Linux, macOS or
+  Windows, so CI checks only what runs on all three; native packages and
+  `test:posix` suites are not checked in CI
+  ([`docs/CI_REQUIREMENTS.md`](docs/CI_REQUIREMENTS.md#runner-operating-systems)).
+  The ruleset on `main` does not require that verification before a push.
 - **Every gate is a package-owned Turbo task.** The task list in
   `libs/tools-harness-ts/scripts/turbo-ci-run.ts` runs every gate through Turbo. There
   are no root `//#verify`, `//#ci:*`, or root lint verifications: each gate has

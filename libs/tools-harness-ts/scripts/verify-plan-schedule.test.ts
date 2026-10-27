@@ -156,17 +156,12 @@ test('a fully cached plan schedules nothing and still accounts for every task', 
     const verdict = summarize({
       planned: plan.tasks.map((item) => item.taskId),
       shards: recorded,
-      jobs: jobResults(
-        { start: 'success', shards: 'skipped', apple: 'skipped' },
-        schedule,
-        'false'
-      ),
+      jobs: jobResults({ start: 'success', shards: 'skipped' }, schedule),
     });
     expect(verdict.passed).toBe(true);
     expect(verdict.jobs).toEqual([
       { name: 'verify:start', result: 'success' },
       { name: 'verify:shards', result: 'cached' },
-      { name: 'verify:apple', result: 'cached' },
     ]);
   } finally {
     rmSync(fixture, { recursive: true, force: true });
@@ -190,11 +185,7 @@ test('a scheduled stage that was skipped fails the verdict', () => {
   const verdict = summarize({
     planned: plan.tasks.map((item) => item.taskId),
     shards: cached,
-    jobs: jobResults(
-      { start: 'success', shards: 'skipped', apple: 'success' },
-      schedule,
-      'true'
-    ),
+    jobs: jobResults({ start: 'success', shards: 'skipped' }, schedule),
   });
   expect(verdict.passed).toBe(false);
   expect(verdict.jobs.find((job) => job.name === 'verify:shards')).toEqual({
@@ -210,62 +201,19 @@ test('skipped never passes without a plan, and no job can claim to be cached', (
     start: string | undefined,
     shards: string | undefined,
     schedule: { shards: [] } | null
-  ) =>
-    jobResults({ start, shards, apple: 'success' }, schedule, 'true').map(
-      (job) => job.result
-    );
-  expect(results('skipped', 'skipped', null)).toEqual([
-    'skipped',
-    'skipped',
-    'success',
-  ]);
+  ) => jobResults({ start, shards }, schedule).map((job) => job.result);
+  expect(results('skipped', 'skipped', null)).toEqual(['skipped', 'skipped']);
   expect(results('cached', 'cached', { shards: [] })).toEqual([
     'unknown',
     'unknown',
-    'success',
   ]);
   expect(results(undefined, undefined, { shards: [] })).toEqual([
     'unknown',
     'unknown',
-    'success',
   ]);
   // The start always runs.
   expect(results('skipped', 'skipped', { shards: [] })).toEqual([
     'skipped',
     'cached',
-    'success',
   ]);
-});
-
-test('the macOS job is cached only when the plan said it had nothing to run', () => {
-  const apple = (result: string | undefined, scheduled: string | undefined) =>
-    jobResults(
-      { start: 'success', shards: 'success', apple: result },
-      { shards: [] },
-      scheduled
-    ).find((job) => job.name === 'verify:apple')?.result;
-  expect(apple('skipped', 'false')).toBe('cached');
-  expect(apple('success', 'true')).toBe('success');
-  // Scheduled, or no answer from the plan: skipping it is a failure.
-  expect(apple('skipped', 'true')).toBe('skipped');
-  expect(apple('skipped', undefined)).toBe('skipped');
-  expect(apple('skipped', '')).toBe('skipped');
-  expect(apple(undefined, 'true')).toBe('unknown');
-  expect(apple('cached', 'false')).toBe('unknown');
-  const verdict = (result: string) =>
-    summarize({
-      planned: ['leaf#test'],
-      shards: [
-        { index: 0, tasks: [{ taskId: 'leaf#test', passed: true } as never] },
-      ] as never,
-      jobs: jobResults(
-        { start: 'success', shards: 'success', apple: result },
-        { shards: [] },
-        'true'
-      ),
-    }).passed;
-  expect(verdict('success')).toBe(true);
-  expect(verdict('failure')).toBe(false);
-  expect(verdict('cancelled')).toBe(false);
-  expect(verdict('skipped')).toBe(false);
 });

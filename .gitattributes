@@ -1,0 +1,3 @@
+# Check out LF everywhere, Windows included: Biome enforces LF, and deploy
+# bundles and plan hashes must not change with the runner's OS.
+* text=auto eol=lf

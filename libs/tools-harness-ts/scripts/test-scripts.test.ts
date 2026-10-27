@@ -137,6 +137,18 @@ describe('testScriptViolations', () => {
     ).toEqual([]);
   });
 
+  test('a POSIX-only file is disabled, not orphaned', () => {
+    expect(
+      testScriptViolations({
+        scripts: {
+          test: "bun test --path-ignore-patterns='**/*.posix.test.ts' tests",
+          'test:posix': 'bun test tests/groups.posix.test.ts',
+        },
+        files: ['tests/a.test.ts', 'tests/groups.posix.test.ts'],
+      })
+    ).toEqual([]);
+  });
+
   // `f`-prefixed so a name never collides with a directory filter.
   const segment = fc.stringMatching(/^f[a-z0-9-]{0,6}$/);
   const testFile = fc

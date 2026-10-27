@@ -70,6 +70,7 @@ import { killOrphanEsbuildServices } from '@pkgs/os-server-ts/kill-orphan-esbuil
 import { captureAudit } from './audit-snapshot';
 import { killProcessTree } from './kill-process-tree';
 import {
+  ciFilters,
   hostFilters,
   isDefaultHost,
   isHost,
@@ -385,6 +386,19 @@ function taskDependsOn(tasks: TurboTasks, taskName: string): string[] {
 /** `verify:linux`, `verify:macos`: the gate on one host's packages. */
 const HOST_AGGREGATOR = /^verify:([a-z]+)$/;
 
+/** `verify:ci`: the gate CI runs, on any runner OS (`ciVerifyArgs`). */
+const CI_AGGREGATOR = 'verify:ci';
+
+/**
+ * The gate as CI runs it: every gate task over the packages that run on
+ * Linux, macOS and Windows alike (`package-hosts.ts` `ciFilters`).
+ */
+export function ciVerifyArgs(
+  manifests = workspaceManifests(REPO_ROOT)
+): readonly string[] {
+  return [...MAIN_VERIFY_TASKS, ...ciFilters(manifests)];
+}
+
 /**
  * The gate as one host runs it (`package-hosts.ts`): the gate tasks over the
  * packages that host verifies. The gates one named package owns
@@ -423,6 +437,10 @@ export function flattenVerifyAggregators(
   // Bare script names are command aliases only here. In Turbo's graph they
   // remain package tasks with their package-scoped meaning.
   function expand(arg: string, commandLine: boolean): void {
+    if (commandLine && arg === CI_AGGREGATOR) {
+      for (const leaf of ciVerifyArgs()) pushLeaf(leaf);
+      return;
+    }
     const host = commandLine ? HOST_AGGREGATOR.exec(arg)?.[1] : undefined;
     if (host !== undefined && isHost(host)) {
       for (const leaf of hostVerifyArgs(host)) pushLeaf(leaf);
@@ -930,9 +948,10 @@ function killTree(child: ChildProcess, signal: NodeJS.Signals): void {
 /**
  * Kill the run at `deadlineSeconds`. Returns a disarm callback.
  *
- * `detached: true` puts turbo in its own process group so the whole tree dies
- * with it; the price is that the terminal's Ctrl-C no longer reaches it, so
- * SIGINT / SIGTERM are forwarded here instead.
+ * On POSIX `detached: true` puts turbo in its own process group so the whole
+ * tree dies with it; the price is that the terminal's Ctrl-C no longer reaches
+ * it, so SIGINT / SIGTERM are forwarded here instead. Windows has no catchable
+ * SIGTERM: there the flush signal is already the hard kill.
  */
 function armDeadline(
   child: ChildProcess,
@@ -1000,7 +1019,10 @@ function runTurbo(
     stdio:
       reportTasks === undefined ? 'inherit' : ['inherit', 'pipe', 'inherit'],
     env,
-    detached: true,
+    // A process group to kill on POSIX; on Windows a detached child gets a
+    // console of its own, and `killProcessTree` walks the tree instead.
+    detached: process.platform !== 'win32',
+    windowsHide: true,
   });
   const uploads = new AbortController();
   const deadline = armDeadline(child, options.deadlineSeconds, () =>

@@ -3,8 +3,8 @@ description: Install the fixed Chrome release only for tasks that need a native 
 runs:
   using: composite
   steps:
-    # GitHub-hosted Ubuntu already has these libraries. `true` runs apt-get
-    # and upgrades mesa; that download stalled past the step cap
+    # A self-hosted Linux runner must already have these libraries. `true`
+    # runs apt-get and upgrades mesa; that download stalled past the step cap
     # (Verify run 37668279155, mesa-libgallium). The action default is false.
     - uses: browser-actions/setup-chrome@v2
       id: chrome
@@ -31,6 +31,13 @@ runs:
       shell: bash
       env:
         CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+      # Bun, not `timeout`: macOS has no `timeout`.
       run: |
-        timeout 30 "$CHROME_PATH" --headless=new --dump-dom about:blank > /dev/null \
-          || echo "::warning::The pinned Chrome did not start"
+        bun -e '
+          let started = false;
+          try {
+            const run = Bun.spawnSync([process.env.CHROME_PATH, "--headless=new", "--dump-dom", "about:blank"], { stdout: "ignore", timeout: 30000 });
+            started = run.exitCode === 0;
+          } catch {}
+          if (!started) console.log("::warning::The pinned Chrome did not start");
+        '

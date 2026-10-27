@@ -79,13 +79,16 @@ checksum = "sha256:a61c07569d7195ddc589f01037fa10fafef4fb0796af2f1c9cb45226375df
 # back, and Linux CI then installs a macOS binary (ENOEXEC).
 [tools.infisical]
 version = "0.44.3"
-platforms= { macos-arm64 = { asset_pattern = "cli_{{ version }}_darwin_arm64.tar.gz" }, macos-x64 = { asset_pattern = "cli_{{ version }}_darwin_amd64.tar.gz" }, linux-arm64 = { asset_pattern = "cli_{{ version }}_linux_arm64.tar.gz" }, linux-x64 = { asset_pattern = "cli_{{ version }}_linux_amd64.tar.gz" } }
+platforms= { macos-arm64 = { asset_pattern = "cli_{{ version }}_darwin_arm64.tar.gz" }, macos-x64 = { asset_pattern = "cli_{{ version }}_darwin_amd64.tar.gz" }, linux-arm64 = { asset_pattern = "cli_{{ version }}_linux_arm64.tar.gz" }, linux-x64 = { asset_pattern = "cli_{{ version }}_linux_amd64.tar.gz" }, windows-x64 = { asset_pattern = "cli_{{ version }}_windows_amd64.zip" }, windows-arm64 = { asset_pattern = "cli_{{ version }}_windows_arm64.zip" } }
 
-# Local MQTT broker for `@pkgs/emqx-server-ts` (fidelity-max harnesses, test:contract).
+# Local MQTT broker for `@pkgs/emqx-server-ts` (fidelity-max harnesses and the
+# broker contract, which is `test:posix`: EMQX 5 publishes no Windows build, so
+# no CI job needs it and Windows skips it).
 # Keep in step with the version pin in libs/pubsub-shared-ts/emqx-deploy/Dockerfile.
 [tools."github:emqx/emqx"]
 version = "5.8.6"
 bin_path = "bin"
+os = ["linux", "macos"]
 
 [tools."github:emqx/emqx".platforms]
 macos-arm64 = { asset_pattern = "emqx-*-macos14-arm64.zip" }
@@ -96,8 +99,8 @@ linux-x64 = { asset_pattern = "emqx-*-ubuntu22.04-amd64.tar.gz" }
 # Apple toolchain. mise cannot install Xcode, so these are read, not
 # installed: the Apple task wrappers (`libs/tools-harness-ts/scripts/xcode-task.ts`) find
 # this Xcode (`DEVELOPER_DIR`, the active one, or `/Applications/Xcode*.app`)
-# and refuse any other; the `verify:apple` CI job runs on the GitHub runner
-# image that ships it. `[vars]` are not exported to the environment.
+# and refuse any other. CI verifies no native package, so no CI job uses it;
+# only a Mac's `bun verify` does. `[vars]` are not exported to the environment.
 [vars]
 xcode_version = "27.1"
 ios_simulator_runtime = "27.0"

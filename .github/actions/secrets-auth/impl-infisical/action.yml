@@ -52,7 +52,7 @@ runs:
       run: |
         set -euo pipefail
         echo "SECRETS_IDENTITY_ID=${{ inputs.identity-id }}" >> "$GITHUB_ENV"
-        project_id="$(jq -r '.projectId // empty' .secrets.json)"
+        project_id="$(bun -p 'require("./.secrets.json").projectId ?? ""')"
         if [ -z "$project_id" ] || [ "$project_id" = "null" ]; then
           echo "::error::.secrets.json missing projectId (Infisical workspace UUID)"
           exit 1

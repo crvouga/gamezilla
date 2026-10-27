@@ -105,22 +105,17 @@ function failedJobs(jobs: Verdict['jobs']): Verdict['jobs'] {
 /**
  * Upstream job results as the verdict reads them. Skipped shards read
  * `cached` only when the plan scheduled none; skipped for any other reason,
- * or without a plan to say so, stays a failure. The same holds for the
- * macOS job (`verify:apple`): it reads `cached` only when `verify:start`
- * said, in so many words, that the Apple lane had nothing uncached
- * (`apple=false`). Anything else — a missing answer included — requires it.
+ * or without a plan to say so, stays a failure.
  */
 export function jobResults(
-  results: Readonly<Record<'start' | 'shards' | 'apple', string | undefined>>,
-  schedule: Pick<VerifySchedule, 'shards'> | null,
-  appleScheduled: string | undefined
+  results: Readonly<Record<'start' | 'shards', string | undefined>>,
+  schedule: Pick<VerifySchedule, 'shards'> | null
 ): Verdict['jobs'] {
   const scheduled = {
     start: true,
     shards: schedule === null || schedule.shards.length > 0,
-    apple: appleScheduled !== 'false',
   };
-  return (['start', 'shards', 'apple'] as const).map((job) => {
+  return (['start', 'shards'] as const).map((job) => {
     // Only this mapping may call a stage cached.
     const raw = results[job] ?? 'unknown';
     const result = raw === 'cached' ? 'unknown' : raw;
@@ -303,10 +298,8 @@ function main(env: NodeJS.ProcessEnv): number {
       {
         start: env['START_RESULT'],
         shards: env['SHARD_RESULT'],
-        apple: env['APPLE_RESULT'],
       },
-      plan && verifySchedule(plan),
-      env['APPLE_SCHEDULED']
+      plan && verifySchedule(plan)
     ),
   });
   const runUrl = `${env['GITHUB_SERVER_URL'] ?? 'https://github.com'}/${env['GITHUB_REPOSITORY'] ?? ''}/actions/runs/${env['GITHUB_RUN_ID'] ?? ''}`;

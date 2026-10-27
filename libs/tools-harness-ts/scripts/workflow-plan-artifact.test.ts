@@ -21,11 +21,12 @@ test('Verification transfers the immutable plan as an artifact rather than a mas
     'utf8'
   );
   const { jobs } = Bun.YAML.parse(text) as { jobs: Record<string, Job> };
-  // The outputs are the shard matrix and whether the Apple lane has work,
-  // which hold no plan data.
+  // The outputs are the shard matrix and the runner's OS and arch, which
+  // hold no plan data.
   expect(Object.keys(jobs['verify-start']!.outputs ?? {})).toEqual([
     'shards',
-    'apple',
+    'os',
+    'arch',
   ]);
   const upload = jobs['verify-start']!.steps.find(
     (step) =>

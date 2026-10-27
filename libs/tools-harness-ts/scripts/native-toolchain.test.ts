@@ -9,14 +9,18 @@ import {
   ToolchainError,
 } from './native-toolchain';
 import {
+  ciFilters,
   currentHost,
-  HOSTS,
   hostFilters,
   hostsOf,
   workspaceManifests,
 } from './package-hosts';
 import { countTestCases } from './swift-task';
-import { hostVerifyArgs, MAIN_VERIFY_TASKS } from './turbo-ci-run';
+import {
+  ciVerifyArgs,
+  hostVerifyArgs,
+  MAIN_VERIFY_TASKS,
+} from './turbo-ci-run';
 import { summaryProblem } from './xcode-task';
 
 const ROOT = join(import.meta.dirname, '../../..');
@@ -152,17 +156,23 @@ describe('verification hosts', () => {
     ]);
   });
 
-  test('every host names its CI runner and the key that runner writes', () => {
-    expect(HOSTS.linux).toEqual({
-      runner: 'ubuntu-24.04',
-      platform: 'linux',
-      arch: 'x64',
-    });
-    expect(HOSTS.macos.platform).toBe('darwin');
+  test('the CI gate leaves out every native package, on any runner OS', () => {
+    expect(ciFilters(manifests)).toEqual([
+      '--filter=./apps/*',
+      '--filter=./libs/*',
+      '--filter=./pkgs/*',
+      '--filter=!@apps/client-swift',
+      '--filter=!@pkgs/clock-shared-swift',
+    ]);
+    expect(ciVerifyArgs(manifests)).toEqual([
+      ...MAIN_VERIFY_TASKS,
+      ...ciFilters(manifests),
+    ]);
     const workflow = readFileSync(
       join(ROOT, '.github/workflows/verify-pr.yml'),
       'utf8'
     );
-    expect(workflow).toContain(`runs-on: ${HOSTS.macos.runner}`);
+    expect(workflow).not.toContain('verify:macos');
+    expect(workflow).not.toContain('verify:linux');
   });
 });
