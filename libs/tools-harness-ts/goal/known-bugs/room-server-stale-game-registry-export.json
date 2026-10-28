@@ -1,0 +1,4 @@
+{
+  "summary": "Importing the application Worker crashed because the room server requested the removed REGISTERED_GAME_DEFINITIONS export. The room server now prepares rules from PLAYABLE_GAME_DEFINITIONS, allowing the API and dependent population service to start.",
+  "regressionTest": "apps/product-ts/tests/worker.test.ts"
+}
