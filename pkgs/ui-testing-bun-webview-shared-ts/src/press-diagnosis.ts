@@ -15,12 +15,27 @@ const FRAMES = 6;
  */
 export function pressDiagnosisScript(selector: string): string {
   return `(async function(){
+    function one(node) {
+      var role = node.getAttribute('role');
+      var label = node.getAttribute('aria-label');
+      var cls = typeof node.className === 'string' ? node.className.trim().slice(0, 80) : '';
+      var style = getComputedStyle(node);
+      return '<' + node.tagName.toLowerCase() +
+        (role ? ' role=' + role : '') +
+        (label ? ' "' + label + '"' : '') +
+        (cls ? ' class="' + cls + '"' : '') +
+        (style.position && style.position !== 'static' ? ' ' + style.position : '') +
+        (style.zIndex && style.zIndex !== 'auto' ? ' z=' + style.zIndex : '') + '>';
+    }
     function describe(node) {
       if (node === null) return 'nothing';
       var owner = node.closest ? node.closest('[data-testid]') : null;
       var id = owner === null ? '' : ' in [data-testid="' + owner.getAttribute('data-testid') + '"]';
-      var label = node.getAttribute && node.getAttribute('aria-label');
-      return '<' + node.tagName.toLowerCase() + '>' + (label ? ' "' + label + '"' : '') + id;
+      // An overlay is often a portal with no test id: name its ancestry.
+      var chain = [];
+      for (var at = node; at !== null && at !== document.body && chain.length < 4; at = at.parentElement)
+        chain.push(one(at));
+      return chain.join(' < ') + id;
     }
     var el = document.querySelector(${JSON.stringify(selector)});
     if (el === null) return 'the element is gone';

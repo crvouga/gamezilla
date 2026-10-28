@@ -63,7 +63,7 @@ test('a tap that never becomes actionable names what covers the element', async 
   expect(message).toContain(TIMEOUT);
   expect(message).toContain('still at 300,10,40,40');
   expect(message).toContain(
-    'hits <span> "Invite" in [data-testid="space-share-sheet"]'
+    'hits <span "Invite"> < <div> in [data-testid="space-share-sheet"]'
   );
 });
 
