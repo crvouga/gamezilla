@@ -73,3 +73,38 @@ export function fanoutRowsWithinCap(
   if (JSON.stringify(rows).length > MAX_FANOUT_BYTES) return false;
   return true;
 }
+
+/**
+ * The row images a mutation batch's push carries, or `undefined` when its
+ * readers must read again through their own queries instead. Images are a
+ * push's whole news: a reader that applies them does not refetch. So a
+ * table written without post-images (no `RETURNING`, so neither images nor
+ * ids) makes every image partial, and sending the rest would drop that
+ * table's change: a private Battleship setup written beside its game's
+ * public row never reached its owner's devices.
+ */
+export async function fanoutRowsForCapture(
+  db: SqlClient,
+  capture: {
+    readonly tables: readonly string[];
+    readonly ids: Readonly<Record<string, readonly string[]>>;
+    readonly images: Readonly<Record<string, readonly QueryRow[]>>;
+  }
+): Promise<Record<string, QueryRow[]> | undefined> {
+  if (Object.keys(capture.images).length > 0) {
+    if (capture.tables.some((table) => capture.images[table] === undefined))
+      return undefined;
+    if (!fanoutRowsWithinCap(capture.images)) return undefined;
+    const copy: Record<string, QueryRow[]> = {};
+    for (const [table, rows] of Object.entries(capture.images)) {
+      copy[table] = rows.map((r) => ({ ...r }));
+    }
+    return copy;
+  }
+  if (capture.tables.some((table) => capture.ids[table] === undefined))
+    return undefined;
+  const rows = await selectFanoutRows(db, capture.ids);
+  if (Object.keys(rows).length === 0) return undefined;
+  if (!fanoutRowsWithinCap(rows)) return undefined;
+  return rows;
+}
