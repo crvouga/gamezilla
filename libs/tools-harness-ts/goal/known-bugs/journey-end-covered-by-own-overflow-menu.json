@@ -1,0 +1,4 @@
+{
+  "summary": "On the Windows runners the space's bar laid out a moment after the space opened, so the end-space gesture found End missing, opened the overflow menu, and End then landed on the bar under that menu's full-screen backdrop: 'timeout waiting for space-end to be actionable; centre hits FloatingMenuBackdrop' (Verify run 40653277467). The gesture now waits for End on the bar before opening the menu.",
+  "regressionTest": "libs/runtime-harness-ts/tests/critical-journey-host-space.test.ts"
+}
