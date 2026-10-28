@@ -2872,6 +2872,10 @@
       "cache": false,
       "passThroughEnv": ["*"]
     },
+    "//#task:check:turborepo-remote-caching": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
     "//#task:gc": {
       "cache": false,
       "passThroughEnv": ["*"]
