@@ -1,0 +1,4 @@
+{
+  "summary": "ci:i18n ran `bunx --bun lingui extract`; on Windows commander respawned process.execPath (bunx.exe) with the absolute lingui-extract.js path, which bunx read as a package spec and tried to git clone. Fixed: the extract and compile scripts run directly under the running Bun.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ci-i18n.test.ts"
+}

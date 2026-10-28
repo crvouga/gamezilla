@@ -30,14 +30,15 @@ const PREVIEW_LOG_PATH = join(REPO_ROOT, '.verify-api-preview.log');
 const DEFAULT_WAIT_MS = 240_000;
 const POLL_MS = 500;
 
-function probeApiHealth(): boolean {
+/** Like `curl -sf --max-time 2`: any response below 400 within 2 s is healthy. */
+async function probeApiHealth(): Promise<boolean> {
   try {
-    const result = spawnSync(
-      'curl',
-      ['-sf', '--max-time', '2', '-o', '/dev/null', HEALTH_URL],
-      { stdio: 'ignore' }
-    );
-    return result.status === 0;
+    const response = await fetch(HEALTH_URL, {
+      redirect: 'manual',
+      signal: AbortSignal.timeout(2000),
+    });
+    await response.body?.cancel();
+    return response.status < 400;
   } catch {
     return false;
   }
@@ -81,7 +82,7 @@ async function waitForApiHealth(
 ): Promise<void> {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
-    if (probeApiHealth()) {
+    if (await probeApiHealth()) {
       process.stdout.write(`[verify-api] ready ${HEALTH_URL}\n`);
       return;
     }
@@ -93,6 +94,15 @@ async function waitForApiHealth(
 }
 
 function killProcessGroup(pid: number, signal: NodeJS.Signals): void {
+  if (process.platform === 'win32') {
+    // No process groups on Windows: `taskkill /T` walks the tree by parent pid
+    // and `/F` is the only stop a console process tree honors.
+    spawnSync('taskkill', ['/PID', String(pid), '/T', '/F'], {
+      stdio: 'ignore',
+      windowsHide: true,
+    });
+    return;
+  }
   try {
     process.kill(-pid, signal);
   } catch {
@@ -153,7 +163,7 @@ async function waitForApiOrExit(preview: {
 }
 
 async function main(): Promise<void> {
-  if (probeApiHealth()) {
+  if (await probeApiHealth()) {
     process.exit(runIntegrationTests());
   }
 

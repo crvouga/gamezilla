@@ -6,6 +6,7 @@ import { wallClock } from '@pkgs/clock-shared-ts/wall';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server-ts/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
 import { readUtf8, writeUtf8 } from '@pkgs/object-store-root-shared-ts/helpers';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { createUIQualityChecker } from '@pkgs/ui-quality-check-server-ts/api';
 import type { CheckerOptions } from '@pkgs/ui-quality-check-shared-ts/ui-quality-check-types';
 import { runVisualGate } from './gate';
@@ -31,7 +32,7 @@ function store(rootDir: string) {
 }
 
 function diagnosticKey(file: string): string {
-  const key = relative(OUTPUT, file);
+  const key = slashPath(relative(OUTPUT, file));
   if (isAbsolute(key) || key.split(/[\\/]/).includes('..'))
     throw new Error(
       `Failure diagnostic is outside its output directory: ${file}`

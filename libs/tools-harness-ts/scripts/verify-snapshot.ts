@@ -16,6 +16,7 @@ import { mkdir, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 import { promisify } from 'node:util';
+import { lastSegment, slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
@@ -28,7 +29,7 @@ function copyInput(source: string, destination: string): void {
     verbatimSymlinks: true,
     mode: constants.COPYFILE_FICLONE,
     filter: (path) =>
-      !['.cache', '.git', '.turbo', '.vite'].includes(path.split('/').at(-1)!),
+      !['.cache', '.git', '.turbo', '.vite'].includes(lastSegment(path)),
   });
 }
 
@@ -147,7 +148,12 @@ function rebaseLinks(
       if (link.startsWith(`${source}/`)) {
         rmSync(path);
         symlinkSync(
-          relative(dirname(path), resolve(destination, relative(source, link))),
+          slashPath(
+            relative(
+              dirname(path),
+              resolve(destination, relative(source, link))
+            )
+          ),
           path
         );
       }

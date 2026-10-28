@@ -7,7 +7,7 @@ than restating it.
 
 ## Hard Rules
 
-- **We never test manually. Ever.** A green full verification (the `verify:end` on every pull request, which Release runs again on the commit it ships) is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing verification, and if no verification can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property-shared-ts` only; `fc.commands` models; `@pkgs/harness-root-shared-ts` systems; Quint models for product subs — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus its own file `libs/tools-harness-ts/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`README.md`](README.md#correctness-machinery).
+- **We never test manually. Ever.** A green full verification (Release's `release` run of the whole gate on the exact commit it ships; a pull request's `verify:end` runs only the fast part) is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing verification, and if no verification can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property-shared-ts` only; `fc.commands` models; `@pkgs/harness-root-shared-ts` systems; Quint models for product subs — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus its own file `libs/tools-harness-ts/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`README.md`](README.md#correctness-machinery).
 
 - **Specs are for business readers.** Every line in `specs/` is understood by a non-technical business person (A0 in [`specs/README.md`](specs/README.md)); every behavior test is a spec; each framework package tests through one kitchen-sink example app. Spec text changes only in `spec:` commits; implementers treat it as read-only. What the app should be lives only in `specs/`, with no discrete versions of the app; [`README.md`](README.md) is the implementation briefing and never a second product definition. Step catalogs (`<package>/STEPS_CATALOG.md`, index `docs/STEPS_CATALOG.md`) are generated and gitignored: `bun install` writes them and `bun run spec:catalog` refreshes them. Write specs with [`spec-upsert`](.agents/skills/spec-upsert/SKILL.md), bind them with [`spec-implement`](.agents/skills/spec-implement/SKILL.md), audit them with [`spec-audit`](.agents/skills/spec-audit/SKILL.md).
 
@@ -33,13 +33,13 @@ than restating it.
 
 - **Atlas is an npm dependency, never a copy.** `@crvouga/atlas` installs from npm through the root `catalog`: no submodule, vendored copy, `git` / `file:` dependency or patch. Import only its documented paths (`@crvouga/atlas`, `/spec`, `/schema`, `/reports/<module>`, …) and run its `atlas` / `atlas-visualizer` commands. A bug or gap in Atlas is an issue at [crvouga/atlas](https://github.com/crvouga/atlas/blob/main/docs/reporting-issues.md), never a fix made from here; a workaround in our code is named in that issue and removed when the release that fixes it lands. Upgrade by raising the catalog entry in a commit of its own. Guide: [dogfooding](https://github.com/crvouga/atlas/blob/main/docs/dogfooding.md).
 
-- **No git hooks.** Do not add a `pre-commit`, `pre-push`, `core.hooksPath`, Husky, or any other git hook. A direct push to `main` is allowed. Release still runs the Verify gate on that commit before it ships ([`README.md`](README.md#correctness-machinery)).
+- **No git hooks.** Do not add a `pre-commit`, `pre-push`, `core.hooksPath`, Husky, or any other git hook. A direct push to `main` is allowed. Release still runs the whole Verify gate on that commit before it ships ([`README.md`](README.md#correctness-machinery)).
 
 - **Agents never merge a pull request.** `/pr-ready` takes a PR to a green Ready to merge and stops; a human merges — never `--admin`, never a red, pending or draft PR. A person may also push `main` directly.
 
 - **Never patch dependencies.** No `bun patch`, `patch-package`, `pnpm patch`, `patches/` directory, or `patchedDependencies` / `resolutions` field. Work around a third-party bug in our code or accept it.
 
-- **Infrastructure is code, zero-ops, and web scale; environments are cattle, data is never lost by accident.** Every released resource is declared in `libs/infra-shared-ts/tofu` (env-agnostic modules and stacks; per-environment values only in `libs/infra-shared-ts/tofu/envs/<env>.tfvars.json`), so any environment rebuilds from its env file alone. Never create, change or delete infrastructure from TypeScript, a script or a console (`no-infra-outside-tofu.grit`). `libs/infra-shared-ts/policy/stateful.rego` allow-lists the only types an ordinary apply may delete (add one only if losing it loses no data); retire a stateful resource with `removed { lifecycle { destroy = false } }`. The one destroy path is `bun run infra:destroy` for a `protection: "standard"` environment; production and the global stateful resources (`prevent_destroy`) can never be torn down. Resources and why: [`README.md`](README.md#infrastructure).
+- **Infrastructure is code, zero-ops, and web scale; environments are cattle, data is never lost by accident.** Every deployed resource is declared in `libs/infra-shared-ts/tofu` (env-agnostic modules and stacks; per-environment values only in `libs/infra-shared-ts/tofu/envs/<env>.tfvars.json`), so any environment rebuilds from its env file alone. Never create, change or delete infrastructure from TypeScript, a script or a console (`no-infra-outside-tofu.grit`). `libs/infra-shared-ts/policy/stateful.rego` allow-lists the only types an ordinary apply may delete (add one only if losing it loses no data); retire a stateful resource with `removed { lifecycle { destroy = false } }`. The one destroy path is `bun run infra:destroy` for a `protection: "standard"` environment; production and the global stateful resources (`prevent_destroy`) can never be torn down. Resources and why: [`README.md`](README.md#infrastructure).
 
 - **Never disable structural size limits.** The Tiger-Style caps in [`biome.json`](biome.json) (`noExcessiveLinesPerFile`, `noExcessiveLinesPerFunction`, `useMaxParams`, `noExcessiveNestedCallbacks`, `noExcessiveCognitiveComplexity`, `noExcessiveClassesPerFile`) are load-bearing: no new `'off'` overrides, no `biome-ignore` for them. Refactor instead — extract components, hooks or pure helpers.
 
@@ -187,31 +187,43 @@ Four workflows, one contract each. Details:
 
 | Workflow | Command | Contract |
 | --- | --- | --- |
-| Verify PR (`verify-pr.yml`) | `bun verify` | Fast, deterministic, merge-blocking validation. Keeps no test report or artifact: a failure is read from the job log. |
-| Verify Nightly (`verify-nightly.yml`) | `bun verify-nightly` | Comprehensive verification and exploration on `main`, every night. Owns test reports, diagnostics and reproducibility. Never gates a merge or a release. |
-| Release (`deploy.yml`) | `bun deploy` | Continuous production release: every merge to `main` verifies that exact commit with the Verify PR gate, then ships it. |
+| Verify PR (`verify-pr.yml`) | `bun verify` | Fast, deterministic, merge-blocking validation: the `pr` profile, the gate without its slow suites. Keeps no test report or artifact: a failure is read from the job log. |
+| Verify Nightly (`verify-nightly.yml`) | `bun verify-nightly` | Comprehensive verification and exploration on `main`, every night. Owns test reports, diagnostics and reproducibility. Never gates a merge or a deploy. |
+| Release (`deploy.yml`) | `bun deploy` | Continuous production release: on every push to `main`, when `main` has moved, it runs the whole gate (`release` profile) on that exact commit, then ships it. |
 | Health (`health.yml`) | `bun health` | Scheduled verification that production is available and correct. Releases nothing. |
 
-- **Run `bun verify` before you call development work done.** It is the same
-  gate the pull request runs. Run `bun verify-nightly` (or one group:
+- **Run `bun verify` before you call development work done.** It is the
+  whole gate Release runs before shipping; the pull request runs only its fast
+  part. Run `bun verify-nightly` (or one group:
   `bun verify-nightly random`) when a change deserves deeper verification, such
   as a new Quint model, a property, or sync and recovery code. An ordinary
   pull request never waits for a green nightly run.
-- **One set of tests, two profiles.** `libs/tools-harness-ts/scripts/verify-profile.ts` is
-  the only place the two differ: the task list, the depth (`pr` replays the
-  fewest drawn traces of each Quint model that take every bound action, at the
-  pinned property budget; `nightly` replays every trace at five times the
-  budget), the time budgets, and whether reports are kept. The nightly-only
+- **One set of tests, three profiles.** `libs/tools-harness-ts/scripts/verify-profile.ts` is
+  the only place they differ: the task list (`pr` leaves Gherkin spec parts,
+  Quint models, contract models, the release journeys, board contracts and
+  the population worker's hosting check to `release` — `releaseOnlyTask`),
+  the depth (`pr` and `release` replay the fewest drawn traces of each Quint
+  model that take every bound action, at the pinned property budget;
+  `nightly` replays every trace at five times the budget), the time budgets,
+  and whether reports are kept. The nightly-only
   suites are existing tasks (fresh-seed property runs, determinism fuzz,
   mutants, real-browser stack runs, UI quality, coverage, benchmarks). Never
   write a test that exists only for one profile.
 - **A nightly finding is promoted.** Pin the failing trace in the model
   binding's `regressions`, or the shrunk input as a `// regression: <bug-id>`
-  example, so the `pr` profile replays it from then on.
-- **The required status is `verify:end`.** Verify PR runs `verify:start`,
-  `verify:shards (N)`, and `verify:end` on self-hosted Windows x64 runners.
-  Native Swift/iOS verification is local only; see [`docs/POLYGLOT.md`](docs/POLYGLOT.md#ci).
-  A native build that did not happen is never a pass.
+  example, so the `release` profile replays it from then on.
+- **The required status is `verify:end`.** Verify PR is three jobs
+  (`verify:start`, `verify:shards (N)`, `verify:end`). They keep the `verify:`
+  prefix wherever the gate runs (a pull request, Release's verification, the
+  nightly run). Every CI job runs on any self-hosted runner, Linux, macOS or
+  Windows, so CI checks only what runs on all three; native packages and
+  `test:posix` suites are not checked in CI
+  ([`docs/CI_REQUIREMENTS.md`](docs/CI_REQUIREMENTS.md#runner-operating-systems)).
+  Code a CI task runs is OS-neutral: a repository path is `/`-separated
+  (`slashPath` from `@pkgs/os-shared-ts/slash-path`; `no-native-relative-path.grit`
+  refuses a bare `node:path` `relative()`), and nothing assumes a POSIX shell,
+  `/tmp` or a tool the runner did not get from `mise.toml`.
+  The ruleset on `main` does not require that verification before a push.
 - **Every gate is a package-owned Turbo task.** The task list in
   `libs/tools-harness-ts/scripts/turbo-ci-run.ts` runs every gate through Turbo. There
   are no root `//#verify`, `//#ci:*`, or root lint verifications: each gate has
@@ -221,11 +233,12 @@ Four workflows, one contract each. Details:
   leaf verifies and never touches the outside world, and its verdict never
   depends on the machine (never branch on `CI`). Make a slow task faster
   before raising its budget.
-- **A push to `main` is the release.** Release runs on every push to `main`
-  and never waits for the nightly run. `bun health` and `bun deploy` dispatch
+- **Release ships every push to `main`.** Every pushed commit is verified by the whole gate and
+  shipped; it never waits for the nightly run. A red `release` run ships
+  nothing, so a slow suite a merge broke stops the release, not the merge. `bun health` and `bun deploy` dispatch
   their workflows and block on the verdict; `bun health:local` and
   `bun deploy:local` run that work on this machine.
-- **Exactly four workflows.** Rehearse anything touching release, infra,
+- **Exactly four workflows.** Rehearse anything touching deploy, infra,
   secrets, Workers or `health` in GitHub Actions before merging, triggered and
   managed locally with the GitHub CLI. Never execute a rehearsal on the
   developer machine.
@@ -257,7 +270,10 @@ super.engineering's app project settings.
   then `bun verify` for the local full gate.
   `bun run git-sync` (`/git-sync`) is the one commit/push/trunk-sync step.
   PR bodies follow `.github/PULL_REQUEST_TEMPLATE.md`. `/pr-ready` drives a PR
-  to Ready to merge; `/ci-green` drives Verify, Release and Health green.
+  to Ready to merge; `/ci-workflows-green` drives Verify, Release and Health
+  green; the [`ci-green`](.agents/skills/ci-green/SKILL.md) skill runs the
+  full pull-request suite locally and fixes every failure on the current
+  branch.
 - **Agent commands.** `.agents/commands/<name>.md` (with `description:`
   frontmatter) is the only source of a slash command; `bun run agents:sync`
   projects it into every harness (`.claude/commands`, `.cursor/commands`,
@@ -330,7 +346,7 @@ test:max`: sidecars from `@pkgs/postgres-mockingbird-server-ts`, `@pkgs/s3-serve
   matchmaking, `idp_*`) package-local and not in `appSchema`. The only DDL
   emitters are `@pkgs/db-schema-postgres` / `@pkgs/db-schema-sqlite`: no raw
   `.sql` schema files, no `CREATE TABLE` strings (`no-raw-create-table`).
-- **Non-release contexts never reach production Postgres.** Every
+- **Non-deploy contexts never reach production Postgres.** Every
   `DATABASE_URL` entrypoint wires `assertNonProductionSecretsEnv` and
   `assertNonProdDatabaseUrl` from `@libs/db/public/database-url-policy`
   (rejects any production env's URL and production hostnames; loopback is

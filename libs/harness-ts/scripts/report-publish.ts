@@ -23,7 +23,7 @@
  */
 
 import { writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { resolve } from 'node:path';
 import { openCommit } from '@crvouga/atlas/reports/publish';
 import { compileFrameCss } from '@libs/harness-ts/wall-frame-css';
 import { wallClock } from '@pkgs/clock-shared-ts/wall';
@@ -39,10 +39,7 @@ import {
 import { reportsStore } from './report-store';
 import { publishReportTask } from './report-task-publish';
 
-const REPO_ROOT = resolve(import.meta.dirname, '../../..');
-
-/** `@pkgs/tailwind`: its `node_modules/.bin` holds the CLI it declares. */
-export const TAILWIND_DIR = join(REPO_ROOT, 'pkgs/tailwind-harness-ts');
+export const REPO_ROOT = resolve(import.meta.dirname, '../../..');
 const REPORTS_ENV = [
   'REPORTS_BUCKET',
   'REPORTS_ENDPOINT',

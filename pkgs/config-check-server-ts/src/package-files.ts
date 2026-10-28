@@ -10,6 +10,7 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import type { PackageKind } from './package-kind';
 import { packageKind } from './package-kind';
 
@@ -70,7 +71,7 @@ function listFiles(root: string, dir: string): readonly string[] {
 /** The package whose directory is `cwd`. Throws anywhere else. */
 export function readCheckedPackage(cwd: string): CheckedPackage {
   const root = findRepoRoot(cwd);
-  const dir = relative(root, resolve(cwd)).split('\\').join('/');
+  const dir = slashPath(relative(root, resolve(cwd)));
   const kind = packageKind(dir);
   if (kind === undefined)
     throw new Error(

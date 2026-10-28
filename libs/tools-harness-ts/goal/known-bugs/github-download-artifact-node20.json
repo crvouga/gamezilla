@@ -1,4 +1,4 @@
 {
-  "summary": "Every Verify shard and verify:end emitted a Node.js 20 deprecation annotation because actions/download-artifact@v6 still declared node20. Both plan downloads now use v8, which declares node24.",
-  "regressionTest": "libs/tools-harness-ts/scripts/workflow-plan-artifact.test.ts"
+  "summary": "Every Verify shard and verify:end emitted a Node.js 20 deprecation annotation because actions/download-artifact@v6 still declared node20. Both plan downloads now use v8, which declares node24. No workflow uses a GitHub artifact action any more.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ci-artifacts.test.ts"
 }

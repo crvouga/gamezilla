@@ -11,6 +11,7 @@
 import { execFileSync } from 'node:child_process';
 import { readlinkSync } from 'node:fs';
 import { relative } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 export type PsRow = {
   readonly pid: number;
@@ -122,7 +123,7 @@ function cwdOf(pid: number, repoRoot: string): string | null {
     }
   }
   if (cwd === null) return null;
-  const rel = relative(repoRoot, cwd);
+  const rel = slashPath(relative(repoRoot, cwd));
   return rel === '' ? '//' : rel;
 }
 

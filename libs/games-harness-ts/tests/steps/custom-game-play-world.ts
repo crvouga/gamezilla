@@ -43,3 +43,29 @@ export async function refusedCustomGameMove(
     ply,
   });
 }
+
+/**
+ * What a participant is told of the move {@link refusedCustomGameMove}
+ * sends: for a game with dealt hands, the game's own words for it from the
+ * known deal the game starts from (the room words why, from the hand), and
+ * the platform's otherwise.
+ */
+export async function refusedCustomGameMoveReason(
+  w: HarnessWorld,
+  actor: string
+): Promise<string> {
+  const game = turnGameOf(w);
+  const refused = game.fixtures.refusedOpenings[0];
+  const hands = game.shared.turnGame.rules.hands;
+  const deal = game.fixtures.knownDeal;
+  if (refused === undefined || hands === undefined || deal === undefined)
+    return 'move is illegal';
+  const fen = (await view(w, actor)).current?.fen;
+  if (fen === undefined) throw new Error('No custom game is under way');
+  const resolution = hands.resolve(fen, refused, deal.hidden);
+  if (!('refusal' in resolution))
+    throw new Error(
+      `${game.label}: its known deal accepts refusedOpenings[0] (${refused})`
+    );
+  return resolution.refusal;
+}

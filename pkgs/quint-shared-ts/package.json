@@ -14,7 +14,9 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test tests"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@pkgs/os-shared-ts": "workspace:*"
+  },
   "devDependencies": {
     "@pkgs/property-shared-ts": "workspace:*",
     "@types/bun": "catalog:",

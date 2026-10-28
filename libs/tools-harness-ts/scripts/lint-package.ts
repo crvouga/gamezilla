@@ -26,7 +26,9 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { findNamingViolations } from '../naming/naming-rules';
+import { argumentBatches } from './argument-batches';
 import { bannedWordViolations, isWordedFile } from './banned-words';
 import { behaviorTestViolations } from './behavior-tests';
 import type { WorkspacePackage } from './biome-scope';
@@ -200,15 +202,18 @@ function workspacePackages(): ReadonlyMap<string, WorkspacePackage> {
 }
 
 /**
- * `biome check` over `targets`, scanning only the packages in `keep`
- * (`biome-scope.ts`). The scoped config is written beside `biome.json`
- * (gitignored) and removed afterwards.
+ * `biome check` with `flags` over `targets`, scanning only the packages in
+ * `keep` (`biome-scope.ts`). The scoped config is written beside `biome.json`
+ * (gitignored) and removed afterwards. A long target list runs as several
+ * Biome runs (`argument-batches.ts`): one command line over every root file
+ * passes Windows' cap.
  */
 async function biomeOk(
   scope: string,
   keep: (
     packages: ReadonlyMap<string, WorkspacePackage>
   ) => ReadonlySet<string>,
+  flags: readonly string[],
   targets: readonly string[]
 ): Promise<boolean> {
   const packages = workspacePackages();
@@ -220,12 +225,19 @@ async function biomeOk(
   const configPath = join(REPO_ROOT, `.biome-scope.${scope}.json`);
   writeFileSync(configPath, JSON.stringify(config));
   try {
-    return await run('biome', [
-      'check',
-      '--error-on-warnings',
-      `--config-path=${configPath}`,
-      ...targets,
-    ]);
+    let ok = true;
+    // In turn, so each batch's report reads whole; every batch reports.
+    for (const batch of argumentBatches(targets)) {
+      const batchOk = await run('biome', [
+        'check',
+        '--error-on-warnings',
+        `--config-path=${configPath}`,
+        ...flags,
+        ...batch,
+      ]);
+      ok = batchOk && ok;
+    }
+    return ok;
   } finally {
     rmSync(configPath, { force: true });
   }
@@ -244,6 +256,7 @@ function externalTools(
     biomeOk(
       pkg.replaceAll('/', '-'),
       (packages) => dependencyClosure(packages, pkg),
+      [],
       [pkg]
     ),
   ];
@@ -413,12 +426,14 @@ function lintRoot(): Promise<boolean> {
   return biomeOk(
     'root',
     (packages) => dependencyClosure(packages, 'libs/tools-harness-ts'),
-    ['--files-ignore-unknown=true', '--no-errors-on-unmatched', ...files]
+    ['--files-ignore-unknown=true', '--no-errors-on-unmatched'],
+    files
   ).then((biome) => biome && ok);
 }
 
+// Workspace directories are `/`-separated on every OS, Windows included.
 const pkg = process.argv.includes('--root')
   ? ''
-  : relative(REPO_ROOT, process.cwd());
+  : slashPath(relative(REPO_ROOT, process.cwd()));
 const ok = await (pkg === '' ? lintRoot() : lintPackage(pkg));
 process.exit(ok ? 0 : 1);

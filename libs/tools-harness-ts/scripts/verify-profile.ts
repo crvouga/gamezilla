@@ -1,26 +1,30 @@
 /**
- * The two verification profiles: one set of tests, run at two depths.
+ * The three verification profiles: one set of tests, run at three widths.
  *
- * - `pr` is the merge gate (`bun verify`, `.github/workflows/verify-pr.yml`,
- *   Release's verification): bounded, deterministic, and it keeps no test
- *   report beyond the job log.
+ * - `pr` is the pull-request check (`.github/workflows/verify-pr.yml` on a
+ *   pull request): the gate without its slow suites ({@link releaseOnlyTask}),
+ *   so a pull request hears about lint, types, unit tests and the repository
+ *   checks in minutes. It keeps no test report beyond the job log.
+ * - `release` is the whole gate (`bun verify`, Release's scheduled
+ *   verification): every gate task, bounded and deterministic, no reports.
+ *   Nothing ships unless it passes on the exact commit.
  * - `nightly` is the comprehensive run (`bun verify-nightly`,
- *   `.github/workflows/verify-nightly.yml`): the same gate tasks at a deeper
+ *   `.github/workflows/verify-nightly.yml`): the whole gate at a deeper
  *   budget, plus the suites below that are too slow or too exploratory to
- *   block a merge. It keeps and publishes every report.
+ *   block a release. It keeps and publishes every report.
  *
  * A profile never names a test of its own. It selects tasks, sets the depth
  * those tasks already read from their environment, and says whether reports
- * are kept. `VERIFY_PROFILE` selects it; unset is `pr`, so a bare
- * `turbo-ci-run.ts verify` is the merge gate.
+ * are kept. `VERIFY_PROFILE` selects it; unset is `release`, so a bare
+ * `turbo-ci-run.ts verify` (and `bun verify`) is the whole gate.
  *
  * A finding the nightly run makes is pinned as a regression in the suite
- * that found it, which puts it in the `pr` profile from then on.
+ * that found it, which puts it in the `release` profile from then on.
  */
 
 export const PROFILE_ENV = 'VERIFY_PROFILE';
 
-export type VerifyProfileName = 'pr' | 'nightly';
+export type VerifyProfileName = 'pr' | 'release' | 'nightly';
 
 export type VerifyProfile = {
   readonly name: VerifyProfileName;
@@ -41,6 +45,8 @@ export type VerifyProfile = {
   } | null;
   /** Keep running independent tasks after one fails, so every suite reports. */
   readonly continueAfterFailure: boolean;
+  /** Every gate task, or the gate without {@link releaseOnlyTask}s. */
+  readonly wholeGate: boolean;
 };
 
 const PROFILES: Readonly<Record<VerifyProfileName, VerifyProfile>> = {
@@ -51,6 +57,16 @@ const PROFILES: Readonly<Record<VerifyProfileName, VerifyProfile>> = {
     taskBudgetScale: 1,
     deadlineSeconds: null,
     continueAfterFailure: false,
+    wholeGate: false,
+  },
+  release: {
+    name: 'release',
+    env: {},
+    reports: false,
+    taskBudgetScale: 1,
+    deadlineSeconds: null,
+    continueAfterFailure: false,
+    wholeGate: true,
   },
   nightly: {
     name: 'nightly',
@@ -72,8 +88,41 @@ const PROFILES: Readonly<Record<VerifyProfileName, VerifyProfile>> = {
     // slack for the deepest one; a laptop runs the whole corpus in one slot.
     deadlineSeconds: { ci: 3000, local: 21_600 },
     continueAfterFailure: true,
+    wholeGate: true,
   },
 };
+
+/**
+ * Gate tasks the `pr` profile leaves to Release's scheduled `release` run
+ * and the nightly run: about nine tenths of a cold gate's task-seconds
+ * (Verify run 40577850573). Gherkin spec parts and their preparation,
+ * Quint model checks, the symbolic contract models, the release journeys
+ * in Chrome, the board contracts and the population worker's hosting
+ * check. A pull request keeps everything else: lint, typecheck, unit tests,
+ * the repository-wide `ci:*` checks, secret scanning, the advisory audit,
+ * actionlint, schema evolution and the Worker bundles.
+ */
+export function releaseOnlyTask(task: string): boolean {
+  const name = task.includes('#') ? task.slice(task.indexOf('#') + 1) : task;
+  return (
+    /^test:spec:\d+$/.test(name) ||
+    /^verify:models(:\d+)*$/.test(name) ||
+    /^test:contract(:\d+)?$/.test(name) ||
+    name === 'verify:board-contract' ||
+    name === 'test:release-journeys' ||
+    name === 'verify:synthetic-population-foundation'
+  );
+}
+
+/** The gate tasks the active profile runs. */
+export function profileGateTasks<T extends string>(
+  tasks: readonly T[],
+  env: NodeJS.ProcessEnv = process.env
+): T[] {
+  return activeProfile(env).wholeGate
+    ? [...tasks]
+    : tasks.filter((task) => !releaseOnlyTask(task));
+}
 
 export type NightlySuite = {
   /** What the suite is for, in the nightly verdict. */
@@ -143,12 +192,12 @@ function isSuiteName(value: string): value is NightlySuiteName {
   return Object.hasOwn(NIGHTLY_SUITES, value);
 }
 
-/** The profile `VERIFY_PROFILE` names; unset or empty is the merge gate. */
+/** The profile `VERIFY_PROFILE` names; unset or empty is the whole gate. */
 export function activeProfile(
   env: NodeJS.ProcessEnv = process.env
 ): VerifyProfile {
   const name = env[PROFILE_ENV]?.trim() ?? '';
-  if (name === '') return PROFILES.pr;
+  if (name === '') return PROFILES.release;
   if (!isProfileName(name))
     throw new Error(
       `${PROFILE_ENV}=${name} is not a verification profile (${Object.keys(PROFILES).join(', ')})`
@@ -164,9 +213,10 @@ export function activeProfile(
  */
 export function verifyAggregatorTasks(
   arg: string,
-  gateTasks: readonly string[]
+  gateTasks: readonly string[],
+  env: NodeJS.ProcessEnv = process.env
 ): readonly string[] | null {
-  if (arg === GATE_AGGREGATOR) return gateTasks;
+  if (arg === GATE_AGGREGATOR) return profileGateTasks(gateTasks, env);
   if (arg === NIGHTLY_AGGREGATOR)
     return [
       ...gateTasks,

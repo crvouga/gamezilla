@@ -5,9 +5,9 @@ name: Release
 #   <Workflow> · <trigger>
 run-name: "Release · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
 
-# Verify the exact commit, release shared services, then development and
-# production, then publish a release. A rehearsal verifies and plans only.
-# Environment release steps are defined once and reused below.
+# Every push to main verifies the exact commit with the full release profile,
+# then releases shared services, development, and production in order.
+# Rehearsals verify and plan without releasing.
 
 permissions:
   contents: read
@@ -25,35 +25,37 @@ on:
         required: false
         default: false
 
-defaults:
-  run:
-    shell: bash
-
 env:
   TURBO_UI: stream
 
 # One release at a time: each environment is a shared singleton.
-# Keep pending merges instead of replacing the previous pending release.
 concurrency:
   group: deploy-main
   queue: max
   cancel-in-progress: false
+
+# Every job runs on whichever self-hosted runner is free — Linux, macOS or
+# Windows — so every `run:` step is bash (Git Bash on Windows).
+defaults:
+  run:
+    shell: bash
 
 jobs:
   deploy-verify:
     name: Verify commit
     uses: ./.github/workflows/verify-pr.yml
     with:
+      profile: release
       require-main: ${{ !inputs.rehearsal }}
       # The pull request already enforced advisories on this code. A registry
-      # that moved since then must not fail a release of a verified commit.
+      # that moved since then must not fail a deploy of a verified commit.
       advisories: report
 
   deploy-rehearsal:
     name: Preview infrastructure changes
     if: ${{ inputs.rehearsal }}
     needs: deploy-verify
-    runs-on: [self-hosted, Windows, X64]
+    runs-on: self-hosted
     timeout-minutes: 20
     env:
       SECRETS_ENV: dev
@@ -61,12 +63,13 @@ jobs:
       AWS_ROLE_ARN: ${{ vars.AWS_HEALTH_ROLE_ARN }}
     steps:
       - uses: actions/checkout@v6
-      - uses: ./.github/actions/setup
-      - uses: ./.github/actions/secrets-auth
         with:
-          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: dev
+          clean: false
+      - uses: ./.github/actions/setup
+        with:
+          secrets-environment: dev
+          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
       - name: Plan fleet without changing infrastructure
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run --filter @libs/infra-server-ts plan:fleet
       - name: Plan dev's foundation without changing infrastructure
@@ -74,24 +77,25 @@ jobs:
 
   # What every environment shares (libs/infra-shared-ts/tofu/stacks/fleet): the
   # shared secrets, the auth relay that forwards to every env, and each env's
-  # secrets environment. It runs before any environment releases.
+  # secrets environment. It runs before any environment deploys.
   deploy-fleet:
     name: Release shared services
     if: ${{ !inputs.rehearsal }}
     needs: deploy-verify
-    runs-on: [self-hosted, Windows, X64]
+    runs-on: self-hosted
     timeout-minutes: 20
     env:
       SECRETS_ENV: shared
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
     steps:
       - uses: actions/checkout@v6
-      - uses: ./.github/actions/setup
-      - uses: ./.github/actions/secrets-auth
         with:
-          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: shared
+          clean: false
+      - uses: ./.github/actions/setup
+        with:
+          secrets-environment: shared
+          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
       # The fleet apply reads its state passphrase from shared.
       - name: Reconcile shared secrets
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/secrets-server-ts/scripts/secrets-reconcile-shared.ts promote
@@ -107,7 +111,7 @@ jobs:
   deploy-dev:
     name: Release development
     needs: deploy-fleet
-    runs-on: [self-hosted, Windows, X64]
+    runs-on: self-hosted
     # Above `DEPLOY_RUN_DEADLINE_SECONDS` (45 min) plus setup, so
     # turbo-ci-run's own deadline fires first and names what wedged.
     timeout-minutes: 55
@@ -117,8 +121,8 @@ jobs:
       AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
     steps: &deploy-environment
       # A Health check already running journeys as the synthetic accounts, or
-      # planning this environment's OpenTofu state, would take this release's
-      # matches and state lock. health.yml yields to a release; this waits out
+      # planning this environment's OpenTofu state, would take this deploy's
+      # matches and state lock. health.yml yields to a deploy; this waits out
       # one that started first.
       - name: Wait for a running Health check
         env:
@@ -135,30 +139,26 @@ jobs:
           exit 1
       - uses: actions/checkout@v6
         with:
+          clean: false
           fetch-depth: 0
       - id: setup
         uses: ./.github/actions/setup
+        with:
+          secrets-environment: ${{ env.SECRETS_ENV }}
+          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
       # Verification fingerprints this Chrome into the cache key of every test, so
       # without it each task reruns here instead of restoring.
       - uses: ./.github/actions/visual-renderer
-      - uses: ./.github/actions/secrets-auth
-        with:
-          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: ${{ env.SECRETS_ENV }}
       # Foundation, migrations, Workers, edge, billing sync, then health.
       - name: Release and verify environment
         id: deploy
         run: bun run deploy:local
       - name: Keep the critical journeys' evidence
         if: failure()
-        uses: actions/upload-artifact@v6
-        with:
-          name: critical-journeys-${{ github.run_id }}-${{ env.SECRETS_ENV }}
-          path: apps/product-ts/.cache/critical-journeys/
-          if-no-files-found: ignore
-          include-hidden-files: true
-          retention-days: 14
+        run: >-
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload critical-journeys-${{ github.run_id }}-${{ env.SECRETS_ENV }}
+          apps/product-ts/.cache/critical-journeys
       - name: Write workflow summary
         if: always() && steps.setup.outcome == 'success'
         env:
@@ -169,7 +169,7 @@ jobs:
   deploy-prd:
     name: Release production
     needs: deploy-dev
-    runs-on: [self-hosted, Windows, X64]
+    runs-on: self-hosted
     timeout-minutes: 55
     environment: production
     env:
@@ -181,7 +181,7 @@ jobs:
   deploy-release:
     name: Publish release
     needs: deploy-prd
-    runs-on: [self-hosted, Windows, X64]
+    runs-on: self-hosted
     timeout-minutes: 5
     permissions:
       contents: write
@@ -196,4 +196,4 @@ jobs:
             --target "$GITHUB_SHA" \
             --title "$TAG" \
             --generate-notes \
-            --notes "Verified and released by ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} at ${GITHUB_SHA}."
+            --notes "Verified and deployed by ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} at ${GITHUB_SHA}."

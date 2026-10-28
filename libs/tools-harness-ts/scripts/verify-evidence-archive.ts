@@ -1,16 +1,28 @@
 // @io-wall-ok — select paths inside an immutable CI evidence archive.
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
+
+/**
+ * Runs `verify-evidence-tar.ts` with the current Bun, so an archive means the
+ * same on every OS and no system `tar` is involved.
+ */
+export function evidenceTar(args: readonly string[], failure: string): string {
+  const result = spawnSync(
+    process.execPath,
+    [join(import.meta.dirname, 'verify-evidence-tar.ts'), ...args],
+    { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 }
+  );
+  if (result.status !== 0)
+    throw new Error(`${failure}: ${result.stderr.trim()}`);
+  return result.stdout;
+}
 
 export function archiveEntries(archive: string): string[] {
-  const listed = spawnSync('tar', ['-tf', archive], {
-    encoding: 'utf8',
-    maxBuffer: 32 * 1024 * 1024,
-  });
-  if (listed.status !== 0) throw new Error('Cannot list shard evidence');
-  return listed.stdout.split('\n').filter(Boolean);
+  return evidenceTar(['list', resolve(archive)], 'Cannot list shard evidence')
+    .split(/\r?\n/)
+    .filter(Boolean);
 }
 
 export function extractEvidence(
@@ -23,20 +35,10 @@ export function extractEvidence(
   try {
     const manifest = join(directory, 'paths');
     writeFileSync(manifest, paths.join('\n') + '\n');
-    mkdirSync(root, { recursive: true });
-    const extracted = spawnSync('tar', [
-      '-xf',
-      archive,
-      '-C',
-      root,
-      '--no-recursion',
-      '-T',
-      manifest,
-    ]);
-    if (extracted.status !== 0)
-      throw new Error(
-        `Cannot extract selected shard evidence: ${extracted.stderr.toString()}`
-      );
+    evidenceTar(
+      ['extract', resolve(archive), resolve(root), manifest],
+      'Cannot extract selected shard evidence'
+    );
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }

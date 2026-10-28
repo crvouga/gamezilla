@@ -13,6 +13,7 @@ import {
 } from '@libs/secrets-shared-ts/auth-secrets';
 import { CLOUDFLARE_ACCOUNT_ID } from '@libs/secrets-shared-ts/cf-account-id';
 import { CLOUDFLARE_API_TOKEN } from '@libs/secrets-shared-ts/cf-api-token';
+import { CI_ARTIFACTS_SECRETS } from '@libs/secrets-shared-ts/ci-artifacts-credentials';
 import {
   FEEDBACK_GITHUB_REPOSITORY,
   FEEDBACK_GITHUB_TOKEN,
@@ -37,7 +38,7 @@ import type { Secret } from '@libs/secrets-shared-ts/secret';
 import { SHARED_DATA_SECRETS } from '@libs/secrets-shared-ts/shared-data-credentials';
 import { POPULATION_WORKER_TOKEN } from '@libs/secrets-shared-ts/synthetic-population-secrets';
 import { ELEVEN_LABS_API_KEY } from '@libs/secrets-shared-ts/tts-secrets';
-import { TURBO_API, TURBO_TOKEN } from '@libs/secrets-shared-ts/turbo-token';
+import { TURBO_TOKEN } from '@libs/secrets-shared-ts/turbo-token';
 import { BILLING_VENDOR_SECRETS } from './billing-vendor-secrets';
 import { DATABASE_URL } from './db-url';
 import {
@@ -82,7 +83,6 @@ export const SECRETS: readonly Secret[] = [
   WEB_CLIENT_GOOGLE_CLIENT_ID,
   WEB_CLIENT_GOOGLE_CLIENT_SECRET,
   ...BILLING_VENDOR_SECRETS,
-  TURBO_API,
   TURBO_TOKEN,
   S3_ACCESS_KEY_ID,
   S3_SECRET_ACCESS_KEY,
@@ -91,6 +91,7 @@ export const SECRETS: readonly Secret[] = [
   S3_REGION,
   ...REPORTS_SECRETS,
   ...SHARED_DATA_SECRETS,
+  ...CI_ARTIFACTS_SECRETS,
   ELEVEN_LABS_API_KEY,
   GRAFANA_CLOUD_API_TOKEN,
   OBSERVABILITY_COLLECTOR_URL,

@@ -2,7 +2,8 @@
  * The secrets the OpenTofu foundation stack asserts (`human`) or writes
  * (`generated`, `derived`, `bootstrap`) in every environment's secret store,
  * and the account-wide ones a person enters once in the shared environment
- * (`shared`; every environment imports it — stacks/fleet). `@libs/secrets`
+ * (`shared`; every environment imports it — stacks/fleet), beside the
+ * fleet-written ones there (`shared_derived`, `ci_derived`). `@libs/secrets`
  * checks its registry against this list. `placeholders` are the values
  * committed to git for local sidecars: a stored generated secret equal to one
  * is public and is replaced instead of adopted (`libs/infra/tests` pins them
@@ -14,6 +15,7 @@ export type FoundationSecretNames = {
   readonly human: readonly string[];
   readonly shared: readonly string[];
   readonly shared_derived: readonly string[];
+  readonly ci_derived: readonly string[];
   readonly generated: readonly string[];
   readonly placeholders: readonly string[];
   readonly derived: readonly string[];

@@ -18,7 +18,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const PO_REL = 'libs/app-root-shared-ts/locales/en/messages.po';
@@ -38,6 +38,40 @@ function run(cmd: string, args: string[]): void {
   if (result.status !== 0) {
     process.exit(result.status ?? 1);
   }
+}
+
+/**
+ * The argv that runs one Lingui CLI subcommand (`extract`, `compile`) under
+ * this Bun. `lingui extract` dispatches to `dist/lingui-<name>.js` through
+ * commander, which on Windows respawns `process.execPath` — `bunx.exe` under
+ * `bunx`, which then read the absolute script path as a package spec and tried
+ * to `git clone` it. Running the subcommand script directly skips that hop
+ * and behaves the same on every OS.
+ */
+export function linguiCommand(
+  bun: string,
+  linguiDist: string,
+  subcommand: 'extract' | 'compile',
+  args: readonly string[]
+): { readonly cmd: string; readonly args: readonly string[] } {
+  return {
+    cmd: bun,
+    args: [join(linguiDist, `lingui-${subcommand}.js`), ...args],
+  };
+}
+
+function linguiDist(): string {
+  return dirname(Bun.resolveSync('@lingui/cli', REPO_ROOT));
+}
+
+function runLingui(subcommand: 'extract' | 'compile', args: string[]): void {
+  const command = linguiCommand(
+    process.execPath,
+    linguiDist(),
+    subcommand,
+    args
+  );
+  run(command.cmd, [...command.args]);
 }
 
 const BABEL_CONFIG_RELS = [
@@ -96,24 +130,8 @@ function assertCatalogsFresh(): void {
   // One process, no worker pool: the pool costs ~2.5x the CPU for a few
   // hundred ms of wall, and under a loaded `bun verify` its workers failed to
   // init ("Did not receive an init message from worker").
-  run('bunx', [
-    '--bun',
-    'lingui',
-    'extract',
-    '--clean',
-    '--overwrite',
-    '--workers',
-    '1',
-    ...config,
-  ]);
-  run('bunx', [
-    '--bun',
-    'lingui',
-    'compile',
-    '--typescript',
-    '--strict',
-    ...config,
-  ]);
+  runLingui('extract', ['--clean', '--overwrite', '--workers', '1', ...config]);
+  runLingui('compile', ['--typescript', '--strict', ...config]);
   const poAfter = readFileSync(
     join(REPO_ROOT, SCRATCH_REL, 'en/messages.po'),
     'utf8'

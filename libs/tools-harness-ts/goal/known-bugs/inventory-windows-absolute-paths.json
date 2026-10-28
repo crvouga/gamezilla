@@ -1,0 +1,4 @@
+{
+  "summary": "On Windows the UI inventory compared absolute paths against `repo + '/'`, so it wrote absolute `C:\\...` paths into INVENTORY.md instead of repository-relative ones.",
+  "regressionTest": "pkgs/ui-codegen-server-ts/tests/inventory-build.test.ts"
+}

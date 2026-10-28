@@ -26,9 +26,9 @@ module board_building {
   pure val KINDS = Set("wall", "floor", "goal", "outside")
   pure val SIZES = Set(1, 2, 3, 20, 21)
   pure val SQUARES = flatten(1.to(3).map(c => 1.to(2).map(r => { column: c, row: r })))
-  pure val EMPTY_BOARD = { columns: 3, rows: 2, walls: Set(), goals: Set(), outside: Set(),
+  pure val EMPTY_BOARD: Board = { columns: 3, rows: 2, walls: Set(), goals: Set(), outside: Set(),
     worker: Set(), crates: Set() }
-  pure val FINISHED_BOARD = { ...EMPTY_BOARD, worker: Set({ column: 1, row: 1 }),
+  pure val FINISHED_BOARD: Board = { ...EMPTY_BOARD, worker: Set({ column: 1, row: 1 }),
     crates: Set({ column: 2, row: 1 }), goals: Set({ column: 3, row: 1 }) }
 
   var board: Board

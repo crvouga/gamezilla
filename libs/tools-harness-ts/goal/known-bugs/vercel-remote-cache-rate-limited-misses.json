@@ -1,0 +1,4 @@
+{
+  "summary": "The Vercel Remote Cache answered the planner's burst of 256 concurrent lookups with 429, and every 429 was read as a miss, so 685 of ~1000 cached tasks were scheduled to run again (Verify run 40593008661). Lookups retry a 429 after Retry-After, and the planner uses the shared lookup concurrency.",
+  "regressionTest": "libs/tools-harness-ts/scripts/turbo-preflight.test.ts"
+}

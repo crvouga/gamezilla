@@ -3,15 +3,50 @@ description: Install the fixed Chrome release only for tasks that need a native 
 runs:
   using: composite
   steps:
-    # Windows Chrome is installed by the action; no Linux system-package or
-    # kernel sandbox changes run on the host.
-    - uses: browser-actions/setup-chrome@v2
-      id: chrome
-      with:
-        chrome-version: '154.0.8037.92'
-        install-dependencies: false
+    # The Chrome for Testing build mise.toml pins, unpacked by mise the same
+    # way on every runner OS: no browser installer action, which on Windows
+    # needed PowerShell 7 (Verify run 40531923687). No system packages are
+    # installed: a self-hosted Linux runner must already have Chrome's
+    # libraries (a package upgrade stalled past the step cap in Verify run
+    # 37668279155, mesa-libgallium).
+    - name: Install the pinned Chrome
+      shell: bash
+      run: mise install http:chrome-for-testing
     - name: Select visual renderer
+      id: chrome
+      shell: bash
+      run: |
+        chrome_path="$(bun run libs/tools-harness-ts/scripts/chrome-for-testing.ts)"
+        echo "BUN_CHROME_PATH=$chrome_path" >> "$GITHUB_ENV"
+        echo "chrome-path=$chrome_path" >> "$GITHUB_OUTPUT"
+    # Chrome's sandbox needs unprivileged user namespaces. Ubuntu's AppArmor
+    # profile grants them to the system Chrome's path only, so the pinned
+    # Chrome for Testing exits as it starts ("Chrome process closed the pipe",
+    # Verify run 38197118122).
+    - name: Allow the pinned Chrome its sandbox
+      shell: bash
+      run: |
+        knob=/proc/sys/kernel/apparmor_restrict_unprivileged_userns
+        if [ -e "$knob" ]; then echo 0 | sudo tee "$knob" > /dev/null; fi
+    # Chrome's own reason, if it cannot start, in seconds. The renderer
+    # starts it the way the tests do — Bun.WebView over
+    # --remote-debugging-pipe — with Chrome's stderr shown: a bare
+    # `chrome --dump-dom` started on Windows while every Bun.WebView there
+    # failed with "Chrome process closed the pipe" (Verify run 40571328806).
+    - name: Start the renderer once
       shell: bash
       env:
         CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
-      run: echo "BUN_CHROME_PATH=$CHROME_PATH" >> "$GITHUB_ENV"
+      run: |
+        bun -e '
+          const view = new Bun.WebView({
+            backend: { type: "chrome", url: false, path: process.env.CHROME_PATH, argv: ["--headless=new"], stderr: "inherit" },
+          });
+          const started = await Promise.race([
+            view.navigate("about:blank").then(() => true, (error) => { console.log(String(error)); return false; }),
+            Bun.sleep(30000).then(() => false),
+          ]);
+          if (!started) console.log("::warning::The pinned Chrome did not start under Bun.WebView; its output is above");
+          Bun.WebView.closeAll();
+          process.exit(0);
+        '

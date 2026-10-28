@@ -8,6 +8,7 @@
  */
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { buildInventory } from '@pkgs/ui-codegen-server-ts/inventory-build';
 import { renderInventory } from '@pkgs/ui-codegen-server-ts/inventory-render';
 import ts from 'typescript';
@@ -67,5 +68,5 @@ const inventory = buildInventory(
 mkdirSync(path.dirname(OUT), { recursive: true });
 writeFileSync(OUT, renderInventory(inventory));
 console.log(
-  `${path.relative(REPO, OUT)}: ${inventory.registry.length} entries, ${inventory.modules.length} modules, ${inventory.tokens.length} tokens, ${inventory.literals.length} literals`
+  `${slashPath(path.relative(REPO, OUT))}: ${inventory.registry.length} entries, ${inventory.modules.length} modules, ${inventory.tokens.length} tokens, ${inventory.literals.length} literals`
 );

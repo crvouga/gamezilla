@@ -1,0 +1,4 @@
+{
+  "summary": "verify:end on the Windows runner could not list any shard's results or evidence archive ('Cannot list shard evidence'): the CI shell's tar differs by OS and PATH order, so every task's verdict read as missing (Verify runs 40596596039, 40599165745). Shard archives are now packed, listed and extracted in-process with Bun.Archive, with each member read eagerly because a lazy Bun.file() member is packed empty.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-evidence-tar.test.ts"
+}

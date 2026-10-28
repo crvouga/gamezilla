@@ -1,0 +1,4 @@
+{
+  "summary": "The import-boundary Grit rule probes matched Biome's reported paths against `/`-separated probe paths, but Biome prints them with the OS separator, so on Windows no diagnostic matched any probe and every \"reports\" case saw nothing. Fixed: reported paths go through slashPath before matching.",
+  "regressionTest": "libs/tools-harness-ts/scripts/import-boundaries.test.ts"
+}

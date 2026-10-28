@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+"""Measure this machine, print the ci-green concurrency budget, and manage
+the shared slot ledger every check run and subagent draws from.
+
+Usage:
+  resource-budget [show] [--json]          machine, budget and held slots
+  resource-budget acquire-agent --id ID [--label TEXT] [--wait SECONDS] [--ttl SECONDS]
+                                           take a subagent slot; prints its token
+  resource-budget acquire-check --id ID --weight light|medium|heavy --pid PID [--wait SECONDS]
+                                           take a check slot for a process you run yourself
+  resource-budget renew TOKEN [--ttl SECONDS]
+  resource-budget release TOKEN
+
+Exit status: 0 ok; 75 no slot within --wait; 2 usage error.
+
+Tuning (environment): CI_GREEN_RESERVE_CORES (2), CI_GREEN_RESERVE_MEM_PCT
+(25), CI_GREEN_MAX_CHECKS, CI_GREEN_MAX_AGENTS, CI_GREEN_NICE (10),
+CI_GREEN_BUDGET_DIR (shared ledger location).
+"""
+
+import argparse
+import json
+import os
+import sys
+import time
+
+sys.dont_write_bytecode = True
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), "lib"))
+
+import budget
+import common
+
+
+def show(as_json):
+    root = common.repo_root()
+    machine, plan = budget.snapshot(root)
+    data, dropped = budget.status(root)
+    if as_json:
+        print(budget.to_json({"machine": machine, "budget": plan, "slots": data["slots"],
+                              "services": data["services"], "ledger": os.path.join(common.budget_dir(root), "slots.json")}))
+        return 0
+    m = machine
+    battery = {True: "on battery", False: "on AC power", None: "power source unknown"}[m["on_battery"]]
+    print("machine: %d logical cores%s, %d MB RAM (%d MB available), %.1f GB disk free, load %.2f / %.2f, %s" % (
+        m["logical_cores"], " (cgroup quota %.1f)" % m["cpu_quota"] if m["cpu_quota"] else "",
+        m["memory_total_mb"], m["memory_available_mb"], m["disk_free_gb"], m["load_1m"], m["load_5m"], battery))
+    p = plan
+    print("budget:  keep %d cores and %d%% RAM (%d MB) free -> %d CPU units, %d MB for checks" % (
+        p["reserve"]["cores"], p["reserve"]["memory_pct"], p["reserve"]["memory_mb"], p["cpu_units"], p["memory_budget_mb"]))
+    print("         at most %d checks at once, %d heavy, %d subagents; checks run at nice %d" % (
+        p["max_parallel_checks"], p["max_parallel_heavy"], p["max_parallel_agents"], p["nice"]))
+    print("classes: " + ", ".join("%s = %d cpu / %d MB" % (k, v["cpu"], v["memory_mb"]) for k, v in p["classes"].items()))
+    for note in p["notes"]:
+        print("note:    " + note)
+    if data["slots"]:
+        print("held slots:")
+        for s in data["slots"]:
+            age = int(time.time() - s["started_at"])
+            print("  %-6s %-40s %-6s pid=%s age=%ds token=%s" % (s["kind"], s["label"][:40], s["weight"], s.get("pid"), age, s["token"]))
+    else:
+        print("held slots: none")
+    if data["services"]:
+        print("services: " + ", ".join("%s (%s)" % (k, v.get("container") or v.get("pid")) for k, v in data["services"].items()))
+    for s in dropped:
+        print("reclaimed stale slot %s (%s)" % (s["token"], s["label"]))
+    print("ledger:  %s" % os.path.join(common.budget_dir(root), "slots.json"))
+    return 0
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0], formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("command", nargs="?", default="show",
+                        choices=["show", "acquire-agent", "acquire-check", "renew", "release"])
+    parser.add_argument("token", nargs="?")
+    parser.add_argument("--id")
+    parser.add_argument("--label")
+    parser.add_argument("--weight", default="medium", choices=common.WEIGHTS)
+    parser.add_argument("--pid", type=int)
+    parser.add_argument("--wait", type=float, help="seconds to wait for a slot (default: wait indefinitely)")
+    parser.add_argument("--ttl", type=float, help="lease for subagent slots in seconds (default 4h)")
+    parser.add_argument("--json", action="store_true")
+    args = parser.parse_args()
+
+    if args.command == "show":
+        return show(args.json)
+    if args.command in ("release", "renew"):
+        if not args.token:
+            common.die("%s needs a TOKEN" % args.command)
+        ok = budget.release(args.token) if args.command == "release" else budget.renew(args.token, args.ttl)
+        if not ok:
+            common.warn("no slot with token %s (already released or reclaimed)" % args.token)
+        return 0
+    if not args.id:
+        common.die("%s needs --id" % args.command)
+    if args.command == "acquire-check" and not args.pid:
+        common.die("acquire-check needs --pid: the slot is released when that process exits")
+    kind = "agent" if args.command == "acquire-agent" else "check"
+    slot = budget.acquire(kind, args.id, weight=args.weight, wait=args.wait, label=args.label,
+                          pid=args.pid, ttl=args.ttl, log=lambda m: sys.stderr.write(m + "\n"))
+    if slot is None:
+        return 75
+    print(json.dumps(slot) if args.json else slot["token"])
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

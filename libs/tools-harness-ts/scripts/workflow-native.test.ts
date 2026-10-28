@@ -5,7 +5,7 @@ import {
   specParallelism,
   testConcurrency,
 } from '@pkgs/os-server-ts/test-concurrency';
-import { HOSTS } from './package-hosts';
+import { CI_OPERATING_SYSTEMS, CI_RUNNER } from './package-hosts';
 
 const ROOT = join(import.meta.dirname, '../../..');
 
@@ -36,29 +36,52 @@ test('a two-core Verification runner never starts twenty concurrent test process
 });
 
 // regression: ci-provider-native-ci-runner-routing
-test('every CI job requires a self-hosted runner for its verification host', () => {
+test('only GitHub Actions owns the Verify, Release and Health triggers', () => {
   expect(readdirSync(join(ROOT, '.github/workflows')).sort()).toEqual([
     'deploy.yml',
     'health.yml',
     'verify-nightly.yml',
     'verify-pr.yml',
   ]);
+  const runners: (string | readonly string[])[] = [];
   for (const file of readdirSync(join(ROOT, '.github/workflows'))) {
     const workflow = Bun.YAML.parse(
       readFileSync(join(ROOT, '.github/workflows', file), 'utf8')
     ) as {
-      jobs: Record<string, { 'runs-on'?: readonly string[]; uses?: string }>;
+      jobs: Record<
+        string,
+        { 'runs-on'?: string | readonly string[]; uses?: string }
+      >;
     };
-    for (const [id, job] of Object.entries(workflow.jobs)) {
+    for (const job of Object.values(workflow.jobs)) {
       // A reusable-workflow call runs on its callee's runners.
       if (job.uses !== undefined) {
         expect(job.uses).toBe('./.github/workflows/verify-pr.yml');
         continue;
       }
-      expect(job['runs-on'], `${file}: ${id}`).toContain('self-hosted');
-      expect(job['runs-on']).toEqual(HOSTS.windows.runner);
+      runners.push(job['runs-on'] ?? '');
     }
   }
+  // Every job runs on any self-hosted runner, whatever its OS
+  // (package-hosts.ts). A job that continues a Verify plan also requests the
+  // OS and arch `verify:start` ran on, because a plan holds for one platform.
+  const samePlatform = [
+    CI_RUNNER,
+    "${{ needs.verify-start.outputs.os || 'self-hosted' }}",
+    "${{ needs.verify-start.outputs.arch || 'self-hosted' }}",
+  ];
+  expect(runners.length).toBeGreaterThan(0);
+  for (const runner of runners)
+    if (typeof runner === 'string') expect(runner).toBe(CI_RUNNER);
+    else expect(runner).toEqual(samePlatform);
+  // No job names an OS, an arch or a hosted image itself.
+  const named = /ubuntu|macos|windows|linux|x64|arm64|xcode/i;
+  expect(
+    runners
+      .flat()
+      .filter((label) => named.test(label.replace(/\$\{\{.*\}\}/, '')))
+  ).toEqual([]);
+  expect(CI_OPERATING_SYSTEMS).toEqual(['Linux', 'macOS', 'Windows']);
 });
 
 // regression: ci-provider-native-ci-missing-local-action

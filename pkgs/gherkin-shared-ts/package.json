@@ -18,7 +18,8 @@
     "@cucumber/cucumber-expressions": "catalog:",
     "@cucumber/gherkin": "catalog:",
     "@cucumber/messages": "catalog:",
-    "@cucumber/tag-expressions": "catalog:"
+    "@cucumber/tag-expressions": "catalog:",
+    "@pkgs/os-shared-ts": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

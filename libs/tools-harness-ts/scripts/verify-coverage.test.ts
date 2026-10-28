@@ -7,7 +7,7 @@ import { countLines, formatLcov, mergeInto, parseLcov } from './lcov';
 import type { PackagePlan } from './packages';
 import { listSourceFiles } from './packages';
 import { formatPercent, summarizePackage } from './report';
-import { coverageWorkerEnv } from './verify-coverage';
+import { coverageWorkerEnv, scriptShellArgv } from './verify-coverage';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const EQUAL_DIR = join(REPO_ROOT, 'pkgs/equal-shared-ts');
@@ -20,6 +20,19 @@ const ASSERT_SOURCE = join(
 // regression: coverage-nested-concurrency-oversubscribes-runner
 test('coverage on two cores does not launch twenty concurrent tests per package', () => {
   expect(coverageWorkerEnv({}, 2, 4)['VERIFY_TEST_CONCURRENCY']).toBe('1');
+});
+
+// regression: coverage-runner-requires-posix-shell
+test('on Windows a test script segment runs under Bun shell, not sh', () => {
+  const segment =
+    "echo --max-concurrency=$(echo 3) --path-ignore-patterns='**/*.contract.test.ts'";
+  const argv = scriptShellArgv(segment, 'win32');
+  expect(argv).toEqual([process.execPath, 'exec', segment]);
+  expect(scriptShellArgv(segment, 'linux')).toEqual(['sh', '-c', segment]);
+  const run = Bun.spawnSync([...argv]);
+  expect(run.stdout.toString().trim()).toBe(
+    '--max-concurrency=3 --path-ignore-patterns=**/*.contract.test.ts'
+  );
 });
 
 test('coverage shares its CPU ceiling and keeps a lower explicit test limit', () => {

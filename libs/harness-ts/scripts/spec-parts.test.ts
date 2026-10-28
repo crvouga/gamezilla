@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import type { ReplayPlan } from '@pkgs/quint-server-ts/trace-runs';
 import { sliceReplays } from '@pkgs/quint-server-ts/trace-runs';
 import { packageSpecInventory, readReplayPlans } from './replay-plans';
@@ -132,6 +132,30 @@ describe('a planned model', () => {
             unit.replays!.nightly / NIGHTLY_REPLAY_SCALE
           )
       );
+  });
+
+  // regression: nightly-model-replays-overfill-one-file
+  test('a model drawing far more traces than it covers splits its nightly replays to fit a part', () => {
+    // Hearts' secret choices: 128 drawn traces, two of them covering.
+    const wide: ReplayPlan = {
+      seed: '0x67932',
+      traces: 128,
+      cover: [2, 6],
+      replayed: [2, 6],
+      regressions: 0,
+      determinism: false,
+      variants: 1,
+    };
+    const units = plannedModelUnits('specs/games/secret-choices.qnt', wide);
+    expect(sum(units, 'pr')).toBe(2);
+    expect(sum(units, 'nightly')).toBe(128);
+    expect(units.length).toBe(2);
+    for (const unit of units) {
+      expect(unit.replays!.pr).toBeLessThanOrEqual(MODEL_FILE_REPLAYS);
+      expect(unit.replays!.nightly).toBeLessThanOrEqual(
+        PART_REPLAYS * NIGHTLY_REPLAY_SCALE
+      );
+    }
   });
 
   test('a package that plans replays sizes its models by them', () => {
@@ -319,7 +343,7 @@ describe('partOf', () => {
       for (const model of models) {
         const files = parts
           .flat()
-          .filter((unit) => unit.path.endsWith(`/${model}.qnt`));
+          .filter((unit) => basename(unit.path) === `${model}.qnt`);
         for (const profile of ['pr', 'nightly'] as const)
           expect(
             files.reduce((sum, unit) => sum + unit.replays![profile], 0)

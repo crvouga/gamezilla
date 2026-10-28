@@ -23,6 +23,7 @@ import {
   objectiveSpecStem,
   objectivesBinding,
 } from '@pkgs/openslo-shared-ts/registry';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import type { Environment } from './health';
 import {
   allSpecs,
@@ -53,7 +54,9 @@ const STANDARD: Environment = {
 // regression: deploy-missing-multiplayer-release-journeys
 // regression: deploy-health-escaped-pull-request
 test('the release bundle checks every health journey the localhost stack can run', () => {
-  const paths = releaseSpecs().map((path) => relative(REPO_ROOT, path));
+  const paths = releaseSpecs().map((path) =>
+    slashPath(relative(REPO_ROOT, path))
+  );
   expect(paths).toContain('specs/journeys/connect-four-game.feature');
   expect(paths).toContain('specs/journeys/multiplayer-game.feature');
   expect(paths).toContain('specs/journeys/custom-game.feature');
@@ -69,7 +72,7 @@ test('a health spec stays out of the release bundle only for something the local
     .filter((path) => !releaseSpecs().includes(path));
   expect(left.length).toBeGreaterThan(0);
   for (const path of left) {
-    const uri = relative(REPO_ROOT, path);
+    const uri = slashPath(relative(REPO_ROOT, path));
     const limit = HOST_LIMITS.find(
       (entry) => entry.feature === uri && entry.scenario === undefined
     );
@@ -443,7 +446,7 @@ describe('health runs features, health --objectives runs objectives', () => {
 });
 
 describe('synthetic discovery', () => {
-  const uri = (path: string) => relative(REPO_ROOT, path);
+  const uri = (path: string) => slashPath(relative(REPO_ROOT, path));
 
   test('a live run sees journeys, every synthetic feature, and the live objective', () => {
     const specs = allSpecs().map(uri);

@@ -152,9 +152,9 @@ package's platforms to the hosts that can verify it.
 
 | Work | Runs on |
 | --- | --- |
-| TypeScript tasks | Linux and macOS (CI: Linux shards) |
-| Portable SwiftPM build and tests | Linux and macOS (CI: both) |
-| SwiftUI iOS app build, launch and smoke test | macOS with the pinned Xcode only (CI: `verify:apple`) |
+| TypeScript tasks | Linux, macOS and Windows (CI: any runner OS) |
+| Portable SwiftPM build and tests | Linux and macOS (CI: not checked) |
+| SwiftUI iOS app build, launch and smoke test | macOS with the pinned Xcode only (CI: not checked) |
 
 A wrapper on a host its package does not build for fails and says that the
 check did not happen here and where its evidence comes from. An Apple app is
@@ -216,15 +216,25 @@ An Xcode app package holds exactly one `<name>.xcodeproj` with a shared
 
 ## CI
 
-CI verifies shared TypeScript packages on self-hosted Windows x64 runners.
-Native Swift and iOS packages are excluded from the CI plan and verdict.
-There is no Apple job and no native CI cache claim. Native code, toolchain
-pins, package manifests and local build/test commands remain available.
-An Apple build that did not run is never reported as passing.
+Verify PR is still the one merge gate, and `verify:end` the one required
+status; a pull request runs its fast `pr` profile and Release its whole
+`release` gate. Every CI job runs on any self-hosted runner, Linux, macOS or Windows
+([`CI_REQUIREMENTS.md`](CI_REQUIREMENTS.md#runner-operating-systems)), so CI
+checks only what runs on all three.
+
+- **The shards** run the gate over every package that declares no
+  `platforms` (`turbo-ci-run.ts verify:ci`).
+- **Native packages are not checked in CI.** No Swift toolchain is pinned for
+  Windows, and the iOS app needs Xcode, so `@pkgs/clock-shared-swift` and
+  `@apps/client-swift` run only from `bun verify` on a host that builds them
+  (Linux or macOS for the Swift package, a Mac with the pinned Xcode for the
+  app). A pull request can break them and still pass `verify:end`.
+
+Release and Health publish nothing native: no signing, TestFlight or store
+submission exists.
 
 A laptop's `bun verify` runs every host's tasks. On macOS with the pinned
-Xcode that covers everything; elsewhere the Apple tasks fail with the reason,
-and the change is verified only once `verify:apple` is green.
+Xcode that covers everything; elsewhere the Apple tasks fail with the reason.
 
 ## Caching
 
@@ -281,9 +291,9 @@ Swift. None of it exists yet; when it lands it follows these rules:
 5. **Extend the boundaries**: its native dependency references in
    `language-boundaries.ts` (as for `Package.swift`), its formatter in
    `lint-package.ts`, its test runner in `test-scripts.ts`.
-6. **Give it a CI host** if no existing runner builds it: a `HOSTS` entry, a
-   job in `verify-pr.yml` planned like `verify:apple`, and its result in
-   `verify-verdict.ts`.
+6. **Expect no CI.** CI runs on any runner OS and verifies only packages
+   without `platforms` (`ciFilters` in `package-hosts.ts`); a native package
+   is verified only by `bun verify` on a host that builds it.
 7. **Prove it** with tests beside the ones above (`language-boundaries.test.ts`,
    `native-cache-keys.test.ts`), then update this guide.
 

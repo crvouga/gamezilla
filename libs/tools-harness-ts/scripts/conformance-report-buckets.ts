@@ -1,6 +1,7 @@
 // @io-wall-ok — recorded-report discovery at the conformance CLI filesystem boundary.
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { lastSegment } from '@pkgs/os-shared-ts/slash-path';
 
 function subdirs(dir: string): readonly string[] {
   if (!existsSync(dir)) return [];
@@ -17,7 +18,7 @@ function withEvidence(dir: string, depth: number): readonly string[] {
   return [
     ...own,
     ...subdirs(dir)
-      .filter((sub) => !sub.endsWith('/evidence'))
+      .filter((sub) => lastSegment(sub) !== 'evidence')
       .flatMap((sub) => withEvidence(sub, depth - 1)),
   ];
 }
@@ -31,7 +32,7 @@ export function reportBuckets(repoRoot: string): readonly string[] {
         // ad-hoc `bun run spec` writes `all/`, from whatever implementation
         // was on disk then.
         ...subdirs(join(pkg, '.cache/harness-report')).filter((bucket) =>
-          /\/(part-\d+|models)$/.test(bucket)
+          /^(part-\d+|models)$/.test(lastSegment(bucket))
         ),
         ...withEvidence(join(pkg, '.cache/health-report'), 2),
         ...withEvidence(join(pkg, '.cache/health-objectives-report'), 2),

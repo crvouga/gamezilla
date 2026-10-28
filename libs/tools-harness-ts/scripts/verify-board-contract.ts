@@ -1,6 +1,7 @@
 // @io-wall-ok — package-owned source conformance gate, with no external I/O.
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import ts from 'typescript';
 import { boardSoundIssues } from './board-sound-contract';
 
@@ -22,9 +23,9 @@ function permitted(typeOnly: boolean, name: string) {
 
 function boardImport(path: string, name: string) {
   if (name.startsWith('@pkgs/chess-board')) return true;
-  return resolve(dirname(resolve(ROOT, path)), name)
-    .replaceAll('\\', '/')
-    .includes('/pkgs/chess-board');
+  return slashPath(resolve(dirname(resolve(ROOT, path)), name)).includes(
+    '/pkgs/chess-board'
+  );
 }
 
 function importedModule(node: ts.Node) {
@@ -79,7 +80,10 @@ function inspect(path: string) {
   return issues;
 }
 
-const paths = [...new Bun.Glob('**/*.{ts,tsx}').scanSync({ cwd: ROOT })].sort();
+const paths = Array.from(
+  new Bun.Glob('**/*.{ts,tsx}').scanSync({ cwd: ROOT }),
+  slashPath
+).sort();
 const issues = paths.flatMap(inspect);
 if (issues.length > 0) {
   console.error(issues.join('\n'));

@@ -1,0 +1,4 @@
+{
+  "summary": "On Windows the workspace exports resolver returned node:path resolve()'s backslash path as the module id, while Vite gives relative imports '/' ids, so a module reached only by its package name (game-menu-client-ts/src/personal-puzzle-stats-clients.tsx) was missing from the expected '/' ids and a module imported both ways was bundled twice. The resolver now returns slashPath ids.",
+  "regressionTest": "apps/client-ts/tests/framework-build.test.ts"
+}

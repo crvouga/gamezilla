@@ -22,7 +22,9 @@ test('process requests preserve environment, working directory and graceful term
   try {
     await ready;
     child.terminate();
-    expect(await child.completed).toBe(0);
+    // POSIX delivers SIGTERM to the child's handler, which exits 0. Windows
+    // has no signals, so there the child is ended without running it.
+    expect(await child.completed).toBe(process.platform === 'win32' ? null : 0);
     expect(output.join('')).toBe(`process-request-value\n${import.meta.dir}\n`);
   } finally {
     child.stop();

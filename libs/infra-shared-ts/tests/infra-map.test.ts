@@ -9,6 +9,7 @@ import type {
   StackModel,
 } from '@libs/infra-shared-ts/infra-model-types';
 import { renderInfraMap } from '@libs/infra-shared-ts/infra-render';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 /**
  * The infrastructure map is derived from the OpenTofu source, so these tests
@@ -26,7 +27,7 @@ function collect(dir: string, into: Map<string, string>): void {
     const path = join(dir, entry.name);
     if (entry.isDirectory()) collect(path, into);
     else if (SOURCE.test(entry.name)) {
-      into.set(relative(PKG, path), readFileSync(path, 'utf8'));
+      into.set(slashPath(relative(PKG, path)), readFileSync(path, 'utf8'));
     }
   }
 }

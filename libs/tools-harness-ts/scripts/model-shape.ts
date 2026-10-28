@@ -6,6 +6,7 @@
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { modelShapeIssues } from '@pkgs/quint-shared-ts/shape';
 import { formatModelShapeIssue } from '@pkgs/quint-shared-ts/shape-model';
 import { maintenanceVocabulary } from './spec-glossary';
@@ -17,7 +18,9 @@ export function modelShapeProblems(
 ): readonly string[] {
   const files = [
     ...new Bun.Glob('**/*.qnt').scanSync({ cwd: join(REPO_ROOT, SPECS_DIR) }),
-  ].sort();
+  ]
+    .map(slashPath)
+    .sort();
   const problems: string[] = [];
   const maintenanceContexts = maintenanceVocabulary();
   for (const file of files) {

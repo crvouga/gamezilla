@@ -24,6 +24,7 @@
     "@pkgs/clock-shared-ts": "workspace:*",
     "@pkgs/message-shared-ts": "workspace:*",
     "@pkgs/observability-root-shared-ts": "workspace:*",
+    "@pkgs/os-shared-ts": "workspace:*",
     "@pkgs/room-root-shared-ts": "workspace:*",
     "@pkgs/sql-root-shared-ts": "workspace:*",
     "@pkgs/sync-engine-shared-ts": "workspace:*",

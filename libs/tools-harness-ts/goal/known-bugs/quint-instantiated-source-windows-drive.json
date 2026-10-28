@@ -1,0 +1,4 @@
+{
+  "summary": "Copying a parameterized model's sources nested each absolute path under the copy root by stripping only leading slashes, so on Windows the drive letter stayed and mkdir got `...\\instantiated-source\\C:\\actions-runner-2\\...`, which Windows refuses (ENOENT). The whole root, drive or UNC prefix included, is now dropped before nesting.",
+  "regressionTest": "pkgs/quint-server-ts/tests/model-input.test.ts"
+}

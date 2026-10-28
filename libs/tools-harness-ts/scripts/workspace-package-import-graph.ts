@@ -9,6 +9,7 @@
 
 import { readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { Glob } from 'bun';
 
 export const REPO_ROOT = join(import.meta.dirname, '../../..');
@@ -115,7 +116,10 @@ export function buildPackageImportGraph(
 
   for (const [pkgName, pkgDir] of packages) {
     const glob = new Glob('**/*.{ts,tsx,mts,cts}');
-    for (const rel of glob.scanSync({ cwd: pkgDir, absolute: false })) {
+    for (const rel of Array.from(
+      glob.scanSync({ cwd: pkgDir, absolute: false }),
+      slashPath
+    )) {
       if (rel.startsWith('node_modules/')) continue;
       if (rel.startsWith('dist/')) continue;
       if (rel.startsWith('.turbo/')) continue;
@@ -144,7 +148,7 @@ export function buildPackageImportGraph(
           edges.set(target, importers);
         }
         if (importers.length < MAX_IMPORTER_SAMPLES) {
-          importers.push(relative(REPO_ROOT, filePath));
+          importers.push(slashPath(relative(REPO_ROOT, filePath)));
         }
       }
     }

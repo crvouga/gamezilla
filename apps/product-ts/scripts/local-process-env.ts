@@ -20,6 +20,17 @@ export function localProcessEnv(
     'SYSTEMROOT',
     'SystemRoot',
     'BUN_INSTALL',
+    // Windows process plumbing (process.env lookups there ignore case).
+    'USERPROFILE',
+    'USERNAME',
+    'APPDATA',
+    'LOCALAPPDATA',
+    'PATHEXT',
+    'COMSPEC',
+    'WINDIR',
+    'PROGRAMFILES',
+    'PROGRAMDATA',
+    'SYSTEMDRIVE',
   ];
   return Object.fromEntries(
     names.flatMap((name) =>

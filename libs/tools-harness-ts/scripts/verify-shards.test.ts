@@ -6,6 +6,7 @@ import { CI_RUN_DEADLINE_SECONDS, taskBudgetSeconds } from './verify-budget';
 import { redactSecrets, taskStream } from './verify-shard-stream';
 import type { VerifyTask } from './verify-shards';
 import {
+  adaptiveShardTarget,
   balanceShards,
   executes,
   planWarnings,
@@ -695,4 +696,145 @@ test('a task whose script exited non-zero is over, not "running" until its budge
   expect(stream.snapshot().failed.map((failed) => failed.taskId)).toEqual([
     '@libs/tools-harness-ts#ci:x',
   ]);
+});
+
+test('a plan never starts more shards than the runners that can take them, and loses no task', () => {
+  assertProperty(
+    'verify-runner-cap',
+    fc.property(
+      fc.array(fc.integer({ min: 1, max: 600 }), {
+        minLength: 1,
+        maxLength: 80,
+      }),
+      fc.integer({ min: 1, max: 64 }),
+      fc.integer({ min: 1, max: 64 }),
+      (seconds, count, runners) => {
+        const tasks = seconds.map((s, i) => task(`pkg-${i}#test`, s));
+        const plan = balanceShards(tasks, count, 180, {
+          runners,
+          fillSeconds: 720,
+        });
+        const started = plan.shards.filter(
+          (shard) => shard.stage === 'verifications' && shard.tasks.length > 0
+        );
+        // More shards than runners only when the runners cannot hold the
+        // work inside a shard's deadline.
+        if (started.length > Math.min(count, runners))
+          expect(
+            balanceShards(tasks, count, 720).shards.filter(
+              (shard) =>
+                shard.stage === 'verifications' && shard.tasks.length > 0
+            ).length
+          ).toBeGreaterThan(runners);
+        expect(
+          plan.shards
+            .filter((shard) => shard.stage === 'verifications')
+            .flatMap((shard) => shard.tasks.map((t) => t.taskId))
+            .sort()
+        ).toEqual(tasks.map((t) => t.taskId).sort());
+        // The prerequisite stage keeps index `count`, which the workflow names.
+        expect(
+          plan.shards.find((shard) => shard.stage === 'prerequisites')?.index
+        ).toBe(count);
+      }
+    )
+  );
+});
+
+const startedShards = (plan: ReturnType<typeof balanceShards>) =>
+  plan.shards.filter(
+    (shard) => shard.stage === 'verifications' && shard.tasks.length > 0
+  );
+
+test('four runners take a corpus that fits their deadline in four shards instead of sixty-four', () => {
+  const tasks = Array.from({ length: 24 }, (_, i) => task(`pkg-${i}#test`, 90));
+  const started = startedShards(
+    balanceShards(tasks, 64, 180, { runners: 4, fillSeconds: 720 })
+  );
+  expect(started).toHaveLength(4);
+  expect(Math.max(...started.map((s) => s.seconds))).toBe(540);
+});
+
+// Verify run 40577850573: 92 uncached proof parts each preferred a runner of
+// their own, so four runners still got 64 shards.
+test('proof lanes do not widen a small pool beyond what its deadline needs', () => {
+  const tasks = [
+    ...Array.from({ length: 90 }, (_, i) =>
+      task(`@libs/p${i}-harness-ts#verify:models:${i}`, 30)
+    ),
+    ...Array.from({ length: 20 }, (_, i) => task(`pkg-${i}#test`, 30)),
+  ];
+  const started = startedShards(
+    balanceShards(tasks, 64, 180, { runners: 4, fillSeconds: 720 })
+  );
+  expect(started).toHaveLength(5);
+  expect(Math.max(...started.map((s) => s.seconds))).toBeLessThanOrEqual(720);
+});
+
+test('too few runners queue extra shards rather than overfill one past its deadline', () => {
+  const tasks = Array.from({ length: 200 }, (_, i) =>
+    task(`pkg-${i}#test`, 90)
+  );
+  const started = startedShards(
+    balanceShards(tasks, 64, 180, { runners: 4, fillSeconds: 720 })
+  );
+  expect(started).toHaveLength(25);
+  expect(Math.max(...started.map((s) => s.seconds))).toBeLessThanOrEqual(720);
+});
+
+const SIZING = { setupSeconds: 30, setupMultiple: 3, slots: 1 };
+
+test('a shard holds a few times its setup, never less than the longest group, never past its deadline fill', () => {
+  assertProperty(
+    'verify-adaptive-shard-target',
+    fc.property(
+      fc.array(fc.integer({ min: 1, max: 900 }), {
+        minLength: 1,
+        maxLength: 60,
+      }),
+      fc.integer({ min: 1, max: 120 }),
+      fc.integer({ min: 100, max: 2000 }),
+      (seconds, setup, fill) => {
+        const tasks = seconds.map((s, i) => task(`pkg-${i}#test`, s));
+        const target = adaptiveShardTarget(
+          tasks,
+          { ...SIZING, setupSeconds: setup },
+          fill
+        );
+        expect(target.longestGroupSeconds).toBe(Math.max(...seconds));
+        expect(target.uncachedSeconds).toBe(seconds.reduce((a, b) => a + b, 0));
+        expect(target.targetSeconds).toBe(
+          Math.min(fill, Math.max(3 * setup, Math.max(...seconds)))
+        );
+      }
+    )
+  );
+});
+
+test('cached tasks size nothing', () => {
+  const tasks = [{ ...task('a#test', 500), hit: true }, task('b#test', 40)];
+  expect(adaptiveShardTarget(tasks, SIZING)).toEqual({
+    targetSeconds: 90,
+    uncachedSeconds: 40,
+    longestGroupSeconds: 40,
+    efficiencySeconds: 90,
+  });
+});
+
+// Verify run 40577850573's pull-request share: 2,500 s of small tasks whose
+// longest is 132 s. Shards smaller than that group cannot finish sooner.
+test('more runners than useful shards start only the shards that shorten the run', () => {
+  const tasks = Array.from({ length: 40 }, (_, i) =>
+    task(`pkg-${i}#test`, i === 0 ? 132 : 60)
+  );
+  const target = adaptiveShardTarget(tasks, SIZING, 720);
+  expect(target.targetSeconds).toBe(132);
+  const started = balanceShards(tasks, 64, target.targetSeconds, {
+    runners: 34,
+    fillSeconds: 720,
+  }).shards.filter(
+    (shard) => shard.stage === 'verifications' && shard.tasks.length > 0
+  );
+  expect(started.length).toBeLessThan(34);
+  expect(started.length).toBe(Math.ceil((132 + 39 * 60) / 132));
 });

@@ -1,4 +1,5 @@
 // @io-wall-ok — deploy composition root: required puzzle reference data.
+import { fileURLToPath } from 'node:url';
 import { InitializePuzzleCatalog } from '@libs/chess-puzzle-server-ts/initialize-puzzle-catalog';
 import { chessPackageRootFromLoadFileModule } from '@libs/chess-puzzle-server-ts/load-file';
 import { resolveToolingDatabaseUrl } from '@libs/chess-puzzle-server-ts/tooling-database-url';
@@ -14,7 +15,7 @@ import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
 import { createScriptSecretStore } from '@pkgs/secret-store-shared-ts/create-script-secret-store';
 import { createPgPool } from '@pkgs/sql-client-postgres-server-ts/connect';
 
-const repoRoot = new URL('../../..', import.meta.url).pathname;
+const repoRoot = fileURLToPath(new URL('../../..', import.meta.url));
 const logger = createLogger({ name: 'puzzle-catalog', now: wallClock.now });
 await refreshSecretsIntoEnv();
 const { databaseUrl } = await resolveToolingDatabaseUrl({

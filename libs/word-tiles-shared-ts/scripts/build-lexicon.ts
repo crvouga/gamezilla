@@ -10,6 +10,7 @@
  *
  *   bun libs/word-tiles-shared-ts/scripts/build-lexicon.ts [--check]
  */
+import { fileURLToPath } from 'node:url';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared-ts/global';
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs-server-ts/repo-tree-store';
 import {
@@ -55,7 +56,7 @@ const identities = {
   artifactSha256: await sha256Hex(artifact),
 };
 const repo = createRepoTreeObjectStore({
-  rootDir: new URL('../../..', import.meta.url).pathname,
+  rootDir: fileURLToPath(new URL('../../..', import.meta.url)),
 });
 if (!process.argv.includes('--check'))
   await repo.put(

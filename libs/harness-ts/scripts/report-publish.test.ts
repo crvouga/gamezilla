@@ -1,19 +1,17 @@
 import { describe, expect, test } from 'bun:test';
 import { existsSync } from 'node:fs';
-import { join } from 'node:path';
-
-import { reportsStoreUnconfigured, TAILWIND_DIR } from './report-publish';
+import { tailwindCli } from '@libs/harness-ts/wall-frame-css';
+import { REPO_ROOT, reportsStoreUnconfigured } from './report-publish';
 
 describe('report-publish', () => {
   // regression: report-publish-wrangler-not-found
-  test('runs the Tailwind CLI where the install linked its bin', () => {
+  test('runs the Tailwind CLI the install linked into the package declaring it', () => {
     // `bunx --no-install` finds only a bin in the working directory's
-    // node_modules/.bin (or a global install, which a CI runner lacks). The
-    // repo root has none: the isolated linker links a bin only into the
-    // packages that declare it.
-    expect(
-      existsSync(join(TAILWIND_DIR, 'node_modules/.bin/tailwindcss'))
-    ).toBe(true);
+    // node_modules/.bin (or a global install, which a CI runner lacks), and
+    // that shim is `tailwindcss` on POSIX but `tailwindcss.exe` on Windows.
+    // The repo root has none: the isolated linker links a package only into
+    // the packages that declare it, so the CLI script is read from there.
+    expect(existsSync(tailwindCli(REPO_ROOT))).toBe(true);
   });
 
   test('skips only when no reports credential exists', () => {

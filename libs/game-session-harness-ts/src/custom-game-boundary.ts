@@ -37,6 +37,7 @@ async function disconnectedReason(
         pending: new Set(),
         // No room on the device: no choice is local, whatever the games.
         rules: createTurnGames([]),
+        actor: '',
       },
       choice ?? { operation: 'create', gameId: null, revision: 0 }
     );

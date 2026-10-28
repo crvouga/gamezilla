@@ -1,4 +1,5 @@
 import { expect, test } from 'bun:test';
+import { join } from 'node:path';
 import { brokerLogDirectory } from '@pkgs/emqx-server-ts/broker-log-directory';
 
 // regression: emqx-space-in-crash-dump-path
@@ -6,10 +7,10 @@ test('a workspace on OWC Express uses an isolated whitespace-free broker log dir
   const data = '/Volumes/OWC Express 1M2/project/pkgs/emqx-server-ts/data';
   const path = brokerLogDirectory(data, '/tmp');
   expect(path).not.toMatch(/\s/);
-  expect(path.startsWith('/tmp/emqx-log-')).toBe(true);
+  expect(path.startsWith(join('/tmp', 'emqx-log-'))).toBe(true);
   expect(brokerLogDirectory(data, '/tmp')).toBe(path);
   expect(brokerLogDirectory(`${data}-other`, '/tmp')).not.toBe(path);
   expect(brokerLogDirectory('/workspace/data', '/tmp')).toBe(
-    '/workspace/data/log'
+    join('/workspace/data', 'log')
   );
 });

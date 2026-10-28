@@ -8,6 +8,7 @@
  *
  * Run: `bun run --filter @pkgs/room-root-harness-ts bench`
  */
+import { fileURLToPath } from 'node:url';
 import type { Message } from '@pkgs/message-shared-ts/message';
 import { RoomClient } from '@pkgs/room-root-client-ts/room-client';
 import {
@@ -58,7 +59,7 @@ async function loadEngines(): Promise<Engine[]> {
   ];
   const oldRoot =
     process.env['ROOM_OLD_SRC'] ??
-    new URL('../../../../.bench-old-room/src', import.meta.url).pathname;
+    fileURLToPath(new URL('../../../../.bench-old-room/src', import.meta.url));
   try {
     const oldIndex = (await import(`${oldRoot}/index.ts`)) as CoreModule;
     const oldServer = (await import(`${oldRoot}/server.ts`)) as ServerModule;

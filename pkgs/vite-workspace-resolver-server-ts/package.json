@@ -16,6 +16,7 @@
     "test": "bun test tests"
   },
   "dependencies": {
+    "@pkgs/os-shared-ts": "workspace:*",
     "vite": "catalog:"
   },
   "devDependencies": {

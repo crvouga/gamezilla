@@ -12,6 +12,7 @@ import { join, relative, resolve } from 'node:path';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server-ts/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 /** The package whose tests are running (`bun test` runs from its root). */
 const PACKAGE_DIR = process.cwd();
@@ -59,7 +60,7 @@ export function testCallSite(stack: string | undefined): TestCallSite | null {
     const lineNo = m?.[2];
     if (file === undefined || lineNo === undefined) continue;
     if (!/\.test\.[cm]?[jt]sx?$/.test(file)) continue;
-    const rel = relative(REPO_ROOT, file).split('\\').join('/');
+    const rel = slashPath(relative(REPO_ROOT, file));
     if (rel.startsWith('..')) continue;
     return { sourceFile: rel, sourceLine: Number(lineNo) };
   }

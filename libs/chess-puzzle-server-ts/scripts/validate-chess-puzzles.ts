@@ -3,6 +3,7 @@
  * §35 full-database validation job entry. See
  * `root/server/validate-chess-puzzles/chess-puzzle-validation-job.ts`.
  */
+import { fileURLToPath } from 'node:url';
 import {
   ChessPuzzleValidationJob,
   parsePuzzleValidationCli,
@@ -15,7 +16,7 @@ import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs-server-ts/
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
 
 const fs = wallNodeFs();
-const repoRoot = new URL('../../..', import.meta.url).pathname;
+const repoRoot = fileURLToPath(new URL('../../..', import.meta.url));
 
 const summary = await new ChessPuzzleValidationJob(
   parsePuzzleValidationCli(process.argv.slice(2)),

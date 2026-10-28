@@ -1,7 +1,8 @@
 import { expect, test } from 'bun:test';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, posix, win32 } from 'node:path';
+import { rootlessPath } from '@pkgs/quint-server-ts/copy-model-input';
 import { instantiatedModelInput } from '@pkgs/quint-server-ts/model-input';
 
 test('a closed input retains transitive imports and ignores quoted examples', () => {
@@ -34,5 +35,23 @@ test('a closed input retains transitive imports and ignores quoted examples', ()
     expect(readFileSync(path, 'utf8')).toBe(source);
   } finally {
     rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// regression: quint-instantiated-source-windows-drive
+test('an absolute source path nests under the copy root on every OS', () => {
+  // The fixture directory a Windows runner nested (Verify run 40596596039).
+  const windows =
+    'C:\\actions-runner-2\\_work\\gamezilla\\gamezilla\\pkgs\\quint-server-ts\\tests\\fixtures';
+  expect(rootlessPath(windows)).toBe(
+    'actions-runner-2\\_work\\gamezilla\\gamezilla\\pkgs\\quint-server-ts\\tests\\fixtures'
+  );
+  expect(rootlessPath('\\\\server\\share\\m.qnt')).toBe('server\\share\\m.qnt');
+  expect(rootlessPath('/repo/specs/m.qnt')).toBe('repo/specs/m.qnt');
+  for (const path of [windows, '/repo/specs/m.qnt']) {
+    const nested = rootlessPath(path);
+    expect(win32.isAbsolute(nested)).toBe(false);
+    expect(posix.isAbsolute(nested)).toBe(false);
+    expect(nested).not.toContain(':');
   }
 });

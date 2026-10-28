@@ -1,18 +1,22 @@
 // @io-wall-ok — reads workspace manifests to place packages on verification hosts.
 /**
  * Where a package is verified. A manifest's `"platforms"` names what its code
- * builds for; each platform needs a host that can build it, and a host is a
- * kind of CI runner. Turborepo knows nothing about operating systems, so this
- * is the one place that does:
+ * builds for; each platform needs a host that can build it. Turborepo knows
+ * nothing about operating systems, so this is the one place that does:
  *
- * | platform | host    | CI job            |
- * | -------- | ------- | ----------------- |
- * | `linux`  | `linux` | `verify:shards`   |
- * | `macos`  | `macos` | `verify:apple`    |
- * | `ios`    | `macos` | `verify:apple`    |
+ * | platform | host    |
+ * | -------- | ------- |
+ * | `linux`  | `linux` |
+ * | `macos`  | `macos` |
+ * | `ios`    | `macos` |
+ *
+ * CI runs every job on whichever self-hosted runner is free — Linux, macOS or
+ * Windows (`CI_RUNNER`) — so it verifies only what runs on all three: every
+ * package without `platforms` (`ciFilters`). A native package is verified
+ * only by `bun verify` on a host that builds it.
  *
  * A package without `platforms` (TypeScript on Bun) runs anywhere Bun does
- * and is verified on the `windows` host. A package listing several hosts is
+ * and is verified on the `linux` host. A package listing several hosts is
  * verified on each, with `turbo-host-key.json` in its native task inputs so
  * one host's verdict never answers for another's.
  */
@@ -26,37 +30,18 @@ export const PLATFORMS = {
 } as const;
 
 export type Platform = keyof typeof PLATFORMS;
-export type Host = (typeof PLATFORMS)[Platform]['host'] | 'windows';
+export type Host = (typeof PLATFORMS)[Platform]['host'];
 
 /**
- * The runner each host's CI job starts, and the host key it writes. The
- * Local planning predicts the `macos` job's task hashes from this key, so it must
- * be what that runner reports (`verify-pr.yml` `verify-apple.runs-on`).
+ * The runner label every CI job requests: any self-hosted runner, whatever
+ * its OS. A run's later jobs add the OS and arch of its first job's runner.
  */
-export const HOSTS = {
-  windows: {
-    runner: ['self-hosted', 'Windows', 'X64'],
-    platform: 'win32',
-    arch: 'x64',
-  },
-  linux: {
-    runner: ['self-hosted', 'Linux', 'X64'],
-    platform: 'linux',
-    arch: 'x64',
-  },
-  macos: {
-    runner: ['self-hosted', 'macOS', 'ARM64'],
-    platform: 'darwin',
-    arch: 'arm64',
-  },
-} as const satisfies Readonly<
-  Record<
-    Host,
-    { runner: readonly string[]; platform: NodeJS.Platform; arch: string }
-  >
->;
+export const CI_RUNNER = 'self-hosted';
 
-const DEFAULT_HOSTS: readonly Host[] = ['windows'];
+/** The runner operating systems CI jobs must run on (`runner.os`). */
+export const CI_OPERATING_SYSTEMS = ['Linux', 'macOS', 'Windows'] as const;
+
+const DEFAULT_HOSTS: readonly Host[] = ['linux'];
 
 export function isPlatform(value: unknown): value is Platform {
   return typeof value === 'string' && Object.hasOwn(PLATFORMS, value);
@@ -77,7 +62,6 @@ export function hostsOf(manifest: Manifest): readonly Host[] {
 export function currentHost(
   platform: NodeJS.Platform = process.platform
 ): Host | undefined {
-  if (platform === 'win32') return 'windows';
   if (platform === 'darwin') return 'macos';
   if (platform === 'linux') return 'linux';
   return undefined;
@@ -121,13 +105,29 @@ export function hostFilters(
   return on.map((manifest) => `--filter=${manifest.name}`);
 }
 
+/**
+ * Turbo filters for the CI gate: every workspace package that runs on every
+ * CI operating system, which is every package that declares no native
+ * `platforms`. A native toolchain (Swift, Xcode) builds on some of them only.
+ */
+export function ciFilters(manifests: readonly Manifest[]): readonly string[] {
+  return [
+    '--filter=./apps/*',
+    '--filter=./libs/*',
+    '--filter=./pkgs/*',
+    ...manifests
+      .filter((m) => m.name !== undefined && Array.isArray(m.platforms))
+      .map((manifest) => `--filter=!${manifest.name}`),
+  ];
+}
+
 /** The host that verifies undeclared packages and the root-owned gates. */
 export function isDefaultHost(host: Host): boolean {
   return DEFAULT_HOSTS.includes(host);
 }
 
 export function isHost(value: string): value is Host {
-  return Object.hasOwn(HOSTS, value);
+  return Object.values(PLATFORMS).some(({ host }) => host === value);
 }
 
 export const HOST_KEY_FILE = 'turbo-host-key.json';

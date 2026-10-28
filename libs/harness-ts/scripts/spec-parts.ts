@@ -162,14 +162,24 @@ export function plannedModelUnits(
   });
 }
 
+/**
+ * The fewest files whose gate replays each stay within MODEL_FILE_REPLAYS and
+ * whose nightly replays each fit one part: a model that draws far more traces
+ * than it covers replays them all nightly, which one file cannot hold.
+ */
 function plannedModelFiles(plan: ReplayPlan): number {
-  for (let count = 1; count < MAX_MODEL_FILES; count++) {
-    const heaviest = Math.max(
+  const heaviest = (profile: 'pr' | 'nightly', count: number) =>
+    Math.max(
       ...Array.from({ length: count }, (_, index) =>
-        sliceReplays(plan, 'pr', { index, count })
+        sliceReplays(plan, profile, { index, count })
       )
     );
-    if (heaviest <= MODEL_FILE_REPLAYS) return count;
+  for (let count = 1; count < MAX_MODEL_FILES; count++) {
+    if (
+      heaviest('pr', count) <= MODEL_FILE_REPLAYS &&
+      heaviest('nightly', count) <= PART_REPLAYS * NIGHTLY_REPLAY_SCALE
+    )
+      return count;
   }
   return MAX_MODEL_FILES;
 }

@@ -1,0 +1,4 @@
+{
+  "summary": "The Quint draw cache kept a producer's failure (failed.txt) forever under a checkout-independent key in the shared temp directory, so one failed draw from an older checkout on a Windows runner failed the same draw in every later run and on every other runner of that machine (Verify run 40596596039). A failure now answers only the callers already waiting on it; a later caller draws again.",
+  "regressionTest": "pkgs/quint-server-ts/tests/draw-cache.test.ts"
+}

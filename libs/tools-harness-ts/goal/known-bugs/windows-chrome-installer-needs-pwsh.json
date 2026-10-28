@@ -1,0 +1,4 @@
+{
+  "summary": "browser-actions/setup-chrome unpacks Chrome through @actions/tool-cache, which on Windows needs PowerShell 7; with Windows PowerShell 5.1 it fell back to Expand-Archive, which refused the extension-less download (Verify run 40531923687). mise now installs the pinned Chrome for Testing on every OS.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-budget.test.ts"
+}

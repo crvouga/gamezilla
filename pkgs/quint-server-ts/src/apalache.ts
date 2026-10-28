@@ -1,16 +1,15 @@
-// @io-wall-ok — locates the pinned Apalache and JVM (spawns `mise`), links them into a private QUINT_HOME, probes a free port.
+// @io-wall-ok — locates the pinned Apalache and JVM (spawns `mise`), makes a private QUINT_HOME, probes a free port.
 /**
  * The Apalache that `quint verify` model-checks with, and the environment it
  * runs in — never the one Quint would download.
  *
- * Quint looks for Apalache at
- * `$QUINT_HOME/apalache-dist-<version>/apalache/bin/apalache-mc` and, when it
- * is missing, downloads it from GitHub. A gate must not reach the network, so
- * every check gets a private QUINT_HOME whose `apalache-dist-<version>/apalache`
- * is a link to the Apalache pinned in `mise.toml` (`http:apalache`), and the
- * link is required to resolve before Quint starts. As a second wall, the
- * check's HTTP proxy is a dead local port, so a download that slipped through
- * would fail rather than fetch.
+ * Each check starts the pinned Apalache's server itself (`run-quint`, with
+ * {@link apalacheServerArgs}) and points Quint at it with `--server-endpoint`,
+ * so Quint connects rather than launching (or downloading) an Apalache of its
+ * own. Should Quint fail to connect, it would look in
+ * `$QUINT_HOME/apalache-dist-<version>/` and download there: every check gets
+ * an empty private QUINT_HOME, and its HTTP proxy is a dead local port, so
+ * that download fails loudly instead of fetching.
  *
  * Apalache: `$APALACHE_HOME` when set, else `mise where http:apalache`.
  * Java: `mise where java` goes first on `PATH` when mise knows it (on CI the
@@ -18,7 +17,7 @@
  */
 
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, symlinkSync } from 'node:fs';
+import { existsSync, mkdirSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { delimiter, join } from 'node:path';
 
@@ -40,8 +39,8 @@ function miseWhere(tool: string, cwd: string): string | null {
   return path.length > 0 ? path : null;
 }
 
-function executable(home: string): string {
-  return join(home, 'bin', 'apalache-mc');
+function jar(home: string): string {
+  return join(home, 'lib', 'apalache.jar');
 }
 
 /**
@@ -61,37 +60,67 @@ export function resolveApalache(
       error: `quint verify: Apalache is not installed — ${INSTALL_HINT}`,
     };
   }
-  if (!existsSync(executable(home))) {
+  if (!existsSync(jar(home))) {
     return {
-      error: `quint verify: no Apalache at ${executable(home)} — ${INSTALL_HINT}`,
+      error: `quint verify: no Apalache at ${jar(home)} — ${INSTALL_HINT}`,
     };
   }
   return { home };
 }
 
 /** `PATH` with the pinned JVM first, when mise knows it. */
-function pathWithJava(env: Env): string {
-  const path = env['PATH'] ?? '';
+function pathWithJava(path: string, platform: NodeJS.Platform): string {
   const java = miseWhere('java', import.meta.dir);
-  if (java === null || !existsSync(join(java, 'bin', 'java'))) return path;
+  const binary = platform === 'win32' ? 'java.exe' : 'java';
+  if (java === null || !existsSync(join(java, 'bin', binary))) return path;
   return `${join(java, 'bin')}${delimiter}${path}`;
 }
 
 /**
- * A QUINT_HOME under `dir` in which Quint finds `apalacheHome` where it
- * would otherwise download to. Returns its path.
+ * The `java` arguments that run Apalache's server on `port`: the same JVM
+ * command Apalache's own `bin/apalache-mc` launcher builds (it honors
+ * `JVM_ARGS` and `JVM_GC_ARGS`, defaults the heap to 4 GiB and the collector
+ * to periodic G1, and gives SANY a fresh `java.io.tmpdir`), with the
+ * `server --port=<port>` arguments Quint would pass it.
  */
-export function linkQuintHome(dir: string, apalacheHome: string): string {
+export function apalacheServerArgs(input: {
+  readonly home: string;
+  readonly port: number;
+  readonly env: Env;
+  readonly tmpdir: string;
+}): string[] {
+  const words = (value: string | undefined) =>
+    (value ?? '').split(/\s+/).filter((word) => word !== '');
+  const jvm = words(input.env['JVM_ARGS']);
+  const heap = jvm.some((arg) => /-Xmx|-XX:MaxRAMPercentage/.test(arg))
+    ? []
+    : ['-Xmx4096m'];
+  const gc = words(input.env['JVM_GC_ARGS']);
+  return [
+    ...jvm,
+    ...heap,
+    ...(gc.length > 0
+      ? gc
+      : [
+          '-XX:+UseG1GC',
+          '-XX:G1PeriodicGCInterval=600000',
+          '-XX:+G1PeriodicGCInvokesConcurrent',
+        ]),
+    `-Djava.io.tmpdir=${input.tmpdir}`,
+    '-jar',
+    jar(input.home),
+    'server',
+    `--port=${String(input.port)}`,
+  ];
+}
+
+/**
+ * An empty QUINT_HOME under `dir`, so a Quint that failed to reach its server
+ * never reads or writes the user's `~/.quint`. Returns its path.
+ */
+export function privateQuintHome(dir: string): string {
   const home = join(dir, 'quint-home');
-  const dist = join(home, `apalache-dist-${APALACHE_VERSION}`);
-  mkdirSync(dist, { recursive: true });
-  const link = join(dist, 'apalache');
-  if (!existsSync(link)) symlinkSync(apalacheHome, link, 'dir');
-  if (!existsSync(executable(link))) {
-    throw new Error(
-      `quint verify: ${executable(link)} does not resolve — refusing to let Quint download Apalache`
-    );
-  }
+  mkdirSync(home, { recursive: true });
   return home;
 }
 
@@ -103,14 +132,22 @@ const LOCAL = '127.0.0.1,localhost';
 export function verifyEnv(input: {
   readonly env: Env;
   readonly quintHome: string;
+  readonly platform?: NodeJS.Platform;
 }): Record<string, string> {
+  const platform = input.platform ?? process.platform;
   const env: Record<string, string> = {};
+  let path = '';
   for (const [name, value] of Object.entries(input.env)) {
-    if (value !== undefined) env[name] = value;
+    if (value === undefined) continue;
+    // Windows names are case-insensitive (`Path` there): one key, not two.
+    const isPath =
+      platform === 'win32' ? name.toUpperCase() === 'PATH' : name === 'PATH';
+    if (isPath) path = value;
+    else env[name] = value;
   }
   return {
     ...env,
-    PATH: pathWithJava(input.env),
+    PATH: pathWithJava(path, platform),
     QUINT_HOME: input.quintHome,
     HTTP_PROXY: NO_NETWORK,
     HTTPS_PROXY: NO_NETWORK,

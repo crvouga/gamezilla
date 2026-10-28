@@ -15,9 +15,12 @@ import { applyPlanContext } from './verify-shard-run';
 const REPO = join(import.meta.dirname, '../../..');
 
 function rootLintHash(root: string): string {
+  // The turbo bin is a JS launcher, not an executable on Windows: run it
+  // through Bun so it starts the platform binary on every OS.
   const result = execFileSync(
-    join(REPO, 'node_modules/turbo/bin/turbo'),
+    process.execPath,
     [
+      join(REPO, 'node_modules/turbo/bin/turbo'),
       'run',
       'lint',
       '--framework-inference=false',

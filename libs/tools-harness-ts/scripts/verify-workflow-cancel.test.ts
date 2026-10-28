@@ -41,6 +41,9 @@ describe('Verify workflow cancellation', () => {
     const start = workflow.jobs['verify-start'];
     expect(start.outputs).toEqual({
       shards: '${{ steps.plan.outputs.shards }}',
+      // The shards and the end run where the plan was made.
+      os: '${{ runner.os }}',
+      arch: '${{ runner.arch }}',
     });
     expect(start.steps.find((step) => step.id === 'plan')?.run).toContain(
       'verify-plan.ts'
@@ -109,17 +112,14 @@ describe('Verify workflow cancellation', () => {
     const nightlyOnly = (step: { if?: string }) =>
       step.if === "always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'";
     const steps = Object.values(workflow.jobs).flatMap((job) => job.steps);
-    const uploads = steps.filter((step) =>
-      step.uses?.startsWith('actions/upload-artifact@')
-    );
+    const uploadOf = (step: { run?: string }) =>
+      /ci-artifacts\.ts upload (\S+)/.exec(step.run ?? '')?.[1];
+    const uploads = steps.filter((step) => uploadOf(step) !== undefined);
     expect(uploads.length).toBeGreaterThan(0);
     for (const upload of uploads) {
       if (nightlyOnly(upload)) continue;
-      // What remains carries state between jobs, for a day at most.
-      expect(upload.with?.['name']).toMatch(/^verify-(plan|results|evidence)/);
-      expect(upload.with?.['retention-days']).toBe(
-        "${{ inputs.profile == 'nightly' && 14 || 1 }}"
-      );
+      // What remains carries state between jobs until `verify:end`.
+      expect(uploadOf(upload)).toMatch(/^verify-(plan|results|evidence)/);
     }
     // Reports, traces, summaries and publication are the nightly profile's.
     for (const name of [
@@ -130,7 +130,7 @@ describe('Verify workflow cancellation', () => {
     ])
       expect(
         uploads
-          .filter((upload) => upload.with?.['name']?.startsWith(name))
+          .filter((upload) => uploadOf(upload)?.startsWith(name))
           .every(nightlyOnly)
       ).toBe(true);
     expect(
@@ -142,8 +142,9 @@ describe('Verify workflow cancellation', () => {
     expect(cleanup.if).toBe(
       "always() && !cancelled() && env.VERIFY_PROFILE != 'nightly'"
     );
-    expect(cleanup.run).toContain('startswith("verify-")');
-    expect(cleanup.run).toContain('--method DELETE');
+    expect(cleanup.run?.trim()).toBe(
+      'bun run libs/tools-harness-ts/scripts/ci-artifacts.ts delete verify-'
+    );
   });
   // regression: concurrent-verify-run-isolation
   test('a newer push supersedes its PR run; dispatched and release runs never cancel one another', () => {
@@ -200,8 +201,7 @@ describe('Verify workflow cancellation', () => {
       branches: ['main'],
       types: ['opened', 'reopened', 'synchronize'],
     });
-    // Four jobs: the start, the shards, the Apple-only gate and the ending
-    // word.
+    // Three jobs, all on Linux: the start, the shards and the ending word.
     expect(Object.keys(workflow.jobs)).toEqual([
       'verify-start',
       'verify-shards',

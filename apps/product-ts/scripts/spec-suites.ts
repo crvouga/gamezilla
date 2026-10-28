@@ -10,6 +10,7 @@
 import { spawn } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { specProcessExit } from './spec-process';
 
 export const REPO_ROOT = join(import.meta.dirname, '../../..');
@@ -53,7 +54,9 @@ export async function runSpecSuites(
       process.stderr.write(`[spec] no spec package owns ${path}\n`);
       return 1;
     }
-    const local = relative(join(REPO_ROOT, dir), resolve(REPO_ROOT, path));
+    const local = slashPath(
+      relative(join(REPO_ROOT, dir), resolve(REPO_ROOT, path))
+    );
     runs.set(dir, [...(runs.get(dir) ?? []), local]);
   }
   if (paths.length === 0) for (const dir of dirs) runs.set(dir, []);
@@ -72,9 +75,8 @@ function owningPackage(
 ): string | undefined {
   if (!path.endsWith('.feature'))
     return dirs.find((dir) => path.startsWith(`${dir}/`));
-  const domain = relative(
-    join(REPO_ROOT, 'specs'),
-    resolve(REPO_ROOT, path)
+  const domain = slashPath(
+    relative(join(REPO_ROOT, 'specs'), resolve(REPO_ROOT, path))
   ).split('/')[0];
   const owners = dirs.filter((dir) => {
     const manifest = JSON.parse(

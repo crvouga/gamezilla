@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 /**
  * `@pkgs/sync-engine` must stay product-agnostic. Fail if runtime / docs
@@ -60,7 +61,7 @@ function walkFiles(dir: string): string[] {
 }
 
 function scanFile(path: string): string[] {
-  const rel = relative(PKG_ROOT, path);
+  const rel = slashPath(relative(PKG_ROOT, path));
   const hits: string[] = [];
   const lines = readFileSync(path, 'utf8').split('\n');
   for (let i = 0; i < lines.length; i++) {

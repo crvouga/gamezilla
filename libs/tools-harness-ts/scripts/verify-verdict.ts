@@ -105,7 +105,7 @@ function failedJobs(jobs: Verdict['jobs']): Verdict['jobs'] {
 /**
  * Upstream job results as the verdict reads them. Skipped shards read
  * `cached` only when the plan scheduled none; skipped for any other reason,
- * or without a plan to say so, stays a failure. Native builds are local only.
+ * or without a plan to say so, stays a failure.
  */
 export function jobResults(
   results: Readonly<Record<'start' | 'shards', string | undefined>>,

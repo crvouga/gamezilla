@@ -4,6 +4,7 @@
  * custom properties and every literal. File access is injected; the type
  * checker is opened by the caller over the package's own `tsconfig`.
  */
+import { lastSegment, slashPath } from '@pkgs/os-shared-ts/slash-path';
 import type ts from 'typescript';
 import { exportNames, readComponents } from './inventory-components';
 import { type SourceLanguage, scanLiterals } from './inventory-literals';
@@ -54,8 +55,11 @@ function isComponentModule(name: string): boolean {
 }
 
 const stem = (name: string): string => name.replace(/\.(tsx?|css)$/, '');
-const relative = (repo: string, path: string): string =>
-  path.startsWith(`${repo}/`) ? path.slice(repo.length + 1) : path;
+/** `path` under `repo`, `/`-separated whichever OS built either. */
+const relative = (repo: string, path: string): string => {
+  const [root, file] = [slashPath(repo), slashPath(path)];
+  return file.startsWith(`${root}/`) ? file.slice(root.length + 1) : file;
+};
 
 function moduleFact(
   program: ts.Program,
@@ -82,7 +86,7 @@ function moduleFact(
     }
   }
   return {
-    module: stem(path.replace(/^.*\//, '')),
+    module: stem(lastSegment(path)),
     file: relative(sources.repo, path),
     components,
     markup,

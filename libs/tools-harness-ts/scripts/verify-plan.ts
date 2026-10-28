@@ -12,35 +12,114 @@ import {
 import type { RunPlan } from './turbo-preflight';
 import {
   planFromDryRun,
+  REMOTE_LOOKUP_CONCURRENCY,
   resolveRemoteHits,
   wallRemoteHas,
 } from './turbo-preflight';
+import { resolveRunDeadlineSeconds } from './verify-budget';
 import { cacheDiagnostics } from './verify-cache-diagnostics';
 import { startedFirst, writeSchedule } from './verify-plan-schedule';
 import { profileManifest } from './verify-profile';
-import type { VerifyTask } from './verify-shards';
-import { balanceShards, planWarnings } from './verify-shards';
+import { availableRunners } from './verify-runners';
+import type {
+  ShardCapacity,
+  ShardSizing,
+  VerifyPlan,
+  VerifyTask,
+} from './verify-shards';
+import {
+  adaptiveShardTarget,
+  balanceShards,
+  planWarnings,
+} from './verify-shards';
 import { readScheduleCosts } from './verify-task-costs';
 import { estimateScheduledTask, shardSummary } from './verify-task-estimates';
 
 const ROOT = join(import.meta.dirname, '../../..');
 const DIRECTORY = join(ROOT, '.cache/verify-ci');
 /**
- * Estimated seconds of uncached work one shard is started for, per Turbo
- * slot. A runner spends about a minute on checkout and install before its
- * first task (Verify run 38128423200: 7 s and 40 s medians, plus the plan
- * restore), so three minutes of useful work amortizes its startup. Heavy tasks and
- * solvers prefer dedicated runners. A capped plan shares the available
- * runners rather than overfilling the few left after proof reservations.
+ * Seconds a Verify shard spends outside its tasks: 21 s from job start to the
+ * first task and 7 s after the last (Verify run 40587787429, with the mise
+ * tools and node_modules kept on the runner). `VERIFY_SHARD_SETUP_SECONDS`
+ * overrides it for a slower runner.
  */
-const SHARD_TARGET_SECONDS = 180;
+const SHARD_SETUP_SECONDS = 30;
 
-function shardTargetSeconds(env: NodeJS.ProcessEnv): number {
+/** A shard holds at least three times its setup in work: setup stays under a quarter of the runner's time. */
+const SHARD_SETUP_MULTIPLE = 3;
+
+function positive(value: string | undefined, fallback: number): number {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function shardSizing(env: NodeJS.ProcessEnv): ShardSizing {
   const slots = Number(env['VERIFY_CONCURRENCY'] ?? '1');
-  return (
-    SHARD_TARGET_SECONDS *
-    (Number.isSafeInteger(slots) && slots > 0 ? slots : 1)
+  return {
+    setupSeconds: positive(
+      env['VERIFY_SHARD_SETUP_SECONDS'],
+      SHARD_SETUP_SECONDS
+    ),
+    setupMultiple: SHARD_SETUP_MULTIPLE,
+    slots: Number.isSafeInteger(slots) && slots > 0 ? slots : 1,
+  };
+}
+
+/**
+ * Share of a shard's deadline its estimated work may fill: estimates miss,
+ * and a shard past its deadline fails the run.
+ */
+const DEADLINE_FILL = 0.6;
+
+/** The most estimated work one shard may hold and still finish inside its deadline. */
+function shardFillSeconds(env: NodeJS.ProcessEnv): number {
+  const deadline = resolveRunDeadlineSeconds(env, {
+    isRelease: false,
+    slowRunner: true,
+  });
+  return deadline * DEADLINE_FILL * shardSizing(env).slots;
+}
+
+function shardCapacity(env: NodeJS.ProcessEnv): ShardCapacity | undefined {
+  const runners = availableRunners(env);
+  if (runners === undefined) return undefined;
+  return { runners, fillSeconds: shardFillSeconds(env) };
+}
+
+/**
+ * Shards sized to the work and the runners: enough that each holds a few
+ * times its setup and none is smaller than the longest indivisible group,
+ * never more than the runners online unless the deadline needs it.
+ */
+function planShards(
+  tasks: readonly VerifyTask[],
+  env: NodeJS.ProcessEnv
+): VerifyPlan {
+  const capacity = shardCapacity(env);
+  const target = adaptiveShardTarget(
+    tasks,
+    shardSizing(env),
+    shardFillSeconds(env)
   );
+  const plan = startedFirst(
+    balanceShards(
+      tasks,
+      Number(env['VERIFY_SHARDS'] ?? '16'),
+      target.targetSeconds,
+      capacity
+    )
+  );
+  const shardCount = plan.shards.filter(
+    (shard) => shard.stage === 'verifications' && shard.tasks.length > 0
+  ).length;
+  console.log(
+    `shards: ${String(shardCount)} for ${target.uncachedSeconds.toFixed(0)} s of uncached work; ` +
+      `${target.targetSeconds.toFixed(0)} s per shard (efficiency floor ${target.efficiencySeconds.toFixed(0)} s, ` +
+      `longest group ${target.longestGroupSeconds.toFixed(0)} s); ` +
+      `runners ${capacity === undefined ? 'unknown' : String(capacity.runners)}, ` +
+      `cap ${env['VERIFY_SHARDS'] ?? '16'}`
+  );
+  return plan;
 }
 
 export async function createVerifyPlan(): Promise<void> {
@@ -56,8 +135,8 @@ export async function createVerifyPlan(): Promise<void> {
     'turbo',
     [
       'run',
-      // The Windows gate excludes native packages; native builds stay local.
-      ...flattenVerifyAggregators(['verify:windows']),
+      // The gate every runner OS can run: every package but the native ones.
+      ...flattenVerifyAggregators(['verify:ci']),
       '--framework-inference=false',
       '--cache=local:rw',
       '--dry=json',
@@ -87,13 +166,7 @@ export async function createVerifyPlan(): Promise<void> {
   }));
   if (env['VERIFY_CACHE_MODE'] === 'cold')
     for (const task of tasks) Object.assign(task, { hit: false, source: null });
-  const plan = startedFirst(
-    balanceShards(
-      tasks,
-      Number(env['VERIFY_SHARDS'] ?? '16'),
-      shardTargetSeconds(env)
-    )
-  );
+  const plan = planShards(tasks, env);
   mkdirSync(DIRECTORY, { recursive: true });
   writeFileSync(join(DIRECTORY, 'plan.json'), JSON.stringify(plan));
   writeFileSync(
@@ -146,7 +219,7 @@ async function resolveCache(local: RunPlan, env: NodeJS.ProcessEnv) {
   });
   const resolved =
     env['TURBO_TOKEN'] && env['VERIFY_CACHE_MODE'] !== 'cold'
-      ? await resolveRemoteHits(local, remoteHas, 256)
+      ? await resolveRemoteHits(local, remoteHas, REMOTE_LOOKUP_CONCURRENCY)
       : local;
   if (remoteResponses[401] || remoteResponses[403])
     throw new Error(

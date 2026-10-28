@@ -1,0 +1,4 @@
+{
+  "summary": "Setup's full mise install included the laptop-only coding-agent tools; graphify's tree-sitter dependency builds a C extension, which on the Windows runner needs Microsoft C++ Build Tools, so setup failed (Verify run 40532833763). CI disables those tools.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-cache.test.ts"
+}
