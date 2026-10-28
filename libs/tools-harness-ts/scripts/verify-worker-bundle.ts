@@ -2,12 +2,12 @@
 // @io-wall-ok — verification CLI entry (scripts/**).
 /**
  * `verify:worker-bundle`: bundle this package's Cloudflare Worker exactly as
- * deploy ships it (`wrangler deploy --dry-run`; `wrangler.toml` is env-agnostic,
+ * release ships it (`wrangler deploy --dry-run`; `wrangler.toml` is env-agnostic,
  * libs/infra only renames it per environment) and hold the
  * result under the platform's size limit.
  *
  * Without it `bun verify` never bundles a Worker — `build` is a no-op for the
- * Worker apps and only deploy runs wrangler — so an import the Workers runtime
+ * Worker apps and only release runs wrangler — so an import the Workers runtime
  * cannot resolve, or a bundle past the upload limit, passed the gate and
  * failed the release. Offline (no Cloudflare credentials), ~3 s, and cached
  * per package like every other verification.

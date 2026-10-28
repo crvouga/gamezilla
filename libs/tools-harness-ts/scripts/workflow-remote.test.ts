@@ -9,7 +9,7 @@ const SCROLL_DOWN = '\u001b[B';
 const WORKFLOWS = join(import.meta.dirname, '../../../.github/workflows');
 
 describe('WORKFLOW_DISPATCH', () => {
-  test('health follows the checkout; deploy ships main', () => {
+  test('health follows the checkout; release ships main', () => {
     expect(WORKFLOW_DISPATCH.health).toEqual({
       workflow: 'health.yml',
       sync: 'branch',
@@ -75,11 +75,13 @@ describe('WORKFLOW_DISPATCH', () => {
     expect(deploy).toContain('require-main: ${{ !inputs.rehearsal }}');
   });
 
-  test('Deploy runs on every merge to main and ships only what the full Verify verified', () => {
+  // regression: release-pending-merges-replaced
+  test('Release runs on every merge to main and ships only what the full Verify verified', () => {
     const deploy = Bun.YAML.parse(
       readFileSync(join(WORKFLOWS, 'deploy.yml'), 'utf8')
     ) as {
       on: Record<string, unknown>;
+      concurrency: Record<string, unknown>;
       jobs: Record<
         string,
         { uses?: string; with?: Record<string, string>; needs?: string }
@@ -87,6 +89,11 @@ describe('WORKFLOW_DISPATCH', () => {
     };
     expect(Object.keys(deploy.on)).toEqual(['push', 'workflow_dispatch']);
     expect(deploy.on['push']).toEqual({ branches: ['main'] });
+    expect(deploy.concurrency).toEqual({
+      group: 'deploy-main',
+      queue: 'max',
+      'cancel-in-progress': false,
+    });
     expect(deploy.jobs['deploy-verify']).toMatchObject({
       uses: './.github/workflows/verify-pr.yml',
     });
@@ -94,7 +101,7 @@ describe('WORKFLOW_DISPATCH', () => {
       'with.require-main',
       '${{ !inputs.rehearsal }}'
     );
-    // A pull request enforced the advisories; Deploy reports what moved since.
+    // A pull request enforced the advisories; Release reports what moved since.
     expect(deploy.jobs['deploy-verify']).toHaveProperty(
       'with.advisories',
       'report'

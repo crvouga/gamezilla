@@ -128,7 +128,7 @@ test('native inference waits for the existing product symbolic and renderer cont
   );
 });
 
-test('release Verify and Deploy never run the visual gate or prepare its model', () => {
+test('release Verify and Release never run the visual gate or prepare its model', () => {
   const turbo = readJson<{ tasks: Record<string, { dependsOn?: string[] }> }>(
     'turbo.json'
   );

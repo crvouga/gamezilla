@@ -125,7 +125,7 @@ describe('turbo-ci-run aggregator flatten', () => {
     ]);
   });
 
-  test('deploy expands to //#deploy leaves', () => {
+  test('release expands to //#release leaves', () => {
     const withDeploy = {
       ...tasks,
       '//#deploy': { dependsOn: ['tc', 'health'] },
@@ -150,7 +150,7 @@ describe('turbo-ci-run run mode', () => {
     ]);
   });
 
-  test('deploy keeps the dependency chain so health runs after it', () => {
+  test('release keeps the dependency chain so health runs after it', () => {
     expect(resolveRunMode(['//#deploy'])).toBe('deploy');
     expect(runModeFlags('deploy')).toEqual([]);
   });

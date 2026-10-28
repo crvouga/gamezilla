@@ -1,13 +1,13 @@
-name: Deploy
+name: Release
 
 # Run title, identical shape in every workflow (enforced by
 # libs/tools-harness-ts/scripts/workflow-run-names.test.ts):
 #   <Workflow> · <trigger>
-run-name: "Deploy · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
+run-name: "Release · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
 
-# Verify the exact commit, deploy shared services, then development and
+# Verify the exact commit, release shared services, then development and
 # production, then publish a release. A rehearsal verifies and plans only.
-# Environment deployment steps are defined once and reused below.
+# Environment release steps are defined once and reused below.
 
 permissions:
   contents: read
@@ -20,17 +20,23 @@ on:
   workflow_dispatch:
     inputs:
       rehearsal:
-        description: Verify this branch and plan fleet and dev's foundation, without applying or deploying
+        description: Verify this branch and plan fleet and dev's foundation, without applying or releasing
         type: boolean
         required: false
         default: false
 
+defaults:
+  run:
+    shell: bash
+
 env:
   TURBO_UI: stream
 
-# One deploy at a time: each environment is a shared singleton.
+# One release at a time: each environment is a shared singleton.
+# Keep pending merges instead of replacing the previous pending release.
 concurrency:
   group: deploy-main
+  queue: max
   cancel-in-progress: false
 
 jobs:
@@ -40,14 +46,14 @@ jobs:
     with:
       require-main: ${{ !inputs.rehearsal }}
       # The pull request already enforced advisories on this code. A registry
-      # that moved since then must not fail a deploy of a verified commit.
+      # that moved since then must not fail a release of a verified commit.
       advisories: report
 
   deploy-rehearsal:
     name: Preview infrastructure changes
     if: ${{ inputs.rehearsal }}
     needs: deploy-verify
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 20
     env:
       SECRETS_ENV: dev
@@ -68,12 +74,12 @@ jobs:
 
   # What every environment shares (libs/infra-shared-ts/tofu/stacks/fleet): the
   # shared secrets, the auth relay that forwards to every env, and each env's
-  # secrets environment. It runs before any environment deploys.
+  # secrets environment. It runs before any environment releases.
   deploy-fleet:
-    name: Deploy shared services
+    name: Release shared services
     if: ${{ !inputs.rehearsal }}
     needs: deploy-verify
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 20
     env:
       SECRETS_ENV: shared
@@ -90,7 +96,7 @@ jobs:
       - name: Reconcile shared secrets
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/secrets-server-ts/scripts/secrets-reconcile-shared.ts promote
       # The fleet stack binds the relay's hostname, so its Worker must exist.
-      - name: Deploy the auth relay
+      - name: Release the auth relay
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run --filter @apps/auth-relay-ts deploy
       - name: Apply the fleet stack
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run --filter @libs/infra-server-ts apply:fleet
@@ -99,9 +105,9 @@ jobs:
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/secrets-server-ts/scripts/secrets-reconcile-shared.ts prune
 
   deploy-dev:
-    name: Deploy development
+    name: Release development
     needs: deploy-fleet
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, Windows, X64]
     # Above `DEPLOY_RUN_DEADLINE_SECONDS` (45 min) plus setup, so
     # turbo-ci-run's own deadline fires first and names what wedged.
     timeout-minutes: 55
@@ -111,8 +117,8 @@ jobs:
       AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
     steps: &deploy-environment
       # A Health check already running journeys as the synthetic accounts, or
-      # planning this environment's OpenTofu state, would take this deploy's
-      # matches and state lock. health.yml yields to a deploy; this waits out
+      # planning this environment's OpenTofu state, would take this release's
+      # matches and state lock. health.yml yields to a release; this waits out
       # one that started first.
       - name: Wait for a running Health check
         env:
@@ -141,7 +147,7 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: ${{ env.SECRETS_ENV }}
       # Foundation, migrations, Workers, edge, billing sync, then health.
-      - name: Deploy and verify environment
+      - name: Release and verify environment
         id: deploy
         run: bun run deploy:local
       - name: Keep the critical journeys' evidence
@@ -161,9 +167,9 @@ jobs:
         run: bun run libs/tools-harness-ts/scripts/write-workflow-summary.ts
 
   deploy-prd:
-    name: Deploy production
+    name: Release production
     needs: deploy-dev
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 55
     environment: production
     env:
@@ -175,7 +181,7 @@ jobs:
   deploy-release:
     name: Publish release
     needs: deploy-prd
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 5
     permissions:
       contents: write
@@ -190,4 +196,4 @@ jobs:
             --target "$GITHUB_SHA" \
             --title "$TAG" \
             --generate-notes \
-            --notes "Verified and deployed by ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} at ${GITHUB_SHA}."
+            --notes "Verified and released by ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} at ${GITHUB_SHA}."

@@ -73,7 +73,7 @@ per slice.
 
 Harness-only objectives (`specs/sync-engine/note-delivery.openslo.yaml`,
 `specs/games/*.openslo.yaml`) are judged on the simulated app in `bun
-check`, not against a deployment, and are unchanged.
+check`, not against a release, and are unchanged.
 
 ### Why these targets and windows
 
@@ -130,7 +130,7 @@ metric export interval (about 1 min), the rule's hold and IRM delivery.
 
 | Objective | Fault | Expected alert | Expected time to notify |
 | --- | --- | --- | --- |
-| `the-app-is-always-reachable` | Make dev's readiness fail (point dev's `DATABASE_URL` at a closed port in a dev-only deploy) with dev's `every_seconds` at 60 | `fast-burn (page)` with `slice` `api-ready-dev` | about 8 min (1-min probe, 6-min hold) |
+| `the-app-is-always-reachable` | Make dev's readiness fail (point dev's `DATABASE_URL` at a closed port in a dev-only release) with dev's `every_seconds` at 60 | `fast-burn (page)` with `slice` `api-ready-dev` | about 8 min (1-min probe, 6-min hold) |
 | `the-app-opens-quickly`, `the-app-never-hangs-on-opening` | A dev build that sleeps 1.5 s, then 3 s, in `/api/health/ready` | `the-app-opens-quickly: fast-burn`, then `the-app-never-hangs-on-opening: fast-burn`, `slice` `api-ready-dev` | about 8 min |
 | `live-updates-can-connect` | Point dev's broker check at a host without the broker (`broker-missing.<dev zone>`) | `fast-burn (page)` | about 25 min (two failed ten-minute checks) |
 | any Health objective | One feature broken on dev only (for example the Google mock answering 500 through its `/__admin` faults), Health dispatched hourly (`bun health`) | that objective's `fast-burn (page)` with the check as `slice` | about 4 h (two failed runs in 4 h and 30% of 12 h) |
@@ -170,7 +170,7 @@ checks pages, **one broken game among thirteen pages**).
 - **Queries**: all 150 generated rule and budget expressions parse and
   evaluate against production and dev; people's requests, saves and latency
   return the values above; Health and Synthetic Monitoring return nothing
-  until deployed and installed, and their silence rules fire now, as they
+  until released and installed, and their silence rules fire now, as they
   should.
 - **OpenTofu**: `tofu validate` passes for bootstrap and foundation, against
   the provider's own schema. `tofu plan` was **not run**: plans run only in
@@ -182,7 +182,7 @@ What people could experience as broken while every objective is green, and
 what to do about each.
 
 1. **The Health workflow does not run** (Actions budget). Its silence pages
-   once deployed. Restore the budget (reliability work 1).
+   once released. Restore the budget (reliability work 1).
 2. **Production background work and its heartbeat are silent since
    2026-10-23** (reliability work 2).
 3. **Realtime freshness is unmeasured**: how long a move takes to reach the
@@ -218,7 +218,7 @@ what to do about each.
 
 ## Reliability work required
 
-1. Restore the GitHub Actions budget (Health, Deploy and Verify are all
+1. Restore the GitHub Actions budget (Health, Release and Verify are all
    refused today).
 2. Find why production's scheduled drain and heartbeat stopped on
    2026-10-23.

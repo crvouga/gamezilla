@@ -216,29 +216,11 @@ An Xcode app package holds exactly one `<name>.xcodeproj` with a shared
 
 ## CI
 
-Verify PR is still the one merge gate, and `verify:end` the one required
-status. Every native task is an ordinary package task in it:
-
-- **Linux shards** run the gate over every package but the Apple-only ones
-  (`turbo-ci-run.ts verify:linux`), including `@pkgs/clock-shared-swift` on
-  Linux.
-- **`verify:apple`** runs the package-owned gate tasks of every package that
-  builds for an Apple platform (`turbo-ci-run.ts verify:macos`) on GitHub's
-  `xcode-27` runner image, which ships the pinned Xcode.
-- **Only changed work starts a Mac.** `verify:start` plans the macOS gate
-  under the host key that runner writes and asks the remote cache. When every
-  task already passed on exactly these inputs, it answers `apple=false` and no
-  macOS runner starts. Otherwise the job runs, and Turbo runs only its misses.
-- **Absence is never a pass.** `verify:end` accepts a skipped `verify:apple`
-  only when the plan said `apple=false`; failed, cancelled, missing or skipped
-  for any other reason fails the verdict (`verify-verdict.ts`). Deploy and
-  Verify Nightly call the same workflow, so a release and the nightly gate
-  require the same Apple evidence.
-
-Verify Nightly runs the same Apple gate at nightly depth. Simulator launches
-across devices, screenshots and native performance are future nightly suites
-(`verify-profile.ts`), not built yet. Deploy and Health publish nothing native:
-no signing, TestFlight or store submission exists.
+CI verifies shared TypeScript packages on self-hosted Windows x64 runners.
+Native Swift and iOS packages are excluded from the CI plan and verdict.
+There is no Apple job and no native CI cache claim. Native code, toolchain
+pins, package manifests and local build/test commands remain available.
+An Apple build that did not run is never reported as passing.
 
 A laptop's `bun verify` runs every host's tasks. On macOS with the pinned
 Xcode that covers everything; elsewhere the Apple tasks fail with the reason,

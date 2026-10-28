@@ -1,6 +1,6 @@
 # CI requirements
 
-Capacity plan for proposed self-hosted pull-request verifications. The current workflow uses GitHub-hosted shards; this document sizes a warm pool and does not provision infrastructure. The measured section is generated from [`libs/tools-harness-ts/scripts/verify-task-costs.json`](../libs/tools-harness-ts/scripts/verify-task-costs.json) and the workspace graph. [`libs/tools-harness-ts/scripts/ci-load.test.ts`](../libs/tools-harness-ts/scripts/ci-load.test.ts) fails when that section drifts, or when the corpus no longer fits the runner below.
+Capacity plan for self-hosted pull-request verifications. Every workflow job selects a self-hosted Windows x64 runner. Native Swift/iOS builds and tests remain local and do not participate in the CI verdict. Reusable workflows inherit those requirements and never fall back to GitHub-hosted runners. This document sizes a proposed warm pool and does not provision or register runners. Jobs wait until matching runners are registered and available. The measured section is generated from [`libs/tools-harness-ts/scripts/verify-task-costs.json`](../libs/tools-harness-ts/scripts/verify-task-costs.json) and the workspace graph. [`libs/tools-harness-ts/scripts/ci-load.test.ts`](../libs/tools-harness-ts/scripts/ci-load.test.ts) fails when that section drifts, or when the corpus no longer fits the runner below.
 
 Refresh after a cold Verify harvest:
 
@@ -23,7 +23,7 @@ Wall clock is from the push to a posted verdict, on a warm runner that is free w
 
 The proposed pool has six runners: up to three cooperating machines per verification, with capacity reserved for two simultaneous verifications. A small corpus uses fewer machines; the fit calculation chooses the smallest width that meets every deadline. A third concurrent verification waits, and that wait sits outside the promise. A newer push to the same pull request cancels the older run.
 
-Release verification, deploy, health, and the nightly run have their own deadlines. They are not these promises. The nightly run is the `nightly` profile in [`libs/tools-harness-ts/scripts/verify-profile.ts`](../libs/tools-harness-ts/scripts/verify-profile.ts); it never gates a merge.
+Release verification, release, health, and the nightly run have their own deadlines. They are not these promises. The nightly run is the `nightly` profile in [`libs/tools-harness-ts/scripts/verify-profile.ts`](../libs/tools-harness-ts/scripts/verify-profile.ts); it never gates a merge.
 
 ## What a pull-request verification runs
 
@@ -31,13 +31,13 @@ The affected Verify gate tasks. A cache hit is not scheduled.
 
 A source change reruns that package and every transitive workspace dependent, because those tasks depend on `^src`. A test-only change stays on the package that holds the test: `src` inputs exclude `*.test.ts`. `mise.toml` and `tsconfig.base.json` are global dependencies, and `bun.lock` is the audit input, so each of those misses the whole corpus. That full miss is still the five-minute promise.
 
-Health, deploy, and `@apps/product-ts#verify:ui-quality` stay on the release path. The population worker's tests run on Bun inside this verification.
+Health, release, and `@apps/product-ts#verify:ui-quality` stay on the release path. The population worker's tests run on Bun inside this verification.
 
 ## Hosted load this replaces
 
-The [repository briefing](../README.md#correctness-machinery) defines the current hosted workflows. Their task timings are the load this plan must accommodate. Verify run [38104005459](https://github.com/crvouga/gamezilla/actions/runs/38104005459) (2026-10-11, pull request 176) is a run that actually executed the shards. It failed, so a green shard that finishes its work is at least this long.
+The [repository briefing](../README.md#correctness-machinery) defines the current self-hosted workflows. Historical GitHub-hosted task timings are the load this plan must accommodate. Verify run [38104005459](https://github.com/crvouga/gamezilla/actions/runs/38104005459) (2026-10-11, pull request 176) is a run that actually executed the shards. It failed, so a green shard that finishes its work is at least this long.
 
-The runner is GitHub-hosted `ubuntu-24.04`: 2 cores, about 7 GB, 32 shards, `VERIFY_CONCURRENCY=1`, `VERIFY_TEST_CONCURRENCY=1`, `GOMAXPROCS=1`, `RAYON_NUM_THREADS=1`.
+The measured runner was GitHub-hosted `ubuntu-24.04`: 2 cores, about 7 GB, 32 shards, `VERIFY_CONCURRENCY=1`, `VERIFY_TEST_CONCURRENCY=1`, `GOMAXPROCS=1`, `RAYON_NUM_THREADS=1`.
 
 | Stage | What the clock did |
 | --- | --- |
@@ -98,7 +98,7 @@ The final corpus overlays the passing structured results from [Verify run 394761
 
 The longest shared-game part took 213 seconds. Device agreement fell from 267 to 197 seconds with the same invariant and two-step exhaustive bound; the unchanged whole-system proof recorded 119 seconds after duplicate input preparation was removed. The 30-unit part cap retains the fewest-part rule and every scenario and replay; all visual inputs and declared proof phases remain gated.
 
-The generated sizing model totals 17,071 task-seconds, including 9,493 spec-seconds, using the harvested timings, retained history and family estimates. The five-minute, three-minute leaf and ninety-second percentile targets, the 16-worker cap, and each machine's 32 vCPU / 64 GB shape stay fixed. This is a sizing forecast; the hosted run remains the evidence of actual execution. The proposed pool changes no deployed infrastructure.
+The generated sizing model totals 17,071 task-seconds, including 9,493 spec-seconds, using the harvested timings, retained history and family estimates. The five-minute, three-minute leaf and ninety-second percentile targets, the 16-worker cap, and each machine's 32 vCPU / 64 GB shape stay fixed. This is a sizing forecast; the hosted run remains the evidence of actual execution. The proposed pool changes no released infrastructure.
 
 <!-- ci-load:start -->
 Unmeasured scripts follow `estimateTask`: the family median when that family has a sample, otherwise 60 seconds. 572 cost keys name tasks outside the current graph and stay out of the cold total. The unit-test median is one second, the recorder floor. A family with no sample, such as an unmeasured `verify:board-contract`, reserves 60 seconds until a cold Verification is harvested.

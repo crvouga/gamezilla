@@ -62,9 +62,9 @@ test('every Health secrets env comes from the env matrix, never a literal', () =
   for (const value of secretsEnvs) expect(value).toBe('${{ matrix.env }}');
 });
 
-// Deploy names its environments in its own jobs, so an env file without one
+// Release names its environments in its own jobs, so an env file without one
 // would silently never ship.
-test('Deploy has one job per env file, standard before production', () => {
+test('Release has one job per env file, standard before production', () => {
   const workflow = Bun.YAML.parse(
     readFileSync(join(WORKFLOWS_DIR, 'deploy.yml'), 'utf8')
   ) as { jobs: Record<string, Job & { needs?: string }> };

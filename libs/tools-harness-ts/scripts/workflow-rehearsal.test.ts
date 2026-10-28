@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-test('Deploy rehearsal verifies and plans without opening the release path', () => {
+test('Release rehearsal verifies and plans without opening the release path', () => {
   const source = readFileSync(
     join(import.meta.dirname, '../../../.github/workflows/deploy.yml'),
     'utf8'

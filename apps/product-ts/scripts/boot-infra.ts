@@ -96,7 +96,7 @@ const BROWSER_MQTT_USER = 'jwt';
 /**
  * Browsers are admitted exactly as AWS IoT admits them (the deployed
  * authorizer's own rules), so a topic the API never granted fails here, in
- * the pull request, and not in the first Deploy to meet the real broker.
+ * the pull request, and not in the first Release to meet the real broker.
  * The stack's own services and the harness keep an open connection.
  */
 export function browserAdmission(credentials: ClientCredentials): Admission {

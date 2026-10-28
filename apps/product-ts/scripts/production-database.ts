@@ -36,7 +36,7 @@ export const REQUEST_BUDGET = {
   /**
    * Round trips in one request. A healthy request is at most 110, 135 when the
    * client happens to batch several mutations into it; the defects that took
-   * Deploy down sent 206 to 277.
+   * Release down sent 206 to 277.
    */
   roundTrips: 180,
   /**

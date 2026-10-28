@@ -1,14 +1,14 @@
 #!/usr/bin/env bun
 // @io-wall-ok — verification CLI entry (scripts/**).
 /**
- * `verify:rendered-worker`: dry-run `wrangler deploy` on the config Deploy
+ * `verify:rendered-worker`: dry-run `wrangler deploy` on the config Release
  * renders for each environment, not on the committed `wrangler.toml`.
  *
- * The committed file is env-agnostic. What Deploy ships is that file rendered
+ * The committed file is env-agnostic. What Release ships is that file rendered
  * for an environment: its name and vars, the Hyperdrive binding, the placement
  * beside the database. `verify:worker-bundle` bundles the committed file, so a
  * mistake in the rendering (a field wrangler rejects, a binding it cannot
- * resolve) first met wrangler in Deploy. This renders every environment the
+ * resolve) first met wrangler in Release. This renders every environment the
  * way `libs/infra-server-ts/scripts/worker-deploy.ts` does and has wrangler
  * validate each, offline: no Cloudflare credentials, the ids OpenTofu mints at
  * deploy time stand in as placeholders.
@@ -27,7 +27,7 @@ const PLACEHOLDER_HYPERDRIVE_ID = '0'.repeat(32);
 const base = Bun.TOML.parse(
   readFileSync(join(PACKAGE_DIR, 'wrangler.toml'), 'utf8')
 ) as WranglerConfig;
-// The config is written one directory below the package, as Deploy writes it,
+// The config is written one directory below the package, as Release writes it,
 // because rendering re-roots the entry point and assets by one level.
 const cacheDir = join(PACKAGE_DIR, '.cache');
 mkdirSync(cacheDir, { recursive: true });

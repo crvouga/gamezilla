@@ -36,34 +36,29 @@ test('a two-core Verification runner never starts twenty concurrent test process
 });
 
 // regression: ci-provider-native-ci-runner-routing
-test('only GitHub Actions owns the Verify, Deploy and Health triggers', () => {
+test('every CI job requires a self-hosted runner for its verification host', () => {
   expect(readdirSync(join(ROOT, '.github/workflows')).sort()).toEqual([
     'deploy.yml',
     'health.yml',
     'verify-nightly.yml',
     'verify-pr.yml',
   ]);
-  const runners: string[] = [];
   for (const file of readdirSync(join(ROOT, '.github/workflows'))) {
     const workflow = Bun.YAML.parse(
       readFileSync(join(ROOT, '.github/workflows', file), 'utf8')
     ) as {
-      jobs: Record<string, { 'runs-on'?: string; uses?: string }>;
+      jobs: Record<string, { 'runs-on'?: readonly string[]; uses?: string }>;
     };
-    for (const job of Object.values(workflow.jobs)) {
+    for (const [id, job] of Object.entries(workflow.jobs)) {
       // A reusable-workflow call runs on its callee's runners.
       if (job.uses !== undefined) {
         expect(job.uses).toBe('./.github/workflows/verify-pr.yml');
         continue;
       }
-      runners.push(job['runs-on'] ?? '');
+      expect(job['runs-on'], `${file}: ${id}`).toContain('self-hosted');
+      expect(job['runs-on']).toEqual(HOSTS.windows.runner);
     }
   }
-  // Every job runs on a host's runner (package-hosts.ts): Linux, except the
-  // one Apple-only gate on macOS.
-  expect(runners.filter((runner) => runner !== HOSTS.linux.runner)).toEqual([
-    HOSTS.macos.runner,
-  ]);
 });
 
 // regression: ci-provider-native-ci-missing-local-action

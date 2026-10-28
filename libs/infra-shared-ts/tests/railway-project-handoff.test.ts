@@ -57,7 +57,7 @@ function assertHandoff(projectId: string, project: string): void {
 }
 
 // regression: deploy-railway-workspace-project-name-lookup
-test('dev uses the existing workspace project ID from Deploy 38555971896', () => {
+test('dev uses the existing workspace project ID from Release 38555971896', () => {
   assertHandoff('32f967de-dc01-4822-bec1-6222694173db', 'gamezilla');
 });
 

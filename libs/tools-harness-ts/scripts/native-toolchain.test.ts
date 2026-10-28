@@ -117,7 +117,7 @@ describe('verification hosts', () => {
   const manifests = workspaceManifests(ROOT);
 
   test('packages are verified on the hosts their platforms need', () => {
-    expect(hostsOf({})).toEqual(['linux']);
+    expect(hostsOf({})).toEqual(['windows']);
     expect(hostsOf({ platforms: ['ios'] })).toEqual(['macos']);
     expect(hostsOf({ platforms: ['linux', 'macos', 'ios'] })).toEqual([
       'linux',
@@ -125,11 +125,11 @@ describe('verification hosts', () => {
     ]);
     expect(currentHost('darwin')).toBe('macos');
     expect(currentHost('linux')).toBe('linux');
-    expect(currentHost('win32')).toBeUndefined();
+    expect(currentHost('win32')).toBe('windows');
   });
 
-  test('the Linux gate is every package but the Apple-only ones, with every root-owned gate', () => {
-    const args = hostVerifyArgs('linux', manifests);
+  test('the Windows gate excludes native packages and includes root-owned gates', () => {
+    const args = hostVerifyArgs('windows', manifests);
     expect(args.filter((arg) => !arg.startsWith('--'))).toEqual([
       ...MAIN_VERIFY_TASKS,
     ]);
@@ -138,6 +138,7 @@ describe('verification hosts', () => {
       '--filter=./libs/*',
       '--filter=./pkgs/*',
       '--filter=!@apps/client-swift',
+      '--filter=!@pkgs/clock-shared-swift',
     ]);
   });
 
@@ -154,15 +155,10 @@ describe('verification hosts', () => {
 
   test('every host names its CI runner and the key that runner writes', () => {
     expect(HOSTS.linux).toEqual({
-      runner: 'ubuntu-24.04',
+      runner: ['self-hosted', 'Linux', 'X64'],
       platform: 'linux',
       arch: 'x64',
     });
     expect(HOSTS.macos.platform).toBe('darwin');
-    const workflow = readFileSync(
-      join(ROOT, '.github/workflows/verify-pr.yml'),
-      'utf8'
-    );
-    expect(workflow).toContain(`runs-on: ${HOSTS.macos.runner}`);
   });
 });

@@ -3,7 +3,7 @@
 /**
  * Tears one `protection: "standard"` environment down completely — the
  * inverse of its deploy — so environments are cattle: destroy one, and the
- * next Deploy (or `SECRETS_ENV=<env> bun run deploy:local`) rebuilds it from its
+ * next Release (or `SECRETS_ENV=<env> bun run deploy:local`) rebuilds it from its
  * env file alone.
  *
  *   bun run infra:destroy -- --env <env> --confirm <env>

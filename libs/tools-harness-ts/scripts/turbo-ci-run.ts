@@ -31,7 +31,7 @@
  *   collapsible `::group::` per failing task on GitHub Actions. Grouped holds
  *   a task's output until it finishes, so a heartbeat prints every 2 min.
  *   Override with `TURBO_LOG_ORDER`. `verify` expands to package-owned task
- *   names; deploy expands its dependencies so Turbo runs leaf tasks.
+ *   names; release expands its dependencies so Turbo runs leaf tasks.
  * - Output logs: `errors-only` — a task's output is printed only when that
  *   task fails, so a green gate prints the plan, the heartbeat and the
  *   summary and nothing a passing test wrote. Override with
@@ -226,9 +226,9 @@ const AGGREGATOR_ALIASES: Readonly<Record<string, string>> = {
 
 /**
  * `deploy`: the full release graph. `health`: live-resource probes only —
- * the `health` tasks declare the deploy chain in `dependsOn` so deploy orders
+ * the `health` tasks declare the release chain in `dependsOn` so release orders
  * them last, and a standalone health run passes turbo's `--only` so it probes
- * what is live without deploying anything. `plain`: everything else.
+ * what is live without releasing anything. `plain`: everything else.
  */
 export type RunMode = 'deploy' | 'health' | 'plain';
 
@@ -245,9 +245,9 @@ export function resolveRunMode(rawTaskArgs: readonly string[]): RunMode {
 
 /**
  * Turbo flags a run mode adds. Standalone health: `--only` keeps it off the
- * deploy chain, and `--continue` lets every probe report instead of stopping at
- * the first failure (probes are independent and deploy nothing). Deploy keeps
- * turbo's stop-on-first-failure: some deploy steps do not depend on the full
+ * release chain, and `--continue` lets every probe report instead of stopping at
+ * the first failure (probes are independent and release nothing). Release keeps
+ * turbo's stop-on-first-failure: some release steps do not depend on the full
  * verification surface, so continuing past a failed verification could ship.
  */
 export function runModeFlags(mode: RunMode): readonly string[] {
@@ -403,7 +403,7 @@ export function hostVerifyArgs(
 }
 
 /**
- * Expand the verification command to package tasks; recursively expand deploy's
+ * Expand the verification command to package tasks; recursively expand release's
  * package dependencies to leaf turbo tasks.
  * Dedupes while preserving first-seen order.
  */
@@ -473,11 +473,11 @@ function warnLocalCacheOnly(hasRemote: boolean): void {
   );
 }
 
-/** Deploy writes remote artifacts CI reuses; it never runs cache-local. */
+/** Release writes remote artifacts CI reuses; it never runs cache-local. */
 function requireRemoteCredsForDeploy(hasRemote: boolean, mode: RunMode): void {
   if (hasRemote || mode !== 'deploy') return;
   console.error(
-    'turbo-ci-run: deploy requires TURBO_TOKEN. ' +
+    'turbo-ci-run: release requires TURBO_TOKEN. ' +
       'Run `bun run secrets:pull` then retry via secrets-run.'
   );
   process.exit(1);

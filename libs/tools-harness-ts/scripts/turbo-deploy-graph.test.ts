@@ -174,7 +174,7 @@ const VERIFY_LEAVES = [
   '@apps/synthetic-population-worker-ts#verify:synthetic-population-foundation',
 ];
 
-/** Deploy runs the whole verification surface, then the leaves that need a live env. */
+/** Release runs the whole verification surface, then the leaves that need a live env. */
 const DEPLOY_ONLY = [
   '@apps/server-ts#verify:api',
   'health',
@@ -395,7 +395,7 @@ describe('turbo verify/deploy graph invariants', () => {
   });
 
   // every verification that gates a release also gates a PR merge.
-  test('deploy depends only on live-environment tasks after the Verify workflow', () => {
+  test('release depends only on live-environment tasks after the Verify workflow', () => {
     const tasks = loadTasks();
     expect(tasks['//#deploy']?.dependsOn).toEqual([...DEPLOY_ONLY]);
     expect(flattenVerifyAggregators(['deploy'], tasks)).toEqual([
@@ -421,7 +421,7 @@ describe('turbo verify/deploy graph invariants', () => {
     expect(scripts['health:prd']).toContain('health:local');
   });
 
-  test('verifications run locally while health and deploy dispatch their workflows', () => {
+  test('verifications run locally while health and release dispatch their workflows', () => {
     const scripts = loadRootScripts();
     const dispatch = 'libs/tools-harness-ts/scripts/workflow-remote.ts';
     for (const retired of ['check', 'check-pr', 'check-nightly', 'check:local'])
@@ -456,7 +456,7 @@ describe('turbo verify/deploy graph invariants', () => {
     expect(rootTaskCycles(loadTasks())).toEqual([]);
   });
 
-  test('health probes live resources: never cached, ordered after the deploy', () => {
+  test('health probes live resources: never cached, ordered after the release', () => {
     const health = loadTasks()['health'];
     expect(health?.cache).toBe(false);
     expect(health?.dependsOn).toContain('@libs/infra-server-ts#apply:edge');
@@ -517,14 +517,14 @@ describe('turbo verify/deploy graph invariants', () => {
         command: 'bun run scripts/health.ts',
       },
     ]);
-    // A root dependency without an actual script cannot execute in a deployment.
+    // A root dependency without an actual script cannot execute in a release.
     for (const dependency of retirement!.allDependencies.items) {
       if (dependency.fullName.startsWith('//#'))
         expect(dependency.command).not.toBeNull();
     }
   });
 
-  test('one application deployment follows migration and its verifications', () => {
+  test('one application release follows migration and its verifications', () => {
     const tasks = loadTasks();
     // regression: product-deploy-dist-race — while Wrangler uploaded
     // apps/product-ts/dist/assets/src-C2k0tIiA.js, a parallel Verify build emptied

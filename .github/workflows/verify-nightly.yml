@@ -7,7 +7,7 @@ run-name: "Verify Nightly · ${{ github.event_name == 'schedule' && 'schedule' |
 
 # Verify Nightly is the comprehensive run: everything the merge gate runs, at a
 # deeper budget, plus the suites too slow or too exploratory to block a merge.
-# It never gates a merge or a deploy, and no pull request waits for it.
+# It never gates a merge or a release, and no pull request waits for it.
 # `bun verify-nightly` runs the same profile on a laptop.
 #
 # One profile decides what differs from Verify PR — the tasks, their depth,
@@ -38,7 +38,7 @@ run-name: "Verify Nightly · ${{ github.event_name == 'schedule' && 'schedule' |
 #
 # Every group keeps its log, its seeds and its evidence as artifacts, on
 # failure too. Each runs with dev secrets only; nothing here reads a
-# production secret or deploys.
+# production secret or releases.
 
 permissions:
   contents: read
@@ -53,6 +53,10 @@ on:
         type: choice
         options: [all, gate, random, browser, visual, coverage, performance]
         default: all
+
+defaults:
+  run:
+    shell: bash
 
 env:
   TURBO_UI: stream
@@ -80,7 +84,7 @@ jobs:
   verify-nightly-random:
     name: verify-nightly:random
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'random' }}
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 180
     permissions:
       contents: read
@@ -115,7 +119,7 @@ jobs:
   verify-nightly-browser:
     name: verify-nightly:browser
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'browser' }}
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 330
     permissions:
       contents: read
@@ -156,7 +160,7 @@ jobs:
     name: verify-nightly:visual
     needs: [verify-nightly-gate]
     if: ${{ always() && !cancelled() && (github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'visual') }}
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 180
     permissions:
       contents: read
@@ -197,7 +201,7 @@ jobs:
   verify-nightly-coverage:
     name: verify-nightly:coverage
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'coverage' }}
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 120
     permissions:
       contents: read
@@ -230,7 +234,7 @@ jobs:
   verify-nightly-performance:
     name: verify-nightly:performance
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'performance' }}
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 60
     permissions:
       contents: read
@@ -279,7 +283,7 @@ jobs:
       - verify-nightly-coverage
       - verify-nightly-performance
     if: always() && !cancelled()
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 10
     permissions:
       contents: read

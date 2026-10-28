@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { parseConfig } from '@libs/infra-shared-ts/hcl-parse';
 import { exprRefs } from '@libs/infra-shared-ts/hcl-refs';
 
-// The twelve deletions from Deploy run 38723618679: a branch provisioned
+// The twelve deletions from Release run 38723618679: a branch provisioned
 // these resources in shared fleet state before their declarations reached main.
 const LIVE_ADDRESSES = [
   'cloudflare_r2_bucket.shared_data',

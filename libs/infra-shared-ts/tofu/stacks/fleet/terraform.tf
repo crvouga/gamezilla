@@ -4,7 +4,7 @@
 # the hostname of the OAuth callback relay they all sign in through, and
 # the shared Railway project with an isolated Railway environment per env file.
 # Global (one state object), driven by the env files: a new
-# `envs/<env>.tfvars.json` is picked up here with no edit. The Deploy
+# `envs/<env>.tfvars.json` is picked up here with no edit. The Release
 # workflow applies it before any environment deploys.
 
 terraform {

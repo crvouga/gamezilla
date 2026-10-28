@@ -187,7 +187,7 @@ export function authRelayOrigin(): string {
 /**
  * Where the relay forwards each environment's callbacks: state tag (the env
  * name) → that environment's API origin. Every env file is a target, so a
- * new environment is reachable as soon as the relay redeploys (the Deploy
+ * new environment is reachable as soon as the relay redeploys (the Release
  * workflow's fleet job, before any environment deploys).
  */
 export function authRelayTargets(

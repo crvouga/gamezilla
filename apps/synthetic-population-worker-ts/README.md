@@ -35,7 +35,7 @@ Run the complete local stack with `bun run dev --synthetic-population-workers 2`
 The stack creates local coordination secrets and connects workers to its local
 API. `--synthetic-population-workers 0` disables the sidecars. Production hosting
 is declared in [the Railway module](../../libs/infra-shared-ts/tofu/modules/synthetic-population-service/)
-and composed into the existing foundation stack. Deploy uploads the commit with a
+and composed into the existing foundation stack. Release uploads the commit with a
 generated Dockerfile and Railway builds and runs the worker with Bun. Verify runs
 the package `test` script on the host and validates the OpenTofu module. It does
 not build an image. The Observatory uses the main

@@ -1,5 +1,5 @@
 /**
- * `@synthetic` features and `# live` objectives run against a deployment,
+ * `@synthetic` features and `# live` objectives run against a release,
  * from the package that has `liveDomains`, not on the harness — wherever
  * the file sits. See specs/README.md (live verifications).
  */

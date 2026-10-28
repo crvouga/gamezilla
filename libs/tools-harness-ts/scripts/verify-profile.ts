@@ -2,7 +2,7 @@
  * The two verification profiles: one set of tests, run at two depths.
  *
  * - `pr` is the merge gate (`bun verify`, `.github/workflows/verify-pr.yml`,
- *   Deploy's verification): bounded, deterministic, and it keeps no test
+ *   Release's verification): bounded, deterministic, and it keeps no test
  *   report beyond the job log.
  * - `nightly` is the comprehensive run (`bun verify-nightly`,
  *   `.github/workflows/verify-nightly.yml`): the same gate tasks at a deeper

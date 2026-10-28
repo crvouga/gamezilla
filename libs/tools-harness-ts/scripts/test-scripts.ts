@@ -4,7 +4,7 @@
  * `bun verify` runs a package's `test`, `test:contract`,
  * `test:contract:render` and `test:spec` scripts (the last as its
  * `test:spec:<k>` parts, which spec-packages.ts holds to exactly `test:spec`
- * split; deploy's `verify:api` runs `test:integration`). A green verification is only
+ * split; release's `verify:api` runs `test:integration`). A green verification is only
  * worth something if those scripts ran every test the package owns, every
  * time, the same way:
  *
@@ -26,7 +26,7 @@
 /**
  * Scripts the gate runs. `test:contract:render` is the browser half of a
  * package's contract, its own task so model proofs do not rerun the browser.
- * `test:integration` is deploy's live API probe.
+ * `test:integration` is release's live API probe.
  */
 export const GATE_TEST_SCRIPTS = [
   'test',

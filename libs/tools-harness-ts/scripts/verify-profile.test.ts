@@ -24,7 +24,7 @@ import {
 } from './verify-profile';
 
 // regression: deploy-journeys-missing-pr-browser-gate
-test('PR verification runs the production-bundle journeys before deployment', () => {
+test('PR verification runs the production-bundle journeys before release', () => {
   expect(MAIN_VERIFY_TASKS).toContain('@apps/product-ts#test:release-journeys');
 });
 
@@ -244,7 +244,7 @@ describe('Verify Nightly workflow', () => {
     expect(nightly.concurrency['cancel-in-progress']).toBe(
       "${{ github.event_name == 'workflow_dispatch' && inputs.group != '' && inputs.group != 'all' }}"
     );
-    // Dev secrets only, and no deploy: production stays out of reach.
+    // Dev secrets only, and no release: production stays out of reach.
     expect(nightly.env['SECRETS_ENV']).toBe('dev');
     const text = readFileSync(
       join(ROOT, '.github/workflows/verify-nightly.yml'),

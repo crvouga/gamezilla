@@ -11,7 +11,7 @@
  *   all=["dev","prd"]       probed by the Health workflow
  *
  * Every list is a JSON array; an empty one is `[]` (the workflow skips the
- * matrix job instead of handing GitHub an empty matrix). The Deploy workflow
+ * matrix job instead of handing GitHub an empty matrix). The Release workflow
  * names its environments in its own jobs; a test keeps those in step with the
  * env files.
  */

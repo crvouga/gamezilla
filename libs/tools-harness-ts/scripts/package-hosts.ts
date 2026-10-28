@@ -12,7 +12,7 @@
  * | `ios`    | `macos` | `verify:apple`    |
  *
  * A package without `platforms` (TypeScript on Bun) runs anywhere Bun does
- * and is verified on the `linux` host. A package listing several hosts is
+ * and is verified on the `windows` host. A package listing several hosts is
  * verified on each, with `turbo-host-key.json` in its native task inputs so
  * one host's verdict never answers for another's.
  */
@@ -26,21 +26,37 @@ export const PLATFORMS = {
 } as const;
 
 export type Platform = keyof typeof PLATFORMS;
-export type Host = (typeof PLATFORMS)[Platform]['host'];
+export type Host = (typeof PLATFORMS)[Platform]['host'] | 'windows';
 
 /**
  * The runner each host's CI job starts, and the host key it writes. The
- * Linux plan predicts the `macos` job's task hashes from this key, so it must
+ * Local planning predicts the `macos` job's task hashes from this key, so it must
  * be what that runner reports (`verify-pr.yml` `verify-apple.runs-on`).
  */
 export const HOSTS = {
-  linux: { runner: 'ubuntu-24.04', platform: 'linux', arch: 'x64' },
-  macos: { runner: 'xcode-27', platform: 'darwin', arch: 'arm64' },
+  windows: {
+    runner: ['self-hosted', 'Windows', 'X64'],
+    platform: 'win32',
+    arch: 'x64',
+  },
+  linux: {
+    runner: ['self-hosted', 'Linux', 'X64'],
+    platform: 'linux',
+    arch: 'x64',
+  },
+  macos: {
+    runner: ['self-hosted', 'macOS', 'ARM64'],
+    platform: 'darwin',
+    arch: 'arm64',
+  },
 } as const satisfies Readonly<
-  Record<Host, { runner: string; platform: NodeJS.Platform; arch: string }>
+  Record<
+    Host,
+    { runner: readonly string[]; platform: NodeJS.Platform; arch: string }
+  >
 >;
 
-const DEFAULT_HOSTS: readonly Host[] = ['linux'];
+const DEFAULT_HOSTS: readonly Host[] = ['windows'];
 
 export function isPlatform(value: unknown): value is Platform {
   return typeof value === 'string' && Object.hasOwn(PLATFORMS, value);
@@ -61,6 +77,7 @@ export function hostsOf(manifest: Manifest): readonly Host[] {
 export function currentHost(
   platform: NodeJS.Platform = process.platform
 ): Host | undefined {
+  if (platform === 'win32') return 'windows';
   if (platform === 'darwin') return 'macos';
   if (platform === 'linux') return 'linux';
   return undefined;

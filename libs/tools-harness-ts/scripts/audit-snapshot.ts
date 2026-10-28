@@ -18,9 +18,9 @@ export type AuditSnapshot = {
 
 /**
  * `enforce` fails the gate on a current advisory: pull requests and Verify
- * Nightly. `report` records the same evidence without failing it: Deploy
+ * Nightly. `report` records the same evidence without failing it: Release
  * verifies a commit a pull request already cleared, and an advisory published
- * between the merge and the deploy is not a change to that commit.
+ * between the merge and the release is not a change to that commit.
  */
 export const ADVISORIES_ENV = 'VERIFY_ADVISORIES';
 

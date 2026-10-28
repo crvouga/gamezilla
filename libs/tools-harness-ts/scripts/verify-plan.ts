@@ -1,14 +1,8 @@
 // @io-wall-ok — CI planning entry; artifacts contain identities, never environment values.
 import { execFileSync } from 'node:child_process';
-import {
-  appendFileSync,
-  mkdirSync,
-  readFileSync,
-  writeFileSync,
-} from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { captureAudit } from './audit-snapshot';
-import { HOSTS, writeHostKey } from './package-hosts';
 import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
 import {
   flattenVerifyAggregators,
@@ -62,8 +56,8 @@ export async function createVerifyPlan(): Promise<void> {
     'turbo',
     [
       'run',
-      // The gate on the Linux shards: every package but the Apple-only ones.
-      ...flattenVerifyAggregators(['verify:linux']),
+      // The Windows gate excludes native packages; native builds stay local.
+      ...flattenVerifyAggregators(['verify:windows']),
       '--framework-inference=false',
       '--cache=local:rw',
       '--dry=json',
@@ -124,43 +118,6 @@ export async function createVerifyPlan(): Promise<void> {
   for (const miss of cacheDiagnostics(tasks, responsesByHash).slice(0, 5))
     console.log(`cache miss ${miss.taskId} ${miss.hash}: ${miss.reason}`);
   writeContext(env);
-  await scheduleApple(env);
-}
-
-/**
- * Whether the `verify:apple` job has work, decided here so an unchanged
- * Apple lane starts no macOS runner. The macOS gate is planned under the host
- * key that runner writes (`HOSTS.macos`); every task the remote cache answers
- * passed there, on exactly these inputs. A miss — or any doubt — starts the
- * job, which plans again on the runner and runs only its own misses.
- */
-async function scheduleApple(env: NodeJS.ProcessEnv): Promise<void> {
-  writeHostKey(ROOT, HOSTS.macos);
-  let json: string;
-  try {
-    json = execFileSync(
-      'turbo',
-      [
-        'run',
-        ...flattenVerifyAggregators(['verify:macos']),
-        '--framework-inference=false',
-        '--cache=local:rw',
-        '--dry=json',
-      ],
-      { cwd: ROOT, env, encoding: 'utf8', maxBuffer: 512 * 1024 * 1024 }
-    );
-  } finally {
-    writeHostKey(ROOT);
-  }
-  const { resolved } = await resolveCache(planFromDryRun(json), env);
-  const misses =
-    env['VERIFY_CACHE_MODE'] === 'cold' ? resolved.tasks : resolved.toExecute;
-  const needed = misses.length > 0;
-  console.log(
-    `apple: ${resolved.tasks.length} tasks, ${misses.length} uncached${needed ? ` (${misses.map((task) => task.taskId).join(', ')})` : ''}; verify:apple ${needed ? 'scheduled' : 'cached'}`
-  );
-  const output = env['GITHUB_OUTPUT'];
-  if (output) appendFileSync(output, `apple=${String(needed)}\n`);
 }
 
 /** The scan range and platform key every shard must run under. */

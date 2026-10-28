@@ -35,24 +35,24 @@ type Workflow = {
 
 /**
  * Each workflow's display name and the prefix its jobs share. The merge
- * gate's jobs are `verify:*` wherever it runs — a pull request, Deploy's
+ * gate's jobs are `verify:*` wherever it runs — a pull request, Release's
  * verification, the nightly run — so the required status `verify:end` never
  * moves with a file name.
  */
 const WORKFLOWS: Record<string, { name: string; jobs: string }> = {
   'verify-nightly.yml': { name: 'Verify Nightly', jobs: 'verify-nightly' },
   'verify-pr.yml': { name: 'Verify PR', jobs: 'verify' },
-  'deploy.yml': { name: 'Deploy', jobs: 'deploy' },
+  'deploy.yml': { name: 'Release', jobs: 'deploy' },
   'health.yml': { name: 'Health', jobs: 'health' },
 };
 
-/** Deploy names explain the release sequence on the run page. */
+/** Release names explain the release sequence on the run page. */
 const DEPLOY_JOBS: Record<string, string> = {
   'deploy-verify': 'Verify commit',
   'deploy-rehearsal': 'Preview infrastructure changes',
-  'deploy-fleet': 'Deploy shared services',
-  'deploy-dev': 'Deploy development',
-  'deploy-prd': 'Deploy production',
+  'deploy-fleet': 'Release shared services',
+  'deploy-dev': 'Release development',
+  'deploy-prd': 'Release production',
   'deploy-release': 'Publish release',
 };
 
@@ -72,7 +72,7 @@ const workflows = readdirSync(WORKFLOWS_DIR)
 
 // regression: ci-provider-native-workflows-missing-auth
 // regression: ci-provider-migration-workflow-on-feature-branch
-test('Verify PR, Verify Nightly, Deploy and Health have one native workflow source', () => {
+test('Verify PR, Verify Nightly, Release and Health have one native workflow source', () => {
   expect(workflows.map(({ file }) => file)).not.toContain(
     'temporary-ci-migration.yml'
   );
@@ -82,11 +82,8 @@ test('Verify PR, Verify Nightly, Deploy and Health have one native workflow sour
 });
 
 describe.each(workflows)('$file', ({ file, workflow }) => {
-  test('workflow name is the file stem in title case', () => {
+  test('workflow name matches its display name', () => {
     expect(workflow.name).toBe(WORKFLOWS[file]!.name);
-    expect(workflow.name.toLowerCase().replaceAll(' ', '-')).toBe(
-      file.replace(/\.yml$/u, '')
-    );
   });
 
   test('run-name is `<Workflow> · <trigger>`', () => {

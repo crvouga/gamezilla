@@ -41,7 +41,7 @@ const failing: AuditSnapshot = {
   advisories: { vite: [{ id: 1, severity: 'high' }] },
 };
 
-test('a pull request enforces current advisories; Deploy reports them without failing', () => {
+test('a pull request enforces current advisories; Release reports them without failing', () => {
   expect(advisoryMode({})).toBe('enforce');
   expect(advisoryMode({ [ADVISORIES_ENV]: 'enforce' })).toBe('enforce');
   expect(advisoryMode({ [ADVISORIES_ENV]: 'report' })).toBe('report');
@@ -65,7 +65,7 @@ test('the recorded report keeps the advisories and passes the pure gate', () => 
   ).toThrow();
 });
 
-test('only Deploy asks for report; the pull request workflow defaults to enforce', () => {
+test('only Release asks for report; the pull request workflow defaults to enforce', () => {
   const workflows = join(import.meta.dirname, '../../../.github/workflows');
   const verify = readFileSync(join(workflows, 'verify-pr.yml'), 'utf8');
   expect(verify).toContain(

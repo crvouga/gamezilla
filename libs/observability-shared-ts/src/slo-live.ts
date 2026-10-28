@@ -40,7 +40,7 @@ export function metricSettings(
   const missing = NAMES.filter((name) => (vars[name]?.trim() ?? '') === '');
   if (missing.length > 0) {
     throw new PrometheusQueryError(
-      `${missing.join(', ')} ${missing.length === 1 ? 'is' : 'are'} not set in the environment's secrets. The service level objectives read the metrics backend with the stack's read token; Deploy stores these once foundation has been applied, and \`bun run secrets:seed\` shows what a store holds.`
+      `${missing.join(', ')} ${missing.length === 1 ? 'is' : 'are'} not set in the environment's secrets. The service level objectives read the metrics backend with the stack's read token; Release stores these once foundation has been applied, and \`bun run secrets:seed\` shows what a store holds.`
     );
   }
   return {

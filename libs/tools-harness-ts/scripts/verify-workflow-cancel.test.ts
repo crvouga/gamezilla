@@ -41,7 +41,6 @@ describe('Verify workflow cancellation', () => {
     const start = workflow.jobs['verify-start'];
     expect(start.outputs).toEqual({
       shards: '${{ steps.plan.outputs.shards }}',
-      apple: '${{ steps.plan.outputs.apple }}',
     });
     expect(start.steps.find((step) => step.id === 'plan')?.run).toContain(
       'verify-plan.ts'
@@ -71,7 +70,7 @@ describe('Verify workflow cancellation', () => {
   test('no workflow names a depth: the profile decides, and only a caller can ask for nightly', () => {
     // `QUINT_REPLAY_TRACES` unset is the bounded default. A workflow names a
     // profile and `verify-profile.ts` holds its budgets, so a pull request and
-    // Deploy's verification share one verdict and one cache key.
+    // Release's verification share one verdict and one cache key.
     for (const file of readdirSync(join(WORKFLOW, '..')))
       expect(readFileSync(join(WORKFLOW, '..', file), 'utf8')).not.toMatch(
         /QUINT_REPLAY_TRACES|PBT_NUM_RUNS|FC_SEED/
@@ -206,23 +205,10 @@ describe('Verify workflow cancellation', () => {
     expect(Object.keys(workflow.jobs)).toEqual([
       'verify-start',
       'verify-shards',
-      'verify-apple',
       'verify-end',
     ]);
-    const apple = workflow.jobs['verify-apple']!;
-    expect(apple.needs).toEqual(['verify-start']);
-    // Fail-safe: only an explicit `false` from the plan skips it.
-    expect(apple.if).toBe("needs.verify-start.outputs.apple != 'false'");
-    expect(apple['continue-on-error']).toBeUndefined();
-    expect(
-      apple.steps.find((candidate) => candidate.name === 'verify')?.run
-    ).toContain('turbo-ci-run.ts verify:macos');
     const end = workflow.jobs['verify-end']!;
-    expect(end.needs).toEqual([
-      'verify-start',
-      'verify-shards',
-      'verify-apple',
-    ]);
+    expect(end.needs).toEqual(['verify-start', 'verify-shards']);
     expect(end.if).toBe('always() && !cancelled()');
     expect(end['continue-on-error']).toBeUndefined();
     expect(workflow.jobs['verify-start']!.if).toBeUndefined();
@@ -242,8 +228,6 @@ describe('Verify workflow cancellation', () => {
       env: {
         START_RESULT: '${{ needs.verify-start.result }}',
         SHARD_RESULT: '${{ needs.verify-shards.result }}',
-        APPLE_RESULT: '${{ needs.verify-apple.result }}',
-        APPLE_SCHEDULED: '${{ needs.verify-start.outputs.apple }}',
       },
     });
     expect(end.steps[verdict]!['continue-on-error']).toBeUndefined();

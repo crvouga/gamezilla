@@ -46,7 +46,7 @@ test('a device may use the topics its token grants and no others', () => {
   expect(admission.access.canSubscribe('system:client_config')).toBe(true);
   expect(admission.access.canPublish('user:actor-1')).toBe(true);
   expect(admission.access.canReceive('user:actor-1')).toBe(true);
-  // The catalog topic no sub granted: what AWS IoT refused in Deploy.
+  // The catalog topic no sub granted: what AWS IoT refused in Release.
   expect(admission.access.canSubscribe('system:chess_puzzles')).toBe(false);
   expect(admission.access.canPublish('system:chess_puzzles')).toBe(false);
   expect(admission.access.canReceive('system:chess_puzzles')).toBe(false);

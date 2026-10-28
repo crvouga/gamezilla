@@ -35,7 +35,7 @@ email a day); `tier`, `capability` and `slo` say what it defends.
    shape.
 2. Run `investigate_command`. `bun obs last --errors --source prod` reads the
    newest failures; `bun obs find <any id>` follows one.
-3. If it began with a deployment, ship a revert or a fix through Deploy.
+3. If it began with a release, ship a revert or a fix through Release.
    Never write to a production database by hand.
 4. The alert resolves by itself once its short window is clean.
 
@@ -87,7 +87,7 @@ minutes a week); the Health-run objectives can resolve about 97%.
 people saved.
 
 **First steps.** The alert's `slice` names the job. `app-shell-<env>`
-alone: the web client deployment or Cloudflare in front of it.
+alone: the web client release or Cloudflare in front of it.
 `api-ready-<env>` alone: the API Worker (`bun obs platform --service
 <worker-name>`) or the database (the readiness answer names the failing
 check and its time). Both: DNS, TLS or Cloudflare. The fast burn holds six

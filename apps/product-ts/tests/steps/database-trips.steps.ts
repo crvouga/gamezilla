@@ -16,7 +16,7 @@ import { wallWait } from './wall-wait';
  * The API runs beside its database (`databasePlacement` in
  * `libs/infra-shared-ts/src/wrangler.ts`), where opening a connection costs
  * a local handshake and a few short round trips: about 15 ms. From across the
- * country the same span measured 112 to 194 ms in Deploy's traces. 60 ms is
+ * country the same span measured 112 to 194 ms in Release's traces. 60 ms is
  * four times what a placed Worker needs and about half of the least a distant
  * one took, so it passes ordinary jitter and fails a Worker that is not beside
  * its data. The release journeys model that hop; this is the one place the

@@ -64,7 +64,7 @@ function fixture(
 }
 
 describe('GitHub release workflow dispatch', () => {
-  test('Deploy dispatches main rather than executing locally', async () => {
+  test('Release dispatches main rather than executing locally', async () => {
     const f = fixture([[], [workflow()]]);
     await startWorkflow(
       { ...TARGET, workflow: 'deploy.yml', branch: 'main' },

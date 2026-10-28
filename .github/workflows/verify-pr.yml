@@ -5,18 +5,11 @@ run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{
 # lint, architecture boundaries, typecheck, unit tests, Gherkin specs, contract
 # suites, Quint models, schema evolution, bundles, security scans.
 #
-# Four jobs. `verify:start` plans the shards, `verify:shards (N)` run them with
-# fail-fast off, `verify:apple` runs the Apple-only gate on macOS, and
-# `verify:end` has the ending word: one verdict that names every failure. The
-# jobs keep the `verify:` prefix wherever the gate runs, so `verify:end` is
-# the one required status and its name never moves.
+# Three jobs: start, Windows shards, and the final verdict.
+# Native Swift/iOS verification stays local.
 #
 # Packages declare the platforms they build for (docs/POLYGLOT.md). The Linux
-# shards verify every package but the Apple-only ones; `verify:apple` verifies
-# every package that builds for an Apple platform, on the runner image that
-# ships the pinned Xcode. `verify:start` predicts that job's cache: when every
-# Apple task already passed on these exact inputs, no macOS runner starts, and
-# the verdict accepts its absence only because the plan said so.
+# Shards verify shared TypeScript packages; native builds stay local.
 #
 # Only uncached work starts a runner. `verify:start` asks the remote cache about
 # every task, packs the misses into as many shards as their measured durations
@@ -24,8 +17,8 @@ run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{
 # and the end, with no shard at all.
 #
 # It runs on every pull request, where `verify:end` is the required status:
-# a green pull request is releasable, and merging it deploys. It also runs from
-# a manual dispatch, from Deploy (`workflow_call`) on the exact commit it
+# a green pull request is releasable, and merging it releases. It also runs from
+# a manual dispatch, from Release (`workflow_call`) on the exact commit it
 # ships, and from Verify Nightly at the nightly profile's depth. `bun verify`
 # runs the same gate locally.
 #
@@ -94,6 +87,10 @@ concurrency:
   group: ${{ github.event_name == 'pull_request' && format('verify-pr-{0}', github.event.pull_request.number) || format('verify-run-{0}', github.run_id) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+defaults:
+  run:
+    shell: bash
+
 env:
   GH_TOKEN: ${{ github.token }}
   TURBO_UI: stream
@@ -123,20 +120,19 @@ env:
 jobs:
   verify-start:
     name: verify:start
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: ${{ inputs.profile == 'nightly' && 70 || 30 }}
     # One entry per shard with work, naming none of them: GitHub drops a job
     # output that contains a masked secret, and one dev secret is the digit 1.
     outputs:
       shards: ${{ steps.plan.outputs.shards }}
-      apple: ${{ steps.plan.outputs.apple }}
     steps:
       - name: Validate release branch
         if: ${{ inputs.require-main }}
         run: |
           set -euo pipefail
           if [ "$GITHUB_REF" != "refs/heads/main" ]; then
-            echo "::error::Deploy ships refs/heads/main only (got ${GITHUB_REF})."
+            echo "::error::Release ships refs/heads/main only (got ${GITHUB_REF})."
             exit 1
           fi
       - uses: actions/checkout@v6
@@ -238,7 +234,7 @@ jobs:
     needs: [verify-start]
     # An empty matrix is an error, so a fully cached plan skips the job.
     if: needs.verify-start.outputs.shards != '[]'
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: ${{ inputs.profile == 'nightly' && 70 || 30 }}
     strategy:
       fail-fast: false
@@ -323,45 +319,17 @@ jobs:
           compression-level: 0
           retention-days: ${{ inputs.profile == 'nightly' && 14 || 1 }}
 
-  # The Apple-only gate (`turbo-ci-run.ts verify:macos`): Swift packages on
-  # macOS and the iOS app's build, launch and smoke test in a simulator. It
-  # starts unless the plan answered `apple=false`; on the runner, Turbo runs
-  # only the tasks whose inputs changed. The `xcode-27` image ships the Xcode
-  # `mise.toml` pins (`[vars] xcode_version`); the task wrappers find it there
-  # and refuse any other.
-  verify-apple:
-    name: verify:apple
-    needs: [verify-start]
-    if: needs.verify-start.outputs.apple != 'false'
-    runs-on: xcode-27
-    timeout-minutes: ${{ inputs.profile == 'nightly' && 70 || 40 }}
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-      - uses: ./.github/actions/setup
-        with:
-          tools: bun
-      - uses: ./.github/actions/secrets-auth
-        with:
-          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: dev
-      - name: verify
-        timeout-minutes: ${{ inputs.profile == 'nightly' && 60 || 30 }}
-        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify:macos
-
-  # The ending word, and the only required status on a pull request; Deploy
+  # The ending word, and the only required status on a pull request; Release
   # consumes this verdict. It runs after red shards too: the fan-in suites
   # report their own failures, then one verdict names every suite and every
   # failing task. A missing, failed or cancelled job fails it; skipped shards
-  # and a skipped `verify:apple` pass only when the plan scheduled none. The
+  # pass only when the plan scheduled none. The
   # nightly profile's reports are published last and never decide it.
   verify-end:
     name: verify:end
-    needs: [verify-start, verify-shards, verify-apple]
+    needs: [verify-start, verify-shards]
     if: always() && !cancelled()
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: ${{ inputs.profile == 'nightly' && 110 || 50 }}
     steps:
       # The reports are filed under the pull request's head, whose specs are
@@ -384,10 +352,10 @@ jobs:
       - name: Run fan-in consumers
         timeout-minutes: ${{ inputs.profile == 'nightly' && 60 || 25 }}
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-consumers.ts
-      # What Deploy would apply, planned against the real state for this merge
+      # What Release would apply, planned against the real state for this merge
       # result. Some configuration errors only a plan finds (a `removed` block
       # whose resource is still in state, a project the provider cannot find);
-      # each failed Deploy after the pull request had passed. Read-only: the
+      # each failed Release after the pull request had passed. Read-only: the
       # plan applies nothing and the AWS role it uses cannot mutate. They run
       # after the fan-in consumers so those still report, and each runs when
       # the other failed so one red plan does not hide the other.
@@ -444,8 +412,6 @@ jobs:
         env:
           START_RESULT: ${{ needs.verify-start.result }}
           SHARD_RESULT: ${{ needs.verify-shards.result }}
-          APPLE_RESULT: ${{ needs.verify-apple.result }}
-          APPLE_SCHEDULED: ${{ needs.verify-start.outputs.apple }}
         run: bun run libs/tools-harness-ts/scripts/verify-verdict.ts
       # A red run still measured every task that passed.
       - name: Save measured task durations

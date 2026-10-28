@@ -80,7 +80,7 @@ This file is the single source of truth. `bun run agents:sync` projects it into 
 2. **Collect every real defect signal before inventing any.** These outrank anything an auditor imagines, because they already hurt someone:
    - open feedback reports: `bun feedback --list`, then `bun feedback --inspect <id>` and any `reproduction.json` beside it;
    - production and recent failures: `bun obs last`, `bun obs find <id>`;
-   - red runs: the open "Verify Nightly is failing on main" issue, and recent Health and Deploy failures (`gh run list --workflow health.yml --status failure`, then `gh run view <id> --log-failed`);
+   - red runs: the open "Verify Nightly is failing on main" issue, and recent Health and Release failures (`gh run list --workflow health.yml --status failure`, then `gh run view <id> --log-failed`);
    - verification gaps: obligations in `specs/conformance.yaml` nothing proves yet, scenarios or model actions without bindings;
    - the known-bug register `libs/tools-harness-ts/goal/known-bugs/`, recent `fix:` commits, and open PRs (`gh pr list --label overnight`) so nothing is re-reported or duplicated.
 3. **Make the base worktree.** `git fetch origin main`, then `git worktree add --detach "$WT_ROOT/base" origin/main`, where `WT_ROOT="$HOME/.cache/overnight/$(basename "$(git rev-parse --show-toplevel)")/<date>"`. Run `bun install` in it. Every "before" capture and every new branch starts from here.
