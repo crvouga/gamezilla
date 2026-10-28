@@ -204,6 +204,25 @@ describe('Verify workflow cancellation', () => {
         "${{ inputs.pull-request && format('refs/pull/{0}/merge', inputs.pull-request) || '' }}"
       );
   });
+  // regression: release-costs-erased-by-pr-profile
+  test('each profile packs by its own measured durations', () => {
+    const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
+      jobs: Record<
+        string,
+        { steps: { uses?: string; with?: Record<string, string> }[] }
+      >;
+    };
+    const cacheSteps = Object.values(workflow.jobs).flatMap((job) =>
+      job.steps.filter((step) => step.uses?.startsWith('actions/cache/'))
+    );
+    expect(cacheSteps).toHaveLength(2);
+    const key =
+      'verify-task-costs-v2-${{ env.VERIFY_PROFILE }}-${{ github.run_id }}-${{ github.run_attempt }}';
+    for (const step of cacheSteps) expect(step.with?.['key']).toBe(key);
+    expect(cacheSteps[0]!.with?.['restore-keys']).toBe(
+      'verify-task-costs-v2-${{ env.VERIFY_PROFILE }}-'
+    );
+  });
   // regression: verify-cancel-holds-concurrency
   test('publish and the verdict skip a cancelled run', () => {
     const holding = alwaysConditions(readFileSync(WORKFLOW, 'utf8')).filter(

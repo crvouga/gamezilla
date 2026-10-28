@@ -192,13 +192,15 @@ jobs:
       # Shards are packed by the durations the newest run of this profile
       # measured on these runners (`verify:end` saves them); the key never
       # matches, so the prefix restores the newest from this pull request,
-      # else from main.
+      # else from main. Each profile keeps its own: a save keeps only the
+      # tasks its plan held, so a `pr` run sharing `release`'s key erased the
+      # slow suites' measurements and Release packed them by estimate.
       - name: Restore measured task durations
         uses: actions/cache/restore@v5
         with:
           path: .cache/verify-ci/measured-costs.json
-          key: verify-task-costs-v1-${{ inputs.profile == 'nightly' && 'nightly' || 'gate' }}-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-keys: verify-task-costs-v1-${{ inputs.profile == 'nightly' && 'nightly' || 'gate' }}-
+          key: verify-task-costs-v2-${{ env.VERIFY_PROFILE }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: verify-task-costs-v2-${{ env.VERIFY_PROFILE }}-
       - name: Plan all owners once
         id: plan
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/verify-plan.ts
@@ -401,7 +403,7 @@ jobs:
         uses: actions/cache/save@v5
         with:
           path: .cache/verify-ci/measured-costs.json
-          key: verify-task-costs-v1-${{ inputs.profile == 'nightly' && 'nightly' || 'gate' }}-${{ github.run_id }}-${{ github.run_attempt }}
+          key: verify-task-costs-v2-${{ env.VERIFY_PROFILE }}-${{ github.run_id }}-${{ github.run_attempt }}
       # The `pr` profile leaves the slow suites to Release, which would run
       # them cold. A green pull request from this repository warms them now
       # (see the top of this file). A fork's code never gets the secrets.

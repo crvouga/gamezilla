@@ -1,0 +1,4 @@
+{
+  "summary": "Verify PR's pr and release profiles shared one measured-durations cache key, and a save keeps only the tasks its plan held, so each pull request erased the slow suites' measurements. Release (run 40628012072) packed them by stale estimates and five shards hit the 1200s deadline. Each profile now keeps its own key, and the committed estimates carry that run's measurements.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-workflow-cancel.test.ts"
+}
