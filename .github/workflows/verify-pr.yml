@@ -238,6 +238,15 @@ jobs:
     timeout-minutes: ${{ inputs.profile == 'nightly' && 70 || 30 }}
     strategy:
       fail-fast: false
+      # Four runners serve every workflow, and GitHub hands a queued job to the
+      # first free one. A run that queues all its shards at once holds other
+      # runs' `verify:start` and `verify:end` behind them: a 30 s `verify:end`
+      # waited 53 minutes (Verify run 40713084871), and Release's shards up to
+      # 109 (run 40628012072). Holding one runner back, and queuing the next
+      # shard only as one finishes, lets a small run through between a large
+      # run's shards. `VERIFY_MAX_PARALLEL` is the runner count minus one; set
+      # it to the runner count to give a lone run every runner.
+      max-parallel: ${{ fromJSON(vars.VERIFY_MAX_PARALLEL || '3') }}
       matrix:
         shard: ${{ fromJSON(needs.verify-start.outputs.shards) }}
     env:
