@@ -242,7 +242,7 @@ describe('Verify Nightly workflow', () => {
       'schedule',
       'workflow_dispatch',
     ]);
-    expect(nightly.on['schedule']).toEqual([{ cron: '23 8 * * *' }]);
+    expect(nightly.on['schedule']).toEqual([{ cron: '23 10 * * *' }]);
     expect(nightly.env['VERIFY_PROFILE']).toBe('nightly');
     // A second night waits; it never discards the one still running.
     expect(nightly.concurrency['cancel-in-progress']).toBe(
