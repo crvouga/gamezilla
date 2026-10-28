@@ -27,12 +27,24 @@ async function labelBecomes(
   return { ok: false, label };
 }
 
+/**
+ * A resize shows its new size before its draft save settles, and a save that
+ * settles after the next edit can replace it, so each edit waits for the save.
+ */
+async function draftSaved(device: ContentJourneyDevice): Promise<void> {
+  await device.ui
+    .get('content-draft-save-status')
+    .expect.text('Saved on this device.', { ...device, exact: false });
+}
+
 async function edit(device: ContentJourneyDevice): Promise<void> {
   const columns = device.ui.get('numberlink-columns-value');
   await columns.key('arrowUp');
   await columns.expect.text('4', device);
+  await draftSaved(device);
   await columns.key('arrowDown');
   await columns.expect.text('3', device);
+  await draftSaved(device);
   await contentTap(device, 'numberlink-board-cell-1');
   const moved = await labelBecomes(
     device,
@@ -47,6 +59,7 @@ async function edit(device: ContentJourneyDevice): Promise<void> {
       `Choosing an empty cell did not move the selected endpoint (cell 1 reads ${JSON.stringify(moved.label)}, cell 0 reads ${JSON.stringify(first)})`
     );
   }
+  await draftSaved(device);
   await contentTap(device, 'numberlink-move-first');
   await contentTap(device, 'numberlink-board-cell-0');
   await contentInput(device, 'numberlink-pair-label', 'A');
