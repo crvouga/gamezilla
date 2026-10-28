@@ -13,6 +13,7 @@
     "test": "bun test tests"
   },
   "dependencies": {
+    "@pkgs/os-shared-ts": "workspace:*",
     "typescript": "catalog:"
   },
   "devDependencies": {

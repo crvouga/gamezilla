@@ -1,0 +1,4 @@
+{
+  "summary": "Verify PR stopped at its plan upload ('Artifact storage quota has been hit'): nightly runs uploaded one trace artifact per shard kept 14 days, and a retired workflow's check-* artifacts kept their own retention, filling 11 GB. CI now keeps every artifact in its own R2 bucket, which expires objects after 7 days, and no workflow uses GitHub's artifact storage.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ci-artifacts.test.ts"
+}

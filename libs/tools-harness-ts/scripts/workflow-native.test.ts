@@ -5,7 +5,7 @@ import {
   specParallelism,
   testConcurrency,
 } from '@pkgs/os-server-ts/test-concurrency';
-import { HOSTS } from './package-hosts';
+import { CI_OPERATING_SYSTEMS, CI_RUNNER } from './package-hosts';
 
 const ROOT = join(import.meta.dirname, '../../..');
 
@@ -43,12 +43,15 @@ test('only GitHub Actions owns the Verify, Deploy and Health triggers', () => {
     'verify-nightly.yml',
     'verify-pr.yml',
   ]);
-  const runners: string[] = [];
+  const runners: (string | readonly string[])[] = [];
   for (const file of readdirSync(join(ROOT, '.github/workflows'))) {
     const workflow = Bun.YAML.parse(
       readFileSync(join(ROOT, '.github/workflows', file), 'utf8')
     ) as {
-      jobs: Record<string, { 'runs-on'?: string; uses?: string }>;
+      jobs: Record<
+        string,
+        { 'runs-on'?: string | readonly string[]; uses?: string }
+      >;
     };
     for (const job of Object.values(workflow.jobs)) {
       // A reusable-workflow call runs on its callee's runners.
@@ -59,11 +62,26 @@ test('only GitHub Actions owns the Verify, Deploy and Health triggers', () => {
       runners.push(job['runs-on'] ?? '');
     }
   }
-  // Every job runs on a host's runner (package-hosts.ts): Linux, except the
-  // one Apple-only gate on macOS.
-  expect(runners.filter((runner) => runner !== HOSTS.linux.runner)).toEqual([
-    HOSTS.macos.runner,
-  ]);
+  // Every job runs on any self-hosted runner, whatever its OS
+  // (package-hosts.ts). A job that continues a Verify plan also requests the
+  // OS and arch `verify:start` ran on, because a plan holds for one platform.
+  const samePlatform = [
+    CI_RUNNER,
+    "${{ needs.verify-start.outputs.os || 'self-hosted' }}",
+    "${{ needs.verify-start.outputs.arch || 'self-hosted' }}",
+  ];
+  expect(runners.length).toBeGreaterThan(0);
+  for (const runner of runners)
+    if (typeof runner === 'string') expect(runner).toBe(CI_RUNNER);
+    else expect(runner).toEqual(samePlatform);
+  // No job names an OS, an arch or a hosted image itself.
+  const named = /ubuntu|macos|windows|linux|x64|arm64|xcode/i;
+  expect(
+    runners
+      .flat()
+      .filter((label) => named.test(label.replace(/\$\{\{.*\}\}/, '')))
+  ).toEqual([]);
+  expect(CI_OPERATING_SYSTEMS).toEqual(['Linux', 'macOS', 'Windows']);
 });
 
 // regression: ci-provider-native-ci-missing-local-action

@@ -33,6 +33,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { syncAgentMcp } from './sync-agent-mcp';
 
 const ROOT = join(import.meta.dirname, '../../..');
@@ -189,7 +190,7 @@ function listFiles(dir: string): string[] {
   const abs = join(ROOT, dir);
   if (!existsSync(abs)) return [];
   return readdirSync(abs, { recursive: true, encoding: 'utf8' })
-    .map((file) => `${dir}/${file}`)
+    .map((file) => `${dir}/${slashPath(file)}`)
     .filter((file) => lstatSync(join(ROOT, file)).isFile());
 }
 
@@ -209,7 +210,9 @@ function symlinkTarget(linkPath: string): string {
 function isSymlinkTo(linkPath: string, target: string): boolean {
   const abs = join(ROOT, linkPath);
   try {
-    return lstatSync(abs).isSymbolicLink() && readlinkSync(abs) === target;
+    return (
+      lstatSync(abs).isSymbolicLink() && slashPath(readlinkSync(abs)) === target
+    );
   } catch {
     return false;
   }

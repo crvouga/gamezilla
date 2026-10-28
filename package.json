@@ -37,6 +37,7 @@
     "deps:graph": "turbo run //#task:deps:graph --",
     "dev": "bun run apps/product-ts/scripts/dev-run.ts",
     "dev:client": "SECRETS_ENV=dev bun run own -- bun run libs/secrets-server-ts/scripts/secrets-run.ts -- turbo run @apps/client-ts#dev --",
+    "check:turborepo-remote-caching": "bun run libs/secrets-server-ts/scripts/secrets-run.ts -- turbo run //#task:check:turborepo-remote-caching --",
     "fc": "turbo run //#task:fc --",
     "feedback": "turbo run //#task:feedback --",
     "fmt": "turbo run //#fmt:biome //#fmt:empty-dirs //#fmt:package-json //#fmt:swift --continue --env-mode=loose",
@@ -75,6 +76,7 @@
     "reports:performance": "turbo run //#task:reports:performance --",
     "secrets:pull": "turbo run //#task:secrets:pull --",
     "secrets:seed": "bun run libs/secrets-server-ts/scripts/secrets-seed.ts",
+    "secrets:turbo-token": "bun run libs/secrets-server-ts/scripts/turbo-token-rotate.ts",
     "sims:open": "bun run apps/product-ts/scripts/open-sims.ts",
     "sounds:generate": "turbo run //#task:sounds:generate",
     "spec": "turbo run //#task:spec --",
@@ -91,6 +93,7 @@
     "task:atlas:export": "bun run libs/tools-harness-ts/scripts/statechart-cli.ts export",
     "task:atlas:run": "bun run libs/tools-harness-ts/scripts/spec-run.ts --keep-going",
     "task:atlas:viz": "bun run libs/tools-harness-ts/scripts/statechart-cli.ts explore",
+    "task:check:turborepo-remote-caching": "bun run libs/tools-harness-ts/scripts/turbo-remote-cache-check.ts",
     "task:conformance": "bun run libs/tools-harness-ts/scripts/conformance-report.ts",
     "task:deploy": "bun run libs/tools-harness-ts/scripts/workflow-remote.ts deploy",
     "task:deps:graph": "bun run libs/tools-harness-ts/scripts/render-package-deps-graph.ts",
@@ -185,7 +188,6 @@
     "node": ">=22.18.0"
   },
   "catalog": {
-    "@actions/artifact": "6.2.1",
     "@aws-sdk/client-s3": "^3.1154.0",
     "@babel/core": "^7.29.7",
     "@babel/plugin-transform-explicit-resource-management": "^7.29.7",

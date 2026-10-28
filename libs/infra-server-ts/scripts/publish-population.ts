@@ -2,7 +2,7 @@
 // @io-wall-ok — publishes verified code to an already OpenTofu-managed service.
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { basename, join, resolve } from 'node:path';
 import {
   populationDockerfile,
   populationReleaseArgs,
@@ -92,7 +92,8 @@ try {
     ['git', 'archive', '--format=tar', `--output=${archive}`, version],
     root
   );
-  artifactCommand(['tar', '-xf', archive, '-C', stage], root);
+  // Relative to the stage: GNU tar (Git for Windows) reads `C:\…` as host:path.
+  artifactCommand(['tar', '-xf', `../${basename(archive)}`], stage);
   writeFileSync(join(stage, 'Dockerfile'), populationDockerfile());
   const release = populationReleaseArgs(
     pinnedTool('railway'),

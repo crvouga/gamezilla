@@ -88,13 +88,14 @@ function readyChoices(
 /** Whether a move made now, with no connection, would wait for it. */
 function useMovesWait(
   connected: Accessor<boolean>,
-  current: Accessor<CustomGame | null>
+  current: Accessor<CustomGame | null>,
+  myId: Accessor<string>
 ): Accessor<boolean> {
   const rules = useTurnGames();
   return createMemo(
     () =>
       !connected() &&
-      customGameChoiceWaits(current(), { operation: 'move' }, rules)
+      customGameChoiceWaits(current(), { operation: 'move' }, rules, myId())
   );
 }
 
@@ -196,7 +197,7 @@ export function useCustomGameScreen(
     /** Whether a move made with no connection waits for it to return. */
     waiting: command.waiting,
     /** Whether a move made now, with no connection, would wait for it. */
-    movesWait: useMovesWait(connected, current),
+    movesWait: useMovesWait(connected, current, myId),
     mySide: createMemo(() => {
       const game = current();
       return game === null ? null : customGamePersonSide(game, myId());

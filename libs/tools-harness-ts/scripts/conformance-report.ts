@@ -43,6 +43,7 @@ import type { EvidenceRecord } from '@pkgs/conformance-shared-ts/evidence';
 import { sha256 } from '@pkgs/conformance-shared-ts/evidence';
 import type { VariantRequirements } from '@pkgs/conformance-shared-ts/variants';
 import { specVariants } from '@pkgs/conformance-shared-ts/variants';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { modelTemporalProperties } from '@pkgs/quint-server-ts/temporal';
 import type { ReportInput, ReportSpec } from '../conformance/evaluate';
 import { evaluateLines, evaluateVariantCells } from '../conformance/evaluate';
@@ -67,12 +68,12 @@ function git(args: readonly string[]): string {
 }
 
 function specTreeFiles(): readonly { path: string; sha256: string }[] {
-  return [
-    ...new Bun.Glob('**/*').scanSync({ cwd: join(REPO_ROOT, SPECS_DIR) }),
-  ].map((file) => ({
-    path: `${SPECS_DIR}/${file}`,
-    sha256: sha256(readFileSync(join(REPO_ROOT, SPECS_DIR, file), 'utf8')),
-  }));
+  return [...new Bun.Glob('**/*').scanSync({ cwd: join(REPO_ROOT, SPECS_DIR) })]
+    .map(slashPath)
+    .map((file) => ({
+      path: `${SPECS_DIR}/${file}`,
+      sha256: sha256(readFileSync(join(REPO_ROOT, SPECS_DIR, file), 'utf8')),
+    }));
 }
 
 const { world, manifest, packages, specs, problems } = readConformanceWorld();

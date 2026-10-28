@@ -30,6 +30,7 @@
     "@pkgs/keyword-shared-ts": "workspace:*",
     "@pkgs/kv-root-client-ts": "workspace:*",
     "@pkgs/kv-root-shared-ts": "workspace:*",
+    "@pkgs/os-shared-ts": "workspace:*",
     "@pkgs/solid-context-client-ts": "workspace:*",
     "@pkgs/ui-root-shared-ts": "workspace:*",
     "@solidjs/router": "catalog:",

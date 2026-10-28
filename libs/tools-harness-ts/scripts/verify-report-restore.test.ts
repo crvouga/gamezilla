@@ -30,9 +30,11 @@ test('cached sources publish and release separately, including a publication fai
     }
     // Turbo can pack file entries without explicit directory headers.
     const archive = join(fixture, 'cached.tar');
+    // Relative names: GNU tar (Git Bash on Windows) misreads `C:\…` paths.
     expect(
-      spawnSync('tar', ['-cf', archive, '-C', fixture, ...files, unrelated])
-        .status
+      spawnSync('tar', ['-cf', 'cached.tar', ...files, unrelated], {
+        cwd: fixture,
+      }).status
     ).toBe(0);
     const compressed = Bun.zstdCompressSync(readFileSync(archive));
     mkdirSync(root);

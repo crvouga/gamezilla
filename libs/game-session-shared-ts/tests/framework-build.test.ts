@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
 import { readFileSync, realpathSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import type { BunPlugin } from 'bun';
 import { isolatedFrameworkProof } from './isolated-framework';
 
@@ -19,7 +20,7 @@ function withoutProductionGames(): BunPlugin {
     name: 'no-production-games',
     setup(build) {
       build.onLoad({ filter: /.*/ }, (args) => {
-        const path = relative(ROOT, realpathSync(args.path));
+        const path = slashPath(relative(ROOT, realpathSync(args.path)));
         const directory = /^(libs|pkgs|apps)\/[^/]+\//.exec(path)?.[0];
         if (directory === undefined) return undefined;
         let manifest = manifests.get(directory);

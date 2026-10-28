@@ -77,7 +77,7 @@ async function main(command: Command): Promise<number> {
   const pins = readPins();
   if (currentHost() !== 'macos')
     throw new ToolchainError(
-      `${manifest.name} is an Apple app: building it needs macOS with Xcode ${pins.xcode}, and this host is ${process.platform}. Nothing was verified here; the \`verify:apple\` CI job is its evidence (docs/POLYGLOT.md#ci).`
+      `${manifest.name} is an Apple app: building it needs macOS with Xcode ${pins.xcode}, and this host is ${process.platform}. Nothing was verified here, and CI does not check it: verify it with \`bun verify\` on a Mac (docs/POLYGLOT.md#ci).`
     );
   const developerDir = resolveDeveloperDir(pins);
   resolveSwift(pins);

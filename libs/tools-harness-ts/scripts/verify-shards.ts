@@ -112,18 +112,113 @@ function preferredWidth(
 }
 
 /**
+ * The fewest shards that hold the work with none past `fillSeconds`: a group
+ * at least that long fills a shard alone, the rest pack together. Unlike
+ * {@link preferredWidth} it reserves no proof lanes; those are a preference
+ * a small pool cannot afford, not a deadline.
+ */
+function deadlineWidth(
+  ordered: readonly (readonly VerifyTask[])[],
+  fillSeconds: number
+): number {
+  const own = ordered.filter((group) => cost(group) >= fillSeconds).length;
+  const packed = ordered
+    .filter((group) => cost(group) < fillSeconds)
+    .reduce((sum, group) => sum + cost(group), 0);
+  return Math.max(1, own + Math.ceil(packed / fillSeconds));
+}
+
+/** The runners that can take a plan's shards, and how full one shard may get. */
+export type ShardCapacity = {
+  readonly runners: number;
+  /** Seconds of estimated work a shard may hold and still finish inside its deadline. */
+  readonly fillSeconds: number;
+};
+
+/** What starting one more shard costs, and how much of its runner's time must be tasks. */
+export type ShardSizing = {
+  /** Seconds a shard spends outside its tasks: checkout, setup, plan restore, upload. */
+  readonly setupSeconds: number;
+  /** A shard holds at least this many times its setup in work, per slot. */
+  readonly setupMultiple: number;
+  /** Turbo slots per shard. */
+  readonly slots: number;
+};
+
+/** How the plan sized its shards, for the log. */
+export type ShardTarget = {
+  readonly targetSeconds: number;
+  readonly uncachedSeconds: number;
+  readonly longestGroupSeconds: number;
+  readonly efficiencySeconds: number;
+};
+
+/**
+ * Seconds of uncached work worth starting one shard for. A shard holds at
+ * least `setupMultiple` times its setup per slot, so setup stays a small
+ * share of the runner's time, and never less than the longest indivisible
+ * task group: the run cannot finish before that group does, so smaller
+ * shards only pay setup again without finishing sooner. `fillSeconds`, the
+ * most a shard may hold inside its deadline, caps it.
+ */
+export function adaptiveShardTarget(
+  tasks: readonly VerifyTask[],
+  sizing: ShardSizing,
+  fillSeconds = Number.POSITIVE_INFINITY
+): ShardTarget {
+  if (
+    !(sizing.setupSeconds > 0) ||
+    !(sizing.setupMultiple > 0) ||
+    !Number.isSafeInteger(sizing.slots) ||
+    sizing.slots < 1
+  )
+    throw new Error('Shard sizing needs positive setup, multiple and slots');
+  const verifications = verifyStages(
+    [...tasks].sort((a, b) => compare(a.taskId, b.taskId))
+  ).verifications;
+  const longestGroupSeconds = Math.max(
+    0,
+    ...groups(verifications).map((group) => cost(group))
+  );
+  const efficiencySeconds =
+    sizing.setupMultiple * sizing.setupSeconds * sizing.slots;
+  return {
+    targetSeconds: Math.min(
+      fillSeconds,
+      Math.max(efficiencySeconds, longestGroupSeconds)
+    ),
+    uncachedSeconds: cost(verifications),
+    longestGroupSeconds,
+    efficiencySeconds,
+  };
+}
+
+/**
  * Spread uncached solver groups, then LPT; ties use stable discovery order.
  * `targetSeconds` narrows the plan to the shards its uncached work needs
- * ({@link shardWidth}). Proofs retain dedicated runners when that preferred
- * layout fits the cap; otherwise all allocated runners share the work.
+ * ({@link shardWidth}), and `capacity` to the runners that can take them: a
+ * shard beyond them would only queue and pay its checkout and install again.
+ * Too few runners never pack a shard past `fillSeconds`; the extra shards
+ * queue instead. Shard indices stay `0..count-1`, so the prerequisite and
+ * consumer stages keep theirs. Proofs retain dedicated runners when that
+ * preferred layout fits the cap; otherwise all allocated runners share the
+ * work.
  */
 export function balanceShards(
   tasks: readonly VerifyTask[],
   count: number,
-  targetSeconds?: number
+  targetSeconds?: number,
+  capacity?: ShardCapacity
 ): VerifyPlan {
   if (!Number.isSafeInteger(count) || count < 1 || count > 64)
     throw new Error('VERIFY_SHARDS must be an integer in 1..64');
+  if (
+    capacity !== undefined &&
+    (!Number.isSafeInteger(capacity.runners) ||
+      capacity.runners < 1 ||
+      !(capacity.fillSeconds > 0))
+  )
+    throw new Error('Shard capacity needs positive runners and fill seconds');
   const every = Array.from({ length: count }, (_, index) => ({
     index,
     stage: 'verifications' as const,
@@ -135,12 +230,22 @@ export function balanceShards(
   const ordered = groups(
     [...stages.verifications].sort((a, b) => compare(a.taskId, b.taskId))
   ).sort((a, b) => cost(b) - cost(a) || compare(a[0]!.taskId, b[0]!.taskId));
-  const bins = every.slice(0, shardWidth(ordered, count, targetSeconds));
+  const cap =
+    capacity === undefined
+      ? count
+      : Math.min(
+          count,
+          Math.max(
+            capacity.runners,
+            deadlineWidth(ordered, capacity.fillSeconds)
+          )
+        );
+  const bins = every.slice(0, shardWidth(ordered, cap, targetSeconds));
   // Reserve proof runners only when the preferred layout fits. At the cap,
   // unused proof capacity must not force all other work onto too few runners.
   const isolate =
     targetSeconds !== undefined &&
-    preferredWidth(ordered, targetSeconds) <= count;
+    preferredWidth(ordered, targetSeconds) <= cap;
   const placement =
     targetSeconds !== undefined
       ? [

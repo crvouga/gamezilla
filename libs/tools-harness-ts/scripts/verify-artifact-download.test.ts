@@ -1,55 +1,55 @@
 import { expect, test } from 'bun:test';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { ArtifactClient } from '@actions/artifact';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
+import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
-import { artifactSource, downloadEvidence } from './verify-artifact-download';
+import { downloadEvidence, transferRunId } from './verify-artifact-download';
+
+const bytes = (text: string) => new TextEncoder().encode(text);
 
 // regression: github-artifact-download-missing-runtime-token
-test('shell transfers use the workflow token for both listing and downloading', async () => {
-  const env = {
-    GH_TOKEN: 'workflow-token',
-    GITHUB_REPOSITORY: 'crvouga/gamezilla',
-    GITHUB_RUN_ID: '37512663922',
-  };
-  // A normal GitHub run step has no ACTIONS_RUNTIME_TOKEN.
-  const findBy = artifactSource(env);
-  const downloaded: number[] = [];
-  const client: Pick<ArtifactClient, 'listArtifacts' | 'downloadArtifact'> = {
-    listArtifacts: async (options) => {
-      expect(options).toEqual({ latest: true, findBy });
-      return {
-        artifacts: [
-          { id: 11, name: 'verify-evidence-16', size: 10 },
-          { id: 12, name: 'verify-plan', size: 10 },
-        ],
-      };
-    },
-    downloadArtifact: async (id, options) => {
-      expect(options).toEqual({ path: '/transfers', findBy });
-      downloaded.push(id);
-      return { downloadPath: '/transfers' };
-    },
-  };
-  await downloadEvidence({
-    prefix: 'verify-evidence-',
-    directory: '/transfers',
-    findBy,
-    client,
-    consumer: {
-      consume: async () => {},
-      release: async () => {},
-    },
-  });
-  expect(downloaded).toEqual([11]);
-  const workflow = Bun.YAML.parse(
-    readFileSync(
-      join(import.meta.dirname, '../../../.github/workflows/verify-pr.yml'),
-      'utf8'
-    )
-  ) as { env: Record<string, string> };
-  expect(workflow.env['GH_TOKEN']).toBe('${{ github.token }}');
+test('shell transfers need only the run and the bucket, and take only the named prefix', async () => {
+  const store = new ObjectStoreImplInMemory();
+  await store.put(
+    '37512663922/verify-evidence-16/evidence-16.tar.gz',
+    bytes('e16'),
+    'application/gzip'
+  );
+  await store.put(
+    '37512663922/verify-plan/plan.payload',
+    bytes('plan'),
+    'application/octet-stream'
+  );
+  await store.put(
+    '99/verify-evidence-3/evidence-3.tar.gz',
+    bytes('other run'),
+    'application/gzip'
+  );
+  const directory = mkdtempSync(join(tmpdir(), 'verify-transfer-'));
+  const seen: string[][] = [];
+  try {
+    await downloadEvidence({
+      prefix: 'verify-evidence-',
+      directory,
+      runId: transferRunId({ GITHUB_RUN_ID: '37512663922' }),
+      store,
+      consumer: {
+        consume: async (dir) => {
+          seen.push(readdirSync(dir).sort());
+          expect(readFileSync(join(dir, 'evidence-16.tar.gz'), 'utf8')).toBe(
+            'e16'
+          );
+        },
+        release: async (dir) => rmSync(dir, { recursive: true, force: true }),
+      },
+    });
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+  expect(seen).toEqual([['evidence-16.tar.gz']]);
 });
 
 // regression: reports-ci-aggregation-disk
@@ -70,35 +70,41 @@ test('bounded transfers preserve independent artifacts after consumption failure
 async function boundedTransfer(fails: number[]): Promise<void> {
   let resident = 0;
   let peak = 0;
-  let current = 0;
+  let current = -1;
   const attempted: number[] = [];
-  const client: Pick<ArtifactClient, 'listArtifacts' | 'downloadArtifact'> = {
-    listArtifacts: async () => ({
-      artifacts: fails.map((_, id) => ({
-        id,
-        name: `verify-evidence-${id}`,
-        size: 1,
-      })),
-    }),
-    downloadArtifact: async (id) => {
-      current = id;
-      attempted.push(id);
-      peak = Math.max(peak, ++resident);
-      if (fails[id] === 2) throw new Error(`partial download: ${id}`);
-      return { downloadPath: '/transfers' };
-    },
+  const names = fails.map((_, id) => `verify-evidence-${String(id)}`);
+  const keys = names.map(
+    (name, id) => `1/${name}/evidence-${String(id)}.tar.gz`
+  );
+  const unused = async (): Promise<never> => {
+    throw new Error('not used by a transfer');
   };
+  const store: ObjectStore = {
+    listKeys: async (prefix = '') =>
+      keys.filter((key) => key.startsWith(prefix)).sort(),
+    get: async (key) => {
+      current = keys.indexOf(key);
+      attempted.push(current);
+      peak = Math.max(peak, ++resident);
+      if (fails[current] === 2)
+        throw new Error(`partial download: ${String(current)}`);
+      return { body: new Response('').body!, contentType: '', size: 0 };
+    },
+    put: unused,
+    head: unused,
+    delete: unused,
+    deleteMany: unused,
+    getUri: unused,
+    withPrefix: () => store,
+  };
+  const directory = mkdtempSync(join(tmpdir(), 'verify-bounded-'));
   let verdict: unknown;
   try {
     await downloadEvidence({
       prefix: 'verify-evidence-',
-      directory: '/transfers',
-      findBy: artifactSource({
-        GH_TOKEN: 'token',
-        GITHUB_REPOSITORY: 'owner/repo',
-        GITHUB_RUN_ID: '1',
-      }),
-      client,
+      directory,
+      runId: '1',
+      store,
       consumer: {
         consume: async () => {
           await Promise.resolve();
@@ -111,8 +117,12 @@ async function boundedTransfer(fails: number[]): Promise<void> {
     });
   } catch (error) {
     verdict = error;
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
   }
-  expect(attempted).toEqual(fails.map((_, id) => id));
+  expect([...attempted].sort((a, b) => a - b)).toEqual(
+    fails.map((_, id) => id)
+  );
   expect(peak).toBe(1);
   expect(resident).toBe(0);
   if (fails.some(Boolean)) {
@@ -123,43 +133,15 @@ async function boundedTransfer(fails: number[]): Promise<void> {
   } else expect(verdict).toBeUndefined();
 }
 
-test('artifact source preserves the exact repository and run', () => {
+test('a transfer is scoped to a valid run ID', () => {
   assertProperty(
-    'public artifact requests are scoped to their run',
-    fc.property(
-      fc.stringMatching(/^[a-z]{1,12}$/),
-      fc.stringMatching(/^[a-z]{1,12}$/),
-      fc.integer({ min: 1, max: 1_000_000_000_000 }),
-      (owner, repo, run) => {
-        expect(
-          artifactSource({
-            GITHUB_TOKEN: 'job-token',
-            GITHUB_REPOSITORY: `${owner}/${repo}`,
-            GITHUB_RUN_ID: String(run),
-          })
-        ).toEqual({
-          token: 'job-token',
-          repositoryOwner: owner,
-          repositoryName: repo,
-          workflowRunId: run,
-        });
-      }
-    )
+    'transfer-run-id',
+    fc.property(fc.integer({ min: 1, max: 1_000_000_000_000 }), (run) => {
+      expect(transferRunId({ GITHUB_RUN_ID: String(run) })).toBe(String(run));
+    })
   );
-});
-
-test('missing workflow coordinates fail without falling back to internal auth', () => {
-  const env = {
-    GH_TOKEN: 'job-token',
-    GITHUB_REPOSITORY: 'crvouga/gamezilla',
-    GITHUB_RUN_ID: '37512663922',
-  };
-  for (const key of Object.keys(env))
-    expect(() => artifactSource({ ...env, [key]: '' })).toThrow(
+  for (const runId of ['', '-1', '0', '12/34', '1e3'])
+    expect(() => transferRunId({ GITHUB_RUN_ID: runId })).toThrow(
       'Artifact transfer requires'
     );
-  expect(() => artifactSource({ ...env, GITHUB_RUN_ID: '-1' })).toThrow();
-  expect(() =>
-    artifactSource({ ...env, GITHUB_REPOSITORY: 'owner/repo/extra' })
-  ).toThrow();
 });

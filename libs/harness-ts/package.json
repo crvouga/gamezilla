@@ -70,6 +70,7 @@
     "@pkgs/observability-root-shared-ts": "workspace:*",
     "@pkgs/observability-runtime-shared-ts": "workspace:*",
     "@pkgs/os-server-ts": "workspace:*",
+    "@pkgs/os-shared-ts": "workspace:*",
     "@pkgs/outbox-shared-ts": "workspace:*",
     "@pkgs/postgres-local-shared-ts": "workspace:*",
     "@pkgs/postgres-mockingbird-server-ts": "workspace:*",

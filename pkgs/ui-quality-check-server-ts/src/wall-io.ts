@@ -12,6 +12,7 @@ import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
 import { whichPath } from '@pkgs/os-server-ts/command';
 import { startProcess } from '@pkgs/os-server-ts/streaming-process';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import ffmpeg from 'ffmpeg-static';
 import manifest from '../assets/manifest.json';
 import type { Files } from './files';
@@ -25,7 +26,7 @@ function streamStore(directory: string): ObjectStore {
   });
   const get: ObjectStore['get'] = async (key) => {
     const path = resolve(root, key);
-    const rel = relative(root, path);
+    const rel = slashPath(relative(root, path));
     if (rel.startsWith('..') || resolve(root, rel) !== path || path === root)
       throw new Error(`Invalid object key: ${key}`);
     try {

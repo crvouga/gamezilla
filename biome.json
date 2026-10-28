@@ -870,6 +870,15 @@
     },
     "./libs/tools-harness-ts/biome-plugins/no-vitest.grit",
     {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-native-relative-path.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}",
+        "!**/dist/**"
+      ]
+    },
+    {
       "path": "./libs/tools-harness-ts/biome-plugins/no-infra-outside-tofu.grit",
       "includes": [
         "**/apps/**/*.{ts,tsx}",

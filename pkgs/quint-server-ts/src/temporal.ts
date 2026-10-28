@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { quintNames } from '@pkgs/quint-shared-ts/names';
 import { tlcStateSpace } from '@pkgs/quint-shared-ts/tlc-state-space';
 import { verifyDeadlineMs, wallStopwatch } from '@pkgs/quint-shared-ts/wall';
-import { linkQuintHome, resolveApalache, verifyEnv } from './apalache';
+import { privateQuintHome, resolveApalache, verifyEnv } from './apalache';
 import { instantiatedModelInput } from './model-input';
 import { modelParameterCases, modelParameterId } from './model-parameters';
 import { quintModuleName } from './model-source';
@@ -102,7 +102,7 @@ async function checkTemporalCase(input: {
         JVM_GC_ARGS: '-XX:+UseParallelGC -Xmx2048m -Xms2048m',
         JAVA_TOOL_OPTIONS: `${process.env['JAVA_TOOL_OPTIONS'] ?? ''} -XX:+UseParallelGC`,
       },
-      quintHome: linkQuintHome(options.outDir, apalacheHome),
+      quintHome: privateQuintHome(options.outDir),
     }),
     deadlineMs,
   });

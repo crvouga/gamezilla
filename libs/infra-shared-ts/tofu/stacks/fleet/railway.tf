@@ -28,8 +28,11 @@ locals {
 resource "terraform_data" "railway_environment_pacing" {
   for_each = local.envs
 
+  # Bun, not the host shell: local-exec defaults to `cmd /C` on Windows runners,
+  # which has no `sleep`, and Bun is on every runner that applies this stack.
   provisioner "local-exec" {
-    command = "sleep ${local.railway_environment_position[each.key] * local.railway_environment_interval_seconds}"
+    interpreter = ["bun", "-e"]
+    command     = "await Bun.sleep(${local.railway_environment_position[each.key] * local.railway_environment_interval_seconds * 1000})"
   }
 }
 

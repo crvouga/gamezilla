@@ -3,11 +3,16 @@ name: Deploy
 # Run title, identical shape in every workflow (enforced by
 # libs/tools-harness-ts/scripts/workflow-run-names.test.ts):
 #   <Workflow> · <trigger>
-run-name: "Deploy · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
+run-name: "Deploy · ${{ github.event_name == 'schedule' && 'schedule' || 'manual' }}"
 
-# Verify the exact commit, deploy shared services, then development and
-# production, then publish a release. A rehearsal verifies and plans only.
-# Environment deployment steps are defined once and reused below.
+# Every three hours, ship whatever reached `main` since the last deploy: run
+# the whole gate (Verify PR's `release` profile) on the exact commit, deploy
+# shared services, then development and production, then publish a release.
+# A pull request runs only the fast `pr` profile, so this is where the spec
+# suites, Quint models, contract models and release journeys gate a release.
+# A scheduled run with nothing new to ship stops at its first job. A
+# rehearsal verifies and plans only. Environment deployment steps are
+# defined once and reused below.
 
 permissions:
   contents: read
@@ -15,8 +20,8 @@ permissions:
   id-token: write
 
 on:
-  push:
-    branches: [main]
+  schedule:
+    - cron: "17 */3 * * *"
   workflow_dispatch:
     inputs:
       rehearsal:
@@ -33,11 +38,48 @@ concurrency:
   group: deploy-main
   cancel-in-progress: false
 
+# Every job runs on whichever self-hosted runner is free — Linux, macOS or
+# Windows — so every `run:` step is bash (Git Bash on Windows).
+defaults:
+  run:
+    shell: bash
+
 jobs:
+  # A scheduled run ships only when `main` has moved past the commit the last
+  # successful Deploy shipped. A manual run always proceeds.
+  deploy-changes:
+    name: Find undeployed commits
+    runs-on: self-hosted
+    timeout-minutes: 5
+    outputs:
+      ship: ${{ steps.changes.outputs.ship }}
+    steps:
+      - id: changes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_EVENT_NAME" != schedule ]; then
+            echo "ship=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          shipped=$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/deploy.yml/runs?branch=main&status=success&per_page=1" \
+            --jq '.workflow_runs[0].head_sha // ""')
+          if [ "$shipped" = "$GITHUB_SHA" ]; then
+            echo "main is ${GITHUB_SHA}, already deployed; nothing to ship."
+            echo "ship=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Shipping ${GITHUB_SHA} (last deployed: ${shipped:-none})."
+            echo "ship=true" >> "$GITHUB_OUTPUT"
+          fi
+
   deploy-verify:
     name: Verify commit
+    needs: deploy-changes
+    if: needs.deploy-changes.outputs.ship == 'true'
     uses: ./.github/workflows/verify-pr.yml
     with:
+      profile: release
       require-main: ${{ !inputs.rehearsal }}
       # The pull request already enforced advisories on this code. A registry
       # that moved since then must not fail a deploy of a verified commit.
@@ -47,7 +89,7 @@ jobs:
     name: Preview infrastructure changes
     if: ${{ inputs.rehearsal }}
     needs: deploy-verify
-    runs-on: ubuntu-24.04
+    runs-on: self-hosted
     timeout-minutes: 20
     env:
       SECRETS_ENV: dev
@@ -55,12 +97,13 @@ jobs:
       AWS_ROLE_ARN: ${{ vars.AWS_HEALTH_ROLE_ARN }}
     steps:
       - uses: actions/checkout@v6
-      - uses: ./.github/actions/setup
-      - uses: ./.github/actions/secrets-auth
         with:
-          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: dev
+          clean: false
+      - uses: ./.github/actions/setup
+        with:
+          secrets-environment: dev
+          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
       - name: Plan fleet without changing infrastructure
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run --filter @libs/infra-server-ts plan:fleet
       - name: Plan dev's foundation without changing infrastructure
@@ -73,19 +116,20 @@ jobs:
     name: Deploy shared services
     if: ${{ !inputs.rehearsal }}
     needs: deploy-verify
-    runs-on: ubuntu-24.04
+    runs-on: self-hosted
     timeout-minutes: 20
     env:
       SECRETS_ENV: shared
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
     steps:
       - uses: actions/checkout@v6
-      - uses: ./.github/actions/setup
-      - uses: ./.github/actions/secrets-auth
         with:
-          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: shared
+          clean: false
+      - uses: ./.github/actions/setup
+        with:
+          secrets-environment: shared
+          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
       # The fleet apply reads its state passphrase from shared.
       - name: Reconcile shared secrets
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/secrets-server-ts/scripts/secrets-reconcile-shared.ts promote
@@ -101,7 +145,7 @@ jobs:
   deploy-dev:
     name: Deploy development
     needs: deploy-fleet
-    runs-on: ubuntu-24.04
+    runs-on: self-hosted
     # Above `DEPLOY_RUN_DEADLINE_SECONDS` (45 min) plus setup, so
     # turbo-ci-run's own deadline fires first and names what wedged.
     timeout-minutes: 55
@@ -129,30 +173,26 @@ jobs:
           exit 1
       - uses: actions/checkout@v6
         with:
+          clean: false
           fetch-depth: 0
       - id: setup
         uses: ./.github/actions/setup
+        with:
+          secrets-environment: ${{ env.SECRETS_ENV }}
+          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
       # Verification fingerprints this Chrome into the cache key of every test, so
       # without it each task reruns here instead of restoring.
       - uses: ./.github/actions/visual-renderer
-      - uses: ./.github/actions/secrets-auth
-        with:
-          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: ${{ env.SECRETS_ENV }}
       # Foundation, migrations, Workers, edge, billing sync, then health.
       - name: Deploy and verify environment
         id: deploy
         run: bun run deploy:local
       - name: Keep the critical journeys' evidence
         if: failure()
-        uses: actions/upload-artifact@v6
-        with:
-          name: critical-journeys-${{ github.run_id }}-${{ env.SECRETS_ENV }}
-          path: apps/product-ts/.cache/critical-journeys/
-          if-no-files-found: ignore
-          include-hidden-files: true
-          retention-days: 14
+        run: >-
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload critical-journeys-${{ github.run_id }}-${{ env.SECRETS_ENV }}
+          apps/product-ts/.cache/critical-journeys
       - name: Write workflow summary
         if: always() && steps.setup.outcome == 'success'
         env:
@@ -163,7 +203,7 @@ jobs:
   deploy-prd:
     name: Deploy production
     needs: deploy-dev
-    runs-on: ubuntu-24.04
+    runs-on: self-hosted
     timeout-minutes: 55
     environment: production
     env:
@@ -175,7 +215,7 @@ jobs:
   deploy-release:
     name: Publish release
     needs: deploy-prd
-    runs-on: ubuntu-24.04
+    runs-on: self-hosted
     timeout-minutes: 5
     permissions:
       contents: write

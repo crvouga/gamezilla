@@ -1,6 +1,7 @@
 // @io-wall-ok — fingerprints the complete deterministic input to the Quint CLI.
 import { readFileSync } from 'node:fs';
 import { basename, dirname, relative, resolve } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { quintImportPaths } from '@pkgs/quint-shared-ts/imports';
 
 /** `space-hosting.qnt` → `space_hosting`, the module Quint runs. */
@@ -31,7 +32,10 @@ export function modelSourceKey(specPath: string): string {
     quint: manifest.version,
     bun: Bun.version,
     files: [...files]
-      .map(([path, source]) => [relative(dirname(specPath), path), source])
+      .map(([path, source]) => [
+        slashPath(relative(dirname(specPath), path)),
+        source,
+      ])
       .sort(([a], [b]) => (a! < b! ? -1 : a! > b! ? 1 : 0)),
   });
 }

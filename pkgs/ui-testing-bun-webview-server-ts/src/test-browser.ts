@@ -10,7 +10,7 @@
 
 import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { join } from 'node:path';
+import { join, win32 } from 'node:path';
 
 export type TestEngine = 'webkit' | 'chrome';
 
@@ -41,25 +41,92 @@ function standardChromePaths(): readonly string[] {
   ];
 }
 
-/** Chrome-family executable `Bun.WebView` would spawn, or `null`. */
-export function findChrome(): string | null {
-  const explicit = process.env['BUN_CHROME_PATH'];
-  if (explicit !== undefined && explicit !== '') return explicit;
-  for (const name of CHROME_NAMES) {
-    const found = Bun.which(name);
-    if (found !== null) return found;
-  }
-  return standardChromePaths().find((path) => existsSync(path)) ?? null;
+/** Where the Chrome installer puts `chrome.exe` on Windows, per-machine then per-user. */
+function windowsChromePaths(env: NodeJS.ProcessEnv): readonly string[] {
+  const roots = [
+    env['ProgramFiles'],
+    env['ProgramFiles(x86)'],
+    env['LOCALAPPDATA'],
+  ].filter((root): root is string => root !== undefined && root !== '');
+  return roots.map((root) =>
+    win32.join(root, 'Google', 'Chrome', 'Application', 'chrome.exe')
+  );
 }
 
-/** `Google Chrome 140.0.7339.80`-style version line, or `null`. */
-export function chromeVersion(path: string): string | null {
-  const result = Bun.spawnSync([path, '--version'], {
+export type ChromeHost = {
+  readonly env: NodeJS.ProcessEnv;
+  readonly platform: NodeJS.Platform;
+  readonly which: (name: string) => string | null;
+  readonly exists: (path: string) => boolean;
+};
+
+const HOST: ChromeHost = {
+  env: process.env,
+  platform: process.platform,
+  which: (name) => Bun.which(name),
+  exists: existsSync,
+};
+
+/** Chrome-family executable `Bun.WebView` would spawn, or `null`. */
+export function findChrome(host: ChromeHost = HOST): string | null {
+  const explicit = host.env['BUN_CHROME_PATH'];
+  if (explicit !== undefined && explicit !== '') return explicit;
+  if (host.platform === 'win32') {
+    const installed = windowsChromePaths(host.env).find(host.exists);
+    if (installed !== undefined) return installed;
+  }
+  for (const name of CHROME_NAMES) {
+    const found = host.which(name);
+    if (found !== null) return found;
+  }
+  return standardChromePaths().find((path) => host.exists(path)) ?? null;
+}
+
+type RunVersion = (
+  argv: readonly string[],
+  env?: NodeJS.ProcessEnv
+) => { readonly exitCode: number; readonly stdout: string };
+
+const runVersion: RunVersion = (argv, env) => {
+  const result = Bun.spawnSync([...argv], {
     stdout: 'pipe',
     stderr: 'ignore',
+    ...(env === undefined ? {} : { env }),
   });
+  return { exitCode: result.exitCode, stdout: result.stdout.toString() };
+};
+
+/**
+ * Reads the version from `chrome.exe`'s PE version resource. On Windows
+ * `chrome.exe --version` prints nothing (it is a GUI-subsystem binary and may
+ * open a window), and the installer's version-named sibling directory is
+ * absent from Chrome for Testing's flat `chrome-win64` layout. The path goes
+ * through the environment so no quoting can turn it into PowerShell code.
+ */
+const WINDOWS_VERSION_COMMAND =
+  '$v = (Get-Item -LiteralPath $env:CHROME_VERSION_PATH).VersionInfo; "$($v.ProductName) $($v.ProductVersion)"';
+
+/** `Google Chrome 140.0.7339.80`-style version line, or `null`. */
+export function chromeVersion(
+  path: string,
+  platform: NodeJS.Platform = process.platform,
+  run: RunVersion = runVersion
+): string | null {
+  const result =
+    platform === 'win32'
+      ? run(
+          [
+            'powershell.exe',
+            '-NoProfile',
+            '-NonInteractive',
+            '-Command',
+            WINDOWS_VERSION_COMMAND,
+          ],
+          { ...process.env, CHROME_VERSION_PATH: path }
+        )
+      : run([path, '--version']);
   if (result.exitCode !== 0) return null;
-  const line = result.stdout.toString().trim();
+  const line = result.stdout.trim();
   return line === '' ? null : line;
 }
 

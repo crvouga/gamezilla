@@ -1,0 +1,206 @@
+#!/usr/bin/env python3
+"""Cluster the failures recorded under `.ci-green/results/` by root cause.
+
+Failures are linked when they share a normalised error (same code and
+message shape), a file, or a missing module — not by check name — so one
+bad import that breaks lint, typecheck and tests becomes one cluster.
+Environment, service, resource and timeout signatures are grouped apart:
+those are fixed in the environment or the code's timing, never by
+loosening the check.
+
+Usage:
+  triage-failures [--json] [--include-stale]
+
+Writes `.ci-green/triage.json`. Exit status: 0 (also when nothing failed).
+"""
+
+import argparse
+import json
+import os
+import sys
+
+sys.dont_write_bytecode = True
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), "lib"))
+
+import common
+import signatures
+
+FAILED = ("fail", "timeout", "toolchain-mismatch")
+ENV_KINDS = ("environment", "service", "resources")
+KIND_RANK = {"environment": 0, "service": 1, "resources": 2, "build": 3, "type": 4, "lint": 5, "format": 6, "test": 7, "timeout": 8, "error": 9}
+
+
+class Union(object):
+    def __init__(self):
+        self.parent = {}
+
+    def find(self, x):
+        self.parent.setdefault(x, x)
+        while self.parent[x] != x:
+            self.parent[x] = self.parent[self.parent[x]]
+            x = self.parent[x]
+        return x
+
+    def join(self, a, b):
+        ra, rb = self.find(a), self.find(b)
+        if ra != rb:
+            self.parent[rb] = ra
+
+
+def not_runnable(root):
+    out = []
+    results_dir = os.path.join(common.state_dir(root), "results")
+    if os.path.isdir(results_dir):
+        for name in sorted(os.listdir(results_dir)):
+            res = common.read_json(os.path.join(results_dir, name), None) if name.endswith(".json") else None
+            if res and res.get("status") in ("not-runnable", "skipped-dependency", "no-slot"):
+                out.append({"check": res["id"], "status": res["status"], "reasons": res.get("reasons") or []})
+    return out
+
+
+def load_failures(root, include_stale):
+    state = common.state_dir(root)
+    manifest = common.read_json(os.path.join(state, "checks.json"), {}) or {}
+    known = {c["id"]: c for c in manifest.get("checks") or []}
+    results_dir = os.path.join(state, "results")
+    head = common.git(["rev-parse", "HEAD"], cwd=root)
+    failures = []
+    if not os.path.isdir(results_dir):
+        return failures, known
+    for name in sorted(os.listdir(results_dir)):
+        if not name.endswith(".json"):
+            continue
+        res = common.read_json(os.path.join(results_dir, name), None)
+        if not res or res.get("status") not in FAILED:
+            continue
+        if not include_stale and (res.get("tree") or {}).get("head") not in (None, head):
+            continue
+        sigs = res.get("signatures")
+        if sigs is None and res.get("log"):
+            sigs = signatures.extract(common.read_text(os.path.join(root, res["log"])) or "")
+        if res["status"] == "toolchain-mismatch":
+            # One cluster per tool: every check blocked by the same toolchain shares the fix.
+            sigs = [{"kind": "environment", "key": "environment|toolchain|%s" % (r.split()[0] if r else "?"),
+                     "text": r, "file": None, "code": "toolchain", "module": None, "test": None}
+                    for r in res.get("reasons") or []]
+        if not sigs:
+            sigs = [{"kind": "error", "key": "unexplained|%s" % res["id"], "text": "no recognisable error line; read the log tail",
+                     "file": None, "code": None, "module": None, "test": None}]
+        failures.append({"result": res, "signatures": sigs})
+    return failures, known
+
+
+def cluster(failures):
+    uf = Union()
+    items = []
+    for f in failures:
+        for sig in f["signatures"]:
+            node = len(items)
+            items.append((f["result"]["id"], sig))
+            uf.find(node)
+    by_key, by_file, by_module = {}, {}, {}
+    for node, (check_id, sig) in enumerate(items):
+        by_key.setdefault(sig["key"], []).append(node)
+        if sig.get("file") and sig["kind"] not in ENV_KINDS:
+            by_file.setdefault(sig["file"].lstrip("./"), []).append(node)
+        mod = sig.get("module")
+        if mod:
+            by_module.setdefault(mod, []).append(node)
+    for group in list(by_key.values()) + list(by_file.values()) + list(by_module.values()):
+        for other in group[1:]:
+            uf.join(group[0], other)
+    # A check's own signatures that have no file belong with its first located one.
+    per_check = {}
+    for node, (check_id, sig) in enumerate(items):
+        per_check.setdefault(check_id, []).append(node)
+    for check_id, nodes in per_check.items():
+        env_nodes = [n for n in nodes if items[n][1]["kind"] in ENV_KINDS]
+        for n in env_nodes[1:]:
+            uf.join(env_nodes[0], n)  # one environment problem per failing check
+        located = [n for n in nodes if items[n][1].get("file") and items[n][1]["kind"] not in ENV_KINDS]
+        anchor = located[0] if located else nodes[0]
+        for n in nodes:
+            if not items[n][1].get("file") and items[n][1]["kind"] not in ENV_KINDS and items[n][1]["kind"] != "timeout":
+                uf.join(anchor, n)
+    groups = {}
+    for node in range(len(items)):
+        groups.setdefault(uf.find(node), []).append(node)
+    clusters = []
+    for nodes in groups.values():
+        sigs = [items[n][1] for n in nodes]
+        checks = sorted(set(items[n][0] for n in nodes))
+        kinds = sorted(set(s["kind"] for s in sigs), key=lambda k: KIND_RANK.get(k, 99))
+        files = sorted(set(s["file"] for s in sigs if s.get("file")))
+        lead = sorted(sigs, key=lambda s: KIND_RANK.get(s["kind"], 99))[0]
+        clusters.append({
+            "kind": "environment" if kinds[0] in ENV_KINDS else kinds[0],
+            "checks": checks,
+            "files": files[:30],
+            "lead": lead["text"],
+            "codes": sorted(set(s["code"] for s in sigs if s.get("code")))[:10],
+            "tests": sorted(set(s["test"] for s in sigs if s.get("test")))[:20],
+            "samples": [s["text"] for s in sigs[:8]],
+            "signature_count": len(sigs),
+        })
+    clusters.sort(key=lambda c: (KIND_RANK.get(c["kind"], 99), -len(c["checks"]), -c["signature_count"]))
+    for idx, c in enumerate(clusters, 1):
+        c["id"] = "cluster-%d" % idx
+    return clusters
+
+
+def overlaps(clusters):
+    """Pairs of clusters that touch the same files: serialize them."""
+    out = []
+    for i, a in enumerate(clusters):
+        for b in clusters[i + 1:]:
+            shared = set(a["files"]) & set(b["files"])
+            if shared:
+                out.append({"clusters": [a["id"], b["id"]], "files": sorted(shared)[:10]})
+    return out
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    parser.add_argument("--json", action="store_true")
+    parser.add_argument("--include-stale", action="store_true", help="also use results recorded at an older commit")
+    args = parser.parse_args()
+    root = common.repo_root()
+    failures, known = load_failures(root, args.include_stale)
+    clusters = cluster(failures)
+    report = {
+        "generated_at": common.now_iso(),
+        "failed_checks": [f["result"]["id"] for f in failures],
+        "clusters": clusters,
+        "overlapping_files": overlaps(clusters),
+        "not_run": not_runnable(root),
+    }
+    for c in clusters:
+        c["reproduce"] = [{"check": cid, "command": "run-check %s" % cid, "log": next((f["result"].get("log") for f in failures if f["result"]["id"] == cid), None)} for cid in c["checks"]]
+    common.write_json(os.path.join(common.state_dir(root), "triage.json"), report)
+    if args.json:
+        print(json.dumps(report, indent=2))
+        return 0
+    if report["not_run"]:
+        print("not run locally (report these; CI still decides them):")
+        for item in report["not_run"]:
+            print("  %s [%s]: %s" % (item["check"], item["status"], "; ".join(item["reasons"])[:200]))
+        print("")
+    if not failures:
+        print("no failed checks recorded for the current commit")
+        return 0
+    print("%d failed checks -> %d root-cause clusters" % (len(failures), len(clusters)))
+    for c in clusters:
+        print("\n%s [%s] checks: %s" % (c["id"], c["kind"], ", ".join(c["checks"])))
+        print("  lead: %s" % c["lead"][:200])
+        if c["files"]:
+            print("  files: %s%s" % (", ".join(c["files"][:8]), " (+%d)" % (len(c["files"]) - 8) if len(c["files"]) > 8 else ""))
+        if c["tests"]:
+            print("  tests: %s" % ", ".join(c["tests"][:6]))
+    for o in report["overlapping_files"]:
+        print("\noverlap: %s share %s: fix them in sequence or in separate worktrees" % (" and ".join(o["clusters"]), ", ".join(o["files"][:5])))
+    print("\ntriage: %s" % os.path.relpath(os.path.join(common.state_dir(root), "triage.json"), root))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -16,7 +16,8 @@ test('Verification enforces read/write after secrets injection', () => {
 });
 
 // regression: ci-provider-api-dependency-cache-ref
-test('setup installs frozen dependencies whether or not the dependency cache answers', () => {
+// regression: windows-dependency-tree-cache-eperm
+test('setup installs frozen dependencies on every run and never archives the linked trees', () => {
   const source = readFileSync(
     join(root, '.github/actions/setup/action.yml'),
     'utf8'
@@ -39,35 +40,33 @@ test('setup installs frozen dependencies whether or not the dependency cache ans
   expect(install).toBeGreaterThan(-1);
   expect(steps[install]!.if).toBeUndefined();
   expect(source).toContain('uses: jdx/mise-action@v4');
-  // The cache is an exact, content-only key: no ref, no fallback to the
-  // trees of another lockfile.
+  // No cache key depends on the ref.
   expect(source).not.toMatch(/github\.(ref|head_ref|base_ref)|GITHUB_REF/);
-  const caches = steps.filter(
-    (step) =>
-      step.uses?.startsWith('actions/cache') &&
-      step.with?.['path']?.includes('node_modules')
-  );
-  expect(caches.map((step) => step.uses)).toEqual([
-    'actions/cache/restore@v5',
-    'actions/cache/save@v5',
-  ]);
-  const [restore, save] = caches as [
-    (typeof steps)[number],
-    (typeof steps)[number],
-  ];
-  expect(restore.with!['restore-keys']).toBeUndefined();
-  expect(restore.with!['fail-on-cache-miss']).toBeUndefined();
-  expect(restore.with!['key']).toContain(
-    "hashFiles('bun.lock', 'mise.toml', '.github/actions/setup/action.yml')"
-  );
-  expect(save.with!['path']).toBe(restore.with!['path']!);
-  // Restored before the install verifies the trees, saved after it built them.
-  expect(steps.indexOf(restore)).toBeLessThan(install);
-  expect(steps.indexOf(save)).toBeGreaterThan(install);
-  expect(save.if).toBe("steps.dependencies.outputs.cache-hit != 'true'");
+  // bun links packages into node_modules; an archive of those links did not
+  // survive Windows (Git's tar restored them unreadable, EPERM), so no OS
+  // caches the trees and every run links them from bun's own cache.
+  expect(
+    steps.filter(
+      (step) =>
+        step.uses?.startsWith('actions/cache') &&
+        step.with?.['path']?.includes('node_modules')
+    )
+  ).toEqual([]);
 });
 
-test('setup reuses generation artifacts separately while retaining frozen dependency validation', () => {
+// regression: windows-ci-installs-agent-tools
+test('setup never installs the laptop-only coding-agent tools', () => {
+  const source = readFileSync(
+    join(root, '.github/actions/setup/action.yml'),
+    'utf8'
+  );
+  const mise = readFileSync(join(root, 'mise.toml'), 'utf8');
+  const disabled = /MISE_DISABLE_TOOLS=([^"\s]+)/.exec(source)?.[1];
+  expect(disabled?.split(',')).toEqual(['pipx:graphifyy', 'pipx:serena-agent']);
+  for (const tool of disabled!.split(',')) expect(mise).toContain(`"${tool}"`);
+});
+
+test('setup restores generation from the remote cache, else a separate GitHub cache, while retaining frozen dependency validation', () => {
   const setup = Bun.YAML.parse(
     readFileSync(join(root, '.github/actions/setup/action.yml'), 'utf8')
   ) as {
@@ -95,14 +94,38 @@ test('setup reuses generation artifacts separately while retaining frozen depend
       step.uses?.startsWith('actions/cache/save') &&
       step.with?.['path'] === '.cache/setup-generation'
   );
+  const inject = steps.findIndex(
+    (step) => step.uses === './.github/actions/secrets-auth'
+  );
+  // Secrets, and with them TURBO_TOKEN, are in place before the install's
+  // generation tasks run, so they use the Vercel Remote Cache.
+  expect(inject).toBeGreaterThan(-1);
+  expect(inject).toBeLessThan(install);
+  expect(steps[inject]!.if).toBe("inputs.secrets-environment != ''");
+  // A job without secrets has no remote cache and keeps the GitHub one.
   expect(restore).toBeGreaterThan(-1);
   expect(restore).toBeLessThan(install);
   expect(save).toBeGreaterThan(install);
+  expect(steps[restore]!.if).toBe("inputs.secrets-environment == ''");
   expect(steps[install]!.env?.['TURBO_CACHE_DIR']).toBe(
     '.cache/setup-generation'
   );
   expect(steps[install]!.if).toBeUndefined();
-  expect(steps[save]!.if).toBe("steps.generation.outputs.cache-hit != 'true'");
+  expect(steps[save]!.if).toBe(
+    "inputs.secrets-environment == '' && steps.generation.outputs.cache-hit != 'true'"
+  );
+});
+
+test('every job that injects secrets does it in setup, before the install', () => {
+  for (const file of [
+    'deploy.yml',
+    'health.yml',
+    'verify-nightly.yml',
+    'verify-pr.yml',
+  ]) {
+    const text = readFileSync(join(root, '.github/workflows', file), 'utf8');
+    expect(text).not.toContain('uses: ./.github/actions/secrets-auth');
+  }
 });
 
 // regression: turbo-build-unhashed-inputs

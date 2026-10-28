@@ -1,0 +1,593 @@
+#!/usr/bin/env python3
+"""Discover every CI check of this repository and write the local plan.
+
+Reads GitHub Actions (with reusable workflows, composite actions and
+matrices), GitLab CI, CircleCI, Buildkite, Azure Pipelines, Jenkinsfile,
+pre-commit, lefthook and husky, resolves the task runners they call, pins
+toolchains to what CI installs, and writes `.ci-green/checks.json`. It
+never contacts hosted CI unless `--network` asks GitHub which checks are
+required; every pull-request check runs locally either way.
+
+Usage:
+  discover-checks [--base REF] [--network] [--json] [--quiet]
+
+Exit status: 0 manifest written; 2 usage or repository error.
+"""
+
+import argparse
+import os
+import platform
+import re
+import sys
+
+sys.dont_write_bytecode = True
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), "lib"))
+
+import common
+import github_actions
+import local_config
+import other_ci
+
+MANIFEST_VERSION = 1
+MAX_CHANGED = 2000
+VERSION_TOOLS = {
+    "node", "bun", "deno", "python", "go", "rust", "java", "ruby", "dotnet",
+    "pnpm", "yarn", "npm", "terraform", "opentofu", "swift", "php", "uv",
+    "elixir", "gradle", "flutter",
+}
+FATAL_REASON = re.compile(r"runs on (Windows|macOS) in CI|remote reusable workflow|nothing to run locally|cannot read|from an orb|deployment job|Windows batch")
+
+
+# -- repository facts -------------------------------------------------------
+def repo_info(root, base_arg):
+    host_os = {"Darwin": "darwin", "Linux": "linux", "Windows": "windows"}.get(platform.system(), platform.system().lower())
+    branch = common.git(["rev-parse", "--abbrev-ref", "HEAD"], cwd=root) or "HEAD"
+    head = common.git(["rev-parse", "HEAD"], cwd=root) or ""
+    base_ref = base_arg or default_base(root)
+    merge_base = common.git(["merge-base", "HEAD", base_ref], cwd=root) if base_ref else None
+    base_branch = re.sub(r"^(refs/remotes/)?(origin|upstream)/", "", base_ref or "main")
+    changed = []
+    if merge_base:
+        diff = common.git(["diff", "--name-only", merge_base], cwd=root) or ""
+        changed = [l for l in diff.splitlines() if l]
+    untracked = common.git(["ls-files", "--others", "--exclude-standard"], cwd=root) or ""
+    changed += [l for l in untracked.splitlines() if l and l not in changed]
+    remote = common.git(["remote", "get-url", "origin"], cwd=root) or ""
+    m = re.search(r"github\.com[:/]([^/]+/[^/]+?)(?:\.git)?/?$", remote)
+    return {
+        "host_os": host_os,
+        "host_arch": platform.machine().lower(),
+        "branch": branch,
+        "head": head,
+        "base_ref": base_ref,
+        "base_branch": base_branch,
+        "merge_base": merge_base,
+        "changed": changed,
+        "repo_slug": m.group(1) if m else None,
+        "remote": remote,
+    }
+
+
+def default_base(root):
+    head = common.git(["symbolic-ref", "--quiet", "--short", "refs/remotes/origin/HEAD"], cwd=root)
+    if head:
+        return head
+    for ref in ("origin/main", "origin/master", "origin/trunk", "main", "master"):
+        if common.git(["rev-parse", "--verify", "--quiet", ref], cwd=root):
+            return ref
+    return None
+
+
+# -- required checks ---------------------------------------------------------
+def required_checks(info, allow_network):
+    out = {"source": "unknown", "contexts": [], "notes": [], "summary": ""}
+    if not allow_network:
+        out["summary"] = "not queried (local only); every pull-request check runs"
+        return out
+    if not info["repo_slug"]:
+        out["summary"] = "unknown (origin is not a GitHub remote); treat every pull-request check as required"
+        return out
+    if not common.which("gh"):
+        out["summary"] = "unknown (gh is not installed); treat every pull-request check as required"
+        return out
+    slug, base = info["repo_slug"], info["base_branch"]
+    contexts = []
+    code, body, err = common.run(["gh", "api", "repos/%s/branches/%s/protection/required_status_checks" % (slug, base)], timeout=20)
+    if code == 0:
+        data = _json(body) or {}
+        contexts += list(data.get("contexts") or [])
+        contexts += [c.get("context") for c in data.get("checks") or [] if c.get("context")]
+        out["source"] = "branch protection"
+    else:
+        out["notes"].append("branch protection: %s" % (_gh_error(err) or "not readable"))
+    code, body, err = common.run(["gh", "api", "repos/%s/rules/branches/%s" % (slug, base)], timeout=20)
+    if code == 0:
+        for rule in _json(body) or []:
+            if rule.get("type") == "required_status_checks":
+                for item in (rule.get("parameters") or {}).get("required_status_checks") or []:
+                    contexts.append(item.get("context"))
+                out["source"] = "rulesets" if out["source"] == "unknown" else out["source"] + " + rulesets"
+            if rule.get("type") == "merge_queue":
+                out["notes"].append("a merge queue is enabled: checks also run on merge_group events")
+        if "rulesets" not in out["source"]:
+            out["notes"].append("rulesets: none require status checks on %s" % base)
+    else:
+        out["notes"].append("rulesets: %s" % (_gh_error(err) or "not readable"))
+    out["contexts"] = sorted(set(c for c in contexts if c))
+    if out["source"] == "unknown" and code == 0:
+        out["source"] = "none configured"
+    if out["contexts"]:
+        out["summary"] = ", ".join(out["contexts"])
+    else:
+        out["summary"] = "none enforced by GitHub; treat every pull-request check as required"
+    return out
+
+
+def _json(text):
+    import json
+    try:
+        return json.loads(text)
+    except ValueError:
+        return None
+
+
+def _gh_error(err):
+    line = (err or "").strip().splitlines()
+    return line[-1][:160] if line else None
+
+
+# -- assembly ------------------------------------------------------------------
+def finalize(root, info, checks, pins, mgr, required, state):
+    names = {}
+    for check in checks:
+        names.setdefault(check["name"], []).append(check)
+    ids = set()
+    for check in checks:
+        base_id = check["id"]
+        n = 2
+        while check["id"] in ids:
+            check["id"] = "%s-%d" % (base_id, n)
+            n += 1
+        ids.add(check["id"])
+    by_id = {c["id"]: c for c in checks}
+    results_dir = os.path.join(state, "results")
+    for check in checks:
+        check["needs"] = [n for n in check["needs"] if n in by_id]
+        commands = []
+        every_command = []
+        for step in check["steps"]:
+            if step.get("run") and step.get("local") == "run":
+                every_command.append(step["run"])
+                resolved = local_config.resolve_task(root, step.get("cwd") or ".", step["run"])
+                if resolved:
+                    step["resolves_to"] = [
+                        {"runner": r["runner"], "target": r["target"], "file": os.path.relpath(r["file"], root),
+                         "commands": r["commands"][:8]} for r in resolved
+                    ]
+                    for r in resolved:
+                        commands.extend(r["commands"])
+                        every_command.extend(r["commands"])
+                if step.get("kind") not in ("setup", "system-setup"):
+                    commands.append(step["run"])
+        check["phase"] = common.classify_phase(check["name"], commands)
+        check["weight"] = common.estimate_weight(check["phase"], check["services"], len(commands), check.get("timeout_minutes"))
+        check["weight_source"] = "estimated"
+        observed = common.read_json(os.path.join(results_dir, check["id"] + ".json"), None)
+        if observed and (observed.get("observed") or {}).get("weight"):
+            check["weight"] = observed["observed"]["weight"]
+            check["weight_source"] = "observed %s" % observed.get("finished_at", "")
+        resolve_toolchain(check, pins, mgr, every_command)
+        assess_local(check, info)
+        if check.get("path_filters"):
+            f = check["path_filters"]
+            hits = common.filter_paths(info["changed"], f.get("include"), f.get("exclude"))
+            check["triggered_by_diff"] = bool(hits)
+            check["diff_hits"] = hits[:20]
+        else:
+            check["triggered_by_diff"] = None
+        check["priority"] = "diff" if diff_relevant(check, info["changed"]) else "normal"
+        if required["source"] in ("unknown", "none configured"):
+            check["required"] = None
+        else:
+            check["required"] = check["name"] in required["contexts"]
+    matched = set(c["name"] for c in checks)
+    required["unmatched"] = [c for c in required["contexts"] if c not in matched]
+    order_checks(checks)
+
+
+TOOL_USE = {
+    "node": r"\b(node|npm|npx|pnpm|yarn|tsc|tsx|jest|vitest|eslint|prettier|next|vite|webpack|turbo|nx)\b",
+    "bun": r"\bbunx?\b",
+    "deno": r"\bdeno\b",
+    "python": r"\b(python3?|pip3?|pytest|tox|nox|mypy|ruff|flake8|black|isort|poetry|uv|pipenv|pyright|pylint)\b",
+    "go": r"(^|[\s;&|(])(go|gofmt|golangci-lint)\s",
+    "rust": r"\b(cargo|rustc|rustfmt)\b",
+    "java": r"\b(java|javac|mvn|gradle|gradlew|sbt|kotlinc)\b",
+    "ruby": r"\b(ruby|bundle|rake|rspec)\b",
+    "dotnet": r"\bdotnet\b",
+    "php": r"\b(php|composer)\b",
+    "swift": r"\b(swift|xcodebuild)\b",
+    "elixir": r"\b(mix|elixir)\b",
+    "terraform": r"\bterraform\b",
+    "opentofu": r"\btofu\b",
+    "pnpm": r"\bpnpm\b",
+    "yarn": r"\byarn\b",
+    "npm": r"\b(npm|npx)\b",
+    "uv": r"\buv\b",
+    "gradle": r"\bgradle\b",
+    "flutter": r"\bflutter\b",
+}
+
+
+def tools_used(commands):
+    text = "\n".join(commands)
+    return set(tool for tool, pattern in TOOL_USE.items() if re.search(pattern, text))
+
+
+def resolve_toolchain(check, pins, mgr, commands):
+    """Pin each tool to what CI installs. Explicit CI pins are always
+    verified; pins CI gets from a version manager or a version file are
+    verified only for tools the check's commands use."""
+    chain = check["toolchain"]
+    used = tools_used(commands)
+    explicit = set(chain)
+    managers = check.get("managers") or []
+    for tool, entry in list(chain.items()):
+        if entry.get("version") is None and entry.get("file"):
+            candidates = [p for p in pins.get(tool, []) if p["source"] == entry["file"] or p["source"].startswith(entry["file"])]
+            if candidates:
+                entry["version"] = candidates[0]["version"]
+    if managers:
+        for tool, entries in pins.items():
+            for p in entries:
+                if p["source"] == ".tool-versions" or "mise" in p["source"]:
+                    chain.setdefault(tool, {"version": p["version"], "source": "%s (installed by %s in CI)" % (p["source"], "/".join(managers))})
+    elif not explicit:
+        for tool, entries in pins.items():
+            exact = [p for p in entries if "range" not in p["source"]]
+            if exact and tool in used:
+                chain[tool] = {"version": exact[0]["version"], "source": exact[0]["source"] + " (CI does not install it explicitly)"}
+    for tool, entry in chain.items():
+        wanted = tool in explicit or tool in used
+        entry["verify"] = wanted and tool in VERSION_TOOLS and entry.get("version") not in (None, "", "latest", "lts/*", "stable", "nightly")
+        if check.get("matrix") and str(entry.get("version")) in [str(v) for v in check["matrix"].values()]:
+            continue  # a matrix leg pins its own version on purpose
+        others = [p for p in pins.get(tool, []) if p["version"] != entry.get("version")]
+        mismatched = [p for p in others if "range" not in p["source"] and not common.version_matches(entry.get("version"), p["version"], tool)[0]]
+        if mismatched:
+            entry["conflicts"] = ["%s says %s" % (p["source"], p["version"]) for p in mismatched]
+
+
+def assess_local(check, info):
+    blocked, limited = [], []
+    for reason in check["local"].get("reasons") or []:
+        (blocked if FATAL_REASON.search(reason) else limited).append(reason)
+    runnable_steps = [s for s in check["steps"] if s.get("local") == "run" and s.get("run")]
+    ci_only = [s for s in check["steps"] if s.get("local") == "ci-only"]
+    for s in ci_only:
+        limited.append("CI-only step %r: %s" % (s["name"], s.get("note") or ""))
+    work = [s for s in runnable_steps if s.get("kind") not in ("setup", "system-setup")]
+    if not work and not check.get("local_command"):
+        blocked.append("nothing to run locally" + (" (every step is CI-only)" if ci_only else ""))
+    missing = [s for s in check.get("secrets") or [] if not os.environ.get(s)]
+    if missing:
+        limited.append("needs secrets not set locally: %s" % ", ".join(missing))
+    unresolved = sorted(set(u for s in runnable_steps for u in s.get("unresolved") or []))
+    if unresolved:
+        limited.append("commands reference values only CI knows: %s" % ", ".join(unresolved[:6]))
+    if check["services"] and not common.which("docker"):
+        limited.append("needs services (%s) and docker is not installed" % ", ".join(s["name"] for s in check["services"]))
+    for s in runnable_steps:
+        for tool in s.get("requires") or []:
+            if tool and not common.which(tool):
+                limited.append("needs %s installed" % tool)
+    if check.get("vars"):
+        check["notes"].append("repository variables assumed unset locally: %s" % ", ".join(check["vars"]))
+    if not check.get("in_pr"):
+        status = "no" if blocked else ("partial" if limited else "yes")
+    else:
+        status = "no" if blocked else ("partial" if limited else "yes")
+    check["local"] = {"runnable": status, "blocked_by": blocked, "limited_by": sorted(set(limited))}
+
+
+def diff_relevant(check, changed):
+    if not changed:
+        return False
+    if check.get("triggered_by_diff"):
+        return True
+    dirs = set()
+    for s in check["steps"]:
+        cwd = (s.get("cwd") or ".").strip("./")
+        if cwd and not cwd.startswith("$"):
+            dirs.add(cwd + "/")
+    return any(f.startswith(d) for d in dirs for f in changed)
+
+
+def order_checks(checks):
+    phase_rank = {p: i for i, p in enumerate(common.PHASES)}
+    weight_rank = {w: i for i, w in enumerate(common.WEIGHTS)}
+
+    def key(c):
+        return (
+            0 if c["in_pr"] else 1,
+            phase_rank.get(c["phase"], 99),
+            0 if c["priority"] == "diff" else 1,
+            weight_rank.get(c["weight"], 1),
+            c["name"],
+        )
+
+    remaining = {c["id"]: c for c in checks}
+    done = set()
+    order = 1
+    while remaining:
+        ready = [c for c in remaining.values() if all(n in done or n not in remaining for n in c["needs"])]
+        if not ready:
+            ready = list(remaining.values())  # a cycle: fall back to the key order
+        nxt = min(ready, key=key)
+        nxt["order"] = order
+        order += 1
+        done.add(nxt["id"])
+        del remaining[nxt["id"]]
+    checks.sort(key=lambda c: c["order"])
+
+
+# -- overrides -----------------------------------------------------------------
+OVERRIDABLE = {"local_command", "covered_by", "cwd", "env", "weight", "phase", "services", "toolchain", "notes", "timeout_minutes"}
+
+
+def apply_overrides(checks, state):
+    path = os.path.join(state, "overrides.json")
+    data = common.read_json(path, None)
+    if not data:
+        return []
+    applied = []
+    by_id = {c["id"]: c for c in checks}
+    for check_id, fields in (data.get("checks") or {}).items():
+        check = by_id.get(check_id)
+        reason = (fields or {}).get("reason")
+        if not check:
+            common.warn("override for unknown check %s ignored" % check_id)
+            continue
+        if not reason:
+            common.warn("override for %s has no \"reason\"; ignored" % check_id)
+            continue
+        unknown = set(fields) - OVERRIDABLE - {"reason"}
+        if unknown:
+            common.warn("override for %s: fields %s cannot be overridden; ignored" % (check_id, ", ".join(sorted(unknown))))
+        if fields.get("covered_by") and fields["covered_by"] not in by_id:
+            common.warn("override for %s: covered_by %s is not a check; ignored" % (check_id, fields["covered_by"]))
+            continue
+        for key in OVERRIDABLE & set(fields):
+            if key == "covered_by":
+                check["covered_by"] = fields[key]
+                check["local"] = dict(check["local"], runnable="covered")
+            elif key == "local_command":
+                check["ci_steps"] = check["steps"]
+                check["steps"] = [common.step("local equivalent", fields[key], cwd=fields.get("cwd") or ".")]
+                check["local_command"] = fields[key]
+                check["local"] = {"runnable": "yes", "blocked_by": [], "limited_by": []}
+            elif key == "notes":
+                check["notes"].extend(fields[key])
+            else:
+                check[key] = fields[key]
+        check["override"] = {"reason": reason, "fields": sorted(OVERRIDABLE & set(fields))}
+        applied.append(check_id)
+    for extra in data.get("add") or []:
+        if not extra.get("id") or not extra.get("reason") or not extra.get("steps"):
+            common.warn("added check needs id, reason and steps; ignored: %r" % extra.get("id"))
+            continue
+        check = common.new_check("override", extra["id"], extra.get("name") or extra["id"], "overrides.json", ".ci-green/overrides.json")
+        check.update({k: v for k, v in extra.items() if k != "reason"})
+        check["steps"] = [common.step(s.get("name") or "step", s.get("run"), cwd=s.get("cwd") or ".") for s in extra["steps"]]
+        check["override"] = {"reason": extra["reason"], "fields": ["added"]}
+        checks.append(check)
+        applied.append(extra["id"])
+    return applied
+
+
+# -- hints ----------------------------------------------------------------------
+GATE_NAMES = re.compile(r"^(verify|ci|check|checks|validate|precommit|pre-commit|test:ci|ci:[\w:-]+|check:all|lint:all|all)$")
+
+
+RUNNER_CMD = re.compile(r"`((?:bun|bunx|npm|npx|pnpm|yarn|make|just|tox|nox|cargo|go|pytest|uv|poetry|mvn|gradle|\./gradlew|dotnet|mix|bundle|rake|turbo|nx|task|mise)\b[^`]*)`")
+
+
+def doc_mentions(root, sources):
+    """Lines in agent/contributor docs and CI comments that name a local gate."""
+    found = []
+    files = ["AGENTS.md", "CLAUDE.md", "CONTRIBUTING.md", "README.md", "docs/CONTRIBUTING.md", ".github/CONTRIBUTING.md"] + list(sources)
+    for name in files:
+        text = common.read_text(os.path.join(root, name)) or ""
+        lines = text.splitlines()
+        if not name.endswith(".md"):
+            # CI files: join wrapped comment lines so a sentence is read whole.
+            joined, buf = [], []
+            for raw in lines + [""]:
+                stripped = raw.strip()
+                if stripped.startswith("#") and stripped.lstrip("# "):
+                    buf.append(stripped.lstrip("# "))
+                    continue
+                if buf:
+                    joined.extend(" ".join(buf[i:i + 2]) for i in range(len(buf)))
+                    buf = []
+            lines = joined
+        for line in lines:
+            cmds = RUNNER_CMD.findall(line)
+            if not cmds:
+                continue
+            score = 2
+            if re.search(r"\blocal(ly)?\b|this machine|on your machine|before (you )?push", line, re.I):
+                score += 2
+            if re.search(r"\b(CI|gate|same|mirror|equivalent|verification|merge)\b", line):
+                score += 1
+            if re.search(r"runs? the same|same (gate|checks?|tasks?)|locally runs|run(s)? (it|this|them) locally", line, re.I):
+                score += 2
+            if score >= 4:
+                found.append({"score": score, "file": name, "commands": cmds[:3], "line": line.strip().lstrip("#-* ")[:200]})
+    found.sort(key=lambda d: -d["score"])
+    for d in found:
+        d.pop("score")
+    return found[:10]
+
+
+def gate_hints(root, sources):
+    hints = []
+    pkg = common.read_json(os.path.join(root, "package.json"), None)
+    if isinstance(pkg, dict):
+        pm = "npm run"
+        if isinstance(pkg.get("packageManager"), str):
+            pm = {"bun": "bun run", "pnpm": "pnpm run", "yarn": "yarn"}.get(pkg["packageManager"].split("@")[0], pm)
+        elif os.path.exists(os.path.join(root, "bun.lock")) or os.path.exists(os.path.join(root, "bun.lockb")):
+            pm = "bun run"
+        elif os.path.exists(os.path.join(root, "pnpm-lock.yaml")):
+            pm = "pnpm run"
+        elif os.path.exists(os.path.join(root, "yarn.lock")):
+            pm = "yarn"
+        for name, body in (pkg.get("scripts") or {}).items():
+            if GATE_NAMES.match(name):
+                hints.append({"command": "%s %s" % (pm, name), "source": "package.json", "runs": body[:200]})
+    for name in ("Makefile", "justfile", "Justfile"):
+        text = common.read_text(os.path.join(root, name)) or ""
+        for m in re.finditer(r"^(verify|ci|check|checks|validate|precommit|all)\s*:", text, re.M):
+            hints.append({"command": "%s %s" % ("make" if name == "Makefile" else "just", m.group(1)), "source": name})
+    return {"local_gates": hints, "doc_mentions": doc_mentions(root, sources)}
+
+
+# -- output ----------------------------------------------------------------------
+def print_plan(manifest, out):
+    w = out.write
+    info = manifest["repo"]
+    checks = manifest["checks"]
+    pr = [c for c in checks if c["in_pr"]]
+    w("ci-green discovery: %d checks from %d sources, %d run on pull requests\n" % (len(checks), len(manifest["sources"]), len(pr)))
+    w("  base %s (merge-base %s), %d changed files\n" % (info["base_ref"], (info["merge_base"] or "?")[:10], info["changed_count"]))
+    tc = manifest["toolchain"]
+    if tc["pins"]:
+        w("  toolchain%s: %s\n" % (" via " + tc["manager"]["name"] if tc["manager"] else "", ", ".join("%s %s" % (k, v) for k, v in sorted(tc["pins"].items()))))
+    for conflict in tc["conflicts"]:
+        w("  ! version conflict: %s\n" % conflict)
+    req = manifest["required"]
+    w("  required to merge: %s%s\n" % (req["summary"], " (%s)" % "; ".join(req["notes"]) if req["notes"] else ""))
+    if req.get("unmatched"):
+        w("  ! required contexts with no matching check: %s\n" % ", ".join(req["unmatched"]))
+    w("\n  %-3s %-10s %-7s %-8s %-4s %s\n" % ("#", "phase", "weight", "local", "req", "check (id)"))
+    for c in pr:
+        req_mark = {True: "yes", False: "-", None: "?"}[c["required"]]
+        if c.get("covered_by"):
+            w("  %-3d %-10s %-7s %-8s %-4s %s (%s)\n" % (c["order"], c["phase"], c["weight"], "covered", req_mark, c["name"], c["id"]))
+            w("        covered by %s locally: %s\n" % (c["covered_by"], c["override"]["reason"]))
+            continue
+        flag = "" if c["triggered_by_diff"] is not False else "  [path filter: not triggered by this diff]"
+        w("  %-3d %-10s %-7s %-8s %-4s %s (%s)%s\n" % (c["order"], c["phase"], c["weight"], c["local"]["runnable"], req_mark, c["name"], c["id"], flag))
+        work = [s for s in c["steps"] if s.get("local") == "run" and s.get("run") and s.get("kind") not in ("setup", "system-setup")]
+        if work:
+            main_cmd = " ".join(work[-1]["run"].split())
+            w("        run: %s%s\n" % (main_cmd[:110] + ("..." if len(main_cmd) > 110 else ""), " (last of %d steps)" % len(work) if len(work) > 1 else ""))
+        for reason in c["local"]["blocked_by"] + c["local"]["limited_by"]:
+            w("        - %s\n" % reason)
+    other = [c for c in checks if not c["in_pr"]]
+    if other:
+        w("\n  not run on pull requests (%d): %s\n" % (len(other), "; ".join(sorted(set("%s [%s]" % (c.get("workflow") or c["system"], c["trigger"]) for c in other)))))
+    if manifest["unparsed"]:
+        w("\n  ! could not read: %s\n" % ", ".join("%s (%s)" % (u["file"], u["reason"]) for u in manifest["unparsed"]))
+    for note in manifest["notes"]:
+        w("  note: %s\n" % note)
+    gates = manifest["hints"]["local_gates"]
+    if gates:
+        w("\n  local gate commands the repo defines: %s\n" % ", ".join(g["command"] for g in gates))
+    for mention in manifest["hints"]["doc_mentions"][:4]:
+        w("  docs name a local gate: %s: \"%s\"\n" % (mention["file"], mention["line"]))
+    if manifest["overrides"]:
+        w("  overrides applied: %s\n" % ", ".join(manifest["overrides"]))
+    w("\n  manifest: %s\n" % manifest["path"])
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    parser.add_argument("--base", help="base branch or ref (default: origin's default branch)")
+    parser.add_argument("--network", action="store_true", help="also ask GitHub which checks are required (informational)")
+    parser.add_argument("--json", action="store_true", help="print the manifest JSON instead of the plan")
+    parser.add_argument("--quiet", action="store_true", help="write the manifest, print nothing")
+    args = parser.parse_args()
+
+    root = common.repo_root()
+    state = common.state_dir(root)
+    info = repo_info(root, args.base)
+    pins = local_config.repo_pins(root)
+    mgr = local_config.manager(root)
+
+    gha = github_actions.Translator(root, info)
+    checks = gha.discover()
+    sources = list(gha.sources)
+    unparsed = list(gha.unparsed)
+    notes = list(gha.notes)
+    for fn in (other_ci.gitlab, other_ci.circleci, other_ci.buildkite, other_ci.azure, other_ci.jenkins):
+        res = fn(root, info)
+        checks += res.checks
+        sources += res.sources
+        unparsed += res.unparsed
+        notes += res.notes
+    ci_text = "\n".join(common.read_text(os.path.join(root, s)) or "" for s in sources)
+    hook_checks, hook_sources, hook_notes = local_config.hooks(root, info["changed"], ci_text)
+    checks += hook_checks
+    sources += hook_sources
+    notes += hook_notes
+    if not checks:
+        notes.append("no CI configuration found; only local hooks and task runners can be checked")
+    if os.path.exists(os.path.join(root, ".github", "CODEOWNERS")) or os.path.exists(os.path.join(root, "CODEOWNERS")):
+        notes.append("CODEOWNERS present: it decides required reviewers, not required checks")
+
+    required = required_checks(info, args.network)
+    finalize(root, info, checks, pins, mgr, required, state)
+    overrides = apply_overrides(checks, state)
+    if overrides:
+        order_checks(checks)
+
+    chosen = {}
+    conflicts = []
+    for c in checks:
+        for tool, entry in c["toolchain"].items():
+            if entry.get("version") and tool not in chosen:
+                chosen[tool] = entry["version"]
+            for conflict in entry.get("conflicts") or []:
+                text = "%s: CI uses %s but %s" % (tool, entry.get("version"), conflict)
+                if text not in conflicts:
+                    conflicts.append(text)
+
+    manifest = {
+        "version": MANIFEST_VERSION,
+        "generated_at": common.now_iso(),
+        "path": os.path.relpath(os.path.join(state, "checks.json"), root),
+        "repo": {
+            "root": root,
+            "branch": info["branch"],
+            "head": info["head"],
+            "base_ref": info["base_ref"],
+            "merge_base": info["merge_base"],
+            "changed_count": len(info["changed"]),
+            "changed": info["changed"][:MAX_CHANGED],
+            "host_os": info["host_os"],
+            "host_arch": info["host_arch"],
+            "github": info["repo_slug"],
+        },
+        "toolchain": {"manager": mgr, "pins": chosen, "repo_files": pins, "conflicts": conflicts},
+        "required": required,
+        "sources": sorted(set(sources)),
+        "unparsed": unparsed,
+        "notes": notes,
+        "hints": gate_hints(root, sorted(set(sources))),
+        "overrides": overrides,
+        "checks": checks,
+    }
+    common.write_json(os.path.join(state, "checks.json"), manifest)
+    if args.json:
+        import json
+        json.dump(manifest, sys.stdout, indent=2)
+        sys.stdout.write("\n")
+    elif not args.quiet:
+        print_plan(manifest, sys.stdout)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

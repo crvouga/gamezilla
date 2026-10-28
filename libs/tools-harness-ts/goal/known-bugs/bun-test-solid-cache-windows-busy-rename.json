@@ -1,0 +1,4 @@
+{
+  "summary": "Windows refuses to rename the Solid test preload's Babel cache entry onto one another test worker or realm thread is replacing or reading (EPERM), so a module load that missed the cache at the same moment failed there (native synthetic-population realms died loading their screens); a busy entry is already filled with the same content-addressed bytes, so the miss drops its tmp file and still returns the transform.",
+  "regressionTest": "pkgs/bun-test-solid-client-ts/tests/cache-file.test.ts"
+}

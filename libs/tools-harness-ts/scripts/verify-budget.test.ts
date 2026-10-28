@@ -201,8 +201,11 @@ describe('resolveRunDeadlineSeconds', () => {
       'utf8'
     );
     // regression: verify-chrome-apt-stalls-pr-gate
-    expect(renderer).toContain('install-dependencies: false');
-    expect(renderer).not.toContain('install-dependencies: true');
+    expect(renderer).not.toMatch(/apt-get|install-dependencies: true/);
+    // regression: windows-chrome-installer-needs-pwsh
+    // mise unpacks the pinned Chrome on every OS; no installer action.
+    expect(renderer).toContain('mise install http:chrome-for-testing');
+    expect(renderer).not.toContain('setup-chrome');
   });
 
   test('only a small CI runner is slow; a warm one keeps the five-minute ceiling', () => {

@@ -28,6 +28,7 @@
     "@pkgs/db-schema-sqlite-shared-ts": "workspace:*",
     "@pkgs/harness-root-shared-ts": "workspace:*",
     "@pkgs/http-client-shared-ts": "workspace:*",
+    "@pkgs/os-shared-ts": "workspace:*",
     "@pkgs/pubsub-root-shared-ts": "workspace:*",
     "@pkgs/sql-client-root-shared-ts": "workspace:*",
     "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",

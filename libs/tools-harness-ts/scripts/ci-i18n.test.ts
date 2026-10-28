@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { scratchConfigSource } from './ci-i18n';
+import { linguiCommand, scratchConfigSource } from './ci-i18n';
 import {
   LINGUI_CATALOG_SOURCES,
   macrosOutsideCatalog,
@@ -56,4 +56,17 @@ test('the freshness verification regenerates into scratch, never the committed c
   );
   expect(source).not.toContain('libs/app-root-shared-ts/locales');
   expect(source).toContain('rootDir: "/repo"');
+});
+
+test('the Lingui subcommands run as scripts under this Bun, never through bunx', () => {
+  // regression: ci-i18n-bunx-reads-extractor-path-as-package
+  const dist = 'C:/repo/node_modules/@lingui/cli/dist';
+  const command = linguiCommand('C:/bun/bun.exe', dist, 'extract', ['--clean']);
+  expect(command.cmd).toBe('C:/bun/bun.exe');
+  expect(command.args[0]?.replaceAll('\\', '/')).toBe(
+    `${dist}/lingui-extract.js`
+  );
+  expect(command.args.slice(1)).toEqual(['--clean']);
+  expect(command.cmd).not.toContain('bunx');
+  expect(command.args).not.toContain('lingui');
 });

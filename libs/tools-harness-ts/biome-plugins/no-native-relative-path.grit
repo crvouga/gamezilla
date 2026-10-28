@@ -1,0 +1,11 @@
+language js
+
+// Perf: a whole-file substring test gates the tree walk.
+file($body) where {
+  $body <: includes "node:path",
+  $body <: includes "relative(",
+  $body <: contains bubble `relative($from, $to)` as $call where {
+    $call <: not within `slashPath($_)` ,
+    register_diagnostic(span=$call, message="node:path relative() returns backslash paths on Windows — wrap it: slashPath(relative(...)) from @pkgs/os-shared-ts/slash-path, so CI behaves the same on every OS.", severity="error")
+  }
+}

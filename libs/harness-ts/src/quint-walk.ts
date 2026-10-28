@@ -15,6 +15,7 @@
 
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { lastSegment } from '@pkgs/os-shared-ts/slash-path';
 import { simulate } from '@pkgs/quint-server-ts/simulate';
 import type { ItfState, ItfTrace } from '@pkgs/quint-shared-ts/itf';
 import { quintEqual } from '@pkgs/quint-shared-ts/itf';
@@ -59,7 +60,7 @@ export function reaches(trace: ItfTrace, actions: readonly string[]): number {
 const REPO_ROOT = join(import.meta.dir, '../../..');
 
 function modelOf(specUri: string): string {
-  return (specUri.split('/').pop() ?? specUri).replace(/\.qnt$/, '');
+  return lastSegment(specUri).replace(/\.qnt$/, '');
 }
 
 /** The best-scoring trace (the first such, in draw order). */

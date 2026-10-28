@@ -1,0 +1,163 @@
+#!/usr/bin/env python3
+"""Review the branch's diff against the hard rules before reporting green.
+
+Scans every added line (committed, staged, unstaged and untracked) since the
+merge-base with the base branch, and every changed path, for the ways a check
+gets weakened instead of fixed: suppressions, skipped or focused tests,
+swallowed errors, retries, raised timeouts, bypassed hooks, softened CI or
+lint/type/coverage config, snapshot and dependency changes, debug leftovers,
+local paths and secrets.
+
+  violation  breaks a hard rule; remove it, or justify it as a root-cause fix
+             a careful senior reviewer would accept
+  review     allowed only with a stated reason in the report
+
+Usage:
+  audit-diff [--base REF] [--json] [--exclude GLOB ...]
+
+Exit status: 0 nothing flagged as a violation; 1 violations found.
+"""
+
+import argparse
+import json
+import os
+import re
+import sys
+
+sys.dont_write_bytecode = True
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), "lib"))
+
+import common
+
+LINE_RULES = [
+    # (severity, category, regex)
+    ("violation", "suppression", r"eslint-disable|oxlint-disable|biome-ignore|@ts-ignore|@ts-expect-error|@ts-nocheck|#\s*noqa\b|#\s*type:\s*ignore|#!?\[allow\(|#\[cfg_attr\([^)]*allow|//\s*nolint|@SuppressWarnings|pylint:\s*disable|rubocop:disable|swiftlint:disable|@phpstan-ignore|psalm-suppress|deno-lint-ignore|istanbul ignore|c8 ignore|v8 ignore|pragma:\s*no cover|NOLINT|\$FlowFixMe|@ts-check\s*false|staticcheck:ignore|lint:ignore|detekt:suppress"),
+    ("violation", "skipped-test", r"\b(it|test|describe|suite|context|specify)\.(skip|only|todo|failing|fixme)\s*\(|\b(xit|xtest|xdescribe|fit|fdescribe|xcontext)\s*\(|@pytest\.mark\.(skip|skipif|xfail)|pytest\.(skip|xfail)\(|@unittest\.(skip|expectedFailure)|\bt\.Skip(Now|f)?\(|#\[ignore\]|@(Disabled|Ignore)\b|\.skip\(\)|test\.describe\.(skip|only|fixme)|\bpending\s*\(|\bskip:\s*true\b"),
+    ("violation", "bypass", r"--no-verify\b|\bHUSKY=0\b|\bSKIP=[\w,-]+\s+git\b|\[skip ci\]|\[ci skip\]|LEFTHOOK=0|--no-hooks\b"),
+    ("violation", "swallowed-error", r"except\s*:\s*(pass)?\s*$|except\s+(Base)?Exception(\s+as\s+\w+)?\s*:\s*pass\b|catch\s*(\(\s*\w*\s*\))?\s*\{\s*\}|\|\|\s*true\s*$|\|\|\s*:\s*$|;\s*true\s*$|\bset\s+\+e\b|_\s*=\s*err\b|\.catch\(\s*\(\)\s*=>\s*(\{\s*\}|undefined|null)\s*\)|rescue\s*(=>\s*\w+\s*)?$|\bcontinue-on-error:\s*true|\ballow_failure:\s*true|\bsoft_fail:\s*true"),
+    ("violation", "retry", r"jest\.retryTimes|retries\s*[:=]\s*[1-9]|--reruns?\b|\bflaky\b|@flaky|pytest-rerunfailures|\bretry\s*[:=(]\s*[1-9]|\.retries\(\s*[1-9]|maxRetries\s*[:=]\s*[1-9]|nick-fields/retry|\beventually\(|until.*succeeds"),
+    ("violation", "secret", r"AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|\bgh[pousr]_[A-Za-z0-9]{30,}|\bxox[abpr]-[A-Za-z0-9-]{10,}|\bsk-[A-Za-z0-9]{32,}|(?i:api[_-]?key|secret|token|passw(?:or)?d)\s*[:=]\s*['\"][^'\"\s$]{16,}['\"]"),
+    ("violation", "local-path", r"/Users/[A-Za-z][\w.-]+/|/home/[a-z][\w.-]+/|[A-Z]:\\\\Users\\\\|/private/var/folders/|/tmp/[\w.-]+/[\w.-]+"),
+    ("review", "timeout", r"(?i)\btimeout\w*\s*[:=(]|setTimeout\(|jest\.setTimeout|\.timeout\(|timeout-minutes|--timeout\b|pytest\.mark\.timeout|time\.sleep\(|\bsleep\s+\d|deadline\s*[:=]"),
+    ("review", "debug-leftover", r"\bconsole\.(log|debug|trace)\(|\bdebugger;|\bbreakpoint\(\)|pdb\.set_trace|import pdb|\bdbg!\(|binding\.pry|\bbyebug\b|\bdump\(|print\(\s*['\"]DEBUG|fmt\.Print(ln|f)?\(\s*\"DEBUG|\bXXX\b|\bHACK\b|TODO\(ci-green\)"),
+    ("review", "snapshot-update", r"--updateSnapshot|-u\b.*(jest|vitest)|--update-snapshots|cargo insta accept|UPDATE_SNAPSHOTS=|--snapshot-update"),
+]
+
+PATH_RULES = [
+    ("review", "ci-config", r"^\.github/workflows/|^\.github/actions/|^\.gitlab-ci\.yml$|^\.gitlab/|^\.circleci/|^\.buildkite/|^azure-pipelines|^\.azure-pipelines/|^Jenkinsfile|^\.pre-commit-config\.ya?ml$|lefthook\.ya?ml$|^\.husky/"),
+    ("review", "check-config", r"(^|/)(\.eslintrc[\w.]*|eslint\.config\.[cm]?[jt]s|biome\.jsonc?|oxlint[\w.-]*|\.oxlintrc[\w.]*|tsconfig[\w.-]*\.json|jsconfig\.json|\.prettierrc[\w.]*|prettier\.config\.[cm]?js|\.flake8|setup\.cfg|tox\.ini|mypy\.ini|\.mypy\.ini|pyrightconfig\.json|ruff\.toml|\.ruff\.toml|\.pylintrc|\.golangci\.ya?ml|clippy\.toml|rustfmt\.toml|\.rubocop\.yml|\.swiftlint\.yml|detekt\.yml|checkstyle\.xml|\.editorconfig|\.stylelintrc[\w.]*|\.markdownlint[\w.]*|\.yamllint[\w.]*|jest\.config\.[cm]?[jt]s|vitest\.config\.[cm]?[jt]s|playwright\.config\.[cm]?[jt]s|pytest\.ini|conftest\.py|\.coveragerc|codecov\.ya?ml|\.nycrc[\w.]*|karma\.conf\.js|bunfig\.toml|turbo\.json|nx\.json)$"),
+    ("review", "dependencies", r"(^|/)(package\.json|package-lock\.json|bun\.lockb?|pnpm-lock\.yaml|yarn\.lock|requirements[\w.-]*\.txt|poetry\.lock|Pipfile(\.lock)?|uv\.lock|pyproject\.toml|go\.mod|go\.sum|Cargo\.toml|Cargo\.lock|Gemfile(\.lock)?|composer\.(json|lock)|build\.gradle(\.kts)?|pom\.xml|Package\.(swift|resolved)|mix\.(exs|lock))$"),
+    ("review", "snapshot", r"(__snapshots__/|\.snap$|\.snapshot$|__file_snapshots__/|/snapshots/|\.golden$|/testdata/.*\.(golden|out|expected)$|\.approved\.)"),
+    ("review", "toolchain-pin", r"(^|/)(\.nvmrc|\.node-version|\.python-version|\.ruby-version|\.tool-versions|mise\.toml|\.mise\.toml|rust-toolchain(\.toml)?|go\.work|global\.json|\.java-version|\.sdkmanrc)$"),
+    ("violation", "secret-file", r"(^|/)(\.env(\.[\w-]+)?|id_rsa|id_ed25519|[\w-]+\.pem|[\w-]+\.p12|[\w-]+\.key|credentials\.json|service-account[\w-]*\.json)$"),
+]
+
+DELETED_TEST = re.compile(r"(^|/)(tests?|__tests__|spec|specs)/|(_test|\.test|\.spec|_spec)\.\w+$|(^|/)test_\w+\.py$")
+
+
+def changed_files(root, base):
+    out = {}
+    diff = common.git(["diff", "--name-status", "-M", base], cwd=root) or ""
+    for line in diff.splitlines():
+        parts = line.split("\t")
+        if len(parts) >= 2:
+            out[parts[-1]] = parts[0][0]
+    untracked = common.git(["ls-files", "--others", "--exclude-standard"], cwd=root) or ""
+    for path in untracked.splitlines():
+        if path:
+            out.setdefault(path, "A")
+    return out
+
+
+def added_lines(root, base, path, status):
+    if status == "A" and not common.git(["ls-files", "--error-unmatch", path], cwd=root):
+        text = common.read_text(os.path.join(root, path), limit=500_000)
+        if text is None or "\0" in text[:4096]:
+            return []
+        return list(enumerate(text.splitlines(), 1))
+    diff = common.git(["diff", "-U0", base, "--", path], cwd=root, timeout=60) or ""
+    out = []
+    line_no = 0
+    for line in diff.splitlines():
+        m = re.match(r"^@@ -\d+(?:,\d+)? \+(\d+)", line)
+        if m:
+            line_no = int(m.group(1))
+            continue
+        if line.startswith("+") and not line.startswith("+++"):
+            out.append((line_no, line[1:]))
+            line_no += 1
+    return out
+
+
+def removed_lines(root, base, path):
+    diff = common.git(["diff", "-U0", base, "--", path], cwd=root, timeout=60) or ""
+    return [l[1:] for l in diff.splitlines() if l.startswith("-") and not l.startswith("---")]
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    parser.add_argument("--base", help="base ref (default: the manifest's merge-base, else origin's default branch)")
+    parser.add_argument("--exclude", action="append", default=[], help="glob of paths to skip (repeatable)")
+    parser.add_argument("--json", action="store_true")
+    args = parser.parse_args()
+    root = common.repo_root()
+    manifest = common.read_json(os.path.join(common.state_dir(root), "checks.json"), {}) or {}
+    base = args.base or (manifest.get("repo") or {}).get("merge_base")
+    if not base:
+        ref = common.git(["symbolic-ref", "--quiet", "--short", "refs/remotes/origin/HEAD"], cwd=root) or "origin/main"
+        base = common.git(["merge-base", "HEAD", ref], cwd=root)
+    if not base:
+        common.die("cannot find the merge-base; pass --base")
+    skill_dir = os.path.relpath(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), root)
+    excludes = list(args.exclude)
+    if not skill_dir.startswith(".."):
+        excludes.append(skill_dir.rstrip("/") + "/**")  # this skill documents the patterns it bans
+    findings = []
+    files = changed_files(root, base)
+    for path, status in sorted(files.items()):
+        if any(common.path_matches(path, g) for g in excludes):
+            continue
+        for severity, category, pattern in PATH_RULES:
+            if re.search(pattern, path):
+                findings.append({"severity": severity, "category": category, "file": path, "line": None,
+                                 "text": "%s %s" % ({"A": "added", "D": "deleted", "M": "modified", "R": "renamed"}.get(status, status), path)})
+        if status == "D" and DELETED_TEST.search(path):
+            findings.append({"severity": "violation", "category": "deleted-test", "file": path, "line": None, "text": "test file deleted"})
+            continue
+        if status == "D":
+            continue
+        for line_no, text in added_lines(root, base, path, status):
+            for severity, category, pattern in LINE_RULES:
+                if re.search(pattern, text):
+                    findings.append({"severity": severity, "category": category, "file": path, "line": line_no, "text": text.strip()[:200]})
+        if DELETED_TEST.search(path) and status == "M":
+            removed = removed_lines(root, base, path)
+            gone = [l for l in removed if re.search(r"\b(it|test|describe|def test_|func Test|#\[test\])\b", l)]
+            if gone:
+                findings.append({"severity": "review", "category": "removed-test-case", "file": path, "line": None,
+                                 "text": "%d test declaration line(s) removed, e.g. %s" % (len(gone), gone[0].strip()[:120])})
+    violations = [f for f in findings if f["severity"] == "violation"]
+    if args.json:
+        print(json.dumps({"base": base, "files_changed": len(files), "findings": findings}, indent=2))
+    else:
+        stat = common.git(["diff", "--stat", base], cwd=root) or ""
+        print("diff against %s: %d files changed (incl. untracked)" % (base[:10], len(files)))
+        if stat:
+            print(stat.splitlines()[-1].strip())
+        if not findings:
+            print("no findings")
+        for severity in ("violation", "review"):
+            group = [f for f in findings if f["severity"] == severity]
+            if not group:
+                continue
+            print("\n%s (%d):" % (severity.upper(), len(group)))
+            for f in group:
+                where = "%s:%s" % (f["file"], f["line"]) if f["line"] else f["file"]
+                print("  [%s] %s  %s" % (f["category"], where, f["text"]))
+        if violations:
+            print("\nEvery violation is removed, or explained in the report as a root-cause fix.")
+    return 1 if violations else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

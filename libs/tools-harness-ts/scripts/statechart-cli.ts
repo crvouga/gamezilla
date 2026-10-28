@@ -6,6 +6,7 @@ import { loadSpecDirectory, machineToScxml } from '@crvouga/atlas';
 import { StateNodeSchema } from '@crvouga/atlas/schema';
 import { run } from '@pkgs/os-server-ts/command';
 import { startProcess } from '@pkgs/os-server-ts/streaming-process';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { analyzeStatecharts } from './statechart-analysis';
 import { productContracts } from './statechart-contracts';
 import { statechartExplorerFlags } from './statechart-explorer-options';
@@ -42,6 +43,7 @@ function sourceFiles(): Map<string, string> {
       }),
     ]
       .sort()
+      .map(slashPath)
       .map((path) => [
         `specs/${path}`,
         readFileSync(join(ROOT, 'specs', path), 'utf8'),
@@ -61,9 +63,12 @@ function sourceFiles(): Map<string, string> {
   }
   const routes = new Set([
     ...PRODUCT_ROUTE_ROOTS,
-    ...new Bun.Glob('libs/*-client-ts/src/sub-client.{ts,tsx}').scanSync({
-      cwd: ROOT,
-    }),
+    ...Array.from(
+      new Bun.Glob('libs/*-client-ts/src/sub-client.{ts,tsx}').scanSync({
+        cwd: ROOT,
+      }),
+      slashPath
+    ),
     'libs/game-menu-client-ts/src/personal-puzzle-stats-clients.tsx',
     'libs/game-puzzle-client-ts/src/puzzle-link-client.ts',
     'libs/game-puzzle-shared-ts/src/puzzle-link.ts',

@@ -4,7 +4,7 @@ description: "Drive every CI workflow — Verify PR, Verify Nightly, Deploy, Hea
 
 <!-- generated from .agents/commands by `bun run agents:sync` — do not edit -->
 
-Run the `/ci-green` command. Its single source of truth is `.agents/commands/ci-green.md`.
+Run the `/ci-workflows-green` command. Its single source of truth is `.agents/commands/ci-workflows-green.md`.
 
 Read that file in full now and follow it exactly. Treat any text the user
 typed after the command as its arguments.

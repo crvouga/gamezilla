@@ -1,0 +1,4 @@
+{
+  "summary": "A snapshot id containing `\\` reached into a subdirectory on Windows; only `/` was refused.",
+  "regressionTest": "libs/harness-ts/tests/snapshot-fixture.test.ts"
+}

@@ -4,6 +4,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { parseObjectiveFiles } from '@libs/observability-shared-ts/objective-files';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 export const REPO_ROOT = resolve(import.meta.dir, '../../..');
 
@@ -20,7 +21,7 @@ export function objectiveTexts(): { path: string; text: string }[] {
       if (!file.endsWith('.openslo.yaml')) continue;
       const full = join(specs, context.name, file);
       out.push({
-        path: relative(REPO_ROOT, full),
+        path: slashPath(relative(REPO_ROOT, full)),
         text: readFileSync(full, 'utf8'),
       });
     }

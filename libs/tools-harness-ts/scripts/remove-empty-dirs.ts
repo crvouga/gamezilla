@@ -11,7 +11,8 @@
  * them under a live stack makes every checkpoint fail.
  */
 import { readdirSync, rmdirSync, statSync, unlinkSync } from 'node:fs';
-import { join, relative, sep } from 'node:path';
+import { join, relative } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 
@@ -63,7 +64,7 @@ function listIgnoredDirs(): Set<string> {
 const IGNORED_DIRS = listIgnoredDirs();
 
 function isIgnoredDir(path: string): boolean {
-  const rel = relative(REPO_ROOT, path).split(sep).join('/');
+  const rel = slashPath(relative(REPO_ROOT, path));
   return IGNORED_DIRS.has(`${rel}/`);
 }
 
@@ -119,7 +120,9 @@ function pruneEmpty(dir: string, isRoot: boolean): void {
 
   try {
     rmdirSync(dir);
-    process.stdout.write(`removed empty dir ${relative(REPO_ROOT, dir)}\n`);
+    process.stdout.write(
+      `removed empty dir ${slashPath(relative(REPO_ROOT, dir))}\n`
+    );
   } catch {
     // raced or not empty anymore
   }

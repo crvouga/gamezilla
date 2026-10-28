@@ -1,4 +1,4 @@
-import { join } from 'node:path';
+import { join, sep } from 'node:path';
 
 const TEST_GLOB = new Bun.Glob('**/*.test.{ts,tsx}');
 
@@ -14,10 +14,12 @@ const PBT_MARKERS = [
 export async function discoverPbtTests(repoRoot: string): Promise<string[]> {
   const files: string[] = [];
   for (const base of ['pkgs', 'libs'] as const) {
-    for await (const rel of TEST_GLOB.scan({
+    for await (const scanned of TEST_GLOB.scan({
       cwd: join(repoRoot, base),
       onlyFiles: true,
     })) {
+      // Scans yield native separators; selections are repo-relative POSIX.
+      const rel = scanned.split(sep).join('/');
       // Skip harness and contract paths; PBT lives in unit/scenario suites.
       if (
         rel.includes('/tests/harness/') ||
@@ -28,7 +30,7 @@ export async function discoverPbtTests(repoRoot: string): Promise<string[]> {
       const abs = join(repoRoot, base, rel);
       const text = await Bun.file(abs).text();
       if (PBT_MARKERS.some((m) => text.includes(m))) {
-        files.push(join(base, rel));
+        files.push(`${base}/${rel}`);
       }
     }
   }

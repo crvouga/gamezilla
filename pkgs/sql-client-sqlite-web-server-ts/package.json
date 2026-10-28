@@ -17,6 +17,7 @@
     "test": "bun test tests"
   },
   "dependencies": {
+    "@pkgs/os-shared-ts": "workspace:*",
     "@pkgs/sql-client-root-shared-ts": "workspace:*",
     "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",
     "@pkgs/sql-client-sqlite-web-shared-ts": "workspace:*",

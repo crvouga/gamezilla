@@ -1,0 +1,4 @@
+{
+  "summary": "Bun hands plugins `\\`-separated paths on Windows, so the framework-independence isolation filters matched nothing and every isolation check failed (Verify run 40571328806).",
+  "regressionTest": "libs/games-harness-ts/tests/independence-path-pattern.test.ts"
+}

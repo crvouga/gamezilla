@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { join } from 'node:path';
 import type { PrefetchIo } from './turbo-preflight';
 import {
   artifactUrl,
@@ -8,6 +9,7 @@ import {
   readsRemoteCache,
   resolveRemoteHits,
   restoreEveryHit,
+  retryRateLimited,
 } from './turbo-preflight';
 
 function dryRun(tasks: readonly unknown[]): string {
@@ -202,17 +204,23 @@ function memoryIo(remote: Record<string, string>): {
   return { io, files, fetches };
 }
 
+// prefetchArtifacts builds native paths; the fake store keys must match.
+const CACHE = join('/', 'cache');
+function cached(name: string): string {
+  return join(CACHE, name);
+}
+
 describe('prefetchArtifacts', () => {
   test('writes turbo local-cache layout: tar then meta', async () => {
     const { io, files } = memoryIo({ aaa: 'tar-bytes' });
-    const result = await prefetchArtifacts(['aaa'], '/cache', io, 4);
+    const result = await prefetchArtifacts(['aaa'], CACHE, io, 4);
     expect(result).toEqual({ fetched: 1, failed: 0 });
     expect([...files.keys()]).toEqual([
-      '/cache/aaa.tar.zst',
-      '/cache/aaa-meta.json',
+      cached('aaa.tar.zst'),
+      cached('aaa-meta.json'),
     ]);
-    expect(files.get('/cache/aaa.tar.zst')).toBe('tar-bytes');
-    expect(JSON.parse(files.get('/cache/aaa-meta.json') ?? '')).toEqual({
+    expect(files.get(cached('aaa.tar.zst'))).toBe('tar-bytes');
+    expect(JSON.parse(files.get(cached('aaa-meta.json')) ?? '')).toEqual({
       hash: 'aaa',
       duration: 0,
     });
@@ -220,27 +228,27 @@ describe('prefetchArtifacts', () => {
 
   test('skips hashes already cached locally', async () => {
     const { io, files, fetches } = memoryIo({ aaa: 'new' });
-    files.set('/cache/aaa.tar.zst', 'old');
-    const result = await prefetchArtifacts(['aaa'], '/cache', io, 4);
+    files.set(cached('aaa.tar.zst'), 'old');
+    const result = await prefetchArtifacts(['aaa'], CACHE, io, 4);
     expect(result).toEqual({ fetched: 1, failed: 0 });
     expect(fetches).toEqual([]);
-    expect(files.get('/cache/aaa.tar.zst')).toBe('old');
+    expect(files.get(cached('aaa.tar.zst'))).toBe('old');
   });
 
   test('counts missing and failing artifacts without writing them', async () => {
     const { io, files } = memoryIo({ aaa: 'a', ccc: 'c' });
     const result = await prefetchArtifacts(
       ['aaa', 'gone', 'boom', 'ccc'],
-      '/cache',
+      CACHE,
       io,
       2
     );
     expect(result).toEqual({ fetched: 2, failed: 2 });
     expect([...files.keys()].sort()).toEqual([
-      '/cache/aaa-meta.json',
-      '/cache/aaa.tar.zst',
-      '/cache/ccc-meta.json',
-      '/cache/ccc.tar.zst',
+      cached('aaa-meta.json'),
+      cached('aaa.tar.zst'),
+      cached('ccc-meta.json'),
+      cached('ccc.tar.zst'),
     ]);
   });
 });
@@ -332,5 +340,55 @@ describe('resolveRemoteHits', () => {
       '@pkgs/a#test',
       '@pkgs/b#tc',
     ]);
+  });
+});
+
+describe('retryRateLimited', () => {
+  // regression: vercel-remote-cache-rate-limited-misses
+  test('a 429 is retried, after Retry-After, until the cache answers', async () => {
+    const statuses = [429, 429, 200];
+    const waits: number[] = [];
+    const res = await retryRateLimited(
+      async () =>
+        new Response(null, {
+          status: statuses.shift()!,
+          headers: { 'retry-after': '2' },
+        }),
+      async (ms) => {
+        waits.push(ms);
+      }
+    );
+    expect(res.status).toBe(200);
+    expect(waits).toEqual([2000, 2000]);
+  });
+
+  test('without Retry-After it backs off, and gives up after its attempts', async () => {
+    const waits: number[] = [];
+    let calls = 0;
+    const res = await retryRateLimited(
+      async () => {
+        calls += 1;
+        return new Response(null, { status: 429 });
+      },
+      async (ms) => {
+        waits.push(ms);
+      },
+      3
+    );
+    expect(res.status).toBe(429);
+    expect(calls).toBe(3);
+    expect(waits).toEqual([250, 500]);
+  });
+
+  test('a miss or a hit is never retried', async () => {
+    for (const status of [200, 404]) {
+      let calls = 0;
+      const res = await retryRateLimited(async () => {
+        calls += 1;
+        return new Response(null, { status });
+      });
+      expect(res.status).toBe(status);
+      expect(calls).toBe(1);
+    }
   });
 });

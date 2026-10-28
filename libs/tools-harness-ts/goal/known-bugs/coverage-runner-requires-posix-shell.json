@@ -1,0 +1,4 @@
+{
+  "summary": "The coverage runner executed package test script segments with `sh -c`, which does not exist on native Windows runners.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-coverage.test.ts"
+}

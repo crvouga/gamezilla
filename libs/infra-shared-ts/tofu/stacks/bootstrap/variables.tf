@@ -108,6 +108,10 @@ variable "shared_data" {
   type = object({ account_id = string, bucket = string })
 }
 
+variable "ci_artifacts" {
+  type = object({ account_id = string, bucket = string, retention_days = number })
+}
+
 variable "alerting" {
   description = "Stack-wide alerting (stacks/bootstrap/alerting.tf). Routing stays off while the responder or the digest address is null."
   type = object({

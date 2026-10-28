@@ -1,11 +1,11 @@
 # CI requirements
 
-Capacity plan for proposed self-hosted pull-request verifications. The current workflow uses GitHub-hosted shards; this document sizes a warm pool and does not provision infrastructure. The measured section is generated from [`libs/tools-harness-ts/scripts/verify-task-costs.json`](../libs/tools-harness-ts/scripts/verify-task-costs.json) and the workspace graph. [`libs/tools-harness-ts/scripts/ci-load.test.ts`](../libs/tools-harness-ts/scripts/ci-load.test.ts) fails when that section drifts, or when the corpus no longer fits the runner below.
+Capacity plan for self-hosted pull-request verifications. Every workflow job runs on any self-hosted runner, Linux, macOS or Windows ([below](#runner-operating-systems)); this document sizes a warm pool and does not provision infrastructure. The measured section is generated from [`libs/tools-harness-ts/scripts/verify-task-costs.json`](../libs/tools-harness-ts/scripts/verify-task-costs.json) and the workspace graph. [`libs/tools-harness-ts/scripts/ci-load.test.ts`](../libs/tools-harness-ts/scripts/ci-load.test.ts) fails when that section drifts, or when the corpus no longer fits the runner below.
 
 Refresh after a cold Verify harvest:
 
 ```bash
-bun run libs/tools-harness-ts/scripts/verify-task-costs.ts --harvest <run id>
+bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/verify-task-costs.ts --harvest <run id>
 bun run libs/tools-harness-ts/scripts/ci-load.ts --write
 ```
 
@@ -50,6 +50,36 @@ The runner is GitHub-hosted `ubuntu-24.04`: 2 cores, about 7 GB, 32 shards, `VER
 Other runs that week sat in the hosted queue for 10 to 30 minutes before a job started. Several posted a green `verify` job while the plan and shard jobs were skipped. That green is an empty status, not a finished corpus.
 
 The structure sets a floor near five minutes before any uncached test runs: a plan job, a per-machine install on every shard, a barrier on the slowest shard, and an artifact fan-in. Adding shards does not remove that floor. The five-minute promise needs warm checkouts and one schedule across the allocated machines below.
+
+## Runner operating systems
+
+Every job requests `runs-on: self-hosted` and runs its `run:` steps in bash, so any free self-hosted runner takes it, whatever its OS. Verify PR's `verify:shards` and `verify:end` also request the `runner.os` and `runner.arch` that `verify:start` ran on: a plan holds for the platform it was made on, and `verify-shard-run.ts` refuses any other. Turbo's platform cache key (OS, arch, Bun, Chrome) keeps one OS's verdict from answering for another, so a run on a different OS from the pull request's run executes its tasks again.
+
+Setup installs everything else from `mise.toml` the same way on every OS, Chrome for Testing included (`http:chrome-for-testing`); it never caches the linked `node_modules` trees, and never installs the laptop-only coding-agent tools (`MISE_DISABLE_TOOLS`). Each runner needs, beyond the runner service:
+
+- **Any OS:** git, bash and `gh` on the service's PATH. Deploy's wait-for-Health and release steps run before setup installs the pinned tools.
+- **Linux:** Chrome's system libraries (the renderer setup installs no packages) and passwordless `sudo` for the Chrome sandbox's AppArmor knob.
+- **macOS:** the Xcode Command Line Tools: the esbuild clean-up after every Turbo run compiles a small `cc` process probe. Browser tests run in WebKit (`Bun.WebView`) on macOS and Chrome elsewhere.
+- **Windows:** Git for Windows, with its `bash` ahead of `System32\bash.exe` (the WSL launcher) on the service's PATH; Developer Mode on and `core.symlinks=true`, because the checkout holds symlinks and tests create them; long paths enabled (`core.longpaths=true` and the `LongPathsEnabled` policy) for `node_modules`; Windows PowerShell (built in), which reads the pinned Chrome's version. Setup puts Git for Windows' `usr/bin` (its `unzip`, which installs mise) on PATH itself.
+
+Checks that cannot run on all three are not run in CI, and are listed here so a change never brings them back silently:
+
+| Check | Why it cannot run everywhere | Where it runs now |
+| --- | --- | --- |
+| `@pkgs/clock-shared-swift` (lint, tc, test) | No Swift toolchain is pinned for Windows; macOS uses Xcode's (`native-toolchain.ts`) | `bun verify` on Linux or macOS |
+| `@apps/client-swift` (iOS build, launch, smoke test) | Xcode and the iOS simulator exist only on macOS | `bun verify` on a Mac with the pinned Xcode |
+| `@pkgs/pubsub-emqx-harness-ts` `emqx.contract.test.ts` | EMQX 5 publishes no Windows build, and its launcher is a shell script | `bun run test:posix` in the package |
+| `@pkgs/os-server-ts` `dev-owner*.test.ts` | Dev-owner's launch gate is POSIX: `/bin/sh` `kill -STOP`, `ps`, `/proc`, process groups. It is local dev tooling; CI never sets `DEV_OWNER_ROOT` | `bun run test:posix` in the package |
+| `@libs/tools-harness-ts` `verify-actionlint`, `workspace-run`, `verify-snapshot`, `verify-prepared-model`, `workflow-remote-tty` tests | Shebang fake executables run directly, the bash `workspace/*.sh` hooks with a POSIX PATH, `cp --reflink`/`cp -c` snapshots, a `Bun.Terminal` pseudo-terminal | `bun run test:posix` in the package |
+
+`test:posix` is the one script outside the gate that `test-scripts.ts` accepts; no CI job and no `bun verify` runs it.
+
+Everything else must behave the same on every runner, so code a CI task runs makes no assumption about the OS it is on:
+
+- **Paths.** A repository path is `/`-separated wherever it is compared, stored, hashed, matched or printed: `slashPath(relative(...))` (`@pkgs/os-shared-ts/slash-path`), never a bare `node:path` `relative()` (`libs/tools-harness-ts/biome-plugins/no-native-relative-path.grit` refuses one), and `lastSegment` rather than `split('/')` for a file name. Windows file APIs accept `/`, so a slash path also opens the file. A file URL becomes a path through `fileURLToPath`, never `.pathname`, and an absolute path is never joined under another directory with its drive letter.
+- **Processes and files.** Spawn programs directly or through Bun, not through `sh`; temporary files go under `os.tmpdir()`; a rename onto a file another process may hold is retried, because Windows refuses it.
+- **Tools.** A tool a task needs comes from `mise.toml` (Chrome for Testing included), never from what a runner happens to have installed.
+- **Proof.** A pure function that handles paths has a test that feeds it `node:path`'s `win32` form as well as its `posix` form, so a macOS or Linux run catches a separator bug before a Windows runner does.
 
 ## Runner
 
@@ -106,24 +136,24 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | | |
 | --- | --- |
 | Packages | 356 |
-| Verify scripts | 1401 |
+| Verify scripts | 1418 |
 | Measured scripts | 930 |
-| Estimated scripts | 471 |
+| Estimated scripts | 488 |
 | Stale cost keys | 572 |
-| Cold CPU | 17907 s |
-| Spec parts | 10572 s across 292 tasks |
+| Cold CPU | 18192 s |
+| Spec parts | 10857 s across 307 tasks |
 | Longest task | @libs/games-harness-ts#test:spec:49 213 s |
 
 ### Families
 
 | Family | Tasks | CPU |
 | --- | --- | --- |
-| test:spec | 292 | 10572 s |
+| test:spec | 307 | 10857 s |
 | lint | 355 | 1267 s |
-| test:contract | 26 | 1019 s |
+| test:contract | 25 | 1004 s |
 | verify:models:10 | 16 | 960 s |
-| test | 263 | 924 s |
-| verify:models | 45 | 735 s |
+| test | 265 | 926 s |
+| verify:models | 46 | 748 s |
 | verify:models:2 | 11 | 660 s |
 | tc | 354 | 538 s |
 
@@ -152,9 +182,9 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared-ts | 291 | 17700 s | @libs/games-harness-ts#test:spec:49 213 s |
-| @pkgs/clock-shared-ts | 257 | 17582 s | @libs/games-harness-ts#test:spec:49 213 s |
-| @pkgs/assert-root-shared-ts | 252 | 17534 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/property-shared-ts | 291 | 17983 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/clock-shared-ts | 257 | 17865 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/assert-root-shared-ts | 252 | 17832 s | @libs/games-harness-ts#test:spec:49 213 s |
 
 ### Runner
 
@@ -163,11 +193,11 @@ Slot allocation target 240 s. Warm start 30 s. Verdict slack 15 s. Spec workers 
 | | |
 | --- | --- |
 | Runners per verification | 3 |
-| Spec slots per runner | 15 |
+| Spec slots per runner | 16 |
 | Other slots per runner | 11 |
-| Cores required per runner | 28 |
-| Memory required per runner | 38 GiB |
-| Estimated makespan | 235 s |
+| Cores required per runner | 29 |
+| Memory required per runner | 40 GiB |
+| Estimated makespan | 227 s |
 | Provision | 6 × 32 vCPU, 64 GB, Linux x64 |
 | Fits | yes |
 <!-- ci-load:end -->

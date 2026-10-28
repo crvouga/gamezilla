@@ -21,12 +21,19 @@
  * `onLoad` is synchronous so CJS `require()` of transformed modules works.
  */
 
-import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import {
+  mkdirSync,
+  readFileSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { join } from 'node:path';
 import { threadId } from 'node:worker_threads';
 import type * as Babel from '@babel/core';
 import { GlobalRegistrator } from '@happy-dom/global-registrator';
 import { plugin } from 'bun';
+import { publishCacheFile } from './cache-file';
 import { compileCssModule } from './css-module';
 import { rememberNativeEvent } from './native-event';
 
@@ -35,7 +42,7 @@ process.env.NODE_ENV = process.env.NODE_ENV ?? 'test';
 const configFile = require.resolve('./babel.config.cjs');
 
 /** Workspace `.tsx` outside `node_modules` (tests included). */
-const WORKSPACE_TSX_FILTER = /^(?!.*\/node_modules\/).*\.tsx$/;
+const WORKSPACE_TSX_FILTER = /^(?!.*[\\/]node_modules[\\/]).*\.tsx$/;
 const CSS_FILTER = /\.css$/;
 /** Media assets (`require('../assets/x.mp3')`) → their file path, like Vite's URL import. */
 const MEDIA_FILTER = /\.(?:mp3|wav|ogg|png|jpe?g|gif|webp|svg|woff2?|ttf)$/;
@@ -90,9 +97,12 @@ function cachedTransform(path: string, source: string): string {
     const code = transformSolidTsx(path, source);
     mkdirSync(CACHE_DIR, { recursive: true });
     // Write-then-rename so a concurrent worker never reads a partial file.
-    const tmp = `${file}.${process.pid}.${threadId}.tmp`;
-    writeFileSync(tmp, code);
-    renameSync(tmp, file);
+    publishCacheFile(
+      { writeFileSync, renameSync, rmSync },
+      file,
+      `${file}.${process.pid}.${threadId}.tmp`,
+      code
+    );
     return code;
   }
 }

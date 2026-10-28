@@ -8,7 +8,7 @@ const FIXTURES_DIR = join(process.cwd(), 'fixtures/snapshots');
 
 export function resolveHarnessSnapshotPath(id: string): string {
   const safe = id.trim();
-  if (safe.length === 0 || safe.includes('/') || safe.includes('..')) {
+  if (safe.length === 0 || /[\\/]/.test(safe) || safe.includes('..')) {
     throw new Error(`resolveHarnessSnapshotPath: invalid snapshot id '${id}'`);
   }
   return join(FIXTURES_DIR, `${safe}.json`);

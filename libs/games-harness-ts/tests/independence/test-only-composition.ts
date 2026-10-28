@@ -1,6 +1,8 @@
 import { readFileSync, realpathSync } from 'node:fs';
 import { join } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { plugin } from 'bun';
+import { pathPattern } from './path-pattern';
 
 const ROOT = realpathSync(join(import.meta.dir, '../../../..'));
 const CONSUMER = join(import.meta.dir, '../probes/setup-race-game.ts');
@@ -14,15 +16,11 @@ const REGISTRIES: Readonly<Record<string, string>> = {
     'export const GAME_CLIENT_DEFINITIONS = [SETUP_RACE_GAME.client];',
 };
 
-function escaped(path: string): string {
-  return path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
 plugin({
   name: 'test-only-game-composition',
   setup(build) {
     for (const [path, source] of Object.entries(REGISTRIES))
-      build.onLoad({ filter: new RegExp(`${escaped(path)}$`) }, () => ({
+      build.onLoad({ filter: new RegExp(`${pathPattern(path)}$`) }, () => ({
         contents: `import { SETUP_RACE_GAME } from ${JSON.stringify(CONSUMER)};\n${source}`,
         loader: 'js',
       }));
@@ -34,8 +32,8 @@ plugin({
         readonly game?: string;
       };
       if (owner.game === undefined) continue;
-      const directory = path.slice(0, -'package.json'.length);
-      build.onLoad({ filter: new RegExp(`/${escaped(directory)}`) }, () => {
+      const directory = slashPath(path).slice(0, -'package.json'.length);
+      build.onLoad({ filter: new RegExp(pathPattern(`/${directory}`)) }, () => {
         throw new Error(`ISOLATION_BLOCKED_GAME: ${owner.name}`);
       });
     }

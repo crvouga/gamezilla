@@ -227,8 +227,34 @@ export function artifactUrl(api: string, team: string, hash: string): string {
 }
 
 const REMOTE_LOOKUP_TIMEOUT_MS = 10_000;
+const RATE_LIMIT_ATTEMPTS = 6;
+const RATE_LIMIT_MAX_WAIT_MS = 8_000;
 
-/** Wall `HEAD` against the self-hosted remote cache: does it hold `hash`? */
+/**
+ * The Vercel Remote Cache answers a burst of lookups with 429. A 429 is not
+ * a miss: counting it as one reruns work the cache holds (Verify run
+ * 40593008661 read 685 of ~1000 lookups as misses). Retry it after the
+ * server's `Retry-After`, else an exponential backoff, a bounded number of
+ * times; the last response is returned whatever it is.
+ */
+export async function retryRateLimited(
+  request: () => Promise<Response>,
+  sleep: (ms: number) => Promise<unknown> = Bun.sleep,
+  attempts: number = RATE_LIMIT_ATTEMPTS
+): Promise<Response> {
+  for (let attempt = 1; ; attempt++) {
+    const res = await request();
+    if (res.status !== 429 || attempt >= attempts) return res;
+    const after = Number(res.headers.get('retry-after'));
+    const wait =
+      Number.isFinite(after) && after > 0
+        ? after * 1000
+        : 250 * 2 ** (attempt - 1);
+    await sleep(Math.min(wait, RATE_LIMIT_MAX_WAIT_MS));
+  }
+}
+
+/** Wall `HEAD` against the Vercel Remote Cache: does it hold `hash`? */
 export function wallRemoteHas(
   env: NodeJS.ProcessEnv,
   observe?: (status: number, hash: string) => void
@@ -237,11 +263,13 @@ export function wallRemoteHas(
   const team = env['TURBO_TEAM'] ?? '';
   const token = env['TURBO_TOKEN'] ?? '';
   return async (hash) => {
-    const res = await fetch(artifactUrl(api, team, hash), {
-      method: 'HEAD',
-      headers: { Authorization: `Bearer ${token}` },
-      signal: AbortSignal.timeout(REMOTE_LOOKUP_TIMEOUT_MS),
-    }).catch((error: unknown) => {
+    const res = await retryRateLimited(() =>
+      fetch(artifactUrl(api, team, hash), {
+        method: 'HEAD',
+        headers: { Authorization: `Bearer ${token}` },
+        signal: AbortSignal.timeout(REMOTE_LOOKUP_TIMEOUT_MS),
+      })
+    ).catch((error: unknown) => {
       observe?.(0, hash);
       throw error;
     });
@@ -351,7 +379,7 @@ export function dryRunPlan(
 const PREFETCH_CONCURRENCY = 32;
 const PREFETCH_TIMEOUT_MS = 30_000;
 
-/** Wall I/O for `prefetchArtifacts` against the self-hosted remote cache. */
+/** Wall I/O for `prefetchArtifacts` against the Vercel Remote Cache. */
 export function wallPrefetchIo(
   env: NodeJS.ProcessEnv,
   cacheDir: string
@@ -362,10 +390,12 @@ export function wallPrefetchIo(
   mkdirSync(cacheDir, { recursive: true });
   return {
     fetchArtifact: async (hash) => {
-      const res = await fetch(artifactUrl(api, team, hash), {
-        headers: { Authorization: `Bearer ${token}` },
-        signal: AbortSignal.timeout(PREFETCH_TIMEOUT_MS),
-      });
+      const res = await retryRateLimited(() =>
+        fetch(artifactUrl(api, team, hash), {
+          headers: { Authorization: `Bearer ${token}` },
+          signal: AbortSignal.timeout(PREFETCH_TIMEOUT_MS),
+        })
+      );
       if (!res.ok) return null;
       return new Uint8Array(await res.arrayBuffer());
     },

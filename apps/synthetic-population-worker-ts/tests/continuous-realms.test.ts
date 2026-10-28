@@ -63,29 +63,42 @@ test('native Synthetic User realms guide both Pong paddles through normal contro
       ).toBe(true);
     }
   } catch (error) {
-    const users = await backend.repository.users();
-    for (const user of users)
-      await backend.administration.command(
-        user.id,
-        { operationId: backend.wall.createId(), command: 'inspect' },
-        user.worker_id!
-      );
-    await Promise.all(sessions.map((session) => session.renew(false)));
-    const inspected = await awaitRuntimeUsers(backend, (users) =>
-      users.every((user) => user.inspection !== null)
+    // The inspection only explains the failure; when it cannot be taken (a
+    // realm that never loaded has none) the original error must still surface.
+    const inspections = await pongInspections(backend, sessions).catch(
+      (failure: unknown) => `unavailable (${String(failure)})`
     );
-    const boards = inspected.map((user) => {
-      const snapshot = inspectionSchema.parse(user.inspection);
-      const doc = new DOMParser().parseFromString(snapshot.html, 'text/html');
-      const game = doc.querySelector('[data-testid="multiplayer-game"]');
-      return { game: game?.outerHTML, actions: snapshot.actions.slice(-5) };
+    throw new Error(`${String(error)}; inspections: ${inspections}`, {
+      cause: error,
     });
-    throw new Error(
-      `${String(error)}; inspections: ${JSON.stringify(boards)}`,
-      { cause: error }
-    );
   } finally {
     for (const session of sessions) session.abort();
     await backend.close();
   }
 }, 60_000);
+
+/** Each realm's rendered game and last actions, for a failure message. */
+async function pongInspections(
+  backend: Awaited<ReturnType<typeof runtimeBackend>>,
+  sessions: readonly ManagedSession[]
+): Promise<string> {
+  const users = await backend.repository.users();
+  for (const user of users)
+    await backend.administration.command(
+      user.id,
+      { operationId: backend.wall.createId(), command: 'inspect' },
+      user.worker_id!
+    );
+  await Promise.all(sessions.map((session) => session.renew(false)));
+  const inspected = await awaitRuntimeUsers(backend, (users) =>
+    users.every((user) => user.inspection !== null)
+  );
+  return JSON.stringify(
+    inspected.map((user) => {
+      const snapshot = inspectionSchema.parse(user.inspection);
+      const doc = new DOMParser().parseFromString(snapshot.html, 'text/html');
+      const game = doc.querySelector('[data-testid="multiplayer-game"]');
+      return { game: game?.outerHTML, actions: snapshot.actions.slice(-5) };
+    })
+  );
+}

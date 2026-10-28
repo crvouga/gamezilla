@@ -25,13 +25,27 @@ const BLOCKING_TIME_WAIT = 10_000;
 const children: ChildProcess[] = [];
 let shuttingDown = false;
 
+/** Signal wrangler and its esbuild children together; throws when the group is gone. */
+function killGroup(pid: number, signal: NodeJS.Signals): void {
+  if (process.platform === 'win32') {
+    // No process groups on Windows: `taskkill /T` walks the tree by parent pid
+    // and `/F` is the only stop a console process tree honors.
+    spawnSync('taskkill', ['/PID', String(pid), '/T', '/F'], {
+      stdio: 'ignore',
+      windowsHide: true,
+    });
+    return;
+  }
+  // Negative PID = process group (spawned detached so wrangler + esbuild die together).
+  process.kill(-pid, signal);
+}
+
 function killChild(child: ChildProcess, signal: NodeJS.Signals): void {
   if (child.exitCode !== null || child.killed) return;
   const pid = child.pid;
   if (pid === undefined) return;
   try {
-    // Negative PID = process group (spawned detached so wrangler + esbuild die together).
-    process.kill(-pid, signal);
+    killGroup(pid, signal);
   } catch {
     try {
       child.kill(signal);
@@ -126,7 +140,7 @@ function runWranglerOnce(): Promise<WranglerRun> {
       const pid = child.pid;
       if (pid !== undefined) {
         try {
-          process.kill(-pid, 'SIGKILL');
+          killGroup(pid, 'SIGKILL');
         } catch {
           // group already gone
         }

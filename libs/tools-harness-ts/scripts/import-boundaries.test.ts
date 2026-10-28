@@ -9,6 +9,7 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 
@@ -37,7 +38,7 @@ function probeBiomeConfig(): BiomeConfig {
   const config = JSON.parse(
     readFileSync(join(REPO_ROOT, 'biome.json'), 'utf8')
   ) as BiomeConfig;
-  const absolute = (path: string): string => join(REPO_ROOT, path);
+  const absolute = (path: string): string => slashPath(join(REPO_ROOT, path));
   return {
     ...config,
     vcs: { enabled: false },
@@ -574,7 +575,14 @@ beforeAll(() => {
   const report = JSON.parse(result.stdout) as {
     readonly diagnostics: readonly Diagnostic[];
   };
-  diagnostics = report.diagnostics.filter((d) => d.category === 'plugin');
+  // Biome prints each path relative to the run with the OS separator
+  // (`libs\\zz\\src\\x.ts` on Windows); the probes name repository paths.
+  diagnostics = report.diagnostics
+    .filter((d) => d.category === 'plugin')
+    .map((d) => ({
+      ...d,
+      location: { ...d.location, path: slashPath(d.location.path) },
+    }));
   // One Biome run over the probes; a loaded verification run can take seconds.
 }, 60_000);
 
@@ -593,7 +601,22 @@ describe('import-boundary Grit rules', () => {
         expect(hits.map((d) => d.message)).toEqual([]);
         return;
       }
-      expect(hits.map((d) => d.message).join('\n')).toContain(probe.message);
+      const reported = hits.map((d) => d.message).join('\n');
+      expect(
+        reported === ''
+          ? `nothing at ${probe.path}; plugin diagnostics at: ${reportedPaths().join(', ')}`
+          : reported
+      ).toContain(probe.message);
     });
   }
+
+  test('every plugin diagnostic lands on a probe path', () => {
+    // regression: import-boundary-probes-miss-windows-paths
+    const probePaths = new Set(PROBES.map((probe) => probe.path));
+    expect(reportedPaths().filter((path) => !probePaths.has(path))).toEqual([]);
+  });
 });
+
+function reportedPaths(): readonly string[] {
+  return [...new Set(diagnostics.map((d) => d.location.path))].sort();
+}

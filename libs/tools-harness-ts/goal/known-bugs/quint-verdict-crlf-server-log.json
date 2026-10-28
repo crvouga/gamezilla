@@ -1,0 +1,4 @@
+{
+  "summary": "A failed Quint verify kept the Apalache server's pass-by-pass log (`... I@15:45:59.927`) on Windows: the JVM ends lines with CRLF and the log filter split on LF only, so its end-anchored pattern never matched a line still ending in `\\r` (Verify run 40596596039). Lines now split on either ending.",
+  "regressionTest": "pkgs/quint-server-ts/tests/verify.test.ts"
+}

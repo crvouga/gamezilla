@@ -58,3 +58,44 @@ test('a prepared artifact restored on another runner supplies the same draw with
     for (const root of roots) rmSync(root, { recursive: true, force: true });
   }
 });
+
+// regression: quint-draw-cache-stale-failure
+test('a failure an earlier run left behind does not fail a later draw', () => {
+  const root = mkdtempSync(join(tmpdir(), 'draw-stale-failure-'));
+  const before = process.env['HARNESS_REPORT_DIR'];
+  // What an older checkout's producer recorded on a Windows runner
+  // (Verify run 40596596039); every later run then failed with it.
+  const stale =
+    "ENOENT: no such file or directory, mkdir 'C:\\Users\\crvou\\AppData\\Local\\Temp\\gamezilla-quint-draws\\9f37\\itf\\instantiated-source\\C:\\actions-runner-2\\_work\\gamezilla\\gamezilla\\pkgs\\quint-server-ts\\tests\\fixtures'";
+  let calls = 0;
+  const draw = (fail: boolean) => ({
+    source: 'module stale {}',
+    seed: '0x2a',
+    traces: 1,
+    maxSteps: 0,
+    produce: (dir: string) => {
+      calls++;
+      if (fail) throw new Error(stale);
+      writeFileSync(join(dir, 'trace-1.itf.json'), '{"states":[]}');
+    },
+  });
+  try {
+    process.env['HARNESS_REPORT_DIR'] = join(
+      root,
+      '.cache/harness-report/part-0'
+    );
+    expect(() => cachedQuintDir(draw(true))).toThrow(stale);
+    const later = cachedQuintDir(draw(false));
+    expect(calls).toBe(2);
+    expect(readFileSync(join(later, 'trace-1.itf.json'), 'utf8')).toBe(
+      '{"states":[]}'
+    );
+    // The success is shared from then on.
+    cachedQuintDir(draw(true));
+    expect(calls).toBe(2);
+  } finally {
+    if (before === undefined) delete process.env['HARNESS_REPORT_DIR'];
+    else process.env['HARNESS_REPORT_DIR'] = before;
+    rmSync(root, { recursive: true, force: true });
+  }
+});

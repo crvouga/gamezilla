@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
 import { readFileSync, realpathSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { build, type Plugin } from 'vite';
 
 const CLIENT = realpathSync(join(import.meta.dir, '..'));
@@ -18,14 +19,14 @@ function withoutProductionGames(): Plugin {
       readonly gameRegistry?: boolean;
     };
     if (owner.game !== undefined || owner.gameRegistry === true)
-      owners.set(path.slice(0, -'package.json'.length), owner.name);
+      owners.set(slashPath(path).slice(0, -'package.json'.length), owner.name);
   }
   return {
     name: 'no-production-game-sources',
     enforce: 'pre',
     load(id) {
       if (id.startsWith('\0')) return;
-      const path = relative(ROOT, realpathSync(id.split('?')[0]!));
+      const path = slashPath(relative(ROOT, realpathSync(id.split('?')[0]!)));
       const directory = /^(libs|pkgs|apps)\/[^/]+\//.exec(path)?.[0];
       if (directory === undefined) return;
       const owner = owners.get(directory);
@@ -63,6 +64,13 @@ test('the shared game screens compile with the production web toolchain and no g
     throw new Error('The isolated build must produce one completed bundle');
   const chunks = result.output.filter((output) => output.type === 'chunk');
   const modules = chunks.flatMap((chunk) => Object.keys(chunk.modules));
+  // regression: workspace-resolver-windows-backslash-ids
+  // Rollup keys modules by id string: a `\`-separated id (a resolver returning
+  // a raw Windows path) is a second copy of a module Vite resolves with `/`.
+  expect(
+    modules.filter((id) => id.includes('\\')),
+    'module ids are `/`-separated on every OS'
+  ).toEqual([]);
   for (const screen of [
     'game-menu-client-ts/src/game-menu.tsx',
     'game-menu-client-ts/src/personal-puzzle-stats-clients.tsx',

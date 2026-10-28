@@ -1,6 +1,7 @@
 // @io-wall-ok — spec discovery reads package manifests and campaign inputs.
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 export type SpecCampaign = {
   readonly dir: string;
@@ -115,7 +116,10 @@ export function campaignTaskProblems(input: CampaignTasks): readonly string[] {
 /** Composed interpretations run as campaigns rather than aggregate bindings. */
 export function specCampaigns(root: string): readonly SpecCampaign[] {
   return ['apps', 'libs', 'pkgs'].flatMap((tier) =>
-    [...new Bun.Glob(`${tier}/*/package.json`).scanSync({ cwd: root })]
+    Array.from(
+      new Bun.Glob(`${tier}/*/package.json`).scanSync({ cwd: root }),
+      slashPath
+    )
       .sort()
       .flatMap((path) => {
         const manifest = JSON.parse(
@@ -144,12 +148,14 @@ export function campaignProblems(
       ? ((JSON.parse(readFileSync(turboPath, 'utf8')) as CampaignTurbo).tasks ??
         {})
       : {};
-    const files = [
-      ...new Bun.Glob(`specs/${domain}/*.qnt`).scanSync({ cwd: root }),
-    ];
-    for (const file of new Bun.Glob(`specs/${domain}/*`).scanSync({
-      cwd: root,
-    })) {
+    const files = Array.from(
+      new Bun.Glob(`specs/${domain}/*.qnt`).scanSync({ cwd: root }),
+      slashPath
+    );
+    for (const file of Array.from(
+      new Bun.Glob(`specs/${domain}/*`).scanSync({ cwd: root }),
+      slashPath
+    )) {
       if (
         !file.endsWith('.qnt') &&
         !file.endsWith('/ubiquitous-language.yml')

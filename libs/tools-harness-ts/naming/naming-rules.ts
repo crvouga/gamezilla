@@ -53,6 +53,9 @@ export const NAMING_EXEMPT = {
     '.agents/skills/impeccable/',
     '.agents/skills/ui-ux-pro-max/',
     '.agents/skills/ast-grep/',
+    // A portable Agent Skills directory, kept identical to its copies in
+    // other repositories (kebab-case reference names, Python modules).
+    '.agents/skills/ci-green/',
   ],
   /** Markdown under these prefixes is a command id, so it stays kebab-case. */
   kebabMarkdownPrefixes: [

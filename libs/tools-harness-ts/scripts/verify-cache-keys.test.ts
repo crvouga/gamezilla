@@ -66,9 +66,12 @@ function dry(
   tasks: string[],
   overrides: NodeJS.ProcessEnv = {}
 ): DryTask[] {
+  // The turbo bin is a JS launcher, not an executable on Windows: run it
+  // through Bun so it starts the platform binary on every OS.
   const stdout = execFileSync(
-    join(import.meta.dirname, '../../../node_modules/turbo/bin/turbo'),
+    process.execPath,
     [
+      join(import.meta.dirname, '../../../node_modules/turbo/bin/turbo'),
       'run',
       ...tasks,
       '--framework-inference=false',

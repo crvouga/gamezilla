@@ -76,6 +76,7 @@ export function useCustomGameCommand(
   const timers = useTimers();
   const clock = useClock();
   const rules = useTurnGames();
+  const myId = useMyId();
   const canHost = useSpaceCan(
     () => spaceId() ?? '',
     PERMISSION.gameCustomCreate
@@ -116,6 +117,7 @@ export function useCustomGameCommand(
           canHost: canHost(),
           pending,
           rules,
+          actor: myId(),
           ...preparing,
           ...(chooseLocal === undefined ? {} : { chooseLocal }),
           onWaiting: () => setWaiting(true),

@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { withForcedColorEnv } from '@pkgs/os-shared-ts/force-color-env';
-import { testFileCommand } from './test-file-command';
+import { owningPackagePath, testFileCommand } from './test-file-command';
 
 export type FileRunResult = {
   readonly file: string;
@@ -35,7 +35,7 @@ function collectStream(stream: NodeJS.ReadableStream | null): Promise<string> {
 }
 
 export function runPbtFile(args: RunPbtFileArgs): Promise<FileRunResult> {
-  const packagePath = args.file.split('/').slice(0, 2).join('/');
+  const packagePath = owningPackagePath(args.file);
   const manifest = JSON.parse(
     readFileSync(join(args.repoRoot, packagePath, 'package.json'), 'utf8')
   ) as { scripts: { test: string } };

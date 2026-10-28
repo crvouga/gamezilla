@@ -2,7 +2,7 @@
 description: Drive every CI workflow — Verify PR, Verify Nightly, Deploy, Health — to green from one PR, in a loop; survey what is red, fix root causes, push, re-verify, repeat
 ---
 
-# /ci-green
+# /ci-workflows-green
 
 Get all four workflows green, and do it in **one pull request** on the current branch:
 
@@ -61,7 +61,7 @@ shows it fixed afterwards:
 
 | Failure in | Reproduce with |
 | --- | --- |
-| Verify PR (any shard) | `bun run --filter <pkg> <task>` for the failing task, then `bun verify` |
+| Verify PR (any shard) | `bun run --filter <pkg> <task>` for the failing task, then `bun verify`; the [`ci-green`](../skills/ci-green/SKILL.md) skill runs this reproduce-and-fix loop locally under a shared resource budget |
 | Verify Nightly (a group) | `bun verify-nightly <group>` at the commit the run names, with the seed its log printed; pin what it found as a regression so `bun verify` replays it |
 | Deploy, a gate leaf | the same leaf. `//#deploy` runs every `//#verify` leaf first |
 | Deploy, infrastructure or deployment | a GitHub Actions rehearsal on the branch, reusing the dev job and deployment lock; AWS trust may block a branch infrastructure apply |

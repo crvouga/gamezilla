@@ -54,6 +54,7 @@ import { createDeadlineFetch } from '@pkgs/http-client-shared-ts/deadline-fetch'
 import { createGlobalHttpClient } from '@pkgs/http-client-shared-ts/global';
 import { isLiveObjectiveSource } from '@pkgs/openslo-shared-ts/live';
 import { sloStubFileName, sloStubSource } from '@pkgs/openslo-shared-ts/stubs';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { featureVerdicts, recordCheckResults } from './health-check-results';
 
 const PACKAGE_DIR = resolve(import.meta.dir, '..');
@@ -352,7 +353,7 @@ export function writeFeatureStubs(
     import.meta.dir
   );
   return features.flatMap((featurePath) => {
-    const featureUri = relative(REPO_ROOT, featurePath);
+    const featureUri = slashPath(relative(REPO_ROOT, featurePath));
     const skips = hostSkips(env, featureUri);
     if (skips.wholeFeature) return [];
     const file = join(stubDir, stubFileName(featureUri));
@@ -377,7 +378,7 @@ export function writeFeatureStubs(
         layer: 'release',
       })
     );
-    return [`./${relative(PACKAGE_DIR, file)}`];
+    return [`./${slashPath(relative(PACKAGE_DIR, file))}`];
   });
 }
 
@@ -388,7 +389,7 @@ export function writeSloStubs(
   if (objectives.length === 0) return [];
   if (!existsSync(SLO_ENTRY)) {
     console.error(
-      `health: ${relative(PACKAGE_DIR, SLO_ENTRY)} is missing — liveDomains hold OpenSLO objectives, so an entry must import one tests/openslo/<stem>.binding.ts per objective file (each with spec: '<stem>')`
+      `health: ${slashPath(relative(PACKAGE_DIR, SLO_ENTRY))} is missing — liveDomains hold OpenSLO objectives, so an entry must import one tests/openslo/<stem>.binding.ts per objective file (each with spec: '<stem>')`
     );
     process.exit(1);
   }
@@ -398,7 +399,7 @@ export function writeSloStubs(
     import.meta.dir
   );
   return objectives.map((specPath) => {
-    const specUri = relative(REPO_ROOT, specPath);
+    const specUri = slashPath(relative(REPO_ROOT, specPath));
     const file = join(stubDir, sloStubFileName(specUri));
     writeFileSync(
       file,
@@ -411,7 +412,7 @@ export function writeSloStubs(
         reportDir,
       })
     );
-    return `./${relative(PACKAGE_DIR, file)}`;
+    return `./${slashPath(relative(PACKAGE_DIR, file))}`;
   });
 }
 
@@ -451,7 +452,7 @@ function writeStubs(
   return {
     stubs: writeFeatureStubs(offers, selection.specs, FEATURE_DIRS),
     features: selection.specs
-      .map((path) => relative(REPO_ROOT, path))
+      .map((path) => slashPath(relative(REPO_ROOT, path)))
       .filter((uri) => !hostSkips(offers, uri).wholeFeature),
   };
 }

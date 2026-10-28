@@ -3,8 +3,12 @@ import { spawn } from 'node:child_process';
 import { readdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
-import type { ArtifactClient, FindOptions } from '@actions/artifact';
-import artifact from '@actions/artifact';
+import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
+import {
+  ciArtifactsStore,
+  downloadArtifact,
+  listArtifacts,
+} from './ci-artifacts';
 import { consumeEvidence } from './verify-evidence-consume';
 import { redactSecrets } from './verify-shard-stream';
 
@@ -12,56 +16,37 @@ export function transferDiagnostic(line: string): string {
   return line.replace(/https?:\/\/[^\s"'<>]+/g, '[transfer-url-redacted]');
 }
 
-type ArtifactSource = NonNullable<FindOptions['findBy']>;
-
-/** Shell steps use the workflow token; action-only runtime tokens are absent. */
-export function artifactSource(
+/** Transfers read this run's CI artifacts; nothing else scopes them. */
+export function transferRunId(
   env: Readonly<Record<string, string | undefined>>
-): ArtifactSource {
-  const token = (env['GH_TOKEN'] ?? env['GITHUB_TOKEN'] ?? '').trim();
-  const repository = (env['GITHUB_REPOSITORY'] ?? '').split('/');
-  const workflowRunId = Number(env['GITHUB_RUN_ID']);
-  if (
-    !token ||
-    repository.length !== 2 ||
-    repository.some((part) => !part) ||
-    !Number.isSafeInteger(workflowRunId) ||
-    workflowRunId <= 0
-  )
-    throw new Error(
-      'Artifact transfer requires a workflow token, GITHUB_REPOSITORY and GITHUB_RUN_ID'
-    );
-  return {
-    token,
-    workflowRunId,
-    repositoryOwner: repository[0]!,
-    repositoryName: repository[1]!,
-  };
+): string {
+  const runId = (env['GITHUB_RUN_ID'] ?? '').trim();
+  if (!/^[1-9][0-9]*$/.test(runId))
+    throw new Error('Artifact transfer requires GITHUB_RUN_ID');
+  return runId;
 }
 
+/**
+ * Downloads, consumes and releases one artifact at a time, so the runner's
+ * disk holds a single shard's evidence however many shards ran.
+ */
 export async function downloadEvidence(args: {
   readonly prefix: string;
   readonly directory: string;
-  readonly findBy: ArtifactSource;
-  readonly client: Pick<ArtifactClient, 'listArtifacts' | 'downloadArtifact'>;
+  readonly runId: string;
+  readonly store: ObjectStore;
   readonly consumer: {
     readonly consume: (directory: string) => Promise<void>;
     readonly release: (directory: string) => Promise<void>;
   };
 }): Promise<void> {
-  const { prefix, directory, findBy, client, consumer } = args;
-  const listed = await client.listArtifacts({ latest: true, findBy });
-  const selected = listed.artifacts.filter((item) =>
-    item.name.startsWith(prefix)
-  );
-  if (!selected.length) throw new Error(`No ${prefix} evidence artifacts`);
+  const { prefix, directory, runId, store, consumer } = args;
+  const names = await listArtifacts({ store, runId, prefix });
+  if (!names.length) throw new Error(`No ${prefix} evidence artifacts`);
   const failures: unknown[] = [];
-  for (const item of selected) {
+  for (const name of names) {
     try {
-      await client.downloadArtifact(item.id, {
-        path: directory,
-        findBy,
-      });
+      await downloadArtifact({ store, runId, name, directory });
       await consumer.consume(directory);
     } catch (error) {
       failures.push(error);
@@ -71,7 +56,7 @@ export async function downloadEvidence(args: {
   }
   if (failures.length)
     throw new AggregateError(failures, 'Evidence transfer failed');
-  console.log(`Transferred ${selected.length} evidence artifacts`);
+  console.log(`Transferred ${names.length} evidence artifacts`);
 }
 
 async function consumeTransfer(directory: string): Promise<void> {
@@ -105,8 +90,8 @@ if (import.meta.main) {
     await downloadEvidence({
       prefix: process.argv[3]!,
       directory: process.argv[4]!,
-      findBy: artifactSource(process.env),
-      client: artifact,
+      runId: transferRunId(process.env),
+      store: ciArtifactsStore(process.env),
       consumer: {
         consume: consumeTransfer,
         release: async (directory) => {

@@ -29,6 +29,7 @@ import {
   symlinkSync,
 } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 const ROOT = join(import.meta.dirname, '../../..');
 
@@ -62,7 +63,7 @@ function linkClaudeSkill(): void {
   const link = join(ROOT, CLAUDE_SKILL_LINK);
   const target = claudeSkillTarget();
   if (existsSync(link) || isSymlink(link)) {
-    if (isSymlink(link) && readlinkSync(link) === target) return;
+    if (isSymlink(link) && slashPath(readlinkSync(link)) === target) return;
     rmSync(link, { recursive: true, force: true });
   }
   mkdirSync(dirname(link), { recursive: true });

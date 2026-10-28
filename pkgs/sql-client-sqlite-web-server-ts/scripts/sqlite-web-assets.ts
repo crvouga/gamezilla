@@ -24,6 +24,7 @@ import {
 } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join, relative } from 'node:path';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import * as esbuild from 'esbuild';
 import type { Plugin } from 'vite';
 
@@ -208,12 +209,16 @@ export function sqliteWebAssets(options: SqliteWebAssetsOptions): Plugin {
     const emitted: string[] = [];
     const workers = await buildSqlWorkers({ repoRoot, outDir: sqlWorkersDir });
     if (workers > 0) {
-      emitted.push(`${workers} → ${relative(repoRoot, sqlWorkersDir)}`);
+      emitted.push(
+        `${workers} → ${slashPath(relative(repoRoot, sqlWorkersDir))}`
+      );
     }
     if (sqliteWasmDir !== undefined) {
       const wasm = copySqliteWasmDist({ repoRoot, outDir: sqliteWasmDir });
       if (wasm > 0) {
-        emitted.push(`${wasm} → ${relative(repoRoot, sqliteWasmDir)}`);
+        emitted.push(
+          `${wasm} → ${slashPath(relative(repoRoot, sqliteWasmDir))}`
+        );
       }
     }
     return emitted;
@@ -226,7 +231,12 @@ export function sqliteWebAssets(options: SqliteWebAssetsOptions): Plugin {
       // These live under `publicDir`, so writing them would otherwise make
       // the dev server full-reload the page it just served.
       return {
-        server: { watch: { ignored: generatedDirs.map((dir) => `${dir}/**`) } },
+        server: {
+          // A glob reads `\` as an escape, so Windows directories go slash-first.
+          watch: {
+            ignored: generatedDirs.map((dir) => `${slashPath(dir)}/**`),
+          },
+        },
       };
     },
 

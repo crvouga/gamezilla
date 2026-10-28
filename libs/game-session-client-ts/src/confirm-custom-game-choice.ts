@@ -36,6 +36,8 @@ type ConfirmationArgs = {
   pending: Set<() => void>;
   /** The registered games: a game with private setups never chooses on the device. */
   rules: TurnGames;
+  /** Who makes the choice: only a participant's own move waits for the connection. */
+  actor: string;
   /** The screen's live owner records current progress before a local choice. */
   chooseLocal?: (choice: CustomGameChoice) => Promise<void> | null;
   /** Told when the choice waits for the connection before it is sent. */
@@ -102,12 +104,13 @@ function roomOnline(room: CustomGameRoom): boolean {
 function waitsForConnection(
   room: CustomGameRoom,
   choice: CustomGameChoice,
-  rules: TurnGames
+  args: Pick<ConfirmationArgs, 'rules' | 'actor'>
 ): boolean {
   return customGameChoiceWaits(
     CustomGamesAttr.from(room.getSnapshot()).current,
     choice,
-    rules
+    args.rules,
+    args.actor
   );
 }
 
@@ -122,7 +125,7 @@ export function confirmCustomGameChoice(
   if (room === undefined) return Promise.reject(new Error('connection needed'));
   const online = (): boolean => roomOnline(room);
   if (!online()) {
-    if (!waitsForConnection(room, choice, args.rules))
+    if (!waitsForConnection(room, choice, args))
       return Promise.reject(new Error('connection needed'));
     args.onWaiting?.();
   }

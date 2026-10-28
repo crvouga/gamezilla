@@ -48,6 +48,7 @@ const WORKFLOWS: Record<string, { name: string; jobs: string }> = {
 
 /** Deploy names explain the release sequence on the run page. */
 const DEPLOY_JOBS: Record<string, string> = {
+  'deploy-changes': 'Find undeployed commits',
   'deploy-verify': 'Verify commit',
   'deploy-rehearsal': 'Preview infrastructure changes',
   'deploy-fleet': 'Deploy shared services',

@@ -1,0 +1,4 @@
+{
+  "summary": "On Windows, randomized and fuzz test runs split repo-relative paths on '/' only, so backslash-separated selections had no owning package and the fuzz walker found no tests.",
+  "regressionTest": "apps/product-ts/scripts/test-file-command.test.ts"
+}

@@ -19,6 +19,7 @@
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { renderAlertDocuments } from '@pkgs/openslo-shared-ts/alert-yaml';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { parseObjectiveFiles } from '../src/objective-files';
 import { generateAlertRules, renderAlertRules } from '../src/slo-alert-rules';
 import { sloAlertBundle } from '../src/slo-alerts';
@@ -41,7 +42,7 @@ function objectiveTexts(): { path: string; text: string }[] {
       if (!file.endsWith('.openslo.yaml')) continue;
       const full = join(specs, context.name, file);
       out.push({
-        path: relative(REPO_ROOT, full),
+        path: slashPath(relative(REPO_ROOT, full)),
         text: readFileSync(full, 'utf8'),
       });
     }

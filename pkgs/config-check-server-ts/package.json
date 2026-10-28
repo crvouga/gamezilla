@@ -9,6 +9,7 @@
   },
   "scripts": {},
   "dependencies": {
+    "@pkgs/os-shared-ts": "workspace:*",
     "typescript": "catalog:"
   },
   "devDependencies": {

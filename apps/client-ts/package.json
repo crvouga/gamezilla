@@ -42,6 +42,7 @@
     "@pkgs/logger-shared-ts": "workspace:*",
     "@pkgs/object-store-node-fs-server-ts": "workspace:*",
     "@pkgs/os-server-ts": "workspace:*",
+    "@pkgs/os-shared-ts": "workspace:*",
     "@pkgs/secret-store-shared-ts": "workspace:*",
     "@pkgs/sql-client-sqlite-web-server-ts": "workspace:*",
     "@pkgs/turn-game-shared-ts": "workspace:*",

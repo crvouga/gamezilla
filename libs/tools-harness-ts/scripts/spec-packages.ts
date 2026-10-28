@@ -18,7 +18,7 @@
  */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { dirname, join, relative, resolve } from 'node:path';
+import { join, posix, relative, resolve } from 'node:path';
 import { specInputProblems } from '@libs/harness-ts/spec-inputs';
 import type { PackageSpecs } from '@pkgs/gherkin-shared-ts/check';
 import type { ExtractedStep } from '@pkgs/gherkin-shared-ts/extract';
@@ -28,6 +28,7 @@ import {
 } from '@pkgs/gherkin-shared-ts/extract';
 import type { SpecFeature } from '@pkgs/gherkin-shared-ts/parse';
 import { parseFeature } from '@pkgs/gherkin-shared-ts/parse';
+import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { formatPhaseArg, parsePhaseArg } from './model-phase';
 import { campaignOwnershipProblems, specCampaigns } from './spec-campaigns';
 import type { BindingKind } from './spec-kinds';
@@ -59,7 +60,7 @@ export const MODELS_RUNNER =
  * Most parts one suite may split into: root `turbo.json` defines
  * `test:spec:0` … `test:spec:<MAX_SPEC_PARTS - 1>` and the sharded Verify runs them.
  */
-export const MAX_SPEC_PARTS = 99;
+export const MAX_SPEC_PARTS = 114;
 /**
  * The most parts a package's models verification splits into (`verify:models:<k>`).
  * `turbo.json` declares that many; one part is one runner in the sharded
@@ -181,8 +182,10 @@ function listFiles(dir: string, suffix: string, out: string[] = []): string[] {
 /** Repo-relative paths of every step file under `dir` (recursive). */
 function stepFiles(dir: string): readonly string[] {
   return listFiles(join(REPO_ROOT, dir), '.ts')
-    .filter((file) => !file.endsWith('.test.ts') && !file.endsWith('/index.ts'))
-    .map((file) => relative(REPO_ROOT, file));
+    .map((file) => slashPath(relative(REPO_ROOT, file)))
+    .filter(
+      (file) => !file.endsWith('.test.ts') && !file.endsWith('/index.ts')
+    );
 }
 
 function readSteps(files: readonly string[]): {
@@ -251,7 +254,7 @@ function modelProblems(
   const quintDir = `${dir}/tests/quint`;
   const bindings = new Map<string, string[]>();
   for (const file of listFiles(join(REPO_ROOT, quintDir), '.ts')) {
-    const rel = relative(REPO_ROOT, file);
+    const rel = slashPath(relative(REPO_ROOT, file));
     for (const match of readFileSync(file, 'utf8').matchAll(MODEL_BINDING)) {
       const model = match[1] ?? '';
       bindings.set(model, [...(bindings.get(model) ?? []), rel]);
@@ -316,7 +319,7 @@ function kindProblems(
     kind,
     specs,
     files: listFiles(bindingDir, '.ts').map((file) => ({
-      path: relative(REPO_ROOT, file),
+      path: slashPath(relative(REPO_ROOT, file)),
       text: readFileSync(file, 'utf8'),
     })),
     hasEntry: existsSync(join(bindingDir, 'index.ts')),
@@ -338,7 +341,7 @@ function resolveStepImport(
   importer: string
 ): string | null {
   if (specifier.startsWith('.') && specifier.endsWith('.steps'))
-    return join(dirname(importer), `${specifier}.ts`);
+    return posix.join(posix.dirname(importer), `${specifier}.ts`);
   const match = /^(@[a-z]+\/[a-z0-9-]+)\/([^/]+\.steps)$/.exec(specifier);
   if (match === null) return null;
   const dir = byName.get(match[1] ?? '');

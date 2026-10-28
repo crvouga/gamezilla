@@ -6,16 +6,17 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { dirname, join, posix } from 'node:path';
 import { reportTask } from '@libs/harness-ts/report-ready';
 import { extractEvidence } from './verify-evidence-archive';
 import { reportCommand } from './verify-report-command';
 import { processReportQueue } from './verify-report-queue';
 
+/** Root-relative with `/` separators: it also names archive members. */
 export function reportOutputPath(id: string): string {
   const task = reportTask(id);
   if (!task) throw new Error(`Invalid report task: ${id}`);
-  return join(task.packageDir, '.cache/harness-report', task.bucket);
+  return posix.join(task.packageDir, '.cache/harness-report', task.bucket);
 }
 
 export function missingReports(env: NodeJS.ProcessEnv): string[] {

@@ -1,5 +1,5 @@
 {
-  "release": 18,
+  "release": 19,
   "snapshot": {
     "tables": {
       "auth_account_devices": {
@@ -346,6 +346,7 @@
         "owner_id": "text",
         "pack_revision_id": "text",
         "puzzle_id": "text",
+        "rules_version": "integer",
         "source_id": "text"
       },
       "puzzle_content_completions": {
@@ -409,6 +410,7 @@
         "game_id": "text",
         "kind": "text",
         "owner_id": "text",
+        "rules_version": "integer",
         "title": "text"
       },
       "spaces": {

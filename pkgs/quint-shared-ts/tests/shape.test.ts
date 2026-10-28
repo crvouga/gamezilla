@@ -203,6 +203,17 @@ module maintenance {
     expect(codes(dropped)).toContain('disconnect-drops-everyone');
   });
 
+  // regression: quint-module-name-windows-path
+  test('names the module after the file on every OS', () => {
+    for (const path of [
+      '/repo/specs/room/tally-shape.qnt',
+      'C:\\repo\\specs\\room\\tally-shape.qnt',
+    ])
+      expect(
+        modelShapeIssues(SOUND, path).map((item) => item.code)
+      ).not.toContain('module-name');
+  });
+
   test('formats one line a gate can print', () => {
     const [first] = modelShapeIssues(
       SOUND.replace('module tally_shape', 'module other'),
