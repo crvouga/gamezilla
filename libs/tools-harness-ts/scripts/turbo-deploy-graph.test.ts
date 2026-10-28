@@ -9,7 +9,11 @@ import {
   specPackages,
   specPartProblems,
 } from './spec-packages';
-import { flattenVerifyAggregators, MAIN_VERIFY_TASKS } from './turbo-ci-run';
+import {
+  flattenVerifyAggregators,
+  MAIN_VERIFY_TASKS,
+  RELEASE_JOURNEY_TASKS,
+} from './turbo-ci-run';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 
@@ -163,7 +167,7 @@ const VERIFY_LEAVES = [
   'test:unit:1',
   'test:unit:2',
   '@apps/product-ts#verify:offline-shell',
-  '@apps/product-ts#test:release-journeys',
+  ...RELEASE_JOURNEY_TASKS,
   '@apps/auth-relay-ts#verify:worker-bundle',
   '@apps/product-ts#verify:worker-bundle',
   '@apps/product-ts#verify:rendered-worker',

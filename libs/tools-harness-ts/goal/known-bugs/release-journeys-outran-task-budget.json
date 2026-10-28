@@ -1,0 +1,4 @@
+{
+  "summary": "The release journeys ran every feature in one process that took 515 to 600+ s on a runner against a 600 s task budget, so the task was killed and a pull request waited for it. They run as three tasks, each a share of the features.",
+  "regressionTest": "apps/product-ts/tests/release-selection.test.ts"
+}

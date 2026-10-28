@@ -2,7 +2,12 @@ import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { NIGHTLY_REPLAY_SCALE } from '@libs/harness-ts/spec-parts';
-import { flattenVerifyAggregators, MAIN_VERIFY_TASKS } from './turbo-ci-run';
+import {
+  flattenVerifyAggregators,
+  MAIN_VERIFY_TASKS,
+  RELEASE_JOURNEY_PARTS,
+  RELEASE_JOURNEY_TASKS,
+} from './turbo-ci-run';
 import { CI_RUN_DEADLINE_SECONDS, taskBudgetSeconds } from './verify-budget';
 import {
   failedGroups,
@@ -25,7 +30,8 @@ import {
 
 // regression: deploy-journeys-missing-pr-browser-gate
 test('PR verification runs the production-bundle journeys before release', () => {
-  expect(MAIN_VERIFY_TASKS).toContain('@apps/product-ts#test:release-journeys');
+  for (const task of RELEASE_JOURNEY_TASKS)
+    expect(MAIN_VERIFY_TASKS).toContain(task);
 });
 
 const ROOT = join(import.meta.dirname, '../../..');
@@ -367,9 +373,31 @@ describe('the gate', () => {
       'test:spec:0',
       'verify:models',
       'test:contract',
-      '@apps/product-ts#test:release-journeys',
+      ...RELEASE_JOURNEY_TASKS,
       'verify:board-contract',
     ])
       expect(gate).toContain(slow);
   });
+});
+
+// regression: release-journeys-outran-task-budget
+test('the release journeys are split into parts that the scripts, turbo and the gate agree on', () => {
+  const product = JSON.parse(
+    readFileSync(join(ROOT, 'apps/product-ts/package.json'), 'utf8')
+  ) as { scripts: Record<string, string> };
+  const turbo = JSON.parse(readFileSync(join(ROOT, 'turbo.json'), 'utf8')) as {
+    tasks: Record<string, unknown>;
+  };
+  expect(RELEASE_JOURNEY_TASKS).toHaveLength(RELEASE_JOURNEY_PARTS);
+  for (const [part, task] of RELEASE_JOURNEY_TASKS.entries()) {
+    expect(MAIN_VERIFY_TASKS).toContain(task);
+    expect(turbo.tasks[task]).toBeDefined();
+    expect(product.scripts[`test:release-journeys:${String(part)}`]).toBe(
+      `bun run scripts/test-release-journeys.ts --part=${String(part)}/${String(RELEASE_JOURNEY_PARTS)}`
+    );
+  }
+  // The undivided task is no longer part of the gate: it outran its budget.
+  expect(MAIN_VERIFY_TASKS).not.toContain(
+    '@apps/product-ts#test:release-journeys'
+  );
 });

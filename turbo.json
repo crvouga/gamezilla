@@ -3138,6 +3138,42 @@
       "outputs": [".cache/release-report/**"],
       "passThroughEnv": ["*"]
     },
+    "@apps/product-ts#test:release-journeys:0": {
+      "dependsOn": ["^src", "//#task:i18n:compile"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/specs/journeys/**",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["VERIFY_PROFILE"],
+      "outputs": [".cache/release-report/**"],
+      "passThroughEnv": ["*"]
+    },
+    "@apps/product-ts#test:release-journeys:1": {
+      "dependsOn": ["^src", "//#task:i18n:compile"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/specs/journeys/**",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["VERIFY_PROFILE"],
+      "outputs": [".cache/release-report/**"],
+      "passThroughEnv": ["*"]
+    },
+    "@apps/product-ts#test:release-journeys:2": {
+      "dependsOn": ["^src", "//#task:i18n:compile"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/specs/journeys/**",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["VERIFY_PROFILE"],
+      "outputs": [".cache/release-report/**"],
+      "passThroughEnv": ["*"]
+    },
     "@pkgs/db-indexes-root-shared-ts#mutants": {
       "cache": false,
       "passThroughEnv": ["*"]

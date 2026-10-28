@@ -114,6 +114,16 @@ import type { ReportTaskIdentity } from './verify-report-stream';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const DEPLOY_AGGREGATOR = '//#deploy';
+/**
+ * The release journeys run as this many tasks, each a share of the features
+ * (`apps/product-ts/scripts/test-release-journeys.ts --part=<k>/<n>`): one
+ * process outran its 600 s task budget and killed the shard.
+ */
+export const RELEASE_JOURNEY_PARTS = 3;
+export const RELEASE_JOURNEY_TASKS = Array.from(
+  { length: RELEASE_JOURNEY_PARTS },
+  (_, part) => `@apps/product-ts#test:release-journeys:${String(part)}`
+);
 export const MAIN_VERIFY_TASKS = [
   '@libs/tools-harness-ts#verify:root-lint',
   '@libs/tools-harness-ts#ci:syncpack',
@@ -147,7 +157,7 @@ export const MAIN_VERIFY_TASKS = [
   'test:unit:1',
   'test:unit:2',
   '@apps/product-ts#verify:offline-shell',
-  '@apps/product-ts#test:release-journeys',
+  ...RELEASE_JOURNEY_TASKS,
   '@apps/auth-relay-ts#verify:worker-bundle',
   '@apps/product-ts#verify:worker-bundle',
   '@apps/product-ts#verify:rendered-worker',

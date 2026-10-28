@@ -1,6 +1,6 @@
 // @io-wall-ok — CI owns the stack, production bundle, browser process and teardown.
 import { execFileSync, spawn } from 'node:child_process';
-import { mkdirSync, rmSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Denial } from '@pkgs/aedes-server-ts/start';
 import { wallClock } from '@pkgs/clock-shared-ts/wall';
@@ -27,7 +27,12 @@ import { databaseVerdict, profileOf } from './production-database';
 import { printReleasePairingEvidence } from './release-failure-diagnostics';
 import { releaseFailureTraces } from './release-failure-traces';
 import { printReleaseQueryEvidence } from './release-query-diagnostics';
-import { RELEASE_ENVIRONMENT, releaseSpecs } from './release-selection';
+import {
+  parseReleasePart,
+  RELEASE_ENVIRONMENT,
+  releaseSpecs,
+  splitReleaseSpecs,
+} from './release-selection';
 import { specProcessExit } from './spec-process';
 import { parseStackOptions } from './stack-options';
 
@@ -42,7 +47,10 @@ const options = parseStackOptions([
   '--production-database',
   '--edge-latency-ms=50',
 ]);
-const cli = parseCli(process.argv.slice(2));
+// `--part=<k>/<n>` picks the share of specs; `bun test` never sees it.
+const cli = parseCli(
+  process.argv.slice(2).filter((arg) => !arg.startsWith('--part='))
+);
 
 async function buildRelease(apiOrigin: string): Promise<void> {
   process.env['VITE_API_URL'] = apiOrigin;
@@ -105,8 +113,20 @@ function serveRelease(origin: string): ReturnType<typeof Bun.serve> {
   });
 }
 
+/** A feature costs about what it has scenarios; a part runs its share. */
+function scenarioCount(spec: string): number {
+  return (readFileSync(spec, 'utf8').match(/^\s*Scenario/gm) ?? []).length;
+}
+
+function specsToRun(): readonly string[] {
+  const part = parseReleasePart(process.argv.slice(2));
+  const all = releaseSpecs();
+  if (part === null) return all;
+  return splitReleaseSpecs(all, part.parts, scenarioCount)[part.part] ?? [];
+}
+
 function journeyStubs(): readonly string[] {
-  const selection = selectSpecs({ all: releaseSpecs(), cli });
+  const selection = selectSpecs({ all: specsToRun(), cli });
   if (!selection.ok) throw new Error(selection.error);
   const dirs = {
     stubDir: join(PACKAGE_DIR, '.cache/spec-release'),
