@@ -1,8 +1,9 @@
 // @io-wall-ok — compiler fixtures use isolated temporary directories.
 import { expect, test } from 'bun:test';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { cacheValueParameters } from '@pkgs/quint-server-ts/cache-value-parameters';
 import { typecheck } from '@pkgs/quint-server-ts/typecheck';
 import { verify } from '@pkgs/quint-server-ts/verify';
@@ -33,7 +34,7 @@ test('operators share the same pre-state field without duplicating its projectio
     writeFileSync(path, cached);
     expect(typecheck(path)).toEqual({ ok: true });
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    removeTree(dir, { whenLocked: 'leave' });
   }
 });
 
@@ -49,7 +50,7 @@ test('repeated pre-state projections are shared without capturing shadowed param
     writeFileSync(path, cached);
     expect(typecheck(path)).toEqual({ ok: true });
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    removeTree(dir, { whenLocked: 'leave' });
   }
 });
 
@@ -71,6 +72,6 @@ test('shared pre-state projections preserve a violating mixed-state transition',
     expect(result.output).toContain('found a counterexample');
     expect(result.output).toContain('count: 2');
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    removeTree(dir, { whenLocked: 'leave' });
   }
 }, 120_000);

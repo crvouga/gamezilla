@@ -1,7 +1,8 @@
 import { expect, test } from 'bun:test';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { archiveEntries } from './verify-evidence-archive';
 import { evidencePaths } from './verify-evidence-selection';
 import {
@@ -164,7 +165,7 @@ test('a fully cached plan schedules nothing and still accounts for every task', 
       { name: 'verify:shards', result: 'cached' },
     ]);
   } finally {
-    rmSync(fixture, { recursive: true, force: true });
+    removeTree(fixture, { whenLocked: 'leave' });
   }
 });
 

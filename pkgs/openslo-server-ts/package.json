@@ -20,6 +20,7 @@
     "@pkgs/openslo-shared-ts": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/os-server-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

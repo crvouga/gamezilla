@@ -24,6 +24,7 @@
     "@sqlite.org/sqlite-wasm": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/os-server-ts": "workspace:*",
     "@pkgs/sql-client-sqlite-web-client-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

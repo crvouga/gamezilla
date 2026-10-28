@@ -4,11 +4,11 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  rmSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { MODEL_DIR, REPORT_DIR } from './campaign-config';
 import { sourceDigest } from './source-digest';
 
@@ -51,6 +51,6 @@ export async function withSymbolicInput<T>(
     );
     return await check(join(dir, `${name}.qnt`), bound);
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    removeTree(dir, { whenLocked: 'leave' });
   }
 }

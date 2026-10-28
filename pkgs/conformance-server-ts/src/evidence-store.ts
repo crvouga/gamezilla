@@ -16,7 +16,6 @@ import {
   mkdirSync,
   readdirSync,
   readFileSync,
-  renameSync,
   writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
@@ -32,6 +31,7 @@ import {
 } from '@pkgs/conformance-shared-ts/evidence';
 import type { VariantRequirements } from '@pkgs/conformance-shared-ts/variants';
 import { isVariantRequirements } from '@pkgs/conformance-shared-ts/variants';
+import { renameReplacing } from '@pkgs/os-server-ts/rename-replacing';
 
 export function evidenceDir(reportDir: string): string {
   return join(reportDir, 'evidence');
@@ -52,7 +52,7 @@ export function recordEvidence(
   const file = join(dir, name);
   const temporary = `${file}.${String(process.pid)}.tmp`;
   writeFileSync(temporary, `${JSON.stringify(record, null, 2)}\n`);
-  renameSync(temporary, file);
+  renameReplacing(temporary, file);
 }
 
 function readRecord(file: string): EvidenceRecord | null {
@@ -136,7 +136,7 @@ export function recordVariantRequirements(
   const file = join(dir, `${evidenceKey(requirements.packageName)}.json`);
   const temporary = `${file}.${String(process.pid)}.tmp`;
   writeFileSync(temporary, `${JSON.stringify(requirements, null, 2)}\n`);
-  renameSync(temporary, file);
+  renameReplacing(temporary, file);
 }
 
 /** Every variant requirement declared in `reportDir`; malformed files are reported. */

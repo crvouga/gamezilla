@@ -1,11 +1,12 @@
 // @io-wall-ok — CI owns the stack, production bundle, browser process and teardown.
 import { execFileSync, spawn } from 'node:child_process';
-import { mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Denial } from '@pkgs/aedes-server-ts/start';
 import { wallClock } from '@pkgs/clock-shared-ts/wall';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server-ts/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { build } from 'vite';
 import { bootLocalhostStack } from './boot-stack';
 import { brokerVerdict } from './broker-denials';
@@ -33,7 +34,6 @@ import {
   releaseSpecs,
   splitReleaseSpecs,
 } from './release-selection';
-import { removeTemporaryDirectory as removeDirectory } from './remove-temporary-directory';
 import { specProcessExit } from './spec-process';
 import { parseStackOptions } from './stack-options';
 
@@ -134,7 +134,7 @@ function journeyStubs(): readonly string[] {
     reportDir: join(PACKAGE_DIR, '.cache/release-report'),
     timelineReports: true,
   };
-  rmSync(dirs.stubDir, { recursive: true, force: true });
+  removeTree(dirs.stubDir);
   mkdirSync(dirs.stubDir, { recursive: true });
   return writeFeatureStubs(
     RELEASE_ENVIRONMENT,
@@ -195,13 +195,9 @@ async function printFailureTraces(manifest: StackManifest): Promise<void> {
   }
 }
 
-/** Retries while Windows still holds a just-stopped stack's files. */
-function removeTemporaryDirectory(path: string): Promise<void> {
-  return removeDirectory(path, {
-    remove: (target) => rmSync(target, { recursive: true, force: true }),
-    sleep: (ms) => Bun.sleep(ms),
-    warn: (message) => console.warn(message),
-  });
+/** Teardown scratch: Windows may still hold a just-stopped stack's files. */
+function removeScratch(path: string): void {
+  removeTree(path, { whenLocked: 'leave' });
 }
 
 // Retain bounded statement profiles so a failed release check identifies the
@@ -244,12 +240,10 @@ try {
   if (process.exitCode !== undefined && process.exitCode !== 0)
     await printFailureTraces(stack.manifest);
   removeManifest(REPO_ROOT, options.instanceId);
-  if (!options.keepData) await removeTemporaryDirectory(stack.manifest.dataDir);
-  await removeTemporaryDirectory(DIST);
+  if (!options.keepData) removeScratch(stack.manifest.dataDir);
+  removeScratch(DIST);
   if (process.env['VERIFY_PROFILE'] !== 'nightly') {
-    await removeTemporaryDirectory(join(PACKAGE_DIR, '.cache/release-report'));
-    await removeTemporaryDirectory(
-      join(PACKAGE_DIR, '.cache/critical-journeys')
-    );
+    removeScratch(join(PACKAGE_DIR, '.cache/release-report'));
+    removeScratch(join(PACKAGE_DIR, '.cache/critical-journeys'));
   }
 }

@@ -7,13 +7,13 @@
 import './fixtures/access.binding';
 
 import { describe, expect, test } from 'bun:test';
-import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { readEvidence } from '@pkgs/conformance-server-ts/evidence-store';
 import { runDecisionSpec } from '@pkgs/dmn-server-ts/bun-test';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 const REPORT = join(import.meta.dir, '../.cache/test-reports/bun-test');
-rmSync(REPORT, { recursive: true, force: true });
+removeTree(REPORT, { whenLocked: 'leave' });
 
 runDecisionSpec({
   packageName: '@pkgs/dmn',

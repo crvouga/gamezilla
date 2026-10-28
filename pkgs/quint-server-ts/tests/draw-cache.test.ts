@@ -4,11 +4,11 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  rmSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { cachedQuintDir } from '@pkgs/quint-server-ts/draw-cache';
 
 test('a prepared artifact restored on another runner supplies the same draw without generating it again', () => {
@@ -55,7 +55,7 @@ test('a prepared artifact restored on another runner supplies the same draw with
   } finally {
     if (before === undefined) delete process.env['HARNESS_REPORT_DIR'];
     else process.env['HARNESS_REPORT_DIR'] = before;
-    for (const root of roots) rmSync(root, { recursive: true, force: true });
+    for (const root of roots) removeTree(root, { whenLocked: 'leave' });
   }
 });
 
@@ -96,6 +96,6 @@ test('a failure an earlier run left behind does not fail a later draw', () => {
   } finally {
     if (before === undefined) delete process.env['HARNESS_REPORT_DIR'];
     else process.env['HARNESS_REPORT_DIR'] = before;
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });

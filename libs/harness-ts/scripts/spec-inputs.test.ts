@@ -1,17 +1,12 @@
 import { expect, test } from 'bun:test';
-import {
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   specInputProblems,
   writeSpecInputs,
 } from '@libs/harness-ts/spec-inputs';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 function fixture(): string {
   const root = mkdtempSync(join(tmpdir(), 'spec-inputs-'));
@@ -67,7 +62,7 @@ test('an edit invalidates its owned part while unrelated spec verdicts remain re
     writeSpecInputs(root);
     expect(fingerprints(root)).toEqual(after);
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });
 
@@ -93,6 +88,6 @@ test('an imported model edit invalidates every part that consumes the model', ()
       expect(value !== before[i]).toBe(consumes);
     }
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });

@@ -1,7 +1,8 @@
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared-ts/reconcile-postgres-schema';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { freePostgresPort } from '@pkgs/postgres-mockingbird-server-ts/free-port';
 import { startMockingbirdPostgres } from '@pkgs/postgres-mockingbird-server-ts/start';
 import {
@@ -33,7 +34,7 @@ export async function openRollbackHost(driver: 'pool' | 'session' | 'bun') {
       try {
         await pg.stop();
       } finally {
-        rmSync(dataDir, { recursive: true, force: true });
+        removeTree(dataDir, { whenLocked: 'leave' });
       }
     }
   };

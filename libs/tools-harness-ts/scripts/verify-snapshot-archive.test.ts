@@ -1,14 +1,9 @@
 import { expect, test } from 'bun:test';
 import { execFileSync } from 'node:child_process';
-import {
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { archiveVerifySnapshot } from './verify-snapshot-archive';
 
 test('diagnostics retain failures and exclude the local credential cache', async () => {
@@ -36,6 +31,6 @@ test('diagnostics retain failures and exclude the local credential cache', async
     ).toBe('literal failing input retained');
     expect(existsSync(root)).toBe(false);
   } finally {
-    rmSync(container, { recursive: true, force: true });
+    removeTree(container, { whenLocked: 'leave' });
   }
 });

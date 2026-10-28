@@ -1,8 +1,9 @@
 // @io-wall-ok — temporary model inputs exercise the actual Quint compiler.
 import { expect, test } from 'bun:test';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { cacheValueParameters } from '@pkgs/quint-server-ts/cache-value-parameters';
 import { typecheck } from '@pkgs/quint-server-ts/typecheck';
 import { verify } from '@pkgs/quint-server-ts/verify';
@@ -26,7 +27,7 @@ test('record field reads cache inferred values while operator parameters remain 
     writeFileSync(path, cached);
     expect(typecheck(path)).toEqual({ ok: true });
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    removeTree(dir, { whenLocked: 'leave' });
   }
 });
 
@@ -55,7 +56,7 @@ test('cached value parameters preserve sum constructors and local shadowing', ()
     writeFileSync(path, cached);
     expect(typecheck(path)).toEqual({ ok: true });
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    removeTree(dir, { whenLocked: 'leave' });
   }
 });
 
@@ -92,6 +93,6 @@ test('cached verification retains imported rules and refutes the same violating 
     expect(result.output).toContain('found a counterexample');
     expect(result.output).toContain('[State 2] { count: 2 }');
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    removeTree(dir, { whenLocked: 'leave' });
   }
 }, 120_000);

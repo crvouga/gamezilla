@@ -39,7 +39,6 @@ import {
   mkdirSync,
   readdirSync,
   readFileSync,
-  rmSync,
   writeFileSync,
 } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
@@ -54,6 +53,7 @@ import { createDeadlineFetch } from '@pkgs/http-client-shared-ts/deadline-fetch'
 import { createGlobalHttpClient } from '@pkgs/http-client-shared-ts/global';
 import { isLiveObjectiveSource } from '@pkgs/openslo-shared-ts/live';
 import { sloStubFileName, sloStubSource } from '@pkgs/openslo-shared-ts/stubs';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { featureVerdicts, recordCheckResults } from './health-check-results';
 
@@ -336,7 +336,7 @@ export function hostSkips(
 /** Fresh stub and report directories for a run of one kind. */
 function freshDirs(dirs: RunDirs): void {
   for (const dir of [dirs.stubDir, dirs.reportDir]) {
-    rmSync(dir, { recursive: true, force: true });
+    removeTree(dir);
     mkdirSync(dir, { recursive: true });
   }
 }

@@ -1,9 +1,10 @@
 // @io-wall-ok — artifact transfer process adapter; signed URLs never reach logs.
 import { spawn } from 'node:child_process';
-import { readdirSync, rmSync } from 'node:fs';
+import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import {
   ciArtifactsStore,
   downloadArtifact,
@@ -95,7 +96,7 @@ if (import.meta.main) {
       consumer: {
         consume: consumeTransfer,
         release: async (directory) => {
-          rmSync(directory, { recursive: true, force: true });
+          removeTree(directory, { whenLocked: 'leave' });
         },
       },
     });

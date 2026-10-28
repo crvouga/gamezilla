@@ -1,9 +1,10 @@
 import { expect, test } from 'bun:test';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawnOwned } from '@pkgs/os-server-ts/dev-owner-spawn';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 // regression: local-auth-http-scope-cross-talk
 // regression: server-startup-fixture-encoded-path
@@ -38,6 +39,6 @@ test('cold server bootstrap isolates overlapping local HTTP invocations', async 
       userinfo: 'https://provider.example/userinfo',
     });
   } finally {
-    rmSync(directory, { recursive: true, force: true });
+    removeTree(directory, { whenLocked: 'leave' });
   }
 });

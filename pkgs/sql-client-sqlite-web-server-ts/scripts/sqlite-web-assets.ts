@@ -19,11 +19,11 @@ import {
   existsSync,
   mkdirSync,
   readdirSync,
-  rmSync,
   statSync,
 } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join, relative } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import * as esbuild from 'esbuild';
 import type { Plugin } from 'vite';
@@ -120,7 +120,7 @@ export async function buildSqlWorkers(
 
   mkdirSync(outDir, { recursive: true });
   for (const stale of STALE_WORKER_FILES) {
-    rmSync(join(outDir, stale), { force: true, recursive: true });
+    removeTree(join(outDir, stale));
   }
 
   await Promise.all(

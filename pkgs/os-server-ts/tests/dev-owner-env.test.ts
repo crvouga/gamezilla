@@ -1,8 +1,9 @@
 import { expect, test } from 'bun:test';
-import { mkdtempSync, realpathSync, rmSync } from 'node:fs';
+import { mkdtempSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnOwned } from '@pkgs/os-server-ts/dev-owner-spawn';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 // regression: dev-owner-restores-filtered-env
 test('owned processes keep an explicit environment isolated from parent bindings', async () => {
@@ -43,6 +44,6 @@ test('owned processes keep an explicit environment isolated from parent bindings
   } finally {
     if (previous === undefined) delete process.env['DEV_OWNER_ENV_TEST_SECRET'];
     else process.env['DEV_OWNER_ENV_TEST_SECRET'] = previous;
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });

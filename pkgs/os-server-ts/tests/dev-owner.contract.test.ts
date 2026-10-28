@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { spawn } from 'node:child_process';
-import { existsSync, mkdtempSync, realpathSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { gcDevOwner } from '@pkgs/os-server-ts/dev-owner-gc';
@@ -9,6 +9,7 @@ import {
   ownerProcess,
   processSnapshot,
 } from '@pkgs/os-server-ts/dev-owner-state';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 const fixture = join(import.meta.dirname, 'dev-owner-node-fixture.cjs');
 const runFixture = join(import.meta.dirname, 'dev-owner-run-fixture.cjs');
@@ -62,8 +63,8 @@ test('gc reaps SIGTERM-resistant child and grandchild sessions after SIGKILL, pr
   } finally {
     await gcDevOwner(a, true);
     await gcDevOwner(b, true);
-    rmSync(a, { recursive: true, force: true });
-    rmSync(b, { recursive: true, force: true });
+    removeTree(a, { whenLocked: 'leave' });
+    removeTree(b, { whenLocked: 'leave' });
   }
 }, 60000);
 
@@ -120,7 +121,7 @@ test('second start and gc preserve a live boot; watchdog reaps supervisor SIGKIL
   } finally {
     first.kill('SIGKILL');
     await gcDevOwner(root, true);
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 }, 60000);
 
@@ -151,7 +152,7 @@ test('owned bun x executes its native subcommand without treating it as a packag
     expect(output).toContain('Version:');
   } finally {
     await gcDevOwner(root, true);
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 }, 30000);
 
@@ -183,7 +184,7 @@ test('owned bun run keeps leading flags and executes the script', async () => {
     expect(output).not.toContain('Usage: bun run');
   } finally {
     await gcDevOwner(root, true);
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 }, 30000);
 
@@ -209,6 +210,6 @@ test('gc preserves a stamped launch while its original supervisor is alive befor
     expect(owned(root).map((row) => row.pid)).toEqual([child.pid ?? -1]);
   } finally {
     await gcDevOwner(root, true);
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 }, 30000);

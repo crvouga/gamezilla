@@ -5,11 +5,11 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  rmSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 const ROOT = join(import.meta.dirname, '../../..');
 const LIB = 'pkgs/clock-shared-swift';
@@ -155,7 +155,7 @@ test('a native library change reruns its app, a test change does not, and other 
       '@pkgs/clock-shared-swift#test',
     ]);
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });
 
@@ -182,6 +182,6 @@ test('a native verdict never answers for another host or toolchain', () => {
     );
     expect(changed(host, hashes(root))).toEqual(expect.arrayContaining(native));
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });

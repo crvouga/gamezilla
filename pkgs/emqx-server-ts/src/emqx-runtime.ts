@@ -1,7 +1,8 @@
 // @io-wall-ok — prepares the native broker distribution for its process runner.
-import { cpSync, mkdtempSync, realpathSync, rmSync } from 'node:fs';
+import { cpSync, mkdtempSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 export type EmqxRuntime = {
@@ -42,13 +43,13 @@ export function prepareEmqxRuntime(bin: string): EmqxRuntime {
       },
     });
   } catch (error) {
-    rmSync(runtime, { recursive: true, force: true });
+    removeTree(runtime, { whenLocked: 'leave' });
     throw error;
   }
   return {
     bin: join(runtime, slashPath(relative(root, resolved))),
     dispose() {
-      rmSync(runtime, { recursive: true, force: true });
+      removeTree(runtime, { whenLocked: 'leave' });
     },
   };
 }

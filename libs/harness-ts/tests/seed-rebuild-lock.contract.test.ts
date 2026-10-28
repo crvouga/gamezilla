@@ -1,10 +1,11 @@
 import { expect, test } from 'bun:test';
 import { once } from 'node:events';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { withSeedRebuildLock } from '@libs/harness-ts/seed-rebuild-lock';
 import { spawnOwned } from '@pkgs/os-server-ts/dev-owner-spawn';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 // regression: harness-seed-lock-release-race
 // regression: harness-seed-release-reclaims-live-waiter
@@ -35,7 +36,7 @@ test('one process rebuilds a seed while another waits', async () => {
     await Promise.all([first, second]);
     expect(overlap).toBe(1);
   } finally {
-    await rm(dir, { recursive: true, force: true });
+    removeTree(dir, { whenLocked: 'leave' });
   }
 });
 
@@ -64,7 +65,7 @@ test('a lock held by a terminated process is released by the OS', async () => {
   } finally {
     if (child.exitCode === null && child.signalCode === null)
       child.kill('SIGKILL');
-    await rm(dir, { recursive: true, force: true });
+    removeTree(dir, { whenLocked: 'leave' });
   }
 });
 
@@ -84,7 +85,7 @@ test('a checkout with no cache directory still rebuilds its seed', async () => {
     );
     expect(ran).toBe(true);
   } finally {
-    await rm(dir, { recursive: true, force: true });
+    removeTree(dir, { whenLocked: 'leave' });
   }
 });
 
@@ -102,6 +103,6 @@ test('a failed builder releases its lease for the next rebuild', async () => {
     });
     expect(ran).toBe(true);
   } finally {
-    await rm(dir, { recursive: true, force: true });
+    removeTree(dir, { whenLocked: 'leave' });
   }
 });

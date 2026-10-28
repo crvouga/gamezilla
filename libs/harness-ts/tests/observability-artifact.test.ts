@@ -1,20 +1,15 @@
 // @io-wall-ok — failure-fixture subprocess and temporary artifact inspection.
 import { afterAll, expect, test } from 'bun:test';
 import { spawnSync } from 'node:child_process';
-import {
-  existsSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 const ROOT = mkdtempSync(join(tmpdir(), 'harness-observability-'));
 
 afterAll(() => {
-  rmSync(ROOT, { recursive: true, force: true });
+  removeTree(ROOT, { whenLocked: 'leave' });
 });
 
 test('an ordinary failing spec is queryable by its exact test name', () => {

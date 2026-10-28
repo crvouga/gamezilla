@@ -1,14 +1,9 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { spawnSync } from 'node:child_process';
-import {
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
@@ -587,7 +582,7 @@ beforeAll(() => {
 }, 60_000);
 
 afterAll(() => {
-  rmSync(PROBE_ROOT, { recursive: true, force: true });
+  removeTree(PROBE_ROOT, { whenLocked: 'leave' });
 });
 
 describe('import-boundary Grit rules', () => {

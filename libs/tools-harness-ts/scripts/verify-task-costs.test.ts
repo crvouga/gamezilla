@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import {
   measuredCosts,
   mergeCosts,
@@ -156,7 +157,7 @@ describe('measured costs', () => {
       writeFileSync(path, 'not json');
       expect(readScheduleCosts(path)).toEqual(committed);
     } finally {
-      rmSync(fixture, { recursive: true, force: true });
+      removeTree(fixture, { whenLocked: 'leave' });
     }
   });
 });

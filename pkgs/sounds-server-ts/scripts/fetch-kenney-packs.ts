@@ -1,8 +1,9 @@
 // @io-wall-ok
-import { mkdir, rm } from 'node:fs/promises';
+import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { wallClock } from '@pkgs/clock-shared-ts/wall';
 import { createLogger } from '@pkgs/logger-shared-ts/logger';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 const log = createLogger({ name: 'sounds:fetch-kenney', now: wallClock.now });
 
@@ -67,7 +68,7 @@ async function extractZip(zipPath: string, destDir: string): Promise<void> {
 
 async function main(): Promise<void> {
   await mkdir(CACHE, { recursive: true });
-  await rm(STAGING, { recursive: true, force: true });
+  removeTree(STAGING);
   await mkdir(STAGING, { recursive: true });
 
   for (const pack of PACKS) {

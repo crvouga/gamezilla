@@ -6,7 +6,7 @@
  * environment's API, then one version with assets, API and rooms. Hostnames are bound by
  * the OpenTofu edge stack afterwards; `health` checks they serve.
  */
-import { readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   assertRoomNamespacePreserved,
@@ -21,6 +21,7 @@ import {
   assertCommitDateIso,
   COMMIT_HASH_HEX_REGEX,
 } from '@pkgs/git-shared-ts/git';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import {
   activeEnvFile,
   deployWorker,
@@ -54,10 +55,7 @@ function resolveCommitDate(): string {
 }
 
 function cleanupProductDist(): void {
-  rmSync(join(productDir, 'dist'), {
-    recursive: true,
-    force: true,
-  });
+  removeTree(join(productDir, 'dist'));
 }
 
 function writeDistHeaders(): void {

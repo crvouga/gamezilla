@@ -15,8 +15,9 @@
  * and says so, because an Apple build that did not happen is not a pass.
  */
 import { spawnSync } from 'node:child_process';
-import { readdirSync, readFileSync, rmSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import {
   readPins,
   resolveDeveloperDir,
@@ -136,7 +137,7 @@ async function test(args: {
     throw new ToolchainError(`cannot create a simulator:\n${created.stderr}`);
   const udid = created.stdout.trim();
   const results = join('.cache', 'test-results', `${args.scheme}.xcresult`);
-  rmSync(results, { recursive: true, force: true });
+  removeTree(results);
   const release = () => {
     xcrun(['simctl', 'shutdown', udid], args.env);
     xcrun(['simctl', 'delete', udid], args.env);

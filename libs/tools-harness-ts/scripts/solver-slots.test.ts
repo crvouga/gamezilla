@@ -1,7 +1,8 @@
 import { expect, test } from 'bun:test';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import {
   SOLVER_SLOTS_DIR_ENV,
   SOLVER_SLOTS_ENV,
@@ -39,14 +40,14 @@ test('proofs beyond the machine-wide slots wait instead of running', async () =>
   gate.resolve();
   await proofs;
   expect(peak).toBe(2);
-  rmSync(dir, { recursive: true, force: true });
+  removeTree(dir, { whenLocked: 'leave' });
 });
 
 test('a slot left by a dead process is reclaimed', async () => {
   const { dir, env } = slotsEnv(1);
   writeFileSync(join(dir, 'slot-0'), '2147483646');
   expect(await withSolverSlot(async () => 'ran', env)).toBe('ran');
-  rmSync(dir, { recursive: true, force: true });
+  removeTree(dir, { whenLocked: 'leave' });
 });
 
 test('slots scale with cores and stop at four proofs', () => {

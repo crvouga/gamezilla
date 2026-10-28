@@ -1,10 +1,11 @@
 #!/usr/bin/env bun
 // @io-wall-ok — statechart compiler entry; file and process ports meet here.
-import { mkdirSync, readFileSync, rmSync, watch, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, watch, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { loadSpecDirectory, machineToScxml } from '@crvouga/atlas';
 import { StateNodeSchema } from '@crvouga/atlas/schema';
 import { run } from '@pkgs/os-server-ts/command';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { startProcess } from '@pkgs/os-server-ts/streaming-process';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { analyzeStatecharts } from './statechart-analysis';
@@ -84,7 +85,7 @@ function writeGuide(
   machine: ReturnType<typeof productGuide>,
   artifacts: Record<string, unknown>
 ): void {
-  rmSync(SPECS, { recursive: true, force: true });
+  removeTree(SPECS);
   mkdirSync(SPECS, { recursive: true });
   for (const path of new Bun.Glob('**/*').scanSync({
     cwd: CHARTS,

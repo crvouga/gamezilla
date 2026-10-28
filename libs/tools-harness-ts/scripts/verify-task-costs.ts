@@ -4,12 +4,12 @@ import {
   mkdtempSync,
   readdirSync,
   readFileSync,
-  rmSync,
   statSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import {
   ciArtifactsStore,
   downloadArtifact,
@@ -217,7 +217,7 @@ async function downloadRunSummaries(runId: string): Promise<string[]> {
       .filter((path) => /shard-\d+\.json$/.test(path))
       .map((path) => readFileSync(path, 'utf8'));
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    removeTree(dir, { whenLocked: 'leave' });
   }
 }
 

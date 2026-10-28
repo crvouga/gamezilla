@@ -8,13 +8,17 @@ export type ActorBrowserStorage = {
 export async function createActorBrowserStorage(
   id: string
 ): Promise<ActorBrowserStorage> {
-  const { mkdtemp, rm } = await import('node:fs/promises');
+  const { mkdtemp } = await import('node:fs/promises');
   const { tmpdir } = await import('node:os');
   const { join } = await import('node:path');
+  const { removeTree } = await import('@pkgs/os-server-ts/remove-tree');
   const directory = await mkdtemp(join(tmpdir(), `harness-webview-${id}-`));
   return {
     dataStore: { directory },
-    cleanup: () => rm(directory, { recursive: true, force: true }),
+    cleanup: () => {
+      removeTree(directory, { whenLocked: 'leave' });
+      return Promise.resolve();
+    },
   };
 }
 

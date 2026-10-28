@@ -4,11 +4,11 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  rmSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { resolveCacheFlag } from './turbo-ci-run';
 import { wallRemoteHas } from './turbo-preflight';
 
@@ -177,12 +177,12 @@ test('real Turbo restores remote outputs and invalidates only changed inputs and
     for (const key of artifacts.keys()) expect(key).toContain('?slug=fixture');
     const before = await hashes(root, env);
     for (const name of ['a', 'b', 'c']) {
-      rmSync(join(root, 'packages', name, 'dist'), { recursive: true });
-      rmSync(join(root, 'packages', name, '.cache/harness-report/models'), {
-        recursive: true,
+      removeTree(join(root, 'packages', name, 'dist'), { whenLocked: 'leave' });
+      removeTree(join(root, 'packages', name, '.cache/harness-report/models'), {
+        whenLocked: 'leave',
       });
     }
-    rmSync(join(root, '.turbo/cache'), { recursive: true });
+    removeTree(join(root, '.turbo/cache'), { whenLocked: 'leave' });
     expect(await invoke(root, env, args)).toContain('3 cached, 3 total');
     expect(
       readFileSync(
@@ -242,6 +242,6 @@ test('real Turbo restores remote outputs and invalidates only changed inputs and
     }
   } finally {
     server.stop(true);
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 }, 30_000);

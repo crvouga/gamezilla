@@ -1,0 +1,12 @@
+language js
+
+// Perf: a whole-file substring test gates the tree walk.
+file($body) where {
+  $body <: includes "renameSync",
+  $body <: contains bubble or {
+    `renameSync($from, $to)`,
+    `$fs.renameSync($from, $to)`
+  } as $call where {
+    register_diagnostic(span=$call, message="A bare renameSync fails with EPERM/EACCES/EBUSY on Windows while another process holds the destination, which POSIX replaces atomically. Use renameReplacing from @pkgs/os-server-ts/rename-replacing, which waits out the lock.", severity="error")
+  }
+}

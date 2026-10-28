@@ -5,11 +5,11 @@ import {
   mkdirSync,
   readdirSync,
   readFileSync,
-  renameSync,
   rmSync,
   writeFileSync,
 } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
+import { renameReplacing } from '@pkgs/os-server-ts/rename-replacing';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { quintImportPaths } from '@pkgs/quint-shared-ts/imports';
 import { packageSpecUnits } from './replay-plans';
@@ -115,7 +115,7 @@ function writeChanged(path: string, value: string): void {
   const temporary = `${path}.${process.pid}.tmp`;
   try {
     writeFileSync(temporary, value);
-    renameSync(temporary, path);
+    renameReplacing(temporary, path);
   } finally {
     rmSync(temporary, { force: true });
   }

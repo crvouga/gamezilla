@@ -4,12 +4,12 @@ import {
   mkdtempSync,
   readdirSync,
   readFileSync,
-  rmSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, sep } from 'node:path';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
 import {
@@ -60,8 +60,8 @@ async function roundTrip(
     await downloadArtifact({ store, runId: '7', name: 'a', directory: out });
     return tree(out);
   } finally {
-    rmSync(root, { recursive: true, force: true });
-    rmSync(out, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
+    removeTree(out, { whenLocked: 'leave' });
   }
 }
 
@@ -122,7 +122,7 @@ test('nothing matched uploads nothing', () => {
       collectFiles(root, ['.turbo/runs/*.json', 'missing/']).files
     ).toEqual([]);
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });
 
@@ -138,7 +138,7 @@ test('uploading a name again replaces it rather than merging', async () => {
         ...collectFiles(root, Object.keys(files)),
       });
     } finally {
-      rmSync(root, { recursive: true, force: true });
+      removeTree(root, { whenLocked: 'leave' });
     }
   };
   await put({ 'old.json': 'old' });
@@ -183,7 +183,7 @@ test('every artifact of a run downloads into its own directory, and only that ru
       'observability-traces-42-1/trace.txt': `1:${big}`,
     });
   } finally {
-    rmSync(out, { recursive: true, force: true });
+    removeTree(out, { whenLocked: 'leave' });
   }
   expect(
     await deleteArtifacts({ store, runId: '42', prefix: 'observability-' })

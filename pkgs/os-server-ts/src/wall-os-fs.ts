@@ -1,6 +1,7 @@
 // @io-wall-ok
-import { chmodSync, existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
 import type { OsFs } from '@pkgs/os-shared-ts/os-fs';
+import { removeTree } from './remove-tree';
 
 export function wallOsFs(): OsFs {
   return {
@@ -11,7 +12,7 @@ export function wallOsFs(): OsFs {
     chmodSync,
     readdirSync: (absolutePath) => readdirSync(absolutePath),
     rmrfSync: (absolutePath) => {
-      rmSync(absolutePath, { recursive: true, force: true });
+      removeTree(absolutePath);
     },
   };
 }

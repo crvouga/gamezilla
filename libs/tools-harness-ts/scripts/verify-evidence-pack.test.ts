@@ -3,12 +3,12 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  rmSync,
   statSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { archiveEntries, extractEvidence } from './verify-evidence-archive';
 import { packShardEvidence } from './verify-evidence-pack';
 
@@ -42,6 +42,6 @@ test('verdict archives contain only results and the plan while rendered evidence
       '{"index":0,"verdict":1}'
     );
   } finally {
-    rmSync(fixture, { recursive: true, force: true });
+    removeTree(fixture, { whenLocked: 'leave' });
   }
 });

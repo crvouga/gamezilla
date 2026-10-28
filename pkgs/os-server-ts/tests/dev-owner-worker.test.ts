@@ -1,8 +1,9 @@
 import { expect, test } from 'bun:test';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnOwned } from '@pkgs/os-server-ts/dev-owner-spawn';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 // regression: dev-owner-worker-temp-collision
 test('concurrent Node worker registrations publish one complete owner record', async () => {
@@ -36,6 +37,6 @@ test('concurrent Node worker registrations publish one complete owner record', a
     expect(record).toMatchObject({ pid: child.pid, boot: 'worker-collision' });
   } finally {
     child.kill('SIGKILL');
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });

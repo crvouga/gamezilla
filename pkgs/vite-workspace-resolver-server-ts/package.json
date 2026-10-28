@@ -20,6 +20,7 @@
     "vite": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/os-server-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

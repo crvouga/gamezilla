@@ -12,6 +12,7 @@
   "devDependencies": {
     "@pkgs/clock-shared-ts": "workspace:*",
     "@pkgs/logger-shared-ts": "workspace:*",
+    "@pkgs/os-server-ts": "workspace:*",
     "@pkgs/sounds-shared-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

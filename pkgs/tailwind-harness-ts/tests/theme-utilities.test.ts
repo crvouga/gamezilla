@@ -10,10 +10,11 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 const PKG_ROOT = resolve(import.meta.dir, '..');
 const REPO_ROOT = resolve(PKG_ROOT, '../..');
@@ -44,7 +45,7 @@ describe('token color utilities', () => {
       expect(css).toContain('.border-border');
       expect(css).toContain('.bg-scrim');
     } finally {
-      await rm(scratch, { recursive: true, force: true });
+      removeTree(scratch, { whenLocked: 'leave' });
     }
     // Scans the whole monorepo: ~3 s alone, past bun's 5 s default under a
     // parallel turbo run.

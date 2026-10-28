@@ -2080,6 +2080,7 @@
         "@pkgs/matchmaking-sql-shared-ts": "workspace:*",
         "@pkgs/message-shared-ts": "workspace:*",
         "@pkgs/openslo-shared-ts": "workspace:*",
+        "@pkgs/os-server-ts": "workspace:*",
         "@pkgs/outbox-shared-ts": "workspace:*",
         "@pkgs/permissions-shared-ts": "workspace:*",
         "@pkgs/property-shared-ts": "workspace:*",
@@ -3837,6 +3838,7 @@
         "@pkgs/alloy-shared-ts": "workspace:*",
         "@pkgs/conformance-server-ts": "workspace:*",
         "@pkgs/conformance-shared-ts": "workspace:*",
+        "@pkgs/os-server-ts": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -4272,6 +4274,7 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/os-server-ts": "workspace:*",
         "@pkgs/property-shared-ts": "workspace:*",
         "@types/babel__core": "catalog:",
         "@types/bun": "catalog:",
@@ -4484,6 +4487,7 @@
         "@pkgs/conformance-shared-ts": "workspace:*",
       },
       "devDependencies": {
+        "@pkgs/os-server-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -4791,6 +4795,7 @@
         "@pkgs/dmn-shared-ts": "workspace:*",
       },
       "devDependencies": {
+        "@pkgs/os-server-ts": "workspace:*",
         "@pkgs/property-shared-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -4984,6 +4989,7 @@
       },
       "devDependencies": {
         "@pkgs/object-store-root-shared-ts": "workspace:*",
+        "@pkgs/os-server-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -5387,6 +5393,7 @@
       "devDependencies": {
         "@pkgs/alloy-shared-ts": "workspace:*",
         "@pkgs/gherkin-shared-ts": "workspace:*",
+        "@pkgs/os-server-ts": "workspace:*",
         "@pkgs/quint-server-ts": "workspace:*",
         "@pkgs/quint-shared-ts": "workspace:*",
         "@types/bun": "catalog:",
@@ -5546,6 +5553,7 @@
         "@pkgs/os-shared-ts": "workspace:*",
       },
       "devDependencies": {
+        "@pkgs/os-server-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -5829,6 +5837,7 @@
         "@pkgs/openslo-shared-ts": "workspace:*",
       },
       "devDependencies": {
+        "@pkgs/os-server-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -6079,6 +6088,7 @@
         "@informalsystems/quint": "catalog:",
         "@pkgs/conformance-server-ts": "workspace:*",
         "@pkgs/conformance-shared-ts": "workspace:*",
+        "@pkgs/os-server-ts": "workspace:*",
         "@pkgs/os-shared-ts": "workspace:*",
         "@pkgs/quint-shared-ts": "workspace:*",
       },
@@ -6397,6 +6407,7 @@
       },
       "devDependencies": {
         "@pkgs/object-store-node-fs-server-ts": "workspace:*",
+        "@pkgs/os-server-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -6494,6 +6505,7 @@
       "devDependencies": {
         "@pkgs/clock-shared-ts": "workspace:*",
         "@pkgs/logger-shared-ts": "workspace:*",
+        "@pkgs/os-server-ts": "workspace:*",
         "@pkgs/sounds-shared-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -6735,6 +6747,7 @@
         "@sqlite.org/sqlite-wasm": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/os-server-ts": "workspace:*",
         "@pkgs/sql-client-sqlite-web-client-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -6867,6 +6880,7 @@
         "@pkgs/db-schema-postgres-shared-ts": "workspace:*",
         "@pkgs/gherkin-shared-ts": "workspace:*",
         "@pkgs/openslo-shared-ts": "workspace:*",
+        "@pkgs/os-server-ts": "workspace:*",
         "@pkgs/postgres-mockingbird-server-ts": "workspace:*",
         "@pkgs/property-shared-ts": "workspace:*",
         "@pkgs/quint-shared-ts": "workspace:*",
@@ -6938,6 +6952,7 @@
       "name": "@pkgs/tailwind-harness-ts",
       "version": "0.0.0",
       "devDependencies": {
+        "@pkgs/os-server-ts": "workspace:*",
         "@tailwindcss/cli": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -7370,6 +7385,7 @@
         "vite": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/os-server-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",

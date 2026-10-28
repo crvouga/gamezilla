@@ -17,7 +17,8 @@
   "dependencies": {
     "@pkgs/alloy-shared-ts": "workspace:*",
     "@pkgs/conformance-server-ts": "workspace:*",
-    "@pkgs/conformance-shared-ts": "workspace:*"
+    "@pkgs/conformance-shared-ts": "workspace:*",
+    "@pkgs/os-server-ts": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

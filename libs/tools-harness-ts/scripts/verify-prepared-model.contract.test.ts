@@ -5,11 +5,11 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  rmSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { createVerifySnapshot } from './verify-snapshot';
 import { archiveVerifySnapshot } from './verify-snapshot-archive';
 
@@ -52,7 +52,7 @@ test('prepared model inputs are private while stale verification evidence stays 
     expect(readFileSync(join(source, MODEL), 'utf8')).toBe('prepared model');
   } finally {
     for (const root of [source, ...runs.map(dirname)])
-      rmSync(root, { recursive: true, force: true });
+      removeTree(root, { whenLocked: 'leave' });
   }
 });
 
@@ -71,6 +71,6 @@ test('diagnostics retain results without archiving the installed model', async (
     expect(entries).toContain('verdict.json');
     expect(entries).not.toContain('.cache/ui-quality-model');
   } finally {
-    rmSync(source, { recursive: true, force: true });
+    removeTree(source, { whenLocked: 'leave' });
   }
 });

@@ -1,14 +1,9 @@
 import { expect, test } from 'bun:test';
 import { execFileSync } from 'node:child_process';
-import {
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { cacheDiagnostics } from './verify-cache-diagnostics';
 
 type DryTask = { taskId: string; hash: string; inputs: Record<string, string> };
@@ -103,7 +98,7 @@ test('unlimited local results cannot satisfy a bounded runner cache key', () => 
         unlimited.find((other) => other.taskId === task.taskId)?.hash
       ).not.toBe(task.hash);
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });
 
@@ -148,7 +143,7 @@ test('explicit spec fingerprints remain hashed even though their cache directory
       );
     }
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });
 
@@ -176,7 +171,7 @@ test('exact task selection preserves dependency hashes across shards, secrets, r
     for (const task of selected)
       expect(task.hash).toBe(hashes.get(task.taskId)!);
   } finally {
-    for (const root of roots) rmSync(root, { recursive: true, force: true });
+    for (const root of roots) removeTree(root, { whenLocked: 'leave' });
   }
 });
 
@@ -193,7 +188,7 @@ test('literal volatile Vite metadata is excluded while real source remains hashe
     expect(dry(root, ['build'])[0]!.hash).not.toBe(first.hash);
     expect(config.tasks['build']!.outputs).toContain('dist/**');
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });
 
@@ -291,7 +286,7 @@ test.each([
     if (change === 'unchanged') expect(updated).toBe(initial.hash);
     else expect(updated).not.toBe(initial.hash);
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });
 
@@ -333,7 +328,7 @@ test('a bounded spec verdict never satisfies an exploring run, nor one budget an
     for (const [id, task] of parts)
       expect(task.env, id).toContain('QUINT_REPLAY_TRACES');
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });
 
@@ -382,7 +377,7 @@ test('a package the root manifest depends on is hashed into every task', () => {
       if (rootDependsOnB) expect(hashOfA(root)).not.toBe(before);
       else expect(hashOfA(root)).toBe(before);
     } finally {
-      rmSync(root, { recursive: true, force: true });
+      removeTree(root, { whenLocked: 'leave' });
     }
   }
 });
@@ -482,6 +477,6 @@ test.each([
       before
     );
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });

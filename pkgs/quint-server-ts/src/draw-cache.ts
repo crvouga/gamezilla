@@ -9,6 +9,7 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 const WAIT_SLICES = 1800;
 const SLEEP_MS = 100;
@@ -84,7 +85,7 @@ function tryProduce(
   const itf = join(dir, ITF);
   try {
     writeFileSync(join(lock, 'pid'), String(process.pid));
-    rmSync(itf, { recursive: true, force: true });
+    removeTree(itf);
     mkdirSync(itf, { recursive: true });
     produce(itf);
     writeFileSync(join(dir, 'ready'), '');
@@ -96,7 +97,7 @@ function tryProduce(
     );
     throw error;
   } finally {
-    rmSync(lock, { recursive: true, force: true });
+    removeTree(lock, { whenLocked: 'leave' });
   }
 }
 
@@ -113,8 +114,7 @@ function waitForDraw(dir: string, produce: (itfDir: string) => void): string {
   if (existsSync(ready)) return join(dir, ITF);
   const failed = readFailed(dir);
   if (failed !== null) throw new Error(failed);
-  if (existsSync(lock) && lockIsDead(lock))
-    rmSync(lock, { recursive: true, force: true });
+  if (existsSync(lock) && lockIsDead(lock)) removeTree(lock);
   const produced = tryProduce(dir, produce);
   if (produced !== null) return produced;
   throw new Error(`quint draw cache timed out waiting for ${dir}`);

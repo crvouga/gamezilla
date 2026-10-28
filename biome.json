@@ -879,6 +879,29 @@
       ]
     },
     {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-bare-recursive-rm.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}",
+        "!**/dist/**",
+        "!**/pkgs/os-server-ts/src/remove-tree.ts"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-bare-rename-sync.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}",
+        "!**/dist/**",
+        "!**/pkgs/os-server-ts/src/rename-replacing.ts",
+        "!**/pkgs/os-server-ts/src/dev-owner*.ts",
+        "!**/pkgs/bun-test-solid-client-ts/**",
+        "!**/*.test.{ts,tsx}"
+      ]
+    },
+    {
       "path": "./libs/tools-harness-ts/biome-plugins/no-infra-outside-tofu.grit",
       "includes": [
         "**/apps/**/*.{ts,tsx}",

@@ -5,18 +5,19 @@
  * object in place.
  */
 import { afterEach, expect, test } from 'bun:test';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server-ts/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
 import type { NodeFs } from '@pkgs/object-store-node-fs-shared-ts/node-fs';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 const dirs: string[] = [];
 
 afterEach(async () => {
   await Promise.all(
-    dirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true }))
+    dirs.splice(0).map((dir) => removeTree(dir, { whenLocked: 'leave' }))
   );
 });
 
@@ -38,7 +39,7 @@ test('put retries when the frames directory disappears before the temp write', a
     async writeFile(path, contents) {
       if (!dropped) {
         dropped = true;
-        await wall.rm(dirname(path), { recursive: true, force: true });
+        removeTree(dirname(path));
         throw enoent(path);
       }
       await wall.writeFile(path, contents);

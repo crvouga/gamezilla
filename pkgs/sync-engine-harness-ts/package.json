@@ -45,6 +45,7 @@
     "@pkgs/db-schema-postgres-shared-ts": "workspace:*",
     "@pkgs/gherkin-shared-ts": "workspace:*",
     "@pkgs/openslo-shared-ts": "workspace:*",
+    "@pkgs/os-server-ts": "workspace:*",
     "@pkgs/postgres-mockingbird-server-ts": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",
     "@pkgs/quint-shared-ts": "workspace:*",

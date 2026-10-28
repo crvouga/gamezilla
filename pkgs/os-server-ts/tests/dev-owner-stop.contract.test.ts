@@ -21,6 +21,7 @@ import {
   ownerProcess,
   processSnapshot,
 } from '@pkgs/os-server-ts/dev-owner-state';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 const launcherFixture = join(
   import.meta.dirname,
@@ -58,7 +59,7 @@ function bootProcess(root: string, script: string) {
 async function discard(root: string, launchers: ChildProcess[]) {
   for (const launcher of launchers) launcher.kill('SIGKILL');
   await gcDevOwner(root, true);
-  rmSync(root, { recursive: true, force: true });
+  removeTree(root, { whenLocked: 'leave' });
 }
 
 // regression: dev-owner-orphaned-supervisor

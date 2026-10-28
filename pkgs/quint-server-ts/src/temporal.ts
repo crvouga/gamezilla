@@ -1,8 +1,9 @@
 // @io-wall-ok — runs TLC from the pinned checker distribution and writes its config.
 /** Temporal properties require a complete finite state graph, including cycles. */
 
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { quintNames } from '@pkgs/quint-shared-ts/names';
 import { tlcStateSpace } from '@pkgs/quint-shared-ts/tlc-state-space';
 import { verifyDeadlineMs, wallStopwatch } from '@pkgs/quint-shared-ts/wall';
@@ -53,7 +54,7 @@ export async function verifyTemporal(
   }
   const pinned = resolveApalache(process.env);
   if ('error' in pinned) return { ok: false, output: pinned.error };
-  rmSync(options.outDir, { recursive: true, force: true });
+  removeTree(options.outDir);
   mkdirSync(options.outDir, { recursive: true });
   const elapsed = wallStopwatch();
   const deadlineMs = verifyDeadlineMs(options.timeoutMs);

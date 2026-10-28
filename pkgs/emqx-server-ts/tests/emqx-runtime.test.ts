@@ -5,7 +5,6 @@ import {
   mkdtempSync,
   readFileSync,
   realpathSync,
-  rmSync,
   symlinkSync,
   writeFileSync,
 } from 'node:fs';
@@ -15,6 +14,7 @@ import {
   prepareEmqxRuntime,
   whitespaceFreeTemporaryDirectory,
 } from '@pkgs/emqx-server-ts/emqx-runtime';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 function release(root: string): string {
   mkdirSync(join(root, 'bin'), { recursive: true });
@@ -50,7 +50,7 @@ test('a release on OWC Express 1M2 runs from a self-contained path without space
     ).toBe('existing broker data');
   } finally {
     runtime.dispose();
-    rmSync(fixture, { recursive: true, force: true });
+    removeTree(fixture, { whenLocked: 'leave' });
   }
 });
 
@@ -67,6 +67,6 @@ test('a release already in a path without spaces is retained after disposal', ()
     expect(existsSync(source)).toBe(true);
   } finally {
     runtime.dispose();
-    rmSync(fixture, { recursive: true, force: true });
+    removeTree(fixture, { whenLocked: 'leave' });
   }
 });

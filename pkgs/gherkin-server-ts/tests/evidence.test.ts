@@ -5,7 +5,7 @@
  */
 
 import { afterAll, expect, test } from 'bun:test';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { RunReport } from '@crvouga/atlas/reports/report-types';
@@ -20,9 +20,10 @@ import {
 } from '@pkgs/gherkin-shared-ts/registry';
 import { readUtf8 } from '@pkgs/object-store-root-shared-ts/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 const reportDir = mkdtempSync(join(tmpdir(), 'gherkin-evidence-'));
-afterAll(() => rmSync(reportDir, { recursive: true, force: true }));
+afterAll(() => removeTree(reportDir, { whenLocked: 'leave' }));
 
 const { Then } = stepsFor<object>();
 const store = new ObjectStoreImplInMemory();

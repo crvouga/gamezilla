@@ -1,7 +1,8 @@
 import { expect, test } from 'bun:test';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { collectResults } from './verify-shard-results';
 import type { VerifyPlan, VerifyTask } from './verify-shards';
 import { prepareStage } from './verify-stage-cache';
@@ -88,6 +89,6 @@ test('a missing recovery draw preserves independent verifications and their cach
       { taskId: dependent.taskId, passed: false },
     ]);
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });

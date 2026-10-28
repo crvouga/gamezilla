@@ -5,11 +5,11 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  rmSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { reportOutputPath } from './verify-report-evidence';
 import { restoreReportOutputs } from './verify-report-restore';
 
@@ -83,6 +83,6 @@ test('cached sources publish and release separately, including a publication fai
     for (const id of ids)
       expect(existsSync(join(root, reportOutputPath(id)))).toBe(false);
   } finally {
-    rmSync(fixture, { recursive: true, force: true });
+    removeTree(fixture, { whenLocked: 'leave' });
   }
 });

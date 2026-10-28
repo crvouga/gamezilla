@@ -19,6 +19,7 @@ import { join } from 'node:path';
 import { ENV_FILES } from '@libs/infra-shared-ts/envs';
 import type { WranglerConfig } from '@libs/infra-shared-ts/wrangler';
 import { renderWranglerConfig } from '@libs/infra-shared-ts/wrangler';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 const PACKAGE_DIR = join(import.meta.dir, '..');
 /** OpenTofu mints the real id at deploy time; any 32 hex digits are well formed. */
@@ -46,7 +47,7 @@ for (const [name, env] of Object.entries(ENV_FILES)) {
       2
     )
   );
-  rmSync(outDir, { recursive: true, force: true });
+  removeTree(outDir);
   const result = spawnSync(
     'wrangler',
     ['deploy', '--dry-run', '--config', config, '--outdir', outDir],
@@ -65,5 +66,5 @@ for (const [name, env] of Object.entries(ENV_FILES)) {
     console.log(`rendered worker: ${name} config accepted by wrangler`);
   }
 }
-rmSync(outDir, { recursive: true, force: true });
+removeTree(outDir);
 process.exit(failed ? 1 : 0);

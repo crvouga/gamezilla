@@ -16,11 +16,12 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
-  renameSync,
   rmSync,
   writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { renameReplacing } from '@pkgs/os-server-ts/rename-replacing';
 import type { LocalAdminIdentity } from './local-admin-accounts';
 import type { StackPlan } from './stack-plan';
 
@@ -92,7 +93,7 @@ function publish<K extends ServiceName>(
   // Renamed into place: a waiting process never reads half a file.
   const temp = `${path}.${String(process.pid)}.tmp`;
   writeFileSync(temp, JSON.stringify(published), 'utf8');
-  renameSync(temp, path);
+  renameReplacing(temp, path);
 }
 
 export function publishReady<K extends ServiceName>(
@@ -122,7 +123,7 @@ export function withdrawService(plan: StackPlan, name: ServiceName): void {
 
 /** Every service starts from nothing published: the last boot's are stale. */
 export function withdrawAllServices(dataDir: string): void {
-  rmSync(join(dataDir, 'services'), { recursive: true, force: true });
+  removeTree(join(dataDir, 'services'));
 }
 
 /**

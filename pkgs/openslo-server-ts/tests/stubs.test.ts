@@ -7,10 +7,11 @@
 
 import { describe, expect, test } from 'bun:test';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { readEvidence } from '@pkgs/conformance-server-ts/evidence-store';
 import { sloStubFileName, sloStubSource } from '@pkgs/openslo-shared-ts/stubs';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 const PACKAGE_DIR = join(import.meta.dir, '..');
 const SPEC_URI =
@@ -37,7 +38,7 @@ function runStub(entryDir: string): {
   }[];
 } {
   const outDir = join(PACKAGE_DIR, '.cache/test-stubs', entryDir);
-  rmSync(outDir, { recursive: true, force: true });
+  removeTree(outDir, { whenLocked: 'leave' });
   mkdirSync(outDir, { recursive: true });
   const stub = join(
     outDir,

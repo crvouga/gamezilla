@@ -26,6 +26,7 @@ import {
   rmSync,
 } from 'node:fs';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import type { ItfTrace } from '@pkgs/quint-shared-ts/itf';
 import { decodeItfTrace, renderQuint } from '@pkgs/quint-shared-ts/itf';
 import type { ModelParameters } from '@pkgs/quint-shared-ts/registry';
@@ -102,7 +103,7 @@ export function simulate(options: SimulateOptions): SimulateResult {
       loadTraces(dir, options.specPath);
     },
   });
-  rmSync(options.outDir, { recursive: true, force: true });
+  removeTree(options.outDir);
   mkdirSync(options.outDir, { recursive: true });
   copyItf(itfDir, options.outDir);
   return {

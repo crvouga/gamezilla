@@ -17,11 +17,11 @@
  * a Worker whose date the runtime would refuse to boot.
  */
 import { spawnSync } from 'node:child_process';
-import { readdirSync, readFileSync, rmSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { gzipSync } from 'node:zlib';
-
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import {
   compatibilityDateProblem,
   readCompatibilityDate,
@@ -57,7 +57,7 @@ if (dateProblem !== null) {
   process.exit(1);
 }
 const outDir = join(pkgDir, '.cache/worker-bundle');
-rmSync(outDir, { recursive: true, force: true });
+removeTree(outDir);
 
 const result = spawnSync(
   'wrangler',

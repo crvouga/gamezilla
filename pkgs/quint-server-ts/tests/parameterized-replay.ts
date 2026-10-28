@@ -1,8 +1,9 @@
 import { afterAll, expect, test } from 'bun:test';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readEvidence } from '@pkgs/conformance-server-ts/evidence-store';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { runQuintModel } from '@pkgs/quint-server-ts/bun-test';
 import {
   drawModelInstances,
@@ -32,7 +33,7 @@ export function registerParameterizedReplays(host: {
   readonly setVariants: (variants: readonly TraceVariant[]) => void;
 }): void {
   const out = mkdtempSync(join(tmpdir(), 'quint-parameters-'));
-  afterAll(() => rmSync(out, { recursive: true, force: true }));
+  afterAll(() => removeTree(out, { whenLocked: 'leave' }));
   const binding: QuintBinding<Door> = {
     model: MODEL,
     traces: 16,

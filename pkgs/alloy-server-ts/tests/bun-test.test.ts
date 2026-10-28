@@ -5,7 +5,6 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { runStructureSpec } from '@pkgs/alloy-server-ts/bun-test';
 import {
@@ -18,10 +17,11 @@ import {
 } from '@pkgs/alloy-shared-ts/stubs';
 import type { Snapshot } from '@pkgs/alloy-shared-ts/world';
 import { readEvidence } from '@pkgs/conformance-server-ts/evidence-store';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 const SPEC_URI = 'pkgs/alloy-server-ts/tests/fixtures/spaces.als';
 const REPORT_DIR = join(import.meta.dir, '../.cache/test-report');
-rmSync(REPORT_DIR, { recursive: true, force: true });
+removeTree(REPORT_DIR, { whenLocked: 'leave' });
 
 const space = (id: string, host: string, others: string[]): Snapshot => ({
   label: `space ${id}`,

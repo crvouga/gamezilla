@@ -1,6 +1,6 @@
 // @io-wall-ok
 
-import { renameSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/app-config-shared-ts/local-preview-api-origin';
@@ -18,6 +18,7 @@ import {
   EMQX_WS_PORT,
 } from '@pkgs/emqx-shared-ts/ports';
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs-server-ts/repo-tree-store';
+import { renameReplacing } from '@pkgs/os-server-ts/rename-replacing';
 import { LOCAL_DATABASE_URL } from '@pkgs/postgres-local-shared-ts/ports';
 import { resolveSecretsScope } from '@pkgs/secrets-config-server-ts/secrets-scope';
 import { DEV_VARS_PATH, encodeDevVarValue } from './dev-vars';
@@ -182,7 +183,7 @@ async function main(): Promise<void> {
 
   const body = `${lines.join('\n')}\n`;
   writeFileSync(tmpPath, body, { encoding: 'utf8' });
-  renameSync(tmpPath, outPath);
+  renameReplacing(tmpPath, outPath);
 
   process.stdout.write(
     `[setup-dev-vars] wrote .dev.vars with keys: ${lines

@@ -230,6 +230,7 @@
     "@pkgs/matchmaking-sql-shared-ts": "workspace:*",
     "@pkgs/message-shared-ts": "workspace:*",
     "@pkgs/openslo-shared-ts": "workspace:*",
+    "@pkgs/os-server-ts": "workspace:*",
     "@pkgs/outbox-shared-ts": "workspace:*",
     "@pkgs/permissions-shared-ts": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",

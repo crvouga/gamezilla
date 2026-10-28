@@ -6,7 +6,7 @@
  */
 
 import { afterAll, expect, test } from 'bun:test';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readEvidence } from '@pkgs/conformance-server-ts/evidence-store';
@@ -17,11 +17,12 @@ import {
   setWorld,
   stepsFor,
 } from '@pkgs/gherkin-shared-ts/registry';
+import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 type World = { readonly variant: string; readonly testId: string };
 
 const reportDir = mkdtempSync(join(tmpdir(), 'gherkin-variants-'));
-afterAll(() => rmSync(reportDir, { recursive: true, force: true }));
+afterAll(() => removeTree(reportDir, { whenLocked: 'leave' }));
 
 const worlds: World[] = [];
 const { Given, Then } = stepsFor<World>();
