@@ -58,3 +58,15 @@ runs:
           exit 1
         fi
         echo "SECRETS_PROJECT_ID=${project_id}" >> "$GITHUB_ENV"
+
+    # Infisical holds TURBO_TEAM=local, and a bare `turbo run` (the setup
+    # action's postinstall generation) lets that env var override
+    # `remoteCache.teamSlug`: Vercel answers 403 and Turbo drops the remote
+    # cache for the run. Laptops hide it behind the teamId in the ignored
+    # .turbo/config.json. Pin both to the root turbo.json, as turbo-ci-run does.
+    - name: Pin the Turbo Remote Cache team
+      shell: bash
+      run: |
+        set -euo pipefail
+        echo "TURBO_TEAM=$(bun -p 'require("./turbo.json").remoteCache.teamSlug')" >> "$GITHUB_ENV"
+        echo "TURBO_API=$(bun -p 'require("./turbo.json").remoteCache.apiUrl')" >> "$GITHUB_ENV"
