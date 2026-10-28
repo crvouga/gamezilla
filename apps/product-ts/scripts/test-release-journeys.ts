@@ -33,6 +33,7 @@ import {
   releaseSpecs,
   splitReleaseSpecs,
 } from './release-selection';
+import { removeTemporaryDirectory as removeDirectory } from './remove-temporary-directory';
 import { specProcessExit } from './spec-process';
 import { parseStackOptions } from './stack-options';
 
@@ -194,6 +195,15 @@ async function printFailureTraces(manifest: StackManifest): Promise<void> {
   }
 }
 
+/** Retries while Windows still holds a just-stopped stack's files. */
+function removeTemporaryDirectory(path: string): Promise<void> {
+  return removeDirectory(path, {
+    remove: (target) => rmSync(target, { recursive: true, force: true }),
+    sleep: (ms) => Bun.sleep(ms),
+    warn: (message) => console.warn(message),
+  });
+}
+
 // Retain bounded statement profiles so a failed release check identifies the
 // expensive work after connection setup, rather than only its first queries.
 process.env['STACK_DATABASE_PROFILE'] = '1';
@@ -234,17 +244,12 @@ try {
   if (process.exitCode !== undefined && process.exitCode !== 0)
     await printFailureTraces(stack.manifest);
   removeManifest(REPO_ROOT, options.instanceId);
-  if (!options.keepData)
-    rmSync(stack.manifest.dataDir, { recursive: true, force: true });
-  rmSync(DIST, { recursive: true, force: true });
+  if (!options.keepData) await removeTemporaryDirectory(stack.manifest.dataDir);
+  await removeTemporaryDirectory(DIST);
   if (process.env['VERIFY_PROFILE'] !== 'nightly') {
-    rmSync(join(PACKAGE_DIR, '.cache/release-report'), {
-      recursive: true,
-      force: true,
-    });
-    rmSync(join(PACKAGE_DIR, '.cache/critical-journeys'), {
-      recursive: true,
-      force: true,
-    });
+    await removeTemporaryDirectory(join(PACKAGE_DIR, '.cache/release-report'));
+    await removeTemporaryDirectory(
+      join(PACKAGE_DIR, '.cache/critical-journeys')
+    );
   }
 }

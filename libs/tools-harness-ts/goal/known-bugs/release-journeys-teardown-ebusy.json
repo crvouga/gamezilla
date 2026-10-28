@@ -1,0 +1,4 @@
+{
+  "summary": "After every journey passed, removing the stack's data directory threw EBUSY on Windows because the just-stopped stack still held its files, and the throw made the release journeys task exit 1. Removal now retries while the locks release and reports a directory that stays locked instead of failing the run.",
+  "regressionTest": "apps/product-ts/tests/remove-temporary-directory.test.ts"
+}
