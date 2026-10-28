@@ -112,6 +112,25 @@ describe('measured costs', () => {
     });
   });
 
+  // regression: release-costs-erased-by-pr-profile
+  test('a task killed at the deadline costs no less than it ran', () => {
+    expect(
+      measuredCosts(planned, [
+        // Estimated at 17s by its family, killed after 497s.
+        { ...result('@p/a#test:spec:0', 0, 'MISS', false), ranForMs: 497_200 },
+        // Its history said 40s; it had run only 12s when the shard stopped.
+        { ...result('@p/a#test:spec:1', 0, 'MISS', false), ranForMs: 12_000 },
+        // Never started: still nothing learned.
+        result('@p/c#tc', 0, 'MISS', false),
+      ])
+    ).toEqual({
+      '@p/a#test:spec:0': 498,
+      '@p/a#test:spec:1': 40,
+      '@p/b#lint': 3,
+      '@p/d#test': 9,
+    });
+  });
+
   test('the schedule overlays restored measurements on the committed costs', () => {
     const fixture = mkdtempSync(join(tmpdir(), 'verify-costs-'));
     const path = join(fixture, 'measured-costs.json');
