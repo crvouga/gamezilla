@@ -217,8 +217,7 @@ An Xcode app package holds exactly one `<name>.xcodeproj` with a shared
 ## CI
 
 Verify PR is still the one merge gate, and `verify:end` the one required
-status; a pull request runs its fast `pr` profile and Release its whole
-`release` gate. Every CI job runs on any self-hosted runner, Linux, macOS or Windows
+status; a pull request and Release both run the whole `release` gate. Every CI job runs on any self-hosted runner, Linux, macOS or Windows
 ([`CI_REQUIREMENTS.md`](CI_REQUIREMENTS.md#runner-operating-systems)), so CI
 checks only what runs on all three.
 

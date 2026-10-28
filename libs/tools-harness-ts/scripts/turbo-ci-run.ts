@@ -105,7 +105,6 @@ import { verifyCacheConcurrency } from './verify-cache-concurrency';
 import {
   activeProfile,
   applyProfileEnv,
-  profileGateTasks,
   suiteDeadlineSeconds,
   verifyAggregatorTasks,
 } from './verify-profile';
@@ -171,8 +170,8 @@ const PLATFORM_KEY_PATH = join(REPO_ROOT, 'turbo-platform-key.json');
 
 /**
  * The most traces of one Quint model a run replays through the product
- * (`@pkgs/quint-shared-ts/wall`). The `pr` profile leaves it unset, which is
- * the smallest bounded selection; the `nightly` profile sets `all`
+ * (`@pkgs/quint-shared-ts/wall`). The `release` profile leaves it unset, which
+ * is the smallest bounded selection; the `nightly` profile sets `all`
  * (`verify-profile.ts`).
  */
 export const REPLAY_BUDGET_ENV = 'QUINT_REPLAY_TRACES';
@@ -386,15 +385,13 @@ const HOST_AGGREGATOR = /^verify:([a-z]+)$/;
 const CI_AGGREGATOR = 'verify:ci';
 
 /**
- * The gate as CI runs it: the active profile's gate tasks
- * (`profileGateTasks`) over the packages that run on Linux, macOS and
- * Windows alike (`package-hosts.ts` `ciFilters`).
+ * The gate as CI runs it: every gate task over the packages that run on
+ * Linux, macOS and Windows alike (`package-hosts.ts` `ciFilters`).
  */
 export function ciVerifyArgs(
-  manifests = workspaceManifests(REPO_ROOT),
-  env: NodeJS.ProcessEnv = process.env
+  manifests = workspaceManifests(REPO_ROOT)
 ): readonly string[] {
-  return [...profileGateTasks(MAIN_VERIFY_TASKS, env), ...ciFilters(manifests)];
+  return [...MAIN_VERIFY_TASKS, ...ciFilters(manifests)];
 }
 
 /**
@@ -404,11 +401,10 @@ export function ciVerifyArgs(
  */
 export function hostVerifyArgs(
   host: Parameters<typeof hostFilters>[1],
-  manifests = workspaceManifests(REPO_ROOT),
-  env: NodeJS.ProcessEnv = process.env
+  manifests = workspaceManifests(REPO_ROOT)
 ): readonly string[] {
   return [
-    ...profileGateTasks(MAIN_VERIFY_TASKS, env).filter(
+    ...MAIN_VERIFY_TASKS.filter(
       (task) => isDefaultHost(host) || !task.includes('#')
     ),
     ...hostFilters(manifests, host),

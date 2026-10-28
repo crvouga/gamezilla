@@ -1,14 +1,13 @@
 name: Verify PR
-run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{0}', github.event.pull_request.number) || inputs.pull-request && format('release warm-up of pr #{0}', inputs.pull-request) || 'manual' }}"
+run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{0}', github.event.pull_request.number) || 'manual' }}"
 
-# Verify PR runs the gate (README "Verification and CI") at one of three
-# widths (`libs/tools-harness-ts/scripts/verify-profile.ts`):
-# - `pr`, on every pull request: lint, architecture boundaries, typecheck,
-#   unit tests, the repository checks, schema evolution, bundles and security
-#   scans. The slow suites (Gherkin spec parts, Quint models, contract models,
-#   release journeys) are left to Release, so a pull request hears back in
-#   minutes.
-# - `release`, from Release on the exact commit it ships: the whole gate.
+# Verify PR runs the gate (README "Verification and CI") at one of two
+# depths (`libs/tools-harness-ts/scripts/verify-profile.ts`):
+# - `release`, on every pull request and from Release on the exact commit it
+#   ships: the whole gate, the Gherkin spec parts, Quint models, contract
+#   models and release journeys included. A pull request runs exactly what
+#   Release runs, so it is red whenever Release would be, and every task it
+#   passes has the hash Release restores from the shared remote cache.
 # - `nightly`, from Verify Nightly: the whole gate deeper, with reports.
 #
 # Three jobs, on any self-hosted runner OS (Linux, macOS, Windows); the
@@ -28,21 +27,14 @@ run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{
 # and the end, with no shard at all.
 #
 # It runs on every pull request, where `verify:end` is the required status. A
-# green pull request is mergeable; Release runs the whole gate on
-# `main` before anything ships.
+# green pull request is mergeable; Release runs the same gate again on
+# `main` before anything ships, restoring what the pull request proved. It
+# also runs from a manual dispatch, from Release (`workflow_call`), and from
+# Verify Nightly. `bun verify` runs the whole gate locally.
 #
-# A green pull request then dispatches this workflow again with
-# `pull-request` set: the `release` profile on the pull request's merge
-# result, which runs the slow suites the `pr` profile left out and writes
-# them to the remote cache. Release then restores them instead of running
-# them. That warm-up never decides the pull request: its jobs are
-# `verify-warm:*`, never the required `verify:end`. It also runs from a manual dispatch, from
-# Release (`workflow_call`), and from Verify Nightly. `bun verify` runs the
-# whole gate locally.
-#
-# The `pr` and `release` profiles are bounded and never explore: each Quint
-# model replays the fewest drawn traces that take every bound action, the
-# same ones every run. They keep no test report: no JUnit
+# The `release` profile is bounded and never explores: each Quint model
+# replays the fewest drawn traces that take every bound action, the same ones
+# every run. It keeps no test report: no JUnit
 # file, no trace, snapshot or coverage upload, no publication. A failure is
 # read from the job log and the run summary. The CI artifacts below
 # (`libs/tools-harness-ts/scripts/ci-artifacts.ts`, in the CI artifacts
@@ -74,10 +66,6 @@ on:
         type: choice
         options: [normal, cold]
         default: normal
-      pull-request:
-        description: Warm Release's cache with the whole gate on this pull request's merge result
-        type: string
-        default: ''
   workflow_call:
     inputs:
       require-main:
@@ -97,19 +85,19 @@ on:
         type: string
         default: normal
       profile:
-        description: pr (the fast pull-request check), release (the whole gate, before Release ships) or nightly (deeper budgets, reports kept)
+        description: release (the whole gate, on every pull request and before Release ships) or nightly (deeper budgets, reports kept)
         type: string
-        default: pr
+        default: release
       advisories:
         description: enforce (a current advisory fails the gate) or report (the registry's verdict is logged, not enforced)
         type: string
         default: enforce
 
-# A newer push supersedes a pull request's run and its warm-up; other
-# dispatched and release runs each own a group and never cancel one another.
+# A newer push supersedes a pull request's run; dispatched and release runs
+# each own a group and never cancel one another.
 concurrency:
-  group: ${{ github.event_name == 'pull_request' && format('verify-pr-{0}', github.event.pull_request.number) || inputs.pull-request && format('verify-warm-{0}', inputs.pull-request) || format('verify-run-{0}', github.run_id) }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' || inputs.pull-request != '' }}
+  group: ${{ github.event_name == 'pull_request' && format('verify-pr-{0}', github.event.pull_request.number) || format('verify-run-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   GH_TOKEN: ${{ github.token }}
@@ -140,7 +128,7 @@ env:
   VERIFY_SHARDS: ${{ inputs.shards || vars.VERIFY_SHARDS || '64' }}
   VERIFY_CONCURRENCY: ${{ inputs.concurrency || vars.VERIFY_CONCURRENCY || '1' }}
   VERIFY_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
-  VERIFY_PROFILE: ${{ inputs.profile || inputs.pull-request && 'release' || 'pr' }}
+  VERIFY_PROFILE: ${{ inputs.profile || 'release' }}
   VERIFY_ADVISORIES: ${{ inputs.advisories || 'enforce' }}
 
 # Every job runs on whichever self-hosted runner is free — Linux, macOS or
@@ -154,7 +142,7 @@ jobs:
   # and arch it was made on (`verify-shard-run.ts` refuses another), so the
   # rest of the run requests this runner's `os` and `arch`.
   verify-start:
-    name: ${{ inputs.pull-request && 'verify-warm:start' || 'verify:start' }}
+    name: verify:start
     runs-on: self-hosted
     timeout-minutes: ${{ inputs.profile == 'nightly' && 70 || 30 }}
     # One entry per shard with work, naming none of them: GitHub drops a job
@@ -174,8 +162,6 @@ jobs:
           fi
       - uses: actions/checkout@v6
         with:
-          # A warm-up checks out the merge result Release will see.
-          ref: ${{ inputs.pull-request && format('refs/pull/{0}/merge', inputs.pull-request) || '' }}
           clean: false
           fetch-depth: 0
       - uses: ./.github/actions/setup
@@ -192,9 +178,9 @@ jobs:
       # Shards are packed by the durations the newest run of this profile
       # measured on these runners (`verify:end` saves them); the key never
       # matches, so the prefix restores the newest from this pull request,
-      # else from main. Each profile keeps its own: a save keeps only the
-      # tasks its plan held, so a `pr` run sharing `release`'s key erased the
-      # slow suites' measurements and Release packed them by estimate.
+      # else from main. Each profile keeps its own: a save keeps only the tasks
+      # its plan held, so a narrower plan sharing the key would erase the
+      # rest.
       - name: Restore measured task durations
         uses: actions/cache/restore@v5
         with:
@@ -244,7 +230,7 @@ jobs:
 
   # Shard N is the Nth entry of the matrix `verify:start` planned.
   verify-shards:
-    name: ${{ inputs.pull-request && 'verify-warm:shards' || 'verify:shards' }} (${{ strategy.job-index }})
+    name: verify:shards (${{ strategy.job-index }})
     needs: [verify-start]
     # An empty matrix is an error, so a fully cached plan skips the job.
     if: needs.verify-start.outputs.shards != '[]'
@@ -259,8 +245,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          # A warm-up checks out the merge result Release will see.
-          ref: ${{ inputs.pull-request && format('refs/pull/{0}/merge', inputs.pull-request) || '' }}
           clean: false
           fetch-depth: 0
       - uses: ./.github/actions/setup
@@ -283,7 +267,7 @@ jobs:
       - name: verify
         timeout-minutes: ${{ inputs.profile == 'nightly' && 60 || 25 }}
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-shard-run.ts "$VERIFY_SHARD"
-      # Reports are the nightly profile's; the `pr` profile keeps none. One
+      # Reports are the nightly profile's; the `release` profile keeps none. One
       # artifact per shard every night, kept for the bucket's week.
       - name: Upload queryable trace artifacts
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
@@ -316,7 +300,7 @@ jobs:
   # pass only when the plan scheduled none. The nightly profile's reports are
   # published last and never decide it.
   verify-end:
-    name: ${{ inputs.pull-request && 'verify-warm:end' || 'verify:end' }}
+    name: verify:end
     needs: [verify-start, verify-shards]
     if: always() && !cancelled()
     # Without a plan (a failed start) any runner can report the failure.
@@ -327,8 +311,6 @@ jobs:
       # read from Git; the default checkout holds only the merge commit.
       - uses: actions/checkout@v6
         with:
-          # A warm-up checks out the merge result Release will see.
-          ref: ${{ inputs.pull-request && format('refs/pull/{0}/merge', inputs.pull-request) || '' }}
           clean: false
           fetch-depth: 0
       - uses: ./.github/actions/setup
@@ -404,17 +386,7 @@ jobs:
         with:
           path: .cache/verify-ci/measured-costs.json
           key: verify-task-costs-v2-${{ env.VERIFY_PROFILE }}-${{ github.run_id }}-${{ github.run_attempt }}
-      # The `pr` profile leaves the slow suites to Release, which would run
-      # them cold. A green pull request from this repository warms them now
-      # (see the top of this file). A fork's code never gets the secrets.
-      - name: Warm Release's cache
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-        env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: >-
-          gh workflow run verify-pr.yml --repo "$GITHUB_REPOSITORY" --ref "$GITHUB_HEAD_REF"
-          -f pull-request="$PR_NUMBER"
-      # Everything below is the nightly profile's reporting. The `pr` profile
+      # Everything below is the nightly profile's reporting. The `release` profile
       # ends by deleting the artifacts that carried state between its jobs.
       - name: Retain the verdict
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'

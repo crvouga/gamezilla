@@ -1,4 +1,4 @@
 {
-  "summary": "Release (run 40628012072) restored every task a pull request had run but ran every Gherkin spec part, Quint model, contract model and release journey cold, because the pr profile leaves those suites out and nothing else wrote them to the remote cache. A green pull request now dispatches a release-profile warm-up of its merge result, under verify-warm:* job names that never stand for the required verify:end.",
-  "regressionTest": "libs/tools-harness-ts/scripts/verify-workflow-cancel.test.ts"
+  "summary": "Pull requests ran a pr profile that left the Gherkin spec parts, Quint models, contract models and release journeys to Release (releaseOnlyTask), so a pull request went green on code those suites failed, and Release (run 40628012072) met them cold: a failing release journey and seven shards out of time. Pull requests now run the release profile, the gate Release runs, so they fail whenever Release would and write every cache entry Release restores.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-profile.test.ts"
 }

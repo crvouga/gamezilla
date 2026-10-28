@@ -406,8 +406,8 @@ describe('turbo verify/deploy graph invariants', () => {
   test('local runners go through turbo-ci-run', () => {
     const scripts = loadRootScripts();
     // One entry program; the profile is the only thing that differs.
-    for (const profile of ['pr', 'nightly'])
-      expect(scripts[profile === 'pr' ? 'verify' : 'verify-nightly']).toBe(
+    for (const profile of ['release', 'nightly'])
+      expect(scripts[profile === 'release' ? 'verify' : 'verify-nightly']).toBe(
         `VERIFY_PROFILE=${profile} bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/verify-local.ts`
       );
     expect(turboCiRunTaskArgs(scripts['deploy:local'] ?? '')).toEqual([

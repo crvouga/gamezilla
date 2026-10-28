@@ -129,7 +129,7 @@
     "task:workspace:sync": "bun run libs/tools-harness-ts/scripts/sync-workspace-lifecycle.ts",
     "test:pbt:random": "turbo run //#task:test:pbt:random --",
     "tokens:generate": "turbo run //#task:tokens:generate",
-    "verify": "VERIFY_PROFILE=pr bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/verify-local.ts",
+    "verify": "VERIFY_PROFILE=release bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/verify-local.ts",
     "verify:coverage": "bun run libs/secrets-server-ts/scripts/secrets-run.ts -- turbo run //#task:verify:coverage --",
     "verify:heal": "bun run libs/secrets-server-ts/scripts/secrets-run.ts -- turbo run //#task:verify:heal --",
     "verify-nightly": "VERIFY_PROFILE=nightly bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/verify-local.ts",

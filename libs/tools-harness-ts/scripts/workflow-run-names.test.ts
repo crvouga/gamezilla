@@ -113,15 +113,6 @@ describe.each(workflows)('$file', ({ file, workflow }) => {
       const perShard = job.strategy?.matrix?.shard !== undefined;
       expect(id === prefix || id.startsWith(`${prefix}-`)).toBe(true);
       const stage = id === prefix ? '' : `:${id.slice(prefix.length + 1)}`;
-      // A Verify PR warm-up of Release's cache is `verify-warm:*`, so it
-      // never reports as the required `verify:end`.
-      if (file === 'verify-pr.yml') {
-        const warm = `verify-warm${stage}`;
-        expect(job.name).toBe(
-          `\${{ inputs.pull-request && '${warm}' || '${prefix}${stage}' }}${perShard ? SHARD : ''}`
-        );
-        continue;
-      }
       if (id === 'verify-nightly-end') {
         expect(job.name).toBe(
           "${{ inputs.group && inputs.group != 'all' && 'verify-nightly:diagnostic' || 'verify-nightly:end' }}"

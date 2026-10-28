@@ -184,7 +184,7 @@ function transferEvidence(
   failed: boolean
 ): void {
   try {
-    // The `pr` profile keeps no report: a failure is read from the job log.
+    // The `release` profile keeps no report: a failure is read from the job log.
     if (activeProfile(env).reports) {
       preserveInterruptedReports(ROOT, results);
       preserveFailedReports(results);

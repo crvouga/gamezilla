@@ -7,7 +7,7 @@ than restating it.
 
 ## Hard Rules
 
-- **We never test manually. Ever.** A green full verification (Release's `release` run of the whole gate on the exact commit it ships; a pull request's `verify:end` runs only the fast part) is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing verification, and if no verification can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property-shared-ts` only; `fc.commands` models; `@pkgs/harness-root-shared-ts` systems; Quint models for product subs — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus its own file `libs/tools-harness-ts/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`README.md`](README.md#correctness-machinery).
+- **We never test manually. Ever.** A green full verification (the `release` profile's whole gate: on every pull request's `verify:end`, and again in Release on the exact commit it ships) is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing verification, and if no verification can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property-shared-ts` only; `fc.commands` models; `@pkgs/harness-root-shared-ts` systems; Quint models for product subs — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus its own file `libs/tools-harness-ts/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`README.md`](README.md#correctness-machinery).
 
 - **Specs are for business readers.** Every line in `specs/` is understood by a non-technical business person (A0 in [`specs/README.md`](specs/README.md)); every behavior test is a spec; each framework package tests through one kitchen-sink example app. Spec text changes only in `spec:` commits; implementers treat it as read-only. What the app should be lives only in `specs/`, with no discrete versions of the app; [`README.md`](README.md) is the implementation briefing and never a second product definition. Step catalogs (`<package>/STEPS_CATALOG.md`, index `docs/STEPS_CATALOG.md`) are generated and gitignored: `bun install` writes them and `bun run spec:catalog` refreshes them. Write specs with [`spec-upsert`](.agents/skills/spec-upsert/SKILL.md), bind them with [`spec-implement`](.agents/skills/spec-implement/SKILL.md), audit them with [`spec-audit`](.agents/skills/spec-audit/SKILL.md).
 
@@ -187,22 +187,18 @@ Four workflows, one contract each. Details:
 
 | Workflow | Command | Contract |
 | --- | --- | --- |
-| Verify PR (`verify-pr.yml`) | `bun verify` | Fast, deterministic, merge-blocking validation: the `pr` profile, the gate without its slow suites. Keeps no test report or artifact: a failure is read from the job log. |
+| Verify PR (`verify-pr.yml`) | `bun verify` | Deterministic, merge-blocking validation: the `release` profile, the whole gate Release runs, so a green pull request is a green release and Release restores its results from the remote cache. Keeps no test report or artifact: a failure is read from the job log. |
 | Verify Nightly (`verify-nightly.yml`) | `bun verify-nightly` | Comprehensive verification and exploration on `main`, every night. Owns test reports, diagnostics and reproducibility. Never gates a merge or a deploy. |
 | Release (`deploy.yml`) | `bun deploy` | Continuous production release: on every push to `main`, when `main` has moved, it runs the whole gate (`release` profile) on that exact commit, then ships it. |
 | Health (`health.yml`) | `bun health` | Scheduled verification that production is available and correct. Releases nothing. |
 
 - **Run `bun verify` before you call development work done.** It is the
-  whole gate Release runs before shipping; the pull request runs only its fast
-  part. Run `bun verify-nightly` (or one group:
+  whole gate every pull request and Release run. Run `bun verify-nightly` (or one group:
   `bun verify-nightly random`) when a change deserves deeper verification, such
   as a new Quint model, a property, or sync and recovery code. An ordinary
   pull request never waits for a green nightly run.
-- **One set of tests, three profiles.** `libs/tools-harness-ts/scripts/verify-profile.ts` is
-  the only place they differ: the task list (`pr` leaves Gherkin spec parts,
-  Quint models, contract models, the release journeys, board contracts and
-  the population worker's hosting check to `release` — `releaseOnlyTask`),
-  the depth (`pr` and `release` replay the fewest drawn traces of each Quint
+- **One set of tests, two profiles.** `libs/tools-harness-ts/scripts/verify-profile.ts` is
+  the only place they differ: the depth (`release` replays the fewest drawn traces of each Quint
   model that take every bound action, at the pinned property budget;
   `nightly` replays every trace at five times the budget), the time budgets,
   and whether reports are kept. The nightly-only
