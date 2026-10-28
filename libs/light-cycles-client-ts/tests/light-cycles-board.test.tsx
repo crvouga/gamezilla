@@ -39,6 +39,9 @@ function board(sides: readonly GameSide[], initial: LightCyclesState) {
         syncKey={0}
         testId="arena"
         setup={null}
+        hand={null}
+        committed={[]}
+        commitment={null}
         onAction={() => {
           throw new Error('Light Cycles has no discrete moves');
         }}
@@ -142,6 +145,9 @@ test('a finished game tells its riders it is finished, not that they watch', () 
         syncKey={0}
         testId="arena"
         setup={null}
+        hand={null}
+        committed={[]}
+        commitment={null}
         onAction={() => {}}
       />
     </ThemeProvider>
@@ -164,6 +170,9 @@ test("a person's other device says it does not steer their rider and offers to r
         syncKey={0}
         testId="arena"
         setup={null}
+        hand={null}
+        committed={[]}
+        commitment={null}
         onAction={() => {}}
         simulation={{
           paused: false,

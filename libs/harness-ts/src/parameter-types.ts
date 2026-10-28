@@ -369,7 +369,10 @@ export const PARAMETER_TYPES: readonly ParameterTypeSpec[] = [
   {
     name: 'heartsCard',
     regexp: new RegExp(`the ${CARD_RANK} of ${CARD_SUIT}`),
-    transformer: (text: string) => cardsNamed(text)[0]!,
+    transformer: (text: string) => {
+      const [card = ''] = cardsNamed(text);
+      return card;
+    },
   },
   {
     name: 'heartsCards',

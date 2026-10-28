@@ -37,7 +37,7 @@
   {
     "package": "@libs/games-harness-ts",
     "directory": "libs/games-harness-ts",
-    "parts": 99
+    "parts": 114
   },
   {
     "package": "@libs/hearts-harness-ts",

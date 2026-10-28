@@ -29,6 +29,8 @@ function board(hand: string | null, interactive = true) {
             testId="wt"
             setup={null}
             hand={hand}
+            committed={[]}
+            commitment={null}
             onAction={(action) => actions.push(action)}
           />
         </ThemeProvider>
