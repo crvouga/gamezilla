@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const root = join(import.meta.dirname, '../../..');
@@ -161,4 +161,70 @@ test('build hashes its toolchain, shared compiler configs and output-affecting e
   expect(
     turbo.tasks['@apps/product-ts#verify:offline-shell'].inputs
   ).not.toContain('dist/**');
+});
+
+const WORKFLOW_FILES = [
+  'deploy.yml',
+  'health.yml',
+  'verify-nightly.yml',
+  'verify-pr.yml',
+];
+
+/** Every env name a task's `env` hashes, from the root and package configs. */
+function hashedEnvNames(): Set<string> {
+  const names = new Set<string>();
+  const configs = [
+    join(root, 'turbo.json'),
+    ...['apps', 'libs', 'pkgs'].flatMap((group) =>
+      readdirSync(join(root, group)).map((name) =>
+        join(root, group, name, 'turbo.json')
+      )
+    ),
+  ];
+  for (const path of configs) {
+    if (!existsSync(path)) continue;
+    const turbo = JSON.parse(readFileSync(path, 'utf8')) as {
+      tasks?: Record<string, { env?: string[] }>;
+    };
+    for (const task of Object.values(turbo.tasks ?? {}))
+      for (const name of task.env ?? []) names.add(name);
+  }
+  return names;
+}
+
+test('no workflow bypasses, redirects or narrows the Turbo remote cache', () => {
+  for (const file of WORKFLOW_FILES) {
+    const text = readFileSync(join(root, '.github/workflows', file), 'utf8');
+    // `turbo-ci-run.ts` pins the Vercel remote and its team, and runs every
+    // task read-write: a workflow flag or variable would fork the cache.
+    expect(text, file).not.toMatch(
+      /--force|--no-cache|TURBO_FORCE|TURBO_API|TURBO_TEAM|TURBO_REMOTE_ONLY/
+    );
+    for (const match of text.matchAll(/TURBO_CACHE=(\S+)/g))
+      expect(match[1], file).toBe('local:rw,remote:rw');
+  }
+});
+
+// A task hashes the env it names, so a variable one workflow sets and another
+// does not gives the same work two cache keys. The names below are the ones
+// that differ on purpose: the pull request's commit range and the profile
+// that sets the verification depth.
+test('a workflow sets no hashed env except the pull request range and the profile', () => {
+  const hashed = [...hashedEnvNames()];
+  const matches = (name: string) =>
+    hashed.some((entry) =>
+      entry.endsWith('*') ? name.startsWith(entry.slice(0, -1)) : entry === name
+    );
+  for (const file of WORKFLOW_FILES) {
+    const workflow = Bun.YAML.parse(
+      readFileSync(join(root, '.github/workflows', file), 'utf8')
+    ) as { env?: Record<string, unknown> };
+    expect(Object.keys(workflow.env ?? {}).filter(matches), file).toEqual(
+      file === 'verify-pr.yml'
+        ? ['PR_BASE', 'PR_HEAD', 'VERIFY_PROFILE']
+        : file === 'verify-nightly.yml'
+          ? ['VERIFY_PROFILE']
+          : []
+    );
+  }
 });
