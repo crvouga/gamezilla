@@ -1,0 +1,4 @@
+{
+  "summary": "The Release wording rename changed the verify planner deadline option from isDeploy to isRelease, although RunDeadlineOptions retains isDeploy. Tooling typecheck rejected the planner with TS2353; retain the technical API name and the existing verification/release deadline examples.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-budget.test.ts"
+}

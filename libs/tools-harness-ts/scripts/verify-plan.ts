@@ -74,7 +74,7 @@ const DEADLINE_FILL = 0.6;
 /** The most estimated work one shard may hold and still finish inside its deadline. */
 function shardFillSeconds(env: NodeJS.ProcessEnv): number {
   const deadline = resolveRunDeadlineSeconds(env, {
-    isRelease: false,
+    isDeploy: false,
     slowRunner: true,
   });
   return deadline * DEADLINE_FILL * shardSizing(env).slots;

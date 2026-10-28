@@ -125,6 +125,8 @@ describe('taskBudgetSeconds', () => {
 });
 
 describe('resolveRunDeadlineSeconds', () => {
+  // regression: release-wording-renames-deadline-option
+  // Display wording is Release; the typed deadline option remains isDeploy.
   test('verification and release have different ceilings', () => {
     const opts = { slowRunner: false };
     expect(resolveRunDeadlineSeconds({}, { ...opts, isDeploy: false })).toBe(
