@@ -6,7 +6,7 @@
  * environment's API, then one version with assets, API and rooms. Hostnames are bound by
  * the OpenTofu edge stack afterwards; `health` checks they serve.
  */
-import { rmSync, writeFileSync } from 'node:fs';
+import { readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   assertRoomNamespacePreserved,
@@ -26,13 +26,10 @@ import {
   deployWorker,
 } from '../../../libs/infra-server-ts/scripts/worker-deploy';
 import { workerState } from '../../../libs/infra-shared-ts/scripts/worker-state';
+import { distHeadersFile } from './dist-headers';
 import { hyperdriveId, workerSecrets } from './worker-secrets';
 
 const productDir = join(import.meta.dirname, '..');
-
-/** COOP/COEP for SharedArrayBuffer (sqlite-wasm OPFS SAH pool) on Workers assets. */
-const SQLITE_WEB_COOP = 'same-origin';
-const SQLITE_WEB_COEP = 'require-corp';
 
 const PRODUCT_EXPORT_MAX_OLD_SPACE_MB = 8192;
 
@@ -63,17 +60,16 @@ function cleanupProductDist(): void {
   });
 }
 
-function writeDistIsolationHeaders(): void {
-  const body = [
-    '/*',
-    `\tCross-Origin-Opener-Policy: ${SQLITE_WEB_COOP}`,
-    `\tCross-Origin-Embedder-Policy: ${SQLITE_WEB_COEP}`,
-    '',
-    '/sso-callback',
-    '\tCross-Origin-Opener-Policy: same-origin-allow-popups',
-    '',
-  ].join('\n');
-  writeFileSync(join(productDir, 'dist', '_headers'), body, 'utf8');
+function writeDistHeaders(): void {
+  const dist = join(productDir, 'dist');
+  const files = readdirSync(dist, { recursive: true, withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) =>
+      join(entry.parentPath, entry.name)
+        .slice(dist.length + 1)
+        .replaceAll('\\', '/')
+    );
+  writeFileSync(join(dist, '_headers'), distHeadersFile(files), 'utf8');
 }
 
 async function buildProductWeb(
@@ -107,7 +103,7 @@ async function buildProductWeb(
     env: buildEnv,
   });
 
-  writeDistIsolationHeaders();
+  writeDistHeaders();
 
   await runAsync(
     'bun',

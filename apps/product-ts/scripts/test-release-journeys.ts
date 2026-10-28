@@ -11,6 +11,11 @@ import { bootLocalhostStack } from './boot-stack';
 import { brokerVerdict } from './broker-denials';
 import type { DatabaseLink } from './database-link';
 import {
+  DOCUMENT_CACHE_CONTROL,
+  SQLITE_WEB_COEP,
+  SQLITE_WEB_COOP,
+} from './dist-headers';
+import {
   healthTestArguments,
   parseCli,
   selectSpecs,
@@ -88,8 +93,12 @@ function serveRelease(origin: string): ReturnType<typeof Bun.serve> {
           'Content-Type': path.endsWith('.wasm')
             ? 'application/wasm'
             : file.contentType,
-          'Cross-Origin-Opener-Policy': 'same-origin',
-          'Cross-Origin-Embedder-Policy': 'require-corp',
+          'Cross-Origin-Opener-Policy': SQLITE_WEB_COOP,
+          'Cross-Origin-Embedder-Policy': SQLITE_WEB_COEP,
+          // As production serves documents (`dist-headers.ts`).
+          ...(file.contentType.startsWith('text/html')
+            ? { 'Cache-Control': DOCUMENT_CACHE_CONTROL }
+            : {}),
         },
       });
     },
