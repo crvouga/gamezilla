@@ -1,0 +1,4 @@
+{
+  "summary": "Release (run 40628012072) restored every task a pull request had run but ran every Gherkin spec part, Quint model, contract model and release journey cold, because the pr profile leaves those suites out and nothing else wrote them to the remote cache. A green pull request now dispatches a release-profile warm-up of its merge result, under verify-warm:* job names that never stand for the required verify:end.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-workflow-cancel.test.ts"
+}

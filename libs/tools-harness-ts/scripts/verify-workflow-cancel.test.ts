@@ -56,7 +56,9 @@ describe('Verify workflow cancellation', () => {
       '${{ fromJSON(needs.verify-start.outputs.shards) }}'
     );
     // The matrix names no shard (`shardMatrix`), so nothing reads its values.
-    expect(shards.name).toBe('verify:shards (${{ strategy.job-index }})');
+    expect(shards.name).toBe(
+      "${{ inputs.pull-request && 'verify-warm:shards' || 'verify:shards' }} (${{ strategy.job-index }})"
+    );
     expect(shards.env['VERIFY_SHARD']).toBe('${{ strategy.job-index }}');
     expect(readFileSync(WORKFLOW, 'utf8')).not.toContain('matrix.shard');
     const shardCounts = workflow.on.workflow_dispatch.inputs.shards.options;
@@ -85,9 +87,10 @@ describe('Verify workflow cancellation', () => {
         workflow_call: { inputs: { profile: { default: string } } };
       };
     };
-    // A pull request has no inputs, and a dispatch cannot name a profile.
+    // A pull request has no inputs, and a dispatch cannot name a profile: a
+    // dispatch that names a pull request warms Release's cache at `release`.
     expect(workflow.env['VERIFY_PROFILE']).toBe(
-      "${{ inputs.profile || 'pr' }}"
+      "${{ inputs.profile || inputs.pull-request && 'release' || 'pr' }}"
     );
     expect(workflow.on.workflow_call.inputs.profile.default).toBe('pr');
     expect(workflow.on.workflow_dispatch.inputs).not.toHaveProperty('profile');
@@ -147,16 +150,59 @@ describe('Verify workflow cancellation', () => {
     );
   });
   // regression: concurrent-verify-run-isolation
-  test('a newer push supersedes its PR run; dispatched and release runs never cancel one another', () => {
+  test('a newer push supersedes its PR run and warm-up; dispatched and release runs never cancel one another', () => {
     const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
       concurrency: { group: string; 'cancel-in-progress': string };
     };
     expect(workflow.concurrency.group).toBe(
-      "${{ github.event_name == 'pull_request' && format('verify-pr-{0}', github.event.pull_request.number) || format('verify-run-{0}', github.run_id) }}"
+      "${{ github.event_name == 'pull_request' && format('verify-pr-{0}', github.event.pull_request.number) || inputs.pull-request && format('verify-warm-{0}', inputs.pull-request) || format('verify-run-{0}', github.run_id) }}"
     );
     expect(workflow.concurrency['cancel-in-progress']).toBe(
-      "${{ github.event_name == 'pull_request' }}"
+      "${{ github.event_name == 'pull_request' || inputs.pull-request != '' }}"
     );
+  });
+  // regression: release-cold-slow-suites
+  test("a green pull request warms Release's slow suites on its merge result", () => {
+    const text = readFileSync(WORKFLOW, 'utf8');
+    const workflow = Bun.YAML.parse(text) as {
+      on: { workflow_dispatch: { inputs: Record<string, { type: string }> } };
+      jobs: Record<
+        string,
+        {
+          steps: {
+            name?: string;
+            if?: string;
+            run?: string;
+            uses?: string;
+            with?: Record<string, string>;
+          }[];
+        }
+      >;
+    };
+    expect(workflow.on.workflow_dispatch.inputs['pull-request']?.type).toBe(
+      'string'
+    );
+    const end = workflow.jobs['verify-end']!.steps;
+    const warm = end.findIndex((step) => step.name === "Warm Release's cache");
+    // Only after the verdict, only when it is green (no status function),
+    // and never for a fork, whose code must not get the secrets.
+    expect(warm).toBeGreaterThan(
+      end.findIndex((step) => step.run?.includes('verify-verdict.ts'))
+    );
+    expect(end[warm]!.if).toBe(
+      "github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository"
+    );
+    expect(end[warm]!.run).toContain('gh workflow run verify-pr.yml');
+    expect(end[warm]!.run).toContain('-f pull-request="$PR_NUMBER"');
+    // Every job checks out the merge result Release will hash.
+    for (const job of Object.values(workflow.jobs))
+      expect(
+        job.steps.find((step) => step.uses === 'actions/checkout@v6')?.with?.[
+          'ref'
+        ]
+      ).toBe(
+        "${{ inputs.pull-request && format('refs/pull/{0}/merge', inputs.pull-request) || '' }}"
+      );
   });
   // regression: verify-cancel-holds-concurrency
   test('publish and the verdict skip a cancelled run', () => {
