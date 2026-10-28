@@ -86,17 +86,19 @@ function announceDeadline(
   );
 }
 
-export function executeShard(
+/**
+ * One Turbo process over `ids`. It is killed when the shard's deadline runs
+ * out, or as soon as a task outruns its own budget; `executeShard` decides
+ * what runs after.
+ */
+function executePass(
   ids: readonly string[],
   env: NodeJS.ProcessEnv,
-  tasks: VerifyPlan['tasks']
+  tasks: VerifyPlan['tasks'],
+  deadline: { readonly remaining: number; readonly total: number }
 ): Promise<ShardExecution> {
   const cacheDir = resolveTurboCacheDir(ROOT, env);
   const cold = env['VERIFY_CACHE_MODE'] === 'cold';
-  if (cold)
-    for (const task of tasks.filter((task) => ids.includes(task.taskId)))
-      for (const suffix of ['.tar.zst', '-meta.json'])
-        rmSync(join(cacheDir, `${task.hash}${suffix}`), { force: true });
   verifyExecution(ids, tasks, env);
   const child = spawnTurbo(ids, env, cold);
   const output = taskStream(
@@ -120,16 +122,12 @@ export function executeShard(
   };
   process.once('SIGINT', stop);
   process.once('SIGTERM', stop);
-  const deadline = resolveRunDeadlineSeconds(env, {
-    isDeploy: false,
-    slowRunner: true,
-  });
   const timer = setTimeout(() => {
     timedOut = true;
-    stopReason = { kind: 'shard-deadline', deadlineSeconds: deadline };
-    announceDeadline(deadline, output.snapshot().running);
+    stopReason = { kind: 'shard-deadline', deadlineSeconds: deadline.total };
+    announceDeadline(deadline.total, output.snapshot().running);
     stop();
-  }, deadline * 1000);
+  }, deadline.remaining * 1000);
   const monitor = setInterval(() => {
     const overBudget = output.tick();
     if (overBudget.length) {
@@ -168,6 +166,104 @@ export function executeShard(
       });
     });
   });
+}
+
+/**
+ * The tasks still worth running once `settled` tasks were killed or failed:
+ * every task that neither is one of them nor needs one of them, directly or
+ * through another task. A task that needs a settled one would run it again,
+ * and neither a killed nor a failed task is ever cached.
+ */
+export function tasksAfterSettled(
+  ids: readonly string[],
+  tasks: VerifyPlan['tasks'],
+  settled: readonly string[]
+): string[] {
+  const dependencies = new Map(
+    tasks.map((task) => [task.taskId, task.dependencies])
+  );
+  const killed = new Set(settled);
+  const reaches = new Map<string, boolean>();
+  const needsKilled = (id: string, path: ReadonlySet<string>): boolean => {
+    const known = reaches.get(id);
+    if (known !== undefined) return known;
+    if (killed.has(id)) return true;
+    if (path.has(id)) return false;
+    const next = new Set(path).add(id);
+    const result = (dependencies.get(id) ?? []).some((dependency) =>
+      needsKilled(dependency, next)
+    );
+    reaches.set(id, result);
+    return result;
+  };
+  return ids.filter((id) => !needsKilled(id, new Set()));
+}
+
+const LEFTOVER_PASS_MIN_SECONDS = 30;
+
+/**
+ * Runs a shard's tasks, and keeps going past a task that outruns its budget.
+ * Killing that task kills the whole Turbo process, so the tasks queued behind
+ * it would never run and never reach the remote cache: the next run would pay
+ * for them again. The shard stays red (the over-budget task is reported and
+ * fails it), but Turbo starts again over what can still pass, inside the
+ * shard's own deadline. A task finished in an earlier pass is a cache hit in
+ * the next. A shard that hits its deadline or is cancelled stops for good.
+ */
+export async function executeShard(
+  ids: readonly string[],
+  env: NodeJS.ProcessEnv,
+  tasks: VerifyPlan['tasks']
+): Promise<ShardExecution> {
+  const cacheDir = resolveTurboCacheDir(ROOT, env);
+  if (env['VERIFY_CACHE_MODE'] === 'cold')
+    for (const task of tasks.filter((task) => ids.includes(task.taskId)))
+      for (const suffix of ['.tar.zst', '-meta.json'])
+        rmSync(join(cacheDir, `${task.hash}${suffix}`), { force: true });
+  const deadline = resolveRunDeadlineSeconds(env, {
+    isDeploy: false,
+    slowRunner: true,
+  });
+  const started = process.hrtime.bigint();
+  const elapsed = () => Number(process.hrtime.bigint() - started) / 1e9;
+  const finished = new Map<string, StreamSnapshot['finished'][number]>();
+  const failed = new Map<string, StreamSnapshot['failed'][number]>();
+  const overBudget = new Map<string, StreamSnapshot['overBudget'][number]>();
+  let pending = [...ids];
+  let budgetKilled = false;
+  for (;;) {
+    const pass = await executePass(pending, env, tasks, {
+      remaining: deadline - elapsed(),
+      total: deadline,
+    });
+    for (const task of pass.stream.finished) finished.set(task.taskId, task);
+    for (const task of pass.stream.failed) failed.set(task.taskId, task);
+    for (const task of pass.stream.overBudget)
+      overBudget.set(task.taskId, task);
+    budgetKilled ||= pass.stop?.kind === 'task-budget';
+    const next =
+      pass.stop?.kind === 'task-budget'
+        ? tasksAfterSettled(pending, tasks, [
+            ...overBudget.keys(),
+            ...failed.keys(),
+          ])
+        : [];
+    if (next.length === 0 || deadline - elapsed() < LEFTOVER_PASS_MIN_SECONDS)
+      return {
+        status: budgetKilled && pass.status === 0 ? 124 : pass.status,
+        stop: pass.stop ?? (budgetKilled ? { kind: 'task-budget' } : null),
+        stream: {
+          running: pass.stream.running,
+          finished: [...finished.values()],
+          failed: [...failed.values()],
+          overBudget: [...overBudget.values()],
+        },
+      };
+    console.error(
+      `Continuing the shard past ${[...overBudget.keys()].join(', ')}: ${next.length} task(s) can still pass and be cached. The shard stays red.`
+    );
+    pending = next;
+  }
 }
 
 function verifyExecution(

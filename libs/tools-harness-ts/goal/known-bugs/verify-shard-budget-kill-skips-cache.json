@@ -1,0 +1,4 @@
+{
+  "summary": "A task that outran its time budget killed the whole shard's Turbo process, so every task queued behind it never ran and never reached the remote cache. A red shard now runs Turbo again over the tasks that can still pass.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-shard-process.test.ts"
+}
