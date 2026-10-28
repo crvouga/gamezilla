@@ -5,7 +5,7 @@
  *   pull request): the gate without its slow suites ({@link releaseOnlyTask}),
  *   so a pull request hears about lint, types, unit tests and the repository
  *   checks in minutes. It keeps no test report beyond the job log.
- * - `release` is the whole gate (`bun verify`, Deploy's scheduled
+ * - `release` is the whole gate (`bun verify`, Release's scheduled
  *   verification): every gate task, bounded and deterministic, no reports.
  *   Nothing ships unless it passes on the exact commit.
  * - `nightly` is the comprehensive run (`bun verify-nightly`,
@@ -93,7 +93,7 @@ const PROFILES: Readonly<Record<VerifyProfileName, VerifyProfile>> = {
 };
 
 /**
- * Gate tasks the `pr` profile leaves to Deploy's scheduled `release` run
+ * Gate tasks the `pr` profile leaves to Release's scheduled `release` run
  * and the nightly run: about nine tenths of a cold gate's task-seconds
  * (Verify run 40577850573). Gherkin spec parts and their preparation,
  * Quint model checks, the symbolic contract models, the release journeys

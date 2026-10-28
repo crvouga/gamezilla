@@ -34,7 +34,7 @@ resource "infisical_secret_import" "shared" {
 }
 
 # The one OAuth callback relay every environment signs in through
-# (`apps/auth-relay-ts`, deployed by the Deploy workflow's fleet job just before
+# (`apps/auth-relay-ts`, deployed by the Release workflow's fleet job just before
 # this apply). Global: its forwarding targets are every env file, so it lives
 # beside the per-env secrets environments rather than in any one env.
 data "cloudflare_zone" "auth_relay" {

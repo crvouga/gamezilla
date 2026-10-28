@@ -1,0 +1,4 @@
+{
+  "summary": "The release concurrency group used the default single pending slot, so a newer merge to main replaced an older pending release. Keep queue max with cancellation disabled so merges wait for the shared environments (within GitHub's 100-run queue limit).",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-remote.test.ts"
+}

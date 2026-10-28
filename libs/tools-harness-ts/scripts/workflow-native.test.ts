@@ -36,7 +36,7 @@ test('a two-core Verification runner never starts twenty concurrent test process
 });
 
 // regression: ci-provider-native-ci-runner-routing
-test('only GitHub Actions owns the Verify, Deploy and Health triggers', () => {
+test('only GitHub Actions owns the Verify, Release and Health triggers', () => {
   expect(readdirSync(join(ROOT, '.github/workflows')).sort()).toEqual([
     'deploy.yml',
     'health.yml',

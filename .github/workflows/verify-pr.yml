@@ -6,9 +6,9 @@ run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{
 # - `pr`, on every pull request: lint, architecture boundaries, typecheck,
 #   unit tests, the repository checks, schema evolution, bundles and security
 #   scans. The slow suites (Gherkin spec parts, Quint models, contract models,
-#   release journeys) are left to Deploy, so a pull request hears back in
+#   release journeys) are left to Release, so a pull request hears back in
 #   minutes.
-# - `release`, from Deploy on the exact commit it ships: the whole gate.
+# - `release`, from Release on the exact commit it ships: the whole gate.
 # - `nightly`, from Verify Nightly: the whole gate deeper, with reports.
 #
 # Three jobs, on any self-hosted runner OS (Linux, macOS, Windows); the
@@ -28,9 +28,9 @@ run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{
 # and the end, with no shard at all.
 #
 # It runs on every pull request, where `verify:end` is the required status. A
-# green pull request is mergeable; scheduled Deploy runs the whole gate on
+# green pull request is mergeable; Release runs the whole gate on
 # `main` before anything ships. It also runs from a manual dispatch, from
-# Deploy (`workflow_call`), and from Verify Nightly. `bun verify` runs the
+# Release (`workflow_call`), and from Verify Nightly. `bun verify` runs the
 # whole gate locally.
 #
 # The `pr` and `release` profiles are bounded and never explore: each Quint
@@ -86,7 +86,7 @@ on:
         type: string
         default: normal
       profile:
-        description: pr (the fast pull-request check), release (the whole gate, before Deploy ships) or nightly (deeper budgets, reports kept)
+        description: pr (the fast pull-request check), release (the whole gate, before Release ships) or nightly (deeper budgets, reports kept)
         type: string
         default: pr
       advisories:
@@ -158,7 +158,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ "$GITHUB_REF" != "refs/heads/main" ]; then
-            echo "::error::Deploy ships refs/heads/main only (got ${GITHUB_REF})."
+            echo "::error::Release ships refs/heads/main only (got ${GITHUB_REF})."
             exit 1
           fi
       - uses: actions/checkout@v6
@@ -292,7 +292,7 @@ jobs:
           bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-results-${{ strategy.job-index }}
           .cache/verify-ci/results-${{ strategy.job-index }}.tar.gz
 
-  # The ending word, and the only required status on a pull request; Deploy
+  # The ending word, and the only required status on a pull request; Release
   # consumes this verdict. It runs after red shards too: the fan-in suites
   # report their own failures, then one verdict names every suite and every
   # failing task. A missing, failed or cancelled job fails it; skipped shards
@@ -323,11 +323,11 @@ jobs:
       - name: Run fan-in consumers
         timeout-minutes: ${{ inputs.profile == 'nightly' && 60 || 25 }}
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-consumers.ts
-      # What Deploy would apply, planned against the real state for this merge
+      # What Release would apply, planned against the real state for this merge
       # result, on a pull request that changes the infrastructure. Some
       # configuration errors only a plan finds (a `removed` block whose
       # resource is still in state, a project the provider cannot find); each
-      # failed Deploy after the pull request had passed. Read-only: the plan
+      # failed Release after the pull request had passed. Read-only: the plan
       # applies nothing and the AWS role it uses cannot mutate. They run after
       # the fan-in consumers so those still report, and each runs when the
       # other failed so one red plan does not hide the other.

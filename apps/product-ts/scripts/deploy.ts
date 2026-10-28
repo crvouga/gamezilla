@@ -139,5 +139,5 @@ try {
 }
 ok(
   'Application Worker',
-  `deployed to ${activeEnvFile().env} (${commitHash.slice(0, 12)})`
+  `released to ${activeEnvFile().env} (${commitHash.slice(0, 12)})`
 );

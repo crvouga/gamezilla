@@ -30,11 +30,13 @@ describe('WORKFLOW_DISPATCH', () => {
     expect(deploy).toContain('require-main: ${{ !inputs.rehearsal }}');
   });
 
-  test('Deploy runs on a schedule and ships only what the whole gate verified', () => {
+  // regression: release-pending-merges-replaced
+  test('Release runs on every merge to main and ships only what the whole gate verified', () => {
     const deploy = Bun.YAML.parse(
       readFileSync(join(WORKFLOWS, 'deploy.yml'), 'utf8')
     ) as {
       on: Record<string, unknown>;
+      concurrency: Record<string, unknown>;
       jobs: Record<
         string,
         {
@@ -45,13 +47,16 @@ describe('WORKFLOW_DISPATCH', () => {
         }
       >;
     };
-    expect(Object.keys(deploy.on)).toEqual(['schedule', 'workflow_dispatch']);
-    expect(deploy.on['schedule']).toEqual([{ cron: '17 */3 * * *' }]);
+    expect(Object.keys(deploy.on)).toEqual(['push', 'workflow_dispatch']);
+    expect(deploy.on['push']).toEqual({ branches: ['main'] });
+    expect(deploy.concurrency).toEqual({
+      group: 'deploy-main',
+      queue: 'max',
+      'cancel-in-progress': false,
+    });
     // A pull request runs the fast profile; the release runs every gate task.
     expect(deploy.jobs['deploy-verify']).toMatchObject({
       uses: './.github/workflows/verify-pr.yml',
-      needs: 'deploy-changes',
-      if: "needs.deploy-changes.outputs.ship == 'true'",
     });
     expect(deploy.jobs['deploy-verify']).toHaveProperty(
       'with.profile',
@@ -61,7 +66,7 @@ describe('WORKFLOW_DISPATCH', () => {
       'with.require-main',
       '${{ !inputs.rehearsal }}'
     );
-    // A pull request enforced the advisories; Deploy reports what moved since.
+    // A pull request enforced the advisories; Release reports what moved since.
     expect(deploy.jobs['deploy-verify']).toHaveProperty(
       'with.advisories',
       'report'

@@ -1,9 +1,9 @@
 /**
  * A Worker's `compatibility_date` must not be newer than the date the pinned
- * workerd supports. Deploy boots the Worker under the local workerd
+ * workerd supports. Release boots the Worker under the local workerd
  * (`verify:api` → `preview:serve`), which refuses a newer date, while
  * `wrangler deploy --dry-run` only bundles and never notices — so the date
- * once ran ahead of the pinned wrangler and every deploy failed with the gate
+ * once ran ahead of the pinned wrangler and every release failed with the gate
  * green. `verify:worker-bundle` runs this verification before it bundles.
  */
 

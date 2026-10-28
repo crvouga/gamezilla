@@ -5,7 +5,7 @@
  * and OpenSLO objectives (`.openslo.yaml`, see `spec-kinds.ts`); a workspace
  * package runs the domains its `package.json`
  * lists in `specDomains` (against the harness, in its `test:spec`) and in
- * `liveDomains` (against a deployed environment, in its `health`). For each
+ * `liveDomains` (against a released environment, in its `health`). For each
  * such package: its parsed features, the step definitions its `tests/steps/**`
  * declare (read statically), the step files of other packages its steps entry
  * imports, its models with the bindings its `tests/quint/**` declare, and its
@@ -73,7 +73,7 @@ export type SpecPackage = PackageSpecs & {
   readonly dir: string;
   /** Domains run against the harness (`test:spec`). */
   readonly specDomains: readonly string[];
-  /** Domains run against a deployed environment (`health`). */
+  /** Domains run against a released environment (`health`). */
   readonly liveDomains: readonly string[];
   /** Repo-relative `tests/steps/index.ts`, or null when missing. */
   readonly stepsEntry: string | null;
@@ -96,7 +96,7 @@ type Manifest = {
   readonly exports?: Record<string, unknown>;
   /** The `specs/<domain>/` directories this package runs against the harness. */
   readonly specDomains?: readonly string[];
-  /** The `specs/<domain>/` directories this package runs against a deployment. */
+  /** The `specs/<domain>/` directories this package runs against a release. */
   readonly liveDomains?: readonly string[];
   /** How many `test:spec:<k>` parts `bun verify` splits the suite into. */
   readonly specParts?: number;

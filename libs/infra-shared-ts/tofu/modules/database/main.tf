@@ -1,6 +1,6 @@
 # Vanilla PlanetScale Postgres. Each environment is its own database
 # (`<project>-<suffix>-pg`, branch `main`), so a standard environment can be
-# created and torn down without touching production, and Deploy can apply
+# created and torn down without touching production, and Release can apply
 # standard environments before production. A new database starts empty:
 # `@libs/runtime#migrate` builds the schema. The app only has a connection
 # string. This is not Neki: no routers, no shards, no admin service.

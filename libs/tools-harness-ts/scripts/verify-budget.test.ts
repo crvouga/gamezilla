@@ -125,7 +125,9 @@ describe('taskBudgetSeconds', () => {
 });
 
 describe('resolveRunDeadlineSeconds', () => {
-  test('verification and deploy have different ceilings', () => {
+  // regression: release-wording-renames-deadline-option
+  // Display wording is Release; the typed deadline option remains isDeploy.
+  test('verification and release have different ceilings', () => {
     const opts = { slowRunner: false };
     expect(resolveRunDeadlineSeconds({}, { ...opts, isDeploy: false })).toBe(
       DEFAULT_RUN_DEADLINE_SECONDS
@@ -143,7 +145,7 @@ describe('resolveRunDeadlineSeconds', () => {
     ).toBe(CI_RUN_DEADLINE_SECONDS);
   });
 
-  test('deploy is not scaled either', () => {
+  test('release is not scaled either', () => {
     expect(
       resolveRunDeadlineSeconds({}, { isDeploy: true, slowRunner: true })
     ).toBe(DEPLOY_RUN_DEADLINE_SECONDS);

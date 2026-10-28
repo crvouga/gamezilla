@@ -7,7 +7,7 @@
  * packages that declare it. So a script that spawns `wrangler` from a package
  * that does not declare `wrangler` works on a laptop with a global install and
  * dies on CI with `Executable not found in $PATH: "wrangler"` — which is how
- * the product deploy broke once the global CLI installer was replaced by mise.
+ * the product release broke once the global CLI installer was replaced by mise.
  *
  * "Spawns" is textual: the bin name as a string literal right after `(` or `[`,
  * the first argument of `spawn` / `runAsync` / `runSafe` / an argv array.

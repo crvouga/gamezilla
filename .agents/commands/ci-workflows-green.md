@@ -1,5 +1,5 @@
 ---
-description: Drive every CI workflow — Verify PR, Verify Nightly, Deploy, Health — to green from one PR, in a loop; survey what is red, fix root causes, push, re-verify, repeat
+description: Drive every CI workflow — Verify PR, Verify Nightly, Release, Health — to green from one PR, in a loop; survey what is red, fix root causes, push, re-verify, repeat
 ---
 
 # /ci-workflows-green
@@ -10,13 +10,13 @@ Get all four workflows green, and do it in **one pull request** on the current b
 | --- | --- | --- |
 | **Verify PR** (`.github/workflows/verify-pr.yml`) | the code is bad | every gate on every PR; `bun verify` runs the same gate on this machine |
 | **Verify Nightly** (`.github/workflows/verify-nightly.yml`) | deeper verification of `main` found something | every night on `main`; `bun verify-nightly <group>` runs a group on this machine. Never a merge requirement |
-| **Deploy** (`.github/workflows/deploy.yml`) | releasing `main` fails | every merge to `main`, and `bun deploy` by hand (full verification, then every env) |
-| **Health** (`.github/workflows/health.yml`) | the live deployment is bad | hourly, and `bun health` dispatches it |
+| **Release** (`.github/workflows/deploy.yml`) | releasing `main` fails | every merge to `main`, and `bun deploy` by hand (full verification, then every env) |
+| **Health** (`.github/workflows/health.yml`) | the live release is bad | hourly, and `bun health` dispatches it |
 
-Deploy runs only from `main`; Health also accepts branch dispatches. Deploy changes ship from `main`, so a fix for them reaches CI only after a
+Release runs only from `main`; Health also accepts branch dispatches. Release changes ship from `main`, so a fix for them reaches CI only after a
 human merges the PR. Agents never merge. The loop therefore ends with a green Verification
-on the PR **and** every Deploy/Health failure reproduced and shown fixed in GitHub Actions.
-After the merge it resumes to confirm Deploy and Health on `main`.
+on the PR **and** every Release/Health failure reproduced and shown fixed in GitHub Actions.
+After the merge it resumes to confirm Release and Health on `main`.
 
 While iterating on Nightly failures, dispatch only the failing group with
 `gh workflow run verify-nightly.yml --ref <branch> -f group=<group>`.
@@ -47,7 +47,7 @@ bun obs find <trace/test/mutation id from the log>    # observability comes befo
 bun obs test '<failing test name>' --source <downloaded-artifact>
 ```
 
-A Health or Deploy run that failed *before* the change you are looking at can still be
+A Health or Release run that failed *before* the change you are looking at can still be
 red for a reason that is already fixed on `main`. Compare `headSha` against `git log origin/main`
 before you chase it.
 
@@ -63,8 +63,8 @@ shows it fixed afterwards:
 | --- | --- |
 | Verify PR (any shard) | `bun run --filter <pkg> <task>` for the failing task, then `bun verify`; the [`ci-green`](../skills/ci-green/SKILL.md) skill runs this reproduce-and-fix loop locally under a shared resource budget |
 | Verify Nightly (a group) | `bun verify-nightly <group>` at the commit the run names, with the seed its log printed; pin what it found as a regression so `bun verify` replays it |
-| Deploy, a gate leaf | the same leaf. `//#deploy` runs every `//#verify` leaf first |
-| Deploy, infrastructure or deployment | a GitHub Actions rehearsal on the branch, reusing the dev job and deployment lock; AWS trust may block a branch infrastructure apply |
+| Release, a gate leaf | the same leaf. `//#deploy` runs every `//#verify` leaf first |
+| Release, infrastructure or release | a GitHub Actions rehearsal on the branch, reusing the dev job and release lock; AWS trust may block a branch infrastructure apply |
 | Health | `bun health` dispatches the branch workflow and its read-only probes |
 
 Fix the root cause the repo's way (see `AGENTS.md`):
@@ -72,7 +72,7 @@ Fix the root cause the repo's way (see `AGENTS.md`):
 - **Every bug gets a verification.** A failure that `bun verify` did not catch means a verification is
   missing. Add the example test (`// regression: <bug-id>`), add
   `libs/tools-harness-ts/goal/known-bugs/<bug-id>.json`, or add a lint rule, so that the next occurrence fails
-  Verification instead of Deploy or Health.
+  Verification instead of Release or Health.
 - **Configuration drift** (a revoked key, a stale secret, GitHub settings) is fixed by the
   config-as-code that owns it: `libs/infra-shared-ts/tofu` (infrastructure), the `libs/secrets` registry; repository settings are the OpenTofu bootstrap stack.
   Never fix it with a hand edit in a vendor dashboard. If a fix needs a human, such as a
@@ -85,7 +85,7 @@ Fix the root cause the repo's way (see `AGENTS.md`):
 ## 3. Ship on the one PR
 
 All fixes go on the **current branch** and its single PR. Never open a second PR for
-"the deploy part".
+"the release part".
 
 ```bash
 bun verify                               # every gate on this machine
@@ -100,7 +100,7 @@ If it reports a red Verification, return to step 1 with that failure.
 Repeat steps 1–3 until the survey shows:
 
 - Verification is green on the PR's latest head, and
-- every Deploy/Health failure in the queue was reproduced in GitHub Actions and now passes there.
+- every Release/Health failure in the queue was reproduced in GitHub Actions and now passes there.
 
 Stop and report instead of looping when either of these happens:
 
@@ -110,9 +110,9 @@ Stop and report instead of looping when either of these happens:
 
 ## 5. After the human merges
 
-The merge is the release: the push to `main` starts Deploy, which runs full verification
+The merge is the release: the push to `main` starts Release, which runs full verification
 first, then every environment. Watch that run; `bun deploy` re-dispatches it on
-`origin/main` only when asked to release again. Do not start a second Deploy while one is
+`origin/main` only when asked to release again. Do not start a second Release while one is
 still going. If `deploy:verify` is red, fix every failure its `verify:end` summary lists
 in one batch on a new PR. Then `bun health` runs Health without waiting for
 the hourly schedule:
@@ -122,7 +122,7 @@ gh run view <deploy-run-id> --json status,conclusion,jobs
 bun health
 ```
 
-`bun health` deploys nothing. If Deploy or Health is still red on `main`, start again
+`bun health` releases nothing. If Release or Health is still red on `main`, start again
 at step 1 on a new branch from `main`. That is the one case where a second PR is right,
 because the first one has merged.
 

@@ -64,6 +64,7 @@ describe('application Worker dispatch', () => {
     });
   });
 
+  // regression: room-server-stale-game-registry-export
   test('exports the room class and scheduled handler in the application entrypoint', () => {
     expect(typeof RoomServerDurableObject).toBe('function');
     expect(typeof worker.scheduled).toBe('function');

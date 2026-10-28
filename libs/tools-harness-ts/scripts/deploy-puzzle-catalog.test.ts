@@ -10,7 +10,7 @@ type Task = {
 const ROOT = join(import.meta.dirname, '../../..');
 
 // regression: deploy-unseeded-chess-puzzle-catalog
-test('Deploy initializes the puzzle catalog after migration and before shipping', () => {
+test('Release initializes the puzzle catalog after migration and before shipping', () => {
   const { tasks } = JSON.parse(
     readFileSync(join(ROOT, 'turbo.json'), 'utf8')
   ) as { tasks: Record<string, Task> };

@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-test('Deploy rehearsal verifies and plans without opening the release path', () => {
+test('Release rehearsal verifies and plans without opening the release path', () => {
   const source = readFileSync(
     join(import.meta.dirname, '../../../.github/workflows/deploy.yml'),
     'utf8'
@@ -24,10 +24,7 @@ test('Deploy rehearsal verifies and plans without opening the release path', () 
   expect(workflow.jobs['deploy-verify']).toMatchObject({
     uses: './.github/workflows/verify-pr.yml',
   });
-  // Only a scheduled run with nothing new to ship skips it.
-  expect(workflow.jobs['deploy-verify']?.if).toBe(
-    "needs.deploy-changes.outputs.ship == 'true'"
-  );
+  expect(workflow.jobs['deploy-verify']?.if).toBeUndefined();
   expect(workflow.jobs['deploy-rehearsal']).toMatchObject({
     if: '${{ inputs.rehearsal }}',
     needs: 'deploy-verify',
@@ -47,12 +44,7 @@ test('Deploy rehearsal verifies and plans without opening the release path', () 
   expect(source).not.toContain('deploy-guard:');
   expect(source).not.toContain('/pulls');
   expect(source).not.toContain('pull-requests:');
-  // Only the undeployed-commit check runs first, and it passes every manual
-  // run (a rehearsal included) straight through.
-  expect(workflow.jobs['deploy-verify']?.needs).toBe('deploy-changes');
-  expect(workflow.jobs['deploy-changes']?.steps?.[0]?.run).toContain(
-    'if [ "$GITHUB_EVENT_NAME" != schedule ]'
-  );
+  expect(workflow.jobs['deploy-verify']?.needs).toBeUndefined();
   expect(workflow.jobs['deploy-verify']).toHaveProperty(
     'with.require-main',
     '${{ !inputs.rehearsal }}'

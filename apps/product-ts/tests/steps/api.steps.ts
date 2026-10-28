@@ -160,7 +160,7 @@ Then(
 );
 
 /**
- * The relay (`apps/auth-relay-ts`) is global and redeploys in the Deploy
+ * The relay (`apps/auth-relay-ts`) is global and redeploys in the Release
  * workflow's fleet job, before any environment, so every environment can
  * prove it forwards each other environment's callbacks home.
  */

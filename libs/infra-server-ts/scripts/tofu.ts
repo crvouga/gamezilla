@@ -7,7 +7,7 @@
  *   bun run scripts/tofu.ts apply --stack foundation   # plan → policy → apply
  *   bun run scripts/tofu.ts drift --stack edge         # fails on any change
  *   bun run scripts/tofu.ts apply --stack bootstrap    # global; run by a person
- *   bun run scripts/tofu.ts apply --stack fleet        # global; Deploy runs it
+ *   bun run scripts/tofu.ts apply --stack fleet        # global; Release runs it
  *   bun run scripts/tofu.ts destroy --stack edge       # teardown (infra:destroy)
  *   bun run scripts/tofu.ts destroy --stack fleet --env <env>
  *

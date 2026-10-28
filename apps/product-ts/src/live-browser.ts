@@ -24,7 +24,7 @@ const NAVIGATION_POLL_MS = 250;
 /** Phone-sized: the layout most people use. */
 const VIEWPORT = { width: 390, height: 844 } as const;
 const CHROME_BACKEND = { type: 'chrome', url: false } as const;
-/** Uploaded by the Health and Deploy workflows when a journey fails. */
+/** Uploaded by the Health and Release workflows when a journey fails. */
 export const EVIDENCE_DIR = join(
   import.meta.dir,
   '../.cache/critical-journeys'

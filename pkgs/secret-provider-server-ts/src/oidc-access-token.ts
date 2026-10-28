@@ -66,7 +66,7 @@ async function fetchCiOidcJwt(audience: string): Promise<string> {
  * ms). A token without it is the caller's own and is used as is. It travels
  * in the environment so a child process that inherits a minted token also
  * knows to mint a new one — the CI identity's tokens live 10 minutes
- * (`modules/ci-identity`), shorter than a Deploy or Health run.
+ * (`modules/ci-identity`), shorter than a Release or Health run.
  */
 export const MINTED_TOKEN_EXPIRES_AT = 'INFISICAL_TOKEN_EXPIRES_AT';
 

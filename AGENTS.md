@@ -7,7 +7,7 @@ than restating it.
 
 ## Hard Rules
 
-- **We never test manually. Ever.** A green full verification (Deploy's `release` run of the whole gate on the exact commit it ships; a pull request's `verify:end` runs only the fast part) is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing verification, and if no verification can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property-shared-ts` only; `fc.commands` models; `@pkgs/harness-root-shared-ts` systems; Quint models for product subs — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus its own file `libs/tools-harness-ts/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`README.md`](README.md#correctness-machinery).
+- **We never test manually. Ever.** A green full verification (Release's `release` run of the whole gate on the exact commit it ships; a pull request's `verify:end` runs only the fast part) is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing verification, and if no verification can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property-shared-ts` only; `fc.commands` models; `@pkgs/harness-root-shared-ts` systems; Quint models for product subs — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus its own file `libs/tools-harness-ts/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`README.md`](README.md#correctness-machinery).
 
 - **Specs are for business readers.** Every line in `specs/` is understood by a non-technical business person (A0 in [`specs/README.md`](specs/README.md)); every behavior test is a spec; each framework package tests through one kitchen-sink example app. Spec text changes only in `spec:` commits; implementers treat it as read-only. What the app should be lives only in `specs/`, with no discrete versions of the app; [`README.md`](README.md) is the implementation briefing and never a second product definition. Step catalogs (`<package>/STEPS_CATALOG.md`, index `docs/STEPS_CATALOG.md`) are generated and gitignored: `bun install` writes them and `bun run spec:catalog` refreshes them. Write specs with [`spec-upsert`](.agents/skills/spec-upsert/SKILL.md), bind them with [`spec-implement`](.agents/skills/spec-implement/SKILL.md), audit them with [`spec-audit`](.agents/skills/spec-audit/SKILL.md).
 
@@ -33,7 +33,7 @@ than restating it.
 
 - **Atlas is an npm dependency, never a copy.** `@crvouga/atlas` installs from npm through the root `catalog`: no submodule, vendored copy, `git` / `file:` dependency or patch. Import only its documented paths (`@crvouga/atlas`, `/spec`, `/schema`, `/reports/<module>`, …) and run its `atlas` / `atlas-visualizer` commands. A bug or gap in Atlas is an issue at [crvouga/atlas](https://github.com/crvouga/atlas/blob/main/docs/reporting-issues.md), never a fix made from here; a workaround in our code is named in that issue and removed when the release that fixes it lands. Upgrade by raising the catalog entry in a commit of its own. Guide: [dogfooding](https://github.com/crvouga/atlas/blob/main/docs/dogfooding.md).
 
-- **No git hooks.** Do not add a `pre-commit`, `pre-push`, `core.hooksPath`, Husky, or any other git hook. A direct push to `main` is allowed. Deploy still runs the whole Verify gate on that commit before it ships ([`README.md`](README.md#correctness-machinery)).
+- **No git hooks.** Do not add a `pre-commit`, `pre-push`, `core.hooksPath`, Husky, or any other git hook. A direct push to `main` is allowed. Release still runs the whole Verify gate on that commit before it ships ([`README.md`](README.md#correctness-machinery)).
 
 - **Agents never merge a pull request.** `/pr-ready` takes a PR to a green Ready to merge and stops; a human merges — never `--admin`, never a red, pending or draft PR. A person may also push `main` directly.
 
@@ -189,11 +189,11 @@ Four workflows, one contract each. Details:
 | --- | --- | --- |
 | Verify PR (`verify-pr.yml`) | `bun verify` | Fast, deterministic, merge-blocking validation: the `pr` profile, the gate without its slow suites. Keeps no test report or artifact: a failure is read from the job log. |
 | Verify Nightly (`verify-nightly.yml`) | `bun verify-nightly` | Comprehensive verification and exploration on `main`, every night. Owns test reports, diagnostics and reproducibility. Never gates a merge or a deploy. |
-| Deploy (`deploy.yml`) | `bun deploy` | Scheduled production deployment: every three hours, when `main` has moved, it runs the whole gate (`release` profile) on that exact commit, then ships it. |
-| Health (`health.yml`) | `bun health` | Scheduled verification that production is available and correct. Deploys nothing. |
+| Release (`deploy.yml`) | `bun deploy` | Continuous production release: on every push to `main`, when `main` has moved, it runs the whole gate (`release` profile) on that exact commit, then ships it. |
+| Health (`health.yml`) | `bun health` | Scheduled verification that production is available and correct. Releases nothing. |
 
 - **Run `bun verify` before you call development work done.** It is the
-  whole gate Deploy runs before shipping; the pull request runs only its fast
+  whole gate Release runs before shipping; the pull request runs only its fast
   part. Run `bun verify-nightly` (or one group:
   `bun verify-nightly random`) when a change deserves deeper verification, such
   as a new Quint model, a property, or sync and recovery code. An ordinary
@@ -214,7 +214,7 @@ Four workflows, one contract each. Details:
   example, so the `release` profile replays it from then on.
 - **The required status is `verify:end`.** Verify PR is three jobs
   (`verify:start`, `verify:shards (N)`, `verify:end`). They keep the `verify:`
-  prefix wherever the gate runs (a pull request, Deploy's verification, the
+  prefix wherever the gate runs (a pull request, Release's verification, the
   nightly run). Every CI job runs on any self-hosted runner, Linux, macOS or
   Windows, so CI checks only what runs on all three; native packages and
   `test:posix` suites are not checked in CI
@@ -233,8 +233,7 @@ Four workflows, one contract each. Details:
   leaf verifies and never touches the outside world, and its verdict never
   depends on the machine (never branch on `CI`). Make a slow task faster
   before raising its budget.
-- **Deploy ships `main` on a schedule.** Every three hours, a `main` that
-  moved since the last successful Deploy is verified by the whole gate and
+- **Release ships every push to `main`.** Every pushed commit is verified by the whole gate and
   shipped; it never waits for the nightly run. A red `release` run ships
   nothing, so a slow suite a merge broke stops the release, not the merge. `bun health` and `bun deploy` dispatch
   their workflows and block on the verdict; `bun health:local` and
@@ -271,7 +270,7 @@ super.engineering's app project settings.
   then `bun verify` for the local full gate.
   `bun run git-sync` (`/git-sync`) is the one commit/push/trunk-sync step.
   PR bodies follow `.github/PULL_REQUEST_TEMPLATE.md`. `/pr-ready` drives a PR
-  to Ready to merge; `/ci-workflows-green` drives Verify, Deploy and Health
+  to Ready to merge; `/ci-workflows-green` drives Verify, Release and Health
   green; the [`ci-green`](.agents/skills/ci-green/SKILL.md) skill runs the
   full pull-request suite locally and fixes every failure on the current
   branch.

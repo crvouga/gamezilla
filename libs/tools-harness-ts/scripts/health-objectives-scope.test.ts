@@ -66,7 +66,7 @@ test('main still measures after live probes finish and branch probes remain enab
 });
 
 // regression: deploy-and-health-share-the-environment
-test('a scheduled check yields to a deploy and a deploy waits out a running check', () => {
+test('a scheduled check yields to a release and a release waits out a running check', () => {
   const health = readFileSync(
     join(import.meta.dirname, '../../../.github/workflows/health.yml'),
     'utf8'

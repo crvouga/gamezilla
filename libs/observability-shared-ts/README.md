@@ -260,7 +260,7 @@ by itself.
 
 1. Find the `outbox delivery exhausted` log (`bun obs last --errors --source prod`):
    it names the event, the consumer and the error.
-2. Fix the cause and ship the fix through Deploy.
+2. Fix the cause and ship the fix through Release.
 3. Leave the parked row as it is: it is the only record of the missed effect. There
    is no replay command; re-running the effect is a reviewed change shipped like any
    other, not an edit to the row.
@@ -276,7 +276,7 @@ lost, since pending deliveries resume when a drain succeeds.
 1. Read the `outbox cron drain failed` error (`bun obs last --errors --source prod`).
    Usual causes are an unreachable database, a failed application boot
    (configuration) or a consumer failing outside its own delivery.
-2. If it began with a deployment, ship a fix or a revert through Deploy.
+2. If it began with a deployment, ship a fix or a revert through Release.
 3. No data repair is needed.
 
 ### Billing provider callbacks are being refused
@@ -336,5 +336,5 @@ excluded from business counts, rather than assumed to be genuine activity.
 
 The dashboard/alert resources require a successful Actions plan against the existing
 Grafana stack and its hosted datasource names before merge. Production deployment
-requires the repository's human merge and full Deploy gates. The broader business-wide
+requires the repository's human merge and full Release gates. The broader business-wide
 mission is not proven complete by the instrumentation and dashboards alone.

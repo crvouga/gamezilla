@@ -19,13 +19,13 @@ run_worker_first = ["/api", "/api/*"]
 name = "ROOM"
 class_name = "RoomServerDurableObject"
 
-# Fresh/local environments create rooms. Deploy replaces this initial
+# Fresh/local environments create rooms. Release replaces this initial
 # migration with a transfer when an existing room namespace needs adopting.
 [[migrations]]
 tag = "v1-app-room"
 new_sqlite_classes = ["RoomServerDurableObject"]
 
-# Deploy fills these ordered steps only for an explicitly pinned conflict.
+# Release fills these ordered steps only for an explicitly pinned conflict.
 [[migrations]]
 tag = "v2-app-room-archive"
 

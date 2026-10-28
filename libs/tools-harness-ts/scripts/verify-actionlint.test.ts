@@ -28,7 +28,7 @@ function executable(path: string, body: string): void {
   chmodSync(path, 0o755);
 }
 
-function prepare(root: string): void {
+function prepare(root: string, concurrency = ''): void {
   for (const directory of [
     'libs/tools-harness-ts/scripts',
     '.github/workflows',
@@ -44,7 +44,7 @@ function prepare(root: string): void {
   for (const file of WORKFLOWS)
     writeFileSync(
       join(root, '.github/workflows', file),
-      'jobs:\n  deploy:\n    steps: &deployment\n      - run: echo checked\n  production:\n    steps: *deployment\n'
+      `${concurrency}jobs:\n  deploy:\n    steps: &deployment\n      - run: echo checked\n  production:\n    steps: *deployment\n`
     );
   executable(
     join(root, 'bin/actionlint'),
@@ -72,10 +72,10 @@ esac`
   );
 }
 
-function runCase(resolve: 'pinned' | 'failure' | 'relative') {
+function runCase(resolve: 'pinned' | 'failure' | 'relative', concurrency = '') {
   const root = mkdtempSync(join(tmpdir(), 'actionlint-pinned-'));
   try {
-    prepare(root);
+    prepare(root, concurrency);
     const recorded = join(root, 'args.txt');
     const result = spawnSync(
       process.execPath,
@@ -113,7 +113,7 @@ test('the workflow gate uses the selected executable despite an older actionlint
     '-config-file',
     '.github/actionlint.yaml',
   ]);
-  expect(result.args.slice(3).sort()).toEqual(
+  expect(result.args.slice(-WORKFLOWS.length).sort()).toEqual(
     WORKFLOWS.map((file) => `.github/workflows/${file}`).sort()
   );
 });
@@ -128,4 +128,24 @@ test('a relative tool selection cannot fall back to PATH', () => {
   const result = runCase('relative');
   expect(result.code).toBe(1);
   expect(result.args).toEqual([]);
+});
+
+test('valid queued releases pass through the pinned tool', () => {
+  const result = runCase(
+    'pinned',
+    'concurrency:\n  group: release\n  queue: max\n  cancel-in-progress: false\n'
+  );
+  expect(result.code, result.stderr).toBe(0);
+  expect(result.args).toContain('-ignore');
+});
+
+test('unsupported queues and cancellation of queued releases fail before lint', () => {
+  for (const concurrency of [
+    'concurrency:\n  group: release\n  queue: invalid\n',
+    'concurrency:\n  group: release\n  queue: max\n  cancel-in-progress: true\n',
+  ]) {
+    const result = runCase('pinned', concurrency);
+    expect(result.code).not.toBe(0);
+    expect(result.args).toEqual([]);
+  }
 });

@@ -5,7 +5,7 @@ import { parseLocalClock } from '@pkgs/observability-root-shared-ts/local-clock'
 const REFERENCE = '6:33 in the evening Mountain time';
 
 // regression: health-person-traces-backdated
-test('the midday Deploy run plants a searchable recent trace', () => {
+test('the midday Release run plants a searchable recent trace', () => {
   const now = Date.parse('2026-10-01T12:42:08.770Z');
   const at = personProbeClock(REFERENCE, REFERENCE, now);
   expect(parseLocalClock(at, now)?.instantMs).toBe(

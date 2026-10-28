@@ -10,7 +10,7 @@
  * frees the API port. Self-contained for CI and local — the deploy turbo
  * graph no longer has a separate "Start API preview" workflow step.
  *
- * Deploy only (`@apps/server-ts#verify:api` in the deploy graph; not part of
+ * Release only (`@apps/server-ts#verify:api` in the deploy graph; not part of
  * `bun verify`).
  *
  * Invoked via `bun run --filter @apps/server-ts verify:api` under `secrets-run`.

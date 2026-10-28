@@ -22,7 +22,7 @@ function passesThrough(name: string, patterns: readonly string[]): boolean {
 
 /**
  * Turbo runs tasks in strict env mode: a variable `secrets-run` injects but
- * `globalPassThroughEnv` does not name never reaches the task. Every deploy
+ * `globalPassThroughEnv` does not name never reaches the task. Every release
  * and health task reads its secrets from the environment, so every registry
  * secret must pass through.
  */

@@ -102,7 +102,7 @@ resource "github_repository_ruleset" "main" {
     }
   }
 
-  # A direct push to main is allowed. Deploy runs the check before shipping.
+  # A direct push to main is allowed. Release runs the check before shipping.
   # This ruleset only stops deleting main and force-pushing it.
   rules {
     deletion         = true

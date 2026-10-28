@@ -26,7 +26,7 @@ locals {
   issuer           = "https://token.actions.githubusercontent.com"
   deploy_role_name = "${var.project}-github-deploy"
   health_role_name = "${var.project}-github-health"
-  # Deploy on main has no GitHub environment (subject is the ref). Production
+  # Release on main has no GitHub environment (subject is the ref). Production
   # jobs set environment: production, which replaces the ref in the subject.
   deploy_subjects = [
     "${var.github_subject_prefix}:ref:refs/heads/main",

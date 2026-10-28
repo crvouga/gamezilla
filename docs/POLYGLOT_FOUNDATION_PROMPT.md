@@ -606,7 +606,7 @@ Prefer correctness over misleading cache hits.
 
 ## 10. Preserve and Extend Existing CI
 
-Gamezilla already has established Check PR, Check Nightly, Deploy, and Health workflows.
+Gamezilla already has established Check PR, Check Nightly, Release, and Health workflows.
 
 **Preserve those workflows. Do not create a separate Swift CI architecture.**
 
@@ -672,9 +672,9 @@ For this foundational change, keep comprehensive native testing minimal and focu
 
 Do not implement a second native visual testing framework yet.
 
-### Deploy and Health
+### Release and Health
 
-Preserve existing deployment and health behavior.
+Preserve existing release and health behavior.
 
 Do not publish the new Swift application to the App Store.
 

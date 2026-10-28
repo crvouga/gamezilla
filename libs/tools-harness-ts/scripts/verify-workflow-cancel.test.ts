@@ -73,7 +73,7 @@ describe('Verify workflow cancellation', () => {
   test('no workflow names a depth: the profile decides, and only a caller can ask for nightly', () => {
     // `QUINT_REPLAY_TRACES` unset is the bounded default. A workflow names a
     // profile and `verify-profile.ts` holds its budgets, so a pull request and
-    // Deploy's verification share one verdict and one cache key.
+    // Release's verification share one verdict and one cache key.
     for (const file of readdirSync(join(WORKFLOW, '..')))
       expect(readFileSync(join(WORKFLOW, '..', file), 'utf8')).not.toMatch(
         /QUINT_REPLAY_TRACES|PBT_NUM_RUNS|FC_SEED/

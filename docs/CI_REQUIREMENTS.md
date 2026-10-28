@@ -57,7 +57,7 @@ Every job requests `runs-on: self-hosted` and runs its `run:` steps in bash, so 
 
 Setup installs everything else from `mise.toml` the same way on every OS, Chrome for Testing included (`http:chrome-for-testing`); it never caches the linked `node_modules` trees, and never installs the laptop-only coding-agent tools (`MISE_DISABLE_TOOLS`). Each runner needs, beyond the runner service:
 
-- **Any OS:** git, bash and `gh` on the service's PATH. Deploy's wait-for-Health and release steps run before setup installs the pinned tools.
+- **Any OS:** git, bash and `gh` on the service's PATH. Release's wait-for-Health and release steps run before setup installs the pinned tools.
 - **Linux:** Chrome's system libraries (the renderer setup installs no packages) and passwordless `sudo` for the Chrome sandbox's AppArmor knob.
 - **macOS:** the Xcode Command Line Tools: the esbuild clean-up after every Turbo run compiles a small `cc` process probe. Browser tests run in WebKit (`Bun.WebView`) on macOS and Chrome elsewhere.
 - **Windows:** Git for Windows, with its `bash` ahead of `System32\bash.exe` (the WSL launcher) on the service's PATH; Developer Mode on and `core.symlinks=true`, because the checkout holds symlinks and tests create them; long paths enabled (`core.longpaths=true` and the `LongPathsEnabled` policy) for `node_modules`; Windows PowerShell (built in), which reads the pinned Chrome's version. Setup puts Git for Windows' `usr/bin` (its `unzip`, which installs mise) on PATH itself.

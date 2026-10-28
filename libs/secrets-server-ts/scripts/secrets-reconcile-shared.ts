@@ -2,7 +2,7 @@
 /**
  * Converge every environment on the shared secrets environment (see
  * `shared-reconcile.ts`), in two phases around the fleet stack's apply
- * (the Deploy workflow's deploy:fleet job):
+ * (the Release workflow's deploy:fleet job):
  *
  *   promote  copy unanimous values into the shared env (additive; the fleet
  *            apply itself reads its state passphrase from there)

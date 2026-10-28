@@ -50,7 +50,7 @@ const REPORTS_ENV = [
 /**
  * True when none of the reports credentials exist: the environment's
  * foundation stack has not been applied since it gained the reports bucket
- * (Deploy applies it), so there is no store to publish to yet. A partly set
+ * (Release applies it), so there is no store to publish to yet. A partly set
  * credential is a misconfiguration and still fails in `required`.
  */
 export function reportsStoreUnconfigured(
@@ -132,7 +132,7 @@ async function main(argv: readonly string[]): Promise<void> {
     if (process.env['GITHUB_ACTIONS'] === 'true')
       throw new Error('CI requires the reports store');
     console.log(
-      '::warning::report-publish: no reports store in this secrets environment yet (Deploy creates it); nothing published'
+      '::warning::report-publish: no reports store in this secrets environment yet (Release creates it); nothing published'
     );
     return;
   }

@@ -217,7 +217,7 @@ An Xcode app package holds exactly one `<name>.xcodeproj` with a shared
 ## CI
 
 Verify PR is still the one merge gate, and `verify:end` the one required
-status; a pull request runs its fast `pr` profile and Deploy its whole
+status; a pull request runs its fast `pr` profile and Release its whole
 `release` gate. Every CI job runs on any self-hosted runner, Linux, macOS or Windows
 ([`CI_REQUIREMENTS.md`](CI_REQUIREMENTS.md#runner-operating-systems)), so CI
 checks only what runs on all three.
@@ -230,7 +230,7 @@ checks only what runs on all three.
   (Linux or macOS for the Swift package, a Mac with the pinned Xcode for the
   app). A pull request can break them and still pass `verify:end`.
 
-Deploy and Health publish nothing native: no signing, TestFlight or store
+Release and Health publish nothing native: no signing, TestFlight or store
 submission exists.
 
 A laptop's `bun verify` runs every host's tasks. On macOS with the pinned

@@ -1,5 +1,5 @@
 /**
- * Time limits for bounded verification and deployment runs.
+ * Time limits for bounded verification and release runs.
  *
  * Two limits, both enforced by `turbo-ci-run.ts` so every surface that runs
  * the gate gets them unless it explicitly selects `VERIFY_TIME_LIMITS=off`:
@@ -56,7 +56,7 @@ export const TASK_BUDGET_SECONDS: Readonly<Record<string, number>> = {
       420,
     ])
   ),
-  // The eleven symbolic models used to share one task. Deploy 38446818279
+  // The eleven symbolic models used to share one task. Release 38446818279
   // killed that task at 840 s on a 2-core runner (Verify concurrency 1) before
   // it finished. Each part keeps that same allowance for one model; the
   // fair-recovery part also runs the two temporal verifications.
@@ -74,7 +74,7 @@ export const TASK_BUDGET_SECONDS: Readonly<Record<string, number>> = {
 };
 
 /**
- * The Verify and Deploy workflows run on 2-core GitHub-hosted runners; the budgets
+ * The conservative CI correction retains the 2-core hosted measurements; the budgets
  * above are measured on a dev laptop. It is a runner correction for
  * *per-task* budgets only, not slack for slower verifications, and it never touches
  * the run deadline.
@@ -115,7 +115,7 @@ export const WARM_RUNNER_MIN_CPUS = 16;
  */
 export const DEADLINE_FLUSH_MS = 15_000;
 
-/** `deploy` adds provision → migrate → three worker deploys → health. */
+/** `deploy` adds provision → migrate → three worker releases → health. */
 export const DEPLOY_RUN_DEADLINE_SECONDS = 2700;
 
 /** Overrides the wall-clock deadline (seconds); `0` is rejected, not "off". */

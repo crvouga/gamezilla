@@ -1,4 +1,4 @@
-# Main forgot these resources without deleting them (Deploy 38727630988).
+# Main forgot these resources without deleting them (Release 38727630988).
 # Adopt them at their original addresses; clear global_imports.shared_data
 # after the first apply. Fresh installations leave that flag false.
 import {

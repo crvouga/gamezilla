@@ -141,11 +141,11 @@ type PreparedRun = {
   readonly sha: string;
 };
 
-/** Deploy ships `origin/main`. A message would commit the feature branch. */
+/** Release ships `origin/main`. A message would commit the feature branch. */
 function prepareTrunk(options: GitSyncOptions): PreparedRun {
   if (options.message !== null || options.leaveConflicts) {
     throw new WorkflowRemoteError(
-      'deploy ships origin/main and does not commit or merge.'
+      'Release ships origin/main and does not commit or merge.'
     );
   }
   gitSync({ message: null, trunkOnly: true, leaveConflicts: false });
