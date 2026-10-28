@@ -15,6 +15,7 @@ import { readCustomGameProbe } from '@libs/game-session-harness-ts/custom-game-p
 import { makeCustomGameSecretChoice } from '@libs/game-session-harness-ts/custom-game-secret-choice';
 import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { splitCommittedProposal } from '@libs/game-session-harness-ts/played-rules';
+import { CUSTOM_GAME_BOT_DELAY_MS } from '@libs/game-session-shared-ts/custom-game-effects';
 import type { CustomGame } from '@libs/game-session-shared-ts/custom-game-state';
 import {
   partition,
@@ -38,6 +39,15 @@ const MAX_MOVES = 2;
 const SHOWN_WITHIN_MS = 10_000;
 /** How long play may take to reach the next round or the end. */
 const PLAY_WITHIN = 2_000;
+/**
+ * How far each wait advances virtual time between reads. A bot or stand-in
+ * moves a whole bot delay after its turn opens, and every read serializes
+ * the whole game, so 50 ms polls made each automated move twenty reads that
+ * grew with the game: finishing a Hearts match took past the spec part's
+ * budget (Verify run 40713084871). Half a delay keeps each such move to two
+ * or three reads; the bound on how long a decision may take is unchanged.
+ */
+const POLL_MS = CUSTOM_GAME_BOT_DELAY_MS / 2;
 
 export function choiceGameOf(w: QuintHarnessWorld): TurnHarnessGame {
   return turnConformanceGameOf(w.ctx.variant, w.ctx.title);
@@ -180,6 +190,7 @@ async function nextMove(
   await h.until((s) => readCustomGameProbe(s, CHOICE_OBSERVER), {
     pred: (shown) => (shown?.current?.moves.length ?? 0) > played,
     maxMs: SHOWN_WITHIN_MS,
+    stepMs: POLL_MS,
   });
 }
 
@@ -235,6 +246,7 @@ async function chooseForPeople(w: QuintHarnessWorld, game: CustomGame) {
   await w.s.until((s) => readCustomGameProbe(s, CHOICE_OBSERVER), {
     pred: (shown) => shown?.current?.awaiting.length === 0,
     maxMs: SHOWN_WITHIN_MS,
+    stepMs: POLL_MS,
   });
 }
 
