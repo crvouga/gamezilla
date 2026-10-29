@@ -356,7 +356,6 @@
       "Reads sync inspection scope": "user",
       "Reads client configuration scope": "user",
       "Reads performance inspection scope": "user",
-      "Reads component exploration scope": "user",
       "Reads individual device scope": "user",
       "Reads the client event placeholder scope": "user",
       "Returns to the inspection inventory": "user",
@@ -730,7 +729,7 @@
       "Opens the notes example": "user",
       "Opens the room example": "user",
       "Returns to the testing tool": "user",
-      "Reads device and component inspection scope": "user",
+      "Reads device inspection scope": "user",
       "Opens game choices": "user",
       "Chooses Chess": "user",
       "Chooses Connect Four": "user",
@@ -11249,7 +11248,7 @@
                         "Opens database maintenance evidence": {
                           "target": "#Tools: Database maintenance"
                         },
-                        "Reads device and component inspection scope": {
+                        "Reads device inspection scope": {
                           "target": "#Tools: Inspection scope"
                         }
                       }
@@ -11275,7 +11274,7 @@
                         "Inspectors: Contract inventory": {
                           "id": "Inspectors: Contract inventory",
                           "meta": {
-                            "description": "The device inspection and component-reference surfaces are part of the inventory. Choose one to see its purpose, address and missing contract rather than silently omitting it from the map.",
+                            "description": "The device inspection surfaces are part of the inventory. Choose one to see its purpose, address and missing contract rather than silently omitting it from the map.",
                             "source": [
                               "specs/README.md#product-contract-inventory"
                             ],
@@ -11292,9 +11291,6 @@
                             },
                             "Reads performance inspection scope": {
                               "target": "#Inspectors: Performance inspection"
-                            },
-                            "Reads component exploration scope": {
-                              "target": "#Inspectors: Component reference"
                             },
                             "Reads individual device scope": {
                               "target": "#Inspectors: Individual device"
@@ -11350,25 +11346,6 @@
                               "specs/README.md#product-contract-inventory"
                             ],
                             "hints": ["App address: /more/performance"]
-                          },
-                          "on": {
-                            "Returns to the inspection inventory": {
-                              "target": "#Inspectors: Contract inventory"
-                            }
-                          }
-                        },
-                        "Inspectors: Component reference": {
-                          "id": "Inspectors: Component reference",
-                          "meta": {
-                            "description": "The component reference is at /ui and an individual component at /ui/:component. Component exploration and team authoring are explicitly awaiting a complete observable contract in the product inventory.",
-                            "routes": ["/ui", "/ui/:component"],
-                            "source": [
-                              "specs/README.md#product-contract-inventory"
-                            ],
-                            "hints": [
-                              "App address: /ui",
-                              "App address: /ui/:component"
-                            ]
                           },
                           "on": {
                             "Returns to the inspection inventory": {
