@@ -62,16 +62,19 @@ resource "github_repository" "this" {
   merge_commit_message        = "PR_BODY"
   web_commit_signoff_required = false
 
-  # Preserve current secret-scanning settings. Version 6.13 advertises
-  # code_security and secret_scanning_non_provider_patterns but omits them
-  # from both read and write; declaring them would cause perpetual drift.
-  # See README.md#infrastructure for the provider limitation.
+  # The repository is public: GitHub scans every push and the whole history
+  # for provider credentials, and push protection refuses a push that adds
+  # one (both free on a public repository). The required verification's
+  # gitleaks scan stays as well. Version 6.13 advertises code_security and
+  # secret_scanning_non_provider_patterns but omits them from both read and
+  # write; declaring them would cause perpetual drift. See
+  # README.md#infrastructure for the provider limitation.
   security_and_analysis {
     secret_scanning {
-      status = "disabled"
+      status = "enabled"
     }
     secret_scanning_push_protection {
-      status = "disabled"
+      status = "enabled"
     }
   }
 

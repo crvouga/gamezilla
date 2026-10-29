@@ -1,6 +1,6 @@
 # CI requirements
 
-Capacity plan for self-hosted pull-request verifications. Every workflow job runs on any self-hosted runner, Linux, macOS or Windows ([below](#runner-operating-systems)); this document sizes a warm pool and does not provision infrastructure. The measured section is generated from [`libs/tools-harness-ts/scripts/verify-task-costs.json`](../libs/tools-harness-ts/scripts/verify-task-costs.json) and the workspace graph. [`libs/tools-harness-ts/scripts/ci-load.test.ts`](../libs/tools-harness-ts/scripts/ci-load.test.ts) fails when that section drifts, or when the corpus no longer fits the runner below.
+Capacity plan for pull-request verifications. Every workflow job runs on a fresh GitHub-hosted `ubuntu-24.04` runner ([below](#runner-operating-systems)); this document sizes a warm pool and does not provision infrastructure. The measured section is generated from [`libs/tools-harness-ts/scripts/verify-task-costs.json`](../libs/tools-harness-ts/scripts/verify-task-costs.json) and the workspace graph. [`libs/tools-harness-ts/scripts/ci-load.test.ts`](../libs/tools-harness-ts/scripts/ci-load.test.ts) fails when that section drifts, or when the corpus no longer fits the runner below.
 
 Refresh after a cold Verify harvest:
 
@@ -84,9 +84,9 @@ The structure sets a floor near five minutes before any uncached test runs: a pl
 
 ## Runner operating systems
 
-Every job requests `runs-on: self-hosted` and runs its `run:` steps in bash, so any free self-hosted runner takes it, whatever its OS. Verify PR's `verify:shards` and `verify:end` also request the `runner.os` and `runner.arch` that `verify:start` ran on: a plan holds for the platform it was made on, and `verify-shard-run.ts` refuses any other. Turbo's platform cache key (OS, arch, Bun, Chrome) keeps one OS's verdict from answering for another, so a run on a different OS from the pull request's run executes its tasks again.
+Every job requests `runs-on: ubuntu-24.04` (`CI_RUNNER` in `libs/tools-harness-ts/scripts/package-hosts.ts`) and runs its `run:` steps in bash. The repository is public, so a pull request's code is untrusted: it runs only on a GitHub-hosted runner that is discarded after the job, never on a self-hosted machine that keeps files between jobs and later runs a deploy with production secrets (`workflow-native.test.ts` refuses a self-hosted runner). One image for every job also keeps a Verify plan on the platform it was made for; `verify-shard-run.ts` refuses any other. Turbo's platform cache key (OS, arch, Bun, Chrome) keeps one OS's verdict from answering for another, so a laptop on another OS executes the tasks again.
 
-Setup installs everything else from `mise.toml` the same way on every OS, Chrome for Testing included (`http:chrome-for-testing`); it never caches the linked `node_modules` trees, and never installs the laptop-only coding-agent tools (`MISE_DISABLE_TOOLS`). Each runner needs, beyond the runner service:
+`bun verify` runs the same gate on a Linux, macOS or Windows laptop, so code a CI task runs stays OS-neutral. Setup installs everything else from `mise.toml` the same way on every OS, Chrome for Testing included (`http:chrome-for-testing`); it never caches the linked `node_modules` trees, installs dependencies before any secret is in the environment, and never installs the laptop-only coding-agent tools (`MISE_DISABLE_TOOLS`). A machine that runs the gate needs:
 
 - **Any OS:** git, bash and `gh` on the service's PATH. Release's wait-for-Health and release steps run before setup installs the pinned tools.
 - **Linux:** Chrome's system libraries (the renderer setup installs no packages) and passwordless `sudo` for the Chrome sandbox's AppArmor knob.

@@ -31,8 +31,10 @@ yarn-error.*
 .DS_Store
 *.pem
 
-# local env files
-.env*.local
+# local env files: never commit one (secrets come from Infisical)
+.env
+.env.*
+!.env.example
 
 # Turbo
 .turbo/
@@ -135,6 +137,8 @@ libs/infra-shared-ts/tofu/stacks/*/*_override.tf
 
 # Worktrees made by worktree-isolated subagents
 /.claude/worktrees/
+# Per-person agent settings (permissions, local paths)
+/.claude/settings.local.json
 
 # Existing reports retained after the feedback rename.
 .bugs/

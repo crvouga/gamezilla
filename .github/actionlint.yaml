@@ -1,2 +1,3 @@
-# Runner selectors use GitHub's built-in self-hosted, OS and architecture labels.
+# Every job runs on a GitHub-hosted image (libs/tools-harness-ts/scripts/package-hosts.ts),
+# so actionlint needs no custom runner labels.
 {}

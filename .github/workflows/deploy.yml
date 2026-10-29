@@ -9,9 +9,11 @@ run-name: "Release · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
 # then releases shared services, development, and production in order.
 # Rehearsals verify and plan without releasing.
 
+# Least privilege: read the code and run metadata, and mint the OIDC token the
+# secrets backend and AWS trust. Only `deploy-release` writes (its tag).
 permissions:
   contents: read
-  actions: write
+  actions: read
   id-token: write
 
 on:
@@ -34,8 +36,9 @@ concurrency:
   queue: max
   cancel-in-progress: false
 
-# Every job runs on whichever self-hosted runner is free — Linux, macOS or
-# Windows — so every `run:` step is bash (Git Bash on Windows).
+# Every job runs on a fresh GitHub-hosted `ubuntu-24.04` runner, discarded
+# after the job, so nothing one job leaves behind reaches another; every
+# `run:` step is bash.
 defaults:
   run:
     shell: bash
@@ -55,14 +58,14 @@ jobs:
     name: Preview infrastructure changes
     if: ${{ inputs.rehearsal }}
     needs: deploy-verify
-    runs-on: self-hosted
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
       SECRETS_ENV: dev
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
       AWS_ROLE_ARN: ${{ vars.AWS_HEALTH_ROLE_ARN }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           clean: false
       - uses: ./.github/actions/setup
@@ -82,13 +85,13 @@ jobs:
     name: Release shared services
     if: ${{ !inputs.rehearsal }}
     needs: deploy-verify
-    runs-on: self-hosted
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
       SECRETS_ENV: shared
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           clean: false
       - uses: ./.github/actions/setup
@@ -111,7 +114,7 @@ jobs:
   deploy-dev:
     name: Release development
     needs: deploy-fleet
-    runs-on: self-hosted
+    runs-on: ubuntu-24.04
     # Above `DEPLOY_RUN_DEADLINE_SECONDS` (45 min) plus setup, so
     # turbo-ci-run's own deadline fires first and names what wedged.
     timeout-minutes: 55
@@ -137,7 +140,7 @@ jobs:
           done
           echo "::error::A Health check is still running after 30 minutes."
           exit 1
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           clean: false
           fetch-depth: 0
@@ -169,7 +172,7 @@ jobs:
   deploy-prd:
     name: Release production
     needs: deploy-dev
-    runs-on: self-hosted
+    runs-on: ubuntu-24.04
     timeout-minutes: 55
     environment: production
     env:
@@ -181,7 +184,7 @@ jobs:
   deploy-release:
     name: Publish release
     needs: deploy-prd
-    runs-on: self-hosted
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
       contents: write

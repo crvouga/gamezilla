@@ -6,7 +6,7 @@ runs:
     # The Chrome for Testing build mise.toml pins, unpacked by mise the same
     # way on every runner OS: no browser installer action, which on Windows
     # needed PowerShell 7 (Verify run 40531923687). No system packages are
-    # installed: a self-hosted Linux runner must already have Chrome's
+    # installed: the Linux runner must already have Chrome's
     # libraries (a package upgrade stalled past the step cap in Verify run
     # 37668279155, mesa-libgallium).
     - name: Install the pinned Chrome

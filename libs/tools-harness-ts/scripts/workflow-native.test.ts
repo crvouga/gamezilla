@@ -62,25 +62,14 @@ test('only GitHub Actions owns the Verify, Release and Health triggers', () => {
       runners.push(job['runs-on'] ?? '');
     }
   }
-  // Every job runs on any self-hosted runner, whatever its OS
-  // (package-hosts.ts). A job that continues a Verify plan also requests the
-  // OS and arch `verify:start` ran on, because a plan holds for one platform.
-  const samePlatform = [
-    CI_RUNNER,
-    "${{ needs.verify-start.outputs.os || 'self-hosted' }}",
-    "${{ needs.verify-start.outputs.arch || 'self-hosted' }}",
-  ];
+  // regression: public-repository-self-hosted-runner
+  // Every job runs on the one GitHub-hosted image (package-hosts.ts), never a
+  // self-hosted runner: in a public repository a pull request's code would
+  // otherwise run on a machine a later deploy job reuses. One image also
+  // keeps a Verify plan on the platform it was made for.
   expect(runners.length).toBeGreaterThan(0);
-  for (const runner of runners)
-    if (typeof runner === 'string') expect(runner).toBe(CI_RUNNER);
-    else expect(runner).toEqual(samePlatform);
-  // No job names an OS, an arch or a hosted image itself.
-  const named = /ubuntu|macos|windows|linux|x64|arm64|xcode/i;
-  expect(
-    runners
-      .flat()
-      .filter((label) => named.test(label.replace(/\$\{\{.*\}\}/, '')))
-  ).toEqual([]);
+  for (const runner of runners) expect(runner).toBe(CI_RUNNER);
+  expect(CI_RUNNER).not.toMatch(/self-hosted/i);
   expect(CI_OPERATING_SYSTEMS).toEqual(['Linux', 'macOS', 'Windows']);
 });
 

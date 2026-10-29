@@ -8,7 +8,7 @@ inputs:
     required: false
     default: ''
   secrets-environment:
-    description: Secrets environment to inject (dev, prd, shared) before the install; empty injects none
+    description: Secrets environment to inject (dev, prd, shared) after the install; empty injects none
     required: false
     default: ''
   secrets-identity-id:
@@ -25,10 +25,11 @@ runs:
   steps:
     # Every workflow checks out with `clean: false` and this step cleans
     # instead: everything untracked or ignored goes, except installed
-    # dependencies. checkout's own `git clean -ffdx` spent 25 s deleting
-    # every package's node_modules on Windows, and the install below 22 s
-    # linking them again (Verify run 40581372043). The frozen install still
-    # runs, so a lockfile change relinks and prunes what no longer belongs.
+    # dependencies. On a fresh GitHub-hosted runner there is nothing to keep;
+    # on a reused runner, checkout's own `git clean -ffdx` spent 25 s deleting
+    # every package's node_modules (Verify run 40581372043). The frozen
+    # install still runs, so a lockfile change relinks and prunes what no
+    # longer belongs.
     # The visual-quality model is kept as well: its 351 MB checkpoint is too
     # large for the remote cache, so a clean would download it again in every
     # job that judges UI quality. `prepare:ui-quality-model` verifies what is
@@ -54,51 +55,42 @@ runs:
 
     # jdx/mise-action extracts mise's Windows zip with `unzip`, which Git for
     # Windows ships in its usr/bin (on PATH on GitHub's Windows images, not
-    # on a self-hosted runner that only lists Git's bin).
+    # on a Windows runner that only lists Git's bin).
     - name: Put Git for Windows' tools on PATH
       if: runner.os == 'Windows'
       shell: bash
       run: cygpath -w /usr/bin >> "$GITHUB_PATH"
 
     - name: Install pinned tools (mise.toml)
-      uses: jdx/mise-action@v4
+      uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
       with:
         version: 2026.9.13
-        # Every runner is self-hosted and keeps mise's data directory between
-        # jobs, so an installed tool is already there (`mise install` checks
-        # all 17 in 32 ms). The action's GitHub cache instead downloaded and
-        # unpacked a 961 MB archive of the same tools in every job: 3m20s of a
-        # shard's 3m43s setup (Verify run 40578797561).
-        cache: false
+        # A GitHub-hosted runner starts empty, so the tools come from the
+        # action's GitHub cache (keyed by mise.toml) instead of every vendor's
+        # download servers. A runner that keeps mise's data directory between
+        # jobs already has them, and the cache would only re-download them
+        # (3m20s of a shard's 3m43s setup, Verify run 40578797561).
+        cache: ${{ runner.environment == 'github-hosted' }}
         # jdx/mise-action defaults to `bun opentofu` when this is blank. The
         # full Verify jobs need every tool pinned in mise.toml, including the
         # lazy tools used by model and security verifications. Callers that need a
         # smaller toolchain pass an explicit list (for example `bun gh`).
         install_args: ${{ inputs.tools || '--include-lazy' }}
 
-    # Secrets go in before the install: its generation tasks, like every
-    # Turbo run, then read and write the Vercel Remote Cache with the
-    # TURBO_TOKEN this injects, the same cache a laptop uses. A job that
-    # injects no secrets has no token and keeps the GitHub cache below.
-    - name: Inject secrets
-      if: inputs.secrets-environment != ''
-      uses: ./.github/actions/secrets-auth
-      with:
-        identity-id: ${{ inputs.secrets-identity-id }}
-        project-id: ${{ inputs.secrets-project-id }}
-        environment: ${{ inputs.secrets-environment }}
-
+    # The install runs before any secret is in the environment: dependency
+    # install scripts (`trustedDependencies`) and the postinstall generation
+    # are code this repository does not review line by line, so they never see
+    # a credential. Generation outputs come from the GitHub cache below, not
+    # the token-guarded remote cache.
+    #
     # No cache of the installed node_modules trees: bun links packages into
     # them, and an archive of links does not survive every OS (Git's tar on
-    # Windows restored them unreadable: EPERM, Verify run 40532833763). A
-    # self-hosted runner keeps bun's download cache, so the frozen install
-    # below is a link step (24 s cold on Windows, Verify run 40531923687).
+    # Windows restored them unreadable: EPERM, Verify run 40532833763).
     - name: Restore generation artifacts
-      if: inputs.secrets-environment == ''
       # Reuse only Turbo's immutable generation artifacts. Turbo still hashes
       # current inputs and restores outputs; frozen install still runs below.
       # This cache is separate from the verification artifacts and verdicts.
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
       id: generation
       with:
         path: .cache/setup-generation
@@ -113,8 +105,19 @@ runs:
       run: bun install --frozen-lockfile
 
     - name: Save generation artifacts
-      if: inputs.secrets-environment == '' && steps.generation.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v5
+      if: steps.generation.outputs.cache-hit != 'true'
+      uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
       with:
         path: .cache/setup-generation
         key: ${{ steps.generation.outputs.cache-primary-key }}
+
+    # Secrets go in only after the install. Every later Turbo run reads and
+    # writes the Vercel Remote Cache with the TURBO_TOKEN this injects, the
+    # same cache a laptop uses.
+    - name: Inject secrets
+      if: inputs.secrets-environment != ''
+      uses: ./.github/actions/secrets-auth
+      with:
+        identity-id: ${{ inputs.secrets-identity-id }}
+        project-id: ${{ inputs.secrets-project-id }}
+        environment: ${{ inputs.secrets-environment }}

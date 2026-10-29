@@ -10,10 +10,11 @@
  * | `macos`  | `macos` |
  * | `ios`    | `macos` |
  *
- * CI runs every job on whichever self-hosted runner is free — Linux, macOS or
- * Windows (`CI_RUNNER`) — so it verifies only what runs on all three: every
- * package without `platforms` (`ciFilters`). A native package is verified
- * only by `bun verify` on a host that builds it.
+ * CI runs every job on a fresh GitHub-hosted Linux runner (`CI_RUNNER`), and
+ * the same gate runs as `bun verify` on a Linux, macOS or Windows laptop, so
+ * CI verifies only what runs on all three: every package without `platforms`
+ * (`ciFilters`). A native package is verified only by `bun verify` on a host
+ * that builds it.
  *
  * A package without `platforms` (TypeScript on Bun) runs anywhere Bun does
  * and is verified on the `linux` host. A package listing several hosts is
@@ -33,12 +34,13 @@ export type Platform = keyof typeof PLATFORMS;
 export type Host = (typeof PLATFORMS)[Platform]['host'];
 
 /**
- * The runner label every CI job requests: any self-hosted runner, whatever
- * its OS. A run's later jobs add the OS and arch of its first job's runner.
+ * The runner every CI job requests: a GitHub-hosted image, discarded after
+ * each job. The repository is public, so a pull request's code is untrusted
+ * and never runs on a machine a later job (a deploy) reuses.
  */
-export const CI_RUNNER = 'self-hosted';
+export const CI_RUNNER = 'ubuntu-24.04';
 
-/** The runner operating systems CI jobs must run on (`runner.os`). */
+/** The operating systems code a CI task runs must work on (`runner.os`). */
 export const CI_OPERATING_SYSTEMS = ['Linux', 'macOS', 'Windows'] as const;
 
 const DEFAULT_HOSTS: readonly Host[] = ['linux'];

@@ -2,6 +2,7 @@
   "name": "gamezilla",
   "version": "1.0.0",
   "private": true,
+  "license": "UNLICENSED",
   "workspaces": [
     "apps/*",
     "libs/*",
@@ -163,7 +164,7 @@
     "minimatch": "10.2.5",
     "nanoid": "3.3.18",
     "serialize-javascript": "7.1.4",
-    "seroval": "1.6.8",
+    "seroval": "1.6.11",
     "sharp": "^0.35.4",
     "shell-quote": "^1.10.0",
     "smol-toml": "^1.8.0",

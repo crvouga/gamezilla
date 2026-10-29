@@ -81,6 +81,23 @@ test('security configuration excludes fields the pinned provider cannot read or 
   expect(repository).toMatch(/\bsecret_scanning_push_protection\s*\{/);
 });
 
+// regression: public-repository-self-hosted-runner
+test('a public repository scans for secrets, alerts on vulnerable dependencies and runs only pinned actions', () => {
+  expect(GLOBAL.github.settings.visibility).toBe('public');
+  for (const setting of ['secret_scanning', 'secret_scanning_push_protection'])
+    expect(repository).toMatch(
+      new RegExp(`\\b${setting}\\s*\\{\\s*status\\s*=\\s*"enabled"`)
+    );
+  expect(actions).toMatch(/sha_pinning_required\s*=\s*true/);
+  for (const resource of [
+    'github_repository_vulnerability_alerts',
+    'github_repository_dependabot_security_updates',
+  ])
+    expect(actions).toMatch(
+      new RegExp(`resource "${resource}" "this" \\{[^}]*enabled\\s*=\\s*true`)
+    );
+});
+
 test('Actions has read defaults, cannot approve PRs, and existing configuration is adopted', () => {
   expect(actions).toMatch(/default_workflow_permissions\s*=\s*"read"/);
   expect(actions).toMatch(/can_approve_pull_request_reviews\s*=\s*false/);

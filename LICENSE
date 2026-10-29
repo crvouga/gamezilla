@@ -1,0 +1,46 @@
+Copyright (c) 2026 Chris Vouga. All rights reserved.
+
+PROPRIETARY SOFTWARE — SOURCE AVAILABLE, NOT OPEN SOURCE
+
+This repository, including its source code, specifications, documentation,
+designs, assets and git history (the "Software"), is the proprietary work of
+the copyright holder named above, except for the third-party material
+described below.
+
+1. No license is granted.
+   The Software is published so that it can be read. Making it publicly
+   visible does not grant any license or other right to use, copy, modify,
+   merge, publish, distribute, sublicense, sell, host, deploy or otherwise
+   commercially exploit the Software, or to create derivative works of it,
+   in whole or in part. All such rights are reserved. Any use requires the
+   copyright holder's prior written permission.
+
+2. Rights under GitHub's Terms of Service.
+   Nothing in this notice restricts the limited rights that GitHub's Terms of
+   Service grant to GitHub users for public repositories, such as viewing the
+   repository and forking it through GitHub's own functionality. Those rights
+   do not include any right to use, modify or distribute the Software outside
+   what those Terms permit.
+
+3. Third-party material.
+   Parts of this repository are third-party works (for example dependencies,
+   vendored files, fonts, sounds, images, datasets, model weights and agent
+   skills). Each remains under its own license, recorded in
+   THIRD_PARTY_NOTICES.md, in the license or notice file that accompanies it
+   (such as LICENSE, LICENSE.txt, NOTICE.md or LICENSES.md files in the
+   relevant directory) or in its package metadata. Nothing in this notice
+   limits any right those licenses grant, and where one of them applies to a
+   file, it governs that file.
+
+4. Contributions.
+   Outside contributions are not accepted unless the copyright holder has
+   explicitly agreed to them in writing. See CONTRIBUTING.md.
+
+5. No warranty.
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING
+   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE.
+
+For permission requests, contact crvouga@gmail.com.
