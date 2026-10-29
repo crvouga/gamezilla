@@ -23,7 +23,7 @@ describe('CatalogList', () => {
     const onSelect = mock();
     renderUi(() => <CatalogList items={ITEMS} onSelect={onSelect} />);
     const inputs = screen.getByRole('heading', { name: 'Inputs' });
-    expect(inputs.className).toMatch(/\btextCaption\b/);
+    expect(inputs.className).toMatch(/\btextSectionLabel\b/);
     expect(
       screen.getByRole('heading', { name: 'Data display' })
     ).toBeInTheDocument();

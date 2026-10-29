@@ -1,8 +1,13 @@
 /** @jsxImportSource solid-js */
+import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
 import { For, type JSX } from 'solid-js';
 import { ExampleRoot } from './example-root';
+import { ExampleSection } from './example-section';
+import { SchemePreview } from './scheme-preview';
+import { StackHorizontal, StackVertical } from './stack';
 import type { StatusDotStatus } from './status-dot';
 import { StatusDot } from './status-dot';
+import { Text } from './text';
 
 const ROWS: readonly { status: StatusDotStatus; label: string }[] = [
   { status: 'online', label: 'Online' },
@@ -11,24 +16,41 @@ const ROWS: readonly { status: StatusDotStatus; label: string }[] = [
   { status: 'pending', label: 'Pending' },
 ];
 
+const PARTICIPANTS = ['player1', 'player2', 'player3', 'player4'] as const;
+
 export default function StatusDotExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <div class="box flex-col gap-3">
-        <For each={ROWS}>
-          {(row) => (
-            <div class="box flex-row gap-2 items-center">
-              <StatusDot status={row.status} />
-              <label class="text textLabel">{row.label}</label>
-            </div>
-          )}
-        </For>
-
-        <div class="box flex-row gap-2 items-center">
-          <StatusDot status="online" size={16} />
-          <label class="text textLabel">{'Large (16px)'}</label>
-        </div>
-      </div>
+      <SchemePreview>
+        <StackVertical gap="lg">
+          <ExampleSection title="status">
+            <StackVertical gap="sm">
+              <For each={ROWS}>
+                {(row) => (
+                  <StackHorizontal gap="sm" align="center">
+                    <StatusDot status={row.status} label={row.label} />
+                    <Text variant="label">{row.label}</Text>
+                  </StackHorizontal>
+                )}
+              </For>
+            </StackVertical>
+          </ExampleSection>
+          <ExampleSection title="color: a participant's color (data, not a role)">
+            <StackHorizontal gap="sm" align="center">
+              <For each={PARTICIPANTS}>
+                {(name) => <StatusDot color={colorVar(name)} label={name} />}
+              </For>
+            </StackHorizontal>
+          </ExampleSection>
+          <ExampleSection title="size: 6 (in a tag), 10 (default), 16">
+            <StackHorizontal gap="sm" align="center">
+              <StatusDot status="online" size={6} />
+              <StatusDot status="online" />
+              <StatusDot status="online" size={16} />
+            </StackHorizontal>
+          </ExampleSection>
+        </StackVertical>
+      </SchemePreview>
     </ExampleRoot>
   );
 }

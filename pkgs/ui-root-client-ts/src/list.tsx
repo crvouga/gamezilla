@@ -2,10 +2,13 @@
 /**
  * `List` / `ListItem` -- structured list with leading, trailing, and separator support.
  *
- * `List` renders a `<ul>` panel (the same `.panel` as `MenuList`); every
- * resolved child is wrapped in an `<li>`, with hairlines between items. `ListItem` becomes a clickable `<button>`
- * when `onClick` is set so hover / press feedback and keyboard focus come for
- * free. Pass `selected` to render the row with a `tintSubtle` fill.
+ * `List` renders a `<ul>` panel (the same raised `.panel` as `MenuList`);
+ * every resolved child is wrapped in an `<li>`, with hairlines between items
+ * that start at the item's text column. A `ListItem` is at least 56px tall;
+ * its title is one line and its subtitle two, each ending in an ellipsis.
+ * It becomes a clickable `<button>` when `onClick` is set so hover / press
+ * feedback and keyboard focus come for free. Pass `selected` to render the
+ * row with a `tintSubtle` fill.
  *
  * @example
  * ```tsx
@@ -73,15 +76,24 @@ function ListItemContent(props: {
   trailing: JSX.Element | undefined;
 }): JSX.Element {
   return (
-    <div class="box flex-row items-center py-3 px-4 gap-3 min-h-14">
-      {props.leading}
-      <div class="box flex-1 min-w-0 items-start">
-        <p class="text textLabel">{props.title}</p>
-        <Show when={props.subtitle}>
-          <p class="text textCaption">{props.subtitle}</p>
-        </Show>
+    <div class="box flex-row items-stretch pl-4 min-h-14">
+      <Show when={props.leading}>
+        <div class="box items-center justify-center shrink-0 py-3 pr-3">
+          {props.leading}
+        </div>
+      </Show>
+      {/* The text column draws the hairline above the item (`.panelRule`). */}
+      <div class="panelRule box flex-1 min-w-0 flex-row items-center gap-3 py-3 pr-4">
+        <div class="box flex-1 min-w-0 items-start">
+          <p class="text textLabel line-clamp-1 max-w-full">{props.title}</p>
+          <Show when={props.subtitle}>
+            <p class="text textCaption line-clamp-2 max-w-full">
+              {props.subtitle}
+            </p>
+          </Show>
+        </div>
+        {props.trailing}
       </div>
-      {props.trailing}
     </div>
   );
 }

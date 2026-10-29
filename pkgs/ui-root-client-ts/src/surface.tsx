@@ -12,15 +12,17 @@
  * - `MenuSection` / `MenuList` / `List` for rows: one panel, hairlines
  *   between items. Never stack surfaces to make a list.
  *
- * Elevation is a tone, not a shadow: `tone="elevated"` for a raised sheet,
- * `tone="overlay"` for what floats above content.
+ * Three levels, and elevation is a tone, never a shadow or a gradient:
+ * - canvas, `background`: the page.
+ * - raised, `surface` (`elevated` / `overlay` for sheets / menus): cards,
+ *   lists, sheets, menus.
+ * - sunken, `muted`: inputs, wells, inactive stat pills.
+ * A tag is a `Badge`, not a painted surface.
  *
  * @example
  * ```tsx
+ * <Surface tone="surface" radius="card" border padding="lg" gap="sm">…</Surface>
  * <Surface tone="muted" radius="control" padding="md" gap="xs">…</Surface>
- * <Surface tone="muted" radius="full" direction="horizontal" align="center" gap="xs" paddingX="sm" paddingY="2xs">
- *   <Text variant="footnote">{t`Rated`}</Text>
- * </Surface>
  * ```
  */
 

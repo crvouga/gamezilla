@@ -10,7 +10,9 @@ export default function CardExample(): JSX.Element {
       <Card>
         <h2 class="text textHeading">{'Card title'}</h2>
         <p class="text text-text-secondary">
-          {'One self-contained unit of content on a bordered surface.'}
+          {
+            'One self-contained unit of content, raised on the surface tone inside a hairline. Flat: no shadow, no gradient.'
+          }
         </p>
         <div class="box flex-row justify-end">
           <Button title={'Continue'} />

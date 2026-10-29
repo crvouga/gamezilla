@@ -13,7 +13,11 @@ export type MetricStripProps = {
   readonly dataSet?: ComponentDataSet;
 };
 
-/** Quiet, wrapping facts. Values retain their units and never imply a verdict. */
+/**
+ * Quiet, wrapping facts: a caption, the number in the `stat` role, and an
+ * optional footnote. Values retain their units and never imply a verdict;
+ * a count that can pass 1,000 is passed compact (`formatCompactNumber`).
+ */
 export function MetricStrip(props: MetricStripProps): JSX.Element {
   return (
     <dl
@@ -25,7 +29,7 @@ export function MetricStrip(props: MetricStripProps): JSX.Element {
         {(metric) => (
           <div class="box gap-1 min-w-0">
             <dt class="text textCaption">{metric.label}</dt>
-            <dd class="text textHeading textNumeral m-0">{metric.value}</dd>
+            <dd class="text textStat m-0">{metric.value}</dd>
             <span class="text textFootnote">{metric.detail}</span>
           </div>
         )}

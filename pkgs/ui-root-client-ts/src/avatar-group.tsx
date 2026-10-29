@@ -5,10 +5,11 @@
  * Each face sits in a canvas-colored ring so overlapping circles read as
  * cut-outs, the way the big social apps stack faces. Children are resolved
  * once and sliced by `maxVisible`; the remainder shows as a `+N` disc on the
- * muted plate (or `renderOverflow`). With `onClick` the whole strip is one
+ * muted plate (or `renderOverflow`), compact from 1,000 (`+12.4K`). With `onClick` the whole strip is one
  * button with the hover / press tint and the focus ring.
  */
 
+import { useLingui } from '@lingui/solid/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
@@ -20,6 +21,7 @@ import {
   children as resolveChildren,
   Show,
 } from 'solid-js';
+import { formatCompactNumber } from './compact-number';
 import { useThemeTokens } from './theme-context';
 
 export type AvatarGroupProps = {
@@ -71,6 +73,7 @@ function DefaultOverflowPill(props: {
   count: number;
   metrics: RingMetrics;
 }): JSX.Element {
+  const { i18n } = useLingui();
   return (
     <div
       class={`${SLOT_CLASS} bg-surface-muted`}
@@ -81,7 +84,7 @@ function DefaultOverflowPill(props: {
         'border-width': `${props.metrics.ringBorderWidth}px`,
       }}
     >
-      <p class="text textFootnote textNumeral text-text">{`+${String(props.count)}`}</p>
+      <p class="text textFootnote textNumeral text-text whitespace-nowrap">{`+${formatCompactNumber(props.count, i18n().locale)}`}</p>
     </div>
   );
 }

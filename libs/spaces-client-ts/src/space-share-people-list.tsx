@@ -1,6 +1,6 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans } from '@lingui/solid/macro';
-import { Badge } from '@pkgs/ui-root-client-ts/badge';
+import { HostBadge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { H3 } from '@pkgs/ui-root-client-ts/heading';
@@ -44,6 +44,7 @@ export function SpaceSharePeopleList(props: {
           <EmptyState
             variant="compact"
             title={<Trans>No one added yet</Trans>}
+            body={<Trans>Share the space link to invite people.</Trans>}
           />
         </Show>
         <Show when={entries().length > 0}>
@@ -102,14 +103,7 @@ function PeopleAccessRow(props: {
     >
       <SpaceShareUserRow
         userId={props.entry.userId}
-        trailing={
-          <Badge
-            label={<Trans>Host</Trans>}
-            intent="brand"
-            tone="subtle"
-            size="sm"
-          />
-        }
+        trailing={<HostBadge size="sm" />}
       />
     </Show>
   );

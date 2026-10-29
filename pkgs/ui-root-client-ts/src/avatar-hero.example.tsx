@@ -46,6 +46,10 @@ export default function AvatarHeroExample(): JSX.Element {
             <Avatar size={HERO_SIZE} />
           </AvatarHero>
           <p class="text textCaption">{'Disabled action'}</p>
+          <AvatarHero size={HERO_SIZE}>
+            <Avatar you initials="ME" size={HERO_SIZE} />
+          </AvatarHero>
+          <p class="text textCaption">{'Your own face, no action'}</p>
         </div>
       </SchemePreview>
     </ExampleRoot>

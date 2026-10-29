@@ -4,10 +4,12 @@
  * trailing disclosure chevron.
  *
  * One anatomy for every row in the product: at least 52px tall with 16px
- * insets, a 24px leading slot (icons in the `icon` tone), a `textBody`
- * title, an optional caption, an optional right-aligned secondary value, and
- * a 20px trailing chevron. Rows live inside a panel (`MenuList`), which owns
- * the surface, the radius and the hairlines; a row never paints its own.
+ * insets, a 24px leading slot (icons in the `icon` tone, or an avatar), a
+ * one-line `textBody` title that ends in an ellipsis, an optional caption,
+ * an optional right-aligned secondary value, and a 20px trailing chevron.
+ * Rows live inside a panel (`MenuList`), which owns the surface and the
+ * radius; a row never paints its own. The hairline above a row starts at its
+ * text column, past the leading slot.
  * Hover and press fade a tint in over 150ms, keyboard focus draws the ring
  * inside the panel, and a disabled row fades to the disabled opacity.
  *
@@ -132,35 +134,35 @@ function MenuRowBody(
 ): JSX.Element {
   const selected = () => props.selected === true;
   return (
-    <div
-      class="box flex-row items-center px-4 py-3 gap-3 min-h-13"
-      classList={{ panelLeading: props.leading !== undefined }}
-    >
+    <div class="box flex-row items-stretch pl-4 min-h-13">
       <Show when={props.leading !== undefined}>
-        <div class="box items-center justify-center min-w-6 shrink-0">
+        <div class="box items-center justify-center min-w-6 shrink-0 py-3 pr-3">
           {props.leading}
         </div>
       </Show>
-      <div class="box flex-1 min-w-0 items-start">
-        {/* `div`, not `p`: callers pass their own text blocks, and a `p`
-            may not contain one. */}
-        <div
-          class="text textBody"
-          classList={{ 'text-tint': selected(), 'text-text': !selected() }}
-        >
-          {props.title}
+      {/* The text column draws the hairline above the row (`.panelRule`). */}
+      <div class="panelRule box flex-1 min-w-0 flex-row items-center gap-3 py-3 pr-4">
+        <div class="box flex-1 min-w-0 items-start">
+          {/* `div`, not `p`: callers pass their own text blocks, and a `p`
+              may not contain one. A long title ends in an ellipsis. */}
+          <div
+            class="text textBody line-clamp-1 max-w-full"
+            classList={{ 'text-tint': selected(), 'text-text': !selected() }}
+          >
+            {props.title}
+          </div>
+          <Show when={props.caption}>
+            <div class="text textCaption max-w-full">{props.caption}</div>
+          </Show>
         </div>
-        <Show when={props.caption}>
-          <div class="text textCaption">{props.caption}</div>
-        </Show>
+        <MenuRowTrailing
+          value={props.value}
+          valueLines={props.valueLines}
+          trailing={props.trailing}
+          hideChevron={props.hideChevron === true || !props.interactive}
+          selected={selected()}
+        />
       </div>
-      <MenuRowTrailing
-        value={props.value}
-        valueLines={props.valueLines}
-        trailing={props.trailing}
-        hideChevron={props.hideChevron === true || !props.interactive}
-        selected={selected()}
-      />
     </div>
   );
 }

@@ -43,8 +43,8 @@ describe('Game chrome', () => {
     expect(order[2]).toBe(screen.getByTestId('near'));
   });
 
-  test('an empty seat draws the person placeholder, not an icon', () => {
-    renderUi(() => <GamePlayerBar name="Open place" />);
+  test('a seat without an avatar draws the person placeholder, not an icon', () => {
+    renderUi(() => <GamePlayerBar name="Robin" />);
     const avatar = mustQuery('[data-component="Avatar"]');
     expect(avatar.getAttribute('data-placeholder')).toBe('true');
     expect(avatar.querySelector('svg[viewBox="0 0 40 40"]')).not.toBeNull();

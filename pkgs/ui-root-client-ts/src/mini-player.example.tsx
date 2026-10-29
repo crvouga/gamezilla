@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
 import { Avatar } from './avatar';
-import { Badge } from './badge';
+import { LiveBadge } from './badge';
 import { Button } from './button';
 import { ExampleRoot } from './example-root';
 import { ExampleSection } from './example-section';
@@ -34,7 +34,7 @@ export default function MiniPlayerExample(): JSX.Element {
                   {'3 people here'}
                 </P>
               </StackVertical>
-              <Badge label="Live" intent="neutral" dot="online" />
+              <LiveBadge />
             </Pressable>
             <StackVertical paddingEnd="md">
               <Button title="End" size="sm" intent="neutral" />

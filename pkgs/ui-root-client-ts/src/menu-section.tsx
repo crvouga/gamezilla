@@ -2,10 +2,12 @@
 /**
  * `MenuSection` -- titled group of {@link MenuRow}s.
  *
- * The settings idiom: a quiet section title (`textCaption`, secondary),
- * one hairline panel of rows ({@link MenuList}), and an optional
- * footer note in the caption role. Title and footer sit on the rows' 16px
- * text column, so the eye runs straight down from heading to row title.
+ * The settings idiom: a section label above the group (the `sectionLabel`
+ * role: 12/16 bold, muted, sentence case -- never all caps), one raised
+ * panel of rows ({@link MenuList}), and an optional footer note in the
+ * caption role. Label and footer sit on the rows' 16px text column, so the
+ * eye runs straight down from label to row title. A long label ends in an
+ * ellipsis.
  * Stack several in one screen body with `gap-6` so every settings and detail
  * screen reads the same way.
  *
@@ -24,7 +26,7 @@ import { type JSX, Show } from 'solid-js';
 import { MenuList } from './menu-list';
 
 export type MenuSectionProps = {
-  /** Section title above the rows. */
+  /** Section label above the rows, in sentence case. */
   title?: JSX.Element | undefined;
   /** Explanatory note under the rows. */
   footer?: JSX.Element | undefined;
@@ -44,7 +46,7 @@ export function MenuSection(props: MenuSectionProps): JSX.Element {
       {...dataAttrs({ component: 'MenuSection', ...props.dataSet })}
     >
       <Show when={props.title !== undefined && props.title !== null}>
-        <h3 class="text textCaption line-clamp-1 px-4">{props.title}</h3>
+        <h3 class="text textSectionLabel line-clamp-1 px-4">{props.title}</h3>
       </Show>
       <MenuList separator={props.separator} role={props.role}>
         {props.children}

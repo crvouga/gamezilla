@@ -57,32 +57,26 @@ function Recipes(): JSX.Element {
           <P variant="caption">{'Hairline in the border color.'}</P>
         </Surface>
       </ExampleSection>
-      <ExampleSection title="horizontal tag: direction, align, gap, radius full">
-        <StackHorizontal gap="xs" wrap>
-          <Surface
-            tone="muted"
-            radius="full"
-            direction="horizontal"
-            align="center"
-            gap="xs"
-            paddingX="sm"
-            paddingY="xs"
-          >
-            <Text variant="footnote">{'Rated'}</Text>
+      <ExampleSection title="hierarchy: canvas (background), raised (surface), sunken (muted)">
+        <Surface tone="background" radius="card" border padding="lg" gap="md">
+          <P variant="caption">{'Canvas: the page itself'}</P>
+          <Surface tone="surface" radius="card" border padding="lg" gap="sm">
+            <P variant="label">{'Raised: cards, lists, sheets, menus'}</P>
+            <Surface
+              tone="muted"
+              radius="control"
+              direction="horizontal"
+              align="center"
+              gap="xs"
+              paddingX="md"
+              paddingY="sm"
+            >
+              <Text variant="caption">
+                {'Sunken: inputs, wells, inactive stat pills'}
+              </Text>
+            </Surface>
           </Surface>
-          <Surface
-            tone="success"
-            radius="full"
-            direction="horizontal"
-            align="center"
-            paddingX="sm"
-            paddingY="xs"
-          >
-            <Text variant="footnote" tone="success">
-              {'Online'}
-            </Text>
-          </Surface>
-        </StackHorizontal>
+        </Surface>
       </ExampleSection>
       <ExampleSection title="overflow hidden clips content to the radius">
         <Surface tone="muted" radius="card" overflow="hidden">

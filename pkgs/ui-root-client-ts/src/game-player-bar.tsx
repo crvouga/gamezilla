@@ -14,7 +14,10 @@ export const GAME_PLAYER_AVATAR_SIZE = 40;
  */
 export function GamePlayerBar(props: {
   name: JSX.Element;
-  /** Defaults to the person placeholder (an open or closed seat). */
+  /**
+   * The seat's `Avatar`. Defaults to the person placeholder; an open seat
+   * passes `<Avatar kind="emptySeat" />`, a bot `<Avatar kind="bot" />`.
+   */
   avatar?: JSX.Element;
   /** Facts about the seat, each its own `Badge`: side, rating, readiness. */
   tags?: JSX.Element;

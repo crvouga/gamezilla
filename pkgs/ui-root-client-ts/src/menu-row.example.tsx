@@ -1,13 +1,14 @@
 /** @jsxImportSource solid-js */
 import { createSignal, type JSX, Show } from 'solid-js';
 import { Avatar } from './avatar';
-import { Badge } from './badge';
+import { Badge, HostBadge } from './badge';
 import { ExampleRoot } from './example-root';
 import { BellIcon, SettingsIcon, UserIcon } from './icons';
 import { MenuList } from './menu-list';
 import { MenuRow } from './menu-row';
 import { MenuSection } from './menu-section';
 import { SchemePreview } from './scheme-preview';
+import { StatPill } from './stat-pill';
 import { Switch } from './switch';
 
 const noop = (): void => undefined;
@@ -89,17 +90,45 @@ function StatesSection(): JSX.Element {
 
 function PeopleSection(): JSX.Element {
   return (
-    <MenuList>
+    <MenuSection title="People">
       <MenuRow
         title="Jane Doe"
         caption="jane@example.com"
-        leading={<Avatar initials="JD" size={36} />}
+        leading={<Avatar you initials="JD" size={40} />}
+        trailing={<HostBadge size="sm" />}
         onClick={noop}
       />
+      <MenuRow
+        title="Maximiliana Alexandrovna Konstantinopolskaya-Featherstonehaugh"
+        caption="A long name ends in an ellipsis; the hairline still starts at the text column past the avatar"
+        leading={<Avatar kind="guest" size={40} />}
+        onClick={noop}
+      />
+      <MenuRow
+        title="Stockfish"
+        leading={<Avatar kind="bot" size={40} />}
+        value="Bot (hard)"
+      />
+      <MenuRow
+        title="Open seat"
+        leading={<Avatar kind="emptySeat" size={40} />}
+        onClick={noop}
+      />
+    </MenuSection>
+  );
+}
+
+function LongTextSection(): JSX.Element {
+  return (
+    <MenuList>
       <MenuRow
         title="A long value that would crowd the title"
         value="A value long enough to be capped and clamped"
         onClick={noop}
+      />
+      <MenuRow
+        title="Watchers"
+        trailing={<StatPill value={12_400} label="watching" />}
       />
     </MenuList>
   );
@@ -110,7 +139,7 @@ export default function MenuRowExample(): JSX.Element {
     <ExampleRoot>
       <p class="text textCaption">
         {
-          'Rows live in a hairline panel. Hover, press, keyboard focus and disabled each show; the hairline starts at the text column.'
+          'Rows live in a raised panel under a section label. Hover, press, keyboard focus and disabled each show; the hairline starts at the text column, past any leading icon or avatar.'
         }
       </p>
       <SchemePreview>
@@ -118,6 +147,7 @@ export default function MenuRowExample(): JSX.Element {
       </SchemePreview>
       <StatesSection />
       <PeopleSection />
+      <LongTextSection />
     </ExampleRoot>
   );
 }

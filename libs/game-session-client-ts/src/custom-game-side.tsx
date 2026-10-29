@@ -12,7 +12,6 @@ import {
   GamePlayerBar,
 } from '@pkgs/ui-root-client-ts/game-player-bar';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
-import { BotIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { For, type JSX, Match, Show, Switch } from 'solid-js';
 import { CustomGamePerson, useBotLevel } from './custom-game-person';
@@ -25,7 +24,10 @@ import type { CustomGameScreenModel } from './use-custom-game-screen';
 
 type SideProps = { model: CustomGameScreenModel; side: CustomGameSide };
 
-/** A person's picture, the bot's plate, or the placeholder of an empty seat. */
+/**
+ * A person's picture, the bot, an open seat, or the person placeholder of a
+ * place someone on this device plays or nobody may take.
+ */
 function SeatAvatar(props: SideProps): JSX.Element {
   const participant = () => props.model.current()![props.side];
   return (
@@ -41,12 +43,10 @@ function SeatAvatar(props: SideProps): JSX.Element {
         />
       </Match>
       <Match when={participant().kind === 'bot'}>
-        <Avatar
-          size={GAME_PLAYER_AVATAR_SIZE}
-          icon={BotIcon}
-          background="surfaceMuted"
-          foreground="icon"
-        />
+        <Avatar size={GAME_PLAYER_AVATAR_SIZE} kind="bot" />
+      </Match>
+      <Match when={participant().kind === 'open'}>
+        <Avatar size={GAME_PLAYER_AVATAR_SIZE} kind="emptySeat" />
       </Match>
     </Switch>
   );

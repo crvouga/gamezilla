@@ -1,5 +1,5 @@
 /** @jsxImportSource solid-js */
-import type { JSX } from 'solid-js';
+import { For, type JSX } from 'solid-js';
 import { Avatar } from './avatar';
 import { AvatarGroup } from './avatar-group';
 import { sampleAvatarSvg } from './avatar-sample-svg';
@@ -15,6 +15,9 @@ function Section(props: { label: string; children: JSX.Element }): JSX.Element {
     </div>
   );
 }
+
+/** 1,243 faces: three shown, `+1.2K` more. */
+const CROWD: readonly number[] = Array.from({ length: 1243 }, (_, i) => i);
 
 export default function AvatarGroupExample(): JSX.Element {
   const tokens = useThemeTokens();
@@ -38,6 +41,22 @@ export default function AvatarGroupExample(): JSX.Element {
               <Avatar initials="XY" size={40} background="warning" />
               <Avatar initials="ZZ" size={40} background="destructive" />
               <Avatar uri="https://i.pravatar.cc/100?u=9" size={40} />
+            </AvatarGroup>
+          </Section>
+          <Section label="Every kind in one strip: you, a person, a guest, a bot, an open seat">
+            <AvatarGroup size={40}>
+              <Avatar you initials="ME" size={40} />
+              <Avatar initials="JD" size={40} />
+              <Avatar kind="guest" size={40} />
+              <Avatar kind="bot" size={40} />
+              <Avatar kind="emptySeat" size={40} />
+            </AvatarGroup>
+          </Section>
+          <Section label="A big crowd: the +N disc is compact from 1,000">
+            <AvatarGroup size={32} maxVisible={3}>
+              <For each={CROWD}>
+                {(index) => <Avatar initials={String(index % 10)} size={32} />}
+              </For>
             </AvatarGroup>
           </Section>
           <Section label="Tighter overlap (8px), size 48">

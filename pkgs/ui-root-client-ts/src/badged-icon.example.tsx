@@ -14,10 +14,26 @@ export default function BadgedIconExample(): JSX.Element {
           <BadgedIcon>
             <BellIcon size={24} />
           </BadgedIcon>
-          <BadgedIcon badge="3">
+          <BadgedIcon badge={3}>
             <BellIcon size={24} />
           </BadgedIcon>
           <BadgedIcon badge="99+">
+            <BellIcon size={24} />
+          </BadgedIcon>
+        </StackHorizontal>
+      </ExampleSection>
+      <ExampleSection title="A number count: zero is bare, 1,000 and up is compact">
+        <StackHorizontal gap="lg" align="center">
+          <BadgedIcon badge={0}>
+            <BellIcon size={24} />
+          </BadgedIcon>
+          <BadgedIcon badge={1_000}>
+            <BellIcon size={24} />
+          </BadgedIcon>
+          <BadgedIcon badge={12_400}>
+            <BellIcon size={24} />
+          </BadgedIcon>
+          <BadgedIcon badge={1_250_000}>
             <BellIcon size={24} />
           </BadgedIcon>
         </StackHorizontal>

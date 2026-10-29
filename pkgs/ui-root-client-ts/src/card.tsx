@@ -1,7 +1,8 @@
 /** @jsxImportSource solid-js */
 /**
- * `Card` -- a bordered surface that holds one self-contained unit of content
- * (a form step, a summary, a settings group). Children stack with `gap-4`.
+ * `Card` -- a raised (`surface`) box inside one hairline that holds one
+ * self-contained unit of content (a form step, a summary, a settings group).
+ * Flat: no shadow, no gradient. Children stack with `gap-4`.
  *
  * Pick the host element for the landmark the card is: `as="main"` for the
  * page's one primary card, `section` (the default) otherwise. `id` and

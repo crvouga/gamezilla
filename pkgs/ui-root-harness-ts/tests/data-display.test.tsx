@@ -71,12 +71,13 @@ describe('StatusDot', () => {
 });
 
 describe('Avatar', () => {
-  test('renders an <img> with alt for uri sources', () => {
+  test('names the avatar by alt and draws the uri as its face', () => {
     renderUi(() => <Avatar uri="https://x/y.png" alt="Ada" size={40} />);
-    const img = screen.getByRole('img', { name: 'Ada' });
-    expect(img.tagName).toBe('IMG');
-    expect(img).toHaveAttribute('src', 'https://x/y.png');
     const root = byComponent('Avatar');
+    expect(screen.getByRole('img', { name: 'Ada' })).toBe(root);
+    const img = root.querySelector('img');
+    expect(img).toHaveAttribute('src', 'https://x/y.png');
+    expect(img).toHaveAttribute('alt', '');
     expect(cssOf(root)).toContain('width:40px');
     // The hairline ring is on by default, and round.
     expect(root.className).toMatch(/(^|\s)border(\s|$)/);
@@ -300,9 +301,12 @@ describe('MenuRow / MenuList / MenuSection', () => {
     expect(item.querySelector('svg')).not.toBeNull();
     const body = item.firstElementChild;
     if (!(body instanceof HTMLElement)) throw new Error('missing body');
-    // At least 52px tall (`min-h-13`) on 16px insets.
+    // At least 52px tall (`min-h-13`) on 16px insets: the start on the row,
+    // the end on the text column that draws the hairline.
     expect(body.className).toMatch(/\bmin-h-13\b/);
-    expect(body.className).toMatch(/\bpx-4\b/);
+    expect(body.className).toMatch(/\bpl-4\b/);
+    const column = body.querySelector('.panelRule');
+    expect(column?.className).toMatch(/\bpr-4\b/);
     fireEvent.click(item);
     expect(onClick).toHaveBeenCalledTimes(1);
     expect(screen.queryAllByRole('menuitem')).toHaveLength(1);

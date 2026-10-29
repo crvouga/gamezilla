@@ -5,7 +5,8 @@
  * chevron / selection check. Same anatomy as `MenuRow` (16px insets, 20px
  * secondary chevron, 150ms hover / press tint, focus ring inside the panel),
  * a little taller and with a `textLabel` title because each row is a
- * destination; the screen's panel owns the surface. A disabled row fades to
+ * destination; the screen's panel owns the surface. The title is one line
+ * and the caption two, each ending in an ellipsis. A disabled row fades to
  * the disabled opacity and moves its caption to the trailing edge.
  */
 
@@ -71,9 +72,11 @@ function ItemBody(props: {
       classList={{ 'opacity-disabled': disabled() }}
     >
       <div class="box flex-1 min-w-0 items-start">
-        <p class="text textLabel">{props.item.title}</p>
+        <p class="text textLabel line-clamp-1 max-w-full">{props.item.title}</p>
         <Show when={props.item.caption !== undefined && !captionInTrailing()}>
-          <p class="text textCaption">{props.item.caption}</p>
+          <p class="text textCaption line-clamp-2 max-w-full">
+            {props.item.caption}
+          </p>
         </Show>
       </div>
       <Show
@@ -82,7 +85,9 @@ function ItemBody(props: {
           <ItemTrailing item={props.item} interactive={props.interactive} />
         }
       >
-        <p class="text textCaption">{props.item.caption}</p>
+        <p class="text textCaption line-clamp-1 shrink max-w-9/20">
+          {props.item.caption}
+        </p>
       </Show>
     </div>
   );
