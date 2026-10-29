@@ -36,6 +36,7 @@
         "@libs/infra-shared-ts#src",
         "@libs/moderation-shared-ts#src",
         "@libs/observability-shared-ts#src",
+        "@libs/product-identity-shared-ts#src",
         "@libs/room-app-server-ts#src",
         "@libs/room-app-shared-ts#src",
         "@libs/runtime-server-ts#src",

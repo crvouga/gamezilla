@@ -38,7 +38,7 @@ export function stableHash(text: string): string {
 
 export type ResourceNameOptions = {
   /** Stable scope for a globally unique kind (an account id, a namespace). */
-  readonly uniqueIn?: string;
+  readonly uniqueIn?: string | undefined;
 };
 
 export function resourceName(

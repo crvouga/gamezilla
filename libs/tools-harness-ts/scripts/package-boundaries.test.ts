@@ -34,6 +34,18 @@ test('upstream workspace packages do not adopt product package categories', () =
   ).toEqual([
     'devDependencies names @pkgs/missing-category, whose name spells no category',
   ]);
+  // A language-neutral package (data, schemas) spells no category by design
+  // and is readable from every category.
+  expect(
+    categoryViolations(
+      {
+        name: '@libs/x-client-ts',
+        category: 'client',
+        dependencies: { '@libs/identity': 'workspace:*' },
+      },
+      { tier: 'libs', sources: [], neutral: new Set(['@libs/identity']) }
+    )
+  ).toEqual([]);
 });
 
 describe('package categories', () => {

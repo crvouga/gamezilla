@@ -1,177 +1,81 @@
 {
   "$schema": "https://turborepo.com/schema.json",
-  "extends": [
-    "//"
-  ],
+  "extends": ["//"],
   "tasks": {
     "test:spec:0": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
     "test:spec:1": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
     "test:spec:2": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
     "verify:models": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/*.qnt"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/*.qnt"]
     },
     "test:spec:3": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
     "test:spec:4": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
     "test:spec:5": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
     "test:spec:6": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
     "test:spec:7": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
     "test:spec:8": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
     "test:spec:9": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
     "test:spec:10": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
     "test:spec:11": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
     "test:spec:12": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
     "test:spec:13": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
     "test:spec:14": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
     "test:spec:15": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
     "test:spec:16": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
     "test:spec:17": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
     "test:spec:18": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
     "test:spec:19": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
     "test:spec:20": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
     "test:spec:21": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
     "test:spec:22": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     },
     "test:spec:23": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
-    },
-    "src": {
-      "dependsOn": [
-        "@libs/auth-shared-ts#src",
-        "@libs/observability-shared-ts#src",
-        "@libs/sub-shared-ts#src",
-        "@pkgs/billing-root-shared-ts#src",
-        "@pkgs/clock-shared-ts#src",
-        "@pkgs/db-schema-root-shared-ts#src",
-        "@pkgs/logger-shared-ts#src",
-        "@pkgs/message-shared-ts#src",
-        "@pkgs/observability-root-shared-ts#src",
-        "@pkgs/outbox-shared-ts#src",
-        "@pkgs/pubsub-root-shared-ts#src",
-        "@pkgs/sql-client-root-shared-ts#src",
-        "@pkgs/sql-root-shared-ts#src",
-        "@pkgs/sync-engine-shared-ts#src",
-        "@pkgs/uuid-shared-ts#src"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/billing/**"]
     }
   }
 }

@@ -1193,7 +1193,9 @@
         "$TURBO_ROOT$/.vscode/mcp.json",
         "$TURBO_ROOT$/opencode.json",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/sync-agent-commands.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/sync-agent-mcp.ts"
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/sync-agent-mcp.ts",
+        "$TURBO_ROOT$/libs/product-identity/product-identity.json",
+        "$TURBO_ROOT$/libs/product-identity-shared-ts/src/**"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
@@ -1414,6 +1416,38 @@
       "dependsOn": ["^src"],
       "env": ["PR_BASE"],
       "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "@libs/tools-harness-ts#verify:brand-policy": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/**",
+        "!$TURBO_ROOT$/.git/**",
+        "!$TURBO_ROOT$/**/node_modules/**",
+        "!$TURBO_ROOT$/**/.cache/**",
+        "!$TURBO_ROOT$/**/.turbo/**",
+        "!$TURBO_ROOT$/**/dist/**",
+        "!$TURBO_ROOT$/**/.terraform/**",
+        "!$TURBO_ROOT$/**/.env*",
+        "!$TURBO_ROOT$/.secrets.json"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "@libs/tools-harness-ts#verify:rebrand": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/**",
+        "!$TURBO_ROOT$/.git/**",
+        "!$TURBO_ROOT$/**/node_modules/**",
+        "!$TURBO_ROOT$/**/.cache/**",
+        "!$TURBO_ROOT$/**/.turbo/**",
+        "!$TURBO_ROOT$/**/dist/**",
+        "!$TURBO_ROOT$/**/.terraform/**",
+        "!$TURBO_ROOT$/**/.env*",
+        "!$TURBO_ROOT$/.secrets.json"
+      ],
       "outputs": [],
       "outputLogs": "errors-only"
     },

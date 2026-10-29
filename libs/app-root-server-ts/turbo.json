@@ -13,6 +13,7 @@
         "@libs/moderation-shared-ts#src",
         "@libs/observability-shared-ts#src",
         "@libs/permissions-shared-ts#src",
+        "@libs/product-identity-shared-ts#src",
         "@libs/pubsub-server-ts#src",
         "@libs/pubsub-shared-ts#src",
         "@libs/secrets-shared-ts#src",

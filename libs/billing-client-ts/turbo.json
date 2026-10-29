@@ -10,6 +10,7 @@
         "@libs/billing-shared-ts#src",
         "@libs/permissions-client-ts#src",
         "@libs/permissions-shared-ts#src",
+        "@libs/product-identity-shared-ts#src",
         "@libs/spaces-client-ts#src",
         "@libs/sub-client-ts#src",
         "@libs/test-ids-shared-ts#src",

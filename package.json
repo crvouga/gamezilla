@@ -1,5 +1,5 @@
 {
-  "name": "gamezilla",
+  "name": "product-monorepo",
   "version": "1.0.0",
   "private": true,
   "license": "UNLICENSED",
@@ -107,7 +107,7 @@
     "task:fc": "bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/verify-local.ts",
     "task:feedback": "bun run pkgs/feedback-harness-ts/scripts/report.ts",
     "task:gc": "bun run libs/tools-harness-ts/scripts/kill-dev-stack.ts --gc",
-    "task:gh": "bun x open https://github.com/crvouga/gamezilla/actions",
+    "task:gh": "bun run libs/tools-harness-ts/scripts/open-actions.ts",
     "task:git-sync": "bun run libs/tools-harness-ts/scripts/git-sync.ts",
     "task:graphify:install": "bun run libs/tools-harness-ts/scripts/graphify-install.ts",
     "task:health": "bun run libs/tools-harness-ts/scripts/workflow-remote.ts health",

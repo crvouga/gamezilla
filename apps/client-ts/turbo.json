@@ -7,6 +7,7 @@
     "src": {
       "dependsOn": [
         "@libs/app-root-client-ts#src",
+        "@libs/product-identity-shared-ts#src",
         "@libs/runtime-client-ts#src",
         "@libs/runtime-shared-ts#src",
         "@libs/spaces-client-ts#src",

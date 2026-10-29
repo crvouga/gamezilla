@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "gamezilla",
+      "name": "product-monorepo",
       "devDependencies": {
         "@antithesishq/bombadil": "^0.7.9",
         "@biomejs/biome": "catalog:",
@@ -472,6 +472,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth-shared-ts": "workspace:*",
+        "@libs/product-identity-shared-ts": "workspace:*",
         "@libs/sub-shared-ts": "workspace:*",
         "@pkgs/assert-root-shared-ts": "workspace:*",
         "@pkgs/db-schema-root-shared-ts": "workspace:*",
@@ -746,7 +747,6 @@
       "dependencies": {
         "@libs/moderation-shared-ts": "workspace:*",
         "@libs/observability-shared-ts": "workspace:*",
-        "@libs/product-identity-shared-ts": "workspace:*",
         "@libs/sub-shared-ts": "workspace:*",
         "@libs/synthetic-population-shared-ts": "workspace:*",
         "@pkgs/assert-root-shared-ts": "workspace:*",
@@ -2353,6 +2353,7 @@
       },
       "devDependencies": {
         "@pkgs/property-shared-ts": "workspace:*",
+        "@pkgs/resource-naming-shared-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
