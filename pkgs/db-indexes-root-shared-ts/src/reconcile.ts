@@ -44,11 +44,18 @@ function appendTail(
   }
 }
 
+type UsageHolds = {
+  readonly usage: UsageInfo[];
+  /** Indexes whose retirement window was refreshed by a newly observed use. */
+  readonly refreshed: ReadonlySet<string>;
+};
+
 async function refreshUsageHolds(
   db: DbPort,
   clock: Clock,
   notes: string[]
-): Promise<UsageInfo[]> {
+): Promise<UsageHolds> {
+  const refreshed = new Set<string>();
   const metas = await db.readOwnedMeta();
   const usage = await db.readIndexUsage();
   for (let i = 0; i < metas.length; i++) {
@@ -60,6 +67,7 @@ async function refreshUsageHolds(
       notes.push(
         `USAGE_SINCE_DEPRECATION: ${m.name} scans ${String(m.usageAtDeprecation)}→${String(scans)}; window refreshed`
       );
+      refreshed.add(m.name);
       await db.writeOwnedMeta({
         ...m,
         deprecatedAt: clock.now(),
@@ -67,7 +75,25 @@ async function refreshUsageHolds(
       });
     }
   }
-  return usage;
+  return { usage, refreshed };
+}
+
+/** A drop planned before a use was observed is stale: the window restarted. */
+function withoutStaleDrops(
+  actions: readonly PlanAction[],
+  refreshed: ReadonlySet<string>,
+  notes: string[]
+): PlanAction[] {
+  const live: PlanAction[] = [];
+  for (let i = 0; i < actions.length; i++) {
+    const action = actions[i]!;
+    if (action.kind === 'drop' && refreshed.has(action.name)) {
+      notes.push(`drop cancelled ${action.name}: used during retirement`);
+      continue;
+    }
+    live.push(action);
+  }
+  return live;
 }
 
 async function applyMetaAction(args: {
@@ -238,13 +264,17 @@ export async function reconcileIndexes(args: {
     builds: 0,
   };
 
-  const usage = await refreshUsageHolds(args.db, args.clock, state.notes);
+  const { usage, refreshed } = await refreshUsageHolds(
+    args.db,
+    args.clock,
+    state.notes
+  );
   await runPlanActions({
     db: args.db,
     clock: args.clock,
     config,
     deadline,
-    actions: plan.actions,
+    actions: withoutStaleDrops(plan.actions, refreshed, state.notes),
     usage,
     state,
   });

@@ -1,0 +1,4 @@
+{
+  "summary": "Attaching four files at once was accepted against a limit of three: the limit was checked against the files already saved, not the saves still in flight. Fixed by counting in-flight attachments per draft against the limit.",
+  "regressionTest": "pkgs/feedback-harness-ts/tests/evidence.contract.test.ts"
+}

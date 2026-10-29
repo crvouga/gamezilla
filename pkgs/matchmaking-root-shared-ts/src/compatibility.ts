@@ -42,6 +42,11 @@ function pairCompatible(
   return true;
 }
 
+/**
+ * Weighted distance under one formula. A wait lacking a numeric detail the
+ * formula measures is infinitely far from everyone, never an error: it
+ * stays waiting and cannot block anyone else.
+ */
 export function pairDistance(
   a: AttributeState,
   b: AttributeState,
@@ -52,9 +57,7 @@ export function pairDistance(
     const av = a[term.path as keyof typeof a];
     const bv = b[term.path as keyof typeof b];
     if (typeof av !== 'number' || typeof bv !== 'number') {
-      throw new Error(
-        `matchmaking_pair_distance: missing numeric attr ${term.path}`
-      );
+      return Number.POSITIVE_INFINITY;
     }
     d += term.weight * Math.abs(av - bv);
   }
@@ -64,6 +67,10 @@ export function pairDistance(
     if (av !== bv) d += term.penalty;
   }
   return d;
+}
+
+function withinRadius(distance: number, radius: number): boolean {
+  return Number.isFinite(distance) && distance <= radius;
 }
 
 type PairSide = {
@@ -93,8 +100,8 @@ export function pairMatch(args: PairMatchArgs): boolean {
       const ra = formulaRadius(fa, aWait, aGlobal);
       const rb = formulaRadius(fb, bWait, bGlobal);
       if (
-        pairDistance(a.data, b.data, fa) <= ra &&
-        pairDistance(a.data, b.data, fb) <= rb
+        withinRadius(pairDistance(a.data, b.data, fa), ra) &&
+        withinRadius(pairDistance(a.data, b.data, fb), rb)
       ) {
         return true;
       }

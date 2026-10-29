@@ -1,4 +1,4 @@
-import { raw } from '@pkgs/sql-root-shared-ts/sql';
+import { unsafe } from '@pkgs/sql-root-shared-ts/sql';
 import type { SqlClient } from './interface';
 
 export type SqlStatement = {
@@ -22,7 +22,13 @@ export type ExecuteSqlStatements = (
   statements: readonly SqlStatement[]
 ) => Promise<readonly SqlStatementOutput[]>;
 
-/** A complete statement batch commits together, or rolls back together. */
+/**
+ * A complete statement batch commits together, or rolls back together.
+ *
+ * Statement text is operator-authored (the data notebook), already split at
+ * its statement boundaries, and may carry comments and `;` / `--` inside
+ * string literals, so it is spliced with `unsafe()`, not `raw()`.
+ */
 export function executeSqlStatements(
   client: SqlClient,
   statements: readonly SqlStatement[]
@@ -34,10 +40,10 @@ export function executeSqlStatements(
         results.push({
           kind: 'rows',
           text: statement.text,
-          rows: await tx.query<Record<string, unknown>>(raw(statement.text)),
+          rows: await tx.query<Record<string, unknown>>(unsafe(statement.text)),
         });
       else {
-        const result = await tx.run(raw(statement.text));
+        const result = await tx.run(unsafe(statement.text));
         results.push({
           kind: 'changes',
           text: statement.text,
