@@ -6,11 +6,7 @@
 # dashboards, modules/observability-views).
 
 locals {
-  envs_dir = "${path.module}/../../envs"
-  envs = {
-    for file in fileset(local.envs_dir, "*.tfvars.json") :
-    jsondecode(file("${local.envs_dir}/${file}")).env => jsondecode(file("${local.envs_dir}/${file}"))
-  }
+  envs           = var.envs
   production_env = one([for name, env in local.envs : name if env.protection == "production"])
   routing_ready = alltrue([
     for value in [var.alerting.irm_responder, var.alerting.digest_email] :
@@ -54,6 +50,7 @@ module "synthetic_monitoring" {
   source       = "../../modules/synthetic-monitoring"
   environments = local.envs
   probe        = var.alerting.probe
+  brand_name   = var.brand_name
   providers = {
     grafana = grafana.synthetic_monitoring
   }
@@ -93,6 +90,7 @@ module "alert_routing" {
   responder          = var.alerting.irm_responder
   digest_email       = var.alerting.digest_email
   paging_environment = local.production_env
+  brand_name         = var.brand_name
   providers = {
     grafana = grafana.alerting
   }

@@ -4,10 +4,11 @@
  * the one OAuth callback relay every environment signs in through, the
  * PlanetScale organization every environment's database lives in, and the
  * AWS region of the invalidation broker.
- * Every stack reads it as its first `-var-file`.
+ * Every stack reads it, resolved (`tofu-vars.ts`), as its first `-var-file`.
  */
 import { z } from 'zod';
 import raw from '../tofu/global.tfvars.json';
+import { resolveGlobalVars } from './tofu-vars';
 
 const id = z.string().min(1);
 const slug = z.string().regex(/^[a-z0-9][a-z0-9-]*$/);
@@ -18,6 +19,8 @@ const hostname = z
 export const globalFileSchema = z
   .object({
     project: z.string().regex(/^[a-z0-9][a-z0-9-]*$/),
+    /** The name people see (`{brand}`): alert routing, the app-shell check. */
+    brand_name: z.string().min(1),
     state: z.object({ account_id: id, bucket: id }).strict(),
     shared_data: z.object({ account_id: id, bucket: slug }).strict(),
     /**
@@ -42,9 +45,9 @@ export const globalFileSchema = z
       .strict(),
     /**
      * PlanetScale organization slug and the Postgres region. `organization` is
-     * the slug PlanetScale shows for the account; `gamezilla` matches the
-     * project name and has not been confirmed against the account. A wrong
-     * slug fails the foundation apply with the organization's name.
+     * the slug PlanetScale shows for the account, from the identity's
+     * `external.planetscaleOrganization`. A wrong slug fails the foundation
+     * apply with the organization's name.
      */
     planetscale: z
       .object({
@@ -123,8 +126,14 @@ export const globalFileSchema = z
 
 export type GlobalFile = z.infer<typeof globalFileSchema>;
 
-export const GLOBAL: GlobalFile = (() => {
-  const result = globalFileSchema.safeParse(raw);
+/** `tofu/global.tfvars.json` as committed: placeholders unresolved. */
+export const GLOBAL_SOURCE: unknown = raw;
+
+/** Resolves and validates a global var file (`resolveGlobalVars`). */
+function parseGlobalFile(source: unknown): GlobalFile {
+  const result = globalFileSchema.safeParse(resolveGlobalVars(source));
   if (result.success) return result.data;
   throw new Error(`tofu/global.tfvars.json: ${z.prettifyError(result.error)}`);
-})();
+}
+
+export const GLOBAL: GlobalFile = parseGlobalFile(GLOBAL_SOURCE);

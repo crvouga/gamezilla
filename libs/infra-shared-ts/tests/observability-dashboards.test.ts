@@ -1,6 +1,8 @@
 import { expect, test } from 'bun:test';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { NAMESPACE } from '@libs/product-identity-shared-ts/product-identity';
+import { serviceName } from '@libs/product-identity-shared-ts/technical-names';
 
 const directory = join(
   import.meta.dirname,
@@ -20,6 +22,7 @@ for (const file of readdirSync(directory).filter((name) =>
     const source = readFileSync(join(directory, file), 'utf8');
     const rendered = source
       .replaceAll('${environment}', 'example')
+      .replaceAll('${namespace}', NAMESPACE)
       .replaceAll('${metrics_uid}', 'metrics')
       .replaceAll('${logs_uid}', 'logs');
     expect(rendered).not.toContain('${');
@@ -47,3 +50,21 @@ for (const file of readdirSync(directory).filter((name) =>
     }
   });
 }
+
+test('dashboards query services by the namespace their telemetry carries', () => {
+  const services = new Set<string>();
+  for (const file of readdirSync(directory)) {
+    const source = readFileSync(join(directory, file), 'utf8');
+    for (const [, name] of source.matchAll(
+      /(?:job|service_name)=\\"([^"\\]+)\\"/g
+    ))
+      if (name !== undefined) services.add(name);
+  }
+  expect([...services].sort()).toEqual([
+    '${namespace}-client',
+    '${namespace}-server',
+  ]);
+  expect(
+    [...services].map((name) => name.replace('${namespace}', NAMESPACE)).sort()
+  ).toEqual([serviceName('client'), serviceName('server')]);
+});

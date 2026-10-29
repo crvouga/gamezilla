@@ -8,6 +8,11 @@ variable "environment" {
   type = string
 }
 
+variable "namespace" {
+  type        = string
+  description = "The technical namespace telemetry service names start with (`<namespace>-server`)."
+}
+
 variable "grafana_url" {
   type        = string
   description = "The Grafana instance (https://<stack>.grafana.net): alert links point into it."
@@ -33,6 +38,7 @@ resource "grafana_dashboard" "this" {
   folder   = grafana_folder.this.uid
   config_json = templatefile("${path.module}/${each.value}", {
     environment = var.environment
+    namespace   = var.namespace
     metrics_uid = local.metrics_uid
     logs_uid    = local.logs_uid
   })

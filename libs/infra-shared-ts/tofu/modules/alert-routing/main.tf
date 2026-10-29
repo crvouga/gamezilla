@@ -34,6 +34,11 @@ variable "paging_environment" {
   description = "The only environment whose `page` alerts page."
 }
 
+variable "brand_name" {
+  type        = string
+  description = "The name people see, in the integration's name and the digest's subject."
+}
+
 data "grafana_oncall_user" "responder" {
   username = var.responder
 }
@@ -63,7 +68,7 @@ resource "grafana_oncall_escalation" "push" {
 }
 
 resource "grafana_oncall_integration" "alerts" {
-  name = "Gamezilla alerts"
+  name = "${var.brand_name} alerts"
   type = "grafana_alerting"
   default_route {
     escalation_chain_id = grafana_oncall_escalation_chain.push.id
@@ -90,7 +95,7 @@ resource "grafana_contact_point" "digest" {
   email {
     addresses    = [var.digest_email]
     single_email = true
-    subject      = "Gamezilla: what needs a look today"
+    subject      = "${var.brand_name}: what needs a look today"
   }
 }
 

@@ -50,8 +50,8 @@ test('only descriptive metadata may drift without a plan', () => {
 
 // regression: bootstrap-user-owned-forking
 test('a user-owned repository does not send allow_forking', () => {
-  // Literal failing input: plan `allow_forking = true -> false` on
-  // crvouga/gamezilla, then PATCH /repos/crvouga/gamezilla 422
+  // Literal failing input: plan `allow_forking = true -> false` on the
+  // source repository, then PATCH /repos/<owner>/<repo> 422
   // "Allow forks setting can only be changed on org-owned private repositories".
   expect(GLOBAL.github.owner).toBe('crvouga');
   expect(GLOBAL.github.owner_is_organization).toBe(false);

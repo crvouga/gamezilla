@@ -8,6 +8,8 @@
  * no OIDC token is available; they are not required.
  */
 
+import { technicalName } from '@libs/product-identity-shared-ts/technical-names';
+
 export type AwsSession = {
   readonly accessKeyId: string;
   readonly secretAccessKey: string;
@@ -112,7 +114,7 @@ export function stsSessionName(
 ): string {
   const run = env['GITHUB_RUN_ID']?.trim() ?? '';
   if (/^\d+$/.test(run)) return `gha-${run}`;
-  return 'gamezilla-tofu';
+  return technicalName(['tofu']);
 }
 
 /** Credentials element of an AssumeRoleWithWebIdentity response. */

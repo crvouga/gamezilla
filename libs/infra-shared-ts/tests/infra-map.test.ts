@@ -9,6 +9,8 @@ import type {
   StackModel,
 } from '@libs/infra-shared-ts/infra-model-types';
 import { renderInfraMap } from '@libs/infra-shared-ts/infra-render';
+import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
+import { technicalName } from '@libs/product-identity-shared-ts/technical-names';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 /**
@@ -103,7 +105,7 @@ describe('infrastructure map model', () => {
     const fleet = MODEL.globals.find((s) => s.stack === 'fleet')!;
     const bucket = find(fleet, 'cloudflare_r2_bucket.shared_data');
     expect(bucket.instances.map((instance) => instance.label)).toEqual([
-      'gamezilla-shared',
+      technicalName(['shared']),
     ]);
     expect(bucket.preventDestroy).toBe(true);
     expect(bucket.stateful).toBe(true);
@@ -166,8 +168,8 @@ describe('infrastructure map model', () => {
         stack(env(e), 'foundation'),
         'module.object_store.cloudflare_r2_bucket.objects'
       ).instances[0]?.label;
-    expect(bucket('prd')).toBe('gamezilla-production');
-    expect(bucket('dev')).toBe('gamezilla-development');
+    expect(bucket('prd')).toBe(technicalName(['production']));
+    expect(bucket('dev')).toBe(technicalName(['development']));
   });
 
   test('count expands per environment protection', () => {
@@ -190,7 +192,9 @@ describe('infrastructure map model', () => {
       'module.edge.cloudflare_workers_custom_domain.this'
     );
     expect(domains.instances.map((i) => i.key)).toEqual(['apex', 'api', 'web']);
-    expect(domains.externals.map((x) => x.name)).toEqual(['gamezilla-prod']);
+    expect(domains.externals.map((x) => x.name)).toEqual([
+      technicalName(['prod']),
+    ]);
   });
 
   test('dependencies resolve through variables, locals and module outputs', () => {
@@ -249,15 +253,16 @@ describe('infrastructure map page', () => {
     for (const e of MODEL.envs) {
       for (const host of Object.values(e.hosts)) expect(HTML).toContain(host);
     }
+    const production = technicalName(['production']);
     expect(HTML).toContain(
-      'https://dash.cloudflare.com/2698e76355a8c8d1ee21e15fa9fd44f7/r2/default/buckets/gamezilla-production'
+      `https://dash.cloudflare.com/2698e76355a8c8d1ee21e15fa9fd44f7/r2/default/buckets/${production}`
     );
     expect(HTML).toContain(
-      'https://github.com/crvouga/gamezilla/settings/rules'
+      `https://github.com/${PRODUCT.external.sourceRepository}/settings/rules`
     );
     expect(HTML).toContain('https://shortawning2091.grafana.net');
     expect(HTML).toContain(
-      'app.planetscale.com/gamezilla/gamezilla-production'
+      `app.planetscale.com/${PRODUCT.external.planetscaleOrganization}/${production}`
     );
   });
 

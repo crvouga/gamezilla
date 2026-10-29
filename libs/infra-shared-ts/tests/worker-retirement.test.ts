@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { retireWorker } from '@libs/infra-shared-ts/worker-retirement';
+import { technicalName } from '@libs/product-identity-shared-ts/technical-names';
 
 const success = { exitCode: 0, stdout: 'Deleted', stderr: '' };
 const cleanupFailure = {
@@ -14,7 +15,7 @@ describe('Worker retirement completion', () => {
   test('a deleted Worker completes retirement despite legacy KV cleanup failure', async () => {
     let calls = 0;
     const result = await retireWorker(
-      'gamezilla-api-development',
+      technicalName(['api', 'development']),
       () => {
         calls += 1;
         return cleanupFailure;

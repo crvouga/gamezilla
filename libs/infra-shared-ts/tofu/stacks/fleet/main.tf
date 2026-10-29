@@ -1,9 +1,5 @@
 locals {
-  envs_dir = "${path.module}/../../envs"
-  envs = {
-    for file in fileset(local.envs_dir, "*.tfvars.json") :
-    jsondecode(file("${local.envs_dir}/${file}")).env => jsondecode(file("${local.envs_dir}/${file}"))
-  }
+  envs = var.envs
 }
 
 # STATEFUL: a secrets environment holds the environment's secrets. Deleting

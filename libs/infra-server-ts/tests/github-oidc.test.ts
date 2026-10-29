@@ -2,15 +2,17 @@ import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { GLOBAL } from '@libs/infra-shared-ts/global';
+import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
 
 const TOFU = join(import.meta.dirname, '../../infra-shared-ts/tofu');
 const read = (path: string) => readFileSync(join(TOFU, path), 'utf8');
 
 // regression: github-transfer-immutable-oidc-subject
 test('CI trust matches the transferred repository immutable OIDC subject', () => {
-  // The repository API resolves the former origin to crvouga (owner ID
-  // 49178412); the repository ID remains 1165464734.
-  const prefix = 'repo:crvouga@49178412/gamezilla@1165464734';
+  // The repository API resolves the former origin to the current owner
+  // (owner ID 49178412); the repository ID remains 1165464734.
+  const [owner, repo] = PRODUCT.external.sourceRepository.split('/');
+  const prefix = `repo:${owner}@49178412/${repo}@1165464734`;
   const github = GLOBAL.github;
   expect(
     `repo:${github.owner}@${github.owner_id}/${github.repo}@${github.repo_id}`

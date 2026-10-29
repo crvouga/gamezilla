@@ -48,12 +48,22 @@ export function stackDir(paths: TofuPaths, stack: Stack): string {
   return `${paths.tofuDir}/stacks/${stack}`;
 }
 
-export function envFilePath(paths: TofuPaths, env: string): string {
-  return `${paths.tofuDir}/envs/${env}.tfvars.json`;
+/**
+ * The resolved variable files OpenTofu reads (`tofu-var-files.ts`), relative
+ * to `varsDir`: the committed ones carry identity placeholders, so the
+ * wrapper writes these into the cache before any `tofu` run.
+ */
+export const GLOBAL_VAR_FILE = 'global.tfvars.json';
+
+/** A global stack's second file: `envs`, every env file by name. */
+export const ENVS_VAR_FILE = 'envs.tfvars.json';
+
+export function envVarFile(env: string): string {
+  return `envs/${env}.tfvars.json`;
 }
 
-export function globalFilePath(paths: TofuPaths): string {
-  return `${paths.tofuDir}/global.tfvars.json`;
+export function varsDir(paths: TofuPaths): string {
+  return `${paths.cacheDir}/vars`;
 }
 
 function targetLabel(target: Target): string {
@@ -64,12 +74,15 @@ export function planFilePath(paths: TofuPaths, target: Target): string {
   return `${paths.cacheDir}/${targetLabel(target)}.tfplan`;
 }
 
-/** Global first, then the environment's file (later files win). */
+/** The resolved files a target reads, in order (later files win). */
+export function varFiles(target: Target): readonly string[] {
+  if (target.env === null) return [GLOBAL_VAR_FILE, ENVS_VAR_FILE];
+  return [GLOBAL_VAR_FILE, envVarFile(target.env)];
+}
+
+/** Global first, then the environment's file — or every env file. */
 export function varFileArgs(paths: TofuPaths, target: Target): string[] {
-  const files = [`-var-file=${globalFilePath(paths)}`];
-  if (target.env !== null)
-    files.push(`-var-file=${envFilePath(paths, target.env)}`);
-  return files;
+  return varFiles(target).map((file) => `-var-file=${varsDir(paths)}/${file}`);
 }
 
 function chdir(paths: TofuPaths, target: Target): string {

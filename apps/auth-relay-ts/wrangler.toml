@@ -1,8 +1,9 @@
 # The one OAuth callback relay every environment signs in through
 # (auth.<zone>). Global, not per environment: libs/infra renders its name and
 # forwarding targets from tofu/global.tfvars.json and the env files, and the
-# OpenTofu fleet stack binds its hostname.
-name = "gamezilla-auth-relay"
+# OpenTofu fleet stack binds its hostname. `{namespace}` resolves from the
+# product identity when libs/infra renders this file.
+name = "{namespace}-auth-relay"
 main = "src/worker.ts"
 compatibility_date = "2026-09-21"
 workers_dev = false

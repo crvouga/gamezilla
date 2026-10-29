@@ -32,6 +32,7 @@ import {
   renderWranglerConfig,
   workerName,
 } from '@libs/infra-shared-ts/wrangler';
+import { IDENTITY_PLACEHOLDERS } from '@libs/product-identity-shared-ts/identity-placeholders';
 import { getApiWorkerSecrets } from '@libs/secrets-server-ts/registry';
 import { INHOUSE_AUTH_SECRET } from '@pkgs/auth-inhouse-server-ts/inhouse-auth-config';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
@@ -60,7 +61,7 @@ describe('wrangler.toml', () => {
           'replica endpoint property'
         );
         const vars = renderWranglerConfig(
-          { ...base, vars: { API_URL: 'https://dev-api.gamezilla.app' } },
+          { ...base, vars: { API_URL: 'https://dev-api.stale.example' } },
           env
         )['vars'] as Record<string, string>;
         expect(vars['API_URL']).toBe(`https://api-${label}.example.test`);
@@ -81,14 +82,14 @@ describe('wrangler.toml', () => {
     const copied = Object.fromEntries(
       getApiWorkerSecrets().map((entry) => [entry.name, 'fixture-value'])
     );
-    copied['API_URL'] = 'https://dev-api.gamezilla.app';
-    copied['EMQX_WSS_URL'] = 'wss://obsolete-broker.gamezilla.app/mqtt';
+    copied['API_URL'] = 'https://dev-api.stale.example';
+    copied['EMQX_WSS_URL'] = 'wss://obsolete-broker.stale.example/mqtt';
     const stale = {
       ...base,
       vars: {
         API_URL: copied['API_URL'],
         EMQX_WSS_URL: copied['EMQX_WSS_URL'],
-        WEB_CLIENT_ORIGIN: 'https://obsolete-client.gamezilla.app',
+        WEB_CLIENT_ORIGIN: 'https://obsolete-client.stale.example',
       },
     };
     for (const env of Object.values(ENV_FILES)) {
@@ -217,6 +218,18 @@ describe('wrangler.toml', () => {
           },
         ],
       });
+    }
+  });
+
+  test('the committed config leaves names to the identity, and no placeholder ships', () => {
+    expect(base['name']).toBe('{namespace}');
+    for (const env of Object.values(ENV_FILES)) {
+      const rendered = JSON.stringify(renderWranglerConfig(base, env));
+      for (const name of IDENTITY_PLACEHOLDERS)
+        expect({
+          env: env.env,
+          placeholder: rendered.includes(`{${name}}`),
+        }).toEqual({ env: env.env, placeholder: false });
     }
   });
 

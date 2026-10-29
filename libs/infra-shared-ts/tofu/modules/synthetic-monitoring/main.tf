@@ -39,6 +39,11 @@ variable "probe" {
   description = "The public probe the checks run from."
 }
 
+variable "brand_name" {
+  type        = string
+  description = "The name people see: the app shell's own page carries it as its title."
+}
+
 data "grafana_synthetic_monitoring_probes" "public" {}
 
 locals {
@@ -55,7 +60,7 @@ locals {
         every  = file.synthetic_monitoring.every_seconds
         status = [200]
         # The app's own page, not an error page or a parked domain.
-        body = "<title>Gamezilla</title>"
+        body = "<title>${var.brand_name}</title>"
         # A fresh query string each run, so a cached copy at the edge cannot
         # hide a broken deployment behind it.
         bust = "sm-run"
