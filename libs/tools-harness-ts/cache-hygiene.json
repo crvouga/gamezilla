@@ -243,8 +243,8 @@
       "reason": "repository gate: reads every package.json"
     },
     "@libs/tools-harness-ts#ci:package-names": {
-      "patterns": 3,
-      "reason": "repository gate: checks every package name against its directory and manifest"
+      "patterns": 4,
+      "reason": "repository gate: checks every package name against its directory and manifest, and that no package can be published or carries its own license (the repository is proprietary)"
     },
     "@libs/tools-harness-ts#ci:goals": {
       "patterns": 4,

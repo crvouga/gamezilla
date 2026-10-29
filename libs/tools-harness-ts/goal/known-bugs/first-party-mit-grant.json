@@ -1,0 +1,4 @@
+{
+  "summary": "pkgs/ui-quality-check-server-ts carried an MIT LICENSE (\"ui-quality-check contributors\") and a NOTICE extending MIT to bundled first-party utilities, while the repository is proprietary and public. The package's license file is removed, and the package-names gate now refuses any workspace package that is not private, declares a license other than UNLICENSED, or keeps its own license file.",
+  "regressionTest": "libs/tools-harness-ts/scripts/package-licensing.test.ts"
+}

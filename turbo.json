@@ -1227,8 +1227,10 @@
         "$TURBO_ROOT$/apps/*/package.json",
         "$TURBO_ROOT$/libs/*/package.json",
         "$TURBO_ROOT$/pkgs/*/package.json",
+        "$TURBO_ROOT$/{apps,libs,pkgs}/*/{LICENSE,LICENCE,License,Licence,license,licence,COPYING,Copying,copying,UNLICENSE,Unlicense,unlicense}*",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-package-names.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/package-names.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/package-licensing.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/languages.ts"
       ],
       "outputs": [],
