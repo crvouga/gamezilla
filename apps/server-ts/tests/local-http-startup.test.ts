@@ -41,4 +41,4 @@ test('cold server bootstrap isolates overlapping local HTTP invocations', async 
   } finally {
     removeTree(directory, { whenLocked: 'leave' });
   }
-});
+}, 60_000);

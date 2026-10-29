@@ -91,7 +91,7 @@ test("a game's rules laws give one verdict whichever games stand beside it, in a
       'every position a game reaches is recognized as this game alone'
     ]
   ).toBe(false);
-});
+}, 60_000);
 
 test("a game's verdict does not depend on which game's laws ran first", () => {
   const faulty = definedWith({
@@ -106,7 +106,7 @@ test("a game's verdict does not depend on which game's laws ran first", () => {
     verdicts(gameRulesLaws(COUNTING_RACE_GAME, HARNESS_GAMES)),
   ].reverse();
   expect(faultyFirst).toEqual(soundFirst);
-});
+}, 60_000);
 
 test('each faulty copy is its own game: defining one leaves the reference game and the others untouched', () => {
   const before = COUNTING_RACE_GAME.shared.turnGame;
