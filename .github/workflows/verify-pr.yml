@@ -10,16 +10,16 @@ run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{
 #   passes has the hash Release restores from the shared remote cache.
 # - `nightly`, from Verify Nightly: the whole gate deeper, with reports.
 #
-# Three jobs, on any self-hosted runner OS (Linux, macOS, Windows); the
-# shards and the end run on the start's OS and arch. `verify:start` plans the
+# Three jobs, on GitHub-hosted `ubuntu-latest` runners (free for a public
+# repository). `verify:start` plans the
 # shards, `verify:shards (N)` run them with fail-fast off, and `verify:end` has
 # the ending word: one verdict that names every failure. The jobs keep the
 # `verify:` prefix wherever the gate runs, so `verify:end` is the one required
 # status and its name never moves.
 #
 # Packages declare the platforms they build for (docs/POLYGLOT.md). CI
-# verifies only what runs on every runner OS: every package but the native
-# (Swift) ones, which `bun verify` checks on a host that builds them.
+# verifies every package but the native (Swift) ones, which `bun verify`
+# checks on a host that builds them.
 #
 # Only uncached work starts a runner. `verify:start` asks the remote cache about
 # every task, packs the misses into as many shards as their measured durations
@@ -119,9 +119,9 @@ env:
   # A cap, not the count. The plan sizes shards to the work: each holds at
   # least three times a shard's setup (`VERIFY_SHARD_SETUP_SECONDS`, 30 s)
   # and no less than the longest indivisible task group, and it starts no
-  # more than the online runners for the start job's OS and arch unless the
-  # shard deadline needs more (libs/tools-harness-ts/scripts/verify-plan.ts,
-  # verify-runners.ts). The log's `shards:` line says why.
+  # more than the cap unless the shard deadline needs more
+  # (libs/tools-harness-ts/scripts/verify-plan.ts). The log's `shards:` line
+  # says why.
   # Forty left a cold corpus — every cache missed — packed past the 1200s
   # shard deadline once each solver had a runner of its own (Verify run
   # 38328597240); sixty-four keeps that pack inside the deadline.
@@ -131,26 +131,21 @@ env:
   VERIFY_PROFILE: ${{ inputs.profile || 'release' }}
   VERIFY_ADVISORIES: ${{ inputs.advisories || 'enforce' }}
 
-# Every job runs on whichever self-hosted runner is free — Linux, macOS or
-# Windows — so every `run:` step is bash (Git Bash on Windows).
+# Every job runs on a GitHub-hosted `ubuntu-latest` runner (free for a public
+# repository), and every `run:` step is bash.
 defaults:
   run:
     shell: bash
 
 jobs:
-  # Any self-hosted runner, whatever its OS. The plan is valid only on the OS
-  # and arch it was made on (`verify-shard-run.ts` refuses another), so the
-  # rest of the run requests this runner's `os` and `arch`.
   verify-start:
     name: verify:start
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.profile == 'nightly' && 70 || 30 }}
     # One entry per shard with work, naming none of them: GitHub drops a job
     # output that contains a masked secret, and one dev secret is the digit 1.
     outputs:
       shards: ${{ steps.plan.outputs.shards }}
-      os: ${{ runner.os }}
-      arch: ${{ runner.arch }}
     steps:
       - name: Validate release branch
         if: ${{ inputs.require-main }}
@@ -162,7 +157,6 @@ jobs:
           fi
       - uses: actions/checkout@v6
         with:
-          clean: false
           fetch-depth: 0
       - uses: ./.github/actions/setup
         with:
@@ -234,19 +228,17 @@ jobs:
     needs: [verify-start]
     # An empty matrix is an error, so a fully cached plan skips the job.
     if: needs.verify-start.outputs.shards != '[]'
-    runs-on: [self-hosted, "${{ needs.verify-start.outputs.os || 'self-hosted' }}", "${{ needs.verify-start.outputs.arch || 'self-hosted' }}"]
+    runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.profile == 'nightly' && 70 || 30 }}
     strategy:
       fail-fast: false
-      # Four runners serve every workflow, and GitHub hands a queued job to the
-      # first free one. A run that queues all its shards at once holds other
-      # runs' `verify:start` and `verify:end` behind them: a 30 s `verify:end`
-      # waited 53 minutes (Verify run 40713084871), and Release's shards up to
-      # 109 (run 40628012072). Holding one runner back, and queuing the next
-      # shard only as one finishes, lets a small run through between a large
-      # run's shards. `VERIFY_MAX_PARALLEL` is the runner count minus one; set
-      # it to the runner count to give a lone run every runner.
-      max-parallel: ${{ fromJSON(vars.VERIFY_MAX_PARALLEL || '3') }}
+      # GitHub's free plan runs 20 jobs at once across every workflow, and
+      # queues the rest in no particular order. A run that queues all its
+      # shards at once holds other runs' `verify:start` and `verify:end`
+      # behind them. Holding four slots back, and queuing the next shard only
+      # as one finishes, lets a small run through between a large run's
+      # shards. `VERIFY_MAX_PARALLEL` is the concurrent-job limit minus four.
+      max-parallel: ${{ fromJSON(vars.VERIFY_MAX_PARALLEL || '16') }}
       matrix:
         shard: ${{ fromJSON(needs.verify-start.outputs.shards) }}
     env:
@@ -254,7 +246,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          clean: false
           fetch-depth: 0
       - uses: ./.github/actions/setup
         with:
@@ -312,15 +303,13 @@ jobs:
     name: verify:end
     needs: [verify-start, verify-shards]
     if: always() && !cancelled()
-    # Without a plan (a failed start) any runner can report the failure.
-    runs-on: [self-hosted, "${{ needs.verify-start.outputs.os || 'self-hosted' }}", "${{ needs.verify-start.outputs.arch || 'self-hosted' }}"]
+    runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.profile == 'nightly' && 110 || 50 }}
     steps:
       # The reports are filed under the pull request's head, whose specs are
       # read from Git; the default checkout holds only the merge commit.
       - uses: actions/checkout@v6
         with:
-          clean: false
           fetch-depth: 0
       - uses: ./.github/actions/setup
         with:

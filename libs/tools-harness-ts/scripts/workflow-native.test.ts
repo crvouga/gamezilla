@@ -5,7 +5,7 @@ import {
   specParallelism,
   testConcurrency,
 } from '@pkgs/os-server-ts/test-concurrency';
-import { CI_OPERATING_SYSTEMS, CI_RUNNER } from './package-hosts';
+import { CI_RUNNER } from './package-hosts';
 
 const ROOT = join(import.meta.dirname, '../../..');
 
@@ -62,26 +62,11 @@ test('only GitHub Actions owns the Verify, Release and Health triggers', () => {
       runners.push(job['runs-on'] ?? '');
     }
   }
-  // Every job runs on any self-hosted runner, whatever its OS
-  // (package-hosts.ts). A job that continues a Verify plan also requests the
-  // OS and arch `verify:start` ran on, because a plan holds for one platform.
-  const samePlatform = [
-    CI_RUNNER,
-    "${{ needs.verify-start.outputs.os || 'self-hosted' }}",
-    "${{ needs.verify-start.outputs.arch || 'self-hosted' }}",
-  ];
+  // Every job runs on a GitHub-hosted Linux runner (package-hosts.ts), which
+  // is free for a public repository. No job names a self-hosted label or a
+  // runner of its own.
   expect(runners.length).toBeGreaterThan(0);
-  for (const runner of runners)
-    if (typeof runner === 'string') expect(runner).toBe(CI_RUNNER);
-    else expect(runner).toEqual(samePlatform);
-  // No job names an OS, an arch or a hosted image itself.
-  const named = /ubuntu|macos|windows|linux|x64|arm64|xcode/i;
-  expect(
-    runners
-      .flat()
-      .filter((label) => named.test(label.replace(/\$\{\{.*\}\}/, '')))
-  ).toEqual([]);
-  expect(CI_OPERATING_SYSTEMS).toEqual(['Linux', 'macOS', 'Windows']);
+  for (const runner of runners) expect(runner).toBe(CI_RUNNER);
 });
 
 // regression: ci-provider-native-ci-missing-local-action

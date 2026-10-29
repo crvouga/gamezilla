@@ -41,9 +41,6 @@ describe('Verify workflow cancellation', () => {
     const start = workflow.jobs['verify-start'];
     expect(start.outputs).toEqual({
       shards: '${{ steps.plan.outputs.shards }}',
-      // The shards and the end run where the plan was made.
-      os: '${{ runner.os }}',
-      arch: '${{ runner.arch }}',
     });
     expect(start.steps.find((step) => step.id === 'plan')?.run).toContain(
       'verify-plan.ts'

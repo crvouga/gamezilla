@@ -1,2 +1,2 @@
-# Runner selectors use GitHub's built-in self-hosted, OS and architecture labels.
+# actionlint's defaults cover GitHub-hosted runner labels such as ubuntu-latest.
 {}

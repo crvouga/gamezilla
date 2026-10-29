@@ -34,8 +34,8 @@ concurrency:
   queue: max
   cancel-in-progress: false
 
-# Every job runs on whichever self-hosted runner is free — Linux, macOS or
-# Windows — so every `run:` step is bash (Git Bash on Windows).
+# Every job runs on a GitHub-hosted `ubuntu-latest` runner (free for a public
+# repository), and every `run:` step is bash.
 defaults:
   run:
     shell: bash
@@ -55,7 +55,7 @@ jobs:
     name: Preview infrastructure changes
     if: ${{ inputs.rehearsal }}
     needs: deploy-verify
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
       SECRETS_ENV: dev
@@ -63,8 +63,6 @@ jobs:
       AWS_ROLE_ARN: ${{ vars.AWS_HEALTH_ROLE_ARN }}
     steps:
       - uses: actions/checkout@v6
-        with:
-          clean: false
       - uses: ./.github/actions/setup
         with:
           secrets-environment: dev
@@ -82,15 +80,13 @@ jobs:
     name: Release shared services
     if: ${{ !inputs.rehearsal }}
     needs: deploy-verify
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
       SECRETS_ENV: shared
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
     steps:
       - uses: actions/checkout@v6
-        with:
-          clean: false
       - uses: ./.github/actions/setup
         with:
           secrets-environment: shared
@@ -111,7 +107,7 @@ jobs:
   deploy-dev:
     name: Release development
     needs: deploy-fleet
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     # Above `DEPLOY_RUN_DEADLINE_SECONDS` (45 min) plus setup, so
     # turbo-ci-run's own deadline fires first and names what wedged.
     timeout-minutes: 55
@@ -139,7 +135,6 @@ jobs:
           exit 1
       - uses: actions/checkout@v6
         with:
-          clean: false
           fetch-depth: 0
       - id: setup
         uses: ./.github/actions/setup
@@ -169,7 +164,7 @@ jobs:
   deploy-prd:
     name: Release production
     needs: deploy-dev
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     timeout-minutes: 55
     environment: production
     env:
@@ -181,7 +176,7 @@ jobs:
   deploy-release:
     name: Publish release
     needs: deploy-prd
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
       contents: write
