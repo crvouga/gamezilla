@@ -28,6 +28,8 @@ export type NumberStepperProps = {
   max: number;
   step?: number | undefined;
   disabled?: boolean | undefined;
+  /** Id of a line that explains the value (its range, why it is not allowed). */
+  'aria-describedby'?: string | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
@@ -59,6 +61,14 @@ export function stepperPartTestId(
   part: 'decrease' | 'increase' | 'value'
 ): string | undefined {
   return testId === undefined ? undefined : `${testId}-${part}`;
+}
+
+/** Space-separated ids, or `undefined` when there are none (pure). */
+export function describedByIds(
+  ...ids: readonly (string | undefined)[]
+): string | undefined {
+  const present = ids.filter((id): id is string => id !== undefined);
+  return present.length === 0 ? undefined : present.join(' ');
 }
 
 /** 20px minus / plus drawn in the current color, like the checkbox glyph. */
@@ -180,7 +190,10 @@ export function NumberStepper(props: NumberStepperProps): JSX.Element {
           aria-valuenow={props.value}
           aria-valuemin={props.min}
           aria-valuemax={props.max}
-          aria-describedby={model.bound() === null ? undefined : reasonId}
+          aria-describedby={describedByIds(
+            model.bound() === null ? undefined : reasonId,
+            props['aria-describedby']
+          )}
           aria-disabled={model.off() ? true : undefined}
           onKeyDown={(event) =>
             onSpinKeyDown(event, model.change, model.jump, model.step())

@@ -15,7 +15,7 @@ import { GameLayout } from './game-screen';
 import { GameSearchState } from './game-search-state';
 import { GameActions, GameSection } from './game-section';
 import { GameStat } from './game-stat';
-import { GameStatus } from './game-status';
+import { GameTurnPill } from './game-turn-pill';
 import { ScreenIntro } from './screen-intro';
 
 const PACES = [
@@ -41,14 +41,26 @@ export default function GameArenaExample(): JSX.Element {
         }
       >
         <GameBoardStage
-          top={
+          others={
             <GamePlayerBar
               name="Atlas"
               tags={<Badge intent="neutral" label="Rival" />}
               trailing={<GameClock label="Atlas" value="5:00" />}
             />
           }
-          bottom={
+          turn={
+            <GameTurnPill
+              emphasis="yours"
+              title="Your turn."
+              trailing={
+                <GameCountdown
+                  label="Make your first move"
+                  deadline={deadline()}
+                />
+              }
+            />
+          }
+          own={
             <GamePlayerBar
               name="Nova"
               active
@@ -64,13 +76,6 @@ export default function GameArenaExample(): JSX.Element {
         >
           <DiscDropBoardExample />
         </GameBoardStage>
-        <GameStatus
-          tone="active"
-          title="Your turn."
-          trailing={
-            <GameCountdown label="Make your first move" deadline={deadline()} />
-          }
-        />
         <Show
           when={searching()}
           fallback={

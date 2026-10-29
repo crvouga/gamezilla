@@ -24,8 +24,11 @@ import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentati
 import type { BotDifficulty } from '@pkgs/turn-game-shared-ts/game-rules';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameClock } from '@pkgs/ui-root-client-ts/game-clock';
-import type { GameStatusTone } from '@pkgs/ui-root-client-ts/game-status';
-import { GameStatus } from '@pkgs/ui-root-client-ts/game-status';
+import type {
+  GameTurnPillEmphasis,
+  GameTurnPillTone,
+} from '@pkgs/ui-root-client-ts/game-turn-pill';
+import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
@@ -159,21 +162,24 @@ function TimeControlBadge(props: { game: CustomGame }): JSX.Element {
   );
 }
 
-function statusTone(
+/** The viewer's own turn (or their own choice still awaited) is theirs. */
+function statusEmphasis(
   game: CustomGame,
   mySide: CustomGameSide | null
-): GameStatusTone {
-  if (
-    game.status === 'active' &&
+): GameTurnPillEmphasis {
+  return game.status === 'active' &&
     mySide !== null &&
     (game.awaiting.length > 0
       ? game.awaiting.includes(mySide)
       : game.turn === mySide)
-  )
-    return 'active';
-  if (game.status === 'configuring' && customGameStartable(game))
-    return 'success';
-  return 'neutral';
+    ? 'yours'
+    : 'neutral';
+}
+
+function statusTone(game: CustomGame): GameTurnPillTone {
+  return game.status === 'configuring' && customGameStartable(game)
+    ? 'success'
+    : 'neutral';
 }
 
 /** Who holds each side, as a listener hears it before the game's state. */
@@ -236,9 +242,10 @@ export function CustomGameStatus(props: {
       }
     >
       {(game) => (
-        <GameStatus
+        <GameTurnPill
           live
-          tone={statusTone(game(), props.model.mySide())}
+          emphasis={statusEmphasis(game(), props.model.mySide())}
+          tone={statusTone(game())}
           dataSet={{ testid: 'custom-game-status' }}
           title={
             <>

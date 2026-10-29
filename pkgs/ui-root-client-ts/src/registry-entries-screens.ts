@@ -5,6 +5,7 @@ import CollectionScreenExample from './collection-screen.example';
 import ContentScreenExample from './content-screen.example';
 import EmbeddedScreenExample from './embedded-screen.example';
 import FormScreenExample from './form-screen.example';
+import GameFrameExample from './game-frame.example';
 import GameHistoryScreenExample from './game-history-screen.example';
 import GameReviewScreenExample from './game-review-screen.example';
 import GameScreenExample from './game-screen.example';
@@ -25,6 +26,7 @@ export const SCREEN_ENTRIES: readonly ComponentEntry[] = [
     SCREENS,
     MatchmakingScreenExample
   ),
+  entry('game-frame', 'Game frame', SCREENS, GameFrameExample),
   entry('game-setup-panel', 'Game setup', SCREENS, GameSetupPanelExample),
   entry('puzzle-screen', 'Puzzle play', SCREENS, PuzzleScreenExample),
   entry(

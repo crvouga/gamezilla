@@ -66,7 +66,7 @@ function BoardStage(
     props.view.flipped() ? otherSide(props.ownSide) : props.ownSide;
   return (
     <GameBoardStage
-      top={
+      others={
         <StackVertical gap="sm">
           <For
             each={multiplayerSides(props.game).filter(
@@ -85,7 +85,7 @@ function BoardStage(
           </For>
         </StackVertical>
       }
-      bottom={
+      own={
         <MultiplayerSeat
           game={props.game}
           side={nearSide()}

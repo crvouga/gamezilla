@@ -173,7 +173,7 @@ components are its parts):
 | 1 | `theme-tokens` "Theme Tokens" | a foundation page (`scheme-preview`, `theme-context`); its contract points at the token spec rather than a component |
 | 10 | `catalog` | `CatalogList`, `CatalogDetail` |
 | 50 | `element-handles` "Focus, scroll and measure" | the `focus`, `scroll` and `measure` handles over `Pressable`, `ScrollView`, `TextInput` |
-| 51 | `game-arena` "Game Arena" | the `game-*` parts (`GameActionButton`, `GameBoardStage`, `GameChoiceGrid`, `GameClock`, `GameCountdown`, `GameDisclosure`, `GamePlayerBar`, `GameScreen`, `GameSearchState`, `GameSection`, `GameStat`, `GameStatus`, `ScreenIntro`) |
+| 51 | `game-arena` "Game Arena" | the `game-*` parts (`GameActionButton`, `GameBoardStage`, `GameChoiceGrid`, `GameClock`, `GameCountdown`, `GameDisclosure`, `GamePlayerBar`, `GameScreen`, `GameSearchState`, `GameSection`, `GameStat`, `GameTurnPill`, `ScreenIntro`) |
 | 79 | `modal` | `ModalRoot`, `ModalContent`, `ModalHeader`, `ModalBody`, `ModalFooter`, `ModalButton`, `ConfirmationModal` |
 
 **Title is not the component name** (contract `name` is the component, the

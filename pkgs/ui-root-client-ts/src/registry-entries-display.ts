@@ -22,6 +22,9 @@ import ErrorStateExample from './error-state.example';
 import ExplorerWorkspaceExample from './explorer-workspace.example';
 import FilterBarExample from './filter-bar.example';
 import GameArenaExample from './game-arena.example';
+import GameFramePlayExample from './game-frame-play.example';
+import GameFrameResultExample from './game-frame-result.example';
+import GameFrameSetupExample from './game-frame-setup.example';
 import InspectionWorkspaceExample from './inspection-workspace.example';
 import ListExample from './list.example';
 import LoadingStateExample from './loading-state.example';
@@ -51,6 +54,19 @@ const OVERLAY = 'Overlay';
 
 export const DISPLAY_ENTRIES: readonly ComponentEntry[] = [
   entry('game-arena', 'Game Arena', 'Games', GameArenaExample),
+  entry(
+    'game-frame-setup',
+    'Game frame: Setup',
+    'Games',
+    GameFrameSetupExample
+  ),
+  entry('game-frame-play', 'Game frame: Play', 'Games', GameFramePlayExample),
+  entry(
+    'game-frame-result',
+    'Game frame: Game over',
+    'Games',
+    GameFrameResultExample
+  ),
   entry('cell-grid-board', 'CellGridBoard', 'Games', CellGridBoardExample),
   entry('card-table', 'CardTable', 'Games', CardTableExample),
   entry('path-grid-board', 'PathGridBoard', 'Games', PathGridBoardExample),

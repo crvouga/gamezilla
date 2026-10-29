@@ -1,6 +1,6 @@
 import { createSignal, type JSX, Show } from 'solid-js';
 import { ExampleRoot } from './example-root';
-import { GameStatus } from './game-status';
+import { GameTurnPill } from './game-turn-pill';
 import { ScreenExampleSetup } from './screen-example-game';
 
 export default function GameSetupPanelExample(): JSX.Element {
@@ -9,7 +9,7 @@ export default function GameSetupPanelExample(): JSX.Element {
     <ExampleRoot>
       <ScreenExampleSetup onStart={() => setReady(true)} />
       <Show when={ready()}>
-        <GameStatus live title="Ready to play" tone="success" />
+        <GameTurnPill live title="Ready to play" tone="success" />
       </Show>
     </ExampleRoot>
   );

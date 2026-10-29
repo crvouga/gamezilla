@@ -1,7 +1,7 @@
 import { createSignal, type JSX } from 'solid-js';
 import { Button } from './button';
 import { GameActions } from './game-section';
-import { GameStatus } from './game-status';
+import { GameTurnPill } from './game-turn-pill';
 import { PuzzleScreen } from './puzzle-screen';
 import { ScreenExampleFrame } from './screen-example-frame';
 import { ScreenExampleBoard } from './screen-example-game';
@@ -15,7 +15,7 @@ export default function PuzzleScreenExample(): JSX.Element {
       <PuzzleScreen
         screenId="example-puzzle"
         header={
-          <GameStatus
+          <GameTurnPill
             title={message()}
             detail="Puzzle 128, intermediate"
             live

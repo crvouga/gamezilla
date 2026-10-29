@@ -60,6 +60,16 @@
   flex-shrink: 0;
   display: flex;
 }
+.playerPress {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--ui-space-3);
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  text-align: start;
+}
 .playerIdentity {
   display: flex;
   flex-direction: column;
@@ -205,30 +215,25 @@
 .clock[data-low="true"] .clockValue {
   color: var(--ui-color-on-destructive);
 }
-.status {
+.turnPill {
   display: flex;
   align-items: center;
   gap: var(--ui-space-3);
   min-width: 0;
-  min-height: 48px;
+  max-width: 100%;
+  min-height: 44px;
   padding: var(--ui-space-2) var(--ui-space-4);
-  border-radius: var(--ui-radius-md);
-  background: var(--ui-color-surface-muted);
 }
-.statusMark {
+.turnMark {
   flex-shrink: 0;
   width: 8px;
   height: 8px;
   border-radius: var(--ui-radius-full);
-  background: var(--ui-color-outline);
 }
-.status[data-tone="active"] .statusMark {
-  background: var(--ui-color-tint-active);
-}
-.status[data-tone="success"] .statusMark {
+.turn[data-tone="success"] .turnMark {
   background: var(--ui-color-success);
 }
-.status[data-tone="warning"] .statusMark {
+.turn[data-tone="warning"] .turnMark {
   background: var(--ui-color-warning);
 }
 .countdown {

@@ -3,7 +3,7 @@ import { Button } from './button';
 import { GameScreen } from './game-screen';
 import { GameSection } from './game-section';
 import { GameSessionLayout } from './game-session-layout';
-import { GameStatus } from './game-status';
+import { GameTurnPill } from './game-turn-pill';
 import { ScreenExampleFrame } from './screen-example-frame';
 import { ScreenExampleSetup, ScreenExampleStage } from './screen-example-game';
 
@@ -32,10 +32,11 @@ export default function GameScreenExample(): JSX.Element {
           }
           status={
             <Show when={phase() !== 'setup'}>
-              <GameStatus
+              <GameTurnPill
                 live
                 title={phase() === 'playing' ? 'Your turn' : 'Round complete'}
-                tone={phase() === 'playing' ? 'active' : 'success'}
+                emphasis={phase() === 'playing' ? 'yours' : 'neutral'}
+                tone={phase() === 'playing' ? 'neutral' : 'success'}
               />
             </Show>
           }

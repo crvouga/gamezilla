@@ -288,10 +288,10 @@ export function CustomGameBoard(props: BoardProps): JSX.Element {
         ply: String(props.model.current()?.moves.length ?? 0),
         canmove: String(interactive()),
       }}
-      top={
+      others={
         seated() ? <FarSeats model={props.model} near={near()} /> : undefined
       }
-      bottom={
+      own={
         seated() ? (
           <StackVertical testId="custom-game-seat-near">
             <CustomGameSeat model={props.model} side={near()} />

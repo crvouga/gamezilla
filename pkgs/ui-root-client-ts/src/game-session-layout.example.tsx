@@ -4,7 +4,7 @@ import { GameScreen } from './game-screen';
 import { GameSearchState } from './game-search-state';
 import { GameSection } from './game-section';
 import { GameSessionLayout } from './game-session-layout';
-import { GameStatus } from './game-status';
+import { GameTurnPill } from './game-turn-pill';
 import { ScreenExampleFrame } from './screen-example-frame';
 import { ScreenExampleSetup, ScreenExampleStage } from './screen-example-game';
 
@@ -54,7 +54,7 @@ export default function MatchmakingScreenExample(): JSX.Element {
           }
           status={
             <Show when={phase() === 'playing' || phase() === 'completed'}>
-              <GameStatus
+              <GameTurnPill
                 live
                 title={phase() === 'playing' ? 'Your turn' : 'Round complete'}
               />

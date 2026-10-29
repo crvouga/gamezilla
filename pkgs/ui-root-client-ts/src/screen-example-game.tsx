@@ -39,8 +39,8 @@ export function ScreenExampleBoard(): JSX.Element {
 export function ScreenExampleStage(): JSX.Element {
   return (
     <GameBoardStage
-      top={<GamePlayerBar name="Robin" />}
-      bottom={<GamePlayerBar name="Alex" active />}
+      others={<GamePlayerBar name="Robin" />}
+      own={<GamePlayerBar name="Alex" active />}
     >
       <ScreenExampleBoard />
     </GameBoardStage>

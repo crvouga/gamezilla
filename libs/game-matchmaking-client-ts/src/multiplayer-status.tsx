@@ -14,8 +14,11 @@ import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-contex
 import { useGameSideLabel } from '@pkgs/turn-game-client-ts/use-game-side-label';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameCountdown } from '@pkgs/ui-root-client-ts/game-countdown';
-import type { GameStatusTone } from '@pkgs/ui-root-client-ts/game-status';
-import { GameStatus } from '@pkgs/ui-root-client-ts/game-status';
+import type {
+  GameTurnPillEmphasis,
+  GameTurnPillTone,
+} from '@pkgs/ui-root-client-ts/game-turn-pill';
+import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Match, Show, Switch } from 'solid-js';
@@ -299,13 +302,20 @@ const ownClockLow = (props: StatusProps): boolean =>
   props.viewer.participant &&
   props.lowOnTime.side === ownSide(props);
 
-function tone(props: StatusProps): GameStatusTone {
+function tone(props: StatusProps): GameTurnPillTone {
   const game = props.game;
   if (ownClockLow(props)) return 'warning';
-  if (game.outcome === 'ongoing')
-    return game.turn === props.viewer.myId ? 'active' : 'neutral';
+  if (game.outcome === 'ongoing') return 'neutral';
   const won = props.viewer.participant && game.outcome === ownSide(props);
   return won ? 'success' : 'neutral';
+}
+
+/** The viewer is to move. */
+function emphasis(props: StatusProps): GameTurnPillEmphasis {
+  return props.game.outcome === 'ongoing' &&
+    props.game.turn === props.viewer.myId
+    ? 'yours'
+    : 'neutral';
 }
 
 /** The first-move deadline, while one of the two has yet to move. */
@@ -343,8 +353,9 @@ const awaitingFirstMoves = (props: StatusProps): boolean =>
  */
 export function MultiplayerStatus(props: StatusProps): JSX.Element {
   return (
-    <GameStatus
+    <GameTurnPill
       live
+      emphasis={emphasis(props)}
       tone={tone(props)}
       dataSet={{ testid: 'multiplayer-announcement' }}
       title={

@@ -105,3 +105,20 @@ ones that need your eye.
 15. **Doc file names.** The repo requires `SCREAMING_SNAKE_CASE.md`, so the
     brief's `audit.md`, `design-system.md` and `REPORT.md` are written as
     `AUDIT.md`, `DESIGN_SYSTEM.md` and `REPORT.md`.
+
+## Phase 3: the shared game frame
+
+16. **The design system brings no words to the frame.** A player's out /
+    reconnecting state is `{ kind, label }`, not a bare `'out' |
+    'reconnecting'`, and the watcher count, standings, option messages and
+    watching footer take every word from the caller. Fixed tags such as
+    `LiveBadge` stay as they are; new game parts add no catalog messages.
+17. **`GameStatus` became `GameTurnPill`, and its `active` tone became
+    `emphasis="yours"`.** The viewer's turn is the soft blue fill, so a tone
+    for it would say the same thing twice. `tone` keeps `neutral`,
+    `success` and `warning` as a small mark beside the words.
+18. **Ordinals are English-only until another locale ships.** The app's one
+    locale is `en`. `formatOrdinal` takes the locale's
+    `Intl.PluralRules` ordinal category and knows the English words; any
+    other language falls back to the plain number, and a caller with
+    localized words passes `ordinal` itself.
