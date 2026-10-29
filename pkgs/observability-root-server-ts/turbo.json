@@ -1,0 +1,16 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@pkgs/clock-shared-ts#src",
+        "@pkgs/http-client-shared-ts#src",
+        "@pkgs/message-shared-ts#src",
+        "@pkgs/observability-root-shared-ts#src",
+        "@pkgs/observability-runtime-shared-ts#src",
+        "@pkgs/outbox-shared-ts#src"
+      ]
+    }
+  }
+}

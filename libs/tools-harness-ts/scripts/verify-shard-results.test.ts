@@ -19,6 +19,32 @@ function task(taskId: string, hit = false): VerifyTask {
   };
 }
 
+// regression: release-costs-erased-by-pr-profile
+test('a task still running when the shard stops records how long it ran', () => {
+  const tasks = [
+    task('@libs/games#test:spec:2'),
+    task('@libs/games#test:spec:3'),
+  ];
+  const completed = completeResults(tasks, [], 124, [
+    { taskId: '@libs/games#test:spec:2', seconds: 497.2 },
+  ]);
+  expect(completed).toEqual([
+    expect.objectContaining({
+      taskId: '@libs/games#test:spec:2',
+      passed: false,
+      interrupted: true,
+      milliseconds: 0,
+      ranForMs: 497_200,
+    }),
+    expect.objectContaining({
+      taskId: '@libs/games#test:spec:3',
+      interrupted: true,
+      milliseconds: 0,
+    }),
+  ]);
+  expect(completed[1]).not.toHaveProperty('ranForMs');
+});
+
 test('a killed visual consumer retains its failed verdict and exact planned hash', () => {
   // regression: verify-timeout-drops-task-evidence — Verification xlnk3h10bl killed the visual consumer at 600s without a Turbo summary.
   const tasks = [task('@apps/product-ts#verify:ui-quality')];

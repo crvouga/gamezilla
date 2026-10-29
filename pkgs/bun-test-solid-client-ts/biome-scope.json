@@ -1,0 +1,5 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-bare-rename-sync.grit": [
+    "!**/pkgs/bun-test-solid-client-ts/**"
+  ]
+}

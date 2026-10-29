@@ -1,0 +1,6 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/secret-provider-shared-ts/src/**/*.{ts,tsx}",
+    "**/pkgs/secret-provider-shared-ts/tests/http-secret-store.test.ts"
+  ]
+}

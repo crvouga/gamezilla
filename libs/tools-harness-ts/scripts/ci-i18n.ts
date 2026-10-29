@@ -11,14 +11,9 @@
  * `bun run i18n:compile` (root `postinstall`), so only the `.po` is compared.
  */
 import { spawnSync } from 'node:child_process';
-import {
-  copyFileSync,
-  mkdirSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const PO_REL = 'libs/app-root-shared-ts/locales/en/messages.po';
@@ -114,7 +109,7 @@ export function scratchConfigSource(repoRoot: string): string {
 
 function writeScratchConfig(): void {
   const scratch = join(REPO_ROOT, SCRATCH_REL);
-  rmSync(scratch, { recursive: true, force: true });
+  removeTree(scratch);
   mkdirSync(join(scratch, 'en'), { recursive: true });
   copyFileSync(join(REPO_ROOT, PO_REL), join(scratch, 'en/messages.po'));
   writeFileSync(

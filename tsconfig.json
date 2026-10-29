@@ -1,5 +1,5 @@
 {
-  "extends": "./tsconfig.base.json",
+  "extends": "./tsconfig.paths.json",
   "include": [
     "pkgs/ts-reset-shared-ts/src/index.ts",
     "apps/server-ts/src/**/*.ts",
@@ -494,6 +494,8 @@
     "pkgs/ndjson-shared-ts/src/**/*.ts",
     "pkgs/ndjson-harness-ts/src/**/*.ts",
     "pkgs/os-server-ts/src/**/*.ts",
+    "pkgs/fs-server-ts/src/**/*.ts",
+    "pkgs/dev-owner-server-ts/src/**/*.ts",
     "pkgs/os-shared-ts/src/**/*.ts",
     "pkgs/ui-testing-root-shared-ts/src/**/*.ts",
     "pkgs/ui-testing-root-shared-ts/src/**/*.tsx",

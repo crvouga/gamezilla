@@ -62,8 +62,8 @@ import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
 import { writeSpecInputs } from '@libs/harness-ts/spec-inputs';
 import { TURBO_API, TURBO_TEAM } from '@libs/secrets-shared-ts/turbo-token';
+import { killOrphanEsbuildServices } from '@pkgs/dev-owner-server-ts/kill-orphan-esbuild';
 import { capture } from '@pkgs/os-server-ts/command';
-import { killOrphanEsbuildServices } from '@pkgs/os-server-ts/kill-orphan-esbuild';
 import { captureAudit } from './audit-snapshot';
 import { killProcessTree } from './kill-process-tree';
 import {
@@ -105,7 +105,6 @@ import { verifyCacheConcurrency } from './verify-cache-concurrency';
 import {
   activeProfile,
   applyProfileEnv,
-  profileGateTasks,
   suiteDeadlineSeconds,
   verifyAggregatorTasks,
 } from './verify-profile';
@@ -115,6 +114,16 @@ import type { ReportTaskIdentity } from './verify-report-stream';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const DEPLOY_AGGREGATOR = '//#deploy';
+/**
+ * The release journeys run as this many tasks, each a share of the features
+ * (`apps/product-ts/scripts/test-release-journeys.ts --part=<k>/<n>`): one
+ * process outran its 600 s task budget and killed the shard.
+ */
+export const RELEASE_JOURNEY_PARTS = 3;
+export const RELEASE_JOURNEY_TASKS = Array.from(
+  { length: RELEASE_JOURNEY_PARTS },
+  (_, part) => `@apps/product-ts#test:release-journeys:${String(part)}`
+);
 export const MAIN_VERIFY_TASKS = [
   '@libs/tools-harness-ts#verify:root-lint',
   '@libs/tools-harness-ts#ci:syncpack',
@@ -122,6 +131,7 @@ export const MAIN_VERIFY_TASKS = [
   '@libs/tools-harness-ts#ci:i18n',
   '@libs/tools-harness-ts#ci:agent-commands',
   '@libs/tools-harness-ts#ci:workspace-lifecycle',
+  '@libs/tools-harness-ts#ci:cache-hygiene',
   '@libs/tools-harness-ts#ci:package-names',
   '@libs/tools-harness-ts#ci:goals',
   '@libs/tools-harness-ts#ci:specs',
@@ -148,7 +158,7 @@ export const MAIN_VERIFY_TASKS = [
   'test:unit:1',
   'test:unit:2',
   '@apps/product-ts#verify:offline-shell',
-  '@apps/product-ts#test:release-journeys',
+  ...RELEASE_JOURNEY_TASKS,
   '@apps/auth-relay-ts#verify:worker-bundle',
   '@apps/product-ts#verify:worker-bundle',
   '@apps/product-ts#verify:rendered-worker',
@@ -171,8 +181,8 @@ const PLATFORM_KEY_PATH = join(REPO_ROOT, 'turbo-platform-key.json');
 
 /**
  * The most traces of one Quint model a run replays through the product
- * (`@pkgs/quint-shared-ts/wall`). The `pr` profile leaves it unset, which is
- * the smallest bounded selection; the `nightly` profile sets `all`
+ * (`@pkgs/quint-shared-ts/wall`). The `release` profile leaves it unset, which
+ * is the smallest bounded selection; the `nightly` profile sets `all`
  * (`verify-profile.ts`).
  */
 export const REPLAY_BUDGET_ENV = 'QUINT_REPLAY_TRACES';
@@ -386,15 +396,13 @@ const HOST_AGGREGATOR = /^verify:([a-z]+)$/;
 const CI_AGGREGATOR = 'verify:ci';
 
 /**
- * The gate as CI runs it: the active profile's gate tasks
- * (`profileGateTasks`) over the packages that run on Linux, macOS and
- * Windows alike (`package-hosts.ts` `ciFilters`).
+ * The gate as CI runs it: every gate task over the packages that run on
+ * Linux, macOS and Windows alike (`package-hosts.ts` `ciFilters`).
  */
 export function ciVerifyArgs(
-  manifests = workspaceManifests(REPO_ROOT),
-  env: NodeJS.ProcessEnv = process.env
+  manifests = workspaceManifests(REPO_ROOT)
 ): readonly string[] {
-  return [...profileGateTasks(MAIN_VERIFY_TASKS, env), ...ciFilters(manifests)];
+  return [...MAIN_VERIFY_TASKS, ...ciFilters(manifests)];
 }
 
 /**
@@ -404,11 +412,10 @@ export function ciVerifyArgs(
  */
 export function hostVerifyArgs(
   host: Parameters<typeof hostFilters>[1],
-  manifests = workspaceManifests(REPO_ROOT),
-  env: NodeJS.ProcessEnv = process.env
+  manifests = workspaceManifests(REPO_ROOT)
 ): readonly string[] {
   return [
-    ...profileGateTasks(MAIN_VERIFY_TASKS, env).filter(
+    ...MAIN_VERIFY_TASKS.filter(
       (task) => isDefaultHost(host) || !task.includes('#')
     ),
     ...hostFilters(manifests, host),

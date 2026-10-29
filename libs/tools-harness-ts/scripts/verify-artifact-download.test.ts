@@ -1,7 +1,8 @@
 import { expect, test } from 'bun:test';
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readdirSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
@@ -43,11 +44,11 @@ test('shell transfers need only the run and the bucket, and take only the named 
             'e16'
           );
         },
-        release: async (dir) => rmSync(dir, { recursive: true, force: true }),
+        release: async (dir) => removeTree(dir, { whenLocked: 'leave' }),
       },
     });
   } finally {
-    rmSync(directory, { recursive: true, force: true });
+    removeTree(directory, { whenLocked: 'leave' });
   }
   expect(seen).toEqual([['evidence-16.tar.gz']]);
 });
@@ -118,7 +119,7 @@ async function boundedTransfer(fails: number[]): Promise<void> {
   } catch (error) {
     verdict = error;
   } finally {
-    rmSync(directory, { recursive: true, force: true });
+    removeTree(directory, { whenLocked: 'leave' });
   }
   expect([...attempted].sort((a, b) => a - b)).toEqual(
     fails.map((_, id) => id)

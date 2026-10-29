@@ -1,0 +1,10 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/billing-root-shared-ts/src/**/*.{ts,tsx}",
+    "**/pkgs/billing-root-shared-ts/tests/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-billing-vendor.grit": [
+    "**/pkgs/billing-root-shared-ts/src/**/*.{ts,tsx}",
+    "**/pkgs/billing-root-shared-ts/tests/**/*.{ts,tsx}"
+  ]
+}

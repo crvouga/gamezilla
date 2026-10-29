@@ -1,0 +1,7 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/pubsub-root-shared-ts/src/**/*.{ts,tsx}",
+    "**/pkgs/pubsub-root-shared-ts/tests/in-memory.test.ts",
+    "**/pkgs/pubsub-root-shared-ts/tests/interface.test.ts"
+  ]
+}

@@ -3,6 +3,18 @@
   "tasks": {
     "build": {
       "dependsOn": ["$TURBO_EXTENDS$", "//#task:i18n:compile"]
+    },
+    "src": {
+      "dependsOn": [
+        "@libs/app-root-client-ts#src",
+        "@libs/runtime-client-ts#src",
+        "@libs/runtime-shared-ts#src",
+        "@libs/spaces-client-ts#src",
+        "@pkgs/bun-test-solid-client-ts#src",
+        "@pkgs/feedback-client-ts#src",
+        "@pkgs/tailwind-shared-ts#src",
+        "@pkgs/ui-root-client-ts#src"
+      ]
     }
   }
 }

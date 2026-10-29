@@ -1,0 +1,25 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@libs/billing-shared-ts#src",
+        "@libs/harness-ts#src",
+        "@libs/permissions-shared-ts#src",
+        "@libs/spaces-client-ts#src",
+        "@libs/spaces-server-ts#src",
+        "@libs/spaces-shared-ts#src",
+        "@libs/sub-shared-ts#src",
+        "@libs/test-ids-shared-ts#src",
+        "@pkgs/clock-shared-ts#src",
+        "@pkgs/message-shared-ts#src",
+        "@pkgs/outbox-shared-ts#src",
+        "@pkgs/room-adapter-memory-shared-ts#src",
+        "@pkgs/room-root-server-ts#src",
+        "@pkgs/room-root-shared-ts#src",
+        "@pkgs/sql-root-shared-ts#src"
+      ]
+    }
+  }
+}

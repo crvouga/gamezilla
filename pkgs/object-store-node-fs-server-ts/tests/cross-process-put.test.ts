@@ -6,16 +6,17 @@
  * concurrently must all succeed and leave one whole value.
  */
 import { afterAll, describe, expect, test } from 'bun:test';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 const WRITERS = 6;
 const PUTS = 40;
 const dir = mkdtempSync(join(tmpdir(), 'object-store-xproc-'));
 
 afterAll(() => {
-  rmSync(dir, { recursive: true, force: true });
+  removeTree(dir, { whenLocked: 'leave' });
 });
 
 const WRITER = join(import.meta.dir, 'put-writer.ts');

@@ -1,0 +1,14 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-tier-vocabulary.grit": [
+    "!**/libs/billing-client-ts/src/**",
+    "!**/libs/billing-client-ts/tests/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-tier-vocabulary-string.grit": [
+    "!**/libs/billing-client-ts/src/**",
+    "!**/libs/billing-client-ts/tests/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-access-state-vocabulary.grit": [
+    "!**/libs/billing-client-ts/src/**",
+    "!**/libs/billing-client-ts/tests/**"
+  ]
+}

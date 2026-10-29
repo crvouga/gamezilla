@@ -1,0 +1,4 @@
+{
+  "summary": "Release run 40628012072's release journeys failed on Windows with only \"timeout waiting for '[data-testid=\\\"space-end\\\"]' to be actionable\" and \"Choosing an empty cell did not move the selected endpoint\", and kept no evidence, so the cause could not be read. A tap that never becomes actionable now reports whether the element kept moving and what its centre hits, and the Numberlink check reports the labels it read.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-harness-ts/tests/press-diagnosis.test.ts"
+}

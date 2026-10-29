@@ -45,7 +45,8 @@ permissions:
 
 on:
   schedule:
-    - cron: '23 8 * * *'
+    # GitHub cron is UTC: 10:23 is 03:23 MST (04:23 MDT), while the team sleeps.
+    - cron: '23 10 * * *'
   workflow_dispatch:
     inputs:
       group:
@@ -92,11 +93,16 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v6
+      # Steps every suite job shares (the checkout, the toolchain with dev
+      # secrets, and the pinned renderer further down) are written once and
+      # aliased, the way Release shares its deploy steps.
+      - &checkout
+        uses: actions/checkout@v6
         with:
           clean: false
           fetch-depth: 0
-      - uses: ./.github/actions/setup
+      - &setup
+        uses: ./.github/actions/setup
         with:
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
@@ -121,16 +127,10 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v6
-        with:
-          clean: false
-          fetch-depth: 0
-      - uses: ./.github/actions/setup
-        with:
-          secrets-environment: dev
-          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
-      - uses: ./.github/actions/visual-renderer
+      - *checkout
+      - *setup
+      - &renderer
+        uses: ./.github/actions/visual-renderer
         timeout-minutes: 2
       - name: verify-nightly:browser
         timeout-minutes: 320
@@ -154,17 +154,9 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v6
-        with:
-          clean: false
-          fetch-depth: 0
-      - uses: ./.github/actions/setup
-        with:
-          secrets-environment: dev
-          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
-      - uses: ./.github/actions/visual-renderer
-        timeout-minutes: 2
+      - *checkout
+      - *setup
+      - *renderer
       # The pinned model is larger than the remote cache's artifact limit.
       - name: Prepare the visual model
         timeout-minutes: 20
@@ -188,15 +180,8 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v6
-        with:
-          clean: false
-          fetch-depth: 0
-      - uses: ./.github/actions/setup
-        with:
-          secrets-environment: dev
-          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
+      - *checkout
+      - *setup
       - name: verify-nightly:coverage
         timeout-minutes: 110
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:coverage
@@ -215,15 +200,8 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v6
-        with:
-          clean: false
-          fetch-depth: 0
-      - uses: ./.github/actions/setup
-        with:
-          secrets-environment: dev
-          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
+      - *checkout
+      - *setup
       # The log is the result: each benchmark prints its own measurements,
       # and nothing else in this step prints, so the log is kept as a file.
       - name: verify-nightly:performance

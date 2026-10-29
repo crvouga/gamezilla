@@ -1,0 +1,7 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/clock-shared-ts/src/harness-clock.ts",
+    "**/pkgs/clock-shared-ts/src/types.ts",
+    "**/pkgs/clock-shared-ts/src/wall.ts"
+  ]
+}

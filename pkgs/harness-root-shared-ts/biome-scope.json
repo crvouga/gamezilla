@@ -1,0 +1,12 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/harness-root-shared-ts/src/**/*.{ts,tsx}",
+    "**/pkgs/harness-root-shared-ts/tests/scheduler.contract.test.ts",
+    "**/pkgs/harness-root-shared-ts/tests/network.contract.test.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-harness-core-no-fast-check.grit": [
+    "**/pkgs/harness-root-shared-ts/src/**/*.{ts,tsx}",
+    "**/pkgs/harness-root-shared-ts/tests/**/*.{ts,tsx}",
+    "!**/pkgs/harness-root-shared-ts/src/fast-check.ts"
+  ]
+}

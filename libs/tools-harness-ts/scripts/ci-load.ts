@@ -42,6 +42,7 @@ const EXACT_TASKS = new Set([
   'ci:audit',
   'ci:i18n',
   'ci:agent-commands',
+  'ci:cache-hygiene',
   'ci:workspace-lifecycle',
   'ci:goals',
   'ci:specs',

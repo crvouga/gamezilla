@@ -10,6 +10,31 @@
       ],
       "outputs": [],
       "outputLogs": "errors-only"
+    },
+    "src": {
+      "dependsOn": [
+        "@libs/app-root-client-ts#src",
+        "@libs/auth-shared-ts#src",
+        "@libs/game-catalog-shared-ts#src",
+        "@libs/runtime-client-ts#src",
+        "@libs/runtime-shared-ts#src",
+        "@libs/spaces-client-ts#src",
+        "@libs/synthetic-population-server-ts#src",
+        "@libs/synthetic-population-shared-ts#src",
+        "@pkgs/bun-test-solid-client-ts#src",
+        "@pkgs/clock-shared-ts#src",
+        "@pkgs/http-client-shared-ts#src",
+        "@pkgs/logger-shared-ts#src",
+        "@pkgs/observability-root-server-ts#src",
+        "@pkgs/observability-root-shared-ts#src",
+        "@pkgs/observability-runtime-shared-ts#src",
+        "@pkgs/os-server-ts#src",
+        "@pkgs/sql-client-sqlite-root-server-ts#src",
+        "@pkgs/turn-game-shared-ts#src",
+        "@pkgs/ui-testing-root-shared-ts#src",
+        "@pkgs/ui-testing-solid-dom-client-ts#src",
+        "@pkgs/uuid-shared-ts#src"
+      ]
     }
   }
 }

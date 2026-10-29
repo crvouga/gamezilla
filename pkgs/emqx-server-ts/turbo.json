@@ -1,0 +1,16 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@pkgs/clock-shared-ts#src",
+        "@pkgs/emqx-shared-ts#src",
+        "@pkgs/fs-server-ts#src",
+        "@pkgs/http-client-shared-ts#src",
+        "@pkgs/os-server-ts#src",
+        "@pkgs/os-shared-ts#src"
+      ]
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-boundary-imports.grit": [
+    "!**/apps/synthetic-population-worker-ts/src/wall-telemetry.ts",
+    "!**/apps/synthetic-population-worker-ts/src/wall-metrics.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-no-node-runtime.grit": [
+    "!**/apps/synthetic-population-worker-ts/src/wall-telemetry.ts",
+    "!**/apps/synthetic-population-worker-ts/src/wall-metrics.ts"
+  ]
+}

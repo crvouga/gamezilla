@@ -7,10 +7,11 @@
  */
 
 import { afterAll, describe, expect, test } from 'bun:test';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readEvidence } from '@pkgs/conformance-server-ts/evidence-store';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { runQuintModel } from '@pkgs/quint-server-ts/bun-test';
 import { simulate } from '@pkgs/quint-server-ts/simulate';
 import {
@@ -126,7 +127,7 @@ defineTraceVariants(({ model, parameters }) => {
 bindQuintModel(binding);
 
 const OUT = mkdtempSync(join(tmpdir(), 'quint-variants-'));
-afterAll(() => rmSync(OUT, { recursive: true, force: true }));
+afterAll(() => removeTree(OUT, { whenLocked: 'leave' }));
 
 // An exploring run: every drawn trace is replayed, for some variant.
 runQuintModel({

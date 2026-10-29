@@ -9,7 +9,11 @@ import {
   specPackages,
   specPartProblems,
 } from './spec-packages';
-import { flattenVerifyAggregators, MAIN_VERIFY_TASKS } from './turbo-ci-run';
+import {
+  flattenVerifyAggregators,
+  MAIN_VERIFY_TASKS,
+  RELEASE_JOURNEY_TASKS,
+} from './turbo-ci-run';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 
@@ -145,6 +149,7 @@ const VERIFY_LEAVES = [
   '@libs/tools-harness-ts#ci:i18n',
   '@libs/tools-harness-ts#ci:agent-commands',
   '@libs/tools-harness-ts#ci:workspace-lifecycle',
+  '@libs/tools-harness-ts#ci:cache-hygiene',
   '@libs/tools-harness-ts#ci:package-names',
   '@libs/tools-harness-ts#ci:goals',
   '@libs/tools-harness-ts#ci:specs',
@@ -163,7 +168,7 @@ const VERIFY_LEAVES = [
   'test:unit:1',
   'test:unit:2',
   '@apps/product-ts#verify:offline-shell',
-  '@apps/product-ts#test:release-journeys',
+  ...RELEASE_JOURNEY_TASKS,
   '@apps/auth-relay-ts#verify:worker-bundle',
   '@apps/product-ts#verify:worker-bundle',
   '@apps/product-ts#verify:rendered-worker',
@@ -406,8 +411,8 @@ describe('turbo verify/deploy graph invariants', () => {
   test('local runners go through turbo-ci-run', () => {
     const scripts = loadRootScripts();
     // One entry program; the profile is the only thing that differs.
-    for (const profile of ['pr', 'nightly'])
-      expect(scripts[profile === 'pr' ? 'verify' : 'verify-nightly']).toBe(
+    for (const profile of ['release', 'nightly'])
+      expect(scripts[profile === 'release' ? 'verify' : 'verify-nightly']).toBe(
         `VERIFY_PROFILE=${profile} bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/verify-local.ts`
       );
     expect(turboCiRunTaskArgs(scripts['deploy:local'] ?? '')).toEqual([

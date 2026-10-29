@@ -1,0 +1,5 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-auth-vendor.grit": [
+    "!**/libs/runtime-server-ts/src/app-auth-provider.ts"
+  ]
+}

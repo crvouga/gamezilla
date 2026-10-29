@@ -13,6 +13,7 @@
   },
   "dependencies": {},
   "devDependencies": {
+    "@pkgs/fs-server-ts": "workspace:*",
     "@tailwindcss/cli": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

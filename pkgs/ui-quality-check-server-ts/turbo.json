@@ -1,0 +1,17 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@pkgs/clock-shared-ts#src",
+        "@pkgs/http-client-shared-ts#src",
+        "@pkgs/object-store-node-fs-server-ts#src",
+        "@pkgs/object-store-root-shared-ts#src",
+        "@pkgs/os-server-ts#src",
+        "@pkgs/os-shared-ts#src",
+        "@pkgs/ui-quality-check-shared-ts#src"
+      ]
+    }
+  }
+}

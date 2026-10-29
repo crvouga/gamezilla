@@ -1,0 +1,26 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@libs/app-config-client-ts#src",
+        "@libs/auth-client-ts#src",
+        "@libs/auth-shared-ts#src",
+        "@libs/billing-shared-ts#src",
+        "@libs/permissions-client-ts#src",
+        "@libs/permissions-shared-ts#src",
+        "@libs/spaces-client-ts#src",
+        "@libs/sub-client-ts#src",
+        "@libs/test-ids-shared-ts#src",
+        "@pkgs/billing-root-shared-ts#src",
+        "@pkgs/clock-client-ts#src",
+        "@pkgs/http-client-client-ts#src",
+        "@pkgs/permissions-shared-ts#src",
+        "@pkgs/sql-root-shared-ts#src",
+        "@pkgs/sync-engine-client-ts#src",
+        "@pkgs/ui-root-client-ts#src"
+      ]
+    }
+  }
+}

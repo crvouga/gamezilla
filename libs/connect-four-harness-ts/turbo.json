@@ -13,6 +13,14 @@
     },
     "test:spec:2": {
       "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "src": {
+      "dependsOn": [
+        "@libs/connect-four-client-ts#src",
+        "@libs/connect-four-shared-ts#src",
+        "@libs/game-session-harness-ts#src",
+        "@libs/harness-ts#src"
+      ]
     }
   }
 }

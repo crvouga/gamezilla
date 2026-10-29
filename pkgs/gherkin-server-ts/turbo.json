@@ -1,0 +1,16 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@pkgs/clock-shared-ts#src",
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src",
+        "@pkgs/gherkin-shared-ts#src",
+        "@pkgs/harness-root-shared-ts#src",
+        "@pkgs/object-store-node-fs-server-ts#src"
+      ]
+    }
+  }
+}

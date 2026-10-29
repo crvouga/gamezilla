@@ -1,0 +1,5 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/async-root-shared-ts/src/async-runner.ts"
+  ]
+}

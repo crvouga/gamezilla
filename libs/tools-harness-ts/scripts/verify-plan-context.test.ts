@@ -9,6 +9,7 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { writeHostKey } from './package-hosts';
 import { applyPlanContext } from './verify-shard-run';
 
@@ -89,7 +90,7 @@ test('a non-browser shard restores the host fingerprint used by root lint', () =
     );
     expect(env['VERIFY_SECRETS_RANGE']).toBe('base..head');
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });
 
@@ -123,6 +124,6 @@ test('a shard without a browser restores both planned platform fingerprints', ()
       platformKey
     );
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });

@@ -4,6 +4,21 @@
   "tasks": {
     "test:spec:0": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/feedback/**"]
+    },
+    "src": {
+      "dependsOn": [
+        "@pkgs/clock-client-ts#src",
+        "@pkgs/clock-shared-ts#src",
+        "@pkgs/feedback-shared-ts#src",
+        "@pkgs/http-client-shared-ts#src",
+        "@pkgs/i18n-shared-ts#src",
+        "@pkgs/object-store-opfs-shared-ts#src",
+        "@pkgs/object-store-root-shared-ts#src",
+        "@pkgs/tailwind-shared-ts#src",
+        "@pkgs/ui-root-client-ts#src",
+        "@pkgs/ui-root-shared-ts#src",
+        "@pkgs/uuid-shared-ts#src"
+      ]
     }
   }
 }

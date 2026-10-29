@@ -1,8 +1,9 @@
 // @io-wall-ok — retain compressed diagnostics, release a completed run's private files.
 import { execFile } from 'node:child_process';
-import { renameSync, rmSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 import { promisify } from 'node:util';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
+import { renameReplacing } from '@pkgs/fs-server-ts/rename-replacing';
 
 /** Keep inputs, logs and reports, but never archive disposable dependency/cache copies. */
 export async function archiveVerifySnapshot(root: string): Promise<string> {
@@ -27,8 +28,8 @@ export async function archiveVerifySnapshot(root: string): Promise<string> {
     ],
     { cwd: container }
   );
-  renameSync(pending, archive);
-  rmSync(root, { recursive: true, force: true });
-  rmSync(join(container, 'tmp'), { recursive: true, force: true });
+  renameReplacing(pending, archive);
+  removeTree(root);
+  removeTree(join(container, 'tmp'));
   return archive;
 }

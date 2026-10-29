@@ -360,7 +360,7 @@ test('a cold corpus stays bounded at both forty and sixty-four runners', () => {
 
 test('renderer setup only serves uncached native browser tasks', () => {
   // regression: deploy-journeys-missing-pr-browser-gate
-  expect(needsBrowser([task('@apps/product-ts#test:release-journeys')])).toBe(
+  expect(needsBrowser([task('@apps/product-ts#test:release-journeys:1')])).toBe(
     true
   );
   expect(needsBrowser([task('@apps/product-ts#test:contract:render')])).toBe(

@@ -12,7 +12,7 @@
  *
  * Appends the Markdown to `GITHUB_STEP_SUMMARY`, prints the table and exits 1
  * on any failure. The nightly profile also writes
- * `.cache/verify-ci/verdict.{json,md,junit.xml}`; the `pr` profile keeps no
+ * `.cache/verify-ci/verdict.{json,md,junit.xml}`; the `release` profile keeps no
  * report file (`verify-profile.ts`). It also writes the durations this run measured
  * (`measured-costs.json`), which the next plan packs its shards by.
  */
@@ -307,7 +307,7 @@ function main(env: NodeJS.ProcessEnv): number {
   const why = shardFailureLines(shards);
   const markdown = `${why.length ? `## Why shards failed\n\n${why.map((line) => `- ${line}`).join('\n')}\n\n` : ''}${formatMarkdown(verdict, runUrl, reports)}`;
   mkdirSync(DIRECTORY, { recursive: true });
-  // Report files are the nightly profile's; the `pr` profile's verdict is
+  // Report files are the nightly profile's; the `release` profile's verdict is
   // the job log and the run summary.
   if (reports) {
     writeFileSync(join(DIRECTORY, 'verdict.json'), JSON.stringify(verdict));

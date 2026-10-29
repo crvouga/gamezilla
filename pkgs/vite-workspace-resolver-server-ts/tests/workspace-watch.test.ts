@@ -4,12 +4,12 @@ import {
   mkdirSync,
   mkdtempSync,
   realpathSync,
-  rmSync,
   symlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { workspaceWatchOptions } from '@pkgs/vite-workspace-resolver-server-ts/workspace-watch';
 import { createServer } from 'vite';
 
@@ -66,6 +66,6 @@ test('watches source without linked copies or runtime output', async () => {
     }
   } finally {
     await server.close();
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });

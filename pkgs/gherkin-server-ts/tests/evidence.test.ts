@@ -5,12 +5,13 @@
  */
 
 import { afterAll, expect, test } from 'bun:test';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { RunReport } from '@crvouga/atlas/reports/report-types';
 import { readEvidence } from '@pkgs/conformance-server-ts/evidence-store';
 import { sha256 } from '@pkgs/conformance-shared-ts/evidence';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { runFeature } from '@pkgs/gherkin-server-ts/bun-test';
 import { recordScenario } from '@pkgs/gherkin-server-ts/evidence';
 import {
@@ -22,7 +23,7 @@ import { readUtf8 } from '@pkgs/object-store-root-shared-ts/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
 
 const reportDir = mkdtempSync(join(tmpdir(), 'gherkin-evidence-'));
-afterAll(() => rmSync(reportDir, { recursive: true, force: true }));
+afterAll(() => removeTree(reportDir, { whenLocked: 'leave' }));
 
 const { Then } = stepsFor<object>();
 const store = new ObjectStoreImplInMemory();

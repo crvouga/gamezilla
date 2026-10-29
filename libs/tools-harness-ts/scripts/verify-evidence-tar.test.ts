@@ -1,13 +1,8 @@
 import { expect, test } from 'bun:test';
-import {
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { archiveEntries, extractEvidence } from './verify-evidence-archive';
 import { packShardEvidence } from './verify-evidence-pack';
 
@@ -51,7 +46,7 @@ test('shard evidence packs, lists and extracts its exact bytes without a system 
       extractEvidence(evidence, ['not/in/the/archive.json'], restored)
     ).toThrow('Cannot extract selected shard evidence');
   } finally {
-    rmSync(root, { recursive: true, force: true });
-    rmSync(restored, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
+    removeTree(restored, { whenLocked: 'leave' });
   }
 });

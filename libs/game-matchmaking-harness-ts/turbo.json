@@ -1,0 +1,28 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@libs/app-root-server-ts#src",
+        "@libs/auth-shared-ts#src",
+        "@libs/game-matchmaking-shared-ts#src",
+        "@libs/harness-ts#src",
+        "@libs/notifications-harness-ts#src",
+        "@libs/notifications-shared-ts#src",
+        "@libs/permissions-shared-ts#src",
+        "@libs/spaces-harness-ts#src",
+        "@libs/test-ids-shared-ts#src",
+        "@pkgs/device-shared-ts#src",
+        "@pkgs/gherkin-shared-ts#src",
+        "@pkgs/matchmaking-sql-shared-ts#src",
+        "@pkgs/sounds-shared-ts#src",
+        "@pkgs/sql-client-root-shared-ts#src",
+        "@pkgs/sql-root-shared-ts#src",
+        "@pkgs/sync-engine-client-ts#src",
+        "@pkgs/sync-engine-server-ts#src",
+        "@pkgs/sync-engine-shared-ts#src"
+      ]
+    }
+  }
+}

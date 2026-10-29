@@ -1,0 +1,22 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-boundary-imports.grit": [
+    "!**/pkgs/observability-root-server-ts/src/**",
+    "!**/pkgs/observability-root-server-ts/tests/**",
+    "!**/pkgs/observability-root-server-ts/scripts/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-no-browser-runtime.grit": [
+    "!**/pkgs/observability-root-server-ts/src/**",
+    "!**/pkgs/observability-root-server-ts/tests/**",
+    "!**/pkgs/observability-root-server-ts/scripts/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-no-node-runtime.grit": [
+    "!**/pkgs/observability-root-server-ts/src/**",
+    "!**/pkgs/observability-root-server-ts/tests/**",
+    "!**/pkgs/observability-root-server-ts/scripts/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-no-worker-runtime.grit": [
+    "!**/pkgs/observability-root-server-ts/src/**",
+    "!**/pkgs/observability-root-server-ts/tests/**",
+    "!**/pkgs/observability-root-server-ts/scripts/**"
+  ]
+}

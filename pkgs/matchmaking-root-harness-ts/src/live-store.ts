@@ -1,7 +1,8 @@
 // @io-wall-ok — harness sidecar adapter owns an isolated temporary Postgres cluster.
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { freePostgresPort } from '@pkgs/postgres-mockingbird-server-ts/free-port';
 import { startMockingbirdPostgres } from '@pkgs/postgres-mockingbird-server-ts/start';
 import { createPgPool } from '@pkgs/sql-client-postgres-server-ts/connect';
@@ -29,7 +30,7 @@ export async function openLiveStore(): Promise<HarnessStore> {
       try {
         await pg.stop();
       } finally {
-        rmSync(dataDir, { recursive: true, force: true });
+        removeTree(dataDir, { whenLocked: 'leave' });
       }
     }
   };

@@ -1,0 +1,32 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-tier-vocabulary.grit": [
+    "!**/libs/billing-harness-ts/src/**",
+    "!**/libs/billing-harness-ts/tests/**",
+    "!**/libs/billing-harness-ts/src/account-privacy.ts",
+    "!**/libs/billing-harness-ts/src/billing-actions.ts",
+    "!**/libs/billing-harness-ts/src/billing-harness-slice.ts",
+    "!**/libs/billing-harness-ts/src/billing-lifecycle-properties.ts",
+    "!**/libs/billing-harness-ts/src/billing-lifecycle-stimuli.ts",
+    "!**/libs/billing-harness-ts/src/billing-payment-facts.ts",
+    "!**/libs/billing-harness-ts/src/billing-plans-reads.ts",
+    "!**/libs/billing-harness-ts/src/billing-provider-driver.ts",
+    "!**/libs/billing-harness-ts/src/billing-reads.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-tier-vocabulary-string.grit": [
+    "!**/libs/billing-harness-ts/src/**",
+    "!**/libs/billing-harness-ts/tests/**",
+    "!**/libs/billing-harness-ts/src/account-privacy.ts",
+    "!**/libs/billing-harness-ts/src/billing-actions.ts",
+    "!**/libs/billing-harness-ts/src/billing-harness-slice.ts",
+    "!**/libs/billing-harness-ts/src/billing-lifecycle-properties.ts",
+    "!**/libs/billing-harness-ts/src/billing-lifecycle-stimuli.ts",
+    "!**/libs/billing-harness-ts/src/billing-payment-facts.ts",
+    "!**/libs/billing-harness-ts/src/billing-plans-reads.ts",
+    "!**/libs/billing-harness-ts/src/billing-provider-driver.ts",
+    "!**/libs/billing-harness-ts/src/billing-reads.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-access-state-vocabulary.grit": [
+    "!**/libs/billing-harness-ts/src/**",
+    "!**/libs/billing-harness-ts/tests/**"
+  ]
+}

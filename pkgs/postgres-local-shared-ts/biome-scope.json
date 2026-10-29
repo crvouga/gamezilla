@@ -1,0 +1,5 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/postgres-local-shared-ts/src/**/*.{ts,tsx}"
+  ]
+}

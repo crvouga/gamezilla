@@ -1,0 +1,5 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-auth-vendor.grit": [
+    "**/pkgs/auth-root-client-ts/src/**/*.{ts,tsx}"
+  ]
+}

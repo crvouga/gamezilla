@@ -1,14 +1,9 @@
 import { expect, test } from 'bun:test';
 import { spawnSync } from 'node:child_process';
-import {
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
 import { archiveEntries, extractEvidence } from './verify-evidence-archive';
@@ -59,7 +54,7 @@ test('verdict and consumer extraction omit failed report payloads and unrelated 
       expect(existsSync(join(destination, needed))).toBe(mode === 'consumers');
     }
   } finally {
-    rmSync(fixture, { recursive: true, force: true });
+    removeTree(fixture, { whenLocked: 'leave' });
   }
 });
 

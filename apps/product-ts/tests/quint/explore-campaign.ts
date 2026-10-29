@@ -5,11 +5,11 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  rmSync,
   writeFileSync,
 } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { QUINT_CLI } from '@pkgs/quint-server-ts/simulate';
 import { MODEL_DIR, MODELS, REPORT_DIR } from './campaign-config';
 import { sourceDigest } from './source-digest';
@@ -145,5 +145,5 @@ try {
   for (const result of results)
     if (result.status === 'rejected') throw result.reason;
 } finally {
-  rmSync(expanded, { recursive: true, force: true });
+  removeTree(expanded, { whenLocked: 'leave' });
 }

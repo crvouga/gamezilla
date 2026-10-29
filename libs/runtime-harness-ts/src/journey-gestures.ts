@@ -86,9 +86,26 @@ export async function openTab(ui: Driver, tab: string): Promise<void> {
 const ENTER_POLLS = 3;
 const ENTER_SETTLE_MS = 5_000;
 
+/** Whether End shows on the space's bar within `timeoutMs`. */
+async function endOnBar(ui: Driver, timeoutMs: number): Promise<boolean> {
+  try {
+    await ui.get(Handles.spaceEnd).expect.visible({ timeoutMs });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * End is up: on the bar, or in the overflow menu when the bar has no room.
+ * The bar lays out a moment after the space opens. Opening the menu in that
+ * moment leaves its full-screen backdrop over End once End lands on the bar,
+ * so no tap reaches it (Windows, Verify run 40653277467). Give the bar its
+ * moment first, and open the menu only when End still is not on it.
+ */
 async function endIsUp(ui: Driver): Promise<boolean> {
   try {
-    if (!(await ui.get(Handles.spaceEnd).isVisible())) {
+    if (!(await endOnBar(ui, ENTER_SETTLE_MS))) {
       if (await ui.get(Handles.spaceChromeOverflow).isVisible()) {
         await tap(ui, Handles.spaceChromeOverflow);
       }

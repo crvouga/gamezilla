@@ -1,4 +1,4 @@
-/** Failure logs retain rendered state even when the PR profile keeps no reports. */
+/** Failure logs retain rendered state even when the release profile keeps no reports. */
 export function browserFailureSummary(html: string): string {
   const controls =
     html.match(/<[^>]*data-testid="multiplayer-[^"]+"[^>]*>/g) ?? [];

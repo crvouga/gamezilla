@@ -17,6 +17,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 export const STACK_MANIFEST_ENV = 'LOCALHOST_STACK_MANIFEST';
 
@@ -68,8 +69,7 @@ export function instanceDataDir(
   mkdirSync(dir, { recursive: true });
   if (!instance.keepData) {
     for (const entry of readdirSync(dir)) {
-      if (entry !== 'observability')
-        rmSync(join(dir, entry), { recursive: true, force: true });
+      if (entry !== 'observability') removeTree(join(dir, entry));
     }
   }
   return dir;

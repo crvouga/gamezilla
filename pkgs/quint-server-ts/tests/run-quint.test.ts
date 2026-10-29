@@ -1,8 +1,9 @@
 import { expect, test } from 'bun:test';
 import { spawn } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import {
   apalacheServerArgs,
   privateQuintHome,
@@ -30,7 +31,7 @@ test('invalid limit configuration is rejected before creating checker files or p
     ).rejects.toThrow('must be on or off');
     expect(existsSync(cwd)).toBe(false);
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });
 
@@ -63,7 +64,7 @@ test.each(['on', 'off'])(
       expect(result.timedOut).toBe(false);
       expect(result.output).toContain('Picked up JAVA_TOOL_OPTIONS');
     } finally {
-      rmSync(cwd, { recursive: true, force: true });
+      removeTree(cwd, { whenLocked: 'leave' });
     }
   }
 );
@@ -208,7 +209,7 @@ test.each([
       }
       expect(serverProcesses(cwd)).toEqual([]);
     } finally {
-      rmSync(cwd, { recursive: true, force: true });
+      removeTree(cwd, { whenLocked: 'leave' });
     }
   },
   90_000
@@ -228,6 +229,6 @@ test('a server that cannot start fails the check before Quint runs', async () =>
     expect(run.stdout).not.toContain('quint ran');
     expect(run.output).toContain('did not accept connections');
   } finally {
-    rmSync(cwd, { recursive: true, force: true });
+    removeTree(cwd, { whenLocked: 'leave' });
   }
 });

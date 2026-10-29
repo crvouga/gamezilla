@@ -1,0 +1,8 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans.grit": [
+    "**/libs/search-harness-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans-children.grit": [
+    "**/libs/search-harness-ts/src/**/*.{ts,tsx}"
+  ]
+}

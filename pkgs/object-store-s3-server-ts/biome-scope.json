@@ -1,0 +1,6 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/object-store-s3-server-ts/src/**/*.{ts,tsx}",
+    "**/pkgs/object-store-s3-server-ts/tests/object-store.s3.contract.test.ts"
+  ]
+}

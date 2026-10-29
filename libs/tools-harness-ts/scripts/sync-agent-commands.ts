@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+
 // @io-wall-ok — composition root
 /**
  * Agent-command fan-out (`bun run agents:sync`, gate `@libs/tools-harness-ts#ci:agent-commands`).
@@ -33,6 +34,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { syncAgentMcp } from './sync-agent-mcp';
 
@@ -225,14 +227,14 @@ function syncSymlinks(verify: boolean, drift: string[]): void {
     drift.push(`${linkPath} must be a symlink to ${target}`);
     if (verify) continue;
     const abs = join(ROOT, linkPath);
-    if (isSymlink(abs)) rmSync(abs);
+    if (isSymlink(abs)) removeTree(abs);
     else if (existsSync(abs)) {
       drift.push(
         `${linkPath} is a real directory; move its files into ${SOURCE_DIR} and delete it`
       );
       continue;
     }
-    mkdirSync(dirname(abs), { recursive: true });
+    mkdirSync(dirname(abs));
     symlinkSync(target, abs, 'dir');
   }
 }

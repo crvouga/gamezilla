@@ -1,0 +1,17 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-tier-vocabulary.grit": [
+    "!**/libs/permissions-server-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-tier-vocabulary-string.grit": [
+    "!**/libs/permissions-server-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-access-facts.grit": [
+    "!**/libs/permissions-server-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-access-model.grit": [
+    "!**/libs/permissions-server-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-access-state-vocabulary.grit": [
+    "!**/libs/permissions-server-ts/src/**"
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Choosing a Battleship setup updates the game with RETURNING and inserts the private setup without it. The server's push built row images from RETURNING alone, so it carried the game's public row and not even the setup table's name; the owner's device applied the image, never refetched, and finished the game showing its own fleet as a spectator's empty waters (Verify run 40713084871). Row images now travel only when every written table has them; otherwise readers refetch.",
+  "regressionTest": "pkgs/sync-engine-shared-ts/tests/fanout-rows-for-capture.test.ts"
+}

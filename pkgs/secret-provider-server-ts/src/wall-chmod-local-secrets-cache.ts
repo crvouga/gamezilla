@@ -1,6 +1,6 @@
 // @io-wall-ok — wall chmod for local secrets cache files (mode 0600).
 import { join } from 'node:path';
-import { wallOsFs } from '@pkgs/os-server-ts/wall-os-fs';
+import { wallOsFs } from '@pkgs/fs-server-ts/wall-os-fs';
 import type { SecretsCacheEnv } from '@pkgs/secret-provider-shared-ts/local-secrets-cache';
 import {
   secretsCacheMetaRelPath,

@@ -3,9 +3,9 @@ import type { ChildProcess } from 'node:child_process';
 import type { EventEmitter } from 'node:events';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { enterDevOwner } from '@pkgs/os-server-ts/dev-owner-entry';
-import { openOwnerRun } from '@pkgs/os-server-ts/dev-owner-run';
-import { spawnOwned as spawn } from '@pkgs/os-server-ts/dev-owner-spawn';
+import { enterDevOwner } from '@pkgs/dev-owner-server-ts/dev-owner-entry';
+import { openOwnerRun } from '@pkgs/dev-owner-server-ts/dev-owner-run';
+import { spawnOwned as spawn } from '@pkgs/dev-owner-server-ts/dev-owner-spawn';
 
 /** A launcher crash closes IPC; the worker cancels before releasing its lease. */
 export function watchLocalVerifyCancellation(

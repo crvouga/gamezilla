@@ -1,0 +1,18 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans.grit": [
+    "**/libs/auth-shared-ts/src/**/*.{ts,tsx}",
+    "**/libs/auth-shared-ts/tests/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans-children.grit": [
+    "**/libs/auth-shared-ts/src/**/*.{ts,tsx}",
+    "**/libs/auth-shared-ts/tests/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-access-facts.grit": [
+    "!**/libs/auth-shared-ts/src/**",
+    "!**/libs/auth-shared-ts/tests/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-access-state-vocabulary.grit": [
+    "!**/libs/auth-shared-ts/src/**",
+    "!**/libs/auth-shared-ts/tests/**"
+  ]
+}

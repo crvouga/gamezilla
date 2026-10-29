@@ -1,8 +1,9 @@
 // @io-wall-ok — restore cached reports after the required verdict, without running verifications again.
 import { spawnSync } from 'node:child_process';
-import { existsSync, rmSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { REPORT_COMPLETION, reportTask } from '@libs/harness-ts/report-ready';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { artifactUrl } from './turbo-preflight';
 import { reportOutputPath } from './verify-report-evidence';
 import { processReportQueue } from './verify-report-queue';
@@ -62,10 +63,7 @@ export async function restoreReportOutputs(args: {
         throw new Error(`Report cache extraction failed: ${id}`);
       await publish(id);
     } finally {
-      rmSync(join(root, reportOutputPath(id)), {
-        recursive: true,
-        force: true,
-      });
+      removeTree(join(root, reportOutputPath(id)), { whenLocked: 'leave' });
     }
   });
 }

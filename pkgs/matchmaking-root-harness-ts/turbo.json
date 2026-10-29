@@ -31,6 +31,23 @@
     },
     "test:spec:7": {
       "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "src": {
+      "dependsOn": [
+        "@pkgs/assert-root-shared-ts#src",
+        "@pkgs/attribute-shared-ts#src",
+        "@pkgs/fs-server-ts#src",
+        "@pkgs/harness-root-shared-ts#src",
+        "@pkgs/matchmaking-root-shared-ts#src",
+        "@pkgs/matchmaking-sql-server-ts#src",
+        "@pkgs/postgres-mockingbird-server-ts#src",
+        "@pkgs/sql-client-postgres-server-ts#src",
+        "@pkgs/sql-client-postgres-shared-ts#src",
+        "@pkgs/sql-client-root-shared-ts#src",
+        "@pkgs/sql-client-sqlite-root-server-ts#src",
+        "@pkgs/sql-root-shared-ts#src",
+        "@pkgs/uuid-shared-ts#src"
+      ]
     }
   }
 }

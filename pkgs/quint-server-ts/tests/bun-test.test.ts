@@ -4,9 +4,10 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { readFileSync, rmSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { readEvidence } from '@pkgs/conformance-server-ts/evidence-store';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { runQuintModel } from '@pkgs/quint-server-ts/bun-test';
 import { simulate } from '@pkgs/quint-server-ts/simulate';
 import type { QuintBinding } from '@pkgs/quint-shared-ts/registry';
@@ -76,7 +77,7 @@ const OUT = join(import.meta.dir, '../.cache/test-traces');
 const SPEC_URI = 'pkgs/quint-server-ts/tests/fixtures/door.qnt';
 
 // Evidence merges across runs of the same model text; start from none.
-rmSync(join(OUT, 'evidence'), { recursive: true, force: true });
+removeTree(join(OUT, 'evidence'), { whenLocked: 'leave' });
 
 // An exploring run: every drawn trace is replayed.
 runQuintModel({
@@ -117,7 +118,7 @@ describe('evidence of the model run', () => {
 });
 
 const BUDGETED = join(import.meta.dir, '../.cache/test-traces-budgeted');
-rmSync(join(BUDGETED, 'evidence'), { recursive: true, force: true });
+removeTree(join(BUDGETED, 'evidence'), { whenLocked: 'leave' });
 
 // regression: quint-budget-fixture-inherits-nightly-replays
 // This example checks the minimum budget even when the suite explores all traces.

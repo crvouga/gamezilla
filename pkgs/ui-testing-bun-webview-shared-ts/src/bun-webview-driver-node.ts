@@ -32,6 +32,7 @@ import { UiTestError } from '@pkgs/ui-testing-root-shared-ts/ui-test-error';
 import { waitUntil } from '@pkgs/ui-testing-root-shared-ts/wait';
 import { pressBrowserKey } from './browser-key';
 import type { BunWebView, BunWebviewHost } from './bun-webview-host';
+import { diagnosePress } from './press-diagnosis';
 import { visibilityScript } from './visibility-script';
 
 /**
@@ -249,9 +250,18 @@ export class BunWebviewDriverNode implements DriverNode {
       await nativeClick(view, point, 'primary', 'click');
       return;
     }
-    // Nothing pressable yet: the selector click waits for actionability and
-    // reports what blocks it.
-    await view.click(cssPath(this.path));
+    // Nothing pressable yet: the selector click waits for actionability.
+    // Its timeout names no cause, so say whether the element kept moving
+    // or what covers it.
+    const selector = cssPath(this.path);
+    try {
+      await view.click(selector);
+    } catch (error) {
+      throw new UiTestError(
+        `${String(error)}; ${await diagnosePress(view, selector)}`,
+        { cause: error }
+      );
+    }
   }
 
   async tapAt(position: TapPosition, options?: GestureOptions): Promise<void> {

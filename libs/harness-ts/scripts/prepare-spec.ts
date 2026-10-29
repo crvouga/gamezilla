@@ -1,6 +1,7 @@
 // @io-wall-ok — prepares one immutable model draw for all of a package's spec workers.
-import { readFileSync, rmSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import {
   DEFAULT_MAX_STEPS,
   DEFAULT_TRACES,
@@ -64,7 +65,7 @@ async function main(): Promise<void> {
       throw new Error('Quint preparation failed');
   } finally {
     for (const worker of workers) if (worker.exitCode === null) worker.kill();
-    rmSync(output, { recursive: true, force: true });
+    removeTree(output, { whenLocked: 'leave' });
   }
 }
 

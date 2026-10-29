@@ -6,12 +6,13 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  renameSync,
   rmSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
+import { renameReplacing } from '@pkgs/fs-server-ts/rename-replacing';
 
 const hooks = join(import.meta.dirname, '../workspace');
 const DEV = 'bun run --silent dev -- --web-port 5800';
@@ -21,7 +22,7 @@ const GRAPHIFY = 'bun run graphify:install';
 const checkouts: string[] = [];
 afterEach(() => {
   for (const dir of checkouts.splice(0))
-    rmSync(dir, { recursive: true, force: true });
+    removeTree(dir, { whenLocked: 'leave' });
 });
 
 function writeExecutable(path: string, body: string): void {
@@ -155,7 +156,7 @@ test('Run installs first in a checkout that has no turbo to run dev with', () =>
   );
   expect(run().calls).toEqual([DEV]);
 
-  rmSync(join(dir, 'node_modules'), { recursive: true });
+  removeTree(join(dir, 'node_modules'), { whenLocked: 'leave' });
   expect(run().calls).toEqual([INSTALL, DEV]);
 });
 
@@ -195,7 +196,7 @@ test('the install task reinstalls when package manifests changed since the last 
   writeFileSync(join(dir, 'bun.lock'), '{"merged":true}\n');
   expect(install().calls).toEqual([INSTALL]);
 
-  rmSync(join(dir, 'node_modules'), { recursive: true });
+  removeTree(join(dir, 'node_modules'), { whenLocked: 'leave' });
   expect(install().calls).toEqual([INSTALL]);
 });
 
@@ -255,7 +256,7 @@ test('a cold run still launches when the secrets pull fails, and a warm run skip
 test('Run installs and activates system tools before app dependencies on cold and warm launches', () => {
   const { dir, run } = checkout();
   mkdirSync(join(dir, '.tools'));
-  renameSync(join(dir, '.bin/bun'), join(dir, '.tools/bun'));
+  renameReplacing(join(dir, '.bin/bun'), join(dir, '.tools/bun'));
   const env = { WORKSPACE_RUN_TEST_RECORD_SYSTEM: '1' };
   const system = [
     'mise trust --quiet mise.toml',
@@ -274,7 +275,7 @@ test('Run installs and activates system tools before app dependencies on cold an
 
 test('Run bootstraps mise without a shell profile and reuses its user installation', () => {
   const { dir, run } = checkout();
-  renameSync(join(dir, '.bin/mise'), join(dir, '.bin/mise-template'));
+  renameReplacing(join(dir, '.bin/mise'), join(dir, '.bin/mise-template'));
   writeExecutable(
     join(dir, '.bin/curl'),
     '#!/usr/bin/env bash\n' +

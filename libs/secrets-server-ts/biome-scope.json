@@ -1,0 +1,25 @@
+{
+  "overrides[1]": ["libs/secrets-server-ts/src/**/*.ts"],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-di-container.grit": [
+    "!**/libs/secrets-server-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-bare-fs.grit": [
+    "!**/libs/secrets-server-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-bare-io.grit": [
+    "!**/libs/secrets-server-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-wall-io-defaults.grit": [
+    "!**/libs/secrets-server-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-shared-no-wall-io.grit": [
+    "!**/libs/secrets-server-ts/scripts/**",
+    "!**/libs/secrets-server-ts/src/**",
+    "!**/libs/secrets-server-ts/tests/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-billing-vendor.grit": [
+    "!**/libs/secrets-server-ts/scripts/**",
+    "!**/libs/secrets-server-ts/src/**",
+    "!**/libs/secrets-server-ts/tests/**"
+  ]
+}

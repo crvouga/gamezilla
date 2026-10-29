@@ -1,8 +1,9 @@
 // @io-wall-ok — select paths inside an immutable CI evidence archive.
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 /**
  * Runs `verify-evidence-tar.ts` with the current Bun, so an archive means the
@@ -40,6 +41,6 @@ export function extractEvidence(
       'Cannot extract selected shard evidence'
     );
   } finally {
-    rmSync(directory, { recursive: true, force: true });
+    removeTree(directory, { whenLocked: 'leave' });
   }
 }

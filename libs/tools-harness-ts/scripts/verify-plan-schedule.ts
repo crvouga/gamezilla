@@ -12,8 +12,9 @@
  * names no shard: the shards with work are numbered first, the matrix has
  * one entry for each, and shard N is the Nth matrix job.
  */
-import { appendFileSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { packShardEvidence } from './verify-evidence-pack';
 import type { Result } from './verify-shard-results';
 import type { VerifyPlan, VerifyShard } from './verify-shards';
@@ -105,7 +106,7 @@ export function writeSchedule(
   output = process.env['GITHUB_OUTPUT']
 ): VerifySchedule {
   const schedule = verifySchedule(plan);
-  rmSync(join(root, CACHED), { recursive: true, force: true });
+  removeTree(join(root, CACHED));
   mkdirSync(join(root, CACHED), { recursive: true });
   mkdirSync(join(root, DIRECTORY, 'results'), { recursive: true });
   for (const index of schedule.cached) {

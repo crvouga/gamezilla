@@ -1,0 +1,5 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-unpinned-property.grit": [
+    "!**/pkgs/property-shared-ts/src/**"
+  ]
+}

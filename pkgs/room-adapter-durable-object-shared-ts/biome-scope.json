@@ -1,0 +1,5 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/room-adapter-durable-object-shared-ts/src/**/*.{ts,tsx}"
+  ]
+}

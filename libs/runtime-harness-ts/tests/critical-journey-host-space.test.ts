@@ -27,6 +27,8 @@ type World = {
   created: boolean;
   overflow: boolean;
   endInOverflow: boolean;
+  /** End is laid out on the bar; a late bar lands once it is waited on. */
+  endLanded: boolean;
   profileReady: boolean;
   cardReady: boolean;
   readonly taps: string[];
@@ -66,7 +68,9 @@ function visible(world: World, id: string): boolean {
   if (id === Handles.spaceChromeOverflow) return world.screen === 'in-space';
   if (id === Handles.spaceEnd)
     return (
-      world.screen === 'in-space' && (!world.endInOverflow || world.overflow)
+      world.screen === 'in-space' &&
+      world.endLanded &&
+      (!world.endInOverflow || world.overflow)
     );
   if (id === Handles.spaceEndConfirm) return world.confirm;
   if (id === Handles.spaceMutationDismiss) return world.dismiss;
@@ -122,6 +126,9 @@ function node(world: World, id: string): DriverNode {
         throw new Error('Join disappeared as saved participation opened');
       }
       assertState('visible');
+      // An open menu's backdrop covers the bar; End in the menu is above it.
+      if (id === Handles.spaceEnd && world.overflow && !world.endInOverflow)
+        throw new Error('space-end is covered by the overflow menu backdrop');
       applyTap(world, id);
     },
     tapAt: () => Promise.reject(new Error('unused')),
@@ -146,6 +153,7 @@ function node(world: World, id: string): DriverNode {
         if (id === Handles.spaceCard(HOST)) world.cardReady = true;
         // A lazy profile route may render after the tab tap returns.
         if (id === Handles.profileDisplayUsername) world.profileReady = true;
+        if (id === Handles.spaceEnd) world.endLanded = true;
         assertState('visible');
         return Promise.resolve();
       },
@@ -184,6 +192,7 @@ function driver(
     created: false,
     overflow: false,
     endInOverflow,
+    endLanded: true,
     profileReady,
     cardReady: true,
     taps: [],
@@ -240,6 +249,16 @@ describe('hostSpace', () => {
     await hostSpace(ui);
     expectJoinedThenEnded(world.taps, 1);
     expect(world.taps).toContain(Handles.spaceChromeOverflow);
+    expect(world.created).toBe(true);
+  });
+
+  // regression: journey-end-covered-by-own-overflow-menu
+  test('waits for End on a late bar instead of opening the overflow menu over it', async () => {
+    const { ui, world } = driver(1);
+    world.endLanded = false;
+    await hostSpace(ui);
+    expectJoinedThenEnded(world.taps, 1);
+    expect(world.taps).not.toContain(Handles.spaceChromeOverflow);
     expect(world.created).toBe(true);
   });
 

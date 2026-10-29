@@ -1,7 +1,8 @@
 import { expect, test } from 'bun:test';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import {
   localVerifyLeasePath,
   openLocalVerifyLease,
@@ -34,7 +35,7 @@ test('independent connections share admission and closing an owner recovers its 
     a.close();
     b.close();
     c.close();
-    rmSync(home, { recursive: true, force: true });
+    removeTree(home, { whenLocked: 'leave' });
   }
 });
 

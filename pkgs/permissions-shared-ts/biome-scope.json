@@ -1,0 +1,16 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-locale-apis.grit": [
+    "!**/pkgs/permissions-shared-ts/src/quota-window.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-tier-vocabulary.grit": [
+    "!**/pkgs/permissions-shared-ts/src/**",
+    "!**/pkgs/permissions-shared-ts/tests/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-tier-vocabulary-string.grit": [
+    "!**/pkgs/permissions-shared-ts/src/**",
+    "!**/pkgs/permissions-shared-ts/tests/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/permissions-shared-ts/src/**/*.{ts,tsx}"
+  ]
+}

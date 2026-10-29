@@ -12,10 +12,11 @@ import {
   rmSync,
   symlinkSync,
 } from 'node:fs';
-import { mkdir, readdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 import { promisify } from 'node:util';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { lastSegment, slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 function git(root: string, args: string[]): string {
@@ -61,7 +62,7 @@ async function copyGit(source: string, destination: string): Promise<void> {
   // Copy objects too: garbage collection in the caller cannot invalidate a run.
   await copyDependencyTree(common, target);
   for (const name of ['worktrees', 'hooks', 'logs', 'refs'])
-    rmSync(join(target, name), { recursive: true, force: true });
+    removeTree(join(target, name));
   await writeFile(join(target, 'HEAD'), `${head}\n`);
   await writeFile(join(target, 'packed-refs'), `${refs}\n`);
   await mkdir(join(target, 'refs'));
@@ -84,7 +85,7 @@ async function copyDependencyTree(
     process.platform === 'darwin' ? ['-cR'] : ['-a', '--reflink=auto'];
   await promisify(execFile)('cp', [...flags, source, destination]);
   for (const cache of ['.cache', '.turbo', '.vite'])
-    await rm(join(destination, cache), { recursive: true, force: true });
+    removeTree(join(destination, cache));
 }
 
 async function copyDependencies(
@@ -130,7 +131,7 @@ export async function createVerifySnapshot(source: string): Promise<string> {
     rebaseLinks(destination, source, destination);
     return destination;
   } catch (error) {
-    await rm(container, { recursive: true, force: true });
+    removeTree(container, { whenLocked: 'leave' });
     throw error;
   }
 }

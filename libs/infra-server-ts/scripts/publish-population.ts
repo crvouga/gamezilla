@@ -15,6 +15,7 @@ import {
   outputArgs,
   tofuEnvironment,
 } from '@libs/infra-shared-ts/tofu-command';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { resolveAwsSession } from './aws-session';
 import { infraOperation } from './infra-operation';
 import { pinnedTool, spawnTool } from './tofu-process';
@@ -110,6 +111,6 @@ try {
   const result = artifactCommand(release.upArgs, root, railwayEnv);
   process.stdout.write(redactInfraOutput(result, process.env));
 } finally {
-  rmSync(stage, { recursive: true, force: true });
+  removeTree(stage, { whenLocked: 'leave' });
   rmSync(`${stage}.tar`, { force: true });
 }

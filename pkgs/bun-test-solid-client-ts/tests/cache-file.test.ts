@@ -7,19 +7,19 @@
  */
 import { afterEach, expect, test } from 'bun:test';
 import * as nodeFs from 'node:fs';
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readdirSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   type CacheFileFs,
   publishCacheFile,
 } from '@pkgs/bun-test-solid-client-ts/cache-file';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 const dirs: string[] = [];
 
 afterEach(() => {
-  for (const dir of dirs.splice(0))
-    rmSync(dir, { recursive: true, force: true });
+  for (const dir of dirs.splice(0)) removeTree(dir, { whenLocked: 'leave' });
 });
 
 function cacheDir(): string {

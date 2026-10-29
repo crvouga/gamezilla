@@ -1,15 +1,16 @@
 import { expect, test } from 'bun:test';
 import { once } from 'node:events';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { spawnOwned } from '@pkgs/dev-owner-server-ts/dev-owner-spawn';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server-ts/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
 import { parseArgs } from '@pkgs/observability-cli-shared-ts/args';
 import { runCommand } from '@pkgs/observability-cli-shared-ts/commands';
 import { discoverLatestLocalTraceSource } from '@pkgs/observability-cli-shared-ts/source-discovery';
 import { NdjsonTraceStore } from '@pkgs/observability-root-shared-ts/ndjson';
-import { spawnOwned } from '@pkgs/os-server-ts/dev-owner-spawn';
 import { instanceDataDir } from './manifest';
 import { observeChildFailures } from './process-observability';
 import { startObservabilityStack } from './start-observability-stack';
@@ -59,7 +60,7 @@ test('a crashed process remains discoverable by obs after the collector stops', 
     expect(result.text).toContain('process.exit.code=1');
     expect(result.text).not.toContain('private-code');
   } finally {
-    await rm(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });
 
@@ -85,6 +86,6 @@ test('a fresh stack clears simulation data while preserving crash evidence', asy
       false
     );
   } finally {
-    await rm(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });

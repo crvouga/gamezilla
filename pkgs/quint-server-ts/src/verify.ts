@@ -18,8 +18,9 @@
  * Apalache's search is symbolic (SMT), not seeded.
  */
 
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { verifyDeadlineMs, wallStopwatch } from '@pkgs/quint-shared-ts/wall';
 import {
   APALACHE_VERSION,
@@ -88,7 +89,7 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
   }
   const apalache = resolveApalache(process.env);
   if ('error' in apalache) return { ok: false, output: apalache.error };
-  rmSync(options.outDir, { recursive: true, force: true });
+  removeTree(options.outDir);
   mkdirSync(options.outDir, { recursive: true });
   const phases = phasesOf(options);
   if ('ok' in phases) return phases;

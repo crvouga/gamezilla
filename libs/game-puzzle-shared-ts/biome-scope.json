@@ -1,0 +1,31 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans.grit": [
+    "**/libs/game-puzzle-shared-ts/src/**/*.{ts,tsx}",
+    "**/libs/game-puzzle-shared-ts/tests/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans-children.grit": [
+    "**/libs/game-puzzle-shared-ts/src/**/*.{ts,tsx}",
+    "**/libs/game-puzzle-shared-ts/tests/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-tier-words-puzzle.grit": [
+    "**/libs/game-puzzle-shared-ts/src/**/*.{ts,tsx}",
+    "**/libs/game-puzzle-shared-ts/tests/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/libs/game-puzzle-shared-ts/src/action-bar-plan.ts",
+    "**/libs/game-puzzle-shared-ts/src/completion.ts",
+    "**/libs/game-puzzle-shared-ts/src/hint-stage.ts",
+    "**/libs/game-puzzle-shared-ts/src/move-history.ts",
+    "**/libs/game-puzzle-shared-ts/src/next-puzzle-selection.ts",
+    "**/libs/game-puzzle-shared-ts/src/opponent-stage.ts",
+    "**/libs/game-puzzle-shared-ts/src/opponent-stager.ts",
+    "**/libs/game-puzzle-shared-ts/src/pick-state.ts",
+    "**/libs/game-puzzle-shared-ts/src/puzzle-clock.ts",
+    "**/libs/game-puzzle-shared-ts/src/puzzle-nav.ts",
+    "**/libs/game-puzzle-shared-ts/src/recommendations.ts",
+    "**/libs/game-puzzle-shared-ts/src/session-start-policy.ts",
+    "**/libs/game-puzzle-shared-ts/src/solve-projection.ts",
+    "**/libs/game-puzzle-shared-ts/src/solve-status.ts",
+    "**/libs/game-puzzle-shared-ts/src/status-kind.ts"
+  ]
+}

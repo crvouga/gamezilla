@@ -1,15 +1,21 @@
 // @io-wall-ok — CI owns the stack, production bundle, browser process and teardown.
 import { execFileSync, spawn } from 'node:child_process';
-import { mkdirSync, rmSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Denial } from '@pkgs/aedes-server-ts/start';
 import { wallClock } from '@pkgs/clock-shared-ts/wall';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server-ts/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
 import { build } from 'vite';
 import { bootLocalhostStack } from './boot-stack';
 import { brokerVerdict } from './broker-denials';
 import type { DatabaseLink } from './database-link';
+import {
+  DOCUMENT_CACHE_CONTROL,
+  SQLITE_WEB_COEP,
+  SQLITE_WEB_COOP,
+} from './dist-headers';
 import {
   healthTestArguments,
   parseCli,
@@ -22,7 +28,12 @@ import { databaseVerdict, profileOf } from './production-database';
 import { printReleasePairingEvidence } from './release-failure-diagnostics';
 import { releaseFailureTraces } from './release-failure-traces';
 import { printReleaseQueryEvidence } from './release-query-diagnostics';
-import { RELEASE_ENVIRONMENT, releaseSpecs } from './release-selection';
+import {
+  parseReleasePart,
+  RELEASE_ENVIRONMENT,
+  releaseSpecs,
+  splitReleaseSpecs,
+} from './release-selection';
 import { specProcessExit } from './spec-process';
 import { parseStackOptions } from './stack-options';
 
@@ -37,7 +48,10 @@ const options = parseStackOptions([
   '--production-database',
   '--edge-latency-ms=50',
 ]);
-const cli = parseCli(process.argv.slice(2));
+// `--part=<k>/<n>` picks the share of specs; `bun test` never sees it.
+const cli = parseCli(
+  process.argv.slice(2).filter((arg) => !arg.startsWith('--part='))
+);
 
 async function buildRelease(apiOrigin: string): Promise<void> {
   process.env['VITE_API_URL'] = apiOrigin;
@@ -88,23 +102,39 @@ function serveRelease(origin: string): ReturnType<typeof Bun.serve> {
           'Content-Type': path.endsWith('.wasm')
             ? 'application/wasm'
             : file.contentType,
-          'Cross-Origin-Opener-Policy': 'same-origin',
-          'Cross-Origin-Embedder-Policy': 'require-corp',
+          'Cross-Origin-Opener-Policy': SQLITE_WEB_COOP,
+          'Cross-Origin-Embedder-Policy': SQLITE_WEB_COEP,
+          // As production serves documents (`dist-headers.ts`).
+          ...(file.contentType.startsWith('text/html')
+            ? { 'Cache-Control': DOCUMENT_CACHE_CONTROL }
+            : {}),
         },
       });
     },
   });
 }
 
+/** A feature costs about what it has scenarios; a part runs its share. */
+function scenarioCount(spec: string): number {
+  return (readFileSync(spec, 'utf8').match(/^\s*Scenario/gm) ?? []).length;
+}
+
+function specsToRun(): readonly string[] {
+  const part = parseReleasePart(process.argv.slice(2));
+  const all = releaseSpecs();
+  if (part === null) return all;
+  return splitReleaseSpecs(all, part.parts, scenarioCount)[part.part] ?? [];
+}
+
 function journeyStubs(): readonly string[] {
-  const selection = selectSpecs({ all: releaseSpecs(), cli });
+  const selection = selectSpecs({ all: specsToRun(), cli });
   if (!selection.ok) throw new Error(selection.error);
   const dirs = {
     stubDir: join(PACKAGE_DIR, '.cache/spec-release'),
     reportDir: join(PACKAGE_DIR, '.cache/release-report'),
     timelineReports: true,
   };
-  rmSync(dirs.stubDir, { recursive: true, force: true });
+  removeTree(dirs.stubDir);
   mkdirSync(dirs.stubDir, { recursive: true });
   return writeFeatureStubs(
     RELEASE_ENVIRONMENT,
@@ -165,6 +195,11 @@ async function printFailureTraces(manifest: StackManifest): Promise<void> {
   }
 }
 
+/** Teardown scratch: Windows may still hold a just-stopped stack's files. */
+function removeScratch(path: string): void {
+  removeTree(path, { whenLocked: 'leave' });
+}
+
 // Retain bounded statement profiles so a failed release check identifies the
 // expensive work after connection setup, rather than only its first queries.
 process.env['STACK_DATABASE_PROFILE'] = '1';
@@ -205,17 +240,10 @@ try {
   if (process.exitCode !== undefined && process.exitCode !== 0)
     await printFailureTraces(stack.manifest);
   removeManifest(REPO_ROOT, options.instanceId);
-  if (!options.keepData)
-    rmSync(stack.manifest.dataDir, { recursive: true, force: true });
-  rmSync(DIST, { recursive: true, force: true });
+  if (!options.keepData) removeScratch(stack.manifest.dataDir);
+  removeScratch(DIST);
   if (process.env['VERIFY_PROFILE'] !== 'nightly') {
-    rmSync(join(PACKAGE_DIR, '.cache/release-report'), {
-      recursive: true,
-      force: true,
-    });
-    rmSync(join(PACKAGE_DIR, '.cache/critical-journeys'), {
-      recursive: true,
-      force: true,
-    });
+    removeScratch(join(PACKAGE_DIR, '.cache/release-report'));
+    removeScratch(join(PACKAGE_DIR, '.cache/critical-journeys'));
   }
 }

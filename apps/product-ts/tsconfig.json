@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../tsconfig.paths.json",
   "include": [
     "../../libs/app-root-shared-ts/src/cloudflare.d.ts",
     "../../pkgs/ts-reset-shared-ts/src/ts-reset.ts",

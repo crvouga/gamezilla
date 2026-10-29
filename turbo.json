@@ -188,9 +188,12 @@
       "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
+        "!biome-scope.json",
         "!**/*.md",
         "!**/*.test.ts",
         "!**/*.test.tsx",
+        "!tsconfig.tc.json",
+        "!turbo.json",
         "$TURBO_ROOT$/pkgs/ts-reset-shared-ts/src/**"
       ],
       "outputLogs": "errors-only",
@@ -200,6 +203,7 @@
       "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
+        "!biome-scope.json",
         "!**/*.md",
         "$TURBO_ROOT$/pkgs/ts-reset-shared-ts/src/**"
       ],
@@ -210,7 +214,7 @@
       "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
-        "$TURBO_ROOT$/biome.json",
+        "$TURBO_ROOT$/biome.shared.json",
         "$TURBO_ROOT$/libs/tools-harness-ts/biome-plugins/**",
         "$TURBO_ROOT$/oxlint.config.mts",
         "$TURBO_ROOT$/components.json",
@@ -220,6 +224,10 @@
         "$TURBO_ROOT$/pkgs/ui-root-client-ts/src/hosts.css",
         "$TURBO_ROOT$/libs/tools-harness-ts/port/*.json",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/lint-package.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/argument-batches.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/behavior-tests.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/source-imports.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spawned-clis.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/design-vocabulary.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/design-composition.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/banned-words.ts",
@@ -246,6 +254,7 @@
       "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
+        "!biome-scope.json",
         "!**/*.md",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
@@ -259,9 +268,9 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/turbo-platform-key.json",
-        "$TURBO_ROOT$/libs/*/package.json",
-        "$TURBO_ROOT$/pkgs/*/package.json",
-        "$TURBO_ROOT$/apps/*/package.json"
+        "$TURBO_ROOT$/apps/{client-ts,product-ts,server-ts,synthetic-population-worker-ts}/package.json",
+        "$TURBO_ROOT$/libs/{battleship-client-ts,battleship-harness-ts,battleship-shared-ts,chess-puzzle-client-ts,chess-puzzle-harness-ts,chess-puzzle-server-ts,chess-puzzle-shared-ts,chess-root-client-ts,chess-root-harness-ts,chess-root-server-ts,chess-root-shared-ts,chess-rules-shared-ts,chess-shared-client-ts,chess-sub-shared-ts,connect-four-client-ts,connect-four-harness-ts,connect-four-shared-ts,game-catalog-shared-ts,games-client-ts,games-harness-ts,games-shared-ts,hearts-client-ts,hearts-harness-ts,hearts-shared-ts,light-cycles-client-ts,light-cycles-harness-ts,light-cycles-shared-ts,numberlink-client-ts,numberlink-harness-ts,numberlink-shared-ts,pong-client-ts,pong-harness-ts,pong-shared-ts,quoridor-client-ts,quoridor-harness-ts,quoridor-shared-ts,room-app-server-ts,runtime-client-ts,runtime-harness-ts,runtime-server-ts,runtime-shared-ts,sokoban-client-ts,sokoban-harness-ts,sokoban-shared-ts,spaces-shared-ts,synthetic-population-harness-ts,word-tiles-client-ts,word-tiles-harness-ts,word-tiles-shared-ts}/package.json",
+        "$TURBO_ROOT$/pkgs/{chess-board-core-shared-ts,chess-board-root-client-ts,chess-board-root-harness-ts,chess-board-root-shared-ts,chess-rules-shared-ts}/package.json"
       ],
       "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
       "outputLogs": "errors-only",
@@ -287,9 +296,9 @@
         "!**/*.md",
         "$TURBO_ROOT$/turbo-platform-key.json",
         "$TURBO_ROOT$/specs/games/**",
-        "$TURBO_ROOT$/libs/*/package.json",
-        "$TURBO_ROOT$/pkgs/*/package.json",
-        "$TURBO_ROOT$/apps/*/package.json"
+        "$TURBO_ROOT$/apps/{client-ts,product-ts,server-ts,synthetic-population-worker-ts}/package.json",
+        "$TURBO_ROOT$/libs/{battleship-client-ts,battleship-harness-ts,battleship-shared-ts,chess-puzzle-client-ts,chess-puzzle-harness-ts,chess-puzzle-server-ts,chess-puzzle-shared-ts,chess-root-client-ts,chess-root-harness-ts,chess-root-server-ts,chess-root-shared-ts,chess-rules-shared-ts,chess-shared-client-ts,chess-sub-shared-ts,connect-four-client-ts,connect-four-harness-ts,connect-four-shared-ts,game-catalog-shared-ts,games-client-ts,games-harness-ts,games-shared-ts,hearts-client-ts,hearts-harness-ts,hearts-shared-ts,light-cycles-client-ts,light-cycles-harness-ts,light-cycles-shared-ts,numberlink-client-ts,numberlink-harness-ts,numberlink-shared-ts,pong-client-ts,pong-harness-ts,pong-shared-ts,quoridor-client-ts,quoridor-harness-ts,quoridor-shared-ts,room-app-server-ts,runtime-client-ts,runtime-harness-ts,runtime-server-ts,runtime-shared-ts,sokoban-client-ts,sokoban-harness-ts,sokoban-shared-ts,spaces-shared-ts,synthetic-population-harness-ts,word-tiles-client-ts,word-tiles-harness-ts,word-tiles-shared-ts}/package.json",
+        "$TURBO_ROOT$/pkgs/{chess-board-core-shared-ts,chess-board-root-client-ts,chess-board-root-harness-ts,chess-board-root-shared-ts,chess-rules-shared-ts}/package.json"
       ],
       "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
       "outputLogs": "errors-only",
@@ -302,9 +311,9 @@
         "!**/*.md",
         "$TURBO_ROOT$/turbo-platform-key.json",
         "$TURBO_ROOT$/specs/games/**",
-        "$TURBO_ROOT$/libs/*/package.json",
-        "$TURBO_ROOT$/pkgs/*/package.json",
-        "$TURBO_ROOT$/apps/*/package.json"
+        "$TURBO_ROOT$/apps/{client-ts,product-ts,server-ts,synthetic-population-worker-ts}/package.json",
+        "$TURBO_ROOT$/libs/{battleship-client-ts,battleship-harness-ts,battleship-shared-ts,chess-puzzle-client-ts,chess-puzzle-harness-ts,chess-puzzle-server-ts,chess-puzzle-shared-ts,chess-root-client-ts,chess-root-harness-ts,chess-root-server-ts,chess-root-shared-ts,chess-rules-shared-ts,chess-shared-client-ts,chess-sub-shared-ts,connect-four-client-ts,connect-four-harness-ts,connect-four-shared-ts,game-catalog-shared-ts,games-client-ts,games-harness-ts,games-shared-ts,hearts-client-ts,hearts-harness-ts,hearts-shared-ts,light-cycles-client-ts,light-cycles-harness-ts,light-cycles-shared-ts,numberlink-client-ts,numberlink-harness-ts,numberlink-shared-ts,pong-client-ts,pong-harness-ts,pong-shared-ts,quoridor-client-ts,quoridor-harness-ts,quoridor-shared-ts,room-app-server-ts,runtime-client-ts,runtime-harness-ts,runtime-server-ts,runtime-shared-ts,sokoban-client-ts,sokoban-harness-ts,sokoban-shared-ts,spaces-shared-ts,synthetic-population-harness-ts,word-tiles-client-ts,word-tiles-harness-ts,word-tiles-shared-ts}/package.json",
+        "$TURBO_ROOT$/pkgs/{chess-board-core-shared-ts,chess-board-root-client-ts,chess-board-root-harness-ts,chess-board-root-shared-ts,chess-rules-shared-ts}/package.json"
       ],
       "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
       "outputLogs": "errors-only",
@@ -1189,6 +1198,30 @@
       "outputs": [],
       "outputLogs": "errors-only"
     },
+    "@libs/tools-harness-ts#ci:cache-hygiene": {
+      "inputs": [
+        "$TURBO_ROOT$/turbo.json",
+        "$TURBO_ROOT$/tsconfig.base.json",
+        "$TURBO_ROOT$/biome.json",
+        "$TURBO_ROOT$/biome.shared.json",
+        "$TURBO_ROOT$/{apps,libs,pkgs}/*/package.json",
+        "$TURBO_ROOT$/{apps,libs,pkgs}/*/turbo.json",
+        "$TURBO_ROOT$/{apps,libs,pkgs}/*/biome-scope.json",
+        "$TURBO_ROOT$/{apps,libs,pkgs}/*/src/**",
+        "$TURBO_ROOT$/{apps/product-ts,apps/server-ts,libs/harness-ts,pkgs/sql-client-sqlite-web-server-ts}/scripts/**",
+        "$TURBO_ROOT$/libs/tools-harness-ts/cache-hygiene.json",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-cache-hygiene.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/cache-hygiene.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/cache-graph.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/cache-file-reach.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/src-task-edges.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/biome-scope-slices.ts",
+        "!$TURBO_ROOT$/**/node_modules/**",
+        "!$TURBO_ROOT$/**/*.test.{ts,tsx}"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
     "@libs/tools-harness-ts#ci:package-names": {
       "inputs": [
         "$TURBO_ROOT$/apps/*/package.json",
@@ -1504,7 +1537,7 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/biome.json",
+        "$TURBO_ROOT$/biome.shared.json",
         "$TURBO_ROOT$/libs/tools-harness-ts/biome-plugins/**",
         "$TURBO_ROOT$/oxlint.config.mts",
         "$TURBO_ROOT$/components.json",
@@ -1534,7 +1567,7 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/biome.json",
+        "$TURBO_ROOT$/biome.shared.json",
         "$TURBO_ROOT$/libs/tools-harness-ts/biome-plugins/**",
         "$TURBO_ROOT$/oxlint.config.mts",
         "$TURBO_ROOT$/components.json",
@@ -2900,6 +2933,18 @@
       "cache": false,
       "passThroughEnv": ["*"]
     },
+    "//#task:cache:explain": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:cache:sync": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "//#task:cloc": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
     "//#task:kill": {
       "cache": false,
       "passThroughEnv": ["*"]
@@ -3131,6 +3176,42 @@
       "passThroughEnv": ["*"]
     },
     "@apps/product-ts#test:release-journeys": {
+      "dependsOn": ["^src", "//#task:i18n:compile"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/specs/journeys/**",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["VERIFY_PROFILE"],
+      "outputs": [".cache/release-report/**"],
+      "passThroughEnv": ["*"]
+    },
+    "@apps/product-ts#test:release-journeys:0": {
+      "dependsOn": ["^src", "//#task:i18n:compile"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/specs/journeys/**",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["VERIFY_PROFILE"],
+      "outputs": [".cache/release-report/**"],
+      "passThroughEnv": ["*"]
+    },
+    "@apps/product-ts#test:release-journeys:1": {
+      "dependsOn": ["^src", "//#task:i18n:compile"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/specs/journeys/**",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["VERIFY_PROFILE"],
+      "outputs": [".cache/release-report/**"],
+      "passThroughEnv": ["*"]
+    },
+    "@apps/product-ts#test:release-journeys:2": {
       "dependsOn": ["^src", "//#task:i18n:compile"],
       "inputs": [
         "$TURBO_DEFAULT$",

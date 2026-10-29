@@ -1,0 +1,6 @@
+{
+  "overrides[3]": ["pkgs/logger-shared-ts/src/**"],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-boundary-imports.grit": [
+    "!**/pkgs/logger-shared-ts/src/logger.ts"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@pkgs/a11y-shared-ts#src",
+        "@pkgs/clock-client-ts#src",
+        "@pkgs/i18n-shared-ts#src",
+        "@pkgs/keyword-shared-ts#src",
+        "@pkgs/kv-root-client-ts#src",
+        "@pkgs/kv-root-shared-ts#src",
+        "@pkgs/solid-context-client-ts#src",
+        "@pkgs/ui-root-shared-ts#src"
+      ]
+    }
+  }
+}

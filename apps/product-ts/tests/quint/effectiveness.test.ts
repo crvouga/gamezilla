@@ -1,14 +1,9 @@
 // @io-wall-ok — isolated throwaway mutations test the verification machinery.
 import { expect, test } from 'bun:test';
-import {
-  cpSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { cpSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { CLI_TIMEOUT_MS, MODEL_DIR } from './campaign-config';
 import { quint } from './campaign-tools';
 
@@ -106,7 +101,7 @@ for (const fault of FAULTS) {
           /QNT508|QNT509|Assertion|assertion|expect condition/i
         );
       } finally {
-        rmSync(dir, { recursive: true, force: true });
+        removeTree(dir, { whenLocked: 'leave' });
       }
     },
     CLI_TIMEOUT_MS

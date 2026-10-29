@@ -1,7 +1,8 @@
 import { expect, test } from 'bun:test';
-import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { reportBuckets } from './conformance-report-buckets';
 
 test('conformance discovers live objective evidence beside feature and gate evidence', () => {
@@ -25,6 +26,6 @@ test('conformance discovers live objective evidence beside feature and gate evid
       buckets.map((bucket) => join(root, bucket)).sort()
     );
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });

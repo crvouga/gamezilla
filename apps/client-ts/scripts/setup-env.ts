@@ -1,6 +1,6 @@
 // @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 import { execFileSync } from 'node:child_process';
-import { renameSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/app-config-shared-ts/local-preview-api-origin';
@@ -10,6 +10,7 @@ import {
   productionApiUrlTigerExceptionEnabled,
 } from '@libs/app-root-shared-ts/api-servers';
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
+import { renameReplacing } from '@pkgs/fs-server-ts/rename-replacing';
 import {
   assertCommitDateIso,
   COMMIT_HASH_HEX_REGEX,
@@ -220,7 +221,7 @@ async function main(): Promise<void> {
     body += `VITE_TEST_HOOKS=${JSON.stringify(testHooksFlag)}\n`;
   }
   writeFileSync(tmpPath, body, { encoding: 'utf8' });
-  renameSync(tmpPath, outPath);
+  renameReplacing(tmpPath, outPath);
 
   process.stdout.write(
     `[setup-env] .env.local: ${origin} @ ${commitHash.slice(0, 7)}\n`

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@pkgs/object-store-root-shared-ts#src",
+        "@pkgs/object-store-s3-shared-ts#src"
+      ]
+    }
+  }
+}

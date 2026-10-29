@@ -87,14 +87,14 @@ describe('Verify workflow cancellation', () => {
     };
     // A pull request has no inputs, and a dispatch cannot name a profile.
     expect(workflow.env['VERIFY_PROFILE']).toBe(
-      "${{ inputs.profile || 'pr' }}"
+      "${{ inputs.profile || 'release' }}"
     );
-    expect(workflow.on.workflow_call.inputs.profile.default).toBe('pr');
+    expect(workflow.on.workflow_call.inputs.profile.default).toBe('release');
     expect(workflow.on.workflow_dispatch.inputs).not.toHaveProperty('profile');
     expect(activeProfile({}).env).toEqual({});
   });
   // The merge gate keeps no test report; the job log is the evidence.
-  test('the pr profile uploads only transfer artifacts and deletes them', () => {
+  test('the release profile uploads only transfer artifacts and deletes them', () => {
     const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
       jobs: Record<
         string,
@@ -156,6 +156,43 @@ describe('Verify workflow cancellation', () => {
     );
     expect(workflow.concurrency['cancel-in-progress']).toBe(
       "${{ github.event_name == 'pull_request' }}"
+    );
+  });
+  // regression: release-cold-slow-suites
+  test('a pull request runs the gate Release runs, so Release restores it', () => {
+    const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
+      env: Record<string, string>;
+      on: { workflow_call: { inputs: { profile: { default: string } } } };
+    };
+    // Release passes `profile: release`; a pull request has no inputs. Both
+    // land on the same profile, so every task hash, `VERIFY_PROFILE`
+    // included, is the one the other wrote to the remote cache.
+    expect(workflow.env['VERIFY_PROFILE']).toBe(
+      "${{ inputs.profile || 'release' }}"
+    );
+    expect(workflow.on.workflow_call.inputs.profile.default).toBe('release');
+    const deploy = Bun.YAML.parse(
+      readFileSync(join(WORKFLOW, '..', 'deploy.yml'), 'utf8')
+    ) as { jobs: { 'deploy-verify': { with: Record<string, unknown> } } };
+    expect(deploy.jobs['deploy-verify'].with['profile']).toBe('release');
+  });
+  // regression: release-costs-erased-by-pr-profile
+  test('each profile packs by its own measured durations', () => {
+    const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
+      jobs: Record<
+        string,
+        { steps: { uses?: string; with?: Record<string, string> }[] }
+      >;
+    };
+    const cacheSteps = Object.values(workflow.jobs).flatMap((job) =>
+      job.steps.filter((step) => step.uses?.startsWith('actions/cache/'))
+    );
+    expect(cacheSteps).toHaveLength(2);
+    const key =
+      'verify-task-costs-v2-${{ env.VERIFY_PROFILE }}-${{ github.run_id }}-${{ github.run_attempt }}';
+    for (const step of cacheSteps) expect(step.with?.['key']).toBe(key);
+    expect(cacheSteps[0]!.with?.['restore-keys']).toBe(
+      'verify-task-costs-v2-${{ env.VERIFY_PROFILE }}-'
     );
   });
   // regression: verify-cancel-holds-concurrency

@@ -1,0 +1,13 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/room-adapter-durable-object-server-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-boundary-imports.grit": [
+    "!**/pkgs/room-adapter-durable-object-server-ts/src/adapter-base.ts",
+    "!**/pkgs/room-adapter-durable-object-server-ts/src/observability.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-no-worker-runtime.grit": [
+    "!**/pkgs/room-adapter-durable-object-server-ts/src/adapter-base.ts",
+    "!**/pkgs/room-adapter-durable-object-server-ts/src/observability.ts"
+  ]
+}

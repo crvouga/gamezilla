@@ -18,10 +18,11 @@
  *    remote cache returned an error and was disabled.
  */
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { TURBO_API, TURBO_TEAM } from '@libs/secrets-shared-ts/turbo-token';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { artifactUrl, retryRateLimited } from './turbo-preflight';
 
 export type Check = {
@@ -268,7 +269,7 @@ function runTurboProbe(repoRoot: string): Check {
       stderr: `${result.stderr ?? ''}${result.error === undefined ? '' : String(result.error)}`,
     });
   } finally {
-    rmSync(cacheDir, { recursive: true, force: true });
+    removeTree(cacheDir, { whenLocked: 'leave' });
   }
 }
 

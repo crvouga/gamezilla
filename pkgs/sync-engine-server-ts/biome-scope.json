@@ -1,0 +1,32 @@
+{
+  "overrides[8]": ["pkgs/sync-engine-server-ts/src/replay-mutation.ts"],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-locale-apis.grit": [
+    "**/pkgs/sync-engine-server-ts/src/map-constraint-error.ts",
+    "**/pkgs/sync-engine-server-ts/src/process-mutations-batch.ts",
+    "**/pkgs/sync-engine-server-ts/src/prune-mutation-artifacts.ts",
+    "**/pkgs/sync-engine-server-ts/src/replay-mutation.ts",
+    "**/pkgs/sync-engine-server-ts/src/stored-replay-verdict.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-optional-io.grit": [
+    "**/pkgs/sync-engine-server-ts/src/map-constraint-error.ts",
+    "**/pkgs/sync-engine-server-ts/src/process-mutations-batch.ts",
+    "**/pkgs/sync-engine-server-ts/src/prune-mutation-artifacts.ts",
+    "**/pkgs/sync-engine-server-ts/src/replay-mutation.ts",
+    "**/pkgs/sync-engine-server-ts/src/stored-replay-verdict.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-legacy-writes.grit": [
+    "!**/pkgs/sync-engine-server-ts/src/map-constraint-error.ts",
+    "!**/pkgs/sync-engine-server-ts/src/process-mutations-batch.ts",
+    "!**/pkgs/sync-engine-server-ts/src/prune-mutation-artifacts.ts",
+    "!**/pkgs/sync-engine-server-ts/src/replay-mutation.ts",
+    "!**/pkgs/sync-engine-server-ts/src/stored-replay-verdict.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-sync-engine-terminology.grit": [
+    "**/pkgs/sync-engine-server-ts/src/**/*.{ts,tsx}",
+    "**/pkgs/sync-engine-server-ts/tests/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-boundary-imports.grit": [
+    "!**/pkgs/sync-engine-server-ts/src/replay-mutation.ts",
+    "!**/pkgs/sync-engine-server-ts/src/sync-app-mutations-route.ts"
+  ]
+}

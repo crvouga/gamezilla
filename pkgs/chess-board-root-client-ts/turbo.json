@@ -1,0 +1,20 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@pkgs/bun-test-solid-client-ts#src",
+        "@pkgs/chess-board-core-shared-ts#src",
+        "@pkgs/chess-board-root-shared-ts#src",
+        "@pkgs/clock-client-ts#src",
+        "@pkgs/clock-shared-ts#src",
+        "@pkgs/solid-context-client-ts#src",
+        "@pkgs/sounds-client-ts#src",
+        "@pkgs/sounds-shared-ts#src",
+        "@pkgs/ui-root-client-ts#src",
+        "@pkgs/ui-root-shared-ts#src"
+      ]
+    }
+  }
+}

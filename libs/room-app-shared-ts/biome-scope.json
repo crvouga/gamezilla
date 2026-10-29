@@ -1,0 +1,5 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-shared-no-wall-io.grit": [
+    "!**/libs/room-app-shared-ts/src/wall-room-server-env.ts"
+  ]
+}

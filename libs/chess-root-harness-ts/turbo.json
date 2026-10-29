@@ -61,6 +61,33 @@
     },
     "test:spec:12": {
       "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "src": {
+      "dependsOn": [
+        "@libs/app-root-server-ts#src",
+        "@libs/chess-puzzle-client-ts#src",
+        "@libs/chess-puzzle-harness-ts#src",
+        "@libs/chess-puzzle-shared-ts#src",
+        "@libs/chess-root-client-ts#src",
+        "@libs/chess-root-server-ts#src",
+        "@libs/chess-root-shared-ts#src",
+        "@libs/chess-rules-shared-ts#src",
+        "@libs/chess-sub-shared-ts#src",
+        "@libs/game-matchmaking-harness-ts#src",
+        "@libs/game-puzzle-shared-ts#src",
+        "@libs/game-session-harness-ts#src",
+        "@libs/harness-ts#src",
+        "@libs/permissions-shared-ts#src",
+        "@libs/spaces-harness-ts#src",
+        "@libs/test-ids-shared-ts#src",
+        "@pkgs/chess-board-core-shared-ts#src",
+        "@pkgs/object-store-root-shared-ts#src",
+        "@pkgs/outbox-shared-ts#src",
+        "@pkgs/sounds-shared-ts#src",
+        "@pkgs/sql-root-shared-ts#src",
+        "@pkgs/sync-engine-server-ts#src",
+        "@pkgs/sync-engine-shared-ts#src"
+      ]
     }
   }
 }

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@libs/account-privacy-shared-ts#src",
+        "@libs/app-config-shared-ts#src",
+        "@libs/auth-shared-ts#src",
+        "@libs/billing-shared-ts#src",
+        "@libs/chess-sub-shared-ts#src",
+        "@libs/friends-shared-ts#src",
+        "@libs/game-catalog-shared-ts#src",
+        "@libs/game-matchmaking-shared-ts#src",
+        "@libs/game-puzzle-shared-ts#src",
+        "@libs/game-session-shared-ts#src",
+        "@libs/games-shared-ts#src",
+        "@libs/notifications-shared-ts#src",
+        "@libs/permissions-shared-ts#src",
+        "@libs/profile-shared-ts#src",
+        "@libs/spaces-shared-ts#src",
+        "@libs/sub-shared-ts#src",
+        "@libs/synthetic-population-shared-ts#src",
+        "@pkgs/db-schema-root-shared-ts#src",
+        "@pkgs/observability-root-shared-ts#src",
+        "@pkgs/sync-engine-shared-ts#src"
+      ]
+    }
+  }
+}

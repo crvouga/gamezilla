@@ -1,0 +1,8 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-pubsub-emqx-imports.grit": [
+    "!**/pkgs/pubsub-emqx-harness-ts/tests/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/pubsub-emqx-harness-ts/tests/create-emqx-pubsub.test.ts"
+  ]
+}

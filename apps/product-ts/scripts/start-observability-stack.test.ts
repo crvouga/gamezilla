@@ -1,7 +1,8 @@
 import { expect, test } from 'bun:test';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { startObservabilityStack } from './start-observability-stack';
 
 const TRACE_ID = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
@@ -48,7 +49,7 @@ test('the native collector stores traces, logs, and metrics as OTLP JSON', async
     });
   } finally {
     await stack.stop();
-    await rm(dataDir, { recursive: true, force: true });
+    removeTree(dataDir, { whenLocked: 'leave' });
   }
 });
 

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@pkgs/auth-inhouse-shared-ts#src",
+        "@pkgs/auth-root-client-ts#src",
+        "@pkgs/auth-root-shared-ts#src",
+        "@pkgs/clock-shared-ts#src",
+        "@pkgs/http-client-shared-ts#src"
+      ]
+    }
+  }
+}

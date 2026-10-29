@@ -1,5 +1,6 @@
 import { test } from 'bun:test';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { verifyTemporal } from '@pkgs/quint-server-ts/temporal';
 import { verify } from '@pkgs/quint-server-ts/verify';
 import { verifyDeadlineMs } from '@pkgs/quint-shared-ts/wall';
@@ -77,8 +78,9 @@ if (models.some((model) => model.name === 'fair-recovery')) {
   test.concurrent(
     'temporal verification detects starvation when fairness is removed',
     async () => {
-      const { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } =
-        await import('node:fs');
+      const { cpSync, mkdtempSync, readFileSync, writeFileSync } = await import(
+        'node:fs'
+      );
       const { tmpdir } = await import('node:os');
       const { expect } = await import('bun:test');
       const { MODEL_DIR } = await import('./campaign-config');
@@ -112,7 +114,7 @@ if (models.some((model) => model.name === 'fair-recovery')) {
           }
         );
       } finally {
-        rmSync(dir, { recursive: true, force: true });
+        removeTree(dir, { whenLocked: 'leave' });
       }
     },
     TEST_TIMEOUT_MS

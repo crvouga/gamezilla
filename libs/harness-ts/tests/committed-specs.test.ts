@@ -1,9 +1,10 @@
 import { expect, test } from 'bun:test';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readCommittedSpecs } from '@libs/harness-ts/committed-specs';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server-ts/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
 import { writeUtf8 } from '@pkgs/object-store-root-shared-ts/helpers';
@@ -49,6 +50,6 @@ test('inventory reads the selected commit instead of current or ignored files', 
       { path: 'specs/example/counter.feature', content: 'Feature: Original\n' },
     ]);
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });

@@ -1,0 +1,10 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-pubsub-emqx-imports.grit": [
+    "!**/libs/pubsub-server-ts/src/**",
+    "!**/libs/pubsub-server-ts/tests/mint-pubsub-token.test.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-shared-no-wall-io.grit": [
+    "!**/libs/pubsub-server-ts/src/**",
+    "!**/libs/pubsub-server-ts/tests/**"
+  ]
+}

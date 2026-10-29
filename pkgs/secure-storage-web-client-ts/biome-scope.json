@@ -1,0 +1,6 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/secure-storage-web-client-ts/src/**/*.{ts,tsx}",
+    "**/pkgs/secure-storage-web-client-ts/tests/**/*.{ts,tsx}"
+  ]
+}

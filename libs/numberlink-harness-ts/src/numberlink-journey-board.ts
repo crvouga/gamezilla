@@ -10,30 +10,56 @@ import {
 /** Driver reads between a choice and its rendered label; each is a round trip. */
 const LABEL_READS = 100;
 
-/** Whether `id`'s accessible label comes to include `expected`. */
+/**
+ * `id`'s accessible label once it includes `expected`, or the last label read
+ * when it never did, so a failure says what the cell shows instead.
+ */
 async function labelBecomes(
   device: ContentJourneyDevice,
   id: string,
   expected: string
-): Promise<boolean> {
+): Promise<{ readonly ok: boolean; readonly label: string | null }> {
+  let label: string | null = null;
   for (let read = 0; read < LABEL_READS; read += 1) {
-    const label = await device.ui.get(id).attribute('aria-label');
-    if (label?.includes(expected)) return true;
+    label = await device.ui.get(id).attribute('aria-label');
+    if (label?.includes(expected)) return { ok: true, label };
   }
-  return false;
+  return { ok: false, label };
+}
+
+/**
+ * A resize shows its new size before its draft save settles, and a save that
+ * settles after the next edit can replace it, so each edit waits for the save.
+ */
+async function draftSaved(device: ContentJourneyDevice): Promise<void> {
+  await device.ui
+    .get('content-draft-save-status')
+    .expect.text('Saved on this device.', { ...device, exact: false });
 }
 
 async function edit(device: ContentJourneyDevice): Promise<void> {
   const columns = device.ui.get('numberlink-columns-value');
   await columns.key('arrowUp');
   await columns.expect.text('4', device);
+  await draftSaved(device);
   await columns.key('arrowDown');
   await columns.expect.text('3', device);
+  await draftSaved(device);
   await contentTap(device, 'numberlink-board-cell-1');
-  if (!(await labelBecomes(device, 'numberlink-board-cell-1', 'endpoint 1')))
+  const moved = await labelBecomes(
+    device,
+    'numberlink-board-cell-1',
+    'endpoint 1'
+  );
+  if (!moved.ok) {
+    const first = await device.ui
+      .get('numberlink-board-cell-0')
+      .attribute('aria-label');
     throw new Error(
-      'Choosing an empty cell did not move the selected endpoint'
+      `Choosing an empty cell did not move the selected endpoint (cell 1 reads ${JSON.stringify(moved.label)}, cell 0 reads ${JSON.stringify(first)})`
     );
+  }
+  await draftSaved(device);
   await contentTap(device, 'numberlink-move-first');
   await contentTap(device, 'numberlink-board-cell-0');
   await contentInput(device, 'numberlink-pair-label', 'A');

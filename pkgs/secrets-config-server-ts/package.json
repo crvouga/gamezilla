@@ -19,6 +19,7 @@
     "@pkgs/secrets-config-shared-ts": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/fs-server-ts": "workspace:*",
     "@pkgs/object-store-node-fs-server-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

@@ -89,6 +89,7 @@ export async function runShard(index: number): Promise<number> {
     needed,
     status: status || (blocked.size > 0 ? 1 : 0),
     env,
+    running: execution.stream.running,
   });
   const actualMs = Number(process.hrtime.bigint() - start) / 1e6;
   // A red shard says why, once, in plain words, as the last thing in its log.
@@ -183,7 +184,7 @@ function transferEvidence(
   failed: boolean
 ): void {
   try {
-    // The `pr` profile keeps no report: a failure is read from the job log.
+    // The `release` profile keeps no report: a failure is read from the job log.
     if (activeProfile(env).reports) {
       preserveInterruptedReports(ROOT, results);
       preserveFailedReports(results);

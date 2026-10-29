@@ -1,0 +1,10 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/invariant-id-literal.grit": [
+    "**/pkgs/invariants-shared-ts/src/**/*.ts",
+    "**/pkgs/invariants-shared-ts/tests/**/*.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/invariants-shared-ts/src/**/*.{ts,tsx}",
+    "**/pkgs/invariants-shared-ts/tests/**/*.{ts,tsx}"
+  ]
+}

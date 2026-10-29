@@ -1,0 +1,5 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/room-root-harness-ts/src/**/*.{ts,tsx}"
+  ]
+}

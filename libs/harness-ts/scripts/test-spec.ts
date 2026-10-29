@@ -52,6 +52,7 @@ import { parseJunit } from '@crvouga/atlas/reports/junit';
 import { REPORT_COMPLETION, REPORT_READY } from '@libs/harness-ts/report-ready';
 import { testFailureSpans } from '@libs/harness-ts/test-failure-spans';
 import { wallClock } from '@pkgs/clock-shared-ts/wall';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { stubFileName, stubSource } from '@pkgs/gherkin-shared-ts/stubs';
 import { specParallelism } from '@pkgs/os-server-ts/test-concurrency';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
@@ -186,7 +187,7 @@ function requireEntry(entry: string, what: string): void {
 
 /** Write the stubs for `units` and return their `bun test` paths. */
 function writeStubs(units: readonly SpecUnit[]): readonly string[] {
-  rmSync(SPEC_STUB_DIR, { recursive: true, force: true });
+  removeTree(SPEC_STUB_DIR);
   if (units.length === 0) return [];
   mkdirSync(SPEC_STUB_DIR, { recursive: true });
   const features = units.filter((unit) => unit.path.endsWith('.feature'));
@@ -308,7 +309,7 @@ const ACTIVE_REPORT = join(
   // A package on another drive than the checkout is `D:/...`: no `:` in a name.
   `${repoPath(PACKAGE_DIR).replace(/[/:]/g, '--')}-${BUCKET}.json`
 );
-rmSync(REPORT_DIR, { recursive: true, force: true });
+removeTree(REPORT_DIR);
 mkdirSync(REPORT_DIR, { recursive: true });
 
 const stubs = writeStubs(selectSpecs(cli));

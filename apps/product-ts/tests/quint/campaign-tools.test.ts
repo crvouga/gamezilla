@@ -1,7 +1,8 @@
 import { expect, test } from 'bun:test';
-import { existsSync, mkdtempSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { CLI_TIMEOUT_MS } from './campaign-config';
 import { sample } from './campaign-tools';
 import { withSymbolicInput } from './symbolic-input';
@@ -24,7 +25,7 @@ test('identity symbolic compilation creates its absent report directory', async 
       reportDir
     );
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });
 
@@ -43,7 +44,7 @@ test(
         existsSync(join(reportDir, 'identity-machine-last.itf.json'))
       ).toBe(true);
     } finally {
-      rmSync(root, { recursive: true, force: true });
+      removeTree(root, { whenLocked: 'leave' });
     }
   },
   CLI_TIMEOUT_MS

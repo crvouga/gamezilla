@@ -1,7 +1,8 @@
 import { describe, expect, spyOn, test } from 'bun:test';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
 import { publishReportTask, verifyPublications } from './report-task-publish';
 
@@ -67,7 +68,7 @@ describe('report completion receipts', () => {
       await verifyPublications({ ...args, runId: 'concurrent' });
     } finally {
       log.mockRestore();
-      rmSync(repoRoot, { recursive: true, force: true });
+      removeTree(repoRoot, { whenLocked: 'leave' });
     }
   });
 });

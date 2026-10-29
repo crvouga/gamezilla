@@ -1,0 +1,5 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-sync-engine-terminology.grit": [
+    "**/libs/runtime-shared-ts/src/app-topic-map.ts"
+  ]
+}

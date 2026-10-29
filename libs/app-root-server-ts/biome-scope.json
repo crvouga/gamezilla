@@ -1,0 +1,27 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-sync-engine-terminology.grit": [
+    "**/libs/app-root-server-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-pubsub-emqx-imports.grit": [
+    "!**/libs/app-root-server-ts/src/notify-client-config-channels.ts",
+    "!**/libs/app-root-server-ts/src/notify-user-channels.ts",
+    "!**/libs/app-root-server-ts/src/outbox-drain.ts",
+    "!**/libs/app-root-server-ts/src/pubsub-token-routes.ts",
+    "!**/libs/app-root-server-ts/src/sync-app.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-access-model.grit": [
+    "!**/libs/app-root-server-ts/src/create-server.ts",
+    "!**/libs/app-root-server-ts/src/browser-telemetry-ingress.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-boundary-imports.grit": [
+    "!**/libs/app-root-server-ts/src/create-server.ts",
+    "!**/libs/app-root-server-ts/src/browser-telemetry-ingress.ts",
+    "!**/libs/app-root-server-ts/src/request-db-middleware.ts",
+    "!**/libs/app-root-server-ts/src/outbox-drain.ts",
+    "!**/libs/app-root-server-ts/src/request-telemetry.ts",
+    "!**/libs/app-root-server-ts/src/room-route.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-no-worker-runtime.grit": [
+    "!**/libs/app-root-server-ts/src/room-route.ts"
+  ]
+}

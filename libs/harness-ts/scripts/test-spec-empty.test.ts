@@ -1,7 +1,8 @@
 import { expect, test } from 'bun:test';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 // regression: empty-spec-part-passes
 test('an empty configured part fails instead of publishing a passing report', async () => {
@@ -54,6 +55,6 @@ test('an empty configured part fails instead of publishing a passing report', as
       ).attemptId
     ).toBe('empty-part-attempt');
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });

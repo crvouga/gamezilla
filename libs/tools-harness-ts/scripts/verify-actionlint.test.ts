@@ -6,11 +6,11 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  rmSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 const WORKFLOWS = [
   'deploy.yml',
@@ -100,7 +100,7 @@ function runCase(resolve: 'pinned' | 'failure' | 'relative', concurrency = '') {
         : [],
     };
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 }
 

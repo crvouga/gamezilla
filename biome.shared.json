@@ -1,0 +1,981 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.7/schema.json",
+  "root": true,
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "includes": [
+      "**",
+      "!.github/workflows",
+      "!!**/node_modules",
+      "!!**/dist",
+      "!!**/.wrangler",
+      "!!**/.turbo",
+      "!!**/.cache",
+      "!**/*.lock",
+      "!.superset/config.json",
+      "!.super.engineering/config.json",
+      "!docs/statecharts/index.html",
+      "!.agents/skills/**/assets",
+      "!.agents/skills/impeccable",
+      "!.agents/skills/ui-ux-pro-max",
+      "!qa",
+      "!!pkgs/postgres/.postgres"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 80,
+    "attributePosition": "auto"
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "jsxQuoteStyle": "double",
+      "quoteProperties": "asNeeded",
+      "trailingCommas": "es5",
+      "semicolons": "always",
+      "arrowParentheses": "always",
+      "bracketSpacing": true,
+      "bracketSameLine": false
+    }
+  },
+  "json": {
+    "formatter": {
+      "trailingCommas": "none"
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "includes": [
+      "**",
+      "!**/.wrangler/**",
+      "!**/babel.config.js",
+      "!**/lingui.config.*",
+      "!**/*.html",
+      "!apps/client-ts/public/sql-workers/**/*.js",
+      "!apps/product-ts/public/sql-workers/**/*.js",
+      "!.agents/skills/**/assets",
+      "!pkgs/babel-plugins/**"
+    ],
+    "rules": {
+      "preset": "none",
+      "complexity": {
+        "noExcessiveCognitiveComplexity": {
+          "level": "error",
+          "options": {
+            "maxAllowedComplexity": 20
+          }
+        },
+        "noExcessiveLinesPerFunction": {
+          "level": "error",
+          "options": {
+            "maxLines": 70,
+            "skipBlankLines": true,
+            "skipIifes": false
+          }
+        },
+        "useMaxParams": {
+          "level": "error",
+          "options": {
+            "max": 4
+          }
+        }
+      },
+      "correctness": {
+        "noUnusedVariables": {
+          "level": "error",
+          "options": {
+            "ignoreRestSiblings": true
+          }
+        },
+        "noUndeclaredDependencies": "error"
+      },
+      "nursery": {
+        "noExcessiveNestedCallbacks": {
+          "level": "error",
+          "options": {
+            "max": 3
+          }
+        },
+        "noFloatingPromises": "error",
+        "noImpliedEval": "error",
+        "noMisusedPromises": "error",
+        "useExhaustiveSwitchCases": "error"
+      },
+      "security": {
+        "noGlobalEval": "error"
+      },
+      "style": {
+        "noExcessiveClassesPerFile": {
+          "level": "error",
+          "options": {
+            "maxClasses": 1
+          }
+        },
+        "noExcessiveLinesPerFile": {
+          "level": "error",
+          "options": {
+            "maxLines": 500,
+            "skipBlankLines": true
+          }
+        },
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "paths": {}
+          }
+        },
+        "useConst": "error",
+        "useFilenamingConvention": {
+          "level": "error",
+          "options": {
+            "filenameCases": ["kebab-case"],
+            "requireAscii": true,
+            "strictCase": false
+          }
+        },
+        "useImportType": "error"
+      },
+      "suspicious": {
+        "noConsole": {
+          "level": "error",
+          "options": {
+            "allow": ["error", "warn"]
+          }
+        },
+        "noDebugger": "error",
+        "noDoubleEquals": "error",
+        "noExplicitAny": "error",
+        "noFocusedTests": "error",
+        "noVar": "error",
+        "noImportCycles": "error"
+      }
+    },
+    "domains": {
+      "react": "none",
+      "test": "none",
+      "types": "none"
+    }
+  },
+  "plugins": [
+    "./libs/tools-harness-ts/biome-plugins/no-aria-hidden.grit",
+    "./libs/tools-harness-ts/biome-plugins/no-aria-hidden-block.grit",
+    "./libs/tools-harness-ts/biome-plugins/no-a11y-elements-hidden.grit",
+    "./libs/tools-harness-ts/biome-plugins/no-a11y-elements-hidden-block.grit",
+    "./libs/tools-harness-ts/biome-plugins/no-a11y-important-for.grit",
+    "./libs/tools-harness-ts/biome-plugins/no-a11y-important-for-block.grit",
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/text-use-label.grit",
+      "includes": [
+        "**/*.{ts,tsx}",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}",
+        "!**/*-harness-ts/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/text-must-be-trans.grit",
+      "includes": ["!**/tests/**", "!**/*.test.{ts,tsx}", "!**/*-harness-ts/**"]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/text-must-be-trans-children.grit",
+      "includes": ["!**/tests/**", "!**/*.test.{ts,tsx}", "!**/*-harness-ts/**"]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-nested-await.grit",
+      "includes": []
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-export-star.grit",
+      "includes": []
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/lingui-no-trans-inside-trans.grit",
+      "includes": [
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}",
+        "!**/*-harness-ts/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/lingui-no-t-parameter.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/lingui-no-single-variables-to-translate.grit",
+      "includes": [
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}",
+        "!**/*-harness-ts/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-locale-apis.grit",
+      "includes": [
+        "**/libs/*-shared-ts/src/**/*.{ts,tsx}",
+        "**/libs/*-shared-ts/src/*.{ts,tsx}",
+        "**/pkgs/*-shared-ts/src/**/*.{ts,tsx}",
+        "**/pkgs/*-shared-ts/src/*.{ts,tsx}",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-optional-io.grit",
+      "includes": [
+        "**/libs/*-shared-ts/src/**/*.{ts,tsx}",
+        "**/libs/*-shared-ts/src/*.{ts,tsx}",
+        "**/pkgs/*-shared-ts/src/**/*.{ts,tsx}",
+        "**/pkgs/*-shared-ts/src/*.{ts,tsx}",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-mutation-nondeterminism.grit",
+      "includes": [
+        "**/libs/**/mutations/**/*.{ts,tsx}",
+        "**/pkgs/**/mutations/**/*.{ts,tsx}",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}",
+        "!**/*-harness-ts/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-sync-engine-framework-leak.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "!**/*-harness-ts/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-legacy-writes.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}",
+        "!**/dist/**",
+        "!**/build/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-di-container.grit",
+      "includes": [
+        "**/libs/*/src/**/*.{ts,tsx}",
+        "**/apps/*/src/**/*.{ts,tsx}",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}",
+        "!**/*-harness-ts/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-tier-vocabulary.grit",
+      "includes": [
+        "**/libs/*/src/**/*.{ts,tsx}",
+        "**/libs/*/tests/**/*.{ts,tsx}",
+        "**/libs/*/scripts/**/*.{ts,tsx}",
+        "**/apps/*/src/**/*.{ts,tsx}",
+        "**/apps/*/tests/**/*.{ts,tsx}",
+        "**/pkgs/*/src/**/*.{ts,tsx}",
+        "**/pkgs/*/tests/**/*.{ts,tsx}",
+        "!**/pkgs/billing*/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-tier-vocabulary-string.grit",
+      "includes": [
+        "**/libs/*/src/**/*.{ts,tsx}",
+        "**/libs/*/tests/**/*.{ts,tsx}",
+        "**/libs/*/scripts/**/*.{ts,tsx}",
+        "**/apps/*/src/**/*.{ts,tsx}",
+        "**/apps/*/tests/**/*.{ts,tsx}",
+        "**/pkgs/*/src/**/*.{ts,tsx}",
+        "**/pkgs/*/tests/**/*.{ts,tsx}",
+        "!**/pkgs/billing*/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-tier-words-puzzle.grit",
+      "includes": []
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-sync-engine-terminology.grit",
+      "includes": [
+        "**/libs/**/use-cases/**/shared/**/*.{ts,tsx}",
+        "!**/local-schema.ts",
+        "!**/framework-server-ddl.ts",
+        "!**/api-reports/**",
+        "!**/queries/core/types.ts"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-direct-pg-imports.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-pubsub-emqx-imports.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-heavy-client-imports.grit",
+      "includes": [
+        "**/libs/**/*.{ts,tsx}",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}",
+        "!**/*-harness-ts/**"
+      ]
+    },
+    "./libs/tools-harness-ts/biome-plugins/no-vitest.grit",
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-native-relative-path.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}",
+        "!**/dist/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-bare-recursive-rm.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}",
+        "!**/dist/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-bare-rename-sync.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}",
+        "!**/dist/**",
+        "!**/*.test.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-infra-outside-tofu.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}",
+        "!**/dist/**",
+        "!**/*.test.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-zod-in-pkgs.grit",
+      "includes": [
+        "**/pkgs/**/*.{ts,tsx}",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}",
+        "!**/*-harness-ts/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-bare-fs.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}",
+        "!**/scripts/**",
+        "!**/wall-node-fs.ts",
+        "!**/wall-path-exists.ts",
+        "!**/wall-os-fs.ts",
+        "!**/repo-tree-store.ts",
+        "!**/wall-io.ts",
+        "!**/harness-io.ts",
+        "!**/wall.ts",
+        "!**/wall-client-env.ts",
+        "!**/wall-room-server-env.ts",
+        "!**/polyfill-entry.ts",
+        "!**/cli-io.ts",
+        "!**/create-app.ts",
+        "!**/api.ts",
+        "!**/room.ts",
+        "!**/migrate.ts",
+        "!**/migrate-cli.ts",
+        "!**/dev.ts",
+        "!**/boot-product-harness.ts",
+        "!**/root-app.tsx",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}",
+        "!**/*-harness-ts/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-bare-io.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}",
+        "!**/scripts/**",
+        "!**/public/**",
+        "!**/server.ts",
+        "!**/wall-io.ts",
+        "!**/harness-io.ts",
+        "!**/wall.ts",
+        "!**/wall-client-env.ts",
+        "!**/wall-console-env.ts",
+        "!**/wall-room-server-env.ts",
+        "!**/real-time-runtime.ts",
+        "!**/real-time-scheduler.ts",
+        "!**/wall-node-fs.ts",
+        "!**/wall-os-fs.ts",
+        "!**/wall-path-exists.ts",
+        "!**/build-web.ts",
+        "!**/repo-tree-store.ts",
+        "!**/global.ts",
+        "!**/cli-io.ts",
+        "!**/app-io-provider.tsx",
+        "!**/polyfill-entry.ts",
+        "!**/create-app.ts",
+        "!**/api.ts",
+        "!**/room.ts",
+        "!**/migrate.ts",
+        "!**/migrate-cli.ts",
+        "!**/seed.ts",
+        "!**/dev.ts",
+        "!**/summarize-cli.ts",
+        "!**/default-crash-handler.ts",
+        "!**/export-chess-puzzles-load.ts",
+        "!**/serve-harness.ts",
+        "!**/example-root.tsx",
+        "!**/app.tsx",
+        "!**/boot-product-harness.ts",
+        "!**/root-app.tsx",
+        "!**/*-shared-worker.ts",
+        "!**/*-shared-worker.js",
+        "!**/*-boot.ts",
+        "!**/*-boot.js",
+        "!**/*.example.ts",
+        "!**/*.example.tsx",
+        "!**/bun-webview-driver-node.ts",
+        "!**/sql-host-entry.ts",
+        "!**/cf-dns.ts",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}",
+        "!**/*-harness-ts/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-resolve-wall-defaults.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}",
+        "!**/public/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-wall-io-defaults.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}",
+        "!**/scripts/**",
+        "!**/public/**",
+        "!**/server.ts",
+        "!**/wall-io.ts",
+        "!**/harness-io.ts",
+        "!**/wall.ts",
+        "!**/wall-client-env.ts",
+        "!**/wall-console-env.ts",
+        "!**/wall-reports-env.ts",
+        "!**/wall-room-server-env.ts",
+        "!**/wall-node-fs.ts",
+        "!**/wall-os-fs.ts",
+        "!**/wall-path-exists.ts",
+        "!**/build-web.ts",
+        "!**/repo-tree-store.ts",
+        "!**/global.ts",
+        "!**/cli-io.ts",
+        "!**/app-io-provider.tsx",
+        "!**/polyfill-entry.ts",
+        "!**/create-app.ts",
+        "!**/api.ts",
+        "!**/room.ts",
+        "!**/migrate.ts",
+        "!**/migrate-cli.ts",
+        "!**/seed.ts",
+        "!**/dev.ts",
+        "!**/summarize-cli.ts",
+        "!**/default-crash-handler.ts",
+        "!**/export-chess-puzzles-load.ts",
+        "!**/serve-harness.ts",
+        "!**/example-root.tsx",
+        "!**/app.tsx",
+        "!**/boot-product-harness.ts",
+        "!**/open-harness.ts",
+        "!**/launch-actor.ts",
+        "!**/root-app.tsx",
+        "!**/*-shared-worker.ts",
+        "!**/*-shared-worker.js",
+        "!**/*-boot.ts",
+        "!**/*-boot.js",
+        "!**/*.example.ts",
+        "!**/*.example.tsx",
+        "!**/bun-webview-driver-node.ts",
+        "!**/sql-host-entry.ts",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}",
+        "!**/*-harness-ts/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-inline-style-prop.grit",
+      "includes": [
+        "**/apps/**/*.{tsx}",
+        "**/libs/**/*.{tsx}",
+        "**/pkgs/**/*.{tsx}",
+        "!**/fixtures/**",
+        "!**/demo-app.*",
+        "!**/serialize-host-tree-html*",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}",
+        "!**/*-harness-ts/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/invariant-id-literal.grit",
+      "includes": []
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-dst-raw-selectors.grit",
+      "includes": ["**/libs/*-harness-ts/**/*.{ts,tsx}"]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-dst-internal.grit",
+      "includes": [
+        "**/pkgs/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/apps/**/*.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-world-objects.grit",
+      "includes": [
+        "**/pkgs/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/apps/**/*.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-dst-wait-assert-actions.grit",
+      "includes": [
+        "**/pkgs/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/apps/**/*.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-raw-create-table.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}",
+        "!**/dist/**",
+        "!**/build/**",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}",
+        "!**/*-harness-ts/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-ci-verdict.grit",
+      "includes": ["**/scripts/**/verify-*.ts", "!**/*.test.ts"]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-skipped-tests.grit",
+      "includes": ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}"]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-wall-time-in-tests.grit",
+      "includes": ["**/*.test.{ts,tsx}", "!**/*.contract.test.{ts,tsx}"]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-unpinned-property.grit",
+      "includes": ["**/*.{ts,tsx}"]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit",
+      "includes": ["!**/solid.{ts,tsx}"]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/import-no-test-from-prod.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}",
+        "!**/*.test.{ts,tsx}",
+        "!**/*.spec.{ts,tsx}",
+        "!**/tests/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/import-pkgs-tier.grit",
+      "includes": ["**/pkgs/**/*.{ts,tsx}"]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/import-libs-tier.grit",
+      "includes": ["**/libs/**/*.{ts,tsx}"]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/import-shared-no-wall-io.grit",
+      "includes": [
+        "**/libs/*-shared-ts/src/**/*.{ts,tsx}",
+        "!**/*.test.{ts,tsx}",
+        "!**/*.spec.{ts,tsx}",
+        "!**/tests/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/import-billing-vendor.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "!**/*-harness-ts/**",
+        "!**/scripts/**",
+        "!**/*.test.{ts,tsx}",
+        "!**/tests/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/import-access-facts.grit",
+      "includes": ["**/apps/**/*.{ts,tsx}", "**/libs/**/*.{ts,tsx}"]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/import-access-model.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "!**/*.test.{ts,tsx}",
+        "!**/tests/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-access-state-vocabulary.grit",
+      "includes": [
+        "**/libs/*/src/**/*.{ts,tsx}",
+        "**/apps/*/src/**/*.{ts,tsx}",
+        "!**/*.test.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/import-auth-vendor.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "!**/*-harness-ts/**",
+        "!**/scripts/**",
+        "!**/*.test.{ts,tsx}",
+        "!**/tests/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/import-product-no-harness.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "!**/*-harness-ts/**",
+        "!**/*.test.{ts,tsx}",
+        "!**/*.spec.{ts,tsx}",
+        "!**/tests/**"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/import-harness-core-no-fast-check.grit",
+      "includes": ["!**/*.test.{ts,tsx}", "!**/*.spec.{ts,tsx}", "!**/tests/**"]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/no-switch-in-component.grit",
+      "includes": ["**/*.tsx"]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/observability-no-raw-attributes.grit",
+      "includes": [
+        "**/apps/**/src/**/*.{ts,tsx}",
+        "**/libs/**/src/**/*.{ts,tsx}",
+        "**/pkgs/**/src/**/*.{ts,tsx}",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/observability-no-console-log.grit",
+      "includes": [
+        "**/apps/**/src/**/*.{ts,tsx}",
+        "**/libs/**/src/**/*.{ts,tsx}",
+        "**/pkgs/**/src/**/*.{ts,tsx}",
+        "!**/scripts/**",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/observability-core-no-runtime.grit",
+      "includes": []
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/observability-boundary-imports.grit",
+      "includes": [
+        "**/apps/**/src/**/*.{ts,tsx}",
+        "**/libs/**/src/**/*.{ts,tsx}",
+        "**/pkgs/**/src/**/*.{ts,tsx}",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/observability-no-browser-runtime.grit",
+      "includes": [
+        "**/apps/**/src/**/*.{ts,tsx}",
+        "**/libs/**/src/**/*.{ts,tsx}",
+        "**/pkgs/**/src/**/*.{ts,tsx}",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/observability-no-node-runtime.grit",
+      "includes": [
+        "**/apps/**/src/**/*.{ts,tsx}",
+        "**/libs/**/src/**/*.{ts,tsx}",
+        "**/pkgs/**/src/**/*.{ts,tsx}",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/observability-no-worker-runtime.grit",
+      "includes": [
+        "**/apps/**/src/**/*.{ts,tsx}",
+        "**/libs/**/src/**/*.{ts,tsx}",
+        "**/pkgs/**/src/**/*.{ts,tsx}",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/observability-identity-via-scope.grit",
+      "includes": [
+        "**/apps/**/src/**/*.{ts,tsx}",
+        "**/libs/**/src/**/*.{ts,tsx}",
+        "**/pkgs/**/src/**/*.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/observability-span-name.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/observability-using-io.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools-harness-ts/biome-plugins/import-game-implementation.grit",
+      "includes": [
+        "**/libs/game-session-*/src/**/*.{ts,tsx}",
+        "**/libs/game-matchmaking-*/src/**/*.{ts,tsx}",
+        "**/libs/spaces-*/src/**/*.{ts,tsx}",
+        "**/pkgs/turn-game-*/src/**/*.{ts,tsx}"
+      ]
+    }
+  ],
+  "overrides": [
+    {
+      "includes": [
+        "**/tests/**",
+        "**/*.test.{ts,tsx}",
+        "**/src/harness/**",
+        "**/*.spec.{ts,tsx}",
+        "**/*-harness-ts/src/**"
+      ],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noExcessiveLinesPerFunction": "off"
+          },
+          "nursery": {
+            "noExcessiveNestedCallbacks": "off"
+          },
+          "style": {
+            "noExcessiveLinesPerFile": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noExcessiveCognitiveComplexity": "off",
+            "noExcessiveLinesPerFunction": "off"
+          },
+          "style": {
+            "noExcessiveClassesPerFile": "off"
+          },
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "libs/stripe/src/use-cases/sync-catalog/server/sync/catalog.ts"
+      ],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/scripts/**", "**/*.bench.ts", "**/*.bench.tsx"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          },
+          "complexity": {
+            "noExcessiveCognitiveComplexity": "off"
+          },
+          "style": {
+            "noExcessiveLinesPerFile": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["pkgs/room-widgets/src/pages/use-room-harness.ts"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noExcessiveCognitiveComplexity": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/src/components/icons/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/libs/*/tests/harness/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@pkgs/ui-testing": {
+                    "importNames": ["Driver"],
+                    "message": "Scenarios must use s.apply(defineAction) / openHarness (see libs/harness-ts/README.md)."
+                  },
+                  "@pkgs/ui-testing-solid-dom": {
+                    "message": "Scenarios must use s.apply(defineAction) / openHarness (see libs/harness-ts/README.md)."
+                  },
+                  "@pkgs/ui-testing-bun-webview": {
+                    "message": "Scenarios must use s.apply(defineAction) / openHarness (see libs/harness-ts/README.md)."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noExcessiveLinesPerFunction": "off",
+            "noExcessiveCognitiveComplexity": "off"
+          },
+          "nursery": {
+            "noExcessiveNestedCallbacks": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [],
+      "formatter": {
+        "enabled": false
+      }
+    }
+  ]
+}

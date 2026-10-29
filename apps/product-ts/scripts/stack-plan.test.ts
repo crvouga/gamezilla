@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, test } from 'bun:test';
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { parseStackOptions } from './stack-options';
 import { createStackPlan, planPath, readPlan } from './stack-plan';
 import {
@@ -15,8 +15,7 @@ import {
 
 const roots: string[] = [];
 afterEach(() => {
-  for (const root of roots.splice(0))
-    rmSync(root, { recursive: true, force: true });
+  for (const root of roots.splice(0)) removeTree(root, { whenLocked: 'leave' });
 });
 
 function repoRoot(): string {

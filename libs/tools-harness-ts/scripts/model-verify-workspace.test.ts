@@ -5,11 +5,11 @@ import {
   mkdtempSync,
   readdirSync,
   readFileSync,
-  rmSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { withModelWorkspace } from './model-verify-workspace';
 
 test('an unsplit verification preserves another running checker source', async () => {
@@ -25,7 +25,7 @@ test('an unsplit verification preserves another running checker source', async (
     ]);
     expect(readFileSync(source, 'utf8')).toContain('authValid');
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });
 
@@ -55,7 +55,7 @@ test('overlapping verifications publish evidence without deleting a running solv
           'second'
         );
         // A cached report restore must also leave this invocation alive.
-        rmSync(report, { recursive: true, force: true });
+        removeTree(report, { whenLocked: 'leave' });
         expect(existsSync(cwd)).toBe(true);
         writeFileSync(join(workspace, 'verdict.json'), 'first');
       },
@@ -65,7 +65,7 @@ test('overlapping verifications publish evidence without deleting a running solv
     expect(existsSync(join(report, 'apalache'))).toBe(false);
     expect(existsSync(first)).toBe(false);
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });
 
@@ -93,7 +93,7 @@ test('a failed checker still publishes its diagnostics and releases scratch', as
     ).toBe('failed');
     expect(existsSync(workspace)).toBe(false);
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });
 
@@ -150,6 +150,6 @@ test("a part replaces its own models' evidence and leaves the other parts'", asy
       'chess-key-qnt.dddd.json',
     ]);
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });

@@ -1,0 +1,6 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/distributed-lock-server-ts/src/**/*.{ts,tsx}",
+    "**/pkgs/distributed-lock-server-ts/tests/**/*.{ts,tsx}"
+  ]
+}

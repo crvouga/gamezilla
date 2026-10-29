@@ -1,0 +1,29 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-locale-apis.grit": [
+    "**/pkgs/room-root-shared-ts/src/core-storage.ts",
+    "**/pkgs/room-root-shared-ts/src/transport.ts",
+    "**/pkgs/room-root-shared-ts/src/room-server-types.ts",
+    "**/pkgs/room-root-shared-ts/src/room-service.ts",
+    "**/pkgs/room-root-shared-ts/src/server-core-storage.ts",
+    "**/pkgs/room-root-shared-ts/src/types.ts",
+    "**/pkgs/room-root-shared-ts/src/hash-room-state.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-optional-io.grit": [
+    "**/pkgs/room-root-shared-ts/src/core-storage.ts",
+    "**/pkgs/room-root-shared-ts/src/transport.ts",
+    "**/pkgs/room-root-shared-ts/src/room-server-types.ts",
+    "**/pkgs/room-root-shared-ts/src/room-service.ts",
+    "**/pkgs/room-root-shared-ts/src/server-core-storage.ts",
+    "**/pkgs/room-root-shared-ts/src/types.ts",
+    "**/pkgs/room-root-shared-ts/src/hash-room-state.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-shared-no-wall-io.grit": [
+    "**/pkgs/room-root-shared-ts/src/core-storage.ts",
+    "**/pkgs/room-root-shared-ts/src/transport.ts",
+    "**/pkgs/room-root-shared-ts/src/room-server-types.ts",
+    "**/pkgs/room-root-shared-ts/src/room-service.ts",
+    "**/pkgs/room-root-shared-ts/src/server-core-storage.ts",
+    "**/pkgs/room-root-shared-ts/src/types.ts",
+    "**/pkgs/room-root-shared-ts/src/hash-room-state.ts"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@pkgs/http-client-client-ts#src",
+        "@pkgs/object-store-root-client-ts#src",
+        "@pkgs/object-store-root-shared-ts#src",
+        "@pkgs/solid-context-client-ts#src",
+        "@pkgs/sounds-client-ts#src",
+        "@pkgs/sounds-shared-ts#src",
+        "@pkgs/tts-root-shared-ts#src"
+      ]
+    }
+  }
+}

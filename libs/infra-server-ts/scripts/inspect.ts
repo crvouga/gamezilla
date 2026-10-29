@@ -12,17 +12,12 @@
  * via secret admin). Do not run bare.
  */
 import { spawn, spawnSync } from 'node:child_process';
-import {
-  chmodSync,
-  mkdirSync,
-  mkdtempSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { chmodSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { ENV_FILES } from '@libs/infra-shared-ts/envs';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import type {
   EnvBundle,
   HelperQuery,
@@ -123,7 +118,7 @@ function printHelperNames(queries: readonly HelperQuery[]): void {
 function registerCleanup(tmpDir: string): void {
   const cleanup = (): void => {
     try {
-      rmSync(tmpDir, { recursive: true, force: true });
+      removeTree(tmpDir);
     } catch {
       // best-effort
     }

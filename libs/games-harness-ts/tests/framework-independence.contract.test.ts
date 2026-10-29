@@ -1,13 +1,8 @@
 import { expect, test } from 'bun:test';
-import {
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { HARNESS_GAMES } from '@libs/games-harness-ts/harness-games';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { stubSource } from '@pkgs/gherkin-shared-ts/stubs';
 
 const PACKAGE = join(import.meta.dir, '..');
@@ -148,7 +143,7 @@ test.each(ISOLATED_RUNS)(
       // Only the consumer's scenarios match the pattern: any that pass are its.
       assertConsumerRan(result);
     } finally {
-      rmSync(directory, { recursive: true, force: true });
+      removeTree(directory, { whenLocked: 'leave' });
     }
   },
   180_000

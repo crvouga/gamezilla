@@ -4,12 +4,12 @@ import {
   mkdtempSync,
   readdirSync,
   readFileSync,
-  rmSync,
   statSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import {
   ciArtifactsStore,
   downloadArtifact,
@@ -62,9 +62,10 @@ export function readScheduleCosts(path = MEASURED_COSTS_PATH): TaskCosts {
 
 /**
  * What one run teaches the next plan: a task it executed and passed, at the
- * seconds it took; any other planned task keeps the measured cost its plan
- * already had. Estimates, failures and tasks outside the plan are dropped, so
- * the file follows the current graph.
+ * seconds it took; a task the shard was still running when it ran out of
+ * time, at no less than it had run; any other planned task keeps the
+ * measured cost its plan already had. Estimates, failures and tasks outside
+ * the plan are dropped, so the file follows the current graph.
  */
 export function measuredCosts(
   planned: readonly {
@@ -77,6 +78,7 @@ export function measuredCosts(
     readonly passed: boolean;
     readonly cache: string;
     readonly milliseconds: number;
+    readonly ranForMs?: number;
   }[]
 ): Record<string, number> {
   const executed = new Map(
@@ -93,10 +95,29 @@ export function measuredCosts(
         Math.max(1, Math.round(result.milliseconds / 1000)),
       ])
   );
+  // Killed at the deadline: it costs at least what it ran, and an estimate
+  // it outran is no measurement.
+  const outran = new Map(
+    results
+      .filter(
+        (result) =>
+          result.ranForMs !== undefined &&
+          Number.isFinite(result.ranForMs) &&
+          result.ranForMs > 0
+      )
+      .map((result) => [
+        result.taskId,
+        Math.max(1, Math.ceil((result.ranForMs ?? 0) / 1000)),
+      ])
+  );
   const costs: [string, number][] = [];
   for (const task of planned) {
+    const lowerBound = outran.get(task.taskId);
     const seconds =
       executed.get(task.taskId) ??
+      (lowerBound === undefined
+        ? undefined
+        : Math.max(lowerBound, task.seconds)) ??
       (task.durationSource === 'history' ? task.seconds : undefined);
     if (seconds !== undefined) costs.push([task.taskId, seconds]);
   }
@@ -196,7 +217,7 @@ async function downloadRunSummaries(runId: string): Promise<string[]> {
       .filter((path) => /shard-\d+\.json$/.test(path))
       .map((path) => readFileSync(path, 'utf8'));
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    removeTree(dir, { whenLocked: 'leave' });
   }
 }
 

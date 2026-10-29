@@ -2,13 +2,14 @@
 import { mkdirSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { evidenceKey } from '@pkgs/conformance-shared-ts/evidence';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { copyModelEvidence } from './verify-model-evidence';
 
 /** What an earlier verification of one model left in the report. */
 function removeModelEvidence(report: string, specUri: string): void {
   const out = specUri.replace(/\W+/g, '-');
   for (const checker of ['apalache', 'tlc'])
-    rmSync(join(report, checker, out), { recursive: true, force: true });
+    removeTree(join(report, checker, out));
   const evidence = join(report, 'evidence');
   let names: readonly string[];
   try {
@@ -45,7 +46,7 @@ export async function withModelWorkspace<T>(
         for (const specUri of only) removeModelEvidence(report, specUri);
       copyModelEvidence(workspace, report);
     } finally {
-      rmSync(workspace, { recursive: true, force: true });
+      removeTree(workspace, { whenLocked: 'leave' });
     }
   }
 }

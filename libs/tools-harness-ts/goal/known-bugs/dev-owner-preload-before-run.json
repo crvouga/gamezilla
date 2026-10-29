@@ -1,4 +1,4 @@
 {
   "summary": "Inserting the dev-owner preload before a leading Bun flag made `bun --no-env-file run` print the run help instead of starting the script. The preload now follows the run or test subcommand.",
-  "regressionTest": "pkgs/os-server-ts/tests/dev-owner.contract.test.ts"
+  "regressionTest": "pkgs/dev-owner-server-ts/tests/dev-owner.contract.test.ts"
 }

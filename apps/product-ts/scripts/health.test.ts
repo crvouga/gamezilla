@@ -13,6 +13,7 @@ import {
   writeFeatureStubs,
   writeSloStubs,
 } from '@apps/product-ts/scripts/health';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { parseFeature } from '@pkgs/gherkin-shared-ts/parse';
 import {
   bindingIssues,
@@ -155,7 +156,7 @@ test.each(['live', 'release'])(
       );
       expect(result.status, result.stdout + result.stderr).toBe(0);
     } finally {
-      rmSync(dir, { recursive: true, force: true });
+      removeTree(dir, { whenLocked: 'leave' });
     }
   }
 );
@@ -216,7 +217,7 @@ test('health generates feature and objective stubs with resolvable declared brid
       expect(manifest.devDependencies[packageName]).toBe('workspace:*');
     }
   } finally {
-    rmSync(stubDir, { recursive: true, force: true });
+    removeTree(stubDir, { whenLocked: 'leave' });
   }
 });
 
@@ -246,7 +247,7 @@ test('release timelines are opt-in while ordinary health keeps verdict-only repo
       `report: wallFeatureReport(${JSON.stringify(dirs.reportDir)})`
     );
   } finally {
-    rmSync(stubDir, { recursive: true, force: true });
+    removeTree(stubDir, { whenLocked: 'leave' });
   }
 });
 
@@ -338,7 +339,7 @@ test(${JSON.stringify(scenario)}, async () => {
     expect(processes).toHaveLength(2);
     expect(new Set(processes).size).toBe(1);
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    removeTree(dir, { whenLocked: 'leave' });
   }
 });
 

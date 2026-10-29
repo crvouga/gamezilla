@@ -6,10 +6,10 @@ import {
   mkdirSync,
   mkdtempSync,
   readdirSync,
-  renameSync,
-  rmSync,
 } from 'node:fs';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
+import { renameReplacing } from '@pkgs/fs-server-ts/rename-replacing';
 import { findBudgetOverruns, type RunSummary } from './verify-budget';
 
 function artifacts(directory: string): string[] {
@@ -69,10 +69,10 @@ export function publishVerifyArtifacts(
           join(temporary, name),
           constants.COPYFILE_FICLONE
         );
-      renameSync(join(temporary, archive), join(store, archive));
-      renameSync(join(temporary, metadata), join(store, metadata));
+      renameReplacing(join(temporary, archive), join(store, archive));
+      renameReplacing(join(temporary, metadata), join(store, metadata));
     }
   } finally {
-    rmSync(temporary, { recursive: true, force: true });
+    removeTree(temporary, { whenLocked: 'leave' });
   }
 }

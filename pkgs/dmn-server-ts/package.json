@@ -20,6 +20,7 @@
     "@pkgs/dmn-shared-ts": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/fs-server-ts": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

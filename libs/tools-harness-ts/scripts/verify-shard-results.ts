@@ -12,28 +12,48 @@ export type Result = {
   milliseconds: number;
   exitCode: number;
   interrupted?: boolean;
+  /**
+   * How long an interrupted task had run when the shard was stopped: a lower
+   * bound on its cost, never a measured duration.
+   */
+  ranForMs?: number;
 };
 
-/** A missing verdict is a failure, never proof of execution or a measured duration. */
+/** A task the shard was still running when it stopped, and for how long. */
+export type RunningTask = { readonly taskId: string; readonly seconds: number };
+
+/**
+ * A missing verdict is a failure, never proof of execution or a measured
+ * duration. A task still running when the shard stopped records how long it
+ * had run, so the next plan does not pack it by the estimate it outran.
+ */
 export function completeResults(
   tasks: VerifyPlan['tasks'],
   results: readonly Result[],
-  status: number
+  status: number,
+  running: readonly RunningTask[] = []
 ): Result[] {
   const seen = new Set(results.map((result) => result.taskId));
+  const ranFor = new Map(
+    running.map((task) => [task.taskId, Math.round(task.seconds * 1000)])
+  );
   return [
     ...results,
     ...tasks
       .filter((task) => !seen.has(task.taskId))
-      .map((task) => ({
-        taskId: task.taskId,
-        hash: task.hash,
-        passed: false,
-        cache: 'MISS',
-        milliseconds: 0,
-        exitCode: status || 1,
-        interrupted: true,
-      })),
+      .map((task) => {
+        const ranForMs = ranFor.get(task.taskId);
+        return {
+          taskId: task.taskId,
+          hash: task.hash,
+          passed: false,
+          cache: 'MISS',
+          milliseconds: 0,
+          exitCode: status || 1,
+          interrupted: true,
+          ...(ranForMs === undefined ? {} : { ranForMs }),
+        };
+      }),
   ];
 }
 function reportOverruns(
@@ -54,6 +74,8 @@ export function collectResults(args: {
   needed: ReadonlySet<string>;
   status: number;
   env: NodeJS.ProcessEnv;
+  /** Tasks still running when the shard stopped. */
+  running?: readonly RunningTask[];
 }): { results: Result[]; verdict: number; budgetOverruns: string } {
   const { plan, shard, summary, needed, status, env } = args;
   const results: Result[] = shard.tasks
@@ -116,7 +138,7 @@ export function collectResults(args: {
         )
       );
   }
-  const complete = completeResults(shard.tasks, results, status);
+  const complete = completeResults(shard.tasks, results, status, args.running);
   let verdict = status;
   try {
     validateShardResult(shard, complete);

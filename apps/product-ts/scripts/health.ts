@@ -39,7 +39,6 @@ import {
   mkdirSync,
   readdirSync,
   readFileSync,
-  rmSync,
   writeFileSync,
 } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
@@ -48,6 +47,7 @@ import { envFile } from '@libs/infra-shared-ts/envs';
 import { exportSecretsMapLive } from '@libs/secrets-server-ts/secrets-io';
 import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
 import { readEvidence } from '@pkgs/conformance-server-ts/evidence-store';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { stubFileName, stubSource } from '@pkgs/gherkin-shared-ts/stubs';
 import { isSyntheticFeatureSource } from '@pkgs/gherkin-shared-ts/tags';
 import { createDeadlineFetch } from '@pkgs/http-client-shared-ts/deadline-fetch';
@@ -336,7 +336,7 @@ export function hostSkips(
 /** Fresh stub and report directories for a run of one kind. */
 function freshDirs(dirs: RunDirs): void {
   for (const dir of [dirs.stubDir, dirs.reportDir]) {
-    rmSync(dir, { recursive: true, force: true });
+    removeTree(dir);
     mkdirSync(dir, { recursive: true });
   }
 }

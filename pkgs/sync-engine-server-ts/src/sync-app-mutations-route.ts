@@ -12,9 +12,8 @@ import type {
 import { partitionFanoutRowsByTopic } from '@pkgs/sync-engine-shared-ts/partition-fanout-rows';
 import { filterPublishableImages } from '@pkgs/sync-engine-shared-ts/row-image-guard';
 import {
-  fanoutRowsWithinCap,
+  fanoutRowsForCapture,
   mergeAffectedRows,
-  selectFanoutRows,
 } from '@pkgs/sync-engine-shared-ts/select-fanout-rows';
 import type { TopicMap } from '@pkgs/sync-engine-shared-ts/topic-map';
 import {
@@ -107,21 +106,7 @@ async function buildFanoutRows(args: {
   readonly rowImageFanout: boolean;
 }): Promise<Record<string, QueryRow[]> | undefined> {
   if (!args.rowImageFanout) return undefined;
-  // Prefer RETURNING images; fall back to SELECT for id-only tables.
-  const fromCapture = args.capture.images;
-  if (Object.keys(fromCapture).length > 0) {
-    if (!fanoutRowsWithinCap(fromCapture)) return undefined;
-    const copy: Record<string, QueryRow[]> = {};
-    for (const [table, rows] of Object.entries(fromCapture)) {
-      copy[table] = rows.map((r) => ({ ...r }));
-    }
-    return copy;
-  }
-  if (Object.keys(args.capture.ids).length === 0) return undefined;
-  const rows = await selectFanoutRows(args.db, args.capture.ids);
-  if (Object.keys(rows).length === 0) return undefined;
-  if (!fanoutRowsWithinCap(rows)) return undefined;
-  return rows;
+  return fanoutRowsForCapture(args.db, args.capture);
 }
 
 type PreparedMutationNotify = {

@@ -17,6 +17,7 @@
     "@pkgs/conformance-shared-ts": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/fs-server-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

@@ -1,13 +1,8 @@
 import { expect, test } from 'bun:test';
-import {
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { localVerifyEnv } from './local-verify-queue';
 import {
   publishVerifyArtifacts,
@@ -44,7 +39,7 @@ test('an unlimited local run retains a completed proof beyond the bounded allowa
       'complete unlimited proof'
     );
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });
 
@@ -80,7 +75,7 @@ test('a zero exit after the task budget is not reusable passing evidence', () =>
     restoreVerifyArtifacts(store, restored);
     expect(() => readFileSync(join(restored, `${hash}.tar.zst`))).toThrow();
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });
 
@@ -112,11 +107,11 @@ test('completed artifacts warm independent runs without sharing writable cache f
       'complete archive'
     );
     expect(() => readFileSync(join(second, 'def.tar.zst'))).toThrow();
-    rmSync(first, { recursive: true });
+    removeTree(first, { whenLocked: 'leave' });
     expect(readFileSync(join(second, 'abc-meta.json'), 'utf8')).toBe(
       '{"hash":"abc"}'
     );
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });

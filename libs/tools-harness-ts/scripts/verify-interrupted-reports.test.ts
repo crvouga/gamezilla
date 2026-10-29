@@ -4,11 +4,11 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  rmSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { preserveInterruptedReports } from './verify-interrupted-reports';
 import type { Result } from './verify-shard-results';
 
@@ -60,7 +60,7 @@ test('a killed visual task publishes a failed completion and keeps its partial e
     expect(report.meta.durationMs).toBe(0);
     expect(report.steps).toEqual([]);
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });
 
@@ -74,6 +74,6 @@ test('completed tasks and tasks without reports produce no interruption evidence
     ]);
     expect(existsSync(join(root, 'libs'))).toBe(false);
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });

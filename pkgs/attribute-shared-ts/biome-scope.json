@@ -1,0 +1,6 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/attribute-shared-ts/src/**/*.{ts,tsx}",
+    "**/pkgs/attribute-shared-ts/tests/**/*.{ts,tsx}"
+  ]
+}

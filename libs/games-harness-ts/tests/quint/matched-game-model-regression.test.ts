@@ -1,8 +1,9 @@
 // @io-wall-ok — checks a literal history of the canonical reference model.
 import { expect, test } from 'bun:test';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { simulate } from '@pkgs/quint-server-ts/simulate';
 import type { QuintValue } from '@pkgs/quint-shared-ts/itf';
 
@@ -62,6 +63,6 @@ test('Alice loses her private matched game after deleting her account while Bob 
       if (person === 'bob') expect(number).toBe(1);
     }
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    removeTree(dir, { whenLocked: 'leave' });
   }
 }, 120_000);

@@ -25,10 +25,10 @@ import {
   lstatSync,
   mkdirSync,
   readlinkSync,
-  rmSync,
   symlinkSync,
 } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 const ROOT = join(import.meta.dirname, '../../..');
@@ -64,7 +64,7 @@ function linkClaudeSkill(): void {
   const target = claudeSkillTarget();
   if (existsSync(link) || isSymlink(link)) {
     if (isSymlink(link) && slashPath(readlinkSync(link)) === target) return;
-    rmSync(link, { recursive: true, force: true });
+    removeTree(link);
   }
   mkdirSync(dirname(link), { recursive: true });
   symlinkSync(target, link);

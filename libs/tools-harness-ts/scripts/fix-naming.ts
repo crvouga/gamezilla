@@ -21,14 +21,14 @@ import {
   mkdirSync,
   readdirSync,
   readFileSync,
-  renameSync,
   rmdirSync,
   rmSync,
   statSync,
   writeFileSync,
 } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
-
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
+import { renameReplacing } from '@pkgs/fs-server-ts/rename-replacing';
 import type { RenamePlan } from '../naming/rename-plan';
 import { planRenames } from '../naming/rename-plan';
 import type { Finding, RewriteContext } from '../naming/rewrite-references';
@@ -80,7 +80,7 @@ function readJson(path: string): unknown {
 
 function loadAliases(paths: readonly string[]): AliasRule[] {
   const rules: AliasRule[] = [];
-  for (const tsconfig of ['tsconfig.base.json', 'tsconfig.json']) {
+  for (const tsconfig of ['tsconfig.paths.json', 'tsconfig.json']) {
     const json = readJson(tsconfig) as {
       compilerOptions?: { paths?: Record<string, unknown> };
     };
@@ -218,7 +218,7 @@ function pruneEmptyDirs(dirs: Iterable<string>): void {
 function move(from: string, to: string): void {
   const dest = join(ROOT, to);
   mkdirSync(dirname(dest), { recursive: true });
-  renameSync(join(ROOT, from), dest);
+  renameReplacing(join(ROOT, from), dest);
 }
 
 function inChunks(
@@ -238,7 +238,7 @@ function applyMoves(plan: RenamePlan, tracked: ReadonlySet<string>): void {
   for (const [from, to] of entries) move(from, `${STAGING}/${to}`);
   pruneEmptyDirs([...plan.dirs.keys()]);
   for (const [, to] of entries) move(`${STAGING}/${to}`, to);
-  rmSync(join(ROOT, STAGING), { recursive: true, force: true });
+  removeTree(join(ROOT, STAGING));
   const moved = entries.filter(([from]) => tracked.has(from));
   inChunks(
     moved.map(([from]) => from),

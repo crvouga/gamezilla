@@ -10,6 +10,21 @@
     },
     "test": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/auth/*.qnt"]
+    },
+    "src": {
+      "dependsOn": [
+        "@pkgs/auth-inhouse-client-ts#src",
+        "@pkgs/auth-inhouse-server-ts#src",
+        "@pkgs/auth-inhouse-shared-ts#src",
+        "@pkgs/auth-root-client-ts#src",
+        "@pkgs/auth-root-shared-ts#src",
+        "@pkgs/harness-root-shared-ts#src",
+        "@pkgs/http-client-shared-ts#src",
+        "@pkgs/sql-client-postgres-server-ts#src",
+        "@pkgs/sql-client-root-shared-ts#src",
+        "@pkgs/sql-client-sqlite-root-shared-ts#src",
+        "@pkgs/sql-root-shared-ts#src"
+      ]
     }
   }
 }

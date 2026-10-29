@@ -18,6 +18,9 @@
         "$TURBO_ROOT$/libs/*/turbo.json",
         "$TURBO_ROOT$/pkgs/*/turbo.json",
         "$TURBO_ROOT$/biome.json",
+        "$TURBO_ROOT$/biome.shared.json",
+        "$TURBO_ROOT$/{apps,libs,pkgs}/*/biome-scope.json",
+        "$TURBO_ROOT$/{apps/product-ts,apps/server-ts,libs/harness-ts,pkgs/sql-client-sqlite-web-server-ts}/scripts/**",
         "$TURBO_ROOT$/oxlint.config.mts",
         "$TURBO_ROOT$/tsconfig*.json",
         "$TURBO_ROOT$/README.md",
@@ -48,7 +51,8 @@
       ]
     },
     "src": {
-      "inputs": ["$TURBO_EXTENDS$", "!scripts/verify-task-costs.json"]
+      "inputs": ["$TURBO_EXTENDS$", "!scripts/verify-task-costs.json"],
+      "dependsOn": []
     },
     "tc": {
       "inputs": ["$TURBO_EXTENDS$", "!scripts/verify-task-costs.json"]

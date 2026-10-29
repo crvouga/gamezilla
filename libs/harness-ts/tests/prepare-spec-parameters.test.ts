@@ -1,13 +1,8 @@
 import { expect, test } from 'bun:test';
-import {
-  mkdtempSync,
-  readdirSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { decodeItfTrace } from '@pkgs/quint-shared-ts/itf';
 
 const ROOT = resolve(import.meta.dir, '../../..');
@@ -74,7 +69,7 @@ test.each(['puzzle-attempt', 'puzzle-sound'])(
           Object.keys(initialState(join(drawn, `OPPONENT=${value}`))).length
         ).toBeGreaterThan(0);
     } finally {
-      rmSync(dir, { recursive: true, force: true });
+      removeTree(dir, { whenLocked: 'leave' });
     }
   },
   30_000
@@ -94,7 +89,7 @@ test('preparation retains both fixed Boolean values', async () => {
         initialState(join(output, 'fixed-flag', `FLAG=${value}`))['flag']
       ).toBe(value);
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    removeTree(dir, { whenLocked: 'leave' });
   }
 }, 30_000);
 
@@ -109,6 +104,6 @@ test('preparation keeps an unparameterized draw at its existing path', async () 
     const output = await prepare(dir, path);
     expect(initialState(join(output, 'plain-counter'))['count']).toBe(0);
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    removeTree(dir, { whenLocked: 'leave' });
   }
 }, 30_000);

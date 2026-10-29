@@ -71,6 +71,14 @@
     },
     "test:spec:9": {
       "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "src": {
+      "dependsOn": [
+        "@libs/battleship-client-ts#src",
+        "@libs/battleship-shared-ts#src",
+        "@libs/game-session-harness-ts#src",
+        "@libs/harness-ts#src"
+      ]
     }
   }
 }

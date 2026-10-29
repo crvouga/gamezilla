@@ -12,8 +12,7 @@
   "scripts": {
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --path-ignore-patterns='**/dev-owner*.test.ts' tests",
-    "test:posix": "bun test tests/dev-owner"
+    "test": "bun test tests"
   },
   "dependencies": {
     "@pkgs/os-shared-ts": "workspace:*"

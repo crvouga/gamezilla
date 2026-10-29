@@ -1,13 +1,8 @@
 import { expect, test } from 'bun:test';
-import {
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { copyModelEvidence } from './verify-model-evidence';
 
 test('failed model transfer keeps verdicts and diagnostics while excluding private runtime data', () => {
@@ -38,6 +33,6 @@ test('failed model transfer keeps verdicts and diagnostics while excluding priva
     expect(existsSync(join(target, 'whole/tmp'))).toBe(false);
     expect(existsSync(join(target, 'whole/quint-home'))).toBe(false);
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });

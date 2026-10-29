@@ -10,7 +10,7 @@ import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const ENTRY_REL = 'apps/client-ts/src/main.tsx';
-const TSCONFIG_REL = 'tsconfig.base.json';
+const TSCONFIG_REL = 'tsconfig.paths.json';
 
 const STATIC_FROM =
   /(?:^|[;\n])\s*(?:export|import)\s+(?!type\b)(?:[\s\S]*?\s+from\s+|[\s]*)['"]([^'"]+)['"]/g;

@@ -4,11 +4,11 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  rmSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { preserveInterruptedModels } from './verify-interrupted-models';
 
 // regression: interrupted-model-proof-evidence-lost
@@ -37,6 +37,6 @@ test('a killed chess task retains completed TLC verdicts from private scratch', 
       preserveInterruptedModels(join(root, 'missing'), target)
     ).not.toThrow();
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });

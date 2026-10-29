@@ -1,0 +1,61 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-no-raw-attributes.grit": [
+    "!**/pkgs/observability-root-shared-ts/src/attributes.ts",
+    "!**/pkgs/observability-root-shared-ts/src/connection-place.ts",
+    "!**/pkgs/observability-root-shared-ts/src/correlation.ts",
+    "!**/pkgs/observability-root-shared-ts/src/deployment-environment.ts",
+    "!**/pkgs/observability-root-shared-ts/src/events.ts",
+    "!**/pkgs/observability-root-shared-ts/src/identity.ts",
+    "!**/pkgs/observability-root-shared-ts/src/log.ts",
+    "!**/pkgs/observability-root-shared-ts/src/narrate.ts",
+    "!**/pkgs/observability-root-shared-ts/src/otlp-auth.ts",
+    "!**/pkgs/observability-root-shared-ts/src/redaction.ts",
+    "!**/pkgs/observability-root-shared-ts/src/span.ts",
+    "!**/pkgs/observability-root-shared-ts/src/assert-trace.ts",
+    "!**/pkgs/observability-root-shared-ts/src/identity-resolver.ts",
+    "!**/pkgs/observability-root-shared-ts/src/indexed.ts",
+    "!**/pkgs/observability-root-shared-ts/src/local-clock.ts",
+    "!**/pkgs/observability-root-shared-ts/src/local-explorer.ts",
+    "!**/pkgs/observability-root-shared-ts/src/mutation-trace-index.ts",
+    "!**/pkgs/observability-root-shared-ts/src/ndjson.ts",
+    "!**/pkgs/observability-root-shared-ts/src/normalize-id.ts",
+    "!**/pkgs/observability-root-shared-ts/src/normalize.ts",
+    "!**/pkgs/observability-root-shared-ts/src/person-name.ts",
+    "!**/pkgs/observability-root-shared-ts/src/person-trouble.ts",
+    "!**/pkgs/observability-root-shared-ts/src/pg-stats.ts",
+    "!**/pkgs/observability-root-shared-ts/src/place.ts",
+    "!**/pkgs/observability-root-shared-ts/src/tempo.ts",
+    "!**/pkgs/observability-root-shared-ts/src/types.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-core-no-runtime.grit": [
+    "**/pkgs/observability-root-shared-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-boundary-imports.grit": [
+    "!**/pkgs/observability-root-shared-ts/src/**",
+    "!**/pkgs/observability-root-shared-ts/tests/**",
+    "!**/pkgs/observability-root-shared-ts/configs/collector-ci.yaml",
+    "!**/pkgs/observability-root-shared-ts/configs/production-error-alert.txt"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-no-browser-runtime.grit": [
+    "!**/pkgs/observability-root-shared-ts/src/**",
+    "!**/pkgs/observability-root-shared-ts/tests/**",
+    "!**/pkgs/observability-root-shared-ts/configs/collector-ci.yaml",
+    "!**/pkgs/observability-root-shared-ts/configs/production-error-alert.txt"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-no-node-runtime.grit": [
+    "!**/pkgs/observability-root-shared-ts/src/**",
+    "!**/pkgs/observability-root-shared-ts/tests/**",
+    "!**/pkgs/observability-root-shared-ts/configs/collector-ci.yaml",
+    "!**/pkgs/observability-root-shared-ts/configs/production-error-alert.txt"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-no-worker-runtime.grit": [
+    "!**/pkgs/observability-root-shared-ts/src/**",
+    "!**/pkgs/observability-root-shared-ts/tests/**",
+    "!**/pkgs/observability-root-shared-ts/configs/collector-ci.yaml",
+    "!**/pkgs/observability-root-shared-ts/configs/production-error-alert.txt"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-identity-via-scope.grit": [
+    "!**/pkgs/observability-root-shared-ts/src/identity.ts",
+    "!**/pkgs/observability-root-shared-ts/src/identity-scope.ts"
+  ]
+}

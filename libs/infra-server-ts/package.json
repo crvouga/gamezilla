@@ -29,6 +29,7 @@
     "@libs/infra-shared-ts": "workspace:*",
     "@pkgs/clock-shared-ts": "workspace:*",
     "@pkgs/emqx-shared-ts": "workspace:*",
+    "@pkgs/fs-server-ts": "workspace:*",
     "@pkgs/object-store-node-fs-server-ts": "workspace:*",
     "@pkgs/os-server-ts": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@pkgs/billing-paddle-shared-ts#src",
+        "@pkgs/billing-root-shared-ts#src",
+        "@pkgs/billing-stripe-server-ts#src",
+        "@pkgs/secret-store-shared-ts#src"
+      ]
+    }
+  }
+}

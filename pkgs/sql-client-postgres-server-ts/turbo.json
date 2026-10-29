@@ -1,0 +1,16 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@pkgs/assert-root-shared-ts#src",
+        "@pkgs/clock-shared-ts#src",
+        "@pkgs/postgres-sqlite-compat-shared-ts#src",
+        "@pkgs/sql-client-postgres-shared-ts#src",
+        "@pkgs/sql-client-root-shared-ts#src",
+        "@pkgs/sql-root-shared-ts#src"
+      ]
+    }
+  }
+}

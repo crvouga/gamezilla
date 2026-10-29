@@ -1,7 +1,8 @@
 import { expect, test } from 'bun:test';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { modelSourceKey } from '@pkgs/quint-server-ts/model-source';
 
 // regression: quint-draw-cache-ignores-imported-model
@@ -32,6 +33,6 @@ test('draw identity includes imported models but excludes unrelated files and ch
     );
     expect(modelSourceKey(path)).not.toBe(before);
   } finally {
-    for (const root of roots) rmSync(root, { recursive: true, force: true });
+    for (const root of roots) removeTree(root, { whenLocked: 'leave' });
   }
 });

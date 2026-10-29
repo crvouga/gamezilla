@@ -1,0 +1,24 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-bare-io.grit": [
+    "!**/apps/server-ts/src/product-server.ts",
+    "!**/apps/server-ts/src/worker-telemetry.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-wall-io-defaults.grit": [
+    "!**/apps/server-ts/src/product-server.ts",
+    "!**/apps/server-ts/src/worker-telemetry.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-billing-vendor.grit": [
+    "!**/apps/server-ts/src/product-server.ts",
+    "!**/apps/server-ts/src/worker-telemetry.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-boundary-imports.grit": [
+    "!**/apps/server-ts/src/room.ts",
+    "!**/apps/server-ts/src/product-server.ts",
+    "!**/apps/server-ts/src/worker-telemetry.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-no-worker-runtime.grit": [
+    "!**/apps/server-ts/src/room.ts",
+    "!**/apps/server-ts/src/product-server.ts",
+    "!**/apps/server-ts/src/worker-telemetry.ts"
+  ]
+}

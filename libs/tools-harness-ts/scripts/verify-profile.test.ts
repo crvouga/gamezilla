@@ -2,7 +2,12 @@ import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { NIGHTLY_REPLAY_SCALE } from '@libs/harness-ts/spec-parts';
-import { flattenVerifyAggregators, MAIN_VERIFY_TASKS } from './turbo-ci-run';
+import {
+  flattenVerifyAggregators,
+  MAIN_VERIFY_TASKS,
+  RELEASE_JOURNEY_PARTS,
+  RELEASE_JOURNEY_TASKS,
+} from './turbo-ci-run';
 import { CI_RUN_DEADLINE_SECONDS, taskBudgetSeconds } from './verify-budget';
 import {
   failedGroups,
@@ -18,16 +23,15 @@ import {
   localVerifyArgs,
   NIGHTLY_SUITES,
   profileDeadlineSeconds,
-  profileGateTasks,
   profileManifest,
-  releaseOnlyTask,
   suiteDeadlineSeconds,
   verifyAggregatorTasks,
 } from './verify-profile';
 
 // regression: deploy-journeys-missing-pr-browser-gate
 test('PR verification runs the production-bundle journeys before release', () => {
-  expect(MAIN_VERIFY_TASKS).toContain('@apps/product-ts#test:release-journeys');
+  for (const task of RELEASE_JOURNEY_TASKS)
+    expect(MAIN_VERIFY_TASKS).toContain(task);
 });
 
 const ROOT = join(import.meta.dirname, '../../..');
@@ -69,14 +73,17 @@ describe('verification profiles', () => {
   test('an unnamed profile is the whole gate, and an unknown one is refused', () => {
     expect(activeProfile({}).name).toBe('release');
     expect(activeProfile({ VERIFY_PROFILE: '' }).name).toBe('release');
-    expect(activeProfile({ VERIFY_PROFILE: 'pr' }).name).toBe('pr');
+    // regression: release-cold-slow-suites
+    expect(() => activeProfile({ VERIFY_PROFILE: 'pr' })).toThrow(
+      'not a verification profile'
+    );
     expect(activeProfile(NIGHTLY).name).toBe('nightly');
     expect(() => activeProfile({ VERIFY_PROFILE: 'weekly' })).toThrow(
       'not a verification profile'
     );
   });
 
-  test('the pr profile adds no depth and keeps no report', () => {
+  test('the release profile adds no depth and keeps no report', () => {
     const env: NodeJS.ProcessEnv = {};
     applyProfileEnv(env);
     expect(env).toEqual({});
@@ -241,7 +248,7 @@ describe('Verify Nightly workflow', () => {
       'schedule',
       'workflow_dispatch',
     ]);
-    expect(nightly.on['schedule']).toEqual([{ cron: '23 8 * * *' }]);
+    expect(nightly.on['schedule']).toEqual([{ cron: '23 10 * * *' }]);
     expect(nightly.env['VERIFY_PROFILE']).toBe('nightly');
     // A second night waits; it never discards the one still running.
     expect(nightly.concurrency['cancel-in-progress']).toBe(
@@ -357,43 +364,40 @@ describe('Verify Nightly workflow', () => {
   });
 });
 
-describe('the pull-request profile', () => {
-  const PR = { VERIFY_PROFILE: 'pr' };
-  test('leaves the slow suites to the release and keeps every fast check', () => {
+// regression: release-cold-slow-suites
+describe('the gate', () => {
+  test('a pull request runs every gate task Release runs', () => {
     const gate = [...MAIN_VERIFY_TASKS];
-    const pr = profileGateTasks(gate, PR);
-    for (const kept of [
-      'lint',
-      'tc',
-      'test',
-      'test:unit:1',
-      'test:contract:render',
-      '@libs/tools-harness-ts#ci:audit',
-      '@libs/tools-harness-ts#verify:secrets',
-      '@libs/tools-harness-ts#verify:actionlint',
-      '@libs/runtime-server-ts#verify:schema-evolution',
-      '@apps/product-ts#verify:worker-bundle',
-    ])
-      expect(pr).toContain(kept);
-    for (const left of [
+    expect(verifyAggregatorTasks('verify', gate)).toEqual(gate);
+    for (const slow of [
       'test:spec:0',
       'verify:models',
-      'verify:models:3',
       'test:contract',
-      'test:contract:4',
-      '@apps/product-ts#test:release-journeys',
+      ...RELEASE_JOURNEY_TASKS,
       'verify:board-contract',
     ])
-      expect(pr).not.toContain(left);
-    // Every gate task runs in exactly one place: the pull request or only the release.
-    expect([...pr, ...gate.filter(releaseOnlyTask)].sort()).toEqual(
-      [...gate].sort()
-    );
+      expect(gate).toContain(slow);
   });
+});
 
-  test('the release and nightly profiles run every gate task', () => {
-    const gate = [...MAIN_VERIFY_TASKS];
-    expect(profileGateTasks(gate, {})).toEqual(gate);
-    expect(profileGateTasks(gate, NIGHTLY)).toEqual(gate);
-  });
+// regression: release-journeys-outran-task-budget
+test('the release journeys are split into parts that the scripts, turbo and the gate agree on', () => {
+  const product = JSON.parse(
+    readFileSync(join(ROOT, 'apps/product-ts/package.json'), 'utf8')
+  ) as { scripts: Record<string, string> };
+  const turbo = JSON.parse(readFileSync(join(ROOT, 'turbo.json'), 'utf8')) as {
+    tasks: Record<string, unknown>;
+  };
+  expect(RELEASE_JOURNEY_TASKS).toHaveLength(RELEASE_JOURNEY_PARTS);
+  for (const [part, task] of RELEASE_JOURNEY_TASKS.entries()) {
+    expect(MAIN_VERIFY_TASKS).toContain(task);
+    expect(turbo.tasks[task]).toBeDefined();
+    expect(product.scripts[`test:release-journeys:${String(part)}`]).toBe(
+      `bun run scripts/test-release-journeys.ts --part=${String(part)}/${String(RELEASE_JOURNEY_PARTS)}`
+    );
+  }
+  // The undivided task is no longer part of the gate: it outran its budget.
+  expect(MAIN_VERIFY_TASKS).not.toContain(
+    '@apps/product-ts#test:release-journeys'
+  );
 });

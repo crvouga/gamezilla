@@ -1,0 +1,30 @@
+{
+  "files": ["!libs/app-root-shared-ts/locales/*/messages.ts"],
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans.grit": [
+    "**/libs/app-root-shared-ts/src/**/*.{ts,tsx}",
+    "**/libs/app-root-shared-ts/tests/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans-children.grit": [
+    "**/libs/app-root-shared-ts/src/**/*.{ts,tsx}",
+    "**/libs/app-root-shared-ts/tests/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-nested-await.grit": [
+    "**/libs/app-root-shared-ts/src/**/*.{ts,tsx}",
+    "**/libs/app-root-shared-ts/tests/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-sync-engine-terminology.grit": [
+    "**/libs/app-root-shared-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-pubsub-emqx-imports.grit": [
+    "!**/libs/app-root-shared-ts/src/query-auth.ts",
+    "!**/libs/app-root-shared-ts/src/upload-rejection-metrics.ts",
+    "!**/libs/app-root-shared-ts/src/emqx-url-holder.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-auth-vendor.grit": [
+    "!**/libs/app-root-shared-ts/src/auth-client-storage.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-boundary-imports.grit": [
+    "!**/libs/app-root-shared-ts/src/stamp-connection-place.ts",
+    "!**/libs/app-root-shared-ts/src/wrap-sql-client.ts"
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "overrides[3]": ["pkgs/sql-cli-harness-ts/tests/**"],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/sql-cli-harness-ts/tests/**/*.{ts,tsx}"
+  ]
+}

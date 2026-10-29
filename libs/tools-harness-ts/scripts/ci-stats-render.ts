@@ -134,7 +134,7 @@ function keyNumbers(input: StatsInput): string {
     '## Key numbers',
     '',
     `- Cold gate (release profile): ${duration(load.coldSeconds)} of task time over ${String(load.tasks)} tasks in ${String(load.packages)} packages (${String(load.measuredTasks)} measured, ${String(load.estimatedTasks)} estimated).`,
-    `- Pull-request profile: ${duration(split.prSeconds)} of that (${String(split.prTasks)} tasks); the other ${duration(split.releaseOnlySeconds)} (${String(split.releaseOnlyTasks)} tasks) run only on Release and Nightly.`,
+    `- Pull-request profile: the whole gate, ${duration(split.prSeconds)} over ${String(split.prTasks)} tasks, the same gate Release runs.`,
     `- Longest indivisible task: ${split.longest[0]?.id ?? 'n/a'} at ${duration(split.longest[0]?.seconds ?? 0)}. No pool size makes a run faster than this plus setup.`,
     `- Shard cap: ${input.workload.workflows.find((w) => w.shardCap)?.shardCap ?? 'unknown'} per verify run (repo variable \`VERIFY_SHARDS\` overrides: ${input.variables['VERIFY_SHARDS'] ?? 'unset'}).`,
   ];

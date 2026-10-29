@@ -1,7 +1,8 @@
 import { expect, test } from 'bun:test';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, posix, win32 } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { rootlessPath } from '@pkgs/quint-server-ts/copy-model-input';
 import { instantiatedModelInput } from '@pkgs/quint-server-ts/model-input';
 
@@ -34,7 +35,7 @@ test('a closed input retains transitive imports and ignores quoted examples', ()
     );
     expect(readFileSync(path, 'utf8')).toBe(source);
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    removeTree(dir, { whenLocked: 'leave' });
   }
 });
 

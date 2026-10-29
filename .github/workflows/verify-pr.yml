@@ -1,14 +1,13 @@
 name: Verify PR
 run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{0}', github.event.pull_request.number) || 'manual' }}"
 
-# Verify PR runs the gate (README "Verification and CI") at one of three
-# widths (`libs/tools-harness-ts/scripts/verify-profile.ts`):
-# - `pr`, on every pull request: lint, architecture boundaries, typecheck,
-#   unit tests, the repository checks, schema evolution, bundles and security
-#   scans. The slow suites (Gherkin spec parts, Quint models, contract models,
-#   release journeys) are left to Release, so a pull request hears back in
-#   minutes.
-# - `release`, from Release on the exact commit it ships: the whole gate.
+# Verify PR runs the gate (README "Verification and CI") at one of two
+# depths (`libs/tools-harness-ts/scripts/verify-profile.ts`):
+# - `release`, on every pull request and from Release on the exact commit it
+#   ships: the whole gate, the Gherkin spec parts, Quint models, contract
+#   models and release journeys included. A pull request runs exactly what
+#   Release runs, so it is red whenever Release would be, and every task it
+#   passes has the hash Release restores from the shared remote cache.
 # - `nightly`, from Verify Nightly: the whole gate deeper, with reports.
 #
 # Three jobs, on any self-hosted runner OS (Linux, macOS, Windows); the
@@ -28,14 +27,14 @@ run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{
 # and the end, with no shard at all.
 #
 # It runs on every pull request, where `verify:end` is the required status. A
-# green pull request is mergeable; Release runs the whole gate on
-# `main` before anything ships. It also runs from a manual dispatch, from
-# Release (`workflow_call`), and from Verify Nightly. `bun verify` runs the
-# whole gate locally.
+# green pull request is mergeable; Release runs the same gate again on
+# `main` before anything ships, restoring what the pull request proved. It
+# also runs from a manual dispatch, from Release (`workflow_call`), and from
+# Verify Nightly. `bun verify` runs the whole gate locally.
 #
-# The `pr` and `release` profiles are bounded and never explore: each Quint
-# model replays the fewest drawn traces that take every bound action, the
-# same ones every run. They keep no test report: no JUnit
+# The `release` profile is bounded and never explores: each Quint model
+# replays the fewest drawn traces that take every bound action, the same ones
+# every run. It keeps no test report: no JUnit
 # file, no trace, snapshot or coverage upload, no publication. A failure is
 # read from the job log and the run summary. The CI artifacts below
 # (`libs/tools-harness-ts/scripts/ci-artifacts.ts`, in the CI artifacts
@@ -86,9 +85,9 @@ on:
         type: string
         default: normal
       profile:
-        description: pr (the fast pull-request check), release (the whole gate, before Release ships) or nightly (deeper budgets, reports kept)
+        description: release (the whole gate, on every pull request and before Release ships) or nightly (deeper budgets, reports kept)
         type: string
-        default: pr
+        default: release
       advisories:
         description: enforce (a current advisory fails the gate) or report (the registry's verdict is logged, not enforced)
         type: string
@@ -129,7 +128,7 @@ env:
   VERIFY_SHARDS: ${{ inputs.shards || vars.VERIFY_SHARDS || '64' }}
   VERIFY_CONCURRENCY: ${{ inputs.concurrency || vars.VERIFY_CONCURRENCY || '1' }}
   VERIFY_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
-  VERIFY_PROFILE: ${{ inputs.profile || 'pr' }}
+  VERIFY_PROFILE: ${{ inputs.profile || 'release' }}
   VERIFY_ADVISORIES: ${{ inputs.advisories || 'enforce' }}
 
 # Every job runs on whichever self-hosted runner is free — Linux, macOS or
@@ -179,13 +178,15 @@ jobs:
       # Shards are packed by the durations the newest run of this profile
       # measured on these runners (`verify:end` saves them); the key never
       # matches, so the prefix restores the newest from this pull request,
-      # else from main.
+      # else from main. Each profile keeps its own: a save keeps only the tasks
+      # its plan held, so a narrower plan sharing the key would erase the
+      # rest.
       - name: Restore measured task durations
         uses: actions/cache/restore@v5
         with:
           path: .cache/verify-ci/measured-costs.json
-          key: verify-task-costs-v1-${{ inputs.profile == 'nightly' && 'nightly' || 'gate' }}-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-keys: verify-task-costs-v1-${{ inputs.profile == 'nightly' && 'nightly' || 'gate' }}-
+          key: verify-task-costs-v2-${{ env.VERIFY_PROFILE }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: verify-task-costs-v2-${{ env.VERIFY_PROFILE }}-
       - name: Plan all owners once
         id: plan
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/verify-plan.ts
@@ -237,6 +238,15 @@ jobs:
     timeout-minutes: ${{ inputs.profile == 'nightly' && 70 || 30 }}
     strategy:
       fail-fast: false
+      # Four runners serve every workflow, and GitHub hands a queued job to the
+      # first free one. A run that queues all its shards at once holds other
+      # runs' `verify:start` and `verify:end` behind them: a 30 s `verify:end`
+      # waited 53 minutes (Verify run 40713084871), and Release's shards up to
+      # 109 (run 40628012072). Holding one runner back, and queuing the next
+      # shard only as one finishes, lets a small run through between a large
+      # run's shards. `VERIFY_MAX_PARALLEL` is the runner count minus one; set
+      # it to the runner count to give a lone run every runner.
+      max-parallel: ${{ fromJSON(vars.VERIFY_MAX_PARALLEL || '3') }}
       matrix:
         shard: ${{ fromJSON(needs.verify-start.outputs.shards) }}
     env:
@@ -266,7 +276,7 @@ jobs:
       - name: verify
         timeout-minutes: ${{ inputs.profile == 'nightly' && 60 || 25 }}
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-shard-run.ts "$VERIFY_SHARD"
-      # Reports are the nightly profile's; the `pr` profile keeps none. One
+      # Reports are the nightly profile's; the `release` profile keeps none. One
       # artifact per shard every night, kept for the bucket's week.
       - name: Upload queryable trace artifacts
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
@@ -384,8 +394,8 @@ jobs:
         uses: actions/cache/save@v5
         with:
           path: .cache/verify-ci/measured-costs.json
-          key: verify-task-costs-v1-${{ inputs.profile == 'nightly' && 'nightly' || 'gate' }}-${{ github.run_id }}-${{ github.run_attempt }}
-      # Everything below is the nightly profile's reporting. The `pr` profile
+          key: verify-task-costs-v2-${{ env.VERIFY_PROFILE }}-${{ github.run_id }}-${{ github.run_attempt }}
+      # Everything below is the nightly profile's reporting. The `release` profile
       # ends by deleting the artifacts that carried state between its jobs.
       - name: Retain the verdict
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'

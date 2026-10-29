@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { join } from 'node:path';
-import { spawnOwned } from '@pkgs/os-server-ts/dev-owner-spawn';
+import { spawnOwned } from '@pkgs/dev-owner-server-ts/dev-owner-spawn';
 
 // regression: worker-cron-cold-outbox-registry
 test('a cold cron invocation composes consumers and releases each database session', async () => {

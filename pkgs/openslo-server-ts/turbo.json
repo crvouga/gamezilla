@@ -1,0 +1,13 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@pkgs/conformance-server-ts#src",
+        "@pkgs/conformance-shared-ts#src",
+        "@pkgs/openslo-shared-ts#src"
+      ]
+    }
+  }
+}

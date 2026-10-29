@@ -1,9 +1,10 @@
 import { expect, test } from 'bun:test';
 import { spawn } from 'node:child_process';
 import { EventEmitter } from 'node:events';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { openLocalVerifyLease } from './local-verify-lease';
 import {
   superviseLocalVerify,
@@ -80,7 +81,7 @@ test.each(['cancel', 'disconnect', 'crash'])(
       child.kill('SIGKILL');
       await verdict;
       waiter.close();
-      rmSync(root, { recursive: true, force: true });
+      removeTree(root, { whenLocked: 'leave' });
     }
   }
 );

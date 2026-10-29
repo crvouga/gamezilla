@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/fs-server-ts": "workspace:*",
     "@pkgs/http-client-shared-ts": "workspace:*",
     "@pkgs/object-store-node-fs-server-ts": "workspace:*",
     "@pkgs/object-store-root-shared-ts": "workspace:*",

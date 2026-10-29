@@ -49,6 +49,39 @@
     },
     "test:spec:14": {
       "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "src": {
+      "dependsOn": [
+        "@libs/account-privacy-harness-ts#src",
+        "@libs/app-root-shared-ts#src",
+        "@libs/battleship-harness-ts#src",
+        "@libs/billing-harness-ts#src",
+        "@libs/billing-shared-ts#src",
+        "@libs/chess-puzzle-harness-ts#src",
+        "@libs/connect-four-harness-ts#src",
+        "@libs/friends-harness-ts#src",
+        "@libs/game-catalog-shared-ts#src",
+        "@libs/game-puzzle-harness-ts#src",
+        "@libs/game-session-harness-ts#src",
+        "@libs/games-shared-ts#src",
+        "@libs/harness-ts#src",
+        "@libs/numberlink-harness-ts#src",
+        "@libs/pong-harness-ts#src",
+        "@libs/profile-harness-ts#src",
+        "@libs/quoridor-harness-ts#src",
+        "@libs/runtime-client-ts#src",
+        "@libs/runtime-server-ts#src",
+        "@libs/runtime-shared-ts#src",
+        "@libs/search-harness-ts#src",
+        "@libs/sokoban-harness-ts#src",
+        "@libs/spaces-harness-ts#src",
+        "@libs/test-ids-shared-ts#src",
+        "@pkgs/chess-board-core-shared-ts#src",
+        "@pkgs/gherkin-shared-ts#src",
+        "@pkgs/sql-root-shared-ts#src",
+        "@pkgs/turn-game-shared-ts#src",
+        "@pkgs/ui-testing-root-shared-ts#src"
+      ]
     }
   }
 }

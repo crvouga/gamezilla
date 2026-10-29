@@ -1,0 +1,24 @@
+language js
+
+// Perf: a whole-file substring test gates the tree walk. Every match deletes
+// recursively, so a file without both tokens is skipped for ~free.
+file($body) where {
+  $body <: includes "recursive",
+  $body <: or {
+    includes "rm",
+    includes "rimraf"
+  },
+  $body <: contains bubble or {
+    `rmSync($path, $opts)`,
+    `rm($path, $opts)`,
+    `rmdirSync($path, $opts)`,
+    `rmdir($path, $opts)`,
+    `$fs.rmSync($path, $opts)`,
+    `$fs.rm($path, $opts)`,
+    `$fs.rmdirSync($path, $opts)`,
+    `$fs.rmdir($path, $opts)`
+  } as $call where {
+    $opts <: contains `recursive: true`,
+    register_diagnostic(span=$call, message="A bare recursive delete fails with EBUSY/EPERM on Windows while a just-stopped process still holds a file, turning a green run red. Use removeTree from @pkgs/fs-server-ts/remove-tree (pass { whenLocked: 'leave' } for scratch a run is finished with).", severity="error")
+  }
+}

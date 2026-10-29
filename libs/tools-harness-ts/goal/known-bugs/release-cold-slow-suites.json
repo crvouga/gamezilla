@@ -1,0 +1,4 @@
+{
+  "summary": "Pull requests ran a pr profile that left the Gherkin spec parts, Quint models, contract models and release journeys to Release (releaseOnlyTask), so a pull request went green on code those suites failed, and Release (run 40628012072) met them cold: a failing release journey and seven shards out of time. Pull requests now run the release profile, the gate Release runs, so they fail whenever Release would and write every cache entry Release restores.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-profile.test.ts"
+}

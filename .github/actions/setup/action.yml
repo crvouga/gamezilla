@@ -29,9 +29,13 @@ runs:
     # every package's node_modules on Windows, and the install below 22 s
     # linking them again (Verify run 40581372043). The frozen install still
     # runs, so a lockfile change relinks and prunes what no longer belongs.
-    - name: Clean the checkout, keeping installed dependencies
+    # The visual-quality model is kept as well: its 351 MB checkpoint is too
+    # large for the remote cache, so a clean would download it again in every
+    # job that judges UI quality. `prepare:ui-quality-model` verifies what is
+    # installed before it trusts it, so a stale or damaged copy is replaced.
+    - name: Clean the checkout, keeping installed dependencies and the visual model
       shell: bash
-      run: git clean -ffdxq -e node_modules
+      run: git clean -ffdxq -e node_modules -e .cache/ui-quality-model
 
     # Every system tool — Bun, Node, gh, gitleaks, actionlint, the secrets
     # backend CLI, EMQX — at the version pinned in the repo's mise.toml, the

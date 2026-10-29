@@ -4,11 +4,11 @@ import {
   mkdtempSync,
   readdirSync,
   readFileSync,
-  rmSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve, win32 } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import {
   buildSqlWorkers,
   sqliteWebAssets,
@@ -47,7 +47,7 @@ test('flat client workers produce every asset referenced by the browser', async 
         /(?:from\s*|import\s*\(?)['"]@pkgs\//
       );
   } finally {
-    rmSync(outDir, { recursive: true, force: true });
+    removeTree(outDir, { whenLocked: 'leave' });
   }
 });
 
@@ -93,7 +93,7 @@ test('a first dev start in a fresh checkout serves the workers it just emitted',
     }
   } finally {
     await server.close();
-    rmSync(root, { recursive: true, force: true });
+    removeTree(root, { whenLocked: 'leave' });
   }
 });
 

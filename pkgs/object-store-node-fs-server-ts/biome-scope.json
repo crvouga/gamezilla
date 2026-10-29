@@ -1,0 +1,6 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/object-store-node-fs-server-ts/src/**/*.{ts,tsx}",
+    "**/pkgs/object-store-node-fs-server-ts/tests/impl-node-fs.test.ts"
+  ]
+}

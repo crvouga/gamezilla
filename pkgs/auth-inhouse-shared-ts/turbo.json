@@ -1,0 +1,13 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@pkgs/auth-root-shared-ts#src",
+        "@pkgs/db-schema-root-shared-ts#src",
+        "@pkgs/http-client-shared-ts#src"
+      ]
+    }
+  }
+}

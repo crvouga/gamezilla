@@ -4,9 +4,10 @@
  * POSIX replaced the file atomically. A put must outlast a busy destination.
  */
 import { afterEach, expect, test } from 'bun:test';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server-ts/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
 import type { NodeFs } from '@pkgs/object-store-node-fs-shared-ts/node-fs';
@@ -15,7 +16,7 @@ const dirs: string[] = [];
 
 afterEach(async () => {
   await Promise.all(
-    dirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true }))
+    dirs.splice(0).map((dir) => removeTree(dir, { whenLocked: 'leave' }))
   );
 });
 

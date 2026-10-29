@@ -5,12 +5,12 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  rmSync,
   symlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { createVerifySnapshot } from './verify-snapshot';
 import { archiveVerifySnapshot } from './verify-snapshot-archive';
 
@@ -86,8 +86,8 @@ test('overlapping runs isolate dirty inputs, workspace imports, logs, restores a
       writeFileSync(join(root, 'dist/bundle.js'), root);
     }
     writeFileSync(join(first, 'input.ts'), 'mutated by first');
-    rmSync(join(first, '.cache'), { recursive: true });
-    rmSync(join(first, '.git'), { recursive: true });
+    removeTree(join(first, '.cache'), { whenLocked: 'leave' });
+    removeTree(join(first, '.git'), { whenLocked: 'leave' });
     expect(readFileSync(join(second, 'node_modules/input.ts'), 'utf8')).toBe(
       'dirty input'
     );
@@ -109,7 +109,7 @@ test('overlapping runs isolate dirty inputs, workspace imports, logs, restores a
     );
   } finally {
     for (const root of [...runs.map(dirname), source])
-      rmSync(root, { recursive: true, force: true });
+      removeTree(root, { whenLocked: 'leave' });
   }
 });
 
@@ -153,7 +153,7 @@ test('a linked-worktree submodule does not redirect snapshot Git commands', asyn
     ).not.toThrow();
   } finally {
     for (const path of [run === undefined ? undefined : dirname(run), source])
-      if (path) rmSync(path, { recursive: true, force: true });
+      if (path) removeTree(path, { whenLocked: 'leave' });
   }
 });
 
@@ -226,7 +226,7 @@ test('installed native libraries and workspace imports survive private dependenc
     );
   } finally {
     for (const path of [run === undefined ? undefined : dirname(run), source])
-      if (path) rmSync(path, { recursive: true, force: true });
+      if (path) removeTree(path, { whenLocked: 'leave' });
   }
 });
 
@@ -262,7 +262,7 @@ test('run temporary fixtures have no enclosing Git repository', async () => {
     ).toThrow();
   } finally {
     for (const path of [run === undefined ? undefined : dirname(run), source])
-      if (path) rmSync(path, { recursive: true, force: true });
+      if (path) removeTree(path, { whenLocked: 'leave' });
   }
 });
 
@@ -305,6 +305,6 @@ test('completed snapshots retain compressed evidence and release only their own 
       })
     ).toBe(report);
   } finally {
-    rmSync(container, { recursive: true, force: true });
+    removeTree(container, { whenLocked: 'leave' });
   }
 });
