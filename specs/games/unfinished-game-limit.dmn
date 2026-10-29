@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="unfinished-game-limit-decisions" name="The unfinished matched game limit" namespace="https://gamezilla.dev/decisions">
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="unfinished-game-limit-decisions" name="The unfinished matched game limit" namespace="urn:product:decisions">
   <decision id="unfinished-game-limit" name="May this account start another matched game?">
     <description>An account may seek an opponent for a new matched game, in any game, only after its earlier matched game is over or aborted, and only while it is not a participant of a custom game under way. A matched game that is over or aborted no longer counts as unfinished. The account requirement is decided separately by access. Free accounts and Plus members have the same limit of one unfinished matched game.</description>
     <decisionTable id="unfinished-game-limit-table" hitPolicy="UNIQUE">

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="matched-game-watch-decisions" name="Watching a matched game" namespace="https://gamezilla.dev/decisions">
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="matched-game-watch-decisions" name="Watching a matched game" namespace="urn:product:decisions">
   <decision id="matched-game-watch-access" name="May this person watch a matched game?">
     <description>Guests, free accounts and Plus members may watch the host's matched game, in every game that offers finding an opponent, while they are in the space. People outside the space cannot watch it.</description>
     <decisionTable id="matched-game-watch-access-table" hitPolicy="UNIQUE">

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="hosting-limit-decisions" name="The hosting limit" namespace="https://gamezilla.dev/decisions">
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="hosting-limit-decisions" name="The hosting limit" namespace="urn:product:decisions">
   <decision id="hosting-limit" name="May this person host another open space?">
     <description>Guests and free accounts host at most one open space at a time; Plus members host as many as they like.</description>
     <decisionTable id="hosting-limit-table" hitPolicy="UNIQUE">

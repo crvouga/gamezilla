@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="puzzle-management-access-decisions" name="Puzzle management access" namespace="https://gamezilla.dev/decisions">
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="puzzle-management-access-decisions" name="Puzzle management access" namespace="urn:product:decisions">
   <decision id="puzzle-management-access" name="May this person manage puzzles?">
     <description>Only a signed-in person on the team for this environment may check or save the Lichess file, add puzzles or stop adding puzzles.</description>
     <decisionTable id="puzzle-management-access-table" hitPolicy="UNIQUE">
