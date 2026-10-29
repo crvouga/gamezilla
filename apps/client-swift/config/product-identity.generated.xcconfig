@@ -1,0 +1,11 @@
+// Generated from libs/product-identity/product-identity.json; do not edit.
+// Regenerate: bun run libs/product-identity-shared-ts/scripts/generate-brand-artifacts.ts
+//
+// The base configuration of every build configuration in
+// apple-client.xcodeproj, which reads these instead of spelling them.
+
+// The name under the app icon (brand.name).
+PRODUCT_IDENTITY_DISPLAY_NAME = Gamezilla
+
+// The registered bundle identifier (external.appleBundleId).
+PRODUCT_IDENTITY_BUNDLE_ID = local.gamezilla.apple-client

@@ -3,7 +3,7 @@ import SwiftUI
 
 /// The composition root: the one place the app constructs wall adapters.
 @main
-struct GamezillaApp: App {
+struct AppEntry: App {
   private let clock: any EpochClock = SystemEpochClock()
 
   var body: some Scene {
