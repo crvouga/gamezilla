@@ -1,0 +1,4 @@
+{
+  "summary": "Repeated SQLite index maintenance of an unchanged workload created its index and then deprecated it: once the index existed, the evaluation plan used it, so the candidate looked like no improvement. A plan served by the candidate's own index now counts as the scan it replaces.",
+  "regressionTest": "pkgs/db-indexes-sqlite-harness-ts/tests/sqlite-retains-needed-index.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "An automatic index that was used again while it was being retired still got dropped: the maintenance notes said its retirement window was refreshed, yet the drop planned before the use was observed still ran. A drop for an index whose window was refreshed is now cancelled.",
+  "regressionTest": "pkgs/db-indexes-root-shared-ts/tests/index-used-during-retirement.test.ts"
+}

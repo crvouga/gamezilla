@@ -1,0 +1,4 @@
+{
+  "summary": "Planning index changes on SQLite (a read-only analysis) created the autoidx_meta table and its unique index. Reading owned-index metadata now returns nothing when the table does not exist; only writing metadata creates it.",
+  "regressionTest": "pkgs/db-indexes-sqlite-harness-ts/tests/sqlite-plan-read-only.test.ts"
+}
