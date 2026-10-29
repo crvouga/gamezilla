@@ -35,6 +35,8 @@ const EXACT_TASKS = new Set([
   'verify:offline-shell',
   'verify:schema-evolution',
   'verify:actionlint',
+  'verify:brand-policy',
+  'verify:rebrand',
   'verify:secrets',
   'verify:workflow-security',
   'verify:board-contract',

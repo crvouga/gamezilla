@@ -10,6 +10,11 @@
       "path": "libs/infra-shared-ts/tofu/modules/observability-views/grafana-slos.generated.json",
       "generator": "bun run libs/observability-shared-ts/scripts/slo-generate.ts",
       "freshnessTest": "libs/observability-shared-ts/tests/slo-artifacts.test.ts"
+    },
+    {
+      "path": ".cursor/mcp.json",
+      "generator": "bun run libs/tools-harness-ts/scripts/sync-agent-commands.ts",
+      "freshnessTest": "libs/tools-harness-ts/scripts/sync-agent-mcp.test.ts"
     }
   ]
 }

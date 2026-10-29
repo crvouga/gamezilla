@@ -67,6 +67,23 @@ case-insensitively, outside `libs/product-identity/` and the verified
 generated artifacts. There is no other exemption: a generated file is exempt
 only while its freshness test proves it came from the identity.
 
+## The rebrand test
+
+`@libs/tools-harness-ts#verify:rebrand` runs a rebrand end to end on every
+pull request, in an isolated copy of the repository:
+
+1. Copy every file; link dependencies so workspace imports resolve inside the
+   copy.
+2. Give the copy a brand nobody spelled (derived from a hash of the current
+   one), with the same namespace and external identifiers.
+3. Regenerate everything: `bun run generate`, the brand artifacts, the SLO
+   artifacts.
+4. Require that the old brand's name and domain appear nowhere outside the
+   identity (external identifiers aside), that the brand policy passes for
+   the new brand, that the brand-sensitive suites pass (including the
+   OpenTofu inputs keeping every resource name, so a rebrand replaces no
+   infrastructure), and that the web client builds.
+
 ## Infrastructure names
 
 Resource names are deterministic: a pure function of the namespace (and the

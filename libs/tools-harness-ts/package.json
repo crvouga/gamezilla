@@ -22,6 +22,8 @@
     "test": "bun test --path-ignore-patterns='scripts/{verify-actionlint.test.ts,verify-prepared-model.contract.test.ts,verify-snapshot.test.ts,workflow-remote-tty.test.ts,workspace-run.test.ts}' scripts/*.test.ts",
     "test:posix": "bun test scripts/verify-actionlint.test.ts scripts/verify-prepared-model.contract.test.ts scripts/verify-snapshot.test.ts scripts/workflow-remote-tty.test.ts scripts/workspace-run.test.ts",
     "verify:actionlint": "bun run scripts/verify-actionlint.ts",
+    "verify:brand-policy": "bun run scripts/verify-brand-policy.ts",
+    "verify:rebrand": "bun run scripts/verify-rebrand.ts",
     "verify:root-lint": "bun run scripts/lint-package.ts --root",
     "verify:secrets": "bun run scripts/verify-secrets.ts",
     "verify:workflow-security": "bun run scripts/verify-workflow-security.ts"

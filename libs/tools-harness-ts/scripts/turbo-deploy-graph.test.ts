@@ -174,6 +174,8 @@ const VERIFY_LEAVES = [
   '@apps/product-ts#verify:rendered-worker',
   '@libs/runtime-server-ts#verify:schema-evolution',
   '@libs/tools-harness-ts#verify:actionlint',
+  '@libs/tools-harness-ts#verify:brand-policy',
+  '@libs/tools-harness-ts#verify:rebrand',
   '@libs/tools-harness-ts#verify:secrets',
   '@libs/tools-harness-ts#verify:workflow-security',
   'verify:board-contract',

@@ -162,11 +162,11 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | | |
 | --- | --- |
 | Packages | 361 |
-| Verify scripts | 1432 |
-| Measured scripts | 932 |
+| Verify scripts | 1434 |
+| Measured scripts | 934 |
 | Estimated scripts | 500 |
 | Stale cost keys | 574 |
-| Cold CPU | 18211 s |
+| Cold CPU | 18239 s |
 | Spec parts | 10857 s across 307 tasks |
 | Longest task | @libs/games-harness-ts#test:spec:49 213 s |
 
@@ -185,12 +185,12 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 
 ### Leaves
 
-50 leaves have verification scripts. On the warm runner their tasks run together, so the wall clock is the longest task plus the 30 s warm start.
+49 leaves have verification scripts. On the warm runner their tasks run together, so the wall clock is the longest task plus the 30 s warm start.
 
 | | |
 | --- | --- |
 | Leaf CPU, median | 4 s |
-| Leaf CPU, 90th percentile | 95 s |
+| Leaf CPU, 90th percentile | 103 s |
 | Longest leaf task, 90th percentile | 33 s |
 | Longest leaf task | 132 s |
 
@@ -198,9 +198,9 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | --- | --- | --- |
 | @apps/product-ts | 1049 s | @apps/product-ts#test 132 s |
 | @pkgs/chess-board-root-harness-ts | 192 s | @pkgs/chess-board-root-harness-ts#test:contract 52 s |
+| @libs/tools-harness-ts | 123 s | @libs/tools-harness-ts#verify:rebrand 26 s |
 | @apps/synthetic-population-worker-ts | 110 s | @apps/synthetic-population-worker-ts#test 79 s |
 | @pkgs/matchmaking-root-harness-ts | 106 s | @pkgs/matchmaking-root-harness-ts#test:spec:4 33 s |
-| @libs/synthetic-population-harness-ts | 103 s | @libs/synthetic-population-harness-ts#test:spec:0 60 s |
 
 ### Widest dependency cones
 
@@ -208,9 +208,9 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared-ts | 292 | 17990 s | @libs/games-harness-ts#test:spec:49 213 s |
-| @pkgs/clock-shared-ts | 257 | 17868 s | @libs/games-harness-ts#test:spec:49 213 s |
-| @pkgs/assert-root-shared-ts | 252 | 17835 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/property-shared-ts | 292 | 18018 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/clock-shared-ts | 257 | 17896 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/assert-root-shared-ts | 252 | 17863 s | @libs/games-harness-ts#test:spec:49 213 s |
 
 ### Runner
 
