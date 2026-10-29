@@ -18,6 +18,7 @@
     "@libs/app-config-shared-ts": "workspace:*",
     "@libs/auth-shared-ts": "workspace:*",
     "@libs/moderation-shared-ts": "workspace:*",
+    "@libs/product-identity-shared-ts": "workspace:*",
     "@libs/sub-shared-ts": "workspace:*",
     "@lingui/core": "catalog:",
     "@opentelemetry/api": "catalog:",

@@ -15,6 +15,7 @@
     "test": "bun test tests"
   },
   "dependencies": {
+    "@libs/product-identity-shared-ts": "workspace:*",
     "@pkgs/http-client-shared-ts": "workspace:*",
     "@pkgs/observability-root-shared-ts": "workspace:*"
   },

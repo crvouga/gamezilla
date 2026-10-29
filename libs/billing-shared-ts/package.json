@@ -17,6 +17,7 @@
   "dependencies": {
     "@libs/auth-shared-ts": "workspace:*",
     "@libs/observability-shared-ts": "workspace:*",
+    "@libs/product-identity-shared-ts": "workspace:*",
     "@libs/sub-shared-ts": "workspace:*",
     "@pkgs/billing-root-shared-ts": "workspace:*",
     "@pkgs/clock-shared-ts": "workspace:*",

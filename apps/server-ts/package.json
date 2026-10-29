@@ -33,6 +33,7 @@
     "@libs/game-catalog-shared-ts": "workspace:*",
     "@libs/moderation-shared-ts": "workspace:*",
     "@libs/observability-shared-ts": "workspace:*",
+    "@libs/product-identity-shared-ts": "workspace:*",
     "@libs/room-app-server-ts": "workspace:*",
     "@libs/room-app-shared-ts": "workspace:*",
     "@libs/runtime-server-ts": "workspace:*",

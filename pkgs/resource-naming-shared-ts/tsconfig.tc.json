@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "resolveJsonModule": false
+  },
+  "include": [
+    "../../pkgs/ts-reset-shared-ts/src/ts-reset.ts",
+    "./src/**/*.ts",
+    "./tests/**/*.ts"
+  ],
+  "exclude": ["node_modules"]
+}

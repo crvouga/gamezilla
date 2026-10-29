@@ -15,6 +15,7 @@
     "test": "bun test tests"
   },
   "dependencies": {
+    "@libs/product-identity-shared-ts": "workspace:*",
     "@noble/hashes": "catalog:",
     "@pkgs/observability-root-shared-ts": "workspace:*",
     "@pkgs/openslo-shared-ts": "workspace:*",

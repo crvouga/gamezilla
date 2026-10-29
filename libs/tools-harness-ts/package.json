@@ -26,7 +26,9 @@
     "verify:secrets": "bun run scripts/verify-secrets.ts",
     "verify:workflow-security": "bun run scripts/verify-workflow-security.ts"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@libs/product-identity-shared-ts": "workspace:*"
+  },
   "devDependencies": {
     "@crvouga/atlas": "catalog:",
     "@libs/harness-ts": "workspace:*",

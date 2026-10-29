@@ -15,6 +15,7 @@
     "test": "bun test tests"
   },
   "dependencies": {
+    "@libs/product-identity-shared-ts": "workspace:*",
     "@pkgs/moderation-shared-ts": "workspace:*",
     "@pkgs/sync-engine-shared-ts": "workspace:*",
     "@pkgs/word-filter-shared-ts": "workspace:*",

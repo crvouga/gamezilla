@@ -1,0 +1,4 @@
+{
+  "$comment": "Committed files generated from product-identity.json (or from code that reads it). The brand policy accepts brand spellings in a listed file only because its freshness test fails whenever the file differs from what its generator writes, so nothing in it is maintained by hand. Add an entry only with that test.",
+  "artifacts": []
+}

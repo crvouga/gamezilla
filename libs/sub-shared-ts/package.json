@@ -15,6 +15,7 @@
     "test": "bun test tests"
   },
   "dependencies": {
+    "@libs/product-identity-shared-ts": "workspace:*",
     "@pkgs/assert-root-shared-ts": "workspace:*",
     "@pkgs/auth-root-shared-ts": "workspace:*",
     "@pkgs/clock-shared-ts": "workspace:*",

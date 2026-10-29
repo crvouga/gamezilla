@@ -55,6 +55,7 @@
       "dependencies": {
         "@libs/app-root-client-ts": "workspace:*",
         "@libs/app-root-shared-ts": "workspace:*",
+        "@libs/product-identity-shared-ts": "workspace:*",
         "@libs/runtime-client-ts": "workspace:*",
         "@libs/runtime-shared-ts": "workspace:*",
         "@libs/spaces-client-ts": "workspace:*",
@@ -111,6 +112,7 @@
         "@libs/chess-puzzle-harness-ts": "workspace:*",
         "@libs/connect-four-harness-ts": "workspace:*",
         "@libs/harness-ts": "workspace:*",
+        "@libs/product-identity-shared-ts": "workspace:*",
         "@libs/runtime-client-ts": "workspace:*",
         "@libs/runtime-harness-ts": "workspace:*",
         "@libs/runtime-shared-ts": "workspace:*",
@@ -237,6 +239,7 @@
         "@libs/game-catalog-shared-ts": "workspace:*",
         "@libs/moderation-shared-ts": "workspace:*",
         "@libs/observability-shared-ts": "workspace:*",
+        "@libs/product-identity-shared-ts": "workspace:*",
         "@libs/room-app-server-ts": "workspace:*",
         "@libs/room-app-shared-ts": "workspace:*",
         "@libs/runtime-server-ts": "workspace:*",
@@ -299,6 +302,7 @@
         "@libs/app-root-client-ts": "workspace:*",
         "@libs/auth-shared-ts": "workspace:*",
         "@libs/game-catalog-shared-ts": "workspace:*",
+        "@libs/product-identity-shared-ts": "workspace:*",
         "@libs/runtime-client-ts": "workspace:*",
         "@libs/runtime-shared-ts": "workspace:*",
         "@libs/spaces-client-ts": "workspace:*",
@@ -495,6 +499,7 @@
         "@libs/moderation-shared-ts": "workspace:*",
         "@libs/permissions-client-ts": "workspace:*",
         "@libs/permissions-shared-ts": "workspace:*",
+        "@libs/product-identity-shared-ts": "workspace:*",
         "@libs/sub-client-ts": "workspace:*",
         "@libs/sub-shared-ts": "workspace:*",
         "@libs/test-ids-shared-ts": "workspace:*",
@@ -585,6 +590,7 @@
         "@libs/moderation-shared-ts": "workspace:*",
         "@libs/observability-shared-ts": "workspace:*",
         "@libs/permissions-shared-ts": "workspace:*",
+        "@libs/product-identity-shared-ts": "workspace:*",
         "@libs/pubsub-server-ts": "workspace:*",
         "@libs/pubsub-shared-ts": "workspace:*",
         "@libs/secrets-shared-ts": "workspace:*",
@@ -637,6 +643,7 @@
         "@libs/app-config-shared-ts": "workspace:*",
         "@libs/auth-shared-ts": "workspace:*",
         "@libs/moderation-shared-ts": "workspace:*",
+        "@libs/product-identity-shared-ts": "workspace:*",
         "@libs/sub-shared-ts": "workspace:*",
         "@lingui/core": "catalog:",
         "@opentelemetry/api": "catalog:",
@@ -739,6 +746,7 @@
       "dependencies": {
         "@libs/moderation-shared-ts": "workspace:*",
         "@libs/observability-shared-ts": "workspace:*",
+        "@libs/product-identity-shared-ts": "workspace:*",
         "@libs/sub-shared-ts": "workspace:*",
         "@libs/synthetic-population-shared-ts": "workspace:*",
         "@pkgs/assert-root-shared-ts": "workspace:*",
@@ -836,6 +844,7 @@
         "@libs/billing-shared-ts": "workspace:*",
         "@libs/permissions-client-ts": "workspace:*",
         "@libs/permissions-shared-ts": "workspace:*",
+        "@libs/product-identity-shared-ts": "workspace:*",
         "@libs/spaces-client-ts": "workspace:*",
         "@libs/sub-client-ts": "workspace:*",
         "@libs/test-ids-shared-ts": "workspace:*",
@@ -952,6 +961,7 @@
       "dependencies": {
         "@libs/auth-shared-ts": "workspace:*",
         "@libs/observability-shared-ts": "workspace:*",
+        "@libs/product-identity-shared-ts": "workspace:*",
         "@libs/sub-shared-ts": "workspace:*",
         "@pkgs/billing-root-shared-ts": "workspace:*",
         "@pkgs/clock-shared-ts": "workspace:*",
@@ -1385,6 +1395,7 @@
       "name": "@libs/db-shared-ts",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/product-identity-shared-ts": "workspace:*",
         "@pkgs/clock-shared-ts": "workspace:*",
         "@pkgs/database-url-policy-shared-ts": "workspace:*",
         "@pkgs/http-client-shared-ts": "workspace:*",
@@ -2154,6 +2165,7 @@
         "@libs/db-shared-ts": "workspace:*",
         "@libs/moderation-shared-ts": "workspace:*",
         "@libs/permissions-shared-ts": "workspace:*",
+        "@libs/product-identity-shared-ts": "workspace:*",
         "@libs/sub-client-ts": "workspace:*",
         "@libs/sub-shared-ts": "workspace:*",
         "@libs/synthetic-population-shared-ts": "workspace:*",
@@ -2311,6 +2323,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@aws-sdk/client-s3": "catalog:",
+        "@libs/product-identity-shared-ts": "workspace:*",
       },
       "devDependencies": {
         "@libs/infra-shared-ts": "workspace:*",
@@ -2332,6 +2345,7 @@
       "name": "@libs/infra-shared-ts",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/product-identity-shared-ts": "workspace:*",
         "@pkgs/clock-shared-ts": "workspace:*",
         "@pkgs/http-client-shared-ts": "workspace:*",
         "@pkgs/os-shared-ts": "workspace:*",
@@ -2435,6 +2449,7 @@
       "name": "@libs/moderation-shared-ts",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/product-identity-shared-ts": "workspace:*",
         "@pkgs/moderation-shared-ts": "workspace:*",
         "@pkgs/sync-engine-shared-ts": "workspace:*",
         "@pkgs/word-filter-shared-ts": "workspace:*",
@@ -2600,6 +2615,7 @@
       "name": "@libs/observability-server-ts",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/product-identity-shared-ts": "workspace:*",
         "@pkgs/http-client-shared-ts": "workspace:*",
         "@pkgs/observability-root-shared-ts": "workspace:*",
       },
@@ -2613,6 +2629,7 @@
       "name": "@libs/observability-shared-ts",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/product-identity-shared-ts": "workspace:*",
         "@noble/hashes": "catalog:",
         "@pkgs/observability-root-shared-ts": "workspace:*",
         "@pkgs/openslo-shared-ts": "workspace:*",
@@ -2793,6 +2810,23 @@
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/product-identity": {
+      "name": "@libs/product-identity",
+      "version": "0.0.0",
+    },
+    "libs/product-identity-shared-ts": {
+      "name": "@libs/product-identity-shared-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/product-identity": "workspace:*",
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -3257,6 +3291,7 @@
         "@aws-sdk/client-s3": "catalog:",
         "@libs/infra-shared-ts": "workspace:*",
         "@libs/observability-shared-ts": "workspace:*",
+        "@libs/product-identity-shared-ts": "workspace:*",
         "@libs/secrets-shared-ts": "workspace:*",
         "@pkgs/assert-root-shared-ts": "workspace:*",
         "@pkgs/billing-providers-server-ts": "workspace:*",
@@ -3522,6 +3557,7 @@
       "name": "@libs/sub-shared-ts",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/product-identity-shared-ts": "workspace:*",
         "@pkgs/assert-root-shared-ts": "workspace:*",
         "@pkgs/auth-root-shared-ts": "workspace:*",
         "@pkgs/clock-shared-ts": "workspace:*",
@@ -3649,6 +3685,7 @@
       "name": "@libs/synthetic-population-shared-ts",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/product-identity-shared-ts": "workspace:*",
         "@libs/sub-shared-ts": "workspace:*",
         "@libs/test-ids-shared-ts": "workspace:*",
         "@pkgs/clock-shared-ts": "workspace:*",
@@ -3680,6 +3717,9 @@
     "libs/tools-harness-ts": {
       "name": "@libs/tools-harness-ts",
       "version": "0.0.0",
+      "dependencies": {
+        "@libs/product-identity-shared-ts": "workspace:*",
+      },
       "devDependencies": {
         "@crvouga/atlas": "catalog:",
         "@libs/harness-ts": "workspace:*",
@@ -6146,6 +6186,17 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/resource-naming-shared-ts": {
+      "name": "@pkgs/resource-naming-shared-ts",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@pkgs/property-shared-ts": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/room-adapter-bun-harness-ts": {
       "name": "@pkgs/room-adapter-bun-harness-ts",
       "version": "0.0.0",
@@ -8312,6 +8363,10 @@
 
     "@libs/pong-shared-ts": ["@libs/pong-shared-ts@workspace:libs/pong-shared-ts"],
 
+    "@libs/product-identity": ["@libs/product-identity@workspace:libs/product-identity"],
+
+    "@libs/product-identity-shared-ts": ["@libs/product-identity-shared-ts@workspace:libs/product-identity-shared-ts"],
+
     "@libs/profile-client-ts": ["@libs/profile-client-ts@workspace:libs/profile-client-ts"],
 
     "@libs/profile-harness-ts": ["@libs/profile-harness-ts@workspace:libs/profile-harness-ts"],
@@ -8895,6 +8950,8 @@
     "@pkgs/quint-server-ts": ["@pkgs/quint-server-ts@workspace:pkgs/quint-server-ts"],
 
     "@pkgs/quint-shared-ts": ["@pkgs/quint-shared-ts@workspace:pkgs/quint-shared-ts"],
+
+    "@pkgs/resource-naming-shared-ts": ["@pkgs/resource-naming-shared-ts@workspace:pkgs/resource-naming-shared-ts"],
 
     "@pkgs/room-adapter-bun-harness-ts": ["@pkgs/room-adapter-bun-harness-ts@workspace:pkgs/room-adapter-bun-harness-ts"],
 

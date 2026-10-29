@@ -92,6 +92,7 @@
     "@libs/chess-puzzle-harness-ts": "workspace:*",
     "@libs/connect-four-harness-ts": "workspace:*",
     "@libs/harness-ts": "workspace:*",
+    "@libs/product-identity-shared-ts": "workspace:*",
     "@libs/runtime-client-ts": "workspace:*",
     "@libs/runtime-harness-ts": "workspace:*",
     "@libs/runtime-shared-ts": "workspace:*",

@@ -24,6 +24,7 @@
     "@libs/moderation-shared-ts": "workspace:*",
     "@libs/observability-shared-ts": "workspace:*",
     "@libs/permissions-shared-ts": "workspace:*",
+    "@libs/product-identity-shared-ts": "workspace:*",
     "@libs/pubsub-server-ts": "workspace:*",
     "@libs/pubsub-shared-ts": "workspace:*",
     "@libs/secrets-shared-ts": "workspace:*",

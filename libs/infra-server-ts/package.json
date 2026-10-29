@@ -23,7 +23,8 @@
     "test": "bun test tests"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "catalog:"
+    "@aws-sdk/client-s3": "catalog:",
+    "@libs/product-identity-shared-ts": "workspace:*"
   },
   "devDependencies": {
     "@libs/infra-shared-ts": "workspace:*",
