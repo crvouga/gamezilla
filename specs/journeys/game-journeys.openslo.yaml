@@ -40,7 +40,7 @@ metadata:
   name: people-can-play-games-end-to-end
   displayName: People can play games from start to finish
   labels:
-    gamezilla.dev.tier: "0"
+    tier: "0"
 spec:
   description: >-
     In at least 97 of every 100 hours in which the team checked, every

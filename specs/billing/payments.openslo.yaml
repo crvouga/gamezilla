@@ -34,7 +34,7 @@ metadata:
   name: people-can-pay
   displayName: People can pay
   labels:
-    gamezilla.dev.tier: "1"
+    tier: "1"
 spec:
   description: >-
     In at least 95 of every 100 hours in which the team checked, paying

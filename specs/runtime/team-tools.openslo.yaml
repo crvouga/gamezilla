@@ -36,7 +36,7 @@ metadata:
   name: the-team-can-see-what-happened
   displayName: The team can see what happened
   labels:
-    gamezilla.dev.tier: "2"
+    tier: "2"
 spec:
   description: >-
     In at least 90 of every 100 hours in which the team checked, every one

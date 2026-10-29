@@ -94,7 +94,7 @@ metadata:
   name: people-can-host-and-join-spaces
   displayName: People can host and join spaces
   labels:
-    gamezilla.dev.tier: "0"
+    tier: "0"
 spec:
   description: >-
     In at least 97 of every 100 hours in which the team checked, hosting and
@@ -120,7 +120,7 @@ metadata:
   name: live-updates-can-reach-everyone
   displayName: Live updates can reach everyone
   labels:
-    gamezilla.dev.tier: "0"
+    tier: "0"
 spec:
   description: >-
     In at least 97 of every 100 hours in which the team checked, the app
@@ -147,7 +147,7 @@ metadata:
   name: live-updates-can-connect
   displayName: Live updates can connect
   labels:
-    gamezilla.dev.tier: "0"
+    tier: "0"
 spec:
   description: >-
     In at least 995 of every 1000 ten-minute checks, people's apps could

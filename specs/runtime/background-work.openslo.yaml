@@ -36,7 +36,7 @@ metadata:
   name: background-work-gets-done
   displayName: Background work gets done
   labels:
-    gamezilla.dev.tier: "1"
+    tier: "1"
 spec:
   description: >-
     At least 999 in every 1000 rounds of background work finish, judged over

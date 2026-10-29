@@ -89,7 +89,7 @@ metadata:
   name: the-app-is-always-reachable
   displayName: The app is always reachable
   labels:
-    gamezilla.dev.tier: "0"
+    tier: "0"
 spec:
   description: >-
     In at least 9995 of every 10000 minutes, every one of the team's checks
@@ -117,7 +117,7 @@ metadata:
   name: the-app-opens-quickly
   displayName: The app opens quickly
   labels:
-    gamezilla.dev.tier: "0"
+    tier: "0"
 spec:
   description: >-
     In at least 99 of every 100 minutes, every one of the team's checks that
@@ -142,7 +142,7 @@ metadata:
   name: the-app-never-hangs-on-opening
   displayName: The app never hangs on opening
   labels:
-    gamezilla.dev.tier: "0"
+    tier: "0"
 spec:
   description: >-
     In at least 999 of every 1000 minutes, every one of the team's checks

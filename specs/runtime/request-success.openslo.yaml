@@ -69,7 +69,7 @@ metadata:
   name: the-app-serves-people
   displayName: The app serves people
   labels:
-    gamezilla.dev.tier: "0"
+    tier: "0"
 spec:
   description: >-
     At least 9995 in every 10000 requests from people are answered without
@@ -94,7 +94,7 @@ metadata:
   name: changes-are-saved
   displayName: Changes are saved
   labels:
-    gamezilla.dev.tier: "0"
+    tier: "0"
 spec:
   description: >-
     At least 9995 in every 10000 attempts to save a person's change, a move

@@ -36,7 +36,7 @@ metadata:
   name: people-can-sign-in
   displayName: People can sign in
   labels:
-    gamezilla.dev.tier: "0"
+    tier: "0"
 spec:
   description: >-
     In at least 97 of every 100 hours in which the team checked, every step
