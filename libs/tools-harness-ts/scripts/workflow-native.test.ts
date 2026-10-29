@@ -62,9 +62,8 @@ test('only GitHub Actions owns the Verify, Release and Health triggers', () => {
       runners.push(job['runs-on'] ?? '');
     }
   }
-  // Every job runs on a GitHub-hosted Linux runner (package-hosts.ts), which
-  // is free for a public repository. No job names a self-hosted label or a
-  // runner of its own.
+  // Every job runs on the boat.dev Linux runner (package-hosts.ts). No job
+  // names any other label.
   expect(runners.length).toBeGreaterThan(0);
   for (const runner of runners) expect(runner).toBe(CI_RUNNER);
 });

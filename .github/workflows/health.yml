@@ -64,8 +64,7 @@ concurrency:
   group: health
   cancel-in-progress: false
 
-# Every job runs on a GitHub-hosted `ubuntu-latest` runner (free for a public
-# repository), and every `run:` step is bash.
+# Every job runs on a `boat` runner (boat.dev), and every `run:` step is bash.
 defaults:
   run:
     shell: bash
@@ -75,7 +74,7 @@ jobs:
     name: health:cleanup
     needs: health-matrix
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: boat
     timeout-minutes: 20
     permissions:
       contents: write
@@ -106,7 +105,7 @@ jobs:
 
   health-matrix:
     name: health:matrix
-    runs-on: ubuntu-latest
+    runs-on: boat
     timeout-minutes: 10
     outputs:
       production: ${{ steps.envs.outputs.production }}
@@ -147,7 +146,7 @@ jobs:
     name: health:${{ matrix.env }}
     needs: health-matrix
     if: needs.health-matrix.outputs.all != '[]' && needs.health-matrix.outputs.idle == 'true'
-    runs-on: ubuntu-latest
+    runs-on: boat
     timeout-minutes: 30
     # No GitHub environment ('') for a standard env.
     environment: ${{ contains(fromJSON(needs.health-matrix.outputs.production), matrix.env) && 'production' || '' }}
@@ -195,7 +194,7 @@ jobs:
     name: health:objectives
     needs: [health-matrix, health-env]
     if: ${{ !cancelled() && github.ref == 'refs/heads/main' && needs.health-matrix.outputs.all != '[]' }}
-    runs-on: ubuntu-latest
+    runs-on: boat
     timeout-minutes: 15
     permissions:
       contents: read
