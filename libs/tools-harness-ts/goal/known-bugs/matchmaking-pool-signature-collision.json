@@ -1,0 +1,4 @@
+{
+  "summary": "Distinct matching pools shared one signature: partition values were joined with a separator character, so the pools ('a<US>b', '') and ('a', 'b<US>') both read 'a<US>b<US>' and their people were paired. The signature is now the JSON encoding of the value tuple, which is unambiguous. GitHub issue #213.",
+  "regressionTest": "pkgs/matchmaking-root-harness-ts/tests/pool-signature-regression.test.ts"
+}

@@ -23,7 +23,7 @@ import { multiplayerSeatOwners } from './multiplayer-roster';
 import {
   OPPONENT_SEARCH_RADIUS,
   OPPONENT_TIME_CONTROL_KEY,
-  opponentPool,
+  opponentPoolSignature,
 } from './search-config';
 import { projectFormedOpponentSearches } from './search-projection';
 
@@ -141,12 +141,12 @@ export async function formGameMatches(
   ];
   const waiting = await waitingPartitions(tx, sizes);
   for (const control of offeredMatchChoices(rules)) {
-    const pool = opponentPool(control.id, rules);
-    if (!waiting.has(pool)) continue;
+    const signature = opponentPoolSignature(control.id, rules);
+    if (!waiting.has(signature)) continue;
     await formMatches(tx, {
       nowMs: ports.nowMs,
       createId: ports.createId,
-      partitionSignature: pool,
+      partitionSignature: signature,
       groupSize: gameSides(rules.forControl(control.id)).length,
       maxPairsPerPass: 500,
       radius: OPPONENT_SEARCH_RADIUS,

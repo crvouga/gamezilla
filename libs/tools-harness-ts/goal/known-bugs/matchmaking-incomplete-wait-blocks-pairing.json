@@ -1,0 +1,4 @@
+{
+  "summary": "A waiting entry missing a numeric detail its formula measures (e.g. no rating) made pairDistance throw out of the pairing pass, so compatible people queued with it were never paired. A missing numeric detail now makes the entry infinitely far from everyone: it keeps waiting and blocks nobody. GitHub issue #213.",
+  "regressionTest": "pkgs/matchmaking-root-harness-ts/tests/incomplete-details-regression.test.ts"
+}
