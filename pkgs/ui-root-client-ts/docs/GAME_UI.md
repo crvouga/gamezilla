@@ -117,7 +117,8 @@ an optional readiness tag ("Ready" in the success wash) and the score in
 the `stat` style; `scoreLabel` names the score for a listener. The viewer's
 row (`you`) is the soft blue and `aria-current`.
 
-`GameStatTiles` is a grid of `GameStat` tiles for a solo game's numbers.
+`GameStatTiles` is a grid of `GameStat` tiles for a solo game's numbers;
+each tile's `dataSet` lands on its tile (a test id, the raw value).
 
 ## Commands, timers and states
 

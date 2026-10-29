@@ -171,6 +171,8 @@ export type GameStatTile = {
   label: JSX.Element;
   value: JSX.Element;
   detail?: JSX.Element | undefined;
+  /** `data-*` for the tile (a test id, the value as automation reads it). */
+  dataSet?: ComponentDataSet | undefined;
 };
 
 export function GameStatTiles(props: {
@@ -190,6 +192,7 @@ export function GameStatTiles(props: {
           <li
             class="box rounded-card border border-border bg-surface p-4 min-w-0"
             data-stat={tile.id}
+            {...dataAttrs(tile.dataSet)}
           >
             <GameStat
               label={tile.label}
