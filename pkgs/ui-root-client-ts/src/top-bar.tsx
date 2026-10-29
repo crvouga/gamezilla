@@ -1,9 +1,15 @@
 /** @jsxImportSource solid-js */
 /**
  * `TopBar` -- header row with leading / center / trailing slots: one 52px
- * row on the canvas over a hairline, at every breakpoint, with 16px edges.
- * Titles sit left, after the back control (`TopBarTitle`); icon buttons in
- * the side slots keep their own 40px+ hit areas.
+ * row on the `background` canvas, at every breakpoint, with 16px edges.
+ * Titles sit left, after the 44px back control (`TopBarTitle`); icon
+ * buttons in the side slots keep their own 40px+ hit areas. It sits above
+ * the screen's scroller, so it stays put while the body scrolls.
+ *
+ * The bottom hairline (`border`) separates the bar from content scrolled
+ * under it: `divider` (default `true`) draws it. `ScreenBase` passes whether
+ * its body has scrolled, so a screen at rest has no line under its bar. The
+ * edge is always reserved, so the bar never shifts by a pixel.
  *
  * `centerAlign="center"` overlays the center slot across the full width so a
  * title stays visually centered regardless of side-slot widths; pass
@@ -32,6 +38,8 @@ export type TopBarProps = {
   centerPosition?: TopBarCenterPosition | undefined;
   /** Pad the top by `env(safe-area-inset-top)`. Default `true`. */
   safeAreaTop?: boolean | undefined;
+  /** Draw the bottom hairline (content is scrolled under it). Default `true`. */
+  divider?: boolean | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
@@ -105,11 +113,17 @@ export function TopBar(props: TopBarProps): JSX.Element {
     props.centerPosition !== 'flex';
   return (
     <header
-      class="box shrink-0 border-b border-border"
+      class="box shrink-0 bg-background border-b"
       classList={{
         safeTop: props.safeAreaTop !== false,
+        'border-border': props.divider !== false,
+        'border-transparent': props.divider === false,
       }}
-      {...dataAttrs({ component: 'TopBar', ...props.dataSet })}
+      {...dataAttrs({
+        component: 'TopBar',
+        divider: props.divider === false ? 'none' : 'hairline',
+        ...props.dataSet,
+      })}
     >
       <div class="box flex-row items-center gap-2 px-4 w-full h-13">
         <Show when={useAbsoluteCenter()} fallback={<FlexLayout {...props} />}>

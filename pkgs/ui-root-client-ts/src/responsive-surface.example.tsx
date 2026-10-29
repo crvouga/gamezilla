@@ -17,7 +17,7 @@ export default function ResponsiveSurfaceExample(): JSX.Element {
     <ExampleRoot>
       <p class="text textCaption">
         {
-          'Compact: a bottom sheet with a 12px top radius, a grab handle and the safe-area inset. Wide: a centered dialog on the scrim, one hairline, no shadow.'
+          'Compact: a bottom sheet on raised paper with a 20px top radius, a grab handle, the float shadow and the safe-area inset. Wide: a centered dialog on the scrim, 20px radius, the float shadow.'
         }
       </p>
       <div class="box flex-col gap-2">

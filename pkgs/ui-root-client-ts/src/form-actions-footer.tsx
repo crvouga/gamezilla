@@ -8,6 +8,11 @@
  * `Saving… -> Saved`, or a retryable error face. Stay on the screen after
  * save; use Cancel (or breadcrumbs) to navigate away.
  *
+ * The primary action comes first in reading and tab order. On phones
+ * (compact) it is a full-width pill pinned where the thumb is, with Cancel
+ * full width under it; on wide layouts the two share one row, the primary on
+ * the right.
+ *
  * @example
  * ```tsx
  * <FormActionsFooter
@@ -29,6 +34,7 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { children, createMemo, type JSX, Show } from 'solid-js';
 import { Button } from './button';
 import type { ButtonIntent } from './button-face';
+import { useLayoutMode } from './use-layout-mode';
 import {
   type UseMutationButtonResult,
   useMutationButton,
@@ -121,24 +127,21 @@ export function FormActionsFooterView(
     submitMode: 'form' | 'command';
   }
 ): JSX.Element {
+  const mode = useLayoutMode();
+  const compact = (): boolean => mode() !== 'wide';
   return (
     <div
-      class="box flex-row gap-2"
-      {...dataAttrs({ component: 'FormActionsFooter', ...props.dataSet })}
+      class="box gap-2"
+      classList={{
+        'flex-col items-stretch': compact(),
+        'flex-row-reverse': !compact(),
+      }}
+      {...dataAttrs({
+        component: 'FormActionsFooter',
+        layout: compact() ? 'stacked' : 'row',
+        ...props.dataSet,
+      })}
     >
-      <Show when={props.cancel}>
-        {(cancel) => (
-          <Button
-            title={cancel().label}
-            intent="neutral"
-            variant="outline"
-            onClick={() => cancel().onClick()}
-            disabled={cancel().disabled ?? false}
-            flex={1}
-            dataSet={{ component: 'FormCancelButton', ...cancel().dataSet }}
-          />
-        )}
-      </Show>
       <Button
         {...props.mutation.buttonProps}
         type="submit"
@@ -153,9 +156,24 @@ export function FormActionsFooterView(
             : undefined
         }
         intent={props.submit.intent ?? 'primary'}
-        flex={1}
+        flex={compact() ? undefined : 1}
+        fullWidth={compact()}
         dataSet={{ component: 'FormSubmitButton', ...props.submit.dataSet }}
       />
+      <Show when={props.cancel}>
+        {(cancel) => (
+          <Button
+            title={cancel().label}
+            intent="neutral"
+            variant="outline"
+            onClick={() => cancel().onClick()}
+            disabled={cancel().disabled ?? false}
+            flex={compact() ? undefined : 1}
+            fullWidth={compact()}
+            dataSet={{ component: 'FormCancelButton', ...cancel().dataSet }}
+          />
+        )}
+      </Show>
       <FormActionsFeedback submit={props.submit} mutation={props.mutation} />
     </div>
   );

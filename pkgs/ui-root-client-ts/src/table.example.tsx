@@ -92,7 +92,13 @@ export default function TableExample(): JSX.Element {
           columns={COLUMNS}
           rows={[]}
           rowKey={(game) => game.id}
-          empty={<EmptyState variant="compact" title="No archived games" />}
+          empty={
+            <EmptyState
+              variant="compact"
+              title="No archived games"
+              body="Games you archive show up here."
+            />
+          }
         />
       </ExampleSection>
     </ExampleRoot>

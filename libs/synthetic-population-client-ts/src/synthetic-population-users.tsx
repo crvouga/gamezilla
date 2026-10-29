@@ -20,7 +20,7 @@ export function SyntheticPopulationUsers(props: {
   const [filter, setFilter] = createSignal('');
   const [cursor, setCursor] = createSignal<string | null>(null);
   const api = useSyntheticPopulationApi();
-  const [page] = createResource(
+  const [page, { refetch }] = createResource(
     () => ({ q: filter(), cursor: cursor(), revision: props.observedAtMs }),
     (input) => api.directory(input.q, input.cursor)
   );
@@ -74,6 +74,12 @@ export function SyntheticPopulationUsers(props: {
         <ErrorState
           variant="compact"
           title={<Trans>Synthetic User directory could not be loaded.</Trans>}
+          body={<Trans>Check your connection and try again.</Trans>}
+          retry={{
+            onClick: () => {
+              void refetch();
+            },
+          }}
         />
       </Show>
       <StackHorizontal gap="md">

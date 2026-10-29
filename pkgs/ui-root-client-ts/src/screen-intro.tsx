@@ -13,9 +13,11 @@ export type ScreenIntroProps = {
 };
 
 /**
- * The title block that opens a screen's body: the `h1` and one quiet line.
- * The only place a body title is drawn, so every screen inside a host's
- * chrome (`EmbeddedScreen`) opens the same way.
+ * The title block that opens a screen's body: the `h1` in the `title` role
+ * (the display face, 26/30) and one quiet caption line. The only place a
+ * body title is drawn, so every screen inside a host's chrome
+ * (`EmbeddedScreen`) opens the same way, and the same size as a
+ * `ScreenLargeTitle`.
  */
 export function ScreenIntro(props: ScreenIntroProps): JSX.Element {
   const title = createScreenSlot(() => props.title);
@@ -27,7 +29,7 @@ export function ScreenIntro(props: ScreenIntroProps): JSX.Element {
         {...dataAttrs({ component: 'ScreenIntro', ...props.dataSet })}
       >
         <Show when={title.present()}>
-          <h1 class="text textHeading min-w-0 max-w-full break-words">
+          <h1 class="text textTitle min-w-0 max-w-full break-words">
             {title.content()}
           </h1>
         </Show>

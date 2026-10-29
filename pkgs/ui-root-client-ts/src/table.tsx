@@ -27,7 +27,13 @@
  *     { key: 'result', header: t`Result`, width: 'min', render: (game) => game.result },
  *     { key: 'moves', header: t`Moves`, align: 'end', render: (game) => game.moves },
  *   ]}
- *   empty={<EmptyState variant="compact" title={t`No games yet`} />}
+ *   empty={
+ *     <EmptyState
+ *       variant="compact"
+ *       title={t`No games yet`}
+ *       body={t`Games you finish show up here.`}
+ *     />
+ *   }
  * />
  * ```
  */

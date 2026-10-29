@@ -22,7 +22,14 @@ function RegisteredGameLink(props: { rules: TurnGames }): JSX.Element {
       keyed
       fallback={
         <ContentScreen screenId="multiplayer-link-unavailable" breadcrumbs={[]}>
-          <ErrorState title={<Trans>This game is unavailable.</Trans>} />
+          <ErrorState
+            title={<Trans>This game is unavailable.</Trans>}
+            body={
+              <Trans>
+                The link may be out of date. Pick a game from your list.
+              </Trans>
+            }
+          />
         </ContentScreen>
       }
     >

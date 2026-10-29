@@ -5,48 +5,53 @@ import { ExampleRoot } from './example-root';
 import { HouseIcon, SearchIcon, UsersIcon } from './icons';
 import { SchemePreview } from './scheme-preview';
 
+function SectionLabel(props: { label: string }): JSX.Element {
+  return <p class="text textSectionLabel">{props.label}</p>;
+}
+
 export default function EmptyStateExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <label class="text textLabel text-text-secondary">{'Fill'}</label>
+      <p class="text textCaption">
+        {
+          'An empty state invites: what is empty, one line on how to fill it, and the action that does.'
+        }
+      </p>
+      <SectionLabel label="Fill, with the primary action" />
       <SchemePreview>
         <div class="box h-70">
           <EmptyState
             icon={HouseIcon}
             title="No live spaces"
-            body="Tap + New space to start one."
-            action={{ label: '+ New space', onClick: () => undefined }}
+            body="Start one and invite your friends."
+            action={{ label: 'New space', onClick: () => undefined }}
           />
         </div>
       </SchemePreview>
 
       <div class="divider" role="separator" />
 
-      <label class="text textLabel text-text-secondary">
-        {'Fill, no action'}
-      </label>
+      <SectionLabel label="Fill, guidance only" />
       <SchemePreview>
         <div class="box h-70">
           <EmptyState
             icon={UsersIcon}
             title="No friends yet"
-            body="People you add show up here."
+            body="Search for someone by username to add them."
           />
         </div>
       </SchemePreview>
 
       <div class="divider" role="separator" />
 
-      <label class="text textLabel text-text-secondary">
-        {'Compact with icon and action'}
-      </label>
+      <SectionLabel label="Compact, with icon and action" />
       <SchemePreview>
         <div class="panel">
           <EmptyState
             variant="compact"
             icon={SearchIcon}
             title="No results"
-            body="Try a different search term."
+            body="Try a different search."
             action={{ label: 'Clear search', onClick: () => undefined }}
           />
         </div>
@@ -54,27 +59,14 @@ export default function EmptyStateExample(): JSX.Element {
 
       <div class="divider" role="separator" />
 
-      <label class="text textLabel text-text-secondary">
-        {'Compact, no icon'}
-      </label>
+      <SectionLabel label="Compact, no icon (inside a list)" />
       <SchemePreview>
         <div class="panel">
           <EmptyState
             variant="compact"
             title="No matching commands"
-            body="Try a different search term."
+            body="Try a different search."
           />
-        </div>
-      </SchemePreview>
-
-      <div class="divider" role="separator" />
-
-      <label class="text textLabel text-text-secondary">
-        {'Title only (list footer)'}
-      </label>
-      <SchemePreview>
-        <div class="panel">
-          <EmptyState variant="compact" title="No rows match filter." />
         </div>
       </SchemePreview>
     </ExampleRoot>

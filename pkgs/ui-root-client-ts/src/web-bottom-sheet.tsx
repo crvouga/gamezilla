@@ -1,24 +1,29 @@
 /** @jsxImportSource solid-js */
 /**
- * CSS bottom sheet -- the web {@link BottomSheetHost}.
+ * CSS bottom sheet -- the web {@link BottomSheetHost}, and the phone form of
+ * {@link ResponsiveSurface} (screens open a sheet through
+ * `ResponsiveSurface`, never through this host directly).
  *
  * Registers in the surface stack ({@link SurfaceStackSlot}) so it layers by
- * open order with modals and pins to the bottom of the stack layer: the
- * canvas-toned `surface-elevated` fill, a 12px top radius, a hairline top
- * edge, a 36x4 grab handle in the border tone, and the safe-area inset under
- * the content. It rises in over 250ms (`.sheetEnter`) while the scrim fades
+ * open order with modals and pins to the bottom of the stack layer. The look
+ * is the brief's sheet: the raised `surface-elevated` fill, the 20px `sheet`
+ * radius on the top corners, the one `shadow-float` (it floats over the
+ * page), a 36x4 grab handle in the `border` tone, and the safe-area inset
+ * under the content. No hairline: tone and shadow separate it from the scrim.
+ *
+ * It rises in over 200ms (`.sheetEnter`) while the scrim fades
  * (`.scrimEnter`); reduced motion shows both at once. Mounting is immediate,
- * so focus and dialog semantics never wait on the animation. A scrim backdrop
- * dismisses on click; the
- * {@link FocusTrap} (`layout="sheet"`) provides `role="dialog"`, Tab
- * containment, focus restore, and Escape while the sheet is on top. The drag
- * handle is purely decorative (no gesture support on the web).
+ * so focus and dialog semantics never wait on the animation. Tapping the
+ * scrim closes it; the {@link FocusTrap} (`layout="sheet"`) provides
+ * `role="dialog"`, Tab containment, focus restore, and Escape while the sheet
+ * is on top. The handle is decorative (no drag gesture on the web).
  */
 
 import type {
   BottomSheetHost,
   BottomSheetHostSheetProps,
 } from '@pkgs/ui-root-shared-ts/bottom-sheet-host-types';
+import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 import { createUniqueId, type JSX, Show } from 'solid-js';
@@ -43,6 +48,41 @@ function DragHandle(): JSX.Element {
   );
 }
 
+export type BottomSheetPanelProps = {
+  /** Fixed height in px; omit to hug the content. */
+  height?: number | undefined;
+  /** Height cap in px (the host passes 90% of the layout height). */
+  maxHeight: number;
+  /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet | undefined;
+  children?: JSX.Element | undefined;
+};
+
+/**
+ * The sheet itself, pinned to the bottom of its positioned parent: fill,
+ * top radius, float shadow, grab handle and safe-area inset. The web host
+ * puts it in the surface stack over a scrim; the explorer draws it in place.
+ */
+export function BottomSheetPanel(props: BottomSheetPanelProps): JSX.Element {
+  return (
+    <div
+      class="box sheetEnter safeBottom absolute left-0 right-0 bottom-0 bg-surface-elevated rounded-t-sheet shadow-float overflow-hidden"
+      style={{
+        ...(props.height !== undefined ? { height: cssPx(props.height) } : {}),
+        'max-height': cssPx(props.maxHeight),
+      }}
+      {...dataAttrs({
+        component: 'BottomSheet',
+        surface: 'sheet',
+        ...props.dataSet,
+      })}
+    >
+      <DragHandle />
+      {props.children}
+    </div>
+  );
+}
+
 export function WebBottomSheet(props: BottomSheetHostSheetProps): JSX.Element {
   const generatedId = createUniqueId();
   const titleId = `sheet-title-${createUniqueId()}`;
@@ -61,21 +101,11 @@ export function WebBottomSheet(props: BottomSheetHostSheetProps): JSX.Element {
           onClick={() => props.onClose()}
           {...dataAttrs({ component: 'BottomSheetScrim' })}
         />
-        <div
-          class="box sheetEnter safeBottom absolute left-0 right-0 bottom-0 bg-surface-elevated rounded-t-sheet border border-b-0 border-border overflow-hidden"
-          style={{
-            ...(props.height !== undefined
-              ? { height: cssPx(props.height) }
-              : {}),
-            'max-height': cssPx(maxHeight()),
-          }}
-          {...dataAttrs({
-            component: 'BottomSheet',
-            surface: 'sheet',
-            ...props.dataSet,
-          })}
+        <BottomSheetPanel
+          height={props.height}
+          maxHeight={maxHeight()}
+          dataSet={props.dataSet}
         >
-          <DragHandle />
           <OnColorReset>
             <ModalTitleIdProvider id={titleId}>
               <FocusTrap
@@ -89,7 +119,7 @@ export function WebBottomSheet(props: BottomSheetHostSheetProps): JSX.Element {
               </FocusTrap>
             </ModalTitleIdProvider>
           </OnColorReset>
-        </div>
+        </BottomSheetPanel>
       </SurfaceStackSlot>
     </Show>
   );

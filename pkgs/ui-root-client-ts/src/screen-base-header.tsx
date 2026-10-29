@@ -5,10 +5,13 @@
  *
  * Slot mapping:
  *   - `leading`  -> caller-supplied leading content + auto back button.
- *   - `center`   -> page title (from breadcrumbs), left-aligned after the
- *                   back control so it lines up with the left-aligned body.
- *                   A root screen (no back control) sets it as a heading.
+ *   - `center`   -> page title (from breadcrumbs) in the `heading` role,
+ *                   left-aligned after the back control so it lines up with
+ *                   the left-aligned body.
  *   - `trailing` -> responsive action bar (header actions) + global chrome.
+ *
+ * The hairline under the bar shows only once the body has scrolled
+ * (`scrolled`); at rest the bar and the page are one canvas.
  */
 
 import { createMemo, type JSX, Show } from 'solid-js';
@@ -26,8 +29,8 @@ import { TopBar } from './top-bar';
 import { TopBarTitle } from './top-bar-title';
 import { useBreadcrumbClick } from './use-breadcrumb-click';
 
-/** Back control hit area: never below 40px, whatever the action chrome. */
-const MIN_BACK_BUTTON_SIZE = 40;
+/** Back control hit area: never below 44px, whatever the action chrome. */
+const MIN_BACK_BUTTON_SIZE = 44;
 
 function HeaderTrailing(props: ScreenBaseHeaderProps): JSX.Element {
   const chrome = useActionBarChrome();
@@ -95,6 +98,7 @@ export function ScreenBaseHeader(props: ScreenBaseHeaderProps): JSX.Element {
   return (
     <TopBar
       centerAlign="start"
+      divider={props.scrolled === true}
       dataSet={{ component: 'ScreenBaseHeader' }}
       leading={
         props.leading !== undefined || layout().showBack ? (
@@ -107,10 +111,7 @@ export function ScreenBaseHeader(props: ScreenBaseHeaderProps): JSX.Element {
       }
       center={
         <Show when={hasTitle()}>
-          <TopBarTitle
-            label={layout().title}
-            root={!layout().showBack && props.leading === undefined}
-          />
+          <TopBarTitle label={layout().title} />
         </Show>
       }
       trailing={

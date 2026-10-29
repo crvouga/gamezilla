@@ -1,9 +1,18 @@
 import type { LayoutMode } from './use-layout-mode';
 
 /**
- * `'responsive'` (default) -- bottom sheet on compact layouts, centered modal
- * on wide. `'modal'` -- always the centered modal (confirm flows that should
- * never be sheets).
+ * How a {@link ResponsiveSurface} presents. The design system's Sheet and
+ * Dialog are this one surface:
+ *
+ * - `'responsive'` (default) -- the **Sheet**: a bottom sheet on compact
+ *   layouts (raised fill, 20px top radius, grab handle, safe-area inset),
+ *   the centered dialog on wide ones. Pickers, filters, detail panels.
+ * - `'modal'` -- the **Dialog**: always the centered dialog, at every width.
+ *   Confirms and decisions that should never read as a sheet
+ *   (`ConfirmationModal`, `MutationModal`).
+ *
+ * Both sit on the same scrim, trap focus, return it to the opener on close,
+ * and close on Escape or a scrim tap.
  */
 export type ResponsiveSurfacePresentation = 'responsive' | 'modal';
 

@@ -1,21 +1,27 @@
 /** @jsxImportSource solid-js */
 /**
- * `EmptyState` -- canonical "no data" block.
+ * `EmptyState` -- canonical "no data" block, and an invitation.
  *
- * Reach for this anywhere you would have hand-rolled a centered
- * `<Text variant="body" color="textSecondary">No X yet</Text>`. Pairs an
- * optional icon with a title, body, and primary action so every empty
- * surface in the app has the same affordance vocabulary.
+ * An empty screen tells a person what to do next: a short title (what is
+ * empty), one line of body that says how to fill it, and, where the screen
+ * can do it, the primary action. `body` is required so no empty state is
+ * only a shrug; write it in the second person, sentence case, no emoji
+ * ("Share the space link to invite people."). The action label says what
+ * happens ("New space", not "OK").
  *
  * @example
  * ```tsx
  * <EmptyState
  *   icon={HouseIcon}
  *   title={<Trans>No live spaces</Trans>}
- *   body={<Trans>Tap + New space to start one.</Trans>}
- *   action={{ label: t`+ New space`, onClick: createSpace }}
+ *   body={<Trans>Start one and invite your friends.</Trans>}
+ *   action={{ label: t`New space`, onClick: createSpace }}
  * />
- * <EmptyState variant="compact" title={t`No results match filter.`} />
+ * <EmptyState
+ *   variant="compact"
+ *   title={t`No results`}
+ *   body={t`Try a different search.`}
+ * />
  * ```
  */
 
@@ -34,9 +40,11 @@ export type EmptyStateAction = {
 export type EmptyStateProps = {
   /** Optional outline icon in a hairline disc above the title. */
   icon?: IconComponent | undefined;
+  /** What is empty, in sentence case ("No friends yet"). */
   title: JSX.Element;
-  body?: JSX.Element | undefined;
-  /** Optional primary action below the body. */
+  /** One line that says what to do next. Required: an empty state invites. */
+  body: JSX.Element;
+  /** The primary action that fills the screen, when the screen can do it. */
   action?: EmptyStateAction | undefined;
   /** Layout density. Defaults to `'fill'`. */
   variant?: StateBlockVariant | undefined;
@@ -74,14 +82,12 @@ export function EmptyState(props: EmptyStateProps): JSX.Element {
       >
         {props.title}
       </p>
-      <Show when={props.body !== undefined && props.body !== null}>
-        <p
-          class="text text-text-secondary text-center w-full"
-          classList={{ textBody: isFill(), textCaption: !isFill() }}
-        >
-          {props.body}
-        </p>
-      </Show>
+      <p
+        class="text text-text-secondary text-center w-full"
+        classList={{ textBody: isFill(), textCaption: !isFill() }}
+      >
+        {props.body}
+      </p>
       <Show when={props.action}>
         {(action) => (
           <StateBlockActions>

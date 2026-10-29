@@ -3,23 +3,16 @@ import type { JSX } from 'solid-js';
 
 export type TopBarTitleProps = {
   label: JSX.Element;
-  /**
-   * A root screen (a tab, nothing to go back to) announces itself in the
-   * heading role; a pushed screen uses the quieter navigation title.
-   */
-  root?: boolean | undefined;
 };
 
-/** Single-line navigation title (`h1`); the `TopBar` slot sets alignment. */
+/**
+ * Single-line screen title (`h1`) in the `heading` role (the brief's 18/24
+ * bold title style), left-aligned after the back control; the `TopBar` slot
+ * sets alignment and a long title truncates with an ellipsis.
+ */
 export function TopBarTitle(props: TopBarTitleProps): JSX.Element {
   return (
-    <h1
-      class="text line-clamp-1 min-w-0 max-w-full"
-      classList={{
-        textHeading: props.root === true,
-        textNavigationTitle: props.root !== true,
-      }}
-    >
+    <h1 class="text textHeading line-clamp-1 min-w-0 max-w-full">
       {props.label}
     </h1>
   );

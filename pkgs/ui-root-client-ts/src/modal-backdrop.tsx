@@ -8,7 +8,7 @@
  * is a non-focusable, `aria-hidden` layer -- keyboard users dismiss with
  * Escape through the surrounding {@link FocusTrap}.
  *
- * The scrim fades in over 250ms (`.scrimEnter`); the content keeps the
+ * The scrim fades in over 200ms (`.scrimEnter`); the content keeps the
  * 16px modal margin (`MODAL_CONTENT_MARGIN_STEP`, `p-4`) from every edge.
  *
  * Relies on a sized ancestor (the {@link ModalRoot} focus trap fills the

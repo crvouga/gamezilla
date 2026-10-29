@@ -2,18 +2,17 @@
 /**
  * `ErrorState` -- canonical failure block.
  *
- * Reach for this anywhere you would have hand-rolled a destructive `Text`
- * inside a padded `Box`, or a tinted "ErrorCard" with `destructive` border
- * + `destructiveSurface` fill. Pairs an icon with a title, optional body
- * (typically the raw error message), optional copy-error button (when body
- * is stringifiable and a `copy` sink is injected), and optional retry button.
- *
- * The retry is the thing to do, so it is the one blue primary. A second
- * recovery stays an outline. Copy stays outline too.
+ * Says what broke and what to do about it: the `title` names the failure
+ * ("Couldn't load your spaces"), the required `body` says what to do next
+ * ("Check your connection and try again."), and `retry` is the thing to do,
+ * the one blue primary. A second recovery stays an outline, as does the
+ * copy-error button (shown when the body is text and a `copy` sink is
+ * injected). Copy is short, second person and calm: no exclamation marks,
+ * and never "contact support" -- there is none; offer the next step instead.
  *
  * Variants:
  *   - `'fill'`    (default) -- centered failure: the glyph in a hairline
- *                              disc, a plain title, the detail in secondary
+ *                              disc, a plain title, the guidance in secondary
  *                              text. Use for boot failures and full-screen
  *                              errors.
  *   - `'compact'` -- a `destructive-surface` wash with a left-aligned icon
@@ -23,8 +22,16 @@
  *
  * @example
  * ```tsx
- * <ErrorState title={t`Harness failed to start`} body={boot.bootErr} />
- * <ErrorState variant="compact" title={t`Failed to load metrics`} body={msg} />
+ * <ErrorState
+ *   title={t`Couldn't load your spaces`}
+ *   body={t`Check your connection and try again.`}
+ *   retry={{ onClick: refetch }}
+ * />
+ * <ErrorState
+ *   variant="compact"
+ *   title={t`Couldn't load metrics`}
+ *   body={t`Refresh to try again.`}
+ * />
  * ```
  */
 
@@ -69,10 +76,14 @@ export type ErrorStateCopy = (text: string) => Promise<void>;
 export type ErrorStateProps = {
   /** Defaults to the X mark from the design-system icon set. */
   icon?: IconComponent | undefined;
+  /** What broke, in sentence case and without an exclamation mark. */
   title: JSX.Element;
-  /** Error detail (string or any node). */
-  body?: JSX.Element | undefined;
-  /** Optional retry action button. This is the primary action. */
+  /**
+   * What to do next (and, where it helps, the detail of what failed).
+   * Required: a failure always comes with a way forward.
+   */
+  body: JSX.Element;
+  /** The retry action: the primary recovery. Label defaults to "Retry". */
   retry?: ErrorStateRetry | undefined;
   /** Optional second recovery. Outline, never a second primary. */
   secondary?: ErrorStateSecondary | undefined;
@@ -311,11 +322,9 @@ function ErrorStateFill(props: ErrorStateProps): JSX.Element {
     >
       <StateBlockIcon icon={props.icon ?? XIcon} tone="destructive" />
       <h1 class="text textSubtitle text-center w-full">{props.title}</h1>
-      <Show when={props.body !== undefined && props.body !== null}>
-        <p class="text textBody text-text-secondary text-center w-full">
-          {props.body}
-        </p>
-      </Show>
+      <p class="text textBody text-text-secondary text-center w-full">
+        {props.body}
+      </p>
       <ErrorActions
         copyText={errorCopyText(props.title, props.body)}
         copy={props.copy}
@@ -345,9 +354,7 @@ function ErrorStateCompact(props: ErrorStateProps): JSX.Element {
       </div>
       <div class="box flex-1 min-w-0 gap-1">
         <p class="text textBodyBold text-destructive">{props.title}</p>
-        <Show when={props.body !== undefined && props.body !== null}>
-          <p class="text textCaption text-destructive">{props.body}</p>
-        </Show>
+        <p class="text textCaption text-destructive">{props.body}</p>
         <ErrorActions
           copyText={errorCopyText(props.title, props.body)}
           copy={props.copy}
@@ -426,11 +433,9 @@ function BandMessage(props: ErrorStateProps): JSX.Element {
       <p class="text textBodyBold text-center line-clamp-2 w-full">
         {props.title}
       </p>
-      <Show when={props.body !== undefined && props.body !== null}>
-        <p class="text textCaption text-text-secondary text-center w-full">
-          {props.body}
-        </p>
-      </Show>
+      <p class="text textCaption text-text-secondary text-center w-full">
+        {props.body}
+      </p>
       <ErrorDetails details={props.details} />
     </div>
   );

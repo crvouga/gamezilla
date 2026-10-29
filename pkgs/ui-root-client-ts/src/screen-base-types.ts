@@ -143,6 +143,8 @@ export type ScreenBaseHeaderProps = {
    * past the reveal threshold (via `ScreenTitleProvider`).
    */
   largeTitle?: boolean | undefined;
+  /** The body has scrolled under the bar: draw its bottom hairline. */
+  scrolled?: boolean | undefined;
   /**
    * Compact-only trailing chrome after header actions (e.g. avatar menu).
    * Wide page headers must not duplicate this — the AppFrame island owns it.

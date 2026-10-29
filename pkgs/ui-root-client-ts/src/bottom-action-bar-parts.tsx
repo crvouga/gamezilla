@@ -30,12 +30,12 @@ export function BottomActionBarAction(props: {
   return (
     <button
       class="clickable clickableTint flex-1 rounded-control items-center justify-center min-w-0 min-h-11 py-1 gap-1"
+      classList={{ 'opacity-disabled': disabled() }}
       {...dataAttrs({
         component: 'BottomActionBarAction',
         ...props.item.dataSet,
       })}
       type="button"
-      style={{ opacity: disabled() ? 0.5 : 1 }}
       onClick={() => props.item.onClick()}
       disabled={disabled()}
       aria-label={ariaLabel()}

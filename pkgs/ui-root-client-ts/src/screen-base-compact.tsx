@@ -10,6 +10,8 @@
  *   so nested scrollers bleed under horizontal padding automatically.
  *
  * Pass `largeTitle` for a body heading that reveals in the TopBar after scroll.
+ * The TopBar's hairline appears once any scroller in the body leaves its top
+ * (`useBodyScrolled`).
  */
 
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
@@ -20,6 +22,7 @@ import { ScreenBaseHeader } from './screen-base-header';
 import { lastBreadcrumbTitle } from './screen-base-logic';
 import type { ScreenBasePrimaryActionRender } from './screen-base-primary-action';
 import { WithScreenBasePrimaryAction } from './screen-base-primary-action';
+import { useBodyScrolled } from './screen-base-scroll-edge';
 import type { ScreenBaseProps } from './screen-base-types';
 import { useScreenFocus } from './screen-focus';
 import { ScreenTitleProvider } from './screen-title-context';
@@ -38,6 +41,7 @@ function CompactShell(props: ShellProps): JSX.Element {
     () => root,
     () => props.screenId
   );
+  const scrolled = useBodyScrolled(() => root);
   return (
     <div
       ref={root}
@@ -54,6 +58,7 @@ function CompactShell(props: ShellProps): JSX.Element {
         actions={props.actions ?? []}
         leading={props.leading}
         largeTitle={props.largeTitle}
+        scrolled={scrolled()}
         globalTrailing={globalTrailing()}
         renderActionsMenu={props.renderActionsMenu}
       />

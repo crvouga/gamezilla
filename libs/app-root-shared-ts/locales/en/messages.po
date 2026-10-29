@@ -91,6 +91,18 @@ msgstr "{0} active, expires {latestExpires}"
 msgid "{0} added"
 msgstr "{0} added"
 
+#. placeholder {0}: props.label
+#. placeholder {1}: props.max
+#: pkgs/ui-root-client-ts/src/number-stepper.tsx
+msgid "{0} is at its maximum, {1}"
+msgstr "{0} is at its maximum, {1}"
+
+#. placeholder {0}: props.label
+#. placeholder {1}: props.min
+#: pkgs/ui-root-client-ts/src/number-stepper.tsx
+msgid "{0} is at its minimum, {1}"
+msgstr "{0} is at its minimum, {1}"
+
 #. placeholder {0}: gameSideLabel(props.game.fen, low().side)
 #. placeholder {1}: timeLeftWords(low().leftMs)
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
@@ -215,6 +227,14 @@ msgstr "{0}d {1}h"
 #: libs/game-matchmaking-client-ts/src/multiplayer-clocks.tsx
 msgid "{0}h {1}m"
 msgstr "{0}h {1}m"
+
+#: pkgs/ui-root-client-ts/src/avatar.tsx
+msgid "{alt}, bot"
+msgstr "{alt}, bot"
+
+#: pkgs/ui-root-client-ts/src/avatar.tsx
+msgid "{alt}, guest"
+msgstr "{alt}, guest"
 
 #: libs/numberlink-client-ts/src/numberlink-board.tsx
 msgid "{coordinate}: empty"
@@ -1135,6 +1155,7 @@ msgstr "Boards"
 #: libs/game-session-client-ts/src/custom-game-side-choices.tsx
 #: libs/game-session-client-ts/src/game-history-participant.tsx
 #: libs/profile-client-ts/src/account-automation-label.tsx
+#: pkgs/ui-root-client-ts/src/avatar.tsx
 msgid "Bot"
 msgstr "Bot"
 
@@ -1322,6 +1343,7 @@ msgstr "Check the spelling or try a different username."
 #: libs/friends-client-ts/src/friend-user-screen-content.tsx
 #: libs/friends-client-ts/src/friends-list-screen-view.tsx
 #: libs/profile-client-ts/src/profile-screen.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-users.tsx
 msgid "Check your connection and try again."
 msgstr "Check your connection and try again."
 
@@ -2743,6 +2765,10 @@ msgstr "Free trial · ends {0} ({1, plural, one {# day left} other {# days left}
 msgid "Friend request"
 msgstr "Friend request"
 
+#: libs/friends-client-ts/src/friend-request-feedback.tsx
+msgid "Friend request not sent"
+msgstr "Friend request not sent"
+
 #: libs/permissions-client-ts/src/unlock-copy.tsx
 msgid "Friend requests and space invites will land here."
 msgstr "Friend requests and space invites will land here."
@@ -2891,6 +2917,10 @@ msgstr "Google"
 msgid "Green"
 msgstr "Green"
 
+#: pkgs/ui-root-client-ts/src/avatar.tsx
+msgid "Guest"
+msgstr "Guest"
+
 #: libs/game-session-client-ts/src/custom-game-difficulty.tsx
 msgid "Hard"
 msgstr "Hard"
@@ -2975,8 +3005,7 @@ msgstr "History and stats"
 msgid "Horizontal wall"
 msgstr "Horizontal wall"
 
-#: libs/spaces-client-ts/src/space-members-list-modal.tsx
-#: libs/spaces-client-ts/src/space-share-people-list.tsx
+#: pkgs/ui-root-client-ts/src/badge.tsx
 msgid "Host"
 msgstr "Host"
 
@@ -3359,8 +3388,7 @@ msgstr "Light Cycles Trio"
 msgid "Link"
 msgstr "Link"
 
-#: libs/spaces-client-ts/src/miniplayer-live-badge.tsx
-#: libs/spaces-client-ts/src/space-live-badge.tsx
+#: pkgs/ui-root-client-ts/src/badge.tsx
 msgid "Live"
 msgstr "Live"
 
@@ -3412,6 +3440,10 @@ msgstr "Load started"
 #: libs/word-tiles-client-ts/src/word-tiles-board.tsx
 msgid "Load the word list again"
 msgstr "Load the word list again"
+
+#: pkgs/ui-root-client-ts/src/skeleton.tsx
+msgid "Loading"
+msgstr "Loading"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-import-stop.tsx
 msgid "Loading already failed"
@@ -4182,6 +4214,10 @@ msgstr "Open playtest"
 #: libs/game-puzzle-client-ts/src/content-attempt-restart.tsx
 msgid "Open restarted attempt"
 msgstr "Open restarted attempt"
+
+#: pkgs/ui-root-client-ts/src/avatar.tsx
+msgid "Open seat"
+msgstr "Open seat"
 
 #. placeholder {0}: resolvedTitle()
 #: libs/spaces-client-ts/src/space-card-open-link.tsx
@@ -4969,6 +5005,11 @@ msgstr "Reference: {0}"
 msgid "Refresh"
 msgstr "Refresh"
 
+#: libs/synthetic-population-client-ts/src/synthetic-population-screen.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-screen.tsx
+msgid "Refresh to try again."
+msgstr "Refresh to try again."
+
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "Region"
 msgstr "Region"
@@ -5594,6 +5635,11 @@ msgstr "Share puzzle link"
 msgid "Share space"
 msgstr "Share space"
 
+#: libs/spaces-client-ts/src/space-members-list-modal.tsx
+#: libs/spaces-client-ts/src/space-share-people-list.tsx
+msgid "Share the space link to invite people."
+msgstr "Share the space link to invite people."
+
 #: libs/friends-client-ts/src/friend-request-feedback.tsx
 msgid "Sharing your friend request…"
 msgstr "Sharing your friend request…"
@@ -5817,6 +5863,10 @@ msgstr "Solution"
 msgid "Solution shown."
 msgstr "Solution shown."
 
+#: libs/game-puzzle-client-ts/src/puzzle-game-log.tsx
+msgid "Solve a puzzle and it shows up here."
+msgstr "Solve a puzzle and it shows up here."
+
 #: libs/game-menu-client-ts/src/game-menu-choices.tsx
 msgid "Solve rated puzzles and climb the ladder"
 msgstr "Solve rated puzzles and climb the ladder"
@@ -5923,6 +5973,10 @@ msgstr "Spectating"
 #: pkgs/ui-root-client-ts/src/spectator-indicator.tsx
 msgid "Spectating — controls are disabled"
 msgstr "Spectating — controls are disabled"
+
+#: pkgs/ui-root-client-ts/src/spectator-indicator.tsx
+msgid "Spectating; controls are disabled"
+msgstr "Spectating; controls are disabled"
 
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-editor.tsx
 msgid "Square tool"
@@ -6252,6 +6306,10 @@ msgstr "That change wasn't made. Try again in a moment."
 msgid "That crate cannot move."
 msgstr "That crate cannot move."
 
+#: libs/game-session-client-ts/src/custom-game-error.tsx
+msgid "That didn't go through"
+msgstr "That didn't go through"
+
 #: libs/game-puzzle-client-ts/src/use-draft-edit-history.tsx
 msgid "That edit is no longer available here. Your kept copies remain below."
 msgstr "That edit is no longer available here. Your kept copies remain below."
@@ -6485,6 +6543,10 @@ msgstr "The Lichess file is in the shared bucket. Start loading to add its puzzl
 #: libs/light-cycles-client-ts/src/light-cycles-view.tsx
 msgid "The Light Cycles game is finished."
 msgstr "The Light Cycles game is finished."
+
+#: libs/game-matchmaking-client-ts/src/multiplayer-link-client.tsx
+msgid "The link may be out of date. Pick a game from your list."
+msgstr "The link may be out of date. Pick a game from your list."
 
 #: libs/spaces-client-ts/src/space-join-prompt.tsx
 msgid "The link may be wrong, or the space may never have existed."
@@ -6978,6 +7040,10 @@ msgstr "triple word"
 #: pkgs/ui-root-client-ts/src/catalog-list-rows.tsx
 msgid "Try a different search term."
 msgstr "Try a different search term."
+
+#: pkgs/ui-root-client-ts/src/command-palette-empty.tsx
+msgid "Try a different search."
+msgstr "Try a different search."
 
 #: libs/account-privacy-client-ts/src/export-choice.tsx
 #: libs/app-root-client-ts/src/crash-screen.tsx

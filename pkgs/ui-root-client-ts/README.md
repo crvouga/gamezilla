@@ -3,57 +3,72 @@
 The design system: every component, type role, surface and color the product
 paints. Screens compose it and arrange it; they never paint around it.
 
-## The look: quiet, hairline, one blue
+## The look: dark-first, flat, one blue
 
-Clean and consistent in the manner of the big photo-social apps: a white or
-true-black canvas, near-black text with one gray partner, hairline dividers,
-generous whitespace, a strong type hierarchy, and one blue for what to do or
-what is chosen. Nothing themed, nothing decorative, nothing that moves unless
-a person asked.
+A near-black canvas with raised and sunken paper, two inks, hairline
+dividers, generous whitespace, a strong type hierarchy, and one saturated
+blue for what to do. Light is the tuned counterpart of dark. Nothing themed,
+nothing decorative, nothing that moves unless a person asked.
 
-| Token | Role |
-| --- | --- |
-| `background` | the canvas: white / true black |
-| `surface` | paper, one step off the canvas (#F7F7F7 / #121212): cards and list panels, never a page tone |
-| `surface-muted` | tags, segmented tracks, secondary buttons (#EFEFEF / #262626) |
-| `surface-elevated` / `surface-overlay` | dialogs and sheets / menus, popovers |
-| `text` / `text-secondary` | near-black or near-white, and its gray partner |
-| `border` | the hairline (#DBDBDB / #333) on panels, cards, rows and bars |
-| `outline` | control boundaries that must read at 3:1 |
-| `tint-active` + `on-primary` | the blue fill with a white label, in both schemes |
-| `tint` | blue as text: links, focus and selection |
-| `destructive`, `success`, `warning`, `info` | status, each with a `*-surface` wash |
+| Token | Role | Dark / light |
+| --- | --- | --- |
+| `background` | the canvas (the design's `surface`) | #111113 / #fafafa |
+| `surface` | raised paper: cards, list panels, sheets, menus | #1c1c1f / #ffffff |
+| `surface-muted` | sunken wells: inputs, media, empty board cells, tags, inactive stat pills | #0b0b0c / #f4f4f5 |
+| `surface-elevated` / `surface-overlay` | sheets and dialogs / menus and popovers (raised paper) | #1c1c1f / #ffffff |
+| `text` / `text-secondary` | ink and muted ink | #ededef, #a1a1aa / #18181b, #52525b |
+| `border` | decorative hairline only | #2c2c31 / #e4e4e7 |
+| `outline` | a border that carries meaning: inputs, secondary buttons, unselected chips (3:1) | #71717a |
+| `tint-active` + `on-primary` | the one saturated fill at rest: primary buttons, "Sit here" | #2563eb + white |
+| `primary-strong` | selected borders, active indicators, your pieces | #3b82f6 / #2563eb |
+| `tint` | blue as text: links | #60a5fa / #1d4ed8 |
+| `tint-subtle` + `on-primary-soft` | selected chip, active turn, active player, your avatar | #1e2a44 + #93c5fd / #dbeafe + #1d4ed8 |
+| `focus-ring` | the 2px focus ring, 2px offset | #93c5fd / #2563eb |
+| `destructive`, `success`, `warning`, `info` | status, always with a word or icon, each with a `*-surface` wash | |
+| `live` + `on-live` | only the LIVE tag and the recording dot | #dc2626 + white |
+| `player1`…`player8` | seat colors, at least 4.5 L* apart so seats never rely on hue | |
+| `board-*` | neutral board squares, last-move wash, empty cell, card face and inks | |
 
-Values live in `pkgs/ui-root-shared-ts/src/design-tokens.json`. CSS variables and
-TypeScript token names are generated from it
-(`bunx turbo run tokens:generate --filter=@pkgs/ui-root-client-ts`); light and dark are
-one variable swap on `[data-theme]`, never two sets of classes.
-`palette-contrast.test.ts` holds every text/fill pair to WCAG AA, which is
-why the blue sits at the lightness where a white label still passes.
+Values live in `pkgs/ui-root-shared-ts/src/design-tokens.json`. CSS
+variables, TypeScript token names and a resolved `tokens.json` are generated
+from it (`bunx turbo run tokens:generate --filter=@pkgs/ui-root-client-ts`).
+Dark is the `:root` default; light is one variable swap on
+`[data-theme="light"]` (and `prefers-color-scheme: light` before a theme is
+set), never two sets of classes. `palette-contrast.test.ts` holds every
+text/fill pair to WCAG AA (3:1 for large text, meaningful borders, focus
+rings, icons and seat colors) and keeps the seat colors apart in lightness.
 
 | Scale | Steps |
 | --- | --- |
-| Type | 12 / 14 / 16 / 20 / 24 / 32, leading on the 4px grid, weights 400 / 600 / 700, one system face |
-| Space | the 4px grid only: `none xs sm md lg xl 2xl 3xl` = 0 4 8 12 16 24 32 48 |
-| Radius | 4 (`sm`), 8 (`control`), 12 (`card`, `sheet`), `full` |
-| Control height | 32 / 44 / 52 |
+| Type | eight styles: `display-xl` 40/44, `display` 26/30, `stat` 20/24 (numbers), `title` 18/24, `body` 15/22, `body-strong` 15/22, `caption` 13/18, `label` 12/16 |
+| Faces | Unbounded 600 / 700 for display and numbers, Manrope 400 / 500 / 700 for everything else; self-hosted, `font-display: swap` |
+| Space | the 4px grid only: `none xs sm md lg xl 2xl 3xl` = 0 4 8 12 16 24 32 48; phone gutter 16 |
+| Radius | 6 (`sm`: chips, tags), 12 (`control`, `card`: inputs, rows, cards, lists), 20 (`sheet`: sheets, dialogs, boards), `full` (buttons, avatars, stat pills) |
+| Control height | 32 / 44 / 52; every control keeps a 44px hit area |
 | Shadow | one: `shadow-float`, for what floats above content |
-| Motion | 150 / 200 / 250ms, one ease-out curve; off under reduced motion |
+| Motion | 150 / 200 / 250ms, one ease-out curve, only in answer to a tap; off under reduced motion |
 | Breakpoints | sm 640, md 768, lg 1024, xl 1280 |
 
 ## Rules
 
-1. **Blue means do or chosen.** `tint-active` fills only primary buttons,
-   the FAB, selected chips, a checked switch, box or radio, and the current
-   price. Never decoration. The active tab is full text color, not blue.
-   The one exception is the brand: the `AppLogo` wordmark is `tint`.
+1. **One saturated fill.** `tint-active` fills only primary buttons, "Sit
+   here" and the FAB. What is chosen (a selected chip, a checked switch, box
+   or radio, the active turn, the active player, your avatar) is the soft
+   blue, `tint-subtle` under `on-primary-soft`, with a `primary-strong`
+   border where it has one. Never decoration. The active tab is full text
+   color, not blue. The one exception is the brand: the `AppLogo` wordmark is
+   `tint`.
 2. **Pick a role, never a size.** Text is `P` / `Text` with a `variant`
-   (`body`, `bodyBold`, `label`, `caption`, `footnote`, `mono`) or `H1`–`H6`
-   with a `size` (`title` 32, `heading` 24, `subtitle` 20,
-   `navigationTitle` 16 bold, `label`). `numeral` for ratings, clocks, prices
-   and counts. Nothing renders below 12px.
-3. **One face.** The platform system stack carries everything. Mono is for
-   code and identifiers, never for numbers or labels.
+   (`body`, `bodyBold`, `label`, `caption`, `footnote`, `sectionLabel`,
+   `stat`, `mono`) or `H1`–`H6` with a `size` (`displayXl`, `title`,
+   `heading`, `subtitle`, `navigationTitle`, `label`, `stat`). Each role wears
+   one of the eight text styles; the mapping is in `hosts.css` and
+   `docs/ui-overhaul/DECISIONS.md`. `numeral` (Unbounded 600, tabular) for
+   ratings, clocks, prices and counts; counts from 1,000 are compact
+   (`formatCompactNumber`: 12.4K). Nothing renders below 12px.
+3. **Two faces.** Manrope carries every label, button and line of copy;
+   Unbounded sets display headlines and numbers. Mono is for code and
+   identifiers, never for numbers or labels.
 4. **Lists are panels.** Group rows in a `MenuSection` / `MenuList` (or
    `MainMenuScreen` for destinations): paper (`surface`) inside one hairline,
    the card radius, hairlines between rows inset to the text column. A row never
@@ -61,13 +76,13 @@ why the blue sits at the lightness where a white label still passes.
 4a. **Nobody is an icon.** A person without a picture is the `Avatar`
    placeholder, never an outlined glyph in a ring. `icon` on an `Avatar` is
    for things that are not people: a bot, a game, a device.
-5. **Radius encodes hierarchy.** `rounded-sm` marks and inline tags,
-   `rounded-control` buttons, inputs and rows, `rounded-card` cards and
-   panels, `rounded-sheet` dialogs and sheets. `rounded-full` only for round
-   things: avatars, pills, the FAB, dots.
+5. **Radius encodes hierarchy.** `rounded-sm` chips and tags,
+   `rounded-control` inputs and rows, `rounded-card` cards and panels,
+   `rounded-sheet` dialogs, sheets and boards. `rounded-full` for buttons and
+   round things: avatars, stat pills, the FAB, dots.
 6. **Flat.** Hairlines separate, tone steps raise. The one shadow,
-   `shadow-float`, is for menus, popovers, tooltips and the FAB.
-   No gradients.
+   `shadow-float`, is for what floats: sheets, dialogs, menus, popovers,
+   tooltips and the FAB. No gradients, no glows.
 7. **Left-aligned.** Header titles sit after the back control and line up
    with the body. Only identity heroes and full-screen empty states center.
 8. **Each fact is its own tag.** Metadata strips are rows of `Badge`s, never

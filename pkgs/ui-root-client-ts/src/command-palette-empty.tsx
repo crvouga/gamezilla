@@ -19,6 +19,7 @@ export function CommandPaletteEmpty(
     <EmptyState
       variant="compact"
       title={props.title ?? t`No matching commands`}
+      body={t`Try a different search.`}
       dataSet={{ component: 'CommandPaletteEmpty' }}
     />
   );

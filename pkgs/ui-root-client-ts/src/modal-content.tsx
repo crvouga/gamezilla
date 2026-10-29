@@ -1,11 +1,11 @@
 /** @jsxImportSource solid-js */
 /**
- * `ModalContent` -- the dialog sheet.
+ * `ModalContent` -- the centered dialog.
  *
- * Flat: the `surface-elevated` fill, the sheet radius (12) and one hairline
- * that keeps the edge crisp on the scrim in dark mode. No shadow -- the scrim
- * already lifts it. Enters with a 250ms fade and slight scale
- * (`.dialogEnter`), still under reduced motion.
+ * The raised `surface-elevated` fill, the 20px `sheet` radius and the one
+ * `shadow-float`, because a dialog floats above the page; no hairline, tone
+ * and shadow separate it from the scrim. Enters with a 200ms fade and slight
+ * scale (`.dialogEnter`), still under reduced motion.
  *
  * Width is controlled only via {@link ModalSize} buckets (see
  * {@link resolveModalLayoutWidth}), clamped to the layout width. The card
@@ -75,7 +75,7 @@ export function ModalContent(props: ModalContentProps): JSX.Element {
   return (
     <OnColorReset>
       <div
-        class="box dialogEnter rounded-sheet w-full self-center overflow-hidden bg-surface-elevated border border-border"
+        class="box dialogEnter rounded-sheet w-full self-center overflow-hidden bg-surface-elevated shadow-float"
         classList={{ 'p-5': padded() }}
         {...dataAttrs({
           component: 'ModalContent',

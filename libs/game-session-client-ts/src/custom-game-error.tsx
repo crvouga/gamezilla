@@ -69,7 +69,8 @@ export function CustomGameError(props: {
     <Show when={props.reason !== ''}>
       <ErrorState
         variant="compact"
-        title={text()}
+        title={t`That didn't go through`}
+        body={text()}
         dataSet={{ testid: 'custom-game-error' }}
       />
     </Show>

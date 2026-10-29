@@ -54,16 +54,47 @@ function fakeRouter(canGoBack: boolean): AppRouter & { calls: string[] } {
 }
 
 describe('ScreenBase compact', () => {
-  test('a root screen titles as a heading, a pushed screen as navigation', () => {
-    renderUi(() => <Screen breadcrumbs={[{ name: 'Spaces' }]} />, COMPACT);
-    const root = screen.getByRole('heading', { level: 1 });
+  test('root and pushed screens title in the same heading style', () => {
+    const view = renderUi(
+      () => <Screen breadcrumbs={[{ name: 'Spaces' }]} />,
+      COMPACT
+    );
+    const root = screen.getByRole('heading', { level: 1, name: 'Spaces' });
     expect(root.className).toMatch(/\btextHeading\b/);
+    view.unmount();
+    renderUi(() => <Screen />, COMPACT);
+    const title = screen.getByRole('heading', { level: 1, name: 'Demo' });
+    expect(title.className).toMatch(/\btextHeading\b/);
   });
 
-  test('a pushed screen keeps the quieter navigation title', () => {
+  test('the back control is a 44px target', () => {
     renderUi(() => <Screen />, COMPACT);
-    const title = screen.getByRole('heading', { level: 1 });
-    expect(title.className).toMatch(/\btextNavigationTitle\b/);
+    const back = mustQuery('[data-component="BackIconButton"]');
+    expect(back.outerHTML).toContain('width: 44px');
+  });
+
+  test('the top bar hairline shows only once the body has scrolled', () => {
+    renderUi(
+      () => <Screen scroll body={<p class="text">{'Long body'}</p>} />,
+      COMPACT
+    );
+    const bar = mustQuery('[data-component="ScreenBaseHeader"]');
+    expect(bar).toHaveAttribute('data-divider', 'none');
+    expect(bar.className).toMatch(/\bborder-transparent\b/);
+    const scrollport = mustQuery('[data-component="ScreenBodyScroll"]');
+    for (const [key, value] of [
+      ['scrollHeight', 2000],
+      ['clientHeight', 600],
+    ] as const) {
+      Object.defineProperty(scrollport, key, { configurable: true, value });
+    }
+    scrollport.scrollTop = 120;
+    fireEvent.scroll(scrollport);
+    expect(bar).toHaveAttribute('data-divider', 'hairline');
+    expect(bar.className).toMatch(/\bborder-border\b/);
+    scrollport.scrollTop = 0;
+    fireEvent.scroll(scrollport);
+    expect(bar).toHaveAttribute('data-divider', 'none');
   });
 
   test('trailing chrome sits in the row itself, so a long title keeps the room', () => {

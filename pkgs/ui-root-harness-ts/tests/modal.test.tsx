@@ -170,12 +170,14 @@ describe('ModalContent', () => {
     expect(screen.getByTestId('m')).toHaveAttribute('data-size', 'medium');
   });
 
-  test('the dialog sheet is flat: elevated fill, sheet radius, no shadow', () => {
+  test('the dialog floats: raised fill, sheet radius, the float shadow, no hairline', () => {
     renderUi(() => <ModalContent dataSet={{ testid: 'm' }} />);
     const sheet = screen.getByTestId('m');
     expect(sheet.className).toMatch(/\bbg-surface-elevated\b/);
     expect(sheet.className).toMatch(/\brounded-sheet\b/);
-    expect(sheet.className).not.toMatch(/shadow/);
+    expect(sheet.className).toMatch(/\bshadow-float\b/);
+    expect(sheet.className).not.toMatch(/\bborder\b/);
+    expect(sheet.className).toMatch(/\bdialogEnter\b/);
     expect(sheet.className).toMatch(/\bp-5\b/);
   });
 
