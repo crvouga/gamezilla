@@ -3,7 +3,7 @@
  * Reload so hydrate sees the restored session.
  */
 
-import { AUTH_BEARER_STORAGE_KEY } from '@pkgs/auth-inhouse-shared-ts/bearer-token-store';
+import { AUTH_BEARER_STORAGE_KEY } from '@libs/app-root-shared-ts/auth-client-storage';
 import type { HarnessSystemSnapshot } from '@pkgs/harness-console-shared-ts/system-snapshot';
 
 export async function injectWebViewSnapshotAuth(args: {

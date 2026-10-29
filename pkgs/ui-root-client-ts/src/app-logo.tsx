@@ -6,8 +6,8 @@
  *
  * @example
  * ```tsx
- * <AppLogo />                  // brand blue (`tint`)
- * <AppLogo size={48} />        // larger for splash / hero
+ * <AppLogo name="acme" />              // brand blue (`tint`)
+ * <AppLogo name="acme" size={48} />    // larger for splash / hero
  * ```
  */
 
@@ -18,6 +18,8 @@ import type { JSX } from 'solid-js';
 import { useThemeTokens } from './theme-context';
 
 export type AppLogoProps = {
+  /** The wordmark: the product's name, spelled as its logo spells it. */
+  name: string;
   /** Pixel size of the mark (the wordmark scales proportionally). Defaults to 28. */
   size?: number | undefined;
   /** Kept for API parity; the wordmark is always rendered. */
@@ -50,7 +52,7 @@ export function AppLogo(props: AppLogoProps): JSX.Element {
           'line-height': `${Math.round(fontSize() * 1.1)}px`,
         }}
       >
-        {'gamezilla'}
+        {props.name}
       </h1>
     </div>
   );

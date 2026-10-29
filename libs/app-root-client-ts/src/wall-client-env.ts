@@ -12,8 +12,12 @@ import {
  */
 
 import { getServerBaseUrl } from '@libs/app-root-shared-ts/api-url';
-import { createSecureStoreAuthClientStorage } from '@libs/app-root-shared-ts/auth-client-storage';
+import {
+  createAppBearerTokenStore,
+  createSecureStoreAuthClientStorage,
+} from '@libs/app-root-shared-ts/auth-client-storage';
 import { getMainSqliteDbName } from '@libs/app-root-shared-ts/main-sqlite-db-name';
+import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
 import { createInhouseAuthClient } from '@pkgs/auth-inhouse-client-ts/create-inhouse-auth-client';
 import { oauthClientCallbackUrl } from '@pkgs/auth-inhouse-shared-ts/oauth-client-callback-url';
 import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
@@ -158,13 +162,18 @@ export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
         clock: wallClock,
         timers: wallTimers,
         fetch: http,
-        storage: createSecureStoreAuthClientStorage(secureStorage),
+        bearerStore: createAppBearerTokenStore(
+          createSecureStoreAuthClientStorage(secureStorage)
+        ),
         openAuthSession: (authorizationUrl, callbackUrl) => {
           if (args.offline.isOffline())
             return Promise.reject(offlineNetworkError());
           return createWallOpenAuthSession()(authorizationUrl, callbackUrl);
         },
-        callbackUrl: oauthClientCallbackUrl(readBrowserOrigin()),
+        callbackUrl: oauthClientCallbackUrl(
+          readBrowserOrigin(),
+          PRODUCT.external.deepLinkScheme
+        ),
       }),
     openExternalUrl: (url) => {
       window.location.assign(url);

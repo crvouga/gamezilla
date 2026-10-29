@@ -5,8 +5,29 @@
  * every secure-storage reader in the tree.
  */
 
-import type { AuthClientStorage } from '@pkgs/auth-inhouse-shared-ts/bearer-token-store';
+import { technicalKey } from '@libs/product-identity-shared-ts/technical-names';
+import {
+  type AuthClientStorage,
+  type BearerTokenStore,
+  createBearerTokenStore,
+} from '@pkgs/auth-inhouse-shared-ts/bearer-token-store';
 import type { SecureStorageStore } from '@pkgs/secure-storage-root-shared-ts/secure-storage-store';
+
+/**
+ * Where the app keeps its bearer token (`<namespace>.auth.bearer`). It derives
+ * from the immutable namespace: changing it would sign every device out.
+ */
+export const AUTH_BEARER_STORAGE_KEY = technicalKey('auth.bearer');
+
+/** The app's bearer token, kept in `storage` under {@link AUTH_BEARER_STORAGE_KEY}. */
+export function createAppBearerTokenStore(
+  storage: AuthClientStorage
+): BearerTokenStore {
+  return createBearerTokenStore({
+    storage,
+    storageKey: AUTH_BEARER_STORAGE_KEY,
+  });
+}
 
 export function createSecureStoreAuthClientStorage(
   store: SecureStorageStore

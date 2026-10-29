@@ -146,9 +146,9 @@ describe('useBreadcrumbNav', () => {
 
 describe('brand + providers', () => {
   test('AppLogo renders the wordmark as a heading, never in the accent', () => {
-    renderUi(() => <AppLogo size={40} />);
+    renderUi(() => <AppLogo name="acme" size={40} />);
     const h1 = screen.getByRole('heading', { level: 1 });
-    expect(h1).toHaveTextContent('gamezilla');
+    expect(h1).toHaveTextContent('acme');
     expect(h1.className).toContain('appLogo');
     expect(h1.className).not.toContain('text-tint');
   });

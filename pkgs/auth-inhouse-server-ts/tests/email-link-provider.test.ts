@@ -38,6 +38,7 @@ async function build(module: AuthProviderModule) {
     apiOrigin: API,
     apiPathPrefix: '/api',
     clientOrigins: ['https://app.example'],
+    clientSchemes: ['myapp'],
     clock,
     createId: createHarnessIds(7).createId,
     http: { fetch: () => Promise.reject(new Error('Unexpected egress')) },

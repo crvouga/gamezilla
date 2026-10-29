@@ -34,10 +34,11 @@ const offer: PlusMembershipOffer = {
   switchablePriceKeys: ['subscription_monthly', 'subscription_yearly'],
   portal: {
     defaultReturnUrlPath: '/more/billing',
-    businessProfileHeadline: 'Gamezilla Unlimited',
+    businessProfileHeadline: 'Acme Unlimited',
     cancellationReasons: ['too_expensive', 'other'],
   },
   callbackPath: '/api/billing/callback',
+  callbackDescription: 'Acme membership callbacks',
 };
 
 const ctx = { callbackUrl: 'https://api.test/api/billing/callback/stripe' };

@@ -1,3 +1,4 @@
+import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
 import type {
   AuthProvider,
   AuthProviderModule,
@@ -78,6 +79,7 @@ export async function createAuthProvider(args: {
       webClientOrigin,
       ...(apexOrigin === null ? [] : [apexOrigin]),
     ],
+    clientSchemes: [PRODUCT.external.deepLinkScheme],
     clock: args.clock,
     createId: args.createId,
     http: args.http,

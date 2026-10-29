@@ -26,6 +26,11 @@ export type AuthProviderEnv = {
   readonly apiPathPrefix: string;
   /** Web origins allowed to receive sign-in redirects. */
   readonly clientOrigins: readonly string[];
+  /**
+   * Deep-link schemes of the native clients allowed to receive sign-in
+   * redirects (`myapp` for `myapp://sso-callback`).
+   */
+  readonly clientSchemes: readonly string[];
   readonly clock: Clock;
   readonly createId: CreateId;
   /** Outbound HTTP to the service (or the providers it federates). */

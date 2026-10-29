@@ -25,7 +25,6 @@ import type {
 import { PADDLE_CUSTOM_DATA } from './wire';
 
 const TAG = 'paddle offer reconcile';
-const WEBHOOK_DESCRIPTION = 'Gamezilla plus membership projection';
 
 export type PaddleOfferReconcileContext = {
   /** Absolute URL Paddle must POST subscription callbacks to. */
@@ -234,6 +233,7 @@ function eventNames(setting: PaddleNotificationSetting): readonly string[] {
 async function reconcileNotificationSetting(args: {
   readonly api: PaddleApi;
   readonly callbackUrl: string;
+  readonly description: string;
   readonly log: Logger;
 }): Promise<{ readonly id: string; readonly secret: string | null }> {
   const { api, log } = args;
@@ -246,13 +246,13 @@ async function reconcileNotificationSetting(args: {
   // callback path moves the destination and keeps its signing secret.
   const live =
     settings.find((s) => s.destination === args.callbackUrl) ??
-    settings.find((s) => s.description === WEBHOOK_DESCRIPTION);
+    settings.find((s) => s.description === args.description);
   if (live === undefined) {
     const created = await api.data<PaddleNotificationSetting>(
       'POST',
       '/notification-settings',
       {
-        description: WEBHOOK_DESCRIPTION,
+        description: args.description,
         type: 'url',
         destination: args.callbackUrl,
         subscribed_events: wantedEvents,
@@ -265,7 +265,7 @@ async function reconcileNotificationSetting(args: {
   }
   const drift =
     live.destination !== args.callbackUrl ||
-    live.description !== WEBHOOK_DESCRIPTION ||
+    live.description !== args.description ||
     !live.active ||
     !sameJson(eventNames(live), wantedEvents);
   if (!drift) {
@@ -276,7 +276,7 @@ async function reconcileNotificationSetting(args: {
     'PATCH',
     `/notification-settings/${live.id}`,
     {
-      description: WEBHOOK_DESCRIPTION,
+      description: args.description,
       destination: args.callbackUrl,
       subscribed_events: wantedEvents,
       active: true,
@@ -319,6 +319,7 @@ export async function reconcilePaddleOffer(
   const destination = await reconcileNotificationSetting({
     api,
     callbackUrl: ctx.callbackUrl,
+    description: offer.callbackDescription,
     log,
   });
   if (destination.secret !== null) {

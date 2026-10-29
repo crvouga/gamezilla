@@ -20,9 +20,10 @@ export const DEFAULT_DB_HOST_SHARED_WORKER_URL =
  * Same-origin channel so web OPFS recovery can ask live tabs to drop handles.
  * Peers listen in `web-sql-client.ts` and disconnect their owner on
  * `prepare-wipe`, which terminates the dedicated sqlite-wasm worker and frees
- * every OPFS sync access handle.
+ * every OPFS sync access handle. A BroadcastChannel is scoped to its origin,
+ * so the name needs no host prefix.
  */
-export const OPFS_WIPE_CHANNEL = 'gamezilla-opfs-wipe';
+export const OPFS_WIPE_CHANNEL = 'sqlite-opfs-wipe';
 
 /** Must exceed broker FORCE_RELEASE_OWNER_WAIT_MS so owners can closeAsync. */
 const FORCE_RELEASE_WAIT_MS = 5_000;

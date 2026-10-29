@@ -42,7 +42,7 @@ function cacheRoot(): string {
   const report = process.env['HARNESS_REPORT_DIR'];
   if (report !== undefined && report.length > 0)
     return join(dirname(dirname(report)), 'quint-draws');
-  return join(tmpdir(), 'gamezilla-quint-draws');
+  return join(tmpdir(), 'quint-draws');
 }
 
 function drawKey(draw: QuintDrawCache): string {

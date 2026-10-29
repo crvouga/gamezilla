@@ -226,10 +226,10 @@ describe('reports API', () => {
   test('a browser on another origin may read it', async () => {
     // regression: atlas-report-cors
     const res = await app(await seeded()).request('/', {
-      headers: { origin: 'https://gamezilla.app' },
+      headers: { origin: 'https://app.example' },
     });
     expect(res.headers.get('access-control-allow-origin')).toBe(
-      'https://gamezilla.app'
+      'https://app.example'
     );
   });
 });

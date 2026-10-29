@@ -15,7 +15,7 @@
  *
  * @example
  * ```tsx
- * <AppFrame header={<AppHeaderIsland leading={<AppLogo />} items={tabs} />}>
+ * <AppFrame header={<AppHeaderIsland leading={<AppLogo name="acme" />} items={tabs} />}>
  *   …
  * </AppFrame>
  * ```

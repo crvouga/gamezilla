@@ -1,8 +1,4 @@
 import type { BearerTokenStore } from '@pkgs/auth-inhouse-shared-ts/bearer-token-store';
-import {
-  createBearerTokenStore,
-  createInMemoryAuthClientStorage,
-} from '@pkgs/auth-inhouse-shared-ts/bearer-token-store';
 import { IDP_PROVIDER_LABEL } from '@pkgs/auth-inhouse-shared-ts/provider-label';
 import type {
   AuthClientPort,
@@ -132,9 +128,7 @@ export async function clearBearerOnUnauthorizedSession(
 export function createInhouseAuthClient(
   config: AuthClientAdapterConfig
 ): AuthClientPort {
-  const storage = config.storage ?? createInMemoryAuthClientStorage();
-  const bearerStore = config.bearerStore ?? createBearerTokenStore({ storage });
-  const callbackUrl = config.callbackUrl ?? 'gamezilla://sso-callback';
+  const { bearerStore, callbackUrl } = config;
   const session = createAuthSessionStore({
     fetch: config.fetch,
     baseURL: config.baseURL,

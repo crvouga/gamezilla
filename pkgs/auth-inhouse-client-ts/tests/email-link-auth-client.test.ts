@@ -27,7 +27,9 @@ async function portAnswering(
   previousBearer: string | null = null
 ) {
   const sent: Sent[] = [];
-  const bearerStore = createBearerTokenStore();
+  const bearerStore = createBearerTokenStore({
+    storageKey: 'myapp.auth.bearer',
+  });
   if (previousBearer !== null) await bearerStore.write(previousBearer);
   const port = createInhouseAuthClient({
     baseURL: BASE_URL,
@@ -121,7 +123,7 @@ describe('signing in from an emailed link', () => {
       'a link with other parameters',
       `${CALLBACK}?from=mail&email_link=${TOKEN}`,
     ],
-    ['a native link', `gamezilla://sso-callback?email_link=${TOKEN}`],
+    ['a native link', `myapp://sso-callback?email_link=${TOKEN}`],
     ['the bare token', TOKEN],
     ['a pasted token with stray spaces', `  ${TOKEN}\n`],
   ])('%s is accepted', async (_name, link) => {

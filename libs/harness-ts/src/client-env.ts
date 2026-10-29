@@ -6,6 +6,7 @@
 import type { ClientEnv } from '@libs/app-root-client-ts/client-env';
 import { createInMemoryClientPorts } from '@libs/app-root-client-ts/in-memory-client-ports';
 import { setOriginAvailability } from '@libs/app-root-client-ts/origin-availability-for-env';
+import { createAppBearerTokenStore } from '@libs/app-root-shared-ts/auth-client-storage';
 import { setPendingSignupUsername } from '@libs/auth-shared-ts/pending-signup-username';
 import { HARNESS_SERVER_URL } from '@libs/sub-shared-ts/harness-constants';
 import { createNamespacedAuthClientStorage } from '@pkgs/auth-inhouse-client-ts/bearer-token-storage-web';
@@ -204,7 +205,9 @@ export function makeHarnessClientEnv(
         clock: session.ports.clock,
         timers,
         fetch: http,
-        storage: createNamespacedAuthClientStorage(ns),
+        bearerStore: createAppBearerTokenStore(
+          createNamespacedAuthClientStorage(ns)
+        ),
         openAuthSession: browser.openAuthSession,
         callbackUrl: `${HARNESS_SERVER_URL}/sso-callback`,
       })),

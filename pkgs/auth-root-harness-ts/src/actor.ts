@@ -36,6 +36,7 @@ export function startActor(args: {
 }): ActorState {
   const bearerStore = createBearerTokenStore({
     storage: createInMemoryAuthClientStorage(),
+    storageKey: 'myapp.auth.bearer',
   });
   const jar = createAuthCookieJar();
   const state = {

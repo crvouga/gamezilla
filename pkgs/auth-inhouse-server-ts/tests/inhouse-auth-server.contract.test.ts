@@ -39,6 +39,7 @@ async function openInhouseHarness(): Promise<AuthServerContractHarness> {
     apiOrigin: 'https://api.contract.example',
     apiPathPrefix: '/api',
     clientOrigins: ['https://app.contract.example'],
+    clientSchemes: ['myapp'],
     clock,
     createId,
     http: {

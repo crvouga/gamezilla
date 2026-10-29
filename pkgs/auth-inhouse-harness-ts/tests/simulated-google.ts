@@ -41,7 +41,7 @@ export function simulatedGoogle(args: {
     clients: [
       {
         id: args.clientId,
-        name: 'Gamezilla',
+        name: 'Example App',
         secret: args.clientSecret,
         redirectUris: [...args.redirectUris],
       },

@@ -11,7 +11,7 @@ const INDEX_KEY =
 /** A namespaced R2 ListObjects result, the body the worker fails to read. */
 const LIST_XML = `<?xml version="1.0" encoding="UTF-8"?>
 <ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
-  <Name>gamezilla-reports</Name>
+  <Name>acme-reports</Name>
   <Prefix>spec-reports/index/</Prefix>
   <KeyCount>1</KeyCount>
   <IsTruncated>false</IsTruncated>

@@ -26,10 +26,10 @@ export const AUTH_SYSTEM_BASE_URL = 'http://auth.test';
 /** Where the auth app is mounted, as in production (`/api/auth/*`). */
 export const AUTH_SYSTEM_PATH_PREFIX = '/api';
 export const AUTH_SYSTEM_SECRET = 'auth-system-secret-0123456789abcdef';
-export const AUTH_SYSTEM_CALLBACK_URL = 'gamezilla://sso-callback';
+export const AUTH_SYSTEM_CALLBACK_URL = 'myapp://sso-callback';
 export const AUTH_SYSTEM_TRUSTED_ORIGINS: readonly string[] = [
   AUTH_SYSTEM_BASE_URL,
-  'gamezilla://',
+  'myapp://',
   'http://localhost:5173',
   'http://callback.test',
 ];
