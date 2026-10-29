@@ -64,7 +64,15 @@ const { exempt, problems } = verifiedArtifacts(
   (path) =>
     existsSync(join(ROOT, path)) ? readFileSync(join(ROOT, path), 'utf8') : null
 );
-const files = listFiles().map(read);
+// `verify-brand-policy.ts <path prefix>…` reports only those paths, in full.
+const only = process.argv.slice(2);
+const files = listFiles()
+  .filter(
+    (path) =>
+      only.length === 0 || only.some((prefix) => path.startsWith(prefix))
+  )
+  .map(read);
+const shown = only.length > 0 ? Number.POSITIVE_INFINITY : 400;
 const violations = brandViolations(files, brandTokens(PRODUCT), exempt);
 
 if (problems.length > 0 || violations.length > 0) {
@@ -72,9 +80,9 @@ if (problems.length > 0 || violations.length > 0) {
     [
       `brand policy (docs/BRANDING.md): ${String(violations.length)} spelling(s) outside @libs/product-identity`,
       ...problems.map((problem) => `  registry: ${problem}`),
-      ...violations.slice(0, 400).map((v) => `  ${renderViolation(v)}`),
-      violations.length > 400
-        ? `  … and ${String(violations.length - 400)} more`
+      ...violations.slice(0, shown).map((v) => `  ${renderViolation(v)}`),
+      violations.length > shown
+        ? `  … and ${String(violations.length - shown)} more (name path prefixes to see them all)`
         : '',
       'Read the value from @libs/product-identity-shared-ts (brand, NAMESPACE, external ids), use a {namespace} / {domain} / {brand} placeholder where code cannot import, or register a generated artifact with a freshness test.',
     ]
