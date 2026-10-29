@@ -9,6 +9,8 @@ bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harn
 bun run libs/tools-harness-ts/scripts/ci-load.ts --write
 ```
 
+To size hardware from real run history, `bun ci:stats` writes `.cache/ci-stats/CI_STATS.md`: the declared workload, the workflow files, and GitHub's run and job history (durations, queue waits, concurrency, agent-hours), as one brief to hand an LLM. Flags: `--days <n>` (default 14), `--budget`, `--goals`, `--have`, `--out`, `--no-github`. It needs a signed-in `gh`.
+
 Commit the cost file and this document together. The budgets live in [`libs/tools-harness-ts/scripts/ci-runner-capacity.ts`](../libs/tools-harness-ts/scripts/ci-runner-capacity.ts). A task that no longer fits is split, or the runner constants change in that same commit with the measurement that justifies them. The five-minute promise stays.
 
 ## Promises
