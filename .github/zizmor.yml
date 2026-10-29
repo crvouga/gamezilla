@@ -1,0 +1,9 @@
+# zizmor (https://docs.zizmor.sh), run by `@libs/tools-harness-ts#verify:workflow-security`.
+rules:
+  # GitHub's `$/` self-repository syntax is not understood by the pinned
+  # actionlint (verify:actionlint) or by workflow-native.test.ts, which
+  # checks every `./` action has a committed manifest. In this repository
+  # `./` and `$/` resolve to the same commit: no workflow checks out other
+  # code before using a local action.
+  self-repository:
+    disable: true

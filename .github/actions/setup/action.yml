@@ -1,4 +1,10 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-action.json
+# zizmor `github-env`: the `$GITHUB_ENV`/`$GITHUB_PATH` writes below carry
+# runner values and this repository's own files. They could only escalate
+# where untrusted code shares a job with privileged credentials; no workflow
+# here has such a trigger (`pull_request_target`, `workflow_run`;
+# libs/tools-harness-ts/scripts/workflow-pinning.test.ts refuses them), and a
+# fork's pull request gets no secret or OIDC token to steal.
 name: Setup repo (mise tools + deps)
 description: mise-pinned tools (Bun, Node, CLIs) and frozen dependency install (run actions/checkout first)
 
@@ -50,7 +56,7 @@ runs:
     # only): CI verifies no native package (package-hosts.ts `ciFilters`).
     - name: Trust mise.toml
       shell: bash
-      run: |
+      run: |  # zizmor: ignore[github-env] -- see the note at the top of this file
         echo "MISE_TRUSTED_CONFIG_PATHS=${GITHUB_WORKSPACE}" >> "$GITHUB_ENV"
         echo "MISE_DISABLE_TOOLS=pipx:graphifyy,pipx:serena-agent,swift" >> "$GITHUB_ENV"
 
@@ -60,7 +66,7 @@ runs:
     - name: Put Git for Windows' tools on PATH
       if: runner.os == 'Windows'
       shell: bash
-      run: cygpath -w /usr/bin >> "$GITHUB_PATH"
+      run: cygpath -w /usr/bin >> "$GITHUB_PATH"  # zizmor: ignore[github-env] -- see the note at the top of this file
 
     - name: Install pinned tools (mise.toml)
       uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0

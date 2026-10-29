@@ -1426,6 +1426,19 @@
       "outputs": [],
       "outputLogs": "errors-only"
     },
+    "@libs/tools-harness-ts#verify:workflow-security": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "scripts/verify-workflow-security.ts",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/.github/workflows/**",
+        "$TURBO_ROOT$/.github/actions/**",
+        "$TURBO_ROOT$/.github/dependabot.yml",
+        "$TURBO_ROOT$/.github/zizmor.yml"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
     "@libs/tools-harness-ts#verify:secrets": {
       "env": ["VERIFY_SECRETS_RANGE"],
       "inputs": [

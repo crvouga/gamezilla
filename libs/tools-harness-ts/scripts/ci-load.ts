@@ -36,6 +36,7 @@ const EXACT_TASKS = new Set([
   'verify:schema-evolution',
   'verify:actionlint',
   'verify:secrets',
+  'verify:workflow-security',
   'verify:board-contract',
   'verify:root-lint',
   'ci:syncpack',

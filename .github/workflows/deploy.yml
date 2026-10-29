@@ -9,12 +9,11 @@ run-name: "Release · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
 # then releases shared services, development, and production in order.
 # Rehearsals verify and plan without releasing.
 
-# Least privilege: read the code and run metadata, and mint the OIDC token the
-# secrets backend and AWS trust. Only `deploy-release` writes (its tag).
+# Least privilege: read the code and run metadata. Each job that reads secrets
+# or AWS adds the OIDC token they trust; only `deploy-release` writes (its tag).
 permissions:
-  contents: read
-  actions: read
-  id-token: write
+  contents: read # check out the code
+  actions: read # read run state (gh run list, job metadata)
 
 on:
   push:
@@ -46,6 +45,10 @@ defaults:
 jobs:
   deploy-verify:
     name: Verify commit
+    permissions:
+      contents: read # check out the code
+      actions: read # read run state (gh run list, job metadata)
+      id-token: write # mint the OIDC token Infisical and AWS trust
     uses: ./.github/workflows/verify-pr.yml
     with:
       profile: release
@@ -59,6 +62,10 @@ jobs:
     if: ${{ inputs.rehearsal }}
     needs: deploy-verify
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read # check out the code
+      actions: read # read run state (gh run list, job metadata)
+      id-token: write # mint the OIDC token Infisical and AWS trust
     timeout-minutes: 20
     env:
       SECRETS_ENV: dev
@@ -67,6 +74,7 @@ jobs:
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
+          persist-credentials: false
           clean: false
       - uses: ./.github/actions/setup
         with:
@@ -86,6 +94,10 @@ jobs:
     if: ${{ !inputs.rehearsal }}
     needs: deploy-verify
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read # check out the code
+      actions: read # read run state (gh run list, job metadata)
+      id-token: write # mint the OIDC token Infisical and AWS trust
     timeout-minutes: 20
     env:
       SECRETS_ENV: shared
@@ -93,6 +105,7 @@ jobs:
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
+          persist-credentials: false
           clean: false
       - uses: ./.github/actions/setup
         with:
@@ -115,6 +128,10 @@ jobs:
     name: Release development
     needs: deploy-fleet
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read # check out the code
+      actions: read # read run state (gh run list, job metadata)
+      id-token: write # mint the OIDC token Infisical and AWS trust
     # Above `DEPLOY_RUN_DEADLINE_SECONDS` (45 min) plus setup, so
     # turbo-ci-run's own deadline fires first and names what wedged.
     timeout-minutes: 55
@@ -142,6 +159,7 @@ jobs:
           exit 1
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
+          persist-credentials: false
           clean: false
           fetch-depth: 0
       - id: setup
@@ -160,7 +178,7 @@ jobs:
       - name: Keep the critical journeys' evidence
         if: failure()
         run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload critical-journeys-${{ github.run_id }}-${{ env.SECRETS_ENV }}
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload critical-journeys-"${GITHUB_RUN_ID}-${SECRETS_ENV}"
           apps/product-ts/.cache/critical-journeys
       - name: Write workflow summary
         if: always() && steps.setup.outcome == 'success'
@@ -173,6 +191,10 @@ jobs:
     name: Release production
     needs: deploy-dev
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read # check out the code
+      actions: read # read run state (gh run list, job metadata)
+      id-token: write # mint the OIDC token Infisical and AWS trust
     timeout-minutes: 55
     environment: production
     env:
@@ -187,7 +209,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
-      contents: write
+      contents: write # publish the release tag
     env:
       GH_TOKEN: ${{ github.token }}
       TAG: release-${{ github.run_number }}
@@ -195,8 +217,8 @@ jobs:
       - name: Tag the commit and publish the release
         run: |
           gh release create "$TAG" \
-            --repo "${{ github.repository }}" \
+            --repo "$GITHUB_REPOSITORY" \
             --target "$GITHUB_SHA" \
             --title "$TAG" \
             --generate-notes \
-            --notes "Verified and deployed by ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} at ${GITHUB_SHA}."
+            --notes "Verified and deployed by ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} at ${GITHUB_SHA}."

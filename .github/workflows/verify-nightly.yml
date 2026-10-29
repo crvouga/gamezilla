@@ -41,7 +41,7 @@ run-name: "Verify Nightly · ${{ github.event_name == 'schedule' && 'schedule' |
 # production secret or deploys.
 
 permissions:
-  contents: read
+  contents: read # check out the code
 
 on:
   schedule:
@@ -78,9 +78,9 @@ jobs:
     name: verify-nightly:gate
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'gate' || inputs.group == 'visual' }}
     permissions:
-      contents: read
-      actions: read
-      id-token: write
+      contents: read # check out the code
+      actions: read # read run state (gh run list, job metadata)
+      id-token: write # mint the OIDC token Infisical and AWS trust
     uses: ./.github/workflows/verify-pr.yml
     with:
       profile: nightly
@@ -91,8 +91,8 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 180
     permissions:
-      contents: read
-      id-token: write
+      contents: read # check out the code
+      id-token: write # mint the OIDC token Infisical and AWS trust
     steps:
       # Steps every suite job shares (the checkout, the toolchain with dev
       # secrets, and the pinned renderer further down) are written once and
@@ -100,6 +100,7 @@ jobs:
       - &checkout
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
+          persist-credentials: false
           clean: false
           fetch-depth: 0
       - &setup
@@ -116,7 +117,7 @@ jobs:
       - name: Retain seeds and the run summary
         if: always() && !cancelled()
         run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-nightly-random-${{ github.run_id }}
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-nightly-random-"${GITHUB_RUN_ID}"
           apps/product-ts/.cache/randomized '.turbo/runs/*.json'
 
   verify-nightly-browser:
@@ -125,8 +126,8 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 330
     permissions:
-      contents: read
-      id-token: write
+      contents: read # check out the code
+      id-token: write # mint the OIDC token Infisical and AWS trust
     steps:
       - *checkout
       - *setup
@@ -140,7 +141,7 @@ jobs:
       - name: Retain browser reports and traces
         if: always() && !cancelled()
         run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-nightly-browser-${{ github.run_id }}
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-nightly-browser-"${GITHUB_RUN_ID}"
           '.turbo/runs/*.json' 'apps/*/.cache/harness-report' 'libs/*/.cache/harness-report' 'pkgs/*/.cache/harness-report'
 
   # Judges the snapshots the gate job's spec parts recorded, restored from
@@ -152,8 +153,8 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 180
     permissions:
-      contents: read
-      id-token: write
+      contents: read # check out the code
+      id-token: write # mint the OIDC token Infisical and AWS trust
     steps:
       - *checkout
       - *setup
@@ -169,7 +170,7 @@ jobs:
       - name: Retain the visual report
         if: always() && !cancelled()
         run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-nightly-visual-${{ github.run_id }}
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-nightly-visual-"${GITHUB_RUN_ID}"
           '.turbo/runs/*.json' apps/product-ts/.cache/ui-quality apps/product-ts/.cache/harness-report/ui-quality
 
   verify-nightly-coverage:
@@ -178,8 +179,8 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     permissions:
-      contents: read
-      id-token: write
+      contents: read # check out the code
+      id-token: write # mint the OIDC token Infisical and AWS trust
     steps:
       - *checkout
       - *setup
@@ -189,7 +190,7 @@ jobs:
       - name: Retain the coverage report
         if: always() && !cancelled()
         run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-nightly-coverage-${{ github.run_id }}
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-nightly-coverage-"${GITHUB_RUN_ID}"
           .cache/coverage '.turbo/runs/*.json'
 
   verify-nightly-performance:
@@ -198,8 +199,8 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     permissions:
-      contents: read
-      id-token: write
+      contents: read # check out the code
+      id-token: write # mint the OIDC token Infisical and AWS trust
     steps:
       - *checkout
       - *setup
@@ -216,7 +217,7 @@ jobs:
       - name: Retain the benchmark results
         if: always() && !cancelled()
         run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-nightly-performance-${{ github.run_id }}
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-nightly-performance-"${GITHUB_RUN_ID}"
           .cache/verify-nightly/performance.log '.turbo/runs/*.json'
 
   # The ending word. Every group ran to its own result; any group that did
@@ -234,8 +235,8 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
-      contents: read
-      issues: write
+      contents: read # check out the code
+      issues: write # open or update the Verify Nightly issue
     env:
       GH_TOKEN: ${{ github.token }}
       NEEDS: ${{ toJSON(needs) }}
@@ -243,6 +244,7 @@ jobs:
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
+          persist-credentials: false
           clean: false
       - uses: ./.github/actions/setup
         with:

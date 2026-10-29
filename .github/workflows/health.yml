@@ -42,10 +42,11 @@ run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manua
 # historical deficit to the fix's PR. Scheduled and manual main runs retain the
 # objective.
 
+# Least privilege: read the code and run metadata. Jobs that read secrets or
+# AWS add the OIDC token they trust.
 permissions:
-  contents: read
-  actions: read
-  id-token: write
+  contents: read # check out the code
+  actions: read # read run state (gh run list, job metadata)
 
 on:
   schedule:
@@ -79,9 +80,9 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
-      contents: write
-      pull-requests: read
-      id-token: write
+      contents: write # delete stale report branches
+      pull-requests: read # keep branches that have an open pull request
+      id-token: write # mint the OIDC token Infisical and AWS trust
     concurrency:
       group: reports-cleanup
       cancel-in-progress: false
@@ -97,6 +98,7 @@ jobs:
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
+          persist-credentials: false
           clean: false
       - uses: ./.github/actions/setup
         with:
@@ -119,6 +121,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
+          persist-credentials: false
           clean: false
 
       - uses: ./.github/actions/setup
@@ -153,6 +156,9 @@ jobs:
     needs: health-matrix
     if: needs.health-matrix.outputs.all != '[]' && needs.health-matrix.outputs.idle == 'true'
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read # check out the code
+      id-token: write # mint the OIDC token Infisical and AWS trust
     timeout-minutes: 30
     # No GitHub environment ('') for a standard env. Only `main` may enter the
     # `production` environment (its deployment branch policy), so a branch run
@@ -174,6 +180,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
+          persist-credentials: false
           clean: false
 
       - id: setup
@@ -196,7 +203,7 @@ jobs:
       - name: Upload critical journey evidence
         if: failure()
         run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload critical-journeys-${{ github.run_id }}-${{ matrix.env }}
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload critical-journeys-"${GITHUB_RUN_ID}-${SECRETS_ENV}"
           apps/product-ts/.cache/critical-journeys
 
   # One job for every env, not a matrix. Runs after the checks (whatever
@@ -208,8 +215,8 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
-      contents: read
-      id-token: write
+      contents: read # check out the code
+      id-token: write # mint the OIDC token Infisical and AWS trust
     env:
       ENVS: ${{ needs.health-matrix.outputs.all }}
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
@@ -217,6 +224,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
+          persist-credentials: false
           clean: false
 
       - uses: ./.github/actions/setup

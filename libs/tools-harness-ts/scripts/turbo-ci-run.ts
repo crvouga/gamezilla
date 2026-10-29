@@ -165,6 +165,7 @@ export const MAIN_VERIFY_TASKS = [
   '@libs/runtime-server-ts#verify:schema-evolution',
   '@libs/tools-harness-ts#verify:actionlint',
   '@libs/tools-harness-ts#verify:secrets',
+  '@libs/tools-harness-ts#verify:workflow-security',
   'verify:board-contract',
   '@apps/synthetic-population-worker-ts#verify:synthetic-population-foundation',
 ] as const;

@@ -297,7 +297,7 @@ describe('Verify Nightly workflow', () => {
       )!;
       expect(upload.if).toBe('always() && !cancelled()');
       expect(upload.run).toContain(
-        `ci-artifacts.ts upload verify-nightly-${suite}-\${{ github.run_id }}`
+        `ci-artifacts.ts upload verify-nightly-${suite}-"\${GITHUB_RUN_ID}"`
       );
       expect(job.steps!.some((step) => 'continue-on-error' in step)).toBe(
         false
