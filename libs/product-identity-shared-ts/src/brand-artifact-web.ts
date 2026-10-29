@@ -1,8 +1,8 @@
 /** Web brand artifacts (manifest, security.txt), rendered from the identity. */
 
-import type { BrandArtifact } from './brand-artifacts';
-import { webOrigin } from './brand-hosts';
-import type { ProductIdentity } from './product-identity';
+import type { BrandArtifact } from './brand-artifacts.ts';
+import { webOrigin } from './brand-hosts.ts';
+import type { ProductIdentity } from './product-identity.ts';
 
 const MANIFEST_ICONS = [192, 512].flatMap((size) =>
   (['any', 'maskable'] as const).map((purpose) => ({

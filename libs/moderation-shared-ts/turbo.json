@@ -4,6 +4,7 @@
   "tasks": {
     "src": {
       "dependsOn": [
+        "@libs/product-identity-shared-ts#src",
         "@pkgs/moderation-shared-ts#src",
         "@pkgs/sync-engine-shared-ts#src",
         "@pkgs/word-filter-shared-ts#src"

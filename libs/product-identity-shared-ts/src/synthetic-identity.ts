@@ -3,7 +3,7 @@
  * another name and domain. Anything that still shows the real brand under it
  * spells the brand by hand instead of reading the identity.
  */
-import { PRODUCT, type ProductIdentity } from './product-identity';
+import { PRODUCT, type ProductIdentity } from './product-identity.ts';
 
 export function syntheticIdentity(
   identity: ProductIdentity = PRODUCT

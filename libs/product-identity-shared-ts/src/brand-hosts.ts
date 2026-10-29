@@ -2,7 +2,7 @@
  * Public hostnames and origins under the brand's domain. A label is the part
  * before the domain (`www`, `api-dev`); none is the apex.
  */
-import { PRODUCT, type ProductIdentity } from './product-identity';
+import { PRODUCT, type ProductIdentity } from './product-identity.ts';
 
 export function brandHost(
   label?: string,

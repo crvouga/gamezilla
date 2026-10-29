@@ -6,9 +6,9 @@
  * (`@libs/product-identity/generated-artifacts.json`). The rebrand test
  * renders every one for a synthetic identity.
  */
-import { APPLE_BRAND_ARTIFACTS } from './brand-artifact-apple';
-import { WEB_BRAND_ARTIFACTS } from './brand-artifact-web';
-import type { ProductIdentity } from './product-identity';
+import { APPLE_BRAND_ARTIFACTS } from './brand-artifact-apple.ts';
+import { WEB_BRAND_ARTIFACTS } from './brand-artifact-web.ts';
+import type { ProductIdentity } from './product-identity.ts';
 
 export type BrandArtifact = {
   /** Repository-relative path of the committed file. */

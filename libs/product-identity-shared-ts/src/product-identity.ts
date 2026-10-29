@@ -12,7 +12,9 @@
  *   ids, the source repository, vendor accounts). They survive a rebrand
  *   until an authorized migration changes them.
  */
-import raw from '@libs/product-identity/product-identity.json';
+import raw from '@libs/product-identity/product-identity.json' with {
+  type: 'json',
+};
 import { z } from 'zod';
 
 const domain = z

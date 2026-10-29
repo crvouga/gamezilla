@@ -4,8 +4,8 @@
  * xcconfig the Xcode project bases every configuration on, so the project
  * file spells neither the display name nor the bundle identifier.
  */
-import type { BrandArtifact } from './brand-artifacts';
-import type { ProductIdentity } from './product-identity';
+import type { BrandArtifact } from './brand-artifacts.ts';
+import type { ProductIdentity } from './product-identity.ts';
 
 const GENERATOR =
   'bun run libs/product-identity-shared-ts/scripts/generate-brand-artifacts.ts';

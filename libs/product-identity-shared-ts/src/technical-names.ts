@@ -4,7 +4,7 @@
  * They never change with the brand, so dashboards, alerts, stored sessions and
  * deployed resources keep working through a rebrand.
  */
-import { PRODUCT, type ProductIdentity } from './product-identity';
+import { PRODUCT, type ProductIdentity } from './product-identity.ts';
 
 const PART = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 

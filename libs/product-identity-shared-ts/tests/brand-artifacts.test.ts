@@ -20,10 +20,24 @@ describe('generated brand artifacts', () => {
 
   test('every artifact follows a rebrand and keeps no trace of the old brand', () => {
     const synthetic = syntheticIdentity();
+    // External identifiers survive a rebrand by design (the bundle id may
+    // contain the old domain as text); everything else must follow it.
+    const external = [
+      synthetic.external.appleBundleId,
+      synthetic.external.deepLinkScheme,
+      synthetic.external.sourceRepository,
+    ].sort((a, b) => b.length - a.length);
     for (const artifact of BRAND_ARTIFACTS) {
-      const text = artifact.render(synthetic);
+      let text = artifact.render(synthetic);
+      for (const value of external) text = text.replaceAll(value, '');
       expect(text).not.toContain(PRODUCT.brand.name);
       expect(text).not.toContain(PRODUCT.brand.domain);
+      // …and shows the new brand (its name or its domain).
+      const rendered = artifact.render(synthetic);
+      expect(
+        rendered.includes(synthetic.brand.name) ||
+          rendered.includes(synthetic.brand.domain)
+      ).toBe(true);
     }
   });
 });

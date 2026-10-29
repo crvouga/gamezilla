@@ -5,7 +5,7 @@
  * three tokens. Any other `{…}` is left for its own owner (OpenTofu's
  * `{project}` / `{suffix}` naming patterns).
  */
-import { PRODUCT, type ProductIdentity } from './product-identity';
+import { PRODUCT, type ProductIdentity } from './product-identity.ts';
 
 export const IDENTITY_PLACEHOLDERS = ['namespace', 'domain', 'brand'] as const;
 

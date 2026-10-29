@@ -9,7 +9,10 @@ import {
   createAppModeration,
   SHIPPED_TEAM_RULES,
 } from '@libs/moderation-shared-ts/policy';
-import { isReservedName } from '@libs/moderation-shared-ts/reserved-name-check';
+import {
+  isReservedName,
+  reservedNameMatcher,
+} from '@libs/moderation-shared-ts/reserved-name-check';
 import {
   NAMESPACE,
   PRODUCT,
@@ -124,4 +127,20 @@ describe('space title policy', () => {
     expect(spaceTitleText(moderation, null, 's1')).toBeNull();
     expect(spaceTitleText(moderation, '', 's1')).toBeNull();
   });
+});
+
+// regression: reserved-brand-name-with-digits
+test('a product name with digits in it is reserved in every spelling', () => {
+  // A brand ending in digits was not refused: names drop trailing digits
+  // word by word, the product's names were not read the same way.
+  const isReserved = reservedNameMatcher(['Studio 54']);
+  for (const name of [
+    'Studio 54',
+    'STUDIO54',
+    'the_Studio_547',
+    'studio54_official',
+  ])
+    expect(isReserved(name)).toBe(true);
+  for (const name of ['chess_fan', 'BraveTiger482'])
+    expect(isReserved(name)).toBe(false);
 });
