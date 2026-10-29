@@ -2,7 +2,12 @@ import { expect, test } from 'bun:test';
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { blastRadii, type GraphPackage, readGraph } from './cache-graph';
+import {
+  blastRadii,
+  type GraphPackage,
+  readGraph,
+  toRepoPath,
+} from './cache-graph';
 import {
   broadInputViolations,
   derivedViolations,
@@ -75,6 +80,22 @@ function hubs(
 }
 
 // ---------------------------------------------------------------- the graph
+
+// The import graph is keyed by `/` paths; Windows joins with `\`. A key that
+// does not match made every file look private and every hub incohesive.
+test('repository paths use / on every platform', () => {
+  expect(
+    toRepoPath(
+      'C:\\actions-runner\\_work\\gamezilla',
+      'C:\\actions-runner\\_work\\gamezilla\\libs\\a-ts\\src\\b.ts'
+    )
+  ).toBe('libs/a-ts/src/b.ts');
+  expect(toRepoPath('/repo', '/repo/libs/a-ts/src/b.ts')).toBe(
+    'libs/a-ts/src/b.ts'
+  );
+  for (const pkg of readGraph(ROOT))
+    for (const file of pkg.srcFiles) expect(file).not.toContain('\\');
+});
 
 test('an edit reruns the package, its src dependents, and whoever declares them', () => {
   const packages = [

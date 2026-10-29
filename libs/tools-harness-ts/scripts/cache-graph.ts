@@ -84,6 +84,11 @@ export function srcDependents(
 }
 
 const TIERS = ['apps', 'libs', 'pkgs'] as const;
+
+/** `file` relative to `root`, with `/` separators on every platform. */
+export function toRepoPath(root: string, file: string): string {
+  return file.slice(root.length + 1).replaceAll('\\', '/');
+}
 const TEST_FILE = /\.test\.[cm]?[jt]sx?$/;
 
 function filesUnder(directory: string): string[] {
@@ -143,7 +148,7 @@ export function readGraph(root: string): GraphPackage[] {
       declared: new Set(declared),
       srcEdges: new Set(listedSrcEdges(root, dir) ?? declared),
       srcFiles: filesUnder(join(root, dir, 'src')).map((file) =>
-        file.slice(root.length + 1)
+        toRepoPath(root, file)
       ),
     };
   });

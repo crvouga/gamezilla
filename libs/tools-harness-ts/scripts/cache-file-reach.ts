@@ -15,7 +15,8 @@
  * package be grandfathered with a reason.
  */
 import { readdirSync, readFileSync } from 'node:fs';
-import { dirname, join, normalize } from 'node:path';
+import { join } from 'node:path';
+import { dirname, join as joinPosix, normalize } from 'node:path/posix';
 
 const SOURCE = /\.(?:[cm]?[jt]sx?)$/;
 const TEST_FILE = /\.test\.[cm]?[jt]sx?$/;
@@ -58,8 +59,8 @@ function resolveSpecifier(
     `${base}/index.tsx`,
   ];
   if (specifier.startsWith('.'))
-    return candidates(normalize(join(dirname(from), specifier))).find((c) =>
-      files.has(c)
+    return candidates(normalize(joinPosix(dirname(from), specifier))).find(
+      (c) => files.has(c)
     );
   const match = WORKSPACE_SPECIFIER.exec(specifier);
   if (match === null) return undefined;
