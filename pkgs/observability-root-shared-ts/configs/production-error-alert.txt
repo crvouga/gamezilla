@@ -1,4 +1,4 @@
-Gamezilla production error
+Production error
 
 Trace: {{ trace_id }}
 Start: bun obs trace {{ trace_id }} --source prod

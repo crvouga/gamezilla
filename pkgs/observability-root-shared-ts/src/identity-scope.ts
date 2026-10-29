@@ -9,7 +9,7 @@ import {
 import type { ObservabilityIdentity } from './identity';
 import { stampIdentity } from './identity';
 
-const SCOPE = createContextKey('gamezilla.observability.identity-scope');
+const SCOPE = createContextKey('@pkgs/observability.identity-scope');
 
 /**
  * Who the work in progress is for. A request learns that part-way through

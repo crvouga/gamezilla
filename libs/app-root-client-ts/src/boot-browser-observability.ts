@@ -3,6 +3,7 @@ import {
   getCommitHash,
   hasCommitProvenance,
 } from '@libs/app-root-shared-ts/app-metadata';
+import { serviceName } from '@libs/product-identity-shared-ts/technical-names';
 import { createBrowserTelemetry } from '@pkgs/observability-root-client-ts/browser';
 import { createHttpSpanExporter } from '@pkgs/observability-root-client-ts/http-span-exporter';
 import { installMainThreadStallWatch } from '@pkgs/observability-root-client-ts/main-thread-stall';
@@ -91,7 +92,7 @@ function openTelemetry(
   const http = outbox.http;
   const tracesUrl = signalUrl(args.env.serverUrl, 'traces');
   return createBrowserTelemetry({
-    serviceName: 'gamezilla-client',
+    serviceName: serviceName('client'),
     serviceVersion: APP_VERSION,
     // The server's ingress states the deployment; the page cannot know it.
     environment: UNSTATED_ENVIRONMENT,

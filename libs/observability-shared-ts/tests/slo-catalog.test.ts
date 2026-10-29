@@ -258,7 +258,7 @@ spec:
     );
     expect(
       issues.some((i) =>
-        i.includes('sign-in-by-occurrence needs exactly one gamezilla.dev.tier')
+        i.includes('sign-in-by-occurrence needs exactly one tier label')
       )
     ).toBe(true);
   });

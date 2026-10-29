@@ -2,6 +2,7 @@
 import { describe, expect, test } from 'bun:test';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { SERVER_SERVICE_NAME } from '@libs/observability-shared-ts/service-names';
 import { expressionIssues } from '@libs/observability-shared-ts/slo-checks';
 import { REPO_ROOT } from './specs';
 
@@ -55,7 +56,7 @@ describe('every dashboard query on metrics', () => {
 describe('a PromQL expression that drifted from the emitted metrics', () => {
   test.each([
     [
-      'rate(http_server_requests_count{job="gamezilla-server"}[5m])',
+      `rate(http_server_requests_count{job="${SERVER_SERVICE_NAME}"}[5m])`,
       'selects http_server_requests_count, which no emitted metric produces',
     ],
     [
@@ -77,7 +78,7 @@ describe('a PromQL expression that drifted from the emitted metrics', () => {
   test('a correct one is not', () => {
     expect(
       expressionIssues(
-        'sum(rate(http_server_requests_total{job="gamezilla-server",app_http_status_class="5xx",deployment_environment_name="prd"}[5m]))'
+        `sum(rate(http_server_requests_total{job="${SERVER_SERVICE_NAME}",app_http_status_class="5xx",deployment_environment_name="prd"}[5m]))`
       )
     ).toEqual([]);
   });

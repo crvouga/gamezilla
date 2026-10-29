@@ -2,7 +2,7 @@ import { afterEach, expect, test } from 'bun:test';
 
 import { createLogger } from '@pkgs/logger-shared-ts/logger';
 
-const LOG_EVENT_BRIDGE = Symbol.for('gamezilla.observability.log-event');
+const LOG_EVENT_BRIDGE = Symbol.for('@pkgs/observability.log-event');
 
 afterEach(() => {
   delete (globalThis as { [LOG_EVENT_BRIDGE]?: unknown })[LOG_EVENT_BRIDGE];

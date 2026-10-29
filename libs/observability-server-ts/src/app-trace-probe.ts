@@ -1,3 +1,4 @@
+import { serviceName } from '@libs/product-identity-shared-ts/technical-names';
 import type { HttpClient } from '@pkgs/http-client-shared-ts/types';
 import { ATTR } from '@pkgs/observability-root-shared-ts/attributes';
 import { TempoTraceStore } from '@pkgs/observability-root-shared-ts/tempo';
@@ -101,7 +102,7 @@ export async function appTraceIsReadable(
       (span) =>
         span.traceId === args.probe.traceId &&
         span.name === 'worker.fetch' &&
-        span.attributes[ATTR.SERVICE_NAME] === 'gamezilla-server' &&
+        span.attributes[ATTR.SERVICE_NAME] === serviceName('server') &&
         span.attributes[ATTR.HTTP_RESPONSE_STATUS_CODE] === 200
     ) ?? false
   );
