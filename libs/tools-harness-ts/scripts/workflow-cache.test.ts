@@ -55,15 +55,23 @@ test('setup installs frozen dependencies on every run and never archives the lin
 });
 
 // regression: windows-ci-installs-agent-tools
-test('setup never installs the laptop-only coding-agent tools', () => {
+test('setup never installs the laptop-only coding-agent tools or Swift', () => {
   const source = readFileSync(
     join(root, '.github/actions/setup/action.yml'),
     'utf8'
   );
   const mise = readFileSync(join(root, 'mise.toml'), 'utf8');
   const disabled = /MISE_DISABLE_TOOLS=([^"\s]+)/.exec(source)?.[1];
-  expect(disabled?.split(',')).toEqual(['pipx:graphifyy', 'pipx:serena-agent']);
-  for (const tool of disabled!.split(',')) expect(mise).toContain(`"${tool}"`);
+  expect(disabled?.split(',')).toEqual([
+    'pipx:graphifyy',
+    'pipx:serena-agent',
+    'swift',
+  ]);
+  // Each names a tool mise.toml pins, quoted or bare.
+  for (const tool of disabled!.split(','))
+    expect(
+      mise.includes(`"${tool}"`) || new RegExp(`^${tool} = `, 'm').test(mise)
+    ).toBe(true);
 });
 
 test('setup installs with no secret in the environment, restoring generation from a GitHub cache', () => {

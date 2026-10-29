@@ -46,12 +46,13 @@ runs:
     # same file, so trust the checkout for the whole job.
     # Coding-agent tools (graphify, serena) are laptop-only, and their
     # Python native builds need a C compiler (MSVC on Windows: Verify run
-    # 40532833763), so CI never installs them.
+    # 40532833763), so CI never installs them. Nor Swift (1.1 GB, Linux
+    # only): CI verifies no native package (package-hosts.ts `ciFilters`).
     - name: Trust mise.toml
       shell: bash
       run: |
         echo "MISE_TRUSTED_CONFIG_PATHS=${GITHUB_WORKSPACE}" >> "$GITHUB_ENV"
-        echo "MISE_DISABLE_TOOLS=pipx:graphifyy,pipx:serena-agent" >> "$GITHUB_ENV"
+        echo "MISE_DISABLE_TOOLS=pipx:graphifyy,pipx:serena-agent,swift" >> "$GITHUB_ENV"
 
     # jdx/mise-action extracts mise's Windows zip with `unzip`, which Git for
     # Windows ships in its usr/bin (on PATH on GitHub's Windows images, not
