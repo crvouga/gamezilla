@@ -6,6 +6,8 @@
  * (`@libs/product-identity/generated-artifacts.json`). The rebrand test
  * renders every one for a synthetic identity.
  */
+import { APPLE_BRAND_ARTIFACTS } from './brand-artifact-apple';
+import { WEB_BRAND_ARTIFACTS } from './brand-artifact-web';
 import type { ProductIdentity } from './product-identity';
 
 export type BrandArtifact = {
@@ -14,5 +16,8 @@ export type BrandArtifact = {
   readonly render: (identity: ProductIdentity) => string;
 };
 
-/** Every generated brand artifact. Platform modules add their entries here. */
-export const BRAND_ARTIFACTS: readonly BrandArtifact[] = [];
+/** Every generated brand artifact, from each platform's module. */
+export const BRAND_ARTIFACTS: readonly BrandArtifact[] = [
+  ...WEB_BRAND_ARTIFACTS,
+  ...APPLE_BRAND_ARTIFACTS,
+];
