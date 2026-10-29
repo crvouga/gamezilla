@@ -62,8 +62,8 @@ import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
 import { writeSpecInputs } from '@libs/harness-ts/spec-inputs';
 import { TURBO_API, TURBO_TEAM } from '@libs/secrets-shared-ts/turbo-token';
+import { killOrphanEsbuildServices } from '@pkgs/dev-owner-server-ts/kill-orphan-esbuild';
 import { capture } from '@pkgs/os-server-ts/command';
-import { killOrphanEsbuildServices } from '@pkgs/os-server-ts/kill-orphan-esbuild';
 import { captureAudit } from './audit-snapshot';
 import { killProcessTree } from './kill-process-tree';
 import {
@@ -131,6 +131,7 @@ export const MAIN_VERIFY_TASKS = [
   '@libs/tools-harness-ts#ci:i18n',
   '@libs/tools-harness-ts#ci:agent-commands',
   '@libs/tools-harness-ts#ci:workspace-lifecycle',
+  '@libs/tools-harness-ts#ci:cache-hygiene',
   '@libs/tools-harness-ts#ci:package-names',
   '@libs/tools-harness-ts#ci:goals',
   '@libs/tools-harness-ts#ci:specs',

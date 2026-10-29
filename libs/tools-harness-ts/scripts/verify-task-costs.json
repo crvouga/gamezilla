@@ -861,6 +861,7 @@
   "@libs/tools-harness-ts#ci:conformance": 1,
   "@libs/tools-harness-ts#ci:goals": 1,
   "@libs/tools-harness-ts#ci:i18n": 5,
+  "@libs/tools-harness-ts#ci:cache-hygiene": 2,
   "@libs/tools-harness-ts#ci:package-names": 1,
   "@libs/tools-harness-ts#ci:spec-ownership": 1,
   "@libs/tools-harness-ts#ci:specs": 8,

@@ -1,0 +1,288 @@
+{
+  "limits": {
+    "hubBlast": 50,
+    "largeHubBlast": 100,
+    "maxFilesAtHub": 60,
+    "maxFilesAtLargeHub": 25,
+    "cohesion": {
+      "minFiles": 8,
+      "minLight": 8,
+      "lightShare": 0.3,
+      "lightReach": 0.2
+    },
+    "growth": {
+      "share": 0.1,
+      "packages": 3
+    }
+  },
+  "hubs": {
+    "@libs/app-config-client-ts": 60,
+    "@libs/app-config-shared-ts": 100,
+    "@libs/app-root-client-ts": 55,
+    "@libs/app-root-shared-ts": 65,
+    "@libs/auth-client-ts": 60,
+    "@libs/auth-shared-ts": 105,
+    "@libs/friends-shared-ts": 64,
+    "@libs/game-matchmaking-shared-ts": 60,
+    "@libs/game-puzzle-shared-ts": 58,
+    "@libs/game-session-shared-ts": 53,
+    "@libs/moderation-client-ts": 61,
+    "@libs/moderation-shared-ts": 107,
+    "@libs/notifications-shared-ts": 67,
+    "@libs/observability-shared-ts": 108,
+    "@libs/permissions-client-ts": 59,
+    "@libs/permissions-shared-ts": 95,
+    "@libs/profile-shared-ts": 76,
+    "@libs/spaces-shared-ts": 71,
+    "@libs/sub-client-ts": 58,
+    "@libs/sub-shared-ts": 110,
+    "@libs/synthetic-population-shared-ts": 106,
+    "@libs/test-ids-shared-ts": 107,
+    "@libs/user-search-shared-ts": 74,
+    "@pkgs/a11y-shared-ts": 75,
+    "@pkgs/assert-root-shared-ts": 252,
+    "@pkgs/async-local-shared-ts": 232,
+    "@pkgs/async-root-client-ts": 58,
+    "@pkgs/async-root-shared-ts": 71,
+    "@pkgs/attribute-shared-ts": 147,
+    "@pkgs/auth-inhouse-client-ts": 58,
+    "@pkgs/auth-inhouse-shared-ts": 71,
+    "@pkgs/auth-root-client-ts": 64,
+    "@pkgs/auth-root-shared-ts": 118,
+    "@pkgs/billing-root-shared-ts": 106,
+    "@pkgs/browser-client-ts": 56,
+    "@pkgs/bun-test-solid-client-ts": 98,
+    "@pkgs/clock-client-ts": 78,
+    "@pkgs/clock-shared-ts": 257,
+    "@pkgs/colors-shared-ts": 78,
+    "@pkgs/db-indexes-root-shared-ts": 127,
+    "@pkgs/db-schema-postgres-shared-ts": 151,
+    "@pkgs/db-schema-root-shared-ts": 189,
+    "@pkgs/db-schema-sqlite-shared-ts": 184,
+    "@pkgs/device-client-ts": 61,
+    "@pkgs/device-shared-ts": 72,
+    "@pkgs/dmn-shared-ts": 97,
+    "@pkgs/equal-shared-ts": 73,
+    "@pkgs/feedback-client-ts": 57,
+    "@pkgs/feedback-shared-ts": 60,
+    "@pkgs/fs-server-ts": 61,
+    "@pkgs/git-shared-ts": 66,
+    "@pkgs/glicko2-shared-ts": 61,
+    "@pkgs/harness-console-client-ts": 56,
+    "@pkgs/harness-console-shared-ts": 57,
+    "@pkgs/harness-root-shared-ts": 129,
+    "@pkgs/http-client-client-ts": 62,
+    "@pkgs/http-client-shared-ts": 230,
+    "@pkgs/i18n-shared-ts": 78,
+    "@pkgs/keyword-shared-ts": 184,
+    "@pkgs/kv-root-client-ts": 76,
+    "@pkgs/kv-root-shared-ts": 107,
+    "@pkgs/kv-web-client-ts": 57,
+    "@pkgs/llm-root-client-ts": 56,
+    "@pkgs/llm-root-shared-ts": 70,
+    "@pkgs/logger-client-ts": 61,
+    "@pkgs/logger-shared-ts": 227,
+    "@pkgs/matchmaking-root-shared-ts": 78,
+    "@pkgs/matchmaking-sql-shared-ts": 75,
+    "@pkgs/message-shared-ts": 147,
+    "@pkgs/moderation-shared-ts": 108,
+    "@pkgs/object-store-node-fs-server-ts": 52,
+    "@pkgs/object-store-node-fs-shared-ts": 53,
+    "@pkgs/object-store-opfs-client-ts": 56,
+    "@pkgs/object-store-opfs-shared-ts": 59,
+    "@pkgs/object-store-root-client-ts": 57,
+    "@pkgs/object-store-root-shared-ts": 181,
+    "@pkgs/observability-root-client-ts": 57,
+    "@pkgs/observability-root-shared-ts": 133,
+    "@pkgs/observability-runtime-shared-ts": 73,
+    "@pkgs/openslo-shared-ts": 111,
+    "@pkgs/os-shared-ts": 87,
+    "@pkgs/outbox-shared-ts": 135,
+    "@pkgs/permissions-shared-ts": 96,
+    "@pkgs/postgres-sqlite-compat-shared-ts": 96,
+    "@pkgs/property-shared-ts": 104,
+    "@pkgs/pubsub-aedes-shared-ts": 56,
+    "@pkgs/pubsub-emqx-shared-ts": 67,
+    "@pkgs/pubsub-mqtt-shared-ts": 70,
+    "@pkgs/pubsub-root-shared-ts": 213,
+    "@pkgs/room-root-client-ts": 50,
+    "@pkgs/room-root-shared-ts": 134,
+    "@pkgs/secret-store-shared-ts": 112,
+    "@pkgs/secret-string-shared-ts": 114,
+    "@pkgs/secure-storage-root-client-ts": 61,
+    "@pkgs/secure-storage-root-shared-ts": 108,
+    "@pkgs/secure-storage-web-client-ts": 56,
+    "@pkgs/solid-context-client-ts": 95,
+    "@pkgs/sounds-client-ts": 60,
+    "@pkgs/sounds-shared-ts": 65,
+    "@pkgs/sql-client-postgres-server-ts": 55,
+    "@pkgs/sql-client-postgres-shared-ts": 84,
+    "@pkgs/sql-client-root-client-ts": 56,
+    "@pkgs/sql-client-root-shared-ts": 207,
+    "@pkgs/sql-client-sqlite-root-server-ts": 50,
+    "@pkgs/sql-client-sqlite-root-shared-ts": 121,
+    "@pkgs/sql-client-sqlite-web-client-ts": 58,
+    "@pkgs/sql-client-sqlite-web-shared-ts": 59,
+    "@pkgs/sql-root-shared-ts": 211,
+    "@pkgs/sync-engine-client-ts": 63,
+    "@pkgs/sync-engine-shared-ts": 121,
+    "@pkgs/tailwind-shared-ts": 59,
+    "@pkgs/tts-root-client-ts": 56,
+    "@pkgs/tts-root-shared-ts": 70,
+    "@pkgs/turn-game-shared-ts": 124,
+    "@pkgs/ui-devtools-client-ts": 57,
+    "@pkgs/ui-devtools-shared-ts": 58,
+    "@pkgs/ui-root-client-ts": 73,
+    "@pkgs/ui-root-shared-ts": 76,
+    "@pkgs/ui-testing-root-shared-ts": 115,
+    "@pkgs/uuid-client-ts": 62,
+    "@pkgs/uuid-shared-ts": 185,
+    "@pkgs/word-filter-shared-ts": 108
+  },
+  "grandfathered": {
+    "size": {
+      "@libs/app-root-client-ts": {
+        "files": 110,
+        "reason": "predates the cache-hygiene gate; `bun run cache:explain` lists the files that reach few packages, which are the split"
+      },
+      "@libs/auth-client-ts": {
+        "files": 76,
+        "reason": "predates the cache-hygiene gate; `bun run cache:explain` lists the files that reach few packages, which are the split"
+      },
+      "@libs/auth-shared-ts": {
+        "files": 52,
+        "reason": "predates the cache-hygiene gate; `bun run cache:explain` lists the files that reach few packages, which are the split"
+      },
+      "@libs/game-puzzle-shared-ts": {
+        "files": 109,
+        "reason": "predates the cache-hygiene gate; `bun run cache:explain` lists the files that reach few packages, which are the split"
+      },
+      "@libs/game-session-shared-ts": {
+        "files": 71,
+        "reason": "predates the cache-hygiene gate; `bun run cache:explain` lists the files that reach few packages, which are the split"
+      },
+      "@pkgs/harness-root-shared-ts": {
+        "files": 46,
+        "reason": "predates the cache-hygiene gate; `bun run cache:explain` lists the files that reach few packages, which are the split"
+      },
+      "@pkgs/observability-root-shared-ts": {
+        "files": 60,
+        "reason": "predates the cache-hygiene gate; `bun run cache:explain` lists the files that reach few packages, which are the split"
+      },
+      "@pkgs/sync-engine-shared-ts": {
+        "files": 45,
+        "reason": "predates the cache-hygiene gate; `bun run cache:explain` lists the files that reach few packages, which are the split"
+      },
+      "@pkgs/ui-root-client-ts": {
+        "files": 475,
+        "reason": "predates the cache-hygiene gate; `bun run cache:explain` lists the files that reach few packages, which are the split"
+      }
+    },
+    "cohesion": {
+      "@libs/app-root-shared-ts": {
+        "light": 13,
+        "reason": "predates the cache-hygiene gate; the files that reach few packages are the split (`bun run cache:explain`)"
+      },
+      "@libs/observability-shared-ts": {
+        "light": 17,
+        "reason": "predates the cache-hygiene gate; the files that reach few packages are the split (`bun run cache:explain`)"
+      },
+      "@libs/synthetic-population-shared-ts": {
+        "light": 14,
+        "reason": "predates the cache-hygiene gate; the files that reach few packages are the split (`bun run cache:explain`)"
+      },
+      "@pkgs/bun-test-solid-client-ts": {
+        "light": 8,
+        "reason": "consumed through `--preload` in its dependents' test scripts, which import analysis cannot see; its dependents rerun on any edit by design"
+      },
+      "@pkgs/db-indexes-root-shared-ts": {
+        "light": 16,
+        "reason": "predates the cache-hygiene gate; the files that reach few packages are the split (`bun run cache:explain`)"
+      },
+      "@pkgs/dmn-shared-ts": {
+        "light": 12,
+        "reason": "predates the cache-hygiene gate; the files that reach few packages are the split (`bun run cache:explain`)"
+      },
+      "@pkgs/feedback-client-ts": {
+        "light": 27,
+        "reason": "predates the cache-hygiene gate; the files that reach few packages are the split (`bun run cache:explain`)"
+      },
+      "@pkgs/harness-console-client-ts": {
+        "light": 28,
+        "reason": "predates the cache-hygiene gate; the files that reach few packages are the split (`bun run cache:explain`)"
+      },
+      "@pkgs/observability-root-shared-ts": {
+        "light": 36,
+        "reason": "predates the cache-hygiene gate; the files that reach few packages are the split (`bun run cache:explain`)"
+      },
+      "@pkgs/openslo-shared-ts": {
+        "light": 17,
+        "reason": "predates the cache-hygiene gate; the files that reach few packages are the split (`bun run cache:explain`)"
+      },
+      "@pkgs/pubsub-root-shared-ts": {
+        "light": 9,
+        "reason": "predates the cache-hygiene gate; the files that reach few packages are the split (`bun run cache:explain`)"
+      },
+      "@pkgs/secret-store-shared-ts": {
+        "light": 8,
+        "reason": "predates the cache-hygiene gate; the files that reach few packages are the split (`bun run cache:explain`)"
+      },
+      "@pkgs/sql-client-root-shared-ts": {
+        "light": 14,
+        "reason": "predates the cache-hygiene gate; the files that reach few packages are the split (`bun run cache:explain`)"
+      },
+      "@pkgs/ui-devtools-client-ts": {
+        "light": 14,
+        "reason": "predates the cache-hygiene gate; the files that reach few packages are the split (`bun run cache:explain`)"
+      }
+    }
+  },
+  "broadInputs": {
+    "@libs/tools-harness-ts#ci:syncpack": {
+      "patterns": 3,
+      "reason": "repository gate: reads every package.json"
+    },
+    "@libs/tools-harness-ts#ci:package-names": {
+      "patterns": 3,
+      "reason": "repository gate: checks every package name against its directory and manifest"
+    },
+    "@libs/tools-harness-ts#ci:goals": {
+      "patterns": 4,
+      "reason": "repository gate: scans every package for README files, tests and Quint models"
+    },
+    "@libs/tools-harness-ts#ci:specs": {
+      "patterns": 30,
+      "reason": "repository gate: finds the step definitions, models and features of every package"
+    },
+    "@libs/tools-harness-ts#ci:conformance": {
+      "patterns": 18,
+      "reason": "repository gate: finds the step definitions of every package"
+    },
+    "@libs/tools-harness-ts#verify:root-lint": {
+      "patterns": 1,
+      "reason": "lints every file outside the packages"
+    },
+    "@libs/tools-harness-ts#test": {
+      "patterns": 25,
+      "reason": "its tests scan the whole workspace: manifests, sources and turbo.json files"
+    },
+    "@libs/tools-harness-ts#ci:statecharts": {
+      "patterns": 1,
+      "reason": "reads the sub-client entry of every client package"
+    },
+    "@apps/product-ts#test:contract:render": {
+      "patterns": 1,
+      "reason": "renders the CSS modules of every package"
+    },
+    "@apps/product-ts#prepare:ui-quality": {
+      "patterns": 1,
+      "reason": "renders the CSS modules of every package"
+    },
+    "@libs/tools-harness-ts#ci:cache-hygiene": {
+      "patterns": 4,
+      "reason": "repository gate: reads every package's manifest, turbo.json, Biome slice and sources"
+    }
+  },
+  "globalDependencies": ["tsconfig.base.json", "mise.toml"],
+  "globalEnv": ["VERIFY_TIME_LIMITS"]
+}

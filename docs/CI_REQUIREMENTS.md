@@ -29,9 +29,38 @@ Release verification, deploy, health, and the nightly run have their own deadlin
 
 The affected Verify gate tasks. A cache hit is not scheduled.
 
-A source change reruns that package and every transitive workspace dependent, because those tasks depend on `^src`. A test-only change stays on the package that holds the test: `src` inputs exclude `*.test.ts`. `mise.toml` and `tsconfig.base.json` are global dependencies, and `bun.lock` is the audit input, so each of those misses the whole corpus. That full miss is still the five-minute promise.
+A source change reruns that package and every transitive workspace dependent, because those tasks depend on `^src`. A test-only change stays on the package that holds the test: `src` inputs exclude `*.test.ts`. A workspace package that a package uses only from its tests and scripts (a `devDependency` its `src/` never imports) is not an edge of that package's own `src`: the package lists its `src` edges in its `turbo.json` (`libs/tools-harness-ts/scripts/src-task-edges.ts` writes them, `src-task-edges.test.ts` fails on drift). An edit to the helper reruns the package's own `lint`, `tc` and `test`, which `^src` still reaches, and stops there instead of walking up to everything that depends on the package. `mise.toml` and `tsconfig.base.json` (compiler options only) are global dependencies, and `bun.lock` is the audit input, so each of those misses the whole corpus. That full miss is still the five-minute promise. The workspace import aliases are in `tsconfig.paths.json`, which is not a global dependency: 73 of the 75 edits `tsconfig.base.json` took between 2026-09-01 and 2026-10-28 only added or renamed an alias, and each one missed every task. Packages resolve each other through `node_modules` and their `exports`, so `@apps/product-ts#tc` is the only task that lists the file. `lint` lists `biome.shared.json`, not `biome.json`: about three quarters of the entries in the plugins' `includes` lists name one package's directory, so `biome.json` is split into the shared part (rules, plugins, repository-wide scopes) and, per package, a `biome-scope.json` holding the entries that name it (`libs/tools-harness-ts/scripts/biome-scope-slices.ts` writes both after an edit to `biome.json`; `biome-scope-slices.test.ts` fails on drift). Scoping a package under a rule reruns that package's `lint`; a new rule, plugin or repository-wide scope still reruns every package's. A package's `src` also leaves out `tsconfig.tc.json`, `turbo.json` and `biome-scope.json`, which no dependent can see, and its `src` edges are the workspace packages its `src/` (and any other directory its `exports` name) imports, whichever section of `package.json` declares them.
 
 Health, deploy, and `@apps/product-ts#verify:ui-quality` stay on the release path. The population worker's tests run on Bun inside this verification.
+
+## Cache-friendly structure
+
+A pull request is fast when most of its tasks are cache hits, and what makes an edit miss is the structure of the workspace, not the edit. `@libs/tools-harness-ts#ci:cache-hygiene` (in the Verify gate, about a second) keeps four structures from coming back. Its thresholds and every exception are in [`libs/tools-harness-ts/cache-hygiene.json`](../libs/tools-harness-ts/cache-hygiene.json); each failure says what is wrong, what it costs and what to do.
+
+**Blast radius.** The number of packages whose `lint`, `tc` and `test` rerun when one file of a package changes: the package, every package whose `src` hash inherits its `src`, and every package that declares one of those. `bun run cache:explain <package>` prints it, who contributes to it, and which files reach few packages. `cache-hygiene.test.ts` checks the number against Turborepo's own dry run.
+
+| Rule | Fails when | Threshold, and why | What to do |
+| --- | --- | --- | --- |
+| `hub-new` | a package's blast radius reaches 50 packages and `hubs` does not list it | 50 is 14% of the workspace (the median is 26; a third of the packages are above 50, mostly small foundations like `clock-shared-ts`). Above it one edit misses a seventh of the corpus | Cut an edge that is not needed (a package that only tests with it declares it in `devDependencies`, which takes it out of `src`), or split the package. A deliberate foundation: `bun run cache:sync -- --accept-hubs`, with the reason in the pull request |
+| `hub-growth` | a listed hub's blast radius passes the accepted one by more than 10% plus 3 packages | One or two new consumers are normal. A new edge from a package everything depends on turned a leaf into a hub of 258 packages when I tried it | Remove the edge, or accept it as above |
+| `hub-size` | a package at 100 or more has over 25 source files, or one at 50 or more has over 60 | The 42 packages at 100 or more have a median of 8 files and four of them exceed 25 (nine packages in all are in `grandfathered.size`, none allowed to grow). The more a hub holds, the more often it changes | Split by purpose; the narrow package is what dependents import |
+| `hub-cohesion` | a package at 50 or more with 8 or more files has at least 8 files, and at least 30% of them, that reach at most a fifth of its blast radius (3 packages at the least) | Those files share a hash with the files everyone uses, so each edit to them reruns all of its dependents for nothing. Fourteen packages are grandfathered | Move them to `<domain>-<purpose>-<runtime>-ts` |
+| `broad-input` | a task lists a `$TURBO_ROOT$` glob whose package directory is a wildcard (`libs/*/package.json`, `{apps,libs,pkgs}/*/src/**`, `$TURBO_ROOT$/**`) and is not in `broadInputs` | An edit to any matching file anywhere reruns the task. Eleven tasks are allowed, each a repository gate or a test that scans the workspace, with the number of globs and a reason | Name the packages as a brace list and add a test that fails when one is missing (`cache-package-paths.test.ts`) |
+| `global-dependency` | `globalDependencies` or `globalEnv` in `turbo.json` holds anything but `tsconfig.base.json`, `mise.toml` and `VERIFY_TIME_LIMITS` | One edit reruns every task. 73 of the 75 edits to `tsconfig.base.json` since 2026-09-01 only added an alias | List the file as an input of the tasks that read it |
+| `global-alias` | `tsconfig.base.json` has `compilerOptions.paths` | The aliases changed with every new package. They live in `tsconfig.paths.json` | Put the alias there |
+| `derived` | the `src` edges in a `turbo.json`, or `biome.shared.json` or a `biome-scope.json`, do not match what they derive from | They only narrow what an edit reruns while they match | `bun run cache:sync` |
+
+The growth tolerance and the hub threshold are the two numbers to tune. Lowering `hubBlast` makes more foundations list themselves; raising `growth` lets a hub creep. `bun run cache:sync -- --accept-hubs` rewrites `hubs` from the current graph, so a regression shows up as a diff in review, never silently.
+
+**Conventions the rules rest on**
+
+- A package declares a workspace dependency in `devDependencies` when only its tests and scripts use it. The `src` edges are derived from what `src/` (and any other directory `exports` names) imports either way, but a test-only import is still a rerun of the package's own tasks, and the declaration says so.
+- Import aliases go in `tsconfig.paths.json`; `tsconfig.base.json` holds compiler options only.
+- Scopes for one package go in `biome.json` as before. Run `bun run cache:sync` after editing it: `lint` hashes `biome.shared.json` and the package's own `biome-scope.json`, not `biome.json`.
+- A new task input names the packages it reads. A wildcard over all packages belongs in a repository gate, with a line in `broadInputs`.
+- A new package starts with no `turbo.json` and no exception. Run `bun run cache:sync` once and `bun run ci:cache-hygiene`; if it fails, fix the structure before asking for an exception.
+
+**Not automated**, because the information is not in the repository: how often a package changes (a hub that never changes costs nothing, and a small one that changes daily costs a lot), which hubs are worth splitting (the file-level ceiling is about 14% of all invalidations, spread over a dozen packages), and whether a file read by path (`readFileSync` of another package's data) belongs in `src`'s inputs. The `lint` input list is covered for the scripts `lint-package.ts` imports (`cache-package-paths.test.ts`); `port/solid-scope.json` and `lingui-scope.ts` are per-package lists that still rerun every package's `lint` when edited.
 
 ## Hosted load this replaces
 
@@ -69,7 +98,7 @@ Checks that cannot run on all three are not run in CI, and are listed here so a 
 | `@pkgs/clock-shared-swift` (lint, tc, test) | No Swift toolchain is pinned for Windows; macOS uses Xcode's (`native-toolchain.ts`) | `bun verify` on Linux or macOS |
 | `@apps/client-swift` (iOS build, launch, smoke test) | Xcode and the iOS simulator exist only on macOS | `bun verify` on a Mac with the pinned Xcode |
 | `@pkgs/pubsub-emqx-harness-ts` `emqx.contract.test.ts` | EMQX 5 publishes no Windows build, and its launcher is a shell script | `bun run test:posix` in the package |
-| `@pkgs/os-server-ts` `dev-owner*.test.ts` | Dev-owner's launch gate is POSIX: `/bin/sh` `kill -STOP`, `ps`, `/proc`, process groups. It is local dev tooling; CI never sets `DEV_OWNER_ROOT` | `bun run test:posix` in the package |
+| `@pkgs/dev-owner-server-ts` `dev-owner*.test.ts` | Dev-owner's launch gate is POSIX: `/bin/sh` `kill -STOP`, `ps`, `/proc`, process groups. It is local dev tooling; CI never sets `DEV_OWNER_ROOT` | `bun run test:posix` in the package |
 | `@libs/tools-harness-ts` `verify-actionlint`, `workspace-run`, `verify-snapshot`, `verify-prepared-model`, `workflow-remote-tty` tests | Shebang fake executables run directly, the bash `workspace/*.sh` hooks with a POSIX PATH, `cp --reflink`/`cp -c` snapshots, a `Bun.Terminal` pseudo-terminal | `bun run test:posix` in the package |
 
 `test:posix` is the one script outside the gate that `test-scripts.ts` accepts; no CI job and no `bun verify` runs it.
@@ -77,7 +106,7 @@ Checks that cannot run on all three are not run in CI, and are listed here so a 
 Everything else must behave the same on every runner, so code a CI task runs makes no assumption about the OS it is on:
 
 - **Paths.** A repository path is `/`-separated wherever it is compared, stored, hashed, matched or printed: `slashPath(relative(...))` (`@pkgs/os-shared-ts/slash-path`), never a bare `node:path` `relative()` (`libs/tools-harness-ts/biome-plugins/no-native-relative-path.grit` refuses one), and `lastSegment` rather than `split('/')` for a file name. Windows file APIs accept `/`, so a slash path also opens the file. A file URL becomes a path through `fileURLToPath`, never `.pathname`, and an absolute path is never joined under another directory with its drive letter.
-- **Processes and files.** Spawn programs directly or through Bun, not through `sh`; temporary files go under `os.tmpdir()`; a rename onto a file another process may hold is retried, because Windows refuses it: every `renameSync` goes through `renameReplacing` (`@pkgs/os-server-ts/rename-replacing`, enforced by `no-bare-rename-sync.grit`). A recursive delete is retried the same way: Windows answers `EBUSY`/`EPERM` while a process that only just stopped still holds a file under the tree, and a throw from teardown turns a run whose every scenario passed into exit code 1 (Verify run 40769518282). Every recursive delete goes through `removeTree` (`@pkgs/os-server-ts/remove-tree`), which waits out the locks for five seconds; `no-bare-recursive-rm.grit` refuses a bare `rmSync`/`rm`/`rmdirSync` with `recursive: true`. It throws when the tree stays locked, except `{ whenLocked: 'leave' }`, which teardown of scratch a run is finished with passes: it reports a `::warning::` and leaves the tree for the next job's checkout clean, because leftover scratch is not a verdict.
+- **Processes and files.** Spawn programs directly or through Bun, not through `sh`; temporary files go under `os.tmpdir()`; a rename onto a file another process may hold is retried, because Windows refuses it: every `renameSync` goes through `renameReplacing` (`@pkgs/fs-server-ts/rename-replacing`, enforced by `no-bare-rename-sync.grit`). A recursive delete is retried the same way: Windows answers `EBUSY`/`EPERM` while a process that only just stopped still holds a file under the tree, and a throw from teardown turns a run whose every scenario passed into exit code 1 (Verify run 40769518282). Every recursive delete goes through `removeTree` (`@pkgs/fs-server-ts/remove-tree`), which waits out the locks for five seconds; `no-bare-recursive-rm.grit` refuses a bare `rmSync`/`rm`/`rmdirSync` with `recursive: true`. It throws when the tree stays locked, except `{ whenLocked: 'leave' }`, which teardown of scratch a run is finished with passes: it reports a `::warning::` and leaves the tree for the next job's checkout clean, because leftover scratch is not a verdict.
 - **Tools.** A tool a task needs comes from `mise.toml` (Chrome for Testing included), never from what a runner happens to have installed.
 - **Proof.** A pure function that handles paths has a test that feeds it `node:path`'s `win32` form as well as its `posix` form, so a macOS or Linux run catches a separator bug before a Windows runner does.
 
@@ -135,12 +164,12 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 
 | | |
 | --- | --- |
-| Packages | 356 |
-| Verify scripts | 1418 |
-| Measured scripts | 930 |
-| Estimated scripts | 488 |
+| Packages | 358 |
+| Verify scripts | 1425 |
+| Measured scripts | 931 |
+| Estimated scripts | 494 |
 | Stale cost keys | 574 |
-| Cold CPU | 18192 s |
+| Cold CPU | 18202 s |
 | Spec parts | 10857 s across 307 tasks |
 | Longest task | @libs/games-harness-ts#test:spec:49 213 s |
 
@@ -149,13 +178,13 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | Family | Tasks | CPU |
 | --- | --- | --- |
 | test:spec | 307 | 10857 s |
-| lint | 355 | 1267 s |
+| lint | 357 | 1271 s |
 | test:contract | 25 | 1004 s |
 | verify:models:10 | 16 | 960 s |
-| test | 265 | 926 s |
+| test | 267 | 928 s |
 | verify:models | 46 | 748 s |
 | verify:models:2 | 11 | 660 s |
-| tc | 354 | 538 s |
+| tc | 356 | 540 s |
 
 ### Leaves
 
@@ -164,7 +193,7 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | | |
 | --- | --- |
 | Leaf CPU, median | 4 s |
-| Leaf CPU, 90th percentile | 92 s |
+| Leaf CPU, 90th percentile | 94 s |
 | Longest leaf task, 90th percentile | 33 s |
 | Longest leaf task | 132 s |
 
@@ -182,9 +211,9 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared-ts | 291 | 17983 s | @libs/games-harness-ts#test:spec:49 213 s |
-| @pkgs/clock-shared-ts | 257 | 17865 s | @libs/games-harness-ts#test:spec:49 213 s |
-| @pkgs/assert-root-shared-ts | 252 | 17832 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/property-shared-ts | 291 | 17985 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/clock-shared-ts | 257 | 17867 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/assert-root-shared-ts | 252 | 17834 s | @libs/games-harness-ts#test:spec:49 213 s |
 
 ### Runner
 
