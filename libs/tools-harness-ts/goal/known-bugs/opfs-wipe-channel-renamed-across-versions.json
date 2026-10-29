@@ -1,0 +1,4 @@
+{
+  "summary": "Making the SQLite package product-agnostic renamed its OPFS-wipe BroadcastChannel, so during a deploy a tab still running the previous version would no longer hear a newer tab's request to drop its OPFS handles, and the local-data wipe could stall until that tab reloaded. The channel is now a required option, and the app passes a name derived from the immutable technical namespace, the same in every version.",
+  "regressionTest": "libs/app-root-client-ts/tests/open-main-sql-client-faults.test.ts"
+}

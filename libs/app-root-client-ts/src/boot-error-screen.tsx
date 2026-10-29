@@ -10,6 +10,7 @@ import { isLeaderLostError } from '@pkgs/sql-client-sqlite-web-shared-ts/rpc';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import type { JSX } from 'solid-js';
+import { OPFS_WIPE_CHANNEL } from './open-main-sql-client';
 
 /** Synthetic error when open hangs past the UI watchdog (stale worker / SW). */
 export const BOOT_STUCK_MESSAGE =
@@ -61,7 +62,10 @@ export function LocalDatabaseBootErrorScreen(props: {
       reloadApp();
       return;
     }
-    void runWebOpfsRecoveryAndReload({ timers }).catch((wipeError: unknown) => {
+    void runWebOpfsRecoveryAndReload({
+      timers,
+      wipeChannel: OPFS_WIPE_CHANNEL,
+    }).catch((wipeError: unknown) => {
       log.error('local wipe failed', {
         error:
           wipeError instanceof Error ? wipeError.message : String(wipeError),

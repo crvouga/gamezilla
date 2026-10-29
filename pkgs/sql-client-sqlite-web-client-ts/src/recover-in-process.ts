@@ -16,15 +16,6 @@ import { OPFS_SAH_POOL_ROOT } from './opfs-sah-pool-backend';
 export const DEFAULT_DB_HOST_SHARED_WORKER_URL =
   '/sql-workers/db-host-shared-worker.js';
 
-/**
- * Same-origin channel so web OPFS recovery can ask live tabs to drop handles.
- * Peers listen in `web-sql-client.ts` and disconnect their owner on
- * `prepare-wipe`, which terminates the dedicated sqlite-wasm worker and frees
- * every OPFS sync access handle. A BroadcastChannel is scoped to its origin,
- * so the name needs no host prefix.
- */
-export const OPFS_WIPE_CHANNEL = 'sqlite-opfs-wipe';
-
 /** Must exceed broker FORCE_RELEASE_OWNER_WAIT_MS so owners can closeAsync. */
 const FORCE_RELEASE_WAIT_MS = 5_000;
 
@@ -79,11 +70,14 @@ export async function forceReleaseSharedWorkerOwners(
 
 let wipeRequestSeq = 0;
 
-async function notifyPeersToDropHandles(timers: Timers): Promise<void> {
+async function notifyPeersToDropHandles(
+  timers: Timers,
+  wipeChannel: string
+): Promise<void> {
   if (typeof BroadcastChannel === 'undefined') return;
   wipeRequestSeq += 1;
   const requestId = `wipe_${wipeRequestSeq}`;
-  const channel = new BroadcastChannel(OPFS_WIPE_CHANNEL);
+  const channel = new BroadcastChannel(wipeChannel);
   try {
     channel.postMessage({ type: 'prepare-wipe', requestId });
     await sleepMs(timers, PREPARE_WIPE_ACK_MS);
@@ -143,6 +137,12 @@ export async function wipeOpfsSahPoolStores(): Promise<void> {
 
 export type RunWebOpfsRecoveryOptions = {
   readonly timers: Timers;
+  /**
+   * The host's same-origin BroadcastChannel name on which recovery asks live
+   * tabs to drop their OPFS handles (`WebSqlClientOptions.wipeChannel`; the
+   * same name in every version of the host, or older tabs never hear it).
+   */
+  readonly wipeChannel: string;
   /** Ignored — kept for call-site compatibility. Recovery ends in a reload. */
   readonly returnTo?: string;
   /** Close local owner / SQL client before wipe (best-effort). */
@@ -157,7 +157,7 @@ export type RunWebOpfsRecoveryOptions = {
 export async function runWebOpfsRecoveryAndReload(
   opts: RunWebOpfsRecoveryOptions
 ): Promise<void> {
-  await notifyPeersToDropHandles(opts.timers);
+  await notifyPeersToDropHandles(opts.timers, opts.wipeChannel);
   await forceReleaseSharedWorkerOwners(
     opts.timers,
     opts.sharedWorkerUrl ?? DEFAULT_DB_HOST_SHARED_WORKER_URL,

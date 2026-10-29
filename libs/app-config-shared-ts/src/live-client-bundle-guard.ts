@@ -1,12 +1,12 @@
-import { APP_IDENTITY } from '@libs/auth-shared-ts/app-identity';
 import { isLocalApiOrigin } from '@libs/auth-shared-ts/local-api-origin';
+import { brandOrigin } from '@libs/product-identity-shared-ts/brand-hosts';
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import { readUtf8 } from '@pkgs/object-store-root-shared-ts/helpers';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
 
 /** Production API origin — the default expected origin for live-bundle checks. */
 export function productionClientApiOrigin(): string {
-  return `https://${APP_IDENTITY.apiHost}`;
+  return brandOrigin('api');
 }
 
 /** Marker the bundler leaves in the `getServerBaseUrl()` chunk when env is inlined. */

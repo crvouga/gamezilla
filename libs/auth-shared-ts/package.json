@@ -17,7 +17,6 @@
   "dependencies": {
     "@libs/moderation-shared-ts": "workspace:*",
     "@libs/observability-shared-ts": "workspace:*",
-    "@libs/product-identity-shared-ts": "workspace:*",
     "@libs/sub-shared-ts": "workspace:*",
     "@libs/synthetic-population-shared-ts": "workspace:*",
     "@pkgs/assert-root-shared-ts": "workspace:*",
