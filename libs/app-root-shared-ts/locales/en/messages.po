@@ -430,6 +430,18 @@ msgstr "{player} to move."
 msgid "{points} points"
 msgstr "{points} points"
 
+#: libs/app-root-client-ts/src/connection-copy.tsx
+msgid "{productName} can be reached. What you do is shared with everyone else."
+msgstr "{productName} can be reached. What you do is shared with everyone else."
+
+#: libs/app-root-client-ts/src/connection-copy.tsx
+msgid "{productName} can’t be reached right now. This isn’t something you did. What you do here is kept on this device and shared when {productName} is back."
+msgstr "{productName} can’t be reached right now. This isn’t something you did. What you do here is kept on this device and shared when {productName} is back."
+
+#: libs/app-root-client-ts/src/boot-error-screen.tsx
+msgid "{productName} is open in another tab"
+msgstr "{productName} is open in another tab"
+
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "{rank} of clubs"
 msgstr "{rank} of clubs"
@@ -1222,8 +1234,8 @@ msgid "By the fifty-move rule."
 msgstr "By the fifty-move rule."
 
 #: libs/app-root-client-ts/src/connection-copy.tsx
-msgid "Can’t reach Gamezilla"
-msgstr "Can’t reach Gamezilla"
+msgid "Can’t reach {productName}"
+msgstr "Can’t reach {productName}"
 
 #: libs/auth-client-ts/src/sign-in-link-required.tsx
 #: libs/profile-client-ts/src/avatar-editor-screen.tsx
@@ -1334,8 +1346,8 @@ msgid "Checking for the saved Lichess file…"
 msgstr "Checking for the saved Lichess file…"
 
 #: libs/app-root-client-ts/src/connection-copy.tsx
-msgid "Checking whether Gamezilla can be reached."
-msgstr "Checking whether Gamezilla can be reached."
+msgid "Checking whether {productName} can be reached."
+msgstr "Checking whether {productName} can be reached."
 
 #: libs/billing-client-ts/src/billing-status-line.tsx
 msgid "Checking your membership…"
@@ -2832,18 +2844,6 @@ msgstr "Game replay"
 #: libs/spaces-client-ts/src/games-main-menu.tsx
 msgid "Games"
 msgstr "Games"
-
-#: libs/app-root-client-ts/src/connection-copy.tsx
-msgid "Gamezilla can be reached. What you do is shared with everyone else."
-msgstr "Gamezilla can be reached. What you do is shared with everyone else."
-
-#: libs/app-root-client-ts/src/connection-copy.tsx
-msgid "Gamezilla can’t be reached right now. This isn’t something you did. What you do here is kept on this device and shared when Gamezilla is back."
-msgstr "Gamezilla can’t be reached right now. This isn’t something you did. What you do here is kept on this device and shared when Gamezilla is back."
-
-#: libs/app-root-client-ts/src/boot-error-screen.tsx
-msgid "Gamezilla is open in another tab"
-msgstr "Gamezilla is open in another tab"
 
 #: libs/permissions-client-ts/src/unlock-copy.tsx
 msgid "Get Plus to host more spaces"
@@ -6717,8 +6717,8 @@ msgid "This device is offline"
 msgstr "This device is offline"
 
 #: libs/app-root-client-ts/src/connection-copy.tsx
-msgid "This device is online, but Gamezilla can’t be reached right now. This isn’t something you did. The app keeps trying on its own."
-msgstr "This device is online, but Gamezilla can’t be reached right now. This isn’t something you did. The app keeps trying on its own."
+msgid "This device is online, but {productName} can’t be reached right now. This isn’t something you did. The app keeps trying on its own."
+msgstr "This device is online, but {productName} can’t be reached right now. This isn’t something you did. The app keeps trying on its own."
 
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-editor.tsx
 msgid "This draft cannot be opened. Choose an earlier saved copy to continue."
@@ -7124,8 +7124,8 @@ msgid "Unique handle for search and invites"
 msgstr "Unique handle for search and invites"
 
 #: libs/billing-client-ts/src/billing-offer-sections.tsx
-msgid "Unlimited access to Gamezilla servers"
-msgstr "Unlimited access to Gamezilla servers"
+msgid "Unlimited access to {productName} servers"
+msgstr "Unlimited access to {productName} servers"
 
 #: pkgs/ui-root-client-ts/src/speaking-avatar.tsx
 msgid "Unmute coach"

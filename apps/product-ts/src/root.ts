@@ -10,10 +10,11 @@ import {
   wallCreateId,
 } from '@libs/app-root-client-ts/wall-client-env';
 import { wallOfflineNetworkController } from '@libs/app-root-client-ts/wall-offline-network';
+import { technicalKey } from '@libs/product-identity-shared-ts/technical-names';
 import { feedbackEndpoint } from '@pkgs/feedback-client-ts/endpoint';
 import { bootBrowserFeedback } from '@pkgs/feedback-client-ts/wall';
 
-const STARTUP_RECOVERY_KEY = 'gamezilla:dev-startup-recovery';
+const STARTUP_RECOVERY_KEY = technicalKey('dev-startup-recovery', ':');
 const offline = wallOfflineNetworkController();
 const startupHttp = createWallOfflineHttp(offline);
 

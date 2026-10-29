@@ -9,7 +9,7 @@ describe('development repository root', () => {
     // regression: dev-prepare-stale-manifest
     // `resolve` gives the host's absolute form (`C:\Users\...` on Windows),
     // which is what the walk compares against.
-    const repoRoot = resolve('/home/dev/gamezilla');
+    const repoRoot = resolve('/home/dev/repo');
     const markerFiles = new Set([
       join(repoRoot, 'package.json'),
       join(repoRoot, 'turbo.json'),

@@ -2,7 +2,7 @@
 /**
  * `/more/server-status` — Connection in Settings. Says whether the app is
  * connected, and if not whether that is the person's choice, their device,
- * or Gamezilla out of reach; when it last was; the app's version; and what
+ * or the product out of reach; when it last was; the app's version; and what
  * still works without a connection. Built only on the shell's existing
  * signals (device network, work offline, origin availability, sync status).
  */

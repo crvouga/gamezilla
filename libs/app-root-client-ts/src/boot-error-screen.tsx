@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import { reloadApp } from '@libs/app-root-shared-ts/reload-app';
+import { PRODUCT_NAME } from '@libs/product-identity-shared-ts/product-identity';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { useLogger } from '@pkgs/logger-client-ts/solid';
@@ -50,6 +51,7 @@ export function LocalDatabaseBootErrorScreen(props: {
   readonly error: Error;
 }): JSX.Element {
   const { t } = useLingui();
+  const productName = PRODUCT_NAME;
   const timers = useTimers();
   const log = useLogger('local-database-boot');
   const canResetLocalData = () => isMultiTabOwnerLostError(props.error);
@@ -73,7 +75,7 @@ export function LocalDatabaseBootErrorScreen(props: {
         dataSet={{ component: 'LocalDatabaseBootErrorScreen' }}
         title={
           canResetLocalData() ? (
-            <Trans>Gamezilla is open in another tab</Trans>
+            <Trans>{productName} is open in another tab</Trans>
           ) : isBootStuckError(props.error) ? (
             <Trans>App failed to start</Trans>
           ) : (

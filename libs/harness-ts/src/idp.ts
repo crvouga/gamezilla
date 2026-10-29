@@ -20,6 +20,7 @@ import {
   type OAuthRuntime,
   type OAuthRuntimeOptions,
 } from '@crvouga/mockingbird-service-oauth';
+import { PRODUCT_NAME } from '@libs/product-identity-shared-ts/product-identity';
 import {
   HARNESS_APPLE_CLIENT_ID,
   HARNESS_APPLE_IDP_URL,
@@ -235,7 +236,7 @@ export function createHarnessIdps(deps: {
       clients: [
         {
           id: HARNESS_GOOGLE_CLIENT_ID,
-          name: 'Gamezilla',
+          name: PRODUCT_NAME,
           secret: HARNESS_GOOGLE_CLIENT_SECRET,
           redirectUris: [HARNESS_GOOGLE_REDIRECT_URI],
         },
@@ -257,7 +258,7 @@ export function createHarnessIdps(deps: {
       clients: [
         {
           id: HARNESS_APPLE_CLIENT_ID,
-          name: 'Gamezilla',
+          name: PRODUCT_NAME,
           redirectUris: [HARNESS_APPLE_REDIRECT_URI],
           apple: {
             teamId: HARNESS_APPLE_TEAM_ID,

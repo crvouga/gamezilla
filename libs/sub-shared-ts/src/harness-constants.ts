@@ -1,3 +1,5 @@
+import { NAMESPACE } from '@libs/product-identity-shared-ts/product-identity';
+
 /**
  * Fixed addresses and secrets a simulated app boots with.
  *
@@ -27,7 +29,7 @@ export const HARNESS_GOOGLE_CLIENT_SECRET = 'harness-google-client-secret';
 export const HARNESS_APPLE_IDP_URL = 'http://appleid.harness';
 
 /** The Services ID + developer team + key id the harness API is known by there. */
-export const HARNESS_APPLE_CLIENT_ID = 'harness.gamezilla.signin';
+export const HARNESS_APPLE_CLIENT_ID = `harness.${NAMESPACE}.signin`;
 export const HARNESS_APPLE_TEAM_ID = 'SIMTEAM001';
 export const HARNESS_APPLE_KEY_ID = 'SIMKEY0001';
 

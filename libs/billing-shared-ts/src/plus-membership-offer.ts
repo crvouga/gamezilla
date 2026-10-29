@@ -7,6 +7,7 @@
  * Currency amounts are integer minor units (e.g. cents). PPP-tier amounts
  * approximate USD purchasing power for each region.
  */
+import { PRODUCT_NAME } from '@libs/product-identity-shared-ts/product-identity';
 import type {
   OfferPriceSpec,
   PlusMembershipOffer,
@@ -16,7 +17,7 @@ export const PLUS_MEMBERSHIP_OFFER = {
   product: {
     catalogProductId: 'subscription',
     name: 'Unlimited',
-    description: 'Get unlimited access to Gamezilla servers.',
+    description: `Get unlimited access to ${PRODUCT_NAME} servers.`,
   },
   prices: {
     subscription_monthly: {
@@ -70,10 +71,11 @@ export const PLUS_MEMBERSHIP_OFFER = {
   switchablePriceKeys: ['subscription_monthly', 'subscription_yearly'],
   portal: {
     defaultReturnUrlPath: '/more/billing',
-    businessProfileHeadline: 'Gamezilla Unlimited',
+    businessProfileHeadline: `${PRODUCT_NAME} Unlimited`,
     cancellationReasons: ['too_expensive', 'missing_features', 'other'],
   },
   callbackPath: '/api/billing/callback',
+  callbackDescription: `${PRODUCT_NAME} plus membership projection`,
 } as const satisfies PlusMembershipOffer & {
   readonly prices: Record<string, OfferPriceSpec>;
 };

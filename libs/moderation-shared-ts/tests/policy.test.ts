@@ -10,6 +10,10 @@ import {
   SHIPPED_TEAM_RULES,
 } from '@libs/moderation-shared-ts/policy';
 import { isReservedName } from '@libs/moderation-shared-ts/reserved-name-check';
+import {
+  NAMESPACE,
+  PRODUCT,
+} from '@libs/product-identity-shared-ts/product-identity';
 
 const moderation = createAppModeration(SHIPPED_TEAM_RULES);
 
@@ -23,7 +27,7 @@ describe('username policy', () => {
   test('refuses names that pass someone off as the team', () => {
     for (const name of [
       'admin',
-      'Gamezilla_Official',
+      `${PRODUCT.brand.shortName}_Official`,
       'm0derator7',
       'Support',
     ]) {
@@ -32,6 +36,24 @@ describe('username policy', () => {
     }
     for (const name of ['badminton', 'supporter', 'modest_mouse', 'alice']) {
       expect(isReservedName(name)).toBe(false);
+    }
+  });
+
+  test('refuses the product’s own names in every spelling it has had', () => {
+    for (const productName of [
+      PRODUCT.brand.name,
+      PRODUCT.brand.shortName,
+      NAMESPACE,
+      ...PRODUCT.aliases,
+    ]) {
+      for (const name of [
+        productName,
+        productName.toUpperCase(),
+        `the_${productName.replaceAll(' ', '_')}7`,
+      ]) {
+        expect(isReservedName(name)).toBe(true);
+        expect(moderation.checkWrite('username', name).allowed).toBe(false);
+      }
     }
   });
 

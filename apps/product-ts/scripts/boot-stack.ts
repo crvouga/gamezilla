@@ -19,6 +19,7 @@ import {
   type StripeServer,
 } from '@crvouga/mockingbird-service-stripe/server';
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared-ts/plus-membership-offer';
+import { NAMESPACE } from '@libs/product-identity-shared-ts/product-identity';
 import type { Denial } from '@pkgs/aedes-server-ts/start';
 import { MEMBERSHIP_PROVIDER_MODULES } from '@pkgs/billing-providers-server-ts/billing-providers';
 import { membershipCallbackPath } from '@pkgs/billing-root-shared-ts/providers';
@@ -217,7 +218,7 @@ function startApiNode(args: {
       },
     }
   );
-  observeChildFailures(child, args, `gamezilla-api-${args.id}`);
+  observeChildFailures(child, args, `${NAMESPACE}-api-${args.id}`);
   return child;
 }
 
@@ -242,7 +243,7 @@ export async function startWeb(args: {
       ...(args.testHooks ? { VITE_TEST_HOOKS: '1' } : {}),
     },
   });
-  observeChildFailures(child, args, 'gamezilla-web');
+  observeChildFailures(child, args, `${NAMESPACE}-web`);
   await waitForHttp(`${args.origin}/harness`);
   return child;
 }

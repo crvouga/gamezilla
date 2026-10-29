@@ -14,6 +14,7 @@
  */
 
 import { existsSync } from 'node:fs';
+import { NAMESPACE } from '@libs/product-identity-shared-ts/product-identity';
 import { devStackOptions } from './dev-options';
 import { resolveDevRepoRoot } from './dev-repo-root';
 import {
@@ -82,7 +83,7 @@ async function runService<K extends ServiceName>(
     recordProcessFailure(
       { instanceId: plan.options.instanceId, dataDir: plan.dataDir },
       {
-        serviceName: `gamezilla-${name}`,
+        serviceName: `${NAMESPACE}-${name}`,
         error: error instanceof Error ? error : new Error(String(error)),
       }
     );
@@ -154,7 +155,7 @@ const target = process.argv[2];
 const plan = readPlan(REPO_ROOT, devStackOptions().instanceId);
 installProcessDiagnostics(
   { instanceId: plan.options.instanceId, dataDir: plan.dataDir },
-  `gamezilla-${target ?? 'stack'}`
+  `${NAMESPACE}-${target ?? 'stack'}`
 );
 if (target === 'ready') {
   await runFrontDoor(plan);

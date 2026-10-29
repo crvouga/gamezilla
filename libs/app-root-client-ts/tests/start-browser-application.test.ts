@@ -4,6 +4,7 @@ import {
   startBrowserApplication,
   startupFailureReference,
 } from '@libs/app-root-client-ts/start-browser-application';
+import { PRODUCT_NAME } from '@libs/product-identity-shared-ts/product-identity';
 
 function starter(overrides: {
   readonly load: () => Promise<unknown>;
@@ -71,7 +72,9 @@ describe('browser application startup', () => {
       error: new TypeError('module import failed'),
     });
 
-    expect(shell.getAttribute('aria-label')).toBe('Gamezilla failed to start');
+    expect(shell.getAttribute('aria-label')).toBe(
+      `${PRODUCT_NAME} failed to start`
+    );
     expect(shell.textContent).toContain(
       'Vite may still be preparing the page.'
     );
@@ -102,7 +105,7 @@ describe('browser application startup', () => {
 
     expect(shell.textContent).not.toContain('Vite');
     expect(shell.textContent).not.toContain('Unknown startup error');
-    expect(shell.textContent).toContain('Gamezilla couldn’t open');
+    expect(shell.textContent).toContain(`${PRODUCT_NAME} couldn’t open`);
     expect(shell.textContent).toContain(
       'Anything already saved on this device is kept.'
     );

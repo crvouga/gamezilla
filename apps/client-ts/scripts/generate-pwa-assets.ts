@@ -1,8 +1,12 @@
 // @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 /**
- * Generates PWA icons, splash screens, favicon, and manifest under
- * `public/pwa/` from the app icon. Requires Chromium
- * (pwa-asset-generator / Puppeteer).
+ * Generates PWA icons, splash screens and favicon under `public/pwa/` from
+ * the app icon. Requires Chromium (pwa-asset-generator / Puppeteer).
+ *
+ * The manifest is not this script's: it is a brand artifact rendered from the
+ * product identity (`@libs/product-identity-shared-ts/brand-artifact-web`).
+ * The asset generator only reads it; this script rewrites it from the
+ * identity afterwards, so it always matches the brand artifact generator.
  *
  * Invoked via `bunx` so the generator (and its unmaintained `extract-zip`
  * transitive) never enters the lockfile / `ci:audit` graph. Assets are
@@ -14,6 +18,8 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { WEB_BRAND_ARTIFACTS } from '@libs/product-identity-shared-ts/brand-artifact-web';
+import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
 import { wallClock } from '@pkgs/clock-shared-ts/wall';
 import { createLogger } from '@pkgs/logger-shared-ts/logger';
 import { run } from '@pkgs/os-server-ts/command';
@@ -54,25 +60,17 @@ function hasAllExpectedAssets(): boolean {
   return expectedAssets.every((filePath) => existsSync(filePath));
 }
 
-if (!existsSync(manifestPath)) {
-  writeFileSync(
-    manifestPath,
-    JSON.stringify(
-      {
-        name: 'Gamezilla',
-        short_name: 'Gamezilla',
-        start_url: '/',
-        scope: '/',
-        display: 'standalone',
-        background_color: COLOR_PALETTE.dark.background,
-        theme_color: COLOR_PALETTE.dark.background,
-        icons: [],
-      },
-      null,
-      2
-    )
+/** The manifest exactly as the brand artifact generator writes it. */
+function writeBrandManifest(): void {
+  const artifact = WEB_BRAND_ARTIFACTS.find((candidate) =>
+    candidate.path.endsWith('/pwa/manifest.webmanifest')
   );
+  if (artifact === undefined)
+    throw new Error('no manifest among the web brand artifacts');
+  writeFileSync(manifestPath, artifact.render(PRODUCT));
 }
+
+writeBrandManifest();
 
 function generatePwaImages(): void {
   run(
@@ -121,5 +119,5 @@ function fixProtocolRelativeUrls(filePath: string): void {
   }
 }
 
-fixProtocolRelativeUrls(manifestPath);
 fixProtocolRelativeUrls(indexPath);
+writeBrandManifest();

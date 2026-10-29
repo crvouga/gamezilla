@@ -1,3 +1,5 @@
+import { NAMESPACE } from '@libs/product-identity-shared-ts/product-identity';
+
 /**
  * Product constants that are the same in every environment. Anything that
  * names a deployed resource (Workers, buckets, hostnames, the broker, the
@@ -17,6 +19,6 @@ export const PRODUCT_CONFIG = {
   },
   objectStore: {
     /** Key prefix enforced on every remote object-store write. */
-    namespace: 'gamezilla',
+    namespace: NAMESPACE,
   },
 } as const;

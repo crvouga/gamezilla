@@ -1,9 +1,11 @@
+import { NAMESPACE } from '@libs/product-identity-shared-ts/product-identity';
+
 /**
  * The address domain every Synthetic User is provisioned under. `.invalid`
  * is reserved (RFC 2606): no mail server can ever exist for it, so nothing
  * addressed here can leave the product.
  */
-export const SYNTHETIC_ADDRESS_DOMAIN = 'synthetic.gamezilla.invalid';
+export const SYNTHETIC_ADDRESS_DOMAIN = `synthetic.${NAMESPACE}.invalid`;
 
 export function syntheticAddress(userId: string): string {
   return `${userId}@${SYNTHETIC_ADDRESS_DOMAIN}`;

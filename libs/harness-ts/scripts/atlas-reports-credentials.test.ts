@@ -16,44 +16,44 @@ describe('local reports dev', () => {
             domain: 'https://secrets.example.com/api',
           },
           {
-            name: 'gamezilla@example.com',
+            name: 'acme@example.com',
             domain: 'https://app.infisical.com/api',
           },
           {
-            name: 'gamezilla@example.com--dead',
+            name: 'acme@example.com--dead',
             domain: 'https://app.infisical.com/api',
           },
         ],
         'https://app.infisical.com'
       )
-    ).toBe('gamezilla@example.com');
+    ).toBe('acme@example.com');
     expect(profileNameForDomain([], 'https://app.infisical.com')).toBeNull();
   });
 
   test('only the reports read credential is kept', () => {
     expect(
       reportsSecretsFromRecord({
-        REPORTS_BUCKET: ' gamezilla-reports ',
+        REPORTS_BUCKET: ' acme-reports ',
         REPORTS_ENDPOINT: '',
         OTHER: 'nope',
       })
-    ).toEqual({ REPORTS_BUCKET: 'gamezilla-reports' });
+    ).toEqual({ REPORTS_BUCKET: 'acme-reports' });
   });
 
   test('a complete read credential is the provisioned bucket', () => {
     expect(
       reportsDevEnv(
         {
-          REPORTS_BUCKET: ' gamezilla-reports ',
+          REPORTS_BUCKET: ' acme-reports ',
           REPORTS_ENDPOINT: ' https://example.r2.cloudflarestorage.com ',
           REPORTS_ACCESS_KEY_ID: 'key',
           REPORTS_SECRET_ACCESS_KEY: 'secret',
           REPORTS_WRITE_ACCESS_KEY_ID: 'write-key',
         },
-        'gamezilla-reports'
+        'acme-reports'
       )
     ).toEqual({
-      REPORTS_BUCKET: 'gamezilla-reports',
+      REPORTS_BUCKET: 'acme-reports',
       REPORTS_ENDPOINT: 'https://example.r2.cloudflarestorage.com',
       REPORTS_ACCESS_KEY_ID: 'key',
       REPORTS_SECRET_ACCESS_KEY: 'secret',
@@ -62,7 +62,7 @@ describe('local reports dev', () => {
 
   test('missing reports credentials do not block local stack startup', () => {
     // regression: local-stack-missing-reports-credentials
-    expect(reportsDevEnv({}, 'gamezilla-reports')).toEqual({
+    expect(reportsDevEnv({}, 'acme-reports')).toEqual({
       REPORTS_BUCKET: '',
       REPORTS_ENDPOINT: '',
       REPORTS_ACCESS_KEY_ID: '',
@@ -72,18 +72,15 @@ describe('local reports dev', () => {
 
   test('partial credentials are cleared, including inherited bindings', () => {
     const inherited: Record<string, string> = {
-      REPORTS_BUCKET: 'gamezilla-reports',
+      REPORTS_BUCKET: 'acme-reports',
       REPORTS_ENDPOINT: 'https://example.r2.cloudflarestorage.com',
       REPORTS_ACCESS_KEY_ID: 'key',
       REPORTS_SECRET_ACCESS_KEY: 'secret',
     };
     expect({
       ...inherited,
-      ...reportsDevEnv(
-        { REPORTS_BUCKET: 'gamezilla-reports' },
-        'gamezilla-reports'
-      ),
-    }).toEqual(reportsDevEnv({}, 'gamezilla-reports'));
+      ...reportsDevEnv({ REPORTS_BUCKET: 'acme-reports' }, 'acme-reports'),
+    }).toEqual(reportsDevEnv({}, 'acme-reports'));
   });
 
   test('credentials for another bucket leave reports unavailable', () => {
@@ -95,8 +92,8 @@ describe('local reports dev', () => {
           REPORTS_ACCESS_KEY_ID: 'key',
           REPORTS_SECRET_ACCESS_KEY: 'secret',
         },
-        'gamezilla-reports'
+        'acme-reports'
       )
-    ).toEqual(reportsDevEnv({}, 'gamezilla-reports'));
+    ).toEqual(reportsDevEnv({}, 'acme-reports'));
   });
 });

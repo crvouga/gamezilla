@@ -9,7 +9,7 @@
 
 import type { Account } from '@crvouga/mockingbird-service-oauth';
 import { createServer } from '@crvouga/mockingbird-service-oauth/server';
-
+import { PRODUCT_NAME } from '@libs/product-identity-shared-ts/product-identity';
 import {
   LOCAL_ADMIN_ACCOUNTS,
   type LocalAdminIdentity,
@@ -121,7 +121,7 @@ export async function startStackIdps(args: {
       clients: [
         {
           id: GOOGLE_CLIENT_ID,
-          name: 'Gamezilla',
+          name: PRODUCT_NAME,
           secret: GOOGLE_CLIENT_SECRET,
           redirectUris: [callback('google')],
         },
@@ -137,7 +137,7 @@ export async function startStackIdps(args: {
       clients: [
         {
           id: APPLE_CLIENT_ID,
-          name: 'Gamezilla',
+          name: PRODUCT_NAME,
           redirectUris: [callback('apple')],
           apple: {
             teamId: APPLE_TEAM_ID,

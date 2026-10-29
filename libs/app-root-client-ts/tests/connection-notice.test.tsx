@@ -4,6 +4,7 @@ import {
   resolveConnectionCause,
 } from '@libs/app-root-client-ts/connection-cause';
 import { ConnectionStatusIndicator } from '@libs/app-root-client-ts/connection-notice';
+import { PRODUCT_NAME } from '@libs/product-identity-shared-ts/product-identity';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
@@ -53,22 +54,26 @@ test('connection loss changes only the contents of a reserved header slot', () =
   expect(slot?.children.length).toBe(0);
 });
 
-test('an offline device is told it is offline, not that Gamezilla is out of reach', () => {
+test('an offline device is told it is offline, not that the product is out of reach', () => {
   const view = mountIndicator('deviceOffline');
   expect(view.noticeText()).toContain('You’re offline');
-  expect(view.noticeText()).not.toContain('Gamezilla can’t be reached');
+  expect(view.noticeText()).not.toContain(`${PRODUCT_NAME} can’t be reached`);
 });
 
-test('Gamezilla out of reach says it is not the person’s doing and nothing is lost', () => {
+test('the product out of reach says it is not the person’s doing and nothing is lost', () => {
   const view = mountIndicator('unreachable');
-  expect(view.noticeText()).toContain('Gamezilla can’t be reached right now');
+  expect(view.noticeText()).toContain(
+    `${PRODUCT_NAME} can’t be reached right now`
+  );
   expect(view.noticeText()).toContain('This isn’t something you did');
   expect(view.noticeText()).toContain('kept on this device');
   view.setCause('checking');
-  expect(view.noticeText()).toContain('Gamezilla can’t be reached right now');
+  expect(view.noticeText()).toContain(
+    `${PRODUCT_NAME} can’t be reached right now`
+  );
 });
 
-test('the cause separates the work-offline choice, the device and Gamezilla', () => {
+test('the cause separates the work-offline choice, the device and the product', () => {
   const base = {
     workingOffline: false,
     deviceOnline: true,
