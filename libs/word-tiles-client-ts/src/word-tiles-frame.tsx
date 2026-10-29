@@ -10,14 +10,13 @@ import {
 } from '@libs/word-tiles-shared-ts/word-tiles-ruleset';
 import { t } from '@lingui/core/macro';
 import {
-  boardOnly,
   type FramePlayerColor,
   type GameFrame,
   standingsByScore,
 } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { JSX } from 'solid-js';
-import { WordTilesBoard } from './word-tiles-board';
+import { createWordTilesBoard } from './word-tiles-board';
 import { seatName } from './word-tiles-panels';
 
 /** Each seat's color, as its name says: amber, teal, violet and coral. */
@@ -69,7 +68,7 @@ export function wordTilesFrame(
       },
       out: () => false,
     },
-    createBoard: boardOnly(WordTilesBoard),
+    createBoard: createWordTilesBoard,
     turnStatus: (position) => {
       const table = decodePosition(position);
       return table === null ? null : tableStatus(table);

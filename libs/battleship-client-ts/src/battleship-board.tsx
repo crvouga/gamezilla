@@ -1,65 +1,35 @@
 import { parseFleet } from '@libs/battleship-shared-ts/battleship-fleet';
-import { sunkShipCells } from '@libs/battleship-shared-ts/battleship-intel';
 import {
   BATTLESHIP_PREFIX,
   decodeBattleshipPosition,
   otherSide,
   readBattleshipPosition,
-  type Shot,
 } from '@libs/battleship-shared-ts/battleship-position';
 import { t } from '@lingui/core/macro';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
-import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import {
   CellGridBoard,
   type CellGridCell,
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { H3 } from '@pkgs/ui-root-client-ts/heading';
 import { PairedPanels } from '@pkgs/ui-root-client-ts/paired-panels';
-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P } from '@pkgs/ui-root-client-ts/text';
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  For,
-  type JSX,
-  on,
-  Show,
-} from 'solid-js';
-import {
-  COLUMN_LABELS,
-  ROW_LABELS,
-  shipName,
-  sideName,
-} from './battleship-copy';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { createEffect, createMemo, createSignal, type JSX, on } from 'solid-js';
+import { COLUMN_LABELS, ROW_LABELS, sideName } from './battleship-copy';
 import { fleetGridCells, shotGridCells } from './battleship-grid-cells';
-import { statusText } from './battleship-status';
 
 type BoardView = 'own' | 'target';
 
-function SunkTags(props: { shots: readonly Shot[] }): JSX.Element {
-  const sunk = createMemo(() => [...sunkShipCells(props.shots).keys()]);
-  return (
-    <Show when={sunk().length > 0}>
-      <StackHorizontal gap="xs" wrap>
-        <For each={sunk()}>
-          {(ship) => {
-            const name = shipName(ship);
-            return <Badge intent="neutral" label={t`${name} sunk`} />;
-          }}
-        </For>
-      </StackHorizontal>
-    </Show>
-  );
-}
+/**
+ * One fleet's waters. The ships it has lost are its seat's facts and the
+ * latest shot is the frame's turn line, so the panel is the grid alone.
+ */
 function BoardPanel(props: {
   label: string;
   testId: string;
   view: BoardView;
   cells: readonly CellGridCell[];
-  shots: readonly Shot[];
   onFire?: (cell: string) => void;
 }): JSX.Element {
   return (
@@ -74,7 +44,6 @@ function BoardPanel(props: {
         cells={props.cells}
         onActivate={props.onFire}
       />
-      <SunkTags shots={props.shots} />
     </>
   );
 }
@@ -143,14 +112,6 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
   );
   return (
     <StackVertical gap="md" testId={props.testId}>
-      <P
-        variant="caption"
-        role="status"
-        aria-live="polite"
-        testId={`${props.testId}-status`}
-      >
-        {statusText(battle(), viewer())}
-      </P>
       <PairedPanels
         label={t`Boards`}
         testId={`${props.testId}-view`}
@@ -164,7 +125,6 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
             testId={props.testId}
             view="own"
             cells={ownCells()}
-            shots={incoming()}
           />
         }
         second={
@@ -173,7 +133,6 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
             testId={props.testId}
             view="target"
             cells={targetCells()}
-            shots={outgoing()}
             onFire={aim.fire}
           />
         }

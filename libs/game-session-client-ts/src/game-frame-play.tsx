@@ -4,6 +4,7 @@ import { Trans } from '@lingui/solid/macro';
 import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import type {
+  GameFrameAction,
   GameFrameBoardProps,
   GameFrameBoardSession,
 } from '@pkgs/turn-game-shared-ts/game-frame';
@@ -180,17 +181,28 @@ export function useFrameBoard(
   return { session, position, interactive, orientation };
 }
 
-/** The board's own actions, as the action bar shows them. */
-function boardItems(board: FrameBoard): readonly GameActionItem[] {
-  return (board.session()?.actions() ?? []).map((action) => ({
+/**
+ * A board's own actions as an action bar shows them, each `${testId}-${id}`
+ * after the board's test id. Matched games use it too.
+ */
+export function frameActionItems(
+  actions: readonly GameFrameAction[],
+  testId: string
+): readonly GameActionItem[] {
+  return actions.map((action) => ({
     id: action.id,
     label: action.label,
-    testId: `${BOARD_TEST_ID}-${action.id}`,
+    testId: `${testId}-${action.id}`,
     onPress: action.run,
     disabled: !action.enabled,
     emphasis: action.emphasis,
     pressed: action.pressed,
   }));
+}
+
+/** The board's own actions, as the action bar shows them. */
+function boardItems(board: FrameBoard): readonly GameActionItem[] {
+  return frameActionItems(board.session()?.actions() ?? [], BOARD_TEST_ID);
 }
 
 /**

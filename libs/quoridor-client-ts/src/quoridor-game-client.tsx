@@ -8,22 +8,9 @@ import {
 } from '@libs/quoridor-shared-ts/quoridor-game';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
-import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
-import type { JSX } from 'solid-js';
 import { QuoridorBoard } from './quoridor-board';
 import { quoridorFrame } from './quoridor-frame';
-
-function Board(props: GameBoardProps): JSX.Element {
-  return (
-    <QuoridorBoard
-      position={props.position}
-      interactive={props.interactive}
-      testId={props.testId}
-      onAction={props.onAction}
-    />
-  );
-}
 
 function sideLabel(side: GameSide, hill: boolean): string {
   if (side === 'white') return t`South red circle`;
@@ -36,9 +23,9 @@ function presentation(hill: boolean): GameClientPresentation {
   return {
     canFlip: false,
     name: () => (hill ? t`Quoridor: King of the Hill` : t`Classic Quoridor`),
-    Board,
+    Board: QuoridorBoard,
     sideLabel: (side) => sideLabel(side, hill),
-    frame: quoridorFrame(hill, Board),
+    frame: quoridorFrame(hill),
     endingDescription: (reason) =>
       reason === 'hill reached'
         ? t`The central hill was reached. Game won.`
