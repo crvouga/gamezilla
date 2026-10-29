@@ -2937,6 +2937,10 @@
       "cache": false,
       "passThroughEnv": ["*"]
     },
+    "//#task:cloc": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
     "//#task:kill": {
       "cache": false,
       "passThroughEnv": ["*"]
