@@ -2860,6 +2860,10 @@
       "cache": false,
       "passThroughEnv": ["*"]
     },
+    "//#task:ci:stats": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
     "//#task:conformance": {
       "cache": false,
       "passThroughEnv": ["*"]
