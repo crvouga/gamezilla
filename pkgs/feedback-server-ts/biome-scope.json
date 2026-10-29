@@ -1,0 +1,5 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-wall-io-defaults.grit": [
+    "!**/pkgs/feedback-server-ts/src/vite-handler.ts"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/sql-client-postgres-shared-ts/src/**/*.{ts,tsx}",
+    "**/pkgs/sql-client-postgres-shared-ts/tests/impl-pg-shared.test.ts",
+    "**/pkgs/sql-client-postgres-shared-ts/tests/normalize-pg-int8.test.ts",
+    "**/pkgs/sql-client-postgres-shared-ts/tests/sanitize-url-for-bun-sql.test.ts",
+    "**/pkgs/sql-client-postgres-shared-ts/tests/sanitize-url-for-node-pg.test.ts"
+  ]
+}

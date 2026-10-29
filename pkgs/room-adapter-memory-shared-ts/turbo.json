@@ -1,0 +1,12 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@pkgs/message-shared-ts#src",
+        "@pkgs/room-root-shared-ts#src"
+      ]
+    }
+  }
+}

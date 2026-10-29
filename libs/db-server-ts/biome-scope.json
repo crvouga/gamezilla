@@ -1,0 +1,8 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-wall-io-defaults.grit": [
+    "!**/libs/db-server-ts/src/database-url-policy-tooling.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-shared-no-wall-io.grit": [
+    "!**/libs/db-server-ts/src/**"
+  ]
+}

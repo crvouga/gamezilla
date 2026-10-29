@@ -13,6 +13,15 @@
     },
     "test:spec:2": {
       "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "src": {
+      "dependsOn": [
+        "@libs/game-session-harness-ts#src",
+        "@libs/harness-ts#src",
+        "@libs/quoridor-client-ts#src",
+        "@libs/quoridor-shared-ts#src",
+        "@pkgs/quint-shared-ts#src"
+      ]
     }
   }
 }

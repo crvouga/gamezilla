@@ -1,0 +1,7 @@
+{
+  "overrides[4]": ["pkgs/chess-board-root-client-ts/src/chess-board.tsx"],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-inline-style-prop.grit": [
+    "!**/pkgs/chess-board-root-client-ts/src/chess-board-promotion.tsx",
+    "!**/pkgs/chess-board-root-client-ts/src/chess-board-feedback.tsx"
+  ]
+}

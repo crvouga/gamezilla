@@ -1,0 +1,17 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-tier-vocabulary.grit": [
+    "!**/libs/billing-shared-ts/src/**",
+    "!**/libs/billing-shared-ts/tests/**",
+    "!**/libs/billing-shared-ts/turbo.json"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-tier-vocabulary-string.grit": [
+    "!**/libs/billing-shared-ts/src/**",
+    "!**/libs/billing-shared-ts/tests/**",
+    "!**/libs/billing-shared-ts/turbo.json"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-access-state-vocabulary.grit": [
+    "!**/libs/billing-shared-ts/src/**",
+    "!**/libs/billing-shared-ts/tests/**",
+    "!**/libs/billing-shared-ts/turbo.json"
+  ]
+}

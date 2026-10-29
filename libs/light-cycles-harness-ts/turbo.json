@@ -7,6 +7,22 @@
     },
     "test:spec:0": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/light-cycles/**"]
+    },
+    "src": {
+      "dependsOn": [
+        "@libs/game-matchmaking-harness-ts#src",
+        "@libs/game-session-harness-ts#src",
+        "@libs/game-session-shared-ts#src",
+        "@libs/harness-ts#src",
+        "@libs/light-cycles-client-ts#src",
+        "@libs/light-cycles-shared-ts#src",
+        "@libs/spaces-harness-ts#src",
+        "@pkgs/harness-root-shared-ts#src",
+        "@pkgs/room-root-harness-ts#src",
+        "@pkgs/room-root-shared-ts#src",
+        "@pkgs/turn-game-shared-ts#src",
+        "@pkgs/ui-testing-root-shared-ts#src"
+      ]
     }
   }
 }

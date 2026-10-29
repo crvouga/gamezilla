@@ -1,0 +1,9 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/sounds-shared-ts/src/in-memory-audio-playback-port.ts",
+    "**/pkgs/sounds-shared-ts/src/ports.ts",
+    "**/pkgs/sounds-shared-ts/src/web-audio-playback-port.ts",
+    "**/pkgs/sounds-shared-ts/src/safe-audio-play.ts",
+    "**/pkgs/sounds-shared-ts/src/sound-engine.ts"
+  ]
+}

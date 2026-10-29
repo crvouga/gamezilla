@@ -1,0 +1,11 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-bare-recursive-rm.grit": [
+    "!**/pkgs/fs-server-ts/src/remove-tree.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-bare-rename-sync.grit": [
+    "!**/pkgs/fs-server-ts/src/rename-replacing.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/fs-server-ts/src/**/*.{ts,tsx}"
+  ]
+}

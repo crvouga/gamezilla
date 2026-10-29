@@ -10,6 +10,27 @@
     },
     "test:spec:0": {
       "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "src": {
+      "dependsOn": [
+        "@libs/app-config-shared-ts#src",
+        "@libs/game-catalog-shared-ts#src",
+        "@libs/game-matchmaking-harness-ts#src",
+        "@libs/game-matchmaking-shared-ts#src",
+        "@libs/game-session-harness-ts#src",
+        "@libs/games-harness-ts#src",
+        "@libs/harness-ts#src",
+        "@libs/permissions-shared-ts#src",
+        "@libs/profile-harness-ts#src",
+        "@libs/spaces-harness-ts#src",
+        "@libs/sub-shared-ts#src",
+        "@libs/synthetic-population-client-ts#src",
+        "@libs/synthetic-population-server-ts#src",
+        "@libs/synthetic-population-shared-ts#src",
+        "@libs/test-ids-shared-ts#src",
+        "@pkgs/sql-root-shared-ts#src",
+        "@pkgs/sync-engine-server-ts#src"
+      ]
     }
   }
 }

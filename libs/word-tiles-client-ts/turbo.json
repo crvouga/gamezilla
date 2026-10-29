@@ -1,0 +1,16 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@libs/game-menu-client-ts#src",
+        "@libs/game-puzzle-client-ts#src",
+        "@libs/word-tiles-shared-ts#src",
+        "@pkgs/turn-game-shared-ts#src",
+        "@pkgs/ui-root-client-ts#src",
+        "@pkgs/uuid-client-ts#src"
+      ]
+    }
+  }
+}

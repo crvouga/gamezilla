@@ -2,6 +2,15 @@
   "$schema": "https://turborepo.com/schema.json",
   "extends": ["//"],
   "tasks": {
-    "test:spec:0": { "inputs": ["$TURBO_EXTENDS$"] }
+    "test:spec:0": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "src": {
+      "dependsOn": [
+        "@libs/game-puzzle-harness-ts#src",
+        "@libs/numberlink-shared-ts#src",
+        "@pkgs/harness-root-shared-ts#src"
+      ]
+    }
   }
 }

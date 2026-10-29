@@ -1,0 +1,3 @@
+{
+  "overrides[3]": ["pkgs/logger-client-ts/src/**"]
+}

@@ -8,6 +8,27 @@
         "$TURBO_ROOT$/specs/conformance.yaml",
         "$TURBO_ROOT$/specs/*/*.dmn"
       ]
+    },
+    "src": {
+      "dependsOn": [
+        "@libs/auth-client-ts#src",
+        "@libs/auth-shared-ts#src",
+        "@libs/permissions-client-ts#src",
+        "@libs/permissions-shared-ts#src",
+        "@pkgs/auth-root-shared-ts#src",
+        "@pkgs/clock-client-ts#src",
+        "@pkgs/clock-shared-ts#src",
+        "@pkgs/db-schema-root-shared-ts#src",
+        "@pkgs/dmn-shared-ts#src",
+        "@pkgs/secure-storage-root-client-ts#src",
+        "@pkgs/secure-storage-root-shared-ts#src",
+        "@pkgs/sql-root-shared-ts#src",
+        "@pkgs/sync-engine-client-ts#src",
+        "@pkgs/sync-engine-harness-ts#src",
+        "@pkgs/sync-engine-shared-ts#src",
+        "@pkgs/uuid-client-ts#src",
+        "@pkgs/uuid-shared-ts#src"
+      ]
     }
   }
 }

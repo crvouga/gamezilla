@@ -1,0 +1,47 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@libs/account-privacy-harness-ts#src",
+        "@libs/auth-shared-ts#src",
+        "@libs/billing-harness-ts#src",
+        "@libs/friends-harness-ts#src",
+        "@libs/friends-shared-ts#src",
+        "@libs/game-matchmaking-client-ts#src",
+        "@libs/game-matchmaking-harness-ts#src",
+        "@libs/game-menu-client-ts#src",
+        "@libs/game-puzzle-client-ts#src",
+        "@libs/game-puzzle-shared-ts#src",
+        "@libs/game-session-client-ts#src",
+        "@libs/game-session-server-ts#src",
+        "@libs/game-session-shared-ts#src",
+        "@libs/harness-ts#src",
+        "@libs/notifications-harness-ts#src",
+        "@libs/permissions-shared-ts#src",
+        "@libs/profile-harness-ts#src",
+        "@libs/search-harness-ts#src",
+        "@libs/spaces-harness-ts#src",
+        "@libs/spaces-shared-ts#src",
+        "@libs/test-ids-shared-ts#src",
+        "@pkgs/a11y-shared-ts#src",
+        "@pkgs/clock-shared-ts#src",
+        "@pkgs/device-shared-ts#src",
+        "@pkgs/gherkin-shared-ts#src",
+        "@pkgs/glicko2-shared-ts#src",
+        "@pkgs/harness-root-shared-ts#src",
+        "@pkgs/property-shared-ts#src",
+        "@pkgs/room-root-shared-ts#src",
+        "@pkgs/sounds-shared-ts#src",
+        "@pkgs/sql-client-root-shared-ts#src",
+        "@pkgs/sql-root-shared-ts#src",
+        "@pkgs/sync-engine-server-ts#src",
+        "@pkgs/sync-engine-shared-ts#src",
+        "@pkgs/turn-game-shared-ts#src",
+        "@pkgs/ui-testing-root-shared-ts#src",
+        "@pkgs/uuid-shared-ts#src"
+      ]
+    }
+  }
+}

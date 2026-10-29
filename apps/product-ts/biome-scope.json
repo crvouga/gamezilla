@@ -1,0 +1,60 @@
+{
+  "files": ["!apps/product-ts/public/sql-workers/**/*.js"],
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-use-label.grit": [
+    "!**/apps/product-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans.grit": [
+    "!**/apps/product-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans-children.grit": [
+    "!**/apps/product-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/lingui-no-trans-inside-trans.grit": [
+    "!**/apps/product-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/lingui-no-single-variables-to-translate.grit": [
+    "!**/apps/product-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-mutation-nondeterminism.grit": [
+    "!**/apps/product-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-sync-engine-framework-leak.grit": [
+    "!**/apps/product-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-di-container.grit": [
+    "!**/apps/product-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-heavy-client-imports.grit": [
+    "!**/apps/product-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-zod-in-pkgs.grit": [
+    "!**/apps/product-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-bare-fs.grit": [
+    "!**/apps/product-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-bare-io.grit": [
+    "!**/apps/product-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-wall-io-defaults.grit": [
+    "!**/apps/product-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-inline-style-prop.grit": [
+    "!**/apps/product-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-raw-create-table.grit": [
+    "!**/apps/product-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-billing-vendor.grit": [
+    "!**/apps/product-ts/**",
+    "!**/apps/product-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-auth-vendor.grit": [
+    "!**/apps/product-ts/**",
+    "!**/apps/product-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-product-no-harness.grit": [
+    "!**/apps/product-ts/src/**",
+    "!**/apps/product-ts/**"
+  ]
+}

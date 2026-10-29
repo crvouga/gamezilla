@@ -100,6 +100,29 @@
     },
     "test:spec:31": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/**"]
+    },
+    "src": {
+      "dependsOn": [
+        "@libs/auth-client-ts#src",
+        "@libs/auth-shared-ts#src",
+        "@libs/chess-puzzle-shared-ts#src",
+        "@libs/chess-root-shared-ts#src",
+        "@libs/game-puzzle-client-ts#src",
+        "@libs/game-puzzle-shared-ts#src",
+        "@libs/permissions-client-ts#src",
+        "@libs/permissions-shared-ts#src",
+        "@libs/test-ids-shared-ts#src",
+        "@pkgs/chess-board-root-client-ts#src",
+        "@pkgs/chess-rules-shared-ts#src",
+        "@pkgs/http-client-client-ts#src",
+        "@pkgs/sounds-client-ts#src",
+        "@pkgs/sounds-shared-ts#src",
+        "@pkgs/sql-root-shared-ts#src",
+        "@pkgs/sync-engine-client-ts#src",
+        "@pkgs/turn-game-shared-ts#src",
+        "@pkgs/ui-root-client-ts#src",
+        "@pkgs/uuid-client-ts#src"
+      ]
     }
   }
 }

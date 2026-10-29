@@ -4,6 +4,54 @@
   "tasks": {
     "schema:snapshot": {
       "cache": false
+    },
+    "src": {
+      "dependsOn": [
+        "@libs/account-privacy-server-ts#src",
+        "@libs/auth-server-ts#src",
+        "@libs/billing-server-ts#src",
+        "@libs/chess-root-server-ts#src",
+        "@libs/db-server-ts#src",
+        "@libs/db-shared-ts#src",
+        "@libs/friends-server-ts#src",
+        "@libs/friends-shared-ts#src",
+        "@libs/game-catalog-shared-ts#src",
+        "@libs/game-puzzle-shared-ts#src",
+        "@libs/game-session-server-ts#src",
+        "@libs/games-shared-ts#src",
+        "@libs/infra-shared-ts#src",
+        "@libs/notifications-server-ts#src",
+        "@libs/runtime-shared-ts#src",
+        "@libs/spaces-server-ts#src",
+        "@libs/sub-shared-ts#src",
+        "@libs/synthetic-population-server-ts#src",
+        "@pkgs/assert-root-shared-ts#src",
+        "@pkgs/auth-inhouse-server-ts#src",
+        "@pkgs/auth-root-shared-ts#src",
+        "@pkgs/billing-root-shared-ts#src",
+        "@pkgs/clock-shared-ts#src",
+        "@pkgs/db-indexes-postgres-shared-ts#src",
+        "@pkgs/db-indexes-root-shared-ts#src",
+        "@pkgs/db-schema-postgres-shared-ts#src",
+        "@pkgs/entity-store-shared-ts#src",
+        "@pkgs/kv-postgres-shared-ts#src",
+        "@pkgs/logger-shared-ts#src",
+        "@pkgs/matchmaking-sql-shared-ts#src",
+        "@pkgs/object-store-node-fs-server-ts#src",
+        "@pkgs/object-store-root-shared-ts#src",
+        "@pkgs/outbox-shared-ts#src",
+        "@pkgs/postgres-sqlite-compat-shared-ts#src",
+        "@pkgs/room-root-shared-ts#src",
+        "@pkgs/secret-store-shared-ts#src",
+        "@pkgs/secrets-config-server-ts#src",
+        "@pkgs/sql-client-postgres-server-ts#src",
+        "@pkgs/sql-client-postgres-shared-ts#src",
+        "@pkgs/sql-client-root-shared-ts#src",
+        "@pkgs/sql-root-shared-ts#src",
+        "@pkgs/sync-engine-shared-ts#src",
+        "@pkgs/turn-game-shared-ts#src",
+        "@pkgs/uuid-shared-ts#src"
+      ]
     }
   }
 }

@@ -1,0 +1,5 @@
+{
+  "overrides[8]": [
+    "pkgs/sql-client-contract-harness-ts/tests/portable-contract.ts"
+  ]
+}

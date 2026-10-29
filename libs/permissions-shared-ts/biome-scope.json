@@ -1,0 +1,27 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-tier-vocabulary.grit": [
+    "!**/libs/permissions-shared-ts/src/**",
+    "!**/libs/permissions-shared-ts/tests/**",
+    "!**/libs/permissions-shared-ts/turbo.json"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-tier-vocabulary-string.grit": [
+    "!**/libs/permissions-shared-ts/src/**",
+    "!**/libs/permissions-shared-ts/tests/**",
+    "!**/libs/permissions-shared-ts/turbo.json"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-access-facts.grit": [
+    "!**/libs/permissions-shared-ts/src/**",
+    "!**/libs/permissions-shared-ts/tests/**",
+    "!**/libs/permissions-shared-ts/turbo.json"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-access-model.grit": [
+    "!**/libs/permissions-shared-ts/src/**",
+    "!**/libs/permissions-shared-ts/tests/**",
+    "!**/libs/permissions-shared-ts/turbo.json"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-access-state-vocabulary.grit": [
+    "!**/libs/permissions-shared-ts/src/**",
+    "!**/libs/permissions-shared-ts/tests/**",
+    "!**/libs/permissions-shared-ts/turbo.json"
+  ]
+}

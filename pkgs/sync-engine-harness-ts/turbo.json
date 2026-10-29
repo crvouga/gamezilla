@@ -16,6 +16,23 @@
     },
     "test:spec:3": {
       "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "src": {
+      "dependsOn": [
+        "@pkgs/clock-shared-ts#src",
+        "@pkgs/db-schema-root-shared-ts#src",
+        "@pkgs/db-schema-sqlite-shared-ts#src",
+        "@pkgs/harness-root-shared-ts#src",
+        "@pkgs/http-client-shared-ts#src",
+        "@pkgs/pubsub-root-shared-ts#src",
+        "@pkgs/sql-client-root-shared-ts#src",
+        "@pkgs/sql-client-sqlite-root-server-ts#src",
+        "@pkgs/sql-root-shared-ts#src",
+        "@pkgs/sync-engine-client-ts#src",
+        "@pkgs/sync-engine-server-ts#src",
+        "@pkgs/sync-engine-shared-ts#src",
+        "@pkgs/uuid-shared-ts#src"
+      ]
     }
   }
 }

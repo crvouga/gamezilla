@@ -7,6 +7,20 @@
     },
     "test:spec:0": {
       "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "src": {
+      "dependsOn": [
+        "@pkgs/attribute-shared-ts#src",
+        "@pkgs/clock-shared-ts#src",
+        "@pkgs/harness-root-shared-ts#src",
+        "@pkgs/message-shared-ts#src",
+        "@pkgs/property-shared-ts#src",
+        "@pkgs/room-adapter-memory-shared-ts#src",
+        "@pkgs/room-root-client-ts#src",
+        "@pkgs/room-root-server-ts#src",
+        "@pkgs/room-root-shared-ts#src",
+        "@pkgs/uuid-shared-ts#src"
+      ]
     }
   }
 }

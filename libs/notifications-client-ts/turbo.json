@@ -1,0 +1,27 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@libs/auth-client-ts#src",
+        "@libs/moderation-client-ts#src",
+        "@libs/moderation-shared-ts#src",
+        "@libs/notifications-shared-ts#src",
+        "@libs/permissions-client-ts#src",
+        "@libs/permissions-shared-ts#src",
+        "@libs/sub-client-ts#src",
+        "@libs/test-ids-shared-ts#src",
+        "@pkgs/clock-client-ts#src",
+        "@pkgs/http-client-client-ts#src",
+        "@pkgs/http-client-shared-ts#src",
+        "@pkgs/solid-context-client-ts#src",
+        "@pkgs/sounds-client-ts#src",
+        "@pkgs/sounds-shared-ts#src",
+        "@pkgs/sync-engine-client-ts#src",
+        "@pkgs/ui-root-client-ts#src",
+        "@pkgs/ui-root-shared-ts#src"
+      ]
+    }
+  }
+}

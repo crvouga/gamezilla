@@ -1,0 +1,22 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@pkgs/clock-client-ts#src",
+        "@pkgs/clock-shared-ts#src",
+        "@pkgs/harness-console-shared-ts#src",
+        "@pkgs/i18n-shared-ts#src",
+        "@pkgs/object-store-root-shared-ts#src",
+        "@pkgs/sql-client-root-shared-ts#src",
+        "@pkgs/sql-root-shared-ts#src",
+        "@pkgs/ui-devtools-client-ts#src",
+        "@pkgs/ui-devtools-shared-ts#src",
+        "@pkgs/ui-root-client-ts#src",
+        "@pkgs/ui-root-shared-ts#src",
+        "@pkgs/uuid-client-ts#src"
+      ]
+    }
+  }
+}

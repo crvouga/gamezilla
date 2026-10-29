@@ -1,0 +1,8 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-raw-create-table.grit": [
+    "!**/pkgs/db-schema-postgres-shared-ts/src/emit.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/db-schema-postgres-shared-ts/src/**/*.{ts,tsx}"
+  ]
+}

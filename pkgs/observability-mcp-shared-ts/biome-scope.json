@@ -1,0 +1,8 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-boundary-imports.grit": [
+    "!**/pkgs/observability-mcp-shared-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-no-node-runtime.grit": [
+    "!**/pkgs/observability-mcp-shared-ts/src/**"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@pkgs/assert-root-shared-ts#src",
+        "@pkgs/clock-shared-ts#src",
+        "@pkgs/keyword-shared-ts#src",
+        "@pkgs/message-shared-ts#src",
+        "@pkgs/uuid-shared-ts#src"
+      ]
+    }
+  }
+}

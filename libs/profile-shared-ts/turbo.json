@@ -1,0 +1,19 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@libs/auth-shared-ts#src",
+        "@libs/moderation-shared-ts#src",
+        "@libs/sub-shared-ts#src",
+        "@pkgs/attribute-shared-ts#src",
+        "@pkgs/db-schema-root-shared-ts#src",
+        "@pkgs/sql-client-root-shared-ts#src",
+        "@pkgs/sql-root-shared-ts#src",
+        "@pkgs/sync-engine-shared-ts#src",
+        "@pkgs/uuid-shared-ts#src"
+      ]
+    }
+  }
+}

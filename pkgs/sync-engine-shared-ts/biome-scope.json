@@ -1,0 +1,56 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-locale-apis.grit": [
+    "**/pkgs/sync-engine-shared-ts/src/define-mutation.ts",
+    "**/pkgs/sync-engine-shared-ts/src/failures.ts",
+    "**/pkgs/sync-engine-shared-ts/src/mutations-registry.ts",
+    "**/pkgs/sync-engine-shared-ts/src/mutations-types.ts",
+    "**/pkgs/sync-engine-shared-ts/src/acknowledge-write-rejection.ts",
+    "**/pkgs/sync-engine-shared-ts/src/inject-managed-columns.ts",
+    "**/pkgs/sync-engine-shared-ts/src/managed-columns.ts",
+    "**/pkgs/sync-engine-shared-ts/src/soft-delete.ts",
+    "**/pkgs/sync-engine-shared-ts/src/table-policy.ts",
+    "**/pkgs/sync-engine-shared-ts/src/with-framework-mutations.ts",
+    "**/pkgs/sync-engine-shared-ts/src/wrap-mutation-db.ts",
+    "**/pkgs/sync-engine-shared-ts/src/app-lifecycle.ts",
+    "**/pkgs/sync-engine-shared-ts/src/interaction-correlation.ts",
+    "**/pkgs/sync-engine-shared-ts/src/push-applied.ts",
+    "**/pkgs/sync-engine-shared-ts/src/storage-full-error.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-optional-io.grit": [
+    "**/pkgs/sync-engine-shared-ts/src/define-mutation.ts",
+    "**/pkgs/sync-engine-shared-ts/src/failures.ts",
+    "**/pkgs/sync-engine-shared-ts/src/mutations-registry.ts",
+    "**/pkgs/sync-engine-shared-ts/src/mutations-types.ts",
+    "**/pkgs/sync-engine-shared-ts/src/acknowledge-write-rejection.ts",
+    "**/pkgs/sync-engine-shared-ts/src/inject-managed-columns.ts",
+    "**/pkgs/sync-engine-shared-ts/src/managed-columns.ts",
+    "**/pkgs/sync-engine-shared-ts/src/soft-delete.ts",
+    "**/pkgs/sync-engine-shared-ts/src/table-policy.ts",
+    "**/pkgs/sync-engine-shared-ts/src/with-framework-mutations.ts",
+    "**/pkgs/sync-engine-shared-ts/src/wrap-mutation-db.ts",
+    "**/pkgs/sync-engine-shared-ts/src/app-lifecycle.ts",
+    "**/pkgs/sync-engine-shared-ts/src/interaction-correlation.ts",
+    "**/pkgs/sync-engine-shared-ts/src/push-applied.ts",
+    "**/pkgs/sync-engine-shared-ts/src/storage-full-error.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-legacy-writes.grit": [
+    "!**/pkgs/sync-engine-shared-ts/src/define-mutation.ts",
+    "!**/pkgs/sync-engine-shared-ts/src/failures.ts",
+    "!**/pkgs/sync-engine-shared-ts/src/mutations-registry.ts",
+    "!**/pkgs/sync-engine-shared-ts/src/mutations-types.ts",
+    "!**/pkgs/sync-engine-shared-ts/src/acknowledge-write-rejection.ts",
+    "!**/pkgs/sync-engine-shared-ts/src/inject-managed-columns.ts",
+    "!**/pkgs/sync-engine-shared-ts/src/managed-columns.ts",
+    "!**/pkgs/sync-engine-shared-ts/src/soft-delete.ts",
+    "!**/pkgs/sync-engine-shared-ts/src/table-policy.ts",
+    "!**/pkgs/sync-engine-shared-ts/src/with-framework-mutations.ts",
+    "!**/pkgs/sync-engine-shared-ts/src/wrap-mutation-db.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-sync-engine-terminology.grit": [
+    "**/pkgs/sync-engine-shared-ts/src/**/*.{ts,tsx}",
+    "**/pkgs/sync-engine-shared-ts/tests/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-boundary-imports.grit": [
+    "!**/pkgs/sync-engine-shared-ts/src/mutation-observability.ts"
+  ]
+}

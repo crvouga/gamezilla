@@ -1,0 +1,26 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@libs/app-root-server-ts#src",
+        "@libs/app-root-shared-ts#src",
+        "@libs/auth-shared-ts#src",
+        "@libs/friends-shared-ts#src",
+        "@libs/notifications-server-ts#src",
+        "@libs/notifications-shared-ts#src",
+        "@libs/profile-shared-ts#src",
+        "@libs/sub-shared-ts#src",
+        "@pkgs/assert-root-shared-ts#src",
+        "@pkgs/clock-shared-ts#src",
+        "@pkgs/outbox-shared-ts#src",
+        "@pkgs/sounds-shared-ts#src",
+        "@pkgs/sql-client-root-shared-ts#src",
+        "@pkgs/sql-root-shared-ts#src",
+        "@pkgs/sync-engine-shared-ts#src",
+        "@pkgs/uuid-shared-ts#src"
+      ]
+    }
+  }
+}

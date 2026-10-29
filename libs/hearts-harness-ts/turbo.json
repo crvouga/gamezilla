@@ -2,9 +2,27 @@
   "$schema": "https://turborepo.com/schema.json",
   "extends": ["//"],
   "tasks": {
-    "test:spec:0": { "inputs": ["$TURBO_EXTENDS$"] },
-    "test:spec:1": { "inputs": ["$TURBO_EXTENDS$"] },
-    "test:spec:2": { "inputs": ["$TURBO_EXTENDS$"] },
-    "test:spec:3": { "inputs": ["$TURBO_EXTENDS$"] }
+    "test:spec:0": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:1": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:2": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:3": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "src": {
+      "dependsOn": [
+        "@libs/game-session-harness-ts#src",
+        "@libs/harness-ts#src",
+        "@libs/hearts-client-ts#src",
+        "@libs/hearts-shared-ts#src",
+        "@libs/spaces-harness-ts#src",
+        "@pkgs/turn-game-shared-ts#src"
+      ]
+    }
   }
 }

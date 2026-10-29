@@ -24,6 +24,9 @@
       "env": [],
       "passThroughEnv": ["DEVELOPER_DIR", "HOME"],
       "outputs": []
+    },
+    "src": {
+      "dependsOn": []
     }
   }
 }

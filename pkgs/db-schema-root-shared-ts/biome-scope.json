@@ -1,0 +1,11 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-locale-apis.grit": [
+    "**/pkgs/db-schema-root-shared-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-optional-io.grit": [
+    "**/pkgs/db-schema-root-shared-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/db-schema-root-shared-ts/src/**/*.{ts,tsx}"
+  ]
+}

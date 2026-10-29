@@ -1,0 +1,5 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-game-implementation.grit": [
+    "**/libs/game-menu-client-ts/src/**/*.{ts,tsx}"
+  ]
+}

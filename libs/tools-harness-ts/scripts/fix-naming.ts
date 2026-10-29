@@ -27,8 +27,8 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
-import { renameReplacing } from '@pkgs/os-server-ts/rename-replacing';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
+import { renameReplacing } from '@pkgs/fs-server-ts/rename-replacing';
 import type { RenamePlan } from '../naming/rename-plan';
 import { planRenames } from '../naming/rename-plan';
 import type { Finding, RewriteContext } from '../naming/rewrite-references';
@@ -80,7 +80,7 @@ function readJson(path: string): unknown {
 
 function loadAliases(paths: readonly string[]): AliasRule[] {
   const rules: AliasRule[] = [];
-  for (const tsconfig of ['tsconfig.base.json', 'tsconfig.json']) {
+  for (const tsconfig of ['tsconfig.paths.json', 'tsconfig.json']) {
     const json = readJson(tsconfig) as {
       compilerOptions?: { paths?: Record<string, unknown> };
     };

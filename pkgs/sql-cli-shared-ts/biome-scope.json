@@ -1,0 +1,13 @@
+{
+  "overrides[3]": [
+    "pkgs/sql-cli-shared-ts/src/**",
+    "pkgs/sql-cli-shared-ts/tests/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-locale-apis.grit": [
+    "!**/pkgs/sql-cli-shared-ts/src/summary.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/sql-cli-shared-ts/src/**/*.{ts,tsx}",
+    "**/pkgs/sql-cli-shared-ts/tests/**/*.{ts,tsx}"
+  ]
+}

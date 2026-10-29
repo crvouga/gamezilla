@@ -1,0 +1,6 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/database-url-policy-shared-ts/src/**/*.{ts,tsx}",
+    "**/pkgs/database-url-policy-shared-ts/tests/**/*.{ts,tsx}"
+  ]
+}

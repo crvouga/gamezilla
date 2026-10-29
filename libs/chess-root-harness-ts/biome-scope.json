@@ -1,0 +1,13 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans.grit": [
+    "**/libs/chess-root-harness-ts/src/**/*.{ts,tsx}",
+    "**/libs/chess-root-harness-ts/tests/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans-children.grit": [
+    "**/libs/chess-root-harness-ts/src/**/*.{ts,tsx}",
+    "**/libs/chess-root-harness-ts/tests/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-tier-words-puzzle.grit": [
+    "**/libs/chess-root-harness-ts/src/**/*.{ts,tsx}"
+  ]
+}

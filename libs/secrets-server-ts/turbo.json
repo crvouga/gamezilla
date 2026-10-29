@@ -1,0 +1,23 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@libs/infra-shared-ts#src",
+        "@libs/observability-shared-ts#src",
+        "@libs/secrets-shared-ts#src",
+        "@pkgs/assert-root-shared-ts#src",
+        "@pkgs/billing-providers-server-ts#src",
+        "@pkgs/billing-root-shared-ts#src",
+        "@pkgs/database-url-policy-shared-ts#src",
+        "@pkgs/logger-shared-ts#src",
+        "@pkgs/object-store-node-fs-server-ts#src",
+        "@pkgs/secret-provider-server-ts#src",
+        "@pkgs/secret-provider-shared-ts#src",
+        "@pkgs/secret-store-shared-ts#src",
+        "@pkgs/sql-client-postgres-server-ts#src"
+      ]
+    }
+  }
+}

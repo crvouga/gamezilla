@@ -1,0 +1,6 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/secure-storage-root-shared-ts/src/interface.ts",
+    "**/pkgs/secure-storage-root-shared-ts/src/secure-storage-store.ts"
+  ]
+}

@@ -408,6 +408,17 @@
         "@pkgs/conformance-server-ts#src",
         "@pkgs/conformance-shared-ts#src"
       ]
+    },
+    "src": {
+      "dependsOn": [
+        "@libs/auth-shared-ts#src",
+        "@libs/harness-ts#src",
+        "@libs/moderation-shared-ts#src",
+        "@libs/profile-client-ts#src",
+        "@libs/profile-shared-ts#src",
+        "@libs/test-ids-shared-ts#src",
+        "@pkgs/sql-root-shared-ts#src"
+      ]
     }
   }
 }

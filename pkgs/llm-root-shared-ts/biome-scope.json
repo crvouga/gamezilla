@@ -1,0 +1,10 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans.grit": [
+    "**/pkgs/llm-root-shared-ts/src/**/*.{ts,tsx}",
+    "**/pkgs/llm-root-shared-ts/tests/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans-children.grit": [
+    "**/pkgs/llm-root-shared-ts/src/**/*.{ts,tsx}",
+    "**/pkgs/llm-root-shared-ts/tests/**/*.{ts,tsx}"
+  ]
+}

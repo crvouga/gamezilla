@@ -1,0 +1,70 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-use-label.grit": [
+    "!**/libs/harness-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans.grit": [
+    "!**/libs/harness-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans-children.grit": [
+    "!**/libs/harness-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/lingui-no-trans-inside-trans.grit": [
+    "!**/libs/harness-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/lingui-no-single-variables-to-translate.grit": [
+    "!**/libs/harness-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-mutation-nondeterminism.grit": [
+    "!**/libs/harness-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-sync-engine-framework-leak.grit": [
+    "!**/libs/harness-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-di-container.grit": [
+    "!**/libs/harness-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-heavy-client-imports.grit": [
+    "!**/libs/harness-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-zod-in-pkgs.grit": [
+    "!**/libs/harness-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-bare-fs.grit": [
+    "!**/libs/harness-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-bare-io.grit": [
+    "!**/libs/harness-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-wall-io-defaults.grit": [
+    "!**/libs/harness-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-inline-style-prop.grit": [
+    "!**/libs/harness-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-dst-raw-selectors.grit": [
+    "**/libs/harness-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-raw-create-table.grit": [
+    "!**/libs/harness-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-billing-vendor.grit": [
+    "!**/libs/harness-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-access-state-vocabulary.grit": [
+    "!**/libs/harness-ts/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-auth-vendor.grit": [
+    "!**/libs/harness-ts/src/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-product-no-harness.grit": [
+    "!**/libs/harness-ts/src/**",
+    "!**/libs/harness-ts/scripts/**"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-boundary-imports.grit": [
+    "!**/libs/harness-ts/src/test-failure-spans.ts",
+    "!**/libs/harness-ts/src/preload.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-no-node-runtime.grit": [
+    "!**/libs/harness-ts/src/preload.ts"
+  ]
+}

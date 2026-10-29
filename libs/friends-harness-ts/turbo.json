@@ -200,6 +200,27 @@
     },
     "test:spec:9": {
       "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "src": {
+      "dependsOn": [
+        "@libs/auth-shared-ts#src",
+        "@libs/billing-harness-ts#src",
+        "@libs/friends-client-ts#src",
+        "@libs/friends-server-ts#src",
+        "@libs/friends-shared-ts#src",
+        "@libs/harness-ts#src",
+        "@libs/notifications-harness-ts#src",
+        "@libs/profile-harness-ts#src",
+        "@libs/search-harness-ts#src",
+        "@libs/spaces-harness-ts#src",
+        "@libs/test-ids-shared-ts#src",
+        "@libs/user-search-shared-ts#src",
+        "@pkgs/harness-root-shared-ts#src",
+        "@pkgs/quint-shared-ts#src",
+        "@pkgs/sql-root-shared-ts#src",
+        "@pkgs/sync-engine-client-ts#src",
+        "@pkgs/sync-engine-shared-ts#src"
+      ]
     }
   }
 }

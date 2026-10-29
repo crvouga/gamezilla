@@ -1,0 +1,30 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@libs/chess-puzzle-shared-ts#src",
+        "@libs/chess-sub-shared-ts#src",
+        "@libs/game-puzzle-shared-ts#src",
+        "@libs/infra-shared-ts#src",
+        "@pkgs/assert-root-shared-ts#src",
+        "@pkgs/clock-shared-ts#src",
+        "@pkgs/database-url-policy-server-ts#src",
+        "@pkgs/db-migrate-shared-ts#src",
+        "@pkgs/http-client-shared-ts#src",
+        "@pkgs/logger-shared-ts#src",
+        "@pkgs/object-store-node-fs-server-ts#src",
+        "@pkgs/object-store-root-shared-ts#src",
+        "@pkgs/pubsub-root-shared-ts#src",
+        "@pkgs/secret-store-shared-ts#src",
+        "@pkgs/secrets-config-server-ts#src",
+        "@pkgs/sql-client-postgres-server-ts#src",
+        "@pkgs/sql-client-root-shared-ts#src",
+        "@pkgs/sql-root-shared-ts#src",
+        "@pkgs/sync-engine-server-ts#src",
+        "@pkgs/uuid-shared-ts#src"
+      ]
+    }
+  }
+}

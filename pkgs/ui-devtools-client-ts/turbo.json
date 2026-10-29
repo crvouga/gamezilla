@@ -1,0 +1,14 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@pkgs/async-root-client-ts#src",
+        "@pkgs/ui-devtools-shared-ts#src",
+        "@pkgs/ui-root-client-ts#src",
+        "@pkgs/ui-root-shared-ts#src"
+      ]
+    }
+  }
+}

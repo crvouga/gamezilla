@@ -368,7 +368,7 @@ New packages are wired like any other package; each omission fails a check:
 
 | Setup | Check that fails without it |
 | --- | --- |
-| `tsconfig.base.json` paths and the root `tsconfig.json` include | `tc` |
+| `tsconfig.paths.json` paths and the root `tsconfig.json` include | `tc` |
 | A client package using Lingui macros in `LINGUI_CATALOG_SOURCES` (`libs/tools-harness-ts/scripts/lingui-scope.ts`) and the `@libs/tools-harness-ts#ci:i18n` inputs | the package's `lint`, `ci-i18n.test.ts` |
 | Solid lint scope (`libs/tools-harness-ts/port/solid-scope.json`) | the package's `lint` |
 | `specs/race/` listed in `specs/conformance.yaml` contexts and the context map (`specs/README.md`) | `@libs/tools-harness-ts#ci:conformance`, `bun spec:verify` |

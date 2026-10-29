@@ -1,0 +1,8 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-raw-create-table.grit": [
+    "!**/pkgs/sql-client-root-shared-ts/tests/agnostic-sql.test.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/sql-client-root-shared-ts/src/interface.ts"
+  ]
+}

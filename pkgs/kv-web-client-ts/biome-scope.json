@@ -1,0 +1,6 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/kv-web-client-ts/src/**/*.{ts,tsx}",
+    "**/pkgs/kv-web-client-ts/tests/**/*.{ts,tsx}"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-pubsub-emqx-imports.grit": [
+    "!**/pkgs/pubsub-emqx-shared-ts/src/**",
+    "!**/pkgs/pubsub-emqx-shared-ts/tests/**",
+    "!**/pkgs/pubsub-emqx-shared-ts/README.md"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/pubsub-emqx-shared-ts/src/**/*.{ts,tsx}",
+    "**/pkgs/pubsub-emqx-shared-ts/tests/**/*.{ts,tsx}"
+  ]
+}

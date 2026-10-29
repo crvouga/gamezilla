@@ -1,0 +1,22 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@libs/game-matchmaking-client-ts#src",
+        "@libs/game-matchmaking-shared-ts#src",
+        "@libs/game-puzzle-client-ts#src",
+        "@libs/game-session-client-ts#src",
+        "@libs/game-session-shared-ts#src",
+        "@libs/permissions-shared-ts#src",
+        "@libs/spaces-client-ts#src",
+        "@libs/spaces-shared-ts#src",
+        "@libs/sub-client-ts#src",
+        "@libs/test-ids-shared-ts#src",
+        "@pkgs/turn-game-shared-ts#src",
+        "@pkgs/ui-root-client-ts#src"
+      ]
+    }
+  }
+}

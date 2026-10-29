@@ -7,6 +7,16 @@
     },
     "verify:models": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/sokoban/*.qnt"]
+    },
+    "src": {
+      "dependsOn": [
+        "@libs/game-puzzle-harness-ts#src",
+        "@libs/sokoban-client-ts#src",
+        "@libs/sokoban-shared-ts#src",
+        "@pkgs/harness-root-shared-ts#src",
+        "@pkgs/sync-engine-harness-ts#src",
+        "@pkgs/turn-game-shared-ts#src"
+      ]
     }
   }
 }

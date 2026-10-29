@@ -1,0 +1,6 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/kv-root-shared-ts/src/interface.ts",
+    "**/pkgs/kv-root-shared-ts/src/kv-state-codec.ts"
+  ]
+}

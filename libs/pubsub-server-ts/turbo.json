@@ -1,0 +1,17 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@libs/app-config-shared-ts#src",
+        "@libs/pubsub-shared-ts#src",
+        "@libs/sub-shared-ts#src",
+        "@pkgs/http-client-shared-ts#src",
+        "@pkgs/pubsub-emqx-shared-ts#src",
+        "@pkgs/pubsub-root-shared-ts#src",
+        "@pkgs/secret-store-shared-ts#src"
+      ]
+    }
+  }
+}

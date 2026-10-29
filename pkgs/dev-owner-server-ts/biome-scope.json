@@ -1,0 +1,8 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-bare-rename-sync.grit": [
+    "!**/pkgs/dev-owner-server-ts/src/dev-owner*.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/dev-owner-server-ts/src/**/*.{ts,tsx}"
+  ]
+}

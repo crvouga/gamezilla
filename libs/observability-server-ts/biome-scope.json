@@ -1,0 +1,7 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-boundary-imports.grit": [
+    "!**/libs/observability-server-ts/src/person-trouble-document.ts",
+    "!**/libs/observability-server-ts/src/person-trouble-probe.ts",
+    "!**/libs/observability-server-ts/src/app-trace-probe.ts"
+  ]
+}

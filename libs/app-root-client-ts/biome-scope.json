@@ -1,0 +1,31 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans.grit": [
+    "**/libs/app-root-client-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans-children.grit": [
+    "**/libs/app-root-client-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-nested-await.grit": [
+    "**/libs/app-root-client-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-sync-engine-terminology.grit": [
+    "**/libs/app-root-client-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-pubsub-emqx-imports.grit": [
+    "!**/libs/app-root-client-ts/src/create-client-pubsub.ts",
+    "!**/libs/app-root-client-ts/src/pubsub-token.ts",
+    "!**/libs/app-root-client-ts/src/sync-api.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-auth-vendor.grit": [
+    "!**/libs/app-root-client-ts/src/wall-client-env.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-boundary-imports.grit": [
+    "!**/libs/app-root-client-ts/src/boot-browser-observability.ts",
+    "!**/libs/app-root-client-ts/src/browser-boundaries.ts",
+    "!**/libs/app-root-client-ts/src/browser-identity.ts",
+    "!**/libs/app-root-client-ts/src/wall-client-env.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-no-browser-runtime.grit": [
+    "!**/libs/app-root-client-ts/src/boot-browser-observability.ts"
+  ]
+}

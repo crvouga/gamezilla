@@ -1,0 +1,11 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans.grit": [
+    "**/libs/chess-shared-client-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans-children.grit": [
+    "**/libs/chess-shared-client-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-tier-words-puzzle.grit": [
+    "**/libs/chess-shared-client-ts/src/**/*.{ts,tsx}"
+  ]
+}

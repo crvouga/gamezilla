@@ -1,0 +1,13 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@pkgs/moderation-shared-ts#src",
+        "@pkgs/sync-engine-shared-ts#src",
+        "@pkgs/word-filter-shared-ts#src"
+      ]
+    }
+  }
+}

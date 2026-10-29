@@ -456,6 +456,35 @@
         "$TURBO_ROOT$/specs/friends/**",
         "$TURBO_ROOT$/specs/spaces/**"
       ]
+    },
+    "src": {
+      "dependsOn": [
+        "@libs/app-root-client-ts#src",
+        "@libs/auth-client-ts#src",
+        "@libs/auth-shared-ts#src",
+        "@libs/friends-shared-ts#src",
+        "@libs/moderation-client-ts#src",
+        "@libs/moderation-shared-ts#src",
+        "@libs/notifications-client-ts#src",
+        "@libs/notifications-shared-ts#src",
+        "@libs/permissions-client-ts#src",
+        "@libs/permissions-shared-ts#src",
+        "@libs/profile-client-ts#src",
+        "@libs/profile-shared-ts#src",
+        "@libs/search-client-ts#src",
+        "@libs/spaces-client-ts#src",
+        "@libs/sub-client-ts#src",
+        "@libs/test-ids-shared-ts#src",
+        "@libs/user-search-shared-ts#src",
+        "@pkgs/http-client-client-ts#src",
+        "@pkgs/sounds-client-ts#src",
+        "@pkgs/sounds-shared-ts#src",
+        "@pkgs/sql-root-shared-ts#src",
+        "@pkgs/sync-engine-client-ts#src",
+        "@pkgs/ui-root-client-ts#src",
+        "@pkgs/ui-root-shared-ts#src",
+        "@pkgs/uuid-client-ts#src"
+      ]
     }
   }
 }

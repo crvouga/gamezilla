@@ -10,6 +10,14 @@
     },
     "test": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/db-indexes/*.qnt"]
+    },
+    "src": {
+      "dependsOn": [
+        "@pkgs/assert-root-shared-ts#src",
+        "@pkgs/clock-shared-ts#src",
+        "@pkgs/db-indexes-root-shared-ts#src",
+        "@pkgs/harness-root-shared-ts#src"
+      ]
     }
   }
 }

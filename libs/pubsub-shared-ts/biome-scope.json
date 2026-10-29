@@ -1,0 +1,9 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-shared-no-wall-io.grit": [
+    "!**/libs/pubsub-shared-ts/src/**",
+    "!**/libs/pubsub-shared-ts/emqx-deploy/Caddyfile",
+    "!**/libs/pubsub-shared-ts/emqx-deploy/Dockerfile",
+    "!**/libs/pubsub-shared-ts/emqx-deploy/config/emqx.conf",
+    "!**/libs/pubsub-shared-ts/emqx-deploy/docker-entrypoint.sh"
+  ]
+}

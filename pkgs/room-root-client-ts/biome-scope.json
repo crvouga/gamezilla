@@ -1,0 +1,32 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-locale-apis.grit": [
+    "**/pkgs/room-root-client-ts/src/room-client-core.ts",
+    "**/pkgs/room-root-client-ts/src/room-client-persist.ts",
+    "**/pkgs/room-root-client-ts/src/room-client-snapshot.ts",
+    "**/pkgs/room-root-client-ts/src/room-client-wire.ts",
+    "**/pkgs/room-root-client-ts/src/room-client.ts",
+    "**/pkgs/room-root-client-ts/src/room-meta.ts",
+    "**/pkgs/room-root-client-ts/src/room-optimistic-effects.ts",
+    "**/pkgs/room-root-client-ts/src/wipe-local-cache.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-optional-io.grit": [
+    "**/pkgs/room-root-client-ts/src/room-client-core.ts",
+    "**/pkgs/room-root-client-ts/src/room-client-persist.ts",
+    "**/pkgs/room-root-client-ts/src/room-client-snapshot.ts",
+    "**/pkgs/room-root-client-ts/src/room-client-wire.ts",
+    "**/pkgs/room-root-client-ts/src/room-client.ts",
+    "**/pkgs/room-root-client-ts/src/room-meta.ts",
+    "**/pkgs/room-root-client-ts/src/room-optimistic-effects.ts",
+    "**/pkgs/room-root-client-ts/src/wipe-local-cache.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-shared-no-wall-io.grit": [
+    "**/pkgs/room-root-client-ts/src/room-client-core.ts",
+    "**/pkgs/room-root-client-ts/src/room-client-persist.ts",
+    "**/pkgs/room-root-client-ts/src/room-client-snapshot.ts",
+    "**/pkgs/room-root-client-ts/src/room-client-wire.ts",
+    "**/pkgs/room-root-client-ts/src/room-client.ts",
+    "**/pkgs/room-root-client-ts/src/room-meta.ts",
+    "**/pkgs/room-root-client-ts/src/room-optimistic-effects.ts",
+    "**/pkgs/room-root-client-ts/src/wipe-local-cache.ts"
+  ]
+}

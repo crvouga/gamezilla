@@ -1,0 +1,8 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/pkgs/billing-stripe-harness-ts/src/**/*.{ts,tsx}",
+    "**/pkgs/billing-stripe-harness-ts/tests/offer-reconcile.test.ts",
+    "**/pkgs/billing-stripe-harness-ts/tests/stripe-membership.contract.test.ts",
+    "**/pkgs/billing-stripe-harness-ts/tests/stripe-membership.test.ts"
+  ]
+}

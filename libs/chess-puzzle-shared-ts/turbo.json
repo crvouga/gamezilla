@@ -1,0 +1,24 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "dependsOn": [
+        "@libs/chess-root-shared-ts#src",
+        "@libs/game-puzzle-shared-ts#src",
+        "@libs/permissions-shared-ts#src",
+        "@libs/spaces-shared-ts#src",
+        "@pkgs/attribute-shared-ts#src",
+        "@pkgs/chess-board-core-shared-ts#src",
+        "@pkgs/chess-rules-shared-ts#src",
+        "@pkgs/db-schema-root-shared-ts#src",
+        "@pkgs/message-shared-ts#src",
+        "@pkgs/outbox-shared-ts#src",
+        "@pkgs/room-root-shared-ts#src",
+        "@pkgs/sql-root-shared-ts#src",
+        "@pkgs/sync-engine-shared-ts#src",
+        "@pkgs/turn-game-shared-ts#src"
+      ]
+    }
+  }
+}

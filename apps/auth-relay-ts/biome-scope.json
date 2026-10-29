@@ -1,0 +1,5 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-auth-vendor.grit": [
+    "!**/apps/auth-relay-ts/src/worker.ts"
+  ]
+}

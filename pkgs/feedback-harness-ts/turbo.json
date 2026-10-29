@@ -4,6 +4,17 @@
   "tasks": {
     "test:spec:0": {
       "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "src": {
+      "dependsOn": [
+        "@pkgs/clock-client-ts#src",
+        "@pkgs/feedback-client-ts#src",
+        "@pkgs/feedback-server-ts#src",
+        "@pkgs/feedback-shared-ts#src",
+        "@pkgs/harness-root-shared-ts#src",
+        "@pkgs/object-store-root-shared-ts#src",
+        "@pkgs/ui-root-client-ts#src"
+      ]
     }
   }
 }

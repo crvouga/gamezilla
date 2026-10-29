@@ -1,0 +1,17 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans.grit": [
+    "**/libs/chess-puzzle-shared-ts/src/**/*.{ts,tsx}",
+    "**/libs/chess-puzzle-shared-ts/tests/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans-children.grit": [
+    "**/libs/chess-puzzle-shared-ts/src/**/*.{ts,tsx}",
+    "**/libs/chess-puzzle-shared-ts/tests/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-tier-words-puzzle.grit": [
+    "**/libs/chess-puzzle-shared-ts/src/**/*.{ts,tsx}",
+    "**/libs/chess-puzzle-shared-ts/tests/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-no-ui-framework.grit": [
+    "**/libs/chess-puzzle-shared-ts/src/cell-feedback.ts"
+  ]
+}

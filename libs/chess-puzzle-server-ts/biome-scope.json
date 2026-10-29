@@ -1,0 +1,15 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans.grit": [
+    "**/libs/chess-puzzle-server-ts/src/**/*.{ts,tsx}",
+    "**/libs/chess-puzzle-server-ts/tests/**/*.{ts,tsx}",
+    "**/libs/chess-puzzle-server-ts/scripts/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans-children.grit": [
+    "**/libs/chess-puzzle-server-ts/src/**/*.{ts,tsx}",
+    "**/libs/chess-puzzle-server-ts/tests/**/*.{ts,tsx}",
+    "**/libs/chess-puzzle-server-ts/scripts/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-tier-words-puzzle.grit": [
+    "**/libs/chess-puzzle-server-ts/src/**/*.{ts,tsx}"
+  ]
+}

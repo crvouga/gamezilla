@@ -8,6 +8,23 @@
         "$TURBO_ROOT$/specs/conformance.yaml",
         "$TURBO_ROOT$/specs/*/*.dmn"
       ]
+    },
+    "src": {
+      "dependsOn": [
+        "@libs/app-config-shared-ts#src",
+        "@libs/auth-shared-ts#src",
+        "@libs/moderation-shared-ts#src",
+        "@libs/sub-shared-ts#src",
+        "@pkgs/billing-root-shared-ts#src",
+        "@pkgs/db-schema-root-shared-ts#src",
+        "@pkgs/db-schema-sqlite-shared-ts#src",
+        "@pkgs/dmn-shared-ts#src",
+        "@pkgs/permissions-shared-ts#src",
+        "@pkgs/sql-client-root-shared-ts#src",
+        "@pkgs/sql-client-sqlite-root-shared-ts#src",
+        "@pkgs/sql-root-shared-ts#src",
+        "@pkgs/sync-engine-shared-ts#src"
+      ]
     }
   }
 }

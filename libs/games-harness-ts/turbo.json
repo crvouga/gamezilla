@@ -9,9 +9,9 @@
       "inputs": [
         "$TURBO_EXTENDS$",
         "$TURBO_ROOT$/specs/games/*.feature",
-        "$TURBO_ROOT$/apps/*/package.json",
-        "$TURBO_ROOT$/libs/*/package.json",
-        "$TURBO_ROOT$/pkgs/*/package.json"
+        "$TURBO_ROOT$/apps/{client-ts,product-ts,server-ts,synthetic-population-worker-ts}/package.json",
+        "$TURBO_ROOT$/libs/{battleship-client-ts,battleship-harness-ts,battleship-shared-ts,chess-puzzle-client-ts,chess-puzzle-harness-ts,chess-puzzle-server-ts,chess-puzzle-shared-ts,chess-root-client-ts,chess-root-harness-ts,chess-root-server-ts,chess-root-shared-ts,chess-rules-shared-ts,chess-shared-client-ts,chess-sub-shared-ts,connect-four-client-ts,connect-four-harness-ts,connect-four-shared-ts,game-catalog-shared-ts,games-client-ts,games-harness-ts,games-shared-ts,hearts-client-ts,hearts-harness-ts,hearts-shared-ts,light-cycles-client-ts,light-cycles-harness-ts,light-cycles-shared-ts,numberlink-client-ts,numberlink-harness-ts,numberlink-shared-ts,pong-client-ts,pong-harness-ts,pong-shared-ts,quoridor-client-ts,quoridor-harness-ts,quoridor-shared-ts,room-app-server-ts,runtime-client-ts,runtime-harness-ts,runtime-server-ts,runtime-shared-ts,sokoban-client-ts,sokoban-harness-ts,sokoban-shared-ts,spaces-shared-ts,synthetic-population-harness-ts,word-tiles-client-ts,word-tiles-harness-ts,word-tiles-shared-ts}/package.json",
+        "$TURBO_ROOT$/pkgs/{chess-board-core-shared-ts,chess-board-root-client-ts,chess-board-root-harness-ts,chess-board-root-shared-ts,chess-rules-shared-ts}/package.json"
       ]
     },
     "test:contract:0": {
@@ -27,9 +27,9 @@
         "!tests/probes/**/*.test.ts",
         "$TURBO_ROOT$/turbo-platform-key.json",
         "$TURBO_ROOT$/specs/games/**",
-        "$TURBO_ROOT$/apps/*/package.json",
-        "$TURBO_ROOT$/libs/*/package.json",
-        "$TURBO_ROOT$/pkgs/*/package.json"
+        "$TURBO_ROOT$/apps/{client-ts,product-ts,server-ts,synthetic-population-worker-ts}/package.json",
+        "$TURBO_ROOT$/libs/{battleship-client-ts,battleship-harness-ts,battleship-shared-ts,chess-puzzle-client-ts,chess-puzzle-harness-ts,chess-puzzle-server-ts,chess-puzzle-shared-ts,chess-root-client-ts,chess-root-harness-ts,chess-root-server-ts,chess-root-shared-ts,chess-rules-shared-ts,chess-shared-client-ts,chess-sub-shared-ts,connect-four-client-ts,connect-four-harness-ts,connect-four-shared-ts,game-catalog-shared-ts,games-client-ts,games-harness-ts,games-shared-ts,hearts-client-ts,hearts-harness-ts,hearts-shared-ts,light-cycles-client-ts,light-cycles-harness-ts,light-cycles-shared-ts,numberlink-client-ts,numberlink-harness-ts,numberlink-shared-ts,pong-client-ts,pong-harness-ts,pong-shared-ts,quoridor-client-ts,quoridor-harness-ts,quoridor-shared-ts,room-app-server-ts,runtime-client-ts,runtime-harness-ts,runtime-server-ts,runtime-shared-ts,sokoban-client-ts,sokoban-harness-ts,sokoban-shared-ts,spaces-shared-ts,synthetic-population-harness-ts,word-tiles-client-ts,word-tiles-harness-ts,word-tiles-shared-ts}/package.json",
+        "$TURBO_ROOT$/pkgs/{chess-board-core-shared-ts,chess-board-root-client-ts,chess-board-root-harness-ts,chess-board-root-shared-ts,chess-rules-shared-ts}/package.json"
       ]
     },
     "test:contract:1": {
@@ -44,9 +44,9 @@
         "!tests/probes/**/*.test.ts",
         "$TURBO_ROOT$/turbo-platform-key.json",
         "$TURBO_ROOT$/specs/games/**",
-        "$TURBO_ROOT$/apps/*/package.json",
-        "$TURBO_ROOT$/libs/*/package.json",
-        "$TURBO_ROOT$/pkgs/*/package.json"
+        "$TURBO_ROOT$/apps/{client-ts,product-ts,server-ts,synthetic-population-worker-ts}/package.json",
+        "$TURBO_ROOT$/libs/{battleship-client-ts,battleship-harness-ts,battleship-shared-ts,chess-puzzle-client-ts,chess-puzzle-harness-ts,chess-puzzle-server-ts,chess-puzzle-shared-ts,chess-root-client-ts,chess-root-harness-ts,chess-root-server-ts,chess-root-shared-ts,chess-rules-shared-ts,chess-shared-client-ts,chess-sub-shared-ts,connect-four-client-ts,connect-four-harness-ts,connect-four-shared-ts,game-catalog-shared-ts,games-client-ts,games-harness-ts,games-shared-ts,hearts-client-ts,hearts-harness-ts,hearts-shared-ts,light-cycles-client-ts,light-cycles-harness-ts,light-cycles-shared-ts,numberlink-client-ts,numberlink-harness-ts,numberlink-shared-ts,pong-client-ts,pong-harness-ts,pong-shared-ts,quoridor-client-ts,quoridor-harness-ts,quoridor-shared-ts,room-app-server-ts,runtime-client-ts,runtime-harness-ts,runtime-server-ts,runtime-shared-ts,sokoban-client-ts,sokoban-harness-ts,sokoban-shared-ts,spaces-shared-ts,synthetic-population-harness-ts,word-tiles-client-ts,word-tiles-harness-ts,word-tiles-shared-ts}/package.json",
+        "$TURBO_ROOT$/pkgs/{chess-board-core-shared-ts,chess-board-root-client-ts,chess-board-root-harness-ts,chess-board-root-shared-ts,chess-rules-shared-ts}/package.json"
       ]
     },
     "test:contract:2": {
@@ -61,9 +61,9 @@
         "!tests/probes/**/*.test.ts",
         "$TURBO_ROOT$/turbo-platform-key.json",
         "$TURBO_ROOT$/specs/games/**",
-        "$TURBO_ROOT$/apps/*/package.json",
-        "$TURBO_ROOT$/libs/*/package.json",
-        "$TURBO_ROOT$/pkgs/*/package.json"
+        "$TURBO_ROOT$/apps/{client-ts,product-ts,server-ts,synthetic-population-worker-ts}/package.json",
+        "$TURBO_ROOT$/libs/{battleship-client-ts,battleship-harness-ts,battleship-shared-ts,chess-puzzle-client-ts,chess-puzzle-harness-ts,chess-puzzle-server-ts,chess-puzzle-shared-ts,chess-root-client-ts,chess-root-harness-ts,chess-root-server-ts,chess-root-shared-ts,chess-rules-shared-ts,chess-shared-client-ts,chess-sub-shared-ts,connect-four-client-ts,connect-four-harness-ts,connect-four-shared-ts,game-catalog-shared-ts,games-client-ts,games-harness-ts,games-shared-ts,hearts-client-ts,hearts-harness-ts,hearts-shared-ts,light-cycles-client-ts,light-cycles-harness-ts,light-cycles-shared-ts,numberlink-client-ts,numberlink-harness-ts,numberlink-shared-ts,pong-client-ts,pong-harness-ts,pong-shared-ts,quoridor-client-ts,quoridor-harness-ts,quoridor-shared-ts,room-app-server-ts,runtime-client-ts,runtime-harness-ts,runtime-server-ts,runtime-shared-ts,sokoban-client-ts,sokoban-harness-ts,sokoban-shared-ts,spaces-shared-ts,synthetic-population-harness-ts,word-tiles-client-ts,word-tiles-harness-ts,word-tiles-shared-ts}/package.json",
+        "$TURBO_ROOT$/pkgs/{chess-board-core-shared-ts,chess-board-root-client-ts,chess-board-root-harness-ts,chess-board-root-shared-ts,chess-rules-shared-ts}/package.json"
       ]
     },
     "test:contract:3": {
@@ -78,9 +78,9 @@
         "!tests/probes/**/*.test.ts",
         "$TURBO_ROOT$/turbo-platform-key.json",
         "$TURBO_ROOT$/specs/games/**",
-        "$TURBO_ROOT$/apps/*/package.json",
-        "$TURBO_ROOT$/libs/*/package.json",
-        "$TURBO_ROOT$/pkgs/*/package.json"
+        "$TURBO_ROOT$/apps/{client-ts,product-ts,server-ts,synthetic-population-worker-ts}/package.json",
+        "$TURBO_ROOT$/libs/{battleship-client-ts,battleship-harness-ts,battleship-shared-ts,chess-puzzle-client-ts,chess-puzzle-harness-ts,chess-puzzle-server-ts,chess-puzzle-shared-ts,chess-root-client-ts,chess-root-harness-ts,chess-root-server-ts,chess-root-shared-ts,chess-rules-shared-ts,chess-shared-client-ts,chess-sub-shared-ts,connect-four-client-ts,connect-four-harness-ts,connect-four-shared-ts,game-catalog-shared-ts,games-client-ts,games-harness-ts,games-shared-ts,hearts-client-ts,hearts-harness-ts,hearts-shared-ts,light-cycles-client-ts,light-cycles-harness-ts,light-cycles-shared-ts,numberlink-client-ts,numberlink-harness-ts,numberlink-shared-ts,pong-client-ts,pong-harness-ts,pong-shared-ts,quoridor-client-ts,quoridor-harness-ts,quoridor-shared-ts,room-app-server-ts,runtime-client-ts,runtime-harness-ts,runtime-server-ts,runtime-shared-ts,sokoban-client-ts,sokoban-harness-ts,sokoban-shared-ts,spaces-shared-ts,synthetic-population-harness-ts,word-tiles-client-ts,word-tiles-harness-ts,word-tiles-shared-ts}/package.json",
+        "$TURBO_ROOT$/pkgs/{chess-board-core-shared-ts,chess-board-root-client-ts,chess-board-root-harness-ts,chess-board-root-shared-ts,chess-rules-shared-ts}/package.json"
       ]
     },
     "test:contract:4": {
@@ -95,9 +95,9 @@
         "!tests/probes/**/*.test.ts",
         "$TURBO_ROOT$/turbo-platform-key.json",
         "$TURBO_ROOT$/specs/games/**",
-        "$TURBO_ROOT$/apps/*/package.json",
-        "$TURBO_ROOT$/libs/*/package.json",
-        "$TURBO_ROOT$/pkgs/*/package.json"
+        "$TURBO_ROOT$/apps/{client-ts,product-ts,server-ts,synthetic-population-worker-ts}/package.json",
+        "$TURBO_ROOT$/libs/{battleship-client-ts,battleship-harness-ts,battleship-shared-ts,chess-puzzle-client-ts,chess-puzzle-harness-ts,chess-puzzle-server-ts,chess-puzzle-shared-ts,chess-root-client-ts,chess-root-harness-ts,chess-root-server-ts,chess-root-shared-ts,chess-rules-shared-ts,chess-shared-client-ts,chess-sub-shared-ts,connect-four-client-ts,connect-four-harness-ts,connect-four-shared-ts,game-catalog-shared-ts,games-client-ts,games-harness-ts,games-shared-ts,hearts-client-ts,hearts-harness-ts,hearts-shared-ts,light-cycles-client-ts,light-cycles-harness-ts,light-cycles-shared-ts,numberlink-client-ts,numberlink-harness-ts,numberlink-shared-ts,pong-client-ts,pong-harness-ts,pong-shared-ts,quoridor-client-ts,quoridor-harness-ts,quoridor-shared-ts,room-app-server-ts,runtime-client-ts,runtime-harness-ts,runtime-server-ts,runtime-shared-ts,sokoban-client-ts,sokoban-harness-ts,sokoban-shared-ts,spaces-shared-ts,synthetic-population-harness-ts,word-tiles-client-ts,word-tiles-harness-ts,word-tiles-shared-ts}/package.json",
+        "$TURBO_ROOT$/pkgs/{chess-board-core-shared-ts,chess-board-root-client-ts,chess-board-root-harness-ts,chess-board-root-shared-ts,chess-rules-shared-ts}/package.json"
       ]
     },
     "verify:models:0": {
@@ -593,6 +593,20 @@
     },
     "test:spec:113": {
       "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "src": {
+      "dependsOn": [
+        "@libs/battleship-harness-ts#src",
+        "@libs/chess-root-harness-ts#src",
+        "@libs/connect-four-harness-ts#src",
+        "@libs/game-session-harness-ts#src",
+        "@libs/hearts-harness-ts#src",
+        "@libs/light-cycles-harness-ts#src",
+        "@libs/pong-harness-ts#src",
+        "@libs/quoridor-harness-ts#src",
+        "@libs/word-tiles-harness-ts#src",
+        "@pkgs/turn-game-shared-ts#src"
+      ]
     }
   }
 }
