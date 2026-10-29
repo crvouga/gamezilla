@@ -11,8 +11,8 @@ import {
 import { tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
 import { compileCssModule } from '@pkgs/bun-test-solid-client-ts/css-module';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { run } from '@pkgs/os-server-ts/command';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 /** The package that declares the Tailwind CLI, so the install links it there. */

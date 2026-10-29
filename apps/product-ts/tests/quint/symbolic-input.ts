@@ -8,7 +8,7 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { MODEL_DIR, REPORT_DIR } from './campaign-config';
 import { sourceDigest } from './source-digest';
 

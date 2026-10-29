@@ -7,6 +7,6 @@ file($body) where {
     `renameSync($from, $to)`,
     `$fs.renameSync($from, $to)`
   } as $call where {
-    register_diagnostic(span=$call, message="A bare renameSync fails with EPERM/EACCES/EBUSY on Windows while another process holds the destination, which POSIX replaces atomically. Use renameReplacing from @pkgs/os-server-ts/rename-replacing, which waits out the lock.", severity="error")
+    register_diagnostic(span=$call, message="A bare renameSync fails with EPERM/EACCES/EBUSY on Windows while another process holds the destination, which POSIX replaces atomically. Use renameReplacing from @pkgs/fs-server-ts/rename-replacing, which waits out the lock.", severity="error")
   }
 }

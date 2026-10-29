@@ -11,7 +11,7 @@ import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readEvidence } from '@pkgs/conformance-server-ts/evidence-store';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { runQuintModel } from '@pkgs/quint-server-ts/bun-test';
 import { simulate } from '@pkgs/quint-server-ts/simulate';
 import {

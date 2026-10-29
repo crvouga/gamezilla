@@ -8,7 +8,7 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { cachedQuintDir } from '@pkgs/quint-server-ts/draw-cache';
 
 test('a prepared artifact restored on another runner supplies the same draw without generating it again', () => {

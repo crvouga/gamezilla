@@ -4,8 +4,8 @@ import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { withSeedRebuildLock } from '@libs/harness-ts/seed-rebuild-lock';
-import { spawnOwned } from '@pkgs/os-server-ts/dev-owner-spawn';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { spawnOwned } from '@pkgs/dev-owner-server-ts/dev-owner-spawn';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 // regression: harness-seed-lock-release-race
 // regression: harness-seed-release-reclaims-live-waiter

@@ -47,13 +47,13 @@ import { envFile } from '@libs/infra-shared-ts/envs';
 import { exportSecretsMapLive } from '@libs/secrets-server-ts/secrets-io';
 import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
 import { readEvidence } from '@pkgs/conformance-server-ts/evidence-store';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { stubFileName, stubSource } from '@pkgs/gherkin-shared-ts/stubs';
 import { isSyntheticFeatureSource } from '@pkgs/gherkin-shared-ts/tags';
 import { createDeadlineFetch } from '@pkgs/http-client-shared-ts/deadline-fetch';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared-ts/global';
 import { isLiveObjectiveSource } from '@pkgs/openslo-shared-ts/live';
 import { sloStubFileName, sloStubSource } from '@pkgs/openslo-shared-ts/stubs';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { featureVerdicts, recordCheckResults } from './health-check-results';
 

@@ -11,6 +11,7 @@ import { join } from 'node:path';
 import type { RunReport } from '@crvouga/atlas/reports/report-types';
 import { readEvidence } from '@pkgs/conformance-server-ts/evidence-store';
 import { sha256 } from '@pkgs/conformance-shared-ts/evidence';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { runFeature } from '@pkgs/gherkin-server-ts/bun-test';
 import { recordScenario } from '@pkgs/gherkin-server-ts/evidence';
 import {
@@ -20,7 +21,6 @@ import {
 } from '@pkgs/gherkin-shared-ts/registry';
 import { readUtf8 } from '@pkgs/object-store-root-shared-ts/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 const reportDir = mkdtempSync(join(tmpdir(), 'gherkin-evidence-'));
 afterAll(() => removeTree(reportDir, { whenLocked: 'leave' }));

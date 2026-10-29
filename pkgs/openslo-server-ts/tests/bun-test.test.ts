@@ -10,7 +10,7 @@ import { join } from 'node:path';
 import { readEvidence } from '@pkgs/conformance-server-ts/evidence-store';
 import { runObjectiveSpec } from '@pkgs/openslo-server-ts/bun-test';
 import './openslo/index';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 const SPEC_URI =
   'pkgs/openslo-server-ts/tests/fixtures/note-delivery.openslo.yaml';

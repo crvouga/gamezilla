@@ -8,8 +8,8 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, sep } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
 import {

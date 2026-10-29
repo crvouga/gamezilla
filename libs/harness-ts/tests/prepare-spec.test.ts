@@ -3,10 +3,10 @@ import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server-ts/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
 import { writeUtf8 } from '@pkgs/object-store-root-shared-ts/helpers';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 const ROOT = resolve(import.meta.dir, '../../..');
 const REGISTRY = Bun.resolveSync(

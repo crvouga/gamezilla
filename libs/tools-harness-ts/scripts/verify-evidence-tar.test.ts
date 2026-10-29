@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { archiveEntries, extractEvidence } from './verify-evidence-archive';
 import { packShardEvidence } from './verify-evidence-pack';
 

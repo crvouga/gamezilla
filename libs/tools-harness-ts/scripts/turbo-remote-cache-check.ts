@@ -22,7 +22,7 @@ import { mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { TURBO_API, TURBO_TEAM } from '@libs/secrets-shared-ts/turbo-token';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { artifactUrl, retryRateLimited } from './turbo-preflight';
 
 export type Check = {

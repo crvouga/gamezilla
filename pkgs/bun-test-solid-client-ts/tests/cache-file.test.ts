@@ -14,7 +14,7 @@ import {
   type CacheFileFs,
   publishCacheFile,
 } from '@pkgs/bun-test-solid-client-ts/cache-file';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 const dirs: string[] = [];
 

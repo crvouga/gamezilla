@@ -11,8 +11,8 @@ import { spawnSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { readEvidence } from '@pkgs/conformance-server-ts/evidence-store';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { sloStubFileName, sloStubSource } from '@pkgs/openslo-shared-ts/stubs';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 const PACKAGE_DIR = join(import.meta.dir, '..');
 const SPEC_URI =

@@ -2,8 +2,8 @@
 import { execFile } from 'node:child_process';
 import { basename, dirname, join } from 'node:path';
 import { promisify } from 'node:util';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
-import { renameReplacing } from '@pkgs/os-server-ts/rename-replacing';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
+import { renameReplacing } from '@pkgs/fs-server-ts/rename-replacing';
 
 /** Keep inputs, logs and reports, but never archive disposable dependency/cache copies. */
 export async function archiveVerifySnapshot(root: string): Promise<string> {

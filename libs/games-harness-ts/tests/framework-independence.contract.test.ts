@@ -2,8 +2,8 @@ import { expect, test } from 'bun:test';
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { HARNESS_GAMES } from '@libs/games-harness-ts/harness-games';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { stubSource } from '@pkgs/gherkin-shared-ts/stubs';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 const PACKAGE = join(import.meta.dir, '..');
 const ROOT = join(PACKAGE, '../..');

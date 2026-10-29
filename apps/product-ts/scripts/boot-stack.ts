@@ -28,8 +28,8 @@ import {
   StripeBindingKeys,
   StripeSecretKeys,
 } from '@pkgs/billing-stripe-shared-ts/secret-keys';
+import { spawnOwned as spawn } from '@pkgs/dev-owner-server-ts/dev-owner-spawn';
 import { createLogger } from '@pkgs/logger-shared-ts/logger';
-import { spawnOwned as spawn } from '@pkgs/os-server-ts/dev-owner-spawn';
 import type { InfraHandles } from './boot-infra';
 import { bootInfra } from './boot-infra';
 import type { DatabaseLink } from './database-link';

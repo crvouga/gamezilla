@@ -3,13 +3,13 @@ import { spawn } from 'node:child_process';
 import { existsSync, mkdtempSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { gcDevOwner } from '@pkgs/os-server-ts/dev-owner-gc';
-import { spawnOwned } from '@pkgs/os-server-ts/dev-owner-spawn';
+import { gcDevOwner } from '@pkgs/dev-owner-server-ts/dev-owner-gc';
+import { spawnOwned } from '@pkgs/dev-owner-server-ts/dev-owner-spawn';
 import {
   ownerProcess,
   processSnapshot,
-} from '@pkgs/os-server-ts/dev-owner-state';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+} from '@pkgs/dev-owner-server-ts/dev-owner-state';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 const fixture = join(import.meta.dirname, 'dev-owner-node-fixture.cjs');
 const runFixture = join(import.meta.dirname, 'dev-owner-run-fixture.cjs');

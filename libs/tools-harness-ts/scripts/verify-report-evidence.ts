@@ -2,8 +2,8 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, posix } from 'node:path';
 import { reportTask } from '@libs/harness-ts/report-ready';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
-import { renameReplacing } from '@pkgs/os-server-ts/rename-replacing';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
+import { renameReplacing } from '@pkgs/fs-server-ts/rename-replacing';
 import { extractEvidence } from './verify-evidence-archive';
 import { reportCommand } from './verify-report-command';
 import { processReportQueue } from './verify-report-queue';

@@ -3,7 +3,7 @@
 
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { quintNames } from '@pkgs/quint-shared-ts/names';
 import { tlcStateSpace } from '@pkgs/quint-shared-ts/tlc-state-space';
 import { verifyDeadlineMs, wallStopwatch } from '@pkgs/quint-shared-ts/wall';

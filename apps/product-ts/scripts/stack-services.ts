@@ -20,8 +20,8 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
-import { renameReplacing } from '@pkgs/os-server-ts/rename-replacing';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
+import { renameReplacing } from '@pkgs/fs-server-ts/rename-replacing';
 import type { LocalAdminIdentity } from './local-admin-accounts';
 import type { StackPlan } from './stack-plan';
 

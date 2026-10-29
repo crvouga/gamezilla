@@ -9,7 +9,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
-import { renameReplacing } from '@pkgs/os-server-ts/rename-replacing';
+import { renameReplacing } from '@pkgs/fs-server-ts/rename-replacing';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { quintImportPaths } from '@pkgs/quint-shared-ts/imports';
 import { packageSpecUnits } from './replay-plans';

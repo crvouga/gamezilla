@@ -19,7 +19,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { closeSync, existsSync, openSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { killOrphanEsbuildServices } from '@pkgs/os-server-ts/kill-orphan-esbuild';
+import { killOrphanEsbuildServices } from '@pkgs/dev-owner-server-ts/kill-orphan-esbuild';
 
 /** Loopback origin for `wrangler dev` in this repo (`apps/server-ts` uses port 8788). */
 const DEFAULT_LOCAL_PREVIEW_API_ORIGIN = 'http://localhost:8788';

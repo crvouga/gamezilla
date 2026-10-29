@@ -2,8 +2,8 @@ import { expect, test } from 'bun:test';
 import { mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { spawnOwned } from '@pkgs/os-server-ts/dev-owner-spawn';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { spawnOwned } from '@pkgs/dev-owner-server-ts/dev-owner-spawn';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 // regression: dev-owner-worker-temp-collision
 test('concurrent Node worker registrations publish one complete owner record', async () => {

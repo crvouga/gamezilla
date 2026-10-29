@@ -8,8 +8,8 @@ import {
   readdirSync,
 } from 'node:fs';
 import { join } from 'node:path';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
-import { renameReplacing } from '@pkgs/os-server-ts/rename-replacing';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
+import { renameReplacing } from '@pkgs/fs-server-ts/rename-replacing';
 import { findBudgetOverruns, type RunSummary } from './verify-budget';
 
 function artifacts(directory: string): string[] {

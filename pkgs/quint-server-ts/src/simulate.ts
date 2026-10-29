@@ -26,7 +26,7 @@ import {
   rmSync,
 } from 'node:fs';
 import { join } from 'node:path';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import type { ItfTrace } from '@pkgs/quint-shared-ts/itf';
 import { decodeItfTrace, renderQuint } from '@pkgs/quint-shared-ts/itf';
 import type { ModelParameters } from '@pkgs/quint-shared-ts/registry';

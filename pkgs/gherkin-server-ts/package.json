@@ -24,8 +24,8 @@
     "@pkgs/object-store-node-fs-server-ts": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/fs-server-ts": "workspace:*",
     "@pkgs/object-store-root-shared-ts": "workspace:*",
-    "@pkgs/os-server-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

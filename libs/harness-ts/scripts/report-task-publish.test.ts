@@ -2,8 +2,8 @@ import { describe, expect, spyOn, test } from 'bun:test';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { publishReportTask, verifyPublications } from './report-task-publish';
 
 const taskId = '@libs/example#test:spec:0';

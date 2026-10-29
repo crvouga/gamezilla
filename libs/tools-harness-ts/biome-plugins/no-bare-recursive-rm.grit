@@ -19,6 +19,6 @@ file($body) where {
     `$fs.rmdir($path, $opts)`
   } as $call where {
     $opts <: contains `recursive: true`,
-    register_diagnostic(span=$call, message="A bare recursive delete fails with EBUSY/EPERM on Windows while a just-stopped process still holds a file, turning a green run red. Use removeTree from @pkgs/os-server-ts/remove-tree (pass { whenLocked: 'leave' } for scratch a run is finished with).", severity="error")
+    register_diagnostic(span=$call, message="A bare recursive delete fails with EBUSY/EPERM on Windows while a just-stopped process still holds a file, turning a green run red. Use removeTree from @pkgs/fs-server-ts/remove-tree (pass { whenLocked: 'leave' } for scratch a run is finished with).", severity="error")
   }
 }

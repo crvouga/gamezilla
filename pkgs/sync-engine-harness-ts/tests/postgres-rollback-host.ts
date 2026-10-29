@@ -2,7 +2,7 @@ import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared-ts/reconcile-postgres-schema';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { freePostgresPort } from '@pkgs/postgres-mockingbird-server-ts/free-port';
 import { startMockingbirdPostgres } from '@pkgs/postgres-mockingbird-server-ts/start';
 import {

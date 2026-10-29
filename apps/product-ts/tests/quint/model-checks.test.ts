@@ -1,6 +1,6 @@
 import { test } from 'bun:test';
 import { join } from 'node:path';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { verifyTemporal } from '@pkgs/quint-server-ts/temporal';
 import { verify } from '@pkgs/quint-server-ts/verify';
 import { verifyDeadlineMs } from '@pkgs/quint-shared-ts/wall';

@@ -4,8 +4,8 @@ import type { ChildProcess } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { registerDevContainer } from '@pkgs/os-server-ts/dev-owner-resources';
-import { spawnOwned as spawn } from '@pkgs/os-server-ts/dev-owner-spawn';
+import { registerDevContainer } from '@pkgs/dev-owner-server-ts/dev-owner-resources';
+import { spawnOwned as spawn } from '@pkgs/dev-owner-server-ts/dev-owner-spawn';
 
 import { plannedPort, reservePort, waitForHttp } from './free-port';
 import type { ObservabilityBackend } from './stack-options';

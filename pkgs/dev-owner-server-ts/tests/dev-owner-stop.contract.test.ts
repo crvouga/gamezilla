@@ -16,12 +16,12 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { gcDevOwner } from '@pkgs/os-server-ts/dev-owner-gc';
+import { gcDevOwner } from '@pkgs/dev-owner-server-ts/dev-owner-gc';
 import {
   ownerProcess,
   processSnapshot,
-} from '@pkgs/os-server-ts/dev-owner-state';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+} from '@pkgs/dev-owner-server-ts/dev-owner-state';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 const launcherFixture = join(
   import.meta.dirname,

@@ -1,7 +1,7 @@
 // @io-wall-ok — prepares one immutable model draw for all of a package's spec workers.
 import { readFileSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import {
   DEFAULT_MAX_STEPS,
   DEFAULT_TRACES,

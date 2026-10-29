@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { REMOVE_ATTEMPTS, removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { REMOVE_ATTEMPTS, removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 function failure(code: string): Error {
   return Object.assign(new Error(`${code}: simulated`), { code });

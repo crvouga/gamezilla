@@ -27,7 +27,7 @@ import type { CommandResult } from '@pkgs/alloy-shared-ts/receipt';
 import { parseReceipt, solutionSummary } from '@pkgs/alloy-shared-ts/receipt';
 import type { SigInfo } from '@pkgs/alloy-shared-ts/sigs';
 import { modelSigs } from '@pkgs/alloy-shared-ts/sigs';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 /** Longer than any model or snapshot batch should take, even on a loaded CI box. */
 export const ALLOY_TIMEOUT_MS = 120_000;

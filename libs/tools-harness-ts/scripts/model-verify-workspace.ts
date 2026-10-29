@@ -2,7 +2,7 @@
 import { mkdirSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { evidenceKey } from '@pkgs/conformance-shared-ts/evidence';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { copyModelEvidence } from './verify-model-evidence';
 
 /** What an earlier verification of one model left in the report. */

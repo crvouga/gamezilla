@@ -11,7 +11,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import { REPORT_READY } from '@libs/harness-ts/report-ready';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { createReportPublisher } from './verify-report-stream';
 
 const TASK = '@libs/example#test:spec:0';

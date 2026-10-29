@@ -11,7 +11,7 @@ function withoutPath(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
 /** Run both cleanups in a child whose PATH has no `ps`, as on Windows. */
 function cleanupWithoutPs(platform: NodeJS.Platform) {
   const script = `
-    import { killAllEsbuildServices, killOrphanEsbuildServices } from '@pkgs/os-server-ts/kill-orphan-esbuild';
+    import { killAllEsbuildServices, killOrphanEsbuildServices } from '@pkgs/dev-owner-server-ts/kill-orphan-esbuild';
     const options = { commandIncludes: ${JSON.stringify(import.meta.dir)}, platform: ${JSON.stringify(platform)} };
     killOrphanEsbuildServices(options);
     killAllEsbuildServices(options);

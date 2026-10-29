@@ -14,7 +14,7 @@ import {
   prepareEmqxRuntime,
   whitespaceFreeTemporaryDirectory,
 } from '@pkgs/emqx-server-ts/emqx-runtime';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 function release(root: string): string {
   mkdirSync(join(root, 'bin'), { recursive: true });

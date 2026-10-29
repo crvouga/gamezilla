@@ -31,7 +31,7 @@ import {
 } from '@pkgs/conformance-shared-ts/evidence';
 import type { VariantRequirements } from '@pkgs/conformance-shared-ts/variants';
 import { isVariantRequirements } from '@pkgs/conformance-shared-ts/variants';
-import { renameReplacing } from '@pkgs/os-server-ts/rename-replacing';
+import { renameReplacing } from '@pkgs/fs-server-ts/rename-replacing';
 
 export function evidenceDir(reportDir: string): string {
   return join(reportDir, 'evidence');

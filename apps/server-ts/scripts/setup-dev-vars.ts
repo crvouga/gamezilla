@@ -17,8 +17,8 @@ import {
   EMQX_JWT_SECRET,
   EMQX_WS_PORT,
 } from '@pkgs/emqx-shared-ts/ports';
+import { renameReplacing } from '@pkgs/fs-server-ts/rename-replacing';
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs-server-ts/repo-tree-store';
-import { renameReplacing } from '@pkgs/os-server-ts/rename-replacing';
 import { LOCAL_DATABASE_URL } from '@pkgs/postgres-local-shared-ts/ports';
 import { resolveSecretsScope } from '@pkgs/secrets-config-server-ts/secrets-scope';
 import { DEV_VARS_PATH, encodeDevVarValue } from './dev-vars';

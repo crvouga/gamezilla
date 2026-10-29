@@ -2,8 +2,8 @@
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { wallClock } from '@pkgs/clock-shared-ts/wall';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { createLogger } from '@pkgs/logger-shared-ts/logger';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 const log = createLogger({ name: 'sounds:fetch-kenney', now: wallClock.now });
 

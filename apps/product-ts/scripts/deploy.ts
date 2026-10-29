@@ -17,11 +17,11 @@ import { REPO_ROOT } from '@libs/secrets-server-ts/paths';
 import { runAsync, runCapture } from '@libs/secrets-server-ts/subprocess';
 import { withNodeMaxOldSpaceSize } from '@libs/secrets-shared-ts/node-options';
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import {
   assertCommitDateIso,
   COMMIT_HASH_HEX_REGEX,
 } from '@pkgs/git-shared-ts/git';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import {
   activeEnvFile,
   deployWorker,

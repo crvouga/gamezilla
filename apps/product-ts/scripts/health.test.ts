@@ -13,6 +13,7 @@ import {
   writeFeatureStubs,
   writeSloStubs,
 } from '@apps/product-ts/scripts/health';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { parseFeature } from '@pkgs/gherkin-shared-ts/parse';
 import {
   bindingIssues,
@@ -23,7 +24,6 @@ import {
   objectiveSpecStem,
   objectivesBinding,
 } from '@pkgs/openslo-shared-ts/registry';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import type { Environment } from './health';
 import {

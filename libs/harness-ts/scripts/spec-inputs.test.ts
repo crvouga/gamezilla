@@ -6,7 +6,7 @@ import {
   specInputProblems,
   writeSpecInputs,
 } from '@libs/harness-ts/spec-inputs';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 function fixture(): string {
   const root = mkdtempSync(join(tmpdir(), 'spec-inputs-'));

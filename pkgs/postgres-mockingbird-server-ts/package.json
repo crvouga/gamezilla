@@ -16,9 +16,9 @@
   },
   "dependencies": {
     "@crvouga/mockingbird-service-postgres": "catalog:",
+    "@pkgs/dev-owner-server-ts": "workspace:*",
     "@pkgs/object-store-node-fs-server-ts": "workspace:*",
     "@pkgs/object-store-root-shared-ts": "workspace:*",
-    "@pkgs/os-server-ts": "workspace:*",
     "@pkgs/postgres-local-shared-ts": "workspace:*"
   },
   "devDependencies": {

@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import {
   RENAME_ATTEMPTS,
   renameReplacing,
-} from '@pkgs/os-server-ts/rename-replacing';
+} from '@pkgs/fs-server-ts/rename-replacing';
 
 function failure(code: string): Error {
   return Object.assign(new Error(`${code}: simulated`), { code });

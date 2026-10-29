@@ -4,10 +4,10 @@ import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readCommittedSpecs } from '@libs/harness-ts/committed-specs';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server-ts/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
 import { writeUtf8 } from '@pkgs/object-store-root-shared-ts/helpers';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 // regression: report-inventory-wrong-revision
 test('inventory reads the selected commit instead of current or ignored files', async () => {

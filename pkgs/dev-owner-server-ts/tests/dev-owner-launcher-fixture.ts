@@ -1,7 +1,7 @@
 // @io-wall-ok — launcher fixture: the same entry and supervisor a run script uses.
 import { fileURLToPath } from 'node:url';
-import { enterDevOwner } from '@pkgs/os-server-ts/dev-owner-entry';
-import { superviseDev } from '@pkgs/os-server-ts/dev-owner-supervisor';
+import { enterDevOwner } from '@pkgs/dev-owner-server-ts/dev-owner-entry';
+import { superviseDev } from '@pkgs/dev-owner-server-ts/dev-owner-supervisor';
 
 const root = process.argv[2] ?? '';
 await enterDevOwner(root, import.meta.filename, [root]);

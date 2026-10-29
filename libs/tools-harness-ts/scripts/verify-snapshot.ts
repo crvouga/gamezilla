@@ -16,7 +16,7 @@ import { mkdir, readdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 import { promisify } from 'node:util';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { lastSegment, slashPath } from '@pkgs/os-shared-ts/slash-path';
 
 function git(root: string, args: string[]): string {

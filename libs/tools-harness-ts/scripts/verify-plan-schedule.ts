@@ -14,7 +14,7 @@
  */
 import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { packShardEvidence } from './verify-evidence-pack';
 import type { Result } from './verify-shard-results';
 import type { VerifyPlan, VerifyShard } from './verify-shards';

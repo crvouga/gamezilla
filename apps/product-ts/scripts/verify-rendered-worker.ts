@@ -19,7 +19,7 @@ import { join } from 'node:path';
 import { ENV_FILES } from '@libs/infra-shared-ts/envs';
 import type { WranglerConfig } from '@libs/infra-shared-ts/wrangler';
 import { renderWranglerConfig } from '@libs/infra-shared-ts/wrangler';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 const PACKAGE_DIR = join(import.meta.dir, '..');
 /** OpenTofu mints the real id at deploy time; any 32 hex digits are well formed. */

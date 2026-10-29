@@ -15,7 +15,7 @@ import {
   outputArgs,
   tofuEnvironment,
 } from '@libs/infra-shared-ts/tofu-command';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { resolveAwsSession } from './aws-session';
 import { infraOperation } from './infra-operation';
 import { pinnedTool, spawnTool } from './tofu-process';

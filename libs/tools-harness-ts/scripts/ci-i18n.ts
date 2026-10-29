@@ -13,7 +13,7 @@
 import { spawnSync } from 'node:child_process';
 import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const PO_REL = 'libs/app-root-shared-ts/locales/en/messages.po';

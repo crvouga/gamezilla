@@ -13,7 +13,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
 import { join, sep } from 'node:path';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { testConcurrency } from '@pkgs/os-server-ts/test-concurrency';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import type { FileCoverage } from './lcov';

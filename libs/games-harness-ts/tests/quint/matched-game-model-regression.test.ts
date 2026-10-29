@@ -3,7 +3,7 @@ import { expect, test } from 'bun:test';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { simulate } from '@pkgs/quint-server-ts/simulate';
 import type { QuintValue } from '@pkgs/quint-shared-ts/itf';
 

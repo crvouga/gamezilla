@@ -12,7 +12,7 @@
 import {
   nextOwnerPort,
   recordOwnerPort,
-} from '@pkgs/os-server-ts/dev-owner-ports';
+} from '@pkgs/dev-owner-server-ts/dev-owner-ports';
 
 export type PortReservation = {
   readonly port: number;

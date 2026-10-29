@@ -11,7 +11,7 @@ export async function createActorBrowserStorage(
   const { mkdtemp } = await import('node:fs/promises');
   const { tmpdir } = await import('node:os');
   const { join } = await import('node:path');
-  const { removeTree } = await import('@pkgs/os-server-ts/remove-tree');
+  const { removeTree } = await import('@pkgs/fs-server-ts/remove-tree');
   const directory = await mkdtemp(join(tmpdir(), `harness-webview-${id}-`));
   return {
     dataStore: { directory },

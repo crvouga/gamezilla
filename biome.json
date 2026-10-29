@@ -885,7 +885,7 @@
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
         "!**/dist/**",
-        "!**/pkgs/os-server-ts/src/remove-tree.ts"
+        "!**/pkgs/fs-server-ts/src/remove-tree.ts"
       ]
     },
     {
@@ -895,8 +895,8 @@
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
         "!**/dist/**",
-        "!**/pkgs/os-server-ts/src/rename-replacing.ts",
-        "!**/pkgs/os-server-ts/src/dev-owner*.ts",
+        "!**/pkgs/fs-server-ts/src/rename-replacing.ts",
+        "!**/pkgs/dev-owner-server-ts/src/dev-owner*.ts",
         "!**/pkgs/bun-test-solid-client-ts/**",
         "!**/*.test.{ts,tsx}"
       ]
@@ -1304,6 +1304,7 @@
         "**/pkgs/db-schema-postgres-server-ts/src/**/*.{ts,tsx}",
         "**/pkgs/db-schema-sqlite-shared-ts/src/**/*.{ts,tsx}",
         "**/pkgs/db-schema-root-shared-ts/src/**/*.{ts,tsx}",
+        "**/pkgs/dev-owner-server-ts/src/**/*.{ts,tsx}",
         "**/pkgs/device-shared-ts/src/**/*.{ts,tsx}",
         "**/pkgs/device-client-ts/src/**/*.{ts,tsx}",
         "**/pkgs/distributed-lock-server-ts/src/**/*.{ts,tsx}",
@@ -1314,6 +1315,7 @@
         "**/pkgs/entity-store-harness-ts/tests/**/*.{ts,tsx}",
         "**/pkgs/equal-shared-ts/src/**/*.{ts,tsx}",
         "**/pkgs/equal-shared-ts/tests/is-equal.test.ts",
+        "**/pkgs/fs-server-ts/src/**/*.{ts,tsx}",
         "**/pkgs/git-shared-ts/src/**/*.{ts,tsx}",
         "**/pkgs/i18n-shared-ts/src/**/*.{ts,tsx}",
         "**/pkgs/invariants-shared-ts/src/**/*.{ts,tsx}",

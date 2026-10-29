@@ -3,7 +3,7 @@
 import { execFileSync } from 'node:child_process';
 import { realpathSync } from 'node:fs';
 import { join } from 'node:path';
-import { registerDevSimulator } from '@pkgs/os-server-ts/dev-owner-resources';
+import { registerDevSimulator } from '@pkgs/dev-owner-server-ts/dev-owner-resources';
 import type { SimSpecId } from './sim-spec';
 import { simSpecById } from './sim-spec';
 import {

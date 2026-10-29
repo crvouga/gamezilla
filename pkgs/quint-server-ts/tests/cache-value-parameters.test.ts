@@ -3,7 +3,7 @@ import { expect, test } from 'bun:test';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { cacheValueParameters } from '@pkgs/quint-server-ts/cache-value-parameters';
 import { typecheck } from '@pkgs/quint-server-ts/typecheck';
 import { verify } from '@pkgs/quint-server-ts/verify';

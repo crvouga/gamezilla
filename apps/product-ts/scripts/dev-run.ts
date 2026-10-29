@@ -12,8 +12,8 @@
 
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { enterDevOwner } from '@pkgs/os-server-ts/dev-owner-entry';
-import { superviseDev } from '@pkgs/os-server-ts/dev-owner-supervisor';
+import { enterDevOwner } from '@pkgs/dev-owner-server-ts/dev-owner-entry';
+import { superviseDev } from '@pkgs/dev-owner-server-ts/dev-owner-supervisor';
 import { resolveDevRepoRoot } from './dev-repo-root';
 import { parseStackOptions } from './stack-options';
 

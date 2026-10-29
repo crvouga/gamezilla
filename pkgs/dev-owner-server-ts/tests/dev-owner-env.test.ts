@@ -2,8 +2,8 @@ import { expect, test } from 'bun:test';
 import { mkdtempSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { spawnOwned } from '@pkgs/os-server-ts/dev-owner-spawn';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { spawnOwned } from '@pkgs/dev-owner-server-ts/dev-owner-spawn';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 // regression: dev-owner-restores-filtered-env
 test('owned processes keep an explicit environment isolated from parent bindings', async () => {

@@ -3,7 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { REPORT_COMPLETION, reportTask } from '@libs/harness-ts/report-ready';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { artifactUrl } from './turbo-preflight';
 import { reportOutputPath } from './verify-report-evidence';
 import { processReportQueue } from './verify-report-queue';

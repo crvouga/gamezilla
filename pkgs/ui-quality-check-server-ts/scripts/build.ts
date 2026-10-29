@@ -1,6 +1,6 @@
 // @io-wall-ok — build entrypoint; published output has no workspace dependencies.
 import { mkdir } from 'node:fs/promises';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { build } from 'esbuild';
 
 removeTree('dist');

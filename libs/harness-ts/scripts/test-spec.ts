@@ -52,8 +52,8 @@ import { parseJunit } from '@crvouga/atlas/reports/junit';
 import { REPORT_COMPLETION, REPORT_READY } from '@libs/harness-ts/report-ready';
 import { testFailureSpans } from '@libs/harness-ts/test-failure-spans';
 import { wallClock } from '@pkgs/clock-shared-ts/wall';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { stubFileName, stubSource } from '@pkgs/gherkin-shared-ts/stubs';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 import { specParallelism } from '@pkgs/os-server-ts/test-concurrency';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import {

@@ -10,7 +10,7 @@ import { describe, expect, test } from 'bun:test';
 import { join } from 'node:path';
 import { readEvidence } from '@pkgs/conformance-server-ts/evidence-store';
 import { runDecisionSpec } from '@pkgs/dmn-server-ts/bun-test';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 const REPORT = join(import.meta.dir, '../.cache/test-reports/bun-test');
 removeTree(REPORT, { whenLocked: 'leave' });

@@ -10,6 +10,7 @@ import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readEvidence } from '@pkgs/conformance-server-ts/evidence-store';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { runFeature } from '@pkgs/gherkin-server-ts/bun-test';
 import type { ScenarioContext } from '@pkgs/gherkin-shared-ts/registry';
 import {
@@ -17,7 +18,6 @@ import {
   setWorld,
   stepsFor,
 } from '@pkgs/gherkin-shared-ts/registry';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
 
 type World = { readonly variant: string; readonly testId: string };
 

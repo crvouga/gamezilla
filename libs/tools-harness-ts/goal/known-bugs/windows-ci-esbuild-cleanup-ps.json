@@ -1,4 +1,4 @@
 {
   "summary": "On Windows every CI turbo run failed after its tasks: the orphaned-esbuild cleanup snapshotted processes with ps, which Windows lacks, and threw instead of skipping a POSIX-only cleanup.",
-  "regressionTest": "pkgs/os-server-ts/tests/kill-orphan-esbuild.test.ts"
+  "regressionTest": "pkgs/dev-owner-server-ts/tests/kill-orphan-esbuild.test.ts"
 }

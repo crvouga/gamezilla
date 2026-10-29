@@ -18,7 +18,7 @@
     "@informalsystems/quint": "catalog:",
     "@pkgs/conformance-server-ts": "workspace:*",
     "@pkgs/conformance-shared-ts": "workspace:*",
-    "@pkgs/os-server-ts": "workspace:*",
+    "@pkgs/fs-server-ts": "workspace:*",
     "@pkgs/os-shared-ts": "workspace:*",
     "@pkgs/quint-shared-ts": "workspace:*"
   },

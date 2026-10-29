@@ -20,7 +20,7 @@
 
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { verifyDeadlineMs, wallStopwatch } from '@pkgs/quint-shared-ts/wall';
 import {
   APALACHE_VERSION,

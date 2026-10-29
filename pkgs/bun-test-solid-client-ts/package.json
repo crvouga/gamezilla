@@ -31,7 +31,7 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/os-server-ts": "workspace:*",
+    "@pkgs/fs-server-ts": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",
     "@types/babel__core": "catalog:",
     "@types/bun": "catalog:",

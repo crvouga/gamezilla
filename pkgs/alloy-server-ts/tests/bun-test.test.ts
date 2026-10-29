@@ -17,7 +17,7 @@ import {
 } from '@pkgs/alloy-shared-ts/stubs';
 import type { Snapshot } from '@pkgs/alloy-shared-ts/world';
 import { readEvidence } from '@pkgs/conformance-server-ts/evidence-store';
-import { removeTree } from '@pkgs/os-server-ts/remove-tree';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 const SPEC_URI = 'pkgs/alloy-server-ts/tests/fixtures/spaces.als';
 const REPORT_DIR = join(import.meta.dir, '../.cache/test-report');
