@@ -1,7 +1,7 @@
 // @io-wall-ok
 import { chmodSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
 import type { OsFs } from '@pkgs/os-shared-ts/os-fs';
-import { removeTree } from './remove-tree';
+import { removeTree } from './remove-tree.ts';
 
 export function wallOsFs(): OsFs {
   return {

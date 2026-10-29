@@ -5,7 +5,7 @@ import {
   LOCK_ATTEMPTS,
   LOCK_RETRY_MS,
   sleepSync,
-} from './lock-retry';
+} from './lock-retry.ts';
 
 export const REMOVE_ATTEMPTS = LOCK_ATTEMPTS;
 
