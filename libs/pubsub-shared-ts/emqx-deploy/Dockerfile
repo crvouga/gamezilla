@@ -1,10 +1,14 @@
 # Version pin for the local EMQX sidecar. Not deployed.
 ARG EMQX_VERSION=5.8.6
 ARG CADDY_VERSION=2.9.1
+# Each base image is pinned to the digest its tag named when pinned, so a
+# moved tag cannot change what builds. Bump a version and its digest together.
+ARG CADDY_DIGEST=sha256:b4e3952384eb9524a887633ce65c752dd7c71314d2c2acf98cd5c715aaa534f0
+ARG EMQX_DIGEST=sha256:a1e3d10fa1dcc8c94325b815a93b5b5974253a97cb36470b44e47d5d3ef9cd13
 
-FROM caddy:${CADDY_VERSION}-alpine AS caddy
+FROM caddy:${CADDY_VERSION}-alpine@${CADDY_DIGEST} AS caddy
 
-FROM emqx/emqx:${EMQX_VERSION}
+FROM emqx/emqx:${EMQX_VERSION}@${EMQX_DIGEST}
 
 USER root
 COPY --from=caddy /usr/bin/caddy /usr/bin/caddy

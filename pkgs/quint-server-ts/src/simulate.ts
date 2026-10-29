@@ -24,8 +24,9 @@ import {
   readdirSync,
   readFileSync,
   rmSync,
+  writeFileSync,
 } from 'node:fs';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import type { ItfTrace } from '@pkgs/quint-shared-ts/itf';
 import { decodeItfTrace, renderQuint } from '@pkgs/quint-shared-ts/itf';
@@ -105,7 +106,7 @@ export function simulate(options: SimulateOptions): SimulateResult {
   });
   removeTree(options.outDir);
   mkdirSync(options.outDir, { recursive: true });
-  copyItf(itfDir, options.outDir);
+  copyItf(itfDir, options.outDir, options.specPath);
   return {
     seed,
     invariants,
@@ -164,10 +165,25 @@ function runQuint(
   );
 }
 
-function copyItf(from: string, to: string): void {
+/**
+ * Copy drawn traces out, naming the model by its file name in `#meta.source`.
+ * Quint records the absolute path it was given (a person's home directory, a
+ * temporary instantiation, a CI workspace), and a trace copied from here is
+ * what a regression pins in a repository: it must say nothing about the
+ * machine that drew it.
+ */
+function copyItf(from: string, to: string, specPath: string): void {
   for (const file of readdirSync(from)) {
     if (!file.endsWith('.itf.json')) continue;
-    copyFileSync(join(from, file), join(to, file));
+    const trace = JSON.parse(readFileSync(join(from, file), 'utf8')) as {
+      '#meta'?: Record<string, unknown>;
+    };
+    if (trace['#meta'] === undefined) {
+      copyFileSync(join(from, file), join(to, file));
+      continue;
+    }
+    trace['#meta']['source'] = basename(specPath);
+    writeFileSync(join(to, file), `${JSON.stringify(trace, null, 2)}\n`);
   }
 }
 

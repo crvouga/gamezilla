@@ -44,7 +44,7 @@ custom-game induction exceeded their respective existing solver deadlines.
 Eight executed tasks also exceeded their unchanged task budgets, including
 the failed chess task and seven zero-exit tasks. A zero exit is not a passing
 budget verdict. The summary and logs are retained in this machine's archive:
-`/var/folders/fz/9yx28kz10c3dsh38kbwzyq_w0000gn/T/check-run-0KAQRr/diagnostics.tar.gz`.
+`$TMPDIR/check-run-0KAQRr/diagnostics.tar.gz`.
 
 The successful isolated profile checks were run after that full failure.
 They do not attest a new full verification result.

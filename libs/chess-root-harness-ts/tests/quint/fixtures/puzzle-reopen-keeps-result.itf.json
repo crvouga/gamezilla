@@ -2,7 +2,7 @@
   "#meta": {
     "format": "ITF",
     "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
-    "source": "/Volumes/OWC Express 1M2/super.engineering/worktrees/gamezilla/sc-critical-qubit-a141/specs/chess/puzzle-attempt.qnt",
+    "source": "puzzle-attempt.qnt",
     "status": "ok",
     "description": "Created by Quint on Wed Oct 07 2026 21:18:55 GMT-0700 (Mountain Standard Time)",
     "timestamp": 1791433135976

@@ -12,11 +12,10 @@ vendored: each keeps its license in its own package (`node_modules`).
 | --- | --- |
 | `frontend-design` agent skill (Apache-2.0) | [`.agents/skills/frontend-design/LICENSE.txt`](.agents/skills/frontend-design/LICENSE.txt) |
 | Sound effects (CC0 1.0) | [`pkgs/sounds-shared-ts/docs/LICENSES.md`](pkgs/sounds-shared-ts/docs/LICENSES.md) |
-| Chess piece artwork (Colin M.L. Burnett) | [`pkgs/chess-board-root-harness-ts/docs/PIECE_LICENSES.md`](pkgs/chess-board-root-harness-ts/docs/PIECE_LICENSES.md), [`libs/chess-puzzle-client-ts/LICENSES.md`](libs/chess-puzzle-client-ts/LICENSES.md) |
+| Chess piece artwork (Colin M.L. Burnett) | [`pkgs/chess-board-root-harness-ts/docs/PIECE_LICENSES.md`](pkgs/chess-board-root-harness-ts/docs/PIECE_LICENSES.md) |
 | UIClip-derived model assets, ONNX Runtime, Sharp, FFmpeg | [`pkgs/ui-quality-check-server-ts/NOTICE.md`](pkgs/ui-quality-check-server-ts/NOTICE.md), [`MODEL.md`](pkgs/ui-quality-check-server-ts/MODEL.md) |
 | ENABLE word list (public domain) | [`libs/word-tiles-shared-ts/docs/WORD_TILES.md`](libs/word-tiles-shared-ts/docs/WORD_TILES.md) |
 | Infrastructure-map logos (CC0, CC BY 4.0) | Credited where they render (`libs/infra-shared-ts/src/infra-render.ts`) |
-| SQLite WASM and Emscripten glue | License headers kept in each file under `apps/product/public/` |
 
 ## `impeccable` agent skill
 
@@ -66,43 +65,6 @@ from OpenAI CLIP's architecture and tokenizer, <https://github.com/openai/CLIP>.
 MIT License, Copyright (c) 2021 OpenAI (permission notice below). UIClip
 itself is MIT licensed according to its model card; see that package's
 `NOTICE.md`.
-
-## CanvasKit (Skia)
-
-`apps/client-ts/public/generated/skia/canvaskit.wasm` is a CanvasKit build of
-Skia, <https://skia.org>.
-
-```text
-Copyright (c) 2011 Google Inc. All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are
-met:
-
-  * Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
-
-  * Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in
-    the documentation and/or other materials provided with the
-    distribution.
-
-  * Neither the name of the copyright holder nor the names of its
-    contributors may be used to endorse or promote products derived
-    from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-```
 
 ## MIT License permission notice
 

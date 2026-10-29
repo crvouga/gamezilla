@@ -1,0 +1,4 @@
+{
+  "summary": "Pinned Quint regression traces recorded Quint's absolute input path in #meta.source: a person's home directory and drive name, macOS temporary folders and CI runner workspaces, published once the repository became public. simulate now names the model by its file name when it copies drawn traces out, and the committed fixtures were normalized the same way.",
+  "regressionTest": "pkgs/quint-server-ts/tests/parameterized-simulate.test.ts"
+}

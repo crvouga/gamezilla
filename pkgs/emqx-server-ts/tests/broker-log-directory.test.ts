@@ -3,8 +3,8 @@ import { join } from 'node:path';
 import { brokerLogDirectory } from '@pkgs/emqx-server-ts/broker-log-directory';
 
 // regression: emqx-space-in-crash-dump-path
-test('a workspace on OWC Express uses an isolated whitespace-free broker log directory', () => {
-  const data = '/Volumes/OWC Express 1M2/project/pkgs/emqx-server-ts/data';
+test('a workspace on a volume whose name has spaces uses an isolated whitespace-free broker log directory', () => {
+  const data = '/Volumes/External Drive 2/project/pkgs/emqx-server-ts/data';
   const path = brokerLogDirectory(data, '/tmp');
   expect(path).not.toMatch(/\s/);
   expect(path.startsWith(join('/tmp', 'emqx-log-'))).toBe(true);

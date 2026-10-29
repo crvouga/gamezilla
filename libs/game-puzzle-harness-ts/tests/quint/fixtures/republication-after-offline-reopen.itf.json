@@ -2,7 +2,7 @@
   "#meta": {
     "format": "ITF",
     "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
-    "source": "/Users/chrisvouga/.super.engineering/worktrees/gamezilla/sc-pinned-phonon-60cf/specs/puzzles/publication-recovery.qnt",
+    "source": "publication-recovery.qnt",
     "status": "ok",
     "description": "Created by Quint on Sat Oct 24 2026 05:52:22 GMT-0700 (Mountain Standard Time)",
     "timestamp": 1792846342781

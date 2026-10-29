@@ -44,7 +44,7 @@ the original error behind transaction-aborted `25P02`.
 ## Upstream reconciliation fix
 
 The [reviewable upstream patch](https://github.com/crvouga/mockingbird/issues/326#issuecomment-5996749374)
-and the existing checkout at `/Users/chrisvouga/mockingbird` contain a tested source
+and a local Mockingbird checkout beside this repository contain a tested source
 fix for `indisvalid`, distinct index OIDs and definitions, index comments,
 namespace casts, statistics catalogs, and the parser consuming `SET` before
 `SET DEFAULT` / `SET NOT NULL` could execute. Failed initial concurrent unique

@@ -76,7 +76,7 @@
   pointer-events: none;
 }
 
-/* Cburnett pieces (../chess-board-harness/docs/PIECE_LICENSES.md), inline: the lazy chess stylesheet
+/* Cburnett pieces (../../chess-board-root-harness-ts/docs/PIECE_LICENSES.md), inline: the lazy chess stylesheet
    carries them, so a cold load paints pieces with no extra request. */
 .piece {
   z-index: 2;
