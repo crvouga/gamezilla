@@ -1,0 +1,4 @@
+{
+  "summary": "A data notebook question that begins with a comment (-- saved question, then a SELECT) failed at the SQL execution boundary, because each statement was spliced with raw(), which forbids comment markers and semicolons even inside string literals.",
+  "regressionTest": "pkgs/harness-console-client-ts/tests/run-sql-cell.test.ts"
+}
