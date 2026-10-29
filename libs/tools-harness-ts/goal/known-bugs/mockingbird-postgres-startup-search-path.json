@@ -1,4 +1,4 @@
 {
-  "summary": "Mockingbird Postgres 2.3.0 ignores libpq startup options=-c search_path=gamezilla_test_scope and resolves current_schema() to public. Upstream: https://github.com/crvouga/mockingbird/issues/317",
+  "summary": "Mockingbird Postgres 2.3.0 ignores libpq startup options=-c search_path=<namespace>_test_scope and resolves current_schema() to public. Upstream: https://github.com/crvouga/mockingbird/issues/317",
   "regressionTest": "pkgs/sql-client-postgres-server-ts/tests/postgres.contract.test.ts"
 }

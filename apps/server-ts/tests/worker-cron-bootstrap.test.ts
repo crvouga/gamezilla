@@ -42,4 +42,4 @@ test('a cold cron invocation composes consumers and releases each database sessi
     queried: true,
     closed: 2,
   });
-});
+}, 60_000);

@@ -1,4 +1,4 @@
 {
-  "summary": "Flattening the localhost stack scripts left bun dev walking up four directories from apps/product-ts/scripts, so Turbo started above the repository and looked for /Users/chrisvouga/package.json. Discover the root from stable repository markers instead of the launcher's directory depth.",
+  "summary": "Flattening the localhost stack scripts left bun dev walking up four directories from apps/product-ts/scripts, so Turbo started above the repository and looked for package.json in the directory above the checkout. Discover the root from stable repository markers instead of the launcher's directory depth.",
   "regressionTest": "apps/product-ts/scripts/dev-repo-root.test.ts"
 }

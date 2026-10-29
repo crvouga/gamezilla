@@ -2,6 +2,7 @@ import type { ServerEnv } from '@libs/app-root-shared-ts/server-env';
 import { resolveWebClientOrigin } from '@libs/app-root-shared-ts/web-client-origin';
 import type { ApiHonoEnv } from '@libs/auth-shared-ts/api-hono-env';
 import type { AuthContext } from '@libs/auth-shared-ts/types';
+import { serviceName } from '@libs/product-identity-shared-ts/technical-names';
 import {
   sanitizeBrowserOtlp,
   stampBrowserTraceResource,
@@ -9,7 +10,7 @@ import {
 import { otlpAuthorization } from '@pkgs/observability-root-shared-ts/otlp-auth';
 import type { Context, Hono } from 'hono';
 
-const BROWSER_SERVICE_NAME = 'gamezilla-client';
+const BROWSER_SERVICE_NAME = serviceName('client');
 
 type IngressContext = Context<ApiHonoEnv<AuthContext>>;
 

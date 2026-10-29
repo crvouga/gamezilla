@@ -60,7 +60,7 @@ const MATCHED_ACCOUNT: LinkRequired = Object.assign(
   new Error('auth: link_required'),
   {
     token: 'pending-link',
-    email: 'a•••@synthetic.gamezilla.invalid',
+    email: 'a•••@example.test',
     provider: 'google' as const,
     providers: ['email', 'google'] as const,
   }

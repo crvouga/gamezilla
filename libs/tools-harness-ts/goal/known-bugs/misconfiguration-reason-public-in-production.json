@@ -1,0 +1,4 @@
+{
+  "summary": "CodeQL js/stack-trace-exposure: a production API Worker that failed to boot answered every request with a 503 whose body carried the ConfigurationError message (which binding or secret was wrong). Production now answers only {\"error\":\"api misconfigured\"}, as it already hid a 500's trace id; the reason is still logged, and non-production environments keep it.",
+  "regressionTest": "apps/server-ts/tests/fatal-config-response.test.ts"
+}

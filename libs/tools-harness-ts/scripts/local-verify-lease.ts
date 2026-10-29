@@ -3,11 +3,15 @@ import { Database } from 'bun:sqlite';
 import { mkdirSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { NAMESPACE } from '@libs/product-identity-shared-ts/product-identity';
 import type { VerifyLease } from './local-verify-queue';
 
-/** One lock per user on this machine, regardless of checkout or TMPDIR. */
+/**
+ * One lock per user on this machine, regardless of checkout or TMPDIR. Keyed
+ * by the immutable namespace so every checkout and branch shares it.
+ */
 export function localVerifyLeasePath(home: string = homedir()): string {
-  return join(home, '.cache/gamezilla/local-verify.sqlite');
+  return join(home, '.cache', NAMESPACE, 'local-verify.sqlite');
 }
 
 /**

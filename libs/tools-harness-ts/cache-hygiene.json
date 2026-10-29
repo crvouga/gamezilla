@@ -32,6 +32,8 @@
     "@libs/observability-shared-ts": 108,
     "@libs/permissions-client-ts": 59,
     "@libs/permissions-shared-ts": 95,
+    "@libs/product-identity": 123,
+    "@libs/product-identity-shared-ts": 122,
     "@libs/profile-shared-ts": 76,
     "@libs/spaces-shared-ts": 71,
     "@libs/sub-client-ts": 58,
@@ -100,7 +102,7 @@
     "@pkgs/outbox-shared-ts": 135,
     "@pkgs/permissions-shared-ts": 96,
     "@pkgs/postgres-sqlite-compat-shared-ts": 96,
-    "@pkgs/property-shared-ts": 104,
+    "@pkgs/property-shared-ts": 105,
     "@pkgs/pubsub-aedes-shared-ts": 56,
     "@pkgs/pubsub-emqx-shared-ts": 67,
     "@pkgs/pubsub-mqtt-shared-ts": 70,
@@ -238,49 +240,57 @@
     }
   },
   "broadInputs": {
-    "@libs/tools-harness-ts#ci:syncpack": {
-      "patterns": 3,
-      "reason": "repository gate: reads every package.json"
-    },
-    "@libs/tools-harness-ts#ci:package-names": {
-      "patterns": 3,
-      "reason": "repository gate: checks every package name against its directory and manifest"
-    },
-    "@libs/tools-harness-ts#ci:goals": {
-      "patterns": 4,
-      "reason": "repository gate: scans every package for README files, tests and Quint models"
-    },
-    "@libs/tools-harness-ts#ci:specs": {
-      "patterns": 30,
-      "reason": "repository gate: finds the step definitions, models and features of every package"
-    },
-    "@libs/tools-harness-ts#ci:conformance": {
-      "patterns": 18,
-      "reason": "repository gate: finds the step definitions of every package"
-    },
-    "@libs/tools-harness-ts#verify:root-lint": {
-      "patterns": 1,
-      "reason": "lints every file outside the packages"
-    },
-    "@libs/tools-harness-ts#test": {
-      "patterns": 25,
-      "reason": "its tests scan the whole workspace: manifests, sources and turbo.json files"
-    },
-    "@libs/tools-harness-ts#ci:statecharts": {
-      "patterns": 1,
-      "reason": "reads the sub-client entry of every client package"
-    },
-    "@apps/product-ts#test:contract:render": {
+    "@apps/product-ts#prepare:ui-quality": {
       "patterns": 1,
       "reason": "renders the CSS modules of every package"
     },
-    "@apps/product-ts#prepare:ui-quality": {
+    "@apps/product-ts#test:contract:render": {
       "patterns": 1,
       "reason": "renders the CSS modules of every package"
     },
     "@libs/tools-harness-ts#ci:cache-hygiene": {
       "patterns": 4,
       "reason": "repository gate: reads every package's manifest, turbo.json, Biome slice and sources"
+    },
+    "@libs/tools-harness-ts#ci:conformance": {
+      "patterns": 18,
+      "reason": "repository gate: finds the step definitions of every package"
+    },
+    "@libs/tools-harness-ts#ci:goals": {
+      "patterns": 4,
+      "reason": "repository gate: scans every package for README files, tests and Quint models"
+    },
+    "@libs/tools-harness-ts#ci:package-names": {
+      "patterns": 4,
+      "reason": "repository gate: checks every package name against its directory and manifest, and that no package can be published or carries its own license (the repository is proprietary)"
+    },
+    "@libs/tools-harness-ts#ci:specs": {
+      "patterns": 30,
+      "reason": "repository gate: finds the step definitions, models and features of every package"
+    },
+    "@libs/tools-harness-ts#ci:statecharts": {
+      "patterns": 1,
+      "reason": "reads the sub-client entry of every client package"
+    },
+    "@libs/tools-harness-ts#ci:syncpack": {
+      "patterns": 3,
+      "reason": "repository gate: reads every package.json"
+    },
+    "@libs/tools-harness-ts#test": {
+      "patterns": 25,
+      "reason": "its tests scan the whole workspace: manifests, sources and turbo.json files"
+    },
+    "@libs/tools-harness-ts#verify:brand-policy": {
+      "patterns": 1,
+      "reason": "repository gate: refuses every brand spelling in every tracked file outside the product identity (docs/BRANDING.md)"
+    },
+    "@libs/tools-harness-ts#verify:rebrand": {
+      "patterns": 1,
+      "reason": "repository gate: copies the repository under a synthetic brand, regenerates every artifact and runs the brand-sensitive suites and the web build (docs/BRANDING.md)"
+    },
+    "@libs/tools-harness-ts#verify:root-lint": {
+      "patterns": 1,
+      "reason": "lints every file outside the packages"
     }
   },
   "globalDependencies": ["tsconfig.base.json", "mise.toml"],

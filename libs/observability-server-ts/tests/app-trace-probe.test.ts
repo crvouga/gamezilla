@@ -5,6 +5,7 @@ import {
   requestAppTrace,
   requestDatabaseTrace,
 } from '@libs/observability-server-ts/app-trace-probe';
+import { serviceName } from '@libs/product-identity-shared-ts/technical-names';
 import type { HttpClient } from '@pkgs/http-client-shared-ts/types';
 
 const probe = {
@@ -49,7 +50,7 @@ test('the app request and the readable server span use the same investigation id
               attributes: [
                 {
                   key: 'service.name',
-                  value: { stringValue: 'gamezilla-server' },
+                  value: { stringValue: serviceName('server') },
                 },
               ],
             },
@@ -99,7 +100,10 @@ const traceWith = (spans: ReturnType<typeof span>[]) =>
       {
         resource: {
           attributes: [
-            { key: 'service.name', value: { stringValue: 'gamezilla-server' } },
+            {
+              key: 'service.name',
+              value: { stringValue: serviceName('server') },
+            },
           ],
         },
         scopeSpans: [{ spans }],

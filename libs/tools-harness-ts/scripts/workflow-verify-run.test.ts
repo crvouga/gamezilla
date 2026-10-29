@@ -10,7 +10,7 @@ import {
 
 const SHA = '2a2bda778fd0e66af2a74c7e02ecea6fb80c8956';
 const TARGET: GitHubTarget = {
-  repository: 'gamezilla-org/gamezilla',
+  repository: 'acme/repo',
   workflow: 'health.yml',
   branch: 'health/verify-deployment',
   sha: SHA,
@@ -25,7 +25,7 @@ function workflow(conclusion = '', id = 42): GitHubWorkflow {
     conclusion,
     createdAt: '2026-10-02T05:06:11Z',
     event: 'workflow_dispatch',
-    url: `https://github.com/gamezilla-org/gamezilla/actions/runs/${id}`,
+    url: `https://github.com/acme/repo/actions/runs/${id}`,
   };
 }
 function fixture(

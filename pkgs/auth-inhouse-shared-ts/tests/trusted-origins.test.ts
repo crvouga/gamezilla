@@ -9,6 +9,7 @@ describe('localhost OAuth callback origins', () => {
     const trusted = buildAuthTrustedOrigins({
       apiBaseURL: 'http://127.0.0.1:50956',
       clientWebOrigins: ['http://127.0.0.1:50981'],
+      clientSchemes: [],
     });
 
     expect(

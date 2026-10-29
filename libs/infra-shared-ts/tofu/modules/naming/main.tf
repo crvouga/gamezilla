@@ -7,7 +7,7 @@
 
 variable "project" {
   type        = string
-  description = "Project slug shared by every resource name (e.g. `gamezilla`)."
+  description = "Project slug shared by every resource name: the product identity's technical namespace."
 }
 
 variable "suffix" {

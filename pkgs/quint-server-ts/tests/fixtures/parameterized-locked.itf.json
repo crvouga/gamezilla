@@ -2,7 +2,7 @@
   "#meta": {
     "format": "ITF",
     "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
-    "source": "/var/folders/fz/9yx28kz10c3dsh38kbwzyq_w0000gn/T/gamezilla-quint-draws/ee27e40d4c84156026f88f2f1f7a163c87976341410977fb6f8de39d39749ce6/itf/instantiated-source/Users/chrisvouga/.super.engineering/worktrees/gamezilla/sc-charged-yttrium-a70b/pkgs/quint-server-ts/tests/fixtures/parameterized-door.qnt",
+    "source": "parameterized-door.qnt",
     "status": "ok",
     "description": "Created by Quint on Fri Oct 23 2026 06:44:27 GMT-0700 (Mountain Standard Time)",
     "timestamp": 1792763067090

@@ -46,6 +46,12 @@ export const GITHUB_KINDS: Readonly<Record<string, Kind>> = {
     category: 'Source control',
     links: settings('Environments', '/settings/environments'),
   },
+  github_repository_environment_deployment_policy: {
+    title: 'Deployment branch policy',
+    logo: 'github-actions',
+    category: 'Source control',
+    links: settings('Environments', '/settings/environments'),
+  },
   github_repository_vulnerability_alerts: {
     title: 'Dependency alerts',
     logo: 'github',

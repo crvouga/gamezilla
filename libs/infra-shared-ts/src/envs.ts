@@ -8,10 +8,15 @@ import prd from '../tofu/envs/prd.tfvars.json';
 import type { EnvFile } from './env-file';
 import { parseEnvFile, productionEnvNames } from './env-file';
 
-export const ENV_FILES: Readonly<Record<string, EnvFile>> = {
-  dev: parseEnvFile(dev, 'tofu/envs/dev.tfvars.json'),
-  prd: parseEnvFile(prd, 'tofu/envs/prd.tfvars.json'),
-};
+/** Each env file as committed: placeholders unresolved. */
+export const ENV_SOURCES: Readonly<Record<string, unknown>> = { dev, prd };
+
+export const ENV_FILES: Readonly<Record<string, EnvFile>> = Object.fromEntries(
+  Object.entries(ENV_SOURCES).map(([name, source]) => [
+    name,
+    parseEnvFile(source, `tofu/envs/${name}.tfvars.json`),
+  ])
+);
 
 export function envFile(name: string): EnvFile {
   const file = ENV_FILES[name];

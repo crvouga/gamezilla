@@ -18,9 +18,13 @@ const SCAN_DIRS = [
 ] as const;
 const SCAN_FILES = ['../sync-engine-server-ts/README.md'] as const;
 
-/** Word / phrase denylist — keep tight; false positives waste review time. */
+/**
+ * Word / phrase denylist — keep tight; false positives waste review time.
+ * Domain vocabulary only: the host's brand names are not listed here, because
+ * the host repository's brand policy already refuses every spelling of them
+ * in every file, these included.
+ */
 const DENY: readonly { readonly re: RegExp; readonly label: string }[] = [
-  { re: /\bgamezilla\b/i, label: 'gamezilla' },
   { re: /\bspaces_users\b/, label: 'spaces_users' },
   { re: /\bspaces_open_sessions\b/, label: 'spaces_open_sessions' },
   { re: /\bensureProfile\b/, label: 'ensureProfile' },

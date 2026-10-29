@@ -1,5 +1,6 @@
 // @io-wall-ok — Room server Worker composition root (Durable Object isolate).
 
+import { serviceName } from '@libs/product-identity-shared-ts/technical-names';
 import { createRoomServerDurableObject } from '@libs/room-app-server-ts/create-room-server-durable-object';
 import type { RoomServerEnv } from '@libs/room-app-shared-ts/room-server-env';
 import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
@@ -72,7 +73,7 @@ function ensureWorkerTelemetry(env: RoomWorkerEnv): RoomTelemetryRuntime {
     http: createGlobalHttpClient(),
     timers: wallTimers,
     instanceId: crypto.randomUUID(),
-    serviceName: 'gamezilla-room-server',
+    serviceName: serviceName('room-server'),
     serviceVersion: buildSha,
     environment: deploymentTelemetryEnvironment(env.DEPLOYMENT_ENVIRONMENT),
     buildSha,

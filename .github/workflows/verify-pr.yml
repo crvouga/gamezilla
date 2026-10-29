@@ -41,10 +41,13 @@ run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{
 # and build outputs from one job to the next, and `verify:end` deletes them.
 # Every report step is the `nightly` profile's.
 
+# Least privilege: read the code and run metadata. Each job adds the OIDC
+# token the secrets backend trusts. A pull request from a fork gets neither
+# OIDC nor secrets (GitHub withholds both), so its run stops at setup with the
+# reason.
 permissions:
-  contents: read
-  actions: write
-  id-token: write
+  contents: read # check out the code
+  actions: read # read run state (gh run list, job metadata)
 on:
   pull_request:
     branches: [main]
@@ -139,6 +142,10 @@ jobs:
   verify-start:
     name: verify:start
     runs-on: boat
+    permissions:
+      contents: read # check out the code
+      actions: read # read run state (gh run list, job metadata)
+      id-token: write # mint the OIDC token Infisical and AWS trust
     timeout-minutes: ${{ inputs.profile == 'nightly' && 70 || 30 }}
     # One entry per shard with work, naming none of them: GitHub drops a job
     # output that contains a masked secret, and one dev secret is the digit 1.
@@ -153,8 +160,9 @@ jobs:
             echo "::error::Release ships refs/heads/main only (got ${GITHUB_REF})."
             exit 1
           fi
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
+          persist-credentials: false
           fetch-depth: 0
       - uses: ./.github/actions/setup
         with:
@@ -174,7 +182,7 @@ jobs:
       # its plan held, so a narrower plan sharing the key would erase the
       # rest.
       - name: Restore measured task durations
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: .cache/verify-ci/measured-costs.json
           key: verify-task-costs-v2-${{ env.VERIFY_PROFILE }}-${{ github.run_id }}-${{ github.run_attempt }}
@@ -211,14 +219,14 @@ jobs:
       - name: Transfer prerequisite outputs
         if: always() && !cancelled()
         run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-evidence-${{ env.VERIFY_SHARDS }}
-          .cache/verify-ci/evidence-${{ env.VERIFY_SHARDS }}.tar.gz
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-evidence-"${VERIFY_SHARDS}"
+          .cache/verify-ci/evidence-"${VERIFY_SHARDS}".tar.gz
 
       - name: Transfer prerequisite verdict
         if: always() && !cancelled()
         run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-results-${{ env.VERIFY_SHARDS }}
-          .cache/verify-ci/results-${{ env.VERIFY_SHARDS }}.tar.gz
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-results-"${VERIFY_SHARDS}"
+          .cache/verify-ci/results-"${VERIFY_SHARDS}".tar.gz
 
   # Shard N is the Nth entry of the matrix `verify:start` planned.
   verify-shards:
@@ -227,6 +235,10 @@ jobs:
     # An empty matrix is an error, so a fully cached plan skips the job.
     if: needs.verify-start.outputs.shards != '[]'
     runs-on: boat
+    permissions:
+      contents: read # check out the code
+      actions: read # read run state (gh run list, job metadata)
+      id-token: write # mint the OIDC token Infisical and AWS trust
     timeout-minutes: ${{ inputs.profile == 'nightly' && 70 || 30 }}
     strategy:
       fail-fast: false
@@ -242,8 +254,9 @@ jobs:
     env:
       VERIFY_SHARD: ${{ strategy.job-index }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
+          persist-credentials: false
           fetch-depth: 0
       - uses: ./.github/actions/setup
         with:
@@ -270,26 +283,26 @@ jobs:
       - name: Upload queryable trace artifacts
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
         run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload observability-traces-${{ github.run_id }}-${{ strategy.job-index }}
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload observability-traces-"${GITHUB_RUN_ID}-${VERIFY_SHARD}"
           'apps/*/.cache/harness-report/*/traces/*.ndjson' 'libs/*/.cache/harness-report/*/traces/*.ndjson' 'pkgs/*/.cache/harness-report/*/traces/*.ndjson'
       - name: Upload turbo run summary
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
         run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload turbo-summary-${{ github.run_id }}-${{ strategy.job-index }}
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload turbo-summary-"${GITHUB_RUN_ID}-${VERIFY_SHARD}"
           '.turbo/runs/*.json'
       # Transfer verdicts and the exact cache artifacts consumers need; the
       # nightly profile adds failed reports.
       - name: Transfer raw evidence
         if: always() && !cancelled()
         run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-evidence-${{ strategy.job-index }}
-          .cache/verify-ci/evidence-${{ strategy.job-index }}.tar.gz
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-evidence-"${VERIFY_SHARD}"
+          .cache/verify-ci/evidence-"${VERIFY_SHARD}".tar.gz
 
       - name: Transfer shard verdict
         if: always() && !cancelled()
         run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-results-${{ strategy.job-index }}
-          .cache/verify-ci/results-${{ strategy.job-index }}.tar.gz
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-results-"${VERIFY_SHARD}"
+          .cache/verify-ci/results-"${VERIFY_SHARD}".tar.gz
 
   # The ending word, and the only required status on a pull request; Release
   # consumes this verdict. It runs after red shards too: the fan-in suites
@@ -302,12 +315,17 @@ jobs:
     needs: [verify-start, verify-shards]
     if: always() && !cancelled()
     runs-on: boat
+    permissions:
+      contents: read # check out the code
+      actions: read # read run state (gh run list, job metadata)
+      id-token: write # mint the OIDC token Infisical and AWS trust
     timeout-minutes: ${{ inputs.profile == 'nightly' && 110 || 50 }}
     steps:
       # The reports are filed under the pull request's head, whose specs are
       # read from Git; the default checkout holds only the merge commit.
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
+          persist-credentials: false
           fetch-depth: 0
       - uses: ./.github/actions/setup
         with:
@@ -353,12 +371,12 @@ jobs:
       - name: Upload queryable trace artifacts
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
         run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload observability-traces-${{ github.run_id }}-consumers
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload observability-traces-"${GITHUB_RUN_ID}"-consumers
           'apps/*/.cache/harness-report/*/traces/*.ndjson' 'libs/*/.cache/harness-report/*/traces/*.ndjson' 'pkgs/*/.cache/harness-report/*/traces/*.ndjson'
       - name: Upload turbo run summary
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
         run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload turbo-summary-${{ github.run_id }}-consumers
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload turbo-summary-"${GITHUB_RUN_ID}"-consumers
           '.turbo/runs/*.json'
       - name: Transfer raw evidence
         if: always() && !cancelled()
@@ -378,7 +396,7 @@ jobs:
       # A red run still measured every task that passed.
       - name: Save measured task durations
         if: always() && !cancelled() && hashFiles('.cache/verify-ci/measured-costs.json') != ''
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: .cache/verify-ci/measured-costs.json
           key: verify-task-costs-v2-${{ env.VERIFY_PROFILE }}-${{ github.run_id }}-${{ github.run_attempt }}

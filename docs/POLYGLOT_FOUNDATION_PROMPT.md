@@ -1,8 +1,8 @@
-# Gamezilla — Foundational Polyglot Monorepo & Swift Integration
+# Foundational Polyglot Monorepo & Swift Integration
 
 ## Mission
 
-Transform Gamezilla's existing TypeScript-only Turborepo into a **first-class polyglot monorepo** capable of supporting TypeScript, Swift, Rust, Kotlin, and other languages over the lifetime of the product.
+Transform the product's existing TypeScript-only Turborepo into a **first-class polyglot monorepo** capable of supporting TypeScript, Swift, Rust, Kotlin, and other languages over the lifetime of the product.
 
 This is a foundational engineering task.
 
@@ -259,7 +259,7 @@ Conceptually:
 {
   "name": "@apps/apple-client-swift",
   "private": true,
-  "gamezilla": {
+  "product": {
     "language": "swift",
     "runtime": "client",
     "platforms": ["ios"]
@@ -352,9 +352,9 @@ Preferred illustrative location:
 apps/
   apple-client-swift/
     package.json
-    Gamezilla.xcodeproj/
+    apple-client.xcodeproj/
     src/
-      gamezilla-app.swift
+      app-entry.swift
       root-view.swift
     tests/
       app-smoke-tests.swift
@@ -376,7 +376,7 @@ Implement a minimal working iOS application using:
 - A committed, discoverable build scheme.
 - The existing repository's toolchain conventions.
 
-The initial screen may simply display the Gamezilla name with an otherwise empty application surface.
+The initial screen may simply display the product name with an otherwise empty application surface.
 
 The application must:
 
@@ -424,7 +424,7 @@ However, prioritize one working iOS target. Do not expand this task into impleme
 
 ## 7. Establish Swift Package Manager Conventions
 
-Define how reusable Swift packages will live inside Gamezilla.
+Define how reusable Swift packages will live inside this repository.
 
 Prefer a small, focused SwiftPM package for reusable native client foundations if doing so provides a meaningful test of native package linking and cross-platform compilation.
 
@@ -457,7 +457,7 @@ Do not introduce arbitrary placeholder domain models merely to populate the dire
 - Explicit dependencies.
 - Tests using supported native tooling.
 - No runtime dependency on TypeScript.
-- No dependency on Gamezilla product code from generic `pkgs/`.
+- No dependency on product code from generic `pkgs/`.
 - No accidental importing of SwiftUI into code intended for platform-neutral Swift execution.
 
 The conventions must allow future generated Swift contracts to be placed into appropriate native packages without changing the entire workspace structure.
@@ -606,7 +606,7 @@ Prefer correctness over misleading cache hits.
 
 ## 10. Preserve and Extend Existing CI
 
-Gamezilla already has established Check PR, Check Nightly, Release, and Health workflows.
+The repository already has established Check PR, Check Nightly, Release, and Health workflows.
 
 **Preserve those workflows. Do not create a separate Swift CI architecture.**
 
@@ -771,7 +771,7 @@ Do not create an embedded JavaScript runtime or WebView as a substitute for nati
 
 The native shell should be genuinely native.
 
-Its future integration with Gamezilla's backend and contracts must occur through the intended language-neutral interfaces.
+Its future integration with the product's backend and contracts must occur through the intended language-neutral interfaces.
 
 ---
 
@@ -1089,7 +1089,7 @@ Do not claim that the framework already supports Swift business logic, game rule
 
 ## Final Directive
 
-**Make Gamezilla a first-class polyglot Turborepo without sacrificing the simplicity, reliability, and speed of the existing TypeScript development experience.**
+**Make this repository a first-class polyglot Turborepo without sacrificing the simplicity, reliability, and speed of the existing TypeScript development experience.**
 
 The desired architecture is:
 

@@ -1,3 +1,9 @@
+# zizmor `github-env`: the `$GITHUB_ENV`/`$GITHUB_PATH` writes below carry
+# runner values and this repository's own files. They could only escalate
+# where untrusted code shares a job with privileged credentials; no workflow
+# here has such a trigger (`pull_request_target`, `workflow_run`;
+# libs/tools-harness-ts/scripts/workflow-pinning.test.ts refuses them), and a
+# fork's pull request gets no secret or OIDC token to steal.
 name: Pinned visual renderer
 description: Install the fixed Chrome release only for tasks that need a native browser
 runs:
@@ -14,7 +20,7 @@ runs:
     - name: Select visual renderer
       id: chrome
       shell: bash
-      run: |
+      run: |  # zizmor: ignore[github-env] -- see the note at the top of this file
         chrome_path="$(bun run libs/tools-harness-ts/scripts/chrome-for-testing.ts)"
         echo "BUN_CHROME_PATH=$chrome_path" >> "$GITHUB_ENV"
         echo "chrome-path=$chrome_path" >> "$GITHUB_OUTPUT"

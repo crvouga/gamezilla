@@ -4,6 +4,7 @@ import {
   LOCAL_DATABASE_OPEN_DEADLINE_MS,
   openMainSqlClient,
 } from '@libs/app-root-client-ts/open-main-sql-client';
+import { NAMESPACE } from '@libs/product-identity-shared-ts/product-identity';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { createNoopLogger } from '@pkgs/logger-shared-ts/logger';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
@@ -142,4 +143,17 @@ describe('whatever the open throws', () => {
       )
     );
   });
+});
+
+// regression: opfs-wipe-channel-renamed-across-versions
+test('the local database listens for recovery on the same channel in every version', async () => {
+  // A tab still running an older version only hears a recovery request sent
+  // on the channel it listens to: `<namespace>-opfs-wipe`, from the immutable
+  // technical namespace, never a name that changes with the code or the brand.
+  let wipeChannel: string | undefined;
+  await open((_dbName, options) => {
+    wipeChannel = options.wipeChannel;
+    return healthy();
+  });
+  expect(wipeChannel).toBe(`${NAMESPACE}-opfs-wipe`);
 });

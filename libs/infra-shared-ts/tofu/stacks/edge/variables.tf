@@ -8,6 +8,11 @@ variable "project" {
   type = string
 }
 
+variable "brand_name" {
+  type        = string
+  description = "Read by the bootstrap stack (stacks/bootstrap/alerting.tf)."
+}
+
 variable "state" {
   type = object({
     account_id = string

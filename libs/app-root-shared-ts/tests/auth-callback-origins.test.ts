@@ -18,22 +18,23 @@ test('auth composition trusts both configured web hosts, without trusting other 
           const trusted = buildAuthTrustedOrigins({
             apiBaseURL: env.apiOrigin,
             clientWebOrigins: env.clientOrigins,
+            clientSchemes: env.clientSchemes,
           });
           expect(
             isTrustedCallbackUrl(
-              'https://dev.gamezilla.app/sso-callback',
+              'https://dev.example.test/sso-callback',
               trusted
             )
           ).toBe(true);
           expect(
             isTrustedCallbackUrl(
-              'https://www-dev.gamezilla.app/sso-callback',
+              'https://www-dev.example.test/sso-callback',
               trusted
             )
           ).toBe(true);
           expect(
             isTrustedCallbackUrl(
-              'https://attacker.gamezilla.app/sso-callback',
+              'https://attacker.example.test/sso-callback',
               trusted
             )
           ).toBe(false);
@@ -41,10 +42,10 @@ test('auth composition trusts both configured web hosts, without trusting other 
         },
       },
       secretStore: new RecordSecretStore({
-        WEB_CLIENT_ORIGIN: 'https://www-dev.gamezilla.app',
-        WEB_CLIENT_APEX_ORIGIN: 'https://dev.gamezilla.app',
+        WEB_CLIENT_ORIGIN: 'https://www-dev.example.test',
+        WEB_CLIENT_APEX_ORIGIN: 'https://dev.example.test',
       }),
-      apiUrlOverride: 'https://api-dev.gamezilla.app',
+      apiUrlOverride: 'https://api-dev.example.test',
       protection: 'standard',
       clock: createHarnessClock({ startMs: 0 }).clock,
       createId: () => 'unused',

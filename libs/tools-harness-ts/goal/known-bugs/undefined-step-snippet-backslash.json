@@ -1,0 +1,4 @@
+{
+  "summary": "CodeQL js/incomplete-sanitization: undefinedStepSnippet escaped single quotes but not backslashes, so a step text containing a backslash produced a snippet that registered different text (or did not parse). Backslashes are escaped first now; the same fix applies to the markdown table cells in the step catalog and UI inventory.",
+  "regressionTest": "pkgs/gherkin-shared-ts/tests/undefined-step-snippet.test.ts"
+}

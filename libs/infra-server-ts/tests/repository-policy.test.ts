@@ -50,8 +50,8 @@ test('only descriptive metadata may drift without a plan', () => {
 
 // regression: bootstrap-user-owned-forking
 test('a user-owned repository does not send allow_forking', () => {
-  // Literal failing input: plan `allow_forking = true -> false` on
-  // crvouga/gamezilla, then PATCH /repos/crvouga/gamezilla 422
+  // Literal failing input: plan `allow_forking = true -> false` on the
+  // source repository, then PATCH /repos/<owner>/<repo> 422
   // "Allow forks setting can only be changed on org-owned private repositories".
   expect(GLOBAL.github.owner).toBe('crvouga');
   expect(GLOBAL.github.owner_is_organization).toBe(false);
@@ -79,6 +79,57 @@ test('security configuration excludes fields the pinned provider cannot read or 
   );
   expect(repository).toMatch(/\bsecret_scanning\s*\{/);
   expect(repository).toMatch(/\bsecret_scanning_push_protection\s*\{/);
+});
+
+// regression: public-repository-self-hosted-runner
+test('only main may deploy to production, and a branch Health run stays outside it', () => {
+  const bootstrap = readFileSync(
+    join(TOFU, 'stacks/bootstrap/main.tf'),
+    'utf8'
+  );
+  expect(bootstrap).toMatch(/main_only_environments\s*=\s*\["production"\]/);
+  expect(actions).toMatch(/custom_branch_policies\s*=\s*true/);
+  expect(actions).toMatch(
+    /resource "github_repository_environment_deployment_policy" "main" \{[^}]*branch_pattern\s*=\s*"main"/
+  );
+  expect(imports).toContain(
+    'module.repository.github_repository_environment_deployment_policy.main["production"]'
+  );
+  const health = readFileSync(
+    join(import.meta.dirname, '../../../.github/workflows/health.yml'),
+    'utf8'
+  );
+  for (const line of health.match(/^\s*environment: .*$/gm) ?? [])
+    if (line.includes("'production'"))
+      expect(line).toContain("github.ref == 'refs/heads/main'");
+});
+
+test('a public repository exposes no wiki or classic projects', () => {
+  expect(GLOBAL.github.settings.has_wiki).toBe(false);
+  expect(GLOBAL.github.settings.has_projects).toBe(false);
+  expect(GLOBAL.github.settings.has_discussions).toBe(false);
+});
+
+// regression: public-repository-self-hosted-runner
+// regression: declared-visibility-publishes-repository
+test('the repository is public only by its own declared edit, and is then scanned for secrets', () => {
+  // Publishing is a deliberate change to `visibility`, never a side effect:
+  // an apply must not make a private repository public.
+  expect(['private', 'public']).toContain(GLOBAL.github.settings.visibility);
+  for (const setting of ['secret_scanning', 'secret_scanning_push_protection'])
+    expect(repository).toMatch(
+      new RegExp(
+        `\\b${setting}\\s*\\{\\s*status\\s*=\\s*var\\.settings\\.visibility == "public" \\? "enabled" : "disabled"`
+      )
+    );
+  expect(actions).toMatch(/sha_pinning_required\s*=\s*true/);
+  for (const resource of [
+    'github_repository_vulnerability_alerts',
+    'github_repository_dependabot_security_updates',
+  ])
+    expect(actions).toMatch(
+      new RegExp(`resource "${resource}" "this" \\{[^}]*enabled\\s*=\\s*true`)
+    );
 });
 
 test('Actions has read defaults, cannot approve PRs, and existing configuration is adopted', () => {

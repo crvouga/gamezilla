@@ -1,4 +1,4 @@
 {
-  "summary": "Verify run 36969157332 for e483164a3 failed with Infisical Access denied: OIDC subject not allowed after the repository moved to gamezilla-org/gamezilla. The global bootstrap inputs still declared crvouga/gamezilla, producing the former subject and audience. Declare gamezilla-org so the human bootstrap apply updates Infisical and AWS trust to the transferred repository.",
+  "summary": "Verify run 36969157332 for e483164a3 failed with Infisical Access denied: OIDC subject not allowed after the repository moved to its new organization owner. The global bootstrap inputs still declared the former user-owned repository, producing the former subject and audience. Declare the new organization owner so the human bootstrap apply updates Infisical and AWS trust to the transferred repository.",
   "regressionTest": "libs/infra-server-ts/tests/github-transfer.test.ts"
 }

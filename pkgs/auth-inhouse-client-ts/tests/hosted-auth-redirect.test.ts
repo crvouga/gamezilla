@@ -1,9 +1,6 @@
 import { afterEach, expect, test } from 'bun:test';
 import { createInhouseAuthClient } from '@pkgs/auth-inhouse-client-ts/create-inhouse-auth-client';
-import {
-  createBearerTokenStore,
-  createInMemoryAuthClientStorage,
-} from '@pkgs/auth-inhouse-shared-ts/bearer-token-store';
+import { createBearerTokenStore } from '@pkgs/auth-inhouse-shared-ts/bearer-token-store';
 import { AuthFlowError } from '@pkgs/auth-root-client-ts/auth-flow-error';
 import { AuthLinkRequiredError } from '@pkgs/auth-root-client-ts/auth-link-required-error';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
@@ -48,7 +45,7 @@ test.each([
       fetch: async () => {
         throw new Error('A failed callback must not exchange a session');
       },
-      storage: createInMemoryAuthClientStorage(),
+      bearerStore: createBearerTokenStore({ storageKey: 'myapp.auth.bearer' }),
     });
     await expect(port.completeHostedAuthRedirect?.()).rejects.toBeInstanceOf(
       errorType
@@ -64,7 +61,9 @@ test.each([null, 'previous-bearer'])(
   async (previous) => {
     setCallback('?code=one-time-code');
     const requests: { url: string; init: RequestInit | undefined }[] = [];
-    const bearerStore = createBearerTokenStore();
+    const bearerStore = createBearerTokenStore({
+      storageKey: 'myapp.auth.bearer',
+    });
     if (previous !== null) await bearerStore.write(previous);
     const port = createInhouseAuthClient({
       baseURL: 'https://api.test',
@@ -108,7 +107,9 @@ test.each([null, 'previous-bearer'])(
   async (previous) => {
     setCallback('?email_link=one-time-token');
     const requests: { url: string; init: RequestInit | undefined }[] = [];
-    const bearerStore = createBearerTokenStore();
+    const bearerStore = createBearerTokenStore({
+      storageKey: 'myapp.auth.bearer',
+    });
     if (previous !== null) await bearerStore.write(previous);
     const port = createInhouseAuthClient({
       baseURL: 'https://api.test',
@@ -150,7 +151,7 @@ test('an email link that no longer works is published to the sign-in modal', asy
     callbackUrl: CALLBACK,
     ...createHarnessClock(),
     fetch: async () => Response.json({ error: 'expired' }, { status: 401 }),
-    storage: createInMemoryAuthClientStorage(),
+    bearerStore: createBearerTokenStore({ storageKey: 'myapp.auth.bearer' }),
   });
   await expect(port.completeHostedAuthRedirect?.()).rejects.toMatchObject({
     code: 'expired',

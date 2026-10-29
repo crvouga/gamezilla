@@ -1,4 +1,5 @@
 import { expect, test } from 'bun:test';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { simulate } from '@pkgs/quint-server-ts/simulate';
 
@@ -20,6 +21,29 @@ test('each constant assignment draws its own initial state and cache entry', () 
       ),
     });
     expect(drawn.traces[0]?.states[0]?.vars['locked']).toBe(locked);
+  }
+}, 30_000);
+
+// regression: itf-source-records-machine-path
+test('a drawn trace names its model by file name, never by a machine path', () => {
+  const outDir = join(import.meta.dir, '../.cache/parameterized-draw/meta');
+  simulate({
+    specPath: FIXTURE,
+    parameters: { LOCKED: true },
+    traces: 1,
+    maxSteps: 1,
+    seed: '0x2b',
+    outDir,
+  });
+  const files = readdirSync(outDir).filter((file) =>
+    file.endsWith('.itf.json')
+  );
+  expect(files.length).toBeGreaterThan(0);
+  for (const file of files) {
+    const trace = JSON.parse(readFileSync(join(outDir, file), 'utf8')) as {
+      '#meta': { source: string };
+    };
+    expect(trace['#meta'].source).toBe('parameterized-door.qnt');
   }
 }, 30_000);
 

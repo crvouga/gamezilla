@@ -17,6 +17,7 @@
     "test": "bun test tests"
   },
   "dependencies": {
+    "@libs/product-identity-shared-ts": "workspace:*",
     "@pkgs/clock-shared-ts": "workspace:*",
     "@pkgs/http-client-shared-ts": "workspace:*",
     "@pkgs/os-shared-ts": "workspace:*",
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "@pkgs/property-shared-ts": "workspace:*",
+    "@pkgs/resource-naming-shared-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",

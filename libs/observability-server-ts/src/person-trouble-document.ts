@@ -1,3 +1,4 @@
+import { serviceName } from '@libs/product-identity-shared-ts/technical-names';
 import { ATTR } from '@pkgs/observability-root-shared-ts/attributes';
 import { PROBE_ENVIRONMENT } from '@pkgs/observability-root-shared-ts/deployment-environment';
 import { parseLocalClock } from '@pkgs/observability-root-shared-ts/local-clock';
@@ -47,7 +48,7 @@ export function personTroubleDocument(plant: PersonPlant): {
         name: 'client.error',
         instantMs: clock.instantMs,
         error: true,
-        service: 'gamezilla-client',
+        service: serviceName('client'),
         attributes: [
           attribute(ATTR.USER_ID, plant.userId),
           attribute(ATTR.APP_DEVICE_TIMEZONE, clock.timeZone),
@@ -59,7 +60,7 @@ export function personTroubleDocument(plant: PersonPlant): {
         name: 'http.server.request',
         instantMs: clock.instantMs,
         error: false,
-        service: 'gamezilla-server',
+        service: serviceName('server'),
         attributes: placeAttributes(plant.userId, place.city, place.region),
       }),
     ],

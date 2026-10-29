@@ -19,7 +19,7 @@ their unchanged local budget, even when the task process exited successfully.
 Its regression pins the actual 496-second matchmaking task and its 300-second
 budget. Seven artifacts previously published by the failed full run were
 moved out of the reusable store, not deleted; their fourteen files are
-recoverable in `/tmp/gamezilla-over-budget-artifacts.HqlkOJ` on this machine.
+recoverable in `/tmp/<namespace>-over-budget-artifacts.HqlkOJ` on this machine.
 
 Both fixes have example regressions and individual known-bug records.
 An adversarial proof-runner test confirms that per-transition scheduling
@@ -44,7 +44,7 @@ custom-game induction exceeded their respective existing solver deadlines.
 Eight executed tasks also exceeded their unchanged task budgets, including
 the failed chess task and seven zero-exit tasks. A zero exit is not a passing
 budget verdict. The summary and logs are retained in this machine's archive:
-`/var/folders/fz/9yx28kz10c3dsh38kbwzyq_w0000gn/T/check-run-0KAQRr/diagnostics.tar.gz`.
+`$TMPDIR/check-run-0KAQRr/diagnostics.tar.gz`.
 
 The successful isolated profile checks were run after that full failure.
 They do not attest a new full verification result.

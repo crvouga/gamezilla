@@ -2,7 +2,7 @@
 
 ## Primary outcome
 
-Implement a polished **Scrabble-like word-tile game** in Gamezilla, using **Word Tiles** as a working title unless the repository already establishes another name.
+Implement a polished **Scrabble-like word-tile game** in the product, using **Word Tiles** as a working title unless the repository already establishes another name.
 
 **The main deliverable is a stronger shared game framework.** Use this game to extend, refactor, and prove reusable support for **compound player actions, private inventories, authoritative random draws, dictionary-backed rules, live and asynchronous multiplayer, and a single game composing multiplayer and puzzle capabilities**.
 
@@ -249,7 +249,7 @@ Run relevant checks at every gate, then the repository's full validation entry p
 
 ## 11. Definition of done
 
-- The word game is discoverable and playable through Gamezilla, with offline bot practice, two-to-four-player custom games, and existing matchmaking integration.
+- The word game is discoverable and playable through the app, with offline bot practice, two-to-four-player custom games, and existing matchmaking integration.
 - Live and asynchronous play share rules and command contracts; acknowledged turns survive restart and retry without duplicate scoring or different draws.
 - Compound candidates, cross-word validation, blanks, multipliers, exchange, endings, ties, and responsive accessible controls work end to end.
 - Opponent racks and future draws are protected across transport, persistence/sync, spectators, reconnects, history, and diagnostics.
@@ -263,4 +263,4 @@ Do not add tournaments, wagering, trade systems, user-uploaded dictionaries, cha
 
 Finish with a concise report of implemented user workflows, shared contracts changed, consumers migrated, lexicon provenance, checks and outcomes, reproduction artifacts, remaining limitations, and exactly what game-specific code the next comparable game would need.
 
-**Final objective:** deliver a polished word-tile game that proves Gamezilla can combine compound turns, hidden finite inventories, versioned rule data, durable multiplayer, and authored puzzles without rebuilding its platform for each game.
+**Final objective:** deliver a polished word-tile game that proves the product can combine compound turns, hidden finite inventories, versioned rule data, durable multiplayer, and authored puzzles without rebuilding its platform for each game.

@@ -1,4 +1,10 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-action.json
+# zizmor `github-env`: the `$GITHUB_ENV`/`$GITHUB_PATH` writes below carry
+# runner values and this repository's own files. They could only escalate
+# where untrusted code shares a job with privileged credentials; no workflow
+# here has such a trigger (`pull_request_target`, `workflow_run`;
+# libs/tools-harness-ts/scripts/workflow-pinning.test.ts refuses them), and a
+# fork's pull request gets no secret or OIDC token to steal.
 name: Inject secrets via Infisical OIDC
 description: Provider adapter — Infisical machine identity OIDC → GITHUB_ENV
 
@@ -20,17 +26,25 @@ inputs:
 runs:
   using: composite
   steps:
+    # GitHub mints no OIDC token for a pull request from a fork or from
+    # Dependabot, so such a run can read no secret. Say so plainly instead of
+    # failing inside the secrets action; a maintainer re-runs the change from a
+    # branch of this repository.
     # Normalize queryless token URLs before the action appends &audience.
     - name: Prepare OIDC request URL
       shell: bash
-      run: |
+      run: |  # zizmor: ignore[github-env] -- see the note at the top of this file
         set -euo pipefail
+        if [ -z "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" ]; then
+          echo "::error::No OIDC token is available to this run (a pull request from a fork or Dependabot, or a job without id-token: write). The gate needs the dev secrets; push the change to a branch of this repository to verify it."
+          exit 1
+        fi
         if [[ "$ACTIONS_ID_TOKEN_REQUEST_URL" != *\?* ]]; then
           printf 'ACTIONS_ID_TOKEN_REQUEST_URL=%s?\n' "$ACTIONS_ID_TOKEN_REQUEST_URL" >> "$GITHUB_ENV"
         fi
 
     - name: Fetch secrets from Infisical
-      uses: Infisical/secrets-action@v1.0.16
+      uses: Infisical/secrets-action@77ab1f4ccd183a543cb5b42435fbd181189f4995 # v1.0.16
       with:
         method: oidc
         oidc-audience: https://github.com/${{ github.repository_owner }}
@@ -49,9 +63,11 @@ runs:
     # `SECRETS_PROJECT_ID` — machine-identity `infisical export` 404s on a slug.
     - name: Export secrets auth coords for admin CLI
       shell: bash
-      run: |
+      env:
+        IDENTITY_ID: ${{ inputs.identity-id }}
+      run: |  # zizmor: ignore[github-env] -- see the note at the top of this file
         set -euo pipefail
-        echo "SECRETS_IDENTITY_ID=${{ inputs.identity-id }}" >> "$GITHUB_ENV"
+        echo "SECRETS_IDENTITY_ID=${IDENTITY_ID}" >> "$GITHUB_ENV"
         project_id="$(bun -p 'require("./.secrets.json").projectId ?? ""')"
         if [ -z "$project_id" ] || [ "$project_id" = "null" ]; then
           echo "::error::.secrets.json missing projectId (Infisical workspace UUID)"
@@ -66,7 +82,7 @@ runs:
     # .turbo/config.json. Pin both to the root turbo.json, as turbo-ci-run does.
     - name: Pin the Turbo Remote Cache team
       shell: bash
-      run: |
+      run: |  # zizmor: ignore[github-env] -- see the note at the top of this file
         set -euo pipefail
         echo "TURBO_TEAM=$(bun -p 'require("./turbo.json").remoteCache.teamSlug')" >> "$GITHUB_ENV"
         echo "TURBO_API=$(bun -p 'require("./turbo.json").remoteCache.apiUrl')" >> "$GITHUB_ENV"

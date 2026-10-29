@@ -1,0 +1,12 @@
+{
+  "name": "@libs/product-identity",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The product's identity: brand, immutable technical namespace and frozen external identifiers, as data any language reads.",
+  "category": "isomorphic",
+  "language": "neutral",
+  "exports": {
+    "./product-identity.json": "./product-identity.json",
+    "./product-identity.schema.json": "./product-identity.schema.json"
+  }
+}

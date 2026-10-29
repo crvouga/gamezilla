@@ -2,14 +2,17 @@ import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { GLOBAL } from '@libs/infra-shared-ts/global';
+import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
+
+const [OWNER, REPO] = PRODUCT.external.sourceRepository.split('/');
 
 test('the transferred repository supplies its current OIDC subject and audience', () => {
   // regression: ci-repository-transfer-oidc-subject
   expect(`repo:${GLOBAL.github.owner}/${GLOBAL.github.repo}:pull_request`).toBe(
-    'repo:crvouga/gamezilla:pull_request'
+    `repo:${PRODUCT.external.sourceRepository}:pull_request`
   );
   expect(`https://github.com/${GLOBAL.github.owner}`).toBe(
-    'https://github.com/crvouga'
+    `https://github.com/${OWNER}`
   );
 });
 
@@ -19,7 +22,7 @@ test('CI trusts the literal immutable subject returned after the repository tran
   const github = GLOBAL.github;
   expect(
     `repo:${github.owner}@${github.owner_id}/${github.repo}@${github.repo_id}:pull_request`
-  ).toBe('repo:crvouga@49178412/gamezilla@1165464734:pull_request');
+  ).toBe(`repo:${OWNER}@49178412/${REPO}@1165464734:pull_request`);
   const tofu = join(import.meta.dirname, '../../infra-shared-ts/tofu');
   const bootstrap = readFileSync(
     join(tofu, 'stacks/bootstrap/main.tf'),
@@ -58,6 +61,6 @@ test('bootstrap updates the existing CI auth without recreating its binding', ()
   expect(infisical).toContain('from = infisical_identity_oidc_auth.github');
   expect(infisical).toContain('to   = infisical_identity_oidc_auth.ci');
   expect(infisical).toContain('resource "infisical_identity_oidc_auth" "ci"');
-  // The transferred repo has no existing gamezilla:main rule to import.
+  // The transferred repo has no existing `<repo>:main` rule to import.
   expect(GLOBAL.global_imports).not.toHaveProperty('github_branch_protection');
 });

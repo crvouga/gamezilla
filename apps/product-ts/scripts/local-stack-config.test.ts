@@ -13,7 +13,7 @@ import { stackSuiteArgs } from './stack-suite-args';
 
 test('only shared reference-data credentials cross into local APIs and stack tests replace them', async () => {
   const shared = {
-    SHARED_DATA_BUCKET: 'gamezilla-shared',
+    SHARED_DATA_BUCKET: 'acme-shared',
     SHARED_DATA_ENDPOINT: 'https://r2.example',
     SHARED_DATA_REGION: 'auto',
     SHARED_DATA_ACCESS_KEY_ID: 'shared-key',

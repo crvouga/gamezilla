@@ -18,7 +18,7 @@ export function ConnectionNotice(): JSX.Element {
 
 /**
  * Says which part is missing: the person's own choice or device ("You're
- * offline") versus Gamezilla being out of reach, which is not their doing.
+ * offline") versus the product being out of reach, which is not their doing.
  */
 export function ConnectionStatusIndicator(props: {
   readonly cause: ConnectionCause;

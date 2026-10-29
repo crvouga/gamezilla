@@ -2,7 +2,7 @@ import type { OriginAvailabilityPhase } from '@pkgs/http-client-shared-ts/origin
 
 /**
  * Why the app is, or is not, connected right now. A person's own choice to
- * work offline, a device with no network, and Gamezilla being out of reach
+ * work offline, a device with no network, and the product being out of reach
  * call for different reassurance, so the shell names them apart.
  */
 export type ConnectionCause =
@@ -19,7 +19,7 @@ export function resolveConnectionCause(args: {
   readonly workingOffline: boolean;
   readonly deviceOnline: boolean;
   readonly origin: OriginAvailabilityPhase;
-  /** A live, synced engine connection: proof Gamezilla answers. */
+  /** A live, synced engine connection: proof the product answers. */
   readonly syncLive: boolean;
 }): ConnectionCause {
   if (args.workingOffline) return 'workingOffline';

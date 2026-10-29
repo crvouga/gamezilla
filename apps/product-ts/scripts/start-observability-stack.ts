@@ -4,6 +4,10 @@ import type { ChildProcess } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import {
+  technicalKey,
+  technicalName,
+} from '@libs/product-identity-shared-ts/technical-names';
 import { registerDevContainer } from '@pkgs/dev-owner-server-ts/dev-owner-resources';
 import { spawnOwned as spawn } from '@pkgs/dev-owner-server-ts/dev-owner-spawn';
 
@@ -63,7 +67,7 @@ function safeContainerName(instanceId: string): string {
     .update(process.env['DEV_OWNER_ROOT'] ?? process.cwd())
     .digest('hex')
     .slice(0, 12);
-  return `gamezilla-observability-${rootHash}-${suffix}`;
+  return `${technicalName(['observability', rootHash])}-${suffix}`;
 }
 
 function childExit(child: ChildProcess): Promise<void> {
@@ -216,7 +220,7 @@ function lgtmArgs(args: {
     '--name',
     containerName,
     '--label',
-    'gamezilla.sidecar=observability',
+    `${technicalKey('sidecar')}=observability`,
     '--publish',
     `127.0.0.1:${String(collectorPort.port)}:4318`,
     '--publish',

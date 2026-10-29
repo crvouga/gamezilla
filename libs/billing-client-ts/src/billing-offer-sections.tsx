@@ -7,6 +7,7 @@
  * current price is the one chosen row.
  */
 
+import { PRODUCT_NAME } from '@libs/product-identity-shared-ts/product-identity';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans } from '@lingui/solid/macro';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
@@ -132,13 +133,16 @@ export function BillingPricing(props: {
 }
 
 export function BillingBenefits(): JSX.Element {
+  const productName = PRODUCT_NAME;
   return (
     <MenuSection
       title={<Trans>What Plus includes</Trans>}
       role="group"
       dataSet={{ testid: Handles.billingBenefits }}
     >
-      <MenuRow title={<Trans>Unlimited access to Gamezilla servers</Trans>} />
+      <MenuRow
+        title={<Trans>Unlimited access to {productName} servers</Trans>}
+      />
       <MenuRow title={<Trans>Host as many spaces as you like at once</Trans>} />
       <MenuRow
         title={

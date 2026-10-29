@@ -4,10 +4,7 @@
  * one thing it carries — a code to exchange, an error, or a pending link.
  */
 
-import type {
-  AuthClientStorage,
-  BearerTokenStore,
-} from '@pkgs/auth-inhouse-shared-ts/bearer-token-store';
+import type { BearerTokenStore } from '@pkgs/auth-inhouse-shared-ts/bearer-token-store';
 import type { SignInOptions } from '@pkgs/auth-root-shared-ts/auth-client-port';
 import { AUTH_ERROR } from '@pkgs/auth-root-shared-ts/auth-error-code';
 import type { AuthSessionStore } from '@pkgs/auth-root-shared-ts/auth-session-state';
@@ -42,12 +39,16 @@ export type AuthClientAdapterConfig = {
   readonly clock: Clock;
   readonly timers: Timers;
   readonly fetch: HttpFetch;
-  readonly storage?: AuthClientStorage;
-  readonly bearerStore?: BearerTokenStore;
+  /** Where the session's bearer token lives (`createBearerTokenStore`). */
+  readonly bearerStore: BearerTokenStore;
   /** Required for OAuth providers; unused only when every strategy is stubbed. */
   readonly openAuthSession?: OpenAuthSession;
-  /** Absolute client callback URL (e.g. https://app/sso-callback). */
-  readonly callbackUrl?: string;
+  /**
+   * Absolute client callback URL: same-origin on the web
+   * (`https://app.example/sso-callback`), the deep link natively
+   * (`myapp://sso-callback`; see `oauthClientCallbackUrl`).
+   */
+  readonly callbackUrl: string;
 };
 
 export type SignInCtx = {

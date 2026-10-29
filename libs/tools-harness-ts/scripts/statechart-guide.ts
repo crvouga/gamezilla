@@ -20,7 +20,7 @@ export function productGuide(
     contracts: [...contracts],
     eventKinds: productEventKinds(bundle),
     description:
-      'Explore Gamezilla: choose an action, read its outcome and rules, or find a route to any capability. Everything runs from the product model, without the application server.',
+      'Explore the product: choose an action, read its outcome and rules, or find a route to any capability. Everything runs from the product model, without the application server.',
   };
   const nodes = new Map(
     walkStates(machine).map(({ name, node }) => [name, node])

@@ -26,6 +26,7 @@
 // @io-wall-ok — composition root (Vercel CLI + Infisical admin CLI)
 import { join } from 'node:path';
 import { ENV_FILES } from '@libs/infra-shared-ts/envs';
+import { NAMESPACE } from '@libs/product-identity-shared-ts/product-identity';
 import { ok, warn } from '@libs/secrets-server-ts/fmt';
 import {
   deleteSecretIn,
@@ -39,7 +40,7 @@ import { capture, run, which } from '@pkgs/os-server-ts/command';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 /** Names every token this script creates; earlier ones are revoked by it. */
-const TOKEN_NAME = `gamezilla turbo remote cache (${TURBO_TEAM})`;
+const TOKEN_NAME = `${NAMESPACE} turbo remote cache (${TURBO_TEAM})`;
 /** Left by the self-hosted cache this replaced; nothing reads it now. */
 const RETIRED_SECRETS = ['TURBO_API'] as const;
 

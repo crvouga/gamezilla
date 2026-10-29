@@ -1,4 +1,4 @@
 {
-  "summary": "Verify run 36971653610 failed with OIDC subject not allowed because live CI auth still trusted repo:gamezilla-org/gamezilla:*. Bootstrap could not apply the immutable subject: the auth resource was renamed from ci to github without preserving its state address, retired CI resources were scheduled for deletion, and gamezilla:main was imported despite no protection rule existing. Keep the auth address, forget retired resources without destruction, and create the missing rule instead of importing it.",
+  "summary": "Verify run 36971653610 failed with OIDC subject not allowed because live CI auth still trusted the name-only subject repo:<owner>/<repository>:*. Bootstrap could not apply the immutable subject: the auth resource was renamed from ci to github without preserving its state address, retired CI resources were scheduled for deletion, and <repository>:main was imported despite no protection rule existing. Keep the auth address, forget retired resources without destruction, and create the missing rule instead of importing it.",
   "regressionTest": "libs/infra-server-ts/tests/github-transfer.test.ts"
 }

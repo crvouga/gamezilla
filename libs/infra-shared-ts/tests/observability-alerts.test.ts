@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
 
 type Rule = {
   readonly key: string;
@@ -54,7 +55,9 @@ test('every alert names its owner, severity and a runbook section that exists', 
     expect(['warning', 'critical']).toContain(alert.severity);
     expect(alert.summary.length).toBeGreaterThan(0);
     const [page, anchor] = alert.runbook_url.split('#');
-    expect(page).toStartWith('https://github.com/crvouga/gamezilla/blob/main/');
+    expect(page).toStartWith(
+      `https://github.com/${PRODUCT.external.sourceRepository}/blob/main/`
+    );
     if (page?.endsWith('libs/observability-shared-ts/README.md'))
       expect(sections).toContain(anchor ?? '');
     else expect(page).toEndWith('docs/SLO_RUNBOOK.md');

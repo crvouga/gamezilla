@@ -1,4 +1,4 @@
 {
-  "summary": "Verify run 36974006709 failed with Infisical HTTP 403 after the repository transfer enabled GitHub's immutable OIDC subject. Bind Infisical and AWS CI identities to repo:gamezilla-org@336801040/gamezilla@1165464734 while preserving branch and environment restrictions.",
+  "summary": "Verify run 36974006709 failed with Infisical HTTP 403 after the repository transfer enabled GitHub's immutable OIDC subject. Bind Infisical and AWS CI identities to repo:<owner>@336801040/<repository>@1165464734 while preserving branch and environment restrictions.",
   "regressionTest": "libs/infra-server-ts/tests/github-oidc.test.ts"
 }

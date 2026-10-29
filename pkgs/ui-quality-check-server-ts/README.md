@@ -4,6 +4,8 @@ Automatically score UI quality in screenshots and recorded test videos, entirely
 
 Run a pinned visual model over existing test artifacts and fail when a rendered state falls below your quality threshold. No cloud API, browser hooks, Python runtime, or test-framework integration.
 
+A private workspace package: it is not published, and like the rest of this repository it is proprietary (repository [`LICENSE`](../../LICENSE); third-party notices in [`NOTICE.md`](NOTICE.md)). The commands below show its standalone interface.
+
 ```bash
 npm install --save-dev ui-quality-check
 npx ui-quality-check setup
@@ -183,6 +185,6 @@ Cache the prepared model directory during explicit CI setup, verify it with `ui-
 
 Provide `detectors: readonly QualityDetector[]` to replace or combine detectors. Each exposes `info`, `initialize()`, batched `score(RgbImage[], signal?)`, and `dispose()`. The checker validates one finite normalized score per image, requires every detector, and preserves per-detector evidence. `executionProviderCandidates()` exposes the portable candidate policy for custom native adapters; candidates still require successful initialization/inference. An injectable `VideoDecoder` supports other local media backends; its version participates in caching. `SequenceDetector` describes a future incremental temporal seam, but is not executed by the current checker.
 
-The published ESM package bundles its generic utility code, with exactly three runtime dependencies: ONNX Runtime, Sharp, and FFmpeg. It imports no application, spec, harness, browser, or test-runner package. Core logic receives I/O ports; process/filesystem/clock adapters are wired at standalone composition roots.
+The standalone ESM build bundles its generic utility code, with exactly three runtime dependencies: ONNX Runtime, Sharp, and FFmpeg. It imports no application, spec, harness, browser, or test-runner package. Core logic receives I/O ports; process/filesystem/clock adapters are wired at standalone composition roots.
 
 From this package directory: `bun run tc`, `bun run lint`, `bun test`, `bun run build`. The fast tests use deterministic detectors, injected decoders and virtual clocks. `bun run evaluate` runs the real installed model offline over the committed 208-image corpus. `bun run scripts/generate-videos.ts` creates the benchmark corpus, `bun run scripts/profile.ts .cache/benchmark-videos` measures the tradeoffs, and `bun run scripts/verify-native.ts /path/to/node` performs automated real-codec/CLI/model assertions. These development commands never install a model implicitly.

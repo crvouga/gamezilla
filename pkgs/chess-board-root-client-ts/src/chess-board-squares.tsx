@@ -160,10 +160,13 @@ function Coordinates(props: {
       class={`${styles['layer']} ${styles['svgLayer']} ${styles['coords']}`}
       viewBox={BOARD_VIEW_BOX}
     >
+      {/* A file label's right inset absorbs a glyph's overhang past its
+          advance (`f`) plus a device pixel of snapping at half scale on the
+          smallest board, so the label never leaves its square. */}
       <For each={files()}>
         {(file, col) => (
           <text
-            x={col() * CELL_UNITS + CELL_UNITS - 6}
+            x={col() * CELL_UNITS + CELL_UNITS - 10}
             y={8 * CELL_UNITS - 20}
             fill={ink(col(), 7)}
             font-size="20"

@@ -4,7 +4,7 @@ import SwiftUI
 struct RootView: View {
   var body: some View {
     VStack {
-      Text("Gamezilla")
+      Text(ProductIdentity.displayName)
         .font(.largeTitle.bold())
         .accessibilityAddTraits(.isHeader)
         .accessibilityIdentifier(AccessibilityID.title)

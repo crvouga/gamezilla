@@ -36,7 +36,7 @@ metadata:
   name: outside-services-answer
   displayName: The services the app relies on answer
   labels:
-    gamezilla.dev.tier: "1"
+    tier: "1"
 spec:
   description: >-
     In at least 95 of every 100 hours in which the team checked, every

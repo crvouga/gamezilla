@@ -1,4 +1,5 @@
 // @io-wall-ok — Synthetic Population Worker process metrics exporter composition root.
+import { serviceName } from '@libs/product-identity-shared-ts/technical-names';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import {
@@ -38,7 +39,7 @@ function metricProvider(
   });
   return new MeterProvider({
     resource: resourceFromAttributes({
-      'service.name': 'gamezilla-synthetic-population-worker',
+      'service.name': serviceName('synthetic-population-worker'),
       'service.version': env['DEPLOYMENT_VERSION'] ?? 'local',
       'service.instance.id': instanceId,
       'deployment.environment.name': env['DEPLOYMENT_ENVIRONMENT'] ?? 'local',

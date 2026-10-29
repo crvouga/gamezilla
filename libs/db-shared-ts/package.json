@@ -14,6 +14,7 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
+    "@libs/product-identity-shared-ts": "workspace:*",
     "@pkgs/clock-shared-ts": "workspace:*",
     "@pkgs/database-url-policy-shared-ts": "workspace:*",
     "@pkgs/http-client-shared-ts": "workspace:*",

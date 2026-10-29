@@ -56,6 +56,7 @@ async function createInhouseAuthProvider(
     trustedOrigins: buildAuthTrustedOrigins({
       apiBaseURL: env.apiOrigin,
       clientWebOrigins: env.clientOrigins,
+      clientSchemes: env.clientSchemes,
     }),
     providers: config.providers,
     onUserChanged: env.onUserChanged,

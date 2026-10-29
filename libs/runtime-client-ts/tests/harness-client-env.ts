@@ -7,7 +7,10 @@
 
 import type { ClientEnv } from '@libs/app-root-client-ts/client-env';
 import { createInMemoryClientPorts } from '@libs/app-root-client-ts/in-memory-client-ports';
-import { createSecureStoreAuthClientStorage } from '@libs/app-root-shared-ts/auth-client-storage';
+import {
+  createAppBearerTokenStore,
+  createSecureStoreAuthClientStorage,
+} from '@libs/app-root-shared-ts/auth-client-storage';
 import { shippedModerationRules } from '@libs/moderation-shared-ts/moderation-rules';
 import { createInhouseAuthClient } from '@pkgs/auth-inhouse-client-ts/create-inhouse-auth-client';
 import type { Session } from '@pkgs/harness-root-shared-ts/runtime-types';
@@ -90,7 +93,9 @@ export async function harnessClientEnv(
         clock,
         timers,
         fetch: http,
-        storage: createSecureStoreAuthClientStorage(secureStorage),
+        bearerStore: createAppBearerTokenStore(
+          createSecureStoreAuthClientStorage(secureStorage)
+        ),
         openAuthSession: () => Promise.resolve({ type: 'cancel' }),
         callbackUrl: `${serverUrl}/sso-callback`,
       }),

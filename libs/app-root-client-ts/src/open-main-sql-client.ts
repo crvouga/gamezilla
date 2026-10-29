@@ -6,6 +6,7 @@ import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-sha
  */
 
 import { getMainSqliteDbName } from '@libs/app-root-shared-ts/main-sqlite-db-name';
+import { technicalName } from '@libs/product-identity-shared-ts/technical-names';
 import type { Timers } from '@pkgs/clock-shared-ts/types';
 import type { Logger } from '@pkgs/logger-shared-ts/logger';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
@@ -64,9 +65,21 @@ function withinOpenDeadline(
 }
 
 /** Builds the browser database client for `dbName` (not yet connected). */
+/**
+ * The BroadcastChannel on which local-data recovery asks every open tab to
+ * drop its OPFS handles. Derived from the immutable technical namespace, so
+ * it is the same in every version of the app: a tab still running an older
+ * version hears a newer tab's request.
+ */
+export const OPFS_WIPE_CHANNEL = technicalName(['opfs', 'wipe']);
+
 export type CreateWebSqlClient = (
   dbName: string,
-  options: { readonly timers: Timers; readonly logger: Logger }
+  options: {
+    readonly timers: Timers;
+    readonly logger: Logger;
+    readonly wipeChannel: string;
+  }
 ) => SqlClient;
 
 export async function openMainSqlClient(
@@ -79,6 +92,7 @@ export async function openMainSqlClient(
     const client = createClient(getMainSqliteDbName(userId), {
       timers,
       logger,
+      wipeChannel: OPFS_WIPE_CHANNEL,
     });
     try {
       await withinOpenDeadline(client.connect(), timers);

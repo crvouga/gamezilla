@@ -18,8 +18,8 @@ run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manua
 #
 # One job per environment in libs/infra-shared-ts/tofu/envs/<env>.tfvars.json
 # (health:matrix reads them — libs/infra-shared-ts/scripts/workflow-env-matrix.ts — from
-# a job with no secrets); adding an env file needs no edit here. Envs with
-# `protection: "production"` run in the GitHub `production` environment and
+# a job with no secrets); adding an env file needs no edit here. On `main`, envs
+# with `protection: "production"` run in the GitHub `production` environment and
 # keep their critical-journey evidence on failure. Scenarios only production
 # can run (`HOST_LIMITS` in apps/product-ts/scripts/health.ts) skip elsewhere.
 #
@@ -42,10 +42,11 @@ run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manua
 # historical deficit to the fix's PR. Scheduled and manual main runs retain the
 # objective.
 
+# Least privilege: read the code and run metadata. Jobs that read secrets or
+# AWS add the OIDC token they trust.
 permissions:
-  contents: read
-  actions: read
-  id-token: write
+  contents: read # check out the code
+  actions: read # read run state (gh run list, job metadata)
 
 on:
   schedule:
@@ -77,9 +78,9 @@ jobs:
     runs-on: boat
     timeout-minutes: 20
     permissions:
-      contents: write
-      pull-requests: read
-      id-token: write
+      contents: write # delete stale report branches
+      pull-requests: read # keep branches that have an open pull request
+      id-token: write # mint the OIDC token Infisical and AWS trust
     concurrency:
       group: reports-cleanup
       cancel-in-progress: false
@@ -87,13 +88,15 @@ jobs:
       matrix:
         include:
           - env: ${{ fromJSON(needs.health-matrix.outputs.all)[0] }}
-    environment: ${{ contains(fromJSON(needs.health-matrix.outputs.production), matrix.env) && 'production' || '' }}
+    environment: ${{ github.ref == 'refs/heads/main' && contains(fromJSON(needs.health-matrix.outputs.production), matrix.env) && 'production' || '' }}
     env:
       SECRETS_ENV: ${{ matrix.env }}
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
       GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
       - uses: ./.github/actions/setup
         with:
           tools: bun gh
@@ -113,7 +116,9 @@ jobs:
       idle: ${{ steps.deploying.outputs.idle }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
 
       - uses: ./.github/actions/setup
 
@@ -147,9 +152,15 @@ jobs:
     needs: health-matrix
     if: needs.health-matrix.outputs.all != '[]' && needs.health-matrix.outputs.idle == 'true'
     runs-on: boat
+    permissions:
+      contents: read # check out the code
+      id-token: write # mint the OIDC token Infisical and AWS trust
     timeout-minutes: 30
-    # No GitHub environment ('') for a standard env.
-    environment: ${{ contains(fromJSON(needs.health-matrix.outputs.production), matrix.env) && 'production' || '' }}
+    # No GitHub environment ('') for a standard env. Only `main` may enter the
+    # `production` environment (its deployment branch policy), so a branch run
+    # checks a production env without it: the read-only Health role trusts a
+    # branch, and the deploy role trusts only `production` and `main`.
+    environment: ${{ github.ref == 'refs/heads/main' && contains(fromJSON(needs.health-matrix.outputs.production), matrix.env) && 'production' || '' }}
     strategy:
       # One unhealthy environment should not cancel (and hide) another's probes.
       fail-fast: false
@@ -163,7 +174,9 @@ jobs:
       AWS_ROLE_ARN: ${{ vars.AWS_HEALTH_ROLE_ARN }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
 
       - id: setup
         uses: ./.github/actions/setup
@@ -185,7 +198,7 @@ jobs:
       - name: Upload critical journey evidence
         if: failure()
         run: >-
-          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload critical-journeys-${{ github.run_id }}-${{ matrix.env }}
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload critical-journeys-"${GITHUB_RUN_ID}-${SECRETS_ENV}"
           apps/product-ts/.cache/critical-journeys
 
   # One job for every env, not a matrix. Runs after the checks (whatever
@@ -197,14 +210,16 @@ jobs:
     runs-on: boat
     timeout-minutes: 15
     permissions:
-      contents: read
-      id-token: write
+      contents: read # check out the code
+      id-token: write # mint the OIDC token Infisical and AWS trust
     env:
       ENVS: ${{ needs.health-matrix.outputs.all }}
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
 
       - uses: ./.github/actions/setup
 

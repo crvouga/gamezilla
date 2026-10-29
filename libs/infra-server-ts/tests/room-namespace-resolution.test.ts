@@ -14,6 +14,7 @@ import {
   ROOM_TRANSFER_TAG,
   roomMigrations,
 } from '@libs/infra-shared-ts/worker-lifecycle';
+import { technicalName } from '@libs/product-identity-shared-ts/technical-names';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
 import { unstable_getDurableObjectClassNameToUseSQLiteMap } from 'wrangler';
@@ -23,12 +24,12 @@ const dev = envFile('dev');
 // Literal inventory from the failed deploy; hostnames still used the old Workers.
 const source = {
   id: 'ab56d7be4eac481e81df42eac8c99aac',
-  script: 'gamezilla-room-development',
+  script: technicalName(['room', 'development']),
   class: ROOM_CLASS,
 };
 const target = {
   id: '76e8864ea97c4d329171afb8778fb729',
-  script: 'gamezilla-dev',
+  script: technicalName(['dev']),
   class: ROOM_CLASS,
 };
 const archive = { ...target, class: ROOM_ARCHIVE_CLASS };

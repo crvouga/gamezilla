@@ -31,7 +31,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "quantile_over_time(0.75, {service_name=\"gamezilla-client\",deployment_environment_name=\"${environment}\"} |= \"browser.performance.measured\" | web_vital_name=\"lcp\" | unwrap web_vital_value | __error__=\"\" [5m])",
+          "expr": "quantile_over_time(0.75, {service_name=\"${namespace}-client\",deployment_environment_name=\"${environment}\"} |= \"browser.performance.measured\" | web_vital_name=\"lcp\" | unwrap web_vital_value | __error__=\"\" [5m])",
           "datasource": {
             "type": "loki",
             "uid": "${logs_uid}"
@@ -63,7 +63,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "quantile_over_time(0.75, {service_name=\"gamezilla-client\",deployment_environment_name=\"${environment}\"} |= \"browser.performance.measured\" | web_vital_name=\"inp\" | unwrap web_vital_value | __error__=\"\" [5m])",
+          "expr": "quantile_over_time(0.75, {service_name=\"${namespace}-client\",deployment_environment_name=\"${environment}\"} |= \"browser.performance.measured\" | web_vital_name=\"inp\" | unwrap web_vital_value | __error__=\"\" [5m])",
           "datasource": {
             "type": "loki",
             "uid": "${logs_uid}"
@@ -95,7 +95,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "quantile_over_time(0.75, {service_name=\"gamezilla-client\",deployment_environment_name=\"${environment}\"} |= \"browser.performance.measured\" | web_vital_name=\"cls\" | unwrap web_vital_value | __error__=\"\" [5m])",
+          "expr": "quantile_over_time(0.75, {service_name=\"${namespace}-client\",deployment_environment_name=\"${environment}\"} |= \"browser.performance.measured\" | web_vital_name=\"cls\" | unwrap web_vital_value | __error__=\"\" [5m])",
           "datasource": {
             "type": "loki",
             "uid": "${logs_uid}"
@@ -127,7 +127,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "{service_name=\"gamezilla-client\",deployment_environment_name=\"${environment}\"} | severity_text=\"ERROR\"",
+          "expr": "{service_name=\"${namespace}-client\",deployment_environment_name=\"${environment}\"} | severity_text=\"ERROR\"",
           "datasource": {
             "type": "loki",
             "uid": "${logs_uid}"

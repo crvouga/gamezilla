@@ -1,0 +1,20 @@
+{
+  "$comment": "Committed files generated from product-identity.json (or from code that reads it). The brand policy accepts brand spellings in a listed file only because its freshness test fails whenever the file differs from what its generator writes, so nothing in it is maintained by hand. Add an entry only with that test.",
+  "artifacts": [
+    {
+      "path": "libs/infra-shared-ts/tofu/modules/observability-views/alert-rules.generated.json",
+      "generator": "bun run libs/observability-shared-ts/scripts/slo-generate.ts",
+      "freshnessTest": "libs/observability-shared-ts/tests/slo-artifacts.test.ts"
+    },
+    {
+      "path": "libs/infra-shared-ts/tofu/modules/observability-views/grafana-slos.generated.json",
+      "generator": "bun run libs/observability-shared-ts/scripts/slo-generate.ts",
+      "freshnessTest": "libs/observability-shared-ts/tests/slo-artifacts.test.ts"
+    },
+    {
+      "path": ".cursor/mcp.json",
+      "generator": "bun run libs/tools-harness-ts/scripts/sync-agent-commands.ts",
+      "freshnessTest": "libs/tools-harness-ts/scripts/sync-agent-mcp.test.ts"
+    }
+  ]
+}

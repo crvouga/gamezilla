@@ -1,0 +1,4 @@
+{
+  "summary": "On the boat.dev Linux image, file f's glyph (its hook overhangs its advance) left its assigned edge square by 0.23px at width 196, half scale, Black orientation: the file labels' 6-unit right inset did not cover the overhang plus a device pixel of snapping. The inset is now 10 units.",
+  "regressionTest": "pkgs/chess-board-root-harness-ts/tests/browser/marking-geometry.contract.test.ts"
+}

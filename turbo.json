@@ -1193,7 +1193,9 @@
         "$TURBO_ROOT$/.vscode/mcp.json",
         "$TURBO_ROOT$/opencode.json",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/sync-agent-commands.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/sync-agent-mcp.ts"
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/sync-agent-mcp.ts",
+        "$TURBO_ROOT$/libs/product-identity/product-identity.json",
+        "$TURBO_ROOT$/libs/product-identity-shared-ts/src/**"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
@@ -1227,8 +1229,10 @@
         "$TURBO_ROOT$/apps/*/package.json",
         "$TURBO_ROOT$/libs/*/package.json",
         "$TURBO_ROOT$/pkgs/*/package.json",
+        "$TURBO_ROOT$/{apps,libs,pkgs}/*/{LICENSE,LICENCE,License,Licence,license,licence,COPYING,Copying,copying,UNLICENSE,Unlicense,unlicense}*",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-package-names.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/package-names.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/package-licensing.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/languages.ts"
       ],
       "outputs": [],
@@ -1393,7 +1397,10 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-worker-bundle.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/worker-compat-date.ts"
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/worker-compat-date.ts",
+        "$TURBO_ROOT$/libs/product-identity/product-identity.json",
+        "$TURBO_ROOT$/libs/product-identity-shared-ts/src/identity-placeholders.ts",
+        "$TURBO_ROOT$/libs/product-identity-shared-ts/src/product-identity.ts"
       ],
       "outputLogs": "errors-only",
       "outputs": []
@@ -1415,6 +1422,38 @@
       "outputs": [],
       "outputLogs": "errors-only"
     },
+    "@libs/tools-harness-ts#verify:brand-policy": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/**",
+        "!$TURBO_ROOT$/.git/**",
+        "!$TURBO_ROOT$/**/node_modules/**",
+        "!$TURBO_ROOT$/**/.cache/**",
+        "!$TURBO_ROOT$/**/.turbo/**",
+        "!$TURBO_ROOT$/**/dist/**",
+        "!$TURBO_ROOT$/**/.terraform/**",
+        "!$TURBO_ROOT$/**/.env*",
+        "!$TURBO_ROOT$/.secrets.json"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "@libs/tools-harness-ts#verify:rebrand": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/**",
+        "!$TURBO_ROOT$/.git/**",
+        "!$TURBO_ROOT$/**/node_modules/**",
+        "!$TURBO_ROOT$/**/.cache/**",
+        "!$TURBO_ROOT$/**/.turbo/**",
+        "!$TURBO_ROOT$/**/dist/**",
+        "!$TURBO_ROOT$/**/.terraform/**",
+        "!$TURBO_ROOT$/**/.env*",
+        "!$TURBO_ROOT$/.secrets.json"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
     "@libs/tools-harness-ts#verify:actionlint": {
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -1422,6 +1461,19 @@
         "$TURBO_ROOT$/mise.toml",
         "$TURBO_ROOT$/.github/workflows/**",
         "$TURBO_ROOT$/.github/actionlint.yaml"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "@libs/tools-harness-ts#verify:workflow-security": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "scripts/verify-workflow-security.ts",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/.github/workflows/**",
+        "$TURBO_ROOT$/.github/actions/**",
+        "$TURBO_ROOT$/.github/dependabot.yml",
+        "$TURBO_ROOT$/.github/zizmor.yml"
       ],
       "outputs": [],
       "outputLogs": "errors-only"

@@ -39,7 +39,7 @@ test('setup installs frozen dependencies on every run and never archives the lin
   );
   expect(install).toBeGreaterThan(-1);
   expect(steps[install]!.if).toBeUndefined();
-  expect(source).toContain('uses: jdx/mise-action@v4');
+  expect(source).toMatch(/uses: jdx\/mise-action@[0-9a-f]{40} # v4\./);
   // No cache key depends on the ref.
   expect(source).not.toMatch(/github\.(ref|head_ref|base_ref)|GITHUB_REF/);
   // bun links packages into node_modules; an archive of those links did not
@@ -55,18 +55,26 @@ test('setup installs frozen dependencies on every run and never archives the lin
 });
 
 // regression: windows-ci-installs-agent-tools
-test('setup never installs the laptop-only coding-agent tools', () => {
+test('setup never installs the laptop-only coding-agent tools or Swift', () => {
   const source = readFileSync(
     join(root, '.github/actions/setup/action.yml'),
     'utf8'
   );
   const mise = readFileSync(join(root, 'mise.toml'), 'utf8');
   const disabled = /MISE_DISABLE_TOOLS=([^"\s]+)/.exec(source)?.[1];
-  expect(disabled?.split(',')).toEqual(['pipx:graphifyy', 'pipx:serena-agent']);
-  for (const tool of disabled!.split(',')) expect(mise).toContain(`"${tool}"`);
+  expect(disabled?.split(',')).toEqual([
+    'pipx:graphifyy',
+    'pipx:serena-agent',
+    'swift',
+  ]);
+  // Each names a tool mise.toml pins, quoted or bare.
+  for (const tool of disabled!.split(','))
+    expect(
+      mise.includes(`"${tool}"`) || new RegExp(`^${tool} = `, 'm').test(mise)
+    ).toBe(true);
 });
 
-test('setup restores generation from the remote cache, else a separate GitHub cache, while retaining frozen dependency validation', () => {
+test('setup installs with no secret in the environment, restoring generation from a GitHub cache', () => {
   const setup = Bun.YAML.parse(
     readFileSync(join(root, '.github/actions/setup/action.yml'), 'utf8')
   ) as {
@@ -97,26 +105,25 @@ test('setup restores generation from the remote cache, else a separate GitHub ca
   const inject = steps.findIndex(
     (step) => step.uses === './.github/actions/secrets-auth'
   );
-  // Secrets, and with them TURBO_TOKEN, are in place before the install's
-  // generation tasks run, so they use the Vercel Remote Cache.
+  // Dependency install scripts and the postinstall generation run before any
+  // secret is in the environment, so they never see a credential; secrets
+  // come in only after the install.
   expect(inject).toBeGreaterThan(-1);
-  expect(inject).toBeLessThan(install);
+  expect(inject).toBeGreaterThan(save);
   expect(steps[inject]!.if).toBe("inputs.secrets-environment != ''");
-  // A job without secrets has no remote cache and keeps the GitHub one.
+  // Without TURBO_TOKEN the install's generation keeps the GitHub cache.
   expect(restore).toBeGreaterThan(-1);
   expect(restore).toBeLessThan(install);
   expect(save).toBeGreaterThan(install);
-  expect(steps[restore]!.if).toBe("inputs.secrets-environment == ''");
+  expect(steps[restore]!.if).toBeUndefined();
   expect(steps[install]!.env?.['TURBO_CACHE_DIR']).toBe(
     '.cache/setup-generation'
   );
   expect(steps[install]!.if).toBeUndefined();
-  expect(steps[save]!.if).toBe(
-    "inputs.secrets-environment == '' && steps.generation.outputs.cache-hit != 'true'"
-  );
+  expect(steps[save]!.if).toBe("steps.generation.outputs.cache-hit != 'true'");
 });
 
-test('every job that injects secrets does it in setup, before the install', () => {
+test('every job that injects secrets does it in setup, after the install', () => {
   for (const file of [
     'deploy.yml',
     'health.yml',

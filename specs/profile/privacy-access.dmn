@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="privacy-access-decisions" name="Private account choices" namespace="https://gamezilla.dev/decisions">
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="privacy-access-decisions" name="Private account choices" namespace="urn:product:decisions">
   <decision id="privacy-access" name="May this person delete the account or take an export?">
     <description>Account deletion and personal-data exports need an account, a connection, and proof of the account less than 10 minutes old. An offline choice never happens later on its own.</description>
     <decisionTable id="privacy-access-table" hitPolicy="UNIQUE">

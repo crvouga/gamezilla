@@ -1,6 +1,6 @@
 # Local API preview only. Production ships apps/product-ts/wrangler.toml,
 # which includes the client assets and this entrypoint in one application.
-name = "gamezilla-preview"
+# Nothing deploys it, so it has no name: `wrangler dev` runs it as `worker`.
 main = "src/server.ts"
 compatibility_date = "2026-09-21"
 compatibility_flags = ["nodejs_compat", "no_handle_cross_request_promise_resolution"]

@@ -18,6 +18,7 @@
     "@aws-sdk/client-s3": "catalog:",
     "@libs/infra-shared-ts": "workspace:*",
     "@libs/observability-shared-ts": "workspace:*",
+    "@libs/product-identity-shared-ts": "workspace:*",
     "@libs/secrets-shared-ts": "workspace:*",
     "@pkgs/assert-root-shared-ts": "workspace:*",
     "@pkgs/billing-providers-server-ts": "workspace:*",

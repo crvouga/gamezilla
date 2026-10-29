@@ -12,7 +12,8 @@
  *   bun run scripts/tofu.ts destroy --stack fleet --env <env>
  *
  * `foundation` / `edge` run for the environment in `SECRETS_ENV` (whose
- * secrets `secrets-run` injected). Every apply:
+ * secrets `secrets-run` injected). Every run first writes the resolved var
+ * files (`tofu-var-files.ts`) OpenTofu reads. Every apply:
  *
  *   1. plans to a file,
  *   2. refuses the plan if `policy/stateful.rego` denies it (deleting or
@@ -67,6 +68,7 @@ import { resolveInfisicalToken } from './infisical-token';
 import { infraOperation } from './infra-operation';
 import { backupState } from './state-backup';
 import { conftest, fail, spawnTool, tofu } from './tofu-process';
+import { writeResolvedVarFiles } from './tofu-var-files';
 
 type Command = 'plan' | 'apply' | 'drift' | 'destroy';
 
@@ -293,6 +295,7 @@ async function main(): Promise<void> {
   const target = targetFor(stack);
   // TF_PLUGIN_CACHE_DIR must exist; a fresh CI checkout has no .cache.
   mkdirSync(join(PATHS.cacheDir, 'plugins'), { recursive: true });
+  writeResolvedVarFiles(PATHS);
   const firstRun =
     stack === 'bootstrap' &&
     (hasUnmigratedLocalState(PATHS) || !stateBackendExists(process.env));

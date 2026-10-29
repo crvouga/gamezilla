@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="access-decisions" name="What each kind of person may do" namespace="https://gamezilla.dev/decisions">
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="access-decisions" name="What each kind of person may do" namespace="urn:product:decisions">
   <decision id="access" name="May this person do this?">
     <description>Guests play puzzles and host and join spaces; everything social, the puzzle feed, matches and paying need an account. Free accounts and Plus members may do all of it, except that a Plus member is not offered to subscribe again. While payments are not offered, nobody sees the billing plans, subscribes or uses the billing portal.</description>
     <decisionTable id="access-table" hitPolicy="UNIQUE">

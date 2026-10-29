@@ -15,7 +15,7 @@ import {
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 
 const BASE_URL = 'http://auth.test';
-const CALLBACK = 'gamezilla://sso-callback';
+const CALLBACK = 'myapp://sso-callback';
 
 function gestureStrictOpenAuthSession(
   inner: OpenAuthSession,
@@ -44,7 +44,7 @@ describe('createInhouseAuthClient / oauth', () => {
           headers: { 'content-type': 'application/json' },
         });
       },
-      storage: createInMemoryAuthClientStorage(),
+      bearerStore: createBearerTokenStore({ storageKey: 'myapp.auth.bearer' }),
       callbackUrl: CALLBACK,
       openAuthSession: async (authorizationUrl) => {
         openCalledBeforeFetch = !fetchCalled;
@@ -81,7 +81,7 @@ describe('createInhouseAuthClient / oauth', () => {
           status: 200,
           headers: { 'content-type': 'application/json' },
         }),
-      storage: createInMemoryAuthClientStorage(),
+      bearerStore: createBearerTokenStore({ storageKey: 'myapp.auth.bearer' }),
       callbackUrl: CALLBACK,
       openAuthSession: async () => ({ type: 'cancel' }),
     });
@@ -96,7 +96,7 @@ describe('createInhouseAuthClient / oauth', () => {
       baseURL: BASE_URL,
       ...createHarnessClock(),
       fetch: async () => new Response('{}', { status: 404 }),
-      storage: createInMemoryAuthClientStorage(),
+      bearerStore: createBearerTokenStore({ storageKey: 'myapp.auth.bearer' }),
       callbackUrl: CALLBACK,
       openAuthSession: async () => {
         throw new Error(AUTH_SSO_POPUP_BLOCKED_ERROR);
@@ -117,7 +117,7 @@ describe('createInhouseAuthClient / oauth', () => {
           status: 200,
           headers: { 'content-type': 'application/json' },
         }),
-      storage: createInMemoryAuthClientStorage(),
+      bearerStore: createBearerTokenStore({ storageKey: 'myapp.auth.bearer' }),
       callbackUrl: CALLBACK,
       openAuthSession: async () => ({
         type: 'success',
@@ -134,7 +134,10 @@ describe('createInhouseAuthClient / oauth', () => {
 describe('clearBearerOnUnauthorizedSession', () => {
   test('401/403 clear dead IdP bearer so sync can fall back to anon', async () => {
     const storage = createInMemoryAuthClientStorage();
-    const bearerStore = createBearerTokenStore({ storage });
+    const bearerStore = createBearerTokenStore({
+      storage,
+      storageKey: 'myapp.auth.bearer',
+    });
     await bearerStore.write('dead-idp-token');
 
     await clearBearerOnUnauthorizedSession(bearerStore, 401);
@@ -147,7 +150,10 @@ describe('clearBearerOnUnauthorizedSession', () => {
 
   test('non-auth session failures keep the bearer (offline / 5xx)', async () => {
     const storage = createInMemoryAuthClientStorage();
-    const bearerStore = createBearerTokenStore({ storage });
+    const bearerStore = createBearerTokenStore({
+      storage,
+      storageKey: 'myapp.auth.bearer',
+    });
     await bearerStore.write('maybe-live');
 
     await clearBearerOnUnauthorizedSession(bearerStore, 503);

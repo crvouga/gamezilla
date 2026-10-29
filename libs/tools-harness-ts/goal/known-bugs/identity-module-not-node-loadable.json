@@ -1,0 +1,4 @@
+{
+  "summary": "Found by the synthetic rebrand's web build: vite.config.mts imports brandHtmlPlugin, and Vite loads the config with Node, which refused the identity package's extensionless sibling imports (ERR_MODULE_NOT_FOUND) and would refuse its JSON import without a type attribute, so `vite build` failed. The modules import siblings with their .ts extension and the identity JSON with `with { type: 'json' }`.",
+  "regressionTest": "libs/product-identity-shared-ts/tests/node-import.test.ts"
+}

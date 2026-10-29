@@ -32,7 +32,10 @@ export type Platform = keyof typeof PLATFORMS;
 export type Host = (typeof PLATFORMS)[Platform]['host'];
 
 /**
- * The runner label every CI job requests: the boat.dev Linux runner.
+ * The runner label every CI job requests: the boat.dev Linux runner, a fresh
+ * just-in-time runner per job. A pull request's code is untrusted (the
+ * repository is public) and never runs on a machine a later job (a deploy)
+ * reuses.
  */
 export const CI_RUNNER = 'boat';
 

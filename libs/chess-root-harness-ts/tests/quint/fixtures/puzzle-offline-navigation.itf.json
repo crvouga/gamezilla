@@ -2,7 +2,7 @@
   "#meta": {
     "format": "ITF",
     "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
-    "source": "/Users/chrisvouga/.super.engineering/worktrees/gamezilla/sc-trapped-niobium-f067/specs/chess/puzzle-attempt.qnt",
+    "source": "puzzle-attempt.qnt",
     "status": "ok",
     "description": "Created by Quint on Fri Oct 02 2026 08:06:23 GMT-0700 (Mountain Standard Time)",
     "timestamp": 1790953583777

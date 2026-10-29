@@ -1,4 +1,5 @@
 import { expect, test } from 'bun:test';
+import { serviceName } from '@libs/product-identity-shared-ts/technical-names';
 import { RunReporter } from '@pkgs/harness-root-shared-ts/reporter';
 import { readUtf8, writeUtf8 } from '@pkgs/object-store-root-shared-ts/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
@@ -199,7 +200,7 @@ test('child-only traces report missing request roots and bound redacted critical
 // regression: release-trace-context-hides-terminal-work
 test('repeated request context leaves room for terminal database work', async () => {
   const context = {
-    [ATTR.SERVICE_NAME]: 'gamezilla-server',
+    [ATTR.SERVICE_NAME]: serviceName('server'),
     [ATTR.SERVICE_INSTANCE_ID]: 'release-instance',
     [ATTR.SERVICE_VERSION]: 'development',
     [ATTR.DEPLOYMENT_ENVIRONMENT_NAME]: 'dev',
@@ -298,7 +299,7 @@ test('missing collector data is explicit and never invents pending spans', async
 });
 
 const MUTATION_ID = '01a16d78-04aa-7790-961f-e5ce7cc23551';
-const clientAttributes = { [ATTR.SERVICE_NAME]: 'gamezilla-client' };
+const clientAttributes = { [ATTR.SERVICE_NAME]: serviceName('client') };
 
 function correlatedSpans() {
   const origin = span(8, 100, {

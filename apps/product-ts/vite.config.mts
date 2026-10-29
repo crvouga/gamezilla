@@ -1,5 +1,6 @@
 // @io-wall-ok — build-tool composition root
 import { resolve } from 'node:path';
+import { brandHtmlPlugin } from '@libs/product-identity-shared-ts/brand-html';
 import { getConfig } from '@lingui/conf';
 import { feedbackDevPlugin } from '@pkgs/feedback-server-ts/vite';
 import { sqliteWebAssets } from '@pkgs/sql-client-sqlite-web-server-ts/sqlite-web-assets';
@@ -32,6 +33,8 @@ const FROZEN = process.env['PRODUCT_DEV_FROZEN'] === '1';
 
 export default defineConfig(({ mode }) => {
   const plugins: PluginOption[] = [
+    // `index.html` spells `%BRAND_NAME%`; the identity fills it in.
+    brandHtmlPlugin(),
     feedbackDevPlugin({ repoRoot }),
     workspaceExportsResolver({ repoRoot, scopes: DEFAULT_WORKSPACE_SCOPES }),
     // `root.ts` imports the application dynamically (startup error boundary);

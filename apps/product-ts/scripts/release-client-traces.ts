@@ -1,3 +1,4 @@
+import { serviceName } from '@libs/product-identity-shared-ts/technical-names';
 import { ATTR } from '@pkgs/observability-root-shared-ts/attributes';
 import { EVENT } from '@pkgs/observability-root-shared-ts/events';
 import {
@@ -35,7 +36,7 @@ export function indexClientTraces(spans: readonly NarrateSpan[]): ClientIndex {
   const uploads = new Map<string, NarrateSpan[]>();
   const seen = new Set<string>();
   for (const span of spans) {
-    if (span.attributes[ATTR.SERVICE_NAME] !== 'gamezilla-client') continue;
+    if (span.attributes[ATTR.SERVICE_NAME] !== serviceName('client')) continue;
     const identity = `${span.traceId}/${span.spanId}`;
     if (seen.has(identity)) continue;
     seen.add(identity);

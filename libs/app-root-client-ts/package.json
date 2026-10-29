@@ -24,6 +24,7 @@
     "@libs/moderation-shared-ts": "workspace:*",
     "@libs/permissions-client-ts": "workspace:*",
     "@libs/permissions-shared-ts": "workspace:*",
+    "@libs/product-identity-shared-ts": "workspace:*",
     "@libs/sub-client-ts": "workspace:*",
     "@libs/sub-shared-ts": "workspace:*",
     "@libs/test-ids-shared-ts": "workspace:*",

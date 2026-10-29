@@ -54,6 +54,8 @@ const PROTECTED: ReadonlySet<string> = new Set([
   'github_branch_default',
   'github_repository_ruleset',
   'github_repository_environment',
+  // Deleting it would let any branch deploy to production.
+  'github_repository_environment_deployment_policy',
   'github_actions_repository_permissions',
   'github_workflow_repository_permissions',
   'github_repository_vulnerability_alerts',

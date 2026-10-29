@@ -188,7 +188,7 @@ a threshold condition, so each slice of a split rule is its own alert instance.
 | `metadata.displayName`, `spec.description` | name (with the environment), description |
 | the one objective's `target`, rolling `timeWindow` | objective value and window |
 | the indicator's catalog entry | a freeform ratio query (`sloRatioQuery`), grouped by its `sliceBy` |
-| `metadata.labels` `gamezilla.dev.tier` | label `tier` (OpenSLO label keys allow no `/`) |
+| `metadata.labels` `tier` | label `tier` |
 | `spec.service`, `metadata.name`, the entry's owner | labels `service`, `slo`, `owner` |
 | none | folder: the environment's observability folder; alerting: none, the rules above alert |
 
@@ -209,7 +209,7 @@ An alert reaches a person by two paths from the same policies:
    `libs/infra-shared-ts/tofu/modules/observability-views`.
 
 **Add an objective.** Write the `SLI` and `SLO` in a `# live` spec file (a `spec:`
-commit) with a `gamezilla.dev.tier` label, add one entry to `INDICATORS` in
+commit) with a `tier` label, add one entry to `INDICATORS` in
 `slo-indicators.ts`, add `apps/product-ts/tests/openslo/<stem>.binding.ts`
 (`liveMetricBinding`), add its section to `docs/SLO_RUNBOOK.md` and its row to
 `docs/SLO_COVERAGE.md`, then run

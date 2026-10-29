@@ -57,3 +57,18 @@ describe('assertLogicalObjectKey', () => {
     );
   });
 });
+
+// regression: object-store-prefix-quadratic-trim
+test('a root namespace loses every trailing slash, in linear time', () => {
+  for (const slug of ['a', 'acme', 'team-7'])
+    for (let slashes = 0; slashes <= 50; slashes += 1)
+      expect(
+        normalizeObjectStoreRootPrefix(` ${slug}${'/'.repeat(slashes)} `)
+      ).toBe(`${slug}/`);
+  // CodeQL js/polynomial-redos: a long run of slashes stays cheap.
+  const longRun = `a${'/'.repeat(200_000)}x`;
+  expect(normalizeObjectStoreRootPrefix(longRun)).toBe(`${longRun}/`);
+  expect(() => normalizeObjectStoreRootPrefix('/'.repeat(200_000))).toThrow(
+    'Object store root namespace must be non-empty'
+  );
+});

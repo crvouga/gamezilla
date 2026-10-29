@@ -1,7 +1,17 @@
-# global.tfvars.json
+# global.tfvars.json, then envs.tfvars.json (every env file)
 
 variable "project" {
   type = string
+}
+
+variable "brand_name" {
+  type        = string
+  description = "The name people see (global.tfvars.json `{brand}`): alert routing and the app-shell check."
+}
+
+variable "envs" {
+  type        = any
+  description = "Every env file by name, resolved (envs.tfvars.json, written by libs/infra-server-ts/scripts/tofu.ts)."
 }
 
 variable "state" {

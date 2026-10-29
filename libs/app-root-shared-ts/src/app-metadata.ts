@@ -1,18 +1,19 @@
-import { APP_IDENTITY } from '@libs/auth-shared-ts/app-identity';
+import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import {
   assertCommitDateIso,
   COMMIT_HASH_HEX_REGEX,
 } from '@pkgs/git-shared-ts/git';
 
-/** Human-facing product name shown on the About screen. */
-export const APP_NAME: string = APP_IDENTITY.displayName;
-
 /**
- * Where a security problem is reported. Published at
- * `/.well-known/security.txt` (`apps/product-ts/public`) and on the About screen.
+ * Where a security problem is reported (the identity's `securityContact`
+ * without its `mailto:`). Published at `/.well-known/security.txt` (a
+ * generated brand artifact) and on the About screen.
  */
-export const SECURITY_CONTACT = 'crvouga@gmail.com';
+export const SECURITY_CONTACT = PRODUCT.brand.securityContact.replace(
+  /^mailto:/,
+  ''
+);
 
 /** Marketing version (mirrors `apps/client-ts/package.json` `version`). */
 export const APP_VERSION = '1.0.0';

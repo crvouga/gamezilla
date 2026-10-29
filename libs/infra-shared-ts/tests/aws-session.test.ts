@@ -7,9 +7,10 @@ import {
   parseStsCredentials,
   stsSessionName,
 } from '@libs/infra-shared-ts/aws-session';
+import { technicalName } from '@libs/product-identity-shared-ts/technical-names';
 
 const oidcEnv = {
-  AWS_ROLE_ARN: 'arn:aws:iam::111111111111:role/gamezilla-github-deploy',
+  AWS_ROLE_ARN: 'arn:aws:iam::111111111111:role/example-github-deploy',
   ACTIONS_ID_TOKEN_REQUEST_URL: 'https://example.test/token?ref=1',
   ACTIONS_ID_TOKEN_REQUEST_TOKEN: 'gha-token',
 };
@@ -100,10 +101,10 @@ describe('stsSessionName', () => {
     );
   });
 
-  test('falls back when the run id is missing', () => {
-    expect(stsSessionName({})).toBe('gamezilla-tofu');
+  test('falls back to the namespace when the run id is missing', () => {
+    expect(stsSessionName({})).toBe(technicalName(['tofu']));
     expect(stsSessionName({ GITHUB_RUN_ID: 'not-a-run' })).toBe(
-      'gamezilla-tofu'
+      technicalName(['tofu'])
     );
   });
 });

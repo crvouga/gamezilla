@@ -1,7 +1,8 @@
+import { NAMESPACE } from '@libs/product-identity-shared-ts/product-identity';
 import { iosSimName } from './ios-sim-name';
 
-/** Matches root package.json `"name"` — prefixes every provisioned simulator. */
-export const SIM_PROJECT_SLUG = 'gamezilla';
+/** The technical namespace — prefixes every provisioned simulator. */
+export const SIM_PROJECT_SLUG = NAMESPACE;
 
 const PROJECT_PREFIX = `${SIM_PROJECT_SLUG}-`;
 

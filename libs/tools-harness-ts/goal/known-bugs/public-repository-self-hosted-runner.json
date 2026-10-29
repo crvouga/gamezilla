@@ -1,0 +1,4 @@
+{
+  "summary": "The source repository became public while every workflow ran on persistent self-hosted runners (one Windows desktop) that kept node_modules, the mise tools and Bun's cache between jobs. Fork-PR approval covered only first-time contributors, so any outside pull request with one merged change could run code on the machine that later ran Release with shared and production secrets. Every job now runs on the GitHub-hosted ubuntu-24.04 image, discarded after each job.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-native.test.ts"
+}

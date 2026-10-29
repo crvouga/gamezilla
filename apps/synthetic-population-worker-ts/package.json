@@ -22,6 +22,7 @@
     "@libs/app-root-client-ts": "workspace:*",
     "@libs/auth-shared-ts": "workspace:*",
     "@libs/game-catalog-shared-ts": "workspace:*",
+    "@libs/product-identity-shared-ts": "workspace:*",
     "@libs/runtime-client-ts": "workspace:*",
     "@libs/runtime-shared-ts": "workspace:*",
     "@libs/spaces-client-ts": "workspace:*",

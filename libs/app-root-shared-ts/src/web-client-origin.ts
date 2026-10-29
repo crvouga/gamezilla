@@ -1,3 +1,5 @@
+import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
+
 /**
  * Browser app origin for OAuth return URLs.
  *
@@ -27,7 +29,7 @@ export function absolutizeWebAppLocation(
   if (
     trimmed.startsWith('http://') ||
     trimmed.startsWith('https://') ||
-    trimmed.startsWith('gamezilla:') ||
+    trimmed.startsWith(`${PRODUCT.external.deepLinkScheme}:`) ||
     trimmed.startsWith('exp:')
   ) {
     return trimmed;

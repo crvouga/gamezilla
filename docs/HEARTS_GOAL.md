@@ -2,7 +2,7 @@
 
 ## Primary outcome
 
-Implement a polished, fully integrated **four-player Hearts** game in Gamezilla. Use it to extend and harden the existing game framework and `room` package for **more than two participants, private player state, simultaneous decisions, seeded randomness, multi-round matches, and controlled human/bot handoffs**.
+Implement a polished, fully integrated **four-player Hearts** game in the product. Use it to extend and harden the existing game framework and `room` package for **more than two participants, private player state, simultaneous decisions, seeded randomness, multi-round matches, and controlled human/bot handoffs**.
 
 The current game set includes chess, Connect Four, Battleship, Quoridor, and Numberlink; Pong is the real-time reference game being added. Inspect what is actually implemented. Hearts must reuse the same platform rather than become a separate card-game application.
 

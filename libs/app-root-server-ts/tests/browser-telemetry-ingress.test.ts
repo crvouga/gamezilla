@@ -6,6 +6,8 @@ import {
 import { resolveWebClientOrigin } from '@libs/app-root-shared-ts/web-client-origin';
 import type { ApiHonoEnv } from '@libs/auth-shared-ts/api-hono-env';
 import type { AuthContext } from '@libs/auth-shared-ts/types';
+import { brandOrigin } from '@libs/product-identity-shared-ts/brand-hosts';
+import { serviceName } from '@libs/product-identity-shared-ts/technical-names';
 import { HttpResponseScope } from '@pkgs/http-client-shared-ts/response-scope';
 import { Hono } from 'hono';
 
@@ -17,7 +19,7 @@ test('browser diagnostics use only configured endpoints and server-held credenti
   }[] = [];
   const env: BrowserTelemetryEnv = {
     protection: 'production',
-    serverUrl: 'https://api.gamezilla.app',
+    serverUrl: brandOrigin('api'),
     observabilityEnvironment: 'prd',
     observabilityLogsUrl: 'https://collector.example/api/org/v1/logs',
     observabilityCollectorToken: 'fixture-token',
@@ -71,7 +73,7 @@ test('browser diagnostics use only configured endpoints and server-held credenti
   expect(calls[0]?.url).toBe(env.observabilityLogsUrl!);
   expect(calls[0]?.authorization).toBe('Bearer fixture-token');
   const serialized = JSON.stringify(calls[0]?.payload);
-  expect(serialized).toContain('gamezilla-client');
+  expect(serialized).toContain(serviceName('client'));
   expect(serialized).toContain('[redacted]');
   expect(serialized).not.toContain('sensitive content');
   expect(serialized).not.toContain('membership.payment');
@@ -164,7 +166,7 @@ test('browser spans are stated in the deployment that served them, whatever the 
             attributes: [
               {
                 key: 'service.name',
-                value: { stringValue: 'gamezilla-server' },
+                value: { stringValue: serviceName('server') },
               },
               {
                 key: 'deployment.environment.name',
@@ -194,7 +196,7 @@ test('browser spans are stated in the deployment that served them, whatever the 
     ])
   );
   expect(attributes['deployment.environment.name']).toBe('dev');
-  expect(attributes['service.name']).toBe('gamezilla-client');
+  expect(attributes['service.name']).toBe(serviceName('client'));
   expect(attributes['service.version']).toBe('1.2.3');
   expect(sent.resourceSpans[0]!.scopeSpans[0]!.spans).toEqual([span]);
 });

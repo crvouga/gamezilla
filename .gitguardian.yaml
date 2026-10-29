@@ -1,0 +1,9 @@
+# GitGuardian's pull-request check. The required verification runs gitleaks
+# with the same exceptions (.gitleaks.toml).
+version: 2
+secret:
+  ignored-paths:
+    # Harness snapshots record the in-memory world of synthetic users
+    # (alice@harness.local); their session tokens were minted by that
+    # throwaway in-process server and authorize nothing anywhere.
+    - "libs/chess-puzzle-harness-ts/fixtures/snapshots/**"

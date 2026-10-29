@@ -1,6 +1,6 @@
 # Polyglot repository
 
-Gamezilla is one monorepo with one task graph and one CI system, in any number
+The product is one monorepo with one task graph and one CI system, in any number
 of languages. This is the authoritative guide to how a language other than
 TypeScript lives here. Swift is the first; Rust, Kotlin and Go have reserved
 names and no toolchain yet.
@@ -181,17 +181,19 @@ bun fmt                                             # includes `swift format` ov
 Builds go to the package's `.cache/` (gitignored), one directory per
 toolchain and host. Open the app with `open
 apps/client-swift/apple-client.xcodeproj`; the shared `apple-client`
-scheme builds the `Gamezilla` app and its UI smoke tests, and Xcode resolves
+scheme builds the `AppleClient` app and its UI smoke tests, and Xcode resolves
 the local `clock-shared-swift` package by itself. The bundle identifier
-(`local.gamezilla.apple-client`) is development-only and there is no signing
-team: nothing here can be submitted to the App Store.
+(`external.appleBundleId` in
+[`product-identity.json`](../libs/product-identity/product-identity.json))
+is development-only and there is no signing team: nothing here can be
+submitted to the App Store.
 
 **Tests.** Pure package tests use Swift Testing in `tests/`; an app's
 simulator smoke tests use XCTest UI testing in its `tests/`, finding views by
 `accessibilityIdentifier` (`root-view`, `root-title`). Every Swift test is
 deterministic: time is an injected `EpochClock` (`@pkgs/clock-shared-swift`,
 the Swift form of `@pkgs/clock`), and `SystemEpochClock` is constructed only
-at a composition root (`gamezilla-app.swift`). Fixtures live beside the
+at a composition root (`app-entry.swift`). Fixtures live beside the
 tests in `tests/`. Shared Gherkin specs do not run against Swift yet; when
 they do, they run through the existing harness architecture, not a second
 runner.

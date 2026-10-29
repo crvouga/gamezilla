@@ -773,6 +773,7 @@
         "@libs/harness-ts#src",
         "@libs/infra-shared-ts#src",
         "@libs/observability-shared-ts#src",
+        "@libs/product-identity-shared-ts#src",
         "@libs/quoridor-harness-ts#src",
         "@libs/runtime-client-ts#src",
         "@libs/runtime-harness-ts#src",

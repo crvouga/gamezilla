@@ -32,6 +32,7 @@
     "@libs/db-shared-ts": "workspace:*",
     "@libs/moderation-shared-ts": "workspace:*",
     "@libs/permissions-shared-ts": "workspace:*",
+    "@libs/product-identity-shared-ts": "workspace:*",
     "@libs/sub-client-ts": "workspace:*",
     "@libs/sub-shared-ts": "workspace:*",
     "@libs/synthetic-population-shared-ts": "workspace:*",

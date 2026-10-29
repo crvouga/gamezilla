@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="space-role-decisions" name="What each person in a space may do" namespace="https://gamezilla.dev/decisions">
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="space-role-decisions" name="What each person in a space may do" namespace="urn:product:decisions">
   <decision id="space-roles" name="May this person do this in the space?">
     <description>The host of a space may do everything in it; someone who joined may leave it; someone who is not in a space may do nothing in it. Being a guest, a free account or a Plus member changes none of this.</description>
     <decisionTable id="space-roles-table" hitPolicy="UNIQUE">

@@ -10,6 +10,7 @@ import {
 import { ENV_FILES } from '@libs/infra-shared-ts/envs';
 import { GLOBAL } from '@libs/infra-shared-ts/global';
 import { envResourceNames } from '@libs/infra-shared-ts/naming';
+import { technicalName } from '@libs/product-identity-shared-ts/technical-names';
 
 const ENVS_DIR = join(import.meta.dirname, '../../infra-shared-ts/tofu/envs');
 
@@ -89,9 +90,11 @@ describe('environment files', () => {
     expect(prd).toBeDefined();
     if (prd === undefined) return;
     const names = envResourceNames(prd);
-    expect(names.worker).toBe('gamezilla-prod');
-    expect(prd.worker.transfer_rooms_from).toBe('gamezilla-room-production');
-    expect(names.bucket).toBe('gamezilla-production');
+    expect(names.worker).toBe(technicalName(['prod']));
+    expect(prd.worker.transfer_rooms_from).toBe(
+      technicalName(['room', 'production'])
+    );
+    expect(names.bucket).toBe(technicalName(['production']));
   });
 
   // regression: grafana-stack-in-foreign-org

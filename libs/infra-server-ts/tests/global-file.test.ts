@@ -8,7 +8,7 @@ const WRITTEN = new Set([...secretNames.generated, ...secretNames.derived]);
 
 describe('tofu/global.tfvars.json', () => {
   // regression: transferred-repo-protection-import
-  test('creates main protection instead of adopting the retired gamezilla:main rule', () => {
+  test('creates main protection instead of adopting the retired `<repo>:main` rule', () => {
     expect(GLOBAL.global_imports).not.toHaveProperty(
       'github_branch_protection'
     );

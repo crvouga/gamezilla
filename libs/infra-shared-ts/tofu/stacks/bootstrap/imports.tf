@@ -57,6 +57,12 @@ import {
   id       = "${var.github.repo}:${each.value}"
 }
 
+# Created through the API on 2026-10-28, when the repository became public.
+import {
+  to = module.repository.github_repository_environment_deployment_policy.main["production"]
+  id = "${var.github.repo}:production:64748019"
+}
+
 # The org's one free-plan stack, created in the Grafana UI before OpenTofu.
 import {
   for_each = var.global_imports.grafana_stack == null ? toset([]) : toset([var.global_imports.grafana_stack])

@@ -11,7 +11,7 @@ The full local gate and release journeys are being rerun after a confirmed
 local-stack interruption; the replacement run is currently queued.
 CI remains unverified because GitHub refused to start its jobs under the
 Actions budget.
-The current full CI and live journey verdicts belong to [PR 226](https://github.com/crvouga/gamezilla/pull/226).
+The current full CI and live journey verdicts belong to PR 226.
 This report does not claim deployed availability or a green release gate.
 
 The rules source is [Gigamic's published rulebook](https://export.gigamic.com/wp-content/uploads/2021/01/INS-RULES-QUORIDOR_10-2016.pdf).
@@ -92,7 +92,7 @@ their legal-action conformance belongs to the shared bot contract.
 - The current normal `ci:specs` gate passed in 7.09 seconds after the
   shared early-withdrawal bindings and scoped vocabulary repair.
 - The complete product statechart check passed in 14.09 seconds.
-- The fresh [CI Quoridor proof](https://github.com/crvouga/gamezilla/actions/runs/40075632359/job/120819634751)
+- The fresh CI Quoridor proof (run 40075632359, job 120819634751)
   completed both fixed mode cases and all eight invariants through two steps
   in **155.1 seconds**, within the unchanged combined 240-second deadline.
   Its successful cache artifact was written before the overall run was
@@ -321,7 +321,7 @@ transaction reuse. The official 200-run checks (seed 1130279081) pass:
 assertions, plus type checking, lint and goal checks. This saves one SQL
 round trip; it does not establish a resolved pairing deadline.
 
-[CI run 40095444082](https://github.com/crvouga/gamezilla/actions/runs/40095444082)
+CI run 40095444082
 failed only the older Atlas export task and the release journeys. That
 release task took 401.372 seconds and failed five scenarios: Chess pairing,
 custom-game readiness, Battleship's own-fleet observation, and both hill
@@ -398,7 +398,7 @@ The Quoridor proof completed uncached with exit zero in 173.2 seconds
 no complete local pass is claimed.
 
 Integration with current main includes the independently verified fixes from
-[PR 225](https://github.com/crvouga/gamezilla/pull/225), including per-pass
+PR 225, including per-pass
 delivery notifications, fenced row images, ordered push application and
 further matching improvements. Integration retains the arbitrary-seat
 contracts, durable causal recovery, scoped due-work witness and final
@@ -421,7 +421,7 @@ The complete tooling suite passes 871 tests; its unchanged five-second
 graph check took 481 milliseconds in the isolated run. All twelve Quoridor
 package tasks pass, including the 58 PR-profile spec checks.
 
-[CI run 40103814439](https://github.com/crvouga/gamezilla/actions/runs/40103814439)
+CI run 40103814439
 completed 22 verification shards successfully. One executed shard exposed
 five hosted-space reads where the existing Find contract permits at most
 three. The per-pass row-image path had bypassed the batched resolver.
@@ -448,7 +448,7 @@ safety invariants and both liveness properties remain requested. The model
 bytes match main and the pre-merge head; the JVM is native ARM. No complete
 verdict for this local check is claimed, and its deadline was retained.
 
-[The latest CI attempt](https://github.com/crvouga/gamezilla/actions/runs/40106768270)
+The latest CI attempt (run 40106768270)
 was rejected before its first job started with the same Actions-budget
 annotation. Full verification therefore remains incomplete even though
 the implementation's focused checks pass.

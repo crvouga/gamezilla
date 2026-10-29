@@ -4,18 +4,22 @@ import { createAuthApp } from '@pkgs/auth-inhouse-server-ts/create-auth-app';
 import { googleEndpointsFor } from '@pkgs/auth-inhouse-server-ts/inhouse-auth-config';
 import { reconcileIdpSqlite } from '@pkgs/auth-inhouse-server-ts/reconcile-idp-sqlite';
 import {
-  AUTH_NATIVE_SSO_CALLBACK_URL,
+  nativeSsoCallbackUrl,
   oauthClientCallbackUrl,
 } from '@pkgs/auth-inhouse-shared-ts/oauth-client-callback-url';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared-ts/impl-mockingbird-sqlite';
 import { ALICE_EMAIL, simulatedGoogle } from './simulated-google';
 
-const BASE_URL = 'https://api.gamezilla.app';
+const SCHEME = 'myapp';
+const BASE_URL = 'https://api.app.example';
 const IDP_URL = 'https://accounts.idp.test';
 const PREFIX = '/api';
 const SECRET = 'auth-system-secret-0123456789abcdef';
-const HTTPS_CALLBACK = oauthClientCallbackUrl('https://www.gamezilla.app');
+const HTTPS_CALLBACK = oauthClientCallbackUrl(
+  'https://www.app.example',
+  SCHEME
+);
 const CLIENT_ID = 'cid.apps.googleusercontent.com';
 const CLIENT_SECRET = 'csecret';
 /** 2026-01-01T00:00:00Z — IdP and relying party share one virtual clock. */
@@ -65,9 +69,9 @@ async function bootGoogleAuth(): Promise<{ readonly wire: Wire }> {
     publicPathPrefix: PREFIX,
     trustedOrigins: [
       BASE_URL,
-      'https://www.gamezilla.app',
-      AUTH_NATIVE_SSO_CALLBACK_URL,
-      'gamezilla://',
+      'https://www.app.example',
+      nativeSsoCallbackUrl(SCHEME),
+      'myapp://',
     ],
     providers: {
       google: {
@@ -135,7 +139,7 @@ describe('google oauth https callback (black-box)', () => {
     const { wire } = await bootGoogleAuth();
     const token = await completeGoogleRoundTrip({
       wire,
-      callbackUrl: AUTH_NATIVE_SSO_CALLBACK_URL,
+      callbackUrl: nativeSsoCallbackUrl(SCHEME),
     });
     expect(token.length).toBeGreaterThan(0);
   });

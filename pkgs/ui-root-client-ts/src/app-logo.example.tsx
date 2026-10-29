@@ -12,9 +12,9 @@ export default function AppLogoExample(): JSX.Element {
       </label>
       <SchemePreview>
         <div class="box flex-col gap-4">
-          <AppLogo />
-          <AppLogo size={36} />
-          <AppLogo size={48} />
+          <AppLogo name="acme" />
+          <AppLogo name="acme" size={36} />
+          <AppLogo name="acme" size={48} />
         </div>
       </SchemePreview>
 
@@ -23,9 +23,9 @@ export default function AppLogoExample(): JSX.Element {
       <label class="text textLabel text-text-secondary">{'Mark only'}</label>
       <SchemePreview>
         <div class="box flex-row gap-4 items-center">
-          <AppLogo size={20} wordmark={false} />
-          <AppLogo size={28} wordmark={false} />
-          <AppLogo size={48} wordmark={false} />
+          <AppLogo name="acme" size={20} wordmark={false} />
+          <AppLogo name="acme" size={28} wordmark={false} />
+          <AppLogo name="acme" size={48} wordmark={false} />
         </div>
       </SchemePreview>
 
@@ -36,9 +36,9 @@ export default function AppLogoExample(): JSX.Element {
       </label>
       <SchemePreview>
         <div class="box flex-col gap-3">
-          <AppLogo color="text" />
-          <AppLogo color="destructive" />
-          <AppLogo color="success" />
+          <AppLogo name="acme" color="text" />
+          <AppLogo name="acme" color="destructive" />
+          <AppLogo name="acme" color="success" />
         </div>
       </SchemePreview>
     </ExampleRoot>

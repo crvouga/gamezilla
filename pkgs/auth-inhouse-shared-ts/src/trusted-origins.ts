@@ -1,13 +1,18 @@
 /**
- * Origins the IdP may redirect to after OAuth (scheme + web + API).
+ * Origins the IdP may redirect to after OAuth (native deep-link schemes +
+ * web + API).
  */
 export function buildAuthTrustedOrigins(args: {
   readonly apiBaseURL: string;
   readonly clientWebOrigins?: readonly string[];
+  /** Deep-link schemes of the native clients (`myapp` for `myapp://…`). */
+  readonly clientSchemes: readonly string[];
 }): string[] {
   const origins = new Set<string>([
-    'gamezilla://',
-    'gamezilla://*',
+    ...args.clientSchemes.flatMap((scheme) => [
+      `${scheme}://`,
+      `${scheme}://*`,
+    ]),
     'exp://',
     'exp://**',
     'http://localhost:8081',

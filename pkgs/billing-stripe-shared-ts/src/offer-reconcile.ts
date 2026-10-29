@@ -54,7 +54,6 @@ export const STRIPE_PORTAL_CONFIGURATION_METADATA_KEY =
 export const STRIPE_PORTAL_CONFIGURATION_ID = 'default' as const;
 
 const TAG = 'stripe reconcile offer';
-const WEBHOOK_DESCRIPTION = 'Gamezilla plus membership projection';
 
 export type OfferReconcileContext = {
   /** Absolute URL the provider must POST subscription callbacks to. */
@@ -422,6 +421,7 @@ async function reconcilePortalConfiguration(args: {
 
 async function reconcileWebhookEndpoint(args: {
   readonly ctx: OfferReconcileContext;
+  readonly description: string;
   readonly stripe: Stripe;
   readonly log: Logger;
 }): Promise<string> {
@@ -432,14 +432,14 @@ async function reconcileWebhookEndpoint(args: {
   // secret, rather than a second endpoint appearing with a new one.
   const live =
     listed.data.find((e) => e.url === args.ctx.callbackUrl) ??
-    listed.data.find((e) => e.description === WEBHOOK_DESCRIPTION) ??
+    listed.data.find((e) => e.description === args.description) ??
     null;
   if (live === null) {
     const created = await args.stripe.webhookEndpoints.create({
       url: args.ctx.callbackUrl,
       enabled_events:
         wantedEvents as unknown as Stripe.WebhookEndpointCreateParams.EnabledEvent[],
-      description: WEBHOOK_DESCRIPTION,
+      description: args.description,
     });
     args.log.info(`[${TAG}] created webhook endpoint ${created.id}`);
     return created.id;
@@ -447,7 +447,7 @@ async function reconcileWebhookEndpoint(args: {
   const drift =
     live.url !== args.ctx.callbackUrl ||
     !sameStringSet(live.enabled_events, wantedEvents) ||
-    live.description !== WEBHOOK_DESCRIPTION ||
+    live.description !== args.description ||
     live.status !== 'enabled';
   if (!drift) {
     args.log.info(`[${TAG}] webhook endpoint ${live.id} unchanged`);
@@ -457,7 +457,7 @@ async function reconcileWebhookEndpoint(args: {
     url: args.ctx.callbackUrl,
     enabled_events:
       wantedEvents as unknown as Stripe.WebhookEndpointUpdateParams.EnabledEvent[],
-    description: WEBHOOK_DESCRIPTION,
+    description: args.description,
     disabled: false,
   });
   args.log.info(`[${TAG}] updated webhook endpoint ${live.id}`);
@@ -497,6 +497,7 @@ export async function reconcileStripeOffer(
   const webhookEndpointId = await reconcileWebhookEndpoint({
     stripe,
     ctx,
+    description: offer.callbackDescription,
     log,
   });
   return {

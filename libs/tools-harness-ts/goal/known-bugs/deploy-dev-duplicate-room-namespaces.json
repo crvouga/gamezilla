@@ -1,4 +1,4 @@
 {
-  "summary": "Deploy run 36989073308 stopped because gamezilla-dev already owned namespace 76e8864ea97c4d329171afb8778fb729 while the still-routed legacy room Worker owned ab56d7be4eac481e81df42eac8c99aac. Explicitly pin both IDs, retain the destination under a read-only archive class, then transfer the legacy namespace into the active room class. Unknown conflicts still fail closed and deployment verifies both IDs survive.",
+  "summary": "Deploy run 36989073308 stopped because the <namespace>-dev Worker already owned namespace 76e8864ea97c4d329171afb8778fb729 while the still-routed legacy room Worker owned ab56d7be4eac481e81df42eac8c99aac. Explicitly pin both IDs, retain the destination under a read-only archive class, then transfer the legacy namespace into the active room class. Unknown conflicts still fail closed and deployment verifies both IDs survive.",
   "regressionTest": "libs/infra-server-ts/tests/room-namespace-resolution.test.ts"
 }

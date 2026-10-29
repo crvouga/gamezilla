@@ -1,12 +1,13 @@
 /**
  * The environment file (`tofu/envs/<env>.tfvars.json`): the only place an
- * environment's identity lives. Both stacks read it as a `-var-file`; this
- * schema mirrors their `variables.tf` so `bun verify` can validate every env
- * file — and the invariants OpenTofu cannot express across files — without
- * credentials.
+ * environment's identity lives. Both stacks read it, resolved
+ * (`tofu-vars.ts`), as a `-var-file`; this schema mirrors their
+ * `variables.tf` so `bun verify` can validate every env file — and the
+ * invariants OpenTofu cannot express across files — without credentials.
  */
 import { z } from 'zod';
 import { GLOBAL } from './global';
+import { resolveEnvVars } from './tofu-vars';
 
 const slug = z.string().regex(/^[a-z0-9][a-z0-9-]*$/);
 const hostname = z
@@ -113,8 +114,9 @@ export function productionEnvNames(
   return envs.filter(isProductionEnv).map((env) => env.env);
 }
 
+/** Resolves an env file's placeholders (`resolveEnvVars`), then validates it. */
 export function parseEnvFile(raw: unknown, source: string): EnvFile {
-  const result = envFileSchema.safeParse(raw);
+  const result = envFileSchema.safeParse(resolveEnvVars(raw));
   if (result.success) return result.data;
   throw new Error(`${source}: ${z.prettifyError(result.error)}`);
 }

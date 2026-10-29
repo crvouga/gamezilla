@@ -2,7 +2,7 @@
   "#meta": {
     "format": "ITF",
     "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
-    "source": "/Volumes/OWC Express 1M2/super.engineering/worktrees/gamezilla/sc-flux-niobium-7361/specs/chess/puzzle-link.qnt",
+    "source": "puzzle-link.qnt",
     "status": "ok",
     "description": "Created by Quint on Fri Oct 09 2026 00:04:23 GMT-0700 (Mountain Standard Time)",
     "timestamp": 1791529463495

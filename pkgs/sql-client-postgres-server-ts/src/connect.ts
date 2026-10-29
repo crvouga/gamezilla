@@ -98,7 +98,7 @@ export async function openPgClient(
   }
   // Always pin at open — even on Neon/PgBouncer pooler URLs. Per-query
   // SET LOCAL still covers transaction pooling, but connect()/assert must see
-  // the app schema (tests may leave backends on e.g. gamezilla_test_scope).
+  // the app schema (tests may leave backends on e.g. acme_test_scope).
   await pinAndVerifyPgSessionSchema(
     client,
     args.dbScope,

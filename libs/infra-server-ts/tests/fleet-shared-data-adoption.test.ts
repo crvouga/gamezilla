@@ -6,9 +6,11 @@ import { evaluate } from '@libs/infra-shared-ts/hcl-eval';
 import { parseConfig } from '@libs/infra-shared-ts/hcl-parse';
 import type { Value } from '@libs/infra-shared-ts/hcl-value';
 import { sourceFiles } from '@libs/infra-shared-ts/infra-source';
+import { technicalName } from '@libs/product-identity-shared-ts/technical-names';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
 
+const SHARED = technicalName(['shared']);
 const fleet = join(
   import.meta.dirname,
   '../../infra-shared-ts/tofu/stacks/fleet'
@@ -61,15 +63,15 @@ test('adopts the existing shared bucket, token and write-only secrets', () => {
       global_imports: { shared_data: true },
       shared_data: {
         account_id: '2698e76355a8c8d1ee21e15fa9fd44f7',
-        bucket: 'gamezilla-shared',
+        bucket: SHARED,
       },
       infisical: { project_id: 'project', shared_env: 'shared' },
     },
     ...credential('existing-token', 'existing-token', 'existing-s3-secret'),
-    each: { value: 'gamezilla-shared' },
+    each: { value: SHARED },
   };
   expect(attr(imports[0], 'id', names)).toBe(
-    '2698e76355a8c8d1ee21e15fa9fd44f7/gamezilla-shared/default'
+    `2698e76355a8c8d1ee21e15fa9fd44f7/${SHARED}/default`
   );
   expect(attr(imports[1], 'id', names)).toBe(
     '2698e76355a8c8d1ee21e15fa9fd44f7/existing-token'

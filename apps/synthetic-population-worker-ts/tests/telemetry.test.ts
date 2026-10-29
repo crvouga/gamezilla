@@ -3,6 +3,7 @@ import {
   observedSyntheticPopulationHttp,
   syntheticPopulationTelemetry,
 } from '@apps/synthetic-population-worker-ts/wall-telemetry';
+import { serviceName } from '@libs/product-identity-shared-ts/technical-names';
 import { context, trace } from '@opentelemetry/api';
 import { InMemorySpanExporter } from '@opentelemetry/sdk-trace-base';
 
@@ -30,7 +31,7 @@ test('worker transport exports correlated, credential-free spans to the applicat
     expect(spans).toHaveLength(1);
     expect(observed.correlation).toContain(spans[0]!.spanContext().traceId);
     expect(spans[0]!.resource.attributes['service.name']).toBe(
-      'gamezilla-synthetic-population-worker'
+      serviceName('synthetic-population-worker')
     );
     expect(spans[0]!.attributes['http.request.method']).toBe('POST');
     expect(spans[0]!.attributes['http.response.status_code']).toBe(200);
