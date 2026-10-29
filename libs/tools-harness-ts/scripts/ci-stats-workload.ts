@@ -7,7 +7,6 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { type LoadReport, loadReport, readLoadInput } from './ci-load';
-import { releaseOnlyTask } from './verify-profile';
 import { estimateTask } from './verify-task-estimates';
 
 export type TaskRow = {
@@ -63,17 +62,20 @@ export function readWorkload(root: string): Workload {
   };
 }
 
-/** Task rows for every gate task, split by the profile that runs them. */
+/**
+ * Task rows for every gate task. A pull request runs the whole gate, the
+ * `release` profile (`verify-profile.ts`), so nothing is left to Release
+ * alone and `releaseOnly*` stay zero; the fields remain so the report keeps
+ * its shape.
+ */
 export function profileSplit(rows: readonly TaskRow[]): ProfileSplit {
-  const pr = rows.filter((row) => !releaseOnlyTask(row.id));
-  const releaseOnly = rows.filter((row) => releaseOnlyTask(row.id));
   return {
-    prSeconds: sum(pr),
-    releaseOnlySeconds: sum(releaseOnly),
-    prTasks: pr.length,
-    releaseOnlyTasks: releaseOnly.length,
+    prSeconds: sum(rows),
+    releaseOnlySeconds: 0,
+    prTasks: rows.length,
+    releaseOnlyTasks: 0,
     longest: longest(rows),
-    longestPr: longest(pr),
+    longestPr: longest(rows),
   };
 }
 

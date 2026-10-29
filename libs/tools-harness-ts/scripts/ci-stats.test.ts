@@ -279,15 +279,16 @@ describe('workload', () => {
     ]);
   });
 
-  test('release-only tasks split from the pull-request profile', () => {
+  test('a pull request runs the whole gate, so no task is left to Release', () => {
     const split = profileSplit([
       { id: '@a#lint', seconds: 10, source: 'history' },
       { id: '@a#test:spec:0', seconds: 200, source: 'history' },
     ]);
-    expect(split.prSeconds).toBe(10);
-    expect(split.releaseOnlySeconds).toBe(200);
+    expect(split.prSeconds).toBe(210);
+    expect(split.prTasks).toBe(2);
+    expect(split.releaseOnlySeconds).toBe(0);
     expect(split.longest[0]?.id).toBe('@a#test:spec:0');
-    expect(split.longestPr[0]?.id).toBe('@a#lint');
+    expect(split.longestPr[0]?.id).toBe('@a#test:spec:0');
   });
 
   test('this repository has a workload and the four workflow files', () => {
