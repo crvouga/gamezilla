@@ -82,6 +82,35 @@ test('security configuration excludes fields the pinned provider cannot read or 
 });
 
 // regression: public-repository-self-hosted-runner
+test('only main may deploy to production, and a branch Health run stays outside it', () => {
+  const bootstrap = readFileSync(
+    join(TOFU, 'stacks/bootstrap/main.tf'),
+    'utf8'
+  );
+  expect(bootstrap).toMatch(/main_only_environments\s*=\s*\["production"\]/);
+  expect(actions).toMatch(/custom_branch_policies\s*=\s*true/);
+  expect(actions).toMatch(
+    /resource "github_repository_environment_deployment_policy" "main" \{[^}]*branch_pattern\s*=\s*"main"/
+  );
+  expect(imports).toContain(
+    'module.repository.github_repository_environment_deployment_policy.main["production"]'
+  );
+  const health = readFileSync(
+    join(import.meta.dirname, '../../../.github/workflows/health.yml'),
+    'utf8'
+  );
+  for (const line of health.match(/^\s*environment: .*$/gm) ?? [])
+    if (line.includes("'production'"))
+      expect(line).toContain("github.ref == 'refs/heads/main'");
+});
+
+test('a public repository exposes no wiki or classic projects', () => {
+  expect(GLOBAL.github.settings.has_wiki).toBe(false);
+  expect(GLOBAL.github.settings.has_projects).toBe(false);
+  expect(GLOBAL.github.settings.has_discussions).toBe(false);
+});
+
+// regression: public-repository-self-hosted-runner
 test('a public repository scans for secrets, alerts on vulnerable dependencies and runs only pinned actions', () => {
   expect(GLOBAL.github.settings.visibility).toBe('public');
   for (const setting of ['secret_scanning', 'secret_scanning_push_protection'])

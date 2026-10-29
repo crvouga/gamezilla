@@ -100,6 +100,9 @@ module "repository" {
   owner_is_organization = var.github.owner_is_organization
   settings              = var.github.settings
   environments          = var.github.environments
+  # Release's production deploy and main's Health checks; the AWS deploy role
+  # trusts this environment's OIDC subject.
+  main_only_environments = ["production"]
   variables = {
     SECRETS_IDENTITY_ID = module.ci_identity.identity_id
     SECRETS_PROJECT_ID  = var.infisical.project_slug

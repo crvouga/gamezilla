@@ -35,6 +35,11 @@ variable "environments" {
   description = "Existing deployment environments, adopted without new approval gates."
 }
 
+variable "main_only_environments" {
+  type        = set(string)
+  description = "Environments (a subset of environments) that only the main branch may deploy to."
+}
+
 resource "github_repository" "this" {
   name            = var.name
   visibility      = var.settings.visibility

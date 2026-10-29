@@ -18,8 +18,8 @@ run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manua
 #
 # One job per environment in libs/infra-shared-ts/tofu/envs/<env>.tfvars.json
 # (health:matrix reads them — libs/infra-shared-ts/scripts/workflow-env-matrix.ts — from
-# a job with no secrets); adding an env file needs no edit here. Envs with
-# `protection: "production"` run in the GitHub `production` environment and
+# a job with no secrets); adding an env file needs no edit here. On `main`, envs
+# with `protection: "production"` run in the GitHub `production` environment and
 # keep their critical-journey evidence on failure. Scenarios only production
 # can run (`HOST_LIMITS` in apps/product-ts/scripts/health.ts) skip elsewhere.
 #
@@ -89,7 +89,7 @@ jobs:
       matrix:
         include:
           - env: ${{ fromJSON(needs.health-matrix.outputs.all)[0] }}
-    environment: ${{ contains(fromJSON(needs.health-matrix.outputs.production), matrix.env) && 'production' || '' }}
+    environment: ${{ github.ref == 'refs/heads/main' && contains(fromJSON(needs.health-matrix.outputs.production), matrix.env) && 'production' || '' }}
     env:
       SECRETS_ENV: ${{ matrix.env }}
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
@@ -154,8 +154,11 @@ jobs:
     if: needs.health-matrix.outputs.all != '[]' && needs.health-matrix.outputs.idle == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
-    # No GitHub environment ('') for a standard env.
-    environment: ${{ contains(fromJSON(needs.health-matrix.outputs.production), matrix.env) && 'production' || '' }}
+    # No GitHub environment ('') for a standard env. Only `main` may enter the
+    # `production` environment (its deployment branch policy), so a branch run
+    # checks a production env without it: the read-only Health role trusts a
+    # branch, and the deploy role trusts only `production` and `main`.
+    environment: ${{ github.ref == 'refs/heads/main' && contains(fromJSON(needs.health-matrix.outputs.production), matrix.env) && 'production' || '' }}
     strategy:
       # One unhealthy environment should not cancel (and hide) another's probes.
       fail-fast: false
