@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
 import { createSignal, For, type JSX } from 'solid-js';
 import { Avatar } from './avatar';
+import { Badge } from './badge';
 import { Button } from './button';
 import { ExampleRoot } from './example-root';
 import { ExampleSection } from './example-section';
@@ -49,6 +50,7 @@ function Rail(props: { seats: readonly ExampleSeat[] }): JSX.Element {
             swatch={seat.look}
             stat={{ label: 'Score', value: seat.score }}
             state={stateOf(index())}
+            tags={index() === 0 ? <Badge label="Passed" /> : undefined}
             active={index() === 1}
             onPress={() => undefined}
           />

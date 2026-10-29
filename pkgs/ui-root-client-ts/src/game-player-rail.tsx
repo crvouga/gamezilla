@@ -3,8 +3,8 @@
  * `GamePlayerRail` + `GamePlayerChip` -- the other players at a table of
  * three or more, as one horizontally scrolling row of compact chips above
  * the board. Each chip shows the player's avatar, swatch, name (truncated),
- * figure and out / reconnecting word. The rail scrolls inside its own box, so
- * seven long names never widen the page.
+ * figure, out / reconnecting word and any short facts (`tags`). The rail
+ * scrolls inside its own box, so seven long names never widen the page.
  *
  * The active chip (the player to move) is the soft blue (`tintSubtle` fill,
  * `primaryStrong` border) and `aria-current="step"`. With `onPress` a chip is
@@ -30,6 +30,7 @@ import {
   GameSeatStatValue,
 } from './game-player-parts';
 import { type GameSeatLook, GameSeatSwatch } from './game-seat-swatch';
+import { createScreenSlot } from './screen-slot';
 import { ScrollView } from './scroll-view';
 
 /** The avatar size of a chip: compact, a step below a full strip. */
@@ -71,6 +72,8 @@ export type GamePlayerChipProps = {
   swatch?: GameSeatLook | undefined;
   stat?: GameSeatStat | null | undefined;
   state?: GamePlayerState | null | undefined;
+  /** Short facts about the player, each its own `Badge` (`Passed`, `5 cards`). */
+  tags?: JSX.Element;
   /** This player is to move. */
   active?: boolean | undefined;
   /** Makes the chip a button (open the player). */
@@ -81,6 +84,7 @@ export type GamePlayerChipProps = {
 
 function ChipFace(props: GamePlayerChipProps): JSX.Element {
   const out = (): boolean => props.state?.kind === 'out';
+  const tags = createScreenSlot(() => props.tags);
   return (
     <>
       <span
@@ -107,8 +111,13 @@ function ChipFace(props: GamePlayerChipProps): JSX.Element {
             {props.name}
           </span>
         </span>
-        <Show when={props.state}>
-          {(state) => <GamePlayerStateBadge state={state()} />}
+        <Show when={(props.state ?? null) !== null || tags.present()}>
+          <span class="box flex-row flex-wrap items-center gap-1 min-w-0">
+            <Show when={props.state}>
+              {(state) => <GamePlayerStateBadge state={state()} />}
+            </Show>
+            {tags.content()}
+          </span>
         </Show>
       </span>
       <Show when={props.stat}>

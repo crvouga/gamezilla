@@ -39,6 +39,11 @@ msgstr "»"
 msgid "(opens in a new tab)"
 msgstr "(opens in a new tab)"
 
+#. placeholder {0}: reason.count
+#: libs/game-session-client-ts/src/game-frame-setup-copy.tsx
+msgid "{0, plural, one {# closed seat needs a player or a bot.} other {# closed seats need a player or a bot.}}"
+msgstr "{0, plural, one {# closed seat needs a player or a bot.} other {# closed seats need a player or a bot.}}"
+
 #. placeholder {0}: props.deviceIds.length
 #: libs/auth-client-ts/src/account-devices-card.tsx
 msgid "{0, plural, one {# device} other {# devices}}"
@@ -54,10 +59,20 @@ msgstr "{0, plural, one {# earlier move. Review it by its move number.} other {#
 msgid "{0, plural, one {# person here} other {# people here}}"
 msgstr "{0, plural, one {# person here} other {# people here}}"
 
+#. placeholder {0}: watching()
+#: libs/game-session-client-ts/src/game-frame-play.tsx
+msgid "{0, plural, one {# person watching} other {# people watching}}"
+msgstr "{0, plural, one {# person watching} other {# people watching}}"
+
 #. placeholder {0}: ratingOf(speed).games
 #: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
 msgid "{0, plural, one {# rated game} other {# rated games}}"
 msgstr "{0, plural, one {# rated game} other {# rated games}}"
+
+#. placeholder {0}: reason.count
+#: libs/game-session-client-ts/src/game-frame-setup-copy.tsx
+msgid "{0, plural, one {# seat is still open.} other {# seats are still open.}}"
+msgstr "{0, plural, one {# seat is still open.} other {# seats are still open.}}"
 
 #. placeholder {0}: friendsState.friends().length
 #: libs/friends-client-ts/src/profile-friends-stats-view.tsx
@@ -68,6 +83,16 @@ msgstr "{0, plural, one {friend} other {friends}}"
 #: libs/spaces-client-ts/src/spaces-notices.tsx
 msgid "{0, plural, one {Hosting # space} other {Hosting # spaces}}"
 msgstr "{0, plural, one {Hosting # space} other {Hosting # spaces}}"
+
+#. placeholder {0}: reason.count
+#: libs/game-session-client-ts/src/game-frame-setup-copy.tsx
+msgid "{0, plural, one {Waiting for # invitation to be answered.} other {Waiting for # invitations to be answered.}}"
+msgstr "{0, plural, one {Waiting for # invitation to be answered.} other {Waiting for # invitations to be answered.}}"
+
+#. placeholder {0}: reason.count
+#: libs/game-session-client-ts/src/game-frame-setup-copy.tsx
+msgid "{0, plural, one {Waiting for # person to be ready.} other {Waiting for # people to be ready.}}"
+msgstr "{0, plural, one {Waiting for # person to be ready.} other {Waiting for # people to be ready.}}"
 
 #. placeholder {0}: riderName(rider.seat)
 #. placeholder {1}: props.state.scores[index()] ?? 0
@@ -418,6 +443,10 @@ msgstr "{name} sank your whole fleet."
 msgid "{name} sunk"
 msgstr "{name} sunk"
 
+#: libs/game-session-client-ts/src/game-frame-headline.tsx
+msgid "{name} wins"
+msgstr "{name} wins"
+
 #. placeholder {0}: squareName(square)
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "{name}, {0}, empty"
@@ -426,6 +455,10 @@ msgstr "{name}, {0}, empty"
 #: libs/word-tiles-client-ts/src/word-tiles-cells.tsx
 msgid "{name}, empty"
 msgstr "{name}, empty"
+
+#: libs/game-session-client-ts/src/game-frame-headline.tsx
+msgid "{names} win"
+msgstr "{names} win"
 
 #: libs/game-session-client-ts/src/custom-game-status.tsx
 msgid "{names} win by {reason}."
@@ -917,8 +950,8 @@ msgid "Agree draw"
 msgstr "Agree draw"
 
 #: libs/game-session-client-ts/src/custom-game-configuration.tsx
-msgid "Agree on the lineup and clock, then get ready."
-msgstr "Agree on the lineup and clock, then get ready."
+msgid "Agree on the lineup and options, then get ready."
+msgstr "Agree on the lineup and options, then get ready."
 
 #: libs/notifications-client-ts/src/notifications-filter-bar.tsx
 msgid "All"
@@ -931,6 +964,10 @@ msgstr "All five ships placed. Your fleet is ready."
 #: libs/game-matchmaking-client-ts/src/multiplayer-private-setup.tsx
 msgid "All players are ready."
 msgstr "All players are ready."
+
+#: libs/game-session-client-ts/src/game-frame-setup-copy.tsx
+msgid "All seats are taken. You'll watch."
+msgstr "All seats are taken. You'll watch."
 
 #: libs/game-puzzle-client-ts/src/puzzle-feed-bar.tsx
 msgid "All themes"
@@ -1077,6 +1114,10 @@ msgstr "Back"
 #: libs/spaces-client-ts/src/space-reachability.tsx
 msgid "Back to Spaces"
 msgstr "Back to Spaces"
+
+#: libs/game-session-client-ts/src/game-frame-result.tsx
+msgid "Back to the space"
+msgstr "Back to the space"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
 msgid "Back<0> one move</0>"
@@ -1314,9 +1355,9 @@ msgstr "Carrier"
 msgid "Central hill"
 msgstr "Central hill"
 
-#: libs/game-session-client-ts/src/custom-game-side.tsx
-msgid "Change participant"
-msgstr "Change participant"
+#: libs/game-session-client-ts/src/game-frame-result.tsx
+msgid "Change game"
+msgstr "Change game"
 
 #: libs/sokoban-client-ts/src/sokoban-size-controls.tsx
 msgid "Change size"
@@ -1325,6 +1366,10 @@ msgstr "Change size"
 #: libs/synthetic-population-client-ts/src/synthetic-population-users.tsx
 msgid "Change the search or increase the desired synthetic population."
 msgstr "Change the search or increase the desired synthetic population."
+
+#: libs/game-session-client-ts/src/custom-game-side.tsx
+msgid "Change who sits here"
+msgstr "Change who sits here"
 
 #: libs/game-puzzle-client-ts/src/content-connection-status.tsx
 msgid "Changes have not reached your other devices"
@@ -1438,14 +1483,6 @@ msgstr "Choose a tool, then a square. Walls and outside squares remove any piece
 msgid "Choose a username"
 msgstr "Choose a username"
 
-#: libs/light-cycles-client-ts/src/light-cycles-options.tsx
-msgid "Choose a whole number from 1 to 9. Changing it asks every rider to get ready again."
-msgstr "Choose a whole number from 1 to 9. Changing it asks every rider to get ready again."
-
-#: libs/pong-client-ts/src/pong-options.tsx
-msgid "Choose a whole number from 1 to 99. Changing it asks both players to get ready again."
-msgstr "Choose a whole number from 1 to 99. Changing it asks both players to get ready again."
-
 #: libs/game-puzzle-client-ts/src/content-pack-overview.tsx
 msgid "Choose any puzzle"
 msgstr "Choose any puzzle"
@@ -1453,6 +1490,12 @@ msgstr "Choose any puzzle"
 #: libs/game-puzzle-client-ts/src/content-kept-positions.tsx
 msgid "Choose continuation"
 msgstr "Choose continuation"
+
+#. placeholder {0}: min()
+#. placeholder {1}: max()
+#: libs/game-session-client-ts/src/game-frame-options.tsx
+msgid "Choose from {0} to {1}."
+msgstr "Choose from {0} to {1}."
 
 #: libs/chess-root-client-ts/src/chess-game-client.tsx
 msgid "Choose how you want to play."
@@ -1502,7 +1545,7 @@ msgstr "Choose who plays each side. Anyone in this space can watch."
 msgid "Choose whole minutes from 1 to 180 and whole added seconds from 0 to 60."
 msgstr "Choose whole minutes from 1 to 180 and whole added seconds from 0 to 60."
 
-#: libs/game-session-client-ts/src/custom-game-side.tsx
+#: libs/game-session-client-ts/src/game-frame-seats.tsx
 #: libs/hearts-client-ts/src/hearts-table-view.tsx
 msgid "Choosing"
 msgstr "Choosing"
@@ -1511,7 +1554,7 @@ msgstr "Choosing"
 msgid "Choosing a copy keeps earlier work and leaves published editions unchanged."
 msgstr "Choosing a copy keeps earlier work and leaves published editions unchanged."
 
-#: libs/game-session-client-ts/src/custom-game-side.tsx
+#: libs/game-session-client-ts/src/game-frame-seats.tsx
 msgid "Chosen"
 msgstr "Chosen"
 
@@ -1522,10 +1565,6 @@ msgstr "Chosen Lichess file"
 #: libs/game-session-client-ts/src/custom-game-active.tsx
 msgid "Claim the win"
 msgstr "Claim the win"
-
-#: libs/game-session-client-ts/src/custom-game-side.tsx
-msgid "Claim this side"
-msgstr "Claim this side"
 
 #: libs/quoridor-client-ts/src/quoridor-game-client.tsx
 msgid "Classic Quoridor"
@@ -1573,6 +1612,10 @@ msgstr "Client events are available in the embedded product-harness."
 msgid "Client SQL"
 msgstr "Client SQL"
 
+#: libs/game-session-client-ts/src/custom-game-configuration.tsx
+msgid "Clock and sides"
+msgstr "Clock and sides"
+
 #: libs/auth-client-ts/src/sign-in-idle-content.tsx
 #: libs/auth-client-ts/src/sign-in-modal.tsx
 #: libs/spaces-client-ts/src/space-chrome-action-bar.tsx
@@ -1583,13 +1626,16 @@ msgid "Close"
 msgstr "Close"
 
 #: libs/game-session-client-ts/src/custom-game-side-choices.tsx
-msgid "Close place"
-msgstr "Close place"
+msgid "Close seat"
+msgstr "Close seat"
 
-#: libs/game-session-client-ts/src/custom-game-person.tsx
 #: libs/game-session-client-ts/src/custom-game-status.tsx
 msgid "Closed place"
 msgstr "Closed place"
+
+#: libs/game-session-client-ts/src/custom-game-person.tsx
+msgid "Closed seat"
+msgstr "Closed seat"
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "clubs"
@@ -2300,6 +2346,10 @@ msgstr "Draining"
 msgid "draw"
 msgstr "draw"
 
+#: libs/game-session-client-ts/src/game-frame-headline.tsx
+msgid "Draw"
+msgstr "Draw"
+
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Draw agreement is available between two people."
 msgstr "Draw agreement is available between two people."
@@ -2494,10 +2544,6 @@ msgstr "Every participant has moved. Resign instead of cancelling."
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Every person must be ready before starting."
 msgstr "Every person must be ready before starting."
-
-#: libs/game-session-client-ts/src/custom-game-configuration.tsx
-msgid "Every place must be filled and every person ready."
-msgstr "Every place must be filled and every person ready."
 
 #. placeholder {0}: props.trialDays
 #: libs/billing-client-ts/src/billing-offer-sections.tsx
@@ -2809,6 +2855,10 @@ msgstr "full board"
 msgid "Full commit"
 msgstr "Full commit"
 
+#: libs/game-session-client-ts/src/game-frame-play.tsx
+msgid "Game actions"
+msgstr "Game actions"
+
 #: libs/game-session-client-ts/src/custom-game-status.tsx
 #: libs/game-session-client-ts/src/game-record-label.tsx
 msgid "Game cancelled."
@@ -2849,10 +2899,6 @@ msgstr "Game in progress."
 #: libs/game-puzzle-client-ts/src/puzzle-game-log.tsx
 msgid "Game log"
 msgstr "Game log"
-
-#: libs/game-session-client-ts/src/custom-game-configuration.tsx
-msgid "Game options"
-msgstr "Game options"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
 msgid "Game rating"
@@ -3029,6 +3075,10 @@ msgstr "Host"
 #: libs/billing-client-ts/src/billing-offer-sections.tsx
 msgid "Host as many spaces as you like at once"
 msgstr "Host as many spaces as you like at once"
+
+#: libs/game-session-client-ts/src/game-frame-rematch-readiness.tsx
+msgid "Host starts the rematch"
+msgstr "Host starts the rematch"
 
 #: libs/account-privacy-client-ts/src/privacy-explanation.tsx
 msgid "Hosted spaces will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Future membership charges will stop. If the payment provider has not confirmed cancellation yet, we will say so. Any membership payment taken after confirmed deletion will be refunded in full."
@@ -3319,6 +3369,10 @@ msgstr "Leave anyway"
 #: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
 msgid "Leave no gap between your tiles."
 msgstr "Leave no gap between your tiles."
+
+#: libs/game-session-client-ts/src/custom-game-side.tsx
+msgid "Leave seat"
+msgstr "Leave seat"
 
 #: libs/spaces-client-ts/src/space-chrome-action-bar.tsx
 #: libs/spaces-client-ts/src/space-end-or-leave-button.tsx
@@ -3705,6 +3759,10 @@ msgstr "Move your paddle to return the ball. A ball past the other paddle scores
 #: libs/sokoban-client-ts/src/sokoban-game-client.tsx
 msgid "Moves"
 msgstr "Moves"
+
+#: libs/game-session-client-ts/src/game-frame-play.tsx
+msgid "Moves appear as they are played."
+msgstr "Moves appear as they are played."
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
 #: libs/game-session-client-ts/src/custom-game-board.tsx
@@ -4219,8 +4277,6 @@ msgstr "Open developer feedback"
 msgid "Open Harness"
 msgstr "Open Harness"
 
-#: libs/game-session-client-ts/src/custom-game-person.tsx
-#: libs/game-session-client-ts/src/custom-game-side-choices.tsx
 #: libs/game-session-client-ts/src/custom-game-status.tsx
 msgid "Open place"
 msgstr "Open place"
@@ -4233,6 +4289,8 @@ msgstr "Open playtest"
 msgid "Open restarted attempt"
 msgstr "Open restarted attempt"
 
+#: libs/game-session-client-ts/src/custom-game-person.tsx
+#: libs/game-session-client-ts/src/custom-game-side-choices.tsx
 #: pkgs/ui-root-client-ts/src/avatar.tsx
 msgid "Open seat"
 msgstr "Open seat"
@@ -4271,6 +4329,10 @@ msgstr "Opponent's reply: {side} played {0} to {1}."
 msgid "opposite row reached"
 msgstr "opposite row reached"
 
+#: libs/game-session-client-ts/src/custom-game-configuration.tsx
+msgid "Options"
+msgstr "Options"
+
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Orange"
 msgstr "Orange"
@@ -4291,6 +4353,14 @@ msgstr "OS"
 #: libs/profile-client-ts/src/stand-in-notice.tsx
 msgid "Other people see you as {alias} until you choose a new username"
 msgstr "Other people see you as {alias} until you choose a new username"
+
+#: libs/game-session-client-ts/src/game-frame-seats.tsx
+msgid "Other players"
+msgstr "Other players"
+
+#: libs/game-session-client-ts/src/game-frame-seats.tsx
+msgid "Out"
+msgstr "Out"
 
 #: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
 msgid "Outlast your rival on the grid."
@@ -4551,6 +4621,7 @@ msgstr "Player on this device"
 msgid "Player search accepted"
 msgstr "Player search accepted"
 
+#: libs/game-session-client-ts/src/custom-game-configuration.tsx
 #: libs/game-session-client-ts/src/custom-game-side.tsx
 msgid "Players"
 msgstr "Players"
@@ -4590,7 +4661,6 @@ msgid "Points"
 msgstr "Points"
 
 #: libs/pong-client-ts/src/pong-frame.tsx
-#: libs/pong-client-ts/src/pong-options.tsx
 msgid "Points to win"
 msgstr "Points to win"
 
@@ -4950,8 +5020,8 @@ msgstr "Ready"
 msgid "Ready by {0}"
 msgstr "Ready by {0}"
 
-#: libs/game-session-client-ts/src/custom-game-configuration.tsx
 #: libs/game-session-client-ts/src/custom-game-status.tsx
+#: libs/game-session-client-ts/src/game-frame-setup-copy.tsx
 msgid "Ready to start."
 msgstr "Ready to start."
 
@@ -4975,6 +5045,10 @@ msgstr "Reconnect"
 #: libs/game-session-client-ts/src/custom-game-error.tsx
 msgid "Reconnect before changing or playing the game."
 msgstr "Reconnect before changing or playing the game."
+
+#: libs/game-session-client-ts/src/game-frame-seats.tsx
+msgid "Reconnecting"
+msgstr "Reconnecting"
 
 #: libs/pong-client-ts/src/pong-board.tsx
 msgid "Reconnecting. Controls resume when the game returns."
@@ -5041,10 +5115,6 @@ msgstr "Refresh to try again."
 msgid "Region"
 msgstr "Region"
 
-#: libs/game-session-client-ts/src/custom-game-side.tsx
-msgid "Release this side"
-msgstr "Release this side"
-
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "Released"
 msgstr "Released"
@@ -5059,7 +5129,7 @@ msgstr "Reload"
 msgid "Reload app"
 msgstr "Reload app"
 
-#: libs/game-session-client-ts/src/custom-game-actions.tsx
+#: libs/game-session-client-ts/src/game-frame-result.tsx
 msgid "Rematch"
 msgstr "Rematch"
 
@@ -5294,6 +5364,10 @@ msgstr "Return to the builder to validate and publish this puzzle."
 msgid "Return to your library, reconnect and open it again. Your saved work stays kept."
 msgstr "Return to your library, reconnect and open it again. Your saved work stays kept."
 
+#: libs/game-session-client-ts/src/game-frame-result.tsx
+msgid "Review"
+msgstr "Review"
+
 #: libs/game-session-client-ts/src/custom-game-board.tsx
 msgid "Review position"
 msgstr "Review position"
@@ -5359,7 +5433,6 @@ msgid "Round wins"
 msgstr "Round wins"
 
 #: libs/light-cycles-client-ts/src/light-cycles-frame.tsx
-#: libs/light-cycles-client-ts/src/light-cycles-options.tsx
 msgid "Round wins to win"
 msgstr "Round wins to win"
 
@@ -5860,6 +5933,14 @@ msgstr "Signing in…"
 msgid "Signing out…"
 msgstr "Signing out…"
 
+#: libs/game-session-client-ts/src/custom-game-side.tsx
+msgid "Sit here"
+msgstr "Sit here"
+
+#: libs/game-session-client-ts/src/game-frame-setup-copy.tsx
+msgid "Sit in an open seat to play, or stay to watch."
+msgstr "Sit in an open seat to play, or stay to watch."
+
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Six"
 msgstr "Six"
@@ -6031,9 +6112,13 @@ msgstr "Square tool"
 msgid "Stable per-device identifier; tap to copy"
 msgstr "Stable per-device identifier; tap to copy"
 
-#: libs/game-session-client-ts/src/custom-game-side.tsx
+#: libs/game-session-client-ts/src/game-frame-seats.tsx
 msgid "Stand-in bot"
 msgstr "Stand-in bot"
+
+#: libs/game-session-client-ts/src/game-frame-result.tsx
+msgid "Standings"
+msgstr "Standings"
 
 #: libs/game-session-client-ts/src/custom-game-configuration.tsx
 #: pkgs/ui-root-client-ts/src/pagination-controls.tsx
@@ -6265,17 +6350,21 @@ msgstr "System"
 msgid "Take a personal-data export or delete your account"
 msgstr "Take a personal-data export or delete your account"
 
+#: libs/game-session-client-ts/src/custom-game-side.tsx
+msgid "Take a seat"
+msgstr "Take a seat"
+
 #: libs/profile-client-ts/src/profile-edit-screen.tsx
 msgid "Take an export or permanently delete your account"
 msgstr "Take an export or permanently delete your account"
 
-#: libs/game-session-client-ts/src/custom-game-side.tsx
+#: libs/game-session-client-ts/src/game-frame-seats.tsx
 msgid "Take back my side"
 msgstr "Take back my side"
 
 #: libs/game-session-client-ts/src/custom-game-side-choices.tsx
-msgid "Take this side"
-msgstr "Take this side"
+msgid "Take this seat"
+msgstr "Take this seat"
 
 #: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
 msgid "Take turns placing tiles from your seven-tile rack in one row or column to form words, joined to the tiles already on the 15 × 15 board; the first word covers the centre star. Every word you form or extend must be in the word list, and each is scored: letter squares multiply the new tile under them, word squares the whole word, and using all seven tiles earns 50 more. A blank plays any letter for no points. Instead of placing you may pass, or exchange tiles while the bag holds at least seven. The game ends when someone uses their last tile with the bag empty — the others' remaining tiles count against them and go to that player — or after six scoreless turns in a row, when everyone's remaining tiles count against them. The highest score wins; tied leaders share the win. Resigning or running out of time follows the table's rules: with two players the other wins, with more the game is drawn. Word list: {lexicon} (ENABLE, public domain, words of 2 to 15 letters). Rules: {ruleset}."
@@ -6694,10 +6783,6 @@ msgstr "The space stays open. They can join again through its link."
 msgid "The Synthetic Population Worker will recover this application."
 msgstr "The Synthetic Population Worker will recover this application."
 
-#: libs/light-cycles-client-ts/src/light-cycles-options.tsx
-msgid "The target score must be from 1 to 9."
-msgstr "The target score must be from 1 to 9."
-
 #: libs/light-cycles-client-ts/src/light-cycles-game-client.tsx
 msgid "The target score was reached."
 msgstr "The target score was reached."
@@ -7045,6 +7130,10 @@ msgstr "Three racks, one board, the highest score wins."
 msgid "time"
 msgstr "time"
 
+#: libs/game-session-client-ts/src/game-frame-seats.tsx
+msgid "Time"
+msgstr "Time"
+
 #: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
 msgid "Time control"
 msgstr "Time control"
@@ -7355,14 +7444,6 @@ msgstr "Use this clock"
 msgid "Use this kept copy?"
 msgstr "Use this kept copy?"
 
-#: libs/pong-client-ts/src/pong-options.tsx
-msgid "Use this score"
-msgstr "Use this score"
-
-#: libs/light-cycles-client-ts/src/light-cycles-options.tsx
-msgid "Use this target score"
-msgstr "Use this target score"
-
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "User ID"
 msgstr "User ID"
@@ -7445,6 +7526,10 @@ msgstr "Waiting for the host"
 msgid "Waiting for the host to start a puzzle."
 msgstr "Waiting for the host to start a puzzle."
 
+#: libs/game-session-client-ts/src/custom-game-configuration.tsx
+msgid "Waiting for the host to start."
+msgstr "Waiting for the host to start."
+
 #: libs/quoridor-client-ts/src/quoridor-board.tsx
 #: libs/sokoban-client-ts/src/use-sokoban-words.tsx
 msgid "wall"
@@ -7491,6 +7576,10 @@ msgstr "West"
 #: libs/quoridor-client-ts/src/quoridor-game-client.tsx
 msgid "West gold diamond"
 msgstr "West gold diamond"
+
+#: libs/game-session-client-ts/src/game-frame-result.tsx
+msgid "What next"
+msgstr "What next"
 
 #: libs/billing-client-ts/src/billing-offer-sections.tsx
 msgid "What Plus includes"
@@ -7618,6 +7707,10 @@ msgstr "Yes"
 msgid "You"
 msgstr "You"
 
+#: libs/game-session-client-ts/src/custom-game-side.tsx
+msgid "You · guest"
+msgstr "You · guest"
+
 #: libs/billing-client-ts/src/billing-plan-actions.tsx
 msgid "You already have a membership"
 msgstr "You already have a membership"
@@ -7663,6 +7756,10 @@ msgstr "You are reviewing an earlier position, at the start of the game. No piec
 #: libs/word-tiles-client-ts/src/word-tiles-board.tsx
 msgid "You are watching. Racks stay private to their players."
 msgstr "You are watching. Racks stay private to their players."
+
+#: libs/game-session-client-ts/src/game-frame-headline.tsx
+msgid "You came {place}"
+msgstr "You came {place}"
 
 #: pkgs/ui-root-client-ts/src/mutation-modal-parts.tsx
 msgid "You can close this and keep using the app. Check again to learn the outcome of this choice."
@@ -7772,6 +7869,10 @@ msgstr "You sank the whole fleet. You win."
 msgid "You were signed out on this device"
 msgstr "You were signed out on this device"
 
+#: libs/game-session-client-ts/src/game-frame-headline.tsx
+msgid "You win"
+msgstr "You win"
+
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
 msgid "You won the multiplayer game."
 msgstr "You won the multiplayer game."
@@ -7817,6 +7918,14 @@ msgstr "You're signed out on this device."
 #: libs/spaces-client-ts/src/leave-space-confirm-modal.tsx
 msgid "You're the host, so leaving ends the space for everyone. This cannot be undone."
 msgstr "You're the host, so leaving ends the space for everyone. This cannot be undone."
+
+#: libs/game-session-client-ts/src/game-frame-play.tsx
+msgid "You're watching"
+msgstr "You're watching"
+
+#: libs/game-session-client-ts/src/game-frame-setup-copy.tsx
+msgid "You're watching this game."
+msgstr "You're watching this game."
 
 #: libs/app-root-client-ts/src/connection-copy.tsx
 msgid "You’re working offline. What you do is kept on this device and shared when you work online again."

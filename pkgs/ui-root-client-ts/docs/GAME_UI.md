@@ -69,7 +69,8 @@ top to bottom: `others`, the board (`children`), `turn` and `own`.
   long names never widen a 360px page.
 - **Solo:** no `others`, no `own`; the board and the turn.
 
-A strip or chip takes the same seat facts: `swatch`, `stat` (one figure,
+A strip or chip takes the same seat facts: `swatch`, `tags` (short facts,
+each a `Badge`), `stat` (one figure,
 `{ label, value }`, in the `stat` text style at the far edge), `state`
 (`{ kind: 'out' | 'reconnecting', label }`: a word in a tag, and an out
 seat is dimmed) and `active` (the seat to move: the soft blue `tintSubtle`,

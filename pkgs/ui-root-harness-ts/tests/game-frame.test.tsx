@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, test } from 'bun:test';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameOptionField } from '@pkgs/ui-root-client-ts/game-option-field';
 import { formatOrdinal } from '@pkgs/ui-root-client-ts/game-ordinal';
@@ -78,6 +79,23 @@ describe('Game frame: the players', () => {
       'data-state',
       'reconnecting'
     );
+  });
+
+  test('a chip carries its facts as tags, and an empty fact row takes no room', () => {
+    renderUi(() => (
+      <GamePlayerRail aria-label="Other players">
+        <GamePlayerChip
+          name="Erin"
+          tags={<Badge label="Passed" dataSet={{ testid: 'erin-passed' }} />}
+        />
+        <GamePlayerChip name="Sam" tags={<Show when={false}>{'never'}</Show>} />
+      </GamePlayerRail>
+    ));
+    const [erin, sam] = screen.getAllByRole('listitem');
+    if (erin === undefined || sam === undefined) throw new Error('two chips');
+    expect(within(erin).getByText('Passed')).toBeInTheDocument();
+    expect(mustQuery('[data-testid="erin-passed"]')).toBeInTheDocument();
+    expect(sam.textContent).toBe('Sam');
   });
 
   test('a pressable chip and strip are buttons named by the player', () => {

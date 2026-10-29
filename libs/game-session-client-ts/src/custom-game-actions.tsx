@@ -53,28 +53,6 @@ export function CustomGameStarter(props: ModelProps): JSX.Element {
   );
 }
 
-/** After a game is over the creator may start the next one. */
-export function CustomGameNextActions(props: ModelProps): JSX.Element {
-  const over = (): boolean =>
-    props.model.current()?.status === 'completed' ||
-    props.model.current()?.status === 'cancelled';
-  return (
-    <Show when={over() && props.model.canCreate()}>
-      <GameActionButton
-        title={<Trans>New game</Trans>}
-        dataSet={{ testid: 'custom-game-new' }}
-        variant="solid"
-        operation={() => props.model.choose({ operation: 'create' })}
-      />
-      <GameActionButton
-        title={<Trans>Rematch</Trans>}
-        dataSet={{ testid: 'custom-game-rematch' }}
-        operation={() => props.model.choose({ operation: 'rematch' })}
-      />
-    </Show>
-  );
-}
-
 export function CustomGameExitActions(props: ModelProps): JSX.Element {
   const unfinished = () =>
     props.model.current()?.status === 'configuring' ||

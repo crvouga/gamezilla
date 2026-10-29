@@ -1,12 +1,6 @@
-import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
 import { t } from '@lingui/core/macro';
 import { Plural, Trans } from '@lingui/solid/macro';
-import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
-import {
-  useGamePresentation,
-  useTurnGames,
-} from '@pkgs/turn-game-client-ts/turn-games-context';
-import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
+import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
@@ -19,11 +13,13 @@ import { ListEntry, OrderedList } from '@pkgs/ui-root-client-ts/semantic-list';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
-import { createMemo, createSignal, For, Index, type JSX, Show } from 'solid-js';
+import { createMemo, createSignal, Index, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { customGameCanMove } from './custom-game-can-move';
 import { CustomGameError } from './custom-game-error';
-import { CustomGameSeat } from './custom-game-side';
+import { CustomGameStatus } from './custom-game-status';
+import type { FrameBoard } from './game-frame-play';
+import { FrameNearSeat, FrameOthers } from './game-frame-seats';
+import { frameTable, sameTable } from './game-frame-table';
 import type { CustomGameReview } from './use-custom-game-review';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
@@ -216,117 +212,78 @@ function publicBoardState(props: BoardProps, canMove: boolean): string {
   });
 }
 
-/**
- * The board's gesture as a choice: while every side commits it is this
- * side's own commitment; otherwise it is a move.
- */
-function gestureChoice(
-  model: BoardProps['model'],
-  action: string
-): CustomGameInput {
-  const game = model.current();
-  const ply = game?.moves.length ?? 0;
-  const side = model.mySide();
-  return side !== null && game?.awaiting.includes(side) === true
-    ? { operation: 'commit', commitment: action, ply }
-    : { operation: 'move', uci: action, ply };
-}
-
-/** The seats across the board from the person's own. */
-function FarSeats(props: {
-  readonly model: BoardProps['model'];
-  readonly near: GameSide;
-}): JSX.Element {
+/** The board the frame mounted and, under it, the board's own controls. */
+function FrameBoardView(props: { board: FrameBoard }): JSX.Element {
   return (
-    <StackVertical gap="sm">
-      <For
-        each={
-          props.model.current()?.sides.filter((side) => side !== props.near) ??
-          []
-        }
-      >
-        {(side) => <CustomGameSeat model={props.model} side={side} />}
-      </For>
-    </StackVertical>
+    <Show when={props.board.session()} keyed>
+      {(session) => (
+        <>
+          <Dynamic component={session.Board} />
+          <Show when={session.controls}>
+            {(controls) => <Dynamic component={controls()} />}
+          </Show>
+        </>
+      )}
+    </Show>
   );
 }
 
 /**
- * The board. Once the game is under way the two seats sit around it, the
- * person's own side nearest them; while it is set up the seats are in the
- * Players section with their choices.
+ * The board and the people around it. Once the game is under way the seats
+ * sit around it (the other seats above, the person's own nearest them, the
+ * turn between); while it is set up the seats are in the Players section
+ * with their choices, and the line about the game is in the status row.
  */
-export function CustomGameBoard(props: BoardProps): JSX.Element {
-  const [reset, setReset] = createSignal(0);
-  const sounds = useSoundsPreference();
-  const near = () => props.model.mySide() ?? 'white';
+export function CustomGameBoard(
+  props: BoardProps & { board: FrameBoard }
+): JSX.Element {
   const seated = (): boolean => props.model.current()?.status !== 'configuring';
-  const interactive = (): boolean =>
-    customGameCanMove(props.model, props.review);
-  const presentation = useGamePresentation();
-  const simulation = props.model.simulation;
-  const position = () =>
-    props.review.live() && simulation.active()
-      ? (simulation.position() ?? props.review.fen())
-      : props.review.fen();
-  const move = async (action: string): Promise<void> => {
-    try {
-      await props.model.choose(gestureChoice(props.model, action));
-    } catch {
-      setReset((value) => value + 1);
-    }
-  };
+  // The same table after a move keeps every seat mounted.
+  const table = createMemo(
+    () => frameTable(props.model.current()?.sides ?? [], props.model.mySide()),
+    undefined,
+    { equals: sameTable }
+  );
   return (
     <GameBoardStage
       dataSet={{
         testid: 'custom-game-public',
-        state: publicBoardState(props, interactive()),
+        state: publicBoardState(props, props.board.interactive()),
         fen: props.review.fen(),
         status: props.model.current()?.status ?? '',
         turn: props.model.current()?.turn ?? '',
         outcome: props.model.current()?.outcome ?? '',
         ply: String(props.model.current()?.moves.length ?? 0),
-        canmove: String(interactive()),
+        canmove: String(props.board.interactive()),
       }}
       others={
-        seated() ? <FarSeats model={props.model} near={near()} /> : undefined
+        <Show when={seated()}>
+          <FrameOthers
+            model={props.model}
+            table={table()}
+            position={props.board.position()}
+          />
+        </Show>
+      }
+      turn={
+        <Show when={seated()}>
+          <CustomGameStatus model={props.model} />
+        </Show>
       }
       own={
-        seated() ? (
-          <StackVertical testId="custom-game-seat-near">
-            <CustomGameSeat model={props.model} side={near()} />
-          </StackVertical>
-        ) : undefined
+        <Show when={seated()}>
+          <FrameNearSeat
+            model={props.model}
+            table={table()}
+            position={props.board.position()}
+          />
+        </Show>
       }
     >
-      <Dynamic
-        component={presentation(position()).Board}
-        position={position()}
-        simulation={
-          props.review.live() && simulation.active()
-            ? simulation.controls()
-            : undefined
-        }
-        orientation={near()}
-        interactive={interactive()}
-        sound={!sounds.muted()}
-        syncKey={reset()}
-        testId="custom-game-board"
-        setup={props.model.privateSetup.own()}
-        // The hand and commitments are the live game's: an earlier move
-        // reviewed shows its position without them.
-        hand={props.review.live() ? props.model.ownHand() : null}
-        committed={
-          props.review.live() ? (props.model.current()?.committed ?? []) : []
-        }
-        commitment={props.review.live() ? props.model.ownCommitment() : null}
-        onAction={(action: string) => {
-          void move(action);
-        }}
-      />
+      <FrameBoardView board={props.board} />
       <CustomGameError
         reason={
-          simulation.error()
+          props.model.simulation.error()
             ? t`The game stopped. Your last saved score is kept. Reopen the game to try again.`
             : ''
         }
