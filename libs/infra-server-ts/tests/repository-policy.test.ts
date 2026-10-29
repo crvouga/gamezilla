@@ -111,11 +111,16 @@ test('a public repository exposes no wiki or classic projects', () => {
 });
 
 // regression: public-repository-self-hosted-runner
-test('a public repository scans for secrets, alerts on vulnerable dependencies and runs only pinned actions', () => {
-  expect(GLOBAL.github.settings.visibility).toBe('public');
+// regression: declared-visibility-publishes-repository
+test('the repository is public only by its own declared edit, and is then scanned for secrets', () => {
+  // Publishing is a deliberate change to `visibility`, never a side effect:
+  // an apply must not make a private repository public.
+  expect(['private', 'public']).toContain(GLOBAL.github.settings.visibility);
   for (const setting of ['secret_scanning', 'secret_scanning_push_protection'])
     expect(repository).toMatch(
-      new RegExp(`\\b${setting}\\s*\\{\\s*status\\s*=\\s*"enabled"`)
+      new RegExp(
+        `\\b${setting}\\s*\\{\\s*status\\s*=\\s*var\\.settings\\.visibility == "public" \\? "enabled" : "disabled"`
+      )
     );
   expect(actions).toMatch(/sha_pinning_required\s*=\s*true/);
   for (const resource of [

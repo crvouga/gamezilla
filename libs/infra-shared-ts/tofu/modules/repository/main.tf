@@ -67,19 +67,22 @@ resource "github_repository" "this" {
   merge_commit_message        = "PR_BODY"
   web_commit_signoff_required = false
 
-  # The repository is public: GitHub scans every push and the whole history
-  # for provider credentials, and push protection refuses a push that adds
-  # one (both free on a public repository). The required verification's
-  # gitleaks scan stays as well. Version 6.13 advertises code_security and
+  # A public repository gets GitHub's secret scanning of every push and the
+  # whole history, and push protection that refuses a push adding a
+  # credential (both free there; a private repository needs paid Secret
+  # Protection, so it keeps them off). Making the repository public is the
+  # one edit `visibility` in global.tfvars.json, and the same apply turns
+  # these on. The required verification's gitleaks scan runs either way.
+  # Version 6.13 advertises code_security and
   # secret_scanning_non_provider_patterns but omits them from both read and
   # write; declaring them would cause perpetual drift. See
   # README.md#infrastructure for the provider limitation.
   security_and_analysis {
     secret_scanning {
-      status = "enabled"
+      status = var.settings.visibility == "public" ? "enabled" : "disabled"
     }
     secret_scanning_push_protection {
-      status = "enabled"
+      status = var.settings.visibility == "public" ? "enabled" : "disabled"
     }
   }
 

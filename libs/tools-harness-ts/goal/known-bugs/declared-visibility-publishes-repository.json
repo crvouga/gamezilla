@@ -1,0 +1,4 @@
+{
+  "summary": "The repository settings declared visibility \"public\" and unconditional secret scanning while the repository was private, so the next bootstrap apply would have published it (and asked a private repository for paid Secret Protection). The declaration mirrors the repository's actual visibility; secret scanning and push protection follow it, so publishing stays one deliberate edit.",
+  "regressionTest": "libs/infra-server-ts/tests/repository-policy.test.ts"
+}

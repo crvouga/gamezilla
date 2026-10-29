@@ -289,14 +289,15 @@ A person applies this. CI does not.
 | Grafana Cloud stack | One stack (the free plan allows one). Telemetry for every environment, told apart by `deployment.environment.name`. `prevent_destroy`. |
 | Infisical OIDC identity for this repository | GitHub Actions reads and writes secrets with its OIDC job token. |
 | AWS IAM OIDC provider and deploy role | GitHub Actions assumes AWS for IoT and the authorizer. The role ARN is the GitHub Actions variable `AWS_ROLE_ARN`. The store holds no long-lived AWS account key. |
-| GitHub repository settings and `main` protection | `main` is the default branch. Its active ruleset allows a direct push and blocks deletion and force-pushes. A merge commit is the only merge method (linear history is not required); merged heads are deleted. No bypass actors. The repository is public; secret scanning, push protection, Dependabot alerts and security updates are on, and Actions requires SHA-pinned actions. Repository and ruleset are `prevent_destroy`. |
+| GitHub repository settings and `main` protection | `main` is the default branch. Its active ruleset allows a direct push and blocks deletion and force-pushes. A merge commit is the only merge method (linear history is not required); merged heads are deleted. No bypass actors. Dependabot alerts and security updates are on, and Actions requires SHA-pinned actions; secret scanning and push protection follow the declared visibility (on once it is `public`). `production` accepts deployments from `main` only. Repository and ruleset are `prevent_destroy`. |
 | GitHub Actions variables for this repository | Bootstrap provisions `SECRETS_IDENTITY_ID`, `SECRETS_PROJECT_ID`, `AWS_ROLE_ARN`, and `AWS_HEALTH_ROLE_ARN` through the GitHub provider. |
 
 GitHub policy lives in `libs/infra-shared-ts/tofu/modules/repository` under the bootstrap stack,
 using the locked `integrations/github` provider. `global.tfvars.json` records
-the public visibility, homepage, enabled Issues/Projects/Wiki, disabled
-Discussions, and existing environment names (forking cannot be disabled on a
-public user-owned repository, so `allow_forking` is not sent).
+the visibility, homepage, enabled Issues, disabled Projects/Wiki/Discussions,
+and existing environment names (`allow_forking` is not sent for a user-owned
+repository). Publishing the repository is the one edit `visibility` →
+`public`; the same apply turns on secret scanning and push protection.
 Release runs `.github/workflows/verify-pr.yml` (`verify:end`, the whole gate) on
 `main` on every push to `main` before it ships. The ruleset does not require that verification before the push.
 No merge queue is added.
@@ -340,8 +341,10 @@ empty approval policies are preserved; `production` is used by the workflow,
 and the other existing names retain deployment history. Admin environment
 bypass has no approval rules to bypass and confers no access around main's
 ruleset. No new approval or promotion gates are added. Dependabot alerts and security
-updates, and GitHub secret scanning with push protection, are enabled because the
-repository is public; the required verification's gitleaks scan stays as well. The
+updates are enabled; GitHub secret scanning with push protection is enabled
+whenever the declared visibility is public (a private repository would need
+paid Secret Protection); the required verification's gitleaks scan runs
+either way. The
 locked provider 6.13 advertises `code_security` and
 `secret_scanning_non_provider_patterns` but omits both from
 [`calculateSecurityAndAnalysis` and `flattenSecurityAndAnalysis`](https://github.com/integrations/terraform-provider-github/blob/v6.13.0/github/resource_github_repository.go).
