@@ -51,10 +51,6 @@ export type GameSetupBoardProps = {
   readonly testId: string;
 };
 export type GamePresentation<View = unknown> = {
-  readonly Configuration?: (props: {
-    readonly position: string;
-    readonly onChoice: (choice: string) => Promise<void>;
-  }) => View;
   readonly name: () => string;
   readonly canFlip: boolean;
   readonly id: string;

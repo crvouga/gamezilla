@@ -4,7 +4,6 @@ import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { PongBoard } from './pong-board';
 import { pongFrame } from './pong-frame';
-import { PongOptions } from './pong-options';
 
 export const pongGameClient = defineGameClient({
   shared: pongGameShared,
@@ -22,7 +21,6 @@ export const pongGameClient = defineGameClient({
     name: () => t`Pong`,
     canFlip: false,
     Board: PongBoard,
-    Configuration: PongOptions,
     sideLabel: (side) => (side === 'white' ? t`Left` : t`Right`),
     frame: pongFrame,
     endingDescription: (reason) =>

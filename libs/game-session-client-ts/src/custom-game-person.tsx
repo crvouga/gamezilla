@@ -46,7 +46,7 @@ export function CustomGamePerson(props: {
   level?: BotDifficulty | undefined;
 }): JSX.Element {
   return (
-    <Switch fallback={<Trans>Closed place</Trans>}>
+    <Switch fallback={<Trans>Closed seat</Trans>}>
       <Match when={props.participant.kind === 'person'}>
         <UserUsername profileId={props.participant.person} withAt={false} />
       </Match>
@@ -60,11 +60,8 @@ export function CustomGamePerson(props: {
       <Match when={props.participant.kind === 'local'}>
         <Trans>Player on this device</Trans>
       </Match>
-      <Match when={props.participant.kind === 'local'}>
-        <Trans>Player on this device</Trans>
-      </Match>
       <Match when={props.participant.kind === 'open'}>
-        <Trans>Open place</Trans>
+        <Trans>Open seat</Trans>
       </Match>
     </Switch>
   );

@@ -9,14 +9,12 @@ import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { LightCyclesBoard } from './light-cycles-board';
 import { lightCyclesFrame } from './light-cycles-frame';
-import { LightCyclesOptions } from './light-cycles-options';
 import { riderName } from './light-cycles-view';
 
 const presentation = (name: () => string, riders: LightCyclesRiderCount) => ({
   name,
   canFlip: false,
   Board: LightCyclesBoard,
-  Configuration: LightCyclesOptions,
   sideLabel: riderName,
   frame: lightCyclesFrame(riders),
   endingDescription: (reason: string) =>

@@ -97,7 +97,7 @@ export function CustomGameSideChoices(props: SideProps): JSX.Element {
     <StackVertical gap="md">
       <GameActions>
         <GameActionButton
-          title={<Trans>Take this side</Trans>}
+          title={<Trans>Take this seat</Trans>}
           dataSet={{ testid: `custom-game-${props.side}-take` }}
           operation={() =>
             props.model.choose({ operation: 'take', side: props.side })
@@ -122,14 +122,14 @@ export function CustomGameSideChoices(props: SideProps): JSX.Element {
           />
         </Show>
         <GameActionButton
-          title={<Trans>Open place</Trans>}
+          title={<Trans>Open seat</Trans>}
           dataSet={{ testid: `custom-game-${props.side}-open` }}
           operation={() =>
             props.model.choose({ operation: 'open', side: props.side })
           }
         />
         <GameActionButton
-          title={<Trans>Close place</Trans>}
+          title={<Trans>Close seat</Trans>}
           dataSet={{ testid: `custom-game-${props.side}-close` }}
           operation={() =>
             props.model.choose({ operation: 'close', side: props.side })
