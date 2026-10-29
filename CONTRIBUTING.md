@@ -1,6 +1,6 @@
 # Contributing
 
-Gamezilla is **source available, not open source**. The repository is public
+This product is **source available, not open source**. The repository is public
 so the code can be read; it is not an invitation to contribute, and
 [`LICENSE`](LICENSE) grants no right to use, modify or redistribute it.
 

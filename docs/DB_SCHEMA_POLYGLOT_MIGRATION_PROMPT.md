@@ -1,10 +1,10 @@
-# Gamezilla — Polyglot Database Schema Framework Refactor
+# Polyglot Database Schema Framework Refactor
 
 ## Mission
 
-Perform a comprehensive refactor of Gamezilla's existing `db-schema` framework to establish a high-quality, language-neutral, code-generated schema system.
+Perform a comprehensive refactor of the product's existing `db-schema` framework to establish a high-quality, language-neutral, code-generated schema system.
 
-This is the first step toward making Gamezilla a genuinely polyglot application platform supporting independently implemented TypeScript, Swift, Rust, Kotlin, and future clients and servers.
+This is the first step toward making the product a genuinely polyglot application platform supporting independently implemented TypeScript, Swift, Rust, Kotlin, and future clients and servers.
 
 Currently, database schemas are authored using TypeScript's `defineTable` API. The framework supports PostgreSQL on the server and SQLite on clients, but the source definitions are tied to TypeScript.
 
@@ -571,7 +571,7 @@ Do not silently rename indexes, reorder migrations, modify constraints, or chang
 
 ## 10. Preserve Migration and Offline Compatibility
 
-The database schema framework is foundational to Gamezilla's synchronization architecture.
+The database schema framework is foundational to the product's synchronization architecture.
 
 A mistake here can affect every user and persisted record.
 
@@ -604,7 +604,7 @@ Do not create new migration infrastructure if the existing one can be adapted.
 
 ## 11. Integration With Existing Application Composition
 
-Gamezilla already has established ownership for tables, schemas, and sub-manifests.
+The repository already has established ownership for tables, schemas, and sub-manifests.
 
 Preserve it.
 
@@ -971,7 +971,7 @@ Also report any necessary deviations from the reference layout and why they impr
 
 ## Final Directive
 
-**This is the beginning of Gamezilla's polyglot architecture. Establish the right foundation now.**
+**This is the beginning of the product's polyglot architecture. Establish the right foundation now.**
 
 The framework should be:
 

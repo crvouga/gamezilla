@@ -73,7 +73,7 @@ Every legacy claim lands somewhere, or is dropped with a stated reason.
 - **Behavior a person could observe** gets a Gherkin feature in
   `specs/<domain>/`, and the package claims that domain in its
   `package.json` `specDomains`. The domain is named for the capability
-  (`sync-engine`, `room`, `matchmaking`, `auth`), never for gamezilla. The
+  (`sync-engine`, `room`, `matchmaking`, `auth`), never for the product. The
   wording uses people and devices: "Alice edits a note on her phone",
   "Bob's laptop shows it within 5 seconds". Steps live in the package's own
   `tests/steps/` on `@pkgs/gherkin`. A `pkgs/` package never imports

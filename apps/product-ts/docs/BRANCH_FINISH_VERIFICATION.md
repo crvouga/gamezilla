@@ -19,7 +19,7 @@ their unchanged local budget, even when the task process exited successfully.
 Its regression pins the actual 496-second matchmaking task and its 300-second
 budget. Seven artifacts previously published by the failed full run were
 moved out of the reusable store, not deleted; their fourteen files are
-recoverable in `/tmp/gamezilla-over-budget-artifacts.HqlkOJ` on this machine.
+recoverable in `/tmp/<namespace>-over-budget-artifacts.HqlkOJ` on this machine.
 
 Both fixes have example regressions and individual known-bug records.
 An adversarial proof-runner test confirms that per-transition scheduling

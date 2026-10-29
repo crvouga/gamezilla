@@ -1,13 +1,13 @@
 # Synthetic Population Worker
 
 The product contract is in [the Synthetic Population specifications](../../specs/synthetic-population/).
-The Worker mounts Gamezilla's full SolidJS client and reuses the existing UI Driver.
+The Worker mounts the product's full SolidJS client and reuses the existing UI Driver.
 Each Synthetic User runs in its own Bun realm, signs in through the ordinary
 sign-in surface, and uses normal space, matchmaking and chess controls.
 The browser Driver remains available in the same executable specifications.
 
 Synthetic Users sign in with an emailed link, and they are the only accounts
-that can. Their addresses live under `synthetic.gamezilla.invalid`, a domain no
+that can. Their addresses live under `synthetic.<namespace>.invalid`, a domain no
 mail server can exist for, and the auth service is given one place to send
 links: the population's internal inbox (`population_sign_in_mail`). It accepts
 those addresses only, for a user a worker is running right now, and nothing is

@@ -1,4 +1,4 @@
-# Gamezilla
+# Product monorepo
 
 > **Source available, not open source.** Copyright © 2026 Chris Vouga. All
 > rights reserved. This repository is public so its source can be read; that
@@ -7,6 +7,8 @@
 > licenses. Outside contributions are not accepted
 > ([`CONTRIBUTING.md`](CONTRIBUTING.md)); report security issues as described
 > in [`SECURITY.md`](SECURITY.md).
+
+The product's name, domain and external identifiers are configuration, not prose: [`libs/product-identity/product-identity.json`](libs/product-identity/product-identity.json), explained in [`docs/BRANDING.md`](docs/BRANDING.md). In this briefing `<domain>` stands for its `brand.domain` and `<namespace>` for its immutable `technical.namespace`.
 
 Local-first game platform. A person opens the app on a phone, tablet, or computer, gets a profile immediately, hosts a live space, and solves chess puzzles there with friends watching. The app works with no connection. What needs other people waits, then catches up on its own.
 
@@ -23,7 +25,7 @@ portable serialization.
 
 The step catalogs — [`docs/STEPS_CATALOG.md`](docs/STEPS_CATALOG.md) and each spec package's `STEPS_CATALOG.md` — are generated and gitignored: `bun install` writes them and `bun run spec:catalog` refreshes them. Package READMEs describe that package's API (`pkgs/room`, `pkgs/harness`, `pkgs/sync-engine`, and a package's own `docs/` when it has one). They are not a second copy of this file.
 
-Public source, not open source: [`LICENSE`](LICENSE) reserves all rights, and [`CONTRIBUTING.md`](CONTRIBUTING.md) explains that outside contributions are not accepted. Repository: `crvouga/gamezilla`. Package manager: Bun `1.4.2` (`mise.toml`; 1.3.x fails wildcard `.tsx` subpaths on CI). Node `>= 22`. Language of the app: English. Day boundary for limits: midnight UTC. Primary client: a phone's Chrome, including low-end Android (~2 GB). Not desktop-first, and not Capacitor.
+Public source, not open source: [`LICENSE`](LICENSE) reserves all rights, and [`CONTRIBUTING.md`](CONTRIBUTING.md) explains that outside contributions are not accepted. Repository: `external.sourceRepository` in the product identity. Package manager: Bun `1.4.2` (`mise.toml`; 1.3.x fails wildcard `.tsx` subpaths on CI). Node `>= 22`. Language of the app: English. Day boundary for limits: midnight UTC. Primary client: a phone's Chrome, including low-end Android (~2 GB). Not desktop-first, and not Capacitor.
 
 ## Words
 
@@ -64,7 +66,7 @@ Bounded contexts in `specs/`. Each folder is one context. The file extension say
 | Context | Code | What it is |
 | --- | --- | --- |
 | Identity | `@libs/profile` (`specs/profile/`) | Guest from the first open. Sign in with Google (everywhere) or Apple (outside production) on any device. Sign out is per device and works offline. Sign out everywhere catches an offline device when it returns. Username and avatar edits stick. |
-| Auth | `@pkgs/auth` + `@pkgs/auth-inhouse`, product wiring in `@libs/auth` (`specs/auth/`) | Each Google or Apple account belongs to exactly one Gamezilla account. A matching account is confirmed before a new outside account is added. An unverified address match waits until the person proves it. Accounts never merge silently. An identity never moves. The last sign-in method stays. Provider trouble does not let anyone into the wrong account. A sign-in lasts until sign-out or it lapses. |
+| Auth | `@pkgs/auth` + `@pkgs/auth-inhouse`, product wiring in `@libs/auth` (`specs/auth/`) | Each Google or Apple account belongs to exactly one account in the app. A matching account is confirmed before a new outside account is added. An unverified address match waits until the person proves it. Accounts never merge silently. An identity never moves. The last sign-in method stays. Provider trouble does not let anyone into the wrong account. A sign-in lasts until sign-out or it lapses. |
 | App | `@libs/client-app`, `@libs/runtime` (`specs/runtime/`) | Opens onto the Spaces tab, including with no connection after the first open. Tabs: Spaces, Notifications, Profile. Settings is reached from the tabs; theme, sounds, and version stick per device. An unknown address says so and offers the way back to Spaces. An app too old is told to update and keeps what is on the device. Usable without sight and without a mouse. |
 | Spaces | `@libs/spaces` | Metadata reads use local SQLite and writes use mutations. Room state, history and pending commands persist on the host device; local opening completes before the background transport connects. Server admission and fanout follow the host's active connection. Product contract: [`specs/spaces/`](specs/spaces/). |
 | Games | `@libs/game-menu`, `@libs/game-session`, `@libs/game-matchmaking`, registries `@libs/games` (`specs/games/`) | What every game offers alike: the game's choices, custom games with people and bots, turns, finding an opponent, matched games (aborts, draws, rematches, results), history and review, shown to the whole space. Each scenario runs once per registered game offering it. Framework: [`GAME_FRAMEWORK.md`](libs/games-shared-ts/docs/GAME_FRAMEWORK.md); adding a game: [`ADDING_A_GAME.md`](libs/games-shared-ts/docs/ADDING_A_GAME.md). |
@@ -147,7 +149,7 @@ Bun workspaces: `apps/*`, `libs/*`, `pkgs/*`.
 | --- | --- | --- | --- |
 | Apps `@apps/` | `apps/` | apps, libs, pkgs | deployed surfaces |
 | Libs `@libs/` | `libs/` | pkgs, other libs' `public/` | product subs, shells, runtime |
-| Pkgs `@pkgs/` | `pkgs/` | pkgs only | frameworks. No `gamezilla`, `@libs/*`, or product names anywhere in these packages |
+| Pkgs `@pkgs/` | `pkgs/` | pkgs only | frameworks. No brand or namespace, `@libs/*`, or product names anywhere in these packages |
 
 | App | Role |
 | --- | --- |
@@ -284,7 +286,7 @@ A person applies this. CI does not.
 
 | Resource | Why |
 | --- | --- |
-| R2 bucket `gamezilla-tofu-state` and its scoped token | Encrypted state for every stack, key `<stack>/<env>.tfstate`, passphrase `TOFU_STATE_PASSPHRASE`. Losing the bucket loses the record of what OpenTofu owns. `prevent_destroy`. |
+| R2 bucket `<namespace>-tofu-state` and its scoped token | Encrypted state for every stack, key `<stack>/<env>.tfstate`, passphrase `TOFU_STATE_PASSPHRASE`. Losing the bucket loses the record of what OpenTofu owns. `prevent_destroy`. |
 | Infisical environment `shared`, and the state-credential secrets in it | Account-wide secrets live once. Every environment imports them, so a rotation is one edit. `prevent_destroy`. |
 | Grafana Cloud stack | One stack (the free plan allows one). Telemetry for every environment, told apart by `deployment.environment.name`. `prevent_destroy`. |
 | Infisical OIDC identity for this repository | GitHub Actions reads and writes secrets with its OIDC job token. |
@@ -365,7 +367,7 @@ bun run secrets:pull
 ```
 
 `infra:bootstrap` applies only the bootstrap stack. `infra:fleet` applies the
-global fleet, including `cloudflare_r2_bucket.shared_data` (`gamezilla-shared`),
+global fleet, including `cloudflare_r2_bucket.shared_data` (`<namespace>-shared`),
 and publishes its credentials to the shared secrets environment. Refresh the
 local secrets cache afterwards, then restart the managed local stack with
 `--keep-data` so its API processes receive the new bindings. Running bootstrap again cannot create a
@@ -374,10 +376,10 @@ resource declared only in fleet.
 | Resource | Why |
 | --- | --- |
 | Infisical environment per env file, plus a live import of `shared` | That environment's secrets, with the shared ones visible through the import. A local copy of a shared name would shadow the import. |
-| Railway project `gamezilla`, with an environment per env file | One shared project, protected from deletion. Its default `core` environment stays empty; `dev` and `prd` fork it so service creation and removal stay isolated. Railway environments are protected by the plan policy and removed only by a deliberate non-production teardown. |
-| Custom domain `auth.gamezilla.app` on Worker `gamezilla-auth-relay` | One OAuth callback for every environment. The relay reads the OAuth state tag and forwards the callback home. |
+| Railway project `<namespace>`, with an environment per env file | One shared project, protected from deletion. Its default `core` environment stays empty; `dev` and `prd` fork it so service creation and removal stay isolated. Railway environments are protected by the plan policy and removed only by a deliberate non-production teardown. |
+| Custom domain `auth.<domain>` on Worker `<namespace>-auth-relay` | One OAuth callback for every environment. The relay reads the OAuth state tag and forwards the callback home. |
 | Shared reference-data bucket and scoped S3 token | The [shared-data configuration](libs/infra-shared-ts/tofu/stacks/fleet/shared-data.tf) retains the Lichess source independently of environment teardown. |
-| CI artifacts bucket `gamezilla-ci-artifacts`, its expiry rule and scoped S3 token | CI jobs hand their plan, verdicts and evidence, and the nightly profile keeps its reports, here instead of in GitHub Actions artifacts, whose account quota stops every Verify run when it fills. Every object expires after `ci_artifacts.retention_days` (7). The [configuration](libs/infra-shared-ts/tofu/stacks/fleet/ci-artifacts.tf) writes `CI_ARTIFACTS_*` to the shared secrets environment. |
+| CI artifacts bucket `<namespace>-ci-artifacts`, its expiry rule and scoped S3 token | CI jobs hand their plan, verdicts and evidence, and the nightly profile keeps its reports, here instead of in GitHub Actions artifacts, whose account quota stops every Verify run when it fills. Every object expires after `ci_artifacts.retention_days` (7). The [configuration](libs/infra-shared-ts/tofu/stacks/fleet/ci-artifacts.tf) writes `CI_ARTIFACTS_*` to the shared secrets environment. |
 
 The retired reports bucket and its credentials are no longer provisioned. Report
 publishing skips when no `REPORTS_*` credentials are configured.
@@ -386,31 +388,31 @@ Fleet applies before foundation. On the first deploy after consolidating Railway
 
 ### Each environment (foundation, then edge)
 
-Production is `gamezilla-production`. Dev is `gamezilla-development`.
+Production is `<namespace>-production`. Dev is `<namespace>-development`.
 
 | Resource | Why |
 | --- | --- |
-| R2 bucket `gamezilla-<suffix>` and a bucket-scoped S3 token | Blobs: uploads, the TTS audio cache. Endpoint `https://<account>.r2.cloudflarestorage.com`, region `auto`. The Worker prefixes every key with `gamezilla/` before any sub prefix. |
+| R2 bucket `<namespace>-<suffix>` and a bucket-scoped S3 token | Blobs: uploads, the TTS audio cache. Endpoint `https://<account>.r2.cloudflarestorage.com`, region `auto`. The Worker prefixes every key with `<namespace>/` before any sub prefix. |
 | Railway Synthetic Population Worker | Foundation reads fleet's project ID from encrypted remote state, then looks up that project by ID and its environment by name. This avoids the provider's unscoped project-name listing. Each service has an environment-prefixed name, because service names are unique across the project; variables, capacity and deployments remain scoped to that environment. Workers have no volumes; accounts, leases and games live in the backend. |
 | Grafana write policy and token; read policy and token | Workers ingest three signals on the write token. `bun obs` queries traces on the read token. A separate scoped service account manages dashboards and alerts while the Grafana instance is active. An archived instance is left alone, because creating that account waits on an instance health URL that answers 404. One environment rotates without touching the other. Release requires active hosted traces; an archived Grafana instance may still have active Tempo. Deleted or unknown stack states fail closed. |
 | Generated secrets `AUTH_SECRET`, `EMQX_JWT_SECRET`, `SYNTHETIC_MONITOR_TOKEN` | Session signing, the HMAC the API mints and the IoT authorizer checks, and signed-in health journeys. A value already in the store wins, so an apply does not rotate them. A committed placeholder is replaced. |
 | Derived secrets | Connection facts of the resources in this table: `DATABASE_URL`, `HYPERDRIVE_ID`, `API_URL`, `VITE_API_URL`, `S3_*`, `EMQX_WSS_URL`, `IOT_DATA_ENDPOINT`, `IOT_ACCESS_KEY_ID`, `IOT_SECRET_ACCESS_KEY`, `IOT_REGION`, `OBSERVABILITY_COLLECTOR_*`, `OBS_TEMPO_*`, `OBS_READONLY_DATABASE_URL`. Rewritten when the producer changes. The name lists are `stacks/foundation/secrets.json`. The names the app requires are `libs/secrets-server-ts/src/registry.ts`. `bun health` checks each required secret live. |
-| Postgres database `gamezilla-<suffix>-pg`, branch `main` | System of record for that environment. Creating the branch creates the database. It starts empty; `@libs/runtime#migrate` reconciles the schema. Environments do not share rows. The branch is single-node `PS-DEV` (one node, no replicas). Production's branch is deletion-protected and `prevent_destroy`. The previous Neki database keeps its old name and its rows. |
+| Postgres database `<namespace>-<suffix>-pg`, branch `main` | System of record for that environment. Creating the branch creates the database. It starts empty; `@libs/runtime#migrate` reconciles the schema. Environments do not share rows. The branch is single-node `PS-DEV` (one node, no replicas). Production's branch is deletion-protected and `prevent_destroy`. The previous Neki database keeps its old name and its rows. |
 | Role `migrate`, inherits `postgres` | DDL. This is `DATABASE_URL`, used by migrate and the Postgres provider. |
 | Role `app`, inherits `pg_read_all_data` and `pg_write_all_data` | The API's rows. Table changes stay on `migrate`. |
 | Role `obs_read`, inherits `pg_read_all_data` and `pg_monitor` | `bun obs`, via `OBS_READONLY_DATABASE_URL`. The login PlanetScale issues may carry a suffix; `pg_read_all_data` still covers `SELECT`. |
-| Hyperdrive `gamezilla-db-<suffix>` | Workers have no connection pool. Hyperdrive pools the app role. Query cache is off, so a sync read sees its own write. The Worker opens `env.HYPERDRIVE.connectionString`. |
+| Hyperdrive `<namespace>-db-<suffix>` | Workers have no connection pool. Hyperdrive pools the app role. Query cache is off, so a sync read sees its own write. The Worker opens `env.HYPERDRIVE.connectionString`. |
 | `pg_stat_statements` | Slow-query statistics for `bun obs`. PlanetScale enables it on the branch. |
-| IoT custom domain, ACM certificate, DNS-only CNAME | Browsers connect at `emqx.gamezilla.app` or `emqx-dev.gamezilla.app` (`wss://<host>/mqtt`, secret `EMQX_WSS_URL`, synced key `emqx_wss_url`). The certificate is the TLS. DNS stays unproxied so the socket reaches IoT. The domain is data-plane, MQTT over WebSocket, custom auth, and this authorizer is the default. |
+| IoT custom domain, ACM certificate, DNS-only CNAME | Browsers connect at `emqx.<domain>` or `emqx-dev.<domain>` (`wss://<host>/mqtt`, secret `EMQX_WSS_URL`, synced key `emqx_wss_url`). The certificate is the TLS. DNS stays unproxied so the socket reaches IoT. The domain is data-plane, MQTT over WebSocket, custom auth, and this authorizer is the default. |
 | Lambda authorizer (Node 22), its log group (14 days), its execution role | Browsers hold no signing key. The function checks `EMQX_JWT_SECRET` and turns the token's `acl` into a session policy: connect, subscribe, receive, publish. Caching is off. App topics use `:`; the IoT wire uses `/` (`user:actor1` → `user/actor1`) at this boundary only. Loopback brokers on the laptop keep colon topics. |
 | IAM user, `iot:Publish` on `topic/*`, and its access key | The Worker publishes with SigV4 (`IOT_*`). A Worker cannot present a GitHub OIDC token, so this key is separate from `AWS_ROLE_ARN`. |
-| Custom domains for the apex, `www`, and the API | Public names, attached after the Workers exist. Production: `gamezilla.app`, `www.gamezilla.app`, `api.gamezilla.app`. Dev: `dev.gamezilla.app`, `www-dev.gamezilla.app`, `api-dev.gamezilla.app`. Cloudflare's edge serves them. |
+| Custom domains for the apex, `www`, and the API | Public names, attached after the Workers exist. Production: `<domain>`, `www.<domain>`, `api.<domain>`. Dev: `dev.<domain>`, `www-dev.<domain>`, `api-dev.<domain>`. Cloudflare's edge serves them. |
 
 ### Shipped beside OpenTofu
 
 | Thing | Why it is not a resource here |
 | --- | --- |
-| Application Worker (env-file `worker.name`: `gamezilla-dev`, `gamezilla-prod`), auth-relay Worker `gamezilla-auth-relay` | `wrangler deploy`. One application version carries client assets, API, schedules and the room Durable Object class; API paths run the Worker first, static assets bypass compute. Existing room namespaces transfer before superseded Workers retire, after edge cutover and green health. Conflicting namespaces fail closed unless the env file pins both IDs in `worker.room_namespace_resolution`: rename the destination to read-only `RoomStorageArchive`, then transfer the source into the active room class. Release verifies both IDs survive; subsequent deployments retain the archive. Worker retirement refuses scripts still owning storage or hostnames. The client build and API/broker/web/OAuth bindings derive from the env file; copied secrets cannot override deployed endpoint bindings. Hostnames stay on the edge stack. One Durable Object is one live topic; Cloudflare places it. |
+| Application Worker (env-file `worker.name`: `<namespace>-dev`, `<namespace>-prod`), auth-relay Worker `<namespace>-auth-relay` | `wrangler deploy`. One application version carries client assets, API, schedules and the room Durable Object class; API paths run the Worker first, static assets bypass compute. Existing room namespaces transfer before superseded Workers retire, after edge cutover and green health. Conflicting namespaces fail closed unless the env file pins both IDs in `worker.room_namespace_resolution`: rename the destination to read-only `RoomStorageArchive`, then transfer the source into the active room class. Release verifies both IDs survive; subsequent deployments retain the archive. Worker retirement refuses scripts still owning storage or hostnames. The client build and API/broker/web/OAuth bindings derive from the env file; copied secrets cannot override deployed endpoint bindings. Hostnames stay on the edge stack. One Durable Object is one live topic; Cloudflare places it. |
 | Postgres schema | `@libs/runtime#migrate` reconciles it. A new database starts empty. |
 | Initial chess puzzle catalog | `@libs/chess-puzzle-server-ts#initialize:catalog`, after schema reconciliation and before the app deploy. A table that has never held puzzles receives the validated committed load file; existing catalogs and tombstones are preserved. Further additions use the team's puzzle-management flow. |
 | Billing catalog (products, prices, webhook endpoints) | `@libs/billing#billing:sync`. The offer is product data the code reads. Paddle has no OpenTofu provider. |
@@ -421,10 +423,10 @@ OpenTofu looks them up. It does not create them.
 
 | Thing | Why a person holds it |
 | --- | --- |
-| Cloudflare zone `gamezilla.app` | DNS for every hostname above. |
-| PlanetScale organization `gamezilla` | The account the databases are created in. The slug is configuration. |
+| Cloudflare zone `<domain>` | DNS for every hostname above. |
+| PlanetScale organization (`external.planetscaleOrganization`) | The account the databases are created in. The slug is configuration. |
 | Shared secrets, seeded once with `bun run secrets:seed` | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `GITHUB_ADMIN_TOKEN`, `GRAFANA_CLOUD_API_TOKEN`, `PLANETSCALE_SERVICE_TOKEN_ID`, `PLANETSCALE_SERVICE_TOKEN`, `TOFU_STATE_PASSPHRASE`, `TURBO_TOKEN`, `ELEVEN_LABS_API_KEY`, `WEB_CLIENT_GOOGLE_CLIENT_ID`, `WEB_CLIENT_GOOGLE_CLIENT_SECRET`. Unknown keys in the store are left alone. |
-| The Google OAuth client | One redirect, `https://auth.gamezilla.app/api/auth/callback/google`. Google's console has no API. |
+| The Google OAuth client | One redirect, `https://auth.<domain>/api/auth/callback/google`. Google's console has no API. |
 
 ### Data stays
 
@@ -502,7 +504,7 @@ Simulated Google starts as `alice@gmail.com` through `fred@gmail.com`. Apple sta
 
 Both local choosers also list **Admin One** (`admin@gmail.com`) and **Admin Two** (`admin2@gmail.com`). Stack startup seeds their linked app accounts and grants them puzzle-management permission through the local API binding. Sign in with either account, then open `/more/puzzles` to load the Lichess database. These fixtures are confined to the loopback stack.
 
-Shared reference data lives in the global fleet's R2 bucket, `gamezilla-shared`, protected by `prevent_destroy`. Its bucket-scoped S3 credentials are managed once by OpenTofu and imported through the shared secrets environment. Local APIs use those same `SHARED_DATA_*` bindings from the process or development secrets; automated harness and stack checks explicitly use disposable stores. Environment teardown never empties the shared bucket.
+Shared reference data lives in the global fleet's R2 bucket, `<namespace>-shared`, protected by `prevent_destroy`. Its bucket-scoped S3 credentials are managed once by OpenTofu and imported through the shared secrets environment. Local APIs use those same `SHARED_DATA_*` bindings from the process or development secrets; automated harness and stack checks explicitly use disposable stores. Environment teardown never empties the shared bucket.
 
 The puzzle loader stores the first Lichess source as bounded CSV parts and publishes its manifest only after every part is present. Every environment imports from that manifest by default, pinning the source version for its job. Finished, stopped and failed imports retain the source. Catalog rows, progress and other application objects stay in their own environment's database and bucket. See [the saved-file contract](specs/chess/saved-puzzles.feature).
 
@@ -512,7 +514,7 @@ The puzzle loader stores the first Lichess source as bounded CSV parts and publi
 
 `bun run dev` is for building. A green `bun verify` is the release decision. Looking at the app is not evidence. If a behavior cannot be reached by a verification, change the product until one can.
 
-The app imports screens, session providers, game plugins, avatars, mutation definitions and sync-engine modules eagerly. Initial loading pays for the full application so navigation and interactions never wait for application chunks. The startup entry retains its error boundary around the initial graph load, and `index.html` preloads that graph alongside it (`preloadDynamicEntry`) so the two never load one after the other. Nothing gates the first frame: fonts swap in, and SQLite opens asynchronously through its broker as soon as an identity is bound; database readiness is not code lazy loading. The harness is not application code: `@apps/product-ts` loads its graph only at `/harness`, and the service worker never precaches it. Boot-path modules import the narrowest build of a dependency (`node-sql-parser/build/postgresql`, not the all-dialect package root). No third-party `<script src>` in `index.html` unless `INDEX_HTML_SCRIPT_ALLOWLIST` names it. Prefer the system font stack (0 KB). An added `@font-face` uses `font-display: swap` or `optional`. Production assets are Workers on `www.gamezilla.app`; the edge picks brotli, then gzip. There is no bundle-size budget. The gates enforce eager application imports and exclude harness modules from the shipped client.
+The app imports screens, session providers, game plugins, avatars, mutation definitions and sync-engine modules eagerly. Initial loading pays for the full application so navigation and interactions never wait for application chunks. The startup entry retains its error boundary around the initial graph load, and `index.html` preloads that graph alongside it (`preloadDynamicEntry`) so the two never load one after the other. Nothing gates the first frame: fonts swap in, and SQLite opens asynchronously through its broker as soon as an identity is bound; database readiness is not code lazy loading. The harness is not application code: `@apps/product-ts` loads its graph only at `/harness`, and the service worker never precaches it. Boot-path modules import the narrowest build of a dependency (`node-sql-parser/build/postgresql`, not the all-dialect package root). No third-party `<script src>` in `index.html` unless `INDEX_HTML_SCRIPT_ALLOWLIST` names it. Prefer the system font stack (0 KB). An added `@font-face` uses `font-display: swap` or `optional`. Production assets are Workers on `www.<domain>`; the edge picks brotli, then gzip. There is no bundle-size budget. The gates enforce eager application imports and exclude harness modules from the shipped client.
 
 ## Correctness machinery
 
@@ -543,7 +545,7 @@ Every Turbo run, local and CI, shares one remote cache: Vercel Remote Cache, tea
 
 The capacity contract for a pull-request verification (under five minutes, and under three minutes for a leaf package) is [docs/CI_REQUIREMENTS.md](docs/CI_REQUIREMENTS.md).
 
-Local verifications share one admission slot per user on the machine, held from before snapshot preparation through diagnostics archival. A waiting invocation prints its queue status and sleeps without preparing files or running verifications. Admission uses an OS-backed SQLite lock at `~/.cache/gamezilla/local-verify.sqlite`, independent of worktree paths and `TMPDIR`; closed connections and dead workers release it without stale PID files. A lightweight launcher supervises the worker over IPC, so a launcher exit cancels active verification processes before the worker releases admission. Local defaults are one task, one model solver, one concurrent product/Quint test case and one cache transfer/decompression worker. `TURBO_CONCURRENCY`, `MODEL_VERIFY_CONCURRENCY`, `VERIFY_SOLVER_SLOTS`, `VERIFY_TEST_CONCURRENCY` and `VERIFY_CACHE_CONCURRENCY` explicitly tune those concurrency limits; raising them increases peak memory. Interrupted invocations retain passing task artifacts for the next invocation.
+Local verifications share one admission slot per user on the machine, held from before snapshot preparation through diagnostics archival. A waiting invocation prints its queue status and sleeps without preparing files or running verifications. Admission uses an OS-backed SQLite lock at `~/.cache/<namespace>/local-verify.sqlite`, independent of worktree paths and `TMPDIR`; closed connections and dead workers release it without stale PID files. A lightweight launcher supervises the worker over IPC, so a launcher exit cancels active verification processes before the worker releases admission. Local defaults are one task, one model solver, one concurrent product/Quint test case and one cache transfer/decompression worker. `TURBO_CONCURRENCY`, `MODEL_VERIFY_CONCURRENCY`, `VERIFY_SOLVER_SLOTS`, `VERIFY_TEST_CONCURRENCY` and `VERIFY_CACHE_CONCURRENCY` explicitly tune those concurrency limits; raising them increases peak memory. Interrupted invocations retain passing task artifacts for the next invocation.
 
 `bun verify` and `bun verify-nightly` run their package-owned Turbo tasks on this machine in a private temporary snapshot of the current files (including uncommitted edits) and private copies of installed dependencies, including native library links created during installation. Each invocation owns its Git metadata, generated files, task outputs, caches, logs and evidence; after exit, inputs, logs and reports remain in the printed compressed diagnostics archive while disposable working files are released. Runs atomically publish complete task artifacts with summary-confirmed passing verdicts to `.cache/verify-artifacts`; later invocations copy them into their private cache, so warm verifications reuse results without sharing writable cache files. They publish nothing and never restore outputs into the working checkout. Turbo hashes each package task against its declared package files and external inputs; contract fixtures use private local sidecars. Four things are hashed into every task at once: `mise.toml`, `tsconfig.base.json` (compiler options only: the import aliases live in `tsconfig.paths.json`, which no task hashes, so adding or renaming a package does not miss the corpus), the root manifest's external dependencies, and any workspace package the root manifest depends on. The root `package.json` therefore depends on no workspace package (`verify-cache-keys.test.ts`): a package it listed would rerun the whole corpus on each of its edits, as the Atlas packages did. The plan prints these as `repo-wide hash inputs`, so a run that misses everything shows which one moved. The Synthetic Population Worker test hashes the package. Its hosting verification hashes the OpenTofu module. The planner fetches current registry advisory evidence on every run; the pure vulnerability gate caches against that normalized snapshot and the lockfile. Advisory changes invalidate the security result even when repository inputs stay the same. A pull request and Verify Nightly enforce the verdict; Release (`VERIFY_ADVISORIES=report`) records the same evidence in its log without failing, because an advisory published after a pull request cleared its code is not a change to that commit, so a green pull request is a green deploy. `lint` is naming, Biome (import boundaries and size caps), oxlint for Solid, package boundaries. Known-bug regressions are one task, `@libs/tools-harness-ts#ci:goals`: it reads every proof the register names, so a new known bug reruns that task and no package's lint. Typecheck is `tsc --noEmit -p tsconfig.tc.json` per package. Format with `bun fmt`.
 
@@ -627,7 +629,7 @@ a fresh account, so separate journeys still share no personal state.
 
 Live Health scenarios run serially: the primary Chrome storage is shared, so each scenario must finish its cleanup before the next opens a device. Other participants use isolated browser processes.
 
-Health authenticates AWS with its read-only role on a named branch. Use `gh workflow run health.yml --repo crvouga/gamezilla --ref <branch>` for infrastructure health evidence. This does not grant a branch deployment access.
+Health authenticates AWS with its read-only role on a named branch. Use `gh workflow run health.yml --ref <branch>` (from a clone of the repository) for infrastructure health evidence. This does not grant a branch deployment access.
 
 Health objectives run on `main` (scheduled or manual), so the rolling historical deficit is reported there rather than on a fix's PR. Branch Health runs still probe every environment. Objectives read GitHub Actions history with the workflow's `GH_TOKEN` and `actions: read` permission, including every run attempt and job page. No organization API credential is needed. Missing history credentials fail the objective with a setup error; they never count as passing checks. The request objectives read the metrics backend with `OBS_PROMETHEUS_URL`, `OBS_PROMETHEUS_USER` and `OBS_TEMPO_TOKEN`; missing credentials, no data or an unreachable backend fail them by name. A firing burn-rate alert fails the same job, which is how an alert reaches people while no Grafana instance is active.
 

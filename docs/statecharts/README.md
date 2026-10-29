@@ -1,7 +1,8 @@
 # Explore the whole product
 
-`bun atlas:viz` opens the product model without starting Gamezilla or its
-local services. Atlas contains one chart, **Gamezilla — the whole product**.
+`bun atlas:viz` opens the product model without starting the app or its
+local services. Atlas contains one chart for the whole product (its title is
+in [`specs/atlas.yaml`](../../specs/atlas.yaml)).
 Choose **Explore freely** to decide what happens next, or select one of the
 guided journeys for a refusal, recovery or particular outcome.
 

@@ -1,5 +1,5 @@
 # https://github.com/gitleaks/gitleaks#configuration
-title = "gamezilla gitleaks config"
+title = "product monorepo gitleaks config"
 
 [extend]
 useDefault = true
@@ -47,7 +47,7 @@ description = "Synthetic harness session tokens in fixture snapshots"
 targetRules = ["generic-api-key"]
 condition = "AND"
 paths = ['''^libs/[a-z0-9-]+-harness-ts/fixtures/snapshots/[a-z0-9-]+\.json$''']
-regexes = ['''^\s*"(?:sessionToken|gamezilla\.auth\.bearer)":\s*"[^"]+",?$''']
+regexes = ['''^\s*"(?:sessionToken|[{}a-z0-9-]+\.auth\.bearer)":\s*"[^"]+",?$''']
 regexTarget = "line"
 
 # False positive: a generated alert rule's `key` is the SLO's name plus the

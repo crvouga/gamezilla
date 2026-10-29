@@ -66,7 +66,7 @@ The growth tolerance and the hub threshold are the two numbers to tune. Lowering
 
 ## Hosted load this replaces
 
-The [repository briefing](../README.md#correctness-machinery) defines the current hosted workflows. Their task timings are the load this plan must accommodate. Verify run [38104005459](https://github.com/crvouga/gamezilla/actions/runs/38104005459) (2026-10-11, pull request 176) is a run that actually executed the shards. It failed, so a green shard that finishes its work is at least this long.
+The [repository briefing](../README.md#correctness-machinery) defines the current hosted workflows. Their task timings are the load this plan must accommodate. Verify run 38104005459 (2026-10-11, pull request 176) is a run that actually executed the shards. It failed, so a green shard that finishes its work is at least this long.
 
 The sizing below assumes a 2-core runner (measured on GitHub's `ubuntu-24.04`; re-measure on `boat`): 2 cores, about 7 GB, 32 shards, `VERIFY_CONCURRENCY=1`, `VERIFY_TEST_CONCURRENCY=1`, `GOMAXPROCS=1`, `RAYON_NUM_THREADS=1`.
 
@@ -150,7 +150,7 @@ A foundational package such as `@pkgs/property-shared-ts` misses almost the whol
 
 ## Measured load
 
-The final corpus overlays the passing structured results from [Verify run 39476195748](https://github.com/crvouga/gamezilla/actions/runs/39476195748) and then [Verify run 39479183963](https://github.com/crvouga/gamezilla/actions/runs/39479183963), whose code head was `ec9e6e6c5`. Later measurements replace earlier measurements; cache hits retain history. The final run passed every code check, including all 78 shared-game parts and all sixteen matched-game proof phases. Its only failing check used the old committed capacity data, refreshed below.
+The final corpus overlays the passing structured results from Verify run 39476195748 and then Verify run 39479183963, whose code head was `ec9e6e6c5`. Later measurements replace earlier measurements; cache hits retain history. The final run passed every code check, including all 78 shared-game parts and all sixteen matched-game proof phases. Its only failing check used the old committed capacity data, refreshed below.
 
 The longest shared-game part took 213 seconds. Device agreement fell from 267 to 197 seconds with the same invariant and two-step exhaustive bound; the unchanged whole-system proof recorded 119 seconds after duplicate input preparation was removed. The 30-unit part cap retains the fewest-part rule and every scenario and replay; all visual inputs and declared proof phases remain gated.
 
@@ -161,12 +161,12 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 
 | | |
 | --- | --- |
-| Packages | 358 |
-| Verify scripts | 1426 |
+| Packages | 361 |
+| Verify scripts | 1432 |
 | Measured scripts | 932 |
-| Estimated scripts | 494 |
+| Estimated scripts | 500 |
 | Stale cost keys | 574 |
-| Cold CPU | 18203 s |
+| Cold CPU | 18211 s |
 | Spec parts | 10857 s across 307 tasks |
 | Longest task | @libs/games-harness-ts#test:spec:49 213 s |
 
@@ -175,17 +175,17 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | Family | Tasks | CPU |
 | --- | --- | --- |
 | test:spec | 307 | 10857 s |
-| lint | 357 | 1271 s |
+| lint | 359 | 1275 s |
 | test:contract | 25 | 1004 s |
 | verify:models:10 | 16 | 960 s |
-| test | 267 | 928 s |
+| test | 269 | 930 s |
 | verify:models | 46 | 748 s |
 | verify:models:2 | 11 | 660 s |
-| tc | 356 | 540 s |
+| tc | 358 | 542 s |
 
 ### Leaves
 
-49 leaves have verification scripts. On the warm runner their tasks run together, so the wall clock is the longest task plus the 30 s warm start.
+50 leaves have verification scripts. On the warm runner their tasks run together, so the wall clock is the longest task plus the 30 s warm start.
 
 | | |
 | --- | --- |
@@ -208,7 +208,7 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared-ts | 291 | 17986 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/property-shared-ts | 292 | 17990 s | @libs/games-harness-ts#test:spec:49 213 s |
 | @pkgs/clock-shared-ts | 257 | 17868 s | @libs/games-harness-ts#test:spec:49 213 s |
 | @pkgs/assert-root-shared-ts | 252 | 17835 s | @libs/games-harness-ts#test:spec:49 213 s |
 

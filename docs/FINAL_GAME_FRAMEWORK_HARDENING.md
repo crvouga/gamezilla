@@ -1,12 +1,12 @@
-# Gamezilla — Final Game Framework Architecture, Decoupling & Conformance Hardening
+# Final Game Framework Architecture, Decoupling & Conformance Hardening
 
 ## Mission
 
-Perform a final, independent, adversarial architecture and correctness hardening pass on Gamezilla's game framework.
+Perform a final, independent, adversarial architecture and correctness hardening pass on the product's game framework.
 
 Several refactoring and hardening passes have already been completed. **Do not assume those passes established a genuinely reusable framework.** Audit the implementation as it exists today, retain sound decisions, correct structural weaknesses, and remove unnecessary complexity and anti-patterns.
 
-We intend to build and operate Gamezilla as a profitable gaming platform for the next 10–20 years. Hundreds of different games may eventually depend on this framework. We will be **deeply coupled to its public contracts**, so their quality and stability are among the highest-leverage investments we can make now.
+We intend to build and operate the product as a profitable gaming platform for the next 10–20 years. Hundreds of different games may eventually depend on this framework. We will be **deeply coupled to its public contracts**, so their quality and stability are among the highest-leverage investments we can make now.
 
 **The single most important requirement is absolute architectural independence from any concrete game.** The game framework must not know about Chess, Connect Four, or any future game. Concrete games depend on the framework and are supplied to it through explicit, typed, composition-root-controlled extension contracts. The framework must never depend on concrete games, directly or indirectly.
 
@@ -66,7 +66,7 @@ This is the highest-priority technical deliverable.
 Enforce this model:
 
 ```text
-Gamezilla application / authorized composition root
+Product application / authorized composition root
                  |
                  +---> game framework contracts and implementations
                  |
@@ -109,7 +109,7 @@ Distinguish:
 
 - **Core game contracts:** responsibilities genuinely shared by every game.
 - **Capability contracts:** multiplayer, matchmaking, custom games, bots, puzzles, spectating, clocks, history, replay, and other optional experiences.
-- **Product integration:** Gamezilla-specific permissions, accounts, spaces, policies, navigation, and runtime composition.
+- **Product integration:** Product-specific permissions, accounts, spaces, policies, navigation, and runtime composition.
 - **Implementation details:** transports, storage mechanisms, SolidJS internals, orchestration helpers, and other details that plugins should not access.
 
 Avoid a god interface, giant `GameConfig`, universal state shape, excessive generics, dozens of mandatory hooks, or optional-method soup. Prefer small, discoverable, strongly typed contracts with sensible framework-owned defaults.
@@ -183,7 +183,7 @@ Verify that framework-owned screens and workflows are canonical across compatibl
 
 The framework owns layout and UX conventions; games inject their play surface, actions, assets, visual tokens, terminology, and justified specialized controls.
 
-Every game should feel like the same polished Gamezilla application while retaining its own recognizable identity.
+Every game should feel like the same polished product application while retaining its own recognizable identity.
 
 Follow the repository's SolidJS, `@pkgs/ui`, accessibility, localization, deterministic I/O, performance, and mobile-first rules. Do not introduce a second client UI architecture.
 
@@ -201,7 +201,7 @@ Audit every Chess-specific Gherkin scenario, step binding, property, model, and 
 
 1. Shared framework behavior.
 2. Shared optional capability behavior.
-3. Cross-cutting Gamezilla product policy belonging to another context.
+3. Cross-cutting product policy belonging to another context.
 4. Genuinely Chess-specific rules, puzzle semantics, notation, or evaluation.
 5. Redundant coverage that can be removed without losing a guarantee.
 
@@ -350,7 +350,7 @@ Enforce important rules in existing lint, package-boundary, typecheck, dependenc
 
 ## 12. Preserve cross-language portability without unnecessary rewrites
 
-Gamezilla is moving toward language-neutral framework contracts with TypeScript web, possible Swift Apple clients, and potentially other client/server languages in the future.
+The product is moving toward language-neutral framework contracts with TypeScript web, possible Swift Apple clients, and potentially other client/server languages in the future.
 
 Do not bake TypeScript-specific domain assumptions, SolidJS state machinery, JavaScript callbacks, or Bun/Cloudflare runtime objects into interfaces that must cross language or process boundaries.
 
@@ -384,7 +384,7 @@ Keep the existing game-authoring guide concise, accurate and executable. Example
 
 ## 14. CI, reliability and performance constraints
 
-Integrate into Gamezilla's existing checks and infrastructure. Do not introduce a rival testing system or CI workflows.
+Integrate into the repository's existing checks and infrastructure. Do not introduce a rival testing system or CI workflows.
 
 - **`bun check-pr`:** bounded deterministic, package-owned, automatically enrolled game conformance tests, with no new report-retention behavior.
 - **`bun check-nightly`:** deeper exploration of the *same* specs and suites, including broader properties, model traces, browser journeys, fault recovery and visual/performance evidence where already supported.
@@ -483,7 +483,7 @@ Do not declare completion unless all of these hold, or explicitly report the spe
 
 ## Final directive
 
-**Make Gamezilla's game framework the stable product foundation that every game can depend on with confidence.**
+**Make the product's game framework the stable product foundation that every game can depend on with confidence.**
 
 A framework that imports Chess is not game-independent. A reusable UI with Chess-only behavioral verification is not fully reusable. A plugin API that requires internal framework edits for every new game is not extensible. A shared conformance suite that can silently omit a registered game is not trustworthy. And an abstraction that forces Battleship or Numberlink to pretend to be Chess is not general.
 

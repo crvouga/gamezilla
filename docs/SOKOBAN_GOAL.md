@@ -2,7 +2,7 @@
 
 ## Primary outcome
 
-Implement a polished **Sokoban** game in Gamezilla as the second structurally different consumer of the puzzle framework introduced for **Numberlink**.
+Implement a polished **Sokoban** game in the product as the second structurally different consumer of the puzzle framework introduced for **Numberlink**.
 
 The main goal is to prove that puzzle definitions, players, builders, packs, draft/published revisions, playtesting, progression, and local-first persistence are genuinely reusable. Extend or refactor the existing framework wherever it encodes Numberlink-specific assumptions. Do not create a separate Sokoban puzzle platform.
 

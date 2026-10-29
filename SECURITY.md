@@ -8,8 +8,9 @@ request or discussion about it.
 - **Preferred:** GitHub private vulnerability reporting, on this repository's
   **Security** tab → **Report a vulnerability**.
 - **Or email:** crvouga@gmail.com, with "Security" in the subject. The same
-  contact is published at
-  [`/.well-known/security.txt`](https://www.gamezilla.app/.well-known/security.txt).
+  contact is published as `/.well-known/security.txt` on the production web
+  client, `https://www.<domain>` (the domain is `brand.domain` in
+  [`product-identity.json`](libs/product-identity/product-identity.json)).
 
 Include what you found, where (a URL, file or commit), how to reproduce it,
 and what an attacker could do with it. Do not include real people's data.
@@ -22,7 +23,7 @@ and what an attacker could do with it. Do not include real people's data.
 
 ## Scope
 
-In scope: the Gamezilla app at `gamezilla.app` and its subdomains, and this
+In scope: the app at `<domain>` and its subdomains, and this
 repository (including its CI workflows).
 
 Out of scope: denial-of-service and load testing, social engineering, physical

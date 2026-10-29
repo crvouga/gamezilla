@@ -1,6 +1,6 @@
 # Third-party notices
 
-Gamezilla's own code is proprietary ([`LICENSE`](LICENSE)). This repository
+The product's own code is proprietary ([`LICENSE`](LICENSE)). This repository
 also contains third-party material, which stays under its own license. This
 file collects the notices for material whose license text is not kept next
 to it, and indexes the notice files that are. npm dependencies are not

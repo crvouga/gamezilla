@@ -33,9 +33,9 @@ Run all of these every iteration. Never rely on an earlier survey.
 ```bash
 gh pr view --json number,url,headRefName,mergeStateStatus 2>/dev/null   # this branch's PR, if any
 gh pr checks 2>/dev/null                                                 # Verification on the PR
-gh run list --repo crvouga/gamezilla --workflow deploy.yml --limit 3 --json databaseId,headSha,status,conclusion,url
-gh run list --repo crvouga/gamezilla --workflow health.yml --limit 3 --json databaseId,headSha,status,conclusion,url
-gh run list --repo crvouga/gamezilla --workflow verify-nightly.yml --limit 3 --json databaseId,headSha,status,conclusion,url
+gh run list --workflow deploy.yml --limit 3 --json databaseId,headSha,status,conclusion,url
+gh run list --workflow health.yml --limit 3 --json databaseId,headSha,status,conclusion,url
+gh run list --workflow verify-nightly.yml --limit 3 --json databaseId,headSha,status,conclusion,url
 ```
 
 For every red run, read the failure itself. Do not guess from the job name.

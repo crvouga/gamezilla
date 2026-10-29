@@ -1,8 +1,8 @@
-# Gamezilla — Add Battleship Through the Game Framework
+# Add Battleship Through the Game Framework
 
 ## Goal-mode mission
 
-Implement **one complete, production-ready Battleship vertical slice** in the existing Gamezilla repository, using the hardened game framework and its supported plugin contracts.
+Implement **one complete, production-ready Battleship vertical slice** in the existing product repository, using the hardened game framework and its supported plugin contracts.
 
 This is both a real product addition and a concrete validation of the framework. Success means that Battleship works end to end **because it inherits the platform**, not because it recreates the platform inside a Battleship package.
 
@@ -24,7 +24,7 @@ The complete supplied **Battleship Game Specification** is included in Appendix 
 
 Use these authorities:
 
-- Existing executable Gamezilla specifications govern shared application behavior and product policy.
+- Existing executable product specifications govern shared application behavior and product policy.
 - Appendix A governs Battleship's rules, hidden-information policy, and required integration outcomes.
 - This directive adds the framework-ownership, reuse, implementation-process, and evidence requirements discussed for this rollout. It does not introduce new gameplay variants.
 
@@ -69,7 +69,7 @@ Enforce these boundaries:
 - No imports from Battleship into Chess or Connect Four, or from Battleship into their internals.
 - No `gameId === 'battleship'` exceptions in generic screens, workflows, synchronization, or shared test suites.
 - Concrete game wiring belongs only in authorized composition and integration boundaries.
-- Generic framework packages remain product-agnostic; Gamezilla policy stays in its existing product owners.
+- Generic framework packages remain product-agnostic; product policy stays in its existing product owners.
 - Rules remain deterministic and independent of rendering, networking, and wall I/O.
 - Production packages do not depend on harness packages.
 
@@ -321,14 +321,14 @@ Finish with a concise report containing:
 
 The following specification is included verbatim to preserve every requirement, scenario, property, and scope boundary. Apply the explicit current-catalog clarification in section 1 above to its historical references to other games. Do not interpret the appendix as a request to duplicate shared specifications into Battleship-owned files; implement each requirement under its proper owner and retain traceability.
 
-# Gamezilla — Battleship Game Specification
+# Battleship Game Specification
 
 **Status:** Implementation specification  
 **Game:** Battleship  
 **Type:** Two-player, turn-based, hidden-information strategy game  
 **Ruleset:** Classic 10×10 Battleship, alternating single shots  
 **Integration:** Sibling to Chess, Quoridor, Connect Four, and Tic-Tac-Toe  
-**Platform reference:** Existing Gamezilla architecture and executable specifications
+**Platform reference:** Existing product architecture and executable specifications
 
 ---
 
@@ -620,7 +620,7 @@ Classic Battleship SHALL NOT ordinarily produce a draw through board play.
 
 ### BS-094 — Resignation
 
-Resignation SHALL follow existing Gamezilla lifecycle policies and produce the appropriate opponent victory.
+Resignation SHALL follow existing product lifecycle policies and produce the appropriate opponent victory.
 
 ### BS-095 — Timeout
 
@@ -754,7 +754,7 @@ Custom games SHALL support remote multiplayer through existing rooms.
 
 ### BS-126 — Private games
 
-Invitations, privacy, joining, and participant assignment SHALL follow established Gamezilla behavior.
+Invitations, privacy, joining, and participant assignment SHALL follow established product behavior.
 
 ### BS-127 — Configuration
 
@@ -782,7 +782,7 @@ Invalid participant and session configurations SHALL be rejected before gameplay
 
 ### BS-140 — Shared infrastructure
 
-Battleship SHALL use existing Gamezilla real-time room and space systems.
+Battleship SHALL use existing product real-time room and space systems.
 
 ### BS-141 — Room lifecycle
 
@@ -962,7 +962,7 @@ Bot activity SHALL stop after game termination or session disposal.
 
 ### BS-200 — Durable records
 
-Matches eligible for persistence SHALL use the existing Gamezilla history system.
+Matches eligible for persistence SHALL use the existing product history system.
 
 ### BS-201 — Recorded information
 
@@ -1022,7 +1022,7 @@ History and replay authorization SHALL follow shared platform permissions togeth
 
 ### BS-220 — Shared layout
 
-Battleship SHALL reuse Gamezilla's game screen architecture, navigation, player panels, controls, and result presentation.
+Battleship SHALL reuse the product's game screen architecture, navigation, player panels, controls, and result presentation.
 
 ### BS-221 — Setup interface
 
@@ -1074,7 +1074,7 @@ Attacks, hits, misses, and sinking events MAY use polished animations that do no
 
 ### BS-233 — Terminal presentation
 
-Victory, defeat, resignation, timeout, and other applicable results SHALL use existing Gamezilla result patterns.
+Victory, defeat, resignation, timeout, and other applicable results SHALL use existing product result patterns.
 
 ### BS-234 — Responsive design
 
@@ -1190,7 +1190,7 @@ Resignation, cancellation, abandonment, and room closure SHALL follow shared lif
 
 ### BS-270 — Shared telemetry
 
-Battleship SHALL use Gamezilla's existing observability systems.
+Battleship SHALL use the product's existing observability systems.
 
 ### BS-271 — Lifecycle visibility
 
@@ -1462,7 +1462,7 @@ Failures SHALL be reproducible through the existing testing facilities.
 | Replay | Correct, role-aware reconstruction |
 | Profiles | Applicable game statistics |
 | Permissions | Existing declarative authorization |
-| UI | Established Gamezilla design conventions |
+| UI | Established product design conventions |
 | Accessibility | Pointer, touch, keyboard, screen readers |
 | Specifications | Executable behavior and invariants |
 | Observability | Existing telemetry and health checks |
@@ -1490,7 +1490,7 @@ The following are not required unless existing platform capabilities or explicit
 - External AI inference for bot gameplay.
 - Mandatory full-fleet disclosure after completion.
 
-These exclusions SHALL NOT justify bypassing applicable shared Gamezilla capabilities.
+These exclusions SHALL NOT justify bypassing applicable shared product capabilities.
 
 ---
 
@@ -1508,10 +1508,10 @@ Battleship is complete only when:
 8. Match lifecycle, termination, and rematches work.
 9. History and replay are accurate and privacy-aware.
 10. Existing permissions, identity, and entitlement rules are respected.
-11. UI is responsive, accessible, and consistent with Gamezilla.
+11. UI is responsive, accessible, and consistent with the rest of the product.
 12. Executable specs and automated verification pass.
 13. Existing Chess, Quoridor, Connect Four, and Tic-Tac-Toe behavior remains intact.
 14. Production observability and health coverage are integrated.
 15. No mandatory capability is replaced with a placeholder or manual workaround.
 
-**Specification authority:** Existing Gamezilla standards govern shared functionality; this document defines Battleship-specific rules, hidden-information requirements, and integration behavior. Resolve conflicts explicitly rather than creating accidental divergence.
+**Specification authority:** Existing product standards govern shared functionality; this document defines Battleship-specific rules, hidden-information requirements, and integration behavior. Resolve conflicts explicitly rather than creating accidental divergence.

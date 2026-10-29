@@ -1,7 +1,7 @@
 # Real-time implementation
 
-This is the implementation ledger for
-[the Pong brief](../../../docs/GAMEZILLA_IMPLEMENT_PONG_PROMPT.md).
+This is the implementation ledger for the Pong brief (the brief itself is
+not kept in the repository).
 The product contract belongs in `specs/`; the existing framework is described
 in [GAME_FRAMEWORK.md](GAME_FRAMEWORK.md).
 
@@ -815,7 +815,7 @@ outstanding spectator relay, authority-loss recovery or complete hybrid suite.
 ### Draft checkpoint and trunk synchronization
 
 The implementation checkpoint is `53d38f4f5`, published in draft
-[PR #227](https://github.com/crvouga/gamezilla/pull/227). Full-CI, complete
+PR #227. Full-CI, complete
 coverage and person-facing readiness claims remain unchecked while their
 obligations are open. The user-provided implementation prompt remains untracked.
 
@@ -1058,7 +1058,7 @@ and compiled through the existing tasks. This is automated contract evidence,
 not a browser-process-kill or hosted recovery verdict.
 
 Full verification waits in an owned detached checkout at
-`~/.cache/gamezilla/pong-verification-2b59d5985`, initially prepared from the
+`~/.cache/<namespace>/pong-verification-2b59d5985`, initially prepared from the
 server-recovery checkpoint. Its Verify and nightly-random commands use the
 normal machine-wide queue. A checkpoint refresh stops only owned queued workers
 before changing that checkout, then installs and queues the complete new

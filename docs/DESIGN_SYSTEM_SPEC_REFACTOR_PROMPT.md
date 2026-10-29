@@ -1,4 +1,4 @@
-You are refactoring the Gamezilla design system so that the specification is the source of truth and every implementation is generated from it. Read GAMEZILLA.md (the product briefing) and specs/README.md first; obey them. Specs win over code; product behavior changes land in specs/ first in a `spec:` commit, then the code.
+You are refactoring the product's design system so that the specification is the source of truth and every implementation is generated from it. Read README.md (the product briefing) and specs/README.md first; obey them. Specs win over code; product behavior changes land in specs/ first in a `spec:` commit, then the code.
 
 ## Goal
 
@@ -19,7 +19,7 @@ Nothing about the shipped product may change: the app must look and behave ident
   - `<Name>.feature` — Gherkin behavior using one shared step vocabulary so a single file drives every platform harness.
   - `<Name>.md` — guidance (when to use, do/don't).
 - Foundations: markdown rules for color (including a contrast matrix enforced in CI), typography, spacing/layout/breakpoints, motion, elevation, iconography (icons committed as SVG, names as an enum in the BrandIcon contract), content/voice, accessibility (WCAG 2.2 AA; "usable without sight and without a mouse"), and a platform-mapping table that fixes how tokens, props, enums, slots, events, test handles, a11y names and states are spelled in TypeScript and Swift.
-- Vocabulary: the Words table and banned list from GAMEZILLA.md as a lintable spec; banned words may not appear in strings, prop names, component names or test ids.
+- Vocabulary: the Words table and banned list from README.md as a lintable spec; banned words may not appear in strings, prop names, component names or test ids.
 - Catalog: `components/registry.json` is the explorer's category → component list; CATALOG.md/catalog.json are generated from it and the contracts. The catalog must equal the registry exactly (122 names); CI fails on any mismatch.
 - conformance.yaml: the proof each target must produce for each kind (tokens, contracts, behavior, accessibility, visual, vocabulary), fail-on UNKNOWN/skipped/stale/manual, mirroring specs/conformance.yaml.
 
@@ -40,7 +40,7 @@ Nothing about the shipped product may change: the app must look and behave ident
 
 - `bun ds:gen` reads specs/design-system and writes:
   - TypeScript/SolidJS: tokens (CSS custom properties per theme + typed accessor), component prop types (`<Name>Props`), scaffolds per component with the anatomy, state classes, a11y attributes, keyboard handlers and test handles filled from the contract; hand-written parts live only in clearly marked non-generated modules the scaffold imports (no edits inside generated files).
-  - SwiftUI: a `GamezillaUI` Swift package with `GZColor`, `GZSpace`, `GZFont`, `GZDuration` (asset catalog with light/dark), `enum <Name><Variant>` for each enum prop, a `protocol <Name>Contract` with the props as initializer requirements, and `struct <Name>: View` scaffolds with accessibility modifiers and identifiers from the contract.
+  - SwiftUI: a `ProductUI` Swift package with `GZColor`, `GZSpace`, `GZFont`, `GZDuration` (asset catalog with light/dark), `enum <Name><Variant>` for each enum prop, a `protocol <Name>Contract` with the props as initializer requirements, and `struct <Name>: View` scaffolds with accessibility modifiers and identifiers from the contract.
 - Generated files carry a header with the spec hash; CI fails if `bun ds:gen` produces a diff (generated code is committed and never edited).
 - Use Style Dictionary 4 (DTCG-aware) for token outputs or a small in-house emitter; no third-party UI library.
 
@@ -56,7 +56,7 @@ Nothing about the shipped product may change: the app must look and behave ident
 ## Repo rules you must keep
 
 - Bun workspaces, flat `src/`, package categories and import boundaries (`package-boundaries.ts`), Tiger-Style size caps (no new `biome-ignore`), `data-testid` ships in every build, `data-component`/`data-screen` stripped in production, Solid props never destructured, styling via class/classList and tokens only.
-- No `gamezilla` or product names inside @pkgs/*.
+- No brand, namespace or product names inside @pkgs/*.
 - Commit in small reviewable steps: `spec:` commits for specs/design-system, then generator, then the swap in @pkgs/ui, then Swift. Each commit passes `bun verify`.
 
 ## Order of work
