@@ -1,0 +1,4 @@
+{
+  "summary": "Sending feedback while an attachment was still being saved sent the report with no attachments: attach() was not tracked, so send() only waited for the recording video. Fixed by making send wait for every attachment still being persisted.",
+  "regressionTest": "pkgs/feedback-harness-ts/tests/evidence.contract.test.ts"
+}
