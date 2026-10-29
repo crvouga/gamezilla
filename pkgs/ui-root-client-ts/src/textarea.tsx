@@ -1,7 +1,8 @@
 /** @jsxImportSource solid-js */
 /**
  * `Textarea` -- a multi-line text field. It paints like `TextInput` (the
- * `.input` host: surface fill, hairline border, focus and error rings) and
+ * `.input` host: the control radius, the 3:1 `outline` edge, the keyboard
+ * focus ring, the `destructive` edge when invalid) and
  * brings no label of its own: put it in a `FormField`, which it reads for
  * its `id`, `aria-describedby`, `aria-invalid` and `aria-required`, or name
  * it with `aria-label`.

@@ -87,13 +87,13 @@ describe('buildPuzzleActionBarPlan', () => {
     expect(skip?.type === 'action' && skip.disabled).toBe(false);
   });
 
-  test('solved: position navigation + success next button + retry action', () => {
+  test('solved: position navigation + primary next button + retry action', () => {
     const slots = buildPuzzleActionBarPlan(
       input({ status: 'solved', canGoBack: true, canGoForward: false })
     );
     expect(ids(slots)).toEqual(['back', 'forward', 'next', 'retry']);
     const next = slots.find((s) => s.id === 'next');
-    expect(next).toEqual({ id: 'next', type: 'button', intent: 'success' });
+    expect(next).toEqual({ id: 'next', type: 'button', intent: 'primary' });
     const retry = slots.find((s) => s.id === 'retry');
     expect(retry?.type).toBe('action');
   });

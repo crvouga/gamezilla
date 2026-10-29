@@ -14,6 +14,7 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
+import type { ColorTokenName } from '@pkgs/ui-root-shared-ts/colors-types';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from 'solid-js';
 import { IconButton } from './icon-button';
@@ -24,7 +25,7 @@ export type BackIconButtonProps = {
   /** Diameter in pixels. Defaults to 40. */
   size?: number | undefined;
   /** Plate color token. Defaults to none (transparent). */
-  background?: string | undefined;
+  background?: ColorTokenName | undefined;
   /** Label override. Defaults to localized "Back". */
   label?: string | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */

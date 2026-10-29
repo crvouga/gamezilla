@@ -176,17 +176,21 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   );
 }
 
+/** Checked is the soft blue with a `primary-strong` edge and dot: the dot,
+ * not only the color, marks it. */
 function RadioMark(props: { checked: boolean }): JSX.Element {
   return (
     <span
       class={spaced([
-        'box size-5 shrink-0 items-center justify-center rounded-full border-2 bg-surface transition-colors',
-        props.checked ? 'border-tint-active' : 'border-outline',
+        'box size-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors motion-reduce:transition-none',
+        props.checked
+          ? 'border-primary-strong bg-tint-subtle'
+          : 'border-outline bg-background',
       ])}
       aria-hidden="true"
     >
       <Show when={props.checked}>
-        <span class="box size-2 rounded-full bg-tint-active" />
+        <span class="box size-2 rounded-full bg-primary-strong" />
       </Show>
     </span>
   );

@@ -23,6 +23,11 @@ export default function ChipExample(): JSX.Element {
 
   return (
     <ExampleRoot>
+      <p class="text textCaption">
+        {
+          'Toggle chips (aria-pressed). Hover darkens the edge, Tab shows the focus ring; each 32px chip has a 44px hit area.'
+        }
+      </p>
       <SchemePreview>
         <div class="box flex-col gap-3">
           <div class="box flex-row gap-2 flex-wrap">

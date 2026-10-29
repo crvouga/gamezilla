@@ -10,6 +10,11 @@ export default function SegmentedControlExample(): JSX.Element {
 
   return (
     <ExampleRoot>
+      <p class="text textCaption">
+        {
+          'One tab stop; the arrow keys move the selection. Unselected segments tint on hover.'
+        }
+      </p>
       <SchemePreview>
         <div class="box flex-col gap-4">
           <SegmentedControl

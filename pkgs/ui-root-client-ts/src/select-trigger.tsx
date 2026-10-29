@@ -2,7 +2,8 @@
 /**
  * Trigger row for {@link Select}: preview swatch, current label (or
  * placeholder), and a disclosure chevron, painted as a field (the
- * `TextInput` host: surface fill, hairline, control radius, 44px). Renders a
+ * `TextInput` host: `outline` edge, control radius, focus ring, 44px). The
+ * compact (`sm`) trigger is 32px tall but keeps a 44px hit area. Renders a
  * real `<button>` with `aria-haspopup="listbox"` / `aria-expanded`.
  */
 
@@ -35,7 +36,7 @@ export function SelectLabel(props: { label: JSX.Element }): JSX.Element {
 
 function triggerClass(compact: boolean): string {
   return [
-    'input inputTrigger',
+    'input inputTrigger hitTarget',
     compact ? 'min-h-8 gap-2 px-3 py-1' : 'min-h-11 gap-2 px-4 py-2',
   ].join(' ');
 }

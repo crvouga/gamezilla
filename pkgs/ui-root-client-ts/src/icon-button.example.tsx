@@ -24,7 +24,9 @@ export default function IconButtonExample(): JSX.Element {
   return (
     <ExampleRoot>
       <p class="text textCaption">
-        {'Hover for the tint and the tooltip; Tab for the focus ring.'}
+        {
+          'Hover for the tint and the tooltip; Tab for the 2px focus ring. Every icon button has a required label (its accessible name) and a 44px hit area, whatever the disc size.'
+        }
       </p>
       <SchemePreview>
         <div class="box gap-4">
@@ -38,7 +40,7 @@ export default function IconButtonExample(): JSX.Element {
             </IconButton>
             <CloseIconButton onClick={() => undefined} />
           </Row>
-          <Row label="Secondary plate (surfaceMuted) at 32 / 40 / 48">
+          <Row label="Secondary plate (surfaceMuted) at 32 / 40 / 48; each hit area is at least 44">
             <IconButton
               label="Settings"
               size={32}
@@ -74,6 +76,17 @@ export default function IconButtonExample(): JSX.Element {
               onClick={() => undefined}
             >
               <SettingsIcon size={20} color="text" />
+            </IconButton>
+          </Row>
+          <Row label="Menu trigger (aria-haspopup, expanded)">
+            <IconButton
+              label="More actions"
+              aria-haspopup="menu"
+              aria-expanded
+              tooltip="default"
+              onClick={() => undefined}
+            >
+              <EllipsisIcon size={24} color="text" />
             </IconButton>
           </Row>
           <Row label="Avatar trigger">

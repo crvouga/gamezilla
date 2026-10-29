@@ -57,11 +57,15 @@ describe('Switch', () => {
     const el = screen.getByRole('switch', { name: 'Sound' });
     expect(el).toHaveAttribute('aria-checked', 'false');
     const track = el.querySelector('[class*="rounded"]');
-    expect(track?.className).toMatch(/bg-surface-muted/);
+    expect(track?.className).toMatch(/bg-transparent/);
+    expect(track).toHaveAttribute('data-on', 'false');
     fireEvent.click(el);
     expect(el).toHaveAttribute('aria-checked', 'true');
     expect(el.className).toMatch(/min-h-11/);
-    expect(track?.className).toMatch(/bg-tint-active/);
+    // On is the soft blue (`tint-subtle`), never the saturated button fill.
+    expect(track?.className).toMatch(/bg-tint-subtle/);
+    expect(track?.className).not.toMatch(/bg-tint-active/);
+    expect(track).toHaveAttribute('data-on', 'true');
   });
 
   test('the thumb always contrasts with its track', () => {
@@ -75,10 +79,11 @@ describe('Switch', () => {
     const thumb = track?.firstElementChild;
     expect(thumb?.className).toMatch(/bg-text-secondary/);
     fireEvent.click(el);
-    // On is the accent fill with its own on-color thumb, never the text tint.
-    expect(track?.className).toMatch(/\bbg-tint-active\b/);
+    // On is the soft blue track with a `primary-strong` thumb, never the
+    // text tint and never a thumb in the track's own color.
+    expect(track?.className).toMatch(/\bbg-tint-subtle\b/);
     expect(track?.className).not.toMatch(/\bbg-tint\b(?!-)/);
-    expect(thumb?.className).toMatch(/bg-on-primary/);
+    expect(thumb?.className).toMatch(/\bbg-primary-strong\b/);
   });
 
   // regression: ui-switch-testid-on-wrapper — the test id sat on a wrapper

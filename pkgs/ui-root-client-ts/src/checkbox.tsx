@@ -3,10 +3,11 @@
  * `Checkbox` -- checked / unchecked / indeterminate control.
  *
  * A 20px box with the small radius and an outline border (`skin.css`
- * `.checkboxBox`); checked or mixed is the blue fill with an on-primary
- * check or dash. The whole row (box and label) is the hit area, at least
- * 44px tall, with the hover tint, the keyboard focus ring and the disabled
- * opacity.
+ * `.checkboxBox`); checked or mixed is the soft blue (`tint-subtle` fill,
+ * `primary-strong` edge) with an `on-primary-soft` check or dash, so the
+ * glyph, not only the color, says which. The whole row (box and label) is
+ * the hit area, at least 44px tall (and 44px wide without a label), with the
+ * hover tint, the keyboard focus ring and the disabled opacity.
  */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
@@ -54,7 +55,10 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
   return (
     <button
       class="clickable clickableTint rounded-sm flex-row items-center gap-3 min-h-11"
-      classList={{ 'opacity-disabled': props.disabled === true }}
+      classList={{
+        'min-w-11 justify-center': props.label === undefined,
+        'opacity-disabled cursor-not-allowed': props.disabled === true,
+      }}
       {...dataAttrs({ component: 'Checkbox', ...props.dataSet })}
       type="button"
       role="checkbox"

@@ -2,8 +2,12 @@
 /**
  * `TextInput` -- styled text field with label, error, and helper text.
  *
- * Flat surface field; focus renders a tint ring via `:focus-visible`, errors
- * switch the border to `destructive`. Multi-line text is `Textarea`.
+ * A 44px field at the control radius inside the 3:1 `outline` edge (the
+ * `.input` host): hover darkens the edge, keyboard focus draws the 2px
+ * `focus-ring` 2px outside it, `disabled` fades it, and an error turns the
+ * edge `destructive` with the message below (`role="alert"`) and
+ * `aria-invalid`, so color never carries it alone. Multi-line text is
+ * `Textarea`.
  *
  * - `variant="embedded"`: no border, fill or radius, emphasized text; for a
  *   field set into a composed editor (a title above the body).
@@ -16,7 +20,6 @@ import {
   componentDataAttrs,
   dataAttrs,
 } from '@pkgs/ui-root-shared-ts/component-id';
-import { spacingScale } from '@pkgs/ui-root-shared-ts/scale';
 import { createUniqueId, type JSX, Show, splitProps } from 'solid-js';
 import { bindElementTargets } from './element-targets';
 import type { FocusTarget } from './focus';
@@ -73,16 +76,6 @@ export type TextInputProps = Omit<
   focusTarget?: FocusTarget | undefined;
 };
 
-/** Horizontal inset of the field text (`px: 4` → 16px). */
-const FIELD_PX_STEP = 4;
-/**
- * Total left inset when a leading adornment is present.
- * Must clear: field pad (16px) + ~18px glyph + ~8px gap → 44px (`11 * 4`).
- * Smaller values put placeholder/text under the icon.
- */
-const ADORNMENT_WIDTH_STEP = 11;
-const FIELD_MIN_HEIGHT = 44;
-
 function FieldFooter(props: {
   error: LocalizedString | undefined;
   helperText: LocalizedString | undefined;
@@ -128,15 +121,6 @@ function fieldType(local: FieldLocal): string {
 function Field(
   props: FieldLocal & { rest: Record<string, unknown> }
 ): JSX.Element {
-  const fieldStyle = (): JSX.CSSProperties => ({
-    'min-height': `${FIELD_MIN_HEIGHT}px`,
-    'padding-top': `${spacingScale(2)}px`,
-    'padding-bottom': `${spacingScale(2)}px`,
-    'padding-left': `${spacingScale(props.hasAdornment ? ADORNMENT_WIDTH_STEP : FIELD_PX_STEP)}px`,
-    'padding-right': `${spacingScale(FIELD_PX_STEP)}px`,
-    'font-size': 'var(--ui-font-size-base)',
-    'line-height': '24px',
-  });
   const onKeyDown = (event: KeyboardEvent): void => {
     const handler = props.onKeyDown;
     if (typeof handler === 'function') {
@@ -153,13 +137,15 @@ function Field(
         props.ref?.(element);
       }}
       class={spaced([
-        'input',
+        // 44px tall, 16px text inset; a leading adornment (16px pad, ~20px
+        // glyph, 8px gap) pushes the text to 44px (`pl-11`).
+        'input min-h-11 py-2 pr-4 text-base',
+        props.hasAdornment ? 'pl-11' : 'pl-4',
         props.hasError ? 'inputError' : undefined,
         props.variant === 'embedded'
           ? 'border-0 rounded-none bg-transparent textBodyBold'
           : undefined,
       ])}
-      style={fieldStyle()}
       type={fieldType(props)}
       value={props.value}
       placeholder={props.placeholder}
@@ -176,9 +162,8 @@ function Field(
 function StartAdornment(props: { children: JSX.Element }): JSX.Element {
   return (
     <div
-      class="box absolute inset-y-0 left-0 items-center justify-center pointer-events-none"
+      class="box absolute inset-y-0 left-0 pl-4 items-center justify-center pointer-events-none"
       aria-hidden="true"
-      style={{ 'padding-left': `${spacingScale(FIELD_PX_STEP)}px` }}
     >
       {props.children}
     </div>
@@ -248,5 +233,3 @@ export function TextInput(props: TextInputProps): JSX.Element {
     </div>
   );
 }
-
-export const TEXT_INPUT_ADORNMENT_INSET_PX = spacingScale(ADORNMENT_WIDTH_STEP);

@@ -1,16 +1,18 @@
 /** @jsxImportSource solid-js */
 /**
- * `Chip` -- compact tag / filter element.
+ * `Chip` -- compact tag / filter / choice element.
  *
- * A 32px pill (`skin.css` `.chip`), 14px semibold:
- *   - Unselected is a quiet hairline pill on the canvas in text color; on
- *     hover the hairline darkens to the outline tone.
- *   - Selected is the blue fill with an on-primary label, like every other
- *     "this one".
+ * A 32px tag at the small radius (`skin.css` `.chip`), 14px semibold, with a
+ * 44px hit area (`.hitTarget`):
+ *   - Unselected is transparent inside the 3:1 `outline` edge with an ink
+ *     label; on hover the edge darkens to the secondary ink.
+ *   - Selected is the soft blue: `tint-subtle` fill, `primary-strong` edge,
+ *     `on-primary-soft` label.
  *
  * Hover / press tint from the `.clickableTint` overlay, the keyboard focus
- * ring from `.clickable`, and the disabled opacity. Exposes `aria-pressed`
- * (or `aria-checked` as a radio) so the selected state is announced.
+ * ring from `.clickable`, and the disabled opacity. The state is announced,
+ * never carried by color alone: a toggle chip is `aria-pressed`, a chip in a
+ * single-choice `ChipGroup` is a `radio` with `aria-checked`.
  */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
@@ -26,6 +28,13 @@ export type ChipProps = {
   startIcon?: JSX.Element | undefined;
   /** ARIA role. Defaults to `button` (with `aria-pressed`); `ChipGroup` uses `radio`. */
   role?: 'button' | 'radio' | undefined;
+  /**
+   * `false` takes the chip out of the tab order, for a group that moves
+   * focus between its chips with the arrow keys. Default `true`.
+   */
+  tabStop?: boolean | undefined;
+  /** Keys pressed on the chip (a group's arrow-key navigation). */
+  onKeyDown?: ((event: KeyboardEvent) => void) | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
@@ -35,13 +44,15 @@ export function Chip(props: ChipProps): JSX.Element {
   const role = (): 'button' | 'radio' => props.role ?? 'button';
   return (
     <button
-      class="clickable clickableTint chip self-start flex-row items-center justify-center gap-2"
+      class="clickable clickableTint hitTarget chip self-start flex-row items-center justify-center gap-2"
       {...dataAttrs({ component: 'Chip', ...props.dataSet })}
       type="button"
       role={role()}
       aria-pressed={role() === 'button' ? selected() : undefined}
       aria-checked={role() === 'radio' ? selected() : undefined}
+      tabIndex={props.tabStop === false ? -1 : undefined}
       onClick={() => props.onClick?.()}
+      onKeyDown={(event) => props.onKeyDown?.(event)}
       disabled={props.disabled === true}
     >
       <Show when={props.startIcon !== undefined}>

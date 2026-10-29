@@ -4,9 +4,15 @@
  *
  * The default is the header control: a 40px disc with no plate around a
  * 24px outline icon (pass `size` for dense chrome). `background` puts the
- * icon on a token plate (`surfaceMuted` for a secondary control). Hover and
- * press tint the round hit area in 150ms (`.clickableTint`), keyboard focus
- * draws the ring, and `disabled` fades to the disabled opacity. By default every
+ * icon on a color-token plate (`surfaceMuted` for a secondary control).
+ * Hover and press tint the round hit area in 150ms (`.clickableTint`),
+ * keyboard focus draws the 2px ring 2px outside it, and `disabled` fades to
+ * the disabled opacity.
+ *
+ * An icon has no visible name, so `label` is a required prop (the type
+ * rejects an `IconButton` without one): it names the button for assistive
+ * technology, and `aria-label` may override that name with a plain string.
+ * By default every
  * button shows a {@link Tooltip} with its `label` on pointer hover only
  * (programmatic focus / modal autofocus never pops a bubble). Pass
  * `tooltip="default"` for hover + keyboard `:focus-visible`, or
@@ -31,6 +37,7 @@
  */
 
 import { useTimers } from '@pkgs/clock-client-ts/solid';
+import type { ColorTokenName } from '@pkgs/ui-root-shared-ts/colors-types';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { resolveColor } from '@pkgs/ui-root-shared-ts/resolve-color';
@@ -60,7 +67,7 @@ export function iconButtonAvatarContentSize(size: number): number {
 }
 
 export type IconButtonProps = {
-  /** Tooltip + default accessible name. */
+  /** Tooltip + accessible name. Required: the icon alone names nothing. */
   label: JSX.Element;
   children: JSX.Element;
   onClick?: (() => void) | undefined;
@@ -78,8 +85,8 @@ export type IconButtonProps = {
   tooltipFloating?: boolean | undefined;
   /** Visual disc diameter in pixels. Defaults to 40. */
   size?: number | undefined;
-  /** Color token or raw color for the background. */
-  background?: string | undefined;
+  /** Color token for the plate behind the icon. Default: no plate. */
+  background?: ColorTokenName | undefined;
   variant?: IconButtonVariant | undefined;
   disabled?: boolean | undefined;
   /** Overrides {@link label} for screen readers only. */
@@ -181,7 +188,9 @@ function IconButtonFace(
   return (
     <button
       class={`clickable clickableTint ${hitBoxClass()}`}
-      classList={{ 'opacity-disabled': props.disabled === true }}
+      classList={{
+        'opacity-disabled cursor-not-allowed': props.disabled === true,
+      }}
       {...dataAttrs({
         component: 'IconButton',
         variant: props.variant ?? 'icon',

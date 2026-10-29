@@ -136,7 +136,7 @@ describe('Button', () => {
     renderUi(() => (
       <Button
         title="Next"
-        intent="success"
+        intent="danger"
         endIcon={<ChevronRightIcon dataSet={{ testid: 'end' }} />}
       />
     ));
@@ -146,7 +146,7 @@ describe('Button', () => {
     );
     expect(screen.getByRole('button', { name: 'Next' })).toHaveAttribute(
       'data-face',
-      'success'
+      'danger'
     );
   });
 });

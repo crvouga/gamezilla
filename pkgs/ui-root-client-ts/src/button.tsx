@@ -1,22 +1,27 @@
 /** @jsxImportSource solid-js */
 /**
- * `Button` -- themed `<button>` with four intents, three sizes, three variants.
+ * `Button` -- a themed pill `<button>`: three intents, three sizes, three
+ * variants. The design brief's four buttons are:
  *
- * `intent` chooses the color role (primary / danger / success / neutral);
- * `variant` chooses how much visual weight that color carries:
- *   - `solid` (default) -- filled + `on*` label, looks like the primary action.
- *   - `outline` -- transparent bg + colored border + intent-colored label.
- *   - `ghost` -- transparent bg, no border, intent-colored label.
+ * | Brief | Props | Look |
+ * | --- | --- | --- |
+ * | Primary | `intent="primary"` (default) | the one blue fill, white label |
+ * | Secondary | `intent="neutral"` (solid or `variant="outline"`) | transparent, 1px `outline` border, ink label |
+ * | Ghost | `variant="ghost"` | no border, no fill at rest |
+ * | Danger | `intent="danger" variant="outline"` | destructive label and border |
+ * | Danger, confirming | `intent="danger"` (solid) | `destructive-active` fill, white label |
  *
- * `loading` / `feedback` drive the inline mutation faces (spinner, check,
- * retry) -- pair with `useMutationButton`. Hover/press feedback is delegated
- * to {@link Clickable}'s tint overlay.
+ * Hover tints, press tints and settles to 0.97 (150ms, off under reduced
+ * motion), keyboard focus draws the 2px `focus-ring` 2px outside the pill.
+ * `disabled` greys the face; `loading` / `feedback` drive the inline
+ * mutation faces (spinner, check, retry) -- pair with `useMutationButton`.
+ * A `size="sm"` button is 32px tall but keeps a 44px hit area.
  *
  * @example
  * ```tsx
- * <Button title="Save" intent="primary" onClick={save} />
- * <Button title="Delete" intent="danger" onClick={del} />
- * <Button title="Cancel" intent="neutral" variant="outline" onClick={cancel} />
+ * <Button title="Save" onClick={save} />
+ * <Button title="Cancel" intent="neutral" onClick={cancel} />
+ * <Button title="Delete" intent="danger" variant="outline" icon={Trash2Icon} onClick={del} />
  * ```
  */
 
@@ -81,7 +86,9 @@ function buttonClass(args: {
   fullWidth: boolean;
 }): string {
   return [
-    'flex-row items-center justify-center overflow-hidden select-none',
+    // `hitTarget` grows a short (`sm`) pill to 44px; it needs the button
+    // unclipped, so the label row clips its own overflow instead.
+    'hitTarget flex-row items-center justify-center select-none',
     args.fullWidth && 'self-stretch w-full',
     args.flex === 1 && 'flex-1',
   ]
@@ -132,27 +139,29 @@ export function Button(props: ButtonProps): JSX.Element {
       aria-current={props['aria-current']}
       style={flexStyle()}
     >
-      <ButtonContent
-        labels={{
-          get title() {
-            return props.title;
-          },
-          get loadingLabel() {
-            return props.loadingLabel;
-          },
-          get successLabel() {
-            return props.successLabel;
-          },
-          get errorLabel() {
-            return props.errorLabel;
-          },
-        }}
-        phase={state().phase}
-        size={spec()}
-        icon={props.icon}
-        startIcon={props.startIcon}
-        endIcon={props.endIcon}
-      />
+      <span class="box shrink min-w-0 flex-row items-center justify-center overflow-hidden">
+        <ButtonContent
+          labels={{
+            get title() {
+              return props.title;
+            },
+            get loadingLabel() {
+              return props.loadingLabel;
+            },
+            get successLabel() {
+              return props.successLabel;
+            },
+            get errorLabel() {
+              return props.errorLabel;
+            },
+          }}
+          phase={state().phase}
+          size={spec()}
+          icon={props.icon}
+          startIcon={props.startIcon}
+          endIcon={props.endIcon}
+        />
+      </span>
     </button>
   );
 }

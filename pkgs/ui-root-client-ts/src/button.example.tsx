@@ -1,10 +1,10 @@
 /** @jsxImportSource solid-js */
 import { useTimers } from '@pkgs/clock-client-ts/solid';
-import { createSignal, type JSX } from 'solid-js';
+import { createSignal, For, type JSX } from 'solid-js';
 import { Button } from './button';
 import type { ButtonIntent, ButtonVariant } from './button-face';
 import { ExampleRoot } from './example-root';
-import { ChevronRightIcon, PlusIcon } from './icons';
+import { ChevronRightIcon, PlusIcon, Trash2Icon } from './icons';
 import { SchemePreview } from './scheme-preview';
 import { useMutationButton } from './use-mutation-button';
 
@@ -19,7 +19,7 @@ function ButtonRow(props: {
   const [loading, setLoading] = createSignal(false);
   const variant = () => props.variant ?? 'solid';
   return (
-    <div class="box flex-col gap-2">
+    <div class="box flex-row flex-wrap items-center gap-2">
       <Button title="Default" intent={props.intent} variant={variant()} />
       <Button
         title="With icon"
@@ -95,11 +95,27 @@ function FeedbackBlock(): JSX.Element {
   });
   return (
     <>
-      <SectionLabel label="Feedback (loading → success / error)" />
+      <SectionLabel label="Feedback (loading → success / error, tap to retry)" />
       <SchemePreview>
         <div class="box flex-col gap-2">
           <Button {...succeed.buttonProps} />
           <Button intent="primary" {...fail.buttonProps} />
+          <div class="box flex-row flex-wrap items-center gap-2">
+            <Button title="Saved" feedback="success" successLabel="Saved" />
+            <Button
+              title="Save"
+              feedback="error"
+              errorLabel="Couldn't save"
+              onRetry={() => undefined}
+            />
+            <Button
+              title="Delete"
+              intent="danger"
+              icon={Trash2Icon}
+              loading
+              loadingLabel="Deleting…"
+            />
+          </div>
         </div>
       </SchemePreview>
     </>
@@ -113,7 +129,7 @@ function SizesBlock(): JSX.Element {
       <SchemePreview>
         <div class="box flex-col gap-2">
           <div class="box flex-row flex-wrap items-center gap-2">
-            <Button title="Small · 32" size="sm" />
+            <Button title="Small · 32 (44 hit area)" size="sm" />
             <Button title="Medium · 44" size="md" />
             <Button title="Large · 52" size="lg" />
           </div>
@@ -129,47 +145,66 @@ function SizesBlock(): JSX.Element {
   );
 }
 
+/** The design brief's four buttons, as `intent` × `variant`. */
+const BRIEF_VARIANTS: readonly {
+  label: string;
+  intent: ButtonIntent;
+  variant: ButtonVariant;
+}[] = [
+  { label: 'Primary', intent: 'primary', variant: 'solid' },
+  { label: 'Secondary (neutral)', intent: 'neutral', variant: 'solid' },
+  { label: 'Ghost', intent: 'neutral', variant: 'ghost' },
+  { label: 'Danger (outline)', intent: 'danger', variant: 'outline' },
+  { label: 'Danger, confirming (solid)', intent: 'danger', variant: 'solid' },
+];
+
+/** Every other combination the API allows. */
+const OTHER_VARIANTS: readonly {
+  label: string;
+  intent: ButtonIntent;
+  variant: ButtonVariant;
+}[] = [
+  {
+    label: 'Neutral · outline (same as secondary)',
+    intent: 'neutral',
+    variant: 'outline',
+  },
+  { label: 'Primary · outline', intent: 'primary', variant: 'outline' },
+  { label: 'Primary · ghost (text link)', intent: 'primary', variant: 'ghost' },
+  { label: 'Danger · ghost', intent: 'danger', variant: 'ghost' },
+];
+
 export default function ButtonExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <SizesBlock />
+      <p class="text textCaption">
+        {
+          'Hover for the tint, press for the 0.97 settle, Tab for the 2px focus ring. Each row: default, with icon, disabled, loading.'
+        }
+      </p>
+      <For each={BRIEF_VARIANTS}>
+        {(entry) => (
+          <VariantBlock
+            intent={entry.intent}
+            variant={entry.variant}
+            label={entry.label}
+          />
+        )}
+      </For>
       <div class="divider" role="separator" />
       <FeedbackBlock />
       <div class="divider" role="separator" />
-      <VariantBlock intent="primary" label="Primary" />
-      <VariantBlock
-        intent="primary"
-        variant="outline"
-        label="Primary · outline"
-      />
-      <VariantBlock intent="primary" variant="ghost" label="Primary · ghost" />
+      <SizesBlock />
       <div class="divider" role="separator" />
-      <VariantBlock intent="neutral" label="Secondary (neutral)" />
-      <VariantBlock
-        intent="neutral"
-        variant="outline"
-        label="Neutral · outline"
-      />
-      <VariantBlock intent="neutral" variant="ghost" label="Neutral · ghost" />
-      <div class="divider" role="separator" />
-      <VariantBlock intent="danger" label="Destructive" />
-      <VariantBlock
-        intent="danger"
-        variant="outline"
-        label="Destructive · outline"
-      />
-      <VariantBlock
-        intent="danger"
-        variant="ghost"
-        label="Destructive · ghost"
-      />
-      <div class="divider" role="separator" />
-      <VariantBlock intent="success" label="Success" />
-      <VariantBlock
-        intent="success"
-        variant="outline"
-        label="Success · outline"
-      />
+      <For each={OTHER_VARIANTS}>
+        {(entry) => (
+          <VariantBlock
+            intent={entry.intent}
+            variant={entry.variant}
+            label={entry.label}
+          />
+        )}
+      </For>
     </ExampleRoot>
   );
 }
