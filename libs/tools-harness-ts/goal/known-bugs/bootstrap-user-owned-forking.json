@@ -1,4 +1,4 @@
 {
-  "summary": "Bootstrap apply of crvouga/gamezilla failed with PATCH 422 Allow forks setting can only be changed on org-owned private repositories. The plan changed allow_forking from true to false. integrations/github 6.13 sends that field only when it changes, and GitHub rejects the change on a user-owned private repository. Leave allow_forking unset unless owner_is_organization is true; the desired false value still applies for an organization.",
+  "summary": "Bootstrap apply of the user-owned source repository failed with PATCH 422 Allow forks setting can only be changed on org-owned private repositories. The plan changed allow_forking from true to false. integrations/github 6.13 sends that field only when it changes, and GitHub rejects the change on a user-owned private repository. Leave allow_forking unset unless owner_is_organization is true; the desired false value still applies for an organization.",
   "regressionTest": "libs/infra-server-ts/tests/repository-policy.test.ts"
 }

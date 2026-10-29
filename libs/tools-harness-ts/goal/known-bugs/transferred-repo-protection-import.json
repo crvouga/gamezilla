@@ -1,4 +1,4 @@
 {
-  "summary": "The transferred repository has no main branch protection rule, but bootstrap kept the old gamezilla:main adoption ID and failed to plan. Remove the completed import so the declared rule is created for the new owner.",
+  "summary": "The transferred repository has no main branch protection rule, but bootstrap kept the old <repository>:main adoption ID and failed to plan. Remove the completed import so the declared rule is created for the new owner.",
   "regressionTest": "libs/infra-server-ts/tests/global-file.test.ts"
 }

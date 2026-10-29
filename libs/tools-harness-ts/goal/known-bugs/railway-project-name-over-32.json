@@ -1,4 +1,4 @@
 {
-  "summary": "Deploy 38453758590 could not create the Synthetic Population Railway project because gamezilla-development-synthetic-population is 42 characters and Railway allows 1 to 32. The project had never been created. Fleet now owns one project named by the global project value, with dev and prd environments, and rejects a project name outside that length.",
+  "summary": "Deploy 38453758590 could not create the Synthetic Population Railway project because <namespace>-development-synthetic-population is 42 characters and Railway allows 1 to 32. The project had never been created. Fleet now owns one project named by the global project value, with dev and prd environments, and rejects a project name outside that length.",
   "regressionTest": "libs/infra-server-ts/tests/foundation-bootstrap.test.ts"
 }

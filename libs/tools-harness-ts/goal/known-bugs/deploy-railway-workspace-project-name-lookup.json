@@ -1,4 +1,4 @@
 {
-  "summary": "Deploy 38555971896 refreshed the existing Railway workspace project 32f967de-dc01-4822-bec1-6222694173db in fleet, but dev foundation failed with Project Not Found for gamezilla because the provider's unscoped name listing did not return it. Foundation reads fleet's project ID from encrypted remote state and performs an ID lookup instead.",
+  "summary": "Deploy 38555971896 refreshed the existing Railway workspace project 32f967de-dc01-4822-bec1-6222694173db in fleet, but dev foundation failed with Project Not Found for the <namespace> project because the provider's unscoped name listing did not return it. Foundation reads fleet's project ID from encrypted remote state and performs an ID lookup instead.",
   "regressionTest": "libs/infra-shared-ts/tests/railway-project-handoff.test.ts"
 }

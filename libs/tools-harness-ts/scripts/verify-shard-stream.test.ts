@@ -20,7 +20,7 @@ test.each([
   [
     'command exit',
     'error',
-    'command (/home/runner/work/gamezilla/gamezilla/libs/tools-harness-ts) /home/runner/bun run tc exited (2)',
+    'command (/home/runner/work/repo/repo/libs/tools-harness-ts) /home/runner/bun run tc exited (2)',
   ],
   ['final failure summary', 'info', 'Failed:    @libs/tools-harness-ts#tc'],
 ])(

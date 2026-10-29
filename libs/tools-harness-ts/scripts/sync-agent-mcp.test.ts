@@ -1,10 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
 
 import {
   renderCodexToml,
   renderJson,
+  SENTRY_MCP,
   serenaArgs,
   syncAgentMcp,
 } from './sync-agent-mcp';
@@ -63,6 +65,19 @@ describe('renderJson', () => {
     const once = renderJson(undefined, target);
     expect(renderJson(once, target)).toBe(once);
   });
+
+  test('generated servers replace a stale entry and keep its place', () => {
+    const existing = JSON.stringify({
+      mcpServers: { Sentry: { url: 'https://example.test/mcp' }, other: {} },
+    });
+    const next = renderJson(existing, {
+      ...target,
+      servers: { Sentry: SENTRY_MCP },
+    });
+    const servers = (JSON.parse(next) as { mcpServers: object }).mcpServers;
+    expect(Object.keys(servers)).toEqual(['Sentry', 'other', 'serena']);
+    expect(servers).toMatchObject({ Sentry: SENTRY_MCP });
+  });
 });
 
 describe('renderCodexToml', () => {
@@ -77,6 +92,15 @@ describe('renderCodexToml', () => {
 
 test('checked-in agent MCP files match the generator', () => {
   expect(syncAgentMcp(true)).toEqual([]);
+});
+
+test('.cursor/mcp.json names the Sentry organization of the product identity', () => {
+  const cursor = JSON.parse(
+    readFileSync(join(ROOT, '.cursor/mcp.json'), 'utf8')
+  ) as { mcpServers: Record<string, unknown> };
+  expect(cursor.mcpServers['Sentry']).toEqual({
+    url: `https://mcp.sentry.dev/mcp/${PRODUCT.external.sentryOrganization}`,
+  });
 });
 
 test('Serena is a pinned mise tool, never a hand-installed one', () => {

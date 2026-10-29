@@ -48,7 +48,7 @@ describe('naming rules', () => {
     ['apps/a-swift/apple-client.xcodeproj/project.pbxproj', true],
     ['apps/a-swift/assets.xcassets/app-icon.appiconset/Contents.json', true],
     ['apps/a-swift/src/root-view.swift', true],
-    ['apps/a-swift/Gamezilla.xcodeproj/project.pbxproj', false],
+    ['apps/a-swift/AppleClient.xcodeproj/project.pbxproj', false],
     ['apps/a-swift/src/RootView.swift', false],
     ['apps/a-swift/src/Contents.json', false],
     ['apps/a-swift/src/my.xcodeproj.d/a.ts', false],

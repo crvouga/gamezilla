@@ -2,6 +2,7 @@ import { expect, test } from 'bun:test';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { NAMESPACE } from '@libs/product-identity-shared-ts/product-identity';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import {
   localVerifyLeasePath,
@@ -42,6 +43,6 @@ test('independent connections share admission and closing an owner recovers its 
 test('the lease location depends on the user home, not checkout or TMPDIR', () => {
   // A native path: SQLite opens it on the host OS.
   expect(localVerifyLeasePath('/user')).toBe(
-    join('/user', '.cache', 'gamezilla', 'local-verify.sqlite')
+    join('/user', '.cache', NAMESPACE, 'local-verify.sqlite')
   );
 });

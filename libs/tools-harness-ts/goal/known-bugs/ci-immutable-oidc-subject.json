@@ -1,4 +1,4 @@
 {
-  "summary": "After the repository transfer, GitHub issued repo:gamezilla-org@336801040/gamezilla@1165464734:pull_request, but Infisical and AWS trust policies expected name-only subjects. Declare immutable owner and repository IDs in global OpenTofu config and derive the exact subject prefix and wire it into both trust policies while retaining their branch and environment restrictions.",
+  "summary": "After the repository transfer, GitHub issued repo:<owner>@336801040/<repository>@1165464734:pull_request, but Infisical and AWS trust policies expected name-only subjects. Declare immutable owner and repository IDs in global OpenTofu config and derive the exact subject prefix and wire it into both trust policies while retaining their branch and environment restrictions.",
   "regressionTest": "libs/infra-server-ts/tests/github-transfer.test.ts"
 }
