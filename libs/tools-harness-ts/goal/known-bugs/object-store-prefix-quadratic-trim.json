@@ -1,0 +1,4 @@
+{
+  "summary": "CodeQL js/polynomial-redos: normalizeObjectStoreRootPrefix trimmed trailing slashes with /\\/+$/, which rescans a run of slashes from every start and is quadratic on a long one. It now finds the end in one scan.",
+  "regressionTest": "pkgs/object-store-root-shared-ts/tests/namespace-guard.test.ts"
+}

@@ -45,7 +45,7 @@ if (sourceSha !== ENABLE_SOURCE.sha256)
 const { words, refused } = canonicalWords(
   source
     .split('\n')
-    .filter((line) => line.replace('\r', '').length <= 15)
+    .filter((line) => line.replace(/\r$/, '').length <= 15)
     .join('\n')
 );
 const artifact = encodeFrontCoded(words);

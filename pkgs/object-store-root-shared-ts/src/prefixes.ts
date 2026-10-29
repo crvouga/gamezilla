@@ -8,7 +8,12 @@ export const ObjectStorePrefix = {
 export function normalizeObjectStoreRootPrefix(
   namespace: string
 ): `${string}/` {
-  const trimmed = namespace.trim().replace(/\/+$/, '');
+  // One scan, not `/\/+$/`: that regex rescans a run of slashes from every
+  // start (quadratic on a long one).
+  const spaced = namespace.trim();
+  let end = spaced.length;
+  while (end > 0 && spaced[end - 1] === '/') end -= 1;
+  const trimmed = spaced.slice(0, end);
   if (trimmed.length === 0) {
     throw new Error('Object store root namespace must be non-empty');
   }

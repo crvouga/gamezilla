@@ -73,7 +73,8 @@ function buildMermaidSource(): { source: string; omitted: number } {
   for (const name of names) {
     const id = idFor.get(name);
     if (!id) continue;
-    const label = name.replace(/"/g, '\\"');
+    // Mermaid has no backslash escape: a quote in a label is `#quot;`.
+    const label = name.replace(/"/g, '#quot;');
     lines.push(`  ${id}["${label}"]`);
   }
 

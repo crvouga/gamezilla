@@ -75,6 +75,6 @@ export function undefinedStepSnippet(keyword: string, text: string): string {
   const kind = /^(given|when|then)$/i.test(keyword)
     ? keyword[0]?.toUpperCase() + keyword.slice(1).toLowerCase()
     : 'Step';
-  const escaped = text.replace(/'/g, "\\'");
+  const escaped = text.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
   return `${kind}('${escaped}', async (w) => {\n  // one harness call, then assert (Then)\n});`;
 }
