@@ -213,10 +213,10 @@ Four workflows, one contract each. Details:
 - **The required status is `verify:end`.** Verify PR is three jobs
   (`verify:start`, `verify:shards (N)`, `verify:end`). They keep the `verify:`
   prefix wherever the gate runs (a pull request, Release's verification, the
-  nightly run). Every CI job runs on a GitHub-hosted `ubuntu-latest` runner (free for
-  a public repository), never a self-hosted one: the repository is public, so
-  pull-request code is untrusted and must not run where a deploy later runs.
-  CI does not check native packages or
+  nightly run). Every CI job runs on a boat.dev `boat` runner: a fresh
+  just-in-time runner per job, never a machine that keeps files between jobs
+  (the repository is public, so pull-request code is untrusted and must not
+  run where a deploy later runs). CI does not check native packages or
   `test:posix` suites
   ([`docs/CI_REQUIREMENTS.md`](docs/CI_REQUIREMENTS.md#runner-operating-systems)).
   Code a CI task runs is OS-neutral: a repository path is `/`-separated

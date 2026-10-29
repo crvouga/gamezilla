@@ -63,10 +63,10 @@ test('only GitHub Actions owns the Verify, Release and Health triggers', () => {
     }
   }
   // regression: public-repository-self-hosted-runner
-  // Every job runs on a GitHub-hosted Linux runner (package-hosts.ts), which
-  // is free for a public repository. No job names a self-hosted label or a
-  // runner of its own: a pull request's code would otherwise run on a machine
-  // a later deploy job reuses.
+  // Every job runs on the boat.dev Linux runner (package-hosts.ts), a fresh
+  // just-in-time runner per job. No job names any other label, `self-hosted`
+  // above all: a pull request's code would otherwise run on a machine a later
+  // deploy job reuses.
   expect(runners.length).toBeGreaterThan(0);
   for (const runner of runners) expect(runner).toBe(CI_RUNNER);
   expect(CI_RUNNER).not.toMatch(/self-hosted/i);

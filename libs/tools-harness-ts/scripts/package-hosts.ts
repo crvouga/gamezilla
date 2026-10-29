@@ -10,9 +10,8 @@
  * | `macos`  | `macos` |
  * | `ios`    | `macos` |
  *
- * CI runs every job on a GitHub-hosted Linux runner (`CI_RUNNER`), free for a
- * public repository, so it verifies every package without `platforms`
- * (`ciFilters`). A native package is verified only by `bun verify` on a host
+ * CI runs every job on a boat.dev Linux runner (`CI_RUNNER`), so it verifies
+ * every package without `platforms` (`ciFilters`). A native package is verified only by `bun verify` on a host
  * that builds it.
  *
  * A package without `platforms` (TypeScript on Bun) runs anywhere Bun does
@@ -33,12 +32,12 @@ export type Platform = keyof typeof PLATFORMS;
 export type Host = (typeof PLATFORMS)[Platform]['host'];
 
 /**
- * The runner label every CI job requests: GitHub's standard Linux runner,
- * whose minutes are free for a public repository. It is discarded after each
- * job: a pull request's code is untrusted and never runs on a machine a later
- * job (a deploy) reuses.
+ * The runner label every CI job requests: the boat.dev Linux runner, a fresh
+ * just-in-time runner per job. A pull request's code is untrusted (the
+ * repository is public) and never runs on a machine a later job (a deploy)
+ * reuses.
  */
-export const CI_RUNNER = 'ubuntu-latest';
+export const CI_RUNNER = 'boat';
 
 const DEFAULT_HOSTS: readonly Host[] = ['linux'];
 
