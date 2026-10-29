@@ -1,0 +1,4 @@
+{
+  "summary": "`@libs/games-harness-ts#test:spec:2` hashes to custom-game-away.feature (unsliced) alongside slices of matched-game-without-turns, multi-seat-stand-ins and puzzle-play, each run once per conformance game. `specWeight` counts only Gherkin scenario lines, not that per-game multiplication, so the part's declared load clears PART_LOAD while its real test count (79 across 5 files) does not. PR #241 Verify run 40824282900, shard 31, stopped the task at the 600-second CI budget; measured 312 seconds with VERIFY_TEST_CONCURRENCY=1 on a 12-core laptop, above the 300-second default. Give the task its own measured budget rather than lower the per-game test coverage.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-budget.test.ts"
+}
