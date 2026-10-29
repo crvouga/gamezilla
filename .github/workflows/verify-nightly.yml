@@ -66,8 +66,7 @@ concurrency:
   group: verify-nightly-${{ github.ref }}-${{ inputs.group || 'all' }}
   cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' && inputs.group != '' && inputs.group != 'all' }}
 
-# Every job runs on a GitHub-hosted `ubuntu-latest` runner (free for a public
-# repository), and every `run:` step is bash.
+# Every job runs on a `boat` runner (boat.dev), and every `run:` step is bash.
 defaults:
   run:
     shell: bash
@@ -87,7 +86,7 @@ jobs:
   verify-nightly-random:
     name: verify-nightly:random
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'random' }}
-    runs-on: ubuntu-latest
+    runs-on: boat
     timeout-minutes: 180
     permissions:
       contents: read
@@ -120,7 +119,7 @@ jobs:
   verify-nightly-browser:
     name: verify-nightly:browser
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'browser' }}
-    runs-on: ubuntu-latest
+    runs-on: boat
     timeout-minutes: 330
     permissions:
       contents: read
@@ -147,7 +146,7 @@ jobs:
     name: verify-nightly:visual
     needs: [verify-nightly-gate]
     if: ${{ always() && !cancelled() && (github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'visual') }}
-    runs-on: ubuntu-latest
+    runs-on: boat
     timeout-minutes: 180
     permissions:
       contents: read
@@ -173,7 +172,7 @@ jobs:
   verify-nightly-coverage:
     name: verify-nightly:coverage
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'coverage' }}
-    runs-on: ubuntu-latest
+    runs-on: boat
     timeout-minutes: 120
     permissions:
       contents: read
@@ -193,7 +192,7 @@ jobs:
   verify-nightly-performance:
     name: verify-nightly:performance
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'performance' }}
-    runs-on: ubuntu-latest
+    runs-on: boat
     timeout-minutes: 60
     permissions:
       contents: read
@@ -229,7 +228,7 @@ jobs:
       - verify-nightly-coverage
       - verify-nightly-performance
     if: always() && !cancelled()
-    runs-on: ubuntu-latest
+    runs-on: boat
     timeout-minutes: 10
     permissions:
       contents: read

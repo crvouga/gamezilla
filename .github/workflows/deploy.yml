@@ -34,8 +34,7 @@ concurrency:
   queue: max
   cancel-in-progress: false
 
-# Every job runs on a GitHub-hosted `ubuntu-latest` runner (free for a public
-# repository), and every `run:` step is bash.
+# Every job runs on a `boat` runner (boat.dev), and every `run:` step is bash.
 defaults:
   run:
     shell: bash
@@ -55,7 +54,7 @@ jobs:
     name: Preview infrastructure changes
     if: ${{ inputs.rehearsal }}
     needs: deploy-verify
-    runs-on: ubuntu-latest
+    runs-on: boat
     timeout-minutes: 20
     env:
       SECRETS_ENV: dev
@@ -80,7 +79,7 @@ jobs:
     name: Release shared services
     if: ${{ !inputs.rehearsal }}
     needs: deploy-verify
-    runs-on: ubuntu-latest
+    runs-on: boat
     timeout-minutes: 20
     env:
       SECRETS_ENV: shared
@@ -107,7 +106,7 @@ jobs:
   deploy-dev:
     name: Release development
     needs: deploy-fleet
-    runs-on: ubuntu-latest
+    runs-on: boat
     # Above `DEPLOY_RUN_DEADLINE_SECONDS` (45 min) plus setup, so
     # turbo-ci-run's own deadline fires first and names what wedged.
     timeout-minutes: 55
@@ -164,7 +163,7 @@ jobs:
   deploy-prd:
     name: Release production
     needs: deploy-dev
-    runs-on: ubuntu-latest
+    runs-on: boat
     timeout-minutes: 55
     environment: production
     env:
@@ -176,7 +175,7 @@ jobs:
   deploy-release:
     name: Publish release
     needs: deploy-prd
-    runs-on: ubuntu-latest
+    runs-on: boat
     timeout-minutes: 5
     permissions:
       contents: write
