@@ -1,0 +1,107 @@
+# UI overhaul decisions
+
+Decisions made while running the overnight brief without anyone to ask. Each
+entry says what the brief asked for, what I did, and why. **Review** marks the
+ones that need your eye.
+
+## Inputs
+
+1. **Review: the reference mockups are missing.** The brief points to
+   `design/custom-game/` (README, `Main`, `Play`, `Result`). That directory
+   is not in this worktree, the main checkout, any local or remote branch, or
+   `~/Downloads`. (`~/Downloads/gamezilla-design-system-specs.zip` is an
+   older component-contract spec, not these mockups.) I treated the brief's
+   palette, type, space and radius tables, and its written description of
+   Setup / Play / Game over, as the spec. The artboard comparison rounds in
+   Phase 6 cannot run until the mockups are added.
+2. **Branch.** The worktree was created on `feat/ui-overhaul-design-system`.
+   I worked there (it is not `main`) and point a `ui-overhaul` branch at the
+   final commit, so both names reach the same work. Nothing was pushed.
+
+## Adapting the brief to the repository
+
+3. **Review: tokens stay in `design-tokens.json`, not a new `.ts` file.** The
+   repo already has one source of truth: the W3C Design Tokens (DTCG) JSON in
+   `pkgs/ui-root-shared-ts/src/design-tokens.json`, read through typed
+   readers, with a generator that writes `tokens.css` and `token-names.ts`
+   and a `--check` mode run by `lint`. Moving the source to TypeScript would
+   only reorder that pipeline. Instead I extended it: the generator now also
+   writes a resolved `tokens.json` for other clients and design tools, and
+   `token-names.ts` gains a `TextStyle` union. As the repo requires, all
+   three outputs are gitignored and written by `bun install`. `tokens:verify`
+   and the token tests fail when they drift.
+4. **Review: color role names stay the repo's own.** Renaming every role to
+   the brief's names would touch roughly 700 call sites and gain nothing
+   visible. Each brief name maps to one existing role, and the brief's
+   values are now those roles' values:
+
+   | brief | role |
+   | --- | --- |
+   | surface | `background` |
+   | surface-raised | `surface`, `surfaceElevated`, `surfaceOverlay` |
+   | surface-sunken | `surfaceMuted` (also `boardCell`) |
+   | line / line-strong | `border` / `outline` |
+   | ink / ink-muted | `text` / `textSecondary` (and `icon`) |
+   | primary / on-primary | `tintActive` / `onPrimary` |
+   | primary-strong | `primaryStrong` (new) |
+   | primary-ink | `tint` |
+   | primary-soft / on-primary-soft | `tintSubtle` / `onPrimarySoft` (new) |
+   | focus | `focusRing` |
+   | success / danger | `success` / `destructive` (`destructiveActive` for fills) |
+   | live | `live` + `onLive` (new) |
+   | scrim | `scrim` |
+   | player-1…8 | `player1`…`player8` (new) |
+   | board-* | `boardLight`, `boardDark`, `boardHighlight`, `boardCell`, `boardCardFace`, `boardCardInk`, `boardCardInkRed` (new) |
+
+5. **The text roles keep their names and take the brief's eight styles.**
+   The eight styles are DTCG `typography` tokens, and each existing role
+   now wears one of them. `title` is display (26/30, Unbounded); `heading`
+   and `subtitle` are title (18/24 700); `navigationTitle`, `label` and
+   `bodyBold` are body-strong; `caption` and `footnote` are caption
+   (13/18 500, muted). The missing styles are new roles: `displayXl` for
+   heading sizes, `stat` for headings and text, and `sectionLabel` for the
+   `label` style above a group. `numeral` now sets Unbounded 600. The old
+   role names appear in about 150 files, so renaming them was not worth it.
+6. **Review: the light palette was tuned.** In light, `danger` text is
+   `#c81e1e`, not `#dc2626`, because `#dc2626` falls below 4.5:1 on the
+   sunken surface. `#dc2626` remains the danger fill under white. `warning`
+   is `#a14a07`.
+7. **The player colors were tuned so each pair differs in lightness.** Every
+   two seat colors sit at least 4.5 apart in CIELAB lightness (L\*) in both
+   themes, and each meets 3:1 against the canvas, raised paper and an empty
+   board cell (`palette-contrast.test.ts`). Dark starts from the brief's
+   hues. Light uses darker versions of the same hues, spaced from L\* 20
+   to 58.
+8. **Focus ring against the primary fill.** The ring is offset 2px from the
+   control, so it is drawn on the surface around the control, never on the
+   fill. Its 3:1 check is against every surface, not against `primary`.
+9. **Fonts are self-hosted with `@fontsource/manrope` and
+   `@fontsource/unbounded`.** Their CSS uses `font-display: swap` and
+   `unicode-range` subsets. These are the only new dependencies.
+10. **The leading follows the brief, not the 4px grid.** The brief's
+    leadings are 22, 18, 30 and 44px. The old test required every leading to
+    be a multiple of 4; it now checks the brief's exact values.
+
+## Policies the brief conflicts with
+
+11. **Review: no Toast.** `pkgs/ui-root-client-ts/README.md` rule 11 and
+    `tests/no-toast.test.ts` ban toasts: an outcome is shown where the action
+    happened. The brief lists Toast as a minimum component. I kept the ban
+    because removing an enforced product policy is your call. Unbanning it
+    means deleting that test and rule 11.
+12. **Review: Spinner vs skeletons.** The repo's rule 10 is one activity
+    indicator (`Spinner`). The brief wants skeletons, not spinners, for
+    loading screens. `Skeleton` already exists.
+13. **Storybook becomes the existing `/ui` explorer.** Every component
+    already has an `*.example.tsx` registered in the explorer at `/ui`, with
+    both themes and harness tests. Adding Storybook would duplicate that
+    catalog, add a second toolchain, and break the rule that Turborepo is
+    the only task runner. The explorer stays the catalog.
+14. **ESLint and Stylelint become the existing guardrails.** The repo lints
+    with Biome (with GritQL plugins), oxlint, `design-vocabulary.ts` and
+    `design-composition.ts`. Those already ban hex literals, arbitrary values
+    and markup in product packages. New rules go there, not into a second
+    linter.
+15. **Doc file names.** The repo requires `SCREAMING_SNAKE_CASE.md`, so the
+    brief's `audit.md`, `design-system.md` and `REPORT.md` are written as
+    `AUDIT.md`, `DESIGN_SYSTEM.md` and `REPORT.md`.
