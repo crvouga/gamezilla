@@ -1,3 +1,4 @@
+import type { GameFrame } from './game-frame';
 import type { GameSide } from './game-rules';
 export type GameSimulationControls = {
   readonly paused: boolean;
@@ -61,6 +62,8 @@ export type GamePresentation<View = unknown> = {
   /** Exactly for a game with private setups: where a side arranges its setup. */
   readonly SetupBoard?: (props: GameSetupBoardProps) => View;
   readonly sideLabel: (side: GameSide) => string;
+  /** What the shared frame around the board shows of the game, as data. */
+  readonly frame: GameFrame<View>;
   readonly endingDescription: (reason: string) => string | undefined;
   readonly timeoutDrawDescription?: (flagged: GameSide) => string;
   readonly endingLabel: (reason: string) => string;

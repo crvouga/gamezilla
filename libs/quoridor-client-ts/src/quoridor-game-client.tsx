@@ -12,6 +12,7 @@ import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { JSX } from 'solid-js';
 import { QuoridorBoard } from './quoridor-board';
+import { quoridorFrame } from './quoridor-frame';
 
 function Board(props: GameBoardProps): JSX.Element {
   return (
@@ -37,6 +38,7 @@ function presentation(hill: boolean): GameClientPresentation {
     name: () => (hill ? t`Quoridor: King of the Hill` : t`Classic Quoridor`),
     Board,
     sideLabel: (side) => sideLabel(side, hill),
+    frame: quoridorFrame(hill, Board),
     endingDescription: (reason) =>
       reason === 'hill reached'
         ? t`The central hill was reached. Game won.`

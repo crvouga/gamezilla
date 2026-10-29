@@ -26,6 +26,7 @@
   "category": "isomorphic",
   "gameApi": [
     "game-automation",
+    "game-frame",
     "game-presentation",
     "game-puzzles",
     "game-rules",

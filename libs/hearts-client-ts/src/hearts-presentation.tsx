@@ -3,12 +3,14 @@ import { HEARTS_REASON } from '@libs/hearts-shared-ts/hearts-rules';
 import { t } from '@lingui/core/macro';
 import { HeartsBoard } from './hearts-board';
 import { heartsRefusal, heartsSeatName } from './hearts-copy';
+import { heartsFrame } from './hearts-frame';
 
 export const heartsPresentation: GameClientPresentation = {
   canFlip: false,
   name: () => t`Hearts`,
   Board: HeartsBoard,
   sideLabel: heartsSeatName,
+  frame: heartsFrame,
   endingDescription: (reason) =>
     reason === HEARTS_REASON
       ? t`A score reached 100, and the lowest score wins.`

@@ -2,16 +2,13 @@ import { parseFleet } from '@libs/battleship-shared-ts/battleship-fleet';
 import { sunkShipCells } from '@libs/battleship-shared-ts/battleship-intel';
 import {
   BATTLESHIP_PREFIX,
-  type BattleshipPosition,
   decodeBattleshipPosition,
   otherSide,
-  parseShotAction,
   readBattleshipPosition,
   type Shot,
 } from '@libs/battleship-shared-ts/battleship-position';
 import { t } from '@lingui/core/macro';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
-import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import {
@@ -35,11 +32,10 @@ import {
   COLUMN_LABELS,
   ROW_LABELS,
   shipName,
-  shotSentence,
   sideName,
-  turnSentence,
 } from './battleship-copy';
 import { fleetGridCells, shotGridCells } from './battleship-grid-cells';
+import { statusText } from './battleship-status';
 
 type BoardView = 'own' | 'target';
 
@@ -81,25 +77,6 @@ function BoardPanel(props: {
       <SunkTags shots={props.shots} />
     </>
   );
-}
-/** The latest shot and whose turn it is, in words; `viewer` is `null` for a watcher. */
-function statusText(
-  battle: BattleshipPosition,
-  viewer: GameSide | null
-): string {
-  const action = battle.actions.at(-1);
-  const shot = action === undefined ? null : parseShotAction(action);
-  const shooter: GameSide = battle.actions.length % 2 === 1 ? 'white' : 'black';
-  const fired =
-    shot === null
-      ? ''
-      : shotSentence(shot, shooter === viewer ? null : sideName(shooter));
-  const turn = turnSentence({
-    turn: battle.turn,
-    winner: battle.winner,
-    viewer,
-  });
-  return fired === '' ? turn : `${fired} ${turn}`;
 }
 /** The cell just fired at, until the position (or a resync) answers it. */
 function createAim(props: GameBoardProps) {

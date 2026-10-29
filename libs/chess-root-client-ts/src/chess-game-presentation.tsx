@@ -2,8 +2,17 @@ import { BOARD_THEME } from '@libs/chess-root-shared-ts/board-theme';
 import type { GameClientPresentation } from '@libs/game-menu-client-ts/game-client';
 import { t } from '@lingui/core/macro';
 import { ChessBoard } from '@pkgs/chess-board-root-client-ts/chess-board';
+import {
+  boardOnly,
+  fixedPlayers,
+  lookOnlySeats,
+  standingsFromWinner,
+} from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
-import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  requireTwoPlayerSide,
+  TWO_PLAYER_SIDES,
+} from '@pkgs/turn-game-shared-ts/game-rules';
 import type { JSX } from 'solid-js';
 
 function ChessGameBoard(props: GameBoardProps): JSX.Element {
@@ -32,6 +41,18 @@ export const chessPresentation: GameClientPresentation = {
   name: () => t`chess`,
   Board: ChessGameBoard,
   sideLabel: (side) => (side === 'white' ? t`White` : t`Black`),
+  frame: {
+    players: fixedPlayers(2),
+    options: [],
+    // White and Black are the pieces' own colors: a king says which.
+    seats: lookOnlySeats((side) => ({ mark: side === 'white' ? '♔' : '♚' })),
+    createBoard: boardOnly(ChessGameBoard),
+    turnStatus: () => null,
+    result: (_position, winner) => ({
+      scoreLabel: null,
+      standings: standingsFromWinner(winner, TWO_PLAYER_SIDES),
+    }),
+  },
   endingDescription: (reason) => {
     const descriptions: Readonly<Record<string, string>> = {
       checkmate: t`By checkmate.`,

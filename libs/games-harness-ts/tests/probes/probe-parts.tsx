@@ -8,7 +8,19 @@
 
 import type { GameClientPresentation } from '@libs/game-menu-client-ts/game-client';
 import type { TurnGame } from '@libs/game-session-shared-ts/game-definition';
-import type { GameRules, GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  boardOnly,
+  type FrameSeatCount,
+  fixedPlayers,
+  type GameFrame,
+  lookOnlySeats,
+  standingsFromWinner,
+} from '@pkgs/turn-game-shared-ts/game-frame';
+import {
+  type GameRules,
+  type GameSide,
+  gameSides,
+} from '@pkgs/turn-game-shared-ts/game-rules';
 import { For, type JSX } from 'solid-js';
 
 /** What a board and a puzzle board are both given. */
@@ -59,6 +71,24 @@ export type ProbeCopy = {
   readonly endings: Readonly<Record<string, string>>;
 };
 
+/** The frame of a probe: one color per seat, its button board, no scores. */
+export function probeFrame(rules: GameRules): GameFrame<JSX.Element> {
+  const sides = gameSides(rules);
+  return {
+    players: fixedPlayers(sides.length as FrameSeatCount),
+    options: [],
+    seats: lookOnlySeats((side) => ({
+      color: (sides.indexOf(side) + 1) as FrameSeatCount,
+    })),
+    createBoard: boardOnly(buttonBoard(rules)),
+    turnStatus: () => null,
+    result: (_position, winner) => ({
+      scoreLabel: null,
+      standings: standingsFromWinner(winner, sides),
+    }),
+  };
+}
+
 export function probePresentation(
   rules: GameRules,
   copy: ProbeCopy
@@ -67,6 +97,7 @@ export function probePresentation(
     name: () => copy.name,
     canFlip: false,
     Board: buttonBoard(rules),
+    frame: probeFrame(rules),
     sideLabel: (side) => {
       const label = copy.sides[side];
       if (label === undefined) throw new Error(`The probe has no ${side} side`);

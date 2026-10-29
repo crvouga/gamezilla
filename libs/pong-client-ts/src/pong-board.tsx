@@ -111,7 +111,7 @@ function PongScene(props: {
         >{t`Right ${props.state.score.right}`}</H3>
       </StackHorizontal>
       <P role="status" testId={`${props.board.testId}-status`}>
-        {status(props.state, props.board.simulation)}
+        {pongStatus(props.state, props.board.simulation)}
       </P>
       <PaddleCourt
         width={config.width}
@@ -171,7 +171,8 @@ function PongScene(props: {
   );
 }
 
-function status(
+/** The court's own status line: the result, the connection, the serve. */
+export function pongStatus(
   state: PongState,
   controls: GameSimulationControls | undefined
 ): string {

@@ -18,13 +18,20 @@ import type {
 import { assertHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import type { TurnGame } from '@libs/game-session-shared-ts/game-definition';
 import { defineGame } from '@libs/game-session-shared-ts/game-definition';
+import {
+  boardOnly,
+  fixedPlayers,
+  lookOnlySeats,
+  standingsFromWinner,
+} from '@pkgs/turn-game-shared-ts/game-frame';
 import type {
   GameBoardProps,
   GameSetupBoardProps,
 } from '@pkgs/turn-game-shared-ts/game-presentation';
-import type {
-  GameSide,
-  TurnGameCapabilities,
+import {
+  type GameSide,
+  type TurnGameCapabilities,
+  TWO_PLAYER_SIDES,
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import { For, type JSX } from 'solid-js';
 import {
@@ -125,6 +132,17 @@ export const SECRET_PICK_CLIENT: GameClient<typeof SECRET_PICK_SHARED> = {
     Board,
     SetupBoard,
     sideLabel: notice.side,
+    frame: {
+      players: fixedPlayers(2),
+      options: [],
+      seats: lookOnlySeats((side) => ({ color: side === 'white' ? 1 : 2 })),
+      createBoard: boardOnly(Board),
+      turnStatus: () => null,
+      result: (_position, winner) => ({
+        scoreLabel: null,
+        standings: standingsFromWinner(winner, TWO_PLAYER_SIDES),
+      }),
+    },
     endingDescription: (reason) =>
       reason === 'found' ? 'Found the hidden number.' : undefined,
     timeoutDrawDescription: () => 'Drawn on time.',

@@ -14,7 +14,8 @@ import type {
 
 export type QuoridorTool = 'move' | 'h' | 'v';
 const IDENTITIES = ['one', 'two', 'three', 'four'] as const;
-const GLYPHS = ['●', '◆', '▲', '■'] as const;
+/** Each pawn's mark, by player. */
+export const PAWN_GLYPHS = ['●', '◆', '▲', '■'] as const;
 
 export function quoridorPlayerName(game: Quoridor, player: number): string {
   if (player === 0) return t`South red circle`;
@@ -73,7 +74,7 @@ function cellIdentity(
   const hill = game.mode === 'hill' && cell === 40;
   if (player >= 0)
     return {
-      glyph: GLYPHS[player] ?? '',
+      glyph: PAWN_GLYPHS[player] ?? '',
       tone: 'occupied',
       identity: IDENTITIES[player],
       label: quoridorPlayerName(game, player),

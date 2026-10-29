@@ -1,6 +1,7 @@
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
 import { initialSokobanDefinition } from '@libs/sokoban-shared-ts/sokoban-board-edits';
 import { sokobanGameShared } from '@libs/sokoban-shared-ts/sokoban-game';
+import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { SokobanEditor } from './sokoban-editor';
@@ -24,6 +25,10 @@ export const sokobanGameClient = defineGameClient({
   puzzleContent: {
     Player: SokobanPlayer,
     Preview: SokobanPreview,
+    frame: {
+      stats: { moves: () => t`Moves`, pushes: () => t`Pushes` },
+      turnStatus: () => null,
+    },
     authoring: {
       Editor: SokobanEditor,
       initialDefinition: initialSokobanDefinition,

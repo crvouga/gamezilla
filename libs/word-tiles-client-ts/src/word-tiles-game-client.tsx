@@ -8,12 +8,16 @@ import {
   wordTilesGameShared,
 } from '@libs/word-tiles-shared-ts/word-tiles-game';
 import { ENABLE_LEXICON } from '@libs/word-tiles-shared-ts/word-tiles-lexicon';
-import { RULESET } from '@libs/word-tiles-shared-ts/word-tiles-ruleset';
+import {
+  RULESET,
+  type WordTilesSeatCount,
+} from '@libs/word-tiles-shared-ts/word-tiles-ruleset';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { JSX } from 'solid-js';
 import { WordTilesBoard } from './word-tiles-board';
+import { wordTilesFrame } from './word-tiles-frame';
 import { seatName } from './word-tiles-panels';
 import {
   initialWordTilesPuzzle,
@@ -22,17 +26,19 @@ import {
 import {
   WordTilesPuzzlePlayer,
   WordTilesPuzzlePreview,
+  wordTilesPuzzleStatus,
 } from './word-tiles-puzzle-player';
 
 function sideLabel(side: GameSide): string {
   return seatName(['white', 'black', 'red', 'blue'].indexOf(side));
 }
 
-const PRESENTATION: GameClientPresentation = {
+const presentation = (seats: WordTilesSeatCount): GameClientPresentation => ({
   canFlip: false,
   name: () => t`Word Tiles`,
   Board: WordTilesBoard,
   sideLabel,
+  frame: wordTilesFrame(seats),
   endingDescription: (reason) =>
     reason === 'rack emptied'
       ? t`A player used their last tile with the bag empty. Everyone else's tiles count against them and go to that player.`
@@ -45,7 +51,7 @@ const PRESENTATION: GameClientPresentation = {
     const name = sideLabel(side);
     return t`${name} ran out of time. The game is a draw.`;
   },
-};
+});
 
 function Instructions(): JSX.Element {
   const lexicon = ENABLE_LEXICON.key;
@@ -78,10 +84,14 @@ export const wordTilesGameClient = defineGameClient({
     <Trans>Place letter tiles, cross words, score squares.</Trans>
   ),
   instructions: () => <Instructions />,
-  presentation: PRESENTATION,
+  presentation: presentation(2),
   puzzleContent: {
     Player: WordTilesPuzzlePlayer,
     Preview: WordTilesPuzzlePreview,
+    frame: {
+      stats: { target: () => t`Target`, score: () => t`Score` },
+      turnStatus: wordTilesPuzzleStatus,
+    },
     authoring: {
       Editor: WordTilesPuzzleEditor,
       initialDefinition: initialWordTilesPuzzle,
@@ -97,7 +107,7 @@ export const wordTiles3GameClient = defineGameClient({
     <Trans>Three racks, one board, the highest score wins.</Trans>
   ),
   instructions: () => <Instructions />,
-  presentation: PRESENTATION,
+  presentation: presentation(3),
 });
 
 export const wordTiles4GameClient = defineGameClient({
@@ -106,5 +116,5 @@ export const wordTiles4GameClient = defineGameClient({
   caption: 'Four players. Build crossing words for points.',
   subtitle: () => <Trans>Four racks, one board, the highest score wins.</Trans>,
   instructions: () => <Instructions />,
-  presentation: PRESENTATION,
+  presentation: presentation(4),
 });

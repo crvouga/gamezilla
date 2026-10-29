@@ -8,6 +8,7 @@
 import type { GameClient } from '@libs/game-menu-client-ts/game-client';
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
 import {
+  gameFrameLaws,
   gamePresentationLaws,
   gameRecordLaws,
 } from '@libs/game-session-harness-ts/game-capability-laws';
@@ -78,6 +79,7 @@ function lawsOf(game: TurnHarnessGame): readonly GameLaw[] {
     ...gameRulesLaws(game, others),
     ...gameBotLaws(game),
     ...gamePresentationLaws(game),
+    ...gameFrameLaws(game),
     ...gameRecordLaws(game),
     ...gamePuzzleLaws(game, others),
   ];

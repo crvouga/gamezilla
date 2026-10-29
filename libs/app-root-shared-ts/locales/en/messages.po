@@ -131,7 +131,9 @@ msgstr "{0} no longer signs in to this account."
 msgid "{0} of {1} puzzles completed"
 msgstr "{0} of {1} puzzles completed"
 
+#. placeholder {0}: position.scoreless
 #. placeholder {0}: props.position.scoreless
+#: libs/word-tiles-client-ts/src/word-tiles-frame.tsx
 #: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
 msgid "{0} of 6 scoreless turns"
 msgstr "{0} of 6 scoreless turns"
@@ -176,7 +178,9 @@ msgstr "{0} themes"
 msgid "{0} tiles"
 msgstr "{0} tiles"
 
+#. placeholder {0}: position.bag
 #. placeholder {0}: props.position.bag
+#: libs/word-tiles-client-ts/src/word-tiles-frame.tsx
 #: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
 msgid "{0} tiles in the bag"
 msgstr "{0} tiles in the bag"
@@ -410,6 +414,7 @@ msgid "{name} sank your whole fleet."
 msgstr "{name} sank your whole fleet."
 
 #: libs/battleship-client-ts/src/battleship-board.tsx
+#: libs/battleship-client-ts/src/battleship-frame.tsx
 msgid "{name} sunk"
 msgstr "{name} sunk"
 
@@ -493,6 +498,10 @@ msgstr "{taker} took the trick with the {card} and leads."
 #: libs/battleship-client-ts/src/battleship-board.tsx
 msgid "{target} waters"
 msgstr "{target} waters"
+
+#: libs/word-tiles-client-ts/src/word-tiles-frame.tsx
+msgid "{tiles} tiles"
+msgstr "{tiles} tiles"
 
 #: libs/battleship-client-ts/src/battleship-copy.tsx
 msgid "{turn} is firing."
@@ -1733,6 +1742,10 @@ msgstr "connected"
 msgid "Connected"
 msgstr "Connected"
 
+#: libs/numberlink-client-ts/src/numberlink-game-client.tsx
+msgid "Connected pairs"
+msgstr "Connected pairs"
+
 #: libs/app-root-client-ts/src/sync-screen.tsx
 msgid "Connecting"
 msgstr "Connecting"
@@ -1963,6 +1976,10 @@ msgstr "Cover every cell"
 #: libs/numberlink-client-ts/src/numberlink-editor.tsx
 msgid "Coverage"
 msgstr "Coverage"
+
+#: libs/numberlink-client-ts/src/numberlink-game-client.tsx
+msgid "Covered cells"
+msgstr "Covered cells"
 
 #: libs/sokoban-client-ts/src/use-sokoban-words.tsx
 msgid "crate"
@@ -3685,6 +3702,7 @@ msgid "Move your paddle to return the ball. A ball past the other paddle scores 
 msgstr "Move your paddle to return the ball. A ball past the other paddle scores a point. Reach the chosen score to win. Play with a bot, share a device, invite someone, or find an opponent."
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
+#: libs/sokoban-client-ts/src/sokoban-game-client.tsx
 msgid "Moves"
 msgstr "Moves"
 
@@ -4567,6 +4585,11 @@ msgstr "Plus"
 msgid "Plus credit · {0} left from your yearly plan"
 msgstr "Plus credit · {0} left from your yearly plan"
 
+#: libs/pong-client-ts/src/pong-frame.tsx
+msgid "Points"
+msgstr "Points"
+
+#: libs/pong-client-ts/src/pong-frame.tsx
 #: libs/pong-client-ts/src/pong-options.tsx
 msgid "Points to win"
 msgstr "Points to win"
@@ -4703,6 +4726,10 @@ msgstr "Push every crate onto a goal, one at a time."
 #: libs/sokoban-client-ts/src/sokoban-player.tsx
 msgid "Push every crate onto a goal. Use the arrow keys or W A S D on the board, swipe, tap a square beside the worker, or use the buttons."
 msgstr "Push every crate onto a goal. Use the arrow keys or W A S D on the board, swipe, tap a square beside the worker, or use the buttons."
+
+#: libs/sokoban-client-ts/src/sokoban-game-client.tsx
+msgid "Pushes"
+msgstr "Pushes"
 
 #: libs/game-menu-client-ts/src/game-menu-choices.tsx
 #: libs/game-puzzle-client-ts/src/content-library-screen.tsx
@@ -5315,8 +5342,11 @@ msgid "Round {0}"
 msgstr "Round {0}"
 
 #. placeholder {0}: props.state.round
+#. placeholder {0}: state.round
 #. placeholder {1}: props.state.targetScore
+#. placeholder {1}: state.targetScore
 #: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+#: libs/light-cycles-client-ts/src/light-cycles-frame.tsx
 msgid "Round {0} · first to {1}"
 msgstr "Round {0} · first to {1}"
 
@@ -5324,6 +5354,11 @@ msgstr "Round {0} · first to {1}"
 msgid "round limit"
 msgstr "round limit"
 
+#: libs/light-cycles-client-ts/src/light-cycles-frame.tsx
+msgid "Round wins"
+msgstr "Round wins"
+
+#: libs/light-cycles-client-ts/src/light-cycles-frame.tsx
 #: libs/light-cycles-client-ts/src/light-cycles-options.tsx
 msgid "Round wins to win"
 msgstr "Round wins to win"
@@ -5418,6 +5453,12 @@ msgstr "Saving your position…"
 msgid "Saving…"
 msgstr "Saving…"
 
+#: libs/hearts-client-ts/src/hearts-frame.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-frame.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
+msgid "Score"
+msgstr "Score"
+
 #: libs/hearts-client-ts/src/hearts-table-view.tsx
 msgid "Score {score}"
 msgstr "Score {score}"
@@ -5426,6 +5467,10 @@ msgstr "Score {score}"
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
 msgid "Score at least {0} points in one move."
 msgstr "Score at least {0} points in one move."
+
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
+msgid "Score at least {target} points in one move."
+msgstr "Score at least {target} points in one move."
 
 #: libs/pong-client-ts/src/pong-game-client.tsx
 msgid "score target"
@@ -6257,6 +6302,10 @@ msgstr "Tap to copy"
 msgid "Tap to return to your space"
 msgstr "Tap to return to your space"
 
+#: libs/word-tiles-client-ts/src/word-tiles-game-client.tsx
+msgid "Target"
+msgstr "Target"
+
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-editor.tsx
 msgid "Target points"
 msgstr "Target points"
@@ -7013,6 +7062,7 @@ msgstr "Title"
 msgid "To keep your data safe, export and deletion need a sign-in from the last {PROOF_MINUTES} minutes. Sign in again, then try once more. Nothing has changed yet."
 msgstr "To keep your data safe, export and deletion need a sign-in from the last {PROOF_MINUTES} minutes. Sign in again, then try once more. Nothing has changed yet."
 
+#: libs/word-tiles-client-ts/src/word-tiles-frame.tsx
 #: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
 msgid "to play"
 msgstr "to play"
@@ -7407,6 +7457,10 @@ msgstr "Wall"
 #: libs/quoridor-client-ts/src/quoridor-board.tsx
 msgid "walls"
 msgstr "walls"
+
+#: libs/quoridor-client-ts/src/quoridor-frame.tsx
+msgid "Walls"
+msgstr "Walls"
 
 #: libs/quoridor-client-ts/src/quoridor-board-cells.tsx
 msgid "Walls must fit between four squares. Choose an anchor from a1 to h8."
@@ -7903,6 +7957,10 @@ msgstr "Your hand"
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
 msgid "Your last move scored {0} of {1}."
 msgstr "Your last move scored {0} of {1}."
+
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
+msgid "Your last move scored {score} of {target}."
+msgstr "Your last move scored {score} of {target}."
 
 #: libs/billing-client-ts/src/billing-plan-card.tsx
 msgid "Your last payment didn't go through. Update your payment method to keep your membership."
