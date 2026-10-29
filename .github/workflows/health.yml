@@ -65,9 +65,8 @@ concurrency:
   group: health
   cancel-in-progress: false
 
-# Every job runs on a fresh GitHub-hosted `ubuntu-24.04` runner, discarded
-# after the job, so nothing one job leaves behind reaches another; every
-# `run:` step is bash.
+# Every job runs on a GitHub-hosted `ubuntu-latest` runner (free for a public
+# repository), and every `run:` step is bash.
 defaults:
   run:
     shell: bash
@@ -77,7 +76,7 @@ jobs:
     name: health:cleanup
     needs: health-matrix
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
       contents: write # delete stale report branches
@@ -99,7 +98,6 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           persist-credentials: false
-          clean: false
       - uses: ./.github/actions/setup
         with:
           tools: bun gh
@@ -111,7 +109,7 @@ jobs:
 
   health-matrix:
     name: health:matrix
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
       production: ${{ steps.envs.outputs.production }}
@@ -122,7 +120,6 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           persist-credentials: false
-          clean: false
 
       - uses: ./.github/actions/setup
 
@@ -155,7 +152,7 @@ jobs:
     name: health:${{ matrix.env }}
     needs: health-matrix
     if: needs.health-matrix.outputs.all != '[]' && needs.health-matrix.outputs.idle == 'true'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     permissions:
       contents: read # check out the code
       id-token: write # mint the OIDC token Infisical and AWS trust
@@ -181,7 +178,6 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           persist-credentials: false
-          clean: false
 
       - id: setup
         uses: ./.github/actions/setup
@@ -212,7 +208,7 @@ jobs:
     name: health:objectives
     needs: [health-matrix, health-env]
     if: ${{ !cancelled() && github.ref == 'refs/heads/main' && needs.health-matrix.outputs.all != '[]' }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
       contents: read # check out the code
@@ -225,7 +221,6 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           persist-credentials: false
-          clean: false
 
       - uses: ./.github/actions/setup
 

@@ -10,9 +10,8 @@
  * | `macos`  | `macos` |
  * | `ios`    | `macos` |
  *
- * CI runs every job on a fresh GitHub-hosted Linux runner (`CI_RUNNER`), and
- * the same gate runs as `bun verify` on a Linux, macOS or Windows laptop, so
- * CI verifies only what runs on all three: every package without `platforms`
+ * CI runs every job on a GitHub-hosted Linux runner (`CI_RUNNER`), free for a
+ * public repository, so it verifies every package without `platforms`
  * (`ciFilters`). A native package is verified only by `bun verify` on a host
  * that builds it.
  *
@@ -34,14 +33,12 @@ export type Platform = keyof typeof PLATFORMS;
 export type Host = (typeof PLATFORMS)[Platform]['host'];
 
 /**
- * The runner every CI job requests: a GitHub-hosted image, discarded after
- * each job. The repository is public, so a pull request's code is untrusted
- * and never runs on a machine a later job (a deploy) reuses.
+ * The runner label every CI job requests: GitHub's standard Linux runner,
+ * whose minutes are free for a public repository. It is discarded after each
+ * job: a pull request's code is untrusted and never runs on a machine a later
+ * job (a deploy) reuses.
  */
-export const CI_RUNNER = 'ubuntu-24.04';
-
-/** The operating systems code a CI task runs must work on (`runner.os`). */
-export const CI_OPERATING_SYSTEMS = ['Linux', 'macOS', 'Windows'] as const;
+export const CI_RUNNER = 'ubuntu-latest';
 
 const DEFAULT_HOSTS: readonly Host[] = ['linux'];
 
@@ -108,9 +105,9 @@ export function hostFilters(
 }
 
 /**
- * Turbo filters for the CI gate: every workspace package that runs on every
- * CI operating system, which is every package that declares no native
- * `platforms`. A native toolchain (Swift, Xcode) builds on some of them only.
+ * Turbo filters for the CI gate: every workspace package that declares no
+ * native `platforms`. A native toolchain (Swift, Xcode) needs a host CI does
+ * not have.
  */
 export function ciFilters(manifests: readonly Manifest[]): readonly string[] {
   return [

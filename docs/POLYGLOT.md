@@ -152,7 +152,7 @@ package's platforms to the hosts that can verify it.
 
 | Work | Runs on |
 | --- | --- |
-| TypeScript tasks | Linux, macOS and Windows (CI: any runner OS) |
+| TypeScript tasks | Linux, macOS and Windows (CI: `ubuntu-latest`) |
 | Portable SwiftPM build and tests | Linux and macOS (CI: not checked) |
 | SwiftUI iOS app build, launch and smoke test | macOS with the pinned Xcode only (CI: not checked) |
 
@@ -217,15 +217,14 @@ An Xcode app package holds exactly one `<name>.xcodeproj` with a shared
 ## CI
 
 Verify PR is still the one merge gate, and `verify:end` the one required
-status; a pull request and Release both run the whole `release` gate. Every CI job runs on a GitHub-hosted `ubuntu-24.04` runner, and
-`bun verify` runs the same gate on Linux, macOS or Windows
-([`CI_REQUIREMENTS.md`](CI_REQUIREMENTS.md#runner-operating-systems)), so CI
-checks only what runs on all three.
+status; a pull request and Release both run the whole `release` gate. Every CI job runs on a GitHub-hosted `ubuntu-latest` runner, free for a public
+repository ([`CI_REQUIREMENTS.md`](CI_REQUIREMENTS.md#runner-operating-systems)),
+so CI checks only what builds there.
 
 - **The shards** run the gate over every package that declares no
   `platforms` (`turbo-ci-run.ts verify:ci`).
-- **Native packages are not checked in CI.** No Swift toolchain is pinned for
-  Windows, and the iOS app needs Xcode, so `@pkgs/clock-shared-swift` and
+- **Native packages are not checked in CI.** The iOS app needs Xcode, which
+  only a macOS runner has (ten times the free minutes), so `@pkgs/clock-shared-swift` and
   `@apps/client-swift` run only from `bun verify` on a host that builds them
   (Linux or macOS for the Swift package, a Mac with the pinned Xcode for the
   app). A pull request can break them and still pass `verify:end`.
@@ -291,7 +290,7 @@ Swift. None of it exists yet; when it lands it follows these rules:
 5. **Extend the boundaries**: its native dependency references in
    `language-boundaries.ts` (as for `Package.swift`), its formatter in
    `lint-package.ts`, its test runner in `test-scripts.ts`.
-6. **Expect no CI.** CI runs on any runner OS and verifies only packages
+6. **Expect no CI.** CI runs on `ubuntu-latest` and verifies only packages
    without `platforms` (`ciFilters` in `package-hosts.ts`); a native package
    is verified only by `bun verify` on a host that builds it.
 7. **Prove it** with tests beside the ones above (`language-boundaries.test.ts`,

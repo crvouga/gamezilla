@@ -5,7 +5,7 @@ import {
   specParallelism,
   testConcurrency,
 } from '@pkgs/os-server-ts/test-concurrency';
-import { CI_OPERATING_SYSTEMS, CI_RUNNER } from './package-hosts';
+import { CI_RUNNER } from './package-hosts';
 
 const ROOT = join(import.meta.dirname, '../../..');
 
@@ -63,14 +63,13 @@ test('only GitHub Actions owns the Verify, Release and Health triggers', () => {
     }
   }
   // regression: public-repository-self-hosted-runner
-  // Every job runs on the one GitHub-hosted image (package-hosts.ts), never a
-  // self-hosted runner: in a public repository a pull request's code would
-  // otherwise run on a machine a later deploy job reuses. One image also
-  // keeps a Verify plan on the platform it was made for.
+  // Every job runs on a GitHub-hosted Linux runner (package-hosts.ts), which
+  // is free for a public repository. No job names a self-hosted label or a
+  // runner of its own: a pull request's code would otherwise run on a machine
+  // a later deploy job reuses.
   expect(runners.length).toBeGreaterThan(0);
   for (const runner of runners) expect(runner).toBe(CI_RUNNER);
   expect(CI_RUNNER).not.toMatch(/self-hosted/i);
-  expect(CI_OPERATING_SYSTEMS).toEqual(['Linux', 'macOS', 'Windows']);
 });
 
 // regression: ci-provider-native-ci-missing-local-action

@@ -10,9 +10,8 @@ run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{
 #   passes has the hash Release restores from the shared remote cache.
 # - `nightly`, from Verify Nightly: the whole gate deeper, with reports.
 #
-# Three jobs, each on a fresh GitHub-hosted `ubuntu-24.04` runner: the repository
-# is public, so a pull request's code is untrusted and never runs on a machine
-# that outlives the job or that a deploy reuses. `verify:start` plans the
+# Three jobs, on GitHub-hosted `ubuntu-latest` runners (free for a public
+# repository). `verify:start` plans the
 # shards, `verify:shards (N)` run them with fail-fast off, and `verify:end` has
 # the ending word: one verdict that names every failure. The jobs keep the
 # `verify:` prefix wherever the gate runs, so `verify:end` is the one required
@@ -123,34 +122,28 @@ env:
   # A cap, not the count. The plan sizes shards to the work: each holds at
   # least three times a shard's setup (`VERIFY_SHARD_SETUP_SECONDS`, 30 s)
   # and no less than the longest indivisible task group, and it starts no
-  # more than `VERIFY_RUNNERS` unless the shard deadline needs more
-  # (libs/tools-harness-ts/scripts/verify-plan.ts, verify-runners.ts). The
-  # log's `shards:` line says why.
+  # more than the cap unless the shard deadline needs more
+  # (libs/tools-harness-ts/scripts/verify-plan.ts). The log's `shards:` line
+  # says why.
   # Forty left a cold corpus — every cache missed — packed past the 1200s
   # shard deadline once each solver had a runner of its own (Verify run
   # 38328597240); sixty-four keeps that pack inside the deadline.
   VERIFY_SHARDS: ${{ inputs.shards || vars.VERIFY_SHARDS || '64' }}
-  # GitHub-hosted runners for the plan to fill: the account's concurrent-job
-  # allowance (20 on the Free plan) less a few for other workflows. Set the
-  # `VERIFY_RUNNERS` repository variable to the plan's real allowance.
-  VERIFY_RUNNERS: ${{ vars.VERIFY_RUNNERS || '16' }}
   VERIFY_CONCURRENCY: ${{ inputs.concurrency || vars.VERIFY_CONCURRENCY || '1' }}
   VERIFY_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
   VERIFY_PROFILE: ${{ inputs.profile || 'release' }}
   VERIFY_ADVISORIES: ${{ inputs.advisories || 'enforce' }}
 
-# Every `run:` step is bash.
+# Every job runs on a GitHub-hosted `ubuntu-latest` runner (free for a public
+# repository), and every `run:` step is bash.
 defaults:
   run:
     shell: bash
 
 jobs:
-  # The plan is valid only on the OS and arch it was made on
-  # (`verify-shard-run.ts` refuses another), so every job of the run requests
-  # the same runner image.
   verify-start:
     name: verify:start
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     permissions:
       contents: read # check out the code
       actions: read # read run state (gh run list, job metadata)
@@ -172,7 +165,6 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           persist-credentials: false
-          clean: false
           fetch-depth: 0
       - uses: ./.github/actions/setup
         with:
@@ -244,7 +236,7 @@ jobs:
     needs: [verify-start]
     # An empty matrix is an error, so a fully cached plan skips the job.
     if: needs.verify-start.outputs.shards != '[]'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     permissions:
       contents: read # check out the code
       actions: read # read run state (gh run list, job metadata)
@@ -252,13 +244,13 @@ jobs:
     timeout-minutes: ${{ inputs.profile == 'nightly' && 70 || 30 }}
     strategy:
       fail-fast: false
-      # The account's concurrent-job allowance serves every workflow. A run
-      # that queues all its shards at once holds other runs' `verify:start`
-      # and `verify:end` behind them: a 30 s `verify:end` waited 53 minutes
-      # (Verify run 40713084871), and Release's shards up to 109 (run
-      # 40628012072). Capping a run's shards below the allowance lets a small
-      # run through between a large run's shards.
-      max-parallel: ${{ fromJSON(vars.VERIFY_MAX_PARALLEL || '15') }}
+      # GitHub's free plan runs 20 jobs at once across every workflow, and
+      # queues the rest in no particular order. A run that queues all its
+      # shards at once holds other runs' `verify:start` and `verify:end`
+      # behind them. Holding four slots back, and queuing the next shard only
+      # as one finishes, lets a small run through between a large run's
+      # shards. `VERIFY_MAX_PARALLEL` is the concurrent-job limit minus four.
+      max-parallel: ${{ fromJSON(vars.VERIFY_MAX_PARALLEL || '16') }}
       matrix:
         shard: ${{ fromJSON(needs.verify-start.outputs.shards) }}
     env:
@@ -267,7 +259,6 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           persist-credentials: false
-          clean: false
           fetch-depth: 0
       - uses: ./.github/actions/setup
         with:
@@ -325,7 +316,7 @@ jobs:
     name: verify:end
     needs: [verify-start, verify-shards]
     if: always() && !cancelled()
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     permissions:
       contents: read # check out the code
       actions: read # read run state (gh run list, job metadata)
@@ -337,7 +328,6 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           persist-credentials: false
-          clean: false
           fetch-depth: 0
       - uses: ./.github/actions/setup
         with:

@@ -20,13 +20,7 @@ import { resolveRunDeadlineSeconds } from './verify-budget';
 import { cacheDiagnostics } from './verify-cache-diagnostics';
 import { startedFirst, writeSchedule } from './verify-plan-schedule';
 import { profileManifest } from './verify-profile';
-import { availableRunners } from './verify-runners';
-import type {
-  ShardCapacity,
-  ShardSizing,
-  VerifyPlan,
-  VerifyTask,
-} from './verify-shards';
+import type { ShardSizing, VerifyPlan, VerifyTask } from './verify-shards';
 import {
   adaptiveShardTarget,
   balanceShards,
@@ -80,22 +74,15 @@ function shardFillSeconds(env: NodeJS.ProcessEnv): number {
   return deadline * DEADLINE_FILL * shardSizing(env).slots;
 }
 
-function shardCapacity(env: NodeJS.ProcessEnv): ShardCapacity | undefined {
-  const runners = availableRunners(env);
-  if (runners === undefined) return undefined;
-  return { runners, fillSeconds: shardFillSeconds(env) };
-}
-
 /**
- * Shards sized to the work and the runners: enough that each holds a few
- * times its setup and none is smaller than the longest indivisible group,
- * never more than the runners online unless the deadline needs it.
+ * Shards sized to the work: enough that each holds a few times its setup and
+ * none is smaller than the longest indivisible group, never more than the
+ * cap.
  */
 function planShards(
   tasks: readonly VerifyTask[],
   env: NodeJS.ProcessEnv
 ): VerifyPlan {
-  const capacity = shardCapacity(env);
   const target = adaptiveShardTarget(
     tasks,
     shardSizing(env),
@@ -105,8 +92,7 @@ function planShards(
     balanceShards(
       tasks,
       Number(env['VERIFY_SHARDS'] ?? '16'),
-      target.targetSeconds,
-      capacity
+      target.targetSeconds
     )
   );
   const shardCount = plan.shards.filter(
@@ -116,7 +102,6 @@ function planShards(
     `shards: ${String(shardCount)} for ${target.uncachedSeconds.toFixed(0)} s of uncached work; ` +
       `${target.targetSeconds.toFixed(0)} s per shard (efficiency floor ${target.efficiencySeconds.toFixed(0)} s, ` +
       `longest group ${target.longestGroupSeconds.toFixed(0)} s); ` +
-      `runners ${capacity === undefined ? 'unknown' : String(capacity.runners)}, ` +
       `cap ${env['VERIFY_SHARDS'] ?? '16'}`
   );
   return plan;

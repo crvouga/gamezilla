@@ -124,7 +124,7 @@ function goalsSection(input: StatsInput): string {
     `- Hardware already owned: ${input.have ?? UNSET}`,
     `- This repo's own promises: a pull request's verdict in under ${duration(PR_VERIFY_SECONDS)}, every graph leaf under ${duration(LEAF_VERIFY_SECONDS)}, nine in ten leaves under ${duration(NARROW_VERIFY_SECONDS)}, on a warm runner (${duration(WARM_START_SECONDS)} warm start).`,
     `- Per-runner assumptions in the repo's own plan: at most ${String(SPEC_WORKER_CAP)} spec workers, about ${String(SPEC_WORKER_GIB)} GB each.`,
-    "- Every job runs on a GitHub-hosted `ubuntu-24.04` runner, discarded after the job: the repository is public, so pull-request code never runs on a machine a deploy reuses. The account's concurrent-job allowance caps a run (`VERIFY_RUNNERS`), and the turbo cache key includes OS and arch.",
+    '- Every job runs on `runs-on: ubuntu-latest`, a GitHub-hosted runner whose minutes are free for a public repository. Earlier history in the window may still show self-hosted runners.',
   ].join('\n');
 }
 

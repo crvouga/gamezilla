@@ -1,3 +1,2 @@
-# Every job runs on a GitHub-hosted image (libs/tools-harness-ts/scripts/package-hosts.ts),
-# so actionlint needs no custom runner labels.
+# actionlint's defaults cover GitHub-hosted runner labels such as ubuntu-latest.
 {}

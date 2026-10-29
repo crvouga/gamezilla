@@ -66,9 +66,8 @@ concurrency:
   group: verify-nightly-${{ github.ref }}-${{ inputs.group || 'all' }}
   cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' && inputs.group != '' && inputs.group != 'all' }}
 
-# Every job runs on a fresh GitHub-hosted `ubuntu-24.04` runner, discarded
-# after the job, so nothing one job leaves behind reaches another; every
-# `run:` step is bash.
+# Every job runs on a GitHub-hosted `ubuntu-latest` runner (free for a public
+# repository), and every `run:` step is bash.
 defaults:
   run:
     shell: bash
@@ -88,7 +87,7 @@ jobs:
   verify-nightly-random:
     name: verify-nightly:random
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'random' }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     timeout-minutes: 180
     permissions:
       contents: read # check out the code
@@ -101,7 +100,6 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           persist-credentials: false
-          clean: false
           fetch-depth: 0
       - &setup
         uses: ./.github/actions/setup
@@ -123,7 +121,7 @@ jobs:
   verify-nightly-browser:
     name: verify-nightly:browser
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'browser' }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     timeout-minutes: 330
     permissions:
       contents: read # check out the code
@@ -150,7 +148,7 @@ jobs:
     name: verify-nightly:visual
     needs: [verify-nightly-gate]
     if: ${{ always() && !cancelled() && (github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'visual') }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     timeout-minutes: 180
     permissions:
       contents: read # check out the code
@@ -176,7 +174,7 @@ jobs:
   verify-nightly-coverage:
     name: verify-nightly:coverage
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'coverage' }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     timeout-minutes: 120
     permissions:
       contents: read # check out the code
@@ -196,7 +194,7 @@ jobs:
   verify-nightly-performance:
     name: verify-nightly:performance
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'performance' }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
       contents: read # check out the code
@@ -232,7 +230,7 @@ jobs:
       - verify-nightly-coverage
       - verify-nightly-performance
     if: always() && !cancelled()
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read # check out the code
@@ -245,7 +243,6 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           persist-credentials: false
-          clean: false
       - uses: ./.github/actions/setup
         with:
           tools: bun gh
