@@ -1,9 +1,9 @@
 /**
- * One face. The stacks are read from `design-tokens.json`.
+ * Two faces. The stacks are read from `design-tokens.json`.
  *
- * - `sans` is the platform system face (SF on Apple, Roboto on Android,
- *   Segoe on Windows): every title, label, button and line of body copy.
- *   Zero bytes, and the best-hinted text at small sizes on a low-end phone.
+ * - `sans` is Manrope (400, 500, 700): every label, button, title and line
+ *   of body copy, falling back to the platform system face while it loads.
+ * - `display` is Unbounded (600, 700): display headlines and numbers only.
  * - `mono` is for code and identifiers only, never for numbers or labels.
  *
  * Emitted as `--ui-font-*` in `tokens.css`.
@@ -14,6 +14,7 @@ import { font } from './design-tokens.json';
 
 export type FontStacks = {
   sans: string;
+  display: string;
   mono: string;
 };
 

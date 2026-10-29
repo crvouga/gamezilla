@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 /**
  * `mountApplication` -- how an app entry point puts its root component on
- * the page. It loads the design-system stylesheet, finds the mount element,
+ * the page. It loads the design-system stylesheet and fonts, finds the mount element,
  * clears the boot markup inside it and renders.
  *
  * An entry point calls this instead of importing `render` from the
@@ -18,6 +18,7 @@
  * rendering a component held in a value is `Icon` (for icons) or a JSX tag.
  */
 
+import './fonts';
 import './application.css';
 import type { JSX } from 'solid-js';
 import { render } from 'solid-js/web';

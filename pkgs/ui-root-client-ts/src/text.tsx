@@ -66,8 +66,10 @@ export type TextElement =
   | 'time';
 
 /**
- * The text roles: `body` (16), `bodyBold`, `label` (16, display face),
- * `caption` (14, secondary), `footnote` (12, secondary), `mono` (code and
+ * The text roles, each one of the eight text styles: `body` (body 15/22),
+ * `bodyBold` and `label` (body-strong 15/22 700), `caption` and `footnote`
+ * (caption 13/18, muted), `sectionLabel` (label 12/16 700, muted: the label
+ * above a group), `stat` (stat 20/24, numbers only), `mono` (code and
  * identifiers only).
  */
 export type TextRole =
@@ -76,6 +78,8 @@ export type TextRole =
   | 'label'
   | 'caption'
   | 'footnote'
+  | 'sectionLabel'
+  | 'stat'
   | 'mono';
 
 /** Roles a text run may announce itself as. */
@@ -113,6 +117,8 @@ const ROLE: Readonly<Record<TextRole | 'inherit', string>> = {
   label: 'text textLabel',
   caption: 'text textCaption',
   footnote: 'text textFootnote',
+  sectionLabel: 'text textSectionLabel',
+  stat: 'text textStat',
   mono: 'text textMono',
   inherit: '',
 };

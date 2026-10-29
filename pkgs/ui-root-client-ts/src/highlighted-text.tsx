@@ -48,6 +48,8 @@ const ROLE_CLASS: Readonly<Record<TextRole, string>> = {
   label: 'textLabel',
   caption: 'textCaption',
   footnote: 'textFootnote',
+  sectionLabel: 'textSectionLabel',
+  stat: 'textStat',
   mono: 'textMono',
 };
 

@@ -3111,6 +3111,7 @@
       ],
       "outputs": [
         "pkgs/ui-root-client-ts/src/tokens.css",
+        "pkgs/ui-root-client-ts/src/tokens.json",
         "pkgs/ui-root-shared-ts/src/token-names.ts"
       ]
     },

@@ -143,19 +143,27 @@ function numbers(value: unknown, length: number): readonly number[] {
   throw new Error(`expected ${length} numbers, got ${JSON.stringify(value)}`);
 }
 
-/** Alpha as the palette has always written it: `1`, else two decimals. */
-function alphaText(alpha: number): string {
-  return alpha === 1 ? '1' : alpha.toFixed(2);
+function hexByte(fraction: number): string {
+  return Math.round(fraction * 255)
+    .toString(16)
+    .padStart(2, '0');
 }
 
-/** An `hsl` `color` as CSS `hsla(h, s%, l%, a)`. */
-export function readHsla(value: unknown): string {
-  if (!isTokenTree(value) || value['colorSpace'] !== 'hsl') {
-    throw new Error(`expected an hsl color, got ${JSON.stringify(value)}`);
+/**
+ * An `srgb` `color` as CSS hex: its `hex` member when present, else the
+ * components; `#rrggbbaa` when it is translucent.
+ */
+export function readColor(value: unknown): string {
+  if (!isTokenTree(value) || value['colorSpace'] !== 'srgb') {
+    throw new Error(`expected an srgb color, got ${JSON.stringify(value)}`);
   }
-  const [h, s, l] = numbers(value['components'], 3);
+  const hex = value['hex'];
+  const rgb =
+    typeof hex === 'string' && /^#[0-9a-f]{6}$/.test(hex)
+      ? hex
+      : `#${numbers(value['components'], 3).map(hexByte).join('')}`;
   const alpha = value['alpha'] === undefined ? 1 : readNumber(value['alpha']);
-  return `hsla(${h}, ${s}%, ${l}%, ${alphaText(alpha)})`;
+  return alpha === 1 ? rgb : `${rgb}${hexByte(alpha)}`;
 }
 
 /** A `cubicBezier` as CSS `cubic-bezier(x1, y1, x2, y2)`. */

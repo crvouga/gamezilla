@@ -4,13 +4,16 @@
  * big it looks, and the two never have to agree: an `H2` can wear `label`
  * in a dense panel, an `H1` can wear `heading` in a dialog.
  *
- * | Level | Default `size` |
- * | --- | --- |
- * | `H1` | `title` (36) |
- * | `H2` | `heading` (24) |
- * | `H3` | `subtitle` (21) |
- * | `H4` | `navigationTitle` (18) |
- * | `H5`, `H6` | `label` (16) |
+ * | Level | Default `size` | Text style |
+ * | --- | --- | --- |
+ * | `H1` | `title` | display 26/30, Unbounded 700 |
+ * | `H2` | `heading` | title 18/24 700 |
+ * | `H3` | `subtitle` | title 18/24 700 |
+ * | `H4` | `navigationTitle` | body-strong 15/22 700 |
+ * | `H5`, `H6` | `label` | body-strong 15/22 700 |
+ *
+ * `displayXl` (display-xl 40/44) is the one headline of an outcome ("You
+ * win"); `stat` (20/24, Unbounded 600) is a number that heads a tile.
  *
  * One `H1` per screen, and levels never skip. Children are text content;
  * a run inside a heading keeps its type with `<Text variant="inherit">`.
@@ -31,6 +34,8 @@ import { textStyleClass } from './text-classes';
 
 /** The display type roles a heading may wear. */
 export type HeadingSize =
+  | 'displayXl'
+  | 'stat'
   | 'title'
   | 'heading'
   | 'subtitle'
@@ -55,6 +60,8 @@ export type HeadingProps = {
 };
 
 const SIZE: Readonly<Record<HeadingSize, string>> = {
+  displayXl: 'text textDisplayXl',
+  stat: 'text textStat',
   title: 'text textTitle',
   heading: 'text textHeading',
   subtitle: 'text textSubtitle',

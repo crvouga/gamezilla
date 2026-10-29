@@ -20,6 +20,7 @@ export const TOKEN_TYPES = [
   'cubicBezier',
   'number',
   'shadow',
+  'typography',
 ] as const;
 export type TokenType = (typeof TOKEN_TYPES)[number];
 
@@ -93,6 +94,19 @@ function isShadow(value: unknown): boolean {
   );
 }
 
+const TYPOGRAPHY_PARTS = [
+  'fontFamily',
+  'fontSize',
+  'fontWeight',
+  'lineHeight',
+] as const;
+
+/** A W3C typography: family, size, weight and line height, each an alias. */
+function isTypography(value: unknown): boolean {
+  if (!isTokenTree(value)) return false;
+  return TYPOGRAPHY_PARTS.every((part) => aliasPath(value[part]) !== undefined);
+}
+
 const VALUE_VERIFICATIONS: Readonly<
   Record<TokenType, (value: unknown) => boolean>
 > = {
@@ -106,6 +120,7 @@ const VALUE_VERIFICATIONS: Readonly<
   cubicBezier: isCubicBezier,
   number: isNumber,
   shadow: isShadow,
+  typography: isTypography,
 };
 
 function isTokenType(type: string | undefined): type is TokenType {
