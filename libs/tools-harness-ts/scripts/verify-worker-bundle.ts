@@ -17,10 +17,11 @@
  * a Worker whose date the runtime would refuse to boot.
  */
 import { spawnSync } from 'node:child_process';
-import { readdirSync, readFileSync } from 'node:fs';
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { gzipSync } from 'node:zlib';
+import { resolveIdentityPlaceholders } from '@libs/product-identity-shared-ts/identity-placeholders';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import {
   compatibilityDateProblem,
@@ -59,9 +60,37 @@ if (dateProblem !== null) {
 const outDir = join(pkgDir, '.cache/worker-bundle');
 removeTree(outDir);
 
+/** A path relative to the package, seen from one directory below it. */
+function reRoot(path: unknown): unknown {
+  if (typeof path !== 'string' || path.startsWith('/')) return path;
+  return `../${path.replace(/^\.\//, '')}`;
+}
+
+// `wrangler.toml` spells identity placeholders (`{namespace}`), which Release
+// resolves before wrangler reads it (docs/BRANDING.md): bundle that same
+// config. It is written one directory below the package, so its relative
+// paths are re-rooted by one level.
+const committed = resolveIdentityPlaceholders(
+  Bun.TOML.parse(readFileSync(join(pkgDir, 'wrangler.toml'), 'utf8')) as Record<
+    string,
+    unknown
+  >
+);
+const assets = committed['assets'] as Record<string, unknown> | undefined;
+const rendered = {
+  ...committed,
+  main: reRoot(committed['main']),
+  ...(assets === undefined
+    ? {}
+    : { assets: { ...assets, directory: reRoot(assets['directory']) } }),
+};
+mkdirSync(join(pkgDir, '.cache'), { recursive: true });
+const config = join(pkgDir, '.cache/worker-bundle.wrangler.json');
+writeFileSync(config, JSON.stringify(rendered, null, 2));
+
 const result = spawnSync(
   'wrangler',
-  ['deploy', '--dry-run', '--outdir', outDir],
+  ['deploy', '--dry-run', '--config', config, '--outdir', outDir],
   {
     cwd: pkgDir,
     encoding: 'utf8',

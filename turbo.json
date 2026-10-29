@@ -1397,7 +1397,10 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-worker-bundle.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/worker-compat-date.ts"
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/worker-compat-date.ts",
+        "$TURBO_ROOT$/libs/product-identity/product-identity.json",
+        "$TURBO_ROOT$/libs/product-identity-shared-ts/src/identity-placeholders.ts",
+        "$TURBO_ROOT$/libs/product-identity-shared-ts/src/product-identity.ts"
       ],
       "outputLogs": "errors-only",
       "outputs": []
