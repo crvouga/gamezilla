@@ -213,9 +213,9 @@ Four workflows, one contract each. Details:
 - **The required status is `verify:end`.** Verify PR is three jobs
   (`verify:start`, `verify:shards (N)`, `verify:end`). They keep the `verify:`
   prefix wherever the gate runs (a pull request, Release's verification, the
-  nightly run). Every CI job runs on any self-hosted runner, Linux, macOS or
-  Windows, so CI checks only what runs on all three; native packages and
-  `test:posix` suites are not checked in CI
+  nightly run). Every CI job runs on a GitHub-hosted `ubuntu-latest` runner (free for
+  a public repository), so CI does not check native packages or
+  `test:posix` suites
   ([`docs/CI_REQUIREMENTS.md`](docs/CI_REQUIREMENTS.md#runner-operating-systems)).
   Code a CI task runs is OS-neutral: a repository path is `/`-separated
   (`slashPath` from `@pkgs/os-shared-ts/slash-path`; `no-native-relative-path.grit`

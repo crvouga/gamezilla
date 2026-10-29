@@ -1,6 +1,6 @@
 # CI requirements
 
-Capacity plan for self-hosted pull-request verifications. Every workflow job runs on any self-hosted runner, Linux, macOS or Windows ([below](#runner-operating-systems)); this document sizes a warm pool and does not provision infrastructure. The measured section is generated from [`libs/tools-harness-ts/scripts/verify-task-costs.json`](../libs/tools-harness-ts/scripts/verify-task-costs.json) and the workspace graph. [`libs/tools-harness-ts/scripts/ci-load.test.ts`](../libs/tools-harness-ts/scripts/ci-load.test.ts) fails when that section drifts, or when the corpus no longer fits the runner below.
+Capacity plan for pull-request verifications. Every workflow job runs on a GitHub-hosted `ubuntu-latest` runner ([below](#runner-operating-systems)), free for a public repository; the sections that size a warm pool are the sizing a faster, dedicated fleet would need and provision nothing. The measured section is generated from [`libs/tools-harness-ts/scripts/verify-task-costs.json`](../libs/tools-harness-ts/scripts/verify-task-costs.json) and the workspace graph. [`libs/tools-harness-ts/scripts/ci-load.test.ts`](../libs/tools-harness-ts/scripts/ci-load.test.ts) fails when that section drifts, or when the corpus no longer fits the runner below.
 
 Refresh after a cold Verify harvest:
 
@@ -84,22 +84,17 @@ The structure sets a floor near five minutes before any uncached test runs: a pl
 
 ## Runner operating systems
 
-Every job requests `runs-on: self-hosted` and runs its `run:` steps in bash, so any free self-hosted runner takes it, whatever its OS. Verify PR's `verify:shards` and `verify:end` also request the `runner.os` and `runner.arch` that `verify:start` ran on: a plan holds for the platform it was made on, and `verify-shard-run.ts` refuses any other. Turbo's platform cache key (OS, arch, Bun, Chrome) keeps one OS's verdict from answering for another, so a run on a different OS from the pull request's run executes its tasks again.
+Every job requests `runs-on: ubuntu-latest` (GitHub's standard hosted Linux runner, whose minutes are free for a public repository) and runs its `run:` steps in bash. Nothing in the repository is self-hosted: no job requests a runner label, and no code lists runners. Hosted runners are ephemeral, so every job starts from an empty VM: setup restores mise's tools and bun's download cache from GitHub's cache, and anything else a job needs comes from the checkout, the remote Turbo cache or the CI artifacts bucket. GitHub's free plan runs 20 jobs at once across every workflow; Verify PR's `VERIFY_MAX_PARALLEL` (default 16) keeps four slots free for other runs' `verify:start` and `verify:end`.
 
-Setup installs everything else from `mise.toml` the same way on every OS, Chrome for Testing included (`http:chrome-for-testing`); it never caches the linked `node_modules` trees, and never installs the laptop-only coding-agent tools (`MISE_DISABLE_TOOLS`). Each runner needs, beyond the runner service:
+Setup installs everything else from `mise.toml`, Chrome for Testing included (`http:chrome-for-testing`), and never installs the laptop-only coding-agent tools (`MISE_DISABLE_TOOLS`). The Chrome sandbox's AppArmor knob is opened with the hosted image's passwordless `sudo`. The visual-quality model (351 MB, too large for the remote cache) downloads in every job that judges UI quality, because no runner keeps a disk between jobs.
 
-- **Any OS:** git, bash and `gh` on the service's PATH. Release's wait-for-Health and release steps run before setup installs the pinned tools.
-- **Linux:** Chrome's system libraries (the renderer setup installs no packages) and passwordless `sudo` for the Chrome sandbox's AppArmor knob.
-- **macOS:** the Xcode Command Line Tools: the esbuild clean-up after every Turbo run compiles a small `cc` process probe. Browser tests run in WebKit (`Bun.WebView`) on macOS and Chrome elsewhere.
-- **Windows:** Git for Windows, with its `bash` ahead of `System32\bash.exe` (the WSL launcher) on the service's PATH; Developer Mode on and `core.symlinks=true`, because the checkout holds symlinks and tests create them; long paths enabled (`core.longpaths=true` and the `LongPathsEnabled` policy) for `node_modules`; Windows PowerShell (built in), which reads the pinned Chrome's version. Setup puts Git for Windows' `usr/bin` (its `unzip`, which installs mise) on PATH itself.
-
-Checks that cannot run on all three are not run in CI, and are listed here so a change never brings them back silently:
+Checks that need another host are not run in CI, and are listed here so a change never brings them back silently:
 
 | Check | Why it cannot run everywhere | Where it runs now |
 | --- | --- | --- |
-| `@pkgs/clock-shared-swift` (lint, tc, test) | No Swift toolchain is pinned for Windows; macOS uses Xcode's (`native-toolchain.ts`) | `bun verify` on Linux or macOS |
+| `@pkgs/clock-shared-swift` (lint, tc, test) | Hosted Linux has no pinned Swift toolchain; macOS uses Xcode's (`native-toolchain.ts`) | `bun verify` on Linux or macOS |
 | `@apps/client-swift` (iOS build, launch, smoke test) | Xcode and the iOS simulator exist only on macOS | `bun verify` on a Mac with the pinned Xcode |
-| `@pkgs/pubsub-emqx-harness-ts` `emqx.contract.test.ts` | EMQX 5 publishes no Windows build, and its launcher is a shell script | `bun run test:posix` in the package |
+| `@pkgs/pubsub-emqx-harness-ts` `emqx.contract.test.ts` | Its launcher is a shell script, and the gate is kept OS-neutral | `bun run test:posix` in the package |
 | `@pkgs/dev-owner-server-ts` `dev-owner*.test.ts` | Dev-owner's launch gate is POSIX: `/bin/sh` `kill -STOP`, `ps`, `/proc`, process groups. It is local dev tooling; CI never sets `DEV_OWNER_ROOT` | `bun run test:posix` in the package |
 | `@libs/tools-harness-ts` `verify-actionlint`, `workspace-run`, `verify-snapshot`, `verify-prepared-model`, `workflow-remote-tty` tests | Shebang fake executables run directly, the bash `workspace/*.sh` hooks with a POSIX PATH, `cp --reflink`/`cp -c` snapshots, a `Bun.Terminal` pseudo-terminal | `bun run test:posix` in the package |
 

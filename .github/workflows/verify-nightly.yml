@@ -66,8 +66,8 @@ concurrency:
   group: verify-nightly-${{ github.ref }}-${{ inputs.group || 'all' }}
   cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' && inputs.group != '' && inputs.group != 'all' }}
 
-# Every job runs on whichever self-hosted runner is free — Linux, macOS or
-# Windows — so every `run:` step is bash (Git Bash on Windows).
+# Every job runs on a GitHub-hosted `ubuntu-latest` runner (free for a public
+# repository), and every `run:` step is bash.
 defaults:
   run:
     shell: bash
@@ -87,7 +87,7 @@ jobs:
   verify-nightly-random:
     name: verify-nightly:random
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'random' }}
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     timeout-minutes: 180
     permissions:
       contents: read
@@ -99,7 +99,6 @@ jobs:
       - &checkout
         uses: actions/checkout@v6
         with:
-          clean: false
           fetch-depth: 0
       - &setup
         uses: ./.github/actions/setup
@@ -121,7 +120,7 @@ jobs:
   verify-nightly-browser:
     name: verify-nightly:browser
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'browser' }}
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     timeout-minutes: 330
     permissions:
       contents: read
@@ -148,7 +147,7 @@ jobs:
     name: verify-nightly:visual
     needs: [verify-nightly-gate]
     if: ${{ always() && !cancelled() && (github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'visual') }}
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     timeout-minutes: 180
     permissions:
       contents: read
@@ -174,7 +173,7 @@ jobs:
   verify-nightly-coverage:
     name: verify-nightly:coverage
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'coverage' }}
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     timeout-minutes: 120
     permissions:
       contents: read
@@ -194,7 +193,7 @@ jobs:
   verify-nightly-performance:
     name: verify-nightly:performance
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'performance' }}
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
       contents: read
@@ -230,7 +229,7 @@ jobs:
       - verify-nightly-coverage
       - verify-nightly-performance
     if: always() && !cancelled()
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
@@ -241,8 +240,6 @@ jobs:
       NIGHTLY_GROUP: ${{ github.event_name == 'schedule' && 'all' || inputs.group || 'all' }}
     steps:
       - uses: actions/checkout@v6
-        with:
-          clean: false
       - uses: ./.github/actions/setup
         with:
           tools: bun gh

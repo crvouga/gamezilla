@@ -3,12 +3,11 @@ description: Install the fixed Chrome release only for tasks that need a native 
 runs:
   using: composite
   steps:
-    # The Chrome for Testing build mise.toml pins, unpacked by mise the same
-    # way on every runner OS: no browser installer action, which on Windows
-    # needed PowerShell 7 (Verify run 40531923687). No system packages are
-    # installed: a self-hosted Linux runner must already have Chrome's
-    # libraries (a package upgrade stalled past the step cap in Verify run
-    # 37668279155, mesa-libgallium).
+    # The Chrome for Testing build mise.toml pins, unpacked by mise: no
+    # browser installer action. No system packages are installed: the
+    # GitHub-hosted Ubuntu image already has Chrome's libraries (a package
+    # upgrade stalled past the step cap in Verify run 37668279155,
+    # mesa-libgallium).
     - name: Install the pinned Chrome
       shell: bash
       run: mise install http:chrome-for-testing
@@ -31,8 +30,8 @@ runs:
     # Chrome's own reason, if it cannot start, in seconds. The renderer
     # starts it the way the tests do — Bun.WebView over
     # --remote-debugging-pipe — with Chrome's stderr shown: a bare
-    # `chrome --dump-dom` started on Windows while every Bun.WebView there
-    # failed with "Chrome process closed the pipe" (Verify run 40571328806).
+    # `chrome --dump-dom` can start while every Bun.WebView fails with
+    # "Chrome process closed the pipe" (Verify run 40571328806).
     - name: Start the renderer once
       shell: bash
       env:

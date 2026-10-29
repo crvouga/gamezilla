@@ -102,7 +102,7 @@ function header(input: StatsInput): string {
     `Generated ${input.generatedAt} by \`bun ci:stats\`.`,
     '',
     'This document is the input for sizing the hardware that hosts this',
-    "repository's CI (GitHub Actions self-hosted runners). It holds what the repo",
+    "repository's CI (GitHub Actions runners). It holds what the repo",
     'declares (task costs, workflow files) and what GitHub recorded (run and job',
     'history). An LLM reading it should:',
     '',
@@ -124,7 +124,7 @@ function goalsSection(input: StatsInput): string {
     `- Hardware already owned: ${input.have ?? UNSET}`,
     `- This repo's own promises: a pull request's verdict in under ${duration(PR_VERIFY_SECONDS)}, every graph leaf under ${duration(LEAF_VERIFY_SECONDS)}, nine in ten leaves under ${duration(NARROW_VERIFY_SECONDS)}, on a warm runner (${duration(WARM_START_SECONDS)} warm start).`,
     `- Per-runner assumptions in the repo's own plan: at most ${String(SPEC_WORKER_CAP)} spec workers, about ${String(SPEC_WORKER_GIB)} GB each.`,
-    '- Every job runs on `runs-on: self-hosted` with no labels, so any free agent takes any job. A Verify run pins its shards and end job to the OS and arch of its start job, and the turbo cache key includes OS and arch, so a mixed-OS pool re-runs tasks.',
+    '- Every job runs on `runs-on: ubuntu-latest`, a GitHub-hosted runner whose minutes are free for a public repository. Earlier history in the window may still show self-hosted runners.',
   ].join('\n');
 }
 
