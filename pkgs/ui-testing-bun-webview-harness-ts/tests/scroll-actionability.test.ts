@@ -40,11 +40,14 @@ async function pressBelowFooter(
   const view = {
     evaluate: async (script: string) => runInThisContext(script),
     click: async (x: string | number, y?: number) => {
-      if (
-        typeof x !== 'number' ||
-        y === undefined ||
-        document.elementFromPoint(x, y) !== button
-      )
+      if (typeof x === 'string') {
+        const target = document.querySelector(x);
+        if (target === null) throw new Error(`Click target is missing: ${x}`);
+        const box = target.getBoundingClientRect();
+        x = box.left + box.width / 2;
+        y = box.top + box.height / 2;
+      }
+      if (y === undefined || document.elementFromPoint(x, y) !== button)
         throw new Error('Find an opponent is covered by the sticky footer');
       clicks++;
       const counts = Reflect.get(window, '__uiTestingPointerCounts');
