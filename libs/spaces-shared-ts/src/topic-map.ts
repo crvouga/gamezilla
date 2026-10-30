@@ -114,9 +114,24 @@ export const SPACES_TOPIC_MAP = {
       }
       return [...new Set([...base, ...friendTopics])];
     },
-    // Held so `spaces_users` can tell an ended room; it subscribes to nothing.
-    subscribeTopics() {
-      return [];
+    // Space-row queries need the room's updates too: the membership query
+    // hydrates a different table and cannot refresh a renamed space for them.
+    subscribeTopics(row, ctx, held) {
+      const id = String(row['id'] ?? '');
+      if (
+        id.length === 0 ||
+        row['ended_at'] != null ||
+        row['deleted_at'] != null
+      ) {
+        return [];
+      }
+      const member = (held['spaces_users'] ?? []).some(
+        (membership) =>
+          membership['space_id'] === id &&
+          membership['user_id'] === ctx.actorId &&
+          membership['deleted_at'] == null
+      );
+      return member ? [`room:${id}` as Topic] : [];
     },
   },
   spaces_users: {
