@@ -18,7 +18,8 @@ test('a replaced unique attempt button remains the logical tap target', async ()
   };
   prepare();
   Object.defineProperty(window, 'requestAnimationFrame', {
-    value: (callback: (timestamp: number) => void) => callback(0),
+    value: (callback: (timestamp: number) => void) =>
+      queueMicrotask(() => callback(0)),
   });
   let clicks = 0;
   const view: BunWebView = {
@@ -73,7 +74,8 @@ test('a late offline notice cannot redirect a draft creation tap', async () => {
   target.scrollIntoView = () => undefined;
   target.getBoundingClientRect = () => new window.DOMRect(0, top, 100, 40);
   Object.defineProperty(window, 'requestAnimationFrame', {
-    value: (callback: (timestamp: number) => void) => callback(0),
+    value: (callback: (timestamp: number) => void) =>
+      queueMicrotask(() => callback(0)),
   });
   window.document.elementFromPoint = (_x, y) =>
     y >= top && y < top + 40 ? target : other;

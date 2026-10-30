@@ -33,6 +33,7 @@ import { pressBrowserKey } from './browser-key';
 import type { BunWebviewHost } from './bun-webview-host';
 import { nativeClick } from './native-click';
 import { diagnosePress } from './press-diagnosis';
+import { trackPressVisibility } from './track-press-visibility';
 import { visibilityScript } from './visibility-script';
 
 /**
@@ -138,7 +139,14 @@ export class BunWebviewDriverNode implements DriverNode {
       try {
         // Keep the selected element, not coordinates that a late notice can
         // move. Bun resolves its current bounds when sending trusted input.
-        await nativeClick(view, target, 'primary', 'click');
+        await trackPressVisibility(view, target, () =>
+          nativeClick(view, target, 'primary', 'click')
+        );
+      } catch (error) {
+        throw new UiTestError(
+          `${String(error)}; ${await diagnosePress(view, target, wallTimers)}`,
+          { cause: error }
+        );
       } finally {
         await view
           .evaluate(
@@ -156,7 +164,7 @@ export class BunWebviewDriverNode implements DriverNode {
       await view.click(selector);
     } catch (error) {
       throw new UiTestError(
-        `${String(error)}; ${await diagnosePress(view, selector)}`,
+        `${String(error)}; ${await diagnosePress(view, selector, wallTimers)}`,
         { cause: error }
       );
     }
