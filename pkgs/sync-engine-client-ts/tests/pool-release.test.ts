@@ -1,6 +1,8 @@
 import { expect, test } from 'bun:test';
+import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import { createSyncEnginePool } from '@pkgs/sync-engine-client-ts/sync-engine-pool';
 import type { SyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-port';
+import fc from 'fast-check';
 
 function engine(): SyncEngine {
   return {
@@ -95,4 +97,69 @@ test('a late abandoned engine drains and closes before its replacement can open'
     await Promise.allSettled([stale, next]);
     await pool.releaseAll();
   }
+});
+
+test('generated request and release epochs only create the surviving queued identities', async () => {
+  await assertProperty(
+    'pool releases invalidate every older queued request across API handles',
+    fc.asyncProperty(
+      fc.boolean(),
+      fc.array(
+        fc.array(fc.constantFrom('request', 'release'), {
+          minLength: 1,
+          maxLength: 8,
+        }),
+        { minLength: 1, maxLength: 6 }
+      ),
+      async (shared, phases) => {
+        const globalKey = '__sync_pool_epoch_property__';
+        const pool = createSyncEnginePool(shared ? { globalKey } : {});
+        const releaser = shared ? createSyncEnginePool({ globalKey }) : pool;
+        let epoch = 0;
+        let sequence = 0;
+        try {
+          for (const phase of phases) {
+            const calls: string[] = [];
+            const requests: Array<{ name: string; epoch: number }> = [];
+            const results: Array<Promise<string | null>> = [];
+            const releases: Array<Promise<void>> = [];
+            for (const command of phase) {
+              if (command === 'release') {
+                epoch++;
+                releases.push(releaser.releaseAll());
+              } else {
+                const name = `identity-${sequence++}`;
+                requests.push({ name, epoch });
+                results.push(
+                  pool
+                    .getOrCreate(name, async () => {
+                      calls.push(name);
+                      return engine();
+                    })
+                    .then(
+                      () => name,
+                      () => null
+                    )
+                );
+              }
+            }
+            const actual = await Promise.all(results);
+            await Promise.all(releases);
+            const expected = requests.filter(
+              (request) => request.epoch === epoch
+            );
+            expect(calls).toEqual(expected.map((request) => request.name));
+            expect(actual).toEqual(
+              requests.map((request) =>
+                request.epoch === epoch ? request.name : null
+              )
+            );
+          }
+        } finally {
+          await pool.releaseAll();
+          if (shared) Reflect.deleteProperty(globalThis, globalKey);
+        }
+      }
+    )
+  );
 });
