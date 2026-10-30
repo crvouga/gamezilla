@@ -399,7 +399,7 @@ findings; neither is claimed to explain that remote incident.
 | Connected peer visibility | 200 ms | 1 s | — |
 | Reconnect, reference backlog ≤100 writes / 1 MiB | 2 s | 5 s | — |
 | Request database open, including schema pin | 25 ms | 100 ms | — |
-| Sync-critical outbox attempt eligibility through commit | 250 ms | 1 s | — |
+| Sync-critical outbox eligibility through acknowledgement | 250 ms | 1 s | — |
 
 The reference client benchmark targets merge/rebase p95 ≤150 ms and p99 ≤300 ms
 for 1,000 rows / 1 MiB, and uninterrupted work p99 ≤8 ms. These are acceptance
@@ -417,6 +417,9 @@ series over a day generate a missing-evidence warning. Unknown outcomes raise a
 separate coverage warning and are excluded from both good and bad denominators. A stopped exporter whose
 last counter remains queryable needs the existing telemetry-pipeline health checks
 as well; a nonempty series alone is not proof of fresh successful work.
+Cumulative counters from short-lived pages also need repeated exports before
+`increase` can observe their changes; first-export and page-loss coverage must
+be measured before treating the diagnostic ratio as a population objective.
 
 Transport spans combine DNS/TCP/TLS/authentication because the driver exposes one
 connect boundary. Further attribution needs driver/platform or database evidence.
