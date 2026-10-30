@@ -1,0 +1,4 @@
+{
+  "summary": "Run 41039477627 shard 38 timed out games part 146 after 600 seconds and an offline Battleship scenario after 251 seconds, while the same clean code completed locally in 52 seconds and 4 seconds. The shard emitted no CPU, cgroup throttling, memory or pressure evidence to distinguish resource starvation from a product hang. Emit bounded numeric snapshots at startup, heartbeats and immediately before timeout termination without changing budgets or verdicts.",
+  "regressionTest": "libs/tools-harness-ts/scripts/runner-resource-diagnostics.test.ts"
+}
