@@ -3,7 +3,8 @@ import Example from './avatar.example';
 import { Avatar } from './index';
 
 const meta = {
-  title: 'Components/Data Display/Avatar',
+  id: 'components-data-display-avatar',
+  title: 'Atoms/Avatar',
   component: Avatar,
   tags: ['autodocs'],
 } satisfies Meta;

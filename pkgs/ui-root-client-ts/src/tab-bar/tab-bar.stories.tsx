@@ -3,7 +3,8 @@ import { TabBar } from './index';
 import Example from './tab-bar.example';
 
 const meta = {
-  title: 'Layouts/TabBar',
+  id: 'layouts-tabbar',
+  title: 'Organisms/TabBar',
   component: TabBar,
   tags: ['autodocs'],
 } satisfies Meta;

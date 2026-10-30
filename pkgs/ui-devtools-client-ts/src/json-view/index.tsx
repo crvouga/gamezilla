@@ -1,18 +1,4 @@
 /** @jsxImportSource solid-js */
-/**
- * `JsonView` — collapsible JSON tree explorer.
- *
- * Renders any JavaScript value as an inspectable tree with type-aware
- * coloring, per-node expand/collapse, copy-to-clipboard (through an injected
- * `copy` sink), and a toolbar with "expand all", "collapse all", and "copy".
- * Designed for debug surfaces where the developer wants to drill into a
- * payload without leaving the app.
- *
- * @example
- * ```tsx
- * <JsonView value={someEntity} initialExpandDepth={1} copy={clipboard.write} />
- * ```
- */
 
 import { useLingui } from '@lingui/solid/macro';
 import type {
@@ -109,6 +95,20 @@ function JsonViewLabel(props: { label: JSX.Element }): JSX.Element {
   );
 }
 
+/**
+ * `JsonView` — collapsible JSON tree explorer.
+ *
+ * Renders any JavaScript value as an inspectable tree with type-aware
+ * coloring, per-node expand/collapse, copy-to-clipboard (through an injected
+ * `copy` sink), and a toolbar with "expand all", "collapse all", and "copy".
+ * Designed for debug surfaces where the developer wants to drill into a
+ * payload without leaving the app.
+ *
+ * @example
+ * ```tsx
+ * <JsonView value={someEntity} initialExpandDepth={1} copy={clipboard.write} />
+ * ```
+ */
 export function JsonView(props: JsonViewProps): JSX.Element {
   const [local] = splitProps(props, [
     'value',

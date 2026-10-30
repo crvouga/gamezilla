@@ -3,7 +3,8 @@ import { Tabs } from './index';
 import Example from './tabs.example';
 
 const meta = {
-  title: 'Components/Disclosure/Tabs',
+  id: 'components-disclosure-tabs',
+  title: 'Organisms/Tabs',
   component: Tabs,
   tags: ['autodocs'],
 } satisfies Meta;

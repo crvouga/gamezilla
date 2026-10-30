@@ -3,7 +3,8 @@ import { ScrollView } from './index';
 import Example from './scroll-view.example';
 
 const meta = {
-  title: 'Layouts/ScrollView',
+  id: 'layouts-scrollview',
+  title: 'Atoms/ScrollView',
   component: ScrollView,
   tags: ['autodocs'],
 } satisfies Meta;

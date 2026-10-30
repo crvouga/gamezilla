@@ -3,7 +3,8 @@ import { TileBoard } from './index';
 import Example from './tile-board.example';
 
 const meta = {
-  title: 'Product/TileBoard',
+  id: 'product-tileboard',
+  title: 'Games/Sokoban/Board',
   component: TileBoard,
   tags: ['autodocs'],
 } satisfies Meta;

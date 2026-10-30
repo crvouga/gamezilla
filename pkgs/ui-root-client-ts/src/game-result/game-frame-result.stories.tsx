@@ -3,7 +3,8 @@ import Example from './game-frame-result.example';
 import { GameResultHeadline } from './index';
 
 const meta = {
-  title: 'Product/Game frame: Game over',
+  id: 'product-game-frame-game-over',
+  title: 'Games/Shared/Components/GameResult',
   component: GameResultHeadline,
   tags: ['autodocs'],
 } satisfies Meta;

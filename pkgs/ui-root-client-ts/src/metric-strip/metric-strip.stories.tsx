@@ -3,7 +3,8 @@ import { MetricStrip } from './index';
 import Example from './metric-strip.example';
 
 const meta = {
-  title: 'Components/Data Display/MetricStrip',
+  id: 'components-data-display-metricstrip',
+  title: 'Molecules/MetricStrip',
   component: MetricStrip,
   tags: ['autodocs'],
 } satisfies Meta;

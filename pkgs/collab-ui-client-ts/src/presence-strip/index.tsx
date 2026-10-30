@@ -1,7 +1,3 @@
-/**
- * Presence strip: one face per connected client, ringed in participant color.
- */
-
 import type { ParticipantColor } from '@pkgs/collab-root-shared-ts/participant-color';
 import type { RoomActor } from '@pkgs/room-root-shared-ts/types';
 import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
@@ -30,6 +26,9 @@ function resolveColor(
   return typeof c === 'string' ? c : c.css;
 }
 
+/**
+ * Presence strip: one face per connected client, ringed in participant color.
+ */
 export function PresenceStrip(props: PresenceStripProps): JSX.Element {
   const ringSize = () => (props.size ?? 32) + 4;
   return (

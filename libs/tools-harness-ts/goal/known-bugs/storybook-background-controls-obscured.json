@@ -1,0 +1,4 @@
+{
+  "summary": "Native Storybook Backgrounds could not affect the canvas because its preview ThemeProvider painted an opaque background. The regression selects the token Surface backdrop and checks provider transparency, theme synchronization, and preserved draft state.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/essentials.checks.ts"
+}

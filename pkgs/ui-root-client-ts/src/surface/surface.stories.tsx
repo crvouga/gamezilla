@@ -3,7 +3,8 @@ import { Surface } from './index';
 import Example from './surface.example';
 
 const meta = {
-  title: 'Primitives/Surface',
+  id: 'primitives-surface',
+  title: 'Atoms/Surface',
   component: Surface,
   tags: ['autodocs'],
 } satisfies Meta;

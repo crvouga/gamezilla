@@ -3,7 +3,8 @@ import { VisuallyHidden } from './index';
 import Example from './visually-hidden.example';
 
 const meta = {
-  title: 'Primitives/VisuallyHidden',
+  id: 'primitives-visuallyhidden',
+  title: 'Atoms/VisuallyHidden',
   component: VisuallyHidden,
   tags: ['autodocs'],
 } satisfies Meta;

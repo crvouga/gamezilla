@@ -3,7 +3,8 @@ import { ScreenBase } from './index';
 import Example from './screen-base.example';
 
 const meta = {
-  title: 'Layouts/ScreenBase',
+  id: 'layouts-screenbase',
+  title: 'Templates/ScreenBase',
   component: ScreenBase,
   tags: ['autodocs'],
 } satisfies Meta;

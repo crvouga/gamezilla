@@ -3,7 +3,8 @@ import { UnorderedList } from './index';
 import Example from './semantic-list.example';
 
 const meta = {
-  title: 'Primitives/Semantic lists',
+  id: 'primitives-semantic-lists',
+  title: 'Atoms/Semantic lists',
   component: UnorderedList,
   tags: ['autodocs'],
 } satisfies Meta;

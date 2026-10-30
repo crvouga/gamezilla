@@ -3,7 +3,8 @@ import Example from './floating-panel.example';
 import { FloatingPanel } from './index';
 
 const meta = {
-  title: 'Components/Overlay/FloatingPanel',
+  id: 'components-overlay-floatingpanel',
+  title: 'Molecules/FloatingPanel',
   component: FloatingPanel,
   tags: ['autodocs'],
 } satisfies Meta;

@@ -3,7 +3,8 @@ import { Nav } from './index';
 import Example from './landmarks.example';
 
 const meta = {
-  title: 'Primitives/Landmarks',
+  id: 'primitives-landmarks',
+  title: 'Atoms/Landmarks',
   component: Nav,
   tags: ['autodocs'],
 } satisfies Meta;

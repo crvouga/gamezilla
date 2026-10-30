@@ -1,20 +1,21 @@
 /** @jsxImportSource solid-js */
 /**
- * The field takes an injected `copy` sink. The explorer has no clipboard
- * access, so this demo records the last copied value in local state instead.
+ * The injected `copy` sink records payloads in native Storybook Actions.
  */
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { CopyToClipboardField } from '@pkgs/ui-root-client-ts/copy-to-clipboard-field';
-import { createSignal, type JSX, Show } from 'solid-js';
+import {
+  type ClipboardCopy,
+  CopyToClipboardField,
+} from '@pkgs/ui-root-client-ts/copy-to-clipboard-field';
+import type { JSX } from 'solid-js';
+import { fn } from 'storybook/test';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 export default function CopyToClipboardFieldExample(): JSX.Element {
   const { t } = useLingui();
-  const [lastCopied, setLastCopied] = createSignal<string | null>(null);
-  const copy = (text: string): Promise<void> => {
-    setLastCopied(text);
-    return Promise.resolve();
-  };
+  const copy = fn<ClipboardCopy>()
+    .mockName('copy')
+    .mockResolvedValue(undefined);
   return (
     <ExampleRoot gap="xl">
       <CopyToClipboardField
@@ -31,12 +32,6 @@ export default function CopyToClipboardFieldExample(): JSX.Element {
         selectable
         copy={copy}
       />
-
-      <Show when={lastCopied()}>
-        {(text) => (
-          <p class="text textCaption text-text-secondary">{`Last copied: ${text()}`}</p>
-        )}
-      </Show>
     </ExampleRoot>
   );
 }

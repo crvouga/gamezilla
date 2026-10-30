@@ -3,7 +3,8 @@ import { MiniPlayerDock } from './index';
 import Example from './mini-player.example';
 
 const meta = {
-  title: 'Layouts/MiniPlayerDock',
+  id: 'layouts-miniplayerdock',
+  title: 'Organisms/MiniPlayerDock',
   component: MiniPlayerDock,
   tags: ['autodocs'],
 } satisfies Meta;

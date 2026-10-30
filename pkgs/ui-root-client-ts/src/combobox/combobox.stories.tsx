@@ -3,7 +3,8 @@ import Example from './combobox.example';
 import { Combobox } from './index';
 
 const meta = {
-  title: 'Components/Inputs/Combobox',
+  id: 'components-inputs-combobox',
+  title: 'Molecules/Combobox',
   component: Combobox,
   tags: ['autodocs'],
 } satisfies Meta;

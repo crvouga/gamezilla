@@ -255,7 +255,8 @@ Known cross-sub table reads, still debt: `permissions` reads `billing_subscripti
 Reusable UI is developed in Storybook first (`bun storybook`), using production
 components without the app stack. Discovery, manifests, deterministic stories,
 coverage and automated verification are documented in the
-[Storybook workflow](pkgs/ui-root-harness-ts/README.md).
+[Storybook agent workflow](pkgs/ui-root-harness-ts/README.md#agent-workflow),
+also available through `/storybook-ui <task>` in supported agent harnesses.
 
 UI is Solid. Components run once; reactivity tracks. Read `props.x` in the component body (never destructure props). Style with `class` / `classList` and `@pkgs/ui` tokens. `style` is only for dynamic values classes cannot express. `data-component` and `data-screen` exist for tests and are stripped from production bundles. `data-testid` ships in every build because live journeys drive the real bundle by it. Mutation weight picks the widget: `MutationModal` for confirm-first actions, `useMutationButton` for lightweight actions, `FormActionsFooter` for screen forms.
 

@@ -3,7 +3,8 @@ import { TrailArena } from './index';
 import Example from './trail-arena.example';
 
 const meta = {
-  title: 'Components/Inputs/TrailArena',
+  id: 'components-inputs-trailarena',
+  title: 'Games/Light Cycles/Arena',
   component: TrailArena,
   tags: ['autodocs'],
 } satisfies Meta;

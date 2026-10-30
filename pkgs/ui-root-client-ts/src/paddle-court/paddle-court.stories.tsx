@@ -3,7 +3,8 @@ import { PaddleCourt } from './index';
 import Example from './paddle-court.example';
 
 const meta = {
-  title: 'Components/Inputs/PaddleCourt',
+  id: 'components-inputs-paddlecourt',
+  title: 'Games/Pong/Court',
   component: PaddleCourt,
   tags: ['autodocs'],
 } satisfies Meta;

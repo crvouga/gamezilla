@@ -3,7 +3,8 @@ import { MoveStrip } from './index';
 import Example from './move-strip.example';
 
 const meta = {
-  title: 'Layouts/MoveStrip',
+  id: 'layouts-movestrip',
+  title: 'Games/Shared/Components/GameMoveStrip',
   component: MoveStrip,
   tags: ['autodocs'],
 } satisfies Meta;

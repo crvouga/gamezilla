@@ -3,7 +3,8 @@ import Example from './icon-button.example';
 import { IconButton } from './index';
 
 const meta = {
-  title: 'Components/Inputs/IconButton',
+  id: 'components-inputs-iconbutton',
+  title: 'Atoms/IconButton',
   component: IconButton,
   tags: ['autodocs'],
 } satisfies Meta;

@@ -3,7 +3,8 @@ import { Textarea } from './index';
 import Example from './textarea.example';
 
 const meta = {
-  title: 'Components/Inputs/Textarea',
+  id: 'components-inputs-textarea',
+  title: 'Atoms/Textarea',
   component: Textarea,
   tags: ['autodocs'],
 } satisfies Meta;

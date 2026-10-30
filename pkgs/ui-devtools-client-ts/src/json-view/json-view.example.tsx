@@ -1,11 +1,14 @@
 /** @jsxImportSource solid-js */
 /**
- * `JsonView` takes an injected `copy` sink; the story records the last
- * copied text in local state instead of touching the clipboard.
+ * The injected `copy` sink records payloads in native Storybook Actions.
  */
 
-import { JsonView } from '@pkgs/ui-devtools-client-ts/json-view';
-import { createSignal, type JSX, Show } from 'solid-js';
+import {
+  JsonView,
+  type JsonViewProps,
+} from '@pkgs/ui-devtools-client-ts/json-view';
+import type { JSX } from 'solid-js';
+import { fn } from 'storybook/test';
 import { ExampleRoot } from '../../../ui-root-client-ts/storybook/fixtures/example-root';
 
 const SAMPLE_PAYLOAD = {
@@ -74,11 +77,9 @@ function Section(props: { title: string; children: JSX.Element }): JSX.Element {
 }
 
 export default function JsonViewExample(): JSX.Element {
-  const [lastCopied, setLastCopied] = createSignal<string | null>(null);
-  const copy = (text: string): Promise<void> => {
-    setLastCopied(text);
-    return Promise.resolve();
-  };
+  const copy = fn<NonNullable<JsonViewProps['copy']>>()
+    .mockName('copy')
+    .mockResolvedValue(undefined);
   return (
     <ExampleRoot>
       <p class="text textCaption text-text-secondary">
@@ -125,12 +126,6 @@ export default function JsonViewExample(): JSX.Element {
           copy={copy}
         />
       </Section>
-
-      <Show when={lastCopied()}>
-        {(text) => (
-          <p class="text textCaption line-clamp-2 text-text-secondary">{`Last copied: ${text()}`}</p>
-        )}
-      </Show>
     </ExampleRoot>
   );
 }

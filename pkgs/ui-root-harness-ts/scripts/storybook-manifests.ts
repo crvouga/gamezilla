@@ -3,8 +3,8 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 type ManifestComponent = {
-  docgen?: { $ref: string };
   error?: { message?: string };
+  stories?: { id: string; error?: { message?: string } }[];
 };
 type Manifest = { components: Record<string, ManifestComponent> };
 
@@ -18,14 +18,11 @@ export function manifestErrors(directory: string): string[] {
       errors.push(
         `${id}: ${component.error.message ?? 'invalid component manifest'}`
       );
-    const ref = component.docgen?.$ref.split('#')[0];
-    if (!ref) continue;
-    const docgen = JSON.parse(
-      readFileSync(resolve(directory, 'manifests', ref), 'utf8')
-    ) as Manifest;
-    for (const contract of Object.values(docgen.components)) {
-      if (contract.error)
-        errors.push(`${id}: ${contract.error.message ?? 'docgen failed'}`);
+    for (const story of component.stories ?? []) {
+      if (story.error)
+        errors.push(
+          `${story.id}: ${story.error.message ?? 'invalid story snippet'}`
+        );
     }
   }
   return errors;

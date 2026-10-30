@@ -3,7 +3,8 @@ import { RadioGroup } from './index';
 import Example from './radio-group.example';
 
 const meta = {
-  title: 'Components/Inputs/RadioGroup',
+  id: 'components-inputs-radiogroup',
+  title: 'Atoms/RadioGroup',
   component: RadioGroup,
   tags: ['autodocs'],
 } satisfies Meta;

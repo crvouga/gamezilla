@@ -3,7 +3,8 @@ import { PaginationControls } from './index';
 import Example from './pagination-controls.example';
 
 const meta = {
-  title: 'Components/Data Display/PaginationControls',
+  id: 'components-data-display-paginationcontrols',
+  title: 'Molecules/PaginationControls',
   component: PaginationControls,
   tags: ['autodocs'],
 } satisfies Meta;

@@ -3,7 +3,8 @@ import { Table } from './index';
 import Example from './table.example';
 
 const meta = {
-  title: 'Primitives/Table',
+  id: 'primitives-table',
+  title: 'Atoms/Table',
   component: Table,
   tags: ['autodocs'],
 } satisfies Meta;

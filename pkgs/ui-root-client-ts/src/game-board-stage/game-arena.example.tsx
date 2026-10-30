@@ -24,11 +24,34 @@ const PACES = [
   { value: 'long', title: '10 min', detail: 'Take your time' },
 ];
 
+function ArenaOpponent(): JSX.Element {
+  return (
+    <GamePlayerBar
+      name="Atlas"
+      tags={<Badge intent="neutral" label="Rival" />}
+      trailing={<GameClock label="Atlas" value="5:00" />}
+    />
+  );
+}
+
+type GameArenaExampleProps = {
+  boardInteractive?: boolean;
+  searching?: boolean;
+  onSearchingChange?: (searching: boolean) => void;
+};
+
 /** One example composes every game primitive without a game-specific dependency. */
-export default function GameArenaExample(): JSX.Element {
+export default function GameArenaExample(
+  props: GameArenaExampleProps = {}
+): JSX.Element {
   const clock = useClock();
   const [pace, setPace] = createSignal('medium');
-  const [searching, setSearching] = createSignal(false);
+  const [localSearching, setLocalSearching] = createSignal(false);
+  const searching = (): boolean => props.searching ?? localSearching();
+  const setSearching = (value: boolean): void => {
+    setLocalSearching(value);
+    props.onSearchingChange?.(value);
+  };
   const [deadline, setDeadline] = createSignal<number | null>(null);
   return (
     <ExampleRoot>
@@ -41,13 +64,7 @@ export default function GameArenaExample(): JSX.Element {
         }
       >
         <GameBoardStage
-          others={
-            <GamePlayerBar
-              name="Atlas"
-              tags={<Badge intent="neutral" label="Rival" />}
-              trailing={<GameClock label="Atlas" value="5:00" />}
-            />
-          }
+          others={<ArenaOpponent />}
           turn={
             <GameTurnPill
               emphasis="yours"
@@ -74,7 +91,7 @@ export default function GameArenaExample(): JSX.Element {
             />
           }
         >
-          <DiscDropBoardExample />
+          <DiscDropBoardExample interactive={props.boardInteractive ?? true} />
         </GameBoardStage>
         <Show
           when={searching()}

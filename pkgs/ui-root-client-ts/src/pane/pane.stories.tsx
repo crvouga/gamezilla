@@ -3,7 +3,8 @@ import { Pane } from './index';
 import Example from './pane.example';
 
 const meta = {
-  title: 'Layouts/Pane',
+  id: 'layouts-pane',
+  title: 'Molecules/Pane',
   component: Pane,
   tags: ['autodocs'],
 } satisfies Meta;

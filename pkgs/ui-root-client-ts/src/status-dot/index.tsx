@@ -1,18 +1,8 @@
 /** @jsxImportSource solid-js */
-import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
-
-/**
- * `StatusDot` -- small colored circle indicating a status.
- *
- * @example
- * ```tsx
- * <StatusDot status="online" />
- * <StatusDot status="offline" size={12} />
- * ```
- */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
+import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 import type { JSX } from 'solid-js';
 
 export type StatusDotStatus = 'online' | 'offline' | 'warning' | 'pending';
@@ -35,6 +25,15 @@ export type StatusDotProps = {
 
 const DEFAULT_SIZE = 10;
 
+/**
+ * `StatusDot` -- small colored circle indicating a status.
+ *
+ * @example
+ * ```tsx
+ * <StatusDot status="online" />
+ * <StatusDot status="offline" size={12} />
+ * ```
+ */
 export function StatusDot(props: StatusDotProps): JSX.Element {
   const size = () => props.size ?? DEFAULT_SIZE;
   return (

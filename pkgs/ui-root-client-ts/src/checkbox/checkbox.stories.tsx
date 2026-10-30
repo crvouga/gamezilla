@@ -1,39 +1,69 @@
-import { createSignal } from 'solid-js';
+import { useArgs } from 'storybook/preview-api';
+import { expect, fn, mocked, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import Example from './checkbox.example';
 import { Checkbox } from './index';
 
 const meta = {
-  title: 'Components/Inputs/Checkbox',
+  id: 'components-inputs-checkbox',
+  title: 'Atoms/Checkbox',
   component: Checkbox,
   tags: ['autodocs'],
-} satisfies Meta;
+  args: {
+    checked: false,
+    label: 'Receive invitations',
+    disabled: false,
+    indeterminate: false,
+    onToggle: fn(),
+  },
+  argTypes: {
+    checked: { control: 'boolean' },
+    label: { control: 'text' },
+    disabled: { control: 'boolean' },
+    indeterminate: { control: 'boolean' },
+    onToggle: { control: false },
+    dataSet: { control: false },
+  },
+  parameters: { test: { restoreMocks: false }, layout: 'centered' },
+} satisfies Meta<typeof Checkbox>;
 export default meta;
 
 /** Representative variants, themes and interaction states from the production contract. */
 export const States: StoryObj = {
-  parameters: { controls: { disable: true } },
+  tags: ['!manifest'],
+  parameters: { layout: 'fullscreen', controls: { disable: true } },
   render: () => <Example />,
 };
 
-export const Controlled: StoryObj = {
-  render: () => {
-    const [checked, setChecked] = createSignal(false);
+/** Let a person opt into invitations with an independent checked choice. */
+export const Controlled: StoryObj<typeof meta> = {
+  render: (args) => {
+    const [, updateArgs] = useArgs();
     return (
       <Checkbox
-        checked={checked()}
-        onToggle={setChecked}
-        aria-label="Receive invitations"
+        {...args}
+        onToggle={(checked) => {
+          args.onToggle(checked);
+          updateArgs({ checked, indeterminate: false });
+        }}
       />
     );
   },
-  play: async ({ canvasElement }) => {
-    const checkbox =
-      canvasElement.querySelector<HTMLElement>('[role="checkbox"]');
-    if (!checkbox) throw new Error('Checkbox must expose its role');
-    checkbox.click();
-    await Promise.resolve();
-    if (checkbox.getAttribute('aria-checked') !== 'true')
-      throw new Error('Controlled signal must update the checkbox');
+};
+
+/** Opt in and back out without committing a form; the parent owns the checked value. */
+export const Toggle: StoryObj<typeof meta> = {
+  ...Controlled,
+  play: async ({ canvasElement, args, step }) => {
+    mocked(args.onToggle).mockClear();
+    const checkbox = within(canvasElement).getByRole('checkbox');
+    await step('Toggle and restore the controlled value', async () => {
+      await userEvent.click(checkbox);
+      await expect(checkbox).toBeChecked();
+      await expect(args.onToggle).toHaveBeenCalledWith(true);
+      await userEvent.click(checkbox);
+      await expect(checkbox).not.toBeChecked();
+      await expect(args.onToggle).toHaveBeenLastCalledWith(false);
+    });
   },
 };

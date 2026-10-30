@@ -3,7 +3,8 @@ import { RangeControl } from './index';
 import Example from './range-control.example';
 
 const meta = {
-  title: 'Components/Data Display/RangeControl',
+  id: 'components-data-display-rangecontrol',
+  title: 'Atoms/RangeControl',
   component: RangeControl,
   tags: ['autodocs'],
 } satisfies Meta;

@@ -17,12 +17,18 @@ const executablePath = chromeForTestingBinary(chromeDirectory.stdout.trim());
 
 export default defineConfig({
   testDir: '../tests/storybook',
-  testMatch: ['**/stories.checks.ts', '**/integration.checks.ts'],
+  testMatch: [
+    '**/stories.checks.ts',
+    '**/integration.checks.ts',
+    '**/essentials.checks.ts',
+  ],
   outputDir: '../.cache/storybook-test-results',
   snapshotPathTemplate: '{testDir}/../../../../{arg}{ext}',
   fullyParallel: true,
   workers: 2,
   retries: 0,
+  // Authoring requires the explicit --update-snapshots command.
+  updateSnapshots: 'none',
   use: {
     baseURL: 'http://127.0.0.1:6007',
     viewport: { width: 390, height: 844 },

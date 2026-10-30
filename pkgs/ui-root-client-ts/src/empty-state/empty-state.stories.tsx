@@ -3,7 +3,8 @@ import Example from './empty-state.example';
 import { EmptyState } from './index';
 
 const meta = {
-  title: 'Components/Feedback/EmptyState',
+  id: 'components-feedback-emptystate',
+  title: 'Molecules/EmptyState',
   component: EmptyState,
   tags: ['autodocs'],
 } satisfies Meta;

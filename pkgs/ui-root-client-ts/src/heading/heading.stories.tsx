@@ -3,7 +3,8 @@ import Example from './heading.example';
 import { H1 } from './index';
 
 const meta = {
-  title: 'Primitives/Heading',
+  id: 'primitives-heading',
+  title: 'Atoms/Heading',
   component: H1,
   tags: ['autodocs'],
 } satisfies Meta;

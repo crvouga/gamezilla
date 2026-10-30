@@ -3,6 +3,7 @@
   "extends": ["//"],
   "tasks": {
     "src": {
+      "inputs": ["$TURBO_EXTENDS$", "!src/tsconfig.json"],
       "dependsOn": [
         "@pkgs/a11y-shared-ts#src",
         "@pkgs/clock-client-ts#src",

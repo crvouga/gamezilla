@@ -3,7 +3,8 @@ import { SegmentedControl } from './index';
 import Example from './segmented-control.example';
 
 const meta = {
-  title: 'Components/Inputs/SegmentedControl',
+  id: 'components-inputs-segmentedcontrol',
+  title: 'Molecules/SegmentedControl',
   component: SegmentedControl,
   tags: ['autodocs'],
 } satisfies Meta;

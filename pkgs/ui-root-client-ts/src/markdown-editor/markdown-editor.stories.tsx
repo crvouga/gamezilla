@@ -3,7 +3,8 @@ import { MarkdownEditor } from './index';
 import Example from './markdown-editor.example';
 
 const meta = {
-  title: 'Components/Inputs/MarkdownEditor',
+  id: 'components-inputs-markdowneditor',
+  title: 'Organisms/MarkdownEditor',
   component: MarkdownEditor,
   tags: ['autodocs'],
 } satisfies Meta;

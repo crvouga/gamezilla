@@ -3,7 +3,8 @@ import Example from './floating-action-button.example';
 import { FloatingActionButton } from './index';
 
 const meta = {
-  title: 'Components/Inputs/FloatingActionButton',
+  id: 'components-inputs-floatingactionbutton',
+  title: 'Molecules/FloatingActionButton',
   component: FloatingActionButton,
   tags: ['autodocs'],
 } satisfies Meta;

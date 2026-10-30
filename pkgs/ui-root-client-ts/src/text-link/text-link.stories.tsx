@@ -3,7 +3,8 @@ import { TextLink } from './index';
 import Example from './text-link.example';
 
 const meta = {
-  title: 'Components/Inputs/TextLink',
+  id: 'components-inputs-textlink',
+  title: 'Atoms/TextLink',
   component: TextLink,
   tags: ['autodocs'],
 } satisfies Meta;

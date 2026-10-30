@@ -3,7 +3,8 @@ import { Spinner } from './index';
 import Example from './spinner.example';
 
 const meta = {
-  title: 'Components/Feedback/Spinner',
+  id: 'components-feedback-spinner',
+  title: 'Atoms/Spinner',
   component: Spinner,
   tags: ['autodocs'],
 } satisfies Meta;

@@ -3,7 +3,8 @@ import Example from './avatar-group.example';
 import { AvatarGroup } from './index';
 
 const meta = {
-  title: 'Components/Data Display/AvatarGroup',
+  id: 'components-data-display-avatargroup',
+  title: 'Molecules/AvatarGroup',
   component: AvatarGroup,
   tags: ['autodocs'],
 } satisfies Meta;

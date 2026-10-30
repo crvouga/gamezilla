@@ -3,7 +3,8 @@ import Example from './catalog.example';
 import { CatalogDetail } from './index';
 
 const meta = {
-  title: 'Layouts/Catalog',
+  id: 'layouts-catalog',
+  title: 'Templates/Catalog',
   component: CatalogDetail,
   tags: ['autodocs'],
 } satisfies Meta;

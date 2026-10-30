@@ -3,7 +3,8 @@ import Example from './badged-icon.example';
 import { BadgedIcon } from './index';
 
 const meta = {
-  title: 'Primitives/BadgedIcon',
+  id: 'primitives-badgedicon',
+  title: 'Atoms/BadgedIcon',
   component: BadgedIcon,
   tags: ['autodocs'],
 } satisfies Meta;

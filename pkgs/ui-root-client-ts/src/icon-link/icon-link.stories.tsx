@@ -3,7 +3,8 @@ import Example from './icon-link.example';
 import { IconLink } from './index';
 
 const meta = {
-  title: 'Components/Inputs/IconLink',
+  id: 'components-inputs-iconlink',
+  title: 'Atoms/IconLink',
   component: IconLink,
   tags: ['autodocs'],
 } satisfies Meta;

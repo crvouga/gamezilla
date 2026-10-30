@@ -3,7 +3,8 @@ import Example from './field-label.example';
 import { FieldLabel } from './index';
 
 const meta = {
-  title: 'Primitives/FieldLabel',
+  id: 'primitives-fieldlabel',
+  title: 'Atoms/FieldLabel',
   component: FieldLabel,
   tags: ['autodocs'],
 } satisfies Meta;

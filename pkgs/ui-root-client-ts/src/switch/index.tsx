@@ -5,17 +5,24 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { createUniqueId, type JSX, Show } from 'solid-js';
 
 export type SwitchProps = {
+  /** Current on/off setting; the parent owns and updates this value. */
   value: boolean;
+  /** Receives the next setting after activation. */
   onValueChange: (next: boolean) => void;
   /** Optional label displayed next to the switch. */
   label?: JSX.Element | undefined;
+  /** Prevent changing an unavailable setting while keeping it visible. */
   disabled?: boolean | undefined;
+  /** Accessible name when no visible label is supplied. */
   'aria-label'?: string | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
 
 /**
+ * Change an on/off setting immediately. Use Checkbox for a choice that is
+ * submitted with a form.
+ *
  * `Switch` -- on/off toggle rendered as `<button role="switch">`.
  *
  * A 48x28 track with a 24px thumb (`skin.css` `.switchTrack`): on is the
@@ -25,6 +32,8 @@ export type SwitchProps = {
  * 200ms; reduced motion snaps it. The button keeps a 48x44 hit area around
  * the track, shows the focus ring on keyboard focus only, and fades to the
  * disabled opacity when disabled. `role="switch"` + `aria-checked`.
+ *
+ * @summary Change an on/off setting immediately
  */
 export function Switch(props: SwitchProps): JSX.Element {
   const labelId = createUniqueId();

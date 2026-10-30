@@ -1,34 +1,7 @@
 /** @jsxImportSource solid-js */
-import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
-
-/**
- * `ResponsiveSurface` -- overlay that uses a bottom sheet on compact layouts
- * and a centered modal on wide ones ({@link useLayoutMode}). Pass
- * `presentation="modal"` to always use the centered modal.
- *
- * Content uses {@link CONTENT_EDGE_PADDING_STEP} horizontal inset and
- * {@link SURFACE_BOTTOM_PADDING_STEP} bottom inset via
- * {@link ContentEdgePaddingProvider}, so nested {@link ScrollView}s sit flush
- * with the surface edges.
- *
- * Compact: a sheet rising from the bottom edge (12px top radius, a 36x4
- * grab handle, safe-area bottom inset). Wide: a centered dialog on the scrim
- * (`surface-elevated`, the sheet radius, one hairline, no shadow). Both open
- * with a 250ms ease-out that reduced motion turns off.
- *
- * Default `scroll` pins the title/close header and scrolls only the body.
- * The chrome shell is a CSS grid (`.surfaceScrollShell`: `auto` header +
- * `minmax(0, 1fr)` body) with a viewport `max-height`, so the body {@link ScrollView} gets a definite
- * height and `overflow: auto` engages. Body edge padding lives on the
- * scrollable content (scrollbar flush to the modal frame); the header keeps
- * its own inset. Pass `scroll={false}` when children own an internal list
- * scroller (combobox / picker). A fixed `bodyHeight` also disables surface
- * scroll.
- *
- * The sheet comes from {@link useBottomSheetHost} (web CSS sheet by default).
- */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
+import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 import type { ModalSize } from '@pkgs/ui-root-shared-ts/modal-size';
 import { type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
@@ -263,6 +236,32 @@ function MobileSheet(props: ResponsiveSurfaceProps): JSX.Element {
   );
 }
 
+/**
+ * `ResponsiveSurface` -- overlay that uses a bottom sheet on compact layouts
+ * and a centered modal on wide ones ({@link useLayoutMode}). Pass
+ * `presentation="modal"` to always use the centered modal.
+ *
+ * Content uses {@link CONTENT_EDGE_PADDING_STEP} horizontal inset and
+ * {@link SURFACE_BOTTOM_PADDING_STEP} bottom inset via
+ * {@link ContentEdgePaddingProvider}, so nested {@link ScrollView}s sit flush
+ * with the surface edges.
+ *
+ * Compact: a sheet rising from the bottom edge (12px top radius, a 36x4
+ * grab handle, safe-area bottom inset). Wide: a centered dialog on the scrim
+ * (`surface-elevated`, the sheet radius, one hairline, no shadow). Both open
+ * with a 250ms ease-out that reduced motion turns off.
+ *
+ * Default `scroll` pins the title/close header and scrolls only the body.
+ * The chrome shell is a CSS grid (`.surfaceScrollShell`: `auto` header +
+ * `minmax(0, 1fr)` body) with a viewport `max-height`, so the body {@link ScrollView} gets a definite
+ * height and `overflow: auto` engages. Body edge padding lives on the
+ * scrollable content (scrollbar flush to the modal frame); the header keeps
+ * its own inset. Pass `scroll={false}` when children own an internal list
+ * scroller (combobox / picker). A fixed `bodyHeight` also disables surface
+ * scroll.
+ *
+ * The sheet comes from {@link useBottomSheetHost} (web CSS sheet by default).
+ */
 export function ResponsiveSurface(props: ResponsiveSurfaceProps): JSX.Element {
   const layoutMode = useLayoutMode();
   const host = useBottomSheetHost();

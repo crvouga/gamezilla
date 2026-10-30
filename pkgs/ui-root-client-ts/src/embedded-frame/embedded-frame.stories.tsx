@@ -3,7 +3,8 @@ import Example from './embedded-frame.example';
 import { EmbeddedFrame } from './index';
 
 const meta = {
-  title: 'Primitives/EmbeddedFrame',
+  id: 'primitives-embeddedframe',
+  title: 'Atoms/EmbeddedFrame',
   component: EmbeddedFrame,
   tags: ['autodocs'],
 } satisfies Meta;

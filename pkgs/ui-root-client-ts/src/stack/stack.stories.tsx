@@ -3,7 +3,8 @@ import { StackVertical } from './index';
 import Example from './stack.example';
 
 const meta = {
-  title: 'Primitives/Stack',
+  id: 'primitives-stack',
+  title: 'Atoms/Stack',
   component: StackVertical,
   tags: ['autodocs'],
 } satisfies Meta;

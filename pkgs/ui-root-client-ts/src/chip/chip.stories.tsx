@@ -3,7 +3,8 @@ import Example from './chip.example';
 import { Chip } from './index';
 
 const meta = {
-  title: 'Components/Data Display/Chip',
+  id: 'components-data-display-chip',
+  title: 'Molecules/Chip',
   component: Chip,
   tags: ['autodocs'],
 } satisfies Meta;

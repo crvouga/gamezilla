@@ -3,7 +3,8 @@ import Example from './game-frame.example';
 import { GameSessionLayout } from './index';
 
 const meta = {
-  title: 'Templates/Game frame',
+  id: 'templates-game-frame',
+  title: 'Games/Shared/Screens/GameFrame',
   component: GameSessionLayout,
   tags: ['autodocs'],
 } satisfies Meta;

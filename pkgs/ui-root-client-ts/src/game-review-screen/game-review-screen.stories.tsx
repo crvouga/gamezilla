@@ -3,7 +3,8 @@ import Example from './game-review-screen.example';
 import { GameReviewScreen } from './index';
 
 const meta = {
-  title: 'Templates/Game and puzzle review',
+  id: 'templates-game-and-puzzle-review',
+  title: 'Games/Shared/Screens/GameReviewScreen',
   component: GameReviewScreen,
   tags: ['autodocs'],
 } satisfies Meta;

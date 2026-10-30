@@ -10,26 +10,28 @@ import {
 import tailwindcss from '@tailwindcss/vite';
 import type { StorybookConfig } from 'storybook-solidjs-vite';
 import solid from 'vite-plugin-solid';
+import { configureDocgen } from './docgen';
 
 const root = resolve(import.meta.dirname, '../../..');
+const storyDirectories = readdirSync(resolve(root, 'pkgs'))
+  .filter(
+    (name) =>
+      name.endsWith('-client-ts') &&
+      existsSync(resolve(root, 'pkgs', name, 'src')) &&
+      readdirSync(resolve(root, 'pkgs', name, 'src'), {
+        recursive: true,
+      }).some((file) => String(file).endsWith('.stories.tsx'))
+  )
+  .sort()
+  .map((name) => resolve(root, 'pkgs', name, 'src'));
 const config: StorybookConfig = {
   framework: 'storybook-solidjs-vite',
   stories: [
     '../storybook/introduction.mdx',
-    ...readdirSync(resolve(root, 'pkgs'))
-      .filter(
-        (name) =>
-          name.endsWith('-client-ts') &&
-          existsSync(resolve(root, 'pkgs', name, 'src')) &&
-          readdirSync(resolve(root, 'pkgs', name, 'src'), {
-            recursive: true,
-          }).some((file) => String(file).endsWith('.stories.tsx'))
-      )
-      .sort()
-      .map((name) => ({
-        directory: resolve(root, 'pkgs', name, 'src'),
-        files: '**/*.stories.tsx',
-      })),
+    ...storyDirectories.map((directory) => ({
+      directory,
+      files: '**/*.stories.tsx',
+    })),
   ],
   addons: [
     '@storybook/addon-docs',
@@ -38,12 +40,15 @@ const config: StorybookConfig = {
   ],
   features: {
     componentsManifest: true,
-    experimentalDocgenServer: true,
     sidebarOnboardingChecklist: false,
     menuOnboardingChecklist: false,
   },
   core: { disableTelemetry: true },
   async viteFinal(config) {
+    for (const plugin of config.plugins ?? []) {
+      if (plugin && typeof plugin === 'object' && 'name' in plugin)
+        configureDocgen(plugin, storyDirectories);
+    }
     config.plugins = [
       ...(config.plugins ?? []).filter(
         (plugin) =>

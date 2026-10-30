@@ -113,3 +113,42 @@ export default function MutationModalExample(): JSX.Element {
     </ExampleRoot>
   );
 }
+
+/** A real open dialog; only the operation outcome is simulated by the fixture. */
+export function MutationModalStateExample(props: {
+  outcome: 'success' | 'retry';
+  onOperation: (attempt: number) => void;
+  onClose: () => void;
+}): JSX.Element {
+  const [open, setOpen] = createSignal(true);
+  const delay = createDelay();
+  let attempt = 0;
+  const operation = async (): Promise<void> => {
+    attempt += 1;
+    props.onOperation(attempt);
+    const shouldFail = props.outcome === 'retry' && attempt === 1;
+    await delay(900);
+    if (shouldFail) throw new Error('Connection interrupted. Try again.');
+  };
+  return (
+    <ExampleRoot bounded>
+      <Button title="Open confirmation" onClick={() => setOpen(true)} />
+      <MutationModal
+        visible={open()}
+        onClose={() => {
+          props.onClose();
+          setOpen(false);
+        }}
+        title="End space?"
+        message="Everyone will leave this space. This cannot be undone."
+        submitLabel="End space"
+        variant="destructive"
+        operation={operation}
+        loadingLabel="Ending space…"
+        successTitle="Space ended"
+        successBody="Everyone has been returned to the lobby."
+        errorTitle="Could not end the space"
+      />
+    </ExampleRoot>
+  );
+}

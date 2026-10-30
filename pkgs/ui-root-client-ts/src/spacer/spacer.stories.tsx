@@ -3,7 +3,8 @@ import { Spacer } from './index';
 import Example from './spacer.example';
 
 const meta = {
-  title: 'Layouts/Spacer',
+  id: 'layouts-spacer',
+  title: 'Atoms/Spacer',
   component: Spacer,
   tags: ['autodocs'],
 } satisfies Meta;

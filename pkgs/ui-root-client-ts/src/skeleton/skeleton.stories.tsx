@@ -3,7 +3,8 @@ import { Skeleton } from './index';
 import Example from './skeleton.example';
 
 const meta = {
-  title: 'Components/Feedback/Skeleton',
+  id: 'components-feedback-skeleton',
+  title: 'Atoms/Skeleton',
   component: Skeleton,
   tags: ['autodocs'],
 } satisfies Meta;

@@ -3,7 +3,8 @@ import Example from './divider.example';
 import { Divider } from './index';
 
 const meta = {
-  title: 'Primitives/Divider',
+  id: 'primitives-divider',
+  title: 'Atoms/Divider',
   component: Divider,
   tags: ['autodocs'],
 } satisfies Meta;

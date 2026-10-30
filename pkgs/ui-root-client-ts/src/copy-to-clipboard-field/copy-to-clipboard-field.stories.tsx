@@ -3,7 +3,8 @@ import Example from './copy-to-clipboard-field.example';
 import { CopyToClipboardField } from './index';
 
 const meta = {
-  title: 'Components/Inputs/CopyToClipboardField',
+  id: 'components-inputs-copytoclipboardfield',
+  title: 'Molecules/CopyToClipboardField',
   component: CopyToClipboardField,
   tags: ['autodocs'],
 } satisfies Meta;

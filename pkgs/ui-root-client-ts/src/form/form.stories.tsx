@@ -3,7 +3,8 @@ import Example from './form.example';
 import { Form } from './index';
 
 const meta = {
-  title: 'Components/Inputs/Form',
+  id: 'components-inputs-form',
+  title: 'Organisms/Form',
   component: Form,
   tags: ['autodocs'],
 } satisfies Meta;

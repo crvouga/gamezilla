@@ -3,7 +3,8 @@ import Example from './chrome-title.example';
 import { ChromeTitle } from './index';
 
 const meta = {
-  title: 'Primitives/ChromeTitle',
+  id: 'primitives-chrometitle',
+  title: 'Atoms/ChromeTitle',
   component: ChromeTitle,
   tags: ['autodocs'],
 } satisfies Meta;

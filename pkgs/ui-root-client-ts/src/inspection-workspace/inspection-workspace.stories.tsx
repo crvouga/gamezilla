@@ -3,7 +3,8 @@ import { InspectionWorkspace } from './index';
 import Example from './inspection-workspace.example';
 
 const meta = {
-  title: 'Components/Data Display/InspectionWorkspace',
+  id: 'components-data-display-inspectionworkspace',
+  title: 'Organisms/InspectionWorkspace',
   component: InspectionWorkspace,
   tags: ['autodocs'],
 } satisfies Meta;

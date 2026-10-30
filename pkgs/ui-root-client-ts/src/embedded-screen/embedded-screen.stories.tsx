@@ -3,6 +3,7 @@ import Example from './embedded-screen.example';
 import { EmbeddedScreen } from './index';
 
 const meta = {
+  id: 'templates-embedded-content',
   title: 'Templates/Embedded content',
   component: EmbeddedScreen,
   tags: ['autodocs'],

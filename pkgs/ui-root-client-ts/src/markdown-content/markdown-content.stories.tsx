@@ -4,7 +4,8 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { MarkdownContent } from './index';
 
 const meta = {
-  title: 'Components/Content/MarkdownContent',
+  id: 'components-content-markdowncontent',
+  title: 'Molecules/MarkdownContent',
   component: MarkdownContent,
   tags: ['autodocs'],
 } satisfies Meta<typeof MarkdownContent>;

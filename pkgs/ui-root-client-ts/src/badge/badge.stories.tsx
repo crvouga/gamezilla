@@ -3,7 +3,8 @@ import Example from './badge.example';
 import { Badge } from './index';
 
 const meta = {
-  title: 'Components/Data Display/Badge',
+  id: 'components-data-display-badge',
+  title: 'Atoms/Badge',
   component: Badge,
   tags: ['autodocs'],
 } satisfies Meta;

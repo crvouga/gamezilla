@@ -3,7 +3,8 @@ import { LogLine } from './index';
 import Example from './log-line.example';
 
 const meta = {
-  title: 'Primitives/LogLine',
+  id: 'primitives-logline',
+  title: 'Atoms/LogLine',
   component: LogLine,
   tags: ['autodocs'],
 } satisfies Meta;

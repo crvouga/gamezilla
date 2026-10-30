@@ -5,9 +5,11 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { Button } from './index';
 
 export default {
-  title: 'Patterns/Asynchronous save',
+  id: 'patterns-asynchronous-save',
+  title: 'Organisms/Patterns/Asynchronous save',
   component: Button,
   tags: ['autodocs'],
+  parameters: { controls: { disable: true } },
 } satisfies Meta<typeof Button>;
 
 export const Saved: StoryObj = {

@@ -3,7 +3,8 @@ import Example from './game-frame-setup.example';
 import { GamePlayerBar } from './index';
 
 const meta = {
-  title: 'Product/Game frame: Setup',
+  id: 'product-game-frame-setup',
+  title: 'Games/Shared/Components/GameSetup',
   component: GamePlayerBar,
   tags: ['autodocs'],
 } satisfies Meta;

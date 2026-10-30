@@ -14,17 +14,27 @@ import { BUTTON_SIZES, ButtonContent } from '../button-parts/index';
 import type { IconComponent } from '../create-icon/index';
 
 export type ButtonProps = {
+  /** Visible action label; prefer a verb that describes the outcome. */
   title: JSX.Element;
+  /** Runs the action. Use a Link for navigation to another route. */
   onClick?: (() => void) | undefined;
+  /** Primary action, neutral alternative, or destructive action. */
   intent?: ButtonIntent | undefined;
+  /** Solid emphasis, outlined alternative, or quiet ghost treatment. */
   variant?: ButtonVariant | undefined;
+  /** Visual size; small buttons retain a 44px hit target. */
   size?: ButtonSize | undefined;
+  /** Prevent activation when the action is unavailable. */
   disabled?: boolean | undefined;
+  /** Show progress and prevent duplicate activation while work is pending. */
   loading?: boolean | undefined;
   /** Mutation phase; overrides `loading`. See `useMutationButton`. */
   feedback?: ButtonFeedback | undefined;
+  /** Action-specific progress text, such as Saving. */
   loadingLabel?: JSX.Element | undefined;
+  /** Confirm the completed outcome inline. */
   successLabel?: JSX.Element | undefined;
+  /** Explain a failed action alongside its retry affordance. */
   errorLabel?: JSX.Element | undefined;
   /** Click handler while `feedback === 'error'`. Falls back to `onClick`. */
   onRetry?: (() => void) | undefined;
@@ -72,6 +82,9 @@ function buttonClass(args: {
 }
 
 /**
+ * Run an action in the current view, such as saving a form or confirming a
+ * choice. Use Link for navigation to another route.
+ *
  * `Button` -- a themed pill `<button>`: three intents, three sizes, three
  * variants. The design brief's four buttons are:
  *
@@ -88,6 +101,8 @@ function buttonClass(args: {
  * `disabled` greys the face; `loading` / `feedback` drive the inline
  * mutation faces (spinner, check, retry) -- pair with `useMutationButton`.
  * A `size="sm"` button is 32px tall but keeps a 44px hit area.
+ *
+ * @summary Run an action in the current view
  *
  * @example
  * ```tsx

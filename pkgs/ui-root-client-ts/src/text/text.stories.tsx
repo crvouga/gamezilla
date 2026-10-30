@@ -3,7 +3,8 @@ import { P } from './index';
 import Example from './text.example';
 
 const meta = {
-  title: 'Primitives/Text',
+  id: 'primitives-text',
+  title: 'Atoms/Text',
   component: P,
   tags: ['autodocs'],
 } satisfies Meta;

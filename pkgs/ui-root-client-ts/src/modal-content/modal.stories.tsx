@@ -3,7 +3,8 @@ import { ModalContent } from './index';
 import Example from './modal.example';
 
 const meta = {
-  title: 'Components/Overlay/Modal',
+  id: 'components-overlay-modal',
+  title: 'Organisms/Modal',
   component: ModalContent,
   tags: ['autodocs'],
 } satisfies Meta;

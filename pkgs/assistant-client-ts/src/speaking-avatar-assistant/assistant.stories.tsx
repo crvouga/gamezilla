@@ -10,9 +10,11 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SpeakingAvatarAssistant } from './index';
 
 export default {
-  title: 'Product/Assistant',
+  id: 'product-assistant',
+  title: 'Organisms/Assistant',
   component: SpeakingAvatarAssistant,
   tags: ['autodocs'],
+  parameters: { controls: { disable: true } },
 } satisfies Meta;
 function AssistantFixture() {
   const assistant = createAssistant({

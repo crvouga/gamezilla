@@ -3,7 +3,8 @@ import Example from './board-fit.example';
 import { BoardFit } from './index';
 
 const meta = {
-  title: 'Layouts/BoardFit',
+  id: 'layouts-boardfit',
+  title: 'Games/Shared/Components/GameBoardFit',
   component: BoardFit,
   tags: ['autodocs'],
 } satisfies Meta;

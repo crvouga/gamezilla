@@ -153,6 +153,11 @@ function mirrorDocumentTheme(scheme: ColorScheme): () => void {
   };
 }
 
+/**
+ * Supply production design tokens and responsive layout context to a component
+ * tree. Nested providers can pin a scheme without changing the document theme.
+ * @summary Provide theme tokens and responsive layout context
+ */
 export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
   // Nested providers compose via host `data-theme` + Solid context only —
   // never fight over `<html>`. In-repo portals mount inside the host.

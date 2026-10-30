@@ -3,7 +3,8 @@ import { LoadingState } from './index';
 import Example from './loading-state.example';
 
 const meta = {
-  title: 'Components/Feedback/LoadingState',
+  id: 'components-feedback-loadingstate',
+  title: 'Molecules/LoadingState',
   component: LoadingState,
   tags: ['autodocs'],
 } satisfies Meta;

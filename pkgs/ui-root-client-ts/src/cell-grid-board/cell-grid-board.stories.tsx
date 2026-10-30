@@ -3,7 +3,8 @@ import Example from './cell-grid-board.example';
 import { CellGridBoard } from './index';
 
 const meta = {
-  title: 'Product/CellGridBoard',
+  id: 'product-cellgridboard',
+  title: 'Games/Battleship/Board',
   component: CellGridBoard,
   tags: ['autodocs'],
 } satisfies Meta;

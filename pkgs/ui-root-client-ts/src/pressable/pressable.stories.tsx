@@ -3,7 +3,8 @@ import { Pressable } from './index';
 import Example from './pressable.example';
 
 const meta = {
-  title: 'Primitives/Pressable',
+  id: 'primitives-pressable',
+  title: 'Atoms/Pressable',
   component: Pressable,
   tags: ['autodocs'],
 } satisfies Meta;

@@ -3,7 +3,8 @@ import { Layer } from './index';
 import Example from './layer.example';
 
 const meta = {
-  title: 'Layouts/Layer',
+  id: 'layouts-layer',
+  title: 'Atoms/Layer',
   component: Layer,
   tags: ['autodocs'],
 } satisfies Meta;

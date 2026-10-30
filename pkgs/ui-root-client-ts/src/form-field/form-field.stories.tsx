@@ -3,7 +3,8 @@ import Example from './form-field.example';
 import { FormField } from './index';
 
 const meta = {
-  title: 'Components/Inputs/FormField',
+  id: 'components-inputs-formfield',
+  title: 'Molecules/FormField',
   component: FormField,
   tags: ['autodocs'],
 } satisfies Meta;

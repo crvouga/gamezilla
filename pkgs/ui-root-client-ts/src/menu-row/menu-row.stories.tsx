@@ -3,7 +3,8 @@ import { MenuRow } from './index';
 import Example from './menu-row.example';
 
 const meta = {
-  title: 'Components/Data Display/MenuRow',
+  id: 'components-data-display-menurow',
+  title: 'Molecules/MenuRow',
   component: MenuRow,
   tags: ['autodocs'],
 } satisfies Meta;

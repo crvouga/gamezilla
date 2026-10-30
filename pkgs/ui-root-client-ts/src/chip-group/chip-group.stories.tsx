@@ -3,7 +3,8 @@ import Example from './chip-group.example';
 import { ChipGroup } from './index';
 
 const meta = {
-  title: 'Components/Inputs/ChipGroup',
+  id: 'components-inputs-chipgroup',
+  title: 'Molecules/ChipGroup',
   component: ChipGroup,
   tags: ['autodocs'],
 } satisfies Meta;

@@ -7,7 +7,7 @@
   ],
   "type": "module",
   "scripts": {
-    "ci:storybook": "playwright test -c storybook/playwright.config.ts --grep 'storybook integration|primitives-|button--|checkbox--|templates-form-editor|templates-search-and-collections'",
+    "ci:storybook": "playwright test -c storybook/playwright.config.ts --grep 'storybook integration|primitives-|button--|checkbox--|components-overlay-mutationmodal--|product-game-arena--searching|templates-form-editor|templates-search-and-collections'",
     "dev:storybook": "storybook dev --ci --no-open -c storybook -p 6006",
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
     "storybook:build": "storybook build -c storybook -o .cache/storybook",

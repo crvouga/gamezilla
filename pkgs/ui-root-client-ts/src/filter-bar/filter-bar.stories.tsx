@@ -3,7 +3,8 @@ import Example from './filter-bar.example';
 import { FilterBar } from './index';
 
 const meta = {
-  title: 'Components/Data Display/FilterBar',
+  id: 'components-data-display-filterbar',
+  title: 'Molecules/FilterBar',
   component: FilterBar,
   tags: ['autodocs'],
 } satisfies Meta;

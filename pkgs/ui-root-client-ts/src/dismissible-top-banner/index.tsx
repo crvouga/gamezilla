@@ -283,6 +283,12 @@ function DismissibleBannerFrame(
   );
 }
 
+/**
+ * Show a dismissible status message in the shell's top or bottom banner host.
+ * Mount DismissibleBannerPortalProvider once around the shell; use InFlowBanner
+ * when the content needs custom chrome instead of the standard message sheet.
+ * @summary Show a dismissible status message in shell chrome
+ */
 export function DismissibleBanner(props: DismissibleBannerProps): JSX.Element {
   const position = (): DismissibleBannerPosition => props.position ?? 'top';
   const tone = (): DismissibleBannerTone => props.tone ?? 'paper';

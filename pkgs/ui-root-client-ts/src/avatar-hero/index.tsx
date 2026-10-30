@@ -1,16 +1,9 @@
 /** @jsxImportSource solid-js */
-import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
-/**
- * `AvatarHero` -- centered large avatar stage with optional corner action.
- *
- * The corner action is a round 44px button (the canvas inside a hairline
- * ring, like a panel) anchored to the bottom-right of the preview slot, with
- * the hover / press tint, the focus ring and the disabled opacity.
- */
 
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
+import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 import { type JSX, Show } from 'solid-js';
 
 export type AvatarHeroAction = {
@@ -34,6 +27,13 @@ export type AvatarHeroProps = {
 const ACTION_INSET = 4;
 const STAGE_PADDING = 16;
 
+/**
+ * `AvatarHero` -- centered large avatar stage with optional corner action.
+ *
+ * The corner action is a round 44px button (the canvas inside a hairline
+ * ring, like a panel) anchored to the bottom-right of the preview slot, with
+ * the hover / press tint, the focus ring and the disabled opacity.
+ */
 export function AvatarHero(props: AvatarHeroProps): JSX.Element {
   const slotSize = () => props.size + ACTION_INSET * 2;
 

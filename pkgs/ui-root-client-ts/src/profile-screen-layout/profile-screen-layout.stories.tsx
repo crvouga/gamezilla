@@ -3,6 +3,7 @@ import { ProfileIdentity } from './index';
 import Example from './profile-screen-layout.example';
 
 const meta = {
+  id: 'templates-profile',
   title: 'Templates/Profile',
   component: ProfileIdentity,
   tags: ['autodocs'],

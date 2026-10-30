@@ -3,7 +3,8 @@ import Example from './game-setup-panel.example';
 import { GameSetupPanel } from './index';
 
 const meta = {
-  title: 'Templates/Game setup',
+  id: 'templates-game-setup',
+  title: 'Games/Shared/Screens/GameSetupPanel',
   component: GameSetupPanel,
   tags: ['autodocs'],
 } satisfies Meta;

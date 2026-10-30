@@ -3,7 +3,8 @@ import { SpeakingAvatar } from './index';
 import Example from './speaking-avatar.example';
 
 const meta = {
-  title: 'Components/Feedback/SpeakingAvatar',
+  id: 'components-feedback-speakingavatar',
+  title: 'Molecules/SpeakingAvatar',
   component: SpeakingAvatar,
   tags: ['autodocs'],
 } satisfies Meta;

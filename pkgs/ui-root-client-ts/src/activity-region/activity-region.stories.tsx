@@ -3,7 +3,8 @@ import Example from './activity-region.example';
 import { ActivityRegion } from './index';
 
 const meta = {
-  title: 'Layouts/ActivityRegion',
+  id: 'layouts-activityregion',
+  title: 'Organisms/ActivityRegion',
   component: ActivityRegion,
   tags: ['autodocs'],
 } satisfies Meta;

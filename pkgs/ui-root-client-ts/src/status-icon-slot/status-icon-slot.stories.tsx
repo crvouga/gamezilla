@@ -3,7 +3,8 @@ import { StatusIconSlot } from './index';
 import Example from './status-icon-slot.example';
 
 const meta = {
-  title: 'Components/Feedback/StatusIconSlot',
+  id: 'components-feedback-statusiconslot',
+  title: 'Molecules/StatusIconSlot',
   component: StatusIconSlot,
   tags: ['autodocs'],
 } satisfies Meta;

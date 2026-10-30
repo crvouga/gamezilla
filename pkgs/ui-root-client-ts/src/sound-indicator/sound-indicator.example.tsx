@@ -1,19 +1,8 @@
 /** @jsxImportSource solid-js */
 
-import { SegmentedControl } from '@pkgs/ui-root-client-ts/segmented-control';
-import type { SoundIndicatorState } from '@pkgs/ui-root-client-ts/sound-indicator';
 import { SoundIndicator } from '@pkgs/ui-root-client-ts/sound-indicator';
 import { createSignal, type JSX } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
-
-const STATE_SEGMENTS: readonly {
-  key: SoundIndicatorState;
-  label: string;
-}[] = [
-  { key: 'idle', label: 'Idle' },
-  { key: 'playing', label: 'Playing' },
-  { key: 'muted', label: 'Muted' },
-];
 
 const TINT_OVERRIDES = {
   backgroundColor: 'tintSubtle',
@@ -52,22 +41,10 @@ function StaticRows(): JSX.Element {
 }
 
 export default function SoundIndicatorExample(): JSX.Element {
-  const [state, setState] = createSignal<SoundIndicatorState>('playing');
   const [tappedMuted, setTappedMuted] = createSignal(false);
   return (
     <ExampleRoot>
       <StaticRows />
-
-      <p class="text textCaption">{'Live state switcher'}</p>
-      <SegmentedControl<SoundIndicatorState>
-        segments={STATE_SEGMENTS}
-        selected={state()}
-        onSelect={setState}
-      />
-      <div class="box flex-row gap-3 items-center">
-        <SoundIndicator state={state()} size={20} />
-        <p class="text">{`state="${state()}"`}</p>
-      </div>
 
       <p class="text textCaption">{'Click to toggle mute'}</p>
       <button

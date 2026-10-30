@@ -3,7 +3,8 @@ import { PuzzleScreen } from './index';
 import Example from './puzzle-screen.example';
 
 const meta = {
-  title: 'Templates/Puzzle play',
+  id: 'templates-puzzle-play',
+  title: 'Games/Shared/Screens/GamePuzzleScreen',
   component: PuzzleScreen,
   tags: ['autodocs'],
 } satisfies Meta;

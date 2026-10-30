@@ -3,7 +3,8 @@ import Example from './document-panel.example';
 import { DocumentPanel } from './index';
 
 const meta = {
-  title: 'Components/Data Display/DocumentPanel',
+  id: 'components-data-display-documentpanel',
+  title: 'Organisms/DocumentPanel',
   component: DocumentPanel,
   tags: ['autodocs'],
 } satisfies Meta;

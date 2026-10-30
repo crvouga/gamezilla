@@ -3,7 +3,8 @@ import { Popover } from './index';
 import Example from './popover.example';
 
 const meta = {
-  title: 'Components/Overlay/Popover',
+  id: 'components-overlay-popover',
+  title: 'Molecules/Popover',
   component: Popover,
   tags: ['autodocs'],
 } satisfies Meta;

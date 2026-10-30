@@ -1,25 +1,9 @@
 /** @jsxImportSource solid-js */
-import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
-/**
- * `SoundIndicator` -- compact circular badge that visualises the current
- * audio state with a speaker / speaker-slash icon. Three states:
- *
- *   - `'idle'`    -> static speaker glyph. Audio is on, nothing playing.
- *   - `'playing'` -> speaker with static wave arcs.
- *   - `'muted'`   -> speaker-slash glyph. Audio is off.
- *
- * Purely presentational: it does **not** own the tap target -- callers wrap
- * it in a `Clickable` and own positioning. Exposes `role="status"` with an
- * `aria-label` naming the state so screen readers get the same signal.
- *
- * Colors default to the active theme's `surface` / `text` / `textSecondary`
- * tokens; override `backgroundColor`, `color`, and `mutedColor` for
- * deliberately mismatched looks (e.g. an always-light callout on an avatar).
- */
 
 import { useLingui } from '@lingui/solid/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
+import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 import { resolveColor } from '@pkgs/ui-root-shared-ts/resolve-color';
 import { type JSX, Show } from 'solid-js';
 import { AnimatedSpeakerWaves } from '../animated-speaker-waves/index';
@@ -47,6 +31,22 @@ export type SoundIndicatorProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
+/**
+ * `SoundIndicator` -- compact circular badge that visualises the current
+ * audio state with a speaker / speaker-slash icon. Three states:
+ *
+ *   - `'idle'`    -> static speaker glyph. Audio is on, nothing playing.
+ *   - `'playing'` -> speaker with static wave arcs.
+ *   - `'muted'`   -> speaker-slash glyph. Audio is off.
+ *
+ * Purely presentational: it does **not** own the tap target -- callers wrap
+ * it in a `Clickable` and own positioning. Exposes `role="status"` with an
+ * `aria-label` naming the state so screen readers get the same signal.
+ *
+ * Colors default to the active theme's `surface` / `text` / `textSecondary`
+ * tokens; override `backgroundColor`, `color`, and `mutedColor` for
+ * deliberately mismatched looks (e.g. an always-light callout on an avatar).
+ */
 export function SoundIndicator(props: SoundIndicatorProps): JSX.Element {
   const tokens = useThemeTokens();
   const { t } = useLingui();

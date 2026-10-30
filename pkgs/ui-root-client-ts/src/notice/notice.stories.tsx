@@ -3,7 +3,8 @@ import { Notice } from './index';
 import Example from './notice.example';
 
 const meta = {
-  title: 'Components/Feedback/Notice',
+  id: 'components-feedback-notice',
+  title: 'Molecules/Notice',
   component: Notice,
   tags: ['autodocs'],
 } satisfies Meta;

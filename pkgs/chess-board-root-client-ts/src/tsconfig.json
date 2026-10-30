@@ -1,0 +1,8 @@
+{
+  "extends": "../tsconfig.json",
+  "exclude": [
+    "../tests/**",
+    "../node_modules/**",
+    "../../chess-board-root-harness-ts/vite.config.mts"
+  ]
+}

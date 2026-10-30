@@ -3,7 +3,8 @@ import Example from './grid.example';
 import { Grid } from './index';
 
 const meta = {
-  title: 'Primitives/Grid',
+  id: 'primitives-grid',
+  title: 'Atoms/Grid',
   component: Grid,
   tags: ['autodocs'],
 } satisfies Meta;

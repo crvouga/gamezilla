@@ -3,7 +3,8 @@ import Example from './file-trigger.example';
 import { FileTrigger } from './index';
 
 const meta = {
-  title: 'Components/Inputs/FileTrigger',
+  id: 'components-inputs-filetrigger',
+  title: 'Molecules/FileTrigger',
   component: FileTrigger,
   tags: ['autodocs'],
 } satisfies Meta;

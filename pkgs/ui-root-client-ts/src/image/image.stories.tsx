@@ -3,7 +3,8 @@ import Example from './image.example';
 import { Image } from './index';
 
 const meta = {
-  title: 'Primitives/Image',
+  id: 'primitives-image',
+  title: 'Atoms/Image',
   component: Image,
   tags: ['autodocs'],
 } satisfies Meta;

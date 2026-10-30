@@ -3,7 +3,8 @@ import Example from './game-session-layout.example';
 import { GameSessionLayout } from './index';
 
 const meta = {
-  title: 'Templates/Matchmaking game',
+  id: 'templates-matchmaking-game',
+  title: 'Games/Shared/Screens/GameSessionLayout',
   component: GameSessionLayout,
   tags: ['autodocs'],
 } satisfies Meta;

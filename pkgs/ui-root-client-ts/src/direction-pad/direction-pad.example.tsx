@@ -1,13 +1,13 @@
 import {
   DirectionPad,
-  type DirectionPadHeading,
+  type DirectionPadProps,
 } from '@pkgs/ui-root-client-ts/direction-pad';
-import { P } from '@pkgs/ui-root-client-ts/text';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from 'solid-js';
+import { fn } from 'storybook/test';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 
-const LABELS = {
+export const DIRECTION_LABELS = {
   up: 'Steer up',
   right: 'Steer right',
   down: 'Steer down',
@@ -15,32 +15,24 @@ const LABELS = {
 };
 
 export default function DirectionPadExample(): JSX.Element {
-  const [last, setLast] = createSignal<DirectionPadHeading>();
-  const [count, setCount] = createSignal(0);
+  const onDirection =
+    fn<DirectionPadProps['onDirection']>().mockName('onDirection');
   return (
     <ExampleRoot>
       <ExampleSection title="Enabled: steers on touch, before the finger lifts">
         <DirectionPad
-          labels={LABELS}
+          labels={DIRECTION_LABELS}
           disabled={false}
           testId="direction-pad-example"
-          onDirection={(heading) => {
-            setLast(heading);
-            setCount((n) => n + 1);
-          }}
+          onDirection={onDirection}
         />
-        <P role="status" tone="secondary">
-          {last() === undefined
-            ? 'No direction yet'
-            : `Last: ${last()} (${count()} presses)`}
-        </P>
       </ExampleSection>
       <ExampleSection title="Disabled: between rounds or while watching">
         <DirectionPad
-          labels={LABELS}
+          labels={DIRECTION_LABELS}
           disabled={true}
           testId="direction-pad-example-disabled"
-          onDirection={() => undefined}
+          onDirection={onDirection}
         />
       </ExampleSection>
     </ExampleRoot>

@@ -3,7 +3,8 @@ import Example from './card-table.example';
 import { CardTable } from './index';
 
 const meta = {
-  title: 'Product/CardTable',
+  id: 'product-cardtable',
+  title: 'Games/Hearts/Table',
   component: CardTable,
   tags: ['autodocs'],
 } satisfies Meta;

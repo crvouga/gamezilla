@@ -1,19 +1,5 @@
 /** @jsxImportSource solid-js */
-/**
- * `DataTable` -- loader-driven columnar table with in-memory page cache.
- *
- * Callers inject `loadPage({ offset, limit, orderBy, orderDir })`. The table
- * never takes a full row array; it caches page responses, renders the current
- * page as a semantic `<table>`, and exposes pagination + optional column sort
- * (`<th aria-sort>` buttons).
- *
- * Declared column `width` values are minimums; the browser distributes
- * leftover width so columns always fill the table (horizontal scroll when the
- * frame is narrower than the sum of minimums).
- *
- * For compact row actions prefer quiet IconButton (~28px), not full Button.
- * Enable bulk select with `selectionMode="multiple"` + controlled keys.
- */
+
 import { useLingui } from '@lingui/solid/macro';
 import {
   pageSelectionState,
@@ -77,6 +63,21 @@ function createPageSelection<T>(
   });
 }
 
+/**
+ * `DataTable` -- loader-driven columnar table with in-memory page cache.
+ *
+ * Callers inject `loadPage({ offset, limit, orderBy, orderDir })`. The table
+ * never takes a full row array; it caches page responses, renders the current
+ * page as a semantic `<table>`, and exposes pagination + optional column sort
+ * (`<th aria-sort>` buttons).
+ *
+ * Declared column `width` values are minimums; the browser distributes
+ * leftover width so columns always fill the table (horizontal scroll when the
+ * frame is narrower than the sum of minimums).
+ *
+ * For compact row actions prefer quiet IconButton (~28px), not full Button.
+ * Enable bulk select with `selectionMode="multiple"` + controlled keys.
+ */
 export function DataTable<T>(props: DataTableProps<T>): JSX.Element {
   const { t } = useLingui();
   const cache = createDataTablePageCache<T>({

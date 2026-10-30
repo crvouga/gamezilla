@@ -3,7 +3,8 @@ import Example from './form-actions-footer.example';
 import { FormActionsFooter } from './index';
 
 const meta = {
-  title: 'Components/Inputs/FormActionsFooter',
+  id: 'components-inputs-formactionsfooter',
+  title: 'Molecules/FormActionsFooter',
   component: FormActionsFooter,
   tags: ['autodocs'],
 } satisfies Meta;

@@ -1,6 +1,6 @@
-import { Button } from '@pkgs/ui-root-client-ts/button';
 import {
   PathGridBoard,
+  type PathGridBoardProps,
   type PathGridTone,
 } from '@pkgs/ui-root-client-ts/path-grid-board';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -17,8 +17,9 @@ const TONES: readonly PathGridTone[] = [
 ];
 
 /** All six pair tones, connected and unfinished lines, editing and read-only states. */
-export default function PathGridBoardExample(): JSX.Element {
-  const [disabled, setDisabled] = createSignal(false);
+export default function PathGridBoardExample(
+  props: Pick<PathGridBoardProps, 'disabled' | 'onActivate'> = {}
+): JSX.Element {
   const [selected, setSelected] = createSignal(0);
   return (
     <ExampleRoot>
@@ -28,7 +29,7 @@ export default function PathGridBoardExample(): JSX.Element {
           rows={6}
           label="Labeled path colors"
           testId="example-paths"
-          disabled={disabled()}
+          disabled={props.disabled}
           cellLabel={(index) =>
             `Column ${(index % 6) + 1}, row ${Math.floor(index / 6) + 1}`
           }
@@ -49,11 +50,10 @@ export default function PathGridBoardExample(): JSX.Element {
               (_, column) => row * 6 + column
             ),
           }))}
-          onActivate={(index) => setSelected(Math.floor(index / 6) + 1)}
-        />
-        <Button
-          title="Toggle path controls"
-          onClick={() => setDisabled((value) => !value)}
+          onActivate={(index) => {
+            props.onActivate?.(index);
+            setSelected(Math.floor(index / 6) + 1);
+          }}
         />
       </StackVertical>
     </ExampleRoot>

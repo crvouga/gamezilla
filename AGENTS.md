@@ -134,11 +134,13 @@ package's `./*` mapping; closed, typed props (token names and variants,
 never `class` / `style`); style with `class` / `classList` / `style`
 internally; set `data-*` on the root via `dataAttrs({ component:
 '<PascalName>', ... })`; colocate CSF stories, fixtures, component styles and `baselines/` in the same slice, showing meaningful variants,
-states and interactions, and a harness test. Search Storybook before implementing UI.
-Read the production prop contract; develop reusable UI in Storybook first. Run
-`bun storybook:coverage`, targeted UI harness tests, `bun storybook:build`,
-`bun storybook:test`, and `bun verify`. Workflow and agent manifest discovery:
-[`pkgs/ui-root-harness-ts/README.md`](pkgs/ui-root-harness-ts/README.md).
+states and interactions, and a harness test.
+
+**Agent UI workflow:** before building, reviewing or maintaining a component or
+screen, follow the [Storybook agent workflow](pkgs/ui-root-harness-ts/README.md#agent-workflow)
+(discovery → reuse → stories → automated evidence → maintenance). It is the
+single workflow for every harness; `/storybook-ui <task>` is its command entry
+point. Use it together with the design guidance above.
 
 **DOM identifiers:** every host exposes `data-component="<Name>"`, and
 `ScreenBase` requires `screenId` (`data-screen`); both are stripped from

@@ -3,7 +3,8 @@ import { Tooltip } from './index';
 import Example from './tooltip.example';
 
 const meta = {
-  title: 'Components/Inputs/Tooltip',
+  id: 'components-inputs-tooltip',
+  title: 'Molecules/Tooltip',
   component: Tooltip,
   tags: ['autodocs'],
 } satisfies Meta;

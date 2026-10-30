@@ -3,7 +3,8 @@ import { ProgressBar } from './index';
 import Example from './progress-bar.example';
 
 const meta = {
-  title: 'Components/Feedback/ProgressBar',
+  id: 'components-feedback-progressbar',
+  title: 'Atoms/ProgressBar',
   component: ProgressBar,
   tags: ['autodocs'],
 } satisfies Meta;

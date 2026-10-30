@@ -3,7 +3,8 @@ import { MultiSelectSwatchGrid } from './index';
 import Example from './multi-select-swatch-grid.example';
 
 const meta = {
-  title: 'Components/Inputs/MultiSelectSwatchGrid',
+  id: 'components-inputs-multiselectswatchgrid',
+  title: 'Molecules/MultiSelectSwatchGrid',
   component: MultiSelectSwatchGrid,
   tags: ['autodocs'],
 } satisfies Meta;

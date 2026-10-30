@@ -21,10 +21,12 @@ const avatar = (_actor: { id: string }, size: number) => (
   <Avatar size={size} kind="person" />
 );
 export default {
-  title: 'Product/Presence',
+  id: 'product-presence',
+  title: 'Organisms/Presence',
   component: PresenceStrip,
   subcomponents: { PresenceRosterList, ParticipantDot },
   tags: ['autodocs'],
+  parameters: { controls: { disable: true } },
 } satisfies Meta;
 export const Connected: StoryObj = {
   render: () => (

@@ -3,7 +3,8 @@ import Example from './error-state.example';
 import { ErrorState } from './index';
 
 const meta = {
-  title: 'Components/Feedback/ErrorState',
+  id: 'components-feedback-errorstate',
+  title: 'Molecules/ErrorState',
   component: ErrorState,
   tags: ['autodocs'],
 } satisfies Meta;

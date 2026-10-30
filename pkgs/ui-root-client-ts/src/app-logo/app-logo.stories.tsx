@@ -3,7 +3,8 @@ import Example from './app-logo.example';
 import { AppLogo } from './index';
 
 const meta = {
-  title: 'Components/Brand/AppLogo',
+  id: 'components-brand-applogo',
+  title: 'Atoms/AppLogo',
   component: AppLogo,
   tags: ['autodocs'],
 } satisfies Meta;

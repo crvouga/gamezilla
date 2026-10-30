@@ -3,7 +3,8 @@ import { List } from './index';
 import Example from './list.example';
 
 const meta = {
-  title: 'Components/Data Display/List',
+  id: 'components-data-display-list',
+  title: 'Molecules/List',
   component: List,
   tags: ['autodocs'],
 } satisfies Meta;

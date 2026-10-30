@@ -3,6 +3,7 @@ import Example from './content-screen.example';
 import { ContentScreen } from './index';
 
 const meta = {
+  id: 'templates-details-and-documents',
   title: 'Templates/Details and documents',
   component: ContentScreen,
   tags: ['autodocs'],

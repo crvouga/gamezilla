@@ -3,7 +3,8 @@ import { SocialSignInButton } from './index';
 import Example from './social-sign-in-button.example';
 
 const meta = {
-  title: 'Components/Inputs/SocialSignInButton',
+  id: 'components-inputs-socialsigninbutton',
+  title: 'Molecules/SocialSignInButton',
   component: SocialSignInButton,
   tags: ['autodocs'],
 } satisfies Meta;

@@ -3,7 +3,8 @@ import { WordTileBoard } from './index';
 import Example from './word-tile-board.example';
 
 const meta = {
-  title: 'Product/WordTileBoard',
+  id: 'product-wordtileboard',
+  title: 'Games/Word Tiles/Board',
   component: WordTileBoard,
   tags: ['autodocs'],
 } satisfies Meta;

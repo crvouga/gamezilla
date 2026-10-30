@@ -3,7 +3,8 @@ import { StatusDot } from './index';
 import Example from './status-dot.example';
 
 const meta = {
-  title: 'Components/Data Display/StatusDot',
+  id: 'components-data-display-statusdot',
+  title: 'Atoms/StatusDot',
   component: StatusDot,
   tags: ['autodocs'],
 } satisfies Meta;

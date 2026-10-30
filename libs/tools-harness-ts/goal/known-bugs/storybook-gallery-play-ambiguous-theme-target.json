@@ -1,0 +1,4 @@
+{
+  "summary": "A game-play gallery's play function queried a test id shared by its light and dark panes, causing an ambiguous-target failure. The play now scopes each interaction to its theme pane and proves both toolbars return to the original selection.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/essentials.checks.ts"
+}

@@ -3,7 +3,8 @@ import { Sparkline } from './index';
 import Example from './sparkline.example';
 
 const meta = {
-  title: 'Primitives/Sparkline',
+  id: 'primitives-sparkline',
+  title: 'Atoms/Sparkline',
   component: Sparkline,
   tags: ['autodocs'],
 } satisfies Meta;

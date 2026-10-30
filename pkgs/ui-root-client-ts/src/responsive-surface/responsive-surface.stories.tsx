@@ -3,7 +3,8 @@ import { ResponsiveSurface } from './index';
 import Example from './responsive-surface.example';
 
 const meta = {
-  title: 'Components/Overlay/ResponsiveSurface',
+  id: 'components-overlay-responsivesurface',
+  title: 'Molecules/ResponsiveSurface',
   component: ResponsiveSurface,
   tags: ['autodocs'],
 } satisfies Meta;

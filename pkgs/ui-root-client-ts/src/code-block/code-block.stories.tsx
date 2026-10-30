@@ -3,7 +3,8 @@ import Example from './code-block.example';
 import { CodeBlock } from './index';
 
 const meta = {
-  title: 'Primitives/CodeBlock',
+  id: 'primitives-codeblock',
+  title: 'Atoms/CodeBlock',
   component: CodeBlock,
   tags: ['autodocs'],
 } satisfies Meta;

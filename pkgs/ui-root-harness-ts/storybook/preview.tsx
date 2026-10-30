@@ -5,11 +5,23 @@ import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { createEffect, onCleanup } from 'solid-js';
+import { addons } from 'storybook/preview-api';
 import { createJSXDecorator, type Preview } from 'storybook-solidjs-vite';
 import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/application.css';
+import { backgrounds, viewports } from './preview-options';
+import { trackStoryReadiness } from './story-readiness';
 
 const withProviders = createJSXDecorator((Story, context) => {
+  if (context.viewMode === 'story') {
+    onCleanup(
+      trackStoryReadiness(
+        context.canvasElement,
+        context.id,
+        addons.getChannel()
+      )
+    );
+  }
   const harness = createHarnessClock({ startMs: 1_700_000_000_000 });
   const advance = (event: Event): void => {
     const ms: unknown = (event as CustomEvent<unknown>).detail;
@@ -31,6 +43,7 @@ const withProviders = createJSXDecorator((Story, context) => {
         <ThemeProvider
           colorScheme={context.globals['theme'] === 'dark' ? 'dark' : 'light'}
           reducedMotion
+          transparent
         >
           <SurfaceStackProvider>
             <Story />
@@ -43,10 +56,14 @@ const withProviders = createJSXDecorator((Story, context) => {
 
 export default {
   decorators: [withProviders],
-  afterEach: ({ canvasElement }) => {
-    canvasElement.setAttribute('data-story-ready', 'true');
+  initialGlobals: {
+    theme: 'light',
+    timeStep: '0',
+    backgrounds: { value: 'canvas', grid: false },
+    a11y: { manual: true },
+    measureEnabled: false,
+    outline: false,
   },
-  initialGlobals: { theme: 'light', timeStep: '0' },
   globalTypes: {
     timeStep: {
       description: 'Advance virtual time without wall timers',
@@ -66,34 +83,23 @@ export default {
   },
   parameters: {
     layout: 'fullscreen',
-    a11y: { test: 'error', manual: true },
-    controls: { expanded: true },
+    a11y: { test: 'error' },
+    controls: { expanded: true, sort: 'requiredFirst' },
+    backgrounds,
     options: {
       storySort: {
         order: [
           'Start here',
           'Foundations',
-          'Primitives',
-          'Components',
-          'Patterns',
-          'Layouts',
+          'Atoms',
+          'Molecules',
+          'Organisms',
           'Templates',
-          'Product',
+          'Games',
+          ['Shared', ['Screens', 'Components'], '*'],
         ],
       },
     },
-    viewport: {
-      options: {
-        phone: { name: 'Phone', styles: { width: '390px', height: '844px' } },
-        tablet: {
-          name: 'Tablet',
-          styles: { width: '768px', height: '1024px' },
-        },
-        desktop: {
-          name: 'Desktop',
-          styles: { width: '1440px', height: '900px' },
-        },
-      },
-    },
+    viewport: { options: viewports },
   },
 } satisfies Preview;

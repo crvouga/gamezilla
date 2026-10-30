@@ -3,7 +3,8 @@ import { ScreenLargeTitle } from './index';
 import Example from './screen-title.example';
 
 const meta = {
-  title: 'Layouts/ScreenLargeTitle',
+  id: 'layouts-screenlargetitle',
+  title: 'Molecules/ScreenLargeTitle',
   component: ScreenLargeTitle,
   tags: ['autodocs'],
 } satisfies Meta;

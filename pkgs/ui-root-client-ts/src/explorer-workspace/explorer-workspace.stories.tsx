@@ -3,7 +3,8 @@ import Example from './explorer-workspace.example';
 import { ExplorerWorkspace } from './index';
 
 const meta = {
-  title: 'Components/Data Display/ExplorerWorkspace',
+  id: 'components-data-display-explorerworkspace',
+  title: 'Organisms/ExplorerWorkspace',
   component: ExplorerWorkspace,
   tags: ['autodocs'],
 } satisfies Meta;

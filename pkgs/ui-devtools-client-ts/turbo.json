@@ -3,6 +3,7 @@
   "extends": ["//"],
   "tasks": {
     "src": {
+      "inputs": ["$TURBO_EXTENDS$", "!src/tsconfig.json"],
       "dependsOn": [
         "@pkgs/async-root-client-ts#src",
         "@pkgs/ui-devtools-shared-ts#src",

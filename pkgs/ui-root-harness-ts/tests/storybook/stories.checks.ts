@@ -15,9 +15,9 @@ for (const story of Object.values(index.entries).filter(
   (e) => e.type === 'story'
 )) {
   for (const scenario of visualScenarios(story)) {
-    const { width, theme, suffix } = scenario;
+    const { width, height, theme, suffix } = scenario;
     test(`${story.id} ${theme}${suffix}`, async ({ page }) => {
-      await page.setViewportSize({ width, height: 844 });
+      await page.setViewportSize({ width, height });
       const failures: string[] = [];
       page.on('pageerror', (error) => failures.push(error.message));
       await page.route('**/*', (route) =>
@@ -28,10 +28,18 @@ for (const story of Object.values(index.entries).filter(
       await page.goto(
         `/iframe.html?id=${story.id}&viewMode=story&globals=theme:${theme}`
       );
-      await expect(page.locator('#storybook-root')).toHaveAttribute(
-        'data-story-ready',
-        'true'
-      );
+      await expect
+        .poll(async () =>
+          page.locator('#storybook-root').evaluate((root) => {
+            const status = root.getAttribute('data-story-status');
+            if (status === 'error')
+              return `error: ${root.getAttribute('data-story-error') ?? 'Storybook reported a failure'}`;
+            return root.getAttribute('data-story-ready') === 'true'
+              ? 'success'
+              : 'pending';
+          })
+        )
+        .toBe('success');
       await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
       await page.evaluate(() => document.fonts.ready);
       await page.addScriptTag({ content: axe.source });

@@ -3,7 +3,8 @@ import Example from './game-history-screen.example';
 import { GameHistoryScreen } from './index';
 
 const meta = {
-  title: 'Templates/Game and puzzle history',
+  id: 'templates-game-and-puzzle-history',
+  title: 'Games/Shared/Screens/GameHistoryScreen',
   component: GameHistoryScreen,
   tags: ['autodocs'],
 } satisfies Meta;

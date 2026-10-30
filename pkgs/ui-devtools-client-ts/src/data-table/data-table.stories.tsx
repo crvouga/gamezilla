@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import Example from './data-table.example';
 import { DataTable } from './index';
 export default {
-  title: 'Product/Developer tools/DataTable',
+  id: 'product-developer-tools-datatable',
+  title: 'Organisms/DataTable',
   component: DataTable,
   tags: ['autodocs'],
 } satisfies Meta;

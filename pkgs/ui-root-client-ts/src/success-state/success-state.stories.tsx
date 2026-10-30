@@ -3,7 +3,8 @@ import { SuccessState } from './index';
 import Example from './success-state.example';
 
 const meta = {
-  title: 'Components/Feedback/SuccessState',
+  id: 'components-feedback-successstate',
+  title: 'Molecules/SuccessState',
   component: SuccessState,
   tags: ['autodocs'],
 } satisfies Meta;

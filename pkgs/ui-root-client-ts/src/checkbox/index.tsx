@@ -5,13 +5,17 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { type JSX, Show } from 'solid-js';
 
 export type CheckboxProps = {
+  /** Current selection; the parent owns and updates this value. */
   checked: boolean;
+  /** Receives the next selection; activating an indeterminate box selects it. */
   onToggle: (next: boolean) => void;
   /** Optional label displayed next to the checkbox. */
   label?: JSX.Element | undefined;
   /** When true, shows the indeterminate (dash) glyph. */
   indeterminate?: boolean | undefined;
+  /** Prevent changing an unavailable choice while keeping it visible. */
   disabled?: boolean | undefined;
+  /** Accessible name when no visible label is supplied. */
   'aria-label'?: string | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
@@ -40,6 +44,9 @@ function CheckboxGlyph(props: { indeterminate: boolean }): JSX.Element {
 }
 
 /**
+ * Select an independent choice, such as an invitation preference in a form.
+ * Use Switch for a setting that takes effect immediately.
+ *
  * `Checkbox` -- checked / unchecked / indeterminate control.
  *
  * A 20px box with the small radius and an outline border (`skin.css`
@@ -48,6 +55,8 @@ function CheckboxGlyph(props: { indeterminate: boolean }): JSX.Element {
  * glyph, not only the color, says which. The whole row (box and label) is
  * the hit area, at least 44px tall (and 44px wide without a label), with the
  * hover tint, the keyboard focus ring and the disabled opacity.
+ *
+ * @summary Select an independent choice
  */
 export function Checkbox(props: CheckboxProps): JSX.Element {
   const indeterminate = () => props.indeterminate ?? false;

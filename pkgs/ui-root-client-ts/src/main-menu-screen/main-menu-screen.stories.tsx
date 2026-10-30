@@ -3,6 +3,7 @@ import { MainMenuScreen } from './index';
 import Example from './main-menu-screen.example';
 
 const meta = {
+  id: 'templates-main-menu',
   title: 'Templates/Main menu',
   component: MainMenuScreen,
   tags: ['autodocs'],

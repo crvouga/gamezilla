@@ -3,7 +3,8 @@ import Example from './brand-icon.example';
 import { BrandIcon } from './index';
 
 const meta = {
-  title: 'Components/Icons/BrandIcon',
+  id: 'components-icons-brandicon',
+  title: 'Atoms/BrandIcon',
   component: BrandIcon,
   tags: ['autodocs'],
 } satisfies Meta;

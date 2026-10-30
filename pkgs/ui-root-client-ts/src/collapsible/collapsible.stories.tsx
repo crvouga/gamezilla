@@ -3,7 +3,8 @@ import Example from './collapsible.example';
 import { Collapsible } from './index';
 
 const meta = {
-  title: 'Components/Disclosure/Collapsible',
+  id: 'components-disclosure-collapsible',
+  title: 'Molecules/Collapsible',
   component: Collapsible,
   tags: ['autodocs'],
 } satisfies Meta;

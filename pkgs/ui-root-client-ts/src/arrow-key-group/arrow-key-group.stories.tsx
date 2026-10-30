@@ -3,7 +3,8 @@ import Example from './arrow-key-group.example';
 import { ArrowKeyGroup } from './index';
 
 const meta = {
-  title: 'Primitives/ArrowKeyGroup',
+  id: 'primitives-arrowkeygroup',
+  title: 'Atoms/ArrowKeyGroup',
   component: ArrowKeyGroup,
   tags: ['autodocs'],
 } satisfies Meta;

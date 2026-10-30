@@ -3,7 +3,8 @@ import Example from './card.example';
 import { Card } from './index';
 
 const meta = {
-  title: 'Layouts/Card',
+  id: 'layouts-card',
+  title: 'Atoms/Card',
   component: Card,
   tags: ['autodocs'],
 } satisfies Meta;

@@ -3,7 +3,8 @@ import Example from './bottom-action-bar.example';
 import { BottomActionBar } from './index';
 
 const meta = {
-  title: 'Components/Inputs/BottomActionBar',
+  id: 'components-inputs-bottomactionbar',
+  title: 'Molecules/BottomActionBar',
   component: BottomActionBar,
   tags: ['autodocs'],
 } satisfies Meta;

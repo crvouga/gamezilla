@@ -3,7 +3,8 @@ import Example from './code-editor.example';
 import { CodeEditor } from './index';
 
 const meta = {
-  title: 'Components/Inputs/CodeEditor',
+  id: 'components-inputs-codeeditor',
+  title: 'Molecules/CodeEditor',
   component: CodeEditor,
   tags: ['autodocs'],
 } satisfies Meta;

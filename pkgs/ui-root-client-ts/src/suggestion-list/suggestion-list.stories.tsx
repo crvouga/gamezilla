@@ -3,7 +3,8 @@ import { SuggestionList } from './index';
 import Example from './suggestion-list.example';
 
 const meta = {
-  title: 'Components/Inputs/SuggestionList',
+  id: 'components-inputs-suggestionlist',
+  title: 'Molecules/SuggestionList',
   component: SuggestionList,
   tags: ['autodocs'],
 } satisfies Meta;

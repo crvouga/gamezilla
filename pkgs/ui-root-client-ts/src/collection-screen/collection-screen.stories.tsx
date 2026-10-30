@@ -3,6 +3,7 @@ import Example from './collection-screen.example';
 import { CollectionScreen } from './index';
 
 const meta = {
+  id: 'templates-search-and-collections',
   title: 'Templates/Search and collections',
   component: CollectionScreen,
   tags: ['autodocs'],

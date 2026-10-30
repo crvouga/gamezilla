@@ -3,6 +3,7 @@ import Example from './form-screen.example';
 import { FormScreen } from './index';
 
 const meta = {
+  id: 'templates-form-editor',
   title: 'Templates/Form editor',
   component: FormScreen,
   tags: ['autodocs'],

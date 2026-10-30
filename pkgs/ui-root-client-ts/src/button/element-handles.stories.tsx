@@ -3,7 +3,8 @@ import Example from './element-handles.example';
 import { Button } from './index';
 
 const meta = {
-  title: 'Primitives/Focus, scroll and measure',
+  id: 'primitives-focus-scroll-and-measure',
+  title: 'Atoms/Focus, scroll and measure',
   component: Button,
   tags: ['autodocs'],
 } satisfies Meta;

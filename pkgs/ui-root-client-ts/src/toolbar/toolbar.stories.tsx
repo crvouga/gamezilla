@@ -3,7 +3,8 @@ import { Toolbar } from './index';
 import Example from './toolbar.example';
 
 const meta = {
-  title: 'Layouts/Toolbar',
+  id: 'layouts-toolbar',
+  title: 'Organisms/Toolbar',
   component: Toolbar,
   tags: ['autodocs'],
 } satisfies Meta;

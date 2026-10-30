@@ -3,7 +3,8 @@ import { OverflowMenuButton } from './index';
 import Example from './overflow-menu-button.example';
 
 const meta = {
-  title: 'Components/Inputs/OverflowMenuButton',
+  id: 'components-inputs-overflowmenubutton',
+  title: 'Molecules/OverflowMenuButton',
   component: OverflowMenuButton,
   tags: ['autodocs'],
 } satisfies Meta;

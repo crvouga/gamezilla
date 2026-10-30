@@ -3,7 +3,8 @@ import Example from './app-frame.example';
 import { AppFrame } from './index';
 
 const meta = {
-  title: 'Layouts/AppFrame',
+  id: 'layouts-appframe',
+  title: 'Templates/AppFrame',
   component: AppFrame,
   tags: ['autodocs'],
 } satisfies Meta;
