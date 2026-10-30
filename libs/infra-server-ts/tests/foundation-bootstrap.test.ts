@@ -144,6 +144,29 @@ describe('foundation bootstrap', () => {
     expect(wiring).not.toContain('data "grafana_data_source"');
   });
 
+  // regression: archived-grafana-orphan-refresh
+  test('archived views and credentials are retained instead of deleted', () => {
+    const files = [
+      OBSERVABILITY_VIEWS,
+      OBSERVABILITY_ALERTS,
+      OBSERVABILITY_WIRING,
+      join(
+        import.meta.dirname,
+        '../../infra-shared-ts/tofu/modules/observability-views/slos.tf'
+      ),
+    ];
+    let resources = 0;
+    for (const file of files) {
+      const source = readFileSync(file, 'utf8');
+      const blocks = source.split(/resource "grafana[^\n]+\{\n/).slice(1);
+      for (const block of blocks) {
+        expect(block).toMatch(/^\s*lifecycle\s*\{\s*destroy = false\s*\}/);
+        resources += 1;
+      }
+    }
+    expect(resources).toBe(6);
+  });
+
   // regression: railway-project-name-over-32
   test('the shared Railway project name is between 1 and 32 characters', () => {
     const railway = readFileSync(RAILWAY_PROJECT, 'utf8');

@@ -64,6 +64,7 @@ import {
   migrateToBucket,
   useLocalBackend,
 } from './bootstrap-backend';
+import { retireArchivedGrafana } from './grafana-retirement';
 import { resolveInfisicalToken } from './infisical-token';
 import { infraOperation } from './infra-operation';
 import { backupState } from './state-backup';
@@ -244,6 +245,20 @@ async function runOnce(
   const env = await toolEnvironment(target, cli);
   const label = `${target.stack}/${target.env ?? cli.env ?? 'global'}`;
   const teardown = teardownOf(target, cli);
+  if (target.stack === 'foundation' && command !== 'destroy') {
+    const previewed = await retireArchivedGrafana({
+      paths: PATHS,
+      target,
+      env,
+      policyDir: POLICY_DIR,
+      preview: command !== 'apply',
+    });
+    if (previewed) {
+      if (command === 'drift')
+        fail(`${label}: archived Grafana state needs retirement`);
+      return 'done';
+    }
+  }
   const status = await planTarget(target, env, cli);
   checkPolicy(target, env, teardown, cli.recoverCiIdentity);
   if (status === 0) {

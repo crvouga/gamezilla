@@ -29,11 +29,19 @@ locals {
 }
 
 resource "grafana_folder" "this" {
+  lifecycle {
+    destroy = false
+  }
+
   title = "Business observability — ${var.environment}"
   uid   = "business-observability-${var.environment}"
 }
 
 resource "grafana_dashboard" "this" {
+  lifecycle {
+    destroy = false
+  }
+
   for_each = fileset(path.module, "dashboards/*.json.tftpl")
   folder   = grafana_folder.this.uid
   config_json = templatefile("${path.module}/${each.value}", {
