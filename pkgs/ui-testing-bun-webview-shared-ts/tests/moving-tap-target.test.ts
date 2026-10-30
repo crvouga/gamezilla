@@ -4,6 +4,64 @@ import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview-shared-ts/bun-web
 import type { BunWebView } from '@pkgs/ui-testing-bun-webview-shared-ts/bun-webview-host';
 import { Window } from 'happy-dom';
 
+test('a replaced unique attempt button remains the logical tap target', async () => {
+  // regression: browser-tap-detached-unique-marker
+  const window = new Window();
+  const markup =
+    '<button data-testid="content-start-attempt">Start a new attempt</button>';
+  window.document.body.innerHTML = markup;
+  const prepare = () => {
+    const target = window.document.querySelector('button')!;
+    target.scrollIntoView = () => undefined;
+    target.getBoundingClientRect = () => new window.DOMRect(0, 100, 100, 40);
+    window.document.elementFromPoint = () => target;
+  };
+  prepare();
+  Object.defineProperty(window, 'requestAnimationFrame', {
+    value: (callback: (timestamp: number) => void) => callback(0),
+  });
+  let clicks = 0;
+  const view: BunWebView = {
+    navigate: async () => undefined,
+    close: () => undefined,
+    press: async () => undefined,
+    screenshot: async () => new Uint8Array(),
+    evaluate: async (script) => {
+      if (script.includes('__uiTestingPointerCounts'))
+        return [clicks, clicks, clicks, 1, true];
+      if (
+        !script.includes('document.elementFromPoint') &&
+        script.includes('getComputedStyle')
+      )
+        return true;
+      const result = await window.eval(script);
+      if (script.includes('document.elementFromPoint')) {
+        window.document.body.innerHTML = markup;
+        prepare();
+      }
+      return result;
+    },
+    click: async (selector) => {
+      if (
+        typeof selector !== 'string' ||
+        window.document.querySelector(selector) === null
+      )
+        throw new Error(
+          'the marked button was replaced before native dispatch'
+        );
+      clicks += 1;
+    },
+  };
+  try {
+    await new BunWebviewDriver({ view, timers: createHarnessClock().timers })
+      .get('content-start-attempt')
+      .tap();
+    expect(clicks).toBe(1);
+  } finally {
+    await window.happyDOM.close();
+  }
+});
+
 test('a late offline notice cannot redirect a draft creation tap', async () => {
   // regression: browser-tap-stale-target-coordinates
   const window = new Window();
@@ -29,7 +87,7 @@ test('a late offline notice cannot redirect a draft creation tap', async () => {
     screenshot: async () => new Uint8Array(),
     evaluate: async (script) => {
       if (script.includes('__uiTestingPointerCounts'))
-        return [clicks, clicks, clicks, 1];
+        return [clicks, clicks, clicks, 1, true];
       if (
         !script.includes('document.elementFromPoint') &&
         script.includes('getComputedStyle')

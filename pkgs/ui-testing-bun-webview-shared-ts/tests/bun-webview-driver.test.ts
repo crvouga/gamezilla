@@ -31,7 +31,7 @@ function createFakeView(): BunWebView & {
     press: mock(() => Promise.resolve()),
     evaluate: mock(async (script: string) => {
       if (script.includes('__uiTestingPointerCounts')) {
-        return [pointer.down, pointer.up, pointer.click ?? 0];
+        return [pointer.down, pointer.up, pointer.click ?? 0, 1, true];
       }
       // Before `getComputedStyle`: the text read uses it to skip hidden branches.
       if (script.includes('visibleText') || script.includes('.value')) {
@@ -50,6 +50,31 @@ function createFakeView(): BunWebView & {
 }
 
 describe('BunWebviewDriver', () => {
+  it('rejects an off-target trusted click without sending another gesture', async () => {
+    // regression: browser-tap-accepts-unrelated-click
+    const view = createFakeView();
+    const fallback = view.evaluate.getMockImplementation();
+    view.evaluate.mockImplementation((script: string) => {
+      if (script.includes('document.elementFromPoint'))
+        return Promise.resolve('[data-ui-testing-press-target="10"]');
+      if (script.includes('__uiTestingPointerCounts'))
+        return Promise.resolve([
+          view.pointer.down,
+          view.pointer.up,
+          view.pointer.click,
+          1,
+          false,
+          'BUTTON[data-testid=other-action]',
+        ]);
+      return fallback?.(script);
+    });
+    await expect(
+      new BunWebviewDriver({ view, timers }).get('content-start-attempt').tap()
+    ).rejects.toThrow(
+      'trusted click missed the selected control; hit BUTTON[data-testid=other-action]'
+    );
+    expect(view.click).toHaveBeenCalledTimes(1);
+  });
   it('enabled waits for a visible control to clear its native disabled flag', async () => {
     // regression: browser-enabled-state-attribute-round-trips
     const view = createFakeView();
@@ -94,6 +119,7 @@ describe('BunWebviewDriver', () => {
           view.pointer.up,
           view.pointer.click,
           documentId,
+          true,
         ]);
       return evaluate?.(script);
     });

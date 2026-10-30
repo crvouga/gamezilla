@@ -1,0 +1,4 @@
+{
+  "summary": "Checking click target ancestry after event handlers ran could reject a legitimate nested control that removed its screen. Capture target attribution and bounded diagnostics during document capture, before application handlers alter the DOM, without retaining element references.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-shared-ts/tests/native-click.test.ts"
+}

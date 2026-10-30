@@ -53,7 +53,9 @@ async function pressBelowFooter(
       const counts = Reflect.get(window, '__uiTestingPointerCounts');
       counts.down++;
       counts.up++;
-      counts.click++;
+      const event = new MouseEvent('click', { bubbles: true, composed: true });
+      Object.defineProperty(event, 'isTrusted', { value: true });
+      button.dispatchEvent(event);
     },
     close: () => {},
   } as unknown as BunWebView;
