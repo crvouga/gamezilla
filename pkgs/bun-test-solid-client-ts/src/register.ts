@@ -28,7 +28,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { threadId } from 'node:worker_threads';
 import type * as Babel from '@babel/core';
 import { GlobalRegistrator } from '@happy-dom/global-registrator';
@@ -36,10 +36,6 @@ import { plugin } from 'bun';
 import { publishCacheFile } from './cache-file';
 import { compileCssModule } from './css-module';
 import { rememberNativeEvent } from './native-event';
-import {
-  createWorkspaceResolver,
-  WORKSPACE_IMPORT,
-} from './workspace-resolver';
 
 process.env.NODE_ENV = process.env.NODE_ENV ?? 'test';
 
@@ -139,6 +135,26 @@ function cssModule(path: string): { contents: string; loader: 'js' } {
     };
   }
   return { contents: 'export {};', loader: 'js' };
+}
+
+const WORKSPACE_IMPORT = /^@(libs|pkgs)\//;
+
+/** Keep Bun's public export rules when isolated realms load plugin-transformed TSX. */
+export function createWorkspaceResolver(
+  resolve: (specifier: string, directory: string) => string
+): (args: { path: string; importer: string }) => { path: string } | undefined {
+  let resolving = false;
+  return (args) => {
+    if (!WORKSPACE_IMPORT.test(args.path) || resolving) return;
+    resolving = true;
+    try {
+      // Bun.resolveSync re-enters runtime onResolve hooks synchronously. Let
+      // that inner call use Bun's native resolver rather than recurse forever.
+      return { path: resolve(args.path, dirname(args.importer)) };
+    } finally {
+      resolving = false;
+    }
+  };
 }
 
 plugin({

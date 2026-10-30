@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { basename, dirname } from 'node:path';
-import { createWorkspaceResolver } from '@pkgs/bun-test-solid-client-ts/workspace-resolver';
+import { createWorkspaceResolver } from '@pkgs/bun-test-solid-client-ts/register';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
 
