@@ -12,6 +12,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import type { ReplayPlan } from '@pkgs/quint-server-ts/trace-runs';
+import { readFeatureVariants, variantFeatureUnits } from './feature-variants';
 import type { SpecUnit } from './spec-parts';
 import { specUnits } from './spec-parts';
 
@@ -55,8 +56,13 @@ export function packageSpecInventory(
   specs: readonly string[]
 ): (partCount?: number) => readonly SpecUnit[] {
   const plans = readReplayPlans(packageDir);
+  const variants = readFeatureVariants(packageDir);
   const inventories = specs.map((path) => {
     const source = readFileSync(path, 'utf8');
+    if (path.endsWith('.feature') && variants !== null) {
+      const units = variantFeatureUnits(path, source, variants);
+      return () => units;
+    }
     const plan = path.endsWith('.qnt') ? replayPlanFor(plans, path) : undefined;
     // An unplanned model's slice count depends on the candidate part count.
     if (path.endsWith('.qnt') && plan == null)

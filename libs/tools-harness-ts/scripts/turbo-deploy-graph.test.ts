@@ -81,7 +81,7 @@ test('slow spec suites split into independently cached parts that all gate Verif
   // replays and load stay inside the caps of libs/harness-ts/scripts/spec-parts.ts.
   expectSpecParts('libs/chess-root-harness-ts', 13, ['chess']);
   // regression: games-spec-parts-exceed-capacity-pole
-  expectSpecParts('libs/games-harness-ts', 114, ['games']);
+  expectSpecParts('libs/games-harness-ts', MAX_SPEC_PARTS, ['games']);
 });
 
 // regression: ci-chess-board-omits-inherited-spec-inputs
