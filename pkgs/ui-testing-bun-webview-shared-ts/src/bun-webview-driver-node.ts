@@ -153,11 +153,10 @@ function clickProgress(
  */
 async function nativeClick(
   view: BunWebView,
-  point: { readonly x: number; readonly y: number },
+  target: string | { readonly x: number; readonly y: number },
   button: PointerButton = 'primary',
   completion: 'pointer' | 'click' = 'pointer'
 ): Promise<void> {
-  const { x, y } = point;
   const awaitsRelease = button !== 'secondary';
   let pressed = false;
   let initial: PointerCounts | null = null;
@@ -169,9 +168,11 @@ async function nativeClick(
     if (progress === 'delivered') return;
     // A complete press may still have its click queued in the page event loop.
     if (progress === 'pending') continue;
-    await view.click(x, y, {
-      button: button === 'secondary' ? 'right' : 'left',
-    });
+    if (typeof target === 'string') await view.click(target);
+    else
+      await view.click(target.x, target.y, {
+        button: button === 'secondary' ? 'right' : 'left',
+      });
     const after = await readPointerCounts(view);
     // A form navigation replaces the counters; the old click has already landed.
     if (after.documentId !== before.documentId) return;
@@ -183,7 +184,7 @@ async function nativeClick(
     if (pressed && (!awaitsRelease || after.up > before.up)) return;
   }
   throw new UiTestError(
-    `Bun.WebView: native click at (${x}, ${y}) never delivered a whole press after ${NATIVE_CLICK_ATTEMPTS} attempts`
+    `Bun.WebView: native click at ${JSON.stringify(target)} never delivered a whole press after ${NATIVE_CLICK_ATTEMPTS} attempts`
   );
 }
 
@@ -242,12 +243,24 @@ export class BunWebviewDriverNode implements DriverNode {
   async tap(options?: UiWaitOptions): Promise<void> {
     await this.waitVisible(options);
     const view = await this.view();
-    const point = await view.evaluate(pressablePointScript(cssPath(this.path)));
-    if (isPoint(point)) {
+    const target = await view.evaluate(
+      pressableTargetScript(cssPath(this.path))
+    );
+    if (typeof target === 'string') {
       // A trusted click can arrive even when WebKit suppresses pointerup
       // during a physical chord. Repeating that delivered button click
       // would activate a menu twice; coordinate gestures still await pointers.
-      await nativeClick(view, point, 'primary', 'click');
+      try {
+        // Keep the selected element, not coordinates that a late notice can
+        // move. Bun resolves its current bounds when sending trusted input.
+        await nativeClick(view, target, 'primary', 'click');
+      } finally {
+        await view
+          .evaluate(
+            `document.querySelector(${JSON.stringify(target)})?.removeAttribute('data-ui-testing-press-target')`
+          )
+          .catch(() => undefined);
+      }
       return;
     }
     // Nothing pressable yet: the selector click waits for actionability.
@@ -463,7 +476,7 @@ export class BunWebviewDriverNode implements DriverNode {
  * its centre. Stacked screens keep earlier screens mounted underneath, so the
  * first match in document order is often covered.
  */
-function pressablePointScript(selector: string): string {
+function pressableTargetScript(selector: string): string {
   return `(async function(){
     var all = document.querySelectorAll(${JSON.stringify(selector)});
     for (var i = 0; i < all.length; i++) {
@@ -481,20 +494,15 @@ function pressablePointScript(selector: string): string {
         var x = r.left + r.width / 2;
         var y = r.top + r.height / 2;
         var hit = document.elementFromPoint(x, y);
-        if (hit !== null && (hit === el || el.contains(hit))) return { x: x, y: y };
+        if (hit !== null && (hit === el || el.contains(hit))) {
+          var id = window.__uiTestingPressTargetId = (window.__uiTestingPressTargetId || 0) + 1;
+          el.setAttribute('data-ui-testing-press-target', String(id));
+          return '[data-ui-testing-press-target="' + id + '"]';
+        }
       }
     }
     return null;
   })()`;
-}
-
-function isPoint(value: unknown): value is { x: number; y: number } {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    typeof Reflect.get(value, 'x') === 'number' &&
-    typeof Reflect.get(value, 'y') === 'number'
-  );
 }
 
 function scrollDelta(

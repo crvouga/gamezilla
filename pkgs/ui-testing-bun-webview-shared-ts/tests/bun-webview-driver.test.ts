@@ -115,7 +115,7 @@ describe('BunWebviewDriver', () => {
     const evaluate = view.evaluate.getMockImplementation();
     view.evaluate.mockImplementation((script: string) =>
       script.includes('document.elementFromPoint')
-        ? Promise.resolve({ x: 50, y: 25 })
+        ? Promise.resolve('[data-ui-testing-press-target="1"]')
         : evaluate?.(script)
     );
     view.click.mockImplementation(() => {
@@ -140,7 +140,7 @@ describe('BunWebviewDriver', () => {
       let polls = 0;
       view.evaluate.mockImplementation((script: string) => {
         if (script.includes('document.elementFromPoint'))
-          return Promise.resolve({ x: 50, y: 25 });
+          return Promise.resolve('[data-ui-testing-press-target="1"]');
         if (script.includes('setTimeout') && late) polls += 1;
         if (polls >= deliveryPolls && late) {
           view.pointer.click = (view.pointer.click ?? 0) + 1;
@@ -167,7 +167,7 @@ describe('BunWebviewDriver', () => {
     const evaluate = view.evaluate.getMockImplementation();
     view.evaluate.mockImplementation((script: string) =>
       script.includes('document.elementFromPoint')
-        ? Promise.resolve({ x: 50, y: 25 })
+        ? Promise.resolve('[data-ui-testing-press-target="1"]')
         : evaluate?.(script)
     );
     const deliveries: PointerCounts[] = [
