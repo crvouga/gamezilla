@@ -36,6 +36,10 @@ import { plugin } from 'bun';
 import { publishCacheFile } from './cache-file';
 import { compileCssModule } from './css-module';
 import { rememberNativeEvent } from './native-event';
+import {
+  createWorkspaceResolver,
+  WORKSPACE_IMPORT,
+} from './workspace-resolver';
 
 process.env.NODE_ENV = process.env.NODE_ENV ?? 'test';
 
@@ -140,6 +144,15 @@ function cssModule(path: string): { contents: string; loader: 'js' } {
 plugin({
   name: 'bun-test-solid',
   setup(build) {
+    // Isolated test realms can miss a wildcard export's TSX fallback when
+    // linking plugin output. Resolve through Bun in the registered host realm;
+    // this retains native export checks and leaves third-party imports alone.
+    build.onResolve(
+      { filter: WORKSPACE_IMPORT },
+      createWorkspaceResolver((specifier, directory) =>
+        Bun.resolveSync(specifier, directory)
+      )
+    );
     build.onLoad({ filter: WORKSPACE_TSX_FILTER }, (args) => ({
       contents: cachedTransform(args.path, readFileSync(args.path, 'utf8')),
       loader: 'js',
