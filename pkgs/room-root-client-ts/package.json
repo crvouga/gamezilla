@@ -3,11 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./*": [
-      "./src/*.ts",
-      "./src/*.tsx",
-      "./src/*.d.ts"
-    ]
+    "./keys": "./src/keys.ts",
+    "./room-client": "./src/room-client.ts",
+    "./room-client-persist": "./src/room-client-persist.ts",
+    "./room-clients-context": "./src/room-clients-context.tsx",
+    "./room-connection-key": "./src/room-connection-key.ts",
+    "./room-meta": "./src/room-meta.ts",
+    "./room-signals": "./src/room-signals.ts",
+    "./storage": "./src/storage.ts"
   },
   "scripts": {
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",

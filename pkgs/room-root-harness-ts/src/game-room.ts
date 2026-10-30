@@ -9,17 +9,13 @@ import {
   CancelScheduleEffect,
   ScheduleEffect,
 } from '@pkgs/room-root-shared-ts/builtin';
-import { hashRoomState } from '@pkgs/room-root-shared-ts/hash-room-state';
+import { defineRoomModule } from '@pkgs/room-root-shared-ts/module';
 import type {
   HandleResult,
   RoomCommand,
-  RoomModule,
   RoomState,
 } from '@pkgs/room-root-shared-ts/types';
-import {
-  assertRoomModuleName,
-  ROOM_ERROR_TYPE,
-} from '@pkgs/room-root-shared-ts/types';
+import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared-ts/types';
 
 import {
   blackMsAttr,
@@ -313,8 +309,13 @@ function recoverMatchEffects(state: RoomState) {
   );
 }
 
-export const gameRoomModule: RoomModule<RoomState, Message, Message, string> = {
-  name: assertRoomModuleName('game-room'),
+export const gameRoomModule = defineRoomModule<
+  RoomState,
+  Message,
+  Message,
+  string
+>({
+  name: 'game-room',
   recoverEffects: recoverMatchEffects,
   availabilityChange(state, available, now) {
     if (matchStatusAttr.from(state) !== MATCH_STATUS.playing) return null;
@@ -423,9 +424,7 @@ export const gameRoomModule: RoomModule<RoomState, Message, Message, string> = {
     }
     return state;
   },
-
-  hash: hashRoomState,
-};
+});
 
 /** The tally everyone in the room shares. */
 export function readTally(state: RoomState): number {

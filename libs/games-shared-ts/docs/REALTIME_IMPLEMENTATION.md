@@ -126,7 +126,7 @@ score and bot input invariants have automated example/property coverage.
 
 ## Custom sessions and local execution
 
-An optional `RoomModule.createLive` creates one owned execution controller. Normal
+An optional `RoomModule.createRuntime` creates one owned execution controller. Normal
 turn and puzzle rooms allocate no simulation timer. Bun, Durable Object and
 in-process harness hosts pass explicit timers. Timer wakes and lifecycle commands
 join the room serial chain, so a physics tick cannot race a durable checkpoint.

@@ -1,5 +1,5 @@
 import type { Message } from '@pkgs/message-shared-ts/message';
-import type { RoomLivePorts } from '@pkgs/room-root-shared-ts/live';
+import type { RoomRuntimePorts } from '@pkgs/room-root-shared-ts/runtime';
 import {
   ROOM_ERROR_TYPE,
   type RoomActor,
@@ -29,7 +29,7 @@ export class LocalSimulationRelay {
   private actors: readonly RoomActor[] = [];
 
   constructor(
-    private readonly ports: Pick<RoomLivePorts<Message>, 'publish'>,
+    private readonly ports: Pick<RoomRuntimePorts<Message>, 'publish'>,
     private readonly rules: TurnGames
   ) {}
 

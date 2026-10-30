@@ -1,8 +1,8 @@
-import type {
-  RoomLivePorts,
-  RoomLiveSession,
-} from '@pkgs/room-root-shared-ts/live';
 import type { RoomServerConfig } from '@pkgs/room-root-shared-ts/room-server-types';
+import type {
+  RoomRuntime,
+  RoomRuntimePorts,
+} from '@pkgs/room-root-shared-ts/runtime';
 import type { RoomStorage } from '@pkgs/room-root-shared-ts/server-core-storage';
 import type {
   RoomActor,
@@ -15,16 +15,16 @@ import type {
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared-ts/types';
 
 /** The trusted live port shares the exact serial chain and durable command verdict. */
-export function roomLivePorts<C extends RoomCommandPayload>(args: {
+export function roomRuntimePorts<C extends RoomCommandPayload>(args: {
   readonly storage: RoomStorage;
   readonly topic: string;
-  readonly publish: RoomLivePorts<C>['publish'];
+  readonly publish: RoomRuntimePorts<C>['publish'];
   readonly enqueue: <T>(work: () => Promise<T>) => Promise<T>;
   readonly tip: () => number;
   readonly acceptsCheckpoint: (payload: RoomCommandPayload) => boolean;
   readonly inject: (id: string, payload: C) => Promise<void>;
   readonly onError: (error: unknown) => void;
-}): Pick<RoomLivePorts<C>, 'publish' | 'commit' | 'enqueue' | 'checkpoint'> {
+}): Pick<RoomRuntimePorts<C>, 'publish' | 'commit' | 'enqueue' | 'checkpoint'> {
   return {
     checkpoint: (payload) => {
       const atSeq = args.tip();
@@ -57,13 +57,13 @@ export function roomLivePorts<C extends RoomCommandPayload>(args: {
 }
 
 /** Lazy owned live execution; an ordinary turn/puzzle room allocates no simulation timer. */
-export class RoomServerLive<
+export class RoomServerRuntime<
   S extends RoomState,
   C extends RoomCommandPayload,
   E extends RoomEvent,
   Identity,
 > {
-  private session: RoomLiveSession<S, Identity, C> | null = null;
+  private session: RoomRuntime<S, C, Identity> | null = null;
   private ready = false;
   private disposed = false;
   private actors: readonly RoomActor[] = [];
@@ -71,17 +71,15 @@ export class RoomServerLive<
   constructor(
     private readonly config: RoomServerConfig<S, C, E, Identity>,
     private readonly ports: Pick<
-      RoomLivePorts<C>,
+      RoomRuntimePorts<C>,
       'publish' | 'commit' | 'enqueue' | 'checkpoint'
     >
   ) {}
 
   private createSession(): void {
     if (this.disposed) return;
-    const create = this.config.module.createLive;
+    const create = this.config.module.createRuntime;
     if (this.session === null && create !== undefined) {
-      if (this.config.signalHandler !== undefined)
-        throw new Error('one live execution owns the room signal handler');
       const config = this.config;
       this.session = create({
         ...this.ports,
@@ -89,12 +87,12 @@ export class RoomServerLive<
         // Installing a live capability does not start it for another game.
         get timers() {
           if (config.timers === undefined)
-            throw new Error('live room execution requires injected timers');
+            throw new Error('room runtime requires injected timers');
           return config.timers;
         },
         onError: (error) => this.report(error),
       });
-      this.session.presence(this.actors);
+      this.session.presence?.(this.actors);
     }
   }
 
@@ -104,7 +102,7 @@ export class RoomServerLive<
   }
 
   reset(): void {
-    this.session?.dispose();
+    this.session?.dispose?.();
     this.session = null;
     this.ready = false;
   }
@@ -117,7 +115,7 @@ export class RoomServerLive<
   update(state: S): void {
     if (!this.ready || this.disposed) return;
     this.createSession();
-    this.session?.update(state);
+    this.session?.update?.(state);
   }
 
   receive(
@@ -125,14 +123,12 @@ export class RoomServerLive<
     identity: Identity,
     actor: RoomActor
   ): Promise<RoomError | null> | RoomError | null {
-    if (this.session !== null)
+    if (this.session?.receive !== undefined)
       return this.session.receive(command, identity, actor);
-    if (this.config.signalHandler === undefined)
-      return {
-        type: ROOM_ERROR_TYPE.invalidCommand,
-        reason: 'this room does not accept signals',
-      };
-    return this.config.signalHandler(command, identity, actor);
+    return {
+      type: ROOM_ERROR_TYPE.invalidCommand,
+      reason: 'this room does not accept signals',
+    };
   }
 
   commandState(state: S): S {
@@ -141,12 +137,12 @@ export class RoomServerLive<
 
   presence(actors: readonly RoomActor[]): void {
     this.actors = actors;
-    this.session?.presence(actors);
+    this.session?.presence?.(actors);
   }
 
   dispose(): void {
     this.disposed = true;
-    this.session?.dispose();
+    this.session?.dispose?.();
     this.session = null;
   }
 

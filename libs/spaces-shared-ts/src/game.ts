@@ -144,12 +144,12 @@ export type GameDefinition = GameOwnRoom & {
   /** Position, execution and offered product capabilities, shared by all game kinds. */
   readonly registration?: RegisteredGame;
   /** Shared framework execution on the room's existing authoritative connection. */
-  readonly createLive?: RoomModule<
+  readonly createRuntime?: RoomModule<
     RoomState,
     Message,
     Message,
     string
-  >['createLive'];
+  >['createRuntime'];
   /** Shared modules the game is played through, installed once per space. */
   readonly sharedModules?: readonly SharedGameModule[];
   /** Independent rooms shared by spaces playing a matched game. */

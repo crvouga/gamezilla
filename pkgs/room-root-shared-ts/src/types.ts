@@ -6,7 +6,7 @@
 import type { Keyword } from '@pkgs/keyword-shared-ts/keyword';
 import { asKeyword } from '@pkgs/keyword-shared-ts/keyword';
 import type { Message } from '@pkgs/message-shared-ts/message';
-import type { RoomLivePorts, RoomLiveSession } from './live';
+import type { RoomRuntime, RoomRuntimePorts } from './runtime';
 
 /**
  * Serializable room state (module-owned flat map).
@@ -135,7 +135,7 @@ export type RoomModule<
   connectionView?(grants: readonly string[]): RoomConnectionView;
   initialState(): S;
   /** Instantiated only by an authoritative host with explicitly injected scheduling ports. */
-  createLive?(ports: RoomLivePorts<C>): RoomLiveSession<S, Identity, C>;
+  createRuntime?(ports: RoomRuntimePorts<C>): RoomRuntime<S, C, Identity>;
   handle(
     state: S,
     command: RoomCommand<C>,

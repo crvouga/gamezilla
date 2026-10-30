@@ -67,12 +67,16 @@ export async function simulationRoom(simulation = raceSimulation()) {
   let authority: SimulationAuthority<RaceState, number>;
   const server = new RoomServer({
     topic: 'race:1',
-    module,
+    module: {
+      ...module,
+      createRuntime: () => ({
+        receive: (command, identity: string) =>
+          authority.receive(command, identity),
+      }),
+    },
     storage,
     clock: time.clock,
     effectHandlers: [schedules.handler],
-    signalHandler: (command, identity: string) =>
-      authority.receive(command, identity),
   });
   schedules.bindInject((command) => server.injectCommand(command));
   await server.hydrateFromStorage();

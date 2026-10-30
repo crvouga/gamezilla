@@ -14,7 +14,7 @@ import {
   multiplayerSides,
 } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
 import type { Message } from '@pkgs/message-shared-ts/message';
-import type { RoomLivePorts } from '@pkgs/room-root-shared-ts/live';
+import type { RoomRuntimePorts } from '@pkgs/room-root-shared-ts/runtime';
 import { ROOM_SERVICE_IDENTITY } from '@pkgs/room-root-shared-ts/service-identity';
 import type {
   HandleResult,
@@ -182,12 +182,12 @@ export function simulationMatchRoom(
       }
       return matchRoomModule.handle(state, command, identity);
     },
-    createLive: (ports) => createLiveMatchSession(ports, rules),
+    createRuntime: (ports) => createLiveMatchSession(ports, rules),
   };
 }
 
 function createLiveMatchSession(
-  ports: RoomLivePorts<Message>,
+  ports: RoomRuntimePorts<Message>,
   rules: TurnGames
 ): SessionSimulation {
   return new SessionSimulation(

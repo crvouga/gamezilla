@@ -1,4 +1,4 @@
-# `@pkgs/room`
+# `@pkgs/room-root-harness-ts`
 
 Server-authoritative multiplayer for a **single topic** (e.g. `space:<uuid>`).
 
@@ -53,9 +53,8 @@ Dev builds additionally validate state keys once per **new key** (cached
 What stays inherent: a fresh joiner still replays the committed log from
 `fromSeq` in 512-entry welcome pages, and the client keeps the full log in
 memory / local storage for `getLog()` (segmented on disk, so appends stay
-bounded). Rooms that log every cursor move grow without bound; snapshot /
-compaction or an unlogged presence channel would be a protocol addition, not
-an engine optimization.
+bounded). Rooms that log every cursor move grow without bound; use transient signals and bounded checkpoints for high-frequency simulation
+updates instead of putting every update in the durable log.
 
 Measure with `bun run --filter @pkgs/room-root-harness-ts bench` (`tests/hot-paths.bench.ts`).
 To compare against a previous engine, snapshot it and point `ROOM_OLD_SRC` at
@@ -89,8 +88,9 @@ bun run --filter @pkgs/room-root-harness-ts bench
 `serverSnapshot()` / `serverHash()` first, then clients. Mid-partition
 client-only checks (`never`, lagging peer) stay client-scoped.
 
-**Required on every `RoomModule`:** `hash(state)` — deterministic domain hash
-(see [`README.md`](../../README.md#correctness-machinery)). Used by harness settle and
+**Provided on every normalized `RoomModule`:** `hash(state)` — deterministic domain hash
+(see [`README.md`](../../README.md#correctness-machinery)). `defineRoomModule` defaults it to `hashRoomState`; supply a custom hash only
+when a narrower domain projection is intentional. Used by harness settle and
 by game modules in product.
 
 ---
@@ -104,8 +104,8 @@ by game modules in product.
 3. **In-process rooms** — tests and the Harness use `@pkgs/room-root-harness-ts`
    (`openLoopbackRoom`, the example game room) for multi-client rooms without
    a Worker; `@pkgs/room-adapter-bun` hosts rooms for the localhost stack.
-4. **Authoring a game** — implement `RoomModule` (`initialState` / `handle` /
-   `reduce` / `hash`), optionally emit `Schedule` / `CancelSchedule` effects for
+4. **Authoring a game** — call `defineRoomModule` (`initialState` / `handle` /
+   `reduce`), optionally emit `Schedule` / `CancelSchedule` effects for
    clocks; register in spaces’ module list + DO `modules: […]`.
 5. **Module conformance** — games call `runModuleConformance` from
    `@pkgs/room-root-harness-ts` (hash / totality / fold / fuzz / optional deadline hooks).
@@ -114,24 +114,29 @@ by game modules in product.
 
 ## Entrypoints
 
-Core vs adapters stay split so callers opt into a runtime explicitly.
+The shared authoring contract is documented in
+[`room-root-shared-ts`](../room-root-shared-ts/README.md). Every room package
+has an explicit export map; implementation files are private.
 
 | Import | Purpose |
 |--------|---------|
-| `@pkgs/room` | Client core: `RoomClient`, `RoomMetaAttr`, Solid hooks/registry, ports, wire helpers, effect builtins / handlers |
-| `@pkgs/room/server` | `RoomServer`, `RoomStorage`, `RoomAuth`, effect types/builtins |
-| `@pkgs/room/client/adapters/storage/key-value` | `KeyValueClientRoomStorage` (async `Kv`) |
-| `@pkgs/room/harness` | The framework's one example app, `gameRoomModule` (tally, owner who turns someone away, timed match), with its commands, events and reads — harness and tests only |
-| `@pkgs/room-adapter-web-shared-ts` | `WebSocketRoomTransport` (+ heartbeat / `probeLiveness`), `WebClientStorage` (`localStorage`) |
-| `@pkgs/room-adapter-memory-shared-ts` | `InMemoryRoomStorage`, `InMemoryClientStorage`, `LoopbackRoomTransport` |
-| `@pkgs/room-adapter-durable-object` | `createDurableObjectAdapter`, DO storage + alarm schedule |
-| `@pkgs/room-root-harness-ts` | `openLoopbackRoom`, **`bootRoomHarness` / `roomSystemCatalog` / `roomVirtual`**, kit (`runModuleConformance`, …), the example game room as `exampleApp` / `exampleSystem` |
+| `@pkgs/room-root-shared-ts/module` | `defineRoomModule`, the common definition for turns and continuous play |
+| `@pkgs/room-root-shared-ts/runtime` | Optional authoritative execution and its injected ports |
+| `@pkgs/room-root-client-ts/room-client` | `RoomClient`, durable dispatch and transient signals |
+| `@pkgs/room-root-server-ts/room-server` | `RoomServer`, authoritative decisions and owned execution |
+| `@pkgs/room-root-client-ts/room-clients-context` | Solid room registry and subscriptions |
+| `@pkgs/room-root-harness-ts/boot-loopback` | `openLoopbackRoom` |
+| `@pkgs/room-root-harness-ts/boot` | `bootRoomHarness`, `roomSystemCatalog`, `roomVirtual` |
+| `@pkgs/room-root-harness-ts/game-room` | The framework's single example game |
+| `@pkgs/room-root-harness-ts/module-conformance` | Shared game conformance checks |
 
-Each adapter is its own package so callers pull in only the runtime they
-host on. Games should declare their own `defineSystem` from `@pkgs/harness-root-shared-ts` over
-`bootRoomHarness` / `roomVirtual` / `roomSystemCatalog` (`@pkgs/room-root-harness-ts`)
-and drive runs with `system.run` / `.explore` / `.replay`, not deep relative
-`harness/` paths.
+Games declare a `defineSystem` from `@pkgs/harness-root-shared-ts` over the
+room boot and catalog, then use `system.run`, `.explore`, and `.replay`.
+The room kit exposes `until` and `never` for virtual-time assertions.
+
+Each transport/storage adapter remains a separate package so a host opts
+into its runtime explicitly. Memory, web, Bun and Durable Object adapters
+use the same module contract.
 
 The browser transport requires injected `clock`, `timers`, `random` and an
 `onRoundTrip(milliseconds)` observer. Its existing application heartbeat keeps
@@ -147,34 +152,6 @@ properties live in `pkgs/room-adapter-web-shared-ts/tests/`.
 
 ---
 
-## Layout
-
-```text
-pkgs/room/
-├── src/
-│   ├── client/core/          RoomClient + core bookkeeping (`room-client-core`),
-│   │                         wire appliers, write-behind persist, snapshot cache,
-│   │                         meta, ports, optimistic effects
-│   ├── client/storage/       segmented committed-log codec (shared by adapters)
-│   ├── client/adapters/      key-value storage (async `Kv`, segmented)
-│   ├── client/solid/         snapshot + registry hooks
-│   ├── server/core/          RoomServer (one storage serial, cached tip), fan-out, ports
-│   ├── protocol/             wire frames + ids
-│   ├── effects/              Schedule/CancelSchedule + RoomEffectHandler port
-│   ├── hash-room-state.ts    canonical JSON + FNV-1a (32-bit limbs)
-│   └── plain-deep-equal.ts   structural equality for the ack fast path
-└── tests/                    black-box against package exports (+ `bench/`)
-
-pkgs/room-adapter-web-shared-ts/            websocket transport + localStorage storage
-pkgs/room-adapter-memory-shared-ts/         in-memory room/client storage + loopback transport
-pkgs/room-adapter-durable-object/ DO adapter (alarms, KV schedules)
-pkgs/room-adapter-bun/            Bun WebSocket host (localhost stack)
-pkgs/room-root-harness-ts/                harness + module kit (`@pkgs/room-root-harness-ts`)
-└── src/scenario/                 boot + actions / properties / S
-```
-
----
-
 ## Core types (design surface)
 
 - **`RoomModuleName`** — branded kebab id for DO routing (`module` query).
@@ -182,7 +159,7 @@ pkgs/room-root-harness-ts/                harness + module kit (`@pkgs/room-root
 - **`RoomCommand`** — `{ id, ts, payload }`; `id` is the server idempotency key;
   `ts` is commit/display time (server stamps on inject; client mints on dispatch).
 - **`HandleResult`** — `{ ok: true, events, effects? }` or `{ ok: false, error }`.
-  Existing `{ ok: true, events }` callers remain valid (`effects` optional).
+  Effects are optional when a decision produces only events.
 - **`RoomEffect`** — Message-shaped side-effect intent (**not** on the event log).
 - **`RoomError`** — `ROOM_ERROR_TYPE.*` (`invalid-command`, `unauthorized`,
   `conflict`, `rate-limited`, `internal`).
@@ -275,7 +252,7 @@ broadcast, then apply nested effects. Actor metadata uses
    fires once at the true `at`.
 5. Cancel + reschedule on move so only the active seat’s flag is armed.
 
-Reference: the example game room's timed match (`@pkgs/room/harness`: two
+Reference: the example game room's timed match (`@pkgs/room-root-harness-ts/game-room`: two
 players' time, `Move` re-arms the schedule, `ClaimOutOfTime` is terminal only
 once due). Scenarios: `specs/room/match-clock.feature` and the
 `specs/room/match-clock.qnt` model.
@@ -315,7 +292,7 @@ replays are idempotent.
 | `ClientTransport` | connect / sendJson / subscribe / lifecycle handlers |
 | `ClientRoomStorage` | `loadCommitted` / `appendCommitted` / `resetCommitted`, `loadQueued` / `saveQueued`, and bounded `loadLiveCheckpoint` / `replaceLiveCheckpoint`. Calls stay on one persistence chain; live frames replace a value instead of growing either journal. Adapters use `createSegmentedCommittedLog` for history |
 | `RoomStorage` | append/load log, lastSeq, command dedup and one bounded live checkpoint |
-| `RoomAuth` | upgrade auth; optional per-command `authorize` (handed the connection's grants) |
+| Host admission / `RoomServerConfig.authorize` | hosts authenticate connections; command authorization receives the connection's grants |
 | `RoomEffectHandler[]` | post-ok side effects (Schedule, custom) |
 | `clock` / `timers` / `createId` | all nondeterministic I/O, injected |
 
@@ -337,9 +314,9 @@ replays are idempotent.
 
 Policy: [`README.md`](../../README.md#correctness-machinery). Every test of the room
 packages drives **one** example app, the game room (`gameRoomModule` in
-`@pkgs/room/harness`; `@pkgs/room-root-harness-ts` runs it as `exampleApp` /
-`exampleSystem`). It lives in `@pkgs/room` because this package's and the
-adapters' tests sit below the harness.
+`@pkgs/room-root-harness-ts/game-room`; `@pkgs/room-root-harness-ts` runs it as `exampleApp` /
+`exampleSystem`). The example lives in this harness package; framework and
+adapter tests exercise its public exports.
 
 | Capability | Commands |
 |------------|----------|
