@@ -1,5 +1,6 @@
 import {
   BROWSER_FAILURE_LAYOUT,
+  browserFailureLog,
   browserFailureSummary,
 } from '@apps/product-ts/browser-failure-summary';
 import { readSyncResponseEvidence } from '@apps/product-ts/browser-network-evidence';
@@ -217,6 +218,8 @@ function liveJourneyHost(
  * failure that reaches the log without this leaves no way to say why.
  */
 async function printBrowserState(devices: LiveDevices): Promise<void> {
+  const details: string[] = [];
+  const summaries: string[] = [];
   for (const [name, current] of [
     ['host', devices.host],
     ['peer', devices.guest],
@@ -227,36 +230,37 @@ async function printBrowserState(devices: LiveDevices): Promise<void> {
     const layout = await current?.view
       .evaluate(BROWSER_FAILURE_LAYOUT)
       .catch((error: unknown) => {
-        console.error(
+        summaries.push(
           `browser failure geometry error (${name}): ${String(error)}`
         );
         return null;
       });
     if (layout !== null && layout !== undefined)
-      console.error(`browser failure geometry (${name}): ${String(layout)}`);
+      summaries.push(`browser failure geometry (${name}): ${String(layout)}`);
     const html = await current?.driver
       .snapshotHtml()
       .catch((error: unknown) => {
-        console.error(
+        summaries.push(
           `browser failure snapshot error (${name}): ${String(error)}`
         );
         return null;
       });
     if (typeof html === 'string')
-      console.error(
+      summaries.push(
         `browser failure state (${name}): ${browserFailureSummary(html)}`
       );
     if (current !== null) {
       const transport = [...current.network];
       const responses = await readSyncResponseEvidence(current.view, transport);
-      console.error(
+      details.push(
         `browser failure transport (${name}): ${[...transport, ...responses].join('\n')}`
       );
-      console.error(
+      details.push(
         `browser failure console (${name}): ${current.console.slice(-40).join('\n')}`
       );
     }
   }
+  console.error(browserFailureLog(details, summaries));
 }
 
 async function closeBrowsing(

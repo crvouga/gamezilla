@@ -42,3 +42,11 @@ export const BROWSER_FAILURE_LAYOUT = `(() => {
         hit: describe(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2)) };
     }) });
 })()`;
+
+/** CI retains the log tail: keep every device's screen after verbose transports. */
+export function browserFailureLog(
+  details: readonly string[],
+  summaries: readonly string[]
+): string {
+  return [...details, ...summaries].join('\n');
+}
