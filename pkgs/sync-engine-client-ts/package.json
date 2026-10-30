@@ -4,6 +4,7 @@
   "private": true,
   "sideEffects": false,
   "exports": {
+    "./sync-engine-context": "./src/sync-engine-context.tsx",
     "./*": [
       "./src/*.ts",
       "./src/*.tsx",
