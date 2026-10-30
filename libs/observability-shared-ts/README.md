@@ -347,7 +347,8 @@ proposed engineering targets, not measured compliance. Diagnostic burn alerts
 are scoped by environment and foreground/server cohort; background, synthetic
 and unknown measurements cannot satisfy the foreground targets. Foreground
 is visibility at operation start, not verified human identity or proof of a
-working connection. Do not label these metrics as a population-wide human SLO.
+working connection. Ingress rejects browser claims to the server cohort or
+server-only database/delivery targets. Do not label these metrics as a population-wide human SLO.
 
 Start with `bun obs slow --source prod --since 1h`; inspect the environment on
 each trace (`--source prod` selects the store, not the deployment). Follow
@@ -365,7 +366,9 @@ backlogs report unknown. Reconnect cancellation after qualification counts bad.
 Outbox timing observes each claimed delivery attempt, from its persisted
 `available_at` through transaction commit; failed attempts count bad. Retries are
 separate attempts, so this is an operational proxy, not an exactly-once logical
-delivery population. The ready-age gauge covers the oldest candidate selected by
+delivery population. Persisted eligibility age crosses server wall clocks;
+negative/invalid ages are unknown, and small unmeasured clock skew can still
+affect threshold classification. The ready-age gauge covers the oldest candidate selected by
 a drain and raises a warning above one second. Partitioned drains do not establish
 the global oldest backlog age, and a stopped drain needs pipeline-health coverage.
 
@@ -420,6 +423,10 @@ as well; a nonempty series alone is not proof of fresh successful work.
 Cumulative counters from short-lived pages also need repeated exports before
 `increase` can observe their changes; first-export and page-loss coverage must
 be measured before treating the diagnostic ratio as a population objective.
+The finite label budget is per instrument and writer, not a global cost bound:
+per-page resource identities prevent counter collisions but multiply active
+series. Compare active-series usage with backend capacity during rollout; this
+implementation does not establish a population-wide telemetry cost budget.
 
 Transport spans combine DNS/TCP/TLS/authentication because the driver exposes one
 connect boundary. Further attribution needs driver/platform or database evidence.

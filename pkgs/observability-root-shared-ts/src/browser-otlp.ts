@@ -383,6 +383,13 @@ function dimensions(point: Row, contract: MetricContract, environment: string) {
       continue;
     const value = item['value']['stringValue'];
     if (
+      (item['key'] === 'app.sync.cohort' && value === 'server') ||
+      (item['key'] === 'app.sync.target' &&
+        typeof value === 'string' &&
+        (value.startsWith('database-') || value.startsWith('delivery-')))
+    )
+      throw new Error('Browser metrics cannot claim server performance');
+    if (
       typeof value === 'string' &&
       contract.dimensions[item['key']]?.includes(value)
     )

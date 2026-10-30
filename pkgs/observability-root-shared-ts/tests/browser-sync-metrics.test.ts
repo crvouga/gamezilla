@@ -92,3 +92,27 @@ test('independent browser counter writers never collapse into one resource', () 
     })
   ).toThrow('opaque per-page instance ID');
 });
+
+// regression: browser-sync-metrics-forge-server-cohort
+for (const [target, cohort] of [
+  ['read-fast', 'server'],
+  ['database-fast', 'foreground'],
+  ['delivery-tail', 'foreground'],
+] as const) {
+  test(`browser metrics cannot claim ${target} in ${cohort}`, () => {
+    const forged = payload('merge');
+    const metric = forged.resourceMetrics[0]!.scopeMetrics[0]!.metrics[0]!;
+    metric.name = 'sync.work.target';
+    metric.sum.dataPoints[0]!.attributes = [
+      { key: 'app.sync.target', value: { stringValue: target } },
+      { key: 'app.sync.cohort', value: { stringValue: cohort } },
+      { key: 'app.outcome', value: { stringValue: 'good' } },
+    ];
+    expect(() =>
+      sanitizeBrowserOtlp(forged, 'metrics', {
+        serviceName: 'client',
+        environment: 'dev',
+      })
+    ).toThrow('Browser metrics cannot claim server performance');
+  });
+}
