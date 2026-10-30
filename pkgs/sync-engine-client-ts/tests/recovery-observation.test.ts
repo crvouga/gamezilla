@@ -157,3 +157,18 @@ test('a rejected original write waits for the repairing snapshot before recovery
     stop();
   }
 });
+
+test('disabled performance telemetry adds no backlog query', () => {
+  // regression: disabled-sync-observer-queries-backlog
+  let queries = 0;
+  const db = {
+    query: async () => {
+      queries++;
+      return [];
+    },
+  } as unknown as SqlClient;
+  const observation = createRecoveryObservation(db, () => 'client');
+  observation.start(['scope']);
+  observation.cancel();
+  expect(queries).toBe(0);
+});

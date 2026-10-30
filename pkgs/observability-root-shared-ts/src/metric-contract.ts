@@ -387,3 +387,8 @@ export function recordUnknownSyncMeasurement(
 ): void {
   recorder?.unknown(stage);
 }
+
+/** Optional observers must not add database work when telemetry is disabled. */
+export function syncPerformanceEnabled(): boolean {
+  return recorder !== undefined;
+}

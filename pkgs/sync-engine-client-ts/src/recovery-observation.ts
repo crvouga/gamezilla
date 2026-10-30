@@ -1,6 +1,7 @@
 import {
   captureSyncMeasurement,
   recordUnknownSyncMeasurement,
+  syncPerformanceEnabled,
 } from '@pkgs/observability-root-shared-ts/metric-contract';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import sql from '@pkgs/sql-root-shared-ts/sql';
@@ -76,6 +77,7 @@ export function createRecoveryObservation(
   return {
     start(scopes: readonly string[]) {
       cancel();
+      if (!syncPerformanceEnabled()) return;
       const run = recoveryState(scopes);
       current = run;
       void qualify(run, captureSyncMeasurement());

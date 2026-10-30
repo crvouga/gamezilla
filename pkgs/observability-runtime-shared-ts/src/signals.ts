@@ -55,7 +55,9 @@ export function createSignals(
     }
   }
   const releasePerformance =
-    options.registerGlobal !== false && options.monotonicNow !== undefined
+    meter !== undefined &&
+    options.registerGlobal !== false &&
+    options.monotonicNow !== undefined
       ? installSyncPerformance(options.monotonicNow, {
           ...(options.performanceTimers === undefined
             ? {}
