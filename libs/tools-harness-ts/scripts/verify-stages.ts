@@ -12,11 +12,19 @@ export function verifyStages(tasks: readonly VerifyTask[]) {
   const users = new Map<string, number>();
   for (const task of tasks)
     for (const id of task.dependencies) users.set(id, (users.get(id) ?? 0) + 1);
-  for (const task of tasks) {
-    const sharedSource =
-      (users.get(task.taskId) ?? 0) > 1 &&
-      task.dependencies.every((id) => !byId.has(id) || id.endsWith('#build'));
-    if (task.taskId.endsWith('#build') || sharedSource) include(task.taskId);
+  // A shared producer may itself consume generated inputs. Promote the
+  // chain to a fixed point, independent of task discovery order.
+  for (let size = -1; size !== prerequisites.size; ) {
+    size = prerequisites.size;
+    for (const task of tasks) {
+      const sharedSource =
+        (users.get(task.taskId) ?? 0) > 1 &&
+        task.dependencies.every(
+          (id) =>
+            !byId.has(id) || prerequisites.has(id) || id.endsWith('#build')
+        );
+      if (task.taskId.endsWith('#build') || sharedSource) include(task.taskId);
+    }
   }
   const consumers = new Set<string>();
   for (const task of tasks)
