@@ -2,6 +2,7 @@ import {
   BROWSER_FAILURE_LAYOUT,
   browserFailureLog,
   browserFailureSummary,
+  readBrowserStorageEvidence,
 } from '@apps/product-ts/browser-failure-summary';
 import { readSyncResponseEvidence } from '@apps/product-ts/browser-network-evidence';
 import {
@@ -45,7 +46,7 @@ import type {
 } from '@libs/runtime-harness-ts/journey-types';
 import { spaceLinkFromLocation } from '@libs/runtime-harness-ts/journey-types';
 import { requestSyntheticMonitorSignIn } from '@pkgs/auth-inhouse-shared-ts/synthetic-monitor';
-import { wallClock } from '@pkgs/clock-shared-ts/wall';
+import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
 import type { ScenarioContext } from '@pkgs/gherkin-shared-ts/registry';
 import { setWorld } from '@pkgs/gherkin-shared-ts/registry';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared-ts/global';
@@ -227,6 +228,13 @@ async function printBrowserState(devices: LiveDevices): Promise<void> {
       (device, index) => [`earlier peer ${index + 1}`, device] as const
     ),
   ] as const) {
+    if (current !== null) {
+      const storage = await readBrowserStorageEvidence(
+        (script) => current.view.evaluate(script),
+        wallTimers
+      );
+      summaries.push(`browser failure storage (${name}): ${String(storage)}`);
+    }
     const layout = await current?.view
       .evaluate(BROWSER_FAILURE_LAYOUT)
       .catch((error: unknown) => {
