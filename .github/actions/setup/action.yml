@@ -46,7 +46,7 @@ runs:
         echo "MISE_DISABLE_TOOLS=pipx:graphifyy,pipx:serena-agent,swift" >> "$GITHUB_ENV"
 
     - name: Install pinned tools (mise.toml)
-      uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+      uses: jdx/mise-action@8418fedb1110381a0d3ba51a7a415d7c1b884550 # v5.2.2
       with:
         version: 2026.9.13
         # Fresh boat runners install pinned tools directly. The 952 MB tool
@@ -70,7 +70,7 @@ runs:
     # them, and an archive of links does not survive every OS. Bun's download
     # cache is restored instead, so the frozen install below is a link step.
     - name: Restore bun's download cache
-      uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ~/.bun/install/cache
         key: bun-install-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('bun.lock') }}
@@ -80,7 +80,7 @@ runs:
       # Reuse only Turbo's immutable generation artifacts. Turbo still hashes
       # current inputs and restores outputs; frozen install still runs below.
       # This cache is separate from the verification artifacts and verdicts.
-      uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       id: generation
       with:
         path: .cache/setup-generation
@@ -96,7 +96,7 @@ runs:
 
     - name: Save generation artifacts
       if: steps.generation.outputs.cache-hit != 'true'
-      uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: .cache/setup-generation
         key: ${{ steps.generation.outputs.cache-primary-key }}
