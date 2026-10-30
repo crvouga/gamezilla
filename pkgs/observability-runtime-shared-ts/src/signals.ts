@@ -19,6 +19,7 @@ import { ATTR } from '@pkgs/observability-root-shared-ts/attributes';
 import { installStructuredLogBridge } from '@pkgs/observability-root-shared-ts/log';
 import {
   HISTOGRAM_BOUNDARIES,
+  installSyncPerformance,
   METRIC_DIMENSION_KEYS,
   SERIES_BUDGET,
   setMetricEnvironment,
@@ -53,6 +54,17 @@ export function createSignals(
       installStructuredLogBridge();
     }
   }
+  const releasePerformance =
+    options.registerGlobal !== false && options.monotonicNow !== undefined
+      ? installSyncPerformance(options.monotonicNow, {
+          ...(options.performanceTimers === undefined
+            ? {}
+            : { timers: options.performanceTimers }),
+          ...(options.syncCohort === undefined
+            ? {}
+            : { cohort: options.syncCohort }),
+        })
+      : undefined;
   return {
     async forceFlush() {
       try {
@@ -62,6 +74,7 @@ export function createSignals(
       }
     },
     async shutdown() {
+      releasePerformance?.();
       await Promise.all([logger?.shutdown(), meter?.shutdown()]);
     },
   };

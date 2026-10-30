@@ -83,7 +83,7 @@ OpenTofu foundation manages per-environment writer/read policies, dashboard fold
 service accounts and alerts. Workers receive ingestion credentials only. Browser exports persist redacted OTLP trace and log batches in the injected local object store before acknowledging the SDK. Delivery uses the injected offline-aware HTTP and timers, retries after outages and reopening, and keeps a complete batch on partial rejection. Pending batches expire after 30 days. Browser persistence is not a guarantee against a hard page termination before the local write finishes. Browser logs
 are proxied with server credentials; resource identity is forced, business claims and
 private bodies are stripped, and only diagnostic attributes or scalar Web Vitals pass.
-Browser cumulative metrics are not exported into a shared series. Server metric
+Browser sync cumulative metrics use a fresh opaque page instance resource, validated at ingress, so independent writers cannot overwrite one shared counter. This adds per-page resource cardinality; measure collector costs before broad rollout. Arbitrary resource identities and person identifiers are rejected. Server metric
 resources identify the isolate so concurrent writers do not overwrite each other.
 
 Schema/privacy, cardinality, delivery, correlation, analytical calculations, financial
@@ -338,3 +338,101 @@ The dashboard/alert resources require a successful Actions plan against the exis
 Grafana stack and its hosted datasource names before merge. Production deployment
 requires the repository's human merge and full Release gates. The broader business-wide
 mission is not proven complete by the instrumentation and dashboards alone.
+
+## Sync performance targets
+
+The sync performance target registry is
+`@pkgs/observability-root-shared-ts/metric-contract`. Its bounds are
+proposed engineering targets, not measured compliance. Diagnostic burn alerts
+are scoped by environment and foreground/server cohort; background, synthetic
+and unknown measurements cannot satisfy the foreground targets. Foreground
+is visibility at operation start, not verified human identity or proof of a
+working connection. Do not label these metrics as a population-wide human SLO.
+
+Start with `bun obs slow --source prod --since 1h`; inspect the environment on
+each trace (`--source prod` selects the store, not the deployment). Follow
+`sync.work.database`, `sync.work.transport`, `sync.work.schema`, and outbox
+`sync.work.outbox-materialize`, `outbox-claim`, and `outbox-commit`
+spans for database delays, and `sync.work.queue`, `merge`, `rebase`, `hash`,
+`sort`, `encode`, and `digest` for client work. Correlate with build and payload
+size before comparing observations. Missing target evidence generates a warning,
+not a healthy verdict. Reconnect observes the original bounded backlog and active
+scopes, including qualification time. A scope must complete a fresh sweep, and the
+original queued writes must have durable server verdicts. Workload sizes use a
+conservative serialized-byte upper bound; oversized, ambiguous or unreadable
+backlogs report unknown. Reconnect cancellation after qualification counts bad.
+
+Outbox timing observes each claimed delivery attempt, from its persisted
+`available_at` through transaction commit; failed attempts count bad. Retries are
+separate attempts, so this is an operational proxy, not an exactly-once logical
+delivery population. The ready-age gauge covers the oldest candidate selected by
+a drain and raises a warning above one second. Partitioned drains do not establish
+the global oldest backlog age, and a stopped drain needs pipeline-health coverage.
+
+Peer pushes report unknown because protocol v3 carries neither the origin's
+monotonic start nor a bounded cross-device clock mapping. Merge duration cannot
+substitute for origin-to-visible latency. The existing three-client note-arrival
+OpenSLO test measures that interval on one virtual clock; it provides synthetic
+regression evidence, not a live population measurement. A visibility change
+mid-operation stays in its start cohort.
+
+The planned rolling objective window is 28 days. A read-only Cloud API inspection on
+2026-10-30 reported the shared stack on the Free plan. Grafana's
+[pricing](https://grafana.com/pricing/) documents 14-day Free retention. The local
+14-day generation guard is a policy assumption, not a backend retention probe.
+A paid retention tier or separately provisioned long-term recording is required
+before these targets can have a verified 28-day budget. This change neither
+purchases a plan nor claims historical evidence that is unavailable. Their diagnostic alerts use windows up to
+three days and do not assert a 28-day budget verdict.
+
+The inspected dev traces at build `9212325875277894c418dcd4d354f1d6acf45715`
+contained a 9.329-second database open and a 10.339-second failing delivery
+insert. The sample was truncated. No representative percentile or causal
+explanation of connection waiting follows from those examples. Delivery ID
+collisions and whole-pass transactions are independently reproduced code
+findings; neither is claimed to explain that remote incident.
+
+| Proposed target | 95% | 99% | 99.9% |
+| --- | --- | --- | --- |
+| Local write, including its local queue | 50 ms | 100 ms | — |
+| Read / write HTTP operation, including authentication work | 300 ms | 750 ms | 2 s |
+| Connected peer visibility | 200 ms | 1 s | — |
+| Reconnect, reference backlog ≤100 writes / 1 MiB | 2 s | 5 s | — |
+| Request database open, including schema pin | 25 ms | 100 ms | — |
+| Sync-critical outbox attempt eligibility through commit | 250 ms | 1 s | — |
+
+The reference client benchmark targets merge/rebase p95 ≤150 ms and p99 ≤300 ms
+for 1,000 rows / 1 MiB, and uninterrupted work p99 ≤8 ms. These are acceptance
+targets, not measured achievements. Run `bunx turbo run bench --filter=@pkgs/sync-engine-harness-ts`
+through the repository's owned-command launcher. The benchmark reports hash and
+hash/merge/rebase percentiles, CPU time and heap delta for 100 measured iterations
+after 10 warmups. It shares its reference fixture with the ordinary test gate;
+100 pending writes must survive repeated snapshots. Heap delta is not peak memory,
+and desktop Bun timings do not certify low-end mobile or browser slice budgets.
+
+Burn alerts require both windows to exceed 14.4× (1h/5m), 6× (6h/30m),
+3× (24h/2h), or 1× (3d/6h), with at least 20 observations in the short window.
+Three failures in 30 minutes at lower traffic generate a warning; absent target
+series over a day generate a missing-evidence warning. Unknown outcomes raise a
+separate coverage warning and are excluded from both good and bad denominators. A stopped exporter whose
+last counter remains queryable needs the existing telemetry-pipeline health checks
+as well; a nonempty series alone is not proof of fresh successful work.
+
+Transport spans combine DNS/TCP/TLS/authentication because the driver exposes one
+connect boundary. Further attribution needs driver/platform or database evidence.
+The outbox change reduces transaction scope, not the amount of consumer work, and
+external effects still rely on existing consumer idempotency. Rollout must compare
+connection failures, retries, delivery completion and backlog age as well as latency.
+
+The remote search covered 2026-10-30 15:54:12.517–16:54:12.517 UTC;
+the general search hit its 1,000-trace limit. These inspected examples were tagged
+`dev`, even though the shared-store command used `--source prod`:
+
+| Trace | Measured interval | What remains unknown |
+| --- | --- | --- |
+| `78a71d56bae51603222a7e5ee364f5af` | `/api/query` 9,743 ms; `db.open` 9,329 ms | Transport, authentication, schema setup, or backend waiting attribution |
+| `83bd1ed83dc52658cfd95f8a319e63f8` | `/api/mutations` 11,321 ms; delivery INSERT 10,339 ms, then primary-key conflict | Whether locking, retries, contention, or another cause explains the time |
+| `96e96245d1b567189b06caa12c46f1a3` | Outbox drain 31,434 ms; transactions 28,628 ms and 2,643 ms; serialization error | Which overlapping transaction or resource produced the conflict |
+
+These are individual observations, not percentile estimates, prevalence estimates,
+or a before/after comparison. No production speedup is claimed by this implementation.

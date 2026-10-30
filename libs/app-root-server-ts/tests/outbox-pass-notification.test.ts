@@ -33,7 +33,11 @@ async function notificationOrder(
     await reconcileSqliteSchema(db, syncEngineServerSchema);
     const order: string[] = [];
     const clock = { now: () => 0 };
-    const env = { now: () => new Date(0), createId: () => 'unused' };
+    let nextId = 0;
+    const env = {
+      now: () => new Date(0),
+      createId: () => `generated-${++nextId}`,
+    };
     const consumerRegistry = new OutboxConsumerRegistry();
     consumerRegistry.register({
       id: 'chain',

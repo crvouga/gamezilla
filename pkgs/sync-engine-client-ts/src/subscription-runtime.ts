@@ -61,6 +61,8 @@ export type SubscriptionRuntimeOptions = {
   readonly queryRegistry?: QueryRegistry;
   readonly onError: (error: unknown) => void;
   readonly onSynced: () => void;
+  readonly onSweepStarted?: (scopes: readonly string[]) => void;
+  readonly onScopeSettled?: (scope: string) => void;
   readonly lifecycle?: AppLifecycle;
   readonly timers: Timers;
   /** Coalesce window override (default QUERY_COALESCE_MS). */
@@ -184,6 +186,7 @@ export class SubscriptionRuntime {
         : {}),
       onError: this.options.onError,
       onSynced: this.options.onSynced,
+      onScopeSettled: (scope) => this.options.onScopeSettled?.(scope),
       ensureBusWatch: () => this.ensureBusWatch(),
       cleanScopes: this.cleanScopes,
       // A restart must not make a prior lifecycle's response current again.
@@ -454,6 +457,7 @@ export class SubscriptionRuntime {
     this.inFlightScopes = active.map((e) => e.scope);
     const ctx = this.sweepContext();
     try {
+      this.options.onSweepStarted?.(active.map((entry) => entry.scope));
       await runSubscriptionSweep(ctx, active);
       if (ctx.isRunning()) {
         this.afterSweep?.(active.map((e) => e.scope));

@@ -19,7 +19,8 @@
     "!**/libs/app-root-server-ts/src/request-db-middleware.ts",
     "!**/libs/app-root-server-ts/src/outbox-drain.ts",
     "!**/libs/app-root-server-ts/src/request-telemetry.ts",
-    "!**/libs/app-root-server-ts/src/room-route.ts"
+    "!**/libs/app-root-server-ts/src/room-route.ts",
+    "!**/libs/app-root-server-ts/src/open-request-db-postgres.ts"
   ],
   "plugin:./libs/tools-harness-ts/biome-plugins/observability-no-worker-runtime.grit": [
     "!**/libs/app-root-server-ts/src/room-route.ts"

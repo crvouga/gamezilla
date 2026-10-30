@@ -1,5 +1,11 @@
 import { ATTR } from './attributes';
 import { validateEvent } from './event-contract';
+import {
+  type MetricContract,
+  SYNC_DURATION_METRIC,
+  SYNC_STARTED_METRIC,
+  SYNC_TARGET_METRIC,
+} from './metric-contract';
 import { allowlistedAttributes } from './redaction';
 import { WEB_VITAL_EVENT } from './web-vital';
 
@@ -44,6 +50,7 @@ export function sanitizeBrowserOtlp(
     return {
       resource: {
         attributes: [
+          ...browserMetricInstance(resource, signal),
           {
             key: ATTR.SERVICE_NAME,
             value: { stringValue: identity.serviceName },
@@ -55,7 +62,7 @@ export function sanitizeBrowserOtlp(
         ],
       },
       [scopeKey]: resource[scopeKey].map((scope: unknown) =>
-        sanitizeScope(scope, signal)
+        sanitizeScope(scope, signal, identity.environment)
       ),
     };
   });
@@ -118,7 +125,11 @@ export function stampBrowserTraceResource(
   };
 }
 
-function sanitizeScope(input: unknown, signal: 'logs' | 'metrics'): unknown {
+function sanitizeScope(
+  input: unknown,
+  signal: 'logs' | 'metrics',
+  environment: string
+): unknown {
   if (!record(input)) throw new Error('Invalid OTLP scope');
   const key = signal === 'logs' ? 'logRecords' : 'metrics';
   const records = input[key];
@@ -129,7 +140,9 @@ function sanitizeScope(input: unknown, signal: 'logs' | 'metrics'): unknown {
     [key]: records.flatMap((entry) => {
       if (!record(entry)) throw new Error('Invalid OTLP record');
       const safe =
-        signal === 'logs' ? sanitizeLog(entry) : sanitizeMetric(entry);
+        signal === 'logs'
+          ? sanitizeLog(entry)
+          : sanitizeMetric(entry, environment);
       return safe === undefined ? [] : [safe];
     }),
   };
@@ -240,7 +253,12 @@ function safeLogContext(input: RecordValue): RecordValue {
   return safe;
 }
 
-function sanitizeMetric(input: RecordValue): unknown | undefined {
+function sanitizeMetric(
+  input: RecordValue,
+  environment: string
+): unknown | undefined {
+  const sync = sanitizeSyncMetric(input, environment, sanitizePoint);
+  if (sync !== undefined) return sync;
   const name = input['name'];
   if (typeof name !== 'string' || !Object.hasOwn(VITAL_UNITS, name))
     return undefined;
@@ -299,4 +317,131 @@ function sanitizePoint(input: unknown): unknown {
 
 function record(value: unknown): value is RecordValue {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+/** Cumulative browser writers need distinct opaque resource identities. */
+function browserMetricInstance(
+  resource: RecordValue,
+  signal: 'logs' | 'metrics'
+) {
+  if (signal !== 'metrics') return [];
+  const scopes = resource['scopeMetrics'];
+  const hasSync =
+    Array.isArray(scopes) &&
+    scopes.some(
+      (scope) =>
+        record(scope) &&
+        Array.isArray(scope['metrics']) &&
+        scope['metrics'].some(
+          (metric) =>
+            record(metric) &&
+            typeof metric['name'] === 'string' &&
+            metric['name'].startsWith('sync.work.')
+        )
+    );
+  if (!hasSync) return [];
+  const identity = resource['resource'];
+  const attrs = record(identity) ? identity['attributes'] : undefined;
+  const instance = Array.isArray(attrs)
+    ? attrs.find(
+        (attr) => record(attr) && attr['key'] === ATTR.SERVICE_INSTANCE_ID
+      )
+    : undefined;
+  const value =
+    record(instance) && record(instance['value'])
+      ? instance['value']['stringValue']
+      : undefined;
+  if (
+    typeof value !== 'string' ||
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      value
+    )
+  )
+    throw new Error('Sync metrics require an opaque per-page instance ID');
+  return [{ key: ATTR.SERVICE_INSTANCE_ID, value: { stringValue: value } }];
+}
+
+type Row = Record<string, unknown>;
+const contracts = [
+  SYNC_DURATION_METRIC,
+  SYNC_STARTED_METRIC,
+  SYNC_TARGET_METRIC,
+];
+const isSyncRecord = (x: unknown): x is Row =>
+  x !== null && typeof x === 'object' && !Array.isArray(x);
+
+function dimensions(point: Row, contract: MetricContract, environment: string) {
+  const found = new Map<string, string>();
+  for (const item of Array.isArray(point['attributes'])
+    ? point['attributes']
+    : []) {
+    if (
+      !isSyncRecord(item) ||
+      typeof item['key'] !== 'string' ||
+      !isSyncRecord(item['value'])
+    )
+      continue;
+    const value = item['value']['stringValue'];
+    if (
+      typeof value === 'string' &&
+      contract.dimensions[item['key']]?.includes(value)
+    )
+      found.set(item['key'], value);
+  }
+  if (found.size !== Object.keys(contract.dimensions).length)
+    throw new Error('Invalid sync metric dimensions');
+  found.set(ATTR.DEPLOYMENT_ENVIRONMENT_NAME, environment);
+  return [...found].map(([key, value]) => ({
+    key,
+    value: { stringValue: value },
+  }));
+}
+
+function counterPoint(point: Row): Row {
+  const value = point['asDouble'] ?? Number(point['asInt']);
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0)
+    throw new Error('Invalid sync counter');
+  const out: Row = { asDouble: value };
+  for (const key of ['timeUnixNano', 'startTimeUnixNano']) {
+    const timestamp = point[key];
+    if (typeof timestamp !== 'string' || !/^\d{1,20}$/.test(timestamp))
+      throw new Error('Invalid metric timestamp');
+    out[key] = timestamp;
+  }
+  return out;
+}
+
+/** Only approved finite vocabularies survive; environment is supplied by ingress. */
+export function sanitizeSyncMetric(
+  input: Row,
+  environment: string,
+  histogramPoint: (point: unknown) => unknown
+): unknown | undefined {
+  const contract = contracts.find((c) => c.name === input['name']);
+  if (contract === undefined) return undefined;
+  const kind = contract.type === 'counter' ? 'sum' : 'histogram';
+  const data = input[kind];
+  if (
+    !isSyncRecord(data) ||
+    !Array.isArray(data['dataPoints']) ||
+    data['dataPoints'].length > 256
+  )
+    throw new Error('Invalid sync metric');
+  return {
+    name: contract.name,
+    unit: contract.unit,
+    [kind]: {
+      aggregationTemporality: data['aggregationTemporality'] === 1 ? 1 : 2,
+      ...(kind === 'sum' ? { isMonotonic: true } : {}),
+      dataPoints: data['dataPoints'].map((point) => {
+        if (!isSyncRecord(point)) throw new Error('Invalid sync metric point');
+        return {
+          ...(kind === 'sum'
+            ? counterPoint(point)
+            : (histogramPoint(point) as Row)),
+          attributes: dimensions(point, contract, environment),
+        };
+      }),
+    },
+  };
 }

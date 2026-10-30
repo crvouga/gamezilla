@@ -1,3 +1,4 @@
+import { monotonicClock } from '@pkgs/clock-shared-ts/wall';
 /** @jsxImportSource solid-js */
 // @io-wall-ok — browser composition root
 /**
@@ -22,6 +23,7 @@ import { render } from 'solid-js/web';
 const offline = wallOfflineNetworkController();
 const clientEnv = wallClientEnv({ room: wallSpaceRoomTransport, offline });
 bootBrowserObservability({
+  monotonicNow: monotonicClock.now,
   env: clientEnv,
   offline,
   timeOriginMs: performance.timeOrigin,
