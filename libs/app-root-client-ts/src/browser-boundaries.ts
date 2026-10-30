@@ -17,7 +17,11 @@ import {
   setInteractionRequestRunner,
   setPendingInteractionCorrelation,
 } from '@pkgs/sync-engine-shared-ts/interaction-correlation';
-import { recordRecentTraceId } from './browser-identity';
+import {
+  type BrowserStartupStage,
+  recordRecentTraceId,
+  trackBrowserStartup,
+} from './browser-identity';
 
 type InteractionOutcome = 'navigation' | 'mutation' | 'request' | 'no_op';
 
@@ -67,11 +71,17 @@ export const LOCAL_DATABASE = {
 } as const;
 
 /** Time the awaited startup work, separately from the selected-backend report. */
-export function traceLocalDatabaseWork<T>(
-  name: 'db.connect' | 'db.migrate',
+export function traceBrowserStartup<T>(
+  name: BrowserStartupStage,
   work: () => Promise<T>
 ): Promise<T> {
-  return withSpan(name, work, { [ATTR.DB_SYSTEM_NAME]: 'sqlite' });
+  return trackBrowserStartup(name, () =>
+    withSpan(
+      name,
+      work,
+      name.startsWith('db.') ? { [ATTR.DB_SYSTEM_NAME]: 'sqlite' } : undefined
+    )
+  );
 }
 
 /**

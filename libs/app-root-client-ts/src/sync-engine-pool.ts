@@ -1,4 +1,5 @@
 import { createSyncEnginePool } from '@pkgs/sync-engine-client-ts/sync-engine-pool';
+import { traceBrowserStartup } from './browser-boundaries';
 import { createAppLocalSyncEngine } from './create-local-sync-engine';
 /** One local engine per identity-scoped database; code is imported eagerly. */
 
@@ -42,16 +43,20 @@ export function createAppSyncEnginePool(options: {
   const pool = createSyncEnginePool(
     options.globalKey === undefined ? {} : { globalKey: options.globalKey }
   );
-  const loadMutations = once(options.loadMutations);
+  const loadMutations = once(() =>
+    traceBrowserStartup('client.boot.registry', options.loadMutations)
+  );
   return {
     getOrCreate: async (args) => {
-      return pool.getOrCreate(args.databaseName, async () => {
-        const mutations = await loadMutations();
-        return createAppLocalSyncEngine({
-          ...args,
-          mutationRegistry: mutations,
-        });
-      });
+      return traceBrowserStartup('client.boot.pool', () =>
+        pool.getOrCreate(args.databaseName, async () => {
+          const mutations = await loadMutations();
+          return createAppLocalSyncEngine({
+            ...args,
+            mutationRegistry: mutations,
+          });
+        })
+      );
     },
     mutationRegistry: () => loadMutations(),
     peekReady: (databaseName) => pool.peekReady(databaseName),

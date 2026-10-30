@@ -14,7 +14,7 @@ import { createWebSqlClient } from '@pkgs/sql-client-sqlite-web-client-ts/web-sq
 import {
   LOCAL_DATABASE,
   recordLocalDatabaseOpen,
-  traceLocalDatabaseWork,
+  traceBrowserStartup,
 } from './browser-boundaries';
 
 /**
@@ -99,7 +99,7 @@ export async function openMainSqlClient(
       wipeChannel: OPFS_WIPE_CHANNEL,
     });
     try {
-      await traceLocalDatabaseWork('db.connect', () =>
+      await traceBrowserStartup('db.connect', () =>
         withinOpenDeadline(client.connect(), timers)
       );
     } catch (error) {

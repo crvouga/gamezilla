@@ -1,8 +1,13 @@
+import { BROWSER_STARTUP_STAGES } from '@libs/app-root-client-ts/browser-identity';
 import type { Timers } from '@pkgs/clock-shared-ts/types';
 
 type BrowserStorageEvidencePorts = {
   readonly pathname: string;
   readonly readIdentity: (key: string) => string | null;
+  readonly startup: {
+    readonly read: () => unknown;
+    readonly stages: readonly string[];
+  };
   readonly directories: () => Promise<
     AsyncIterable<readonly [string, { readonly kind: string }]>
   >;
@@ -30,7 +35,26 @@ export async function captureBrowserStorageEvidence(
     deviceId: identity('deviceId'),
     databases: [] as string[],
     opfs: 'unavailable',
+    pendingStartup: [] as string[],
   };
+  try {
+    const diagnostic = ports.startup.read();
+    const line =
+      typeof diagnostic === 'string'
+        ? diagnostic
+            .slice(0, 2048)
+            .split('\n')
+            .find((value) => value.startsWith('startup.pending='))
+        : undefined;
+    const pending = new Set(
+      line?.slice('startup.pending='.length).split(',') ?? []
+    );
+    state.pendingStartup = ports.startup.stages.filter((stage) =>
+      pending.has(stage)
+    );
+  } catch {
+    // An unavailable diagnostic helper must not replace the original failure.
+  }
   let stopped = false;
   let timer: unknown;
   const deadline = new Promise<void>((resolve) => {
@@ -68,6 +92,7 @@ export async function captureBrowserStorageEvidence(
 export const BROWSER_FAILURE_STORAGE = `(${captureBrowserStorageEvidence.toString()})({
   pathname: location.pathname,
   readIdentity: key => localStorage.getItem(key),
+  startup: { read: () => globalThis.__obs?.(), stages: ${JSON.stringify(BROWSER_STARTUP_STAGES)} },
   directories: async () => {
     const root = await navigator.storage.getDirectory();
     const directory = await root.getDirectoryHandle('sqlite-web', { create: false });

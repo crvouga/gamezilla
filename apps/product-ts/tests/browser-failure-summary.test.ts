@@ -4,10 +4,33 @@ import {
   captureBrowserStorageEvidence,
   readBrowserStorageEvidence,
 } from '@apps/product-ts/browser-failure-summary';
+import { BROWSER_STARTUP_STAGES } from '@libs/app-root-client-ts/browser-identity';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 
 const ACCOUNT = 'a63ba7ed-145a-4b8c-8161-eed141a55334';
 const DEVICE = 'd0228b57-28c8-4971-93cd-a3e70f62ab83';
+const STARTUP = { read: () => '', stages: BROWSER_STARTUP_STAGES };
+
+// regression: client-startup-pending-stage-missing
+test('failure evidence retains pending boot stages without copying arbitrary diagnostic values', async () => {
+  const { timers } = createHarnessClock();
+  const result = await captureBrowserStorageEvidence({
+    pathname: '/',
+    readIdentity: () => null,
+    startup: {
+      read: () =>
+        'session.token=secret\nstartup.pending=db.migrate,secret,client.boot.pool,db.migrate',
+      stages: BROWSER_STARTUP_STAGES,
+    },
+    directories: async () => (async function* () {})(),
+    timers,
+  });
+  expect(JSON.parse(result)).toHaveProperty('pendingStartup', [
+    'client.boot.pool',
+    'db.migrate',
+  ]);
+  expect(result).not.toContain('secret');
+});
 
 // regression: offline-space-failure-missing-storage-evidence
 test('offline failure evidence retains bounded identity and database names without authentication secrets', async () => {
@@ -21,6 +44,7 @@ test('offline failure evidence retains bounded identity and database names witho
   };
   const result = await captureBrowserStorageEvidence({
     pathname: `/space/${'x'.repeat(300)}`,
+    startup: STARTUP,
     readIdentity: (key) => {
       readKeys.push(key);
       return stored[key] ?? null;
@@ -61,6 +85,7 @@ test('unavailable or stalled browser storage cannot mask the original failure', 
   const { clock, timers } = createHarnessClock();
   const unavailable = await captureBrowserStorageEvidence({
     pathname: '/space/one',
+    startup: STARTUP,
     readIdentity: () => {
       throw new Error('secret-token');
     },
@@ -75,9 +100,11 @@ test('unavailable or stalled browser storage cannot mask the original failure', 
     deviceId: null,
     databases: [],
     opfs: 'unavailable',
+    pendingStartup: [],
   });
   const stalled = captureBrowserStorageEvidence({
     pathname: '/',
+    startup: STARTUP,
     readIdentity: () => 'not-an-id-secret',
     directories: () => new Promise(() => {}),
     timers,
