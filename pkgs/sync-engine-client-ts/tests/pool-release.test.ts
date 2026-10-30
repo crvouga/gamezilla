@@ -163,3 +163,148 @@ test('generated request and release epochs only create the surviving queued iden
     )
   );
 });
+
+async function microtasks(turns: number): Promise<void> {
+  for (let turn = 0; turn < turns; turn++) await Promise.resolve();
+}
+
+async function checkActiveRelease(input: {
+  shared: boolean;
+  drainTurns: number;
+  closeTurns: number;
+  rejectClose: boolean;
+}): Promise<void> {
+  const globalKey = '__sync_pool_active_release_property__';
+  const pool = createSyncEnginePool(input.shared ? { globalKey } : {});
+  const releaser = input.shared ? createSyncEnginePool({ globalKey }) : pool;
+  const drained = Promise.withResolvers<void>();
+  const closed = Promise.withResolvers<void>();
+  const closeStarted = Promise.withResolvers<void>();
+  const failure = new Error('old database close failed');
+  const events: string[] = [];
+  await pool.getOrCreate(
+    'A',
+    async () =>
+      ({
+        disconnect: () => {
+          events.push('drain A');
+          return drained.promise;
+        },
+        db: {
+          disconnect: () => {
+            events.push('close A');
+            closeStarted.resolve();
+            return closed.promise;
+          },
+        },
+      }) as unknown as SyncEngine
+  );
+  const released = releaser.releaseAll().catch((error: unknown) => error);
+  const next = pool.getOrCreate('B', async () => {
+    events.push('open B');
+    return engine();
+  });
+  try {
+    await microtasks(50 + input.drainTurns);
+    expect(events).toEqual(['drain A']);
+    drained.resolve();
+    await closeStarted.promise;
+    await microtasks(50 + input.closeTurns);
+    expect(events).toEqual(['drain A', 'close A']);
+    if (input.rejectClose) closed.reject(failure);
+    else closed.resolve();
+    expect(await released).toBe(input.rejectClose ? failure : undefined);
+    await next;
+    expect(events).toEqual(['drain A', 'close A', 'open B']);
+  } finally {
+    drained.resolve();
+    closed.resolve();
+    await Promise.allSettled([released, next]);
+    await pool.releaseAll();
+    if (input.shared) Reflect.deleteProperty(globalThis, globalKey);
+  }
+}
+
+// regression: sync-pool-release-does-not-fence-next-open
+test('an unawaited release drains and closes the active database before the next identity opens', async () => {
+  await checkActiveRelease({
+    shared: false,
+    drainTurns: 0,
+    closeTurns: 0,
+    rejectClose: false,
+  });
+});
+
+test('generated active releases fence replacements through delayed cleanup and preserve close errors', async () => {
+  await assertProperty(
+    'unawaited active pool cleanup fences the next open through either API handle',
+    fc.asyncProperty(
+      fc.record({
+        shared: fc.boolean(),
+        drainTurns: fc.integer({ min: 0, max: 30 }),
+        closeTurns: fc.integer({ min: 0, max: 30 }),
+        rejectClose: fc.boolean(),
+      }),
+      checkActiveRelease
+    )
+  );
+});
+
+// regression: sync-pool-release-does-not-fence-next-open
+test('a failed release still fences an earlier identity switch until its database closes', async () => {
+  const pool = createSyncEnginePool();
+  const drainStarted = Promise.withResolvers<void>();
+  const drained = Promise.withResolvers<void>();
+  const closed = Promise.withResolvers<void>();
+  const closeStarted = Promise.withResolvers<void>();
+  const failure = new Error('release cleanup failed');
+  let disconnects = 0;
+  await pool.getOrCreate(
+    'A',
+    async () =>
+      ({
+        disconnect: () => {
+          disconnects++;
+          if (disconnects > 1) return Promise.reject(failure);
+          drainStarted.resolve();
+          return drained.promise;
+        },
+        db: {
+          disconnect: () => {
+            closeStarted.resolve();
+            return closed.promise;
+          },
+        },
+      }) as unknown as SyncEngine
+  );
+  const oldSwitch = pool
+    .getOrCreate('B', async () => engine())
+    .catch((error: Error) => error.message);
+  await drainStarted.promise;
+  const released = pool.releaseAll().catch((error: unknown) => error);
+  let opened = false;
+  const next = pool.getOrCreate('C', async () => {
+    opened = true;
+    return engine();
+  });
+  try {
+    expect(await released).toBe(failure);
+    await microtasks(100);
+    expect(opened).toBe(false);
+    drained.resolve();
+    await closeStarted.promise;
+    await microtasks(100);
+    expect(opened).toBe(false);
+    closed.resolve();
+    await next;
+    expect(opened).toBe(true);
+    expect(await oldSwitch).toBe(
+      'sync-engine-pool: getOrCreate aborted after releaseAll'
+    );
+  } finally {
+    drained.resolve();
+    closed.resolve();
+    await Promise.allSettled([released, oldSwitch, next]);
+    await pool.releaseAll();
+  }
+});

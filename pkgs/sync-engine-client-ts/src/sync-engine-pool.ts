@@ -160,13 +160,21 @@ export function createSyncEnginePool(
       pool.ready.clear();
       pool.pending.clear();
       pool.activeName = null;
-      for (const engine of engines) {
-        // Soft-stop sync first, then close SQLite — same order as
-        // deactivatePrevious. Web OPFS is single-session; leaving handles
-        // open blocks the next open (Console product-harness, tab remount).
-        await engine.disconnect();
-        await engine.db.disconnect();
-      }
+      const cleanup = (async () => {
+        for (const engine of engines) {
+          // Soft-stop sync first, then close SQLite — same order as
+          // deactivatePrevious. Web OPFS is single-session; leaving handles
+          // open blocks the next open (Console product-harness, tab remount).
+          await engine.disconnect();
+          await engine.db.disconnect();
+        }
+      })();
+      // Hosts may close without awaiting. The next open must wait for both
+      // cleanup and any older creation/identity switch, even if cleanup fails.
+      pool.opChain = Promise.allSettled([pool.opChain, cleanup]).then(
+        () => undefined
+      );
+      await cleanup;
     },
   };
 }
