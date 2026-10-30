@@ -18,6 +18,7 @@ import {
 import { openHarness } from './open-friends-harness';
 
 test('a host sees the name of a person who joined by link', async () => {
+  // regression: isolated-solid-workspace-export-resolution
   // regression: unconfirmed-join-keeps-preview-grants
   // regression: space-link-member-profile-missing
   await using s = await openHarness('space-link-member-profile-missing');

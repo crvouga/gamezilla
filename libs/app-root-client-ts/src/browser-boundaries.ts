@@ -10,13 +10,18 @@ import { recordStructuredError } from '@pkgs/observability-root-shared-ts/log';
 import {
   recordException,
   startSpan,
+  withSpan,
 } from '@pkgs/observability-root-shared-ts/span';
 import {
   clearPendingInteractionCorrelation,
   setInteractionRequestRunner,
   setPendingInteractionCorrelation,
 } from '@pkgs/sync-engine-shared-ts/interaction-correlation';
-import { recordRecentTraceId } from './browser-identity';
+import {
+  type BrowserStartupStage,
+  recordRecentTraceId,
+  trackBrowserStartup,
+} from './browser-identity';
 
 type InteractionOutcome = 'navigation' | 'mutation' | 'request' | 'no_op';
 
@@ -64,6 +69,20 @@ export const LOCAL_DATABASE = {
   /** The in-memory stand-in, on the main thread; nothing is kept. */
   memory: 'sqlite.memory',
 } as const;
+
+/** Time the awaited startup work, separately from the selected-backend report. */
+export function traceBrowserStartup<T>(
+  name: BrowserStartupStage,
+  work: () => Promise<T>
+): Promise<T> {
+  return trackBrowserStartup(name, () =>
+    withSpan(
+      name,
+      work,
+      name.startsWith('db.') ? { [ATTR.DB_SYSTEM_NAME]: 'sqlite' } : undefined
+    )
+  );
+}
 
 /**
  * One `db.open` span saying which local database this page runs on. Landing

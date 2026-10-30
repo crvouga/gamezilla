@@ -7,6 +7,10 @@ provider "grafana" {
 # a service account. An archived instance answers that URL with 404, so the
 # account, its token, and the dashboards exist only while the instance is active.
 resource "grafana_cloud_stack_service_account" "observability" {
+  lifecycle {
+    destroy = false
+  }
+
   count = module.observability.grafana_instance_ready ? 1 : 0
 
   provider   = grafana.stack_management
@@ -16,6 +20,10 @@ resource "grafana_cloud_stack_service_account" "observability" {
 }
 
 resource "grafana_cloud_stack_service_account_token" "observability" {
+  lifecycle {
+    destroy = false
+  }
+
   count = module.observability.grafana_instance_ready ? 1 : 0
 
   provider           = grafana.stack_management

@@ -84,7 +84,7 @@ The structure sets a floor near five minutes before any uncached test runs: a pl
 
 ## Runner operating systems
 
-Every job requests `runs-on: boat` (the boat.dev Linux runner; `.github/actionlint.yaml` declares the label) and runs its `run:` steps in bash. `CI_RUNNER` in `package-hosts.ts` is the one place that names the label, and `workflow-native.test.ts` fails when a job requests another. Runners are ephemeral, so every job starts from an empty VM. That is a security requirement, not only a cost one: the repository is public, so a pull request's code is untrusted and must never run on a machine that keeps files between jobs and later runs a deploy with production secrets (`workflow-native.test.ts` refuses a `self-hosted` label), and setup installs dependencies before any secret is in the environment. On that empty VM, setup restores mise's tools and bun's download cache from GitHub's cache, and anything else a job needs comes from the checkout, the remote Turbo cache or the CI artifacts bucket. GitHub's free plan runs 20 jobs at once across every workflow; Verify PR's `VERIFY_MAX_PARALLEL` (default 16) keeps four slots free for other runs' `verify:start` and `verify:end`.
+Every job requests `runs-on: boat` (the boat.dev Linux runner; `.github/actionlint.yaml` declares the label) and runs its `run:` steps in bash. `CI_RUNNER` in `package-hosts.ts` is the one place that names the label, and `workflow-native.test.ts` fails when a job requests another. Runners are ephemeral, so every job starts from an empty VM. That is a security requirement, not only a cost one: the repository is public, so a pull request's code is untrusted and must never run on a machine that keeps files between jobs and later runs a deploy with production secrets (`workflow-native.test.ts` refuses a `self-hosted` label), and setup installs dependencies before any secret is in the environment. On that empty VM, setup installs mise's pinned tools directly and restores bun's download cache from GitHub's cache; the optional mise tool archive is disabled after a stalled restore consumed most of a verification job's deadline. Anything else a job needs comes from the checkout, the remote Turbo cache or the CI artifacts bucket. GitHub's free plan runs 20 jobs at once across every workflow; Verify PR's `VERIFY_MAX_PARALLEL` (default 16) keeps four slots free for other runs' `verify:start` and `verify:end`.
 
 Setup installs everything else from `mise.toml`, Chrome for Testing included (`http:chrome-for-testing`), and never installs the laptop-only coding-agent tools (`MISE_DISABLE_TOOLS`). The Chrome sandbox's AppArmor knob is opened with the hosted image's passwordless `sudo`. The visual-quality model (351 MB, too large for the remote cache) downloads in every job that judges UI quality, because no runner keeps a disk between jobs.
 
@@ -162,19 +162,19 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | | |
 | --- | --- |
 | Packages | 361 |
-| Verify scripts | 1434 |
+| Verify scripts | 1501 |
 | Measured scripts | 934 |
-| Estimated scripts | 500 |
+| Estimated scripts | 567 |
 | Stale cost keys | 574 |
-| Cold CPU | 18239 s |
-| Spec parts | 10857 s across 307 tasks |
+| Cold CPU | 19512 s |
+| Spec parts | 12130 s across 374 tasks |
 | Longest task | @libs/games-harness-ts#test:spec:49 213 s |
 
 ### Families
 
 | Family | Tasks | CPU |
 | --- | --- | --- |
-| test:spec | 307 | 10857 s |
+| test:spec | 374 | 12130 s |
 | lint | 359 | 1275 s |
 | test:contract | 25 | 1004 s |
 | verify:models:10 | 16 | 960 s |
@@ -208,9 +208,9 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared-ts | 292 | 18018 s | @libs/games-harness-ts#test:spec:49 213 s |
-| @pkgs/clock-shared-ts | 257 | 17896 s | @libs/games-harness-ts#test:spec:49 213 s |
-| @pkgs/assert-root-shared-ts | 252 | 17863 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/property-shared-ts | 292 | 19291 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/clock-shared-ts | 257 | 19169 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/assert-root-shared-ts | 252 | 19136 s | @libs/games-harness-ts#test:spec:49 213 s |
 
 ### Runner
 
@@ -223,7 +223,7 @@ Slot allocation target 240 s. Warm start 30 s. Verdict slack 15 s. Spec workers 
 | Other slots per runner | 11 |
 | Cores required per runner | 29 |
 | Memory required per runner | 40 GiB |
-| Estimated makespan | 227 s |
+| Estimated makespan | 253 s |
 | Provision | 6 × 32 vCPU, 64 GB, Linux x64 |
 | Fits | yes |
 <!-- ci-load:end -->

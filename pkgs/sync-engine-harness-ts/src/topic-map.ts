@@ -111,14 +111,6 @@ export const exampleTopicMap = defineTopicMap({
       publish(row) {
         return usernameNonEmpty(row);
       },
-      accept(incoming, local) {
-        if (usernameNonEmpty(incoming)) return true;
-        const localUsername = local?.['username'];
-        if (typeof localUsername === 'string' && localUsername.length > 0) {
-          return false;
-        }
-        return true;
-      },
     },
   },
   friends_friendships: {

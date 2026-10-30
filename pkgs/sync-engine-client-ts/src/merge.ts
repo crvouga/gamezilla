@@ -24,9 +24,6 @@ import {
 import {
   clearOptimisticPeerRows,
   healOptimisticPeerOrphans,
-  loadLiveRowIds,
-  omitAlreadyLiveRows,
-  recordOptimisticPeerRows,
 } from './optimistic-peer-rows';
 import type { TableChangeBus } from './table-change-bus';
 
@@ -272,9 +269,6 @@ function filterDeviceOwnedRows(
  * the server's last full-snapshot content so `not_modified` stays sound. A
  * rows-apply changes local content without claiming a full snapshot.
  *
- * When `optimistic` is true, ids are recorded so a later confirming snapshot
- * can soft-delete orphans that never committed on the server.
- *
  * `raise` lifts the listed scopes' `last_checkpoint` in the same transaction
  * so no stale snapshot can slip in between the row apply and the fence.
  */
@@ -287,21 +281,18 @@ export async function applyRowImages(
   deps: MergeApplierDeps,
   tables: Readonly<Record<string, readonly QueryRow[]>>,
   opts?: {
-    readonly optimistic?: boolean;
     readonly raise?: RowImageCheckpointRaise;
   }
 ): Promise<void> {
   const filtered: Record<string, readonly QueryRow[]> = {};
   for (const [table, rows] of Object.entries(tables)) {
-    // Drop invalid names before merge / optimistic-peer bookkeeping.
+    // Drop invalid names before merging row images.
     if (!isValidTableName(table)) continue;
     filtered[table] = filterDeviceOwnedRows(deps, rows);
   }
   await withMergeSingleFlight(deps.db, async () => {
     const changed = new Set<string>();
     await deps.db.transaction(async (tx) => {
-      const preexisting =
-        opts?.optimistic === true ? await loadLiveRowIds(tx, filtered) : {};
       for (const [table, rows] of Object.entries(filtered)) {
         if (rows.length === 0) continue;
         await assertCompleteNewRowImages(tx, table, rows);
@@ -316,19 +307,7 @@ export async function applyRowImages(
         });
         if (ok) changed.add(table);
       }
-      if (opts?.optimistic === true) {
-        await recordOptimisticPeerRows(
-          tx,
-          omitAlreadyLiveRows(filtered, preexisting),
-          deps.env.now().toISOString()
-        );
-      } else {
-        await clearOptimisticPeerRows(
-          tx,
-          filtered,
-          deps.env.now().toISOString()
-        );
-      }
+      await clearOptimisticPeerRows(tx, filtered, deps.env.now().toISOString());
       await rebasePending(tx, deps, changed);
       if (opts?.raise !== undefined) {
         await raiseScopeCheckpoints(

@@ -1,3 +1,5 @@
+import type { Timers } from '@pkgs/clock-shared-ts/types';
+
 /**
  * Why an element never became pressable, for the failure message. A tap
  * that times out as "not actionable" says nothing about the cause; this
@@ -16,26 +18,18 @@ const FRAMES = 6;
 export function pressDiagnosisScript(selector: string): string {
   return `(async function(){
     function one(node) {
-      var role = node.getAttribute('role');
-      var label = node.getAttribute('aria-label');
-      var cls = typeof node.className === 'string' ? node.className.trim().slice(0, 80) : '';
       var style = getComputedStyle(node);
-      return '<' + node.tagName.toLowerCase() +
-        (role ? ' role=' + role : '') +
-        (label ? ' "' + label + '"' : '') +
-        (cls ? ' class="' + cls + '"' : '') +
-        (style.position && style.position !== 'static' ? ' ' + style.position : '') +
-        (style.zIndex && style.zIndex !== 'auto' ? ' z=' + style.zIndex : '') + '>';
+      return '<' + node.tagName.toLowerCase().slice(0, 32) +
+        ' position=' + style.position.slice(0, 12) +
+        ' z=' + style.zIndex.slice(0, 12) + '>';
     }
     function describe(node) {
       if (node === null) return 'nothing';
-      var owner = node.closest ? node.closest('[data-testid]') : null;
-      var id = owner === null ? '' : ' in [data-testid="' + owner.getAttribute('data-testid') + '"]';
       // An overlay is often a portal with no test id: name its ancestry.
       var chain = [];
       for (var at = node; at !== null && at !== document.body && chain.length < 4; at = at.parentElement)
         chain.push(one(at));
-      return chain.join(' < ') + id;
+      return chain.join(' < ');
     }
     var el = document.querySelector(${JSON.stringify(selector)});
     if (el === null) return 'the element is gone';
@@ -43,7 +37,7 @@ export function pressDiagnosisScript(selector: string): string {
     for (var frame = 0; frame < ${FRAMES}; frame++) {
       await new Promise(requestAnimationFrame);
       var r = el.getBoundingClientRect();
-      boxes.push([r.left, r.top, r.width, r.height].map(Math.round).join(','));
+      boxes.push([r.left, r.top, r.width, r.height].join(','));
     }
     var moving = boxes.some(function (box) { return box !== boxes[0]; });
     var r = el.getBoundingClientRect();
@@ -51,8 +45,12 @@ export function pressDiagnosisScript(selector: string): string {
     var y = r.top + r.height / 2;
     var hit = document.elementFromPoint(x, y);
     var covered = hit !== null && hit !== el && !el.contains(hit);
+    var style = getComputedStyle(el);
     return (moving ? 'moving: ' + boxes.join(' -> ') : 'still at ' + boxes[0]) +
       '; viewport ' + innerWidth + 'x' + innerHeight +
+      '; connected=' + el.isConnected + '; matches=' + document.querySelectorAll(${JSON.stringify(selector)}).length +
+      '; disabled=' + (el.disabled === true || el.getAttribute('aria-disabled') === 'true') +
+      '; hidden=' + (style.display === 'none' || style.visibility === 'hidden') +
       '; centre (' + Math.round(x) + ',' + Math.round(y) + ') hits ' +
       (covered || hit === null ? describe(hit) : 'the element');
   })()`;
@@ -61,12 +59,25 @@ export function pressDiagnosisScript(selector: string): string {
 /** The diagnosis, or why it could not be read. Never throws. */
 export async function diagnosePress(
   view: { evaluate(script: string): Promise<unknown> },
-  selector: string
+  selector: string,
+  timers: Timers
 ): Promise<string> {
+  let timeout: unknown;
   try {
-    const found = await view.evaluate(pressDiagnosisScript(selector));
-    return typeof found === 'string' ? found : 'no diagnosis';
-  } catch (error) {
-    return `no diagnosis (${String(error)})`;
+    const deadline = new Promise<string>((resolve) => {
+      timeout = timers.setTimeout(
+        () => resolve('no diagnosis (deadline)'),
+        1000
+      );
+    });
+    const found = await Promise.race([
+      view.evaluate(pressDiagnosisScript(selector)),
+      deadline,
+    ]);
+    return typeof found === 'string' ? found.slice(0, 1500) : 'no diagnosis';
+  } catch {
+    return 'no diagnosis (unavailable)';
+  } finally {
+    timers.clearTimeout(timeout);
   }
 }

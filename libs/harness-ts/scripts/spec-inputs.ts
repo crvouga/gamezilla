@@ -45,6 +45,7 @@ export function specInputManifest(
     units: units.map((unit) => ({
       path: slashPath(relative(root, unit.path)),
       slice: unit.slice,
+      variants: unit.variants,
     })),
     files: Object.fromEntries(
       [...files].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))

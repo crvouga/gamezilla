@@ -1,0 +1,4 @@
+{
+  "summary": "The sync-engine package's public Solid entrypoint could not resolve from its own Bun process when the wildcard export array selected a missing .ts target before the existing .tsx file.",
+  "regressionTest": "pkgs/sync-engine-client-ts/tests/solid-bindings.test.tsx"
+}

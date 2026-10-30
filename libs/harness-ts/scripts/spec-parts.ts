@@ -1,6 +1,6 @@
 /**
  * How `test-spec.ts` splits one package's spec suite. Pure: the split depends
- * only on the spec files, so every part of one suite — each on its own CI
+ * only on spec files and their owner-generated variant plans, so every part of one suite — each on its own CI
  * shard — computes the same assignment, and every scenario and trace runs in
  * exactly one part.
  *
@@ -28,6 +28,8 @@ export type SpecUnit = {
   readonly path: string;
   readonly slice?: Slice | undefined;
   readonly weight: number;
+  /** Exact feature expansion, projected from the owning suite's registry. */
+  readonly variants?: number;
   /** A planned model file's trace replays in each check profile. */
   readonly replays?: ModelReplays | undefined;
 };
@@ -213,7 +215,9 @@ type PartLoad = { load: number; units: SpecUnit[] };
 /**
  * Quint batches keep their bounded, balanced allocation and fill otherwise
  * empty hashed parts. Other specs keep stable path ownership when another
- * feature changes. Part 0 also owns `tests/harness`.
+ * feature changes. Suites with a feature variant plan bound the expanded
+ * load and move a hashed unit only when its owner is full. Part 0 also owns
+ * `tests/harness`.
  */
 export function partOf(
   units: readonly SpecUnit[],
@@ -227,6 +231,8 @@ export function partsOf(
   units: readonly SpecUnit[],
   count: number
 ): readonly (readonly SpecUnit[])[] {
+  if (units.some((unit) => unit.variants !== undefined))
+    return boundedSpecParts(units, count);
   const loads: PartLoad[] = Array.from({ length: count }, (_, index) => ({
     load: index === 0 ? 1 : 0,
     units: [],
@@ -327,4 +333,62 @@ export function modelDrawBatches(
   return batches
     .map((batch) => batch.draws)
     .filter((batch) => batch.length > 0);
+}
+
+/** Variant-aware suites retain a hash owner unless that part is already full. */
+function boundedSpecParts(
+  units: readonly SpecUnit[],
+  count: number
+): readonly (readonly SpecUnit[])[] {
+  const parts: SpecUnit[][] = Array.from({ length: count }, () => []);
+  const loads = parts.map(() => ({ load: 0, pr: 0, nightly: 0 }));
+  const ordered = [...units].sort(
+    (a, b) =>
+      b.weight - a.weight ||
+      comparePaths(a.path, b.path) ||
+      (a.slice?.index ?? 0) - (b.slice?.index ?? 0)
+  );
+  for (const unit of ordered) {
+    const cost = partLoad([unit]);
+    const owner = specOwner(unit.path, count, unit.slice?.index ?? 0);
+    const index = boundedOwner(loads, owner, cost);
+    parts[index]!.push(unit);
+    const load = loads[index]!;
+    load.load += cost.load;
+    load.pr += cost.pr;
+    load.nightly += cost.nightly;
+  }
+  return Object.freeze(
+    parts.map((part) =>
+      Object.freeze(part.sort((a, b) => comparePaths(unitKey(a), unitKey(b))))
+    )
+  );
+}
+
+/** Assignment must not depend on the runner's locale or ICU version. */
+function comparePaths(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+/** Accumulate costs once; candidate searches never rescan already placed files. */
+function boundedOwner(
+  loads: readonly ReturnType<typeof partLoad>[],
+  owner: number,
+  cost: ReturnType<typeof partLoad>
+): number {
+  let lightest = owner;
+  for (let offset = 0; offset < loads.length; offset++) {
+    const index = (owner + offset) % loads.length;
+    const load = loads[index]!;
+    if (
+      load.load + cost.load <= PART_LOAD &&
+      load.pr + cost.pr <= PART_REPLAYS &&
+      load.nightly + cost.nightly <= PART_REPLAYS * NIGHTLY_REPLAY_SCALE
+    )
+      return index;
+    if (load.load < loads[lightest]!.load) lightest = index;
+  }
+  // An undersized candidate still returns every unit, so the planning gate
+  // can reject its overfull parts while finding the minimum supported count.
+  return lightest;
 }

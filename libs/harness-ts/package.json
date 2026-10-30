@@ -11,7 +11,10 @@
       "./src/*.d.ts"
     ],
     "./spec-inputs": "./scripts/spec-inputs.ts",
-    "./spec-parts": "./scripts/spec-parts.ts"
+    "./spec-parts": "./scripts/spec-parts.ts",
+    "./replay-plans": "./scripts/replay-plans.ts",
+    "./spec-sources": "./scripts/spec-sources.ts",
+    "./feature-variants": "./scripts/feature-variants.ts"
   },
   "scripts": {
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",

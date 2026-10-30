@@ -1,0 +1,4 @@
+{
+  "summary": "Verify run 40990676678 shard 17 received all 181 game spec parts plus cached prepare:spec, estimated at 26704 seconds, against a 1200-second deadline. The shared feature generator was classified as a prerequisite, but prepare:spec depending on it was not; dependency grouping therefore joined every independent spec part. Promote shared producers over already-promoted prerequisites to a fixed point, so the generator and preparation run once before distributed verification without changing coverage or time budgets.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-stages.test.ts"
+}

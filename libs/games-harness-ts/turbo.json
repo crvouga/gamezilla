@@ -6,6 +6,7 @@
       "cache": false
     },
     "test": {
+      "dependsOn": ["$TURBO_EXTENDS$", "generate:feature-variants"],
       "inputs": [
         "$TURBO_EXTENDS$",
         "$TURBO_ROOT$/specs/games/*.feature",
@@ -607,6 +608,219 @@
         "@libs/word-tiles-harness-ts#src",
         "@pkgs/turn-game-shared-ts#src"
       ]
+    },
+    "generate:feature-variants": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/specs/games/*.feature"
+      ],
+      "outputs": [".cache/feature-variants.json"]
+    },
+    "prepare:spec": {
+      "dependsOn": ["$TURBO_EXTENDS$", "generate:feature-variants"]
+    },
+    "test:spec:114": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:115": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:116": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:117": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:118": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:119": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:120": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:121": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:122": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:123": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:124": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:125": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:126": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:127": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:128": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:129": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:130": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:131": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:132": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:133": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:134": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:135": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:136": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:137": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:138": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:139": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:140": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:141": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:142": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:143": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:144": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:145": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:146": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:147": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:148": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:149": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:150": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:151": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:152": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:153": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:154": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:155": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:156": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:157": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:158": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:159": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:160": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:161": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:162": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:163": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:164": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:165": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:166": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:167": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:168": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:169": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:170": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:171": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:172": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:173": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:174": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:175": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:176": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:177": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:178": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:179": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:180": {
+      "inputs": ["$TURBO_EXTENDS$"]
     }
   }
 }

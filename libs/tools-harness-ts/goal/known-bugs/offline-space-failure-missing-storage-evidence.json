@@ -1,0 +1,4 @@
+{
+  "summary": "The offline Numberlink release journey reopened an own space as an unknown offline link, but its failure log omitted the route, current identity and database names needed to distinguish identity replacement from missing local data. Failure capture now retains only bounded identifiers and OPFS directory names without opening database handles or reading authentication secrets.",
+  "regressionTest": "apps/product-ts/tests/browser-failure-summary.test.ts"
+}

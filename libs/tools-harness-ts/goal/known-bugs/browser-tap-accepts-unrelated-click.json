@@ -1,0 +1,4 @@
+{
+  "summary": "The browser driver accepted any trusted document click as acknowledgement of its selected control. A click on an overlapping or unrelated control could therefore silently complete the wrong gesture. Acknowledgement now requires the selected control in the click's composed path; off-target clicks fail without another gesture.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-shared-ts/tests/bun-webview-driver.test.ts"
+}

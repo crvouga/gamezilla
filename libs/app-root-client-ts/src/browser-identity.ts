@@ -4,6 +4,39 @@ import type { ObservabilityIdentity } from '@pkgs/observability-root-shared-ts/i
 let identity: ObservabilityIdentity = {};
 let recentTraceId: string | undefined;
 
+export const BROWSER_STARTUP_STAGES = [
+  'client.boot.pool',
+  'client.boot.registry',
+  'client.boot.app',
+  'client.boot.lease',
+  'db.connect',
+  'db.migrate',
+  'client.boot.config',
+  'client.sync.connect',
+] as const;
+export type BrowserStartupStage = (typeof BROWSER_STARTUP_STAGES)[number];
+
+const pendingStartup = new Map<BrowserStartupStage, number>();
+
+/** Pending work survives in diagnostics even when its span never finishes. */
+export async function trackBrowserStartup<T>(
+  stage: BrowserStartupStage,
+  work: () => Promise<T>
+): Promise<T> {
+  pendingStartup.set(stage, (pendingStartup.get(stage) ?? 0) + 1);
+  try {
+    return await work();
+  } finally {
+    const remaining = (pendingStartup.get(stage) ?? 1) - 1;
+    if (remaining === 0) pendingStartup.delete(stage);
+    else pendingStartup.set(stage, remaining);
+  }
+}
+
+export function pendingBrowserStartup(): readonly BrowserStartupStage[] {
+  return [...pendingStartup.keys()];
+}
+
 export function setBrowserSessionId(sessionId: string): void {
   identity = { ...identity, sessionId };
 }
@@ -47,6 +80,7 @@ export function installBrowserObsHelper(): void {
       `session.id=${sessionId}`,
       `app.device.id=${identity.deviceId ?? 'unavailable'}`,
       `trace.id=${traceId}`,
+      `startup.pending=${pendingBrowserStartup().join(',')}`,
       `obs find ${sessionId} --source prod`,
     ].join('\n');
   };

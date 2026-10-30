@@ -9,25 +9,25 @@ export const CONTENT_TOPIC_MAP = {
   puzzle_content_documents: {
     topics: (_row, ctx) => [`user:${ctx.actorId}`],
     fallbackTopics: (ctx) => [`user:${ctx.actorId}`],
-    rowImage: { publish: () => false, accept: () => false },
+    rowImage: { publish: () => false },
   },
   puzzle_content_publications: {
     topics: (_row, ctx) => [`user:${ctx.actorId}`, puzzleContentTopic],
     fallbackTopics: (ctx) => [`user:${ctx.actorId}`, puzzleContentTopic],
-    rowImage: { publish: () => false, accept: () => false },
+    rowImage: { publish: () => false },
   },
   puzzle_content_drafts: {
     topics: (_row, ctx) => [`user:${ctx.actorId}`],
-    rowImage: { publish: () => false, accept: () => false },
+    rowImage: { publish: () => false },
   },
   puzzle_content_revisions: {
     topics: (_row, ctx) => [`user:${ctx.actorId}`, puzzleContentTopic],
     fallbackTopics: () => [puzzleContentTopic],
-    rowImage: { publish: () => false, accept: () => false },
+    rowImage: { publish: () => false },
   },
   puzzle_content_pack_items: {
     topics: (_row, ctx) => [`user:${ctx.actorId}`, puzzleContentTopic],
     fallbackTopics: () => [puzzleContentTopic],
-    rowImage: { publish: () => false, accept: () => false },
+    rowImage: { publish: () => false },
   },
 } satisfies TopicMap;

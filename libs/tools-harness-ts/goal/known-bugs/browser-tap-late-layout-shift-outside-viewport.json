@@ -1,0 +1,4 @@
+{
+  "summary": "Offline Numberlink's Start a new attempt button moved below the 500x757 viewport after the driver's initial scroll: its bounds were16,753,167.71875,44 and its center at100,775 hit nothing. Bun's single selector click waits for actionability but never scrolls. Track only out-of-viewport target centers while that gesture waits, with immediate centered scrolling and cleanup on both success and failure; retain native hit testing and the existing deadline.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-harness-ts/tests/late-scroll-actionability.test.ts"
+}

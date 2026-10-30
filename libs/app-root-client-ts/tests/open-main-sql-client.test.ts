@@ -1,9 +1,10 @@
-import { afterAll, beforeAll, expect, test } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, expect, test } from 'bun:test';
 import { openMainSqlClient } from '@libs/app-root-client-ts/open-main-sql-client';
 import { SpanStatusCode, trace } from '@opentelemetry/api';
 import type { BrowserTelemetry } from '@pkgs/observability-root-client-ts/browser';
 import { createBrowserTelemetry } from '@pkgs/observability-root-client-ts/browser';
 import { ATTR } from '@pkgs/observability-root-shared-ts/attributes';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared-ts/impl-mockingbird-sqlite';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 
 type FinishedSpan = {
@@ -14,6 +15,7 @@ type FinishedSpan = {
 };
 
 const finished: FinishedSpan[] = [];
+const active = new Set<string>();
 const exporter = {
   export(
     spans: readonly FinishedSpan[],
@@ -36,7 +38,49 @@ beforeAll(() => {
     registerGlobal: true,
     exporter,
     instrumentFetch: false,
+    spanProcessors: [
+      {
+        onStart: (span) => {
+          active.add(span.name);
+        },
+        onEnd: (span) => {
+          active.delete(span.name);
+        },
+        forceFlush: () => Promise.resolve(),
+        shutdown: () => Promise.resolve(),
+      },
+    ],
   });
+});
+
+// regression: local-database-startup-missing-awaited-spans
+test('database connection is traced while the worker connection is pending', async () => {
+  const connection = Promise.withResolvers<void>();
+  const client = SqlClientImplMockingbirdSqlite.open();
+  const logger = {
+    debug: () => undefined,
+    info: () => undefined,
+    warn: () => undefined,
+    error: () => undefined,
+    child: () => logger,
+  };
+  const pending = openMainSqlClient(
+    'delayed-worker',
+    TIMERS,
+    logger,
+    () =>
+      new Proxy(client, {
+        get(target, property) {
+          if (property === 'connect') return () => connection.promise;
+          return Reflect.get(target, property, target);
+        },
+      })
+  );
+  expect(active.has('db.connect')).toBe(true);
+  connection.resolve();
+  const opened = await pending;
+  expect(active.has('db.connect')).toBe(false);
+  await opened.disconnect();
 });
 
 afterAll(async () => {
@@ -50,6 +94,11 @@ const TIMERS = {
   setInterval: () => 0,
   clearInterval: () => undefined,
 };
+
+beforeEach(async () => {
+  await runtime.forceFlush();
+  finished.length = 0;
+});
 
 // regression: dev-sqlite-workers-served-as-html
 test('landing on the in-memory stand-in is a failed db.open that names its cause', async () => {

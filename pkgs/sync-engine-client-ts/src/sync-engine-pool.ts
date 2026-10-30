@@ -9,6 +9,8 @@ export type SyncEnginePool = {
    * opens (web OPFS is single-session).
    */
   opChain: Promise<void>;
+  /** Shared by every API handle for this pool, including HMR replacements. */
+  releaseGeneration: number;
 };
 
 export type CreateSyncEnginePoolOptions = {
@@ -26,6 +28,7 @@ function createPool(): SyncEnginePool {
     pending: new Map(),
     activeName: null,
     opChain: Promise.resolve(),
+    releaseGeneration: 0,
   };
 }
 
@@ -82,7 +85,6 @@ export function createSyncEnginePool(
   options: CreateSyncEnginePoolOptions = {}
 ): SyncEnginePoolApi {
   let ownPool: SyncEnginePool | null = null;
-  let releaseGeneration = 0;
   const resolvePool = (): SyncEnginePool => {
     if (options.globalKey !== undefined) {
       return getOrInitPool(options.globalKey);
@@ -96,10 +98,20 @@ export function createSyncEnginePool(
     },
     async getOrCreate(databaseName, create) {
       const pool = resolvePool();
-      const generationAtStart = releaseGeneration;
+      const generationAtStart = pool.releaseGeneration;
+      const assertCurrent = (): void => {
+        if (generationAtStart !== pool.releaseGeneration) {
+          throw new Error(
+            'sync-engine-pool: getOrCreate aborted after releaseAll'
+          );
+        }
+      };
 
       const run = async (): Promise<SyncEngine> => {
+        // releaseAll may run before this queued callback gets its turn.
+        assertCurrent();
         await deactivatePrevious(pool, databaseName);
+        assertCurrent();
 
         const ready = pool.ready.get(databaseName);
         if (ready !== undefined) {
@@ -111,16 +123,15 @@ export function createSyncEnginePool(
         if (pending !== undefined) return pending;
 
         const created = create().then(
-          (engine) => {
+          async (engine) => {
             pool.pending.delete(databaseName);
             // releaseAll cleared this generation — do not resurrect a closed DB.
-            if (generationAtStart !== releaseGeneration) {
-              // Best-effort teardown of aborted open — ignore disconnect rejections.
-              void engine.disconnect().catch(() => undefined);
-              void engine.db.disconnect().catch(() => undefined);
-              throw new Error(
-                'sync-engine-pool: getOrCreate aborted after releaseAll'
-              );
+            if (generationAtStart !== pool.releaseGeneration) {
+              // Keep the pool queue until writes drain and OPFS closes. Failure
+              // to release must not replace the cancellation that caused it.
+              await engine.disconnect().catch(() => undefined);
+              await engine.db.disconnect().catch(() => undefined);
+              assertCurrent();
             }
             pool.ready.set(databaseName, engine);
             pool.activeName = databaseName;
@@ -143,19 +154,27 @@ export function createSyncEnginePool(
       return result;
     },
     async releaseAll() {
-      releaseGeneration += 1;
       const pool = resolvePool();
+      pool.releaseGeneration += 1;
       const engines = [...pool.ready.values()];
       pool.ready.clear();
       pool.pending.clear();
       pool.activeName = null;
-      for (const engine of engines) {
-        // Soft-stop sync first, then close SQLite — same order as
-        // deactivatePrevious. Web OPFS is single-session; leaving handles
-        // open blocks the next open (Console product-harness, tab remount).
-        await engine.disconnect();
-        await engine.db.disconnect();
-      }
+      const cleanup = (async () => {
+        for (const engine of engines) {
+          // Soft-stop sync first, then close SQLite — same order as
+          // deactivatePrevious. Web OPFS is single-session; leaving handles
+          // open blocks the next open (Console product-harness, tab remount).
+          await engine.disconnect();
+          await engine.db.disconnect();
+        }
+      })();
+      // Hosts may close without awaiting. The next open must wait for both
+      // cleanup and any older creation/identity switch, even if cleanup fails.
+      pool.opChain = Promise.allSettled([pool.opChain, cleanup]).then(
+        () => undefined
+      );
+      await cleanup;
     },
   };
 }

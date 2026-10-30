@@ -30,7 +30,11 @@ import type {
 import { SyncApiAuthError } from '@pkgs/sync-engine-client-ts/sync-http-client';
 import type { MutationRegistry } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import type { CreateId, Random } from '@pkgs/uuid-shared-ts/create-id';
-import { LOCAL_DATABASE, recordLocalDatabaseOpen } from './browser-boundaries';
+import {
+  LOCAL_DATABASE,
+  recordLocalDatabaseOpen,
+  traceBrowserStartup,
+} from './browser-boundaries';
 import {
   type ClientPubSubArgs,
   createClientPubSub,
@@ -332,17 +336,24 @@ export async function createAppLocalSyncEngine(
   args: CreateAppLocalSyncEngineArgs
 ): Promise<SyncEngine> {
   // The fold arrives with this module, not with the entry chunk.
-  const app = await args.loadApp();
-  const syncLease = await acquireSyncLease(args);
+  const app = await traceBrowserStartup('client.boot.app', args.loadApp);
+  const syncLease = await traceBrowserStartup('client.boot.lease', () =>
+    acquireSyncLease(args)
+  );
   try {
     const opened = await openAppLocalDb(args);
     const engineRef: { current: SyncEngine | null } = { current: null };
     const db = guardLocalDatabase(args, app, opened, engineRef);
     // A disposable database is private to this tab: nobody else uploads for it.
     const isOwner = syncLease.isOwner || isDisposableSqlClient(opened);
-    const engine = await buildEngine(args, app, db, isOwner);
+    const engine = await traceBrowserStartup('db.migrate', () =>
+      buildEngine(args, app, db, isOwner)
+    );
     engineRef.current = engine;
-    emqxUrlHolderFor(args.databaseName).url = await readEmqxUrl(db);
+    emqxUrlHolderFor(args.databaseName).url = await traceBrowserStartup(
+      'client.boot.config',
+      () => readEmqxUrl(db)
+    );
     const disconnect = engine.disconnect.bind(engine);
     return {
       ...engine,

@@ -1,0 +1,4 @@
+{
+  "summary": "Release rehearsal 40978135253 shard 55 stopped games test:spec:113 at 600 seconds: its five feature slices expanded to 138 scenario/game cases, while planning counted only 27.17 source scenarios. Generate exact feature variant counts from the conformance registry, preserve every scenario/game case, and bound each task by the existing 30-unit cap. The suite has 5220 release load units and 5412 ordering weight including nightly-scaled replays. Bounded hash placement first satisfies every cap at 181 parts, without changing other suites or time budgets.",
+  "regressionTest": "libs/games-harness-ts/tests/game-feature-plan.test.ts"
+}

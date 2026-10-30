@@ -19,6 +19,7 @@ import type {
 } from '@pkgs/sync-engine-shared-ts/v2';
 import { fitUploadBatch, oversizedVerdict } from './mutation-upload-batch';
 import { clearOptimisticRowsForMutation } from './optimistic-own-rows';
+import { raceUntilAborted } from './race-until-aborted';
 import { SyncHttpPayloadTooLargeError } from './sync-http-payload-too-large-error';
 import { parseRateLimitRetryMs } from './sync-http-rate-limit-error';
 import type { TableChangeBus } from './table-change-bus';
@@ -244,43 +245,6 @@ async function applyUploadResult(
       link === undefined ? undefined : { links: [link] }
     );
   }
-}
-
-/**
- * Resolve `work` unless `signal` aborts first. Orphan the in-flight promise so
- * disconnect / cache-clear is not blocked on partitioned HTTP (harness RPC waits
- * on scheduler time that is not advancing).
- */
-function raceUntilAborted<T>(
-  work: Promise<T>,
-  signal: AbortSignal | null
-): Promise<T | null> {
-  if (signal?.aborted === true) {
-    void work.then(
-      () => undefined,
-      () => undefined
-    );
-    return Promise.resolve(null);
-  }
-  if (signal === null) return work;
-  return new Promise((resolve, reject) => {
-    const onAbort = () => {
-      signal.removeEventListener('abort', onAbort);
-      resolve(null);
-    };
-    signal.addEventListener('abort', onAbort, { once: true });
-    void work.then(
-      (value) => {
-        signal.removeEventListener('abort', onAbort);
-        resolve(signal.aborted ? null : value);
-      },
-      (error: unknown) => {
-        signal.removeEventListener('abort', onAbort);
-        if (signal.aborted) resolve(null);
-        else reject(error);
-      }
-    );
-  });
 }
 
 /**

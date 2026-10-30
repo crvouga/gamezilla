@@ -1,0 +1,4 @@
+{
+  "summary": "An engine created after releaseAll closed its database before SQL drained and let the next identity open before the previous database released its storage ownership.",
+  "regressionTest": "pkgs/sync-engine-client-ts/tests/pool-release.test.ts"
+}

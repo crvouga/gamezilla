@@ -1,0 +1,4 @@
+{
+  "summary": "The offline Numberlink attempt tap timed out after its logical selector had been selected, but only the fallback click path captured actionability evidence. Report bounded geometry, hit ancestry and control state on either path, retain the original cause, and bound diagnostic work to one second without sending another click or reading page text, labels, classes or storage.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-shared-ts/tests/press-diagnosis.test.ts"
+}

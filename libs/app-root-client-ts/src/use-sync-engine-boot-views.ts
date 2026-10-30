@@ -12,6 +12,7 @@ import {
 } from 'solid-js';
 import { useAppData } from './app-subs-context';
 import { BOOT_STUCK_MESSAGE } from './boot-error-screen';
+import { traceBrowserStartup } from './browser-boundaries';
 import { useClientEnv, useSyncEnginePool } from './client-env-context';
 import type { ReadySyncEngine } from './create-sync-engine-boot-state';
 import { createSyncEngineBootState } from './create-sync-engine-boot-state';
@@ -84,7 +85,9 @@ function useSyncBootPromise(args: {
       ([resolved, registry, app]) => {
         // Connecting starts background sync. Whatever goes wrong there shows
         // in the engine's status; it never keeps the app from opening.
-        void resolved.connect().catch((error: unknown) =>
+        void traceBrowserStartup('client.sync.connect', () =>
+          resolved.connect()
+        ).catch((error: unknown) =>
           log.error('sync engine connect failed', {
             error: error instanceof Error ? error.message : String(error),
           })

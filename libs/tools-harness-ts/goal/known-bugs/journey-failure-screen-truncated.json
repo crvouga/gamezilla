@@ -1,0 +1,4 @@
+{
+  "summary": "Release rehearsal 40978135253 shard 42 lost the host Numberlink screen from the bounded CI log because verbose transport diagnostics followed it. Print all device summaries after all transport details so the retained tail explains the failure.",
+  "regressionTest": "apps/product-ts/tests/browser-failure-summary.test.ts"
+}

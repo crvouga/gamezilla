@@ -11,7 +11,11 @@ import type { Timers } from '@pkgs/clock-shared-ts/types';
 import type { Logger } from '@pkgs/logger-shared-ts/logger';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import { createWebSqlClient } from '@pkgs/sql-client-sqlite-web-client-ts/web-sql-client';
-import { LOCAL_DATABASE, recordLocalDatabaseOpen } from './browser-boundaries';
+import {
+  LOCAL_DATABASE,
+  recordLocalDatabaseOpen,
+  traceBrowserStartup,
+} from './browser-boundaries';
 
 /**
  * How long the real local database gets to open. Opening waits out a
@@ -95,7 +99,9 @@ export async function openMainSqlClient(
       wipeChannel: OPFS_WIPE_CHANNEL,
     });
     try {
-      await withinOpenDeadline(client.connect(), timers);
+      await traceBrowserStartup('db.connect', () =>
+        withinOpenDeadline(client.connect(), timers)
+      );
     } catch (error) {
       // A stuck open may still finish; let it release what it holds.
       void client.disconnect().catch(() => undefined);

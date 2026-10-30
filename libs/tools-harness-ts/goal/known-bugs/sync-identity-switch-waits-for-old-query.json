@@ -1,0 +1,4 @@
+{
+  "summary": "Switching identity waited for the previous identity's HTTP query to return before closing its local engine, so a partitioned request prevented the next account from starting.",
+  "regressionTest": "pkgs/sync-engine-client-ts/tests/subscription-stop.test.ts"
+}

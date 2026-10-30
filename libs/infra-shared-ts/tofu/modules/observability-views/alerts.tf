@@ -22,6 +22,10 @@ moved {
 }
 
 resource "grafana_rule_group" "groups" {
+  lifecycle {
+    destroy = false
+  }
+
   for_each = local.rule_groups
 
   name             = "${each.value.name}${local.group_suffix}"

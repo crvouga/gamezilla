@@ -1,0 +1,4 @@
+{
+  "summary": "Release 40954909687 failed refreshing the existing business-observability-dev folder after Grafana became archived. count=0 still refreshes orphan resources with the inactive placeholder token. A targeted state-only retirement permits only forget actions, preserves remote resources, and precedes the ordinary fully refreshed foundation plan.",
+  "regressionTest": "libs/infra-shared-ts/tests/grafana-retirement.test.ts"
+}

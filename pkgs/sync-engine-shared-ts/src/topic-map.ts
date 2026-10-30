@@ -14,15 +14,6 @@ export type TopicMapCtx = {
 export type TopicMapRowImageGuard = {
   /** Veto publishing this local post-image as an optimistic hint. */
   readonly publish?: (row: QueryRow, ctx: TopicMapCtx) => boolean;
-  /**
-   * Veto applying an incoming optimistic image; `local` is the current row
-   * (by `id`) or null when absent.
-   */
-  readonly accept?: (
-    incoming: QueryRow,
-    local: QueryRow | null,
-    ctx: TopicMapCtx
-  ) => boolean;
 };
 
 /** Live rows of every subscription-driving table, by table name. */
@@ -64,7 +55,7 @@ export type TopicMapEntry = {
   ) => readonly Topic[];
   /** Used when the table was touched but no row images/ids were captured. */
   readonly fallbackTopics?: (ctx: TopicMapCtx) => readonly Topic[];
-  /** Optional publish / accept filters for optimistic row-image fanout. */
+  /** Optional publishing filter for row-image fanout. */
   readonly rowImage?: TopicMapRowImageGuard;
 };
 

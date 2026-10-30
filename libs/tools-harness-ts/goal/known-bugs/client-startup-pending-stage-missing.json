@@ -1,0 +1,4 @@
+{
+  "summary": "A browser stalled before hydration exported only completed spans, leaving release failure snapshots unable to name the unfinished startup wait.",
+  "regressionTest": "libs/app-root-client-ts/tests/browser-startup-progress.test.ts"
+}
