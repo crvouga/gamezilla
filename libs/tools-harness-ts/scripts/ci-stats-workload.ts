@@ -7,7 +7,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { type LoadReport, loadReport, readLoadInput } from './ci-load';
-import { estimateTask } from './verify-task-estimates';
+import { createTaskEstimator } from './verify-task-estimates';
 
 export type TaskRow = {
   readonly id: string;
@@ -48,10 +48,11 @@ const TOP_TASKS = 12;
 
 export function readWorkload(root: string): Workload {
   const input = readLoadInput(root);
+  const estimate = createTaskEstimator(input.costs);
   const rows = input.packages.flatMap((pkg) =>
     pkg.tasks.map((task): TaskRow => {
       const id = `${pkg.name}#${task}`;
-      const { seconds, durationSource } = estimateTask(id, input.costs);
+      const { seconds, durationSource } = estimate(id);
       return { id, seconds, source: durationSource };
     })
   );

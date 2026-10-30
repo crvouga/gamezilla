@@ -14,7 +14,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { sliceDrift, syncBiomeSlices } from './biome-scope-slices';
-import { fileReach, readImportGraph } from './cache-file-reach';
+import { fileReachWithin, readImportGraph } from './cache-file-reach';
 import {
   type Blast,
   blastRadii,
@@ -69,7 +69,7 @@ function taskInputs(packages: readonly GraphPackage[]): TaskInputs[] {
 }
 
 function lightFiles(
-  reach: (file: string) => number,
+  reach: (file: string, maximum: number) => number | null,
   pkg: GraphPackage,
   radius: number,
   policy: Policy
@@ -79,8 +79,10 @@ function lightFiles(
     Math.floor(radius * policy.limits.cohesion.lightReach)
   );
   return pkg.srcFiles
-    .map((file) => ({ file, packages: reach(file) }))
-    .filter((entry) => entry.packages <= threshold)
+    .flatMap((file) => {
+      const packages = reach(file, threshold);
+      return packages === null ? [] : [{ file, packages }];
+    })
     .sort((a, b) => a.packages - b.packages || a.file.localeCompare(b.file));
 }
 
@@ -88,7 +90,8 @@ export function cacheHygieneViolations(policy = readPolicy()): Violation[] {
   const packages = readGraph(ROOT);
   const blast = blastRadii(packages);
   const imports = readImportGraph(ROOT);
-  const reach = (file: string): number => fileReach(imports, file).packages;
+  const reach = (file: string, maximum: number): number | null =>
+    fileReachWithin(imports, file, maximum)?.packages ?? null;
   const turbo = readJson<TurboFile>('turbo.json');
   const base = readJson<{ compilerOptions?: { paths?: unknown } }>(
     'tsconfig.base.json'
@@ -155,7 +158,8 @@ function explain(name: string): void {
     .slice(0, 15))
     console.log(`    ${dependent[0]}: ${String(dependent[1])}`);
   const files = lightFiles(
-    (file) => fileReach(imports, file).packages,
+    (file, maximum) =>
+      fileReachWithin(imports, file, maximum)?.packages ?? null,
     { ...pkg, srcFiles: pkg.srcFiles },
     own?.packages.size ?? 0,
     policy

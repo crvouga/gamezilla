@@ -1,0 +1,4 @@
+{
+  "summary": "CI workload reporting rescanned and sorted the full cost corpus for every unmeasured task and rebuilt the same reverse graph per package, exceeding the brief's 5 second budget. Index family medians and reverse dependencies once per report invocation.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ci-scan-cost.test.ts"
+}
