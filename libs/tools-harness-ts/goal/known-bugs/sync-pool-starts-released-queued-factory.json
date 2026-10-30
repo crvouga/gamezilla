@@ -1,0 +1,4 @@
+{
+  "summary": "A queued engine creation could start after releaseAll completed and block the next identity indefinitely; separate release generations on shared handles also failed to invalidate queued work.",
+  "regressionTest": "pkgs/sync-engine-client-ts/tests/pool-release.test.ts"
+}
