@@ -1,0 +1,4 @@
+{
+  "summary": "The multiline markdown textbox exposed aria-expanded, which its textbox role does not support.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/markdown-editor.test.tsx"
+}

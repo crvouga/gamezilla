@@ -1,0 +1,4 @@
+{
+  "summary": "Settings panels mixed navigation links and static details inside an ARIA command menu, which forbids those children.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/data-display.test.tsx"
+}

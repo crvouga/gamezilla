@@ -8,6 +8,8 @@
   "type": "module",
   "exports": {
     "./*": [
+      "./src/*/index.ts",
+      "./src/*/index.tsx",
       "./src/*.ts",
       "./src/*.tsx",
       "./src/*.d.ts"
@@ -56,6 +58,8 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
+    "storybook": "catalog:",
+    "storybook-solidjs-vite": "catalog:",
     "typescript": "catalog:"
   },
   "category": "client",

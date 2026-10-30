@@ -17,6 +17,7 @@
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { isProductionSource } from './production-source';
 
 export type GraphPackage = {
   readonly name: string;
@@ -89,12 +90,14 @@ const TIERS = ['apps', 'libs', 'pkgs'] as const;
 export function toRepoPath(root: string, file: string): string {
   return file.slice(root.length + 1).replaceAll('\\', '/');
 }
-const TEST_FILE = /\.test\.[cm]?[jt]sx?$/;
 
 function filesUnder(directory: string): string[] {
   if (!existsSync(directory)) return [];
   return readdirSync(directory, { recursive: true, withFileTypes: true })
-    .filter((entry) => entry.isFile() && !TEST_FILE.test(entry.name))
+    .filter(
+      (entry) =>
+        entry.isFile() && isProductionSource(join(entry.parentPath, entry.name))
+    )
     .filter((entry) => !entry.name.endsWith('.md'))
     .map((entry) => join(entry.parentPath, entry.name));
 }

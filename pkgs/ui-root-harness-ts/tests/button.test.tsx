@@ -376,3 +376,12 @@ describe('OverflowMenuButton', () => {
     expect(screen.queryByRole('button')).toBeNull();
   });
 });
+
+// regression: ui-loading-button-unnamed
+test('a spinner-only loading button retains its action name', () => {
+  renderUi(() => <Button title={<Trans>Save</Trans>} loading />);
+  expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute(
+    'aria-busy',
+    'true'
+  );
+});

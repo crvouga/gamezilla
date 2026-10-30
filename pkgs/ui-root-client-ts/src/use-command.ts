@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js';
-import { useCommandRegistry } from './command-registry-context';
+import { useCommandRegistry } from './command-registry-context/index';
 
 export type UseCommandResult = {
   run: () => Promise<void>;

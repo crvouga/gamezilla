@@ -13,11 +13,8 @@ import MoreSoundScreen from './more-sound';
 import MoreSyncScreen from './more-sync';
 import MoreThemeScreen from './more-theme';
 import SsoCallbackScreen from './sso-callback';
-import UiExplorerScreen from './ui-explorer';
-import UiExplorerDetailScreen from './ui-explorer-detail';
 /**
- * The shell's own routes — settings, account, the client inspector, the UI
- * explorer, the OAuth callback. Everything a *sub* owns is contributed by
+ * The shell's own routes — settings, account, the client inspector, the OAuth callback. Everything a *sub* owns is contributed by
  * that sub's `SubClient` and folded in by `buildRouteTable`.
  *
  * Every screen is imported before navigation.
@@ -59,8 +56,6 @@ export const SHELL_ROUTE_TABLE: readonly AppRouteEntry[] = [
   },
   { path: '/client/sql', component: ClientSqlScreen },
   { path: '/client/events', component: ClientEventsScreen },
-  { path: '/ui', component: UiExplorerScreen },
-  { path: '/ui/:component', component: UiExplorerDetailScreen },
   { path: '/sso-callback', component: SsoCallbackScreen },
 ];
 

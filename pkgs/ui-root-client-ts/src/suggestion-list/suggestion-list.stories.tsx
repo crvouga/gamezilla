@@ -1,0 +1,16 @@
+import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import { SuggestionList } from './index';
+import Example from './suggestion-list.example';
+
+const meta = {
+  title: 'Components/Inputs/SuggestionList',
+  component: SuggestionList,
+  tags: ['autodocs'],
+} satisfies Meta;
+export default meta;
+
+/** Representative variants, themes and interaction states from the production contract. */
+export const States: StoryObj = {
+  parameters: { controls: { disable: true } },
+  render: () => <Example />,
+};

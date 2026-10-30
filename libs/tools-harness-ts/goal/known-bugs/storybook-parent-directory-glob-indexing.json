@@ -1,0 +1,4 @@
+{
+  "summary": "A parent-directory wildcard in Storybook stories produced undefined titles for every component. Discover concrete owning directories instead.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook-index.test.ts"
+}

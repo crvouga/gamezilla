@@ -103,7 +103,7 @@ function GameHistoryRecords(props: {
   return (
     <Switch
       fallback={
-        <MenuList role="group" dataSet={{ testid: 'game-history-records' }}>
+        <MenuList dataSet={{ testid: 'game-history-records' }}>
           <For each={props.records}>
             {(record) => (
               <MainMenuItemRow

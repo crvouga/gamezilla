@@ -1,4 +1,5 @@
 import { expect, test } from 'bun:test';
+import { isProductionSource } from './production-source';
 import {
   type SrcPackage,
   srcDependsOn,
@@ -78,4 +79,16 @@ test('every package lists the src edges its dependencies call for', () => {
     drift,
     'run `bun run libs/tools-harness-ts/scripts/src-task-edges.ts`'
   ).toEqual([]);
+});
+
+test('colocated previews do not enter the production source hash', () => {
+  for (const file of ['src/button/button.tsx', 'src/button/button.module.css'])
+    expect(isProductionSource(file)).toBe(true);
+  for (const file of [
+    'src/button/button.stories.tsx',
+    'src/button/button.example.tsx',
+    'src/button/baselines/chromium/default.png',
+    'storybook/fixtures/frame.tsx',
+  ])
+    expect(isProductionSource(`pkgs/ui-root-client-ts/${file}`)).toBe(false);
 });

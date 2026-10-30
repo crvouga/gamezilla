@@ -13,11 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: libs/quoridor-client-ts/src/quoridor-board.tsx
-msgid " — to move"
-msgstr " — to move"
-
-#: pkgs/ui-root-client-ts/src/catalog-detail-nav.tsx
+#: pkgs/ui-root-client-ts/src/catalog-detail-nav/index.tsx
 msgid "— of {total}"
 msgstr "— of {total}"
 
@@ -35,7 +31,7 @@ msgstr ", wall boundaries: {0}"
 msgid "chess.puzzleStatus.skippedMark"
 msgstr "»"
 
-#: pkgs/ui-root-client-ts/src/text-link.tsx
+#: pkgs/ui-root-client-ts/src/text-link/index.tsx
 msgid "(opens in a new tab)"
 msgstr "(opens in a new tab)"
 
@@ -118,13 +114,13 @@ msgstr "{0} added"
 
 #. placeholder {0}: props.label
 #. placeholder {1}: props.max
-#: pkgs/ui-root-client-ts/src/number-stepper.tsx
+#: pkgs/ui-root-client-ts/src/number-stepper/index.tsx
 msgid "{0} is at its maximum, {1}"
 msgstr "{0} is at its maximum, {1}"
 
 #. placeholder {0}: props.label
 #. placeholder {1}: props.min
-#: pkgs/ui-root-client-ts/src/number-stepper.tsx
+#: pkgs/ui-root-client-ts/src/number-stepper/index.tsx
 msgid "{0} is at its minimum, {1}"
 msgstr "{0} is at its minimum, {1}"
 
@@ -157,9 +153,7 @@ msgid "{0} of {1} puzzles completed"
 msgstr "{0} of {1} puzzles completed"
 
 #. placeholder {0}: position.scoreless
-#. placeholder {0}: props.position.scoreless
 #: libs/word-tiles-client-ts/src/word-tiles-frame.tsx
-#: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
 msgid "{0} of 6 scoreless turns"
 msgstr "{0} of 6 scoreless turns"
 
@@ -198,15 +192,8 @@ msgstr "{0} removed"
 msgid "{0} themes"
 msgstr "{0} themes"
 
-#. placeholder {0}: props.position.racks[seat]
-#: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
-msgid "{0} tiles"
-msgstr "{0} tiles"
-
 #. placeholder {0}: position.bag
-#. placeholder {0}: props.position.bag
 #: libs/word-tiles-client-ts/src/word-tiles-frame.tsx
-#: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
 msgid "{0} tiles in the bag"
 msgstr "{0} tiles in the bag"
 
@@ -257,11 +244,11 @@ msgstr "{0}d {1}h"
 msgid "{0}h {1}m"
 msgstr "{0}h {1}m"
 
-#: pkgs/ui-root-client-ts/src/avatar.tsx
+#: pkgs/ui-root-client-ts/src/avatar/index.tsx
 msgid "{alt}, bot"
 msgstr "{alt}, bot"
 
-#: pkgs/ui-root-client-ts/src/avatar.tsx
+#: pkgs/ui-root-client-ts/src/avatar/index.tsx
 msgid "{alt}, guest"
 msgstr "{alt}, guest"
 
@@ -283,7 +270,7 @@ msgstr "{coordinate}: path {0}, {status}"
 msgid "{count} guests"
 msgstr "{count} guests"
 
-#: pkgs/ui-root-client-ts/src/catalog-detail-nav.tsx
+#: pkgs/ui-root-client-ts/src/catalog-detail-nav/index.tsx
 msgid "{current} of {total}"
 msgstr "{current} of {total}"
 
@@ -296,7 +283,7 @@ msgstr "{days} days"
 msgid "{days} days per move"
 msgstr "{days} days per move"
 
-#: pkgs/ui-root-client-ts/src/relative-time.tsx
+#: pkgs/ui-root-client-ts/src/relative-time/index.tsx
 msgid "{days}d ago"
 msgstr "{days}d ago"
 
@@ -329,7 +316,7 @@ msgstr "{held, plural, one {# card} other {# cards}}"
 msgid "{hours} hours"
 msgstr "{hours} hours"
 
-#: pkgs/ui-root-client-ts/src/relative-time.tsx
+#: pkgs/ui-root-client-ts/src/relative-time/index.tsx
 msgid "{hours}h ago"
 msgstr "{hours}h ago"
 
@@ -402,7 +389,7 @@ msgstr "{length} cells, placed at {bow} {direction}"
 msgid "{length} cells, to place"
 msgstr "{length} cells, to place"
 
-#: pkgs/ui-root-client-ts/src/relative-time.tsx
+#: pkgs/ui-root-client-ts/src/relative-time/index.tsx
 msgid "{mins}m ago"
 msgstr "{mins}m ago"
 
@@ -438,10 +425,17 @@ msgstr "{name} sank the whole fleet."
 msgid "{name} sank your whole fleet."
 msgstr "{name} sank your whole fleet."
 
-#: libs/battleship-client-ts/src/battleship-board.tsx
 #: libs/battleship-client-ts/src/battleship-frame.tsx
 msgid "{name} sunk"
 msgstr "{name} sunk"
+
+#: libs/quoridor-client-ts/src/quoridor-frame.tsx
+msgid "{name} to move, heading for row {row}."
+msgstr "{name} to move, heading for row {row}."
+
+#: libs/quoridor-client-ts/src/quoridor-frame.tsx
+msgid "{name} to move. First to e5 wins."
+msgstr "{name} to move. First to e5 wins."
 
 #: libs/game-session-client-ts/src/game-frame-headline.tsx
 msgid "{name} wins"
@@ -565,7 +559,7 @@ msgstr "← Left"
 msgid "→ Right"
 msgstr "→ Right"
 
-#: pkgs/ui-root-client-ts/src/command-palette-hint.tsx
+#: pkgs/ui-root-client-ts/src/command-palette-hint/index.tsx
 msgid "↑ ↓ navigate · ↵ run · Esc close · Tab next"
 msgstr "↑ ↓ navigate · ↵ run · Esc close · Tab next"
 
@@ -602,7 +596,7 @@ msgstr "<0>Return to the </0>Current<1> position</1>"
 msgid "chess.puzzleStatus.solvedMark"
 msgstr "★"
 
-#: pkgs/chess-board-root-client-ts/src/chess-board-promotion.tsx
+#: pkgs/chess-board-root-client-ts/src/chess-board-promotion/index.tsx
 msgid "✕"
 msgstr "✕"
 
@@ -884,7 +878,7 @@ msgstr "Active Synthetic Users"
 msgid "Activity"
 msgstr "Activity"
 
-#: pkgs/ui-root-client-ts/src/multi-select-swatch-grid.tsx
+#: pkgs/ui-root-client-ts/src/multi-select-swatch-grid/index.tsx
 msgid "Add"
 msgstr "Add"
 
@@ -896,7 +890,7 @@ msgstr "Add a published puzzle"
 msgid "Add Friend"
 msgstr "Add Friend"
 
-#: pkgs/ui-root-client-ts/src/multi-select-swatch-grid.tsx
+#: pkgs/ui-root-client-ts/src/multi-select-swatch-grid/index.tsx
 msgid "Add hex (6 chars, no #)"
 msgstr "Add hex (6 chars, no #)"
 
@@ -908,11 +902,11 @@ msgstr "Add pair"
 msgid "Add people"
 msgstr "Add people"
 
-#: pkgs/ui-devtools-client-ts/src/tab-strip.tsx
+#: pkgs/ui-devtools-client-ts/src/tab-strip/index.tsx
 msgid "Add tab"
 msgstr "Add tab"
 
-#: pkgs/ui-root-client-ts/src/combobox-trigger.tsx
+#: pkgs/ui-root-client-ts/src/combobox-trigger/index.tsx
 msgid "Add…"
 msgstr "Add…"
 
@@ -987,7 +981,7 @@ msgstr "An account already uses {0}. Sign in to it to add {1} as another way to 
 msgid "An account was deleted."
 msgstr "An account was deleted."
 
-#: pkgs/ui-root-client-ts/src/pending-navigation-provider.tsx
+#: pkgs/ui-root-client-ts/src/pending-navigation-provider/index.tsx
 msgid "An upload or change is still in progress. Leaving may interrupt it."
 msgstr "An upload or change is still in progress. Leaving may interrupt it."
 
@@ -1004,7 +998,7 @@ msgstr "Any"
 msgid "Any theme"
 msgstr "Any theme"
 
-#: pkgs/ui-root-client-ts/src/copy-to-clipboard-field.example.tsx
+#: pkgs/ui-root-client-ts/src/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx
 msgid "API origin (no helper)"
 msgstr "API origin (no helper)"
 
@@ -1105,7 +1099,7 @@ msgstr "Avatar"
 
 #: libs/game-puzzle-client-ts/src/puzzle-action-bar-items.tsx
 #: libs/spaces-client-ts/src/space-chrome-action-bar.tsx
-#: pkgs/ui-root-client-ts/src/back-icon-button.tsx
+#: pkgs/ui-root-client-ts/src/back-icon-button/index.tsx
 msgid "Back"
 msgstr "Back"
 
@@ -1150,7 +1144,7 @@ msgstr "Best streak"
 msgid "Billing"
 msgstr "Billing"
 
-#: pkgs/chess-board-root-client-ts/src/chess-board-promotion.tsx
+#: pkgs/chess-board-root-client-ts/src/chess-board-promotion/index.tsx
 msgid "Bishop"
 msgstr "Bishop"
 
@@ -1205,7 +1199,7 @@ msgstr "Boards"
 #: libs/game-session-client-ts/src/custom-game-side-choices.tsx
 #: libs/game-session-client-ts/src/game-history-participant.tsx
 #: libs/profile-client-ts/src/account-automation-label.tsx
-#: pkgs/ui-root-client-ts/src/avatar.tsx
+#: pkgs/ui-root-client-ts/src/avatar/index.tsx
 msgid "Bot"
 msgstr "Bot"
 
@@ -1240,7 +1234,7 @@ msgstr "Bot Observatory could not be loaded."
 msgid "Both players are ready."
 msgstr "Both players are ready."
 
-#: pkgs/ui-root-client-ts/src/screen-breadcrumb-trail.tsx
+#: pkgs/ui-root-client-ts/src/screen-breadcrumb-trail/index.tsx
 msgid "Breadcrumb"
 msgstr "Breadcrumb"
 
@@ -1255,10 +1249,6 @@ msgstr "Bright surfaces, dark text"
 #: libs/chess-puzzle-client-ts/src/puzzle-import-status.tsx
 msgid "Broken"
 msgstr "Broken"
-
-#: libs/chess-shared-client-ts/src/chess-settings-developer-screen.tsx
-msgid "Browse design system primitives in this space."
-msgstr "Browse design system primitives in this space."
 
 #: libs/app-root-client-ts/src/about-screen.tsx
 msgid "Build"
@@ -1299,12 +1289,12 @@ msgstr "Can’t reach Gamezilla"
 #: libs/auth-client-ts/src/sign-in-link-required.tsx
 #: libs/profile-client-ts/src/avatar-editor-screen.tsx
 #: libs/profile-client-ts/src/profile-handle-screen.tsx
-#: pkgs/ui-root-client-ts/src/confirmation-modal.tsx
-#: pkgs/ui-root-client-ts/src/mutation-modal-parts.tsx
+#: pkgs/ui-root-client-ts/src/confirmation-modal/index.tsx
+#: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "Cancel"
 msgstr "Cancel"
 
-#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-actions.tsx
 msgid "Cancel exchange"
 msgstr "Cancel exchange"
 
@@ -1331,7 +1321,7 @@ msgstr "Cancelled"
 msgid "Cancelling…"
 msgstr "Cancelling…"
 
-#: pkgs/ui-root-client-ts/src/text-input.example.tsx
+#: pkgs/ui-root-client-ts/src/text-input/text-input.example.tsx
 msgid "Cannot edit"
 msgstr "Cannot edit"
 
@@ -1378,7 +1368,7 @@ msgstr "Changes have not reached your other devices"
 #: libs/app-root-client-ts/src/more-server-status.tsx
 #: libs/billing-client-ts/src/billing-plan-actions.tsx
 #: libs/game-puzzle-client-ts/src/use-content-publication.tsx
-#: pkgs/ui-root-client-ts/src/mutation-modal-parts.tsx
+#: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "Check again"
 msgstr "Check again"
 
@@ -1434,8 +1424,8 @@ msgstr "chess"
 msgid "Choice reproduced"
 msgstr "Choice reproduced"
 
-#: pkgs/ui-root-client-ts/src/combobox.tsx
-#: pkgs/ui-root-client-ts/src/select.tsx
+#: pkgs/ui-root-client-ts/src/combobox/index.tsx
+#: pkgs/ui-root-client-ts/src/select/index.tsx
 msgid "Choose"
 msgstr "Choose"
 
@@ -1575,7 +1565,7 @@ msgid "Classical"
 msgstr "Classical"
 
 #: libs/search-client-ts/src/search-recent-queries.tsx
-#: pkgs/ui-root-client-ts/src/combobox-trigger.tsx
+#: pkgs/ui-root-client-ts/src/combobox-trigger/index.tsx
 msgid "Clear"
 msgstr "Clear"
 
@@ -1619,9 +1609,9 @@ msgstr "Clock and sides"
 #: libs/auth-client-ts/src/sign-in-idle-content.tsx
 #: libs/auth-client-ts/src/sign-in-modal.tsx
 #: libs/spaces-client-ts/src/space-chrome-action-bar.tsx
-#: pkgs/ui-devtools-client-ts/src/tab-strip-tab.tsx
-#: pkgs/ui-root-client-ts/src/close-icon-button.tsx
-#: pkgs/ui-root-client-ts/src/mutation-modal-parts.tsx
+#: pkgs/ui-devtools-client-ts/src/tab-strip-tab/index.tsx
+#: pkgs/ui-root-client-ts/src/close-icon-button/index.tsx
+#: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "Close"
 msgstr "Close"
 
@@ -1641,12 +1631,12 @@ msgstr "Closed seat"
 msgid "clubs"
 msgstr "clubs"
 
-#: pkgs/ui-devtools-client-ts/src/json-view.tsx
+#: pkgs/ui-devtools-client-ts/src/json-view/index.tsx
 msgid "Collapse all"
 msgstr "Collapse all"
 
 #. placeholder {0}: props.hex
-#: pkgs/ui-root-client-ts/src/multi-select-swatch-grid.tsx
+#: pkgs/ui-root-client-ts/src/multi-select-swatch-grid/index.tsx
 msgid "Color {0}"
 msgstr "Color {0}"
 
@@ -1677,7 +1667,7 @@ msgstr "Column {0}, row {1}: {identity}, winning disc"
 msgid "Columns"
 msgstr "Columns"
 
-#: pkgs/ui-root-client-ts/src/command-palette.tsx
+#: pkgs/ui-root-client-ts/src/command-palette/index.tsx
 msgid "Command palette"
 msgstr "Command palette"
 
@@ -1685,7 +1675,7 @@ msgstr "Command palette"
 msgid "Commit"
 msgstr "Commit"
 
-#: pkgs/ui-root-client-ts/src/copy-to-clipboard-field.example.tsx
+#: pkgs/ui-root-client-ts/src/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx
 msgid "Commit hash"
 msgstr "Commit hash"
 
@@ -1714,23 +1704,13 @@ msgstr "Complete the required puzzle details before previewing or playtesting."
 msgid "Completed"
 msgstr "Completed"
 
-#: pkgs/ui-root-client-ts/src/explorer-detail.tsx
-msgid "Component not found"
-msgstr "Component not found"
-
-#: libs/app-root-client-ts/src/ui-explorer.tsx
-#: pkgs/ui-root-client-ts/src/explorer-detail.tsx
-#: pkgs/ui-root-client-ts/src/explorer-list.tsx
-msgid "Components"
-msgstr "Components"
-
 #: libs/synthetic-population-client-ts/src/synthetic-population-configuration.tsx
 msgid "Configuration"
 msgstr "Configuration"
 
 #: libs/friends-client-ts/src/friend-action-pill-buttons.tsx
 #: libs/game-matchmaking-client-ts/src/multiplayer-controls.tsx
-#: pkgs/ui-root-client-ts/src/confirmation-modal.tsx
+#: pkgs/ui-root-client-ts/src/confirmation-modal/index.tsx
 msgid "Confirm"
 msgstr "Confirm"
 
@@ -1836,11 +1816,11 @@ msgstr "Continue saved attempt"
 msgid "Continue this kept position?"
 msgstr "Continue this kept position?"
 
-#: pkgs/ui-root-client-ts/src/social-provider-config.tsx
+#: pkgs/ui-root-client-ts/src/social-provider-config/index.tsx
 msgid "Continue with Apple"
 msgstr "Continue with Apple"
 
-#: pkgs/ui-root-client-ts/src/social-provider-config.tsx
+#: pkgs/ui-root-client-ts/src/social-provider-config/index.tsx
 msgid "Continue with dev IDP"
 msgstr "Continue with dev IDP"
 
@@ -1849,7 +1829,7 @@ msgstr "Continue with dev IDP"
 msgid "Continue with email"
 msgstr "Continue with email"
 
-#: pkgs/ui-root-client-ts/src/social-provider-config.tsx
+#: pkgs/ui-root-client-ts/src/social-provider-config/index.tsx
 msgid "Continue with Google"
 msgstr "Continue with Google"
 
@@ -1860,20 +1840,20 @@ msgstr "Controls in-app sound effects only. Your device volume is not affected."
 #: libs/app-root-client-ts/src/crash-copy-button.tsx
 #: libs/profile-client-ts/src/avatar-editor-seed-field.tsx
 #: libs/spaces-client-ts/src/space-share-link-section.tsx
-#: pkgs/ui-root-client-ts/src/error-state.tsx
+#: pkgs/ui-root-client-ts/src/error-state/index.tsx
 msgid "Copied"
 msgstr "Copied"
 
-#: pkgs/ui-root-client-ts/src/copy-to-clipboard-field.tsx
+#: pkgs/ui-root-client-ts/src/copy-to-clipboard-field/index.tsx
 msgid "Copied to clipboard"
 msgstr "Copied to clipboard"
 
-#: pkgs/ui-devtools-client-ts/src/json-view.tsx
+#: pkgs/ui-devtools-client-ts/src/json-view/index.tsx
 msgid "Copy"
 msgstr "Copy"
 
 #: libs/app-root-client-ts/src/crash-copy-button.tsx
-#: pkgs/ui-root-client-ts/src/error-state.tsx
+#: pkgs/ui-root-client-ts/src/error-state/index.tsx
 msgid "Copy error"
 msgstr "Copy error"
 
@@ -1889,11 +1869,11 @@ msgstr "Copy seed"
 msgid "Copy the complete game record."
 msgstr "Copy the complete game record."
 
-#: pkgs/ui-root-client-ts/src/copy-to-clipboard-field.tsx
+#: pkgs/ui-root-client-ts/src/copy-to-clipboard-field/index.tsx
 msgid "Copy to clipboard"
 msgstr "Copy to clipboard"
 
-#: pkgs/ui-devtools-client-ts/src/json-view-node.tsx
+#: pkgs/ui-devtools-client-ts/src/json-view-node/index.tsx
 msgid "Copy value"
 msgstr "Copy value"
 
@@ -2102,7 +2082,7 @@ msgstr "Custom game"
 msgid "Custom games"
 msgstr "Custom games"
 
-#: pkgs/ui-root-client-ts/src/multi-select-swatch-grid.tsx
+#: pkgs/ui-root-client-ts/src/multi-select-swatch-grid/index.tsx
 msgid "Custom hex color"
 msgstr "Custom hex color"
 
@@ -2162,7 +2142,7 @@ msgid "Declining…"
 msgstr "Declining…"
 
 #. placeholder {0}: props.label
-#: pkgs/ui-root-client-ts/src/number-stepper.tsx
+#: pkgs/ui-root-client-ts/src/number-stepper/index.tsx
 msgid "Decrease {0}"
 msgstr "Decrease {0}"
 
@@ -2186,17 +2166,13 @@ msgstr "Deleted account"
 msgid "Deleting…"
 msgstr "Deleting…"
 
-#: pkgs/ui-root-client-ts/src/code-editor.example.tsx
+#: pkgs/ui-root-client-ts/src/code-editor/code-editor.example.tsx
 msgid "Demo code editor"
 msgstr "Demo code editor"
 
 #: libs/game-puzzle-client-ts/src/content-draft-metadata.tsx
 msgid "Description"
 msgstr "Description"
-
-#: libs/app-root-client-ts/src/settings-screen.tsx
-msgid "Design system explorer"
-msgstr "Design system explorer"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-configuration.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-summary.tsx
@@ -2271,7 +2247,7 @@ msgstr "Difficulty mode"
 msgid "Dim surfaces, light text"
 msgstr "Dim surfaces, light text"
 
-#: pkgs/ui-root-client-ts/src/text-input.example.tsx
+#: pkgs/ui-root-client-ts/src/text-input/text-input.example.tsx
 msgid "Disabled"
 msgstr "Disabled"
 
@@ -2291,17 +2267,17 @@ msgstr "disconnect"
 msgid "Disconnected"
 msgstr "Disconnected"
 
-#: pkgs/ui-root-client-ts/src/dismissible-top-banner.tsx
-#: pkgs/ui-root-client-ts/src/notice.tsx
+#: pkgs/ui-root-client-ts/src/dismissible-top-banner/index.tsx
+#: pkgs/ui-root-client-ts/src/notice/index.tsx
 msgid "Dismiss"
 msgstr "Dismiss"
 
 #: libs/auth-client-ts/src/sign-in-modal.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 #: libs/notifications-client-ts/src/notification-card-default.tsx
-#: pkgs/ui-root-client-ts/src/combobox-body.tsx
-#: pkgs/ui-root-client-ts/src/game-action-button.tsx
-#: pkgs/ui-root-client-ts/src/mutation-modal-parts.tsx
+#: pkgs/ui-root-client-ts/src/combobox-body/index.tsx
+#: pkgs/ui-root-client-ts/src/game-action-button/index.tsx
+#: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "Done"
 msgstr "Done"
 
@@ -2387,7 +2363,7 @@ msgstr "Duck the tricks. Dodge the queen. Lowest wins."
 msgid "Duplicates skipped"
 msgstr "Duplicates skipped"
 
-#: pkgs/ui-root-client-ts/src/multi-select-swatch-grid.tsx
+#: pkgs/ui-root-client-ts/src/multi-select-swatch-grid/index.tsx
 msgid "e.g. ff5733"
 msgstr "e.g. ff5733"
 
@@ -2440,7 +2416,7 @@ msgid "Eight"
 msgstr "Eight"
 
 #: libs/auth-client-ts/src/auth-flow-messages.tsx
-#: pkgs/ui-root-client-ts/src/text-input.example.tsx
+#: pkgs/ui-root-client-ts/src/text-input/text-input.example.tsx
 msgid "Email"
 msgstr "Email"
 
@@ -2466,7 +2442,7 @@ msgid "EMQX"
 msgstr "EMQX"
 
 #: libs/spaces-client-ts/src/space-end-or-leave-button.tsx
-#: pkgs/ui-root-client-ts/src/pagination-controls.tsx
+#: pkgs/ui-root-client-ts/src/pagination-controls/index.tsx
 msgid "End"
 msgstr "End"
 
@@ -2521,7 +2497,7 @@ msgstr "Error details copied."
 msgid "Error message"
 msgstr "Error message"
 
-#: pkgs/ui-root-client-ts/src/text-input.example.tsx
+#: pkgs/ui-root-client-ts/src/text-input/text-input.example.tsx
 msgid "Error state"
 msgstr "Error state"
 
@@ -2582,11 +2558,11 @@ msgstr "Everything in the free plan, synced across your devices"
 msgid "Exchange {count} tiles and score nothing this turn."
 msgstr "Exchange {count} tiles and score nothing this turn."
 
-#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-actions.tsx
 msgid "Exchange chosen tiles"
 msgstr "Exchange chosen tiles"
 
-#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-actions.tsx
 msgid "Exchange tiles"
 msgstr "Exchange tiles"
 
@@ -2594,7 +2570,7 @@ msgstr "Exchange tiles"
 msgid "Exchanging needs at least seven tiles in the bag."
 msgstr "Exchanging needs at least seven tiles in the bag."
 
-#: pkgs/ui-devtools-client-ts/src/json-view.tsx
+#: pkgs/ui-devtools-client-ts/src/json-view/index.tsx
 msgid "Expand all"
 msgstr "Expand all"
 
@@ -2616,9 +2592,9 @@ msgstr "Export requested"
 msgid "Failed"
 msgstr "Failed"
 
-#: pkgs/ui-devtools-client-ts/src/data-table-status.tsx
-#: pkgs/ui-root-client-ts/src/combobox-body.tsx
-#: pkgs/ui-root-client-ts/src/select.tsx
+#: pkgs/ui-devtools-client-ts/src/data-table-status/index.tsx
+#: pkgs/ui-root-client-ts/src/combobox-body/index.tsx
+#: pkgs/ui-root-client-ts/src/select/index.tsx
 msgid "Failed to load"
 msgstr "Failed to load"
 
@@ -2634,7 +2610,7 @@ msgstr "Fill every place before starting."
 msgid "Filter by puzzles you have never seen, already seen, or failed."
 msgstr "Filter by puzzles you have never seen, already seen, or failed."
 
-#: pkgs/ui-root-client-ts/src/combobox.example.tsx
+#: pkgs/ui-root-client-ts/src/combobox/combobox.example.tsx
 msgid "Filter fruits…"
 msgstr "Filter fruits…"
 
@@ -2660,7 +2636,7 @@ msgstr "Find friends"
 msgid "Find friends by username and send requests."
 msgstr "Find friends by username and send requests."
 
-#: pkgs/ui-root-client-ts/src/filter-bar.example.tsx
+#: pkgs/ui-root-client-ts/src/filter-bar/filter-bar.example.tsx
 msgid "Find items"
 msgstr "Find items"
 
@@ -2737,10 +2713,6 @@ msgstr "First seen"
 #: libs/pong-client-ts/src/pong-board.tsx
 msgid "First to {0}"
 msgstr "First to {0}"
-
-#: libs/quoridor-client-ts/src/quoridor-board.tsx
-msgid "First to e5 wins immediately. Everyone keeps a path to the hill."
-msgstr "First to e5 wins immediately. Everyone keeps a path to the hill."
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
 msgid "Five"
@@ -2948,7 +2920,7 @@ msgid "Getting ready"
 msgstr "Getting ready"
 
 #: libs/spaces-client-ts/src/rename-space-modal.tsx
-#: pkgs/ui-root-client-ts/src/mutation-modal.example.tsx
+#: pkgs/ui-root-client-ts/src/mutation-modal/mutation-modal.example.tsx
 msgid "Give your space a name"
 msgstr "Give your space a name"
 
@@ -2980,7 +2952,7 @@ msgstr "Google"
 msgid "Green"
 msgstr "Green"
 
-#: pkgs/ui-root-client-ts/src/avatar.tsx
+#: pkgs/ui-root-client-ts/src/avatar/index.tsx
 msgid "Guest"
 msgstr "Guest"
 
@@ -3068,7 +3040,7 @@ msgstr "History and stats"
 msgid "Horizontal wall"
 msgstr "Horizontal wall"
 
-#: pkgs/ui-root-client-ts/src/badge.tsx
+#: pkgs/ui-root-client-ts/src/badge/index.tsx
 msgid "Host"
 msgstr "Host"
 
@@ -3108,6 +3080,10 @@ msgstr "If {address} can sign in here, a sign-in link is on its way. Paste it be
 msgid "Immediately"
 msgstr "Immediately"
 
+#: libs/chess-shared-client-ts/src/chess-settings-developer-screen.tsx
+msgid "Import and manage puzzle content."
+msgstr "Import and manage puzzle content."
+
 #: libs/game-puzzle-client-ts/src/content-pack-overview.tsx
 #: libs/game-puzzle-client-ts/src/content-saved-attempts.tsx
 msgid "In progress"
@@ -3122,7 +3098,7 @@ msgid "Include played puzzles"
 msgstr "Include played puzzles"
 
 #. placeholder {0}: props.label
-#: pkgs/ui-root-client-ts/src/number-stepper.tsx
+#: pkgs/ui-root-client-ts/src/number-stepper/index.tsx
 msgid "Increase {0}"
 msgstr "Increase {0}"
 
@@ -3145,10 +3121,6 @@ msgstr "Installs signed into this account"
 #: libs/app-root-client-ts/src/performance-screen.tsx
 msgid "Interaction to next paint"
 msgstr "Interaction to next paint"
-
-#: libs/chess-shared-client-ts/src/chess-board-example.tsx
-msgid "Interactive Solid chess board."
-msgstr "Interactive Solid chess board."
 
 #: libs/game-session-client-ts/src/custom-game-side-choices.tsx
 msgid "Invite"
@@ -3208,7 +3180,7 @@ msgstr "It will be ready within 24 hours."
 msgid "It will leave discovery. Saved attempts and earlier pack editions keep their content."
 msgstr "It will leave discovery. Saved attempts and earlier pack editions keep their content."
 
-#: pkgs/ui-root-client-ts/src/catalog-detail.tsx
+#: pkgs/ui-root-client-ts/src/catalog-detail/index.tsx
 msgid "Item not found"
 msgstr "Item not found"
 
@@ -3224,7 +3196,7 @@ msgstr "Jack"
 msgid "jank"
 msgstr "jank"
 
-#: pkgs/ui-root-client-ts/src/text-input.example.tsx
+#: pkgs/ui-root-client-ts/src/text-input/text-input.example.tsx
 msgid "John Doe"
 msgstr "John Doe"
 
@@ -3268,7 +3240,7 @@ msgstr "Jump to end"
 msgid "Jump to start"
 msgstr "Jump to start"
 
-#: pkgs/ui-root-client-ts/src/relative-time.tsx
+#: pkgs/ui-root-client-ts/src/relative-time/index.tsx
 msgid "just now"
 msgstr "just now"
 
@@ -3304,7 +3276,7 @@ msgstr "Kept copies"
 msgid "King"
 msgstr "King"
 
-#: pkgs/chess-board-root-client-ts/src/chess-board-promotion.tsx
+#: pkgs/chess-board-root-client-ts/src/chess-board-promotion/index.tsx
 msgid "Knight"
 msgstr "Knight"
 
@@ -3362,7 +3334,7 @@ msgstr "Leave and end"
 msgid "Leave and end the space?"
 msgstr "Leave and end the space?"
 
-#: pkgs/ui-root-client-ts/src/pending-navigation-provider.tsx
+#: pkgs/ui-root-client-ts/src/pending-navigation-provider/index.tsx
 msgid "Leave anyway"
 msgstr "Leave anyway"
 
@@ -3388,7 +3360,7 @@ msgstr "Leave space?"
 msgid "Leave this space on your account. You will leave on every device. You can join again later if the space is still live."
 msgstr "Leave this space on your account. You will leave on every device. You can join again later if the space is still live."
 
-#: pkgs/ui-root-client-ts/src/pending-navigation-provider.tsx
+#: pkgs/ui-root-client-ts/src/pending-navigation-provider/index.tsx
 msgid "Leave while work is in progress?"
 msgstr "Leave while work is in progress?"
 
@@ -3459,7 +3431,7 @@ msgstr "Light Cycles Trio"
 msgid "Link"
 msgstr "Link"
 
-#: pkgs/ui-root-client-ts/src/badge.tsx
+#: pkgs/ui-root-client-ts/src/badge/index.tsx
 msgid "Live"
 msgstr "Live"
 
@@ -3512,7 +3484,7 @@ msgstr "Load started"
 msgid "Load the word list again"
 msgstr "Load the word list again"
 
-#: pkgs/ui-root-client-ts/src/skeleton.tsx
+#: pkgs/ui-root-client-ts/src/skeleton/index.tsx
 msgid "Loading"
 msgstr "Loading"
 
@@ -3565,8 +3537,8 @@ msgstr "Loading your devices…"
 msgid "Loading your privacy settings…"
 msgstr "Loading your privacy settings…"
 
-#: pkgs/ui-devtools-client-ts/src/data-table-status.tsx
-#: pkgs/ui-root-client-ts/src/spinner.tsx
+#: pkgs/ui-devtools-client-ts/src/data-table-status/index.tsx
+#: pkgs/ui-root-client-ts/src/spinner/index.tsx
 msgid "Loading…"
 msgstr "Loading…"
 
@@ -3702,7 +3674,7 @@ msgstr "Model"
 msgid "Monthly"
 msgstr "Monthly"
 
-#: pkgs/ui-root-client-ts/src/action-bar-parts.tsx
+#: pkgs/ui-root-client-ts/src/action-bar-parts/index.tsx
 msgid "More"
 msgstr "More"
 
@@ -3811,7 +3783,7 @@ msgstr "Multiplayer game is paused."
 msgid "Multiplayer rematch offered"
 msgstr "Multiplayer rematch offered"
 
-#: pkgs/ui-root-client-ts/src/speaking-avatar.tsx
+#: pkgs/ui-root-client-ts/src/speaking-avatar/index.tsx
 msgid "Mute coach"
 msgstr "Mute coach"
 
@@ -3822,7 +3794,7 @@ msgid "Muted"
 msgstr "Muted"
 
 #: libs/app-root-client-ts/src/about-screen.tsx
-#: pkgs/ui-root-client-ts/src/text-input.example.tsx
+#: pkgs/ui-root-client-ts/src/text-input/text-input.example.tsx
 msgid "Name"
 msgstr "Name"
 
@@ -3832,7 +3804,7 @@ msgstr "Name, activity, region or worker"
 
 #: libs/app-root-client-ts/src/app-commands.tsx
 #: libs/app-root-client-ts/src/app-tab-bar.tsx
-#: pkgs/ui-root-client-ts/src/app-header-island.tsx
+#: pkgs/ui-root-client-ts/src/app-header-island/index.tsx
 msgid "Navigation"
 msgstr "Navigation"
 
@@ -3874,8 +3846,8 @@ msgid "New version available — reload to update"
 msgstr "New version available — reload to update"
 
 #: libs/game-puzzle-client-ts/src/puzzle-action-bar-items.tsx
-#: pkgs/ui-root-client-ts/src/catalog-detail-nav.tsx
-#: pkgs/ui-root-client-ts/src/pagination-controls.tsx
+#: pkgs/ui-root-client-ts/src/catalog-detail-nav/index.tsx
+#: pkgs/ui-root-client-ts/src/pagination-controls/index.tsx
 msgid "Next"
 msgstr "Next"
 
@@ -3926,7 +3898,7 @@ msgstr "No"
 msgid "No active session"
 msgstr "No active session"
 
-#: pkgs/ui-root-client-ts/src/catalog-detail.tsx
+#: pkgs/ui-root-client-ts/src/catalog-detail/index.tsx
 msgid "No catalog entry for \"{id}\"."
 msgstr "No catalog entry for \"{id}\"."
 
@@ -3937,10 +3909,6 @@ msgstr "No completed games yet."
 #: libs/game-puzzle-client-ts/src/content-publication-controls.tsx
 msgid "No completed playtest of this version yet. Complete a playtest to prove it can be finished."
 msgstr "No completed playtest of this version yet. Complete a playtest to prove it can be finished."
-
-#: libs/chess-shared-client-ts/src/chess-settings-developer-ui-component-detail-screen.tsx
-msgid "No component selected"
-msgstr "No component selected"
 
 #: libs/game-session-client-ts/src/custom-game-status.tsx
 msgid "No Custom Game."
@@ -3954,10 +3922,6 @@ msgstr "No devices yet"
 msgid "No events yet"
 msgstr "No events yet"
 
-#: pkgs/ui-root-client-ts/src/explorer-detail.tsx
-msgid "No example registered for \"{id}\"."
-msgstr "No example registered for \"{id}\"."
-
 #: libs/friends-client-ts/src/friends-list-screen-view.tsx
 msgid "No friends yet"
 msgstr "No friends yet"
@@ -3970,11 +3934,11 @@ msgstr "No legal move or wall — pass turn"
 msgid "No Lichess file is in the shared bucket. Choose a .csv or .csv.zst file to upload. Once uploaded, start loading to add its puzzles to this environment."
 msgstr "No Lichess file is in the shared bucket. Choose a .csv or .csv.zst file to upload. Once uploaded, start loading to add its puzzles to this environment."
 
-#: pkgs/ui-root-client-ts/src/command-palette-empty.tsx
+#: pkgs/ui-root-client-ts/src/command-palette-empty/index.tsx
 msgid "No matching commands"
 msgstr "No matching commands"
 
-#: pkgs/ui-root-client-ts/src/catalog-list-rows.tsx
+#: pkgs/ui-root-client-ts/src/catalog-list-rows/index.tsx
 msgid "No matching items"
 msgstr "No matching items"
 
@@ -4048,7 +4012,7 @@ msgstr "No puzzles match your feed"
 msgid "No puzzles played yet."
 msgstr "No puzzles played yet."
 
-#: pkgs/ui-devtools-client-ts/src/data-table.tsx
+#: pkgs/ui-devtools-client-ts/src/data-table/index.tsx
 msgid "No results"
 msgstr "No results"
 
@@ -4099,12 +4063,12 @@ msgstr "Not available in this app"
 msgid "Not available on this account"
 msgstr "Not available on this account"
 
-#: pkgs/ui-root-client-ts/src/mutation-modal-parts.tsx
+#: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "Not confirmed yet"
 msgstr "Not confirmed yet"
 
 #: libs/spaces-client-ts/src/space-join-button.tsx
-#: pkgs/ui-root-client-ts/src/use-mutation-button.tsx
+#: pkgs/ui-root-client-ts/src/use-mutation-button/index.tsx
 msgid "Not confirmed. Check again"
 msgstr "Not confirmed. Check again"
 
@@ -4256,7 +4220,7 @@ msgstr "Only the puzzle team can load puzzles"
 msgid "Only you see it. Get ready once it is complete."
 msgstr "Only you see it. Get ready once it is complete."
 
-#: pkgs/ui-root-client-ts/src/command-palette-trigger.tsx
+#: pkgs/ui-root-client-ts/src/command-palette-trigger/index.tsx
 msgid "Open command palette"
 msgstr "Open command palette"
 
@@ -4291,7 +4255,7 @@ msgstr "Open restarted attempt"
 
 #: libs/game-session-client-ts/src/custom-game-person.tsx
 #: libs/game-session-client-ts/src/custom-game-side-choices.tsx
-#: pkgs/ui-root-client-ts/src/avatar.tsx
+#: pkgs/ui-root-client-ts/src/avatar/index.tsx
 msgid "Open seat"
 msgstr "Open seat"
 
@@ -4406,11 +4370,11 @@ msgstr "Pack overview"
 msgid "Pack preview"
 msgstr "Pack preview"
 
-#: pkgs/ui-devtools-client-ts/src/data-table-pagination.tsx
+#: pkgs/ui-devtools-client-ts/src/data-table-pagination/index.tsx
 msgid "Page {current} of {total}"
 msgstr "Page {current} of {total}"
 
-#: pkgs/ui-root-client-ts/src/pagination-controls.tsx
+#: pkgs/ui-root-client-ts/src/pagination-controls/index.tsx
 msgid "Page {label}"
 msgstr "Page {label}"
 
@@ -4418,7 +4382,7 @@ msgstr "Page {label}"
 msgid "Page not found"
 msgstr "Page not found"
 
-#: pkgs/ui-root-client-ts/src/pagination-controls.tsx
+#: pkgs/ui-root-client-ts/src/pagination-controls/index.tsx
 msgid "Pagination"
 msgstr "Pagination"
 
@@ -4434,7 +4398,7 @@ msgstr "Pair color"
 msgid "Pair label"
 msgstr "Pair label"
 
-#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-actions.tsx
 msgid "Pass"
 msgstr "Pass"
 
@@ -4530,7 +4494,7 @@ msgstr "Person"
 msgid "Pick a fixed target rating for the puzzle feed."
 msgstr "Pick a fixed target rating for the puzzle feed."
 
-#: pkgs/ui-root-client-ts/src/combobox.example.tsx
+#: pkgs/ui-root-client-ts/src/combobox/combobox.example.tsx
 msgid "Pick a fruit…"
 msgstr "Pick a fruit…"
 
@@ -4542,17 +4506,13 @@ msgstr "Pick a fun emoji look"
 msgid "Pick a game to play."
 msgstr "Pick a game to play."
 
-#: pkgs/ui-root-client-ts/src/combobox.example.tsx
+#: pkgs/ui-root-client-ts/src/combobox/combobox.example.tsx
 msgid "Pick fruits…"
 msgstr "Pick fruits…"
 
 #: libs/game-puzzle-client-ts/src/puzzle-review-screen.tsx
 msgid "Pick one from the game log."
 msgstr "Pick one from the game log."
-
-#: libs/chess-shared-client-ts/src/chess-settings-developer-ui-component-detail-screen.tsx
-msgid "Pick one from the previous screen."
-msgstr "Pick one from the previous screen."
 
 #: libs/word-tiles-client-ts/src/word-tiles-preview.tsx
 msgid "Place every tile in one row or one column."
@@ -4596,7 +4556,7 @@ msgstr "Play history"
 msgid "Play published puzzles, continue your attempts, or build something of your own."
 msgstr "Play published puzzles, continue your attempts, or build something of your own."
 
-#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-actions.tsx
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
 msgid "Play word"
 msgstr "Play word"
@@ -4627,7 +4587,7 @@ msgid "Players"
 msgstr "Players"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-summary.tsx
-#: pkgs/ui-root-client-ts/src/sound-indicator.tsx
+#: pkgs/ui-root-client-ts/src/sound-indicator/index.tsx
 msgid "Playing"
 msgstr "Playing"
 
@@ -4696,8 +4656,8 @@ msgstr "Preparing…"
 msgid "Preview"
 msgstr "Preview"
 
-#: pkgs/ui-root-client-ts/src/catalog-detail-nav.tsx
-#: pkgs/ui-root-client-ts/src/pagination-controls.tsx
+#: pkgs/ui-root-client-ts/src/catalog-detail-nav/index.tsx
+#: pkgs/ui-root-client-ts/src/pagination-controls/index.tsx
 msgid "Previous"
 msgstr "Previous"
 
@@ -4742,6 +4702,10 @@ msgstr "Profile"
 #: libs/friends-client-ts/src/friend-user-screen-content.tsx
 msgid "Profile unavailable"
 msgstr "Profile unavailable"
+
+#: pkgs/ui-root-client-ts/src/progress-bar/index.tsx
+msgid "Progress"
+msgstr "Progress"
 
 #: libs/game-puzzle-client-ts/src/content-attempt-notices.tsx
 msgid "Progress saved on this device. Changes share when connected."
@@ -4843,6 +4807,10 @@ msgstr "Puzzle feed"
 msgid "Puzzle feed. {mode} target {rating}. History: {history}. Themes: {themes}. {advance}."
 msgstr "Puzzle feed. {mode} target {rating}. History: {history}. Themes: {themes}. {advance}."
 
+#: libs/chess-shared-client-ts/src/chess-settings-screen.tsx
+msgid "Puzzle import tools."
+msgstr "Puzzle import tools."
+
 #: libs/game-puzzle-client-ts/src/puzzle-share-link.tsx
 msgid "Puzzle link copied"
 msgstr "Puzzle link copied"
@@ -4934,7 +4902,7 @@ msgid "Puzzles processed"
 msgstr "Puzzles processed"
 
 #: libs/hearts-client-ts/src/hearts-copy.tsx
-#: pkgs/chess-board-root-client-ts/src/chess-board-promotion.tsx
+#: pkgs/chess-board-root-client-ts/src/chess-board-promotion/index.tsx
 msgid "Queen"
 msgstr "Queen"
 
@@ -4965,7 +4933,7 @@ msgid "Rack: {0}. Target: {1} points."
 msgstr "Rack: {0}. Target: {1} points."
 
 #: libs/profile-client-ts/src/avatar-editor-pickers.tsx
-#: pkgs/ui-root-client-ts/src/multi-select-swatch-grid.tsx
+#: pkgs/ui-root-client-ts/src/multi-select-swatch-grid/index.tsx
 msgid "Random"
 msgstr "Random"
 
@@ -4975,7 +4943,7 @@ msgid "Random setup"
 msgstr "Random setup"
 
 #: libs/profile-client-ts/src/avatar-editor-seed-field.tsx
-#: pkgs/ui-root-client-ts/src/avatar-hero.example.tsx
+#: pkgs/ui-root-client-ts/src/avatar-hero/avatar-hero.example.tsx
 msgid "Randomize"
 msgstr "Randomize"
 
@@ -4990,10 +4958,6 @@ msgstr "Rating after each puzzle"
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 msgid "Rating offset"
 msgstr "Rating offset"
-
-#: libs/quoridor-client-ts/src/quoridor-board.tsx
-msgid "Reach the opposite home row first. South heads to row 9; North heads to row 1."
-msgstr "Reach the opposite home row first. South heads to row 9; North heads to row 1."
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-screen.tsx
 msgid "Reading activity…"
@@ -5025,7 +4989,7 @@ msgstr "Ready by {0}"
 msgid "Ready to start."
 msgstr "Ready to start."
 
-#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-actions.tsx
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
 msgid "Recall tiles"
 msgstr "Recall tiles"
@@ -5084,7 +5048,7 @@ msgid "Red fleet"
 msgstr "Red fleet"
 
 #: libs/game-puzzle-client-ts/src/content-attempt-controls.tsx
-#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-actions.tsx
 msgid "Redo"
 msgstr "Redo"
 
@@ -5246,7 +5210,7 @@ msgstr "Requesting…"
 msgid "Requests and invites that need a reply land here."
 msgstr "Requests and invites that need a reply land here."
 
-#: pkgs/ui-devtools-client-ts/src/json-view.tsx
+#: pkgs/ui-devtools-client-ts/src/json-view/index.tsx
 msgid "Reset"
 msgstr "Reset"
 
@@ -5317,7 +5281,7 @@ msgid "Resumed"
 msgstr "Resumed"
 
 #: libs/game-puzzle-client-ts/src/puzzle-action-bar-items.tsx
-#: pkgs/ui-root-client-ts/src/error-state.tsx
+#: pkgs/ui-root-client-ts/src/error-state/index.tsx
 msgid "Retry"
 msgstr "Retry"
 
@@ -5401,7 +5365,7 @@ msgstr "Right paddle"
 msgid "Right wins."
 msgstr "Right wins."
 
-#: pkgs/chess-board-root-client-ts/src/chess-board-promotion.tsx
+#: pkgs/chess-board-root-client-ts/src/chess-board-promotion/index.tsx
 msgid "Rook"
 msgstr "Rook"
 
@@ -5566,7 +5530,7 @@ msgstr "Scores {total} points. The word list could not load here; the game check
 msgid "Search"
 msgstr "Search"
 
-#: pkgs/ui-root-client-ts/src/filter-bar.example.tsx
+#: pkgs/ui-root-client-ts/src/filter-bar/filter-bar.example.tsx
 msgid "Search by name"
 msgstr "Search by name"
 
@@ -5581,10 +5545,6 @@ msgstr "Search by username or name"
 #: libs/search-client-ts/src/search-screen-view.tsx
 msgid "Search by username or name to add friends and invite them to spaces."
 msgstr "Search by username or name to add friends and invite them to spaces."
-
-#: pkgs/ui-root-client-ts/src/explorer-list.tsx
-msgid "Search components…"
-msgstr "Search components…"
 
 #: libs/friends-client-ts/src/friends-list-screen-view.tsx
 msgid "Search for people by username to send a friend request."
@@ -5607,9 +5567,9 @@ msgid "Search themes…"
 msgstr "Search themes…"
 
 #: libs/profile-client-ts/src/avatar-editor-pickers.tsx
-#: pkgs/ui-root-client-ts/src/catalog-list.tsx
-#: pkgs/ui-root-client-ts/src/combobox.tsx
-#: pkgs/ui-root-client-ts/src/select.tsx
+#: pkgs/ui-root-client-ts/src/catalog-list/index.tsx
+#: pkgs/ui-root-client-ts/src/combobox/index.tsx
+#: pkgs/ui-root-client-ts/src/select/index.tsx
 msgid "Search…"
 msgstr "Search…"
 
@@ -5647,11 +5607,11 @@ msgstr "Seed"
 msgid "Seen"
 msgstr "Seen"
 
-#: pkgs/ui-devtools-client-ts/src/data-table-header.tsx
+#: pkgs/ui-devtools-client-ts/src/data-table-header/index.tsx
 msgid "Select all rows on this page"
 msgstr "Select all rows on this page"
 
-#: pkgs/ui-devtools-client-ts/src/data-table-row.tsx
+#: pkgs/ui-devtools-client-ts/src/data-table-row/index.tsx
 msgid "Select row"
 msgstr "Select row"
 
@@ -5660,8 +5620,8 @@ msgid "Select style…"
 msgstr "Select style…"
 
 #: libs/profile-client-ts/src/avatar-editor-pickers.tsx
-#: pkgs/ui-root-client-ts/src/combobox.tsx
-#: pkgs/ui-root-client-ts/src/select.tsx
+#: pkgs/ui-root-client-ts/src/combobox/index.tsx
+#: pkgs/ui-root-client-ts/src/select/index.tsx
 msgid "Select…"
 msgstr "Select…"
 
@@ -5711,7 +5671,6 @@ msgstr "Sessions"
 #: libs/app-root-client-ts/src/sound-screen.tsx
 #: libs/app-root-client-ts/src/sync-screen.tsx
 #: libs/app-root-client-ts/src/theme-screen.tsx
-#: libs/app-root-client-ts/src/ui-explorer.tsx
 #: libs/auth-client-ts/src/account-device-detail-screen.tsx
 #: libs/auth-client-ts/src/account-devices-screen.tsx
 #: libs/auth-client-ts/src/account-screen.tsx
@@ -5787,7 +5746,7 @@ msgstr "Show your live spaces"
 msgid "Shows a live FPS / INP top banner. Useful for diagnosing jank on low-end devices. Off by default."
 msgstr "Shows a live FPS / INP top banner. Useful for diagnosing jank on low-end devices. Off by default."
 
-#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-actions.tsx
 msgid "Shuffle rack"
 msgstr "Shuffle rack"
 
@@ -5828,15 +5787,15 @@ msgstr "Sign in to see your devices"
 msgid "Sign in to subscribe"
 msgstr "Sign in to subscribe"
 
-#: pkgs/ui-root-client-ts/src/social-provider-config.tsx
+#: pkgs/ui-root-client-ts/src/social-provider-config/index.tsx
 msgid "Sign in with Apple"
 msgstr "Sign in with Apple"
 
-#: pkgs/ui-root-client-ts/src/social-provider-config.tsx
+#: pkgs/ui-root-client-ts/src/social-provider-config/index.tsx
 msgid "Sign in with dev IDP"
 msgstr "Sign in with dev IDP"
 
-#: pkgs/ui-root-client-ts/src/social-provider-config.tsx
+#: pkgs/ui-root-client-ts/src/social-provider-config/index.tsx
 msgid "Sign in with Google"
 msgstr "Sign in with Google"
 
@@ -5861,15 +5820,15 @@ msgstr "Sign out of all devices?"
 msgid "Sign out?"
 msgstr "Sign out?"
 
-#: pkgs/ui-root-client-ts/src/social-provider-config.tsx
+#: pkgs/ui-root-client-ts/src/social-provider-config/index.tsx
 msgid "Sign up with Apple"
 msgstr "Sign up with Apple"
 
-#: pkgs/ui-root-client-ts/src/social-provider-config.tsx
+#: pkgs/ui-root-client-ts/src/social-provider-config/index.tsx
 msgid "Sign up with dev IDP"
 msgstr "Sign up with dev IDP"
 
-#: pkgs/ui-root-client-ts/src/social-provider-config.tsx
+#: pkgs/ui-root-client-ts/src/social-provider-config/index.tsx
 msgid "Sign up with Google"
 msgstr "Sign up with Google"
 
@@ -5924,7 +5883,7 @@ msgstr "Signed out everywhere"
 
 #: libs/app-root-client-ts/src/sso-callback.tsx
 #: libs/auth-client-ts/src/sign-in-modal.tsx
-#: pkgs/ui-root-client-ts/src/social-provider-config.tsx
+#: pkgs/ui-root-client-ts/src/social-provider-config/index.tsx
 msgid "Signing in…"
 msgstr "Signing in…"
 
@@ -6009,7 +5968,7 @@ msgid "Some puzzles have not reached this device. Reconnect to load the rest. Yo
 msgstr "Some puzzles have not reached this device. Reconnect to load the rest. Your progress stays saved."
 
 #: libs/app-root-client-ts/src/crash-screen.tsx
-#: pkgs/ui-root-client-ts/src/mutation-modal-parts.tsx
+#: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "Something went wrong"
 msgstr "Something went wrong"
 
@@ -6023,11 +5982,11 @@ msgstr "Sound"
 msgid "Sound effects"
 msgstr "Sound effects"
 
-#: pkgs/ui-root-client-ts/src/sound-indicator.tsx
+#: pkgs/ui-root-client-ts/src/sound-indicator/index.tsx
 msgid "Sound off"
 msgstr "Sound off"
 
-#: pkgs/ui-root-client-ts/src/sound-indicator.tsx
+#: pkgs/ui-root-client-ts/src/sound-indicator/index.tsx
 msgid "Sound on"
 msgstr "Sound on"
 
@@ -6054,7 +6013,7 @@ msgid "Space ended"
 msgstr "Space ended"
 
 #: libs/spaces-client-ts/src/rename-space-modal.tsx
-#: pkgs/ui-root-client-ts/src/mutation-modal.example.tsx
+#: pkgs/ui-root-client-ts/src/mutation-modal/mutation-modal.example.tsx
 msgid "Space name"
 msgstr "Space name"
 
@@ -6072,7 +6031,6 @@ msgstr "Space renamed"
 #: libs/app-root-client-ts/src/sound-screen.tsx
 #: libs/app-root-client-ts/src/sync-screen.tsx
 #: libs/app-root-client-ts/src/theme-screen.tsx
-#: libs/app-root-client-ts/src/ui-explorer.tsx
 #: libs/auth-client-ts/src/account-device-detail-screen.tsx
 #: libs/auth-client-ts/src/account-devices-screen.tsx
 #: libs/auth-client-ts/src/account-screen.tsx
@@ -6092,15 +6050,15 @@ msgstr "Spaces"
 msgid "spades"
 msgstr "spades"
 
-#: pkgs/ui-root-client-ts/src/spectator-indicator.tsx
+#: pkgs/ui-root-client-ts/src/spectator-indicator/index.tsx
 msgid "Spectating"
 msgstr "Spectating"
 
-#: pkgs/ui-root-client-ts/src/spectator-indicator.tsx
+#: pkgs/ui-root-client-ts/src/spectator-indicator/index.tsx
 msgid "Spectating — controls are disabled"
 msgstr "Spectating — controls are disabled"
 
-#: pkgs/ui-root-client-ts/src/spectator-indicator.tsx
+#: pkgs/ui-root-client-ts/src/spectator-indicator/index.tsx
 msgid "Spectating; controls are disabled"
 msgstr "Spectating; controls are disabled"
 
@@ -6121,7 +6079,7 @@ msgid "Standings"
 msgstr "Standings"
 
 #: libs/game-session-client-ts/src/custom-game-configuration.tsx
-#: pkgs/ui-root-client-ts/src/pagination-controls.tsx
+#: pkgs/ui-root-client-ts/src/pagination-controls/index.tsx
 msgid "Start"
 msgstr "Start"
 
@@ -6190,7 +6148,7 @@ msgstr "State"
 msgid "Status"
 msgstr "Status"
 
-#: pkgs/ui-root-client-ts/src/pending-navigation-provider.tsx
+#: pkgs/ui-root-client-ts/src/pending-navigation-provider/index.tsx
 msgid "Stay here"
 msgstr "Stay here"
 
@@ -6378,7 +6336,7 @@ msgstr "Taken {taken}"
 msgid "Tap a device for details."
 msgstr "Tap a device for details."
 
-#: pkgs/ui-root-client-ts/src/copy-to-clipboard-field.example.tsx
+#: pkgs/ui-root-client-ts/src/copy-to-clipboard-field/copy-to-clipboard-field.example.tsx
 msgid "Tap the field or icon to copy"
 msgstr "Tap the field or icon to copy"
 
@@ -6940,7 +6898,7 @@ msgstr "This edition is not available on this device"
 msgid "This export belongs to another account and cannot be downloaded."
 msgstr "This export belongs to another account and cannot be downloaded."
 
-#: pkgs/ui-root-client-ts/src/text-input.example.tsx
+#: pkgs/ui-root-client-ts/src/text-input/text-input.example.tsx
 msgid "This field is required"
 msgstr "This field is required"
 
@@ -7152,19 +7110,14 @@ msgid "To keep your data safe, export and deletion need a sign-in from the last 
 msgstr "To keep your data safe, export and deletion need a sign-in from the last {PROOF_MINUTES} minutes. Sign in again, then try once more. Nothing has changed yet."
 
 #: libs/word-tiles-client-ts/src/word-tiles-frame.tsx
-#: libs/word-tiles-client-ts/src/word-tiles-panels.tsx
 msgid "to play"
 msgstr "to play"
-
-#: libs/chess-shared-client-ts/src/chess-settings-developer-screen.tsx
-msgid "Tools for debugging and exploring the UI."
-msgstr "Tools for debugging and exploring the UI."
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-workers.tsx
 msgid "Total CPU time"
 msgstr "Total CPU time"
 
-#: pkgs/ui-root-client-ts/src/multi-select-swatch-grid.tsx
+#: pkgs/ui-root-client-ts/src/multi-select-swatch-grid/index.tsx
 msgid "Transparent"
 msgstr "Transparent"
 
@@ -7176,11 +7129,11 @@ msgstr "triple letter"
 msgid "triple word"
 msgstr "triple word"
 
-#: pkgs/ui-root-client-ts/src/catalog-list-rows.tsx
+#: pkgs/ui-root-client-ts/src/catalog-list-rows/index.tsx
 msgid "Try a different search term."
 msgstr "Try a different search term."
 
-#: pkgs/ui-root-client-ts/src/command-palette-empty.tsx
+#: pkgs/ui-root-client-ts/src/command-palette-empty/index.tsx
 msgid "Try a different search."
 msgstr "Try a different search."
 
@@ -7193,8 +7146,8 @@ msgstr "Try a different search."
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-dom.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-replay.tsx
-#: pkgs/ui-root-client-ts/src/game-action-button.tsx
-#: pkgs/ui-root-client-ts/src/mutation-modal-parts.tsx
+#: pkgs/ui-root-client-ts/src/game-action-button/index.tsx
+#: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "Try again"
 msgstr "Try again"
 
@@ -7255,30 +7208,17 @@ msgstr "Two paddles. One ball. Every return counts."
 msgid "Two players start on e1 and e9 with ten walls each. South moves first. Move one square or place one wall each turn. Jump one adjacent pawn; if the landing is blocked, move to its side. Walls span two boundaries and cannot cross, overlap or close anyone's last path. The first to reach the opposite home row wins."
 msgstr "Two players start on e1 and e9 with ten walls each. South moves first. Move one square or place one wall each turn. Jump one adjacent pawn; if the landing is blocked, move to its side. Walls span two boundaries and cannot cross, overlap or close anyone's last path. The first to reach the opposite home row wins."
 
-#: pkgs/ui-root-client-ts/src/command-palette-input.tsx
+#: pkgs/ui-root-client-ts/src/command-palette-input/index.tsx
 msgid "Type a command or search…"
 msgstr "Type a command or search…"
 
-#: pkgs/ui-root-client-ts/src/text-input.example.tsx
+#: pkgs/ui-root-client-ts/src/text-input/text-input.example.tsx
 msgid "Type something…"
 msgstr "Type something…"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-configuration.tsx
 msgid "UI action interval (milliseconds)"
 msgstr "UI action interval (milliseconds)"
-
-#: libs/app-root-client-ts/src/settings-screen.tsx
-msgid "UI components"
-msgstr "UI components"
-
-#: libs/chess-shared-client-ts/src/chess-settings-developer-screen.tsx
-#: libs/chess-shared-client-ts/src/chess-settings-developer-ui-components-screen.tsx
-msgid "UI Components"
-msgstr "UI Components"
-
-#: libs/chess-shared-client-ts/src/chess-settings-screen.tsx
-msgid "UI explorer, debug tools."
-msgstr "UI explorer, debug tools."
 
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "Unassigned"
@@ -7308,7 +7248,7 @@ msgid "Unblocking…"
 msgstr "Unblocking…"
 
 #: libs/game-puzzle-client-ts/src/content-attempt-controls.tsx
-#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-actions.tsx
 msgid "Undo"
 msgstr "Undo"
 
@@ -7332,7 +7272,7 @@ msgstr "Unique handle for search and invites"
 msgid "Unlimited access to Gamezilla servers"
 msgstr "Unlimited access to Gamezilla servers"
 
-#: pkgs/ui-root-client-ts/src/speaking-avatar.tsx
+#: pkgs/ui-root-client-ts/src/speaking-avatar/index.tsx
 msgid "Unmute coach"
 msgstr "Unmute coach"
 
@@ -7530,7 +7470,6 @@ msgstr "Waiting for the host to start a puzzle."
 msgid "Waiting for the host to start."
 msgstr "Waiting for the host to start."
 
-#: libs/quoridor-client-ts/src/quoridor-board.tsx
 #: libs/sokoban-client-ts/src/use-sokoban-words.tsx
 msgid "wall"
 msgstr "wall"
@@ -7538,10 +7477,6 @@ msgstr "wall"
 #: libs/sokoban-client-ts/src/sokoban-editor.tsx
 msgid "Wall"
 msgstr "Wall"
-
-#: libs/quoridor-client-ts/src/quoridor-board.tsx
-msgid "walls"
-msgstr "walls"
 
 #: libs/quoridor-client-ts/src/quoridor-frame.tsx
 msgid "Walls"
@@ -7627,6 +7562,10 @@ msgid "Without a connection, your spaces, games on this device and preferences k
 msgstr "Without a connection, your spaces, games on this device and preferences keep working. What you do is kept on this device and shared once the connection is back. Signing in, searching for people and playing someone online need a connection."
 
 #: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+msgid "Word actions"
+msgstr "Word actions"
+
+#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
 msgid "Word board, fifteen columns and fifteen rows"
 msgstr "Word board, fifteen columns and fifteen rows"
 
@@ -7677,8 +7616,8 @@ msgid "Working offline"
 msgstr "Working offline"
 
 #: libs/notifications-client-ts/src/notification-card-default.tsx
-#: pkgs/ui-root-client-ts/src/game-action-button.tsx
-#: pkgs/ui-root-client-ts/src/mutation-modal-parts.tsx
+#: pkgs/ui-root-client-ts/src/game-action-button/index.tsx
+#: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "Working…"
 msgstr "Working…"
 
@@ -7761,11 +7700,11 @@ msgstr "You are watching. Racks stay private to their players."
 msgid "You came {place}"
 msgstr "You came {place}"
 
-#: pkgs/ui-root-client-ts/src/mutation-modal-parts.tsx
+#: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "You can close this and keep using the app. Check again to learn the outcome of this choice."
 msgstr "You can close this and keep using the app. Check again to learn the outcome of this choice."
 
-#: pkgs/ui-root-client-ts/src/mutation-modal-parts.tsx
+#: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "You can close this while we finish. Closing does not cancel your request."
 msgstr "You can close this while we finish. Closing does not cancel your request."
 
@@ -7947,7 +7886,7 @@ msgstr "You've reached your limit"
 msgid "You've used this for now"
 msgstr "You've used this for now"
 
-#: pkgs/ui-root-client-ts/src/text-input.example.tsx
+#: pkgs/ui-root-client-ts/src/text-input/text-input.example.tsx
 msgid "you@example.com"
 msgstr "you@example.com"
 
@@ -8053,7 +7992,7 @@ msgstr "Your friend request will be shared when the connection returns."
 msgid "Your friends could not be loaded"
 msgstr "Your friends could not be loaded"
 
-#: pkgs/ui-root-client-ts/src/text-input.example.tsx
+#: pkgs/ui-root-client-ts/src/text-input/text-input.example.tsx
 msgid "Your full name"
 msgstr "Your full name"
 
@@ -8227,6 +8166,14 @@ msgstr "Your turn to fire."
 #: libs/game-matchmaking-client-ts/src/multiplayer-status.tsx
 msgid "Your turn."
 msgstr "Your turn."
+
+#: libs/quoridor-client-ts/src/quoridor-frame.tsx
+msgid "Your turn. First to e5 wins."
+msgstr "Your turn. First to e5 wins."
+
+#: libs/quoridor-client-ts/src/quoridor-frame.tsx
+msgid "Your turn. Reach row {row}."
+msgstr "Your turn. Reach row {row}."
 
 #: libs/profile-client-ts/src/username-change-feedback.tsx
 msgid "Your username change will be shared when the connection returns."

@@ -1,0 +1,69 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Start here" />
+
+# Gamezilla UI
+
+This Storybook renders the production Solid components with the app's fonts,
+tokens, themes and localization. No app server, account or database is required.
+Find components through the sidebar or search, then open Docs for their prop contracts.
+
+## Develop a component
+
+Start with [Button](?path=/story/components-inputs-button--interactive).
+Change its title, size, intent or loading state in Controls. Use the Viewports
+toolbar for Phone, Tablet and Desktop, and the theme toolbar for Light and Dark.
+The Interactions panel shows each story's executable play steps.
+
+Stories import real production components. Add or change a component's
+`*.stories.tsx` beside its implementation in `pkgs/*-client-ts/src/`.
+Use its public prop contract and existing design tokens; screens compose the
+design system. Include empty, loading, success and recoverable failure states
+where they apply. Add source JSDoc for the generated Docs page.
+
+The sidebar groups foundations, primitives, components, patterns, layouts,
+templates and product components. Reuse these groups for new stories.
+
+## Run and share
+
+| Command | Result |
+| --- | --- |
+| `bun dev` | App stack and Storybook together; Storybook listens on port 6006. |
+| `bun storybook` | Storybook alone, through the same boot owner. Stop an app boot with `bun kill` first. |
+| `bun kill` | Stops the checkout's owned servers. |
+| `bun storybook:build` | Static site in `pkgs/ui-root-harness-ts/.cache/storybook/`. |
+
+Share the built directory through your team's approved static host, then copy a
+component's story URL for feedback. The bundle needs no backend. Building does
+not publish it or create a public URL.
+
+## Verify a change
+
+The project uses Bun for component contracts and Playwright for Storybook browser
+checks. The built-in Interactions panel runs play functions; no Vitest or hosted
+visual testing account is needed.
+
+| Command | Verification |
+| --- | --- |
+| `bunx turbo run @pkgs/ui-root-harness-ts#tc @pkgs/ui-root-harness-ts#test` | Types, component contracts and story inventory. |
+| `bun storybook:coverage` | Component, source documentation, story and baseline coverage. Reports are in the harness's `.cache/storybook-coverage.json` and `.md`. |
+| `bun storybook:test` | Story rendering, play functions, serious/critical axe accessibility violations and visual comparisons in both themes, plus the Storybook integration checks. |
+| `bun verify` | Full release gate, including a representative Storybook browser suite. |
+
+Visual comparisons never update baselines implicitly. To intentionally regenerate
+them, use `bun storybook:test --update-snapshots`, then run comparisons without
+the update flag. Full theme and responsive coverage also runs in the nightly
+visual group. Test failures block their gate; opening a story is for development,
+not verification evidence.
+
+## Time and agent discovery
+
+Each story mount gets a fresh virtual clock. Use the time toolbar to advance it;
+return to Paused between repeated equal steps. Interactions can dispatch
+`advance-story-time` on `#storybook-root` with milliseconds in the event detail.
+Do not introduce wall timers into component demos.
+
+Agents can discover running story previews at `http://localhost:6006/mcp`.
+The static build's `/index.json` and `/manifests/components.json` provide canonical
+story IDs and component contracts. The repository workflow and implementation
+details live in `pkgs/ui-root-harness-ts/README.md`.

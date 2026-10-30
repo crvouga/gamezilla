@@ -1,0 +1,4 @@
+{
+  "summary": "Repeated resolution of the same modules in colocated stories and consumers inflated the cache-hygiene scan enough to exceed its test budget on a busy machine.",
+  "regressionTest": "libs/tools-harness-ts/scripts/cache-file-reach.test.ts"
+}

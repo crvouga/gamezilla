@@ -1,0 +1,4 @@
+{
+  "summary": "Switch displayed its label next to the button without an accessible association, leaving labeled switches unnamed to assistive technology.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/hosts.test.tsx"
+}

@@ -86,7 +86,7 @@ describe('boot theme', () => {
 
   test('reads the row the theme preference writes and paints both schemes', () => {
     const preference = source(
-      'pkgs/ui-root-client-ts/src/theme-preference.tsx'
+      'pkgs/ui-root-client-ts/src/theme-preference/index.tsx'
     );
     expect(preference).toContain("asKeyword('ui.prefs/color-scheme')");
     expect(preference).toContain("asKeyword('ui.prefs/value')");

@@ -4,6 +4,8 @@
   "private": true,
   "exports": {
     "./*": [
+      "./src/*/index.ts",
+      "./src/*/index.tsx",
       "./src/*.ts",
       "./src/*.tsx",
       "./src/*.d.ts"
@@ -21,8 +23,11 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/clock-client-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
+    "storybook": "catalog:",
+    "storybook-solidjs-vite": "catalog:",
     "typescript": "catalog:"
   },
   "category": "client",

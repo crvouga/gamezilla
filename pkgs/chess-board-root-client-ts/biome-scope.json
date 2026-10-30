@@ -1,7 +1,7 @@
 {
-  "overrides[4]": ["pkgs/chess-board-root-client-ts/src/chess-board.tsx"],
+  "overrides[4]": ["pkgs/chess-board-root-client-ts/src/chess-board/index.tsx"],
   "plugin:./libs/tools-harness-ts/biome-plugins/no-inline-style-prop.grit": [
-    "!**/pkgs/chess-board-root-client-ts/src/chess-board-promotion.tsx",
-    "!**/pkgs/chess-board-root-client-ts/src/chess-board-feedback.tsx"
+    "!**/pkgs/chess-board-root-client-ts/src/chess-board-promotion/index.tsx",
+    "!**/pkgs/chess-board-root-client-ts/src/chess-board-feedback/index.tsx"
   ]
 }

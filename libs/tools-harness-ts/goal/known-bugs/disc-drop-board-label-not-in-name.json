@@ -1,4 +1,4 @@
 {
   "summary": "Each column control of the disc-drop board (Connect Four's) carried hidden cell text inside it that its name left out (\"Empty — 1\"), so the label-in-name check (WCAG 2.5.3) failed for every column. The shared custom-game accessibility scenario found it for Connect Four. The column's description already lists every cell; the hidden copy inside the control is gone.",
-  "regressionTest": "pkgs/ui-root-client-ts/tests/disc-drop-board.test.tsx"
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/disc-drop-board.test.tsx"
 }

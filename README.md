@@ -177,7 +177,7 @@ libs/chess-puzzle-harness-ts/tests/puzzle.test.ts
 
 The paths above illustrate the layout. A package has `src/`, `tests/`, and
 `scripts/` only as needed. `src/` stays flat: no `root/`, `public/`, `shared/`,
-`use-cases/`, component folders, or directory index barrels. Split an independent
+`use-cases/`, or directory index barrels. Reusable client UI in `pkgs/` uses component slices instead: `src/<component>/index.tsx` is the implementation, with local styles, source JSDoc, stories, fixtures and visual baselines beside it. Shared foundations and preview-only scaffolding stay shared. Split an independent
 use case into another package instead. Export individual modules as `./*`;
 import them as `@libs/chess-puzzle-shared-ts/start-puzzle-mutation`. Use relative
 imports inside the package. Do not create empty packages for unused layers.
@@ -251,6 +251,11 @@ Known cross-sub table reads, still debt: `permissions` reads `billing_subscripti
 | i18n | Lingui (`@pkgs/i18n-shared-ts`). Catalogs compile to `libs/client-app`. |
 | Observability | `@pkgs/observability`, CLI `@pkgs/observability-cli` (`bun obs`) |
 | Assert-and-crash | `@pkgs/assert-root-shared-ts` |
+
+Reusable UI is developed in Storybook first (`bun storybook`), using production
+components without the app stack. Discovery, manifests, deterministic stories,
+coverage and automated verification are documented in the
+[Storybook workflow](pkgs/ui-root-harness-ts/README.md).
 
 UI is Solid. Components run once; reactivity tracks. Read `props.x` in the component body (never destructure props). Style with `class` / `classList` and `@pkgs/ui` tokens. `style` is only for dynamic values classes cannot express. `data-component` and `data-screen` exist for tests and are stripped from production bundles. `data-testid` ships in every build because live journeys drive the real bundle by it. Mutation weight picks the widget: `MutationModal` for confirm-first actions, `useMutationButton` for lightweight actions, `FormActionsFooter` for screen forms.
 
@@ -450,7 +455,7 @@ Development and production reuse one deployment step list in `deploy.yml`. The r
 
 `./libs/tools-harness-ts/workspace/run.sh` is the one-stop workspace launcher used by the Run pane. It installs mise when missing, installs the system tools pinned in `mise.toml` on every launch, and loads their environment before installing app dependencies. The first launch also prepares local files; later launches reuse them. Failed preparation prints its cause and still attempts to start the stack; system tools and incomplete dependency installs are retried on the next launch.
 
-`bun run dev` (alias `bun run stack`) runs one supervised boot per checkout. Repeating the command reuses the live boot. A boot is live while its supervisor and the processes that launched it are alive; once its launcher is gone the supervisor stops it, and a start that still finds it collects it and boots in its place. The boot is one Turborepo run, `@apps/product-ts#dev`, with a persistent task per process and a pane for each in the terminal UI: `dev:postgres` (Mockingbird Postgres, migrated and seeded), `dev:s3`, `dev:mqtt` (Aedes), `dev:openai`, `dev:observability`, `dev:idp` (simulated Google and Apple), `dev:billing` (simulated Stripe), `dev:server` (N API nodes behind the balancer), `dev:population` (Synthetic Population Workers) and `dev:web` (the product web app: `/`, `/harness`, `/simulator`). `dev:prepare` plans every port first; each service publishes itself under `.cache/localhost-stack/<instance>/services/` when it can serve, and its dependents wait for that. Ports are OS-assigned on the first boot, reused on later boots, and published to `.cache/localhost-stack/<instance>.json` once the whole stack is up. Processes that run side by side are Turborepo tasks: add a task, not a process runner. `source libs/tools-harness-ts/workspace/port.sh` before a sidecar. EMQX (`1883` / `8083` / `18083`) and the wrangler preview (`8788`) are machine-wide; one workspace binds them at a time.
+`bun run dev` (alias `bun run stack`) runs one supervised boot per checkout. Repeating the command reuses the live boot. A boot is live while its supervisor and the processes that launched it are alive; once its launcher is gone the supervisor stops it, and a start that still finds it collects it and boots in its place. The boot is one Turborepo run, `@apps/product-ts#dev`, with a persistent task per process and a pane for each in the terminal UI: `dev:postgres` (Mockingbird Postgres, migrated and seeded), `dev:s3`, `dev:mqtt` (Aedes), `dev:openai`, `dev:observability`, `dev:idp` (simulated Google and Apple), `dev:billing` (simulated Stripe), `dev:server` (N API nodes behind the balancer), `dev:population` (Synthetic Population Workers), `dev:web` (the product web app: `/`, `/harness`, `/simulator`) and `@pkgs/ui-root-harness-ts#dev:storybook` (Storybook on `http://localhost:6006`, sharing the boot supervisor). `dev:prepare` plans every port first; each service publishes itself under `.cache/localhost-stack/<instance>/services/` when it can serve, and its dependents wait for that. Ports are OS-assigned on the first boot, reused on later boots, and published to `.cache/localhost-stack/<instance>.json` once the whole stack is up. Processes that run side by side are Turborepo tasks: add a task, not a process runner. `source libs/tools-harness-ts/workspace/port.sh` before a sidecar. EMQX (`1883` / `8083` / `18083`) and the wrangler preview (`8788`) are machine-wide; one workspace binds them at a time.
 
 `bun run own -- <command> [arguments]` runs other long-lived tools through the same supervisor, including Node, Expo, JVM, browser, and media workers. Agent-launched long-lived commands use `bun dev`, `bun dev:client`, or this entry point.
 

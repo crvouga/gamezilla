@@ -50,24 +50,17 @@ function sourceFiles(root: string): Set<string> {
 function resolveSpecifier(
   from: string,
   specifier: string,
-  files: ReadonlySet<string>
+  resolveBase: (base: string) => string | undefined
 ): string | undefined {
-  const candidates = (base: string): string[] => [
-    base,
-    ...['.ts', '.tsx', '.d.ts', '.mts', '.js', '.cjs'].map((e) => base + e),
-    `${base}/index.ts`,
-    `${base}/index.tsx`,
-  ];
   if (specifier.startsWith('.'))
-    return candidates(normalize(joinPosix(dirname(from), specifier))).find(
-      (c) => files.has(c)
-    );
+    return resolveBase(normalize(joinPosix(dirname(from), specifier)));
   const match = WORKSPACE_SPECIFIER.exec(specifier);
   if (match === null) return undefined;
   const dir = `${match[1]}/${match[2]}`;
-  return ['src', 'scripts']
-    .flatMap((visible) => candidates(`${dir}/${visible}/${match[3]}`))
-    .find((c) => files.has(c));
+  return (
+    resolveBase(`${dir}/src/${match[3]}`) ??
+    resolveBase(`${dir}/scripts/${match[3]}`)
+  );
 }
 
 export type ImportGraph = {
@@ -75,20 +68,55 @@ export type ImportGraph = {
   readonly importersOf: ReadonlyMap<string, ReadonlySet<string>>;
 };
 
-export function readImportGraph(root: string): ImportGraph {
-  const files = sourceFiles(root);
+/** Resolve each module once per scan, including missing modules. */
+function moduleResolver(files: ReadonlySet<string>) {
+  const cache = new Map<string, string | undefined>();
+  const suffixes = [
+    '',
+    '.ts',
+    '.tsx',
+    '.d.ts',
+    '.mts',
+    '.js',
+    '.cjs',
+    '/index.ts',
+    '/index.tsx',
+  ];
+  return (base: string): string | undefined => {
+    if (cache.has(base)) return cache.get(base);
+    let resolved: string | undefined;
+    for (const suffix of suffixes)
+      if (files.has(base + suffix)) {
+        resolved = base + suffix;
+        break;
+      }
+    cache.set(base, resolved);
+    return resolved;
+  };
+}
+
+/** Import relationships from a complete source snapshot; no cross-scan cache. */
+export function buildImportGraph(
+  files: ReadonlySet<string>,
+  read: (file: string) => string
+): ImportGraph {
+  const resolveBase = moduleResolver(files);
   const importersOf = new Map<string, Set<string>>();
   for (const file of files)
-    for (const [, specifier] of readFileSync(join(root, file), 'utf8').matchAll(
-      SPECIFIER
-    )) {
-      const target = resolveSpecifier(file, specifier!, files);
+    for (const [, specifier] of read(file).matchAll(SPECIFIER)) {
+      const target = resolveSpecifier(file, specifier!, resolveBase);
       if (target === undefined || target === file) continue;
       const importers = importersOf.get(target) ?? new Set<string>();
       importers.add(file);
       importersOf.set(target, importers);
     }
   return { importersOf };
+}
+
+export function readImportGraph(root: string): ImportGraph {
+  return buildImportGraph(sourceFiles(root), (file) =>
+    readFileSync(join(root, file), 'utf8')
+  );
 }
 
 function packageOf(file: string): string {

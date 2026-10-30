@@ -10,7 +10,12 @@
     "../ui-root-client-ts/src/lingui-augmentation.ts",
     "../bun-test-solid-client-ts/src/jest-dom.d.ts",
     "./tests/**/*.ts",
-    "./tests/**/*.tsx"
+    "./tests/**/*.tsx",
+    "./stories/**/*.tsx",
+    "./stories/**/*.ts",
+    "./storybook/**/*.ts",
+    "./storybook/**/*.tsx",
+    "./scripts/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

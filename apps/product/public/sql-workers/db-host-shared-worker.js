@@ -1,25 +1,25 @@
 // ../../pkgs/sql-client-sqlite-web-shared/src/rpc.ts
-var RPC_ERROR_LEADER_LOST = "E_LEADER_LOST";
+var RPC_ERROR_LEADER_LOST = 'E_LEADER_LOST';
 var HEARTBEAT_REAP_MS = 15e3;
 var OWNER_CLOSE_GRACE_MS = 5e3;
 function serializeError(error) {
   if (error instanceof Error) {
     const withCode = error;
     return {
-      name: error.name || "Error",
+      name: error.name || 'Error',
       message: error.message,
-      ...error.stack !== void 0 ? { stack: error.stack } : {},
-      ...typeof withCode.code === "string" ? { code: withCode.code } : {}
+      ...(error.stack !== void 0 ? { stack: error.stack } : {}),
+      ...(typeof withCode.code === 'string' ? { code: withCode.code } : {}),
     };
   }
   return {
-    name: "Error",
-    message: String(error)
+    name: 'Error',
+    message: String(error),
   };
 }
-function leaderLostError(message = "Database owner lost") {
+function leaderLostError(message = 'Database owner lost') {
   const error = new Error(message);
-  error.name = "LeaderLostError";
+  error.name = 'LeaderLostError';
   error.code = RPC_ERROR_LEADER_LOST;
   return error;
 }
@@ -27,14 +27,18 @@ function leaderLostError(message = "Database owner lost") {
 // ../../pkgs/sql-client-sqlite-web-shared/src/broker-core.ts
 var FORCE_RELEASE_OWNER_WAIT_MS = 4e3;
 function isRpcRequest(message) {
-  if (typeof message !== "object" || message === null) return false;
+  if (typeof message !== 'object' || message === null) return false;
   const m = message;
-  return typeof m["id"] === "string" && typeof m["dbName"] === "string" && typeof m["op"] === "string";
+  return (
+    typeof m['id'] === 'string' &&
+    typeof m['dbName'] === 'string' &&
+    typeof m['op'] === 'string'
+  );
 }
 function isDbChanged(message) {
-  if (typeof message !== "object" || message === null) return false;
+  if (typeof message !== 'object' || message === null) return false;
   const m = message;
-  return m["type"] === "db-changed" && typeof m["dbName"] === "string";
+  return m['type'] === 'db-changed' && typeof m['dbName'] === 'string';
 }
 function post(state, portId, message) {
   state.ports.get(portId)?.postMessage(message);
@@ -46,7 +50,7 @@ function getOrCreateSlot(state, dbName) {
     ownerPortId: null,
     refCount: 0,
     portIds: /* @__PURE__ */ new Set(),
-    closeTimerId: null
+    closeTimerId: null,
   };
   state.slots.set(dbName, slot);
   return slot;
@@ -62,8 +66,8 @@ function scheduleClose(state, dbName, slot) {
       post(state, ownerId, {
         id: `release_${dbName}`,
         dbName,
-        op: "releaseOwner",
-        payload: {}
+        op: 'releaseOwner',
+        payload: {},
       });
     }
     state.slots.delete(dbName);
@@ -77,8 +81,8 @@ function promoteOwner(state, dbName, slot) {
   post(state, next, {
     id: `become_${dbName}`,
     dbName,
-    op: "becomeOwner",
-    payload: {}
+    op: 'becomeOwner',
+    payload: {},
   });
 }
 function releasePortFromDb(state, portId, dbName) {
@@ -91,13 +95,15 @@ function releasePortFromDb(state, portId, dbName) {
     promoteOwner(state, dbName, slot);
     rejectPendingRoutes(state, {
       deadPortId: portId,
-      reason: "Database owner disconnected"
+      reason: 'Database owner disconnected',
     });
   }
   if (slot.refCount === 0) scheduleClose(state, dbName, slot);
 }
 async function handleConnect(state, portId, request) {
-  const chain = state.connectChains.get(request.dbName) ?? Promise.resolve(getOrCreateSlot(state, request.dbName));
+  const chain =
+    state.connectChains.get(request.dbName) ??
+    Promise.resolve(getOrCreateSlot(state, request.dbName));
   const next = chain.then((slot) => {
     if (slot.closeTimerId !== null) {
       state.timers.clearTimeout(slot.closeTimerId);
@@ -105,15 +111,15 @@ async function handleConnect(state, portId, request) {
     }
     slot.portIds.add(portId);
     slot.refCount += 1;
-    let role = "proxy";
+    let role = 'proxy';
     if (slot.ownerPortId === null) {
       slot.ownerPortId = portId;
-      role = "owner";
+      role = 'owner';
     }
     post(state, portId, {
       id: request.id,
       ok: true,
-      result: { role }
+      result: { role },
     });
     return slot;
   });
@@ -127,7 +133,7 @@ function routeToOwner(state, fromPortId, request) {
     post(state, fromPortId, {
       id: request.id,
       ok: false,
-      error: serializeError(leaderLostError("No database owner"))
+      error: serializeError(leaderLostError('No database owner')),
     });
     return;
   }
@@ -136,8 +142,8 @@ function routeToOwner(state, fromPortId, request) {
       id: request.id,
       ok: false,
       error: serializeError(
-        new Error("Owner should execute SQL locally, not via broker")
-      )
+        new Error('Owner should execute SQL locally, not via broker')
+      ),
     });
     return;
   }
@@ -152,11 +158,20 @@ function fanoutDbChanged(state, fromPortId, message) {
   }
 }
 function isRpcResponse(message) {
-  return typeof message === "object" && message !== null && "ok" in message && typeof message.id === "string";
+  return (
+    typeof message === 'object' &&
+    message !== null &&
+    'ok' in message &&
+    typeof message.id === 'string'
+  );
 }
 function routeOwnerResponse(state, portId, response) {
   const wait = state.forceReleaseWait;
-  if (wait !== null && wait.releaseIds.has(response.id) && wait.pendingOwnerIds.has(portId)) {
+  if (
+    wait !== null &&
+    wait.releaseIds.has(response.id) &&
+    wait.pendingOwnerIds.has(portId)
+  ) {
     wait.pendingOwnerIds.delete(portId);
     if (wait.pendingOwnerIds.size === 0) {
       finishForceRelease(state);
@@ -169,7 +184,11 @@ function routeOwnerResponse(state, portId, response) {
   post(state, route.fromPortId, response);
 }
 function isForceReleaseAllMessage(message) {
-  return typeof message === "object" && message !== null && message.type === "force-release-all";
+  return (
+    typeof message === 'object' &&
+    message !== null &&
+    message.type === 'force-release-all'
+  );
 }
 function finishForceRelease(state) {
   const wait = state.forceReleaseWait;
@@ -190,7 +209,7 @@ function finishForceRelease(state) {
     post(state, wait.requesterPortId, {
       id: wait.responseId,
       ok: true,
-      result: null
+      result: null,
     });
   }
 }
@@ -210,7 +229,7 @@ function beginForceRelease(state, requesterPortId, responseId) {
   }
   rejectPendingRoutes(state, {
     rejectAll: true,
-    reason: "Database ownership force-released"
+    reason: 'Database ownership force-released',
   });
   if (owners.length === 0) {
     state.forceReleaseWait = {
@@ -218,7 +237,7 @@ function beginForceRelease(state, requesterPortId, responseId) {
       responseId,
       pendingOwnerIds: /* @__PURE__ */ new Set(),
       releaseIds: /* @__PURE__ */ new Set(),
-      timerId: null
+      timerId: null,
     };
     finishForceRelease(state);
     return;
@@ -230,7 +249,7 @@ function beginForceRelease(state, requesterPortId, responseId) {
     responseId,
     pendingOwnerIds,
     releaseIds,
-    timerId: null
+    timerId: null,
   };
   state.forceReleaseWait = wait;
   wait.timerId = state.timers.setTimeout(() => {
@@ -240,8 +259,8 @@ function beginForceRelease(state, requesterPortId, responseId) {
     post(state, owner.portId, {
       id: `release_${owner.dbName}`,
       dbName: owner.dbName,
-      op: "releaseOwner",
-      payload: {}
+      op: 'releaseOwner',
+      payload: {},
     });
   }
 }
@@ -249,19 +268,19 @@ function handleForceReleaseAll(state, portId, message) {
   beginForceRelease(
     state,
     portId,
-    typeof message.id === "string" ? message.id : "force-release-all"
+    typeof message.id === 'string' ? message.id : 'force-release-all'
   );
 }
 function handleRpcRequest(state, portId, message) {
-  if (message.op === "heartbeat") {
+  if (message.op === 'heartbeat') {
     post(state, portId, { id: message.id, ok: true, result: null });
     return;
   }
-  if (message.op === "connect") {
+  if (message.op === 'connect') {
     void handleConnect(state, portId, message);
     return;
   }
-  if (message.op === "disconnect") {
+  if (message.op === 'disconnect') {
     releasePortFromDb(state, portId, message.dbName);
     post(state, portId, { id: message.id, ok: true, result: null });
     return;
@@ -270,7 +289,7 @@ function handleRpcRequest(state, portId, message) {
   if (ownerId !== null && ownerId !== portId) {
     state.pendingRoutes.set(message.id, {
       fromPortId: portId,
-      ownerPortId: ownerId
+      ownerPortId: ownerId,
     });
   }
   routeToOwner(state, portId, message);
@@ -296,7 +315,8 @@ function handleBrokerMessage(state, portId, message) {
 function rejectPendingRoutes(state, opts) {
   const error = serializeError(leaderLostError(opts.reason));
   for (const [id, route] of [...state.pendingRoutes]) {
-    const ownerDead = opts.rejectAll === true || route.ownerPortId === opts.deadPortId;
+    const ownerDead =
+      opts.rejectAll === true || route.ownerPortId === opts.deadPortId;
     const fromDead = route.fromPortId === opts.deadPortId;
     if (!ownerDead && !fromDead) continue;
     state.pendingRoutes.delete(id);
@@ -304,7 +324,7 @@ function rejectPendingRoutes(state, opts) {
       post(state, route.fromPortId, {
         id,
         ok: false,
-        error
+        error,
       });
     }
   }
@@ -315,7 +335,7 @@ function detachPort(state, portId) {
   }
   rejectPendingRoutes(state, {
     deadPortId: portId,
-    reason: "Database owner disconnected"
+    reason: 'Database owner disconnected',
   });
   state.ports.delete(portId);
   state.lastSeen.delete(portId);
@@ -328,7 +348,7 @@ function createBrokerCore(timers) {
     connectChains: /* @__PURE__ */ new Map(),
     pendingRoutes: /* @__PURE__ */ new Map(),
     forceReleaseWait: null,
-    timers
+    timers,
   };
   return {
     attachPort: (port) => {
@@ -336,7 +356,8 @@ function createBrokerCore(timers) {
       state.lastSeen.set(port.id, timers.now());
     },
     detachPort: (portId) => detachPort(state, portId),
-    handleMessage: (portId, message) => handleBrokerMessage(state, portId, message),
+    handleMessage: (portId, message) =>
+      handleBrokerMessage(state, portId, message),
     tickHeartbeatReaper: () => {
       const now = timers.now();
       for (const [portId, seen] of state.lastSeen) {
@@ -346,7 +367,7 @@ function createBrokerCore(timers) {
     },
     getSlot: (dbName) => state.slots.get(dbName),
     getPortLastSeen: (portId) => state.lastSeen.get(portId),
-    forceReleaseAll: () => beginForceRelease(state, null, null)
+    forceReleaseAll: () => beginForceRelease(state, null, null),
   };
 }
 
@@ -355,7 +376,7 @@ var nextPortId = 0;
 var broker = createBrokerCore({
   setTimeout: (fn, ms) => self.setTimeout(fn, ms),
   clearTimeout: (id) => self.clearTimeout(id),
-  now: () => Date.now()
+  now: () => Date.now(),
 });
 self.setInterval(() => {
   broker.tickHeartbeatReaper();
@@ -371,7 +392,7 @@ self.onconnect = (event) => {
     },
     close: () => {
       port.close();
-    }
+    },
   };
   broker.attachPort(brokerPort);
   port.start();
@@ -381,7 +402,7 @@ self.onconnect = (event) => {
   port.onmessageerror = () => {
     broker.detachPort(id);
   };
-  port.addEventListener("close", () => {
+  port.addEventListener('close', () => {
     broker.detachPort(id);
   });
 };

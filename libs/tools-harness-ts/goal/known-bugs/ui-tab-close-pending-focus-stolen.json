@@ -1,0 +1,4 @@
+{
+  "summary": "Delete immediately refocused the selected tab even when its close handler opened a confirmation and left the tab in place. Restore tab focus only after the item is actually removed.",
+  "regressionTest": "pkgs/ui-devtools-client-ts/tests/tab-strip.test.tsx"
+}

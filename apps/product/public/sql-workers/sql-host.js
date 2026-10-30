@@ -6,18 +6,16 @@ var wallTimers = {
   },
   setInterval: (fn, ms) => globalThis.setInterval(fn, ms),
   clearInterval: (handle) => {
-    globalThis.clearInterval(
-      handle
-    );
-  }
+    globalThis.clearInterval(handle);
+  },
 };
 
 // ../../pkgs/sql-client-sqlite-web-client/src/spawn-sqlite-worker.ts
-var DEFAULT_SQLITE_WORKER_URL = "/sql-workers/sqlite-worker.js";
+var DEFAULT_SQLITE_WORKER_URL = '/sql-workers/sqlite-worker.js';
 function spawnSqliteWorker(dbName, workerUrl = DEFAULT_SQLITE_WORKER_URL) {
   return new Worker(workerUrl, {
-    type: "module",
-    name: `sqlite:${dbName}`
+    type: 'module',
+    name: `sqlite:${dbName}`,
   });
 }
 
@@ -43,16 +41,16 @@ async function withOpenTimeout(databaseName, promise, timers) {
 
 // ../../pkgs/sql-client-sqlite-web-shared/src/protocol.ts
 function isSqliteWorkerResponse(value) {
-  if (value === null || typeof value !== "object") return false;
+  if (value === null || typeof value !== 'object') return false;
   const v = value;
-  return typeof v.id === "string" && typeof v.ok === "boolean";
+  return typeof v.id === 'string' && typeof v.ok === 'boolean';
 }
 
 // ../../pkgs/sql-client-sqlite-web-shared/src/rpc.ts
 function serializeSql(query) {
   return {
     sql: query.sql,
-    values: [...query.values]
+    values: [...query.values],
   };
 }
 function rehydrateError(serialized) {
@@ -66,7 +64,7 @@ function rehydrateError(serialized) {
   }
   return error;
 }
-function createRpcIdFactory(prefix = "rpc") {
+function createRpcIdFactory(prefix = 'rpc') {
   let n = 0;
   return () => `${prefix}_${++n}`;
 }
@@ -74,7 +72,7 @@ function createRpcIdFactory(prefix = "rpc") {
 // ../../pkgs/sql-client-sqlite-web-shared/src/sqlite-worker-client.ts
 function createSqliteWorkerRpc(port) {
   const pending = /* @__PURE__ */ new Map();
-  const nextId = createRpcIdFactory("sqlw");
+  const nextId = createRpcIdFactory('sqlw');
   port.onmessage = (event) => {
     const data = event.data;
     if (!isSqliteWorkerResponse(data)) return;
@@ -88,19 +86,20 @@ function createSqliteWorkerRpc(port) {
     }
   };
   return {
-    request: (op, args) => new Promise((resolve, reject) => {
-      const id = nextId();
-      pending.set(id, {
-        resolve,
-        reject
-      });
-      const request = { id, op, args };
-      port.postMessage(request);
-    }),
+    request: (op, args) =>
+      new Promise((resolve, reject) => {
+        const id = nextId();
+        pending.set(id, {
+          resolve,
+          reject,
+        });
+        const request = { id, op, args };
+        port.postMessage(request);
+      }),
     abortAll: (reason) => {
       for (const [, entry] of pending) entry.reject(reason);
       pending.clear();
-    }
+    },
   };
 }
 function toRunResult(result) {
@@ -111,46 +110,49 @@ function createSqliteWorkerSqlClient(args) {
   const client = {
     connect: () => Promise.resolve(),
     disconnect: () => args.onDisconnect(),
-    query: (query) => rpc.request("query", serializeSql(query)),
-    run: async (query) => toRunResult(await rpc.request("run", serializeSql(query))),
+    query: (query) => rpc.request('query', serializeSql(query)),
+    run: async (query) =>
+      toRunResult(await rpc.request('run', serializeSql(query))),
     prepare: (query) => ({
-      query: (params) => rpc.request("query", {
-        sql: query.sql,
-        values: params ?? query.values
-      }),
-      run: async (params) => toRunResult(
-        await rpc.request("run", {
+      query: (params) =>
+        rpc.request('query', {
           sql: query.sql,
-          values: params ?? query.values
-        })
-      )
+          values: params ?? query.values,
+        }),
+      run: async (params) =>
+        toRunResult(
+          await rpc.request('run', {
+            sql: query.sql,
+            values: params ?? query.values,
+          })
+        ),
     }),
     transaction: async (fn) => {
-      await rpc.request("run", { sql: "BEGIN", values: [] });
+      await rpc.request('run', { sql: 'BEGIN', values: [] });
       try {
         const result = await fn(client);
-        await rpc.request("run", { sql: "COMMIT", values: [] });
+        await rpc.request('run', { sql: 'COMMIT', values: [] });
         return result;
       } catch (error) {
         try {
-          await rpc.request("run", { sql: "ROLLBACK", values: [] });
-        } catch {
-        }
+          await rpc.request('run', { sql: 'ROLLBACK', values: [] });
+        } catch {}
         throw error;
       }
     },
-    exportDatabaseBytesAsync: () => rpc.request("exportBytes", {}),
+    exportDatabaseBytesAsync: () => rpc.request('exportBytes', {}),
     importDatabaseBytesAsync: async (bytes) => {
-      await rpc.request("importBytes", { bytes });
-    }
+      await rpc.request('importBytes', { bytes });
+    },
   };
   return client;
 }
 
 // ../../pkgs/sql-client-sqlite-web-shared/src/worker-script-load-error.ts
 function workerScriptLoadError(event) {
-  const raw2 = (event.message ?? "").trim();
-  const hint = "SQLite worker failed to load \u2014 cached HTML was served instead of JavaScript (stale deploy or site data). Reload the app or clear site data.";
+  const raw2 = (event.message ?? '').trim();
+  const hint =
+    'SQLite worker failed to load \u2014 cached HTML was served instead of JavaScript (stale deploy or site data). Reload the app or clear site data.';
   return new Error(raw2.length > 0 ? `${hint} (${raw2})` : hint);
 }
 
@@ -179,7 +181,7 @@ var SqliteWorkerSqlOwnerImpl = class {
     live.handle.onmessage = null;
     live.handle.onerror = null;
     live.handle.terminate();
-    live.rpc.abortAll(new Error("SQLite worker terminated"));
+    live.rpc.abortAll(new Error('SQLite worker terminated'));
   }
   async open() {
     await this.close();
@@ -188,7 +190,7 @@ var SqliteWorkerSqlOwnerImpl = class {
     try {
       this.openInfo = await withOpenTimeout(
         this.dbName,
-        live.rpc.request("open", { dbName: this.dbName }),
+        live.rpc.request('open', { dbName: this.dbName }),
         this.timers
       );
     } catch (error) {
@@ -198,7 +200,7 @@ var SqliteWorkerSqlOwnerImpl = class {
     }
     return createSqliteWorkerSqlClient({
       rpc: live.rpc,
-      onDisconnect: () => this.close()
+      onDisconnect: () => this.close(),
     });
   }
   async close() {
@@ -209,13 +211,12 @@ var SqliteWorkerSqlOwnerImpl = class {
     let timeout;
     try {
       await Promise.race([
-        live.rpc.request("close", {}),
+        live.rpc.request('close', {}),
         new Promise((resolve) => {
           timeout = this.timers.setTimeout(resolve, 1e3);
-        })
+        }),
       ]);
-    } catch {
-    }
+    } catch {}
     this.timers.clearTimeout(timeout);
     this.terminate(live);
   }
@@ -232,7 +233,7 @@ var SqliteWorkerSqlOwnerImpl = class {
     try {
       await withOpenTimeout(
         this.dbName,
-        live.rpc.request("resetStore", { dbName: this.dbName }),
+        live.rpc.request('resetStore', { dbName: this.dbName }),
         this.timers
       );
     } finally {
@@ -293,14 +294,14 @@ var ValidationError = class extends Error {
   context = {};
   constructor(message, context) {
     super(message);
-    this.name = "ValidationError";
+    this.name = 'ValidationError';
     this.context = context ?? {};
   }
 };
 
 // ../../pkgs/assert-root-shared/src/assert.ts
 var Assert = class _Assert {
-  constructor(errorMode = "crash") {
+  constructor(errorMode = 'crash') {
     this.errorMode = errorMode;
   }
   errorMode;
@@ -308,13 +309,13 @@ var Assert = class _Assert {
    * Returns an assert instance that throws {@link ValidationError} on failure (for recoverable input checks).
    */
   static validation() {
-    return new _Assert("validation");
+    return new _Assert('validation');
   }
   /**
    * Returns an assert instance that uses the global crash path on failure (non-recoverable invariant violations).
    */
   static crash() {
-    return new _Assert("crash");
+    return new _Assert('crash');
   }
   /**
    * Returns an assert instance whose methods are runtime no-ops. Type-level
@@ -324,7 +325,7 @@ var Assert = class _Assert {
    * produce.
    */
   static noop() {
-    return new _Assert("noop");
+    return new _Assert('noop');
   }
   static withErrorMode(errorMode) {
     return new _Assert(errorMode);
@@ -349,7 +350,7 @@ var Assert = class _Assert {
    * (so callers can short-circuit expensive validation loops before iterating).
    */
   isEnabled() {
-    return this.errorMode !== "noop";
+    return this.errorMode !== 'noop';
   }
   /**
    * Asserts that `condition` is true.
@@ -360,10 +361,10 @@ var Assert = class _Assert {
    */
   ok(condition, message, context) {
     switch (this.errorMode) {
-      case "noop": {
+      case 'noop': {
         return;
       }
-      case "validation": {
+      case 'validation': {
         if (!condition) {
           throw new ValidationError(message, context);
         }
@@ -430,7 +431,7 @@ var Assert = class _Assert {
   defined(value, message, context) {
     this.ok(value !== void 0 && value !== null, message, {
       ...context,
-      value
+      value,
     });
   }
   /**
@@ -472,7 +473,7 @@ var Assert = class _Assert {
    */
   record(value, message, context) {
     this.ok(
-      value !== null && typeof value === "object" && !Array.isArray(value),
+      value !== null && typeof value === 'object' && !Array.isArray(value),
       message,
       { ...context, value }
     );
@@ -484,7 +485,7 @@ var Assert = class _Assert {
    * @param message - Message when the assertion fails.
    */
   string(value, message, context) {
-    this.ok(typeof value === "string", message, { ...context, value });
+    this.ok(typeof value === 'string', message, { ...context, value });
   }
   /**
    * Asserts that `value` is a non-empty string.
@@ -503,17 +504,17 @@ var Assert = class _Assert {
    * @param message - Message when the assertion fails.
    */
   number(value, message) {
-    this.ok(typeof value === "number", message, {
+    this.ok(typeof value === 'number', message, {
       value,
-      type: typeof value
+      type: typeof value,
     });
     this.ok(Number.isFinite(value), message, {
       value,
-      isFinite: Number.isFinite(value)
+      isFinite: Number.isFinite(value),
     });
     this.ok(!Number.isNaN(value), message, {
       value,
-      isNaN: Number.isNaN(value)
+      isNaN: Number.isNaN(value),
     });
   }
   /**
@@ -530,12 +531,12 @@ var Assert = class _Assert {
       {
         value,
         min: Number.MIN_SAFE_INTEGER,
-        max: Number.MAX_SAFE_INTEGER
+        max: Number.MAX_SAFE_INTEGER,
       }
     );
     this.ok(Number.isSafeInteger(value), message, {
       value,
-      isSafeInteger: Number.isSafeInteger(value)
+      isSafeInteger: Number.isSafeInteger(value),
     });
   }
   /**
@@ -548,7 +549,7 @@ var Assert = class _Assert {
     this.number(value, message);
     this.ok(value >= 0, message, {
       value,
-      isNonNegative: value >= 0
+      isNonNegative: value >= 0,
     });
   }
   /**
@@ -585,7 +586,7 @@ var Assert = class _Assert {
    */
   all(values, fn) {
     if (!this.isEnabled()) return;
-    this.array(values, "values must be an array");
+    this.array(values, 'values must be an array');
     for (const value of values) {
       fn(value);
     }
@@ -597,7 +598,7 @@ var Assert = class _Assert {
       if (checks.pre) {
         this.notThrows(
           () => checks.pre?.(...args),
-          message ?? "Pre-check failed",
+          message ?? 'Pre-check failed',
           context
         );
       }
@@ -606,13 +607,13 @@ var Assert = class _Assert {
         if (checks.post) {
           this.notThrows(
             () => checks.post?.(returnValue),
-            message ?? "Post-check failed",
+            message ?? 'Post-check failed',
             context
           );
         }
         return returnValue;
       } catch (error) {
-        this.ok(false, message ?? "Function failed", { ...context, error });
+        this.ok(false, message ?? 'Function failed', { ...context, error });
       }
     };
   }
@@ -625,26 +626,26 @@ var assert = Assert.crash();
 var MAX_BOUND_VALUES = 32766;
 assert.ok(
   MAX_BOUND_VALUES >= 1,
-  "MAX_BOUND_VALUES must allow at least one bound value"
+  'MAX_BOUND_VALUES must allow at least one bound value'
 );
 function assertNoSqlStatementBoundary(text, label) {
   assert.ok(
-    !text.includes(";"),
+    !text.includes(';'),
     `Sql: ${label} forbids semicolons (statement boundary)`,
     { text }
   );
-  assert.ok(!text.includes("--"), `Sql: ${label} forbids line comments`, {
-    text
+  assert.ok(!text.includes('--'), `Sql: ${label} forbids line comments`, {
+    text,
   });
-  assert.ok(!text.includes("/*"), `Sql: ${label} forbids block comments`, {
-    text
+  assert.ok(!text.includes('/*'), `Sql: ${label} forbids block comments`, {
+    text,
   });
 }
 function assertIndexInBounds(index, length, label) {
   assert.ok(index >= 0, `Sql: negative index (${label})`, { index, length });
   assert.ok(index < length, `Sql: index out of bounds (${label})`, {
     index,
-    length
+    length,
   });
 }
 function atString(arr, index, label) {
@@ -668,39 +669,42 @@ function countFlattenedValues(rawValues) {
       len += 1;
     }
   }
-  assert.ok(len >= 0, "Sql: flattened value count must be non-negative", {
-    len
+  assert.ok(len >= 0, 'Sql: flattened value count must be non-negative', {
+    len,
   });
   assert.ok(
     len <= MAX_BOUND_VALUES,
-    "Sql: flattened value count exceeds MAX_BOUND_VALUES",
+    'Sql: flattened value count exceeds MAX_BOUND_VALUES',
     { len, max: MAX_BOUND_VALUES }
   );
   return len;
 }
 function appendNestedSql(result, pos, child, rawString) {
-  assert.ok(pos < result.strings.length, "Sql: nest write past strings end", {
+  assert.ok(pos < result.strings.length, 'Sql: nest write past strings end', {
     pos,
-    stringsLength: result.strings.length
+    stringsLength: result.strings.length,
   });
   assert.equals(
     child.strings.length,
     child.values.length + 1,
-    "Sql: nested fragment strings/values invariant broken",
+    'Sql: nested fragment strings/values invariant broken',
     { stringsLength: child.strings.length, valuesLength: child.values.length }
   );
-  result.strings[pos] = atString(result.strings, pos, "nest-prefix") + atString(child.strings, 0, "child-prefix");
+  result.strings[pos] =
+    atString(result.strings, pos, 'nest-prefix') +
+    atString(child.strings, 0, 'child-prefix');
   let childIndex = 0;
   while (childIndex < child.values.length) {
-    result.values[pos++] = atValue(child.values, childIndex++, "child-value");
-    result.strings[pos] = atString(child.strings, childIndex, "child-string");
+    result.values[pos++] = atValue(child.values, childIndex++, 'child-value');
+    result.strings[pos] = atString(child.strings, childIndex, 'child-string');
   }
-  result.strings[pos] = atString(result.strings, pos, "nest-suffix") + rawString;
+  result.strings[pos] =
+    atString(result.strings, pos, 'nest-suffix') + rawString;
   return pos;
 }
 function assertStringsValuesPair(strings, values, label) {
   assert.ok(strings.length >= 1, `Sql: ${label} needs at least one string`, {
-    stringsLength: strings.length
+    stringsLength: strings.length,
   });
   assert.equals(
     strings.length,
@@ -710,9 +714,9 @@ function assertStringsValuesPair(strings, values, label) {
   );
 }
 function flattenSql(rawStrings, rawValues) {
-  assert.ok(rawStrings.length >= 1, "Sql: expected at least 1 string", {
+  assert.ok(rawStrings.length >= 1, 'Sql: expected at least 1 string', {
     rawStringsLength: rawStrings.length,
-    rawValuesLength: rawValues.length
+    rawValuesLength: rawValues.length,
   });
   assert.equals(
     rawStrings.length,
@@ -720,19 +724,19 @@ function flattenSql(rawStrings, rawValues) {
     `Sql: expected ${rawStrings.length} strings to have ${rawStrings.length - 1} values`,
     {
       rawStringsLength: rawStrings.length,
-      rawValuesLength: rawValues.length
+      rawValuesLength: rawValues.length,
     }
   );
   const valuesLength = countFlattenedValues(rawValues);
   const values = new Array(valuesLength);
   const strings = new Array(valuesLength + 1);
-  strings[0] = atString(rawStrings, 0, "raw-prefix");
+  strings[0] = atString(rawStrings, 0, 'raw-prefix');
   let i = 0;
   let pos = 0;
   const result = { strings, values };
   while (i < rawValues.length) {
-    const child = atRawValue(rawValues, i++, "raw-value");
-    const rawString = atString(rawStrings, i, "raw-string");
+    const child = atRawValue(rawValues, i++, 'raw-value');
+    const rawString = atString(rawStrings, i, 'raw-string');
     if (child instanceof Sql) {
       pos = appendNestedSql(result, pos, child, rawString);
     } else {
@@ -740,18 +744,18 @@ function flattenSql(rawStrings, rawValues) {
       strings[pos] = rawString;
     }
   }
-  assertStringsValuesPair(strings, values, "flattened");
+  assertStringsValuesPair(strings, values, 'flattened');
   return { strings, values };
 }
 function joinPlaceholders(strings, format) {
-  assert.ok(strings.length >= 1, "Sql: joinPlaceholders needs strings", {
-    stringsLength: strings.length
+  assert.ok(strings.length >= 1, 'Sql: joinPlaceholders needs strings', {
+    stringsLength: strings.length,
   });
   const len = strings.length;
   let i = 1;
-  let value = atString(strings, 0, "placeholder-prefix");
+  let value = atString(strings, 0, 'placeholder-prefix');
   while (i < len) {
-    value += `${format(i)}${atString(strings, i, "placeholder-part")}`;
+    value += `${format(i)}${atString(strings, i, 'placeholder-part')}`;
     i++;
   }
   return value;
@@ -767,12 +771,12 @@ var Sql = class {
   strings;
   constructor(rawStrings, rawValues) {
     const flattened = flattenSql(rawStrings, rawValues);
-    assertStringsValuesPair(flattened.strings, flattened.values, "constructed");
+    assertStringsValuesPair(flattened.strings, flattened.values, 'constructed');
     this.values = Object.freeze(flattened.values);
     this.strings = Object.freeze(flattened.strings);
   }
   get sql() {
-    return joinPlaceholders(this.strings, () => "?");
+    return joinPlaceholders(this.strings, () => '?');
   }
   get statement() {
     return joinPlaceholders(this.strings, (i) => `:${i}`);
@@ -785,38 +789,38 @@ var Sql = class {
       sql: this.sql,
       statement: this.statement,
       text: this.text,
-      values: this.values
+      values: this.values,
     };
   }
-  [/* @__PURE__ */ Symbol.for("nodejs.util.inspect.custom")]() {
+  [/* @__PURE__ */ Symbol.for('nodejs.util.inspect.custom')]() {
     return this.inspect();
   }
 };
 function raw(value) {
-  assert.string(value, "Sql: raw() expects a string", { value });
-  assertNoSqlStatementBoundary(value, "raw()");
+  assert.string(value, 'Sql: raw() expects a string', { value });
+  assertNoSqlStatementBoundary(value, 'raw()');
   return new Sql([value], []);
 }
-var empty = raw("");
-assert.equals(empty.values.length, 0, "empty must bind no values", {
-  valuesLength: empty.values.length
+var empty = raw('');
+assert.equals(empty.values.length, 0, 'empty must bind no values', {
+  valuesLength: empty.values.length,
 });
-assert.equals(empty.strings.length, 1, "empty must be a single string", {
-  stringsLength: empty.strings.length
+assert.equals(empty.strings.length, 1, 'empty must be a single string', {
+  stringsLength: empty.strings.length,
 });
-assert.equals(empty.strings[0], "", 'empty string must be ""', {
-  strings: empty.strings
+assert.equals(empty.strings[0], '', 'empty string must be ""', {
+  strings: empty.strings,
 });
 
 // ../../pkgs/sql-client-sqlite-web-client/src/sql-host-entry.ts
 function makeSql(statement, values) {
-  return new Sql(statement.split("?"), values);
+  return new Sql(statement.split('?'), values);
 }
 function createSqlHost() {
   let owner = null;
   let client = null;
   const requireClient = () => {
-    if (client === null) throw new Error("sql-host: open() was not called");
+    if (client === null) throw new Error('sql-host: open() was not called');
     return client;
   };
   const close = async () => {
@@ -832,7 +836,7 @@ function createSqlHost() {
       const next = createSqliteWorkerSqlOwner({
         dbName,
         timers: wallTimers,
-        spawnWorker: (name) => spawnSqliteWorker(name)
+        spawnWorker: (name) => spawnSqliteWorker(name),
       });
       owner = next;
       client = await next.open();
@@ -843,7 +847,7 @@ function createSqlHost() {
       const result = await requireClient().run(makeSql(sql, values));
       return {
         lastInsertRowId: Number(result.lastInsertRowid),
-        changes: result.changes
+        changes: result.changes,
       };
     },
     resetStore: async () => {
@@ -852,8 +856,8 @@ function createSqlHost() {
       owner = null;
       if (live === null) return;
       await live.resetStore();
-    }
+    },
   };
 }
 globalThis.__sqlHost = createSqlHost();
-window.parent.postMessage({ type: "ready", source: "sql-host" }, "*");
+window.parent.postMessage({ type: 'ready', source: 'sql-host' }, '*');

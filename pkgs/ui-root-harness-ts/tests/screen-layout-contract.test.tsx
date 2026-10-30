@@ -3,10 +3,38 @@ import { renderWithI18n as render } from '@pkgs/bun-test-solid-client-ts/render'
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { SCREEN_ENTRIES } from '@pkgs/ui-root-client-ts/registry-entries-screens';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
 import { createSignal, type JSX } from 'solid-js';
+import Example10 from '../../ui-root-client-ts/src/collection-screen/collection-screen.example';
+import Example11 from '../../ui-root-client-ts/src/content-screen/content-screen.example';
+import Example12 from '../../ui-root-client-ts/src/embedded-screen/embedded-screen.example';
+import Example7 from '../../ui-root-client-ts/src/form-screen/form-screen.example';
+import Example5 from '../../ui-root-client-ts/src/game-history-screen/game-history-screen.example';
+import Example6 from '../../ui-root-client-ts/src/game-review-screen/game-review-screen.example';
+import Example1 from '../../ui-root-client-ts/src/game-screen/game-screen.example';
+import Example2 from '../../ui-root-client-ts/src/game-session-layout/game-session-layout.example';
+import Example3 from '../../ui-root-client-ts/src/game-setup-panel/game-setup-panel.example';
+import Example0 from '../../ui-root-client-ts/src/main-menu-screen/main-menu-screen.example';
+import Example8 from '../../ui-root-client-ts/src/menu-screen/menu-screen.example';
+import Example9 from '../../ui-root-client-ts/src/profile-screen-layout/profile-screen-layout.example';
+import Example4 from '../../ui-root-client-ts/src/puzzle-screen/puzzle-screen.example';
+
+const SCREEN_ENTRIES = [
+  { id: 'main-menu-screen', Example: Example0 },
+  { id: 'game-screen', Example: Example1 },
+  { id: 'game-session-layout', Example: Example2 },
+  { id: 'game-setup-panel', Example: Example3 },
+  { id: 'puzzle-screen', Example: Example4 },
+  { id: 'game-history-screen', Example: Example5 },
+  { id: 'game-review-screen', Example: Example6 },
+  { id: 'form-screen', Example: Example7 },
+  { id: 'menu-screen', Example: Example8 },
+  { id: 'profile-screen-layout', Example: Example9 },
+  { id: 'collection-screen', Example: Example10 },
+  { id: 'content-screen', Example: Example11 },
+  { id: 'embedded-screen', Example: Example12 },
+];
 
 function mountExample(
   id: string,

@@ -20,10 +20,10 @@ test('the full report stylesheet preserves chess-cell children and flush-content
     return compileCssModule(path, readFileSync(path, 'utf8'));
   };
   const chess = module(
-    'pkgs/chess-board-root-client-ts/src/chess-board.module.css'
+    'pkgs/chess-board-root-client-ts/src/chess-board/chess-board.module.css'
   );
   const flush = module(
-    'pkgs/ui-root-client-ts/src/content-edge-padding.module.css'
+    'pkgs/ui-root-client-ts/src/content-edge-padding/content-edge-padding.module.css'
   );
   const view = new Bun.WebView({
     width: 390,

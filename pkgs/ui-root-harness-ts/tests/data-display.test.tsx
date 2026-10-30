@@ -287,7 +287,7 @@ describe('List / ListItem', () => {
 });
 
 describe('MenuRow / MenuList / MenuSection', () => {
-  test('rows are menuitems inside role=menu with a chevron', () => {
+  test('settings rows are native buttons inside a group with a chevron', () => {
     const onClick = mock();
     renderUi(() => (
       <MenuSection title="Account" footer="Manage your account">
@@ -295,8 +295,8 @@ describe('MenuRow / MenuList / MenuSection', () => {
         <MenuRow title="Static" value="v1" />
       </MenuSection>
     ));
-    const menu = screen.getByRole('menu');
-    const item = screen.getByRole('menuitem', { name: /Profile/ });
+    const menu = screen.getByRole('group');
+    const item = screen.getByRole('button', { name: /Profile/ });
     expect(menu.contains(item)).toBe(true);
     expect(item.querySelector('svg')).not.toBeNull();
     const body = item.firstElementChild;
@@ -309,7 +309,7 @@ describe('MenuRow / MenuList / MenuSection', () => {
     expect(column?.className).toMatch(/\bpr-4\b/);
     fireEvent.click(item);
     expect(onClick).toHaveBeenCalledTimes(1);
-    expect(screen.queryAllByRole('menuitem')).toHaveLength(1);
+    expect(screen.queryAllByRole('button')).toHaveLength(1);
     expect(menu).toHaveTextContent('v1');
     expect(screen.getByText('Manage your account')).toBeInTheDocument();
   });
@@ -320,7 +320,7 @@ describe('MenuRow / MenuList / MenuSection', () => {
         <MenuRow title="Now" onClick={() => {}} selected hideChevron />
       </MenuList>
     ));
-    const item = screen.getByRole('menuitem');
+    const item = screen.getByRole('button');
     expect(item).toHaveAttribute('aria-current', 'true');
     expect(item.querySelector('svg')).toBeNull();
   });
@@ -345,4 +345,24 @@ describe('PaginationControls', () => {
     fireEvent.click(screen.getByRole('button', { name: /3/ }));
     expect(onPageChange).toHaveBeenCalledWith(2);
   });
+});
+
+// regression: ui-settings-list-command-menu-semantics
+test('settings groups accept links, static details, and native actions', () => {
+  const view = renderUi(() => (
+    <MenuSection title="Preferences">
+      <MenuRow title="Profile" href="#menu-row" />
+      <MenuRow title="Version" value="v1" />
+      <MenuRow title="Appearance" onClick={() => undefined} />
+    </MenuSection>
+  ));
+  expect(
+    view
+      .getByRole('group')
+      .contains(view.getByRole('link', { name: 'Profile' }))
+  ).toBe(true);
+  expect(view.getByRole('button', { name: 'Appearance' })).toBeInTheDocument();
+  expect(view.queryByRole('menu')).toBeNull();
+  expect(view.queryByRole('menuitem')).toBeNull();
+  view.unmount();
 });

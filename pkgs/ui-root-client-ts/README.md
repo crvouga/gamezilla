@@ -158,8 +158,7 @@ protocol. Import each from its matching kebab-case module export.
 Every page sits on one canvas, `background`, edge to edge at every width;
 only wells (inputs, tags, notices) take a `surface` tone. Each family has one
 measure (`screen-measure.ts`): `menu` (480px) for `MenuScreen`, `FormScreen`,
-`ProfileScreenLayout`, `MainMenuScreen`, `GameHistoryScreen` and the
-component explorer; `prose` (640px) for `ContentScreen`; `full` for
+`ProfileScreenLayout`, `MainMenuScreen`, `GameHistoryScreen` and Storybook; `prose` (640px) for `ContentScreen`; `full` for
 `CollectionScreen` and game stages with a rail. At every width a capped
 column is centered in the frame and its title block (the wide page header,
 or `ScreenIntro`) sits in the same column, so the title lines up with the
@@ -198,8 +197,8 @@ slots for every game mode; a game never defines a second screen scaffold.
 Puzzle completion feedback, announcements and optional dialogs belong in its
 `overlay` slot, inside the same screen boundary as the board and controls.
 
-Explore **UI components → Screen Layouts** (`/ui`). Every family has a
-registered example in `registry-entries-screens.ts`, using only this package.
+Explore **Templates** in Storybook (`bun storybook`). Every family has CSF
+stories beside their production implementation in `src/<component>/`. Each slice keeps its component styles, fixtures and `baselines/` together. Source JSDoc is the component documentation. Shared visual foundations stay at the package root.
 Custom and matched examples include setup, play, completion and replay;
 the matched example also exposes waiting and cancellation. The form example
 shows native submission and failed-save recovery without leaving the editor,

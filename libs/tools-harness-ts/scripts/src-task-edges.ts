@@ -29,6 +29,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
+import { isProductionSource } from './production-source';
 
 export type SrcPackage = {
   readonly name: string;
@@ -101,7 +102,8 @@ function sourcesUnder(directory: string): string[] {
   if (!existsSync(directory)) return [];
   return readdirSync(directory, { recursive: true, withFileTypes: true })
     .filter(
-      (entry) => entry.isFile() && !/\.test\.[cm]?[jt]sx?$/.test(entry.name)
+      (entry) =>
+        entry.isFile() && isProductionSource(join(entry.parentPath, entry.name))
     )
     .map((entry) => join(entry.parentPath, entry.name));
 }

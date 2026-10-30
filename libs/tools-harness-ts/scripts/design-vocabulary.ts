@@ -101,8 +101,8 @@ function rulesFor(profile: DesignProfile): readonly Rule[] {
  */
 const COLOR_SOURCES = [
   /(^|\/)tokens\.css$/,
-  /(^|\/)brand-logos\.tsx$/,
-  /(^|\/)social-provider-config\.tsx$/,
+  /(^|\/)brand-logos\/index\.tsx$/,
+  /(^|\/)social-provider-config\/index\.tsx$/,
 ];
 
 const STRING_LITERAL = /'([^'\\\n]|\\.)*'|"([^"\\\n]|\\.)*"|`([^`\\]|\\.)*`/g;

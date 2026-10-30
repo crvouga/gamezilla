@@ -33,7 +33,7 @@ describe('CatalogList', () => {
     expect(sections).toHaveLength(3);
     const panels = document.querySelectorAll('[data-component="MenuList"]');
     expect(panels).toHaveLength(3);
-    const rows = screen.getAllByRole('menuitem');
+    const rows = screen.getAllByRole('button');
     expect(rows.map((r) => r.textContent)).toEqual([
       'Button',
       'Checkbox',
@@ -44,7 +44,7 @@ describe('CatalogList', () => {
       expect(row).toHaveAttribute('data-component', 'MenuRow');
       expect(row.closest('[data-component="MenuList"]')).not.toBeNull();
     }
-    fireEvent.click(screen.getByRole('menuitem', { name: /Badge/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Badge/ }));
     expect(onSelect).toHaveBeenCalledWith('badge');
   });
 
@@ -52,12 +52,12 @@ describe('CatalogList', () => {
     renderUi(() => <CatalogList items={ITEMS} onSelect={() => {}} />);
     const input = screen.getByRole('searchbox', { name: 'Search…' });
     fireEvent.input(input, { target: { value: 'check' } });
-    expect(screen.getAllByRole('menuitem')).toHaveLength(1);
+    expect(screen.getAllByRole('button')).toHaveLength(1);
     expect(
-      screen.getByRole('menuitem', { name: /Checkbox/ })
+      screen.getByRole('button', { name: /Checkbox/ })
     ).toBeInTheDocument();
     fireEvent.input(input, { target: { value: 'zzz' } });
-    expect(screen.queryAllByRole('menuitem')).toHaveLength(0);
+    expect(screen.queryAllByRole('button')).toHaveLength(0);
     expect(screen.getByText('No matching items')).toBeInTheDocument();
   });
 });

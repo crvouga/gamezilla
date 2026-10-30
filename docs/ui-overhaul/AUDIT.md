@@ -234,7 +234,7 @@ composition lint holds. The hits are in sibling board packages:
 | --- | --- |
 | `pkgs/chess-board-root-shared-ts/src/board-theme.ts` | 35 colors: annotation glyphs `#3ad07a`, `#f06464`, … (:20–24) |
 | `libs/chess-root-shared-ts/src/board-theme.ts:10-16` | `BOARD_THEME`: `#DEE3E6`, `#8CA2AD`, `#6F8794`, `rgba(29,155,240,.38/.50)` (fixed, scheme-independent by design) |
-| `pkgs/chess-board-root-client-ts/src/chess-board.module.css` | 9 (font 1, radius 2, size 6); `var(--chess-move-ms, 150ms)` |
+| `pkgs/chess-board-root-client-ts/src/chess-board/chess-board.module.css` | 9 (font 1, radius 2, size 6); `var(--chess-move-ms, 150ms)` |
 | `libs/numberlink-shared-ts/src/numberlink-types.ts:4` | `PAIR_COLORS` names (red … purple), mapped to `pathRed…pathPurple` tokens |
 
 ### 3a. Tokens: current vs target
@@ -295,7 +295,7 @@ framework's own seats, status, setup and result chrome is in
 | | `battleship-board.tsx:46-60` | Sunk-ship tags | `Badge` |
 | | `battleship-setup-board.tsx:47-147` | Setup UI: progress status, fleet-locked notice, ship picker, Rotate/Remove, refusal | `P`, `Notice`, `GameChoiceGrid`, `Button`, `CellGridBoard` |
 | chess | `libs/chess-shared-client-ts/src/chess-settings-screen.tsx:28-37`, `chess-settings-developer-*.tsx` | Own settings and developer screens | `MainMenuScreen`, `ExplorerList`/`Detail` |
-| | `pkgs/chess-board-root-client-ts/src/chess-board-live-region.tsx:16`, `chess-board-promotion.tsx:168` | In-board live region, promotion picker | own markup |
+| | `pkgs/chess-board-root-client-ts/src/chess-board-live-region/index.tsx:16`, `chess-board-promotion.tsx:168` | In-board live region, promotion picker | own markup |
 | chess-puzzle | `libs/chess-puzzle-client-ts/src/puzzle-management-screen.tsx:41-125`, `puzzle-source-controls.tsx:43-131`, `puzzle-import-status.tsx:22-90`, `puzzle-import-stop.tsx:32-45` | Puzzle import admin screen at `/more/puzzles` | `ContentScreen`, `MenuSection`/`MenuRow`, `Notice`, `ProgressBar`, `FilePicker`, `MutationModal` |
 | connect-four | — | none (only `DiscDropBoard`) | — |
 | hearts | `hearts-table-view.tsx:89-118` (`seatFacts` :69) | Player list around table: you, cards, Score, Taken, Passed/Choosing, active seat | `CardTable` seats |

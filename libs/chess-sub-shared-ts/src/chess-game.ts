@@ -1,4 +1,3 @@
-import { chessScreensRoom } from '@libs/chess-puzzle-shared-ts/chess-game';
 import { chessPuzzles } from '@libs/chess-puzzle-shared-ts/chess-puzzles';
 import { chessNoticeText } from '@libs/chess-rules-shared-ts/chess-notice-text';
 import {
@@ -29,7 +28,6 @@ export const chessGameShared = defineGame({
     puzzles: chessPuzzles,
   },
   turnAutomation: chessAutomation,
-  own: chessScreensRoom,
 });
 
 export const chessTurnGame = chessGameShared.turnGame;

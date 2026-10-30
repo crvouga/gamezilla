@@ -6,7 +6,7 @@
  */
 import { lastSegment, slashPath } from '@pkgs/os-shared-ts/slash-path';
 import type ts from 'typescript';
-import { exportNames, readComponents } from './inventory-components';
+import { readComponents } from './inventory-components';
 import { type SourceLanguage, scanLiterals } from './inventory-literals';
 import { readKeys, readMarkup } from './inventory-markup';
 import { readRegistry } from './inventory-registry';
@@ -29,6 +29,7 @@ export type InventorySources = {
   readonly repo: string;
   /** The component package's `src/`. */
   readonly clientSrc: string;
+  readonly storySources: readonly string[];
   /** The logic package's `src/` (keyboard maps, token readers). */
   readonly sharedSrc: string;
   /** Extra stylesheets outside `src/` (`skin.css`). */
@@ -50,6 +51,7 @@ function isComponentModule(name: string): boolean {
     /\.tsx?$/.test(name) &&
     !name.endsWith('.d.ts') &&
     !name.includes('.example.') &&
+    !name.includes('.stories.') &&
     !NOT_SOURCE.has(name)
   );
 }
@@ -86,7 +88,10 @@ function moduleFact(
     }
   }
   return {
-    module: stem(lastSegment(path)),
+    module:
+      stem(lastSegment(path)) === 'index'
+        ? path.split('/').at(-2)!
+        : stem(lastSegment(path)),
     file: relative(sources.repo, path),
     components,
     markup,
@@ -152,23 +157,16 @@ export function buildInventory(
   files: InventoryFiles,
   sources: InventorySources
 ): Inventory {
-  const modulePath = (module: string): string | null => {
-    for (const ext of ['.tsx', '.ts']) {
-      const path = `${sources.clientSrc}/${module}${ext}`;
-      if (files.read(path) !== null) return path;
-    }
-    return null;
-  };
   const registry = readRegistry(
-    (module) => {
-      const path = modulePath(module);
-      return path === null ? null : files.read(path);
-    },
-    (module) => {
-      const path = modulePath(module);
-      const file = path === null ? undefined : program.getSourceFile(path);
-      return file === undefined ? [] : exportNames(program, file);
-    }
+    sources.storySources.flatMap((directory) =>
+      files
+        .list(directory)
+        .filter((name) => name.endsWith('.stories.tsx'))
+        .map((name) => ({
+          name: relative(sources.repo, `${directory}/${name}`),
+          text: files.read(`${directory}/${name}`) ?? '',
+        }))
+    )
   );
   const modules = files
     .list(sources.clientSrc)

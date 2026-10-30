@@ -47,7 +47,7 @@ export const LINGUI_MACRO_IMPORT =
   /from\s+['"]@lingui\/(?:core|solid)\/macro['"]/;
 
 /** Test files never reach the catalog (`lingui.config.ts` excludes them). */
-const TEST_FILE = /(^|\/)tests\/|\.test\.tsx?$/;
+const TEST_FILE = /(^|\/)(?:tests|stories)\/|\.test\.tsx?$/;
 
 export function underCatalogSource(
   relFile: string,

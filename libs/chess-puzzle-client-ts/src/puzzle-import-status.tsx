@@ -36,7 +36,7 @@ export function PuzzleImportStatus(props: {
             : 0
         }
       />
-      <MenuSection title={<Trans>Latest load</Trans>} role="group">
+      <MenuSection title={<Trans>Latest load</Trans>}>
         <MenuRow title={<Trans>Source</Trans>} caption={props.job.cursor} />
         <MenuRow
           title={<Trans>Processed</Trans>}

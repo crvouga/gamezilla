@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js';
-import { useCommandRegistry } from './command-registry-context';
+import { useCommandRegistry } from './command-registry-context/index';
 import type { CommandId } from './types';
 
 export type UseCommandPaletteResult = {

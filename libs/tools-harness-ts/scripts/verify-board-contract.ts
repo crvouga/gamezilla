@@ -10,7 +10,6 @@ const PUBLIC_BOARD = new Set([
   '@pkgs/chess-board-root-client-ts/chess-board',
   '@pkgs/chess-board-root-shared-ts/chess-board-types',
   '@pkgs/chess-board-root-client-ts/chess-board-sounds',
-  '@pkgs/chess-board-root-client-ts/chess-board-bench-page',
 ]);
 function permitted(typeOnly: boolean, name: string) {
   if (

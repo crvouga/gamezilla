@@ -24,7 +24,7 @@
  * face: green appears only as the `feedback-success` phase.
  */
 
-import type { IconComponent } from './create-icon';
+import type { IconComponent } from './create-icon/index';
 import { CircleCheckIcon, XIcon } from './icons';
 
 export type ButtonIntent = 'primary' | 'danger' | 'neutral';
