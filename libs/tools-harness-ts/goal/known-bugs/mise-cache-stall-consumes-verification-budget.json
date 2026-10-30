@@ -1,0 +1,4 @@
+{
+  "summary": "Release verification run 41039477627 shard 50 lost 20m41s to setup: restoring a 952,504,713-byte mise archive stalled, failed authentication, then left the action alive after direct pinned-tool installation completed in about 25 seconds. The job expired before its tests finished. Install the pinned tools directly on fresh runners without the optional mise tool archive.",
+  "regressionTest": "libs/tools-harness-ts/scripts/mise-setup-cache.test.ts"
+}
