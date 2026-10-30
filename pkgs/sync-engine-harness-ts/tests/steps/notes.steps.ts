@@ -221,12 +221,16 @@ Given(
 When(
   '{actor} and {actor} keep writing notes',
   async (w, a: string, b: string) => {
+    const watch = goesBack();
+    w.noteWatch = watch;
+    watch(await w.s.read(noteBodies, [a, b]));
     for (let round = 1; round <= KEEP_WRITING_ROUNDS; round += 1) {
       for (const actor of [a, b]) {
         await writeNote(w, app(actor), {
           title: `${actor}-note`,
           body: `${actor} ${String(round)}`,
         });
+        watch(await w.s.read(noteBodies, [a, b]));
       }
     }
   }
@@ -235,7 +239,10 @@ When(
 Then(
   'neither {actor} nor {actor} ever sees a note go back to what it said before',
   async (w, a: string, b: string) => {
-    const watch = goesBack();
+    const watch = w.noteWatch;
+    if (watch === null)
+      throw new Error('Note observation must start before writing');
+    expect(watch.wentBack()).toBeNull();
     await w.s
       .never((s) => noteBodies(s, [a, b]), {
         forMs: QUIET_MS,
@@ -247,5 +254,9 @@ Then(
       });
     // Not vacuous: the notes did move on while watched.
     expect(watch.changes()).toBeGreaterThan(0);
+    expect(await w.s.read(noteBodies, [a, b])).toMatchObject({
+      [`${a}/${b}-note`]: `${b} ${KEEP_WRITING_ROUNDS}`,
+      [`${b}/${a}-note`]: `${a} ${KEEP_WRITING_ROUNDS}`,
+    });
   }
 );

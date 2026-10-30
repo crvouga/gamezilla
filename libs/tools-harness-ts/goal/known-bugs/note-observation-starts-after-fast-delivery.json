@@ -1,0 +1,4 @@
+{
+  "summary": "The seed 1 note-writing verification created its history only after all ten revisions were written; when both peers had already received the final notes, its non-vacuity assertion falsely reported zero changes. Observation now spans writing and the full subsequent verification window, with final peer-value checks.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/note-observation-lifetime.test.ts"
+}

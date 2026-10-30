@@ -9,6 +9,7 @@ import { setWorld, stepsFor } from '@pkgs/gherkin-shared-ts/registry';
 import type { Run } from '@pkgs/harness-root-shared-ts/run-types';
 import { exampleSystem } from '@pkgs/sync-engine-harness-ts/example-app-system';
 import { SPACE_MEMBERSHIP_SESSION } from '@pkgs/sync-engine-harness-ts/membership-query';
+import type { goesBack } from '@pkgs/sync-engine-harness-ts/reads';
 import { addClient } from '@pkgs/sync-engine-harness-ts/regression-actions';
 import type { SyncHarness } from '@pkgs/sync-engine-harness-ts/scenario-system';
 
@@ -26,6 +27,8 @@ export type SyncWorld = {
   readonly arrivalsMs: Map<string, number[]>;
   /** Devices currently offline. */
   readonly offline: OfflineDevices;
+  /** One observation history spanning both writing and subsequent delivery. */
+  noteWatch: ReturnType<typeof goesBack> | null;
 };
 
 /** Offline devices, by client id. */
@@ -78,6 +81,7 @@ export function useSyncWorld(): void {
       hostOf: new Map(),
       arrivalsMs: new Map(),
       offline: new OfflineDevices(),
+      noteWatch: null,
     }),
     dispose: (w) => w.s[Symbol.asyncDispose](),
     record: (w, step, fn) =>

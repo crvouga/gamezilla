@@ -8,52 +8,12 @@ import {
   readLastPushSeq,
   recordPushApplied,
 } from '@pkgs/sync-engine-shared-ts/push-applied';
-import { filterAcceptableImages } from '@pkgs/sync-engine-shared-ts/row-image-guard';
-import type { TopicMapCtx } from '@pkgs/sync-engine-shared-ts/topic-map';
 import type { PushMessage, QueryRow } from '@pkgs/sync-engine-shared-ts/v2';
 import { rowsWithinReceiveCap } from './attach-push-rows-cap';
 import type { RowImageCheckpointRaise } from './merge';
 import { applyRowImages } from './merge';
 import type { PushSubscriptions } from './push-subscriptions';
 import { filterScopesByTables, parsePush } from './push-subscriptions';
-
-function topicMapCtxFromSubscriptions(bag: PushSubscriptions): TopicMapCtx {
-  const channels = bag.options.getChannelsCtx();
-  return {
-    actorId: channels.actorId,
-    deviceId: '',
-    accountId: null,
-    isAnon: false,
-  };
-}
-
-async function tryApplyOptimisticRows(
-  bag: PushSubscriptions,
-  topic: Topic,
-  payload: PushMessage
-): Promise<boolean> {
-  if (payload.optimistic !== true) return false;
-  if (bag.options.rowImageFanout !== true || payload.rows === undefined) {
-    return true;
-  }
-  const capped = rowsWithinReceiveCap(payload.rows);
-  if (capped === undefined) return true;
-  const getMergeDeps = bag.options.getMergeDeps;
-  if (getMergeDeps === undefined) return true;
-  try {
-    const rows = await filterAcceptableImages(
-      bag.options.db,
-      capped as Record<string, readonly QueryRow[]>,
-      bag.options.topicMap,
-      topicMapCtxFromSubscriptions(bag)
-    );
-    if (Object.keys(rows).length === 0) return true;
-    await applyRowImages(getMergeDeps(), rows, { optimistic: true });
-  } catch (error) {
-    warnPush('[push] optimistic fanout apply failed', topic, error);
-  }
-  return true;
-}
 
 /**
  * Local rows already reflect this push (row images applied, or the pushSeq
@@ -149,7 +109,13 @@ export async function handlePush(
   if (payload === null) return;
   const topicScopes = bag.topicToScopes.get(topic);
   if (topicScopes === undefined) return;
-  if (await tryApplyOptimisticRows(bag, topic, payload)) return;
+  if (payload.optimistic === true) {
+    // Peer hints have no authoritative order. Their rows may predate content
+    // already shown, so they wake a snapshot; committed pushes still apply rows.
+    const scopes = filterScopesByTables(bag, topicScopes, payload.tables);
+    if (scopes.size > 0) bag.options.runtime.wakeScopes([...scopes]);
+    return;
+  }
 
   let lastPushSeq: string | null;
   const clock: PushAppliedClock = { now: bag.options.now };

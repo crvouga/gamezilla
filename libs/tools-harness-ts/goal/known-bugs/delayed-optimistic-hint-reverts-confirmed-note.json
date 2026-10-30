@@ -1,0 +1,4 @@
+{
+  "summary": "A delayed unsequenced optimistic row image overwrote a newer confirmed note; seed 1 showed bob 10, then stale bob 4 with the same timestamp and pushSeq zero, then bob 10 again after hydration.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/push-optimistic-order.test.ts"
+}
