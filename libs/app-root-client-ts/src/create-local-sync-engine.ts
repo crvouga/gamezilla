@@ -30,7 +30,11 @@ import type {
 import { SyncApiAuthError } from '@pkgs/sync-engine-client-ts/sync-http-client';
 import type { MutationRegistry } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import type { CreateId, Random } from '@pkgs/uuid-shared-ts/create-id';
-import { LOCAL_DATABASE, recordLocalDatabaseOpen } from './browser-boundaries';
+import {
+  LOCAL_DATABASE,
+  recordLocalDatabaseOpen,
+  traceLocalDatabaseWork,
+} from './browser-boundaries';
 import {
   type ClientPubSubArgs,
   createClientPubSub,
@@ -340,7 +344,9 @@ export async function createAppLocalSyncEngine(
     const db = guardLocalDatabase(args, app, opened, engineRef);
     // A disposable database is private to this tab: nobody else uploads for it.
     const isOwner = syncLease.isOwner || isDisposableSqlClient(opened);
-    const engine = await buildEngine(args, app, db, isOwner);
+    const engine = await traceLocalDatabaseWork('db.migrate', () =>
+      buildEngine(args, app, db, isOwner)
+    );
     engineRef.current = engine;
     emqxUrlHolderFor(args.databaseName).url = await readEmqxUrl(db);
     const disconnect = engine.disconnect.bind(engine);
