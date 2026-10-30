@@ -1,0 +1,4 @@
+{
+  "summary": "Release verification planning emitted more than 512 MiB from turbo --dry=json after the game suite expanded to 181 parts. execFileSync raised ENOBUFS before a plan could be made. Spool stdout to an owned temporary file, project one task at a time from fixed-size chunks, retain only planner fields, propagate failed child exits, and always remove the spool.",
+  "regressionTest": "libs/tools-harness-ts/scripts/turbo-dry-run.test.ts"
+}
