@@ -9,7 +9,8 @@ export function needsBrowser(tasks: VerifyPlan['tasks']): boolean {
       !task.hit &&
       (task.taskId === '@apps/product-ts#test:contract:render' ||
         task.taskId.startsWith('@apps/product-ts#test:release-journeys:') ||
-        task.taskId === '@pkgs/ui-testing-bun-webview#test')
+        task.taskId === '@pkgs/ui-root-harness-ts#ci:storybook' ||
+        task.taskId === '@pkgs/ui-testing-bun-webview-server-ts#test')
   );
 }
 if (import.meta.main) {
