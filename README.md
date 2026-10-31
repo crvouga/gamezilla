@@ -118,7 +118,7 @@ Two data planes.
 
 **Sync** is the system of record for durable rows (profile, friends, billing facts, puzzle history, space membership). The device reads and writes local SQLite. A write is a mutation: applied locally in the same transaction, queued, uploaded. The server replays it in one Postgres transaction as the signed-in person and pushes the change to subscribed devices. Mutation definitions decide conflicts: ordinary rows use server arrival order; puzzle drafts, pack order and attempt continuations use expected-head checks and retained copies ([implementation](libs/games-shared-ts/docs/ADDING_A_PUZZLE_GAME.md#reuse-the-shared-lifecycle)). Domain rows are removed by setting `deleted_at`. UI reads filter `deleted_at IS NULL`. Merge upserts snapshot rows and rebases pending mutations on top. Wire protocol is v3 (`x-sync-protocol: 3`); an older client gets `upgrade_required` and its local database is kept. Hydration is `POST /api/query` on connect plus pubsub pushes. Mutations drain through `POST /api/mutations`. MQTT (AWS IoT Core in production) is an invalidation signal. A missed message is recovered by refetching from Postgres.
 
-**Room** is the live session for one topic, usually `space:<id>`. `@pkgs/room` keeps one authoritative event log. The client runs the same `RoomModule` for instant feedback; the server validates and orders. Optimistic commands queue and flush. Durable Objects host rooms in production. Time-sensitive rules (clocks, deadlines) are schedules the server wakes. Room state is not the SQL sync log.
+**Room** is the live session for one topic, usually `space:<id>`. The room packages keep one authoritative event log. The client runs the same `RoomModule` for instant feedback; the server validates and orders. Optimistic commands queue and flush. Durable Objects host rooms in production. Time-sensitive rules (clocks, deadlines) are schedules the server wakes. Room state is not the SQL sync log. See [Room packages](#room-packages) for the architecture and API guide.
 
 **Permissions** answer every "may this person…?". Client: `useCan` / `useDecision` / `usePermissions`. Mutation body: `requireInMutation` / `decideInMutation`. Server route: `requirePermission`. A denial renders through `DenialSurface` or `useUnlock` from policy `unlockRefs`. Product code outside auth, billing, and permissions does not read anonymous-vs-signed-in flags, does not query billing tables for access, and does not name a role or a plan.
 
@@ -244,7 +244,7 @@ Known cross-sub table reads, still debt: `permissions` reads `billing_subscripti
 | SQL tables | `@pkgs/db-schema`, emitted by `@pkgs/db-schema-postgres` and `@pkgs/db-schema-sqlite` |
 | SQL clients | `@pkgs/sql-client-sqlite-web` (browser), `@pkgs/sql-client-postgres` (server) |
 | Migrations | `@pkgs/db-migrate-shared-ts`, composed by `PostgresMigrationRunner` in `@libs/runtime` |
-| Live sessions | `@pkgs/room`; adapters `room-adapter-durable-object`, `room-adapter-web`, `room-adapter-bun`, `room-adapter-memory` |
+| Live sessions | [Room packages](#room-packages): shared game rules, optimistic clients, authoritative servers, platform adapters and a deterministic harness |
 | Clock, timers | `@pkgs/clock` |
 | HTTP | `@pkgs/http-client` |
 | Ids and randomness | `@pkgs/uuid` (`createId`, `random`) |
@@ -269,6 +269,76 @@ coverage and automated verification are documented in the
 also available through `/storybook-ui <task>` in supported agent harnesses.
 
 UI is Solid. Components run once; reactivity tracks. Read `props.x` in the component body (never destructure props). Style with `class` / `classList` and `@pkgs/ui` tokens. `style` is only for dynamic values classes cannot express. `data-component` and `data-screen` exist for tests and are stripped from production bundles. `data-testid` ships in every build because live journeys drive the real bundle by it. Mutation weight picks the widget: `MutationModal` for confirm-first actions, `useMutationButton` for lightweight actions, `FormActionsFooter` for screen forms.
+
+## Room packages
+
+Use rooms when several connected participants need to act on the same live
+game state. A **topic** identifies an instance, such as `space:<id>`; a
+**module name** identifies the rules that instance runs. A host may serve
+several modules, but each `(topic, module)` needs one authority that orders
+commands. Room events and the SQL sync engine are separate data planes.
+
+`@pkgs/room` is the family name, not an importable package. Import the explicit
+subpaths below. The [room API guide](pkgs/room-root-shared-ts/README.md) contains
+the public contracts and complete examples.
+
+```mermaid
+flowchart LR
+  Game["Game: RoomModule"] --> Client["room-root-client-ts<br/>RoomClient + Solid bindings"]
+  Game --> Server["room-root-server-ts<br/>RoomServer"]
+  Client --> Web["room-adapter-web-shared-ts<br/>WebSocket transport + browser storage"]
+  Web <-->|"room wire protocol"| Host["Bun or Durable Object host adapter"]
+  Host --> Server
+  Server --> Runtime["Optional RoomRuntime<br/>inputs, simulation, snapshots"]
+  Server --> Storage["RoomStorage<br/>events, retry outcomes, checkpoint"]
+  Harness["room-root-harness-ts<br/>virtual time + network faults"] --> Client
+  Harness --> Server
+  Harness --> Memory["room-adapter-memory-shared-ts"]
+```
+
+Arrows mean “uses or supplies,” except the bidirectional network link.
+The shared package defines the contracts used by all of these layers.
+
+| Package | Responsibility and entry points |
+| --- | --- |
+| `@pkgs/room-root-shared-ts` | Game authoring through `/module` (`defineRoomModule`), domain types through `/types`, optional execution through `/runtime`; storage, transport and effect ports |
+| `@pkgs/room-root-client-ts` | `/room-client` (`RoomClient`): local hydration, prediction, outbound queue and reconciliation; `/room-signals` and `/room-clients-context` for Solid |
+| `@pkgs/room-root-server-ts` | `/room-server` (`RoomServer`): authorization, serial command processing, durable commits, replay and runtime ownership |
+| `@pkgs/room-adapter-web-shared-ts` | `/websocket-transport` (`WebSocketRoomTransport`) and `/client-storage` (`WebClientStorage`) |
+| `@pkgs/room-adapter-bun-server-ts` | `/bun-room-host` (`createBunRoomHost`): Bun socket lifecycle with in-memory room storage; the caller routes a topic to one instance |
+| `@pkgs/room-adapter-durable-object-server-ts` | `/adapter` (`createDurableObjectAdapter`): production host class with persistent storage, hibernating sockets and alarm-driven schedules |
+| `@pkgs/room-adapter-durable-object-shared-ts` | Durable Object storage, schedule and platform contracts used by the host adapter |
+| `@pkgs/room-adapter-memory-shared-ts` | In-memory client/server storage and loopback transport for deterministic execution |
+| `@pkgs/room-root-harness-ts` | `/boot-loopback` for an in-process client/server pair; `/system` and `/module-conformance` for fault scenarios and rule validation. Adapter harness packages verify their respective hosts. |
+
+### One game definition for turns and continuous play
+
+Start with `defineRoomModule({ name, initialState, handle, reduce })`.
+`handle` turns a command into accepted events and optional effects, or a
+refusal. `reduce` folds an event into state. Both are pure: the client uses
+them to predict a move, and the server uses them to decide and replay it.
+The factory supplies canonical hashing and empty effect recovery by default.
+
+Turn-based games normally stop there, adding `ScheduleEffect` and
+`recoverEffects` for deadlines. Continuous games keep those same durable
+rules and add `createRuntime(ports)` for high-frequency inputs and simulation.
+The host alone creates that runtime. A game can combine both styles without
+changing clients, storage or transports.
+
+| Send with | Use for | What the room guarantees |
+| --- | --- | --- |
+| `room.dispatch(payload)` | Moves, match transitions and durable choices | Optimistic prediction, persisted outbound queue, server deduplication, ordered committed events and reconnect replay |
+| `room.sendSignal(payload)` | Steering and other transient controls | Delivery over the authenticated connection while synchronized; no offline queue or durable deduplication |
+| Runtime `publish(payload)` | Live snapshots | Transient fanout, optionally restricted to actor IDs; the game owns input sequencing and interpolation |
+| Runtime `commit(id, payload)` | A simulation result that must become durable | Re-enters the ordinary command handler and commit path |
+
+Read the guide in use order:
+
+1. [Define a module](pkgs/room-root-shared-ts/README.md#define-a-module): validated messages, namespaced state, command decisions and event reduction.
+2. [Open a client](pkgs/room-root-shared-ts/README.md#open-a-client): inject ports, subscribe, dispatch, observe confirmation and clean up.
+3. [Choose a host](pkgs/room-root-shared-ts/README.md#choose-a-host): Bun, Durable Objects, or a custom `RoomServer` composition.
+4. [Add deadlines](pkgs/room-root-shared-ts/README.md#deadlines-and-effects) or [real-time execution](pkgs/room-root-shared-ts/README.md#real-time-execution) as the game needs them.
+5. [Verify the game](pkgs/room-root-shared-ts/README.md#verify-the-game) using the same module and injected ports under virtual time.
 
 ## Infrastructure
 
@@ -532,7 +602,7 @@ Time, timers, ids, randomness, HTTP, and filesystem content are injected. Produc
 
 Every outbound HTTP response must be read to EOF, canceled, or forwarded to its caller. `HttpResponseScope` rejects unread bodies, partial stream reads, unconsumed clones and unfinished requests at the invocation boundary. The harness checks injected server HTTP; standard API Worker deployments check request and scheduled work; the localhost API also wraps wall fetches, including Room bindings. Local invocation helpers join `waitUntil` work before checking ownership and propagate rejections. Standard Workers return the foreground response without waiting for background work; a platform `waitUntil` completion joins that work and checks ownership, so later failures remain observable. Requests without background work finish their scope before replying. Production delegates background work to the platform. Worker span and log processors keep records in memory until the invocation explicitly flushes in `waitUntil`: ending a span or filling a log batch opens no collector connections and starts no timer. Each flush acknowledges its own batch without joining another invocation's I/O. Worker telemetry uses injected JSON OTLP exporters with a 64 KiB acknowledgement limit and a five-second virtualizable deadline; HTTP and partial-record rejections fail export rather than silently passing.
 
-Shared game, domain, and sync code also avoids: IEEE floats in room event payloads (integers or strings; Glicko may float and then `Math.round` before it is stored); unsorted `Object.keys` for a hash, a serialization, or a turn order (`hashRoomState` / `canonicalJson`, or a `Map`); `localeCompare`, `Intl`, and `toLocaleString` (compare code units); `Promise.race` or microtask order as a durable winner (use `io.timers`); branching on `WeakRef`, `FinalizationRegistry`, or GC. Every `RoomModule` implements `hash(state)`. Social merge is server-arrival last-write-wins, not a CRDT. A new merge rule names its tie-break.
+Shared game, domain, and sync code also avoids: IEEE floats in room event payloads (integers or strings; Glicko may float and then `Math.round` before it is stored); unsorted `Object.keys` for a hash, a serialization, or a turn order (`hashRoomState` / `canonicalJson`, or a `Map`); `localeCompare`, `Intl`, and `toLocaleString` (compare code units); `Promise.race` or microtask order as a durable winner (use injected timers); branching on `WeakRef`, `FinalizationRegistry`, or GC. Every `RoomModule` has `hash(state)`; `defineRoomModule` supplies canonical hashing unless the definition overrides it. Social merge is server-arrival last-write-wins, not a CRDT. A new merge rule names its tie-break.
 
 Specs are the definition of done. A rewrite that passes `specs/` is the same product. Kinds required by `specs/conformance.yaml`: behavior, decisions, dynamics, structure, objectives, accessibility. `UNKNOWN`, skipped, not run, manual, or stale evidence fails the release. Manual QA does not satisfy a gate.
 

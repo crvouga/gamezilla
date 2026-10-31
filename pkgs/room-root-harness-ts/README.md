@@ -1,15 +1,15 @@
 # `@pkgs/room-root-harness-ts`
 
-Server-authoritative multiplayer for a **single topic** (e.g. `space:<uuid>`).
+Deterministic verification for server-authoritative multiplayer on a
+**single topic** (e.g. `space:<uuid>`). This package supplies the shared
+example game, loopback composition, virtual-time scenarios and module
+conformance checks. Product integrations use the shared, client, server and
+adapter packages rather than importing the harness.
 
-This package is the realtime session engine used by product subs (primarily
-`@libs/spaces` + game `RoomModule`s). It is **not** the app sync engine
-(`@pkgs/sync-engine`): room is a lower-level `pkgs` leaf with its own wire
-protocol, optimistic client queue, Durable Object host, and effect/schedule
-runtime for time-sensitive rules (clocks, deadlines).
-
-This README is the design surface for feedback on or extensions to the
-package.
+Start with the [package map](../../README.md#room-packages) and the
+[room API guide](../room-root-shared-ts/README.md) for architecture, public
+interfaces and usage examples. This README describes harness behavior and
+the implementation constraints its verifications enforce.
 
 ---
 
@@ -98,17 +98,17 @@ by game modules in product.
 ## Product use cases (callers)
 
 1. **Space / game sessions** — `@libs/spaces` opens a WebSocket room per space,
-   injects composed game modules, reads `useRoomSnapshot` / selectors.
+   injects composed game modules, reads `useRoomSelector` and other Solid bindings.
 2. **Offline-first open** — `RoomClient.open` hydrates local storage and attaches
    transport even when connect fails; UI can dispatch while disconnected.
 3. **In-process rooms** — tests and the Harness use `@pkgs/room-root-harness-ts`
    (`openLoopbackRoom`, the example game room) for multi-client rooms without
-   a Worker; `@pkgs/room-adapter-bun` hosts rooms for the localhost stack.
+   a Worker; `@pkgs/room-adapter-bun-server-ts/bun-room-host` hosts rooms for the localhost stack.
 4. **Authoring a game** — call `defineRoomModule` (`initialState` / `handle` /
    `reduce`), optionally emit `Schedule` / `CancelSchedule` effects for
    clocks; register in spaces’ module list + DO `modules: […]`.
 5. **Module conformance** — games call `runModuleConformance` from
-   `@pkgs/room-root-harness-ts` (hash / totality / fold / fuzz / optional deadline hooks).
+   `@pkgs/room-root-harness-ts/module-conformance` (hash / totality / fold / fuzz / optional deadline hooks).
 
 ---
 
@@ -130,7 +130,7 @@ has an explicit export map; implementation files are private.
 | `@pkgs/room-root-harness-ts/game-room` | The framework's single example game |
 | `@pkgs/room-root-harness-ts/module-conformance` | Shared game conformance checks |
 
-Games declare a `defineSystem` from `@pkgs/harness-root-shared-ts` over the
+Games declare a `defineSystem` from `@pkgs/harness-root-shared-ts/define-system` over the
 room boot and catalog, then use `system.run`, `.explore`, and `.replay`.
 The room kit exposes `until` and `never` for virtual-time assertions.
 
@@ -276,8 +276,8 @@ flowchart LR
 
 Versioned JSON (`v`). Kinds in `ROOM_WIRE_KIND`:
 
-- Client → server: `command`, `sync`, `ping`
-- Server → client: `welcome`, `committed`, `rejected`, `roster`, `pong`
+- Client → server: `command`, `signal`, `sync`, `ping`
+- Server → client: `welcome`, `committed`, `rejected`, `signal`, `roster`, `pong`
 
 Committed events carry monotonic **`seq`** per topic. Dedup outcomes are stored
 per `commandId` (`committed` with entries, or `rejected` with error) so reconnect
@@ -327,14 +327,14 @@ adapter tests exercise its public exports.
 | Tool | When to use |
 |------|-------------|
 | Specs (`specs/room/*.feature`, `*.qnt`) | Behavior of the game room, run by `@pkgs/room-root-harness-ts`'s `test:spec`; technical faults are the models' `_`-prefixed actions |
-| `openLoopbackRoom` (`@pkgs/room-root-harness-ts`) | In-process real `RoomClient` + `RoomServer`, no net faults; Schedule via timers |
-| `exampleSystem.run` / `.explore` (`@pkgs/harness-root-shared-ts`) | Partitions, delays, soft disconnect, crash/restart, hash converge, Schedule wakes |
+| `openLoopbackRoom` (`@pkgs/room-root-harness-ts/boot-loopback`) | In-process real `RoomClient` + `RoomServer`, no net faults; Schedule via timers |
+| `exampleSystem.run` / `.explore` (`@pkgs/room-root-harness-ts/system`) | Partitions, delays, soft disconnect, crash/restart, hash converge, Schedule wakes |
 | Contract tests (`tests/room-client.contract.test.ts`, `tests/room-server.contract.test.ts`) | Wire, dedup, persistence, rebase, broadcast costs |
 | Adapter tests (`room-adapter-*`) | Hibernation, session take-over, per-key storage, alarms, WS heartbeat |
 | `runModuleConformance` | Game-module kit (purity, hash, totality, fold, fuzz) |
 
 Games declare their own `defineSystem` over `bootRoomHarness` /
-`roomSystemCatalog` / `roomVirtual` from `@pkgs/room-root-harness-ts`. Settle with
+`roomSystemCatalog` / `roomVirtual` from `@pkgs/room-root-harness-ts/boot`. Settle with
 `expectInSync(s)`: server-first, hashes equal the log fold, queues drained,
 `lastSeq` equals the tip. Not simulated: real WebSockets and full DO
 hibernation (covered by adapter tests).
