@@ -69,7 +69,7 @@ function taskInputs(packages: readonly GraphPackage[]): TaskInputs[] {
 }
 
 function lightFiles(
-  reach: (file: string) => number,
+  reach: (file: string, threshold: number) => number,
   pkg: GraphPackage,
   radius: number,
   policy: Policy
@@ -79,7 +79,7 @@ function lightFiles(
     Math.floor(radius * policy.limits.cohesion.lightReach)
   );
   return pkg.srcFiles
-    .map((file) => ({ file, packages: reach(file) }))
+    .map((file) => ({ file, packages: reach(file, threshold) }))
     .filter((entry) => entry.packages <= threshold)
     .sort((a, b) => a.packages - b.packages || a.file.localeCompare(b.file));
 }
@@ -88,7 +88,8 @@ export function cacheHygieneViolations(policy = readPolicy()): Violation[] {
   const packages = readGraph(ROOT);
   const blast = blastRadii(packages);
   const imports = readImportGraph(ROOT);
-  const reach = (file: string): number => fileReach(imports, file).packages;
+  const reach = (file: string, threshold: number): number =>
+    fileReach(imports, file, threshold).packages;
   const turbo = readJson<TurboFile>('turbo.json');
   const base = readJson<{ compilerOptions?: { paths?: unknown } }>(
     'tsconfig.base.json'
@@ -155,7 +156,7 @@ function explain(name: string): void {
     .slice(0, 15))
     console.log(`    ${dependent[0]}: ${String(dependent[1])}`);
   const files = lightFiles(
-    (file) => fileReach(imports, file).packages,
+    (file, threshold) => fileReach(imports, file, threshold).packages,
     { ...pkg, srcFiles: pkg.srcFiles },
     own?.packages.size ?? 0,
     policy

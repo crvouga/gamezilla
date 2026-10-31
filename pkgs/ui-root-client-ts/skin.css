@@ -1,22 +1,11 @@
 /* Component paint. One class + data-face / data-status. Every value is a
  * token (`--ui-*`).
  *
- * Rules, so every screen agrees without trying:
- * - Blue means "the thing to do" or "the thing chosen", never decoration.
- *   The saturated fill (`tint-active`, white `on-primary` label) is the
- *   thing to do: primary buttons and the FAB.
- * - Buttons are pills (`--ui-radius-full`); chips and tags take the small
- *   radius (`--ui-radius-sm`); fields and rows take `--ui-radius-control`.
- * - The thing chosen (a chip, segment, switch, box or radio) is the soft
- *   blue: `tint-subtle` fill, `primary-strong` edge, `on-primary-soft` ink.
- * - Flat: hairline borders, no gradients, and one soft shadow
- *   (`--ui-shadow-float`) only for what floats above content.
- * - Press feedback is a tone shift plus a small scale, never a bounce.
- *   Hover and press fade in 150ms (`--ui-duration-fast`), state changes
- *   (a switch flipping, a segment moving) take 200ms
- *   (`--ui-duration-normal`); reduced motion turns both off.
- * - Every control covers hover, press, `:focus-visible` (the `.clickable`
- *   ring), disabled and, where it runs work, loading (`aria-busy`). */
+ * The design contract lives in README.md. Application paint is achromatic;
+ * the board components scope their own game palettes. Buttons, chips and tags
+ * use the full radius; fields and rows use the control radius. Selected
+ * controls use the neutral `tint-subtle` fill and `on-primary-soft` ink.
+ * Every control keeps hover, press, focus, disabled and loading feedback. */
 
 @layer components {
   .themeHost {
@@ -39,8 +28,7 @@
     color: var(--ui-color-text);
   }
 
-  /* The brand wordmark is the one blue that is not an action: `tint`, the
-     blue that already reads as text at AA in both schemes. */
+  /* The wordmark uses the same neutral ink as interactive text. */
   .text.appLogo {
     font-weight: var(--ui-font-weight-bold);
     letter-spacing: -0.03em;
@@ -254,9 +242,9 @@
     --ui-on-icon: var(--ui-color-on-destructive);
   }
 
-  /* Chips are choices: a 32px tag at the small radius (its hit area is
+  /* Chips are choices: a 32px tag at the pill radius (its hit area is
      44px, `.hitTarget`). Unchosen is transparent inside the 3:1 `outline`
-     edge with an ink label; chosen is the soft blue, like every other "this
+     edge with an ink label; chosen is the soft neutral, like every other "this
      one". Doubled with `.clickable` for the same reason as `.btn`: the host
      reset (`padding: 0`, `border: 0`, `font: inherit`, later in this layer)
      must not win over the chip's own shape. */
@@ -265,7 +253,7 @@
     min-width: var(--ui-control-size-md);
     padding-left: var(--ui-space-md);
     padding-right: var(--ui-space-md);
-    border-radius: var(--ui-radius-sm);
+    border-radius: var(--ui-radius-full);
     border: 1px solid var(--ui-color-outline);
     background: transparent;
     color: var(--ui-color-text);
@@ -302,11 +290,11 @@
     cursor: not-allowed;
   }
 
-  /* A tag: the small radius and the `label` text style, at either size. */
+  /* A tag: the pill radius and the `label` text style, at either size. */
   .badge {
     min-height: var(--ui-space-xl);
     padding: 0 var(--ui-space-sm);
-    border-radius: var(--ui-radius-sm);
+    border-radius: var(--ui-radius-full);
     background: var(--ui-color-tint-subtle);
     color: var(--ui-color-on-primary-soft);
     font-family: var(--ui-text-label-family);
@@ -386,7 +374,7 @@
 
   /* Switch: a 48x28 track (`w-12 h-7`) with a 24px thumb (`size-6`) inset
      2px, so it travels 20px (`translate-x-5`). Colors are the utilities on
-     the element (the soft blue track with a `primary-strong` thumb when on,
+     the element (the soft neutral track with a `primary-strong` thumb when on,
      a clear track with a secondary thumb when off); this adds the inset, the
      edge hairline (`primary-strong` on, `outline` off, drawn inset so it
      never changes the geometry) and the 200ms thumb slide. */
@@ -419,7 +407,7 @@
   }
 
   /* Checkbox: a 20px box at the small radius, outline border; checked or
-     mixed is the soft blue with a `primary-strong` edge and an
+     mixed is the soft neutral with a `primary-strong` edge and an
      `on-primary-soft` glyph. */
   .checkboxBox {
     border: calc(var(--ui-space-hairline) * 2) solid var(--ui-color-outline);
@@ -442,7 +430,7 @@
   }
 
   /* Segmented control: a clear pill track inside the `outline` edge; the
-     selected segment is the soft blue pill, sliding in 200ms. */
+     selected segment is the soft neutral pill, sliding in 200ms. */
   .segmentIndicator {
     transition:
       left var(--ui-duration-normal) var(--ui-easing-standard),

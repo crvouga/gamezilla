@@ -176,7 +176,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   );
 }
 
-/** Checked is the soft blue with a `primary-strong` edge and dot: the dot,
+/** Checked is the soft tint with a `primary-strong` edge and dot: the dot,
  * not only the color, marks it. */
 function RadioMark(props: { checked: boolean }): JSX.Element {
   return (

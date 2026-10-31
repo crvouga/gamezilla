@@ -92,7 +92,7 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
  * - `swatch`: the seat's look (player color and / or mark) before the name.
  * - `stat`: one figure (score, walls) in the `stat` style at the far edge.
  * - `state`: out or reconnecting, as a word in a tag; an out seat is dimmed.
- * - `active`: the seat to move, in the soft blue (`tintSubtle`) and
+ * - `active`: the seat to move, in the soft tint (`tintSubtle`) and
  *   `aria-current="step"`, never color alone.
  * - `onPress`: the identity becomes a real button (named by the seat's
  *   name and facts), for opening the player.

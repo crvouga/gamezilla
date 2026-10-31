@@ -90,11 +90,11 @@ function buttonClass(args: {
  *
  * | Brief | Props | Look |
  * | --- | --- | --- |
- * | Primary | `intent="primary"` (default) | the one blue fill, white label |
+ * | Primary | `intent="primary"` (default) | `tint-active` fill, `on-primary` label |
  * | Secondary | `intent="neutral"` (solid or `variant="outline"`) | transparent, 1px `outline` border, ink label |
  * | Ghost | `variant="ghost"` | no border, no fill at rest |
  * | Danger | `intent="danger" variant="outline"` | destructive label and border |
- * | Danger, confirming | `intent="danger"` (solid) | `destructive-active` fill, white label |
+ * | Danger, confirming | `intent="danger"` (solid) | `destructive-active` fill, `on-destructive` label |
  *
  * Hover tints, press tints and settles to 0.97 (150ms, off under reduced
  * motion), keyboard focus draws the 2px `focus-ring` 2px outside the pill.

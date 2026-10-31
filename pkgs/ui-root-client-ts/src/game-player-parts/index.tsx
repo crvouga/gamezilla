@@ -43,7 +43,7 @@ export function GamePlayerStateBadge(props: {
  */
 export function GameSeatStatValue(props: {
   stat: GameSeatStat;
-  /** Ink of the soft blue when the seat is the active one. */
+  /** Ink of the soft tint when the seat is the active one. */
   active: boolean;
 }): JSX.Element {
   return (

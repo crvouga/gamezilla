@@ -148,3 +148,17 @@ describe('palette contrast', () => {
     });
   }
 });
+
+describe('application palette', () => {
+  for (const scheme of ['light', 'dark'] as const) {
+    test(`${scheme}: application colors are achromatic`, () => {
+      for (const [name, value] of Object.entries(COLOR_PALETTE[scheme])) {
+        if (name.startsWith('game') || name.startsWith('path')) continue;
+        const rgb = parseColor(value);
+        expect(rgb, name).not.toBeNull();
+        expect(rgb?.r, name).toBe(rgb?.g);
+        expect(rgb?.g, name).toBe(rgb?.b);
+      }
+    });
+  }
+});

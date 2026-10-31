@@ -18,10 +18,12 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { dirname, join as joinPosix, normalize } from 'node:path/posix';
 
-const SOURCE = /\.(?:[cm]?[jt]sx?)$/;
+const GRAPH_FILE = /\.(?:[cm]?[jt]sx?|css|svg|png|jpe?g|webp|woff2?|ttf)$/;
+const TEXT_FILE = /\.(?:[cm]?[jt]sx?|css)$/;
+const CSS_URL = /url\(\s*['"]?([^'"\s)]+)['"]?\s*\)/g;
 const TEST_FILE = /\.test\.[cm]?[jt]sx?$/;
 const SPECIFIER =
-  /(?:from\s*|import\s*\(\s*|require\(\s*|import\s+)['"]([^'"]+)['"]/g;
+  /(?:from\s*|import\s*\(\s*|require\(\s*|import\s+|new\s+URL\s*\(\s*|@import\s+)['"]([^'"]+)['"]/g;
 const WORKSPACE_SPECIFIER = /^@(apps|libs|pkgs)\/([^/]+)\/(.+)$/;
 const TIERS = ['apps', 'libs', 'pkgs'] as const;
 
@@ -31,7 +33,15 @@ export type FileReach = {
   readonly packages: number;
 };
 
-const SKIPPED_DIRECTORIES = new Set(['node_modules', '.cache', 'dist']);
+const SKIPPED_DIRECTORIES = new Set([
+  'node_modules',
+  '.cache',
+  'dist',
+  '.git',
+  '.turbo',
+  '.build',
+  'baselines',
+]);
 
 function sourceFiles(root: string): Set<string> {
   const files = new Set<string>();
@@ -41,7 +51,7 @@ function sourceFiles(root: string): Set<string> {
       if (entry.isDirectory()) {
         if (!SKIPPED_DIRECTORIES.has(entry.name))
           stack.push(`${dir}/${entry.name}`);
-      } else if (entry.isFile() && SOURCE.test(entry.name))
+      } else if (entry.isFile() && GRAPH_FILE.test(entry.name))
         files.add(`${dir}/${entry.name}`);
     }
   return files;
@@ -102,14 +112,21 @@ export function buildImportGraph(
 ): ImportGraph {
   const resolveBase = moduleResolver(files);
   const importersOf = new Map<string, Set<string>>();
-  for (const file of files)
-    for (const [, specifier] of read(file).matchAll(SPECIFIER)) {
+  for (const file of files) {
+    if (!TEXT_FILE.test(file)) continue;
+    const content = read(file);
+    const specifiers = [
+      ...content.matchAll(SPECIFIER),
+      ...(file.endsWith('.css') ? content.matchAll(CSS_URL) : []),
+    ];
+    for (const [, specifier] of specifiers) {
       const target = resolveSpecifier(file, specifier!, resolveBase);
       if (target === undefined || target === file) continue;
       const importers = importersOf.get(target) ?? new Set<string>();
       importers.add(file);
       importersOf.set(target, importers);
     }
+  }
   return { importersOf };
 }
 
@@ -123,16 +140,24 @@ function packageOf(file: string): string {
   return file.split('/').slice(0, 2).join('/');
 }
 
-/** Packages that rerun when `file` changes, found through its importers. */
-export function fileReach(graph: ImportGraph, file: string): FileReach {
+/** Exact reach, or `maxPackages + 1` once a classification threshold is exceeded. */
+export function fileReach(
+  graph: ImportGraph,
+  file: string,
+  maxPackages = Number.POSITIVE_INFINITY
+): FileReach {
   const reached = new Set([file]);
+  const packages = new Set([packageOf(file)]);
   const queue = [file];
   for (let next = queue.pop(); next !== undefined; next = queue.pop())
     for (const importer of graph.importersOf.get(next) ?? [])
       if (!reached.has(importer)) {
         reached.add(importer);
+        packages.add(packageOf(importer));
+        if (packages.size > maxPackages)
+          return { file, packages: packages.size };
         // A test file is a leaf: nothing imports it.
         if (!TEST_FILE.test(importer)) queue.push(importer);
       }
-  return { file, packages: new Set([...reached].map(packageOf)).size };
+  return { file, packages: packages.size };
 }

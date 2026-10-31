@@ -72,7 +72,8 @@ export type ScreenBaseProps = {
    * Navigation trail for the header: the last item supplies the centered
    * title; earlier items with `onClick` / `href` drive the back button. On
    * compact, not rendered as a visible breadcrumb row. On wide, rendered as
-   * a visible trail in the page header.
+   * pills in the app header when its chrome provider enables screen navigation;
+   * otherwise a visible trail in the page header.
    */
   breadcrumbs: readonly ScreenBaseBreadcrumb[];
   actions?: readonly ScreenBaseAction[] | undefined;

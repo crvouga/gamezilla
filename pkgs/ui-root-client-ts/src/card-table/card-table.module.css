@@ -1,3 +1,46 @@
+.table,
+.hand {
+  --ui-color-background: var(--ui-color-game-hearts-canvas);
+  --color-background: var(--ui-color-background);
+  --ui-color-surface: var(--ui-color-game-hearts-surface);
+  --color-surface: var(--ui-color-surface);
+  --ui-color-surface-muted: var(--ui-color-game-hearts-surface);
+  --color-surface-muted: var(--ui-color-surface-muted);
+  --ui-color-surface-sunken: var(--ui-color-game-hearts-surface);
+  --color-surface-sunken: var(--ui-color-surface-sunken);
+  --ui-color-surface-elevated: var(--ui-color-game-hearts-surface);
+  --color-surface-elevated: var(--ui-color-surface-elevated);
+  --ui-color-text: var(--ui-color-game-hearts-ink);
+  --color-text: var(--ui-color-text);
+  --ui-color-text-secondary: var(--ui-color-game-hearts-muted);
+  --color-text-secondary: var(--ui-color-text-secondary);
+  --ui-color-border: var(--ui-color-game-hearts-surface);
+  --color-border: var(--ui-color-border);
+  --ui-color-outline: var(--ui-color-game-hearts-muted);
+  --color-outline: var(--ui-color-outline);
+  --ui-color-tint: var(--ui-color-game-hearts-accent);
+  --color-tint: var(--ui-color-tint);
+  --ui-color-tint-active: var(--ui-color-game-hearts-accent);
+  --color-tint-active: var(--ui-color-tint-active);
+  --ui-color-tint-subtle: var(--ui-color-game-hearts-surface);
+  --color-tint-subtle: var(--ui-color-tint-subtle);
+  --ui-color-focus-ring: var(--ui-color-game-hearts-accent);
+  --color-focus-ring: var(--ui-color-focus-ring);
+  --ui-color-destructive: var(--ui-color-game-hearts-one);
+  --color-destructive: var(--ui-color-destructive);
+  --ui-color-warning: var(--ui-color-game-hearts-two);
+  --color-warning: var(--ui-color-warning);
+  --ui-color-success: var(--ui-color-game-hearts-accent);
+  --color-success: var(--ui-color-success);
+  --ui-color-info: var(--ui-color-game-hearts-accent);
+  --color-info: var(--ui-color-info);
+  --ui-color-on-destructive: var(--ui-color-game-hearts-canvas);
+  --color-on-destructive: var(--ui-color-on-destructive);
+  --ui-color-on-warning: var(--ui-color-game-hearts-canvas);
+  --color-on-warning: var(--ui-color-on-warning);
+  --ui-color-on-info: var(--ui-color-game-hearts-canvas);
+  --color-on-info: var(--ui-color-on-info);
+}
 .table {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
@@ -9,7 +52,7 @@
   width: 100%;
   max-width: 40rem;
   padding: var(--ui-space-3);
-  border-radius: var(--ui-radius-card);
+  border-radius: var(--ui-radius-sheet);
   border: 1px solid var(--ui-color-border);
   background: var(--ui-color-surface);
   color: var(--ui-color-text);
@@ -83,8 +126,8 @@
   padding: var(--ui-space-1);
   border-radius: var(--ui-radius-control);
   border: 1px solid var(--ui-color-outline);
-  background: var(--ui-color-background);
-  color: var(--ui-color-text);
+  background: var(--ui-color-board-card-face);
+  color: var(--ui-color-board-card-ink);
   font: inherit;
   font-weight: var(--ui-font-weight-semibold);
   line-height: 1;
@@ -97,7 +140,7 @@
 .suitName {
   font-size: var(--ui-font-size-xs, 0.75rem);
   font-weight: normal;
-  color: var(--ui-color-text-secondary);
+  color: var(--ui-color-board-card-ink);
 }
 .hand {
   display: flex;
@@ -116,12 +159,12 @@ button.card[aria-disabled="true"] {
   opacity: var(--ui-opacity-muted);
 }
 button.card[aria-pressed="true"] {
-  border: 2px solid var(--ui-color-tint-active);
+  border: 2px solid var(--ui-color-game-hearts-canvas);
   transform: translateY(calc(-1 * var(--ui-space-2)));
 }
 button.card:focus-visible {
-  outline: 2px solid var(--ui-color-focus-ring);
-  outline-offset: 2px;
+  outline: 2px solid var(--ui-color-game-hearts-canvas);
+  outline-offset: -4px;
 }
 .refusal {
   margin: 0;
@@ -144,4 +187,9 @@ button.card:focus-visible {
   button.card[aria-pressed="true"] {
     transform: none;
   }
+}
+
+.card[data-suit="hearts"],
+.card[data-suit="diamonds"] {
+  color: var(--ui-color-game-hearts-one);
 }

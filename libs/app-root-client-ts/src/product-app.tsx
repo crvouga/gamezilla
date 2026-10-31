@@ -77,6 +77,7 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
                 <GlobalMenuIdentityRoot>
                   <subs.Chrome>
                     <AppFrameChromeProvider
+                      screenNavigation
                       globalTrailing={
                         <StackHorizontal align="center" gap="sm">
                           <WorkOfflineStatus />

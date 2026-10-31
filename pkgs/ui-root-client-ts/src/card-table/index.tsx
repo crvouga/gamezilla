@@ -123,6 +123,7 @@ function Seat(props: { seat: () => CardTableSeat }) {
           {(card) => (
             <span
               class={styles['card']}
+              data-suit={props.seat().played?.suit}
               role="img"
               aria-label={spokenName(card())}
               data-testid={`${seat().testId}-played`}
@@ -205,6 +206,7 @@ function Hand(
               <button
                 type="button"
                 class={styles['card']}
+                data-suit={card().suit}
                 data-testid={props.cardTestId(id)}
                 data-card={id}
                 aria-label={spokenName(card())}

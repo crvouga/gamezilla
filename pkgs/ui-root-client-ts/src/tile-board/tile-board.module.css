@@ -1,4 +1,46 @@
 .board {
+  --ui-color-background: var(--ui-color-game-sokoban-canvas);
+  --color-background: var(--ui-color-background);
+  --ui-color-surface: var(--ui-color-game-sokoban-surface);
+  --color-surface: var(--ui-color-surface);
+  --ui-color-surface-muted: var(--ui-color-game-sokoban-surface);
+  --color-surface-muted: var(--ui-color-surface-muted);
+  --ui-color-surface-sunken: var(--ui-color-game-sokoban-surface);
+  --color-surface-sunken: var(--ui-color-surface-sunken);
+  --ui-color-surface-elevated: var(--ui-color-game-sokoban-surface);
+  --color-surface-elevated: var(--ui-color-surface-elevated);
+  --ui-color-text: var(--ui-color-game-sokoban-ink);
+  --color-text: var(--ui-color-text);
+  --ui-color-text-secondary: var(--ui-color-game-sokoban-muted);
+  --color-text-secondary: var(--ui-color-text-secondary);
+  --ui-color-border: var(--ui-color-game-sokoban-surface);
+  --color-border: var(--ui-color-border);
+  --ui-color-outline: var(--ui-color-game-sokoban-muted);
+  --color-outline: var(--ui-color-outline);
+  --ui-color-tint: var(--ui-color-game-sokoban-accent);
+  --color-tint: var(--ui-color-tint);
+  --ui-color-tint-active: var(--ui-color-game-sokoban-accent);
+  --color-tint-active: var(--ui-color-tint-active);
+  --ui-color-tint-subtle: var(--ui-color-game-sokoban-surface);
+  --color-tint-subtle: var(--ui-color-tint-subtle);
+  --ui-color-focus-ring: var(--ui-color-game-sokoban-accent);
+  --color-focus-ring: var(--ui-color-focus-ring);
+  --ui-color-destructive: var(--ui-color-game-sokoban-one);
+  --color-destructive: var(--ui-color-destructive);
+  --ui-color-warning: var(--ui-color-game-sokoban-two);
+  --color-warning: var(--ui-color-warning);
+  --ui-color-success: var(--ui-color-game-sokoban-accent);
+  --color-success: var(--ui-color-success);
+  --ui-color-info: var(--ui-color-game-sokoban-accent);
+  --color-info: var(--ui-color-info);
+  --ui-color-on-destructive: var(--ui-color-game-sokoban-canvas);
+  --color-on-destructive: var(--ui-color-on-destructive);
+  --ui-color-on-warning: var(--ui-color-game-sokoban-canvas);
+  --color-on-warning: var(--ui-color-on-warning);
+  --ui-color-on-info: var(--ui-color-game-sokoban-canvas);
+  --color-on-info: var(--ui-color-on-info);
+}
+.board {
   /* A 2.75rem (44px) tile where it fits; a tall board also fits the viewport. */
   position: relative;
   width: min(
@@ -10,6 +52,7 @@
   margin-inline: auto;
   border-radius: var(--ui-radius-card);
   background: var(--color-surface-muted);
+  overflow: hidden;
   touch-action: none;
   user-select: none;
 }

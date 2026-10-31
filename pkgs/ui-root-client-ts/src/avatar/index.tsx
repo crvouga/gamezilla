@@ -68,7 +68,7 @@ const BOT_INK = 'icon';
 export type AvatarProps = {
   /** Who holds the place. Defaults to `person`. */
   kind?: AvatarKind | undefined;
-  /** The person's own face: the soft blue plate and ink. */
+  /** The person's own face: the soft tint plate and ink. */
   you?: boolean | undefined;
   /** The seat's player color, drawn as the ring. */
   seatColor?: AvatarSeatColor | undefined;

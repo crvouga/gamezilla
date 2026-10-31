@@ -3,35 +3,25 @@
 The design system: every component, type role, surface and color the product
 paints. Screens compose it and arrange it; they never paint around it.
 
-## The look: dark-first, flat, one blue
+## The look: neutral chrome, expressive games
 
-A near-black canvas with raised and sunken paper, two inks, hairline
-dividers, generous whitespace, a strong type hierarchy, and one saturated
-blue for what to do. Light is the tuned counterpart of dark. Nothing themed,
-nothing decorative, nothing that moves unless a person asked.
+Application chrome is achromatic in both schemes: charcoal and white
+surfaces, gray inks, neutral selection fills and visible focus rings. Feedback
+keeps its words, icons and semantic roles; it never depends on hue. Manrope
+and Unbounded retain the familiar type hierarchy.
 
-| Token | Role | Dark / light |
-| --- | --- | --- |
-| `background` | the canvas (the design's `surface`) | #111113 / #fafafa |
-| `surface` | raised paper: cards, list panels, sheets, menus | #1c1c1f / #ffffff |
-| `surface-muted` | sunken wells: inputs, media, empty board cells, tags, inactive stat pills | #0b0b0c / #f4f4f5 |
-| `surface-elevated` / `surface-overlay` | sheets and dialogs / menus and popovers (raised paper) | #1c1c1f / #ffffff |
-| `text` / `text-secondary` | ink and muted ink | #ededef, #a1a1aa / #18181b, #52525b |
-| `border` | decorative hairline only | #2c2c31 / #e4e4e7 |
-| `outline` | a border that carries meaning: inputs, secondary buttons, unselected chips (3:1) | #71717a |
-| `tint-active` + `on-primary` | the one saturated fill at rest: primary buttons, "Sit here" | #2563eb + white |
-| `primary-strong` | selected borders, active indicators, your pieces | #3b82f6 / #2563eb |
-| `tint` | blue as text: links | #60a5fa / #1d4ed8 |
-| `tint-subtle` + `on-primary-soft` | selected chip, active turn, active player, your avatar | #1e2a44 + #93c5fd / #dbeafe + #1d4ed8 |
-| `focus-ring` | the 2px focus ring, 2px offset | #93c5fd / #2563eb |
-| `destructive`, `success`, `warning`, `info` | status, always with a word or icon, each with a `*-surface` wash | |
-| `live` + `on-live` | only the LIVE tag and the recording dot | #dc2626 + white |
-| `player1`…`player8` | seat colors, at least 4.5 L* apart so seats never rely on hue | |
-| `board-*` | neutral board squares, last-move wash, empty cell, card face and inks | |
+Game-prefixed color tokens belong only to playing surfaces. Component-local
+variables scope them to the board, leaving the surrounding chrome neutral.
+Chess keeps its cream and walnut squares; Connect Four uses a cobalt frame
+and red/gold discs; Battleship has naval waters; Quoridor uses sand and timber;
+Hearts uses green felt and paper cards; Word Tiles uses a garden-green tray
+with cream letters and labeled bonus squares; Sokoban uses slate masonry and
+gold cargo; Numberlink uses ivory in light mode and plum slate in dark mode; Pong uses a violet court;
+Light Cycles uses a dark cyan arena with patterned bright trails.
 
 Values live in `pkgs/ui-root-shared-ts/src/design-tokens.json`. CSS
 variables, TypeScript token names and a resolved `tokens.json` are generated
-from it (`bunx turbo run tokens:generate --filter=@pkgs/ui-root-client-ts`).
+from it (`bun run tokens:generate`).
 Dark is the `:root` default; light is one variable swap on
 `[data-theme="light"]` (and `prefers-color-scheme: light` before a theme is
 set), never two sets of classes. `palette-contrast.test.ts` holds every
@@ -43,7 +33,7 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
 | Type | eight styles: `display-xl` 40/44, `display` 26/30, `stat` 20/24 (numbers), `title` 18/24, `body` 15/22, `body-strong` 15/22, `caption` 13/18, `label` 12/16 |
 | Faces | Unbounded 600 / 700 for display and numbers, Manrope 400 / 500 / 700 for everything else; self-hosted, `font-display: swap` |
 | Space | the 4px grid only: `none xs sm md lg xl 2xl 3xl` = 0 4 8 12 16 24 32 48; phone gutter 16 |
-| Radius | 6 (`sm`: chips, tags), 12 (`control`, `card`: inputs, rows, cards, lists), 20 (`sheet`: sheets, dialogs, boards), `full` (buttons, avatars, stat pills) |
+| Radius | 6 (`sm`: small details), 12 (`control`, `card`: inputs, rows, cards, lists), 20 (`sheet`: sheets, dialogs, boards), `full` (buttons, chips, tags, header tabs, avatars, stat pills) |
 | Control height | 32 / 44 / 52; every control keeps a 44px hit area |
 | Shadow | one: `shadow-float`, for what floats above content |
 | Motion | 150 / 200 / 250ms, one ease-out curve, only in answer to a tap; off under reduced motion |
@@ -51,13 +41,10 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
 
 ## Rules
 
-1. **One saturated fill.** `tint-active` fills only primary buttons, "Sit
-   here" and the FAB. What is chosen (a selected chip, a checked switch, box
-   or radio, the active turn, the active player, your avatar) is the soft
-   blue, `tint-subtle` under `on-primary-soft`, with a `primary-strong`
-   border where it has one. Never decoration. The active tab is full text
-   color, not blue. The one exception is the brand: the `AppLogo` wordmark is
-   `tint`.
+1. **Neutral application.** Primary actions use a high-contrast neutral fill;
+   selection uses `tint-subtle` and `on-primary-soft`. Status is always named
+   or accompanied by an icon. Color belongs to playing surfaces, the intrinsic
+   emerald Gamezilla monster mark and vendor-mandated identity artwork.
 2. **Pick a role, never a size.** Text is `P` / `Text` with a `variant`
    (`body`, `bodyBold`, `label`, `caption`, `footnote`, `sectionLabel`,
    `stat`, `mono`) or `H1`–`H6` with a `size` (`displayXl`, `title`,
@@ -68,7 +55,8 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
    (`formatCompactNumber`: 12.4K). Nothing renders below 12px.
 3. **Two faces.** Manrope carries every label, button and line of copy;
    Unbounded sets display headlines and numbers. Mono is for code and
-   identifiers, never for numbers or labels.
+   identifiers, never for numbers or labels. Google sign-in alone uses its
+   mandated, self-hosted Google Sans Medium.
 4. **Lists are panels.** Group rows in a `MenuSection` / `MenuList` (or
    `MainMenuScreen` for destinations): paper (`surface`) inside one hairline,
    the card radius, hairlines between rows inset to the text column. A row never
@@ -76,14 +64,20 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
 4a. **Nobody is an icon.** A person without a picture is the `Avatar`
    placeholder, never an outlined glyph in a ring. `icon` on an `Avatar` is
    for things that are not people: a bot, a game, a device.
-5. **Radius encodes hierarchy.** `rounded-sm` chips and tags,
+5. **Radius encodes hierarchy.** `rounded-full` chips, tags and header tabs,
    `rounded-control` inputs and rows, `rounded-card` cards and panels,
    `rounded-sheet` dialogs, sheets and boards. `rounded-full` for buttons and
    round things: avatars, stat pills, the FAB, dots.
 6. **Flat.** Hairlines separate, tone steps raise. The one shadow,
    `shadow-float`, is for what floats: sheets, dialogs, menus, popovers,
    tooltips and the FAB. No gradients, no glows.
-7. **Left-aligned.** Header titles sit after the back control and line up
+7. **One navigation bar.** Wide subscreens publish their existing breadcrumb
+   contracts to the header island as ancestor pills and a current-page pill;
+   root screens keep primary navigation. The redundant body header is omitted
+   while the pill supplies the single semantic, focusable subpage heading.
+   Root screens keep a visually hidden heading. Compact screens keep
+   their title/back bar. Standalone screens retain their own headers.
+   **Left-aligned.** Header titles sit after the back control and line up
    with the body. Only identity heroes and full-screen empty states center.
 8. **Each fact is its own tag.** Metadata strips are rows of `Badge`s, never
    strings joined with `·`.

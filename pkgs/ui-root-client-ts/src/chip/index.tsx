@@ -27,11 +27,11 @@ export type ChipProps = {
 /**
  * `Chip` -- compact tag / filter / choice element.
  *
- * A 32px tag at the small radius (`skin.css` `.chip`), 14px semibold, with a
+ * A 32px tag with fully rounded ends (`skin.css` `.chip`), 14px semibold, with a
  * 44px hit area (`.hitTarget`):
  *   - Unselected is transparent inside the 3:1 `outline` edge with an ink
  *     label; on hover the edge darkens to the secondary ink.
- *   - Selected is the soft blue: `tint-subtle` fill, `primary-strong` edge,
+ *   - Selected is the soft neutral: `tint-subtle` fill, `primary-strong` edge,
  *     `on-primary-soft` label.
  *
  * Hover / press tint from the `.clickableTint` overlay, the keyboard focus

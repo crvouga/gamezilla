@@ -1,10 +1,14 @@
+import type { color } from './design-tokens.json';
+
 /**
  * Prebuilt light/dark color palettes.
  */
 
 export type ColorScheme = 'light' | 'dark';
 
-export type ColorTokens = {
+type GameColorName = Extract<keyof typeof color.light, `game${string}`>;
+
+export type ColorTokens = Record<GameColorName, string> & {
   // Surfaces (lowest -> highest visual elevation)
   background: string;
   surface: string;

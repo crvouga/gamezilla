@@ -19,7 +19,7 @@ import { VisuallyHidden } from '../visually-hidden/index';
  *   list in a panel. Each row: the place ("1st", supplied or computed from
  *   `place`), avatar, name (truncated), score in the `stat` style and an
  *   optional readiness tag ("Ready", "Not ready"). The viewer's row is the
- *   soft blue and `aria-current`.
+ *   soft tint and `aria-current`.
  * - `GameStatTiles`: a grid of `GameStat` tiles for a solo game's numbers.
  *
  * Every word is the caller's.

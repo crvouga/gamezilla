@@ -40,12 +40,17 @@ function cells(marks: readonly number[]): readonly CellGridCell[] {
     };
   });
 }
-function MarkingGrid(props: { label: string; testId: string }): JSX.Element {
+function MarkingGrid(props: {
+  label: string;
+  testId: string;
+  boardTheme?: 'battleship' | 'quoridor' | undefined;
+}): JSX.Element {
   const [marks, setMarks] = createSignal<readonly number[]>(
     Array.from({ length: 20 }, (_, index) => index % 5)
   );
   return (
     <CellGridBoard
+      boardTheme={props.boardTheme}
       label={props.label}
       testId={props.testId}
       columnLabels={COLUMNS}
@@ -63,7 +68,9 @@ function MarkingGrid(props: { label: string; testId: string }): JSX.Element {
 }
 
 /** Two labelled grids that cycle a cell's mark when it is pressed. */
-export default function CellGridBoardExample(): JSX.Element {
+export default function CellGridBoardExample(props: {
+  boardTheme?: 'battleship' | 'quoridor' | undefined;
+}): JSX.Element {
   const [selected, setSelected] = createSignal<'left' | 'right'>('left');
   return (
     <ExampleRoot>
@@ -74,8 +81,20 @@ export default function CellGridBoardExample(): JSX.Element {
         labels={{ left: 'First grid', right: 'Second grid' }}
         selected={selected()}
         onSelect={setSelected}
-        first={<MarkingGrid label="First grid" testId="example-first" />}
-        second={<MarkingGrid label="Second grid" testId="example-second" />}
+        first={
+          <MarkingGrid
+            boardTheme={props.boardTheme}
+            label="First grid"
+            testId="example-first"
+          />
+        }
+        second={
+          <MarkingGrid
+            boardTheme={props.boardTheme}
+            label="Second grid"
+            testId="example-second"
+          />
+        }
       />
     </ExampleRoot>
   );

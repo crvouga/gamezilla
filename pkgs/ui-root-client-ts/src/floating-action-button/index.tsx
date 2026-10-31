@@ -99,12 +99,12 @@ const FAB_CLASS =
  * `FloatingActionButton` -- round (or extended pill) primary action.
  *
  * A 52px disc (`--ui-control-size-lg`) or, with `label`, an extended pill:
- * the blue fill with an on-primary 24px icon, and the one soft
+ * the primary fill with an on-primary 24px icon, and the one soft
  * `shadow-float` because it floats above content (`skin.css` `.fab`).
  *
  * Shares the mutation face machine with `Button`: `loading` / `feedback`
  * swap the icon for a spinner, check, or retry glyph (`aria-busy` while
- * loading). Hover deepens the blue, press scales it slightly, keyboard focus
+ * loading). Hover changes the tint, press scales it slightly, keyboard focus
  * draws the ring, disabled greys it. Pair with `useMutationButton().fabProps`.
  */
 export function FloatingActionButton(

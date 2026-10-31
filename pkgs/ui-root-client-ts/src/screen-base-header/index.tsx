@@ -82,7 +82,7 @@ function HeaderLeading(props: {
  */
 export function ScreenBaseHeader(props: ScreenBaseHeaderProps): JSX.Element {
   const titleCtx = useScreenTitleContext();
-  const resolveClick = useBreadcrumbClick(() => props.breadcrumbs);
+  const resolveClick = useBreadcrumbClick();
   const layout = createMemo(() => deriveHeaderLayout(props.breadcrumbs));
   const showTitle = (): boolean =>
     props.largeTitle === true ? (titleCtx?.showInTopBar() ?? false) : true;

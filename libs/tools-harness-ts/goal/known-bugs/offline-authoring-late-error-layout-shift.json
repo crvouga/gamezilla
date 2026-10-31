@@ -1,0 +1,4 @@
+{
+  "summary": "Offline Numberlink authoring missed Create pack when a late Failed to fetch response inserted another error panel above it. Offline content now keeps one stable notice with a reconnect action; errors while online retain their detailed recovery panel.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-connection-status.test.tsx"
+}

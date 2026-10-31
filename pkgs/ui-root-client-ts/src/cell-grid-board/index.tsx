@@ -34,6 +34,8 @@ export type CellGridCell = {
   readonly identity?: 'one' | 'two' | 'three' | 'four' | undefined;
 };
 export type CellGridBoardProps = {
+  /** Playing-surface palette; never themes the surrounding application. */
+  readonly boardTheme?: 'battleship' | 'quoridor' | undefined;
   readonly label: string;
   readonly testId: string;
   readonly columnLabels: readonly string[];
@@ -181,6 +183,7 @@ export function CellGridBoard(props: CellGridBoardProps): JSX.Element {
     <div
       ref={root}
       class={styles['board']}
+      data-board-theme={props.boardTheme ?? 'battleship'}
       {...dataAttrs({ component: 'CellGridBoard' })}
       role="group"
       aria-label={props.label}

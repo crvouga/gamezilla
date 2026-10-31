@@ -1581,7 +1581,9 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@pkgs/property-shared-ts": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",

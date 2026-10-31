@@ -5,6 +5,7 @@ import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
+import { createSignal } from 'solid-js';
 import GameArenaExample from '../../ui-root-client-ts/src/game-board-stage/game-arena.example';
 
 function requiredAttribute(element: Element, name: string): string {
@@ -14,16 +15,18 @@ function requiredAttribute(element: Element, name: string): string {
 }
 function example() {
   const { clock, timers } = createHarnessClock();
-  return render(() => (
+  const [interactive, setInteractive] = createSignal(true);
+  const view = render(() => (
     <ClockProvider clock={clock} timers={timers}>
       <ThemeProvider
         colorScheme="light"
         fixedLayout={{ width: 390, height: 844 }}
       >
-        <GameArenaExample />
+        <GameArenaExample boardInteractive={interactive()} />
       </ThemeProvider>
     </ClockProvider>
   ));
+  return { ...view, setInteractive };
 }
 test('column controls expose occupancy, preserve gravity, and keep full columns inert', () => {
   const view = example();
@@ -70,7 +73,7 @@ test('focus and pointer previews identify the landing cell; navigation wraps and
   );
   fireEvent.pointerEnter(second);
   expect(board.getAttribute('data-preview-cell')).toBe('1');
-  fireEvent.click(view.getByRole('button', { name: 'Toggle board controls' }));
+  view.setInteractive(false);
   expect(second.getAttribute('aria-disabled')).toBe('true');
   expect(board.getAttribute('data-preview-cell')).toBe('-1');
   fireEvent.click(second);

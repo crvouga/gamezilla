@@ -59,7 +59,7 @@ function PillWords(props: GameTurnPillProps & { yours: boolean }): JSX.Element {
 /**
  * `GameTurnPill` -- the one line that says where the game stands: whose
  * turn, or how it ended. One per game, between the board and the person's
- * own strip. The words sit in a round pill: the soft blue (`tintSubtle` under
+ * own strip. The words sit in a round pill: the soft tint (`tintSubtle` under
  * `onPrimarySoft`) when it is the viewer's turn (`emphasis="yours"`), the
  * sunken well otherwise. A small mark carries an outcome's tone; the words
  * carry the meaning.

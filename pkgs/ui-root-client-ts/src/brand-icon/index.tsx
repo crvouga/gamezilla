@@ -15,8 +15,7 @@ export type BrandIconProps = {
 };
 
 /**
- * `BrandIcon` -- third-party brand logo primitive (Google, etc.). Uses the
- * vendor's published colors and cannot be retinted by the theme.
+ * `BrandIcon` -- third-party brand logo primitive (Google, etc.). Preserves each vendor’s mandated colors; never desaturates or theme-tints the mark.
  *
  * @example
  * ```tsx

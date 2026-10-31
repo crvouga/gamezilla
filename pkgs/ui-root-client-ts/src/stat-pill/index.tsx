@@ -15,7 +15,7 @@ export type StatPillProps = {
   label: JSX.Element;
   /** A glyph before the number. */
   icon?: IconComponent | undefined;
-  /** The current one of a set: the soft blue instead of the sunken well. */
+  /** The current one of a set: the soft tint instead of the sunken well. */
   active?: boolean | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
@@ -30,7 +30,7 @@ const ICON_SIZE = 16;
  *
  * An inactive pill is sunken (`surfaceMuted`) with the count in full ink and
  * the label muted. `active` marks the pill of whatever is current -- the
- * seat to move, the chosen stat -- with the soft blue (`tintSubtle` fill,
+ * seat to move, the chosen stat -- with the soft tint (`tintSubtle` fill,
  * `onPrimarySoft` ink).
  *
  * @example

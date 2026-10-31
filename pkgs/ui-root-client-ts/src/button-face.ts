@@ -15,7 +15,7 @@
  *   (line-strong) border, ink label. Both variants paint the same face; a
  *   neutral fill would be a second saturated-looking plate.
  * - **Ghost** (`ghost`): no border and no fill at rest; the intent colors
- *   the label (`neutral` ink, `primary` the `tint` blue).
+ *   the label (`neutral` ink, `primary` the `tint`).
  * - **Danger** (`danger`): `outline` is destructive text and border;
  *   `solid` is the `destructive-active` fill with a white label, for the
  *   action that confirms a destruction. Always with a word or an icon.
@@ -92,7 +92,7 @@ export function buttonFaceName(input: ButtonRenderInput): ButtonFaceName {
   if (phase === 'error') return 'feedback-error';
   const variant = input.variant ?? 'solid';
   const intent = input.intent ?? 'primary';
-  // Loading keeps its intent face (the spinner sits on the same blue); the
+  // Loading keeps its intent face (the spinner sits on the same fill); the
   // control is still inert and `aria-busy`. Only `disabled` greys it out.
   const disabled = input.disabled ?? false;
   // Secondary (`neutral` solid) is drawn as an outline, so it disables as one.

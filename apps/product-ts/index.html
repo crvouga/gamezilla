@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#111113" />
+  <meta name="theme-color" content="#111111" />
   <script>
     // The theme the app mounts with (`ThemePreferenceProvider`), set before
     // first paint so boot never flashes from one scheme to the other.
@@ -36,15 +36,15 @@
 
     html,
     body {
-      background: var(--ui-color-background, #111113);
-      color: var(--ui-color-text, #ededef);
+      background: var(--ui-color-background, #111111);
+      color: var(--ui-color-text, #ededed);
       color-scheme: dark;
     }
 
     html[data-theme="light"],
     html[data-theme="light"] body {
       background: var(--ui-color-background, #fafafa);
-      color: var(--ui-color-text, #18181b);
+      color: var(--ui-color-text, #181818);
       color-scheme: light;
     }
 
@@ -63,11 +63,11 @@
 
     .activity-indicator {
       animation: activity-step 1000ms steps(12, end) infinite;
-      color: #a1a1aa;
+      color: var(--ui-color-text-secondary, #a2a2a2);
     }
 
     html[data-theme="light"] .activity-indicator {
-      color: #52525b;
+      color: var(--ui-color-text-secondary, #535353);
     }
 
     .startup-shell-failed {
@@ -76,9 +76,9 @@
 
     .startup-shell-mark {
       align-items: center;
-      background: #f8717129;
+      background: var(--ui-color-destructive-surface, #8e8e8e29);
       border-radius: 9999px;
-      color: #f87171;
+      color: var(--ui-color-destructive, #b8b8b8);
       display: flex;
       font-size: 20px;
       font-weight: 700;
@@ -88,21 +88,21 @@
     }
 
     .startup-shell-guidance {
-      color: #a1a1aa;
+      color: var(--ui-color-text-secondary, #a2a2a2);
     }
 
     .startup-shell-detail {
-      color: #f87171;
+      color: var(--ui-color-destructive, #b8b8b8);
       max-width: min(640px, calc(100vw - 32px));
       overflow-wrap: anywhere;
       text-align: center;
     }
 
     .startup-shell-reload {
-      background: #2563eb;
+      background: var(--ui-color-tint-active, #dedede);
       border: 0;
       border-radius: 9999px;
-      color: #ffffff;
+      color: var(--ui-color-on-primary, #181818);
       cursor: pointer;
       font: inherit;
       font-weight: 600;
@@ -112,16 +112,21 @@
     }
 
     html[data-theme="light"] .startup-shell-mark {
-      background: #dc26261a;
-      color: #c81e1e;
+      background: var(--ui-color-destructive-surface, #4d4d4d1a);
+      color: var(--ui-color-destructive, #505050);
     }
 
     html[data-theme="light"] .startup-shell-guidance {
-      color: #52525b;
+      color: var(--ui-color-text-secondary, #535353);
     }
 
     html[data-theme="light"] .startup-shell-detail {
-      color: #c81e1e;
+      color: var(--ui-color-destructive, #505050);
+    }
+
+    html[data-theme="light"] .startup-shell-reload {
+      background: var(--ui-color-tint-active, #303030);
+      color: var(--ui-color-on-primary, #ffffff);
     }
 
     @keyframes activity-step {

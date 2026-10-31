@@ -82,7 +82,7 @@ function BadgeHost(props: {
  * the `label` text style (12/16 bold, tabular numerals); `sm` is 16px tall,
  * for a count over an icon or a dense row of tags. A label too long for its
  * row ends in an ellipsis. `subtle` is the intent's wash with its colored
- * label; `solid` is the intent's fill with its on-color. `brand` (blue) is
+ * label; `solid` is the intent's fill with its on-color. `brand` (tint) is
  * for what is new or chosen; `neutral` for plain facts.
  *
  * Two tags are fixed, so every screen says them the same way:

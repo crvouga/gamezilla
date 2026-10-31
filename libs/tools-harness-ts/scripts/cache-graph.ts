@@ -17,7 +17,7 @@
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { isProductionSource } from './production-source';
+import { productionFilesUnder } from './src-task-edges';
 
 export type GraphPackage = {
   readonly name: string;
@@ -91,17 +91,6 @@ export function toRepoPath(root: string, file: string): string {
   return file.slice(root.length + 1).replaceAll('\\', '/');
 }
 
-function filesUnder(directory: string): string[] {
-  if (!existsSync(directory)) return [];
-  return readdirSync(directory, { recursive: true, withFileTypes: true })
-    .filter(
-      (entry) =>
-        entry.isFile() && isProductionSource(join(entry.parentPath, entry.name))
-    )
-    .filter((entry) => !entry.name.endsWith('.md'))
-    .map((entry) => join(entry.parentPath, entry.name));
-}
-
 type Manifest = {
   name: string;
   [section: string]: unknown;
@@ -150,9 +139,9 @@ export function readGraph(root: string): GraphPackage[] {
       dir,
       declared: new Set(declared),
       srcEdges: new Set(listedSrcEdges(root, dir) ?? declared),
-      srcFiles: filesUnder(join(root, dir, 'src')).map((file) =>
-        toRepoPath(root, file)
-      ),
+      srcFiles: productionFilesUnder(join(root, dir, 'src'))
+        .filter((file) => !file.endsWith('.md'))
+        .map((file) => toRepoPath(root, file)),
     };
   });
 }

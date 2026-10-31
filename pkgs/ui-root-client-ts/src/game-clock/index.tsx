@@ -9,7 +9,7 @@ const LOW_MARK_SIZE = 16;
 /**
  * A seat's time, sized to sit at the far edge of a `GamePlayerBar`. The seat
  * already says whose clock it is, so the label is for a listener only; the
- * running clock takes the blue fill.
+ * running clock takes the selected fill.
  *
  * A clock that is nearly used up is `low`: it takes the destructive fill and
  * shows a mark beside the time, so colour is never the only sign. Say so in

@@ -7,7 +7,7 @@ import { useMutationButton } from '../use-mutation-button/index';
 
 /**
  * Consistent inline progress, acknowledgement and retry for game commands.
- * `solid` is the one thing to do next, in blue; every other command is a
+ * `solid` is the one thing to do next, in the primary fill; every other command is a
  * neutral outline, so a row of them never competes with it.
  */
 export function GameActionButton(props: {

@@ -50,7 +50,7 @@ function CheckboxGlyph(props: { indeterminate: boolean }): JSX.Element {
  * `Checkbox` -- checked / unchecked / indeterminate control.
  *
  * A 20px box with the small radius and an outline border (`skin.css`
- * `.checkboxBox`); checked or mixed is the soft blue (`tint-subtle` fill,
+ * `.checkboxBox`); checked or mixed is the soft tint (`tint-subtle` fill,
  * `primary-strong` edge) with an `on-primary-soft` check or dash, so the
  * glyph, not only the color, says which. The whole row (box and label) is
  * the hit area, at least 44px tall (and 44px wide without a label), with the

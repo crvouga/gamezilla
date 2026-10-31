@@ -45,7 +45,7 @@ export type SocialProviderSpec = {
 
 /**
  * Google "Sign in with Google" branding spec (Light / Dark / Neutral themes,
- * 1px inside stroke, Roboto Medium 14/20).
+ * 1px inside stroke, Google Sans Medium 14/20).
  *
  * @see https://developers.google.com/identity/branding-guidelines#color
  */
@@ -94,9 +94,9 @@ const APPLE_SPEC: SocialProviderSpec = {
 const DEV_SPEC: SocialProviderSpec = {
   brandIcon: 'dev',
   themes: {
-    light: { fill: '#FFFFFF', stroke: '#C7D2FE', font: '#1F1F1F' },
-    dark: { fill: '#1E1B4B', stroke: '#6366F1', font: '#E0E7FF' },
-    neutral: { fill: '#EEF2FF', stroke: null, font: '#312E81' },
+    light: { fill: '#FFFFFF', stroke: '#d2d2d2', font: '#1F1F1F' },
+    dark: { fill: '#242424', stroke: '#808080', font: '#e8e8e8' },
+    neutral: { fill: '#f2f2f2', stroke: null, font: '#333333' },
   },
   defaultLabels: {
     signIn: msg`Sign in with dev IDP`,

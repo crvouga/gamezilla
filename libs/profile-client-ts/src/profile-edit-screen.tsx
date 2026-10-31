@@ -4,19 +4,20 @@ import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { MenuList } from '@pkgs/ui-root-client-ts/menu-list';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
-import { useBreadcrumbNav } from '@pkgs/ui-root-client-ts/use-breadcrumb-nav';
 import type { JSX } from 'solid-js';
 
 export function ProfileEditScreen(): JSX.Element {
   const { t } = useLingui();
   const router = useRouter();
-  const nav = useBreadcrumbNav();
 
   return (
     <MenuScreen
       screenId="profile-edit"
       breadcrumbs={[
-        { name: <Trans>Profile</Trans>, onClick: nav('/profile') },
+        {
+          name: <Trans>Profile</Trans>,
+          onClick: () => router.push('/profile'),
+        },
         { name: <Trans>Edit profile</Trans> },
       ]}
     >

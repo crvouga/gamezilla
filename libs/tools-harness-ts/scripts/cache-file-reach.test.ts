@@ -5,6 +5,45 @@ function graph(files: Record<string, string>) {
   return buildImportGraph(new Set(Object.keys(files)), (file) => files[file]!);
 }
 
+// regression: cache-hygiene-transitive-reach-expansion
+test('cohesion classification stops once a file exceeds the light-file threshold', () => {
+  const file = 'pkgs/core-shared-ts/src/index.ts';
+  const importersOf = new Map([
+    [
+      file,
+      new Set(
+        Array.from(
+          { length: 100 },
+          (_, i) => `libs/consumer-${i}-client-ts/src/index.ts`
+        )
+      ),
+    ],
+  ]);
+  const lookup = importersOf.get.bind(importersOf);
+  let probes = 0;
+  importersOf.get = (key) => {
+    probes++;
+    return lookup(key);
+  };
+  expect(fileReach({ importersOf }, file, 2).packages).toBe(3);
+  expect(probes).toBeLessThanOrEqual(2);
+});
+
+test('bounded reach preserves threshold decisions through cycles and same-package files', () => {
+  const file = 'pkgs/core-shared-ts/src/index.ts';
+  const other = 'pkgs/core-shared-ts/src/other.ts';
+  const consumer = 'libs/one-client-ts/src/index.ts';
+  const importersOf = new Map([
+    [file, new Set([other, consumer])],
+    [other, new Set([file])],
+    [consumer, new Set(['libs/two-client-ts/src/index.ts'])],
+  ]);
+  for (const limit of [0, 1, 2, 3, 10])
+    expect(fileReach({ importersOf }, file, limit).packages).toBe(
+      Math.min(fileReach({ importersOf }, file).packages, limit + 1)
+    );
+});
+
 test('colocated stories and consumers resolve the same production slice', () => {
   const result = graph({
     'pkgs/ui-client-ts/src/button/index.tsx': "import { Text } from '../text';",
@@ -69,4 +108,22 @@ test('resolution preserves extension precedence and resets for every source snap
       'pkgs/ui-client-ts/src/button/index.tsx': '',
     }).importersOf.keys(),
   ]).toEqual(['pkgs/ui-client-ts/src/button/index.tsx']);
+});
+
+// regression: cache-asset-import-reach
+test('font stylesheets and static artwork inherit their production consumers', () => {
+  const result = graph({
+    'pkgs/ui-client-ts/src/button.tsx':
+      "import './button.css'; const mark = new URL('./mark.svg', import.meta.url);",
+    'pkgs/ui-client-ts/src/button.css':
+      "@font-face { src: url('./face.woff2') }",
+    'pkgs/ui-client-ts/src/face.woff2': '',
+    'pkgs/ui-client-ts/src/mark.svg': '',
+    'libs/one-client-ts/src/screen.tsx':
+      "import { Button } from '@pkgs/ui-client-ts/button';",
+  });
+  expect(fileReach(result, 'pkgs/ui-client-ts/src/face.woff2').packages).toBe(
+    2
+  );
+  expect(fileReach(result, 'pkgs/ui-client-ts/src/mark.svg').packages).toBe(2);
 });

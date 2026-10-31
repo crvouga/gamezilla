@@ -59,7 +59,11 @@ function keyboardLost(document: Document): boolean {
  * a place to read from, not a control, so `screenFocusTarget` draws no ring.
  */
 function titleOf(root: HTMLElement): HTMLElement {
-  const title = root.querySelector<HTMLElement>('h1') ?? root;
+  const titleId = root.getAttribute('aria-labelledby');
+  const title =
+    root.querySelector<HTMLElement>('h1') ??
+    (titleId === null ? null : root.ownerDocument.getElementById(titleId)) ??
+    root;
   if (!title.hasAttribute('tabindex')) title.setAttribute('tabindex', '-1');
   title.classList.add('screenFocusTarget');
   return title;

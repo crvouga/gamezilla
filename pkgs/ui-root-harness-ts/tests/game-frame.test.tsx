@@ -140,6 +140,29 @@ describe('Game frame: the players', () => {
 });
 
 describe('Game frame: actions and watching', () => {
+  test('choosing a tool keeps keyboard focus while its pressed state changes', () => {
+    // regression: game-action-bar-tool-focus
+    const [selected, setSelected] = createSignal(false);
+    renderUi(() => (
+      <GameActionBar
+        items={[
+          {
+            id: 'mode-h',
+            label: 'Horizontal wall',
+            testId: 'wall-tool',
+            pressed: selected(),
+            onPress: () => setSelected(true),
+          },
+        ]}
+      />
+    ));
+    const tool = screen.getByTestId('wall-tool');
+    tool.focus();
+    fireEvent.click(tool);
+    expect(document.activeElement).toBe(tool);
+    expect(tool.getAttribute('aria-pressed')).toBe('true');
+  });
+
   test('the action bar ships each test id, a primary step and pressed tools', () => {
     const pressed: string[] = [];
     renderUi(() => (

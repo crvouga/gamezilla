@@ -1,0 +1,4 @@
+{
+  "summary": "A fresh Classic Quoridor matched game mounted the board alone, omitting its pawn and wall tools. Matched play now mounts the frame session so the board, actions and optional controls share live state.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-frame-board.test.tsx"
+}

@@ -70,6 +70,7 @@ function QuoridorBoardView(
   return (
     <StackVertical gap="sm">
       <CellGridBoard
+        boardTheme="quoridor"
         label={t`Quoridor board, nine columns and nine rows`}
         testId={props.testId}
         columnLabels={['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']}

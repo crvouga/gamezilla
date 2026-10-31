@@ -1,9 +1,10 @@
 /** @jsxImportSource solid-js */
 
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, type JSX, Show } from 'solid-js';
+import { createMemo, createUniqueId, type JSX, Show } from 'solid-js';
 import { ActionBar } from '../action-bar/index';
 import { useActionBarChrome } from '../action-bar-chrome';
+import { usePublishScreenNavigation } from '../app-frame-chrome/index';
 import { ContentEdgePaddingProvider } from '../content-edge-padding/index';
 import {
   buildBodyContentProps,
@@ -39,6 +40,7 @@ function measureWidth(measure: ScreenBaseProps['measure']): string | undefined {
 function WidePageHeader(
   props: ScreenBaseProps & {
     primary: ScreenBasePrimaryActionRender | undefined;
+    shellNavigation?: boolean | undefined;
   }
 ): JSX.Element {
   const chrome = useActionBarChrome();
@@ -54,7 +56,9 @@ function WidePageHeader(
       data-component="ScreenBaseHeader"
     >
       {props.leading}
-      <ScreenBreadcrumbTrail breadcrumbs={props.breadcrumbs} />
+      <Show when={!props.shellNavigation}>
+        <ScreenBreadcrumbTrail breadcrumbs={props.breadcrumbs} />
+      </Show>
       <div class="box flex-1" aria-hidden="true" />
       <Show when={hasScreenBaseActions(partition())}>
         <ActionBar
@@ -146,6 +150,15 @@ function WideShell(
       measure={props.measure}
     />
   );
+  const titleId = createUniqueId();
+  const shellNavigation = usePublishScreenNavigation(
+    () => props.breadcrumbs,
+    titleId
+  );
+  const hasLocalActions = () =>
+    (props.actions?.length ?? 0) > 0 ||
+    props.leading !== undefined ||
+    primaryActionVisible(props.primary);
   let root: HTMLDivElement | undefined;
   useScreenFocus(
     () => root,
@@ -155,6 +168,7 @@ function WideShell(
     <div
       ref={root}
       class="box flex-1 min-h-0 gap-2"
+      aria-labelledby={shellNavigation() ? titleId : undefined}
       {...dataAttrs({
         component: 'ScreenBase',
         mode: 'wide',
@@ -162,7 +176,14 @@ function WideShell(
         screen: props.screenId,
       })}
     >
-      <WidePageHeader {...props} />
+      <Show when={shellNavigation() && props.breadcrumbs.length <= 1}>
+        <h1 id={titleId} class="text sr-only">
+          {lastBreadcrumbTitle(props.breadcrumbs)}
+        </h1>
+      </Show>
+      <Show when={!shellNavigation() || hasLocalActions()}>
+        <WidePageHeader {...props} shellNavigation={shellNavigation()} />
+      </Show>
       {body()}
     </div>
   );
@@ -179,15 +200,29 @@ function WideShell(
  * header island.
  */
 export function ScreenBaseWide(props: ScreenBaseProps): JSX.Element {
+  // Resolve JSX labels once under the screen's providers, before chrome reads them.
+  const breadcrumbs = createMemo(() =>
+    props.breadcrumbs.map((crumb) => ({ ...crumb }))
+  );
   return (
     <WithScreenBasePrimaryAction config={props.primaryAction}>
       {(primary) => (
         <Show
           when={props.largeTitle === true}
-          fallback={<WideShell {...props} primary={primary} />}
+          fallback={
+            <WideShell
+              {...props}
+              breadcrumbs={breadcrumbs()}
+              primary={primary}
+            />
+          }
         >
-          <ScreenTitleProvider title={lastBreadcrumbTitle(props.breadcrumbs)}>
-            <WideShell {...props} primary={primary} />
+          <ScreenTitleProvider title={lastBreadcrumbTitle(breadcrumbs())}>
+            <WideShell
+              {...props}
+              breadcrumbs={breadcrumbs()}
+              primary={primary}
+            />
           </ScreenTitleProvider>
         </Show>
       )}

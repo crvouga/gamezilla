@@ -198,10 +198,11 @@ test('keyboard focus is stable while paths update and disabled controls remain r
 });
 
 test('the explorer renders every path color and its disabled state', () => {
-  const view = render(() => <PathGridBoardExample />);
+  const [disabled, setDisabled] = createSignal(false);
+  const view = render(() => <PathGridBoardExample disabled={disabled()} />);
   const root = view.getByRole('group', { name: 'Labeled path colors' });
   expect(root.querySelectorAll('polyline').length).toBe(6);
-  fireEvent.click(view.getByRole('button', { name: 'Toggle path controls' }));
+  setDisabled(true);
   expect(root.querySelector('button')?.getAttribute('aria-disabled')).toBe(
     'true'
   );

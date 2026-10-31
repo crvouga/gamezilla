@@ -412,7 +412,7 @@ function BandMessage(props: ErrorStateProps): JSX.Element {
  * Says what broke and what to do about it: the `title` names the failure
  * ("Couldn't load your spaces"), the required `body` says what to do next
  * ("Check your connection and try again."), and `retry` is the thing to do,
- * the one blue primary. A second recovery stays an outline, as does the
+ * the primary recovery action. A second recovery stays an outline, as does the
  * copy-error button (shown when the body is text and a `copy` sink is
  * injected). Copy is short, second person and calm: no exclamation marks,
  * and never "contact support" -- there is none; offer the next step instead.

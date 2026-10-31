@@ -98,14 +98,19 @@ const TIERS = ['apps', 'libs', 'pkgs'] as const;
 const NAMED_WORKSPACE_PACKAGE =
   /['"](@(?:apps|libs|pkgs)\/[a-z0-9-]+)(?:\/[^'"]*)?['"]/g;
 
-function sourcesUnder(directory: string): string[] {
+/** Production files, pruning colocated preview and baseline directories before I/O. */
+export function productionFilesUnder(directory: string): string[] {
   if (!existsSync(directory)) return [];
-  return readdirSync(directory, { recursive: true, withFileTypes: true })
-    .filter(
-      (entry) =>
-        entry.isFile() && isProductionSource(join(entry.parentPath, entry.name))
-    )
-    .map((entry) => join(entry.parentPath, entry.name));
+  const files: string[] = [];
+  const directories = [directory];
+  for (const current of directories)
+    for (const entry of readdirSync(current, { withFileTypes: true })) {
+      const file = join(current, entry.name);
+      if (entry.isDirectory()) {
+        if (isProductionSource(`${file}/`)) directories.push(file);
+      } else if (entry.isFile() && isProductionSource(file)) files.push(file);
+    }
+  return files;
 }
 
 function exportTargets(exports: unknown): string[] {
@@ -135,7 +140,7 @@ export function visibleDirectories(exports: unknown): string[] {
 function importedBySource(dir: string, exports: unknown): Set<string> {
   const names = new Set<string>();
   for (const visible of visibleDirectories(exports))
-    for (const file of sourcesUnder(join(ROOT, dir, visible)))
+    for (const file of productionFilesUnder(join(ROOT, dir, visible)))
       for (const [, name] of readFileSync(file, 'utf8').matchAll(
         NAMED_WORKSPACE_PACKAGE
       ))

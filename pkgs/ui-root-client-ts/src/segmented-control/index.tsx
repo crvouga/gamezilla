@@ -115,7 +115,7 @@ function SegmentButton<K extends string>(props: {
  *
  * A row of segments (`role="radiogroup"` / `role="radio"`); exactly one is
  * selected at a time. The track is a clear pill inside the 3:1 `outline`
- * edge with a 4px inset; the selected segment is the soft blue pill
+ * edge with a 4px inset; the selected segment is the soft tint pill
  * (`tint-subtle` fill, `primary-strong` edge, `on-primary-soft` label), the
  * others ink. The indicator is sized as a fraction of the track
  * (`width: calc(100% / n)`, `left` offset by index), so it needs no

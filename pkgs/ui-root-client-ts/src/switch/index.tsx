@@ -26,7 +26,7 @@ export type SwitchProps = {
  * `Switch` -- on/off toggle rendered as `<button role="switch">`.
  *
  * A 48x28 track with a 24px thumb (`skin.css` `.switchTrack`): on is the
- * soft blue (`tint-subtle` track, `primary-strong` edge and thumb), off is a
+ * soft tint (`tint-subtle` track, `primary-strong` edge and thumb), off is a
  * clear track inside the `outline` hairline with a secondary thumb, so the
  * thumb position, not only its color, says which. The thumb slides in
  * 200ms; reduced motion snaps it. The button keeps a 48x44 hit area around

@@ -127,8 +127,13 @@ export function StaticAppRouterProvider(props: StaticRouterProps): JSX.Element {
   );
 }
 
+/** Optional routing seam for reusable chrome also rendered without a router. */
+export function useOptionalRouter(): AppRouter | undefined {
+  return useContext(AppRouterContext);
+}
+
 export function useRouter(): AppRouter {
-  const router = useContext(AppRouterContext);
+  const router = useOptionalRouter();
   if (router === undefined) {
     throw new Error('useRouter: AppRouterProvider missing');
   }

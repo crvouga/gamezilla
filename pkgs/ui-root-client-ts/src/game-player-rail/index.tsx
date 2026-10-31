@@ -33,7 +33,7 @@ export type GamePlayerRailProps = {
  * figure, out / reconnecting word and any short facts (`tags`). The rail
  * scrolls inside its own box, so seven long names never widen the page.
  *
- * The active chip (the player to move) is the soft blue (`tintSubtle` fill,
+ * The active chip (the player to move) is the soft tint (`tintSubtle` fill,
  * `primaryStrong` border) and `aria-current="step"`. With `onPress` a chip is
  * a button named by its contents.
  *

@@ -213,8 +213,14 @@ function boardItems(board: FrameBoard): readonly GameActionItem[] {
 export function FramePlayActions(
   props: ModelProps & { readonly board: FrameBoard }
 ): JSX.Element {
+  const unfinished = () =>
+    props.model.current()?.status === 'configuring' ||
+    props.model.current()?.status === 'active';
   return (
-    <GameActionBar aria-label={t`Game actions`} items={boardItems(props.board)}>
+    <GameActionBar
+      aria-label={t`Game actions`}
+      items={unfinished() ? boardItems(props.board) : []}
+    >
       <Show when={props.model.current()?.status === 'active'}>
         <CustomGameDrawActions model={props.model} />
         <CustomGameClaimWin model={props.model} />
@@ -239,10 +245,9 @@ export function FrameActions(
     props.model.current()?.status === 'cancelled';
   return (
     <Show when={props.model.current() !== null}>
-      <Show
-        when={over()}
-        fallback={<FramePlayActions model={props.model} board={props.board} />}
-      >
+      {/* Confirmation dialogs outlive the command row when their mutation finishes the game. */}
+      <FramePlayActions model={props.model} board={props.board} />
+      <Show when={over()}>
         <GameFrameResultActions model={props.model} review={props.review} />
       </Show>
     </Show>

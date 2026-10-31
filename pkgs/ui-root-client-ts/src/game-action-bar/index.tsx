@@ -2,7 +2,7 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX, Show } from 'solid-js';
+import { createMemo, For, type JSX, Show } from 'solid-js';
 import { Button } from '../button/index';
 import { createScreenSlot } from '../screen-slot';
 
@@ -15,7 +15,7 @@ export type GameActionItem = {
   testId: string;
   onPress: () => void;
   disabled?: boolean | undefined;
-  /** The one next step: the blue fill. */
+  /** The one next step: the primary fill. */
   emphasis?: 'primary' | undefined;
   /** A tool toggle: whether it is the chosen one. */
   pressed?: boolean | undefined;
@@ -31,18 +31,24 @@ export type GameActionBarProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-function ActionButton(props: { item: GameActionItem }): JSX.Element {
-  const primary = (): boolean => props.item.emphasis === 'primary';
+function ActionButton(props: {
+  item: GameActionItem | undefined;
+}): JSX.Element {
+  const primary = (): boolean => props.item?.emphasis === 'primary';
   return (
-    <Button
-      title={props.item.label}
-      intent={primary() ? 'primary' : 'neutral'}
-      variant={primary() ? 'solid' : 'outline'}
-      disabled={props.item.disabled}
-      aria-pressed={props.item.pressed}
-      onClick={() => props.item.onPress()}
-      dataSet={{ testid: props.item.testId, action: props.item.id }}
-    />
+    <Show when={props.item}>
+      {(item) => (
+        <Button
+          title={item().label}
+          intent={primary() ? 'primary' : 'neutral'}
+          variant={primary() ? 'solid' : 'outline'}
+          disabled={item().disabled}
+          aria-pressed={item().pressed}
+          onClick={() => item().onPress()}
+          dataSet={{ testid: item().testId, action: item().id }}
+        />
+      )}
+    </Show>
   );
 }
 
@@ -70,6 +76,10 @@ function ActionButton(props: { item: GameActionItem }): JSX.Element {
  */
 export function GameActionBar(props: GameActionBarProps): JSX.Element {
   const commands = createScreenSlot(() => props.children);
+  const items = createMemo(
+    () => new Map(props.items.map((item) => [item.id, item]))
+  );
+  const ids = createMemo(() => [...items().keys()]);
   return (
     <Show when={props.items.length > 0 || commands.present()}>
       <div
@@ -78,7 +88,9 @@ export function GameActionBar(props: GameActionBarProps): JSX.Element {
         aria-label={props['aria-label']}
         {...dataAttrs({ component: 'GameActionBar', ...props.dataSet })}
       >
-        <For each={props.items}>{(item) => <ActionButton item={item} />}</For>
+        <For each={ids()}>
+          {(id) => <ActionButton item={items().get(id)} />}
+        </For>
         <Show when={commands.present()}>{commands.content()}</Show>
       </div>
     </Show>

@@ -1,5 +1,7 @@
 /** @jsxImportSource solid-js */
 
+import './google-font.css';
+
 import { useLingui } from '@lingui/solid/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
@@ -39,15 +41,14 @@ export type SocialSignInButtonProps = {
 };
 
 /**
- * Roboto Medium 14/20 per Google's spec.
+ * Google Sans Medium 14/20 per Google's spec.
  * @see https://developers.google.com/identity/branding-guidelines#font
  */
 const FONT_SIZE = 14;
 const LINE_HEIGHT = 20;
 const FONT_WEIGHT = '500' as const;
-/** Roboto is spec'd; fall back to the platform sans stack when unavailable. */
-const FONT_FAMILY =
-  'Roboto, system-ui, -apple-system, BlinkMacSystemFont, sans-serif';
+/** Self-hosted vendor typeface, isolated to social sign-in controls. */
+const FONT_FAMILY = '"Google Sans", system-ui, sans-serif';
 
 /**
  * Padding spec: 12px before the logo, 10px logo→label, 12px after the label.
@@ -180,7 +181,8 @@ export function SocialSignInButton(
           'line-height': `${LINE_HEIGHT}px`,
           'font-weight': FONT_WEIGHT,
           color: palette().font,
-          'font-family': FONT_FAMILY,
+          'font-family':
+            props.provider === 'google' ? FONT_FAMILY : 'var(--ui-font-sans)',
         }}
       >
         {visibleLabel()}
