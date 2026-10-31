@@ -1,4 +1,4 @@
 {
-  "summary": "The exhaustive move reference exceeded Bun's five-second test limit on the release profile's seed 424242 and 30 small-rack cases. It recomputed identical board geometry across racks and identical rack permutations across cell sets. Memoizing only geometry and hoisting permutations preserves every exhaustive comparison without raising the timeout or reducing cases.",
+  "summary": "The exhaustive move reference exceeded Bun's five-second test limit on the release profile's seed 424242 and 30 small-rack cases. It recomputed identical board geometry across racks and identical rack permutations across cell sets. Memoizing only geometry and hoisting permutations preserves every exhaustive comparison without raising the timeout or reducing cases. The literal 30-case run is replayed before the seeded property, with a cold geometry cache.",
   "regressionTest": "libs/word-tiles-shared-ts/tests/word-tiles-moves.test.ts"
 }

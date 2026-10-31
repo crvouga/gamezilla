@@ -168,10 +168,56 @@ const BOARDS = [
     ['i8', 'down', 'TEA'],
   ]),
   boardWith([['a1', 'across', 'SEAT']]),
-];
+] as const;
+
+function expectReferencePlacements(board: string, letters: string): void {
+  const rack = idsOf(letters, new Set());
+  const generated = generateMoves({ board, rack, trie: TRIE, budget: 1e7 });
+  expect(generated.complete).toBe(true);
+  const keys = new Set(generated.moves.map((m) => key(m.placed)));
+  expect([...keys].sort()).toEqual([...reference(board, rack)].sort());
+}
+
+// regression: word-tiles-reference-repeated-geometry
+test('replays the literal small-rack cases that exhausted the reference timeout', () => {
+  // Exact seed 424242 / 30-case run, before the property warms the geometry cache.
+  const cases = [
+    [2, 'A'],
+    [1, 'C'],
+    [1, 'TET'],
+    [1, 'S'],
+    [3, 'EAS'],
+    [2, '?'],
+    [3, 'E'],
+    [3, 'ACT'],
+    [3, '?A'],
+    [2, 'S'],
+    [3, 'E'],
+    [1, 'A'],
+    [1, 'A'],
+    [1, 'TEC'],
+    [3, 'A?'],
+    [2, 'E'],
+    [2, 'T'],
+    [0, 'TEC'],
+    [0, 'A'],
+    [0, '?TE'],
+    [3, 'AC'],
+    [3, 'S'],
+    [0, '?A'],
+    [2, 'SST'],
+    [0, 'A'],
+    [1, 'S'],
+    [2, '?'],
+    [2, 'EA?'],
+    [2, 'CS'],
+    [1, 'TEC'],
+  ] as const;
+  for (const [board, letters] of cases)
+    expectReferencePlacements(BOARDS[board], letters);
+});
 
 describe('move generation', () => {
-  // regression: word-tiles-reference-repeated-geometry
   test('finds exactly the reference placements on small racks', () => {
     assertProperty(
       'generator agrees with the exhaustive reference',
@@ -181,18 +227,7 @@ describe('move generation', () => {
           minLength: 1,
           maxLength: 3,
         }),
-        (board, letters) => {
-          const rack = idsOf(letters.join(''), new Set());
-          const generated = generateMoves({
-            board,
-            rack,
-            trie: TRIE,
-            budget: 1e7,
-          });
-          expect(generated.complete).toBe(true);
-          const keys = new Set(generated.moves.map((m) => key(m.placed)));
-          expect([...keys].sort()).toEqual([...reference(board, rack)].sort());
-        }
+        (board, letters) => expectReferencePlacements(board, letters.join(''))
       ),
       { numRuns: 30 }
     );
