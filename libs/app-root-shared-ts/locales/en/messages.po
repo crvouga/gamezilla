@@ -1247,6 +1247,7 @@ msgid "Both players are ready."
 msgstr "Both players are ready."
 
 #: pkgs/ui-root-client-ts/src/screen-breadcrumb-trail/index.tsx
+#: pkgs/ui-root-client-ts/src/screen-breadcrumb-trail/pills.tsx
 msgid "Breadcrumb"
 msgstr "Breadcrumb"
 
@@ -4322,6 +4323,7 @@ msgstr "Other people see you as {alias} until you choose a new username"
 msgid "Other players"
 msgstr "Other players"
 
+#: libs/game-matchmaking-client-ts/src/multiplayer-seat.tsx
 #: libs/game-session-client-ts/src/game-frame-seats.tsx
 msgid "Out"
 msgstr "Out"
