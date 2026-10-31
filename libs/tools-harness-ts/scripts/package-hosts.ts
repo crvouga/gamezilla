@@ -10,7 +10,7 @@
  * | `macos`  | `macos` |
  * | `ios`    | `macos` |
  *
- * CI runs every job on a boat.dev Linux runner (`CI_RUNNER`), so it verifies
+ * CI runs every job on a GitHub-hosted Ubuntu runner (`CI_RUNNER`), so it verifies
  * every package without `platforms` (`ciFilters`). A native package is verified only by `bun verify` on a host
  * that builds it.
  *
@@ -32,12 +32,12 @@ export type Platform = keyof typeof PLATFORMS;
 export type Host = (typeof PLATFORMS)[Platform]['host'];
 
 /**
- * The runner label every CI job requests: the boat.dev Linux runner, a fresh
- * just-in-time runner per job. A pull request's code is untrusted (the
+ * The runner label every CI job requests: the GitHub-hosted Ubuntu image, a fresh
+ * VM per job. A pull request's code is untrusted (the
  * repository is public) and never runs on a machine a later job (a deploy)
  * reuses.
  */
-export const CI_RUNNER = 'boat';
+export const CI_RUNNER = 'ubuntu-24.04';
 
 const DEFAULT_HOSTS: readonly Host[] = ['linux'];
 

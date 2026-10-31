@@ -152,7 +152,7 @@ package's platforms to the hosts that can verify it.
 
 | Work | Runs on |
 | --- | --- |
-| TypeScript tasks | Linux, macOS and Windows (CI: `boat`) |
+| TypeScript tasks | Linux, macOS and Windows (CI: `ubuntu-24.04`) |
 | Portable SwiftPM build and tests | Linux and macOS (CI: not checked) |
 | SwiftUI iOS app build, launch and smoke test | macOS with the pinned Xcode only (CI: not checked) |
 
@@ -219,7 +219,7 @@ An Xcode app package holds exactly one `<name>.xcodeproj` with a shared
 ## CI
 
 Verify PR is still the one merge gate, and `verify:end` the one required
-status; a pull request and Release both run the whole `release` gate. Every CI job runs on a boat.dev `boat` runner ([`CI_REQUIREMENTS.md`](CI_REQUIREMENTS.md#runner-operating-systems)),
+status; a pull request and Release both run the whole `release` gate. Every CI job runs on a standard GitHub-hosted `ubuntu-24.04` runner ([`CI_REQUIREMENTS.md`](CI_REQUIREMENTS.md#runner-operating-systems)),
 so CI checks only what builds there.
 
 - **The shards** run the gate over every package that declares no
@@ -291,7 +291,7 @@ Swift. None of it exists yet; when it lands it follows these rules:
 5. **Extend the boundaries**: its native dependency references in
    `language-boundaries.ts` (as for `Package.swift`), its formatter in
    `lint-package.ts`, its test runner in `test-scripts.ts`.
-6. **Expect no CI.** CI runs on `boat` and verifies only packages
+6. **Expect no CI.** CI runs on GitHub-hosted `ubuntu-24.04` and verifies only packages
    without `platforms` (`ciFilters` in `package-hosts.ts`); a native package
    is verified only by `bun verify` on a host that builds it.
 7. **Prove it** with tests beside the ones above (`language-boundaries.test.ts`,

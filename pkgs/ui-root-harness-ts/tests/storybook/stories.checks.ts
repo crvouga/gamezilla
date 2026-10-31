@@ -1,8 +1,8 @@
 // @io-wall-ok — browser verification adapter; all requests stay on the static server
 import { readFileSync } from 'node:fs';
-import { expect, test } from '@playwright/test';
-import axe from 'axe-core';
+import { test } from '@playwright/test';
 import { visualScenarios } from '../../storybook/scenarios';
+import { verifyStoryScenario } from './verify-story-scenario';
 
 type Entry = { id: string; type: string; importPath: string };
 const index = JSON.parse(
@@ -15,50 +15,27 @@ for (const story of Object.values(index.entries).filter(
   (e) => e.type === 'story'
 )) {
   for (const scenario of visualScenarios(story)) {
-    const { width, height, theme, suffix } = scenario;
+    // This exact matrix entry is registered literally below.
+    if (
+      story.id === 'primitives-sparkline--states' &&
+      scenario.theme === 'dark' &&
+      scenario.width === 390
+    )
+      continue;
+    const { theme, suffix } = scenario;
     test(`${story.id} ${theme}${suffix}`, async ({ page }) => {
-      await page.setViewportSize({ width, height });
-      const failures: string[] = [];
-      page.on('pageerror', (error) => failures.push(error.message));
-      await page.route('**/*', (route) =>
-        new URL(route.request().url()).hostname === '127.0.0.1'
-          ? route.continue()
-          : route.abort()
-      );
-      await page.goto(
-        `/iframe.html?id=${story.id}&viewMode=story&globals=theme:${theme}`
-      );
-      await expect
-        .poll(async () =>
-          page.locator('#storybook-root').evaluate((root) => {
-            const status = root.getAttribute('data-story-status');
-            if (status === 'error')
-              return `error: ${root.getAttribute('data-story-error') ?? 'Storybook reported a failure'}`;
-            return root.getAttribute('data-story-ready') === 'true'
-              ? 'success'
-              : 'pending';
-          })
-        )
-        .toBe('success');
-      await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
-      await page.evaluate(() => document.fonts.ready);
-      await page.addScriptTag({ content: axe.source });
-      const violations = await page.evaluate(async () => {
-        const root = document.querySelector<HTMLElement>('#storybook-root');
-        if (!root) throw new Error('Storybook canvas is missing');
-        const result = await (window as unknown as { axe: typeof axe }).axe.run(
-          root
-        );
-        return result.violations.filter(
-          (v) => v.impact === 'serious' || v.impact === 'critical'
-        );
-      });
-      expect(violations).toEqual([]);
-      expect(failures).toEqual([]);
-      await expect(page.locator('#storybook-root')).toHaveScreenshot(
-        scenario.baseline.split('/'),
-        { animations: 'disabled' }
-      );
+      await verifyStoryScenario(page, story.id, scenario);
     });
   }
 }
+
+// regression: storybook-ubuntu-renderer-baselines
+test('primitives-sparkline--states dark', async ({ page }) => {
+  const story = index.entries['primitives-sparkline--states'];
+  if (!story) throw new Error('Missing Sparkline states story');
+  const scenario = visualScenarios(story).find(
+    (candidate) => candidate.theme === 'dark' && candidate.width === 390
+  );
+  if (!scenario) throw new Error('Missing Sparkline dark 390px scenario');
+  await verifyStoryScenario(page, 'primitives-sparkline--states', scenario);
+});

@@ -367,7 +367,9 @@ test('renderer setup only serves uncached native browser tasks', () => {
     true
   );
   expect(needsBrowser([task('@apps/product-ts#test:contract')])).toBe(false);
-  expect(needsBrowser([task('@pkgs/ui-testing-bun-webview#test')])).toBe(true);
+  expect(
+    needsBrowser([task('@pkgs/ui-testing-bun-webview-server-ts#test')])
+  ).toBe(true);
   expect(
     needsBrowser([
       { ...task('@apps/product-ts#test:contract:render'), hit: true },

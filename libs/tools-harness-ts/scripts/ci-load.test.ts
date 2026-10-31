@@ -70,7 +70,7 @@ describe('loadReport', () => {
   });
 });
 
-test('the measured corpus fits the self-hosted runner', () => {
+test('the measured corpus fits the dedicated runner capacity model', () => {
   const report = loadReport(readLoadInput(ROOT));
   expect(report.fit.fits).toBe(true);
   expect(report.fit.specSlots).toBeLessThanOrEqual(SPEC_WORKER_CAP);

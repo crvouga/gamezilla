@@ -300,19 +300,20 @@ export async function prefetchArtifacts(
   io: PrefetchIo,
   concurrency: number
 ): Promise<PrefetchResult> {
+  const unique = [...new Set(hashes)];
   let next = 0;
   let fetched = 0;
   let failed = 0;
   async function worker(): Promise<void> {
-    while (next < hashes.length) {
-      const hash = hashes[next] as string;
+    while (next < unique.length) {
+      const hash = unique[next] as string;
       next += 1;
       const ok = await prefetchOne(hash, cacheDir, io);
       if (ok) fetched += 1;
       else failed += 1;
     }
   }
-  const workers = Math.max(1, Math.min(concurrency, hashes.length));
+  const workers = Math.max(1, Math.min(concurrency, unique.length));
   await Promise.all(Array.from({ length: workers }, worker));
   return { fetched, failed };
 }
@@ -323,15 +324,13 @@ async function prefetchOne(
   io: PrefetchIo
 ): Promise<boolean> {
   const tarPath = join(cacheDir, `${hash}.tar.zst`);
-  if (io.exists(tarPath)) return true;
+  const metaPath = join(cacheDir, `${hash}-meta.json`);
+  if (io.exists(tarPath) && io.exists(metaPath)) return true;
   try {
     const bytes = await io.fetchArtifact(hash);
     if (bytes === null) return false;
     io.writeFile(tarPath, bytes);
-    io.writeFile(
-      join(cacheDir, `${hash}-meta.json`),
-      JSON.stringify({ hash, duration: 0 })
-    );
+    io.writeFile(metaPath, JSON.stringify({ hash, duration: 0 }));
     return true;
   } catch {
     return false;

@@ -1,0 +1,4 @@
+{
+  "summary": "A fresh Storybook shard skipped pinned Chrome setup, leaving BUN_CHROME_PATH absent and changing the browser gate's hash from the immutable plan.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-browser-tasks.test.ts"
+}

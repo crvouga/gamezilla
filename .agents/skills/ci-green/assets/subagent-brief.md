@@ -8,7 +8,7 @@ only on this cluster.
 - Checks: <check ids and names>
 - Reproduce: `<SKILL_DIR>/scripts/run-check <id>`
   (narrower: `<SKILL_DIR>/scripts/run-check --adhoc <name> --like <id> --cmd "<single test or file>"`)
-- Logs: <.ci-green/logs/<id>/<file>.log, ...>
+- Logs: <hosted run URL, attempt, tested SHA, job/step; saved log paths>
 - Lead lines:
   ```
   <signature lines from triage>
@@ -27,11 +27,13 @@ Formatter: <command>. Test layout: <where tests live>.
 
 Also:
 
-- Reproduce the failure first and confirm you see the same lead lines.
+- Read the hosted failure first. Use a focused reproduction when practical;
+  report when only the actual workflow can exercise the failure.
 - Make the smallest change that fixes the root cause. Touch only the files
   this cluster needs; if the fix needs files outside <paths>, stop and
   report back first, because another subagent may own them.
-- Do not edit `.ci-green/`, the overrides, or CI configuration. Do not
+- Do not edit `.ci-green/` or the overrides. Edit CI configuration only
+  when the coordinator assigned that root cause and file ownership. Do not
   commit, push, or install new dependencies.
 - If the right behaviour is ambiguous or the fix changes product
   behaviour, stop and report back with the question.

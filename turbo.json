@@ -195,6 +195,7 @@
         "!**/*.test.tsx",
         "!**/*.stories.tsx",
         "!**/*.example.tsx",
+        "!tests/**",
         "!**/baselines/**",
         "!storybook/**",
         "!tsconfig.tc.json",

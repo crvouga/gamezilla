@@ -63,13 +63,13 @@ test('only GitHub Actions owns the Verify, Release and Health triggers', () => {
     }
   }
   // regression: public-repository-self-hosted-runner
-  // Every job runs on the boat.dev Linux runner (package-hosts.ts), a fresh
-  // just-in-time runner per job. No job names any other label, `self-hosted`
+  // Every job runs on the GitHub-hosted Ubuntu runner (package-hosts.ts), a fresh
+  // VM per job. No job names any other label, `self-hosted`
   // above all: a pull request's code would otherwise run on a machine a later
   // deploy job reuses.
   expect(runners.length).toBeGreaterThan(0);
   for (const runner of runners) expect(runner).toBe(CI_RUNNER);
-  expect(CI_RUNNER).not.toMatch(/self-hosted/i);
+  expect(CI_RUNNER).toBe('ubuntu-24.04');
 });
 
 // regression: ci-provider-native-ci-missing-local-action
