@@ -15,7 +15,7 @@ export function ProfileFriendsStats(): JSX.Element {
   const friendsState = useFriends();
 
   return (
-    <MenuList role="group">
+    <MenuList>
       <MenuRow
         title={
           <>

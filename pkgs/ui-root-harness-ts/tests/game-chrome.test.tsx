@@ -6,7 +6,7 @@ import { GameChoiceGrid } from '@pkgs/ui-root-client-ts/game-choice-grid';
 import { GameClock } from '@pkgs/ui-root-client-ts/game-clock';
 import { GamePlayerBar } from '@pkgs/ui-root-client-ts/game-player-bar';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
-import { GameStatus } from '@pkgs/ui-root-client-ts/game-status';
+import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { screen } from '@solidjs/testing-library';
 import { mustQuery, renderUi } from './render';
 
@@ -28,11 +28,12 @@ describe('Game chrome', () => {
     expect(document.querySelector('[data-testid="nav-back"]')).toBeNull();
   });
 
-  test('the seats sit around the board, the far seat first', () => {
+  test('the others sit above the board, then the turn, then your own strip', () => {
     renderUi(() => (
       <GameBoardStage
-        top={<GamePlayerBar name="Atlas" dataSet={{ testid: 'far' }} />}
-        bottom={<GamePlayerBar name="Nova" dataSet={{ testid: 'near' }} />}
+        others={<GamePlayerBar name="Atlas" dataSet={{ testid: 'far' }} />}
+        turn={<GameTurnPill title="Atlas to move." />}
+        own={<GamePlayerBar name="Nova" dataSet={{ testid: 'near' }} />}
       >
         <div data-testid="board" />
       </GameBoardStage>
@@ -40,21 +41,33 @@ describe('Game chrome', () => {
     const order = [...mustQuery('[data-component="GameBoardStage"]').children];
     expect(order[0]).toBe(screen.getByTestId('far'));
     expect(order[1]?.contains(screen.getByTestId('board'))).toBe(true);
-    expect(order[2]).toBe(screen.getByTestId('near'));
+    expect(order[2]).toBe(mustQuery('[data-component="GameTurnPill"]'));
+    expect(order[3]).toBe(screen.getByTestId('near'));
   });
 
-  test('an empty seat draws the person placeholder, not an icon', () => {
-    renderUi(() => <GamePlayerBar name="Open place" />);
+  test('a stage without seats or a turn is the board alone', () => {
+    renderUi(() => (
+      <GameBoardStage others={undefined} turn={false} own={<>{null}</>}>
+        <div data-testid="board" />
+      </GameBoardStage>
+    ));
+    const stage = mustQuery('[data-component="GameBoardStage"]');
+    expect(stage.children).toHaveLength(1);
+    expect(stage.children[0]?.contains(screen.getByTestId('board'))).toBe(true);
+  });
+
+  test('a seat without an avatar draws the person placeholder, not an icon', () => {
+    renderUi(() => <GamePlayerBar name="Robin" />);
     const avatar = mustQuery('[data-component="Avatar"]');
     expect(avatar.getAttribute('data-placeholder')).toBe('true');
     expect(avatar.querySelector('svg[viewBox="0 0 40 40"]')).not.toBeNull();
   });
 
-  test('the status line announces its words but not its trailing facts', () => {
+  test('the turn pill announces its words politely but not its trailing facts', () => {
     renderUi(() => (
-      <GameStatus
+      <GameTurnPill
         live
-        tone="active"
+        emphasis="yours"
         title="Your turn."
         detail="Make your first move"
         trailing={<span data-testid="fact">{'5+0'}</span>}
@@ -66,10 +79,17 @@ describe('Game chrome', () => {
     expect(words).toHaveAttribute('aria-live', 'polite');
     expect(words).toHaveTextContent('Your turn.Make your first move');
     expect(words.contains(screen.getByTestId('fact'))).toBe(false);
-    expect(mustQuery('[data-component="GameStatus"]')).toHaveAttribute(
-      'data-tone',
-      'active'
-    );
+    const pill = mustQuery('[data-component="GameTurnPill"]');
+    expect(pill).toHaveAttribute('data-emphasis', 'yours');
+    expect(pill).toHaveAttribute('data-tone', 'neutral');
+  });
+
+  test('a turn pill that is not live is no status region', () => {
+    renderUi(() => <GameTurnPill title="Erin to move." tone="success" />);
+    expect(screen.queryByRole('status')).toBeNull();
+    const pill = mustQuery('[data-component="GameTurnPill"]');
+    expect(pill).toHaveAttribute('data-emphasis', 'neutral');
+    expect(pill).toHaveAttribute('data-tone', 'success');
   });
 
   test('the active clock is chosen and the time stays in the control', () => {

@@ -14,7 +14,6 @@ import { FormScreen } from '@pkgs/ui-root-client-ts/form-screen';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
-import { useBreadcrumbNav } from '@pkgs/ui-root-client-ts/use-breadcrumb-nav';
 import type { Accessor, JSX } from 'solid-js';
 import { createEffect, createMemo, createSignal } from 'solid-js';
 import { useMyProfileId } from './claim-username-use-my-profile-id';
@@ -111,7 +110,6 @@ export function ProfileHandleScreen(): JSX.Element {
   const { row } = useProfileRow(profileId);
   const [value, setValue] = useSyncedUsername(row);
   const usernameModeration = useUsernameModeration(value, row);
-  const nav = useBreadcrumbNav();
   const mutationClient = useMutationClient();
   const [lastError, setLastError] = createSignal<{
     readonly code: string;
@@ -138,8 +136,14 @@ export function ProfileHandleScreen(): JSX.Element {
     <FormScreen
       screenId="profile-handle"
       breadcrumbs={[
-        { name: <Trans>Profile</Trans>, onClick: nav('/profile') },
-        { name: <Trans>Edit profile</Trans>, onClick: nav('/profile/edit') },
+        {
+          name: <Trans>Profile</Trans>,
+          onClick: () => router.push('/profile'),
+        },
+        {
+          name: <Trans>Edit profile</Trans>,
+          onClick: () => router.push('/profile/edit'),
+        },
         { name: <Trans>Username</Trans> },
       ]}
       cancel={{

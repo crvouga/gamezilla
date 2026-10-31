@@ -5,7 +5,7 @@
  */
 
 import type { JSX } from 'solid-js';
-import type { IconComponent } from './create-icon';
+import type { IconComponent } from './create-icon/index';
 
 export type ActionBarAlign = 'start' | 'end';
 

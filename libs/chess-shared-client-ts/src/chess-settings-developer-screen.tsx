@@ -14,9 +14,6 @@ export function ChessSettingsDeveloperScreen(): JSX.Element {
   const backToSettings = (): void => {
     gameScreen.show(CHESS_SCREEN.settings);
   };
-  const openUiComponents = (): void => {
-    gameScreen.show(CHESS_SCREEN.settingsDeveloperUi);
-  };
 
   const items = (): readonly MainMenuItem[] => [
     ...(canManage()
@@ -35,12 +32,6 @@ export function ChessSettingsDeveloperScreen(): JSX.Element {
           },
         ]
       : []),
-    {
-      key: 'ui-components',
-      title: <Trans>UI Components</Trans>,
-      caption: <Trans>Browse design system primitives in this space.</Trans>,
-      onClick: openUiComponents,
-    },
   ];
 
   return (
@@ -49,7 +40,7 @@ export function ChessSettingsDeveloperScreen(): JSX.Element {
       <MainMenuScreen
         screenId="chess-settings-developer"
         title={<Trans>Developer</Trans>}
-        subtitle={<Trans>Tools for debugging and exploring the UI.</Trans>}
+        subtitle={<Trans>Import and manage puzzle content.</Trans>}
         items={items()}
       />
     </>

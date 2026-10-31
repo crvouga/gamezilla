@@ -1,0 +1,212 @@
+.arena {
+  --ui-color-background: var(--ui-color-game-light-cycles-canvas);
+  --color-background: var(--ui-color-background);
+  --ui-color-surface: var(--ui-color-game-light-cycles-surface);
+  --color-surface: var(--ui-color-surface);
+  --ui-color-surface-muted: var(--ui-color-game-light-cycles-surface);
+  --color-surface-muted: var(--ui-color-surface-muted);
+  --ui-color-surface-sunken: var(--ui-color-game-light-cycles-surface);
+  --color-surface-sunken: var(--ui-color-surface-sunken);
+  --ui-color-surface-elevated: var(--ui-color-game-light-cycles-surface);
+  --color-surface-elevated: var(--ui-color-surface-elevated);
+  --ui-color-text: var(--ui-color-game-light-cycles-ink);
+  --color-text: var(--ui-color-text);
+  --ui-color-text-secondary: var(--ui-color-game-light-cycles-muted);
+  --color-text-secondary: var(--ui-color-text-secondary);
+  --ui-color-border: var(--ui-color-game-light-cycles-surface);
+  --color-border: var(--ui-color-border);
+  --ui-color-outline: var(--ui-color-game-light-cycles-muted);
+  --color-outline: var(--ui-color-outline);
+  --ui-color-tint: var(--ui-color-game-light-cycles-accent);
+  --color-tint: var(--ui-color-tint);
+  --ui-color-tint-active: var(--ui-color-game-light-cycles-accent);
+  --color-tint-active: var(--ui-color-tint-active);
+  --ui-color-tint-subtle: var(--ui-color-game-light-cycles-surface);
+  --color-tint-subtle: var(--ui-color-tint-subtle);
+  --ui-color-focus-ring: var(--ui-color-game-light-cycles-accent);
+  --color-focus-ring: var(--ui-color-focus-ring);
+  --ui-color-destructive: var(--ui-color-game-light-cycles-one);
+  --color-destructive: var(--ui-color-destructive);
+  --ui-color-warning: var(--ui-color-game-light-cycles-two);
+  --color-warning: var(--ui-color-warning);
+  --ui-color-success: var(--ui-color-game-light-cycles-accent);
+  --color-success: var(--ui-color-success);
+  --ui-color-info: var(--ui-color-game-light-cycles-accent);
+  --color-info: var(--ui-color-info);
+  --ui-color-on-destructive: var(--ui-color-game-light-cycles-canvas);
+  --color-on-destructive: var(--ui-color-on-destructive);
+  --ui-color-on-warning: var(--ui-color-game-light-cycles-canvas);
+  --color-on-warning: var(--ui-color-on-warning);
+  --ui-color-on-info: var(--ui-color-game-light-cycles-canvas);
+  --color-on-info: var(--ui-color-on-info);
+}
+/*
+ * Lengths inside the drawing are in cells (the viewBox unit), so they keep
+ * their proportion to the grid at every size.
+ */
+.arena {
+  position: relative;
+  width: 100%;
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-color-background);
+  overflow: hidden;
+  color: var(--ui-color-text);
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.arena[data-interactive="true"] {
+  touch-action: none;
+}
+.arena:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
+}
+.drawing {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* Every rider index: a colour token, and (in its tile) a pattern. */
+.arena [data-rider="0"] {
+  --rider-color: var(--ui-color-game-light-cycles-accent);
+}
+.arena [data-rider="1"] {
+  --rider-color: var(--ui-color-game-light-cycles-one);
+}
+.arena [data-rider="2"] {
+  --rider-color: var(--ui-color-game-light-cycles-two);
+}
+.arena [data-rider="3"] {
+  --rider-color: var(--ui-color-game-light-cycles-ink);
+}
+
+.floor {
+  background: var(--ui-color-background);
+  stroke: none;
+}
+.gridDot {
+  fill: var(--ui-color-border);
+}
+.wall {
+  fill: none;
+  stroke: var(--ui-color-outline);
+  stroke-width: 0.24;
+}
+
+.ink {
+  fill: var(--rider-color);
+}
+.wash {
+  fill: var(--rider-color);
+  fill-opacity: 0.28;
+}
+.stripe {
+  fill: none;
+  stroke: var(--rider-color);
+  stroke-width: 0.34;
+  stroke-linecap: square;
+}
+.outline {
+  fill: none;
+  stroke: var(--rider-color);
+  stroke-width: 0.14;
+}
+.trail {
+  stroke: none;
+}
+
+.ring {
+  fill: none;
+  stroke: var(--ui-color-text);
+  stroke-width: 0.18;
+}
+.nose {
+  fill: var(--rider-color);
+  stroke: var(--ui-color-background);
+  stroke-width: 0.1;
+  stroke-linejoin: round;
+}
+.next {
+  fill: none;
+  stroke: var(--rider-color);
+  stroke-width: 0.16;
+  stroke-dasharray: 0.2 0.14;
+  stroke-linejoin: round;
+}
+.disc {
+  fill: var(--rider-color);
+  stroke: var(--ui-color-background);
+  stroke-width: 0.14;
+}
+.mark {
+  fill: var(--ui-color-background);
+  font-family: inherit;
+  font-size: 1.3px;
+  font-weight: var(--ui-font-weight-bold);
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+.head[data-alive="false"] .disc {
+  fill: var(--ui-color-background);
+  stroke: var(--rider-color);
+  stroke-dasharray: 0.4 0.24;
+}
+.head[data-alive="false"] .mark {
+  fill: var(--rider-color);
+}
+.head[data-alive="false"] .nose {
+  display: none;
+}
+.head[data-alive="false"] {
+  opacity: var(--ui-opacity-muted);
+}
+
+.crashRing {
+  fill: none;
+  stroke: var(--ui-color-destructive);
+  stroke-width: 0.16;
+  stroke-dasharray: 0.5 0.3;
+}
+.crashCross {
+  fill: none;
+  stroke: var(--ui-color-destructive);
+  stroke-width: 0.32;
+  stroke-linecap: round;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--ui-space-4);
+  pointer-events: none;
+}
+.banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ui-space-1);
+  max-width: 100%;
+  padding: var(--ui-space-3) var(--ui-space-6);
+  border: var(--ui-space-hairline) solid var(--ui-color-border);
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-color-surface-elevated);
+  color: var(--ui-color-text);
+  text-align: center;
+}
+.title {
+  font-size: var(--ui-font-size-2xl);
+  line-height: var(--ui-leading-2xl);
+  font-weight: var(--ui-font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+.detail {
+  font-size: var(--ui-font-size-sm);
+  line-height: var(--ui-leading-sm);
+  color: var(--ui-color-text-secondary);
+}

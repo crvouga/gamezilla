@@ -1,0 +1,4 @@
+{
+  "summary": "Resigning a custom game replaced its play actions with result actions, disposing the mutation dialog before its success and Done control could appear. Resign and cancel confirmations now remain mounted through completion and acknowledgment.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-finish-confirmation.test.tsx"
+}

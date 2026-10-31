@@ -1,0 +1,4 @@
+{
+  "summary": "Bare progress tracks lacked the accessible name required by the progressbar role.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/hosts.test.tsx"
+}

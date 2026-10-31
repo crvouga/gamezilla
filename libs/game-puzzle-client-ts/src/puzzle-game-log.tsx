@@ -21,6 +21,7 @@ export function PuzzleGameLog(props: PuzzleGameLogProps): JSX.Element {
           variant="compact"
           icon={ListChecksIcon}
           title={<Trans>No puzzles played yet.</Trans>}
+          body={<Trans>Solve a puzzle and it shows up here.</Trans>}
           dataSet={{ testid: 'chess-game-log-empty' }}
         />
       }

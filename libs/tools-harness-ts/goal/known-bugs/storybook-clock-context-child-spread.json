@@ -1,0 +1,4 @@
+{
+  "summary": "Spreading ClockProvider context props into a recording fixture evaluates its children getter and recursively mounts the story. Pass only clock and timers explicitly.",
+  "regressionTest": "pkgs/chess-board-root-harness-ts/tests/storybook-mount.test.tsx"
+}

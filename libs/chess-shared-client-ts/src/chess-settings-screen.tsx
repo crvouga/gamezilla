@@ -20,7 +20,7 @@ export function ChessSettingsScreen(): JSX.Element {
       key: 'developer',
       dataSet: { testid: 'chess-settings-developer' },
       title: <Trans>Developer</Trans>,
-      caption: <Trans>UI explorer, debug tools.</Trans>,
+      caption: <Trans>Puzzle import tools.</Trans>,
       onClick: openDeveloper,
     },
   ];

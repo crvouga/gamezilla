@@ -1,0 +1,140 @@
+.board {
+  --ui-color-background: var(--ui-color-game-connect-four-canvas);
+  --color-background: var(--ui-color-background);
+  --ui-color-surface: var(--ui-color-game-connect-four-surface);
+  --color-surface: var(--ui-color-surface);
+  --ui-color-surface-muted: var(--ui-color-game-connect-four-surface);
+  --color-surface-muted: var(--ui-color-surface-muted);
+  --ui-color-surface-sunken: var(--ui-color-game-connect-four-surface);
+  --color-surface-sunken: var(--ui-color-surface-sunken);
+  --ui-color-surface-elevated: var(--ui-color-game-connect-four-surface);
+  --color-surface-elevated: var(--ui-color-surface-elevated);
+  --ui-color-text: var(--ui-color-game-connect-four-ink);
+  --color-text: var(--ui-color-text);
+  --ui-color-text-secondary: var(--ui-color-game-connect-four-muted);
+  --color-text-secondary: var(--ui-color-text-secondary);
+  --ui-color-border: var(--ui-color-game-connect-four-surface);
+  --color-border: var(--ui-color-border);
+  --ui-color-outline: var(--ui-color-game-connect-four-muted);
+  --color-outline: var(--ui-color-outline);
+  --ui-color-tint: var(--ui-color-game-connect-four-accent);
+  --color-tint: var(--ui-color-tint);
+  --ui-color-tint-active: var(--ui-color-game-connect-four-accent);
+  --color-tint-active: var(--ui-color-tint-active);
+  --ui-color-tint-subtle: var(--ui-color-game-connect-four-surface);
+  --color-tint-subtle: var(--ui-color-tint-subtle);
+  --ui-color-focus-ring: var(--ui-color-game-connect-four-accent);
+  --color-focus-ring: var(--ui-color-focus-ring);
+  --ui-color-destructive: var(--ui-color-game-connect-four-one);
+  --color-destructive: var(--ui-color-destructive);
+  --ui-color-warning: var(--ui-color-game-connect-four-two);
+  --color-warning: var(--ui-color-warning);
+  --ui-color-success: var(--ui-color-game-connect-four-accent);
+  --color-success: var(--ui-color-success);
+  --ui-color-info: var(--ui-color-game-connect-four-accent);
+  --color-info: var(--ui-color-info);
+  --ui-color-on-destructive: var(--ui-color-game-connect-four-canvas);
+  --color-on-destructive: var(--ui-color-on-destructive);
+  --ui-color-on-warning: var(--ui-color-game-connect-four-canvas);
+  --color-on-warning: var(--ui-color-on-warning);
+  --ui-color-on-info: var(--ui-color-game-connect-four-canvas);
+  --color-on-info: var(--ui-color-on-info);
+}
+.board {
+  display: grid;
+  grid-template-columns: repeat(var(--disc-columns), minmax(0, 1fr));
+  width: 100%;
+  max-width: 38rem;
+  gap: var(--ui-space-hairline);
+  padding: var(--ui-space-2);
+  border-radius: var(--ui-radius-sheet);
+  background: var(--ui-color-surface-muted);
+  color: var(--ui-color-text);
+  overflow: hidden;
+}
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--ui-space-1);
+  padding: var(--ui-space-hairline);
+  border: none;
+  border-radius: var(--ui-radius-control);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.column[aria-disabled="true"] {
+  cursor: default;
+}
+.column[data-full="true"] {
+  opacity: var(--ui-opacity-muted);
+}
+.column:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: -2px;
+}
+.number {
+  font: inherit;
+  min-height: var(--ui-space-6);
+}
+.cell {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--ui-color-background);
+  border: 2px solid var(--ui-color-surface);
+  overflow: visible;
+}
+.disc {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  font-size: var(--ui-font-size-xl);
+  line-height: 1;
+}
+.cell[data-disc="1"] .disc {
+  background: var(--ui-color-destructive);
+  color: var(--ui-color-on-destructive);
+}
+.cell[data-disc="2"] .disc {
+  background: var(--ui-color-warning);
+  color: var(--ui-color-background);
+}
+.cell[data-preview="true"] {
+  outline: 2px dashed var(--ui-color-tint);
+  outline-offset: -3px;
+}
+.cell[data-winning="true"] {
+  outline: 3px solid var(--ui-color-tint);
+  outline-offset: 1px;
+}
+.cell[data-last="true"] .disc {
+  animation: disc-drop var(--ui-duration-normal) var(--ui-easing-standard);
+}
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@keyframes disc-drop {
+  from {
+    transform: translateY(var(--disc-distance));
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cell[data-last="true"] .disc {
+    animation: none;
+  }
+}

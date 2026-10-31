@@ -3,6 +3,7 @@ import type { GameClientPresentation } from '@libs/game-menu-client-ts/game-clie
 import { t } from '@lingui/core/macro';
 import { BattleshipBoard } from './battleship-board';
 import { sideName } from './battleship-copy';
+import { battleshipFrame } from './battleship-frame';
 import { BattleshipSetupBoard } from './battleship-setup-board';
 
 export const battleshipPresentation: GameClientPresentation = {
@@ -11,6 +12,7 @@ export const battleshipPresentation: GameClientPresentation = {
   Board: BattleshipBoard,
   SetupBoard: BattleshipSetupBoard,
   sideLabel: sideName,
+  frame: battleshipFrame,
   endingDescription: (reason) => {
     const descriptions: Readonly<Record<string, string>> = {
       [BATTLESHIP_REASON]: t`Sank the whole fleet.`,

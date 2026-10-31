@@ -147,6 +147,7 @@ libs/infra-shared-ts/tofu/stacks/*/*_override.tf
 # concurrent worktrees cannot conflict on them.
 STEPS_CATALOG.md
 pkgs/ui-root-client-ts/src/tokens.css
+pkgs/ui-root-client-ts/src/tokens.json
 pkgs/ui-root-shared-ts/src/token-names.ts
 pkgs/sounds-shared-ts/src/sound-id.ts
 pkgs/sounds-shared-ts/src/sound-urls.ts

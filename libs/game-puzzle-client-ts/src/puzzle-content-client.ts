@@ -17,9 +17,21 @@ export type PuzzleEditorProps = {
 
 export type PuzzlePreviewProps = { readonly definition: string };
 
+/**
+ * What the shared solo frame around the player shows: a label for each
+ * figure the content's `statistics` give (by its key), the content's own
+ * status line (`null` for none) and, optionally, controls under the board.
+ */
+export type PuzzleContentFrame = {
+  readonly stats: Readonly<Record<string, () => string>>;
+  readonly turnStatus: (definition: string, state: string) => string | null;
+  readonly controls?: Component<PuzzlePlayerProps>;
+};
+
 /** Independent game rendering capabilities, with no board or turn assumptions. */
 export type PuzzleContentClient = {
   readonly Player: Component<PuzzlePlayerProps>;
+  readonly frame: PuzzleContentFrame;
   readonly authoring?: {
     readonly initialDefinition: () => string;
     readonly Editor: Component<PuzzleEditorProps>;

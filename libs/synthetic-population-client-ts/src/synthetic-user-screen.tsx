@@ -38,6 +38,7 @@ function SyntheticUserContent(): JSX.Element {
         <ErrorState
           variant="compact"
           title={<Trans>Synthetic User could not be loaded.</Trans>}
+          body={<Trans>Refresh to try again.</Trans>}
         />
       </Show>
       <Show when={inspector.record.loading}>

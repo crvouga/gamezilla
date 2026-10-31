@@ -1,4 +1,4 @@
-import { useRequiredScreenTitleContext } from './screen-title-context';
+import { useRequiredScreenTitleContext } from './screen-title-context/index';
 
 export type ScreenTitleScrollProps = {
   onScroll: (event: Event) => void;

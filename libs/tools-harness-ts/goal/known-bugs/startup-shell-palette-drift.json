@@ -1,0 +1,4 @@
+{
+  "summary": "Both applications' static boot screens retained the retired #111113, #ededef and blue recovery-button palette after a theme update. Their loading, failure and recovery colors must use the current semantic tokens, including contrasting primary text in each scheme.",
+  "regressionTest": "apps/client-ts/tests/startup-shell.test.ts"
+}

@@ -1,4 +1,4 @@
-import { customGameStartable } from '@libs/game-session-shared-ts/custom-game-state';
+import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import {
   useGamePresentation,
@@ -6,17 +6,22 @@ import {
 } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameDisclosure } from '@pkgs/ui-root-client-ts/game-disclosure';
+import { GameOptionField } from '@pkgs/ui-root-client-ts/game-option-field';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
-import { createSignal, type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { createMemo, createSignal, type JSX, Show } from 'solid-js';
+import { GameFrameOptions } from './game-frame-options';
+import { frameStartLine } from './game-frame-setup-copy';
+import { frameStartReason } from './game-frame-start-reason';
+import { useFrameViewer } from './game-frame-viewer';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
-function CustomGameTimeChoices(props: {
-  model: CustomGameScreenModel;
-}): JSX.Element {
+type ModelProps = { model: CustomGameScreenModel };
+
+/** The clock, which the platform owns for every game played by turns. */
+function CustomGameTimeChoices(props: ModelProps): JSX.Element {
   const [minutes, setMinutes] = createSignal(
     String(props.model.current()?.minutes || 5)
   );
@@ -66,37 +71,79 @@ function CustomGameTimeChoices(props: {
   );
 }
 
-function CustomGameRuleChoices(props: {
-  model: CustomGameScreenModel;
-}): JSX.Element {
+/**
+ * How many people the game seats, for a game offered for several counts.
+ * Shown, not changed here: each count is its own game, chosen from the
+ * game's menu.
+ */
+function CustomGamePlayerCount(props: ModelProps): JSX.Element {
   const presentation = useGamePresentation();
-  const rules = useTurnGames();
-  const position = () => props.model.current()!.fen;
+  const players = () => presentation(props.model.current()!.fen).frame.players;
+  const count = (): number => props.model.current()!.sides.length;
   return (
-    <Show
-      when={rules.turnsForPosition(position()) !== undefined}
-      fallback={
-        <Dynamic
-          component={presentation(position()).Configuration}
-          position={position()}
-          onChoice={(choice: string) =>
-            props.model.choose({ operation: 'rules', choice })
-          }
-        />
-      }
-    >
-      <CustomGameTimeChoices model={props.model} />
+    <Show when={players().min < players().max}>
+      <GameOptionField
+        kind="count"
+        label={t`Players`}
+        readOnly
+        value={count()}
+        min={players().min}
+        max={players().max}
+        onChange={() => undefined}
+        dataSet={{ testid: 'custom-game-players' }}
+      />
     </Show>
   );
 }
 
-export function CustomGameConfiguration(props: {
-  model: CustomGameScreenModel;
-}): JSX.Element {
-  const startable = (): boolean => {
-    const game = props.model.current();
-    return game !== null && customGameStartable(game);
-  };
+/**
+ * The game's options: its player count, its own options from its frame
+ * (the host changes them, everyone else reads them) and, for a game played
+ * by turns, the clock behind its disclosure for the host.
+ */
+function CustomGameOptions(props: ModelProps): JSX.Element {
+  const presentation = useGamePresentation();
+  const rules = useTurnGames();
+  const position = () => props.model.current()!.fen;
+  const frame = () => presentation(position()).frame;
+  const players = () => frame().players;
+  const turns = () => rules.turnsForPosition(position()) !== undefined;
+  const clock = () => turns() && props.model.canConfigure();
+  return (
+    <Show
+      when={
+        frame().options.length > 0 || players().min < players().max || clock()
+      }
+    >
+      <GameSection title={<Trans>Options</Trans>}>
+        <CustomGamePlayerCount model={props.model} />
+        <GameFrameOptions
+          options={frame().options}
+          position={position()}
+          editable={props.model.canConfigure()}
+          apply={(choice) => props.model.choose({ operation: 'rules', choice })}
+        />
+        <Show when={clock()}>
+          <GameDisclosure
+            title={<Trans>Clock and sides</Trans>}
+            dataSet={{ testid: 'custom-game-options' }}
+          >
+            <CustomGameTimeChoices model={props.model} />
+          </GameDisclosure>
+        </Show>
+      </GameSection>
+    </Show>
+  );
+}
+
+/**
+ * Starting the game: why it cannot start yet (or "Ready to start."), the
+ * person's own readiness, and Start for whoever may start it, always shown
+ * and held back until the game can start.
+ */
+function CustomGameStart(props: ModelProps): JSX.Element {
+  const viewer = useFrameViewer(props.model);
+  const reason = createMemo(() => frameStartReason(props.model.current()!));
   const ready = (): boolean => {
     const side = props.model.mySide();
     return side !== null && props.model.current()!.ready.includes(side);
@@ -105,19 +152,17 @@ export function CustomGameConfiguration(props: {
     <GameSection
       title={<Trans>Start</Trans>}
       description={
-        <Trans>Agree on the lineup and clock, then get ready.</Trans>
+        <Trans>Agree on the lineup and options, then get ready.</Trans>
       }
     >
       <P variant="bodyBold" role="status" testId="custom-game-startable">
-        <Show
-          when={startable()}
-          fallback={
-            <Trans>Every place must be filled and every person ready.</Trans>
-          }
-        >
-          <Trans>Ready to start.</Trans>
-        </Show>
+        {frameStartLine(reason())}
       </P>
+      <Show when={viewer.role() === 'seated' && !props.model.canStart()}>
+        <P variant="caption" tone="secondary" testId="custom-game-host-starts">
+          <Trans>Waiting for the host to start.</Trans>
+        </P>
+      </Show>
       <GameActions>
         <Show when={props.model.mySide() !== null && props.model.canJoin()}>
           <GameActionButton
@@ -146,18 +191,20 @@ export function CustomGameConfiguration(props: {
             dataSet={{ testid: 'custom-game-start' }}
             variant="solid"
             operation={() => props.model.choose({ operation: 'start' })}
-            disabled={!startable()}
+            disabled={reason() !== null}
           />
         </Show>
       </GameActions>
-      <Show when={props.model.canConfigure()}>
-        <GameDisclosure
-          title={<Trans>Game options</Trans>}
-          dataSet={{ testid: 'custom-game-options' }}
-        >
-          <CustomGameRuleChoices model={props.model} />
-        </GameDisclosure>
-      </Show>
     </GameSection>
+  );
+}
+
+/** The custom game's options and its start, while it is set up. */
+export function CustomGameConfiguration(props: ModelProps): JSX.Element {
+  return (
+    <>
+      <CustomGameOptions model={props.model} />
+      <CustomGameStart model={props.model} />
+    </>
   );
 }

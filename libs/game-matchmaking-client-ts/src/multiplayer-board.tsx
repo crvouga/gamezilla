@@ -13,10 +13,11 @@ import {
   useGamePresentation,
   useTurnGames,
 } from '@pkgs/turn-game-client-ts/turn-games-context';
+import type { GameFrameBoardProps } from '@pkgs/turn-game-shared-ts/game-frame';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { For, type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { MultiplayerFrameBoard } from './multiplayer-frame-board';
 import { MultiplayerReviewing } from './multiplayer-reviewing';
 import type { MultiplayerViewer } from './multiplayer-seat';
 import { MultiplayerSeat } from './multiplayer-seat';
@@ -64,9 +65,57 @@ function BoardStage(
   // The side nearest the person: their own, until they flip the board.
   const nearSide = (): MultiplayerSide =>
     props.view.flipped() ? otherSide(props.ownSide) : props.ownSide;
+  const board: GameFrameBoardProps = {
+    get position() {
+      return (
+        props.simulation.position() ??
+        props.view.earlier()?.fen ??
+        props.game.fen
+      );
+    },
+    get simulation() {
+      return props.simulation.active()
+        ? props.simulation.controls()
+        : undefined;
+    },
+    get orientation() {
+      return nearSide();
+    },
+    get interactive() {
+      return props.canMove && props.view.earlier() === null;
+    },
+    get sound() {
+      return !sounds.muted();
+    },
+    get syncKey() {
+      return props.syncKey;
+    },
+    testId: 'multiplayer-board',
+    get setup() {
+      return props.ownSetup;
+    },
+    get hand() {
+      return props.ownHand;
+    },
+    committed: [],
+    commitment: null,
+    get viewer() {
+      return multiplayerSideOf(props.game, props.myId);
+    },
+    get seats() {
+      const frame = presentation(props.game.fen).frame;
+      return multiplayerSides(props.game).map((side) => ({
+        side,
+        look: frame.seats.look(side),
+      }));
+    },
+    onAction: (action) => {
+      void props.onMove(action);
+    },
+  };
   return (
     <GameBoardStage
-      top={
+      others={
         <StackVertical gap="sm">
           <For
             each={multiplayerSides(props.game).filter(
@@ -85,7 +134,7 @@ function BoardStage(
           </For>
         </StackVertical>
       }
-      bottom={
+      own={
         <MultiplayerSeat
           game={props.game}
           side={nearSide()}
@@ -95,28 +144,9 @@ function BoardStage(
         />
       }
     >
-      <Dynamic
-        component={presentation(props.game.fen).Board}
-        position={
-          props.simulation.position() ??
-          props.view.earlier()?.fen ??
-          props.game.fen
-        }
-        simulation={
-          props.simulation.active() ? props.simulation.controls() : undefined
-        }
-        orientation={nearSide()}
-        interactive={props.canMove && props.view.earlier() === null}
-        sound={!sounds.muted()}
-        syncKey={props.syncKey}
-        testId="multiplayer-board"
-        setup={props.ownSetup}
-        hand={props.ownHand}
-        committed={[]}
-        commitment={null}
-        onAction={(action: string) => {
-          void props.onMove(action);
-        }}
+      <MultiplayerFrameBoard
+        presentation={presentation(props.game.fen)}
+        board={board}
       />
     </GameBoardStage>
   );

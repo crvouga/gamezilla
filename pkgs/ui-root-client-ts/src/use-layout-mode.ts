@@ -6,7 +6,7 @@
 
 import type { BreakpointName } from '@pkgs/ui-root-shared-ts/breakpoints';
 import type { Accessor } from 'solid-js';
-import { useThemeLayout } from './theme-context';
+import { useThemeLayout } from './theme-context/index';
 
 export type LayoutMode = 'compact' | 'wide';
 

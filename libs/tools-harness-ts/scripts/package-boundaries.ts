@@ -222,8 +222,22 @@ export function categoryViolations(
       }
     }
   }
+  const componentSlices = new Set(
+    options.sources
+      .filter((file) => /^src\/[^/]+\/index\.tsx$/.test(file.path))
+      .map((file) => file.path.split('/')[1])
+  );
   for (const file of options.sources) {
-    if (file.path.startsWith('src/') && file.path.slice(4).includes('/'))
+    const componentSlice =
+      category === 'client' &&
+      options.tier === 'pkgs' &&
+      /^src\/[^/]+\/[^/]+$/.test(file.path) &&
+      componentSlices.has(file.path.split('/')[1]);
+    if (
+      file.path.startsWith('src/') &&
+      file.path.slice(4).includes('/') &&
+      !componentSlice
+    )
       out.push(
         `${file.path}: src must be flat; split a vertical slice into its own package`
       );

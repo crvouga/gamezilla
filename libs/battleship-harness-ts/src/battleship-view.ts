@@ -34,6 +34,8 @@ export type {
 
 /** The setup board a person arranges their fleet on while the game is set up. */
 export const BATTLESHIP_SETUP_BOARD = 'custom-game-setup';
+/** The frame's live line about the turn, which carries the latest shot. */
+const CUSTOM_GAME_STATUS = 'custom-game-status';
 
 export type BattleshipView = {
   readonly screen: CustomGameScreen;
@@ -112,9 +114,9 @@ export function battleshipSetupStatus(s: ProductHarness, actor: string) {
 }
 
 /**
- * What a person listening to the app hears the Battleship board announce:
- * its live status, which must be announced politely and not be hidden from
- * assistive technology.
+ * What a person listening to the app hears the Battleship game announce: the
+ * frame's live turn line (the latest shot and whose turn it is), which must
+ * be announced politely and not be hidden from assistive technology.
  */
 export async function battleshipHeard(
   s: ProductHarness,
@@ -122,7 +124,7 @@ export async function battleshipHeard(
 ): Promise<string> {
   const page = await actorPage(s, actor);
   const status = page.querySelector(
-    `[data-actor="${actor}"] [data-testid="${CUSTOM_GAME_BOARD}-status"]`
+    `[data-actor="${actor}"] [data-testid="${CUSTOM_GAME_STATUS}"]`
   );
   if (
     status === null ||
@@ -130,6 +132,6 @@ export async function battleshipHeard(
     status.getAttribute('aria-live') !== 'polite' ||
     status.closest('[aria-hidden="true"], [hidden]') !== null
   )
-    throw new Error('the Battleship board status is not announced');
+    throw new Error('the Battleship turn line is not announced');
   return status.textContent ?? '';
 }

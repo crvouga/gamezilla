@@ -10,7 +10,7 @@ import type {
 } from './action-bar-logic';
 import { isActionBarAvatarItem } from './action-bar-logic';
 import { EllipsisIcon } from './icons';
-import type { OverflowMenuAction } from './overflow-menu-button';
+import type { OverflowMenuAction } from './overflow-menu-button/index';
 
 export function actionBarItemToOverflowAction(
   item: ActionBarItem,

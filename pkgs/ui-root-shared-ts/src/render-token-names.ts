@@ -17,6 +17,7 @@ import {
   size,
   space,
   tone,
+  typography,
 } from './design-tokens.json';
 
 export type TokenScale = {
@@ -60,6 +61,12 @@ export function tokenScales(): readonly TokenScale[] {
       list: 'SURFACE_TONES',
       doc: 'Fill color roles of a painted container.',
       names: [...tokenNames(tone.surface), 'transparent'],
+    },
+    {
+      type: 'TextStyle',
+      list: 'TEXT_STYLES',
+      doc: 'Text styles (`--ui-text-<name>-*`): a face, size, weight and leading.',
+      names: tokenNames(typography),
     },
     {
       type: 'IconSizeToken',

@@ -1,0 +1,4 @@
+{
+  "summary": "UI inventory crashed when compiler ASTs without parent pointers reached markup property readers.",
+  "regressionTest": "pkgs/ui-codegen-server-ts/tests/inventory-markup.test.ts"
+}

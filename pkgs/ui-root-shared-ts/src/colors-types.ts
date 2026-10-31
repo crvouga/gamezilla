@@ -1,10 +1,14 @@
+import type { color } from './design-tokens.json';
+
 /**
  * Prebuilt light/dark color palettes.
  */
 
 export type ColorScheme = 'light' | 'dark';
 
-export type ColorTokens = {
+type GameColorName = Extract<keyof typeof color.light, `game${string}`>;
+
+export type ColorTokens = Record<GameColorName, string> & {
   // Surfaces (lowest -> highest visual elevation)
   background: string;
   surface: string;
@@ -24,8 +28,12 @@ export type ColorTokens = {
   tint: string;
   tintHover: string;
   tintActive: string;
-  /** Very low-alpha tint for selected backgrounds / chip pills. */
+  /** Selected chip, active turn, active player, your avatar (`primary-soft`). */
   tintSubtle: string;
+  /** Selected borders, active indicators, the viewer's pieces. */
+  primaryStrong: string;
+  /** Text and initials on `tintSubtle`. */
+  onPrimarySoft: string;
   /** High-contrast label/icon on top of saturated `tint`. */
   onPrimary: string;
   /** High-contrast label/icon on top of `destructive`. */
@@ -68,6 +76,11 @@ export type ColorTokens = {
   info: string;
   infoSurface: string;
 
+  /** Only the LIVE pill and recording dot. */
+  live: string;
+  /** Label on `live`. */
+  onLive: string;
+
   // Labeled game paths and endpoints; never application chrome.
   pathRed: string;
   pathOrange: string;
@@ -75,6 +88,25 @@ export type ColorTokens = {
   pathGreen: string;
   pathBlue: string;
   pathPurple: string;
+
+  // Seat colors in multiplayer games, spaced by lightness; never chrome.
+  player1: string;
+  player2: string;
+  player3: string;
+  player4: string;
+  player5: string;
+  player6: string;
+  player7: string;
+  player8: string;
+
+  // Neutral board surfaces, the same roles in both schemes.
+  boardLight: string;
+  boardDark: string;
+  boardHighlight: string;
+  boardCell: string;
+  boardCardFace: string;
+  boardCardInk: string;
+  boardCardInkRed: string;
 
   // States
   disabled: string;

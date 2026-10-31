@@ -1,0 +1,4 @@
+{
+  "summary": "The installed Solid adapter's experimental docgen server includes stories tagged !manifest in agent manifests. Storybook now uses the adapter's native inline manifest mode, which honors story-level curation while preserving the full story index, Docs, prop extraction and browser coverage.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook-manifests.test.ts"
+}

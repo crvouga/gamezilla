@@ -1,0 +1,4 @@
+{
+  "summary": "Persistent header chrome evaluated JSX breadcrumb labels outside their screen providers and mounted labels repeatedly.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/app-header-island.test.tsx"
+}

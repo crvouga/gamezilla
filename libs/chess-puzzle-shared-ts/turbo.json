@@ -4,10 +4,8 @@
   "tasks": {
     "src": {
       "dependsOn": [
-        "@libs/chess-root-shared-ts#src",
         "@libs/game-puzzle-shared-ts#src",
         "@libs/permissions-shared-ts#src",
-        "@libs/spaces-shared-ts#src",
         "@pkgs/attribute-shared-ts#src",
         "@pkgs/chess-board-core-shared-ts#src",
         "@pkgs/chess-rules-shared-ts#src",

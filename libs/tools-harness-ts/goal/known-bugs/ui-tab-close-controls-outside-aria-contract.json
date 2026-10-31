@@ -1,0 +1,4 @@
+{
+  "summary": "Closable tab strips exposed non-tab controls inside a tablist and offered no local keyboard close. The list owns only tabs; adjacent close buttons remain accessible. Delete closes the selected tab and restores focus.",
+  "regressionTest": "pkgs/ui-devtools-client-ts/tests/tab-strip.test.tsx"
+}

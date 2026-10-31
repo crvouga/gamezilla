@@ -1,0 +1,4 @@
+{
+  "summary": "The Quoridor harness could not observe a completed board because it read tool buttons that the completed game no longer renders.",
+  "regressionTest": "libs/quoridor-harness-ts/tests/quoridor-observation.test.ts"
+}

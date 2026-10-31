@@ -3,6 +3,7 @@
   "extends": ["//"],
   "tasks": {
     "src": {
+      "inputs": ["$TURBO_EXTENDS$", "!src/tsconfig.json"],
       "dependsOn": [
         "@pkgs/bun-test-solid-client-ts#src",
         "@pkgs/chess-board-core-shared-ts#src",

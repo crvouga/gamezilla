@@ -5,12 +5,12 @@
  */
 
 import type { Component } from 'solid-js';
-import type { BrandIconSvgProps } from './brand-logos';
+import type { BrandIconSvgProps } from './brand-logos/index';
 import {
   AppleBrandLogo,
   DevIdpBrandLogo,
   GoogleBrandLogo,
-} from './brand-logos';
+} from './brand-logos/index';
 
 export type BrandIconComponent = Component<BrandIconSvgProps>;
 

@@ -66,23 +66,33 @@ function shownTrick(position: HeartsPosition) {
   return tricks.at(-1) ?? null;
 }
 
+/**
+ * What a seat holds and has done this deal, without its score: its cards
+ * left, then the points it has taken (playing) or whether it has passed.
+ */
+export function seatProgress(
+  position: HeartsPosition,
+  seat: Seat,
+  committed: readonly string[]
+): readonly string[] {
+  const held =
+    position.phase === 'done' ? 0 : 13 - playedBy(position, seat).length;
+  const taken = takenPoints(position)[seat] ?? 0;
+  const facts = [plural(held, { one: '# card', other: '# cards' })];
+  if (position.phase === 'play') facts.push(t`Taken ${taken}`);
+  if (position.phase === 'pass')
+    facts.push(committed.includes(sideOfSeat(seat)) ? t`Passed` : t`Choosing`);
+  return facts;
+}
+
 function seatFacts(
   position: HeartsPosition,
   seat: Seat,
   committed: readonly string[]
 ): string[] {
-  const held =
-    position.phase === 'done' ? 0 : 13 - playedBy(position, seat).length;
   const score = position.scores[seat] ?? 0;
-  const taken = takenPoints(position)[seat] ?? 0;
-  const facts = [
-    plural(held, { one: '# card', other: '# cards' }),
-    t`Score ${score}`,
-  ];
-  if (position.phase === 'play') facts.push(t`Taken ${taken}`);
-  if (position.phase === 'pass')
-    facts.push(committed.includes(sideOfSeat(seat)) ? t`Passed` : t`Choosing`);
-  return facts;
+  const [held = '', ...deal] = seatProgress(position, seat, committed);
+  return [held, t`Score ${score}`, ...deal];
 }
 
 /** The four seats, the viewer's own nearest. */

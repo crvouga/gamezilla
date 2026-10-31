@@ -1,0 +1,4 @@
+{
+  "summary": "Loading Button hid the action title and rendered only a decorative spinner when loadingLabel was omitted, leaving the control unnamed.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/button.test.tsx"
+}

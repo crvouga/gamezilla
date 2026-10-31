@@ -1,0 +1,131 @@
+.board {
+  --ui-color-background: var(--ui-color-game-numberlink-canvas);
+  --color-background: var(--ui-color-background);
+  --ui-color-surface: var(--ui-color-game-numberlink-surface);
+  --color-surface: var(--ui-color-surface);
+  --ui-color-surface-muted: var(--ui-color-game-numberlink-surface);
+  --color-surface-muted: var(--ui-color-surface-muted);
+  --ui-color-surface-sunken: var(--ui-color-game-numberlink-surface);
+  --color-surface-sunken: var(--ui-color-surface-sunken);
+  --ui-color-surface-elevated: var(--ui-color-game-numberlink-surface);
+  --color-surface-elevated: var(--ui-color-surface-elevated);
+  --ui-color-text: var(--ui-color-game-numberlink-ink);
+  --color-text: var(--ui-color-text);
+  --ui-color-text-secondary: var(--ui-color-game-numberlink-muted);
+  --color-text-secondary: var(--ui-color-text-secondary);
+  --ui-color-border: var(--ui-color-game-numberlink-surface);
+  --color-border: var(--ui-color-border);
+  --ui-color-outline: var(--ui-color-game-numberlink-muted);
+  --color-outline: var(--ui-color-outline);
+  --ui-color-tint: var(--ui-color-game-numberlink-accent);
+  --color-tint: var(--ui-color-tint);
+  --ui-color-tint-active: var(--ui-color-game-numberlink-accent);
+  --color-tint-active: var(--ui-color-tint-active);
+  --ui-color-tint-subtle: var(--ui-color-game-numberlink-surface);
+  --color-tint-subtle: var(--ui-color-tint-subtle);
+  --ui-color-focus-ring: var(--ui-color-game-numberlink-accent);
+  --color-focus-ring: var(--ui-color-focus-ring);
+  --ui-color-destructive: var(--ui-color-game-numberlink-one);
+  --color-destructive: var(--ui-color-destructive);
+  --ui-color-warning: var(--ui-color-game-numberlink-two);
+  --color-warning: var(--ui-color-warning);
+  --ui-color-success: var(--ui-color-game-numberlink-accent);
+  --color-success: var(--ui-color-success);
+  --ui-color-info: var(--ui-color-game-numberlink-accent);
+  --color-info: var(--ui-color-info);
+  --ui-color-on-destructive: var(--ui-color-game-numberlink-canvas);
+  --color-on-destructive: var(--ui-color-on-destructive);
+  --ui-color-on-warning: var(--ui-color-game-numberlink-canvas);
+  --color-on-warning: var(--ui-color-on-warning);
+  --ui-color-on-info: var(--ui-color-game-numberlink-canvas);
+  --color-on-info: var(--ui-color-on-info);
+}
+.board {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--path-columns), minmax(0, 1fr));
+  width: 100%;
+  aspect-ratio: var(--path-columns) / var(--path-rows);
+  border: var(--ui-space-hairline) solid var(--ui-color-outline);
+  border-radius: var(--ui-radius-control);
+  overflow: hidden;
+  background: var(--ui-color-background);
+  color: var(--ui-color-text);
+  touch-action: manipulation;
+  user-select: none;
+}
+.board[data-tracing="true"] {
+  touch-action: none;
+}
+.cell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: var(--ui-space-hairline) solid var(--ui-color-border);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.cell[aria-disabled="true"] {
+  cursor: default;
+}
+.cell:focus-visible {
+  outline: calc(2 * var(--ui-space-hairline)) solid var(--ui-color-focus-ring);
+  outline-offset: calc(-1 * calc(2 * var(--ui-space-hairline)));
+  z-index: 1;
+}
+.endpoint {
+  display: grid;
+  place-items: center;
+  width: 72%;
+  height: 72%;
+  border: var(--ui-space-1) solid var(--path-color);
+  border-radius: var(--ui-radius-full);
+  background: var(--ui-color-background);
+  color: var(--ui-color-text);
+  font-size: var(--ui-font-size-sm);
+  line-height: var(--ui-line-height-tight);
+  font-weight: var(--ui-font-weight-semibold);
+  pointer-events: none;
+}
+.cell[data-connected="true"] .endpoint {
+  border-style: double;
+}
+.lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.line {
+  fill: none;
+  stroke: var(--path-color);
+  stroke-width: 20;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.line[data-connected="false"] {
+  stroke-dasharray: 24 12;
+}
+[data-tone="red"] {
+  --path-color: var(--ui-color-path-red);
+}
+[data-tone="orange"] {
+  --path-color: var(--ui-color-path-orange);
+}
+[data-tone="yellow"] {
+  --path-color: var(--ui-color-path-yellow);
+}
+[data-tone="green"] {
+  --path-color: var(--ui-color-path-green);
+}
+[data-tone="blue"] {
+  --path-color: var(--ui-color-path-blue);
+}
+[data-tone="purple"] {
+  --path-color: var(--ui-color-path-purple);
+}

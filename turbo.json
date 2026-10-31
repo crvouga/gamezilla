@@ -104,7 +104,8 @@
         "dev:billing",
         "dev:server",
         "dev:population",
-        "dev:web"
+        "dev:web",
+        "@pkgs/ui-root-harness-ts#dev:storybook"
       ],
       "persistent": true,
       "cache": false
@@ -192,6 +193,10 @@
         "!**/*.md",
         "!**/*.test.ts",
         "!**/*.test.tsx",
+        "!**/*.stories.tsx",
+        "!**/*.example.tsx",
+        "!**/baselines/**",
+        "!storybook/**",
         "!tsconfig.tc.json",
         "!turbo.json",
         "$TURBO_ROOT$/pkgs/ts-reset-shared-ts/src/**"
@@ -199,6 +204,13 @@
       "outputLogs": "errors-only",
       "outputs": []
     },
+    "storybook:dev": { "cache": false, "persistent": true },
+    "storybook:build": {
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": [".cache/storybook/**"]
+    },
+    "storybook:coverage": { "cache": false },
+    "storybook:test": { "cache": false },
     "tc": {
       "dependsOn": ["^src"],
       "inputs": [
@@ -1219,7 +1231,8 @@
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/src-task-edges.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/biome-scope-slices.ts",
         "!$TURBO_ROOT$/**/node_modules/**",
-        "!$TURBO_ROOT$/**/*.test.{ts,tsx}"
+        "!$TURBO_ROOT$/**/*.test.{ts,tsx}",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/production-source.ts"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
@@ -3163,6 +3176,7 @@
       ],
       "outputs": [
         "pkgs/ui-root-client-ts/src/tokens.css",
+        "pkgs/ui-root-client-ts/src/tokens.json",
         "pkgs/ui-root-shared-ts/src/token-names.ts"
       ]
     },

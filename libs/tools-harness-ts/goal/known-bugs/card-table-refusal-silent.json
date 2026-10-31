@@ -1,4 +1,4 @@
 {
   "summary": "Pressing a card the rules refuse (a keyboard user pressing Enter on a diamond when clubs were led) did nothing and said nothing, although the card table promised to say why. The table now announces the game's reason in a status line.",
-  "regressionTest": "pkgs/ui-root-client-ts/tests/card-table.test.tsx"
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/card-table.test.tsx"
 }

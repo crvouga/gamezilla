@@ -36,6 +36,12 @@ import {
   useSoundsPreference,
 } from '@pkgs/sounds-client-ts/solid';
 import { soundAssetUrls } from '@pkgs/sounds-shared-ts/sound-urls';
+import {
+  boardOnly,
+  fixedPlayers,
+  lookOnlySeats,
+  standingsFromWinner,
+} from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type {
   PuzzleRecord,
@@ -48,7 +54,10 @@ import type {
   PlayedPosition,
   TurnGameCapabilities,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  requireTwoPlayerSide,
+  TWO_PLAYER_SIDES,
+} from '@pkgs/turn-game-shared-ts/game-rules';
 import { createEffect, For, type JSX, on } from 'solid-js';
 
 /**
@@ -420,6 +429,17 @@ export const COUNTING_RACE_CLIENT: GameClient<typeof COUNTING_RACE_SHARED> = {
     name: () => 'Counting race',
     Board,
     sideLabel,
+    frame: {
+      players: fixedPlayers(2),
+      options: [],
+      seats: lookOnlySeats((side) => ({ color: side === 'white' ? 1 : 2 })),
+      createBoard: boardOnly(Board),
+      turnStatus: () => null,
+      result: (_position, winner) => ({
+        scoreLabel: null,
+        standings: standingsFromWinner(winner, TWO_PLAYER_SIDES),
+      }),
+    },
     endingDescription: (reason) =>
       reason === 'finish line' ? 'First to seven.' : undefined,
     timeoutDrawDescription: () => 'Drawn on time.',

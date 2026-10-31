@@ -24,7 +24,7 @@ import {
 import { SocialSignInButton } from '@pkgs/ui-root-client-ts/social-sign-in-button';
 import { arraysEqualAsSets } from '@pkgs/ui-root-shared-ts/arrays-equal-as-sets';
 import { fireEvent, screen } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, For } from 'solid-js';
 import { renderUi } from './render';
 
 describe('Chip / ChipGroup', () => {
@@ -151,7 +151,7 @@ describe('SocialSignInButton', () => {
       </>
     ));
     const btn = screen.getByRole('button', { name: 'Continue with Google' });
-    expect(btn.querySelector('svg')).not.toBeNull();
+    expect(btn.querySelector('[data-brand="google"] img')).not.toBeNull();
     fireEvent.click(btn);
     expect(onClick).toHaveBeenCalledTimes(1);
     const busy = screen.getByRole('button', { name: 'Sign in with Google' });
@@ -211,4 +211,29 @@ describe('FormActionsFooter', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
+});
+
+// regression: google-brand-desaturated
+test('Google sign-in follows the vendor palette and typography in every theme', () => {
+  renderUi(() => (
+    <>
+      <For each={['light', 'dark', 'neutral'] as const}>
+        {(theme) => (
+          <SocialSignInButton
+            provider="google"
+            theme={theme}
+            onClick={() => {}}
+            dataSet={{ testid: theme }}
+          />
+        )}
+      </For>
+    </>
+  ));
+  const light = screen.getByTestId('light');
+  expect(light.style.borderColor).toBe('#747775');
+  expect(screen.getByTestId('dark').style.backgroundColor).toBe('#131314');
+  expect(screen.getByTestId('neutral').style.backgroundColor).toBe('#F2F2F2');
+  expect(light.querySelector('p')?.style.fontFamily).toContain('Google Sans');
+  expect(light.querySelector('img')?.getAttribute('width')).toBe('20');
+  expect(light.querySelector('.grayscale')).toBeNull();
 });

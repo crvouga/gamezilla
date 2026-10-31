@@ -108,7 +108,6 @@ export function BillingPricing(props: {
   return (
     <MenuSection
       title={<Trans>Pricing</Trans>}
-      role="group"
       footer={
         props.trialDays > 0 ? (
           <Trans>
@@ -137,7 +136,6 @@ export function BillingBenefits(): JSX.Element {
   return (
     <MenuSection
       title={<Trans>What Plus includes</Trans>}
-      role="group"
       dataSet={{ testid: Handles.billingBenefits }}
     >
       <MenuRow
