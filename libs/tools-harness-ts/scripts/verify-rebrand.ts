@@ -54,6 +54,8 @@ const SUITES: readonly (readonly [string, readonly string[]])[] = [
     [
       'bun',
       'test',
+      '--tsconfig-override',
+      '../../tsconfig.json',
       '--conditions=browser',
       '--conditions=development',
       '--preload',

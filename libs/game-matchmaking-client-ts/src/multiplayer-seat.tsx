@@ -3,10 +3,13 @@ import type {
   MultiplayerSide,
 } from '@libs/game-matchmaking-shared-ts/game-state';
 import { multiplayerOwner } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
+import { frameSwatch } from '@libs/game-session-client-ts/game-frame-look';
 import { AccountAutomationLabel } from '@libs/profile-client-ts/account-automation-label';
 import { UserProfileAvatar } from '@libs/profile-client-ts/user-profile-avatar';
 import { UserUsername } from '@libs/profile-client-ts/user-username';
+import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
+import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useGameSideLabel } from '@pkgs/turn-game-client-ts/use-game-side-label';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import {
@@ -14,7 +17,7 @@ import {
   GamePlayerBar,
 } from '@pkgs/ui-root-client-ts/game-player-bar';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Show } from 'solid-js';
+import { For, type JSX, Show } from 'solid-js';
 import { MultiplayerClock } from './multiplayer-clocks';
 
 /** Who this device is in the game, and the opponent as they may be shown. */
@@ -90,18 +93,22 @@ function SeatTags(props: {
 }
 
 /**
- * One side's seat beside the board: who plays it, which colour, and its
- * clock. `own` is the person's own seat, or White's for a watcher; `near` is
+ * One side's seat beside the board: identity, game-specific figures and
+ * public facts in the displayed position, and the live clock. `own` is the person's own seat, or White's for a watcher; `near` is
  * the seat below the board, nearest the person holding the device. They are
  * the same seat until the person flips the board.
  */
 export function MultiplayerSeat(props: {
   readonly game: MultiplayerGame;
+  /** The position shown by the board, including review and simulation. */
+  readonly position: string;
   readonly side: MultiplayerSide;
   readonly own: boolean;
   readonly near: boolean;
   readonly viewer: MultiplayerViewer;
 }): JSX.Element {
+  const presentation = useGamePresentation();
+  const frame = () => presentation(props.game.fen).frame;
   const profileId = () => multiplayerOwner(props.game, props.side);
   return (
     <GamePlayerBar
@@ -122,14 +129,26 @@ export function MultiplayerSeat(props: {
           viewer={props.viewer}
         />
       }
+      swatch={frameSwatch(frame().seats.look(props.side))}
+      stat={frame().seats.stat(props.position, props.side)}
+      state={
+        frame().seats.out(props.position, props.side)
+          ? { kind: 'out', label: t`Out` }
+          : null
+      }
       tags={
-        <SeatTags
-          position={props.game.fen}
-          profileId={profileId()}
-          side={props.side}
-          own={props.own}
-          viewer={props.viewer}
-        />
+        <>
+          <SeatTags
+            position={props.position}
+            profileId={profileId()}
+            side={props.side}
+            own={props.own}
+            viewer={props.viewer}
+          />
+          <For each={frame().seats.facts(props.position, props.side, [])}>
+            {(fact) => <Badge intent="neutral" label={fact} />}
+          </For>
+        </>
       }
       trailing={
         <Show

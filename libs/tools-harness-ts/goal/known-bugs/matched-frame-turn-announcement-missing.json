@@ -1,0 +1,4 @@
+{
+  "summary": "Matched games discarded the frame's turn sentence, so Battleship stopped announcing shot outcomes and Quoridor stopped naming the destination. The live announcement now includes that sentence for the actual participant or watcher, preserving setup, generic fallback and terminal match headlines.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-frame-status.test.tsx"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Verify run 41165420183 promoted non-cacheable Storybook coverage into the shared prerequisite stage, then expected a Turbo archive that cannot exist. Evidence packing failed and all 64 verification shards failed to start. Non-cacheable dependencies now execute with their consumers, while only transferable cached producers cross stages; no verification is removed or cached against its policy.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-uncacheable-stages.test.ts"
+}

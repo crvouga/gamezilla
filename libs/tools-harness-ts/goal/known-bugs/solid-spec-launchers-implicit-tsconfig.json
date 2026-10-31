@@ -1,0 +1,4 @@
+{
+  "summary": "After isolated Solid test commands were fixed, full verification completed 571 tasks before spec preparation failed importing the shared Solid renderer. Solid preparation, spec workers, rebrand suites and selected-file replays now retain the same explicit canonical compiler configuration; no test scope, preload or condition is removed.",
+  "regressionTest": "libs/tools-harness-ts/scripts/solid-test-config.test.ts"
+}
