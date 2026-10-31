@@ -22,8 +22,10 @@ export function verifyStages(tasks: readonly VerifyTask[]) {
   for (let size = -1; size !== prerequisites.size; ) {
     size = prerequisites.size;
     for (const task of tasks) {
+      // Uncached tasks and their consumers cannot transfer Turbo archives.
       if (untransferable.has(task.taskId)) continue;
       const sharedSource =
+        task.cacheable !== false &&
         (users.get(task.taskId) ?? 0) > 1 &&
         task.dependencies.every(
           (id) =>

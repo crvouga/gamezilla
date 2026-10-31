@@ -51,6 +51,7 @@
     "**/pkgs/sync-engine-shared-ts/tests/**/*.{ts,tsx}"
   ],
   "plugin:./libs/tools-harness-ts/biome-plugins/observability-boundary-imports.grit": [
+    "!**/pkgs/sync-engine-shared-ts/src/canonical.ts",
     "!**/pkgs/sync-engine-shared-ts/src/mutation-observability.ts"
   ]
 }

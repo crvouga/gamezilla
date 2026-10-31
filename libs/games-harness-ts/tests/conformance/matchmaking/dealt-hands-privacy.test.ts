@@ -10,15 +10,12 @@ import {
   multiplayerCommandReply,
   sendMultiplayerCommand,
 } from '@libs/game-matchmaking-harness-ts/multiplayer-commands';
-import { pairGameOpponents } from '@libs/game-matchmaking-harness-ts/multiplayer-fixtures';
-import {
-  opponentSearchView,
-  seekGameOpponent,
-} from '@libs/game-matchmaking-harness-ts/opponent-seeking';
+import { opponentSearchView } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
 import { isTurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { deviceRowsOf } from '@libs/game-session-harness-ts/private-setup-observation';
 import { openConformanceHarness } from '../../conformance-world';
 import { forEveryGame } from '../game-suite';
+import { matched } from '../match-authority-world';
 
 forEveryGame(
   import.meta.path,
@@ -37,15 +34,11 @@ forEveryGame(
         second?.white === undefined
       )
         throw new Error(`${game.label} writes no hands of its known deal`);
-      await s.apply(seekGameOpponent, 'alice', game.shared.id);
-      await s.apply(seekGameOpponent, 'bob', game.shared.id);
-      await s.apply(pairGameOpponents, 'alice', true);
-      const match = (
-        await s.until((world) => opponentSearchView(world, 'alice'), {
-          pred: (view) => view.game !== null,
-        })
-      ).game!;
-      await s.apply(sendMultiplayerCommand, 'alice', {
+      // regression: matchmaking-privacy-assumes-seat-order
+      const { match, people } = await matched(s, game);
+      const white = people[0]!;
+      const black = people[1]!;
+      await s.apply(sendMultiplayerCommand, white, {
         name: 'playMultiplayerMove',
         args: {
           gameId: match.id,
@@ -54,24 +47,24 @@ forEveryGame(
           requestId: 'first-move',
         },
       });
-      expect((await s.read(multiplayerCommandReply, 'alice'))?.result.ok).toBe(
+      expect((await s.read(multiplayerCommandReply, white))?.result.ok).toBe(
         true
       );
-      await s.until((world) => opponentSearchView(world, 'bob'), {
+      await s.until((world) => opponentSearchView(world, black), {
         pred: (view) => view.game?.revision === 1,
       });
-      const alice = await s.read(deviceRowsOf, 'alice');
-      const bob = await s.read(deviceRowsOf, 'bob');
-      // After the first move: Alice holds her refilled hand, Bob his first.
+      const whiteRows = await s.read(deviceRowsOf, white);
+      const blackRows = await s.read(deviceRowsOf, black);
+      // After the first move: White holds the refilled hand, Black the first.
       expect([
-        alice.includes(second.white),
-        alice.includes(first.black),
+        whiteRows.includes(second.white),
+        whiteRows.includes(first.black),
       ]).toEqual([true, false]);
-      expect([bob.includes(second.white), bob.includes(first.black)]).toEqual([
-        false,
-        true,
-      ]);
-      for (const rows of [alice, bob])
+      expect([
+        blackRows.includes(second.white),
+        blackRows.includes(first.black),
+      ]).toEqual([false, true]);
+      for (const rows of [whiteRows, blackRows])
         expect(rows.includes('"bag"')).toBe(false);
     }, 240_000);
   },

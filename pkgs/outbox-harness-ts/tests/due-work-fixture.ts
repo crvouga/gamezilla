@@ -42,11 +42,12 @@ export async function openDueWork() {
   const registry = new OutboxConsumerRegistry();
   const seen: string[] = [];
   const attempts: string[] = [];
+  let nextId = 0;
   const deps: DrainOutboxDeps = {
     db,
     clock,
     registry,
-    createId: () => 'delivery',
+    createId: () => `delivery-${++nextId}`,
     observeDelivery: async (info, run) => {
       attempts.push(`${info.eventId}:${info.consumerId}`);
       return run();

@@ -8,10 +8,10 @@ import type {
 import { isTransientConflict } from '@pkgs/sql-client-root-shared-ts/transient-conflict';
 import sql, { join, raw } from '@pkgs/sql-root-shared-ts/sql';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
-
 import { withOutboxCausation } from './causation';
 import type { OutboxConsumerRegistry } from './define-consumer';
 import { resolveRetryPolicy } from './define-consumer';
+import { ensureDeliveries } from './ensure-deliveries';
 import type { OutboxConsumerDef } from './types';
 
 type PendingEventRow = {
@@ -26,7 +26,13 @@ type ClaimRow = {
   readonly event_id: string;
   readonly consumer_id: string;
   readonly attempts: number;
+  readonly available_at: string;
 };
+
+export type ObserveOutboxPhase = <T>(
+  phase: 'outbox-materialize' | 'outbox-claim' | 'outbox-commit',
+  run: () => Promise<T>
+) => Promise<T>;
 
 export type DrainOutboxDeps = {
   readonly db: SqlClient;
@@ -40,6 +46,17 @@ export type DrainOutboxDeps = {
   readonly causationIds?: readonly string[];
   /** Records each delivery; absent in hosts that keep no telemetry. */
   readonly observeDelivery?: ObserveDelivery;
+  readonly observePhase?: ObserveOutboxPhase;
+  /** Starts after the claim is locked; finishes only after commit or rollback. */
+  readonly measureDelivery?: (info: {
+    readonly consumerId: string;
+    readonly attempt: number;
+    readonly eligibleAtMs: number;
+  }) => (success: boolean) => void;
+  /** Oldest selected ready work, before lock acquisition; null means no candidate. */
+  readonly observeOldestReady?: (eligibleAtMs: number | null) => void;
+  /** Runs after a delivery transaction commits, before any following delivery. */
+  readonly afterDelivery?: (result: DrainOutboxResult) => Promise<void>;
   /** Host capture / managed-row wrapper for consumer domain writes. */
   readonly wrapConsumerTx?: (tx: SqlTx) => SqlTx;
   readonly objectStore?: ObjectStore;
@@ -65,6 +82,8 @@ export async function drainOutbox(
 ): Promise<DrainOutboxResult> {
   if (deps.causationIds?.length === 0 || deps.eventIds?.length === 0)
     return { processed: 0, exhausted: 0, notifyUserIds: [] };
+  const observe: ObserveOutboxPhase =
+    deps.observePhase ?? ((_phase, run) => run());
   const limit = deps.limit ?? 50;
   const log = createLogger({
     name: 'outbox-drain',
@@ -72,13 +91,67 @@ export async function drainOutbox(
   });
   const notifyUserIds = new Set<string>();
 
-  const { processed, exhausted } = await deps.db.transaction(async (tx) => {
-    await ensureDeliveries(tx, deps);
-    const claims = await claimDueDeliveries(tx, { ...deps, limit });
-    return processClaims({ deps, tx, claims, log, notifyUserIds });
+  const claims = await deps.db.transaction(async (tx) => {
+    await observe('outbox-materialize', () => ensureDeliveries(tx, deps));
+    return observe('outbox-claim', () =>
+      claimDueDeliveries(tx, { ...deps, limit })
+    );
   });
+  deps.observeOldestReady?.(
+    claims.length === 0 ? null : new Date(claims[0]!.available_at).getTime()
+  );
+  let processed = 0;
+  let exhausted = 0;
+  for (const claim of claims) {
+    const deliveryUsers = new Set<string>();
+    const result = await observe('outbox-commit', () =>
+      commitClaim({ deps, claim, log, notifyUserIds: deliveryUsers })
+    );
+    processed += result.processed;
+    exhausted += result.exhausted;
+    for (const id of deliveryUsers) notifyUserIds.add(id);
+    await deps.afterDelivery?.({
+      ...result,
+      notifyUserIds: [...deliveryUsers].sort(),
+    });
+  }
 
   return { processed, exhausted, notifyUserIds: [...notifyUserIds].sort() };
+}
+
+async function commitClaim(args: {
+  readonly deps: DrainOutboxDeps;
+  readonly claim: ClaimRow;
+  readonly log: ReturnType<typeof createLogger>;
+  readonly notifyUserIds: Set<string>;
+}): Promise<{ processed: number; exhausted: number }> {
+  const { deps, claim } = args;
+  let finish = (_success: boolean): void => undefined;
+  try {
+    const result = await deps.db.transaction(async (tx) => {
+      // A concurrent worker may already have committed or rescheduled this candidate.
+      const locked = await tx.run(sql`
+        UPDATE outbox_deliveries SET updated_at = updated_at
+        WHERE event_id = ${claim.event_id} AND consumer_id = ${claim.consumer_id}
+          AND attempts = ${claim.attempts} AND processed_at IS NULL
+          AND deleted_at IS NULL
+          AND available_at <= ${new Date(deps.clock.now()).toISOString()}
+      `);
+      if (locked.changes === 0) return { processed: 0, exhausted: 0 };
+      finish =
+        deps.measureDelivery?.({
+          consumerId: claim.consumer_id,
+          attempt: claim.attempts + 1,
+          eligibleAtMs: new Date(claim.available_at).getTime(),
+        }) ?? finish;
+      return processClaims({ ...args, tx, claims: [claim] });
+    });
+    finish(result.processed > 0);
+    return result;
+  } catch (error) {
+    finish(false);
+    throw error;
+  }
 }
 
 async function processClaims(args: {
@@ -134,54 +207,6 @@ async function processClaims(args: {
   return { processed: count, exhausted };
 }
 
-/** Events given a delivery per consumer in one pass. */
-const DELIVERIES_PER_CONSUMER_PER_PASS = 200;
-
-/**
- * One statement for every consumer. A pass runs inside a transaction that
- * holds one of the pooled database sessions, and each statement costs a
- * round trip to the database, so the statement count must not grow with the
- * number of registered consumers.
- */
-async function ensureDeliveries(
-  tx: SqlTx,
-  deps: DrainOutboxDeps
-): Promise<void> {
-  const consumers = deps.registry.all();
-  if (consumers.length === 0) return;
-  const nowIso = new Date(deps.clock.now()).toISOString();
-  const subscriptions = join(
-    consumers.map(
-      (consumer) =>
-        sql`SELECT ${consumer.on.type} AS type, ${consumer.id} AS consumer_id`
-    ),
-    ' UNION ALL '
-  );
-  await tx.run(sql`
-    INSERT INTO outbox_deliveries (
-      id, event_id, consumer_id, attempts, available_at, processed_at,
-      last_error, created_at, updated_at, deleted_at
-    )
-    SELECT e.id || ':' || s.consumer_id, e.id, s.consumer_id, 0,
-           COALESCE(e.available_at, ${nowIso}), NULL,
-           NULL, ${nowIso}, ${nowIso}, NULL
-      FROM outbox_events e
-      JOIN (${subscriptions}) s ON s.type = e.type
-     WHERE e.deleted_at IS NULL
-       ${deps.eventIds !== undefined && deps.eventIds.length > 0 ? sql`AND e.id IN (${join(deps.eventIds)})` : sql``}
-       ${deps.causationIds === undefined ? sql`` : sql`AND e.causation_id IN (${join(deps.causationIds)})`}
-       AND NOT EXISTS (
-         SELECT 1
-           FROM outbox_deliveries d
-          WHERE d.event_id = e.id
-            AND d.consumer_id = s.consumer_id
-            AND d.deleted_at IS NULL
-       )
-     LIMIT ${DELIVERIES_PER_CONSUMER_PER_PASS * consumers.length}
-    ON CONFLICT (event_id, consumer_id) DO NOTHING
-  `);
-}
-
 async function claimDueDeliveries(
   tx: SqlTx,
   options: DrainOutboxDeps & { limit: number }
@@ -190,9 +215,9 @@ async function claimDueDeliveries(
   const nowIso = new Date(clock.now()).toISOString();
   const consumers = registry.all().map((consumer) => consumer.id);
   if (consumers.length === 0 || eventIds?.length === 0) return [];
-  // Portable claim: select then bump attempts in the same tx (single Worker drain).
+  // Select candidates; each delivery transaction locks and rechecks before work.
   const rows = await tx.query(sql<ClaimRow>`
-    SELECT event_id, consumer_id, attempts
+    SELECT event_id, consumer_id, attempts, available_at
       FROM outbox_deliveries
      WHERE processed_at IS NULL
        AND deleted_at IS NULL

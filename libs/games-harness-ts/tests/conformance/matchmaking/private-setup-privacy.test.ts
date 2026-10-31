@@ -9,14 +9,11 @@ import {
   multiplayerCommandReply,
   sendMultiplayerCommand,
 } from '@libs/game-matchmaking-harness-ts/multiplayer-commands';
-import { pairGameOpponents } from '@libs/game-matchmaking-harness-ts/multiplayer-fixtures';
-import {
-  opponentSearchView,
-  seekGameOpponent,
-} from '@libs/game-matchmaking-harness-ts/opponent-seeking';
+import { opponentSearchView } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
 import { deviceRowsOf } from '@libs/game-session-harness-ts/private-setup-observation';
 import { openConformanceHarness } from '../../conformance-world';
 import { forEveryTurnGame } from '../game-suite';
+import { matched } from '../match-authority-world';
 
 forEveryTurnGame(
   import.meta.path,
@@ -28,15 +25,11 @@ forEveryTurnGame(
       const setups = game.fixtures.setups;
       if (setups === undefined)
         throw new Error(`${game.label} names no setups`);
-      await s.apply(seekGameOpponent, 'alice', game.shared.id);
-      await s.apply(seekGameOpponent, 'bob', game.shared.id);
-      await s.apply(pairGameOpponents, 'alice', true);
-      const match = (
-        await s.until((world) => opponentSearchView(world, 'alice'), {
-          pred: (view) => view.game?.setup_ready === 'white,black',
-        })
-      ).game!;
-      await s.apply(sendMultiplayerCommand, 'alice', {
+      // regression: matchmaking-privacy-assumes-seat-order
+      const { match, people } = await matched(s, game);
+      const white = people[0]!;
+      const black = people[1]!;
+      await s.apply(sendMultiplayerCommand, white, {
         name: 'playMultiplayerMove',
         args: {
           gameId: match.id,
@@ -45,22 +38,22 @@ forEveryTurnGame(
           requestId: 'first-move',
         },
       });
-      expect((await s.read(multiplayerCommandReply, 'alice'))?.result.ok).toBe(
+      expect((await s.read(multiplayerCommandReply, white))?.result.ok).toBe(
         true
       );
-      await s.until((world) => opponentSearchView(world, 'bob'), {
+      await s.until((world) => opponentSearchView(world, black), {
         pred: (view) => view.game?.revision === 1,
       });
-      const alice = await s.read(deviceRowsOf, 'alice');
-      const bob = await s.read(deviceRowsOf, 'bob');
+      const whiteRows = await s.read(deviceRowsOf, white);
+      const blackRows = await s.read(deviceRowsOf, black);
       expect([
-        alice.includes(setups.white),
-        alice.includes(setups.black),
+        whiteRows.includes(setups.white),
+        whiteRows.includes(setups.black),
       ]).toEqual([true, false]);
-      expect([bob.includes(setups.white), bob.includes(setups.black)]).toEqual([
-        false,
-        true,
-      ]);
+      expect([
+        blackRows.includes(setups.white),
+        blackRows.includes(setups.black),
+      ]).toEqual([false, true]);
     }, 240_000);
   },
   ['a private setup', 'two seats']

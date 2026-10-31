@@ -10,6 +10,7 @@ import { BILLING_CALLBACKS_METRIC } from '@pkgs/observability-root-shared-ts/bil
 import {
   OUTBOX_DELIVERIES_EXHAUSTED_METRIC,
   OUTBOX_DRAIN_RUNS_METRIC,
+  OUTBOX_READY_AGE_METRIC,
 } from '@pkgs/observability-root-shared-ts/outbox-metrics';
 import {
   EXPORT_ATTEMPTS_METRIC,
@@ -91,6 +92,17 @@ function pipelineRule(alert: PipelineAlert): AlertRule {
 export const PIPELINE_ALERTS: readonly AlertRule[] = (
   [
     {
+      key: 'outbox-ready-work-aging',
+      name: 'Ready outbox work waits beyond its diagnostic budget',
+      expr: `max_over_time(${gauge(OUTBOX_READY_AGE_METRIC.name)}{deployment_environment_name="${ENVIRONMENT}"}[5m]) > 1`,
+      for: '2m',
+      severity: 'warning',
+      owner: 'sync-engine',
+      summary:
+        'Ready outbox candidates include all consumer classes. Inspect claim locks, transaction spans and drain health; this is not a fleet latency percentile.',
+      investigate_command: 'bun obs slow --source prod --since 1h',
+    },
+    {
       key: 'event-export-failures',
       name: 'Reliable event exports repeatedly fail',
       expr: `${windowedCount(EXPORT_ATTEMPTS_METRIC.name, 'telemetry_outcome="failure"', '15m')} > 10`,
@@ -161,3 +173,9 @@ export const PIPELINE_ALERTS: readonly AlertRule[] = (
     },
   ] satisfies readonly PipelineAlert[]
 ).map(pipelineRule);
+
+function gauge(name: string): string {
+  const { series } = emittedMetric(name);
+  if (series.kind !== 'gauge') throw new Error(`Expected gauge ${name}`);
+  return series.value;
+}

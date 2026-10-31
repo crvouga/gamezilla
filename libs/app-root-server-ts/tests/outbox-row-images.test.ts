@@ -1,5 +1,8 @@
 import { expect, test } from 'bun:test';
-import { drainAndNotifyOutbox } from '@libs/app-root-server-ts/outbox-drain';
+import {
+  drainAndNotifyOutbox,
+  setOutboxConsumerRegistry,
+} from '@libs/app-root-server-ts/outbox-drain';
 import { defineTable } from '@pkgs/db-schema-root-shared-ts/define-table';
 import { registerTables } from '@pkgs/db-schema-root-shared-ts/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared-ts/reconcile-sqlite-schema';
@@ -13,6 +16,7 @@ import type { PubSub } from '@pkgs/pubsub-root-shared-ts/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server-ts/impl-bun-sqlite';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { syncEngineServerSchema } from '@pkgs/sync-engine-shared-ts/tables';
+import type { TopicMap } from '@pkgs/sync-engine-shared-ts/topic-map';
 import type { PushMessage } from '@pkgs/sync-engine-shared-ts/v2';
 import fc from 'fast-check';
 
@@ -32,7 +36,7 @@ async function publishRows(
   forbidImages: boolean,
   owners: readonly string[] = ['alice', 'bob'],
   fenced = true,
-  failAfterWrite = false
+  options: { failAfterWrite?: boolean; registryTopicMap?: boolean } = {}
 ): Promise<Map<string, PushMessage>> {
   const db = SqlClientImplBunSqlite.open(':memory:');
   await db.connect();
@@ -49,9 +53,9 @@ async function publishRows(
           await tx.run(
             sql`INSERT INTO notes (id, owner_id, body) VALUES (${owner}, ${owner}, ${owner + '-only'})`
           );
-        if (failAfterWrite)
+        if (options.failAfterWrite)
           throw new Error('Delivery refused after captured writes');
-        return { notifyUserIds: owners };
+        return { notifyUserIds: options.registryTopicMap ? [] : owners };
       },
     });
     const frames = new Map<string, PushMessage>();
@@ -65,6 +69,14 @@ async function publishRows(
       close: () => {},
     };
     const env = { now: () => new Date(0), createId: () => 'ready' };
+    const topicMap: TopicMap = {
+      notes: {
+        topics: (row) => [`user:${String(row['owner_id'])}`],
+        rowImage: { publish: () => !forbidImages },
+      },
+    };
+    if (options.registryTopicMap)
+      setOutboxConsumerRegistry(consumerRegistry, topicMap);
     await new Outbox({ tx: db, env }).send({ id: 'ready', message: Ready({}) });
     await drainAndNotifyOutbox({
       db,
@@ -74,14 +86,11 @@ async function publishRows(
       objectStore: new ObjectStoreImplInMemory(),
       consumerRegistry,
       pubsub,
-      topicMap: {
-        notes: {
-          topics: (row) => [`user:${String(row['owner_id'])}`],
-          rowImage: { publish: () => !forbidImages },
-        },
-      },
+      ...(options.registryTopicMap
+        ? { eventTypes: [Ready.type] }
+        : { topicMap }),
     });
-    if (failAfterWrite)
+    if (options.failAfterWrite)
       expect(await db.query(sql<{ id: string }>`SELECT id FROM notes`)).toEqual(
         []
       );
@@ -126,7 +135,9 @@ test('a publication veto sends invalidations without any row images', async () =
 
 // regression: outbox-rollback-publishes-captured-images
 test('a failed consumer never publishes rows rolled back to its savepoint', async () => {
-  const frames = await publishRows(false, ['alice'], true, true);
+  const frames = await publishRows(false, ['alice'], true, {
+    failAfterWrite: true,
+  });
   expect([...frames]).toEqual([]);
 });
 
@@ -140,8 +151,12 @@ test('row images respect topic ownership and publication vetoes for every recipi
       }),
       fc.boolean(),
       fc.boolean(),
-      async (owners, forbid, fail) => {
-        const frames = await publishRows(forbid, owners, true, fail);
+      fc.boolean(),
+      async (owners, forbid, fail, registryTopicMap) => {
+        const frames = await publishRows(forbid, owners, true, {
+          failAfterWrite: fail,
+          registryTopicMap,
+        });
         if (fail) {
           expect([...frames]).toEqual([]);
           return;
@@ -161,4 +176,15 @@ test('row images respect topic ownership and publication vetoes for every recipi
       }
     )
   );
+});
+
+// regression: scoped-outbox-loses-composed-topic-map
+test('a typed drain preserves row topics from its composed registry', async () => {
+  const frames = await publishRows(false, ['alice'], true, {
+    registryTopicMap: true,
+  });
+  expect([...frames.keys()]).toEqual(['user:alice']);
+  expect(
+    frames.get('user:alice')?.rows?.['notes']?.map((row) => row['body'])
+  ).toEqual(['alice-only']);
 });

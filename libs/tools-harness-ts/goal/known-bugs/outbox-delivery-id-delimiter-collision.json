@@ -1,0 +1,4 @@
+{
+  "summary": "Event/consumer pairs a + b:c and a:b + c produced the same delivery primary key. This reproducible defect is not proof of the cause of the inspected remote conflict.",
+  "regressionTest": "pkgs/outbox-harness-ts/tests/delivery-id-collision.test.ts"
+}

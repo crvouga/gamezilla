@@ -43,6 +43,7 @@ import {
   createOutboundLiveBuffer,
   publishOptimisticFanout,
 } from './optimistic-fanout';
+import { createRecoveryObservation } from './recovery-observation';
 import { createSharedWatchRegistry } from './shared-watch-registry';
 import { createSubscribeQueries } from './subscribe-queries';
 import type {
@@ -126,6 +127,7 @@ type LocalEngineState = {
   readonly bus: ReturnType<typeof createTableChangeBus>;
   readonly appDb: SqlClient;
   readonly status: LocalSyncStatusStore;
+  readonly recovery: ReturnType<typeof createRecoveryObservation>;
   readonly runtime: SubscriptionRuntime;
   readonly uploadQueue: MutationUploadQueue;
   readonly watches: ReturnType<typeof createSharedWatchRegistry>;
@@ -205,6 +207,8 @@ function createUploadQueue(
       state.refreshTopics?.();
     },
     onRejected: () => readState(stateRef).runtime.wakeAllAndDrain(),
+    onCommitted: (ids, requiresRepair) =>
+      readState(stateRef).recovery.acknowledged(ids, requiresRepair),
     onError: (error) => handleError(readState(stateRef), error),
     timers: options.timers,
     now: options.now,
@@ -239,6 +243,9 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
   status.patch({ online: options.lifecycle?.isOnline() ?? true });
   const stateRef: LocalEngineStateRef = { current: null };
   const runtime = new SubscriptionRuntime({
+    onSweepStarted: (scopes) =>
+      readState(stateRef).recovery.scopesStarted(scopes),
+    onScopeSettled: (scope) => readState(stateRef).recovery.scopeSettled(scope),
     db: options.db,
     postQueries: options.postQueries,
     ...(options.push?.queryRegistry !== undefined
@@ -278,6 +285,7 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     appDb,
     mutationDrains: new Set(),
     status,
+    recovery: createRecovery(options),
     runtime,
     uploadQueue,
     watches: createSharedWatchRegistry((query) =>
@@ -301,7 +309,23 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     disposeConnectivity: null,
   };
   stateRef.current = state;
+  bindRecoveryScopes(state);
   return state;
+}
+
+function createRecovery(options: CreateLocalSyncEngineOptions) {
+  return createRecoveryObservation(options.db, options.getClientId, {
+    timers: options.timers,
+    uploadsLocally: options.enableMutationUpload !== false,
+  });
+}
+
+function bindRecoveryScopes(state: LocalEngineState): void {
+  state.runtime.onSubscriptionsChange(() =>
+    state.recovery.retainScopes(
+      state.runtime.listActive().map((entry) => entry.scope)
+    )
+  );
 }
 
 function flushOutboundLive(state: LocalEngineState): void {
@@ -365,7 +389,13 @@ async function seedLastSyncedAt(state: LocalEngineState): Promise<void> {
 async function connectState(state: LocalEngineState): Promise<void> {
   state.disposeConnectivity ??= bindSyncConnectivity(
     state.options.lifecycle,
-    state.status
+    state.status,
+    (online) =>
+      online
+        ? state.recovery.start(
+            state.runtime.listActive().map((entry) => entry.scope)
+          )
+        : state.recovery.cancel()
   );
   if (state.connected) {
     state.uploadQueue.wake();
@@ -375,6 +405,13 @@ async function connectState(state: LocalEngineState): Promise<void> {
     state.runtime.wakeAll();
     return;
   }
+  if (
+    state.status.status.getSnapshot().hasEverSynced &&
+    (state.options.lifecycle?.isOnline() ?? true)
+  )
+    state.recovery.start(
+      state.runtime.listActive().map((entry) => entry.scope)
+    );
   state.connected = true;
   state.status.patch({
     connection: 'connecting',
@@ -395,6 +432,7 @@ async function drainMutationClients(state: LocalEngineState): Promise<void> {
 }
 
 async function disconnectState(state: LocalEngineState): Promise<void> {
+  state.recovery.cancel();
   state.disposeConnectivity?.();
   state.disposeConnectivity = null;
   state.connected = false;
@@ -409,6 +447,7 @@ async function disconnectState(state: LocalEngineState): Promise<void> {
 }
 
 async function revokeDatabase(state: LocalEngineState): Promise<void> {
+  state.recovery.cancel();
   state.disposeConnectivity?.();
   state.disposeConnectivity = null;
   state.connected = false;

@@ -9,6 +9,7 @@ import { createHttpSpanExporter } from '@pkgs/observability-root-client-ts/http-
 import { installMainThreadStallWatch } from '@pkgs/observability-root-client-ts/main-thread-stall';
 import { UNSTATED_ENVIRONMENT } from '@pkgs/observability-root-shared-ts/deployment-environment';
 import { AcknowledgedLogExporter } from '@pkgs/observability-runtime-shared-ts/acknowledged-log-exporter';
+import { acknowledgedMetricExporter } from '@pkgs/observability-runtime-shared-ts/acknowledged-metric-exporter';
 import { TelemetryOutbox } from '@pkgs/observability-runtime-shared-ts/telemetry-outbox';
 import { setMutationCorrelationIdentity } from '@pkgs/sync-engine-shared-ts/interaction-correlation';
 import {
@@ -33,6 +34,7 @@ export type BrowserObservabilityArgs = {
   readonly env: ClientEnv;
   readonly offline: OfflineNetworkController;
   readonly timeOriginMs: number;
+  readonly monotonicNow: () => number;
 };
 
 let started: BrowserObservabilityBoot | undefined;
@@ -92,6 +94,16 @@ function openTelemetry(
   const http = outbox.http;
   const tracesUrl = signalUrl(args.env.serverUrl, 'traces');
   return createBrowserTelemetry({
+    instanceId: args.env.createId(),
+    monotonicNow: args.monotonicNow,
+    performanceTimers: args.env.timers,
+    syncCohort: () =>
+      document.visibilityState === 'visible' ? 'foreground' : 'background',
+    metricExporter: acknowledgedMetricExporter(
+      signalUrl(args.env.serverUrl, 'metrics'),
+      { fetch: createOfflineHttp(args.offline, args.env.server) },
+      args.env.timers
+    ),
     serviceName: serviceName('client'),
     serviceVersion: APP_VERSION,
     // The server's ingress states the deployment; the page cannot know it.
@@ -110,6 +122,9 @@ function openTelemetry(
   });
 }
 
-function signalUrl(serverUrl: string, signal: 'traces' | 'logs'): string {
+function signalUrl(
+  serverUrl: string,
+  signal: 'traces' | 'logs' | 'metrics'
+): string {
   return new URL(`/api/observability/v1/${signal}`, serverUrl).toString();
 }

@@ -136,8 +136,9 @@ async function healOrphansForTable(
   tx: SqlClient,
   table: string,
   rows: readonly QueryRow[],
-  nowIso: string
+  context: { readonly nowIso: string; readonly pendingIds: ReadonlySet<string> }
 ): Promise<boolean> {
+  const { nowIso, pendingIds } = context;
   assertTableName(table);
   const present = collectPresentIds(rows);
   const markers = await tx.query(
@@ -147,7 +148,6 @@ async function healOrphansForTable(
         AND deleted_at IS NULL
     `
   );
-  const pendingIds = await loadPendingMutationIds(tx);
   const healable = markersWithoutPendingOwnWrites(markers, pendingIds);
   const { confirmed, orphans } = partitionPeerMarkers(healable, present);
   await softDeletePeerRowsChunked(tx, table, confirmed, nowIso);
@@ -171,9 +171,10 @@ export async function healOptimisticPeerOrphans(
   `);
   if (Number(markerRows[0]?.c ?? 0) === 0) return [];
 
+  const pendingIds = await loadPendingMutationIds(tx);
   const changed: string[] = [];
   for (const [table, rows] of Object.entries(snapshotTables)) {
-    if (await healOrphansForTable(tx, table, rows, nowIso)) {
+    if (await healOrphansForTable(tx, table, rows, { nowIso, pendingIds })) {
       if (!changed.includes(table)) changed.push(table);
     }
   }
@@ -221,11 +222,12 @@ export async function reconcileOptimisticPeerMarkers(
     SELECT DISTINCT table_name FROM ${ident(SYNC_ENGINE_OPTIMISTIC_PEER_ROWS)}
     WHERE deleted_at IS NULL
   `);
+  const pendingIds = await loadPendingMutationIds(tx);
   const changed: string[] = [];
   for (const row of tables) {
     const table = row.table_name;
     const marked = await loadMarkedRowsForTable(tx, table);
-    if (await healOrphansForTable(tx, table, marked, nowIso)) {
+    if (await healOrphansForTable(tx, table, marked, { nowIso, pendingIds })) {
       if (!changed.includes(table)) changed.push(table);
     }
   }

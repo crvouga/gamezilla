@@ -39,11 +39,12 @@ test('PostgreSQL witnesses scoped materialized and unmaterialized work with time
         seen.push(event.n);
       },
     });
+    let nextId = 0;
     const deps = {
       db,
       clock,
       registry,
-      createId: () => 'event',
+      createId: () => `generated-${++nextId}`,
       causationIds: ['alice'],
     };
     for (const [id, causation, n, delay] of [

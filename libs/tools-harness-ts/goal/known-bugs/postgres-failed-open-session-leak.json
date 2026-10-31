@@ -1,0 +1,4 @@
+{
+  "summary": "A failed PostgreSQL connect or schema initialization left the newly created session unclosed; cleanup now preserves the original failure.",
+  "regressionTest": "pkgs/sql-client-postgres-server-ts/tests/open-session.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "The pinned 917125-record diagnostic journal reparsed every identical line and allocated a complete line array; the scoped verification exceeded its existing five-second limit. Stream lines and skip identical adjacent records while retaining the final distinct span value.",
+  "regressionTest": "pkgs/observability-root-shared-ts/tests/large-journal.test.ts"
+}

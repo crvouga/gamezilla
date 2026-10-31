@@ -48,7 +48,11 @@ async function causalChain(length: number, completeImages = true) {
     await reconcileOutbox(db);
     const registry = new OutboxConsumerRegistry();
     const delivered: number[] = [];
-    const env = { now: () => new Date(0), createId: () => 'unused' };
+    let nextId = 0;
+    const env = {
+      now: () => new Date(0),
+      createId: () => `generated-${++nextId}`,
+    };
     for (const [id, on] of [
       ['first', First],
       ['next', Next],
@@ -88,7 +92,7 @@ async function causalChain(length: number, completeImages = true) {
       await new Outbox({ tx: db, env }).send({ id, message });
     let extraSubscriptions = 0;
     const counted = observe(db, (query) => {
-      if (query.sql.includes('INSERT INTO outbox_deliveries'))
+      if (query.sql.includes('SELECT e.id AS event_id'))
         extraSubscriptions = Math.max(
           extraSubscriptions,
           query.values.filter(

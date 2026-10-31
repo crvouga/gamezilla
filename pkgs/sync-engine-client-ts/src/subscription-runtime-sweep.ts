@@ -36,6 +36,7 @@ export type SubscriptionSweepContext = {
   readonly queryRegistry?: QueryRegistry;
   readonly onError: (error: unknown) => void;
   readonly onSynced: () => void;
+  readonly onScopeSettled?: (scope: string) => void;
   readonly ensureBusWatch: () => void;
   readonly cleanScopes: Set<string>;
   readonly isRunning: () => boolean;
@@ -103,7 +104,10 @@ async function handleSweepResponse(
     await detachScope(ctx.getMergeDeps(), entry.scope);
     // A denial clears its cache position, not the subscription. Identity or
     // policy may change while it is held; the next event must reauthorize it.
-    if (isCurrent()) markSweepFirst(entry);
+    if (isCurrent()) {
+      markSweepFirst(entry);
+      ctx.onScopeSettled?.(entry.scope);
+    }
     return false;
   }
   if (response.status === 'not_modified') {
@@ -123,6 +127,7 @@ async function handleSweepResponse(
     if (!isCurrent()) return false;
     markSweepFirst(entry);
     ctx.onSynced();
+    ctx.onScopeSettled?.(entry.scope);
     return true;
   }
   if (!isCurrent()) return false;
@@ -136,6 +141,7 @@ async function handleSweepResponse(
   if (!isCurrent()) return false;
   markSweepFirst(entry);
   ctx.onSynced();
+  ctx.onScopeSettled?.(entry.scope);
   return true;
 }
 
@@ -176,6 +182,7 @@ async function healNotModifiedIfDrifted(
   if (!isCurrent()) return false;
   markSweepFirst(entry);
   ctx.onSynced();
+  ctx.onScopeSettled?.(entry.scope);
   return true;
 }
 

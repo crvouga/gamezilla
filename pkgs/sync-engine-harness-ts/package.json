@@ -11,6 +11,7 @@
     ]
   },
   "scripts": {
+    "bench": "bun scripts/sync-performance.ts",
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
     "prepare:spec": "bun run --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client-ts/register ../../libs/harness-ts/scripts/prepare-spec.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",

@@ -44,7 +44,8 @@ async function drainStatements(
   try {
     await reconcileOutbox(db);
     const clock = { now: () => Date.parse('2026-10-01T00:00:00.000Z') };
-    const createId = () => 'event';
+    let nextId = 0;
+    const createId = () => `event-${++nextId}`;
     const registry = new OutboxConsumerRegistry();
     const types = Array.from({ length: consumerCount }, (_, index) =>
       ns(
@@ -94,7 +95,7 @@ test('a drain sends a constant number of statements to make deliveries for every
   const few = await drainStatements(2, true);
   const many = await drainStatements(33, true);
   // Each pending delivery costs its own claim bookkeeping; making them does not.
-  const perDelivery = (few.statements - 2) / 2;
+  const perDelivery = (few.statements - 3) / 2;
   expect(many.delivered).toBe(33);
-  expect(many.statements).toBe(2 + perDelivery * 33);
+  expect(many.statements).toBe(3 + perDelivery * 33);
 });
