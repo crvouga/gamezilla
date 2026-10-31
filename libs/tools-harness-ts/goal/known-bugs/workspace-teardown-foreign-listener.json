@@ -1,0 +1,4 @@
+{
+  "summary": "Workspace teardown killed unrelated listeners in a hashed port block.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workspace-run.test.ts"
+}

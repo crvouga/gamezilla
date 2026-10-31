@@ -4,14 +4,12 @@ import { DEFAULT_SYNTHETIC_POPULATION_CONFIG } from '@libs/synthetic-population-
 import { localApiEnv } from './local-api-env';
 import { localPopulationConfig } from './local-population-config';
 import { localProcessEnv } from './local-process-env';
-import {
-  isolatedSharedDataEnv,
-  localSharedDataEnv,
-} from './local-shared-data-env';
+import { isolatedSharedDataEnv } from './local-shared-data-env';
 import { parseStackOptions } from './stack-options';
 import { stackSuiteArgs } from './stack-suite-args';
 
-test('only shared reference-data credentials cross into local APIs and stack tests replace them', async () => {
+// regression: workspace-local-shared-data-login
+test('local reference data uses disposable bindings even with deployed credentials present', () => {
   const shared = {
     SHARED_DATA_BUCKET: 'acme-shared',
     SHARED_DATA_ENDPOINT: 'https://r2.example',
@@ -19,13 +17,6 @@ test('only shared reference-data credentials cross into local APIs and stack tes
     SHARED_DATA_ACCESS_KEY_ID: 'shared-key',
     SHARED_DATA_SECRET_ACCESS_KEY: 'shared-secret',
   };
-  expect(
-    await localSharedDataEnv({
-      ...shared,
-      DATABASE_URL: 'postgres://outside',
-      S3_BUCKET: 'outside',
-    })
-  ).toEqual(shared);
   expect(
     isolatedSharedDataEnv({
       S3_BUCKET: 'disposable',

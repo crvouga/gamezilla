@@ -18,6 +18,21 @@ describe('renderConfigs', () => {
 
   test('every orchestrator runs the same script for every hook', () => {
     for (const file of files) {
+      if (file.path === '.vscode/tasks.json') {
+        const config = JSON.parse(file.content) as {
+          tasks: { args: string[] }[];
+        };
+        expect(config.tasks.map((task) => task.args)).toEqual(
+          HOOKS.map((hook) => [hookCommand(hook)])
+        );
+        continue;
+      }
+      if (file.path === '.cursor/worktrees.json') {
+        expect(JSON.parse(file.content)).toEqual({
+          'setup-worktree-unix': [hookCommand('setup')],
+        });
+        continue;
+      }
       if (file.path.endsWith('.toml')) {
         const config = Bun.TOML.parse(file.content) as {
           scripts: { run: string; archive: string; run_mode: string };

@@ -1,0 +1,4 @@
+{
+  "summary": "Failed preparation was marked warm and dev launched with incomplete dependencies.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workspace-run.test.ts"
+}

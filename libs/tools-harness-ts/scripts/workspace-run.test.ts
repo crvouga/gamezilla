@@ -15,9 +15,8 @@ import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { renameReplacing } from '@pkgs/fs-server-ts/rename-replacing';
 
 const hooks = join(import.meta.dirname, '../workspace');
-const DEV = 'bun run --silent dev -- --web-port 5800';
-const INSTALL = 'bun install';
-const GRAPHIFY = 'bun run graphify:install';
+const DEV = 'bun run --silent dev -- --web-port 5800 --keep-data';
+const INSTALL = 'bun install --frozen-lockfile';
 
 const checkouts: string[] = [];
 afterEach(() => {
@@ -120,196 +119,131 @@ function checkout() {
   return {
     dir,
     run: script('run.sh'),
+    setup: script('setup.sh'),
+    teardown: script('teardown.sh'),
+    check: script('check.sh'),
+    port: script('port.sh'),
     step: (name: string) => script('step.sh', [name]),
   };
 }
 
-// regression: workspace-run-turbo-ui-stream
-test('Run starts dev in the terminal UI even when the parent asked for stream', () => {
-  const { run } = checkout();
-  const env = { TURBO_UI: 'stream', WORKSPACE_RUN_TEST_RECORD_UI: '1' };
-  const cold = run(env);
-  expect(cold.status).toBe(0);
-  expect(cold.calls).toEqual([
-    'bun install TURBO_UI=false',
-    'bun run graphify:install TURBO_UI=false',
-    `${DEV} TURBO_UI=true`,
-  ]);
-  expect(run(env).calls).toEqual([`${DEV} TURBO_UI=true`]);
-});
-
-// regression: workspace-run-preflight-dependency-failure
-test('Run launches dev directly on the workspace port', () => {
-  const { run } = checkout();
-  run();
-  const result = run();
-  expect(result.status).toBe(0);
-  expect(result.calls).toEqual([DEV]);
-});
-
-test('Run installs first in a checkout that has no turbo to run dev with', () => {
-  const { dir, run } = checkout();
-  const first = run();
-  expect(first.calls).toEqual([INSTALL, GRAPHIFY, DEV]);
-  expect(first.stdout).toBe(
-    ['==> mise install', '==> bun install', ''].join('\n')
-  );
+// regression: workspace-setup-failure-stamp
+test('failed setup is not accepted as a prepared checkout and can be retried', () => {
+  const { dir, setup, run } = checkout();
+  expect(setup({ WORKSPACE_RUN_TEST_INSTALL: 'fail' }).status).not.toBe(0);
+  expect(
+    existsSync(join(dir, 'node_modules/.workspace-install-fingerprint'))
+  ).toBe(false);
+  expect(run().status).not.toBe(0);
+  expect(setup().status).toBe(0);
   expect(run().calls).toEqual([DEV]);
-
-  removeTree(join(dir, 'node_modules'), { whenLocked: 'leave' });
-  expect(run().calls).toEqual([INSTALL, DEV]);
-});
-
-test('Run launches dev on an incomplete install and retries it next time', () => {
-  const { run } = checkout();
-  const failing = [INSTALL, 'bun install --ignore-scripts', DEV];
-  const first = run({ WORKSPACE_RUN_TEST_INSTALL: 'fail' });
-  expect(first.status).toBe(0);
-  expect(first.stdout).toContain('launching dev on an incomplete install');
-  expect(first.calls).toEqual([
-    INSTALL,
-    'bun install --ignore-scripts',
-    GRAPHIFY,
-    DEV,
-  ]);
-  expect(run({ WORKSPACE_RUN_TEST_INSTALL: 'fail' }).calls).toEqual(failing);
-  expect(run().calls).toEqual([INSTALL, DEV]);
-});
-
-// regression: workspace-run-stale-install
-test('the install task reinstalls when package manifests changed since the last install', () => {
-  const { dir, step } = checkout();
-  const install = step('install');
-  expect(install().calls).toEqual([INSTALL]);
-  const current = install();
-  expect(current.calls).toEqual([]);
-  // Nothing to do prints nothing: the task's pane stays empty.
-  expect(current.stdout + current.stderr).toBe('');
-
-  writeFileSync(
-    join(dir, 'apps/product-ts/package.json'),
-    '{"name":"app","dependencies":{"@libs/sub-shared-ts":"workspace:*"}}\n'
-  );
-  expect(install().calls).toEqual([INSTALL]);
-  expect(install().calls).toEqual([]);
-
-  writeFileSync(join(dir, 'bun.lock'), '{"merged":true}\n');
-  expect(install().calls).toEqual([INSTALL]);
-
-  removeTree(join(dir, 'node_modules'), { whenLocked: 'leave' });
-  expect(install().calls).toEqual([INSTALL]);
-});
-
-test('the install task fails while the install is incomplete', () => {
-  const { step } = checkout();
-  const install = step('install');
-  const failed = install({ WORKSPACE_RUN_TEST_INSTALL: 'fail' });
-  // Turborepo prints a task's output only when it fails.
-  expect(failed.status).not.toBe(0);
-  expect(failed.stdout).toContain('dependency install is still incomplete');
-  expect(install().status).toBe(0);
-});
-
-test('the merge task names an unfinished merge before dev fails on it', () => {
-  const { dir, step } = checkout();
-  const merge = step('merge');
-  writeFileSync(join(dir, 'resolved.ts'), 'export const merged = true;\n');
-  writeFileSync(
-    join(dir, 'conflicted.ts'),
-    '<<<<<<< HEAD\nours\n=======\ntheirs\n>>>>>>> main\n'
-  );
-  const result = merge({
-    WORKSPACE_RUN_TEST_UNMERGED: 'resolved.ts\nconflicted.ts\n',
-  });
-  expect(result.status).not.toBe(0);
-  expect(result.stderr).toContain('merge in progress: 2 unmerged path(s)');
-  expect(result.stderr).toContain('conflicted.ts');
-  expect(result.stderr).not.toContain('      resolved.ts');
-
-  const concluded = merge();
-  expect(concluded.status).toBe(0);
-  expect(concluded.stdout + concluded.stderr).toBe('');
 });
 
 // regression: workspace-cold-secrets-pull
-test('a cold run still launches when the secrets pull fails, and a warm run skips it', () => {
-  const { dir, run } = checkout();
+// regression: workspace-setup-credential-copy
+test('setup leaves credentials in other checkouts and preserves local files', () => {
+  const { dir, setup } = checkout();
   const root = join(dir, 'main-checkout');
   mkdirSync(join(root, '.git'), { recursive: true });
-  const cold = run({ WORKSPACE_RUN_TEST_ROOT: root });
-  expect(cold.status).toBe(0);
-  expect(cold.calls).toContain('bun run secrets:pull');
-  expect(cold.calls.at(-1)).toBe(DEV);
-  expect(cold.stdout).toContain(
-    'secrets:pull failed; continuing without the offline secrets cache'
+  mkdirSync(join(root, '.cache/secrets'), { recursive: true });
+  writeFileSync(join(root, '.cache/secrets/prd.json'), 'private');
+  writeFileSync(join(dir, 'apps/product-ts/.env.local'), 'local');
+  expect(setup({ WORKSPACE_RUN_TEST_ROOT: root }).status).toBe(0);
+  expect(existsSync(join(dir, '.cache/secrets'))).toBe(false);
+  expect(readFileSync(join(dir, 'apps/product-ts/.env.local'), 'utf8')).toBe(
+    'local'
   );
-  expect(cold.stdout).toContain('no .cache/secrets in root checkout');
-  expect(existsSync(join(dir, '.cache/workspace-warm'))).toBe(true);
+});
 
-  const warm = run({ WORKSPACE_RUN_TEST_ROOT: root });
-  expect(warm.status).toBe(0);
-  expect(warm.calls).toEqual([DEV]);
-  expect(warm.stdout).toBe('==> mise install\n');
+// regression: workspace-run-preflight-dependency-failure
+// regression: workspace-run-turbo-ui-stream
+test('run respects the caller UI and never installs or starts before setup', () => {
+  const { setup, run } = checkout();
+  expect(run().status).not.toBe(0);
+  setup();
+  const result = run({ TURBO_UI: 'stream', WORKSPACE_RUN_TEST_RECORD_UI: '1' });
+  expect(result.status).toBe(0);
+  expect(result.calls).toEqual([`${DEV} TURBO_UI=stream`]);
+});
+
+// regression: workspace-run-stale-install
+test('setup is repeatable and restores missing or changed dependencies', () => {
+  const { dir, setup, run } = checkout();
+  expect(setup().calls).toEqual([INSTALL]);
+  expect(setup().calls).toEqual([]);
+  writeFileSync(
+    join(dir, 'apps/product-ts/package.json'),
+    '{"name":"changed"}'
+  );
+  expect(run().status).not.toBe(0);
+  expect(setup().calls).toEqual([INSTALL]);
+  removeTree(join(dir, 'node_modules'), { whenLocked: 'leave' });
+  expect(setup().calls).toEqual([INSTALL]);
 });
 
 // regression: workspace-run-missing-system-tools
-test('Run installs and activates system tools before app dependencies on cold and warm launches', () => {
-  const { dir, run } = checkout();
+test('setup activates pinned tools and does not install dependencies if tools fail', () => {
+  const { dir, setup } = checkout();
   mkdirSync(join(dir, '.tools'));
   renameReplacing(join(dir, '.bin/bun'), join(dir, '.tools/bun'));
-  const env = { WORKSPACE_RUN_TEST_RECORD_SYSTEM: '1' };
-  const system = [
-    'mise trust --quiet mise.toml',
-    'mise install --yes',
-    'mise env --shell bash',
-  ];
-  const cold = run(env);
-  expect(cold.status).toBe(0);
-  expect(cold.calls).toEqual([...system, INSTALL, GRAPHIFY, DEV]);
-  // The old warm marker must not hide pins introduced by a pull.
-  writeFileSync(join(dir, 'mise.toml'), '[tools]\nbun = "1.4.4"\n');
-  const warm = run(env);
-  expect(warm.status).toBe(0);
-  expect(warm.calls).toEqual([...system, DEV]);
-});
-
-test('Run bootstraps mise without a shell profile and reuses its user installation', () => {
-  const { dir, run } = checkout();
-  renameReplacing(join(dir, '.bin/mise'), join(dir, '.bin/mise-template'));
-  writeExecutable(
-    join(dir, '.bin/curl'),
-    '#!/usr/bin/env bash\n' +
-      'printf "curl %s\\n" "$*" >> "$WORKSPACE_RUN_TEST_CALLS"\n' +
-      'while [ "$1" != "--output" ]; do shift; done\n' +
-      'cat > "$2" <<\'INSTALLER\'\n' +
-      'mkdir -p "$(dirname "$MISE_INSTALL_PATH")"\n' +
-      'cp .bin/mise-template "$MISE_INSTALL_PATH"\n' +
-      'INSTALLER\n'
-  );
-  const env = { WORKSPACE_RUN_TEST_RECORD_SYSTEM: '1' };
-  const cold = run(env);
-  expect(cold.status).toBe(0);
-  expect(cold.calls[0]).toContain('https://mise.run --output ');
-  expect(cold.calls.slice(1)).toEqual([
+  expect(setup({ WORKSPACE_RUN_TEST_SYSTEM: 'fail' }).status).not.toBe(0);
+  const result = setup({ WORKSPACE_RUN_TEST_RECORD_SYSTEM: '1' });
+  expect(result.status).toBe(0);
+  expect(result.calls).toEqual([
     'mise trust --quiet mise.toml',
     'mise install --yes',
     'mise env --shell bash',
     INSTALL,
-    GRAPHIFY,
-    DEV,
   ]);
-  expect(existsSync(join(dir, 'home/.local/bin/mise'))).toBe(true);
-  expect(run(env).calls).toEqual(cold.calls.slice(1, -3).concat(DEV));
 });
 
-test('Run retries failed system setup in a warm workspace and still attempts dev', () => {
-  const { run } = checkout();
-  const failed = run({ WORKSPACE_RUN_TEST_SYSTEM: 'fail' });
-  expect(failed.status).toBe(0);
-  expect(failed.stdout).toContain('system tool setup is incomplete');
-  expect(failed.calls.at(-1)).toBe(DEV);
-  const recovered = run({ WORKSPACE_RUN_TEST_RECORD_SYSTEM: '1' });
-  expect(recovered.status).toBe(0);
-  expect(recovered.calls).toContain('mise install --yes');
-  expect(recovered.stdout).not.toContain('incomplete');
+// regression: workspace-teardown-foreign-listener
+test('teardown delegates to checkout ownership without probing or killing by port', () => {
+  const { dir, setup, teardown } = checkout();
+  setup();
+  writeExecutable(join(dir, '.bin/lsof'), '#!/usr/bin/env bash\nexit 99\n');
+  const result = teardown();
+  expect(result.status).toBe(0);
+  expect(result.calls).toEqual(['bun run kill']);
+  expect(teardown().calls).toEqual(['bun run kill']);
+});
+
+test('the merge task names an unfinished merge', () => {
+  const { step } = checkout();
+  const result = step('merge')({
+    WORKSPACE_RUN_TEST_UNMERGED: 'conflicted.ts\n',
+  });
+  expect(result.status).not.toBe(0);
+  expect(result.stderr).toContain('merge in progress: 1 unmerged path(s)');
+});
+
+// regression: workspace-storybook-port-collision
+test('two explicitly selected workspace blocks give Storybook distinct ports', () => {
+  const { dir } = checkout();
+  const selected = (port: string) =>
+    spawnSync(
+      'bash',
+      [
+        '-c',
+        'set -e; . "$1"; printf "%s" "$STORYBOOK_PORT"',
+        'ports',
+        join(dir, 'libs/tools-harness-ts/workspace/port.sh'),
+      ],
+      { encoding: 'utf8', env: { ...process.env, VITE_PORT: port } }
+    );
+  expect(selected('5800').stdout).toBe('5802');
+  expect(selected('5804').stdout).toBe('5806');
+  expect(selected('invalid').status).not.toBe(0);
+});
+
+// regression: workspace-bootstrapped-mise-path
+test('run and checks find mise bootstrapped by setup without a parent PATH change', () => {
+  const { dir, setup, run, check } = checkout();
+  mkdirSync(join(dir, 'home/.local/bin'), { recursive: true });
+  mkdirSync(join(dir, '.tools'));
+  renameReplacing(join(dir, '.bin/mise'), join(dir, 'home/.local/bin/mise'));
+  renameReplacing(join(dir, '.bin/bun'), join(dir, '.tools/bun'));
+  expect(setup().status).toBe(0);
+  expect(run().calls).toEqual([DEV]);
+  expect(check().calls).toEqual(['bun verify']);
 });

@@ -1,0 +1,4 @@
+{
+  "summary": "Fresh localhost startup implicitly ran Infisical login to fetch deployed shared-data credentials and stalled API readiness.",
+  "regressionTest": "apps/product-ts/scripts/local-stack-config.test.ts"
+}
