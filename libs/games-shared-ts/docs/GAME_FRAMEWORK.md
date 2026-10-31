@@ -1,6 +1,6 @@
 # The game framework
 
-Gamezilla is a game application framework with pluggable games. The
+The product is a game application framework with pluggable games. The
 framework owns every lifecycle a person meets around a game — choosing it in
 a space, custom games, finding an opponent, matched games, turns, clocks,
 results, notices, ratings, history and review — and invokes each game only

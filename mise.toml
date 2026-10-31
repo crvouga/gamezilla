@@ -17,6 +17,9 @@ node = "26.12.0"
 gh = "2.102.0"
 gitleaks = "8.30.1"
 actionlint = "1.7.12"
+# Security audit of .github/ (verify:workflow-security): the repository is
+# public, so every pull request is untrusted.
+zizmor = "1.31.1"
 duckdb = "1.5.6"
 # Infrastructure as code (libs/infra): plans, policy gate over plan JSON.
 opentofu = "1.13.1"
@@ -83,11 +86,14 @@ lazy = true
 # needs a shim name for a lazy tool, and this one shadows no real command.
 lazy_bins = ["chrome-for-testing"]
 
+# Google publishes no checksums: each is the SHA-256 of that version's zip,
+# computed when the version was pinned. Bump `version` and every checksum
+# together (download each zip and run `shasum -a 256`).
 [tools."http:chrome-for-testing".platforms]
-linux-x64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/{{version}}/linux64/chrome-linux64.zip" }
-macos-arm64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/{{version}}/mac-arm64/chrome-mac-arm64.zip" }
-macos-x64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/{{version}}/mac-x64/chrome-mac-x64.zip" }
-windows-x64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/{{version}}/win64/chrome-win64.zip" }
+linux-x64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/{{version}}/linux64/chrome-linux64.zip", checksum = "sha256:ff43322f335e436b2f4dcdfeeec5db032299e335a7e8c1c618b326e100ce8732" }
+macos-arm64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/{{version}}/mac-arm64/chrome-mac-arm64.zip", checksum = "sha256:b62e904b6571c5ff5108ed7812cf93ac6d1c4027f10ae47ac34d8e229ed88001" }
+macos-x64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/{{version}}/mac-x64/chrome-mac-x64.zip", checksum = "sha256:9ddd0959603a3cdb90926427b2942279d81414c9aad856c97d405bb406d50e8b" }
+windows-x64 = { url = "https://storage.googleapis.com/chrome-for-testing-public/{{version}}/win64/chrome-win64.zip", checksum = "sha256:b897ef3601c947ac0620c784556dec719ac602b0159ce105927acf645ee0f598" }
 
 # Infisical CLI (secrets backend). Its release assets are named
 # `cli_<version>_<os>_<arch>.tar.gz`, which mise's default match does not pick
@@ -108,11 +114,12 @@ version = "5.8.6"
 bin_path = "bin"
 os = ["linux", "macos"]
 
+# Checksums are EMQX's published `<asset>.sha256` files for this version.
 [tools."github:emqx/emqx".platforms]
-macos-arm64 = { asset_pattern = "emqx-*-macos14-arm64.zip" }
-macos-x64 = { asset_pattern = "emqx-*-macos13-amd64.zip" }
-linux-arm64 = { asset_pattern = "emqx-*-ubuntu22.04-arm64.tar.gz" }
-linux-x64 = { asset_pattern = "emqx-*-ubuntu22.04-amd64.tar.gz" }
+macos-arm64 = { asset_pattern = "emqx-*-macos14-arm64.zip", checksum = "sha256:1c0c7abc2231567bec07653a877d3966ac0ff947f82cc03615916f9603156539" }
+macos-x64 = { asset_pattern = "emqx-*-macos13-amd64.zip", checksum = "sha256:4330af979586d890242ae2f95523b6490578e9f07a5fad3472e1c3890f1d173e" }
+linux-arm64 = { asset_pattern = "emqx-*-ubuntu22.04-arm64.tar.gz", checksum = "sha256:7c9e58b6b5d3b55b5dac3b14be0371ccbffd867a3b97b3d3e70930a80cddd9b2" }
+linux-x64 = { asset_pattern = "emqx-*-ubuntu22.04-amd64.tar.gz", checksum = "sha256:cda8ca0c44e403de7284d7a4e65101cdaee428385a3ebdb1e34355c46b98eeb8" }
 
 # Apple toolchain. mise cannot install Xcode, so these are read, not
 # installed: the Apple task wrappers (`libs/tools-harness-ts/scripts/xcode-task.ts`) find

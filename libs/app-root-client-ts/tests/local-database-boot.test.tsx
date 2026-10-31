@@ -13,6 +13,7 @@ import { createInMemoryClientPorts } from '@libs/app-root-client-ts/in-memory-cl
 import type { AppSyncEnginePool } from '@libs/app-root-client-ts/sync-engine-pool';
 import { createAppSyncEnginePool } from '@libs/app-root-client-ts/sync-engine-pool';
 import { useSyncEngineBootViews } from '@libs/app-root-client-ts/use-sync-engine-boot-views';
+import { createAppBearerTokenStore } from '@libs/app-root-shared-ts/auth-client-storage';
 import { AuthClientProvider } from '@libs/auth-client-ts/auth-client-provider';
 import {
   DEVICE_ID_KEY,
@@ -22,6 +23,7 @@ import {
 import { shippedModerationRules } from '@libs/moderation-shared-ts/moderation-rules';
 import { composeSubs } from '@libs/sub-shared-ts/compose';
 import { createInhouseAuthClient } from '@pkgs/auth-inhouse-client-ts/create-inhouse-auth-client';
+import { createInMemoryAuthClientStorage } from '@pkgs/auth-inhouse-shared-ts/bearer-token-store';
 import type { AuthClientPort } from '@pkgs/auth-root-shared-ts/auth-client-port';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { KvImplInMemory } from '@pkgs/kv-root-shared-ts/impl-in-memory';
@@ -122,6 +124,8 @@ async function boot(options: {
     clock: env.clock,
     timers: env.timers,
     fetch: env.server,
+    bearerStore: createAppBearerTokenStore(createInMemoryAuthClientStorage()),
+    callbackUrl: `${env.serverUrl}/sso-callback`,
   });
   if (options.freshToken !== undefined) port.getFreshToken = options.freshToken;
   const real = createAppSyncEnginePool({

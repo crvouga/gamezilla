@@ -5,8 +5,7 @@ import { dirname, join } from 'node:path';
 import { redactSecrets } from './verify-shard-stream';
 
 export const AUDIT_SNAPSHOT = '.cache/verify-ci/audit.json';
-// Preserve the existing policy: unpatched advisories only, no new exemptions.
-const IGNORE = ['GHSA-w3rx-r6r6-pgpr', 'GHSA-5p2g-fcmc-qvqq'];
+// No advisory is exempt: a high or critical advisory in the lockfile fails.
 export type AuditSnapshot = {
   version: 1;
   status: number;
@@ -60,13 +59,7 @@ export function captureAudit(
   const started = process.hrtime.bigint();
   const result = spawnSync(
     process.execPath,
-    [
-      'audit',
-      '--audit-level',
-      'high',
-      ...IGNORE.flatMap((id) => ['--ignore', id]),
-      '--json',
-    ],
+    ['audit', '--audit-level', 'high', '--json'],
     {
       cwd: root,
       encoding: 'utf8',

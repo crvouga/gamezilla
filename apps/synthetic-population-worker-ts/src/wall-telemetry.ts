@@ -1,5 +1,6 @@
 // @io-wall-ok — Synthetic Population Worker process telemetry composition root.
 
+import { serviceName } from '@libs/product-identity-shared-ts/technical-names';
 import type { HttpFetch } from '@pkgs/http-client-shared-ts/types';
 import { createNodeTelemetry } from '@pkgs/observability-root-server-ts/node-node';
 import { ATTR } from '@pkgs/observability-root-shared-ts/attributes';
@@ -29,7 +30,7 @@ export function syntheticPopulationTelemetry(
   });
   const version = env['DEPLOYMENT_VERSION'] ?? 'local';
   return createNodeTelemetry({
-    serviceName: 'gamezilla-synthetic-population-worker',
+    serviceName: serviceName('synthetic-population-worker'),
     serviceVersion: version,
     buildSha: version,
     environment: deploymentTelemetryEnvironment(env['DEPLOYMENT_ENVIRONMENT']),

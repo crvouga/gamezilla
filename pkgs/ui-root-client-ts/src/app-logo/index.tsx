@@ -10,6 +10,8 @@ import { useThemeTokens } from '../theme-context/index';
 const mark = new URL('./mark.svg', import.meta.url).href;
 
 export type AppLogoProps = {
+  /** Product wordmark supplied by the host. */
+  name: string;
   /** Pixel size of the mark (the wordmark scales proportionally). Defaults to 28. */
   size?: number | undefined;
   /** Show the wordmark alongside the monster mark. Defaults to true. */
@@ -30,8 +32,8 @@ const WORDMARK_HEIGHT_RATIO = 0.7;
  *
  * @example
  * ```tsx
- * <AppLogo />                  // monster mark + wordmark
- * <AppLogo size={48} />        // larger for splash / hero
+ * <AppLogo name="acme" />                  // monster mark + wordmark
+ * <AppLogo name="acme" size={48} />        // larger for splash / hero
  * ```
  */
 export function AppLogo(props: AppLogoProps): JSX.Element {
@@ -45,7 +47,7 @@ export function AppLogo(props: AppLogoProps): JSX.Element {
       class="box flex-row items-center"
       {...dataAttrs({ component: 'AppLogo', ...props.dataSet })}
       role="img"
-      aria-label="Gamezilla"
+      aria-label={props.name}
       style={{ gap: `${Math.max(1, Math.round(size() / 16)) * 4}px` }}
     >
       <img
@@ -64,7 +66,7 @@ export function AppLogo(props: AppLogoProps): JSX.Element {
             'line-height': `${Math.round(fontSize() * 1.1)}px`,
           }}
         >
-          {'gamezilla'}
+          {props.name}
         </span>
       </Show>
     </div>

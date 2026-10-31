@@ -2,21 +2,23 @@ import { describe, expect, test } from 'bun:test';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ENV_FILES } from '@libs/infra-shared-ts/envs';
-import { GLOBAL } from '@libs/infra-shared-ts/global';
 import {
   CREDENTIAL_ENV,
+  varFiles as filesOf,
   GLOBAL_STACKS,
   STACKS,
   type Stack,
+  type Target,
 } from '@libs/infra-shared-ts/tofu-command';
+import { resolvedVarFiles } from '@libs/infra-shared-ts/tofu-var-files';
 
 /**
  * `tofu validate` never sees variable values. A required variable no var
  * file sets fails at plan time, mid-deploy. A var-file key the stack does
  * not declare is only OpenTofu's "Value for undeclared variable" warning,
  * and the plan still exits 0. Both are pinned here, offline, against the
- * files `scripts/tofu.ts` passes (global, then the env's) and the
- * `TF_VAR_*` the wrapper exports.
+ * resolved files `scripts/tofu.ts` passes (global, then the env's or every
+ * env's) and the `TF_VAR_*` the wrapper exports.
  */
 const STACKS_DIR = join(
   import.meta.dirname,
@@ -65,12 +67,21 @@ function requiredVariables(stack: string): string[] {
     .map((block) => block.name);
 }
 
+const RESOLVED = resolvedVarFiles();
+
+function keysOf(file: string): string[] {
+  const text = RESOLVED.get(file);
+  if (text === undefined) throw new Error(`no resolved var file ${file}`);
+  return Object.keys(JSON.parse(text) as object);
+}
+
 function varFiles(stack: Stack): { label: string; keys: readonly string[] }[] {
-  if (GLOBAL_STACKS.includes(stack))
-    return [{ label: 'global', keys: Object.keys(GLOBAL) }];
-  return Object.values(ENV_FILES).map((env) => ({
-    label: env.env,
-    keys: [...Object.keys(GLOBAL), ...Object.keys(env)],
+  const targets: Target[] = GLOBAL_STACKS.includes(stack)
+    ? [{ stack, env: null }]
+    : Object.keys(ENV_FILES).map((env) => ({ stack, env }));
+  return targets.map((target) => ({
+    label: target.env ?? 'global',
+    keys: filesOf(target).flatMap(keysOf),
   }));
 }
 

@@ -1,10 +1,10 @@
-# Gamezilla — Reusable Game Framework Audit & Refactor
+# Reusable Game Framework Audit & Refactor
 
 ## Mission
 
 Audit and harden the game framework after adding or changing a game, game mode, or shared capability. Inspect the real implementation, identify demonstrated weaknesses, implement the smallest coherent corrections, and verify the affected integrations end to end.
 
-**Gamezilla is an opinionated, extensible, plugin-based game application framework—not a collection of independently implemented games.** We intend to depend heavily on its public contracts while continually adding games. Each integration must increase the framework's reusable knowledge rather than multiply screens, workflows, edge cases, specifications, and test suites.
+**The product is an opinionated, extensible, plugin-based game application framework—not a collection of independently implemented games.** We intend to depend heavily on its public contracts while continually adding games. Each integration must increase the framework's reusable knowledge rather than multiply screens, workflows, edge cases, specifications, and test suites.
 
 The highest-priority invariant is **complete architectural independence of the framework from concrete games**. Games consume framework contracts. The application composition root supplies concrete games. The framework must never depend back on them.
 

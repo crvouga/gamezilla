@@ -35,6 +35,11 @@ variable "environments" {
   description = "Existing deployment environments, adopted without new approval gates."
 }
 
+variable "main_only_environments" {
+  type        = set(string)
+  description = "Environments (a subset of environments) that only the main branch may deploy to."
+}
+
 resource "github_repository" "this" {
   name            = var.name
   visibility      = var.settings.visibility
@@ -62,16 +67,22 @@ resource "github_repository" "this" {
   merge_commit_message        = "PR_BODY"
   web_commit_signoff_required = false
 
-  # Preserve current secret-scanning settings. Version 6.13 advertises
-  # code_security and secret_scanning_non_provider_patterns but omits them
-  # from both read and write; declaring them would cause perpetual drift.
-  # See README.md#infrastructure for the provider limitation.
+  # A public repository gets GitHub's secret scanning of every push and the
+  # whole history, and push protection that refuses a push adding a
+  # credential (both free there; a private repository needs paid Secret
+  # Protection, so it keeps them off). Making the repository public is the
+  # one edit `visibility` in global.tfvars.json, and the same apply turns
+  # these on. The required verification's gitleaks scan runs either way.
+  # Version 6.13 advertises code_security and
+  # secret_scanning_non_provider_patterns but omits them from both read and
+  # write; declaring them would cause perpetual drift. See
+  # README.md#infrastructure for the provider limitation.
   security_and_analysis {
     secret_scanning {
-      status = "disabled"
+      status = var.settings.visibility == "public" ? "enabled" : "disabled"
     }
     secret_scanning_push_protection {
-      status = "disabled"
+      status = var.settings.visibility == "public" ? "enabled" : "disabled"
     }
   }
 

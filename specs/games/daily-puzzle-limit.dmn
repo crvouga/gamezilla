@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="daily-puzzle-limit-decisions" name="The daily puzzle limit" namespace="https://gamezilla.dev/decisions">
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="daily-puzzle-limit-decisions" name="The daily puzzle limit" namespace="urn:product:decisions">
   <decision id="daily-puzzle-limit" name="May this person start another rated puzzle today?">
     <description>A guest starts at most 20 rated puzzles a day, and the day starts again at midnight UTC; puzzles started before today never count. The daily puzzle limit is one allowance for every game offering puzzles: rated puzzles a guest starts today in any of those games count toward the same 20. Free accounts and Plus members have no daily puzzle limit.</description>
     <decisionTable id="daily-puzzle-limit-table" hitPolicy="UNIQUE">

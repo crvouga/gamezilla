@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "product-identity.schema.json",
+  "title": "Product identity",
+  "description": "The one source of the product's brand, its immutable technical namespace and the external identifiers that must survive a rebrand. Every implementation (TypeScript, Swift, OpenTofu, generators) reads this file; nothing else may spell these values.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["brand", "technical", "external", "aliases"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "brand": {
+      "description": "What people see. Changing it is a rebrand: every generated artifact and every surface follows.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "shortName",
+        "domain",
+        "themeColor",
+        "backgroundColor",
+        "securityContact"
+      ],
+      "properties": {
+        "name": {
+          "description": "Display name.",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 40
+        },
+        "shortName": {
+          "description": "Name where space is short (home-screen label).",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 12
+        },
+        "domain": {
+          "description": "Registrable domain every public hostname sits under.",
+          "type": "string",
+          "pattern": "^(?=.{4,253}$)([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,63}$"
+        },
+        "themeColor": { "type": "string", "pattern": "^#[0-9a-f]{6}$" },
+        "backgroundColor": { "type": "string", "pattern": "^#[0-9a-f]{6}$" },
+        "securityContact": {
+          "description": "security.txt Contact.",
+          "type": "string",
+          "pattern": "^(mailto:|https://)"
+        }
+      }
+    },
+    "technical": {
+      "description": "Never changes, whatever the brand. Every deterministic resource, telemetry, storage and runtime identifier derives from it, so a rebrand replaces nothing.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["namespace"],
+      "properties": {
+        "namespace": {
+          "description": "Immutable technical namespace: lowercase, starts with a letter, at most 20 characters so derived names fit every provider.",
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]{1,19}$"
+        }
+      }
+    },
+    "external": {
+      "description": "Identifiers registered with someone else (app stores, deep links, source host, vendors). Kept through a rebrand until an explicit, authorized migration changes them.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "deepLinkScheme",
+        "appleBundleId",
+        "sourceRepository",
+        "previousSourceRepositories",
+        "planetscaleOrganization",
+        "sentryOrganization",
+        "githubEnvironments"
+      ],
+      "properties": {
+        "deepLinkScheme": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9+.-]*$"
+        },
+        "appleBundleId": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)+$"
+        },
+        "sourceRepository": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9-]+/[A-Za-z0-9._-]+$"
+        },
+        "previousSourceRepositories": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9-]+/[A-Za-z0-9._-]+$"
+          }
+        },
+        "planetscaleOrganization": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "sentryOrganization": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "githubEnvironments": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "aliases": {
+      "description": "Every spelling the brand has had or could be written as. The brand policy refuses each one (case-insensitive) outside this package and verified generated files.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 3 }
+    }
+  }
+}

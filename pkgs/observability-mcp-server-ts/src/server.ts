@@ -75,7 +75,7 @@ const testIdInput = objectSchema<TestIdInput>(
 export function createObservabilityMcpServer(store: TraceStore): McpServer {
   const tools = createObservabilityMcpTools(store);
   const server = new McpServer({
-    name: 'gamezilla-observability',
+    name: 'observability',
     version: '1.0.0',
   });
 

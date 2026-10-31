@@ -5,6 +5,7 @@ import { existsSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import { killProcessTree } from './kill-process-tree';
+import { createRunnerResourceDiagnostics } from './runner-resource-io';
 import { dryRunPlan, resolveTurboCacheDir } from './turbo-preflight';
 import { resolveRunDeadlineSeconds } from './verify-budget';
 import type { StopReason, StreamSnapshot } from './verify-shard-diagnosis';
@@ -100,6 +101,10 @@ function executePass(
   const cacheDir = resolveTurboCacheDir(ROOT, env);
   const cold = env['VERIFY_CACHE_MODE'] === 'cold';
   verifyExecution(ids, tasks, env);
+  const resources = createRunnerResourceDiagnostics((line) =>
+    console.log(redactSecrets(line, env))
+  );
+  resources('start');
   const child = spawnTurbo(ids, env, cold);
   const output = taskStream(
     tasks,
@@ -126,6 +131,7 @@ function executePass(
     timedOut = true;
     stopReason = { kind: 'shard-deadline', deadlineSeconds: deadline.total };
     announceDeadline(deadline.total, output.snapshot().running);
+    resources('shard-timeout');
     stop();
   }, deadline.remaining * 1000);
   const monitor = setInterval(() => {
@@ -139,10 +145,14 @@ function executePass(
           output.snapshot().running
         )
       );
+      resources('task-timeout');
       stop();
     }
   }, 1000);
-  const heartbeat = setInterval(output.heartbeat, 30_000);
+  const heartbeat = setInterval(() => {
+    output.heartbeat();
+    resources('heartbeat');
+  }, 30_000);
   const cleanup = () => {
     clearTimeout(timer);
     clearInterval(monitor);

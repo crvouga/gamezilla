@@ -8,7 +8,7 @@ test('storybook integration: project documentation replaces the setup checklist'
   await page.goto('/?path=/docs/start-here--docs');
   const docs = page.frameLocator('#storybook-preview-iframe');
   await expect(
-    docs.getByRole('heading', { name: 'Gamezilla UI' })
+    docs.getByRole('heading', { name: 'Design system' })
   ).toBeVisible();
   await expect(
     docs.getByRole('heading', { name: 'Verify a change' })
@@ -19,7 +19,7 @@ test('storybook integration: project documentation replaces the setup checklist'
   await expect(page.getByText('Storybook basics', { exact: true })).toHaveCount(
     0
   );
-  await expect(page.getByRole('link', { name: 'Gamezilla UI' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Design system' })).toBeVisible();
   await docs.getByRole('link', { name: 'Button', exact: true }).click();
   await expect(page).toHaveURL(
     /path=\/story\/components-inputs-button--interactive/

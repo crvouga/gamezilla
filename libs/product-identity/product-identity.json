@@ -1,0 +1,28 @@
+{
+  "$schema": "./product-identity.schema.json",
+  "brand": {
+    "name": "Gamezilla",
+    "shortName": "Gamezilla",
+    "domain": "gamezilla.app",
+    "themeColor": "#000000",
+    "backgroundColor": "#000000",
+    "securityContact": "mailto:crvouga@gmail.com"
+  },
+  "technical": {
+    "namespace": "gamezilla"
+  },
+  "external": {
+    "deepLinkScheme": "gamezilla",
+    "appleBundleId": "local.gamezilla.apple-client",
+    "sourceRepository": "crvouga/gamezilla",
+    "previousSourceRepositories": ["gamezilla-org/gamezilla"],
+    "planetscaleOrganization": "gamezilla",
+    "sentryOrganization": "gamezilla",
+    "githubEnvironments": [
+      "gamezilla / development",
+      "gamezilla / production",
+      "gamezilla-dev / production"
+    ]
+  },
+  "aliases": ["gamezilla", "game zilla", "game-zilla"]
+}

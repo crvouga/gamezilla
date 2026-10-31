@@ -27,7 +27,7 @@ function parametersOf(text: string): string {
 }
 
 function cell(text: string): string {
-  return text.replace(/\|/g, '\\|');
+  return text.replace(/\\/g, '\\\\').replace(/\|/g, '\\|');
 }
 
 function usageCounts(features: readonly SpecFeature[]): Map<string, number> {

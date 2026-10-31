@@ -17,7 +17,7 @@ export default function SubscreenExample(): JSX.Element {
         <AppFrame
           header={
             <AppHeaderIsland
-              leading={<AppLogo size={24} />}
+              leading={<AppLogo name="acme" size={24} />}
               items={[
                 {
                   id: 'profile',

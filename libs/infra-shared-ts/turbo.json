@@ -4,6 +4,7 @@
   "tasks": {
     "src": {
       "dependsOn": [
+        "@libs/product-identity-shared-ts#src",
         "@pkgs/clock-shared-ts#src",
         "@pkgs/http-client-shared-ts#src"
       ]

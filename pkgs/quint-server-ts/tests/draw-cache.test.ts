@@ -66,7 +66,7 @@ test('a failure an earlier run left behind does not fail a later draw', () => {
   // What an older checkout's producer recorded on a Windows runner
   // (Verify run 40596596039); every later run then failed with it.
   const stale =
-    "ENOENT: no such file or directory, mkdir 'C:\\Users\\crvou\\AppData\\Local\\Temp\\gamezilla-quint-draws\\9f37\\itf\\instantiated-source\\C:\\actions-runner-2\\_work\\gamezilla\\gamezilla\\pkgs\\quint-server-ts\\tests\\fixtures'";
+    "ENOENT: no such file or directory, mkdir 'C:\\Users\\runner\\AppData\\Local\\Temp\\quint-draws\\9f37\\itf\\instantiated-source\\C:\\actions-runner-2\\_work\\acme\\acme\\pkgs\\quint-server-ts\\tests\\fixtures'";
   let calls = 0;
   const draw = (fail: boolean) => ({
     source: 'module stale {}',

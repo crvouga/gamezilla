@@ -1,0 +1,4 @@
+{
+  "summary": "Local database startup reported the selected backend only after opening, so worker-open and schema-migration waits had no duration evidence when release journeys stalled before hydration.",
+  "regressionTest": "libs/app-root-client-ts/tests/open-main-sql-client.test.ts"
+}

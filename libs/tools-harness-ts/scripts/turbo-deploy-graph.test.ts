@@ -81,7 +81,7 @@ test('slow spec suites split into independently cached parts that all gate Verif
   // replays and load stay inside the caps of libs/harness-ts/scripts/spec-parts.ts.
   expectSpecParts('libs/chess-root-harness-ts', 13, ['chess']);
   // regression: games-spec-parts-exceed-capacity-pole
-  expectSpecParts('libs/games-harness-ts', 114, ['games']);
+  expectSpecParts('libs/games-harness-ts', MAX_SPEC_PARTS, ['games']);
 });
 
 // regression: ci-chess-board-omits-inherited-spec-inputs
@@ -175,7 +175,10 @@ const VERIFY_LEAVES = [
   '@apps/product-ts#verify:rendered-worker',
   '@libs/runtime-server-ts#verify:schema-evolution',
   '@libs/tools-harness-ts#verify:actionlint',
+  '@libs/tools-harness-ts#verify:brand-policy',
+  '@libs/tools-harness-ts#verify:rebrand',
   '@libs/tools-harness-ts#verify:secrets',
+  '@libs/tools-harness-ts#verify:workflow-security',
   'verify:board-contract',
   '@apps/synthetic-population-worker-ts#verify:synthetic-population-foundation',
 ];

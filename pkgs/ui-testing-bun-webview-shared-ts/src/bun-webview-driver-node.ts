@@ -10,7 +10,6 @@ import type {
   DriverWaitOptions,
   ElementLayout,
   GestureOptions,
-  PointerButton,
   ScrollDirection,
   TapPosition,
   UiWaitOptions,
@@ -31,8 +30,10 @@ import { TimeoutError } from '@pkgs/ui-testing-root-shared-ts/timeout-error';
 import { UiTestError } from '@pkgs/ui-testing-root-shared-ts/ui-test-error';
 import { waitUntil } from '@pkgs/ui-testing-root-shared-ts/wait';
 import { pressBrowserKey } from './browser-key';
-import type { BunWebView, BunWebviewHost } from './bun-webview-host';
+import type { BunWebviewHost } from './bun-webview-host';
+import { nativeClick } from './native-click';
 import { diagnosePress } from './press-diagnosis';
+import { trackPressVisibility } from './track-press-visibility';
 import { visibilityScript } from './visibility-script';
 
 /**
@@ -71,120 +72,6 @@ const VISIBLE_TEXT = `function visibleText(node) {
  */
 function textFieldExpr(sel: string): string {
   return `(function(){ const el = document.querySelector(${sel}); if (!el) return null; return ${IS_TEXT_FIELD} ? el : el.querySelector('input, textarea'); })()`;
-}
-
-/** Page-side counters of trusted `pointerdown`s / `pointerup`s (installed once per document). */
-const ARM_POINTER_COUNTER = `(function () {
-  if (window.__uiTestingPointerCounts === undefined) {
-    var counts = { down: 0, up: 0, click: 0 };
-    window.__uiTestingPointerCounts = counts;
-    document.addEventListener('pointerdown', function (e) {
-      if (e.isTrusted) counts.down += 1;
-    }, true);
-    document.addEventListener('pointerup', function (e) {
-      if (e.isTrusted) counts.up += 1;
-    }, true);
-    document.addEventListener('click', function (e) {
-      if (e.isTrusted) counts.click += 1;
-    }, true);
-  }
-  return [window.__uiTestingPointerCounts.down, window.__uiTestingPointerCounts.up, window.__uiTestingPointerCounts.click, performance.timeOrigin];
-})()`;
-
-/** Pause between re-sends, page-side so the host process stays unscheduled. */
-const RESEND_PAUSE =
-  'new Promise(function (resolve) { setTimeout(resolve, 50); })';
-
-/** ~10s of re-sends: long enough to outlast a physical press elsewhere. */
-const NATIVE_CLICK_ATTEMPTS = 200;
-
-type PointerCounts = {
-  readonly down: number;
-  readonly up: number;
-  readonly click: number;
-  readonly documentId: number;
-};
-
-async function readPointerCounts(view: BunWebView): Promise<PointerCounts> {
-  const raw = await view.evaluate(ARM_POINTER_COUNTER);
-  if (
-    !Array.isArray(raw) ||
-    typeof raw[0] !== 'number' ||
-    typeof raw[1] !== 'number'
-  ) {
-    throw new UiTestError('Bun.WebView: pointer counter returned no counts');
-  }
-  return {
-    down: raw[0],
-    up: raw[1],
-    click: typeof raw[2] === 'number' ? raw[2] : 0,
-    documentId: typeof raw[3] === 'number' ? raw[3] : 0,
-  };
-}
-
-function clickProgress(
-  completion: 'pointer' | 'click',
-  counts: PointerCounts,
-  initial: PointerCounts
-): 'delivered' | 'pending' | 'send' {
-  if (completion !== 'click') return 'send';
-  if (counts.documentId !== initial.documentId || counts.click > initial.click)
-    return 'delivered';
-  return counts.down > initial.down && counts.up > initial.up
-    ? 'pending'
-    : 'send';
-}
-
-/**
- * `Bun.WebView.click(x, y)` synthesizes a non-automation `NSEvent` pair, so
- * WebKit reads `buttons` from the *system-wide* `[NSEvent pressedMouseButtons]`.
- * While a real mouse button is held anywhere on the machine, the synthetic
- * `mouseup` carries `buttons > 0` and WebKit turns its `pointerup` into a
- * `pointermove` (chorded press); the pointer then stays "pressed", so later
- * presses fire no `pointerdown` either. Only trusted `mousedown` / `mouseup` /
- * `click` reach the page.
- *
- * A person's tap is a full `pointerdown` → `pointerup`, so re-send until the
- * page has seen both: once the physical button is released, a re-send's
- * `pointerup` completes a press that already went down (or clears the stale
- * pressed state so the next re-send lands whole). A secondary press opens the
- * context menu, which swallows its `mouseup` on macOS, so only its
- * `pointerdown` is awaited.
- */
-async function nativeClick(
-  view: BunWebView,
-  point: { readonly x: number; readonly y: number },
-  button: PointerButton = 'primary',
-  completion: 'pointer' | 'click' = 'pointer'
-): Promise<void> {
-  const { x, y } = point;
-  const awaitsRelease = button !== 'secondary';
-  let pressed = false;
-  let initial: PointerCounts | null = null;
-  for (let attempt = 1; attempt <= NATIVE_CLICK_ATTEMPTS; attempt += 1) {
-    if (attempt > 1) await view.evaluate(RESEND_PAUSE);
-    const before = await readPointerCounts(view);
-    initial ??= before;
-    const progress = clickProgress(completion, before, initial);
-    if (progress === 'delivered') return;
-    // A complete press may still have its click queued in the page event loop.
-    if (progress === 'pending') continue;
-    await view.click(x, y, {
-      button: button === 'secondary' ? 'right' : 'left',
-    });
-    const after = await readPointerCounts(view);
-    // A form navigation replaces the counters; the old click has already landed.
-    if (after.documentId !== before.documentId) return;
-    if (completion === 'click') {
-      if (after.click > initial.click) return;
-      continue;
-    }
-    pressed ||= after.down > before.down;
-    if (pressed && (!awaitsRelease || after.up > before.up)) return;
-  }
-  throw new UiTestError(
-    `Bun.WebView: native click at (${x}, ${y}) never delivered a whole press after ${NATIVE_CLICK_ATTEMPTS} attempts`
-  );
 }
 
 /**
@@ -242,12 +129,31 @@ export class BunWebviewDriverNode implements DriverNode {
   async tap(options?: UiWaitOptions): Promise<void> {
     await this.waitVisible(options);
     const view = await this.view();
-    const point = await view.evaluate(pressablePointScript(cssPath(this.path)));
-    if (isPoint(point)) {
+    const target = await view.evaluate(
+      pressableTargetScript(cssPath(this.path))
+    );
+    if (typeof target === 'string') {
       // A trusted click can arrive even when WebKit suppresses pointerup
       // during a physical chord. Repeating that delivered button click
       // would activate a menu twice; coordinate gestures still await pointers.
-      await nativeClick(view, point, 'primary', 'click');
+      try {
+        // Keep the selected element, not coordinates that a late notice can
+        // move. Bun resolves its current bounds when sending trusted input.
+        await trackPressVisibility(view, target, () =>
+          nativeClick(view, target, 'primary', 'click')
+        );
+      } catch (error) {
+        throw new UiTestError(
+          `${String(error)}; ${await diagnosePress(view, target, wallTimers)}`,
+          { cause: error }
+        );
+      } finally {
+        await view
+          .evaluate(
+            `document.querySelector(${JSON.stringify(target)})?.removeAttribute('data-ui-testing-press-target')`
+          )
+          .catch(() => undefined);
+      }
       return;
     }
     // Nothing pressable yet: the selector click waits for actionability.
@@ -258,7 +164,7 @@ export class BunWebviewDriverNode implements DriverNode {
       await view.click(selector);
     } catch (error) {
       throw new UiTestError(
-        `${String(error)}; ${await diagnosePress(view, selector)}`,
+        `${String(error)}; ${await diagnosePress(view, selector, wallTimers)}`,
         { cause: error }
       );
     }
@@ -463,7 +369,7 @@ export class BunWebviewDriverNode implements DriverNode {
  * its centre. Stacked screens keep earlier screens mounted underneath, so the
  * first match in document order is often covered.
  */
-function pressablePointScript(selector: string): string {
+function pressableTargetScript(selector: string): string {
   return `(async function(){
     var all = document.querySelectorAll(${JSON.stringify(selector)});
     for (var i = 0; i < all.length; i++) {
@@ -481,20 +387,16 @@ function pressablePointScript(selector: string): string {
         var x = r.left + r.width / 2;
         var y = r.top + r.height / 2;
         var hit = document.elementFromPoint(x, y);
-        if (hit !== null && (hit === el || el.contains(hit))) return { x: x, y: y };
+        if (hit !== null && (hit === el || el.contains(hit))) {
+          if (all.length === 1) return ${JSON.stringify(selector)};
+          var id = window.__uiTestingPressTargetId = (window.__uiTestingPressTargetId || 0) + 1;
+          el.setAttribute('data-ui-testing-press-target', String(id));
+          return '[data-ui-testing-press-target="' + id + '"]';
+        }
       }
     }
     return null;
   })()`;
-}
-
-function isPoint(value: unknown): value is { x: number; y: number } {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    typeof Reflect.get(value, 'x') === 'number' &&
-    typeof Reflect.get(value, 'y') === 'number'
-  );
 }
 
 function scrollDelta(

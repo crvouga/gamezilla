@@ -39,6 +39,8 @@ describe('Verify workflow cancellation', () => {
       };
     };
     const start = workflow.jobs['verify-start'];
+    // The shards and the end run on the image the plan was made on
+    // (workflow-native.test.ts), so the plan is the start's only output.
     expect(start.outputs).toEqual({
       shards: '${{ steps.plan.outputs.shards }}',
     });
@@ -279,7 +281,7 @@ describe('Verify workflow cancellation', () => {
       workflow.jobs['verify-shards']!.steps.filter(
         (step) =>
           step.uses === './.github/actions/setup' ||
-          step.uses === 'jdx/mise-action@v4'
+          step.uses?.startsWith('jdx/mise-action@')
       )
     ).toHaveLength(1);
     expect(

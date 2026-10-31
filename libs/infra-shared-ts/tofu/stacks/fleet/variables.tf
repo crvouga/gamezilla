@@ -1,4 +1,4 @@
-# global.tfvars.json only: the environments come from reading envs/ directly.
+# global.tfvars.json, then envs.tfvars.json (every env file)
 
 variable "project" {
   type = string
@@ -6,6 +6,16 @@ variable "project" {
     condition     = length(var.project) >= 1 && length(var.project) <= 32
     error_message = "Railway project names must be between 1 and 32 characters."
   }
+}
+
+variable "brand_name" {
+  type        = string
+  description = "Read by the bootstrap stack (stacks/bootstrap/alerting.tf)."
+}
+
+variable "envs" {
+  type        = any
+  description = "Every env file by name, resolved (envs.tfvars.json, written by libs/infra-server-ts/scripts/tofu.ts)."
 }
 
 variable "state" {

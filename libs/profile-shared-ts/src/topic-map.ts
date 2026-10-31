@@ -22,14 +22,6 @@ export const PROFILE_TOPIC_MAP = {
       publish(row) {
         return usernameNonEmpty(row);
       },
-      accept(incoming, local) {
-        if (usernameNonEmpty(incoming)) return true;
-        const localUsername = local?.['username'];
-        if (typeof localUsername === 'string' && localUsername.length > 0) {
-          return false;
-        }
-        return true;
-      },
     },
   },
 } satisfies TopicMap;

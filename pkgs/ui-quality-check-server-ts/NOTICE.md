@@ -4,4 +4,4 @@ The prepared vision graph and fixed text embeddings derive from UIClip, by the B
 
 ONNX Runtime, Sharp and FFmpeg retain their respective upstream licenses and notices in their installed packages. `ffmpeg-static` supplies an independently built FFmpeg executable; its GPL licensing and corresponding build/source information are provided by that dependency. The checker does not modify that executable.
 
-Generic clock, HTTP, process and object-store utility implementations are bundled into the standalone distribution under this package's MIT license. No repository application or test-framework runtime code is bundled.
+This package's own code, including the generic clock, HTTP, process and object-store utilities its standalone build bundles, is proprietary and all rights are reserved (repository [`LICENSE`](../../LICENSE)); it is not published. No repository application or test-framework runtime code is bundled. The notices above cover the only third-party material.

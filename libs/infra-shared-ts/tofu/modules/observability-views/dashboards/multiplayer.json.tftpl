@@ -31,7 +31,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "count(count by(event_id)(count_over_time({service_name=\"gamezilla-server\",deployment_environment_name=\"${environment}\"} |= \"chess.game.created\" [$__range])))",
+          "expr": "count(count by(event_id)(count_over_time({service_name=\"${namespace}-server\",deployment_environment_name=\"${environment}\"} |= \"chess.game.created\" [$__range])))",
           "datasource": {
             "type": "loki",
             "uid": "${logs_uid}"
@@ -63,7 +63,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "count(count by(event_id)(count_over_time({service_name=\"gamezilla-server\",deployment_environment_name=\"${environment}\"} |= \"chess.game.started\" | event_synthetic=\"false\" [$__range])))",
+          "expr": "count(count by(event_id)(count_over_time({service_name=\"${namespace}-server\",deployment_environment_name=\"${environment}\"} |= \"chess.game.started\" | event_synthetic=\"false\" [$__range])))",
           "datasource": {
             "type": "loki",
             "uid": "${logs_uid}"
@@ -95,7 +95,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "count(count by(event_id)(count_over_time({service_name=\"gamezilla-server\",deployment_environment_name=\"${environment}\"} |= \"chess.game.completed\" | event_synthetic=\"false\" [$__range])))",
+          "expr": "count(count by(event_id)(count_over_time({service_name=\"${namespace}-server\",deployment_environment_name=\"${environment}\"} |= \"chess.game.completed\" | event_synthetic=\"false\" [$__range])))",
           "datasource": {
             "type": "loki",
             "uid": "${logs_uid}"
@@ -127,7 +127,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "{service_name=\"gamezilla-server\",deployment_environment_name=\"${environment}\"} |= \"chess.game.\"",
+          "expr": "{service_name=\"${namespace}-server\",deployment_environment_name=\"${environment}\"} |= \"chess.game.\"",
           "datasource": {
             "type": "loki",
             "uid": "${logs_uid}"

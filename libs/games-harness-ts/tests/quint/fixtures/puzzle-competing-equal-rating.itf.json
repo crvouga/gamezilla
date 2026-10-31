@@ -2,7 +2,7 @@
   "#meta": {
     "format": "ITF",
     "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
-    "source": "/Users/chrisvouga/.super.engineering/worktrees/gamezilla/sc-charged-dewar-f133/libs/chess/.cache/puzzle-recovery-agent/../../../../specs/chess/puzzle-result-recovery.qnt",
+    "source": "puzzle-result-recovery.qnt",
     "status": "ok",
     "description": "Created by Quint on Fri Oct 02 2026 19:54:17 GMT-0700 (Mountain Standard Time)",
     "timestamp": 1790996057117

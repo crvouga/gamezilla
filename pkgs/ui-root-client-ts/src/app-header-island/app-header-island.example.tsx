@@ -32,7 +32,7 @@ function InteractiveHeader(): JSX.Element {
   );
   return (
     <AppHeaderIsland
-      leading={<AppLogo size={24} />}
+      leading={<AppLogo name="acme" size={24} />}
       items={items}
       trailing={<p class="text textCaption">{'Actions'}</p>}
     />

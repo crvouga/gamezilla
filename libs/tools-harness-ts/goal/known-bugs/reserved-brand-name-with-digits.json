@@ -1,0 +1,4 @@
+{
+  "summary": "Found by the synthetic rebrand: reserved usernames compared a person's name split into words with trailing digits dropped against the product's names normalized whole, so a brand with digits in it (the rebrand probe ends in hex digits) could be taken as a username. The product's names are now read the same way as a person's.",
+  "regressionTest": "libs/moderation-shared-ts/tests/policy.test.ts"
+}

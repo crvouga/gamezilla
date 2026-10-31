@@ -35,6 +35,7 @@ import { buildScope } from './infra-scope';
 import type { SourceFiles, TofuSources } from './infra-source';
 import { sourceFiles } from './infra-source';
 import { GLOBAL_STACKS, STACKS } from './tofu-command';
+import { resolveEnvVars, resolveGlobalVars } from './tofu-vars';
 
 const TOFU = 'tofu';
 const POLICY = 'policy/stateful.rego';
@@ -264,13 +265,18 @@ function stackModel(
   };
 }
 
+/** An env file, resolved as OpenTofu is handed it (`tofu-vars.ts`). */
+function envVars(sources: TofuSources, file: string): Vars {
+  return resolveEnvVars(jsonObject(sources, file)) as Vars;
+}
+
 function envModel(
   file: string,
   globalVars: Vars,
   sources: TofuSources,
   build: Build
 ): EnvModel {
-  const values = jsonObject(sources, file);
+  const values = envVars(sources, file);
   const vars: Vars = { ...globalVars, ...values };
   const env = text(values, 'env') ?? file;
   const hosts = (values['hosts'] ?? {}) as Record<string, string>;
@@ -291,17 +297,29 @@ export function buildInfraModel(sources: TofuSources): InfraModel {
   const files = sourceFiles(sources);
   const policy = sources.get(POLICY) ?? '';
   const build: Build = { files, deletable: parseDeletable(policy) };
-  const globalVars = jsonObject(sources, `${TOFU}/global.tfvars.json`);
+  const globalVars = resolveGlobalVars(
+    jsonObject(sources, `${TOFU}/global.tfvars.json`)
+  ) as Vars;
   const envFiles = [...sources.keys()]
     .filter((p) => /^tofu\/envs\/[^/]+\.tfvars\.json$/.test(p))
     .sort();
   const envs = envFiles
     .map((file) => envModel(file, globalVars, sources, build))
     .sort((a, b) => rank(a) - rank(b) || compareText(a.env, b.env));
+  // A global stack's second var file: every env file by name.
+  const everyEnv: Vars = {
+    ...globalVars,
+    envs: Object.fromEntries(
+      envFiles.map((file) => {
+        const values = envVars(sources, file);
+        return [text(values, 'env') ?? file, values];
+      })
+    ),
+  };
   return {
     project: text(globalVars, 'project') ?? 'infrastructure',
     globals: GLOBAL_STACKS.map((stack) =>
-      stackModel(stack, null, globalVars, build)
+      stackModel(stack, null, everyEnv, build)
     ),
     envs,
     vars: globalVars,

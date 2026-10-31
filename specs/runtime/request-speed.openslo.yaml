@@ -146,7 +146,7 @@ metadata:
   name: saves-and-loads-are-quick
   displayName: Saves and loads are quick
   labels:
-    gamezilla.dev.tier: "0"
+    tier: "0"
 spec:
   description: >-
     At least 85 in every 100 reads and saves are answered within half a
@@ -170,7 +170,7 @@ metadata:
   name: saves-and-loads-never-stall
   displayName: Saves and loads never stall
   labels:
-    gamezilla.dev.tier: "0"
+    tier: "0"
 spec:
   description: >-
     At least 97 in every 100 reads and saves are answered within a second,
@@ -194,7 +194,7 @@ metadata:
   name: signing-in-is-quick
   displayName: Signing in is quick
   labels:
-    gamezilla.dev.tier: "0"
+    tier: "0"
 spec:
   description: >-
     At least 95 in every 100 requests that sign people in or keep them
@@ -217,7 +217,7 @@ metadata:
   name: signing-in-never-stalls
   displayName: Signing in never stalls
   labels:
-    gamezilla.dev.tier: "0"
+    tier: "0"
 spec:
   description: >-
     At least 99 in every 100 requests that sign people in or keep them
@@ -238,7 +238,7 @@ metadata:
   name: the-app-never-leaves-people-waiting
   displayName: The app never leaves people waiting
   labels:
-    gamezilla.dev.tier: "1"
+    tier: "1"
 spec:
   description: >-
     At least 99 in every 100 requests people wait on are answered within two

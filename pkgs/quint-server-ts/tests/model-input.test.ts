@@ -43,9 +43,9 @@ test('a closed input retains transitive imports and ignores quoted examples', ()
 test('an absolute source path nests under the copy root on every OS', () => {
   // The fixture directory a Windows runner nested (Verify run 40596596039).
   const windows =
-    'C:\\actions-runner-2\\_work\\gamezilla\\gamezilla\\pkgs\\quint-server-ts\\tests\\fixtures';
+    'C:\\actions-runner-2\\_work\\acme\\acme\\pkgs\\quint-server-ts\\tests\\fixtures';
   expect(rootlessPath(windows)).toBe(
-    'actions-runner-2\\_work\\gamezilla\\gamezilla\\pkgs\\quint-server-ts\\tests\\fixtures'
+    'actions-runner-2\\_work\\acme\\acme\\pkgs\\quint-server-ts\\tests\\fixtures'
   );
   expect(rootlessPath('\\\\server\\share\\m.qnt')).toBe('server\\share\\m.qnt');
   expect(rootlessPath('/repo/specs/m.qnt')).toBe('repo/specs/m.qnt');

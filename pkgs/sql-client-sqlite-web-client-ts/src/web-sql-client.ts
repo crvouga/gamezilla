@@ -10,10 +10,7 @@ import type {
   TransportOwnerRuntimeFactory,
 } from '@pkgs/sql-client-sqlite-web-client-ts/owner-runtime';
 import { createOwnerRuntime } from '@pkgs/sql-client-sqlite-web-client-ts/owner-runtime';
-import {
-  DEFAULT_DB_HOST_SHARED_WORKER_URL,
-  OPFS_WIPE_CHANNEL,
-} from '@pkgs/sql-client-sqlite-web-client-ts/recover-in-process';
+import { DEFAULT_DB_HOST_SHARED_WORKER_URL } from '@pkgs/sql-client-sqlite-web-client-ts/recover-in-process';
 import type { WebSqlTransport } from '@pkgs/sql-client-sqlite-web-client-ts/shared-worker-transport';
 import { createSharedWorkerTransport } from '@pkgs/sql-client-sqlite-web-client-ts/shared-worker-transport';
 import type { DbChangedNotify } from '@pkgs/sql-client-sqlite-web-shared-ts/rpc';
@@ -24,6 +21,15 @@ import { createLeaderTransport } from './db-host-leader';
 
 export type WebSqlClientOptions = {
   readonly timers: Timers;
+  /**
+   * Same-origin BroadcastChannel name on which OPFS recovery
+   * (`runWebOpfsRecoveryAndReload`) asks this tab to drop its handles: on
+   * `prepare-wipe` the client disconnects its owner, which terminates the
+   * sqlite-wasm worker and frees every OPFS sync access handle. The host
+   * keeps it the same across versions, or a tab still on an older version
+   * never hears the request.
+   */
+  readonly wipeChannel: string;
   /** Receives open-retry warnings from the owner runtime. */
   readonly logger: Logger;
   /** Absolute URL of the SharedWorker script (default `/sql-workers/db-host-shared-worker.js`). */
@@ -136,9 +142,12 @@ function onPrepareWipeMessage(
   });
 }
 
-function attachWipeChannelLifecycle(client: WebSqlClient): void {
+function attachWipeChannelLifecycle(
+  client: WebSqlClient,
+  channelName: string
+): void {
   if (typeof BroadcastChannel === 'undefined') return;
-  const wipeChannel = new BroadcastChannel(OPFS_WIPE_CHANNEL);
+  const wipeChannel = new BroadcastChannel(channelName);
   wipeChannel.onmessage = (event: MessageEvent<PrepareWipeMessage>) => {
     const data = event.data;
     if (data === null || typeof data !== 'object') return;
@@ -182,13 +191,14 @@ export function releaseOnPageHide(
 
 function attachLifecycle(
   client: WebSqlClient,
-  transport: WebSqlTransport
+  transport: WebSqlTransport,
+  wipeChannel: string
 ): void {
   if (typeof window !== 'undefined') {
     releaseOnPageHide(window, client, transport, () => {
       window.location.reload();
     });
-    attachWipeChannelLifecycle(client);
+    attachWipeChannelLifecycle(client, wipeChannel);
   }
 }
 
@@ -361,6 +371,6 @@ export function createWebSqlClient(
     },
   };
 
-  attachLifecycle(client, transport);
+  attachLifecycle(client, transport, options.wipeChannel);
   return client;
 }

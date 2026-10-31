@@ -15,6 +15,6 @@ final class AppSmokeTests: XCTestCase {
     XCTAssertTrue(app.otherElements["root-view"].waitForExistence(timeout: 30))
     let title = app.staticTexts["root-title"]
     XCTAssertTrue(title.exists)
-    XCTAssertEqual(title.label, "Gamezilla")
+    XCTAssertEqual(title.label, ProductIdentity.displayName)
   }
 }

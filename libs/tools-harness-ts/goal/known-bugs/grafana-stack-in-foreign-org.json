@@ -1,4 +1,4 @@
 {
-  "summary": "Deploy died on `get stack failed: HTTP 403` for stack shortawning2091, which was read as \"the stack lives in another org\" and fixed by switching the slug to gamezilla. The real cause was GRAFANA_CLOUD_API_TOKEN's access policy lacking stacks:read/stacks:write: shortawning2091 is the org's own (and, on the free plan, only) stack, and creating gamezilla failed with 403 at the plan limit. Fixed by granting the stacks scopes and adopting shortawning2091 as the shared stack (libs/infra-shared-ts/tofu/global.tfvars.json).",
+  "summary": "Deploy died on `get stack failed: HTTP 403` for stack shortawning2091, which was read as \"the stack lives in another org\" and fixed by switching the slug to the <namespace> slug. The real cause was GRAFANA_CLOUD_API_TOKEN's access policy lacking stacks:read/stacks:write: shortawning2091 is the org's own (and, on the free plan, only) stack, and creating the <namespace> stack failed with 403 at the plan limit. Fixed by granting the stacks scopes and adopting shortawning2091 as the shared stack (libs/infra-shared-ts/tofu/global.tfvars.json).",
   "regressionTest": "libs/infra-server-ts/tests/env-files.test.ts"
 }

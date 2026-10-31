@@ -39,7 +39,7 @@ export type RemoteCacheConfig = {
 /** The cheap cacheable task the turbo probe asks about. */
 export const PROBE_TASK = '//#task:tokens:generate';
 
-const PROBE_BODY = 'gamezilla remote cache check';
+const PROBE_BODY = 'turbo remote cache check';
 
 /** Pure: the configuration a bare `turbo run` would use, checked. */
 export function configChecks(

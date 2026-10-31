@@ -1,4 +1,10 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-action.json
+# zizmor `github-env`: the `$GITHUB_ENV`/`$GITHUB_PATH` writes below carry
+# runner values and this repository's own files. They could only escalate
+# where untrusted code shares a job with privileged credentials; no workflow
+# here has such a trigger (`pull_request_target`, `workflow_run`;
+# libs/tools-harness-ts/scripts/workflow-pinning.test.ts refuses them), and a
+# fork's pull request gets no secret or OIDC token to steal.
 name: Setup repo (mise tools + deps)
 description: mise-pinned tools (Bun, Node, CLIs) and frozen dependency install (run actions/checkout first)
 
@@ -8,7 +14,7 @@ inputs:
     required: false
     default: ''
   secrets-environment:
-    description: Secrets environment to inject (dev, prd, shared) before the install; empty injects none
+    description: Secrets environment to inject (dev, prd, shared) after the install; empty injects none
     required: false
     default: ''
   secrets-identity-id:
@@ -23,63 +29,58 @@ inputs:
 runs:
   using: composite
   steps:
-    # Every system tool — Bun, Node, gh, gitleaks, actionlint, the secrets
-    # backend CLI, EMQX — at the version pinned in the repo's mise.toml, the
-    # same file a laptop runs `mise install` against. The action puts the
-    # tools on PATH for later steps.
+    # Every system tool — Bun, Node, gh, gitleaks, actionlint, zizmor, the
+    # secrets backend CLI, EMQX — at the version pinned in the repo's
+    # mise.toml, the same file a laptop runs `mise install` against. The
+    # action puts the tools on PATH for later steps.
     # Later steps (verify:actionlint, verify:secrets) `mise exec` against the
     # same file, so trust the checkout for the whole job.
     # Coding-agent tools (graphify, serena) are laptop-only, and their
     # Python native builds need a C compiler (MSVC on Windows: Verify run
-    # 40532833763), so CI never installs them.
+    # 40532833763), so CI never installs them. Nor Swift (1.1 GB, Linux
+    # only): CI verifies no native package (package-hosts.ts `ciFilters`).
     - name: Trust mise.toml
       shell: bash
-      run: |
+      run: |  # zizmor: ignore[github-env] -- see the note at the top of this file
         echo "MISE_TRUSTED_CONFIG_PATHS=${GITHUB_WORKSPACE}" >> "$GITHUB_ENV"
-        echo "MISE_DISABLE_TOOLS=pipx:graphifyy,pipx:serena-agent" >> "$GITHUB_ENV"
+        echo "MISE_DISABLE_TOOLS=pipx:graphifyy,pipx:serena-agent,swift" >> "$GITHUB_ENV"
 
     - name: Install pinned tools (mise.toml)
-      uses: jdx/mise-action@v4
+      uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
       with:
         version: 2026.9.13
-        # Every job starts on a fresh GitHub-hosted VM, so the pinned tools
-        # come from the action's GitHub cache (keyed by mise.toml) instead of
-        # being downloaded again.
-        cache: true
+        # Fresh boat runners install pinned tools directly. The 952 MB tool
+        # archive stalled setup for 20 minutes in run 41039477627; installing
+        # the same tools directly took 25 seconds. Keep dependency and Turbo
+        # caches below, without this optional tool archive.
+        cache: false
         # jdx/mise-action defaults to `bun opentofu` when this is blank. The
         # full Verify jobs need every tool pinned in mise.toml, including the
         # lazy tools used by model and security verifications. Callers that need a
         # smaller toolchain pass an explicit list (for example `bun gh`).
         install_args: ${{ inputs.tools || '--include-lazy' }}
 
-    # Secrets go in before the install: its generation tasks, like every
-    # Turbo run, then read and write the Vercel Remote Cache with the
-    # TURBO_TOKEN this injects, the same cache a laptop uses. A job that
-    # injects no secrets has no token and keeps the GitHub cache below.
-    - name: Inject secrets
-      if: inputs.secrets-environment != ''
-      uses: ./.github/actions/secrets-auth
-      with:
-        identity-id: ${{ inputs.secrets-identity-id }}
-        project-id: ${{ inputs.secrets-project-id }}
-        environment: ${{ inputs.secrets-environment }}
-
+    # The install runs before any secret is in the environment: dependency
+    # install scripts (`trustedDependencies`) and the postinstall generation
+    # are code this repository does not review line by line, so they never see
+    # a credential. Generation outputs come from the GitHub cache below, not
+    # the token-guarded remote cache.
+    #
     # No cache of the installed node_modules trees: bun links packages into
     # them, and an archive of links does not survive every OS. Bun's download
     # cache is restored instead, so the frozen install below is a link step.
     - name: Restore bun's download cache
-      uses: actions/cache@v5
+      uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
       with:
         path: ~/.bun/install/cache
         key: bun-install-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('bun.lock') }}
         restore-keys: bun-install-v1-${{ runner.os }}-${{ runner.arch }}-
 
     - name: Restore generation artifacts
-      if: inputs.secrets-environment == ''
       # Reuse only Turbo's immutable generation artifacts. Turbo still hashes
       # current inputs and restores outputs; frozen install still runs below.
       # This cache is separate from the verification artifacts and verdicts.
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
       id: generation
       with:
         path: .cache/setup-generation
@@ -94,8 +95,19 @@ runs:
       run: bun install --frozen-lockfile
 
     - name: Save generation artifacts
-      if: inputs.secrets-environment == '' && steps.generation.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v5
+      if: steps.generation.outputs.cache-hit != 'true'
+      uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
       with:
         path: .cache/setup-generation
         key: ${{ steps.generation.outputs.cache-primary-key }}
+
+    # Secrets go in only after the install. Every later Turbo run reads and
+    # writes the Vercel Remote Cache with the TURBO_TOKEN this injects, the
+    # same cache a laptop uses.
+    - name: Inject secrets
+      if: inputs.secrets-environment != ''
+      uses: ./.github/actions/secrets-auth
+      with:
+        identity-id: ${{ inputs.secrets-identity-id }}
+        project-id: ${{ inputs.secrets-project-id }}
+        environment: ${{ inputs.secrets-environment }}

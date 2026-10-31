@@ -1,5 +1,9 @@
 import { expect, test } from 'bun:test';
-import { buildImportGraph, fileReach } from './cache-file-reach';
+import {
+  buildImportGraph,
+  fileReach,
+  fileReachWithin,
+} from './cache-file-reach';
 
 function graph(files: Record<string, string>) {
   return buildImportGraph(new Set(Object.keys(files)), (file) => files[file]!);
@@ -25,7 +29,7 @@ test('cohesion classification stops once a file exceeds the light-file threshold
     probes++;
     return lookup(key);
   };
-  expect(fileReach({ importersOf }, file, 2).packages).toBe(3);
+  expect(fileReachWithin({ importersOf }, file, 2)).toBeNull();
   expect(probes).toBeLessThanOrEqual(2);
 });
 
@@ -39,8 +43,10 @@ test('bounded reach preserves threshold decisions through cycles and same-packag
     [consumer, new Set(['libs/two-client-ts/src/index.ts'])],
   ]);
   for (const limit of [0, 1, 2, 3, 10])
-    expect(fileReach({ importersOf }, file, limit).packages).toBe(
-      Math.min(fileReach({ importersOf }, file).packages, limit + 1)
+    expect(fileReachWithin({ importersOf }, file, limit)).toEqual(
+      fileReach({ importersOf }, file).packages > limit
+        ? null
+        : fileReach({ importersOf }, file)
     );
 });
 

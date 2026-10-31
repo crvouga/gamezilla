@@ -9,11 +9,12 @@ import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared-ts/impl-mockingbird-sqlite';
 import { Hono } from 'hono';
 
-const BASE_URL = 'https://api.gamezilla.app';
+const SCHEME = 'myapp';
+const BASE_URL = 'https://api.app.example';
 const IDP_URL = 'https://apple.idp.test';
 const PREFIX = '/api';
 const SECRET = 'auth-system-secret-0123456789abcdef';
-const CALLBACK = oauthClientCallbackUrl('https://www.gamezilla.app');
+const CALLBACK = oauthClientCallbackUrl('https://www.app.example', SCHEME);
 const CALLBACK_PATH = `${BASE_URL}${PREFIX}/auth/callback/apple`;
 const CLIENT_ID = 'test.apple-repeat.signin';
 const TEAM_ID = 'TEAMREPEAT';
@@ -84,7 +85,7 @@ async function bootAppleAuth(): Promise<{
     clients: [
       {
         id: CLIENT_ID,
-        name: 'Gamezilla',
+        name: 'Example App',
         redirectUris: [CALLBACK_PATH],
         apple: { teamId: TEAM_ID, keyId: KEY_ID, publicKey: keys.publicJwk },
       },
@@ -99,7 +100,7 @@ async function bootAppleAuth(): Promise<{
     secret: SECRET,
     baseURL: BASE_URL,
     publicPathPrefix: PREFIX,
-    trustedOrigins: [BASE_URL, 'https://www.gamezilla.app', 'gamezilla://'],
+    trustedOrigins: [BASE_URL, 'https://www.app.example', 'myapp://'],
     providers: {
       apple: {
         clientId: CLIENT_ID,

@@ -4,6 +4,7 @@ import {
 } from '@apps/product-ts/scripts/local-admin-accounts';
 import { createAppleClientKeys } from '@apps/product-ts/scripts/start-idps';
 import { createRuntime } from '@crvouga/mockingbird-service-oauth';
+import { PRODUCT_NAME } from '@libs/product-identity-shared-ts/product-identity';
 import {
   appleEndpointsFor,
   googleEndpointsFor,
@@ -37,7 +38,7 @@ export async function localAdminProviders(clock: Clock) {
     clients: [
       {
         id: 'local',
-        name: 'Gamezilla',
+        name: PRODUCT_NAME,
         secret: 'local',
         redirectUris: [`${ADMIN_TEST_API}/auth/callback/google`],
       },
@@ -51,7 +52,7 @@ export async function localAdminProviders(clock: Clock) {
     clients: [
       {
         id: 'local',
-        name: 'Gamezilla',
+        name: PRODUCT_NAME,
         redirectUris: [`${ADMIN_TEST_API}/auth/callback/apple`],
         apple: {
           teamId: 'LOCALTEAM',

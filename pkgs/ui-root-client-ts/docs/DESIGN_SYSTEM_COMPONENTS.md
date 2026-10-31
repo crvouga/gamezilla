@@ -1,6 +1,6 @@
 # Design system component list
 
-Every component the Gamezilla design system needs, grouped by Atomic Design
+Every component the product's design system needs, grouped by Atomic Design
 level (the composition law in [`../README.md`](../README.md#composition)).
 
 This list was built from what the product actually paints today: the 129
@@ -240,7 +240,7 @@ distinct loading / empty / failure states on every person-facing screen.
 
 ## 4. Game components
 
-Gamezilla's differentiator. Each game imports one of these boards.
+The product's differentiator. Each game imports one of these boards.
 
 ### Boards and play surfaces
 

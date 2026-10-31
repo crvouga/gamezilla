@@ -3,6 +3,8 @@
 import { describe, expect, test } from 'bun:test';
 import type { Sql } from '@pkgs/sql-root-shared-ts/sql';
 import sql from '@pkgs/sql-root-shared-ts/sql';
+// regression: sync-engine-self-export-skips-tsx
+// This literal public self-import must resolve from the package's own test process.
 import {
   createQuery,
   SyncEnginePaintGateProvider,

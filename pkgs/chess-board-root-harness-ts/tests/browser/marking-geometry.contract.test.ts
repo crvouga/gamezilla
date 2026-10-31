@@ -60,6 +60,7 @@ test('occupied capture rings share the real target cell after fractional sizing 
 type Label = { name: string; error: number; inset: number; edgeHalf: boolean };
 test('every file and rank label occupies its correct viewer-edge cell in either orientation', async () => {
   // regression: chessboard-coordinate-label-descent — Linux, White, 196px, half scale, file g.
+  // regression: chessboard-file-label-overhang — Linux CI image, Black, 196px, half scale, file f.
   for (const width of [196, 319.5, 640])
     for (const scale of [0.5, 1, 4]) {
       for (const orientation of ['white', 'black']) {

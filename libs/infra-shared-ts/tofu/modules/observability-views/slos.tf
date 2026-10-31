@@ -16,6 +16,10 @@ locals {
 }
 
 resource "grafana_slo" "objectives" {
+  lifecycle {
+    destroy = false
+  }
+
   for_each = local.objectives
 
   # Every environment on the shared stack has its own copy of each SLO.

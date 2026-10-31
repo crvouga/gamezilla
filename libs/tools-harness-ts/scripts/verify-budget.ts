@@ -71,6 +71,19 @@ export const TASK_BUDGET_SECONDS: Readonly<Record<string, number>> = {
   // a real browser on production latency, one fresh device each, the
   // signed-in ones first signing in (health only — never part of `bun verify`).
   '@apps/product-ts#health': 480,
+  // regression: games-spec-part-two-exceeds-task-budget
+  // Hashed to this part: custom-game-away.feature (unsliced, every
+  // conformance game) alongside slices of matched-game-without-turns,
+  // multi-seat-stand-ins and puzzle-play — each also run once per game.
+  // `specWeight` counts only the Gherkin text's scenario lines, not the
+  // per-game multiplication every shared `specs/games/` feature gets at run
+  // time, so this part's declared load clears PART_LOAD while its real test
+  // count (79 across 5 files) does not. Measured 312 s with
+  // VERIFY_TEST_CONCURRENCY=1 on a 12-core laptop (above the 300 s default);
+  // PR #241 Verify run 40824282900, shard 31, stopped it at the 600 s CI
+  // budget (`@libs/games-harness-ts#test:spec:2 ran past its own time
+  // budget`).
+  '@libs/games-harness-ts#test:spec:2': 420,
 };
 
 /**

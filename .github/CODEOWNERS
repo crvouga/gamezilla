@@ -1,0 +1,13 @@
+# Every path needs the owner's review when a ruleset requires code-owner
+# review. CI, secrets plumbing and infrastructure are listed on their own so
+# they stay owned if the default ever changes: a change there can reach
+# production credentials.
+*                                @crvouga
+/.github/                        @crvouga
+/libs/infra-shared-ts/           @crvouga
+/libs/infra-server-ts/           @crvouga
+/libs/secrets-server-ts/         @crvouga
+/libs/secrets-shared-ts/         @crvouga
+/pkgs/secret-provider-server-ts/ @crvouga
+/.gitleaks.toml                  @crvouga
+/LICENSE                         @crvouga

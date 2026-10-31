@@ -219,7 +219,10 @@ Four workflows, one contract each. Details:
 - **The required status is `verify:end`.** Verify PR is three jobs
   (`verify:start`, `verify:shards (N)`, `verify:end`). They keep the `verify:`
   prefix wherever the gate runs (a pull request, Release's verification, the
-  nightly run). Every CI job runs on a boat.dev `boat` runner, so CI does not check native packages or
+  nightly run). Every CI job runs on a boat.dev `boat` runner: a fresh
+  just-in-time runner per job, never a machine that keeps files between jobs
+  (the repository is public, so pull-request code is untrusted and must not
+  run where a deploy later runs). CI does not check native packages or
   `test:posix` suites
   ([`docs/CI_REQUIREMENTS.md`](docs/CI_REQUIREMENTS.md#runner-operating-systems)).
   Code a CI task runs is OS-neutral: a repository path is `/`-separated
@@ -364,8 +367,9 @@ test:max`: sidecars from `@pkgs/postgres-mockingbird-server-ts`, `@pkgs/s3-serve
 | Libs | `libs/` (`@libs/`) | product code: subs, shells, platform, `runtime`, `tools` | pkgs, plus other libs’ exported modules |
 | Pkgs | `pkgs/` (`@pkgs/`) | agnostic utilities, frameworks, dev infra | pkgs only |
 
-`pkgs/` must work in any monorepo: no `gamezilla`, `@libs/*` or product
-references, in code, comments or defaults. The tiers hold in every language;
+`pkgs/` must work in any monorepo: no brand or namespace
+([`docs/BRANDING.md`](docs/BRANDING.md)), `@libs/*` or product references,
+in code, comments or defaults. The tiers hold in every language;
 how a Swift (or later Rust, Kotlin) package joins them is
 [`docs/POLYGLOT.md`](docs/POLYGLOT.md). How subs, shells and the
 composition root (`@libs/runtime`, the one package that knows every sub)
@@ -395,7 +399,7 @@ each probed in `libs/tools-harness-ts/scripts/import-boundaries.test.ts`, plus
   behind injected ports and `@api-wall-ok` modules;
 - libs and pkgs never import `@apps/*`.
 
-**Games.** Gamezilla is a game framework with pluggable games
+**Games.** The product is a game framework with pluggable games
 ([`GAME_FRAMEWORK.md`](libs/games-shared-ts/docs/GAME_FRAMEWORK.md)). A game
 supplies only its rules, board, copy, board gesture and known examples
 (`defineTurnGame`, `defineGameClient`, a `HarnessGame` with `fixtures`); the

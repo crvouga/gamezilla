@@ -1,4 +1,4 @@
 {
-  "summary": "Settings → Connection and the global menu's Server row opened a placeholder saying the screen had not been ported to the web app, so a person checking why the app could not connect hit a broken screen. Connection in Settings now says whether the app is connected (and whether the work-offline choice, the device, or Gamezilla is the missing part), when it last was, the app version, and what still works without a connection.",
+  "summary": "Settings → Connection and the global menu's Server row opened a placeholder saying the screen had not been ported to the web app, so a person checking why the app could not connect hit a broken screen. Connection in Settings now says whether the app is connected (and whether the work-offline choice, the device, or the app's server is the missing part), when it last was, the app version, and what still works without a connection.",
   "regressionTest": "specs/runtime/connection-continuity.feature"
 }

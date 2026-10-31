@@ -31,7 +31,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "count(count by(event_id)(count_over_time({service_name=\"gamezilla-server\",deployment_environment_name=\"${environment}\"} |= \"identity.account.provisioned\" | event_synthetic=\"false\" [$__range])))",
+          "expr": "count(count by(event_id)(count_over_time({service_name=\"${namespace}-server\",deployment_environment_name=\"${environment}\"} |= \"identity.account.provisioned\" | event_synthetic=\"false\" [$__range])))",
           "datasource": {
             "type": "loki",
             "uid": "${logs_uid}"
@@ -63,7 +63,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "count(count by(event_id)(count_over_time({service_name=\"gamezilla-server\",deployment_environment_name=\"${environment}\"} |= \"multiplayer.space.created\" | event_synthetic=\"false\" [$__range])))",
+          "expr": "count(count by(event_id)(count_over_time({service_name=\"${namespace}-server\",deployment_environment_name=\"${environment}\"} |= \"multiplayer.space.created\" | event_synthetic=\"false\" [$__range])))",
           "datasource": {
             "type": "loki",
             "uid": "${logs_uid}"
@@ -95,7 +95,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "count(count by(event_id)(count_over_time({service_name=\"gamezilla-server\",deployment_environment_name=\"${environment}\"} |= \"chess.puzzle.attempted\" | event_synthetic=\"false\" [$__range])))",
+          "expr": "count(count by(event_id)(count_over_time({service_name=\"${namespace}-server\",deployment_environment_name=\"${environment}\"} |= \"chess.puzzle.attempted\" | event_synthetic=\"false\" [$__range])))",
           "datasource": {
             "type": "loki",
             "uid": "${logs_uid}"
@@ -127,7 +127,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "(sum(rate(http_server_requests_total{job=\"gamezilla-server\",app_http_route_group=~\"sync|session|room|billing|media|app\",app_http_status_class=\"5xx\",deployment_environment_name=\"${environment}\"}[5m])) or vector(0)) / sum(rate(http_server_requests_total{job=\"gamezilla-server\",app_http_route_group=~\"sync|session|room|billing|media|app\",deployment_environment_name=\"${environment}\"}[5m]))",
+          "expr": "(sum(rate(http_server_requests_total{job=\"${namespace}-server\",app_http_route_group=~\"sync|session|room|billing|media|app\",app_http_status_class=\"5xx\",deployment_environment_name=\"${environment}\"}[5m])) or vector(0)) / sum(rate(http_server_requests_total{job=\"${namespace}-server\",app_http_route_group=~\"sync|session|room|billing|media|app\",deployment_environment_name=\"${environment}\"}[5m]))",
           "datasource": {
             "type": "prometheus",
             "uid": "${metrics_uid}"

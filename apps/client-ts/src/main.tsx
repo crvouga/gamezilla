@@ -10,6 +10,7 @@ import { bootBrowserObservability } from '@libs/app-root-client-ts/boot-browser-
 import { createClient } from '@libs/app-root-client-ts/create-client';
 import { wallClientEnv } from '@libs/app-root-client-ts/wall-client-env';
 import { wallOfflineNetworkController } from '@libs/app-root-client-ts/wall-offline-network';
+import { technicalKey } from '@libs/product-identity-shared-ts/technical-names';
 import { APP_SUB_CLIENTS } from '@libs/runtime-client-ts/app-sub-clients';
 import { APP } from '@libs/runtime-shared-ts/app-subs';
 import { wallSpaceRoomTransport } from '@libs/spaces-client-ts/wall-room-transport';
@@ -35,7 +36,7 @@ if (root === null) {
 const client = createClient(clientEnv, {
   subs: APP_SUB_CLIENTS,
   loadApp: () => Promise.resolve(APP),
-  poolGlobalKey: '__gamezilla_sync_engine_pool__',
+  poolGlobalKey: `__${technicalKey('sync_engine_pool', '_')}__`,
   offlineController: offline,
 });
 

@@ -10,6 +10,7 @@
  * assigned to an indicator in `slo-indicators.ts`.
  */
 
+import { technicalName } from '@libs/product-identity-shared-ts/technical-names';
 import type { MetricContract } from '@pkgs/observability-root-shared-ts/metric-contract';
 import { otlpGaugeRequest } from '@pkgs/observability-root-shared-ts/otlp-gauge';
 
@@ -104,7 +105,7 @@ export function checkResults(
 }
 
 /** The `service.name` the Health run reports its checks as. */
-export const SYNTHETIC_SERVICE_NAME = 'gamezilla-health';
+export const SYNTHETIC_SERVICE_NAME = technicalName(['health']);
 
 /**
  * The OTLP/JSON request that records one run's results: a gauge point per

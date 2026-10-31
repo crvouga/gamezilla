@@ -6,7 +6,7 @@
  */
 
 import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/app-config-shared-ts/local-preview-api-origin';
-import { APP_IDENTITY } from '@libs/auth-shared-ts/app-identity';
+import { apiHost } from '@libs/product-identity-shared-ts/brand-hosts';
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 
 type ViteEnv = {
@@ -21,7 +21,7 @@ function viteEnv(): ViteEnv {
 }
 
 function isProductionApiHostname(hostname: string): boolean {
-  return hostname === APP_IDENTITY.apiHost;
+  return hostname === apiHost();
 }
 
 export function productionApiUrlTigerExceptionEnabled(): boolean {

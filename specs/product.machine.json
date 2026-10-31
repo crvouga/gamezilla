@@ -1,8 +1,8 @@
 {
   "id": "product",
-  "initial": "Gamezilla",
+  "initial": "Product",
   "meta": {
-    "description": "Explore Gamezilla: choose an action, read its outcome and rules, or find a route to any capability. Everything runs from the product model, without the application server.",
+    "description": "Explore the product: choose an action, read its outcome and rules, or find a route to any capability. Everything runs from the product model, without the application server.",
     "snapshot": "Explore the whole product from one chart: the current person and this device’s place change together.",
     "confidence": "assumed",
     "source": [
@@ -966,8 +966,8 @@
     }
   },
   "states": {
-    "Gamezilla": {
-      "id": "Gamezilla",
+    "Product": {
+      "id": "Product",
       "type": "parallel",
       "meta": {
         "description": "The person keeps their identity and current access while this device moves through the app.",

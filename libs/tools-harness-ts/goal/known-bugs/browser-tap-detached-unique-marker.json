@@ -1,0 +1,4 @@
+{
+  "summary": "The browser driver pinned a unique content-start-attempt button to a temporary DOM marker. Replacing that button between locating it and native dispatch stranded the gesture on a detached marker even though its equivalent control remained available. Keep the unique logical selector; retain concrete markers only when stacked controls make the selector ambiguous.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-shared-ts/tests/moving-tap-target.test.ts"
+}

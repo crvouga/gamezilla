@@ -5,6 +5,7 @@
  */
 
 import { isAppTabActive } from '@libs/app-root-shared-ts/is-app-tab-active';
+import { PRODUCT_NAME } from '@libs/product-identity-shared-ts/product-identity';
 import { useAppFrameGlobalTrailing } from '@pkgs/ui-root-client-ts/app-frame-chrome';
 import { AppHeaderIsland } from '@pkgs/ui-root-client-ts/app-header-island';
 import type { AppHeaderIslandItem } from '@pkgs/ui-root-client-ts/app-header-island-types';
@@ -32,7 +33,7 @@ export function AppHeaderIslandHost(): JSX.Element {
 
   return (
     <AppHeaderIsland
-      leading={<AppLogo size={LOGO_SIZE} />}
+      leading={<AppLogo name={PRODUCT_NAME.toLowerCase()} size={LOGO_SIZE} />}
       items={items()}
       trailing={trailing()}
     />

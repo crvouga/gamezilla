@@ -15,7 +15,7 @@ export type S3ObjectStoreConfig = {
   readonly bucket: string;
   readonly endpoint: string;
   readonly region: string;
-  /** Wire-key root prefix (e.g. `gamezilla/`). Injected at the composition root. */
+  /** Wire-key root prefix (e.g. `acme/`). Injected at the composition root. */
   readonly rootPrefix: string;
   /** Transport for every S3 request (wall client, or a mock fetch handler). */
   readonly http: HttpClient;

@@ -1,5 +1,36 @@
 import type { VerifyTask } from './verify-shards';
 
+function taskFamily(id: string): string {
+  return id.slice(id.indexOf('#') + 1).replace(/:\d+$/, '');
+}
+
+/** Index one report's immutable cost snapshot once, not once per task. */
+export function createTaskEstimator(costs: Readonly<Record<string, number>>) {
+  const samples = new Map<string, number[]>();
+  for (const [id, seconds] of Object.entries(costs)) {
+    if (!valid(seconds)) continue;
+    const family = taskFamily(id);
+    const values = samples.get(family) ?? [];
+    values.push(seconds);
+    samples.set(family, values);
+  }
+  const medians = new Map(
+    [...samples].map(([family, values]) => {
+      values.sort((a, b) => a - b);
+      return [family, values[Math.floor(values.length / 2)]!] as const;
+    })
+  );
+  return (taskId: string) => {
+    const exact = costs[taskId];
+    if (valid(exact))
+      return { seconds: exact, durationSource: 'history' as const };
+    const median = medians.get(taskFamily(taskId));
+    return median === undefined
+      ? { seconds: 60, durationSource: 'fallback' as const }
+      : { seconds: median, durationSource: 'family' as const };
+  };
+}
+
 /** Task-family median transfers history across numbered spec leaves. */
 export function estimateTask(
   taskId: string,
@@ -8,10 +39,10 @@ export function estimateTask(
   const exact = costs[taskId];
   if (valid(exact))
     return { seconds: exact, durationSource: 'history' as const };
-  const family = (id: string) =>
-    id.slice(id.indexOf('#') + 1).replace(/:\d+$/, '');
   const samples = Object.entries(costs)
-    .filter(([id, seconds]) => family(id) === family(taskId) && valid(seconds))
+    .filter(
+      ([id, seconds]) => taskFamily(id) === taskFamily(taskId) && valid(seconds)
+    )
     .map(([, seconds]) => seconds)
     .sort((a, b) => a - b);
   if (samples.length)

@@ -182,6 +182,12 @@ export function categoryViolations(
       readonly path: string;
       readonly text: string;
     }[];
+    /**
+     * Workspace packages declaring `"language": "neutral"`: data and
+     * contracts that run nowhere, so their names spell no category and any
+     * package may read them (docs/POLYGLOT.md).
+     */
+    readonly neutral?: ReadonlySet<string>;
   }
 ): readonly string[] {
   const out: string[] = [];
@@ -197,6 +203,7 @@ export function categoryViolations(
       // External workspaces keep their upstream naming and release policy.
       if (!/^@(apps|libs|pkgs)\//.test(dep)) continue;
       const depCategory = categoryOfName(dep);
+      if (depCategory === undefined && options.neutral?.has(dep)) continue;
       if (depCategory === undefined) {
         out.push(`${field} names ${dep}, whose name spells no category`);
         continue;
@@ -509,6 +516,11 @@ export function packageBoundaryViolations(pkgDir: string): readonly string[] {
   const out: string[] = [
     ...categoryViolations(manifest, {
       tier: slashPath(pkgDir).split('/').at(-2) ?? '',
+      neutral: new Set(
+        [...workspace]
+          .filter(([, other]) => other.language === 'neutral')
+          .map(([name]) => name)
+      ),
       sources: sources.map((path) => ({
         path: path.slice(pkgDir.length + 1),
         text: readFileSync(path, 'utf8'),

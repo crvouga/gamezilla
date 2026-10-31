@@ -115,8 +115,19 @@ async function introspectTables(db: Database): Promise<TableInfo[]> {
   );
 }
 
+function metaTableExists(db: Database): boolean {
+  return (
+    db
+      .query<{ name: string }, [string]>(
+        `SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?`
+      )
+      .get(META_TABLE) != null
+  );
+}
+
 async function readOwnedMeta(db: Database): Promise<OwnedMeta[]> {
-  ensureMeta(db);
+  // Planning reads this; it must not create the table (read-only).
+  if (!metaTableExists(db)) return [];
   const rows = db
     .query<{ name: string; payload: string }, []>(
       `SELECT name, payload FROM ${META_TABLE}`
@@ -179,7 +190,11 @@ async function evaluateCandidates(
         `EXPLAIN QUERY PLAN SELECT * FROM "${cand.definition.table}" WHERE "${cand.definition.columns[0]?.name ?? 'id'}" = ?`
       )
       .all(1);
-    const usesScan = JSON.stringify(explain).toLowerCase().includes('scan');
+    // A plan served by the candidate's own index is the plan the workload
+    // needs it for: judge the candidate against the plan without it.
+    const plan = JSON.stringify(explain).toLowerCase();
+    const usesScan =
+      plan.includes('scan') || plan.includes(cand.name.toLowerCase());
     out.push({
       candidateName: cand.name,
       improvement: usesScan ? 10 : 2,

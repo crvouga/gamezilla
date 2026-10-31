@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="assistant-observation-definitions" name="One useful observation" namespace="https://gamezilla.dev/decisions">
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="assistant-observation-definitions" name="One useful observation" namespace="urn:product:decisions">
   <decision id="assistant-observation" name="What should the Puzzle Assistant explain?">
     <description>A finished puzzle has priority. Otherwise check is answered first, then a missed checkmate, a hanging piece, a knight fork, and finally truthful general guidance. An unproved claim is never eligible. Help names the help offered, without adding a tactical claim.</description>
     <decisionTable id="observation-policy" hitPolicy="UNIQUE">

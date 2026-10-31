@@ -1,0 +1,4 @@
+{
+  "summary": "The cache hygiene check traversed every importer of each hub source file merely to decide whether its package reach was below a threshold. Stop once the threshold is exceeded, retaining exact counts for light files and complete traversal for unbounded explanations.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ci-scan-cost.test.ts"
+}

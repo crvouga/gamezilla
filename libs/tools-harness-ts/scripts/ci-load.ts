@@ -13,7 +13,7 @@ import {
   WARM_START_SECONDS,
   WORK_BUDGET_SECONDS,
 } from './ci-runner-capacity';
-import { estimateTask } from './verify-task-estimates';
+import { createTaskEstimator } from './verify-task-estimates';
 
 const START = '<!-- ci-load:start -->';
 const END = '<!-- ci-load:end -->';
@@ -35,7 +35,10 @@ const EXACT_TASKS = new Set([
   'verify:offline-shell',
   'verify:schema-evolution',
   'verify:actionlint',
+  'verify:brand-policy',
+  'verify:rebrand',
   'verify:secrets',
+  'verify:workflow-security',
   'verify:board-contract',
   'verify:root-lint',
   'ci:syncpack',
@@ -120,6 +123,7 @@ export function percentile(values: readonly number[], p: number): number {
 }
 
 export function loadReport(input: LoadInput): LoadReport {
+  const estimate = createTaskEstimator(input.costs);
   const acc: Acc = {
     current: new Set<string>(),
     totals: emptyTotals(),
@@ -127,14 +131,15 @@ export function loadReport(input: LoadInput): LoadReport {
   };
   const own = new Map<string, PackageLoad>();
   for (const pkg of input.packages)
-    own.set(pkg.name, packageLoad(pkg, input.costs, acc));
+    own.set(pkg.name, packageLoad(pkg, estimate, acc));
   const counts = dependentCounts(input.packages);
   const leaves = [...own.values()]
     .filter((load) => (counts.get(load.name) ?? 0) === 0)
     .filter((load) => load.tasks > 0)
     .sort(bySeconds);
+  const dependents = reverseDependencies(input.packages);
   const cones = input.packages
-    .map((pkg) => coneLoad(pkg.name, input.packages, own))
+    .map((pkg) => coneLoad(pkg.name, dependents, own))
     .sort(bySeconds)
     .slice(0, 3);
   const leafPoles = leaves.map((load) => load.poleSeconds);
@@ -202,7 +207,7 @@ type Acc = {
 
 function packageLoad(
   pkg: PackageWork,
-  costs: Readonly<Record<string, number>>,
+  estimate: ReturnType<typeof createTaskEstimator>,
   acc: Acc
 ): PackageLoad {
   let seconds = 0;
@@ -211,11 +216,11 @@ function packageLoad(
   for (const task of pkg.tasks) {
     const id = `${pkg.name}#${task}`;
     acc.current.add(id);
-    const estimate = estimateTask(id, costs);
-    seconds += estimate.seconds;
-    recordTask(acc, id, estimate.seconds, estimate.durationSource);
-    if (estimate.seconds > poleSeconds) {
-      poleSeconds = estimate.seconds;
+    const duration = estimate(id);
+    seconds += duration.seconds;
+    recordTask(acc, id, duration.seconds, duration.durationSource);
+    if (duration.seconds > poleSeconds) {
+      poleSeconds = duration.seconds;
       poleTask = id;
     }
   }
@@ -269,14 +274,20 @@ function dependentCounts(
   return counts;
 }
 
-function coneLoad(
-  name: string,
-  packages: readonly PackageWork[],
-  own: ReadonlyMap<string, PackageLoad>
-): ConeLoad {
+function reverseDependencies(
+  packages: readonly PackageWork[]
+): Map<string, string[]> {
   const dependents = new Map(packages.map((pkg) => [pkg.name, [] as string[]]));
   for (const pkg of packages)
     for (const dep of pkg.dependencies) dependents.get(dep)?.push(pkg.name);
+  return dependents;
+}
+
+function coneLoad(
+  name: string,
+  dependents: ReadonlyMap<string, readonly string[]>,
+  own: ReadonlyMap<string, PackageLoad>
+): ConeLoad {
   const seen = new Set<string>([name]);
   const stack = [name];
   while (stack.length > 0) {

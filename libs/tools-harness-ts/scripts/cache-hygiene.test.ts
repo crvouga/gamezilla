@@ -86,8 +86,8 @@ function hubs(
 test('repository paths use / on every platform', () => {
   expect(
     toRepoPath(
-      'C:\\actions-runner\\_work\\gamezilla',
-      'C:\\actions-runner\\_work\\gamezilla\\libs\\a-ts\\src\\b.ts'
+      'C:\\actions-runner\\_work\\repo',
+      'C:\\actions-runner\\_work\\repo\\libs\\a-ts\\src\\b.ts'
     )
   ).toBe('libs/a-ts/src/b.ts');
   expect(toRepoPath('/repo', '/repo/libs/a-ts/src/b.ts')).toBe(

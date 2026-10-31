@@ -4,7 +4,7 @@ import { createInProcessOpenAuthSession } from '@pkgs/auth-inhouse-client-ts/in-
 import { createAuthApp } from '@pkgs/auth-inhouse-server-ts/create-auth-app';
 import { googleEndpointsFor } from '@pkgs/auth-inhouse-server-ts/inhouse-auth-config';
 import { reconcileIdpPostgres } from '@pkgs/auth-inhouse-server-ts/reconcile-idp-postgres';
-import { createInMemoryAuthClientStorage } from '@pkgs/auth-inhouse-shared-ts/bearer-token-store';
+import { createBearerTokenStore } from '@pkgs/auth-inhouse-shared-ts/bearer-token-store';
 import type { HarnessClockBundle } from '@pkgs/clock-shared-ts/harness-clock';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres-server-ts/impl-mockingbird-postgres';
@@ -14,7 +14,7 @@ import { ALICE_EMAIL, simulatedGoogle } from './simulated-google';
 
 const BASE_URL = 'http://harness.local';
 const IDP_URL = 'http://idp.harness';
-const CALLBACK = 'gamezilla://sso-callback';
+const CALLBACK = 'myapp://sso-callback';
 const SECRET = 'auth-system-secret-0123456789abcdef';
 const CLIENT_ID = 'harness.apps.googleusercontent.com';
 const CLIENT_SECRET = 'harness-google-client-secret';
@@ -69,7 +69,7 @@ async function bootNodes(): Promise<{
     secret: SECRET,
     baseURL: BASE_URL,
     publicPathPrefix: '/api',
-    trustedOrigins: [BASE_URL, 'gamezilla://'],
+    trustedOrigins: [BASE_URL, 'myapp://'],
     providers: {
       google: {
         clientId: CLIENT_ID,
@@ -95,7 +95,7 @@ describe('createInProcessOpenAuthSession / harness parity', () => {
       baseURL: BASE_URL,
       ...harness,
       fetch: wire,
-      storage: createInMemoryAuthClientStorage(),
+      bearerStore: createBearerTokenStore({ storageKey: 'myapp.auth.bearer' }),
       openAuthSession,
       callbackUrl: CALLBACK,
     });
@@ -116,7 +116,7 @@ describe('createInProcessOpenAuthSession / harness parity', () => {
       baseURL: BASE_URL,
       ...harness,
       fetch: wire,
-      storage: createInMemoryAuthClientStorage(),
+      bearerStore: createBearerTokenStore({ storageKey: 'myapp.auth.bearer' }),
       openAuthSession,
       callbackUrl: CALLBACK,
     });
@@ -136,7 +136,7 @@ describe('createInProcessOpenAuthSession / harness parity', () => {
       baseURL: BASE_URL,
       ...harness,
       fetch: wire,
-      storage: createInMemoryAuthClientStorage(),
+      bearerStore: createBearerTokenStore({ storageKey: 'myapp.auth.bearer' }),
       openAuthSession,
       callbackUrl: CALLBACK,
     });

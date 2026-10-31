@@ -11,7 +11,7 @@ export type LogSeverity = 'debug' | 'info' | 'warn' | 'error';
 
 export type CorrelatedLogEvent = DiagnosticLog;
 
-const LOG_EVENT_BRIDGE = Symbol.for('gamezilla.observability.log-event');
+const LOG_EVENT_BRIDGE = Symbol.for('@pkgs/observability.log-event');
 type LogBridgeHost = {
   [LOG_EVENT_BRIDGE]?: (event: CorrelatedLogEvent) => void;
 };

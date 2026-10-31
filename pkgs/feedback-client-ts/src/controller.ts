@@ -78,6 +78,8 @@ export class FeedbackController {
   private restoring = false;
   private restoreGeneration = 0;
   private evidencePending: Promise<void> = Promise.resolve();
+  private readonly attachmentsPending = new Set<Promise<void>>();
+  private readonly attachmentSlots = new Map<string, number>();
   private editorParent: Extract<WizardStage, 'manage' | 'read'> = 'manage';
   private readonly evidenceReceipts = new WeakMap<
     EvidenceFile,
@@ -263,31 +265,49 @@ export class FeedbackController {
   reportAttachmentError = (message: string): void => {
     this.publish({ message });
   };
-  attach = async (file: EvidenceFile): Promise<void> => {
-    if (this.current.phase === 'sending') return;
-    if (!file.bytes.byteLength) {
-      this.publish({ message: 'Choose a non-empty video or image.' });
-      return;
-    }
-    if (file.bytes.byteLength > 12 * 1024 * 1024) {
-      this.publish({
-        message: 'Keep attachments under 12 MB. Choose a shorter recording.',
-      });
-      return;
-    }
-    if (this.current.files.length >= 3) {
-      this.publish({ message: 'You can attach up to three files.' });
-      return;
-    }
+  attach = (file: EvidenceFile): Promise<void> => {
+    const attaching = this.attachFile(file);
+    const settle = (): void => {
+      this.attachmentsPending.delete(attaching);
+    };
+    this.attachmentsPending.add(attaching);
+    attaching.then(settle, settle);
+    return attaching;
+  };
+  private async attachmentsSettled(): Promise<void> {
+    while (this.attachmentsPending.size)
+      await Promise.allSettled([...this.attachmentsPending]);
+  }
+  private attachmentRefusal(
+    file: EvidenceFile,
+    activeId: string
+  ): string | null {
+    if (!file.bytes.byteLength) return 'Choose a non-empty video or image.';
+    if (file.bytes.byteLength > 12 * 1024 * 1024)
+      return 'Keep attachments under 12 MB. Choose a shorter recording.';
+    const held =
+      this.current.files.length + (this.attachmentSlots.get(activeId) ?? 0);
+    if (held >= 3) return 'You can attach up to three files.';
     if (
       !/^video\/(webm|mp4|quicktime)$|^image\/(png|jpeg|webp)$/.test(
         file.contentType
       )
-    ) {
-      this.publish({ message: 'Choose a video or an image.' });
+    )
+      return 'Choose a video or an image.';
+    return null;
+  }
+  private async attachFile(file: EvidenceFile): Promise<void> {
+    if (this.current.phase === 'sending') return;
+    const activeId = this.workspace.state().activeId;
+    const refusal = this.attachmentRefusal(file, activeId);
+    if (refusal) {
+      this.publish({ message: refusal });
       return;
     }
-    const activeId = this.workspace.state().activeId;
+    this.attachmentSlots.set(
+      activeId,
+      (this.attachmentSlots.get(activeId) ?? 0) + 1
+    );
     try {
       const saved = await this.draftEvidence.save(file);
       const active = this.workspace
@@ -299,19 +319,25 @@ export class FeedbackController {
         attempted: null,
       });
       if (this.workspace.state().activeId !== activeId) return;
+      this.publish({
+        files: [...this.current.files, file],
+        attempted: null,
+        message: null,
+      });
     } catch {
       this.publish({
         message:
           'Attachment could not be saved. Keep the original file and try again.',
       });
-      return;
+    } finally {
+      this.releaseAttachmentSlot(activeId);
     }
-    this.publish({
-      files: [...this.current.files, file],
-      attempted: null,
-      message: null,
-    });
-  };
+  }
+  private releaseAttachmentSlot(activeId: string): void {
+    const held = (this.attachmentSlots.get(activeId) ?? 1) - 1;
+    if (held > 0) this.attachmentSlots.set(activeId, held);
+    else this.attachmentSlots.delete(activeId);
+  }
   removeFile = (index: number): void => {
     if (this.current.phase === 'sending') return;
     this.workspace.update({
@@ -363,6 +389,7 @@ export class FeedbackController {
   async send(): Promise<void> {
     await this.ready;
     await this.evidencePending;
+    await this.attachmentsSettled();
     if (this.current.phase === 'sending') return;
     const errors = feedbackErrors(this.current.draft);
     if (Object.keys(errors).length) {

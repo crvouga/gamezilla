@@ -6,7 +6,7 @@ application. It needs no API, database, identity provider or full app stack.
 The old `/ui` routes and their registry have been removed.
 
 The sidebar's **Start here** page documents the project workflow, commands,
-virtual time and agent discovery. Gamezilla branding and this guide replace
+virtual time and agent discovery. Design-system branding and this guide replace
 Storybook's generic onboarding checklist. All [Essentials](#essentials-review-and-usage) features and Interactions
 are built into the pinned Storybook version; Bun and Playwright own automated
 verification, so no Vitest or hosted visual-testing addon is required.

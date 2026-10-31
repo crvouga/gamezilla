@@ -13,6 +13,7 @@ import type {
 } from '@pkgs/sync-engine-shared-ts/v2';
 import type { MergeApplierDeps } from './merge';
 import { detachScope } from './merge';
+import { raceUntilAborted } from './race-until-aborted';
 import {
   QUERY_COALESCE_MS,
   QUERY_RECONCILE_INTERVAL_MS,
@@ -48,6 +49,7 @@ type Entry = SweepEntry;
 
 /** `'all'` = every active scope; otherwise a scope subset. */
 type PendingSweep = 'all' | Set<string>;
+const STOPPED_QUERY = new Error('Subscription query lifecycle stopped');
 
 export type SubscriptionRuntimeOptions = {
   readonly db: SqlClient;
@@ -140,6 +142,7 @@ export class SubscriptionRuntime {
   private coalesceTimer: unknown = null;
   private reconcileTimer: unknown = null;
   private inFlight = false;
+  private requestAbort = new AbortController();
   private inFlightScopes: readonly string[] = [];
   private flushWaiters: FlushWaiter[] = [];
   /** Sweeps finished so far; orders {@link flushWaiters}. */
@@ -163,9 +166,18 @@ export class SubscriptionRuntime {
   }
 
   private sweepContext(): SubscriptionSweepContext {
+    const signal = this.requestAbort.signal;
     return {
       db: this.options.db,
-      postQueries: this.options.postQueries,
+      postQueries: async (requests) => {
+        if (signal.aborted) throw STOPPED_QUERY;
+        const responses = await raceUntilAborted(
+          this.options.postQueries(requests),
+          signal
+        );
+        if (responses === null) throw STOPPED_QUERY;
+        return responses;
+      },
       getMergeDeps: this.options.getMergeDeps,
       ...(this.options.queryRegistry !== undefined
         ? { queryRegistry: this.options.queryRegistry }
@@ -174,13 +186,15 @@ export class SubscriptionRuntime {
       onSynced: this.options.onSynced,
       ensureBusWatch: () => this.ensureBusWatch(),
       cleanScopes: this.cleanScopes,
-      isRunning: () => this.running,
+      // A restart must not make a prior lifecycle's response current again.
+      isRunning: () => this.running && !signal.aborted,
     };
   }
 
   start(): void {
     if (this.running) return;
     this.running = true;
+    this.requestAbort = new AbortController();
     this.foregrounded = this.lifecycle.isForeground();
     this.disposeLifecycle = this.lifecycle.subscribe((event) =>
       this.onLifecycle(event)
@@ -208,6 +222,7 @@ export class SubscriptionRuntime {
 
   stop(): void {
     this.running = false;
+    this.requestAbort.abort();
     this.clearCoalesceTimer();
     this.clearReconcileTick();
     this.pending = null;
@@ -221,8 +236,8 @@ export class SubscriptionRuntime {
   }
 
   /**
-   * Soft-stop, then wait for any in-flight sweep/merge to finish so callers can
-   * safely close the underlying SqlClient afterward.
+   * Stop waiting for HTTP, then drain any SQL work already running so callers
+   * can safely close the underlying SqlClient afterward.
    */
   async stopAndDrain(): Promise<void> {
     this.stop();
@@ -437,13 +452,14 @@ export class SubscriptionRuntime {
     }
     this.inFlight = true;
     this.inFlightScopes = active.map((e) => e.scope);
+    const ctx = this.sweepContext();
     try {
-      await runSubscriptionSweep(this.sweepContext(), active);
-      if (this.running) {
+      await runSubscriptionSweep(ctx, active);
+      if (ctx.isRunning()) {
         this.afterSweep?.(active.map((e) => e.scope));
       }
     } catch (error) {
-      this.options.onError(error);
+      if (error !== STOPPED_QUERY) this.options.onError(error);
     } finally {
       this.inFlight = false;
       this.inFlightScopes = [];

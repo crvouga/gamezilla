@@ -4,7 +4,7 @@ import {
   acceptGameMatch,
   formGameMatches,
 } from '@libs/game-matchmaking-shared-ts/match-handoff';
-import { opponentPool } from '@libs/game-matchmaking-shared-ts/search-config';
+import { opponentPoolSignature } from '@libs/game-matchmaking-shared-ts/search-config';
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import {
   createTurnGames,
@@ -81,8 +81,8 @@ test('a formation pass costs nothing for time controls nobody is waiting in', as
 
 test('a formation pass runs only for the pools that have people waiting', async () => {
   const waiting = recordingTx([
-    opponentPool('5+0', rules),
-    opponentPool('second/3+0', rules),
+    opponentPoolSignature('5+0', rules),
+    opponentPoolSignature('second/3+0', rules),
   ]);
   await formGameMatches(waiting.tx, ports, rules);
   expect(waiting.passes()).toBe(2);

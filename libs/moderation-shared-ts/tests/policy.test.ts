@@ -9,7 +9,14 @@ import {
   createAppModeration,
   SHIPPED_TEAM_RULES,
 } from '@libs/moderation-shared-ts/policy';
-import { isReservedName } from '@libs/moderation-shared-ts/reserved-name-check';
+import {
+  isReservedName,
+  reservedNameMatcher,
+} from '@libs/moderation-shared-ts/reserved-name-check';
+import {
+  NAMESPACE,
+  PRODUCT,
+} from '@libs/product-identity-shared-ts/product-identity';
 
 const moderation = createAppModeration(SHIPPED_TEAM_RULES);
 
@@ -23,7 +30,7 @@ describe('username policy', () => {
   test('refuses names that pass someone off as the team', () => {
     for (const name of [
       'admin',
-      'Gamezilla_Official',
+      `${PRODUCT.brand.shortName}_Official`,
       'm0derator7',
       'Support',
     ]) {
@@ -32,6 +39,24 @@ describe('username policy', () => {
     }
     for (const name of ['badminton', 'supporter', 'modest_mouse', 'alice']) {
       expect(isReservedName(name)).toBe(false);
+    }
+  });
+
+  test('refuses the product’s own names in every spelling it has had', () => {
+    for (const productName of [
+      PRODUCT.brand.name,
+      PRODUCT.brand.shortName,
+      NAMESPACE,
+      ...PRODUCT.aliases,
+    ]) {
+      for (const name of [
+        productName,
+        productName.toUpperCase(),
+        `the_${productName.replaceAll(' ', '_')}7`,
+      ]) {
+        expect(isReservedName(name)).toBe(true);
+        expect(moderation.checkWrite('username', name).allowed).toBe(false);
+      }
     }
   });
 
@@ -102,4 +127,20 @@ describe('space title policy', () => {
     expect(spaceTitleText(moderation, null, 's1')).toBeNull();
     expect(spaceTitleText(moderation, '', 's1')).toBeNull();
   });
+});
+
+// regression: reserved-brand-name-with-digits
+test('a product name with digits in it is reserved in every spelling', () => {
+  // A brand ending in digits was not refused: names drop trailing digits
+  // word by word, the product's names were not read the same way.
+  const isReserved = reservedNameMatcher(['Studio 54']);
+  for (const name of [
+    'Studio 54',
+    'STUDIO54',
+    'the_Studio_547',
+    'studio54_official',
+  ])
+    expect(isReserved(name)).toBe(true);
+  for (const name of ['chess_fan', 'BraveTiger482'])
+    expect(isReserved(name)).toBe(false);
 });

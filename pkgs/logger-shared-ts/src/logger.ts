@@ -1,6 +1,6 @@
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent';
 
-const LOG_EVENT_BRIDGE = Symbol.for('gamezilla.observability.log-event');
+const LOG_EVENT_BRIDGE = Symbol.for('@pkgs/observability.log-event');
 
 type CorrelatedLogRecorder = (event: {
   readonly severity: Exclude<LogLevel, 'silent'>;

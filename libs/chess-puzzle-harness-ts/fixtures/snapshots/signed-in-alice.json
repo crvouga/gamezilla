@@ -977,7 +977,7 @@
       },
       "kv": {
         "deviceId": "61dd9ce0-8367-4c0f-93d7-854e9c907f95",
-        "gamezilla.auth.bearer": "ff94b65d-a5f7-40a5-b5f3-9c45b88c2f0c",
+        "{namespace}.auth.bearer": "ff94b65d-a5f7-40a5-b5f3-9c45b88c2f0c",
         "sessionToken": "ff94b65d-a5f7-40a5-b5f3-9c45b88c2f0c",
         "sessionExpiresAt": "2024-07-01T00:00:01.000Z",
         "sessionExternalUserId": "eff0afc7-ec38-4420-ac30-c45f7c132034",

@@ -2,7 +2,7 @@
 
 ## Primary outcome
 
-Implement **Light Cycles**, an original light-trail arena game, as a fully integrated Gamezilla game. Its main purpose is to extend and harden the existing game framework and `room` package beyond Pong's two-player case: **two to four simultaneous participants, deterministic collision resolution, elimination, spectators, rounds, bots, reconnects, and bounded real-time resource use**.
+Implement **Light Cycles**, an original light-trail arena game, as a fully integrated game in the product. Its main purpose is to extend and harden the existing game framework and `room` package beyond Pong's two-player case: **two to four simultaneous participants, deterministic collision resolution, elimination, spectators, rounds, bots, reconnects, and bounded real-time resource use**.
 
 Reuse Pong's real-time execution and networking capabilities where present. Build one coherent real-time subsystem, not a second engine hidden inside this game. Use original naming, visuals, sounds, and assets rather than copying a film or another game's branding.
 

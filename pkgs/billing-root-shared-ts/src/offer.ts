@@ -58,4 +58,10 @@ export type PlusMembershipOffer = {
   };
   /** Callback paths are `<callbackPath>/<provider>`, below the API origin. */
   readonly callbackPath: string;
+  /**
+   * How a provider labels the webhook destination it posts callbacks to.
+   * Reconcile finds the destination by its URL, else by this label (so a
+   * moved `callbackPath` keeps its signing secret): keep it stable.
+   */
+  readonly callbackDescription: string;
 };

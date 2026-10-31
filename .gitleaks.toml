@@ -1,5 +1,5 @@
 # https://github.com/gitleaks/gitleaks#configuration
-title = "gamezilla gitleaks config"
+title = "product monorepo gitleaks config"
 
 [extend]
 useDefault = true
@@ -36,4 +36,26 @@ targetRules = ["generic-api-key"]
 condition = "AND"
 paths = ['''^libs/word-tiles-shared-ts/src/word-tiles-lexicon\.ts$''']
 regexes = ['''^\s*key:\s*'[a-z0-9]+\.[0-9a-f]{12}',?$''']
+regexTarget = "line"
+
+# False positive: harness snapshots record the in-memory world of synthetic
+# users (alice@harness.local, bob@harness.local). Their session tokens were
+# minted by that throwaway in-process server and authorize nothing anywhere.
+# Only the session-token keys, only in harness fixture snapshots, are allowed.
+[[allowlists]]
+description = "Synthetic harness session tokens in fixture snapshots"
+targetRules = ["generic-api-key"]
+condition = "AND"
+paths = ['''^libs/[a-z0-9-]+-harness-ts/fixtures/snapshots/[a-z0-9-]+\.json$''']
+regexes = ['''^\s*"(?:sessionToken|[{}a-z0-9-]+\.auth\.bearer)":\s*"[^"]+",?$''']
+regexTarget = "line"
+
+# False positive: a generated alert rule's `key` is the SLO's name plus the
+# first eight hex digits of its hash (`slo-04e3515b`), not a credential.
+[[allowlists]]
+description = "SLO rule keys in the generated alert rules"
+targetRules = ["generic-api-key"]
+condition = "AND"
+paths = ['''^libs/infra-shared-ts/tofu/modules/observability-views/alert-rules\.generated\.json$''']
+regexes = ['''^\s*"key":\s*"slo-[0-9a-f]{8}",?$''']
 regexTarget = "line"

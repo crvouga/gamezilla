@@ -20,6 +20,7 @@
   "dependencies": {
     "@libs/app-root-client-ts": "workspace:*",
     "@libs/app-root-shared-ts": "workspace:*",
+    "@libs/product-identity-shared-ts": "workspace:*",
     "@libs/runtime-client-ts": "workspace:*",
     "@libs/runtime-shared-ts": "workspace:*",
     "@libs/spaces-client-ts": "workspace:*",

@@ -4,6 +4,7 @@
   "tasks": {
     "src": {
       "dependsOn": [
+        "@libs/product-identity-shared-ts#src",
         "@libs/sub-shared-ts#src",
         "@libs/test-ids-shared-ts#src",
         "@pkgs/clock-shared-ts#src",

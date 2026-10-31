@@ -3,6 +3,7 @@ import {
   type WorkerAssignment,
 } from '@apps/synthetic-population-worker-ts/worker-rpc';
 import { DEFAULT_SYNTHETIC_POPULATION_CONFIG } from '@libs/synthetic-population-shared-ts/config';
+import { syntheticAddress } from '@libs/synthetic-population-shared-ts/synthetic-address';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { createNoopLogger } from '@pkgs/logger-shared-ts/logger';
 import type { IsolatedWorker } from '@pkgs/os-server-ts/wall-isolated-worker';
@@ -49,7 +50,7 @@ export function workerFixture() {
       expiresAt: new Date(clock.now() + 60_000).toISOString(),
     },
     username: 'Cedar',
-    email: 'cedar@synthetic.gamezilla.invalid',
+    email: syntheticAddress('cedar'),
     registered: true,
     personality: { hostingWeight: 0.3, skill: 'beginner' },
     deviceId: createId(),

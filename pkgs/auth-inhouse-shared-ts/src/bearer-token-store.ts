@@ -1,5 +1,3 @@
-const BEARER_STORAGE_KEY = 'gamezilla.auth.bearer';
-
 /**
  * Storage backend for bearer tokens. Hosts inject SecureStore / localStorage /
  * namespaced harness storage — this package never imports a platform SDK.
@@ -43,7 +41,10 @@ function trimToken(value: string | null): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-function createInjectedPersistence(storage: AuthClientStorage): {
+function createInjectedPersistence(
+  storage: AuthClientStorage,
+  key: string
+): {
   peekSync(): string | null;
   read(): Promise<string | null>;
   write(token: string | null): Promise<void>;
@@ -52,7 +53,7 @@ function createInjectedPersistence(storage: AuthClientStorage): {
   return {
     peekSync() {
       try {
-        return trimToken(storage.getItem(BEARER_STORAGE_KEY));
+        return trimToken(storage.getItem(key));
       } catch {
         return null;
       }
@@ -60,9 +61,9 @@ function createInjectedPersistence(storage: AuthClientStorage): {
     async read() {
       try {
         if (storage.getItemAsync !== undefined) {
-          return trimToken(await storage.getItemAsync(BEARER_STORAGE_KEY));
+          return trimToken(await storage.getItemAsync(key));
         }
-        return trimToken(storage.getItem(BEARER_STORAGE_KEY));
+        return trimToken(storage.getItem(key));
       } catch {
         return null;
       }
@@ -71,16 +72,16 @@ function createInjectedPersistence(storage: AuthClientStorage): {
       try {
         if (token === null) {
           if (storage.deleteItemAsync !== undefined) {
-            await storage.deleteItemAsync(BEARER_STORAGE_KEY);
+            await storage.deleteItemAsync(key);
           } else {
-            storage.removeItem?.(BEARER_STORAGE_KEY);
+            storage.removeItem?.(key);
           }
           return;
         }
         if (storage.setItemAsync !== undefined) {
-          await storage.setItemAsync(BEARER_STORAGE_KEY, token);
+          await storage.setItemAsync(key, token);
         } else {
-          storage.setItem(BEARER_STORAGE_KEY, token);
+          storage.setItem(key, token);
         }
       } catch {
         // best-effort
@@ -88,7 +89,7 @@ function createInjectedPersistence(storage: AuthClientStorage): {
     },
     removeSync() {
       try {
-        storage.removeItem?.(BEARER_STORAGE_KEY);
+        storage.removeItem?.(key);
       } catch {
         // best-effort
       }
@@ -96,11 +97,19 @@ function createInjectedPersistence(storage: AuthClientStorage): {
   };
 }
 
-export function createBearerTokenStore(options?: {
+/**
+ * A bearer token kept in memory and persisted in `storage` under
+ * `storageKey`. The key is the host's: changing it forgets every stored
+ * session, so a host keeps it stable for as long as it has users.
+ */
+export function createBearerTokenStore(options: {
   readonly storage?: AuthClientStorage;
+  /** Where in `storage` the token lives (e.g. `myapp.auth.bearer`). */
+  readonly storageKey: string;
 }): BearerTokenStore {
   const persistence = createInjectedPersistence(
-    options?.storage ?? createInMemoryAuthClientStorage()
+    options.storage ?? createInMemoryAuthClientStorage(),
+    options.storageKey
   );
 
   let memoryToken: string | null | undefined;
@@ -165,6 +174,3 @@ export function createBearerTokenStore(options?: {
     captureFromResponse,
   };
 }
-
-/** Storage key used by Bun WebView spec token injection (web localStorage). */
-export const AUTH_BEARER_STORAGE_KEY = BEARER_STORAGE_KEY;

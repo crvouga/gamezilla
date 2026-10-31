@@ -44,7 +44,7 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
 1. **Neutral application.** Primary actions use a high-contrast neutral fill;
    selection uses `tint-subtle` and `on-primary-soft`. Status is always named
    or accompanied by an icon. Color belongs to playing surfaces, the intrinsic
-   emerald Gamezilla monster mark and vendor-mandated identity artwork.
+   emerald product monster mark and vendor-mandated identity artwork.
 2. **Pick a role, never a size.** Text is `P` / `Text` with a `variant`
    (`body`, `bodyBold`, `label`, `caption`, `footnote`, `sectionLabel`,
    `stat`, `mono`) or `H1`–`H6` with a `size` (`displayXl`, `title`,

@@ -2,7 +2,7 @@
   "#meta": {
     "format": "ITF",
     "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
-    "source": "/private/var/folders/fz/9yx28kz10c3dsh38kbwzyq_w0000gn/T/verify-run-tQxHqj/workspace/specs/games/matched-game-shared.qnt",
+    "source": "matched-game-shared.qnt",
     "status": "ok",
     "description": "Created by Quint on Sat Oct 24 2026 13:31:09 GMT-0700 (Mountain Standard Time)",
     "timestamp": 1792873869278

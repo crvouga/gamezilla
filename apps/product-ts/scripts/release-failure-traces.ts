@@ -2,6 +2,7 @@ import type {
   ReportStep,
   RunReport,
 } from '@crvouga/atlas/reports/report-types';
+import { serviceName } from '@libs/product-identity-shared-ts/technical-names';
 import { readStoreJson } from '@pkgs/harness-root-shared-ts/persist';
 import { readUtf8 } from '@pkgs/object-store-root-shared-ts/helpers';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
@@ -91,7 +92,7 @@ function candidates(text: string, mutationNames: readonly string[]) {
       continue;
     }
     for (const span of spansFromDocument(document)) {
-      if (span.attributes[ATTR.SERVICE_NAME] === 'gamezilla-client')
+      if (span.attributes[ATTR.SERVICE_NAME] === serviceName('client'))
         clientSpans.push(span);
       starts.set(
         span.traceId,

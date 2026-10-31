@@ -13,11 +13,12 @@
  *   its `route` label: `page` to Grafana IRM's paging chain, `push` to its
  *   push-only chain, `digest` to the daily summary.
  *
- * The objective's tier (`gamezilla.dev.tier` in the objective file) decides
+ * The objective's tier (`tier` in the objective file's labels) decides
  * how loudly: a page of tier 0 or 1 pages; a tier 2 page only pushes; a
  * ticket pushes, and a tier 2 ticket waits for the digest.
  */
 
+import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
 import type {
   AlertBundle,
   BurnTier,
@@ -38,13 +39,14 @@ import { parseDuration } from '@pkgs/openslo-shared-ts/window';
 import type { MetricIndicator } from './slo-indicators';
 import { indicatorFor } from './slo-indicators';
 
-const REPOSITORY = 'https://github.com/crvouga/gamezilla/blob/main';
+/** The source repository's files on `main`. */
+export const REPOSITORY_URL = `https://github.com/${PRODUCT.external.sourceRepository}/blob/main`;
 
 /** Where the team reads how objectives and their alerts work. */
-export const README_URL = `${REPOSITORY}/libs/observability-shared-ts/README.md#service-level-objectives`;
+export const README_URL = `${REPOSITORY_URL}/libs/observability-shared-ts/README.md#service-level-objectives`;
 
 /** One section per objective, keyed by its `metadata.name`. */
-export const RUNBOOK_URL = `${REPOSITORY}/docs/SLO_RUNBOOK.md`;
+export const RUNBOOK_URL = `${REPOSITORY_URL}/docs/SLO_RUNBOOK.md`;
 
 export function runbookFor(sloName: string): string {
   return `${RUNBOOK_URL}#${sloName}`;
@@ -54,8 +56,7 @@ export function runbookFor(sloName: string): string {
 const LONGEST_INVESTIGATION = '3d';
 
 /** The objective file's label that ranks how much an objective matters. */
-/** OpenSLO label keys allow no `/`, so the namespace is joined with a dot. */
-export const TIER_LABEL = 'gamezilla.dev.tier';
+export const TIER_LABEL = 'tier';
 
 export const TIERS = [0, 1, 2] as const;
 export type Tier = (typeof TIERS)[number];

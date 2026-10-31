@@ -1,0 +1,41 @@
+# Dependabot (https://docs.github.com/code-security/dependabot).
+#
+# Security updates: enabled in the repository settings
+# (libs/infra-shared-ts/tofu/modules/repository/actions.tf). They open a pull
+# request for any dependency with a published advisory, whatever the limits
+# below.
+#
+# Version updates:
+# - github-actions: weekly, one grouped pull request. Every action is pinned
+#   to a commit SHA (workflow-pinning.test.ts); Dependabot moves the SHA and
+#   its `# vX.Y.Z` comment together.
+# - bun: none (`open-pull-requests-limit: 0`). npm tooling and mise.toml move
+#   together through `bun install-system`, in commits of their own.
+#
+# A Dependabot pull request gets no OIDC token, so Verify PR stops at setup
+# (CONTRIBUTING.md). Push its branch again as a maintainer to verify it.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directories:
+      - /
+      - /.github/actions/*
+      - /.github/actions/*/*
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns: ['*']
+    commit-message:
+      prefix: ci
+
+  - package-ecosystem: bun
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+    commit-message:
+      prefix: fix(deps)

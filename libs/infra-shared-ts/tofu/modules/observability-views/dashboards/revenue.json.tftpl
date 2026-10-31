@@ -31,7 +31,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "{service_name=\"gamezilla-server\",deployment_environment_name=\"${environment}\"} |= \"membership.payment.reconciled\"",
+          "expr": "{service_name=\"${namespace}-server\",deployment_environment_name=\"${environment}\"} |= \"membership.payment.reconciled\"",
           "datasource": {
             "type": "loki",
             "uid": "${logs_uid}"
@@ -63,7 +63,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "{service_name=\"gamezilla-server\",deployment_environment_name=\"${environment}\"} |= \"membership.subscription.projected\"",
+          "expr": "{service_name=\"${namespace}-server\",deployment_environment_name=\"${environment}\"} |= \"membership.subscription.projected\"",
           "datasource": {
             "type": "loki",
             "uid": "${logs_uid}"

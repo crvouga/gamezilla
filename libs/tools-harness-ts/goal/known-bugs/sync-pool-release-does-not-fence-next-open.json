@@ -1,0 +1,4 @@
+{
+  "summary": "An unawaited releaseAll cleared the active identity before draining its engine and closing SQLite, allowing the next identity to open while the previous database still owned its OPFS handles.",
+  "regressionTest": "pkgs/sync-engine-client-ts/tests/pool-release.test.ts"
+}

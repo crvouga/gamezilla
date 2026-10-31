@@ -1,3 +1,5 @@
+import { PRODUCT_NAME } from '@libs/product-identity-shared-ts/product-identity';
+
 export type BrowserApplicationStarter = {
   readonly load: () => Promise<unknown>;
   readonly recoverOnce: boolean;
@@ -68,7 +70,7 @@ export function showBrowserStartupFailure(args: {
   );
   if (shell === null) return;
 
-  shell.setAttribute('aria-label', 'Gamezilla failed to start');
+  shell.setAttribute('aria-label', `${PRODUCT_NAME} failed to start`);
   shell.classList.add('startup-shell-failed');
 
   const mark = element(args.document, 'span', 'startup-shell-mark', '!');
@@ -77,7 +79,9 @@ export function showBrowserStartupFailure(args: {
     args.document,
     'strong',
     '',
-    args.development ? 'Gamezilla could not start' : 'Gamezilla couldn’t open'
+    args.development
+      ? `${PRODUCT_NAME} could not start`
+      : `${PRODUCT_NAME} couldn’t open`
   );
   const guidance = element(
     args.document,

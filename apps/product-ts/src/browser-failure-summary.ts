@@ -1,3 +1,131 @@
+import { BROWSER_STARTUP_STAGES } from '@libs/app-root-client-ts/browser-identity';
+import type { Timers } from '@pkgs/clock-shared-ts/types';
+
+type BrowserStorageEvidencePorts = {
+  readonly pathname: string;
+  readonly readIdentity: (key: string) => string | null;
+  readonly startup: {
+    readonly read: () => unknown;
+    readonly stages: readonly string[];
+  };
+  readonly directories: () => Promise<
+    AsyncIterable<readonly [string, { readonly kind: string }]>
+  >;
+  readonly timers: Pick<Timers, 'setTimeout' | 'clearTimeout'>;
+};
+
+/** Read identifiers and directory names only; never open SQLite or enumerate storage values. */
+export async function captureBrowserStorageEvidence(
+  ports: BrowserStorageEvidencePorts
+): Promise<string> {
+  const identity = (key: string): string | null => {
+    try {
+      const value = ports.readIdentity(key);
+      return value !== null &&
+        /^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(value)
+        ? value
+        : null;
+    } catch {
+      return null;
+    }
+  };
+  const state = {
+    pathname: ports.pathname.slice(0, 256),
+    accountId: identity('lastLocalAccountId'),
+    deviceId: identity('deviceId'),
+    databases: [] as string[],
+    opfs: 'unavailable',
+    pendingStartup: [] as string[],
+  };
+  try {
+    const diagnostic = ports.startup.read();
+    const line =
+      typeof diagnostic === 'string'
+        ? diagnostic
+            .slice(0, 2048)
+            .split('\n')
+            .find((value) => value.startsWith('startup.pending='))
+        : undefined;
+    const pending = new Set(
+      line?.slice('startup.pending='.length).split(',') ?? []
+    );
+    state.pendingStartup = ports.startup.stages.filter((stage) =>
+      pending.has(stage)
+    );
+  } catch {
+    // An unavailable diagnostic helper must not replace the original failure.
+  }
+  let stopped = false;
+  let timer: unknown;
+  const deadline = new Promise<void>((resolve) => {
+    timer = ports.timers.setTimeout(() => {
+      stopped = true;
+      state.opfs = 'timeout';
+      resolve();
+    }, 1_000);
+  });
+  const collect = async (): Promise<void> => {
+    try {
+      const entries = await ports.directories();
+      let scanned = 0;
+      for await (const [name, entry] of entries) {
+        if (stopped) return;
+        if (entry.kind === 'directory' && /^user_[a-f0-9]{12}$/.test(name))
+          state.databases.push(name);
+        if (++scanned >= 32 || state.databases.length >= 8) break;
+      }
+      if (!stopped) state.opfs = 'available';
+    } catch {
+      // Preserve the original journey failure even when storage cannot be read.
+    }
+  };
+  try {
+    await Promise.race([collect(), deadline]);
+    return JSON.stringify(state);
+  } finally {
+    stopped = true;
+    ports.timers.clearTimeout(timer);
+  }
+}
+
+/** Browser wall ports; the capture itself has injected I/O and a one-second deadline. */
+export const BROWSER_FAILURE_STORAGE = `(${captureBrowserStorageEvidence.toString()})({
+  pathname: location.pathname,
+  readIdentity: key => localStorage.getItem(key),
+  startup: { read: () => globalThis.__obs?.(), stages: ${JSON.stringify(BROWSER_STARTUP_STAGES)} },
+  directories: async () => {
+    const root = await navigator.storage.getDirectory();
+    const directory = await root.getDirectoryHandle('sqlite-web', { create: false });
+    return directory.entries();
+  },
+  timers: { setTimeout: (fn, ms) => globalThis.setTimeout(fn, ms), clearTimeout: id => globalThis.clearTimeout(id) }
+})`;
+
+/** A parked renderer cannot hold failure reporting open indefinitely. */
+export async function readBrowserStorageEvidence(
+  evaluate: (script: string) => Promise<unknown>,
+  timers: Pick<Timers, 'setTimeout' | 'clearTimeout'>
+): Promise<string> {
+  let timer: unknown;
+  const timeout = new Promise<string>((resolve) => {
+    timer = timers.setTimeout(() => resolve('timeout'), 1_500);
+  });
+  try {
+    return await Promise.race([
+      evaluate(BROWSER_FAILURE_STORAGE).then(
+        (value) =>
+          typeof value === 'string' ? value.slice(0, 2_000) : 'unavailable',
+        () => 'unavailable'
+      ),
+      timeout,
+    ]);
+  } catch {
+    return 'unavailable';
+  } finally {
+    timers.clearTimeout(timer);
+  }
+}
+
 /** Failure logs retain rendered state even when the release profile keeps no reports. */
 export function browserFailureSummary(html: string): string {
   const controls =
@@ -42,3 +170,11 @@ export const BROWSER_FAILURE_LAYOUT = `(() => {
         hit: describe(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2)) };
     }) });
 })()`;
+
+/** CI retains the log tail: keep every device's screen after verbose transports. */
+export function browserFailureLog(
+  details: readonly string[],
+  summaries: readonly string[]
+): string {
+  return [...details, ...summaries].join('\n');
+}

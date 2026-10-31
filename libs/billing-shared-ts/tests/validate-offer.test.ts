@@ -34,6 +34,7 @@ type Draft = {
     cancellationReasons: CancellationReason[];
   };
   callbackPath: string;
+  callbackDescription: string;
 };
 
 /** The one assertion the gate actually makes. */

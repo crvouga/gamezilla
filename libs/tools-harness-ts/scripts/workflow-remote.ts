@@ -1,8 +1,7 @@
 #!/usr/bin/env bun
 // @io-wall-ok — GitHub Actions CLI and git composition root.
 /** `bun health` and `bun deploy`: sync, run on GitHub Actions, await verdict. */
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
 import type { GitSyncOptions } from './git-sync';
 import { gitSync, parseGitSyncArgs } from './git-sync';
 import type { GitHubTarget, GitHubWorkflow } from './workflow-github';
@@ -13,10 +12,6 @@ import {
   watchWorkflow,
 } from './workflow-github';
 
-const GLOBAL_FILE = join(
-  import.meta.dirname,
-  '../../infra-shared-ts/tofu/global.tfvars.json'
-);
 const TRUNK = 'main';
 
 export type RemoteCommand = 'health' | 'deploy';
@@ -182,12 +177,9 @@ async function runCommand(argv: readonly string[]): Promise<number> {
     );
   const policy = WORKFLOW_DISPATCH[command];
   const { branch, sha } = prepareRun(policy, argv.slice(1));
-  const config = JSON.parse(readFileSync(GLOBAL_FILE, 'utf8')) as {
-    github: { owner: string; repo: string };
-  };
-  const repository = `${config.github.owner}/${config.github.repo}`;
+  // The repository the workflows run in (product identity, `external`).
   const target: GitHubTarget = {
-    repository,
+    repository: PRODUCT.external.sourceRepository,
     workflow: policy.workflow,
     branch,
     sha,

@@ -4,9 +4,12 @@
  * Verify production edge serves Content-Encoding: br or gzip.
  * Warn-only by default; skip when offline.
  *
- * usage: verify-production-compression.ts [--origin=https://www.gamezilla.app]
+ * usage: verify-production-compression.ts [--origin=<web origin>]
+ * (default: the production web origin, `https://www.<domain>`)
  */
-const DEFAULT_ORIGIN = 'https://www.gamezilla.app';
+import { webOrigin } from '@libs/product-identity-shared-ts/brand-hosts';
+
+const DEFAULT_ORIGIN = webOrigin();
 
 function argValue(argv: readonly string[], name: string): string | undefined {
   const hit = argv.find((a) => a.startsWith(`${name}=`));

@@ -72,10 +72,7 @@ beforeEach(() => {
     fetch(req) {
       const url = new URL(req.url);
       if (url.pathname === '/github-oidc') {
-        if (
-          url.searchParams.get('audience') !==
-          'https://github.com/gamezilla-org'
-        )
+        if (url.searchParams.get('audience') !== 'https://github.com/acme-org')
           return new Response('wrong audience', { status: 400 });
         return Response.json({ value: 'github-jwt' });
       }
@@ -103,7 +100,7 @@ afterEach(() => {
 describe('in GitHub Actions', () => {
   beforeEach(() => {
     process.env['GITHUB_ACTIONS'] = 'true';
-    process.env['GITHUB_REPOSITORY'] = 'gamezilla-org/gamezilla';
+    process.env['GITHUB_REPOSITORY'] = 'acme-org/acme';
     process.env['ACTIONS_ID_TOKEN_REQUEST_URL'] =
       `http://127.0.0.1:${server.port}/github-oidc?x=1`;
     process.env['ACTIONS_ID_TOKEN_REQUEST_TOKEN'] = 'request-token';

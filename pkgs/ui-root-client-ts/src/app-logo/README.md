@@ -1,4 +1,4 @@
-# Gamezilla identity
+# Product identity
 
 A stepped emerald monster silhouette, paired square eyes and a G-shaped smile
 make the product recognizable at header size. The Unbounded wordmark stays in

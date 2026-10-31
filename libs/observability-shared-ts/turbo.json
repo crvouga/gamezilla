@@ -4,6 +4,7 @@
   "tasks": {
     "src": {
       "dependsOn": [
+        "@libs/product-identity-shared-ts#src",
         "@pkgs/observability-root-shared-ts#src",
         "@pkgs/openslo-shared-ts#src",
         "@pkgs/sync-engine-shared-ts#src"

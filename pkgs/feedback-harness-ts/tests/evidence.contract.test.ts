@@ -194,3 +194,92 @@ test('changed evidence receives a new report id after an uncertain delivery', as
   expect(controller.state().phase).toBe('saved');
   controller.dispose();
 });
+
+function gatedEvidence() {
+  const releases: (() => void)[] = [];
+  const base = new ObjectStoreImplInMemory();
+  const store = Object.assign(base, {
+    put: async (key: string, bytes: Uint8Array, type: string) => {
+      await new Promise<void>((resolve) => {
+        releases.push(resolve);
+      });
+      await ObjectStoreImplInMemory.prototype.put.call(base, key, bytes, type);
+    },
+  });
+  return { store, releaseAll: () => releases.splice(0).forEach((r) => r()) };
+}
+
+function attachmentController(
+  evidence: ObjectStoreImplInMemory,
+  received: FeedbackReport[]
+) {
+  const { clock, timers } = createHarnessClock();
+  let ids = 0;
+  return new FeedbackController({
+    clock,
+    timers,
+    createId: () => `id-${++ids}`,
+    authorId: 'local',
+    workspace: { load: () => null, save: () => {} },
+    evidence,
+    providers: [],
+    reporter: Object.assign(new FakeIssueReporter(), {
+      create: (report: FeedbackReport) => {
+        received.push(report);
+        return Promise.resolve({ id: report.id });
+      },
+    }),
+    upload: async (file) => ({
+      id,
+      name: file.name,
+      contentType: file.contentType,
+      size: file.bytes.length,
+      url: `http://local/api/feedback/evidence/${id}`,
+    }),
+  });
+}
+
+const picture = (name: string) => ({
+  name,
+  contentType: 'image/png',
+  bytes: new Uint8Array([1, 2, 3]),
+});
+
+// regression: feedback-attachment-send-race
+test('sending while an attachment is still being saved includes that attachment', async () => {
+  const gate = gatedEvidence();
+  const received: FeedbackReport[] = [];
+  const controller = attachmentController(gate.store, received);
+  await controller.ready;
+  controller.setDraft({ body: 'The board froze' });
+  const attaching = controller.attach(picture('board.png'));
+  const sending = controller.send();
+  for (let i = 0; i < 50; i++) await Promise.resolve();
+  gate.releaseAll();
+  await attaching;
+  await sending;
+  expect(controller.state().phase).toBe('saved');
+  expect(received).toHaveLength(1);
+  expect(received[0]?.attachments.map((a) => a.name)).toEqual(['board.png']);
+  controller.dispose();
+});
+
+// regression: feedback-concurrent-attachments
+test('four files attached at once keep to the three-file limit', async () => {
+  const gate = gatedEvidence();
+  const controller = attachmentController(gate.store, []);
+  await controller.ready;
+  const attaching = ['a', 'b', 'c', 'd'].map((name) =>
+    controller.attach(picture(`${name}.png`))
+  );
+  for (let i = 0; i < 50; i++) await Promise.resolve();
+  gate.releaseAll();
+  await Promise.all(attaching);
+  expect(controller.state().files.map((f) => f.name)).toEqual([
+    'a.png',
+    'b.png',
+    'c.png',
+  ]);
+  expect(controller.workspace.active()?.files).toHaveLength(3);
+  controller.dispose();
+});

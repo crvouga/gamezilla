@@ -28,9 +28,7 @@ const tmpPath = `${outPath}.${process.pid}.tmp`;
 function isProductionHostname(rawUrl: string): boolean {
   try {
     const { hostname } = new URL(rawUrl);
-    return (PRODUCTION_API_HTTP_HOSTNAMES as readonly string[]).includes(
-      hostname
-    );
+    return PRODUCTION_API_HTTP_HOSTNAMES.includes(hostname);
   } catch {
     return false;
   }
@@ -203,7 +201,7 @@ async function main(): Promise<void> {
 
   // Vite reads `.env.local`; secrets-run may inject a production VITE_API_URL —
   // keep the resolved loopback in-process so `vite build` cannot bake
-  // api.gamezilla.app after we rewrote `.env.local`.
+  // the production API after we rewrote `.env.local`.
   process.env['VITE_API_URL'] = origin;
 
   const commitHash = resolveViteCommitHash();

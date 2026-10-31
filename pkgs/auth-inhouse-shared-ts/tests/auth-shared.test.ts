@@ -48,12 +48,14 @@ describe('auth shared PBT', () => {
     const trusted = buildAuthTrustedOrigins({
       apiBaseURL: 'https://api.example.com',
       clientWebOrigins: ['https://app.example.com'],
+      clientSchemes: ['myapp'],
     });
     expect(
       isTrustedCallbackUrl('https://app.example.com/sso-callback', trusted)
     ).toBe(true);
-    expect(isTrustedCallbackUrl('gamezilla://sso-callback', trusted)).toBe(
-      true
+    expect(isTrustedCallbackUrl('myapp://sso-callback', trusted)).toBe(true);
+    expect(isTrustedCallbackUrl('otherapp://sso-callback', trusted)).toBe(
+      false
     );
     expect(
       isTrustedCallbackUrl('https://evil.example/sso-callback', trusted)

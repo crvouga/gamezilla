@@ -146,17 +146,17 @@ describe('useBreadcrumbNav', () => {
 
 describe('brand + providers', () => {
   test('AppLogo names the brand without taking over the page heading', () => {
-    renderUi(() => <AppLogo size={40} />);
-    const brand = screen.getByRole('img', { name: 'Gamezilla' });
-    expect(brand).toHaveTextContent('gamezilla');
+    renderUi(() => <AppLogo name="acme" size={40} />);
+    const brand = screen.getByRole('img', { name: 'acme' });
+    expect(brand).toHaveTextContent('acme');
     expect(brand.querySelector('img')?.getAttribute('width')).toBe('40');
     expect(screen.queryByRole('heading')).toBeNull();
   });
 
   test('AppLogo mark-only still has an accessible name', () => {
-    renderUi(() => <AppLogo wordmark={false} />);
-    expect(screen.getByRole('img', { name: 'Gamezilla' })).toBeTruthy();
-    expect(screen.queryByText('gamezilla')).toBeNull();
+    renderUi(() => <AppLogo name="acme" wordmark={false} />);
+    expect(screen.getByRole('img', { name: 'acme' })).toBeTruthy();
+    expect(screen.queryByText('acme')).toBeNull();
   });
 
   // regression: google-brand-desaturated

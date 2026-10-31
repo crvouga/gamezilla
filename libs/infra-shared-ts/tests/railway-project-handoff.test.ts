@@ -6,6 +6,7 @@ import { evaluate } from '@libs/infra-shared-ts/hcl-eval';
 import { parseConfig } from '@libs/infra-shared-ts/hcl-parse';
 import type { Value } from '@libs/infra-shared-ts/hcl-value';
 import { sourceFiles } from '@libs/infra-shared-ts/infra-source';
+import { NAMESPACE } from '@libs/product-identity-shared-ts/product-identity';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
 
@@ -58,7 +59,7 @@ function assertHandoff(projectId: string, project: string): void {
 
 // regression: deploy-railway-workspace-project-name-lookup
 test('dev uses the existing workspace project ID from Release 38555971896', () => {
-  assertHandoff('32f967de-dc01-4822-bec1-6222694173db', 'gamezilla');
+  assertHandoff('32f967de-dc01-4822-bec1-6222694173db', NAMESPACE);
 });
 
 test('foundation addresses fleet projects independently of their names', () => {

@@ -6,7 +6,6 @@ import { formatCommitDate } from './format-commit-date';
  */
 
 import {
-  APP_NAME,
   APP_VERSION,
   getCommitDate,
   getCommitHash,
@@ -15,6 +14,7 @@ import {
   SECURITY_CONTACT,
 } from '@libs/app-root-shared-ts/app-metadata';
 import { writeClipboardText } from '@libs/app-root-shared-ts/write-clipboard-text';
+import { PRODUCT_NAME } from '@libs/product-identity-shared-ts/product-identity';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { useLingui as useLinguiRuntime } from '@lingui/solid';
 import { Trans, useLingui } from '@lingui/solid/macro';
@@ -86,7 +86,7 @@ export function AboutScreen(): JSX.Element {
       ]}
     >
       <MenuSection title={<Trans>App</Trans>}>
-        <MenuRow title={t`Name`} value={APP_NAME} />
+        <MenuRow title={t`Name`} value={PRODUCT_NAME} />
         <MenuRow
           title={t`Version`}
           value={APP_VERSION}

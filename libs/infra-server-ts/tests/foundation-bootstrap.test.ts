@@ -1,6 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { GLOBAL } from '@libs/infra-shared-ts/global';
+import { technicalName } from '@libs/product-identity-shared-ts/technical-names';
 
 const FOUNDATION = join(
   import.meta.dirname,
@@ -13,10 +15,6 @@ const DATABASE = join(
 const IMPORTS = join(
   import.meta.dirname,
   '../../infra-shared-ts/tofu/stacks/foundation/imports.tf'
-);
-const GLOBAL_VARIABLES = join(
-  import.meta.dirname,
-  '../../infra-shared-ts/tofu/global.tfvars.json'
 );
 const AWS_CI = join(
   import.meta.dirname,
@@ -146,30 +144,49 @@ describe('foundation bootstrap', () => {
     expect(wiring).not.toContain('data "grafana_data_source"');
   });
 
+  // regression: archived-grafana-orphan-refresh
+  test('archived views and credentials are retained instead of deleted', () => {
+    const files = [
+      OBSERVABILITY_VIEWS,
+      OBSERVABILITY_ALERTS,
+      OBSERVABILITY_WIRING,
+      join(
+        import.meta.dirname,
+        '../../infra-shared-ts/tofu/modules/observability-views/slos.tf'
+      ),
+    ];
+    let resources = 0;
+    for (const file of files) {
+      const source = readFileSync(file, 'utf8');
+      const blocks = source.split(/resource "grafana[^\n]+\{\n/).slice(1);
+      for (const block of blocks) {
+        expect(block).toMatch(/^\s*lifecycle\s*\{\s*destroy = false\s*\}/);
+        resources += 1;
+      }
+    }
+    expect(resources).toBe(6);
+  });
+
   // regression: railway-project-name-over-32
   test('the shared Railway project name is between 1 and 32 characters', () => {
     const railway = readFileSync(RAILWAY_PROJECT, 'utf8');
     const variables = readFileSync(FLEET_VARIABLES, 'utf8');
-    const global = JSON.parse(readFileSync(GLOBAL_VARIABLES, 'utf8')) as {
-      project: string;
-    };
 
     expect(railway).toMatch(/name\s*=\s*var.project/);
     expect(variables).toContain(
       'length(var.project) >= 1 && length(var.project) <= 32'
     );
-    expect(global.project.length).toBeGreaterThanOrEqual(1);
-    expect(global.project.length).toBeLessThanOrEqual(32);
-    expect('gamezilla-development-synthetic-population'.length).toBe(42);
+    expect(GLOBAL.project.length).toBeGreaterThanOrEqual(1);
+    expect(GLOBAL.project.length).toBeLessThanOrEqual(32);
+    // The per-environment name it replaced did not fit.
+    expect(
+      technicalName(['development', 'synthetic', 'population']).length
+    ).toBeGreaterThan(32);
   });
 
   // regression: neki-aws-region-name-is-not-region-slug
   test('uses the PlanetScale region slug for AWS us-east-1', () => {
-    const variables = JSON.parse(readFileSync(GLOBAL_VARIABLES, 'utf8')) as {
-      planetscale: { region: string };
-    };
-
-    expect(variables.planetscale.region).toBe('us-east');
+    expect(GLOBAL.planetscale.region).toBe('us-east');
   });
 
   // regression: health-branch-aws-oidc-read-role — a workflow_dispatch on

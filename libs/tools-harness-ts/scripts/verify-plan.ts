@@ -1,5 +1,4 @@
 // @io-wall-ok — CI planning entry; artifacts contain identities, never environment values.
-import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { captureAudit } from './audit-snapshot';
@@ -9,6 +8,8 @@ import {
   turboChildEnv,
   writePlatformCacheKey,
 } from './turbo-ci-run';
+import { captureTurboDryRun } from './turbo-dry-run';
+import type { GlobalCacheInputs } from './turbo-dry-run-projection';
 import type { RunPlan } from './turbo-preflight';
 import {
   planFromDryRun,
@@ -116,31 +117,26 @@ export async function createVerifyPlan(): Promise<void> {
     throw new Error('CI requires TURBO_TOKEN');
   env[SECRETS_RANGE_ENV] = secretsScanRange(env);
   writePlatformCacheKey();
-  const json = execFileSync(
-    'turbo',
+  const raw = captureTurboDryRun(
     [
       'run',
       // The gate every runner OS can run: every package but the native ones.
       ...flattenVerifyAggregators(['verify:ci']),
       '--framework-inference=false',
       '--cache=local:rw',
-      '--dry=json',
     ],
-    { cwd: ROOT, env, encoding: 'utf8', maxBuffer: 512 * 1024 * 1024 }
+    ROOT,
+    env
   );
   const discoveryMs = Number(process.hrtime.bigint() - discoveryStarted) / 1e6;
   const lookupStarted = process.hrtime.bigint();
-  const local = planFromDryRun(json);
+  const local = planFromDryRun(raw);
   const costs = readScheduleCosts();
   const { resolved, remoteResponses, responsesByHash } = await resolveCache(
     local,
     env
   );
   const lookupMs = Number(process.hrtime.bigint() - lookupStarted) / 1e6;
-  const raw = JSON.parse(json) as {
-    tasks: { taskId: string; command: string; directory: string }[];
-    globalCacheInputs?: GlobalCacheInputs;
-  };
   const repoWide = repoWideInputs(raw.globalCacheInputs);
   const definitions = new Map(raw.tasks.map((task) => [task.taskId, task]));
   const tasks: VerifyTask[] = resolved.tasks.map((task) => ({
@@ -216,12 +212,6 @@ async function resolveCache(local: RunPlan, env: NodeJS.ProcessEnv) {
     );
   return { resolved, remoteResponses, responsesByHash };
 }
-
-type GlobalCacheInputs = {
-  readonly files?: Readonly<Record<string, string>>;
-  readonly hashOfExternalDependencies?: string;
-  readonly hashOfInternalDependencies?: string;
-};
 
 /**
  * What turbo hashes into every task: the global dependency files, the root

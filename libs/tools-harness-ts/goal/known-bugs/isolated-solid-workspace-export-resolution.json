@@ -1,0 +1,4 @@
+{
+  "summary": "The isolated friends Bun test task could not load the spaces TSX composition through wildcard package exports; explicit mapping only moved the failure to nested UI and clock TSX exports. The Solid preload now delegates workspace resolution through Bun's native resolver with a synchronous reentry guard, retaining isolation and export boundaries.",
+  "regressionTest": "libs/friends-harness-ts/tests/space-link-member-profile.test.ts"
+}

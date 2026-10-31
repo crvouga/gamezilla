@@ -30,6 +30,12 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
+import { captureTurboDryRun } from './turbo-dry-run';
+import {
+  type DryRunTask,
+  projectTurboDryRun,
+  type TurboDryRun,
+} from './turbo-dry-run-projection';
 import { verifyCacheConcurrency } from './verify-cache-concurrency';
 
 /** Task with a real script; `<NONEXISTENT>` placeholders are dropped. */
@@ -54,15 +60,6 @@ export type RunPlan = {
    * has — what running the misses will restore, so worth prefetching.
    */
   readonly remoteHits: readonly PlannedTask[];
-};
-
-type DryRunTask = {
-  readonly taskId?: unknown;
-  readonly hash?: unknown;
-  readonly command?: unknown;
-  readonly dependencies?: unknown;
-  readonly resolvedTaskDefinition?: { readonly cache?: boolean };
-  readonly cache?: { readonly status?: unknown; readonly source?: unknown };
 };
 
 const NONEXISTENT = '<NONEXISTENT>';
@@ -110,8 +107,8 @@ function dependencyClosure(
 }
 
 /** Parse `turbo run --dry=json` stdout into a plan. */
-export function planFromDryRun(json: string): RunPlan {
-  const parsed = JSON.parse(json) as { tasks?: unknown };
+export function planFromDryRun(json: string | TurboDryRun): RunPlan {
+  const parsed = typeof json === 'string' ? projectTurboDryRun([json]) : json;
   if (!Array.isArray(parsed.tasks)) {
     throw new Error('turbo --dry=json: missing tasks array');
   }
@@ -366,14 +363,7 @@ export function dryRunPlan(
   repoRoot: string,
   env: NodeJS.ProcessEnv
 ): RunPlan {
-  const stdout = execFileSync('turbo', [...turboArgs, '--dry=json'], {
-    cwd: repoRoot,
-    env,
-    encoding: 'utf8',
-    maxBuffer: 512 * 1024 * 1024,
-    stdio: ['ignore', 'pipe', 'inherit'],
-  });
-  return planFromDryRun(stdout);
+  return planFromDryRun(captureTurboDryRun(turboArgs, repoRoot, env));
 }
 
 const PREFETCH_CONCURRENCY = 32;

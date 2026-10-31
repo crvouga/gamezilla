@@ -9,7 +9,7 @@ import {
 test('a date ahead of the pinned workerd is rejected', () => {
   // regression: worker-compat-date-ahead-of-workerd
   const toml =
-    'name = "gamezilla-api"\nmain = "src/server.ts"\ncompatibility_date = "2026-09-22"\n';
+    'name = "example-api"\nmain = "src/server.ts"\ncompatibility_date = "2026-09-22"\n';
   const workerd = 'var compatibilityDate = "2026-05-07";';
   const configured = readCompatibilityDate(toml);
   const supported = readWorkerdSupportedDate(workerd);

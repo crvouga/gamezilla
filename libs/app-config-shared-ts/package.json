@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@libs/auth-shared-ts": "workspace:*",
+    "@libs/product-identity-shared-ts": "workspace:*",
     "@libs/sub-shared-ts": "workspace:*",
     "@pkgs/assert-root-shared-ts": "workspace:*",
     "@pkgs/db-schema-root-shared-ts": "workspace:*",

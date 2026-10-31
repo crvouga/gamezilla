@@ -111,7 +111,7 @@ inferred from this ledger or from a narrow test run.
 | 6, 8: reusable packs and player screens | Shared library, authoring, edition and attempt screens in [game-puzzle-client](../libs/game-puzzle-client-ts/src/). Production journeys cover creation within a pack, ordering, preview, publication, completion and continuation. | Automated UI-quality gate and full Verify. |
 | 11: executable specifications | [Numberlink](../specs/numberlink/), [Puzzles](../specs/puzzles/) and [journeys](../specs/journeys/numberlink-packs.feature), connected to implementation replay and literal regressions. | The strict audit still reports thirteen external wording pairs; see [audit](PUZZLE_AUTHORING_SPEC_AUDIT.md). |
 | 13: complete person-facing workflows | All four journeys pass together in the compiled production bundle, including offline reopening, synchronization, another signed-in device and earlier editions. | Full release gate. |
-| 14: completion criteria | Feature-specific proof is recorded below; the [draft PR](https://github.com/crvouga/gamezilla/pull/228) remains reviewable without claiming release readiness. | Full Verify, UI-quality evidence and `verify:end`; GitHub refuses jobs because of its Actions budget. |
+| 14: completion criteria | Feature-specific proof is recorded below; the draft PR (#228) remains reviewable without claiming release readiness. | Full Verify, UI-quality evidence and `verify:end`; GitHub refuses jobs because of its Actions budget. |
 | 15: execution and documentation | Implementation, integration, regression records, specification audits and the self-service readiness row are committed. | This task is not marked complete while the required verification is outstanding. |
 
 ## Current evidence
@@ -431,12 +431,12 @@ inferred from this ledger or from a narrow test run.
   failed before analysis switched to the SQL port's native parameter markers.
   Values remain bound and analysis remains independent of them. The normal
   prohibition on inline limits stays enforced; the framework owns the budget.
-- [Draft PR 228](https://github.com/crvouga/gamezilla/pull/228) is synced with
+- Draft PR 228 is synced with
   `main`; incoming fixes and both readiness rows are retained. The earlier
   empty Games part failure is addressed by main's registered regression.
   The runtime table inventory now explicitly includes public publication
   records, and all eighteen affected package tasks pass after that correction.
-  [Verify PR](https://github.com/crvouga/gamezilla/actions/runs/40104516942)
+  Verify PR (run 40104516942)
   refused to start its jobs because an Actions budget prevents further use.
   CI and person-facing readiness attestations remain unchecked. Local full
   Verify has reached its overall deadline while caching completed tasks and

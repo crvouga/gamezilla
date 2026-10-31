@@ -22,9 +22,9 @@ import { ALICE_EMAIL, simulatedGoogle } from './simulated-google';
 
 const RELAY_ORIGIN = 'https://auth.example.test';
 const PRD_API = 'https://api.example.test';
-const DEV_API = 'https://api-dev.gamezilla.app';
-const DEV_WEB = 'https://www-dev.gamezilla.app';
-const DEV_APEX = 'https://dev.gamezilla.app';
+const DEV_API = 'https://api-dev.app.example';
+const DEV_WEB = 'https://www-dev.app.example';
+const DEV_APEX = 'https://dev.app.example';
 const IDP_URL = 'https://accounts.idp.test';
 const PREFIX = '/api';
 const SECRET = 'auth-system-secret-0123456789abcdef';
@@ -141,7 +141,7 @@ describe('oauth callback relay (black-box)', () => {
     'a deployment signs in from %s through the one registered callback',
     async (webOrigin) => {
       const { wire } = await bootFleet();
-      const callbackUrl = oauthClientCallbackUrl(webOrigin);
+      const callbackUrl = oauthClientCallbackUrl(webOrigin, 'myapp');
       const launch = await wire(launchUrl(DEV_API, callbackUrl), {
         redirect: 'manual',
       });

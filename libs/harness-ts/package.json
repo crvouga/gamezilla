@@ -11,7 +11,10 @@
       "./src/*.d.ts"
     ],
     "./spec-inputs": "./scripts/spec-inputs.ts",
-    "./spec-parts": "./scripts/spec-parts.ts"
+    "./spec-parts": "./scripts/spec-parts.ts",
+    "./replay-plans": "./scripts/replay-plans.ts",
+    "./spec-sources": "./scripts/spec-sources.ts",
+    "./feature-variants": "./scripts/feature-variants.ts"
   },
   "scripts": {
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
@@ -32,6 +35,7 @@
     "@libs/db-shared-ts": "workspace:*",
     "@libs/moderation-shared-ts": "workspace:*",
     "@libs/permissions-shared-ts": "workspace:*",
+    "@libs/product-identity-shared-ts": "workspace:*",
     "@libs/sub-client-ts": "workspace:*",
     "@libs/sub-shared-ts": "workspace:*",
     "@libs/synthetic-population-shared-ts": "workspace:*",

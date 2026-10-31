@@ -6,9 +6,12 @@
  * edge stack — never to wrangler.
  *
  * The rendered file is written to `<app>/.cache/`, one directory below the
- * TOML, so relative paths are re-rooted by one level.
+ * TOML, so relative paths are re-rooted by one level. The TOML spells no
+ * product name: `{namespace}` / `{domain}` / `{brand}` in it resolve from
+ * the product identity here.
  */
 
+import { resolveIdentityPlaceholders } from '@libs/product-identity-shared-ts/identity-placeholders';
 import type { EnvFile } from './env-file';
 import { apiWorkerVars, authRelayTargets } from './env-file';
 import { ENV_FILES } from './envs';
@@ -113,10 +116,11 @@ function assertEnvAgnostic(base: WranglerConfig): void {
 }
 
 export function renderWranglerConfig(
-  base: WranglerConfig,
+  committed: WranglerConfig,
   env: EnvFile,
   resources: WorkerResources = {}
 ): WranglerConfig {
+  const base = resolveIdentityPlaceholders(committed);
   assertEnvAgnostic(base);
   const rendered: WranglerConfig = {
     ...base,
@@ -164,8 +168,9 @@ export function renderWranglerConfig(
  * environment, named in `global.tfvars.json`, forwarding to every env file.
  */
 export function renderAuthRelayWranglerConfig(
-  base: WranglerConfig
+  committed: WranglerConfig
 ): WranglerConfig {
+  const base = resolveIdentityPlaceholders(committed);
   assertEnvAgnostic(base);
   const rendered: WranglerConfig = {
     ...base,

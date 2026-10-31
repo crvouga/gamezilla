@@ -19,6 +19,7 @@ import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { resolveAwsSession } from './aws-session';
 import { infraOperation } from './infra-operation';
 import { pinnedTool, spawnTool } from './tofu-process';
+import { writeResolvedVarFiles } from './tofu-var-files';
 
 function artifactCommand(
   cmd: readonly string[],
@@ -67,6 +68,7 @@ const { env, missing } = tofuEnvironment(
 );
 if (missing.length)
   throw new Error(`Missing publication credentials: ${missing.join(', ')}`);
+writeResolvedVarFiles(paths);
 const output = spawnTool('tofu', outputArgs(paths, target), {
   env: { ...env },
   capture: true,

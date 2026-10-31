@@ -106,4 +106,5 @@ export const CONTRACT_OFFER: PlusMembershipOffer = {
     cancellationReasons: ['too_expensive', 'other'],
   },
   callbackPath: '/api/billing/callback',
+  callbackDescription: 'Contract membership callbacks',
 };

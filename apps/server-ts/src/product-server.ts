@@ -167,8 +167,20 @@ function preflightResponse(request: Request): Response {
   });
 }
 
-function fatalConfigResponse(request: Request, reason: string): Response {
-  return new Response(JSON.stringify({ error: 'api misconfigured', reason }), {
+/**
+ * 503 for a Worker that cannot boot. The reason (which binding or secret is
+ * wrong) is logged by `latchFatal`; production answers without it, as it hides
+ * a 500's trace id, so the public learns nothing about its configuration.
+ */
+function fatalConfigResponse(
+  request: Request,
+  env: ApiWorkerEnv,
+  reason: string
+): Response {
+  const body = hidesErrorDetail(env)
+    ? { error: 'api misconfigured' }
+    : { error: 'api misconfigured', reason };
+  return new Response(JSON.stringify(body), {
     status: 503,
     headers: {
       'Content-Type': 'application/json',
@@ -372,7 +384,7 @@ async function handleWorkerFetch(
   const app = await ensureApp(env);
   if (app === null) {
     const reason = bootState.kind === 'fatal' ? bootState.reason : 'unknown';
-    return fatalConfigResponse(request, reason);
+    return fatalConfigResponse(request, env, reason);
   }
 
   return app.fetch(
@@ -435,7 +447,7 @@ const workerImplementation = {
       const message = err instanceof Error ? err.message : String(err);
       if (err instanceof ConfigurationError) {
         latchFatal(message);
-        return fatalConfigResponse(request, message);
+        return fatalConfigResponse(request, env, message);
       }
       log.error('top-level handler error', { error: err });
       if (!hidesErrorDetail(env)) throw err;

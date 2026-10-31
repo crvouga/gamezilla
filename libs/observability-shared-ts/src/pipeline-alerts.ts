@@ -19,7 +19,7 @@ import {
 import { logsPath, tracesPath } from './alert-links';
 import type { AlertRule } from './alert-rule';
 import { emittedMetric } from './emitted-metrics';
-import { README_URL } from './slo-alerts';
+import { README_URL, REPOSITORY_URL } from './slo-alerts';
 import { counterCount } from './slo-promql';
 
 const ENVIRONMENT = '__ENVIRONMENT__';
@@ -32,8 +32,7 @@ function counter(name: string): string {
   return series.total;
 }
 
-const README =
-  'https://github.com/crvouga/gamezilla/blob/main/libs/observability-shared-ts/README.md';
+const README = `${REPOSITORY_URL}/libs/observability-shared-ts/README.md`;
 
 /** Events of one environment in a window. */
 function windowedCount(name: string, matchers: string, window: string): string {

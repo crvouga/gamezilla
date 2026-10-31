@@ -2,6 +2,12 @@
   "$schema": "https://v2-11-3.turborepo.dev/schema.json",
   "extends": ["//"],
   "tasks": {
+    "test": {
+      "dependsOn": [
+        "$TURBO_EXTENDS$",
+        "@libs/games-harness-ts#generate:feature-variants"
+      ]
+    },
     "src": {
       "dependsOn": [
         "@libs/app-config-shared-ts#src",
@@ -12,6 +18,7 @@
         "@libs/db-shared-ts#src",
         "@libs/moderation-shared-ts#src",
         "@libs/permissions-shared-ts#src",
+        "@libs/product-identity-shared-ts#src",
         "@libs/sub-client-ts#src",
         "@libs/sub-shared-ts#src",
         "@libs/synthetic-population-shared-ts#src",

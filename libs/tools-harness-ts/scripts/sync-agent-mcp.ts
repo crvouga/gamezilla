@@ -25,9 +25,14 @@
  * has no mise shims. Agents that start in the project directory find the
  * project with `--project-from-cwd`; IDEs name it with `${workspaceFolder}`.
  * The dashboard never opens a browser tab: several agents run at once.
+ *
+ * Cursor also gets the hosted Sentry MCP server for the product's Sentry
+ * organization (`external.sentryOrganization` in the product identity), so
+ * that entry is generated too and follows the identity.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
 
 const ROOT = join(import.meta.dirname, '../../..');
 const SERVER = 'serena';
@@ -72,7 +77,14 @@ interface JsonTarget {
   entry: (args: string[]) => unknown;
   /** Keys written when the file is new or lacks them. */
   defaults?: Record<string, unknown>;
+  /** Other generated servers, by name, written beside Serena. */
+  servers?: Record<string, unknown>;
 }
+
+/** The hosted Sentry MCP server, scoped to the product's organization. */
+export const SENTRY_MCP = {
+  url: `https://mcp.sentry.dev/mcp/${PRODUCT.external.sentryOrganization}`,
+};
 
 const stdio = (args: string[]) => ({
   type: 'stdio',
@@ -92,6 +104,7 @@ const JSON_TARGETS: JsonTarget[] = [
     container: 'mcpServers',
     launch: { context: 'ide', project: 'workspace-folder' },
     entry: (args) => ({ command: 'mise', args }),
+    servers: { Sentry: SENTRY_MCP },
   },
   {
     path: '.gemini/settings.json',
@@ -121,7 +134,7 @@ const JSON_TARGETS: JsonTarget[] = [
 const CODEX_PATH = '.codex/config.toml';
 const CODEX_LAUNCH: Launch = { context: 'codex', project: 'cwd' };
 
-/** `existing` with the Serena entry set; other keys are untouched. */
+/** `existing` with the generated entries set; other keys are untouched. */
 export function renderJson(
   existing: string | undefined,
   target: JsonTarget
@@ -136,6 +149,7 @@ export function renderJson(
     ...doc,
     [target.container]: {
       ...servers,
+      ...target.servers,
       [SERVER]: target.entry(serenaArgs(target.launch)),
     },
   };

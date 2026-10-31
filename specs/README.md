@@ -1379,7 +1379,7 @@ product words> } }`, never a vendor query. Windows are rolling. Budgeting is
 by occurrences, except for the team's checks from outside, which are judged
 by time slices (`Timeslices`: one run of a check is a moment, and a bad hour
 counts once). A `# live` objective is judged over `7d` and names how much it
-matters in `metadata.labels` as `gamezilla.dev.tier`: `"0"` for playing
+matters in `metadata.labels` as `tier`: `"0"` for playing
 (reaching the app, signing in, spaces, moves, saving, live updates), `"1"`
 for what matters without stopping play, `"2"` for what supports it. Every
 file passes the OpenSLO reference validator (`oslo validate`): a display

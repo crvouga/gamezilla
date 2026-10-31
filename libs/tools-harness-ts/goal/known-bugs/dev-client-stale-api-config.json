@@ -1,4 +1,4 @@
 {
-  "summary": "A client was reported fetching obsolete dev-api.gamezilla.app after the dev environment moved to api-dev.gamezilla.app. Keep deployed API and broker endpoint bindings owned by the environment file, so copied secret or Worker settings cannot override the canonical endpoints; the client build and bundle guard already use hosts.api.",
+  "summary": "A client was reported fetching obsolete dev-api.<domain> after the dev environment moved to api-dev.<domain>. Keep deployed API and broker endpoint bindings owned by the environment file, so copied secret or Worker settings cannot override the canonical endpoints; the client build and bundle guard already use hosts.api.",
   "regressionTest": "apps/product-ts/tests/wrangler-config.test.ts"
 }

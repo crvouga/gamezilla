@@ -140,22 +140,27 @@ function packageOf(file: string): string {
   return file.split('/').slice(0, 2).join('/');
 }
 
-/** Exact reach, or `maxPackages + 1` once a classification threshold is exceeded. */
-export function fileReach(
+/** Packages that rerun when `file` changes, found through its importers. */
+export function fileReach(graph: ImportGraph, file: string): FileReach {
+  return fileReachWithin(graph, file, Number.POSITIVE_INFINITY)!;
+}
+
+/** Exact reach for light files; stop as soon as a file cannot be light. */
+export function fileReachWithin(
   graph: ImportGraph,
   file: string,
-  maxPackages = Number.POSITIVE_INFINITY
-): FileReach {
+  maximum: number
+): FileReach | null {
   const reached = new Set([file]);
   const packages = new Set([packageOf(file)]);
+  if (packages.size > maximum) return null;
   const queue = [file];
   for (let next = queue.pop(); next !== undefined; next = queue.pop())
     for (const importer of graph.importersOf.get(next) ?? [])
       if (!reached.has(importer)) {
         reached.add(importer);
         packages.add(packageOf(importer));
-        if (packages.size > maxPackages)
-          return { file, packages: packages.size };
+        if (packages.size > maximum) return null;
         // A test file is a leaf: nothing imports it.
         if (!TEST_FILE.test(importer)) queue.push(importer);
       }

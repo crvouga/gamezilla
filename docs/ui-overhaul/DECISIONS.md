@@ -9,7 +9,7 @@ ones that need your eye.
 1. **Review: the reference mockups are missing.** The brief points to
    `design/custom-game/` (README, `Main`, `Play`, `Result`). That directory
    is not in this worktree, the main checkout, any local or remote branch, or
-   `~/Downloads`. (`~/Downloads/gamezilla-design-system-specs.zip` is an
+   `~/Downloads`. (`~/Downloads/{brand}-design-system-specs.zip` is an
    older component-contract spec, not these mockups.) I treated the brief's
    palette, type, space and radius tables, and its written description of
    Setup / Play / Game over, as the spec. The artboard comparison rounds in

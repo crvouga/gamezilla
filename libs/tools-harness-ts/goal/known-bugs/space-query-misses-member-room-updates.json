@@ -1,0 +1,4 @@
+{
+  "summary": "A space-row query subscribed only to its user entry topic even after its observer joined the space. Room notifications belonged to the membership-only query and their spaces table invalidation was discarded, leaving the peer's title stale after a confirmed rename.",
+  "regressionTest": "libs/spaces-shared-ts/tests/space-row-update-topics.test.ts"
+}

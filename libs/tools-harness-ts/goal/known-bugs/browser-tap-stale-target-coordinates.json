@@ -1,0 +1,4 @@
+{
+  "summary": "A connection notice inserted after the browser driver measured Create pack moved the control before native input. The driver clicked stale coordinates and accepted an unrelated document click as success. Preserve the chosen topmost element with a temporary selector and let native actionability resolve its current bounds; remove the marker afterward.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-shared-ts/tests/moving-tap-target.test.ts"
+}
