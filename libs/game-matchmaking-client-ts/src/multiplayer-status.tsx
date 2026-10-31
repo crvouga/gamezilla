@@ -123,9 +123,10 @@ function PlayerHeadline(props: StatusProps): JSX.Element {
             </Trans>
           </Show>{' '}
         </Show>
-        <Trans>
-          You are {gameSideLabel(props.game.fen, ownSide(props))}.
-        </Trans>{' '}
+        <Trans>You are {gameSideLabel(props.game.fen, ownSide(props))}.</Trans>{' '}
+        <Show when={count() > 2 && props.game.turn !== '' && turnStatus()}>
+          <Trans>{turnName()}'s turn.</Trans>{' '}
+        </Show>
       </VisuallyHidden>
       <Show
         when={turnStatus()}
@@ -177,7 +178,22 @@ function WatcherHeadline(props: StatusProps): JSX.Element {
           </Show>
         }
       >
-        {(status) => <> {status()}</>}
+        {(status) => (
+          <>
+            <Show
+              when={
+                multiplayerSides(props.game).length > 2 &&
+                props.game.turn !== ''
+              }
+            >
+              <VisuallyHidden>
+                {' '}
+                <Trans>{turnName()}'s turn.</Trans>
+              </VisuallyHidden>
+            </Show>{' '}
+            {status()}
+          </>
+        )}
       </Show>
       <Show
         when={multiplayerSides(props.game).includes(

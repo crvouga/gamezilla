@@ -2,6 +2,7 @@ import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-stat
 import { ModerationProvider } from '@libs/moderation-client-ts/moderation-context';
 import { shippedModerationRules } from '@libs/moderation-shared-ts/moderation-rules';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
+import type { Sql } from '@pkgs/sql-root-shared-ts/sql';
 import { SyncEngineProvider } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import type { SyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-port';
 import { INITIAL_SYNC_STATUS } from '@pkgs/sync-engine-client-ts/sync-status';
@@ -49,17 +50,22 @@ export const VIEWER = {
 };
 
 /** Only profile reads are needed; no server or full application is mounted. */
-const engine = {
-  watch: () => ({
-    getSnapshot: () => [],
-    getHydrated: () => true,
-    subscribe: () => () => undefined,
-  }),
-  status: {
-    getSnapshot: () => INITIAL_SYNC_STATUS,
-    subscribe: () => () => undefined,
-  },
-} as unknown as SyncEngine;
+const engine = (profiles: Readonly<Record<string, string>>) =>
+  ({
+    watch: (query: Sql<Record<string, unknown>>) => ({
+      getSnapshot: () => {
+        const id = query.values[0];
+        const username = typeof id === 'string' ? profiles[id] : undefined;
+        return username === undefined ? [] : [{ id, username }];
+      },
+      getHydrated: () => true,
+      subscribe: () => () => undefined,
+    }),
+    status: {
+      getSnapshot: () => INITIAL_SYNC_STATUS,
+      subscribe: () => () => undefined,
+    },
+  }) as unknown as SyncEngine;
 
 export function frameFixture(
   overrides: Partial<GameFrame<JSX.Element>> = {},
@@ -84,7 +90,8 @@ export function frameFixture(
 
 export function renderMatchFrame(
   frame: GameFrame<JSX.Element>,
-  children: () => JSX.Element
+  children: () => JSX.Element,
+  profiles: Readonly<Record<string, string>> = {}
 ) {
   const presentation: GamePresentation<JSX.Element> = {
     id: 'fixture',
@@ -102,7 +109,7 @@ export function renderMatchFrame(
   return renderWithI18n(() => (
     <ThemeProvider colorScheme="light">
       <ModerationProvider rules={shippedModerationRules()}>
-        <SyncEngineProvider value={engine}>
+        <SyncEngineProvider value={engine(profiles)}>
           <TurnGamesProvider rules={rules} presentations={[presentation]}>
             {children()}
           </TurnGamesProvider>

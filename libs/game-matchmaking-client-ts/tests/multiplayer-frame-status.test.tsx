@@ -11,6 +11,90 @@ import {
   VIEWER,
 } from './multiplayer-presentation-fixture';
 
+const PEOPLE = { alice: 'Alice', bob: 'Bob', carol: 'Carol', dan: 'Dan' };
+const FOUR_SEAT_MATCH: MultiplayerGame = {
+  ...MATCH,
+  black_id: 'bob',
+  red_id: 'carol',
+  blue_id: 'dan',
+};
+
+// regression: multiseat-frame-erases-turn-name
+test('frame instructions retain the active person’s name for a four-seat listener', () => {
+  const frame = frameFixture({
+    turnStatus: () => 'South red circle to move. First to e5 wins.',
+  });
+  const view = renderMatchFrame(
+    frame,
+    () => (
+      <MultiplayerStatus
+        game={FOUR_SEAT_MATCH}
+        viewer={{ ...VIEWER, myId: 'bob' }}
+        winnerName="Alice"
+        lowOnTime={null}
+      />
+    ),
+    PEOPLE
+  );
+  const announcement = view.getByTestId('multiplayer-announcement');
+  expect(announcement).toHaveTextContent("Alice's turn.");
+  expect(announcement).toHaveTextContent(
+    'South red circle to move. First to e5 wins.'
+  );
+});
+
+test('four-seat named frame announcements track each active person for players and watchers', () => {
+  assertProperty(
+    'four-seat frame names survive changing turns',
+    fc.property(
+      fc.shuffledSubarray(['alice', 'bob', 'carol', 'dan'] as const, {
+        minLength: 4,
+        maxLength: 4,
+      }),
+      fc.constantFrom('alice', 'bob', 'carol', 'dan', 'watcher'),
+      (turns, myId) => {
+        const [game, setGame] = createSignal(FOUR_SEAT_MATCH);
+        const frame = frameFixture({ turnStatus: () => 'Move toward e5.' });
+        const view = renderMatchFrame(
+          frame,
+          () => (
+            <MultiplayerStatus
+              game={game()}
+              viewer={{ ...VIEWER, myId, participant: myId !== 'watcher' }}
+              winnerName="Alice"
+              lowOnTime={null}
+            />
+          ),
+          PEOPLE
+        );
+        const announcement = view.getByTestId('multiplayer-announcement');
+        for (const turn of turns) {
+          setGame({ ...FOUR_SEAT_MATCH, turn });
+          expect(announcement).toHaveTextContent(`${PEOPLE[turn]}'s turn.`);
+          expect(announcement).toHaveTextContent('Move toward e5.');
+          for (const other of turns.filter((person) => person !== turn))
+            expect(announcement).not.toHaveTextContent(
+              `${PEOPLE[other]}'s turn.`
+            );
+        }
+        setGame({
+          ...FOUR_SEAT_MATCH,
+          outcome: 'white',
+          reason: 'resignation',
+        });
+        expect(announcement).toHaveTextContent(
+          myId === 'alice'
+            ? 'You won the multiplayer game.'
+            : 'Alice won the multiplayer game.'
+        );
+        expect(announcement).not.toHaveTextContent("'s turn.");
+        expect(announcement).not.toHaveTextContent('Move toward e5.');
+        view.unmount();
+      }
+    )
+  );
+});
+
 test('the live matched announcement includes the frame shot result and actual viewer', () => {
   // regression: matched-frame-turn-announcement-missing
   const [game, setGame] = createSignal<MultiplayerGame>(MATCH);
