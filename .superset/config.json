@@ -1,8 +1,5 @@
 {
-  "teardown": [
-    "./libs/tools-harness-ts/workspace/teardown.sh"
-  ],
-  "run": [
-    "./libs/tools-harness-ts/workspace/run.sh"
-  ]
+  "setup": ["./libs/tools-harness-ts/workspace/setup.sh"],
+  "teardown": ["./libs/tools-harness-ts/workspace/teardown.sh"],
+  "run": ["./libs/tools-harness-ts/workspace/run.sh"]
 }

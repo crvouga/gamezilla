@@ -470,6 +470,9 @@ Development and production reuse one deployment step list in `deploy.yml`. The r
 
 ## Laptop
 
+Workspace setup, ADE settings, isolation, platform limits and validation:
+[development environments](libs/tools-harness-ts/workspace/DEVELOPMENT_ENVIRONMENTS.md).
+
 Agent and workspace environment setup is documented in [`docs/AGENT_ENVIRONMENTS.md`](docs/AGENT_ENVIRONMENTS.md).
 
 `./libs/tools-harness-ts/workspace/run.sh` is the one-stop workspace launcher used by the Run pane. It installs mise when missing, installs the system tools pinned in `mise.toml` on every launch, and loads their environment before installing app dependencies. The first launch also prepares local files; later launches reuse them. Failed preparation prints its cause and still attempts to start the stack; system tools and incomplete dependency installs are retried on the next launch.
@@ -514,7 +517,7 @@ Simulated Google starts as `alice@gmail.com` through `fred@gmail.com`. Apple sta
 
 Both local choosers also list **Admin One** (`admin@gmail.com`) and **Admin Two** (`admin2@gmail.com`). Stack startup seeds their linked app accounts and grants them puzzle-management permission through the local API binding. Sign in with either account, then open `/more/puzzles` to load the Lichess database. These fixtures are confined to the loopback stack.
 
-Shared reference data lives in the global fleet's R2 bucket, `<namespace>-shared`, protected by `prevent_destroy`. Its bucket-scoped S3 credentials are managed once by OpenTofu and imported through the shared secrets environment. Local APIs use those same `SHARED_DATA_*` bindings from the process or development secrets; automated harness and stack checks explicitly use disposable stores. Environment teardown never empties the shared bucket.
+Shared reference data lives in the global fleet's R2 bucket, `<namespace>-shared`, protected by `prevent_destroy`. Its bucket-scoped S3 credentials are managed once by OpenTofu and imported through the shared secrets environment. Local APIs and automated stack checks use their disposable local store, without loading deployed `SHARED_DATA_*` credentials. Environment teardown never empties the shared bucket.
 
 The puzzle loader stores the first Lichess source as bounded CSV parts and publishes its manifest only after every part is present. Every environment imports from that manifest by default, pinning the source version for its job. Finished, stopped and failed imports retain the source. Catalog rows, progress and other application objects stay in their own environment's database and bucket. See [the saved-file contract](specs/chess/saved-puzzles.feature).
 

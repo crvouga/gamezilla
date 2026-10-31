@@ -1,0 +1,4 @@
+{
+  "summary": "A new launcher shell could not find mise or Bun after setup bootstrapped mise in the user home without changing the parent shell PATH.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workspace-run.test.ts"
+}
