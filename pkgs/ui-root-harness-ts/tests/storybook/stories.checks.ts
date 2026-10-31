@@ -1,6 +1,6 @@
 // @io-wall-ok — browser verification adapter; all requests stay on the static server
 import { readFileSync } from 'node:fs';
-import { expect, test } from '@playwright/test';
+import { test } from '@playwright/test';
 import { visualScenarios } from '../../storybook/scenarios';
 import { verifyStoryScenario } from './verify-story-scenario';
 
@@ -32,10 +32,10 @@ for (const story of Object.values(index.entries).filter(
 // regression: storybook-ubuntu-renderer-baselines
 test('primitives-sparkline--states dark', async ({ page }) => {
   const story = index.entries['primitives-sparkline--states'];
-  expect(story).toBeDefined();
-  const scenario = visualScenarios(story!).find(
+  if (!story) throw new Error('Missing Sparkline states story');
+  const scenario = visualScenarios(story).find(
     (candidate) => candidate.theme === 'dark' && candidate.width === 390
   );
-  expect(scenario).toBeDefined();
-  await verifyStoryScenario(page, 'primitives-sparkline--states', scenario!);
+  if (!scenario) throw new Error('Missing Sparkline dark 390px scenario');
+  await verifyStoryScenario(page, 'primitives-sparkline--states', scenario);
 });
