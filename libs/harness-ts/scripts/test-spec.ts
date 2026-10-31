@@ -346,6 +346,8 @@ const result = spawnSync(
   'bun',
   [
     'test',
+    '--tsconfig-override',
+    join(REPO_ROOT, 'tsconfig.json'),
     '--conditions=browser',
     '--conditions=development',
     '--preload',

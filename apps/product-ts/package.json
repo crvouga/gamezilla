@@ -40,7 +40,7 @@
     "kill": "bun run scripts/kill-dev.ts",
     "kill-dev": "bun run scripts/kill-dev.ts",
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
-    "prepare:spec": "bun run --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client-ts/register ../../libs/harness-ts/scripts/prepare-spec.ts",
+    "prepare:spec": "bun run --tsconfig-override=../../tsconfig.json --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client-ts/register ../../libs/harness-ts/scripts/prepare-spec.ts",
     "prepare:ui-quality": "bun run scripts/prepare.ts",
     "prepare:ui-quality-model": "bun run scripts/prepare-model.ts",
     "setup": "bun run scripts/setup-env.ts",

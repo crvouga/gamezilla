@@ -1,6 +1,27 @@
 import { expect, test } from 'bun:test';
 import { owningPackagePath, testFileCommand } from './test-file-command';
 
+test('selected Solid tests retain compiler config in both supported flag forms', () => {
+  // regression: solid-spec-launchers-implicit-tsconfig
+  for (const flag of [
+    '--tsconfig-override ../../tsconfig.json',
+    '--tsconfig-override=../../tsconfig.json',
+  ]) {
+    expect(
+      testFileCommand(
+        'libs/profile-client-ts/tests/profile-avatar-figure.test.tsx',
+        `bun test ${flag} --preload @pkgs/bun-test-solid-client-ts/preload tests`
+      ).argv
+    ).toEqual([
+      'test',
+      ...flag.split(' '),
+      '--preload',
+      '@pkgs/bun-test-solid-client-ts/preload',
+      './tests/profile-avatar-figure.test.tsx',
+    ]);
+  }
+});
+
 // regression: randomized-tests-missing-package-runtime
 test('profile replay keeps browser resolution and DOM preload in its package', () => {
   expect(

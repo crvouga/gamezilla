@@ -5,6 +5,30 @@ import { testScriptViolations } from './test-scripts';
 
 const preload = '--preload @pkgs/bun-test-solid-client-ts/preload';
 
+test('Solid spec preparation and runtime commands select the canonical config too', () => {
+  // regression: solid-spec-launchers-implicit-tsconfig
+  for (const command of ['bun run', 'bun --conditions=browser']) {
+    const script = `${command} --preload=@pkgs/bun-test-solid-client-ts/register ../../libs/harness-ts/scripts/prepare-spec.ts`;
+    expect(
+      testScriptViolations({
+        scripts: { 'prepare:spec': script },
+        files: [],
+      }).join('\n')
+    ).toContain('--tsconfig-override');
+    expect(
+      testScriptViolations({
+        scripts: {
+          'prepare:spec': script.replace(
+            'bun ',
+            'bun --tsconfig-override=../../tsconfig.json '
+          ),
+        },
+        files: [],
+      })
+    ).toEqual([]);
+  }
+});
+
 test('Solid test commands select the root compiler config without hiding unfiltered tests', () => {
   // regression: solid-tests-implicit-tsconfig
   const files = ['tests/profile-avatar-figure.test.tsx'];

@@ -9,7 +9,7 @@ bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditio
 
 The explicit config keeps public workspace imports consistent between a
 worktree and the private snapshots used by full verification. Preserve it in
-contract and other Solid test commands too. Package lint enforces this command
+contract, spec-preparation and other Solid runtime commands too. Package lint enforces this command
 contract; the flag's path is configuration, never a test filter.
 
 The preload compiles real Solid components, installs the DOM environment and

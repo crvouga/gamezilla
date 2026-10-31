@@ -164,7 +164,7 @@ export function testScriptViolations(input: {
   );
   for (const [name, script] of Object.entries(input.scripts)) {
     if (
-      parseBunTest(script) !== null &&
+      /(?:^|\s)bun\s/.test(script) &&
       script.includes('@pkgs/bun-test-solid-client-ts/') &&
       !/--tsconfig-override(?:=|\s+)\.\.\/\.\.\/tsconfig\.json(?:\s|$)/.test(
         script
