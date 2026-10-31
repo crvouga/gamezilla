@@ -124,6 +124,14 @@ function PlayerHeadline(props: StatusProps): JSX.Element {
           </Show>{' '}
         </Show>
         <Trans>You are {gameSideLabel(props.game.fen, ownSide(props))}.</Trans>{' '}
+        <Show when={count() === 2 && props.game.turn !== '' && turnStatus()}>
+          <Show
+            when={props.game.turn === props.viewer.myId}
+            fallback={<Trans>Your opponent's turn.</Trans>}
+          >
+            <Trans>Your turn.</Trans>
+          </Show>{' '}
+        </Show>
         <Show when={count() > 2 && props.game.turn !== '' && turnStatus()}>
           <Trans>{turnName()}'s turn.</Trans>{' '}
         </Show>

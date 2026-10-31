@@ -206,3 +206,52 @@ test('live frame announcements track every new position and seat ownership', () 
     )
   );
 });
+
+// regression: two-seat-frame-erases-relative-turn
+test('Word Tiles frame text preserves Your turn for Alice', () => {
+  const view = renderMatchFrame(
+    frameFixture({ turnStatus: () => 'Amber — to play · 86 tiles in the bag' }),
+    () => (
+      <MultiplayerStatus
+        game={MATCH}
+        viewer={VIEWER}
+        winnerName="Bob"
+        lowOnTime={null}
+      />
+    )
+  );
+  const announcement = view.getByTestId('multiplayer-announcement');
+  expect(announcement).toHaveTextContent('Your turn.');
+  expect(announcement).toHaveTextContent(
+    'Amber — to play · 86 tiles in the bag'
+  );
+});
+
+test('two-seat listeners retain their relative turn alongside frame instructions', () => {
+  assertProperty(
+    'two-seat relative turn survives frame text',
+    fc.property(fc.constantFrom('alice', 'bob'), (turn) => {
+      const view = renderMatchFrame(
+        frameFixture({
+          turnStatus: () => 'Amber — to play · 86 tiles in the bag',
+        }),
+        () => (
+          <MultiplayerStatus
+            game={{ ...MATCH, turn }}
+            viewer={VIEWER}
+            winnerName="Bob"
+            lowOnTime={null}
+          />
+        )
+      );
+      const announcement = view.getByTestId('multiplayer-announcement');
+      expect(announcement).toHaveTextContent(
+        turn === 'alice' ? 'Your turn.' : "Your opponent's turn."
+      );
+      expect(announcement).toHaveTextContent(
+        'Amber — to play · 86 tiles in the bag'
+      );
+      view.unmount();
+    })
+  );
+});
