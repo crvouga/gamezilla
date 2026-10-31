@@ -1,0 +1,4 @@
+{
+  "summary": "A stalled backlog qualification query never started a reconnect measurement and stayed invisible until cancellation. Bound qualification with injected timers and record unknown once; ignore late results.",
+  "regressionTest": "pkgs/sync-engine-client-ts/tests/recovery-observation.test.ts"
+}

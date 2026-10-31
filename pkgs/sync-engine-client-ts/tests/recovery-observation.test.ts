@@ -1,5 +1,6 @@
 import { afterEach, expect, test } from 'bun:test';
 import { type Meter, type MeterProvider, metrics } from '@opentelemetry/api';
+import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { installSyncPerformance } from '@pkgs/observability-root-shared-ts/metric-contract';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import { createRecoveryObservation } from '@pkgs/sync-engine-client-ts/recovery-observation';
@@ -19,14 +20,26 @@ function recording() {
   return targets;
 }
 
-function deferredBacklog() {
+function deferredBacklog(uploadsLocally = true) {
+  const { clock, timers } = createHarnessClock();
+  let queries = 0;
   let resolve: (rows: { id: string; bytes: number }[]) => void = () => {};
   const pending = new Promise<{ id: string; bytes: number }[]>((done) => {
     resolve = done;
   });
-  const db = { query: () => pending } as unknown as SqlClient;
+  const db = {
+    query: () => {
+      queries++;
+      return pending;
+    },
+  } as unknown as SqlClient;
   return {
-    observation: createRecoveryObservation(db, () => 'client'),
+    observation: createRecoveryObservation(db, () => 'client', {
+      timers,
+      uploadsLocally,
+    }),
+    clock,
+    queries: () => queries,
     resolve,
   };
 }
@@ -167,8 +180,54 @@ test('disabled performance telemetry adds no backlog query', () => {
       return [];
     },
   } as unknown as SqlClient;
-  const observation = createRecoveryObservation(db, () => 'client');
+  const observation = createRecoveryObservation(db, () => 'client', {
+    timers: createHarnessClock().timers,
+    uploadsLocally: true,
+  });
   observation.start(['scope']);
   observation.cancel();
   expect(queries).toBe(0);
+});
+
+// regression: follower-recovery-reports-false-failure
+test('a follower without local upload acknowledgements reports unknown recovery', async () => {
+  const targets = recording();
+  const stop = installSyncPerformance(() => 0);
+  const { observation, resolve, clock, queries } = deferredBacklog(false);
+  try {
+    observation.start(['scope']);
+    resolve([{ id: 'uploaded-by-leader', bytes: 100 }]);
+    await flush();
+    observation.scopesStarted(['scope']);
+    observation.scopeSettled('scope');
+    clock.advance(10_000);
+    observation.cancel();
+    expect(targets).toEqual(['unknown', 'unknown']);
+    expect(queries()).toBe(0);
+    expect(clock.pendingOneShotCount()).toBe(0);
+  } finally {
+    observation.cancel();
+    stop();
+  }
+});
+
+// regression: stalled-recovery-qualification-is-invisible
+test('stalled qualification becomes unknown and late completion cannot report success', async () => {
+  const targets = recording();
+  const stop = installSyncPerformance(() => 0);
+  const { observation, resolve, clock } = deferredBacklog();
+  try {
+    observation.start([]);
+    clock.advance(5000);
+    expect(targets).toEqual(['unknown', 'unknown']);
+    resolve([]);
+    await flush();
+    observation.cancel();
+    clock.advance(5000);
+    expect(targets).toEqual(['unknown', 'unknown']);
+    expect(clock.pendingOneShotCount()).toBe(0);
+  } finally {
+    observation.cancel();
+    stop();
+  }
 });

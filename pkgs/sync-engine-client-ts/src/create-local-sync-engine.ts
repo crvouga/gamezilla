@@ -285,7 +285,7 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     appDb,
     mutationDrains: new Set(),
     status,
-    recovery: createRecoveryObservation(options.db, options.getClientId),
+    recovery: createRecovery(options),
     runtime,
     uploadQueue,
     watches: createSharedWatchRegistry((query) =>
@@ -311,6 +311,13 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
   stateRef.current = state;
   bindRecoveryScopes(state);
   return state;
+}
+
+function createRecovery(options: CreateLocalSyncEngineOptions) {
+  return createRecoveryObservation(options.db, options.getClientId, {
+    timers: options.timers,
+    uploadsLocally: options.enableMutationUpload !== false,
+  });
 }
 
 function bindRecoveryScopes(state: LocalEngineState): void {

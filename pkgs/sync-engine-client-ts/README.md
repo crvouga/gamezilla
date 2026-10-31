@@ -57,6 +57,9 @@ Target values are not benchmark results. Low-end device CPU/heap acceptance,
 and cross-device arrival timing with bounded clock uncertainty still require
 representative verification. Reconnect now waits for the original active scopes
 and the bounded original backlog; ambiguous workload qualification is unknown.
+Qualification that cannot finish within the five-second recovery deadline is
+unknown. Follower tabs are also unknown because their uploader runs in another
+tab and its durable acknowledgements are not observed here.
 Peer arrivals explicitly report unknown rather than using unsynchronized clocks. Existing operation-budget
 tests do not substitute for those measurements.
 

@@ -361,7 +361,10 @@ not a healthy verdict. Reconnect observes the original bounded backlog and activ
 scopes, including qualification time. A scope must complete a fresh sweep, and the
 original queued writes must have durable server verdicts. Workload sizes use a
 conservative serialized-byte upper bound; oversized, ambiguous or unreadable
-backlogs report unknown. Reconnect cancellation after qualification counts bad.
+backlogs report unknown. Qualification is bounded by the five-second recovery
+deadline; a stalled query reports unknown and late results cannot report success.
+Follower tabs report unknown because they cannot observe their leader's durable
+upload acknowledgements. Reconnect cancellation after qualification counts bad.
 
 Outbox timing observes each claimed delivery attempt, from its persisted
 `available_at` through transaction commit; failed attempts count bad. Retries are
