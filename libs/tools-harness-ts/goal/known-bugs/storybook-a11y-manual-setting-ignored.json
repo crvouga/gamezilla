@@ -1,0 +1,4 @@
+{
+  "summary": "The preview put the accessibility manual flag under parameters, which Storybook 10.6 ignores. The native addon now uses initialGlobals.a11y.manual so it remains an on-demand inspector while the browser suite continues to own automated axe verification.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/essentials.checks.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Retired component-explorer routes remained in the shell route contract after Storybook replaced the explorer.",
+  "regressionTest": "libs/app-root-client-ts/tests/routes.test.ts"
+}

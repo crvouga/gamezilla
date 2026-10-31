@@ -1,0 +1,7 @@
+# generated from .agents/commands by `bun run agents:sync` — do not edit
+description = "Build, review or maintain UI through the canonical Storybook agent workflow, using production contracts and automated evidence"
+prompt = """
+@{.agents/commands/storybook-ui.md}
+
+Follow the command above exactly. Arguments: {{args}}
+"""

@@ -135,8 +135,6 @@
     "libs/app-root-client-ts/src/tabs-layout.tsx",
     "libs/app-root-client-ts/src/test-device-ports.ts",
     "libs/app-root-client-ts/src/theme-screen.tsx",
-    "libs/app-root-client-ts/src/ui-explorer-detail.tsx",
-    "libs/app-root-client-ts/src/ui-explorer.tsx",
     "libs/app-root-client-ts/src/update-prompt.tsx",
     "libs/app-root-client-ts/src/use-connectivity.ts",
     "libs/app-root-client-ts/src/use-sync-engine-boot-views.ts",

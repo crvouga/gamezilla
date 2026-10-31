@@ -1,0 +1,4 @@
+{
+  "summary": "The regression register rejected real Playwright adapter tests whose .checks.ts names keep them out of Bun test discovery.",
+  "regressionTest": "libs/tools-harness-ts/scripts/playwright-regression-proof.test.ts"
+}

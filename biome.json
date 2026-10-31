@@ -1156,8 +1156,8 @@
         "**/apps/**/*.{tsx}",
         "**/libs/**/*.{tsx}",
         "**/pkgs/**/*.{tsx}",
-        "!**/pkgs/chess-board-root-client-ts/src/chess-board-promotion.tsx",
-        "!**/pkgs/chess-board-root-client-ts/src/chess-board-feedback.tsx",
+        "!**/pkgs/chess-board-root-client-ts/src/chess-board-promotion/index.tsx",
+        "!**/pkgs/chess-board-root-client-ts/src/chess-board-feedback/index.tsx",
         "!**/fixtures/**",
         "!**/demo-app.*",
         "!**/serialize-host-tree-html*",
@@ -1939,7 +1939,7 @@
     {
       "includes": [
         "pkgs/room-widgets/src/pages/use-room-harness.ts",
-        "pkgs/chess-board-root-client-ts/src/chess-board.tsx"
+        "pkgs/chess-board-root-client-ts/src/chess-board/index.tsx"
       ],
       "linter": {
         "rules": {

@@ -45,7 +45,7 @@ function PuzzleManagementContent(): JSX.Element {
           <DenialSurface decision={state.decision()} variant="compact" />
         }
       >
-        <MenuSection role="group">
+        <MenuSection>
           <MenuRow
             title={<Trans>Available puzzles</Trans>}
             value={state.job()?.pool_rows ?? '—'}

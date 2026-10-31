@@ -1,0 +1,4 @@
+{
+  "summary": "Subscreens duplicated the app navigation with separate breadcrumb headers; root profiles repeated their title.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/app-header-island.test.tsx"
+}

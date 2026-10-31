@@ -1,0 +1,4 @@
+{
+  "summary": "Metric footnotes were spans inside description-list groups, violating the dt/dd grammar.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/hosts.test.tsx"
+}

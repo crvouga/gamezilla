@@ -129,12 +129,18 @@ package's `lint`, plus the locked Tailwind theme `src/theme.css`). A need the
 components cannot express becomes a new component or variant, never markup in
 a screen.
 
-**Adding a component:** `pkgs/ui-root-client-ts/src/<name>.tsx`, exported through the
+**Adding a component:** `pkgs/ui-root-client-ts/src/<name>/index.tsx`, exported through the
 package's `./*` mapping; closed, typed props (token names and variants,
 never `class` / `style`); style with `class` / `classList` / `style`
 internally; set `data-*` on the root via `dataAttrs({ component:
-'<PascalName>', ... })`; add a `<name>.example.tsx` showing every variant and
-state to the explorer registry (`/ui`) and a harness test.
+'<PascalName>', ... })`; colocate CSF stories, fixtures, component styles and `baselines/` in the same slice, showing meaningful variants,
+states and interactions, and a harness test.
+
+**Agent UI workflow:** before building, reviewing or maintaining a component or
+screen, follow the [Storybook agent workflow](pkgs/ui-root-harness-ts/README.md#agent-workflow)
+(discovery → reuse → stories → automated evidence → maintenance). It is the
+single workflow for every harness; `/storybook-ui <task>` is its command entry
+point. Use it together with the design guidance above.
 
 **DOM identifiers:** every host exposes `data-component="<Name>"`, and
 `ScreenBase` requires `screenId` (`data-screen`); both are stripped from
@@ -370,11 +376,11 @@ composition root (`@libs/runtime`, the one package that knows every sub)
 fit together, and how to add a sub, is
 [`README.md`](README.md#repository).
 
-Packages split by vertical slice and then runtime, with flat `src/` modules.
+Packages split by vertical slice and then runtime. Reusable client UI uses the component slice layout in the design-system guidance above; other packages keep flat `src/` modules.
 The layout, explicit categories, import matrix and test ownership are defined
 in [`README.md`](README.md#repository). Follow that layout for both libs and
 framework packages. Do not recreate `use-cases/`, `shared/`, `root/`, `public/`
-or component subdirectories. Import package modules through `./*` exports.
+subdirectories outside the component slice convention. Import package modules through `./*` exports.
 
 Package scripts live in `<pkg>/scripts/` (include `./scripts/**/*.ts` in
 `tsconfig.tc.json` and the root `tsconfig.json`).

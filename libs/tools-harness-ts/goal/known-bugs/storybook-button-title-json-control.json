@@ -1,0 +1,4 @@
+{
+  "summary": "Button's JSX title inferred a JSON Control: entering the plain label Publish puzzle left the preview at Save. The interactive story explicitly uses a text Control.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/integration.checks.ts"
+}

@@ -2,11 +2,11 @@ import { expect, test } from 'bun:test';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import { PathGridBoard } from '@pkgs/ui-root-client-ts/path-grid-board';
-import PathGridBoardExample from '@pkgs/ui-root-client-ts/path-grid-board.example';
 import { pathGridSegment } from '@pkgs/ui-root-client-ts/path-grid-pointer';
 import { fireEvent } from '@solidjs/testing-library';
 import fc from 'fast-check';
 import { createSignal } from 'solid-js';
+import PathGridBoardExample from '../../ui-root-client-ts/src/path-grid-board/path-grid-board.example';
 import { renderUi as render } from './render';
 
 test('pointer sample expansion stays in bounds and visits adjacent cells through the final sample', () => {
@@ -198,10 +198,11 @@ test('keyboard focus is stable while paths update and disabled controls remain r
 });
 
 test('the explorer renders every path color and its disabled state', () => {
-  const view = render(() => <PathGridBoardExample />);
+  const [disabled, setDisabled] = createSignal(false);
+  const view = render(() => <PathGridBoardExample disabled={disabled()} />);
   const root = view.getByRole('group', { name: 'Labeled path colors' });
   expect(root.querySelectorAll('polyline').length).toBe(6);
-  fireEvent.click(view.getByRole('button', { name: 'Toggle path controls' }));
+  setDisabled(true);
   expect(root.querySelector('button')?.getAttribute('aria-disabled')).toBe(
     'true'
   );

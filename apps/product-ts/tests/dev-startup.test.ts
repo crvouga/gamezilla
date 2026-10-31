@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { runInNewContext } from 'node:vm';
+import { COLOR_PALETTE } from '@pkgs/ui-root-shared-ts/color-palette';
 
 const repoRoot = join(import.meta.dirname, '../../..');
 
@@ -86,7 +87,7 @@ describe('boot theme', () => {
 
   test('reads the row the theme preference writes and paints both schemes', () => {
     const preference = source(
-      'pkgs/ui-root-client-ts/src/theme-preference.tsx'
+      'pkgs/ui-root-client-ts/src/theme-preference/index.tsx'
     );
     expect(preference).toContain("asKeyword('ui.prefs/color-scheme')");
     expect(preference).toContain("asKeyword('ui.prefs/value')");
@@ -106,7 +107,10 @@ describe('development client startup', () => {
       expect(html).toContain('class="startup-shell"');
       expect(html).not.toContain('startup-shell-caption');
       expect(html).toContain(
-        'background: var(--ui-color-background, hsla(0, 0%, 0%, 1));'
+        `background: var(--ui-color-background, ${COLOR_PALETTE.dark.background});`
+      );
+      expect(html).toContain(
+        `background: var(--ui-color-background, ${COLOR_PALETTE.light.background});`
       );
       expect(html).toContain('prefers-reduced-motion: reduce');
     }

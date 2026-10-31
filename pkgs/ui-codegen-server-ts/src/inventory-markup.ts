@@ -318,7 +318,14 @@ const sorted = (values: Iterable<string>): string[] => [...values].sort();
 /** What one module's markup says. */
 export function readMarkup(source: ts.SourceFile): MarkupFact {
   const c = emptyCollector();
-  visitNode(source, c);
+  const syntax = ts.createSourceFile(
+    source.fileName,
+    source.text,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX
+  );
+  visitNode(syntax, c);
   return {
     dataComponents: sorted(c.dataComponents),
     roles: sorted(c.roles),

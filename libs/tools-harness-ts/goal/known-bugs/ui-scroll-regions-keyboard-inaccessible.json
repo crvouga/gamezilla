@@ -1,0 +1,4 @@
+{
+  "summary": "Long code blocks and horizontal scroll views without focusable children could not be scrolled with a keyboard in Safari.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/hosts.test.tsx"
+}

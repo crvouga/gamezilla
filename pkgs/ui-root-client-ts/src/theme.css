@@ -39,13 +39,16 @@
   --perspective-*: initial;
   --aspect-*: initial;
 
-  /* One face: the platform system stack. Mono is for code only. */
+  /* Two faces: Manrope for text, Unbounded for display and numbers. Mono is
+     for code only. */
   --font-sans: var(--ui-font-sans);
+  --font-display: var(--ui-font-display);
   --font-mono: var(--ui-font-mono);
   --default-font-family: var(--ui-font-sans);
   --default-mono-font-family: var(--ui-font-mono);
 
-  /* The fixed scale: 12, 14, 16, 20, 24, 32, each with its leading. */
+  /* The fixed scale: label 12, caption 13, body 15, title 18, stat 20,
+     display 26, display-xl 40, each with its leading. */
   --text-xs: var(--ui-font-size-xs);
   --text-xs--line-height: var(--ui-leading-xs);
   --text-sm: var(--ui-font-size-sm);
@@ -58,7 +61,10 @@
   --text-xl--line-height: var(--ui-leading-xl);
   --text-2xl: var(--ui-font-size-2xl);
   --text-2xl--line-height: var(--ui-leading-2xl);
+  --text-3xl: var(--ui-font-size-3xl);
+  --text-3xl--line-height: var(--ui-leading-3xl);
   --font-weight-normal: var(--ui-font-weight-regular);
+  --font-weight-medium: var(--ui-font-weight-medium);
   --font-weight-semibold: var(--ui-font-weight-semibold);
   --font-weight-bold: var(--ui-font-weight-bold);
   --leading-none: 1;
@@ -66,7 +72,7 @@
   --leading-normal: var(--ui-line-height-normal);
   --leading-relaxed: var(--ui-line-height-relaxed);
 
-  /* Radius by hierarchy: 4, 8, 12, round. */
+  /* Radius by hierarchy: 6, 12, 20, round. */
   --radius-sm: var(--ui-radius-sm);
   --radius-md: var(--ui-radius-md);
   --radius-lg: var(--ui-radius-lg);
@@ -163,6 +169,88 @@
   --color-path-green: var(--ui-color-path-green);
   --color-path-blue: var(--ui-color-path-blue);
   --color-path-purple: var(--ui-color-path-purple);
+  --color-primary-strong: var(--ui-color-primary-strong);
+  --color-on-primary-soft: var(--ui-color-on-primary-soft);
+  --color-live: var(--ui-color-live);
+  --color-on-live: var(--ui-color-on-live);
+  --color-player1: var(--ui-color-player1);
+  --color-player2: var(--ui-color-player2);
+  --color-player3: var(--ui-color-player3);
+  --color-player4: var(--ui-color-player4);
+  --color-player5: var(--ui-color-player5);
+  --color-player6: var(--ui-color-player6);
+  --color-player7: var(--ui-color-player7);
+  --color-player8: var(--ui-color-player8);
+  --color-board-light: var(--ui-color-board-light);
+  --color-board-dark: var(--ui-color-board-dark);
+  --color-board-highlight: var(--ui-color-board-highlight);
+  --color-board-cell: var(--ui-color-board-cell);
+  --color-board-card-face: var(--ui-color-board-card-face);
+  --color-board-card-ink: var(--ui-color-board-card-ink);
+  --color-board-card-ink-red: var(--ui-color-board-card-ink-red);
+  --color-game-connect-four-canvas: var(--ui-color-game-connect-four-canvas);
+  --color-game-connect-four-surface: var(--ui-color-game-connect-four-surface);
+  --color-game-connect-four-ink: var(--ui-color-game-connect-four-ink);
+  --color-game-connect-four-muted: var(--ui-color-game-connect-four-muted);
+  --color-game-connect-four-accent: var(--ui-color-game-connect-four-accent);
+  --color-game-connect-four-one: var(--ui-color-game-connect-four-one);
+  --color-game-connect-four-two: var(--ui-color-game-connect-four-two);
+  --color-game-battleship-canvas: var(--ui-color-game-battleship-canvas);
+  --color-game-battleship-surface: var(--ui-color-game-battleship-surface);
+  --color-game-battleship-ink: var(--ui-color-game-battleship-ink);
+  --color-game-battleship-muted: var(--ui-color-game-battleship-muted);
+  --color-game-battleship-accent: var(--ui-color-game-battleship-accent);
+  --color-game-battleship-one: var(--ui-color-game-battleship-one);
+  --color-game-battleship-two: var(--ui-color-game-battleship-two);
+  --color-game-quoridor-canvas: var(--ui-color-game-quoridor-canvas);
+  --color-game-quoridor-surface: var(--ui-color-game-quoridor-surface);
+  --color-game-quoridor-ink: var(--ui-color-game-quoridor-ink);
+  --color-game-quoridor-muted: var(--ui-color-game-quoridor-muted);
+  --color-game-quoridor-accent: var(--ui-color-game-quoridor-accent);
+  --color-game-quoridor-one: var(--ui-color-game-quoridor-one);
+  --color-game-quoridor-two: var(--ui-color-game-quoridor-two);
+  --color-game-sokoban-canvas: var(--ui-color-game-sokoban-canvas);
+  --color-game-sokoban-surface: var(--ui-color-game-sokoban-surface);
+  --color-game-sokoban-ink: var(--ui-color-game-sokoban-ink);
+  --color-game-sokoban-muted: var(--ui-color-game-sokoban-muted);
+  --color-game-sokoban-accent: var(--ui-color-game-sokoban-accent);
+  --color-game-sokoban-one: var(--ui-color-game-sokoban-one);
+  --color-game-sokoban-two: var(--ui-color-game-sokoban-two);
+  --color-game-numberlink-canvas: var(--ui-color-game-numberlink-canvas);
+  --color-game-numberlink-surface: var(--ui-color-game-numberlink-surface);
+  --color-game-numberlink-ink: var(--ui-color-game-numberlink-ink);
+  --color-game-numberlink-muted: var(--ui-color-game-numberlink-muted);
+  --color-game-numberlink-accent: var(--ui-color-game-numberlink-accent);
+  --color-game-numberlink-one: var(--ui-color-game-numberlink-one);
+  --color-game-numberlink-two: var(--ui-color-game-numberlink-two);
+  --color-game-word-tiles-canvas: var(--ui-color-game-word-tiles-canvas);
+  --color-game-word-tiles-surface: var(--ui-color-game-word-tiles-surface);
+  --color-game-word-tiles-ink: var(--ui-color-game-word-tiles-ink);
+  --color-game-word-tiles-muted: var(--ui-color-game-word-tiles-muted);
+  --color-game-word-tiles-accent: var(--ui-color-game-word-tiles-accent);
+  --color-game-word-tiles-one: var(--ui-color-game-word-tiles-one);
+  --color-game-word-tiles-two: var(--ui-color-game-word-tiles-two);
+  --color-game-hearts-canvas: var(--ui-color-game-hearts-canvas);
+  --color-game-hearts-surface: var(--ui-color-game-hearts-surface);
+  --color-game-hearts-ink: var(--ui-color-game-hearts-ink);
+  --color-game-hearts-muted: var(--ui-color-game-hearts-muted);
+  --color-game-hearts-accent: var(--ui-color-game-hearts-accent);
+  --color-game-hearts-one: var(--ui-color-game-hearts-one);
+  --color-game-hearts-two: var(--ui-color-game-hearts-two);
+  --color-game-pong-canvas: var(--ui-color-game-pong-canvas);
+  --color-game-pong-surface: var(--ui-color-game-pong-surface);
+  --color-game-pong-ink: var(--ui-color-game-pong-ink);
+  --color-game-pong-muted: var(--ui-color-game-pong-muted);
+  --color-game-pong-accent: var(--ui-color-game-pong-accent);
+  --color-game-pong-one: var(--ui-color-game-pong-one);
+  --color-game-pong-two: var(--ui-color-game-pong-two);
+  --color-game-light-cycles-canvas: var(--ui-color-game-light-cycles-canvas);
+  --color-game-light-cycles-surface: var(--ui-color-game-light-cycles-surface);
+  --color-game-light-cycles-ink: var(--ui-color-game-light-cycles-ink);
+  --color-game-light-cycles-muted: var(--ui-color-game-light-cycles-muted);
+  --color-game-light-cycles-accent: var(--ui-color-game-light-cycles-accent);
+  --color-game-light-cycles-one: var(--ui-color-game-light-cycles-one);
+  --color-game-light-cycles-two: var(--ui-color-game-light-cycles-two);
   --color-disabled: var(--ui-color-disabled);
   --color-scrim: var(--ui-color-scrim);
   --color-shadow-color: var(--ui-color-shadow-color);

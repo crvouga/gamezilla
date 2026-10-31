@@ -46,7 +46,6 @@ const NAV_TARGETS: readonly {
   { href: '/more/sync', title: 'Sync' },
   { href: '/client/sql', title: 'Client SQL' },
   { href: '/client/events', title: 'Client events' },
-  { href: '/ui', title: 'UI explorer' },
 ];
 
 /** Super-app Harness screen (`apps/product-ts`), a sibling of the app. */

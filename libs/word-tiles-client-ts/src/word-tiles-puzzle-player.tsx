@@ -163,6 +163,20 @@ function PuzzleBoard(props: {
   );
 }
 
+/** The challenge's status: the target, then what the last move scored. */
+export function wordTilesPuzzleStatus(
+  definition: string,
+  state: string
+): string | null {
+  const read = readPuzzle(definition);
+  if (!read.valid) return null;
+  const target = read.value.target;
+  const score = puzzleProgress(state).score;
+  return score === null
+    ? t`Score at least ${target} points in one move.`
+    : t`Your last move scored ${score} of ${target}.`;
+}
+
 /** One-move challenge: the shared player keeps the attempt; this board makes each move. */
 export function WordTilesPuzzlePlayer(props: PuzzlePlayerProps): JSX.Element {
   const puzzle = createMemo(() => readPuzzle(props.definition));

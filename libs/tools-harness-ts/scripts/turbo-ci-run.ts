@@ -138,6 +138,7 @@ export const MAIN_VERIFY_TASKS = [
   '@libs/tools-harness-ts#ci:statecharts',
   '@libs/tools-harness-ts#ci:conformance',
   '@libs/tools-harness-ts#ci:spec-ownership',
+  '@pkgs/ui-root-harness-ts#ci:storybook',
   'tc',
   'lint',
   'test',

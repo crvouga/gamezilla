@@ -63,7 +63,7 @@ describe('designVocabularyViolations', () => {
       designVocabularyViolations(
         [
           { path: 'src/tokens.css', text: ':root { --a: #fff; }' },
-          { path: 'src/brand-logos.tsx', text: "const g = '#4285F4';" },
+          { path: 'src/brand-logos/index.tsx', text: "const g = '#4285F4';" },
         ],
         'design-system'
       )

@@ -39,7 +39,7 @@ export type PuzzleActionBarSlot =
   | {
       id: 'next';
       type: 'button';
-      intent: 'success';
+      intent: 'primary';
     };
 
 /**
@@ -97,7 +97,7 @@ function solvedSlots(p: PuzzleActionBarPlanInput): PuzzleActionBarSlot[] {
   return [
     { id: 'back', type: 'action', disabled: !p.canGoBack },
     { id: 'forward', type: 'action', disabled: !p.canGoForward },
-    { id: 'next', type: 'button', intent: 'success' },
+    { id: 'next', type: 'button', intent: 'primary' },
     { id: 'retry', type: 'action', disabled: false },
   ];
 }
@@ -107,7 +107,7 @@ function revealedSlots(p: PuzzleActionBarPlanInput): PuzzleActionBarSlot[] {
   return [
     { id: 'back', type: 'action', disabled: !p.canGoBack },
     { id: 'forward', type: 'action', disabled: !p.canGoForward },
-    { id: 'next', type: 'button', intent: 'success' },
+    { id: 'next', type: 'button', intent: 'primary' },
     { id: 'retry', type: 'action', disabled: false },
   ];
 }

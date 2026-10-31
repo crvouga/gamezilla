@@ -1,0 +1,4 @@
+{
+  "summary": "Quiet Quint checks discarded the Apalache process's startup error, leaving only a failed-port message. Preserve the process output when startup fails while keeping successful quiet checks quiet.",
+  "regressionTest": "pkgs/quint-server-ts/tests/run-quint.test.ts"
+}

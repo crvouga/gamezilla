@@ -15,10 +15,6 @@
   },
   "dependencies": {
     "@libs/permissions-shared-ts": "workspace:*",
-    "@libs/spaces-shared-ts": "workspace:*",
-    "@pkgs/attribute-shared-ts": "workspace:*",
-    "@pkgs/message-shared-ts": "workspace:*",
-    "@pkgs/room-root-shared-ts": "workspace:*",
     "@pkgs/sync-engine-shared-ts": "workspace:*"
   },
   "devDependencies": {

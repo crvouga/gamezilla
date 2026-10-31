@@ -11,6 +11,7 @@
     ]
   },
   "scripts": {
+    "bench": "bun scripts/sync-performance.ts",
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
     "prepare:spec": "bun run --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client-ts/register ../../libs/harness-ts/scripts/prepare-spec.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
@@ -20,8 +21,7 @@
     "test:spec:1": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 1/4",
     "test:spec:2": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 2/4",
     "test:spec:3": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 3/4",
-    "verify:models": "bun run ../../libs/tools-harness-ts/scripts/verify-models.ts",
-    "bench": "bun scripts/sync-performance.ts"
+    "verify:models": "bun run ../../libs/tools-harness-ts/scripts/verify-models.ts"
   },
   "dependencies": {
     "@pkgs/clock-shared-ts": "workspace:*",

@@ -1,0 +1,4 @@
+{
+  "summary": "Cache cohesion checks expanded every transitive consumer even after a file already exceeded the light-file threshold, exhausting the fast-check budget as the UI inventory grew.",
+  "regressionTest": "libs/tools-harness-ts/scripts/cache-file-reach.test.ts"
+}

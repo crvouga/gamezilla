@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
 import { expect, test } from 'bun:test';
 import { BattleshipBoard } from '@libs/battleship-client-ts/battleship-board';
+import { battleshipFrame } from '@libs/battleship-client-ts/battleship-frame';
 import { CELLS } from '@libs/battleship-shared-ts/battleship-board';
 import { acceptFleet } from '@libs/battleship-shared-ts/battleship-fleet';
 import { encodeBattleshipPosition } from '@libs/battleship-shared-ts/battleship-position';
@@ -88,7 +89,12 @@ test('the targeting grid shows only the public shots, never a ship that was not 
   expect(target('b1').getAttribute('aria-label')).toBe(
     'B1: hit, sunk Destroyer, latest shot'
   );
-  expect(byTestId('board').textContent).toContain('Destroyer sunk');
+  // The ships each fleet has lost are its seat's facts, not the board's.
+  expect(byTestId('board').textContent).not.toContain('Destroyer sunk');
+  expect(battleshipFrame.seats.facts(POSITION, 'black', [])).toEqual([
+    'Destroyer sunk',
+  ]);
+  expect(battleshipFrame.seats.facts(POSITION, 'white', [])).toEqual([]);
 });
 
 test('interactive targets fire through onAction and wait, aiming, for the outcome', () => {
@@ -132,11 +138,10 @@ test('read-only boards refuse every target, and the switch keeps both grids moun
   expect(byTestId('board-view').getAttribute('data-selected')).toBe('own');
 });
 
-test('the live status announces the latest shot and whose turn it is', () => {
+test("the frame's turn line announces the latest shot and whose turn it is", () => {
   board({ setup: FLEET });
-  const status = byTestId('board-status');
-  expect(status.getAttribute('aria-live')).toBe('polite');
-  expect(status.textContent).toBe(
+  expect(document.querySelector('[data-testid="board-status"]')).toBeNull();
+  expect(battleshipFrame.turnStatus(POSITION, 'white', [])).toBe(
     'Red fleet fired at C3 and hit. Your turn to fire.'
   );
 });
@@ -153,7 +158,7 @@ test('the other side sees its own fleet and shots from its orientation', () => {
   expect(own('a3').getAttribute('aria-label')).toBe('A3: your Carrier');
   expect(target('c3').getAttribute('data-tone')).toBe('alert');
   expect(target('e5').getAttribute('data-tone')).toBe('quiet');
-  expect(byTestId('board-status').textContent).toBe(
+  expect(battleshipFrame.turnStatus(POSITION, 'black', [])).toBe(
     'You fired at C3 and hit. Blue fleet is firing.'
   );
 });
@@ -169,7 +174,7 @@ test('a watcher sees two public shot boards named by side, with no ships', () =>
   expect(document.querySelectorAll('[data-tone="occupied"]')).toHaveLength(0);
   expect(own('c3').getAttribute('aria-label')).toBe('C3: hit, latest shot');
   expect(own('d3').getAttribute('data-tone')).toBe('open');
-  expect(byTestId('board-status').textContent).toBe(
+  expect(battleshipFrame.turnStatus(POSITION, null, [])).toBe(
     'Red fleet fired at C3 and hit. Blue fleet to fire.'
   );
 });

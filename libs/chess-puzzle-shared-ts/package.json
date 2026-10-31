@@ -15,11 +15,9 @@
     "test": "bun test tests"
   },
   "dependencies": {
-    "@libs/chess-root-shared-ts": "workspace:*",
     "@libs/chess-rules-shared-ts": "workspace:*",
     "@libs/game-puzzle-shared-ts": "workspace:*",
     "@libs/permissions-shared-ts": "workspace:*",
-    "@libs/spaces-shared-ts": "workspace:*",
     "@pkgs/attribute-shared-ts": "workspace:*",
     "@pkgs/chess-board-core-shared-ts": "workspace:*",
     "@pkgs/chess-rules-shared-ts": "workspace:*",

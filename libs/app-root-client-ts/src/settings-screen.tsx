@@ -19,7 +19,6 @@ import {
   PaintbrushIcon,
   RefreshCwIcon,
   SlidersHorizontalIcon,
-  SquareStackIcon,
   UserIcon,
   Volume2Icon,
   VolumeXIcon,
@@ -191,13 +190,6 @@ function useAboutGroup(): Accessor<SettingsGroup> {
         href: '/more/about',
         testid: Handles.settingsAbout,
       },
-      {
-        title: t`UI components`,
-        caption: t`Design system explorer`,
-        icon: SquareStackIcon,
-        href: '/ui',
-        testid: 'settings-ui-explorer',
-      },
     ],
   });
 }
@@ -260,7 +252,7 @@ export function SettingsScreen(): JSX.Element {
     >
       <For each={groups()}>
         {(group) => (
-          <MenuSection title={group.title} role="group">
+          <MenuSection title={group.title}>
             <For each={group.rows}>
               {(row) => <SettingsRowItem row={row} />}
             </For>

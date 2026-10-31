@@ -1,4 +1,5 @@
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
+import type { LightCyclesRiderCount } from '@libs/light-cycles-shared-ts/light-cycles-config';
 import {
   lightCyclesDuelShared,
   lightCyclesQuadShared,
@@ -7,15 +8,15 @@ import {
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { LightCyclesBoard } from './light-cycles-board';
-import { LightCyclesOptions } from './light-cycles-options';
+import { lightCyclesFrame } from './light-cycles-frame';
 import { riderName } from './light-cycles-view';
 
-const presentation = (name: () => string) => ({
+const presentation = (name: () => string, riders: LightCyclesRiderCount) => ({
   name,
   canFlip: false,
   Board: LightCyclesBoard,
-  Configuration: LightCyclesOptions,
   sideLabel: riderName,
+  frame: lightCyclesFrame(riders),
   endingDescription: (reason: string) =>
     reason === 'target score'
       ? t`The target score was reached.`
@@ -45,7 +46,7 @@ export const lightCyclesDuelClient = defineGameClient({
   caption: 'Two riders, one arena of light trails',
   subtitle: () => <Trans>Outlast your rival on the grid.</Trans>,
   instructions,
-  presentation: presentation(() => t`Light Cycles Duel`),
+  presentation: presentation(() => t`Light Cycles Duel`, 2),
 });
 
 export const lightCyclesTrioClient = defineGameClient({
@@ -54,7 +55,7 @@ export const lightCyclesTrioClient = defineGameClient({
   caption: 'Three riders, one arena of light trails',
   subtitle: () => <Trans>Be the last of three riders riding.</Trans>,
   instructions,
-  presentation: presentation(() => t`Light Cycles Trio`),
+  presentation: presentation(() => t`Light Cycles Trio`, 3),
 });
 
 export const lightCyclesQuadClient = defineGameClient({
@@ -63,5 +64,5 @@ export const lightCyclesQuadClient = defineGameClient({
   caption: 'Four riders, one arena of light trails',
   subtitle: () => <Trans>Be the last of four riders riding.</Trans>,
   instructions,
-  presentation: presentation(() => t`Light Cycles Quad`),
+  presentation: presentation(() => t`Light Cycles Quad`, 4),
 });

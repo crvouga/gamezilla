@@ -1,13 +1,15 @@
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
+import type { GameFrame } from '@pkgs/turn-game-shared-ts/game-frame';
 import type {
   GameRecordMetadata,
   GameRules,
   GameSide,
+  GameWinner,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
+import { gameSides, winningSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import fc from 'fast-check';
 import type { GameLaw } from './game-rules-laws';
-import { law, must, picks, walk } from './game-rules-laws';
+import { knownGamePositions, law, must, picks, walk } from './game-rules-laws';
 import type { HarnessGame, TurnHarnessGame } from './harness-game';
 import { isTurnHarnessGame } from './harness-game';
 import { playedRulesOf, publicPosition } from './played-rules';
@@ -172,6 +174,162 @@ export function gamePresentationLaws(game: HarnessGame): readonly GameLaw[] {
             );
           }),
         ]),
+  ];
+}
+
+/** A finished position and who its result went to. */
+type Finished = { readonly position: string; readonly winner: GameWinner };
+
+/** The known lines' final positions, and every finished simulation example. */
+function knownFinishes(game: HarnessGame): readonly Finished[] {
+  const finishes: Finished[] = [];
+  if (isTurnHarnessGame(game)) {
+    const rules = playedRulesOf(game);
+    for (const line of [
+      game.fixtures.firstSideVictory,
+      game.fixtures.drawByRules,
+    ]) {
+      if (line === undefined) continue;
+      const last = walkLine(rules, line.slice(0, -1));
+      const played = rules.play(
+        last.position,
+        line.at(-1) ?? '',
+        last.history,
+        line.slice(0, -1)
+      );
+      if (played?.winner != null)
+        finishes.push({
+          position: publicPosition(played.position),
+          winner: played.winner,
+        });
+    }
+  }
+  const simulation = game.shared.registration.simulation;
+  for (const example of game.simulationFixtures?.examples ?? []) {
+    const state = simulation?.codec.decode(example.expectedPosition);
+    const result =
+      state === undefined || state === null ? null : simulation!.result(state);
+    if (result !== null && result !== undefined)
+      finishes.push({
+        position: example.expectedPosition,
+        winner: result.winner,
+      });
+  }
+  return finishes;
+}
+
+/** What the frame says of each seat in `position` is words, or nothing. */
+function framesSeats(
+  frame: GameFrame<unknown>,
+  sides: readonly GameSide[],
+  position: string
+): void {
+  for (const side of sides) {
+    const stat = frame.seats.stat(position, side);
+    must(
+      stat === null || (filled(stat.label) && filled(stat.value)),
+      `the ${side} seat's figure is ${JSON.stringify(stat)}`
+    );
+    for (const committed of [[], sides])
+      must(
+        frame.seats.facts(position, side, committed).every(filled),
+        `a fact of the ${side} seat is empty`
+      );
+    must(
+      typeof frame.seats.out(position, side) === 'boolean',
+      `whether the ${side} seat is out is not said`
+    );
+  }
+  for (const viewer of [null, ...sides])
+    for (const committed of [[], sides]) {
+      const status = frame.turnStatus(position, viewer, committed);
+      must(
+        status === null || filled(status),
+        `the turn line for ${String(viewer)} is empty`
+      );
+    }
+}
+
+/** Each seat once, every winner first and alone in first place. */
+function framesResult(
+  frame: GameFrame<unknown>,
+  sides: readonly GameSide[],
+  finished: Finished
+): void {
+  const summary = frame.result(finished.position, finished.winner);
+  const winners = winningSides(finished.winner, sides);
+  const seated = summary.standings.map((standing) => standing.side);
+  must(
+    seated.length === sides.length &&
+      sides.every((side) => seated.includes(side)),
+    `the result lists ${seated.join(', ')}, not each of ${sides.join(', ')} once`
+  );
+  for (const standing of summary.standings) {
+    const won = winners.includes(standing.side);
+    must(
+      Number.isInteger(standing.place) &&
+        (won ? standing.place === 1 : standing.place > winners.length),
+      `the ${standing.side} seat is placed ${String(standing.place)} in a game won by ${winners.join(', ')}`
+    );
+    must(
+      standing.score === null || filled(standing.score),
+      `the ${standing.side} seat's score is empty`
+    );
+  }
+  must(
+    summary.scoreLabel === null || filled(summary.scoreLabel),
+    'the result names its score with nothing'
+  );
+}
+
+/**
+ * The laws of a game's frame: what it says of each seat and of the turn,
+ * in every position its rules reach, is words or nothing and never fails;
+ * and the result of every finished game lists each seat once, its winners
+ * (every seat for a draw) first.
+ */
+export function gameFrameLaws(game: HarnessGame): readonly GameLaw[] {
+  const frame = game.client.presentation?.frame;
+  const sides = gameSides(game.shared.registration.rules);
+  const finishes = () => knownFinishes(game);
+  return [
+    law(
+      game,
+      'the frame tells each seat and the turn in every position',
+      () => {
+        must(frame !== undefined, 'the game supplies no frame');
+        for (const position of knownGamePositions(game))
+          framesSeats(frame!, sides, publicPosition(position));
+        if (isTurnHarnessGame(game))
+          assertProperty(
+            `${game.label}: frame seats`,
+            fc.property(picks, (drawn) => {
+              for (const step of walk(playedRulesOf(game), drawn).steps)
+                framesSeats(frame!, sides, publicPosition(step.position));
+            })
+          );
+      }
+    ),
+    law(game, 'a finished game lists each seat once, its winners first', () => {
+      must(frame !== undefined, 'the game supplies no frame');
+      for (const finished of finishes()) {
+        framesResult(frame!, sides, finished);
+        // A draw on time or by agreement goes to every seat.
+        framesResult(frame!, sides, { ...finished, winner: 'draw' });
+      }
+      if (isTurnHarnessGame(game))
+        assertProperty(
+          `${game.label}: frame result`,
+          fc.property(picks, (drawn) => {
+            const last = walk(playedRulesOf(game), drawn).steps.at(-1);
+            if (last?.winner != null)
+              framesResult(frame!, sides, {
+                position: publicPosition(last.position),
+                winner: last.winner,
+              });
+          })
+        );
+    }),
   ];
 }
 

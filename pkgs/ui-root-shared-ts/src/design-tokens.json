@@ -2,612 +2,2188 @@
   "$description": "The look of the product: every color, distance, type size, radius and motion, in the W3C Design Tokens format. This file is the source. Language projections are generated from it.",
   "color": {
     "$type": "color",
-    "$description": "Neutral surfaces, hairline borders and one blue accent. Each scheme defines every role; the scheme in front is the one showing.",
+    "$description": "Achromatic application chrome and feedback. Game-prefixed tokens are scoped to their playing surfaces; paths retain named colors.",
     "light": {
       "background": {
-        "$description": "The canvas: white / true black.",
+        "$description": "The screen canvas (`surface` in the design brief): #111111 / #fafafa.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 100],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.9804, 0.9804, 0.9804],
+          "alpha": 1.0,
+          "hex": "#fafafa"
         }
       },
       "surface": {
-        "$description": "Paper: cards and list panels, one step off the canvas.",
+        "$description": "Raised paper (`surface-raised`): cards, list panels, sheets and menus.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 97],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [1.0, 1.0, 1.0],
+          "alpha": 1.0,
+          "hex": "#ffffff"
         }
       },
       "surfaceMuted": {
-        "$description": "Inline recessed fill: inputs, tags, segmented tracks, secondary buttons.",
+        "$description": "Sunken well (`surface-sunken`): inputs, media wells, empty board cells, tags, inactive stat pills.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 94],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.9569, 0.9569, 0.9569],
+          "alpha": 1.0,
+          "hex": "#f4f4f4"
         }
       },
       "surfaceElevated": {
-        "$description": "Raised above the canvas: dialogs and sheets.",
+        "$description": "Raised above the canvas: dialogs and sheets (`surface-raised`).",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 100],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [1.0, 1.0, 1.0],
+          "alpha": 1.0,
+          "hex": "#ffffff"
         }
       },
       "surfaceOverlay": {
-        "$description": "Floating above content: popovers, menus, tooltips.",
+        "$description": "Floating above content: popovers, menus, tooltips (`surface-raised`).",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 100],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [1.0, 1.0, 1.0],
+          "alpha": 1.0,
+          "hex": "#ffffff"
         }
       },
       "text": {
+        "$description": "Primary text (`ink`).",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 5],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.0941, 0.0941, 0.0941],
+          "alpha": 1.0,
+          "hex": "#181818"
         }
       },
       "textSecondary": {
+        "$description": "Secondary text, timestamps, inactive (`ink-muted`).",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 42],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.3255, 0.3255, 0.3255],
+          "alpha": 1.0,
+          "hex": "#535353"
         }
       },
       "icon": {
+        "$description": "Glyphs at rest; the `ink-muted` value, held to 3:1.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 42],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.3255, 0.3255, 0.3255],
+          "alpha": 1.0,
+          "hex": "#535353"
         }
       },
       "tint": {
-        "$description": "The accent as text: links, focus and selection. Never a solid fill.",
+        "$description": "Primary as text (`primary-ink`): links and selected labels. Never a fill.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [204, 100, 36],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.1882, 0.1882, 0.1882],
+          "alpha": 1.0,
+          "hex": "#303030"
         }
       },
       "tintHover": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [204, 100, 30],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.0941, 0.0941, 0.0941],
+          "alpha": 1.0,
+          "hex": "#181818"
         }
       },
       "tintActive": {
-        "$description": "The accent fill of every primary action, under an onPrimary label.",
+        "$description": "The one neutral fill at rest (`primary`): primary buttons, \"Sit here\". White label.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [204, 100, 39],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.1882, 0.1882, 0.1882],
+          "alpha": 1.0,
+          "hex": "#303030"
         }
       },
       "tintSubtle": {
+        "$description": "Selected chip, active turn, active player, your avatar (`primary-soft`).",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [204, 100, 48],
-          "alpha": 0.1
+          "colorSpace": "srgb",
+          "components": [0.9098, 0.9098, 0.9098],
+          "alpha": 1.0,
+          "hex": "#e8e8e8"
+        }
+      },
+      "primaryStrong": {
+        "$description": "Selected borders, active indicators, your own pieces (`primary-strong`).",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.251, 0.251, 0.251],
+          "alpha": 1.0,
+          "hex": "#404040"
+        }
+      },
+      "onPrimarySoft": {
+        "$description": "Text and initials on `tintSubtle` (`on-primary-soft`).",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.1882, 0.1882, 0.1882],
+          "alpha": 1.0,
+          "hex": "#303030"
         }
       },
       "onPrimary": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 100],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [1.0, 1.0, 1.0],
+          "alpha": 1.0,
+          "hex": "#ffffff"
         }
       },
       "onDestructive": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 100],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [1.0, 1.0, 1.0],
+          "alpha": 1.0,
+          "hex": "#ffffff"
         }
       },
       "onSuccess": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 100],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [1.0, 1.0, 1.0],
+          "alpha": 1.0,
+          "hex": "#ffffff"
         }
       },
       "onWarning": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 100],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [1.0, 1.0, 1.0],
+          "alpha": 1.0,
+          "hex": "#ffffff"
         }
       },
       "onInfo": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 100],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [1.0, 1.0, 1.0],
+          "alpha": 1.0,
+          "hex": "#ffffff"
         }
       },
       "onTintScrim": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 0],
-          "alpha": 0.32
+          "colorSpace": "srgb",
+          "components": [0.0, 0.0, 0.0],
+          "alpha": 0.3216,
+          "hex": "#000000"
         }
       },
       "interactiveHover": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 0],
-          "alpha": 0.04
+          "colorSpace": "srgb",
+          "components": [0.0, 0.0, 0.0],
+          "alpha": 0.0392,
+          "hex": "#000000"
         }
       },
       "interactivePress": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 0],
-          "alpha": 0.08
+          "colorSpace": "srgb",
+          "components": [0.0, 0.0, 0.0],
+          "alpha": 0.0784,
+          "hex": "#000000"
         }
       },
       "border": {
-        "$description": "The hairline: dividers, panel and card edges.",
+        "$description": "Decorative dividers only (`line`).",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 86],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.8941, 0.8941, 0.8941],
+          "alpha": 1.0,
+          "hex": "#e4e4e4"
         }
       },
       "outline": {
-        "$description": "Control boundaries that must read at 3:1 (checkboxes, outline buttons).",
+        "$description": "Borders that carry meaning (`line-strong`): inputs, secondary buttons, unselected chips. Held to 3:1.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 56],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.4471, 0.4471, 0.4471],
+          "alpha": 1.0,
+          "hex": "#727272"
         }
       },
       "focusRing": {
+        "$description": "The 2px focus ring, 2px offset, on every interactive control (`focus`).",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [204, 100, 45],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.3137, 0.3137, 0.3137],
+          "alpha": 1.0,
+          "hex": "#505050"
         }
       },
       "destructive": {
+        "$description": "Resign, errors, destructive actions as text (`danger`); always with a word or icon.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [355, 78, 45],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.3137, 0.3137, 0.3137],
+          "alpha": 1.0,
+          "hex": "#505050"
         }
       },
       "destructiveActive": {
+        "$description": "Solid danger fill under a white label.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [355, 78, 45],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.3137, 0.3137, 0.3137],
+          "alpha": 1.0,
+          "hex": "#505050"
         }
       },
       "destructiveSurface": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [355, 78, 50],
-          "alpha": 0.1
+          "colorSpace": "srgb",
+          "components": [0.302, 0.302, 0.302],
+          "alpha": 0.102,
+          "hex": "#4d4d4d"
         }
       },
       "success": {
+        "$description": "Success (`success`); always with a word or icon.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [145, 63, 28],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.3137, 0.3137, 0.3137],
+          "alpha": 1.0,
+          "hex": "#505050"
         }
       },
       "successSurface": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [145, 63, 42],
-          "alpha": 0.12
+          "colorSpace": "srgb",
+          "components": [0.3765, 0.3765, 0.3765],
+          "alpha": 0.102,
+          "hex": "#606060"
         }
       },
       "warning": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [30, 100, 30],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.3137, 0.3137, 0.3137],
+          "alpha": 1.0,
+          "hex": "#505050"
         }
       },
       "warningSurface": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [40, 100, 50],
-          "alpha": 0.16
+          "colorSpace": "srgb",
+          "components": [0.651, 0.651, 0.651],
+          "alpha": 0.1608,
+          "hex": "#a6a6a6"
         }
       },
       "info": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [204, 100, 36],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.3137, 0.3137, 0.3137],
+          "alpha": 1.0,
+          "hex": "#505050"
         }
       },
       "infoSurface": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [204, 100, 48],
-          "alpha": 0.1
+          "colorSpace": "srgb",
+          "components": [0.3765, 0.3765, 0.3765],
+          "alpha": 0.102,
+          "hex": "#606060"
         }
       },
-      "disabled": {
+      "live": {
+        "$description": "Only the LIVE pill and the recording dot, under white text.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 94],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.3137, 0.3137, 0.3137],
+          "alpha": 1.0,
+          "hex": "#505050"
         }
       },
-      "scrim": {
+      "onLive": {
+        "$description": "Label on `live`.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 0],
-          "alpha": 0.6
-        }
-      },
-      "shadowColor": {
-        "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 0],
-          "alpha": 0.12
+          "colorSpace": "srgb",
+          "components": [1.0, 1.0, 1.0],
+          "alpha": 1.0,
+          "hex": "#ffffff"
         }
       },
       "pathRed": {
         "$description": "Labeled game paths and endpoint outlines, never application chrome.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 76, 40],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.7843, 0.1176, 0.1176],
+          "alpha": 1.0,
+          "hex": "#c81e1e"
         }
       },
       "pathOrange": {
         "$description": "Labeled game paths and endpoint outlines, never application chrome.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [24, 92, 34],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.7608, 0.2549, 0.0471],
+          "alpha": 1.0,
+          "hex": "#c2410c"
         }
       },
       "pathYellow": {
         "$description": "Labeled game paths and endpoint outlines, never application chrome.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [48, 94, 28],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.5412, 0.3804, 0.0],
+          "alpha": 1.0,
+          "hex": "#8a6100"
         }
       },
       "pathGreen": {
         "$description": "Labeled game paths and endpoint outlines, never application chrome.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [145, 68, 30],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.0824, 0.502, 0.2392],
+          "alpha": 1.0,
+          "hex": "#15803d"
         }
       },
       "pathBlue": {
         "$description": "Labeled game paths and endpoint outlines, never application chrome.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [214, 84, 42],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.1137, 0.3059, 0.8471],
+          "alpha": 1.0,
+          "hex": "#1d4ed8"
         }
       },
       "pathPurple": {
         "$description": "Labeled game paths and endpoint outlines, never application chrome.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [282, 64, 42],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.4941, 0.1333, 0.8078],
+          "alpha": 1.0,
+          "hex": "#7e22ce"
+        }
+      },
+      "player1": {
+        "$description": "Seat 1 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.3412, 0.3412, 0.3412],
+          "alpha": 1.0,
+          "hex": "#575757"
+        }
+      },
+      "player2": {
+        "$description": "Seat 2 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.498, 0.498, 0.498],
+          "alpha": 1.0,
+          "hex": "#7f7f7f"
+        }
+      },
+      "player3": {
+        "$description": "Seat 3 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.3961, 0.3961, 0.3961],
+          "alpha": 1.0,
+          "hex": "#656565"
+        }
+      },
+      "player4": {
+        "$description": "Seat 4 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.2431, 0.2431, 0.2431],
+          "alpha": 1.0,
+          "hex": "#3e3e3e"
+        }
+      },
+      "player5": {
+        "$description": "Seat 5 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.549, 0.549, 0.549],
+          "alpha": 1.0,
+          "hex": "#8c8c8c"
+        }
+      },
+      "player6": {
+        "$description": "Seat 6 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.1922, 0.1922, 0.1922],
+          "alpha": 1.0,
+          "hex": "#313131"
+        }
+      },
+      "player7": {
+        "$description": "Seat 7 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.2902, 0.2902, 0.2902],
+          "alpha": 1.0,
+          "hex": "#4a4a4a"
+        }
+      },
+      "player8": {
+        "$description": "Seat 8 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.4471, 0.4471, 0.4471],
+          "alpha": 1.0,
+          "hex": "#727272"
+        }
+      },
+      "boardLight": {
+        "$description": "Light squares of a checkered board. Neutral; the same role in both schemes.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9176, 0.9176, 0.9176],
+          "alpha": 1.0,
+          "hex": "#eaeaea"
+        }
+      },
+      "boardDark": {
+        "$description": "Dark squares of a checkered board.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.5961, 0.5961, 0.5961],
+          "alpha": 1.0,
+          "hex": "#989898"
+        }
+      },
+      "boardHighlight": {
+        "$description": "Last-move and selected-square wash over a board square.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.3765, 0.3765, 0.3765],
+          "alpha": 0.2784,
+          "hex": "#606060"
+        }
+      },
+      "boardCell": {
+        "$description": "An empty board cell or slot (the `surface-sunken` value).",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9569, 0.9569, 0.9569],
+          "alpha": 1.0,
+          "hex": "#f4f4f4"
+        }
+      },
+      "boardCardFace": {
+        "$description": "A playing card face.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [1.0, 1.0, 1.0],
+          "alpha": 1.0,
+          "hex": "#ffffff"
+        }
+      },
+      "boardCardInk": {
+        "$description": "Black suits and card text on `boardCardFace`.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.0941, 0.0941, 0.0941],
+          "alpha": 1.0,
+          "hex": "#181818"
+        }
+      },
+      "boardCardInkRed": {
+        "$description": "Red suits on `boardCardFace`.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.2588, 0.2588, 0.2588],
+          "alpha": 1.0,
+          "hex": "#424242"
+        }
+      },
+      "disabled": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9569, 0.9569, 0.9569],
+          "alpha": 1.0,
+          "hex": "#f4f4f4"
+        }
+      },
+      "scrim": {
+        "$description": "Behind sheets and dialogs.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.0, 0.0, 0.0],
+          "alpha": 0.4,
+          "hex": "#000000"
+        }
+      },
+      "shadowColor": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.0, 0.0, 0.0],
+          "alpha": 0.1216,
+          "hex": "#000000"
+        }
+      },
+      "gameConnectFourCanvas": {
+        "$description": "ConnectFour board only: canvas.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.0902, 0.2353, 0.4706],
+          "alpha": 1,
+          "hex": "#173c78"
+        }
+      },
+      "gameConnectFourSurface": {
+        "$description": "ConnectFour board only: surface.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.1412, 0.3294, 0.6078],
+          "alpha": 1,
+          "hex": "#24549b"
+        }
+      },
+      "gameConnectFourInk": {
+        "$description": "ConnectFour board only: ink.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [1.0, 1.0, 1.0],
+          "alpha": 1,
+          "hex": "#ffffff"
+        }
+      },
+      "gameConnectFourMuted": {
+        "$description": "ConnectFour board only: muted.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.8314, 0.8941, 1.0],
+          "alpha": 1,
+          "hex": "#d4e4ff"
+        }
+      },
+      "gameConnectFourAccent": {
+        "$description": "ConnectFour board only: accent.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [1.0, 1.0, 1.0],
+          "alpha": 1,
+          "hex": "#ffffff"
+        }
+      },
+      "gameConnectFourOne": {
+        "$description": "ConnectFour board only: one.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.7843, 0.2235, 0.2196],
+          "alpha": 1,
+          "hex": "#c83938"
+        }
+      },
+      "gameConnectFourTwo": {
+        "$description": "ConnectFour board only: two.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9608, 0.7922, 0.3137],
+          "alpha": 1,
+          "hex": "#f5ca50"
+        }
+      },
+      "gameBattleshipCanvas": {
+        "$description": "Battleship board only: canvas.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.0353, 0.1725, 0.251],
+          "alpha": 1,
+          "hex": "#092c40"
+        }
+      },
+      "gameBattleshipSurface": {
+        "$description": "Battleship board only: surface.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.0706, 0.2471, 0.3294],
+          "alpha": 1,
+          "hex": "#123f54"
+        }
+      },
+      "gameBattleshipInk": {
+        "$description": "Battleship board only: ink.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.898, 0.9608, 1.0],
+          "alpha": 1,
+          "hex": "#e5f5ff"
+        }
+      },
+      "gameBattleshipMuted": {
+        "$description": "Battleship board only: muted.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.6196, 0.7882, 0.8627],
+          "alpha": 1,
+          "hex": "#9ec9dc"
+        }
+      },
+      "gameBattleshipAccent": {
+        "$description": "Battleship board only: accent.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.451, 0.8353, 0.9569],
+          "alpha": 1,
+          "hex": "#73d5f4"
+        }
+      },
+      "gameBattleshipOne": {
+        "$description": "Battleship board only: one.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9686, 0.5725, 0.4471],
+          "alpha": 1,
+          "hex": "#f79272"
+        }
+      },
+      "gameBattleshipTwo": {
+        "$description": "Battleship board only: two.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9608, 0.8039, 0.4627],
+          "alpha": 1,
+          "hex": "#f5cd76"
+        }
+      },
+      "gameQuoridorCanvas": {
+        "$description": "Quoridor board only: canvas.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.8549, 0.7725, 0.6235],
+          "alpha": 1,
+          "hex": "#dac59f"
+        }
+      },
+      "gameQuoridorSurface": {
+        "$description": "Quoridor board only: surface.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9373, 0.8824, 0.7725],
+          "alpha": 1,
+          "hex": "#efe1c5"
+        }
+      },
+      "gameQuoridorInk": {
+        "$description": "Quoridor board only: ink.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.1882, 0.1608, 0.1216],
+          "alpha": 1,
+          "hex": "#30291f"
+        }
+      },
+      "gameQuoridorMuted": {
+        "$description": "Quoridor board only: muted.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.3765, 0.302, 0.2078],
+          "alpha": 1,
+          "hex": "#604d35"
+        }
+      },
+      "gameQuoridorAccent": {
+        "$description": "Quoridor board only: accent.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.2784, 0.2157, 0.3412],
+          "alpha": 1,
+          "hex": "#473757"
+        }
+      },
+      "gameQuoridorOne": {
+        "$description": "Quoridor board only: one.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.6118, 0.1882, 0.1686],
+          "alpha": 1,
+          "hex": "#9c302b"
+        }
+      },
+      "gameQuoridorTwo": {
+        "$description": "Quoridor board only: two.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.1765, 0.4, 0.3373],
+          "alpha": 1,
+          "hex": "#2d6656"
+        }
+      },
+      "gameSokobanCanvas": {
+        "$description": "Sokoban board only: canvas.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.1412, 0.1765, 0.2157],
+          "alpha": 1,
+          "hex": "#242d37"
+        }
+      },
+      "gameSokobanSurface": {
+        "$description": "Sokoban board only: surface.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.2235, 0.2824, 0.3294],
+          "alpha": 1,
+          "hex": "#394854"
+        }
+      },
+      "gameSokobanInk": {
+        "$description": "Sokoban board only: ink.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.949, 0.8941, 0.7686],
+          "alpha": 1,
+          "hex": "#f2e4c4"
+        }
+      },
+      "gameSokobanMuted": {
+        "$description": "Sokoban board only: muted.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.7294, 0.7882, 0.8078],
+          "alpha": 1,
+          "hex": "#bac9ce"
+        }
+      },
+      "gameSokobanAccent": {
+        "$description": "Sokoban board only: accent.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9608, 0.8118, 0.4157],
+          "alpha": 1,
+          "hex": "#f5cf6a"
+        }
+      },
+      "gameSokobanOne": {
+        "$description": "Sokoban board only: one.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9216, 0.6941, 0.4745],
+          "alpha": 1,
+          "hex": "#ebb179"
+        }
+      },
+      "gameSokobanTwo": {
+        "$description": "Sokoban board only: two.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.5255, 0.8431, 0.6745],
+          "alpha": 1,
+          "hex": "#86d7ac"
+        }
+      },
+      "gameNumberlinkCanvas": {
+        "$description": "Numberlink board only: canvas.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9882, 0.9725, 0.9333],
+          "alpha": 1,
+          "hex": "#fcf8ee"
+        }
+      },
+      "gameNumberlinkSurface": {
+        "$description": "Numberlink board only: surface.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9294, 0.898, 0.8314],
+          "alpha": 1,
+          "hex": "#ede5d4"
+        }
+      },
+      "gameNumberlinkInk": {
+        "$description": "Numberlink board only: ink.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.2, 0.1882, 0.1686],
+          "alpha": 1,
+          "hex": "#33302b"
+        }
+      },
+      "gameNumberlinkMuted": {
+        "$description": "Numberlink board only: muted.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.4196, 0.3843, 0.3333],
+          "alpha": 1,
+          "hex": "#6b6255"
+        }
+      },
+      "gameNumberlinkAccent": {
+        "$description": "Numberlink board only: accent.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.3294, 0.2667, 0.5686],
+          "alpha": 1,
+          "hex": "#544491"
+        }
+      },
+      "gameNumberlinkOne": {
+        "$description": "Numberlink board only: one.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.6471, 0.2392, 0.1882],
+          "alpha": 1,
+          "hex": "#a53d30"
+        }
+      },
+      "gameNumberlinkTwo": {
+        "$description": "Numberlink board only: two.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.1922, 0.4235, 0.2824],
+          "alpha": 1,
+          "hex": "#316c48"
+        }
+      },
+      "gameWordTilesCanvas": {
+        "$description": "WordTiles board only: canvas.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.1255, 0.2941, 0.251],
+          "alpha": 1,
+          "hex": "#204b40"
+        }
+      },
+      "gameWordTilesSurface": {
+        "$description": "WordTiles board only: surface.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.8627, 0.9098, 0.8392],
+          "alpha": 1,
+          "hex": "#dce8d6"
+        }
+      },
+      "gameWordTilesInk": {
+        "$description": "WordTiles board only: ink.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [1.0, 0.9647, 0.8549],
+          "alpha": 1,
+          "hex": "#fff6da"
+        }
+      },
+      "gameWordTilesMuted": {
+        "$description": "WordTiles board only: muted.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.7451, 0.8314, 0.7647],
+          "alpha": 1,
+          "hex": "#bed4c3"
+        }
+      },
+      "gameWordTilesAccent": {
+        "$description": "WordTiles board only: accent.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [1.0, 0.8824, 0.6392],
+          "alpha": 1,
+          "hex": "#ffe1a3"
+        }
+      },
+      "gameWordTilesOne": {
+        "$description": "WordTiles board only: one.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9608, 0.7765, 0.7216],
+          "alpha": 1,
+          "hex": "#f5c6b8"
+        }
+      },
+      "gameWordTilesTwo": {
+        "$description": "WordTiles board only: two.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.7176, 0.8471, 0.9412],
+          "alpha": 1,
+          "hex": "#b7d8f0"
+        }
+      },
+      "gameHeartsCanvas": {
+        "$description": "Hearts board only: canvas.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.0902, 0.2431, 0.2039],
+          "alpha": 1,
+          "hex": "#173e34"
+        }
+      },
+      "gameHeartsSurface": {
+        "$description": "Hearts board only: surface.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.1412, 0.3333, 0.2745],
+          "alpha": 1,
+          "hex": "#245546"
+        }
+      },
+      "gameHeartsInk": {
+        "$description": "Hearts board only: ink.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [1.0, 0.9647, 0.8706],
+          "alpha": 1,
+          "hex": "#fff6de"
+        }
+      },
+      "gameHeartsMuted": {
+        "$description": "Hearts board only: muted.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.749, 0.8275, 0.7765],
+          "alpha": 1,
+          "hex": "#bfd3c6"
+        }
+      },
+      "gameHeartsAccent": {
+        "$description": "Hearts board only: accent.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9608, 0.851, 0.5804],
+          "alpha": 1,
+          "hex": "#f5d994"
+        }
+      },
+      "gameHeartsOne": {
+        "$description": "Hearts board only: one.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.7412, 0.2039, 0.2353],
+          "alpha": 1,
+          "hex": "#bd343c"
+        }
+      },
+      "gameHeartsTwo": {
+        "$description": "Hearts board only: two.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9608, 0.851, 0.5804],
+          "alpha": 1,
+          "hex": "#f5d994"
+        }
+      },
+      "gamePongCanvas": {
+        "$description": "Pong board only: canvas.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.1569, 0.1098, 0.2745],
+          "alpha": 1,
+          "hex": "#281c46"
+        }
+      },
+      "gamePongSurface": {
+        "$description": "Pong board only: surface.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.2863, 0.2118, 0.4196],
+          "alpha": 1,
+          "hex": "#49366b"
+        }
+      },
+      "gamePongInk": {
+        "$description": "Pong board only: ink.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9725, 0.9294, 1.0],
+          "alpha": 1,
+          "hex": "#f8edff"
+        }
+      },
+      "gamePongMuted": {
+        "$description": "Pong board only: muted.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.8, 0.7294, 0.8902],
+          "alpha": 1,
+          "hex": "#ccbae3"
+        }
+      },
+      "gamePongAccent": {
+        "$description": "Pong board only: accent.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.902, 0.7137, 1.0],
+          "alpha": 1,
+          "hex": "#e6b6ff"
+        }
+      },
+      "gamePongOne": {
+        "$description": "Pong board only: one.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.902, 0.7137, 1.0],
+          "alpha": 1,
+          "hex": "#e6b6ff"
+        }
+      },
+      "gamePongTwo": {
+        "$description": "Pong board only: two.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9686, 0.9059, 0.5961],
+          "alpha": 1,
+          "hex": "#f7e798"
+        }
+      },
+      "gameLightCyclesCanvas": {
+        "$description": "LightCycles board only: canvas.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.0314, 0.1137, 0.1686],
+          "alpha": 1,
+          "hex": "#081d2b"
+        }
+      },
+      "gameLightCyclesSurface": {
+        "$description": "LightCycles board only: surface.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.0863, 0.2314, 0.2941],
+          "alpha": 1,
+          "hex": "#163b4b"
+        }
+      },
+      "gameLightCyclesInk": {
+        "$description": "LightCycles board only: ink.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9255, 0.9804, 1.0],
+          "alpha": 1,
+          "hex": "#ecfaff"
+        }
+      },
+      "gameLightCyclesMuted": {
+        "$description": "LightCycles board only: muted.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.5765, 0.7451, 0.7961],
+          "alpha": 1,
+          "hex": "#93becb"
+        }
+      },
+      "gameLightCyclesAccent": {
+        "$description": "LightCycles board only: accent.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.4431, 0.902, 0.9333],
+          "alpha": 1,
+          "hex": "#71e6ee"
+        }
+      },
+      "gameLightCyclesOne": {
+        "$description": "LightCycles board only: one.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [1.0, 0.6824, 0.502],
+          "alpha": 1,
+          "hex": "#ffae80"
+        }
+      },
+      "gameLightCyclesTwo": {
+        "$description": "LightCycles board only: two.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.7255, 0.6275, 1.0],
+          "alpha": 1,
+          "hex": "#b9a0ff"
         }
       }
     },
     "dark": {
       "background": {
-        "$description": "The canvas: white / true black.",
+        "$description": "The screen canvas (`surface` in the design brief): #111111 / #fafafa.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 0],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.0667, 0.0667, 0.0667],
+          "alpha": 1.0,
+          "hex": "#111111"
         }
       },
       "surface": {
-        "$description": "Paper: cards and list panels, one step off the canvas.",
+        "$description": "Raised paper (`surface-raised`): cards, list panels, sheets and menus.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 7],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.1098, 0.1098, 0.1098],
+          "alpha": 1.0,
+          "hex": "#1c1c1c"
         }
       },
       "surfaceMuted": {
-        "$description": "Inline recessed fill: inputs, tags, segmented tracks, secondary buttons.",
+        "$description": "Sunken well (`surface-sunken`): inputs, media wells, empty board cells, tags, inactive stat pills.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 15],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.0431, 0.0431, 0.0431],
+          "alpha": 1.0,
+          "hex": "#0b0b0b"
         }
       },
       "surfaceElevated": {
-        "$description": "Raised above the canvas: dialogs and sheets.",
+        "$description": "Raised above the canvas: dialogs and sheets (`surface-raised`).",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 10],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.1098, 0.1098, 0.1098],
+          "alpha": 1.0,
+          "hex": "#1c1c1c"
         }
       },
       "surfaceOverlay": {
-        "$description": "Floating above content: popovers, menus, tooltips.",
+        "$description": "Floating above content: popovers, menus, tooltips (`surface-raised`).",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 15],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.1098, 0.1098, 0.1098],
+          "alpha": 1.0,
+          "hex": "#1c1c1c"
         }
       },
       "text": {
+        "$description": "Primary text (`ink`).",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 96],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.9294, 0.9294, 0.9294],
+          "alpha": 1.0,
+          "hex": "#ededed"
         }
       },
       "textSecondary": {
+        "$description": "Secondary text, timestamps, inactive (`ink-muted`).",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 66],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.6353, 0.6353, 0.6353],
+          "alpha": 1.0,
+          "hex": "#a2a2a2"
         }
       },
       "icon": {
+        "$description": "Glyphs at rest; the `ink-muted` value, held to 3:1.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 66],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.6353, 0.6353, 0.6353],
+          "alpha": 1.0,
+          "hex": "#a2a2a2"
         }
       },
       "tint": {
-        "$description": "The accent as text: links, focus and selection. Never a solid fill.",
+        "$description": "Primary as text (`primary-ink`): links and selected labels. Never a fill.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [204, 100, 62],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.8314, 0.8314, 0.8314],
+          "alpha": 1.0,
+          "hex": "#d4d4d4"
         }
       },
       "tintHover": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [204, 100, 70],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.9333, 0.9333, 0.9333],
+          "alpha": 1.0,
+          "hex": "#eeeeee"
         }
       },
       "tintActive": {
-        "$description": "The accent fill of every primary action, under an onPrimary label.",
+        "$description": "The one neutral fill at rest (`primary`): primary buttons, \"Sit here\". White label.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [204, 100, 39],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.8706, 0.8706, 0.8706],
+          "alpha": 1.0,
+          "hex": "#dedede"
         }
       },
       "tintSubtle": {
+        "$description": "Selected chip, active turn, active player, your avatar (`primary-soft`).",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [204, 100, 55],
-          "alpha": 0.16
+          "colorSpace": "srgb",
+          "components": [0.1882, 0.1882, 0.1882],
+          "alpha": 1.0,
+          "hex": "#303030"
+        }
+      },
+      "primaryStrong": {
+        "$description": "Selected borders, active indicators, your own pieces (`primary-strong`).",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.7686, 0.7686, 0.7686],
+          "alpha": 1.0,
+          "hex": "#c4c4c4"
+        }
+      },
+      "onPrimarySoft": {
+        "$description": "Text and initials on `tintSubtle` (`on-primary-soft`).",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.8706, 0.8706, 0.8706],
+          "alpha": 1.0,
+          "hex": "#dedede"
         }
       },
       "onPrimary": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 100],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.0941, 0.0941, 0.0941],
+          "alpha": 1.0,
+          "hex": "#181818"
         }
       },
       "onDestructive": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 100],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.0941, 0.0941, 0.0941],
+          "alpha": 1.0,
+          "hex": "#181818"
         }
       },
       "onSuccess": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 0],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.0941, 0.0941, 0.0941],
+          "alpha": 1.0,
+          "hex": "#181818"
         }
       },
       "onWarning": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 0],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.0941, 0.0941, 0.0941],
+          "alpha": 1.0,
+          "hex": "#181818"
         }
       },
       "onInfo": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 0],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.0941, 0.0941, 0.0941],
+          "alpha": 1.0,
+          "hex": "#181818"
         }
       },
       "onTintScrim": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 0],
-          "alpha": 0.4
+          "colorSpace": "srgb",
+          "components": [0.0, 0.0, 0.0],
+          "alpha": 0.4,
+          "hex": "#000000"
         }
       },
       "interactiveHover": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 100],
-          "alpha": 0.06
+          "colorSpace": "srgb",
+          "components": [1.0, 1.0, 1.0],
+          "alpha": 0.0588,
+          "hex": "#ffffff"
         }
       },
       "interactivePress": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 100],
-          "alpha": 0.12
+          "colorSpace": "srgb",
+          "components": [1.0, 1.0, 1.0],
+          "alpha": 0.1216,
+          "hex": "#ffffff"
         }
       },
       "border": {
-        "$description": "The hairline: dividers, panel and card edges.",
+        "$description": "Decorative dividers only (`line`).",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 20],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.1725, 0.1725, 0.1725],
+          "alpha": 1.0,
+          "hex": "#2c2c2c"
         }
       },
       "outline": {
-        "$description": "Control boundaries that must read at 3:1 (checkboxes, outline buttons).",
+        "$description": "Borders that carry meaning (`line-strong`): inputs, secondary buttons, unselected chips. Held to 3:1.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 45],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.4471, 0.4471, 0.4471],
+          "alpha": 1.0,
+          "hex": "#727272"
         }
       },
       "focusRing": {
+        "$description": "The 2px focus ring, 2px offset, on every interactive control (`focus`).",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [204, 100, 62],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.7686, 0.7686, 0.7686],
+          "alpha": 1.0,
+          "hex": "#c4c4c4"
         }
       },
       "destructive": {
+        "$description": "Resign, errors, destructive actions as text (`danger`); always with a word or icon.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [355, 90, 66],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.7216, 0.7216, 0.7216],
+          "alpha": 1.0,
+          "hex": "#b8b8b8"
         }
       },
       "destructiveActive": {
+        "$description": "Solid danger fill under a white label.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [355, 78, 45],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.7216, 0.7216, 0.7216],
+          "alpha": 1.0,
+          "hex": "#b8b8b8"
         }
       },
       "destructiveSurface": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [355, 90, 60],
-          "alpha": 0.16
+          "colorSpace": "srgb",
+          "components": [0.5569, 0.5569, 0.5569],
+          "alpha": 0.1608,
+          "hex": "#8e8e8e"
         }
       },
       "success": {
+        "$description": "Success (`success`); always with a word or icon.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [145, 60, 50],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.7216, 0.7216, 0.7216],
+          "alpha": 1.0,
+          "hex": "#b8b8b8"
         }
       },
       "successSurface": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [145, 60, 50],
-          "alpha": 0.16
+          "colorSpace": "srgb",
+          "components": [0.6863, 0.6863, 0.6863],
+          "alpha": 0.1412,
+          "hex": "#afafaf"
         }
       },
       "warning": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [40, 100, 55],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.7216, 0.7216, 0.7216],
+          "alpha": 1.0,
+          "hex": "#b8b8b8"
         }
       },
       "warningSurface": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [40, 100, 55],
-          "alpha": 0.16
+          "colorSpace": "srgb",
+          "components": [0.7569, 0.7569, 0.7569],
+          "alpha": 0.1412,
+          "hex": "#c1c1c1"
         }
       },
       "info": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [204, 100, 62],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.7216, 0.7216, 0.7216],
+          "alpha": 1.0,
+          "hex": "#b8b8b8"
         }
       },
       "infoSurface": {
         "$value": {
-          "colorSpace": "hsl",
-          "components": [204, 100, 55],
-          "alpha": 0.14
+          "colorSpace": "srgb",
+          "components": [0.6118, 0.6118, 0.6118],
+          "alpha": 0.1412,
+          "hex": "#9c9c9c"
         }
       },
-      "disabled": {
+      "live": {
+        "$description": "Only the LIVE pill and the recording dot, under white text.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 15],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.3137, 0.3137, 0.3137],
+          "alpha": 1.0,
+          "hex": "#505050"
         }
       },
-      "scrim": {
+      "onLive": {
+        "$description": "Label on `live`.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 0],
-          "alpha": 0.72
-        }
-      },
-      "shadowColor": {
-        "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 0, 0],
-          "alpha": 0.6
+          "colorSpace": "srgb",
+          "components": [1.0, 1.0, 1.0],
+          "alpha": 1.0,
+          "hex": "#ffffff"
         }
       },
       "pathRed": {
         "$description": "Labeled game paths and endpoint outlines, never application chrome.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [0, 82, 68],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.9725, 0.4431, 0.4431],
+          "alpha": 1.0,
+          "hex": "#f87171"
         }
       },
       "pathOrange": {
         "$description": "Labeled game paths and endpoint outlines, never application chrome.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [24, 95, 64],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.9843, 0.5725, 0.2353],
+          "alpha": 1.0,
+          "hex": "#fb923c"
         }
       },
       "pathYellow": {
         "$description": "Labeled game paths and endpoint outlines, never application chrome.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [48, 96, 62],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.9804, 0.8, 0.0824],
+          "alpha": 1.0,
+          "hex": "#facc15"
         }
       },
       "pathGreen": {
         "$description": "Labeled game paths and endpoint outlines, never application chrome.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [145, 65, 56],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.2902, 0.8706, 0.502],
+          "alpha": 1.0,
+          "hex": "#4ade80"
         }
       },
       "pathBlue": {
         "$description": "Labeled game paths and endpoint outlines, never application chrome.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [214, 94, 72],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.3765, 0.6471, 0.9804],
+          "alpha": 1.0,
+          "hex": "#60a5fa"
         }
       },
       "pathPurple": {
         "$description": "Labeled game paths and endpoint outlines, never application chrome.",
         "$value": {
-          "colorSpace": "hsl",
-          "components": [282, 90, 76],
-          "alpha": 1
+          "colorSpace": "srgb",
+          "components": [0.7529, 0.5176, 0.9882],
+          "alpha": 1.0,
+          "hex": "#c084fc"
+        }
+      },
+      "player1": {
+        "$description": "Seat 1 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.5216, 0.5216, 0.5216],
+          "alpha": 1.0,
+          "hex": "#858585"
+        }
+      },
+      "player2": {
+        "$description": "Seat 2 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.702, 0.702, 0.702],
+          "alpha": 1.0,
+          "hex": "#b3b3b3"
+        }
+      },
+      "player3": {
+        "$description": "Seat 3 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.7608, 0.7608, 0.7608],
+          "alpha": 1.0,
+          "hex": "#c2c2c2"
+        }
+      },
+      "player4": {
+        "$description": "Seat 4 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.5843, 0.5843, 0.5843],
+          "alpha": 1.0,
+          "hex": "#959595"
+        }
+      },
+      "player5": {
+        "$description": "Seat 5 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.8824, 0.8824, 0.8824],
+          "alpha": 1.0,
+          "hex": "#e1e1e1"
+        }
+      },
+      "player6": {
+        "$description": "Seat 6 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.949, 0.949, 0.949],
+          "alpha": 1.0,
+          "hex": "#f2f2f2"
+        }
+      },
+      "player7": {
+        "$description": "Seat 7 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.6471, 0.6471, 0.6471],
+          "alpha": 1.0,
+          "hex": "#a5a5a5"
+        }
+      },
+      "player8": {
+        "$description": "Seat 8 color in multiplayer games. The eight seat colors differ in lightness, not only hue; the viewer's own pieces use `primaryStrong` where the game allows.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.8196, 0.8196, 0.8196],
+          "alpha": 1.0,
+          "hex": "#d1d1d1"
+        }
+      },
+      "boardLight": {
+        "$description": "Light squares of a checkered board. Neutral; the same role in both schemes.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.8431, 0.8431, 0.8431],
+          "alpha": 1.0,
+          "hex": "#d7d7d7"
+        }
+      },
+      "boardDark": {
+        "$description": "Dark squares of a checkered board.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.5255, 0.5255, 0.5255],
+          "alpha": 1.0,
+          "hex": "#868686"
+        }
+      },
+      "boardHighlight": {
+        "$description": "Last-move and selected-square wash over a board square.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.4824, 0.4824, 0.4824],
+          "alpha": 0.349,
+          "hex": "#7b7b7b"
+        }
+      },
+      "boardCell": {
+        "$description": "An empty board cell or slot (the `surface-sunken` value).",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.0431, 0.0431, 0.0431],
+          "alpha": 1.0,
+          "hex": "#0b0b0b"
+        }
+      },
+      "boardCardFace": {
+        "$description": "A playing card face.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9569, 0.9569, 0.9569],
+          "alpha": 1.0,
+          "hex": "#f4f4f4"
+        }
+      },
+      "boardCardInk": {
+        "$description": "Black suits and card text on `boardCardFace`.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.0941, 0.0941, 0.0941],
+          "alpha": 1.0,
+          "hex": "#181818"
+        }
+      },
+      "boardCardInkRed": {
+        "$description": "Red suits on `boardCardFace`.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.2588, 0.2588, 0.2588],
+          "alpha": 1.0,
+          "hex": "#424242"
+        }
+      },
+      "disabled": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.149, 0.149, 0.149],
+          "alpha": 1.0,
+          "hex": "#262626"
+        }
+      },
+      "scrim": {
+        "$description": "Behind sheets and dialogs.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.0, 0.0, 0.0],
+          "alpha": 0.6667,
+          "hex": "#000000"
+        }
+      },
+      "shadowColor": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.0, 0.0, 0.0],
+          "alpha": 0.6,
+          "hex": "#000000"
+        }
+      },
+      "gameConnectFourCanvas": {
+        "$description": "ConnectFour board only: canvas.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.0902, 0.2353, 0.4706],
+          "alpha": 1,
+          "hex": "#173c78"
+        }
+      },
+      "gameConnectFourSurface": {
+        "$description": "ConnectFour board only: surface.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.1412, 0.3294, 0.6078],
+          "alpha": 1,
+          "hex": "#24549b"
+        }
+      },
+      "gameConnectFourInk": {
+        "$description": "ConnectFour board only: ink.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [1.0, 1.0, 1.0],
+          "alpha": 1,
+          "hex": "#ffffff"
+        }
+      },
+      "gameConnectFourMuted": {
+        "$description": "ConnectFour board only: muted.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.8314, 0.8941, 1.0],
+          "alpha": 1,
+          "hex": "#d4e4ff"
+        }
+      },
+      "gameConnectFourAccent": {
+        "$description": "ConnectFour board only: accent.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [1.0, 1.0, 1.0],
+          "alpha": 1,
+          "hex": "#ffffff"
+        }
+      },
+      "gameConnectFourOne": {
+        "$description": "ConnectFour board only: one.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.7843, 0.2235, 0.2196],
+          "alpha": 1,
+          "hex": "#c83938"
+        }
+      },
+      "gameConnectFourTwo": {
+        "$description": "ConnectFour board only: two.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9608, 0.7922, 0.3137],
+          "alpha": 1,
+          "hex": "#f5ca50"
+        }
+      },
+      "gameBattleshipCanvas": {
+        "$description": "Battleship board only: canvas.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.0353, 0.1725, 0.251],
+          "alpha": 1,
+          "hex": "#092c40"
+        }
+      },
+      "gameBattleshipSurface": {
+        "$description": "Battleship board only: surface.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.0706, 0.2471, 0.3294],
+          "alpha": 1,
+          "hex": "#123f54"
+        }
+      },
+      "gameBattleshipInk": {
+        "$description": "Battleship board only: ink.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.898, 0.9608, 1.0],
+          "alpha": 1,
+          "hex": "#e5f5ff"
+        }
+      },
+      "gameBattleshipMuted": {
+        "$description": "Battleship board only: muted.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.6196, 0.7882, 0.8627],
+          "alpha": 1,
+          "hex": "#9ec9dc"
+        }
+      },
+      "gameBattleshipAccent": {
+        "$description": "Battleship board only: accent.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.451, 0.8353, 0.9569],
+          "alpha": 1,
+          "hex": "#73d5f4"
+        }
+      },
+      "gameBattleshipOne": {
+        "$description": "Battleship board only: one.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9686, 0.5725, 0.4471],
+          "alpha": 1,
+          "hex": "#f79272"
+        }
+      },
+      "gameBattleshipTwo": {
+        "$description": "Battleship board only: two.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9608, 0.8039, 0.4627],
+          "alpha": 1,
+          "hex": "#f5cd76"
+        }
+      },
+      "gameQuoridorCanvas": {
+        "$description": "Quoridor board only: canvas.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.8549, 0.7725, 0.6235],
+          "alpha": 1,
+          "hex": "#dac59f"
+        }
+      },
+      "gameQuoridorSurface": {
+        "$description": "Quoridor board only: surface.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9373, 0.8824, 0.7725],
+          "alpha": 1,
+          "hex": "#efe1c5"
+        }
+      },
+      "gameQuoridorInk": {
+        "$description": "Quoridor board only: ink.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.1882, 0.1608, 0.1216],
+          "alpha": 1,
+          "hex": "#30291f"
+        }
+      },
+      "gameQuoridorMuted": {
+        "$description": "Quoridor board only: muted.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.3765, 0.302, 0.2078],
+          "alpha": 1,
+          "hex": "#604d35"
+        }
+      },
+      "gameQuoridorAccent": {
+        "$description": "Quoridor board only: accent.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.2784, 0.2157, 0.3412],
+          "alpha": 1,
+          "hex": "#473757"
+        }
+      },
+      "gameQuoridorOne": {
+        "$description": "Quoridor board only: one.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.6118, 0.1882, 0.1686],
+          "alpha": 1,
+          "hex": "#9c302b"
+        }
+      },
+      "gameQuoridorTwo": {
+        "$description": "Quoridor board only: two.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.1765, 0.4, 0.3373],
+          "alpha": 1,
+          "hex": "#2d6656"
+        }
+      },
+      "gameSokobanCanvas": {
+        "$description": "Sokoban board only: canvas.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.1412, 0.1765, 0.2157],
+          "alpha": 1,
+          "hex": "#242d37"
+        }
+      },
+      "gameSokobanSurface": {
+        "$description": "Sokoban board only: surface.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.2235, 0.2824, 0.3294],
+          "alpha": 1,
+          "hex": "#394854"
+        }
+      },
+      "gameSokobanInk": {
+        "$description": "Sokoban board only: ink.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.949, 0.8941, 0.7686],
+          "alpha": 1,
+          "hex": "#f2e4c4"
+        }
+      },
+      "gameSokobanMuted": {
+        "$description": "Sokoban board only: muted.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.7294, 0.7882, 0.8078],
+          "alpha": 1,
+          "hex": "#bac9ce"
+        }
+      },
+      "gameSokobanAccent": {
+        "$description": "Sokoban board only: accent.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9608, 0.8118, 0.4157],
+          "alpha": 1,
+          "hex": "#f5cf6a"
+        }
+      },
+      "gameSokobanOne": {
+        "$description": "Sokoban board only: one.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9216, 0.6941, 0.4745],
+          "alpha": 1,
+          "hex": "#ebb179"
+        }
+      },
+      "gameSokobanTwo": {
+        "$description": "Sokoban board only: two.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.5255, 0.8431, 0.6745],
+          "alpha": 1,
+          "hex": "#86d7ac"
+        }
+      },
+      "gameNumberlinkCanvas": {
+        "$description": "Numberlink board only: canvas.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.1255, 0.1176, 0.149],
+          "alpha": 1,
+          "hex": "#201e26"
+        }
+      },
+      "gameNumberlinkSurface": {
+        "$description": "Numberlink board only: surface.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.2196, 0.2, 0.2392],
+          "alpha": 1,
+          "hex": "#38333d"
+        }
+      },
+      "gameNumberlinkInk": {
+        "$description": "Numberlink board only: ink.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9569, 0.9412, 0.9098],
+          "alpha": 1,
+          "hex": "#f4f0e8"
+        }
+      },
+      "gameNumberlinkMuted": {
+        "$description": "Numberlink board only: muted.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.7529, 0.7216, 0.6745],
+          "alpha": 1,
+          "hex": "#c0b8ac"
+        }
+      },
+      "gameNumberlinkAccent": {
+        "$description": "Numberlink board only: accent.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.8157, 0.7373, 0.9412],
+          "alpha": 1,
+          "hex": "#d0bcf0"
+        }
+      },
+      "gameNumberlinkOne": {
+        "$description": "Numberlink board only: one.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.6471, 0.2392, 0.1882],
+          "alpha": 1,
+          "hex": "#a53d30"
+        }
+      },
+      "gameNumberlinkTwo": {
+        "$description": "Numberlink board only: two.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.1922, 0.4235, 0.2824],
+          "alpha": 1,
+          "hex": "#316c48"
+        }
+      },
+      "gameWordTilesCanvas": {
+        "$description": "WordTiles board only: canvas.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.1255, 0.2941, 0.251],
+          "alpha": 1,
+          "hex": "#204b40"
+        }
+      },
+      "gameWordTilesSurface": {
+        "$description": "WordTiles board only: surface.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.8627, 0.9098, 0.8392],
+          "alpha": 1,
+          "hex": "#dce8d6"
+        }
+      },
+      "gameWordTilesInk": {
+        "$description": "WordTiles board only: ink.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [1.0, 0.9647, 0.8549],
+          "alpha": 1,
+          "hex": "#fff6da"
+        }
+      },
+      "gameWordTilesMuted": {
+        "$description": "WordTiles board only: muted.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.7451, 0.8314, 0.7647],
+          "alpha": 1,
+          "hex": "#bed4c3"
+        }
+      },
+      "gameWordTilesAccent": {
+        "$description": "WordTiles board only: accent.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [1.0, 0.8824, 0.6392],
+          "alpha": 1,
+          "hex": "#ffe1a3"
+        }
+      },
+      "gameWordTilesOne": {
+        "$description": "WordTiles board only: one.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9608, 0.7765, 0.7216],
+          "alpha": 1,
+          "hex": "#f5c6b8"
+        }
+      },
+      "gameWordTilesTwo": {
+        "$description": "WordTiles board only: two.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.7176, 0.8471, 0.9412],
+          "alpha": 1,
+          "hex": "#b7d8f0"
+        }
+      },
+      "gameHeartsCanvas": {
+        "$description": "Hearts board only: canvas.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.0902, 0.2431, 0.2039],
+          "alpha": 1,
+          "hex": "#173e34"
+        }
+      },
+      "gameHeartsSurface": {
+        "$description": "Hearts board only: surface.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.1412, 0.3333, 0.2745],
+          "alpha": 1,
+          "hex": "#245546"
+        }
+      },
+      "gameHeartsInk": {
+        "$description": "Hearts board only: ink.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [1.0, 0.9647, 0.8706],
+          "alpha": 1,
+          "hex": "#fff6de"
+        }
+      },
+      "gameHeartsMuted": {
+        "$description": "Hearts board only: muted.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.749, 0.8275, 0.7765],
+          "alpha": 1,
+          "hex": "#bfd3c6"
+        }
+      },
+      "gameHeartsAccent": {
+        "$description": "Hearts board only: accent.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9608, 0.851, 0.5804],
+          "alpha": 1,
+          "hex": "#f5d994"
+        }
+      },
+      "gameHeartsOne": {
+        "$description": "Hearts board only: one.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.7412, 0.2039, 0.2353],
+          "alpha": 1,
+          "hex": "#bd343c"
+        }
+      },
+      "gameHeartsTwo": {
+        "$description": "Hearts board only: two.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9608, 0.851, 0.5804],
+          "alpha": 1,
+          "hex": "#f5d994"
+        }
+      },
+      "gamePongCanvas": {
+        "$description": "Pong board only: canvas.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.1569, 0.1098, 0.2745],
+          "alpha": 1,
+          "hex": "#281c46"
+        }
+      },
+      "gamePongSurface": {
+        "$description": "Pong board only: surface.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.2863, 0.2118, 0.4196],
+          "alpha": 1,
+          "hex": "#49366b"
+        }
+      },
+      "gamePongInk": {
+        "$description": "Pong board only: ink.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9725, 0.9294, 1.0],
+          "alpha": 1,
+          "hex": "#f8edff"
+        }
+      },
+      "gamePongMuted": {
+        "$description": "Pong board only: muted.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.8, 0.7294, 0.8902],
+          "alpha": 1,
+          "hex": "#ccbae3"
+        }
+      },
+      "gamePongAccent": {
+        "$description": "Pong board only: accent.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.902, 0.7137, 1.0],
+          "alpha": 1,
+          "hex": "#e6b6ff"
+        }
+      },
+      "gamePongOne": {
+        "$description": "Pong board only: one.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.902, 0.7137, 1.0],
+          "alpha": 1,
+          "hex": "#e6b6ff"
+        }
+      },
+      "gamePongTwo": {
+        "$description": "Pong board only: two.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9686, 0.9059, 0.5961],
+          "alpha": 1,
+          "hex": "#f7e798"
+        }
+      },
+      "gameLightCyclesCanvas": {
+        "$description": "LightCycles board only: canvas.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.0314, 0.1137, 0.1686],
+          "alpha": 1,
+          "hex": "#081d2b"
+        }
+      },
+      "gameLightCyclesSurface": {
+        "$description": "LightCycles board only: surface.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.0863, 0.2314, 0.2941],
+          "alpha": 1,
+          "hex": "#163b4b"
+        }
+      },
+      "gameLightCyclesInk": {
+        "$description": "LightCycles board only: ink.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9255, 0.9804, 1.0],
+          "alpha": 1,
+          "hex": "#ecfaff"
+        }
+      },
+      "gameLightCyclesMuted": {
+        "$description": "LightCycles board only: muted.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.5765, 0.7451, 0.7961],
+          "alpha": 1,
+          "hex": "#93becb"
+        }
+      },
+      "gameLightCyclesAccent": {
+        "$description": "LightCycles board only: accent.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.4431, 0.902, 0.9333],
+          "alpha": 1,
+          "hex": "#71e6ee"
+        }
+      },
+      "gameLightCyclesOne": {
+        "$description": "LightCycles board only: one.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [1.0, 0.6824, 0.502],
+          "alpha": 1,
+          "hex": "#ffae80"
+        }
+      },
+      "gameLightCyclesTwo": {
+        "$description": "LightCycles board only: two.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.7255, 0.6275, 1.0],
+          "alpha": 1,
+          "hex": "#b9a0ff"
         }
       }
     }
@@ -746,7 +2322,7 @@
       "$description": "The 4px grid. Step n is n x 4px."
     },
     "role": {
-      "$description": "Named distances for page insets and stacks, so density is one edit.",
+      "$description": "Named distances for page insets and stacks, so density is one edit. Phone gutters (`page`) are 16.",
       "hairline": {
         "$value": {
           "value": 1,
@@ -763,7 +2339,7 @@
         "$value": "{space.scale.6}"
       },
       "page": {
-        "$value": "{space.scale.5}"
+        "$value": "{space.scale.4}"
       }
     },
     "size": {
@@ -797,15 +2373,27 @@
   "font": {
     "family": {
       "$type": "fontFamily",
-      "$description": "One face: the platform system stack (SF on Apple, Roboto on Android, Segoe on Windows). `mono` is for code and identifiers only.",
+      "$description": "Two faces. `display` (Unbounded) sets display headlines and numbers; `sans` (Manrope) sets everything else. Both are self-hosted with `font-display: swap`. `mono` is for code and identifiers only.",
       "sans": {
         "$value": [
+          "Manrope",
           "system-ui",
           "-apple-system",
           "Segoe UI",
           "Roboto",
           "Helvetica Neue",
           "Arial",
+          "sans-serif"
+        ]
+      },
+      "display": {
+        "$value": [
+          "Unbounded",
+          "Manrope",
+          "system-ui",
+          "-apple-system",
+          "Segoe UI",
+          "Roboto",
           "sans-serif"
         ]
       },
@@ -822,7 +2410,7 @@
     },
     "size": {
       "$type": "dimension",
-      "$description": "The fixed type scale: 12, 14, 16, 20, 24, 32. Nothing renders below 12px.",
+      "$description": "The type scale. `xs` label 12, `sm` caption 13, `base` body 15, `lg` title 18, `xl` stat 20, `2xl` display 26, `3xl` display-xl 40. Nothing renders below 12px.",
       "xs": {
         "$value": {
           "value": 12,
@@ -831,38 +2419,44 @@
       },
       "sm": {
         "$value": {
-          "value": 14,
+          "value": 13,
           "unit": "px"
         }
       },
       "base": {
         "$value": {
-          "value": 16,
+          "value": 15,
           "unit": "px"
         }
       },
       "lg": {
         "$value": {
-          "value": 20,
+          "value": 18,
           "unit": "px"
         }
       },
       "xl": {
         "$value": {
-          "value": 24,
+          "value": 20,
           "unit": "px"
         }
       },
       "2xl": {
         "$value": {
-          "value": 32,
+          "value": 26,
+          "unit": "px"
+        }
+      },
+      "3xl": {
+        "$value": {
+          "value": 40,
           "unit": "px"
         }
       }
     },
     "leading": {
       "$type": "dimension",
-      "$description": "Line height per size step, on the 4px grid.",
+      "$description": "Line height per size step: 12/16, 13/18, 15/22, 18/24, 20/24, 26/30, 40/44.",
       "xs": {
         "$value": {
           "value": 16,
@@ -871,31 +2465,37 @@
       },
       "sm": {
         "$value": {
-          "value": 20,
+          "value": 18,
           "unit": "px"
         }
       },
       "base": {
         "$value": {
-          "value": 24,
+          "value": 22,
           "unit": "px"
         }
       },
       "lg": {
         "$value": {
-          "value": 28,
+          "value": 24,
           "unit": "px"
         }
       },
       "xl": {
         "$value": {
-          "value": 32,
+          "value": 24,
           "unit": "px"
         }
       },
       "2xl": {
         "$value": {
-          "value": 40,
+          "value": 30,
+          "unit": "px"
+        }
+      },
+      "3xl": {
+        "$value": {
+          "value": 44,
           "unit": "px"
         }
       }
@@ -915,9 +2515,12 @@
     },
     "weight": {
       "$type": "fontWeight",
-      "$description": "Three weights: body, emphasis, titles.",
+      "$description": "Manrope 400 body, 500 captions, 700 emphasis and titles; Unbounded 600 numbers and 700 display.",
       "regular": {
         "$value": 400
+      },
+      "medium": {
+        "$value": 500
       },
       "semibold": {
         "$value": 600
@@ -927,10 +2530,78 @@
       }
     }
   },
+  "typography": {
+    "$type": "typography",
+    "$description": "The eight text styles. A component names a style, never a size, weight or face. `stat` is for numbers only.",
+    "display-xl": {
+      "$value": {
+        "fontFamily": "{font.family.display}",
+        "fontSize": "{font.size.3xl}",
+        "fontWeight": "{font.weight.bold}",
+        "lineHeight": "{font.leading.3xl}"
+      }
+    },
+    "display": {
+      "$value": {
+        "fontFamily": "{font.family.display}",
+        "fontSize": "{font.size.2xl}",
+        "fontWeight": "{font.weight.bold}",
+        "lineHeight": "{font.leading.2xl}"
+      }
+    },
+    "stat": {
+      "$value": {
+        "fontFamily": "{font.family.display}",
+        "fontSize": "{font.size.xl}",
+        "fontWeight": "{font.weight.semibold}",
+        "lineHeight": "{font.leading.xl}"
+      }
+    },
+    "title": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.lg}",
+        "fontWeight": "{font.weight.bold}",
+        "lineHeight": "{font.leading.lg}"
+      }
+    },
+    "body": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.base}",
+        "fontWeight": "{font.weight.regular}",
+        "lineHeight": "{font.leading.base}"
+      }
+    },
+    "body-strong": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.base}",
+        "fontWeight": "{font.weight.bold}",
+        "lineHeight": "{font.leading.base}"
+      }
+    },
+    "caption": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.sm}",
+        "fontWeight": "{font.weight.medium}",
+        "lineHeight": "{font.leading.sm}"
+      }
+    },
+    "label": {
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.xs}",
+        "fontWeight": "{font.weight.bold}",
+        "lineHeight": "{font.leading.xs}"
+      }
+    }
+  },
   "radius": {
     "$type": "dimension",
     "scale": {
-      "$description": "Four radii and round: 4, 8, 12, full.",
+      "$description": "Three radii and round: 6, 12, 20, full.",
       "none": {
         "$value": {
           "value": 0,
@@ -939,19 +2610,19 @@
       },
       "sm": {
         "$value": {
-          "value": 4,
+          "value": 6,
           "unit": "px"
         }
       },
       "md": {
         "$value": {
-          "value": 8,
+          "value": 12,
           "unit": "px"
         }
       },
       "lg": {
         "$value": {
-          "value": 12,
+          "value": 20,
           "unit": "px"
         }
       },
@@ -963,7 +2634,7 @@
       }
     },
     "role": {
-      "$description": "Radius encodes hierarchy: `sm` marks and inline tags, `control` buttons, inputs and rows, `card` cards and panels, `sheet` dialogs and sheets, `full` only for round things.",
+      "$description": "Radius encodes hierarchy: `sm` (6) small details, `control` (12) inputs and rows, `card` (12) cards and lists, `sheet` (20) sheets and boards, `full` buttons, chips, tags, header tabs, avatars and stat pills.",
       "none": {
         "$value": "{radius.scale.none}"
       },
@@ -974,7 +2645,7 @@
         "$value": "{radius.scale.md}"
       },
       "card": {
-        "$value": "{radius.scale.lg}"
+        "$value": "{radius.scale.md}"
       },
       "sheet": {
         "$value": "{radius.scale.lg}"

@@ -1,33 +1,35 @@
 /**
  * Resolve a breadcrumb's click handler: explicit `onClick` wins; otherwise
- * `href` routes through `useBreadcrumbNav` (pop when possible, else replace).
+ * compact back controls pop app history when possible, else replace to `href`.
  *
- * The router hook is only touched when some crumb actually declares `href`,
- * so screens driven purely by `onClick` never need an `AppRouterProvider`.
+ * Router context is optional until a routed crumb is activated. Persistent
+ * header islands can change from callback-only to href trails without stale
+ * routing contexts. Pill ancestors navigate to their named route.
  */
 
-import type { Href } from '@pkgs/ui-root-shared-ts/href';
-import { type Accessor, untrack } from 'solid-js';
+import { releaseWebFocus } from '@pkgs/ui-root-shared-ts/release-web-focus';
+import { useOptionalRouter } from './app-router/index';
 import type { ScreenBaseBreadcrumb } from './screen-base-types';
-import { useBreadcrumbNav } from './use-breadcrumb-nav';
 
 export type BreadcrumbClickResolver = (
   crumb: ScreenBaseBreadcrumb
 ) => (() => void) | undefined;
 
 export function useBreadcrumbClick(
-  breadcrumbs: Accessor<readonly ScreenBaseBreadcrumb[]>
+  navigation: 'back' | 'ancestor' = 'back'
 ): BreadcrumbClickResolver {
-  // Whether the trail uses router fallbacks is static per screen mount.
-  const usesHref = untrack(() =>
-    breadcrumbs().some((crumb) => crumb.href !== undefined)
-  );
-  const nav: ((href: Href) => () => void) | undefined = usesHref
-    ? useBreadcrumbNav()
-    : undefined;
+  const router = useOptionalRouter();
   return (crumb) => {
     if (crumb.onClick !== undefined) return crumb.onClick;
-    if (crumb.href !== undefined && nav !== undefined) return nav(crumb.href);
-    return undefined;
+    const href = crumb.href;
+    if (href === undefined) return undefined;
+    return () => {
+      if (router === undefined)
+        throw new Error('Breadcrumb href requires AppRouterProvider');
+      releaseWebFocus();
+      if (navigation === 'ancestor') router.push(href);
+      else if (router.canGoBack()) router.back();
+      else router.replace(href);
+    };
   };
 }

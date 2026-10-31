@@ -74,7 +74,6 @@ export function PuzzleCelebrationOverlay(
         />
         <Button
           title={<Trans>Next puzzle</Trans>}
-          intent="success"
           size="lg"
           fullWidth
           endIcon={<ChevronRightIcon />}

@@ -1,5 +1,9 @@
 import { expect, test } from 'bun:test';
-import { WordTilesBoard } from '@libs/word-tiles-client-ts/word-tiles-board';
+import {
+  createWordTilesBoard,
+  WordTilesBoard,
+} from '@libs/word-tiles-client-ts/word-tiles-board';
+import { wordTilesFrame } from '@libs/word-tiles-client-ts/word-tiles-frame';
 import {
   encodePosition,
   newPosition,
@@ -69,10 +73,84 @@ test('a placement the rules refuse cannot be played and says why', () => {
   expect(actions).toEqual([]);
 });
 
-test('a watcher sees the board but no rack', () => {
+test('a watcher sees the board but no rack, actions or preview', () => {
   const { view } = board(null, false);
+  expect(view.getByTestId('wt-cell-h8')).not.toBeNull();
   expect(view.queryByTestId('wt-rack')).toBeNull();
-  expect(view.getByTestId('wt-bag').textContent).toContain('86');
+  expect(view.queryByTestId('wt-pass')).toBeNull();
+  expect(view.queryByTestId('wt-preview')).toBeNull();
+});
+
+test('the frame shows the turn, the bag, each score and each rack', () => {
+  const frame = wordTilesFrame(2);
+  expect(frame.turnStatus(START, null, [])).toContain('86 tiles in the bag');
+  expect(frame.seats.stat(START, 'black')).toEqual({
+    label: 'Score',
+    value: '0',
+  });
+  expect(frame.seats.facts(START, 'white', [])).toEqual(['7 tiles']);
+});
+
+test('the board, its actions and its controls share one draft', () => {
+  const actions: string[] = [];
+  const { clock, timers } = createHarnessClock();
+  let ids: () => string[] = () => [];
+  let run: (id: string) => void = () => undefined;
+  const view = render(() => (
+    <ClockProvider clock={clock} timers={timers}>
+      <IdProvider createId={() => 'id'} random={() => 0.5}>
+        <ThemeProvider colorScheme="light">
+          {(() => {
+            const session = createWordTilesBoard({
+              position: START,
+              orientation: 'white',
+              interactive: true,
+              sound: false,
+              syncKey: 0,
+              testId: 'custom-game-board',
+              setup: null,
+              hand: '11,0,82,98,25,77,69',
+              committed: [],
+              commitment: null,
+              onAction: (action) => actions.push(action),
+            });
+            const enabled = () =>
+              session
+                .actions()
+                .filter((action) => action.enabled)
+                .map((action) => action.id);
+            ids = enabled;
+            run = (id) =>
+              session
+                .actions()
+                .find((action) => action.id === id)
+                ?.run();
+            return (
+              <>
+                <session.Board />
+                <session.controls />
+              </>
+            );
+          })()}
+        </ThemeProvider>
+      </IdProvider>
+    </ClockProvider>
+  ));
+  expect(ids()).not.toContain('submit');
+  expect(ids()).not.toContain('recall');
+  fireEvent.click(view.getByTestId('custom-game-board-rack-11'));
+  fireEvent.click(view.getByTestId('custom-game-board-cell-h8'));
+  expect(ids()).toContain('recall');
+  expect(view.getByTestId('custom-game-board-preview')).not.toBeNull();
+  run('recall');
+  expect(
+    view.getByTestId('custom-game-board-cell-h8').getAttribute('data-state')
+  ).not.toBe('tentative');
+  run('exchange');
+  expect(ids()).toContain('exchange-cancel');
+  fireEvent.click(view.getByTestId('custom-game-board-rack-11'));
+  run('exchange-confirm');
+  expect(actions).toEqual(['swap:11']);
 });
 
 test('passing is one tap', () => {

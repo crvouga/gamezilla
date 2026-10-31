@@ -1,0 +1,4 @@
+{
+  "summary": "Storybook's default mock-restoration loader cleared callback history when a controlled story updated args during play. Controlled stories now preserve mocks through args rerenders and clear their asserted spies explicitly at the start of each play.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/essentials.checks.ts"
+}

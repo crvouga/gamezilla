@@ -8,7 +8,7 @@ import { compileCssModule } from '@pkgs/bun-test-solid-client-ts/css-module';
 // computed values in observers or attaching styles to each mounted board.
 const stylesheet = document.createElement('style');
 const path = fileURLToPath(
-  new URL('./chess-board.module.css', import.meta.url)
+  new URL('./chess-board/chess-board.module.css', import.meta.url)
 );
 stylesheet.textContent = compileCssModule(path, readFileSync(path, 'utf8')).css;
 document.head.append(stylesheet);

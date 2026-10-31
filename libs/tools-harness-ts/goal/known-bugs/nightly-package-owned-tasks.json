@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly task validation rejected valid tasks declared by a package other than the product app.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-profile.test.ts"
+}

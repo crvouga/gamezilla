@@ -8,7 +8,9 @@ import type {
 import { assertGameDefinitions } from '@libs/game-session-shared-ts/game-definition';
 import type { GameClientDefinition } from '@libs/spaces-shared-ts/game';
 import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentation';
+import { gameFamily } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { JSX } from 'solid-js';
+import { assertContentFrame, assertFrame } from './game-frame-contract';
 import { GameMenu } from './game-menu';
 import { assertGameScreens } from './shared-game-screens';
 
@@ -97,6 +99,8 @@ class DefinedGameClient implements GameClientDefinition {
   readonly id: string;
   readonly title: string;
   readonly caption: string;
+  /** The family its modes share, for a game with rules. */
+  declare readonly family?: string;
   declare readonly presentation?: GamePresentation<JSX.Element>;
   declare readonly puzzleContent?: PuzzleContentClient;
   readonly MainMenu: GameClientDefinition['MainMenu'];
@@ -109,6 +113,8 @@ class DefinedGameClient implements GameClientDefinition {
     this.id = id;
     this.title = game.title;
     this.caption = game.caption;
+    const rules = game.shared.registration?.rules;
+    if (rules !== undefined) this.family = gameFamily(rules);
     if (game.presentation !== undefined)
       this.presentation = { ...game.presentation, id };
     if (game.puzzleContent !== undefined)
@@ -179,6 +185,15 @@ function assertSetupBoard(game: GameClient): void {
     );
 }
 
+/** The frame agrees with the game's rules; puzzle content labels its figures. */
+function assertFrames(game: GameClient): void {
+  const rules = game.shared.registration?.rules;
+  if (rules !== undefined && game.presentation !== undefined)
+    assertFrame(game.shared.id, rules, game.presentation.frame);
+  if (game.puzzleContent !== undefined)
+    assertContentFrame(game.shared.id, game.puzzleContent);
+}
+
 /** The one way a game joins the space's game choice. */
 export function defineGameClient<G extends AnyGameRegistration>(
   game: GameClient<G> & { readonly shared: G }
@@ -187,6 +202,7 @@ export function defineGameClient<G extends AnyGameRegistration>(
   assertContentPart(game);
   assertPuzzlesPart(game);
   assertSetupBoard(game);
+  assertFrames(game);
   if (
     game.shared.registration?.capabilities.matchmaking?.clockChoices === true &&
     typeof game.presentation?.timeoutDrawDescription !== 'function'

@@ -1,9 +1,10 @@
 import type { CustomGameSide } from '@libs/game-session-shared-ts/custom-game-state';
 import { UserProfileAvatar } from '@libs/profile-client-ts/user-profile-avatar';
 import { Trans } from '@lingui/solid/macro';
+import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useGameSideLabel } from '@pkgs/turn-game-client-ts/use-game-side-label';
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
-import { Badge } from '@pkgs/ui-root-client-ts/badge';
+import { Badge, HostBadge } from '@pkgs/ui-root-client-ts/badge';
 import { Divider } from '@pkgs/ui-root-client-ts/divider';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameDisclosure } from '@pkgs/ui-root-client-ts/game-disclosure';
@@ -11,9 +12,8 @@ import {
   GAME_PLAYER_AVATAR_SIZE,
   GamePlayerBar,
 } from '@pkgs/ui-root-client-ts/game-player-bar';
-import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
-import { BotIcon } from '@pkgs/ui-root-client-ts/icons';
-import { Text } from '@pkgs/ui-root-client-ts/text';
+import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
+import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { For, type JSX, Match, Show, Switch } from 'solid-js';
 import { CustomGamePerson, useBotLevel } from './custom-game-person';
 import {
@@ -21,11 +21,17 @@ import {
   CustomGameSideChoices,
 } from './custom-game-side-choices';
 import { CustomGameClock } from './custom-game-status';
+import { frameSwatch } from './game-frame-look';
+import { frameViewerNotice } from './game-frame-setup-copy';
+import { useFrameViewer } from './game-frame-viewer';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
 type SideProps = { model: CustomGameScreenModel; side: CustomGameSide };
 
-/** A person's picture, the bot's plate, or the placeholder of an empty seat. */
+/**
+ * A person's picture, the bot, a guest playing on this device, an open
+ * seat, or the person placeholder of a place nobody may take.
+ */
 function SeatAvatar(props: SideProps): JSX.Element {
   const participant = () => props.model.current()![props.side];
   return (
@@ -41,114 +47,79 @@ function SeatAvatar(props: SideProps): JSX.Element {
         />
       </Match>
       <Match when={participant().kind === 'bot'}>
-        <Avatar
-          size={GAME_PLAYER_AVATAR_SIZE}
-          icon={BotIcon}
-          background="surfaceMuted"
-          foreground="icon"
-        />
+        <Avatar size={GAME_PLAYER_AVATAR_SIZE} kind="bot" />
+      </Match>
+      <Match when={participant().kind === 'local'}>
+        <Avatar size={GAME_PLAYER_AVATAR_SIZE} kind="guest" />
+      </Match>
+      <Match when={participant().kind === 'open'}>
+        <Avatar size={GAME_PLAYER_AVATAR_SIZE} kind="emptySeat" />
       </Match>
     </Switch>
   );
 }
 
-/** The seat's colour, then whether its holder is ready while a game is set up. */
+/**
+ * The seat's colour, the host's tag on the host's own seat, the viewer's
+ * own seat at someone else's table, and whether its holder is ready.
+ */
 function SeatTags(props: SideProps): JSX.Element {
   const gameSideLabel = useGameSideLabel();
+  const game = () => props.model.current()!;
   const ready = () =>
     props.model.current()?.ready.includes(props.side) === true;
+  const holder = () => game()[props.side];
+  const hosts = () =>
+    holder().kind === 'person' && holder().person === game().creator;
+  const visiting = () =>
+    props.model.mySide() === props.side && !props.model.canConfigure();
   return (
     <>
       <Badge
         intent="neutral"
         label={gameSideLabel(props.model.current()?.fen ?? '', props.side)}
       />
-      <Show when={props.model.current()?.status === 'active'}>
-        <SeatPlayTags {...props} />
+      <Show when={hosts()}>
+        <HostBadge
+          size="sm"
+          dataSet={{ testid: `custom-game-${props.side}-host` }}
+        />
       </Show>
-      <Show when={props.model.current()?.status === 'configuring'}>
-        <Show
-          when={ready()}
-          fallback={
-            <Badge intent="neutral" label={<Trans>Getting ready</Trans>} />
-          }
-        >
-          <Badge intent="success" label={<Trans>Ready</Trans>} />
-        </Show>
+      <Show when={visiting()}>
+        <Badge
+          intent="info"
+          label={<Trans>You · guest</Trans>}
+          dataSet={{ testid: `custom-game-${props.side}-you` }}
+        />
+      </Show>
+      <Show
+        when={ready()}
+        fallback={
+          <Badge intent="neutral" label={<Trans>Getting ready</Trans>} />
+        }
+      >
+        <Badge intent="success" label={<Trans>Ready</Trans>} />
       </Show>
     </>
   );
 }
 
 /**
- * While the game is played: a side a stand-in bot plays says so, and while
- * every side chooses in secret, whether this side has chosen (never what).
+ * One seat while the game is set up: who holds it, its look, its clock and
+ * the choices for it. Once the game is played the frame's seats
+ * (`game-frame-seats.tsx`) show it.
  */
-function SeatPlayTags(props: SideProps): JSX.Element {
-  const game = () => props.model.current()!;
-  return (
-    <>
-      <Show when={game().standIns.includes(props.side)}>
-        <Badge
-          intent="warning"
-          label={<Trans>Stand-in bot</Trans>}
-          dataSet={{ testid: `custom-game-${props.side}-stand-in` }}
-        />
-      </Show>
-      <Show when={game().committed.includes(props.side)}>
-        <Badge
-          intent="success"
-          label={<Trans>Chosen</Trans>}
-          dataSet={{ testid: `custom-game-${props.side}-committed` }}
-        />
-      </Show>
-      <Show when={game().awaiting.includes(props.side)}>
-        <Badge intent="neutral" label={<Trans>Choosing</Trans>} />
-      </Show>
-    </>
-  );
-}
-
-/** The person whose side a stand-in plays takes it back. */
-function TakeBackSide(props: SideProps): JSX.Element {
-  const game = () => props.model.current()!;
-  return (
-    <Show
-      when={
-        game().status === 'active' &&
-        game().standIns.includes(props.side) &&
-        game()[props.side].person === props.model.myId() &&
-        props.model.canPlay()
-      }
-    >
-      <GameActionButton
-        title={<Trans>Take back my side</Trans>}
-        variant="solid"
-        dataSet={{ testid: 'custom-game-reclaim' }}
-        operation={() => props.model.choose({ operation: 'reclaim' })}
-      />
-    </Show>
-  );
-}
-
-/** Whether `side` decides now: its turn, or its secret choice still open. */
-function seatDeciding(model: CustomGameScreenModel, side: CustomGameSide) {
-  const game = model.current();
-  if (game?.status !== 'active') return false;
-  return game.awaiting.length > 0
-    ? game.awaiting.includes(side)
-    : game.turn === side;
-}
-
-/**
- * One side of the game: who holds it, its colour and its clock. While the
- * game is set up it also carries the choices for that side.
- */
-export function CustomGameSeat(props: SideProps): JSX.Element {
+function CustomGameSeat(props: SideProps): JSX.Element {
   const level = useBotLevel(props);
+  const presentation = useGamePresentation();
+  const look = () =>
+    frameSwatch(
+      presentation(props.model.current()!.fen).frame.seats.look(props.side)
+    );
   return (
     <GamePlayerBar
       dataSet={{ testid: `custom-game-${props.side}` }}
+      swatch={look()}
       name={
         <Text variant="inherit" testId={`custom-game-${props.side}-person`}>
           <CustomGamePerson
@@ -164,23 +135,53 @@ export function CustomGameSeat(props: SideProps): JSX.Element {
           <CustomGameClock game={props.model.current()!} side={props.side} />
         ) : undefined
       }
-      active={seatDeciding(props.model, props.side)}
     >
-      {props.model.current()?.status === 'configuring' ? (
-        <CustomGameSideActions {...props} />
-      ) : (
-        <TakeBackSide {...props} />
-      )}
+      <CustomGameSideActions {...props} />
     </GamePlayerBar>
   );
 }
 
-/** Both seats while the game is set up, each with its own choices. */
+/**
+ * A person who may take a seat sits in the first open one; someone who may
+ * not, or finds every seat taken, is told they watch.
+ */
+function SeatsNotice(props: { model: CustomGameScreenModel }): JSX.Element {
+  const viewer = useFrameViewer(props.model);
+  const notice = () =>
+    frameViewerNotice(viewer.role(), viewer.openSides().length);
+  return (
+    <>
+      <Show when={notice()}>
+        {(text) => (
+          <P tone="secondary" testId="custom-game-viewer">
+            {text()}
+          </P>
+        )}
+      </Show>
+      <Show when={viewer.role() === 'member' ? viewer.openSides()[0] : null}>
+        {(side) => (
+          <GameActions>
+            <GameActionButton
+              title={<Trans>Take a seat</Trans>}
+              dataSet={{ testid: 'custom-game-take-seat' }}
+              operation={() =>
+                props.model.choose({ operation: 'claim', side: side() })
+              }
+            />
+          </GameActions>
+        )}
+      </Show>
+    </>
+  );
+}
+
+/** Every seat while the game is set up, each with its own choices. */
 export function CustomGameSeats(props: {
   model: CustomGameScreenModel;
 }): JSX.Element {
   return (
     <GameSection title={<Trans>Players</Trans>}>
+      <SeatsNotice model={props.model} />
       <For each={props.model.current()?.sides ?? []}>
         {(side, index) => (
           <>
@@ -204,7 +205,7 @@ function CustomGameSideActions(props: SideProps): JSX.Element {
       </Show>
       <Show when={participant().kind === 'open' && props.model.canJoin()}>
         <GameActionButton
-          title={<Trans>Claim this side</Trans>}
+          title={<Trans>Sit here</Trans>}
           variant="solid"
           dataSet={{ testid: `custom-game-${props.side}-claim` }}
           operation={() =>
@@ -220,7 +221,7 @@ function CustomGameSideActions(props: SideProps): JSX.Element {
         }
       >
         <GameActionButton
-          title={<Trans>Release this side</Trans>}
+          title={<Trans>Leave seat</Trans>}
           dataSet={{ testid: `custom-game-${props.side}-release` }}
           operation={() =>
             props.model.choose({ operation: 'release', side: props.side })
@@ -229,7 +230,7 @@ function CustomGameSideActions(props: SideProps): JSX.Element {
       </Show>
       <Show when={props.model.canConfigure()}>
         <GameDisclosure
-          title={<Trans>Change participant</Trans>}
+          title={<Trans>Change who sits here</Trans>}
           dataSet={{ testid: `custom-game-${props.side}-choices` }}
         >
           <CustomGameSideChoices {...props} />

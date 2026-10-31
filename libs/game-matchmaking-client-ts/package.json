@@ -7,12 +7,13 @@
       "./src/*.ts",
       "./src/*.tsx",
       "./src/*.d.ts"
-    ]
+    ],
+    "./multiplayer-frame-board": "./src/multiplayer-frame-board.tsx"
   },
   "scripts": {
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test tests",
+    "test": "bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests",
     "verify:board-contract": "bun run ../tools-harness-ts/scripts/verify-board-contract.ts"
   },
   "dependencies": {
@@ -49,7 +50,9 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/bun-test-solid-client-ts": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",

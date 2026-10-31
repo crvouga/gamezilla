@@ -1,0 +1,25 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "inventory": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/pkgs/ui-root-client-ts/src/**",
+        "$TURBO_ROOT$/pkgs/ui-root-shared-ts/src/**",
+        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/**/*.stories.tsx"
+      ],
+      "outputs": [".cache/inventory.md", ".cache/inventory.json"]
+    },
+    "test": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/pkgs/ui-root-harness-ts/turbo.json",
+        "$TURBO_ROOT$/pkgs/ui-codegen-server-ts/turbo.json",
+        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/**/*.stories.tsx"
+      ],
+      "outputs": []
+    }
+  }
+}

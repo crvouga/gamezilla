@@ -6,7 +6,7 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import type { PresenceRosterRow } from '@pkgs/collab-ui-client-ts/presence-roster-list';
 import { PresenceRosterList } from '@pkgs/collab-ui-client-ts/presence-roster-list';
 import type { RoomActor } from '@pkgs/room-root-shared-ts/types';
-import { Badge } from '@pkgs/ui-root-client-ts/badge';
+import { Badge, HostBadge } from '@pkgs/ui-root-client-ts/badge';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
@@ -99,6 +99,7 @@ export function SpaceMembersListModal(
             <EmptyState
               variant="compact"
               title={<Trans>No one connected yet</Trans>}
+              body={<Trans>Share the space link to invite people.</Trans>}
             />
           }
         >
@@ -138,12 +139,7 @@ function SpaceMemberBadges(props: {
         />
       </Show>
       <Show when={role() === 'host'}>
-        <Badge
-          label={<Trans>Host</Trans>}
-          intent="brand"
-          tone="subtle"
-          size="sm"
-        />
+        <HostBadge size="sm" />
       </Show>
       <Show when={props.memberId === props.myId}>
         <Badge

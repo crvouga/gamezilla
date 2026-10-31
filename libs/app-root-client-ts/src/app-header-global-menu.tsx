@@ -134,9 +134,9 @@ function useGlobalMenuActions(): Accessor<readonly OverflowMenuAction[]> {
   ]);
 }
 
-/** Shell default face when no sub published one: the person placeholder. */
+/** Shell default face when no sub published one: your own placeholder. */
 function DefaultAccountFace(props: { readonly size: number }): JSX.Element {
-  return <Avatar size={props.size} />;
+  return <Avatar size={props.size} you />;
 }
 
 function accountFace(identity: GlobalMenuIdentity, size: number): JSX.Element {

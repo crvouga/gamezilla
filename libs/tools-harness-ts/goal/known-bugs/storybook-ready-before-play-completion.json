@@ -1,0 +1,4 @@
+{
+  "summary": "An args update during play can finish an intermediate render and run afterEach before the original play completes. Browser evidence now waits for native play completion and successful STORY_FINISHED instead of treating each afterEach as ready.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/story-readiness.test.ts"
+}

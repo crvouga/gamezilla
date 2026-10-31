@@ -2,8 +2,6 @@ import { chessPuzzlesClient } from '@libs/chess-puzzle-client-ts/chess-puzzles-c
 import { PuzzleManagementScreen } from '@libs/chess-puzzle-client-ts/puzzle-management-screen';
 import { CHESS_SCREEN } from '@libs/chess-root-shared-ts/chess-screens';
 import { ChessSettingsDeveloperScreen } from '@libs/chess-shared-client-ts/chess-settings-developer-screen';
-import { ChessSettingsDeveloperUiComponentDetailScreen } from '@libs/chess-shared-client-ts/chess-settings-developer-ui-component-detail-screen';
-import { ChessSettingsDeveloperUiComponentsScreen } from '@libs/chess-shared-client-ts/chess-settings-developer-ui-components-screen';
 import { ChessSettingsScreen } from '@libs/chess-shared-client-ts/chess-settings-screen';
 import { chessGameShared } from '@libs/chess-sub-shared-ts/chess-game';
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
@@ -50,14 +48,6 @@ export const chessGameClient = defineGameClient({
     {
       screen: CHESS_SCREEN.settingsDeveloperPuzzles,
       Screen: DeveloperPuzzlesScreen,
-    },
-    {
-      screen: CHESS_SCREEN.settingsDeveloperUi,
-      Screen: ChessSettingsDeveloperUiComponentsScreen,
-    },
-    {
-      screen: CHESS_SCREEN.settingsDeveloperUiDetail,
-      Screen: ChessSettingsDeveloperUiComponentDetailScreen,
     },
   ],
 });

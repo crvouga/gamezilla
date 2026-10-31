@@ -87,7 +87,7 @@ import Wifi from 'lucide-solid/icons/wifi';
 import WifiOff from 'lucide-solid/icons/wifi-off';
 import X from 'lucide-solid/icons/x';
 
-import { createIcon } from './create-icon';
+import { createIcon } from './create-icon/index';
 export const CreditCardIcon = createIcon(CreditCard);
 
 export const HouseIcon = createIcon(House);

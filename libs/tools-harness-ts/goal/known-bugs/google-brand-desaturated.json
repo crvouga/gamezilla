@@ -1,0 +1,4 @@
+{
+  "summary": "Google sign-in desaturated its vendor mark and used an outdated palette and typeface.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/navigation.test.tsx"
+}

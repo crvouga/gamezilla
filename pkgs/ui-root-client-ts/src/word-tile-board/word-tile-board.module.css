@@ -1,0 +1,146 @@
+.board {
+  --ui-color-background: var(--ui-color-game-word-tiles-canvas);
+  --color-background: var(--ui-color-background);
+  --ui-color-surface: var(--ui-color-game-word-tiles-surface);
+  --color-surface: var(--ui-color-surface);
+  --ui-color-surface-muted: var(--ui-color-game-word-tiles-surface);
+  --color-surface-muted: var(--ui-color-surface-muted);
+  --ui-color-surface-sunken: var(--ui-color-game-word-tiles-surface);
+  --color-surface-sunken: var(--ui-color-surface-sunken);
+  --ui-color-surface-elevated: var(--ui-color-game-word-tiles-surface);
+  --color-surface-elevated: var(--ui-color-surface-elevated);
+  --ui-color-text: var(--ui-color-game-word-tiles-ink);
+  --color-text: var(--ui-color-text);
+  --ui-color-text-secondary: var(--ui-color-game-word-tiles-muted);
+  --color-text-secondary: var(--ui-color-text-secondary);
+  --ui-color-border: var(--ui-color-game-word-tiles-surface);
+  --color-border: var(--ui-color-border);
+  --ui-color-outline: var(--ui-color-game-word-tiles-muted);
+  --color-outline: var(--ui-color-outline);
+  --ui-color-tint: var(--ui-color-game-word-tiles-accent);
+  --color-tint: var(--ui-color-tint);
+  --ui-color-tint-active: var(--ui-color-game-word-tiles-accent);
+  --color-tint-active: var(--ui-color-tint-active);
+  --ui-color-tint-subtle: var(--ui-color-game-word-tiles-surface);
+  --color-tint-subtle: var(--ui-color-tint-subtle);
+  --ui-color-focus-ring: var(--ui-color-game-word-tiles-accent);
+  --color-focus-ring: var(--ui-color-focus-ring);
+  --ui-color-destructive: var(--ui-color-game-word-tiles-one);
+  --color-destructive: var(--ui-color-destructive);
+  --ui-color-warning: var(--ui-color-game-word-tiles-two);
+  --color-warning: var(--ui-color-warning);
+  --ui-color-success: var(--ui-color-game-word-tiles-accent);
+  --color-success: var(--ui-color-success);
+  --ui-color-info: var(--ui-color-game-word-tiles-accent);
+  --color-info: var(--ui-color-info);
+  --ui-color-on-destructive: var(--ui-color-game-word-tiles-canvas);
+  --color-on-destructive: var(--ui-color-on-destructive);
+  --ui-color-on-warning: var(--ui-color-game-word-tiles-canvas);
+  --color-on-warning: var(--ui-color-on-warning);
+  --ui-color-on-info: var(--ui-color-game-word-tiles-canvas);
+  --color-on-info: var(--ui-color-on-info);
+}
+.board {
+  display: grid;
+  grid-template-columns:
+    minmax(0.75rem, 0.5fr)
+    repeat(var(--word-tile-columns), minmax(0, 1fr));
+  width: 100%;
+  max-width: 40rem;
+  gap: var(--ui-space-hairline);
+  padding: var(--ui-space-1);
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-color-background);
+  color: var(--ui-color-text);
+  container-type: inline-size;
+}
+.header {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  font-size: var(--ui-font-size-xs);
+  line-height: 1;
+  color: var(--ui-color-board-card-ink);
+  font-variant-numeric: tabular-nums;
+}
+.cell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  min-width: 0;
+  padding: 0;
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-color-background);
+  color: var(--ui-color-text);
+  cursor: pointer;
+  touch-action: manipulation;
+  font-size: var(--ui-font-size-sm);
+  line-height: 1;
+}
+.cell[aria-disabled="true"] {
+  cursor: default;
+}
+.cell:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
+  z-index: 1;
+}
+.cell[data-square="DL"] {
+  background: var(--ui-color-game-word-tiles-two);
+  color: var(--ui-color-game-word-tiles-canvas);
+}
+.cell[data-square="TL"] {
+  background: var(--ui-color-info);
+  color: var(--ui-color-on-info);
+}
+.cell[data-square="DW"],
+.cell[data-square="start"] {
+  background: var(--ui-color-game-word-tiles-accent);
+  color: var(--ui-color-game-word-tiles-canvas);
+}
+.cell[data-square="TW"] {
+  background: var(--ui-color-game-word-tiles-one);
+  color: var(--ui-color-game-word-tiles-canvas);
+}
+.square {
+  font-size: var(--ui-font-size-xs);
+  font-weight: 600;
+}
+.cell[data-state="committed"],
+.cell[data-state="recent"],
+.cell[data-state="tentative"] {
+  background: var(--ui-color-board-card-face);
+  color: var(--ui-color-board-card-ink);
+  border-color: var(--ui-color-outline);
+}
+.cell[data-state="recent"] {
+  outline: 2px solid var(--ui-color-text);
+  outline-offset: -2px;
+}
+.cell[data-state="tentative"] {
+  background: var(--ui-color-game-word-tiles-accent);
+  border: 2px dashed var(--ui-color-tint);
+}
+.letter {
+  font-weight: 700;
+  font-size: var(--ui-font-size-base);
+}
+.points {
+  position: absolute;
+  right: var(--ui-space-hairline);
+  bottom: var(--ui-space-hairline);
+  font-size: var(--ui-font-size-xs);
+  color: var(--ui-color-board-card-ink);
+  font-variant-numeric: tabular-nums;
+}
+@container (max-width: 24rem) {
+  .letter {
+    font-size: var(--ui-font-size-xs);
+  }
+  .points,
+  .square {
+    display: none;
+  }
+}

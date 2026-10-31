@@ -48,7 +48,6 @@ export function ContentPackItems(props: {
       >
         <MenuSection
           title={<Trans>Pack order</Trans>}
-          role="group"
           dataSet={{ testid: 'content-pack-order' }}
           footer={
             <Trans>

@@ -113,7 +113,11 @@ export const NIGHTLY_SUITES = {
   },
   visual: {
     summary: 'UI quality of every recorded product state',
-    tasks: ['@apps/product-ts#verify:ui-quality'],
+    tasks: [
+      '@apps/product-ts#verify:ui-quality',
+      '@pkgs/ui-root-harness-ts#storybook:test',
+      '@pkgs/ui-root-harness-ts#storybook:mcp:test',
+    ],
     deadlineSeconds: 7200,
   },
   coverage: {

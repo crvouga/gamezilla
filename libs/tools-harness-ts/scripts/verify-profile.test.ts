@@ -143,6 +143,7 @@ describe('verification profiles', () => {
   });
 
   // regression: nightly-package-task-declaration
+  // regression: nightly-package-owned-tasks
   test('every nightly suite task is a declared Turbo task', () => {
     const root = JSON.parse(readFileSync(join(ROOT, 'turbo.json'), 'utf8')) as {
       tasks: Record<string, unknown>;
@@ -153,14 +154,14 @@ describe('verification profiles', () => {
         {}
       )) {
         const [pkg, name] = task.split('#') as [string, string];
-        const config = join(ROOT, pkg.slice(1), 'turbo.json');
-        const local = existsSync(config)
-          ? (JSON.parse(readFileSync(config, 'utf8')) as {
+        const file = join(ROOT, pkg.slice(1), 'turbo.json');
+        const owner = existsSync(file)
+          ? (JSON.parse(readFileSync(file, 'utf8')) as {
               tasks: Record<string, unknown>;
             })
           : { tasks: {} };
         expect(
-          Object.hasOwn(root.tasks, task) || Object.hasOwn(local.tasks, name),
+          Object.hasOwn(root.tasks, task) || Object.hasOwn(owner.tasks, name),
           task
         ).toBe(true);
       }

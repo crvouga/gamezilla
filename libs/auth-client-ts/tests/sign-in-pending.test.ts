@@ -37,11 +37,11 @@ describe('parseSignInPending', () => {
     const pending = parseSignInPending(
       JSON.stringify({
         startedAt: isoNow(),
-        returnHref: '/ui/Divider',
+        returnHref: '/more/theme',
       }),
       adapters.clock.now
     );
-    expect(pending?.returnHref).toBe('/ui/Divider');
+    expect(pending?.returnHref).toBe('/more/theme');
   });
 
   test('drops unsafe returnHref on parse', () => {
@@ -64,7 +64,7 @@ describe('parseSignInPending', () => {
 describe('sanitizeSignInReturnHref', () => {
   test('keeps relative app paths', () => {
     expect(sanitizeSignInReturnHref('/more/account')).toBe('/more/account');
-    expect(sanitizeSignInReturnHref('/ui/Box?x=1')).toBe('/ui/Box?x=1');
+    expect(sanitizeSignInReturnHref('/more/theme?x=1')).toBe('/more/theme?x=1');
   });
 
   test('rejects callback and absolute urls', () => {

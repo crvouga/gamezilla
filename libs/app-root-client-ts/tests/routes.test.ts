@@ -24,8 +24,6 @@ const SHELL_PATHS: readonly string[] = [
   '/more/account/device/device-1',
   '/client/sql',
   '/client/events',
-  '/ui',
-  '/ui/button',
   '/sso-callback',
 ];
 
@@ -52,6 +50,13 @@ describe('route table', () => {
     const table = buildRouteTable([]);
     expect(matchAppRoute(table, '/nope')).toBeNull();
     expect(matchAppRoute(table, '/more/unknown/deep')).toBeNull();
+  });
+
+  // regression: retired-ui-explorer-routes
+  it('does not mount the retired component explorer', () => {
+    const table = buildRouteTable([]);
+    expect(matchAppRoute(table, '/ui')).toBeNull();
+    expect(matchAppRoute(table, '/ui/button')).toBeNull();
   });
 
   it('mounts what the composed subs contributed, and nothing more', () => {

@@ -1,0 +1,128 @@
+.board {
+  --ui-color-background: var(--ui-color-game-sokoban-canvas);
+  --color-background: var(--ui-color-background);
+  --ui-color-surface: var(--ui-color-game-sokoban-surface);
+  --color-surface: var(--ui-color-surface);
+  --ui-color-surface-muted: var(--ui-color-game-sokoban-surface);
+  --color-surface-muted: var(--ui-color-surface-muted);
+  --ui-color-surface-sunken: var(--ui-color-game-sokoban-surface);
+  --color-surface-sunken: var(--ui-color-surface-sunken);
+  --ui-color-surface-elevated: var(--ui-color-game-sokoban-surface);
+  --color-surface-elevated: var(--ui-color-surface-elevated);
+  --ui-color-text: var(--ui-color-game-sokoban-ink);
+  --color-text: var(--ui-color-text);
+  --ui-color-text-secondary: var(--ui-color-game-sokoban-muted);
+  --color-text-secondary: var(--ui-color-text-secondary);
+  --ui-color-border: var(--ui-color-game-sokoban-surface);
+  --color-border: var(--ui-color-border);
+  --ui-color-outline: var(--ui-color-game-sokoban-muted);
+  --color-outline: var(--ui-color-outline);
+  --ui-color-tint: var(--ui-color-game-sokoban-accent);
+  --color-tint: var(--ui-color-tint);
+  --ui-color-tint-active: var(--ui-color-game-sokoban-accent);
+  --color-tint-active: var(--ui-color-tint-active);
+  --ui-color-tint-subtle: var(--ui-color-game-sokoban-surface);
+  --color-tint-subtle: var(--ui-color-tint-subtle);
+  --ui-color-focus-ring: var(--ui-color-game-sokoban-accent);
+  --color-focus-ring: var(--ui-color-focus-ring);
+  --ui-color-destructive: var(--ui-color-game-sokoban-one);
+  --color-destructive: var(--ui-color-destructive);
+  --ui-color-warning: var(--ui-color-game-sokoban-two);
+  --color-warning: var(--ui-color-warning);
+  --ui-color-success: var(--ui-color-game-sokoban-accent);
+  --color-success: var(--ui-color-success);
+  --ui-color-info: var(--ui-color-game-sokoban-accent);
+  --color-info: var(--ui-color-info);
+  --ui-color-on-destructive: var(--ui-color-game-sokoban-canvas);
+  --color-on-destructive: var(--ui-color-on-destructive);
+  --ui-color-on-warning: var(--ui-color-game-sokoban-canvas);
+  --color-on-warning: var(--ui-color-on-warning);
+  --ui-color-on-info: var(--ui-color-game-sokoban-canvas);
+  --color-on-info: var(--ui-color-on-info);
+}
+.board {
+  /* A 2.75rem (44px) tile where it fits; a tall board also fits the viewport. */
+  position: relative;
+  width: min(
+    100%,
+    calc(var(--tile-board-columns) * 2.75rem),
+    calc(65dvh * var(--tile-board-columns) / var(--tile-board-rows))
+  );
+  aspect-ratio: var(--tile-board-columns) / var(--tile-board-rows);
+  margin-inline: auto;
+  border-radius: var(--ui-radius-card);
+  background: var(--color-surface-muted);
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+}
+.board:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+.board[data-disabled="true"] {
+  opacity: 0.7;
+}
+.tiles {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--tile-board-columns), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--tile-board-rows), minmax(0, 1fr));
+}
+.tile {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid transparent;
+}
+.tile[data-terrain="open"] {
+  background: var(--color-background);
+  border-color: var(--color-border);
+}
+.tile[data-terrain="solid"] {
+  /* Solid by fill and by a heavy edge, not by colour alone. */
+  background: var(--color-text-secondary);
+  border: 2px solid var(--color-text);
+}
+.tile[data-terrain="none"] {
+  background: transparent;
+}
+.mark {
+  width: 46%;
+  height: 46%;
+  border: 2px dashed var(--color-success);
+  border-radius: 50%;
+}
+.pieces {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.piece {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: calc(100% / var(--tile-board-columns));
+  height: calc(100% / var(--tile-board-rows));
+  font-size: clamp(0.75rem, 3.5vw, 1.5rem);
+  line-height: 1;
+  transition: transform 90ms ease-out;
+}
+.piece[data-tone="actor"] {
+  color: var(--color-tint);
+}
+.piece[data-tone="object"] {
+  color: var(--color-text);
+}
+.piece[data-tone="settled"] {
+  color: var(--color-success);
+}
+@media (prefers-reduced-motion: reduce) {
+  .piece {
+    transition: none;
+  }
+}

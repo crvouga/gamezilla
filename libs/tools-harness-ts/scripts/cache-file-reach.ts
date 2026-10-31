@@ -18,10 +18,12 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { dirname, join as joinPosix, normalize } from 'node:path/posix';
 
-const SOURCE = /\.(?:[cm]?[jt]sx?)$/;
+const GRAPH_FILE = /\.(?:[cm]?[jt]sx?|css|svg|png|jpe?g|webp|woff2?|ttf)$/;
+const TEXT_FILE = /\.(?:[cm]?[jt]sx?|css)$/;
+const CSS_URL = /url\(\s*['"]?([^'"\s)]+)['"]?\s*\)/g;
 const TEST_FILE = /\.test\.[cm]?[jt]sx?$/;
 const SPECIFIER =
-  /(?:from\s*|import\s*\(\s*|require\(\s*|import\s+)['"]([^'"]+)['"]/g;
+  /(?:from\s*|import\s*\(\s*|require\(\s*|import\s+|new\s+URL\s*\(\s*|@import\s+)['"]([^'"]+)['"]/g;
 const WORKSPACE_SPECIFIER = /^@(apps|libs|pkgs)\/([^/]+)\/(.+)$/;
 const TIERS = ['apps', 'libs', 'pkgs'] as const;
 
@@ -31,7 +33,15 @@ export type FileReach = {
   readonly packages: number;
 };
 
-const SKIPPED_DIRECTORIES = new Set(['node_modules', '.cache', 'dist']);
+const SKIPPED_DIRECTORIES = new Set([
+  'node_modules',
+  '.cache',
+  'dist',
+  '.git',
+  '.turbo',
+  '.build',
+  'baselines',
+]);
 
 function sourceFiles(root: string): Set<string> {
   const files = new Set<string>();
@@ -41,7 +51,7 @@ function sourceFiles(root: string): Set<string> {
       if (entry.isDirectory()) {
         if (!SKIPPED_DIRECTORIES.has(entry.name))
           stack.push(`${dir}/${entry.name}`);
-      } else if (entry.isFile() && SOURCE.test(entry.name))
+      } else if (entry.isFile() && GRAPH_FILE.test(entry.name))
         files.add(`${dir}/${entry.name}`);
     }
   return files;
@@ -50,24 +60,17 @@ function sourceFiles(root: string): Set<string> {
 function resolveSpecifier(
   from: string,
   specifier: string,
-  files: ReadonlySet<string>
+  resolveBase: (base: string) => string | undefined
 ): string | undefined {
-  const candidates = (base: string): string[] => [
-    base,
-    ...['.ts', '.tsx', '.d.ts', '.mts', '.js', '.cjs'].map((e) => base + e),
-    `${base}/index.ts`,
-    `${base}/index.tsx`,
-  ];
   if (specifier.startsWith('.'))
-    return candidates(normalize(joinPosix(dirname(from), specifier))).find(
-      (c) => files.has(c)
-    );
+    return resolveBase(normalize(joinPosix(dirname(from), specifier)));
   const match = WORKSPACE_SPECIFIER.exec(specifier);
   if (match === null) return undefined;
   const dir = `${match[1]}/${match[2]}`;
-  return ['src', 'scripts']
-    .flatMap((visible) => candidates(`${dir}/${visible}/${match[3]}`))
-    .find((c) => files.has(c));
+  return (
+    resolveBase(`${dir}/src/${match[3]}`) ??
+    resolveBase(`${dir}/scripts/${match[3]}`)
+  );
 }
 
 export type ImportGraph = {
@@ -75,20 +78,62 @@ export type ImportGraph = {
   readonly importersOf: ReadonlyMap<string, ReadonlySet<string>>;
 };
 
-export function readImportGraph(root: string): ImportGraph {
-  const files = sourceFiles(root);
+/** Resolve each module once per scan, including missing modules. */
+function moduleResolver(files: ReadonlySet<string>) {
+  const cache = new Map<string, string | undefined>();
+  const suffixes = [
+    '',
+    '.ts',
+    '.tsx',
+    '.d.ts',
+    '.mts',
+    '.js',
+    '.cjs',
+    '/index.ts',
+    '/index.tsx',
+  ];
+  return (base: string): string | undefined => {
+    if (cache.has(base)) return cache.get(base);
+    let resolved: string | undefined;
+    for (const suffix of suffixes)
+      if (files.has(base + suffix)) {
+        resolved = base + suffix;
+        break;
+      }
+    cache.set(base, resolved);
+    return resolved;
+  };
+}
+
+/** Import relationships from a complete source snapshot; no cross-scan cache. */
+export function buildImportGraph(
+  files: ReadonlySet<string>,
+  read: (file: string) => string
+): ImportGraph {
+  const resolveBase = moduleResolver(files);
   const importersOf = new Map<string, Set<string>>();
-  for (const file of files)
-    for (const [, specifier] of readFileSync(join(root, file), 'utf8').matchAll(
-      SPECIFIER
-    )) {
-      const target = resolveSpecifier(file, specifier!, files);
+  for (const file of files) {
+    if (!TEXT_FILE.test(file)) continue;
+    const content = read(file);
+    const specifiers = [
+      ...content.matchAll(SPECIFIER),
+      ...(file.endsWith('.css') ? content.matchAll(CSS_URL) : []),
+    ];
+    for (const [, specifier] of specifiers) {
+      const target = resolveSpecifier(file, specifier!, resolveBase);
       if (target === undefined || target === file) continue;
       const importers = importersOf.get(target) ?? new Set<string>();
       importers.add(file);
       importersOf.set(target, importers);
     }
+  }
   return { importersOf };
+}
+
+export function readImportGraph(root: string): ImportGraph {
+  return buildImportGraph(sourceFiles(root), (file) =>
+    readFileSync(join(root, file), 'utf8')
+  );
 }
 
 function packageOf(file: string): string {

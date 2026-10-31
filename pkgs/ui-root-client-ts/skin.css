@@ -1,20 +1,11 @@
 /* Component paint. One class + data-face / data-status. Every value is a
  * token (`--ui-*`).
  *
- * Rules, so every screen agrees without trying:
- * - Blue (`tint-active` fill, white `on-primary` label) means "the thing to
- *   do" or "the thing chosen": primary buttons, the FAB, selected chips,
- *   checked controls. Never decoration.
- * - Controls share `--ui-radius-control` (8). Pills are only for round
- *   things.
- * - Flat: hairline borders, no gradients, and one soft shadow
- *   (`--ui-shadow-float`) only for what floats above content.
- * - Press feedback is a tone shift plus a small scale, never a bounce.
- *   Hover and press fade in 150ms (`--ui-duration-fast`), state changes
- *   (a switch flipping, a segment moving) take 200ms
- *   (`--ui-duration-normal`); reduced motion turns both off.
- * - Every control covers hover, press, `:focus-visible` (the `.clickable`
- *   ring), disabled and, where it runs work, loading (`aria-busy`). */
+ * The design contract lives in README.md. Application paint is achromatic;
+ * the board components scope their own game palettes. Buttons, chips and tags
+ * use the full radius; fields and rows use the control radius. Selected
+ * controls use the neutral `tint-subtle` fill and `on-primary-soft` ink.
+ * Every control keeps hover, press, focus, disabled and loading feedback. */
 
 @layer components {
   .themeHost {
@@ -37,8 +28,7 @@
     color: var(--ui-color-text);
   }
 
-  /* The brand wordmark is the one blue that is not an action: `tint`, the
-     blue that already reads as text at AA in both schemes. */
+  /* The wordmark uses the same neutral ink as interactive text. */
   .text.appLogo {
     font-weight: var(--ui-font-weight-bold);
     letter-spacing: -0.03em;
@@ -95,7 +85,7 @@
   .btn[data-size="sm"] {
     min-height: var(--ui-control-size-sm);
     padding: 0 var(--ui-space-md);
-    border-radius: var(--ui-radius-control);
+    border-radius: var(--ui-radius-full);
     font-size: var(--ui-font-size-sm);
     line-height: var(--ui-leading-sm);
   }
@@ -103,7 +93,7 @@
   .btn[data-size="md"] {
     min-height: var(--ui-control-size-md);
     padding: 0 var(--ui-space-lg);
-    border-radius: var(--ui-radius-control);
+    border-radius: var(--ui-radius-full);
     font-size: var(--ui-font-size-sm);
     line-height: var(--ui-leading-sm);
   }
@@ -111,7 +101,7 @@
   .btn[data-size="lg"] {
     min-height: var(--ui-control-size-lg);
     padding: 0 var(--ui-space-xl);
-    border-radius: var(--ui-radius-control);
+    border-radius: var(--ui-radius-full);
     font-size: var(--ui-font-size-base);
     line-height: var(--ui-leading-base);
   }
@@ -158,16 +148,6 @@
     --ui-on-icon: var(--ui-color-on-destructive);
   }
 
-  .btn[data-face="success"],
-  .fab[data-face="success"] {
-    background: var(--ui-color-success);
-    color: var(--ui-color-on-success);
-    --ui-on-fg: var(--ui-color-on-success);
-    --ui-on-fg-muted: var(--ui-color-on-success);
-    --ui-on-icon: var(--ui-color-on-success);
-  }
-
-  .btn[data-face="neutral"],
   .fab[data-face="neutral"] {
     background: var(--ui-color-surface-muted);
     color: var(--ui-color-text);
@@ -176,12 +156,9 @@
     --ui-on-icon: var(--ui-color-icon);
   }
 
-  @media (hover: hover) and (pointer: fine) {
-    .btn[data-face="primary"]:not(:disabled):hover,
-    .fab[data-face="primary"]:not(:disabled):hover {
-      background: var(--ui-color-tint-hover);
-    }
-  }
+  /* `.btn` and `.fab` hover with the `.clickableTint` overlay over their own
+     fill; the lighter `tint-hover` fill would drop the white label below AA
+     in dark. */
 
   .btn[data-face="primary-outline"] {
     border-color: var(--ui-color-tint);
@@ -196,16 +173,10 @@
     --ui-on-fg-muted: var(--ui-color-destructive);
   }
 
-  .btn[data-face="success-outline"] {
-    border-color: var(--ui-color-success);
-    color: var(--ui-color-success);
-    --ui-on-fg: var(--ui-color-success);
-    --ui-on-icon: var(--ui-color-success);
-    --ui-on-fg-muted: var(--ui-color-success);
-  }
-
+  /* Secondary: transparent, the 3:1 `outline` (line-strong) edge, ink. */
+  .btn[data-face="neutral"],
   .btn[data-face="neutral-outline"] {
-    border-color: var(--ui-color-border);
+    border-color: var(--ui-color-outline);
     color: var(--ui-color-text);
     --ui-on-fg: var(--ui-color-text);
     --ui-on-icon: var(--ui-color-icon);
@@ -221,13 +192,6 @@
     --ui-on-fg: var(--ui-color-destructive);
     --ui-on-icon: var(--ui-color-destructive);
     --ui-on-fg-muted: var(--ui-color-destructive);
-  }
-
-  .btn[data-face="success-ghost"] {
-    color: var(--ui-color-success);
-    --ui-on-fg: var(--ui-color-success);
-    --ui-on-icon: var(--ui-color-success);
-    --ui-on-fg-muted: var(--ui-color-success);
   }
 
   .btn[data-face="neutral-ghost"] {
@@ -278,17 +242,19 @@
     --ui-on-icon: var(--ui-color-on-destructive);
   }
 
-  /* Chips are choices. Chosen is the blue fill, like every other "this one".
-     Doubled with `.clickable` for the same reason as `.btn`: the host reset
-     (`padding: 0`, `border: 0`, `font: inherit`, later in this layer) must
-     not win over the chip's own pill. */
+  /* Chips are choices: a 32px tag at the pill radius (its hit area is
+     44px, `.hitTarget`). Unchosen is transparent inside the 3:1 `outline`
+     edge with an ink label; chosen is the soft neutral, like every other "this
+     one". Doubled with `.clickable` for the same reason as `.btn`: the host
+     reset (`padding: 0`, `border: 0`, `font: inherit`, later in this layer)
+     must not win over the chip's own shape. */
   .clickable.chip {
     height: var(--ui-control-size-sm);
     min-width: var(--ui-control-size-md);
     padding-left: var(--ui-space-md);
     padding-right: var(--ui-space-md);
     border-radius: var(--ui-radius-full);
-    border: 1px solid var(--ui-color-border);
+    border: 1px solid var(--ui-color-outline);
     background: transparent;
     color: var(--ui-color-text);
     font-family: var(--ui-font-sans);
@@ -305,17 +271,18 @@
     .clickable.chip:not(:disabled):not([aria-pressed="true"]):not(
         [aria-checked="true"]
       ):hover {
-      border-color: var(--ui-color-outline);
+      border-color: var(--ui-color-text-secondary);
     }
   }
 
   .clickable.chip[aria-pressed="true"],
   .clickable.chip[aria-checked="true"] {
-    border-color: var(--ui-color-tint-active);
-    background: var(--ui-color-tint-active);
-    color: var(--ui-color-on-primary);
-    --ui-on-fg: var(--ui-color-on-primary);
-    --ui-on-icon: var(--ui-color-on-primary);
+    border-color: var(--ui-color-primary-strong);
+    background: var(--ui-color-tint-subtle);
+    color: var(--ui-color-on-primary-soft);
+    --ui-on-fg: var(--ui-color-on-primary-soft);
+    --ui-on-fg-muted: var(--ui-color-on-primary-soft);
+    --ui-on-icon: var(--ui-color-on-primary-soft);
   }
 
   .chip:disabled {
@@ -323,16 +290,17 @@
     cursor: not-allowed;
   }
 
+  /* A tag: the pill radius and the `label` text style, at either size. */
   .badge {
     min-height: var(--ui-space-xl);
     padding: 0 var(--ui-space-sm);
     border-radius: var(--ui-radius-full);
     background: var(--ui-color-tint-subtle);
-    color: var(--ui-color-tint);
-    font-family: var(--ui-font-sans);
-    font-size: var(--ui-font-size-xs);
-    font-weight: var(--ui-font-weight-semibold);
-    line-height: var(--ui-leading-xs);
+    color: var(--ui-color-on-primary-soft);
+    font-family: var(--ui-text-label-family);
+    font-size: var(--ui-text-label-size);
+    font-weight: var(--ui-text-label-weight);
+    line-height: var(--ui-text-label-leading);
     font-variant-numeric: tabular-nums lining-nums;
   }
 
@@ -340,8 +308,13 @@
     min-width: var(--ui-space-lg);
     min-height: var(--ui-space-lg);
     padding: 0 var(--ui-space-xs);
-    font-size: var(--ui-font-size-xs);
-    line-height: var(--ui-leading-xs);
+  }
+
+  /* LIVE: the only all-caps word and the only use of the `live` fill. */
+  .badge[data-intent="live"] {
+    background: var(--ui-color-live);
+    color: var(--ui-color-on-live);
+    text-transform: uppercase;
   }
 
   .badge[data-intent="neutral"][data-tone="subtle"] {
@@ -401,9 +374,10 @@
 
   /* Switch: a 48x28 track (`w-12 h-7`) with a 24px thumb (`size-6`) inset
      2px, so it travels 20px (`translate-x-5`). Colors are the utilities on
-     the element (blue fill when on, muted track and secondary thumb when
-     off); this adds the inset, the off-state outline hairline (drawn inset
-     so it never changes the geometry) and the 200ms thumb slide. */
+     the element (the soft neutral track with a `primary-strong` thumb when on,
+     a clear track with a secondary thumb when off); this adds the inset, the
+     edge hairline (`primary-strong` on, `outline` off, drawn inset so it
+     never changes the geometry) and the 200ms thumb slide. */
   .switchTrack {
     box-sizing: border-box;
     padding: calc(var(--ui-space-hairline) * 2);
@@ -420,6 +394,11 @@
     box-shadow: inset 0 0 0 var(--ui-space-hairline) var(--ui-color-outline);
   }
 
+  .switchTrack[data-on="true"] {
+    box-shadow: inset 0 0 0 var(--ui-space-hairline)
+      var(--ui-color-primary-strong);
+  }
+
   @media (hover: hover) and (pointer: fine) {
     .clickable:not(:disabled):hover > .switchTrack[data-on="false"] {
       box-shadow: inset 0 0 0 var(--ui-space-hairline)
@@ -427,20 +406,21 @@
     }
   }
 
-  /* Checkbox: a 20px box, 4px radius, outline border; checked or mixed is
-     the blue fill with an on-primary glyph. */
+  /* Checkbox: a 20px box at the small radius, outline border; checked or
+     mixed is the soft neutral with a `primary-strong` edge and an
+     `on-primary-soft` glyph. */
   .checkboxBox {
     border: calc(var(--ui-space-hairline) * 2) solid var(--ui-color-outline);
     background: var(--ui-color-background);
-    color: var(--ui-color-on-primary);
+    color: var(--ui-color-on-primary-soft);
     transition:
       background-color var(--ui-duration-fast) var(--ui-easing-standard),
       border-color var(--ui-duration-fast) var(--ui-easing-standard);
   }
 
   .checkboxBox[data-filled="true"] {
-    border-color: var(--ui-color-tint-active);
-    background: var(--ui-color-tint-active);
+    border-color: var(--ui-color-primary-strong);
+    background: var(--ui-color-tint-subtle);
   }
 
   @media (hover: hover) and (pointer: fine) {
@@ -449,8 +429,8 @@
     }
   }
 
-  /* Segmented control: the selected segment is the canvas inside a hairline,
-     sliding over the muted track in 200ms. */
+  /* Segmented control: a clear pill track inside the `outline` edge; the
+     selected segment is the soft neutral pill, sliding in 200ms. */
   .segmentIndicator {
     transition:
       left var(--ui-duration-normal) var(--ui-easing-standard),

@@ -24,8 +24,11 @@ import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentati
 import type { BotDifficulty } from '@pkgs/turn-game-shared-ts/game-rules';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameClock } from '@pkgs/ui-root-client-ts/game-clock';
-import type { GameStatusTone } from '@pkgs/ui-root-client-ts/game-status';
-import { GameStatus } from '@pkgs/ui-root-client-ts/game-status';
+import type {
+  GameTurnPillEmphasis,
+  GameTurnPillTone,
+} from '@pkgs/ui-root-client-ts/game-turn-pill';
+import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
@@ -76,9 +79,15 @@ function drawnDescription(reason: string): string {
   return t`Game drawn.`;
 }
 
+/**
+ * How the game stands, in one line. While a side is to move, the game's own
+ * line about the turn (`frame.turnStatus`) replaces the default
+ * `<Side> to move.` wherever it has one.
+ */
 function gameStateDescription(
   game: CustomGame,
-  presentation: GamePresentation
+  presentation: GamePresentation,
+  viewer: CustomGameSide | null
 ): string {
   if (game.status === 'cancelled') return t`Game cancelled.`;
   if (game.status === 'completed') {
@@ -96,9 +105,12 @@ function gameStateDescription(
         ? t`Paused while a player returns.`
         : t`Game in progress.`;
     const player = presentation.sideLabel(game.turn);
-    return game.standIns.includes(game.turn)
-      ? t`${player} to move, played by a stand-in bot.`
-      : t`${player} to move.`;
+    if (game.standIns.includes(game.turn))
+      return t`${player} to move, played by a stand-in bot.`;
+    return (
+      presentation.frame.turnStatus(game.fen, viewer, game.committed) ??
+      t`${player} to move.`
+    );
   }
   return customGameStartable(game)
     ? t`Ready to start.`
@@ -109,12 +121,11 @@ function clockLabel(seconds: number): string {
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 }
 
-/** One side's clock. An untimed game has none: its status line says so. */
-export function CustomGameClock(props: {
-  game: CustomGame;
-  side: CustomGameSide;
-}): JSX.Element {
-  const gameSideLabel = useGameSideLabel();
+/** What `side`'s clock shows now (`4:59`), ticking while it runs. */
+export function useClockLabel(props: {
+  readonly game: CustomGame;
+  readonly side: CustomGameSide;
+}): () => string {
   const seconds = createTimedValue(
     (now) =>
       props.game.status === 'configuring'
@@ -130,6 +141,16 @@ export function CustomGameClock(props: {
           (left - 1) * 1000
         : null
   );
+  return () => clockLabel(seconds());
+}
+
+/** One side's clock. An untimed game has none: its status line says so. */
+export function CustomGameClock(props: {
+  game: CustomGame;
+  side: CustomGameSide;
+}): JSX.Element {
+  const gameSideLabel = useGameSideLabel();
+  const label = useClockLabel(props);
   return (
     <Show when={props.game.minutes > 0}>
       <GameClock
@@ -137,7 +158,7 @@ export function CustomGameClock(props: {
           props.game.status === 'active' && props.game.turn === props.side
         }
         label={gameSideLabel(props.game.fen, props.side)}
-        value={clockLabel(seconds())}
+        value={label()}
         dataSet={{ testid: `custom-game-${props.side}-clock` }}
         ariaLabel={gameSideLabel(props.game.fen, props.side)}
       />
@@ -159,25 +180,28 @@ function TimeControlBadge(props: { game: CustomGame }): JSX.Element {
   );
 }
 
-function statusTone(
+/** The viewer's own turn (or their own choice still awaited) is theirs. */
+function statusEmphasis(
   game: CustomGame,
   mySide: CustomGameSide | null
-): GameStatusTone {
-  if (
-    game.status === 'active' &&
+): GameTurnPillEmphasis {
+  return game.status === 'active' &&
     mySide !== null &&
     (game.awaiting.length > 0
       ? game.awaiting.includes(mySide)
       : game.turn === mySide)
-  )
-    return 'active';
-  if (game.status === 'configuring' && customGameStartable(game))
-    return 'success';
-  return 'neutral';
+    ? 'yours'
+    : 'neutral';
 }
 
-/** Who holds each side, as a listener hears it before the game's state. */
-function useSeatName(
+function statusTone(game: CustomGame): GameTurnPillTone {
+  return game.status === 'configuring' && customGameStartable(game)
+    ? 'success'
+    : 'neutral';
+}
+
+/** Who holds the side, in plain words: as a listener hears it, and on a chip. */
+export function useSeatName(
   model: CustomGameScreenModel,
   side: CustomGameSide
 ): () => string {
@@ -198,11 +222,18 @@ function useSeatName(
   };
 }
 
-function useLineupDescription(model: CustomGameScreenModel): () => string {
-  const gameSideLabel = useGameSideLabel();
-  const names = Object.fromEntries(
+/** What every side's seat calls whoever holds it, as plain words. */
+export function useSeatNames(
+  model: CustomGameScreenModel
+): Readonly<Record<CustomGameSide, () => string>> {
+  return Object.fromEntries(
     CUSTOM_GAME_SIDES.map((side) => [side, useSeatName(model, side)])
   ) as Record<CustomGameSide, () => string>;
+}
+
+function useLineupDescription(model: CustomGameScreenModel): () => string {
+  const gameSideLabel = useGameSideLabel();
+  const names = useSeatNames(model);
   return createMemo(() => {
     const game = model.current();
     return game === null
@@ -236,14 +267,19 @@ export function CustomGameStatus(props: {
       }
     >
       {(game) => (
-        <GameStatus
+        <GameTurnPill
           live
-          tone={statusTone(game(), props.model.mySide())}
+          emphasis={statusEmphasis(game(), props.model.mySide())}
+          tone={statusTone(game())}
           dataSet={{ testid: 'custom-game-status' }}
           title={
             <>
               <VisuallyHidden>{lineup()} </VisuallyHidden>
-              {gameStateDescription(game(), presentation(game().fen))}
+              {gameStateDescription(
+                game(),
+                presentation(game().fen),
+                props.model.mySide()
+              )}
             </>
           }
           detail={

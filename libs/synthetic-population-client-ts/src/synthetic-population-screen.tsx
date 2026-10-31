@@ -77,6 +77,7 @@ function SyntheticPopulationContent(): JSX.Element {
         <ErrorState
           variant="compact"
           title={<Trans>Bot Observatory could not be loaded.</Trans>}
+          body={<Trans>Refresh to try again.</Trans>}
         />
       </Show>
       <Button

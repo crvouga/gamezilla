@@ -34,9 +34,9 @@ export const ON_DARK: OnColorSet = {
 
 /** Foreground set for use on light backgrounds (near-black family). */
 export const ON_LIGHT: OnColorSet = {
-  fg: 'hsla(240, 10%, 4%, 1)',
-  fgMuted: 'hsla(240, 10%, 4%, 0.64)',
-  icon: 'hsla(240, 10%, 4%, 0.82)',
+  fg: 'hsla(0, 0%, 4%, 1)',
+  fgMuted: 'hsla(0, 0%, 4%, 0.64)',
+  icon: 'hsla(0, 0%, 4%, 0.82)',
 };
 
 /** Parse a CSS color string to 0–255 RGB. Returns `null` for unsupported input. */
