@@ -3,6 +3,7 @@ import {
   contentAttribute,
   contentTap,
 } from '@libs/game-puzzle-harness-ts/content-journey-device';
+import { discoverJourneyContent } from '@libs/game-puzzle-harness-ts/content-journey-discovery';
 import { startJourneyAttempt } from '@libs/game-puzzle-harness-ts/content-journey-playing';
 import { withdrawJourneyPublications } from '@libs/game-puzzle-harness-ts/content-journey-withdraw';
 import { SOKOBAN_JOURNEY_BOARD } from '@libs/sokoban-harness-ts/sokoban-journey-board';
@@ -134,7 +135,10 @@ export async function observeReconnectedSokoban(
       .get('content-pack-progress')
       .expect.text('1 of 4 puzzles completed', device(ui));
     await contentTap(device(ui), Handles.navBack);
-    await tap(ui, `content-published-${kept.revisionId}`);
+    await discoverJourneyContent(
+      { ui, timeoutMs: JOURNEY_WAIT_MS },
+      kept.revisionId
+    );
     await ui
       .get('content-edition')
       .expect.text(kept.title, { ...device(ui), exact: false });

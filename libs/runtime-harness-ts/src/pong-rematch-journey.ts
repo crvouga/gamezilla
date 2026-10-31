@@ -20,9 +20,12 @@ export async function acceptPongRematch(
   host: JourneyHost,
   actor: string
 ): Promise<void> {
-  await journeyDevice(host, actor)('acceptPongRematch', (ui) =>
-    tap(ui, 'multiplayer-accept-rematch')
-  );
+  await journeyDevice(host, actor)('acceptPongRematch', async (ui) => {
+    await ui.get('multiplayer-offline').expect.hidden({
+      timeoutMs: JOURNEY_WAIT_MS,
+    });
+    await tap(ui, 'multiplayer-accept-rematch');
+  });
 }
 
 /**

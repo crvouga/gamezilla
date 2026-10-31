@@ -129,6 +129,9 @@ export async function playJourneyMove(
     await ui
       .get(`multiplayer-move-${ply - 1}`)
       .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+  await ui.get('multiplayer-offline').expect.hidden({
+    timeoutMs: JOURNEY_WAIT_MS,
+  });
   await game.shared.automation.turns.perform(
     ui,
     Handles.multiplayerBoard,

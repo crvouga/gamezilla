@@ -1,0 +1,4 @@
+{
+  "summary": "Live Battleship attempted its eighth move and Pong accepted a rematch while the app reported no connection. Wait for the ordinary connection notice to disappear before issuing these online commands.",
+  "regressionTest": "libs/runtime-harness-ts/tests/game-journey-connection.test.ts"
+}
