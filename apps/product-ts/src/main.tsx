@@ -23,6 +23,7 @@ import { APP_SUB_CLIENTS } from '@libs/runtime-client-ts/app-sub-clients';
 import { APP } from '@libs/runtime-shared-ts/app-subs';
 import { wallSpaceRoomTransport } from '@libs/spaces-client-ts/wall-room-transport';
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
+import { monotonicClock } from '@pkgs/clock-shared-ts/wall';
 import '@pkgs/tailwind-shared-ts/tailwind.css';
 import '@pkgs/ui-root-client-ts/tokens.css';
 import '@pkgs/ui-root-client-ts/hosts.css';
@@ -54,6 +55,7 @@ function AppBoot(): JSX.Element {
   const offline = wallOfflineNetworkController();
   const env = wallClientEnv({ room: wallSpaceRoomTransport, offline });
   bootBrowserObservability({
+    monotonicNow: monotonicClock.now,
     env,
     offline,
     timeOriginMs: performance.timeOrigin,
