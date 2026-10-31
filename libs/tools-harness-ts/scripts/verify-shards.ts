@@ -1,5 +1,5 @@
 import type { PlannedTask } from './turbo-preflight';
-import { verifyStages } from './verify-stages';
+import { transferable, verifyStages } from './verify-stages';
 
 export type VerifyTask = PlannedTask & {
   readonly command: string;
@@ -301,6 +301,7 @@ export function validatePlan(plan: VerifyPlan): void {
       throw new Error(`Invalid task estimate: ${task.taskId}`);
   if (owners.size !== expected.size) throw new Error('Omitted Verify task');
   const rank = { prerequisites: 0, verifications: 1, consumers: 2 };
+  const byId = new Map(plan.tasks.map((task) => [task.taskId, task]));
   for (const shard of plan.shards)
     if (!(shard.stage in rank)) throw new Error('Unknown Verification stage');
   for (const shard of plan.shards)
@@ -309,7 +310,8 @@ export function validatePlan(plan: VerifyPlan): void {
         if (
           owners.has(dep) &&
           owners.get(dep) !== shard.index &&
-          rank[plan.shards[owners.get(dep)!]!.stage] >= rank[shard.stage]
+          (!transferable(dep, byId) ||
+            rank[plan.shards[owners.get(dep)!]!.stage] >= rank[shard.stage])
         )
           throw new Error(`Cross-shard dependency: ${task.taskId} -> ${dep}`);
 }
