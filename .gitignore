@@ -166,3 +166,7 @@ graphify-out/
 .serena/logs/
 .serena/memories/
 .serena/project.local.yml
+
+# Personal ADE configuration
+/.conductor/settings.local.toml
+/.factory/settings.local.json

@@ -20,6 +20,8 @@ export const NAMING_EXEMPT = {
     'LICENSE',
     'LICENSE.txt',
     'CODEOWNERS',
+    'copilot-instructions.md',
+    'mcpServers', // Continue's project MCP directory.
     'components.json',
     '__snapshots__',
     '__mocks__',
@@ -62,6 +64,9 @@ export const NAMING_EXEMPT = {
     '.agents/commands/',
     '.claude/agents/',
     '.cursor/commands/',
+    '.factory/commands/',
+    '.roo/commands/',
+    '.clinerules/workflows/',
     '.claude/commands/',
     '.github/prompts/',
     '.windsurf/workflows/',

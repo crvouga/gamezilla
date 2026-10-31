@@ -15,6 +15,9 @@
  * - Gemini CLI: `.gemini/settings.json`
  * - OpenCode: `opencode.json`
  * - VS Code and GitHub Copilot in VS Code: `.vscode/mcp.json`
+ * - Factory / Droid: `.factory/mcp.json`
+ * - Roo Code: `.roo/mcp.json`
+ * - Kiro: `.kiro/settings/mcp.json`
  *
  * Windsurf and the Copilot CLI read only a per-user file, so no project file
  * can configure them; add the same `mise exec -- serena start-mcp-server`
@@ -93,6 +96,17 @@ const stdio = (args: string[]) => ({
 });
 
 const JSON_TARGETS: JsonTarget[] = [
+  ...[
+    '.factory/mcp.json',
+    '.roo/mcp.json',
+    '.kiro/settings/mcp.json',
+    '.continue/mcpServers/mcp.json',
+  ].map((path) => ({
+    path,
+    container: 'mcpServers',
+    launch: { context: 'ide', project: 'cwd' as const },
+    entry: stdio,
+  })),
   {
     path: '.mcp.json',
     container: 'mcpServers',
