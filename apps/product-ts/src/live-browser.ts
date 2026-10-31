@@ -25,10 +25,9 @@ const NAVIGATION_POLL_MS = 250;
 const VIEWPORT = { width: 390, height: 844 } as const;
 const CHROME_BACKEND = { type: 'chrome', url: false } as const;
 /** Uploaded by the Health and Release workflows when a journey fails. */
-export const EVIDENCE_DIR = join(
-  import.meta.dir,
-  '../.cache/critical-journeys'
-);
+export const EVIDENCE_DIR =
+  process.env['CRITICAL_JOURNEY_EVIDENCE_DIR'] ??
+  join(import.meta.dir, '../.cache/critical-journeys');
 
 export type LiveTarget = {
   readonly webOrigin: string;

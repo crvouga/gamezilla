@@ -1,0 +1,4 @@
+{
+  "summary": "Concurrent release-journey partitions cleaned and rebuilt shared generated stubs, web bundles and reports, so Bun lost custom-game and sokoban test files before loading them. Each partition now owns disjoint stubs, bundle, generated public assets, Vite cache, reports and browser evidence through preparation and teardown.",
+  "regressionTest": "apps/product-ts/scripts/release-artifacts.test.ts"
+}
