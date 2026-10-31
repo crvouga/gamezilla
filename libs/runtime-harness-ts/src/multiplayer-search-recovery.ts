@@ -4,7 +4,17 @@ import { endActiveSpace, JOURNEY_WAIT_MS, tap } from './journey-gestures';
 /** A monitor account survives failed runs; retire its previous search or game. */
 export async function retirePreviousMultiplayer(ui: Driver): Promise<void> {
   if (await ui.get('multiplayer-stop').isVisible()) {
-    await tap(ui, 'multiplayer-stop');
+    try {
+      await tap(ui, 'multiplayer-stop');
+    } catch (error) {
+      // Matching can replace Stop between the visibility read and the tap.
+      // Continue into game retirement only when that transition is observed.
+      if (
+        (await ui.get('multiplayer-stop').isVisible()) ||
+        !(await ui.get('multiplayer-game').isVisible())
+      )
+        throw error;
+    }
     await ui
       .get('multiplayer-stop')
       .expect.hidden({ timeoutMs: JOURNEY_WAIT_MS });

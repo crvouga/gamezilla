@@ -1,7 +1,6 @@
 import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
 import type { RoomEffectHandler } from './handler';
 import type { RoomStorage } from './server-core-storage';
-import type { RoomSignalHandler } from './signals';
 import type {
   RoomActor,
   RoomCommand,
@@ -41,8 +40,6 @@ export type RoomServerConfig<
   /** Required when live execution actually uses scheduled work, not for other games in its registry. */
   timers?: Timers;
   onError?: (error: unknown) => void;
-  /** A live-session owner handles transient intents after the ordinary authorization gate. */
-  signalHandler?: RoomSignalHandler<Identity>;
   effectHandlers?: readonly RoomEffectHandler[];
 };
 

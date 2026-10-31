@@ -1,0 +1,4 @@
+{
+  "summary": "At the tablet viewport 1180x820, Settings navigation stalled because wide breadcrumb parents omitted the nav-back handle exposed by compact headers. Both wide presentations now identify only the immediate clickable parent.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/breadcrumb-navigation-handle.test.tsx"
+}

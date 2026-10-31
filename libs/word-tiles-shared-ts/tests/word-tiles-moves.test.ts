@@ -1,14 +1,23 @@
 import { describe, expect, test } from 'bun:test';
+import type { PlacedLetter } from '@libs/word-tiles-shared-ts/word-tiles-action';
+import {
+  BOARD_SIZE,
+  CELL_COUNT,
+} from '@libs/word-tiles-shared-ts/word-tiles-board';
+import { encodeFrontCoded } from '@libs/word-tiles-shared-ts/word-tiles-lexicon-codec';
+import { generateMoves } from '@libs/word-tiles-shared-ts/word-tiles-moves';
+import {
+  evaluatePlacement,
+  unknownWords,
+} from '@libs/word-tiles-shared-ts/word-tiles-placement';
+import { EMPTY_BOARD } from '@libs/word-tiles-shared-ts/word-tiles-position';
+import { BLANK, tileOf } from '@libs/word-tiles-shared-ts/word-tiles-tiles';
+import {
+  buildWordTrie,
+  trieHas,
+} from '@libs/word-tiles-shared-ts/word-tiles-trie';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
-import type { PlacedLetter } from '../src/word-tiles-action';
-import { BOARD_SIZE, CELL_COUNT } from '../src/word-tiles-board';
-import { encodeFrontCoded } from '../src/word-tiles-lexicon-codec';
-import { generateMoves } from '../src/word-tiles-moves';
-import { evaluatePlacement, unknownWords } from '../src/word-tiles-placement';
-import { EMPTY_BOARD } from '../src/word-tiles-position';
-import { BLANK, tileOf } from '../src/word-tiles-tiles';
-import { buildWordTrie, trieHas } from '../src/word-tiles-trie';
 import { boardWith, idsOf, lexicon } from './word-tiles-fixtures';
 
 /**
@@ -116,22 +125,38 @@ function legalIn(board: string, placed: readonly PlacedLetter[]): boolean {
   );
 }
 
+const legalCellSets = new Map<string, number[][]>();
+
+function shapesFor(board: string, size: number): number[][] {
+  const cacheKey = `${board}:${size}`;
+  const cached = legalCellSets.get(cacheKey);
+  if (cached !== undefined) return cached;
+  // Geometry depends on the board and cell count, never on the rack.
+  const shapes = lineSubsets(board, size).filter(
+    (cells) =>
+      evaluatePlacement(
+        board,
+        cells.map((cell) => ({ cell, letter: 'A', blank: false }))
+      ).ok
+  );
+  legalCellSets.set(cacheKey, shapes);
+  return shapes;
+}
+
 function reference(board: string, rack: readonly number[]): Set<string> {
   const found = new Set<string>();
-  for (let size = 1; size <= rack.length; size++)
-    for (const cells of lineSubsets(board, size)) {
-      // Geometry does not depend on the letters: try it once per cell set.
-      const shape = cells.map((cell) => ({ cell, letter: 'A', blank: false }));
-      if (!evaluatePlacement(board, shape).ok) continue;
-      for (const lettering of letterings(rack, size))
-        for (const letters of product(lettering)) {
-          const placed = letters.map((l, i) => ({
-            ...l,
-            cell: cells[i] ?? -1,
-          }));
-          if (legalIn(board, placed)) found.add(key(placed));
-        }
+  for (let size = 1; size <= rack.length; size++) {
+    const permutations = letterings(rack, size).flatMap(product);
+    for (const cells of shapesFor(board, size)) {
+      for (const letters of permutations) {
+        const placed = letters.map((l, i) => ({
+          ...l,
+          cell: cells[i] ?? -1,
+        }));
+        if (legalIn(board, placed)) found.add(key(placed));
+      }
     }
+  }
   return found;
 }
 
@@ -143,7 +168,54 @@ const BOARDS = [
     ['i8', 'down', 'TEA'],
   ]),
   boardWith([['a1', 'across', 'SEAT']]),
-];
+] as const;
+
+function expectReferencePlacements(board: string, letters: string): void {
+  const rack = idsOf(letters, new Set());
+  const generated = generateMoves({ board, rack, trie: TRIE, budget: 1e7 });
+  expect(generated.complete).toBe(true);
+  const keys = new Set(generated.moves.map((m) => key(m.placed)));
+  expect([...keys].sort()).toEqual([...reference(board, rack)].sort());
+}
+
+// regression: word-tiles-reference-repeated-geometry
+test('replays the literal small-rack cases that exhausted the reference timeout', () => {
+  // Exact seed 424242 / 30-case run, before the property warms the geometry cache.
+  const cases = [
+    [2, 'A'],
+    [1, 'C'],
+    [1, 'TET'],
+    [1, 'S'],
+    [3, 'EAS'],
+    [2, '?'],
+    [3, 'E'],
+    [3, 'ACT'],
+    [3, '?A'],
+    [2, 'S'],
+    [3, 'E'],
+    [1, 'A'],
+    [1, 'A'],
+    [1, 'TEC'],
+    [3, 'A?'],
+    [2, 'E'],
+    [2, 'T'],
+    [0, 'TEC'],
+    [0, 'A'],
+    [0, '?TE'],
+    [3, 'AC'],
+    [3, 'S'],
+    [0, '?A'],
+    [2, 'SST'],
+    [0, 'A'],
+    [1, 'S'],
+    [2, '?'],
+    [2, 'EA?'],
+    [2, 'CS'],
+    [1, 'TEC'],
+  ] as const;
+  for (const [board, letters] of cases)
+    expectReferencePlacements(BOARDS[board], letters);
+});
 
 describe('move generation', () => {
   test('finds exactly the reference placements on small racks', () => {
@@ -155,18 +227,7 @@ describe('move generation', () => {
           minLength: 1,
           maxLength: 3,
         }),
-        (board, letters) => {
-          const rack = idsOf(letters.join(''), new Set());
-          const generated = generateMoves({
-            board,
-            rack,
-            trie: TRIE,
-            budget: 1e7,
-          });
-          expect(generated.complete).toBe(true);
-          const keys = new Set(generated.moves.map((m) => key(m.placed)));
-          expect([...keys].sort()).toEqual([...reference(board, rack)].sort());
-        }
+        (board, letters) => expectReferencePlacements(board, letters.join(''))
       ),
       { numRuns: 30 }
     );

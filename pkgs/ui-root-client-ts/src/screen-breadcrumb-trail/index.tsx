@@ -24,6 +24,7 @@ const SEPARATOR_SIZE = 16;
 function AncestorCrumb(props: {
   crumb: ScreenBaseBreadcrumb;
   onClick: (() => void) | undefined;
+  parent: boolean;
 }): JSX.Element {
   const text = (): JSX.Element => (
     <span class="text textCaption line-clamp-1">{props.crumb.name}</span>
@@ -34,6 +35,7 @@ function AncestorCrumb(props: {
         <button
           class="clickable clickableTint rounded-sm px-1 -mx-1 min-h-6 justify-center"
           data-component="ScreenBreadcrumbLink"
+          data-testid={props.parent ? 'nav-back' : undefined}
           type="button"
           role="link"
           onClick={() => onClick()()}
@@ -87,6 +89,7 @@ export function ScreenBreadcrumbTrail(
                     <AncestorCrumb
                       crumb={crumb}
                       onClick={resolveClick(crumb)}
+                      parent={index() === trail().ancestors.length - 1}
                     />
                     <Show when={index() < trail().ancestors.length - 1}>
                       <ChevronRightIcon

@@ -6,7 +6,10 @@ import {
   prepareUnfinishedMultiplayerGame,
   startMultiplayerSearch,
 } from '@libs/runtime-harness-ts/multiplayer-journey';
-import { endMultiplayerSpace } from '@libs/runtime-harness-ts/multiplayer-search-recovery';
+import {
+  endMultiplayerSpace,
+  retirePreviousMultiplayer,
+} from '@libs/runtime-harness-ts/multiplayer-search-recovery';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type {
   Driver,
@@ -274,3 +277,60 @@ test('an unchanged 2+1 radio refuses to start a search requested at 5+0', async 
   );
   expect(taps).not.toContain('multiplayer-find');
 });
+
+async function matchedDuringStop(ongoing: boolean, matched: boolean) {
+  const { ui, taps } = loadingScreen(false, ongoing);
+  const get = ui.get.bind(ui);
+  let searching = true;
+  ui.get = (id) => {
+    const node = get(id);
+    return {
+      ...node,
+      isVisible: async () =>
+        id === 'multiplayer-stop'
+          ? searching
+          : id === 'multiplayer-game'
+            ? matched
+            : node.isVisible(),
+      tap: async (options) => {
+        if (id === 'multiplayer-stop') {
+          searching = false;
+          throw new Error('the search control disappeared');
+        }
+        await node.tap(options);
+      },
+    };
+  };
+  return { ui, taps };
+}
+
+// regression: multiplayer-cleanup-search-matches-before-stop
+test('cleanup retires the match that replaces a search before Stop receives its tap', async () => {
+  const { ui, taps } = await matchedDuringStop(false, true);
+  await retirePreviousMultiplayer(ui);
+  expect(taps).toEqual([]);
+});
+
+test.each([
+  [false, false],
+  [false, true],
+  [true, false],
+  [true, true],
+])(
+  'search transition ongoing=%s matched=%s preserves cleanup failures',
+  async (ongoing, matched) => {
+    const { ui, taps } = await matchedDuringStop(ongoing, matched);
+    if (!matched) {
+      await expect(retirePreviousMultiplayer(ui)).rejects.toThrow(
+        'search control disappeared'
+      );
+      return;
+    }
+    await retirePreviousMultiplayer(ui);
+    expect(taps).toEqual(
+      ongoing
+        ? ['multiplayer-abort', 'multiplayer-confirm', 'multiplayer-dismiss']
+        : []
+    );
+  }
+);

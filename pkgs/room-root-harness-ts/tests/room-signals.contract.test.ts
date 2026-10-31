@@ -23,26 +23,28 @@ test('a live execution that schedules work still requires the injected timer por
     startServer({
       module: {
         ...gameRoomModule,
-        createLive: (ports) => ({
+        createRuntime: (ports) => ({
           update: () => {
             ports.timers.setTimeout(() => {}, 1);
           },
-          receive: () => null,
-          presence: () => {},
-          dispose: () => {},
         }),
       },
     })
-  ).rejects.toThrow('live room execution requires injected timers');
+  ).rejects.toThrow('room runtime requires injected timers');
 });
 
 // regression: room-signal-replaced-connection
 test('a queued signal from a removed connection cannot run as its replacement', async () => {
   let calls = 0;
   const rig = await startServer({
-    signalHandler: () => {
-      calls++;
-      return null;
+    module: {
+      ...gameRoomModule,
+      createRuntime: () => ({
+        receive: () => {
+          calls++;
+          return null;
+        },
+      }),
     },
   });
   connectPerson(rig, 'alice');
@@ -66,9 +68,14 @@ test('signals reuse room authorization and never write the event log or command 
       authorized.push({ identity, topic, command, grants });
       return { ok: true };
     },
-    signalHandler: (command, identity, actor) => {
-      received.push({ command, identity, actor });
-      return null;
+    module: {
+      ...gameRoomModule,
+      createRuntime: () => ({
+        receive: (command, identity, actor) => {
+          received.push({ command, identity, actor });
+          return null;
+        },
+      }),
     },
   });
   connectPerson(rig, 'alice', ['control-token']);
@@ -96,9 +103,14 @@ test('denied, expired and unregistered connections cannot deliver transient cont
       identity === 'bob'
         ? { ok: false, reason: 'watching only' }
         : { ok: true },
-    signalHandler: () => {
-      calls++;
-      return null;
+    module: {
+      ...gameRoomModule,
+      createRuntime: () => ({
+        receive: () => {
+          calls++;
+          return null;
+        },
+      }),
     },
   });
   const bob = connectPerson(rig, 'bob');
@@ -121,10 +133,15 @@ test('denied, expired and unregistered connections cannot deliver transient cont
 
 test('a signal handler owns value validation and refuses without a durable rejection row', async () => {
   const rig = await startServer({
-    signalHandler: () => ({
-      type: ROOM_ERROR_TYPE.invalidCommand,
-      reason: 'unknown input',
-    }),
+    module: {
+      ...gameRoomModule,
+      createRuntime: () => ({
+        receive: () => ({
+          type: ROOM_ERROR_TYPE.invalidCommand,
+          reason: 'unknown input',
+        }),
+      }),
+    },
   });
   const alice = connectPerson(rig, 'alice');
   await rig.server.handleClientMessage('alice', 'alice', signalFrame());

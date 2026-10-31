@@ -64,16 +64,6 @@ export type RoomHarnessRuntime<
     opts?: WaitUntilOptions
   ) => Promise<number>;
   readonly never: (pred: UntilPredicate, opts: NeverOptions) => Promise<void>;
-  /** Alias for {@link RoomHarnessRuntime.until}. */
-  readonly waitUntil: (
-    pred: UntilPredicate,
-    opts?: WaitUntilOptions
-  ) => Promise<number>;
-  /** Alias for {@link RoomHarnessRuntime.never}. */
-  readonly waitNever: (
-    pred: UntilPredicate,
-    opts: NeverOptions
-  ) => Promise<void>;
   /** Domain state folded from the committed storage log (authority). */
   readonly serverSnapshot: () => Promise<S>;
   /** `module.hash` of {@link serverSnapshot}. */

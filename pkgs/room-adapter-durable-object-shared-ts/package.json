@@ -3,11 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./*": [
-      "./src/*.ts",
-      "./src/*.tsx",
-      "./src/*.d.ts"
-    ]
+    "./adapter-base-types": "./src/adapter-base-types.ts",
+    "./do-schedule": "./src/do-schedule.ts",
+    "./socket-attachment": "./src/socket-attachment.ts",
+    "./storage": "./src/storage.ts",
+    "./storage-keys": "./src/storage-keys.ts",
+    "./types": "./src/types.ts"
   },
   "scripts": {
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",

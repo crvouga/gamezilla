@@ -1,0 +1,4 @@
+{
+  "summary": "Verify run 41165474095 promoted the non-cacheable Storybook coverage task to shared prerequisites. Coverage passed, but evidence transfer required a Turbo archive that cache:false tasks never produce, blocking every downstream shard. Keep uncached execution and its consumers together, while sharing only cacheable prerequisites.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-uncached-stages.test.ts"
+}
