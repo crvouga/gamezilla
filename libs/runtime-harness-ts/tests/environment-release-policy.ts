@@ -37,9 +37,7 @@ export async function readReleasePolicy(): Promise<ReleasePolicy> {
     startup.includes('exec bun run --silent dev') &&
     !startup.includes('workspace_system') &&
     !startup.includes('/setup.sh"');
-  const toldAt = opening.indexOf(
-    '!!! environment preparation is incomplete'
-  );
+  const toldAt = opening.indexOf('!!! environment preparation is incomplete');
   const openAt = opening.indexOf('==> workspace may be opened');
   return {
     shipNeedsPassingCheck: needsCheck(deploy.jobs['deploy-fleet']?.needs),
