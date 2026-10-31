@@ -1,0 +1,6 @@
+"$schema" = "https://conductor.build/schemas/settings.repo.schema.json"
+
+[scripts]
+run = "./libs/tools-harness-ts/workspace/run.sh"
+archive = "./libs/tools-harness-ts/workspace/teardown.sh"
+run_mode = "nonconcurrent"

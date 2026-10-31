@@ -1,0 +1,12 @@
+{
+  "commands": [
+    {
+      "name": "Stop project",
+      "command": "cd \"$(git rev-parse --show-toplevel)\" && ./libs/tools-harness-ts/workspace/teardown.sh"
+    },
+    {
+      "name": "Run project",
+      "command": "cd \"$(git rev-parse --show-toplevel)\" && ./libs/tools-harness-ts/workspace/run.sh"
+    }
+  ]
+}
