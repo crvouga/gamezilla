@@ -1,8 +1,8 @@
 import type { Message } from '@pkgs/message-shared-ts/message';
 import type {
-  RoomLivePorts,
-  RoomLiveSession,
-} from '@pkgs/room-root-shared-ts/live';
+  RoomRuntime,
+  RoomRuntimePorts,
+} from '@pkgs/room-root-shared-ts/runtime';
 import type {
   RoomActor,
   RoomCommand,
@@ -48,7 +48,7 @@ export type SimulationSessionView = {
 };
 export type SimulationSessionBinding = {
   /** Every server or local authority saves its published court through its existing room store. */
-  readonly persist: RoomLivePorts<Message>['checkpoint'];
+  readonly persist: RoomRuntimePorts<Message>['checkpoint'];
   readonly project?: (
     state: RoomState,
     position: string,
@@ -72,7 +72,9 @@ export type SimulationSessionBinding = {
 };
 
 /** Shared execution attached to an existing custom or matched session. */
-export class SessionSimulation implements RoomLiveSession<RoomState, string> {
+export class SessionSimulation
+  implements RoomRuntime<RoomState, Message, string>
+{
   private view: SimulationSessionView | null = null;
   private recovery: SimulationRecovery | null = null;
   private engine: FixedStepSimulation<unknown, unknown> | null = null;
@@ -87,7 +89,7 @@ export class SessionSimulation implements RoomLiveSession<RoomState, string> {
   private disposed = false;
 
   constructor(
-    private readonly ports: Omit<RoomLivePorts<Message>, 'checkpoint'>,
+    private readonly ports: Omit<RoomRuntimePorts<Message>, 'checkpoint'>,
     private readonly binding: SimulationSessionBinding
   ) {}
 

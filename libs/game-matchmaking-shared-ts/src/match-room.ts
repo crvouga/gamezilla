@@ -1,13 +1,10 @@
 import { asKeyword } from '@pkgs/keyword-shared-ts/keyword';
 import type { Message } from '@pkgs/message-shared-ts/message';
 import { createMessageNamespace } from '@pkgs/message-shared-ts/message';
-import { hashRoomState } from '@pkgs/room-root-shared-ts/hash-room-state';
+import { defineRoomModule } from '@pkgs/room-root-shared-ts/module';
 import { ROOM_SERVICE_IDENTITY } from '@pkgs/room-root-shared-ts/service-identity';
-import type { RoomModule, RoomState } from '@pkgs/room-root-shared-ts/types';
-import {
-  assertRoomModuleName,
-  ROOM_ERROR_TYPE,
-} from '@pkgs/room-root-shared-ts/types';
+import type { RoomState } from '@pkgs/room-root-shared-ts/types';
+import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared-ts/types';
 import { z } from 'zod';
 import { simulationExecutionSchema } from './simulation-execution';
 
@@ -83,57 +80,59 @@ function readinessWithdrawn(
 
 /** One accepted match, shared by the clients in both spaces. Only mutation
  * deliveries can change its board; connected watchers cannot forge events. */
-export const matchRoomModule: RoomModule<RoomState, Message, Message, string> =
-  {
-    name: assertRoomModuleName(MATCH_ROOM_MODULE),
-    recoverEffects: () => [],
-    initialState: () => ({}),
-    handle(state, command, identity) {
-      if (
-        identity !== ROOM_SERVICE_IDENTITY ||
-        !MultiplayerGameChanged.is(command.payload)
-      )
-        return {
-          ok: false,
-          error: {
-            type: ROOM_ERROR_TYPE.invalidCommand,
-            reason: 'only accepted multiplayer mutations change the match',
-          },
-        };
-      const game = command.payload.payload;
-      const current = matchRoomGame(state);
-      if (
-        current !== null &&
-        (current.id !== game.id ||
-          current.revision > game.revision ||
-          (current.outcome !== 'ongoing' && game.outcome === 'ongoing') ||
-          readinessWithdrawn(current, game))
-      )
-        return { ok: true, events: [] };
-      const published =
-        current === null
-          ? game
-          : {
-              ...game,
-              white_id: current.white_id.startsWith('deleted:')
-                ? current.white_id
-                : game.white_id,
-              ...(current.red_id?.startsWith('deleted:')
-                ? { red_id: current.red_id }
-                : {}),
-              ...(current.blue_id?.startsWith('deleted:')
-                ? { blue_id: current.blue_id }
-                : {}),
-              black_id: current.black_id.startsWith('deleted:')
-                ? current.black_id
-                : game.black_id,
-            };
-      return { ok: true, events: [MultiplayerGameChanged(published)] };
-    },
-    reduce(state, event) {
-      return MultiplayerGameChanged.is(event)
-        ? { ...state, [MATCH_GAME_KEY]: event.payload }
-        : state;
-    },
-    hash: hashRoomState,
-  };
+export const matchRoomModule = defineRoomModule<
+  RoomState,
+  Message,
+  Message,
+  string
+>({
+  name: MATCH_ROOM_MODULE,
+  initialState: () => ({}),
+  handle(state, command, identity) {
+    if (
+      identity !== ROOM_SERVICE_IDENTITY ||
+      !MultiplayerGameChanged.is(command.payload)
+    )
+      return {
+        ok: false,
+        error: {
+          type: ROOM_ERROR_TYPE.invalidCommand,
+          reason: 'only accepted multiplayer mutations change the match',
+        },
+      };
+    const game = command.payload.payload;
+    const current = matchRoomGame(state);
+    if (
+      current !== null &&
+      (current.id !== game.id ||
+        current.revision > game.revision ||
+        (current.outcome !== 'ongoing' && game.outcome === 'ongoing') ||
+        readinessWithdrawn(current, game))
+    )
+      return { ok: true, events: [] };
+    const published =
+      current === null
+        ? game
+        : {
+            ...game,
+            white_id: current.white_id.startsWith('deleted:')
+              ? current.white_id
+              : game.white_id,
+            ...(current.red_id?.startsWith('deleted:')
+              ? { red_id: current.red_id }
+              : {}),
+            ...(current.blue_id?.startsWith('deleted:')
+              ? { blue_id: current.blue_id }
+              : {}),
+            black_id: current.black_id.startsWith('deleted:')
+              ? current.black_id
+              : game.black_id,
+          };
+    return { ok: true, events: [MultiplayerGameChanged(published)] };
+  },
+  reduce(state, event) {
+    return MultiplayerGameChanged.is(event)
+      ? { ...state, [MATCH_GAME_KEY]: event.payload }
+      : state;
+  },
+});

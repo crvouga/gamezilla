@@ -7,27 +7,33 @@ import type {
   RoomState,
 } from './types';
 
-/** Optional execution hosted by this room; no second connection or transport lifecycle. */
-export type RoomLiveSession<
-  S extends RoomState,
-  Identity,
+/**
+ * Optional authoritative execution for any room module. Implement only the
+ * hooks the game needs; installing a runtime does not require a simulation,
+ * timers, or a second connection lifecycle.
+ */
+export type RoomRuntime<
+  S extends RoomState = RoomState,
   C extends RoomCommandPayload = RoomCommandPayload,
+  Identity = unknown,
 > = {
   /** Validate a recovery value and turn it into an ordinary trusted command. */
   recover?(state: S, payload: RoomCommandPayload): C | null;
   /** On the room serial chain, include live progress in a durable command's decision. */
   project?(state: S): S;
-  receive(
+  receive?(
     command: RoomCommand,
     identity: Identity,
     actor: RoomActor
   ): Promise<RoomError | null> | RoomError | null;
-  update(state: S): void;
-  presence(actors: readonly RoomActor[]): void;
-  dispose(): void;
+  update?(state: S): void;
+  presence?(actors: readonly RoomActor[]): void;
+  dispose?(): void;
 };
 
-export type RoomLivePorts<C extends RoomCommandPayload> = {
+export type RoomRuntimePorts<
+  C extends RoomCommandPayload = RoomCommandPayload,
+> = {
   /** Persist one bounded recovery value before it becomes visible to clients. */
   readonly checkpoint: (payload: RoomCommandPayload) => Promise<boolean>;
   readonly clock: Clock;
