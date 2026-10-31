@@ -1,0 +1,4 @@
+{
+  "summary": "An uncached Storybook coverage task shared by unit and browser gates was promoted to prerequisite work, whose evidence transfer required a Turbo cache artifact the task never writes.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-storybook-stage.test.ts"
+}

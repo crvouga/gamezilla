@@ -35,7 +35,7 @@ concurrency:
   queue: max
   cancel-in-progress: false
 
-# Every job runs on a `boat` runner (boat.dev), and every `run:` step is bash.
+# Every job runs on a GitHub-hosted `ubuntu-24.04` runner, and every `run:` step is bash.
 defaults:
   run:
     shell: bash
@@ -59,7 +59,7 @@ jobs:
     name: Preview infrastructure changes
     if: ${{ inputs.rehearsal }}
     needs: deploy-verify
-    runs-on: boat
+    runs-on: ubuntu-24.04
     permissions:
       contents: read # check out the code
       actions: read # read run state (gh run list, job metadata)
@@ -90,7 +90,7 @@ jobs:
     name: Release shared services
     if: ${{ !inputs.rehearsal }}
     needs: deploy-verify
-    runs-on: boat
+    runs-on: ubuntu-24.04
     permissions:
       contents: read # check out the code
       actions: read # read run state (gh run list, job metadata)
@@ -123,7 +123,7 @@ jobs:
   deploy-dev:
     name: Release development
     needs: deploy-fleet
-    runs-on: boat
+    runs-on: ubuntu-24.04
     permissions:
       contents: read # check out the code
       actions: read # read run state (gh run list, job metadata)
@@ -185,7 +185,7 @@ jobs:
   deploy-prd:
     name: Release production
     needs: deploy-dev
-    runs-on: boat
+    runs-on: ubuntu-24.04
     permissions:
       contents: read # check out the code
       actions: read # read run state (gh run list, job metadata)
@@ -201,7 +201,7 @@ jobs:
   deploy-release:
     name: Publish release
     needs: deploy-prd
-    runs-on: boat
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
       contents: write # publish the release tag

@@ -1,5 +1,2 @@
-# actionlint's defaults cover GitHub-hosted runner labels such as ubuntu-latest;
-# `boat` is the boat.dev runner every job requests.
-self-hosted-runner:
-  labels:
-    - boat
+# Use actionlint's built-in GitHub-hosted runner labels only.
+{}

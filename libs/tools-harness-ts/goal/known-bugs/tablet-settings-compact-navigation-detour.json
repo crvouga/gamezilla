@@ -1,0 +1,4 @@
+{
+  "summary": "Saving preferences on an 1180×820 tablet from /more/theme tried to reach the compact tab bar before reopening Settings. Wide chrome uses breadcrumb navigation, so that detour timed out before sound preferences could be changed. Settings harness actions now use the global Settings menu from their current screen.",
+  "regressionTest": "libs/runtime-harness-ts/tests/tablet-settings-navigation.test.ts"
+}

@@ -1,41 +1,16 @@
-# CI green report
+# CI repair evidence
 
-Branch `<branch>` against `<base>` (merge-base `<sha>`), <n> files changed.
-Toolchain: <tool versions>, matching CI <yes / differences below>.
-Budget: <cores, memory, parallel checks / subagents used>.
+PR: <url>; published head: <sha>; tested commit: <sha or merge commit>.
 
-## Checks
+- Failure: <run URL, attempt, job/step, causal error>.
+- Fix: <root cause → changed files → why it is correct>.
+- Before-fix evidence: <hosted failure or focused failing reproduction>.
+- After-fix evidence: <focused commands and results; regression path>.
+- Pre-push cache warming: <tasks/profile, remote availability evidence, CI compatibility and any unwarmed scope>.
+- Hosted result: <run URL, tested head, completed / pending / blocked>.
+- Broader validation: <required or risk-justified checks and outcomes, if any>.
+- Remaining blockers: <precise missing evidence, access, approval or failing check>.
+- Review notes: <justification for any config, snapshot or other audit finding>.
 
-| Check | Local result | Notes |
-| --- | --- | --- |
-| <name> (`<id>`) | passed / no local form | <duration, reason, path filter> |
-
-Full suite from a clean state: <command>, <tasks> tasks, <passed at time>.
-
-## Fixes
-
-### <cluster id>: <short title>
-
-- Root cause: <one or two sentences>
-- Change: <files> — <what changed>
-- Why it is correct: <one or two sentences>
-- Verification: `<command>` <failed before> → <passed after>; full suite <passed>
-- Regression test: <path, or "not applicable: <why>">
-
-## No local form
-
-| Check or step | Why it has no local form |
-| --- | --- |
-| <name, or "none"> | <OS or architecture this machine lacks / hosted service with no stand-in> |
-
-## Review notes
-
-<each remaining audit-diff review finding (snapshot, config, dependency,
-timeout) with its one-or-two-sentence justification; toolchain conflicts;
-any use of --allow-toolchain-mismatch>
-
-## Product decisions
-
-- <only a fix that would change product behaviour, or "none">
-
-All changes are on `<branch>`, for one pull request. <Committed and pushed / Not committed.>
+Claim only what the evidence proves: focused pass, full local pass, PR green,
+or ready to merge. Do not use one as evidence for another.

@@ -33,6 +33,8 @@ const GATE_SUMMARY =
 
 function groupSummary(name: string): string {
   if (name === 'gate') return GATE_SUMMARY;
+  if (name === 'storybook')
+    return 'Storybook browser comparisons and retained pixel evidence';
   return Object.hasOwn(NIGHTLY_SUITES, name)
     ? NIGHTLY_SUITES[name as keyof typeof NIGHTLY_SUITES].summary
     : 'Unknown group';
@@ -42,6 +44,7 @@ function groupSummary(name: string): string {
 export function nightlyGroupNames(selection = 'all'): readonly string[] {
   const names = ['gate', ...Object.keys(NIGHTLY_SUITES)];
   if (selection === 'all') return names;
+  if (selection === 'storybook') return [selection];
   if (!names.includes(selection))
     throw new Error(`Unknown nightly group: ${selection}`);
   return selection === 'visual' ? ['gate', 'visual'] : [selection];
@@ -54,6 +57,12 @@ export function tracksNightlyIssue(
   return selection === 'all' && ref === 'refs/heads/main';
 }
 
+function reproduceGroup(name: string): string {
+  return name === 'storybook'
+    ? 'bun storybook:test'
+    : `bun verify-nightly ${name}`;
+}
+
 export function nightlyGroups(
   needs: NeedsResults,
   selection = 'all'
@@ -63,17 +72,22 @@ export function nightlyGroups(
       name,
       summary: groupSummary(name),
       result: needs[`${JOB_PREFIX}${name}`]?.result ?? 'missing',
-      reproduce: `bun verify-nightly ${name}`,
+      reproduce: reproduceGroup(name),
     }));
   const names = ['gate', ...Object.keys(NIGHTLY_SUITES)];
-  const reported = Object.keys(needs).map((job) =>
-    job.startsWith(JOB_PREFIX) ? job.slice(JOB_PREFIX.length) : job
-  );
+  const reported = Object.keys(needs)
+    .filter(
+      (job) =>
+        job !== 'verify-nightly-storybook' || needs[job]?.result !== 'skipped'
+    )
+    .map((job) =>
+      job.startsWith(JOB_PREFIX) ? job.slice(JOB_PREFIX.length) : job
+    );
   return [...new Set([...names, ...reported])].map((name) => ({
     name,
     summary: groupSummary(name),
     result: needs[`${JOB_PREFIX}${name}`]?.result ?? 'missing',
-    reproduce: `bun verify-nightly ${name}`,
+    reproduce: reproduceGroup(name),
   }));
 }
 

@@ -229,10 +229,53 @@ describe('prefetchArtifacts', () => {
   test('skips hashes already cached locally', async () => {
     const { io, files, fetches } = memoryIo({ aaa: 'new' });
     files.set(cached('aaa.tar.zst'), 'old');
+    files.set(
+      cached('aaa-meta.json'),
+      JSON.stringify({ hash: 'aaa', duration: 0 })
+    );
     const result = await prefetchArtifacts(['aaa'], CACHE, io, 4);
     expect(result).toEqual({ fetched: 1, failed: 0 });
     expect(fetches).toEqual([]);
     expect(files.get(cached('aaa.tar.zst'))).toBe('old');
+  });
+
+  // regression: overlapping-cache-prefetch-downloads
+  test('overlapping prerequisites download each artifact only once', async () => {
+    const { io, fetches } = memoryIo({ aaa: 'a', bbb: 'b' });
+    const result = await prefetchArtifacts(
+      ['aaa', 'aaa', 'bbb', 'aaa'],
+      CACHE,
+      io,
+      4
+    );
+    expect(fetches.sort()).toEqual(['aaa', 'bbb']);
+    expect(result).toEqual({ fetched: 2, failed: 0 });
+  });
+
+  // regression: incomplete-cache-prefetch-never-repairs
+  test('a metadata write failure is repaired on the next prefetch', async () => {
+    const { io, files, fetches } = memoryIo({ aaa: 'complete' });
+    const interrupted = {
+      ...io,
+      writeFile: (path: string, data: Uint8Array | string) => {
+        if (path.endsWith('-meta.json')) throw new Error('interrupted write');
+        io.writeFile(path, data);
+      },
+    };
+    expect(await prefetchArtifacts(['aaa'], CACHE, interrupted, 4)).toEqual({
+      fetched: 0,
+      failed: 1,
+    });
+    expect(files.has(cached('aaa-meta.json'))).toBe(false);
+    expect(await prefetchArtifacts(['aaa'], CACHE, io, 4)).toEqual({
+      fetched: 1,
+      failed: 0,
+    });
+    expect(fetches).toEqual(['aaa', 'aaa']);
+    expect(JSON.parse(files.get(cached('aaa-meta.json'))!)).toEqual({
+      hash: 'aaa',
+      duration: 0,
+    });
   });
 
   test('counts missing and failing artifacts without writing them', async () => {
