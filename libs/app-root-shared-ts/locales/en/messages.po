@@ -1247,6 +1247,7 @@ msgid "Both players are ready."
 msgstr "Both players are ready."
 
 #: pkgs/ui-root-client-ts/src/screen-breadcrumb-trail/index.tsx
+#: pkgs/ui-root-client-ts/src/screen-breadcrumb-trail/pills.tsx
 msgid "Breadcrumb"
 msgstr "Breadcrumb"
 
