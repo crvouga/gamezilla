@@ -52,13 +52,11 @@ Each check:
 | `local` | `runnable` (`yes`/`partial`/`no`), `blocked_by`, `limited_by` |
 | `secrets`, `vars`, `unresolved` | secret names, repository variables (assumed unset) and expressions only CI can evaluate |
 
-Step `local` values: `run` is executed by `run-check`; `skip` is safe to
-leave out locally (checkout, caches, artifact upload, toolchain setup, system
+Step `local` values: `run` is executed by `run-check`; `skip` is normally omitted by the local helper (checkout, caches, artifact upload, toolchain setup, system
 package installs); `ci-only` affects the result in CI but cannot or must not
 run here (secrets, OIDC, publishing, deploys, GitHub API calls). A `ci-only`
-step makes the check `partial`: every other step still runs, using the
-repository's local stand-in (a dev secrets cache, a local service) where one
-exists.
+step makes the check `partial`. Run selected relevant steps with local stand-ins
+where available; only the actual CI result proves the omitted steps work.
 
 ## Which checks matter
 
@@ -69,17 +67,12 @@ exists.
   Pushes to `main`, schedules and
   manual dispatches are listed under "not run on pull requests" and are out
   of scope unless the user asks.
-- **Every pull-request check is required** locally: a red optional check
-  is still a red PR. Discovery reads no hosted CI state; `--network` only
-  annotates the plan with GitHub branch protection
-  (`repos/<o>/<r>/branches/<base>/protection/required_status_checks`) and
-  rulesets (`repos/<o>/<r>/rules/branches/<base>`), and changes nothing
-  about what runs.
-- **Path filters**: GitHub `paths` / `paths-ignore` (ordered, `!` negates,
-  `*` within a segment, `**` across), GitLab `rules: changes`, Azure
-  `pr.paths`. A filtered-out check still runs locally; the report notes the
-  filter.
-- **The diff** orders work. It never removes a check from the full suite.
+- **Hosted results select the repair work.** Discovery reads configuration,
+  not current run status. Inspect the provider's current checks/logs separately;
+  `--network` annotates branch protection and rulesets only.
+- **Path filters and the diff** help identify relevant local checks. Do not
+  force filtered-out checks to run locally without a concrete reason. Confirm
+  required checks are present and successful before claiming the PR green.
 
 ## GitHub Actions
 
@@ -336,16 +329,14 @@ soften a command.
 
 ## Monolithic gates
 
-Many repositories wrap everything in one gate (`make ci`, `bun verify`,
-`./gradlew check`, `tox`, a Turborepo or Nx pipeline sharded across CI
-runners). Then:
+A documented gate such as `bun verify` may cover the same leaf tasks as CI,
+while omitting CI's planning, sharding, permissions or artifact transfers.
+Inspect the failing step before declaring jobs equivalent.
 
-- the CI jobs are plumbing (planning, sharding, artifact transfer); the
-  local form is the documented gate command, recorded as a `local_command`
-  override on one job and `covered_by` that job on the others;
-- a job the gate command does not demonstrably include (another OS, a
-  separate host-specific gate) keeps its own translation;
-- for ordering and parallelism, run the gate's own tasks phase by phase
-  (`turbo run lint`, then `turbo run typecheck`, then `turbo run test`;
-  `make lint`, then `make test`) with `run-check --adhoc ... --like <gate id>`;
-- the final verification still runs the gate itself, the way CI does.
+- Use the failing leaf task or a focused regression first.
+- Use `covered_by` only for work the replacement command demonstrably exercises;
+  never hide a failing planner or handoff behind a green monolithic local suite.
+- Verify CI-only behavior in the actual branch workflow when authorized.
+- Run the full local gate only when required by the repository/user or justified
+  by unresolved risk, preserving caches. Do not require a clean full rerun after
+  every fix.
