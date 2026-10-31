@@ -65,7 +65,7 @@ concurrency:
   group: health
   cancel-in-progress: false
 
-# Every job runs on a `boat` runner (boat.dev), and every `run:` step is bash.
+# Every job runs on a GitHub-hosted `ubuntu-24.04` runner, and every `run:` step is bash.
 defaults:
   run:
     shell: bash
@@ -75,7 +75,7 @@ jobs:
     name: health:cleanup
     needs: health-matrix
     if: github.ref == 'refs/heads/main'
-    runs-on: boat
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
       contents: write # delete stale report branches
@@ -108,7 +108,7 @@ jobs:
 
   health-matrix:
     name: health:matrix
-    runs-on: boat
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     outputs:
       production: ${{ steps.envs.outputs.production }}
@@ -151,7 +151,7 @@ jobs:
     name: health:${{ matrix.env }}
     needs: health-matrix
     if: needs.health-matrix.outputs.all != '[]' && needs.health-matrix.outputs.idle == 'true'
-    runs-on: boat
+    runs-on: ubuntu-24.04
     permissions:
       contents: read # check out the code
       id-token: write # mint the OIDC token Infisical and AWS trust
@@ -207,7 +207,7 @@ jobs:
     name: health:objectives
     needs: [health-matrix, health-env]
     if: ${{ !cancelled() && github.ref == 'refs/heads/main' && needs.health-matrix.outputs.all != '[]' }}
-    runs-on: boat
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
       contents: read # check out the code
