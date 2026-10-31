@@ -129,6 +129,7 @@ export async function drainAndNotifyOutbox(
 ): Promise<number> {
   if (args.causationIds?.length === 0) return 0;
   const consumers = args.consumerRegistry ?? getOutboxConsumerRegistry();
+  const passArgs = withComposedTopicMap(args, consumers);
   const eventIds =
     args.eventIds === undefined ? undefined : new Set(args.eventIds);
   if (eventIds?.size === 0) return 0;
@@ -138,7 +139,7 @@ export async function drainAndNotifyOutbox(
   let processed = 0;
   for (let pass = 0; pass < maxPasses; pass++) {
     const capture = capturedPass(
-      args,
+      passArgs,
       eventTypes === undefined
         ? consumers
         : consumersForEvents(consumers, eventTypes),
@@ -160,6 +161,14 @@ export async function drainAndNotifyOutbox(
     if (!eventWrites && !(await hasDueOutboxWork(capture.deps))) break;
   }
   return processed;
+}
+
+function withComposedTopicMap(
+  args: DrainAndNotifyArgs,
+  consumers: OutboxConsumerRegistry
+): DrainAndNotifyArgs {
+  const topicMap = args.topicMap ?? topicMaps.get(consumers);
+  return topicMap === undefined ? args : { ...args, topicMap };
 }
 
 /** Only successful handlers' images survive their savepoints and may be published. */
