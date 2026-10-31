@@ -33,6 +33,9 @@
         "@pkgs/sync-engine-shared-ts#src",
         "@pkgs/uuid-shared-ts#src"
       ]
+    },
+    "bench": {
+      "cache": false
     }
   }
 }

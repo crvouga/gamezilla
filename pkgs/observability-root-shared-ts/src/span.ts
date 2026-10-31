@@ -6,8 +6,11 @@ import {
   SpanStatusCode,
   trace,
 } from '@opentelemetry/api';
-
 import type { Attributes } from './attributes';
+import {
+  beginSyncMeasurement,
+  type SyncPerformanceStage,
+} from './metric-contract';
 import { ReproducibleError } from './reproducible-error';
 
 const TRACER_NAME = '@pkgs/observability';
@@ -98,4 +101,41 @@ export function recordException(span: Span, error: unknown): void {
   );
   if (error instanceof ReproducibleError)
     span.setAttributes(error.diagnostic as OtelAttributes);
+}
+
+/** Metrics remain independent of trace sampling. No clock means no latency claim. */
+export async function observeSync<T>(
+  stage: SyncPerformanceStage,
+  run: () => T | Promise<T>,
+  attributes?: Attributes,
+  success: (result: T) => boolean = () => true
+): Promise<T> {
+  const finish = beginSyncMeasurement(stage);
+  try {
+    const result = await withSpan(`sync.work.${stage}`, run, attributes);
+    finish(success(result));
+    return result;
+  } catch (error) {
+    finish(false);
+    throw error;
+  }
+}
+
+export function observeSyncNow<T>(
+  stage: SyncPerformanceStage,
+  run: () => T,
+  attributes?: Attributes
+): T {
+  const finish = beginSyncMeasurement(stage);
+  using span = startSpan(`sync.work.${stage}`, attributes);
+  try {
+    const result = context.with(trace.setSpan(context.active(), span), run);
+    finish(true);
+    return result;
+  } catch (error) {
+    finish(false);
+    recordException(span, error);
+    span.setStatus({ code: SpanStatusCode.ERROR });
+    throw error;
+  }
 }

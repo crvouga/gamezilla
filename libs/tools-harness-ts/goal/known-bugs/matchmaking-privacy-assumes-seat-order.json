@@ -1,0 +1,4 @@
+{
+  "summary": "Privacy conformance tests assumed Alice always owned White, even when matchmaking assigned the opposite seats; send the opening and inspect private rows using the actual roster.",
+  "regressionTest": "libs/games-harness-ts/tests/conformance/matchmaking/private-setup-privacy.test.ts"
+}

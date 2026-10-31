@@ -1,0 +1,4 @@
+{
+  "summary": "Filtering an outbox registry by event type lost its composed topic map, so a committed row could produce no notification. Resolve the map from the full registry before narrowing consumers.",
+  "regressionTest": "libs/app-root-server-ts/tests/outbox-row-images.test.ts"
+}

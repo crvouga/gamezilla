@@ -91,6 +91,8 @@
   ],
   "plugin:./libs/tools-harness-ts/biome-plugins/observability-boundary-imports.grit": [
     "!**/pkgs/sync-engine-client-ts/src/mutation-upload-queue.ts",
+    "!**/pkgs/sync-engine-client-ts/src/merge.ts",
+    "!**/pkgs/sync-engine-client-ts/src/sync-http-client.ts",
     "!**/pkgs/sync-engine-client-ts/src/create-mutation-client.ts"
   ]
 }

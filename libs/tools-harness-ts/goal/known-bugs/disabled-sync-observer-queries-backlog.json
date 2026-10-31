@@ -1,0 +1,4 @@
+{
+  "summary": "Reconnect telemetry queried the pending backlog even when no performance recorder was installed.",
+  "regressionTest": "pkgs/sync-engine-client-ts/tests/recovery-observation.test.ts"
+}

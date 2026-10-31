@@ -1,0 +1,4 @@
+{
+  "summary": "Complete pushed row images unnecessarily queried local existence for every id, adding database work proportional to the whole push instead of only incomplete images.",
+  "regressionTest": "pkgs/sync-engine-client-ts/tests/merge-validation-performance.test.ts"
+}

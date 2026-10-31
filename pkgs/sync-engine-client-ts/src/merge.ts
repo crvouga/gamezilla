@@ -1,4 +1,10 @@
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
+import { ATTR } from '@pkgs/observability-root-shared-ts/attributes';
+import {
+  activeSpan,
+  observeSync,
+  observeSyncNow,
+} from '@pkgs/observability-root-shared-ts/span';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 
@@ -61,7 +67,12 @@ export async function withMergeSingleFlight<T>(
   write: () => Promise<T>
 ): Promise<T> {
   const gate = mergeGateFor(db);
-  const run = gate.chain.then(write, write);
+  // Start the wait span at enqueue time; the execution span starts only once
+  // the preceding writer releases the gate. Both close on success or failure.
+  const previous = gate.chain;
+  const ready = observeSync('queue', () => previous);
+  const execute = () => observeSync('merge', write);
+  const run = ready.then(execute, execute);
   gate.chain = run.then(
     () => undefined,
     () => undefined
@@ -145,6 +156,7 @@ async function rebasePending(
       AND deleted_at IS NULL
     ORDER BY seq ASC
   `);
+  activeSpan()?.setAttribute(ATTR.APP_SYNC_BATCH_SIZE, pending.length);
   for (const row of pending) {
     assert.ok(row.id.length > 0, 'sync_engine_mutations id must be non-empty');
     assert.ok(
@@ -194,9 +206,10 @@ export async function reapplyPendingAfterWipe(
   await withMergeSingleFlight(deps.db, async () => {
     const changed = new Set<string>();
     await deps.db.transaction(async (tx) => {
-      await rebasePending(tx, deps, changed);
+      await observeSync('rebase', () => rebasePending(tx, deps, changed));
     });
-    if (changed.size > 0) deps.bus.emit([...changed]);
+    if (changed.size > 0)
+      observeSyncNow('notify', () => deps.bus.emit([...changed]));
   });
 }
 
@@ -204,6 +217,14 @@ async function runMerge(
   deps: MergeApplierDeps,
   input: MergeFullInput
 ): Promise<'applied' | 'stale'> {
+  activeSpan()?.setAttribute(
+    ATTR.APP_SYNC_ROWS,
+    Object.values(input.tables).reduce((sum, rows) => sum + rows.length, 0)
+  );
+  activeSpan()?.setAttribute(
+    ATTR.APP_SYNC_TABLES,
+    Object.keys(input.tables).length
+  );
   let applied = false;
   const changed = new Set<string>();
   await deps.db.transaction(async (tx) => {
@@ -229,11 +250,11 @@ async function runMerge(
       changed.add(table);
     }
     await touchScopeMeta(tx, input, deps.env.now);
-    await rebasePending(tx, deps, changed);
+    await observeSync('rebase', () => rebasePending(tx, deps, changed));
     applied = true;
   });
   if (!applied) return 'stale';
-  deps.bus.emit([...changed]);
+  observeSyncNow('notify', () => deps.bus.emit([...changed]));
   return 'applied';
 }
 
@@ -295,7 +316,11 @@ export async function applyRowImages(
     await deps.db.transaction(async (tx) => {
       for (const [table, rows] of Object.entries(filtered)) {
         if (rows.length === 0) continue;
-        await assertCompleteNewRowImages(tx, table, rows);
+        await observeSync(
+          'validate',
+          () => assertCompleteNewRowImages(tx, table, rows),
+          { [ATTR.APP_SYNC_BATCH_SIZE]: rows.length }
+        );
         // Skip unknown tables (empty PRAGMA); skip bad ids. Do not
         // blanket-catch SQL errors (that would commit a partial table).
         const ok = await mergeTable({
@@ -308,7 +333,7 @@ export async function applyRowImages(
         if (ok) changed.add(table);
       }
       await clearOptimisticPeerRows(tx, filtered, deps.env.now().toISOString());
-      await rebasePending(tx, deps, changed);
+      await observeSync('rebase', () => rebasePending(tx, deps, changed));
       if (opts?.raise !== undefined) {
         await raiseScopeCheckpoints(
           tx,
@@ -318,7 +343,8 @@ export async function applyRowImages(
         );
       }
     });
-    if (changed.size > 0) deps.bus.emit([...changed]);
+    if (changed.size > 0)
+      observeSyncNow('notify', () => deps.bus.emit([...changed]));
   });
 }
 
@@ -337,6 +363,6 @@ export async function detachScope(
       WHERE scope_hash = ${scopeHash}
         AND deleted_at IS NULL
     `);
-    deps.bus.emit(['sync_engine_scope_meta']);
+    observeSyncNow('notify', () => deps.bus.emit(['sync_engine_scope_meta']));
   });
 }

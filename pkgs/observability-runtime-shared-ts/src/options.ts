@@ -11,9 +11,17 @@ import type { Attributes } from '@pkgs/observability-root-shared-ts/attributes';
 import type { TelemetryEnvironment } from '@pkgs/observability-root-shared-ts/deployment-environment';
 import type { EventContract } from '@pkgs/observability-root-shared-ts/event-contract';
 import type { IdentitySource } from '@pkgs/observability-root-shared-ts/identity';
+import type {
+  MeasurementTimers,
+  SyncCohort,
+} from '@pkgs/observability-root-shared-ts/metric-contract';
 import type { AttributeRedactor } from '@pkgs/observability-root-shared-ts/redaction';
 
 export type TelemetryOptions = {
+  /** Injected monotonic elapsed-time source; never domain/wall timestamps. */
+  readonly monotonicNow?: () => number;
+  readonly performanceTimers?: MeasurementTimers;
+  readonly syncCohort?: () => SyncCohort;
   readonly serviceName: string;
   readonly serviceVersion: string;
   readonly environment: TelemetryEnvironment;

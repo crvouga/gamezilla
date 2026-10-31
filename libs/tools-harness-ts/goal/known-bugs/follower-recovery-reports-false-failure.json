@@ -1,0 +1,4 @@
+{
+  "summary": "A follower observed shared pending mutations but could not observe the leader's upload acknowledgements, falsely classifying reconnect as failed. Follower recovery is unknown rather than a reference-workload result.",
+  "regressionTest": "pkgs/sync-engine-client-ts/tests/recovery-observation.test.ts"
+}

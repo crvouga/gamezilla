@@ -90,7 +90,8 @@ async function drainWithFailingConsumer(failure: DatabaseError) {
   await raw.connect();
   await reconcileOutbox(raw);
   const clock = { now: () => NOW };
-  const createId = () => 'event';
+  let nextId = 0;
+  const createId = () => `generated-${++nextId}`;
   const outbox = new Outbox({
     tx: raw,
     env: { now: () => new Date(NOW), createId },

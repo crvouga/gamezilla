@@ -1,0 +1,4 @@
+{
+  "summary": "Snapshot healing rescanned every pending mutation for each table, repeating identical work within a merge transaction.",
+  "regressionTest": "pkgs/sync-engine-client-ts/tests/peer-healing-performance.test.ts"
+}

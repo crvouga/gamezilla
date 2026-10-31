@@ -12,6 +12,7 @@
  */
 
 import type { RequestDb } from '@libs/app-root-shared-ts/open-request-db';
+import { observeSync } from '@pkgs/observability-root-shared-ts/span';
 import {
   adaptPgClientAsPool,
   openPgClient,
@@ -22,10 +23,14 @@ export async function openRequestDb(
   connectionString: string,
   dbScope: PostgresDbScope
 ): Promise<RequestDb> {
-  const { client, sqlClient } = await openPgClient({
-    connectionString,
-    dbScope,
-  });
+  const { client, sqlClient } = await observeSync('database', () =>
+    openPgClient({
+      connectionString,
+      dbScope,
+      clientOptions: { connectionTimeoutMillis: 2_000 },
+      observeOpen: (stage, run) => observeSync(stage, run),
+    })
+  );
   const pool = adaptPgClientAsPool(client, dbScope, connectionString);
   return { kind: 'postgres', sqlClient, pool };
 }

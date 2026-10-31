@@ -1,4 +1,5 @@
 import type { Timers } from '@pkgs/clock-shared-ts/types';
+import { observeSync } from '@pkgs/observability-root-shared-ts/span';
 import type { QueryResponse } from '@pkgs/sync-engine-shared-ts/v2';
 import {
   SYNC_PROTOCOL_HEADER,
@@ -311,12 +312,19 @@ export function createSyncHttpClient(
     postAuthedJson(options, anonIdHeader, path, body);
 
   return {
-    postQueries: (requests) => postQueriesVia(authed, paths.query, requests),
-    postMutations: async (mutations) =>
-      (await authed(
-        paths.mutations,
-        JSON.stringify({ mutations })
-      )) as MutationUploadResult,
+    postQueries: (requests) =>
+      observeSync('read', () => postQueriesVia(authed, paths.query, requests)),
+    postMutations: (mutations) =>
+      observeSync(
+        'write',
+        async () =>
+          (await authed(
+            paths.mutations,
+            JSON.stringify({ mutations })
+          )) as MutationUploadResult,
+        undefined,
+        (result) => validMutationResponse(result, mutations)
+      ),
   };
 }
 
@@ -332,4 +340,37 @@ async function postQueriesVia(
     )) as { readonly responses?: unknown };
     return validateWireQueryBatch(body.responses, chunk.length);
   }, requests);
+}
+
+/** Telemetry validation only: the caller still receives the original wire result. */
+function validMutationResponse(
+  value: unknown,
+  mutations: readonly MutationUploadRow[]
+): boolean {
+  if (typeof value !== 'object' || value === null) return false;
+  const result = value as Partial<MutationUploadResult>;
+  if (
+    result.ok !== true ||
+    !Number.isFinite(result.serverTimeMs) ||
+    !Number.isSafeInteger(result.ackSeq) ||
+    (result.ackSeq ?? -1) < 0 ||
+    !Array.isArray(result.verdicts) ||
+    result.verdicts.length !== mutations.length
+  )
+    return false;
+  const pending = new Set(mutations.map((row) => row.id));
+  return result.verdicts.every((verdict) => {
+    if (
+      typeof verdict !== 'object' ||
+      verdict === null ||
+      !pending.delete(verdict.mutationId)
+    )
+      return false;
+    return (
+      verdict.status === 'applied' ||
+      (verdict.status === 'rejected' &&
+        typeof verdict.code === 'string' &&
+        typeof verdict.message === 'string')
+    );
+  });
 }

@@ -1,3 +1,4 @@
+import { monotonicClock } from '@pkgs/clock-shared-ts/wall';
 // @io-wall-ok — Room server Worker composition root (Durable Object isolate).
 
 import { serviceName } from '@libs/product-identity-shared-ts/technical-names';
@@ -70,6 +71,9 @@ function ensureWorkerTelemetry(env: RoomWorkerEnv): RoomTelemetryRuntime {
     token: collectorToken,
   });
   workerTelemetry = createWorkerTelemetry({
+    monotonicNow: monotonicClock.now,
+    performanceTimers: wallTimers,
+    syncCohort: () => 'server',
     http: createGlobalHttpClient(),
     timers: wallTimers,
     instanceId: crypto.randomUUID(),
