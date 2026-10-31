@@ -18,7 +18,7 @@ export async function readReleasePolicy(): Promise<ReleasePolicy> {
     `${ROOT}/.github/workflows/verify-pr.yml`
   ).text();
   const preparation = await Bun.file(
-    `${ROOT}/libs/tools-harness-ts/workspace/run.sh`
+    `${ROOT}/libs/tools-harness-ts/workspace/prepare.sh`
   ).text();
   const deploy = Bun.YAML.parse(deployText) as {
     concurrency: { 'cancel-in-progress': boolean };
@@ -28,8 +28,10 @@ export async function readReleasePolicy(): Promise<ReleasePolicy> {
     concurrency: { 'cancel-in-progress': string };
   };
   const replacement = check.concurrency['cancel-in-progress'];
-  const toldAt = preparation.indexOf('!!! system tool setup is incomplete');
-  const openAt = preparation.indexOf("printf 'warm\\n'");
+  const toldAt = preparation.indexOf(
+    '!!! environment preparation is incomplete'
+  );
+  const openAt = preparation.indexOf('==> workspace may be opened');
   return {
     shipNeedsPassingCheck: needsCheck(deploy.jobs['deploy-fleet']?.needs),
     newerProposalReplacesCheck: replacement.includes(

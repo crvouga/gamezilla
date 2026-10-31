@@ -19,6 +19,8 @@ It bootstraps mise in the user's home if absent (requires curl and outbound HTTP
 It trusts this checkout's mise configuration: review the repository before running.
 Bun is pinned in both `mise.toml` and `package.json`; `bun.lock` is authoritative.
 Setup fails nonzero on tool/install/generation failure; rerun after resolving it.
+Workspace-creation hooks call `prepare.sh`, which reports that failure and lets the
+workspace open for repairs. It does not stamp failed setup as ready or start services.
 Successful dependency fingerprints avoid reinstalling unchanged inputs.
 `check.sh` loads pinned tool paths before invoking the existing Turbo checks or
 `bun verify`; it does not run setup. Optional agent navigation: run `bun run graphify:install` to install the Graphify
@@ -98,7 +100,7 @@ rerun it. Run and cleanup operate on the machine hosting that checkout.
 ### Orca
 
 Set **Settings → Repository → Hooks** worktree setup to
-`./libs/tools-harness-ts/workspace/setup.sh`. Save project Quick Commands for
+`./libs/tools-harness-ts/workspace/prepare.sh`. Save project Quick Commands for
 `./libs/tools-harness-ts/workspace/run.sh` and
 `./libs/tools-harness-ts/workspace/teardown.sh`. These settings live outside the
 repository. The public hook reference does not establish a separate hook shell/cwd
@@ -125,7 +127,7 @@ Sources: [hooks](https://www.onorca.dev/docs/agents/hooks-memory),
 ### T3 Code
 
 Under **Settings → Code → Projects → Actions**, create Setup with command
-`./libs/tools-harness-ts/workspace/setup.sh` and enable **run on worktree create**.
+`./libs/tools-harness-ts/workspace/prepare.sh` and enable **run on worktree create**.
 Create Run with `./libs/tools-harness-ts/workspace/run.sh` (on demand), and Cleanup
 with `./libs/tools-harness-ts/workspace/teardown.sh`. If your build offers **run on
 settle**, use it for Cleanup; otherwise run Cleanup explicitly before settling or

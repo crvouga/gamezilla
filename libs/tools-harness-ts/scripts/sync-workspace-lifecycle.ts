@@ -33,7 +33,7 @@ export type Hook = (typeof HOOKS)[number];
 
 /** Command an orchestrator runs (from the worktree root) for one hook. */
 export function hookCommand(hook: Hook): string {
-  return `./${SOURCE_DIR}/${hook}.sh`;
+  return `./${SOURCE_DIR}/${hook === 'setup' ? 'prepare' : hook}.sh`;
 }
 
 export interface Orchestrator {
