@@ -10,7 +10,7 @@ run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{
 #   passes has the hash Release restores from the shared remote cache.
 # - `nightly`, from Verify Nightly: the whole gate deeper, with reports.
 #
-# Three jobs, on `boat` runners (boat.dev). `verify:start` plans the
+# Three jobs, on GitHub-hosted `ubuntu-24.04` runners. `verify:start` plans the
 # shards, `verify:shards (N)` run them with fail-fast off, and `verify:end` has
 # the ending word: one verdict that names every failure. The jobs keep the
 # `verify:` prefix wherever the gate runs, so `verify:end` is the one required
@@ -133,7 +133,7 @@ env:
   VERIFY_PROFILE: ${{ inputs.profile || 'release' }}
   VERIFY_ADVISORIES: ${{ inputs.advisories || 'enforce' }}
 
-# Every job runs on a `boat` runner (boat.dev), and every `run:` step is bash.
+# Every job runs on a GitHub-hosted `ubuntu-24.04` runner, and every `run:` step is bash.
 defaults:
   run:
     shell: bash
@@ -141,7 +141,7 @@ defaults:
 jobs:
   verify-start:
     name: verify:start
-    runs-on: boat
+    runs-on: ubuntu-24.04
     permissions:
       contents: read # check out the code
       actions: read # read run state (gh run list, job metadata)
@@ -234,7 +234,7 @@ jobs:
     needs: [verify-start]
     # An empty matrix is an error, so a fully cached plan skips the job.
     if: needs.verify-start.outputs.shards != '[]'
-    runs-on: boat
+    runs-on: ubuntu-24.04
     permissions:
       contents: read # check out the code
       actions: read # read run state (gh run list, job metadata)
@@ -314,7 +314,7 @@ jobs:
     name: verify:end
     needs: [verify-start, verify-shards]
     if: always() && !cancelled()
-    runs-on: boat
+    runs-on: ubuntu-24.04
     permissions:
       contents: read # check out the code
       actions: read # read run state (gh run list, job metadata)
