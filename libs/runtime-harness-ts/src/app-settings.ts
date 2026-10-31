@@ -9,7 +9,7 @@ import { APP_VERSION } from '@libs/app-root-shared-ts/app-metadata';
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { actorHtml, nodeText, visible } from '@libs/harness-ts/observations';
-import { backToTabs, openSettings } from '@libs/harness-ts/shell-actions';
+import { openSettings } from '@libs/harness-ts/shell-actions';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 
 const WAIT_MS = 15_000;
@@ -21,12 +21,6 @@ export const APP_VERSION_INSTALLED = APP_VERSION;
 export const chooseTheme = scenarioAction({
   name: 'chooseTheme',
   act: async (s, actorId: string, scheme: 'light' | 'dark') => {
-    const handle = s.actors.get(actorId);
-    if (
-      handle !== undefined &&
-      (await handle.currentPath()).startsWith('/more')
-    )
-      await Promise.resolve(backToTabs.act(s, actorId));
     await Promise.resolve(openSettings.act(s, actorId));
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.settingsTheme).tap({ timeoutMs: WAIT_MS });
@@ -39,12 +33,6 @@ export const chooseTheme = scenarioAction({
 export const turnSoundsOff = scenarioAction({
   name: 'turnSoundsOff',
   act: async (s, actorId: string) => {
-    const handle = s.actors.get(actorId);
-    if (
-      handle !== undefined &&
-      (await handle.currentPath()).startsWith('/more')
-    )
-      await Promise.resolve(backToTabs.act(s, actorId));
     await Promise.resolve(openSettings.act(s, actorId));
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.settingsSound).tap({ timeoutMs: WAIT_MS });
@@ -53,25 +41,11 @@ export const turnSoundsOff = scenarioAction({
   },
 });
 
-async function openSettingsFromAnywhere(
-  s: ProductHarness,
-  actorId: string
-): Promise<void> {
-  const handle = s.actors.get(actorId);
-  if (
-    handle !== undefined &&
-    (await handle.currentPath()).startsWith('/more')
-  ) {
-    await Promise.resolve(backToTabs.act(s, actorId));
-  }
-  await Promise.resolve(openSettings.act(s, actorId));
-}
-
 /** Settings → Work offline switch. */
 export const setWorkOfflineInSettings = scenarioAction({
   name: 'setWorkOfflineInSettings',
   act: async (s, actorId: string, offline: boolean) => {
-    await openSettingsFromAnywhere(s, actorId);
+    await Promise.resolve(openSettings.act(s, actorId));
     const ui = await actorUi(s, actorId);
     const shown = await nodeText(s, actorId, [Handles.settingsWorkOffline]);
     const isOffline = shown?.includes('Offline') === true;
@@ -88,7 +62,7 @@ export const setWorkOfflineInSettings = scenarioAction({
 export const setWorkOfflineInCommandPalette = scenarioAction({
   name: 'setWorkOfflineInCommandPalette',
   act: async (s, actorId: string, offline: boolean) => {
-    await openSettingsFromAnywhere(s, actorId);
+    await Promise.resolve(openSettings.act(s, actorId));
     await chooseOfflineCommand(s, actorId, offline);
   },
 });
@@ -105,12 +79,6 @@ export const setWorkOfflineFromCurrentPlace = scenarioAction({
 export const openAbout = scenarioAction({
   name: 'openAbout',
   act: async (s, actorId: string) => {
-    const handle = s.actors.get(actorId);
-    if (
-      handle !== undefined &&
-      (await handle.currentPath()).startsWith('/more')
-    )
-      await Promise.resolve(backToTabs.act(s, actorId));
     await Promise.resolve(openSettings.act(s, actorId));
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.settingsAbout).tap({ timeoutMs: WAIT_MS });
@@ -175,7 +143,7 @@ export async function versionShownInAbout(
 export const openConnectionInSettings = scenarioAction({
   name: 'openConnectionInSettings',
   act: async (s, actorId: string) => {
-    await openSettingsFromAnywhere(s, actorId);
+    await Promise.resolve(openSettings.act(s, actorId));
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.settingsConnection).tap({ timeoutMs: WAIT_MS });
     await s.session.waitForIdle();
