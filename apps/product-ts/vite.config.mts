@@ -16,6 +16,11 @@ import solid from 'vite-plugin-solid';
 
 const consoleDir = import.meta.dirname;
 const repoRoot = resolve(consoleDir, '../..');
+// Release partitions generate SQLite assets beside their own static inputs.
+const publicDir = resolve(
+  consoleDir,
+  process.env['PRODUCT_PUBLIC_DIR'] ?? 'public'
+);
 
 const linguiConfig = getConfig({
   configPath: resolve(repoRoot, 'lingui.solid.config.ts'),
@@ -42,8 +47,8 @@ export default defineConfig(({ mode }) => {
     preloadDynamicEntry('/src/main.tsx'),
     sqliteWebAssets({
       repoRoot,
-      sqlWorkersDir: resolve(consoleDir, 'public/sql-workers'),
-      sqliteWasmDir: resolve(consoleDir, 'public/generated/sqlite-wasm'),
+      sqlWorkersDir: resolve(publicDir, 'sql-workers'),
+      sqliteWasmDir: resolve(publicDir, 'generated/sqlite-wasm'),
     }),
     tailwindcss(),
     solid({
@@ -59,7 +64,7 @@ export default defineConfig(({ mode }) => {
   ];
   return {
     root: consoleDir,
-    publicDir: resolve(consoleDir, 'public'),
+    publicDir,
     envPrefix: ['VITE_'],
     plugins,
     define: {

@@ -1,0 +1,4 @@
+{
+  "summary": "Runtime preference setup tried to return through compact-only back controls between Settings subscreens. Tablet and desktop breadcrumb chrome has no such control, so saving layout preferences timed out before rotation. Settings actions now use the existing global Settings menu from every place and retain their original destination and preference writes.",
+  "regressionTest": "libs/runtime-harness-ts/tests/layout-preferences.test.ts"
+}

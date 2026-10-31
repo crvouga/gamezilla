@@ -29,11 +29,14 @@ export function testFileCommand(
   for (let i = 2; i < tokens.length; i++) {
     const token = tokens[i]!;
     if (
-      /^--(?:conditions|preload|timeout|parallel)=/.test(token) ||
+      /^--(?:conditions|preload|timeout|parallel|tsconfig-override)=/.test(
+        token
+      ) ||
       token === '--parallel'
     )
       runtime.push(token);
     else if (
+      token === '--tsconfig-override' ||
       token === '--conditions' ||
       token === '--preload' ||
       token === '--timeout'

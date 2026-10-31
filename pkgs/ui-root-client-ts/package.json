@@ -19,7 +19,7 @@
   "scripts": {
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts && bun run scripts/generate-tokens-css.ts --check",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload --parallel tests",
+    "test": "bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload --parallel tests",
     "tokens:generate": "bun run scripts/generate-tokens-css.ts",
     "tokens:verify": "bun run scripts/generate-tokens-css.ts --check"
   },

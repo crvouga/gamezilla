@@ -38,6 +38,7 @@ workspace_quiet() {
   "$@" >"$log" 2>&1 || status=$?
   if [ "$status" -ne 0 ]; then
     cat "$log"
+    echo "!!! $label failed (exit $status)" >&2
   fi
   rm -f "$log"
   return "$status"

@@ -31,7 +31,11 @@ export function verifyStages(tasks: readonly VerifyTask[]) {
           (id) =>
             !byId.has(id) || prerequisites.has(id) || id.endsWith('#build')
         );
-      if (task.taskId.endsWith('#build') || sharedSource) include(task.taskId);
+      if (
+        (task.taskId.endsWith('#build') || sharedSource) &&
+        transferable(task.taskId, byId)
+      )
+        include(task.taskId);
     }
   }
   const local = uncachedTaskGroups(tasks, prerequisites);
@@ -46,12 +50,18 @@ export function verifyStages(tasks: readonly VerifyTask[]) {
       consumers.add(task.taskId);
   for (let size = -1; size !== consumers.size; ) {
     size = consumers.size;
-    for (const task of tasks)
+    for (const task of tasks) {
       if (
         !local.has(task.taskId) &&
         task.dependencies.some((id) => consumers.has(id))
       )
         consumers.add(task.taskId);
+      // A live check has no Turbo archive to transfer. Keep it alongside
+      // every consumer, even when a fan-in moves that chain to the last stage.
+      if (consumers.has(task.taskId))
+        for (const id of task.dependencies)
+          if (byId.has(id) && !transferable(id, byId)) consumers.add(id);
+    }
   }
   for (const id of prerequisites)
     if (consumers.has(id)) throw new Error(`Cyclic Verification stages: ${id}`);
@@ -62,4 +72,22 @@ export function verifyStages(tasks: readonly VerifyTask[]) {
     ),
     consumers: tasks.filter((task) => consumers.has(task.taskId)),
   };
+}
+
+/** Only reusable cache artifacts can cross a prerequisite-stage boundary. */
+export function transferable(
+  id: string,
+  tasks: ReadonlyMap<string, VerifyTask>,
+  seen = new Set<string>()
+): boolean {
+  if (seen.has(id)) return true;
+  seen.add(id);
+  const task = tasks.get(id);
+  return (
+    task === undefined ||
+    (task.cacheable !== false &&
+      task.dependencies.every((dependency) =>
+        transferable(dependency, tasks, seen)
+      ))
+  );
 }

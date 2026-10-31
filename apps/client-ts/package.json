@@ -12,7 +12,7 @@
     "pwa:generate": "bun run scripts/generate-pwa-assets.ts",
     "setup": "bun run --silent scripts/setup-env.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p tsconfig.json",
-    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload",
+    "test": "bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload",
     "verify:live-dist": "bun run scripts/live-bundle-guard-cli.ts verify-dist",
     "verify:live-env": "bun run scripts/live-bundle-guard-cli.ts verify-env",
     "verify:production-compression": "bun run scripts/verify-production-compression.ts"

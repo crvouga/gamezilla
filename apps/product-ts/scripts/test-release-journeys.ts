@@ -1,6 +1,6 @@
 // @io-wall-ok — CI owns the stack, production bundle, browser process and teardown.
 import { execFileSync, spawn } from 'node:child_process';
-import { mkdirSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Denial } from '@pkgs/aedes-server-ts/start';
 import { wallClock } from '@pkgs/clock-shared-ts/wall';
@@ -16,21 +16,21 @@ import {
   SQLITE_WEB_COEP,
   SQLITE_WEB_COOP,
 } from './dist-headers';
-import {
-  healthTestArguments,
-  parseCli,
-  selectSpecs,
-  writeFeatureStubs,
-} from './health';
+import { healthTestArguments, parseCli, selectSpecs } from './health';
 import { LOCAL_MONITOR_TOKEN } from './local-api-env';
 import { removeManifest, type StackManifest } from './manifest';
 import { databaseVerdict, profileOf } from './production-database';
+import {
+  prepareReleasePublic,
+  releaseArtifacts,
+  removeReleaseArtifacts,
+  writeReleaseStubs,
+} from './release-artifacts';
 import { printReleasePairingEvidence } from './release-failure-diagnostics';
 import { releaseFailureTraces } from './release-failure-traces';
 import { printReleaseQueryEvidence } from './release-query-diagnostics';
 import {
   parseReleasePart,
-  RELEASE_ENVIRONMENT,
   releaseSpecs,
   splitReleaseSpecs,
 } from './release-selection';
@@ -39,7 +39,8 @@ import { parseStackOptions } from './stack-options';
 
 const PACKAGE_DIR = join(import.meta.dir, '..');
 const REPO_ROOT = join(PACKAGE_DIR, '../..');
-const DIST = join(PACKAGE_DIR, '.cache/release-web');
+const part = parseReleasePart(process.argv.slice(2));
+const artifacts = releaseArtifacts(PACKAGE_DIR, part);
 // The journeys reach Postgres as the deployed API does (round trip, session
 // pool, per-request cost) and over a network with a round trip, because they
 // decide whether a change can deploy.
@@ -54,6 +55,8 @@ const cli = parseCli(
 );
 
 async function buildRelease(apiOrigin: string): Promise<void> {
+  prepareReleasePublic(PACKAGE_DIR, artifacts);
+  process.env['PRODUCT_PUBLIC_DIR'] = artifacts.publicDir;
   process.env['VITE_API_URL'] = apiOrigin;
   // Exercise the shipped build: no harness probes, dev mode or HMR.
   process.env['VITE_TEST_HOOKS'] = '0';
@@ -72,15 +75,16 @@ async function buildRelease(apiOrigin: string): Promise<void> {
   await build({
     configFile: join(PACKAGE_DIR, 'vite.config.mts'),
     mode: 'production',
-    build: { outDir: DIST, emptyOutDir: true },
+    cacheDir: artifacts.viteCacheDir,
+    build: { outDir: artifacts.distDir, emptyOutDir: true },
   });
   const { buildServiceWorker } = await import('./build-sw');
-  await buildServiceWorker(DIST);
+  await buildServiceWorker(artifacts.distDir);
 }
 
 function serveRelease(origin: string): ReturnType<typeof Bun.serve> {
   const store = createNodeFsObjectStore({
-    rootDir: DIST,
+    rootDir: artifacts.distDir,
     fs: wallNodeFs(),
     layout: 'tree',
   });
@@ -120,7 +124,6 @@ function scenarioCount(spec: string): number {
 }
 
 function specsToRun(): readonly string[] {
-  const part = parseReleasePart(process.argv.slice(2));
   const all = releaseSpecs();
   if (part === null) return all;
   return splitReleaseSpecs(all, part.parts, scenarioCount)[part.part] ?? [];
@@ -129,19 +132,7 @@ function specsToRun(): readonly string[] {
 function journeyStubs(): readonly string[] {
   const selection = selectSpecs({ all: specsToRun(), cli });
   if (!selection.ok) throw new Error(selection.error);
-  const dirs = {
-    stubDir: join(PACKAGE_DIR, '.cache/spec-release'),
-    reportDir: join(PACKAGE_DIR, '.cache/release-report'),
-    timelineReports: true,
-  };
-  removeTree(dirs.stubDir);
-  mkdirSync(dirs.stubDir, { recursive: true });
-  return writeFeatureStubs(
-    RELEASE_ENVIRONMENT,
-    selection.specs,
-    dirs,
-    join(PACKAGE_DIR, 'tests/steps/release-index.ts')
-  );
+  return writeReleaseStubs(PACKAGE_DIR, selection.specs, artifacts);
 }
 
 /** A run whose requests cost more than the deployed database allows has not passed. */
@@ -182,7 +173,7 @@ async function printFailureTraces(manifest: StackManifest): Promise<void> {
   try {
     console.error(
       await releaseFailureTraces({
-        reports: store(join(PACKAGE_DIR, '.cache/release-report')),
+        reports: store(artifacts.reportDir),
         telemetry: store(manifest.observabilityTraceDir),
         run: { startMs: manifest.startedAtMs, endMs: wallClock.now() },
         mutationNames: ['findChessOpponent', 'createSpace'],
@@ -215,6 +206,7 @@ try {
       env: {
         ...process.env,
         SPEC_WORLD: 'release',
+        CRITICAL_JOURNEY_EVIDENCE_DIR: artifacts.evidenceDir,
         SYNTHETIC_MONITOR_TOKEN: LOCAL_MONITOR_TOKEN,
         SPEC_TAGS: '',
         LOCALHOST_STACK_MANIFEST: stack.manifestPath,
@@ -241,9 +233,8 @@ try {
     await printFailureTraces(stack.manifest);
   removeManifest(REPO_ROOT, options.instanceId);
   if (!options.keepData) removeScratch(stack.manifest.dataDir);
-  removeScratch(DIST);
-  if (process.env['VERIFY_PROFILE'] !== 'nightly') {
-    removeScratch(join(PACKAGE_DIR, '.cache/release-report'));
-    removeScratch(join(PACKAGE_DIR, '.cache/critical-journeys'));
-  }
+  removeReleaseArtifacts(
+    artifacts,
+    process.env['VERIFY_PROFILE'] === 'nightly'
+  );
 }

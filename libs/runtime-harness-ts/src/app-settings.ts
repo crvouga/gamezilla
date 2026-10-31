@@ -21,6 +21,7 @@ export const APP_VERSION_INSTALLED = APP_VERSION;
 export const chooseTheme = scenarioAction({
   name: 'chooseTheme',
   act: async (s, actorId: string, scheme: 'light' | 'dark') => {
+    // The global menu reaches Settings from compact and wide subscreens.
     await Promise.resolve(openSettings.act(s, actorId));
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.settingsTheme).tap({ timeoutMs: WAIT_MS });

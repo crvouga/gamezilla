@@ -1,0 +1,4 @@
+{
+  "summary": "A four-seat frame’s game-specific turn instructions replaced the match headline naming the active person, leaving listeners with only a seat color and shape. Keep the active person’s visible name in the live announcement alongside frame instructions for players and watchers, tracking turn changes and clearing it at the result.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-frame-status.test.tsx"
+}

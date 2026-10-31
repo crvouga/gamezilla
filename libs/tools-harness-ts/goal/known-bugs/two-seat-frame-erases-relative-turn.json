@@ -1,0 +1,4 @@
+{
+  "summary": "Two-seat frame instructions erased the listener\u2019s viewer-relative turn announcement.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-frame-status.test.tsx"
+}

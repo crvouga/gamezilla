@@ -1,5 +1,8 @@
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
-import { bothHaveMoved } from '@libs/game-matchmaking-shared-ts/game-state';
+import {
+  awaitingSetups,
+  bothHaveMoved,
+} from '@libs/game-matchmaking-shared-ts/game-state';
 import { multiplayerDeadlineMs } from '@libs/game-matchmaking-shared-ts/multiplayer-clock';
 import {
   multiplayerSideOf,
@@ -41,6 +44,19 @@ type StatusProps = {
 const ownSide = (props: StatusProps) =>
   multiplayerSideOf(props.game, props.viewer.myId) ?? 'white';
 
+/** Game-specific live words; setup and match results keep their own headline. */
+function useFrameTurnStatus(props: StatusProps): () => string | null {
+  const presentation = useGamePresentation();
+  return () =>
+    props.game.outcome === 'ongoing' && !awaitingSetups(props.game)
+      ? presentation(props.game.fen).frame.turnStatus(
+          props.game.fen,
+          multiplayerSideOf(props.game, props.viewer.myId),
+          []
+        )
+      : null;
+}
+
 /** How a finished game reads to a person who played it. */
 function PlayerResult(props: StatusProps): JSX.Element {
   const won = () => props.game.outcome === ownSide(props);
@@ -67,10 +83,11 @@ function PlayerResult(props: StatusProps): JSX.Element {
 
 /**
  * A playing person's headline. The match details are for a listener, who
- * cannot see the seats; the eye gets only whose turn it is.
+ * cannot see the seats; the visible line uses the game's turn instructions.
  */
 function PlayerHeadline(props: StatusProps): JSX.Element {
   const gameSideLabel = useGameSideLabel();
+  const turnStatus = useFrameTurnStatus(props);
   const turnName = useShownName(() => props.game.turn);
   const count = () => multiplayerSides(props.game).length;
   const timed = () => timeControlOf(props.game.time_control) !== null;
@@ -106,46 +123,85 @@ function PlayerHeadline(props: StatusProps): JSX.Element {
             </Trans>
           </Show>{' '}
         </Show>
-        <Trans>
-          You are {gameSideLabel(props.game.fen, ownSide(props))}.
-        </Trans>{' '}
+        <Trans>You are {gameSideLabel(props.game.fen, ownSide(props))}.</Trans>{' '}
+        <Show when={count() === 2 && props.game.turn !== '' && turnStatus()}>
+          <Show
+            when={props.game.turn === props.viewer.myId}
+            fallback={<Trans>Your opponent's turn.</Trans>}
+          >
+            <Trans>Your turn.</Trans>
+          </Show>{' '}
+        </Show>
+        <Show when={count() > 2 && props.game.turn !== '' && turnStatus()}>
+          <Trans>{turnName()}'s turn.</Trans>{' '}
+        </Show>
       </VisuallyHidden>
       <Show
-        when={props.game.turn !== ''}
-        fallback={<Trans>Game in progress.</Trans>}
-      >
-        <Show
-          when={props.game.turn === props.viewer.myId}
-          fallback={
+        when={turnStatus()}
+        fallback={
+          <Show
+            when={props.game.turn !== ''}
+            fallback={<Trans>Game in progress.</Trans>}
+          >
             <Show
-              when={count() > 2}
-              fallback={<Trans>Your opponent's turn.</Trans>}
+              when={props.game.turn === props.viewer.myId}
+              fallback={
+                <Show
+                  when={count() > 2}
+                  fallback={<Trans>Your opponent's turn.</Trans>}
+                >
+                  <Trans>{turnName()}'s turn.</Trans>
+                </Show>
+              }
             >
-              <Trans>{turnName()}'s turn.</Trans>
+              <Trans>Your turn.</Trans>
             </Show>
-          }
-        >
-          <Trans>Your turn.</Trans>
-        </Show>
+          </Show>
+        }
+      >
+        {(status) => <>{status()}</>}
       </Show>
     </Show>
   );
 }
 
 function WatcherHeadline(props: StatusProps): JSX.Element {
+  const turnStatus = useFrameTurnStatus(props);
   const presentation = useGamePresentation();
   const turnName = useShownName(() => props.game.turn);
   return (
     <>
       <Trans>Watching multiplayer {presentation(props.game.fen).name()}.</Trans>
       <Show
-        when={
-          props.game.outcome === 'ongoing' &&
-          multiplayerSides(props.game).length > 2
+        when={turnStatus()}
+        fallback={
+          <Show
+            when={
+              props.game.outcome === 'ongoing' &&
+              multiplayerSides(props.game).length > 2
+            }
+          >
+            {' '}
+            <Trans>{turnName()}'s turn.</Trans>
+          </Show>
         }
       >
-        {' '}
-        <Trans>{turnName()}'s turn.</Trans>
+        {(status) => (
+          <>
+            <Show
+              when={
+                multiplayerSides(props.game).length > 2 &&
+                props.game.turn !== ''
+              }
+            >
+              <VisuallyHidden>
+                {' '}
+                <Trans>{turnName()}'s turn.</Trans>
+              </VisuallyHidden>
+            </Show>{' '}
+            {status()}
+          </>
+        )}
       </Show>
       <Show
         when={multiplayerSides(props.game).includes(

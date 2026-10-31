@@ -1,0 +1,4 @@
+{
+  "summary": "Separating setup and startup left the release policy probe reading removed startup markers and tool refresh failures lacked an explicit failure message. Read the separate lifecycle definitions and report failed setup steps while retaining independent startup for prepared checkouts.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workspace-run.test.ts"
+}

@@ -2,6 +2,30 @@
   "$schema": "https://v2-11-3.turborepo.dev/schema.json",
   "extends": ["//"],
   "tasks": {
+    "test:release-journeys": {
+      "outputs": [
+        ".cache/release-report/all/**",
+        ".cache/critical-journeys/release-all/**"
+      ]
+    },
+    "test:release-journeys:0": {
+      "outputs": [
+        ".cache/release-report/part-0-of-3/**",
+        ".cache/critical-journeys/release-part-0-of-3/**"
+      ]
+    },
+    "test:release-journeys:1": {
+      "outputs": [
+        ".cache/release-report/part-1-of-3/**",
+        ".cache/critical-journeys/release-part-1-of-3/**"
+      ]
+    },
+    "test:release-journeys:2": {
+      "outputs": [
+        ".cache/release-report/part-2-of-3/**",
+        ".cache/critical-journeys/release-part-2-of-3/**"
+      ]
+    },
     "build": {
       "dependsOn": ["$TURBO_EXTENDS$", "//#task:i18n:compile"]
     },

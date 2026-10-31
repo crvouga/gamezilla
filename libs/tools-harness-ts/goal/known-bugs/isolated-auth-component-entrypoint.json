@@ -1,0 +1,4 @@
+{
+  "summary": "Isolated release verification could not resolve the public auth TSX component and then the public profile avatar components through wildcard exports, while their worktree suites passed. Solid test commands now select the canonical root tsconfig explicitly, as existing matchmaking and puzzle tests already did; every test and public import remains intact.",
+  "regressionTest": "libs/auth-client-ts/tests/account-device-meta-pair.test.tsx"
+}
