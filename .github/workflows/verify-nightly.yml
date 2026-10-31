@@ -52,8 +52,12 @@ on:
       group:
         description: Diagnostic group, or all for comprehensive verification
         type: choice
-        options: [all, gate, random, browser, visual, coverage, performance]
+        options: [all, gate, random, browser, visual, coverage, performance, storybook]
         default: all
+      update-storybook-baselines:
+        description: Explicitly author Ubuntu Storybook references (group must be storybook); compare them again and retain a patch for review
+        type: boolean
+        default: false
 
 env:
   TURBO_UI: stream
@@ -140,6 +144,43 @@ jobs:
         run: >-
           bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-nightly-browser-"${GITHUB_RUN_ID}"
           '.turbo/runs/*.json' 'apps/*/.cache/harness-report' 'libs/*/.cache/harness-report' 'pkgs/*/.cache/harness-report'
+
+  # A focused, manual browser diagnostic in the shared baseline environment.
+  # Authoring is explicit; the ordinary nightly and PR gates never update PNGs.
+  # pkgs/ui-root-harness-ts/README.md documents artifact review and application.
+  verify-nightly-storybook:
+    name: verify-nightly:storybook
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.group == 'storybook' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read # check out the code; the job never pushes references
+      id-token: write # mint the OIDC token Infisical trusts
+    steps:
+      - *checkout
+      - *setup
+      - *renderer
+      - name: Verify diagnostic tooling
+        run: bunx turbo run lint tc test ci:goals --filter=@libs/tools-harness-ts --concurrency=1
+      - name: Build canonical Storybook
+        run: bun run storybook:build
+      - name: Author references explicitly
+        if: ${{ inputs.update-storybook-baselines }}
+        run: bun run storybook:test --update-snapshots
+      - name: Compare every authored Storybook state
+        if: ${{ inputs.update-storybook-baselines }}
+        run: bun run storybook:test
+      - name: Compare PR Storybook states
+        if: ${{ !inputs.update-storybook-baselines }}
+        run: bunx turbo run ci:storybook --filter=@pkgs/ui-root-harness-ts --concurrency=1
+      - name: Collect reference changes for review
+        if: always() && !cancelled()
+        run: bun run libs/tools-harness-ts/scripts/storybook-baseline-patch.ts
+      - name: Retain Storybook comparisons and reference patch
+        if: always() && !cancelled()
+        run: >-
+          bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-nightly-storybook-"${GITHUB_RUN_ID}"
+          pkgs/ui-root-harness-ts/.cache/storybook-test-results .cache/verify-nightly/storybook-baselines.patch
 
   # Judges the snapshots the gate job's spec parts recorded, restored from
   # the remote cache, so it waits for that job and runs whatever its result.
@@ -228,6 +269,7 @@ jobs:
       - verify-nightly-visual
       - verify-nightly-coverage
       - verify-nightly-performance
+      - verify-nightly-storybook
     if: always() && !cancelled()
     runs-on: ubuntu-24.04
     timeout-minutes: 10

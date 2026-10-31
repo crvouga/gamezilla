@@ -55,6 +55,7 @@ for (const story of Object.values(index.entries).filter(
       });
       expect(violations).toEqual([]);
       expect(failures).toEqual([]);
+      // regression: storybook-ubuntu-renderer-baselines (primitives-sparkline--states dark)
       await expect(page.locator('#storybook-root')).toHaveScreenshot(
         scenario.baseline.split('/'),
         { animations: 'disabled' }
