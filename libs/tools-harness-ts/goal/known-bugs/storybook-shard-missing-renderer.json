@@ -1,0 +1,4 @@
+{
+  "summary": "Verify run 41181561052 shard 37 omitted renderer setup for ci:storybook. Planning included BUN_CHROME_PATH but the shard did not, so immutable task-hash verification rejected the task before execution. Select renderer setup for Storybook browser checks and the current webview package name.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-browser-tasks.test.ts"
+}
