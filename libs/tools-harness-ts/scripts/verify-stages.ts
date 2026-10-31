@@ -17,7 +17,10 @@ export function verifyStages(tasks: readonly VerifyTask[]) {
   for (let size = -1; size !== prerequisites.size; ) {
     size = prerequisites.size;
     for (const task of tasks) {
+      // A shared uncached checker produces no transferable Turbo archive.
+      // Leave it with its consumers in one verification shard instead.
       const sharedSource =
+        task.cacheable !== false &&
         (users.get(task.taskId) ?? 0) > 1 &&
         task.dependencies.every(
           (id) =>

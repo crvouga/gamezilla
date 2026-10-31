@@ -2,6 +2,7 @@ import { createMetric } from '@pkgs/observability-root-shared-ts/metric-contract
 import {
   OUTBOX_DELIVERIES_EXHAUSTED_METRIC,
   OUTBOX_DRAIN_RUNS_METRIC,
+  OUTBOX_READY_AGE_METRIC,
 } from '@pkgs/observability-root-shared-ts/outbox-metrics';
 
 /**
@@ -31,4 +32,9 @@ export async function observeScheduledOutboxDrain<T>(
     drainRuns()(1, { 'app.outcome': 'failure' });
     throw error;
   }
+}
+
+export function observeOutboxReadyAge(elapsedMs: number): void {
+  if (!Number.isFinite(elapsedMs) || elapsedMs < 0) return;
+  createMetric(OUTBOX_READY_AGE_METRIC)(elapsedMs / 1000, {});
 }

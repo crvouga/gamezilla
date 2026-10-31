@@ -22,7 +22,8 @@ test('a worker leaves another consumer and event partition unclaimed', async () 
   try {
     await reconcileOutbox(db);
     const clock = { now: () => Date.parse('2026-10-01T00:00:00.000Z') };
-    const createId = () => 'delivery';
+    let nextId = 0;
+    const createId = () => `generated-${++nextId}`;
     const all = new OutboxConsumerRegistry();
     const seen: string[] = [];
     for (const id of ['export', 'erase'])

@@ -1,0 +1,4 @@
+{
+  "summary": "A drain held a database transaction over every consumer in a pass; delivery work now commits separately and rechecks each candidate under its row lock.",
+  "regressionTest": "pkgs/outbox-harness-ts/tests/delivery-transaction-budget.test.ts"
+}

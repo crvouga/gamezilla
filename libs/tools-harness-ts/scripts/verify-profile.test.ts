@@ -142,6 +142,7 @@ describe('verification profiles', () => {
     ).toThrow('not a nightly suite');
   });
 
+  // regression: nightly-package-task-declaration
   // regression: nightly-package-owned-tasks
   test('every nightly suite task is a declared Turbo task', () => {
     const root = JSON.parse(readFileSync(join(ROOT, 'turbo.json'), 'utf8')) as {

@@ -25,7 +25,8 @@ test('a mutation with no causal work leaves the pending backlog to its owned dra
   try {
     await reconcileOutbox(db);
     const clock = { now: () => Date.parse('2026-10-01T00:00:00.000Z') };
-    const createId = () => 'delivery';
+    let nextId = 0;
+    const createId = () => `generated-${++nextId}`;
     const consumerRegistry = new OutboxConsumerRegistry();
     const seen: number[] = [];
     consumerRegistry.register({
@@ -74,9 +75,7 @@ test('a committed mutation publishes its root and chained child before acknowled
     ]);
     const statements = host.statements.slice(start);
     expect(
-      statements.filter((text) =>
-        text.includes('INSERT INTO outbox_deliveries')
-      )
+      statements.filter((text) => text.includes('SELECT e.id AS event_id'))
     ).toHaveLength(2);
     expect(
       statements.filter((text) =>
@@ -142,9 +141,7 @@ test('a rolled-back append retains the next pass after its sibling succeeds', as
     ).toEqual([]);
     const statements = host.statements.slice(start);
     expect(
-      statements.filter((text) =>
-        text.includes('INSERT INTO outbox_deliveries')
-      )
+      statements.filter((text) => text.includes('SELECT e.id AS event_id'))
     ).toHaveLength(2);
     expect(
       statements.filter((text) => text.includes('SELECT 1 AS due_work'))

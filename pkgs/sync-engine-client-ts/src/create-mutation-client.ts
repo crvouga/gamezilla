@@ -1,5 +1,6 @@
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import { serializeTraceContext } from '@pkgs/observability-root-shared-ts/correlation';
+import { observeSync } from '@pkgs/observability-root-shared-ts/span';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import {
@@ -327,7 +328,8 @@ export function createMutationClient(
       const correlationIdentity = mutationCorrelationIdentity();
       const mutationEnv = snapshotMutationEnv(env);
       const online = connectivity.isOnline();
-      const run = mutationTail.then(async () => {
+      const previous = mutationTail;
+      const apply = async () => {
         const pendingId = await reobservePendingChoice({
           db,
           clientId: ids.clientId,
@@ -383,7 +385,15 @@ export function createMutationClient(
           if (caught !== null) return caught;
           throw e;
         }
-      });
+      };
+      const run = observeSync(
+        'local-write',
+        () => previous.then(apply),
+        undefined,
+        (result) =>
+          result.ok ||
+          !result.failures.some((failure) => failure.code === 'STORAGE_FULL')
+      );
       mutationTail = run.then(
         () => undefined,
         () => undefined

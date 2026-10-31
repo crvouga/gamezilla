@@ -1,0 +1,4 @@
+{
+  "summary": "CI promoted shared non-cacheable Storybook coverage into the prerequisite stage, then required a Turbo archive that cache:false tasks never produce. Keep this checker with its consumers so its real verdict is checked without inventing a cache artifact.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-uncached-prerequisite.test.ts"
+}

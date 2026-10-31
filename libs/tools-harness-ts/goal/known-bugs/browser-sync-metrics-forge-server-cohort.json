@@ -1,0 +1,4 @@
+{
+  "summary": "Browser sync metrics could claim the server cohort or database/delivery targets and contaminate server diagnostic ratios.",
+  "regressionTest": "pkgs/observability-root-shared-ts/tests/browser-sync-metrics.test.ts"
+}

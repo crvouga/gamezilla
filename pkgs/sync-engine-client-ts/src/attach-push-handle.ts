@@ -1,3 +1,4 @@
+import { recordUnknownSyncMeasurement } from '@pkgs/observability-root-shared-ts/metric-contract';
 import type { Topic } from '@pkgs/pubsub-root-shared-ts/topic';
 import { warnPush } from '@pkgs/sync-engine-shared-ts/is-pubsub-closed-error';
 import type { PushAppliedClock } from '@pkgs/sync-engine-shared-ts/push-applied';
@@ -139,6 +140,9 @@ export async function handlePush(
 
   const scopes = filterScopesByTables(bag, topicScopes, payload.tables);
   if (scopes.size === 0) return;
+  // Protocol v3 has no origin monotonic timestamp or bounded cross-device clock
+  // mapping. Arrival and merge time cannot establish origin-to-peer visibility.
+  recordUnknownSyncMeasurement('peer');
   if (await tryApplyFanoutRows(bag, topic, payload)) return;
   wakeRefetch(bag, topic, payload, scopes);
 }

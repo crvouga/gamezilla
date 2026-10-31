@@ -1,3 +1,8 @@
+import {
+  SYNC_DURATION_METRIC,
+  SYNC_STARTED_METRIC,
+  SYNC_TARGET_METRIC,
+} from '@pkgs/observability-root-shared-ts/metric-contract';
 /**
  * Every metric the server emits, as its contract, and the series names a
  * Prometheus-compatible backend stores for it. Dashboards, alert rules and
@@ -13,6 +18,7 @@ import { MUTATION_REPLAYS_METRIC } from '@pkgs/observability-root-shared-ts/muta
 import {
   OUTBOX_DELIVERIES_EXHAUSTED_METRIC,
   OUTBOX_DRAIN_RUNS_METRIC,
+  OUTBOX_READY_AGE_METRIC,
 } from '@pkgs/observability-root-shared-ts/outbox-metrics';
 import {
   EXPORT_ATTEMPTS_METRIC,
@@ -81,6 +87,9 @@ function emitted(
 }
 
 export const EMITTED_METRICS: readonly EmittedMetric[] = [
+  ...[SYNC_DURATION_METRIC, SYNC_STARTED_METRIC, SYNC_TARGET_METRIC].map(
+    (contract) => emitted(contract)
+  ),
   emitted(http.requests),
   emitted(http.duration),
   emitted(MUTATION_REPLAYS_METRIC),
@@ -89,6 +98,7 @@ export const EMITTED_METRICS: readonly EmittedMetric[] = [
   emitted(SCHEMA_VIOLATIONS_METRIC),
   emitted(OUTBOX_DELIVERIES_EXHAUSTED_METRIC),
   emitted(OUTBOX_DRAIN_RUNS_METRIC),
+  emitted(OUTBOX_READY_AGE_METRIC),
   emitted(BILLING_CALLBACKS_METRIC),
   emitted(SYNTHETIC_CHECK_METRIC),
   // Written by Grafana Synthetic Monitoring, not the app. The job carries

@@ -52,6 +52,9 @@ export const ATTR = {
   APP_CLIENT_TIMEZONE: 'app.client.timezone',
   APP_BUILD_SHA: 'app.build.sha',
   APP_SYNC_BATCH_SIZE: 'app.sync.batch_size',
+  APP_SYNC_ROWS: 'app.sync.rows',
+  APP_SYNC_TABLES: 'app.sync.tables',
+  APP_SYNC_BYTES: 'app.sync.bytes',
   APP_TEST_ID: 'app.test.id',
   APP_TEST_PACKAGE: 'app.test.package',
   APP_TEST_FILE: 'app.test.file',
@@ -117,6 +120,9 @@ export type AttrValue = {
   'app.client.timezone': string;
   'app.build.sha': string;
   'app.sync.batch_size': number;
+  'app.sync.rows': number;
+  'app.sync.tables': number;
+  'app.sync.bytes': number;
   'app.test.id': string;
   'app.test.package': string;
   'app.test.file': string;

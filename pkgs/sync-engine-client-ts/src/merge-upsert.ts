@@ -1,4 +1,5 @@
 // @sql-vendor-ok — local SQLite client uses PRAGMA table_info for merge.
+
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import type { Value } from '@pkgs/sql-root-shared-ts/sql';
@@ -198,7 +199,16 @@ export async function assertCompleteNewRowImages(
   const cols = await tableColumns(tx, table);
   if (cols.length === 0) return;
   const required = cols.filter((c) => !FILLED_COLUMNS.has(c));
-  const ids = rows.map((row) => row['id']).filter(isValidRowId);
+  // Complete images can create or update a row without consulting local data.
+  // Only partial images need proof that the row already exists.
+  const partial = rows.filter(
+    (row) =>
+      isValidRowId(row['id']) &&
+      required.some(
+        (column) => !Object.prototype.hasOwnProperty.call(row, column)
+      )
+  );
+  const ids = [...new Set(partial.map((row) => row['id'] as string))];
   if (ids.length === 0) return;
   const held = new Set<string>();
   for (let offset = 0; offset < ids.length; offset += MAX_SQLITE_VARS) {
@@ -209,7 +219,7 @@ export async function assertCompleteNewRowImages(
     `);
     for (const row of found) held.add(row.id);
   }
-  for (const row of rows) {
+  for (const row of partial) {
     const id = row['id'];
     if (!isValidRowId(id) || held.has(id)) continue;
     const missing = required.filter(
