@@ -125,6 +125,7 @@ function BoardStage(
             {(side) => (
               <MultiplayerSeat
                 game={props.game}
+                position={board.position}
                 side={side}
                 own={side === props.ownSide}
                 near={false}
@@ -137,6 +138,7 @@ function BoardStage(
       own={
         <MultiplayerSeat
           game={props.game}
+          position={board.position}
           side={nearSide()}
           own={nearSide() === props.ownSide}
           near

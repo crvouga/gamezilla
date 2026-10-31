@@ -1,0 +1,4 @@
+{
+  "summary": "Matched games rendered the frame board but discarded its seat data, hiding Quoridor wall counts and Battleship sunk-ship summaries. Seats now render the frame's look, statistics, facts and eliminated state for the position actually displayed, including review and simulation.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-frame-seat.test.tsx"
+}
