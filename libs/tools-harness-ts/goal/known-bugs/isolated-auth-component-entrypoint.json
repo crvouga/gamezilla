@@ -1,0 +1,4 @@
+{
+  "summary": "The isolated release verification could not import @libs/auth-client-ts/account-device-meta-pair through the wildcard's TypeScript/TSX fallback, although the component exists and the working-tree suite passed. A concrete public TSX entrypoint preserves the existing import and lets the production component test run in the isolated workspace.",
+  "regressionTest": "libs/auth-client-ts/tests/account-device-meta-pair.test.tsx"
+}

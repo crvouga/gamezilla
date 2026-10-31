@@ -1,4 +1,5 @@
 import { afterEach, expect, test } from 'bun:test';
+// regression: isolated-auth-component-entrypoint
 import { AccountDeviceMetaPair } from '@libs/auth-client-ts/account-device-meta-pair';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
