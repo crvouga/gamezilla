@@ -1,9 +1,14 @@
 import type { VerifyTask } from './verify-shards';
+import {
+  uncachedDependents,
+  uncachedTaskGroups,
+} from './verify-uncached-tasks';
 
 /** Builds run once; fan-in consumers run after the distributed verifications. */
 export function verifyStages(tasks: readonly VerifyTask[]) {
   const byId = new Map(tasks.map((task) => [task.taskId, task]));
   const prerequisites = new Set<string>();
+  const untransferable = uncachedDependents(tasks);
   function include(id: string): void {
     if (prerequisites.has(id) || !byId.has(id)) return;
     prerequisites.add(id);
@@ -17,6 +22,7 @@ export function verifyStages(tasks: readonly VerifyTask[]) {
   for (let size = -1; size !== prerequisites.size; ) {
     size = prerequisites.size;
     for (const task of tasks) {
+      if (untransferable.has(task.taskId)) continue;
       const sharedSource =
         (users.get(task.taskId) ?? 0) > 1 &&
         task.dependencies.every(
@@ -26,10 +32,12 @@ export function verifyStages(tasks: readonly VerifyTask[]) {
       if (task.taskId.endsWith('#build') || sharedSource) include(task.taskId);
     }
   }
+  const local = uncachedTaskGroups(tasks, prerequisites);
   const consumers = new Set<string>();
   for (const task of tasks)
     if (
       !prerequisites.has(task.taskId) &&
+      !local.has(task.taskId) &&
       task.dependencies.filter((id) => byId.has(id) && !prerequisites.has(id))
         .length > 1
     )
@@ -37,7 +45,10 @@ export function verifyStages(tasks: readonly VerifyTask[]) {
   for (let size = -1; size !== consumers.size; ) {
     size = consumers.size;
     for (const task of tasks)
-      if (task.dependencies.some((id) => consumers.has(id)))
+      if (
+        !local.has(task.taskId) &&
+        task.dependencies.some((id) => consumers.has(id))
+      )
         consumers.add(task.taskId);
   }
   for (const id of prerequisites)
