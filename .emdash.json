@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "teardown": "./libs/tools-harness-ts/workspace/teardown.sh",
+    "run": "./libs/tools-harness-ts/workspace/run.sh"
+  }
+}

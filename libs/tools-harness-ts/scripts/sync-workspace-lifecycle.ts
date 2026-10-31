@@ -55,6 +55,38 @@ function commandArrays(commands: Record<Hook, string>): Record<Hook, string[]> {
 
 export const ORCHESTRATORS: Orchestrator[] = [
   {
+    name: 'Emdash',
+    docs: 'https://emdash.com/docs/project-config',
+    configPath: '.emdash.json',
+    render: (commands) => ({ scripts: commands }),
+  },
+  {
+    name: 'cmux',
+    docs: 'https://cmux.com/docs/custom-commands',
+    configPath: '.cmux/cmux.json',
+    render: (commands) => ({
+      commands: HOOKS.map((hook) => ({
+        name: hook === 'run' ? 'Run project' : 'Stop project',
+        command: `cd "$(git rev-parse --show-toplevel)" && ${commands[hook]}`,
+      })),
+    }),
+  },
+  {
+    name: 'Conductor',
+    docs: 'https://www.conductor.build/docs/reference/scripts',
+    configPath: '.conductor/settings.toml',
+    render: (commands) =>
+      [
+        '"$schema" = "https://conductor.build/schemas/settings.repo.schema.json"',
+        '',
+        '[scripts]',
+        `run = ${JSON.stringify(commands.run)}`,
+        `archive = ${JSON.stringify(commands.teardown)}`,
+        'run_mode = "nonconcurrent"',
+        '',
+      ].join('\n'),
+  },
+  {
     name: 'Superset',
     docs: 'https://docs.superset.sh/setup-teardown-scripts',
     configPath: '.superset/config.json',
@@ -73,6 +105,12 @@ interface GeneratedFile {
   content: string;
 }
 
+function renderConfig(config: unknown): string {
+  return typeof config === 'string'
+    ? config
+    : `${JSON.stringify(config, null, 2)}\n`;
+}
+
 export function renderConfigs(
   orchestrators: Orchestrator[] = ORCHESTRATORS
 ): GeneratedFile[] {
@@ -81,7 +119,7 @@ export function renderConfigs(
   ) as Record<Hook, string>;
   return orchestrators.map((orchestrator) => ({
     path: orchestrator.configPath,
-    content: `${JSON.stringify(orchestrator.render(commands), null, 2)}\n`,
+    content: renderConfig(orchestrator.render(commands)),
   }));
 }
 
