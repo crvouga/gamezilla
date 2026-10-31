@@ -27,9 +27,8 @@ const ROOT = join(import.meta.dirname, '../../..');
 const SOURCE_DIR = 'libs/tools-harness-ts/workspace';
 const SYNC_COMMAND = 'bun run workspace:sync';
 
-/** Lifecycle hooks every orchestrator gets, in config order. Start is only
- * `run` (it prepares a cold workspace itself). There is no setup hook. */
-export const HOOKS = ['teardown', 'run'] as const;
+/** Shared commands; each adapter exposes only documented lifecycle stages. */
+export const HOOKS = ['setup', 'teardown', 'run'] as const;
 export type Hook = (typeof HOOKS)[number];
 
 /** Command an orchestrator runs (from the worktree root) for one hook. */
@@ -48,6 +47,7 @@ export interface Orchestrator {
 /** `{ "teardown": [...], "run": [...] }`, one command each. */
 function commandArrays(commands: Record<Hook, string>): Record<Hook, string[]> {
   return {
+    setup: [commands.setup],
     teardown: [commands.teardown],
     run: [commands.run],
   };
@@ -58,7 +58,9 @@ export const ORCHESTRATORS: Orchestrator[] = [
     name: 'Emdash',
     docs: 'https://emdash.com/docs/project-config',
     configPath: '.emdash.json',
-    render: (commands) => ({ scripts: commands }),
+    render: (commands) => ({
+      scripts: { teardown: commands.teardown, run: commands.run },
+    }),
   },
   {
     name: 'cmux',
@@ -66,7 +68,12 @@ export const ORCHESTRATORS: Orchestrator[] = [
     configPath: '.cmux/cmux.json',
     render: (commands) => ({
       commands: HOOKS.map((hook) => ({
-        name: hook === 'run' ? 'Run project' : 'Stop project',
+        name:
+          hook === 'setup'
+            ? 'Set up project'
+            : hook === 'run'
+              ? 'Run project'
+              : 'Stop project',
         command: `cd "$(git rev-parse --show-toplevel)" && ${commands[hook]}`,
       })),
     }),
@@ -80,11 +87,34 @@ export const ORCHESTRATORS: Orchestrator[] = [
         '"$schema" = "https://conductor.build/schemas/settings.repo.schema.json"',
         '',
         '[scripts]',
+        `setup = ${JSON.stringify(commands.setup)}`,
         `run = ${JSON.stringify(commands.run)}`,
         `archive = ${JSON.stringify(commands.teardown)}`,
         'run_mode = "nonconcurrent"',
         '',
       ].join('\n'),
+  },
+  {
+    name: 'VS Code',
+    docs: 'https://code.visualstudio.com/docs/debugtest/tasks',
+    configPath: '.vscode/tasks.json',
+    render: (commands) => ({
+      version: '2.0.0',
+      tasks: HOOKS.map((hook) => ({
+        label: `Workspace: ${hook}`,
+        type: 'process',
+        command: 'bash',
+        args: [commands[hook]],
+        options: { cwd: '${workspaceFolder}' },
+        problemMatcher: [],
+      })),
+    }),
+  },
+  {
+    name: 'Cursor',
+    docs: 'https://cursor.com/docs/configuration/worktrees',
+    configPath: '.cursor/worktrees.json',
+    render: (commands) => ({ 'setup-worktree-unix': [commands.setup] }),
   },
   {
     name: 'Superset',
@@ -108,7 +138,7 @@ interface GeneratedFile {
 function renderConfig(config: unknown): string {
   return typeof config === 'string'
     ? config
-    : `${JSON.stringify(config, null, 2)}\n`;
+    : `${JSON.stringify(config, null, 2).replace(/\[\n +("[^\n]+")\n +\]/g, '[$1]')}\n`;
 }
 
 export function renderConfigs(

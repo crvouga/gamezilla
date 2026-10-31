@@ -1,23 +1,8 @@
 #!/usr/bin/env bash
-# Per-workspace port block so parallel workspaces can run `dev` (and
-# their sidecars) at once. apps/product-ts pins 5173 with strictPort, and the
-# Mockingbird Postgres sidecar takes `POSTGRES_PORT`, so every workspace needs its
-# own block of ports rather than one.
-#
-# The workspace ID hashes to a preferred block for stability across restarts;
-# if any port in that block is taken -- by a colliding workspace ID, or by a
-# stale listener from a torn-down workspace -- we scan upward for a free block
-# instead of letting a service die on `address already in use`.
-#
-# Block layout (offsets from the block base, consumed by @pkgs/postgres-mockingbird-server-ts
-# via the same env vars):
-#   +0 VITE_PORT / PREVIEW_PORT     +1 POSTGRES_PORT
-#   +2, +3 stay slack: the object-store and MQTT sidecars take OS-assigned ports.
-#
-# EMQX (1883 / 8083 / 18083) and the spec harness / wrangler preview ports stay
-# machine-wide singletons: only one workspace at a time may bind them.
-#
-# Override by exporting VITE_PORT before launching (no probing is done then).
+# Select a stable preferred web port per checkout, probing for collisions.
+# The stack planner reserves all actual service ports independently through
+# the OS. Explicit VITE_PORT conflicts fail in that planner (strict binding).
+# Selection is advisory: cleanup always uses the process ownership ledger.
 WORKSPACE_PORT_RANGE_START=5200
 WORKSPACE_PORT_RANGE_SIZE=300
 WORKSPACE_PORT_BLOCK=4
@@ -59,11 +44,18 @@ workspace_block_is_free() {
 name="${WORKSPACE_PATH:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
 sum="$(printf '%s' "$name" | cksum | cut -d' ' -f1)"
 # The hashed block this workspace prefers, regardless of what is free right now.
-# Teardown needs it to reclaim listeners that probing would have skipped past.
+# Used only for selection; a port number never proves process ownership.
 export WORKSPACE_PORT_BASE_PREFERRED=$((WORKSPACE_PORT_RANGE_START + (sum % WORKSPACE_PORT_BLOCK_COUNT) * WORKSPACE_PORT_BLOCK))
 
 if [ -n "${VITE_PORT:-}" ]; then
   # Caller pinned the web port; derive the rest of the block from it.
+  case "$VITE_PORT" in
+    *[!0-9]*|'') echo "!!! VITE_PORT must be an integer" >&2; return 1 ;;
+  esac
+  if [ "$VITE_PORT" -lt 1024 ] || [ "$VITE_PORT" -gt 65532 ]; then
+    echo "!!! VITE_PORT must be between 1024 and 65532" >&2
+    return 1
+  fi
   export WORKSPACE_PORT_BASE="$VITE_PORT"
 else
   offset=$((sum % WORKSPACE_PORT_BLOCK_COUNT))
@@ -75,8 +67,8 @@ else
     fi
   done
   if [ -z "${WORKSPACE_PORT_BASE:-}" ]; then
-    echo "!!! no free port block in ${WORKSPACE_PORT_RANGE_START}-$((WORKSPACE_PORT_RANGE_START + WORKSPACE_PORT_RANGE_SIZE - 1)); run 'bun run kill' or export VITE_PORT" >&2
-    WORKSPACE_PORT_BASE="$WORKSPACE_PORT_BASE_PREFERRED"
+    echo "!!! no free workspace port block; stop your own workspace or set VITE_PORT" >&2
+    return 1
   fi
   if [ "$WORKSPACE_PORT_BASE" -ne "$WORKSPACE_PORT_BASE_PREFERRED" ]; then
     echo "==> port block $WORKSPACE_PORT_BASE_PREFERRED busy; using $WORKSPACE_PORT_BASE" >&2
@@ -85,7 +77,9 @@ fi
 
 export WORKSPACE_PORT_BASE
 export VITE_PORT="$WORKSPACE_PORT_BASE"
-# Teardown reclaims this one too: probing may have skipped past it.
+# Preferred port is diagnostic only.
 export VITE_PORT_PREFERRED="$WORKSPACE_PORT_BASE_PREFERRED"
 export PREVIEW_PORT="$VITE_PORT"
 export POSTGRES_PORT=$((WORKSPACE_PORT_BASE + 1))
+
+export STORYBOOK_PORT=$((WORKSPACE_PORT_BASE + 2))

@@ -19,7 +19,7 @@ workspace_install_fingerprint() {
     LC_ALL=C sort || true)"
   {
     printf '%s\n' "$manifests"
-    cat bun.lock 2>/dev/null || true
+    cat bun.lock mise.toml bunfig.toml 2>/dev/null || true
     # One `cat` for every manifest: a process per file costs seconds here.
     printf '%s\n' "$manifests" | tr '\n' '\0' | xargs -0 cat 2>/dev/null || true
   } | cksum
@@ -33,27 +33,13 @@ workspace_install_is_current() {
 # Returns non-zero while the install is incomplete. Only a complete install is
 # stamped, so the next launch tries again instead of trusting a partial one.
 workspace_install() {
-  echo "==> bun install"
-  # The install's own `postinstall` is a Turborepo run. Stream that one so it
-  # does not open a second terminal UI. The prefix stays on this command:
-  # exporting it would make the later dev run stream too.
-  if TURBO_UI=false bun install; then
-    # Stamp after installing: `bun install` may rewrite the lockfile.
+  echo "==> bun install --frozen-lockfile"
+  if TURBO_UI=false bun install --frozen-lockfile; then
     mkdir -p "$(dirname "$WORKSPACE_INSTALL_STAMP")"
     workspace_install_fingerprint >"$WORKSPACE_INSTALL_STAMP"
     return 0
   fi
-  # A failed lifecycle script must not abort the caller. Retry without
-  # scripts, then write the gitignored generated files the root postinstall
-  # would have written. better-sqlite3 does not need that script;
-  # ffmpeg-static and onnxruntime-node download their binaries in one.
-  echo "!!! bun install failed; retrying with --ignore-scripts"
-  if TURBO_UI=false bun install --ignore-scripts; then
-    TURBO_UI=false bun run generate || echo "!!! bun run generate failed; run it in this workspace"
-    echo "!!! install scripts did not run. ffmpeg-static and onnxruntime-node may be missing their binaries."
-  else
-    echo "!!! dependency install is still incomplete; Run retries it once package sources are available"
-  fi
+  echo "!!! dependency install is incomplete; resolve the error and rerun setup.sh" >&2
   return 1
 }
 

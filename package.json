@@ -149,7 +149,6 @@
     "verify-nightly": "VERIFY_PROFILE=nightly bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/verify-local.ts",
     "wipe": "turbo run //#task:wipe --",
     "workspace:install": "./libs/tools-harness-ts/workspace/step.sh install",
-    "workspace:local-files": "./libs/tools-harness-ts/workspace/step.sh local-files",
     "workspace:merge": "./libs/tools-harness-ts/workspace/step.sh merge",
     "workspace:sync": "turbo run //#task:workspace:sync --"
   },

@@ -1,0 +1,3 @@
+{
+  "setup-worktree-unix": ["./libs/tools-harness-ts/workspace/setup.sh"]
+}

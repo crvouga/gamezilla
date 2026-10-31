@@ -1,0 +1,4 @@
+{
+  "summary": "Concurrent workspace startup bound both Storybook processes to 6006; second failed EADDRINUSE.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workspace-run.test.ts"
+}
