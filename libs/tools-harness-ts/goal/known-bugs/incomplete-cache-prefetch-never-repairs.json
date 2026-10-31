@@ -1,0 +1,4 @@
+{
+  "summary": "A metadata write failure left an archive that later prefetches treated as complete, preventing repair of the Turbo cache entry.",
+  "regressionTest": "libs/tools-harness-ts/scripts/turbo-preflight.test.ts"
+}

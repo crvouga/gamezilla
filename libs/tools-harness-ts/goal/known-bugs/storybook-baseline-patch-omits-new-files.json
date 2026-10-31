@@ -1,0 +1,4 @@
+{
+  "summary": "A baseline export built only with git diff omitted newly authored PNGs, so applying it could not reproduce the successful authoring checkout. The export must include added, modified and deleted references while excluding unrelated files.",
+  "regressionTest": "libs/tools-harness-ts/scripts/storybook-baseline-patch.test.ts"
+}

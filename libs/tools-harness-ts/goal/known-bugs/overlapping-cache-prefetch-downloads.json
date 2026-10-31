@@ -1,0 +1,4 @@
+{
+  "summary": "Overlapping prerequisite lists fetched and wrote the same Turbo cache artifact concurrently, wasting remote requests and bandwidth.",
+  "regressionTest": "libs/tools-harness-ts/scripts/turbo-preflight.test.ts"
+}

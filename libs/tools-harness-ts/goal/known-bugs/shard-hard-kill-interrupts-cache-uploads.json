@@ -1,0 +1,4 @@
+{
+  "summary": "CI shard timeout and cancellation immediately killed Turbo, potentially discarding pending remote uploads for tasks that had already succeeded. Allow the existing bounded cache flush window before forcing termination.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-cache-flush.test.ts"
+}

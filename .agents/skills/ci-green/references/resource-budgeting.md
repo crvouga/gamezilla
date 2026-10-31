@@ -108,3 +108,14 @@ while one is running.
 - `Killed` / exit 137 / heap out of memory: the check is heavier than its
   class. Run it alone (`--weight heavy`) and report the memory it needed.
 - The user's machine is sluggish: raise `CI_GREEN_RESERVE_CORES`.
+
+## Choosing work before waiting
+
+Budgeting limits local resource use; it does not require a full local suite.
+Choose the narrowest check that exercises the observed CI failure. Respect
+shared leases and continue useful diagnosis while queued. Before pushing, prefer
+warming affected, CI-compatible Turbo tasks with remote reads and writes enabled,
+as described in [the pre-push workflow](../SKILL.md#warm-the-remote-cache-before-pushing).
+When local capacity blocks that work, report the unwarmed scope and use hosted
+validation only as repository policy permits. Never bypass a lease or treat queue
+time as evidence that the fix works.

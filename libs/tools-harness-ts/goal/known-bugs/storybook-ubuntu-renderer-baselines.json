@@ -1,0 +1,4 @@
+{
+  "summary": "Ubuntu CI reported pixel differences against shared Storybook references, including primitives-sparkline--states dark; reference authoring and comparison must use CI's pinned renderer environment.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}
