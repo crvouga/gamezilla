@@ -1,8 +1,8 @@
 import type { Message } from '@pkgs/message-shared-ts/message';
 import type {
-  RoomLivePorts,
-  RoomLiveSession,
-} from '@pkgs/room-root-shared-ts/live';
+  RoomRuntime,
+  RoomRuntimePorts,
+} from '@pkgs/room-root-shared-ts/runtime';
 import {
   ROOM_ERROR_TYPE,
   type RoomActor,
@@ -33,9 +33,9 @@ import {
 
 /** One room lifetime owns either shared execution or forwarding from its local creator. */
 export function createCustomSimulationRuntime(
-  ports: RoomLivePorts<Message>,
+  ports: RoomRuntimePorts<Message>,
   rules: TurnGames
-): RoomLiveSession<RoomState, string> {
+): RoomRuntime<RoomState, Message, string> {
   const relay = new LocalSimulationRelay(ports, rules);
   const shared = new SessionSimulation(
     {

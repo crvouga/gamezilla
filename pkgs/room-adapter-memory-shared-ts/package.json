@@ -3,11 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./*": [
-      "./src/*.ts",
-      "./src/*.tsx",
-      "./src/*.d.ts"
-    ]
+    "./client-storage": "./src/client-storage.ts",
+    "./loopback-transport": "./src/loopback-transport.ts",
+    "./room-storage": "./src/room-storage.ts"
   },
   "scripts": {
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",

@@ -62,6 +62,11 @@ export function BreadcrumbPills(props: {
                   <button
                     type="button"
                     role="link"
+                    data-testid={
+                      index() === props.breadcrumbs.length - 2
+                        ? 'nav-back'
+                        : undefined
+                    }
                     class="clickable clickableTint text textBody px-4 h-11 rounded-full border border-transparent"
                     onClick={() => click()()}
                   >

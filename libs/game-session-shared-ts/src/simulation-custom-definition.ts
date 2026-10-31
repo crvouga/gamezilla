@@ -55,6 +55,6 @@ export function withSimulationCustomGames(
       simulationCommandPermission(message, topic) ??
       game.permissionForCommand?.(message, topic) ??
       null,
-    createLive: (ports) => createCustomSimulationRuntime(ports, rules),
+    createRuntime: (ports) => createCustomSimulationRuntime(ports, rules),
   };
 }

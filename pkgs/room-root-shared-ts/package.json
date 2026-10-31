@@ -3,11 +3,30 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./*": [
-      "./src/*.ts",
-      "./src/*.tsx",
-      "./src/*.d.ts"
-    ]
+    "./bounds": "./src/bounds.ts",
+    "./builtin": "./src/builtin.ts",
+    "./cache-invalidation": "./src/cache-invalidation.ts",
+    "./core-storage": "./src/core-storage.ts",
+    "./handler": "./src/handler.ts",
+    "./hash-room-state": "./src/hash-room-state.ts",
+    "./ids": "./src/ids.ts",
+    "./live-checkpoint": "./src/live-checkpoint.ts",
+    "./module": "./src/module.ts",
+    "./plain-deep-equal": "./src/plain-deep-equal.ts",
+    "./private-events": "./src/private-events.ts",
+    "./room-server-types": "./src/room-server-types.ts",
+    "./room-service": "./src/room-service.ts",
+    "./runtime": "./src/runtime.ts",
+    "./schedule-runtime": "./src/schedule-runtime.ts",
+    "./segmented-committed-log": "./src/segmented-committed-log.ts",
+    "./server-core-storage": "./src/server-core-storage.ts",
+    "./service-identity": "./src/service-identity.ts",
+    "./signals": "./src/signals.ts",
+    "./tiger-invariants": "./src/tiger-invariants.ts",
+    "./timer-schedule-stack": "./src/timer-schedule-stack.ts",
+    "./transport": "./src/transport.ts",
+    "./types": "./src/types.ts",
+    "./wire": "./src/wire.ts"
   },
   "scripts": {
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",

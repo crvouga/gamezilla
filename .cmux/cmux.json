@@ -2,7 +2,7 @@
   "commands": [
     {
       "name": "Set up project",
-      "command": "cd \"$(git rev-parse --show-toplevel)\" && ./libs/tools-harness-ts/workspace/setup.sh"
+      "command": "cd \"$(git rev-parse --show-toplevel)\" && ./libs/tools-harness-ts/workspace/prepare.sh"
     },
     {
       "name": "Stop project",

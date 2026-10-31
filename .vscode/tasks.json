@@ -5,7 +5,7 @@
       "label": "Workspace: setup",
       "type": "process",
       "command": "bash",
-      "args": ["./libs/tools-harness-ts/workspace/setup.sh"],
+      "args": ["./libs/tools-harness-ts/workspace/prepare.sh"],
       "options": {
         "cwd": "${workspaceFolder}"
       },

@@ -120,6 +120,7 @@ function checkout() {
     dir,
     run: script('run.sh'),
     setup: script('setup.sh'),
+    prepare: script('prepare.sh'),
     teardown: script('teardown.sh'),
     check: script('check.sh'),
     port: script('port.sh'),
@@ -258,3 +259,21 @@ test('a failed tool refresh tells the team and leaves a prepared environment ope
   expect(run().status).toBe(0);
   expect(run().calls).toEqual([DEV]);
 });
+
+// regression: workspace-preparation-split-blocks-opening
+test.each(['WORKSPACE_RUN_TEST_INSTALL', 'WORKSPACE_RUN_TEST_SYSTEM'])(
+  'workspace creation reports %s failure and permits opening without stamping readiness',
+  (failure) => {
+    const { dir, prepare, run } = checkout();
+    const result = prepare({ [failure]: 'fail' });
+    expect(result.status).toBe(0);
+    expect(result.stderr).toContain(
+      '!!! environment preparation is incomplete'
+    );
+    expect(result.stdout).toContain('==> workspace may be opened');
+    expect(
+      existsSync(join(dir, 'node_modules/.workspace-install-fingerprint'))
+    ).toBe(false);
+    expect(run().status).not.toBe(0);
+  }
+);

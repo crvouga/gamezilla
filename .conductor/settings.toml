@@ -1,7 +1,7 @@
 "$schema" = "https://conductor.build/schemas/settings.repo.schema.json"
 
 [scripts]
-setup = "./libs/tools-harness-ts/workspace/setup.sh"
+setup = "./libs/tools-harness-ts/workspace/prepare.sh"
 run = "./libs/tools-harness-ts/workspace/run.sh"
 archive = "./libs/tools-harness-ts/workspace/teardown.sh"
 run_mode = "nonconcurrent"

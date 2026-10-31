@@ -58,8 +58,6 @@ export function assembleRoomHarnessRuntime<
       await drainRoomHarness(drainCtx());
     },
     now: () => k.clock.now(),
-    until: (() => Promise.resolve(0)) as never,
-    never: (() => Promise.resolve()) as never,
     flushBeforePoll: () => flushRoomAux(drainCtx()),
     heldSummary: () => k.network.heldSummary(),
   });
@@ -99,10 +97,6 @@ export function assembleRoomHarnessRuntime<
     until: (target, optsUntil?: WaitUntilOptions) =>
       waitUntil(waitKit(), withAuxFlush(target), optsUntil),
     never: (target, optsNever: NeverOptions) =>
-      waitNever(waitKit(), withAuxFlush(target), optsNever),
-    waitUntil: (target, optsUntil?: WaitUntilOptions) =>
-      waitUntil(waitKit(), withAuxFlush(target), optsUntil),
-    waitNever: (target, optsNever: NeverOptions) =>
       waitNever(waitKit(), withAuxFlush(target), optsNever),
     drain: async () => {
       await drainRoomHarness(drainCtx());

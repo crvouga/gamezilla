@@ -53,9 +53,9 @@ import {
 } from './room-server-fanout';
 import { loadRoomSnapshot } from './room-server-hydrate';
 import { processInjectedCommand } from './room-server-inject';
-import { RoomServerLive, roomLivePorts } from './room-server-live';
 import { routeRoomMessage } from './room-server-message';
 import { restoreRoomLiveCheckpoint } from './room-server-recovery';
+import { RoomServerRuntime, roomRuntimePorts } from './room-server-runtime';
 import { publishRoomSignal, receiveRoomSignal } from './room-server-signals';
 
 /**
@@ -79,7 +79,7 @@ export class RoomServer<
   private readonly authorize?: RoomServerConfig<S, C, E, Identity>['authorize'];
   private readonly clock: Clock;
   private readonly applyCommittedEffects;
-  private readonly live: RoomServerLive<S, C, E, Identity>;
+  private readonly runtime: RoomServerRuntime<S, C, E, Identity>;
   private readonly connections = new Map<string, RoomConnection>();
   private authorityAvailable = false;
   private chain: Promise<void> = Promise.resolve();
@@ -106,16 +106,16 @@ export class RoomServer<
           identity: args.identity as Identity,
         }),
     });
-    this.live = new RoomServerLive(
+    this.runtime = new RoomServerRuntime(
       config,
-      roomLivePorts({
+      roomRuntimePorts({
         storage: this.storage,
         topic: this.topic,
         publish: (payload, audience) => this.publishSignal(payload, audience),
         enqueue: (work) => this.enqueue(work),
         tip: () => this.lastSeq,
         acceptsCheckpoint: (payload) =>
-          this.live.recover(this.committedState, payload) !== null,
+          this.runtime.recover(this.committedState, payload) !== null,
         inject: async (id, payload) => {
           const receipt = await this.injectSerial(
             { id, payload, identity: ROOM_SERVICE_IDENTITY as Identity },
@@ -123,7 +123,7 @@ export class RoomServer<
           );
           if (!receipt.ok) throw new Error(JSON.stringify(receipt.error));
         },
-        onError: (error) => this.live.report(error),
+        onError: (error) => this.runtime.report(error),
       })
     );
     this.committedState = config.module.initialState();
@@ -176,7 +176,7 @@ export class RoomServer<
   }
 
   async hydrateFromStorage(): Promise<void> {
-    this.live.reset();
+    this.runtime.reset();
     const snapshot = await loadRoomSnapshot(
       this.module,
       this.storage,
@@ -185,13 +185,13 @@ export class RoomServer<
     this.committedState = snapshot.state;
     this.lastSeq = snapshot.lastSeq;
     this.tipKnown = true;
-    if (this.module.createLive !== undefined)
+    if (this.module.createRuntime !== undefined)
       await restoreRoomLiveCheckpoint({
         storage: this.storage,
         topic: this.topic,
         state: this.committedState,
         lastSeq: this.lastSeq,
-        recover: (state, payload) => this.live.recover(state, payload),
+        recover: (state, payload) => this.runtime.recover(state, payload),
         inject: async (id, payload) => {
           const receipt = await this.injectSerial(
             { id, payload, identity: ROOM_SERVICE_IDENTITY as Identity },
@@ -205,7 +205,7 @@ export class RoomServer<
       this.module.recoverEffects(this.committedState)
     );
     await this.availabilitySerial(true);
-    this.live.start(this.committedState);
+    this.runtime.start(this.committedState);
   }
 
   setAvailability(available: boolean): Promise<void> {
@@ -270,7 +270,7 @@ export class RoomServer<
   }
 
   dispose(): void {
-    this.live.dispose();
+    this.runtime.dispose();
     this.connections.clear();
   }
 
@@ -286,8 +286,8 @@ export class RoomServer<
     this.notePresence();
     const actors = liveRoster(this.connections);
     this.enqueue(async () => {
-      this.live.presence(actors);
-    }).catch((error: unknown) => this.live.report(error));
+      this.runtime.presence(actors);
+    }).catch((error: unknown) => this.runtime.report(error));
     if (returned) this.enqueue(() => this.resumeDependents()).catch(noop);
   }
 
@@ -419,7 +419,7 @@ export class RoomServer<
     }
     this.lastSeq = base + entries.length;
     this.committedState = state;
-    this.live.update(state);
+    this.runtime.update(state);
     sendCommitted({
       connections: this.connections,
       module: this.module,
@@ -468,7 +468,7 @@ export class RoomServer<
         this.authorizeOrNull(args.identity, command, grants),
       handle: (command) =>
         this.module.handle(
-          this.live.commandState(this.committedState),
+          this.runtime.commandState(this.committedState),
           command,
           args.identity
         ),
@@ -494,7 +494,7 @@ export class RoomServer<
         this.authorizeOrNull(identity, command as RoomCommand<C>, grants),
       handle: (command) =>
         this.module.handle(
-          this.live.commandState(this.committedState),
+          this.runtime.commandState(this.committedState),
           command as RoomCommand<C>,
           identity
         ),
@@ -533,8 +533,8 @@ export class RoomServer<
             authorize: (command, grants) =>
               this.authorizeOrNull(identity, command as RoomCommand<C>, grants),
             handler: (command, actorIdentity, actor) =>
-              this.live.receive(command, actorIdentity, actor),
-            live: this.module.createLive !== undefined,
+              this.runtime.receive(command, actorIdentity, actor),
+            live: this.module.createRuntime !== undefined,
           })
         ),
       command: (parsed) =>

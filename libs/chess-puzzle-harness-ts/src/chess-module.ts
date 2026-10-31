@@ -7,7 +7,7 @@ import { mergeGameRouterEntries } from '@libs/spaces-shared-ts/game';
 import type { Message } from '@pkgs/message-shared-ts/message';
 import { isMessageEnvelope } from '@pkgs/message-shared-ts/message';
 import { createComposedMessageRouter } from '@pkgs/message-shared-ts/router';
-import { hashRoomState } from '@pkgs/room-root-shared-ts/hash-room-state';
+import { defineRoomModule } from '@pkgs/room-root-shared-ts/module';
 import type {
   HandleResult,
   RoomCommand,
@@ -15,10 +15,7 @@ import type {
   RoomModule,
   RoomState,
 } from '@pkgs/room-root-shared-ts/types';
-import {
-  assertRoomModuleName,
-  ROOM_ERROR_TYPE,
-} from '@pkgs/room-root-shared-ts/types';
+import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared-ts/types';
 import type { Random } from '@pkgs/uuid-shared-ts/create-id';
 
 function reject(error: RoomError): HandleResult {
@@ -58,9 +55,8 @@ const eventReducer = createComposedMessageRouter<RoomState, void, RoomState>(
 export function createChessModule(
   random: Random
 ): RoomModule<RoomState, Message, Message, string> {
-  return {
-    name: assertRoomModuleName('chess'),
-    recoverEffects: () => [],
+  return defineRoomModule<RoomState, Message, Message, string>({
+    name: 'chess',
     initialState(): RoomState {
       return modules.reduce<RoomState>(
         (state, module) => ({ ...state, ...(module.initialState?.() ?? {}) }),
@@ -99,9 +95,5 @@ export function createChessModule(
       if (ev === null) return state;
       return eventReducer.dispatch(state, undefined, ev, (s) => s);
     },
-
-    hash(state): string {
-      return hashRoomState(state);
-    },
-  };
+  });
 }

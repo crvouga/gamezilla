@@ -35,12 +35,6 @@ export type StartServerOpts = {
     Message,
     string
   >['authorize'];
-  readonly signalHandler?: RoomServerConfig<
-    RoomState,
-    Message,
-    Message,
-    string
-  >['signalHandler'];
 };
 
 export async function startServer(
@@ -53,9 +47,6 @@ export async function startServer(
     storage,
     clock: testPorts().clock,
     ...(opts.authorize !== undefined ? { authorize: opts.authorize } : {}),
-    ...(opts.signalHandler !== undefined
-      ? { signalHandler: opts.signalHandler }
-      : {}),
   });
   await server.hydrateFromStorage();
   return {

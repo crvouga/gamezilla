@@ -1,0 +1,4 @@
+{
+  "summary": "A search matched between cleanup visibility and its Stop tap, causing a completed Quoridor journey to fail cleanup. Retire the observed replacement game while preserving other tap failures.",
+  "regressionTest": "libs/runtime-harness-ts/tests/multiplayer-search-loading.test.ts"
+}

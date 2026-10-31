@@ -3,11 +3,26 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./*": [
-      "./src/*.ts",
-      "./src/*.tsx",
-      "./src/*.d.ts"
-    ]
+    "./api": "./src/api.ts",
+    "./args": "./src/args.ts",
+    "./assert-hash-canonical": "./src/assert-hash-canonical.ts",
+    "./boot": "./src/boot.ts",
+    "./boot-loopback": "./src/boot-loopback.ts",
+    "./commit-recovery": "./src/commit-recovery.ts",
+    "./create-room-harness": "./src/create-room-harness.ts",
+    "./expect-in-sync": "./src/expect-in-sync.ts",
+    "./game-room": "./src/game-room.ts",
+    "./game-room-notes": "./src/game-room-notes.ts",
+    "./handles": "./src/handles.ts",
+    "./harness": "./src/harness.ts",
+    "./module-conformance": "./src/module-conformance.ts",
+    "./network": "./src/network.ts",
+    "./observations": "./src/observations.ts",
+    "./read-state": "./src/read-state.ts",
+    "./room-actions": "./src/room-actions.ts",
+    "./scenario-app": "./src/scenario-app.ts",
+    "./system": "./src/system.ts",
+    "./wire-helpers": "./src/wire-helpers.ts"
   },
   "scripts": {
     "bench": "bun tests/hot-paths.bench.ts",

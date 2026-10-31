@@ -1,0 +1,4 @@
+{
+  "summary": "Separating strict setup from startup removed the warning-and-open workspace creation contract. Creation now reports tool/install failures without claiming dependencies are ready; service startup still refuses incomplete setup.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workspace-run.test.ts"
+}
