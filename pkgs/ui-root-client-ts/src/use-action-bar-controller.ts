@@ -23,7 +23,7 @@ import {
 import { collectOverflowActions } from './action-bar-overflow';
 import { createElementWidth } from './create-element-width';
 import { createKeyedWidths, type KeyedWidths } from './create-keyed-widths';
-import type { OverflowMenuAction } from './overflow-menu-button';
+import type { OverflowMenuAction } from './overflow-menu-button/index';
 import type { AnchoredMenuController } from './use-anchored-menu';
 import { useAnchoredMenu } from './use-anchored-menu';
 

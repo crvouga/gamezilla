@@ -42,7 +42,10 @@ describe('bun dev tasks', () => {
     expect(dev?.persistent).toBe(true);
     expect(dev?.dependsOn).toEqual(['dev:prepare']);
     expect([...(dev?.with ?? [])].sort()).toEqual(
-      SERVICE_NAMES.map((name) => `dev:${name}`).sort()
+      [
+        ...SERVICE_NAMES.map((name) => `dev:${name}`),
+        '@pkgs/ui-root-harness-ts#dev:storybook',
+      ].sort()
     );
   });
 

@@ -132,7 +132,7 @@ function mapSlot(
       type: 'button',
       id: 'next',
       title: <Trans>Next</Trans>,
-      intent: 'success',
+      intent: 'primary',
       endIcon: <ChevronRightIcon />,
       onClick: p.onNext,
       dataSet: { testid: 'chess-puzzle-action-next' },

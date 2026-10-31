@@ -52,30 +52,30 @@
     min-width: 0;
   }
 
-  .panelItem + .panelItem::before {
+  /* The hairline above every item but the first. A row (`MenuRow`,
+     `ListItem`) marks its text column `.panelRule`, and the hairline runs
+     from that column to the panel edge, past a leading icon or avatar of
+     any width. Other items start it at the 16px text inset. */
+  .panelItem + .panelItem:not(:has(.panelRule))::before,
+  .panelItem + .panelItem .panelRule::before {
     content: "";
     position: absolute;
     z-index: 1;
     top: 0;
-    left: var(--ui-panel-inset, var(--ui-space-lg));
+    left: var(--ui-space-lg);
     right: 0;
     height: 1px;
     background: var(--ui-color-border);
     pointer-events: none;
   }
 
-  .panelPlain > .panelItem + .panelItem::before {
-    display: none;
+  .panelItem + .panelItem .panelRule::before {
+    left: 0;
   }
 
-  /* A row with a leading icon starts its hairline at the text column
-     (16px inset + 24px leading slot + 12px gap). */
-  .panelItem:has(.panelLeading) {
-    --ui-panel-inset: calc(
-      var(--ui-space-lg) +
-      var(--ui-icon-size-lg) +
-      var(--ui-space-md)
-    );
+  .panelPlain > .panelItem + .panelItem:not(:has(.panelRule))::before,
+  .panelPlain > .panelItem + .panelItem .panelRule::before {
+    display: none;
   }
 
   /* The panel clips its rows, so a row's focus ring is drawn inside it. */
@@ -143,8 +143,11 @@
     font-weight: var(--ui-font-weight-regular);
   }
 
+  /* Each role wears one of the eight text styles (`typography` in
+     design-tokens.json): body, body-strong, caption, label, title, stat,
+     display, display-xl. */
   .textBodyBold {
-    font-weight: var(--ui-font-weight-semibold);
+    font-weight: var(--ui-text-body-strong-weight);
   }
 
   /* A navigation label that is semibold only while current. The box is
@@ -170,55 +173,91 @@
   }
 
   .textCaption {
-    font-size: var(--ui-font-size-sm);
-    line-height: var(--ui-leading-sm);
+    font-family: var(--ui-text-caption-family);
+    font-size: var(--ui-text-caption-size);
+    line-height: var(--ui-text-caption-leading);
+    font-weight: var(--ui-text-caption-weight);
     color: var(--ui-color-text-secondary);
   }
 
   .textFootnote {
-    font-size: var(--ui-font-size-xs);
-    line-height: var(--ui-leading-xs);
+    font-family: var(--ui-text-caption-family);
+    font-size: var(--ui-text-caption-size);
+    line-height: var(--ui-text-caption-leading);
+    font-weight: var(--ui-text-caption-weight);
     color: var(--ui-color-text-secondary);
   }
 
+  /* Section labels above a group: the `label` style in the muted ink. */
+  .textSectionLabel {
+    font-family: var(--ui-text-label-family);
+    font-size: var(--ui-text-label-size);
+    line-height: var(--ui-text-label-leading);
+    font-weight: var(--ui-text-label-weight);
+    color: var(--ui-color-text-secondary);
+  }
+
+  .textDisplayXl,
   .textTitle,
   .textHeading,
   .textSubtitle,
   .textNavigationTitle,
-  .textLabel {
+  .textLabel,
+  .textStat {
     overflow-wrap: normal;
   }
 
-  .textTitle {
-    font-size: var(--ui-font-size-2xl);
-    line-height: var(--ui-leading-2xl);
-    font-weight: var(--ui-font-weight-bold);
-    letter-spacing: -0.02em;
-  }
-
-  .textHeading {
-    font-size: var(--ui-font-size-xl);
-    line-height: var(--ui-leading-xl);
-    font-weight: var(--ui-font-weight-bold);
+  .textDisplayXl {
+    font-family: var(--ui-text-display-xl-family);
+    font-size: var(--ui-text-display-xl-size);
+    line-height: var(--ui-text-display-xl-leading);
+    font-weight: var(--ui-text-display-xl-weight);
     letter-spacing: -0.01em;
   }
 
+  .textTitle {
+    font-family: var(--ui-text-display-family);
+    font-size: var(--ui-text-display-size);
+    line-height: var(--ui-text-display-leading);
+    font-weight: var(--ui-text-display-weight);
+    letter-spacing: -0.01em;
+  }
+
+  .textHeading {
+    font-family: var(--ui-text-title-family);
+    font-size: var(--ui-text-title-size);
+    line-height: var(--ui-text-title-leading);
+    font-weight: var(--ui-text-title-weight);
+  }
+
   .textSubtitle {
-    font-size: var(--ui-font-size-lg);
-    line-height: var(--ui-leading-lg);
-    font-weight: var(--ui-font-weight-semibold);
+    font-family: var(--ui-text-title-family);
+    font-size: var(--ui-text-title-size);
+    line-height: var(--ui-text-title-leading);
+    font-weight: var(--ui-text-title-weight);
+  }
+
+  /* Numbers only: scores, counts, clocks in a stat tile or pill. */
+  .textStat {
+    font-family: var(--ui-text-stat-family);
+    font-size: var(--ui-text-stat-size);
+    line-height: var(--ui-text-stat-leading);
+    font-weight: var(--ui-text-stat-weight);
+    font-variant-numeric: tabular-nums lining-nums;
   }
 
   .textNavigationTitle {
-    font-size: var(--ui-font-size-base);
-    line-height: var(--ui-leading-base);
-    font-weight: var(--ui-font-weight-bold);
+    font-family: var(--ui-text-body-strong-family);
+    font-size: var(--ui-text-body-strong-size);
+    line-height: var(--ui-text-body-strong-leading);
+    font-weight: var(--ui-text-body-strong-weight);
   }
 
   .textLabel {
-    font-size: var(--ui-font-size-base);
-    line-height: var(--ui-leading-base);
-    font-weight: var(--ui-font-weight-semibold);
+    font-family: var(--ui-text-body-strong-family);
+    font-size: var(--ui-text-body-strong-size);
+    line-height: var(--ui-text-body-strong-leading);
+    font-weight: var(--ui-text-body-strong-weight);
   }
 
   .textLink {
@@ -238,6 +277,7 @@
   /* Ratings, clocks, prices, counts: the scoreboard. A modifier on any
      role (`text textHeading textNumeral`); alone it keeps the body size. */
   .textNumeral {
+    font-family: var(--ui-font-display);
     font-weight: var(--ui-font-weight-semibold);
     font-variant-numeric: tabular-nums lining-nums;
   }
@@ -276,9 +316,23 @@
     cursor: default;
   }
 
+  /* The one focus ring: 2px of `focus-ring`, 2px outside the control, on
+     keyboard focus only. Every control draws it (`.clickable`, `.input`). */
   .clickable:focus-visible {
     outline: 2px solid var(--ui-color-focus-ring);
     outline-offset: 2px;
+  }
+
+  /* A control drawn smaller than 44px (a 32px pill, a chip, a compact
+     field) still takes a 44px hit area: an invisible box centered on it that
+     only ever grows it. The host is positioned and must not clip. */
+  .hitTarget::before {
+    content: "";
+    position: absolute;
+    top: min(0px, calc((100% - var(--ui-control-size-md)) / 2));
+    bottom: min(0px, calc((100% - var(--ui-control-size-md)) / 2));
+    left: min(0px, calc((100% - var(--ui-control-size-md)) / 2));
+    right: min(0px, calc((100% - var(--ui-control-size-md)) / 2));
   }
 
   /* The title a screen hands the keyboard to when it replaces another
@@ -367,15 +421,15 @@
     color: var(--ui-color-text);
     caret-color: var(--ui-color-text);
     background: var(--ui-color-background);
-    border: 1px solid var(--ui-color-border);
+    /* A field's edge is a control boundary, so it is the 3:1 `outline`
+       (line-strong), not the hairline. */
+    border: 1px solid var(--ui-color-outline);
     border-radius: var(--ui-radius-control);
-    transition:
-      border-color var(--ui-duration-fast) var(--ui-easing-standard),
-      box-shadow var(--ui-duration-fast) var(--ui-easing-standard);
+    transition: border-color var(--ui-duration-fast) var(--ui-easing-standard);
   }
 
   .input:hover:not(:focus-visible):not(:disabled) {
-    border-color: var(--ui-color-outline);
+    border-color: var(--ui-color-text-secondary);
   }
 
   .input:disabled {
@@ -387,15 +441,23 @@
     color: var(--ui-color-text-secondary);
   }
 
+  /* The same ring as every control; flat, so no glow around the field. */
   .input:focus-visible {
-    border-color: var(--ui-color-tint);
-    box-shadow: 0 0 0 1px var(--ui-color-tint);
+    outline: 2px solid var(--ui-color-focus-ring);
+    outline-offset: 2px;
   }
 
+  /* Error is the destructive edge plus the message and `aria-invalid`;
+     color never carries it alone. It keeps the focus ring. */
   .inputError,
-  .inputError:focus-visible {
+  .inputError:hover:not(:focus-visible):not(:disabled) {
     border-color: var(--ui-color-destructive);
-    box-shadow: 0 0 0 1px var(--ui-color-destructive);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .input {
+      transition: none;
+    }
   }
 
   .inputTextarea {
@@ -405,6 +467,7 @@
   /* A button that reads as a field (the `Select` trigger): the `.input`
      look laid out as a row of value and trailing chevron. */
   .inputTrigger {
+    position: relative;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -442,27 +505,30 @@
     grid-template-rows: auto minmax(0, 1fr);
   }
 
-  /* Surface motion: what floats above content (menus, tooltips) fades in
-     and settles 4px; sheets rise from the bottom edge; dialogs fade with a
-     slight scale; scrims fade. 250ms on the standard ease-out curve, and
-     nothing moves under reduced motion. */
+  /* Surface motion, only ever in answer to a tap: what floats above content
+     (menus, popovers) fades in and settles 4px in 150ms; sheets rise from
+     the bottom edge, dialogs fade with a slight scale and scrims fade, all
+     in 200ms. The standard ease-out curve, inside the brief's 120-240ms, and
+     nothing moves under reduced motion (the media query here, the app
+     setting in `skin.css`). */
   .surfaceEnter {
-    animation: ui-surface-enter var(--ui-duration-slow)
+    animation: ui-surface-enter var(--ui-duration-fast)
       var(--ui-easing-standard) both;
   }
 
   .sheetEnter {
-    animation: ui-sheet-enter var(--ui-duration-slow) var(--ui-easing-standard)
-      both;
+    animation: ui-sheet-enter var(--ui-duration-normal)
+      var(--ui-easing-standard) both;
   }
 
   .dialogEnter {
-    animation: ui-dialog-enter var(--ui-duration-slow) var(--ui-easing-standard)
-      both;
+    animation: ui-dialog-enter var(--ui-duration-normal)
+      var(--ui-easing-standard) both;
   }
 
   .scrimEnter {
-    animation: ui-fade-in var(--ui-duration-slow) var(--ui-easing-standard) both;
+    animation: ui-fade-in var(--ui-duration-normal) var(--ui-easing-standard)
+      both;
   }
 
   @keyframes ui-fade-in {

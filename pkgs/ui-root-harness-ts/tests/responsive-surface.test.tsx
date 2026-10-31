@@ -86,8 +86,12 @@ describe('ResponsiveSurface', () => {
     expect(dialog).toHaveAttribute('aria-modal', 'true');
     const sheet = mustQuery('[data-surface="sheet"]');
     expect(sheet.className).toMatch(/bottom-0/);
-    // 12px top radius, hairline, safe-area inset, rises in.
+    // Raised fill, 20px top radius, the float shadow (no hairline), safe-area
+    // inset, rises in.
+    expect(sheet.className).toMatch(/\bbg-surface-elevated\b/);
     expect(sheet.className).toMatch(/\brounded-t-sheet\b/);
+    expect(sheet.className).toMatch(/\bshadow-float\b/);
+    expect(sheet.className).not.toMatch(/\bborder\b/);
     expect(sheet.className).toMatch(/\bsafeBottom\b/);
     expect(sheet.className).toMatch(/\bsheetEnter\b/);
     // Content-hug capped at 90% of the layout height.
@@ -246,6 +250,71 @@ describe('ResponsiveSurface', () => {
       { width: 400, height: 800 }
     );
     expect(mustQuery('[data-component="ModalContent"]')).toBeInTheDocument();
+  });
+
+  test('Escape closes the sheet and returns focus to the control that opened it', async () => {
+    const user = userEvent.setup();
+    const [open, setOpen] = createSignal(false);
+    renderUi(
+      () => (
+        <SurfaceStackProvider>
+          <button type="button" onClick={() => setOpen(true)}>
+            {'Open filters'}
+          </button>
+          <Surface visible={open()} onClose={() => setOpen(false)} />
+        </SurfaceStackProvider>
+      ),
+      { width: 400, height: 800 }
+    );
+    const opener = screen.getByRole('button', { name: 'Open filters' });
+    await user.click(opener);
+    expect(mustQuery('[data-surface="sheet"]')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Close' })).toHaveFocus();
+    await user.tab();
+    expect(
+      mustQuery('[data-surface="sheet"]').contains(document.activeElement)
+    ).toBe(true);
+    await user.keyboard('{Escape}');
+    expect(document.querySelector('[data-surface="sheet"]')).toBeNull();
+    expect(opener).toHaveFocus();
+  });
+
+  test('a scrim tap closes the sheet and returns focus to the opener', async () => {
+    const user = userEvent.setup();
+    const [open, setOpen] = createSignal(false);
+    renderUi(
+      () => (
+        <SurfaceStackProvider>
+          <button type="button" onClick={() => setOpen(true)}>
+            {'Open filters'}
+          </button>
+          <Surface visible={open()} onClose={() => setOpen(false)} />
+        </SurfaceStackProvider>
+      ),
+      { width: 400, height: 800 }
+    );
+    const opener = screen.getByRole('button', { name: 'Open filters' });
+    await user.click(opener);
+    fireEvent.click(mustQuery('[data-component="BottomSheetScrim"]'));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(opener).toHaveFocus();
+  });
+
+  test('presentation="modal" is the dialog: centered, scrim, Escape closes', async () => {
+    const user = userEvent.setup();
+    const onClose = mock();
+    renderUi(
+      () => (
+        <SurfaceStackProvider>
+          <Surface onClose={onClose} presentation="modal" />
+        </SurfaceStackProvider>
+      ),
+      { width: 400, height: 800 }
+    );
+    expect(screen.getByRole('dialog', { name: 'Filters' })).toBeInTheDocument();
+    expect(mustQuery('[data-component="ModalScrim"]')).toHaveClass('bg-scrim');
+    await user.keyboard('{Escape}');
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 
   test('sheet unmounts and restores focus when hidden', () => {

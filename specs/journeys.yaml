@@ -965,9 +965,7 @@ journeys:
     - Index work begins
     - Index work completes
     - Returns to the testing tool
-    - Reads device and component inspection scope
-    - Reads component exploration scope
-    - Returns to the inspection inventory
+    - Reads device inspection scope
     - Reads sync inspection scope
     - Opens Spaces
     endsIn:

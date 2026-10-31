@@ -15,6 +15,7 @@ import { APP_SUB_CLIENTS } from '@libs/runtime-client-ts/app-sub-clients';
 import { APP } from '@libs/runtime-shared-ts/app-subs';
 import { wallSpaceRoomTransport } from '@libs/spaces-client-ts/wall-room-transport';
 import '@pkgs/tailwind-shared-ts/tailwind.css';
+import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/hosts.css';
 import '@pkgs/ui-root-client-ts/tokens.css';
 import { render } from 'solid-js/web';

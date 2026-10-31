@@ -1,0 +1,4 @@
+{
+  "summary": "Cache cohesion treated imported stylesheets, fonts and static artwork as unconsumed files because its graph only followed JavaScript and TypeScript.",
+  "regressionTest": "libs/tools-harness-ts/scripts/cache-file-reach.test.ts"
+}

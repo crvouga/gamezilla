@@ -1,4 +1,4 @@
 {
   "summary": "Pressing Pass removed the button while the pass was sent, with no sign of progress and focus lost. The action now stays, showing it is in progress, and cannot be sent twice.",
-  "regressionTest": "pkgs/ui-root-client-ts/tests/card-table.test.tsx"
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/card-table.test.tsx"
 }

@@ -145,21 +145,31 @@ describe('useBreadcrumbNav', () => {
 });
 
 describe('brand + providers', () => {
-  test('AppLogo renders the wordmark as a heading, never in the accent', () => {
+  test('AppLogo names the brand without taking over the page heading', () => {
     renderUi(() => <AppLogo name="acme" size={40} />);
-    const h1 = screen.getByRole('heading', { level: 1 });
-    expect(h1).toHaveTextContent('acme');
-    expect(h1.className).toContain('appLogo');
-    expect(h1.className).not.toContain('text-tint');
+    const brand = screen.getByRole('img', { name: 'acme' });
+    expect(brand).toHaveTextContent('acme');
+    expect(brand.querySelector('img')?.getAttribute('width')).toBe('40');
+    expect(screen.queryByRole('heading')).toBeNull();
   });
 
-  test('BrandIcon renders fixed-color vendor svg', () => {
+  test('AppLogo mark-only still has an accessible name', () => {
+    renderUi(() => <AppLogo name="acme" wordmark={false} />);
+    expect(screen.getByRole('img', { name: 'acme' })).toBeTruthy();
+    expect(screen.queryByText('acme')).toBeNull();
+  });
+
+  // regression: google-brand-desaturated
+  test('BrandIcon preserves the official full-color vendor artwork', () => {
     renderUi(() => (
-      <BrandIcon name="google" size={32} dataSet={{ testid: 'g' }} />
+      <BrandIcon name="google" size={20} dataSet={{ testid: 'g' }} />
     ));
-    const svg = screen.getByTestId('g').querySelector('svg');
-    expect(svg?.getAttribute('width')).toBe('32');
-    expect(svg?.querySelector('path')?.getAttribute('fill')).toBe('#FFC107');
+    const wrapper = screen.getByTestId('g');
+    const image = wrapper.querySelector('img');
+    expect(image?.getAttribute('width')).toBe('20');
+    expect(image?.getAttribute('height')).toBe('20');
+    expect(image?.getAttribute('src')).toContain('google-g.png');
+    expect(wrapper.className).not.toContain('grayscale');
   });
 
   test('ComposeProviders nests outermost-first', () => {

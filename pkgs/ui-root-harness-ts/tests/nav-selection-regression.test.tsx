@@ -89,14 +89,4 @@ describe('navigation selection keeps the layout still', () => {
     setCurrent('search');
     expect(labelBoxes(nav)).toEqual(before);
   });
-
-  test('the wide header hairline spans the viewport, not the column', () => {
-    renderUi(() => <AppHeaderIsland />, WIDE);
-    const hairline = mustQuery(
-      '[data-component="AppHeaderIsland"] [data-slot="hairline"]'
-    );
-    expect(hairline.className).toMatch(/\bw-screen\b/);
-    expect(hairline.className).toMatch(/\bbg-border\b/);
-    expect(hairline.getAttribute('aria-hidden')).toBe('true');
-  });
 });

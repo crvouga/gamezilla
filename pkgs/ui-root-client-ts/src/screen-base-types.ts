@@ -2,10 +2,10 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import type { Href } from '@pkgs/ui-root-shared-ts/href';
 import type { JSX } from 'solid-js';
 import type { ActionBarOverflowPolicy } from './action-bar-logic';
-import type { IconComponent } from './create-icon';
-import type { OverflowMenuRenderProps } from './overflow-menu-button';
+import type { IconComponent } from './create-icon/index';
+import type { OverflowMenuRenderProps } from './overflow-menu-button/index';
 import type { ScreenMeasure } from './screen-measure';
-import type { MutationButtonLabels } from './use-mutation-button';
+import type { MutationButtonLabels } from './use-mutation-button/index';
 import type { ScreenTitleScrollProps } from './use-screen-title-scroll';
 
 export type ScreenBaseBreadcrumb = {
@@ -72,7 +72,8 @@ export type ScreenBaseProps = {
    * Navigation trail for the header: the last item supplies the centered
    * title; earlier items with `onClick` / `href` drive the back button. On
    * compact, not rendered as a visible breadcrumb row. On wide, rendered as
-   * a visible trail in the page header.
+   * pills in the app header when its chrome provider enables screen navigation;
+   * otherwise a visible trail in the page header.
    */
   breadcrumbs: readonly ScreenBaseBreadcrumb[];
   actions?: readonly ScreenBaseAction[] | undefined;
@@ -143,6 +144,8 @@ export type ScreenBaseHeaderProps = {
    * past the reveal threshold (via `ScreenTitleProvider`).
    */
   largeTitle?: boolean | undefined;
+  /** The body has scrolled under the bar: draw its bottom hairline. */
+  scrolled?: boolean | undefined;
   /**
    * Compact-only trailing chrome after header actions (e.g. avatar menu).
    * Wide page headers must not duplicate this — the AppFrame island owns it.

@@ -263,11 +263,17 @@ The product's differentiator. Each game imports one of these boards.
 
 | Component | Status |
 | --- | --- |
-| GamePlayerBar (seat: avatar, name, badges, clock) | 🟡 |
-| GameBoardStage (far seat / board / near seat) | 🟡 |
+| GamePlayerBar (seat strip: avatar, swatch, name, badges, stat, state, clock) | ✅ |
+| GamePlayerRail + GamePlayerChip (other players at a table of 3+) | ✅ |
+| GameSeatSwatch (player color and mark) | ✅ |
+| GameBoardStage (others / board / turn / own) | ✅ |
 | GameClock | 🟡 |
 | GameCountdown | 🟡 |
-| GameStatus (whose turn / how it ended) | 🟡 |
+| GameTurnPill (whose turn / how it ended) | ✅ |
+| GameActionBar (game actions, tool toggles, frame commands) | ✅ |
+| GameWatchingFooter + GameWatcherCount | ✅ |
+| GameResultHeadline, GameStandings, GameStatTiles (game over) | ✅ |
+| GameOptionField (choice / count / read-only setting) | ✅ |
 | GameStat | 🟡 |
 | GameSection | 🟡 |
 | GameChoiceGrid | 🟡 |

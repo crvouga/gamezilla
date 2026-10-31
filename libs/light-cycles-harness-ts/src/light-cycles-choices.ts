@@ -17,9 +17,10 @@ import {
   rememberLineup,
 } from './light-cycles-lineup';
 
-const TARGET_INPUT = 'light-cycles-target-score';
-const TARGET_APPLY = 'light-cycles-apply-target-score';
-const TARGET_REFUSED = 'light-cycles-target-score-refused';
+/** The frame's generic stepper for the game's `target-score` option. */
+const TARGET = 'custom-game-option-target-score';
+const TARGET_VALUE = `${TARGET}-value`;
+const TARGET_RANGE = `${TARGET}-range`;
 
 const SETTLED_MS = 5000;
 
@@ -39,39 +40,49 @@ async function tapSettled(s: ProductHarness, actor: string, control: string) {
   );
 }
 
-/** The game options, opened when the screen keeps them behind their disclosure. */
-async function targetInputShown(s: ProductHarness, actor: string) {
-  const ui = await actorUi(s, actor);
-  if (
-    !(await ui.get(TARGET_INPUT).isVisible()) &&
-    (await ui.get('custom-game-options').isVisible())
-  )
-    await ui.get('custom-game-options').tap();
-  return ui.get(TARGET_INPUT).isVisible();
+/** The target score the stepper shows and the range it offers. */
+async function readTargetStepper(s: ProductHarness, actor: string) {
+  const value = (await actorUi(s, actor)).get(TARGET_VALUE);
+  const number = async (name: string) => Number(await value.attribute(name));
+  return {
+    value: await number('aria-valuenow'),
+    min: await number('aria-valuemin'),
+    max: await number('aria-valuemax'),
+  };
 }
 
 /**
  * `actor` chooses the target score with the game options where their screen
- * offers them: types it and uses it, which the options allow only for a
- * whole number from 1 to 9. A screen without the options sends the choice
- * as a modified device would, so any refusal is the product's.
+ * offers them: steps it one round win at a time to `target`, each step
+ * taken before the next. The stepper offers only 1 to 9, so a target
+ * outside that range is never chosen, and the range under it says why. A
+ * screen without the stepper (someone who only reads the options, or a game
+ * already started) sends the choice as a modified device would, so any
+ * refusal is the product's.
  */
 export const chooseTargetScore = scenarioAction({
   name: 'chooseTargetScore',
   act: async (s, actor: string, target: number) => {
-    if (!(await targetInputShown(s, actor))) {
+    if (!(await (await actorUi(s, actor)).get(TARGET_VALUE).isVisible())) {
       await chooseCustomGame(s, actor, {
         operation: 'rules',
         choice: String(target),
       });
       return;
     }
-    const ui = await actorUi(s, actor);
-    await ui.get(TARGET_INPUT).clear();
-    await ui.get(TARGET_INPUT).input(String(target));
-    await s.session.waitForIdle();
-    if ((await ui.get(TARGET_APPLY).attribute('disabled')) !== null) return;
-    await tapSettled(s, actor, TARGET_APPLY);
+    let shown = await readTargetStepper(s, actor);
+    if (target < shown.min || target > shown.max) return;
+    while (shown.value !== target) {
+      await tapSettled(
+        s,
+        actor,
+        `${TARGET}-${target > shown.value ? 'increase' : 'decrease'}`
+      );
+      const next = await readTargetStepper(s, actor);
+      // A step the product refused leaves the value where it was.
+      if (next.value === shown.value) return;
+      shown = next;
+    }
   },
 });
 
@@ -80,7 +91,11 @@ export async function targetScoreRefusalShown(
   s: ProductHarness,
   actor: string
 ): Promise<boolean> {
-  return (await actorUi(s, actor)).get(TARGET_REFUSED).isVisible();
+  const range = (await actorUi(s, actor)).get(TARGET_RANGE);
+  return (
+    (await range.isVisible()) &&
+    ((await range.text()) ?? '').includes('from 1 to 9')
+  );
 }
 
 /**

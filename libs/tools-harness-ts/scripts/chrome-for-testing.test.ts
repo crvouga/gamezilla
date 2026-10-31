@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import {
   CHROME_FOR_TESTING_TOOL,
   chromeForTestingBinary,
-} from './chrome-for-testing';
+} from '@pkgs/ui-testing-bun-webview-server-ts/chrome-for-testing';
 
 const ROOT = join(import.meta.dirname, '../../..');
 

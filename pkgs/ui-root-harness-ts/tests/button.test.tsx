@@ -136,7 +136,7 @@ describe('Button', () => {
     renderUi(() => (
       <Button
         title="Next"
-        intent="success"
+        intent="danger"
         endIcon={<ChevronRightIcon dataSet={{ testid: 'end' }} />}
       />
     ));
@@ -146,7 +146,7 @@ describe('Button', () => {
     );
     expect(screen.getByRole('button', { name: 'Next' })).toHaveAttribute(
       'data-face',
-      'success'
+      'danger'
     );
   });
 });
@@ -375,4 +375,13 @@ describe('OverflowMenuButton', () => {
     ));
     expect(screen.queryByRole('button')).toBeNull();
   });
+});
+
+// regression: ui-loading-button-unnamed
+test('a spinner-only loading button retains its action name', () => {
+  renderUi(() => <Button title={<Trans>Save</Trans>} loading />);
+  expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute(
+    'aria-busy',
+    'true'
+  );
 });

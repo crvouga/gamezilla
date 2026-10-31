@@ -2,9 +2,13 @@
 
 import { describe, expect, mock, test } from 'bun:test';
 import { Checkbox } from '@pkgs/ui-root-client-ts/checkbox';
+import { CodeBlock } from '@pkgs/ui-root-client-ts/code-block';
 import { ContentEdgePaddingProvider } from '@pkgs/ui-root-client-ts/content-edge-padding';
+import { MetricStrip } from '@pkgs/ui-root-client-ts/metric-strip';
+import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
 import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
 import { Switch } from '@pkgs/ui-root-client-ts/switch';
+import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { VirtualList } from '@pkgs/ui-root-client-ts/virtual-list';
 import { fireEvent, screen } from '@solidjs/testing-library';
@@ -57,11 +61,15 @@ describe('Switch', () => {
     const el = screen.getByRole('switch', { name: 'Sound' });
     expect(el).toHaveAttribute('aria-checked', 'false');
     const track = el.querySelector('[class*="rounded"]');
-    expect(track?.className).toMatch(/bg-surface-muted/);
+    expect(track?.className).toMatch(/bg-transparent/);
+    expect(track).toHaveAttribute('data-on', 'false');
     fireEvent.click(el);
     expect(el).toHaveAttribute('aria-checked', 'true');
     expect(el.className).toMatch(/min-h-11/);
-    expect(track?.className).toMatch(/bg-tint-active/);
+    // On is the soft blue (`tint-subtle`), never the saturated button fill.
+    expect(track?.className).toMatch(/bg-tint-subtle/);
+    expect(track?.className).not.toMatch(/bg-tint-active/);
+    expect(track).toHaveAttribute('data-on', 'true');
   });
 
   test('the thumb always contrasts with its track', () => {
@@ -75,10 +83,11 @@ describe('Switch', () => {
     const thumb = track?.firstElementChild;
     expect(thumb?.className).toMatch(/bg-text-secondary/);
     fireEvent.click(el);
-    // On is the accent fill with its own on-color thumb, never the text tint.
-    expect(track?.className).toMatch(/\bbg-tint-active\b/);
+    // On is the soft blue track with a `primary-strong` thumb, never the
+    // text tint and never a thumb in the track's own color.
+    expect(track?.className).toMatch(/\bbg-tint-subtle\b/);
     expect(track?.className).not.toMatch(/\bbg-tint\b(?!-)/);
-    expect(thumb?.className).toMatch(/bg-on-primary/);
+    expect(thumb?.className).toMatch(/\bbg-primary-strong\b/);
   });
 
   // regression: ui-switch-testid-on-wrapper — the test id sat on a wrapper
@@ -223,4 +232,65 @@ describe('VirtualList', () => {
     ));
     expect(screen.getByText('nothing')).toBeInTheDocument();
   });
+});
+
+// regression: ui-scroll-regions-keyboard-inaccessible
+test('scrollable code and view regions accept keyboard focus', () => {
+  const code = renderUi(() => (
+    <CodeBlock>
+      {
+        'Error: could not reach the room server after 3 attempts (last status 503, request 7f3a9c21-4be0-4d1f-9a55-0c2f6d1e8b77)'
+      }
+    </CodeBlock>
+  ));
+  expect(code.container.querySelector('pre')?.tabIndex).toBe(0);
+  code.unmount();
+  const view = renderUi(() => (
+    <ScrollView horizontal>
+      <P>Long horizontal content</P>
+    </ScrollView>
+  ));
+  expect(
+    view.container
+      .querySelector('[data-component="ScrollView"]')
+      ?.getAttribute('tabindex')
+  ).toBe('0');
+  view.unmount();
+});
+
+// regression: ui-progress-track-unnamed
+test('bare progress tracks retain an accessible name', () => {
+  const view = renderUi(() => <ProgressBar progress={0.3} size="sm" />);
+  expect(view.getByRole('progressbar').getAttribute('aria-label')).toBe(
+    'Progress'
+  );
+  view.unmount();
+});
+
+// regression: ui-metric-description-list-structure
+test('metric details remain inside the description list grammar', () => {
+  const view = renderUi(() => (
+    <MetricStrip
+      aria-label="Summary"
+      metrics={[{ label: 'Solved', value: 12, detail: 'This week' }]}
+    />
+  ));
+  expect(view.container.querySelector('dl > div > span')).toBeNull();
+  expect(view.container.querySelectorAll('dd').length).toBe(2);
+  view.unmount();
+});
+
+// regression: ui-switch-visible-label-unnamed
+test('the switch uses its visible label as its accessible name', () => {
+  renderUi(() => (
+    <Switch
+      label="Notifications"
+      value={false}
+      onValueChange={() => undefined}
+    />
+  ));
+  expect(screen.getByRole('switch', { name: 'Notifications' })).toHaveAttribute(
+    'aria-checked',
+    'false'
+  );
 });

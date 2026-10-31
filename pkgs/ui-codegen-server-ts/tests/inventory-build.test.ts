@@ -20,6 +20,7 @@ test('a Windows checkout lists repository-relative files in the inventory', () =
     {
       repo,
       clientSrc: win32.join(client, 'src'),
+      storySources: [win32.join(repo, 'pkgs/ui-root-harness-ts/stories')],
       sharedSrc: win32.join(shared, 'src'),
       extraStylesheets: [win32.join(client, 'skin.css')],
       tokenDocument: win32.join(shared, 'src', 'design-tokens.json'),

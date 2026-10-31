@@ -1,5 +1,6 @@
 import { useLingui } from '@lingui/solid/macro';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -19,7 +20,7 @@ export function ContentConnectionStatus(props: {
           tone="secondary"
         >{t`Loading requested puzzles…`}</P>
       </Show>
-      <Show when={engine.status().lastError}>
+      <Show when={engine.status().online && engine.status().lastError}>
         {(error) => (
           <ErrorState
             variant="compact"
@@ -38,6 +39,14 @@ export function ContentConnectionStatus(props: {
         <Notice
           dataSet={{ testid: 'content-offline' }}
         >{t`You are offline. Available puzzles and your saved work stay on this device. Changes share when connected.`}</Notice>
+        <Button
+          title={t`Reconnect`}
+          intent="neutral"
+          variant="outline"
+          onClick={() => {
+            void engine.connect();
+          }}
+        />
       </Show>
     </>
   );

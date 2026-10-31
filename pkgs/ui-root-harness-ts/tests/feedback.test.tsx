@@ -327,8 +327,11 @@ describe('State blocks', () => {
     renderUi(() => (
       <>
         <LoadingState caption="Loading spaces…" />
-        <EmptyState title="No spaces yet" />
-        <ErrorState title="Could not load spaces" />
+        <EmptyState title="No spaces yet" body="Start one to play." />
+        <ErrorState
+          title="Could not load spaces"
+          body="Check your connection and try again."
+        />
         <SuccessState title="Space saved" />
       </>
     ));

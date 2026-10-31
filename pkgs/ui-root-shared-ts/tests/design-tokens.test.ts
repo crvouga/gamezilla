@@ -34,8 +34,10 @@ import {
   COLOR_TONES,
   SPACE_TOKENS,
   SURFACE_TONES,
+  TEXT_STYLES,
 } from '@pkgs/ui-root-shared-ts/token-names';
 import { surfaceToneColor, textToneColor } from '@pkgs/ui-root-shared-ts/tones';
+import { textStyles } from '@pkgs/ui-root-shared-ts/typography';
 
 const SRC = join(import.meta.dir, '..', 'src');
 const CANONICAL = join(SRC, 'design-tokens.json');
@@ -124,14 +126,59 @@ describe('values derived from the tokens', () => {
     expect(spacing[4]).toBe(16);
   });
 
-  test('the type scale is 12, 14, 16, 20, 24, 32 on 4px leading', () => {
-    expect(Object.values(fontSize)).toEqual([12, 14, 16, 20, 24, 32]);
-    expect(Object.values(fontLeading).every((px) => px % 4 === 0)).toBe(true);
-    expect(Object.values(fontWeight)).toEqual([400, 600, 700]);
+  test('the type scale is 12, 13, 15, 18, 20, 26, 40 with its leading', () => {
+    expect(Object.values(fontSize)).toEqual([12, 13, 15, 18, 20, 26, 40]);
+    expect(Object.values(fontLeading)).toEqual([16, 18, 22, 24, 24, 30, 44]);
+    expect(Object.values(fontWeight)).toEqual([400, 500, 600, 700]);
   });
 
-  test('radii are 4, 8, 12 and round', () => {
-    expect(borderRadius).toEqual({ none: 0, sm: 4, md: 8, lg: 12, full: 9999 });
+  test('the text styles are the eight of the design', () => {
+    expect(textStyles).toEqual({
+      'display-xl': {
+        family: 'display',
+        size: '3xl',
+        weight: 'bold',
+        leading: '3xl',
+      },
+      display: {
+        family: 'display',
+        size: '2xl',
+        weight: 'bold',
+        leading: '2xl',
+      },
+      stat: {
+        family: 'display',
+        size: 'xl',
+        weight: 'semibold',
+        leading: 'xl',
+      },
+      title: { family: 'sans', size: 'lg', weight: 'bold', leading: 'lg' },
+      body: {
+        family: 'sans',
+        size: 'base',
+        weight: 'regular',
+        leading: 'base',
+      },
+      'body-strong': {
+        family: 'sans',
+        size: 'base',
+        weight: 'bold',
+        leading: 'base',
+      },
+      caption: { family: 'sans', size: 'sm', weight: 'medium', leading: 'sm' },
+      label: { family: 'sans', size: 'xs', weight: 'bold', leading: 'xs' },
+    });
+    expect(Object.keys(textStyles)).toEqual([...TEXT_STYLES]);
+  });
+
+  test('radii are 6, 12, 20 and round', () => {
+    expect(borderRadius).toEqual({
+      none: 0,
+      sm: 6,
+      md: 12,
+      lg: 20,
+      full: 9999,
+    });
   });
 
   test('motion stays between 150 and 250ms', () => {
@@ -143,7 +190,7 @@ describe('values derived from the tokens', () => {
       none: borderRadius.none,
       sm: borderRadius.sm,
       control: borderRadius.md,
-      card: borderRadius.lg,
+      card: borderRadius.md,
       sheet: borderRadius.lg,
       full: borderRadius.full,
     });
@@ -165,11 +212,13 @@ describe('values derived from the tokens', () => {
     expect(layer.overlay).toBeGreaterThan(layer.surface);
   });
 
-  test('colors, fonts and motion render as the CSS they always were', () => {
-    expect(COLOR_PALETTE.light.background).toBe('hsla(0, 0%, 100%, 1)');
-    expect(COLOR_PALETTE.light.tintSubtle).toBe('hsla(204, 100%, 48%, 0.10)');
-    expect(COLOR_PALETTE.dark.scrim).toBe('hsla(0, 0%, 0%, 0.72)');
-    expect(fonts.sans.startsWith('system-ui')).toBe(true);
+  test('colors, fonts and motion render as the CSS of the design', () => {
+    expect(COLOR_PALETTE.dark.background).toBe('#111111');
+    expect(COLOR_PALETTE.dark.tintActive).toBe('#dedede');
+    expect(COLOR_PALETTE.light.tintSubtle).toBe('#e8e8e8');
+    expect(COLOR_PALETTE.dark.scrim).toBe('#000000aa');
+    expect(fonts.sans.startsWith('Manrope,')).toBe(true);
+    expect(fonts.display.startsWith('Unbounded,')).toBe(true);
     expect(duration.fast).toBe(150);
     expect(easing.standard).toBe('cubic-bezier(0.2, 0, 0, 1)');
   });
@@ -218,7 +267,10 @@ describe('generated files', () => {
     for (const name of SPACE_TOKENS) {
       expect(css).toContain(`  --ui-space-${name}: ${spaceSize[name]}px;`);
     }
-    expect(css).toContain('  --ui-radius-control: 8px;');
+    expect(css).toContain('  --ui-radius-control: 12px;');
+    for (const name of TEXT_STYLES) {
+      expect(css).toContain(`  --ui-text-${name}-size: var(--ui-font-size-`);
+    }
     expect(css).toContain(
       '  --ui-shadow-float: 0px 4px 16px 0px var(--ui-color-shadow-color);'
     );

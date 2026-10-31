@@ -1,4 +1,4 @@
 {
   "summary": "While playing, every card was announced as a toggle button, not pressed (aria-pressed=false), though a card is played at once. Only cards being chosen (a pass) are toggles now.",
-  "regressionTest": "pkgs/ui-root-client-ts/tests/card-table.test.tsx"
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/card-table.test.tsx"
 }

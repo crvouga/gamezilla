@@ -45,20 +45,34 @@ function CustomGameAway(props: { model: CustomGameScreenModel }): JSX.Element {
               </Show>
             </Text>
           </Notice>
-          <Show
-            when={
-              props.model.canPlay() && props.model.current()?.sides.length === 2
-            }
-          >
-            <GameActionButton
-              title={<Trans>Claim the win</Trans>}
-              variant="solid"
-              dataSet={{ testid: 'custom-game-claim-win' }}
-              operation={() => props.model.choose({ operation: 'claimWin' })}
-            />
-          </Show>
         </StackVertical>
       )}
+    </Show>
+  );
+}
+
+/**
+ * Claiming the win from an opponent who stays away, in the game's action
+ * row beside the other commands; the notice above the board says why.
+ */
+export function CustomGameClaimWin(props: {
+  model: CustomGameScreenModel;
+}): JSX.Element {
+  return (
+    <Show
+      when={
+        props.model.sharedAvailable() &&
+        awayOpponent(props.model) !== null &&
+        props.model.canPlay() &&
+        props.model.current()?.sides.length === 2
+      }
+    >
+      <GameActionButton
+        title={<Trans>Claim the win</Trans>}
+        variant="solid"
+        dataSet={{ testid: 'custom-game-claim-win' }}
+        operation={() => props.model.choose({ operation: 'claimWin' })}
+      />
     </Show>
   );
 }

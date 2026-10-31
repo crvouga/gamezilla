@@ -137,3 +137,18 @@ export function bodyNeedsSafeBottom(p: {
 }): boolean {
   return !(p.hasFooter || p.hasBottomBar);
 }
+
+/**
+ * What a scroll inside the screen body says about the header hairline:
+ * `true` once a vertical scroller has left its top, `false` back at the top,
+ * `undefined` for a scroller that cannot scroll vertically (a horizontal
+ * carousel), which leaves the hairline as it was.
+ */
+export function bodyScrolledPastTop(p: {
+  scrollTop: number;
+  scrollHeight: number;
+  clientHeight: number;
+}): boolean | undefined {
+  if (p.scrollHeight <= p.clientHeight) return undefined;
+  return p.scrollTop > 0;
+}

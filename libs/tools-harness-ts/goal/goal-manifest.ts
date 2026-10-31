@@ -8,6 +8,7 @@
  * `specs/` and is not a checklist in this module.
  */
 
+import { playwrightRegressionProof } from './playwright-regression-proof';
 import { quintRegressionProof } from './quint-regression-proof';
 
 /**
@@ -21,6 +22,8 @@ export type KnownBug = {
    * Repo-relative test file carrying `regression: <id>` beside the test, or
    * a `.feature` whose pinned scenario is tagged `@regression:<id>`, or a
    * canonical Quint binding registering a marked literal ITF history.
+   * Playwright adapters may use `.checks.ts` to avoid Bun test discovery;
+   * those files must import the runner and register a marked literal test.
    */
   readonly regressionTest: string;
 };
@@ -46,7 +49,8 @@ export function regressionTag(bugId: string): string {
 }
 
 const TEST_FILE = /\.test\.tsx?$/;
-const PROPERTY_FILE = /\.property\.test\.tsx?$/;
+const PLAYWRIGHT_FILE = /\.checks\.ts$/;
+const PROPERTY_FILE = /\.property\.(?:test\.tsx?|checks\.ts)$/;
 const FEATURE_FILE = /\.feature$/;
 const QUINT_BINDING = /(?:^|\/)tests\/quint\/[^/]+\.binding\.ts$/;
 
@@ -59,9 +63,13 @@ function validateRegressionTest(
   const path = bug.regressionTest;
   const feature = typeof path === 'string' && FEATURE_FILE.test(path);
   const quint = typeof path === 'string' && QUINT_BINDING.test(path);
-  if (typeof path !== 'string' || !(feature || quint || TEST_FILE.test(path))) {
+  const playwright = typeof path === 'string' && PLAYWRIGHT_FILE.test(path);
+  if (
+    typeof path !== 'string' ||
+    !(feature || quint || playwright || TEST_FILE.test(path))
+  ) {
     errors.push(
-      `${label}: regressionTest must be a *.test.ts(x) or *.feature file, or a pinned tests/quint/*.binding.ts registration`
+      `${label}: regressionTest must be a *.test.ts(x) or *.feature file, a marked Playwright *.checks.ts test, or a pinned tests/quint/*.binding.ts registration`
     );
     return;
   }
@@ -80,6 +88,10 @@ function validateRegressionTest(
   const marker = feature ? regressionTag(bug.id) : regressionMarker(bug.id);
   if (!body.includes(marker)) {
     errors.push(`${label}: ${path} does not contain marker "${marker}"`);
+  }
+  if (playwright) {
+    const failure = playwrightRegressionProof(body, marker);
+    if (failure !== null) errors.push(`${label}: ${path} ${failure}`);
   }
   if (quint) {
     const failure = quintRegressionProof({ body, bugId: bug.id, path, files });

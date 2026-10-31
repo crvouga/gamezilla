@@ -3,6 +3,7 @@ import { chessGameClient } from '@libs/chess-root-client-ts/chess-game-client';
 import { connectFourGameClient } from '@libs/connect-four-client-ts/connect-four-game-client';
 import type { GameClientRegistration } from '@libs/game-menu-client-ts/game-client';
 import { assertGameClientDefinitions } from '@libs/game-menu-client-ts/game-client';
+import { assertGameModes } from '@libs/game-menu-client-ts/game-frame-contract';
 import { GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
 import { heartsGameClient } from '@libs/hearts-client-ts/hearts-game-client';
 import {
@@ -51,4 +52,5 @@ export const GAME_CLIENT_DEFINITIONS = [
 
 assertGameRegistry(GAME_CLIENT_DEFINITIONS);
 assertGameClientDefinitions('GAME_CLIENT_DEFINITIONS', GAME_CLIENT_DEFINITIONS);
+assertGameModes('GAME_CLIENT_DEFINITIONS', GAME_CLIENT_DEFINITIONS);
 assertMatchingGameIds(GAME_DEFINITIONS, GAME_CLIENT_DEFINITIONS);

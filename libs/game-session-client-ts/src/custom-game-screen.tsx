@@ -4,15 +4,8 @@ import { Trans } from '@lingui/solid/macro';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { type JSX, Show } from 'solid-js';
-import {
-  CustomGameExitActions,
-  CustomGameNextActions,
-  CustomGameStarter,
-} from './custom-game-actions';
-import {
-  CustomGameActiveNotices,
-  CustomGameDrawActions,
-} from './custom-game-active';
+import { CustomGameStarter } from './custom-game-actions';
+import { CustomGameActiveNotices } from './custom-game-active';
 import { CustomGameBoard, CustomGameRecord } from './custom-game-board';
 import { CustomGameConfiguration } from './custom-game-configuration';
 import { CustomGameError } from './custom-game-error';
@@ -23,14 +16,43 @@ import {
   CustomGameStatus,
 } from './custom-game-status';
 import { CustomGameTest } from './custom-game-test';
+import {
+  FrameActions,
+  FrameHeader,
+  FrameWatching,
+  useFrameBoard,
+} from './game-frame-play';
+import { GameFrameResult } from './game-frame-result';
 import { useCustomGameReview } from './use-custom-game-review';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 import { useCustomGameScreen } from './use-custom-game-screen';
 
 type ModelProps = { model: CustomGameScreenModel };
 
+/**
+ * Under the board: the line about a game being set up (once it is played
+ * the line sits between the board and the person's own seat), what a
+ * player is told during play, and the result once the game is over.
+ */
+function CustomGameStatusRow(props: ModelProps): JSX.Element {
+  return (
+    <Show when={props.model.current() !== null}>
+      <Show when={props.model.current()?.status === 'configuring'}>
+        <CustomGameStatus model={props.model} />
+      </Show>
+      <Show when={props.model.current()?.status === 'active'}>
+        <CustomGameActiveNotices model={props.model} />
+      </Show>
+      <Show when={props.model.current()?.status === 'completed'}>
+        <GameFrameResult model={props.model} />
+      </Show>
+    </Show>
+  );
+}
+
 function CustomGameContent(props: ModelProps): JSX.Element {
   const review = useCustomGameReview(props.model);
+  const board = useFrameBoard(props.model, review);
   return (
     <>
       <GameSessionLayout
@@ -38,6 +60,7 @@ function CustomGameContent(props: ModelProps): JSX.Element {
           component: 'CustomGameContent',
           testid: 'custom-game-content',
         }}
+        header={<FrameHeader model={props.model} />}
         notices={
           <>
             <CustomGameConnectionNotice model={props.model} />
@@ -69,26 +92,14 @@ function CustomGameContent(props: ModelProps): JSX.Element {
             <CustomGameRecord model={props.model} review={review} />
           )
         }
-        status={
-          <Show when={props.model.current() !== null}>
-            <CustomGameStatus model={props.model} />
-            <Show when={props.model.current()?.status === 'active'}>
-              <CustomGameActiveNotices model={props.model} />
-            </Show>
-          </Show>
-        }
+        status={<CustomGameStatusRow model={props.model} />}
         actions={
-          <Show when={props.model.current() !== null}>
-            <Show when={props.model.current()?.status === 'active'}>
-              <CustomGameDrawActions model={props.model} />
-            </Show>
-            <CustomGameNextActions model={props.model} />
-            <CustomGameExitActions model={props.model} />
-          </Show>
+          <FrameActions model={props.model} board={board} review={review} />
         }
+        footer={<FrameWatching model={props.model} />}
       >
         <Show when={props.model.current() !== null}>
-          <CustomGameBoard model={props.model} review={review} />
+          <CustomGameBoard model={props.model} review={review} board={board} />
         </Show>
       </GameSessionLayout>
       <CustomGameTest model={props.model} review={review} />

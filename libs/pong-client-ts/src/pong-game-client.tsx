@@ -3,7 +3,7 @@ import { pongGameShared } from '@libs/pong-shared-ts/pong-game';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { PongBoard } from './pong-board';
-import { PongOptions } from './pong-options';
+import { pongFrame } from './pong-frame';
 
 export const pongGameClient = defineGameClient({
   shared: pongGameShared,
@@ -21,8 +21,8 @@ export const pongGameClient = defineGameClient({
     name: () => t`Pong`,
     canFlip: false,
     Board: PongBoard,
-    Configuration: PongOptions,
     sideLabel: (side) => (side === 'white' ? t`Left` : t`Right`),
+    frame: pongFrame,
     endingDescription: (reason) =>
       reason === 'score target' ? t`The score target was reached.` : undefined,
     endingLabel: (reason) =>

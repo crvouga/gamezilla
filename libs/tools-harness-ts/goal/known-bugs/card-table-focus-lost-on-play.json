@@ -1,4 +1,4 @@
 {
   "summary": "Playing a card removed its button and dropped keyboard focus to the page body, and Tab always returned to the first card. Focus now moves to the card that took the played card's place, and Tab returns to the card the person was on.",
-  "regressionTest": "pkgs/ui-root-client-ts/tests/card-table.test.tsx"
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/card-table.test.tsx"
 }

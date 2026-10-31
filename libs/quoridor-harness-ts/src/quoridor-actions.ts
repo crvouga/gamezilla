@@ -47,7 +47,8 @@ export const moveQuoridorPawn = scenarioAction({
     const ui = await actorUi(s, actor);
     const screen = await readCustomGameScreen(s, actor);
     if (screen?.current == null) throw new Error('No Quoridor game');
-    await ui.get(`${CUSTOM_GAME_BOARD}-mode-move`).key('enter');
+    if (screen.current.status === 'active')
+      await ui.get(`${CUSTOM_GAME_BOARD}-mode-move`).key('enter');
     const target = ui.get(`${CUSTOM_GAME_BOARD}-action-${cell}`);
     if (
       (await customGameBoardTakes(s, actor, cell)) &&
@@ -121,7 +122,7 @@ export async function quoridorView(s: ProductHarness, actor = 'alice') {
   if (screen?.current == null) throw new Error('No Quoridor board');
   const game = decodeQuoridor(screen.position);
   const ui = await actorUi(s, actor);
-  const suffix = await quoridorToolSuffix(s, actor);
+  const suffix = await quoridorToolSuffix((id) => ui.get(id).isVisible());
   const pawnLabels: string[] = [];
   for (const cell of game.pawns) {
     pawnLabels.push(
@@ -141,7 +142,7 @@ export async function quoridorView(s: ProductHarness, actor = 'alice') {
 
 export async function quoridorWallEdges(s: ProductHarness, cell: string) {
   const ui = await actorUi(s, 'alice');
-  const suffix = await quoridorToolSuffix(s, 'alice');
+  const suffix = await quoridorToolSuffix((id) => ui.get(id).isVisible());
   const target = ui.get(`${CUSTOM_GAME_BOARD}-action-${cell}${suffix}`);
   return {
     top: await target.attribute('data-edge-top'),
@@ -149,21 +150,12 @@ export async function quoridorWallEdges(s: ProductHarness, cell: string) {
   };
 }
 
-async function quoridorToolSuffix(
-  s: ProductHarness,
-  actor: string
+/** The rendered cells keep their namespace even when the action bar is absent. */
+export async function quoridorToolSuffix(
+  isVisible: (testId: string) => Promise<boolean>
 ): Promise<string> {
-  const ui = await actorUi(s, actor);
-  if (
-    (await ui.get(`${CUSTOM_GAME_BOARD}-mode-h`).attribute('aria-pressed')) ===
-    'true'
-  )
-    return 'h';
-  return (await ui
-    .get(`${CUSTOM_GAME_BOARD}-mode-v`)
-    .attribute('aria-pressed')) === 'true'
-    ? 'v'
-    : '';
+  if (await isVisible(`${CUSTOM_GAME_BOARD}-action-a1h`)) return 'h';
+  return (await isVisible(`${CUSTOM_GAME_BOARD}-action-a1v`)) ? 'v' : '';
 }
 
 export const QUORIDOR_ACTIONS = [

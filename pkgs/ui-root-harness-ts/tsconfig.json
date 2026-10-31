@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.paths.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js"
+  },
+  "include": [
+    "../ts-reset-shared-ts/src/ts-reset.ts",
+    "../ui-root-client-ts/src/css-modules.d.ts",
+    "../ui-root-client-ts/src/lingui-augmentation.ts",
+    "../bun-test-solid-client-ts/src/jest-dom.d.ts",
+    "./tests/**/*.ts",
+    "./tests/**/*.tsx",
+    "./stories/**/*.tsx",
+    "./storybook/**/*.ts",
+    "./storybook/**/*.tsx",
+    "./scripts/**/*.ts"
+  ],
+  "exclude": ["node_modules"]
+}

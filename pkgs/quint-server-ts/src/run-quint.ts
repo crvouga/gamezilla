@@ -207,15 +207,25 @@ async function startServer(input: {
     input.env
   );
   server.once('error', (error) => input.into.chunks.push(String(error)));
-  collect(server, input.into, {
-    stdout: false,
-    shown: showsServerLog(input.args),
-  });
+  const shown = showsServerLog(input.args);
+  const startup: string[] = [];
+  let ready = false;
+  const receive = (chunk: Buffer) => {
+    if (shown) input.into.chunks.push(chunk.toString());
+    else if (!ready) startup.push(chunk.toString());
+  };
+  server.stdout?.on('data', receive);
+  server.stderr?.on('data', receive);
   const wait = serverListening(server, port, SERVER_START_MS);
   input.started(server, wait.stop);
-  if (await wait.listening) return port;
+  if (await wait.listening) {
+    ready = true;
+    startup.length = 0;
+    return port;
+  }
   killGroup(server.pid);
   await closed(server);
+  input.into.chunks.push(...startup);
   input.into.chunks.push(
     `\nquint: the Apalache server on port ${String(port)} did not accept connections (exit code ${String(server.exitCode ?? 'none')}, signal ${server.signalCode ?? 'none'})\n`
   );

@@ -215,11 +215,12 @@ test.each([
   90_000
 );
 
-test('a server that cannot start fails the check before Quint runs', async () => {
+// regression: quint-quiet-server-startup-diagnostics
+test('a server that cannot start retains its error even in quiet mode', async () => {
   const cwd = mkdtempSync(join(tmpdir(), 'quint-no-server-'));
   try {
     const run = await runQuint({
-      args: ['-e', 'console.log("quint ran")'],
+      args: ['-e', 'console.log("quint ran")', '--verbosity', '0'],
       cwd,
       env: verifyEnv({ env: process.env, quintHome: privateQuintHome(cwd) }),
       timeoutMs: 60_000,
@@ -228,6 +229,7 @@ test('a server that cannot start fails the check before Quint runs', async () =>
     expect(run.code).toBe(1);
     expect(run.stdout).not.toContain('quint ran');
     expect(run.output).toContain('did not accept connections');
+    expect(run.output).toContain('Unable to access jarfile');
   } finally {
     removeTree(cwd, { whenLocked: 'leave' });
   }

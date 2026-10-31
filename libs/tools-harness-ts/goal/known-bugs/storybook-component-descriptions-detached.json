@@ -1,0 +1,4 @@
+{
+  "summary": "Ten production components had empty Storybook manifest descriptions because their purpose JSDoc was detached from the exported function or missing. Export-attached comments now reach native Solid docgen, with a generated-manifest check for every component and a representative prop contract.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook-manifests.test.ts"
+}

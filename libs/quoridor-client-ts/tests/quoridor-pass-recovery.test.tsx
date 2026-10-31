@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { QuoridorBoard } from '@libs/quoridor-client-ts/quoridor-board';
+import { createQuoridorBoard } from '@libs/quoridor-client-ts/quoridor-board';
 import {
   encodeQuoridor,
   replayQuoridor,
@@ -7,8 +7,10 @@ import {
 import { renderWithI18n as render } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import type { GameFrameBoardSession } from '@pkgs/turn-game-shared-ts/game-frame';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
+import type { JSX } from 'solid-js';
 
 const BLOCKED_HILL = [
   'e2',
@@ -50,26 +52,44 @@ test('an exhausted blocked player can follow the wall refusal to the pass action
   const game = replayQuoridor('hill', BLOCKED_HILL);
   const { clock, timers } = createHarnessClock();
   const actions: string[] = [];
+  let session: GameFrameBoardSession<JSX.Element> | undefined;
   const view = render(() => (
     <ClockProvider clock={clock} timers={timers}>
       <ThemeProvider colorScheme="light">
-        <QuoridorBoard
-          position={encodeQuoridor(game)}
-          interactive={true}
-          testId="blocked-hill"
-          onAction={(action) => actions.push(action)}
-        />
+        {(() => {
+          session = createQuoridorBoard({
+            position: encodeQuoridor(game),
+            orientation: 'white',
+            interactive: true,
+            sound: false,
+            syncKey: 0,
+            setup: null,
+            hand: null,
+            committed: [],
+            commitment: null,
+            testId: 'blocked-hill',
+            onAction: (action) => actions.push(action),
+          });
+          return session.Board();
+        })()}
       </ThemeProvider>
     </ClockProvider>
   ));
-  fireEvent.click(view.getByRole('button', { name: 'Horizontal wall' }));
+  const action = (id: string) => {
+    const found = session!.actions().find((each) => each.id === id);
+    if (found === undefined) throw new Error(`No action ${id}`);
+    return found;
+  };
+  action('mode-h').run();
   fireEvent.focus(view.getByTestId('blocked-hill-action-a1h'));
   expect(view.getByTestId('blocked-hill-wall-status').textContent).toMatch(
     /pass turn/i
   );
-  const pass = view.getByTestId('blocked-hill-action-pass');
-  expect(pass).not.toBeDisabled();
-  fireEvent.click(pass);
+  // The pass is the board's action `action-pass`: in a custom game, the
+  // frame's `custom-game-board-action-pass`.
+  const pass = action('action-pass');
+  expect(pass.enabled).toBe(true);
+  pass.run();
   expect(actions).toEqual(['pass']);
   view.unmount();
 });

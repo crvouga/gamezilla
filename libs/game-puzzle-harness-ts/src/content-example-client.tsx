@@ -50,6 +50,7 @@ function CountingPlayer(props: PuzzlePlayerProps): JSX.Element {
 
 export const countingContentClient: PuzzleContentClient = {
   Player: CountingPlayer,
+  frame: { stats: { remaining: () => 'Steps left' }, turnStatus: () => null },
   authoring: { initialDefinition: () => 'target:', Editor: CountingEditor },
 };
 

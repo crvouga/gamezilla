@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <link rel="manifest" href="/pwa/manifest.webmanifest" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-  <meta name="theme-color" content="hsla(0, 0%, 0%, 1)" />
+  <meta name="theme-color" content="#111111" />
   <script>
     // The theme the app mounts with (`ThemePreferenceProvider`), set before
     // first paint so boot never flashes from one scheme to the other.
@@ -35,15 +35,15 @@
 
     html,
     body {
-      background: var(--ui-color-background, hsla(0, 0%, 0%, 1));
-      color: var(--ui-color-text, hsla(0, 0%, 96%, 1));
+      background: var(--ui-color-background, #111111);
+      color: var(--ui-color-text, #ededed);
       color-scheme: dark;
     }
 
     html[data-theme="light"],
     html[data-theme="light"] body {
-      background: var(--ui-color-background, hsla(0, 0%, 100%, 1));
-      color: var(--ui-color-text, hsla(0, 0%, 5%, 1));
+      background: var(--ui-color-background, #fafafa);
+      color: var(--ui-color-text, #181818);
       color-scheme: light;
     }
 
@@ -62,11 +62,11 @@
 
     .activity-indicator {
       animation: activity-step 1000ms steps(12, end) infinite;
-      color: hsla(0, 0%, 66%, 1);
+      color: var(--ui-color-text-secondary, #a2a2a2);
     }
 
     html[data-theme="light"] .activity-indicator {
-      color: hsla(0, 0%, 42%, 1);
+      color: var(--ui-color-text-secondary, #535353);
     }
 
     .startup-shell-failed {
@@ -75,9 +75,9 @@
 
     .startup-shell-mark {
       align-items: center;
-      background: hsla(355, 90%, 60%, 0.16);
+      background: var(--ui-color-destructive-surface, #8e8e8e29);
       border-radius: 9999px;
-      color: hsla(355, 90%, 66%, 1);
+      color: var(--ui-color-destructive, #b8b8b8);
       display: flex;
       font-size: 20px;
       font-weight: 700;
@@ -87,21 +87,21 @@
     }
 
     .startup-shell-guidance {
-      color: hsla(0, 0%, 66%, 1);
+      color: var(--ui-color-text-secondary, #a2a2a2);
     }
 
     .startup-shell-detail {
-      color: hsla(355, 90%, 66%, 1);
+      color: var(--ui-color-destructive, #b8b8b8);
       max-width: min(640px, calc(100vw - 32px));
       overflow-wrap: anywhere;
       text-align: center;
     }
 
     .startup-shell-reload {
-      background: hsla(204, 100%, 39%, 1);
+      background: var(--ui-color-tint-active, #dedede);
       border: 0;
-      border-radius: 8px;
-      color: hsla(0, 0%, 100%, 1);
+      border-radius: 9999px;
+      color: var(--ui-color-on-primary, #181818);
       cursor: pointer;
       font: inherit;
       font-weight: 600;
@@ -111,16 +111,21 @@
     }
 
     html[data-theme="light"] .startup-shell-mark {
-      background: hsla(355, 78%, 50%, 0.10);
-      color: hsla(355, 78%, 45%, 1);
+      background: var(--ui-color-destructive-surface, #4d4d4d1a);
+      color: var(--ui-color-destructive, #505050);
     }
 
     html[data-theme="light"] .startup-shell-guidance {
-      color: hsla(0, 0%, 42%, 1);
+      color: var(--ui-color-text-secondary, #535353);
     }
 
     html[data-theme="light"] .startup-shell-detail {
-      color: hsla(355, 78%, 45%, 1);
+      color: var(--ui-color-destructive, #505050);
+    }
+
+    html[data-theme="light"] .startup-shell-reload {
+      background: var(--ui-color-tint-active, #303030);
+      color: var(--ui-color-on-primary, #ffffff);
     }
 
     @keyframes activity-step {

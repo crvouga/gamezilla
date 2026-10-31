@@ -40,7 +40,8 @@ export function FriendRequestFeedback(props: {
       <Show when={feedback()?.status === 'rejected'}>
         <ErrorState
           variant="compact"
-          title={friendRequestErrorLabel(feedback()?.code ?? '')}
+          title={<Trans>Friend request not sent</Trans>}
+          body={friendRequestErrorLabel(feedback()?.code ?? '')}
           dataSet={{ testid: Handles.friendRequestRefusal }}
         />
       </Show>

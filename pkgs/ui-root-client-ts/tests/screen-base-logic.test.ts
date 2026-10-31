@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { SettingsIcon } from '@pkgs/ui-root-client-ts/icons';
 import {
   bodyNeedsSafeBottom,
+  bodyScrolledPastTop,
   buildBodyContentProps,
   deriveHeaderLayout,
   hasScreenBaseActions,
@@ -135,5 +136,23 @@ describe('body helpers', () => {
     expect(bodyNeedsSafeBottom({ hasFooter: false, hasBottomBar: true })).toBe(
       false
     );
+  });
+});
+
+describe('bodyScrolledPastTop', () => {
+  test('a vertical scroller reports whether it has left its top', () => {
+    const tall = { scrollHeight: 2000, clientHeight: 600 };
+    expect(bodyScrolledPastTop({ ...tall, scrollTop: 0 })).toBe(false);
+    expect(bodyScrolledPastTop({ ...tall, scrollTop: 1 })).toBe(true);
+  });
+
+  test('a scroller with nothing to scroll vertically says nothing', () => {
+    expect(
+      bodyScrolledPastTop({
+        scrollHeight: 600,
+        clientHeight: 600,
+        scrollTop: 0,
+      })
+    ).toBeUndefined();
   });
 });

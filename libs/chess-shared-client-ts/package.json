@@ -20,10 +20,7 @@
     "@libs/permissions-shared-ts": "workspace:*",
     "@libs/spaces-client-ts": "workspace:*",
     "@lingui/solid": "catalog:",
-    "@pkgs/chess-board-root-client-ts": "workspace:*",
-    "@pkgs/sounds-client-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
-    "@pkgs/ui-root-shared-ts": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {

@@ -444,3 +444,23 @@ describe('game identity', () => {
     ).toEqual([]);
   });
 });
+
+test('UI component slices keep stories and local styles beside a JSX entrypoint', () => {
+  const manifest = { name: '@pkgs/ui-client-ts', category: 'client' };
+  const sources = [
+    {
+      path: 'src/button/index.tsx',
+      text: 'export function Button() { return <button />; }',
+    },
+    {
+      path: 'src/button/button.stories.tsx',
+      text: 'export const Disabled = {};',
+    },
+  ];
+  expect(categoryViolations(manifest, { tier: 'pkgs', sources })).toEqual([]);
+  expect(
+    categoryViolations(manifest, { tier: 'pkgs', sources: [sources[1]!] })
+  ).toEqual([
+    'src/button/button.stories.tsx: src must be flat; split a vertical slice into its own package',
+  ]);
+});

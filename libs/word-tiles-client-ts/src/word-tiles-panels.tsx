@@ -1,4 +1,3 @@
-import type { WordTilesPosition } from '@libs/word-tiles-shared-ts/word-tiles-position';
 import { WORD_TILES_SEATS } from '@libs/word-tiles-shared-ts/word-tiles-ruleset';
 import { t } from '@lingui/core/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
@@ -16,47 +15,6 @@ export function seatName(seat: number): string {
       : side === 'red'
         ? t`Violet`
         : t`Coral`;
-}
-
-/** Scores, whose turn it is, the bag and every rack's count: all public. */
-export function WordTilesScoreboard(props: {
-  position: WordTilesPosition;
-  testId: string;
-}): JSX.Element {
-  const seats = () => Array.from({ length: props.position.seats }, (_, n) => n);
-  return (
-    <StackVertical gap="xs">
-      <StackHorizontal gap="md" wrap>
-        <For each={seats()}>
-          {(seat) => (
-            <P
-              variant={
-                props.position.ended === null && props.position.turn === seat
-                  ? 'bodyBold'
-                  : 'body'
-              }
-              dataSet={{ testid: `${props.testId}-score-${seat}` }}
-            >
-              {`${seatName(seat)}: ${props.position.scores[seat]} · ${t`${props.position.racks[seat]} tiles`}`}
-              {props.position.ended === null && props.position.turn === seat
-                ? ` — ${t`to play`}`
-                : ''}
-            </P>
-          )}
-        </For>
-      </StackHorizontal>
-      <P
-        variant="caption"
-        tone="secondary"
-        dataSet={{ testid: `${props.testId}-bag` }}
-      >
-        {t`${props.position.bag} tiles in the bag`}
-        {props.position.scoreless > 0 && props.position.ended === null
-          ? ` · ${t`${props.position.scoreless} of 6 scoreless turns`}`
-          : ''}
-      </P>
-    </StackVertical>
-  );
 }
 
 /** What the candidate would score, word by word, or why it cannot be played. */

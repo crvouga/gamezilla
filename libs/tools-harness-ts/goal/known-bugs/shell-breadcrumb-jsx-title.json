@@ -1,0 +1,4 @@
+{
+  "summary": "Rendering a Solid JSX breadcrumb label in the body and header moved its DOM node out of the page heading.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/app-header-island.test.tsx"
+}

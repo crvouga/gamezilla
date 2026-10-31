@@ -119,7 +119,7 @@ published once when migrations run.
 - Every shared specification, law and suite the game's capabilities bind,
   including the dealt-hands privacy suites: `libs/games-harness-ts`.
 - The board, rack and candidate move: `libs/word-tiles-client-ts/tests` and
-  `pkgs/ui-root-client-ts/tests/word-tile-board.test.tsx`.
+  `pkgs/ui-root-harness-ts/tests/word-tile-board.test.tsx`.
 
 ## Known limits
 

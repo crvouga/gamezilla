@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.paths.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js"
+  },
+  "include": [
+    "../ts-reset-shared-ts/src/ts-reset.ts",
+    "../ui-root-client-ts/src/css-modules.d.ts",
+    "../ui-root-client-ts/src/lingui-augmentation.ts",
+    "../bun-test-solid-client-ts/src/jest-dom.d.ts",
+    "../chess-board-root-harness-ts/vite.config.mts",
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
+    "./tests/**/*.ts",
+    "./tests/**/*.tsx"
+  ],
+  "exclude": ["node_modules"]
+}

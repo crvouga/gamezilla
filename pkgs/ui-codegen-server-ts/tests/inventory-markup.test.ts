@@ -64,3 +64,15 @@ test('the markup of a module names its roles, states, keys and defaults', () => 
   expect([...markup.defaults]).toEqual([['size', "'md'"]]);
   expect(markup.sharedModules).toEqual(['component-id', 'roving-focus']);
 });
+
+// regression: inventory-parentless-program-nodes
+test('compiler ASTs without parent pointers remain readable', () => {
+  const file = ts.createSourceFile(
+    'button.tsx',
+    "dataAttrs({ component: 'Button' });",
+    ts.ScriptTarget.Latest,
+    false,
+    ts.ScriptKind.TSX
+  );
+  expect(readMarkup(file).dataComponents).toEqual(['Button']);
+});

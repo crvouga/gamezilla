@@ -1,4 +1,4 @@
-import type { IconComponent } from './create-icon';
+import type { IconComponent } from './create-icon/index';
 
 export type CommandId = string;
 

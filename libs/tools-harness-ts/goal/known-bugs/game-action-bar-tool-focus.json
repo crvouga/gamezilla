@@ -1,0 +1,4 @@
+{
+  "summary": "Choosing a game tool replaced every action button because fresh action objects were used as DOM keys, dropping keyboard focus. Actions now keep their buttons by their stable contract IDs.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-frame.test.tsx"
+}

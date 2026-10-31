@@ -24,6 +24,7 @@ import { APP } from '@libs/runtime-shared-ts/app-subs';
 import { wallSpaceRoomTransport } from '@libs/spaces-client-ts/wall-room-transport';
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import '@pkgs/tailwind-shared-ts/tailwind.css';
+import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/tokens.css';
 import '@pkgs/ui-root-client-ts/hosts.css';
 import { createSignal, type JSX, Match, onCleanup, Switch } from 'solid-js';
