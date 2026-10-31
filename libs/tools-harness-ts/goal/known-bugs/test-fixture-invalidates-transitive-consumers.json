@@ -1,0 +1,4 @@
+{
+  "summary": "Test helper and fixture edits changed a package's propagated src hash, rerunning every transitive consumer's checks even though its production inputs were unchanged.",
+  "regressionTest": "libs/tools-harness-ts/scripts/src-test-cache-isolation.test.ts"
+}

@@ -8,6 +8,7 @@ import { killProcessTree } from './kill-process-tree';
 import { createRunnerResourceDiagnostics } from './runner-resource-io';
 import { dryRunPlan, resolveTurboCacheDir } from './turbo-preflight';
 import { resolveRunDeadlineSeconds } from './verify-budget';
+import { cacheFlushStop } from './verify-cache-flush';
 import type { StopReason, StreamSnapshot } from './verify-shard-diagnosis';
 import { redactSecrets, taskStream } from './verify-shard-stream';
 import type { VerifyPlan } from './verify-shards';
@@ -71,6 +72,18 @@ function spawnTurbo(
   );
 }
 
+function createTurboShutdown(child: ChildProcess) {
+  return cacheFlushStop({
+    signal: (signal) => {
+      if (child.pid !== undefined) killProcessTree(child.pid, signal);
+    },
+    after: (ms, callback) => {
+      const timer = setTimeout(callback, ms);
+      return () => clearTimeout(timer);
+    },
+  });
+}
+
 /** The loudest lines in the shard log, said as the shard is killed. */
 function announceDeadline(
   deadline: number,
@@ -78,7 +91,7 @@ function announceDeadline(
 ): void {
   console.error(
     alarm(
-      `SHARD DEADLINE EXCEEDED: ${deadline}s elapsed. KILLING THE SHARD. This is a timeout, not a test failure.`,
+      `SHARD DEADLINE EXCEEDED: ${deadline}s elapsed. STOPPING TASKS; ALLOWING CACHE UPLOADS TO FLUSH. This is a timeout, not a test failure.`,
       running
     )
   );
@@ -122,11 +135,10 @@ function executePass(
   );
   let timedOut = false;
   let stopReason: StopReason | null = null;
-  const stop = () => {
-    if (child.pid !== undefined) killProcessTree(child.pid, 'SIGKILL');
-  };
-  process.once('SIGINT', stop);
-  process.once('SIGTERM', stop);
+  const shutdown = createTurboShutdown(child);
+  const stop = shutdown.request;
+  process.on('SIGINT', shutdown.cancel);
+  process.on('SIGTERM', shutdown.cancel);
   const timer = setTimeout(() => {
     timedOut = true;
     stopReason = { kind: 'shard-deadline', deadlineSeconds: deadline.total };
@@ -135,13 +147,14 @@ function executePass(
     stop();
   }, deadline.remaining * 1000);
   const monitor = setInterval(() => {
+    if (shutdown.stopping()) return;
     const overBudget = output.tick();
     if (overBudget.length) {
       timedOut = true;
       stopReason ??= { kind: 'task-budget' };
       console.error(
         alarm(
-          `TASK TIME BUDGET EXCEEDED: ${overBudget.join(', ')}. KILLING THE SHARD.`,
+          `TASK TIME BUDGET EXCEEDED: ${overBudget.join(', ')}. STOPPING TASKS; ALLOWING CACHE UPLOADS TO FLUSH.`,
           output.snapshot().running
         )
       );
@@ -154,11 +167,12 @@ function executePass(
     resources('heartbeat');
   }, 30_000);
   const cleanup = () => {
+    shutdown.dispose();
     clearTimeout(timer);
     clearInterval(monitor);
     clearInterval(heartbeat);
-    process.off('SIGINT', stop);
-    process.off('SIGTERM', stop);
+    process.off('SIGINT', shutdown.cancel);
+    process.off('SIGTERM', shutdown.cancel);
     output.tick();
   };
   return new Promise((resolve) => {
@@ -170,7 +184,7 @@ function executePass(
     child.on('close', (code) => {
       cleanup();
       resolve({
-        status: timedOut ? 124 : (code ?? 1),
+        status: shutdown.cancelled() ? 130 : timedOut ? 124 : (code ?? 1),
         stop: stopReason,
         stream: output.snapshot(),
       });
@@ -252,7 +266,7 @@ export async function executeShard(
       overBudget.set(task.taskId, task);
     budgetKilled ||= pass.stop?.kind === 'task-budget';
     const next =
-      pass.stop?.kind === 'task-budget'
+      pass.stop?.kind === 'task-budget' && pass.status !== 130
         ? tasksAfterSettled(pending, tasks, [
             ...overBudget.keys(),
             ...failed.keys(),

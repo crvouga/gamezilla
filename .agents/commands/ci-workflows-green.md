@@ -56,12 +56,13 @@ work queue. Group failures that share a root cause.
 
 ## 2. Reproduce, then fix
 
-Every failure gets reproduced by a command before it is fixed, and the same command
-shows it fixed afterwards:
+Read the hosted failure first, then use the fastest reproduction that exercises it.
+A saved CI failure is valid before-fix evidence when the failure needs hosted execution.
+Use a focused check for the repair loop and confirm the affected workflow afterwards:
 
 | Failure in | Reproduce with |
 | --- | --- |
-| Verify PR (any shard) | `bun run --filter <pkg> <task>` for the failing task, then `bun verify`; the [`ci-green`](../skills/ci-green/SKILL.md) skill runs this reproduce-and-fix loop locally under a shared resource budget |
+| Verify PR (any shard) | `bunx turbo run <task> --filter=<pkg>` or the focused regression for the failure; use hosted logs and the [`ci-green`](../skills/ci-green/SKILL.md) workflow to diagnose it. Artifact, permission and shard failures require their actual workflow path, not just a local full suite |
 | Verify Nightly (a group) | `bun verify-nightly <group>` at the commit the run names, with the seed its log printed; pin what it found as a regression so `bun verify` replays it |
 | Release, a gate leaf | the same leaf. `//#deploy` runs every `//#verify` leaf first |
 | Release, infrastructure or release | a GitHub Actions rehearsal on the branch, reusing the dev job and release lock; AWS trust may block a branch infrastructure apply |
@@ -88,7 +89,7 @@ All fixes go on the **current branch** and its single PR. Never open a second PR
 "the release part".
 
 ```bash
-bun verify                               # every gate on this machine
+bun verify                               # required final local gate, once on the final tree
 bun run git-sync --message "fix(scope): …"   # commit and push; the PR's Verify runs every gate
 ```
 

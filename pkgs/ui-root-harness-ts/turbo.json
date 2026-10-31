@@ -49,7 +49,7 @@
       "cache": false
     },
     "test": {
-      "dependsOn": ["^src", "storybook:coverage"]
+      "dependsOn": ["^src", "storybook:build"]
     },
     "ci:storybook": {
       "dependsOn": ["storybook:build", "storybook:coverage"],
