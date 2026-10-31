@@ -8,8 +8,8 @@
  * command. Each AI coding harness discovers commands in its own directory and
  * format, so this script projects every source file into each one:
  *
- * - Claude Code (`.claude/commands`), Cursor (`.cursor/commands`) and OpenCode
- *   (`.opencode/commands`) read the same markdown + `description` frontmatter,
+ * - Claude Code, Cursor, OpenCode, Factory, Roo Code and Cline workflows
+ *   read markdown commands from their respective directories,
  *   so their directory is a symlink to `.agents/commands`.
  * - Gemini CLI (`.gemini/commands/<name>.toml`) injects the source with
  *   `@{…}`.
@@ -19,7 +19,8 @@
  *   agent at the source file.
  *
  * Generated stubs carry {@link GENERATED_MARKER}; stale stubs are removed.
- * The same run writes each harness's MCP server entry (`./sync-agent-mcp.ts`).
+ * The same run writes instruction pointers (`./sync-agent-instructions.ts`)
+ * and each harness's MCP server entry (`./sync-agent-mcp.ts`).
  * `--check` writes nothing and fails on any drift.
  */
 import {
@@ -36,6 +37,7 @@ import {
 import { dirname, join } from 'node:path';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
+import { syncAgentInstructions } from './sync-agent-instructions';
 import { syncAgentMcp } from './sync-agent-mcp';
 
 const ROOT = join(import.meta.dirname, '../../..');
@@ -48,6 +50,9 @@ const SYMLINK_DIRS = [
   '.claude/commands',
   '.cursor/commands',
   '.opencode/commands',
+  '.factory/commands',
+  '.roo/commands',
+  '.clinerules/workflows',
 ];
 
 export interface AgentCommand {
@@ -234,7 +239,7 @@ function syncSymlinks(verify: boolean, drift: string[]): void {
       );
       continue;
     }
-    mkdirSync(dirname(abs));
+    mkdirSync(dirname(abs), { recursive: true });
     symlinkSync(target, abs, 'dir');
   }
 }
@@ -276,6 +281,7 @@ export function syncAgentCommands(verify: boolean): {
   const errors: string[] = [];
   const drift: string[] = [];
   const commands = readCommands(errors);
+  drift.push(...syncAgentInstructions(verify));
   syncSymlinks(verify, drift);
   syncStubs(renderStubs(commands), verify, drift);
   return { errors, drift };
