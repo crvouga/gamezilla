@@ -16,7 +16,7 @@
     "storybook:mcp:test": "playwright test -c storybook/mcp.config.ts",
     "storybook:test": "playwright test -c storybook/playwright.config.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests"
+    "test": "bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests"
   },
   "dependencies": {
     "@lingui/core": "catalog:",

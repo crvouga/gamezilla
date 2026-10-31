@@ -1,0 +1,4 @@
+{
+  "summary": "Solid DOM suites inherited different compiler-resolution context in worktrees and isolated release snapshots: auth and profile TSX public imports failed only in the latter. Solid Bun test commands now explicitly use the canonical root tsconfig. Script-policy verification requires that flag and treats its value as configuration, preserving coverage for commands with no positional test filter.",
+  "regressionTest": "libs/tools-harness-ts/scripts/solid-test-config.test.ts"
+}

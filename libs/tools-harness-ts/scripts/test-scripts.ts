@@ -86,6 +86,7 @@ type ParsedBunTest = {
 /** Flags that take the next token as their value. */
 const FLAGS_WITH_VALUE = new Set([
   '--preload',
+  '--tsconfig-override',
   '--timeout',
   '--conditions',
   '--reporter',
@@ -162,6 +163,16 @@ export function testScriptViolations(input: {
       !file.startsWith('node_modules/')
   );
   for (const [name, script] of Object.entries(input.scripts)) {
+    if (
+      parseBunTest(script) !== null &&
+      script.includes('@pkgs/bun-test-solid-client-ts/') &&
+      !/--tsconfig-override(?:=|\s+)\.\.\/\.\.\/tsconfig\.json(?:\s|$)/.test(
+        script
+      )
+    )
+      out.push(
+        `"${name}" loads Solid without the canonical compiler config — add --tsconfig-override ../../tsconfig.json so isolated runs resolve the same workspace modules`
+      );
     if (!name.startsWith('test')) continue;
     for (const { flag, why } of BANNED_FLAGS) {
       if (script.includes(flag)) out.push(`"${name}" uses ${flag}: ${why}`);

@@ -15,7 +15,7 @@
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
     "start": "bun --conditions=browser --conditions=development src/main.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --max-concurrency=1 --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests",
+    "test": "bun test --tsconfig-override ../../tsconfig.json --max-concurrency=1 --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests",
     "verify:synthetic-population-foundation": "bun run scripts/verify-synthetic-population-foundation.ts"
   },
   "dependencies": {
