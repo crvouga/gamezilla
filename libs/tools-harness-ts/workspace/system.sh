@@ -26,7 +26,13 @@ workspace_system() {
   local status=0 mise_env
   workspace_bootstrap_mise || return 1
   mise trust --quiet mise.toml || return 1
-  mise install --yes || status=$?
+  # Honor a repository lockfile, but do not generate one from a user's global
+  # mise lockfile setting in this pinned, lockfile-free repository.
+  if [ -f mise.lock ]; then
+    mise install --yes || status=$?
+  else
+    MISE_LOCKFILE=false mise install --yes || status=$?
+  fi
   # GUI launchers need not load the user's shell profile. Apply tool paths
   # here, including Bun and Node, before any dependency lifecycle scripts.
   mise_env="$(mise env --shell bash)" || return 1

@@ -166,9 +166,6 @@
     "//#workspace:merge": {
       "cache": false
     },
-    "//#workspace:local-files": {
-      "cache": false
-    },
     "//#fmt:biome": {
       "cache": false
     },

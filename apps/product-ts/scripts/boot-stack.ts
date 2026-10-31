@@ -47,10 +47,7 @@ import { localAdminEnv } from './local-admin-env';
 import { localApiEnv } from './local-api-env';
 import { configureLocalPopulation } from './local-population';
 import { localProcessEnv } from './local-process-env';
-import {
-  isolatedSharedDataEnv,
-  localSharedDataEnv,
-} from './local-shared-data-env';
+import { isolatedSharedDataEnv } from './local-shared-data-env';
 import type { StackManifest } from './manifest';
 import { instanceDataDir, writeManifest } from './manifest';
 import { mockingbirdSqliteFile } from './mockingbird-sqlite';
@@ -300,7 +297,7 @@ export async function startApiTier(args: {
     throw new Error('Local API needs DATABASE_URL');
   const adminEnv = await localAdminEnv(databaseUrl, args.adminIdentities);
   const sharedDataEnv =
-    args.sharedDataBindings ?? (await localSharedDataEnv(process.env));
+    args.sharedDataBindings ?? isolatedSharedDataEnv(args.infraEnv);
   const roomServiceToken = crypto.randomUUID();
   const children: ChildProcess[] = [];
   const backends: { readonly id: string; readonly origin: string }[] = [];

@@ -1,0 +1,35 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Workspace: setup",
+      "type": "process",
+      "command": "bash",
+      "args": ["./libs/tools-harness-ts/workspace/setup.sh"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Workspace: teardown",
+      "type": "process",
+      "command": "bash",
+      "args": ["./libs/tools-harness-ts/workspace/teardown.sh"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Workspace: run",
+      "type": "process",
+      "command": "bash",
+      "args": ["./libs/tools-harness-ts/workspace/run.sh"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

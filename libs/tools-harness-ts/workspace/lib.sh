@@ -42,3 +42,16 @@ workspace_quiet() {
   rm -f "$log"
   return "$status"
 }
+
+# A previous setup may have bootstrapped mise without changing this shell's PATH.
+# Reuse that installation in GUI/remote launches without installing anything.
+workspace_activate_tools() {
+  if [ -x "$HOME/.local/bin/mise" ]; then
+    export PATH="$HOME/.local/bin:$PATH"
+  fi
+  if command -v mise >/dev/null 2>&1; then
+    local workspace_mise_env
+    workspace_mise_env="$(mise env --shell bash)" || return 1
+    eval "$workspace_mise_env"
+  fi
+}
