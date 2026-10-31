@@ -247,3 +247,14 @@ test('run and checks find mise bootstrapped by setup without a parent PATH chang
   expect(run().calls).toEqual([DEV]);
   expect(check().calls).toEqual(['bun verify']);
 });
+
+// regression: separated-setup-release-policy
+test('a failed tool refresh tells the team and leaves a prepared environment openable', () => {
+  const { setup, run } = checkout();
+  expect(setup().status).toBe(0);
+  const failed = setup({ WORKSPACE_RUN_TEST_SYSTEM: 'fail' });
+  expect(failed.status).not.toBe(0);
+  expect(failed.stderr).toContain('mise install failed');
+  expect(run().status).toBe(0);
+  expect(run().calls).toEqual([DEV]);
+});

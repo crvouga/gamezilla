@@ -17,9 +17,10 @@ export async function readReleasePolicy(): Promise<ReleasePolicy> {
   const checkText = await Bun.file(
     `${ROOT}/.github/workflows/verify-pr.yml`
   ).text();
-  const preparation = await Bun.file(
-    `${ROOT}/libs/tools-harness-ts/workspace/run.sh`
-  ).text();
+  const workspace = `${ROOT}/libs/tools-harness-ts/workspace`;
+  const preparation = await Bun.file(`${workspace}/setup.sh`).text();
+  const startup = await Bun.file(`${workspace}/run.sh`).text();
+  const helpers = await Bun.file(`${workspace}/lib.sh`).text();
   const deploy = Bun.YAML.parse(deployText) as {
     concurrency: { 'cancel-in-progress': boolean };
     jobs: Record<string, Job>;
@@ -28,8 +29,13 @@ export async function readReleasePolicy(): Promise<ReleasePolicy> {
     concurrency: { 'cancel-in-progress': string };
   };
   const replacement = check.concurrency['cancel-in-progress'];
-  const toldAt = preparation.indexOf('!!! system tool setup is incomplete');
-  const openAt = preparation.indexOf("printf 'warm\\n'");
+  const reportsFailure =
+    preparation.includes('workspace_quiet "mise install" workspace_system') &&
+    helpers.includes('!!! $label failed (exit $status)');
+  const opensIndependently =
+    startup.includes('exec bun run --silent dev') &&
+    !startup.includes('workspace_system') &&
+    !startup.includes('/setup.sh"');
   return {
     shipNeedsPassingCheck: needsCheck(deploy.jobs['deploy-fleet']?.needs),
     newerProposalReplacesCheck: replacement.includes(
@@ -42,7 +48,7 @@ export async function readReleasePolicy(): Promise<ReleasePolicy> {
     noUndoOfStartedRelease:
       deploy.concurrency['cancel-in-progress'] === false &&
       !Object.keys(deploy.jobs).some((name) => name.includes('rollback')),
-    preparationFailureIsTold: toldAt >= 0,
-    preparationFailureStillOpens: toldAt >= 0 && openAt > toldAt,
+    preparationFailureIsTold: reportsFailure,
+    preparationFailureStillOpens: opensIndependently,
   };
 }
