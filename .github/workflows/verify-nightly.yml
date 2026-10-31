@@ -100,7 +100,7 @@ jobs:
       # secrets, and the pinned renderer further down) are written once and
       # aliased, the way Release shares its deploy steps.
       - &checkout
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -281,7 +281,7 @@ jobs:
       NEEDS: ${{ toJSON(needs) }}
       NIGHTLY_GROUP: ${{ github.event_name == 'schedule' && 'all' || inputs.group || 'all' }}
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup
