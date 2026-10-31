@@ -44,7 +44,17 @@ function* parseText(text: string): Generator<NarrateSpan> {
   } catch {
     // NDJSON is expected not to parse as one JSON document.
   }
-  for (const line of text.split('\n')) {
+  let offset = 0;
+  let previous: string | undefined;
+  while (offset < text.length) {
+    const newline = text.indexOf('\n', offset);
+    const end = newline === -1 ? text.length : newline;
+    const line = text.slice(offset, end);
+    offset = end + 1;
+    // The store retains one value per span ID. An identical adjacent record
+    // cannot change that value; avoid both a giant split array and reparsing.
+    if (line === previous) continue;
+    previous = line;
     if (line.trim() === '') continue;
     try {
       const document: unknown = JSON.parse(line);

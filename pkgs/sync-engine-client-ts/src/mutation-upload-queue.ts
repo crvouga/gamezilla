@@ -62,6 +62,10 @@ export type MutationUploadQueueOptions = {
     mutations: readonly MutationUploadRow[]
   ) => Promise<MutationUploadResult>;
   readonly onError: (error: unknown) => void;
+  readonly onCommitted?: (
+    ids: readonly string[],
+    requiresRepair: boolean
+  ) => void;
   /**
    * Sync fence fired before applied acks delete queue rows. Bump query
    * generations so in-flight pre-replay sweeps drop instead of merging a
@@ -216,6 +220,10 @@ async function applyUploadResult(
       });
     }
   }
+  options.onCommitted?.(
+    result.verdicts.map((verdict) => verdict.mutationId),
+    result.verdicts.some((verdict) => verdict.status === 'rejected')
+  );
   options.bus.emit(['sync_engine_mutations', 'sync_engine_write_rejections']);
   if (result.verdicts.some((verdict) => verdict.status === 'rejected')) {
     // Refetch repairs the local view; a pending read must not hold later writes.

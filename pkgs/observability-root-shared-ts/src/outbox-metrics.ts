@@ -25,3 +25,14 @@ export const OUTBOX_DRAIN_RUNS_METRIC: MetricContract = {
   dimensions: { 'app.outcome': OUTBOX_DRAIN_RUN_OUTCOMES },
   environmentScoped: true,
 };
+
+/** Oldest selected ready candidate, sampled before the drain attempts row locks. */
+export const OUTBOX_READY_AGE_METRIC: MetricContract = {
+  name: 'outbox.ready.age',
+  description:
+    'Age of the oldest selected ready outbox candidate; all consumer classes',
+  type: 'gauge',
+  unit: 's',
+  dimensions: {},
+  environmentScoped: true,
+};

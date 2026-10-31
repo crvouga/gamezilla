@@ -28,10 +28,12 @@ import type { PostgresSqlClient } from '@pkgs/sql-client-root-shared-ts/interfac
 import type { PostgresDbScope } from '@pkgs/sql-client-root-shared-ts/postgres-db-scope';
 import { quotePgIdent } from '@pkgs/sql-client-root-shared-ts/postgres-db-scope';
 import { Client as PgClient, Pool as PgPool } from 'pg';
+import { type ObservePgOpen, openSession } from './open-session';
 import { createPgClientSession } from './pg-client-session';
 
 /** Extra `pg.Client` knobs that standalone tools occasionally need. */
 export type PgClientOptions = {
+  readonly connectionTimeoutMillis?: number;
   readonly keepAlive?: boolean;
   readonly keepAliveInitialDelayMillis?: number;
   readonly application_name?: string;
@@ -65,6 +67,7 @@ export type OpenPgClientArgs = {
    */
   readonly ensureSchema?: boolean;
   readonly clientOptions?: PgClientOptions;
+  readonly observeOpen?: ObservePgOpen;
 };
 
 export type OpenPgClientResult = {
@@ -90,20 +93,26 @@ export async function openPgClient(
       ...args.clientOptions,
     })
   );
-  await client.connect();
-  if (args.ensureSchema === true && args.dbScope.schema !== 'public') {
-    await client.query(
-      `CREATE SCHEMA IF NOT EXISTS ${quotePgIdent(args.dbScope.schema)}`
-    );
-  }
-  // Always pin at open — even on Neon/PgBouncer pooler URLs. Per-query
-  // SET LOCAL still covers transaction pooling, but connect()/assert must see
-  // the app schema (tests may leave backends on e.g. acme_test_scope).
-  await pinAndVerifyPgSessionSchema(
-    client,
-    args.dbScope,
-    args.connectionString
-  );
+  await openSession({
+    connect: () => client.connect(),
+    close: () => client.end(),
+    ...(args.observeOpen === undefined ? {} : { observe: args.observeOpen }),
+    initialize: async () => {
+      if (args.ensureSchema === true && args.dbScope.schema !== 'public') {
+        await client.query(
+          `CREATE SCHEMA IF NOT EXISTS ${quotePgIdent(args.dbScope.schema)}`
+        );
+      }
+      // Always pin at open — even on Neon/PgBouncer pooler URLs. Per-query
+      // SET LOCAL still covers transaction pooling, but connect()/assert must see
+      // the app schema (tests may leave backends on e.g. acme_test_scope).
+      await pinAndVerifyPgSessionSchema(
+        client,
+        args.dbScope,
+        args.connectionString
+      );
+    },
+  });
   return {
     client: client as unknown as Client,
     sqlClient: new SqlClientImplPgClient(

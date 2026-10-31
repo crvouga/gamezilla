@@ -5,7 +5,7 @@ import {
 } from '@libs/app-root-shared-ts/env';
 import { SERVER_SERVICE_NAME } from '@libs/observability-shared-ts/service-names';
 import type { Timers } from '@pkgs/clock-shared-ts/types';
-import { wallTimers } from '@pkgs/clock-shared-ts/wall';
+import { monotonicClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
 import type { HttpClient } from '@pkgs/http-client-shared-ts/types';
 import { createBusinessEventDelivery } from '@pkgs/observability-root-server-ts/event-delivery';
 import { createWorkerTelemetry } from '@pkgs/observability-root-server-ts/worker-worker';
@@ -87,6 +87,9 @@ export function ensureWorkerTelemetry(
     token: collectorToken,
   });
   workerTelemetry = createWorkerTelemetry({
+    monotonicNow: monotonicClock.now,
+    performanceTimers: wallTimers,
+    syncCohort: () => 'server',
     http,
     timers: wallTimers,
     instanceId: createId(),

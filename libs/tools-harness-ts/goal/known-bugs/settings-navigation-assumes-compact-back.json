@@ -1,0 +1,4 @@
+{
+  "summary": "Settings harness actions tried to return through the compact back button before opening the globally available Settings menu. At a tablet width of 1180 pixels the wide layout offers breadcrumbs instead, so saving preferences timed out waiting for the tab bar. Open Settings through the global menu directly at every viewport.",
+  "regressionTest": "libs/runtime-harness-ts/tests/tablet-settings-navigation.test.ts"
+}

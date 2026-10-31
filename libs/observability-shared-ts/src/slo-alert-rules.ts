@@ -1,3 +1,10 @@
+import {
+  SYNC_PERFORMANCE_TARGETS,
+  SYNC_TARGET_METRIC,
+} from '@pkgs/observability-root-shared-ts/metric-contract';
+import { STANDARD_BURN_TIERS } from '@pkgs/openslo-shared-ts/alert-policy';
+import { emittedMetric } from './emitted-metrics';
+import { README_URL } from './slo-alerts';
 /**
  * The alert rules Grafana evaluates, generated from the objective files, the
  * indicator catalog and the pipeline-health definitions, and written to
@@ -176,6 +183,7 @@ export function generateAlertRules(
   const bundle: AlertBundle = sloAlertBundle(docs);
   const fast: AlertRule[] = [
     ...PIPELINE_ALERTS,
+    ...syncPerformanceAlerts(),
     ...certificateRules(),
     ...silenceRules(docs),
     ...lowTrafficRules(docs),
@@ -215,4 +223,75 @@ export function generateAlertRules(
 
 export function renderAlertRules(artifact: AlertRuleArtifact): string {
   return `${JSON.stringify(artifact, null, 2)}\n`;
+}
+
+/** Engineering target alerts. These never assert a measured population SLO. */
+function rule(name: string, expr: string, critical: boolean): AlertRule {
+  return {
+    key: ruleKey(name),
+    name,
+    expr,
+    for: '2m',
+    severity: critical ? 'critical' : 'warning',
+    owner: 'sync-engine',
+    slo: '',
+    tier: '0',
+    route: critical ? 'page' : 'push',
+    capability: 'sync-engine',
+    covers: '',
+    slice_label: '',
+    summary:
+      'Sync diagnostic target violation or missing evidence. Inspect environment, build and workload before inferring population performance.',
+    runbook_url: `${README_URL.split('#')[0]}#sync-performance-targets`,
+    investigate_command: 'bun obs slow --source prod --since 1h',
+    logs_path: logsPath('1h'),
+    traces_path: tracesPath('1h'),
+    budget_spent: '',
+    burn_threshold: 0,
+    budget_expr: '',
+  };
+}
+
+export function syncPerformanceAlerts(): readonly AlertRule[] {
+  const series = emittedMetric(SYNC_TARGET_METRIC.name).series;
+  if (series.kind !== 'counter')
+    throw new Error('Sync target metric must be a counter');
+  return SYNC_PERFORMANCE_TARGETS.flatMap((target) => {
+    const cohort =
+      target.stage === 'database' || target.stage === 'delivery'
+        ? 'server'
+        : 'foreground';
+    const selector = `deployment_environment_name="__ENVIRONMENT__",app_sync_target="${target.id}",app_sync_cohort="${cohort}"`;
+    const total = (window: string) =>
+      `sum(increase(${series.total}{${selector},app_outcome!="unknown"}[${window}]))`;
+    const bad = (window: string) =>
+      `(sum(increase(${series.total}{${selector},app_outcome="bad"}[${window}])) or vector(0))`;
+    const burn = (window: string) =>
+      `(${bad(window)} / ${total(window)} / ${1 - target.share})`;
+    const policies = STANDARD_BURN_TIERS.map((tier) =>
+      rule(
+        `sync-${target.id}-${tier.name}`,
+        `(${burn(tier.longWindow)} >= ${tier.factor}) and (${burn(tier.shortWindow)} >= ${tier.factor}) and (${total(tier.shortWindow)} >= 20)`,
+        tier.severity === 'page'
+      )
+    );
+    return [
+      ...policies,
+      rule(
+        `sync-${target.id}-uncertain-evidence`,
+        `sum(increase(${series.total}{${selector},app_outcome="unknown"}[30m])) > 0`,
+        false
+      ),
+      rule(
+        `sync-${target.id}-low-traffic`,
+        `${bad('30m')} >= 3 and ${total('30m')} < 20`,
+        false
+      ),
+      rule(
+        `sync-${target.id}-missing-evidence`,
+        `absent_over_time(${series.total}{${selector}}[1d])`,
+        false
+      ),
+    ];
+  });
 }

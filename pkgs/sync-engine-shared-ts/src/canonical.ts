@@ -1,5 +1,10 @@
 import { sha256 } from '@noble/hashes/sha2.js';
 import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
+import { ATTR } from '@pkgs/observability-root-shared-ts/attributes';
+import {
+  activeSpan,
+  observeSyncNow,
+} from '@pkgs/observability-root-shared-ts/span';
 import { sqliteWireValue } from './sqlite-wire-value';
 
 /** Stable stringify: recursively sorted keys, no undefined, arrays order-significant. */
@@ -63,7 +68,7 @@ function storedRow(row: Readonly<Record<string, unknown>>): string {
  * old path of allocating a full nested payload and re-sorting via
  * {@link canonicalJson}. Algorithm is opaque on the wire (CONTRACTS Fork A).
  */
-export function hashQueryTables(
+function hashTables(
   tables: Readonly<Record<string, readonly Record<string, unknown>[]>>
 ): string {
   const parts: string[] = ['hqtv2'];
@@ -71,13 +76,32 @@ export function hashQueryTables(
   for (const name of tableNames) {
     parts.push(name);
     const rows = [...(tables[name] ?? [])];
-    rows.sort((a, b) => {
-      const aid = String(a['id'] ?? '');
-      const bid = String(b['id'] ?? '');
-      return aid < bid ? -1 : aid > bid ? 1 : 0;
-    });
+    observeSyncNow('sort', () =>
+      rows.sort((a, b) => {
+        const aid = String(a['id'] ?? '');
+        const bid = String(b['id'] ?? '');
+        return aid < bid ? -1 : aid > bid ? 1 : 0;
+      })
+    );
     parts.push(String(rows.length));
-    for (const row of rows) parts.push(storedRow(row));
+    observeSyncNow('encode', () => {
+      for (const row of rows) parts.push(storedRow(row));
+    });
   }
-  return sha256Hex(parts.join('\0'));
+  const bytes = observeSyncNow('encode', () => utf8ToBytes(parts.join('\0')));
+  activeSpan()?.setAttribute(ATTR.APP_SYNC_BYTES, bytes.byteLength);
+  return observeSyncNow('digest', () => bytesToHex(sha256(bytes)));
+}
+
+/** Preserve the exact wire hash while measuring work independently of sampling. */
+export function hashQueryTables(
+  tables: Readonly<Record<string, readonly Record<string, unknown>[]>>
+): string {
+  return observeSyncNow('hash', () => hashTables(tables), {
+    [ATTR.APP_SYNC_ROWS]: Object.values(tables).reduce(
+      (sum, rows) => sum + rows.length,
+      0
+    ),
+    [ATTR.APP_SYNC_TABLES]: Object.keys(tables).length,
+  });
 }

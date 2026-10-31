@@ -6,7 +6,8 @@ import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import type { Clock } from '@pkgs/clock-shared-ts/types';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
 import { ATTR } from '@pkgs/observability-root-shared-ts/attributes';
-import { withSpan } from '@pkgs/observability-root-shared-ts/span';
+import { beginSyncMeasurement } from '@pkgs/observability-root-shared-ts/metric-contract';
+import { observeSync, withSpan } from '@pkgs/observability-root-shared-ts/span';
 import { OutboxConsumerRegistry } from '@pkgs/outbox-shared-ts/define-consumer';
 import {
   type DrainOutboxDeps,
@@ -28,7 +29,10 @@ import {
   consumersForEvents,
   extendEventTypes,
 } from './outbox-event-scope';
-import { countExhaustedOutboxDeliveries } from './outbox-health';
+import {
+  countExhaustedOutboxDeliveries,
+  observeOutboxReadyAge,
+} from './outbox-health';
 import { outboxNotificationPlan } from './outbox-notification-plan';
 
 /**
@@ -125,6 +129,7 @@ export async function drainAndNotifyOutbox(
 ): Promise<number> {
   if (args.causationIds?.length === 0) return 0;
   const consumers = args.consumerRegistry ?? getOutboxConsumerRegistry();
+  const passArgs = withComposedTopicMap(args, consumers);
   const eventIds =
     args.eventIds === undefined ? undefined : new Set(args.eventIds);
   if (eventIds?.size === 0) return 0;
@@ -134,7 +139,7 @@ export async function drainAndNotifyOutbox(
   let processed = 0;
   for (let pass = 0; pass < maxPasses; pass++) {
     const capture = capturedPass(
-      args,
+      passArgs,
       eventTypes === undefined
         ? consumers
         : consumersForEvents(consumers, eventTypes),
@@ -142,19 +147,11 @@ export async function drainAndNotifyOutbox(
     );
     const result = await drainOutbox(capture.deps);
     processed += result.processed;
-    countExhaustedOutboxDeliveries(result.exhausted);
     const captured = capturedOutboxScope(
       capture.committed.map((part) => part.getCapture())
     );
     for (const id of captured.eventIds) eventIds?.add(id);
     eventTypes = extendEventTypes(eventTypes, captured.eventTypes);
-    // This pass has committed. Publish it before following deliveries can wait.
-    await notifyCommittedPass(
-      args,
-      consumers,
-      capture.committed,
-      result.notifyUserIds
-    );
     if (result.processed === 0) break;
     if (pass + 1 >= maxPasses) break;
     // Captured appends retain the next pass, even if their savepoint rolled back.
@@ -166,6 +163,14 @@ export async function drainAndNotifyOutbox(
   return processed;
 }
 
+function withComposedTopicMap(
+  args: DrainAndNotifyArgs,
+  consumers: OutboxConsumerRegistry
+): DrainAndNotifyArgs {
+  const topicMap = args.topicMap ?? topicMaps.get(consumers);
+  return topicMap === undefined ? args : { ...args, topicMap };
+}
+
 /** Only successful handlers' images survive their savepoints and may be published. */
 function capturedPass(
   args: DrainAndNotifyArgs,
@@ -174,12 +179,35 @@ function capturedPass(
 ) {
   const attempted: ReturnType<typeof wrapMutationDb>[] = [];
   const committed: ReturnType<typeof wrapMutationDb>[] = [];
+  let notified = 0;
   const deps: DrainOutboxDeps = {
     db: args.db,
     clock: args.clock,
     createId: args.createId,
     registry,
     objectStore: args.objectStore,
+    observePhase: (stage, run) => observeSync(stage, run),
+    measureDelivery: (info) =>
+      registry.get(info.consumerId)?.delivery === 'background'
+        ? () => undefined
+        : beginSyncMeasurement(
+            'delivery',
+            args.clock.now() - info.eligibleAtMs
+          ),
+    observeOldestReady: (eligibleAtMs) =>
+      observeOutboxReadyAge(
+        eligibleAtMs === null ? 0 : args.clock.now() - eligibleAtMs
+      ),
+    afterDelivery: async (result) => {
+      countExhaustedOutboxDeliveries(result.exhausted);
+      await notifyCommittedPass(
+        args,
+        registry,
+        committed.slice(notified),
+        result.notifyUserIds
+      );
+      notified = committed.length;
+    },
     observeDelivery: (info, run) => {
       // The drain constructs this handler's wrapper immediately before observing it.
       const capture = attempted.at(-1);
