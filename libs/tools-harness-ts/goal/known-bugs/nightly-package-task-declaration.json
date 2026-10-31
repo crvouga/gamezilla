@@ -1,0 +1,4 @@
+{
+  "summary": "The nightly task declaration check rejected a valid sync-engine benchmark declared in its package Turbo configuration because it only recognized the product package configuration. Resolve each nightly task against its owning package as well as root declarations.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-profile.test.ts"
+}

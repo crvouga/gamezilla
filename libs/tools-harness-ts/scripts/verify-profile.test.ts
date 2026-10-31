@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { NIGHTLY_REPLAY_SCALE } from '@libs/harness-ts/spec-parts';
 import {
@@ -142,22 +142,25 @@ describe('verification profiles', () => {
     ).toThrow('not a nightly suite');
   });
 
+  // regression: nightly-package-task-declaration
   test('every nightly suite task is a declared Turbo task', () => {
     const root = JSON.parse(readFileSync(join(ROOT, 'turbo.json'), 'utf8')) as {
       tasks: Record<string, unknown>;
     };
-    const product = JSON.parse(
-      readFileSync(join(ROOT, 'apps/product-ts/turbo.json'), 'utf8')
-    ) as { tasks: Record<string, unknown> };
     for (const suite of Object.keys(NIGHTLY_SUITES))
       for (const task of flattenVerifyAggregators(
         [`verify-nightly:${suite}`],
         {}
       )) {
         const [pkg, name] = task.split('#') as [string, string];
+        const config = join(ROOT, pkg.slice(1), 'turbo.json');
+        const local = existsSync(config)
+          ? (JSON.parse(readFileSync(config, 'utf8')) as {
+              tasks: Record<string, unknown>;
+            })
+          : { tasks: {} };
         expect(
-          Object.hasOwn(root.tasks, task) ||
-            (pkg === '@apps/product-ts' && Object.hasOwn(product.tasks, name)),
+          Object.hasOwn(root.tasks, task) || Object.hasOwn(local.tasks, name),
           task
         ).toBe(true);
       }
