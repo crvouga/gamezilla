@@ -25,6 +25,10 @@ export function ContentPackOverview(props: {
       packRevisionId: props.revisionId,
     })
   );
+  const available = createMemo(() => {
+    const pack = progress();
+    return pack !== null && pack.items.length === pack.total;
+  });
   const open = (revisionId: string): void =>
     game.open({
       kind: 'edition',
@@ -38,7 +42,7 @@ export function ContentPackOverview(props: {
         ? t`In progress`
         : t`Unplayed`;
   return (
-    <Show when={!data.isFetching()} fallback={<LoadingState />}>
+    <Show when={available() || !data.isFetching()} fallback={<LoadingState />}>
       <Show
         when={progress()}
         fallback={

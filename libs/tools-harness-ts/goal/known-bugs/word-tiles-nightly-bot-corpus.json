@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly run 41263197779 timed out the two-seat Word Tiles bot law at seed 424242 and 200 property cases under its unchanged 60-second deadline. Each search allocated generators and copied paths at hundreds of thousands of trie steps. Backtrack one local path, copy only retained moves, and replay the exact seeded corpus in release verification while ordinary properties keep exploring.",
+  "regressionTest": "libs/games-harness-ts/tests/word-tiles-nightly-bot-regression.test.ts"
+}

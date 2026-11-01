@@ -56,6 +56,8 @@ import type { QuintValue } from '@pkgs/quint-shared-ts/itf';
 import { variant } from '@pkgs/quint-shared-ts/itf';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
 import { turnConformanceGameOf } from '../conformance-world';
+import doubleNextTrace from './fixtures/puzzle-exhausted-double-next.itf.json';
+import returnTrace from './fixtures/puzzle-exhausted-return.itf.json';
 
 const HOST = 'alice';
 const WATCHER = 'bob';
@@ -130,6 +132,24 @@ bindQuintModel<QuintHarnessWorld>({
   verifySteps: 8,
   // Two views read after every step.
   timeoutMs: 180_000,
+  regressions: [
+    {
+      // regression: exhausted-puzzle-same-instant-order
+      id: 'exhausted-puzzle-same-instant-order',
+      title: 'Moving on after pool exhaustion keeps causal play order',
+      seed: '0x67932',
+      parameters: { OPPONENT: false },
+      itf: doubleNextTrace,
+    },
+    {
+      // regression: exhausted-puzzle-return-order
+      id: 'exhausted-puzzle-return-order',
+      title: 'Returning after a repeated puzzle serves the oldest other play',
+      seed: '0x67932',
+      parameters: { OPPONENT: false },
+      itf: returnTrace,
+    },
+  ],
   actions: {
     init: async (w) => {
       await w.s.apply(focusActor, HOST);

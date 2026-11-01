@@ -20,8 +20,7 @@
         "@pkgs/sql-client-root-shared-ts#src",
         "@pkgs/sql-root-shared-ts#src",
         "@pkgs/sync-engine-shared-ts#src",
-        "@pkgs/turn-game-shared-ts#src",
-        "@pkgs/uuid-shared-ts#src"
+        "@pkgs/turn-game-shared-ts#src"
       ]
     }
   }

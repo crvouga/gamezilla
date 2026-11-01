@@ -1,0 +1,69 @@
+{
+  "$schema": "https://t3.codes/schema/t3.json",
+  "defaultThreadEnvMode": "worktree",
+  "scripts": [
+    {
+      "name": "Setup dependencies",
+      "command": "./libs/tools-harness-ts/workspace/setup.sh",
+      "icon": "configure",
+      "runOnWorktreeCreate": true,
+      "async": false
+    },
+    {
+      "name": "Run local stack",
+      "command": "./libs/tools-harness-ts/workspace/run.sh",
+      "icon": "play"
+    },
+    {
+      "name": "Stop local services",
+      "command": "./libs/tools-harness-ts/workspace/teardown.sh",
+      "icon": "debug",
+      "runOnSettle": true
+    },
+    {
+      "name": "Verify release gate",
+      "command": "./libs/tools-harness-ts/workspace/check.sh",
+      "icon": "test"
+    },
+    {
+      "name": "Check workspace tooling",
+      "command": "./libs/tools-harness-ts/workspace/check.sh @libs/tools-harness-ts",
+      "icon": "test"
+    },
+    {
+      "name": "Format repository",
+      "command": "./libs/tools-harness-ts/workspace/action.sh format",
+      "icon": "lint"
+    },
+    {
+      "name": "Run Storybook (local or tunnel)",
+      "command": "./libs/tools-harness-ts/workspace/action.sh storybook",
+      "icon": "play"
+    },
+    {
+      "name": "Run Storybook on LAN",
+      "command": "./libs/tools-harness-ts/workspace/action.sh storybook-lan",
+      "icon": "play"
+    },
+    {
+      "name": "Build Storybook",
+      "command": "./libs/tools-harness-ts/workspace/action.sh storybook-build",
+      "icon": "build"
+    },
+    {
+      "name": "Last failure diagnostics",
+      "command": "./libs/tools-harness-ts/workspace/action.sh diagnostics",
+      "icon": "debug"
+    },
+    {
+      "name": "List feedback reports",
+      "command": "./libs/tools-harness-ts/workspace/action.sh feedback",
+      "icon": "debug"
+    },
+    {
+      "name": "Open native simulators",
+      "command": "./libs/tools-harness-ts/workspace/action.sh simulators",
+      "icon": "play"
+    }
+  ]
+}

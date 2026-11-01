@@ -226,15 +226,20 @@ so CI checks only what builds there.
   `platforms` (`turbo-ci-run.ts verify:ci`).
 - **Native packages are not checked in CI.** The iOS app needs Xcode, which
   only a macOS runner has (ten times the free minutes), so `@pkgs/clock-shared-swift` and
-  `@apps/client-swift` run only from `bun verify` on a host that builds them
+  `@apps/client-swift` run only from explicit native verification on a host that builds them
   (Linux or macOS for the Swift package, a Mac with the pinned Xcode for the
   app). A pull request can break them and still pass `verify:end`.
 
 Release and Health publish nothing native: no signing, TestFlight or store
 submission exists.
 
-A laptop's `bun verify` runs every host's tasks. On macOS with the pinned
-Xcode that covers everything; elsewhere the Apple tasks fail with the reason.
+Swift packages are reference implementations for now. Default `bun verify`,
+`bun verify-nightly` and `bun lint` use the same portable package set as CI on
+every host. `bun fmt` formats portable sources; `bun run fmt:swift` explicitly
+formats Swift. To check native references, run
+`bun libs/tools-harness-ts/scripts/turbo-ci-run.ts verify:macos` (or
+`verify:linux` for that host), or name a native package with an explicit Turbo
+filter. These opt-in commands require their pinned native toolchains.
 
 ## Caching
 
@@ -293,7 +298,7 @@ Swift. None of it exists yet; when it lands it follows these rules:
    `lint-package.ts`, its test runner in `test-scripts.ts`.
 6. **Expect no CI.** CI runs on GitHub-hosted `ubuntu-24.04` and verifies only packages
    without `platforms` (`ciFilters` in `package-hosts.ts`); a native package
-   is verified only by `bun verify` on a host that builds it.
+   is verified only by explicit host or package commands on a host that builds it.
 7. **Prove it** with tests beside the ones above (`language-boundaries.test.ts`,
    `native-cache-keys.test.ts`), then update this guide.
 

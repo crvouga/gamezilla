@@ -62,7 +62,7 @@ function useGameLibrary(
   const library = createMemo(() =>
     withBundledContent(stored.library(), gameId(), game())
   );
-  return { stored, content: { library, isLoading: stored.isLoading } };
+  return { library, isLoading: stored.isLoading };
 }
 
 /** One shared content experience for both independent and turn-based games. */
@@ -74,7 +74,7 @@ export function ContentExperience(props: {
   onBack: () => void;
 }): JSX.Element {
   const engine = useSyncEngine();
-  const { stored, content } = useGameLibrary(
+  const content = useGameLibrary(
     () => props.gameId,
     () => props.content
   );
@@ -96,7 +96,7 @@ export function ContentExperience(props: {
   createEffect(() => {
     if (
       ready() ||
-      stored.library().documents.length > 0 ||
+      content.library().documents.length > 0 ||
       play.library().attempts.length > 0 ||
       !engine.status().online ||
       engine.status().lastError !== null

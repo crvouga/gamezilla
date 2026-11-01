@@ -39,7 +39,9 @@ function pendingOpponent(): { ui: Driver; gestures: string[] } {
         gestures.push(id);
       },
       expect: {
-        hidden: unused,
+        hidden: async () => {
+          gestures.push(`${id}:hidden`);
+        },
         text: unused,
         visible: async () => {
           gestures.push(id);
@@ -57,6 +59,7 @@ test('the third move waits for the opponent second move before its gesture', asy
   await playJourneyMove(ui, CONNECT_FOUR_PLAYABLE, '0', 3);
   expect(gestures).toEqual([
     'multiplayer-move-2',
+    'multiplayer-offline:hidden',
     'multiplayer-board-column-1:enabled',
     'multiplayer-board-column-1',
     'multiplayer-move-3',
@@ -88,8 +91,34 @@ test('visible history does not trigger a drop while its column is still disabled
   await playJourneyMove(ui, CONNECT_FOUR_PLAYABLE, '0', 3);
   expect(gestures).toEqual([
     'multiplayer-move-2',
+    'multiplayer-offline:hidden',
     'multiplayer-board-column-1:enabled',
     'multiplayer-board-column-1',
     'multiplayer-move-3',
   ]);
+});
+
+// regression: live-journey-command-before-reconnection
+test('a move waits for reconnection even after its opponent move is visible', async () => {
+  const { ui } = pendingOpponent();
+  const get = ui.get.bind(ui);
+  let online = false;
+  ui.get = (id) => {
+    const node = get(id);
+    return {
+      ...node,
+      key: async (key) => {
+        if (!online) throw new Error('This action needs a connection.');
+        await node.key(key);
+      },
+      expect: {
+        ...node.expect,
+        hidden: async () => {
+          if (id === 'multiplayer-offline') online = true;
+        },
+      },
+    };
+  };
+  await playJourneyMove(ui, CONNECT_FOUR_PLAYABLE, '0', 3);
+  expect(online).toBe(true);
 });

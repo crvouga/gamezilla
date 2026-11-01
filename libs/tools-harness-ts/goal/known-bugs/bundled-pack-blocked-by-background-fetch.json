@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly 41263197779 failed Sokoban starter-pack trace 10, step 6 (seed 0x67932; harness seed starter-pack.trace-10). Reconnecting left a locally complete bundled pack hidden and its new-attempt action disabled while unrelated subscriptions hydrated. Preserve loading for unavailable content, and keep locally available published content playable. The exact trace prefix and harness seed are pinned. The cold-entry trace 11, step 5, is pinned too: the first library paint must count bundled editions rather than waiting for remote rows.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/starter-pack-reconnect.test.ts"
+}

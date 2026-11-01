@@ -6,6 +6,7 @@ import type { QuintValue } from '@pkgs/quint-shared-ts/itf';
 import { variant } from '@pkgs/quint-shared-ts/itf';
 import type { Picks } from '@pkgs/quint-shared-ts/registry';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
+import rematchTrace from './fixtures/own-board-rematch-known-deal.itf.json';
 import type { OwnBoardScreen } from './matched-game-own-board-world';
 import {
   acceptOwnBoardRematch,
@@ -91,6 +92,15 @@ bindQuintModel<QuintHarnessWorld>({
   traces: 48,
   maxSteps: 48,
   timeoutMs: 300_000,
+  regressions: [
+    {
+      // regression: own-board-rematch-known-deal
+      id: 'own-board-rematch-known-deal',
+      title: 'A rematch starts from the known deal before its first move',
+      seed: '0x67932',
+      itf: rematchTrace,
+    },
+  ],
   actions: {
     init: prepareOwnBoardModel,
     playMove: (w, picks) => playOwnBoardMove(w, person(picks)),

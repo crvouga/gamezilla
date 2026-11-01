@@ -60,8 +60,9 @@ test('the five features in release part 113 retain all 138 cases across bounded 
   const inventory = packageSpecInventory(PACKAGE, packageSpecs(PACKAGE, ROOT));
   const units = inventory(181);
   const parts = partsOf(units, 181);
-  expect(units.reduce((sum, unit) => sum + unit.weight, 0)).toBe(5412);
-  expect(partLoad(units).load).toBe(5220);
+  // Includes every pinned game history for each enrolled variant.
+  expect(units.reduce((sum, unit) => sum + unit.weight, 0)).toBe(5416.5);
+  expect(partLoad(units).load).toBe(5238);
   expect(
     parts
       .flat()

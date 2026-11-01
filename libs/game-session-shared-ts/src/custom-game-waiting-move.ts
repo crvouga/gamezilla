@@ -18,7 +18,7 @@ export function customGameChoiceWaits(
   actor: string
 ): boolean {
   return (
-    (choice.operation === 'move' || choice.operation === 'commit') &&
+    choice.operation === 'move' &&
     game !== null &&
     game.status === 'active' &&
     customGamePersonSide(game, actor) !== null &&

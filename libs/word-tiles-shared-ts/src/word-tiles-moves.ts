@@ -49,6 +49,7 @@ type Search = {
   readonly board: string;
   readonly trie: WordTrie;
   readonly rack: RackTiles;
+  readonly anchors: ReadonlySet<number>;
   readonly found: Map<string, GeneratedMove>;
   steps: number;
   readonly budget: number;
@@ -137,7 +138,6 @@ function linesOf(search: Pick<Search, 'board' | 'trie'>): readonly Line[] {
 
 function isAnchor(board: string, cell: number): boolean {
   if (isOccupied(board, cell)) return false;
-  if (boardIsEmpty(board)) return cell === CENTER_CELL;
   const row = Math.floor(cell / BOARD_SIZE);
   const column = cell % BOARD_SIZE;
   return [
@@ -150,9 +150,9 @@ function isAnchor(board: string, cell: number): boolean {
 
 type Path = {
   readonly line: Line;
-  readonly tiles: readonly ProposedTile[];
-  readonly node: number;
-  readonly index: number;
+  readonly tiles: ProposedTile[];
+  node: number;
+  index: number;
   readonly anchor: number;
 };
 
@@ -174,23 +174,32 @@ function record(search: Search, tiles: readonly ProposedTile[]): void {
   // The trie path proves the main word; every cross word is checked again.
   if (unknownWords(evaluation.score, (w) => trieHas(search.trie, w)).length > 0)
     return;
-  search.found.set(key, { tiles, placed, score: evaluation.score.total });
+  search.found.set(key, {
+    tiles: [...tiles],
+    placed,
+    score: evaluation.score.total,
+  });
 }
 
-/** Each way to play `letter` from the rack: a real tile, then a blank. */
-function* spend(
+function canSpend(rack: RackTiles, letter: number): boolean {
+  return rack.byLetter[letter]!.length > 0 || rack.blanks.length > 0;
+}
+
+/** Visit each way to play `letter`: a real tile, then a blank. */
+function spend(
   rack: RackTiles,
-  letter: number
-): Generator<{ readonly tile: number; readonly blank: boolean }> {
+  letter: number,
+  visit: (use: { readonly tile: number; readonly blank: boolean }) => void
+): void {
   const real = rack.byLetter[letter]!;
   if (real.length > 0) {
     const tile = real.pop()!;
-    yield { tile, blank: false };
+    visit({ tile, blank: false });
     real.push(tile);
   }
   if (rack.blanks.length > 0) {
     const tile = rack.blanks.pop()!;
-    yield { tile, blank: true };
+    visit({ tile, blank: true });
     rack.blanks.push(tile);
   }
 }
@@ -205,6 +214,15 @@ function placeAt(
     tile: use.tile,
     assigned: use.blank ? String.fromCharCode(65 + letter) : null,
   };
+}
+
+function extendThrough(search: Search, path: Path, node: number): void {
+  const previousNode = path.node;
+  path.node = node;
+  path.index += 1;
+  extendRight(search, path);
+  path.index -= 1;
+  path.node = previousNode;
 }
 
 function extendRight(search: Search, path: Path): void {
@@ -222,21 +240,19 @@ function extendRight(search: Search, path: Path): void {
   if (cell === undefined) return;
   if (filled) {
     const next = search.trie.child(node, letterIndex(search.board[cell]!));
-    if (next !== -1)
-      extendRight(search, { ...path, node: next, index: index + 1 });
+    if (next !== -1) extendThrough(search, path, next);
     return;
   }
   const allowed = line.allowed[index];
   search.trie.forEachChild(node, (letter, child) => {
+    if (!canSpend(search.rack, letter)) return;
     if (allowed !== null && allowed !== undefined && !allowed.has(letter))
       return;
-    for (const use of spend(search.rack, letter))
-      extendRight(search, {
-        ...path,
-        node: child,
-        index: index + 1,
-        tiles: [...path.tiles, placeAt(path, letter, use)],
-      });
+    spend(search.rack, letter, (use) => {
+      path.tiles.push(placeAt(path, letter, use));
+      extendThrough(search, path, child);
+      path.tiles.pop();
+    });
   });
 }
 
@@ -267,13 +283,15 @@ function leftPart(
   extendRight(search, { line, tiles, node, index: anchor, anchor });
   if (limit === 0) return;
   search.trie.forEachChild(node, (letter, child) => {
-    for (const use of spend(search.rack, letter))
+    if (!canSpend(search.rack, letter)) return;
+    spend(search.rack, letter, (use) =>
       leftPart(
         search,
         { ...at, node: child },
         [...partial, { letter, use }],
         limit - 1
-      );
+      )
+    );
   });
 }
 
@@ -293,7 +311,7 @@ function searchAnchor(search: Search, line: Line, anchor: number): void {
   while (
     anchor - limit - 1 >= 0 &&
     !isOccupied(board, line.cells[anchor - limit - 1]!) &&
-    !isAnchor(board, line.cells[anchor - limit - 1]!)
+    !search.anchors.has(line.cells[anchor - limit - 1]!)
   )
     limit++;
   leftPart(search, { line, anchor, node: ROOT_NODE }, [], limit);
@@ -310,13 +328,20 @@ export function generateMoves(input: {
     board: input.board,
     trie: input.trie,
     rack: rackTiles(input.rack),
+    anchors: new Set(
+      boardIsEmpty(input.board)
+        ? [CENTER_CELL]
+        : Array.from({ length: input.board.length }, (_, cell) => cell).filter(
+            (cell) => isAnchor(input.board, cell)
+          )
+    ),
     found: new Map(),
     steps: 0,
     budget: input.budget,
   };
   for (const line of linesOf(search))
     line.cells.forEach((cell, index) => {
-      if (search.steps < search.budget && isAnchor(input.board, cell))
+      if (search.steps < search.budget && search.anchors.has(cell))
         searchAnchor(search, line, index);
     });
   return {

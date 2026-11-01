@@ -2,6 +2,7 @@ import {
   contentAttribute,
   contentTap,
 } from '@libs/game-puzzle-harness-ts/content-journey-device';
+import { discoverJourneyContent } from '@libs/game-puzzle-harness-ts/content-journey-discovery';
 import {
   observeJourneyPack,
   type PublishedJourneyPack,
@@ -119,7 +120,10 @@ export async function keepNumberlinkOfflineWork(
   );
   await host.actAsGuest('discoverReconnectedNumberlinkWork', async (ui) => {
     const device = { ui, timeoutMs: JOURNEY_WAIT_MS };
-    await contentTap(device, `content-published-${published.revisionId}`);
+    await discoverJourneyContent(
+      { ui, timeoutMs: JOURNEY_WAIT_MS },
+      published.revisionId
+    );
     await observeJourneyPack(device, published, 1);
     await contentTap(
       device,

@@ -34,33 +34,38 @@ function botChooser(
 const ADJACENT_TO_E5 = ['d5', 'f5', 'e4', 'e6'];
 const DRAWS = [0, 0.25, 0.5, 0.75, 0.999_999];
 
+const botsFinish = fc.property(
+  fc.integer({ min: 0, max: 1_000_000 }),
+  fc.constantFrom(...DIFFICULTIES),
+  fc.constantFrom(...DIFFICULTIES),
+  (seed, white, black) => {
+    const fleets = seededFleets(`bots-${seed}`);
+    const game = playOut(fleets, botChooser(String(seed), white, black));
+    const illegal = game.steps.filter(
+      (step) => !rules.legal(step.before).includes(step.proposal)
+    );
+    expect(illegal).toEqual([]);
+    expect(game.steps.length).toBeLessThanOrEqual(199);
+    expect(game.steps.at(-1)?.played.winner).not.toBeNull();
+    for (const difficulty of DIFFICULTIES)
+      expect(
+        battleshipBots.choose(game.position, difficulty, () => 0, null)
+      ).toBe(null);
+  }
+);
+
 describe('battleship bots', () => {
   test('offers three strengths', () => {
     expect(battleshipBots.difficulties).toEqual(['easy', 'medium', 'hard']);
   });
   test('two bots play only legal, fresh cells and finish within 199 shots', () =>
-    assertProperty(
-      'bots finish',
-      fc.property(
-        fc.integer({ min: 0, max: 1_000_000 }),
-        fc.constantFrom(...DIFFICULTIES),
-        fc.constantFrom(...DIFFICULTIES),
-        (seed, white, black) => {
-          const fleets = seededFleets(`bots-${seed}`);
-          const game = playOut(fleets, botChooser(String(seed), white, black));
-          const illegal = game.steps.filter(
-            (step) => !rules.legal(step.before).includes(step.proposal)
-          );
-          expect(illegal).toEqual([]);
-          expect(game.steps.length).toBeLessThanOrEqual(199);
-          expect(game.steps.at(-1)?.played.winner).not.toBeNull();
-          for (const difficulty of DIFFICULTIES)
-            expect(
-              battleshipBots.choose(game.position, difficulty, () => 0, null)
-            ).toBe(null);
-        }
-      )
-    ));
+    assertProperty('bots finish', botsFinish));
+  // regression: battleship-nightly-repeated-parsing
+  test('the pinned nightly bot corpus finishes within the ordinary deadline', () =>
+    assertProperty('pinned nightly bots', botsFinish, {
+      seed: 424_242,
+      numRuns: 200,
+    }));
   test('easy draws uniformly among the legal cells by its random value', () => {
     const start = rules.initial();
     expect(chooseBattleshipShot(start, 'easy', () => 0)).toBe('a1');

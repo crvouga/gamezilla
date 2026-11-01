@@ -4,7 +4,6 @@ import {
   CELLS,
   cellLabel,
   FLEET_CELL_COUNT,
-  isShipId,
   SHIP_IDS,
   type ShipId,
   shipLength,
@@ -18,8 +17,6 @@ import {
  */
 export const BATTLESHIP_PREFIX = 'bs:1:';
 export const BATTLESHIP_REASON = 'fleet sunk';
-const ACTION_PATTERN =
-  /^([a-j](?:10|[1-9])):(miss|hit|sunk:(carrier|battleship|cruiser|submarine|destroyer))$/;
 /** Each side shoots each of the 100 cells at most once. */
 const MAX_ACTIONS = 2 * CELLS.length;
 export type ShotOutcome = 'miss' | 'hit' | 'sunk';
@@ -29,6 +26,20 @@ export type Shot = {
   /** The ship sunk by a `sunk` shot. */
   readonly ship?: ShipId;
 };
+/** The finite shot vocabulary, shared immutably across history replays. */
+const SHOTS = new Map<string, Shot>(
+  CELLS.flatMap((cell) => {
+    const shots: Shot[] = [
+      { cell, outcome: 'miss' },
+      { cell, outcome: 'hit' },
+      ...SHIP_IDS.map((ship): Shot => ({ cell, outcome: 'sunk', ship })),
+    ];
+    return shots.map((shot): [string, Shot] => [
+      shotAction(shot),
+      Object.freeze(shot),
+    ]);
+  })
+);
 export type BattleshipPosition = {
   readonly actions: readonly string[];
   /** Each side's shots at the other side's board, in the order fired. */
@@ -51,12 +62,7 @@ export function otherSide(side: BattleshipSide): BattleshipSide {
 }
 /** The shot one public action records, or `null` unless it is one. */
 export function parseShotAction(action: string): Shot | null {
-  const match = ACTION_PATTERN.exec(action);
-  if (match === null) return null;
-  const ship = match[3];
-  if (ship !== undefined && isShipId(ship))
-    return { cell: match[1]!, outcome: 'sunk', ship };
-  return { cell: match[1]!, outcome: match[2] === 'hit' ? 'hit' : 'miss' };
+  return SHOTS.get(action) ?? null;
 }
 /** The public action spelling `shot`. */
 export function shotAction(shot: Shot): string {
@@ -148,12 +154,28 @@ function positionActions(position: string): readonly string[] | null {
   const body = position.slice(BATTLESHIP_PREFIX.length);
   return body === '' ? [] : body.split(',');
 }
+/** Repeated reads share validation; bound memory and freeze every shared array. */
+const READ_POSITIONS = new Map<string, BattleshipPosition>();
+const MAX_READ_POSITIONS = 256;
+
 /** The decoded `position`, or `null` unless it is a well-formed Battleship position. */
 export function readBattleshipPosition(
   position: string
 ): BattleshipPosition | null {
+  const known = READ_POSITIONS.get(position);
+  if (known !== undefined) return known;
   const actions = positionActions(position);
-  return actions === null ? null : replayBattleship(actions);
+  const battle = actions === null ? null : replayBattleship(actions);
+  if (battle === null) return null;
+  Object.freeze(battle.actions);
+  Object.freeze(battle.shots.white);
+  Object.freeze(battle.shots.black);
+  Object.freeze(battle.shots);
+  Object.freeze(battle);
+  if (READ_POSITIONS.size === MAX_READ_POSITIONS)
+    READ_POSITIONS.delete(READ_POSITIONS.keys().next().value!);
+  READ_POSITIONS.set(position, battle);
+  return battle;
 }
 /** The decoded `position`; throws unless it is a well-formed Battleship position. */
 export function decodeBattleshipPosition(position: string): BattleshipPosition {

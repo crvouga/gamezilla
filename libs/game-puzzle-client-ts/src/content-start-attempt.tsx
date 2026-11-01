@@ -12,6 +12,7 @@ import { useCreateId } from '@pkgs/uuid-client-ts/solid';
 import { createMemo, createSignal, type JSX, Show } from 'solid-js';
 import { useContentGame } from './content-game-context';
 import { useContentLibraryState } from './content-library-context';
+import { useContentPackChoiceReady } from './use-content-pack-choice-ready';
 
 export function ContentStartAttempt(props: {
   revisionId: string;
@@ -24,6 +25,10 @@ export function ContentStartAttempt(props: {
   const mutations = useMutationClient();
   const createId = useCreateId();
   const decision = useDecision(PERMISSION.puzzlesPlay);
+  const choiceReady = useContentPackChoiceReady(
+    () => props.revisionId,
+    () => props.packRevisionId
+  );
   const [created, setCreated] = createSignal<string | null>(null);
   const previous = createMemo(() =>
     data
@@ -60,7 +65,7 @@ export function ContentStartAttempt(props: {
       error: t`Try starting again`,
     },
     get disabled() {
-      return props.disabled || data.isFetching();
+      return props.disabled || !choiceReady();
     },
   });
   return (

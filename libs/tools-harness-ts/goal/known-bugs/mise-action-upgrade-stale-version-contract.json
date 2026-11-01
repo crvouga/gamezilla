@@ -1,0 +1,4 @@
+{
+  "summary": "Upgrading the pinned jdx/mise-action to v5 left the setup contract expecting v4, failing Verify PR run 41257442284. Retain the exact SHA-pin check against the upgraded major version.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-cache.test.ts"
+}

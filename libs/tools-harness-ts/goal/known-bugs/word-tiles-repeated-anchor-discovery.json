@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly run 41258668451 timed out Word Tiles bot laws. Move generation rediscovered anchors and rescanned board emptiness throughout each search. The fixed RETAIN? rack on the QUOTED/BRAT board pins the production search input; exhaustive small-board properties preserve the generated moves.",
+  "regressionTest": "libs/word-tiles-shared-ts/tests/word-tiles-moves.test.ts"
+}

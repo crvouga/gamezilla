@@ -26,7 +26,8 @@ import { formatDuration, renderReport, summarize } from './report';
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const ARTIFACT_DIR = join(REPO_ROOT, '.cache', 'coverage');
 const ARTIFACT_LABEL = '.cache/coverage';
-const DEFAULT_JOBS = Math.max(1, Math.min(4, availableParallelism() - 1));
+// Instrumented suites need a whole CPU budget to retain their ordinary deadlines.
+const DEFAULT_JOBS = 1;
 const FAILURE_TAIL_CHARS = 4000;
 
 type Options = {
@@ -56,7 +57,7 @@ function flagValue(
   return { value: argv[index + 1] ?? '', consumed: 1 };
 }
 
-function parseOptions(argv: readonly string[]): Options {
+export function parseOptions(argv: readonly string[]): Options {
   const filters: string[] = [];
   let jobs = DEFAULT_JOBS;
   let verbose = false;

@@ -16,6 +16,38 @@ const mergeDeps = {
   env: { now: () => new Date(0) },
 } as unknown as MergeApplierDeps;
 
+// regression: subscription-reset-loses-first-sync-waiter
+test('reset preserves a pending first-sync waiter', async () => {
+  const runtime = new SubscriptionRuntime({
+    db: emptyDb,
+    postQueries: async (batch) =>
+      batch.map(() => ({ status: 'not_modified' as const })),
+    getMergeDeps: () => mergeDeps,
+    onError: (error) => {
+      throw error;
+    },
+    onSynced: () => undefined,
+    timers: createHarnessClock().timers,
+    coalesceMs: 0,
+    reconcileIntervalMs: 0,
+  });
+  const subscription = runtime.subscribe({ name: 'rows', params: {} });
+  let ready = false;
+  void subscription.waitForFirstSync().then(() => {
+    ready = true;
+  });
+  runtime.reset();
+  expect(ready).toBe(false);
+  runtime.start();
+  try {
+    await subscription.waitForFirstSync();
+    await Promise.resolve();
+    expect(ready).toBe(true);
+  } finally {
+    await runtime.stopAndDrain();
+  }
+});
+
 describe('SubscriptionRuntime.wakeAllAndDrain', () => {
   // regression: sync-ack-discards-push-refetch
   test('an upload acknowledgement replaces an invalidated push refetch', async () => {

@@ -1,0 +1,4 @@
+{
+  "summary": "Storybook's loopback-only default and localhost URL could not be opened from another computer. Explicit LAN binding, exact ports, host allowlists and same-origin live WebSockets now support direct and forwarded access, while loopback remains the default.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/remote.checks.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly coverage run 41263197779 ran multiple instrumented suites simultaneously, pushing Battleship, Pong, and UI-quality properties beyond their unchanged five-second deadlines. Default to one suite at a time; retain explicit --jobs overrides and every test at its full profile depth.",
+  "regressionTest": "libs/tools-harness-ts/scripts/coverage-worker-scheduling.test.ts"
+}

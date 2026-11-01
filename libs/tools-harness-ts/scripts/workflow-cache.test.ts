@@ -4,6 +4,23 @@ import { join } from 'node:path';
 
 const root = join(import.meta.dirname, '../../..');
 
+// regression: nightly-random-nested-worker-contention
+test('randomized suites own the runner one worker pool at a time', () => {
+  const workflow = Bun.YAML.parse(
+    readFileSync(join(root, '.github/workflows/verify-nightly.yml'), 'utf8')
+  ) as {
+    jobs: Record<
+      string,
+      { steps: { name?: string; env?: Record<string, string> }[] }
+    >;
+  };
+  const random = workflow.jobs['verify-nightly-random']!.steps.find(
+    (step) => step.name === 'verify-nightly:random'
+  );
+  expect(random?.env?.['TURBO_CONCURRENCY']).toBe('1');
+  expect(random?.env?.['PBT_CONCURRENCY']).toBe('1');
+});
+
 // regression: verify-cache-write-only-override
 test('Verification enforces read/write after secrets injection', () => {
   const workflow = readFileSync(
@@ -17,6 +34,7 @@ test('Verification enforces read/write after secrets injection', () => {
 
 // regression: ci-provider-api-dependency-cache-ref
 // regression: windows-dependency-tree-cache-eperm
+// regression: mise-action-upgrade-stale-version-contract
 test('setup installs frozen dependencies on every run and never archives the linked trees', () => {
   const source = readFileSync(
     join(root, '.github/actions/setup/action.yml'),
@@ -39,7 +57,7 @@ test('setup installs frozen dependencies on every run and never archives the lin
   );
   expect(install).toBeGreaterThan(-1);
   expect(steps[install]!.if).toBeUndefined();
-  expect(source).toMatch(/uses: jdx\/mise-action@[0-9a-f]{40} # v4\./);
+  expect(source).toMatch(/uses: jdx\/mise-action@[0-9a-f]{40} # v5\./);
   // No cache key depends on the ref.
   expect(source).not.toMatch(/github\.(ref|head_ref|base_ref)|GITHUB_REF/);
   // bun links packages into node_modules; an archive of those links did not

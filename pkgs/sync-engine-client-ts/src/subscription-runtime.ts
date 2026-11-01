@@ -92,11 +92,12 @@ function createEntry(spec: QuerySubscriptionSpec): Entry {
 }
 
 function resetFirst(entry: Entry): void {
+  entry.stopped = false;
+  if (!entry.firstDone) return;
   entry.firstDone = false;
   entry.firstSync = new Promise<void>((resolve) => {
     entry.resolveFirst = resolve;
   });
-  entry.stopped = false;
 }
 
 function mergePending(

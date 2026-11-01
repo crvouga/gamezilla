@@ -256,6 +256,7 @@ describe('move generation', () => {
     expect(bounded.complete).toBe(false);
   });
 
+  // regression: word-tiles-repeated-anchor-discovery
   test('production search stays inside its budget on a full rack', async () => {
     const words = await lexicon();
     const board = boardWith([

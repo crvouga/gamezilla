@@ -1,5 +1,7 @@
-import { appendPuzzleInteractionMutation } from '@libs/game-puzzle-shared-ts/append-puzzle-interaction-mutation';
-import type { AppendPuzzleInteractionInput } from '@libs/game-puzzle-shared-ts/append-puzzle-interaction-write';
+import {
+  type AppendPuzzleInteractionInput,
+  appendPuzzleInteractionMutation,
+} from '@libs/game-puzzle-shared-ts/append-puzzle-interaction-mutation';
 import type { PuzzleOutcomeKind } from '@libs/game-puzzle-shared-ts/interaction-entities';
 import { ratePuzzleAttemptMutation } from '@libs/game-puzzle-shared-ts/rate-puzzle-attempt-mutation';
 import type { MutationClient } from '@pkgs/sync-engine-client-ts/create-mutation-client';

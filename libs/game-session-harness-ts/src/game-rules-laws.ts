@@ -1,5 +1,8 @@
 import { DEFAULT_BOT_DIFFICULTY } from '@libs/game-session-shared-ts/custom-game-state';
-import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
+import {
+  type AssertPropertyParams,
+  assertProperty,
+} from '@pkgs/property-shared-ts/assert-property';
 import type {
   BotDifficulty,
   GameRules,
@@ -776,7 +779,10 @@ export function gameRulesLaws(
 }
 
 /** The laws of a game's bots, for a game offering custom games. */
-export function gameBotLaws(game: TurnHarnessGame): readonly GameLaw[] {
+export function gameBotLaws(
+  game: TurnHarnessGame,
+  params?: AssertPropertyParams
+): readonly GameLaw[] {
   const rules = playedRulesOf(game);
   const customGames = game.shared.turnGame.capabilities['custom-games'];
   if (customGames === undefined) return [];
@@ -851,7 +857,8 @@ export function gameBotLaws(game: TurnHarnessGame): readonly GameLaw[] {
                 if (played!.winner !== null) return;
               }
             }
-          )
+          ),
+          params
         )
     ),
   ];

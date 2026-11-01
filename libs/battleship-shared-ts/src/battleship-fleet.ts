@@ -60,6 +60,13 @@ export function allPlacements(
     })
   );
 }
+/** Board geometry is fixed; fleet draws only filter the occupied cells. */
+const FLEET_PLACEMENTS = new Map(
+  [...new Set(SHIPS.map((ship) => ship.length))].map((length) => [
+    length,
+    allPlacements(length),
+  ])
+);
 function parseEntry(entry: string): PlacedShip | null {
   const match = ENTRY_PATTERN.exec(entry);
   const ship = match?.[1];
@@ -127,7 +134,7 @@ export function randomFleet(random: () => number): string {
   const occupied = new Set<string>();
   const fleet: PlacedShip[] = [];
   for (const { id, length } of SHIPS) {
-    const open = allPlacements(length).filter((placement) =>
+    const open = FLEET_PLACEMENTS.get(length)!.filter((placement) =>
       placement.cells.every((cell) => !occupied.has(cell))
     );
     if (open.length === 0) throw new Error(`No placement left for ${id}`);

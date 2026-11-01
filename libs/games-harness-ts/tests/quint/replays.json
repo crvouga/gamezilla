@@ -76,7 +76,7 @@
     "traces": 48,
     "cover": [12],
     "replayed": [12],
-    "regressions": 0,
+    "regressions": 1,
     "determinism": false,
     "variants": 6
   },
@@ -128,7 +128,7 @@
           "traces": 64,
           "cover": [21, 38, 43],
           "replayed": [21, 38, 43],
-          "regressions": 0,
+          "regressions": 2,
           "determinism": false,
           "variants": 1
         }
@@ -214,7 +214,7 @@
     "traces": 128,
     "cover": [2, 6],
     "replayed": [2, 6],
-    "regressions": 0,
+    "regressions": 1,
     "determinism": false,
     "variants": 1
   },

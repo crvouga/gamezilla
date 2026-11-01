@@ -1,0 +1,4 @@
+{
+  "summary": "Reconnection investigation exposed a subscription reset dropping an existing unfinished first-sync waiter. Replacing its promise before any valid first sync completed orphaned subscribers. Preserve pending waiters across resets; the literal subscribe-reset-start sequence is pinned.",
+  "regressionTest": "pkgs/sync-engine-client-ts/tests/subscription-runtime.test.ts"
+}

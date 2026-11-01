@@ -16,6 +16,7 @@ export const chessPuzzleInteractions = defineQuery({
         uci, 
         correct, 
         at,
+        activity_order,
         deleted_at
       FROM chess_puzzle_interactions
       WHERE owner_id = ${ctx.env.actorId}

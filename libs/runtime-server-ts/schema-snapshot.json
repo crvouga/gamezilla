@@ -1,5 +1,5 @@
 {
-  "release": 19,
+  "release": 20,
   "snapshot": {
     "tables": {
       "auth_account_devices": {
@@ -143,6 +143,7 @@
         "owner_id": "text"
       },
       "chess_puzzle_interactions": {
+        "activity_order": "integer",
         "at": "timestamp",
         "correct": "boolean",
         "kind": "text",
