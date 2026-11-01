@@ -31,6 +31,11 @@
       "icon": "test"
     },
     {
+      "name": "Audit and clean merged local branches",
+      "command": "./libs/tools-harness-ts/workspace/action.sh git-hygiene",
+      "icon": "configure"
+    },
+    {
       "name": "Format repository",
       "command": "./libs/tools-harness-ts/workspace/action.sh format",
       "icon": "lint"

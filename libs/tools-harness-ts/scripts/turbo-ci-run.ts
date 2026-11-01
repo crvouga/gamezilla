@@ -131,6 +131,7 @@ export const MAIN_VERIFY_TASKS = [
   '@libs/tools-harness-ts#ci:i18n',
   '@libs/tools-harness-ts#ci:agent-commands',
   '@libs/tools-harness-ts#ci:workspace-lifecycle',
+  '@libs/infra-server-ts#verify:repository-policy',
   '@libs/tools-harness-ts#ci:cache-hygiene',
   '@libs/tools-harness-ts#ci:package-names',
   '@libs/tools-harness-ts#ci:goals',

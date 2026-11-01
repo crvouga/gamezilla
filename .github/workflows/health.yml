@@ -71,6 +71,33 @@ defaults:
     shell: bash
 
 jobs:
+  health-repository-policy:
+    name: health:repository-policy
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: production
+    permissions:
+      contents: read # check out the reviewed repository configuration
+      id-token: write # read administration and encrypted-state credentials through OIDC
+    concurrency:
+      group: repository-policy
+      cancel-in-progress: false
+    env:
+      SECRETS_ENV: shared
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          secrets-environment: shared
+          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
+      - name: Detect repository configuration drift through OpenTofu
+        run: bunx turbo run @libs/infra-server-ts#drift:repository-policy
+
   health-cleanup:
     name: health:cleanup
     needs: health-matrix

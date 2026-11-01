@@ -2995,6 +2995,10 @@
       "cache": false,
       "passThroughEnv": ["*"]
     },
+    "//#task:git:hygiene": {
+      "cache": false,
+      "passThroughEnv": ["GH_TOKEN", "GITHUB_TOKEN", "GH_HOST", "SSH_AUTH_SOCK"]
+    },
     "//#task:git-sync": {
       "cache": false,
       "passThroughEnv": ["*"]
@@ -3238,6 +3242,28 @@
     "@libs/runtime-server-ts#db:wipe:dev": {
       "cache": false,
       "passThroughEnv": ["*"]
+    },
+    "@libs/infra-server-ts#plan:repository-policy": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@libs/infra-server-ts#apply:repository-policy": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@libs/infra-server-ts#drift:repository-policy": {
+      "cache": false,
+      "passThroughEnv": ["*"]
+    },
+    "@libs/infra-server-ts#verify:repository-policy": {
+      "inputs": [
+        "scripts/verify-repository-policy.ts",
+        "src/tofu-layout.ts",
+        "$TURBO_ROOT$/libs/infra-shared-ts/policy/**",
+        "$TURBO_ROOT$/libs/infra-shared-ts/tofu/modules/repository/**",
+        "$TURBO_ROOT$/mise.toml"
+      ],
+      "outputs": []
     },
     "@libs/infra-server-ts#apply:bootstrap": {
       "cache": false,

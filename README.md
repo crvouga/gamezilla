@@ -358,7 +358,7 @@ MQTT carries invalidation. Postgres is the record. A missed message is recovered
 
 ### Global, once (bootstrap)
 
-A person applies this. CI does not.
+A person establishes bootstrap once. CI subsequently manages repository configuration through the scoped OpenTofu path in [git hygiene](#git-hygiene).
 
 | Resource | Why |
 | --- | --- |
@@ -367,17 +367,17 @@ A person applies this. CI does not.
 | Grafana Cloud stack | One stack (the free plan allows one). Telemetry for every environment, told apart by `deployment.environment.name`. `prevent_destroy`. |
 | Infisical OIDC identity for this repository | GitHub Actions reads and writes secrets with its OIDC job token. |
 | AWS IAM OIDC provider and deploy role | GitHub Actions assumes AWS for IoT and the authorizer. The role ARN is the GitHub Actions variable `AWS_ROLE_ARN`. The store holds no long-lived AWS account key. |
-| GitHub repository settings and `main` protection | `main` is the default branch. Its active ruleset allows a direct push and blocks deletion and force-pushes. A merge commit is the only merge method (linear history is not required); merged heads are deleted. No bypass actors. Dependabot alerts and security updates are on, and Actions requires SHA-pinned actions; secret scanning and push protection follow the declared visibility (on once it is `public`). `production` accepts deployments from `main` only. Repository and ruleset are `prevent_destroy`. |
+| GitHub repository settings and `main` protection | `main` is the default branch. Its active ruleset requires a PR, one independent approval after the latest push, resolved conversations, and GitHub Actions’ `verify:end` against current `main`; it blocks deletion and force-pushes. A merge commit is the only merge method (linear history is not required); merged heads are deleted. No bypass actors. Dependabot alerts and security updates are on, and Actions requires SHA-pinned actions; secret scanning and push protection follow the declared visibility (on once it is `public`). `production` accepts deployments from `main` only. Repository and ruleset are `prevent_destroy`. |
 | GitHub Actions variables for this repository | Bootstrap provisions `SECRETS_IDENTITY_ID`, `SECRETS_PROJECT_ID`, `AWS_ROLE_ARN`, and `AWS_HEALTH_ROLE_ARN` through the GitHub provider. |
 
 GitHub policy lives in `libs/infra-shared-ts/tofu/modules/repository` under the bootstrap stack,
-using the locked `integrations/github` provider. `global.tfvars.json` records
+using the locked `integrations/github` provider. CI reconciliation is defined in [git hygiene](#git-hygiene). `global.tfvars.json` records
 the visibility, homepage, enabled Issues, disabled Projects/Wiki/Discussions,
 and existing environment names (`allow_forking` is not sent for a user-owned
 repository). Publishing the repository is the one edit `visibility` →
 `public`; the same apply turns on secret scanning and push protection.
 Release runs `.github/workflows/verify-pr.yml` (`verify:end`, the whole gate) on
-`main` on every push to `main` before it ships. The ruleset does not require that verification before the push.
+`main` on every push to `main` before it ships. The ruleset requires the same gate before a PR merges.
 No merge queue is added.
 
 To review drift from the repository root:
@@ -418,7 +418,7 @@ or environment secrets or environment variables. Environment names and their
 empty approval policies are preserved; `production` is used by the workflow,
 and the other existing names retain deployment history. Admin environment
 bypass has no approval rules to bypass and confers no access around main's
-ruleset. No new approval or promotion gates are added. Dependabot alerts and security
+ruleset. Repository merge requirements are defined in [git hygiene](#git-hygiene). Dependabot alerts and security
 updates are enabled; GitHub secret scanning with push protection is enabled
 whenever the declared visibility is public (a private repository would need
 paid Secret Protection); the required verification's gitleaks scan runs
@@ -655,9 +655,9 @@ A green `release` verification is meant to predict a green Release. Each step of
 | Health: the app sits beside its data | Release only: the deployed environment is the thing measured (`specs/runtime/serving-people.feature`). It fails dev, before production, if the placement does not do what its documentation says. |
 | `verify:api`, apply the edge stack, billing sync, the Synthetic Population Worker release, retire Workers | Nothing before Release. They need the real Workers runtime, Cloudflare, the payment provider or Railway. The population worker's hosting is verified offline by `verify:synthetic-population-foundation`. |
 
-Two things no verification can promise. A commit that reaches `main` without a pull request has only Release's own run of the Verify PR gate in front of it, because the ruleset on `main` allows a direct push and does not require `verify:end`. And a provider outage (Railway, Grafana, PlanetScale) fails Release whatever the change.
+A required PR gate verifies its tested commit; Release verifies the exact resulting merge commit again before shipping. A provider outage (Railway, Grafana, PlanetScale) can still fail Release whatever the change.
 
-Release (`.github/workflows/deploy.yml`) is the only path to production: on every push to `main` it verifies and ships that exact commit, and by hand through `bun deploy`. Merges and direct pushes start a release; pending releases queue without replacing one another. It runs the whole sharded gate (`release` profile) against the exact commit before shipping standard environments, then production, and tagging the commit `release-<run number>` with a GitHub release. Nothing deploys unless every gate passed. `//#deploy` contains only live deployment steps; the workflow's Verify job supplies the release verdict before those steps run. Health (`.github/workflows/health.yml`) runs hourly, deploys nothing, and probes every environment file. Release and Health run the same journeys as the same synthetic accounts against the same environment and plan the same OpenTofu state, so they never run together: an hourly check yields to a Release under way (its `health:matrix` job reads the Release runs), and each Release environment job waits out a Health run already in progress before it starts. A manual Health dispatch always runs. `bun health` git-syncs, including `main`, and dispatches Health. `bun deploy` does not commit: it fast-forwards local `main` and dispatches Release on `origin/main`. Cancelling Release does not roll back an apply that already started. Every Verify workflow gate is a cacheable task owned by its package and runs through Turbo; the sharded Verify task list is the release gate. The release gate is `verify:end`. Release runs it on that commit before anything ships, and the gate's jobs keep the `verify:` prefix wherever it runs. The ruleset on `main` blocks deletion and a force-push. There are no git hooks. Pull requests merge with a merge commit.
+Release (`.github/workflows/deploy.yml`) is the only path to production: on every push to `main` it verifies and ships that exact commit, and by hand through `bun deploy`. Merges start a release; pending releases queue without replacing one another. It runs the whole sharded gate (`release` profile) against the exact commit before shipping standard environments, then production, and tagging the commit `release-<run number>` with a GitHub release. Nothing deploys unless every gate passed. `//#deploy` contains only live deployment steps; the workflow's Verify job supplies the release verdict before those steps run. Health (`.github/workflows/health.yml`) runs hourly, deploys nothing, and probes every environment file. Release and Health run the same journeys as the same synthetic accounts against the same environment and plan the same OpenTofu state, so they never run together: an hourly check yields to a Release under way (its `health:matrix` job reads the Release runs), and each Release environment job waits out a Health run already in progress before it starts. A manual Health dispatch always runs. `bun health` git-syncs, including `main`, and dispatches Health. `bun deploy` does not commit: it fast-forwards local `main` and dispatches Release on `origin/main`. Cancelling Release does not roll back an apply that already started. Every Verify workflow gate is a cacheable task owned by its package and runs through Turbo; the sharded Verify task list is the release gate. The release gate is `verify:end`. Release runs it on that commit before anything ships, and the gate's jobs keep the `verify:` prefix wherever it runs. The ruleset on `main` blocks deletion and a force-push. There are no git hooks. Pull requests merge with a merge commit.
 
 Verify Nightly (`.github/workflows/verify-nightly.yml`, `SECRETS_ENV=dev`) runs on the newest `main` every night and by hand. It never gates a merge or a deploy, and it deploys nothing. It is the same tests at another profile, never a second implementation: `verify-profile.ts` selects the tasks, their depth, their budgets and whether reports are kept, and a workflow only names a profile. Its groups run independently, so a red one never hides another:
 
@@ -800,3 +800,61 @@ Feature titles, one line each, so a session can route without listing the tree. 
 `bun atlas:viz` opens the standalone Atlas development server. Its header is the product's name and one tab per kind of spec: the statechart map, then Gherkin, Quint, DMN, Alloy and OpenSLO. Each tab's index lists every spec under `specs/` with what was recorded for it (and filters to those with results, failing, or with none), so a spec without evidence is visibly different from a passing one. A spec page shows each scenario, trace or check with its outcome, recorded steps, error, timings, recording and every other run of that check. Results combine across backends (this machine's `.cache/local-reports` and the shared reports store), branches and runs: for each check and parameter set the newest completed result is shown, an absent or unfinished run preserves older outcomes, and **Sources** switches any backend, branch or run off to read what earlier runs recorded. Every result keeps its origin. Spec fingerprints and related working-tree changes qualify potentially outdated results without discarding them. This fast accumulated view is not a fresh verification verdict.
 
 `bun atlas:run` runs the spec suite of every package (`bun run spec --keep-going`: features, models, decision tables, structures, objectives and each package's `tests/harness`). While a suite runs, `bun atlas:viz` reads the tests it has finished straight from its report bucket, so each result appears within a couple of seconds of its test ending; when the package finishes, its collected report layer (recorded under the current branch) takes over. A red package does not stop the others; the command still exits with the first failure. It takes the same arguments as `bun run spec`. `bun atlas:build` builds a standalone static Atlas site and exports available report layers into it. Export reads existing results; it never executes tests or turns missing evidence into a pass. `bun reports:collect` retains completed local results from earlier commits and modified checkouts with provenance warnings; completion time is kept separately from virtual timeline time. `bun reports:part` and `bun reports:performance` remain producer adapters. Report models, publication, retention, readers, API and visualization belong to Atlas.
+
+## Git hygiene
+
+All changes to `main` go through a pull request. The OpenTofu repository ruleset
+requires GitHub Actions’ `verify:end` against current `main`, one independent
+approval after the latest push, and resolved review conversations. A push dismisses
+stale approvals. There are no bypass actors. Only a person merges. Merge commits
+remain the only merge method. GitHub deletes merged head branches automatically.
+Repository settings and secret scanning remain owned by the bootstrap stack;
+Release applies the reviewed repository configuration after the full gate and
+before deploying shared services. Hourly Health detects drift. Both jobs use the
+same `repository-policy` concurrency group and the existing encrypted bootstrap
+state. They run on `main` in the main-only `production` environment, using the
+stored `GITHUB_ADMIN_TOKEN` and state credentials through OIDC. No new credential
+is committed or copied from another checkout. Release rehearsal plans the same scope.
+
+The fixed `--repository-policy` scope covers repository settings, branch rules,
+Actions permissions, Dependabot and deployment environments. It excludes Actions
+variables whose values depend on cloud identities. The saved-plan guard rejects
+changes outside that allowlist, deletion, replacement and a first bootstrap.
+The ordinary deletion policy and encrypted state backup still run. This requires
+no AWS account login, Cloudflare credential or full bootstrap apply. CI never
+creates the initial backend or changes unrelated global infrastructure.
+The Rego gate refuses weakened PR requirements, bypass actors, disabled automatic
+branch deletion, or disabled public-repository secret scanning/push protection.
+
+Workspace setup installs repository-local Git defaults: prune remote references
+on fetch, fast-forward-only pulls, simple pushes with automatic upstream setup,
+and three-way conflict markers. Tag pruning is disabled so a fetch cannot delete
+local tags. No git hooks are installed or allowed.
+
+`bun run git:hygiene` fetches and reports every local branch; `--apply` deletes
+eligible local branches and prunes expired worktree metadata. Cleanup requires a
+merged PR targeting `main` at the exact local head, its merge commit included in
+`origin/main`, and no divergent remote head. A branch with any attached worktree,
+an open PR, or a closed unmerged PR is retained. Unknown branches require a
+human disposition. Local deletion never uses force; Git can conservatively retain
+a squash-merged branch. Every deletion or retention prints a reason. Credentials
+or inventory failures stop cleanup before any branch deletion.
+
+T3’s **Settings → Worktrees → Cleanup**, scoped to this project, must enable
+merge cleanup, settled cleanup with zero-day retention, and cleanup after the
+last referencing thread is deleted. Keep uncommitted changes and untracked files;
+active sessions, terminals, and shared worktrees must block removal. Do not use
+age alone or “no commits beyond default” as permission to abandon work. Native
+cleanup retains branch refs; run the local hygiene action after worktree removal.
+The repository cannot set these server-owned preferences through `t3.json`.
+A daily T3 audit reports drift and orphan branches and runs eligible local cleanup.
+Its schedule is machine-owned; it does not replace the hosted gate or native cleanup.
+Link every created or updated PR to its T3 thread so merging settles that thread.
+The existing settlement action stops checkout-owned services before removal.
+
+Scheduled Health maintenance inventories remote branches, retains closed unmerged
+PRs and open work, and deletes only integrated or merged heads. Its deletion uses
+an expected-SHA lease, so a branch changed concurrently is retained by Git.
+The log records branches requiring disposition; it never deletes unknown unmerged
+work. Never remove a dirty or locked worktree, a live compatibility link, a stash,
+or unpushed work to make a cleanup report green.

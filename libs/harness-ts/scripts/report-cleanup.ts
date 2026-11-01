@@ -53,7 +53,7 @@ function githubPort(repo: string): BranchCleanupPort {
           'api',
           `${root}/pulls?state=all&per_page=100&page=${page}`,
           '--jq',
-          'map({branch: .head.ref, sha: .head.sha, state: .state, merged: (.merged_at != null), repo: .head.repo.full_name})',
+          'map({branch: .head.ref, sha: .head.sha, state: .state, merged: (.merged_at != null), baseBranch: .base.ref, mergeSha: .merge_commit_sha, repo: .head.repo.full_name})',
         ]);
         all.push(...pulls);
         if (pulls.length < 100) break;
@@ -72,12 +72,18 @@ function githubPort(repo: string): BranchCleanupPort {
         `${root}/git/ref/heads/${encodeURIComponent(branch)}`,
       ]).object.sha;
     },
-    async remove(branch) {
-      const result = capture('gh', [
-        'api',
-        '--method',
-        'DELETE',
-        `${root}/git/refs/heads/${encodeURIComponent(branch)}`,
+    async remove(branch, expectedSha) {
+      // A lease makes deletion atomic: a concurrent push cannot lose work.
+      const ref = `refs/heads/${branch}`;
+      const result = capture('git', [
+        '-c',
+        'credential.helper=',
+        '-c',
+        'credential.helper=!gh auth git-credential',
+        'push',
+        `--force-with-lease=${ref}:${expectedSha}`,
+        `https://github.com/${repo}.git`,
+        `:${ref}`,
       ]);
       if (result.status !== 0)
         throw new Error(`Deleting branch ${branch} failed: ${result.stderr}`);

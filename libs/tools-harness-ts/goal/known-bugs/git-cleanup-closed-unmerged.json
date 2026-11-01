@@ -1,0 +1,4 @@
+{
+  "summary": "Branch maintenance treated a closed unmerged PR as permission to delete its unchanged branch, losing abandoned work without an explicit decision.",
+  "regressionTest": "libs/harness-ts/scripts/branch-cleanup.test.ts"
+}

@@ -43,6 +43,12 @@ import {
   providerFailureIsTransient,
 } from '@libs/infra-shared-ts/plan-retry';
 import { redactInfraOutput } from '@libs/infra-shared-ts/redact-output';
+import {
+  repositoryPolicyDenials,
+  repositoryPolicyEnvironment,
+  repositoryPolicyPlanArgs,
+  validateRepositoryPolicy,
+} from '@libs/infra-shared-ts/repository-policy';
 import type { Stack, Target } from '@libs/infra-shared-ts/tofu-command';
 import {
   applyArgs,
@@ -86,6 +92,7 @@ type Cli = {
   /** `destroy --stack fleet` only: the environment whose entries go. */
   readonly env: string | null;
   readonly recoverCiIdentity: boolean;
+  readonly repositoryPolicy: boolean;
 };
 
 function flag(argv: readonly string[], name: string): string | null {
@@ -105,7 +112,16 @@ function parseCli(argv: readonly string[]): Cli {
     fail(`--stack must be one of ${STACKS.join(', ')}`);
   const recoverCiIdentity = argv.includes('--recover-ci-identity');
   if (recoverCiIdentity) validateCiIdentityRecovery(command, stack);
-  return { command, stack, env: flag(argv, '--env'), recoverCiIdentity };
+  const repositoryPolicy = argv.includes('--repository-policy');
+  if (repositoryPolicy) validateRepositoryPolicy(command, stack);
+  if (repositoryPolicy && recoverCiIdentity) fail('Choose one bootstrap scope');
+  return {
+    command,
+    stack,
+    env: flag(argv, '--env'),
+    recoverCiIdentity,
+    repositoryPolicy,
+  };
 }
 
 function targetFor(stack: Stack): Target {
@@ -121,6 +137,12 @@ async function toolEnvironment(
   target: Target,
   cli: Cli
 ): Promise<Record<string, string>> {
+  if (cli.repositoryPolicy) {
+    const result = repositoryPolicyEnvironment(process.env, PATHS);
+    if (result.missing.length > 0)
+      fail(missingSecretsMessage(target.stack, result.missing));
+    return result.env;
+  }
   const label = `${target.stack}/${target.env ?? 'global'}`;
   const aws = cli.recoverCiIdentity
     ? null
@@ -165,7 +187,9 @@ async function planTarget(
       ? destroyPlanArgs(PATHS, target, teardownScope(target, cli))
       : cli.recoverCiIdentity
         ? ciIdentityRecoveryPlanArgs(PATHS)
-        : planArgs(PATHS, target);
+        : cli.repositoryPolicy
+          ? repositoryPolicyPlanArgs(PATHS)
+          : planArgs(PATHS, target);
   for (let attempt = 1; attempt <= PLAN_ATTEMPTS; attempt += 1) {
     const result = spawnTool('tofu', args, { env, capture: true });
     const output = redactInfraOutput(`${result.stdout}${result.stderr}`, {
@@ -190,7 +214,7 @@ function checkPolicy(
   target: Target,
   env: Record<string, string>,
   teardown: Teardown,
-  recoverCiIdentity: boolean
+  cli: Cli
 ): void {
   const shown = spawnTool('tofu', showArgs(PATHS, target), {
     env,
@@ -206,7 +230,8 @@ function checkPolicy(
   );
   const denials = [
     ...verdict.denials,
-    ...(recoverCiIdentity ? ciIdentityRecoveryDenials(plan) : []),
+    ...(cli.recoverCiIdentity ? ciIdentityRecoveryDenials(plan) : []),
+    ...(cli.repositoryPolicy ? repositoryPolicyDenials(plan) : []),
   ];
   if (denials.length > 0) {
     for (const denial of denials) console.error(`  ✗ ${denial}`);
@@ -260,7 +285,7 @@ async function runOnce(
     }
   }
   const status = await planTarget(target, env, cli);
-  checkPolicy(target, env, teardown, cli.recoverCiIdentity);
+  checkPolicy(target, env, teardown, cli);
   if (status === 0) {
     console.log(`[infra] ${label}: no changes`);
     return 'done';
@@ -314,8 +339,10 @@ async function main(): Promise<void> {
   const firstRun =
     stack === 'bootstrap' &&
     (hasUnmigratedLocalState(PATHS) || !stateBackendExists(process.env));
-  if (cli.recoverCiIdentity && firstRun)
-    fail('CI identity recovery requires the existing encrypted remote state');
+  if ((cli.recoverCiIdentity || cli.repositoryPolicy) && firstRun)
+    fail(
+      'Scoped bootstrap operations require the existing encrypted remote state'
+    );
   if (!firstRun) return run(cli, target, false);
 
   console.log(
