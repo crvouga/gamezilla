@@ -113,11 +113,25 @@ resource "github_repository_ruleset" "main" {
     }
   }
 
-  # A direct push to main is allowed. Release runs the check before shipping.
-  # This ruleset only stops deleting main and force-pushing it.
+  # Every change is reviewed and verified against the current main. No bypass.
   rules {
     deletion         = true
     non_fast_forward = true
+
+    pull_request {
+      required_approving_review_count   = 1
+      dismiss_stale_reviews_on_push     = true
+      require_last_push_approval        = true
+      required_review_thread_resolution = true
+    }
+
+    required_status_checks {
+      strict_required_status_checks_policy = true
+      required_check {
+        context        = "verify:end"
+        integration_id = 15368 # GitHub Actions; other actors cannot spoof the gate.
+      }
+    }
   }
 
   lifecycle {

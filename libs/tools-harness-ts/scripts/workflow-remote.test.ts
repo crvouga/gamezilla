@@ -42,7 +42,7 @@ describe('WORKFLOW_DISPATCH', () => {
         {
           uses?: string;
           with?: Record<string, string>;
-          needs?: string;
+          needs?: string | string[];
           if?: string;
         }
       >;
@@ -71,8 +71,14 @@ describe('WORKFLOW_DISPATCH', () => {
       'with.advisories',
       'report'
     );
-    // Verification, then the fleet, then dev, then production, then the release.
-    expect(deploy.jobs['deploy-fleet']!.needs).toBe('deploy-verify');
+    // Verification, repository policy, fleet, dev, production, then release.
+    expect(deploy.jobs['deploy-repository-policy']!.needs).toBe(
+      'deploy-verify'
+    );
+    expect(deploy.jobs['deploy-fleet']!.needs).toEqual([
+      'deploy-verify',
+      'deploy-repository-policy',
+    ]);
     expect(deploy.jobs['deploy-dev']!.needs).toBe('deploy-fleet');
     expect(deploy.jobs['deploy-prd']!.needs).toBe('deploy-dev');
     expect(deploy.jobs['deploy-release']!.needs).toBe('deploy-prd');

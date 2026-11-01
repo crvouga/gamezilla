@@ -78,10 +78,52 @@ jobs:
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
+      - name: Assert administration credential was injected from the secret store
+        run: |
+          if [ -z "${GITHUB_ADMIN_TOKEN:-}" ]; then
+            echo "::error::Add GITHUB_ADMIN_TOKEN to the shared secret-store environment. CI needs repository administration access; the built-in workflow token cannot configure repository protections."
+            exit 1
+          fi
+      - name: Plan repository policy without changing configuration
+        run: bunx turbo run @libs/infra-server-ts#plan:repository-policy
       - name: Plan fleet without changing infrastructure
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run --filter @libs/infra-server-ts plan:fleet
       - name: Plan dev's foundation without changing infrastructure
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run --filter @libs/infra-server-ts plan:foundation
+
+  deploy-repository-policy:
+    name: Enforce repository policy
+    if: ${{ !inputs.rehearsal && github.ref == 'refs/heads/main' }}
+    needs: deploy-verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: production
+    permissions:
+      contents: read # check out the reviewed repository configuration
+      id-token: write # read administration and encrypted-state credentials through OIDC
+    concurrency:
+      group: repository-policy
+      cancel-in-progress: false
+    env:
+      SECRETS_ENV: shared
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          secrets-environment: shared
+          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
+      - name: Assert administration credential was injected from the secret store
+        run: |
+          if [ -z "${GITHUB_ADMIN_TOKEN:-}" ]; then
+            echo "::error::Add GITHUB_ADMIN_TOKEN to the shared secret-store environment. CI needs repository administration access; the built-in workflow token cannot configure repository protections."
+            exit 1
+          fi
+      - name: Apply reviewed repository configuration through OpenTofu
+        run: bunx turbo run @libs/infra-server-ts#apply:repository-policy
 
   # What every environment shares (libs/infra-shared-ts/tofu/stacks/fleet): the
   # shared secrets, the auth relay that forwards to every env, and each env's
@@ -89,7 +131,7 @@ jobs:
   deploy-fleet:
     name: Release shared services
     if: ${{ !inputs.rehearsal }}
-    needs: deploy-verify
+    needs: [deploy-verify, deploy-repository-policy]
     runs-on: ubuntu-24.04
     permissions:
       contents: read # check out the code

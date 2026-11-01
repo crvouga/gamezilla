@@ -5,6 +5,7 @@ set -euo pipefail
 . "$(dirname "${BASH_SOURCE[0]}")/system.sh"
 . "$(dirname "${BASH_SOURCE[0]}")/install.sh"
 workspace_quiet "mise install" workspace_system
+"$(dirname "${BASH_SOURCE[0]}")/git-config.sh"
 workspace_warn_unmerged
 if ! workspace_install_is_current; then
   workspace_install

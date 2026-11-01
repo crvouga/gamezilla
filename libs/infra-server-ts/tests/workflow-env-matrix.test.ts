@@ -48,15 +48,23 @@ describe('workflow env matrix', () => {
   });
 });
 
-type Job = { env?: Record<string, unknown> };
+type Job = { env?: Record<string, unknown>; environment?: string; if?: string };
 
 // Adding tofu/envs/<env>.tfvars.json must need no Health workflow edit.
-test('every Health secrets env comes from the env matrix, never a literal', () => {
+test('Health uses the env matrix for environments and shared secrets only for protected repository policy', () => {
   const workflow = Bun.YAML.parse(
     readFileSync(join(WORKFLOWS_DIR, 'health.yml'), 'utf8')
   ) as { jobs: Record<string, Job> };
-  const secretsEnvs = Object.values(workflow.jobs).flatMap((job) =>
-    job.env?.['SECRETS_ENV'] === undefined ? [] : [job.env['SECRETS_ENV']]
+  const admin = workflow.jobs['health-repository-policy'];
+  expect(admin?.env?.['SECRETS_ENV']).toBe('shared');
+  expect(admin?.environment).toBe('production');
+  expect(admin?.if).toBe("github.ref == 'refs/heads/main'");
+  const secretsEnvs = Object.entries(workflow.jobs).flatMap(([name, job]) =>
+    name === 'health-repository-policy'
+      ? []
+      : job.env?.['SECRETS_ENV'] === undefined
+        ? []
+        : [job.env['SECRETS_ENV']]
   );
   expect(secretsEnvs.length).toBeGreaterThan(0);
   for (const value of secretsEnvs) expect(value).toBe('${{ matrix.env }}');

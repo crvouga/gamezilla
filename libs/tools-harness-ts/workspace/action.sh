@@ -5,6 +5,7 @@ set -euo pipefail
 workspace_activate_tools
 export TURBO_UI="${TURBO_UI:-stream}"
 case "${1:-}" in
+  git-hygiene) exec bun run git:hygiene --apply ;;
   format) exec bun fmt ;;
   storybook|storybook-lan)
     . "$(dirname "${BASH_SOURCE[0]}")/port.sh"
