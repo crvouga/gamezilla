@@ -4,6 +4,22 @@ import { join } from 'node:path';
 
 const root = join(import.meta.dirname, '../../..');
 
+// regression: nightly-random-nested-worker-contention
+test('randomized suites own the runner one worker pool at a time', () => {
+  const workflow = Bun.YAML.parse(
+    readFileSync(join(root, '.github/workflows/verify-nightly.yml'), 'utf8')
+  ) as {
+    jobs: Record<
+      string,
+      { steps: { name?: string; env?: Record<string, string> }[] }
+    >;
+  };
+  const random = workflow.jobs['verify-nightly-random']!.steps.find(
+    (step) => step.name === 'verify-nightly:random'
+  );
+  expect(random?.env?.['TURBO_CONCURRENCY']).toBe('1');
+});
+
 // regression: verify-cache-write-only-override
 test('Verification enforces read/write after secrets injection', () => {
   const workflow = readFileSync(

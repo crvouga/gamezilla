@@ -114,6 +114,9 @@ jobs:
       # `apps/product-ts/.cache/randomized/` keeps the seeds as files.
       - name: verify-nightly:random
         timeout-minutes: 170
+        # Each suite owns its own CPU worker pool; do not multiply those pools.
+        env:
+          TURBO_CONCURRENCY: '1'
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:random
       - name: Retain seeds and the run summary
         if: always() && !cancelled()
