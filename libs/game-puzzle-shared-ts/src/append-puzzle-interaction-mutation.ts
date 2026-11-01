@@ -4,6 +4,7 @@ import { MutationError } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { z } from 'zod';
 
 import { PUZZLE_INTERACTION_KIND } from './interaction-entities';
+import { nextPuzzleInteractionActivity } from './puzzle-interaction-activity';
 import { puzzleAttemptedEvent, puzzleCompletedEvent } from './telemetry';
 
 const interactionArgs = z.object({
@@ -16,6 +17,11 @@ const interactionArgs = z.object({
   uci: z.string().nullable().optional(),
   correct: z.boolean().nullable().optional(),
 });
+
+export type AppendPuzzleInteractionInput = Omit<
+  z.infer<typeof interactionArgs>,
+  'interactionId'
+>;
 
 export const appendPuzzleInteractionMutation = defineMutation({
   name: 'appendPuzzleInteraction',
@@ -30,7 +36,7 @@ export const appendPuzzleInteractionMutation = defineMutation({
     await tx.run(sql`
       INSERT INTO chess_puzzle_interactions (
         id, owner_id, puzzle_id, puzzle_rating, kind, solve_idx, uci, correct,
-        at
+        at, activity_order
       )
       VALUES (
         ${args.interactionId}, ${args.ownerId}, ${args.puzzleId},
@@ -43,7 +49,7 @@ export const appendPuzzleInteractionMutation = defineMutation({
               ? 1
               : 0
         },
-        ${env.now().toISOString()}
+        ${env.now().toISOString()}, ${await nextPuzzleInteractionActivity(tx, args.ownerId)}
       )
       ON CONFLICT (id) DO NOTHING
     `);

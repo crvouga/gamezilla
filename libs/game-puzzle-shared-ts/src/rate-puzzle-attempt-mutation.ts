@@ -26,9 +26,9 @@ import { defineMutation } from '@pkgs/sync-engine-shared-ts/define-mutation';
 import type { MutationDb } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { z } from 'zod';
-
 import { PUZZLE_POOL_RATING_CEILING } from './feed-config';
 import { PUZZLE_INTERACTION_KIND } from './interaction-entities';
+import { nextPuzzleInteractionActivity } from './puzzle-interaction-activity';
 import { puzzleNamespaceOf, puzzleOwnerKey } from './puzzle-namespace';
 import { ratedStartKeyPrefix } from './rated-start-key';
 import type { PuzzleRatingState } from './rating';
@@ -122,10 +122,10 @@ async function recordOutcome(
   }
   await tx.run(sql`
     INSERT INTO chess_puzzle_interactions (
-      id, owner_id, puzzle_id, puzzle_rating, kind, solve_idx, at
+      id, owner_id, puzzle_id, puzzle_rating, kind, solve_idx, at, activity_order
     ) VALUES (
       ${id}, ${args.ownerId}, ${args.puzzleId}, ${args.puzzleRating},
-      ${args.outcome}, ${args.solveIdx}, ${at}
+      ${args.outcome}, ${args.solveIdx}, ${at}, ${await nextPuzzleInteractionActivity(tx, args.ownerId)}
     ) ON CONFLICT (id) DO NOTHING
   `);
 }

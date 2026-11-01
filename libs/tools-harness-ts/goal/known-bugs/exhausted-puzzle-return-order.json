@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly 41263197779 failed puzzle-attempt trace 31 at step 39 for solo count (OPPONENT=false, seed 0x67932): returning after repeated puzzles selected the wrong older puzzle because interaction timestamps tied. The literal return trace is pinned alongside the double-next history.",
+  "regressionTest": "libs/games-harness-ts/tests/quint/puzzle-attempt.binding.ts"
+}

@@ -258,9 +258,15 @@ export function buildExhaustedPuzzleCandidatesSql(
         WHERE i.owner_id = ${args.ownerId}
           AND i.puzzle_id = chess_puzzles.id
       ) AS last_at
+      , (
+        SELECT MAX(i.activity_order)
+        FROM chess_puzzle_interactions i
+        WHERE i.owner_id = ${args.ownerId}
+          AND i.puzzle_id = chess_puzzles.id
+      ) AS last_order
     FROM chess_puzzles
     ${whereFromConditions(conditions)}
-    ORDER BY last_at ASC, id ASC
+    ORDER BY last_order ASC, last_at ASC, id ASC
     LIMIT ${PUZZLE_CANDIDATE_LIMIT}
   `;
 }

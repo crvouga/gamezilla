@@ -1,0 +1,229 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "source": "specs/sokoban/starter-pack.qnt",
+    "status": "ok"
+  },
+  "vars": [
+    "activePuzzle",
+    "completed",
+    "offeredPuzzle",
+    "otherProgress",
+    "_online",
+    "_previousCompleted",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": {
+        "index": 0
+      },
+      "_online": true,
+      "_previousCompleted": {
+        "#set": []
+      },
+      "activePuzzle": {
+        "#bigint": "-1"
+      },
+      "completed": {
+        "#set": []
+      },
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "puzzle": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "offeredPuzzle": {
+        "#bigint": "0"
+      },
+      "otherProgress": {
+        "#set": []
+      }
+    },
+    {
+      "#meta": {
+        "index": 1
+      },
+      "_online": true,
+      "_previousCompleted": {
+        "#set": []
+      },
+      "activePuzzle": {
+        "#bigint": "1"
+      },
+      "completed": {
+        "#set": []
+      },
+      "mbt::actionTaken": "playStarterPuzzle",
+      "mbt::nondetPicks": {
+        "puzzle": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        }
+      },
+      "offeredPuzzle": {
+        "#bigint": "1"
+      },
+      "otherProgress": {
+        "#set": []
+      }
+    },
+    {
+      "#meta": {
+        "index": 2
+      },
+      "_online": true,
+      "_previousCompleted": {
+        "#set": []
+      },
+      "activePuzzle": {
+        "#bigint": "2"
+      },
+      "completed": {
+        "#set": []
+      },
+      "mbt::actionTaken": "playStarterPuzzle",
+      "mbt::nondetPicks": {
+        "puzzle": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "2"
+          }
+        }
+      },
+      "offeredPuzzle": {
+        "#bigint": "2"
+      },
+      "otherProgress": {
+        "#set": []
+      }
+    },
+    {
+      "#meta": {
+        "index": 3
+      },
+      "_online": true,
+      "_previousCompleted": {
+        "#set": []
+      },
+      "activePuzzle": {
+        "#bigint": "1"
+      },
+      "completed": {
+        "#set": []
+      },
+      "mbt::actionTaken": "playStarterPuzzle",
+      "mbt::nondetPicks": {
+        "puzzle": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        }
+      },
+      "offeredPuzzle": {
+        "#bigint": "1"
+      },
+      "otherProgress": {
+        "#set": []
+      }
+    },
+    {
+      "#meta": {
+        "index": 4
+      },
+      "_online": false,
+      "_previousCompleted": {
+        "#set": []
+      },
+      "activePuzzle": {
+        "#bigint": "1"
+      },
+      "completed": {
+        "#set": []
+      },
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "puzzle": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        }
+      },
+      "offeredPuzzle": {
+        "#bigint": "1"
+      },
+      "otherProgress": {
+        "#set": []
+      }
+    },
+    {
+      "#meta": {
+        "index": 5
+      },
+      "_online": true,
+      "_previousCompleted": {
+        "#set": []
+      },
+      "activePuzzle": {
+        "#bigint": "1"
+      },
+      "completed": {
+        "#set": []
+      },
+      "mbt::actionTaken": "connectionReturns",
+      "mbt::nondetPicks": {
+        "puzzle": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "0"
+          }
+        }
+      },
+      "offeredPuzzle": {
+        "#bigint": "1"
+      },
+      "otherProgress": {
+        "#set": []
+      }
+    },
+    {
+      "#meta": {
+        "index": 6
+      },
+      "_online": true,
+      "_previousCompleted": {
+        "#set": []
+      },
+      "activePuzzle": {
+        "#bigint": "1"
+      },
+      "completed": {
+        "#set": []
+      },
+      "mbt::actionTaken": "playStarterPuzzle",
+      "mbt::nondetPicks": {
+        "puzzle": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        }
+      },
+      "offeredPuzzle": {
+        "#bigint": "1"
+      },
+      "otherProgress": {
+        "#set": []
+      }
+    }
+  ]
+}

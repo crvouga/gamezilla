@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly 41263197779 failed puzzle-attempt traces 12 and 31 at step 39 for solo count (OPPONENT=false, seed 0x67932). Equal interaction timestamps left exhausted-pool selection ordered by puzzle id instead of causal play order. Persist an interaction activity sequence and pin both literal trace prefixes.",
+  "regressionTest": "libs/games-harness-ts/tests/quint/puzzle-attempt.binding.ts"
+}

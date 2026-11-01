@@ -60,7 +60,7 @@ export function ContentStartAttempt(props: {
       error: t`Try starting again`,
     },
     get disabled() {
-      return props.disabled || data.isFetching();
+      return props.disabled;
     },
   });
   return (

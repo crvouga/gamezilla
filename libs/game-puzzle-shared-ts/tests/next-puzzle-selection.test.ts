@@ -458,7 +458,9 @@ describe('§9 exhausted pool', () => {
     expect(normalized).toContain(
       'id IN ( SELECT puzzle_id FROM chess_puzzle_interactions'
     );
-    expect(normalized).toContain('ORDER BY last_at ASC, id ASC');
+    expect(normalized).toContain(
+      'ORDER BY last_order ASC, last_at ASC, id ASC'
+    );
     expect(normalized).not.toContain('rating >=');
     expect(query.values).toContain('current');
   });

@@ -79,6 +79,7 @@ export const chessPuzzleInteractions = defineTable({
     uci: 'text',
     correct: 'boolean',
     at: 'timestamp',
+    activity_order: { type: 'integer', backfill: { sql: '0' } },
   },
   retiredColumns: [
     {
