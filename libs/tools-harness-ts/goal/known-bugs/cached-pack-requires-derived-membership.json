@@ -1,0 +1,4 @@
+{
+  "summary": "The production-bundle Numberlink offline journey on 6b8d4ef had the published pack definition and pinned puzzle cached, but a derived membership row had not hydrated. Starting was refused or disabled forever offline. Validate the pinned reference from the immutable, publication-validated pack definition on both client and server; derived query rows must not decide whether an available cached pack can be played.",
+  "regressionTest": "libs/game-puzzle-shared-ts/tests/cached-pack-start.test.ts"
+}

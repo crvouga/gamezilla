@@ -8,10 +8,10 @@ import { INITIAL_SYNC_STATUS } from '@pkgs/sync-engine-client-ts/sync-status';
 import { type Accessor, createSignal } from 'solid-js';
 
 // regression: published-pack-start-before-membership-hydration
-test('a published pack waits for its local choice while bundled content stays ready', () => {
+test('a published pack uses its cached edition without derived membership rows', () => {
   using db = new Database(':memory:');
-  db.run(`CREATE TABLE puzzle_content_pack_items (
-    pack_revision_id TEXT, puzzle_revision_id TEXT, deleted_at TEXT
+  db.run(`CREATE TABLE puzzle_content_revisions (
+    id TEXT, definition TEXT, deleted_at TEXT
   )`);
   const listeners = new Set<() => void>();
   const engine = {
@@ -40,16 +40,18 @@ test('a published pack waits for its local choice while bundled content stays re
     </SyncEngineProvider>
   ));
   expect(ready()).toBe(false);
-  db.run('INSERT INTO puzzle_content_pack_items VALUES (?, ?, NULL)', [
+  db.run('INSERT INTO puzzle_content_revisions VALUES (?, ?, NULL)', [
     'published-pack',
-    'first-puzzle',
+    JSON.stringify({
+      items: [{ puzzleId: 'first', revisionId: 'first-puzzle' }],
+    }),
   ]);
   for (const listener of listeners) listener();
   expect(ready()).toBe(true);
   setPuzzle('second-puzzle');
   expect(ready()).toBe(false);
   setPuzzle('first-puzzle');
-  db.run("UPDATE puzzle_content_pack_items SET deleted_at = '2026-11-01'");
+  db.run("UPDATE puzzle_content_revisions SET deleted_at = '2026-11-01'");
   for (const listener of listeners) listener();
   expect(ready()).toBe(false);
   setPack('bundled:sokoban:starter:edition');

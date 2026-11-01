@@ -1,18 +1,18 @@
 import { isBundledContent } from '@libs/game-puzzle-shared-ts/bundled-content';
+import { decodePackDefinition } from '@libs/game-puzzle-shared-ts/content-pack';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { createQuery } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import type { Accessor } from 'solid-js';
 
-/** A published pack's choice must reach local storage before its mutation can run. */
+/** Starting uses the pinned pack definition, without waiting for derived rows. */
 export function useContentPackChoiceReady(
   revisionId: Accessor<string>,
   packRevisionId: Accessor<string | null>
 ): Accessor<boolean> {
-  const references = createQuery(
-    () => sql<{ matches: number }>`
-      SELECT COUNT(*) AS matches FROM puzzle_content_pack_items
-      WHERE pack_revision_id = ${packRevisionId() ?? ''}
-        AND puzzle_revision_id = ${revisionId()} AND deleted_at IS NULL
+  const editions = createQuery(
+    () => sql<{ definition: string }>`
+      SELECT definition FROM puzzle_content_revisions
+      WHERE id = ${packRevisionId() ?? ''} AND deleted_at IS NULL
     `
   );
   return () => {
@@ -20,7 +20,9 @@ export function useContentPackChoiceReady(
     return (
       pack === null ||
       isBundledContent(pack) ||
-      references.rows()[0]?.matches === 1
+      (decodePackDefinition(editions.rows()[0]?.definition ?? '')?.items.filter(
+        (item) => item.revisionId === revisionId()
+      ).length ?? 0) === 1
     );
   };
 }
