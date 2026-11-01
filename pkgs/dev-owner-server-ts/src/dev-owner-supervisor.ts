@@ -94,7 +94,12 @@ async function runBoot(
     [join(import.meta.dirname, 'dev-owner-watch.ts')],
     { cwd: root, env, stdio: 'inherit' }
   );
-  const child = spawnOwned(command, args, { cwd: root, env, stdio: 'inherit' });
+  // Ownership belongs to the checkout; relative command inputs belong to the caller.
+  const child = spawnOwned(command, args, {
+    cwd: process.cwd(),
+    env,
+    stdio: 'inherit',
+  });
   const done = new Promise<number>((resolve, reject) => {
     child.once('error', reject);
     child.once('exit', (code) => resolve(code ?? 1));

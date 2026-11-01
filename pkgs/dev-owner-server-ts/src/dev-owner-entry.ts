@@ -14,7 +14,7 @@ export async function enterDevOwner(
   const parent = ownerProcess(process.pid);
   const boot = `launcher-${process.pid}-${parent?.identity.replace(/[^a-zA-Z0-9]/g, '')}`;
   const child = spawnOwned(process.execPath, [script, ...args], {
-    cwd: root,
+    cwd: process.cwd(),
     stdio: 'inherit',
     env: {
       ...process.env,

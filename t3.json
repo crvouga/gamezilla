@@ -36,8 +36,13 @@
       "icon": "lint"
     },
     {
-      "name": "Run Storybook",
+      "name": "Run Storybook (local or tunnel)",
       "command": "./libs/tools-harness-ts/workspace/action.sh storybook",
+      "icon": "play"
+    },
+    {
+      "name": "Run Storybook on LAN",
+      "command": "./libs/tools-harness-ts/workspace/action.sh storybook-lan",
       "icon": "play"
     },
     {

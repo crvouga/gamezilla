@@ -3,15 +3,17 @@
 set -euo pipefail
 . "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 workspace_activate_tools
+export TURBO_UI="${TURBO_UI:-stream}"
 case "${1:-}" in
   format) exec bun fmt ;;
-  storybook)
+  storybook|storybook-lan)
     . "$(dirname "${BASH_SOURCE[0]}")/port.sh"
-    exec bun run own -- bun run storybook
+    if [ "$1" = "storybook-lan" ]; then export STORYBOOK_HOST=0.0.0.0; fi
+    exec bun run storybook
     ;;
   storybook-build) exec bun run storybook:build ;;
   diagnostics) exec bun obs last ;;
   feedback) exec bun feedback --list ;;
   simulators) exec bun run sims:open ;;
-  *) echo 'usage: action.sh format|storybook|storybook-build|diagnostics|feedback|simulators' >&2; exit 2 ;;
+  *) echo 'usage: action.sh format|storybook|storybook-lan|storybook-build|diagnostics|feedback|simulators' >&2; exit 2 ;;
 esac

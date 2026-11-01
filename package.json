@@ -46,7 +46,7 @@
     "dev:client": "SECRETS_ENV=dev bun run own -- bun run libs/secrets-server-ts/scripts/secrets-run.ts -- turbo run @apps/client-ts#dev --",
     "fc": "turbo run //#task:fc --",
     "feedback": "turbo run //#task:feedback --",
-    "fmt": "turbo run //#fmt:biome //#fmt:empty-dirs //#fmt:package-json //#fmt:swift --continue --env-mode=loose",
+    "fmt": "turbo run //#fmt:biome //#fmt:empty-dirs //#fmt:package-json --continue --env-mode=loose",
     "fmt:biome": "biome format --write .",
     "fmt:empty-dirs": "bun run libs/tools-harness-ts/scripts/remove-empty-dirs.ts",
     "fmt:package-json": "sort-package-json \"**/package.json\" -i \"**/node_modules/**\"",

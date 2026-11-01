@@ -95,7 +95,10 @@ return to Paused between repeated equal steps. Interactions can dispatch
 `advance-story-time` on `#storybook-root` with milliseconds in the event detail.
 Do not introduce wall timers into component demos.
 
-Agents can discover running story previews at `http://localhost:6006/mcp`.
+Agents can discover running story previews at the printed Storybook origin plus `/mcp`.
+For another computer, use the printed LAN URL or forward the printed port; its
+`localhost` refers to the viewing computer. The T3 **Run Storybook on LAN** action
+enables LAN access; **Run Storybook (local or tunnel)** keeps loopback binding.
 The static build's `/index.json` and `/manifests/components.json` provide canonical
 story IDs and component contracts; `/manifests/docs.json` indexes this guide.
 The component manifest embeds prop descriptions and focused usage examples;

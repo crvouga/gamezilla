@@ -140,7 +140,8 @@ the generated list. This checkout's project actions were installed through T3's 
 | Verify release gate | Required full `bun verify` through `check.sh` |
 | Check workspace tooling | Package lint, types and tests through Turbo |
 | Format repository | Existing `bun fmt` task graph |
-| Run / Build Storybook | Owned development server on the workspace Storybook port / static build |
+| Run Storybook (local or tunnel) / Run Storybook on LAN | Owned development server on the workspace port, with explicit access mode |
+| Build Storybook | Static build |
 | Last failure diagnostics | Existing `bun obs last` workflow |
 | List feedback reports | Read local defect reports before investigation |
 | Open native simulators | Existing interactive macOS/Xcode simulator launcher |
@@ -167,6 +168,53 @@ leave them on Inherit to use `t3.json`.
 Sources: [project settings](https://github.com/pingdotgg/t3code/blob/main/docs/user/project-settings.md),
 [repository file contract](https://github.com/pingdotgg/t3code/blob/main/packages/contracts/src/t3ProjectFile.ts),
 [action lifecycle](https://github.com/pingdotgg/t3code/blob/main/packages/shared/src/projectScripts.ts).
+
+### Storybook from another computer
+
+Choose **Run Storybook on LAN** in T3, or run:
+
+```sh
+./libs/tools-harness-ts/workspace/action.sh storybook-lan
+```
+
+Open a printed **LAN** URL on the viewing computer. Its `localhost` points to
+itself, not the computer running Storybook. LAN mode binds `0.0.0.0`; the default
+**Run Storybook (local or tunnel)** action stays on loopback. Permit the printed
+port in the host firewall when using LAN access. Use this on a trusted network.
+
+For a remote T3 environment, forward the printed port using that environment's
+port-forwarding facility. Alternatively, run the printed SSH forwarding command
+on the viewing computer, replacing `<user>@<server>` with the execution host.
+Then open the local forwarded URL. HTTP and WebSocket traffic must both pass
+through a reverse proxy; an SSH TCP forward carries both automatically.
+
+The actual port defaults to the checkout's workspace block +2. `STORYBOOK_PORT`
+can pin a different port; an occupied port fails instead of silently changing it.
+The launcher prints addresses and records `starting`, `ready` and `stopped` in
+`pkgs/ui-root-harness-ts/.cache/storybook-dev.json`. Use that file when the full
+stack already owns Storybook; a second action does not start another copy.
+Stop local services before changing the binding of an existing running stack.
+
+The same settings apply to standalone and full-stack Storybook:
+
+```sh
+STORYBOOK_HOST=0.0.0.0 ./libs/tools-harness-ts/workspace/run.sh
+# Optional aliases / reverse-proxy external origin:
+STORYBOOK_ALLOWED_HOSTS=studio.local STORYBOOK_ORIGIN=https://preview.example.test \
+  ./libs/tools-harness-ts/workspace/action.sh storybook-lan
+```
+
+`STORYBOOK_ALLOWED_HOSTS` is a comma-separated list of explicit hostnames, not
+wildcards. LAN IP addresses and loopback remain usable. For an HTTPS reverse
+proxy or a different external port, `STORYBOOK_ORIGIN` supplies its public origin
+(no path or credentials); its hostname is allowed automatically and WebSockets
+use that origin. Without an override, live connections follow the browser's
+accessed hostname and port, including plain TCP forwarding to a different port.
+No fixed preview URL is saved in T3 because workspace ports vary.
+
+The package-owned `ci:storybook-remote` gate loads a real story through a LAN
+interface, a hostname and a forwarded port, checks live WebSocket origins,
+rejects unknown hostnames, and checks readiness and duplicate-start behavior.
 
 ### Other hosts and agents
 

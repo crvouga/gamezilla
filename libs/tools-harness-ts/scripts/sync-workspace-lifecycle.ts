@@ -88,7 +88,8 @@ export const ORCHESTRATORS: Orchestrator[] = [
         },
         ...[
           ['Format repository', 'format', 'lint'],
-          ['Run Storybook', 'storybook', 'play'],
+          ['Run Storybook (local or tunnel)', 'storybook', 'play'],
+          ['Run Storybook on LAN', 'storybook-lan', 'play'],
           ['Build Storybook', 'storybook-build', 'build'],
           ['Last failure diagnostics', 'diagnostics', 'debug'],
           ['List feedback reports', 'feedback', 'debug'],

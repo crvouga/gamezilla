@@ -11,6 +11,9 @@ import tailwindcss from '@tailwindcss/vite';
 import type { StorybookConfig } from 'storybook-solidjs-vite';
 import solid from 'vite-plugin-solid';
 import { configureDocgen } from './docgen';
+import { storybookNetwork } from './network';
+
+const network = storybookNetwork(process.env);
 
 const root = resolve(import.meta.dirname, '../../..');
 const storyDirectories = readdirSync(resolve(root, 'pkgs'))
@@ -43,8 +46,28 @@ const config: StorybookConfig = {
     sidebarOnboardingChecklist: false,
     menuOnboardingChecklist: false,
   },
-  core: { disableTelemetry: true },
+  core: { disableTelemetry: true, allowedHosts: network.allowedHosts },
   async viteFinal(config) {
+    config.server = {
+      ...config.server,
+      allowedHosts: network.allowedHosts,
+      ...(network.origin ? { origin: network.origin } : {}),
+      hmr: {
+        ...(typeof config.server?.hmr === 'object' ? config.server.hmr : {}),
+        // With an existing server, no fixed port is needed in the browser client.
+        port: 0,
+        clientPort: 0,
+        ...(network.origin
+          ? {
+              host: new URL(network.origin).hostname,
+              protocol: network.origin.startsWith('https:') ? 'wss' : 'ws',
+              clientPort:
+                Number(new URL(network.origin).port) ||
+                (network.origin.startsWith('https:') ? 443 : 80),
+            }
+          : {}),
+      },
+    };
     for (const plugin of config.plugins ?? []) {
       if (plugin && typeof plugin === 'object' && 'name' in plugin)
         configureDocgen(plugin, storyDirectories);

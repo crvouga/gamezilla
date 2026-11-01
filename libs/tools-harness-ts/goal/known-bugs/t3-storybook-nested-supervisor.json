@@ -1,0 +1,4 @@
+{
+  "summary": "The T3 Storybook action ran bun run own -- bun run storybook. The outer supervisor held the checkout boot lease, so Storybook's existing owned launcher exited successfully with live boot; reusing it and never started the server. Delegate directly to the existing Storybook launcher.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workspace-run.test.ts"
+}
