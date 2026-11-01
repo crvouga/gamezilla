@@ -1267,6 +1267,7 @@
         "$TURBO_ROOT$/.super.engineering/config.json",
         "$TURBO_ROOT$/.conductor/settings.toml",
         "$TURBO_ROOT$/.emdash.json",
+        "$TURBO_ROOT$/t3.json",
         "$TURBO_ROOT$/.cmux/cmux.json",
         "$TURBO_ROOT$/libs/tools-harness-ts/workspace/*.sh",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/sync-workspace-lifecycle.ts"
