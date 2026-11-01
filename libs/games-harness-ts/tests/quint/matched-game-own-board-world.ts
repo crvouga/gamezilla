@@ -23,6 +23,7 @@ import {
   nearestMultiplayerSeat,
   shownEarlierPosition,
 } from '@libs/game-matchmaking-harness-ts/multiplayer-review';
+import { chooseKnownSetups } from '@libs/game-matchmaking-harness-ts/multiplayer-setups';
 import {
   givenGameSpace,
   openFindingAnOpponent,
@@ -115,6 +116,7 @@ export async function acceptOwnBoardRematch(
   const offerer = actor === 'alice' ? 'bob' : 'alice';
   await sendOwnBoardCommand(w, offerer, 'offerMultiplayerRematch');
   await sendOwnBoardCommand(w, actor, 'acceptMultiplayerRematch');
+  await w.s.apply(chooseKnownSetups, PAIRED);
 }
 
 /** What one person's screen shows, in the model's words. */

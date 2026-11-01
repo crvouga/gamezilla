@@ -1,0 +1,1942 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "source": "specs/games/matched-game-own-board.qnt",
+    "status": "ok"
+  },
+  "vars": [
+    "moveCount",
+    "playOutcome",
+    "_first",
+    "earlierPosition",
+    "playSide",
+    "nearestSide",
+    "gameRecordOffered",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": {
+        "index": 0
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "position": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "0"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 1
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "playMove",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "2"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "1"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 2
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "stepBackOneMove",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "1"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 3
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "returnToCurrentPosition",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "3"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "1"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 4
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "goToStart",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "2"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "1"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 5
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "stepBackOneMove",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "1"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 6
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "playMove",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "2"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "1"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 7
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "goToStart",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "1"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 8
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "playMove",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "3"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 9
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "chooseEarlierPosition",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "2"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 10
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "stepBackOneMove",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "2"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 11
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "stepBackOneMove",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "3"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 12
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "goToStart",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "3"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 13
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "playMove",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "4"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 14
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "stepBackOneMove",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "2"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 15
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "stepForwardOneMove",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 16
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "stepBackOneMove",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 17
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "stepForwardOneMove",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "4"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 18
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "playMove",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "3"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 19
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "playMove",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "3"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 20
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "playMove",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 21
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "goToStart",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "3"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 22
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "goToStart",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "4"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 23
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": true,
+      "mbt::actionTaken": "resignGame",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "4"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "WonPlay",
+        "value": "bob"
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 24
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": true,
+      "mbt::actionTaken": "stepForwardOneMove",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "3"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "WonPlay",
+        "value": "bob"
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 25
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": true,
+      "mbt::actionTaken": "copyGameRecord",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "WonPlay",
+        "value": "bob"
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 26
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": true,
+      "mbt::actionTaken": "copyFinalPosition",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "WonPlay",
+        "value": "bob"
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 27
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": true,
+      "mbt::actionTaken": "returnToCurrentPosition",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "3"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "WonPlay",
+        "value": "bob"
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 28
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": true,
+      "mbt::actionTaken": "copyFinalPosition",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "WonPlay",
+        "value": "bob"
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 29
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": true,
+      "mbt::actionTaken": "playMove",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "2"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "WonPlay",
+        "value": "bob"
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 30
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": true,
+      "mbt::actionTaken": "copyGameRecord",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "2"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "WonPlay",
+        "value": "bob"
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 31
+      },
+      "_first": "alice",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": true,
+      "mbt::actionTaken": "playMove",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "2"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "2"
+      },
+      "nearestSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "WonPlay",
+        "value": "bob"
+      },
+      "playSide": {
+        "#map": [["alice", "first"], ["bob", "second"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 32
+      },
+      "_first": "bob",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "acceptRematch",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "0"
+      },
+      "nearestSide": {
+        "#map": [["alice", "second"], ["bob", "first"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "second"], ["bob", "first"], ["carol", "none"]]
+      }
+    },
+    {
+      "#meta": {
+        "index": 33
+      },
+      "_first": "bob",
+      "earlierPosition": {
+        "#map": [
+          [
+            "alice",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "-1"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "-1"
+            }
+          ]
+        ]
+      },
+      "gameRecordOffered": false,
+      "mbt::actionTaken": "playMove",
+      "mbt::nondetPicks": {
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "position": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "2"
+          }
+        }
+      },
+      "moveCount": {
+        "#bigint": "1"
+      },
+      "nearestSide": {
+        "#map": [["alice", "second"], ["bob", "first"], ["carol", "first"]]
+      },
+      "playOutcome": {
+        "tag": "OngoingPlay",
+        "value": {
+          "#tup": []
+        }
+      },
+      "playSide": {
+        "#map": [["alice", "second"], ["bob", "first"], ["carol", "none"]]
+      }
+    }
+  ]
+}

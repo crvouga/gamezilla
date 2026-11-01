@@ -3088,6 +3088,7 @@
       "passThroughEnv": ["*"]
     },
     "//#task:verify:coverage": {
+      "dependsOn": ["@pkgs/ui-root-harness-ts#storybook:build"],
       "cache": false,
       "passThroughEnv": ["*"]
     },
@@ -3246,6 +3247,7 @@
       "passThroughEnv": ["*"]
     },
     "@apps/product-ts#test:fuzz": {
+      "dependsOn": ["@pkgs/ui-root-harness-ts#storybook:build"],
       "cache": false,
       "passThroughEnv": ["*"]
     },

@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly random run 41259822405 at ccad90a0e failed with HARNESS_SEED=307097627 when pkgs/ui-root-harness-ts/tests/storybook-index.test.ts opened a missing .cache/storybook/index.json. test:fuzz must depend on the Storybook build, as the owning package's test task does. Coverage run 41258668451 omitted the same prerequisite and failed the index and manifest tests; both replay tasks now declare the build edge.",
+  "regressionTest": "libs/tools-harness-ts/scripts/fuzz-prerequisites.test.ts"
+}

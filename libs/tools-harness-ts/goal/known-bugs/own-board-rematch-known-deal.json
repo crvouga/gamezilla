@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly run 41258668451 failed matched-game-own-board trace 29 at step 33 for Word Tiles (seed 0x67932): after Bob accepted a rematch the model sent its known opening against a different deal. Ready the new game with chooseKnownSetups, as other matched-game model bindings do. The literal failing trace prefix is pinned in the binding's regressions.",
+  "regressionTest": "libs/games-harness-ts/tests/quint/matched-game-own-board.binding.ts"
+}

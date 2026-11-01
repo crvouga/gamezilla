@@ -154,12 +154,28 @@ function positionActions(position: string): readonly string[] | null {
   const body = position.slice(BATTLESHIP_PREFIX.length);
   return body === '' ? [] : body.split(',');
 }
+/** Repeated reads share validation; bound memory and freeze every shared array. */
+const READ_POSITIONS = new Map<string, BattleshipPosition>();
+const MAX_READ_POSITIONS = 256;
+
 /** The decoded `position`, or `null` unless it is a well-formed Battleship position. */
 export function readBattleshipPosition(
   position: string
 ): BattleshipPosition | null {
+  const known = READ_POSITIONS.get(position);
+  if (known !== undefined) return known;
   const actions = positionActions(position);
-  return actions === null ? null : replayBattleship(actions);
+  const battle = actions === null ? null : replayBattleship(actions);
+  if (battle === null) return null;
+  Object.freeze(battle.actions);
+  Object.freeze(battle.shots.white);
+  Object.freeze(battle.shots.black);
+  Object.freeze(battle.shots);
+  Object.freeze(battle);
+  if (READ_POSITIONS.size === MAX_READ_POSITIONS)
+    READ_POSITIONS.delete(READ_POSITIONS.keys().next().value!);
+  READ_POSITIONS.set(position, battle);
+  return battle;
 }
 /** The decoded `position`; throws unless it is a well-formed Battleship position. */
 export function decodeBattleshipPosition(position: string): BattleshipPosition {
