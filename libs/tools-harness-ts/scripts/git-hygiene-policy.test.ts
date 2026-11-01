@@ -50,17 +50,18 @@ test('an open or closed unmerged PR prevents cleanup even with an older merged P
   }
 });
 
+// regression: git-hygiene-branded-fixture
 test('repository identity comes from origin without requiring Windows Git discovery', () => {
   for (const remote of [
-    'https://github.com/crvouga/gamezilla.git',
-    'git@github.com:crvouga/gamezilla.git',
-    'ssh://git@github.com/crvouga/gamezilla',
+    'https://github.com/example/widget.git',
+    'git@github.com:example/widget.git',
+    'ssh://git@github.com/example/widget',
   ])
-    expect(githubRepository(remote)).toBe('crvouga/gamezilla');
+    expect(githubRepository(remote)).toBe('example/widget');
   expect(() =>
-    githubRepository('https://example.com/crvouga/gamezilla')
+    githubRepository('https://example.com/example/widget')
   ).toThrow();
   expect(() =>
-    githubRepository('https://github.com/crvouga/gamezilla/extra')
+    githubRepository('https://github.com/example/widget/extra')
   ).toThrow();
 });
