@@ -123,6 +123,7 @@ function checkout() {
     prepare: script('prepare.sh'),
     teardown: script('teardown.sh'),
     check: script('check.sh'),
+    action: (name: string) => script('action.sh', [name]),
     port: script('port.sh'),
     step: (name: string) => script('step.sh', [name]),
   };
@@ -275,5 +276,23 @@ test.each(['WORKSPACE_RUN_TEST_INSTALL', 'WORKSPACE_RUN_TEST_SYSTEM'])(
       existsSync(join(dir, 'node_modules/.workspace-install-fingerprint'))
     ).toBe(false);
     expect(run().status).not.toBe(0);
+  }
+);
+
+// regression: t3-storybook-nested-supervisor
+test.each([
+  ['storybook', 'bun run storybook'],
+  ['storybook-build', 'bun run storybook:build'],
+  ['format', 'bun fmt'],
+  ['diagnostics', 'bun obs last'],
+  ['feedback', 'bun feedback --list'],
+  ['simulators', 'bun run sims:open'],
+])(
+  'T3 action %s delegates directly to its existing launcher',
+  (name, command) => {
+    const { action } = checkout();
+    const result = action(name!)();
+    expect(result.status).toBe(0);
+    expect(result.calls).toEqual([command!]);
   }
 );

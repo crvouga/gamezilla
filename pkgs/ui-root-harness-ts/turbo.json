@@ -8,11 +8,13 @@
     "dev:storybook": {
       "dependsOn": ["@apps/product-ts#dev:prepare"],
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "passThroughEnv": ["STORYBOOK_*"]
     },
     "storybook:dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "passThroughEnv": ["STORYBOOK_*"]
     },
     "storybook:build": {
       "dependsOn": [
@@ -33,7 +35,8 @@
         "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/**/*.stories.tsx",
         "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root,assistant,collab-ui}-client-ts/src/**/*.example.tsx",
         "$TURBO_ROOT$/pkgs/ui-root-client-ts/storybook/**",
-        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root}-client-ts/src/tsconfig.json"
+        "$TURBO_ROOT$/pkgs/{ui-root,ui-devtools,chess-board-root}-client-ts/src/tsconfig.json",
+        "scripts/storybook-dev.ts"
       ],
       "outputs": [".cache/storybook/**"]
     },
@@ -61,6 +64,11 @@
       ],
       "outputs": [],
       "env": ["BUN_CHROME_PATH"]
+    },
+    "ci:storybook-remote": {
+      "dependsOn": ["storybook:build"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/mise.toml"],
+      "outputs": []
     }
   }
 }

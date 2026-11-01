@@ -11,8 +11,8 @@
  * | `ios`    | `macos` |
  *
  * CI runs every job on a GitHub-hosted Ubuntu runner (`CI_RUNNER`), so it verifies
- * every package without `platforms` (`ciFilters`). A native package is verified only by `bun verify` on a host
- * that builds it.
+ * every package without `platforms` (`ciFilters`). Default local commands use that same portable set. A native package is
+ * verified only by explicit host or package commands on a host that builds it.
  *
  * A package without `platforms` (TypeScript on Bun) runs anywhere Bun does
  * and is verified on the `linux` host. A package listing several hosts is

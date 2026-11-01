@@ -55,6 +55,54 @@ function commandArrays(commands: Record<Hook, string>): Record<Hook, string[]> {
 
 export const ORCHESTRATORS: Orchestrator[] = [
   {
+    name: 'T3 Code',
+    docs: 'https://github.com/pingdotgg/t3code/blob/main/packages/contracts/src/t3ProjectFile.ts',
+    configPath: 't3.json',
+    render: (commands) => ({
+      $schema: 'https://t3.codes/schema/t3.json',
+      defaultThreadEnvMode: 'worktree',
+      scripts: [
+        {
+          name: 'Setup dependencies',
+          command: `./${SOURCE_DIR}/setup.sh`,
+          icon: 'configure',
+          runOnWorktreeCreate: true,
+          async: false,
+        },
+        { name: 'Run local stack', command: commands.run, icon: 'play' },
+        {
+          name: 'Stop local services',
+          command: commands.teardown,
+          icon: 'debug',
+          runOnSettle: true,
+        },
+        {
+          name: 'Verify release gate',
+          command: `./${SOURCE_DIR}/check.sh`,
+          icon: 'test',
+        },
+        {
+          name: 'Check workspace tooling',
+          command: `./${SOURCE_DIR}/check.sh @libs/tools-harness-ts`,
+          icon: 'test',
+        },
+        ...[
+          ['Format repository', 'format', 'lint'],
+          ['Run Storybook (local or tunnel)', 'storybook', 'play'],
+          ['Run Storybook on LAN', 'storybook-lan', 'play'],
+          ['Build Storybook', 'storybook-build', 'build'],
+          ['Last failure diagnostics', 'diagnostics', 'debug'],
+          ['List feedback reports', 'feedback', 'debug'],
+          ['Open native simulators', 'simulators', 'play'],
+        ].map(([name, action, icon]) => ({
+          name,
+          command: `./${SOURCE_DIR}/action.sh ${action}`,
+          icon,
+        })),
+      ],
+    }),
+  },
+  {
     name: 'Emdash',
     docs: 'https://emdash.com/docs/project-config',
     configPath: '.emdash.json',

@@ -83,7 +83,7 @@ end-to-end integration pass. No ADE installation is required by the scripts.
 | Tool | Repository configuration | Settings/manual step | Evidence |
 | --- | --- | --- | --- |
 | Orca ADE | No invented repo config | Repository → Hooks: setup command below; Quick Commands for run/cleanup | Official docs + installed CLI guide; local preview assertion passed, lifecycle untested |
-| T3 Code | No speculative `t3.json` schema | Project Actions: setup on worktree create, run on demand, cleanup on settle if available | Official docs/source; local preview assertion passed, lifecycle untested |
+| T3 Code | Generated `t3.json`, also installed as project actions | Blocking setup on worktree creation; checkout-owned cleanup on settle | Official contract and project API readback; no lifecycle execution claim |
 | Conductor | Generated `.conductor/settings.toml`: setup/run/archive | Check local overrides; run only after setup succeeds | Official scripts reference; not installed/tested |
 | Superset / Paradev | Generated `.superset/config.json`: setup/run/teardown | Enable waiting for setup before agent launch; check user overrides | Official lifecycle reference; not installed/tested |
 | Cursor editor / Agent worktrees | Generated `.cursor/worktrees.json`, Unix setup only | Run/cleanup in terminal or VS Code task; see Worktrees Setup output on failure | Official worktree reference; not installed/tested |
@@ -126,31 +126,95 @@ Sources: [hooks](https://www.onorca.dev/docs/agents/hooks-memory),
 
 ### T3 Code
 
-Under **Settings → Code → Projects → Actions**, create Setup with command
-`./libs/tools-harness-ts/workspace/prepare.sh` and enable **run on worktree create**.
-Create Run with `./libs/tools-harness-ts/workspace/run.sh` (on demand), and Cleanup
-with `./libs/tools-harness-ts/workspace/teardown.sh`. If your build offers **run on
-settle**, use it for Cleanup; otherwise run Cleanup explicitly before settling or
-removing a worktree. Do not make the long-running Run action a setup action.
-Use one setup action; current official source selects the first marked one.
+The generated root `t3.json` declares isolated worktrees for new threads and the
+shared actions below. `bun run workspace:sync` refreshes it; the workspace lifecycle
+CI gate rejects drift. In **Settings → Code → Projects → Actions**, import that file
+on another environment. Actions saved in T3 are a snapshot: reimport after changing
+the generated list. This checkout's project actions were installed through T3's API.
 
-Actions use the worktree directory when one exists, otherwise the project root,
-and execute in a terminal on the selected environment server. Shell behavior is
-terminal-dependent; explicit Bash scripts avoid assuming a profile was loaded.
-Inspect the action terminal for nonzero failures and rerun after fixing them;
-no claim is made that a failed setup blocks every agent launch. Project actions
-can override environment defaults, so configure the intended environment/project.
-For an ordinary existing checkout run Setup explicitly.
+| Action | Purpose |
+| --- | --- |
+| Setup dependencies | Strict `setup.sh`; automatically runs on worktree creation with `async: false` so the agent waits for completion |
+| Run local stack | Foreground supervised stack, isolated ports, preserved local data |
+| Stop local services | Checkout-owned cleanup, also on worktree settlement |
+| Verify release gate | Required full `bun verify` through `check.sh` |
+| Check workspace tooling | Package lint, types and tests through Turbo |
+| Format repository | Existing `bun fmt` task graph |
+| Run Storybook (local or tunnel) / Run Storybook on LAN | Owned development server on the workspace port, with explicit access mode |
+| Build Storybook | Static build |
+| Last failure diagnostics | Existing `bun obs last` workflow |
+| List feedback reports | Read local defect reports before investigation |
+| Open native simulators | Existing interactive macOS/Xcode simulator launcher |
 
-Use the printed URL in Preview. With remote environments select/forward the host's
-actual web and API ports; a desktop `localhost` URL alone is not proof that remote
-services are reachable. Fixed auto-preview URLs are deliberately omitted because
-ports vary. Repository `t3.json` actions can be imported according to official docs,
-but schema and version behavior are not established here; app settings are the
-explicit supported fallback, rather than a guessed file.
+Setup is strict here, rather than the best-effort `prepare.sh` adapter: failures
+remain nonzero. Inspect the terminal, fix the cause and rerun Setup. Existing local
+checkouts need Setup once too. Run remains on demand, separate from dependency
+installation. Only Setup runs on worktree creation; only Stop runs on settlement.
+Settlement cleanup skips local-root threads in T3, so stop services explicitly there.
+The simulator action requires macOS/Xcode and separate device allocation for
+concurrent sessions; it never runs automatically.
+
+Actions execute in the active worktree, otherwise the project root. Shared Bash
+entrypoints activate pinned tools even when a GUI terminal lacks shell-profile paths.
+They do not copy credentials or run deployment/database destruction commands.
+Full verification and diagnostics retain their existing secret requirements.
+
+Use the stack's printed URL or `.cache/localhost-stack/dev.json` `webOrigin` in
+Preview. Fixed preview URLs and automatic preview opening are omitted because ports
+vary per checkout. For remote environments forward the actual web and API ports.
+Project/environment workspace overrides take precedence over the repository default;
+leave them on Inherit to use `t3.json`.
 
 Sources: [project settings](https://github.com/pingdotgg/t3code/blob/main/docs/user/project-settings.md),
-[action cwd, setup/settle selection and terminal input](https://github.com/pingdotgg/t3code/blob/main/packages/shared/src/projectScripts.ts).
+[repository file contract](https://github.com/pingdotgg/t3code/blob/main/packages/contracts/src/t3ProjectFile.ts),
+[action lifecycle](https://github.com/pingdotgg/t3code/blob/main/packages/shared/src/projectScripts.ts).
+
+### Storybook from another computer
+
+Choose **Run Storybook on LAN** in T3, or run:
+
+```sh
+./libs/tools-harness-ts/workspace/action.sh storybook-lan
+```
+
+Open a printed **LAN** URL on the viewing computer. Its `localhost` points to
+itself, not the computer running Storybook. LAN mode binds `0.0.0.0`; the default
+**Run Storybook (local or tunnel)** action stays on loopback. Permit the printed
+port in the host firewall when using LAN access. Use this on a trusted network.
+
+For a remote T3 environment, forward the printed port using that environment's
+port-forwarding facility. Alternatively, run the printed SSH forwarding command
+on the viewing computer, replacing `<user>@<server>` with the execution host.
+Then open the local forwarded URL. HTTP and WebSocket traffic must both pass
+through a reverse proxy; an SSH TCP forward carries both automatically.
+
+The actual port defaults to the checkout's workspace block +2. `STORYBOOK_PORT`
+can pin a different port; an occupied port fails instead of silently changing it.
+The launcher prints addresses and records `starting`, `ready` and `stopped` in
+`pkgs/ui-root-harness-ts/.cache/storybook-dev.json`. Use that file when the full
+stack already owns Storybook; a second action does not start another copy.
+Stop local services before changing the binding of an existing running stack.
+
+The same settings apply to standalone and full-stack Storybook:
+
+```sh
+STORYBOOK_HOST=0.0.0.0 ./libs/tools-harness-ts/workspace/run.sh
+# Optional aliases / reverse-proxy external origin:
+STORYBOOK_ALLOWED_HOSTS=studio.local STORYBOOK_ORIGIN=https://preview.example.test \
+  ./libs/tools-harness-ts/workspace/action.sh storybook-lan
+```
+
+`STORYBOOK_ALLOWED_HOSTS` is a comma-separated list of explicit hostnames, not
+wildcards. LAN IP addresses and loopback remain usable. For an HTTPS reverse
+proxy or a different external port, `STORYBOOK_ORIGIN` supplies its public origin
+(no path or credentials); its hostname is allowed automatically and WebSockets
+use that origin. Without an override, live connections follow the browser's
+accessed hostname and port, including plain TCP forwarding to a different port.
+No fixed preview URL is saved in T3 because workspace ports vary.
+
+The package-owned `ci:storybook-remote` gate loads a real story through a LAN
+interface, a hostname and a forwarded port, checks live WebSocket origins,
+rejects unknown hostnames, and checks readiness and duplicate-start behavior.
 
 ### Other hosts and agents
 
