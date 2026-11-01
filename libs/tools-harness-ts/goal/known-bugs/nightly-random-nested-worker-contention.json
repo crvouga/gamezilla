@@ -1,4 +1,4 @@
 {
-  "summary": "Nightly random run 41257984650 scheduled three outer suites concurrently while the property suite spawned four CPU workers. Battleship and Pong properties exceeded their unchanged 5-second deadlines. Run every outer suite serially while retaining each suite's full worker pool and exploration depth.",
+  "summary": "Nightly random runs 41257984650 and 41258553563 exceeded unchanged Battleship and Pong deadlines while property files shared CPU workers. Serialize both outer suites and inner property files while retaining every test and the full exploration depth.",
   "regressionTest": "libs/tools-harness-ts/scripts/workflow-cache.test.ts"
 }

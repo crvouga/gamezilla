@@ -18,6 +18,7 @@ test('randomized suites own the runner one worker pool at a time', () => {
     (step) => step.name === 'verify-nightly:random'
   );
   expect(random?.env?.['TURBO_CONCURRENCY']).toBe('1');
+  expect(random?.env?.['PBT_CONCURRENCY']).toBe('1');
 });
 
 // regression: verify-cache-write-only-override

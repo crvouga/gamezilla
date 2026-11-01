@@ -49,6 +49,7 @@ type Search = {
   readonly board: string;
   readonly trie: WordTrie;
   readonly rack: RackTiles;
+  readonly anchors: ReadonlySet<number>;
   readonly found: Map<string, GeneratedMove>;
   steps: number;
   readonly budget: number;
@@ -137,7 +138,6 @@ function linesOf(search: Pick<Search, 'board' | 'trie'>): readonly Line[] {
 
 function isAnchor(board: string, cell: number): boolean {
   if (isOccupied(board, cell)) return false;
-  if (boardIsEmpty(board)) return cell === CENTER_CELL;
   const row = Math.floor(cell / BOARD_SIZE);
   const column = cell % BOARD_SIZE;
   return [
@@ -293,7 +293,7 @@ function searchAnchor(search: Search, line: Line, anchor: number): void {
   while (
     anchor - limit - 1 >= 0 &&
     !isOccupied(board, line.cells[anchor - limit - 1]!) &&
-    !isAnchor(board, line.cells[anchor - limit - 1]!)
+    !search.anchors.has(line.cells[anchor - limit - 1]!)
   )
     limit++;
   leftPart(search, { line, anchor, node: ROOT_NODE }, [], limit);
@@ -310,13 +310,20 @@ export function generateMoves(input: {
     board: input.board,
     trie: input.trie,
     rack: rackTiles(input.rack),
+    anchors: new Set(
+      boardIsEmpty(input.board)
+        ? [CENTER_CELL]
+        : Array.from({ length: input.board.length }, (_, cell) => cell).filter(
+            (cell) => isAnchor(input.board, cell)
+          )
+    ),
     found: new Map(),
     steps: 0,
     budget: input.budget,
   };
   for (const line of linesOf(search))
     line.cells.forEach((cell, index) => {
-      if (search.steps < search.budget && isAnchor(input.board, cell))
+      if (search.steps < search.budget && search.anchors.has(cell))
         searchAnchor(search, line, index);
     });
   return {
