@@ -1,0 +1,4 @@
+{
+  "summary": "Default bun verify, verify-nightly, lint and fmt scheduled reference Swift packages, causing the portable development workflow to fail when Xcode 27.1 was absent. Default task plans now use the portable package set; native package checks and Swift formatting remain explicit opt-in commands.",
+  "regressionTest": "libs/tools-harness-ts/scripts/default-platforms.test.ts"
+}

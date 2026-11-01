@@ -1,9 +1,9 @@
 #!/usr/bin/env bun
-// @io-wall-ok — Swift formatter entry: `bun fmt` writes, each package's `lint` checks.
+// @io-wall-ok — Swift formatter entry: `bun run fmt:swift` writes, each package's `lint` checks.
 /**
  * Swift's one formatter and linter is `swift format`, which ships with the
  * pinned toolchain (`native-toolchain.ts`), in its default style. A Swift
- * package's `lint` runs `swiftFormatOk` over its own files; `bun fmt`
+ * package's `lint` runs `swiftFormatOk` over its own files; `bun run fmt:swift`
  * (`//#fmt:swift`) rewrites every tracked Swift file, and needs no toolchain
  * when there is none.
  */
@@ -41,7 +41,7 @@ export async function swiftFormatOk(
       )) === 0;
     if (!ok)
       console.error(
-        `${pkg}: Swift is formatted by \`swift format\` — run \`bun fmt\``
+        `${pkg}: Swift is formatted by \`swift format\` — run \`bun run fmt:swift\``
       );
     return ok;
   } catch (error) {

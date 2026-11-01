@@ -16,8 +16,40 @@ describe('renderConfigs', () => {
     );
   });
 
+  test('T3 waits for strict setup and cleans up only its settled worktree', () => {
+    const file = files.find((entry) => entry.path === 't3.json');
+    expect(file).toBeDefined();
+    const config = JSON.parse(file!.content) as {
+      defaultThreadEnvMode: string;
+      scripts: {
+        command: string;
+        async?: boolean;
+        runOnWorktreeCreate?: boolean;
+        runOnSettle?: boolean;
+        previewUrl?: string;
+      }[];
+    };
+    expect(config.defaultThreadEnvMode).toBe('worktree');
+    const setup = config.scripts.filter((script) => script.runOnWorktreeCreate);
+    expect(setup).toHaveLength(1);
+    expect(setup[0]?.command).toBe(
+      './libs/tools-harness-ts/workspace/setup.sh'
+    );
+    expect(setup[0]?.async).toBe(false);
+    expect(config.scripts.filter((script) => script.runOnSettle)).toEqual([
+      expect.objectContaining({ command: hookCommand('teardown') }),
+    ]);
+    expect(
+      config.scripts.some((script) => script.command === hookCommand('run'))
+    ).toBe(true);
+    expect(
+      config.scripts.every((script) => script.previewUrl === undefined)
+    ).toBe(true);
+  });
+
   test('every orchestrator runs the same script for every hook', () => {
     for (const file of files) {
+      if (file.path === 't3.json') continue;
       if (file.path === '.vscode/tasks.json') {
         const config = JSON.parse(file.content) as {
           tasks: { args: string[] }[];

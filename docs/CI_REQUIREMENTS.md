@@ -92,8 +92,8 @@ Checks that need another host are not run in CI, and are listed here so a change
 
 | Check | Why it cannot run everywhere | Where it runs now |
 | --- | --- | --- |
-| `@pkgs/clock-shared-swift` (lint, tc, test) | Hosted Linux has no pinned Swift toolchain; macOS uses Xcode's (`native-toolchain.ts`) | `bun verify` on Linux or macOS |
-| `@apps/client-swift` (iOS build, launch, smoke test) | Xcode and the iOS simulator exist only on macOS | `bun verify` on a Mac with the pinned Xcode |
+| `@pkgs/clock-shared-swift` (lint, tc, test) | Hosted Linux has no pinned Swift toolchain; macOS uses Xcode's (`native-toolchain.ts`) | Explicit `verify:linux` / `verify:macos` through `turbo-ci-run.ts` |
+| `@apps/client-swift` (iOS build, launch, smoke test) | Xcode and the iOS simulator exist only on macOS | Explicit `verify:macos` through `turbo-ci-run.ts` with the pinned Xcode |
 | `@pkgs/pubsub-emqx-harness-ts` `emqx.contract.test.ts` | Its launcher is a shell script, and the gate is kept OS-neutral | `bun run test:posix` in the package |
 | `@pkgs/dev-owner-server-ts` `dev-owner*.test.ts` | Dev-owner's launch gate is POSIX: `/bin/sh` `kill -STOP`, `ps`, `/proc`, process groups. It is local dev tooling; CI never sets `DEV_OWNER_ROOT` | `bun run test:posix` in the package |
 | `@libs/tools-harness-ts` `verify-actionlint`, `workspace-run`, `verify-snapshot`, `verify-prepared-model`, `workflow-remote-tty` tests | Shebang fake executables run directly, the bash `workspace/*.sh` hooks with a POSIX PATH, `cp --reflink`/`cp -c` snapshots, a `Bun.Terminal` pseudo-terminal | `bun run test:posix` in the package |

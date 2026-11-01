@@ -139,6 +139,7 @@ export const MAIN_VERIFY_TASKS = [
   '@libs/tools-harness-ts#ci:conformance',
   '@libs/tools-harness-ts#ci:spec-ownership',
   '@pkgs/ui-root-harness-ts#ci:storybook',
+  '@pkgs/ui-root-harness-ts#ci:storybook-remote',
   'tc',
   'lint',
   'test',
@@ -799,10 +800,11 @@ const RESTORE_OUTPUTS_FLAG = '--restore-outputs';
 const PUBLISH_REPORTS_FLAG = '--publish-reports';
 
 /**
- * Exclude the root workspace from package tasks so root scripts like `lint`
- * (which themselves call turbo-ci-run) are never scheduled.
+ * Default commands verify the portable packages, matching CI. Native reference
+ * packages require an explicit package filter or verify:<host> command.
+ * Exclude root scripts like lint, which themselves call turbo-ci-run.
  */
-function rootExcludeFiltersFor(taskArgs: readonly string[]): string[] {
+export function rootExcludeFiltersFor(taskArgs: readonly string[]): string[] {
   const hasExplicitFilter = taskArgs.some((a) => a.startsWith('--filter='));
   // `pkg#task` ids name their package already; only bare task names need
   // the root workspace excluded.
@@ -810,11 +812,7 @@ function rootExcludeFiltersFor(taskArgs: readonly string[]): string[] {
     (a) => !a.startsWith('//') && !a.startsWith('--') && !a.includes('#')
   );
   if (hasExplicitFilter || !hasPackageTasks) return [];
-  const filters = [
-    '--filter=./apps/*',
-    '--filter=./libs/*',
-    '--filter=./pkgs/*',
-  ];
+  const filters = [...ciFilters(workspaceManifests(REPO_ROOT))];
   if (taskArgs.some((a) => a.startsWith('//'))) filters.push('--filter=//');
   return filters;
 }
