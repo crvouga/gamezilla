@@ -6,6 +6,8 @@ import {
   repositoryPolicyPlanArgs,
   validateRepositoryPolicy,
 } from '@libs/infra-shared-ts/repository-policy';
+import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
+import fc from 'fast-check';
 
 const paths = { tofuDir: '/tofu', cacheDir: '/cache' };
 
@@ -92,4 +94,26 @@ test('a missing or blank administration secret cannot fall back to the workflow 
     expect(missing).toEqual(['GITHUB_ADMIN_TOKEN']);
     expect(env['GITHUB_TOKEN']).toBeUndefined();
   }
+});
+
+test('no destructive action is ever admitted to the repository apply scope', () => {
+  assertProperty(
+    'configuration reconciliation never destroys resources',
+    fc.property(
+      fc.oneof(
+        fc.constant('module.repository.github_repository.this'),
+        fc.string()
+      ),
+      fc.array(fc.constantFrom('create', 'update', 'no-op'), { maxLength: 4 }),
+      fc.constantFrom('delete', 'forget'),
+      (address, accompanying, destructive) => {
+        expect(
+          repositoryPolicyDenials(plan(address, [destructive, ...accompanying]))
+        ).toHaveLength(1);
+        expect(
+          repositoryPolicyDenials(plan(address, [...accompanying, destructive]))
+        ).toHaveLength(1);
+      }
+    )
+  );
 });
