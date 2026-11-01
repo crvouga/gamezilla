@@ -1,4 +1,4 @@
 {
-  "summary": "Launching the ui-root-harness-ts storybook:dev task through owned-command changed cwd to the checkout root at reexec and command spawn. Storybook's -c storybook then resolved to gamezilla/storybook instead of pkgs/ui-root-harness-ts/storybook and failed MainFileMissingError. Preserve caller cwd through both ownership stages while retaining checkout ownership.",
+  "summary": "Launching the ui-root-harness-ts storybook:dev task through owned-command changed cwd to the checkout root at reexec and command spawn. Storybook's -c storybook then resolved to the checkout root's storybook directory instead of pkgs/ui-root-harness-ts/storybook and failed MainFileMissingError. Preserve caller cwd through both ownership stages while retaining checkout ownership.",
   "regressionTest": "pkgs/dev-owner-server-ts/tests/dev-owner-cwd.contract.test.ts"
 }
