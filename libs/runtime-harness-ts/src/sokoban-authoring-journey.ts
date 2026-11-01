@@ -3,6 +3,7 @@ import {
   contentTap,
   type PublishedJourneyContent,
 } from '@libs/game-puzzle-harness-ts/content-journey-device';
+import { discoverJourneyContent } from '@libs/game-puzzle-harness-ts/content-journey-discovery';
 import {
   authorJourneyPack,
   observeJourneyPack,
@@ -12,12 +13,7 @@ import { withdrawJourneyPublications } from '@libs/game-puzzle-harness-ts/conten
 import { SOKOBAN_JOURNEY_BOARD } from '@libs/sokoban-harness-ts/sokoban-journey-board';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { openContentLibrary } from './content-library-navigation';
-import {
-  endActiveSpace,
-  hostSpace,
-  JOURNEY_WAIT_MS,
-  tap,
-} from './journey-gestures';
+import { endActiveSpace, hostSpace, JOURNEY_WAIT_MS } from './journey-gestures';
 import { hostDeferringEnd } from './journey-space';
 import type { JourneyAccess, JourneyHost } from './journey-types';
 
@@ -108,7 +104,10 @@ export async function publishSokobanPack(
   const pack = published;
   await host.actAsGuest('discoverSokobanPack', async (ui) => {
     await openSokobanLibrary(ui);
-    await tap(ui, `content-published-${pack.revisionId}`);
+    await discoverJourneyContent(
+      { ui, timeoutMs: JOURNEY_WAIT_MS },
+      pack.revisionId
+    );
   });
   return pack;
 }

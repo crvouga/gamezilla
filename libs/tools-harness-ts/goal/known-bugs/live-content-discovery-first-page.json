@@ -1,0 +1,4 @@
+{
+  "summary": "Live Numberlink and Sokoban journeys searched only the first discovery page in an environment retaining earlier publications and withdrawals. Load subsequent pages through the normal library controls before opening the requested edition.",
+  "regressionTest": "libs/game-puzzle-harness-ts/tests/content-journey-discovery.test.ts"
+}

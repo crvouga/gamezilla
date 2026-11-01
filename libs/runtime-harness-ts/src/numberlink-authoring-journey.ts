@@ -3,6 +3,7 @@ import {
   contentTap,
   type PublishedJourneyContent,
 } from '@libs/game-puzzle-harness-ts/content-journey-device';
+import { discoverJourneyContent } from '@libs/game-puzzle-harness-ts/content-journey-discovery';
 import {
   authorJourneyPack,
   observeJourneyPack,
@@ -11,12 +12,7 @@ import {
 import { withdrawJourneyPublications } from '@libs/game-puzzle-harness-ts/content-journey-withdraw';
 import { NUMBERLINK_JOURNEY_BOARD } from '@libs/numberlink-harness-ts/numberlink-journey-board';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import {
-  endActiveSpace,
-  hostSpace,
-  JOURNEY_WAIT_MS,
-  tap,
-} from './journey-gestures';
+import { endActiveSpace, hostSpace, JOURNEY_WAIT_MS } from './journey-gestures';
 import { hostDeferringEnd } from './journey-space';
 import type { JourneyAccess, JourneyHost } from './journey-types';
 import { openNumberlinkLibrary } from './numberlink-journey-navigation';
@@ -94,7 +90,10 @@ export async function authorNumberlinkJourney(
   peerLink = await host.peerDevice.spaceLink();
   await host.actAsGuest('discoverNumberlinkPack', async (ui) => {
     await openNumberlinkLibrary(ui);
-    await tap(ui, `content-published-${published!.revisionId}`);
+    await discoverJourneyContent(
+      { ui, timeoutMs: JOURNEY_WAIT_MS },
+      published!.revisionId
+    );
   });
   return published;
 }
