@@ -95,6 +95,12 @@ jobs:
           secrets-environment: shared
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
+      - name: Assert administration credential was injected from the secret store
+        run: |
+          if [ -z "${GITHUB_ADMIN_TOKEN:-}" ]; then
+            echo "::error::Add GITHUB_ADMIN_TOKEN to the shared secret-store environment. CI needs repository administration access; the built-in workflow token cannot configure repository protections."
+            exit 1
+          fi
       - name: Detect repository configuration drift through OpenTofu
         run: bunx turbo run @libs/infra-server-ts#drift:repository-policy
 

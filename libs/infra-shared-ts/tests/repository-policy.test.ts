@@ -76,3 +76,20 @@ test('repository policy cannot destroy or bootstrap another stack', () => {
   expect(() => validateRepositoryPolicy('destroy', 'bootstrap')).toThrow();
   expect(() => validateRepositoryPolicy('apply', 'fleet')).toThrow();
 });
+
+test('a missing or blank administration secret cannot fall back to the workflow token', () => {
+  for (const token of [undefined, '', '  ']) {
+    const { env, missing } = repositoryPolicyEnvironment(
+      {
+        GITHUB_ADMIN_TOKEN: token,
+        GITHUB_TOKEN: 'workflow-token',
+        TOFU_STATE_PASSPHRASE: 'pass',
+        TOFU_STATE_ACCESS_KEY_ID: 'state',
+        TOFU_STATE_SECRET_ACCESS_KEY: 'secret',
+      },
+      paths
+    );
+    expect(missing).toEqual(['GITHUB_ADMIN_TOKEN']);
+    expect(env['GITHUB_TOKEN']).toBeUndefined();
+  }
+});

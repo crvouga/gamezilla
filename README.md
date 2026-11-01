@@ -813,7 +813,10 @@ Release applies the reviewed repository configuration after the full gate and
 before deploying shared services. Hourly Health detects drift. Both jobs use the
 same `repository-policy` concurrency group and the existing encrypted bootstrap
 state. They run on `main` in the main-only `production` environment, using the
-stored `GITHUB_ADMIN_TOKEN` and state credentials through OIDC. No new credential
+stored `GITHUB_ADMIN_TOKEN` and state credentials through OIDC. Each CI job
+asserts the administration credential was injected before running OpenTofu; if
+missing, it names `GITHUB_ADMIN_TOKEN` and the `shared` secret-store environment.
+The built-in GitHub Actions token cannot administer repository protections. No new credential
 is committed or copied from another checkout. Release rehearsal plans the same scope.
 
 The fixed `--repository-policy` scope covers repository settings, branch rules,
