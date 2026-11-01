@@ -1,0 +1,4 @@
+{
+  "summary": "PR 255 head e2712af failed the shipped Sokoban continuity journey in shard 38: a published pack's puzzle and edition were visible before its materialized membership row reached local SQLite. Starting then was refused with PUZZLE_UNAVAILABLE. Wait for the selected local membership row, while bundled packs remain ready from their shipped definition without waiting for background fetching.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-pack-choice-hydration.test.tsx"
+}
