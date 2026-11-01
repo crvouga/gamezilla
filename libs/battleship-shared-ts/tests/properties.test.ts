@@ -42,6 +42,7 @@ function hitTally(
 }
 
 describe('combat properties', () => {
+  // regression: battleship-nightly-repeated-parsing
   test('P-007 a side never shoots the same cell twice', () =>
     assertProperty(
       'shot uniqueness',

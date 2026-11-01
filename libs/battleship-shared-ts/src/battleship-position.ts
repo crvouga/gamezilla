@@ -4,7 +4,6 @@ import {
   CELLS,
   cellLabel,
   FLEET_CELL_COUNT,
-  isShipId,
   SHIP_IDS,
   type ShipId,
   shipLength,
@@ -18,8 +17,6 @@ import {
  */
 export const BATTLESHIP_PREFIX = 'bs:1:';
 export const BATTLESHIP_REASON = 'fleet sunk';
-const ACTION_PATTERN =
-  /^([a-j](?:10|[1-9])):(miss|hit|sunk:(carrier|battleship|cruiser|submarine|destroyer))$/;
 /** Each side shoots each of the 100 cells at most once. */
 const MAX_ACTIONS = 2 * CELLS.length;
 export type ShotOutcome = 'miss' | 'hit' | 'sunk';
@@ -29,6 +26,20 @@ export type Shot = {
   /** The ship sunk by a `sunk` shot. */
   readonly ship?: ShipId;
 };
+/** The finite shot vocabulary, shared immutably across history replays. */
+const SHOTS = new Map<string, Shot>(
+  CELLS.flatMap((cell) => {
+    const shots: Shot[] = [
+      { cell, outcome: 'miss' },
+      { cell, outcome: 'hit' },
+      ...SHIP_IDS.map((ship): Shot => ({ cell, outcome: 'sunk', ship })),
+    ];
+    return shots.map((shot): [string, Shot] => [
+      shotAction(shot),
+      Object.freeze(shot),
+    ]);
+  })
+);
 export type BattleshipPosition = {
   readonly actions: readonly string[];
   /** Each side's shots at the other side's board, in the order fired. */
@@ -51,12 +62,7 @@ export function otherSide(side: BattleshipSide): BattleshipSide {
 }
 /** The shot one public action records, or `null` unless it is one. */
 export function parseShotAction(action: string): Shot | null {
-  const match = ACTION_PATTERN.exec(action);
-  if (match === null) return null;
-  const ship = match[3];
-  if (ship !== undefined && isShipId(ship))
-    return { cell: match[1]!, outcome: 'sunk', ship };
-  return { cell: match[1]!, outcome: match[2] === 'hit' ? 'hit' : 'miss' };
+  return SHOTS.get(action) ?? null;
 }
 /** The public action spelling `shot`. */
 export function shotAction(shot: Shot): string {

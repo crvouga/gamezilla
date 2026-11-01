@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly run 41257438946 exceeded the unchanged 5-second test budget at 200 property runs: Battleship replay repeatedly allocated shot parses and fleet placement geometry. Reproduce with PBT_NUM_RUNS=200 FC_SEED=424242; determinism fuzz reported HARNESS_SEED=-694455527.",
+  "regressionTest": "libs/battleship-shared-ts/tests/bots.test.ts"
+}

@@ -38,6 +38,7 @@ describe('battleship bots', () => {
   test('offers three strengths', () => {
     expect(battleshipBots.difficulties).toEqual(['easy', 'medium', 'hard']);
   });
+  // regression: battleship-nightly-repeated-parsing
   test('two bots play only legal, fresh cells and finish within 199 shots', () =>
     assertProperty(
       'bots finish',
