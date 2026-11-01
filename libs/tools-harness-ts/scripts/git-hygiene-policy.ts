@@ -35,3 +35,12 @@ export function retentionReason(branch: HygieneBranch): string | null {
   if (!branch.mergeIncluded) return 'merge commit absent from origin/main';
   return null;
 }
+
+export function githubRepository(remote: string): string {
+  const match =
+    /^(?:https:\/\/github\.com\/|git@github\.com:|ssh:\/\/git@github\.com\/)([a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+?)(?:\.git)?$/u.exec(
+      remote
+    );
+  if (!match?.[1]) throw new Error('Git hygiene requires a github.com origin');
+  return match[1];
+}

@@ -1,6 +1,10 @@
 #!/usr/bin/env bun
 // @io-wall-ok — CLI composition root: Git and GitHub own repository I/O.
-import { type HygienePull, retentionReason } from './git-hygiene-policy';
+import {
+  githubRepository,
+  type HygienePull,
+  retentionReason,
+} from './git-hygiene-policy';
 
 function command(program: string, args: string[]): string {
   const result = Bun.spawnSync([program, ...args], {
@@ -15,6 +19,30 @@ function command(program: string, args: string[]): string {
 }
 
 const git = (...args: string[]) => command('git', args);
+
+let authenticatedGithubCli: string | undefined;
+
+function github(args: string[]): string {
+  if (authenticatedGithubCli === undefined) {
+    for (const candidate of ['gh', 'gh.exe']) {
+      if (Bun.which(candidate) === null) continue;
+      const status = Bun.spawnSync([candidate, 'auth', 'status'], {
+        stdout: 'pipe',
+        stderr: 'pipe',
+        timeout: 20_000,
+      });
+      if (status.exitCode === 0) {
+        authenticatedGithubCli = candidate;
+        break;
+      }
+    }
+  }
+  if (authenticatedGithubCli === undefined)
+    throw new Error(
+      'Sign in to GitHub CLI on this machine; existing Windows logins are supported.'
+    );
+  return command(authenticatedGithubCli, args);
+}
 
 function included(sha: string): boolean {
   const result = Bun.spawnSync(
@@ -44,7 +72,10 @@ function localBranches(): {
     });
 }
 
-function auditBranch(branch: ReturnType<typeof localBranches>[number]) {
+function auditBranch(
+  branch: ReturnType<typeof localBranches>[number],
+  repo: string
+) {
   if (branch.name === 'main') return 'default branch';
   if (branch.worktree !== null)
     return `worktree still attached: ${branch.worktree}`;
@@ -52,9 +83,11 @@ function auditBranch(branch: ReturnType<typeof localBranches>[number]) {
     branch.name === 'main'
       ? []
       : (JSON.parse(
-          command('gh', [
+          github([
             'pr',
             'list',
+            '--repo',
+            repo,
             '--head',
             branch.name,
             '--state',
@@ -88,9 +121,10 @@ function auditBranch(branch: ReturnType<typeof localBranches>[number]) {
 export function gitHygiene(apply: boolean): void {
   git('fetch', '--prune', 'origin');
   // Complete the inventory before mutating anything. Authentication failures fail closed.
+  const repo = githubRepository(git('remote', 'get-url', 'origin'));
   const inventory = localBranches().map((branch) => ({
     ...branch,
-    reason: auditBranch(branch),
+    reason: auditBranch(branch, repo),
   }));
   for (const branch of inventory) {
     if (branch.reason !== null) {

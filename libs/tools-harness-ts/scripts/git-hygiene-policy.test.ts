@@ -1,5 +1,9 @@
 import { expect, test } from 'bun:test';
-import { type HygieneBranch, retentionReason } from './git-hygiene-policy';
+import {
+  githubRepository,
+  type HygieneBranch,
+  retentionReason,
+} from './git-hygiene-policy';
 
 const merged: HygieneBranch = {
   name: 'feat/example',
@@ -44,4 +48,19 @@ test('an open or closed unmerged PR prevents cleanup even with an older merged P
       })
     ).not.toBeNull();
   }
+});
+
+test('repository identity comes from origin without requiring Windows Git discovery', () => {
+  for (const remote of [
+    'https://github.com/crvouga/gamezilla.git',
+    'git@github.com:crvouga/gamezilla.git',
+    'ssh://git@github.com/crvouga/gamezilla',
+  ])
+    expect(githubRepository(remote)).toBe('crvouga/gamezilla');
+  expect(() =>
+    githubRepository('https://example.com/crvouga/gamezilla')
+  ).toThrow();
+  expect(() =>
+    githubRepository('https://github.com/crvouga/gamezilla/extra')
+  ).toThrow();
 });

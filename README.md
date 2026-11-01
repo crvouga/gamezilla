@@ -367,7 +367,7 @@ A person establishes bootstrap once. CI subsequently manages repository configur
 | Grafana Cloud stack | One stack (the free plan allows one). Telemetry for every environment, told apart by `deployment.environment.name`. `prevent_destroy`. |
 | Infisical OIDC identity for this repository | GitHub Actions reads and writes secrets with its OIDC job token. |
 | AWS IAM OIDC provider and deploy role | GitHub Actions assumes AWS for IoT and the authorizer. The role ARN is the GitHub Actions variable `AWS_ROLE_ARN`. The store holds no long-lived AWS account key. |
-| GitHub repository settings and `main` protection | `main` is the default branch. Its active ruleset requires a PR, one independent approval after the latest push, resolved conversations, and GitHub Actions’ `verify:end` against current `main`; it blocks deletion and force-pushes. A merge commit is the only merge method (linear history is not required); merged heads are deleted. No bypass actors. Dependabot alerts and security updates are on, and Actions requires SHA-pinned actions; secret scanning and push protection follow the declared visibility (on once it is `public`). `production` accepts deployments from `main` only. Repository and ruleset are `prevent_destroy`. |
+| GitHub repository settings and `main` protection | [Git hygiene](#git-hygiene) defines merge, branch and security policy. Dependabot alerts and security updates are on; Actions requires SHA-pinned actions. `production` accepts deployments from `main` only. Repository and ruleset are `prevent_destroy`. |
 | GitHub Actions variables for this repository | Bootstrap provisions `SECRETS_IDENTITY_ID`, `SECRETS_PROJECT_ID`, `AWS_ROLE_ARN`, and `AWS_HEALTH_ROLE_ARN` through the GitHub provider. |
 
 GitHub policy lives in `libs/infra-shared-ts/tofu/modules/repository` under the bootstrap stack,
@@ -841,7 +841,8 @@ merged PR targeting `main` at the exact local head, its merge commit included in
 an open PR, or a closed unmerged PR is retained. Unknown branches require a
 human disposition. Local deletion never uses force; Git can conservatively retain
 a squash-merged branch. Every deletion or retention prints a reason. Credentials
-or inventory failures stop cleanup before any branch deletion.
+or inventory failures stop cleanup before any branch deletion. Cleanup reuses an
+authenticated `gh` or Windows `gh.exe` login; no token is copied into the checkout.
 
 T3’s **Settings → Worktrees → Cleanup**, scoped to this project, must enable
 merge cleanup, settled cleanup with zero-day retention, and cleanup after the
