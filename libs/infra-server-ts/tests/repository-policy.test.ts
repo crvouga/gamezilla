@@ -14,15 +14,22 @@ const actions = readFileSync(
 );
 const imports = readFileSync(join(TOFU, 'stacks/bootstrap/imports.tf'), 'utf8');
 
-test('main accepts a direct push and still refuses deletion and a force-push', () => {
+test('main requires reviewed verified PRs and refuses deletion and force-pushes', () => {
   expect(repository).toMatch(/resource "github_repository_ruleset" "main"/);
   for (const rule of ['deletion', 'non_fast_forward']) {
     expect(repository).toMatch(new RegExp(`${rule}\\s*=\\s*true`));
   }
   expect(repository).toMatch(/include\s*=\s*\["refs\/heads\/main"\]/);
   expect(repository).toMatch(/enforcement\s*=\s*"active"/);
-  expect(repository).not.toMatch(/\bpull_request\s*\{/);
-  expect(repository).not.toMatch(/\brequired_status_checks\s*\{/);
+  expect(repository).toMatch(/\bpull_request\s*\{/);
+  expect(repository).toMatch(/required_approving_review_count\s*=\s*1/);
+  expect(repository).toMatch(/require_last_push_approval\s*=\s*true/);
+  expect(repository).toMatch(/dismiss_stale_reviews_on_push\s*=\s*true/);
+  expect(repository).toMatch(/required_review_thread_resolution\s*=\s*true/);
+  expect(repository).toMatch(/\brequired_status_checks\s*\{/);
+  expect(repository).toMatch(/strict_required_status_checks_policy\s*=\s*true/);
+  expect(repository).toMatch(/context\s*=\s*"verify:end"/);
+  expect(repository).toMatch(/integration_id\s*=\s*15368/);
   expect(repository).not.toMatch(/\bbypass_actors\s*\{/);
   expect(repository).not.toMatch(/resource "github_branch_protection"/);
 });
@@ -155,5 +162,43 @@ test('Actions has read defaults, cannot approve PRs, and existing configuration 
       'SECRETS_IDENTITY_ID',
       'SECRETS_PROJECT_ID',
     ])
+  );
+});
+
+type PolicyJob = {
+  needs?: string | string[];
+  if?: string;
+  environment?: string;
+  concurrency?: { group: string };
+  steps?: { run?: string }[];
+};
+
+function workflow(name: string): Record<string, PolicyJob> {
+  return (
+    Bun.YAML.parse(
+      readFileSync(join(TOFU, '../../../.github/workflows', name), 'utf8')
+    ) as { jobs: Record<string, PolicyJob> }
+  ).jobs;
+}
+
+test('CI applies repository policy before deployment and checks drift without applying', () => {
+  const release = workflow('deploy.yml');
+  const apply = release['deploy-repository-policy'];
+  const drift = workflow('health.yml')['health-repository-policy'];
+  expect(apply?.needs).toBe('deploy-verify');
+  expect(release['deploy-fleet']?.needs).toContain('deploy-repository-policy');
+  for (const job of [apply, drift]) {
+    expect(job?.environment).toBe('production');
+    expect(job?.if).toContain("github.ref == 'refs/heads/main'");
+    expect(job?.concurrency?.group).toBe('repository-policy');
+  }
+  expect(
+    apply?.steps?.some((step) => step.run?.includes('#apply:repository-policy'))
+  ).toBe(true);
+  expect(
+    drift?.steps?.some((step) => step.run?.includes('#drift:repository-policy'))
+  ).toBe(true);
+  expect(drift?.steps?.some((step) => step.run?.includes('#apply:'))).toBe(
+    false
   );
 });

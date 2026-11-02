@@ -1,0 +1,4 @@
+{
+  "summary": "Git hygiene's repository locator fixture hardcoded the product namespace, breaking the brand and rebrand verification gates. Repository parsing examples must use a neutral owner and repository.",
+  "regressionTest": "libs/tools-harness-ts/scripts/git-hygiene-policy.test.ts"
+}

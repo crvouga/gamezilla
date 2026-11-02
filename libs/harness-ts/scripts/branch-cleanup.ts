@@ -4,6 +4,8 @@ export type CleanupPull = {
   sha: string;
   state: string;
   merged: boolean;
+  baseBranch: string;
+  mergeSha: string | null;
 };
 export type BranchCleanupPort = {
   branches(): Promise<readonly CleanupBranch[]>;
@@ -11,38 +13,72 @@ export type BranchCleanupPort = {
   defaultBranch(): Promise<string>;
   compare(base: string, head: string): Promise<string>;
   head(branch: string): Promise<string>;
-  remove(branch: string): Promise<void>;
+  remove(branch: string, expectedSha: string): Promise<void>;
+};
+export type CleanupReport = {
+  eligible: string[];
+  removed: string[];
+  retained: { branch: string; reason: string }[];
 };
 
-/** Only remove integrated heads or an unchanged head of a finished PR. */
+const integrated = (comparison: string) =>
+  comparison === 'behind' || comparison === 'identical';
+
+async function retentionReason(
+  port: BranchCleanupPort,
+  branch: CleanupBranch,
+  pulls: readonly CleanupPull[],
+  base: string
+): Promise<string | null> {
+  if (branch.protected || branch.name === base)
+    return 'protected or default branch';
+  const related = pulls.filter((pull) => pull.branch === branch.name);
+  if (related.some((pull) => pull.state === 'open')) return 'open PR';
+  if (related.some((pull) => !pull.merged))
+    return 'closed unmerged PR; explicit abandonment required';
+  const proof = related.find(
+    (pull) =>
+      pull.merged &&
+      pull.sha === branch.sha &&
+      pull.baseBranch === base &&
+      pull.mergeSha !== null
+  );
+  const included =
+    proof?.mergeSha !== null &&
+    proof?.mergeSha !== undefined &&
+    integrated(await port.compare(base, proof.mergeSha));
+  if (!included && !integrated(await port.compare(base, branch.sha)))
+    return 'no merged or integrated proof; disposition required';
+  if ((await port.head(branch.name)) !== branch.sha)
+    return 'head advanced during inventory';
+  return null;
+}
+
+/** Inventory first. Closed unmerged work is never an abandonment instruction. */
 export async function cleanupBranches(
   port: BranchCleanupPort,
   apply: boolean
-): Promise<readonly string[]> {
+): Promise<CleanupReport> {
   const branches = await port.branches();
   const pulls = await port.pulls();
   const base = await port.defaultBranch();
-  const removed: string[] = [];
-  for (const branch of branches) {
-    if (
-      branch.protected ||
-      branch.name === base ||
-      pulls.some((pull) => pull.branch === branch.name && pull.state === 'open')
-    )
+  const inventory = [];
+  for (const branch of branches)
+    inventory.push({
+      branch,
+      reason: await retentionReason(port, branch, pulls, base),
+    });
+  const report: CleanupReport = { eligible: [], removed: [], retained: [] };
+  for (const { branch, reason } of inventory) {
+    if (reason !== null) {
+      report.retained.push({ branch: branch.name, reason });
       continue;
-    const finished = pulls.some(
-      (pull) =>
-        pull.branch === branch.name &&
-        pull.sha === branch.sha &&
-        pull.state === 'closed'
-    );
-    const comparison = await port.compare(base, branch.sha);
-    if (!finished && comparison !== 'behind' && comparison !== 'identical')
-      continue;
-    // A branch reused after merge or advanced during the inventory is work.
-    if ((await port.head(branch.name)) !== branch.sha) continue;
-    if (apply) await port.remove(branch.name);
-    removed.push(branch.name);
+    }
+    report.eligible.push(branch.name);
+    if (apply) {
+      await port.remove(branch.name, branch.sha);
+      report.removed.push(branch.name);
+    }
   }
-  return removed;
+  return report;
 }
