@@ -157,15 +157,20 @@ Browser libraries are installed once per host and survive worktree changes and
 reboots. On Ubuntu 26.04, install the missing runtime packages with:
 
 ```sh
-sudo apt-get install --yes --no-install-recommends libnspr4 libnss3 libasound2t64
+sudo apt-get install --yes --no-install-recommends libnspr4 libnss3 libasound2t64 fonts-liberation
 ```
 
 On WSL, the Windows account that owns the distribution can perform this setup
 from its WSL terminal without a separate Linux administrator password:
 
 ```sh
-/mnt/c/Windows/system32/wsl.exe --distribution "$WSL_DISTRO_NAME" --user root --exec apt-get install --yes --no-install-recommends libnspr4 libnss3 libasound2t64
+/mnt/c/Windows/system32/wsl.exe --distribution "$WSL_DISTRO_NAME" --user root --exec apt-get install --yes --no-install-recommends libnspr4 libnss3 libasound2t64 fonts-liberation
 ```
+
+The snapshot renderer also needs `fonts-liberation` for the design system's
+monospace fallback. Without it, a minimal Linux host substitutes a different
+font and changes code/text wrapping despite the pinned browser. Installing that
+font restored all 109 Storybook comparisons without changing reference images.
 
 Host repair verified on Ubuntu 26.04/WSL (2026-11-02): T3's automated browser
 assertions loaded the checkout's web URL, required the configured product title and the

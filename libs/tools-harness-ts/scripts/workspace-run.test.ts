@@ -53,6 +53,11 @@ function writeFakeTools(dir: string): void {
     join(dir, '.bin/git'),
     '#!/usr/bin/env bash\n' +
       'case "$*" in\n' +
+      '  "config --get core.hooksPath")\n' +
+      '    [ "${WORKSPACE_RUN_TEST_HOOKS:-}" = "present" ] && exit 0\n' +
+      '    exit 1 ;;\n' +
+      '  "rev-parse --git-path hooks")\n' +
+      '    printf "%s\\n" "$PWD/.git/hooks" ;;\n' +
       '  "diff --name-only --diff-filter=U -z")\n' +
       '    printf "%s" "${WORKSPACE_RUN_TEST_UNMERGED:-}" | tr "\\n" "\\0" ;;\n' +
       '  *"rev-parse --path-format=absolute --git-common-dir"*)\n' +
@@ -136,7 +141,8 @@ test('failed setup is not accepted as a prepared checkout and can be retried', (
     existsSync(join(dir, 'node_modules/.workspace-install-fingerprint'))
   ).toBe(false);
   expect(run({ WORKSPACE_RUN_TEST_INSTALL: 'fail' }).status).not.toBe(0);
-  expect(setup().status).toBe(0);
+  const prepared = setup();
+  expect(prepared.status, `${prepared.stdout}\n${prepared.stderr}`).toBe(0);
   expect(run().calls).toEqual([DEV]);
 });
 
@@ -301,4 +307,14 @@ test('run repairs missing install tools and retries a failed automatic setup', (
   ).toBe(false);
   expect(run().calls).toEqual([INSTALL, DEV]);
   expect(run().calls).toEqual([DEV]);
+});
+
+// regression: workspace-fixture-git-config-absence
+test('an absent hook configuration permits setup while a configured hooks path is refused', () => {
+  const { setup } = checkout();
+  const refused = setup({ WORKSPACE_RUN_TEST_HOOKS: 'present' });
+  expect(refused.status).not.toBe(0);
+  expect(refused.stderr).toContain('this repository prohibits git hooks');
+  const allowed = setup();
+  expect(allowed.status, allowed.stderr).toBe(0);
 });

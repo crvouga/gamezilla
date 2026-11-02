@@ -1,0 +1,4 @@
+{
+  "summary": "The lifecycle fake Git returned success for an absent core.hooksPath and an empty hooks directory, so the no-hooks guard refused setup or inspected the filesystem root. The fixture now uses Git\u2019s absent-value exit status and a checkout-local hooks path, while pinning rejection of an explicitly configured hooks path.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workspace-run.test.ts"
+}
