@@ -1,0 +1,4 @@
+{
+  "summary": "A failed GitHub issue API call was ignored, allowing nightly reporting to silently fail. Failed reads or writes now fail the reporting job instead of treating a permission failure as no open issue.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-nightly-issue.test.ts"
+}

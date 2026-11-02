@@ -1,45 +1,9 @@
 name: Verify PR
 run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{0}', github.event.pull_request.number) || 'manual' }}"
 
-# Verify PR runs the gate (README "Verification and CI") at one of two
-# depths (`libs/tools-harness-ts/scripts/verify-profile.ts`):
-# - `release`, on every pull request and from Release on the exact commit it
-#   ships: the whole gate, the Gherkin spec parts, Quint models, contract
-#   models and release journeys included. A pull request runs exactly what
-#   Release runs, so it is red whenever Release would be, and every task it
-#   passes has the hash Release restores from the shared remote cache.
-# - `nightly`, from Verify Nightly: the whole gate deeper, with reports.
-#
-# Three jobs, on GitHub-hosted `ubuntu-24.04` runners. `verify:start` plans the
-# shards, `verify:shards (N)` run them with fail-fast off, and `verify:end` has
-# the ending word: one verdict that names every failure. The jobs keep the
-# `verify:` prefix wherever the gate runs, so `verify:end` is the one required
-# status and its name never moves.
-#
-# Packages declare the platforms they build for (docs/POLYGLOT.md). CI
-# verifies every package but the native (Swift) ones, which `bun verify`
-# checks on a host that builds them.
-#
-# Only uncached work starts a runner. `verify:start` asks the remote cache about
-# every task, packs the misses into as many shards as their measured durations
-# need, and records the cached verdicts itself. A fully cached run is the start
-# and the end, with no shard at all.
-#
-# It runs on every pull request, where `verify:end` is the required status. A
-# green pull request is mergeable; Release runs the same gate again on
-# `main` before anything ships, restoring what the pull request proved. It
-# also runs from a manual dispatch, from Release (`workflow_call`), and from
-# Verify Nightly. `bun verify` runs the whole gate locally.
-#
-# The `release` profile is bounded and never explores: each Quint model
-# replays the fewest drawn traces that take every bound action, the same ones
-# every run. It keeps no test report: no JUnit
-# file, no trace, snapshot or coverage upload, no publication. A failure is
-# read from the job log and the run summary. The CI artifacts below
-# (`libs/tools-harness-ts/scripts/ci-artifacts.ts`, in the CI artifacts
-# bucket, not GitHub's artifact storage) carry the plan, the shard verdicts
-# and build outputs from one job to the next, and `verify:end` deletes them.
-# Every report step is the `nightly` profile's.
+# The blocking task selection lives in ci-stage.ts. Nightly uses the complete
+# task catalog through these same jobs. Keep verify:end stable for branch rules.
+# See docs/CI_STAGE_POLICY.md for risk justifications and coverage ownership.
 
 # Least privilege: read the code and run metadata. Each job adds the OIDC
 # token the secrets backend trusts. A pull request from a fork gets neither
@@ -87,7 +51,7 @@ on:
         type: string
         default: normal
       profile:
-        description: release (the whole gate, on every pull request and before Release ships) or nightly (deeper budgets, reports kept)
+        description: release (blocking safety checks) or nightly (complete catalog, deeper budgets, retained reports)
         type: string
         default: release
       advisories:
@@ -116,7 +80,8 @@ env:
   SECRETS_ENV: dev
   SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
   GH_EVENT: ${{ github.event_name }}
-  PR_BASE: ${{ github.event.pull_request.base.sha }}
+  # Compare migrations to an immutable earlier revision, never main at HEAD.
+  PR_BASE: ${{ github.event.pull_request.base.sha || github.event.before || format('{0}^', github.sha) }}
   PR_HEAD: ${{ github.event.pull_request.head.sha }}
   # A cap, not the count. The plan sizes shards to the work: each holds at
   # least three times a shard's setup (`VERIFY_SHARD_SETUP_SECONDS`, 30 s)
@@ -131,6 +96,7 @@ env:
   VERIFY_CONCURRENCY: ${{ inputs.concurrency || vars.VERIFY_CONCURRENCY || '1' }}
   VERIFY_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
   VERIFY_PROFILE: ${{ inputs.profile || 'release' }}
+  VERIFY_CI_STAGE: ${{ inputs.profile == 'nightly' && 'nightly' || (github.event_name == 'pull_request' && 'pr' || 'release') }}
   VERIFY_ADVISORIES: ${{ inputs.advisories || 'enforce' }}
 
 # Every job runs on a GitHub-hosted `ubuntu-24.04` runner, and every `run:` step is bash.
@@ -166,7 +132,7 @@ jobs:
           fetch-depth: 0
       - uses: ./.github/actions/setup
         with:
-          tools: bun opentofu
+          tools: bun node gh opentofu
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
@@ -260,7 +226,7 @@ jobs:
           fetch-depth: 0
       - uses: ./.github/actions/setup
         with:
-          tools: --include-lazy
+          tools: ${{ inputs.profile == 'nightly' && '--include-lazy' || 'bun node gh opentofu conftest tflint gitleaks actionlint zizmor' }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
@@ -329,6 +295,7 @@ jobs:
           fetch-depth: 0
       - uses: ./.github/actions/setup
         with:
+          tools: ${{ inputs.profile == 'nightly' && '--include-lazy' || 'bun node gh opentofu conftest tflint gitleaks actionlint zizmor' }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}

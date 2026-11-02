@@ -105,7 +105,8 @@
         "dev:server",
         "dev:population",
         "dev:web",
-        "@pkgs/ui-root-harness-ts#dev:storybook"
+        "@pkgs/ui-root-harness-ts#dev:storybook",
+        "dev:preview"
       ],
       "persistent": true,
       "cache": false
@@ -202,13 +203,20 @@
       "outputLogs": "errors-only",
       "outputs": []
     },
-    "storybook:dev": { "cache": false, "persistent": true },
+    "storybook:dev": {
+      "cache": false,
+      "persistent": true
+    },
     "storybook:build": {
       "inputs": ["$TURBO_DEFAULT$"],
       "outputs": [".cache/storybook/**"]
     },
-    "storybook:coverage": { "cache": false },
-    "storybook:test": { "cache": false },
+    "storybook:coverage": {
+      "cache": false
+    },
+    "storybook:test": {
+      "cache": false
+    },
     "tc": {
       "dependsOn": ["^src"],
       "inputs": [
@@ -6674,6 +6682,11 @@
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-180/**"]
+    },
+    "@apps/product-ts#dev:preview": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
     }
   }
 }

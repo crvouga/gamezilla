@@ -279,22 +279,22 @@ describe('workload', () => {
     ]);
   });
 
-  test('a pull request runs the whole gate, so no task is left to Release', () => {
+  test('slow behavioral verification is accounted to nightly, not Release', () => {
     const split = profileSplit([
       { id: '@a#lint', seconds: 10, source: 'history' },
       { id: '@a#test:spec:0', seconds: 200, source: 'history' },
     ]);
-    expect(split.prSeconds).toBe(210);
-    expect(split.prTasks).toBe(2);
-    expect(split.releaseOnlySeconds).toBe(0);
+    expect(split.prSeconds).toBe(10);
+    expect(split.prTasks).toBe(1);
+    expect(split.nightlyOnlySeconds).toBe(200);
     expect(split.longest[0]?.id).toBe('@a#test:spec:0');
-    expect(split.longestPr[0]?.id).toBe('@a#test:spec:0');
+    expect(split.longestPr[0]?.id).toBe('@a#lint');
   });
 
   test('this repository has a workload and the four workflow files', () => {
     const workload = readWorkload(ROOT);
     expect(workload.load.coldSeconds).toBeGreaterThan(0);
-    expect(workload.split.prSeconds + workload.split.releaseOnlySeconds).toBe(
+    expect(workload.split.prSeconds + workload.split.nightlyOnlySeconds).toBe(
       workload.load.coldSeconds
     );
     expect(workload.workflows.map((w) => w.file)).toEqual(

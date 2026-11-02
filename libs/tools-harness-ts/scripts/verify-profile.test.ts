@@ -370,7 +370,7 @@ describe('Verify Nightly workflow', () => {
 
 // regression: release-cold-slow-suites
 describe('the gate', () => {
-  test('a pull request runs every gate task Release runs', () => {
+  test('local and nightly catalogs retain the complete behavioral verification', () => {
     const gate = [...MAIN_VERIFY_TASKS];
     expect(verifyAggregatorTasks('verify', gate)).toEqual(gate);
     for (const slow of [

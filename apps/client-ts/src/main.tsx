@@ -22,7 +22,11 @@ import '@pkgs/ui-root-client-ts/tokens.css';
 import { render } from 'solid-js/web';
 
 const offline = wallOfflineNetworkController();
-const clientEnv = wallClientEnv({ room: wallSpaceRoomTransport, offline });
+const clientEnv = wallClientEnv({
+  http: { fetch: (input, init) => globalThis.fetch(input, init) },
+  room: wallSpaceRoomTransport,
+  offline,
+});
 bootBrowserObservability({
   monotonicNow: monotonicClock.now,
   env: clientEnv,

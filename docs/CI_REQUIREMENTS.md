@@ -1,6 +1,6 @@
 # CI requirements
 
-Capacity plan for pull-request verifications. Every workflow job runs on a standard GitHub-hosted `ubuntu-24.04` runner ([below](#runner-operating-systems)); the sections that size a warm pool are the sizing a faster, dedicated fleet would need and provision nothing. The measured section is generated from [`libs/tools-harness-ts/scripts/verify-task-costs.json`](../libs/tools-harness-ts/scripts/verify-task-costs.json) and the workspace graph. [`libs/tools-harness-ts/scripts/ci-load.test.ts`](../libs/tools-harness-ts/scripts/ci-load.test.ts) fails when that section drifts, or when the corpus no longer fits the runner below.
+Capacity reference for the complete verification catalog. Hosted PR and release stages select the smaller blocking subset defined in [CI stage policy](CI_STAGE_POLICY.md). The generated full-catalog sizing below remains a conservative reference, not a claim about the new PR task selection. Every workflow job runs on a standard GitHub-hosted `ubuntu-24.04` runner ([below](#runner-operating-systems)); the sections that size a warm pool are the sizing a faster, dedicated fleet would need and provision nothing. The measured section is generated from [`libs/tools-harness-ts/scripts/verify-task-costs.json`](../libs/tools-harness-ts/scripts/verify-task-costs.json) and the workspace graph. [`libs/tools-harness-ts/scripts/ci-load.test.ts`](../libs/tools-harness-ts/scripts/ci-load.test.ts) fails when that section drifts, or when the corpus no longer fits the runner below.
 
 Refresh after a cold Verify harvest:
 
@@ -29,15 +29,15 @@ Release verification, deploy, health, and the nightly run have their own deadlin
 
 ## What a pull-request verification runs
 
-The affected Verify gate tasks. A cache hit is not scheduled.
+The affected safety tasks from `ci-stage.ts`. A cache hit is not scheduled. The complete catalog remains in nightly and local verification.
 
 A source change reruns that package and every transitive workspace dependent, because those tasks depend on `^src`. A test-only change stays on the package that holds the test: `src` inputs exclude `*.test.ts`. A workspace package that a package uses only from its tests and scripts (a `devDependency` its `src/` never imports) is not an edge of that package's own `src`: the package lists its `src` edges in its `turbo.json` (`libs/tools-harness-ts/scripts/src-task-edges.ts` writes them, `src-task-edges.test.ts` fails on drift). An edit to the helper reruns the package's own `lint`, `tc` and `test`, which `^src` still reaches, and stops there instead of walking up to everything that depends on the package. `mise.toml` and `tsconfig.base.json` (compiler options only) are global dependencies, and `bun.lock` is the audit input, so each of those misses the whole corpus. That full miss is still the five-minute promise. The workspace import aliases are in `tsconfig.paths.json`, which is not a global dependency: 73 of the 75 edits `tsconfig.base.json` took between 2026-09-01 and 2026-10-28 only added or renamed an alias, and each one missed every task. Packages resolve each other through `node_modules` and their `exports`, so `@apps/product-ts#tc` is the only task that lists the file. `lint` lists `biome.shared.json`, not `biome.json`: about three quarters of the entries in the plugins' `includes` lists name one package's directory, so `biome.json` is split into the shared part (rules, plugins, repository-wide scopes) and, per package, a `biome-scope.json` holding the entries that name it (`libs/tools-harness-ts/scripts/biome-scope-slices.ts` writes both after an edit to `biome.json`; `biome-scope-slices.test.ts` fails on drift). Scoping a package under a rule reruns that package's `lint`; a new rule, plugin or repository-wide scope still reruns every package's. A package's `src` also leaves out `tsconfig.tc.json`, `turbo.json` and `biome-scope.json`, which no dependent can see, and its `src` edges are the workspace packages its `src/` (and any other directory its `exports` name) imports, whichever section of `package.json` declares them.
 
-Health, deploy, and `@apps/product-ts#verify:ui-quality` stay on the release path. The population worker's tests run on Bun inside this verification.
+Deployment and live health remain on the release path. UI quality, population worker behavioral tests and other comprehensive suites run nightly; its hosting safety check remains blocking.
 
 ## Cache-friendly structure
 
-A pull request is fast when most of its tasks are cache hits, and what makes an edit miss is the structure of the workspace, not the edit. `@libs/tools-harness-ts#ci:cache-hygiene` (in the Verify gate, about a second) keeps four structures from coming back. Its thresholds and every exception are in [`libs/tools-harness-ts/cache-hygiene.json`](../libs/tools-harness-ts/cache-hygiene.json); each failure says what is wrong, what it costs and what to do.
+A pull request is fast when most of its tasks are cache hits, and what makes an edit miss is the structure of the workspace, not the edit. `@libs/tools-harness-ts#ci:cache-hygiene` (in nightly and local verification, about a second) keeps four structures from coming back. Its thresholds and every exception are in [`libs/tools-harness-ts/cache-hygiene.json`](../libs/tools-harness-ts/cache-hygiene.json); each failure says what is wrong, what it costs and what to do.
 
 **Blast radius.** The number of packages whose `lint`, `tc` and `test` rerun when one file of a package changes: the package, every package whose `src` hash inherits its `src`, and every package that declares one of those. `bun run cache:explain <package>` prints it, who contributes to it, and which files reach few packages. `cache-hygiene.test.ts` checks the number against Turborepo's own dry run.
 
@@ -161,12 +161,12 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 
 | | |
 | --- | --- |
-| Packages | 361 |
-| Verify scripts | 1502 |
+| Packages | 362 |
+| Verify scripts | 1505 |
 | Measured scripts | 934 |
-| Estimated scripts | 568 |
+| Estimated scripts | 571 |
 | Stale cost keys | 574 |
-| Cold CPU | 19513 s |
+| Cold CPU | 19517 s |
 | Spec parts | 12130 s across 374 tasks |
 | Longest task | @libs/games-harness-ts#test:spec:49 213 s |
 
@@ -175,13 +175,13 @@ Unmeasured scripts follow `estimateTask`: the family median when that family has
 | Family | Tasks | CPU |
 | --- | --- | --- |
 | test:spec | 374 | 12130 s |
-| lint | 359 | 1275 s |
+| lint | 360 | 1277 s |
 | test:contract | 25 | 1004 s |
 | verify:models:10 | 16 | 960 s |
-| test | 270 | 931 s |
+| test | 271 | 932 s |
 | verify:models | 46 | 748 s |
 | verify:models:2 | 11 | 660 s |
-| tc | 358 | 542 s |
+| tc | 359 | 543 s |
 
 ### Leaves
 
@@ -208,8 +208,8 @@ A cone is the package plus every transitive workspace dependent. A source change
 
 | Package | Packages | CPU | Longest task |
 | --- | --- | --- | --- |
-| @pkgs/property-shared-ts | 292 | 19292 s | @libs/games-harness-ts#test:spec:49 213 s |
-| @pkgs/clock-shared-ts | 257 | 19170 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/property-shared-ts | 293 | 19296 s | @libs/games-harness-ts#test:spec:49 213 s |
+| @pkgs/clock-shared-ts | 258 | 19174 s | @libs/games-harness-ts#test:spec:49 213 s |
 | @pkgs/assert-root-shared-ts | 252 | 19137 s | @libs/games-harness-ts#test:spec:49 213 s |
 
 ### Runner

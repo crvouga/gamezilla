@@ -33,7 +33,8 @@ import {
   recordProcessFailure,
   waitForChildDiagnostics,
 } from './process-observability';
-import { readPlan, type StackPlan } from './stack-plan';
+import type { StackPlan } from './stack-plan';
+import { readPlan } from './stack-plan-file';
 import {
   awaitService,
   publishFailed,
@@ -143,6 +144,16 @@ async function runFrontDoor(plan: StackPlan): Promise<never> {
   const manifestPath = writeManifest(REPO_ROOT, manifest);
   say('stack', `addresses — ${manifestPath}`);
   if (services.web !== null) say('stack', `app: ${services.web.origin}/`);
+  if (services.preview !== null)
+    say(
+      'stack',
+      `remote preview: ${services.preview.origin}/ (${services.preview.workspaceKey})`
+    );
+  else
+    say(
+      'stack',
+      'remote preview is unavailable; check the preview failure above and Run app again'
+    );
   say('stack', 'Ctrl-C to stop');
   // A manifest must not point at processes that are gone.
   process.on('exit', () => {

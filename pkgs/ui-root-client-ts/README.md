@@ -223,6 +223,12 @@ AA (`palette-contrast.test.ts`). Pointer targets stay at least 24px, and a
 primary control is 44px. Color never carries a state alone: a chosen control
 is also `aria-current`, `aria-pressed`, or a checked radio.
 
+Shared host styles finish the browser surfaces: fields use the surface tone,
+placeholders retain their token contrast, and scrollbars use the neutral outline
+ink. Display headings balance across lines; inline links keep an underline at
+rest so they remain identifiable in achromatic copy. Field hover feedback is
+reserved for a precise pointer and editable controls.
+
 ## Guard rails
 
 `ProgressBar` is the one progress indicator: with a `label` it shows the

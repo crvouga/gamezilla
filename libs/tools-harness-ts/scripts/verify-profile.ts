@@ -1,23 +1,11 @@
 /**
- * The two verification profiles: one set of tests, run at two depths.
- *
- * - `release` is the whole gate, bounded and deterministic, with no reports:
- *   every pull request (`.github/workflows/verify-pr.yml`), Release's
- *   verification of the exact commit it ships, and `bun verify`. A pull
- *   request runs the very gate Release runs, so it fails whenever Release
- *   would, and every task it passes has the hash Release restores from the
- *   remote cache.
- * - `nightly` is the comprehensive run (`bun verify-nightly`,
- *   `.github/workflows/verify-nightly.yml`): the whole gate at a deeper
- *   budget, plus the suites below that are too slow or too exploratory to
- *   block a merge. It keeps and publishes every report.
- *
- * A profile never names a test of its own. It sets the depth the tasks
- * already read from their environment, and says whether reports are kept.
- * `VERIFY_PROFILE` selects it; unset is `release`.
- *
- * A finding the nightly run makes is pinned as a regression in the suite
- * that found it, which puts it in the `release` profile from then on.
+ * Verification depth is separate from task selection (`ci-stage.ts`).
+ * Release depth is bounded and deterministic, without retained reports.
+ * Nightly exercises the complete catalog at deeper budgets plus the suites
+ * below, retaining reports. Local `bun verify` retains the complete catalog
+ * at release depth. A profile never defines different tests: environment
+ * budgets participate in task hashes. Pin nightly findings in their owning
+ * suites; promote security and irreversible-change regressions to blocking CI.
  */
 
 export const PROFILE_ENV = 'VERIFY_PROFILE';

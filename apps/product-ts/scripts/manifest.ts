@@ -18,6 +18,7 @@ import {
 } from 'node:fs';
 import { join } from 'node:path';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
+import { stackRootDir } from './stack-plan-file';
 
 export const STACK_MANIFEST_ENV = 'LOCALHOST_STACK_MANIFEST';
 
@@ -52,10 +53,6 @@ export type StackManifest = {
   readonly observabilityGrafanaUrl: string | null;
   readonly dataDir: string;
 };
-
-export function stackRootDir(repoRoot: string): string {
-  return join(repoRoot, '.cache', 'localhost-stack');
-}
 
 /**
  * One instance's data directory, emptied unless the stack was asked to keep

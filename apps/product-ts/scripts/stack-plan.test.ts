@@ -4,7 +4,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { parseStackOptions } from './stack-options';
-import { createStackPlan, planPath, readPlan } from './stack-plan';
+import { createStackPlan } from './stack-plan';
+import { planPath, readPlan } from './stack-plan-file';
 import {
   awaitService,
   publishFailed,
