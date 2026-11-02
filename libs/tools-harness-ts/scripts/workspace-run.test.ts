@@ -42,10 +42,11 @@ function writeFakeTools(dir: string): void {
       'fi\n' +
       'if [ "$1" = "run" ] && [ "$2" = "secrets:pull" ]; then exit 1; fi\n' +
       'if [ "$1" = "install" ]; then\n' +
-      '  [ "${WORKSPACE_RUN_TEST_INSTALL:-ok}" = "ok" ] || exit 1\n' +
+      '  [ "${WORKSPACE_RUN_TEST_INSTALL:-ok}" != "fail" ] || exit 1\n' +
       '  mkdir -p node_modules/.bin\n' +
       '  printf "#!/usr/bin/env bash\\nprintf \\"turbo %%s\\\\n\\" \\"\\$*\\" >> \\"\\$WORKSPACE_RUN_TEST_CALLS\\"\\n" > node_modules/.bin/turbo\n' +
       '  chmod +x node_modules/.bin/turbo\n' +
+      '  [ "${WORKSPACE_RUN_TEST_INSTALL:-ok}" != "partial" ] || exit 1\n' +
       'fi\n'
   );
   writeExecutable(
@@ -122,8 +123,6 @@ function checkout() {
     setup: script('setup.sh'),
     prepare: script('prepare.sh'),
     teardown: script('teardown.sh'),
-    check: script('check.sh'),
-    action: (name: string) => script('action.sh', [name]),
     port: script('port.sh'),
     step: (name: string) => script('step.sh', [name]),
   };
@@ -136,7 +135,7 @@ test('failed setup is not accepted as a prepared checkout and can be retried', (
   expect(
     existsSync(join(dir, 'node_modules/.workspace-install-fingerprint'))
   ).toBe(false);
-  expect(run().status).not.toBe(0);
+  expect(run({ WORKSPACE_RUN_TEST_INSTALL: 'fail' }).status).not.toBe(0);
   expect(setup().status).toBe(0);
   expect(run().calls).toEqual([DEV]);
 });
@@ -159,10 +158,12 @@ test('setup leaves credentials in other checkouts and preserves local files', ()
 
 // regression: workspace-run-preflight-dependency-failure
 // regression: workspace-run-turbo-ui-stream
-test('run respects the caller UI and never installs or starts before setup', () => {
-  const { setup, run } = checkout();
-  expect(run().status).not.toBe(0);
-  setup();
+// regression: workspace-run-auto-setup
+test('run prepares a cold checkout and preserves the caller UI on warm launches', () => {
+  const { run } = checkout();
+  const cold = run();
+  expect(cold.status).toBe(0);
+  expect(cold.calls).toEqual([INSTALL, DEV]);
   const result = run({ TURBO_UI: 'stream', WORKSPACE_RUN_TEST_RECORD_UI: '1' });
   expect(result.status).toBe(0);
   expect(result.calls).toEqual([`${DEV} TURBO_UI=stream`]);
@@ -177,8 +178,8 @@ test('setup is repeatable and restores missing or changed dependencies', () => {
     join(dir, 'apps/product-ts/package.json'),
     '{"name":"changed"}'
   );
-  expect(run().status).not.toBe(0);
-  expect(setup().calls).toEqual([INSTALL]);
+  expect(run().calls).toEqual([INSTALL, DEV]);
+  expect(setup().calls).toEqual([]);
   removeTree(join(dir, 'node_modules'), { whenLocked: 'leave' });
   expect(setup().calls).toEqual([INSTALL]);
 });
@@ -239,15 +240,14 @@ test('two explicitly selected workspace blocks give Storybook distinct ports', (
 });
 
 // regression: workspace-bootstrapped-mise-path
-test('run and checks find mise bootstrapped by setup without a parent PATH change', () => {
-  const { dir, setup, run, check } = checkout();
+test('run finds mise bootstrapped by setup without a parent PATH change', () => {
+  const { dir, setup, run } = checkout();
   mkdirSync(join(dir, 'home/.local/bin'), { recursive: true });
   mkdirSync(join(dir, '.tools'));
   renameReplacing(join(dir, '.bin/mise'), join(dir, 'home/.local/bin/mise'));
   renameReplacing(join(dir, '.bin/bun'), join(dir, '.tools/bun'));
   expect(setup().status).toBe(0);
   expect(run().calls).toEqual([DEV]);
-  expect(check().calls).toEqual(['bun verify']);
 });
 
 // regression: separated-setup-release-policy
@@ -275,24 +275,30 @@ test.each(['WORKSPACE_RUN_TEST_INSTALL', 'WORKSPACE_RUN_TEST_SYSTEM'])(
     expect(
       existsSync(join(dir, 'node_modules/.workspace-install-fingerprint'))
     ).toBe(false);
-    expect(run().status).not.toBe(0);
+    expect(run({ [failure]: 'fail' }).status).not.toBe(0);
+    expect(run().calls).toEqual([INSTALL, DEV]);
   }
 );
 
 // regression: t3-storybook-nested-supervisor
-test.each([
-  ['storybook', 'bun run storybook'],
-  ['storybook-build', 'bun run storybook:build'],
-  ['format', 'bun fmt'],
-  ['diagnostics', 'bun obs last'],
-  ['feedback', 'bun feedback --list'],
-  ['simulators', 'bun run sims:open'],
-])(
-  'T3 action %s delegates directly to its existing launcher',
-  (name, command) => {
-    const { action } = checkout();
-    const result = action(name!)();
-    expect(result.status).toBe(0);
-    expect(result.calls).toEqual([command!]);
-  }
-);
+test('Run app delegates to the canonical stack without nesting a Storybook supervisor', () => {
+  const { run } = checkout();
+  const result = run();
+  expect(result.status).toBe(0);
+  expect(result.calls).toEqual([INSTALL, DEV]);
+});
+
+// regression: workspace-run-auto-setup
+test('run repairs missing install tools and retries a failed automatic setup', () => {
+  const { dir, setup, run } = checkout();
+  setup();
+  rmSync(join(dir, 'node_modules/.bin/turbo'));
+  const failed = run({ WORKSPACE_RUN_TEST_INSTALL: 'partial' });
+  expect(failed.status).not.toBe(0);
+  expect(failed.calls).toEqual([INSTALL]);
+  expect(
+    existsSync(join(dir, 'node_modules/.workspace-install-fingerprint'))
+  ).toBe(false);
+  expect(run().calls).toEqual([INSTALL, DEV]);
+  expect(run().calls).toEqual([DEV]);
+});

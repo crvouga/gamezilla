@@ -38,6 +38,7 @@ test('the front door retains web and diagnostics when other services fail', asyn
     server: null,
     population: null,
     web: { origin: 'http://127.0.0.1:5428' },
+    preview: null,
     observability: {
       collectorUrl: 'http://127.0.0.1:53445/v1/traces',
       logsUrl: 'http://127.0.0.1:53445/v1/logs',

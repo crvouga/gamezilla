@@ -37,6 +37,7 @@ import {
   startSyntheticPopulationSidecars,
   syntheticPopulationStackSecrets,
 } from './synthetic-population-sidecars';
+import { startWorkspacePreview } from './workspace-preview';
 
 export type ServiceContext = {
   readonly plan: StackPlan;
@@ -254,6 +255,7 @@ const DEV_SERVICES: { readonly [K in ServiceName]: Service<K> } = {
 
   /** The product web app (`/`, `/harness`, `/simulator`): Vite itself. */
   web: createWebStarter(startWeb),
+  preview: startWorkspacePreview,
 };
 
 /** Start `name`; null when the stack's options turn it off. */

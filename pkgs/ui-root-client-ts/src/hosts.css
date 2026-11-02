@@ -133,11 +133,8 @@
     color: var(--ui-color-text);
   }
 
-  /* Type roles. A screen picks a role, never a size or a weight. One face
-     (the platform system stack) and the fixed scale 12 / 14 / 16 / 20 / 24 /
-     32, so hierarchy comes from size and weight alone: three weights, 400
-     for reading, 600 for labels and emphasis, 700 for titles. Titles never
-     wrap mid-word; long titles clamp instead. */
+  /* Type roles use the shared Manrope / Unbounded scale. Screens choose
+     a role; the system owns its face, size, weight and wrapping. */
 
   .textBody {
     font-weight: var(--ui-font-weight-regular);
@@ -207,6 +204,15 @@
     overflow-wrap: normal;
   }
 
+  /* Balance display copy without changing single-line navigation labels,
+     tabular scores or explicitly clamped text. */
+  .textDisplayXl,
+  .textTitle,
+  .textHeading,
+  .textSubtitle {
+    text-wrap: balance;
+  }
+
   .textDisplayXl {
     font-family: var(--ui-text-display-xl-family);
     font-size: var(--ui-text-display-xl-size);
@@ -263,15 +269,15 @@
   .textLink {
     font-weight: var(--ui-font-weight-semibold);
     color: var(--ui-color-tint);
-    text-decoration: none;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    text-decoration-skip-ink: auto;
     transition: color var(--ui-duration-fast) var(--ui-easing-standard);
   }
 
   .textLink:hover {
     color: var(--ui-color-tint-hover);
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 0.2em;
   }
 
   /* Ratings, clocks, prices, counts: the scoreboard. A modifier on any
@@ -383,6 +389,7 @@
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
     scrollbar-gutter: auto;
+    scrollbar-color: var(--ui-color-outline) transparent;
   }
 
   .scrollHorizontal {
@@ -420,7 +427,7 @@
     font: inherit;
     color: var(--ui-color-text);
     caret-color: var(--ui-color-text);
-    background: var(--ui-color-background);
+    background: var(--ui-color-surface);
     /* A field's edge is a control boundary, so it is the 3:1 `outline`
        (line-strong), not the hairline. */
     border: 1px solid var(--ui-color-outline);
@@ -428,8 +435,10 @@
     transition: border-color var(--ui-duration-fast) var(--ui-easing-standard);
   }
 
-  .input:hover:not(:focus-visible):not(:disabled) {
-    border-color: var(--ui-color-text-secondary);
+  @media (hover: hover) and (pointer: fine) {
+    .input:hover:not(:focus-visible):not(:disabled):not([readonly]) {
+      border-color: var(--ui-color-text-secondary);
+    }
   }
 
   .input:disabled {
@@ -439,6 +448,7 @@
 
   .input::placeholder {
     color: var(--ui-color-text-secondary);
+    opacity: 1;
   }
 
   /* The same ring as every control; flat, so no glow around the field. */

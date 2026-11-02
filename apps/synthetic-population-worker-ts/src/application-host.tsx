@@ -7,6 +7,7 @@ import { DEVICE_ID_KEY } from '@libs/auth-shared-ts/auth-storage-keys';
 import { APP_SUB_CLIENTS } from '@libs/runtime-client-ts/app-sub-clients';
 import { APP } from '@libs/runtime-shared-ts/app-subs';
 import { wallSpaceRoomTransport } from '@libs/spaces-client-ts/wall-room-transport';
+import { globalHttpFetch } from '@pkgs/http-client-shared-ts/global';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server-ts/impl-bun-sqlite';
 import { createSolidDomDriver } from '@pkgs/ui-testing-solid-dom-client-ts/solid-dom-driver';
 import { createMemoryHistory } from '@solidjs/router';
@@ -24,6 +25,7 @@ export async function createApplicationHost(
   const offline = wallOfflineNetworkController();
   await offline.ready();
   const wall = wallClientEnv({
+    http: { fetch: globalHttpFetch },
     serverUrl: input.origin,
     room: wallSpaceRoomTransport,
     objectStore: devicePorts.objectStore,

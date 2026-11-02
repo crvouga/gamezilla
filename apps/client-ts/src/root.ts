@@ -1,3 +1,4 @@
+import { globalHttpFetch } from '@pkgs/http-client-shared-ts/global';
 // @io-wall-ok — platform root: feedback is active before app modules load
 
 import {
@@ -16,7 +17,7 @@ import { bootBrowserFeedback } from '@pkgs/feedback-client-ts/wall';
 
 const STARTUP_RECOVERY_KEY = technicalKey('dev-startup-recovery', ':');
 const offline = wallOfflineNetworkController();
-const startupHttp = createWallOfflineHttp(offline);
+const startupHttp = createWallOfflineHttp(offline, { fetch: globalHttpFetch });
 
 function startApplication(): Promise<void> {
   return startBrowserApplication({

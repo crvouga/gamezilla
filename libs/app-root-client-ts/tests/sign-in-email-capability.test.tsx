@@ -136,6 +136,9 @@ describe("a Synthetic User's application host", () => {
 
 test("the environment people's browser and native apps run never turns email sign-in on", () => {
   const env = wallClientEnv({
+    http: {
+      fetch: () => Promise.reject(new Error('This check performs no HTTP')),
+    },
     serverUrl: 'https://api.example.test',
     offline: createOfflineNetworkController(new KvImplInMemory()),
     objectStore: createInMemoryClientPorts().objectStore,

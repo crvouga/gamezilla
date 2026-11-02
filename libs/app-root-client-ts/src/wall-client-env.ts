@@ -79,6 +79,7 @@ export const wallCreateId = (): string => crypto.randomUUID();
 export type WallClientEnvArgs = {
   readonly serverUrl?: string | undefined;
   readonly offline: OfflineNetworkController;
+  readonly http: HttpClient;
   /** Hosts without browser persistence provide their own object-store port. */
   readonly objectStore?: ClientEnv['objectStore'];
   /**
@@ -88,9 +89,13 @@ export type WallClientEnvArgs = {
   readonly room: CreateRoomTransport;
 };
 
-function wallFetch(input: RequestInfo | URL, init?: RequestInit) {
+function wallFetch(
+  http: HttpClient,
+  input: RequestInfo | URL,
+  init?: RequestInit
+) {
   const traceparent = pendingInteractionRequestTraceparent();
-  if (traceparent === undefined) return globalThis.fetch(input, init);
+  if (traceparent === undefined) return http.fetch(input, init);
   const headers = new Headers(
     input instanceof Request ? input.headers : undefined
   );
@@ -98,20 +103,25 @@ function wallFetch(input: RequestInfo | URL, init?: RequestInit) {
     headers.set(key, value);
   }
   if (!headers.has('traceparent')) headers.set('traceparent', traceparent);
-  const run = () => globalThis.fetch(input, { ...init, headers });
+  const run = () => http.fetch(input, { ...init, headers });
   return runInInteractionRequestContext(traceparent, run);
 }
 
 /** Browser HTTP adapter governed by the tab's shared kill switch. */
 export function createWallOfflineHttp(
-  offline: OfflineNetworkController
+  offline: OfflineNetworkController,
+  http: HttpClient
 ): HttpClient {
-  return { fetch: createOfflineHttp(offline, wallFetch) };
+  return {
+    fetch: createOfflineHttp(offline, (input, init) =>
+      wallFetch(http, input, init)
+    ),
+  };
 }
 
 export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
   const serverUrl = args.serverUrl ?? getServerBaseUrl();
-  const innerFetch = createOfflineHttp(args.offline, wallFetch);
+  const innerFetch = createWallOfflineHttp(args.offline, args.http).fetch;
   const availability = createHealthOriginAvailability({
     healthUrl: apiHealthUrl(serverUrl),
     fetch: innerFetch,

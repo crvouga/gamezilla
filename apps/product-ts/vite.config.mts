@@ -13,6 +13,7 @@ import { workspaceWatchOptions } from '@pkgs/vite-workspace-resolver-server-ts/w
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, type PluginOption } from 'vite';
 import solid from 'vite-plugin-solid';
+import { workspacePreviewVite } from './scripts/workspace-preview-vite';
 
 const consoleDir = import.meta.dirname;
 const repoRoot = resolve(consoleDir, '../..');
@@ -40,6 +41,7 @@ export default defineConfig(({ mode }) => {
   const plugins: PluginOption[] = [
     // `index.html` spells `%BRAND_NAME%`; the identity fills it in.
     brandHtmlPlugin(),
+    workspacePreviewVite(repoRoot),
     feedbackDevPlugin({ repoRoot }),
     workspaceExportsResolver({ repoRoot, scopes: DEFAULT_WORKSPACE_SCOPES }),
     // `root.ts` imports the application dynamically (startup error boundary);

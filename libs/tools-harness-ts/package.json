@@ -15,6 +15,7 @@
     "ci:statecharts": "bun run scripts/statechart-cli.ts verify",
     "ci:syncpack": "cd ../.. && syncpack lint --dependency-types prod,dev",
     "ci:workspace-lifecycle": "bun run scripts/sync-workspace-lifecycle.ts --check",
+    "docs:ci-load": "bun run scripts/ci-load.ts --write",
     "generate:ui-quality-sources": "bun run scripts/sync-ui-quality-sources.ts",
     "install:cli": "mise install",
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",

@@ -11,12 +11,12 @@
  * same service keeps the same port across boots whatever the flags.
  */
 
-import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { rmSync, writeFileSync } from 'node:fs';
 import type { PortReservation } from './free-port';
 import { reservePort } from './free-port';
-import { instanceDataDir, stackRootDir } from './manifest';
+import { instanceDataDir } from './manifest';
 import type { StackOptions } from './stack-options';
+import { planPath } from './stack-plan-file';
 import { withdrawAllServices } from './stack-services';
 
 export type StackPlan = {
@@ -52,10 +52,6 @@ export type StackPlan = {
 
 function loopback(port: number): string {
   return `http://127.0.0.1:${String(port)}`;
-}
-
-export function planPath(repoRoot: string, instanceId: string): string {
-  return join(stackRootDir(repoRoot), instanceId, 'plan.json');
 }
 
 /**
@@ -112,14 +108,4 @@ export async function createStackPlan(
   } finally {
     await Promise.all(held.map((reservation) => reservation.release()));
   }
-}
-
-export function readPlan(repoRoot: string, instanceId: string): StackPlan {
-  const path = planPath(repoRoot, instanceId);
-  if (!existsSync(path)) {
-    throw new Error(
-      `no plan for stack instance '${instanceId}' — \`dev:prepare\` writes it (${path})`
-    );
-  }
-  return JSON.parse(readFileSync(path, 'utf8')) as StackPlan;
 }

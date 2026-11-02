@@ -1,0 +1,4 @@
+{
+  "summary": "T3 exposed many setup, diagnostics and optional preview actions, and Run could silently omit a tunnel. Only Run app and Stop app remain; setup is automatic and the development stack requires a protected tunnel using the developer\u2019s existing Git email.",
+  "regressionTest": "libs/tools-harness-ts/scripts/sync-workspace-lifecycle.test.ts"
+}
