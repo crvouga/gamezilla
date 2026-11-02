@@ -168,7 +168,7 @@ from its WSL terminal without a separate Linux administrator password:
 ```
 
 Host repair verified on Ubuntu 26.04/WSL (2026-11-02): T3's automated browser
-assertions loaded the checkout's web URL, required the Gamezilla title and the
+assertions loaded the checkout's web URL, required the configured product title and the
 rendered Spaces screen, and rejected a Vite error overlay. This establishes T3
 browser access on this host; full release verification remains separate.
 
