@@ -14,13 +14,17 @@
     "apply:edge": "bun run scripts/tofu.ts apply --stack edge",
     "apply:fleet": "bun run scripts/tofu.ts apply --stack fleet",
     "apply:foundation": "bun run scripts/tofu.ts apply --stack foundation",
+    "apply:repository-policy": "bun run scripts/tofu.ts apply --stack bootstrap --repository-policy",
+    "drift:repository-policy": "bun run scripts/tofu.ts drift --stack bootstrap --repository-policy",
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
     "plan:bootstrap": "bun run scripts/tofu.ts plan --stack bootstrap",
     "plan:edge": "bun run scripts/tofu.ts plan --stack edge",
     "plan:fleet": "bun run scripts/tofu.ts plan --stack fleet",
     "plan:foundation": "bun run scripts/tofu.ts plan --stack foundation",
+    "plan:repository-policy": "bun run scripts/tofu.ts plan --stack bootstrap --repository-policy",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test tests"
+    "test": "bun test tests",
+    "verify:repository-policy": "bun run scripts/verify-repository-policy.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "catalog:",

@@ -29,15 +29,15 @@ than restating it.
 
 - **Keep the Turbo cache effective.** An edit should rerun as few `lint`, `tc` and `test` tasks as it must. `@libs/tools-harness-ts#ci:cache-hygiene` (`bun run ci:cache-hygiene`) fails on a new hub package (one whose edits rerun 50 or more packages), a hub that grows, a hub that bundles files few packages use, a `$TURBO_ROOT$` glob over every package in a task's inputs, a new global dependency, import aliases in `tsconfig.base.json`, and derived files out of date. Every failure says what to do. After editing `biome.json`, a package's imports or its dependencies, run `bun run cache:sync`; `bun run cache:explain <package>` shows why a package is costly. Thresholds, exceptions and the reasoning: [`docs/CI_REQUIREMENTS.md`](docs/CI_REQUIREMENTS.md#cache-friendly-structure).
 
-- **Agents use git and pull requests freely.** Agents may create branches and worktrees (`git worktree add`, `git switch -c`, a harness's worktree-isolated subagents), push their branches, and open, label, comment on and update pull requests, so one change is one reviewable PR. Agents sharing one worktree split work by files and commit only their own paths (`git commit -- <paths>`, never `git add -A` over another agent's edits). Never rewrite history someone else pushed: no force-push to a branch you did not create, and never to `main`. Delete a branch and worktree you created once its PR is closed or merged.
+- **Agents use git and pull requests freely.** Agents may create branches and worktrees (`git worktree add`, `git switch -c`, a harness's worktree-isolated subagents), push their branches, and open, label, comment on and update pull requests, so one change is one reviewable PR. Agents sharing one worktree split work by files and commit only their own paths (`git commit -- <paths>`, never `git add -A` over another agent's edits). Never rewrite history someone else pushed: no force-push to a branch you did not create, and never to `main`. After a PR merges, follow the safe cleanup policy in [`README.md`](README.md#git-hygiene). Closed, unmerged work requires an explicit abandonment decision.
 
 - **Concurrent worktrees never share a hot file.** Many agents work at once, so nothing they routinely add to is one shared file. A register is a directory with one file per entry (`libs/tools-harness-ts/goal/known-bugs/<bug-id>.json`); a list of local modules is discovered from the filesystem (`tests/<kind>/index.ts` loads every `*.steps.ts` / `*.binding.ts`); output derived from sources (step catalogs, the compiled Lingui catalog `messages.ts`) is gitignored and written by `bun install` (`postinstall` → `bun run generate`), never committed.
 
 - **Atlas is an npm dependency, never a copy.** `@crvouga/atlas` installs from npm through the root `catalog`: no submodule, vendored copy, `git` / `file:` dependency or patch. Import only its documented paths (`@crvouga/atlas`, `/spec`, `/schema`, `/reports/<module>`, …) and run its `atlas` / `atlas-visualizer` commands. A bug or gap in Atlas is an issue at [crvouga/atlas](https://github.com/crvouga/atlas/blob/main/docs/reporting-issues.md), never a fix made from here; a workaround in our code is named in that issue and removed when the release that fixes it lands. Upgrade by raising the catalog entry in a commit of its own. Guide: [dogfooding](https://github.com/crvouga/atlas/blob/main/docs/dogfooding.md).
 
-- **No git hooks.** Do not add a `pre-commit`, `pre-push`, `core.hooksPath`, Husky, or any other git hook. A direct push to `main` is allowed. Release still runs the whole Verify gate on that commit before it ships ([`README.md`](README.md#correctness-machinery)).
+- **No git hooks.** Do not add a `pre-commit`, `pre-push`, `core.hooksPath`, Husky, or any other git hook. Every change to `main` requires a pull request under the [git hygiene policy](README.md#git-hygiene). Release still runs the whole Verify gate on that commit before it ships ([`README.md`](README.md#correctness-machinery)).
 
-- **Agents never merge a pull request.** `/pr-ready` takes a PR to a green Ready to merge and stops; a human merges — never `--admin`, never a red, pending or draft PR. A person may also push `main` directly.
+- **Agents never merge a pull request.** `/pr-ready` takes a PR to a green Ready to merge and stops; a human merges — never `--admin`, never a red, pending or draft PR.
 
 - **Never patch dependencies.** No `bun patch`, `patch-package`, `pnpm patch`, `patches/` directory, or `patchedDependencies` / `resolutions` field. Work around a third-party bug in our code or accept it.
 
@@ -229,7 +229,7 @@ Four workflows, one contract each. Details:
   (`slashPath` from `@pkgs/os-shared-ts/slash-path`; `no-native-relative-path.grit`
   refuses a bare `node:path` `relative()`), and nothing assumes a POSIX shell,
   `/tmp` or a tool the runner did not get from `mise.toml`.
-  The ruleset on `main` does not require that verification before a push.
+  The ruleset requires `verify:end` against the latest `main` before a human merges.
 - **Every gate is a package-owned Turbo task.** The task list in
   `libs/tools-harness-ts/scripts/turbo-ci-run.ts` runs every gate through Turbo. There
   are no root `//#verify`, `//#ci:*`, or root lint verifications: each gate has

@@ -2,7 +2,8 @@ import { expect, test } from 'bun:test';
 import type { BranchCleanupPort } from './branch-cleanup';
 import { cleanupBranches } from './branch-cleanup';
 
-test('branch cleanup preserves open work, protected refs, changed heads and unknown unmerged work', async () => {
+// regression: git-cleanup-closed-unmerged
+test('branch cleanup preserves closed unmerged work, open work, protected refs and changed heads', async () => {
   const removed: string[] = [];
   const names = [
     'main',
@@ -28,33 +29,61 @@ test('branch cleanup preserves open work, protected refs, changed heads and unkn
     },
     async pulls() {
       return [
-        { branch: 'open', sha: 'open', state: 'open', merged: false },
-        { branch: 'merged', sha: 'merged', state: 'closed', merged: true },
         {
+          baseBranch: 'main',
+          mergeSha: null,
+          branch: 'open',
+          sha: 'open',
+          state: 'open',
+          merged: false,
+        },
+        {
+          baseBranch: 'main',
+          mergeSha: 'merge',
+          branch: 'merged',
+          sha: 'merged',
+          state: 'closed',
+          merged: true,
+        },
+        {
+          baseBranch: 'main',
+          mergeSha: null,
           branch: 'abandoned',
           sha: 'abandoned',
           state: 'closed',
           merged: false,
         },
-        { branch: 'reused', sha: 'old', state: 'closed', merged: true },
+        {
+          baseBranch: 'main',
+          mergeSha: 'merge',
+          branch: 'reused',
+          sha: 'old',
+          state: 'closed',
+          merged: true,
+        },
       ];
     },
     async compare(_base, sha) {
-      return ['integrated', 'moved'].includes(sha) ? 'behind' : 'diverged';
+      return ['integrated', 'moved', 'merge'].includes(sha)
+        ? 'behind'
+        : 'diverged';
     },
     async head(name) {
       return name === 'moved' ? 'new-work' : name;
     },
-    async remove(name) {
+    async remove(name, expectedSha) {
+      expect(expectedSha).toBe(name);
       removed.push(name);
     },
   };
-  expect(await cleanupBranches(port, false)).toEqual([
-    'merged',
-    'abandoned',
-    'integrated',
-  ]);
+  const preview = await cleanupBranches(port, false);
+  expect(preview.eligible).toEqual(['merged', 'integrated']);
+  expect(preview.removed).toEqual([]);
+  expect(preview.retained).toContainEqual({
+    branch: 'abandoned',
+    reason: 'closed unmerged PR; explicit abandonment required',
+  });
   expect(removed).toEqual([]);
   await cleanupBranches(port, true);
-  expect(removed).toEqual(['merged', 'abandoned', 'integrated']);
+  expect(removed).toEqual(['merged', 'integrated']);
 });

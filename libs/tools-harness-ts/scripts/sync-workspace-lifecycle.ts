@@ -87,6 +87,7 @@ export const ORCHESTRATORS: Orchestrator[] = [
           icon: 'test',
         },
         ...[
+          ['Audit and clean merged local branches', 'git-hygiene', 'configure'],
           ['Format repository', 'format', 'lint'],
           ['Run Storybook (local or tunnel)', 'storybook', 'play'],
           ['Run Storybook on LAN', 'storybook-lan', 'play'],

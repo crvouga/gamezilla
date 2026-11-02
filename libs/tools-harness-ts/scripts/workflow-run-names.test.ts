@@ -50,6 +50,7 @@ const WORKFLOWS: Record<string, { name: string; jobs: string }> = {
 const DEPLOY_JOBS: Record<string, string> = {
   'deploy-verify': 'Verify commit',
   'deploy-rehearsal': 'Preview infrastructure changes',
+  'deploy-repository-policy': 'Enforce repository policy',
   'deploy-fleet': 'Release shared services',
   'deploy-dev': 'Release development',
   'deploy-prd': 'Release production',
