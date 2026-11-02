@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
 import {
+  isPullRequestCheck,
   type PrCheck,
   type RequiredPrCheck,
   requiredPrCheckFailures,
@@ -170,4 +171,40 @@ test('every PR invokes the guard after the suite verdict with failures enforced'
     "always() && !cancelled() && github.event_name == 'pull_request'"
   );
   expect(steps[guard]?.['continue-on-error']).toBeUndefined();
+});
+
+// regression: pr-checks-include-rehearsal
+test('the PR guard includes every PR check while keeping manual rehearsal and release runs separate', () => {
+  for (const event of [
+    'pull_request',
+    'pull_request_target',
+    'workflow_run',
+    'unknown',
+  ])
+    expect(isPullRequestCheck(15368, event)).toBe(true);
+  for (const event of ['workflow_dispatch', 'push', 'schedule']) {
+    expect(isPullRequestCheck(15368, event)).toBe(false);
+    expect(isPullRequestCheck(46505, event)).toBe(true);
+  }
+});
+
+// regression: required-pr-checks-caller-permissions
+test('reusable verification callers grant the read permissions required by the PR guard', () => {
+  for (const name of ['deploy.yml', 'verify-nightly.yml']) {
+    const file = join(import.meta.dirname, '../../../.github/workflows', name);
+    const workflow = Bun.YAML.parse(readFileSync(file, 'utf8')) as {
+      jobs: Record<
+        string,
+        { uses?: string; permissions?: Record<string, string> }
+      >;
+    };
+    const callers = Object.values(workflow.jobs).filter((job) =>
+      job.uses?.endsWith('/verify-pr.yml')
+    );
+    expect(callers.length).toBeGreaterThan(0);
+    for (const caller of callers) {
+      expect(caller.permissions?.['checks']).toBe('read');
+      expect(caller.permissions?.['statuses']).toBe('read');
+    }
+  }
 });

@@ -13,6 +13,14 @@ export type PrCheck = {
 const ACTIONS = 15368;
 const SHARD = /^verify:shards(?: \(\d+\))?$/;
 
+/** Manual rehearsal, release and nightly jobs do not belong to the PR workflow. */
+export function isPullRequestCheck(appId: number, event: string): boolean {
+  return (
+    appId !== ACTIONS ||
+    !['workflow_dispatch', 'push', 'schedule'].includes(event)
+  );
+}
+
 /** The current aggregate cannot await itself; it already checks every planned task. */
 function aggregate(check: Pick<PrCheck, 'name' | 'appId'>): boolean {
   return check.appId === ACTIONS && check.name === 'verify:end';

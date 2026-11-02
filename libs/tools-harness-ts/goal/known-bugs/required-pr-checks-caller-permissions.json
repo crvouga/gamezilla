@@ -1,0 +1,4 @@
+{
+  "summary": "Adding check/status reads to reusable verification made Release fail at workflow startup because its callers did not delegate those read permissions. Both Release and Nightly callers now explicitly grant the same read scope.",
+  "regressionTest": "libs/tools-harness-ts/scripts/required-pr-checks.test.ts"
+}

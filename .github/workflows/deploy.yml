@@ -46,6 +46,8 @@ jobs:
     permissions:
       contents: read # check out the code
       actions: read # read run state (gh run list, job metadata)
+      checks: read # delegated PR verification reads check results
+      statuses: read # delegated PR verification reads commit statuses
       id-token: write # mint the OIDC token Infisical and AWS trust
     uses: ./.github/workflows/verify-pr.yml
     with:
