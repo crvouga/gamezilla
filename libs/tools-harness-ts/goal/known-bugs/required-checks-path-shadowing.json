@@ -1,0 +1,4 @@
+{
+  "summary": "The required-checks registry iterator named path shadowed OpenTofu path.module and prevented the repository policy plan from evaluating.",
+  "regressionTest": "libs/infra-server-ts/tests/repository-policy.test.ts"
+}

@@ -99,7 +99,7 @@ resource "github_branch_default" "main" {
 }
 
 locals {
-  required_checks = [for path in fileset("${path.module}/required-checks", "*.json") : jsondecode(file("${path.module}/required-checks/${path}"))]
+  required_checks = [for check_file in fileset("${path.module}/required-checks", "*.json") : jsondecode(file("${path.module}/required-checks/${check_file}"))]
 }
 
 resource "github_repository_ruleset" "main" {

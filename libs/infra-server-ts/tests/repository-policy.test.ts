@@ -1,7 +1,10 @@
 import { expect, test } from 'bun:test';
-import { readdirSync, readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { cpSync, mkdtempSync, readdirSync, readFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { GLOBAL } from '@libs/infra-shared-ts/global';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 const TOFU = join(import.meta.dirname, '../../infra-shared-ts/tofu');
 const repository = readFileSync(
@@ -223,4 +226,36 @@ test('CI applies repository policy before deployment and checks drift without ap
   expect(drift?.steps?.some((step) => step.run?.includes('#apply:'))).toBe(
     false
   );
+});
+
+// regression: required-checks-path-shadowing
+test('the real required-check registry expression evaluates under OpenTofu', () => {
+  const fixture = mkdtempSync(join(tmpdir(), 'required-checks-expression-'));
+  try {
+    cpSync(
+      join(TOFU, 'modules/repository/required-checks'),
+      join(fixture, 'required-checks'),
+      { recursive: true }
+    );
+    const expression = repository.match(/required_checks\s*=\s*(.+)/)?.[1];
+    expect(expression).toBeDefined();
+    const result = spawnSync(
+      'tofu',
+      [`-chdir=${fixture}`, 'console', '-no-color'],
+      {
+        cwd: join(TOFU, '../../..'),
+        input: `jsonencode(${expression})\n`,
+        encoding: 'utf8',
+      }
+    );
+    expect(result.status, result.stderr).toBe(0);
+    const expected = readdirSync(join(fixture, 'required-checks'))
+      .sort()
+      .map((file) =>
+        JSON.parse(readFileSync(join(fixture, 'required-checks', file), 'utf8'))
+      );
+    expect(JSON.parse(JSON.parse(result.stdout) as string)).toEqual(expected);
+  } finally {
+    removeTree(fixture, { whenLocked: 'leave' });
+  }
 });
