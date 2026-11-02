@@ -283,6 +283,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       NEEDS: ${{ toJSON(needs) }}
+      NIGHTLY_OWNER: ${{ vars.CI_TRIAGE_OWNER || github.repository_owner }}
       NIGHTLY_GROUP: ${{ github.event_name == 'schedule' && 'all' || inputs.group || 'all' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

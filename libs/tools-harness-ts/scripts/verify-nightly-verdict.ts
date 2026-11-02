@@ -29,7 +29,7 @@ export type NightlyGroup = {
 const JOB_PREFIX = 'verify-nightly-';
 const ISSUE_TITLE = 'Verify Nightly is failing on main';
 const GATE_SUMMARY =
-  'The whole merge gate at nightly depth: every Quint trace, five times the property runs';
+  'The complete verification catalog at nightly depth: every Quint trace, five times the property runs';
 
 function groupSummary(name: string): string {
   if (name === 'gate') return GATE_SUMMARY;
@@ -141,16 +141,27 @@ export function formatNightlyMarkdown(
     ...(failed.length === 0
       ? []
       : [
-          'Check out the commit above and run the command of a red group. Its job log names the failing task, the seed it drew and the replay command; its artifact holds the reports. Pin what it found as a regression in the suite that found it, so the merge gate replays it from then on.',
+          'Check out the commit above and run the command of a red group. Its job log names the failing task, the seed it drew and the replay command; its artifact holds the reports. Pin what it found as a regression in the suite that found it, so future verification replays it. Classify security exposure or data loss as P1 (immediate containment); other regressions as P2 (triage by the next working day). Promote security or irreversible-change regressions into the blocking safety selection. The assigned owner must resolve or explicitly track remaining failures; a diagnostic rerun cannot close this issue.',
           '',
         ]),
   ].join('\n');
 }
 
-function gh(args: readonly string[]): { status: number; out: string } {
-  const result = spawnSync('gh', args, { encoding: 'utf8' });
-  if (result.status !== 0) console.error(result.stderr);
-  return { status: result.status ?? 1, out: result.stdout.trim() };
+/** A failed API read is not evidence that no issue exists. */
+export function checkedIssueOutput(result: {
+  readonly status: number | null;
+  readonly stdout: string | null;
+  readonly stderr: string | null;
+}): string {
+  if (result.status !== 0)
+    throw new Error(
+      `Nightly issue reporting failed: ${result.stderr || result.status}`
+    );
+  return result.stdout?.trim() ?? '';
+}
+
+function gh(args: readonly string[]): string {
+  return checkedIssueOutput(spawnSync('gh', args, { encoding: 'utf8' }));
 }
 
 /** The open nightly issue's number, or `null`. */
@@ -169,11 +180,16 @@ function openIssue(repository: string): string | null {
     '--jq',
     '.[0].number // empty',
   ]);
-  return found.status === 0 && found.out !== '' ? found.out : null;
+  return found === '' ? null : found;
 }
 
-/** Keep one issue open while `main` is red at night. Never decides the verdict. */
-function fileIssue(repository: string, markdown: string, red: boolean): void {
+/** Keep one issue open while `main` is red at night. Reporting failures also fail the workflow. */
+function fileIssue(
+  repository: string,
+  markdown: string,
+  red: boolean,
+  owner: string
+): void {
   const issue = openIssue(repository);
   if (red && issue === null)
     gh([
@@ -183,6 +199,7 @@ function fileIssue(repository: string, markdown: string, red: boolean): void {
       repository,
       '--title',
       ISSUE_TITLE,
+      ...(owner ? ['--assignee', owner] : []),
       '--body',
       markdown,
     ]);
@@ -221,7 +238,12 @@ function main(env: NodeJS.ProcessEnv): number {
     );
   // Only a night on `main` speaks for `main`; a rehearsed branch files nothing.
   if (tracksNightlyIssue(selection, env['GITHUB_REF']))
-    fileIssue(repository, markdown, failed.length > 0);
+    fileIssue(
+      repository,
+      markdown,
+      failed.length > 0,
+      env['NIGHTLY_OWNER'] ?? ''
+    );
   return failed.length === 0 ? 0 : 1;
 }
 

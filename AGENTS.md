@@ -7,7 +7,7 @@ than restating it.
 
 ## Hard Rules
 
-- **We never test manually. Ever.** A green full verification (the `release` profile's whole gate: on every pull request's `verify:end`, and again in Release on the exact commit it ships) is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing verification, and if no verification can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property-shared-ts` only; `fc.commands` models; `@pkgs/harness-root-shared-ts` systems; Quint models for product subs — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus its own file `libs/tools-harness-ts/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`README.md`](README.md#correctness-machinery).
+- **We never test manually. Ever.** Automated verification under the [CI stage policy](docs/CI_STAGE_POLICY.md) is the release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing verification, and if no verification can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property-shared-ts` only; `fc.commands` models; `@pkgs/harness-root-shared-ts` systems; Quint models for product subs — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus its own file `libs/tools-harness-ts/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`README.md`](README.md#correctness-machinery).
 
 - **Specs are for business readers.** Every line in `specs/` is understood by a non-technical business person (A0 in [`specs/README.md`](specs/README.md)); every behavior test is a spec; each framework package tests through one kitchen-sink example app. Spec text changes only in `spec:` commits; implementers treat it as read-only. What the app should be lives only in `specs/`, with no discrete versions of the app; [`README.md`](README.md) is the implementation briefing and never a second product definition. Step catalogs (`<package>/STEPS_CATALOG.md`, index `docs/STEPS_CATALOG.md`) are generated and gitignored: `bun install` writes them and `bun run spec:catalog` refreshes them. Write specs with [`spec-upsert`](.agents/skills/spec-upsert/SKILL.md), bind them with [`spec-implement`](.agents/skills/spec-implement/SKILL.md), audit them with [`spec-audit`](.agents/skills/spec-audit/SKILL.md).
 
@@ -35,7 +35,7 @@ than restating it.
 
 - **Atlas is an npm dependency, never a copy.** `@crvouga/atlas` installs from npm through the root `catalog`: no submodule, vendored copy, `git` / `file:` dependency or patch. Import only its documented paths (`@crvouga/atlas`, `/spec`, `/schema`, `/reports/<module>`, …) and run its `atlas` / `atlas-visualizer` commands. A bug or gap in Atlas is an issue at [crvouga/atlas](https://github.com/crvouga/atlas/blob/main/docs/reporting-issues.md), never a fix made from here; a workaround in our code is named in that issue and removed when the release that fixes it lands. Upgrade by raising the catalog entry in a commit of its own. Guide: [dogfooding](https://github.com/crvouga/atlas/blob/main/docs/dogfooding.md).
 
-- **No git hooks.** Do not add a `pre-commit`, `pre-push`, `core.hooksPath`, Husky, or any other git hook. Every change to `main` requires a pull request under the [git hygiene policy](README.md#git-hygiene). Release still runs the whole Verify gate on that commit before it ships ([`README.md`](README.md#correctness-machinery)).
+- **No git hooks.** Do not add a `pre-commit`, `pre-push`, `core.hooksPath`, Husky, or any other git hook. Every change to `main` requires a pull request under the [git hygiene policy](README.md#git-hygiene). Release runs the blocking safety gate on that commit before it ships ([`README.md`](README.md#correctness-machinery)).
 
 - **Agents never merge a pull request.** `/pr-ready` takes a PR to a green Ready to merge and stops; a human merges — never `--admin`, never a red, pending or draft PR.
 
@@ -195,18 +195,18 @@ Four workflows, one contract each. Details:
 
 | Workflow | Command | Contract |
 | --- | --- | --- |
-| Verify PR (`verify-pr.yml`) | `bun verify` | Deterministic, merge-blocking validation: the `release` profile, the whole gate Release runs, so a green pull request is a green release and Release restores its results from the remote cache. Keeps no test report or artifact: a failure is read from the job log. |
+| Verify PR (`verify-pr.yml`) | `bun verify` | Deterministic, merge-blocking safety validation selected by `ci-stage.ts`; Release restores identical results from the remote cache. Keeps no test report or artifact: a failure is read from the job log. |
 | Verify Nightly (`verify-nightly.yml`) | `bun verify-nightly` | Comprehensive verification and exploration on `main`, every night. Owns test reports, diagnostics and reproducibility. Never gates a merge or a deploy. |
-| Release (`deploy.yml`) | `bun deploy` | Continuous production release: on every push to `main`, when `main` has moved, it runs the whole gate (`release` profile) on that exact commit, then ships it. |
+| Release (`deploy.yml`) | `bun deploy` | Continuous production release: verify the selected main commit with the safety gate, then deploy with live safeguards. Newer pending commits supersede older pending releases; active releases finish. |
 | Health (`health.yml`) | `bun health` | Scheduled verification that production is available and correct. Releases nothing. |
 
 - **Run `bun verify` before you call development work done.** It is the
-  whole gate every pull request and Release run. Run `bun verify-nightly` (or one group:
+  complete local catalog; hosted PR and Release select its safety subset. Run `bun verify-nightly` (or one group:
   `bun verify-nightly random`) when a change deserves deeper verification, such
   as a new Quint model, a property, or sync and recovery code. An ordinary
   pull request never waits for a green nightly run.
 - **One set of tests, two profiles.** `libs/tools-harness-ts/scripts/verify-profile.ts` is
-  the only place they differ: the depth (`release` replays the fewest drawn traces of each Quint
+  the only place verification depth differs: the depth (`release` replays the fewest drawn traces of each Quint
   model that take every bound action, at the pinned property budget;
   `nightly` replays every trace at five times the budget), the time budgets,
   and whether reports are kept. The nightly-only
@@ -215,7 +215,7 @@ Four workflows, one contract each. Details:
   write a test that exists only for one profile.
 - **A nightly finding is promoted.** Pin the failing trace in the model
   binding's `regressions`, or the shrunk input as a `// regression: <bug-id>`
-  example, so the `release` profile replays it from then on.
+  example. Security or irreversible-change regressions also join the blocking safety selection; other findings remain in comprehensive verification.
 - **The required status is `verify:end`.** Verify PR is three jobs
   (`verify:start`, `verify:shards (N)`, `verify:end`). They keep the `verify:`
   prefix wherever the gate runs (a pull request, Release's verification, the
@@ -239,10 +239,11 @@ Four workflows, one contract each. Details:
   leaf verifies and never touches the outside world, and its verdict never
   depends on the machine (never branch on `CI`). Make a slow task faster
   before raising its budget.
-- **Release ships every push to `main`.** Every pushed commit is verified by the whole gate and
-  shipped; it never waits for the nightly run. A red `release` run ships
-  nothing, so a slow suite a merge broke stops the release, not the merge. `bun health` and `bun deploy` dispatch
-  their workflows and block on the verdict; `bun health:local` and
+- **Release follows `main`.** Pushes trigger release; a newer pending release
+  supersedes an older pending one without cancelling an active deployment.
+  The selected commit passes the safety gate, then development and production
+  deployment checks. It never waits for nightly. `bun health` and `bun deploy`
+  dispatch their workflows and block on the verdict; `bun health:local` and
   `bun deploy:local` run that work on this machine.
 - **Exactly four workflows.** Rehearse anything touching deploy, infra,
   secrets, Workers or `health` in GitHub Actions before merging, triggered and

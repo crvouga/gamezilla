@@ -1,4 +1,4 @@
 {
-  "summary": "The release concurrency group used the default single pending slot, so a newer merge to main replaced an older pending release. Keep queue max with cancellation disabled so merges wait for the shared environments (within GitHub's 100-run queue limit).",
+  "summary": "The earlier every-commit release policy required queue max. The CI stage policy now intentionally coalesces pending commits to minimize stale deployments; active applies must still never be cancelled. The regression asserts serialized deployment with cancellation disabled.",
   "regressionTest": "libs/tools-harness-ts/scripts/workflow-remote.test.ts"
 }

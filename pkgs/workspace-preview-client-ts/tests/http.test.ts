@@ -27,7 +27,7 @@ test('protected preview requests include the gateway cookie even for anonymous f
   );
   for (const input of [
     `${ORIGIN}/api/health`,
-    `${ORIGIN}/@fs/home/crvouga/.t3/worktrees/gamezilla/t3-8a15e894/pkgs/sounds-shared-ts/assets/feedback/error.mp3`,
+    `${ORIGIN}/@fs/home/crvouga/.t3/worktrees/product/t3-8a15e894/pkgs/sounds-shared-ts/assets/feedback/error.mp3`,
     new Request('http://localhost:39803/bucket/key?signature=a%2Bb', {
       method: 'PUT',
       body: 'signed bytes',
