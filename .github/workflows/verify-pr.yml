@@ -13,8 +13,8 @@ run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{
 # Three jobs, on GitHub-hosted `ubuntu-24.04` runners. `verify:start` plans the
 # shards, `verify:shards (N)` run them with fail-fast off, and `verify:end` has
 # the ending word: one verdict that names every failure. The jobs keep the
-# `verify:` prefix wherever the gate runs, so `verify:end` is the one required
-# status and its name never moves.
+# `verify:` prefix wherever the gate runs. The required final verdict is
+# `verify:end`; required checks are declared in the repository policy registry.
 #
 # Packages declare the platforms they build for (docs/POLYGLOT.md). CI
 # verifies every package but the native (Swift) ones, which `bun verify`
@@ -304,7 +304,7 @@ jobs:
           bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-results-"${VERIFY_SHARD}"
           .cache/verify-ci/results-"${VERIFY_SHARD}".tar.gz
 
-  # The ending word, and the only required status on a pull request; Release
+  # The required aggregate verdict for every check on a pull request; Release
   # consumes this verdict. It runs after red shards too: the fan-in suites
   # report their own failures, then one verdict names every suite and every
   # failing task. A missing, failed or cancelled job fails it; skipped shards
@@ -318,6 +318,8 @@ jobs:
     permissions:
       contents: read # check out the code
       actions: read # read run state (gh run list, job metadata)
+      checks: read # enforce every PR check, including third-party integrations
+      statuses: read # refuse advisory legacy commit statuses
       id-token: write # mint the OIDC token Infisical and AWS trust
     timeout-minutes: ${{ inputs.profile == 'nightly' && 110 || 50 }}
     steps:
@@ -393,6 +395,11 @@ jobs:
           START_RESULT: ${{ needs.verify-start.result }}
           SHARD_RESULT: ${{ needs.verify-shards.result }}
         run: bun run libs/tools-harness-ts/scripts/verify-verdict.ts
+      - name: Require every PR check
+        if: always() && !cancelled() && github.event_name == 'pull_request'
+        env:
+          SHARD_RESULT: ${{ needs.verify-shards.result }}
+        run: bunx turbo run @libs/tools-harness-ts#verify:pr-checks
       # A red run still measured every task that passed.
       - name: Save measured task durations
         if: always() && !cancelled() && hashFiles('.cache/verify-ci/measured-costs.json') != ''

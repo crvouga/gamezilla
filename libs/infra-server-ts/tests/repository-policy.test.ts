@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { GLOBAL } from '@libs/infra-shared-ts/global';
 
@@ -28,8 +28,30 @@ test('main requires reviewed verified PRs and refuses deletion and force-pushes'
   expect(repository).toMatch(/required_review_thread_resolution\s*=\s*true/);
   expect(repository).toMatch(/\brequired_status_checks\s*\{/);
   expect(repository).toMatch(/strict_required_status_checks_policy\s*=\s*true/);
-  expect(repository).toMatch(/context\s*=\s*"verify:end"/);
-  expect(repository).toMatch(/integration_id\s*=\s*15368/);
+  expect(repository).toContain(
+    'for_each = { for check in local.required_checks'
+  );
+  expect(repository).toContain(
+    'integration_id = required_check.value.integration_id'
+  );
+  const directory = join(TOFU, 'modules/repository/required-checks');
+  const checks = readdirSync(directory).map(
+    (file) =>
+      JSON.parse(readFileSync(join(directory, file), 'utf8')) as {
+        readonly context: string;
+        readonly integration_id: number;
+      }
+  );
+  expect(checks).toEqual(
+    expect.arrayContaining([
+      { context: 'verify:start', integration_id: 15368 },
+      { context: 'verify:end', integration_id: 15368 },
+      { context: 'GitGuardian Security Checks', integration_id: 46505 },
+    ])
+  );
+  expect(new Set(checks.map((check) => check.context)).size).toBe(
+    checks.length
+  );
   expect(repository).not.toMatch(/\bbypass_actors\s*\{/);
   expect(repository).not.toMatch(/resource "github_branch_protection"/);
 });

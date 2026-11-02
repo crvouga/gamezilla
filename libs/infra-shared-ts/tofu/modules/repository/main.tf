@@ -98,6 +98,10 @@ resource "github_branch_default" "main" {
   branch     = "main"
 }
 
+locals {
+  required_checks = [for path in fileset("${path.module}/required-checks", "*.json") : jsondecode(file("${path.module}/required-checks/${path}"))]
+}
+
 resource "github_repository_ruleset" "main" {
   name        = "main"
   repository  = github_repository.this.name
@@ -127,9 +131,12 @@ resource "github_repository_ruleset" "main" {
 
     required_status_checks {
       strict_required_status_checks_policy = true
-      required_check {
-        context        = "verify:end"
-        integration_id = 15368 # GitHub Actions; other actors cannot spoof the gate.
+      dynamic "required_check" {
+        for_each = { for check in local.required_checks : check.context => check }
+        content {
+          context        = required_check.value.context
+          integration_id = required_check.value.integration_id
+        }
       }
     }
   }

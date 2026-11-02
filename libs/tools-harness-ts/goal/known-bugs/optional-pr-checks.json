@@ -1,0 +1,4 @@
+{
+  "summary": "The required Verify verdict did not include third-party PR checks, leaving GitGuardian and future integrations optional. The versioned repository registry now makes planning, the complete verdict and GitGuardian required, while the PR verdict rejects missing, failed, pending, unregistered or incorrectly attributed check results.",
+  "regressionTest": "libs/tools-harness-ts/scripts/required-pr-checks.test.ts"
+}

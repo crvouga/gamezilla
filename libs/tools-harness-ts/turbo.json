@@ -47,7 +47,8 @@
         "$TURBO_ROOT$/pkgs/*/tests/quint/**",
         "$TURBO_ROOT$/pkgs/*/tests/dmn/**",
         "$TURBO_ROOT$/pkgs/*/tests/alloy/**",
-        "$TURBO_ROOT$/pkgs/*/tests/openslo/**"
+        "$TURBO_ROOT$/pkgs/*/tests/openslo/**",
+        "$TURBO_ROOT$/libs/infra-shared-ts/tofu/modules/repository/required-checks/*.json"
       ]
     },
     "src": {
@@ -56,6 +57,16 @@
     },
     "tc": {
       "inputs": ["$TURBO_EXTENDS$", "!scripts/verify-task-costs.json"]
+    },
+    "verify:pr-checks": {
+      "cache": false,
+      "passThroughEnv": [
+        "GH_TOKEN",
+        "GITHUB_REPOSITORY",
+        "GITHUB_SHA",
+        "PR_HEAD",
+        "SHARD_RESULT"
+      ]
     }
   }
 }
