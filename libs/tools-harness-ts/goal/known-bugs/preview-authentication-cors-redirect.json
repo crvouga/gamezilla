@@ -1,0 +1,4 @@
+{
+  "summary": "A preview request with an unavailable tunnel session follows the gateway login redirect and fails as cross-origin CORS instead of explaining how to restore access.",
+  "regressionTest": "pkgs/workspace-preview-client-ts/tests/http.test.ts"
+}

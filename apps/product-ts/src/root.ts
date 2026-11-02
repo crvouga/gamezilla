@@ -1,4 +1,6 @@
+import { browserPreviewOrigin } from '@pkgs/workspace-preview-client-ts/browser-origin';
 import { browserPreviewHttp } from '@pkgs/workspace-preview-client-ts/http';
+import { loadPreviewApplication } from '@pkgs/workspace-preview-client-ts/session';
 // @io-wall-ok — platform root: feedback is active before app modules load
 
 import {
@@ -28,7 +30,12 @@ const startupHttp = createWallOfflineHttp(
 
 function startApplication(): Promise<void> {
   return startBrowserApplication({
-    load: () => import('./main'),
+    load: () =>
+      loadPreviewApplication({
+        origin: browserPreviewOrigin(),
+        http: startupHttp,
+        load: () => import('./main'),
+      }),
     recoverOnce: import.meta.env.DEV,
     recoveryAttempted: () =>
       sessionStorage.getItem(STARTUP_RECOVERY_KEY) === 'attempted',
