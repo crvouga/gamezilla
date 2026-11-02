@@ -1,0 +1,4 @@
+{
+  "summary": "Checks on a PR head can include manual Release rehearsals, scheduled Nightly runs or pushes. Treating those as PR jobs blocks a PR on unrelated deployment stages. The guard identifies each Actions workflow event, requires every PR check and always includes third-party checks, while keeping manual/release/nightly workflows separate.",
+  "regressionTest": "libs/tools-harness-ts/scripts/required-pr-checks.test.ts"
+}

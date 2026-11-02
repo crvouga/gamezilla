@@ -3,6 +3,7 @@ run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{
 
 # The blocking task selection lives in ci-stage.ts. Nightly uses the complete
 # task catalog through these same jobs. Keep verify:end stable for branch rules.
+# Required checks are declared in the repository policy registry.
 # See docs/CI_STAGE_POLICY.md for risk justifications and coverage ownership.
 
 # Least privilege: read the code and run metadata. Each job adds the OIDC
@@ -270,7 +271,7 @@ jobs:
           bun run libs/tools-harness-ts/scripts/ci-artifacts.ts upload verify-results-"${VERIFY_SHARD}"
           .cache/verify-ci/results-"${VERIFY_SHARD}".tar.gz
 
-  # The ending word, and the only required status on a pull request; Release
+  # The required aggregate verdict for every check on a pull request; Release
   # consumes this verdict. It runs after red shards too: the fan-in suites
   # report their own failures, then one verdict names every suite and every
   # failing task. A missing, failed or cancelled job fails it; skipped shards
@@ -284,6 +285,8 @@ jobs:
     permissions:
       contents: read # check out the code
       actions: read # read run state (gh run list, job metadata)
+      checks: read # enforce every PR check, including third-party integrations
+      statuses: read # refuse advisory legacy commit statuses
       id-token: write # mint the OIDC token Infisical and AWS trust
     timeout-minutes: ${{ inputs.profile == 'nightly' && 110 || 50 }}
     steps:
@@ -360,6 +363,11 @@ jobs:
           START_RESULT: ${{ needs.verify-start.result }}
           SHARD_RESULT: ${{ needs.verify-shards.result }}
         run: bun run libs/tools-harness-ts/scripts/verify-verdict.ts
+      - name: Require every PR check
+        if: always() && !cancelled() && github.event_name == 'pull_request'
+        env:
+          SHARD_RESULT: ${{ needs.verify-shards.result }}
+        run: bunx turbo run @libs/tools-harness-ts#verify:pr-checks
       # A red run still measured every task that passed.
       - name: Save measured task durations
         if: always() && !cancelled() && hashFiles('.cache/verify-ci/measured-costs.json') != ''

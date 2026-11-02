@@ -804,9 +804,13 @@ Feature titles, one line each, so a session can route without listing the tree. 
 ## Git hygiene
 
 All changes to `main` go through a pull request. The OpenTofu repository ruleset
-requires GitHub Actions’ `verify:end` against current `main`, one independent
+requires every check in `libs/infra-shared-ts/tofu/modules/repository/required-checks/`
+against current `main` (planning, the complete verdict, and GitGuardian), one independent
 approval after the latest push, and resolved review conversations. A push dismisses
-stale approvals. There are no bypass actors. Only a person merges. Merge commits
+stale approvals. The final PR gate checks both the head and merge commit: every
+check must pass, belong to its declared GitHub App, and be registered as required.
+New integrations cannot silently add advisory checks. Dynamic shards are enforced
+by the aggregate verdict, including missing or failed shard evidence. There are no bypass actors. Only a person merges. Merge commits
 remain the only merge method. GitHub deletes merged head branches automatically.
 Repository settings and secret scanning remain owned by the bootstrap stack;
 Release applies the reviewed repository configuration after the full gate and
