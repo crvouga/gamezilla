@@ -26,20 +26,24 @@ workspace_install_fingerprint() {
 }
 
 workspace_install_is_current() {
-  [ -f "$WORKSPACE_INSTALL_STAMP" ] &&
+  [ -x node_modules/.bin/turbo ] &&
+    [ -f "$WORKSPACE_INSTALL_STAMP" ] &&
     [ "$(cat "$WORKSPACE_INSTALL_STAMP")" = "$(workspace_install_fingerprint)" ]
 }
 
 # Returns non-zero while the install is incomplete. Only a complete install is
 # stamped, so the next launch tries again instead of trusting a partial one.
 workspace_install() {
+  # A repair may restore the launcher before generation fails. The old stamp
+  # must not make that partial repair look complete on the next invocation.
+  rm -f "$WORKSPACE_INSTALL_STAMP"
   echo "==> bun install --frozen-lockfile"
   if TURBO_UI=false bun install --frozen-lockfile; then
     mkdir -p "$(dirname "$WORKSPACE_INSTALL_STAMP")"
     workspace_install_fingerprint >"$WORKSPACE_INSTALL_STAMP"
     return 0
   fi
-  echo "!!! dependency install is incomplete; resolve the error and rerun setup.sh" >&2
+  echo "!!! dependency install is incomplete; resolve the error and rerun the command" >&2
   return 1
 }
 

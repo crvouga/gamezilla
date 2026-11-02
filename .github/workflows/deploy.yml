@@ -5,7 +5,7 @@ name: Release
 #   <Workflow> · <trigger>
 run-name: "Release · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
 
-# Every push to main verifies the exact commit with the full release profile,
+# Every push to main verifies the exact commit with the blocking safety checks,
 # then releases shared services, development, and production in order.
 # Rehearsals verify and plan without releasing.
 
@@ -30,9 +30,9 @@ env:
   TURBO_UI: stream
 
 # One release at a time: each environment is a shared singleton.
+# Keep the newest pending release; never interrupt an active apply or migration.
 concurrency:
   group: deploy-main
-  queue: max
   cancel-in-progress: false
 
 # Every job runs on a GitHub-hosted `ubuntu-24.04` runner, and every `run:` step is bash.

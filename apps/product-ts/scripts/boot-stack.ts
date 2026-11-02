@@ -227,12 +227,15 @@ export async function startWeb(args: {
   readonly frozen: boolean;
   readonly testHooks: boolean;
 }): Promise<ChildProcess> {
+  const preview = args.instanceId === 'dev';
   const child = spawn('bun', PRODUCT_DEV_ARGS, {
     cwd: REPO_ROOT,
     stdio: ['inherit', 'inherit', 'pipe'],
     env: {
       ...localProcessEnv(process.env),
       LOCALHOST_STACK: '1',
+      LOCALHOST_STACK_INSTANCE: args.instanceId,
+      VITE_LOCAL_PREVIEW_SAME_ORIGIN: preview ? '1' : '0',
       VITE_PORT: new URL(args.origin).port,
       VITE_API_URL: args.apiOrigin,
       VITE_LOCAL_PREVIEW_API_ORIGIN: args.apiOrigin,

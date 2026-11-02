@@ -1,0 +1,4 @@
+{
+  "summary": "The release-policy harness inferred workspace-opening safety from Run not invoking setup.sh. Automatic dependency repair made that inference false even though prepare.sh still catches preparation failures, reports them and opens the workspace. Facts now come from the opening adapter\u2019s actual failure handling.",
+  "regressionTest": "libs/runtime-harness-ts/tests/environment-release-policy.test.ts"
+}

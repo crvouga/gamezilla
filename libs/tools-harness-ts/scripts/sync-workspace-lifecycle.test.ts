@@ -16,7 +16,8 @@ describe('renderConfigs', () => {
     );
   });
 
-  test('T3 waits for strict setup and cleans up only its settled worktree', () => {
+  // regression: workspace-actions-minimal
+  test('T3 exposes only Run and Stop, with cleanup for its settled worktree', () => {
     const file = files.find((entry) => entry.path === 't3.json');
     expect(file).toBeDefined();
     const config = JSON.parse(file!.content) as {
@@ -30,12 +31,13 @@ describe('renderConfigs', () => {
       }[];
     };
     expect(config.defaultThreadEnvMode).toBe('worktree');
-    const setup = config.scripts.filter((script) => script.runOnWorktreeCreate);
-    expect(setup).toHaveLength(1);
-    expect(setup[0]?.command).toBe(
-      './libs/tools-harness-ts/workspace/setup.sh'
+    expect(config.scripts.map((script) => script.command)).toEqual([
+      hookCommand('run'),
+      hookCommand('teardown'),
+    ]);
+    expect(config.scripts.some((script) => script.runOnWorktreeCreate)).toBe(
+      false
     );
-    expect(setup[0]?.async).toBe(false);
     expect(config.scripts.filter((script) => script.runOnSettle)).toEqual([
       expect.objectContaining({ command: hookCommand('teardown') }),
     ]);

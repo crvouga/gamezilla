@@ -60,6 +60,7 @@
         "@libs/runtime-shared-ts": "workspace:*",
         "@libs/spaces-client-ts": "workspace:*",
         "@pkgs/feedback-client-ts": "workspace:*",
+        "@pkgs/http-client-shared-ts": "workspace:*",
         "@pkgs/tailwind-shared-ts": "workspace:*",
         "@pkgs/ui-root-client-ts": "workspace:*",
         "solid-js": "catalog:",
@@ -151,6 +152,7 @@
         "@pkgs/ui-testing-root-shared-ts": "workspace:*",
         "@pkgs/uuid-client-ts": "workspace:*",
         "@pkgs/uuid-shared-ts": "workspace:*",
+        "@pkgs/workspace-preview-client-ts": "workspace:*",
         "@solidjs/router": "catalog:",
         "hono": "catalog:",
         "solid-js": "catalog:",
@@ -7512,6 +7514,18 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/workspace-preview-client-ts": {
+      "name": "@pkgs/workspace-preview-client-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/http-client-shared-ts": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
   },
   "trustedDependencies": [
     "ffmpeg-static",
@@ -9190,6 +9204,8 @@
     "@pkgs/vite-workspace-resolver-server-ts": ["@pkgs/vite-workspace-resolver-server-ts@workspace:pkgs/vite-workspace-resolver-server-ts"],
 
     "@pkgs/word-filter-shared-ts": ["@pkgs/word-filter-shared-ts@workspace:pkgs/word-filter-shared-ts"],
+
+    "@pkgs/workspace-preview-client-ts": ["@pkgs/workspace-preview-client-ts@workspace:pkgs/workspace-preview-client-ts"],
 
     "@playwright/test": ["@playwright/test@1.61.1", "", { "dependencies": { "playwright": "1.61.1" }, "bin": { "playwright": "cli.js" } }, "sha512-8nKv6+0RJSL9FE4jYOEGXnPeM/Hg12qZpmqzZjRh3qM0Y7c3z1mrOTfFLids72RDQYVh9WpLEfR5WdpNX4fkig=="],
 

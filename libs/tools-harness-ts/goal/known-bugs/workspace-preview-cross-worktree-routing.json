@@ -1,0 +1,4 @@
+{
+  "summary": "Preview identities include the namespace, environment, canonical worktree path and atomically persisted machine identity, so concurrent worktrees and identical paths on different machines never share a connector.",
+  "regressionTest": "apps/product-ts/scripts/workspace-preview-scope.test.ts"
+}

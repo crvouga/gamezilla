@@ -1,0 +1,4 @@
+{
+  "summary": "Running workspace/run.sh after a plain bun install, a manifest change, or missing dependencies refused to start and required a separate setup command. Run now invokes the existing setup stage when preparation is stale or incomplete, starts only after success, and retries failed setup on the next invocation.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workspace-run.test.ts"
+}

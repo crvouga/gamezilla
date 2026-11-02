@@ -1,0 +1,4 @@
+{
+  "summary": "Rewriting URL-shaped values inside preview API and object bodies changes synchronized rows, query parameters and signed upload bytes while leaving their hashes and validators unchanged. Preview destinations are now mapped by browser transport adapters; domain payloads pass through verbatim and only authentication/provider protocol bodies are translated.",
+  "regressionTest": "apps/product-ts/scripts/workspace-preview.test.ts"
+}

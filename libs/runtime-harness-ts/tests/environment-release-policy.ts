@@ -19,7 +19,6 @@ export async function readReleasePolicy(): Promise<ReleasePolicy> {
   ).text();
   const workspace = `${ROOT}/libs/tools-harness-ts/workspace`;
   const preparation = await Bun.file(`${workspace}/setup.sh`).text();
-  const startup = await Bun.file(`${workspace}/run.sh`).text();
   const helpers = await Bun.file(`${workspace}/lib.sh`).text();
   const opening = await Bun.file(`${workspace}/prepare.sh`).text();
   const deploy = Bun.YAML.parse(deployText) as {
@@ -33,10 +32,12 @@ export async function readReleasePolicy(): Promise<ReleasePolicy> {
   const reportsFailure =
     preparation.includes('workspace_quiet "mise install" workspace_system') &&
     helpers.includes('!!! $label failed (exit $status)');
-  const opensIndependently =
-    startup.includes('exec bun run --silent dev') &&
-    !startup.includes('workspace_system') &&
-    !startup.includes('/setup.sh"');
+  // Opening a workspace is prepare.sh's contract. Run may repair dependencies
+  // later without making a failed preparation close the editor environment.
+  const openingHandlesFailure =
+    opening.includes('if ! "') &&
+    opening.includes('/setup.sh"; then') &&
+    !/\bexit\s+[1-9]/.test(opening);
   const toldAt = opening.indexOf('!!! environment preparation is incomplete');
   const openAt = opening.indexOf('==> workspace may be opened');
   return {
@@ -53,6 +54,6 @@ export async function readReleasePolicy(): Promise<ReleasePolicy> {
       !Object.keys(deploy.jobs).some((name) => name.includes('rollback')),
     preparationFailureIsTold: reportsFailure && toldAt >= 0,
     preparationFailureStillOpens:
-      opensIndependently && toldAt >= 0 && openAt > toldAt,
+      openingHandlesFailure && toldAt >= 0 && openAt > toldAt,
   };
 }

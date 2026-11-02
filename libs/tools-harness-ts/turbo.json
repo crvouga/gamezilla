@@ -2,6 +2,9 @@
   "$schema": "https://v2-11-3.turborepo.dev/schema.json",
   "extends": ["//"],
   "tasks": {
+    "test:posix": {
+      "cache": false
+    },
     "lint": {
       "inputs": ["$TURBO_EXTENDS$"]
     },
@@ -67,6 +70,9 @@
         "PR_HEAD",
         "SHARD_RESULT"
       ]
+    },
+    "docs:ci-load": {
+      "cache": false
     }
   }
 }

@@ -1,0 +1,4 @@
+{
+  "summary": "An unprovisioned worktree had no normal-browser URL and remote clients retained loopback service destinations. Each development checkout now owns an email-protected ephemeral tunnel, publishes its actual URL after connection, and maps its client transports through that same origin.",
+  "regressionTest": "apps/product-ts/scripts/preview-connector-readiness.test.ts"
+}

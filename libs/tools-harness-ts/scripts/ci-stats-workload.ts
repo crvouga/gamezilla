@@ -7,6 +7,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { type LoadReport, loadReport, readLoadInput } from './ci-load';
+import { isBlockingCiTask } from './ci-stage';
 import { createTaskEstimator } from './verify-task-estimates';
 
 export type TaskRow = {
@@ -17,9 +18,9 @@ export type TaskRow = {
 
 export type ProfileSplit = {
   readonly prSeconds: number;
-  readonly releaseOnlySeconds: number;
+  readonly nightlyOnlySeconds: number;
   readonly prTasks: number;
-  readonly releaseOnlyTasks: number;
+  readonly nightlyOnlyTasks: number;
   readonly longest: readonly TaskRow[];
   readonly longestPr: readonly TaskRow[];
 };
@@ -63,20 +64,17 @@ export function readWorkload(root: string): Workload {
   };
 }
 
-/**
- * Task rows for every gate task. A pull request runs the whole gate, the
- * `release` profile (`verify-profile.ts`), so nothing is left to Release
- * alone and `releaseOnly*` stay zero; the fields remain so the report keeps
- * its shape.
- */
+/** Estimated leaf work by stage, excluding setup and prerequisite builds. */
 export function profileSplit(rows: readonly TaskRow[]): ProfileSplit {
+  const blocking = rows.filter((row) => isBlockingCiTask(row.id));
+  const nightly = rows.filter((row) => !isBlockingCiTask(row.id));
   return {
-    prSeconds: sum(rows),
-    releaseOnlySeconds: 0,
-    prTasks: rows.length,
-    releaseOnlyTasks: 0,
+    prSeconds: sum(blocking),
+    nightlyOnlySeconds: sum(nightly),
+    prTasks: blocking.length,
+    nightlyOnlyTasks: nightly.length,
     longest: longest(rows),
-    longestPr: longest(rows),
+    longestPr: longest(blocking),
   };
 }
 

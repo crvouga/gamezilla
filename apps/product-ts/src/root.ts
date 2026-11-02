@@ -1,3 +1,6 @@
+import { browserPreviewOrigin } from '@pkgs/workspace-preview-client-ts/browser-origin';
+import { browserPreviewHttp } from '@pkgs/workspace-preview-client-ts/http';
+import { loadPreviewApplication } from '@pkgs/workspace-preview-client-ts/session';
 // @io-wall-ok — platform root: feedback is active before app modules load
 
 import {
@@ -16,11 +19,23 @@ import { bootBrowserFeedback } from '@pkgs/feedback-client-ts/wall';
 
 const STARTUP_RECOVERY_KEY = technicalKey('dev-startup-recovery', ':');
 const offline = wallOfflineNetworkController();
-const startupHttp = createWallOfflineHttp(offline);
+const wallHttp = {
+  fetch: (input: RequestInfo | URL, init?: RequestInit) =>
+    globalThis.fetch(input, init),
+};
+const startupHttp = createWallOfflineHttp(
+  offline,
+  import.meta.env.DEV ? browserPreviewHttp(wallHttp) : wallHttp
+);
 
 function startApplication(): Promise<void> {
   return startBrowserApplication({
-    load: () => import('./main'),
+    load: () =>
+      loadPreviewApplication({
+        origin: browserPreviewOrigin(),
+        http: startupHttp,
+        load: () => import('./main'),
+      }),
     recoverOnce: import.meta.env.DEV,
     recoveryAttempted: () =>
       sessionStorage.getItem(STARTUP_RECOVERY_KEY) === 'attempted',

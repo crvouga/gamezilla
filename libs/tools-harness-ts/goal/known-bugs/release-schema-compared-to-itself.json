@@ -1,0 +1,4 @@
+{
+  "summary": "Release left PR_BASE empty, so schema evolution could compare the pushed main commit against itself. Compare to the immutable pre-push SHA; manual dispatch uses the selected commit's parent.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ci-stage.test.ts"
+}

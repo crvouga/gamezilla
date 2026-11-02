@@ -1,0 +1,4 @@
+{
+  "summary": "Vite config eagerly imported stack port reservation through the preview plugin. Node could not resolve the process-owner package\u2019s extensionless import, so the web listener never started. Read-only plan loading is now separate from process startup.",
+  "regressionTest": "apps/product-ts/scripts/workspace-preview.test.ts"
+}

@@ -31,7 +31,7 @@ describe('WORKFLOW_DISPATCH', () => {
   });
 
   // regression: release-pending-merges-replaced
-  test('Release runs on every merge to main and ships only what the whole gate verified', () => {
+  test('Release keeps the newest pending commit without interrupting an active deployment', () => {
     const deploy = Bun.YAML.parse(
       readFileSync(join(WORKFLOWS, 'deploy.yml'), 'utf8')
     ) as {
@@ -51,10 +51,9 @@ describe('WORKFLOW_DISPATCH', () => {
     expect(deploy.on['push']).toEqual({ branches: ['main'] });
     expect(deploy.concurrency).toEqual({
       group: 'deploy-main',
-      queue: 'max',
       'cancel-in-progress': false,
     });
-    // A pull request runs the fast profile; the release runs every gate task.
+    // Both stages select the safety gate; nightly owns the complete catalog.
     expect(deploy.jobs['deploy-verify']).toMatchObject({
       uses: './.github/workflows/verify-pr.yml',
     });
