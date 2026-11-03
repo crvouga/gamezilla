@@ -98,3 +98,11 @@ export function useSyntheticPopulationApi() {
 export type SyntheticPopulationApi = ReturnType<
   typeof useSyntheticPopulationApi
 >;
+/** A decision replay's outcome, as the replay endpoint returns it. */
+export type SyntheticUserReplayResult = Awaited<
+  ReturnType<SyntheticPopulationApi['replay']>
+>;
+/** One page of the Synthetic User directory. */
+export type SyntheticPopulationDirectoryPage = Awaited<
+  ReturnType<SyntheticPopulationApi['directory']>
+>;

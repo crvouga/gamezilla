@@ -17,7 +17,7 @@ export type DenialSurfaceProps = {
   readonly testId?: string;
 };
 
-export type DenialContent = {
+type DenialContent = {
   readonly icon: () => IconComponent;
   readonly title: () => string;
   readonly body: () => string | undefined;
@@ -32,7 +32,7 @@ export type DenialContent = {
  * Resolves a `Decision` to what every denial surface shows: its `unlockRef`'s
  * config copy, the CTA, and the handles a spec reads.
  */
-export function useDenialContent(props: {
+function useDenialContent(props: {
   readonly decision: Decision;
   readonly icon?: IconComponent | undefined;
   readonly testId?: string | undefined;
@@ -70,7 +70,11 @@ export function useDenialContent(props: {
   };
 }
 
-/** A `Decision` resolved to plain view data, tracking policy and clock. */
+/**
+ * A `Decision` resolved to plain view data, tracking policy and clock. The
+ * only resolver: `DenialSurface`, `DenialModal` and `DecisionGate` use it so
+ * views (`DenialSurfaceView`, `DenialModalView`) stay plain data.
+ */
 export function useDenialView(props: {
   readonly decision: Decision;
   readonly icon?: IconComponent | undefined;

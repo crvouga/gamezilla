@@ -25,6 +25,20 @@ function DeniedScreen(props: Omit<DecisionGateProps, 'children'>) {
  * Container-side permission gate: mounts `children` (and their queries) only
  * when allowed; otherwise resolves the denial and hands it to the screen's
  * presentational view, so the denied state is a plain-data story.
+ *
+ * Use it in a screen's container, never in its view: the view takes
+ * `denial?: DenialView` and renders `DenialSurfaceView`. For a refusal that
+ * should not replace the screen (a tapped action), use `DenialModal` instead.
+ *
+ * @example
+ * ```tsx
+ * <DecisionGate
+ *   decision={decision()}
+ *   denied={(denial) => <FriendsListScreenView denial={denial} … />}
+ * >
+ *   <FriendsListContainer />
+ * </DecisionGate>
+ * ```
  */
 export function DecisionGate(props: DecisionGateProps): JSX.Element {
   return (

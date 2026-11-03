@@ -15,10 +15,17 @@ const numericFields = [
   'actionIntervalMs',
   'sessionMs',
 ] as const;
-type Field = (typeof numericFields)[number] | 'preferredVersion';
-type Draft = Record<Field, string>;
+/** One editable configuration field. */
+export type ConfigurationField =
+  | (typeof numericFields)[number]
+  | 'preferredVersion';
+/** The configuration form as typed: every field is still text. */
+export type ConfigurationDraft = Record<ConfigurationField, string>;
 
-function toDraft(config: SyntheticPopulationConfig): Draft {
+/** A saved configuration as form text. */
+export function toConfigurationDraft(
+  config: SyntheticPopulationConfig
+): ConfigurationDraft {
   return {
     desired: String(config.desired),
     capacityPerWorker: String(config.capacityPerWorker),
@@ -29,9 +36,10 @@ function toDraft(config: SyntheticPopulationConfig): Draft {
   };
 }
 
+/** The configuration draft: seeded once from the server, then edited locally. */
 export function useSyntheticPopulationConfiguration() {
   const [fields, setFields] = createSignal(
-    toDraft(DEFAULT_SYNTHETIC_POPULATION_CONFIG)
+    toConfigurationDraft(DEFAULT_SYNTHETIC_POPULATION_CONFIG)
   );
   let initialized = false;
   return {
@@ -39,9 +47,9 @@ export function useSyntheticPopulationConfiguration() {
     initialize(config: SyntheticPopulationConfig) {
       if (initialized) return;
       initialized = true;
-      setFields(toDraft(config));
+      setFields(toConfigurationDraft(config));
     },
-    change(field: Field, value: string) {
+    change(field: ConfigurationField, value: string) {
       setFields((previous) => ({ ...previous, [field]: value }));
     },
     candidate(
@@ -64,12 +72,13 @@ export function useSyntheticPopulationConfiguration() {
   };
 }
 
+/** The configuration form; values are text until the save validates them. */
 export function SyntheticPopulationConfiguration(props: {
-  fields: Draft;
-  change: (field: Field, value: string) => void;
+  fields: ConfigurationDraft;
+  change: (field: ConfigurationField, value: string) => void;
 }): JSX.Element {
   const { t } = useLingui();
-  const labels: Record<Field, string> = {
+  const labels: Record<ConfigurationField, string> = {
     desired: t`Desired synthetic population`,
     capacityPerWorker: t`Admission limit per worker`,
     leaseMs: t`Worker Lease duration (milliseconds)`,
