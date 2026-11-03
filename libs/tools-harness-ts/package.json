@@ -59,7 +59,7 @@
     "@pkgs/quint-shared-ts": "workspace:*",
     "@pkgs/ui-testing-bun-webview-server-ts": "workspace:*",
     "fast-check": "catalog:",
-    "sharp": "catalog:",
+    "sharp": "0.35.5",
     "typescript": "catalog:",
     "wrangler": "catalog:"
   },
