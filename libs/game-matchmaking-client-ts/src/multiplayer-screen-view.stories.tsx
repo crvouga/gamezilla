@@ -113,13 +113,13 @@ export const SearchingForPlayers: Story = {
 
 /** Matched: the game's board takes the stage and the ratings sit beside it. */
 export const Matched: Story = {
-  render: matched,
+  render: (args) => matched(args),
   args: { stage: 'game', next: { kind: 'none' } },
 };
 
 /** The game is over: the board stays and a new search can start. */
 export const AfterTheGame: Story = {
-  render: matched,
+  render: (args) => matched(args),
   args: { stage: 'game' },
 };
 
@@ -155,19 +155,19 @@ export const CommandRefused: Story = {
 
 /** Offline: commands wait for the connection; an accepted game stays here. */
 export const Offline: Story = {
-  render: matched,
+  render: (args) => matched(args),
   args: { stage: 'game', next: { kind: 'none' }, online: false },
 };
 
 /** Resigning asks first; the opponent wins. */
 export const ConfirmResign: Story = {
-  render: matched,
+  render: (args) => matched(args),
   args: { stage: 'game', next: { kind: 'none' }, confirming: 'resign' },
 };
 
 /** Resigning a bigger game draws the round for everyone. */
 export const ConfirmResignManyPlayers: Story = {
-  render: matched,
+  render: (args) => matched(args),
   args: {
     stage: 'game',
     next: { kind: 'none' },
@@ -178,7 +178,7 @@ export const ConfirmResignManyPlayers: Story = {
 
 /** Aborting before the first moves ends the game with no result. */
 export const ConfirmAbort: Story = {
-  render: matched,
+  render: (args) => matched(args),
   args: { stage: 'game', next: { kind: 'none' }, confirming: 'abort' },
 };
 

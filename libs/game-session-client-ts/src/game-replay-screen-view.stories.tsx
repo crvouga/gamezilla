@@ -42,7 +42,7 @@ const meta = {
     onPrevious: fn(),
     onNext: fn(),
   },
-  render: atPly,
+  render: (args) => atPly(args),
 } satisfies Meta<typeof GameReplayScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;

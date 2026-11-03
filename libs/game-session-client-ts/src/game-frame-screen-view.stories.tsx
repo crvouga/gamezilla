@@ -63,7 +63,7 @@ const meta = {
     controls: { exclude: FRAME_CONTROLS_EXCLUDE },
   },
   args: frameArgs(),
-  render: onBoard(MID_GAME_MOVES),
+  render: (args) => onBoard(MID_GAME_MOVES)(args),
 } satisfies Meta<typeof GameFrameScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -271,7 +271,7 @@ export const Stopped: Story = { args: { ...PLAYING, stopped: true } };
 
 /** Reviewing an earlier move: the record marks it and the board shows that position. */
 export const ReviewingEarlierMove: Story = {
-  render: onBoard(MID_GAME_MOVES.slice(0, 3)),
+  render: (args) => onBoard(MID_GAME_MOVES.slice(0, 3))(args),
   args: {
     ...PLAYING,
     record: { ...record(MID_GAME_RECORD), displayedPly: 3 },
@@ -339,7 +339,7 @@ const STANDINGS = [
 
 /** The viewer won: the headline is theirs, then the standings and what comes next. */
 export const YouWin: Story = {
-  render: onBoard(WON_MOVES),
+  render: (args) => onBoard(WON_MOVES)(args),
   args: {
     ...OVER,
     result: {
@@ -353,7 +353,7 @@ export const YouWin: Story = {
 
 /** The viewer lost at a scored table: their place, everyone's points and readiness. */
 export const YouPlacedSecond: Story = {
-  render: onBoard(WON_MOVES),
+  render: (args) => onBoard(WON_MOVES)(args),
   args: {
     ...OVER,
     viewerSide: 'black',
@@ -396,7 +396,7 @@ export const Draw: Story = {
 
 /** A watcher reads who won and may go back to the space or review the game. */
 export const WatcherSeesResult: Story = {
-  render: onBoard(WON_MOVES),
+  render: (args) => onBoard(WON_MOVES)(args),
   args: {
     ...OVER,
     viewerSide: null,
