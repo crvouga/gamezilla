@@ -15,13 +15,13 @@ import { setMutationCorrelationIdentity } from '@pkgs/sync-engine-shared-ts/inte
 import {
   installBrowserObservabilityBoundaries,
   setBrowserTraceFlush,
-} from './browser-boundaries';
+} from '@libs/app-env-client-ts/browser-boundaries';
 import {
   browserObservabilityIdentity,
   installBrowserObsHelper,
   setBrowserSessionId,
-} from './browser-identity';
-import type { ClientEnv } from './client-env';
+} from '@libs/app-env-client-ts/browser-identity';
+import type { ClientEnv } from '@libs/app-env-client-ts/client-env';
 import type { OfflineNetworkController } from './offline-network-controller';
 import { createOfflineHttp } from './offline-network-http';
 import { installBrowserPerformanceTelemetry } from './wall';

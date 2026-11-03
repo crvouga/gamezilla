@@ -15,7 +15,7 @@
     "test": "bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload tests"
   },
   "dependencies": {
-    "@libs/app-root-client-ts": "workspace:*",
+    "@libs/app-env-client-ts": "workspace:*",
     "@libs/auth-client-ts": "workspace:*",
     "@libs/auth-shared-ts": "workspace:*",
     "@libs/moderation-client-ts": "workspace:*",

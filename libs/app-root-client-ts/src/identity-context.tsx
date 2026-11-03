@@ -19,7 +19,7 @@ import {
   type JSX,
   useContext,
 } from 'solid-js';
-import { setBrowserLocalIdentity } from './browser-identity';
+import { setBrowserLocalIdentity } from '@libs/app-env-client-ts/browser-identity';
 
 export type LocalIdentityValue = {
   /** Current local `users.id`; `null` until the local boot lands. */

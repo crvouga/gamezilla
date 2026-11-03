@@ -17,6 +17,7 @@
   "dependencies": {
     "@libs/app-config-client-ts": "workspace:*",
     "@libs/app-config-shared-ts": "workspace:*",
+    "@libs/app-env-client-ts": "workspace:*",
     "@libs/app-root-shared-ts": "workspace:*",
     "@libs/auth-client-ts": "workspace:*",
     "@libs/auth-shared-ts": "workspace:*",

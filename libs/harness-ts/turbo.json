@@ -1,6 +1,8 @@
 {
   "$schema": "https://v2-11-3.turborepo.dev/schema.json",
-  "extends": ["//"],
+  "extends": [
+    "//"
+  ],
   "tasks": {
     "test": {
       "dependsOn": [
@@ -11,6 +13,7 @@
     "src": {
       "dependsOn": [
         "@libs/app-config-shared-ts#src",
+        "@libs/app-env-client-ts#src",
         "@libs/app-root-client-ts#src",
         "@libs/app-root-server-ts#src",
         "@libs/app-root-shared-ts#src",

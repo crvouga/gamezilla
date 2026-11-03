@@ -5,7 +5,7 @@
  * stub product API (`harness-server-fetch.ts`). No wall I/O.
  */
 
-import type { ClientEnv } from '@libs/app-root-client-ts/client-env';
+import type { ClientEnv } from '@libs/app-env-client-ts/client-env';
 import { createInMemoryClientPorts } from '@libs/app-root-client-ts/in-memory-client-ports';
 import {
   createAppBearerTokenStore,

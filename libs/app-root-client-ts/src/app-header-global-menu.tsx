@@ -13,7 +13,7 @@ import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { useThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
 import type { JSX } from 'solid-js';
 import { AppHeaderGlobalMenuView } from './app-header-global-menu-view';
-import { useGlobalMenuIdentity } from './global-menu-identity-context';
+import { useGlobalMenuIdentity } from '@libs/app-env-client-ts/global-menu-identity-context';
 import { createConnectivity } from './use-connectivity';
 
 /** Wires `AppHeaderGlobalMenuView` to identity, connectivity and preferences. */

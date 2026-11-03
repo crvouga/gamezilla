@@ -1,5 +1,5 @@
 import { afterEach, expect, test } from 'bun:test';
-import { reportSolidBoundaryError } from '@libs/app-root-client-ts/browser-boundaries';
+import { reportSolidBoundaryError } from '@libs/app-env-client-ts/browser-boundaries';
 import { context, propagation, trace } from '@opentelemetry/api';
 import { InMemorySpanExporter } from '@opentelemetry/sdk-trace-base';
 import { createWorkerTelemetry } from '@pkgs/observability-root-server-ts/worker-worker';

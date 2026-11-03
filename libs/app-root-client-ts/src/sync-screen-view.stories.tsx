@@ -1,7 +1,7 @@
 import { INITIAL_SYNC_STATUS } from '@pkgs/sync-engine-client-ts/sync-status';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import { RefusedChangeCard } from './refused-change-notice';
+import { RefusedChangeCard } from '@libs/app-env-client-ts/refused-change-notice';
 import { SyncScreenView } from './sync-screen-view';
 
 const CONNECTED = {

@@ -1,5 +1,6 @@
-import { RefusedChangeCard } from '@libs/app-root-client-ts/refused-change-notice';
+import { RefusedChangeCard } from '@libs/app-env-client-ts/refused-change-notice';
 import { withShippedModeration } from '@libs/moderation-client-ts/moderation-story.example';
+import { moderationAlias } from '@libs/moderation-shared-ts/alias';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { ProfileScreenView } from './profile-screen-view';
@@ -51,6 +52,17 @@ type Story = StoryObj<typeof meta>;
 
 /** The person's own profile: avatar, name, Edit profile and the friends row. */
 export const Ready: Story = {};
+
+/**
+ * The username is no longer allowed: others see a stable stand-in name until
+ * the person chooses a new username, and the profile says so.
+ */
+export const StandInName: Story = {
+  args: {
+    identity: { ...STORY_IDENTITY, username: 'support_staff' },
+    standInName: moderationAlias(STORY_IDENTITY.profileId),
+  },
+};
 
 /** The profile row has not been read yet: a placeholder holds the name's place. */
 export const Loading: Story = { args: { status: 'loading', identity: null } };

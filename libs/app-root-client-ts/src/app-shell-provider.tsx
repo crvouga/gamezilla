@@ -21,7 +21,7 @@ import {
 } from '@pkgs/sounds-client-ts/solid';
 import { SpinnerProvider } from '@pkgs/ui-root-client-ts/spinner-context';
 import type { JSX } from 'solid-js';
-import { useClientEnv } from './client-env-context';
+import { useClientEnv } from '@libs/app-env-client-ts/client-env-context';
 import { DevicePortsProvider } from './device-ports-context';
 import { PerfRoot } from './perf-root';
 

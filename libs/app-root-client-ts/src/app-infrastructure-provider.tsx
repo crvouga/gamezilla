@@ -22,7 +22,7 @@ import {
 } from '@pkgs/secure-storage-root-client-ts/solid';
 import type { JSX } from 'solid-js';
 
-import { useClientEnv } from './client-env-context';
+import { useClientEnv } from '@libs/app-env-client-ts/client-env-context';
 import { originAvailabilityFor } from './origin-availability-for-env';
 
 export function AppInfrastructureProvider(props: {

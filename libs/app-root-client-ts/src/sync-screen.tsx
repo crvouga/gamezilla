@@ -8,7 +8,7 @@
 
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import type { JSX } from 'solid-js';
-import { OtherRefusedChanges } from './refused-change-notice';
+import { OtherRefusedChanges } from '@libs/app-env-client-ts/refused-change-notice';
 import { SyncScreenView } from './sync-screen-view';
 import { useSyncStatus } from './sync-status-context';
 

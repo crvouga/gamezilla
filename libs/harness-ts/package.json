@@ -28,6 +28,7 @@
     "@crvouga/mockingbird-service-s3": "catalog:",
     "@crvouga/mockingbird-service-stripe": "catalog:",
     "@libs/app-config-shared-ts": "workspace:*",
+    "@libs/app-env-client-ts": "workspace:*",
     "@libs/app-root-client-ts": "workspace:*",
     "@libs/app-root-server-ts": "workspace:*",
     "@libs/app-root-shared-ts": "workspace:*",

@@ -1,7 +1,7 @@
 import {
   RefusedChangeCard,
   useRefusedChanges,
-} from '@libs/app-root-client-ts/refused-change-notice';
+} from '@libs/app-env-client-ts/refused-change-notice';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useMutationFeedback } from '@pkgs/sync-engine-client-ts/use-mutation-feedback';
 import { createMemo, type JSX, Show } from 'solid-js';

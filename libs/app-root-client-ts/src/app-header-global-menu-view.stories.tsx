@@ -6,7 +6,7 @@ import {
   type StoryObj,
 } from 'storybook-solidjs-vite';
 import { AppHeaderGlobalMenuView } from './app-header-global-menu-view';
-import { BOOT_GLOBAL_MENU_IDENTITY } from './global-menu-identity-context';
+import { BOOT_GLOBAL_MENU_IDENTITY } from '@libs/app-env-client-ts/global-menu-identity-context';
 
 const SIGNED_IN = {
   usernameLabel: '@avery',

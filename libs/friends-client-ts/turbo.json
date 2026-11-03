@@ -1,6 +1,8 @@
 {
   "$schema": "https://turborepo.com/schema.json",
-  "extends": ["//"],
+  "extends": [
+    "//"
+  ],
   "tasks": {
     "test:spec:0": {
       "inputs": [
@@ -459,7 +461,7 @@
     },
     "src": {
       "dependsOn": [
-        "@libs/app-root-client-ts#src",
+        "@libs/app-env-client-ts#src",
         "@libs/auth-client-ts#src",
         "@libs/auth-shared-ts#src",
         "@libs/friends-shared-ts#src",

@@ -4,7 +4,7 @@ import { NotebookStoreProvider } from '@pkgs/harness-console-client-ts/notebook-
 import { SqlNotebookPane } from '@pkgs/harness-console-client-ts/sql-notebook-pane';
 import { useSqlClient } from '@pkgs/sql-client-root-client-ts/solid';
 import type { JSX } from 'solid-js';
-import { useClientEnv } from './client-env-context';
+import { useClientEnv } from '@libs/app-env-client-ts/client-env-context';
 import { ClientSqlScreenView } from './client-sql-screen-view';
 
 export default function ClientSqlRoute(): JSX.Element {

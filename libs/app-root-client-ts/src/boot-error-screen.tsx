@@ -10,7 +10,7 @@ import {
   type LocalDatabaseBootErrorKind,
   LocalDatabaseBootErrorScreenView,
 } from './boot-error-screen-view';
-import { OPFS_WIPE_CHANNEL } from './open-main-sql-client';
+import { OPFS_WIPE_CHANNEL } from '@libs/app-env-client-ts/open-main-sql-client';
 
 /** Synthetic error when open hangs past the UI watchdog (stale worker / SW). */
 export const BOOT_STUCK_MESSAGE =

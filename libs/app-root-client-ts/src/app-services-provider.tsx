@@ -13,7 +13,7 @@ import { LlmContextProvider } from '@pkgs/llm-root-client-ts/solid';
 import { ObjectStoreProvider } from '@pkgs/object-store-root-client-ts/solid';
 import { TtsProvider } from '@pkgs/tts-root-client-ts/solid';
 import type { JSX } from 'solid-js';
-import { useClientEnv } from './client-env-context';
+import { useClientEnv } from '@libs/app-env-client-ts/client-env-context';
 
 function AppLlm(props: { readonly children: JSX.Element }): JSX.Element {
   const env = useClientEnv();

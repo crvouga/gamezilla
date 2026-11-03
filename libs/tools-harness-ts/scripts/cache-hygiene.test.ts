@@ -49,6 +49,7 @@ function pkg(
     dir: `pkgs/${name}`,
     declared: new Set(declared),
     srcEdges: new Set(srcEdges),
+    taskSrcEdges: new Set(),
     srcFiles: Array.from(
       { length: files },
       (_, i) => `pkgs/${name}/src/${i}.ts`

@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@libs/account-privacy-client-ts": "workspace:*",
+    "@libs/app-env-client-ts": "workspace:*",
     "@libs/app-root-client-ts": "workspace:*",
     "@libs/billing-client-ts": "workspace:*",
     "@libs/chess-puzzle-client-ts": "workspace:*",

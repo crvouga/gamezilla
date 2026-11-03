@@ -1,4 +1,4 @@
-import { RefusedChangeCard } from '@libs/app-root-client-ts/refused-change-notice';
+import { RefusedChangeCard } from '@libs/app-env-client-ts/refused-change-notice';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { AvatarEditorScreenView } from './avatar-editor-screen-view';

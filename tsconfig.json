@@ -226,6 +226,8 @@
     "libs/app-root-client-ts/tests/**/*.ts",
     "libs/app-root-shared-ts/tests/**/*.ts",
     "libs/app-root-client-ts/tests/**/*.tsx",
+    "libs/app-env-client-ts/src/**/*.ts",
+    "libs/app-env-client-ts/src/**/*.tsx",
     "libs/app-root-shared-ts/tests/**/*.tsx",
     "libs/sub-shared-ts/src/**/*.ts",
     "libs/sub-client-ts/src/**/*.ts",

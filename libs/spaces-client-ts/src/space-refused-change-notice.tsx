@@ -2,7 +2,7 @@ import {
   RefusedChangeCard,
   RefusedChangeNotice,
   useRefusedChanges,
-} from '@libs/app-root-client-ts/refused-change-notice';
+} from '@libs/app-env-client-ts/refused-change-notice';
 import { addSpaceUserMutation } from '@libs/spaces-shared-ts/add-space-user-mutation';
 import { createSpaceMutation } from '@libs/spaces-shared-ts/create-space-mutation';
 import { endSpaceMutation } from '@libs/spaces-shared-ts/end-space-mutation';

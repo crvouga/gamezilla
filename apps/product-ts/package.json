@@ -86,6 +86,7 @@
     "@crvouga/mockingbird-service-openai": "catalog:",
     "@crvouga/mockingbird-service-stripe": "catalog:",
     "@libs/app-config-shared-ts": "workspace:*",
+    "@libs/app-env-client-ts": "workspace:*",
     "@libs/app-root-client-ts": "workspace:*",
     "@libs/app-root-shared-ts": "workspace:*",
     "@libs/battleship-harness-ts": "workspace:*",

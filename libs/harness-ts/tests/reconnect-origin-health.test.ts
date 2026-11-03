@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import type { ClientEnv } from '@libs/app-root-client-ts/client-env';
+import type { ClientEnv } from '@libs/app-env-client-ts/client-env';
 import { setOriginAvailability } from '@libs/app-root-client-ts/origin-availability-for-env';
 import {
   restoreActorConnection,

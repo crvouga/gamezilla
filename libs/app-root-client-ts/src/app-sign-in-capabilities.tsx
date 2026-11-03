@@ -4,7 +4,7 @@ import { useClientConfig } from '@libs/app-config-client-ts/use-client-config';
 import { resolveSignInCapabilitiesReady } from '@libs/app-root-shared-ts/resolve-sign-in-capabilities-ready';
 import { SignInCapabilitiesProvider } from '@libs/auth-client-ts/sign-in-capabilities-context';
 import type { JSX } from 'solid-js';
-import { useClientEnv } from './client-env-context';
+import { useClientEnv } from '@libs/app-env-client-ts/client-env-context';
 
 /**
  * Bridges synced `client_config` into auth sign-in method gating. Must render

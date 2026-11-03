@@ -1,15 +1,16 @@
 {
   "$schema": "https://v2-11-3.turborepo.dev/schema.json",
-  "extends": ["//"],
+  "extends": [
+    "//"
+  ],
   "tasks": {
     "src": {
       "dependsOn": [
         "@libs/app-config-client-ts#src",
-        "@libs/app-config-shared-ts#src",
+        "@libs/app-env-client-ts#src",
         "@libs/app-root-shared-ts#src",
         "@libs/auth-client-ts#src",
         "@libs/auth-shared-ts#src",
-        "@libs/moderation-client-ts#src",
         "@libs/moderation-shared-ts#src",
         "@libs/permissions-client-ts#src",
         "@libs/permissions-shared-ts#src",
@@ -26,7 +27,6 @@
         "@pkgs/device-client-ts#src",
         "@pkgs/device-shared-ts#src",
         "@pkgs/feedback-client-ts#src",
-        "@pkgs/feedback-shared-ts#src",
         "@pkgs/git-shared-ts#src",
         "@pkgs/harness-console-client-ts#src",
         "@pkgs/http-client-client-ts#src",
@@ -44,8 +44,6 @@
         "@pkgs/observability-root-client-ts#src",
         "@pkgs/observability-root-shared-ts#src",
         "@pkgs/observability-runtime-shared-ts#src",
-        "@pkgs/pubsub-aedes-shared-ts#src",
-        "@pkgs/pubsub-emqx-shared-ts#src",
         "@pkgs/pubsub-root-shared-ts#src",
         "@pkgs/room-root-shared-ts#src",
         "@pkgs/secure-storage-root-client-ts#src",
@@ -55,19 +53,14 @@
         "@pkgs/sounds-client-ts#src",
         "@pkgs/sounds-shared-ts#src",
         "@pkgs/sql-client-root-client-ts#src",
-        "@pkgs/sql-client-root-shared-ts#src",
-        "@pkgs/sql-client-sqlite-root-shared-ts#src",
         "@pkgs/sql-client-sqlite-web-client-ts#src",
         "@pkgs/sql-client-sqlite-web-shared-ts#src",
-        "@pkgs/sql-root-shared-ts#src",
         "@pkgs/sync-engine-client-ts#src",
         "@pkgs/sync-engine-shared-ts#src",
         "@pkgs/tts-root-client-ts#src",
         "@pkgs/turn-game-shared-ts#src",
         "@pkgs/ui-root-client-ts#src",
-        "@pkgs/ui-root-shared-ts#src",
-        "@pkgs/uuid-client-ts#src",
-        "@pkgs/uuid-shared-ts#src"
+        "@pkgs/ui-root-shared-ts#src"
       ]
     }
   }

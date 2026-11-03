@@ -1,4 +1,4 @@
-import { RefusedChangeCard } from '@libs/app-root-client-ts/refused-change-notice';
+import { RefusedChangeCard } from '@libs/app-env-client-ts/refused-change-notice';
 import type { FriendProfile } from '@libs/friends-shared-ts/friends-types';
 import { withShippedModeration } from '@libs/moderation-client-ts/moderation-story.example';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
@@ -145,6 +145,11 @@ export const LongName: Story = {
       username: 'a_really_long_username_that_keeps_going_and_going',
     },
   },
+};
+
+/** Their username is no longer allowed: the profile shows their stable stand-in name. */
+export const MaskedName: Story = {
+  args: { profile: { ...PROFILE, username: 'support_staff' } },
 };
 
 /** An anonymous person sees the sign-in way forward instead of the profile. */

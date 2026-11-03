@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
-import { traceBrowserStartup } from '@libs/app-root-client-ts/browser-boundaries';
-import { installBrowserObsHelper } from '@libs/app-root-client-ts/browser-identity';
+import { traceBrowserStartup } from '@libs/app-env-client-ts/browser-boundaries';
+import { installBrowserObsHelper } from '@libs/app-env-client-ts/browser-identity';
 
 function startup(): readonly string[] {
   const host = window as unknown as { __obs: () => string };

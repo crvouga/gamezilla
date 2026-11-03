@@ -26,7 +26,7 @@ import { AppServicesProvider } from './app-services-provider';
 import { AppShellProvider } from './app-shell-provider';
 import { AppThemeProvider } from './app-theme-provider';
 import { AppUiPortals } from './app-ui-portals';
-import { useClientEnv } from './client-env-context';
+import { useClientEnv } from '@libs/app-env-client-ts/client-env-context';
 import { EmbeddedAppProvider } from './embedded-app-context';
 
 export function AppProvidersOuter(props: {

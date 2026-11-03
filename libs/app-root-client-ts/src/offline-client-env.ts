@@ -1,8 +1,8 @@
 import type { AuthClientPort } from '@pkgs/auth-root-shared-ts/auth-client-port';
 import { createDeadlineFetch } from '@pkgs/http-client-shared-ts/deadline-fetch';
 import { requestHref } from '@pkgs/http-client-shared-ts/origin-href';
-import type { ClientEnv } from './client-env';
-import type { ClientPubSubArgs } from './create-client-pubsub';
+import type { ClientEnv } from '@libs/app-env-client-ts/client-env';
+import type { ClientPubSubArgs } from '@libs/app-env-client-ts/create-client-pubsub';
 import { createOfflineAuthClient } from './offline-auth-client';
 import { createOfflineAudioPlayback } from './offline-network-audio';
 import {

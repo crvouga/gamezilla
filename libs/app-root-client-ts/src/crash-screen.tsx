@@ -15,7 +15,7 @@ import {
   onMount,
   untrack,
 } from 'solid-js';
-import { reportSolidBoundaryError } from './browser-boundaries';
+import { reportSolidBoundaryError } from '@libs/app-env-client-ts/browser-boundaries';
 import type { CrashCopyPhase } from './crash-copy-button';
 import { CrashScreenView, useCrashTitle } from './crash-screen-view';
 

@@ -23,16 +23,16 @@ import {
 import { type Component, type JSX, Show, untrack } from 'solid-js';
 import type { AppComposition, LoadComposedSubs } from './app-subs-context';
 import { AppCompositionProvider } from './app-subs-context';
-import type { ClientEnv } from './client-env';
-import { ClientEnvProvider } from './client-env-context';
+import type { ClientEnv } from '@libs/app-env-client-ts/client-env';
+import { ClientEnvProvider } from '@libs/app-env-client-ts/client-env-context';
 import { createOfflineClientEnv } from './offline-client-env';
 import type { OfflineNetworkController } from './offline-network-controller';
 import { OfflinePreferenceProvider } from './offline-preference';
 import { ProductApp } from './product-app';
 import { buildRouteTable } from './route-table';
 import { buildAppRoutes } from './routes';
-import type { AppSyncEnginePool } from './sync-engine-pool';
-import { createAppSyncEnginePool } from './sync-engine-pool';
+import type { AppSyncEnginePool } from '@libs/app-env-client-ts/sync-engine-pool';
+import { createAppSyncEnginePool } from '@libs/app-env-client-ts/sync-engine-pool';
 
 export type ClientAppProps = {
   /** Multi-App product-harness / tests: in-memory router, no document shortcuts. */

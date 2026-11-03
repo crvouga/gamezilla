@@ -3,7 +3,7 @@ import { canSubscribeToTopic } from '@libs/sub-shared-ts/sync';
 import {
   LOCAL_CALL_DEADLINE_MS,
   openMainSqlClient,
-} from './open-main-sql-client';
+} from '@libs/app-env-client-ts/open-main-sql-client';
 // @io-wall-ok — browser / production ClientEnv composition root.
 /**
  * Production / localhost `ClientEnv` built from browser APIs only. Call only
@@ -40,9 +40,9 @@ import {
   pendingInteractionRequestTraceparent,
   runInInteractionRequestContext,
 } from '@pkgs/sync-engine-shared-ts/interaction-correlation';
-import type { ClientEnv, CreateRoomTransport } from './client-env';
-import { createNoopDevMenuPort } from './client-env';
-import { createClientPubSub } from './create-client-pubsub';
+import type { ClientEnv, CreateRoomTransport } from '@libs/app-env-client-ts/client-env';
+import { createNoopDevMenuPort } from '@libs/app-env-client-ts/client-env';
+import { createClientPubSub } from '@libs/app-env-client-ts/create-client-pubsub';
 import type { OfflineNetworkController } from './offline-network-controller';
 import { createOfflineHttp, offlineNetworkError } from './offline-network-http';
 import { setOriginAvailability } from './origin-availability-for-env';

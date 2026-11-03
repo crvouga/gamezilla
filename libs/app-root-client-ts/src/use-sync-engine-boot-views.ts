@@ -12,13 +12,13 @@ import {
 } from 'solid-js';
 import { useAppData } from './app-subs-context';
 import { BOOT_STUCK_MESSAGE } from './boot-error-screen';
-import { traceBrowserStartup } from './browser-boundaries';
-import { useClientEnv, useSyncEnginePool } from './client-env-context';
+import { traceBrowserStartup } from '@libs/app-env-client-ts/browser-boundaries';
+import { useClientEnv, useSyncEnginePool } from '@libs/app-env-client-ts/client-env-context';
 import type { ReadySyncEngine } from './create-sync-engine-boot-state';
 import { createSyncEngineBootState } from './create-sync-engine-boot-state';
 import { useLocalIdentity } from './identity-context';
 import { originAvailabilityFor } from './origin-availability-for-env';
-import type { SyncApiFetch } from './sync-api';
+import type { SyncApiFetch } from '@libs/app-env-client-ts/sync-api';
 
 /**
  * UI watchdog for a boot that never finishes. A slow or broken local

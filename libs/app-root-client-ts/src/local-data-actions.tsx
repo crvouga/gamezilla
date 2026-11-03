@@ -10,7 +10,7 @@ import type { SecureStorageStore } from '@pkgs/secure-storage-root-shared-ts/sec
 import { runWebOpfsRecoveryAndReload } from '@pkgs/sql-client-sqlite-web-client-ts/recover-in-process';
 import { useSyncEngineInstance } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import type { JSX } from 'solid-js';
-import { OPFS_WIPE_CHANNEL } from './open-main-sql-client';
+import { OPFS_WIPE_CHANNEL } from '@libs/app-env-client-ts/open-main-sql-client';
 
 export type SyncLocalDataDeps = {
   readonly store: SecureStorageStore;

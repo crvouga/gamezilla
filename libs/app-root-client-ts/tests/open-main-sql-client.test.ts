@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, beforeEach, expect, test } from 'bun:test';
-import { openMainSqlClient } from '@libs/app-root-client-ts/open-main-sql-client';
+import { openMainSqlClient } from '@libs/app-env-client-ts/open-main-sql-client';
 import { SpanStatusCode, trace } from '@opentelemetry/api';
 import type { BrowserTelemetry } from '@pkgs/observability-root-client-ts/browser';
 import { createBrowserTelemetry } from '@pkgs/observability-root-client-ts/browser';

@@ -12,7 +12,7 @@ import { createInMemoryNetworkStatePort } from '@pkgs/device-shared-ts/network-s
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds-shared-ts/in-memory-audio-playback-port';
 
-import type { ClientEnv } from './client-env';
+import type { ClientEnv } from '@libs/app-env-client-ts/client-env';
 
 export type InMemoryClientPorts = Pick<
   ClientEnv,

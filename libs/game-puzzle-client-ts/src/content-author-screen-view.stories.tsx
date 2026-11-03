@@ -1,4 +1,4 @@
-import { RefusedChangeCard } from '@libs/app-root-client-ts/refused-change-notice';
+import { RefusedChangeCard } from '@libs/app-env-client-ts/refused-change-notice';
 import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
