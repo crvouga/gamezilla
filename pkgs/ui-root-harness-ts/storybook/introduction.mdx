@@ -25,13 +25,15 @@ in the canvas. Use Controls' reset to restore story defaults; callback spies
 appear in Actions. Separate interaction stories demonstrate scripted flows.
 
 Stories import real production components. Add or change a component's
-`*.stories.tsx` beside its implementation in `pkgs/*-client-ts/src/`.
+`*.stories.tsx` beside its implementation in `pkgs/*-client-ts/src/`, or a
+product screen's beside its presentational `*ScreenView` in `libs/*-client-ts/src/`.
 Use its public prop contract and existing design tokens; screens compose the
 design system. Include empty, loading, success and recoverable failure states
 where they apply. Add source JSDoc for the generated Docs page.
 
 The sidebar follows atomic design: Foundations, Atoms, Molecules, Organisms,
-and Templates. Games has one folder per game, such as Chess and Connect Four.
+and Templates. Screens catalogues every product screen in every state, a folder
+per area, with navigation recorded in Actions. Games has one folder per game, such as Chess and Connect Four.
 Games / Shared / Screens holds screens and layouts reused across games;
 Games / Shared / Components holds reusable game regions. Source stories stay
 beside their production components. Existing story URLs stay stable.
