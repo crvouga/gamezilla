@@ -51,12 +51,14 @@ const tasks =
       ]
     : ['@libs/tools-harness-ts#configure:brand'];
 
-const configured = spawnSync(
-  process.execPath,
-  ['x', 'turbo', 'run', ...tasks],
-  { cwd: root, env: configuredEnv, stdio: 'inherit' }
-);
-if (configured.status !== 0) process.exit(configured.status ?? 1);
+if (input.prepareIdentity) {
+  const configured = spawnSync(
+    process.execPath,
+    ['x', 'turbo', 'run', ...tasks],
+    { cwd: root, env: configuredEnv, stdio: 'inherit' }
+  );
+  if (configured.status !== 0) process.exit(configured.status ?? 1);
+}
 
 const result = spawnSync(requested[0] ?? '', requested.slice(1), {
   cwd: root,

@@ -83,7 +83,9 @@ fails instead of being silently replaced by a different source.
 
 ## Verification
 
-Local full verification explicitly selects `PRODUCT_IDENTITY_MODE=fixture`;
+Local full verification explicitly selects `PRODUCT_IDENTITY_MODE=fixture`
+and lets its private snapshot generate outputs, preserving the configured
+caller checkout;
 hosted verification uses the secrets wrapper's `--fixture` option, independent
 of deployment settings. Hosted read-only infrastructure plans use configured
 mode instead.
