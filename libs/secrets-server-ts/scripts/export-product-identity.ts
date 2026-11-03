@@ -2,6 +2,10 @@
 import { appendFileSync } from 'node:fs';
 import { configuredIdentity } from '@libs/product-identity-shared-ts/identity-input';
 
+const mode = process.env['PRODUCT_IDENTITY_MODE'] ?? 'fixture';
+if (mode !== 'fixture' && mode !== 'configured')
+  throw new Error('PRODUCT_IDENTITY_MODE must be fixture or configured');
+
 const injected = process.env['PRODUCT_IDENTITY_JSON'];
 const repository = process.env['REPOSITORY_IDENTITY_JSON'];
 if (injected?.trim() || repository?.trim()) {

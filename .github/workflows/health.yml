@@ -92,6 +92,8 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/setup
         with:
+          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
+          product-identity-mode: configured
           secrets-environment: shared
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
@@ -132,6 +134,8 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/setup
         with:
+          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
+          product-identity-mode: configured
           tools: bun gh
           secrets-environment: ${{ matrix.env }}
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
@@ -154,6 +158,9 @@ jobs:
           persist-credentials: false
 
       - uses: ./.github/actions/setup
+        with:
+          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
+          product-identity-mode: configured
 
       - name: envs
         id: envs
@@ -214,6 +221,8 @@ jobs:
       - id: setup
         uses: ./.github/actions/setup
         with:
+          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
+          product-identity-mode: configured
           secrets-environment: ${{ matrix.env }}
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
@@ -255,6 +264,9 @@ jobs:
           persist-credentials: false
 
       - uses: ./.github/actions/setup
+        with:
+          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
+          product-identity-mode: configured
 
       # Every env is checked even when one misses its objectives.
       - name: health:objectives

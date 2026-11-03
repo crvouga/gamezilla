@@ -110,6 +110,7 @@ jobs:
       - &setup
         uses: ./.github/actions/setup
         with:
+          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
@@ -294,6 +295,7 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/setup
         with:
+          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           tools: bun gh
       - name: verify-nightly:end
         run: bun run libs/tools-harness-ts/scripts/verify-nightly-verdict.ts

@@ -27,8 +27,3 @@ runs:
         project-id: ${{ inputs.project-id }}
         environment: ${{ inputs.environment }}
         endpoint: ${{ inputs.endpoint }}
-    - name: Inject public build identity
-      shell: bash
-      env:
-        REPOSITORY_IDENTITY_JSON: ${{ vars.PRODUCT_IDENTITY_JSON }}
-      run: bun run libs/secrets-server-ts/scripts/export-product-identity.ts

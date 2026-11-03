@@ -6784,7 +6784,8 @@
       "dependsOn": [
         "@libs/tools-harness-ts#configure:identity",
         "@libs/observability-shared-ts#configure:slo",
-        "@libs/tools-harness-ts#configure:identity-agents"
+        "@libs/tools-harness-ts#configure:identity-agents",
+        "@libs/tools-harness-ts#configure:brand-policy"
       ]
     },
     "@libs/tools-harness-ts#generate:identity-agents": {

@@ -25,6 +25,14 @@ inputs:
     description: Secrets project id / slug (with secrets-environment)
     required: false
     default: ''
+  product-identity-json:
+    description: Public identity document supplied by workflow configuration
+    required: false
+    default: ''
+  product-identity-mode:
+    description: fixture for deterministic verification; configured for deployment and live operations
+    required: false
+    default: fixture
 
 runs:
   using: composite
@@ -111,3 +119,14 @@ runs:
         identity-id: ${{ inputs.secrets-identity-id }}
         project-id: ${{ inputs.secrets-project-id }}
         environment: ${{ inputs.secrets-environment }}
+    - name: Inject public build identity
+      shell: bash
+      env:
+        REPOSITORY_IDENTITY_JSON: ${{ inputs.product-identity-json }}
+        PRODUCT_IDENTITY_MODE: ${{ inputs.product-identity-mode }}
+      run: bun run libs/secrets-server-ts/scripts/export-product-identity.ts
+
+    - name: Configure deployment identity
+      if: inputs.product-identity-mode == 'configured'
+      shell: bash
+      run: bun run identity:configure

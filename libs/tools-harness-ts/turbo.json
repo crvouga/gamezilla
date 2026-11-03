@@ -95,6 +95,10 @@
     "configure:identity-agents": {
       "cache": false,
       "dependsOn": ["@libs/tools-harness-ts#configure:identity"]
+    },
+    "configure:brand-policy": {
+      "cache": false,
+      "dependsOn": ["@libs/tools-harness-ts#configure:identity"]
     }
   }
 }

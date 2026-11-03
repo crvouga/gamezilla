@@ -72,10 +72,12 @@ runtime dependencies. Product-independent design-system examples and visual
 references use neutral fixture artwork.
 
 `secrets-run` prepares configuration through Turbo before starting its command.
+Configured builds also check source isolation against the selected real identity;
+fixture verification cannot hide a hardcoded deployment brand.
 `bun run identity:configure` is the same task graph for an already injected
 environment. Infrastructure applies and Worker uploads also reject a loaded
-identity that differs from `PRODUCT_IDENTITY_JSON`. GitHub Actions exports
-the repository variable after secret injection; local configured commands can
+identity that differs from `PRODUCT_IDENTITY_JSON`. GitHub Actions passes public configuration through declared setup inputs,
+exports it after secret injection and materializes it for deployment/Health; local configured commands can
 read it through the authenticated GitHub CLI. An invalid injected override
 fails instead of being silently replaced by a different source.
 

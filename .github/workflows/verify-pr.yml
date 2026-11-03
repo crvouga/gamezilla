@@ -134,6 +134,7 @@ jobs:
           fetch-depth: 0
       - uses: ./.github/actions/setup
         with:
+          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           tools: bun node gh opentofu
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
@@ -228,6 +229,7 @@ jobs:
           fetch-depth: 0
       - uses: ./.github/actions/setup
         with:
+          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           tools: ${{ inputs.profile == 'nightly' && '--include-lazy' || 'bun node gh opentofu conftest tflint gitleaks actionlint zizmor' }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
@@ -299,6 +301,7 @@ jobs:
           fetch-depth: 0
       - uses: ./.github/actions/setup
         with:
+          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           tools: ${{ inputs.profile == 'nightly' && '--include-lazy' || 'bun node gh opentofu conftest tflint gitleaks actionlint zizmor' }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
