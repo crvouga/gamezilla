@@ -1,5 +1,6 @@
 import { expect, test } from 'bun:test';
-import { SpacesLobby } from '@libs/spaces-client-ts/spaces-lobby';
+import { SpacesLobbyView } from '@libs/spaces-client-ts/spaces-lobby-view';
+import { useSpacesLobby } from '@libs/spaces-client-ts/use-spaces-lobby';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
@@ -28,6 +29,20 @@ type ReadState = {
   rows: readonly Record<string, unknown>[];
   hydrated: boolean;
 };
+
+/** The lobby as the Spaces tab mounts it: its local reads, then its view. */
+function Lobby() {
+  const lobby = useSpacesLobby();
+  return (
+    <SpacesLobbyView
+      status={lobby.status()}
+      hostedCount={lobby.hostedCount()}
+      spaces={lobby.spaces()}
+      onCreateSpace={() => undefined}
+      onOpenSpace={() => undefined}
+    />
+  );
+}
 
 function mountLobby() {
   const reads: Record<LobbyRead, ReadState> = {
@@ -67,7 +82,7 @@ function mountLobby() {
         >
           <SecureStorageStoreProvider value={store}>
             <SyncEngineProvider value={engine}>
-              <SpacesLobby onCreateSpace={() => undefined} />
+              <Lobby />
             </SyncEngineProvider>
           </SecureStorageStoreProvider>
         </IdProvider>
