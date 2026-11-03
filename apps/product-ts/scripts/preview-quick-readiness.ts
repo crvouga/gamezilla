@@ -21,7 +21,9 @@ export function quickPreviewReady(
     };
     const failed = (): void =>
       finish(
-        new Error('Preview tunnel stopped; check connectivity and retry Run')
+        new Error(
+          'Preview tunnel stopped; check connectivity and retry Start stack'
+        )
       );
     const received = (chunk: Buffer): void => {
       text = `${text}${chunk.toString()}`;
@@ -43,7 +45,7 @@ export function quickPreviewReady(
       () =>
         finish(
           new Error(
-            'Preview tunnel did not connect within 60 seconds; check outbound connectivity and retry Run'
+            'Preview tunnel did not connect within 60 seconds; check outbound connectivity and retry Start stack'
           )
         ),
       60_000

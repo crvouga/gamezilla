@@ -1,4 +1,4 @@
 {
-  "summary": "T3 exposed many setup, diagnostics and optional preview actions, and Run could silently omit a tunnel. Only Run app and Stop app remain; setup is automatic and the development stack requires a protected tunnel using the developer\u2019s existing Git email.",
+  "summary": "T3 exposed many setup, diagnostics and optional preview actions, and Run could silently omit a tunnel. Only Start stack and Bootstrap remain: Start stack repairs dependencies and runs the app and Storybook behind protected tunnels using the developer\u2019s Git email; Bootstrap performs setup and every sign-in.",
   "regressionTest": "libs/tools-harness-ts/scripts/sync-workspace-lifecycle.test.ts"
 }

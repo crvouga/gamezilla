@@ -54,7 +54,7 @@ test('dynamic tunnel failures time out and detach without publishing a guessed a
   );
   time.clock.advance(60_000);
   expect(await pending).toMatchObject({
-    message: expect.stringContaining('retry Run'),
+    message: expect.stringContaining('retry Start stack'),
   });
   expect(process.stderr.listenerCount('data')).toBe(0);
 });
