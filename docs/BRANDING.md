@@ -34,6 +34,19 @@ Provision and validate new hostnames and vendor registrations before cutting
 over, and plan client storage, bundle-id and deep-link compatibility. The
 source change alone performs none of those external migrations.
 
+The state backend is a migration prerequisite: `state.bucket` in
+`libs/infra-shared-ts/tofu/global.tfvars.json` resolves from
+`{namespace}-tofu-state`. Existing state credentials may not read a bucket
+under a new namespace; the hosted fleet plan then stops during backend
+initialization with an S3 `HeadObject` permission failure. Before releasing a
+namespace change, preserve the encrypted state and its backups, provision the
+target through the declared bootstrap stack, migrate state and credential
+grants through the hosted infrastructure workflow, and prove the fleet plan
+can refresh that same state without deleting stateful resources. Do not treat
+an empty replacement backend as a new deployment or bypass the plan gate.
+The bootstrap and state protections are documented in
+[`README.md`](../README.md#infrastructure).
+
 ## Reading it
 
 - **TypeScript:** `@libs/product-identity-shared-ts`
