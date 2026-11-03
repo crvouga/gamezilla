@@ -239,7 +239,12 @@ references. The job only writes its checkout and artifacts; it never pushes.
 The public Git binary diff is also emitted between
 `STORYBOOK_BASELINES_PATCH_BEGIN` and `STORYBOOK_BASELINES_PATCH_END` in the
 reference-collection step's log, so retrieving a reference patch needs only
-GitHub run-log access. Comparison reports remain in the CI artifacts bucket.
+GitHub run-log access. It uses a byte encoding that survives short-value secret
+mask false positives. Download the job log and run
+`bun run libs/tools-harness-ts/scripts/storybook-baseline-patch.ts --decode-log <log>`;
+the decoded patch is `.cache/verify-nightly/storybook-baselines.patch`. Run
+`git apply --check` before applying it. Comparison reports remain in the CI
+artifacts bucket.
 
 Axe cannot prove keyboard or focus contracts. Existing Bun DOM interaction tests
 cover those independently; play functions document story-specific contracts.

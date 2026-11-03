@@ -1,0 +1,4 @@
+{
+  "summary": "A successful Ubuntu reference-authoring run emitted a public Git binary diff, but GitHub's short-value secret masks corrupted its base85 image payload and git apply rejected it. An explicit byte encoding in a non-ASCII alphabet, with bounded lines and complete-transfer delimiters, preserves public reference data through masking and timestamp prefixes.",
+  "regressionTest": "libs/tools-harness-ts/scripts/storybook-baseline-log.test.ts"
+}
