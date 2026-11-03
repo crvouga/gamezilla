@@ -56,6 +56,7 @@ function Drawing(props: {
   );
 }
 
+/** Join matching numbered endpoints while filling the board with paths. */
 export function NumberlinkPlayer(props: PuzzlePlayerProps): JSX.Element {
   // SQL watches can deliver new row objects without changing either input.
   // Keep parsing behind primitive equality so that delivery preserves a gesture.
@@ -91,6 +92,7 @@ export function NumberlinkPlayer(props: PuzzlePlayerProps): JSX.Element {
   );
 }
 
+/** Show the numbered endpoints of a Numberlink puzzle before starting it. */
 export function NumberlinkPreview(props: PuzzlePreviewProps): JSX.Element {
   const input = createMemo(() => {
     const board = decodeNumberlinkDefinition(props.definition);

@@ -84,3 +84,35 @@ test('verification installs the pinned solver before running selected tasks', ()
     workflow.indexOf('      - name: verify\n')
   );
 });
+
+// regression: storybook-author-compare-timeout
+test('focused reference authoring compares the same states without extending the job budget', () => {
+  const workflow = Bun.YAML.parse(
+    readFileSync(join(root, '.github/workflows/verify-nightly.yml'), 'utf8')
+  ) as {
+    on: { workflow_dispatch: { inputs: Record<string, { default: string }> } };
+    jobs: Record<
+      string,
+      {
+        'timeout-minutes': number;
+        steps: Array<{ name?: string; run?: string }>;
+      }
+    >;
+  };
+  expect(
+    workflow.on.workflow_dispatch.inputs['storybook-pattern']?.default
+  ).toBe('');
+  const job = workflow.jobs['verify-nightly-storybook']!;
+  expect(job['timeout-minutes']).toBe(60);
+  const commands = job.steps.map((step) => step.run).filter(Boolean);
+  expect(commands).toContain(
+    'bun run storybook:test --grep "$STORYBOOK_PATTERN" --update-snapshots'
+  );
+  expect(commands).toContain(
+    'bun run storybook:test --grep "$STORYBOOK_PATTERN"'
+  );
+  const names = job.steps.map((step) => step.name);
+  expect(names.indexOf('Collect reference changes for review')).toBeLessThan(
+    names.indexOf('Compare every authored Storybook state')
+  );
+});

@@ -54,6 +54,10 @@ on:
         type: choice
         options: [all, gate, random, browser, visual, coverage, performance, storybook]
         default: all
+      storybook-pattern:
+        description: Optional story-id regex for explicit Storybook diagnostics; empty runs every state
+        type: string
+        default: ''
       update-storybook-baselines:
         description: Explicitly author Ubuntu Storybook references (group must be storybook); compare them again and retain a patch for review
         type: boolean
@@ -161,6 +165,8 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.group == 'storybook' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 60
+    env:
+      STORYBOOK_PATTERN: ${{ inputs.storybook-pattern }}
     permissions:
       contents: read # check out the code; the job never pushes references
       id-token: write # mint the OIDC token Infisical trusts
@@ -174,16 +180,16 @@ jobs:
         run: bun run storybook:build
       - name: Author references explicitly
         if: ${{ inputs.update-storybook-baselines }}
-        run: bun run storybook:test --update-snapshots
-      - name: Compare every authored Storybook state
-        if: ${{ inputs.update-storybook-baselines }}
-        run: bun run storybook:test
-      - name: Compare PR Storybook states
-        if: ${{ !inputs.update-storybook-baselines }}
-        run: bunx turbo run ci:storybook --filter=@pkgs/ui-root-harness-ts --concurrency=1
+        run: bun run storybook:test --grep "$STORYBOOK_PATTERN" --update-snapshots
       - name: Collect reference changes for review
         if: always() && !cancelled()
         run: bun run libs/tools-harness-ts/scripts/storybook-baseline-patch.ts --stdout
+      - name: Compare every authored Storybook state
+        if: ${{ inputs.update-storybook-baselines }}
+        run: bun run storybook:test --grep "$STORYBOOK_PATTERN"
+      - name: Compare PR Storybook states
+        if: ${{ !inputs.update-storybook-baselines }}
+        run: bunx turbo run ci:storybook --filter=@pkgs/ui-root-harness-ts --concurrency=1
       - name: Retain Storybook comparisons and reference patch
         if: always() && !cancelled()
         run: >-

@@ -265,9 +265,12 @@ use the CI browser environment for shared pixel evidence.
 For retained Ubuntu comparisons, dispatch the focused diagnostic with
 `gh workflow run verify-nightly.yml --ref <branch> -f group=storybook`.
 Add `-f update-storybook-baselines=true` for explicit reference authoring. That
-mode runs the full browser suite again against the authored images and retains
+mode runs the selected browser states again against the authored images and retains
 `storybook-baselines.patch` in `verify-nightly-storybook-<run-id>`, alongside
-comparison evidence. Review the image changes, apply the patch, and commit the
+comparison evidence. To author only a changed story family, add
+`-f storybook-pattern=screens-shell-header-island`; an empty pattern runs every
+state. Both authoring and comparison use the same pattern, and normal gates
+continue to compare their complete selection. Review the image changes, apply the patch, and commit the
 references. The job only writes its checkout and artifacts; it never pushes.
 The public Git binary diff is also emitted between
 `STORYBOOK_BASELINES_PATCH_BEGIN` and `STORYBOOK_BASELINES_PATCH_END` in the

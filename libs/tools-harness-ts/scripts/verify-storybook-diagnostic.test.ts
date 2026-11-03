@@ -35,10 +35,16 @@ test('Ubuntu reference authoring is explicit and followed by an uncached compari
     '${{ inputs.update-storybook-baselines }}'
   );
   expect(
-    job.steps.findIndex((step) => step.run === 'bun run storybook:test')
+    job.steps.findIndex(
+      (step) =>
+        step.run === 'bun run storybook:test --grep "$STORYBOOK_PATTERN"'
+    )
   ).toBeGreaterThan(author);
   expect(
-    job.steps.find((step) => step.run === 'bun run storybook:test')?.if
+    job.steps.find(
+      (step) =>
+        step.run === 'bun run storybook:test --grep "$STORYBOOK_PATTERN"'
+    )?.if
   ).toBe('${{ inputs.update-storybook-baselines }}');
   expect(
     job.steps.find((step) => step.run?.includes('turbo run ci:storybook'))?.if

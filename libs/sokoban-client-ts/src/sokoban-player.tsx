@@ -104,6 +104,7 @@ function Steering(props: {
   );
 }
 
+/** Push every crate onto a goal, with keyboard and on-screen movement controls. */
 export function SokobanPlayer(props: PuzzlePlayerProps): JSX.Element {
   // Primitive inputs: a re-delivered row with the same text keeps the board.
   const definition = createMemo(() => props.definition);
