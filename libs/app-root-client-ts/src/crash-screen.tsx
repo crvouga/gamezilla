@@ -1,4 +1,3 @@
-import { reportSolidBoundaryError } from './browser-boundaries';
 /** @jsxImportSource solid-js */
 
 import {
@@ -7,29 +6,20 @@ import {
   hasCommitProvenance,
 } from '@libs/app-root-shared-ts/app-metadata';
 import { reloadApp } from '@libs/app-root-shared-ts/reload-app';
-import { Trans, useLingui } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-root-client-ts/button';
-import { CodeBlock } from '@pkgs/ui-root-client-ts/code-block';
-import { Collapsible } from '@pkgs/ui-root-client-ts/collapsible';
-import { Divider } from '@pkgs/ui-root-client-ts/divider';
-import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import { CircleAlertIcon, RefreshCwIcon } from '@pkgs/ui-root-client-ts/icons';
-import { Main } from '@pkgs/ui-root-client-ts/landmarks';
-import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { Surface } from '@pkgs/ui-root-client-ts/surface';
-import { P } from '@pkgs/ui-root-client-ts/text';
+import { useTimers } from '@pkgs/clock-client-ts/solid';
 import {
+  createEffect,
   createSignal,
   type JSX,
   onCleanup,
   onMount,
-  Show,
   untrack,
 } from 'solid-js';
-import { CrashCopyButton } from './crash-copy-button';
+import { reportSolidBoundaryError } from './browser-boundaries';
+import type { CrashCopyPhase } from './crash-copy-button';
+import { CrashScreenView, useCrashTitle } from './crash-screen-view';
 
-const BUTTON_ICON_SIZE = 16;
+const COPIED_HOLD_MS = 2000;
 
 type CrashScreenProps = {
   readonly error: Error;
@@ -44,30 +34,6 @@ function buildVersion(): string {
   return hasCommitProvenance()
     ? `${APP_VERSION} (${getShortCommitHash()})`
     : APP_VERSION;
-}
-
-function CrashDetails(props: { readonly message: string }): JSX.Element {
-  const { t } = useLingui();
-  return (
-    <StackVertical width="full" gap="lg">
-      <Divider />
-      <Collapsible title={t`Error details`}>
-        <Surface tone="muted" radius="card" padding="lg" gap="md">
-          <ScrollView
-            maxHeight="sm"
-            flushEdge={false}
-            role="region"
-            tabIndex={0}
-            aria-label={t`Error message`}
-          >
-            <CodeBlock wrap framed={false}>
-              {props.message}
-            </CodeBlock>
-          </ScrollView>
-        </Surface>
-      </Collapsible>
-    </StackVertical>
-  );
 }
 
 function useCrashTrace(error: () => Error): () => string | undefined {
@@ -88,6 +54,34 @@ function useCrashTrace(error: () => Error): () => string | undefined {
   return traceId;
 }
 
+/** Copy progress; "Copied" falls back to idle after a short hold. */
+function useCrashCopy(copyError: (text: string) => Promise<void>): {
+  readonly phase: () => CrashCopyPhase;
+  readonly copy: (text: string) => Promise<void>;
+} {
+  const timers = useTimers();
+  const [phase, setPhase] = createSignal<CrashCopyPhase>('idle');
+  let mounted = true;
+  onCleanup(() => {
+    mounted = false;
+  });
+  createEffect(() => {
+    if (phase() !== 'copied') return;
+    const handle = timers.setTimeout(() => setPhase('idle'), COPIED_HOLD_MS);
+    onCleanup(() => timers.clearTimeout(handle));
+  });
+  const copy = async (text: string): Promise<void> => {
+    setPhase('pending');
+    try {
+      await copyError(text);
+      if (mounted) setPhase('copied');
+    } catch {
+      if (mounted) setPhase('error');
+    }
+  };
+  return { phase, copy };
+}
+
 /** Plain diagnostic text: what broke and how to find it. No stack, no URL. */
 export function crashCopyText(args: {
   readonly title: string;
@@ -104,60 +98,30 @@ export function crashCopyText(args: {
     .join('\n\n');
 }
 
+/** Wires `CrashScreenView` to telemetry, the clipboard and recovery. */
 export function CrashScreen(props: CrashScreenProps): JSX.Element {
-  const { t } = useLingui();
+  const title = useCrashTitle();
   const traceId = useCrashTrace(() => props.error);
-  const title = (): string => t`Something went wrong`;
+  const copier = useCrashCopy((text) => props.copyError(text));
   const message = (): string =>
     props.error.message.trim() || String(props.error);
   return (
-    <Main>
-      <ScrollView
-        grow
-        tone="background"
-        flushEdge={false}
-        dataSet={{ component: 'RootErrorBoundary' }}
-      >
-        <ErrorState
-          icon={CircleAlertIcon}
-          title={title()}
-          body={t`This screen ran into a problem. Anything already saved on this device is kept. Try again, or go to Spaces.`}
-          retry={{ label: t`Try again`, onClick: () => props.reset() }}
-          secondary={{
-            label: t`Go to Spaces`,
-            onClick: () => props.goToSpaces(props.reset),
-          }}
-          details={
-            <>
-              <Show when={traceId()}>
-                {(reference) => (
-                  <P variant="caption" wrap="break" selectable>
-                    <Trans>Reference: {reference()}</Trans>
-                  </P>
-                )}
-              </Show>
-              <StackHorizontal wrap align="start" gap="sm">
-                <Button
-                  title={t`Reload app`}
-                  intent="neutral"
-                  variant="ghost"
-                  startIcon={<RefreshCwIcon size={BUTTON_ICON_SIZE} />}
-                  onClick={reloadApp}
-                />
-                <CrashCopyButton
-                  text={crashCopyText({
-                    title: title(),
-                    message: message(),
-                    reference: traceId(),
-                  })}
-                  copy={props.copyError}
-                />
-              </StackHorizontal>
-              <CrashDetails message={message()} />
-            </>
-          }
-        />
-      </ScrollView>
-    </Main>
+    <CrashScreenView
+      message={message()}
+      reference={traceId()}
+      copyPhase={copier.phase()}
+      onTryAgain={() => props.reset()}
+      onGoToSpaces={() => props.goToSpaces(props.reset)}
+      onReload={reloadApp}
+      onCopy={() => {
+        void copier.copy(
+          crashCopyText({
+            title: title(),
+            message: message(),
+            reference: traceId(),
+          })
+        );
+      }}
+    />
   );
 }

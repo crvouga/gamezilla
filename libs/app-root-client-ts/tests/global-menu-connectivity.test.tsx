@@ -2,7 +2,7 @@
 /** The account menu's Connectivity row as a listener hears it. */
 
 import { describe, expect, test } from 'bun:test';
-import { connectivityMenuAction } from '@libs/app-root-client-ts/app-header-global-menu';
+import { connectivityMenuAction } from '@libs/app-root-client-ts/app-header-global-menu-view';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';
 import { labelInName } from '@pkgs/a11y-shared-ts/name-rules';
 import { FloatingMenu } from '@pkgs/ui-root-client-ts/floating-menu';

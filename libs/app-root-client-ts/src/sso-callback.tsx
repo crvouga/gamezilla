@@ -4,13 +4,11 @@ import {
   readSignInPendingSync,
   signInReturnHrefFromPending,
 } from '@libs/auth-shared-ts/sign-in-pending-parse';
-import { Trans } from '@lingui/solid/macro';
 import { useClock } from '@pkgs/clock-client-ts/solid';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import type { JSX } from 'solid-js';
 import { onMount } from 'solid-js';
+import { SsoCallbackScreenView } from './sso-callback-screen-view';
 
 export default function SsoCallbackRoute(): JSX.Element {
   const router = useRouter();
@@ -26,9 +24,5 @@ export default function SsoCallbackRoute(): JSX.Element {
       .then(() => router.replace(target));
   });
 
-  return (
-    <Surface tone="background" grow align="center" justify="center">
-      <LoadingState size="lg" caption={<Trans>Signing in…</Trans>} />
-    </Surface>
-  );
+  return <SsoCallbackScreenView />;
 }

@@ -1,18 +1,16 @@
 import { reloadApp } from '@libs/app-root-shared-ts/reload-app';
-import { Trans, useLingui } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { useLogger } from '@pkgs/logger-client-ts/solid';
-import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import { createSignal, type JSX, onCleanup, onMount, Show } from 'solid-js';
-import { BootLoadingShell } from './boot-loading-shell';
+import { createSignal, type JSX, onCleanup, onMount } from 'solid-js';
+import { IdentityBootScreenView } from './identity-boot-screen-view';
 
 /** Local identity normally binds immediately; a failed refresh must not hang. */
 export const IDENTITY_BOOT_DEADLINE_MS = 10_000;
 
+/** Runs the identity deadline and renders `IdentityBootScreenView`. */
 export function IdentityBootPending(): JSX.Element {
   const timers = useTimers();
   const log = useLogger('identity-boot');
-  const { t } = useLingui();
   const [stuck, setStuck] = createSignal(false);
   onMount(() => {
     const timer = timers.setTimeout(() => {
@@ -22,17 +20,9 @@ export function IdentityBootPending(): JSX.Element {
     onCleanup(() => timers.clearTimeout(timer));
   });
   return (
-    <Show when={stuck()} fallback={<BootLoadingShell />}>
-      <ErrorState
-        title={<Trans>App failed to start</Trans>}
-        body={
-          <Trans>
-            Your account could not be loaded. Check your connection and reload
-            the app.
-          </Trans>
-        }
-        retry={{ label: t`Reload app`, onClick: reloadApp }}
-      />
-    </Show>
+    <IdentityBootScreenView
+      status={stuck() ? 'stuck' : 'pending'}
+      onReload={reloadApp}
+    />
   );
 }
