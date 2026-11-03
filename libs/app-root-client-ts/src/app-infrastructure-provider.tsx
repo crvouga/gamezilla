@@ -8,6 +8,7 @@
  * through the global OpenTelemetry API; it is deliberately not a Solid port.
  */
 
+import { useClientEnv } from '@libs/app-env-client-ts/client-env-context';
 import { ConfigServiceProvider } from '@libs/auth-client-ts/config-service-context';
 import {
   ClipboardProvider,
@@ -21,8 +22,6 @@ import {
   SecureStorageStoreProvider,
 } from '@pkgs/secure-storage-root-client-ts/solid';
 import type { JSX } from 'solid-js';
-
-import { useClientEnv } from '@libs/app-env-client-ts/client-env-context';
 import { originAvailabilityFor } from './origin-availability-for-env';
 
 export function AppInfrastructureProvider(props: {

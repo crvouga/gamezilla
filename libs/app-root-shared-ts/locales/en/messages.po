@@ -665,15 +665,15 @@ msgstr "A board has at least 1 column and 1 row."
 msgid "A board has at most 20 columns and 20 rows."
 msgstr "A board has at most 20 columns and 20 rows."
 
-#: libs/app-root-client-ts/src/refused-change-copy.tsx
+#: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "A change wasn't saved"
 msgstr "A change wasn't saved"
 
-#: libs/app-root-client-ts/src/refused-publication-copy.tsx
+#: libs/app-env-client-ts/src/refused-publication-copy.tsx
 msgid "A chosen puzzle has not been published. Your pack draft is kept. Publish its puzzles first, then choose Publish for this pack."
 msgstr "A chosen puzzle has not been published. Your pack draft is kept. Publish its puzzles first, then choose Publish for this pack."
 
-#: libs/app-root-client-ts/src/refused-publication-copy.tsx
+#: libs/app-env-client-ts/src/refused-publication-copy.tsx
 msgid "A chosen puzzle is no longer available. Your pack draft is kept. Choose an available puzzle, or publish that puzzle again, then choose Publish for this pack."
 msgstr "A chosen puzzle is no longer available. Your pack draft is kept. Choose an available puzzle, or publish that puzzle again, then choose Publish for this pack."
 
@@ -4719,7 +4719,7 @@ msgstr "Progress saved on this device. Changes share when connected."
 msgid "Prove the account again to continue"
 msgstr "Prove the account again to continue"
 
-#: libs/app-root-client-ts/src/refused-change-copy.tsx
+#: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "Publication did not go ahead"
 msgstr "Publication did not go ahead"
 
@@ -6418,11 +6418,11 @@ msgstr "That didn't go through"
 msgid "That edit is no longer available here. Your kept copies remain below."
 msgstr "That edit is no longer available here. Your kept copies remain below."
 
-#: libs/app-root-client-ts/src/refused-change-copy.tsx
+#: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "That friend request wasn't declined"
 msgstr "That friend request wasn't declined"
 
-#: libs/app-root-client-ts/src/refused-change-copy.tsx
+#: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "That friend wasn't removed"
 msgstr "That friend wasn't removed"
 
@@ -6438,19 +6438,19 @@ msgstr "That isn't the account the address matched, so nothing was connected."
 msgid "That move is not legal in this position."
 msgstr "That move is not legal in this position."
 
-#: libs/app-root-client-ts/src/refused-change-copy.tsx
+#: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "That person wasn't added to the space"
 msgstr "That person wasn't added to the space"
 
-#: libs/app-root-client-ts/src/refused-change-copy.tsx
+#: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "That person wasn't blocked"
 msgstr "That person wasn't blocked"
 
-#: libs/app-root-client-ts/src/refused-change-copy.tsx
+#: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "That person wasn't removed from the space"
 msgstr "That person wasn't removed from the space"
 
-#: libs/app-root-client-ts/src/refused-change-copy.tsx
+#: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "That person wasn't unblocked"
 msgstr "That person wasn't unblocked"
 
@@ -6462,7 +6462,7 @@ msgstr "That side is no longer open."
 msgid "That side is not available to you."
 msgstr "That side is not available to you."
 
-#: libs/app-root-client-ts/src/refused-change-copy.tsx
+#: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "That space could not be found"
 msgstr "That space could not be found"
 
@@ -6470,7 +6470,7 @@ msgstr "That space could not be found"
 msgid "That space name is not allowed"
 msgstr "That space name is not allowed"
 
-#: libs/app-root-client-ts/src/refused-change-copy.tsx
+#: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "That space name is not allowed. The change was undone."
 msgstr "That space name is not allowed. The change was undone."
 
@@ -7024,11 +7024,11 @@ msgstr "This puzzle is not in your local feed yet. Try again after sync."
 msgid "This puzzle needs a version of the app with its rules. Your saved attempt stays kept; update the app to continue it."
 msgstr "This puzzle needs a version of the app with its rules. Your saved attempt stays kept; update the app to continue it."
 
-#: libs/app-root-client-ts/src/refused-change-copy.tsx
+#: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "This request could not be applied. Dismiss this notice and choose another space from the lobby."
 msgstr "This request could not be applied. Dismiss this notice and choose another space from the lobby."
 
-#: libs/app-root-client-ts/src/refused-change-copy.tsx
+#: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "This request was not saved. Check the current details before trying again."
 msgstr "This request was not saved. Check the current details before trying again."
 
@@ -7737,7 +7737,7 @@ msgstr "You can't join this space"
 msgid "You chose to work offline. Turn off Work offline in Settings to share what you do."
 msgstr "You chose to work offline. Turn off Work offline in Settings to share what you do."
 
-#: libs/app-root-client-ts/src/refused-change-copy.tsx
+#: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "You didn't leave the space"
 msgstr "You didn't leave the space"
 
@@ -7912,7 +7912,7 @@ msgstr "Your account deletion is confirmed. You are signed out. Ordinary persona
 msgid "Your avatar"
 msgstr "Your avatar"
 
-#: libs/app-root-client-ts/src/refused-change-copy.tsx
+#: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "Your avatar change wasn't saved"
 msgstr "Your avatar change wasn't saved"
 
@@ -7950,7 +7950,7 @@ msgstr "Your completion is saved. You can keep playing or choose another puzzle.
 msgid "Your data"
 msgstr "Your data"
 
-#: libs/app-root-client-ts/src/refused-publication-copy.tsx
+#: libs/app-env-client-ts/src/refused-publication-copy.tsx
 msgid "Your draft is kept. Check its validation details, correct the draft, then choose Publish again."
 msgstr "Your draft is kept. Check its validation details, correct the draft, then choose Publish again."
 
@@ -7991,7 +7991,7 @@ msgstr "Your friend request could not be shared because the person is unavailabl
 msgid "Your friend request could not be shared. Try again."
 msgstr "Your friend request could not be shared. Try again."
 
-#: libs/app-root-client-ts/src/refused-change-copy.tsx
+#: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "Your friend request wasn't cancelled"
 msgstr "Your friend request wasn't cancelled"
 
@@ -8033,7 +8033,7 @@ msgstr "Your live spaces"
 msgid "Your move will be played when the connection returns."
 msgstr "Your move will be played when the connection returns."
 
-#: libs/app-root-client-ts/src/refused-change-copy.tsx
+#: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "Your new space wasn't created"
 msgstr "Your new space wasn't created"
 
@@ -8053,7 +8053,7 @@ msgstr "Your opponent's turn."
 msgid "Your other continuations stay saved."
 msgstr "Your other continuations stay saved."
 
-#: libs/app-root-client-ts/src/refused-publication-copy.tsx
+#: libs/app-env-client-ts/src/refused-publication-copy.tsx
 msgid "Your pack draft is kept. Add a published puzzle, then choose Publish again."
 msgstr "Your pack draft is kept. Add a published puzzle, then choose Publish again."
 
@@ -8103,7 +8103,7 @@ msgstr "Your puzzle rating went down by {down}, to {after}."
 msgid "Your puzzle rating went up by {delta}, to {after}."
 msgstr "Your puzzle rating went up by {delta}, to {after}."
 
-#: libs/app-root-client-ts/src/refused-change-copy.tsx
+#: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "Your puzzle settings weren't saved"
 msgstr "Your puzzle settings weren't saved"
 
@@ -8150,11 +8150,11 @@ msgstr "Your sign-in here ended, from another device or because it ran out. Sign
 msgid "Your space didn’t open this time. Nothing you had is lost. Try again, or go to Spaces."
 msgstr "Your space didn’t open this time. Nothing you had is lost. Try again, or go to Spaces."
 
-#: libs/app-root-client-ts/src/refused-change-copy.tsx
+#: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "Your space wasn't ended"
 msgstr "Your space wasn't ended"
 
-#: libs/app-root-client-ts/src/refused-change-copy.tsx
+#: libs/app-env-client-ts/src/refused-change-copy.tsx
 msgid "Your space wasn't renamed"
 msgstr "Your space wasn't renamed"
 

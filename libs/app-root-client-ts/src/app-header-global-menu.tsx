@@ -8,12 +8,12 @@
  * it knows nothing of sign-in state or membership, so it cannot branch on them.
  */
 
+import { useGlobalMenuIdentity } from '@libs/app-env-client-ts/global-menu-identity-context';
 import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { useThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
 import type { JSX } from 'solid-js';
 import { AppHeaderGlobalMenuView } from './app-header-global-menu-view';
-import { useGlobalMenuIdentity } from '@libs/app-env-client-ts/global-menu-identity-context';
 import { createConnectivity } from './use-connectivity';
 
 /** Wires `AppHeaderGlobalMenuView` to identity, connectivity and preferences. */

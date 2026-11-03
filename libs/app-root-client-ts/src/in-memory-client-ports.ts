@@ -4,6 +4,7 @@
  * on `ClientEnv` is wired in exactly one place for harnesses.
  */
 
+import type { ClientEnv } from '@libs/app-env-client-ts/client-env';
 import type { DevMenuItem, DevMenuPort } from '@libs/app-root-shared-ts/ports';
 import { createRecordingClipboard } from '@pkgs/device-shared-ts/clipboard';
 import { createRecordingHaptics } from '@pkgs/device-shared-ts/haptics';
@@ -11,8 +12,6 @@ import { createMotionPreference } from '@pkgs/device-shared-ts/motion-preference
 import { createInMemoryNetworkStatePort } from '@pkgs/device-shared-ts/network-state';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds-shared-ts/in-memory-audio-playback-port';
-
-import type { ClientEnv } from '@libs/app-env-client-ts/client-env';
 
 export type InMemoryClientPorts = Pick<
   ClientEnv,

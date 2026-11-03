@@ -41,6 +41,7 @@
     "@pkgs/pubsub-root-shared-ts": "workspace:*",
     "@pkgs/room-root-shared-ts": "workspace:*",
     "@pkgs/secure-storage-root-shared-ts": "workspace:*",
+    "@pkgs/solid-context-client-ts": "workspace:*",
     "@pkgs/sounds-shared-ts": "workspace:*",
     "@pkgs/sql-client-root-shared-ts": "workspace:*",
     "@pkgs/sql-client-sqlite-root-shared-ts": "workspace:*",

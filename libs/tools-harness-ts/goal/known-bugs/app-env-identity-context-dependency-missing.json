@@ -1,0 +1,4 @@
+{
+  "summary": "Extracting the global-menu identity context into app-env-client-ts omitted its solid-context-client-ts workspace dependency. A clean CI install could not resolve define-context, causing app-root and several harness typechecks to fail with TS2307.",
+  "regressionTest": "libs/tools-harness-ts/scripts/app-env-dependencies.test.ts"
+}

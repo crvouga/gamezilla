@@ -1,8 +1,10 @@
+import {
+  useClientEnv,
+  useSyncEnginePool,
+} from '@libs/app-env-client-ts/client-env-context';
 import { AuthBridge } from '@libs/auth-client-ts/auth-bridge';
 import { AuthClientProvider } from '@libs/auth-client-ts/auth-client-provider';
 import type { JSX } from 'solid-js';
-
-import { useClientEnv, useSyncEnginePool } from '@libs/app-env-client-ts/client-env-context';
 import { LocalIdentityProvider } from './identity-context';
 
 export function AppAuthProvider(props: {

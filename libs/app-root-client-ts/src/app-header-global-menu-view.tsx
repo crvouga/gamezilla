@@ -1,5 +1,6 @@
 /** @jsxImportSource solid-js */
 
+import type { GlobalMenuIdentity } from '@libs/app-env-client-ts/global-menu-identity-context';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { useLingui } from '@lingui/solid/macro';
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
@@ -19,8 +20,6 @@ import type { StatusDotStatus } from '@pkgs/ui-root-client-ts/status-dot';
 import { StatusDot } from '@pkgs/ui-root-client-ts/status-dot';
 import type { ThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
 import { type Accessor, createMemo, type JSX } from 'solid-js';
-
-import type { GlobalMenuIdentity } from '@libs/app-env-client-ts/global-menu-identity-context';
 
 const CONNECTIVITY_DOT_SIZE = 14;
 const TRIGGER_AVATAR_SIZE = 32;

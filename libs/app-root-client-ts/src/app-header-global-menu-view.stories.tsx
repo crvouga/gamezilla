@@ -1,3 +1,4 @@
+import { BOOT_GLOBAL_MENU_IDENTITY } from '@libs/app-env-client-ts/global-menu-identity-context';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import {
@@ -6,7 +7,6 @@ import {
   type StoryObj,
 } from 'storybook-solidjs-vite';
 import { AppHeaderGlobalMenuView } from './app-header-global-menu-view';
-import { BOOT_GLOBAL_MENU_IDENTITY } from '@libs/app-env-client-ts/global-menu-identity-context';
 
 const SIGNED_IN = {
   usernameLabel: '@avery',

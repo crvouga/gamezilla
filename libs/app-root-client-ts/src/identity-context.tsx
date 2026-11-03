@@ -5,6 +5,7 @@
  * secure-storage mirror so identity switches re-scope SQLite downstream.
  */
 
+import { setBrowserLocalIdentity } from '@libs/app-env-client-ts/browser-identity';
 import {
   DEVICE_ID_KEY,
   LAST_LOCAL_ACCOUNT_ID_KEY,
@@ -19,7 +20,6 @@ import {
   type JSX,
   useContext,
 } from 'solid-js';
-import { setBrowserLocalIdentity } from '@libs/app-env-client-ts/browser-identity';
 
 export type LocalIdentityValue = {
   /** Current local `users.id`; `null` until the local boot lands. */

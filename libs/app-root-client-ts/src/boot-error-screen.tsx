@@ -1,5 +1,6 @@
 /** @jsxImportSource solid-js */
 
+import { OPFS_WIPE_CHANNEL } from '@libs/app-env-client-ts/open-main-sql-client';
 import { reloadApp } from '@libs/app-root-shared-ts/reload-app';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { useLogger } from '@pkgs/logger-client-ts/solid';
@@ -10,7 +11,6 @@ import {
   type LocalDatabaseBootErrorKind,
   LocalDatabaseBootErrorScreenView,
 } from './boot-error-screen-view';
-import { OPFS_WIPE_CHANNEL } from '@libs/app-env-client-ts/open-main-sql-client';
 
 /** Synthetic error when open hangs past the UI watchdog (stale worker / SW). */
 export const BOOT_STUCK_MESSAGE =
