@@ -17,6 +17,3 @@ type Story = StoryObj<typeof meta>;
 
 /** A newer version has downloaded and waits for a reload. */
 export const Available: Story = {};
-
-/** No update waiting, or the banner was dismissed. */
-export const Hidden: Story = { args: { visible: false } };

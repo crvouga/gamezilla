@@ -18,9 +18,6 @@ type Story = StoryObj<typeof meta>;
 /** The product refuses this version: update, and nothing done is lost. */
 export const Required: Story = {};
 
-/** Dismissed, or the version is accepted: no banner. */
-export const Hidden: Story = { args: { visible: false } };
-
 /** "Update" reloads into the newer version. */
 export const Update: Story = {
   play: async ({ args, canvasElement }) => {

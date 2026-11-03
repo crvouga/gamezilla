@@ -88,6 +88,8 @@ export const FindPlayers: Story = {
 /** Searching: the time control, how long it has looked, and a way to stop. */
 export const Searching: Story = {
   args: {
+    title: 'Chess',
+    ratings: SPEED_RATINGS,
     next: {
       kind: 'searching',
       search: {

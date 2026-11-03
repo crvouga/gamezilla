@@ -1,12 +1,25 @@
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { fn } from 'storybook/test';
-import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import {
+  createJSXDecorator,
+  type Meta,
+  type StoryObj,
+} from 'storybook-solidjs-vite';
 import { IdentityBootScreenView } from './identity-boot-screen-view';
+
+/** The shell fills the viewport and pins its indicator there; give it one. */
+const withViewport = createJSXDecorator((Story) => (
+  <StackVertical minHeight="screen">
+    <Story />
+  </StackVertical>
+));
 
 const meta = {
   id: 'screens-shell-identity-boot',
   title: 'Screens/Shell/Account loading',
   component: IdentityBootScreenView,
   tags: ['autodocs'],
+  decorators: [withViewport],
   parameters: { appRouter: true },
   args: { status: 'pending', onReload: fn() },
 } satisfies Meta<typeof IdentityBootScreenView>;
