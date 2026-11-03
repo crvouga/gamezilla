@@ -1,7 +1,5 @@
 import { t } from '@lingui/core/macro';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
-import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import { type JSX, Show } from 'solid-js';
 
 function errorText(reason: string): string {
   const messages: Readonly<Record<string, string>> = {
@@ -50,29 +48,21 @@ function errorText(reason: string): string {
 
 /**
  * A refused choice, as the person is told it: in the game's own words when
- * its rules gave the reason, otherwise the platform's.
+ * its rules gave the reason, otherwise the platform's; `''` for none.
+ * `position` is the position the choice was made at, whose game words its
+ * own refusals.
  */
-export function CustomGameError(props: {
-  reason: string;
-  /** The position the choice was made at, whose game words its own refusals. */
-  position?: string | undefined;
-}): JSX.Element {
+export function useRefusalText(): (
+  reason: string,
+  position?: string | undefined
+) => string {
   const presentation = useGamePresentation();
-  const text = (): string => {
+  return (reason, position) => {
+    if (reason === '') return '';
     const own =
-      props.position === undefined || props.position === ''
+      position === undefined || position === ''
         ? undefined
-        : presentation(props.position).refusalDescription?.(props.reason);
-    return own ?? errorText(props.reason);
+        : presentation(position).refusalDescription?.(reason);
+    return own ?? errorText(reason);
   };
-  return (
-    <Show when={props.reason !== ''}>
-      <ErrorState
-        variant="compact"
-        title={t`That didn't go through`}
-        body={text()}
-        dataSet={{ testid: 'custom-game-error' }}
-      />
-    </Show>
-  );
 }
