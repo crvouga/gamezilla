@@ -236,6 +236,10 @@ mode runs the full browser suite again against the authored images and retains
 `storybook-baselines.patch` in `verify-nightly-storybook-<run-id>`, alongside
 comparison evidence. Review the image changes, apply the patch, and commit the
 references. The job only writes its checkout and artifacts; it never pushes.
+The public Git binary diff is also emitted between
+`STORYBOOK_BASELINES_PATCH_BEGIN` and `STORYBOOK_BASELINES_PATCH_END` in the
+reference-collection step's log, so retrieving a reference patch needs only
+GitHub run-log access. Comparison reports remain in the CI artifacts bucket.
 
 Axe cannot prove keyboard or focus contracts. Existing Bun DOM interaction tests
 cover those independently; play functions document story-specific contracts.

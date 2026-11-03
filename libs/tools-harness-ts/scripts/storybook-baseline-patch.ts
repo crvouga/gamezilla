@@ -1,6 +1,6 @@
 // @io-wall-ok — export reviewed browser references from an isolated CI checkout.
 import { execFileSync } from 'node:child_process';
-import { closeSync, mkdirSync, openSync } from 'node:fs';
+import { closeSync, mkdirSync, openSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 const BASELINES = ':(glob)pkgs/*/src/**/baselines/chromium/**';
@@ -38,8 +38,11 @@ export function writeBaselinePatch(root: string, patch: string): void {
 
 if (import.meta.main) {
   const root = join(import.meta.dirname, '../../..');
-  writeBaselinePatch(
-    root,
-    join(root, '.cache/verify-nightly/storybook-baselines.patch')
-  );
+  const patch = join(root, '.cache/verify-nightly/storybook-baselines.patch');
+  writeBaselinePatch(root, patch);
+  if (process.argv.includes('--stdout')) {
+    console.log('STORYBOOK_BASELINES_PATCH_BEGIN');
+    console.log(readFileSync(patch, 'utf8'));
+    console.log('STORYBOOK_BASELINES_PATCH_END');
+  }
 }
