@@ -56,6 +56,7 @@ export const TURBO_ENTRY_PROGRAMS = [
 
 /** Wrappers a launcher may sit behind: they only prepare its environment. */
 const LAUNCHER_PREFIXES = [
+  'bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- ',
   'bun run libs/secrets-server-ts/scripts/secrets-run.ts -- ',
   'bun run own -- ',
 ] as const;

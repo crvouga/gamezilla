@@ -1,5 +1,5 @@
 /**
- * Committed files generated from the product identity, one renderer each.
+ * Ignored build files generated from the product identity, one renderer each.
  * `scripts/generate-brand-artifacts.ts` writes them; the freshness test
  * (`tests/brand-artifacts.test.ts`) fails while any differs, and the brand
  * policy accepts brand spellings in them only because of that test
@@ -11,7 +11,7 @@ import { WEB_BRAND_ARTIFACTS } from './brand-artifact-web.ts';
 import type { ProductIdentity } from './product-identity.ts';
 
 export type BrandArtifact = {
-  /** Repository-relative path of the committed file. */
+  /** Repository-relative path of the generated file. */
   readonly path: string;
   readonly render: (identity: ProductIdentity) => string;
 };

@@ -2819,8 +2819,10 @@
         "zod": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/property-shared-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -3304,9 +3306,11 @@
         "picocolors": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/property-shared-ts": "workspace:*",
         "@types/bun": "catalog:",
         "@types/node": "catalog:",
         "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },

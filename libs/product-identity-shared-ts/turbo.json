@@ -10,6 +10,9 @@
         "$TURBO_ROOT$/apps/client-swift/src/product-identity.generated.swift",
         "$TURBO_ROOT$/apps/client-swift/config/product-identity.generated.xcconfig"
       ]
+    },
+    "src": {
+      "dependsOn": ["@libs/product-identity#src"]
     }
   }
 }

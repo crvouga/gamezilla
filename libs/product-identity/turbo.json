@@ -1,0 +1,8 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "src": {
+      "inputs": ["$TURBO_EXTENDS$", "product-identity.json"]
+    }
+  }
+}

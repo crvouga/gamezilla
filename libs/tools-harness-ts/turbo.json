@@ -2,9 +2,6 @@
   "$schema": "https://v2-11-3.turborepo.dev/schema.json",
   "extends": ["//"],
   "tasks": {
-    "generate:brand-artifacts": {
-      "cache": false
-    },
     "test:posix": {
       "cache": false
     },
@@ -57,7 +54,8 @@
         "$TURBO_ROOT$/pkgs/*/tests/dmn/**",
         "$TURBO_ROOT$/pkgs/*/tests/alloy/**",
         "$TURBO_ROOT$/pkgs/*/tests/openslo/**",
-        "$TURBO_ROOT$/libs/infra-shared-ts/tofu/modules/repository/required-checks/*.json"
+        "$TURBO_ROOT$/libs/infra-shared-ts/tofu/modules/repository/required-checks/*.json",
+        "$TURBO_ROOT$/libs/product-identity/fixtures/**"
       ]
     },
     "src": {
@@ -79,6 +77,24 @@
     },
     "docs:ci-load": {
       "cache": false
+    },
+    "generate:identity": {
+      "inputs": [
+        "scripts/materialize-product-identity.ts",
+        "$TURBO_ROOT$/libs/product-identity-shared-ts/src/identity-input.ts",
+        "$TURBO_ROOT$/libs/product-identity-shared-ts/src/identity-schema.ts",
+        "$TURBO_ROOT$/libs/product-identity/fixtures/**"
+      ],
+      "env": ["PRODUCT_IDENTITY_JSON", "PRODUCT_IDENTITY_MODE"],
+      "outputs": ["$TURBO_ROOT$/libs/product-identity/product-identity.json"]
+    },
+    "configure:identity": {
+      "cache": false,
+      "env": ["PRODUCT_IDENTITY_JSON"]
+    },
+    "configure:identity-agents": {
+      "cache": false,
+      "dependsOn": ["@libs/tools-harness-ts#configure:identity"]
     }
   }
 }

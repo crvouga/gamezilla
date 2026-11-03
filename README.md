@@ -8,7 +8,7 @@
 > ([`CONTRIBUTING.md`](CONTRIBUTING.md)); report security issues as described
 > in [`SECURITY.md`](SECURITY.md).
 
-The product's name, domain and external identifiers are configuration, not prose: [`libs/product-identity/product-identity.json`](libs/product-identity/product-identity.json), explained in [`docs/BRANDING.md`](docs/BRANDING.md). In this briefing `<domain>` stands for its `brand.domain` and `<namespace>` for its immutable `technical.namespace`.
+The product's name, domain, artwork and external identifiers come from external `PRODUCT_IDENTITY_JSON` configuration, validated against the [identity schema](libs/product-identity/product-identity.schema.json). Identity-bearing files are ignored build outputs; rebranding rebuilds/deploys the same source commit. Setup and migration: [`docs/BRANDING.md`](docs/BRANDING.md). In this briefing `<domain>` stands for `brand.domain` and `<namespace>` for the immutable `technical.namespace`.
 
 Local-first game platform. A person opens the app on a phone, tablet, or computer, gets a profile immediately, hosts a live space, and solves chess puzzles there with friends watching. The app works with no connection. What needs other people waits, then catches up on its own.
 

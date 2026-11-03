@@ -69,11 +69,14 @@
     "GOMAXPROCS",
     "DEV_OWNER_*",
     "NODE_OPTIONS",
-    "RAILWAY_TOKEN"
+    "RAILWAY_TOKEN",
+    "PRODUCT_IDENTITY_JSON",
+    "PRODUCT_IDENTITY_MODE"
   ],
   "tasks": {
     "@libs/tools-harness-ts#generate:ui-quality-sources": {
-      "cache": false
+      "cache": false,
+      "dependsOn": ["@libs/tools-harness-ts#generate:identity"]
     },
     "install:deps": {
       "cache": false
@@ -3129,7 +3132,8 @@
         "libs/tools-harness-ts/scripts/ensure-trailing-newline.ts",
         "package.json"
       ],
-      "outputs": ["libs/app-root-shared-ts/locales/*/messages.ts"]
+      "outputs": ["libs/app-root-shared-ts/locales/*/messages.ts"],
+      "dependsOn": ["@libs/tools-harness-ts#generate:identity"]
     },
     "//#task:spec:catalog": {
       "dependsOn": [
@@ -3137,7 +3141,8 @@
         "@pkgs/gherkin-server-ts#src",
         "@pkgs/gherkin-shared-ts#src",
         "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src"
+        "@pkgs/quint-shared-ts#src",
+        "@libs/tools-harness-ts#generate:identity"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -3203,7 +3208,8 @@
         "pkgs/ui-root-client-ts/src/tokens.css",
         "pkgs/ui-root-client-ts/src/tokens.json",
         "pkgs/ui-root-shared-ts/src/token-names.ts"
-      ]
+      ],
+      "dependsOn": ["@libs/tools-harness-ts#generate:identity"]
     },
     "//#task:sounds:generate": {
       "inputs": [
@@ -3217,7 +3223,8 @@
         "pkgs/sounds-shared-ts/src/sound-id.ts",
         "pkgs/sounds-shared-ts/src/sound-urls.ts",
         "pkgs/sounds-shared-ts/src/sound-volumes.ts"
-      ]
+      ],
+      "dependsOn": ["@libs/tools-harness-ts#generate:identity"]
     },
     "@pkgs/object-store-s3-server-ts#generate:browser": {
       "inputs": [
@@ -3226,7 +3233,8 @@
         "package.json",
         "$TURBO_ROOT$/bun.lock"
       ],
-      "outputs": [".cache/browser/**"]
+      "outputs": [".cache/browser/**"],
+      "dependsOn": ["@libs/tools-harness-ts#generate:identity"]
     },
     "@libs/infra-shared-ts#generate:infra-map": {
       "inputs": [
@@ -3236,7 +3244,8 @@
         "policy/**",
         "package.json"
       ],
-      "outputs": [".cache/infra-map.html"]
+      "outputs": [".cache/infra-map.html"],
+      "dependsOn": ["@libs/tools-harness-ts#generate:identity"]
     },
     "@libs/chess-puzzle-server-ts#export:puzzles-load": {
       "cache": false,
@@ -3396,7 +3405,8 @@
         "@pkgs/openslo-shared-ts#src",
         "@pkgs/alloy-shared-ts#src",
         "@pkgs/dmn-shared-ts#src",
-        "@libs/games-harness-ts#generate:feature-variants"
+        "@libs/games-harness-ts#generate:feature-variants",
+        "@libs/tools-harness-ts#generate:identity"
       ],
       "inputs": [
         "specs/**",
@@ -6681,6 +6691,105 @@
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-180/**"]
+    },
+    "@libs/tools-harness-ts#generate:brand-artifacts": {
+      "dependsOn": ["@libs/tools-harness-ts#generate:identity"],
+      "inputs": [
+        "scripts/generate-brand-artifacts.ts",
+        "scripts/brand-image-artifacts.ts",
+        "scripts/brand-image-catalog.ts",
+        "brand/web-image-artifacts/**",
+        "$TURBO_ROOT$/libs/product-identity-shared-ts/src/**",
+        "$TURBO_ROOT$/libs/product-identity/product-identity.json",
+        "package.json"
+      ],
+      "outputs": [
+        "$TURBO_ROOT$/apps/client-swift/config/product-identity.generated.xcconfig",
+        "$TURBO_ROOT$/apps/client-swift/src/product-identity.generated.swift",
+        "$TURBO_ROOT$/apps/client-ts/public/favicon.ico",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-icon-180.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-1125-2436.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-1136-640.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-1170-2532.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-1179-2556.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-1206-2622.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-1242-2208.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-1242-2688.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-1260-2736.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-1284-2778.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-1290-2796.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-1320-2868.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-1334-750.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-1488-2266.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-1536-2048.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-1620-2160.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-1640-2360.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-1668-2224.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-1668-2388.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-1792-828.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-2048-1536.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-2048-2732.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-2160-1620.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-2208-1242.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-2224-1668.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-2266-1488.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-2360-1640.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-2388-1668.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-2436-1125.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-2532-1170.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-2556-1179.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-2622-1206.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-2688-1242.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-2732-2048.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-2736-1260.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-2778-1284.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-2796-1290.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-2868-1320.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-640-1136.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-750-1334.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/apple-splash-dark-828-1792.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/favicon-196.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/manifest-icon-192.maskable.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/manifest-icon-512.maskable.png",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/manifest.webmanifest",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/mark.svg",
+        "$TURBO_ROOT$/apps/client-ts/src/android-icon-background.png",
+        "$TURBO_ROOT$/apps/client-ts/src/android-icon-foreground.png",
+        "$TURBO_ROOT$/apps/client-ts/src/android-icon-monochrome.png",
+        "$TURBO_ROOT$/apps/client-ts/src/favicon.png",
+        "$TURBO_ROOT$/apps/client-ts/src/icon.png",
+        "$TURBO_ROOT$/apps/client-ts/src/splash-icon.png",
+        "$TURBO_ROOT$/apps/product-ts/public/.well-known/security.txt",
+        "$TURBO_ROOT$/apps/product-ts/public/favicon.ico"
+      ]
+    },
+    "@libs/observability-shared-ts#generate:slo": {
+      "dependsOn": ["@libs/tools-harness-ts#generate:identity"],
+      "inputs": [
+        "src/**",
+        "scripts/slo-generate.ts",
+        "$TURBO_ROOT$/specs/**/*.openslo.yaml",
+        "$TURBO_ROOT$/libs/product-identity/product-identity.json",
+        "$TURBO_ROOT$/pkgs/openslo-shared-ts/src/**",
+        "package.json"
+      ],
+      "outputs": [
+        "$TURBO_ROOT$/libs/infra-shared-ts/tofu/modules/observability-views/alert-rules.generated.json",
+        "$TURBO_ROOT$/libs/infra-shared-ts/tofu/modules/observability-views/grafana-slos.generated.json",
+        "slo-alert-policies.openslo.yaml"
+      ]
+    },
+    "@libs/tools-harness-ts#configure:brand": {
+      "cache": false,
+      "dependsOn": [
+        "@libs/tools-harness-ts#configure:identity",
+        "@libs/observability-shared-ts#configure:slo",
+        "@libs/tools-harness-ts#configure:identity-agents"
+      ]
+    },
+    "@libs/tools-harness-ts#generate:identity-agents": {
+      "cache": false,
+      "dependsOn": ["@libs/tools-harness-ts#generate:identity"]
     }
   }
 }

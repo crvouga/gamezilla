@@ -1,0 +1,4 @@
+{
+  "summary": "Cold full verification ran game feature-variant probes before generated sound URLs existed: tests/probes/solo-count-game.tsx could not import @pkgs/sounds-shared-ts/sound-urls. The probe generator now waits for sound, token and identity generation through explicit Turbo dependencies.",
+  "regressionTest": "libs/tools-harness-ts/scripts/turbo-deploy-graph.test.ts"
+}
