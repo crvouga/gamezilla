@@ -1,16 +1,8 @@
 /** @jsxImportSource solid-js */
-import { Trans, useLingui } from '@lingui/solid/macro';
 import { useLogger } from '@pkgs/logger-client-ts/solid';
-import { DismissibleBanner } from '@pkgs/ui-root-client-ts/dismissible-top-banner';
-import {
-  createEffect,
-  createSignal,
-  type JSX,
-  on,
-  onCleanup,
-  Show,
-} from 'solid-js';
+import { createEffect, createSignal, type JSX, on, onCleanup } from 'solid-js';
 import { useOfflinePreference } from './offline-preference';
+import { PwaUpdatePromptBannerView } from './pwa-update-prompt-view';
 import type { PwaUpdatePrompt } from './register-service-worker';
 import {
   registerServiceWorker,
@@ -19,7 +11,6 @@ import {
 
 /** Top banner when a new Workbox-generated service worker is waiting. */
 export function PwaUpdatePromptBanner(): JSX.Element {
-  const { t } = useLingui();
   const log = useLogger('pwa');
   const { offline } = useOfflinePreference();
   const [prompt, setPrompt] = createSignal<PwaUpdatePrompt | null>(null);
@@ -46,18 +37,10 @@ export function PwaUpdatePromptBanner(): JSX.Element {
   onCleanup(() => detach());
 
   return (
-    <Show when={prompt()}>
-      {(current) => (
-        <DismissibleBanner
-          visible
-          position="top"
-          onDismiss={() => setPrompt(null)}
-          title={<Trans>New version available — reload to update</Trans>}
-          actionLabel={t`Reload`}
-          onActionClick={() => current().reload()}
-          dataSet={{ testid: 'pwa-update-banner' }}
-        />
-      )}
-    </Show>
+    <PwaUpdatePromptBannerView
+      visible={prompt() !== null}
+      onDismiss={() => setPrompt(null)}
+      onReload={() => prompt()?.reload()}
+    />
   );
 }

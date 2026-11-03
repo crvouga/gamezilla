@@ -7,32 +7,18 @@
  */
 
 import { reloadApp } from '@libs/app-root-shared-ts/reload-app';
-import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
-import { DismissibleBanner } from '@pkgs/ui-root-client-ts/dismissible-top-banner';
 import { createSignal, type JSX } from 'solid-js';
+import { AppUpdateRequiredBannerView } from './app-update-required-view';
 import { useSyncStatus } from './sync-status-context';
 
 export function AppUpdateRequiredBanner(): JSX.Element {
-  const { t } = useLingui();
   const syncStatus = useSyncStatus();
   const [dismissed, setDismissed] = createSignal(false);
   return (
-    <DismissibleBanner
+    <AppUpdateRequiredBannerView
       visible={syncStatus().upgradeRequired && !dismissed()}
       onDismiss={() => setDismissed(true)}
-      position="top"
-      tone="warning"
-      title={t`Update the app`}
-      subtitle={
-        <Trans>
-          This version of the app is out of date. Update it to keep playing with
-          others — everything you did is kept.
-        </Trans>
-      }
-      actionLabel={t`Update`}
-      onActionClick={() => reloadApp()}
-      dataSet={{ testid: Handles.appUpdateRequired }}
+      onUpdate={() => reloadApp()}
     />
   );
 }

@@ -1,26 +1,40 @@
+import type {
+  ClientConfigDbRow,
+  ClientRuntimeConfig,
+} from '@libs/app-config-shared-ts/parse-client-config';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { CodeBlock } from '@pkgs/ui-root-client-ts/code-block';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
+import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Show } from 'solid-js';
-import { useClientConfig } from './use-client-config';
 
 function onOff(enabled: boolean, on: string, off: string): string {
   return enabled ? on : off;
 }
 
+export type ClientConfigScreenViewProps = {
+  /** `loading` until the local SQL watch has hydrated. */
+  readonly status: 'loading' | 'ready';
+  /** Parsed runtime config (defaults when no rows are synced yet). */
+  readonly config: ClientRuntimeConfig;
+  /** The raw synced rows, shown in the JSON snapshot. */
+  readonly rows: readonly ClientConfigDbRow[];
+};
+
 /** Grouped read-only view of the synced `client_config` rows. */
-export function ClientConfigEntityCard(): JSX.Element {
+function ClientConfigEntityCard(
+  props: ClientConfigScreenViewProps
+): JSX.Element {
   const { t } = useLingui();
-  const state = useClientConfig();
   const jsonPreview = () =>
     JSON.stringify(
       {
-        parsed: state.config(),
-        rows: state.rows().map((r) => ({
+        parsed: props.config,
+        rows: props.rows.map((r) => ({
           id: r.id,
           value: r.value,
         })),
@@ -31,7 +45,7 @@ export function ClientConfigEntityCard(): JSX.Element {
 
   return (
     <Show
-      when={!state.isLoading()}
+      when={props.status === 'ready'}
       fallback={
         <LoadingState caption={<Trans>Loading client config…</Trans>} />
       }
@@ -48,30 +62,30 @@ export function ClientConfigEntityCard(): JSX.Element {
         >
           <MenuRow
             title={<Trans>Google</Trans>}
-            value={onOff(state.config().google_enabled, t`On`, t`Off`)}
-            {...(state.config().google_web_client_id !== null
-              ? { caption: state.config().google_web_client_id }
+            value={onOff(props.config.google_enabled, t`On`, t`Off`)}
+            {...(props.config.google_web_client_id !== null
+              ? { caption: props.config.google_web_client_id }
               : {})}
           />
         </MenuSection>
         <MenuSection title={<Trans>Features</Trans>}>
           <MenuRow
             title={<Trans>Billing</Trans>}
-            value={onOff(state.config().billing_enabled, t`On`, t`Off`)}
+            value={onOff(props.config.billing_enabled, t`On`, t`Off`)}
           />
           <MenuRow
             title={<Trans>Text to speech</Trans>}
-            value={onOff(state.config().tts_enabled, t`On`, t`Off`)}
+            value={onOff(props.config.tts_enabled, t`On`, t`Off`)}
           />
           <MenuRow
             title={<Trans>LLM</Trans>}
-            value={onOff(state.config().llm_enabled, t`On`, t`Off`)}
+            value={onOff(props.config.llm_enabled, t`On`, t`Off`)}
           />
         </MenuSection>
         <MenuSection title={<Trans>Infrastructure</Trans>}>
           <MenuRow
             title={<Trans>EMQX</Trans>}
-            value={state.config().emqx_wss_url ?? t`Not set`}
+            value={props.config.emqx_wss_url ?? t`Not set`}
           />
         </MenuSection>
         <StackVertical gap="sm">
@@ -84,5 +98,27 @@ export function ClientConfigEntityCard(): JSX.Element {
         </StackVertical>
       </StackVertical>
     </Show>
+  );
+}
+
+/**
+ * `/more/client-config`, presentational: the synced runtime configuration —
+ * sign-in, features, infrastructure and a JSON snapshot — or a loading state
+ * until local SQLite hydrates. `ClientConfigScreen` reads the rows.
+ */
+export function ClientConfigScreenView(
+  props: ClientConfigScreenViewProps
+): JSX.Element {
+  return (
+    <MenuScreen
+      screenId="client-config"
+      breadcrumbs={[
+        { name: <Trans>Spaces</Trans>, href: '/' },
+        { name: <Trans>Settings</Trans>, href: '/more' },
+        { name: <Trans>Client config</Trans> },
+      ]}
+    >
+      <ClientConfigEntityCard {...props} />
+    </MenuScreen>
   );
 }

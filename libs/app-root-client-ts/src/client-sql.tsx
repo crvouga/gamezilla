@@ -1,12 +1,11 @@
 /** @jsxImportSource solid-js */
 
-import { Trans } from '@lingui/solid/macro';
 import { NotebookStoreProvider } from '@pkgs/harness-console-client-ts/notebook-store-context';
 import { SqlNotebookPane } from '@pkgs/harness-console-client-ts/sql-notebook-pane';
 import { useSqlClient } from '@pkgs/sql-client-root-client-ts/solid';
-import { ScreenBase } from '@pkgs/ui-root-client-ts/screen-base';
 import type { JSX } from 'solid-js';
 import { useClientEnv } from './client-env-context';
+import { ClientSqlScreenView } from './client-sql-screen-view';
 
 export default function ClientSqlRoute(): JSX.Element {
   const sqlClient = useSqlClient();
@@ -15,16 +14,8 @@ export default function ClientSqlRoute(): JSX.Element {
     <NotebookStoreProvider
       store={env.objectStore.withPrefix('client-notebooks/')}
     >
-      <ScreenBase
-        screenId="client-sql"
-        breadcrumbs={[
-          { name: <Trans>Spaces</Trans>, href: '/' },
-          { name: <Trans>Settings</Trans>, href: '/more' },
-          { name: <Trans>Client SQL</Trans> },
-        ]}
-        content={() => (
-          <SqlNotebookPane sqlClient={sqlClient} nodeId="client" />
-        )}
+      <ClientSqlScreenView
+        notebook={<SqlNotebookPane sqlClient={sqlClient} nodeId="client" />}
       />
     </NotebookStoreProvider>
   );
