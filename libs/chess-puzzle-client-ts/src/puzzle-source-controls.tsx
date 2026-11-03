@@ -8,20 +8,37 @@ import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { createEffect, on, Show } from 'solid-js';
-import type { usePuzzleImport } from './use-puzzle-import';
 
-export function PuzzleSourceControls(props: {
-  state: ReturnType<typeof usePuzzleImport>;
-}) {
+/** What is known of the Lichess file saved in the shared bucket. */
+export type PuzzleSavedSourceView = {
+  /** The last check finished (found or not). */
+  readonly known: boolean;
+  readonly loading: boolean;
+  readonly error: string | null;
+  /** The saved file's name; null when none is saved. */
+  readonly filename: string | null;
+};
+
+export type PuzzleSourceControlsProps = {
+  readonly online: boolean;
+  readonly source: PuzzleSavedSourceView;
+  /** The file chosen to upload, when none is saved yet. */
+  readonly chosenFile: { readonly name: string } | null;
+  readonly uploading: boolean;
+  readonly uploadProgress: number;
+  readonly uploadedRows: number;
+  readonly onSelectFile: (file: File | null) => void;
+  readonly onSave: () => Promise<void>;
+  readonly onRecheck: () => void;
+};
+
+/** Check for the saved Lichess file, or choose and upload one. */
+export function PuzzleSourceControls(props: PuzzleSourceControlsProps) {
   const { t } = useLingui();
   const save = useMutationButton({
-    operation: props.state.save,
+    operation: () => props.onSave(),
     get disabled() {
-      return (
-        !props.state.file() ||
-        props.state.uploading() ||
-        !props.state.connection.status().online
-      );
+      return props.chosenFile === null || props.uploading || !props.online;
     },
     labels: {
       idle: t`Upload Lichess file`,
@@ -30,14 +47,18 @@ export function PuzzleSourceControls(props: {
       error: t`Try uploading again`,
     },
   });
-  createEffect(on(props.state.file, () => save.reset(), { defer: true }));
+  createEffect(
+    on(
+      () => props.chosenFile,
+      () => save.reset(),
+      { defer: true }
+    )
+  );
   return (
     <>
       <Show
         when={
-          !props.state.connection.status().online &&
-          !props.state.source.known() &&
-          !props.state.source.error()
+          !props.online && !props.source.known && props.source.error === null
         }
       >
         <Notice dataSet={{ testid: 'puzzle-source-check-offline' }}>
@@ -46,39 +67,35 @@ export function PuzzleSourceControls(props: {
           </Trans>
         </Notice>
       </Show>
-      <Show when={props.state.source.loading()}>
+      <Show when={props.source.loading}>
         <LoadingState
           dataSet={{ testid: 'puzzle-source-checking' }}
           variant="compact"
           caption={<Trans>Checking for the saved Lichess file…</Trans>}
         />
       </Show>
-      <Show when={props.state.source.error()} keyed>
+      <Show when={props.source.error} keyed>
         {(error) => (
           <Notice tone="error" dataSet={{ testid: 'puzzle-source-error' }}>
-            {error.message}
+            {error}
           </Notice>
         )}
       </Show>
-      <Show when={props.state.source.error() || props.state.source.known()}>
+      <Show when={props.source.error !== null || props.source.known}>
         <Button
           dataSet={{ testid: 'puzzle-source-recheck' }}
           title={t`Check saved file again`}
           variant="outline"
-          disabled={
-            props.state.source.loading() ||
-            props.state.uploading() ||
-            !props.state.connection.status().online
-          }
-          onClick={props.state.source.reload}
+          disabled={props.source.loading || props.uploading || !props.online}
+          onClick={() => props.onRecheck()}
         />
       </Show>
-      <Show when={props.state.source.source()} keyed>
-        {(source) => (
+      <Show when={props.source.filename} keyed>
+        {(filename) => (
           <>
             <MenuRow
               title={<Trans>Saved Lichess file</Trans>}
-              value={source.filename}
+              value={filename}
               dataSet={{ testid: 'puzzle-source-saved' }}
             />
             <Notice>
@@ -92,13 +109,13 @@ export function PuzzleSourceControls(props: {
       </Show>
       <Show
         when={
-          props.state.source.known() &&
-          !props.state.source.loading() &&
-          !props.state.source.source() &&
-          !props.state.source.error()
+          props.source.known &&
+          !props.source.loading &&
+          props.source.filename === null &&
+          props.source.error === null
         }
       >
-        <Show when={!props.state.uploading()}>
+        <Show when={!props.uploading}>
           <Notice dataSet={{ testid: 'puzzle-source-missing' }}>
             <Trans>
               No Lichess file is in the shared bucket. Choose a .csv or .csv.zst
@@ -110,8 +127,8 @@ export function PuzzleSourceControls(props: {
         <FilePicker
           label={<Trans>Lichess puzzle database</Trans>}
           accept=".csv,.csv.zst,.zst,text/csv"
-          disabled={props.state.uploading()}
-          onSelect={props.state.setFile}
+          disabled={props.uploading}
+          onSelect={(file) => props.onSelectFile(file)}
           dataSet={{ testid: 'puzzle-load-file' }}
         />
         <Button
@@ -119,10 +136,10 @@ export function PuzzleSourceControls(props: {
           dataSet={{ testid: 'puzzle-source-save' }}
         />
       </Show>
-      <Show when={props.state.file() && !props.state.source.source()}>
+      <Show when={props.chosenFile !== null && props.source.filename === null}>
         <MenuRow
           title={<Trans>Chosen Lichess file</Trans>}
-          value={props.state.file()?.name}
+          value={props.chosenFile?.name}
           dataSet={{ testid: 'puzzle-source-chosen' }}
         />
       </Show>
@@ -133,16 +150,16 @@ export function PuzzleSourceControls(props: {
           </Notice>
         )}
       </Show>
-      <Show when={props.state.uploading()}>
+      <Show when={props.uploading}>
         <StackVertical role="status" testId="puzzle-source-saving">
           <ProgressBar
             label={t`Uploading Lichess file`}
-            progress={props.state.uploadProgress()}
+            progress={props.uploadProgress}
             dataSet={{ testid: 'puzzle-source-progress' }}
             description={
               <Trans>
-                Uploaded {props.state.uploadedRows()} puzzles to the shared
-                bucket. Keep this screen open until the upload finishes.
+                Uploaded {props.uploadedRows} puzzles to the shared bucket. Keep
+                this screen open until the upload finishes.
               </Trans>
             }
           />

@@ -1,6 +1,5 @@
-import { Trans } from '@lingui/solid/macro';
-import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { createSignal, type JSX, Show } from 'solid-js';
+import { PersonalPuzzleStatsScreenView } from './personal-puzzle-stats-screen-view';
 import type { GamePuzzlesClient } from './puzzle-client';
 import { PuzzleFeedProvider } from './puzzle-feed-provider';
 import { PuzzleGameProvider } from './puzzle-game-context';
@@ -26,21 +25,10 @@ export function PersonalPuzzleStatsScreen(props: {
   return (
     <PuzzleGameProvider gameId={props.gameId} client={props.puzzles}>
       <PuzzleFeedProvider>
-        <ContentScreen
+        <PersonalPuzzleStatsScreenView
           screenId={props.screenId}
-          width="menu"
-          breadcrumbs={[
-            { name: <Trans>Settings</Trans>, href: '/more' },
-            {
-              name: <Trans>Puzzle stats</Trans>,
-              ...(puzzleId() === null
-                ? {}
-                : { onClick: () => setPuzzleId(null) }),
-            },
-            ...(puzzleId() === null
-              ? []
-              : [{ name: <Trans>Puzzle review</Trans> }]),
-          ]}
+          reviewing={puzzleId() !== null}
+          onBackToStats={() => setPuzzleId(null)}
         >
           <Show
             when={puzzleId()}
@@ -61,7 +49,7 @@ export function PersonalPuzzleStatsScreen(props: {
               />
             )}
           </Show>
-        </ContentScreen>
+        </PersonalPuzzleStatsScreenView>
       </PuzzleFeedProvider>
     </PuzzleGameProvider>
   );

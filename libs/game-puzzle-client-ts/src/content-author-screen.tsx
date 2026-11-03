@@ -1,22 +1,14 @@
 import type {
+  ContentBody,
   ContentDocument,
   ContentDraft,
 } from '@libs/game-puzzle-shared-ts/content-types';
-import { DenialSurface } from '@libs/permissions-client-ts/denial-surface';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { useLingui } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-root-client-ts/button';
-import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
-import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { createMemo, type JSX, Show } from 'solid-js';
+import { ContentAuthorScreenView } from './content-author-screen-view';
 import { ContentAuthorStage } from './content-author-stage';
-import { ContentAuthorStatus } from './content-author-status';
 import { ContentDraftHistory } from './content-draft-history';
-import { ContentDraftMetadata } from './content-draft-metadata';
 import { ContentDraftPlaytest } from './content-draft-playtest';
 import { useContentGame } from './content-game-context';
 import { ContentKeptCopies } from './content-kept-copies';
@@ -25,134 +17,127 @@ import { ContentPackEditor } from './content-pack-editor';
 import { ContentPackPreview } from './content-pack-preview';
 import { ContentPublicationControls } from './content-publication-controls';
 import { useContentAuthorWorkspace } from './use-content-author-workspace';
+import { useDeniedView } from './use-denied-view';
 
 type AuthorWorkspace = ReturnType<typeof useContentAuthorWorkspace>;
 
-/** Undo, redo, preview and playtest beside the builder. */
-function AuthorActions(props: {
+/** What the view's builder props hold before there is a working copy. */
+const NO_BODY: ContentBody = {
+  title: '',
+  description: '',
+  difficulty: '',
+  definition: '',
+};
+const NO_SAVE = { saving: false, dirty: false, error: null } as const;
+
+/** The game's editor, the pack editor, or a preview of either. */
+function AuthorStage(props: {
   document: ContentDocument;
   workspace: AuthorWorkspace;
 }): JSX.Element {
-  const { t } = useLingui();
-  const busy = () => props.workspace.disabled();
   return (
-    <>
-      <ContentDraftHistory
-        writer={props.workspace.writer}
-        history={props.workspace.history}
-        disabled={
-          busy() ||
-          props.workspace.conflicted() ||
-          props.workspace.writer.dirty()
-        }
-      />
-      <Button
-        title={props.workspace.preview() ? t`Return to editing` : t`Preview`}
-        intent="neutral"
-        variant="outline"
-        onClick={() => props.workspace.setPreview((value) => !value)}
-        disabled={busy()}
-        dataSet={{ testid: 'content-preview' }}
-      />
-      <Show when={props.document.kind === 'puzzle'}>
-        <ContentDraftPlaytest
-          documentId={props.document.id}
+    <Show
+      when={props.document.kind === 'pack'}
+      fallback={
+        <ContentAuthorStage
           writer={props.workspace.writer}
-          disabled={busy()}
+          preview={props.workspace.preview()}
+          disabled={props.workspace.adopting() !== null}
+        />
+      }
+    >
+      <Show
+        when={!props.workspace.preview()}
+        fallback={
+          <ContentPackPreview
+            definition={props.workspace.writer.body().definition}
+          />
+        }
+      >
+        <ContentPackEditor
+          writer={props.workspace.writer}
+          disabled={props.workspace.disabled()}
+          tools={props.workspace.packTools}
         />
       </Show>
-    </>
+    </Show>
   );
 }
 
-function AuthorBody(props: {
+/** The builder for one working copy, wired to saves, history and copies. */
+function AuthorWorkspaceScreen(props: {
   document: ContentDocument;
   initial: ContentDraft;
+  onReturnToLibrary: () => void;
 }): JSX.Element {
-  const { t } = useLingui();
   const workspace = useContentAuthorWorkspace(
     () => props.document,
     () => props.initial
   );
-  const {
-    writer,
-    chooseCopy,
-    preview,
-    adopting,
-    packTools,
-    packPending,
-    disabled,
-    conflicted,
-  } = workspace;
+  const { writer } = workspace;
   return (
-    <GameScreen
-      screenId="puzzle-content-author"
-      dataSet={{ testid: 'content-author', documentid: props.document.id }}
-      title={writer.body().title || t`Untitled draft`}
-      subtitle={
-        props.document.kind === 'pack' ? t`Pack builder` : t`Puzzle builder`
+    <ContentAuthorScreenView
+      status="ready"
+      documentId={props.document.id}
+      kind={props.document.kind}
+      body={writer.body()}
+      save={{
+        saving: writer.saving(),
+        dirty: writer.dirty(),
+        error: writer.error(),
+      }}
+      conflicted={workspace.conflicted()}
+      metadataDisabled={
+        workspace.adopting() !== null || workspace.packPending()
       }
-    >
-      <GameSessionLayout
-        notices={
-          <ContentAuthorStatus writer={writer} conflicted={conflicted()} />
-        }
-        aside={
-          <StackVertical gap="lg">
-            <ContentDraftMetadata
-              body={writer.body()}
-              disabled={adopting() !== null || packPending()}
-              onChange={writer.change}
-            />
-            <ContentPublicationControls
-              document={props.document}
-              writer={writer}
-              disabled={disabled() || conflicted()}
-            />
-          </StackVertical>
-        }
-        actions={
-          <AuthorActions document={props.document} workspace={workspace} />
-        }
-      >
-        <Show
-          when={props.document.kind === 'pack'}
-          fallback={
-            <ContentAuthorStage
-              writer={writer}
-              preview={preview()}
-              disabled={adopting() !== null}
-            />
+      disabled={workspace.disabled()}
+      preview={workspace.preview()}
+      history={
+        <ContentDraftHistory
+          writer={writer}
+          history={workspace.history}
+          disabled={
+            workspace.disabled() || workspace.conflicted() || writer.dirty()
           }
-        >
-          <Show
-            when={!preview()}
-            fallback={
-              <ContentPackPreview definition={writer.body().definition} />
-            }
-          >
-            <ContentPackEditor
-              writer={writer}
-              disabled={disabled()}
-              tools={packTools}
-            />
-          </Show>
-        </Show>
-      </GameSessionLayout>
-      <ContentKeptCopies
-        document={props.document}
-        currentId={writer.draftId()}
-        disabled={disabled() || writer.dirty()}
-        onChoose={chooseCopy}
-      />
-    </GameScreen>
+        />
+      }
+      playtest={
+        <ContentDraftPlaytest
+          documentId={props.document.id}
+          writer={writer}
+          disabled={workspace.disabled()}
+        />
+      }
+      publication={
+        <ContentPublicationControls
+          document={props.document}
+          writer={writer}
+          disabled={workspace.disabled() || workspace.conflicted()}
+        />
+      }
+      stage={<AuthorStage document={props.document} workspace={workspace} />}
+      keptCopies={
+        <ContentKeptCopies
+          document={props.document}
+          currentId={writer.draftId()}
+          disabled={workspace.disabled() || writer.dirty()}
+          onChoose={workspace.chooseCopy}
+        />
+      }
+      onChangeBody={writer.change}
+      onSaveAgain={() => {
+        void writer.save();
+      }}
+      onTogglePreview={() => workspace.setPreview((value) => !value)}
+      onReturnToLibrary={props.onReturnToLibrary}
+    />
   );
 }
 
+/** `ContentAuthorScreenView` wired to the library, permissions and saves. */
 export function ContentAuthorScreen(props: {
   documentId: string;
 }): JSX.Element {
-  const { t } = useLingui();
   const game = useContentGame();
   const data = useContentLibraryState();
   const document = createMemo(() =>
@@ -176,32 +161,55 @@ export function ContentAuthorScreen(props: {
   const decision = useDecision(PERMISSION.puzzlesEditContent, () => ({
     puzzleOwnerId: document()?.owner_id ?? '',
   }));
+  const denial = useDeniedView({
+    get decision() {
+      return data.isLoading() ? null : decision();
+    },
+  });
+  const status = () => {
+    if (data.isLoading()) return 'loading';
+    if (document() === undefined) return 'gone';
+    return initial() === null ? 'missing' : 'ready';
+  };
+  /** The builder's inputs, once it may open on a working copy. */
+  const workspaceInput = createMemo(() => {
+    const doc = document();
+    const first = initial();
+    if (status() !== 'ready' || denial() !== undefined) return null;
+    return doc === undefined || first === null
+      ? null
+      : { document: doc, initial: first };
+  });
+  const onReturnToLibrary = (): void => game.open({ kind: 'library' });
   return (
-    <Show when={!data.isLoading()} fallback={<LoadingState />}>
-      <Show
-        when={decision().allowed}
-        fallback={<DenialSurface decision={decision()} />}
-      >
-        <Show when={document()}>
-          {(doc) => (
-            <Show
-              when={initial()}
-              fallback={
-                <ErrorState
-                  title={t`This draft is not available on this device`}
-                  body={t`Return to your library, reconnect and open it again. Your saved work stays kept.`}
-                  secondary={{
-                    label: t`Return to puzzles`,
-                    onClick: () => game.open({ kind: 'library' }),
-                  }}
-                />
-              }
-            >
-              {(initial) => <AuthorBody document={doc()} initial={initial()} />}
-            </Show>
-          )}
-        </Show>
-      </Show>
+    <Show
+      when={workspaceInput()}
+      fallback={
+        <ContentAuthorScreenView
+          status={status()}
+          denial={denial()}
+          documentId={props.documentId}
+          kind={document()?.kind ?? 'puzzle'}
+          body={NO_BODY}
+          save={NO_SAVE}
+          conflicted={false}
+          metadataDisabled
+          disabled
+          preview={false}
+          onChangeBody={() => undefined}
+          onSaveAgain={() => undefined}
+          onTogglePreview={() => undefined}
+          onReturnToLibrary={onReturnToLibrary}
+        />
+      }
+    >
+      {(input) => (
+        <AuthorWorkspaceScreen
+          document={input().document}
+          initial={input().initial}
+          onReturnToLibrary={onReturnToLibrary}
+        />
+      )}
     </Show>
   );
 }

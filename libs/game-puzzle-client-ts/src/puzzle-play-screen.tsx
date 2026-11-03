@@ -1,48 +1,39 @@
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
-import type { HintStage } from '@libs/game-puzzle-shared-ts/hint-stage';
 import { PUZZLE_PIECE_MOVE_MS } from '@libs/game-puzzle-shared-ts/opponent-stage';
 import type { PuzzlePickState } from '@libs/game-puzzle-shared-ts/pick-state';
-import type { SolveStatus } from '@libs/game-puzzle-shared-ts/solve-status';
-import type { PuzzleStatusKind } from '@libs/game-puzzle-shared-ts/status-kind';
+import { DefineBackButton } from '@libs/spaces-client-ts/spaces-nav-context';
 import { t } from '@lingui/core/macro';
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
 import { createSpeak } from '@pkgs/tts-root-client-ts/solid';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import { SpeakingAvatar } from '@pkgs/ui-root-client-ts/speaking-avatar';
-import { SpectatorIndicator } from '@pkgs/ui-root-client-ts/spectator-indicator';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { PuzzleClockLabel } from './puzzle-clock-label';
-import { PuzzleEmptyPoolState } from './puzzle-empty-pool-state';
 import { usePuzzleGame } from './puzzle-game-context';
-import type { PuzzlePlayBoardChrome } from './puzzle-play-layout';
-import { PuzzlePlayLayout } from './puzzle-play-layout';
+import { PuzzleMoveHistoryBar } from './puzzle-move-history-bar';
+import {
+  CelebrationLayer,
+  PuzzlePlayFeed,
+  useFeedSettingsOverlay,
+} from './puzzle-play-overlays';
+import {
+  type PuzzlePlayPick,
+  PuzzlePlayScreenView,
+} from './puzzle-play-screen-view';
 import { PuzzleRecommendationLegend } from './puzzle-recommendation-legend';
 import { PuzzleResultAnnouncement } from './puzzle-result-announcement';
 import { PuzzleShareLink } from './puzzle-share-link';
-import { PuzzleStatusHeader } from './puzzle-status-header';
 import { PuzzleTestLoadingStatus } from './puzzle-test-loading-status';
 import { PuzzleTestProbes } from './puzzle-test-probes';
+import { useDeniedView } from './use-denied-view';
+import { usePuzzleAllowance } from './use-puzzle-allowance';
 import { usePuzzleFeedConfig } from './use-puzzle-feed-config';
 import { usePuzzlePlayScreenState } from './use-puzzle-play-screen-state';
 import type { PuzzlePlayerChromeModel } from './use-puzzle-player-state';
 import { usePuzzlePlayerState } from './use-puzzle-player-state';
 
-const LOADING_SHELL_STATUS = 'loading' as const satisfies SolveStatus;
-const LOADING_SHELL_HINT_STAGE = 'none' as const satisfies HintStage;
-const COMPACT_AVATAR_SIZE = 56;
-const WIDE_AVATAR_SIZE = 80;
-
 const noop = (): void => {};
-
-function usePuzzleAvatarSize(): () => number {
-  const mode = useLayoutMode();
-  return () => (mode() === 'wide' ? WIDE_AVATAR_SIZE : COMPACT_AVATAR_SIZE);
-}
 
 /** The game's board, in play: the room's position, its marks and suggestions. */
 function PuzzlePlayerBoardSlot(props: {
@@ -104,12 +95,14 @@ function PuzzleCompanion(props: { p: PuzzlePlayerChromeModel }): JSX.Element {
 
 function PuzzlePlayerChrome(props: {
   model: PuzzlePlayerChromeModel;
+  probe: JSX.Element;
   onFeedConfigApplied: () => void;
 }): JSX.Element {
   const p = props.model;
   const myId = useMyId();
-  const avatarSize = usePuzzleAvatarSize();
-  const statusKind = (): PuzzleStatusKind => p.statusKind();
+  const allowance = usePuzzleAllowance();
+  const [config] = usePuzzleFeedConfig();
+  const feedSettings = useFeedSettingsOverlay(props.onFeedConfigApplied);
   const presentation = useGamePresentation();
   /** The solver's side as the game names it, once a position is shown. */
   const solverSide = (): string | null => {
@@ -119,66 +112,77 @@ function PuzzlePlayerChrome(props: {
       : presentation(position).sideLabel(p.orientation());
   };
   return (
-    <PuzzlePlayLayout
-      backToRoot={p.backToRoot}
-      puzzleId={p.puzzleId()}
-      puzzleRating={p.rating()}
-      puzzleThemes={p.themes()}
-      spectator={p.isSpectator}
-      assistant={
-        <SpeakingAvatar
-          message={p.coach()?.text ?? ''}
-          contextKey={p.coach()?.positionKey ?? ''}
-          speaker={createSpeak}
-          dataSet={{ testid: 'puzzle-assistant' }}
-          data-observation={p.coach()?.kind ?? ''}
-          data-purpose={p.coach()?.purpose ?? ''}
-          data-puzzle={p.coach()?.puzzleId ?? ''}
-          header={
-            <PuzzleStatusHeader
-              kind={statusKind()}
-              solverSide={solverSide()}
-              trailing={
-                <>
-                  <PuzzleClockLabel elapsedMs={p.clockElapsedMs} />
-                  <Show when={p.isSpectator()}>
-                    <SpectatorIndicator />
-                  </Show>
-                  <Show when={!p.isSpectator() && p.puzzleId()} keyed>
-                    {(puzzleId) => <PuzzleShareLink puzzleId={puzzleId} />}
-                  </Show>
-                </>
-              }
+    <>
+      <DefineBackButton onPress={p.backToRoot} />
+      <PuzzlePlayScreenView
+        pick="playing"
+        statusKind={p.statusKind()}
+        solverSide={solverSide()}
+        coach={{
+          message: p.coach()?.text ?? '',
+          contextKey: p.coach()?.positionKey ?? '',
+          handles: {
+            observation: p.coach()?.kind ?? '',
+            purpose: p.coach()?.purpose ?? '',
+            puzzleId: p.coach()?.puzzleId ?? '',
+          },
+        }}
+        speaker={createSpeak}
+        elapsedMs={p.clockElapsedMs()}
+        spectator={p.isSpectator()}
+        allowanceLabel={allowance.label()}
+        shareLink={
+          <Show when={p.puzzleId()} keyed>
+            {(puzzleId) => <PuzzleShareLink puzzleId={puzzleId} />}
+          </Show>
+        }
+        feed={
+          <PuzzlePlayFeed
+            puzzleId={p.puzzleId()}
+            rating={p.rating()}
+            themes={p.themes()}
+            status={p.status()}
+            onOpenFeedSettings={feedSettings.open}
+          />
+        }
+        legend={
+          <PuzzleRecommendationLegend
+            entries={p.recommendationEntries}
+            colorFor={p.recommendationColorFor}
+            myId={myId()}
+            onClearMine={p.onClearMyRecommendation}
+          />
+        }
+        timeline={<PuzzleMoveHistoryBar />}
+        board={(size) => <PuzzlePlayerBoardSlot size={size} p={p} />}
+        feedConfig={config()}
+        status={p.status()}
+        hintStage={p.hintStage()}
+        canGoBack={p.canGoBack()}
+        canGoForward={p.canGoForward()}
+        onHint={p.onHint}
+        onSolution={p.onSolution}
+        onBack={p.onBack}
+        onForward={p.onForward}
+        onRetry={p.onRetry}
+        onSkip={p.onSkip}
+        onNext={p.onNext}
+        onIncludeAllPuzzles={noop}
+        onOpenFeedSettings={feedSettings.open}
+        probe={props.probe}
+        overlay={
+          <>
+            <PuzzleCompanion p={p} />
+            <CelebrationLayer
+              completion={p.completion}
+              status={p.status}
+              onNext={p.onNext}
             />
-          }
-          numberOfLines={2}
-          avatarSize={avatarSize()}
-        />
-      }
-      recommendationLegend={
-        <PuzzleRecommendationLegend
-          entries={p.recommendationEntries}
-          colorFor={p.recommendationColorFor}
-          myId={myId()}
-          onClearMine={p.onClearMyRecommendation}
-        />
-      }
-      boardSlot={(size) => <PuzzlePlayerBoardSlot size={size} p={p} />}
-      status={p.status}
-      hintStage={p.hintStage}
-      canGoBack={p.canGoBack}
-      canGoForward={p.canGoForward}
-      onHint={p.onHint}
-      onSolution={p.onSolution}
-      onBack={p.onBack}
-      onForward={p.onForward}
-      onRetry={p.onRetry}
-      onSkip={p.onSkip}
-      onNext={p.onNext}
-      onFeedConfigApplied={props.onFeedConfigApplied}
-      completion={p.completion}
-      companion={<PuzzleCompanion p={p} />}
-    />
+            {feedSettings.modal()}
+          </>
+        }
+      />
+    </>
   );
 }
 
@@ -189,6 +193,8 @@ type PuzzlePlayerProps = {
   startNonce: number;
   onRequestNext: () => void;
   onFeedConfigApplied: () => void;
+  /** The test-only pick probe, beside the player. */
+  probe: JSX.Element;
 };
 
 function PuzzlePlayer(props: PuzzlePlayerProps): JSX.Element {
@@ -202,16 +208,13 @@ function PuzzlePlayer(props: PuzzlePlayerProps): JSX.Element {
   return (
     <PuzzlePlayerChrome
       model={p}
+      probe={props.probe}
       onFeedConfigApplied={props.onFeedConfigApplied}
     />
   );
 }
-type ShellPickState = Exclude<PuzzlePickState, 'ready'>;
-type ShellBoardPickState = Exclude<ShellPickState, 'loading'>;
 
-function shellHeaderKind(state: ShellPickState): PuzzleStatusKind {
-  return state;
-}
+type ShellPickState = Exclude<PuzzlePickState, 'ready'>;
 
 function shellCoachLine(state: ShellPickState): string {
   switch (state) {
@@ -228,24 +231,6 @@ function shellCoachLine(state: ShellPickState): string {
   }
 }
 
-function ShellBoardSlot(props: {
-  chrome: PuzzlePlayBoardChrome;
-  pickState: ShellBoardPickState;
-  includeAllPuzzles: () => void;
-  startDenial: Decision | null;
-}): JSX.Element {
-  const [config] = usePuzzleFeedConfig();
-  return (
-    <PuzzleEmptyPoolState
-      kind={props.pickState}
-      config={config()}
-      onIncludeAllPuzzles={props.includeAllPuzzles}
-      onOpenFeedSettings={props.chrome.openFeedSettings}
-      denial={props.startDenial}
-    />
-  );
-}
-
 /** Play chrome without a placed puzzle: loading, offline, limited or empty. */
 function PuzzlePlayShell(props: {
   backToRoot: () => void;
@@ -255,53 +240,52 @@ function PuzzlePlayShell(props: {
   includeAllPuzzles: () => void;
   startDenial: Accessor<Decision | null>;
 }): JSX.Element {
-  const avatarSize = usePuzzleAvatarSize();
-  const boardKind = createMemo<ShellBoardPickState | null>(() => {
-    const state = props.pickState();
-    return state === 'loading' ? null : state;
+  const [config] = usePuzzleFeedConfig();
+  const feedSettings = useFeedSettingsOverlay(props.onFeedConfigApplied);
+  const denial = useDeniedView({
+    get decision() {
+      return props.startDenial();
+    },
+    testId: 'chess-puzzle-limit',
   });
+  const pick = (): PuzzlePlayPick => props.pickState();
   return (
-    <PuzzlePlayLayout
-      backToRoot={props.backToRoot}
-      testLoadingStatus={props.testLoadingStatus}
-      assistant={
-        <SpeakingAvatar
-          message={shellCoachLine(props.pickState())}
-          bubbleResolving={props.pickState() === 'loading'}
-          header={
-            <PuzzleStatusHeader kind={shellHeaderKind(props.pickState())} />
-          }
-          numberOfLines={2}
-          avatarSize={avatarSize()}
-        />
-      }
-      boardSlot={(_size, chrome) => (
-        <Show when={boardKind()} keyed fallback={<LoadingState size="lg" />}>
-          {(kind) => (
-            <ShellBoardSlot
-              chrome={chrome}
-              pickState={kind}
-              includeAllPuzzles={props.includeAllPuzzles}
-              startDenial={props.startDenial()}
-            />
-          )}
-        </Show>
-      )}
-      status={() => LOADING_SHELL_STATUS}
-      hintStage={() => LOADING_SHELL_HINT_STAGE}
-      canGoBack={() => false}
-      canGoForward={() => false}
-      onHint={noop}
-      onSolution={noop}
-      onBack={noop}
-      onForward={noop}
-      onRetry={noop}
-      onSkip={noop}
-      onNext={noop}
-      onFeedConfigApplied={props.onFeedConfigApplied}
-      completion={() => null}
-      spectator={() => false}
-    />
+    <>
+      <DefineBackButton onPress={props.backToRoot} />
+      <PuzzlePlayScreenView
+        pick={pick()}
+        statusKind={props.pickState()}
+        coach={{ message: shellCoachLine(props.pickState()) }}
+        coachResolving={props.pickState() === 'loading'}
+        elapsedMs={null}
+        spectator={false}
+        allowanceLabel=""
+        feed={
+          <PuzzlePlayFeed
+            status="loading"
+            onOpenFeedSettings={feedSettings.open}
+          />
+        }
+        timeline={<PuzzleMoveHistoryBar />}
+        feedConfig={config()}
+        denial={denial()}
+        status="loading"
+        hintStage="none"
+        canGoBack={false}
+        canGoForward={false}
+        onHint={noop}
+        onSolution={noop}
+        onBack={noop}
+        onForward={noop}
+        onRetry={noop}
+        onSkip={noop}
+        onNext={noop}
+        onIncludeAllPuzzles={props.includeAllPuzzles}
+        onOpenFeedSettings={feedSettings.open}
+        probe={props.testLoadingStatus}
+        overlay={feedSettings.modal()}
+      />
+    </>
   );
 }
 
@@ -327,30 +311,28 @@ export function PuzzlePlayScreen(): JSX.Element {
   });
 
   return (
-    <StackVertical grow self="stretch" testId="chess-puzzle-play-screen">
-      <Show
-        when={activePuzzleId() !== null}
-        fallback={
-          <PuzzlePlayShell
-            backToRoot={backToRoot}
-            pickState={shellState}
-            testLoadingStatus={testPickStatus}
-            onFeedConfigApplied={reselectActivePuzzleFromFeed}
-            includeAllPuzzles={includeAllPuzzles}
-            startDenial={startDenial}
-          />
-        }
-      >
-        {testPickStatus}
-        <PuzzlePlayer
-          puzzleId={activePuzzleId()!}
-          playGeneration={attemptSeed()}
-          readyGeneration={readyGeneration()}
-          startNonce={startNonce()}
-          onRequestNext={onRequestNext}
+    <Show
+      when={activePuzzleId() !== null}
+      fallback={
+        <PuzzlePlayShell
+          backToRoot={backToRoot}
+          pickState={shellState}
+          testLoadingStatus={testPickStatus}
           onFeedConfigApplied={reselectActivePuzzleFromFeed}
+          includeAllPuzzles={includeAllPuzzles}
+          startDenial={startDenial}
         />
-      </Show>
-    </StackVertical>
+      }
+    >
+      <PuzzlePlayer
+        puzzleId={activePuzzleId()!}
+        playGeneration={attemptSeed()}
+        readyGeneration={readyGeneration()}
+        startNonce={startNonce()}
+        onRequestNext={onRequestNext}
+        onFeedConfigApplied={reselectActivePuzzleFromFeed}
+        probe={testPickStatus}
+      />
+    </Show>
   );
 }
