@@ -32,6 +32,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import type { ProductIdentity } from '@libs/product-identity-shared-ts/product-identity';
 import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
+import { syntheticIdentity } from '@libs/product-identity-shared-ts/synthetic-identity';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import type { ScannedFile } from './brand-policy';
 import { oldBrandTraces } from './rebrand';
@@ -43,6 +44,10 @@ const IDENTITY = 'libs/product-identity/product-identity.json';
 /** Brand-sensitive suites, run inside the copy (package dir, command). */
 const SUITES: readonly (readonly [string, readonly string[]])[] = [
   ['libs/product-identity-shared-ts', ['bun', 'test', 'tests/']],
+  [
+    'libs/tools-harness-ts',
+    ['bun', 'test', 'scripts/brand-image-artifacts.test.ts'],
+  ],
   ['libs/infra-shared-ts', ['bun', 'test', 'tests']],
   ['libs/infra-server-ts', ['bun', 'test', 'tests']],
   ['libs/observability-shared-ts', ['bun', 'test', 'tests']],
@@ -155,7 +160,7 @@ function probeIdentity(identity: ProductIdentity): ProductIdentity {
   return {
     ...identity,
     brand: {
-      ...identity.brand,
+      ...syntheticIdentity(identity).brand,
       name: `Probe ${tag}`,
       shortName: `P${tag}`,
       domain: `probe-${tag}.example`,
@@ -188,11 +193,7 @@ try {
   run(copy, ['bun', 'run', 'generate'], 'regenerate install-time outputs');
   run(
     copy,
-    [
-      'bun',
-      'run',
-      'libs/product-identity-shared-ts/scripts/generate-brand-artifacts.ts',
-    ],
+    ['bun', 'run', 'libs/tools-harness-ts/scripts/generate-brand-artifacts.ts'],
     'regenerate brand artifacts'
   );
   run(

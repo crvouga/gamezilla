@@ -2,6 +2,7 @@
 
 import type { BrandArtifact } from './brand-artifacts.ts';
 import { webOrigin } from './brand-hosts.ts';
+import { renderBrandMark } from './brand-mark.ts';
 import type { ProductIdentity } from './product-identity.ts';
 
 const MANIFEST_ICONS = [192, 512].flatMap((size) =>
@@ -43,6 +44,10 @@ function renderSecurityTxt(identity: ProductIdentity): string {
 }
 
 export const WEB_BRAND_ARTIFACTS: readonly BrandArtifact[] = [
+  {
+    path: 'apps/client-ts/public/pwa/mark.svg',
+    render: renderBrandMark,
+  },
   {
     path: 'apps/client-ts/public/pwa/manifest.webmanifest',
     render: renderWebManifest,

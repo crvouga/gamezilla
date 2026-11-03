@@ -34,6 +34,7 @@ export const productIdentitySchema = z
         themeColor: color,
         backgroundColor: color,
         securityContact: z.string().regex(/^(mailto:|https:\/\/)/),
+        markSvg: z.string().regex(/^<svg[\s>][\s\S]*<\/svg>$/),
       })
       .strict(),
     technical: z

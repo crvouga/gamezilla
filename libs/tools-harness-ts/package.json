@@ -16,6 +16,7 @@
     "ci:syncpack": "cd ../.. && syncpack lint --dependency-types prod,dev",
     "ci:workspace-lifecycle": "bun run scripts/sync-workspace-lifecycle.ts --check",
     "docs:ci-load": "bun run scripts/ci-load.ts --write",
+    "generate:brand-artifacts": "bun run scripts/generate-brand-artifacts.ts",
     "generate:ui-quality-sources": "bun run scripts/sync-ui-quality-sources.ts",
     "install:cli": "mise install",
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
@@ -58,6 +59,7 @@
     "@pkgs/quint-shared-ts": "workspace:*",
     "@pkgs/ui-testing-bun-webview-server-ts": "workspace:*",
     "fast-check": "catalog:",
+    "sharp": "catalog:",
     "typescript": "catalog:",
     "wrangler": "catalog:"
   },

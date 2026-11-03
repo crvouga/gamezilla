@@ -12,7 +12,7 @@ infrastructure.
 
 | Section | What | Changes on a rebrand? |
 | --- | --- | --- |
-| `brand` | Display name, short name, domain, colors, security contact | Yes: every surface and generated artifact follows |
+| `brand` | Display name, short name, domain, colors, security contact, SVG mark (`markSvg`) | Yes: every surface and generated artifact follows |
 | `technical.namespace` | Immutable technical namespace | **Never.** Resource, telemetry, storage and runtime identifiers derive from it |
 | `external` | Identifiers registered elsewhere: deep-link scheme, Apple bundle id, source repository, vendor accounts, GitHub environments | Only through an explicit, authorized migration |
 | `aliases` | Every spelling the brand has had | Grows; the brand policy refuses each one |
@@ -76,12 +76,24 @@ The bootstrap and state protections are documented in
 Files a platform needs as static data (web manifest, `security.txt`, the
 Swift identity) are rendered from the identity by
 `@libs/product-identity-shared-ts` (`BRAND_ARTIFACTS`) and written by
-`bun run libs/product-identity-shared-ts/scripts/generate-brand-artifacts.ts`.
+`bun run libs/tools-harness-ts/scripts/generate-brand-artifacts.ts`.
 `tests/brand-artifacts.test.ts` fails while a committed artifact differs from
 what the generator writes, and checks that every artifact follows a synthetic
 rebrand. Other generators that embed identity-derived values (the Grafana
 alert rules) are listed in `libs/product-identity/generated-artifacts.json`
 with their own freshness test.
+
+The header receives `brandMarkSource()` through `AppLogo.markSrc`; the design
+system has no product-specific artwork. `brand.markSvg` is trusted SVG source
+in configuration. The same generator rasterizes it with `brand.backgroundColor`
+into every install icon, favicon, Android source image and launch image. Image
+dimensions and transparent/background-only variants are recorded in
+`libs/tools-harness-ts/brand/web-image-artifacts/`; the tooling package
+owns Sharp, so native image code never enters a client dependency. Its
+`scripts/brand-image-artifacts.test.ts` checks every committed image for
+freshness and decodes pixels to prove mark and background changes take effect.
+`bunx turbo run pwa:generate --filter=@apps/client-ts` runs this same generator;
+it never skips existing images or needs a browser.
 
 ## Enforcement
 

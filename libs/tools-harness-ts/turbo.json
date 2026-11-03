@@ -2,6 +2,9 @@
   "$schema": "https://v2-11-3.turborepo.dev/schema.json",
   "extends": ["//"],
   "tasks": {
+    "generate:brand-artifacts": {
+      "cache": false
+    },
     "test:posix": {
       "cache": false
     },
@@ -32,6 +35,9 @@
         "$TURBO_ROOT$/pkgs/equal-shared-ts/**",
         "$TURBO_ROOT$/pkgs/assert-root-shared-ts/**",
         "$TURBO_ROOT$/apps/product-ts/scripts/ui-quality/sources.json",
+        "$TURBO_ROOT$/apps/client-ts/public/pwa/**",
+        "$TURBO_ROOT$/apps/client-ts/public/favicon.ico",
+        "$TURBO_ROOT$/apps/product-ts/public/favicon.ico",
         "$TURBO_ROOT$/turbo-platform-key.json",
         "$TURBO_ROOT$/apps/*/src/**",
         "$TURBO_ROOT$/apps/*/tests/steps/**",
