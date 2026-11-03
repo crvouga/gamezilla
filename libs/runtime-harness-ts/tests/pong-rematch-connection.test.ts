@@ -32,7 +32,11 @@ test('accepting a rematch waits for the connection before the command', async ()
       key: unused,
       isVisible: unused,
       text: unused,
-      wait: async () => {},
+      wait: async (state) => {
+        expect(id).toBe('multiplayer-accept-rematch');
+        expect(state).toBe('enabled');
+        online = true;
+      },
       tap: async () => {
         if (!online) throw new Error('This action needs a connection.');
         expect(id).toBe('multiplayer-accept-rematch');
@@ -43,7 +47,7 @@ test('accepting a rematch waits for the connection before the command', async ()
         text: unused,
         hidden: async () => {
           expect(id).toBe('multiplayer-offline');
-          online = true;
+          // The connection can drop after this read and before the tap.
         },
       },
     }),
