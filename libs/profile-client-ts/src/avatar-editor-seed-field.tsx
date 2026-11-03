@@ -1,6 +1,5 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import {
   CircleCheckIcon,
@@ -11,7 +10,6 @@ import { PickerSection } from '@pkgs/ui-root-client-ts/picker-section';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import type { JSX } from 'solid-js';
-import { createEffect, createSignal, onCleanup } from 'solid-js';
 
 export function AvatarEditorSeedField(props: {
   /**
@@ -21,22 +19,12 @@ export function AvatarEditorSeedField(props: {
   seed: string;
   onSeedChange: (seed: string) => void;
   onRandomize: () => void;
-  onCopy: () => Promise<void>;
+  onCopy: () => void;
+  /** The seed was just copied: the copy button confirms it for a moment. */
+  copied: boolean;
   disabled?: boolean | undefined;
 }): JSX.Element {
   const { t } = useLingui();
-  const timers = useTimers();
-  const [copied, setCopied] = createSignal(false);
-
-  createEffect(() => {
-    if (!copied()) return;
-    const id = timers.setTimeout(() => setCopied(false), 2000);
-    onCleanup(() => timers.clearTimeout(id));
-  });
-
-  const handleCopy = () => {
-    void props.onCopy().then(() => setCopied(true));
-  };
 
   return (
     <PickerSection label={<Trans>Seed</Trans>}>
@@ -65,11 +53,15 @@ export function AvatarEditorSeedField(props: {
         <IconButton
           size={44}
           background="surface"
-          onClick={handleCopy}
+          onClick={() => props.onCopy()}
           disabled={props.disabled === true}
-          label={copied() ? t`Copied` : t`Copy seed`}
+          label={props.copied ? t`Copied` : t`Copy seed`}
         >
-          {copied() ? <CircleCheckIcon size={20} /> : <CopyIcon size={20} />}
+          {props.copied ? (
+            <CircleCheckIcon size={20} />
+          ) : (
+            <CopyIcon size={20} />
+          )}
         </IconButton>
       </StackHorizontal>
     </PickerSection>

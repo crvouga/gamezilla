@@ -1,7 +1,11 @@
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import { useModeration } from '@libs/moderation-client-ts/moderation-context';
 import { displayUsername } from '@libs/moderation-shared-ts/display';
-import { DenialSurface } from '@libs/permissions-client-ts/denial-surface';
+import { useDenialView } from '@libs/permissions-client-ts/denial-surface';
+import {
+  DenialSurfaceView,
+  type DenialView,
+} from '@libs/permissions-client-ts/denial-surface-view';
 import { useCan, useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
@@ -193,15 +197,20 @@ export function useDebouncedUserSearchEffect(
   };
 }
 
+/** What a caller who may not search people is told, as plain view data. */
+export function useUserSearchDenial(): Accessor<DenialView> {
+  const decision = useDecision(PERMISSION.peopleSearch);
+  return useDenialView({
+    get decision() {
+      return decision();
+    },
+    icon: UsersIcon,
+    testId: Handles.searchDenied,
+  });
+}
+
 /** What a caller who may not search people sees instead of results. */
 export function UserSearchDenied(): JSX.Element {
-  const decision = useDecision(PERMISSION.peopleSearch);
-  return (
-    <DenialSurface
-      decision={decision()}
-      icon={UsersIcon}
-      variant="compact"
-      testId={Handles.searchDenied}
-    />
-  );
+  const denial = useUserSearchDenial();
+  return <DenialSurfaceView denial={denial()} variant="compact" />;
 }

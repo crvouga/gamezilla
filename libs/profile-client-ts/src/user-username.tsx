@@ -1,23 +1,12 @@
-import { useModeration } from '@libs/moderation-client-ts/moderation-context';
-import { usernameLabel } from '@libs/moderation-shared-ts/display';
-import type { HeadingSize } from '@pkgs/ui-root-client-ts/heading';
-import { H2 } from '@pkgs/ui-root-client-ts/heading';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import type { TextRole } from '@pkgs/ui-root-client-ts/text';
-import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import type {
   TextAlign,
   TextLines,
 } from '@pkgs/ui-root-client-ts/text-classes';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from 'solid-js';
-import { createMemo, Match, Show, Switch } from 'solid-js';
-
-import { AccountAutomationLabel } from './account-automation-label';
+import { Show } from 'solid-js';
 import { useProfileColumn } from './use-profile-column';
-
-/** A text role, or a display size when the name is a profile's heading. */
-export type UsernameRole = TextRole | Exclude<HeadingSize, 'label'>;
+import { type UsernameRole, UserUsernameView } from './user-username-view';
 
 export type UserUsernameProps = {
   /** Profile entity id (account or install id). `null` renders nothing. */
@@ -32,30 +21,6 @@ export type UserUsernameProps = {
   /** Only `testid` is written (as `data-testid` on the name). */
   dataSet?: ComponentDataSet | undefined;
 };
-
-const HEADING_SIZES: ReadonlySet<UsernameRole> = new Set<UsernameRole>([
-  'title',
-  'heading',
-  'subtitle',
-  'navigationTitle',
-]);
-
-function headingSize(role: UsernameRole | undefined): HeadingSize | null {
-  return role !== undefined && HEADING_SIZES.has(role)
-    ? (role as HeadingSize)
-    : null;
-}
-
-function textRole(role: UsernameRole | undefined): TextRole {
-  return role === undefined || HEADING_SIZES.has(role)
-    ? 'body'
-    : (role as TextRole);
-}
-
-function testIdOf(dataSet: ComponentDataSet | undefined): string | undefined {
-  const testid = dataSet?.['testid'];
-  return typeof testid === 'string' ? testid : undefined;
-}
 
 /**
  * Renders the persisted username for a profile id from SQLite, as the
@@ -88,52 +53,17 @@ type InnerProps = Omit<UserUsernameProps, 'profileId' | 'withAt'> & {
 
 function UserUsernameInner(props: InnerProps): JSX.Element {
   const username = useProfileColumn(() => props.profileId, 'username');
-  const moderation = useModeration();
-  const label = createMemo(() =>
-    usernameLabel(moderation(), username(), props.profileId, {
-      withAt: props.withAt,
-    })
-  );
-  const testId = () => testIdOf(props.dataSet);
+  const kind = useProfileColumn(() => props.profileId, 'accountKind');
   return (
-    <Switch
-      fallback={
-        <>
-          <Text variant={textRole(props.variant)} testId={testId()}>
-            {label()}
-          </Text>
-          <AccountAutomationLabel profileId={props.profileId} />
-        </>
-      }
-    >
-      <Match when={headingSize(props.variant)}>
-        {(size) => (
-          <StackHorizontal align="center" justify="center" gap="xs">
-            <H2
-              size={size()}
-              lines={props.numberOfLines}
-              align={props.align}
-              testId={testId()}
-            >
-              {label()}
-            </H2>
-            <AccountAutomationLabel profileId={props.profileId} />
-          </StackHorizontal>
-        )}
-      </Match>
-      <Match when={props.numberOfLines !== undefined}>
-        <StackHorizontal align="center" gap="xs">
-          <P
-            variant={textRole(props.variant)}
-            lines={props.numberOfLines}
-            align={props.align}
-            testId={testId()}
-          >
-            {label()}
-          </P>
-          <AccountAutomationLabel profileId={props.profileId} />
-        </StackHorizontal>
-      </Match>
-    </Switch>
+    <UserUsernameView
+      profileId={props.profileId}
+      username={username()}
+      isBot={kind() === 'synthetic'}
+      withAt={props.withAt}
+      variant={props.variant}
+      numberOfLines={props.numberOfLines}
+      align={props.align}
+      dataSet={props.dataSet}
+    />
   );
 }

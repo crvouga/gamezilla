@@ -8,17 +8,14 @@ import {
   resolveAvatarSeed,
   serializeAvatarConfig,
 } from '@libs/profile-shared-ts/avatar-config';
-import type { SchemaField } from '@libs/profile-shared-ts/dicebear-schema';
-import { getFieldsByTab } from '@libs/profile-shared-ts/dicebear-schema';
-import type { StyleKey } from '@libs/profile-shared-ts/dicebear-styles';
-import { isStyleKey } from '@libs/profile-shared-ts/dicebear-styles';
 import { patchAvatarMutation } from '@libs/profile-shared-ts/patch-avatar-mutation';
+import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { useRandom } from '@pkgs/uuid-client-ts/solid';
-import type { Random } from '@pkgs/uuid-shared-ts/create-id';
 import type { Accessor } from 'solid-js';
-import { createEffect, createMemo, createSignal } from 'solid-js';
+import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js';
+import type { AvatarEditorScreenViewProps } from './avatar-editor-screen-view';
 import { useMyProfileId } from './patch-avatar-use-my-profile-id';
 import { useProfileRow } from './patch-avatar-use-profile-row';
 
@@ -72,105 +69,43 @@ function useDraftSync(args: {
   return { draft, setDraft };
 }
 
-export type UseAvatarEditor = {
-  seedFallback: string;
-  profileId: string | null;
-  draft: AvatarConfig;
-  setDraft: (
-    next: AvatarConfig | ((prev: AvatarConfig) => AvatarConfig)
-  ) => void;
-  ready: boolean;
-  effectiveSeed: string;
-  showDiscard: boolean;
-  setShowDiscard: (v: boolean) => void;
-  dirty: boolean;
-  styleKey: StyleKey;
-  byTab: ReturnType<typeof getFieldsByTab>;
-  featureEnums: Extract<SchemaField, { kind: 'enum' }>[];
-  colorFields: Extract<SchemaField, { kind: 'color' }>[];
-  previewConfig: AvatarConfig;
-  updateOptions: (
-    fn: (o: Record<string, unknown>) => Record<string, unknown>
-  ) => void;
-  onBack: () => void;
-  confirmDiscard: () => void;
-  save: () => Promise<void>;
-  shuffleSeed: () => void;
-  setSeed: (seed: string) => void;
-  copySeed: () => Promise<void>;
-};
+const COPIED_HOLD_MS = 2000;
 
-function useDerivedFields(args: {
-  draft: Accessor<AvatarConfig>;
-  seedFallback: Accessor<string>;
-  styleKey: Accessor<StyleKey>;
-}) {
-  const byTab = createMemo(() => getFieldsByTab(args.styleKey()));
-  const featureEnums = createMemo(() =>
-    byTab().features.filter(
-      (f): f is Extract<SchemaField, { kind: 'enum' }> => f.kind === 'enum'
-    )
-  );
-  const colorFields = createMemo(() =>
-    byTab().colors.filter(
-      (f): f is Extract<SchemaField, { kind: 'color' }> =>
-        f.kind === 'color' && f.key === 'backgroundColor'
-    )
-  );
-  const effectiveSeed = createMemo(() =>
-    resolveAvatarSeed(args.draft(), args.seedFallback())
-  );
-  const previewConfig = createMemo(() => ({
-    ...args.draft(),
-    seed: effectiveSeed(),
-  }));
-  return { byTab, featureEnums, colorFields, effectiveSeed, previewConfig };
+/** The copy button's confirmation, held for a moment after each copy. */
+function useSeedCopy(seed: Accessor<string>) {
+  const timers = useTimers();
+  const [copied, setCopied] = createSignal(false);
+  createEffect(() => {
+    if (!copied()) return;
+    const id = timers.setTimeout(() => setCopied(false), COPIED_HOLD_MS);
+    onCleanup(() => timers.clearTimeout(id));
+  });
+  const copy = () => {
+    void navigator.clipboard.writeText(seed()).then(() => setCopied(true));
+  };
+  return { copied, copy };
 }
 
-function useDiscardActions(args: {
-  dirty: Accessor<boolean>;
-  setShowDiscard: (v: boolean) => void;
-}) {
+function useDiscardActions(dirty: Accessor<boolean>) {
   const router = useRouter();
+  const [confirming, setConfirming] = createSignal(false);
   const onBack = () => {
-    if (args.dirty()) {
-      args.setShowDiscard(true);
+    if (dirty()) {
+      setConfirming(true);
       return;
     }
     router.back();
   };
-  const confirmDiscard = () => {
-    args.setShowDiscard(false);
+  const onConfirmDiscard = () => {
+    setConfirming(false);
     router.back();
   };
-  return { onBack, confirmDiscard };
-}
-
-function useDraftMutators(args: {
-  setDraft: (
-    next: AvatarConfig | ((prev: AvatarConfig) => AvatarConfig)
-  ) => void;
-  effectiveSeed: Accessor<string>;
-  random: Random;
-}) {
-  const updateOptions = (
-    fn: (o: Record<string, unknown>) => Record<string, unknown>
-  ) => {
-    args.setDraft((d) => ({ ...d, options: fn({ ...d.options }) }));
+  return {
+    confirming,
+    onBack,
+    onConfirmDiscard,
+    onKeepEditing: () => setConfirming(false),
   };
-  const shuffleSeed = () => {
-    args.setDraft((d) => ({
-      ...d,
-      seed: new AvatarSeedGenerator(args.random).generate(),
-    }));
-  };
-  const setSeed = (seed: string) => {
-    args.setDraft((d) => ({ ...d, seed }));
-  };
-  const copySeed = async () => {
-    await navigator.clipboard.writeText(args.effectiveSeed());
-  };
-  return { updateOptions, shuffleSeed, setSeed, copySeed };
 }
 
 function useSaveAction(args: {
@@ -188,85 +123,53 @@ function useSaveAction(args: {
   };
 }
 
-export function useAvatarEditor(): UseAvatarEditor {
+/**
+ * The avatar editor's state and effects as `AvatarEditorScreenView` props:
+ * the draft seeded from the saved avatar, the discard guard, the seed
+ * clipboard, and the patch-avatar mutation. `notice` is left to the screen.
+ */
+export function useAvatarEditor(): Omit<AvatarEditorScreenViewProps, 'notice'> {
   const { seedFallback, profileId, persisted, ready } = usePersistedConfig();
   const { draft, setDraft } = useDraftSync({ persisted, ready });
-
-  const [showDiscard, setShowDiscard] = createSignal(false);
-
   const dirty = createMemo(
     () => ready() && !configsEqual(draft(), persisted())
   );
-  const styleKey = createMemo<StyleKey>(() => {
-    const style = draft().style;
-    return isStyleKey(style) ? style : 'funEmoji';
-  });
-
-  const { byTab, featureEnums, colorFields, effectiveSeed, previewConfig } =
-    useDerivedFields({
-      draft,
-      seedFallback,
-      styleKey,
-    });
-
+  const effectiveSeed = createMemo(() =>
+    resolveAvatarSeed(draft(), seedFallback())
+  );
   const random = useRandom();
-
-  const { onBack, confirmDiscard } = useDiscardActions({
-    dirty,
-    setShowDiscard,
-  });
-  const { updateOptions, shuffleSeed, setSeed, copySeed } = useDraftMutators({
-    setDraft,
-    effectiveSeed,
-    random,
-  });
+  const discard = useDiscardActions(dirty);
+  const seedCopy = useSeedCopy(effectiveSeed);
   const save = useSaveAction({ draft, profileId });
-
   return {
-    get seedFallback() {
-      return seedFallback();
-    },
-    get profileId() {
-      return profileId();
+    get status() {
+      return ready() ? 'ready' : 'loading';
     },
     get draft() {
       return draft();
     },
-    setDraft,
-    get ready() {
-      return ready();
+    get seedFallback() {
+      return seedFallback();
     },
-    get effectiveSeed() {
-      return effectiveSeed();
+    get canSave() {
+      return dirty() && profileId() !== null;
     },
-    get showDiscard() {
-      return showDiscard();
+    get seedCopied() {
+      return seedCopy.copied();
     },
-    setShowDiscard,
-    get dirty() {
-      return dirty();
+    get confirmingDiscard() {
+      return discard.confirming();
     },
-    get styleKey() {
-      return styleKey();
-    },
-    get byTab() {
-      return byTab();
-    },
-    get featureEnums() {
-      return featureEnums();
-    },
-    get colorFields() {
-      return colorFields();
-    },
-    get previewConfig() {
-      return previewConfig();
-    },
-    updateOptions,
-    onBack,
-    confirmDiscard,
-    save,
-    shuffleSeed,
-    setSeed,
-    copySeed,
+    onDraftChange: setDraft,
+    onRandomizeSeed: () =>
+      setDraft((d) => ({
+        ...d,
+        seed: new AvatarSeedGenerator(random).generate(),
+      })),
+    onCopySeed: seedCopy.copy,
+    onBack: discard.onBack,
+    onConfirmDiscard: discard.onConfirmDiscard,
+    onKeepEditing: discard.onKeepEditing,
+    onSave: save,
   };
 }

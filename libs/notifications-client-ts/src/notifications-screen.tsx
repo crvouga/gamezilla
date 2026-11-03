@@ -3,37 +3,19 @@
 import type { NotificationFilter } from '@libs/notifications-shared-ts/notification';
 import type { NotificationCardActions } from '@libs/notifications-shared-ts/notification-action';
 import { InboxRefusal } from '@libs/notifications-shared-ts/notifications-actions';
-import { DenialSurface } from '@libs/permissions-client-ts/denial-surface';
+import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
 import { useUnlock } from '@libs/permissions-client-ts/unlock';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { CollectionScreen } from '@pkgs/ui-root-client-ts/collection-screen';
-import {
-  BellIcon,
-  CheckCheckIcon,
-  WifiOffIcon,
-} from '@pkgs/ui-root-client-ts/icons';
-import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import type { ScreenBaseAction } from '@pkgs/ui-root-client-ts/screen-base-types';
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  type JSX,
-  Match,
-  onMount,
-  Show,
-  Switch,
-} from 'solid-js';
+import { BellIcon } from '@pkgs/ui-root-client-ts/icons';
+import { createEffect, createSignal, type JSX, onMount } from 'solid-js';
 import {
   type InboxChoiceFailure,
   inboxChoiceFailure,
 } from './inbox-choice-failure';
-import { NotificationsFilterBar } from './notifications-filter-bar';
-import { NotificationsList } from './notifications-list';
+import { NotificationCard } from './notification-card';
+import { NotificationsScreenView } from './notifications-screen-view';
 import { useNotifications } from './use-notifications';
 import { useNotificationsActions } from './use-notifications-actions';
 
@@ -46,30 +28,12 @@ export type NotificationsScreenProps = {
  * moment they arrive — signing in, right there — with the denial surface
  * behind the invitation instead of an empty inbox.
  */
-function NotificationsDenied(): JSX.Element {
-  const { t } = useLingui();
-  const decision = useDecision(PERMISSION.notificationsReceive);
-  const unlock = useUnlock();
-  onMount(() => unlock.run(decision()));
-  return (
-    <CollectionScreen
-      screenId="notifications"
-      breadcrumbs={[{ name: t`Notifications` }]}
-    >
-      <DenialSurface decision={decision()} icon={BellIcon} variant="compact" />
-    </CollectionScreen>
-  );
-}
-
-function NotificationsPermissionGate(props: {
-  readonly children: JSX.Element;
+function UnlockOnArrival(props: {
+  readonly decision: ReturnType<typeof useDecision>;
 }): JSX.Element {
-  const decision = useDecision(PERMISSION.notificationsReceive);
-  return (
-    <Show when={decision().allowed} fallback={<NotificationsDenied />}>
-      {props.children}
-    </Show>
-  );
+  const unlock = useUnlock();
+  onMount(() => unlock.run(props.decision()));
+  return null;
 }
 
 /** A failed inbox choice says why by its outcome; success clears that. */
@@ -106,57 +70,9 @@ function reportingActions(
   };
 }
 
-/** What the person is told when an inbox choice did not happen. */
-function InboxChoiceFailureNotice(props: {
-  readonly failure: InboxChoiceFailure;
-}): JSX.Element {
-  return (
-    <Switch>
-      <Match when={props.failure === 'connection-missing'}>
-        <Notice
-          tone="error"
-          icon={WifiOffIcon}
-          dataSet={{ testid: Handles.notificationsConnectionMissing }}
-        >
-          <Trans>The connection is missing.</Trans>
-        </Notice>
-      </Match>
-      <Match when={props.failure === 'refused'}>
-        <Notice
-          tone="error"
-          dataSet={{ testid: Handles.notificationsChoiceRefused }}
-        >
-          <Trans>
-            That change wasn't made. The item may no longer be in your inbox.
-          </Trans>
-        </Notice>
-      </Match>
-      <Match when={props.failure === 'failed'}>
-        <Notice
-          tone="error"
-          dataSet={{ testid: Handles.notificationsChoiceFailed }}
-        >
-          <Trans>That change wasn't made. Try again in a moment.</Trans>
-        </Notice>
-      </Match>
-    </Switch>
-  );
-}
-
-/**
- * The inbox. Marking everything read is a screen action, so it is handed to
- * the header rather than squeezed beside the filters.
- */
-function NotificationsScreenBody(props: {
-  readonly initialFilter?: NotificationFilter | undefined;
-}): JSX.Element {
-  const { t } = useLingui();
+/** Mark all read, and the failure it or any choice last left. */
+function useInboxChoices() {
   const sync = useSyncEngine();
-  const inbox = useNotifications({
-    get filter() {
-      return props.initialFilter;
-    },
-  });
   const rawActions = useNotificationsActions();
   const [failure, setFailure] = createSignal<InboxChoiceFailure | null>(null);
   const [marking, setMarking] = createSignal(false);
@@ -173,13 +89,11 @@ function NotificationsScreenBody(props: {
       setMarking(false);
     }
   };
-  const hasUnread = (): boolean =>
-    inbox.interactions().some((item) => item.isUnread);
-
+  // Coming back online clears a "connection is missing" notice.
   let sawOffline = false;
   createEffect(() => {
-    const online = sync.status().online;
-    if (!online) {
+    const isOnline = sync.status().online;
+    if (!isOnline) {
       sawOffline = true;
       return;
     }
@@ -188,57 +102,61 @@ function NotificationsScreenBody(props: {
       if (failure() === 'connection-missing') setFailure(null);
     }
   });
-  const headerActions = createMemo((): readonly ScreenBaseAction[] =>
-    hasUnread()
-      ? [
-          {
-            type: 'default',
-            label: t`Mark all read`,
-            icon: CheckCheckIcon,
-            loading: marking(),
-            onClick: () => {
-              void markAllRead();
-            },
-            overflow: 'never',
-            dataSet: { testid: Handles.notificationsMarkAllRead },
-          },
-        ]
-      : []
-  );
+  return { actions, failure, marking, markAllRead };
+}
 
+function NotificationsInbox(props: {
+  readonly initialFilter?: NotificationFilter | undefined;
+}): JSX.Element {
+  const inbox = useNotifications({
+    get filter() {
+      return props.initialFilter;
+    },
+  });
+  const choices = useInboxChoices();
   return (
-    <CollectionScreen
-      screenId="notifications"
-      breadcrumbs={[{ name: t`Notifications` }]}
-      actions={headerActions()}
-      controls={
-        <>
-          <Show when={failure()} keyed>
-            {(current) => <InboxChoiceFailureNotice failure={current} />}
-          </Show>
-          <NotificationsFilterBar
-            filter={inbox.filter()}
-            onFilterChange={inbox.setFilter}
-          />
-        </>
-      }
-    >
-      <NotificationsList
-        sections={inbox.sections()}
-        isLoading={inbox.isLoading()}
-        filter={inbox.filter()}
-        actions={actions}
-      />
-    </CollectionScreen>
+    <NotificationsScreenView
+      sections={inbox.sections()}
+      isLoading={inbox.isLoading()}
+      filter={inbox.filter()}
+      failure={choices.failure()}
+      markingAllRead={choices.marking()}
+      renderCard={(interaction) => (
+        <NotificationCard interaction={interaction} actions={choices.actions} />
+      )}
+      onFilterChange={inbox.setFilter}
+      onMarkAllRead={() => void choices.markAllRead()}
+    />
   );
 }
 
+/** `/notifications`: wires `NotificationsScreenView` to permissions and the inbox. */
 export function NotificationsScreen(
   props: NotificationsScreenProps
 ): JSX.Element {
+  const decision = useDecision(PERMISSION.notificationsReceive);
   return (
-    <NotificationsPermissionGate>
-      <NotificationsScreenBody initialFilter={props.initialFilter} />
-    </NotificationsPermissionGate>
+    <DecisionGate
+      decision={decision()}
+      icon={BellIcon}
+      denied={(denial) => (
+        <>
+          <UnlockOnArrival decision={decision} />
+          <NotificationsScreenView
+            sections={[]}
+            isLoading={false}
+            filter="all"
+            failure={null}
+            markingAllRead={false}
+            denial={denial}
+            renderCard={() => null}
+            onFilterChange={() => undefined}
+            onMarkAllRead={() => undefined}
+          />
+        </>
+      )}
+    >
+      <NotificationsInbox initialFilter={props.initialFilter} />
+    </DecisionGate>
   );
 }

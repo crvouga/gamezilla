@@ -2883,14 +2883,12 @@
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
         "@pkgs/clock-client-ts": "workspace:*",
-        "@pkgs/i18n-shared-ts": "workspace:*",
         "@pkgs/secure-storage-root-client-ts": "workspace:*",
         "@pkgs/solid-context-client-ts": "workspace:*",
         "@pkgs/sync-engine-client-ts": "workspace:*",
         "@pkgs/ui-root-client-ts": "workspace:*",
         "@pkgs/ui-root-shared-ts": "workspace:*",
         "@pkgs/uuid-client-ts": "workspace:*",
-        "@pkgs/uuid-shared-ts": "workspace:*",
         "solid-js": "catalog:",
       },
       "devDependencies": {
@@ -3284,6 +3282,7 @@
       "name": "@libs/search-client-ts",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/permissions-client-ts": "workspace:*",
         "@libs/search-shared-ts": "workspace:*",
         "@libs/sub-client-ts": "workspace:*",
         "@libs/test-ids-shared-ts": "workspace:*",
