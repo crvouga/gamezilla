@@ -1,0 +1,4 @@
+{
+  "summary": "The Release Pong journey accepted a rematch after its connection check but while sync was offline, leaving the action refused. Rematch controls now disable with sync connectivity and the journey waits for the actual accept control to be enabled.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-rematch-connectivity.test.tsx"
+}

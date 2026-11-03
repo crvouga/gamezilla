@@ -24,6 +24,9 @@ export async function acceptPongRematch(
     await ui.get('multiplayer-offline').expect.hidden({
       timeoutMs: JOURNEY_WAIT_MS,
     });
+    await ui.get('multiplayer-accept-rematch').wait('enabled', {
+      timeoutMs: JOURNEY_WAIT_MS,
+    });
     await tap(ui, 'multiplayer-accept-rematch');
   });
 }

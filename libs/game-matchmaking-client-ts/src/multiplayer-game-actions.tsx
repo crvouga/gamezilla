@@ -8,6 +8,7 @@ import {
   multiplayerSideOf,
 } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
 import { Trans } from '@lingui/solid/macro';
+import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
 import type { SimulationExecution } from '@pkgs/turn-game-shared-ts/simulation-execution';
 import { Button } from '@pkgs/ui-root-client-ts/button';
@@ -75,6 +76,7 @@ function RematchActions(props: {
   readonly myId: string;
   readonly controls: MultiplayerControlsModel;
 }): JSX.Element {
+  const sync = useSyncEngine();
   const offered = () =>
     Boolean(
       props.game.rematch_offer_by &&
@@ -87,6 +89,7 @@ function RematchActions(props: {
       fallback={
         <GameActionButton
           operation={props.controls.offerRematch}
+          disabled={!sync.status().online}
           title={
             <Trans>
               <VisuallyHidden>Offer a multiplayer </VisuallyHidden>Rematch
@@ -99,6 +102,7 @@ function RematchActions(props: {
     >
       <GameActionButton
         operation={props.controls.acceptRematch}
+        disabled={!sync.status().online}
         variant="solid"
         title={
           <Trans>
@@ -109,6 +113,7 @@ function RematchActions(props: {
       />
       <GameActionButton
         operation={props.controls.declineRematch}
+        disabled={!sync.status().online}
         title={
           <Trans>
             Decline<VisuallyHidden> the multiplayer rematch</VisuallyHidden>

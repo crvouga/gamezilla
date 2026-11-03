@@ -1666,6 +1666,7 @@
       },
       "devDependencies": {
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
+        "@pkgs/clock-shared-ts": "workspace:*",
         "@pkgs/property-shared-ts": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
