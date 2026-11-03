@@ -5,29 +5,25 @@ import { LogInIcon, LogOutIcon } from '@pkgs/ui-root-client-ts/icons';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
-import { useHasAuthSession } from './access-facts';
-import { useSignInModal, useSignOutModal } from './auth-modals-provider';
 
 const BUTTON_ICON_SIZE = 16;
 
 /** Sign in / sign out actions for the account screen. */
-export function AccountActionsRow(): JSX.Element {
+export function AccountActionsRow(props: {
+  readonly signedIn: boolean;
+  readonly onSignIn: () => void;
+  readonly onSignOut: () => void;
+}): JSX.Element {
   const { t } = useLingui();
-  const isSignedIn = useHasAuthSession();
-  const { open: openSignInModal } = useSignInModal();
-  const { open: openSignOutConfirm } = useSignOutModal();
-
   return (
     <StackVertical self="stretch">
       <Show
-        when={isSignedIn()}
+        when={props.signedIn}
         fallback={
           <Button
             title={t`Sign in`}
             startIcon={<LogInIcon size={BUTTON_ICON_SIZE} />}
-            onClick={() => {
-              openSignInModal();
-            }}
+            onClick={() => props.onSignIn()}
             dataSet={{ testid: Handles.accountSignIn }}
           />
         }
@@ -37,9 +33,7 @@ export function AccountActionsRow(): JSX.Element {
           intent="danger"
           variant="outline"
           startIcon={<LogOutIcon size={BUTTON_ICON_SIZE} />}
-          onClick={() => {
-            openSignOutConfirm();
-          }}
+          onClick={() => props.onSignOut()}
           dataSet={{ testid: Handles.accountSignOut }}
         />
       </Show>

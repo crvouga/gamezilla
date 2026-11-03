@@ -5,28 +5,19 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { LogOutIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
-import { createSignal, type JSX } from 'solid-js';
-
-import { useAuthClientPort } from './auth-client-provider';
-import { useSignOutIntent } from './sign-out-intent';
+import type { JSX } from 'solid-js';
 
 const ICON_SIZE = 16;
 
-export function SignOutEverywhereButton(): JSX.Element {
+export function SignOutEverywhereButton(props: {
+  /** The confirmation is open. */
+  readonly confirming: boolean;
+  readonly onOpen: () => void;
+  readonly onClose: () => void;
+  /** Ends every session; rejects with the message the dialog shows. */
+  readonly onConfirm: () => Promise<void>;
+}): JSX.Element {
   const { t } = useLingui();
-  const port = useAuthClientPort();
-  const intent = useSignOutIntent();
-  const [open, setOpen] = createSignal(false);
-  // This device asked: its own sign-out is no news to the person here.
-  const signOutEverywhere = async (): Promise<void> => {
-    intent.expect();
-    try {
-      await port.signOutEverywhere();
-    } catch (error) {
-      intent.cancel();
-      throw error;
-    }
-  };
   return (
     <>
       <Button
@@ -34,12 +25,12 @@ export function SignOutEverywhereButton(): JSX.Element {
         intent="danger"
         variant="ghost"
         startIcon={<LogOutIcon size={ICON_SIZE} />}
-        onClick={() => setOpen(true)}
+        onClick={() => props.onOpen()}
         dataSet={{ testid: Handles.accountSignOutEverywhere }}
       />
       <MutationModal
-        visible={open()}
-        onClose={() => setOpen(false)}
+        visible={props.confirming}
+        onClose={() => props.onClose()}
         title={<Trans>Sign out of all devices?</Trans>}
         message={
           <Trans>
@@ -49,7 +40,7 @@ export function SignOutEverywhereButton(): JSX.Element {
         }
         submitLabel={<Trans>Sign out everywhere</Trans>}
         variant="destructive"
-        operation={signOutEverywhere}
+        operation={() => props.onConfirm()}
         loadingLabel={<Trans>Signing out…</Trans>}
         successTitle={<Trans>Signed out everywhere</Trans>}
         errorTitle={<Trans>Couldn't sign out everywhere</Trans>}

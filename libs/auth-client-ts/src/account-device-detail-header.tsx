@@ -3,9 +3,10 @@ import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from 'solid-js';
 import { AccountDeviceCurrentBadge } from './account-device-current-badge';
 import { AccountDeviceListTitleText } from './account-device-list-title-text';
+import type { AccountDeviceView } from './account-device-view';
 
 export type AccountDeviceDetailHeaderProps = {
-  deviceId: string;
+  readonly device: AccountDeviceView;
 };
 
 /** Heading row for the device detail page: title + current badge. */
@@ -15,9 +16,9 @@ export function AccountDeviceDetailHeader(
   return (
     <StackHorizontal wrap align="center" gap="sm">
       <H2 size="heading" lines={2}>
-        <AccountDeviceListTitleText deviceId={props.deviceId} />
+        <AccountDeviceListTitleText device={props.device} />
       </H2>
-      <AccountDeviceCurrentBadge deviceId={props.deviceId} />
+      <AccountDeviceCurrentBadge current={props.device.current} />
     </StackHorizontal>
   );
 }
