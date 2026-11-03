@@ -19,6 +19,16 @@ export function needsBrowser(tasks: VerifyPlan['tasks']): boolean {
         task.taskId.startsWith('@apps/product-ts#test:release-journeys:'))
   );
 }
+export function needsSolver(tasks: VerifyPlan['tasks']): boolean {
+  return tasks.some(
+    (task) =>
+      !task.hit &&
+      (task.taskId === '@pkgs/auth-root-harness-ts#test' ||
+        task.taskId === '@pkgs/quint-server-ts#test' ||
+        task.taskId.includes('#verify:models'))
+  );
+}
+
 if (import.meta.main) {
   const plan = JSON.parse(
     readFileSync(
@@ -29,6 +39,6 @@ if (import.meta.main) {
   const shard = plan.shards[Number(process.env['VERIFY_SHARD'])]!;
   appendFileSync(
     process.env['GITHUB_OUTPUT']!,
-    `needed=${needsBrowser(shard.tasks)}\n`
+    `needed=${needsBrowser(shard.tasks)}\nsolver=${needsSolver(shard.tasks)}\n`
   );
 }

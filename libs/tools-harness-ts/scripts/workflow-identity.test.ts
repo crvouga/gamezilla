@@ -71,3 +71,16 @@ test('configured builds check source spellings after identity materialization', 
   );
   expect(tools.tasks['configure:brand-policy']?.cache).toBe(false);
 });
+
+// regression: auth-shard-missing-solver
+test('verification installs the pinned solver before running selected tasks', () => {
+  const workflow = readFileSync(
+    join(root, '.github/workflows/verify-pr.yml'),
+    'utf8'
+  );
+  expect(workflow).toContain("if: steps.browser.outputs.solver == 'true'");
+  expect(workflow).toContain('run: mise install java http:apalache');
+  expect(workflow.indexOf('run: mise install java http:apalache')).toBeLessThan(
+    workflow.indexOf('      - name: verify\n')
+  );
+});

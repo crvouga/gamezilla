@@ -238,9 +238,12 @@ jobs:
         run: bun run libs/tools-harness-ts/scripts/ci-artifacts.ts download verify-plan .cache/verify-ci
       - name: Restore immutable plan and required prerequisites
         run: bun run libs/tools-harness-ts/scripts/verify-stage-transfer.ts
-      - name: Select browser tasks
+      - name: Select task toolchains
         id: browser
         run: bun run libs/tools-harness-ts/scripts/verify-browser-tasks.ts
+      - name: Install pinned solver for model checks
+        if: steps.browser.outputs.solver == 'true'
+        run: mise install java http:apalache
       - name: Install renderer for browser tasks
         if: steps.browser.outputs.needed == 'true'
         timeout-minutes: 2
