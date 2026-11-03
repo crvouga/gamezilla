@@ -27,6 +27,7 @@
   "devDependencies": {
     "@lingui/babel-plugin-lingui-macro": "catalog:",
     "@lingui/conf": "catalog:",
+    "@lingui/message-utils": "catalog:",
     "@pkgs/a11y-shared-ts": "workspace:*",
     "@pkgs/bun-test-solid-client-ts": "workspace:*",
     "@pkgs/clock-client-ts": "workspace:*",

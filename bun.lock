@@ -7387,6 +7387,7 @@
       "devDependencies": {
         "@lingui/babel-plugin-lingui-macro": "catalog:",
         "@lingui/conf": "catalog:",
+        "@lingui/message-utils": "catalog:",
         "@pkgs/a11y-shared-ts": "workspace:*",
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@pkgs/clock-client-ts": "workspace:*",
@@ -7633,6 +7634,7 @@
     "@lingui/conf": "6.6.0",
     "@lingui/core": "6.6.0",
     "@lingui/format-po": "6.6.0",
+    "@lingui/message-utils": "6.6.0",
     "@lingui/solid": "6.6.0",
     "@modelcontextprotocol/server": "2.3.1",
     "@noble/hashes": "^2.4.0",

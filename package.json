@@ -234,6 +234,7 @@
     "@lingui/conf": "6.6.0",
     "@lingui/core": "6.6.0",
     "@lingui/format-po": "6.6.0",
+    "@lingui/message-utils": "6.6.0",
     "@lingui/solid": "6.6.0",
     "@modelcontextprotocol/server": "2.3.1",
     "@noble/hashes": "^2.4.0",

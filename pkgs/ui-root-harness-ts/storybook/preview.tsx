@@ -1,4 +1,5 @@
 import { i18n as globalI18n, setupI18n } from '@lingui/core';
+import { compileMessage } from '@lingui/message-utils/compileMessage';
 import { I18nProvider } from '@lingui/solid';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
@@ -17,8 +18,11 @@ import '@pkgs/ui-root-client-ts/application.css';
 import { backgrounds, viewports } from './preview-options';
 import { trackStoryReadiness } from './story-readiness';
 
-// Product modules also translate through Lingui's global instance (`t` from
-// `@lingui/core/macro`); give it the same source-English catalog as stories.
+// Stories render source English from macro descriptors, without the product
+// catalog. Production builds drop Lingui's runtime compiler, so supply it or
+// `{name}` placeholders render verbatim. Product modules also translate
+// through the global instance (`t` from `@lingui/core/macro`).
+globalI18n.setMessagesCompiler(compileMessage);
 globalI18n.loadAndActivate({ locale: 'en', messages: {} });
 
 /** Navigation spies: screen stories record where a crumb or action would go. */
@@ -72,6 +76,7 @@ const withProviders = createJSXDecorator((Story, context) => {
     if (Number.isFinite(ms) && ms > 0) harness.clock.advance(ms);
   });
   const i18n = setupI18n({ locale: 'en', messages: { en: {} } });
+  i18n.setMessagesCompiler(compileMessage);
   return (
     <I18nProvider i18n={i18n}>
       <ClockProvider clock={harness.clock} timers={harness.timers}>
