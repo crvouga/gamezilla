@@ -1,4 +1,0 @@
-{
-  "summary": "The remote preview starts fonts, sounds and SQLite workers without checking its tunnel session; authentication redirects then become CORS errors or login HTML served as worker JavaScript.",
-  "regressionTest": "pkgs/workspace-preview-client-ts/tests/session.test.ts"
-}

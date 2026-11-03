@@ -117,15 +117,17 @@ resource "github_repository_ruleset" "main" {
     }
   }
 
-  # Every change is reviewed and verified against the current main. No bypass.
+  # Every change goes through a PR verified against the current main. No bypass.
+  # The repository has one maintainer, who cannot approve their own PRs, so
+  # approvals are not required (regression: repository-ruleset-solo-approval).
   rules {
     deletion         = true
     non_fast_forward = true
 
     pull_request {
-      required_approving_review_count   = 1
+      required_approving_review_count   = 0
       dismiss_stale_reviews_on_push     = true
-      require_last_push_approval        = true
+      require_last_push_approval        = false
       required_review_thread_resolution = true
     }
 

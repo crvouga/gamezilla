@@ -16,10 +16,12 @@
 
 import { bootBrowserObservability } from '@libs/app-root-client-ts/boot-browser-observability';
 import { createClient } from '@libs/app-root-client-ts/create-client';
+import { wallClientEnv } from '@libs/app-root-client-ts/wall-client-env';
 import { wallOfflineNetworkController } from '@libs/app-root-client-ts/wall-offline-network';
 import { technicalKey } from '@libs/product-identity-shared-ts/technical-names';
 import { APP_SUB_CLIENTS } from '@libs/runtime-client-ts/app-sub-clients';
 import { APP } from '@libs/runtime-shared-ts/app-subs';
+import { wallSpaceRoomTransport } from '@libs/spaces-client-ts/wall-room-transport';
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import { monotonicClock } from '@pkgs/clock-shared-ts/wall';
 import '@pkgs/tailwind-shared-ts/tailwind.css';
@@ -31,7 +33,6 @@ import { render } from 'solid-js/web';
 import { HARNESS_PATH } from './console-nav-real';
 import './polyfill-entry';
 import './styles.css';
-import { productWallClientEnv } from './wall-client';
 
 const root = document.getElementById('root');
 assert.ok(root !== null, 'root element is missing');
@@ -53,7 +54,11 @@ function redirectedToHarness(): boolean {
 
 function AppBoot(): JSX.Element {
   const offline = wallOfflineNetworkController();
-  const env = productWallClientEnv(offline);
+  const env = wallClientEnv({
+    http: { fetch: (input, init) => globalThis.fetch(input, init) },
+    room: wallSpaceRoomTransport,
+    offline,
+  });
   bootBrowserObservability({
     monotonicNow: monotonicClock.now,
     env,

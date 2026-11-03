@@ -105,8 +105,7 @@
         "dev:server",
         "dev:population",
         "dev:web",
-        "@pkgs/ui-root-harness-ts#dev:storybook",
-        "dev:preview"
+        "@pkgs/ui-root-harness-ts#dev:storybook"
       ],
       "persistent": true,
       "cache": false
@@ -6682,11 +6681,6 @@
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-180/**"]
-    },
-    "@apps/product-ts#dev:preview": {
-      "dependsOn": ["dev:prepare"],
-      "persistent": true,
-      "cache": false
     }
   }
 }

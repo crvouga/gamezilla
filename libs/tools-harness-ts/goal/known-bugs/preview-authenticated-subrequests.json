@@ -1,4 +1,0 @@
-{
-  "summary": "Anonymous feedback and signed upload requests omit the protected preview gateway cookie after their destinations are mapped to the viewing origin.",
-  "regressionTest": "pkgs/workspace-preview-client-ts/tests/http.test.ts"
-}

@@ -13,9 +13,7 @@ strict_main(after) if {
 	rules.deletion == true
 	rules.non_fast_forward == true
 	pr := rules.pull_request[0]
-	pr.required_approving_review_count >= 1
 	pr.dismiss_stale_reviews_on_push == true
-	pr.require_last_push_approval == true
 	pr.required_review_thread_resolution == true
 	checks := rules.required_status_checks[0]
 	checks.strict_required_status_checks_policy == true
@@ -24,7 +22,7 @@ strict_main(after) if {
 	check.integration_id == 15368
 }
 
-deny contains "main must require current verification, independent approval, resolved conversations and no bypass" if {
+deny contains "main must require pull requests, current verification, resolved conversations and no bypass" if {
 	some resource in input.resource_changes
 	resource.address == "module.repository.github_repository_ruleset.main"
 	resource.change.after != null

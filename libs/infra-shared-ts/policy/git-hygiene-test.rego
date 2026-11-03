@@ -10,9 +10,9 @@ strict_ruleset := {
 		"deletion": true,
 		"non_fast_forward": true,
 		"pull_request": [{
-			"required_approving_review_count": 1,
+			"required_approving_review_count": 0,
 			"dismiss_stale_reviews_on_push": true,
-			"require_last_push_approval": true,
+			"require_last_push_approval": false,
 			"required_review_thread_resolution": true,
 		}],
 		"required_status_checks": [{
