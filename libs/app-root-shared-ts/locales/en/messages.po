@@ -40,13 +40,13 @@ msgstr "(opens in a new tab)"
 msgid "{0, plural, one {# closed seat needs a player or a bot.} other {# closed seats need a player or a bot.}}"
 msgstr "{0, plural, one {# closed seat needs a player or a bot.} other {# closed seats need a player or a bot.}}"
 
-#. placeholder {0}: props.deviceIds.length
-#: libs/auth-client-ts/src/account-devices-card.tsx
+#. placeholder {0}: props.devices.length
+#: libs/auth-client-ts/src/account-devices-screen-view.tsx
 msgid "{0, plural, one {# device} other {# devices}}"
 msgstr "{0, plural, one {# device} other {# devices}}"
 
-#. placeholder {0}: earlier()
-#: libs/game-session-client-ts/src/custom-game-board.tsx
+#. placeholder {0}: first()
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
 msgid "{0, plural, one {# earlier move. Review it by its move number.} other {# earlier moves. Review any of them by its move number.}}"
 msgstr "{0, plural, one {# earlier move. Review it by its move number.} other {# earlier moves. Review any of them by its move number.}}"
 
@@ -55,12 +55,7 @@ msgstr "{0, plural, one {# earlier move. Review it by its move number.} other {#
 msgid "{0, plural, one {# person here} other {# people here}}"
 msgstr "{0, plural, one {# person here} other {# people here}}"
 
-#. placeholder {0}: watching()
-#: libs/game-session-client-ts/src/game-frame-play.tsx
-msgid "{0, plural, one {# person watching} other {# people watching}}"
-msgstr "{0, plural, one {# person watching} other {# people watching}}"
-
-#. placeholder {0}: ratingOf(speed).games
+#. placeholder {0}: rating.games
 #: libs/game-matchmaking-client-ts/src/multiplayer-ratings.tsx
 msgid "{0, plural, one {# rated game} other {# rated games}}"
 msgstr "{0, plural, one {# rated game} other {# rated games}}"
@@ -75,8 +70,8 @@ msgstr "{0, plural, one {# seat is still open.} other {# seats are still open.}}
 msgid "{0, plural, one {friend} other {friends}}"
 msgstr "{0, plural, one {friend} other {friends}}"
 
-#. placeholder {0}: hosted()
-#: libs/spaces-client-ts/src/spaces-notices.tsx
+#. placeholder {0}: props.count
+#: libs/spaces-client-ts/src/spaces-lobby-view.tsx
 msgid "{0, plural, one {Hosting # space} other {Hosting # spaces}}"
 msgstr "{0, plural, one {Hosting # space} other {Hosting # spaces}}"
 
@@ -98,7 +93,7 @@ msgstr "{0} {1}"
 
 #. placeholder {0}: props.matched
 #. placeholder {1}: props.total
-#: libs/game-puzzle-client-ts/src/puzzle-feed-bar.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 msgid "{0} / {1}"
 msgstr "{0} / {1}"
 
@@ -107,8 +102,8 @@ msgstr "{0} / {1}"
 msgid "{0} active, expires {latestExpires}"
 msgstr "{0} active, expires {latestExpires}"
 
-#. placeholder {0}: props.addition.value()
-#: libs/spaces-client-ts/src/space-addition-state.tsx
+#. placeholder {0}: added().name
+#: libs/spaces-client-ts/src/space-share-add-people-view.tsx
 msgid "{0} added"
 msgstr "{0} added"
 
@@ -182,13 +177,13 @@ msgstr "{0} ran out of time."
 msgid "{0} rated puzzles remaining today"
 msgstr "{0} rated puzzles remaining today"
 
-#. placeholder {0}: props.person.username
-#: libs/spaces-client-ts/src/remove-space-person-modal.tsx
+#. placeholder {0}: props.name
+#: libs/spaces-client-ts/src/remove-space-person-modal-view.tsx
 msgid "{0} removed"
 msgstr "{0} removed"
 
 #. placeholder {0}: themes.length
-#: libs/game-puzzle-client-ts/src/puzzle-feed-bar.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 msgid "{0} themes"
 msgstr "{0} themes"
 
@@ -266,9 +261,9 @@ msgstr "{coordinate}: endpoint {0}, {status}"
 msgid "{coordinate}: path {0}, {status}"
 msgstr "{coordinate}: path {0}, {status}"
 
-#: libs/spaces-client-ts/src/space-guest-count-text.tsx
-msgid "{count} guests"
-msgstr "{count} guests"
+#: libs/game-session-client-ts/src/game-frame-status-view.tsx
+msgid "{count, plural, one {# person watching} other {# people watching}}"
+msgstr "{count, plural, one {# person watching} other {# people watching}}"
 
 #: pkgs/ui-root-client-ts/src/catalog-detail-nav/index.tsx
 msgid "{current} of {total}"
@@ -328,7 +323,7 @@ msgstr "{label} has {left} left"
 msgid "{label} has {left} left and is low on time"
 msgstr "{label} has {left} left and is low on time"
 
-#: libs/spaces-client-ts/src/space-join-ended-state.tsx
+#: libs/spaces-client-ts/src/space-ended-screen-view.tsx
 msgid "{label}, hosted by {username}"
 msgstr "{label}, hosted by {username}"
 
@@ -396,6 +391,10 @@ msgstr "{mins}m ago"
 #: libs/game-matchmaking-client-ts/src/multiplayer-time-left.tsx
 msgid "{minutes} minutes"
 msgstr "{minutes} minutes"
+
+#: libs/spaces-client-ts/src/space-card-view.tsx
+msgid "{n} guests"
+msgstr "{n} guests"
 
 #: libs/hearts-client-ts/src/hearts-table-view.tsx
 msgid "{name} (you)"
@@ -490,7 +489,7 @@ msgstr "{productName} can be reached. What you do is shared with everyone else."
 msgid "{productName} can’t be reached right now. This isn’t something you did. What you do here is kept on this device and shared when {productName} is back."
 msgstr "{productName} can’t be reached right now. This isn’t something you did. What you do here is kept on this device and shared when {productName} is back."
 
-#: libs/app-root-client-ts/src/boot-error-screen.tsx
+#: libs/app-root-client-ts/src/boot-error-screen-view.tsx
 msgid "{productName} is open in another tab"
 msgstr "{productName} is open in another tab"
 
@@ -550,7 +549,7 @@ msgstr "{turn} is firing."
 msgid "{turn} to fire."
 msgstr "{turn} to fire."
 
-#: libs/profile-client-ts/src/profile-handle-screen.tsx
+#: libs/profile-client-ts/src/profile-handle-screen-view.tsx
 msgid "{USERNAME_MIN_LENGTH} to {USERNAME_MAX_LENGTH} letters, numbers or _. Saved in lowercase."
 msgstr "{USERNAME_MIN_LENGTH} to {USERNAME_MAX_LENGTH} letters, numbers or _. Saved in lowercase."
 
@@ -626,7 +625,7 @@ msgstr "1 day"
 msgid "1 day per move"
 msgstr "1 day per move"
 
-#: libs/spaces-client-ts/src/space-guest-count-text.tsx
+#: libs/spaces-client-ts/src/space-card-view.tsx
 msgid "1 guest"
 msgstr "1 guest"
 
@@ -678,7 +677,7 @@ msgstr "A chosen puzzle has not been published. Your pack draft is kept. Publish
 msgid "A chosen puzzle is no longer available. Your pack draft is kept. Choose an available puzzle, or publish that puzzle again, then choose Publish for this pack."
 msgstr "A chosen puzzle is no longer available. Your pack draft is kept. Choose an available puzzle, or publish that puzzle again, then choose Publish for this pack."
 
-#: libs/game-puzzle-client-ts/src/content-publication-controls.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "A completed playtest proves this version can be finished."
 msgstr "A completed playtest proves this version can be finished."
 
@@ -686,11 +685,11 @@ msgstr "A completed playtest proves this version can be finished."
 msgid "A connection is needed to check for the saved Lichess file."
 msgstr "A connection is needed to check for the saved Lichess file."
 
-#: libs/game-puzzle-client-ts/src/content-author-status.tsx
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 msgid "A different working copy was kept. Choose the copy you want below before publishing."
 msgstr "A different working copy was kept. Choose the copy you want below before publishing."
 
-#: libs/game-session-client-ts/src/custom-game-active.tsx
+#: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "A draw has been offered."
 msgstr "A draw has been offered."
 
@@ -762,11 +761,11 @@ msgid "A stand-in bot is playing your side. Take back your side to play."
 msgstr "A stand-in bot is playing your side. Take back your side to play."
 
 #: libs/game-puzzle-client-ts/src/puzzle-game-log-row.tsx
-#: libs/game-puzzle-client-ts/src/puzzle-review-screen.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-review-screen-view.tsx
 msgid "Abandoned"
 msgstr "Abandoned"
 
-#: libs/game-matchmaking-client-ts/src/multiplayer-controls.tsx
+#: libs/game-matchmaking-client-ts/src/multiplayer-screen-view.tsx
 msgid "Abort the multiplayer game?"
 msgstr "Abort the multiplayer game?"
 
@@ -774,13 +773,13 @@ msgstr "Abort the multiplayer game?"
 msgid "Abort<0> the multiplayer game</0>"
 msgstr "Abort<0> the multiplayer game</0>"
 
-#: libs/app-root-client-ts/src/about-screen.tsx
-#: libs/app-root-client-ts/src/settings-screen.tsx
+#: libs/app-root-client-ts/src/about-screen-view.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
 msgid "About"
 msgstr "About"
 
 #: libs/friends-client-ts/src/friend-request-decision-modal.tsx
-#: libs/game-session-client-ts/src/custom-game-side-choices.tsx
+#: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
 msgid "Accept"
 msgstr "Accept"
 
@@ -801,11 +800,11 @@ msgid "Accepting…"
 msgstr "Accepting…"
 
 #: libs/app-root-client-ts/src/account-providers.tsx
-#: libs/app-root-client-ts/src/app-header-global-menu.tsx
-#: libs/app-root-client-ts/src/settings-screen.tsx
-#: libs/auth-client-ts/src/account-device-detail-screen.tsx
-#: libs/auth-client-ts/src/account-devices-screen.tsx
-#: libs/auth-client-ts/src/account-screen.tsx
+#: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+#: libs/auth-client-ts/src/account-device-detail-screen-view.tsx
+#: libs/auth-client-ts/src/account-devices-screen-view.tsx
+#: libs/auth-client-ts/src/account-screen-view.tsx
 msgid "Account"
 msgstr "Account"
 
@@ -813,7 +812,7 @@ msgstr "Account"
 msgid "account deletion"
 msgstr "account deletion"
 
-#: libs/account-privacy-client-ts/src/privacy-screen.tsx
+#: libs/account-privacy-client-ts/src/privacy-screen-view.tsx
 msgid "Account deletion confirmed"
 msgstr "Account deletion confirmed"
 
@@ -829,18 +828,18 @@ msgstr "Account deletion is permanent. Every device will be signed out, includin
 msgid "Account deletion was not confirmed. Nothing was deleted."
 msgstr "Account deletion was not confirmed. Nothing was deleted."
 
-#: libs/auth-client-ts/src/account-devices-card.tsx
+#: libs/auth-client-ts/src/account-devices-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "Account ID"
 msgstr "Account ID"
 
-#: libs/app-root-client-ts/src/app-header-global-menu.tsx
+#: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
 msgid "Account menu"
 msgstr "Account menu"
 
 #: libs/account-privacy-client-ts/src/privacy-screen-layout.tsx
-#: libs/auth-client-ts/src/account-screen.tsx
-#: libs/profile-client-ts/src/profile-edit-screen.tsx
+#: libs/auth-client-ts/src/account-screen-view.tsx
+#: libs/profile-client-ts/src/profile-edit-screen-view.tsx
 msgid "Account privacy"
 msgstr "Account privacy"
 
@@ -910,7 +909,7 @@ msgstr "Add hex (6 chars, no #)"
 msgid "Add pair"
 msgstr "Add pair"
 
-#: libs/spaces-client-ts/src/space-share-add-people.tsx
+#: libs/spaces-client-ts/src/space-share-add-people-view.tsx
 msgid "Add people"
 msgstr "Add people"
 
@@ -926,7 +925,7 @@ msgstr "Add…"
 msgid "Added"
 msgstr "Added"
 
-#: libs/spaces-client-ts/src/space-share-people-list.tsx
+#: libs/spaces-client-ts/src/space-share-sheet-view.tsx
 msgid "Added people find this space in their lobby and choose Join. Anyone with the space link can also join."
 msgstr "Added people find this space in their lobby and choose Join. Anyone with the space link can also join."
 
@@ -951,11 +950,11 @@ msgstr "Admission limit per worker"
 msgid "After 1 s"
 msgstr "After 1 s"
 
-#: libs/game-session-client-ts/src/custom-game-active.tsx
+#: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "Agree draw"
 msgstr "Agree draw"
 
-#: libs/game-session-client-ts/src/custom-game-configuration.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Agree on the lineup and options, then get ready."
 msgstr "Agree on the lineup and options, then get ready."
 
@@ -975,7 +974,7 @@ msgstr "All players are ready."
 msgid "All seats are taken. You'll watch."
 msgstr "All seats are taken. You'll watch."
 
-#: libs/game-puzzle-client-ts/src/puzzle-feed-bar.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 msgid "All themes"
 msgstr "All themes"
 
@@ -997,11 +996,11 @@ msgstr "An account was deleted."
 msgid "An upload or change is still in progress. Leaving may interrupt it."
 msgstr "An upload or change is still in progress. Leaving may interrupt it."
 
-#: libs/app-root-client-ts/src/boot-error-screen.tsx
+#: libs/app-root-client-ts/src/boot-error-screen-view.tsx
 msgid "Another tab stopped sharing the local database. Reload this tab, or reset local data below (your account on the server is unchanged)."
 msgstr "Another tab stopped sharing the local database. Reload this tab, or reset local data below (your account on the server is unchanged)."
 
-#: libs/game-puzzle-client-ts/src/puzzle-feed-bar.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 msgid "Any"
 msgstr "Any"
@@ -1014,23 +1013,23 @@ msgstr "Any theme"
 msgid "API origin (no helper)"
 msgstr "API origin (no helper)"
 
-#: libs/app-root-client-ts/src/about-screen.tsx
+#: libs/app-root-client-ts/src/about-screen-view.tsx
 #: libs/auth-client-ts/src/account-device-meta-grid.tsx
 msgid "App"
 msgstr "App"
 
-#: libs/app-root-client-ts/src/boot-error-screen.tsx
-#: libs/app-root-client-ts/src/identity-boot-pending.tsx
+#: libs/app-root-client-ts/src/boot-error-screen-view.tsx
+#: libs/app-root-client-ts/src/identity-boot-screen-view.tsx
 msgid "App failed to start"
 msgstr "App failed to start"
 
-#: libs/app-root-client-ts/src/more-server-status.tsx
+#: libs/app-root-client-ts/src/connection-screen-view.tsx
 msgid "App version"
 msgstr "App version"
 
 #: libs/app-root-client-ts/src/app-commands.tsx
-#: libs/app-root-client-ts/src/settings-screen.tsx
-#: libs/app-root-client-ts/src/theme-screen.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+#: libs/app-root-client-ts/src/theme-screen-view.tsx
 msgid "Appearance"
 msgstr "Appearance"
 
@@ -1076,7 +1075,7 @@ msgid "Auto"
 msgstr "Auto"
 
 #. placeholder {0}: ratingSlot(props.effectiveRating)
-#: libs/game-puzzle-client-ts/src/puzzle-feed-bar.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 msgid "Auto · {0}"
 msgstr "Auto · {0}"
 
@@ -1084,7 +1083,7 @@ msgstr "Auto · {0}"
 msgid "Auto-advance"
 msgstr "Auto-advance"
 
-#: libs/game-puzzle-client-ts/src/puzzle-feed-bar.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 msgid "Automatic"
 msgstr "Automatic"
 
@@ -1096,7 +1095,7 @@ msgstr "Available"
 msgid "Available capacity"
 msgstr "Available capacity"
 
-#: libs/chess-puzzle-client-ts/src/puzzle-management-screen.tsx
+#: libs/chess-puzzle-client-ts/src/puzzle-management-screen-view.tsx
 msgid "Available puzzles"
 msgstr "Available puzzles"
 
@@ -1104,8 +1103,8 @@ msgstr "Available puzzles"
 msgid "Available transitions"
 msgstr "Available transitions"
 
-#: libs/profile-client-ts/src/avatar-editor-screen.tsx
-#: libs/profile-client-ts/src/profile-edit-screen.tsx
+#: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
+#: libs/profile-client-ts/src/profile-edit-screen-view.tsx
 msgid "Avatar"
 msgstr "Avatar"
 
@@ -1115,13 +1114,13 @@ msgstr "Avatar"
 msgid "Back"
 msgstr "Back"
 
-#: libs/spaces-client-ts/src/space-join-ended-state.tsx
-#: libs/spaces-client-ts/src/space-join-prompt.tsx
-#: libs/spaces-client-ts/src/space-reachability.tsx
+#: libs/spaces-client-ts/src/space-ended-screen-view.tsx
+#: libs/spaces-client-ts/src/space-join-screen-view.tsx
+#: libs/spaces-client-ts/src/space-unreachable-screen-view.tsx
 msgid "Back to Spaces"
 msgstr "Back to Spaces"
 
-#: libs/game-session-client-ts/src/game-frame-result.tsx
+#: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "Back to the space"
 msgstr "Back to the space"
 
@@ -1150,8 +1149,8 @@ msgstr "Behavior Statechart"
 msgid "Best streak"
 msgstr "Best streak"
 
-#: libs/app-config-client-ts/src/client-config-entity-card.tsx
-#: libs/app-root-client-ts/src/settings-screen.tsx
+#: libs/app-config-client-ts/src/client-config-screen-view.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
 #: libs/billing-client-ts/src/billing-screen-view.tsx
 msgid "Billing"
 msgstr "Billing"
@@ -1207,38 +1206,39 @@ msgstr "Board tiles must join up through the centre square {0} and spell words f
 msgid "Boards"
 msgstr "Boards"
 
-#: libs/game-session-client-ts/src/custom-game-person.tsx
-#: libs/game-session-client-ts/src/custom-game-side-choices.tsx
-#: libs/game-session-client-ts/src/game-history-participant.tsx
-#: libs/profile-client-ts/src/account-automation-label.tsx
+#: libs/game-session-client-ts/src/custom-game-bot-name.tsx
+#: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
+#: libs/game-session-client-ts/src/game-history-screen-view.tsx
+#: libs/profile-client-ts/src/account-automation-badge.tsx
+#: libs/spaces-client-ts/src/space-person-view.tsx
 #: pkgs/ui-root-client-ts/src/avatar/index.tsx
 msgid "Bot"
 msgstr "Bot"
 
-#: libs/game-session-client-ts/src/custom-game-person.tsx
+#: libs/game-session-client-ts/src/custom-game-bot-name.tsx
 msgid "Bot (easy)"
 msgstr "Bot (easy)"
 
-#: libs/game-session-client-ts/src/custom-game-person.tsx
+#: libs/game-session-client-ts/src/custom-game-bot-name.tsx
 msgid "Bot (hard)"
 msgstr "Bot (hard)"
 
-#: libs/game-session-client-ts/src/custom-game-person.tsx
+#: libs/game-session-client-ts/src/custom-game-bot-name.tsx
 msgid "Bot (medium)"
 msgstr "Bot (medium)"
 
-#: libs/game-session-client-ts/src/custom-game-difficulty.tsx
+#: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
 msgid "Bot difficulty"
 msgstr "Bot difficulty"
 
 #: libs/synthetic-population-client-ts/src/synthetic-population-denial.tsx
-#: libs/synthetic-population-client-ts/src/synthetic-population-screen.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-settings.tsx
-#: libs/synthetic-population-client-ts/src/synthetic-user-screen.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
 msgid "Bot Observatory"
 msgstr "Bot Observatory"
 
-#: libs/synthetic-population-client-ts/src/synthetic-population-screen.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
 msgid "Bot Observatory could not be loaded."
 msgstr "Bot Observatory could not be loaded."
 
@@ -1255,7 +1255,7 @@ msgstr "Breadcrumb"
 msgid "bright"
 msgstr "bright"
 
-#: libs/app-root-client-ts/src/theme-screen.tsx
+#: libs/app-root-client-ts/src/theme-screen-view.tsx
 msgid "Bright surfaces, dark text"
 msgstr "Bright surfaces, dark text"
 
@@ -1263,11 +1263,11 @@ msgstr "Bright surfaces, dark text"
 msgid "Broken"
 msgstr "Broken"
 
-#: libs/app-root-client-ts/src/about-screen.tsx
+#: libs/app-root-client-ts/src/about-screen-view.tsx
 msgid "Build"
 msgstr "Build"
 
-#: libs/app-root-client-ts/src/about-screen.tsx
+#: libs/app-root-client-ts/src/about-screen-view.tsx
 msgid "Build mode"
 msgstr "Build mode"
 
@@ -1300,8 +1300,8 @@ msgid "Can’t reach {productName}"
 msgstr "Can’t reach {productName}"
 
 #: libs/auth-client-ts/src/sign-in-link-required.tsx
-#: libs/profile-client-ts/src/avatar-editor-screen.tsx
-#: libs/profile-client-ts/src/profile-handle-screen.tsx
+#: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
+#: libs/profile-client-ts/src/profile-handle-screen-view.tsx
 #: pkgs/ui-root-client-ts/src/confirmation-modal/index.tsx
 #: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "Cancel"
@@ -1311,7 +1311,7 @@ msgstr "Cancel"
 msgid "Cancel exchange"
 msgstr "Cancel exchange"
 
-#: libs/game-session-client-ts/src/custom-game-confirm.tsx
+#: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "Cancel game"
 msgstr "Cancel game"
 
@@ -1358,7 +1358,7 @@ msgstr "Carrier"
 msgid "Central hill"
 msgstr "Central hill"
 
-#: libs/game-session-client-ts/src/game-frame-result.tsx
+#: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "Change game"
 msgstr "Change game"
 
@@ -1366,26 +1366,26 @@ msgstr "Change game"
 msgid "Change size"
 msgstr "Change size"
 
-#: libs/synthetic-population-client-ts/src/synthetic-population-users.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 msgid "Change the search or increase the desired synthetic population."
 msgstr "Change the search or increase the desired synthetic population."
 
-#: libs/game-session-client-ts/src/custom-game-side.tsx
+#: libs/game-session-client-ts/src/game-frame-seats-view.tsx
 msgid "Change who sits here"
 msgstr "Change who sits here"
 
-#: libs/game-puzzle-client-ts/src/content-connection-status.tsx
+#: libs/game-puzzle-client-ts/src/content-connection-status-view.tsx
 msgid "Changes have not reached your other devices"
 msgstr "Changes have not reached your other devices"
 
-#: libs/app-root-client-ts/src/more-server-status.tsx
+#: libs/app-root-client-ts/src/connection-screen-view.tsx
 #: libs/billing-client-ts/src/billing-plan-actions.tsx
-#: libs/game-puzzle-client-ts/src/use-content-publication.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 #: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "Check again"
 msgstr "Check again"
 
-#: libs/game-puzzle-client-ts/src/use-content-publication.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Check finished"
 msgstr "Check finished"
 
@@ -1399,8 +1399,8 @@ msgstr "Check the spelling or try a different username."
 
 #: libs/friends-client-ts/src/friend-user-screen-content.tsx
 #: libs/friends-client-ts/src/friends-list-screen-view.tsx
-#: libs/profile-client-ts/src/profile-screen.tsx
-#: libs/synthetic-population-client-ts/src/synthetic-population-users.tsx
+#: libs/profile-client-ts/src/profile-screen-view.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 msgid "Check your connection and try again."
 msgstr "Check your connection and try again."
 
@@ -1421,7 +1421,7 @@ msgid "Checking your membership…"
 msgstr "Checking your membership…"
 
 #: libs/app-root-client-ts/src/connection-copy.tsx
-#: libs/game-puzzle-client-ts/src/use-content-publication.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Checking…"
 msgstr "Checking…"
 
@@ -1433,7 +1433,7 @@ msgstr "checkmate"
 msgid "chess"
 msgstr "chess"
 
-#: libs/synthetic-population-client-ts/src/synthetic-user-replay.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-replay-view.tsx
 msgid "Choice reproduced"
 msgstr "Choice reproduced"
 
@@ -1454,7 +1454,7 @@ msgstr "Choose a game with a puzzle editor."
 msgid "Choose a pair and which endpoint to move, then choose an empty cell. Every pair has a label as well as a color."
 msgstr "Choose a pair and which endpoint to move, then choose an empty cell. Every pair has a label as well as a color."
 
-#: libs/game-session-client-ts/src/custom-game-side-choices.tsx
+#: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
 msgid "Choose a person"
 msgstr "Choose a person"
 
@@ -1482,7 +1482,7 @@ msgstr "Choose a tile, then a square."
 msgid "Choose a tool, then a square. Walls and outside squares remove any piece on them; erasing makes plain floor."
 msgstr "Choose a tool, then a square. Walls and outside squares remove any piece on them; erasing makes plain floor."
 
-#: libs/profile-client-ts/src/username-change-feedback.tsx
+#: libs/profile-client-ts/src/username-change-feedback-view.tsx
 msgid "Choose a username"
 msgstr "Choose a username"
 
@@ -1540,7 +1540,7 @@ msgstr "Choose three cards to pass to the left."
 msgid "Choose three cards to pass to the right."
 msgstr "Choose three cards to pass to the right."
 
-#: libs/game-session-client-ts/src/custom-game-actions.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Choose who plays each side. Anyone in this space can watch."
 msgstr "Choose who plays each side. Anyone in this space can watch."
 
@@ -1548,7 +1548,7 @@ msgstr "Choose who plays each side. Anyone in this space can watch."
 msgid "Choose whole minutes from 1 to 180 and whole added seconds from 0 to 60."
 msgstr "Choose whole minutes from 1 to 180 and whole added seconds from 0 to 60."
 
-#: libs/game-session-client-ts/src/game-frame-seats.tsx
+#: libs/game-session-client-ts/src/game-frame-table-view.tsx
 #: libs/hearts-client-ts/src/hearts-table-view.tsx
 msgid "Choosing"
 msgstr "Choosing"
@@ -1557,7 +1557,7 @@ msgstr "Choosing"
 msgid "Choosing a copy keeps earlier work and leaves published editions unchanged."
 msgstr "Choosing a copy keeps earlier work and leaves published editions unchanged."
 
-#: libs/game-session-client-ts/src/game-frame-seats.tsx
+#: libs/game-session-client-ts/src/game-frame-table-view.tsx
 msgid "Chosen"
 msgstr "Chosen"
 
@@ -1565,7 +1565,7 @@ msgstr "Chosen"
 msgid "Chosen Lichess file"
 msgstr "Chosen Lichess file"
 
-#: libs/game-session-client-ts/src/custom-game-active.tsx
+#: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "Claim the win"
 msgstr "Claim the win"
 
@@ -1598,24 +1598,24 @@ msgstr "Clear every endpoint?"
 msgid "Clear my suggestion"
 msgstr "Clear my suggestion"
 
-#: libs/app-config-client-ts/src/client-config-screen.tsx
-#: libs/app-root-client-ts/src/settings-screen.tsx
+#: libs/app-config-client-ts/src/client-config-screen-view.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
 msgid "Client config"
 msgstr "Client config"
 
-#: libs/app-root-client-ts/src/client-events.tsx
+#: libs/app-root-client-ts/src/client-events-screen-view.tsx
 msgid "Client events"
 msgstr "Client events"
 
-#: libs/app-root-client-ts/src/client-events.tsx
+#: libs/app-root-client-ts/src/client-events-screen-view.tsx
 msgid "Client events are available in the embedded product-harness."
 msgstr "Client events are available in the embedded product-harness."
 
-#: libs/app-root-client-ts/src/client-sql.tsx
+#: libs/app-root-client-ts/src/client-sql-screen-view.tsx
 msgid "Client SQL"
 msgstr "Client SQL"
 
-#: libs/game-session-client-ts/src/custom-game-configuration.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Clock and sides"
 msgstr "Clock and sides"
 
@@ -1628,7 +1628,7 @@ msgstr "Clock and sides"
 msgid "Close"
 msgstr "Close"
 
-#: libs/game-session-client-ts/src/custom-game-side-choices.tsx
+#: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
 msgid "Close seat"
 msgstr "Close seat"
 
@@ -1636,7 +1636,7 @@ msgstr "Close seat"
 msgid "Closed place"
 msgstr "Closed place"
 
-#: libs/game-session-client-ts/src/custom-game-person.tsx
+#: libs/game-session-client-ts/src/game-frame-people.tsx
 msgid "Closed seat"
 msgstr "Closed seat"
 
@@ -1684,7 +1684,7 @@ msgstr "Columns"
 msgid "Command palette"
 msgstr "Command palette"
 
-#: libs/app-root-client-ts/src/about-screen.tsx
+#: libs/app-root-client-ts/src/about-screen-view.tsx
 msgid "Commit"
 msgstr "Commit"
 
@@ -1696,7 +1696,7 @@ msgstr "Commit hash"
 msgid "committed"
 msgstr "committed"
 
-#: libs/app-root-client-ts/src/about-screen.tsx
+#: libs/app-root-client-ts/src/about-screen-view.tsx
 msgid "Committed"
 msgstr "Committed"
 
@@ -1704,7 +1704,7 @@ msgstr "Committed"
 msgid "Complete the required details and start the playtest again."
 msgstr "Complete the required details and start the playtest again."
 
-#: libs/game-puzzle-client-ts/src/content-publication-controls.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Complete the required details and validate again."
 msgstr "Complete the required details and validate again."
 
@@ -1712,8 +1712,8 @@ msgstr "Complete the required details and validate again."
 msgid "Complete the required puzzle details before previewing or playtesting."
 msgstr "Complete the required puzzle details before previewing or playtesting."
 
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/content-pack-overview.tsx
-#: libs/game-puzzle-client-ts/src/content-saved-attempts.tsx
 msgid "Completed"
 msgstr "Completed"
 
@@ -1722,12 +1722,12 @@ msgid "Configuration"
 msgstr "Configuration"
 
 #: libs/friends-client-ts/src/friend-action-pill-buttons.tsx
-#: libs/game-matchmaking-client-ts/src/multiplayer-controls.tsx
+#: libs/game-matchmaking-client-ts/src/multiplayer-screen-view.tsx
 #: pkgs/ui-root-client-ts/src/confirmation-modal/index.tsx
 msgid "Confirm"
 msgstr "Confirm"
 
-#: libs/account-privacy-client-ts/src/privacy-screen.tsx
+#: libs/account-privacy-client-ts/src/privacy-screen-view.tsx
 msgid "Confirm permanent deletion"
 msgstr "Confirm permanent deletion"
 
@@ -1776,7 +1776,7 @@ msgid "connected"
 msgstr "connected"
 
 #: libs/app-root-client-ts/src/connection-copy.tsx
-#: libs/app-root-client-ts/src/sync-screen.tsx
+#: libs/app-root-client-ts/src/sync-screen-view.tsx
 #: libs/auth-client-ts/src/sign-in-method-row.tsx
 msgid "Connected"
 msgstr "Connected"
@@ -1785,11 +1785,11 @@ msgstr "Connected"
 msgid "Connected pairs"
 msgstr "Connected pairs"
 
-#: libs/app-root-client-ts/src/sync-screen.tsx
+#: libs/app-root-client-ts/src/sync-screen-view.tsx
 msgid "Connecting"
 msgstr "Connecting"
 
-#: libs/chess-puzzle-client-ts/src/puzzle-management-screen.tsx
+#: libs/chess-puzzle-client-ts/src/puzzle-management-screen-view.tsx
 msgid "Connecting to puzzle status…"
 msgstr "Connecting to puzzle status…"
 
@@ -1797,18 +1797,18 @@ msgstr "Connecting to puzzle status…"
 msgid "Connecting…"
 msgstr "Connecting…"
 
-#: libs/app-root-client-ts/src/more-server-status.tsx
-#: libs/app-root-client-ts/src/settings-screen.tsx
-#: libs/app-root-client-ts/src/sync-screen.tsx
+#: libs/app-root-client-ts/src/connection-screen-view.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+#: libs/app-root-client-ts/src/sync-screen-view.tsx
 msgid "Connection"
 msgstr "Connection"
 
-#: libs/game-session-client-ts/src/custom-game-status.tsx
+#: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "Connection needed to change or play this game."
 msgstr "Connection needed to change or play this game."
 
 #: libs/app-root-client-ts/src/app-commands.tsx
-#: libs/app-root-client-ts/src/app-header-global-menu.tsx
+#: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
 msgid "Connectivity"
 msgstr "Connectivity"
 
@@ -1846,13 +1846,13 @@ msgstr "Continue with email"
 msgid "Continue with Google"
 msgstr "Continue with Google"
 
-#: libs/app-root-client-ts/src/sound-screen.tsx
+#: libs/app-root-client-ts/src/sound-screen-view.tsx
 msgid "Controls in-app sound effects only. Your device volume is not affected."
 msgstr "Controls in-app sound effects only. Your device volume is not affected."
 
 #: libs/app-root-client-ts/src/crash-copy-button.tsx
 #: libs/profile-client-ts/src/avatar-editor-seed-field.tsx
-#: libs/spaces-client-ts/src/space-share-link-section.tsx
+#: libs/spaces-client-ts/src/space-share-sheet-view.tsx
 #: pkgs/ui-root-client-ts/src/error-state/index.tsx
 msgid "Copied"
 msgstr "Copied"
@@ -1870,7 +1870,7 @@ msgstr "Copy"
 msgid "Copy error"
 msgstr "Copy error"
 
-#: libs/spaces-client-ts/src/space-share-link-section.tsx
+#: libs/spaces-client-ts/src/space-share-sheet-view.tsx
 msgid "Copy link"
 msgstr "Copy link"
 
@@ -1890,7 +1890,7 @@ msgstr "Copy to clipboard"
 msgid "Copy value"
 msgstr "Copy value"
 
-#: libs/spaces-client-ts/src/space-share-link-section.tsx
+#: libs/spaces-client-ts/src/space-share-sheet-view.tsx
 msgid "Copying…"
 msgstr "Copying…"
 
@@ -1898,7 +1898,7 @@ msgstr "Copying…"
 msgid "Coral"
 msgstr "Coral"
 
-#: libs/app-root-client-ts/src/boot-error-screen.tsx
+#: libs/app-root-client-ts/src/boot-error-screen-view.tsx
 msgid "Could not start local database"
 msgstr "Could not start local database"
 
@@ -1906,7 +1906,7 @@ msgstr "Could not start local database"
 msgid "Couldn't accept"
 msgstr "Couldn't accept"
 
-#: libs/spaces-client-ts/src/space-addition-state.tsx
+#: libs/spaces-client-ts/src/space-share-add-people-view.tsx
 msgid "Couldn't add person"
 msgstr "Couldn't add person"
 
@@ -1922,7 +1922,7 @@ msgstr "Couldn't confirm"
 msgid "Couldn't connect"
 msgstr "Couldn't connect"
 
-#: libs/spaces-client-ts/src/space-share-link-section.tsx
+#: libs/spaces-client-ts/src/space-share-sheet-view.tsx
 msgid "Couldn't copy"
 msgstr "Couldn't copy"
 
@@ -1947,7 +1947,7 @@ msgstr "Couldn't delete"
 msgid "Couldn't end space"
 msgstr "Couldn't end space"
 
-#: libs/spaces-client-ts/src/space-join-button.tsx
+#: libs/spaces-client-ts/src/space-join-screen-view.tsx
 msgid "Couldn't join"
 msgstr "Couldn't join"
 
@@ -1955,7 +1955,7 @@ msgstr "Couldn't join"
 msgid "Couldn't leave space"
 msgstr "Couldn't leave space"
 
-#: libs/spaces-client-ts/src/spaces-screen.tsx
+#: libs/spaces-client-ts/src/spaces-screen-view.tsx
 msgid "Couldn't open"
 msgstr "Couldn't open"
 
@@ -1967,11 +1967,11 @@ msgstr "Couldn't open billing"
 msgid "Couldn't open checkout"
 msgstr "Couldn't open checkout"
 
-#: libs/game-matchmaking-client-ts/src/multiplayer-link-screen.tsx
+#: libs/game-matchmaking-client-ts/src/multiplayer-link-screen-view.tsx
 msgid "Couldn’t open multiplayer"
 msgstr "Couldn’t open multiplayer"
 
-#: libs/auth-client-ts/src/account-devices-card.tsx
+#: libs/auth-client-ts/src/account-devices-screen-view.tsx
 msgid "Couldn't reach the server yet, so only this device is listed."
 msgstr "Couldn't reach the server yet, so only this device is listed."
 
@@ -1983,15 +1983,15 @@ msgstr "Couldn't reach the server yet, so your sign-in methods may be missing."
 msgid "Couldn't remove it"
 msgstr "Couldn't remove it"
 
-#: libs/spaces-client-ts/src/remove-space-person-modal.tsx
+#: libs/spaces-client-ts/src/remove-space-person-modal-view.tsx
 msgid "Couldn't remove person"
 msgstr "Couldn't remove person"
 
-#: libs/spaces-client-ts/src/rename-space-modal.tsx
+#: libs/spaces-client-ts/src/rename-space-modal-view.tsx
 msgid "Couldn't rename space"
 msgstr "Couldn't rename space"
 
-#: libs/profile-client-ts/src/avatar-editor-screen.tsx
+#: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
 #: libs/profile-client-ts/src/username-error-label.tsx
 msgid "Couldn't save"
 msgstr "Couldn't save"
@@ -2028,19 +2028,19 @@ msgstr "crate"
 msgid "Crate"
 msgstr "Crate"
 
-#: libs/game-puzzle-client-ts/src/content-library-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Create a private draft above, or come back for new puzzles and packs."
 msgstr "Create a private draft above, or come back for new puzzles and packs."
 
-#: libs/game-session-client-ts/src/custom-game-actions.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Create game"
 msgstr "Create game"
 
-#: libs/game-puzzle-client-ts/src/content-create-controls.tsx
+#: libs/game-puzzle-client-ts/src/content-create-controls-view.tsx
 msgid "Create pack"
 msgstr "Create pack"
 
-#: libs/game-puzzle-client-ts/src/content-create-controls.tsx
+#: libs/game-puzzle-client-ts/src/content-create-controls-view.tsx
 msgid "Create puzzle"
 msgstr "Create puzzle"
 
@@ -2052,7 +2052,7 @@ msgstr "Create puzzle in this pack"
 msgid "Created"
 msgstr "Created"
 
-#: libs/game-puzzle-client-ts/src/content-create-controls.tsx
+#: libs/game-puzzle-client-ts/src/content-create-controls-view.tsx
 #: libs/game-puzzle-client-ts/src/use-content-pack-edit.tsx
 msgid "Creating…"
 msgstr "Creating…"
@@ -2063,12 +2063,12 @@ msgstr "Cruiser"
 
 #: libs/game-puzzle-client-ts/src/content-kept-copies.tsx
 #: libs/game-puzzle-client-ts/src/content-kept-positions.tsx
-#: libs/spaces-client-ts/src/space-live-badge.tsx
+#: libs/spaces-client-ts/src/space-card-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-statechart.tsx
 msgid "Current"
 msgstr "Current"
 
-#: libs/game-session-client-ts/src/custom-game-board.tsx
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
 msgid "Current game"
 msgstr "Current game"
 
@@ -2077,13 +2077,13 @@ msgstr "Current game"
 msgid "Current route"
 msgstr "Current route"
 
-#: libs/game-puzzle-client-ts/src/puzzle-feed-bar.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 msgid "Custom"
 msgstr "Custom"
 
 #. placeholder {0}: ratingSlot(props.effectiveRating)
-#: libs/game-puzzle-client-ts/src/puzzle-feed-bar.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 msgid "Custom · {0}"
 msgstr "Custom · {0}"
 
@@ -2111,9 +2111,9 @@ msgstr "Daily limit reached"
 msgid "dark"
 msgstr "dark"
 
-#: libs/app-root-client-ts/src/app-header-global-menu.tsx
-#: libs/app-root-client-ts/src/settings-screen.tsx
-#: libs/app-root-client-ts/src/theme-screen.tsx
+#: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+#: libs/app-root-client-ts/src/theme-screen-view.tsx
 msgid "Dark"
 msgstr "Dark"
 
@@ -2125,16 +2125,16 @@ msgstr "day"
 msgid "debug"
 msgstr "debug"
 
-#: libs/synthetic-population-client-ts/src/synthetic-user-replay.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-replay-view.tsx
 msgid "Decision Policy replay"
 msgstr "Decision Policy replay"
 
 #: libs/friends-client-ts/src/friend-request-decision-modal.tsx
-#: libs/game-session-client-ts/src/custom-game-side-choices.tsx
+#: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
 msgid "Decline"
 msgstr "Decline"
 
-#: libs/game-session-client-ts/src/custom-game-active.tsx
+#: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "Decline draw"
 msgstr "Decline draw"
 
@@ -2163,7 +2163,7 @@ msgstr "Decrease {0}"
 msgid "Delete"
 msgstr "Delete"
 
-#: libs/account-privacy-client-ts/src/privacy-screen.tsx
+#: libs/account-privacy-client-ts/src/privacy-screen-view.tsx
 msgid "Delete account"
 msgstr "Delete account"
 
@@ -2210,11 +2210,11 @@ msgstr "Developer"
 msgid "Developer tools."
 msgstr "Developer tools."
 
-#: libs/app-root-client-ts/src/about-screen.tsx
+#: libs/app-root-client-ts/src/about-screen-view.tsx
 msgid "Development"
 msgstr "Development"
 
-#: libs/auth-client-ts/src/account-device-detail-screen.tsx
+#: libs/auth-client-ts/src/account-device-detail-screen-view.tsx
 #: libs/auth-client-ts/src/account-device-meta-grid.tsx
 msgid "Device"
 msgstr "Device"
@@ -2227,16 +2227,16 @@ msgstr "Device ID"
 msgid "Device name"
 msgstr "Device name"
 
-#: libs/auth-client-ts/src/account-device-detail-screen.tsx
+#: libs/auth-client-ts/src/account-device-detail-screen-view.tsx
 msgid "Device not found"
 msgstr "Device not found"
 
-#: libs/auth-client-ts/src/account-devices-screen.tsx
-#: libs/auth-client-ts/src/account-screen.tsx
+#: libs/auth-client-ts/src/account-devices-screen-view.tsx
+#: libs/auth-client-ts/src/account-screen-view.tsx
 msgid "Devices"
 msgstr "Devices"
 
-#: libs/auth-client-ts/src/account-devices-card.tsx
+#: libs/auth-client-ts/src/account-devices-screen-view.tsx
 msgid "Devices appear here after they sign in."
 msgstr "Devices appear here after they sign in."
 
@@ -2256,7 +2256,7 @@ msgstr "Difficulty (optional)"
 msgid "Difficulty mode"
 msgstr "Difficulty mode"
 
-#: libs/app-root-client-ts/src/theme-screen.tsx
+#: libs/app-root-client-ts/src/theme-screen-view.tsx
 msgid "Dim surfaces, light text"
 msgstr "Dim surfaces, light text"
 
@@ -2264,11 +2264,11 @@ msgstr "Dim surfaces, light text"
 msgid "Disabled"
 msgstr "Disabled"
 
-#: libs/profile-client-ts/src/avatar-editor-screen.tsx
+#: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
 msgid "Discard"
 msgstr "Discard"
 
-#: libs/profile-client-ts/src/avatar-editor-screen.tsx
+#: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
 msgid "Discard changes?"
 msgstr "Discard changes?"
 
@@ -2276,7 +2276,7 @@ msgstr "Discard changes?"
 msgid "disconnect"
 msgstr "disconnect"
 
-#: libs/app-root-client-ts/src/sync-screen.tsx
+#: libs/app-root-client-ts/src/sync-screen-view.tsx
 msgid "Disconnected"
 msgstr "Disconnected"
 
@@ -2314,12 +2314,12 @@ msgstr "Download readable summary"
 msgid "Download reusable detail"
 msgstr "Download reusable detail"
 
-#: libs/game-puzzle-client-ts/src/content-library-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/content-pack-preview.tsx
 msgid "Draft"
 msgstr "Draft"
 
-#: libs/game-puzzle-client-ts/src/content-create-controls.tsx
+#: libs/game-puzzle-client-ts/src/content-create-controls-view.tsx
 msgid "Draft created"
 msgstr "Draft created"
 
@@ -2355,7 +2355,7 @@ msgstr "Draw the path again."
 msgid "Drawn by agreement."
 msgstr "Drawn by agreement."
 
-#: libs/game-session-client-ts/src/game-history.tsx
+#: libs/game-session-client-ts/src/game-history-screen-view.tsx
 msgid "Draws"
 msgstr "Draws"
 
@@ -2389,7 +2389,7 @@ msgid "Each side hides five ships on its own ten by ten waters: a Carrier of fiv
 msgstr "Each side hides five ships on its own ten by ten waters: a Carrier of five cells, a Battleship of four, a Cruiser of three, a Submarine of three and a Destroyer of two. Choose a ship, turn it across or down, and press the cell for its bow; ships never overlap or leave the board. Then the Blue fleet fires first and the sides take turns firing at one cell of the other's waters. A miss marks open water, a hit marks part of a ship, and a ship sinks once every one of its cells is hit. Sink the whole hidden fleet first to win."
 
 #. placeholder {0}: index + 1
-#: libs/game-session-client-ts/src/custom-game-board.tsx
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
 msgid "Earlier game {0}"
 msgstr "Earlier game {0}"
 
@@ -2402,13 +2402,13 @@ msgstr "East"
 msgid "East black square"
 msgstr "East black square"
 
-#: libs/game-session-client-ts/src/custom-game-difficulty.tsx
+#: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
 msgid "Easy"
 msgstr "Easy"
 
-#: libs/profile-client-ts/src/profile-edit-screen.tsx
-#: libs/profile-client-ts/src/profile-handle-screen.tsx
-#: libs/profile-client-ts/src/profile-screen.tsx
+#: libs/profile-client-ts/src/profile-edit-screen-view.tsx
+#: libs/profile-client-ts/src/profile-handle-screen-view.tsx
+#: libs/profile-client-ts/src/profile-screen-view.tsx
 msgid "Edit profile"
 msgstr "Edit profile"
 
@@ -2420,7 +2420,7 @@ msgstr "Edit restored"
 msgid "Edit undone"
 msgstr "Edit undone"
 
-#: libs/game-puzzle-client-ts/src/content-edition-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-edition-screen-view.tsx
 msgid "Edit working draft"
 msgstr "Edit working draft"
 
@@ -2450,7 +2450,7 @@ msgstr "Empty"
 msgid "Empty: your default look"
 msgstr "Empty: your default look"
 
-#: libs/app-config-client-ts/src/client-config-entity-card.tsx
+#: libs/app-config-client-ts/src/client-config-screen-view.tsx
 msgid "EMQX"
 msgstr "EMQX"
 
@@ -2498,7 +2498,7 @@ msgstr "Environment"
 msgid "Erase"
 msgstr "Erase"
 
-#: libs/app-root-client-ts/src/crash-screen.tsx
+#: libs/app-root-client-ts/src/crash-screen-view.tsx
 msgid "Error details"
 msgstr "Error details"
 
@@ -2506,7 +2506,7 @@ msgstr "Error details"
 msgid "Error details copied."
 msgstr "Error details copied."
 
-#: libs/app-root-client-ts/src/crash-screen.tsx
+#: libs/app-root-client-ts/src/crash-screen-view.tsx
 msgid "Error message"
 msgstr "Error message"
 
@@ -2522,7 +2522,7 @@ msgstr "Event timeline"
 msgid "Every device signed in to this account, including this one, will be signed out."
 msgstr "Every device signed in to this account, including this one, will be signed out."
 
-#: libs/auth-client-ts/src/account-devices-card.tsx
+#: libs/auth-client-ts/src/account-devices-screen-view.tsx
 msgid "Every install signed into your account shows up here."
 msgstr "Every install signed into your account shows up here."
 
@@ -2596,10 +2596,10 @@ msgid "Export requested"
 msgstr "Export requested"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-import-status.tsx
-#: libs/game-puzzle-client-ts/src/puzzle-feed-bar.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-game-log-row.tsx
-#: libs/game-puzzle-client-ts/src/puzzle-review-screen.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-review-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
 #: libs/notifications-client-ts/src/notification-card-default.tsx
 msgid "Failed"
@@ -2611,7 +2611,7 @@ msgstr "Failed"
 msgid "Failed to load"
 msgstr "Failed to load"
 
-#: libs/app-config-client-ts/src/client-config-entity-card.tsx
+#: libs/app-config-client-ts/src/client-config-screen-view.tsx
 msgid "Features"
 msgstr "Features"
 
@@ -2666,7 +2666,7 @@ msgstr "Find players"
 msgid "Find someone to play with."
 msgstr "Find someone to play with."
 
-#: libs/synthetic-population-client-ts/src/synthetic-population-users.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 msgid "Find Synthetic Users"
 msgstr "Find Synthetic Users"
 
@@ -2698,11 +2698,11 @@ msgstr "Finish your Custom Game first"
 msgid "Finished"
 msgstr "Finished"
 
-#: libs/game-session-client-ts/src/game-history.tsx
+#: libs/game-session-client-ts/src/game-history-screen-view.tsx
 msgid "Finished custom games in this space and your recent matched games."
 msgstr "Finished custom games in this space and your recent matched games."
 
-#: libs/game-session-client-ts/src/game-history.tsx
+#: libs/game-session-client-ts/src/game-history-screen-view.tsx
 msgid "Finished games will appear here."
 msgstr "Finished games will appear here."
 
@@ -2714,7 +2714,7 @@ msgstr "Finishing checkout…"
 msgid "Fire at {label}"
 msgstr "Fire at {label}"
 
-#: libs/synthetic-population-client-ts/src/synthetic-population-users.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 msgid "First page"
 msgstr "First page"
 
@@ -2755,7 +2755,7 @@ msgstr "Focus the arena and steer with the arrow keys or W, A, S and D, or use t
 msgid "Focus the court to play. Use W and S for Left, or the arrow keys for your paddle. With two players on this device, the arrow keys control Right. Drag on your side of the court, or use the paddle sliders below."
 msgstr "Focus the court to play. Use W and S for Left, or the arrow keys for your paddle. With two players on this device, the arrow keys control Right. Drag on your side of the court, or use the paddle sliders below."
 
-#: libs/app-root-client-ts/src/theme-screen.tsx
+#: libs/app-root-client-ts/src/theme-screen-view.tsx
 msgid "Follows your device appearance"
 msgstr "Follows your device appearance"
 
@@ -2795,7 +2795,7 @@ msgstr "Four sides. One hill. First to e5 wins immediately."
 msgid "fps"
 msgstr "fps"
 
-#: libs/app-root-client-ts/src/performance-screen.tsx
+#: libs/app-root-client-ts/src/performance-screen-view.tsx
 msgid "Frames per second"
 msgstr "Frames per second"
 
@@ -2813,7 +2813,7 @@ msgstr "Free trial · ends {0} ({1, plural, one {# day left} other {# days left}
 msgid "Friend request"
 msgstr "Friend request"
 
-#: libs/friends-client-ts/src/friend-request-feedback.tsx
+#: libs/friends-client-ts/src/friend-request-feedback-view.tsx
 msgid "Friend request not sent"
 msgstr "Friend request not sent"
 
@@ -2822,9 +2822,9 @@ msgid "Friend requests and space invites will land here."
 msgstr "Friend requests and space invites will land here."
 
 #: libs/friends-client-ts/src/friend-action-status-renderers.tsx
+#: libs/friends-client-ts/src/friend-user-screen-view.tsx
 #: libs/friends-client-ts/src/friends-list-screen-view.tsx
-#: libs/friends-client-ts/src/friends-permission-gate.tsx
-#: libs/profile-client-ts/src/profile-screen.tsx
+#: libs/profile-client-ts/src/profile-screen-view.tsx
 msgid "Friends"
 msgstr "Friends"
 
@@ -2836,11 +2836,11 @@ msgstr "Friends let you find each other and jump into shared spaces."
 msgid "full board"
 msgstr "full board"
 
-#: libs/app-root-client-ts/src/about-screen.tsx
+#: libs/app-root-client-ts/src/about-screen-view.tsx
 msgid "Full commit"
 msgstr "Full commit"
 
-#: libs/game-session-client-ts/src/game-frame-play.tsx
+#: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "Game actions"
 msgstr "Game actions"
 
@@ -2868,7 +2868,7 @@ msgstr "Game drawn because a participant withdrew."
 msgid "Game drawn."
 msgstr "Game drawn."
 
-#: libs/game-session-client-ts/src/custom-game-confirm.tsx
+#: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "Game finished"
 msgstr "Game finished"
 
@@ -2891,7 +2891,7 @@ msgstr "Game rating"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-game-record.tsx
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
-#: libs/game-session-client-ts/src/custom-game-board.tsx
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
 msgid "Game record"
 msgstr "Game record"
 
@@ -2899,11 +2899,11 @@ msgstr "Game record"
 msgid "Game record copied"
 msgstr "Game record copied"
 
-#: libs/game-session-client-ts/src/game-history.tsx
+#: libs/game-session-client-ts/src/game-replay-screen-view.tsx
 msgid "Game replay"
 msgstr "Game replay"
 
-#: libs/spaces-client-ts/src/games-main-menu.tsx
+#: libs/spaces-client-ts/src/space-games-screen-view.tsx
 msgid "Games"
 msgstr "Games"
 
@@ -2916,11 +2916,11 @@ msgid "Get ready: a turn chosen now takes effect on {name}'s first step."
 msgstr "Get ready: a turn chosen now takes effect on {name}'s first step."
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-private-setup.tsx
-#: libs/game-session-client-ts/src/custom-game-side.tsx
+#: libs/game-session-client-ts/src/game-frame-seats-view.tsx
 msgid "Getting ready"
 msgstr "Getting ready"
 
-#: libs/spaces-client-ts/src/rename-space-modal.tsx
+#: libs/spaces-client-ts/src/rename-space-modal-view.tsx
 #: pkgs/ui-root-client-ts/src/mutation-modal/mutation-modal.example.tsx
 msgid "Give your space a name"
 msgstr "Give your space a name"
@@ -2930,9 +2930,9 @@ msgstr "Give your space a name"
 msgid "Go to {0}"
 msgstr "Go to {0}"
 
-#: libs/app-root-client-ts/src/crash-screen.tsx
-#: libs/app-root-client-ts/src/route-stub.tsx
-#: libs/game-matchmaking-client-ts/src/multiplayer-link-screen.tsx
+#: libs/app-root-client-ts/src/crash-screen-view.tsx
+#: libs/app-root-client-ts/src/route-stub-screen-view.tsx
+#: libs/game-matchmaking-client-ts/src/multiplayer-link-screen-view.tsx
 msgid "Go to Spaces"
 msgstr "Go to Spaces"
 
@@ -2944,7 +2944,7 @@ msgstr "goal"
 msgid "Goal"
 msgstr "Goal"
 
-#: libs/app-config-client-ts/src/client-config-entity-card.tsx
+#: libs/app-config-client-ts/src/client-config-screen-view.tsx
 #: libs/auth-client-ts/src/auth-flow-messages.tsx
 msgid "Google"
 msgstr "Google"
@@ -2957,7 +2957,7 @@ msgstr "Green"
 msgid "Guest"
 msgstr "Guest"
 
-#: libs/game-session-client-ts/src/custom-game-difficulty.tsx
+#: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
 msgid "Hard"
 msgstr "Hard"
 
@@ -2965,11 +2965,11 @@ msgstr "Hard"
 msgid "harness"
 msgstr "harness"
 
-#: libs/app-root-client-ts/src/sync-screen.tsx
+#: libs/app-root-client-ts/src/sync-screen-view.tsx
 msgid "Has ever synced"
 msgstr "Has ever synced"
 
-#: libs/app-root-client-ts/src/sync-screen.tsx
+#: libs/app-root-client-ts/src/sync-screen-view.tsx
 msgid "Has synced"
 msgstr "Has synced"
 
@@ -3032,8 +3032,8 @@ msgid "Hint: move the {side} {piece} on {0}."
 msgstr "Hint: move the {side} {piece} on {0}."
 
 #: libs/game-menu-client-ts/src/game-menu-choices.tsx
-#: libs/game-session-client-ts/src/custom-game-board.tsx
-#: libs/game-session-client-ts/src/game-history.tsx
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
+#: libs/game-session-client-ts/src/game-history-screen-view.tsx
 msgid "History and stats"
 msgstr "History and stats"
 
@@ -3065,11 +3065,11 @@ msgstr "hud"
 msgid "I can't fetch puzzles without a connection. Come back online and we'll pick up here."
 msgstr "I can't fetch puzzles without a connection. Come back online and we'll pick up here."
 
-#: libs/game-session-client-ts/src/custom-game-configuration.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "I'm ready"
 msgstr "I'm ready"
 
-#: libs/spaces-client-ts/src/space-members-list-modal.tsx
+#: libs/spaces-client-ts/src/space-members-sheet-view.tsx
 msgid "Idle"
 msgstr "Idle"
 
@@ -3085,8 +3085,8 @@ msgstr "Immediately"
 msgid "Import and manage puzzle content."
 msgstr "Import and manage puzzle content."
 
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/content-pack-overview.tsx
-#: libs/game-puzzle-client-ts/src/content-saved-attempts.tsx
 msgid "In progress"
 msgstr "In progress"
 
@@ -3103,7 +3103,7 @@ msgstr "Include played puzzles"
 msgid "Increase {0}"
 msgstr "Increase {0}"
 
-#: libs/app-config-client-ts/src/client-config-entity-card.tsx
+#: libs/app-config-client-ts/src/client-config-screen-view.tsx
 msgid "Infrastructure"
 msgstr "Infrastructure"
 
@@ -3111,19 +3111,19 @@ msgstr "Infrastructure"
 msgid "inp"
 msgstr "inp"
 
-#: libs/synthetic-population-client-ts/src/synthetic-user-replay.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-replay-view.tsx
 msgid "Inputs unavailable"
 msgstr "Inputs unavailable"
 
-#: libs/auth-client-ts/src/account-screen.tsx
+#: libs/auth-client-ts/src/account-screen-view.tsx
 msgid "Installs signed into this account"
 msgstr "Installs signed into this account"
 
-#: libs/app-root-client-ts/src/performance-screen.tsx
+#: libs/app-root-client-ts/src/performance-screen-view.tsx
 msgid "Interaction to next paint"
 msgstr "Interaction to next paint"
 
-#: libs/game-session-client-ts/src/custom-game-side-choices.tsx
+#: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
 msgid "Invite"
 msgstr "Invite"
 
@@ -3131,7 +3131,7 @@ msgstr "Invite"
 msgid "Invite a person who is in this space."
 msgstr "Invite a person who is in this space."
 
-#: libs/game-session-client-ts/src/custom-game-side-choices.tsx
+#: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
 msgid "Invite a space member"
 msgstr "Invite a space member"
 
@@ -3140,20 +3140,20 @@ msgstr "Invite a space member"
 msgid "Invited person: {0}"
 msgstr "Invited person: {0}"
 
-#: libs/game-session-client-ts/src/custom-game-person.tsx
+#: libs/game-session-client-ts/src/game-frame-people.tsx
 msgid "Invited:"
 msgstr "Invited:"
 
-#. placeholder {0}: gameSideLabel(props.model.current()?.fen ?? '', props.side)
-#: libs/game-session-client-ts/src/custom-game-side-choices.tsx
+#. placeholder {0}: props.seat.sideLabel
+#: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
 msgid "invites you to play {0}."
 msgstr "invites you to play {0}."
 
-#: libs/game-session-client-ts/src/custom-game-active.tsx
+#: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "is away. After a minute away you may claim the win."
 msgstr "is away. After a minute away you may claim the win."
 
-#: libs/game-session-client-ts/src/custom-game-active.tsx
+#: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "is away. Their turn stays reserved until they return."
 msgstr "is away. Their turn stays reserved until they return."
 
@@ -3161,15 +3161,15 @@ msgstr "is away. Their turn stays reserved until they return."
 msgid "It is not your turn to play."
 msgstr "It is not your turn to play."
 
-#: libs/auth-client-ts/src/account-device-detail-screen.tsx
+#: libs/auth-client-ts/src/account-device-detail-screen-view.tsx
 msgid "It may have signed out, or it hasn't synced to this device yet."
 msgstr "It may have signed out, or it hasn't synced to this device yet."
 
-#: libs/spaces-client-ts/src/space-reachability.tsx
+#: libs/spaces-client-ts/src/space-unreachable-screen-view.tsx
 msgid "It may no longer exist. Try again, or go back to Spaces."
 msgstr "It may no longer exist. Try again, or go back to Spaces."
 
-#: libs/game-puzzle-client-ts/src/puzzle-link-screen.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-link-screen-view.tsx
 msgid "It was taken out of the puzzles, so its link no longer opens it."
 msgstr "It was taken out of the puzzles, so its link no longer opens it."
 
@@ -3205,11 +3205,11 @@ msgstr "John Doe"
 msgid "Join matching endpoints with paths that move horizontally or vertically. Paths never cross or overlap. Cover every cell unless the puzzle explicitly uses pairs-only coverage."
 msgstr "Join matching endpoints with paths that move horizontally or vertically. Paths never cross or overlap. Cover every cell unless the puzzle explicitly uses pairs-only coverage."
 
-#: libs/spaces-client-ts/src/space-join-button.tsx
+#: libs/spaces-client-ts/src/space-join-screen-view.tsx
 msgid "Join space"
 msgstr "Join space"
 
-#: libs/spaces-client-ts/src/space-join-live-body.tsx
+#: libs/spaces-client-ts/src/space-join-screen-view.tsx
 msgid "Join to see who is here and hang out."
 msgstr "Join to see who is here and hang out."
 
@@ -3217,11 +3217,11 @@ msgstr "Join to see who is here and hang out."
 msgid "Join your word to the tiles on the board."
 msgstr "Join your word to the tiles on the board."
 
-#: libs/spaces-client-ts/src/space-join-button.tsx
+#: libs/spaces-client-ts/src/space-join-screen-view.tsx
 msgid "Joined"
 msgstr "Joined"
 
-#: libs/spaces-client-ts/src/space-join-button.tsx
+#: libs/spaces-client-ts/src/space-join-prompt.tsx
 msgid "Joining someone else's space needs a connection."
 msgstr "Joining someone else's space needs a connection."
 
@@ -3229,7 +3229,7 @@ msgstr "Joining someone else's space needs a connection."
 msgid "Joining someone else's space needs a connection. Your own spaces work offline."
 msgstr "Joining someone else's space needs a connection. Your own spaces work offline."
 
-#: libs/spaces-client-ts/src/space-join-button.tsx
+#: libs/spaces-client-ts/src/space-join-screen-view.tsx
 msgid "Joining…"
 msgstr "Joining…"
 
@@ -3285,7 +3285,7 @@ msgstr "Knight"
 msgid "Last activity"
 msgstr "Last activity"
 
-#: libs/app-root-client-ts/src/more-server-status.tsx
+#: libs/app-root-client-ts/src/connection-screen-view.tsx
 msgid "Last connected"
 msgstr "Last connected"
 
@@ -3293,7 +3293,7 @@ msgstr "Last connected"
 msgid "Last deal added: {added}."
 msgstr "Last deal added: {added}."
 
-#: libs/app-root-client-ts/src/sync-screen.tsx
+#: libs/app-root-client-ts/src/sync-screen-view.tsx
 msgid "Last error"
 msgstr "Last error"
 
@@ -3343,13 +3343,13 @@ msgstr "Leave anyway"
 msgid "Leave no gap between your tiles."
 msgstr "Leave no gap between your tiles."
 
-#: libs/game-session-client-ts/src/custom-game-side.tsx
+#: libs/game-session-client-ts/src/game-frame-seats-view.tsx
 msgid "Leave seat"
 msgstr "Leave seat"
 
 #: libs/spaces-client-ts/src/space-chrome-action-bar.tsx
 #: libs/spaces-client-ts/src/space-end-or-leave-button.tsx
-#: libs/spaces-client-ts/src/space-join-prompt.tsx
+#: libs/spaces-client-ts/src/space-join-screen-view.tsx
 msgid "Leave space"
 msgstr "Leave space"
 
@@ -3402,9 +3402,9 @@ msgstr "Lichess puzzle database"
 msgid "light"
 msgstr "light"
 
-#: libs/app-root-client-ts/src/app-header-global-menu.tsx
-#: libs/app-root-client-ts/src/settings-screen.tsx
-#: libs/app-root-client-ts/src/theme-screen.tsx
+#: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+#: libs/app-root-client-ts/src/theme-screen-view.tsx
 msgid "Light"
 msgstr "Light"
 
@@ -3428,7 +3428,7 @@ msgstr "Light Cycles Quad"
 msgid "Light Cycles Trio"
 msgstr "Light Cycles Trio"
 
-#: libs/spaces-client-ts/src/space-share-link-section.tsx
+#: libs/spaces-client-ts/src/space-share-sheet-view.tsx
 msgid "Link"
 msgstr "Link"
 
@@ -3436,20 +3436,20 @@ msgstr "Link"
 msgid "Live"
 msgstr "Live"
 
-#: libs/app-root-client-ts/src/performance-screen.tsx
+#: libs/app-root-client-ts/src/performance-screen-view.tsx
 msgid "Live metrics"
 msgstr "Live metrics"
 
-#: libs/app-config-client-ts/src/client-config-entity-card.tsx
+#: libs/app-config-client-ts/src/client-config-screen-view.tsx
 msgid "LLM"
 msgstr "LLM"
 
-#: libs/chess-puzzle-client-ts/src/puzzle-management-screen.tsx
+#: libs/chess-puzzle-client-ts/src/puzzle-management-screen-view.tsx
 #: libs/chess-shared-client-ts/src/chess-settings-developer-screen.tsx
 msgid "Load chess puzzles"
 msgstr "Load chess puzzles"
 
-#: libs/game-puzzle-client-ts/src/content-library-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Load earlier attempts"
 msgstr "Load earlier attempts"
 
@@ -3465,11 +3465,11 @@ msgstr "Load Lichess CSV, follow progress, and stop loading."
 msgid "Load more kept copies"
 msgstr "Load more kept copies"
 
-#: libs/game-puzzle-client-ts/src/content-library-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Load more of your drafts and publications"
 msgstr "Load more of your drafts and publications"
 
-#: libs/game-puzzle-client-ts/src/content-library-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Load more published puzzles and packs"
 msgstr "Load more published puzzles and packs"
 
@@ -3477,7 +3477,7 @@ msgstr "Load more published puzzles and packs"
 msgid "Load more saved positions"
 msgstr "Load more saved positions"
 
-#: libs/chess-puzzle-client-ts/src/puzzle-management-screen.tsx
+#: libs/chess-puzzle-client-ts/src/puzzle-management-screen-view.tsx
 msgid "Load started"
 msgstr "Load started"
 
@@ -3497,19 +3497,19 @@ msgstr "Loading already failed"
 msgid "Loading already finished"
 msgstr "Loading already finished"
 
-#: libs/app-config-client-ts/src/client-config-entity-card.tsx
+#: libs/app-config-client-ts/src/client-config-screen-view.tsx
 msgid "Loading client config…"
 msgstr "Loading client config…"
 
-#: libs/chess-puzzle-client-ts/src/puzzle-management-screen.tsx
+#: libs/chess-puzzle-client-ts/src/puzzle-management-screen-view.tsx
 msgid "Loading continues in the background. The saved file stays available. You can return here to follow its progress or stop it."
 msgstr "Loading continues in the background. The saved file stays available. You can return here to follow its progress or stop it."
 
-#: libs/auth-client-ts/src/account-device-detail-screen.tsx
+#: libs/auth-client-ts/src/account-device-detail-screen-view.tsx
 msgid "Loading device…"
 msgstr "Loading device…"
 
-#: libs/game-session-client-ts/src/game-history.tsx
+#: libs/game-session-client-ts/src/game-history-screen-view.tsx
 msgid "Loading games…"
 msgstr "Loading games…"
 
@@ -3517,7 +3517,7 @@ msgstr "Loading games…"
 msgid "Loading puzzle…"
 msgstr "Loading puzzle…"
 
-#: libs/game-puzzle-client-ts/src/content-connection-status.tsx
+#: libs/game-puzzle-client-ts/src/content-connection-status-view.tsx
 msgid "Loading requested puzzles…"
 msgstr "Loading requested puzzles…"
 
@@ -3526,15 +3526,15 @@ msgstr "Loading requested puzzles…"
 msgid "Loading sign-in methods…"
 msgstr "Loading sign-in methods…"
 
-#: libs/game-matchmaking-client-ts/src/multiplayer-screen.tsx
+#: libs/game-matchmaking-client-ts/src/multiplayer-screen-view.tsx
 msgid "Loading the game…"
 msgstr "Loading the game…"
 
-#: libs/auth-client-ts/src/account-devices-card.tsx
+#: libs/auth-client-ts/src/account-devices-screen-view.tsx
 msgid "Loading your devices…"
 msgstr "Loading your devices…"
 
-#: libs/account-privacy-client-ts/src/privacy-screen.tsx
+#: libs/account-privacy-client-ts/src/privacy-screen-view.tsx
 msgid "Loading your privacy settings…"
 msgstr "Loading your privacy settings…"
 
@@ -3543,45 +3543,45 @@ msgstr "Loading your privacy settings…"
 msgid "Loading…"
 msgstr "Loading…"
 
-#: libs/app-root-client-ts/src/settings-screen.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
 msgid "Local database and sync state"
 msgstr "Local database and sync state"
 
-#: libs/app-root-client-ts/src/boot-error-screen.tsx
+#: libs/app-root-client-ts/src/boot-error-screen-view.tsx
 msgid "Local database did not become ready. Reload the app. If this keeps happening after an update, clear site data for this origin."
 msgstr "Local database did not become ready. Reload the app. If this keeps happening after an update, clear site data for this origin."
 
-#: libs/app-root-client-ts/src/performance-screen.tsx
+#: libs/app-root-client-ts/src/performance-screen-view.tsx
 msgid "Long tasks"
 msgstr "Long tasks"
 
-#. placeholder {0}: props.count - 1
-#. placeholder {1}: props.gameName
-#. placeholder {2}: timeControlText(props.search.time_control)
-#. placeholder {3}: props.count
+#. placeholder {0}: count() - 1
+#. placeholder {1}: props.search.gameName
+#. placeholder {2}: control()
+#. placeholder {3}: count()
 #: libs/game-matchmaking-client-ts/src/multiplayer-waiting.tsx
 msgid "Looking for {0} other players for {1} at {2}. A game needs {3} players including you."
 msgstr "Looking for {0} other players for {1} at {2}. A game needs {3} players including you."
 
-#. placeholder {0}: props.count - 1
-#. placeholder {1}: props.gameName
-#. placeholder {2}: props.count
+#. placeholder {0}: count() - 1
+#. placeholder {1}: props.search.gameName
+#. placeholder {2}: count()
 #: libs/game-matchmaking-client-ts/src/multiplayer-waiting.tsx
 msgid "Looking for {0} other players for {1}. A game needs {2} players including you."
 msgstr "Looking for {0} other players for {1}. A game needs {2} players including you."
 
-#. placeholder {0}: timeControlText(props.search.time_control)
-#. placeholder {1}: props.gameName
+#. placeholder {0}: control()
+#. placeholder {1}: props.search.gameName
 #: libs/game-matchmaking-client-ts/src/multiplayer-waiting.tsx
 msgid "Looking for a {0} {1} opponent."
 msgstr "Looking for a {0} {1} opponent."
 
-#. placeholder {0}: props.gameName
+#. placeholder {0}: props.search.gameName
 #: libs/game-matchmaking-client-ts/src/multiplayer-waiting.tsx
 msgid "Looking for a {0} opponent."
 msgstr "Looking for a {0} opponent."
 
-#: libs/game-session-client-ts/src/game-history.tsx
+#: libs/game-session-client-ts/src/game-history-screen-view.tsx
 msgid "Losses"
 msgstr "Losses"
 
@@ -3597,11 +3597,11 @@ msgstr "Manage or cancel anytime from the billing portal"
 msgid "Manage subscription"
 msgstr "Manage subscription"
 
-#: libs/game-puzzle-client-ts/src/puzzle-feed-bar.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 msgid "Manual next puzzle"
 msgstr "Manual next puzzle"
 
-#: libs/notifications-client-ts/src/notifications-screen.tsx
+#: libs/notifications-client-ts/src/notifications-screen-view.tsx
 msgid "Mark all read"
 msgstr "Mark all read"
 
@@ -3619,7 +3619,7 @@ msgstr "Matched with {0}, rated {1}."
 msgid "Matchmaking"
 msgstr "Matchmaking"
 
-#: libs/game-session-client-ts/src/custom-game-difficulty.tsx
+#: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
 msgid "Medium"
 msgstr "Medium"
 
@@ -3632,11 +3632,11 @@ msgstr "Meet {0} other {name} players"
 msgid "Meet another {name} player"
 msgstr "Meet another {name} player"
 
-#: libs/account-privacy-client-ts/src/privacy-screen.tsx
+#: libs/account-privacy-client-ts/src/privacy-screen-view.tsx
 msgid "Membership cancellation has completed."
 msgstr "Membership cancellation has completed."
 
-#: libs/account-privacy-client-ts/src/privacy-screen.tsx
+#: libs/account-privacy-client-ts/src/privacy-screen-view.tsx
 msgid "Membership cancellation is still being completed. Nothing more is needed from you."
 msgstr "Membership cancellation is still being completed. Nothing more is needed from you."
 
@@ -3663,7 +3663,7 @@ msgstr "Memberships aren't available right now."
 msgid "Minutes per player + seconds added after each move, or days for every move in a daily game."
 msgstr "Minutes per player + seconds added after each move, or days for every move in a daily game."
 
-#: libs/game-session-client-ts/src/custom-game-configuration.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Minutes per side"
 msgstr "Minutes per side"
 
@@ -3684,10 +3684,10 @@ msgstr "More"
 msgid "Move {0} down"
 msgstr "Move {0} down"
 
-#. placeholder {0}: ply()
-#. placeholder {1}: props.record.moves.length
-#. placeholder {2}: recordLabel(props.record)
-#: libs/game-session-client-ts/src/game-history.tsx
+#. placeholder {0}: props.ply
+#. placeholder {1}: props.moves
+#. placeholder {2}: props.label
+#: libs/game-session-client-ts/src/game-replay-screen-view.tsx
 msgid "Move {0} of {1}. {2}"
 msgstr "Move {0} of {1}. {2}"
 
@@ -3704,7 +3704,7 @@ msgstr "Move endpoints inside the smaller board before resizing it."
 msgid "Move first endpoint"
 msgstr "Move first endpoint"
 
-#: libs/game-session-client-ts/src/custom-game-board.tsx
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
 msgid "Move number to review"
 msgstr "Move number to review"
 
@@ -3733,12 +3733,12 @@ msgstr "Move your paddle to return the ball. A ball past the other paddle scores
 msgid "Moves"
 msgstr "Moves"
 
-#: libs/game-session-client-ts/src/game-frame-play.tsx
+#: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "Moves appear as they are played."
 msgstr "Moves appear as they are played."
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
-#: libs/game-session-client-ts/src/custom-game-board.tsx
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
 msgid "Moves played"
 msgstr "Moves played"
 
@@ -3752,7 +3752,7 @@ msgstr "Moves: {0} · Pushes: {1}"
 msgid "Moves. The left and right arrow keys step through them."
 msgstr "Moves. The left and right arrow keys step through them."
 
-#: libs/game-matchmaking-client-ts/src/multiplayer-link-screen.tsx
+#: libs/game-matchmaking-client-ts/src/multiplayer-link-screen-view.tsx
 msgid "Multiplayer"
 msgstr "Multiplayer"
 
@@ -3760,7 +3760,7 @@ msgstr "Multiplayer"
 msgid "Multiplayer clocks are paused."
 msgstr "Multiplayer clocks are paused."
 
-#: libs/game-matchmaking-client-ts/src/multiplayer-controls.tsx
+#: libs/game-matchmaking-client-ts/src/multiplayer-screen-view.tsx
 msgid "Multiplayer command accepted"
 msgstr "Multiplayer command accepted"
 
@@ -3788,23 +3788,23 @@ msgstr "Multiplayer rematch offered"
 msgid "Mute coach"
 msgstr "Mute coach"
 
-#: libs/app-root-client-ts/src/app-header-global-menu.tsx
-#: libs/app-root-client-ts/src/settings-screen.tsx
-#: libs/app-root-client-ts/src/sound-screen.tsx
+#: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+#: libs/app-root-client-ts/src/sound-screen-view.tsx
 msgid "Muted"
 msgstr "Muted"
 
-#: libs/app-root-client-ts/src/about-screen.tsx
+#: libs/app-root-client-ts/src/about-screen-view.tsx
 #: pkgs/ui-root-client-ts/src/text-input/text-input.example.tsx
 msgid "Name"
 msgstr "Name"
 
-#: libs/synthetic-population-client-ts/src/synthetic-population-users.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 msgid "Name, activity, region or worker"
 msgstr "Name, activity, region or worker"
 
 #: libs/app-root-client-ts/src/app-commands.tsx
-#: libs/app-root-client-ts/src/app-tab-bar.tsx
+#: libs/app-root-client-ts/src/app-tab-bar-view.tsx
 #: pkgs/ui-root-client-ts/src/app-header-island/index.tsx
 msgid "Navigation"
 msgstr "Navigation"
@@ -3830,7 +3830,7 @@ msgid "New export requested"
 msgstr "New export requested"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-find-panel.tsx
-#: libs/game-session-client-ts/src/custom-game-actions.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "New game"
 msgstr "New game"
 
@@ -3838,11 +3838,11 @@ msgstr "New game"
 msgid "New notifications will show up here when someone reaches out."
 msgstr "New notifications will show up here when someone reaches out."
 
-#: libs/spaces-client-ts/src/spaces-screen.tsx
+#: libs/spaces-client-ts/src/spaces-screen-view.tsx
 msgid "New space"
 msgstr "New space"
 
-#: libs/app-root-client-ts/src/update-prompt.tsx
+#: libs/app-root-client-ts/src/pwa-update-prompt-view.tsx
 msgid "New version available — reload to update"
 msgstr "New version available — reload to update"
 
@@ -3853,24 +3853,24 @@ msgid "Next"
 msgstr "Next"
 
 #: libs/game-puzzle-client-ts/src/puzzle-move-history-nav.tsx
-#: libs/game-session-client-ts/src/custom-game-board.tsx
-#: libs/game-session-client-ts/src/game-history.tsx
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
+#: libs/game-session-client-ts/src/game-replay-screen-view.tsx
 msgid "Next move"
 msgstr "Next move"
 
-#: libs/synthetic-population-client-ts/src/synthetic-population-users.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 msgid "Next page"
 msgstr "Next page"
 
-#: libs/game-puzzle-client-ts/src/puzzle-celebration-overlay.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-celebration-overlay-view.tsx
 msgid "Next puzzle"
 msgstr "Next puzzle"
 
-#: libs/game-puzzle-client-ts/src/puzzle-feed-bar.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 msgid "Next puzzle after one second"
 msgstr "Next puzzle after one second"
 
-#: libs/game-puzzle-client-ts/src/puzzle-feed-bar.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 msgid "Next puzzle immediately"
 msgstr "Next puzzle immediately"
 
@@ -3891,7 +3891,7 @@ msgstr "night"
 msgid "Nine"
 msgstr "Nine"
 
-#: libs/app-root-client-ts/src/sync-screen.tsx
+#: libs/app-root-client-ts/src/sync-screen-view.tsx
 msgid "No"
 msgstr "No"
 
@@ -3903,19 +3903,19 @@ msgstr "No active session"
 msgid "No catalog entry for \"{id}\"."
 msgstr "No catalog entry for \"{id}\"."
 
-#: libs/game-session-client-ts/src/game-history.tsx
+#: libs/game-session-client-ts/src/game-history-screen-view.tsx
 msgid "No completed games yet."
 msgstr "No completed games yet."
 
-#: libs/game-puzzle-client-ts/src/content-publication-controls.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "No completed playtest of this version yet. Complete a playtest to prove it can be finished."
 msgstr "No completed playtest of this version yet. Complete a playtest to prove it can be finished."
 
-#: libs/game-session-client-ts/src/custom-game-status.tsx
+#: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "No Custom Game."
 msgstr "No Custom Game."
 
-#: libs/auth-client-ts/src/account-devices-card.tsx
+#: libs/auth-client-ts/src/account-devices-screen-view.tsx
 msgid "No devices yet"
 msgstr "No devices yet"
 
@@ -3960,23 +3960,23 @@ msgid "No membership yet."
 msgstr "No membership yet."
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-moves.tsx
-#: libs/game-session-client-ts/src/custom-game-board.tsx
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
 msgid "No moves yet."
 msgstr "No moves yet."
 
-#: libs/game-matchmaking-client-ts/src/multiplayer-screen.tsx
+#: libs/game-matchmaking-client-ts/src/multiplayer-screen-view.tsx
 msgid "No multiplayer game is available to you."
 msgstr "No multiplayer game is available to you."
 
-#: libs/spaces-client-ts/src/space-share-people-list.tsx
+#: libs/spaces-client-ts/src/space-share-sheet-view.tsx
 msgid "No one added yet"
 msgstr "No one added yet"
 
-#: libs/spaces-client-ts/src/space-members-list-modal.tsx
+#: libs/spaces-client-ts/src/space-members-sheet-view.tsx
 msgid "No one connected yet"
 msgstr "No one connected yet"
 
-#: libs/game-session-client-ts/src/game-history-participant.tsx
+#: libs/game-session-client-ts/src/game-history-screen-view.tsx
 msgid "No participant"
 msgstr "No participant"
 
@@ -3984,7 +3984,7 @@ msgstr "No participant"
 msgid "No passing this deal."
 msgstr "No passing this deal."
 
-#: libs/spaces-client-ts/src/space-share-add-people.tsx
+#: libs/spaces-client-ts/src/space-share-add-people-view.tsx
 msgid "No people found"
 msgstr "No people found"
 
@@ -3993,11 +3993,11 @@ msgstr "No people found"
 msgid "No people found for “{0}”"
 msgstr "No people found for “{0}”"
 
-#: libs/game-puzzle-client-ts/src/content-library-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "No published puzzles loaded"
 msgstr "No published puzzles loaded"
 
-#: libs/game-puzzle-client-ts/src/puzzle-review-screen.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-review-screen-view.tsx
 msgid "No puzzle selected"
 msgstr "No puzzle selected"
 
@@ -4017,7 +4017,7 @@ msgstr "No puzzles played yet."
 msgid "No results"
 msgstr "No results"
 
-#: libs/spaces-client-ts/src/spaces-lobby.tsx
+#: libs/spaces-client-ts/src/spaces-lobby-view.tsx
 msgid "No spaces yet"
 msgstr "No spaces yet"
 
@@ -4025,7 +4025,7 @@ msgstr "No spaces yet"
 msgid "No Synthetic Population Workers"
 msgstr "No Synthetic Population Workers"
 
-#: libs/synthetic-population-client-ts/src/synthetic-population-users.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 msgid "No Synthetic Users found"
 msgstr "No Synthetic Users found"
 
@@ -4033,7 +4033,7 @@ msgstr "No Synthetic Users found"
 msgid "Nobody has passed yet."
 msgstr "Nobody has passed yet."
 
-#: libs/app-root-client-ts/src/sync-screen.tsx
+#: libs/app-root-client-ts/src/sync-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "None"
 msgstr "None"
@@ -4056,7 +4056,7 @@ msgstr "North green triangle"
 msgid "Not available"
 msgstr "Not available"
 
-#: libs/app-root-client-ts/src/client-events.tsx
+#: libs/app-root-client-ts/src/client-events-screen-view.tsx
 msgid "Not available in this app"
 msgstr "Not available in this app"
 
@@ -4068,7 +4068,7 @@ msgstr "Not available on this account"
 msgid "Not confirmed yet"
 msgstr "Not confirmed yet"
 
-#: libs/spaces-client-ts/src/space-join-button.tsx
+#: libs/spaces-client-ts/src/space-join-screen-view.tsx
 #: pkgs/ui-root-client-ts/src/use-mutation-button/index.tsx
 msgid "Not confirmed. Check again"
 msgstr "Not confirmed. Check again"
@@ -4085,7 +4085,7 @@ msgstr "Not found"
 msgid "Not in the word list: {missing}"
 msgstr "Not in the word list: {missing}"
 
-#: libs/permissions-client-ts/src/denial-modal.tsx
+#: libs/permissions-client-ts/src/denial-modal-view.tsx
 msgid "Not now"
 msgstr "Not now"
 
@@ -4093,7 +4093,7 @@ msgstr "Not now"
 msgid "Not registered"
 msgstr "Not registered"
 
-#: libs/app-config-client-ts/src/client-config-entity-card.tsx
+#: libs/app-config-client-ts/src/client-config-screen-view.tsx
 msgid "Not set"
 msgstr "Not set"
 
@@ -4101,7 +4101,7 @@ msgstr "Not set"
 msgid "Not started"
 msgstr "Not started"
 
-#: libs/app-root-client-ts/src/more-server-status.tsx
+#: libs/app-root-client-ts/src/connection-screen-view.tsx
 msgid "Not yet"
 msgstr "Not yet"
 
@@ -4121,7 +4121,7 @@ msgstr "Nothing synced near this rating yet. Change the target rating to keep pl
 msgid "Nothing to correct. Playtest the board to prove it."
 msgstr "Nothing to correct. Playtest the board to prove it."
 
-#: libs/notifications-client-ts/src/notifications-screen.tsx
+#: libs/notifications-client-ts/src/notifications-screen-view.tsx
 #: libs/notifications-client-ts/src/sub-client.tsx
 msgid "Notifications"
 msgstr "Notifications"
@@ -4138,9 +4138,9 @@ msgstr "Numberlink board"
 msgid "Observe and control the Synthetic Population"
 msgstr "Observe and control the Synthetic Population"
 
-#: libs/app-config-client-ts/src/client-config-entity-card.tsx
-#: libs/app-root-client-ts/src/performance-screen.tsx
-#: libs/app-root-client-ts/src/settings-screen.tsx
+#: libs/app-config-client-ts/src/client-config-screen-view.tsx
+#: libs/app-root-client-ts/src/performance-screen-view.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 msgid "Off"
 msgstr "Off"
@@ -4149,7 +4149,7 @@ msgstr "Off"
 msgid "Offer a<0> multiplayer</0> draw"
 msgstr "Offer a<0> multiplayer</0> draw"
 
-#: libs/game-session-client-ts/src/custom-game-active.tsx
+#: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "Offer draw"
 msgstr "Offer draw"
 
@@ -4157,21 +4157,21 @@ msgstr "Offer draw"
 msgid "offline"
 msgstr "offline"
 
-#: libs/app-root-client-ts/src/app-header-global-menu.tsx
-#: libs/app-root-client-ts/src/settings-screen.tsx
+#: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
 msgid "Offline"
 msgstr "Offline"
 
-#: libs/permissions-client-ts/src/denial-modal.tsx
+#: libs/permissions-client-ts/src/denial-modal-view.tsx
 msgid "OK"
 msgstr "OK"
 
-#: libs/app-config-client-ts/src/client-config-entity-card.tsx
-#: libs/app-root-client-ts/src/app-header-global-menu.tsx
-#: libs/app-root-client-ts/src/performance-screen.tsx
-#: libs/app-root-client-ts/src/settings-screen.tsx
-#: libs/app-root-client-ts/src/sound-screen.tsx
+#: libs/app-config-client-ts/src/client-config-screen-view.tsx
+#: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
+#: libs/app-root-client-ts/src/performance-screen-view.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+#: libs/app-root-client-ts/src/sound-screen-view.tsx
 msgid "On"
 msgstr "On"
 
@@ -4183,9 +4183,9 @@ msgstr "on the board"
 msgid "online"
 msgstr "online"
 
-#: libs/app-root-client-ts/src/app-header-global-menu.tsx
-#: libs/app-root-client-ts/src/settings-screen.tsx
-#: libs/app-root-client-ts/src/sync-screen.tsx
+#: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+#: libs/app-root-client-ts/src/sync-screen-view.tsx
 msgid "Online"
 msgstr "Online"
 
@@ -4205,7 +4205,7 @@ msgstr "Only another participant can answer a draw offer."
 msgid "Only the creator can make this choice."
 msgstr "Only the creator can make this choice."
 
-#: libs/spaces-client-ts/src/space-join-prompt.tsx
+#: libs/spaces-client-ts/src/space-join-screen-view.tsx
 msgid "Only the host's friends and people the host adds can join it. Ask the host to add you, or check that the link is right."
 msgstr "Only the host's friends and people the host adds can join it. Ask the host to add you, or check that the link is right."
 
@@ -4217,7 +4217,7 @@ msgstr "Only the participant whose turn it is can move."
 msgid "Only the puzzle team can load puzzles"
 msgstr "Only the puzzle team can load puzzles"
 
-#: libs/game-session-client-ts/src/custom-game-private-setup.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Only you see it. Get ready once it is complete."
 msgstr "Only you see it. Get ready once it is complete."
 
@@ -4225,12 +4225,12 @@ msgstr "Only you see it. Get ready once it is complete."
 msgid "Open command palette"
 msgstr "Open command palette"
 
-#: libs/game-puzzle-client-ts/src/content-create-controls.tsx
+#: libs/game-puzzle-client-ts/src/content-create-controls-view.tsx
 msgid "Open created draft"
 msgstr "Open created draft"
 
-#. placeholder {0}: resolvedTitle()
-#: libs/spaces-client-ts/src/space-card-open-link.tsx
+#. placeholder {0}: props.space.title
+#: libs/spaces-client-ts/src/space-card-view.tsx
 msgid "Open current space {0}"
 msgstr "Open current space {0}"
 
@@ -4254,14 +4254,14 @@ msgstr "Open playtest"
 msgid "Open restarted attempt"
 msgstr "Open restarted attempt"
 
-#: libs/game-session-client-ts/src/custom-game-person.tsx
-#: libs/game-session-client-ts/src/custom-game-side-choices.tsx
+#: libs/game-session-client-ts/src/game-frame-people.tsx
+#: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
 #: pkgs/ui-root-client-ts/src/avatar/index.tsx
 msgid "Open seat"
 msgstr "Open seat"
 
-#. placeholder {0}: resolvedTitle()
-#: libs/spaces-client-ts/src/space-card-open-link.tsx
+#. placeholder {0}: props.space.title
+#: libs/spaces-client-ts/src/space-card-view.tsx
 msgid "Open space {0}"
 msgstr "Open space {0}"
 
@@ -4270,7 +4270,7 @@ msgid "Open the new puzzle draft"
 msgstr "Open the new puzzle draft"
 
 #: libs/billing-client-ts/src/billing-plan-actions.tsx
-#: libs/spaces-client-ts/src/spaces-screen.tsx
+#: libs/spaces-client-ts/src/spaces-screen-view.tsx
 msgid "Opening…"
 msgstr "Opening…"
 
@@ -4294,7 +4294,7 @@ msgstr "Opponent's reply: {side} played {0} to {1}."
 msgid "opposite row reached"
 msgstr "opposite row reached"
 
-#: libs/game-session-client-ts/src/custom-game-configuration.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Options"
 msgstr "Options"
 
@@ -4302,7 +4302,7 @@ msgstr "Options"
 msgid "Orange"
 msgstr "Orange"
 
-#: libs/account-privacy-client-ts/src/privacy-screen.tsx
+#: libs/account-privacy-client-ts/src/privacy-screen-view.tsx
 msgid "Ordinary personal data will be erased within 30 days."
 msgstr "Ordinary personal data will be erased within 30 days."
 
@@ -4314,17 +4314,17 @@ msgstr "os"
 msgid "OS"
 msgstr "OS"
 
-#: libs/profile-client-ts/src/profile-handle-screen.tsx
-#: libs/profile-client-ts/src/stand-in-notice.tsx
+#: libs/profile-client-ts/src/profile-handle-screen-view.tsx
+#: libs/profile-client-ts/src/profile-screen-view.tsx
 msgid "Other people see you as {alias} until you choose a new username"
 msgstr "Other people see you as {alias} until you choose a new username"
 
-#: libs/game-session-client-ts/src/game-frame-seats.tsx
+#: libs/game-session-client-ts/src/game-frame-table-view.tsx
 msgid "Other players"
 msgstr "Other players"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-seat.tsx
-#: libs/game-session-client-ts/src/game-frame-seats.tsx
+#: libs/game-session-client-ts/src/use-frame-seats.tsx
 msgid "Out"
 msgstr "Out"
 
@@ -4344,11 +4344,11 @@ msgstr "Outside"
 msgid "Ownership generation"
 msgstr "Ownership generation"
 
-#: libs/game-puzzle-client-ts/src/content-library-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Pack"
 msgstr "Pack"
 
-#: libs/game-puzzle-client-ts/src/content-author-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 msgid "Pack builder"
 msgstr "Pack builder"
 
@@ -4380,7 +4380,7 @@ msgstr "Page {current} of {total}"
 msgid "Page {label}"
 msgstr "Page {label}"
 
-#: libs/app-root-client-ts/src/route-stub.tsx
+#: libs/app-root-client-ts/src/route-stub-screen-view.tsx
 msgid "Page not found"
 msgstr "Page not found"
 
@@ -4421,7 +4421,7 @@ msgstr "Passing your cards…"
 msgid "Pause"
 msgstr "Pause"
 
-#: libs/synthetic-population-client-ts/src/synthetic-population-users.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-details.tsx
 msgid "Paused"
@@ -4450,7 +4450,7 @@ msgid "People can choose any puzzle. Only published editions can be included whe
 msgstr "People can choose any puzzle. Only published editions can be included when you publish this pack."
 
 #: libs/spaces-client-ts/src/space-chrome-action-bar.tsx
-#: libs/spaces-client-ts/src/space-members-list-modal.tsx
+#: libs/spaces-client-ts/src/space-members-sheet-view.tsx
 msgid "People in this space"
 msgstr "People in this space"
 
@@ -4458,7 +4458,7 @@ msgstr "People in this space"
 msgid "People may play these puzzles in any order. Publication pins the selected editions."
 msgstr "People may play these puzzles in any order. Publication pins the selected editions."
 
-#: libs/spaces-client-ts/src/space-share-people-list.tsx
+#: libs/spaces-client-ts/src/space-share-sheet-view.tsx
 msgid "People with access"
 msgstr "People with access"
 
@@ -4475,16 +4475,16 @@ msgstr "per year · {0}/month"
 msgid "perf"
 msgstr "perf"
 
-#: libs/app-root-client-ts/src/performance-screen.tsx
-#: libs/app-root-client-ts/src/settings-screen.tsx
+#: libs/app-root-client-ts/src/performance-screen-view.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
 msgid "Performance"
 msgstr "Performance"
 
-#: libs/app-root-client-ts/src/performance-screen.tsx
+#: libs/app-root-client-ts/src/performance-screen-view.tsx
 msgid "Performance monitor"
 msgstr "Performance monitor"
 
-#: libs/account-privacy-client-ts/src/privacy-screen.tsx
+#: libs/account-privacy-client-ts/src/privacy-screen-view.tsx
 msgid "Permanently delete account?"
 msgstr "Permanently delete account?"
 
@@ -4500,11 +4500,11 @@ msgstr "Pick a fixed target rating for the puzzle feed."
 msgid "Pick a fruit…"
 msgstr "Pick a fruit…"
 
-#: libs/profile-client-ts/src/profile-edit-screen.tsx
+#: libs/profile-client-ts/src/profile-edit-screen-view.tsx
 msgid "Pick a fun emoji look"
 msgstr "Pick a fun emoji look"
 
-#: libs/spaces-client-ts/src/games-main-menu.tsx
+#: libs/spaces-client-ts/src/space-games-screen-view.tsx
 msgid "Pick a game to play."
 msgstr "Pick a game to play."
 
@@ -4512,7 +4512,7 @@ msgstr "Pick a game to play."
 msgid "Pick fruits…"
 msgstr "Pick fruits…"
 
-#: libs/game-puzzle-client-ts/src/puzzle-review-screen.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-review-screen-view.tsx
 msgid "Pick one from the game log."
 msgstr "Pick one from the game log."
 
@@ -4528,11 +4528,11 @@ msgstr "Place letter tiles, cross words, score squares."
 msgid "Place tiles from your rack on the board."
 msgstr "Place tiles from your rack on the board."
 
-#: libs/app-root-client-ts/src/settings-screen.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
 msgid "Plan and subscription"
 msgstr "Plan and subscription"
 
-#: libs/app-root-client-ts/src/about-screen.tsx
+#: libs/app-root-client-ts/src/about-screen-view.tsx
 #: libs/auth-client-ts/src/account-device-meta-grid.tsx
 msgid "Platform"
 msgstr "Platform"
@@ -4542,11 +4542,11 @@ msgstr "Platform"
 msgid "Play {0}"
 msgstr "Play {0}"
 
-#: libs/game-session-client-ts/src/custom-game-actions.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Play a bot"
 msgstr "Play a bot"
 
-#: libs/game-session-client-ts/src/custom-game-actions.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Play against bots"
 msgstr "Play against bots"
 
@@ -4554,7 +4554,7 @@ msgstr "Play against bots"
 msgid "Play history"
 msgstr "Play history"
 
-#: libs/game-puzzle-client-ts/src/content-library-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Play published puzzles, continue your attempts, or build something of your own."
 msgstr "Play published puzzles, continue your attempts, or build something of your own."
 
@@ -4571,10 +4571,10 @@ msgstr "Play, continue saved attempts, or create your own"
 msgid "Played"
 msgstr "Played"
 
-#: libs/game-session-client-ts/src/custom-game-person.tsx
-#: libs/game-session-client-ts/src/custom-game-side-choices.tsx
 #: libs/game-session-client-ts/src/custom-game-status.tsx
-#: libs/game-session-client-ts/src/game-history-participant.tsx
+#: libs/game-session-client-ts/src/game-frame-people.tsx
+#: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
+#: libs/game-session-client-ts/src/game-history-screen-view.tsx
 msgid "Player on this device"
 msgstr "Player on this device"
 
@@ -4583,8 +4583,8 @@ msgstr "Player on this device"
 msgid "Player search accepted"
 msgstr "Player search accepted"
 
-#: libs/game-session-client-ts/src/custom-game-configuration.tsx
-#: libs/game-session-client-ts/src/custom-game-side.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
+#: libs/game-session-client-ts/src/game-frame-seats-view.tsx
 msgid "Players"
 msgstr "Players"
 
@@ -4593,7 +4593,7 @@ msgstr "Players"
 msgid "Playing"
 msgstr "Playing"
 
-#: libs/game-puzzle-client-ts/src/content-saved-attempts.tsx
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Playtest"
 msgstr "Playtest"
 
@@ -4602,10 +4602,12 @@ msgid "Playtest ready"
 msgstr "Playtest ready"
 
 #: libs/game-puzzle-client-ts/src/content-attempt-notices.tsx
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
 msgid "Playtest solved"
 msgstr "Playtest solved"
 
 #: libs/game-puzzle-client-ts/src/content-attempt-notices.tsx
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
 msgid "Playtest: this uses the real puzzle rules. It does not count toward personal or pack completion."
 msgstr "Playtest: this uses the real puzzle rules. It does not count toward personal or pack completion."
 
@@ -4626,7 +4628,7 @@ msgstr "Points"
 msgid "Points to win"
 msgstr "Points to win"
 
-#: libs/synthetic-population-client-ts/src/synthetic-user-replay.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-replay-view.tsx
 msgid "Policy changed"
 msgstr "Policy changed"
 
@@ -4642,7 +4644,7 @@ msgstr "Pong could not be opened. Return to the game choices and open it again."
 msgid "Pong court"
 msgstr "Pong court"
 
-#: libs/app-root-client-ts/src/settings-screen.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
 msgid "Preferences"
 msgstr "Preferences"
 
@@ -4654,7 +4656,7 @@ msgstr "Preferences and developer tools"
 msgid "Preparing…"
 msgstr "Preparing…"
 
-#: libs/game-puzzle-client-ts/src/content-author-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 msgid "Preview"
 msgstr "Preview"
 
@@ -4664,8 +4666,8 @@ msgid "Previous"
 msgstr "Previous"
 
 #: libs/game-puzzle-client-ts/src/puzzle-move-history-nav.tsx
-#: libs/game-session-client-ts/src/custom-game-board.tsx
-#: libs/game-session-client-ts/src/game-history.tsx
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
+#: libs/game-session-client-ts/src/game-replay-screen-view.tsx
 msgid "Previous move"
 msgstr "Previous move"
 
@@ -4673,7 +4675,7 @@ msgstr "Previous move"
 msgid "Pricing"
 msgstr "Pricing"
 
-#: libs/game-puzzle-client-ts/src/content-saved-attempts.tsx
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Private playtest. Personal and pack progress stay unchanged."
 msgstr "Private playtest. Personal and pack progress stay unchanged."
 
@@ -4685,18 +4687,17 @@ msgstr "Private setups"
 msgid "Processed"
 msgstr "Processed"
 
-#: libs/app-root-client-ts/src/about-screen.tsx
+#: libs/app-root-client-ts/src/about-screen-view.tsx
 msgid "Production"
 msgstr "Production"
 
 #: libs/account-privacy-client-ts/src/privacy-screen-layout.tsx
 #: libs/friends-client-ts/src/friend-user-screen-view.tsx
 #: libs/friends-client-ts/src/friends-list-screen-view.tsx
-#: libs/friends-client-ts/src/friends-permission-gate.tsx
-#: libs/profile-client-ts/src/avatar-editor-screen.tsx
-#: libs/profile-client-ts/src/profile-edit-screen.tsx
-#: libs/profile-client-ts/src/profile-handle-screen.tsx
-#: libs/profile-client-ts/src/profile-screen.tsx
+#: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
+#: libs/profile-client-ts/src/profile-edit-screen-view.tsx
+#: libs/profile-client-ts/src/profile-handle-screen-view.tsx
+#: libs/profile-client-ts/src/profile-screen-view.tsx
 #: libs/profile-client-ts/src/sub-client.tsx
 msgid "Profile"
 msgstr "Profile"
@@ -4710,6 +4711,7 @@ msgid "Progress"
 msgstr "Progress"
 
 #: libs/game-puzzle-client-ts/src/content-attempt-notices.tsx
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
 msgid "Progress saved on this device. Changes share when connected."
 msgstr "Progress saved on this device. Changes share when connected."
 
@@ -4721,33 +4723,33 @@ msgstr "Prove the account again to continue"
 msgid "Publication did not go ahead"
 msgstr "Publication did not go ahead"
 
-#: libs/game-puzzle-client-ts/src/content-publication-status.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Publication is waiting for confirmation. Your draft is kept. Keep this app connected to share it."
 msgstr "Publication is waiting for confirmation. Your draft is kept. Keep this app connected to share it."
 
-#: libs/game-puzzle-client-ts/src/use-content-publication.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Publication saved"
 msgstr "Publication saved"
 
-#: libs/game-puzzle-client-ts/src/content-publication-status.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Publication waits for your connection. Your draft is kept on this device."
 msgstr "Publication waits for your connection. Your draft is kept on this device."
 
-#: libs/game-puzzle-client-ts/src/use-content-publication.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Publish"
 msgstr "Publish"
 
-#: libs/game-puzzle-client-ts/src/content-library-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/content-pack-item.tsx
 #: libs/game-puzzle-client-ts/src/content-pack-preview.tsx
 msgid "Published"
 msgstr "Published"
 
-#: libs/game-puzzle-client-ts/src/content-library-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Published puzzles and packs"
 msgstr "Published puzzles and packs"
 
-#: libs/game-puzzle-client-ts/src/use-content-publication.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Publishing…"
 msgstr "Publishing…"
 
@@ -4768,12 +4770,12 @@ msgid "Pushes"
 msgstr "Pushes"
 
 #: libs/game-menu-client-ts/src/game-menu-choices.tsx
-#: libs/game-puzzle-client-ts/src/content-library-screen.tsx
-#: libs/game-puzzle-client-ts/src/puzzle-link-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-link-screen-view.tsx
 msgid "Puzzle"
 msgstr "Puzzle"
 
-#: libs/game-puzzle-client-ts/src/puzzle-celebration-overlay.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-celebration-overlay-view.tsx
 msgid "Puzzle abandoned"
 msgstr "Puzzle abandoned"
 
@@ -4785,11 +4787,12 @@ msgstr "Puzzle board to edit, fifteen columns and fifteen rows"
 msgid "Puzzle board, fifteen columns and fifteen rows"
 msgstr "Puzzle board, fifteen columns and fifteen rows"
 
-#: libs/game-puzzle-client-ts/src/content-author-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 msgid "Puzzle builder"
 msgstr "Puzzle builder"
 
 #: libs/game-puzzle-client-ts/src/content-attempt-notices.tsx
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
 msgid "Puzzle completed"
 msgstr "Puzzle completed"
 
@@ -4797,7 +4800,7 @@ msgstr "Puzzle completed"
 msgid "Puzzle draft created"
 msgstr "Puzzle draft created"
 
-#: libs/game-puzzle-client-ts/src/puzzle-celebration-overlay.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-celebration-overlay-view.tsx
 msgid "Puzzle failed"
 msgstr "Puzzle failed"
 
@@ -4805,7 +4808,7 @@ msgstr "Puzzle failed"
 msgid "Puzzle feed"
 msgstr "Puzzle feed"
 
-#: libs/game-puzzle-client-ts/src/puzzle-feed-bar.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 msgid "Puzzle feed. {mode} target {rating}. History: {history}. Themes: {themes}. {advance}."
 msgstr "Puzzle feed. {mode} target {rating}. History: {history}. Themes: {themes}. {advance}."
 
@@ -4822,11 +4825,11 @@ msgid "Puzzle loading stopped"
 msgstr "Puzzle loading stopped"
 
 #. placeholder {0}: props.rating
-#: libs/game-puzzle-client-ts/src/puzzle-review-screen.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-review-screen-view.tsx
 msgid "Puzzle rated {0}"
 msgstr "Puzzle rated {0}"
 
-#: libs/game-puzzle-client-ts/src/puzzle-stats-body.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-stats-screen-view.tsx
 msgid "Puzzle rating"
 msgstr "Puzzle rating"
 
@@ -4843,8 +4846,8 @@ msgstr "Puzzle rating trend and game log"
 msgid "Puzzle removed from the working pack"
 msgstr "Puzzle removed from the working pack"
 
-#: libs/game-puzzle-client-ts/src/personal-puzzle-stats-screen.tsx
-#: libs/game-puzzle-client-ts/src/puzzle-review-screen.tsx
+#: libs/game-puzzle-client-ts/src/personal-puzzle-stats-screen-view.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-review-screen-view.tsx
 msgid "Puzzle review"
 msgstr "Puzzle review"
 
@@ -4852,7 +4855,7 @@ msgstr "Puzzle review"
 msgid "Puzzle skipped."
 msgstr "Puzzle skipped."
 
-#: libs/game-puzzle-client-ts/src/puzzle-celebration-overlay.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-celebration-overlay-view.tsx
 msgid "Puzzle solved!"
 msgstr "Puzzle solved!"
 
@@ -4862,8 +4865,8 @@ msgstr "Puzzle solved."
 
 #: libs/game-menu-client-ts/src/game-menu-choices.tsx
 #: libs/game-menu-client-ts/src/personal-puzzle-stats-clients.tsx
-#: libs/game-puzzle-client-ts/src/personal-puzzle-stats-screen.tsx
-#: libs/game-puzzle-client-ts/src/puzzle-stats-body.tsx
+#: libs/game-puzzle-client-ts/src/personal-puzzle-stats-screen-view.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-stats-screen-view.tsx
 msgid "Puzzle stats"
 msgstr "Puzzle stats"
 
@@ -4871,7 +4874,7 @@ msgstr "Puzzle stats"
 msgid "Puzzle totals"
 msgstr "Puzzle totals"
 
-#: libs/game-puzzle-client-ts/src/puzzle-review-screen.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-review-screen-view.tsx
 msgid "Puzzle unavailable"
 msgstr "Puzzle unavailable"
 
@@ -4895,7 +4898,7 @@ msgstr "Puzzles and packs"
 msgid "Puzzles download the first time you open the feed. Reconnect and they will appear here."
 msgstr "Puzzles download the first time you open the feed. Reconnect and they will appear here."
 
-#: libs/game-puzzle-client-ts/src/puzzle-link-screen.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-link-screen-view.tsx
 msgid "Puzzles need a connection. Reconnect and open the puzzle link again."
 msgstr "Puzzles need a connection. Reconnect and open the puzzle link again."
 
@@ -4940,7 +4943,7 @@ msgid "Random"
 msgstr "Random"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-private-setup.tsx
-#: libs/game-session-client-ts/src/custom-game-private-setup.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Random setup"
 msgstr "Random setup"
 
@@ -4961,22 +4964,22 @@ msgstr "Rating after each puzzle"
 msgid "Rating offset"
 msgstr "Rating offset"
 
-#: libs/synthetic-population-client-ts/src/synthetic-user-screen.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
 msgid "Reading activity…"
 msgstr "Reading activity…"
 
-#: libs/synthetic-population-client-ts/src/synthetic-population-screen.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
 msgid "Reading Synthetic Population…"
 msgstr "Reading Synthetic Population…"
 
-#: libs/synthetic-population-client-ts/src/synthetic-population-users.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 msgid "Reading Synthetic Users…"
 msgstr "Reading Synthetic Users…"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-import-status.tsx
 #: libs/game-matchmaking-client-ts/src/multiplayer-private-setup.tsx
-#: libs/game-session-client-ts/src/custom-game-side.tsx
-#: libs/spaces-client-ts/src/spaces-screen.tsx
+#: libs/game-session-client-ts/src/game-frame-seats-view.tsx
+#: libs/spaces-client-ts/src/spaces-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-workers.tsx
 msgid "Ready"
 msgstr "Ready"
@@ -5004,7 +5007,7 @@ msgstr "Recent"
 msgid "Recent failure"
 msgstr "Recent failure"
 
-#: libs/game-puzzle-client-ts/src/content-connection-status.tsx
+#: libs/game-puzzle-client-ts/src/content-connection-status-view.tsx
 msgid "Reconnect"
 msgstr "Reconnect"
 
@@ -5012,7 +5015,7 @@ msgstr "Reconnect"
 msgid "Reconnect before changing or playing the game."
 msgstr "Reconnect before changing or playing the game."
 
-#: libs/game-session-client-ts/src/game-frame-seats.tsx
+#: libs/game-session-client-ts/src/use-frame-seats.tsx
 msgid "Reconnecting"
 msgstr "Reconnecting"
 
@@ -5063,17 +5066,17 @@ msgid "Redoing…"
 msgstr "Redoing…"
 
 #. placeholder {0}: reference()
-#: libs/app-root-client-ts/src/crash-screen.tsx
+#: libs/app-root-client-ts/src/crash-screen-view.tsx
 msgid "Reference: {0}"
 msgstr "Reference: {0}"
 
-#: libs/synthetic-population-client-ts/src/synthetic-population-screen.tsx
-#: libs/synthetic-population-client-ts/src/synthetic-user-screen.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
 msgid "Refresh"
 msgstr "Refresh"
 
-#: libs/synthetic-population-client-ts/src/synthetic-population-screen.tsx
-#: libs/synthetic-population-client-ts/src/synthetic-user-screen.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
 msgid "Refresh to try again."
 msgstr "Refresh to try again."
 
@@ -5085,17 +5088,17 @@ msgstr "Region"
 msgid "Released"
 msgstr "Released"
 
-#: libs/app-root-client-ts/src/update-prompt.tsx
+#: libs/app-root-client-ts/src/pwa-update-prompt-view.tsx
 msgid "Reload"
 msgstr "Reload"
 
-#: libs/app-root-client-ts/src/boot-error-screen.tsx
-#: libs/app-root-client-ts/src/crash-screen.tsx
-#: libs/app-root-client-ts/src/identity-boot-pending.tsx
+#: libs/app-root-client-ts/src/boot-error-screen-view.tsx
+#: libs/app-root-client-ts/src/crash-screen-view.tsx
+#: libs/app-root-client-ts/src/identity-boot-screen-view.tsx
 msgid "Reload app"
 msgstr "Reload app"
 
-#: libs/game-session-client-ts/src/game-frame-result.tsx
+#: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "Rematch"
 msgstr "Rematch"
 
@@ -5104,7 +5107,7 @@ msgstr "Rematch"
 #: libs/auth-client-ts/src/unlink-method-modal.tsx
 #: libs/battleship-client-ts/src/battleship-setup-board.tsx
 #: libs/friends-client-ts/src/friend-user-danger-modals.tsx
-#: libs/spaces-client-ts/src/space-share-people-list.tsx
+#: libs/spaces-client-ts/src/space-share-sheet-view.tsx
 msgid "Remove"
 msgstr "Remove"
 
@@ -5118,8 +5121,8 @@ msgstr "Remove {0} from pack"
 msgid "Remove {0} sign-in?"
 msgstr "Remove {0} sign-in?"
 
-#. placeholder {0}: props.person.username
-#: libs/spaces-client-ts/src/remove-space-person-modal.tsx
+#. placeholder {0}: props.name
+#: libs/spaces-client-ts/src/remove-space-person-modal-view.tsx
 msgid "Remove {0}?"
 msgstr "Remove {0}?"
 
@@ -5147,7 +5150,7 @@ msgstr "Remove from pack"
 msgid "Remove pair"
 msgstr "Remove pair"
 
-#: libs/spaces-client-ts/src/remove-space-person-modal.tsx
+#: libs/spaces-client-ts/src/remove-space-person-modal-view.tsx
 msgid "Remove person"
 msgstr "Remove person"
 
@@ -5164,7 +5167,7 @@ msgid "Removed"
 msgstr "Removed"
 
 #: libs/auth-client-ts/src/unlink-method-modal.tsx
-#: libs/spaces-client-ts/src/remove-space-person-modal.tsx
+#: libs/spaces-client-ts/src/remove-space-person-modal-view.tsx
 msgid "Removing…"
 msgstr "Removing…"
 
@@ -5172,7 +5175,7 @@ msgstr "Removing…"
 msgid "Rename"
 msgstr "Rename"
 
-#: libs/spaces-client-ts/src/rename-space-modal.tsx
+#: libs/spaces-client-ts/src/rename-space-modal-view.tsx
 msgid "Rename space"
 msgstr "Rename space"
 
@@ -5180,19 +5183,19 @@ msgstr "Rename space"
 msgid "Replace your ready export?"
 msgstr "Replace your ready export?"
 
-#: libs/synthetic-population-client-ts/src/synthetic-user-replay.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-replay-view.tsx
 msgid "Replay completed"
 msgstr "Replay completed"
 
-#: libs/synthetic-population-client-ts/src/synthetic-user-replay.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-replay-view.tsx
 msgid "Replay decisions"
 msgstr "Replay decisions"
 
-#: libs/synthetic-population-client-ts/src/synthetic-user-replay.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-replay-view.tsx
 msgid "Replays recorded choices and random inputs. Application timing and external services are not replayed."
 msgstr "Replays recorded choices and random inputs. Application timing and external services are not replayed."
 
-#: libs/app-root-client-ts/src/about-screen.tsx
+#: libs/app-root-client-ts/src/about-screen-view.tsx
 msgid "Report a security problem"
 msgstr "Report a security problem"
 
@@ -5216,7 +5219,7 @@ msgstr "Requests and invites that need a reply land here."
 msgid "Reset"
 msgstr "Reset"
 
-#: libs/app-root-client-ts/src/boot-error-screen.tsx
+#: libs/app-root-client-ts/src/boot-error-screen-view.tsx
 msgid "Reset local data and reload"
 msgstr "Reset local data and reload"
 
@@ -5232,15 +5235,15 @@ msgstr "Resets in {minutes} min"
 msgid "Resident memory"
 msgstr "Resident memory"
 
-#: libs/game-session-client-ts/src/custom-game-confirm.tsx
+#: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "Resign game"
 msgstr "Resign game"
 
-#: libs/game-matchmaking-client-ts/src/multiplayer-controls.tsx
+#: libs/game-matchmaking-client-ts/src/multiplayer-screen-view.tsx
 msgid "Resign multiplayer game?"
 msgstr "Resign multiplayer game?"
 
-#: libs/game-session-client-ts/src/custom-game-confirm.tsx
+#: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "Resign<0> game</0>"
 msgstr "Resign<0> game</0>"
 
@@ -5287,7 +5290,7 @@ msgstr "Resumed"
 msgid "Retry"
 msgstr "Retry"
 
-#: libs/app-root-client-ts/src/sync-screen.tsx
+#: libs/app-root-client-ts/src/sync-screen-view.tsx
 msgid "Retry sync"
 msgstr "Retry sync"
 
@@ -5296,11 +5299,11 @@ msgid "Return to builder"
 msgstr "Return to builder"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-reviewing.tsx
-#: libs/game-session-client-ts/src/custom-game-board.tsx
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
 msgid "Return to current position"
 msgstr "Return to current position"
 
-#: libs/game-puzzle-client-ts/src/content-author-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 msgid "Return to editing"
 msgstr "Return to editing"
 
@@ -5308,33 +5311,34 @@ msgstr "Return to editing"
 msgid "Return to editing to add a published puzzle or create a new draft."
 msgstr "Return to editing to add a published puzzle or create a new draft."
 
-#: libs/game-puzzle-client-ts/src/content-attempt-screen.tsx
-#: libs/game-puzzle-client-ts/src/content-author-screen.tsx
-#: libs/game-puzzle-client-ts/src/content-edition-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
+#: libs/game-puzzle-client-ts/src/content-edition-screen-view.tsx
 msgid "Return to puzzles"
 msgstr "Return to puzzles"
 
-#: libs/game-puzzle-client-ts/src/content-edition-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-edition-screen-view.tsx
 msgid "Return to puzzles, reconnect and open it again. Saved attempts keep their original content."
 msgstr "Return to puzzles, reconnect and open it again. Saved attempts keep their original content."
 
-#: libs/game-puzzle-client-ts/src/content-attempt-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
 msgid "Return to puzzles, reconnect and open the attempt again. Your progress stays saved."
 msgstr "Return to puzzles, reconnect and open the attempt again. Your progress stays saved."
 
 #: libs/game-puzzle-client-ts/src/content-attempt-notices.tsx
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
 msgid "Return to the builder to validate and publish this puzzle."
 msgstr "Return to the builder to validate and publish this puzzle."
 
-#: libs/game-puzzle-client-ts/src/content-author-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 msgid "Return to your library, reconnect and open it again. Your saved work stays kept."
 msgstr "Return to your library, reconnect and open it again. Your saved work stays kept."
 
-#: libs/game-session-client-ts/src/game-frame-result.tsx
+#: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "Review"
 msgstr "Review"
 
-#: libs/game-session-client-ts/src/custom-game-board.tsx
+#: libs/game-session-client-ts/src/game-frame-record-view.tsx
 msgid "Review position"
 msgstr "Review position"
 
@@ -5342,7 +5346,7 @@ msgstr "Review position"
 msgid "Review your games, wins and draws"
 msgstr "Review your games, wins and draws"
 
-#: libs/game-session-client-ts/src/custom-game-side-choices.tsx
+#: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
 msgid "Revoke invitation"
 msgstr "Revoke invitation"
 
@@ -5407,7 +5411,7 @@ msgstr "Round wins to win"
 msgid "Rows"
 msgstr "Rows"
 
-#: libs/app-root-client-ts/src/performance-screen.tsx
+#: libs/app-root-client-ts/src/performance-screen-view.tsx
 msgid "Sampled from this tab while the monitor is on."
 msgstr "Sampled from this tab while the monitor is on."
 
@@ -5415,9 +5419,9 @@ msgstr "Sampled from this tab while the monitor is on."
 msgid "Sank the whole fleet."
 msgstr "Sank the whole fleet."
 
-#: libs/profile-client-ts/src/avatar-editor-screen.tsx
-#: libs/profile-client-ts/src/profile-handle-screen.tsx
-#: libs/spaces-client-ts/src/rename-space-modal.tsx
+#: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
+#: libs/profile-client-ts/src/profile-handle-screen-view.tsx
+#: libs/spaces-client-ts/src/rename-space-modal-view.tsx
 msgid "Save"
 msgstr "Save"
 
@@ -5426,11 +5430,11 @@ msgstr "Save"
 msgid "Save {0}%"
 msgstr "Save {0}%"
 
-#: libs/game-puzzle-client-ts/src/content-author-status.tsx
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 msgid "Save again"
 msgstr "Save again"
 
-#: libs/synthetic-population-client-ts/src/synthetic-population-screen.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
 msgid "Save synthetic population"
 msgstr "Save synthetic population"
 
@@ -5442,9 +5446,9 @@ msgstr "Save the current changes before changing the pack."
 msgid "Save the pack and choose a game with a puzzle editor."
 msgstr "Save the pack and choose a game with a puzzle editor."
 
-#: libs/profile-client-ts/src/avatar-editor-screen.tsx
-#: libs/profile-client-ts/src/profile-handle-screen.tsx
-#: libs/synthetic-population-client-ts/src/synthetic-population-screen.tsx
+#: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
+#: libs/profile-client-ts/src/profile-handle-screen-view.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
 msgid "Saved"
 msgstr "Saved"
 
@@ -5456,7 +5460,7 @@ msgstr "Saved draft copy"
 msgid "Saved Lichess file"
 msgstr "Saved Lichess file"
 
-#: libs/game-puzzle-client-ts/src/content-author-status.tsx
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 msgid "Saved on this device. Changes share when connected."
 msgstr "Saved on this device. Changes share when connected."
 
@@ -5469,7 +5473,7 @@ msgstr "Saved position {0}"
 msgid "Saved positions"
 msgstr "Saved positions"
 
-#: libs/game-puzzle-client-ts/src/content-saved-attempts.tsx
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Saved puzzle"
 msgstr "Saved puzzle"
 
@@ -5477,18 +5481,19 @@ msgstr "Saved puzzle"
 msgid "Saving stopped"
 msgstr "Saving stopped"
 
-#: libs/game-puzzle-client-ts/src/content-author-status.tsx
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 msgid "Saving your draft…"
 msgstr "Saving your draft…"
 
 #: libs/game-puzzle-client-ts/src/content-attempt-notices.tsx
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
 msgid "Saving your position…"
 msgstr "Saving your position…"
 
-#: libs/profile-client-ts/src/avatar-editor-screen.tsx
-#: libs/profile-client-ts/src/profile-handle-screen.tsx
-#: libs/spaces-client-ts/src/rename-space-modal.tsx
-#: libs/synthetic-population-client-ts/src/synthetic-population-screen.tsx
+#: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
+#: libs/profile-client-ts/src/profile-handle-screen-view.tsx
+#: libs/spaces-client-ts/src/rename-space-modal-view.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
 msgid "Saving…"
 msgstr "Saving…"
 
@@ -5536,7 +5541,7 @@ msgstr "Search"
 msgid "Search by name"
 msgstr "Search by name"
 
-#: libs/spaces-client-ts/src/space-share-add-people.tsx
+#: libs/spaces-client-ts/src/space-share-add-people-view.tsx
 msgid "Search by username"
 msgstr "Search by username"
 
@@ -5583,16 +5588,16 @@ msgstr "Searching…"
 msgid "seconds"
 msgstr "seconds"
 
-#: libs/game-session-client-ts/src/custom-game-configuration.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Seconds added after a move"
 msgstr "Seconds added after a move"
 
-#: libs/app-root-client-ts/src/about-screen.tsx
-#: libs/auth-client-ts/src/account-screen.tsx
+#: libs/app-root-client-ts/src/about-screen-view.tsx
+#: libs/auth-client-ts/src/account-screen-view.tsx
 msgid "Security"
 msgstr "Security"
 
-#: libs/app-root-client-ts/src/sync-screen.tsx
+#: libs/app-root-client-ts/src/sync-screen-view.tsx
 msgid "See below"
 msgstr "See below"
 
@@ -5604,7 +5609,7 @@ msgstr "See plans"
 msgid "Seed"
 msgstr "Seed"
 
-#: libs/game-puzzle-client-ts/src/puzzle-feed-bar.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 msgid "Seen"
 msgstr "Seen"
@@ -5631,7 +5636,7 @@ msgstr "Select…"
 msgid "selected"
 msgstr "selected"
 
-#: libs/game-session-client-ts/src/custom-game-status.tsx
+#: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "Sending choice…"
 msgstr "Sending choice…"
 
@@ -5662,28 +5667,28 @@ msgstr "Session started"
 msgid "Sessions"
 msgstr "Sessions"
 
-#: libs/app-config-client-ts/src/client-config-screen.tsx
-#: libs/app-root-client-ts/src/about-screen.tsx
-#: libs/app-root-client-ts/src/app-header-global-menu.tsx
-#: libs/app-root-client-ts/src/client-events.tsx
-#: libs/app-root-client-ts/src/client-sql.tsx
-#: libs/app-root-client-ts/src/more-server-status.tsx
-#: libs/app-root-client-ts/src/performance-screen.tsx
-#: libs/app-root-client-ts/src/settings-screen.tsx
-#: libs/app-root-client-ts/src/sound-screen.tsx
-#: libs/app-root-client-ts/src/sync-screen.tsx
-#: libs/app-root-client-ts/src/theme-screen.tsx
-#: libs/auth-client-ts/src/account-device-detail-screen.tsx
-#: libs/auth-client-ts/src/account-devices-screen.tsx
-#: libs/auth-client-ts/src/account-screen.tsx
+#: libs/app-config-client-ts/src/client-config-screen-view.tsx
+#: libs/app-root-client-ts/src/about-screen-view.tsx
+#: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
+#: libs/app-root-client-ts/src/client-events-screen-view.tsx
+#: libs/app-root-client-ts/src/client-sql-screen-view.tsx
+#: libs/app-root-client-ts/src/connection-screen-view.tsx
+#: libs/app-root-client-ts/src/performance-screen-view.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+#: libs/app-root-client-ts/src/sound-screen-view.tsx
+#: libs/app-root-client-ts/src/sync-screen-view.tsx
+#: libs/app-root-client-ts/src/theme-screen-view.tsx
+#: libs/auth-client-ts/src/account-device-detail-screen-view.tsx
+#: libs/auth-client-ts/src/account-devices-screen-view.tsx
+#: libs/auth-client-ts/src/account-screen-view.tsx
 #: libs/billing-client-ts/src/billing-screen-view.tsx
-#: libs/chess-puzzle-client-ts/src/puzzle-management-screen.tsx
+#: libs/chess-puzzle-client-ts/src/puzzle-management-screen-view.tsx
 #: libs/chess-shared-client-ts/src/chess-settings-screen.tsx
 #: libs/game-menu-client-ts/src/game-menu-choices.tsx
-#: libs/game-puzzle-client-ts/src/personal-puzzle-stats-screen.tsx
+#: libs/game-puzzle-client-ts/src/personal-puzzle-stats-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-denial.tsx
-#: libs/synthetic-population-client-ts/src/synthetic-population-screen.tsx
-#: libs/synthetic-population-client-ts/src/synthetic-user-screen.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
 msgid "Settings"
 msgstr "Settings"
 
@@ -5710,20 +5715,20 @@ msgstr "Share"
 msgid "Share puzzle link"
 msgstr "Share puzzle link"
 
-#: libs/spaces-client-ts/src/space-share-sheet.tsx
+#: libs/spaces-client-ts/src/space-share-sheet-view.tsx
 msgid "Share space"
 msgstr "Share space"
 
-#: libs/spaces-client-ts/src/space-members-list-modal.tsx
-#: libs/spaces-client-ts/src/space-share-people-list.tsx
+#: libs/spaces-client-ts/src/space-members-sheet-view.tsx
+#: libs/spaces-client-ts/src/space-share-sheet-view.tsx
 msgid "Share the space link to invite people."
 msgstr "Share the space link to invite people."
 
-#: libs/friends-client-ts/src/friend-request-feedback.tsx
+#: libs/friends-client-ts/src/friend-request-feedback-view.tsx
 msgid "Sharing your friend request…"
 msgstr "Sharing your friend request…"
 
-#: libs/profile-client-ts/src/username-change-feedback.tsx
+#: libs/profile-client-ts/src/username-change-feedback-view.tsx
 msgid "Sharing your username change…"
 msgstr "Sharing your username change…"
 
@@ -5744,7 +5749,7 @@ msgstr "Show the position after {0}"
 msgid "Show your live spaces"
 msgstr "Show your live spaces"
 
-#: libs/app-root-client-ts/src/performance-screen.tsx
+#: libs/app-root-client-ts/src/performance-screen-view.tsx
 msgid "Shows a live FPS / INP top banner. Useful for diagnosing jank on low-end devices. Off by default."
 msgstr "Shows a live FPS / INP top banner. Useful for diagnosing jank on low-end devices. Off by default."
 
@@ -5753,7 +5758,7 @@ msgid "Shuffle rack"
 msgstr "Shuffle rack"
 
 #: libs/auth-client-ts/src/account-actions-row.tsx
-#: libs/auth-client-ts/src/account-devices-card.tsx
+#: libs/auth-client-ts/src/account-devices-screen-view.tsx
 #: libs/auth-client-ts/src/email-sign-in-form.tsx
 #: libs/auth-client-ts/src/sign-in-modal.tsx
 #: libs/auth-client-ts/src/signed-out-notice-banner.tsx
@@ -5781,7 +5786,7 @@ msgstr "Sign in to search for people"
 msgid "Sign in to see notifications"
 msgstr "Sign in to see notifications"
 
-#: libs/auth-client-ts/src/account-devices-card.tsx
+#: libs/auth-client-ts/src/account-devices-screen-view.tsx
 msgid "Sign in to see your devices"
 msgstr "Sign in to see your devices"
 
@@ -5834,7 +5839,7 @@ msgstr "Sign up with dev IDP"
 msgid "Sign up with Google"
 msgstr "Sign up with Google"
 
-#: libs/app-config-client-ts/src/client-config-entity-card.tsx
+#: libs/app-config-client-ts/src/client-config-screen-view.tsx
 msgid "Sign-in"
 msgstr "Sign-in"
 
@@ -5854,7 +5859,7 @@ msgstr "Sign-in link"
 msgid "Sign-in methods"
 msgstr "Sign-in methods"
 
-#: libs/app-root-client-ts/src/settings-screen.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
 msgid "Sign-in methods, devices, sign out"
 msgstr "Sign-in methods, devices, sign out"
 
@@ -5883,7 +5888,7 @@ msgstr "Signed out"
 msgid "Signed out everywhere"
 msgstr "Signed out everywhere"
 
-#: libs/app-root-client-ts/src/sso-callback.tsx
+#: libs/app-root-client-ts/src/sso-callback-screen-view.tsx
 #: libs/auth-client-ts/src/sign-in-modal.tsx
 #: pkgs/ui-root-client-ts/src/social-provider-config/index.tsx
 msgid "Signing in…"
@@ -5894,7 +5899,7 @@ msgstr "Signing in…"
 msgid "Signing out…"
 msgstr "Signing out…"
 
-#: libs/game-session-client-ts/src/custom-game-side.tsx
+#: libs/game-session-client-ts/src/game-frame-seats-view.tsx
 msgid "Sit here"
 msgstr "Sit here"
 
@@ -5922,11 +5927,11 @@ msgstr "Skip"
 msgid "Skipped"
 msgstr "Skipped"
 
-#: libs/app-root-client-ts/src/performance-screen.tsx
+#: libs/app-root-client-ts/src/performance-screen-view.tsx
 msgid "Slowest script"
 msgstr "Slowest script"
 
-#: libs/app-config-client-ts/src/client-config-entity-card.tsx
+#: libs/app-config-client-ts/src/client-config-screen-view.tsx
 msgid "Snapshot (JSON)"
 msgstr "Snapshot (JSON)"
 
@@ -5959,7 +5964,7 @@ msgid "Solve rated puzzles and climb the ladder"
 msgstr "Solve rated puzzles and climb the ladder"
 
 #: libs/game-puzzle-client-ts/src/puzzle-game-log-row.tsx
-#: libs/game-puzzle-client-ts/src/puzzle-review-screen.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-review-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-stats-cards.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-status-header.tsx
 msgid "Solved"
@@ -5969,18 +5974,18 @@ msgstr "Solved"
 msgid "Some puzzles have not reached this device. Reconnect to load the rest. Your progress stays saved."
 msgstr "Some puzzles have not reached this device. Reconnect to load the rest. Your progress stays saved."
 
-#: libs/app-root-client-ts/src/crash-screen.tsx
+#: libs/app-root-client-ts/src/crash-screen-view.tsx
 #: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "Something went wrong"
 msgstr "Something went wrong"
 
-#: libs/app-root-client-ts/src/app-header-global-menu.tsx
-#: libs/app-root-client-ts/src/settings-screen.tsx
-#: libs/app-root-client-ts/src/sound-screen.tsx
+#: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+#: libs/app-root-client-ts/src/sound-screen-view.tsx
 msgid "Sound"
 msgstr "Sound"
 
-#: libs/app-root-client-ts/src/sound-screen.tsx
+#: libs/app-root-client-ts/src/sound-screen-view.tsx
 msgid "Sound effects"
 msgstr "Sound effects"
 
@@ -6014,37 +6019,37 @@ msgstr "Space"
 msgid "Space ended"
 msgstr "Space ended"
 
-#: libs/spaces-client-ts/src/rename-space-modal.tsx
+#: libs/spaces-client-ts/src/rename-space-modal-view.tsx
 #: pkgs/ui-root-client-ts/src/mutation-modal/mutation-modal.example.tsx
 msgid "Space name"
 msgstr "Space name"
 
-#: libs/spaces-client-ts/src/rename-space-modal.tsx
+#: libs/spaces-client-ts/src/rename-space-modal-view.tsx
 msgid "Space renamed"
 msgstr "Space renamed"
 
-#: libs/app-config-client-ts/src/client-config-screen.tsx
-#: libs/app-root-client-ts/src/about-screen.tsx
-#: libs/app-root-client-ts/src/client-events.tsx
-#: libs/app-root-client-ts/src/client-sql.tsx
-#: libs/app-root-client-ts/src/more-server-status.tsx
-#: libs/app-root-client-ts/src/performance-screen.tsx
-#: libs/app-root-client-ts/src/settings-screen.tsx
-#: libs/app-root-client-ts/src/sound-screen.tsx
-#: libs/app-root-client-ts/src/sync-screen.tsx
-#: libs/app-root-client-ts/src/theme-screen.tsx
-#: libs/auth-client-ts/src/account-device-detail-screen.tsx
-#: libs/auth-client-ts/src/account-devices-screen.tsx
-#: libs/auth-client-ts/src/account-screen.tsx
+#: libs/app-config-client-ts/src/client-config-screen-view.tsx
+#: libs/app-root-client-ts/src/about-screen-view.tsx
+#: libs/app-root-client-ts/src/client-events-screen-view.tsx
+#: libs/app-root-client-ts/src/client-sql-screen-view.tsx
+#: libs/app-root-client-ts/src/connection-screen-view.tsx
+#: libs/app-root-client-ts/src/performance-screen-view.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+#: libs/app-root-client-ts/src/sound-screen-view.tsx
+#: libs/app-root-client-ts/src/sync-screen-view.tsx
+#: libs/app-root-client-ts/src/theme-screen-view.tsx
+#: libs/auth-client-ts/src/account-device-detail-screen-view.tsx
+#: libs/auth-client-ts/src/account-devices-screen-view.tsx
+#: libs/auth-client-ts/src/account-screen-view.tsx
 #: libs/billing-client-ts/src/billing-screen-view.tsx
-#: libs/spaces-client-ts/src/space-ended-screen.tsx
-#: libs/spaces-client-ts/src/space-join-prompt.tsx
-#: libs/spaces-client-ts/src/space-reachability.tsx
-#: libs/spaces-client-ts/src/spaces-screen.tsx
+#: libs/spaces-client-ts/src/space-ended-screen-view.tsx
+#: libs/spaces-client-ts/src/space-join-screen-view.tsx
+#: libs/spaces-client-ts/src/space-unreachable-screen-view.tsx
+#: libs/spaces-client-ts/src/spaces-screen-view.tsx
 #: libs/spaces-client-ts/src/sub-client.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-denial.tsx
-#: libs/synthetic-population-client-ts/src/synthetic-population-screen.tsx
-#: libs/synthetic-population-client-ts/src/synthetic-user-screen.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-screen-view.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
 msgid "Spaces"
 msgstr "Spaces"
 
@@ -6072,15 +6077,15 @@ msgstr "Square tool"
 msgid "Stable per-device identifier; tap to copy"
 msgstr "Stable per-device identifier; tap to copy"
 
-#: libs/game-session-client-ts/src/game-frame-seats.tsx
+#: libs/game-session-client-ts/src/game-frame-table-view.tsx
 msgid "Stand-in bot"
 msgstr "Stand-in bot"
 
-#: libs/game-session-client-ts/src/game-frame-result.tsx
+#: libs/game-session-client-ts/src/game-frame-result-view.tsx
 msgid "Standings"
 msgstr "Standings"
 
-#: libs/game-session-client-ts/src/custom-game-configuration.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 #: pkgs/ui-root-client-ts/src/pagination-controls/index.tsx
 msgid "Start"
 msgstr "Start"
@@ -6094,11 +6099,11 @@ msgstr "Start {0}-day free trial"
 msgid "Start a new attempt"
 msgstr "Start a new attempt"
 
-#: libs/spaces-client-ts/src/spaces-lobby.tsx
+#: libs/spaces-client-ts/src/spaces-lobby-view.tsx
 msgid "Start a space"
 msgstr "Start a space"
 
-#: libs/spaces-client-ts/src/spaces-lobby.tsx
+#: libs/spaces-client-ts/src/spaces-lobby-view.tsx
 msgid "Start a space to play with friends. Spaces you join show up here."
 msgstr "Start a space to play with friends. Spaces you join show up here."
 
@@ -6106,11 +6111,11 @@ msgstr "Start a space to play with friends. Spaces you join show up here."
 msgid "Start at a matching endpoint or an existing path."
 msgstr "Start at a matching endpoint or an existing path."
 
-#: libs/game-session-client-ts/src/custom-game-configuration.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Start game"
 msgstr "Start game"
 
-#: libs/chess-puzzle-client-ts/src/puzzle-management-screen.tsx
+#: libs/chess-puzzle-client-ts/src/puzzle-management-screen-view.tsx
 msgid "Start loading"
 msgstr "Start loading"
 
@@ -6130,11 +6135,11 @@ msgstr "start, double word"
 msgid "Started"
 msgstr "Started"
 
-#: libs/game-puzzle-client-ts/src/content-library-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Starter packs"
 msgstr "Starter packs"
 
-#: libs/chess-puzzle-client-ts/src/puzzle-management-screen.tsx
+#: libs/chess-puzzle-client-ts/src/puzzle-management-screen-view.tsx
 msgid "Starting load…"
 msgstr "Starting load…"
 
@@ -6142,11 +6147,11 @@ msgstr "Starting load…"
 msgid "Starting…"
 msgstr "Starting…"
 
-#: libs/app-root-client-ts/src/sync-screen.tsx
+#: libs/app-root-client-ts/src/sync-screen-view.tsx
 msgid "State"
 msgstr "State"
 
-#: libs/app-root-client-ts/src/settings-screen.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
 msgid "Status"
 msgstr "Status"
 
@@ -6178,7 +6183,7 @@ msgstr "Steer {0} up"
 msgid "Steer your rider around the arena. Every rider leaves a light trail; the edge and every trail crash a rider. The last rider riding wins the round, and the first to the target score wins the game. Ride against bots, share a device, invite people, or find players."
 msgstr "Steer your rider around the arena. Every rider leaves a light trail; the edge and every trail crash a rider. The last rider riding wins the round, and the first to the target score wins the game. Ride against bots, share a device, invite people, or find players."
 
-#: libs/app-root-client-ts/src/settings-screen.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
 msgid "Stop every network connection until you work online"
 msgstr "Stop every network connection until you work online"
 
@@ -6238,29 +6243,29 @@ msgstr "Subscribing needs a connection. Connect to the internet to start your me
 msgid "Suggested"
 msgstr "Suggested"
 
-#: libs/game-session-client-ts/src/custom-game-configuration.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Swap sides"
 msgstr "Swap sides"
 
-#: libs/app-root-client-ts/src/settings-screen.tsx
-#: libs/app-root-client-ts/src/sync-screen.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+#: libs/app-root-client-ts/src/sync-screen-view.tsx
 msgid "Sync"
 msgstr "Sync"
 
-#: libs/app-root-client-ts/src/app-header-global-menu.tsx
+#: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
 msgid "Sync issue"
 msgstr "Sync issue"
 
-#: libs/app-config-client-ts/src/client-config-entity-card.tsx
+#: libs/app-config-client-ts/src/client-config-screen-view.tsx
 msgid "Synced from the server on first request. Values come from server secrets, not from this device."
 msgstr "Synced from the server on first request. Values come from server secrets, not from this device."
 
-#: libs/app-root-client-ts/src/settings-screen.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
 msgid "Synced runtime configuration"
 msgstr "Synced runtime configuration"
 
-#: libs/app-root-client-ts/src/app-header-global-menu.tsx
-#: libs/app-root-client-ts/src/sync-screen.tsx
+#: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
+#: libs/app-root-client-ts/src/sync-screen-view.tsx
 msgid "Syncing"
 msgstr "Syncing"
 
@@ -6280,19 +6285,19 @@ msgstr "Synthetic Population Worker"
 msgid "Synthetic Population Workers"
 msgstr "Synthetic Population Workers"
 
-#: libs/synthetic-population-client-ts/src/synthetic-user-screen.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
 msgid "Synthetic User"
 msgstr "Synthetic User"
 
-#: libs/synthetic-population-client-ts/src/synthetic-user-screen.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-screen-view.tsx
 msgid "Synthetic User could not be loaded."
 msgstr "Synthetic User could not be loaded."
 
-#: libs/synthetic-population-client-ts/src/synthetic-population-users.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 msgid "Synthetic User directory could not be loaded."
 msgstr "Synthetic User directory could not be loaded."
 
-#: libs/synthetic-population-client-ts/src/synthetic-population-users.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-population-users-view.tsx
 msgid "Synthetic Users"
 msgstr "Synthetic Users"
 
@@ -6300,29 +6305,29 @@ msgstr "Synthetic Users"
 msgid "system"
 msgstr "system"
 
-#: libs/app-root-client-ts/src/app-header-global-menu.tsx
-#: libs/app-root-client-ts/src/settings-screen.tsx
-#: libs/app-root-client-ts/src/theme-screen.tsx
+#: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
+#: libs/app-root-client-ts/src/theme-screen-view.tsx
 msgid "System"
 msgstr "System"
 
-#: libs/auth-client-ts/src/account-screen.tsx
+#: libs/auth-client-ts/src/account-screen-view.tsx
 msgid "Take a personal-data export or delete your account"
 msgstr "Take a personal-data export or delete your account"
 
-#: libs/game-session-client-ts/src/custom-game-side.tsx
+#: libs/game-session-client-ts/src/game-frame-seats-view.tsx
 msgid "Take a seat"
 msgstr "Take a seat"
 
-#: libs/profile-client-ts/src/profile-edit-screen.tsx
+#: libs/profile-client-ts/src/profile-edit-screen-view.tsx
 msgid "Take an export or permanently delete your account"
 msgstr "Take an export or permanently delete your account"
 
-#: libs/game-session-client-ts/src/game-frame-seats.tsx
+#: libs/game-session-client-ts/src/game-frame-table-view.tsx
 msgid "Take back my side"
 msgstr "Take back my side"
 
-#: libs/game-session-client-ts/src/custom-game-side-choices.tsx
+#: libs/game-session-client-ts/src/game-frame-seat-choices-view.tsx
 msgid "Take this seat"
 msgstr "Take this seat"
 
@@ -6334,7 +6339,7 @@ msgstr "Take turns placing tiles from your seven-tile rack in one row or column 
 msgid "Taken {taken}"
 msgstr "Taken {taken}"
 
-#: libs/auth-client-ts/src/account-devices-card.tsx
+#: libs/auth-client-ts/src/account-devices-screen-view.tsx
 msgid "Tap a device for details."
 msgstr "Tap a device for details."
 
@@ -6342,8 +6347,8 @@ msgstr "Tap a device for details."
 msgid "Tap the field or icon to copy"
 msgstr "Tap the field or icon to copy"
 
-#: libs/app-root-client-ts/src/about-screen.tsx
-#: libs/auth-client-ts/src/account-devices-card.tsx
+#: libs/app-root-client-ts/src/about-screen-view.tsx
+#: libs/auth-client-ts/src/account-devices-screen-view.tsx
 msgid "Tap to copy"
 msgstr "Tap to copy"
 
@@ -6384,7 +6389,7 @@ msgstr "Teal"
 msgid "Ten"
 msgstr "Ten"
 
-#: libs/app-config-client-ts/src/client-config-entity-card.tsx
+#: libs/app-config-client-ts/src/client-config-screen-view.tsx
 msgid "Text to speech"
 msgstr "Text to speech"
 
@@ -6392,11 +6397,11 @@ msgstr "Text to speech"
 msgid "That account already signs in to a different account here. Sign in with it to use that account instead."
 msgstr "That account already signs in to a different account here. Sign in with it to use that account instead."
 
-#: libs/notifications-client-ts/src/notifications-screen.tsx
+#: libs/notifications-client-ts/src/inbox-choice-failure-notice.tsx
 msgid "That change wasn't made. The item may no longer be in your inbox."
 msgstr "That change wasn't made. The item may no longer be in your inbox."
 
-#: libs/notifications-client-ts/src/notifications-screen.tsx
+#: libs/notifications-client-ts/src/inbox-choice-failure-notice.tsx
 msgid "That change wasn't made. Try again in a moment."
 msgstr "That change wasn't made. Try again in a moment."
 
@@ -6404,7 +6409,7 @@ msgstr "That change wasn't made. Try again in a moment."
 msgid "That crate cannot move."
 msgstr "That crate cannot move."
 
-#: libs/game-session-client-ts/src/custom-game-error.tsx
+#: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "That didn't go through"
 msgstr "That didn't go through"
 
@@ -6460,7 +6465,7 @@ msgstr "That side is not available to you."
 msgid "That space could not be found"
 msgstr "That space could not be found"
 
-#: libs/spaces-client-ts/src/rename-space-modal.tsx
+#: libs/spaces-client-ts/src/rename-space-modal-view.tsx
 msgid "That space name is not allowed"
 msgstr "That space name is not allowed"
 
@@ -6480,7 +6485,7 @@ msgstr "That square already holds a tile."
 msgid "That took too long. Start again."
 msgstr "That took too long. Start again."
 
-#: libs/profile-client-ts/src/profile-handle-screen.tsx
+#: libs/profile-client-ts/src/profile-handle-screen-view.tsx
 #: libs/profile-client-ts/src/username-error-label.tsx
 msgid "That username is not allowed"
 msgstr "That username is not allowed"
@@ -6541,7 +6546,7 @@ msgstr "The change was not saved. Your previous position is still kept. Try agai
 msgid "The choice could not be confirmed. Try again."
 msgstr "The choice could not be confirmed. Try again."
 
-#: libs/notifications-client-ts/src/notifications-screen.tsx
+#: libs/notifications-client-ts/src/inbox-choice-failure-notice.tsx
 msgid "The connection is missing."
 msgstr "The connection is missing."
 
@@ -6561,7 +6566,7 @@ msgstr "The draft could not be created. Try again."
 msgid "The draft could not be saved. Try saving again."
 msgstr "The draft could not be saved. Try saving again."
 
-#: libs/game-puzzle-client-ts/src/content-publication-controls.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "The draft needs your attention"
 msgstr "The draft needs your attention"
 
@@ -6569,7 +6574,7 @@ msgstr "The draft needs your attention"
 msgid "The edit could not be changed. Try again."
 msgstr "The edit could not be changed. Try again."
 
-#: libs/account-privacy-client-ts/src/export-choice.tsx
+#: libs/account-privacy-client-ts/src/use-export-choice.ts
 msgid "The export could not be requested. Try again."
 msgstr "The export could not be requested. Try again."
 
@@ -6581,7 +6586,7 @@ msgstr "The export failed. You can ask again. No incomplete export is available.
 msgid "The export has expired. Ask for a new one."
 msgstr "The export has expired. Ask for a new one."
 
-#: libs/account-privacy-client-ts/src/export-choice.tsx
+#: libs/account-privacy-client-ts/src/use-export-choice.ts
 msgid "The export was not requested. Use the choice shown."
 msgstr "The export was not requested. Use the choice shown."
 
@@ -6601,7 +6606,7 @@ msgstr "The first word must cover the centre star."
 msgid "The game choices changed. Review them and try again."
 msgstr "The game choices changed. Review them and try again."
 
-#: libs/game-matchmaking-client-ts/src/multiplayer-controls.tsx
+#: libs/game-matchmaking-client-ts/src/multiplayer-screen-view.tsx
 msgid "The game ends with no result and no rating change."
 msgstr "The game ends with no result and no rating change."
 
@@ -6617,7 +6622,7 @@ msgstr "The game is over. Final scores: {scores}. {head} and {last} win."
 msgid "The game is over. Final scores: {scores}. {last} wins."
 msgstr "The game is over. Final scores: {scores}. {last} wins."
 
-#: libs/game-session-client-ts/src/custom-game-board.tsx
+#: libs/game-session-client-ts/src/game-frame-screen-view.tsx
 msgid "The game stopped. Your last saved score is kept. Reopen the game to try again."
 msgstr "The game stopped. Your last saved score is kept. Reopen the game to try again."
 
@@ -6630,7 +6635,7 @@ msgstr "The host hasn't started a puzzle yet."
 msgid "The host is offline. This space will reconnect when they return."
 msgstr "The host is offline. This space will reconnect when they return."
 
-#: libs/spaces-client-ts/src/games-main-menu.tsx
+#: libs/spaces-client-ts/src/space-games-screen-view.tsx
 msgid "The host picks the game for this space."
 msgstr "The host picks the game for this space."
 
@@ -6642,11 +6647,11 @@ msgstr "The Lichess file is in the shared bucket. Start loading to add its puzzl
 msgid "The Light Cycles game is finished."
 msgstr "The Light Cycles game is finished."
 
-#: libs/game-matchmaking-client-ts/src/multiplayer-link-client.tsx
+#: libs/game-matchmaking-client-ts/src/multiplayer-link-screen-view.tsx
 msgid "The link may be out of date. Pick a game from your list."
 msgstr "The link may be out of date. Pick a game from your list."
 
-#: libs/spaces-client-ts/src/space-join-prompt.tsx
+#: libs/spaces-client-ts/src/space-join-screen-view.tsx
 msgid "The link may be wrong, or the space may never have existed."
 msgstr "The link may be wrong, or the space may never have existed."
 
@@ -6698,7 +6703,7 @@ msgstr "The players are choosing their private setups."
 msgid "The playtest could not start"
 msgstr "The playtest could not start"
 
-#: libs/game-puzzle-client-ts/src/content-withdraw.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-controls.tsx
 msgid "The publication could not be withdrawn. Try again."
 msgstr "The publication could not be withdrawn. Try again."
 
@@ -6718,7 +6723,7 @@ msgstr "The round is drawn."
 msgid "The round result is showing. The next round starts soon."
 msgstr "The round result is showing. The next round starts soon."
 
-#: libs/game-matchmaking-client-ts/src/multiplayer-controls.tsx
+#: libs/game-matchmaking-client-ts/src/multiplayer-screen-view.tsx
 msgid "The round will end in a draw for all players."
 msgstr "The round will end in a draw for all players."
 
@@ -6735,7 +6740,7 @@ msgstr "The sign-in provider couldn't finish. Try again in a moment."
 msgid "The smaller board removed: {0}."
 msgstr "The smaller board removed: {0}."
 
-#: libs/spaces-client-ts/src/remove-space-person-modal.tsx
+#: libs/spaces-client-ts/src/remove-space-person-modal-view.tsx
 msgid "The space stays open. They can join again through its link."
 msgstr "The space stays open. They can join again through its link."
 
@@ -6763,8 +6768,8 @@ msgstr "The worker's way is blocked."
 msgid "The working draft changed. Open the kept copies and choose again."
 msgstr "The working draft changed. Open the kept copies and choose again."
 
-#: libs/app-root-client-ts/src/app-header-global-menu.tsx
-#: libs/app-root-client-ts/src/theme-screen.tsx
+#: libs/app-root-client-ts/src/app-header-global-menu-view.tsx
+#: libs/app-root-client-ts/src/theme-screen-view.tsx
 msgid "Theme"
 msgstr "Theme"
 
@@ -6796,7 +6801,7 @@ msgstr "There is no passing now."
 msgid "There is no secret choice to make now."
 msgstr "There is no secret choice to make now."
 
-#: libs/app-root-client-ts/src/route-stub.tsx
+#: libs/app-root-client-ts/src/route-stub-screen-view.tsx
 msgid "There is nothing at this address."
 msgstr "There is nothing at this address."
 
@@ -6804,7 +6809,7 @@ msgstr "There is nothing at this address."
 msgid "They already asked you"
 msgstr "They already asked you"
 
-#: libs/spaces-client-ts/src/space-addition-state.tsx
+#: libs/spaces-client-ts/src/space-share-add-people-view.tsx
 msgid "They can find this space in their lobby and choose Join."
 msgstr "They can find this space in their lobby and choose Join."
 
@@ -6812,7 +6817,7 @@ msgstr "They can find this space in their lobby and choose Join."
 msgid "They will be removed from your friends list."
 msgstr "They will be removed from your friends list."
 
-#: libs/spaces-client-ts/src/remove-space-person-modal.tsx
+#: libs/spaces-client-ts/src/remove-space-person-modal-view.tsx
 msgid "They will leave this space. They can choose to join again through the space link."
 msgstr "They will leave this space. They can choose to join again through the space link."
 
@@ -6844,7 +6849,7 @@ msgstr "This board cannot be opened. Choose an earlier saved draft to keep build
 msgid "This board is read-only. Follow the game or review earlier moves."
 msgstr "This board is read-only. Follow the game or review earlier moves."
 
-#: libs/account-privacy-client-ts/src/privacy-screen.tsx
+#: libs/account-privacy-client-ts/src/privacy-screen-view.tsx
 msgid "This cannot be undone. Every device will be signed out. Your hosted spaces and future membership charges will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Take an export first if you want a copy of your personal data."
 msgstr "This cannot be undone. Every device will be signed out. Your hosted spaces and future membership charges will end. If you have Plus, Plus ends at once: the remaining paid time and Plus credit are not refunded. Take an export first if you want a copy of your personal data."
 
@@ -6880,11 +6885,11 @@ msgstr "This device is online, but {productName} can’t be reached right now. T
 msgid "This draft cannot be opened. Choose an earlier saved copy to continue."
 msgstr "This draft cannot be opened. Choose an earlier saved copy to continue."
 
-#: libs/game-puzzle-client-ts/src/content-author-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 msgid "This draft is not available on this device"
 msgstr "This draft is not available on this device"
 
-#: libs/game-puzzle-client-ts/src/content-publication-controls.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "This draft passed validation. Publication checks it again."
 msgstr "This draft passed validation. Publication checks it again."
 
@@ -6892,7 +6897,7 @@ msgstr "This draft passed validation. Publication checks it again."
 msgid "This drawing cannot be opened. Choose an earlier saved draft to continue editing."
 msgstr "This drawing cannot be opened. Choose an earlier saved draft to continue editing."
 
-#: libs/game-puzzle-client-ts/src/content-edition-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-edition-screen-view.tsx
 msgid "This edition is not available on this device"
 msgstr "This edition is not available on this device"
 
@@ -6904,7 +6909,7 @@ msgstr "This export belongs to another account and cannot be downloaded."
 msgid "This field is required"
 msgstr "This field is required"
 
-#: libs/game-session-client-ts/src/custom-game-confirm.tsx
+#: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "This finishes the current game. Its record remains available."
 msgstr "This finishes the current game. Its record remains available."
 
@@ -6936,7 +6941,7 @@ msgstr "This game is cancelled."
 msgid "This game is finished."
 msgstr "This game is finished."
 
-#: libs/game-matchmaking-client-ts/src/multiplayer-link-client.tsx
+#: libs/game-matchmaking-client-ts/src/multiplayer-link-screen-view.tsx
 msgid "This game is unavailable."
 msgstr "This game is unavailable."
 
@@ -6952,7 +6957,7 @@ msgstr "This is a sanitized DOM snapshot of the selected application instance. I
 msgid "This is your only way to sign in, so it can't be removed."
 msgstr "This is your only way to sign in, so it can't be removed."
 
-#: libs/auth-client-ts/src/account-device-detail-screen.tsx
+#: libs/auth-client-ts/src/account-device-detail-screen-view.tsx
 msgid "This link is missing a device id."
 msgstr "This link is missing a device id."
 
@@ -6984,7 +6989,7 @@ msgstr "This profile could not be loaded"
 msgid "This profile is no longer available because the account was deleted."
 msgstr "This profile is no longer available because the account was deleted."
 
-#: libs/game-puzzle-client-ts/src/content-edition-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-edition-screen-view.tsx
 msgid "This publication is withdrawn. You can continue saved attempts from your library."
 msgstr "This publication is withdrawn. You can continue saved attempts from your library."
 
@@ -7001,19 +7006,20 @@ msgstr "This puzzle cannot be opened. Update the app to play it."
 msgid "This puzzle cannot be shown."
 msgstr "This puzzle cannot be shown."
 
-#: libs/game-puzzle-client-ts/src/content-attempt-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
 msgid "This puzzle has not reached this device"
 msgstr "This puzzle has not reached this device"
 
-#: libs/game-puzzle-client-ts/src/puzzle-link-screen.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-link-screen-view.tsx
 msgid "This puzzle is no longer available"
 msgstr "This puzzle is no longer available"
 
-#: libs/game-puzzle-client-ts/src/puzzle-review-screen.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-review-screen-view.tsx
 msgid "This puzzle is not in your local feed yet. Try again after sync."
 msgstr "This puzzle is not in your local feed yet. Try again after sync."
 
 #: libs/game-puzzle-client-ts/src/content-attempt-notices.tsx
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
 msgid "This puzzle needs a version of the app with its rules. Your saved attempt stays kept; update the app to continue it."
 msgstr "This puzzle needs a version of the app with its rules. Your saved attempt stays kept; update the app to continue it."
 
@@ -7025,31 +7031,31 @@ msgstr "This request could not be applied. Dismiss this notice and choose anothe
 msgid "This request was not saved. Check the current details before trying again."
 msgstr "This request was not saved. Check the current details before trying again."
 
-#: libs/game-puzzle-client-ts/src/content-attempt-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
 msgid "This saved position cannot be opened. Choose another kept continuation below, or restart. Your earlier attempt stays saved."
 msgstr "This saved position cannot be opened. Choose another kept continuation below, or restart. Your earlier attempt stays saved."
 
-#: libs/app-root-client-ts/src/route-stub.tsx
+#: libs/app-root-client-ts/src/route-stub-screen-view.tsx
 msgid "This screen has not been ported to the web app yet."
 msgstr "This screen has not been ported to the web app yet."
 
-#: libs/app-root-client-ts/src/crash-screen.tsx
+#: libs/app-root-client-ts/src/crash-screen-view.tsx
 msgid "This screen ran into a problem. Anything already saved on this device is kept. Try again, or go to Spaces."
 msgstr "This screen ran into a problem. Anything already saved on this device is kept. Try again, or go to Spaces."
 
-#: libs/spaces-client-ts/src/space-join-prompt.tsx
+#: libs/spaces-client-ts/src/space-join-screen-view.tsx
 msgid "This space can't be found"
 msgstr "This space can't be found"
 
-#: libs/spaces-client-ts/src/space-reachability.tsx
+#: libs/spaces-client-ts/src/space-unreachable-screen-view.tsx
 msgid "This space can't be reached right now"
 msgstr "This space can't be reached right now"
 
-#: libs/spaces-client-ts/src/space-join-ended-state.tsx
+#: libs/spaces-client-ts/src/space-ended-screen-view.tsx
 msgid "This space has ended"
 msgstr "This space has ended"
 
-#: libs/spaces-client-ts/src/space-members-list-modal.tsx
+#: libs/spaces-client-ts/src/space-members-sheet-view.tsx
 msgid "This tab"
 msgstr "This tab"
 
@@ -7057,11 +7063,11 @@ msgstr "This tab"
 msgid "This user could not be blocked. Try again."
 msgstr "This user could not be blocked. Try again."
 
-#: libs/profile-client-ts/src/username-change-feedback.tsx
+#: libs/profile-client-ts/src/username-change-feedback-view.tsx
 msgid "This username change could not be shared. Choose another username."
 msgstr "This username change could not be shared. Choose another username."
 
-#: libs/app-root-client-ts/src/app-update-required.tsx
+#: libs/app-root-client-ts/src/app-update-required-view.tsx
 msgid "This version of the app is out of date. Update it to keep playing with others — everything you did is kept."
 msgstr "This version of the app is out of date. Update it to keep playing with others — everything you did is kept."
 
@@ -7090,7 +7096,7 @@ msgstr "Three racks, one board, the highest score wins."
 msgid "time"
 msgstr "time"
 
-#: libs/game-session-client-ts/src/game-frame-seats.tsx
+#: libs/game-session-client-ts/src/game-frame-table-view.tsx
 msgid "Time"
 msgstr "Time"
 
@@ -7140,14 +7146,14 @@ msgid "Try a different search."
 msgstr "Try a different search."
 
 #: libs/account-privacy-client-ts/src/export-choice.tsx
-#: libs/app-root-client-ts/src/crash-screen.tsx
+#: libs/app-root-client-ts/src/crash-screen-view.tsx
 #: libs/auth-client-ts/src/sign-in-modal.tsx
 #: libs/auth-client-ts/src/use-email-sign-in.tsx
-#: libs/game-matchmaking-client-ts/src/multiplayer-link-screen.tsx
-#: libs/spaces-client-ts/src/space-reachability.tsx
+#: libs/game-matchmaking-client-ts/src/multiplayer-link-screen-view.tsx
+#: libs/spaces-client-ts/src/space-unreachable-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-controls.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-user-dom.tsx
-#: libs/synthetic-population-client-ts/src/synthetic-user-replay.tsx
+#: libs/synthetic-population-client-ts/src/synthetic-user-replay-view.tsx
 #: pkgs/ui-root-client-ts/src/game-action-button/index.tsx
 #: pkgs/ui-root-client-ts/src/mutation-modal-parts/index.tsx
 msgid "Try again"
@@ -7165,12 +7171,12 @@ msgstr "Try again later"
 msgid "Try again later. This person recently declined your request."
 msgstr "Try again later. This person recently declined your request."
 
-#: libs/game-puzzle-client-ts/src/content-create-controls.tsx
+#: libs/game-puzzle-client-ts/src/content-create-controls-view.tsx
 #: libs/game-puzzle-client-ts/src/use-content-pack-edit.tsx
 msgid "Try creating again"
 msgstr "Try creating again"
 
-#: libs/chess-puzzle-client-ts/src/puzzle-management-screen.tsx
+#: libs/chess-puzzle-client-ts/src/puzzle-management-screen-view.tsx
 msgid "Try loading again"
 msgstr "Try loading again"
 
@@ -7178,7 +7184,7 @@ msgstr "Try loading again"
 msgid "Try playtesting again"
 msgstr "Try playtesting again"
 
-#: libs/game-puzzle-client-ts/src/use-content-publication.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Try publishing again"
 msgstr "Try publishing again"
 
@@ -7226,7 +7232,7 @@ msgstr "UI action interval (milliseconds)"
 msgid "Unassigned"
 msgstr "Unassigned"
 
-#: libs/app-root-client-ts/src/about-screen.tsx
+#: libs/app-root-client-ts/src/about-screen-view.tsx
 #: libs/friends-client-ts/src/friend-action-status-renderers.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-workers.tsx
 msgid "Unavailable"
@@ -7266,7 +7272,7 @@ msgstr "Undoing…"
 msgid "unfinished"
 msgstr "unfinished"
 
-#: libs/profile-client-ts/src/profile-edit-screen.tsx
+#: libs/profile-client-ts/src/profile-edit-screen-view.tsx
 msgid "Unique handle for search and invites"
 msgstr "Unique handle for search and invites"
 
@@ -7282,9 +7288,9 @@ msgstr "Unmute coach"
 msgid "Unplayed"
 msgstr "Unplayed"
 
-#: libs/game-puzzle-client-ts/src/puzzle-feed-bar.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-game-log-row.tsx
-#: libs/game-session-client-ts/src/custom-game-status.tsx
+#: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "Unrated"
 msgstr "Unrated"
 
@@ -7296,19 +7302,19 @@ msgstr "Unrated · already played"
 msgid "Unreachable"
 msgstr "Unreachable"
 
-#: libs/game-puzzle-client-ts/src/puzzle-feed-bar.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-feed-bar-view.tsx
 #: libs/game-puzzle-client-ts/src/puzzle-feed-settings-modal.tsx
 msgid "Unseen"
 msgstr "Unseen"
 
-#: libs/game-session-client-ts/src/custom-game-configuration.tsx
-#: libs/game-session-client-ts/src/custom-game-status.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
+#: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "Untimed"
 msgstr "Untimed"
 
-#: libs/game-puzzle-client-ts/src/content-author-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 #: libs/game-puzzle-client-ts/src/content-kept-copies.tsx
-#: libs/game-puzzle-client-ts/src/content-library-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Untitled draft"
 msgstr "Untitled draft"
 
@@ -7321,7 +7327,7 @@ msgstr "Untitled pack"
 msgid "Untitled puzzle"
 msgstr "Untitled puzzle"
 
-#: libs/app-root-client-ts/src/app-update-required.tsx
+#: libs/app-root-client-ts/src/app-update-required-view.tsx
 msgid "Update"
 msgstr "Update"
 
@@ -7329,7 +7335,7 @@ msgstr "Update"
 msgid "Update payment method"
 msgstr "Update payment method"
 
-#: libs/app-root-client-ts/src/app-update-required.tsx
+#: libs/app-root-client-ts/src/app-update-required-view.tsx
 msgid "Update the app"
 msgstr "Update the app"
 
@@ -7337,7 +7343,7 @@ msgstr "Update the app"
 msgid "Updated"
 msgstr "Updated"
 
-#: libs/chess-puzzle-client-ts/src/puzzle-management-screen.tsx
+#: libs/chess-puzzle-client-ts/src/puzzle-management-screen-view.tsx
 msgid "Upload a missing Lichess file, then load its puzzles into this environment."
 msgstr "Upload a missing Lichess file, then load its puzzles into this environment."
 
@@ -7345,7 +7351,7 @@ msgstr "Upload a missing Lichess file, then load its puzzles into this environme
 msgid "Upload Lichess file"
 msgstr "Upload Lichess file"
 
-#. placeholder {0}: props.state.uploadedRows()
+#. placeholder {0}: props.uploadedRows
 #: libs/chess-puzzle-client-ts/src/puzzle-source-controls.tsx
 msgid "Uploaded {0} puzzles to the shared bucket. Keep this screen open until the upload finishes."
 msgstr "Uploaded {0} puzzles to the shared bucket. Keep this screen open until the upload finishes."
@@ -7378,7 +7384,7 @@ msgstr "Use light theme"
 msgid "Use system theme"
 msgstr "Use system theme"
 
-#: libs/game-session-client-ts/src/custom-game-configuration.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Use this clock"
 msgstr "Use this clock"
 
@@ -7390,8 +7396,8 @@ msgstr "Use this kept copy?"
 msgid "User ID"
 msgstr "User ID"
 
-#: libs/profile-client-ts/src/profile-edit-screen.tsx
-#: libs/profile-client-ts/src/profile-handle-screen.tsx
+#: libs/profile-client-ts/src/profile-edit-screen-view.tsx
+#: libs/profile-client-ts/src/profile-handle-screen-view.tsx
 msgid "Username"
 msgstr "Username"
 
@@ -7419,11 +7425,11 @@ msgstr "Username needs at least {USERNAME_MIN_LENGTH} characters"
 msgid "Username was changed recently"
 msgstr "Username was changed recently"
 
-#: libs/game-puzzle-client-ts/src/use-content-publication.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "Validate"
 msgstr "Validate"
 
-#: libs/app-root-client-ts/src/about-screen.tsx
+#: libs/app-root-client-ts/src/about-screen-view.tsx
 msgid "Version"
 msgstr "Version"
 
@@ -7439,7 +7445,7 @@ msgstr "Vertical wall"
 msgid "View profile"
 msgstr "View profile"
 
-#: libs/game-puzzle-client-ts/src/content-publication-controls.tsx
+#: libs/game-puzzle-client-ts/src/content-publication-controls-view.tsx
 msgid "View published edition"
 msgstr "View published edition"
 
@@ -7451,7 +7457,7 @@ msgstr "Violet"
 msgid "Waiting for participants and readiness."
 msgstr "Waiting for participants and readiness."
 
-#: libs/game-session-client-ts/src/custom-game-actions.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Waiting for the creator to create a game."
 msgstr "Waiting for the creator to create a game."
 
@@ -7468,7 +7474,7 @@ msgstr "Waiting for the host"
 msgid "Waiting for the host to start a puzzle."
 msgstr "Waiting for the host to start a puzzle."
 
-#: libs/game-session-client-ts/src/custom-game-configuration.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Waiting for the host to start."
 msgstr "Waiting for the host to start."
 
@@ -7514,7 +7520,7 @@ msgstr "West"
 msgid "West gold diamond"
 msgstr "West gold diamond"
 
-#: libs/game-session-client-ts/src/game-frame-result.tsx
+#: libs/game-session-client-ts/src/game-frame-actions-view.tsx
 msgid "What next"
 msgstr "What next"
 
@@ -7522,7 +7528,7 @@ msgstr "What next"
 msgid "What Plus includes"
 msgstr "What Plus includes"
 
-#: libs/app-root-client-ts/src/settings-screen.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
 msgid "Whether the app is connected, and what works without it"
 msgstr "Whether the app is connected, and what works without it"
 
@@ -7531,7 +7537,7 @@ msgstr "Whether the app is connected, and what works without it"
 msgid "White"
 msgstr "White"
 
-#: libs/game-session-client-ts/src/game-history.tsx
+#: libs/game-session-client-ts/src/game-history-screen-view.tsx
 msgid "Wins"
 msgstr "Wins"
 
@@ -7543,7 +7549,7 @@ msgstr "Withdraw"
 msgid "Withdraw publication"
 msgstr "Withdraw publication"
 
-#: libs/game-session-client-ts/src/custom-game-configuration.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Withdraw readiness"
 msgstr "Withdraw readiness"
 
@@ -7555,11 +7561,11 @@ msgstr "Withdraw this publication?"
 msgid "Withdrawal saved"
 msgstr "Withdrawal saved"
 
-#: libs/game-puzzle-client-ts/src/content-library-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Withdrawn"
 msgstr "Withdrawn"
 
-#: libs/app-root-client-ts/src/more-server-status.tsx
+#: libs/app-root-client-ts/src/connection-screen-view.tsx
 msgid "Without a connection, your spaces, games on this device and preferences keep working. What you do is kept on this device and shared once the connection is back. Signing in, searching for people and playing someone online need a connection."
 msgstr "Without a connection, your spaces, games on this device and preferences keep working. What you do is kept on this device and shared once the connection is back. Signing in, searching for people and playing someone online need a connection."
 
@@ -7580,7 +7586,7 @@ msgid "Words have at least two letters."
 msgstr "Words have at least two letters."
 
 #: libs/app-root-client-ts/src/app-commands.tsx
-#: libs/app-root-client-ts/src/settings-screen.tsx
+#: libs/app-root-client-ts/src/settings-screen-view.tsx
 #: libs/app-root-client-ts/src/work-offline-status.tsx
 msgid "Work offline"
 msgstr "Work offline"
@@ -7640,15 +7646,15 @@ msgstr "Yellow"
 msgid "Yellow diamond"
 msgstr "Yellow diamond"
 
-#: libs/app-root-client-ts/src/sync-screen.tsx
+#: libs/app-root-client-ts/src/sync-screen-view.tsx
 msgid "Yes"
 msgstr "Yes"
 
-#: libs/spaces-client-ts/src/space-members-list-modal.tsx
+#: libs/spaces-client-ts/src/space-members-sheet-view.tsx
 msgid "You"
 msgstr "You"
 
-#: libs/game-session-client-ts/src/custom-game-side.tsx
+#: libs/game-session-client-ts/src/game-frame-seats-view.tsx
 msgid "You · guest"
 msgstr "You · guest"
 
@@ -7669,15 +7675,15 @@ msgstr "You are already friends with this person."
 msgid "You are already playing your own side."
 msgstr "You are already playing your own side."
 
-#: libs/game-puzzle-client-ts/src/content-connection-status.tsx
+#: libs/game-puzzle-client-ts/src/content-connection-status-view.tsx
 msgid "You are offline. Available puzzles and your saved work stay on this device. Changes share when connected."
 msgstr "You are offline. Available puzzles and your saved work stay on this device. Changes share when connected."
 
-#: libs/chess-puzzle-client-ts/src/puzzle-management-screen.tsx
+#: libs/chess-puzzle-client-ts/src/puzzle-management-screen-view.tsx
 msgid "You are offline. The last status is shown. Reconnect to check or save a Lichess file, start loading, or stop loading."
 msgstr "You are offline. The last status is shown. Reconnect to check or save a Lichess file, start loading, or stop loading."
 
-#: libs/game-session-client-ts/src/custom-game-status.tsx
+#: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "You are offline. Your local game can continue."
 msgstr "You are offline. Your local game can continue."
 
@@ -7722,7 +7728,7 @@ msgstr "You can rejoin from the invite link if the space is still live."
 msgid "You can take a personal-data export before deleting the account. Your profile, friends, progress and preferences will be erased within 30 days."
 msgstr "You can take a personal-data export before deleting the account. Your profile, friends, progress and preferences will be erased within 30 days."
 
-#: libs/spaces-client-ts/src/space-join-prompt.tsx
+#: libs/spaces-client-ts/src/space-join-screen-view.tsx
 msgid "You can't join this space"
 msgstr "You can't join this space"
 
@@ -7766,7 +7772,7 @@ msgstr "You have no walls left. Move your pawn, or choose Pass turn when no move
 msgid "You have played every puzzle that matches your history and theme filters. Include played puzzles or adjust the feed."
 msgstr "You have played every puzzle that matches your history and theme filters. Include played puzzles or adjust the feed."
 
-#: libs/profile-client-ts/src/avatar-editor-screen.tsx
+#: libs/profile-client-ts/src/avatar-editor-screen-view.tsx
 msgid "You have unsaved avatar changes."
 msgstr "You have unsaved avatar changes."
 
@@ -7774,8 +7780,8 @@ msgstr "You have unsaved avatar changes."
 msgid "You left the space"
 msgstr "You left the space"
 
-#: libs/game-session-client-ts/src/custom-game-active.tsx
 #: libs/game-session-client-ts/src/custom-game-error.tsx
+#: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "You may offer a draw again after your next move."
 msgstr "You may offer a draw again after your next move."
 
@@ -7832,7 +7838,7 @@ msgid "You're all caught up"
 msgstr "You're all caught up"
 
 #: libs/game-puzzle-client-ts/src/puzzle-empty-pool-state.tsx
-#: libs/game-puzzle-client-ts/src/puzzle-link-screen.tsx
+#: libs/game-puzzle-client-ts/src/puzzle-link-screen-view.tsx
 msgid "You're offline"
 msgstr "You're offline"
 
@@ -7860,7 +7866,7 @@ msgstr "You're signed out on this device."
 msgid "You're the host, so leaving ends the space for everyone. This cannot be undone."
 msgstr "You're the host, so leaving ends the space for everyone. This cannot be undone."
 
-#: libs/game-session-client-ts/src/game-frame-play.tsx
+#: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "You're watching"
 msgstr "You're watching"
 
@@ -7892,12 +7898,12 @@ msgstr "You've used this for now"
 msgid "you@example.com"
 msgstr "you@example.com"
 
-#: libs/app-root-client-ts/src/identity-boot-pending.tsx
+#: libs/app-root-client-ts/src/identity-boot-screen-view.tsx
 msgid "Your account could not be loaded. Check your connection and reload the app."
 msgstr "Your account could not be loaded. Check your connection and reload the app."
 
 #. placeholder {0}: eraseBy()
-#: libs/account-privacy-client-ts/src/privacy-screen.tsx
+#: libs/account-privacy-client-ts/src/privacy-screen-view.tsx
 msgid "Your account deletion is confirmed. You are signed out. Ordinary personal-data erasure will complete by {0}."
 msgstr "Your account deletion is confirmed. You are signed out. Ordinary personal-data erasure will complete by {0}."
 
@@ -7918,14 +7924,15 @@ msgid "Your cards are on their way."
 msgstr "Your cards are on their way."
 
 #: libs/game-puzzle-client-ts/src/content-attempt-notices.tsx
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
 msgid "Your change was not saved"
 msgstr "Your change was not saved"
 
-#: libs/game-puzzle-client-ts/src/content-author-status.tsx
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 msgid "Your changes are still here"
 msgstr "Your changes are still here"
 
-#: libs/game-puzzle-client-ts/src/content-author-status.tsx
+#: libs/game-puzzle-client-ts/src/content-author-screen-view.tsx
 msgid "Your changes still need to be saved."
 msgstr "Your changes still need to be saved."
 
@@ -7934,10 +7941,11 @@ msgid "Your checkout hasn't finished. Complete it to start your membership."
 msgstr "Your checkout hasn't finished. Complete it to start your membership."
 
 #: libs/game-puzzle-client-ts/src/content-attempt-notices.tsx
+#: libs/game-puzzle-client-ts/src/content-attempt-screen-view.tsx
 msgid "Your completion is saved. You can keep playing or choose another puzzle."
 msgstr "Your completion is saved. You can keep playing or choose another puzzle."
 
-#: libs/auth-client-ts/src/account-screen.tsx
+#: libs/auth-client-ts/src/account-screen-view.tsx
 msgid "Your data"
 msgstr "Your data"
 
@@ -7949,11 +7957,11 @@ msgstr "Your draft is kept. Check its validation details, correct the draft, the
 msgid "Your draft is unchanged"
 msgstr "Your draft is unchanged"
 
-#: libs/game-puzzle-client-ts/src/content-create-controls.tsx
+#: libs/game-puzzle-client-ts/src/content-create-controls-view.tsx
 msgid "Your draft was not created"
 msgstr "Your draft was not created"
 
-#: libs/game-puzzle-client-ts/src/content-library-screen.tsx
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Your drafts and publications"
 msgstr "Your drafts and publications"
 
@@ -7986,7 +7994,7 @@ msgstr "Your friend request could not be shared. Try again."
 msgid "Your friend request wasn't cancelled"
 msgstr "Your friend request wasn't cancelled"
 
-#: libs/friends-client-ts/src/friend-request-feedback.tsx
+#: libs/friends-client-ts/src/friend-request-feedback-view.tsx
 msgid "Your friend request will be shared when the connection returns."
 msgstr "Your friend request will be shared when the connection returns."
 
@@ -8020,7 +8028,7 @@ msgstr "Your last payment didn't go through. Update your payment method to keep 
 msgid "Your live spaces"
 msgstr "Your live spaces"
 
-#: libs/game-session-client-ts/src/custom-game-status.tsx
+#: libs/game-session-client-ts/src/game-frame-status-view.tsx
 msgid "Your move will be played when the connection returns."
 msgstr "Your move will be played when the connection returns."
 
@@ -8028,7 +8036,7 @@ msgstr "Your move will be played when the connection returns."
 msgid "Your new space wasn't created"
 msgstr "Your new space wasn't created"
 
-#: libs/game-matchmaking-client-ts/src/multiplayer-controls.tsx
+#: libs/game-matchmaking-client-ts/src/multiplayer-screen-view.tsx
 msgid "Your opponent will win this game."
 msgstr "Your opponent will win this game."
 
@@ -8056,29 +8064,29 @@ msgstr "Your payment isn't confirmed yet, but it may have gone through. Check ag
 msgid "Your personal-data export is being prepared. It will be ready within 24 hours of asking."
 msgstr "Your personal-data export is being prepared. It will be ready within 24 hours of asking."
 
-#: libs/game-puzzle-client-ts/src/content-saved-attempts.tsx
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Your private playtests"
 msgstr "Your private playtests"
 
-#: libs/game-session-client-ts/src/custom-game-private-setup.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Your private setup"
 msgstr "Your private setup"
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-private-setup.tsx
-#: libs/game-session-client-ts/src/custom-game-private-setup.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Your private setup is complete."
 msgstr "Your private setup is complete."
 
 #: libs/game-matchmaking-client-ts/src/multiplayer-private-setup.tsx
-#: libs/game-session-client-ts/src/custom-game-private-setup.tsx
+#: libs/game-session-client-ts/src/game-frame-configuration-view.tsx
 msgid "Your private setup is incomplete."
 msgstr "Your private setup is incomplete."
 
-#: libs/profile-client-ts/src/profile-screen.tsx
+#: libs/profile-client-ts/src/profile-screen-view.tsx
 msgid "Your profile could not be loaded"
 msgstr "Your profile could not be loaded"
 
-#: libs/game-puzzle-client-ts/src/content-saved-attempts.tsx
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Your progress is kept at this edition."
 msgstr "Your progress is kept at this edition."
 
@@ -8121,7 +8129,7 @@ msgstr "Your rating changed by {0}{1}."
 msgid "Your ratings"
 msgstr "Your ratings"
 
-#: libs/game-puzzle-client-ts/src/content-saved-attempts.tsx
+#: libs/game-puzzle-client-ts/src/content-library-screen-view.tsx
 msgid "Your saved attempts"
 msgstr "Your saved attempts"
 
@@ -8137,7 +8145,7 @@ msgstr "Your sign-in here ended, from another device or because it ran out. Chan
 msgid "Your sign-in here ended, from another device or because it ran out. Sign in again to carry on."
 msgstr "Your sign-in here ended, from another device or because it ran out. Sign in again to carry on."
 
-#: libs/game-matchmaking-client-ts/src/multiplayer-link-screen.tsx
+#: libs/game-matchmaking-client-ts/src/multiplayer-link-screen-view.tsx
 msgid "Your space didn’t open this time. Nothing you had is lost. Try again, or go to Spaces."
 msgstr "Your space didn’t open this time. Nothing you had is lost. Try again, or go to Spaces."
 
@@ -8177,7 +8185,7 @@ msgstr "Your turn. First to e5 wins."
 msgid "Your turn. Reach row {row}."
 msgstr "Your turn. Reach row {row}."
 
-#: libs/profile-client-ts/src/username-change-feedback.tsx
+#: libs/profile-client-ts/src/username-change-feedback-view.tsx
 msgid "Your username change will be shared when the connection returns."
 msgstr "Your username change will be shared when the connection returns."
 
@@ -8185,6 +8193,6 @@ msgstr "Your username change will be shared when the connection returns."
 msgid "Your waters"
 msgstr "Your waters"
 
-#: libs/profile-client-ts/src/profile-handle-screen.tsx
+#: libs/profile-client-ts/src/profile-handle-screen-view.tsx
 msgid "your_handle"
 msgstr "your_handle"

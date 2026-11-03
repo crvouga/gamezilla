@@ -22,10 +22,11 @@ export function SpaceEndedScreenView(
   props: SpaceEndedScreenViewProps
 ): JSX.Element {
   const { t } = useLingui();
-  const body = (): string =>
-    props.hostName.length > 0
-      ? t`${props.title}, hosted by ${props.hostName}`
-      : props.title;
+  const body = (): string => {
+    const label = props.title;
+    const username = props.hostName;
+    return username.length > 0 ? t`${label}, hosted by ${username}` : label;
+  };
   return (
     <ContentScreen
       screenId="space-ended"
