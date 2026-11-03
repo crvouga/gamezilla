@@ -1,23 +1,20 @@
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-root-client-ts/button';
-import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
-import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
-import { Gamepad2Icon } from '@pkgs/ui-root-client-ts/icons';
-import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { useLingui } from '@lingui/solid/macro';
+import { useOptionalSoundEngine } from '@pkgs/sounds-client-ts/solid';
+import { Sounds } from '@pkgs/sounds-shared-ts/sound-id';
+import { useMutationFeedback } from '@pkgs/sync-engine-client-ts/use-mutation-feedback';
+import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-lifecycle';
 import { useBreadcrumbNav } from '@pkgs/ui-root-client-ts/use-breadcrumb-nav';
 import type { JSX } from 'solid-js';
-import { createSignal, Match, Show, Switch } from 'solid-js';
+import { createSignal, Show } from 'solid-js';
 import { useRequestLeaveSpace } from './leave-space-modal-provider';
-import { SpaceHostOfflineNotice } from './space-connection-notice';
 import { SpaceEndedScreen } from './space-ended-screen';
-import { SpaceJoinButton } from './space-join-button';
-import { SpaceJoinLiveBody } from './space-join-live-body';
-import { SpaceTitleText } from './space-title-text';
-import { SpacesNeedConnectionNotice } from './spaces-notices';
+import type { SpaceJoinStatus } from './space-join-screen-view';
+import { SpaceJoinScreenView } from './space-join-screen-view';
+import { useCheckConnection } from './use-check-connection';
+import { useJoinSpace } from './use-join-space';
 import { useSpaceCan } from './use-space-can';
+import { useSpaceCardData } from './use-space-card-data';
 import { useSpaceHostConnection } from './use-space-host-connection';
 import { useSpaceJoinSnapshot } from './use-space-join-snapshot';
 
@@ -27,6 +24,40 @@ export type SpaceJoinPromptProps = {
   linkAnswered: boolean;
 };
 
+/**
+ * Joining needs the server: without one the prompt says so instead. A join
+ * already waiting on confirmation is checked again without that test.
+ */
+function useJoinAction(spaceId: () => string, onOffline: () => void) {
+  const { t } = useLingui();
+  const joinSpace = useJoinSpace();
+  const checkConnection = useCheckConnection();
+  const engine = useOptionalSoundEngine();
+  const persisted = useMutationFeedback('joinSpace', () => ({
+    spaceId: spaceId(),
+  }));
+  return {
+    pending: () => persisted()?.status === 'pending',
+    join: async (): Promise<void> => {
+      if (persisted()?.status !== 'pending' && !(await checkConnection())) {
+        onOffline();
+        throw new Error(t`Joining someone else's space needs a connection.`);
+      }
+      await joinSpace(spaceId());
+    },
+    onPhaseChange: (transition: MutationStateTransition): void => {
+      const current = engine?.();
+      if (current === undefined) return;
+      if (transition.to === 'success') {
+        current.play(Sounds.social.roomJoined);
+      } else if (transition.to === 'error') {
+        current.play(Sounds.feedback.error);
+      }
+    },
+  };
+}
+
+/** `/space/:id` for a space the viewer is not in: wires `SpaceJoinScreenView`. */
 export function SpaceJoinPrompt(props: SpaceJoinPromptProps): JSX.Element {
   const nav = useBreadcrumbNav();
   const snapshot = useSpaceJoinSnapshot(
@@ -35,126 +66,33 @@ export function SpaceJoinPrompt(props: SpaceJoinPromptProps): JSX.Element {
   );
   const [joinOffline, setJoinOffline] = createSignal(false);
   const connection = useSpaceHostConnection();
+  const space = useSpaceCardData(() => props.spaceId);
+  const canLeave = useSpaceCan(() => props.spaceId, PERMISSION.spacesLeave);
+  const requestLeave = useRequestLeaveSpace();
+  const join = useJoinAction(
+    () => props.spaceId,
+    () => setJoinOffline(true)
+  );
 
   return (
     <Show
       when={snapshot().status !== 'ended'}
       fallback={<SpaceEndedScreen spaceId={props.spaceId} />}
     >
-      <ContentScreen
-        screenId="space-join"
-        dataSet={{ testid: Handles.spaceJoinPrompt }}
-        breadcrumbs={[
-          { name: <Trans>Spaces</Trans>, onClick: nav('/') },
-          { name: <SpaceTitleText spaceId={props.spaceId} /> },
-        ]}
-        footer={
-          <Show
-            when={snapshot().status === 'live' && connection() !== 'loading'}
-          >
-            <JoinPromptFooter
-              spaceId={props.spaceId}
-              hostOffline={connection() === 'host-offline'}
-              onOffline={() => setJoinOffline(true)}
-            />
-          </Show>
-        }
-      >
-        <StackVertical grow gap="md">
-          <Show when={joinOffline() || connection() === 'offline'}>
-            <SpacesNeedConnectionNotice />
-          </Show>
-          <Show
-            when={
-              snapshot().status === 'live' && connection() === 'host-offline'
-            }
-            fallback={
-              <JoinPromptBody spaceId={props.spaceId} snapshot={snapshot} />
-            }
-          >
-            <SpaceHostOfflineNotice />
-          </Show>
-        </StackVertical>
-      </ContentScreen>
+      <SpaceJoinScreenView
+        title={space().title}
+        status={snapshot().status as SpaceJoinStatus}
+        connection={connection()}
+        needsConnection={joinOffline() || connection() === 'offline'}
+        space={space()}
+        canLeave={canLeave()}
+        joinPending={join.pending()}
+        joinDisabled={props.spaceId.length === 0}
+        onJoin={join.join}
+        onJoinPhaseChange={join.onPhaseChange}
+        onLeave={() => requestLeave(props.spaceId)}
+        onBackToSpaces={nav('/')}
+      />
     </Show>
-  );
-}
-
-function JoinPromptFooter(props: {
-  readonly spaceId: string;
-  readonly hostOffline: boolean;
-  readonly onOffline: () => void;
-}): JSX.Element {
-  const canLeave = useSpaceCan(() => props.spaceId, PERMISSION.spacesLeave);
-  const requestLeave = useRequestLeaveSpace();
-  return (
-    <StackHorizontal>
-      <Show
-        when={props.hostOffline}
-        fallback={
-          <SpaceJoinButton
-            spaceId={props.spaceId}
-            flex={1}
-            onOffline={props.onOffline}
-          />
-        }
-      >
-        <Show when={canLeave()}>
-          <Button
-            title={<Trans>Leave space</Trans>}
-            intent="neutral"
-            variant="outline"
-            flex={1}
-            dataSet={{ testid: Handles.spaceLeave }}
-            onClick={() => requestLeave(props.spaceId)}
-          />
-        </Show>
-      </Show>
-    </StackHorizontal>
-  );
-}
-
-function JoinPromptBody(props: {
-  readonly spaceId: string;
-  readonly snapshot: ReturnType<typeof useSpaceJoinSnapshot>;
-}): JSX.Element {
-  const nav = useBreadcrumbNav();
-  const { t } = useLingui();
-
-  return (
-    <Switch>
-      <Match when={props.snapshot().status === 'loading'}>
-        <LoadingState />
-      </Match>
-      <Match when={props.snapshot().status === 'unavailable'}>
-        <EmptyState
-          icon={Gamepad2Icon}
-          title={t`You can't join this space`}
-          body={t`Only the host's friends and people the host adds can join it. Ask the host to add you, or check that the link is right.`}
-          action={{
-            label: t`Back to Spaces`,
-            onClick: nav('/'),
-          }}
-        />
-      </Match>
-      <Match when={props.snapshot().status === 'missing'}>
-        <EmptyState
-          icon={Gamepad2Icon}
-          title={t`This space can't be found`}
-          body={t`The link may be wrong, or the space may never have existed.`}
-          action={{
-            label: t`Back to Spaces`,
-            onClick: nav('/'),
-          }}
-          dataSet={{ testid: Handles.spaceNotFound }}
-        />
-      </Match>
-      <Match when={props.snapshot().status === 'offline'}>
-        <SpacesNeedConnectionNotice />
-      </Match>
-      <Match when={props.snapshot().status === 'live'}>
-        <SpaceJoinLiveBody spaceId={props.spaceId} />
-      </Match>
-    </Switch>
   );
 }

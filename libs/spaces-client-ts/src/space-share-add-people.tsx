@@ -1,37 +1,38 @@
 import { useModeration } from '@libs/moderation-client-ts/moderation-context';
 import { usernameText } from '@libs/moderation-shared-ts/display';
-import { UserProfileAvatar } from '@libs/profile-client-ts/user-profile-avatar';
-import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { useKnownUserProfiles } from '@libs/user-search-client-ts/use-known-user-profiles';
 import {
   UserSearchDenied,
   useDebouncedUserSearchEffect,
 } from '@libs/user-search-client-ts/use-user-search';
-import { Trans, useLingui } from '@lingui/solid/macro';
 import { createAsync } from '@pkgs/async-root-client-ts/solid';
-import { Combobox } from '@pkgs/ui-root-client-ts/combobox';
 import { usePendingOperation } from '@pkgs/ui-root-client-ts/pending-navigation';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import type { ComboboxOption } from '@pkgs/ui-root-shared-ts/combobox-types';
 import type { JSX } from 'solid-js';
 import { createMemo, createSignal, Show } from 'solid-js';
-import { SpaceAdditionState } from './space-addition-state';
+import type {
+  SpaceAddCandidate,
+  SpaceAddition,
+} from './space-share-add-people-view';
+import { SpaceShareAddPeopleView } from './space-share-add-people-view';
 import { useAddSpaceUser } from './use-add-space-user';
 
+type FoundProfile = {
+  readonly userId: string;
+  readonly username: string;
+  readonly avatarConfig?: string | null | undefined;
+};
+
+/** Wires {@link SpaceShareAddPeopleView} to people search and adding. */
 export function SpaceShareAddPeople(props: {
   readonly spaceId: string;
   readonly listedIds: ReadonlySet<string>;
 }): JSX.Element {
-  const { t } = useLingui();
   const add = useAddSpaceUser();
   const [query, setQuery] = createSignal('');
   const search = useDebouncedUserSearchEffect(query);
   const known = useKnownUserProfiles(query);
   const moderation = useModeration();
-  const [lastPick, setLastPick] = createSignal<{
-    id: string;
-    name: string;
-  } | null>(null);
+  const [lastPick, setLastPick] = createSignal<SpaceAddCandidate | null>(null);
   const addition = createAsync({
     operation: async (_context, id: string, name: string) => {
       await add(props.spaceId, id);
@@ -43,10 +44,10 @@ export function SpaceShareAddPeople(props: {
     addition.cancelAll('Leaving while adding a person')
   );
 
-  const options = createMemo((): ComboboxOption[] =>
+  const candidates = createMemo((): readonly SpaceAddCandidate[] =>
     [
       ...new Map(
-        [...known(), ...search.results].map((profile) => [
+        [...known(), ...search.results].map((profile: FoundProfile) => [
           profile.userId,
           profile,
         ])
@@ -54,55 +55,48 @@ export function SpaceShareAddPeople(props: {
     ]
       .filter((profile) => !props.listedIds.has(profile.userId))
       .map((profile) => ({
-        value: profile.userId,
-        label: usernameText(moderation(), profile.username, profile.userId),
-        // Search matches what was typed against the stored handle.
+        id: profile.userId,
+        name: usernameText(moderation(), profile.username, profile.userId),
+        avatarConfig: profile.avatarConfig ?? null,
+        bot: false,
         searchText: profile.username,
-        dataSet: { testid: Handles.spaceAddPerson(profile.userId) },
-        preview: <UserProfileAvatar profileId={profile.userId} size={32} />,
       }))
   );
 
-  const handlePick = (userId: string): void => {
-    const profile = [...known(), ...search.results].find(
-      (person) => person.userId === userId
-    );
-    if (profile === undefined) return;
-    const name = usernameText(moderation(), profile.username, profile.userId);
-    setLastPick({ id: userId, name });
-    void addition.run(userId, name).catch(() => undefined);
-  };
-
-  const emptyMessage = createMemo(() => {
-    const trimmed = query().trim();
-    if (trimmed.length > 0 && !search.searching) {
-      return <Trans>No people found</Trans>;
-    }
-    return undefined;
+  const state = createMemo((): SpaceAddition => {
+    const error = addition.error();
+    if (error !== null) return { status: 'error', message: error.message };
+    if (addition.loading()) return { status: 'loading' };
+    const name = addition.value();
+    if (addition.status() === 'success' && name !== null)
+      return { status: 'success', name };
+    return { status: 'idle' };
   });
 
+  const run = (person: SpaceAddCandidate): void => {
+    void addition.run(person.id, person.name).catch(() => undefined);
+  };
+
   return (
-    <StackVertical gap="sm">
-      <Combobox
-        label={<Trans>Add people</Trans>}
-        surfaceTitle={<Trans>Add people</Trans>}
-        options={options()}
-        onValueChange={handlePick}
-        query={query()}
-        onQueryChange={setQuery}
-        filterOption={() => true}
-        placeholder={t`Search by username`}
-        searchPlaceholder={t`Search by username`}
-        loading={search.searching && options().length === 0}
-        disabled={addition.loading()}
-        emptyMessage={emptyMessage()}
-        triggerDataSet={{ testid: Handles.spaceAddTrigger }}
-        searchDataSet={{ testid: Handles.spaceAddQuery }}
-      />
-      <Show when={!search.canSearch}>
-        <UserSearchDenied />
-      </Show>
-      <SpaceAdditionState addition={addition} lastPick={lastPick} />
-    </StackVertical>
+    <SpaceShareAddPeopleView
+      query={query()}
+      onQueryChange={setQuery}
+      candidates={candidates()}
+      searching={search.searching}
+      addition={state()}
+      searchDenied={
+        <Show when={!search.canSearch}>
+          <UserSearchDenied />
+        </Show>
+      }
+      onPick={(person) => {
+        setLastPick(person);
+        run(person);
+      }}
+      onRetry={() => {
+        const pick = lastPick();
+        if (pick !== null) run(pick);
+      }}
+    />
   );
 }

@@ -1,30 +1,24 @@
-/**
- * Connected-member presence strip for space chrome (one face per member).
- * Before anyone else's presence arrives it shows the people glyph, so the
- * members button is never an empty disc.
- */
-
-import { UserProfileAvatar } from '@libs/profile-client-ts/user-profile-avatar';
 import { groupRosterByParticipant } from '@pkgs/collab-root-shared-ts/group-roster';
-import { PresenceStrip } from '@pkgs/collab-ui-client-ts/presence-strip';
-import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
 import type { JSX } from 'solid-js';
-import { createMemo, Show } from 'solid-js';
-
+import { createMemo } from 'solid-js';
+import type {
+  SpacePresenceFace,
+  SpacePresenceStripViewProps,
+} from './space-presence-strip-view';
+import { SpacePresenceStripView } from './space-presence-strip-view';
 import { useSpaceRoomClientId } from './space-room-context';
 import { useConnectedSpaceRoster } from './use-connected-space-roster';
 import { useSpaceParticipantColors } from './use-space-participant-colors';
+import { useSpacePeople } from './use-space-people';
 
 export type SpacePresenceStripProps = {
   spaceId: string;
   size: number;
-  /**
-   * Optional standalone press handler. Omit when embedded in an ActionBar /
-   * IconButton that already owns the press target (nested buttons are invalid).
-   */
+  /** See {@link SpacePresenceStripViewProps.onPress}. */
   onPress?: () => void;
 };
 
+/** {@link SpacePresenceStripView} for the space room this device holds. */
 export function SpacePresenceStrip(
   props: SpacePresenceStripProps
 ): JSX.Element {
@@ -38,22 +32,20 @@ export function SpacePresenceStrip(
       participant.clients.slice(0, 1)
     )
   );
+  const people = useSpacePeople(() => clients().map((client) => client.id));
+  const faces = createMemo((): readonly SpacePresenceFace[] =>
+    clients().map((actor) => ({
+      actor,
+      person: people().find((person) => person.id === actor.id) ?? null,
+      color: colors.colorForParticipant(actor.id),
+    }))
+  );
 
   return (
-    <Show
-      when={clients().length > 0}
-      fallback={<UsersIcon size={Math.round(props.size * 0.6)} color="icon" />}
-    >
-      <PresenceStrip
-        clients={clients()}
-        colorForParticipant={(id) => colors.colorForParticipant(id)}
-        renderAvatar={(actor, avatarSize) => (
-          <UserProfileAvatar profileId={actor.id} size={avatarSize} />
-        )}
-        size={props.size}
-        maxVisible={4}
-        {...(props.onPress !== undefined ? { onPress: props.onPress } : {})}
-      />
-    </Show>
+    <SpacePresenceStripView
+      faces={faces()}
+      size={props.size}
+      onPress={props.onPress}
+    />
   );
 }

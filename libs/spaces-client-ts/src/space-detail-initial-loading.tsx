@@ -1,5 +1,4 @@
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from 'solid-js';
 import { SpaceActiveLayout } from './space-active-layout';
@@ -42,9 +41,7 @@ export function SpaceDetailInitialLoading(
     <StackVertical grow>
       <SpaceSessionUiProvider value={sessionUi}>
         <DefineBackButton onPress={onPressBack} />
-        <SpaceActiveLayout hostOffline={false}>
-          <LoadingState />
-        </SpaceActiveLayout>
+        <SpaceActiveLayout status="loading" hostOffline={false} />
       </SpaceSessionUiProvider>
     </StackVertical>
   );

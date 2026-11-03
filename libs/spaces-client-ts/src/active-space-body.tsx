@@ -1,6 +1,5 @@
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import { createEffect, createSignal, type JSX, Match, Switch } from 'solid-js';
+import { createEffect, createSignal, type JSX } from 'solid-js';
 
 import { GamesMainMenu } from './games-main-menu';
 import { SpaceActiveLayout } from './space-active-layout';
@@ -10,29 +9,6 @@ import { useAnnounceJoinedOnSync } from './use-announce-joined-on-sync';
 import { useNoteSpaceActivity } from './use-note-space-activity';
 import { SpaceQuietHost } from './use-space-device-quiet';
 import { useSpaceHostConnection } from './use-space-host-connection';
-
-type HostConnection = 'ready' | 'loading' | 'offline' | 'host-offline';
-
-/**
- * The game choice stays while the host is offline. A first look waits until
- * the host is known. Once the menu has been shown, a later check does not
- * hide it.
- */
-function SpaceGames(props: {
-  connection: HostConnection;
-  online: boolean;
-  keepMenu: boolean;
-}): JSX.Element {
-  return (
-    <Switch fallback={<GamesMainMenu />}>
-      <Match
-        when={props.connection === 'loading' && props.online && !props.keepMenu}
-      >
-        <LoadingState />
-      </Match>
-    </Switch>
-  );
-}
 
 export type ActiveSpaceBodyProps = {
   spaceId: string;
@@ -74,19 +50,22 @@ export function ActiveSpaceBody(props: ActiveSpaceBodyProps): JSX.Element {
     },
   };
 
+  // The game choice stays while the host is offline. A first look waits
+  // until the host is known; once the menu has shown, a later check does
+  // not hide it.
+  const gamesLoading = (): boolean =>
+    connection() === 'loading' && engine.status().online && !keptMenu();
+
   return (
     <SpaceSessionUiProvider value={sessionUi}>
       <SpaceQuietHost>
         <SpaceActiveLayout
+          status={gamesLoading() ? 'loading' : 'ready'}
           hostOffline={
             connection() === 'host-offline' && engine.status().online
           }
         >
-          <SpaceGames
-            connection={connection()}
-            online={engine.status().online}
-            keepMenu={keptMenu()}
-          />
+          <GamesMainMenu />
         </SpaceActiveLayout>
       </SpaceQuietHost>
     </SpaceSessionUiProvider>
