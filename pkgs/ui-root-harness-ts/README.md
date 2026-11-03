@@ -9,13 +9,15 @@ The sidebar's **Start here** page documents the project workflow, commands,
 virtual time and agent discovery. Design-system branding and this guide replace
 Storybook's generic onboarding checklist. All [Essentials](#essentials-review-and-usage) features and Interactions
 are built into the pinned Storybook version; Bun and Playwright own automated
-verification, so no Vitest or hosted visual-testing addon is required.
+verification. Chromatic adds hosted Storybook, visual review and cloud testing;
+see [Chromatic publishing and agent access](CHROMATIC.md) for setup, coverage
+and account-dependent features.
 
 `bun dev` starts Storybook alongside the app servers on port 6006, under the same boot owner. To run Storybook alone, use `bun storybook`.
 A checkout has one boot: stop an existing app boot with `bun kill` first.
 Use `bun kill` to clean up Storybook too. Build with `bun storybook:build`.
-Share the resulting `pkgs/ui-root-harness-ts/.cache/storybook/` directory as a
-static site, including its assets, index and manifests. This build does not
+Chromatic publishes the resulting `pkgs/ui-root-harness-ts/.cache/storybook/` directory as a
+static site through `bun storybook:publish`, including its assets, index and manifests. The build alone does not
 publish anything or require a backend. Story links retain their `?path=` query.
 Run `bun storybook:coverage` to write `.cache/storybook-coverage.json` and
 `.cache/storybook-coverage.md` in this package. The inventory derives component
@@ -130,6 +132,11 @@ files while another task is reading them.
    browser comparisons and accessibility checks. See [Browser checks and baselines](#browser-checks-and-baselines)
    for the pinned renderer and intentional baseline authoring.
 4. `bun verify` runs the whole release gate. A focused pass does not replace it.
+5. For a published PR, inspect the `Publish PR Storybook` step and link its hosted build
+   and review results. Use [Chromatic publishing](CHROMATIC.md) for credentials,
+   cloud modes and feature prerequisites. Report missing credentials or cloud
+   access explicitly; never claim an upload or unapproved diff is a passing
+   review, and never auto-accept baselines to turn a build green.
 
 In a review or handoff, report changed components and story IDs, reuse or API
 choices, covered states, automated commands and their actual results, and any
