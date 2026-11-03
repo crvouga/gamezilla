@@ -2,19 +2,22 @@ import {
   RefusedChangeCard,
   useRefusedChanges,
 } from '@libs/app-root-client-ts/refused-change-notice';
-import { Trans } from '@lingui/solid/macro';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useMutationFeedback } from '@pkgs/sync-engine-client-ts/use-mutation-feedback';
-import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { createMemo, type JSX, Show } from 'solid-js';
+import type { ContentPublicationPending } from './content-publication-controls-view';
 
-/** The last choice for this draft stays visible across routes and app reopening. */
-export function ContentPublicationStatus(props: {
-  documentId: string;
-}): JSX.Element {
+/**
+ * The last publication of this draft, as it stays visible across routes and
+ * app reopening: whether it is still on its way, and its refusal card.
+ */
+export function useContentPublicationStatus(documentId: () => string): {
+  readonly pending: () => ContentPublicationPending;
+  readonly refusal: () => JSX.Element;
+} {
   const engine = useSyncEngine();
   const feedback = useMutationFeedback('publishPuzzleContent', () => ({
-    documentId: props.documentId,
+    documentId: documentId(),
   }));
   const changes = useRefusedChanges((name) => name === 'publishPuzzleContent');
   const refusal = createMemo(() =>
@@ -22,26 +25,12 @@ export function ContentPublicationStatus(props: {
       .refusals()
       .find((entry) => entry.mutationId === feedback()?.mutationId)
   );
-  return (
-    <>
-      <Show when={feedback()?.status === 'pending'}>
-        <Notice dataSet={{ testid: 'content-publication-pending' }}>
-          <Show
-            when={engine.status().online}
-            fallback={
-              <Trans>
-                Publication waits for your connection. Your draft is kept on
-                this device.
-              </Trans>
-            }
-          >
-            <Trans>
-              Publication is waiting for confirmation. Your draft is kept. Keep
-              this app connected to share it.
-            </Trans>
-          </Show>
-        </Notice>
-      </Show>
+  return {
+    pending: () => {
+      if (feedback()?.status !== 'pending') return null;
+      return engine.status().online ? 'online' : 'offline';
+    },
+    refusal: () => (
       <Show when={refusal()} keyed>
         {(entry) => (
           <RefusedChangeCard
@@ -50,6 +39,6 @@ export function ContentPublicationStatus(props: {
           />
         )}
       </Show>
-    </>
-  );
+    ),
+  };
 }

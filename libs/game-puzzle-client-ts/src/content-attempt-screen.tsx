@@ -1,24 +1,37 @@
 import { projectAttemptPosition } from '@libs/game-puzzle-shared-ts/attempt-library';
 import type { ContentAttempt } from '@libs/game-puzzle-shared-ts/attempt-types';
 import type { ContentBody } from '@libs/game-puzzle-shared-ts/content-types';
-import { DenialSurface } from '@libs/permissions-client-ts/denial-surface';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { Trans, useLingui } from '@lingui/solid/macro';
-import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
-import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { P } from '@pkgs/ui-root-client-ts/text';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { ContentAttemptControls } from './content-attempt-controls';
-import { ContentAttemptNotices } from './content-attempt-notices';
+import {
+  ContentAttemptScreenView,
+  type ContentAttemptStatus,
+  type ContentAttemptSummary,
+} from './content-attempt-screen-view';
 import { useContentGame } from './content-game-context';
 import { ContentKeptPositions } from './content-kept-positions';
 import { useContentLibraryState } from './content-library-context';
 import { useContentAttemptChange } from './use-content-attempt-change';
+import { useDeniedView } from './use-denied-view';
 
+function summaryOf(
+  attempt: Pick<ContentAttempt, 'id' | 'source_id' | 'pack_revision_id'>,
+  source: ContentBody | undefined
+): ContentAttemptSummary {
+  return {
+    id: attempt.id,
+    sourceId: attempt.source_id,
+    packRevisionId: attempt.pack_revision_id,
+    title: source?.title ?? '',
+    difficulty: source?.difficulty ?? '',
+    description: source?.description ?? '',
+  };
+}
+
+/** One attempt on its board, wired to its saved positions and changes. */
 function AttemptBody(props: {
   attempt: ContentAttempt;
   source: ContentBody;
@@ -44,47 +57,17 @@ function AttemptBody(props: {
         });
   });
   return (
-    <GameScreen
-      screenId="puzzle-content-attempt"
-      dataSet={{
-        testid: 'content-attempt',
-        attemptid: props.attempt.id,
-        sourceid: props.attempt.source_id,
-        packrevisionid: props.attempt.pack_revision_id ?? '',
-      }}
-      title={props.source.title}
-      subtitle={props.source.difficulty}
-    >
-      <GameSessionLayout
-        notices={
-          <ContentAttemptNotices
-            writer={writer}
-            playtest={props.attempt.mode === 'playtest'}
-            complete={progress()?.complete ?? false}
-            rulesChanged={rulesChanged()}
-          />
-        }
-        aside={<P>{props.source.description}</P>}
-        actions={
-          <ContentAttemptControls
-            attempt={props.attempt}
-            writer={writer}
-            progress={rulesChanged() ? null : progress()}
-          />
-        }
-      >
-        <Show
-          when={progress()}
-          fallback={
-            <Notice tone="error">
-              <Trans>
-                This saved position cannot be opened. Choose another kept
-                continuation below, or restart. Your earlier attempt stays
-                saved.
-              </Trans>
-            </Notice>
-          }
-        >
+    <ContentAttemptScreenView
+      status="ready"
+      attempt={summaryOf(props.attempt, props.source)}
+      playtest={props.attempt.mode === 'playtest'}
+      saving={writer.pending()}
+      changeError={writer.change.error()?.message ?? null}
+      complete={progress()?.complete ?? false}
+      rulesChanged={rulesChanged()}
+      unopenable={progress() === null}
+      player={
+        <Show when={progress()}>
           {(state) => (
             <Dynamic
               component={game.client.Player}
@@ -97,19 +80,30 @@ function AttemptBody(props: {
             />
           )}
         </Show>
-      </GameSessionLayout>
-      <ContentKeptPositions
-        attempt={props.attempt}
-        disabled={writer.pending()}
-      />
-    </GameScreen>
+      }
+      controls={
+        <ContentAttemptControls
+          attempt={props.attempt}
+          writer={writer}
+          progress={rulesChanged() ? null : progress()}
+        />
+      }
+      keptPositions={
+        <ContentKeptPositions
+          attempt={props.attempt}
+          disabled={writer.pending()}
+        />
+      }
+      onRetryChange={writer.retry}
+      onReturnToLibrary={() => game.open({ kind: 'library' })}
+    />
   );
 }
 
+/** `ContentAttemptScreenView` wired to the attempt library and permissions. */
 export function ContentAttemptScreen(props: {
   attemptId: string;
 }): JSX.Element {
-  const { t } = useLingui();
   const game = useContentGame();
   const data = useContentLibraryState();
   const attempt = createMemo(() =>
@@ -126,32 +120,53 @@ export function ContentAttemptScreen(props: {
   const decision = useDecision(PERMISSION.puzzlesEditAttempt, () => ({
     puzzlePlayerId: attempt()?.owner_id ?? '',
   }));
+  const denial = useDeniedView({
+    get decision() {
+      return decision();
+    },
+  });
+  /** The attempt and what it plays, once it may open. */
+  const bodyInput = createMemo(() => {
+    const current = attempt();
+    const played = source();
+    if (denial() !== undefined) return null;
+    return current === undefined || played === undefined
+      ? null
+      : { attempt: current, source: played };
+  });
+  const status = (): ContentAttemptStatus => {
+    if (attempt() === undefined) return 'gone';
+    return source() === undefined ? 'missing' : 'ready';
+  };
   return (
     <Show
-      when={decision().allowed}
-      fallback={<DenialSurface decision={decision()} />}
+      when={bodyInput()}
+      fallback={
+        <ContentAttemptScreenView
+          status={status()}
+          denial={denial()}
+          attempt={summaryOf(
+            attempt() ?? {
+              id: props.attemptId,
+              source_id: '',
+              pack_revision_id: null,
+            },
+            undefined
+          )}
+          playtest={attempt()?.mode === 'playtest'}
+          saving={false}
+          changeError={null}
+          complete={false}
+          rulesChanged={false}
+          unopenable={false}
+          onRetryChange={() => undefined}
+          onReturnToLibrary={() => game.open({ kind: 'library' })}
+        />
+      }
     >
-      <Show when={attempt()}>
-        {(current) => (
-          <Show
-            when={source()}
-            fallback={
-              <ErrorState
-                title={t`This puzzle has not reached this device`}
-                body={t`Return to puzzles, reconnect and open the attempt again. Your progress stays saved.`}
-                secondary={{
-                  label: t`Return to puzzles`,
-                  onClick: () => game.open({ kind: 'library' }),
-                }}
-              />
-            }
-          >
-            {(edition) => (
-              <AttemptBody attempt={current()} source={edition()} />
-            )}
-          </Show>
-        )}
-      </Show>
+      {(input) => (
+        <AttemptBody attempt={input().attempt} source={input().source} />
+      )}
     </Show>
   );
 }

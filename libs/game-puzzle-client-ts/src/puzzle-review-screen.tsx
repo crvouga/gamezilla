@@ -3,57 +3,22 @@ import {
   SeekPuzzleReview,
   SelectReviewPuzzle,
 } from '@libs/game-puzzle-shared-ts/puzzle-review-selection';
-import type { PuzzleGameLogEntry } from '@libs/game-puzzle-shared-ts/stats';
 import { DefineBackButton } from '@libs/spaces-client-ts/spaces-nav-context';
 import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces-client-ts/use-space-room-selector';
-import { Trans } from '@lingui/solid/macro';
-import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
-import { GameReviewScreen } from '@pkgs/ui-root-client-ts/game-review-screen';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
+import { createMemo, type JSX, Show } from 'solid-js';
 import { useReviewPuzzleEntity } from './puzzle-play-queries';
 import { PuzzleReviewBoard } from './puzzle-review-board';
+import { PuzzleReviewScreenView } from './puzzle-review-screen-view';
 import { PUZZLE_SCREEN } from './puzzle-screens';
 import { usePuzzleHistory } from './use-puzzle-history';
 import type { PuzzleReviewCursor } from './use-puzzle-review-board';
 
-/** How the reviewed attempt went; "Puzzle review" before the log has it. */
-function ReviewTitle(props: { entry: PuzzleGameLogEntry | null }): JSX.Element {
-  return (
-    <Switch fallback={<Trans>Puzzle review</Trans>}>
-      <Match when={props.entry?.outcome === 'solved'}>
-        <Trans>Solved</Trans>
-      </Match>
-      <Match when={props.entry?.outcome === 'failed'}>
-        <Trans>Failed</Trans>
-      </Match>
-      <Match when={props.entry?.outcome === 'abandoned'}>
-        <Trans>Abandoned</Trans>
-      </Match>
-    </Switch>
-  );
-}
-
-/** The puzzle's own rating, once the puzzle is known. */
-function ReviewSubtitle(props: { rating: number }): JSX.Element {
-  return (
-    <Show when={props.rating > 0}>
-      <Trans>Puzzle rated {props.rating}</Trans>
-    </Show>
-  );
-}
-
-function findLogEntry(
-  gameLog: readonly PuzzleGameLogEntry[],
-  puzzleId: string
-): PuzzleGameLogEntry | null {
-  return gameLog.find((e) => e.puzzleId === puzzleId) ?? null;
-}
-
+/** One logged puzzle's review, wired to the synced puzzle and game log. */
 export function PuzzleReviewBody(props: {
   puzzleId: string;
   cursor: PuzzleReviewCursor;
@@ -62,42 +27,24 @@ export function PuzzleReviewBody(props: {
 }): JSX.Element {
   const entity = useReviewPuzzleEntity(() => props.puzzleId);
   const history = usePuzzleHistory();
-  const entry = createMemo(() =>
-    findLogEntry(history.gameLog(), props.puzzleId)
+  const entry = createMemo(
+    () => history.gameLog().find((e) => e.puzzleId === props.puzzleId) ?? null
   );
   const hasPuzzle = () => entity.fen.length > 0 && entity.movesStr.length > 0;
-
   return (
-    <GameReviewScreen
-      screenId="chess-stats-review"
+    <PuzzleReviewScreenView
+      status={hasPuzzle() ? 'ready' : 'unavailable'}
+      outcome={entry()?.outcome ?? null}
+      puzzleRating={entity.rating}
       nested={props.nested}
-      title={<ReviewTitle entry={entry()} />}
-      subtitle={
-        entity.rating > 0 ? (
-          <ReviewSubtitle rating={entity.rating} />
-        ) : undefined
-      }
-    >
-      <Show
-        when={hasPuzzle()}
-        fallback={
-          <EmptyState
-            title={<Trans>Puzzle unavailable</Trans>}
-            body={
-              <Trans>
-                This puzzle is not in your local feed yet. Try again after sync.
-              </Trans>
-            }
-          />
-        }
-      >
+      board={
         <PuzzleReviewBoard
           fen={entity.fen}
           moves={entity.movesStr}
           cursor={props.cursor}
         />
-      </Show>
-    </GameReviewScreen>
+      }
+    />
   );
 }
 
@@ -123,15 +70,13 @@ export function PuzzleReviewScreen(): JSX.Element {
     <StackVertical grow self="stretch" overflow="hidden">
       <DefineBackButton onPress={backToStats} />
       <Show
-        when={puzzleId() !== null}
+        when={puzzleId()}
+        keyed
         fallback={
-          <EmptyState
-            title={<Trans>No puzzle selected</Trans>}
-            body={<Trans>Pick one from the game log.</Trans>}
-          />
+          <PuzzleReviewScreenView status="unselected" puzzleRating={0} />
         }
       >
-        <PuzzleReviewBody puzzleId={puzzleId()!} cursor={cursor} />
+        {(id) => <PuzzleReviewBody puzzleId={id} cursor={cursor} />}
       </Show>
     </StackVertical>
   );

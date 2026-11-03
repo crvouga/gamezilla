@@ -2,27 +2,26 @@ import { useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { createEffect, createSignal, Show } from 'solid-js';
-import type { usePuzzleImport } from './use-puzzle-import';
 
+/** Stop the file upload or the load, after a destructive confirm. */
 export function PuzzleImportStop(props: {
-  state: ReturnType<typeof usePuzzleImport>;
   running: boolean;
+  uploading: boolean;
+  online: boolean;
+  /** The latest load's status, to say how stopping ended. */
+  jobStatus: string | null;
+  onStop: () => Promise<void>;
 }) {
   const { t } = useLingui();
   const [confirming, setConfirming] = createSignal(false);
   const [savingFile, setSavingFile] = createSignal(false);
   const [submitted, setSubmitted] = createSignal(false);
   createEffect(() => {
-    if (
-      confirming() &&
-      savingFile() &&
-      !submitted() &&
-      !props.state.uploading()
-    )
+    if (confirming() && savingFile() && !submitted() && !props.uploading)
       setConfirming(false);
   });
   const ask = () => {
-    setSavingFile(props.state.uploading());
+    setSavingFile(props.uploading);
     setSubmitted(false);
     setConfirming(true);
   };
@@ -30,12 +29,8 @@ export function PuzzleImportStop(props: {
     <>
       <Show when={props.running}>
         <Button
-          title={
-            props.state.uploading() ? t`Stop saving file` : t`Stop loading`
-          }
-          disabled={
-            !props.state.connection.status().online && !props.state.uploading()
-          }
+          title={props.uploading ? t`Stop saving file` : t`Stop loading`}
+          disabled={!props.online && !props.uploading}
           intent="danger"
           variant="outline"
           onClick={ask}
@@ -60,19 +55,17 @@ export function PuzzleImportStop(props: {
         }
         operation={async () => {
           setSubmitted(true);
-          await props.state.stop();
+          await props.onStop();
         }}
         submitLabel={savingFile() ? t`Stop saving` : t`Stop loading`}
-        submitDisabled={
-          !props.state.connection.status().online && !savingFile()
-        }
+        submitDisabled={!props.online && !savingFile()}
         variant="destructive"
         successTitle={
           savingFile()
             ? t`Saving stopped`
-            : props.state.job()?.status === 'finished'
+            : props.jobStatus === 'finished'
               ? t`Loading already finished`
-              : props.state.job()?.status === 'failed'
+              : props.jobStatus === 'failed'
                 ? t`Loading already failed`
                 : t`Puzzle loading stopped`
         }
