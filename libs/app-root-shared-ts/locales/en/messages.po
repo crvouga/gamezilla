@@ -87,7 +87,7 @@ msgstr "{0, plural, one {Waiting for # person to be ready.} other {Waiting for #
 
 #. placeholder {0}: riderName(rider.seat)
 #. placeholder {1}: props.state.scores[index()] ?? 0
-#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+#: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
 msgid "{0} {1}"
 msgstr "{0} {1}"
 
@@ -2201,12 +2201,12 @@ msgid "dev"
 msgstr "dev"
 
 #: libs/app-root-client-ts/src/app-commands.tsx
-#: libs/chess-shared-client-ts/src/chess-settings-developer-screen.tsx
-#: libs/chess-shared-client-ts/src/chess-settings-screen.tsx
+#: libs/chess-shared-client-ts/src/chess-settings-developer-screen-view.tsx
+#: libs/chess-shared-client-ts/src/chess-settings-screen-view.tsx
 msgid "Developer"
 msgstr "Developer"
 
-#: libs/chess-shared-client-ts/src/chess-settings-screen.tsx
+#: libs/chess-shared-client-ts/src/chess-settings-screen-view.tsx
 msgid "Developer tools."
 msgstr "Developer tools."
 
@@ -2723,7 +2723,7 @@ msgid "First seen"
 msgstr "First seen"
 
 #. placeholder {0}: props.state.targetScore
-#: libs/pong-client-ts/src/pong-board.tsx
+#: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "First to {0}"
 msgstr "First to {0}"
 
@@ -2747,11 +2747,11 @@ msgstr "floor"
 msgid "Floor"
 msgstr "Floor"
 
-#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+#: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
 msgid "Focus the arena and steer with the arrow keys or W, A, S and D, or use the direction pad. A turn straight back is ignored. Avoid the edge and every trail; the last rider riding wins the round."
 msgstr "Focus the arena and steer with the arrow keys or W, A, S and D, or use the direction pad. A turn straight back is ignored. Avoid the edge and every trail; the last rider riding wins the round."
 
-#: libs/pong-client-ts/src/pong-board.tsx
+#: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Focus the court to play. Use W and S for Left, or the arrow keys for your paddle. With two players on this device, the arrow keys control Right. Drag on your side of the court, or use the paddle sliders below."
 msgstr "Focus the court to play. Use W and S for Left, or the arrow keys for your paddle. With two players on this device, the arrow keys control Right. Drag on your side of the court, or use the paddle sliders below."
 
@@ -3081,7 +3081,7 @@ msgstr "If {address} can sign in here, a sign-in link is on its way. Paste it be
 msgid "Immediately"
 msgstr "Immediately"
 
-#: libs/chess-shared-client-ts/src/chess-settings-developer-screen.tsx
+#: libs/chess-shared-client-ts/src/chess-settings-developer-screen-view.tsx
 msgid "Import and manage puzzle content."
 msgstr "Import and manage puzzle content."
 
@@ -3249,7 +3249,7 @@ msgstr "just now"
 msgid "Keep a separate account"
 msgstr "Keep a separate account"
 
-#: libs/pong-client-ts/src/pong-board.tsx
+#: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Keep the ball in play."
 msgstr "Keep the ball in play."
 
@@ -3374,15 +3374,15 @@ msgid "Left"
 msgstr "Left"
 
 #. placeholder {0}: props.state.score.left
-#: libs/pong-client-ts/src/pong-board.tsx
+#: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Left {0}"
 msgstr "Left {0}"
 
-#: libs/pong-client-ts/src/pong-board.tsx
+#: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Left paddle"
 msgstr "Left paddle"
 
-#: libs/pong-client-ts/src/pong-board.tsx
+#: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Left wins."
 msgstr "Left wins."
 
@@ -3408,11 +3408,11 @@ msgstr "light"
 msgid "Light"
 msgstr "Light"
 
-#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+#: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
 msgid "Light Cycles arena"
 msgstr "Light Cycles arena"
 
-#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+#: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
 msgid "Light Cycles could not be opened. Return to the game choices and open it again."
 msgstr "Light Cycles could not be opened. Return to the game choices and open it again."
 
@@ -3445,7 +3445,7 @@ msgid "LLM"
 msgstr "LLM"
 
 #: libs/chess-puzzle-client-ts/src/puzzle-management-screen-view.tsx
-#: libs/chess-shared-client-ts/src/chess-settings-developer-screen.tsx
+#: libs/chess-shared-client-ts/src/chess-settings-developer-screen-view.tsx
 msgid "Load chess puzzles"
 msgstr "Load chess puzzles"
 
@@ -3457,7 +3457,7 @@ msgstr "Load earlier attempts"
 msgid "Load Lichess CSV and follow progress"
 msgstr "Load Lichess CSV and follow progress"
 
-#: libs/chess-shared-client-ts/src/chess-settings-developer-screen.tsx
+#: libs/chess-shared-client-ts/src/chess-settings-developer-screen-view.tsx
 msgid "Load Lichess CSV, follow progress, and stop loading."
 msgstr "Load Lichess CSV, follow progress, and stop loading."
 
@@ -3481,7 +3481,7 @@ msgstr "Load more saved positions"
 msgid "Load started"
 msgstr "Load started"
 
-#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
 msgid "Load the word list again"
 msgstr "Load the word list again"
 
@@ -4428,7 +4428,7 @@ msgid "Paused"
 msgstr "Paused"
 
 #: libs/game-session-client-ts/src/custom-game-status.tsx
-#: libs/pong-client-ts/src/pong-board.tsx
+#: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Paused while a player returns."
 msgstr "Paused while a player returns."
 
@@ -4559,7 +4559,7 @@ msgid "Play published puzzles, continue your attempts, or build something of you
 msgstr "Play published puzzles, continue your attempts, or build something of your own."
 
 #: libs/word-tiles-client-ts/src/word-tiles-actions.tsx
-#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx
 msgid "Play word"
 msgstr "Play word"
 
@@ -4636,11 +4636,11 @@ msgstr "Policy changed"
 msgid "Pong"
 msgstr "Pong"
 
-#: libs/pong-client-ts/src/pong-board.tsx
+#: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Pong could not be opened. Return to the game choices and open it again."
 msgstr "Pong could not be opened. Return to the game choices and open it again."
 
-#: libs/pong-client-ts/src/pong-board.tsx
+#: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Pong court"
 msgstr "Pong court"
 
@@ -4783,6 +4783,7 @@ msgstr "Puzzle abandoned"
 msgid "Puzzle board to edit, fifteen columns and fifteen rows"
 msgstr "Puzzle board to edit, fifteen columns and fifteen rows"
 
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx
 #: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
 msgid "Puzzle board, fifteen columns and fifteen rows"
 msgstr "Puzzle board, fifteen columns and fifteen rows"
@@ -4812,7 +4813,7 @@ msgstr "Puzzle feed"
 msgid "Puzzle feed. {mode} target {rating}. History: {history}. Themes: {themes}. {advance}."
 msgstr "Puzzle feed. {mode} target {rating}. History: {history}. Themes: {themes}. {advance}."
 
-#: libs/chess-shared-client-ts/src/chess-settings-screen.tsx
+#: libs/chess-shared-client-ts/src/chess-settings-screen-view.tsx
 msgid "Puzzle import tools."
 msgstr "Puzzle import tools."
 
@@ -4995,7 +4996,7 @@ msgid "Ready to start."
 msgstr "Ready to start."
 
 #: libs/word-tiles-client-ts/src/word-tiles-actions.tsx
-#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx
 msgid "Recall tiles"
 msgstr "Recall tiles"
 
@@ -5019,7 +5020,7 @@ msgstr "Reconnect before changing or playing the game."
 msgid "Reconnecting"
 msgstr "Reconnecting"
 
-#: libs/pong-client-ts/src/pong-board.tsx
+#: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Reconnecting. Controls resume when the game returns."
 msgstr "Reconnecting. Controls resume when the game returns."
 
@@ -5350,7 +5351,7 @@ msgstr "Review your games, wins and draws"
 msgid "Revoke invitation"
 msgstr "Revoke invitation"
 
-#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+#: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
 msgid "Ride from this device"
 msgstr "Ride from this device"
 
@@ -5359,15 +5360,15 @@ msgid "Right"
 msgstr "Right"
 
 #. placeholder {0}: props.state.score.right
-#: libs/pong-client-ts/src/pong-board.tsx
+#: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Right {0}"
 msgstr "Right {0}"
 
-#: libs/pong-client-ts/src/pong-board.tsx
+#: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Right paddle"
 msgstr "Right paddle"
 
-#: libs/pong-client-ts/src/pong-board.tsx
+#: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Right wins."
 msgstr "Right wins."
 
@@ -5389,7 +5390,7 @@ msgstr "Round {0}"
 #. placeholder {0}: state.round
 #. placeholder {1}: props.state.targetScore
 #. placeholder {1}: state.targetScore
-#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+#: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
 #: libs/light-cycles-client-ts/src/light-cycles-frame.tsx
 msgid "Round {0} · first to {1}"
 msgstr "Round {0} · first to {1}"
@@ -5508,7 +5509,7 @@ msgid "Score {score}"
 msgstr "Score {score}"
 
 #. placeholder {0}: target()
-#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx
 msgid "Score at least {0} points in one move."
 msgstr "Score at least {0} points in one move."
 
@@ -5651,7 +5652,7 @@ msgid "Sent"
 msgstr "Sent"
 
 #. placeholder {0}: Math.ceil(state.countdown / config.tickRate)
-#: libs/pong-client-ts/src/pong-board.tsx
+#: libs/pong-client-ts/src/pong-board-view.tsx
 msgid "Serve in {0}."
 msgstr "Serve in {0}."
 
@@ -5683,7 +5684,7 @@ msgstr "Sessions"
 #: libs/auth-client-ts/src/account-screen-view.tsx
 #: libs/billing-client-ts/src/billing-screen-view.tsx
 #: libs/chess-puzzle-client-ts/src/puzzle-management-screen-view.tsx
-#: libs/chess-shared-client-ts/src/chess-settings-screen.tsx
+#: libs/chess-shared-client-ts/src/chess-settings-screen-view.tsx
 #: libs/game-menu-client-ts/src/game-menu-choices.tsx
 #: libs/game-puzzle-client-ts/src/personal-puzzle-stats-screen-view.tsx
 #: libs/synthetic-population-client-ts/src/synthetic-population-denial.tsx
@@ -6160,22 +6161,22 @@ msgid "Stay here"
 msgstr "Stay here"
 
 #. placeholder {0}: riderName(side)
-#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+#: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
 msgid "Steer {0} down"
 msgstr "Steer {0} down"
 
 #. placeholder {0}: riderName(side)
-#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+#: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
 msgid "Steer {0} left"
 msgstr "Steer {0} left"
 
 #. placeholder {0}: riderName(side)
-#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+#: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
 msgid "Steer {0} right"
 msgstr "Steer {0} right"
 
 #. placeholder {0}: riderName(side)
-#: libs/light-cycles-client-ts/src/light-cycles-board.tsx
+#: libs/light-cycles-client-ts/src/light-cycles-board-view.tsx
 msgid "Steer {0} up"
 msgstr "Steer {0} up"
 
@@ -6574,7 +6575,7 @@ msgstr "The draft needs your attention"
 msgid "The edit could not be changed. Try again."
 msgstr "The edit could not be changed. Try again."
 
-#: libs/account-privacy-client-ts/src/use-export-choice.ts
+#: libs/account-privacy-client-ts/src/use-export-choice.tsx
 msgid "The export could not be requested. Try again."
 msgstr "The export could not be requested. Try again."
 
@@ -6586,7 +6587,7 @@ msgstr "The export failed. You can ask again. No incomplete export is available.
 msgid "The export has expired. Ask for a new one."
 msgstr "The export has expired. Ask for a new one."
 
-#: libs/account-privacy-client-ts/src/use-export-choice.ts
+#: libs/account-privacy-client-ts/src/use-export-choice.tsx
 msgid "The export was not requested. Use the choice shown."
 msgstr "The export was not requested. Use the choice shown."
 
@@ -6917,7 +6918,7 @@ msgstr "This finishes the current game. Its record remains available."
 msgid "This friend could not be removed. Try again."
 msgstr "This friend could not be removed. Try again."
 
-#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
 msgid "This game cannot be shown. Update the app to open it."
 msgstr "This game cannot be shown. Update the app to open it."
 
@@ -6998,7 +6999,7 @@ msgstr "This publication is withdrawn. You can continue saved attempts from your
 msgid "This puzzle cannot be opened. Return to its overview and choose a saved edition."
 msgstr "This puzzle cannot be opened. Return to its overview and choose a saved edition."
 
-#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx
 msgid "This puzzle cannot be opened. Update the app to play it."
 msgstr "This puzzle cannot be opened. Update the app to play it."
 
@@ -7569,11 +7570,11 @@ msgstr "Withdrawn"
 msgid "Without a connection, your spaces, games on this device and preferences keep working. What you do is kept on this device and shared once the connection is back. Signing in, searching for people and playing someone online need a connection."
 msgstr "Without a connection, your spaces, games on this device and preferences keep working. What you do is kept on this device and shared once the connection is back. Signing in, searching for people and playing someone online need a connection."
 
-#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
 msgid "Word actions"
 msgstr "Word actions"
 
-#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
 msgid "Word board, fifteen columns and fifteen rows"
 msgstr "Word board, fifteen columns and fifteen rows"
 
@@ -7700,7 +7701,7 @@ msgstr "You are reviewing an earlier position, after {0}. No piece can be moved 
 msgid "You are reviewing an earlier position, at the start of the game. No piece can be moved on it."
 msgstr "You are reviewing an earlier position, at the start of the game. No piece can be moved on it."
 
-#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
 msgid "You are watching. Racks stay private to their players."
 msgstr "You are watching. Racks stay private to their players."
 
@@ -8012,7 +8013,7 @@ msgstr "Your hand"
 
 #. placeholder {0}: progress().score ?? 0
 #. placeholder {1}: target()
-#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx
 msgid "Your last move scored {0} of {1}."
 msgstr "Your last move scored {0} of {1}."
 
@@ -8106,8 +8107,8 @@ msgstr "Your puzzle rating went up by {delta}, to {after}."
 msgid "Your puzzle settings weren't saved"
 msgstr "Your puzzle settings weren't saved"
 
-#: libs/word-tiles-client-ts/src/word-tiles-board.tsx
-#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-board-view.tsx
+#: libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.tsx
 msgid "Your rack"
 msgstr "Your rack"
 
