@@ -5,7 +5,6 @@ import type {
   NumberlinkDefinition,
 } from '@libs/numberlink-shared-ts/numberlink-types';
 import { useLingui } from '@lingui/solid/macro';
-import { useCreateId } from '@pkgs/uuid-client-ts/solid';
 import {
   type Accessor,
   createEffect,
@@ -59,9 +58,13 @@ function createEndpointRemoval(
   };
 }
 
-export function useNumberlinkEditor(props: PuzzleEditorProps) {
+/** What the editor reads besides the shared builder's props: new pair ids. */
+export type NumberlinkEditorInputs = PuzzleEditorProps & {
+  readonly createId: () => string;
+};
+
+export function useNumberlinkEditor(props: NumberlinkEditorInputs) {
   const { t } = useLingui();
-  const createId = useCreateId();
   const [error, setError] = createSignal<string | null>(null);
   const board = createMemo(() => {
     const parsed = decodeNumberlinkDraft(props.definition);
@@ -96,7 +99,7 @@ export function useNumberlinkEditor(props: PuzzleEditorProps) {
   const add = (): void => {
     const current = board();
     if (current === null || props.disabled) return;
-    const id = createId();
+    const id = props.createId();
     change(
       withNewNumberlinkPair(current, id),
       t`There are no two open cells. Enlarge the board or remove a pair first.`

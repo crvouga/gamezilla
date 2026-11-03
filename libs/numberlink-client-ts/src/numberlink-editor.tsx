@@ -10,9 +10,13 @@ import { Select } from '@pkgs/ui-root-client-ts/select';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
+import { useCreateId } from '@pkgs/uuid-client-ts/solid';
 import { createSignal, type JSX, Show } from 'solid-js';
 import { NumberlinkBoard } from './numberlink-board';
-import { useNumberlinkEditor } from './use-numberlink-editor';
+import {
+  type NumberlinkEditorInputs,
+  useNumberlinkEditor,
+} from './use-numberlink-editor';
 
 type Editor = ReturnType<typeof useNumberlinkEditor>;
 
@@ -133,6 +137,18 @@ function RemoveEndpoints(props: {
 
 /** Shared authoring owns saving, history, validation, playtesting and publication. */
 export function NumberlinkEditor(props: PuzzleEditorProps): JSX.Element {
+  const createId = useCreateId();
+  return <NumberlinkEditorView {...props} createId={createId} />;
+}
+
+/**
+ * The Numberlink builder's own tools, presentational: board size and
+ * coverage, the endpoints on the board, and each pair's label, color and
+ * endpoints. New pairs take their id from `createId`.
+ */
+export function NumberlinkEditorView(
+  props: NumberlinkEditorInputs
+): JSX.Element {
   const { t } = useLingui();
   const editor = useNumberlinkEditor(props);
   return (

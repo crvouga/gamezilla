@@ -104,12 +104,23 @@ function Fields(props: {
   );
 }
 
-/** The game's own builder tools: the board's tiles, the rack and the target. */
+/** The game's own builder tools, loading the word list board words are checked against. */
 export function WordTilesPuzzleEditor(props: PuzzleEditorProps): JSX.Element {
-  const puzzle = createMemo(() => readPuzzle(props.definition));
-  const [brush, setBrush] = createSignal('clear');
   // Board words are checked against the pinned list, loaded here for the shell.
   useWordTilesLexicon(() => DEFAULT_LEXICON_KEY);
+  return <WordTilesPuzzleEditorView {...props} />;
+}
+
+/**
+ * The game's own builder tools, presentational: the rack, the target, the
+ * square tool and the board it paints. The shared builder owns saving,
+ * history, validation and publication.
+ */
+export function WordTilesPuzzleEditorView(
+  props: PuzzleEditorProps
+): JSX.Element {
+  const puzzle = createMemo(() => readPuzzle(props.definition));
+  const [brush, setBrush] = createSignal('clear');
   const change = (next: WordTilesPuzzle) => props.onChange(encodePuzzle(next));
   // Memoized: each square reads the list, so computing it inline would
   // rebuild the whole board once per square on every change.

@@ -15,7 +15,11 @@ import {
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { JSX } from 'solid-js';
 
-function ChessGameBoard(props: GameBoardProps): JSX.Element {
+/**
+ * Chess as every game screen mounts it: the shared chess board in the
+ * game's theme, a move sent as its from and to squares and any promotion.
+ */
+export function ChessGameBoard(props: GameBoardProps): JSX.Element {
   return (
     <ChessBoard
       theme={BOARD_THEME}
