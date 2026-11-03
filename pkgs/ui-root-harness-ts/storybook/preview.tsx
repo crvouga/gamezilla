@@ -1,16 +1,51 @@
-import { setupI18n } from '@lingui/core';
+import { i18n as globalI18n, setupI18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import {
+  type AppRouter,
+  StaticAppRouterProvider,
+} from '@pkgs/ui-root-client-ts/app-router';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { createEffect, onCleanup } from 'solid-js';
+import { createEffect, type JSX, onCleanup } from 'solid-js';
 import { addons } from 'storybook/preview-api';
+import { fn } from 'storybook/test';
 import { createJSXDecorator, type Preview } from 'storybook-solidjs-vite';
 import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/application.css';
 import { backgrounds, viewports } from './preview-options';
 import { trackStoryReadiness } from './story-readiness';
+
+// Product modules also translate through Lingui's global instance (`t` from
+// `@lingui/core/macro`); give it the same source-English catalog as stories.
+globalI18n.loadAndActivate({ locale: 'en', messages: {} });
+
+/** Navigation spies: screen stories record where a crumb or action would go. */
+function createStoryRouter(): AppRouter {
+  return {
+    push: fn().mockName('router.push'),
+    replace: fn().mockName('router.replace'),
+    back: fn().mockName('router.back'),
+    canGoBack: () => false,
+  };
+}
+
+/**
+ * Product screen views opt in with `parameters: { appRouter: true }`; other
+ * stories stay router-free so a component that wrongly needs one still fails.
+ */
+function withOptionalRouter(
+  enabled: unknown,
+  story: () => JSX.Element
+): JSX.Element {
+  if (enabled !== true) return story();
+  return (
+    <StaticAppRouterProvider router={createStoryRouter()}>
+      {story()}
+    </StaticAppRouterProvider>
+  );
+}
 
 const withProviders = createJSXDecorator((Story, context) => {
   if (context.viewMode === 'story') {
@@ -46,7 +81,9 @@ const withProviders = createJSXDecorator((Story, context) => {
           transparent
         >
           <SurfaceStackProvider>
-            <Story />
+            {withOptionalRouter(context.parameters['appRouter'], () => (
+              <Story />
+            ))}
           </SurfaceStackProvider>
         </ThemeProvider>
       </ClockProvider>
@@ -95,6 +132,7 @@ export default {
           'Molecules',
           'Organisms',
           'Templates',
+          'Screens',
           'Games',
           ['Shared', ['Screens', 'Components'], '*'],
         ],

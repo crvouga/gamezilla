@@ -109,26 +109,28 @@ export function components(file: ts.SourceFile): string[] {
   }
   return found;
 }
-/** The production component tiers named by the existing design-vocabulary policy. */
+/**
+ * The production component tiers named by the existing design-vocabulary
+ * policy, plus product client libraries whose screen views Storybook catalogues.
+ */
 export function componentModule(path: string): string | null {
   if (/\.(stories|example)\.tsx$/.test(path) || path.includes('/storybook/'))
     return null;
-  const match = /^pkgs\/([^/]+-client-ts)\/src\/(.+?)(?:\.[cm]?tsx?)?$/.exec(
-    path
-  );
+  const match =
+    /^(pkgs|libs)\/([^/]+-client-ts)\/src\/(.+?)(?:\.[cm]?tsx?)?$/.exec(path);
   if (
     !match ||
-    match[1] === 'feedback-client-ts' ||
-    match[1] === 'harness-console-client-ts'
+    match[2] === 'feedback-client-ts' ||
+    match[2] === 'harness-console-client-ts'
   )
     return null;
-  const segments = match[2]!.split('/');
+  const segments = match[3]!.split('/');
   const module =
     segments.length === 2 &&
     (segments[0] === segments[1] || segments[1] === 'index')
       ? segments[0]
-      : match[2];
-  return `@pkgs/${match[1]}/${module}`;
+      : match[3];
+  return `@${match[1]}/${match[2]}/${module}`;
 }
 
 export function resolveComponentImport(

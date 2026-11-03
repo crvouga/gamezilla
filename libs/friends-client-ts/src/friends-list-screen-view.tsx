@@ -1,27 +1,44 @@
 import type { Friend } from '@libs/friends-shared-ts/friends-types';
-import { useFirstSyncError } from '@libs/profile-client-ts/use-first-sync-error';
-import { FriendLiveSpaceBadge } from '@libs/spaces-client-ts/friend-live-space-badge';
+import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
+import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { CollectionScreen } from '@pkgs/ui-root-client-ts/collection-screen';
+import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { ScreenBodyVirtualList } from '@pkgs/ui-root-client-ts/screen-body-virtual-list';
-import { useBreadcrumbNav } from '@pkgs/ui-root-client-ts/use-breadcrumb-nav';
 import type { JSX } from 'solid-js';
-import { Match, Switch } from 'solid-js';
+import { Match, Show, Switch } from 'solid-js';
 import { FriendUserRow } from './friend-user-row';
-import { FriendsPermissionGate } from './friends-permission-gate';
-import { FriendsRefusedChangeNotice } from './friends-refused-change-notice';
-import { useFriends } from './use-friends';
 
-function FriendsEmptyState(): JSX.Element {
+/** Whether the friends list is still reading, could not load, or is known. */
+export type FriendsListStatus = 'loading' | 'failed' | 'ready';
+
+export type FriendsListScreenViewProps = {
+  readonly status: FriendsListStatus;
+  /** Accepted friends, in display order. Shown whenever non-empty. */
+  readonly friends: readonly Friend[];
+  /** Set when the person may not use friends; replaces the whole list. */
+  readonly denial?: DenialView | undefined;
+  /** Inline notice for a refused friend change, above the list. */
+  readonly notice?: JSX.Element;
+  /** Trailing content per row, such as a live-space badge. */
+  readonly friendTrailing?: ((friend: Friend) => JSX.Element) | undefined;
+  readonly onOpenFriend: (friend: Friend) => void;
+  readonly onFindFriends: () => void;
+  readonly onRetry: () => void;
+};
+
+const BREADCRUMBS = () => [
+  { name: <Trans>Profile</Trans>, href: '/profile' },
+  { name: <Trans>Friends</Trans> },
+];
+
+function FriendsEmptyState(props: { onFindFriends: () => void }): JSX.Element {
   const { t } = useLingui();
-  const router = useRouter();
   return (
     <EmptyState
       icon={UserPlusIcon}
@@ -29,26 +46,31 @@ function FriendsEmptyState(): JSX.Element {
       body={
         <Trans>Search for people by username to send a friend request.</Trans>
       }
-      action={{ label: t`Find friends`, onClick: () => router.push('/search') }}
+      action={{ label: t`Find friends`, onClick: () => props.onFindFriends() }}
       dataSet={{ testid: Handles.friendsEmpty }}
     />
   );
 }
 
 /** What the list shows when it has no rows: still reading, cannot load, or none. */
-function FriendsListPlaceholder(props: { loading: boolean }): JSX.Element {
-  const engine = useSyncEngine();
-  const firstSyncError = useFirstSyncError();
+function FriendsListPlaceholder(
+  props: Pick<
+    FriendsListScreenViewProps,
+    'status' | 'onFindFriends' | 'onRetry'
+  >
+): JSX.Element {
   return (
-    <Switch fallback={<FriendsEmptyState />}>
-      <Match when={props.loading}>
+    <Switch
+      fallback={<FriendsEmptyState onFindFriends={props.onFindFriends} />}
+    >
+      <Match when={props.status === 'loading'}>
         <LoadingState />
       </Match>
-      <Match when={firstSyncError()}>
+      <Match when={props.status === 'failed'}>
         <ErrorState
           title={<Trans>Your friends could not be loaded</Trans>}
           body={<Trans>Check your connection and try again.</Trans>}
-          retry={{ onClick: () => void engine.refreshQueries() }}
+          retry={{ onClick: () => props.onRetry() }}
           dataSet={{ testid: 'friends-load-error' }}
         />
       </Match>
@@ -56,53 +78,54 @@ function FriendsListPlaceholder(props: { loading: boolean }): JSX.Element {
   );
 }
 
-function FriendsListBody(): JSX.Element {
-  const router = useRouter();
-  const nav = useBreadcrumbNav();
-  const friendsState = useFriends();
-
-  const openUser = (friend: Friend) => {
-    router.push({
-      pathname: '/profile/user/[userId]',
-      params: {
-        userId: friend.userId,
-        username: friend.username,
-        avatarConfig: friend.avatarConfig ?? '',
-      },
-    });
-  };
-
+/**
+ * `/profile/friends`, presentational: the accepted friends list with its
+ * loading, failed, empty and permission-denied states. Data and navigation
+ * arrive as props; `FriendsListScreen` wires them to the sync engine.
+ */
+export function FriendsListScreenView(
+  props: FriendsListScreenViewProps
+): JSX.Element {
   return (
-    <CollectionScreen
-      screenId="friends-list"
-      breadcrumbs={[
-        { name: <Trans>Profile</Trans>, onClick: nav('/profile') },
-        { name: <Trans>Friends</Trans> },
-      ]}
-      controls={<FriendsRefusedChangeNotice />}
-    >
-      <ScreenBodyVirtualList
-        items={friendsState.friends()}
-        keyExtractor={(item) => item.userId}
-        estimateSize={72}
-        empty={<FriendsListPlaceholder loading={friendsState.isLoading()} />}
-        renderItem={(item) => (
-          <FriendUserRow
-            profile={item}
-            onPress={() => openUser(item)}
-            friendsListHandle
-            trailing={<FriendLiveSpaceBadge hostAccountId={item.userId} />}
+    <Show
+      when={props.denial}
+      fallback={
+        <CollectionScreen
+          screenId="friends-list"
+          breadcrumbs={BREADCRUMBS()}
+          controls={props.notice}
+        >
+          <ScreenBodyVirtualList
+            items={props.friends}
+            keyExtractor={(item) => item.userId}
+            estimateSize={72}
+            empty={
+              <FriendsListPlaceholder
+                status={props.status}
+                onFindFriends={props.onFindFriends}
+                onRetry={props.onRetry}
+              />
+            }
+            renderItem={(item) => (
+              <FriendUserRow
+                profile={item}
+                onPress={() => props.onOpenFriend(item)}
+                friendsListHandle
+                trailing={props.friendTrailing?.(item)}
+              />
+            )}
           />
-        )}
-      />
-    </CollectionScreen>
-  );
-}
-
-export function FriendsListScreen(): JSX.Element {
-  return (
-    <FriendsPermissionGate>
-      <FriendsListBody />
-    </FriendsPermissionGate>
+        </CollectionScreen>
+      }
+    >
+      {(denial) => (
+        <ContentScreen
+          screenId="friends-permission-gate"
+          breadcrumbs={BREADCRUMBS()}
+        >
+          <DenialSurfaceView denial={denial()} />
+        </ContentScreen>
+      )}
+    </Show>
   );
 }

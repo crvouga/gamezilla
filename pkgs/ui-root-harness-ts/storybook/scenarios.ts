@@ -12,7 +12,7 @@ export function visualScenarios(story: { id: string; importPath: string }) {
   const phone = Number.parseInt(viewports.phone.styles.width, 10);
   const desktop = Number.parseInt(viewports.desktop.styles.width, 10);
   const tablet = Number.parseInt(viewports.tablet.styles.width, 10);
-  const widths = /^(templates|layouts)-/.test(story.id)
+  const widths = /^(templates|layouts|screens)-/.test(story.id)
     ? [phone, desktop]
     : [phone];
   if (story.id.startsWith('layouts-appframe')) widths.push(tablet);

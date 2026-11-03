@@ -1,10 +1,9 @@
 import { useClock } from '@pkgs/clock-client-ts/solid';
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
-import { ActionNotice } from '@pkgs/ui-root-client-ts/action-notice';
 import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
-import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { ClockIcon, KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
-import { createMemo, type JSX, Show } from 'solid-js';
+import { type Accessor, createMemo, type JSX } from 'solid-js';
+import { DenialSurfaceView, type DenialView } from './denial-surface-view';
 import { useUnlock } from './unlock';
 import { denialReasonTitle, resetsInLabel, unlockCopy } from './unlock-copy';
 import { usePermissions } from './use-permissions';
@@ -71,6 +70,28 @@ export function useDenialContent(props: {
   };
 }
 
+/** A `Decision` resolved to plain view data, tracking policy and clock. */
+export function useDenialView(props: {
+  readonly decision: Decision;
+  readonly icon?: IconComponent | undefined;
+  readonly testId?: string | undefined;
+}): Accessor<DenialView> {
+  const content = useDenialContent(props);
+  return createMemo(() => {
+    const forward = content.action();
+    return {
+      icon: content.icon(),
+      title: content.title(),
+      body: content.body(),
+      action:
+        forward === undefined
+          ? undefined
+          : { label: forward.label, onPress: forward.run },
+      dataSet: content.dataSet(),
+    };
+  });
+}
+
 /**
  * The one denial / unlock surface (§22.5): renders a `Decision` by resolving
  * its `unlockRef` to config copy and CTA. The only place upsell or sign-in
@@ -78,33 +99,6 @@ export function useDenialContent(props: {
  * this and nothing of its own.
  */
 export function DenialSurface(props: DenialSurfaceProps): JSX.Element {
-  const content = useDenialContent(props);
-  const action = () => {
-    const forward = content.action();
-    return forward === undefined
-      ? undefined
-      : { label: <>{forward.label}</>, onClick: forward.run };
-  };
-  return (
-    <Show
-      when={props.variant === 'compact'}
-      fallback={
-        <EmptyState
-          icon={content.icon()}
-          title={content.title()}
-          body={content.body()}
-          action={action()}
-          dataSet={content.dataSet()}
-        />
-      }
-    >
-      <ActionNotice
-        icon={content.icon()}
-        title={content.title()}
-        body={content.body()}
-        action={action()}
-        dataSet={content.dataSet()}
-      />
-    </Show>
-  );
+  const denial = useDenialView(props);
+  return <DenialSurfaceView denial={denial()} variant={props.variant} />;
 }
