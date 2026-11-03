@@ -1,7 +1,7 @@
 // @io-wall-ok — configuration composition root; no network or credential logging.
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { identityInput } from '@libs/product-identity-shared-ts/identity-input';
+import { materializedIdentity } from './materialize-product-identity-input';
 
 const path = join(
   import.meta.dirname,
@@ -13,6 +13,6 @@ const fixture =
   development && process.env['PRODUCT_IDENTITY_MODE'] === 'fixture';
 const mode =
   fixture || (development && raw === undefined) ? 'fixture' : 'configured';
-const identity = identityInput(mode, raw);
+const identity = materializedIdentity(raw, mode === 'fixture');
 writeFileSync(path, `${JSON.stringify(identity, null, 2)}\n`);
 console.log(`identity: materialized ${mode} configuration (values omitted)`);

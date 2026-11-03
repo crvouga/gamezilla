@@ -38,6 +38,7 @@
     "verify:workflow-security": "bun run scripts/verify-workflow-security.ts"
   },
   "dependencies": {
+    "@libs/product-identity": "workspace:*",
     "@libs/product-identity-shared-ts": "workspace:*"
   },
   "devDependencies": {

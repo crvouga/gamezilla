@@ -1,29 +1,25 @@
 import { expect, test } from 'bun:test';
+import fixtureInput from '@libs/product-identity/fixtures/verification-identity.json' with {
+  type: 'json',
+};
 import {
   configuredIdentity,
   identityInput,
   requireConfiguredIdentity,
 } from '@libs/product-identity-shared-ts/identity-input';
+import { parseProductIdentity } from '@libs/product-identity-shared-ts/identity-schema';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
 
+const verificationIdentity = () => parseProductIdentity(fixtureInput);
+
 test('configured identity is required, rather than silently using the verification fixture', () => {
   // regression: committed-brand-rebuild
-  expect(() => identityInput('configured', undefined)).toThrow(
+  expect(() => identityInput(undefined)).toThrow(
     'PRODUCT_IDENTITY_JSON is required'
   );
-  expect(() => identityInput('configured', '')).toThrow(
-    'PRODUCT_IDENTITY_JSON is required'
-  );
-  expect(() => identityInput('configured', '{broken')).toThrow(
-    'valid JSON document'
-  );
-});
-
-test('verification is explicit and ignores externally supplied branding', () => {
-  expect(identityInput('fixture', '{broken')).toEqual(
-    identityInput('fixture', undefined)
-  );
+  expect(() => identityInput('')).toThrow('PRODUCT_IDENTITY_JSON is required');
+  expect(() => identityInput('{broken')).toThrow('valid JSON document');
 });
 
 test('every valid externally supplied brand survives configuration parsing', () => {
@@ -31,7 +27,7 @@ test('every valid externally supplied brand survives configuration parsing', () 
   assertProperty(
     'external brand values survive parsing',
     fc.property(letters, letters, (name, label) => {
-      const fixture = identityInput('fixture', undefined);
+      const fixture = verificationIdentity();
       const expected = {
         ...fixture,
         brand: {
@@ -42,15 +38,13 @@ test('every valid externally supplied brand survives configuration parsing', () 
           securityContact: `mailto:security@${label}.example`,
         },
       };
-      expect(identityInput('configured', JSON.stringify(expected))).toEqual(
-        expected
-      );
+      expect(identityInput(JSON.stringify(expected))).toEqual(expected);
     })
   );
 });
 
 test('deployment refuses absent or stale configuration', () => {
-  const loaded = identityInput('fixture', undefined);
+  const loaded = verificationIdentity();
   expect(() => requireConfiguredIdentity(undefined, loaded)).toThrow(
     'required'
   );
@@ -67,7 +61,7 @@ test('deployment refuses absent or stale configuration', () => {
 });
 
 test('external configuration can come from the repository without overriding injected input', () => {
-  const fixture = identityInput('fixture', undefined);
+  const fixture = verificationIdentity();
   let reads = 0;
   const repository = () => {
     reads++;

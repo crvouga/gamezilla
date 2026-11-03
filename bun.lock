@@ -3825,6 +3825,7 @@
       "name": "@libs/tools-harness-ts",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/product-identity": "workspace:*",
         "@libs/product-identity-shared-ts": "workspace:*",
       },
       "devDependencies": {

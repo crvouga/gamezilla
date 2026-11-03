@@ -7,6 +7,6 @@ export const PRODUCT_IDENTITY_JSON = new Secret({
   optional: true,
   hint: 'Validated identity JSON: brand, stable namespace and external registrations. Optional shared override for the repository variable; never commit values.',
   async validate({ secretValue }) {
-    identityInput('configured', secretValue);
+    identityInput(secretValue);
   },
 });

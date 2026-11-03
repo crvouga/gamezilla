@@ -1,0 +1,4 @@
+{
+  "summary": "The deployed identity parser imported a verification fixture, violating the production-preview boundary. Only build tooling now imports and selects the fixture; configured parsing is independent and fails closed.",
+  "regressionTest": "libs/tools-harness-ts/scripts/materialize-product-identity-input.test.ts"
+}
