@@ -5,7 +5,7 @@
 // apple-client.xcodeproj, which reads these instead of spelling them.
 
 // The name under the app icon (brand.name).
-PRODUCT_IDENTITY_DISPLAY_NAME = Gamezilla
+PRODUCT_IDENTITY_DISPLAY_NAME = Unnamed App
 
 // The registered bundle identifier (external.appleBundleId).
-PRODUCT_IDENTITY_BUNDLE_ID = local.gamezilla.apple-client
+PRODUCT_IDENTITY_BUNDLE_ID = local.appcore.apple-client

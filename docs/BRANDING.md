@@ -17,10 +17,22 @@ infrastructure.
 | `external` | Identifiers registered elsewhere: deep-link scheme, Apple bundle id, source repository, vendor accounts, GitHub environments | Only through an explicit, authorized migration |
 | `aliases` | Every spelling the brand has had | Grows; the brand policy refuses each one |
 
-The namespace is not the brand. It happens to equal the brand's first slug
-because the infrastructure was created under that name; it stays that value
-forever so no deployed resource, stored session, dashboard or alert is
-renamed when the brand changes.
+The namespace is independent of the brand. Once an environment is deployed,
+keep its namespace stable so a later rebrand does not rename deployed
+resources, stored sessions, dashboards or alerts.
+
+The checked-in identity is a neutral template, including a reserved example
+domain and placeholder vendor and repository identifiers. Configure real
+values before deploying or dispatching hosted workflows. Regenerating files
+does not register a domain, create vendor accounts or rename a repository.
+
+When adopting this template for an existing deployment, changing the technical
+namespace is an infrastructure and persisted-client-key migration, not a
+cosmetic rebrand. Inventory existing resources and data first; move or import
+them under the new configuration without destroying stateful resources.
+Provision and validate new hostnames and vendor registrations before cutting
+over, and plan client storage, bundle-id and deep-link compatibility. The
+source change alone performs none of those external migrations.
 
 ## Reading it
 

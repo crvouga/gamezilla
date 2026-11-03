@@ -1,6 +1,6 @@
 {
-  "name": "Gamezilla",
-  "short_name": "Gamezilla",
+  "name": "Unnamed App",
+  "short_name": "UnnamedApp",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

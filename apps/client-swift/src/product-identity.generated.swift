@@ -4,5 +4,5 @@
 /// The product identity, read instead of spelling the brand.
 enum ProductIdentity {
   /// The name people see.
-  static let displayName = "Gamezilla"
+  static let displayName = "Unnamed App"
 }

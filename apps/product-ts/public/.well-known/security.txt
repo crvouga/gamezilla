@@ -1,4 +1,4 @@
-Contact: mailto:crvouga@gmail.com
+Contact: mailto:security@unnamed-app.example
 Expires: 2027-10-20T00:00:00.000Z
 Preferred-Languages: en
-Canonical: https://www.gamezilla.app/.well-known/security.txt
+Canonical: https://www.unnamed-app.example/.well-known/security.txt
