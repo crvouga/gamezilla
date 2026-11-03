@@ -31,6 +31,9 @@ const SYNC_COMMAND = 'bun run workspace:sync';
 export const HOOKS = ['setup', 'teardown', 'run'] as const;
 export type Hook = (typeof HOOKS)[number];
 
+/** Interactive one-time setup and sign-in; a T3 action, never a hook. */
+export const BOOTSTRAP_COMMAND = `./${SOURCE_DIR}/bootstrap.sh`;
+
 /** Command an orchestrator runs (from the worktree root) for one hook. */
 export function hookCommand(hook: Hook): string {
   return `./${SOURCE_DIR}/${hook === 'setup' ? 'prepare' : hook}.sh`;
@@ -61,14 +64,11 @@ export const ORCHESTRATORS: Orchestrator[] = [
     render: (commands) => ({
       $schema: 'https://t3.codes/schema/t3.json',
       defaultThreadEnvMode: 'worktree',
+      // Exactly two actions: Start stack (app, Storybook and their remote
+      // tunnels) and Bootstrap (tools, dependencies and every login).
       scripts: [
-        { name: 'Run app', command: commands.run, icon: 'play' },
-        {
-          name: 'Stop app',
-          command: commands.teardown,
-          icon: 'debug',
-          runOnSettle: true,
-        },
+        { name: 'Start stack', command: commands.run, icon: 'play' },
+        { name: 'Bootstrap', command: BOOTSTRAP_COMMAND, icon: 'configure' },
       ],
     }),
   },
@@ -172,8 +172,8 @@ export function renderConfigs(
 }
 
 function verifyHookScripts(errors: string[]): void {
-  for (const hook of HOOKS) {
-    const path = hookCommand(hook).slice('./'.length);
+  for (const command of [...HOOKS.map(hookCommand), BOOTSTRAP_COMMAND]) {
+    const path = command.slice('./'.length);
     try {
       accessSync(join(ROOT, path), constants.X_OK);
     } catch {

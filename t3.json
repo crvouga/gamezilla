@@ -3,15 +3,14 @@
   "defaultThreadEnvMode": "worktree",
   "scripts": [
     {
-      "name": "Run app",
+      "name": "Start stack",
       "command": "./libs/tools-harness-ts/workspace/run.sh",
       "icon": "play"
     },
     {
-      "name": "Stop app",
-      "command": "./libs/tools-harness-ts/workspace/teardown.sh",
-      "icon": "debug",
-      "runOnSettle": true
+      "name": "Bootstrap",
+      "command": "./libs/tools-harness-ts/workspace/bootstrap.sh",
+      "icon": "configure"
     }
   ]
 }

@@ -103,7 +103,7 @@ export function allowedPreviewEmail(value: string): readonly string[] {
   const email = value.trim().toLowerCase();
   if (!z.email().safeParse(email).success || email.includes('noreply'))
     throw new Error(
-      'Set git config user.email to an address that can receive the preview PIN, then Run app again'
+      'Set git config user.email to an address that can receive the preview PIN, then Start stack again'
     );
   return [email];
 }

@@ -287,7 +287,7 @@ test.each(['WORKSPACE_RUN_TEST_INSTALL', 'WORKSPACE_RUN_TEST_SYSTEM'])(
 );
 
 // regression: t3-storybook-nested-supervisor
-test('Run app delegates to the canonical stack without nesting a Storybook supervisor', () => {
+test('Start stack delegates to the canonical stack without nesting a Storybook supervisor', () => {
   const { run } = checkout();
   const result = run();
   expect(result.status).toBe(0);

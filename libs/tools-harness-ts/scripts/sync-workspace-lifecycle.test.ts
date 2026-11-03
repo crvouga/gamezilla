@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 
 import {
+  BOOTSTRAP_COMMAND,
   HOOKS,
   hookCommand,
   ORCHESTRATORS,
@@ -17,36 +18,34 @@ describe('renderConfigs', () => {
   });
 
   // regression: workspace-actions-minimal
-  test('T3 exposes only Run and Stop, with cleanup for its settled worktree', () => {
+  test('T3 exposes only Start stack and Bootstrap, neither run automatically', () => {
     const file = files.find((entry) => entry.path === 't3.json');
     expect(file).toBeDefined();
     const config = JSON.parse(file!.content) as {
       defaultThreadEnvMode: string;
       scripts: {
+        name: string;
         command: string;
-        async?: boolean;
         runOnWorktreeCreate?: boolean;
         runOnSettle?: boolean;
         previewUrl?: string;
       }[];
     };
     expect(config.defaultThreadEnvMode).toBe('worktree');
-    expect(config.scripts.map((script) => script.command)).toEqual([
-      hookCommand('run'),
-      hookCommand('teardown'),
-    ]);
-    expect(config.scripts.some((script) => script.runOnWorktreeCreate)).toBe(
-      false
-    );
-    expect(config.scripts.filter((script) => script.runOnSettle)).toEqual([
-      expect.objectContaining({ command: hookCommand('teardown') }),
+    expect(
+      config.scripts.map((script) => [script.name, script.command])
+    ).toEqual([
+      ['Start stack', hookCommand('run')],
+      ['Bootstrap', BOOTSTRAP_COMMAND],
     ]);
     expect(
-      config.scripts.some((script) => script.command === hookCommand('run'))
-    ).toBe(true);
-    expect(
-      config.scripts.every((script) => script.previewUrl === undefined)
-    ).toBe(true);
+      config.scripts.some(
+        (script) =>
+          script.runOnWorktreeCreate ||
+          script.runOnSettle ||
+          script.previewUrl !== undefined
+      )
+    ).toBe(false);
   });
 
   test('every orchestrator runs the same script for every hook', () => {
